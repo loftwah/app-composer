@@ -19,7 +19,8 @@
     "test:access": "node --test tests/access-boundary.test.mjs",
     "test:email": "node --test tests/resend-delivery.test.mjs",
     "test:release": "node --test tests/verify-live.test.mjs",
-    "test:reports": "node --test tests/inspection-report.test.mjs"
+    "test:reports": "node --test tests/inspection-report.test.mjs",
+    "init:hello": "node scripts/init-hello.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.3.3",
