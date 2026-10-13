@@ -1,0 +1,19 @@
+---
+import { apps } from '../lib/apps';
+---
+<div class="app-launcher">
+ <button class="theme-toggle apps-trigger" popovertarget="apps-popover" aria-label="Open apps" title="Apps and shortcuts (Ctrl/Cmd+K)" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">{[4,12,20].flatMap(y=>[4,12,20].map(x=><circle cx={x} cy={y} r="2"/>))}</svg><span>Apps</span></button>
+ <div id="apps-popover" popover role="dialog" aria-label="App launcher">
+  <div class="launcher-heading"><strong>Apps and shortcuts</strong><button class="theme-toggle" popovertarget="apps-popover" popovertargetaction="hide" aria-label="Close app launcher">Close</button></div>
+  <label class="launcher-search">Find an app or task<input id="launcher-search" type="search" placeholder="App name, Get Ready, Init…" autocomplete="off"/></label>
+  <p class="small" id="launcher-results" role="status" aria-live="polite"></p>
+  <ul>{apps.map(app=><li data-launcher-entry data-search={`${app.name} ${app.category}`.toLowerCase()}><a href={app.href}><span class="app-symbol" style={`--app-colour:${app.colour}`} aria-hidden="true">{app.initial}</span><span>{app.name}<small>{app.category}</small></span></a></li>)}{[{name:"Get Ready",href:"/ready"},{name:"Init",href:"/init"},{name:"Decision Explorer",href:"/explore"},{name:"Review share report",href:"/review"},{name:"Documentation",href:"/docs"}].map(task=><li data-launcher-entry data-search={task.name.toLowerCase()}><a href={task.href}><span>{task.name}<small>Composer task</small></span></a></li>)}</ul>
+  <a class="launcher-all" href="/apps">Browse all apps →</a>
+ </div>
+</div>
+
+<script>
+const panel=document.querySelector<HTMLElement>('#apps-popover')!;const search=document.querySelector<HTMLInputElement>('#launcher-search')!;const entries=[...panel.querySelectorAll<HTMLElement>('[data-launcher-entry]')];
+function filter(){let count=0;for(const entry of entries){entry.hidden=!entry.dataset.search!.includes(search.value.trim().toLowerCase());if(!entry.hidden)count++;}document.querySelector('#launcher-results')!.textContent=count?`${count} destinations`:'No matches. Try an app name or task.';}
+search.addEventListener('input',filter);panel.addEventListener('toggle',event=>{if((event as ToggleEvent).newState==='open'){search.value='';filter();search.focus();}});document.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&!event.altKey&&event.key.toLowerCase()==='k'){event.preventDefault();panel.togglePopover();}});search.addEventListener('keydown',event=>{if(event.key==='Enter'){const first=entries.find(entry=>!entry.hidden)?.querySelector<HTMLAnchorElement>('a');if(first){event.preventDefault();first.click();}}});
+</script>
