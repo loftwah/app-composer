@@ -58,3 +58,5 @@ EmDash 1.2.0 upgrade: direct CMS/Cloudflare packages move together, with a rehea
 Focused checks: `pnpm check:types`, `pnpm test:core`, `pnpm test:ready`, `pnpm test:access`, `pnpm test:email` and `pnpm test:release` run independently without network mutation. Run the relevant group while developing; `pnpm check` retains every required release gate. For a single regression, use `node --test --test-name-pattern="name" tests/example.test.mjs`. Browser, real deployment and disaster-recovery checks are separate explicit operations, never hidden behind a unit test.
 
 The public app library at `/apps` and native nine-dot launcher share one list of shipped entry points. That navigation list does not replace EmDash's published catalogue contracts.
+
+Contributions of code, documentation, design and accessibility feedback are welcome: [Contributing](CONTRIBUTING.md), [Code of Conduct](CODE_OF_CONDUCT.md), [Security](SECURITY.md), [Accessibility](ACCESSIBILITY.md). Ctrl/Cmd+K opens the searchable app/task launcher; the nine-dot button provides the same path.
