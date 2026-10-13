@@ -9,7 +9,7 @@ export async function deliverResend(message, runtime, send = fetch) {
   if (recipients.some(value => !address.test(value) || !allowed.includes(value.toLowerCase()))) throw new Error('Composer email recipient is not invited.');
   if (message.replyTo && !address.test(message.replyTo)) throw new Error('Composer email reply address is invalid.');
   const response = await send('https://api.resend.com/emails', {
-    method: 'POST', redirect: 'error', signal: AbortSignal.timeout(8000),
+    method: 'POST', redirect: 'manual', signal: AbortSignal.timeout(8000),
     headers: {'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json', 'Idempotency-Key': `composer-${crypto.randomUUID()}`},
     body: JSON.stringify({from, to: [message.to], ...(message.cc?.length ? {cc: message.cc} : {}), ...(message.replyTo ? {reply_to: message.replyTo} : {}), subject: message.subject, text: message.text, ...(message.html ? {html: message.html} : {})}),
   });
