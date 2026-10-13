@@ -17,6 +17,8 @@ The first pair mounts through declared, separately pinned integrated Worker serv
 
 `pnpm install`, `pnpm dev`, `pnpm check`, `pnpm build`. Local EmDash D1 state is disposable and separate from production. To demonstrate seeded catalogue content locally, use the documented EmDash seed/migration tools against the local database; remote content is never silently copied into local or preview state.
 
+The public Get Ready handoff offers complete setup, read-only inspection and rechecking after sign-in. Each uses the same core and current repository instructions. Copying a prompt executes nothing; check/resume requests prohibit setup mutations and automatic retries. Manual copy remains available without JavaScript or clipboard permission.
+
 `pnpm ready` verifies the actual authorised Codex/GitHub/Cloudflare workspace, selected account hostname routing and exact HTTPS Hello source, saving private progress even when a check fails. It does not inspect another user's environment or obtain credentials on their behalf.
 
 The doctor distinguishes human authentication/permission steps from agent setup, provider retries and agent repairs. HTTP 429/5xx and network interruption produce a failed check without readiness expiry; other independent checks continue. A rerun rechecks actual permissions and source identity rather than trusting a saved green receipt. Errors and provider bodies are not copied into receipts. A public site's 403 is not assumed to mean its operator needs another API permission.
