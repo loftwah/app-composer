@@ -3,6 +3,17 @@ import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,existsSync,rmSync} from
 import {helloConfiguration} from '../src/lib/hello-spec.mjs';
 const valid=()=>({version:1,preset:'composition',config:{title:'A fictional corner',intro:'Only synthetic fixtures',theme:'daylight',layout:'grid'},privacy:'review-first',cards:[],deployment:{mode:'preview',hostname:''},decisions:{}});
 test('portable spec is deterministic and hidden card fields do not affect standalone guestbook',()=>{const a=valid();assert.deepEqual(validateSpec(a),validateSpec(a));a.preset='guestbook';a.cards=[{title:'Ignored hidden field',url:'javascript:alert(1)'}];assert.deepEqual(validateSpec(a).cards,[]);assert.match(handoff(valid()),/untrusted configuration data/);});
+test('conditional hostname intent ignores hidden values while visible domain/card values remain validated',()=>{
+ for(const mode of ['preview','new-domain']){
+  const input={...valid(),deployment:{mode,hostname:'https://unfinished.example/path'}};
+  assert.equal(validateSpec(input).deployment.hostname,'');
+  assert.deepEqual(validateSpec(JSON.parse(JSON.stringify(validateSpec(input)))),validateSpec(input));
+  assert.doesNotMatch(handoff(input),/unfinished\.example/);
+ }
+ for(const hostname of ['', 'https://unfinished.example/path'])assert.throws(()=>validateSpec({...valid(),deployment:{mode:'existing-domain',hostname}}));
+ assert.throws(()=>validateSpec({...valid(),cards:[{title:'   ',url:'https://example.com/'}]}),/Give each card a title/);
+ assert.equal(validateSpec({...valid(),cards:[{title:'A useful link',url:'https://example.com/'}]}).cards[0].title,'A useful link');
+});
 test('unsafe destinations, schema drift and approval bypass are rejected',()=>{for(const patch of [{version:2},{privacy:'public-without-review'},{config:{...valid().config,title:'\u0000'}},{cards:[{title:'X',url:'javascript:alert(1)'}]}])assert.throws(()=>validateSpec({...valid(),...patch}));const s=validateSpec({...valid(),deployment:{mode:'new-domain',hostname:''}});assert.equal(s.deployment.approval,'purchase-required');});
 test('Hello exports only supported configuration and ignores hidden gallery layout',()=>{
  const input={...valid(),preset:'hello',config:{...valid().config,layout:'hidden-stale-value'},deployment:{mode:'existing-domain',hostname:'hello.example.com'}};
