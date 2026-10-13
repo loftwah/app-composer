@@ -36,11 +36,19 @@ test('the supported deployment is explicit, runs after fresh prerequisites and s
   let executed=false;
   const blocked=await runReadinessSession(createReadinessSession(context()),{...adapter({github:async()=>{throw new ReadinessFailure('permission');}}),deployReference:async()=>{executed=true;}},()=>{},{operation:'deploy-reference'});
   assert.equal(executed,false);assert.equal(blocked.operation.state,'blocked');
+  const outage=await runReadinessSession(createReadinessSession(context()),{...adapter({github:async()=>{throw new ReadinessFailure('unavailable');}}),deployReference:async()=>{executed=true;}},()=>{},{operation:'deploy-reference'});
+  assert.equal(executed,false);assert.equal(outage.operation.state,'blocked');assert.equal(outage.state,'failed');assert.equal(outage.expiresAt,null);
+  assert.equal(inspectReadiness(outage).next.find(check=>check.check==='github').recovery,'agent-retry');
 });
 
 test('cancellation, unknown context secrets, duplicate check adapters and arbitrary operations fail closed',async()=>{
   assert.throws(()=>createReadinessSession({...context(),apiToken:'secret-token'}));
   assert.throws(()=>createReadinessSession({...context(),target:{origin:'https://token@hello.example.test',repo:'fixture/hello'}}));
+  for(const field of ['repo','source','account','worker']){
+    for(const value of [0,false,{},[], ''])assert.throws(()=>createReadinessSession({...context(),[field]:value}),field);
+    assert.doesNotThrow(()=>createReadinessSession({...context(),[field]:null}));
+  }
+  for(const target of [0,false,[],{origin:'https://hello.example.test',repo:'fixture/hello',apiToken:'secret-token'},{origin:0,repo:'fixture/hello'}])assert.throws(()=>createReadinessSession({...context(),target}));
   const cancelled=await runReadinessSession(createReadinessSession(context()),{checks:[]},()=>{},{cancel:true});
   assert.equal(cancelled.state,'cancelled');assert.equal(cancelled.expiresAt,null);
   await assert.rejects(runReadinessSession(createReadinessSession(context()),adapter(),()=>{},{operation:'arbitrary-shell'}));
