@@ -44,3 +44,5 @@ Default dark and saved light themes use Tailwind 4.3.3 semantic tokens and nativ
 Preview: select `CLOUDFLARE_ENV=preview pnpm build` before `pnpm wrangler deploy`. Verify the generated config names only the preview D1/R2/KV and has no app services, then apply preview migrations and deploy. Passing `--env` only at deploy time does not select the Vite build environment. Restore a production build before any production command.
 
 Cost controls: the operator keeps public builds/signups closed, owner uploads capped and mutation rates bounded. Composer has a 1,000ms CPU limit per invocation and bounded deployment verification retries. These limits do not enforce a dollar budget. The existing account usage alert is US$5 and excludes fixed subscription fees; no new paid plan was introduced by Composer. A traffic surge can still incur usage charges on the existing paid Workers/R2 account.
+
+Wrangler secret commands require an explicit environment: use `--env preview` for preview and `--env=""` for the root Worker. They do not follow the generated Vite build target. Keep distinct private encryption key files and confirm the printed Worker name. Never print key values.
