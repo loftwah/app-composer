@@ -48,7 +48,7 @@ test('non-repository local setup saves source authentication/permission failures
   const env={...process.env,PATH:bin+':'+process.env.PATH,CODEX_THREAD_ID:'fictional-test-session',GH_HOST:'enterprise.example.test'};
   const failures=[{output:'',status:4,code:'authentication',recovery:'human-authentication'},{output:'HTTP/2.0 403 Forbidden\\n\\nfictional denied',status:1,code:'permission',recovery:'human-permission'},{output:'not-a-source',status:0,code:'response',recovery:'agent-repair'}];
   for(const [index,failure] of failures.entries()){
-   writeFileSync(join(bin,'gh'),'#!/bin/sh\nif [ "$1" = "--version" ]; then printf "gh version fixture\\n"; exit 0; fi\nprintf "%s\\n" "$@" >> "'+calls+'"\nprintf "'+failure.output+'\\n"\nexit '+failure.status+'\n',{mode:0o755});
+   writeFileSync(join(bin,'gh'),'#!/bin/sh\nif [ "$1" = "--version" ]; then printf "gh version 0.0.0 (fictional fixture)\\n"; exit 0; fi\nprintf "%s\\n" "$@" >> "'+calls+'"\nprintf "'+failure.output+'\\n"\nexit '+failure.status+'\n',{mode:0o755});
    const destination=join(fixture,'hello-'+index);
    const state=await runLocalReadiness({workspace,operation:'clone-reference',destination},env);
    assert.equal(state.context.repo,null);assert.equal(state.context.source,null);
