@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync,writeFileSync,rmSync,mkdirSync,existsSync} from 'node:fs';
+import {mkdtempSync,writeFileSync,readFileSync,rmSync,mkdirSync,existsSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -13,7 +13,8 @@ const adapter=(overrides={},calls=[])=>({checks:recipe.checks.map(id=>({id,label
 
 test('reference release receives the selected scope rather than inherited Hello defaults',()=>{
  const selected=context();
- const env=referenceReleaseEnvironment(selected,{HELLO_REPOSITORY:'other/hello',HELLO_ACCOUNT_ID:'c'.repeat(32),HELLO_WORKER:'other-hello',HELLO_ORIGIN:'https://other.example.test',CLOUDFLARE_API_TOKEN:'fictional-deploy-token'});
+ const env=referenceReleaseEnvironment(selected,{GH_HOST:'enterprise.example.test',HELLO_REPOSITORY:'other/hello',HELLO_ACCOUNT_ID:'c'.repeat(32),HELLO_WORKER:'other-hello',HELLO_ORIGIN:'https://other.example.test',CLOUDFLARE_API_TOKEN:'fictional-deploy-token'});
+ assert.equal(env.GH_HOST,'github.com');
  assert.equal(env.HELLO_REPOSITORY,selected.repo);assert.equal(env.HELLO_ACCOUNT_ID,selected.account);assert.equal(env.HELLO_WORKER,selected.worker);assert.equal(env.HELLO_ORIGIN,selected.target.origin);
  assert.equal(env.CLOUDFLARE_API_TOKEN,'fictional-deploy-token');
 });
@@ -48,8 +49,11 @@ test('reference installation runs before Cloudflare, requires fresh prerequisite
   const calls=[],a=adapter({},calls);a.installReferenceTools=async()=>{calls.push('install');return {wrangler:'4.143.1'};};
   const result=await runReadinessSession(createReadinessSession(context()),a,()=>{},{operation:'install-reference-tools'});
   assert.deepEqual(calls,['agent','github','install','cloudflare','https']);assert.equal(result.state,'verified');
-  const blockedCalls=[];const blocked=await runReadinessSession(createReadinessSession(context()),{...adapter({github:async()=>{throw new ReadinessFailure('permission');}},blockedCalls),installReferenceTools:async()=>blockedCalls.push('install')},()=>{},{operation:'install-reference-tools'});
-  assert.ok(!blockedCalls.includes('install'));assert.equal(blocked.operation.state,'blocked');assert.equal(blocked.expiresAt,null);
+  const preparationCalls=[];const prepared=await runReadinessSession(createReadinessSession(context()),{...adapter({github:async()=>{throw new ReadinessFailure('permission');}},preparationCalls),installReferenceTools:async()=>{preparationCalls.push('install');return {changed:true};}},()=>{},{operation:'install-reference-tools'});
+  assert.ok(preparationCalls.includes('install'));assert.equal(prepared.operation.state,'performed');assert.equal(prepared.expiresAt,null);
+  assert.equal(inspectReadiness(prepared).ready,false);assert.equal(inspectReadiness(prepared).capabilities.github,false);
+  const blockedCalls=[];const blocked=await runReadinessSession(createReadinessSession(context()),{...adapter({agent:async()=>{throw new ReadinessFailure('configuration');}},blockedCalls),installReferenceTools:async()=>assert.fail('Missing tools cannot install')},()=>{},{operation:'install-reference-tools'});
+  assert.equal(blocked.operation.state,'blocked');assert.equal(blocked.expiresAt,null);
   const failed=await runReadinessSession(createReadinessSession(context()),{...adapter(),installReferenceTools:async()=>{throw new ReadinessFailure('unexpected');}},()=>{},{operation:'install-reference-tools'});
   assert.equal(failed.checks.https.state,'verified');assert.equal(failed.state,'failed');assert.equal(failed.expiresAt,null);
 });
@@ -119,6 +123,28 @@ test('reference installation preserves uncommitted work and refuses other reposi
     assert.equal(existsSync(join(workspace,'node_modules')),false);
     const {readFileSync}=await import('node:fs');assert.equal(readFileSync(join(workspace,'config.json'),'utf8'),'owner-work');
   }finally{rmSync(workspace,{recursive:true});}
+});
+
+test('local preparation rechecks fixed-host source authentication and exact main before package execution',async()=>{
+ const fixture=mkdtempSync(join(tmpdir(),'composer-preparation-source-'));
+ try{
+  const workspace=join(fixture,'hello'),bin=join(fixture,'bin'),marker=join(fixture,'package-ran'),calls=join(fixture,'source-args');mkdirSync(workspace);mkdirSync(bin);
+  const git=args=>execFileSync('git',args,{cwd:workspace,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+  git(['init','-b','main']);git(['remote','add','origin','https://github.com/loftwah/app-composer-hello.git']);
+  writeFileSync(join(workspace,'fixture.txt'),'fictional source');git(['add','fixture.txt']);
+  git(['-c','user.name=Fictional fixture','-c','user.email=fixture@example.test','commit','-m','Fictional fixture']);
+  const source=git(['rev-parse','HEAD']);git(['update-ref','refs/remotes/origin/main',source]);
+  writeFileSync(join(bin,'pnpm'),'#!/bin/sh\ntouch "'+marker+'"\nexit 1\n',{mode:0o755});
+  const env={...process.env,PATH:bin+':'+process.env.PATH,GH_HOST:'enterprise.example.test'};
+  const selected={...context(),workspace,repo:'loftwah/app-composer-hello',source,dirty:false};
+  for(const [output,status,code] of [['',4,'authentication'],['b'.repeat(40),0,'source']]){
+   writeFileSync(join(bin,'gh'),'#!/bin/sh\nprintf "%s\\n" "$@" > "'+calls+'"\nprintf "%s\\n" "'+output+'"\nexit '+status+'\n',{mode:0o755});
+   await assert.rejects(createLocalAdapter(selected,env).installReferenceTools(),error=>error instanceof ReadinessFailure&&error.code===code);
+   assert.ok(readFileSync(calls,'utf8').includes('--hostname\ngithub.com\n'));
+   assert.equal(existsSync(marker),false);assert.equal(existsSync(join(workspace,'node_modules')),false);
+   assert.equal(git(['status','--porcelain']),'');
+  }
+ }finally{rmSync(fixture,{recursive:true});}
 });
 
 test('the supported deployment is explicit, runs after fresh prerequisites and still requires HTTPS proof',async()=>{
