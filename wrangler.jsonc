@@ -39,11 +39,11 @@
   "services": [
     {
       "binding": "GUESTBOOK",
-      "service": "composer-guestbook-402de8665f8c71a1"
+      "service": "composer-guestbook-b48744aad0ba199f"
     },
     {
       "binding": "SHOWCASE",
-      "service": "composer-showcase-402de8665f8c71a1"
+      "service": "composer-showcase-b48744aad0ba199f"
     }
   ],
   "triggers": {
@@ -81,7 +81,8 @@
           "binding": "SESSION",
           "id": "2e7ac1e5417f4425be41d60d99a35de1"
         }
-      ]
+      ],
+      "ratelimits": []
     }
   },
   "preview_urls": false,
@@ -93,5 +94,15 @@
   ],
   "limits": {
     "cpu_ms": 1000
-  }
+  },
+  "ratelimits": [
+    {
+      "name": "USAGE_LIMIT",
+      "namespace_id": "2026101462",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
+    }
+  ]
 }

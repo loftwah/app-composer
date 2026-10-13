@@ -1,0 +1,9 @@
+import type {D1Database} from '@cloudflare/workers-types';
+export const events:Record<string,string[]>;
+export const dailyLimit:number;
+export const incrementSQL:string;
+export function record(db:D1Database,app:string,event:string,surface:string,now?:Date):Promise<boolean>;
+export function collect(request:Request,env:{DB:D1Database;USAGE_TOKENS?:string;USAGE_LIMIT?:{limit(options:{key:string}):Promise<{success:boolean}>}},app:string):Promise<Response>;
+export function selection(params:URLSearchParams):{days:number;surface:string};
+export function summary(db:D1Database,options?:{days?:number;surface?:string},now?:Date):Promise<{contract:number;from:string;through:string;days:number;surface:string;dailyLimit:number;apps:{app:string;opens:number;actions:number;opensLimited:boolean;actionsLimited:boolean;limited:boolean}[]}>;
+export function purge(db:D1Database,now?:Date):Promise<unknown>;
