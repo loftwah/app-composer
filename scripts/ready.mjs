@@ -13,9 +13,10 @@ for(let i=0;i<args.length;i++){
 }
 const cwd=resolve(flags.get('--workspace')||process.cwd());
 const run=(cmd,argv)=>execFileSync(cmd,argv,{cwd,encoding:'utf8',timeout:20000,stdio:['ignore','pipe','pipe']}).trim();
-const workspace=run('git',['rev-parse','--show-toplevel']);
-const remote=run('git',['remote','get-url','origin']);
-const repo=githubRepository(remote);
+let workspace=cwd,repo=null,source=null,dirty=null;
+try{workspace=run('git',['rev-parse','--show-toplevel']);}catch{}
+try{repo=githubRepository(run('git',['remote','get-url','origin']));}catch{}
+try{source=run('git',['rev-parse','HEAD']);dirty=!!run('git',['status','--porcelain']);}catch{}
 const operator=repo==='loftwah/app-composer';
 let target=null;
 if(flags.has('--reference-url')!==flags.has('--reference-repo'))throw new Error('Provide both reference URL and repository.');
@@ -34,7 +35,7 @@ writeFileSync(fd,String(process.pid));closeSync(fd);
 let state;
 try{
  let previous=null;try{previous=JSON.parse(readFileSync(receipt,'utf8'));}catch{}
- const context={workspace,repo,source:run('git',['rev-parse','HEAD']),dirty:!!run('git',['status','--porcelain']),target,account,worker};
+ const context={workspace,repo,source,dirty,target,account,worker};
  const same=previous?.version===2&&JSON.stringify(previous.context)===JSON.stringify(context);
  state={version:2,recipe:'codex-github-cloudflare-hello-v2',context,state:'verifying',checks:same?previous.checks:{},startedAt:same?previous.startedAt:new Date().toISOString(),attempt:(same?previous.attempt:0)+1};
  const save=()=>{const temp=receipt+'.tmp';writeFileSync(temp,JSON.stringify(state,null,2),{mode:0o600});renameSync(temp,receipt);};
@@ -53,7 +54,8 @@ try{
    if(!active)throw new Error('No active Codex session');
    return {git,gh,pnpm,codex,activeCodexSession:active};
   });
-  await check('github','Workspace and GitHub permission',`Authenticate GitHub CLI for ${repo}, then verify the selected clone and push permission. Rerun this doctor after the human sign-in.`,async()=>{
+  await check('github','Workspace and GitHub permission',`Finish the Git clone and credential-free GitHub origin, create the initial commit if needed, then authenticate GitHub CLI for ${repo||'the intended repository'} and verify push permission. Rerun this doctor after the human sign-in.`,async()=>{
+   if(!repo||!source||!/^[a-f0-9]{40}$/.test(source))throw new Error('Workspace bootstrap incomplete');
    const data=JSON.parse(run('gh',['api','repos/'+repo]));
    if(!data.permissions?.push)throw new Error('Missing push permission');
    return {repository:repo,push:true,source:context.source};
