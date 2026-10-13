@@ -72,6 +72,22 @@ For an owned copy, current GitHub main must equal the actual maintained main SHA
 
 Missing dependencies install in a temporary project containing only verified package, lock and workspace-policy inputs. Copied bytes are matched to the captured commit. Ignored local registry files/hooks and service credentials are excluded, scripts stay disabled, and source is rechecked before exclusively reserving `node_modules`. Relative package links are preserved. An existing valid local installation returns `changed:false`; an incomplete/unrelated directory is preserved for agent repair rather than replaced. This prepares tools, not a deployed app. No target, account or cloud resource is created. Reviewed 14 October 2026 against the selected runtime and official [pnpm installation](https://pnpm.io/cli/install) and [package-layout documentation](https://pnpm.io/symlinked-node-modules-structure).
 
+### Prepare the owned deployment destination
+
+With local tools installed and the owned starter still unchanged, the agent can select an **unused workers.dev address in an existing authorised account**:
+
+```sh
+node /path/to/app-composer/scripts/ready.mjs \
+  --workspace /path/to/new-hello --prepare-reference-target \
+  --account YOUR_ACCOUNT_ID --reference-worker my-first-app \
+  --reference-url https://my-first-app.YOUR_SUBDOMAIN.workers.dev \
+  --reference-repo YOUR_GITHUB_LOGIN/my-first-app
+```
+
+Use the account’s actual Workers subdomain, not the launch operator’s. The shared engine verifies the installed Wrangler account, reads that account’s subdomain and current Worker inventory, and rejects an existing name, mismatched origin, malformed/partial response or conflicting inherited account. Fresh personal/private/source checks and all tracked bytes are rechecked around provider reads. Only the local `wrangler.jsonc` is changed; its original regular file must have one hard link and retain its inode. Existing edits, linked owner files and changed source are preserved.
+
+The prepared profile binds that account, name and origin, disables preview URLs and includes the starter’s fixed asset settings with a 10ms CPU limit. It adds no domains, routes, storage, services, secrets or analytics publisher. **The name is not reserved and no Worker is created.** The CPU limit is not a dollar spending cap. Preparation reports `action_required`, without readiness expiry, and redacted inspection names the review/commit/push/initial-deployment step. It does not retry automatically. A repeat refuses the now-modified source for agent inspection; never reset the prepared file to make the doctor green. Owned-copy deployment and Init remain unfinished. The independent example accepts `prepare-reference-target` after the same five explicit scope arguments. Reviewed 14 October 2026 against official [workers.dev routing](https://developers.cloudflare.com/workers/configuration/routing/workers-dev/), [Wrangler configuration](https://developers.cloudflare.com/workers/wrangler/configuration/) and [Worker inventory API](https://developers.cloudflare.com/api/resources/workers/subresources/scripts/methods/list/).
+
 The independent Node example also supports pre-idea setup without invented cloud targets. Use `-` for each unselected target: `node examples/get-ready.mjs /path/to/new-hello - - - - own-reference YOUR_GITHUB_LOGIN/my-first-app`. For acquisition, replace the last two arguments with `clone-reference /path/to/new-hello`. Reviewed 14 October 2026 against [GitHub's personal repository API](https://docs.github.com/en/rest/repos/repos#create-a-repository-for-the-authenticated-user) and the installed Git/GitHub CLI; credentials stay in the authorised process.
 
 `pnpm compose` fetches and validates known public app manifests at exact commits, verifies their actual deployed identities and stages an inspectable cached candidate. Arbitrary catalogue repositories are never executed. `pnpm compose --spec path/to/spec.json --apply` additionally validates the portable spec and applies authorised configuration using private owner credential files in the adjacent independent app checkouts; purchases and unverified targets are blocked. This operator path is deliberately narrow, not public multi-tenant provisioning.
