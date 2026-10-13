@@ -57,7 +57,6 @@ try{
   });
   await check('cloudflare','Cloudflare deployment tools','Complete the official Wrangler login or supply an authorised Cloudflare deployment token, then rerun. Do not paste credentials into Composer.',async()=>{
    const identity=JSON.parse(run('pnpm',['exec','wrangler','whoami','--json']));
-   if(identity.loggedIn!==true)throw new ReadinessFailure('authentication');
    if(!account||!identity.accounts?.some(value=>value.id===account))throw new ReadinessFailure('configuration');
    return {wrangler:run('pnpm',['exec','wrangler','--version']).split('\n').pop(),authenticated:true,account};
   });

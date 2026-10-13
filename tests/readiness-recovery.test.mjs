@@ -65,4 +65,6 @@ test('CLI authentication absence and expiry retain the human handoff without tre
     assert.ok(!JSON.stringify(state).includes('secret-token'));
   }
   assert.equal(runReadinessCommand('gh',['api','repos/fixture/hello','--jq','.sha'],{},(_cmd,args)=>{assert.ok(args.includes('--include'));return 'HTTP/2.0 200 OK\r\nContent-Type: application/json\r\n\r\n'+'a'.repeat(40);}), 'a'.repeat(40));
+  for(const output of ['{}','{"loggedIn":"false"}','{"loggedIn":true}','not JSON'])assert.throws(()=>runReadinessCommand('pnpm',['exec','wrangler','whoami','--json'],{},()=>output),error=>error instanceof ReadinessFailure&&error.code==='response');
+  assert.throws(()=>runReadinessCommand('pnpm',['exec','wrangler','whoami','--json'],{},()=>'{"loggedIn":false}'),error=>error instanceof ReadinessFailure&&error.code==='authentication');
 });

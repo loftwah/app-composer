@@ -53,6 +53,12 @@ export function runReadinessCommand(command, args, options, execute = execFileSy
     if (!separator) throw new ReadinessFailure('response');
     return output.slice(separator.index + separator[0].length).trim();
   }
+  if (whoami) {
+    let identity;
+    try { identity = JSON.parse(output); } catch { throw new ReadinessFailure('response'); }
+    if (identity?.loggedIn === false) throw new ReadinessFailure('authentication');
+    if (identity?.loggedIn !== true || !Array.isArray(identity.accounts)) throw new ReadinessFailure('response');
+  }
   return output;
 }
 
