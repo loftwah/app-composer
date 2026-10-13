@@ -147,6 +147,46 @@ test('local preparation rechecks fixed-host source authentication and exact main
  }finally{rmSync(fixture,{recursive:true});}
 });
 
+test('assume-unchanged dependency edits cannot turn reviewed reference preparation into another package install',async()=>{
+ const fixture=mkdtempSync(join(tmpdir(),'composer-preparation-hidden-'));
+ try{
+  const workspace=join(fixture,'hello'),bin=join(fixture,'bin'),marker=join(fixture,'package-ran');mkdirSync(workspace);mkdirSync(bin);
+  const git=args=>execFileSync('git',args,{cwd:workspace,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+  git(['init','-b','main']);git(['remote','add','origin','https://github.com/loftwah/app-composer-hello.git']);
+  for(const file of ['package.json','pnpm-lock.yaml'])writeFileSync(join(workspace,file),'fictional committed input\n');
+  git(['add','.']);git(['-c','user.name=Fictional fixture','-c','user.email=fixture@example.test','commit','-m','Fictional fixture']);
+  const source=git(['rev-parse','HEAD']);git(['update-ref','refs/remotes/origin/main',source]);
+  writeFileSync(join(bin,'gh'),'#!/bin/sh\nprintf "%s\\n" "'+source+'"\n',{mode:0o755});
+  writeFileSync(join(bin,'pnpm'),'#!/bin/sh\ntouch "'+marker+'"\nexit 1\n',{mode:0o755});
+  const selected={...context(),workspace,repo:'loftwah/app-composer-hello',source,dirty:false},env={...process.env,PATH:bin+':'+process.env.PATH};
+  for(const file of ['package.json','pnpm-lock.yaml']){
+   git(['update-index','--assume-unchanged',file]);writeFileSync(join(workspace,file),'hidden different dependency input\n');
+   assert.equal(git(['status','--porcelain']),'');
+   await assert.rejects(createLocalAdapter(selected,env).installReferenceTools(),error=>error instanceof ReadinessFailure&&error.code==='source');
+   assert.equal(existsSync(marker),false);assert.equal(readFileSync(join(workspace,file),'utf8'),'hidden different dependency input\n');
+   writeFileSync(join(workspace,file),'fictional committed input\n');git(['update-index','--no-assume-unchanged',file]);
+  }
+ }finally{rmSync(fixture,{recursive:true});}
+});
+
+test('a clean source commit during GitHub lookup cannot replace reviewed preparation inputs',async()=>{
+ const fixture=mkdtempSync(join(tmpdir(),'composer-preparation-race-'));
+ try{
+  const workspace=join(fixture,'hello'),bin=join(fixture,'bin'),marker=join(fixture,'package-ran');mkdirSync(workspace);mkdirSync(bin);
+  const git=args=>execFileSync('git',args,{cwd:workspace,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+  git(['init','-b','main']);git(['remote','add','origin','https://github.com/loftwah/app-composer-hello.git']);
+  writeFileSync(join(workspace,'package.json'),'fictional original input\n');writeFileSync(join(workspace,'pnpm-lock.yaml'),'fictional original lock\n');
+  git(['add','.']);git(['-c','user.name=Fictional fixture','-c','user.email=fixture@example.test','commit','-m','Fictional fixture']);
+  const source=git(['rev-parse','HEAD']);git(['update-ref','refs/remotes/origin/main',source]);
+  writeFileSync(join(bin,'gh'),'#!/bin/sh\nprintf "fictional changed input\\n" > package.json\ngit add package.json\ngit -c user.name="Fictional fixture" -c user.email=fixture@example.test commit -m "Fictional provider-wait change" >/dev/null\ngit update-ref refs/remotes/origin/main HEAD\nprintf "%s\\n" "'+source+'"\n',{mode:0o755});
+  writeFileSync(join(bin,'pnpm'),'#!/bin/sh\ntouch "'+marker+'"\nexit 1\n',{mode:0o755});
+  const selected={...context(),workspace,repo:'loftwah/app-composer-hello',source,dirty:false},env={...process.env,PATH:bin+':'+process.env.PATH};
+  await assert.rejects(createLocalAdapter(selected,env).installReferenceTools(),error=>error instanceof ReadinessFailure&&error.code==='source');
+  assert.equal(existsSync(marker),false);assert.notEqual(git(['rev-parse','HEAD']),source);
+  assert.equal(git(['status','--porcelain']),'');assert.equal(readFileSync(join(workspace,'package.json'),'utf8'),'fictional changed input\n');
+ }finally{rmSync(fixture,{recursive:true});}
+});
+
 test('the supported deployment is explicit, runs after fresh prerequisites and still requires HTTPS proof',async()=>{
   const calls=[],a=adapter({},calls);a.deployReference=async()=>{calls.push('deploy');return {version:'fictional'};};
   const verified=await runReadinessSession(createReadinessSession(context()),a,()=>{},{operation:'deploy-reference'});
