@@ -29,15 +29,16 @@ Verification is read-only. The explicit `--deploy-reference` CLI flag (or `deplo
 
 ### Prepare a missing reference checkout
 
-The agent can now use the same engine to acquire the maintained public Hello source. From an **existing authorised GitHub workspace**, explicitly choose a new directory whose parent already exists:
+The agent can use the same engine to acquire the maintained public Hello source from an **authorised Codex folder**, including one with no Git repository or app idea. Git, GitHub CLI and pnpm must already be installed. Explicitly choose a new directory whose parent already exists:
 
 ```sh
-pnpm ready --workspace /path/to/authorised-project --clone-reference /path/to/new-hello
+node /path/to/app-composer/scripts/ready.mjs \
+  --workspace /path/to/empty-folder --clone-reference /path/to/new-hello
 ```
 
-`clone-reference` checks the parent workspace’s current agent/GitHub prerequisites, looks up Hello’s exact main revision, reserves the new directory exclusively and verifies the resulting clean main checkout and remote. Git hooks, templates, URL rewrites and inherited Git configuration are disabled; the public clone receives no service credentials. Existing files, empty directories, symlinks and unrelated/modified checkouts are refused. An already unchanged exact-main Hello checkout returns `changed:false`. A failed or interrupted acquisition keeps partial files for agent inspection, and read-only resume never retries it. Cancel its recorded intent before selecting a different destination. No GitHub repository or cloud resource is created.
+`clone-reference` checks the active agent/tools and freshly reads Hello’s exact main revision through GitHub CLI at `github.com` before reserving the new directory. Reading this public source requires no parent/upstream push permission. A confirmed missing login or denied source read is recorded as a human authentication/permission step; malformed responses stay with the agent. The clone then verifies its clean main checkout and remote. Git hooks, templates, URL rewrites and inherited Git configuration are disabled; the public clone receives no service credentials. Existing files, empty directories, symlinks and unrelated/modified checkouts are refused. An already unchanged exact-main Hello checkout returns `changed:false`. A failed or interrupted acquisition keeps partial files for agent inspection, and read-only resume never retries it. Cancel its recorded intent before selecting a different destination. No GitHub repository or cloud resource is created.
 
-The receipt still describes the **parent workspace**; it does not declare the new checkout ready. Run the doctor against the destination next, selecting the account and existing route explicitly. Where the operator has Hello push permission, missing pinned tools can then be installed:
+The receipt still describes the **parent folder**; it does not declare the new checkout ready. A completed acquisition can therefore accompany an `action_required` doctor and nonzero CLI exit. Read the operation result separately from overall readiness. Run the doctor against the destination next, selecting the account and existing route explicitly. Where the operator has Hello push permission, missing pinned tools can then be installed:
 
 ```sh
 pnpm ready --workspace /path/to/new-hello --install-reference-tools \

@@ -10,7 +10,7 @@ for(let i=0;i<args.length;i++){
  if(!['--workspace','--reference-url','--reference-repo','--reference-worker','--account','--clone-reference'].includes(flag)||!args[i+1]||args[i+1].startsWith('--'))throw new Error('Use --workspace PATH, --reference-url HTTPS_ORIGIN and --reference-repo OWNER/REPO. Optional: --cancel, --publish-proof, --clone-reference PATH, --install-reference-tools or --deploy-reference.');
  flags.set(flag,args[++i]);
 }
-if(flags.has('--clone-reference')&&(!flags.has('--workspace')||['--deploy-reference','--install-reference-tools','--cancel','--publish-proof'].some(flag=>flags.has(flag))))throw new Error('Cloning requires an explicit authorised existing workspace and a separate destination; it cannot be combined with installation, deployment, publication or cancellation.');
+if(flags.has('--clone-reference')&&(!flags.has('--workspace')||['--deploy-reference','--install-reference-tools','--cancel','--publish-proof'].some(flag=>flags.has(flag))))throw new Error('Cloning requires an explicit authorised Codex folder and a separate destination; it cannot be combined with installation, deployment, publication or cancellation.');
 const cwd=resolve(flags.get('--workspace')||process.cwd());
 const discovered=discoverWorkspace(cwd);
 const operator=discovered.repo==='loftwah/app-composer';
