@@ -1,4 +1,36 @@
 ---
 import Base from '../layouts/Base.astro';
+import { ArrowRight, Image, PanelsTopLeft, GitBranch, ExternalLink } from '@lucide/astro';
 ---
-<Base title="Two apps, composed" description="A live Photo Guestbook and Curated Showcase sharing real approved contributions through independent source apps."><h1>A moment becomes a feature.</h1><p class="lede">Two independently deployed apps share a useful workflow through a versioned item contract. The same source runs here and on each standalone site.</p><div class="actions"><a class="button" href="/guestbook">Open the guestbook</a><a class="button secondary" href="/showcase">Open the showcase</a></div><div class="split section"><div><img src="/brand/courtyard-ai-v1.jpg" alt="Generated fictional courtyard with terracotta walls and a green chair" width="1200" height="630"/><h2>Here / there</h2><p>A real photo submission waits privately for owner review. Approval makes it eligible; hiding or deletion revokes its public media.</p><a href="https://guestbook.loftwah.com">Standalone guestbook</a> · <a href="https://github.com/loftwah/app-composer-guestbook">Independent source</a></div><div><img src="/brand/coastal-path-ai-v1.jpg" alt="Generated fictional coastal steps beside a calm sea" width="1200" height="800"/><h2>Top shelf</h2><p>Curate your own links or select an approved contribution. Cards open their original item and check its visibility on each request.</p><a href="https://showcase.loftwah.com">Standalone showcase</a> · <a href="https://github.com/loftwah/app-composer-showcase">Independent source</a></div></div><section class="section"><h2>Try the public view. Owner writes stay protected.</h2><p>The gallery uses labelled original demo artwork. Uploading, moderation, configuration and curation require an invited owner credential. This first release is operated by an authorised agent; it does not offer anonymous builds or store visitors’ Cloudflare credentials.</p><ol><li>Submit a supported photo to the guestbook.</li><li>Approve the contribution in the owner studio.</li><li>Select it in Showcase and feature it.</li><li>Open the card into the original contribution.</li><li>Hide or delete the source: the feature and controlled image disappear.</li></ol><a href="/release">See what has actually been verified</a></section></Base>
+<Base title="A photo collection, composed" description="Open a curated photo, follow it into its source guestbook and see how two independently owned apps share one collection.">
+ <div class="composition-heading">
+  <h1>Build a collection from approved photos.</h1>
+  <p class="lede">Here / there collects the moments. Top shelf chooses what to feature. Open a photo in the showcase to visit its original guestbook entry.</p>
+  <div class="actions"><a class="button" href="/showcase/">Explore the collection <ArrowRight size={18} aria-hidden="true"/></a><a class="button secondary" href="/guestbook/">Visit the guestbook</a></div>
+ </div>
+ <section class="composition-flow" aria-labelledby="flow-title">
+  <h2 id="flow-title">From contribution to collection</h2>
+  <ol>
+   <li><strong>Submit</strong><span>An invited contributor sends a photo to Here / there.</span></li>
+   <li><strong>Approve</strong><span>The owner reviews it before anything is public.</span></li>
+   <li><strong>Feature</strong><span>Top shelf adds the approved photo to its collection.</span></li>
+   <li><strong>Open</strong><span>The card leads back to the original contribution.</span></li>
+  </ol>
+  <p class="small">Hide or delete the source and it disappears from both public views on the next request. Downloaded copies cannot be recalled.</p>
+ </section>
+ <div class="composition-pair">
+  <section aria-labelledby="guestbook-title">
+   <a class="composition-preview" href="/guestbook/" aria-label="Open Here / there guestbook"><img src="/brand/courtyard-ai-v1.jpg" alt="Generated fictional courtyard with terracotta walls and a green chair" width="1200" height="630" loading="lazy"/></a>
+   <h2 id="guestbook-title"><Image size={24} aria-hidden="true"/>Here / there</h2>
+   <p>Collect photos and messages. Review each contribution, publish it or keep it private.</p>
+   <div class="app-links"><a class="button secondary" href="/guestbook/">Open guestbook <ArrowRight size={18} aria-hidden="true"/></a><a href="https://guestbook.loftwah.com">Standalone app <ExternalLink size={16} aria-hidden="true"/></a><a href="https://github.com/loftwah/app-composer-guestbook">Source <GitBranch size={16} aria-hidden="true"/></a></div>
+  </section>
+  <section aria-labelledby="showcase-title">
+   <a class="composition-preview" href="/showcase/" aria-label="Open Top shelf showcase"><img src="/brand/coastal-path-ai-v1.jpg" alt="Generated fictional coastal steps beside a calm sea" width="1200" height="800" loading="lazy"/></a>
+   <h2 id="showcase-title"><PanelsTopLeft size={24} aria-hidden="true"/>Top shelf</h2>
+   <p>Arrange your own links alongside approved photos. Each linked photo keeps its source and current visibility.</p>
+   <div class="app-links"><a class="button secondary" href="/showcase/">Open showcase <ArrowRight size={18} aria-hidden="true"/></a><a href="https://showcase.loftwah.com">Standalone app <ExternalLink size={16} aria-hidden="true"/></a><a href="https://github.com/loftwah/app-composer-showcase">Source <GitBranch size={16} aria-hidden="true"/></a></div>
+  </section>
+ </div>
+ <details class="composition-details"><summary>How the apps work together</summary><p>These are independently deployed apps with separate GitHub repositories, configuration and storage. Composer runs reviewed source versions together; Showcase asks Guestbook for currently approved items through a versioned contract.</p><p>The public collection uses labelled original generated artwork. Uploading, moderation and curation require an invited owner credential. Public browsing requires no account.</p><a href="/release">See the verified composition and recovery evidence</a></details>
+</Base>
