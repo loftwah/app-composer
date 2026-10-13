@@ -1,0 +1,21 @@
+import {readFileSync,writeFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+const directory='public/diagrams',dimensions={};
+for(const kind of ['composer','state']){
+ dimensions[kind]={};
+ for(const layout of ['desktop','mobile']){
+  const stem=kind+'-journey'+(layout==='mobile'?'-mobile':'');
+  const source=readFileSync(directory+'/'+stem+'.d2','utf8');
+  for(const theme of ['dark','light']){
+   let input=source;
+   if(theme==='light')for(const [from,to] of [['#17181b','#faf9f7'],['#23252a','#efeeea'],['#f2f3f5','#22252b'],['#ff9b55','#a63d08']])input=input.replaceAll(from,to);
+   const svg=execFileSync('d2',['--pad','20','-','-'],{input,encoding:'utf8',maxBuffer:1024*1024});
+   writeFileSync(directory+'/'+stem+'-'+theme+'.svg',svg);
+   const box=svg.match(/viewBox="([^"]+)"/)?.[1].split(' ').map(Number);
+   if(!box||box.length!==4||box.some(value=>!Number.isFinite(value)))throw Error('D2 drawing dimensions unavailable');
+   dimensions[kind][layout]={width:Math.round(box[2]),height:Math.round(box[3])};
+  }
+ }
+}
+writeFileSync(directory+'/journey-dimensions.json',JSON.stringify(dimensions,null,2)+'\n');
+console.log('Rendered both journeys for phone/desktop and saved dark/light themes.');
