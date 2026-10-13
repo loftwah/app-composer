@@ -32,8 +32,9 @@ if(!flags.has('--apply')){
  if(session.state!=='verified')throw new Error('Get Ready has not verified this workspace/account/reference; inspect its private receipt and resume. Configuration remains unchanged.');
  await verifyReferenceConfig(session.context);
  // Recheck after provider IO. Never overwrite work made while verification was running.
+ const remoteMain=run('gh',['api','repos/'+target.repo+'/commits/main','--jq','.sha']);
  const after=discoverWorkspace(workspace);
- if(after.repo!==current.repo||after.source!==current.source||after.dirty!==false||git(['branch','--show-current'])!=='main'||git(['rev-parse','origin/main'])!==current.source||realpathSync(path)!==path||readFileSync(path,'utf8')!==original||run('gh',['api','repos/'+target.repo+'/commits/main','--jq','.sha'])!==current.source)throw new Error('The workspace changed during readiness verification. Configuration remains unchanged.');
+ if(after.repo!==current.repo||after.source!==current.source||after.dirty!==false||git(['branch','--show-current'])!=='main'||git(['rev-parse','origin/main'])!==current.source||realpathSync(path)!==path||remoteMain!==current.source||readFileSync(path,'utf8')!==original)throw new Error('The workspace changed during readiness verification. Configuration remains unchanged.');
  const changed=Object.entries(config).some(([key,value])=>old[key]!==value);
  if(changed)writeFileSync(path,JSON.stringify({...old,...config},null,2)+'\n');
  console.log(JSON.stringify({state:changed?'configuration-prepared':'unchanged',changed,deployed:false,next:'Review the config diff, commit/push through the repository release path, then use Get Ready deploy-reference and verify the live title, introduction and theme.'},null,2));
