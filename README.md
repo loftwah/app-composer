@@ -27,6 +27,26 @@ The importable core is `lib/get-ready/index.mjs`: create a scoped session, run/r
 
 Verification is read-only. The explicit `--deploy-reference` CLI flag (or `deploy-reference` example operation) freshly checks prerequisites, then runs the existing reviewed Hello deploy command and verifies HTTPS. This first action supports the authored Hello repository on clean pushed main, the exact installed Wrangler 4.143.1, matching account/Worker/configured origin and an existing account-owned route. It creates no domains, accounts or resources and executes no arbitrary repository or supplied shell command. A failed deployment cannot become ready merely because an old site still responds. The explicit `--install-reference-tools` operation runs before the Cloudflare check, after fresh agent/GitHub prerequisites. It supports clean reviewed Hello checkouts on macOS Apple Silicon, Node 22 and pnpm 12.8.1/12.9.1. It detects the actual local Wrangler executable first, installs missing pinned dependencies with a frozen lockfile and disabled scripts/hooks, isolates unrelated user/global registry settings and excludes service credentials from the install process. A repeat verifies the local tool without installing again. No global tools or cloud resources are changed. Global Git/GitHub CLI/pnpm/Codex installation, initial account/domain bootstrap, customer-fork execution and hosted API/MCP remain unfinished.
 
+### Prepare a missing reference checkout
+
+The agent can now use the same engine to acquire the maintained public Hello source. From an **existing authorised GitHub workspace**, explicitly choose a new directory whose parent already exists:
+
+```sh
+pnpm ready --workspace /path/to/authorised-project --clone-reference /path/to/new-hello
+```
+
+`clone-reference` checks the parent workspace’s current agent/GitHub prerequisites, looks up Hello’s exact main revision, reserves the new directory exclusively and verifies the resulting clean main checkout and remote. Git hooks, templates, URL rewrites and inherited Git configuration are disabled; the public clone receives no service credentials. Existing files, empty directories, symlinks and unrelated/modified checkouts are refused. An already unchanged exact-main Hello checkout returns `changed:false`. A failed or interrupted acquisition keeps partial files for agent inspection, and read-only resume never retries it. Cancel its recorded intent before selecting a different destination. No GitHub repository or cloud resource is created.
+
+The receipt still describes the **parent workspace**; it does not declare the new checkout ready. Run the doctor against the destination next, selecting the account and existing route explicitly. Where the operator has Hello push permission, missing pinned tools can then be installed:
+
+```sh
+pnpm ready --workspace /path/to/new-hello --install-reference-tools \
+  --account ACCOUNT_ID --reference-worker WORKER_NAME \
+  --reference-url https://YOUR_HOST --reference-repo loftwah/app-composer-hello
+```
+
+This is maintained-reference acquisition, not customer source ownership: a public clone does not grant upstream push permission. Creating and deploying a customer-owned fork remains a separate unfinished path. The independent consumer accepts `clone-reference ABSOLUTE_DESTINATION` as its final arguments. Official [Git clone options](https://git-scm.com/docs/git-clone) and [hook configuration](https://git-scm.com/docs/git-config) reviewed 14 October 2026.
+
 `pnpm compose` fetches and validates known public app manifests at exact commits, verifies their actual deployed identities and stages an inspectable cached candidate. Arbitrary catalogue repositories are never executed. `pnpm compose --spec path/to/spec.json --apply` additionally validates the portable spec and applies authorised configuration using private owner credential files in the adjacent independent app checkouts; purchases and unverified targets are blocked. This operator path is deliberately narrow, not public multi-tenant provisioning.
 
 Production uses `pnpm deploy`: clean pushed main, type/risk checks, production build, Wrangler and exact live-host source verification. There are no GitHub Actions. Preview is a separate named environment with separate D1/R2 and no production app service bindings; missing app services fail explicitly rather than sharing production data.

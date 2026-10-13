@@ -15,7 +15,7 @@
     "compose:promote": "node scripts/promote.mjs",
     "check:types": "node scripts/identity.mjs && astro check",
     "test:core": "node --test tests/core.test.mjs",
-    "test:ready": "node --test tests/readiness-state.test.mjs tests/readiness-recovery.test.mjs tests/readiness-engine.test.mjs",
+    "test:ready": "node --test tests/readiness-state.test.mjs tests/readiness-recovery.test.mjs tests/readiness-engine.test.mjs tests/readiness-clone.test.mjs",
     "test:access": "node --test tests/access-boundary.test.mjs",
     "test:email": "node --test tests/resend-delivery.test.mjs",
     "test:release": "node --test tests/verify-live.test.mjs",
