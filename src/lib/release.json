@@ -5,12 +5,12 @@
     {
       "name": "guestbook",
       "url": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "596f7b5f9995bfe3340878d1e7775a4f971a6732"
+      "commit": "de4aef4e61934a581b9de075ac40be01719c43c8"
     },
     {
       "name": "showcase",
       "url": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "3c41e88fd11698f72a935053e899c5af4d49f7ad"
+      "commit": "6a1f655deb4ac337bafabb75a0a67864523f237b"
     },
     {
       "name": "hello",
