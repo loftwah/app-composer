@@ -6,10 +6,18 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createReadinessSession,runReadinessSession,inspectReadiness,recipe,ReadinessFailure,runLocalReadiness,createLocalAdapter,discoverWorkspace} from '../lib/get-ready/index.mjs';
 import {installedWrangler,localChecks,runWorkspaceWrangler} from '../lib/get-ready/local-checks.mjs';
-import {referenceInstallArgs,referenceInstallEnvironment} from '../lib/get-ready/local.mjs';
+import {referenceInstallArgs,referenceInstallEnvironment,verifyReferenceConfig} from '../lib/get-ready/local.mjs';
 
 const context=()=>({workspace:'/fictional/hello',repo:'fixture/hello',source:'a'.repeat(40),dirty:false,target:{origin:'https://hello.example.test',repo:'fixture/hello'},account:'b'.repeat(32),worker:'fictional-hello'});
 const adapter=(overrides={},calls=[])=>({checks:recipe.checks.map(id=>({id,label:id,action:'Complete official authentication.',verify:async()=>{calls.push(id);if(overrides[id])return overrides[id]();return {checked:true};}}))});
+
+test('the installed Wrangler config binds reference preparation and deployment to account, Worker and origin',async()=>{
+ const {readFileSync}=await import('node:fs');const workspace=new URL('..',import.meta.url).pathname;
+ const actual=JSON.parse(readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8'));
+ const selected={workspace,account:actual.account_id,worker:actual.name,target:{origin:actual.vars.PUBLIC_ORIGIN}};
+ assert.equal((await verifyReferenceConfig(selected)).name,actual.name);
+ for(const patch of [{account:'a'.repeat(32)},{worker:'different-reference'},{target:{origin:'https://other.example.com'}}])await assert.rejects(verifyReferenceConfig({...selected,...patch}),error=>error instanceof ReadinessFailure&&error.code==='configuration');
+});
 
 test('standalone core resumes through actual adapters instead of trusting saved green checks',async()=>{
   const calls=[],snapshots=[];
