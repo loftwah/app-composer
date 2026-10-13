@@ -1,4 +1,4 @@
-const source = 'Use App Composer’s current Get Ready implementation at https://github.com/loftwah/app-composer. Read its trusted AGENTS.md and supported setup instructions in README.md; use the one lib/get-ready engine, not a new checklist or planner. Work in this authorised Codex folder. Keep credentials out of chat and specifications, preserve existing files and save resumable evidence privately. Report what you actually checked, the next step and any precise human action.';
+const source = 'Use App Composer’s current Get Ready implementation at https://github.com/loftwah/app-composer. Read its trusted AGENTS.md and supported setup instructions in README.md; use the one lib/get-ready engine, not a new checklist or planner. Work in this authorised Codex folder. Keep credentials out of chat and specifications, preserve existing files and save resumable evidence privately. Report what you actually checked, the next step and any precise human action. Give me a redacted progress JSON export using the doctor’s --report flag; never share its private receipt.';
 
 export const readyTasks = {
  setup: {
