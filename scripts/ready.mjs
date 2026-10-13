@@ -6,11 +6,14 @@ const args=process.argv.slice(2);
 const flags=new Map();
 for(let i=0;i<args.length;i++){
  const flag=args[i];
- if(['--cancel','--publish-proof','--deploy-reference','--install-reference-tools'].includes(flag)){flags.set(flag,true);continue;}
- if(!['--workspace','--reference-url','--reference-repo','--reference-worker','--account','--clone-reference'].includes(flag)||!args[i+1]||args[i+1].startsWith('--'))throw new Error('Use --workspace PATH, --reference-url HTTPS_ORIGIN and --reference-repo OWNER/REPO. Optional: --cancel, --publish-proof, --clone-reference PATH, --install-reference-tools or --deploy-reference.');
+ if(flags.has(flag))throw new Error("Do not repeat readiness flags.");
+ if(['--cancel','--publish-proof','--deploy-reference','--install-reference-tools','--resume-ownership'].includes(flag)){flags.set(flag,true);continue;}
+ if(!['--workspace','--reference-url','--reference-repo','--reference-worker','--account','--clone-reference','--own-reference'].includes(flag)||!args[i+1]||args[i+1].startsWith('--'))throw new Error('Use --workspace PATH, --reference-url HTTPS_ORIGIN and --reference-repo OWNER/REPO. Optional: --cancel, --publish-proof, --own-reference OWNER/NAME, --clone-reference PATH, --install-reference-tools or --deploy-reference.');
  flags.set(flag,args[++i]);
 }
 if(flags.has('--clone-reference')&&(!flags.has('--workspace')||['--deploy-reference','--install-reference-tools','--cancel','--publish-proof'].some(flag=>flags.has(flag))))throw new Error('Cloning requires an explicit authorised Codex folder and a separate destination; it cannot be combined with installation, deployment, publication or cancellation.');
+if(flags.has('--own-reference')&&(!flags.has('--workspace')||['--clone-reference','--deploy-reference','--install-reference-tools','--cancel','--publish-proof'].some(flag=>flags.has(flag))))throw new Error('Ownership requires an explicit reviewed Hello workspace and personal private repository name; it cannot combine with another operation.');
+if(flags.has('--resume-ownership')&&!flags.has('--own-reference'))throw new Error('--resume-ownership requires --own-reference and explicitly authorises completion of that selected existing private repository.');
 const cwd=resolve(flags.get('--workspace')||process.cwd());
 const discovered=discoverWorkspace(cwd);
 const operator=discovered.repo==='loftwah/app-composer';
@@ -21,7 +24,7 @@ const account=flags.get('--account')||config.account_id||null;
 const worker=flags.get('--reference-worker')||(operator?'composer-hello':null);
 if(flags.has('--install-reference-tools')&&(!flags.has('--workspace')||flags.has('--deploy-reference')||flags.has('--cancel')))throw new Error('Tool installation requires an explicit authorised Hello workspace and cannot be combined with deployment or cancellation.');
 if(flags.has('--deploy-reference')&&(!flags.has('--workspace')||!flags.has('--account')||!flags.has('--reference-url')||!flags.has('--reference-repo')||!flags.has('--reference-worker')||flags.has('--cancel')))throw new Error('Reference deployment requires an explicit authorised workspace, account, Worker, HTTPS origin and repository; cancellation cannot deploy.');
-const state=await runLocalReadiness({workspace:cwd,target,account,worker,cancel:flags.has('--cancel'),operation:flags.has('--clone-reference')?'clone-reference':flags.has('--deploy-reference')?'deploy-reference':flags.has('--install-reference-tools')?'install-reference-tools':null,destination:flags.has('--clone-reference')?resolve(flags.get('--clone-reference')):null});
+const state=await runLocalReadiness({workspace:cwd,target,account,worker,cancel:flags.has('--cancel'),operation:flags.has('--own-reference')?'own-reference':flags.has('--clone-reference')?'clone-reference':flags.has('--deploy-reference')?'deploy-reference':flags.has('--install-reference-tools')?'install-reference-tools':null,destination:flags.has('--clone-reference')?resolve(flags.get('--clone-reference')):null,repository:flags.get('--own-reference')??null,resumeOwnership:flags.has('--resume-ownership')});
 if(flags.has('--publish-proof')){
  if(!operator||target?.origin!=='https://ready.loftwah.com'||state.state!=='verified')throw new Error('Only the verified launch environment may replace the public operator proof.');
  const proof={reviewed:new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'Australia/Melbourne'}).format(new Date()),url:target.origin,commit:state.checks.https.evidence.commit,checks:[{label:'Actual Codex workspace',status:'Verified',detail:'Git and authenticated GitHub push access checked in this agent workspace.'},{label:'Cloudflare deployment tools',status:'Verified',detail:'Authenticated Wrangler verified. No browser credentials assumed.'},{label:'Custom domain and HTTPS',status:'Verified',detail:'Selected hostname returned the exact reference source commit.'}]};
@@ -29,6 +32,6 @@ if(flags.has('--publish-proof')){
 }
 console.log('Readiness: '+state.state+'. Private workspace receipt saved; '+(state.operation?.state==='performed'?'selected reference operation performed.':'no reference operation performed.'));
 for(const item of Object.values(state.checks))console.log(item.label+': '+item.state+(item.action?' — '+item.action:''));
-if(state.operation)console.log('Reference operation: '+state.operation.state);
+if(state.operation)console.log('Reference operation: '+state.operation.state+(state.operation.action?' — '+state.operation.action:''));
 for(const pending of state.pendingOperations??[])console.log('Unfinished reference operation: '+pending.id+'. Recheck prerequisites and explicitly retry it, or use --cancel to cancel the old intent.');
 if(state.state!=='verified'&&state.state!=='cancelled')process.exitCode=1;
