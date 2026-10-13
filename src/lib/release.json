@@ -37,10 +37,11 @@
     "A compatible executable rollback restored the earlier root and both pinned apps; deleted media remained unavailable. Current code was restored with current owner data intact.",
     "Dark and light presentation inspected at desktop and phone widths; theme switch worked by keyboard with visible focus.",
     "Isolated preview deployed with distinct D1/R2/session storage, separate runtime encryption key and no production app services; native catalogue reads passed and missing mounts failed closed.",
-    "Live fictional-state browser journey encrypted/downloaded a fixture, imported/unlocked that actual export, rejected copying without consent and copied one reviewed memory. Passphrase cleared and device persistence contained ciphertext only."
+    "Live fictional-state browser journey encrypted/downloaded a fixture, imported/unlocked that actual export, rejected copying without consent and copied one reviewed memory. Passphrase cleared and device persistence contained ciphertext only.",
+    "Protected native EmDash owner login and catalogue editing/publishing verified through Cloudflare Access. Anonymous requests are redirected to the owner gate; alternate Worker routes still require a signed JWT."
   ],
   "remaining": [
-    "Cloudflare Zero Trust Free is activated. The prepared exact-owner Access policy awaits action-time approval; EmDash administration remains closed until protected native Access login is verified.",
+    "Native EmDash owner login and publishing are verified. Public accounts, self-signup and build authority remain closed.",
     "Chrome extension installation/dashboard acceptance and physical-device checks remain unverified.",
     "Portable AI State remains fictional-only; independent security, key recovery and real cross-provider interoperability acceptance remain open.",
     "Public multi-tenant provisioning, arbitrary repository builds and expanded registrar/provider support are not shipped.",
