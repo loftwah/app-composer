@@ -7,5 +7,17 @@ export function validateInspectionReport(value){
  const sourceSha=text(value.sourceSha,40);if(!/^[a-f0-9]{40}$/.test(sourceSha))throw new Error('The report needs a complete source commit.');
  if(!Array.isArray(value.findings)||value.findings.length>80)throw new Error('Invalid report findings.');
  const findings=value.findings.map(item=>{if(!item||!['pass','fix','review'].includes(item.status))throw new Error('Invalid finding state.');return{status:item.status,label:text(item.label,160),detail:text(item.detail,4000)};});
+ if(!Array.isArray(value.images)||value.images.length>2)throw new Error('Invalid image evidence.');
+ if(!value.images.length)findings.push({status:'review',label:'Image evidence',detail:'No share-image inspection evidence was included.'});
+ for(const image of value.images){
+  if(!image||!['Open Graph','X / Twitter'].includes(image.kind)||!['verified','failed','missing'].includes(image.status))throw new Error('Invalid image result.');
+  let detail=text(image.message,4000);
+  if(image.status==='verified'){
+   for(const field of ['width','height','bytes'])if(!Number.isInteger(image[field])||image[field]<=0)throw new Error('Invalid reported image dimensions.');
+   if(image.width>10000||image.height>10000||image.bytes>5*1024*1024)throw new Error('Reported image exceeds supported limits.');
+   detail+=` Reported file: ${image.width} × ${image.height}, ${image.bytes} bytes.`;
+  }
+  findings.push({status:image.status==='verified'?'pass':'fix',label:image.kind+' image',detail});
+ }
  return{contract:1,kind:'page-inspection',url:url.href,sourceSha,checkedAt,title:text(value.title,4000),findings};
 }
