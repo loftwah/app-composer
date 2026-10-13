@@ -42,7 +42,7 @@
     "A compatible executable rollback restored the earlier root and both pinned apps; deleted media remained unavailable. Current code was restored with current owner data intact.",
     "Dark and light presentation inspected at desktop and phone widths; theme switch worked by keyboard with visible focus.",
     "Isolated preview deployed with distinct D1/R2/session storage, separate runtime encryption key and no production app services; native catalogue reads passed and missing mounts failed closed.",
-    "Live fictional-state browser journey encrypted/downloaded a fixture, imported/unlocked that actual export, rejected copying without consent and copied one reviewed memory. Passphrase cleared and device persistence contained ciphertext only.",
+    "Live fictional-state browser journey encrypted/downloaded a fixture, imported/unlocked that actual export, rejected copying without consent and copied one reviewed memory. Passphrase cleared and vault persistence contained ciphertext only; the reader theme is saved separately.",
     "Protected native EmDash owner login and catalogue editing/publishing verified through Cloudflare Access. Anonymous requests are redirected to the owner gate; alternate Worker routes still require a signed JWT.",
     "Saved themes, searchable Ctrl/Cmd+K navigation, first-press Escape and trigger-focus restoration verified on all four independent mini-apps and the mounted pair; phone widths have no horizontal overflow.",
     "Generated fictional courtyard and coastal scenes submitted through the real upload pipeline: pending media denied, approval and featuring succeeded, public media bytes matched and original opened through the composition. Older authored demo fixtures were hidden with backups retained.",
