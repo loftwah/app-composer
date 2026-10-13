@@ -1,0 +1,42 @@
+{
+  "reviewed": "2026-10-13",
+  "state": "First working operator release; wider onboarding and acceptance gates remain open",
+  "sources": [
+    {
+      "name": "guestbook",
+      "url": "https://github.com/loftwah/app-composer-guestbook",
+      "commit": "61300860a063d402bb28a493bdfbb3225a677dfd"
+    },
+    {
+      "name": "showcase",
+      "url": "https://github.com/loftwah/app-composer-showcase",
+      "commit": "a0fe5c5f29ca206e04dbdeb09ecc35d5f2f7a48e"
+    },
+    {
+      "name": "hello",
+      "url": "https://github.com/loftwah/app-composer-hello",
+      "commit": "f9b2cea43833c213a45352ff592650cdd094e4ad"
+    },
+    {
+      "name": "state",
+      "url": "https://github.com/loftwah/app-composer-state",
+      "commit": "92bc880a747be7ec0373c5631c222faf4db7513b"
+    }
+  ],
+  "verified": [
+    "Independent Guestbook, Showcase and Hello reference deployed over HTTPS with exact source identity.",
+    "Real supported PNG submission remained private until approval; featuring, source opening, hiding and deletion revoked controlled media/items/cards.",
+    "Typed Init specification applied a changed live title, midnight theme and editorial layout.",
+    "Hello reference changed title/theme and redeployed; exact custom-domain source verified.",
+    "Branching Explorer, portable specs and saved local drafts share one deterministic schema.",
+    "EmDash published catalogue schema/content seeded into distinct production and preview D1 databases.",
+    "Synthetic vault encryption round-trip, wrong-key, tamper, unknown-field, duplicate-ID and scoped-disclosure checks passed."
+  ],
+  "remaining": [
+    "Cloudflare Access management is outside the current token scope; browser fallback requires MP MFA. EmDash administration remains closed pending Access protection and native owner/passkey setup.",
+    "Chrome extension installation/dashboard acceptance and physical-device checks remain unverified.",
+    "Portable AI State remains fictional-only; independent security, key recovery and real cross-provider interoperability acceptance remain open.",
+    "Public multi-tenant provisioning, arbitrary repository builds and expanded registrar/provider support are not shipped.",
+    "Automatic update concurrency/conflict coverage and complete release/data recovery acceptance remain open."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "reviewed": "13 October 2026",
+  "url": "https://ready.loftwah.com",
+  "commit": "f9b2cea43833c213a45352ff592650cdd094e4ad",
+  "checks": [
+    {
+      "label": "Actual Codex workspace",
+      "status": "Verified",
+      "detail": "Repository identity, Git and authenticated GitHub push access checked in this agent task."
+    },
+    {
+      "label": "Cloudflare deployment tools",
+      "status": "Verified",
+      "detail": "Authenticated Wrangler 4.143.1. No browser credentials assumed."
+    },
+    {
+      "label": "Custom domain and HTTPS",
+      "status": "Verified",
+      "detail": "Selected custom hostname returned the exact reference source commit."
+    }
+  ]
+}

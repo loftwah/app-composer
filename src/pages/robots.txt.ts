@@ -1,0 +1,1 @@
+export function GET(){return new Response('User-agent: *\nAllow: /\nDisallow: /_emdash/\nDisallow: /guestbook/owner\nDisallow: /showcase/owner\nSitemap: https://composer.loftwah.com/sitemap.xml\n',{headers:{'Content-Type':'text/plain'}});}

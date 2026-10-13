@@ -1,0 +1,35 @@
+{
+  "name": "app-composer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.8.1",
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "node scripts/identity.mjs && astro build",
+    "check": "node scripts/identity.mjs && astro check && node --test tests/*.test.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "deploy": "node scripts/deploy.mjs",
+    "ready": "node scripts/ready.mjs",
+    "compose": "node scripts/compose.mjs",
+    "compose:promote": "node scripts/promote.mjs"
+  },
+  "dependencies": {
+    "astro": "7.3.5",
+    "@astrojs/cloudflare": "14.3.3",
+    "@astrojs/react": "7.0.0",
+    "@emdash-cms/cloudflare": "1.0.1",
+    "emdash": "1.0.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "jose": "6.1.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@cloudflare/workers-types": "5.20260929.1",
+    "typescript": "6.0.3",
+    "wrangler": "4.143.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0"
+  }
+}

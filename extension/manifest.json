@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "App Composer for Cloudflare",
+  "version": "0.1.0",
+  "description": "An optional third-party App Composer workspace on the Cloudflare dashboard. Agent handoffs, never harvested credentials.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "action": {
+    "default_title": "Open App Composer workspace"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "128": "icon.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "spec.mjs"
+      ],
+      "matches": [
+        "https://dash.cloudflare.com/*"
+      ]
+    }
+  ]
+}

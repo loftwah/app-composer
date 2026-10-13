@@ -1,0 +1,1 @@
+chrome.action.onClicked.addListener(async tab=>{if(!tab.id||!tab.url?.startsWith('https://dash.cloudflare.com/')){await chrome.tabs.create({url:'https://composer.loftwah.com/extension'});return;}await chrome.scripting.executeScript({target:{tabId:tab.id},files:['workspace.js']});});
