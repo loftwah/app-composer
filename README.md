@@ -201,6 +201,27 @@ Older blocked receipts may not identify the operation. Their unfinished intent i
 
 Init conditional drafts: only the visible existing-domain choice validates and exports a hostname. Hidden card/layout/hostname controls cannot block native form submission. Switching back keeps unfinished values in the current form so they can be repaired; only applicable validated fields enter the saved/exported spec. Active link cards need a title and HTTPS destination, and removing a row immediately refreshes the spec/handoff. No form choice authorises setup or deployment.
 
+## Prepare missing workspace tools
+
+Reviewed 14 October 2026. The explicit supported step uses active Codex on macOS Apple Silicon, Node 22 and existing Git. It checks existing tools first. Usable GitHub CLI and pnpm are reused; otherwise it prepares GitHub CLI 2.98.0 and pnpm 12.9.1 inside the selected workspace. It changes no machine installation, shell profile, account login or cloud resource. The Node command works before pnpm is available:
+
+```sh
+node /path/to/app-composer/scripts/ready.mjs --workspace /your/authorised-folder --install-workspace-tools
+```
+
+Official release URLs, sizes and SHA-256 digests are fixed in `lib/get-ready/workspace-tools.mjs`. Only one GitHub release-assets redirect is allowed. Decoded bytes are bounded and hashed; compressed HTTP lengths do not replace those checks. pnpm’s full runtime and both tools’ licences are retained. The complete installed file tree is checked before execution and again after isolated version probes; service credentials and inherited execution controls are excluded from preparation. Existing, linked or partial tool folders are preserved for inspection. Private temporary preparation bytes remain available after failure; the agent never deletes an interrupted install automatically.
+
+When the result’s scope is `workspace`, explicitly select it for later checks or supported operations:
+
+```sh
+node /path/to/app-composer/scripts/ready.mjs --workspace /your/authorised-folder --use-workspace-tools --report
+node /path/to/app-composer/scripts/ready.mjs --workspace /your/hello-checkout --tools-workspace /your/authorised-folder --report
+```
+
+The second command reuses the verified pair in a different output repository. It does not install another copy or grant repository/account/deployment authority. An `existing` result needs no prepared-tool flag. Ordinary resumes do not activate private executables or retry setup implicitly. Programmatic consumers use the same `runLocalReadiness` operation and `useWorkspaceTools`/`toolsWorkspace` options; there is no second installer/doctor. Git/Node installation, new account sign-in and domain setup remain separate supported-workflow gaps.
+
+Pins were checked against the official [GitHub CLI release](https://github.com/cli/cli/releases/tag/v2.98.0), [pnpm release](https://github.com/pnpm/pnpm/releases/tag/v12.9.1) and [installation guidance](https://pnpm.io/installation). These are reviewed versions, not an automatic latest-version policy.
+
 ## App activity and health
 
 Reviewed 14 October 2026. `/activity` ranks recorded public home-page opens across the five mini-apps, with original photo opens and completed inspections separately labelled. `/api/usage` exposes the same aggregate data. Existing Composer D1 stores only UTC day/app/event/version counters; no individual event, IP, cookie, user, URL, search or vault data is saved. Seven- or thirty-day views use six finite cache keys per UTC day and a one-minute cache. Retention runs once daily on the existing CMS schedule and keeps 35 inclusive UTC day buckets. Daily counters cap at 1,000 per app/event/version. A native shared limit drops excess events at 60 per minute per app/event per Cloudflare location; capped cells are suppressed in each active isolate. This bounds recorded work, not account spending or global HTTP traffic. The US$5 alert remains an alert.
