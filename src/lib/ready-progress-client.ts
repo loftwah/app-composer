@@ -1,10 +1,14 @@
-import {validateReadinessReport,inspectReadinessReport,progressChecks,progressOperationLabels,progressStep,type ReadinessReport} from '../../lib/get-ready/report.mjs';
+import {validateReadinessReport,inspectReadinessReport,progressChecks,progressOperationLabels,progressStep,progressHelp,type ReadinessReport} from '../../lib/get-ready/report.mjs';
 const container=document.querySelector<HTMLElement>('[data-ready-progress]')!;
 const fileInput=container.querySelector<HTMLInputElement>('[data-progress-file]')!;
 const message=container.querySelector<HTMLElement>('[data-progress-message]')!;
 let report:ReadinessReport|null=null,generation=0,timer:ReturnType<typeof setTimeout>|undefined;
 const toolNames:Record<string,string>={git:'Git',gh:'GitHub CLI',pnpm:'pnpm',agent:'Codex workspace'};
 const node=(tag:string,text:string,className='')=>{const element=document.createElement(tag);element.textContent=text;element.className=className;return element;};
+function helpLink(step:Pick<ReadinessReport['checks'][number],'id'|'state'|'recovery'>,current=false){
+ const help=progressHelp(step,current);if(!help)return null;
+ const paragraph=node('p','','small'),link=document.createElement('a');link.textContent=help.label;link.href=help.href;link.className='underline';paragraph.append(link);return paragraph;
+}
 function refresh(){
  clearTimeout(timer);
  const list=container.querySelector('[data-progress-checks]')!;
@@ -22,10 +26,18 @@ function refresh(){
   const current=inspection.capabilities[check.id];
   const label=current?'Verified in report':check.state==='verified'?'Check again':check.recovery==='human-authentication'?'Sign-in needed':check.recovery==='human-permission'?'Permission needs review':check.recovery==='agent-retry'?'Agent retry needed':check.state==='not_started'?'Not checked':'Agent action needed';
   const row=document.createElement('li');row.append(node('h3',progressChecks[check.id].label),node('strong',label,current?'pass':'needs-attention'),node('p',progressStep(check,current),'small'));
+  const help=helpLink(check,current);if(help)row.append(help);
   if(check.tools.length)row.append(node('p',check.tools.map(tool=>`${toolNames[tool.tool]}: ${tool.state==='inactive'?'no active session':tool.state==='missing'?'missing':'needs repair'}`).join(' · '),'small'));
   return row;
  }));
- if(report.operations.length){operations.hidden=false;operations.append(node('h3','Unfinished setup'));for(const operation of report.operations)operations.append(node('p',`${progressOperationLabels[operation.id]}: ${operation.state==='prepared'?'prepared for review':'needs agent inspection'}. No retry is automatic.`,'small'));}
+ if(report.operations.length){
+  operations.hidden=false;operations.append(node('h3','Unfinished setup'));
+  for(const operation of report.operations){
+   const status=operation.state==='prepared'?'prepared for review':operation.recovery==='human-authentication'?'sign-in needed':operation.recovery==='human-permission'?'permission needs review':'needs agent inspection';
+   operations.append(node('p',`${progressOperationLabels[operation.id]}: ${status}. No retry is automatic.`,'small'));
+   if(operation.state!=='prepared'){operations.append(node('p',progressStep(operation,false),'small'));const help=helpLink(operation);if(help)operations.append(help);}
+  }
+ }
  const boundaries=report.checks.filter(check=>inspection.capabilities[check.id]&&check.verifiedAt).map(check=>Date.parse(check.verifiedAt!)+3600000);
  if(report.expiresAt&&Date.parse(report.expiresAt)>Date.now())boundaries.push(Date.parse(report.expiresAt));
  const next=Math.min(...boundaries);if(Number.isFinite(next))timer=setTimeout(refresh,Math.max(1,next-Date.now()+1));

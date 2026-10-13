@@ -5,4 +5,5 @@ export const progressChecks:Record<string,{label:string;help:string}>;
 export function validateReadinessReport(input:unknown,now?:number):ReadinessReport;
 export function readinessReport(session:any,now?:number):ReadinessReport;
 export function inspectReadinessReport(input:unknown,now?:number):{report:ReadinessReport;inspection:{ready:boolean;state:string;capabilities:Record<string,boolean>}};
-export function progressStep(check:ProgressCheck,current:boolean):string;
+export function progressStep(check:Pick<ProgressCheck,'id'|'state'|'recovery'>,current:boolean):string;
+export function progressHelp(step:Pick<ProgressCheck,'id'|'state'|'recovery'>,current?:boolean):{href:string;label:string}|null;
