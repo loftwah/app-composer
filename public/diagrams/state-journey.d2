@@ -1,0 +1,15 @@
+direction: right
+style.fill: "#17181b"
+vars: { d2-config: { pad: 20 } }
+*.style: { font-size: 22; bold: false; fill: "#23252a"; stroke: "#747a85"; font-color: "#f2f3f5"; border-radius: 8 }
+profile: Fictional assistant\nOn your device
+cipher: Encrypted export\nKeep the file
+key: Your passphrase\nKeep it separately
+review: Selected memories\nReview and consent
+provider: Your chosen provider\nOnly the copied selection
+profile -> cipher: Encrypt locally
+key -> cipher: Unlock locally
+profile -> review: Choose what to share
+review -> provider: Copy with consent
+(* -> *)[*].style: { stroke: "#ff9b55"; font-color: "#f2f3f5"; font-size: 18 }
+key.style.stroke-dash: 5
