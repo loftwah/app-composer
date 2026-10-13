@@ -1,4 +1,4 @@
-import {execFileSync} from 'node:child_process';import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';import {mkdirSync,writeFileSync} from 'node:fs';
 const run=(cmd,args)=>execFileSync(cmd,args,{encoding:'utf8',timeout:20000}).trim();
 const workspace=run('git',['rev-parse','--show-toplevel']);const remote=run('git',['remote','get-url','origin']);if(!/^git@github\.com:loftwah\/app-composer\.git$|^https:\/\/github\.com\/loftwah\/app-composer(?:\.git)?$/.test(remote))throw new Error('This workspace is not the supported Composer source');
 const github=JSON.parse(run('gh',['api','repos/loftwah/app-composer']));if(!github.permissions?.push)throw new Error('GitHub push permission is missing');
