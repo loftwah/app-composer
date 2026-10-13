@@ -1,18 +1,43 @@
 ---
-import { readyHandoff } from '../lib/ready-handoff';
+import { readyTasks } from '../lib/ready-handoff';
 import { Copy } from '@lucide/astro';
 ---
 <div data-ready-handoff>
- <button class="button" data-copy-ready><Copy size={18} aria-hidden="true"/>Copy to Codex</button>
+ <label>What should the agent do?
+  <select data-ready-task disabled>{Object.entries(readyTasks).map(([id,task])=><option value={id}>{task.label}</option>)}</select>
+ </label>
+ <p data-ready-help class="small" role="status">{readyTasks.setup.help}</p>
+ <button class="button" data-copy-ready disabled><Copy size={18} aria-hidden="true"/>Copy to Codex</button>
  <p data-ready-message role="status" aria-live="polite" class="message"></p>
- <details><summary>Read or copy the agent handoff</summary><pre data-ready-prompt>{readyHandoff}</pre></details>
+ <details><summary>Read or copy the agent handoff</summary><pre data-ready-prompt tabindex="0">{readyTasks.setup.prompt}</pre></details>
+ <noscript><p class="small">Open the handoff above, select its text and copy it into Codex. Without JavaScript, it contains the full setup request.</p></noscript>
 </div>
 <script>
+import {readyTasks} from '../lib/ready-handoff';
 for(const container of document.querySelectorAll<HTMLElement>('[data-ready-handoff]')){
- container.querySelector('[data-copy-ready]')!.addEventListener('click',async()=>{
-  const message=container.querySelector('[data-ready-message]')!;
-  try{await navigator.clipboard.writeText(container.querySelector('[data-ready-prompt]')!.textContent!);message.textContent='Copied. Paste this into Codex in your chosen project.';}
-  catch{message.textContent='Clipboard access failed. Open the handoff below, select its text and copy it.';container.querySelector('details')!.open=true;}
+ const selector=container.querySelector<HTMLSelectElement>('[data-ready-task]')!;
+ const button=container.querySelector<HTMLButtonElement>('[data-copy-ready]')!;
+ const prompt=container.querySelector<HTMLElement>('[data-ready-prompt]')!;
+ const message=container.querySelector<HTMLElement>('[data-ready-message]')!;
+ const update=()=>{
+  const task=readyTasks[selector.value as keyof typeof readyTasks]??readyTasks.setup;
+  prompt.textContent=task.prompt;
+  container.querySelector('[data-ready-help]')!.textContent=task.help;
+  message.textContent='';
+ };
+ // Reconcile browser-restored form state before enabling copy.
+ update();selector.disabled=false;button.disabled=false;
+ selector.addEventListener('change',update);
+ // Native form restoration may finish after the module first executes.
+ window.addEventListener('pageshow',update);
+ button.addEventListener('click',async()=>{
+  const task=selector.value;const text=prompt.textContent!;
+  try{
+   await navigator.clipboard.writeText(text);
+   if(selector.value===task)message.textContent='Copied. Paste this into Codex in your chosen project.';
+  }catch{
+   if(selector.value===task){message.textContent='Clipboard access failed. Open the handoff below, select its text and copy it.';container.querySelector('details')!.open=true;}
+  }
  });
 }
 </script>
