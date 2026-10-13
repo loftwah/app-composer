@@ -1,17 +1,17 @@
 {
-  "id": "1c74d860ea3c047817cbb785ce6c676cd5c2073dbbd48218f2159cd373f8c55f",
+  "id": "b53dd479568c0a1dbd69db09395f8c213ae3251c5d1fc48dcbdd1c40ed69b5cc",
   "reviewed": "2026-10-13",
   "apps": [
     {
       "id": "guestbook",
       "repository": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "61300860a063d402bb28a493bdfbb3225a677dfd",
+      "commit": "0616ab3ebd4813fda4958659f4a74a6f23c52a90",
       "url": "https://guestbook.loftwah.com",
       "manifest": {
         "contract": 1,
         "id": "guestbook",
         "name": "Here / there",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "repository": "https://github.com/loftwah/app-composer-guestbook",
         "runtime": "cloudflare-worker",
         "entry": "src/worker.ts",
@@ -32,7 +32,7 @@
           },
           "intro": {
             "type": "string",
-            "default": "A place for moments worth keeping.",
+            "default": "A little piece of where you are, approved before it is shared.",
             "maxLength": 240
           },
           "theme": {
@@ -53,12 +53,12 @@
           }
         }
       },
-      "manifestDigest": "sha256:b801190d18eeb1ed6d953e6acc767153fad549094ee97762ba0672c018745cfd"
+      "manifestDigest": "sha256:54d2f464d9e0ed2e2a529bee67ce5ab94bb8b7592ece560b18b55bc12efbfda3"
     },
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "a0fe5c5f29ca206e04dbdeb09ecc35d5f2f7a48e",
+      "commit": "0618a1529b6a1781e7e91633b081a5b4720c8e76",
       "url": "https://showcase.loftwah.com",
       "manifest": {
         "contract": 1,

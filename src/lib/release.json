@@ -5,12 +5,12 @@
     {
       "name": "guestbook",
       "url": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "61300860a063d402bb28a493bdfbb3225a677dfd"
+      "commit": "0616ab3ebd4813fda4958659f4a74a6f23c52a90"
     },
     {
       "name": "showcase",
       "url": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "a0fe5c5f29ca206e04dbdeb09ecc35d5f2f7a48e"
+      "commit": "0618a1529b6a1781e7e91633b081a5b4720c8e76"
     },
     {
       "name": "hello",
@@ -20,7 +20,7 @@
     {
       "name": "state",
       "url": "https://github.com/loftwah/app-composer-state",
-      "commit": "92bc880a747be7ec0373c5631c222faf4db7513b"
+      "commit": "e98f46c057f1177d3fbed975c8cb0cf5d66f2baf"
     }
   ],
   "verified": [
@@ -30,7 +30,10 @@
     "Hello reference changed title/theme and redeployed; exact custom-domain source verified.",
     "Branching Explorer, portable specs and saved local drafts share one deterministic schema.",
     "EmDash published catalogue schema/content seeded into distinct production and preview D1 databases.",
-    "Synthetic vault encryption round-trip, wrong-key, tamper, unknown-field, duplicate-ID and scoped-disclosure checks passed."
+    "Synthetic vault encryption round-trip, wrong-key, tamper, unknown-field, duplicate-ID and scoped-disclosure checks passed.",
+    "Real upstream source updates did not change the active composition before explicit promotion.",
+    "An actual incompatible GitHub contract revision was rejected without changing the running release.",
+    "Owner metadata exports restored into isolated SQLite datasets with current deletion tombstones and configuration intact."
   ],
   "remaining": [
     "Cloudflare Access management is outside the current token scope; browser fallback requires MP MFA. EmDash administration remains closed pending Access protection and native owner/passkey setup.",
