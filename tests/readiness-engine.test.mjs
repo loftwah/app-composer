@@ -6,10 +6,17 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createReadinessSession,runReadinessSession,inspectReadiness,recipe,ReadinessFailure,runLocalReadiness,createLocalAdapter,discoverWorkspace} from '../lib/get-ready/index.mjs';
 import {installedWrangler,localChecks,runWorkspaceWrangler} from '../lib/get-ready/local-checks.mjs';
-import {referenceInstallArgs,referenceInstallEnvironment,verifyReferenceConfig} from '../lib/get-ready/local.mjs';
+import {referenceInstallArgs,referenceInstallEnvironment,referenceReleaseEnvironment,verifyReferenceConfig} from '../lib/get-ready/local.mjs';
 
 const context=()=>({workspace:'/fictional/hello',repo:'fixture/hello',source:'a'.repeat(40),dirty:false,target:{origin:'https://hello.example.test',repo:'fixture/hello'},account:'b'.repeat(32),worker:'fictional-hello'});
 const adapter=(overrides={},calls=[])=>({checks:recipe.checks.map(id=>({id,label:id,action:'Complete official authentication.',verify:async()=>{calls.push(id);if(overrides[id])return overrides[id]();return {checked:true};}}))});
+
+test('reference release receives the selected scope rather than inherited Hello defaults',()=>{
+ const selected=context();
+ const env=referenceReleaseEnvironment(selected,{HELLO_REPOSITORY:'other/hello',HELLO_ACCOUNT_ID:'c'.repeat(32),HELLO_WORKER:'other-hello',HELLO_ORIGIN:'https://other.example.test',CLOUDFLARE_API_TOKEN:'fictional-deploy-token'});
+ assert.equal(env.HELLO_REPOSITORY,selected.repo);assert.equal(env.HELLO_ACCOUNT_ID,selected.account);assert.equal(env.HELLO_WORKER,selected.worker);assert.equal(env.HELLO_ORIGIN,selected.target.origin);
+ assert.equal(env.CLOUDFLARE_API_TOKEN,'fictional-deploy-token');
+});
 
 test('the installed Wrangler config binds reference preparation and deployment to account, Worker and origin',async()=>{
  const {readFileSync}=await import('node:fs');const workspace=new URL('..',import.meta.url).pathname;
