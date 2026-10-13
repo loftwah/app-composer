@@ -1,0 +1,92 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "app-composer",
+  "account_id": "1003dc1d93af0ebea56b2f1252f89627",
+  "main": "./src/worker.ts",
+  "compatibility_date": "2026-10-13",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": true,
+  "routes": [
+    {
+      "pattern": "composer.loftwah.com",
+      "custom_domain": true
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "app-composer-emdash",
+      "database_id": "1b2b29c8-4109-4a5f-901a-befc91173bc5",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 0.1
+  },
+  "vars": {
+    "PUBLIC_ORIGIN": "https://composer.loftwah.com"
+  },
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "app-composer-media"
+    }
+  ],
+  "services": [
+    {
+      "binding": "GUESTBOOK",
+      "service": "composer-guestbook-1c74d860ea3c0478"
+    },
+    {
+      "binding": "SHOWCASE",
+      "service": "composer-showcase-1c74d860ea3c0478"
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "* * * * *"
+    ]
+  },
+  "env": {
+    "preview": {
+      "name": "app-composer-preview",
+      "routes": [],
+      "vars": {
+        "PUBLIC_ORIGIN": "https://app-composer-preview.loftwah.workers.dev"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "app-composer-emdash-preview",
+          "database_id": "bdbbe1c4-e1ff-43d3-a89d-d7dd76d13c0a"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "MEDIA",
+          "bucket_name": "app-composer-media-preview"
+        }
+      ],
+      "services": [],
+      "triggers": {
+        "crons": []
+      },
+      "kv_namespaces": [
+        {
+          "binding": "SESSION",
+          "id": "2e7ac1e5417f4425be41d60d99a35de1"
+        }
+      ]
+    }
+  },
+  "preview_urls": false,
+  "kv_namespaces": [
+    {
+      "binding": "SESSION",
+      "id": "3a76800194064e498949fd7c251af7e3"
+    }
+  ]
+}

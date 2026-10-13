@@ -1,0 +1,2 @@
+import {env} from 'cloudflare:workers';
+export async function GET(){const db=env.DB as {prepare(sql:string):{all():Promise<{results:unknown[]}>}};const sources=await db.prepare('SELECT id,repository,commit_sha,reviewed FROM composer_sources ORDER BY id').all();const releases=await db.prepare('SELECT id,state,created_at FROM composer_releases ORDER BY created_at DESC LIMIT 10').all();return new Response(JSON.stringify({contract:1,sources:sources.results,releases:releases.results}),{headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});}

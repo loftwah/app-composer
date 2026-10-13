@@ -1,0 +1,111 @@
+{
+  "id": "1c74d860ea3c047817cbb785ce6c676cd5c2073dbbd48218f2159cd373f8c55f",
+  "reviewed": "2026-10-13",
+  "apps": [
+    {
+      "id": "guestbook",
+      "repository": "https://github.com/loftwah/app-composer-guestbook",
+      "commit": "61300860a063d402bb28a493bdfbb3225a677dfd",
+      "url": "https://guestbook.loftwah.com",
+      "manifest": {
+        "contract": 1,
+        "id": "guestbook",
+        "name": "Here / there",
+        "version": "1.0.0",
+        "repository": "https://github.com/loftwah/app-composer-guestbook",
+        "runtime": "cloudflare-worker",
+        "entry": "src/worker.ts",
+        "dataVersion": 1,
+        "routes": [
+          "/guestbook"
+        ],
+        "capabilities": [
+          "items:read",
+          "items:moderate",
+          "media:private"
+        ],
+        "configuration": {
+          "title": {
+            "type": "string",
+            "default": "Here / there",
+            "maxLength": 80
+          },
+          "intro": {
+            "type": "string",
+            "default": "A place for moments worth keeping.",
+            "maxLength": 240
+          },
+          "theme": {
+            "type": "select",
+            "options": [
+              "daylight",
+              "midnight"
+            ],
+            "default": "daylight"
+          },
+          "layout": {
+            "type": "select",
+            "options": [
+              "grid",
+              "editorial"
+            ],
+            "default": "grid"
+          }
+        }
+      },
+      "manifestDigest": "sha256:b801190d18eeb1ed6d953e6acc767153fad549094ee97762ba0672c018745cfd"
+    },
+    {
+      "id": "showcase",
+      "repository": "https://github.com/loftwah/app-composer-showcase",
+      "commit": "a0fe5c5f29ca206e04dbdeb09ecc35d5f2f7a48e",
+      "url": "https://showcase.loftwah.com",
+      "manifest": {
+        "contract": 1,
+        "id": "showcase",
+        "name": "Good company",
+        "version": "1.0.0",
+        "repository": "https://github.com/loftwah/app-composer-showcase",
+        "runtime": "cloudflare-worker",
+        "entry": "src/worker.ts",
+        "dataVersion": 1,
+        "routes": [
+          "/showcase"
+        ],
+        "capabilities": [
+          "items:read",
+          "features:write"
+        ],
+        "configuration": {
+          "title": {
+            "type": "string",
+            "default": "Good company",
+            "maxLength": 80
+          },
+          "intro": {
+            "type": "string",
+            "default": "A few things we think you should see.",
+            "maxLength": 240
+          },
+          "theme": {
+            "type": "select",
+            "options": [
+              "daylight",
+              "midnight"
+            ],
+            "default": "daylight"
+          },
+          "layout": {
+            "type": "select",
+            "options": [
+              "grid",
+              "editorial"
+            ],
+            "default": "grid"
+          }
+        }
+      },
+      "manifestDigest": "sha256:d589e8bdc3e407e28c29f621a82662a0976c1d4547db4f164485e5a374af3512"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "version": "1",
+  "meta": {
+    "name": "App Composer",
+    "description": "Managed mini-app catalogue",
+    "author": "Loftwah"
+  },
+  "settings": {
+    "title": "App Composer",
+    "url": "https://composer.loftwah.com",
+    "timezone": "Australia/Melbourne"
+  },
+  "collections": [
+    {
+      "slug": "catalogue",
+      "label": "Mini-app catalogue",
+      "labelSingular": "Mini-app",
+      "supports": [
+        "drafts",
+        "revisions",
+        "search",
+        "seo"
+      ],
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true
+        },
+        {
+          "slug": "description",
+          "label": "Description",
+          "type": "text",
+          "required": true
+        },
+        {
+          "slug": "href",
+          "label": "Live route",
+          "type": "url",
+          "required": true
+        },
+        {
+          "slug": "source",
+          "label": "Independent source",
+          "type": "url",
+          "required": true
+        },
+        {
+          "slug": "reviewed",
+          "label": "Review date",
+          "type": "string",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "content": {
+    "catalogue": [
+      {
+        "id": "catalogue-guestbook",
+        "slug": "guestbook",
+        "status": "published",
+        "data": {
+          "title": "Here / there",
+          "description": "A moderated, invitation-only Photo Guestbook. Approved contributions expose a generic item-provider interface; hidden or deleted media cannot be featured.",
+          "href": "https://guestbook.loftwah.com",
+          "source": "https://github.com/loftwah/app-composer-guestbook",
+          "reviewed": "2026-10-13"
+        }
+      },
+      {
+        "id": "catalogue-showcase",
+        "slug": "showcase",
+        "status": "published",
+        "data": {
+          "title": "Good company",
+          "description": "A configurable Curated Showcase. Publish your own links or feature an eligible source contribution; current source privacy is checked on each request.",
+          "href": "https://showcase.loftwah.com",
+          "source": "https://github.com/loftwah/app-composer-showcase",
+          "reviewed": "2026-10-13"
+        }
+      }
+    ]
+  }
+}

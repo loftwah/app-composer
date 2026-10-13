@@ -1,0 +1,12 @@
+# Continuation
+Reviewed 13 October 2026. MP activated implementation; historical epic hold is lifted.
+
+Built: real Astro/EmDash/D1 catalogue; independent Guestbook and Showcase Workers with configurable owner studios, private validated uploads and generic eligible-item contract; independently deployed configurable Hello reference; saved Init specs and matching external-Codex handoffs; branching non-executing Explorer; optional MV3 dashboard extension; independent encrypted synthetic-only state demo.
+
+Evidence: private runtime receipts under `.private/`; public canonical index is GitHub #11 and `/release`. Exact pins are `composition.lock.json`. The live pair test performs real PNG submit/pending/approve/feature/hide/delete and direct-media revocation, never personal uploads. Typed Init configuration changed the live title, theme and layout. Hello was changed and redeployed with exact HTTPS identity. Vault round-trip/tamper/wrong-key/allowlist/unique-ID/scoped-disclosure tests pass.
+
+Release: initial main product launch in progress. Integrated code services are pinned by source SHA and staged before root activation. Their app-owned data remains shared with standalone apps so moderation is current. Ordinary upstream deployments cannot replace composed code. Do not treat staged candidates as active. Preview D1/R2/KV are distinct and no production service bindings are available there.
+
+Real remaining gates: Cloudflare Access management returns 403 with the present runtime token. Administration is closed until trusted JWT issuer/audience configuration exists, followed by MP’s native EmDash account/passkey setup. Public catalogue is seeded and queried independently of that gate. Chrome installed-dashboard acceptance and physical-device verification remain separate. Vault remains fictional-only pending independent security/provider interoperability/recovery acceptance. General public multi-tenant provisioning, unknown source builds, automatic-update concurrency/conflict coverage and provider/registrar breadth are not shipped claims.
+
+Next: finish root PR/deployment and live browser evidence; demonstrate actual compatible source update, rejection and code rollback preserving current data; update #11 and owning issues with verified SHAs/versions and precise open gates.
