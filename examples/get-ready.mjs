@@ -1,7 +1,7 @@
 // Minimal independent Node consumer; no EmDash, composition or Woodhouse imports.
 import {runLocalReadiness,referenceTarget,inspectReadiness} from '../lib/get-ready/index.mjs';
 const [workspace,account,worker,origin,repo,operation,selection,...extra]=process.argv.slice(2);
-if(!workspace||extra.length||(operation&&!['clone-reference','own-reference','deploy-reference','install-reference-tools','prepare-reference-target'].includes(operation)))throw new Error('Supply workspace, account ID, Worker name, HTTPS origin and GitHub owner/repo; use - for unselected targets. Optional: clone-reference ABSOLUTE_DESTINATION, own-reference OWNER/NAME, install-reference-tools, prepare-reference-target or deploy-reference.');
+if(!workspace||extra.length||(operation&&!['clone-reference','own-reference','deploy-reference','install-reference-tools','prepare-reference-target','deploy-owned-reference'].includes(operation)))throw new Error('Supply workspace, account ID, Worker name, HTTPS origin and GitHub owner/repo; use - for unselected targets. Optional: clone-reference ABSOLUTE_DESTINATION, own-reference OWNER/NAME, install-reference-tools, prepare-reference-target, deploy-owned-reference or deploy-reference.');
 const chosen=value=>value&&value!=='-'?value:null;
 if(!!chosen(origin)!==!!chosen(repo))throw new Error('Select both reference origin and repository, or neither.');
 if(selection&&!['clone-reference','own-reference'].includes(operation))throw new Error('Only clone/ownership accepts a selection.');
