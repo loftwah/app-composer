@@ -1,8 +1,7 @@
-import {execFileSync} from 'node:child_process';
 import {mkdirSync,readFileSync,writeFileSync,renameSync,openSync,closeSync,unlinkSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {githubRepository,referenceTarget,finishReadiness} from './readiness-state.mjs';
-import {ReadinessFailure,readinessJSON,runReadinessCheck} from './readiness-check.mjs';
+import {ReadinessFailure,readinessJSON,runReadinessCheck,runReadinessCommand} from './readiness-check.mjs';
 
 const args=process.argv.slice(2);
 const flags=new Map();
@@ -13,7 +12,7 @@ for(let i=0;i<args.length;i++){
  flags.set(flag,args[++i]);
 }
 const cwd=resolve(flags.get('--workspace')||process.cwd());
-const run=(cmd,argv)=>execFileSync(cmd,argv,{cwd,encoding:'utf8',timeout:20000,stdio:['ignore','pipe','pipe']}).trim();
+const run=(cmd,argv)=>runReadinessCommand(cmd,argv,{cwd,encoding:'utf8',timeout:20000,stdio:['ignore','pipe','pipe']});
 let workspace=cwd,repo=null,source=null,dirty=null;
 try{workspace=run('git',['rev-parse','--show-toplevel']);}catch{}
 try{repo=githubRepository(run('git',['remote','get-url','origin']));}catch{}
@@ -58,6 +57,7 @@ try{
   });
   await check('cloudflare','Cloudflare deployment tools','Complete the official Wrangler login or supply an authorised Cloudflare deployment token, then rerun. Do not paste credentials into Composer.',async()=>{
    const identity=JSON.parse(run('pnpm',['exec','wrangler','whoami','--json']));
+   if(identity.loggedIn!==true)throw new ReadinessFailure('authentication');
    if(!account||!identity.accounts?.some(value=>value.id===account))throw new ReadinessFailure('configuration');
    return {wrangler:run('pnpm',['exec','wrangler','--version']).split('\n').pop(),authenticated:true,account};
   });

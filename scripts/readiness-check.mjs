@@ -1,5 +1,6 @@
 // Shared check boundary: CLI and independent consumers use the same recovery states.
 // Provider bodies, subprocess output and exception messages never enter a receipt.
+import {execFileSync} from 'node:child_process';
 const failures = {
   authentication: {state: 'action_required', recovery: 'human-authentication'},
   permission: {state: 'action_required', recovery: 'human-permission'},
@@ -16,6 +17,43 @@ export class ReadinessFailure extends Error {
     super('Readiness check did not pass');
     this.code = code;
   }
+}
+
+export function runReadinessCommand(command, args, options, execute = execFileSync) {
+  const githubAPI = command === 'gh' && args[0] === 'api';
+  const whoami = command === 'pnpm' && args.slice(0, 3).join(' ') === 'exec wrangler whoami' && args.includes('--json');
+  const argv = githubAPI ? [...args, '--include'] : args;
+  let output;
+  try {
+    output = execute(command, argv, options).trim();
+  } catch (error) {
+    // gh documents exit 4 as authentication required. HTTP headers distinguish
+    // expired credentials, missing permission and rate limits without error bodies.
+    if (githubAPI && error.status === 4) throw new ReadinessFailure('authentication');
+    if (githubAPI) {
+      const headers = String(error.stdout || '').split(/\r?\n\r?\n/, 1)[0];
+      const status = /^HTTP\/[\d.]+ (\d{3})\b/.exec(headers)?.[1];
+      if (status === '401') throw new ReadinessFailure('authentication');
+      if (status === '429' || Number(status) >= 500 || (status === '403' && /^(?:x-ratelimit-remaining:\s*0\s*$|retry-after:)/im.test(headers))) throw new ReadinessFailure('unavailable');
+      if (status === '403') throw new ReadinessFailure('permission');
+    }
+    if (whoami) {
+      for (const stream of [error.stdout, error.stderr]) {
+        try {
+          if (JSON.parse(String(stream || '').trim()).loggedIn === false) throw new ReadinessFailure('authentication');
+        } catch (failure) {
+          if (failure instanceof ReadinessFailure) throw failure;
+        }
+      }
+    }
+    throw new ReadinessFailure('unexpected');
+  }
+  if (githubAPI && /^HTTP\/[\d.]+ \d{3}\b/.test(output)) {
+    const separator = /\r?\n\r?\n/.exec(output);
+    if (!separator) throw new ReadinessFailure('response');
+    return output.slice(separator.index + separator[0].length).trim();
+  }
+  return output;
 }
 
 export async function readinessJSON(url, options = {}, request = fetch) {

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {ReadinessFailure, readinessJSON, runReadinessCheck} from '../scripts/readiness-check.mjs';
+import {ReadinessFailure, readinessJSON, runReadinessCheck, runReadinessCommand} from '../scripts/readiness-check.mjs';
 import {finishReadiness} from '../scripts/readiness-state.mjs';
 
 test('provider outages stay agent-retry failures while independent checks continue and a subsequent run recovers', async () => {
@@ -47,4 +47,22 @@ test('four unrelated verified IDs cannot manufacture readiness',()=>{
   const state={checks:Object.fromEntries(['a','b','c','d'].map(id=>[id,{state:'verified'}]))};
   assert.equal(finishReadiness(state).state,'action_required');
   assert.equal(finishReadiness(state).expiresAt,null);
+});
+
+test('CLI authentication absence and expiry retain the human handoff without treating GitHub rate limits as permission',async()=>{
+  const cases=[
+    {command:'gh',args:['api','repos/fixture/hello'],error:{status:4},code:'authentication'},
+    {command:'gh',args:['api','repos/fixture/hello'],error:{status:1,stdout:'HTTP/2.0 401 Unauthorized\r\n\r\nsecret-token'},code:'authentication'},
+    {command:'gh',args:['api','repos/fixture/hello'],error:{status:1,stdout:'HTTP/2.0 403 Forbidden\r\nX-RateLimit-Remaining: 0\r\n\r\nsecret-token'},code:'unavailable'},
+    {command:'pnpm',args:['exec','wrangler','whoami','--json'],error:{status:1,stderr:'{"loggedIn":false}'},code:'authentication'},
+    {command:'pnpm',args:['exec','wrangler','whoami','--json'],error:{status:1,stderr:'DNS lookup failed; secret-token'},code:'unexpected'},
+  ];
+  for(const item of cases){
+    const state={checks:{}};
+    await runReadinessCheck(state,{id:'github',label:'CLI',action:'Complete official sign-in.',verify:()=>runReadinessCommand(item.command,item.args,{},()=>{throw item.error;})},()=>{});
+    assert.equal(state.checks.github.issue.code,item.code);
+    assert.equal(state.checks.github.state,item.code==='authentication'?'action_required':'failed');
+    assert.ok(!JSON.stringify(state).includes('secret-token'));
+  }
+  assert.equal(runReadinessCommand('gh',['api','repos/fixture/hello','--jq','.sha'],{},(_cmd,args)=>{assert.ok(args.includes('--include'));return 'HTTP/2.0 200 OK\r\nContent-Type: application/json\r\n\r\n'+'a'.repeat(40);}), 'a'.repeat(40));
 });
