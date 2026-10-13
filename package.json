@@ -15,21 +15,23 @@
     "compose:promote": "node scripts/promote.mjs"
   },
   "dependencies": {
-    "astro": "7.3.5",
     "@astrojs/cloudflare": "14.3.3",
     "@astrojs/react": "7.0.0",
     "@emdash-cms/cloudflare": "1.0.1",
+    "astro": "7.3.5",
     "emdash": "1.0.1",
+    "jose": "6.1.3",
     "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "jose": "6.1.3"
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
     "@cloudflare/workers-types": "5.20260929.1",
-    "typescript": "6.0.3",
-    "wrangler": "4.143.1",
+    "@tailwindcss/vite": "4.3.3",
     "@types/react": "19.3.0",
-    "@types/react-dom": "19.3.0"
+    "@types/react-dom": "19.3.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3",
+    "wrangler": "4.143.1"
   }
 }

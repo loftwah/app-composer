@@ -27,7 +27,8 @@
     "head_sampling_rate": 0.1
   },
   "vars": {
-    "PUBLIC_ORIGIN": "https://composer.loftwah.com"
+    "PUBLIC_ORIGIN": "https://composer.loftwah.com",
+    "CF_ACCESS_TEAM_DOMAIN": "jolly-cake-2b85.cloudflareaccess.com"
   },
   "r2_buckets": [
     {
@@ -61,7 +62,8 @@
         {
           "binding": "DB",
           "database_name": "app-composer-emdash-preview",
-          "database_id": "bdbbe1c4-e1ff-43d3-a89d-d7dd76d13c0a"
+          "database_id": "bdbbe1c4-e1ff-43d3-a89d-d7dd76d13c0a",
+          "migrations_dir": "migrations"
         }
       ],
       "r2_buckets": [
@@ -88,5 +90,8 @@
       "binding": "SESSION",
       "id": "3a76800194064e498949fd7c251af7e3"
     }
-  ]
+  ],
+  "limits": {
+    "cpu_ms": 1000
+  }
 }

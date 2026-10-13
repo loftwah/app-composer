@@ -33,10 +33,11 @@
     "Synthetic vault encryption round-trip, wrong-key, tamper, unknown-field, duplicate-ID and scoped-disclosure checks passed.",
     "Real upstream source updates did not change the active composition before explicit promotion.",
     "An actual incompatible GitHub contract revision was rejected without changing the running release.",
-    "Owner metadata exports restored into isolated SQLite datasets with current deletion tombstones and configuration intact."
+    "Owner metadata exports restored into isolated SQLite datasets with current deletion tombstones and configuration intact.",
+    "A compatible executable rollback restored the earlier root and both pinned apps; deleted media remained unavailable. Current code was restored with current owner data intact."
   ],
   "remaining": [
-    "Cloudflare Access management is outside the current token scope; browser fallback requires MP MFA. EmDash administration remains closed pending Access protection and native owner/passkey setup.",
+    "Cloudflare Zero Trust Free is activated. The prepared exact-owner Access policy awaits action-time approval; EmDash administration remains closed until protected native Access login is verified.",
     "Chrome extension installation/dashboard acceptance and physical-device checks remain unverified.",
     "Portable AI State remains fictional-only; independent security, key recovery and real cross-provider interoperability acceptance remain open.",
     "Public multi-tenant provisioning, arbitrary repository builds and expanded registrar/provider support are not shipped.",
