@@ -1,0 +1,18 @@
+---
+import { readyHandoff } from '../lib/ready-handoff';
+import { Copy } from '@lucide/astro';
+---
+<div data-ready-handoff>
+ <button class="button" data-copy-ready><Copy size={18} aria-hidden="true"/>Copy to Codex</button>
+ <p data-ready-message role="status" aria-live="polite" class="message"></p>
+ <details><summary>Read or copy the agent handoff</summary><pre data-ready-prompt>{readyHandoff}</pre></details>
+</div>
+<script>
+for(const container of document.querySelectorAll<HTMLElement>('[data-ready-handoff]')){
+ container.querySelector('[data-copy-ready]')!.addEventListener('click',async()=>{
+  const message=container.querySelector('[data-ready-message]')!;
+  try{await navigator.clipboard.writeText(container.querySelector('[data-ready-prompt]')!.textContent!);message.textContent='Copied. Paste this into Codex in your chosen project.';}
+  catch{message.textContent='Clipboard access failed. Open the handoff below, select its text and copy it.';container.querySelector('details')!.open=true;}
+ });
+}
+</script>

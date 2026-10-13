@@ -1,0 +1,10 @@
+direction: down
+vars: { d2-config: { pad: 16 } }
+*.style: { font-size: 20; fill: "#faf9f7"; stroke: "#a63d08"; font-color: "#27292c"; border-radius: 8 }
+you: You\nOpen Codex
+agent: Agent\nCheck environment
+login: You, when needed\nSign in or approve
+proof: Agent\nDeploy and verify HTTPS
+you -> agent: { style.stroke: "#a63d08" }
+agent -> login: { style.stroke: "#a63d08" }
+login -> proof: { style.stroke: "#a63d08" }

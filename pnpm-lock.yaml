@@ -179,6 +179,9 @@ importers:
       '@emdash-cms/cloudflare':
         specifier: 1.2.0
         version: 1.2.0(ca3972217b3a89540ca0841bf7e08572)
+      '@lucide/astro':
+        specifier: 1.56.0
+        version: 1.56.0(astro@7.3.5(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))
       astro:
         specifier: 7.3.5
         version: 7.3.5(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1)
@@ -1547,6 +1550,11 @@ packages:
         optional: true
       babel-plugin-macros:
         optional: true
+
+  '@lucide/astro@1.56.0':
+    resolution: {integrity: sha512-BLLnB+qj1SG60WyvkcGxSfBo0Nq2ZMjJI+39KVhgZJlQKQ4+1XOArJonl4Ktx/D2N6OcbJXNnFLsCbunf1AtXQ==}
+    peerDependencies:
+      astro: ^4 || ^5 || ^6 || ^7
 
   '@marijn/find-cluster-break@1.0.4':
     resolution: {integrity: sha512-Wy0V7+SGUjnF9/TkiM1hKVDPj7jKXduPNboMVtHTA8dySMURWqfg/JZ9E2Sq8JgSJmkl7k7Qe9FLeMSrSraWmQ==}
@@ -5575,6 +5583,10 @@ snapshots:
       '@babel/runtime': 7.29.10
       '@lingui/core': 5.9.5
       react: 19.3.0
+
+  '@lucide/astro@1.56.0(astro@7.3.5(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))':
+    dependencies:
+      astro: 7.3.5(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1)
 
   '@marijn/find-cluster-break@1.0.4': {}
 
