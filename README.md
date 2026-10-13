@@ -37,7 +37,7 @@ Official integration references reviewed 13 October 2026: [EmDash Cloudflare](ht
 
 ## Assets
 
-Original editable geometric mark, routing graphic and mini-app covers are in `public/brand/`. PNG exports are generated from their SVG masters. Space Grotesk is SIL OFL, originally by Florian Karsten; the licence is retained with the font. No Koji assets or proprietary source is used. Real screenshots belong to release evidence, never fabricated UI illustrations.
+Original editable marks and functional diagrams are in `public/brand/`. Presentation and social imagery uses generated raster originals, with provenance beside delivered JPEGs. PNG icon exports derive from the editable mark. Fictional gallery originals use the real moderated upload pipeline; generation is never presented as documentary photography. Space Grotesk is SIL OFL, originally by Florian Karsten; the licence is retained with the font. No Koji assets or proprietary source is used. Real screenshots belong to release evidence, never fabricated UI illustrations.
 
 Default dark and saved light themes use Tailwind 4.3.3 semantic tokens and native Astro controls. Read [UNSLOP.md](UNSLOP.md) for the writing/interface standard. Native controls handle the present forms without an extra shadcn client runtime.
 

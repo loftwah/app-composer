@@ -5,22 +5,27 @@
     {
       "name": "guestbook",
       "url": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "0616ab3ebd4813fda4958659f4a74a6f23c52a90"
+      "commit": "a915ec46c954482267e537eaddcfa989f3523b98"
     },
     {
       "name": "showcase",
       "url": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "0618a1529b6a1781e7e91633b081a5b4720c8e76"
+      "commit": "8a79493efd78b76908737fc91e832e1b77fe57af"
     },
     {
       "name": "hello",
       "url": "https://github.com/loftwah/app-composer-hello",
-      "commit": "f9b2cea43833c213a45352ff592650cdd094e4ad"
+      "commit": "63815d85b7b415bae4c606036f5c7b8839dbbb52"
     },
     {
       "name": "state",
       "url": "https://github.com/loftwah/app-composer-state",
-      "commit": "05bdcb45bbfd6166477cefaabd2e7347fa22815b"
+      "commit": "990089c902336febf2de5645d8e55a9895b1454a"
+    },
+    {
+      "name": "linkcheck",
+      "url": "https://github.com/loftwah/app-composer-linkcheck",
+      "commit": "64c4c29f6f1640f5939ee3561e9bfb20b97769e3"
     }
   ],
   "verified": [
@@ -38,9 +43,14 @@
     "Dark and light presentation inspected at desktop and phone widths; theme switch worked by keyboard with visible focus.",
     "Isolated preview deployed with distinct D1/R2/session storage, separate runtime encryption key and no production app services; native catalogue reads passed and missing mounts failed closed.",
     "Live fictional-state browser journey encrypted/downloaded a fixture, imported/unlocked that actual export, rejected copying without consent and copied one reviewed memory. Passphrase cleared and device persistence contained ciphertext only.",
-    "Protected native EmDash owner login and catalogue editing/publishing verified through Cloudflare Access. Anonymous requests are redirected to the owner gate; alternate Worker routes still require a signed JWT."
+    "Protected native EmDash owner login and catalogue editing/publishing verified through Cloudflare Access. Anonymous requests are redirected to the owner gate; alternate Worker routes still require a signed JWT.",
+    "Saved themes, searchable Ctrl/Cmd+K navigation, first-press Escape and trigger-focus restoration verified on all four independent mini-apps and the mounted pair; phone widths have no horizontal overflow.",
+    "Generated fictional courtyard and coastal scenes submitted through the real upload pipeline: pending media denied, approval and featuring succeeded, public media bytes matched and original opened through the composition. Older authored demo fixtures were hidden with backups retained.",
+    "Link Check independently fetched live Composer and mini-app metadata, SVG favicons, touch icons and separate Open Graph/X image files. Social image dimensions verified at 1200 × 630; native platform unfurls and search indexing are not proven.",
+    "Native EmDash owner test email delivered through Resend after MP explicitly authorised it; the recipient allowlist remains exact-owner only."
   ],
   "remaining": [
+    "A fresh authorised user environment has not completed the supported pre-idea onboarding and Init journey; operator reuse and failure/resume evidence do not satisfy this gate.",
     "Native EmDash owner login and publishing are verified. Public accounts, self-signup and build authority remain closed.",
     "Chrome extension installation/dashboard acceptance and physical-device checks remain unverified.",
     "Portable AI State remains fictional-only; independent security, key recovery and real cross-provider interoperability acceptance remain open.",
