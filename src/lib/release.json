@@ -20,7 +20,7 @@
     {
       "name": "state",
       "url": "https://github.com/loftwah/app-composer-state",
-      "commit": "e98f46c057f1177d3fbed975c8cb0cf5d66f2baf"
+      "commit": "05bdcb45bbfd6166477cefaabd2e7347fa22815b"
     }
   ],
   "verified": [
@@ -36,7 +36,8 @@
     "Owner metadata exports restored into isolated SQLite datasets with current deletion tombstones and configuration intact.",
     "A compatible executable rollback restored the earlier root and both pinned apps; deleted media remained unavailable. Current code was restored with current owner data intact.",
     "Dark and light presentation inspected at desktop and phone widths; theme switch worked by keyboard with visible focus.",
-    "Isolated preview deployed with distinct D1/R2/session storage, separate runtime encryption key and no production app services; native catalogue reads passed and missing mounts failed closed."
+    "Isolated preview deployed with distinct D1/R2/session storage, separate runtime encryption key and no production app services; native catalogue reads passed and missing mounts failed closed.",
+    "Live fictional-state browser journey encrypted/downloaded a fixture, imported/unlocked that actual export, rejected copying without consent and copied one reviewed memory. Passphrase cleared and device persistence contained ciphertext only."
   ],
   "remaining": [
     "Cloudflare Zero Trust Free is activated. The prepared exact-owner Access policy awaits action-time approval; EmDash administration remains closed until protected native Access login is verified.",
