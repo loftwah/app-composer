@@ -1,0 +1,8 @@
+export interface ProgressCheck {id:string;state:string;verifiedAt:string|null;recovery:string|null;tools:{tool:string;state:string}[]}
+export interface ReadinessReport {schema:string;version:1;recipe:string;exportedAt:string;state:string;expiresAt:string|null;checks:ProgressCheck[];operations:{id:string;state:string;recovery:string}[]}
+export const progressOperationLabels:Record<string,string>;
+export const progressChecks:Record<string,{label:string;help:string}>;
+export function validateReadinessReport(input:unknown,now?:number):ReadinessReport;
+export function readinessReport(session:any,now?:number):ReadinessReport;
+export function inspectReadinessReport(input:unknown,now?:number):{report:ReadinessReport;inspection:{ready:boolean;state:string;capabilities:Record<string,boolean>}};
+export function progressStep(check:ProgressCheck,current:boolean):string;

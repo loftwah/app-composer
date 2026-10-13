@@ -1,16 +1,19 @@
 ---
 import { readyTasks } from '../lib/ready-handoff';
 import { Copy } from '@lucide/astro';
+const selected=Astro.url.searchParams.get('task');
+const taskId=selected&&Object.hasOwn(readyTasks,selected)?selected as keyof typeof readyTasks:'setup';
+const initial=readyTasks[taskId];
 ---
 <div data-ready-handoff>
  <label>What should the agent do?
-  <select data-ready-task disabled>{Object.entries(readyTasks).map(([id,task])=><option value={id}>{task.label}</option>)}</select>
+  <select data-ready-task disabled>{Object.entries(readyTasks).map(([id,task])=><option value={id} selected={id===taskId}>{task.label}</option>)}</select>
  </label>
- <p data-ready-help class="small" role="status">{readyTasks.setup.help}</p>
+ <p data-ready-help class="small" role="status">{initial.help}</p>
  <button class="button" data-copy-ready disabled><Copy size={18} aria-hidden="true"/>Copy to Codex</button>
  <p data-ready-message role="status" aria-live="polite" class="message"></p>
- <details><summary>Read or copy the agent handoff</summary><pre data-ready-prompt tabindex="0">{readyTasks.setup.prompt}</pre></details>
- <noscript><p class="small">Open the handoff above, select its text and copy it into Codex. Without JavaScript, it contains the full setup request.</p></noscript>
+ <details><summary>Read or copy the agent handoff</summary><pre data-ready-prompt tabindex="0">{initial.prompt}</pre></details>
+ <noscript><p class="small">Open the handoff above, select its text and copy it into Codex. Without JavaScript, it contains the selected request.</p></noscript>
 </div>
 <script>
 import {readyTasks} from '../lib/ready-handoff';
