@@ -1,5 +1,5 @@
 {
-  "reviewed": "2026-10-13",
+  "reviewed": "2026-10-14",
   "state": "First working operator release; wider onboarding and acceptance gates remain open",
   "sources": [
     {
@@ -25,7 +25,7 @@
     {
       "name": "linkcheck",
       "url": "https://github.com/loftwah/app-composer-linkcheck",
-      "commit": "c7ff95ac602417ca301a5feb1b7877cec6576e37"
+      "commit": "10bca53f882f699321a88d5507c790b17ed76553"
     }
   ],
   "verified": [
@@ -46,12 +46,16 @@
     "Protected native EmDash owner login and catalogue editing/publishing verified through Cloudflare Access. Anonymous requests are redirected to the owner gate; alternate Worker routes still require a signed JWT.",
     "Saved themes, searchable Ctrl/Cmd+K navigation, first-press Escape and trigger-focus restoration verified on all four independent mini-apps and the mounted pair; phone widths have no horizontal overflow.",
     "Generated fictional courtyard and coastal scenes submitted through the real upload pipeline: pending media denied, approval and featuring succeeded, public media bytes matched and original opened through the composition. Older authored demo fixtures were hidden with backups retained.",
-    "Link Check independently fetched live Composer and mini-app metadata, SVG favicons, touch icons and separate Open Graph/X image files. Social image dimensions verified at 1200 \u00d7 630; native platform unfurls and search indexing are not proven.",
+    "Link Check independently fetched live Composer and mini-app metadata, SVG favicons, touch icons and separate Open Graph/X image files. Social image dimensions verified at 1200 × 630; native platform unfurls and search indexing are not proven.",
     "Native EmDash owner test email delivered through Resend after MP explicitly authorised it; the recipient allowlist remains exact-owner only.",
     "Readiness doctor independently ran against the existing Hello workspace: an injected provider outage left three actual checks verified and HTTPS failed with agent-retry/no expiry; the next run verified all four. Installed GitHub CLI authentication absence retained its human sign-in handoff. These are reuse/recovery checks, not fresh-user provisioning.",
-    "Get Ready\u2019s standalone MIT core ran outside Composer, EmDash and Woodhouse: an independent consumer redeployed the reviewed Hello app on its existing account/domain, verified exact GitHub source over HTTPS and saved a private resumable receipt. Read-only outage/resume and guarded action failure tests passed.",
+    "Get Ready’s standalone MIT core ran outside Composer, EmDash and Woodhouse: an independent consumer redeployed the reviewed Hello app on its existing account/domain, verified exact GitHub source over HTTPS and saved a private resumable receipt. Read-only outage/resume and guarded action failure tests passed.",
     "A fresh Hello clone with no dependencies detected missing local Wrangler as agent setup, installed its pinned tools through the independent core, resumed all four checks, repeated without another install and actually deployed exact source over HTTPS. The committed source and lockfile remained unchanged.",
-    "A downloaded Hello Init specification prepared the real reference configuration only after shared readiness and matching local account/Worker/origin checks. The independent repository released its changed title/introduction over HTTPS; repeating the same spec left configuration unchanged."
+    "A downloaded Hello Init specification prepared the real reference configuration only after shared readiness and matching local account/Worker/origin checks. The independent repository released its changed title/introduction over HTTPS; repeating the same spec left configuration unchanged.",
+    "Four-step Get Ready guide, optional registrar/account help and shared copy-to-Codex handoff are deployed. Responsive D2 workflows and five original generated app illustrations accompany static Lucide controls and the searchable app library.",
+    "Link Check’s contextual findings, optional bounded robots.txt/sitemap inspection, cancellation and readable/JSON exports passed live interaction checks. Its actual exported report imported into Composer and copied an agent review; native crawler, indexing and platform unfurl acceptance remain separate.",
+    "Production landing, Get Ready, guide, app library, Init and report-import pages were inspected at 320px/390px phone, 844px landscape, 820px/1180px tablet and 1728px laptop viewport widths in both themes. No horizontal overflow or failed loaded images; physical devices remain unverified.",
+    "loftwah.com and www.loftwah.com redirect to the existing Woodhouse front door. Its EmDash-backed App Composer project entry is published and live, with actual source and deployment verification."
   ],
   "remaining": [
     "A fresh authorised user environment has not completed the supported pre-idea onboarding and Init journey; operator reuse and failure/resume evidence do not satisfy this gate.",
