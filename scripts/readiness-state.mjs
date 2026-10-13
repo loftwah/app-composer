@@ -11,8 +11,8 @@ export function referenceTarget(origin,repo) {
 }
 export function finishReadiness(state,now=new Date()) {
  const checks=Object.values(state.checks);
- const verified=checks.length===4&&checks.every(check=>check.state==='verified');
- return {...state,state:verified?'verified':'action_required',updatedAt:now.toISOString(),expiresAt:verified?new Date(now.getTime()+3600000).toISOString():null};
+ const verified=checks.length===4&&['agent','github','cloudflare','https'].every(id=>state.checks[id]?.state==='verified');
+ return {...state,state:verified?'verified':checks.some(check=>check.state==='failed')?'failed':'action_required',updatedAt:now.toISOString(),expiresAt:verified?new Date(now.getTime()+3600000).toISOString():null};
 }
 
 export function requireVerifiedReadiness(receipt,context,now=Date.now()) {
