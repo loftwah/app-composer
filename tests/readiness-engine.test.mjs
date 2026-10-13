@@ -152,3 +152,39 @@ test('an independent consumer shares the workspace lock and cannot dispatch an u
     await assert.rejects(createLocalAdapter({...context(),workspace}).deployReference(),error=>error instanceof ReadinessFailure&&error.code==='configuration');
   }finally{rmSync(workspace,{recursive:true});}
 });
+
+
+test('failed reference intent remains visible through read-only resume until explicit retry or cancellation',async()=>{
+ const calls=[],selected=adapter({},calls);selected.deployReference=async()=>{calls.push('deployment-attempt');throw new ReadinessFailure('unavailable');};
+ const failed=await runReadinessSession(createReadinessSession(context()),selected,()=>{},{operation:'deploy-reference'});
+ assert.equal(failed.state,'failed');assert.equal(failed.checks.https.state,'verified');
+ const inspection=inspectReadiness(failed);
+ assert.equal(inspection.ready,false);assert.ok(inspection.next.some(item=>item.operation==='deploy-reference'));
+ assert.equal(inspection.next.find(item=>item.operation==='deploy-reference').recovery,'agent-retry');
+ const resumed=await runReadinessSession(createReadinessSession(context(),failed),selected);
+ assert.equal(resumed.state,'failed');assert.equal(resumed.expiresAt,null);
+ assert.equal(calls.filter(value=>value==='deployment-attempt').length,1);
+ assert.equal(inspectReadiness(resumed).ready,false);assert.ok(inspectReadiness(resumed).next.some(item=>item.operation==='deploy-reference'));
+ const setup=await runReadinessSession(createReadinessSession(context(),resumed),{...adapter(),installReferenceTools:async()=>({changed:false})},()=>{},{operation:'install-reference-tools'});
+ assert.equal(setup.operation.state,'performed');assert.equal(setup.state,'failed');assert.ok(inspectReadiness(setup).next.some(item=>item.operation==='deploy-reference'));
+ const repaired={...adapter(),deployReference:async()=>({version:'fictional-retry'})};
+ const retried=await runReadinessSession(createReadinessSession(context(),setup),repaired,()=>{},{operation:'deploy-reference'});
+ assert.equal(retried.state,'verified');assert.equal(inspectReadiness(retried).ready,true);assert.deepEqual(inspectReadiness(retried).next,[]);
+ const cancelled=await runReadinessSession(createReadinessSession(context(),failed),selected,()=>{},{cancel:true});
+ assert.equal(cancelled.state,'cancelled');assert.equal(inspectReadiness(cancelled).ready,false);
+ const afterCancellation=await runReadinessSession(createReadinessSession(context(),cancelled),adapter());
+ assert.equal(afterCancellation.state,'verified');assert.equal(afterCancellation.operation,undefined);
+ const changed=await runReadinessSession(createReadinessSession({...context(),worker:'different-reference'},failed),adapter());
+ assert.equal(changed.state,'verified');assert.equal(changed.operation,undefined);
+});
+
+
+test('legacy blocked intent cannot disappear when an unrelated reference setup succeeds',async()=>{
+ const previous=await runReadinessSession(createReadinessSession(context()),{...adapter({github:async()=>{throw new ReadinessFailure('permission');}}),deployReference:async()=>({})},()=>{},{operation:'deploy-reference'});
+ previous.operation={state:'blocked',action:'Resolve the prerequisite checks before deployment.'};delete previous.pendingOperations;
+ const resumed=await runReadinessSession(createReadinessSession(context(),previous),{...adapter(),installReferenceTools:async()=>({changed:false})},()=>{},{operation:'install-reference-tools'});
+ assert.equal(resumed.operation.state,'performed');assert.equal(resumed.state,'action_required');assert.equal(resumed.expiresAt,null);
+ assert.equal(inspectReadiness(resumed).ready,false);assert.ok(inspectReadiness(resumed).next.some(item=>item.operation==='reference-operation'));
+ const cancelled=await runReadinessSession(createReadinessSession(context(),resumed),adapter(),()=>{},{cancel:true});
+ const checked=await runReadinessSession(createReadinessSession(context(),cancelled),adapter());assert.equal(inspectReadiness(checked).ready,true);
+});

@@ -29,4 +29,5 @@ if(flags.has('--publish-proof')){
 console.log('Readiness: '+state.state+'. Private workspace receipt saved; '+(state.operation?.state==='performed'?'selected reference operation performed.':'no reference operation performed.'));
 for(const item of Object.values(state.checks))console.log(item.label+': '+item.state+(item.action?' — '+item.action:''));
 if(state.operation)console.log('Reference operation: '+state.operation.state);
+for(const pending of state.pendingOperations??[])console.log('Unfinished reference operation: '+pending.id+'. Recheck prerequisites and explicitly retry it, or use --cancel to cancel the old intent.');
 if(state.state!=='verified'&&state.state!=='cancelled')process.exitCode=1;
