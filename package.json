@@ -18,7 +18,8 @@
     "test:ready": "node --test tests/readiness-state.test.mjs",
     "test:access": "node --test tests/access-boundary.test.mjs",
     "test:email": "node --test tests/resend-delivery.test.mjs",
-    "test:release": "node --test tests/verify-live.test.mjs"
+    "test:release": "node --test tests/verify-live.test.mjs",
+    "test:reports": "node --test tests/inspection-report.test.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.3.3",
