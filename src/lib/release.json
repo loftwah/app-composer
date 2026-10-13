@@ -15,7 +15,7 @@
     {
       "name": "hello",
       "url": "https://github.com/loftwah/app-composer-hello",
-      "commit": "fcbdd2bab2a840f84f32fdeb6a2681bdb437c24e"
+      "commit": "33c2f41536b9ad6b5418024a60e74f6eadb114f4"
     },
     {
       "name": "state",
@@ -59,7 +59,8 @@
     "The public app activity page receives real bounded daily totals from all five launched mini-apps and the composed pair, with photo opens and completed inspections separate. Initial counts include release verification; they do not prove adoption. No visitor identifiers, entered URLs or vault contents are recorded.",
     "Public GET/HEAD health checks return exact source revisions for Composer, all five mini-apps and the pair mounts. Optional local Web Vitals and fixed public console links work in normal Chrome; liveness and a single load are not full readiness or field-performance grades.",
     "Portable AI State\u2019s guided fictional example passed the actual production selection, consent, clipboard, encrypted download, wrong-key refusal, reopening and saved-copy removal journey. Both themes were also inspected separately at phone/tablet/desktop sizes. Browser requests remained self-hosted GETs and its no-network policy is intact.",
-    "The standalone Get Ready core acquired an exact maintained Hello checkout in a new directory, repeated without writes, detected missing local tools, installed pinned dependencies and reverified the current account/GitHub/HTTPS source. Existing-file and Git-helper refusal checks passed; this used existing operator authorisation, not customer-fork or first-account provisioning."
+    "The standalone Get Ready core acquired an exact maintained Hello checkout in a new directory, repeated without writes, detected missing local tools, installed pinned dependencies and reverified the current account/GitHub/HTTPS source. Existing-file and Git-helper refusal checks passed; this used existing operator authorisation, not customer-fork or first-account provisioning.",
+    "Hello releases now require an explicit repository, account, Worker and HTTPS origin matching actual source/configuration. The independent Get Ready core deployed through that guard and verified current source/title over HTTPS; its selected-origin verifier also passed against the existing workers.dev alias. Missing/mismatched target and a hidden configuration edit during build were refused before deployment. No new route or Worker was created; customer-owned provisioning remains unproven."
   ],
   "remaining": [
     "A fresh authorised user environment has not completed the supported pre-idea onboarding and Init journey; operator reuse and failure/resume evidence do not satisfy this gate.",
