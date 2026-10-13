@@ -1,9 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync,writeFileSync,rmSync} from 'node:fs';
+import {mkdtempSync,writeFileSync,rmSync,mkdirSync,existsSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {createReadinessSession,runReadinessSession,inspectReadiness,recipe,ReadinessFailure,runLocalReadiness,createLocalAdapter} from '../lib/get-ready/index.mjs';
+import {createReadinessSession,runReadinessSession,inspectReadiness,recipe,ReadinessFailure,runLocalReadiness,createLocalAdapter,discoverWorkspace} from '../lib/get-ready/index.mjs';
+import {installedWrangler,localChecks,runWorkspaceWrangler} from '../lib/get-ready/local-checks.mjs';
+import {referenceInstallArgs,referenceInstallEnvironment} from '../lib/get-ready/local.mjs';
 
 const context=()=>({workspace:'/fictional/hello',repo:'fixture/hello',source:'a'.repeat(40),dirty:false,target:{origin:'https://hello.example.test',repo:'fixture/hello'},account:'b'.repeat(32),worker:'fictional-hello'});
 const adapter=(overrides={},calls=[])=>({checks:recipe.checks.map(id=>({id,label:id,action:'Complete official authentication.',verify:async()=>{calls.push(id);if(overrides[id])return overrides[id]();return {checked:true};}}))});
@@ -24,6 +27,83 @@ test('standalone core resumes through actual adapters instead of trusting saved 
   const failed=await runReadinessSession(createReadinessSession(context(),resumed),adapter({github:async()=>{throw new ReadinessFailure('permission');}}));
   assert.equal(failed.state,'action_required');assert.equal(failed.expiresAt,null);
   assert.ok(snapshots.some(s=>s.checks.cloudflare?.state==='verifying'));
+});
+
+test('reference installation runs before Cloudflare, requires fresh prerequisites and cannot hide a failed install',async()=>{
+  const calls=[],a=adapter({},calls);a.installReferenceTools=async()=>{calls.push('install');return {wrangler:'4.143.1'};};
+  const result=await runReadinessSession(createReadinessSession(context()),a,()=>{},{operation:'install-reference-tools'});
+  assert.deepEqual(calls,['agent','github','install','cloudflare','https']);assert.equal(result.state,'verified');
+  const blockedCalls=[];const blocked=await runReadinessSession(createReadinessSession(context()),{...adapter({github:async()=>{throw new ReadinessFailure('permission');}},blockedCalls),installReferenceTools:async()=>blockedCalls.push('install')},()=>{},{operation:'install-reference-tools'});
+  assert.ok(!blockedCalls.includes('install'));assert.equal(blocked.operation.state,'blocked');assert.equal(blocked.expiresAt,null);
+  const failed=await runReadinessSession(createReadinessSession(context()),{...adapter(),installReferenceTools:async()=>{throw new ReadinessFailure('unexpected');}},()=>{},{operation:'install-reference-tools'});
+  assert.equal(failed.checks.https.state,'verified');assert.equal(failed.state,'failed');assert.equal(failed.expiresAt,null);
+});
+
+test('a missing workspace installation cannot borrow parent Wrangler or request unnecessary sign-in',async()=>{
+  const parent=mkdtempSync(join(tmpdir(),'composer-tool-probe-'));const workspace=join(parent,'child');
+  try{
+    mkdirSync(join(parent,'node_modules/wrangler'),{recursive:true});mkdirSync(workspace);
+    writeFileSync(join(parent,'node_modules/wrangler/package.json'),JSON.stringify({name:'wrangler',version:'4.143.1'}));
+    assert.throws(()=>installedWrangler(workspace),error=>error instanceof ReadinessFailure&&error.code==='configuration');
+    const check=localChecks({...context(),workspace}).find(check=>check.id==='cloudflare');
+    const state={checks:{}};const {runReadinessCheck}=await import('../lib/get-ready/check.mjs');
+    await runReadinessCheck(state,check,()=>{});
+    assert.equal(state.checks.cloudflare.issue.recovery,'agent-setup');assert.ok(state.checks.cloudflare.action.includes('--install-reference-tools'));
+    mkdirSync(join(workspace,'node_modules/wrangler'),{recursive:true});
+    writeFileSync(join(workspace,'node_modules/wrangler/package.json'),JSON.stringify({name:'wrangler',version:'4.143.1',bin:{wrangler:'./bin/wrangler.js'}}));
+    assert.throws(()=>installedWrangler(workspace));
+    for(const version of ['0.0.0','4.143.1']){
+      mkdirSync(join(workspace,'node_modules/wrangler/bin'),{recursive:true});
+      writeFileSync(join(workspace,'node_modules/wrangler/bin/wrangler.js'),'// fictional entry, not executed');
+      writeFileSync(join(workspace,'node_modules/wrangler/package.json'),JSON.stringify({name:'wrangler',version,bin:{wrangler:'./bin/wrangler.js'}}));
+      if(version==='0.0.0')assert.throws(()=>installedWrangler(workspace));else assert.equal(installedWrangler(workspace),version);
+    }
+  }finally{rmSync(parent,{recursive:true});}
+});
+
+test('local Wrangler execution is bound to the selected package even when PATH offers a different tool',()=>{
+  const workspace=mkdtempSync(join(tmpdir(),'composer-local-wrangler-'));
+  try{
+    mkdirSync(join(workspace,'node_modules/wrangler/bin'),{recursive:true});mkdirSync(join(workspace,'borrowed'));
+    writeFileSync(join(workspace,'node_modules/wrangler/package.json'),JSON.stringify({name:'wrangler',version:'4.143.1',bin:{wrangler:'./bin/wrangler.js'}}));
+    writeFileSync(join(workspace,'node_modules/wrangler/bin/wrangler.js'),'console.log("local fixture")');
+    writeFileSync(join(workspace,'borrowed/wrangler'),'#!/bin/sh\nprintf "borrowed fixture\\n"\n',{mode:0o755});
+    assert.equal(runWorkspaceWrangler(workspace,['--version'],{...process.env,PATH:join(workspace,'borrowed')}),'local fixture');
+  }finally{rmSync(workspace,{recursive:true});}
+});
+
+test('the installer isolates unrelated scoped registries and credentials while keeping the committed project policy',()=>{
+  const fixture=mkdtempSync(join(tmpdir(),'composer-installer-config-'));
+  try{
+    const userConfig=join(fixture,'unrelated'),isolated=join(fixture,'isolated'),workspace=join(fixture,'workspace');
+    mkdirSync(join(userConfig,'pnpm'),{recursive:true});mkdirSync(isolated);mkdirSync(workspace);
+    writeFileSync(join(userConfig,'pnpm/rc'),'@cloudflare:registry=https://private.example.test/\n');
+    writeFileSync(join(userConfig,'pnpm/config.yaml'),'registries:\n  "https://private.example.test/":\n    scopes:\n      - "@cloudflare"\n');
+    writeFileSync(join(workspace,'pnpm-workspace.yaml'),'minimumReleaseAge: 1440\n');
+    const env={...process.env,XDG_CONFIG_HOME:userConfig,CLOUDFLARE_API_TOKEN:'fictional-cloud-token',NPM_CONFIG_USERCONFIG:join(fixture,'private.npmrc')};
+    writeFileSync(env.NPM_CONFIG_USERCONFIG,'@cloudflare:registry=https://private.example.test/\n');
+    const run=(key,env,args=[])=>execFileSync('pnpm',['config','get',key,...args],{cwd:workspace,env,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+    assert.equal(run('@cloudflare:registry',env),'https://private.example.test/');
+    const installEnv=referenceInstallEnvironment(env,isolated),flags=referenceInstallArgs.filter(arg=>arg.startsWith('--registry=')||arg.startsWith('--userconfig='));
+    assert.equal(run('@cloudflare:registry',installEnv,flags),'undefined');
+    assert.equal(run('registry',installEnv,flags),'https://registry.npmjs.org/');
+    assert.equal(run('minimumReleaseAge',installEnv,flags),'1440');
+    assert.equal(installEnv.CLOUDFLARE_API_TOKEN,undefined);assert.equal(installEnv.NPM_CONFIG_USERCONFIG,undefined);
+  }finally{rmSync(fixture,{recursive:true});}
+});
+
+test('reference installation preserves uncommitted work and refuses other repositories before package writes',async()=>{
+  const workspace=mkdtempSync(join(tmpdir(),'composer-install-guard-'));
+  const git=args=>execFileSync('git',args,{cwd:workspace,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+  try{
+    await assert.rejects(createLocalAdapter({...context(),workspace}).installReferenceTools(),error=>error instanceof ReadinessFailure&&error.code==='configuration');
+    git(['init','-b','main']);git(['remote','add','origin','https://github.com/loftwah/app-composer-hello.git']);
+    writeFileSync(join(workspace,'config.json'),'{}');git(['add','config.json']);git(['-c','user.name=Fictional test','-c','user.email=fixture@example.test','commit','-m','Synthetic fixture']);
+    const clean=discoverWorkspace(workspace);writeFileSync(join(workspace,'config.json'),'owner-work');
+    await assert.rejects(createLocalAdapter({...context(),...clean}).installReferenceTools(),error=>error instanceof ReadinessFailure&&error.code==='configuration');
+    assert.equal(existsSync(join(workspace,'node_modules')),false);
+    const {readFileSync}=await import('node:fs');assert.equal(readFileSync(join(workspace,'config.json'),'utf8'),'owner-work');
+  }finally{rmSync(workspace,{recursive:true});}
 });
 
 test('the supported deployment is explicit, runs after fresh prerequisites and still requires HTTPS proof',async()=>{
