@@ -1,0 +1,73 @@
+{
+  "reviewed": "2026-10-13",
+  "generator": "Built-in image_gen",
+  "purpose": "Original editorial app illustrations; decorative thumbnails, never vendor UI or documentary photos.",
+  "commonDirection": "Square tactile studio still life, warm off-white limestone, terracotta orange and graphite. Natural soft directional daylight, realistic material grain, simple silhouette readable at 48 pixels, no text, numbers, UI, logos, copied branding or glowing AI motifs.",
+  "assets": [
+    {
+      "id": "hello",
+      "promptSubject": "A terracotta-orange doorway with warm light and a graphite stepping stone.",
+      "masterFilename": "exec-980201f6-bbc9-4503-b5b0-fb1cd5a01bfd.png",
+      "exports": [
+        "/brand/apps/hello-v1.webp",
+        "/brand/apps/hello-small-v1.webp"
+      ],
+      "dimensions": [
+        480,
+        96
+      ]
+    },
+    {
+      "id": "linkcheck",
+      "promptSubject": "An orange glass magnifying lens revealing a landscape print beside a graphite paper link.",
+      "masterFilename": "exec-b0c1937c-e975-4975-be9c-9cdfbf6f1aa8.png",
+      "exports": [
+        "/brand/apps/linkcheck-v1.webp",
+        "/brand/apps/linkcheck-small-v1.webp"
+      ],
+      "dimensions": [
+        480,
+        96
+      ]
+    },
+    {
+      "id": "guestbook",
+      "promptSubject": "Cream postcards, a fictional courtyard photograph, a terracotta pencil and graphite paperclip.",
+      "masterFilename": "exec-584cbdb4-ad4c-41d5-ad4f-2cc7d40c608c.png",
+      "exports": [
+        "/brand/apps/guestbook-v1.webp",
+        "/brand/apps/guestbook-small-v1.webp"
+      ],
+      "dimensions": [
+        480,
+        96
+      ]
+    },
+    {
+      "id": "showcase",
+      "promptSubject": "A graphite shelf holding picture frames and an orange sculptural object.",
+      "masterFilename": "exec-cfd10850-9e83-40e1-8d60-536ed8b8be9d.png",
+      "exports": [
+        "/brand/apps/showcase-v1.webp",
+        "/brand/apps/showcase-small-v1.webp"
+      ],
+      "dimensions": [
+        480,
+        96
+      ]
+    },
+    {
+      "id": "state",
+      "promptSubject": "A graphite locked keepsake box with an orange translucent key and blank memory notes.",
+      "masterFilename": "exec-c85de76b-ca93-4fe6-b90a-895240321cc0.png",
+      "exports": [
+        "/brand/apps/state-v1.webp",
+        "/brand/apps/state-small-v1.webp"
+      ],
+      "dimensions": [
+        480,
+        96
+      ]
+    }
+  ]
+}
