@@ -1,31 +1,31 @@
 {
-  "reviewed": "2026-10-14",
+  "reviewed": "14 October 2026",
   "state": "First working operator release; wider onboarding and acceptance gates remain open",
   "sources": [
     {
       "name": "guestbook",
       "url": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "961b2d61e6a9b4852a715b543a47459c300c1f8f"
+      "commit": "67b1da46e32932099a29efaaddf60e78fa8b47e9"
     },
     {
       "name": "showcase",
       "url": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "be8caec9d8359c32522a9684628b9d59c34afb5f"
+      "commit": "37fee2eb1885c5cbd5067dbedb9e104b82b30894"
     },
     {
       "name": "hello",
       "url": "https://github.com/loftwah/app-composer-hello",
-      "commit": "32b42a75ee81fc2949c5421e6c45152ffd1baa9d"
+      "commit": "fcbdd2bab2a840f84f32fdeb6a2681bdb437c24e"
     },
     {
       "name": "state",
       "url": "https://github.com/loftwah/app-composer-state",
-      "commit": "990089c902336febf2de5645d8e55a9895b1454a"
+      "commit": "bfe2b9a40e4483d5e40ca234ea1c35e44b303936"
     },
     {
       "name": "linkcheck",
       "url": "https://github.com/loftwah/app-composer-linkcheck",
-      "commit": "10bca53f882f699321a88d5507c790b17ed76553"
+      "commit": "6c9a41ef3d4ac5d690a51a8d91b5cded25f30bc5"
     }
   ],
   "verified": [
@@ -55,7 +55,10 @@
     "Four-step Get Ready guide, optional registrar/account help and shared copy-to-Codex handoff are deployed. Responsive D2 workflows and five original generated app illustrations accompany static Lucide controls and the searchable app library.",
     "Link Check\u2019s contextual findings, optional bounded robots.txt/sitemap inspection, cancellation and readable/JSON exports passed live interaction checks. Its actual exported report imported into Composer and copied an agent review; native crawler, indexing and platform unfurl acceptance remain separate.",
     "Production landing, Get Ready, guide, app library, Init and report-import pages were inspected at 320px/390px phone, 844px landscape, 820px/1180px tablet and 1728px laptop viewport widths in both themes. No horizontal overflow or failed loaded images; physical devices remain unverified.",
-    "loftwah.com and www.loftwah.com redirect to the existing Woodhouse front door. Its EmDash-backed App Composer project entry is published and live, with actual source and deployment verification."
+    "loftwah.com and www.loftwah.com redirect to the existing Woodhouse front door. Its EmDash-backed App Composer project entry is published and live, with actual source and deployment verification.",
+    "The public app activity page receives real bounded daily totals from all five launched mini-apps and the composed pair, with photo opens and completed inspections separate. Initial counts include release verification; they do not prove adoption. No visitor identifiers, entered URLs or vault contents are recorded.",
+    "Public GET/HEAD health checks return exact source revisions for Composer, all five mini-apps and the pair mounts. Optional local Web Vitals and fixed public console links work in normal Chrome; liveness and a single load are not full readiness or field-performance grades.",
+    "Portable AI State\u2019s guided fictional example passed the actual production selection, consent, clipboard, encrypted download, wrong-key refusal, reopening and saved-copy removal journey. Both themes were also inspected separately at phone/tablet/desktop sizes. Browser requests remained self-hosted GETs and its no-network policy is intact."
   ],
   "remaining": [
     "A fresh authorised user environment has not completed the supported pre-idea onboarding and Init journey; operator reuse and failure/resume evidence do not satisfy this gate.",
