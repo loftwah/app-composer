@@ -7,12 +7,18 @@
   "scripts": {
     "dev": "astro dev --host 127.0.0.1",
     "build": "node scripts/identity.mjs && astro build",
-    "check": "node scripts/identity.mjs && astro check && node --test tests/*.test.mjs",
+    "check": "pnpm check:types && pnpm test",
     "test": "node --test tests/*.test.mjs",
     "deploy": "node scripts/deploy.mjs",
     "ready": "node scripts/ready.mjs",
     "compose": "node scripts/compose.mjs",
-    "compose:promote": "node scripts/promote.mjs"
+    "compose:promote": "node scripts/promote.mjs",
+    "check:types": "node scripts/identity.mjs && astro check",
+    "test:core": "node --test tests/core.test.mjs",
+    "test:ready": "node --test tests/readiness-state.test.mjs",
+    "test:access": "node --test tests/access-boundary.test.mjs",
+    "test:email": "node --test tests/resend-delivery.test.mjs",
+    "test:release": "node --test tests/verify-live.test.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.3.3",

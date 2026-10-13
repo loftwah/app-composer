@@ -1,0 +1,11 @@
+---
+import { apps } from '../lib/apps';
+---
+<div class="app-launcher">
+ <button class="theme-toggle apps-trigger" popovertarget="apps-popover" aria-label="Open apps" title="Apps"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">{[4,12,20].flatMap(y=>[4,12,20].map(x=><circle cx={x} cy={y} r="2"/>))}</svg><span>Apps</span></button>
+ <div id="apps-popover" popover aria-label="App launcher">
+  <div class="launcher-heading"><strong>Your app library</strong><button class="theme-toggle" popovertarget="apps-popover" popovertargetaction="hide" aria-label="Close app launcher">Close</button></div>
+  <ul>{apps.map(app=><li><a href={app.href}><span class="app-symbol" style={`--app-colour:${app.colour}`} aria-hidden="true">{app.initial}</span><span>{app.name}<small>{app.category}</small></span></a></li>)}</ul>
+  <a class="launcher-all" href="/apps">Browse all apps →</a>
+ </div>
+</div>

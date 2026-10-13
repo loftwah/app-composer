@@ -54,3 +54,7 @@ Readiness doctor: a fork selects `pnpm ready --workspace /path/to/project --acco
 Composition `--apply` accepts only a verified, finite unexpired readiness receipt matching the clean current launch workspace, source and Cloudflare account. Failed, cancelled, interrupted and legacy receipts are rejected before staging or writes; a fork’s receipt cannot authorise the launch operator’s production targets.
 
 EmDash 1.2.0 upgrade: direct CMS/Cloudflare packages move together, with a rehearsed raw D1 recovery export and retained runtime keys before its forward core migrations. Native admin ships English only and caps media uploads at 1 MiB; customer mini-app media limits remain independent. Vendor-generated upgrade work orders and refreshed skills are private operator evidence.
+
+Focused checks: `pnpm check:types`, `pnpm test:core`, `pnpm test:ready`, `pnpm test:access`, `pnpm test:email` and `pnpm test:release` run independently without network mutation. Run the relevant group while developing; `pnpm check` retains every required release gate. For a single regression, use `node --test --test-name-pattern="name" tests/example.test.mjs`. Browser, real deployment and disaster-recovery checks are separate explicit operations, never hidden behind a unit test.
+
+The public app library at `/apps` and native nine-dot launcher share one list of shipped entry points. That navigation list does not replace EmDash's published catalogue contracts.
