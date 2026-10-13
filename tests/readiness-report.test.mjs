@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {createReadinessSession,inspectReadiness,recipe} from '../lib/get-ready/index.mjs';
-import {readinessReport,validateReadinessReport,inspectReadinessReport,progressStep} from '../lib/get-ready/report.mjs';
+import {readinessReport,validateReadinessReport,inspectReadinessReport,progressStep,progressHelp} from '../lib/get-ready/report.mjs';
 const now=Date.parse('2026-10-14T00:00:00.000Z');
 function fixture(){return {version:2,recipe:recipe.id,state:'verified',expiresAt:new Date(now+3600000).toISOString(),context:{account:'fictional-secret-account',workspace:'/fictional/private-path',repo:'private-owner/private-repo'},checks:Object.fromEntries(recipe.checks.map(id=>[id,{state:'verified',verifiedAt:new Date(now).toISOString(),evidence:{secret:'fictional-secret'}}]))};}
 
@@ -35,4 +35,18 @@ test('cancelled and incomplete sessions produce explicit reports with no fabrica
  const session=createReadinessSession({workspace:'/fictional/empty'});
  session.state='cancelled';session.expiresAt=null;
  const report=readinessReport(session,now);assert.equal(report.checks.every(c=>c.state==='not_started'),true);assert.equal(inspectReadinessReport(report,now).inspection.ready,false);
+});
+
+test('account help identifies supported services and unfinished acquisition without guessing the HTTPS credential',()=>{
+ for(const id of ['github','clone-reference','own-reference']){
+  const step={id,state:'action_required',recovery:'human-authentication'};
+  assert.match(progressStep(step,false),/GitHub/);assert.equal(progressHelp(step).href,'/ready/guide#github-sign-in');
+ }
+ const cloudflare={id:'cloudflare',state:'action_required',recovery:'human-authentication'};
+ assert.match(progressStep(cloudflare,false),/Cloudflare/);assert.equal(progressHelp(cloudflare).href,'/ready/guide#cloudflare-sign-in');
+ const https={...cloudflare,id:'https'};assert.doesNotMatch(progressStep(https,false),/Cloudflare|GitHub/);assert.equal(progressHelp(https).href,'/ready/guide#account-sign-in');
+ for(const recovery of ['agent-setup','agent-retry','agent-repair','human-permission'])assert.equal(progressHelp({...cloudflare,recovery}),null);
+ assert.equal(progressHelp(cloudflare,true),null);assert.equal(progressHelp({...cloudflare,state:'verified'}),null);
+ const session=fixture();session.state='action_required';session.expiresAt=null;session.pendingOperations=[{id:'clone-reference',state:'action_required',recovery:'human-authentication'}];
+ const report=readinessReport(session,now);assert.equal(inspectReadinessReport(report,now).inspection.ready,false);assert.match(progressStep(report.operations[0],false),/GitHub/);
 });

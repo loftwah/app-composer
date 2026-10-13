@@ -70,3 +70,15 @@ test('CLI authentication absence and expiry retain the human handoff without tre
   for(const output of ['{}','{"loggedIn":"false"}','{"loggedIn":true}','not JSON'])assert.throws(()=>runReadinessCommand('pnpm',['exec','wrangler','whoami','--json'],{},()=>output),error=>error instanceof ReadinessFailure&&error.code==='response');
   assert.throws(()=>runReadinessCommand('pnpm',['exec','wrangler','whoami','--json'],{},()=>'{"loggedIn":false}'),error=>error instanceof ReadinessFailure&&error.code==='authentication');
 });
+
+test('confirmed authentication and permission select distinct handoffs while outages and unknown failures stay with the agent',async()=>{
+ const state={checks:{}};
+ for(const [code,expected] of [['authentication','Sign in to GitHub.'],['permission','Review repository write access.'],['configuration','Prepare the workspace.']]){
+  await runReadinessCheck(state,{id:'github',label:'GitHub',action:'Legacy fallback.',authenticationAction:'Sign in to GitHub.',permissionAction:'Review repository write access.',setupAction:'Prepare the workspace.',verify:()=>{throw new ReadinessFailure(code);}},()=>{});
+  assert.equal(state.checks.github.action,expected);
+ }
+ for(const code of ['unavailable','response','unexpected']){
+  await runReadinessCheck(state,{id:'github',label:'GitHub',action:'Sign in.',authenticationAction:'Sign in to GitHub.',permissionAction:'Review repository write access.',verify:()=>{throw new ReadinessFailure(code);}},()=>{});
+  assert.doesNotMatch(state.checks.github.action,/Sign in|write access/);
+ }
+});
