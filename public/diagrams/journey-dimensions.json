@@ -1,0 +1,22 @@
+{
+  "composer": {
+    "desktop": {
+      "width": 1868,
+      "height": 137
+    },
+    "mobile": {
+      "width": 342,
+      "height": 917
+    }
+  },
+  "state": {
+    "desktop": {
+      "width": 1484,
+      "height": 335
+    },
+    "mobile": {
+      "width": 332,
+      "height": 986
+    }
+  }
+}
