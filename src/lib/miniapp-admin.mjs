@@ -56,7 +56,7 @@ export async function manageMiniapps(ctx, runtime, pins) {
   const result=await response.json();
   if(action==='snapshot') {
    if(result.dataVersion!==1 || !result.config || (app==='guestbook'?!Array.isArray(result.items):!Array.isArray(result.cards))) return fail('APP','The app returned an incompatible management response.');
-   return {ok:true,app,config:result.config,items:app==='guestbook'?result.items.filter(item=>item.status!=='deleted').slice(0,100):result.cards.slice(0,8)};
+   return {ok:true,app,config:result.config,items:app==='guestbook'?result.items.filter(item=>item.status!=='deleted').sort((a,b)=>String(b.created_at ?? '').localeCompare(String(a.created_at ?? ''))).slice(0,200):result.cards.slice(0,8)};
   }
   return {ok:true,id:result.id ?? null};
  } catch {return fail('UNAVAILABLE','The app connection was interrupted. Refresh to check the result before retrying.');}
