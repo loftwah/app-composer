@@ -2,19 +2,23 @@
 import {progressChecks} from '../../lib/get-ready/report.mjs';
 ---
 <section class="ink ready-progress" data-ready-progress aria-labelledby="progress-heading">
- <h2 id="progress-heading">Your setup progress.</h2>
- <p>After a check, your agent can give you a redacted progress report. Open it here to see what passed and what needs attention.</p>
+ <h2 id="progress-heading">Your environment.</h2>
+ <p data-ready-summary class="ready-summary">Waiting for your agent’s report</p>
+ <p data-ready-next class="small">Let your agent check the environment. Its report will identify the next action and who needs to take it.</p>
+ <p class="small">Open the report your agent gives you. Each result comes from the same checks used to prepare and deploy the app.</p>
  <label>Open your agent’s report<input data-progress-file type="file" disabled accept="application/json,.json" aria-describedby="progress-privacy"/></label>
  <p id="progress-privacy" class="small">Read on this device; never uploaded. Use the report your agent exports, not its private <code>readiness.json</code> file.</p>
  <noscript><p class="small">This progress viewer needs JavaScript. Your agent can read the report and give you the results directly.</p></noscript>
+ <label class="remember-report"><input data-remember-progress type="checkbox" disabled/>Remember this redacted report on this device</label>
  <p data-progress-message class="message" role="status" aria-live="polite"></p>
  <p data-progress-overview class="note">No report loaded.</p>
  <ol data-progress-checks class="progress-checks">{Object.values(progressChecks).map(check=><li><h3>{check.label}</h3><span class="small">Not checked here</span><p class="small">{check.help}</p></li>)}</ol>
  <div data-progress-operations hidden></div>
  <p data-progress-disclaimer hidden class="small">This is a dated agent report, not a live check. Recheck after changing your environment. This report grants no access or permission to build or deploy.</p>
+ <a class="button ready-init-link" data-ready-init href="/init">Explore app settings</a>
  <div class="actions" data-progress-actions hidden><a class="button secondary" href="/ready?task=check#agent-start">Check again with your agent</a><button class="secondary" data-clear-progress type="button">Clear report</button></div>
 </section>
 <style>
- .ready-progress h2{max-width:20ch}.progress-checks{padding-left:24px;margin:24px 0}.progress-checks :global(li){padding:16px 0;border-top:1px solid var(--color-border);margin:0}.progress-checks :global(h3){font-size:1.15rem;letter-spacing:-.02em;margin:0 0 6px}.progress-checks :global(p){margin:8px 0}.ready-progress .actions{gap:12px;margin-bottom:0}.ready-progress input{max-width:100%}.ready-progress :global(.pass){color:var(--color-success)}.ready-progress :global(.needs-attention){color:var(--color-accent)}
+ .ready-summary{font-weight:600;margin:14px 0 6px}.remember-report{display:flex;gap:10px;align-items:flex-start;font-size:13px}.remember-report input{flex-shrink:0;width:18px;height:18px;margin:2px 0}.ready-init-link{width:100%;margin-top:16px}.ready-progress .actions{font-size:14px}.ready-progress .actions button,.ready-progress .actions .button{font-size:14px;padding-inline:14px}.ready-progress h2{max-width:20ch}.progress-checks{padding-left:24px;margin:24px 0}.progress-checks :global(li){padding:16px 0;border-top:1px solid var(--color-border);margin:0}.progress-checks :global(h3){font-size:1.15rem;letter-spacing:-.02em;margin:0 0 6px}.progress-checks :global(p){margin:8px 0}.ready-progress .actions{gap:12px;margin-bottom:0}.ready-progress input{max-width:100%}.ready-progress :global(.pass){color:var(--color-success)}.ready-progress :global(.needs-attention){color:var(--color-accent)}
 </style>
 <script src="../lib/ready-progress-client.ts"></script>

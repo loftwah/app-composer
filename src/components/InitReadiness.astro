@@ -1,0 +1,24 @@
+---
+import { ArrowRight, ShieldCheck } from '@lucide/astro';
+---
+<div class="init-readiness" data-init-readiness>
+ <ShieldCheck size={22} aria-hidden="true"/><div><strong data-init-ready-label>Configure now, verify before deployment.</strong><p data-init-ready-detail>You can explore without setup. Your agent checks the environment in Get Ready before building or changing a live app.</p></div><a href="/ready">Get Ready <ArrowRight size={16} aria-hidden="true"/></a>
+</div>
+<script>
+import {savedReadyReport,readyReportEvent} from '../lib/ready-session';
+import {inspectReadinessReport} from '../../lib/get-ready/report.mjs';
+const box=document.querySelector('[data-init-readiness]')!;let timer:ReturnType<typeof setTimeout>|undefined;
+function update(){
+ clearTimeout(timer);
+ try{const report=savedReadyReport();if(!report){box.querySelector('[data-init-ready-label]')!.textContent='Configure now, verify before deployment.';box.querySelector('[data-init-ready-detail]')!.textContent='You can explore without setup. Your agent checks the environment in Get Ready before building or changing a live app.';return;}
+  const {inspection}=inspectReadinessReport(report),count=Object.values(inspection.capabilities).filter(Boolean).length;
+  box.querySelector('[data-init-ready-label]')!.textContent=inspection.ready?'Your saved report has four current checks.':'Your setup still needs attention.';
+  box.querySelector('[data-init-ready-detail]')!.textContent=inspection.ready?'Continue with your app settings. Your agent rechecks the actual account, source and target before it deploys.':count+' of 4 saved checks are current. You can keep exploring here; return to Get Ready for the next action.';
+  const boundaries=report.checks.filter(check=>inspection.capabilities[check.id]&&check.verifiedAt).map(check=>Date.parse(check.verifiedAt!)+3600000);if(report.expiresAt&&Date.parse(report.expiresAt)>Date.now())boundaries.push(Date.parse(report.expiresAt));const next=Math.min(...boundaries);if(Number.isFinite(next))timer=setTimeout(update,Math.max(1,next-Date.now()+1));
+ }catch{box.querySelector('[data-init-ready-label]')!.textContent='Your saved report could not be read.';box.querySelector('[data-init-ready-detail]')!.textContent='The file is preserved. Replace it in Get Ready; you can continue exploring settings here.';}
+}
+update();window.addEventListener('pageshow',update);window.addEventListener('storage',update);window.addEventListener(readyReportEvent,update);
+</script>
+<style>
+ .init-readiness{display:flex;align-items:flex-start;gap:14px;padding:20px 0;border-block:1px solid var(--color-border);margin:28px 0}.init-readiness>svg{flex-shrink:0;margin-top:3px;color:var(--color-muted)}.init-readiness strong{font-size:15px}.init-readiness p{font-size:14px;color:var(--color-muted);margin:6px 0 0}.init-readiness>a{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;margin-left:auto;min-height:44px;flex-shrink:0}@media(max-width:600px){.init-readiness{flex-wrap:wrap}.init-readiness>div{flex:1}.init-readiness>a{margin-left:36px}}
+</style>
