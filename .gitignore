@@ -11,3 +11,6 @@ dist/
 src/lib/build.json
 .playwright-cli/
 output/
+public/downloads/get-ready-core.tgz
+public/downloads/get-ready-core.json
+src/lib/get-ready-package.json

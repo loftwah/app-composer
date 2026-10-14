@@ -1,0 +1,43 @@
+{
+  "name": "@loftwah/get-ready",
+  "version": "0.1.0",
+  "description": "Resumable agent-operated environment preparation and verified HTTPS readiness.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22 <23"
+  },
+  "exports": {
+    ".": "./index.mjs",
+    "./report": "./report.mjs",
+    "./preferences": "./preferences.mjs"
+  },
+  "bin": {
+    "get-ready": "./cli.mjs"
+  },
+  "files": [
+    "check.mjs",
+    "cli.mjs",
+    "engine.mjs",
+    "index.mjs",
+    "inspect.mjs",
+    "local-checks.mjs",
+    "local.mjs",
+    "ownership.mjs",
+    "preferences.d.mts",
+    "preferences.mjs",
+    "report.d.mts",
+    "report.mjs",
+    "state.mjs",
+    "workspace-tools.mjs",
+    "README.md",
+    "LICENSE",
+    "SOURCE.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loftwah/app-composer.git",
+    "directory": "lib/get-ready"
+  },
+  "private": true
+}
