@@ -178,7 +178,7 @@ importers:
         version: 7.0.0(@types/node@26.6.5)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(esbuild@0.28.2)(jiti@2.7.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(yaml@2.9.1)
       '@emdash-cms/cloudflare':
         specifier: 1.2.0
-        version: 1.2.0(ca3972217b3a89540ca0841bf7e08572)
+        version: 1.2.0(08cb0d8f4d0698c062bc16265e50c54e)
       '@lucide/astro':
         specifier: 1.56.0
         version: 1.56.0(astro@7.3.5(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))
@@ -204,6 +204,12 @@ importers:
       '@cloudflare/workers-types':
         specifier: 5.20260929.1
         version: 5.20260929.1
+      '@modelcontextprotocol/client':
+        specifier: 2.3.1
+        version: 2.3.1
+      '@modelcontextprotocol/server':
+        specifier: 2.3.1
+        version: 2.3.1
       '@tailwindcss/vite':
         specifier: 4.3.3
         version: 4.3.3(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
@@ -222,6 +228,9 @@ importers:
       wrangler:
         specifier: 4.143.1
         version: 4.143.1(@cloudflare/workers-types@5.20260929.1)(@types/node@26.6.5)
+      zod:
+        specifier: 4.6.7
+        version: 4.6.7
 
 packages:
 
@@ -1565,6 +1574,14 @@ packages:
   '@messageformat/parser@5.1.1':
     resolution: {integrity: sha512-3p0YRGCcTUCYvBKLIxtDDyrJ0YijGIwrTRu1DT8gIviIDZru8H23+FkY6MJBzM1n9n20CiM4VeDYuBsrrwnLjg==}
 
+  '@modelcontextprotocol/client@2.3.1':
+    resolution: {integrity: sha512-mIGZXpHsjnZ6lD+gD/WCMpR5k8yVQQ8nNFH1N0Srf7AvnwTUMYD6pvTY8ng2+He5FfV7YMZLmrjL7cLa/cc3dQ==}
+    engines: {node: '>=20'}
+
+  '@modelcontextprotocol/core@2.3.1':
+    resolution: {integrity: sha512-laVmIhPGpWi7rG9q+0UigblRN0Hws/Yjlb6qLFtVqryXVLkc4h+yN8z731POD2LnAGQlFe7/tXhUm7Bi0YB91g==}
+    engines: {node: '>=20'}
+
   '@modelcontextprotocol/sdk@1.32.1':
     resolution: {integrity: sha512-2DdE+SJDtzLEEWzY1ZjY7Q+VcPhcV1KisD3zI4u0XZyktsjHum1mwbMI+JaulUBi2OZk+KJAi2uPXzxichPkdw==}
     engines: {node: '>=18'}
@@ -1574,6 +1591,10 @@ packages:
     peerDependenciesMeta:
       '@cfworker/json-schema':
         optional: true
+
+  '@modelcontextprotocol/server@2.3.1':
+    resolution: {integrity: sha512-e59MfWuSssj6DoQ96JCTqdW1AXT5/XtnTl0WWd6MU1Ka434fFUGGosCLJbGNySDhHGvxQWoRWK137FXYFkYNWw==}
+    engines: {node: '>=20'}
 
   '@napi-rs/wasm-runtime@1.2.4':
     resolution: {integrity: sha512-AJxoUD2/15ESHbvpcyjU274nsAPLuOtPHCk0vKJM5pj//Fg/B1FXNWjPnXTT9PymCYYiHo4zPj0ZomXBKhoy7g==}
@@ -4256,6 +4277,9 @@ packages:
   zod@4.6.6:
     resolution: {integrity: sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA==}
 
+  zod@4.6.7:
+    resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
+
   zrender@6.1.0:
     resolution: {integrity: sha512-oEGMDB6pOP2S6OwRR4PdVv610zrjnA3Bh+JnSG12fYJlBKjtNAoEb5fSUoCOOINlH96I2fU38/A2UpRKs67xYQ==}
 
@@ -4653,6 +4677,29 @@ snapshots:
       - '@types/react'
       - date-fns
 
+  '@cloudflare/kumo@2.6.0(@date-fns/tz@1.5.0)(@phosphor-icons/react@2.1.10(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(date-fns@4.4.0)(echarts@6.1.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(zod@4.6.7)':
+    dependencies:
+      '@base-ui/react': 1.9.0(@date-fns/tz@1.5.0)(@types/react@19.3.0)(date-fns@4.4.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@phosphor-icons/react': 2.1.10(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@shikijs/langs': 4.5.0
+      '@shikijs/themes': 4.5.0
+      clsx: 2.1.1
+      motion: 12.43.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react: 19.3.0
+      react-day-picker: 9.14.0(react@19.3.0)
+      react-dom: 19.3.0(react@19.3.0)
+      shiki: 4.5.0
+      tailwind-merge: 3.7.0
+    optionalDependencies:
+      echarts: 6.1.0
+      zod: 4.6.7
+    transitivePeerDependencies:
+      - '@date-fns/tz'
+      - '@emotion/is-prop-valid'
+      - '@types/react'
+      - date-fns
+    optional: true
+
   '@cloudflare/kv-asset-handler@0.5.0': {}
 
   '@cloudflare/unenv-preset@2.16.2(unenv@2.0.0-rc.24)(workerd@1.20261013.1)':
@@ -4911,7 +4958,7 @@ snapshots:
       - date-fns
       - zod
 
-  '@emdash-cms/cloudflare@1.2.0(ca3972217b3a89540ca0841bf7e08572)':
+  '@emdash-cms/cloudflare@1.2.0(08cb0d8f4d0698c062bc16265e50c54e)':
     dependencies:
       '@astrojs/cloudflare': 14.3.3(@types/node@26.6.5)(astro@7.3.5(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1))(esbuild@0.28.2)(jiti@2.7.0)(wrangler@4.143.1(@cloudflare/workers-types@5.20260929.1)(@types/node@26.6.5))(yaml@2.9.1)
       '@cloudflare/ai-search-snippet': 0.0.42
@@ -4924,7 +4971,7 @@ snapshots:
       ulidx: 2.4.1
       wrangler: 4.143.1(@cloudflare/workers-types@5.20260929.1)(@types/node@26.6.5)
     optionalDependencies:
-      '@cloudflare/kumo': 2.6.0(@date-fns/tz@1.5.0)(@phosphor-icons/react@2.1.10(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(date-fns@4.4.0)(echarts@6.1.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(zod@4.5.4)
+      '@cloudflare/kumo': 2.6.0(@date-fns/tz@1.5.0)(@phosphor-icons/react@2.1.10(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(date-fns@4.4.0)(echarts@6.1.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(zod@4.6.7)
       '@phosphor-icons/react': 2.1.10(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       pg: 8.23.1
       react: 19.3.0
@@ -5596,6 +5643,20 @@ snapshots:
     dependencies:
       moo: 0.5.3
 
+  '@modelcontextprotocol/client@2.3.1':
+    dependencies:
+      '@modelcontextprotocol/core': 2.3.1
+      cross-spawn: 7.0.6
+      eventsource: 3.0.7
+      eventsource-parser: 3.1.1
+      jose: 6.1.3
+      pkce-challenge: 5.0.1
+      zod: 4.6.6
+
+  '@modelcontextprotocol/core@2.3.1':
+    dependencies:
+      zod: 4.6.6
+
   '@modelcontextprotocol/sdk@1.32.1(supports-color@10.2.2)(zod@4.5.4)':
     dependencies:
       '@hono/node-server': 2.1.4(hono@4.13.13)
@@ -5617,6 +5678,11 @@ snapshots:
       zod-to-json-schema: 3.25.2(zod@4.5.4)
     transitivePeerDependencies:
       - supports-color
+
+  '@modelcontextprotocol/server@2.3.1':
+    dependencies:
+      '@modelcontextprotocol/core': 2.3.1
+      zod: 4.6.6
 
   '@napi-rs/wasm-runtime@1.2.4(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)':
     dependencies:
@@ -6415,7 +6481,7 @@ snapshots:
       vitefu: 1.1.3(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       xxhash-wasm: 1.1.0
       yargs-parser: 22.0.0
-      zod: 4.6.6
+      zod: 4.6.7
     optionalDependencies:
       sharp: 0.35.5(@types/node@26.6.5)
     transitivePeerDependencies:
@@ -8369,6 +8435,8 @@ snapshots:
   zod@4.5.4: {}
 
   zod@4.6.6: {}
+
+  zod@4.6.7: {}
 
   zrender@6.1.0:
     dependencies:
