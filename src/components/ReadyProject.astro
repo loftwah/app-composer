@@ -1,0 +1,33 @@
+---
+import {FolderSearch, Copy, FileText, ChevronDown} from '@lucide/astro';
+---
+<details class="ready-project" id="project-check" data-project-viewer>
+ <summary><FolderSearch size={20} aria-hidden="true"/><span>Check the project you want to build</span><ChevronDown size={18} class="project-chevron" aria-hidden="true"/></summary>
+ <div class="project-content">
+  <h2>Start with what’s already there.</h2>
+  <p>Your project may already have instructions, design decisions and agent skills. Ask the agent to inspect that folder before adding or replacing anything.</p>
+  <div class="actions"><button type="button" data-project-copy disabled><Copy size={17} aria-hidden="true"/>Ask your agent to inspect</button><button type="button" class="secondary" data-project-example disabled>Try a fictional project</button></div>
+  <textarea data-project-request readonly hidden aria-label="Project inspection request for manual copy"></textarea>
+  <label class="project-file"><FileText size={18} aria-hidden="true"/>Open the project report your agent returns<input type="file" accept="application/json,.json" data-project-file disabled aria-describedby="project-file-help"/></label>
+  <p class="small" id="project-file-help">Read on this device. Never uploaded or saved. This is a project-inspection report, separate from the environment report and private workspace receipt.</p>
+  <p role="status" aria-live="polite" data-project-message></p>
+  <div data-project-result hidden>
+   <p class="project-example" data-project-example-label hidden>Fictional project. No folder, skill or account was checked.</p>
+   <h3 data-project-summary></h3><p data-project-date class="small"></p>
+   <p data-project-purpose></p><p class="small" data-project-declarations></p>
+   <p class="project-boundary">An observation, not a ready-to-build result. Installed tools, agent discovery, actual skill use and deployment still need their own checks.</p>
+   <section><h4>Project instructions</h4><p class="small">Your agent should read the existing intent before suggesting new files. A missing filename does not mean the project has no guidance.</p><dl data-project-guidance class="project-rows"></dl></section>
+   <section><h4>EmDash skills in this folder</h4><p class="small">A matching entrypoint is only one instruction file. Its references and availability to your agent remain unchecked. Check existing user or plugin copies before installing another.</p><dl data-project-skills class="project-rows"></dl></section>
+   <section data-project-next><h4>What the agent should review</h4><ul data-project-findings></ul></section>
+   <details class="project-source" data-assistance-detail><summary>Project reference and reviewed sources</summary><p class="small">Match this reference with your agent’s selected folder. It is a path fingerprint, not proof of ownership.</p><code data-project-reference></code><p class="small" data-project-source-date></p><a data-project-source-link>Reviewed EmDash skill source</a><p class="small" data-project-locks></p><p class="small" data-project-diagrams></p></details>
+   <button type="button" class="secondary" data-project-clear>Clear project report</button>
+  </div>
+  <noscript><p>Ask your agent to use the <a href="/docs#project-inspection">read-only project inspection</a>. Viewing its report here needs JavaScript.</p></noscript>
+  <p class="small"><a href="/docs#project-inspection">Library, CLI and MCP instructions</a></p>
+ </div>
+</details>
+<style>
+ .ready-project{border-block:1px solid var(--color-border);margin:40px 0;padding:20px 0;scroll-margin-top:24px}.ready-project>summary{display:flex;align-items:center;gap:12px;cursor:pointer;font-weight:600;min-height:44px}.project-chevron{margin-left:auto;flex-shrink:0}.ready-project[open]>summary .project-chevron{transform:rotate(180deg)}.project-content{max-width:900px;padding:24px 0 12px}.project-content h2{font-size:2rem}.project-content h3{font-size:1.5rem;margin:28px 0 8px;max-width:none}.project-content h4{font-size:1.1rem;margin:28px 0 10px}.project-file{max-width:600px;margin-top:28px}.project-file>svg{display:inline;vertical-align:middle;margin-right:6px}.project-content input{max-width:100%}.project-content .actions{gap:12px;flex-wrap:wrap}.project-content .actions button{font-size:14px}.project-content textarea{min-height:220px}.project-boundary,.project-example{border-block:1px solid var(--color-border);padding:16px 0}.project-example{font-weight:600}.project-rows{margin:18px 0}.project-rows :global(.project-row){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;padding:15px 0;border-top:1px solid var(--color-border)}.project-rows :global(dt){font-weight:500;overflow-wrap:anywhere}.project-rows :global(dt small){display:block;color:var(--color-muted);font-weight:400;margin-top:4px}.project-rows :global(dd){margin:0;font-size:14px;overflow-wrap:anywhere}.project-content :global([data-project-findings] li){margin-bottom:16px;max-width:74ch}.project-source{border-block:1px solid var(--color-border);padding:18px 0;margin:24px 0}.project-source summary{min-height:44px}.project-source code{display:block;overflow-wrap:anywhere;font-size:13px}.project-content :global([hidden]){display:none}
+ @media(max-width:600px){.project-content h2{font-size:1.7rem}.project-content .actions{display:grid;grid-template-columns:1fr}.project-content .actions button{width:100%}.project-rows :global(.project-row){grid-template-columns:1fr;gap:8px}}
+</style>
+<script src="../lib/ready-project-client.ts"></script>

@@ -12,12 +12,15 @@
     "./report": "./report.mjs",
     "./preferences": "./preferences.mjs",
     "./domain-report": "./domain-report.mjs",
-    "./project": "./project.mjs"
+    "./project": "./project.mjs",
+    "./project-report": "./project-report.mjs"
   },
   "bin": {
     "get-ready": "./cli.mjs"
   },
   "files": [
+    "project-report.mjs",
+    "project-report.d.mts",
     "project.mjs",
     "project.d.mts",
     "project-skills.json",
