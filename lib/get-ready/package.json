@@ -20,6 +20,7 @@
     "get-ready": "./cli.mjs"
   },
   "files": [
+    "project-write.mjs",
     "project-files.mjs",
     "site-skills.mjs",
     "site-skills.d.mts",

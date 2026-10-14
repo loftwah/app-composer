@@ -5,7 +5,8 @@
     "**/*"
   ],
   "exclude": [
-    "dist"
+    "dist",
+    "lib/content-model/site-template"
   ],
   "compilerOptions": {
     "types": [

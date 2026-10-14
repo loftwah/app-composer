@@ -1,0 +1,19 @@
+allowBuilds:
+  esbuild: true
+  workerd: true
+  sharp: true
+  better-sqlite3: true
+minimumReleaseAgeExclude:
+  - '@cloudflare/workerd-darwin-64@1.20261013.1'
+  - '@cloudflare/workerd-darwin-arm64@1.20261013.1'
+  - '@cloudflare/workerd-linux-64@1.20261013.1'
+  - '@cloudflare/workerd-linux-arm64@1.20261013.1'
+  - '@cloudflare/workerd-windows-64@1.20261013.1'
+  - workerd@1.20261013.1
+  - '@lucide/astro@1.56.0'
+overrides:
+  # Patched build/dev transitive dependencies, reviewed 14 October 2026.
+  'undici@>=7.0.0 <7.29.1': 7.29.1
+  sharp: 0.35.5
+  workerd: 1.20261013.1
+  '@cloudflare/vite-plugin': 1.62.0
