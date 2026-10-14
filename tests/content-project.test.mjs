@@ -37,3 +37,12 @@ test('the agent CLI creates only a new reviewed source project and refuses cloud
   for(const flags of [['--model',file,'--destination',destination],['--model',file,'--destination',join(root,'new'),'--apply'],['--model',file,'--destination','relative'],['--model',file,'--destination',join(root,'new'),'--account','fictional']])assert.equal(child.spawnSync(process.execPath,[command,...flags],{encoding:'utf8'}).status,1);assert.equal(fs.existsSync(join(root,'new')),false);
  }finally{fs.rmSync(root,{recursive:true});}
 });
+
+test('generated compatibility hook only normalises submitted selected optional links and preserves all other intent',async()=>{
+ const {createPlugin}=await import('../lib/content-model/site-template/src/lib/editor-compatibility.mjs'),links=['join_link'],plugin=createPlugin({collection:'workshops',links});links.push('required_link');const save=plugin.hooks['content:beforeSave'].handler;
+ assert.deepEqual(plugin.capabilities,['content:write','content:read']);assert.deepEqual(Object.keys(plugin.routes),[]);assert.deepEqual(plugin.allowedHosts,[]);
+ const submitted={join_link:'',required_link:'',title:'Fictional title',seats:0,featured:false,rows:[{url:''}]},before=structuredClone(submitted),result=await save({collection:'workshops',content:submitted});assert.deepEqual(submitted,before);assert.equal(result.join_link,null);for(const name of ['required_link','title','seats','featured','rows'])assert.deepEqual(result[name],submitted[name]);
+ for(const value of [null,undefined,'https://example.test/link','javascript:unsafe',' ']){const data={join_link:value};assert.equal(await save({collection:'workshops',content:data}),data);}
+ const absent={title:'No link was submitted'};assert.equal(await save({collection:'workshops',content:absent}),absent);assert.equal(await save({collection:'other',content:submitted}),undefined);
+ for(const options of [{collection:'../outside',links:[]},{collection:'workshops',links:['__proto__']},{collection:'workshops',links:['link','link']},{collection:'workshops',links:Array(13).fill('link')},{collection:'workshops',links:'all'}])assert.throws(()=>createPlugin(options));
+});
