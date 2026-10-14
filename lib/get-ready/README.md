@@ -34,7 +34,7 @@ const state = await runLocalReadiness({
 console.log(JSON.stringify(readinessReport(state)));
 ```
 
-Use actual validated account/repository/origin values. With no `operation`, this performs checks and saves private progress only. The exported report omits the private evidence. `createReadinessSession`, `runReadinessSession` and `inspectReadiness` expose the same engine to an explicitly trusted adapter with the four supported checks. The host controls capabilities; imported reports never grant execution authority. `@loftwah/get-ready/report` validates and inspects redacted reports; `@loftwah/get-ready/preferences` carries bounded address intent, not readiness proof.
+Use actual validated account/repository/origin values. With no `operation`, this performs checks and saves private progress only. The exported report omits the private evidence. `createReadinessSession`, `runReadinessSession` and `inspectReadiness` expose the same engine to an explicitly trusted adapter with the four supported checks. The host controls capabilities; imported reports never grant execution authority. `@loftwah/get-ready/report` validates and inspects redacted reports; `@loftwah/get-ready/preferences` carries bounded address and assistance intent, not readiness proof or execution authority.
 
 The optional local MCP adapter remains a separate thin transport in the source repository with its own SDK dependencies. It is not bundled here. This package opens no network listener and does not expose a hosted API. It makes provider calls only when a selected check/operation needs them. Read the source and supported boundary before integrating.
 
@@ -51,3 +51,20 @@ The equivalent API is `diagnoseDomain({account,domain}, authorisedEnvironment)`,
 The host selects an exact full-setup zone, not an inferred parent or registrar. Partial/secondary/multi-signer setups stay unsupported. A nameserver mismatch or old DS record requires agent review of existing DNS/email, security and migration order before any MP-approved change. Recursive DNS can be cached; this does not prove current parent delegation, worldwide propagation, cryptographic DNSSEC correctness or an HTTPS app. Results expire after an hour for display; reports never grant execution authority.
 
 Official references reviewed 14 October 2026: https://developers.cloudflare.com/api/resources/zones/methods/list/ , https://developers.cloudflare.com/api/resources/dns/subresources/dnssec/methods/get/ , https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/make-api-requests/dns-json/ , https://developers.cloudflare.com/dns/dnssec/ .
+
+
+## Inspect the actual output project
+
+```sh
+get-ready --inspect-project /absolute/selected/project --purpose emdash-site
+```
+
+Or import `inspectProject` from `@loftwah/get-ready` (also `@loftwah/get-ready/project`) and call `inspectProject({workspace: '/absolute/selected/project', purpose: 'emdash-site'})`. Purposes are `auto`, `emdash-site` and `emdash-plugin`; optional `diagrams: true` records a requested, unprobed diagram capability. In CLI form use `--diagrams`. This separate diagnostic refuses readiness/setup/credential flags, opens no private receipt and executes no project code, Git configuration, lifecycle script, compiler or network request. Exit zero means an inspection completed, not that a project is ready. Its report always has `ready: false`.
+
+Fixed reads inspect package declarations and the presence of build/test/check command names, known lockfiles, AGENTS/PRODUCT/DESIGN/UNSLOP/architecture documents and three canonical `.agents/skills/*/SKILL.md` entrypoints. Entry files are bounded, symlinks/hardlinks and observed concurrent replacement are refused, and other files are not crawled. No file is written or replaced. The report omits absolute paths, file bodies, command text and remotes; keep it private because hashes and dependency metadata still describe a project.
+
+`matches-reviewed` means only that one entrypoint equals the pinned official source recorded in `source`. It does not verify referenced files, the installed package version, runtime compatibility, a user/plugin copy, agent discovery, documentation access or actual use. `unmatched-preserve` can be an older scaffold or authored copy; preserve and inspect it before considering any update. Project-local absence is not absence from the agent: inspect existing user/plugin scopes before proposing installation. The site purpose needs site/CLI guidance; plugin purpose needs plugin/CLI guidance. WordPress porting and D2 remain conditional. No skills installer or capability certification is included in this diagnostic.
+
+The optional repository MCP exposes the same function when the trusted host adds `--project-purpose emdash-site` to its existing absolute workspace launch arguments. `get_ready_project` accepts no model-selected scope or arguments, makes no provider calls and leaves check/inspect evidence untouched. The SDK transport stays separate from this dependency-free archive.
+
+Official references reviewed 14 October 2026: [EmDash agent skills](https://docs.emdashcms.com/agent-skills/) and [documentation MCP](https://docs.emdashcms.com/docs-mcp/). Entrypoint metadata records the reviewed MIT skills repository revision; it does not establish permission to execute or overwrite project instructions.

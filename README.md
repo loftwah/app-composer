@@ -33,6 +33,10 @@ The doctor distinguishes human authentication/permission steps from agent setup,
 
 The tool check probes Git, GitHub CLI and pnpm independently and reports every missing or unusable tool together, with official installation/repair links. Successful evidence keeps only validated versions. An active Codex desktop workspace works without a separately installed Codex CLI; an installed CLI alone does not establish an active agent. The agent owns ordinary tool repair, but this doctor performs no global installations. Reviewed 14 October 2026 against the official [Git](https://git-scm.com/install/), [GitHub CLI](https://github.com/cli/cli#installation) and [pnpm](https://pnpm.io/installation) instructions.
 
+### Inspect the project you intend to build
+
+`pnpm ready --inspect-project /absolute/selected/project --purpose emdash-site` uses the same package API to inspect declared tooling, existing project guidance and canonical EmDash skill entrypoints without writes or project execution. It distinguishes missing, unavailable and changed copies, preserves authored guidance and never equates an entrypoint with agent visibility or readiness. The optional host-scoped MCP exposes this as `get_ready_project`; see the [standalone API instructions](lib/get-ready/README.md#inspect-the-actual-output-project) and [public guide](https://composer.loftwah.com/docs#project-inspection). Actual skill installation/discovery/use remains a separate requirement. Fast checks: `node --test tests/readiness-project.test.mjs`.
+
 ### Show your own progress
 
 The agent can add `--report` to the doctor to output a redacted JSON progress report instead of its text summary. Capture that stdout in a new JSON file and open it in **Your setup progress** at `/ready`. An incomplete doctor still returns a nonzero exit status with a valid report. The private `.private/readiness.json` receipt is a different format and is refused by the viewer.
