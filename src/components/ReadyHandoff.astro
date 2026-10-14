@@ -18,7 +18,8 @@ const initial=readyTasks[taskId];
 </div>
 <script>
 import {readyTasks} from '../lib/ready-handoff';
-import {setupPreferenceHandoff} from '../../lib/get-ready/preferences.mjs';
+import {setupPreferenceHandoff,assistanceHandoff} from '../../lib/get-ready/preferences.mjs';
+import {currentAssistance} from '../lib/assistance';
 for(const container of document.querySelectorAll<HTMLElement>('[data-ready-handoff]')){
  const selector=container.querySelector<HTMLSelectElement>('[data-ready-task]')!;
  const button=container.querySelector<HTMLButtonElement>('[data-copy-ready]')!;
@@ -26,7 +27,7 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
  const message=container.querySelector<HTMLElement>('[data-ready-message]')!;
  const update=()=>{
   const task=readyTasks[selector.value as keyof typeof readyTasks]??readyTasks.setup;
-  let text=task.prompt;button.disabled=false;
+  let text=task.prompt+assistanceHandoff(currentAssistance());button.disabled=false;
   if(container.dataset.useSetupPreferences){
    const form=document.querySelector<HTMLFormElement>('[data-setup-preferences]');
    try{if(form)text+=setupPreferenceHandoff({version:1,destination:(form.elements.namedItem('destination') as RadioNodeList).value,hostname:(form.elements.namedItem('setup-hostname') as HTMLInputElement).value});}
@@ -42,6 +43,7 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
  // Native form restoration may finish after the module first executes.
  window.addEventListener('pageshow',update);
  window.addEventListener('composer:setup-choice',update);
+ window.addEventListener('composer:assistance-choice',update);
  button.addEventListener('click',async()=>{
   update();if(button.disabled)return;
   const task=selector.value;const text=prompt.textContent!;
