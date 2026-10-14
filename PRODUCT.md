@@ -38,3 +38,7 @@ Meaningful HTML, keyboard operation, visible focus, reduced motion, mobile and d
 ## Positioning sources — reviewed 14 October 2026
 
 MP clarified the EmDash/WordPress/agent studio positioning during active implementation. Official sources checked: https://blog.cloudflare.com/emdash-wordpress/ , https://docs.emdashcms.com/migration/from-wordpress/ , https://docs.emdashcms.com/migration/porting-plugins/ , https://developers.cloudflare.com/workers/platform/pricing/ . Current design reference: Cloudflare Kumo's accessible semantic component approach and agent-readable registry at https://github.com/cloudflare/kumo and https://kumo-ui.com/registry/ . These are references; Composer retains its original identity and native Astro behaviour, without claiming those packages are installed.
+
+## Follow-along learning — reviewed 14 October 2026
+
+`/learn` is the newcomer route from agent inspection and Get Ready to an owned Hello change, composition, content authoring, quality and maintenance. Use existing maintained setup instructions, handoffs, readiness reports and Init; no second setup engine. Each lesson supplies a task, expected result, recovery help and optional understanding check. Self-reported observations save on the device and never certify setup, grant execution authority or enter readiness evidence. Keep the guide readable without JavaScript and each stage reachable directly. Browsing a public composition and exporting a model remain distinct from authorised writes and a deployed customer app.
