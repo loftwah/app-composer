@@ -2,15 +2,17 @@
 import { ArrowRight, ShieldCheck } from '@lucide/astro';
 ---
 <div class="init-readiness" data-init-readiness>
- <ShieldCheck size={22} aria-hidden="true"/><div><strong data-init-ready-label>Configure now, verify before deployment.</strong><p data-init-ready-detail>You can explore without setup. Your agent checks the environment in Get Ready before building or changing a live app.</p></div><a href="/ready">Get Ready <ArrowRight size={16} aria-hidden="true"/></a>
+ <ShieldCheck size={22} aria-hidden="true"/><div><strong data-init-ready-label>Configure now, verify before deployment.</strong><p data-init-ready-detail>You can explore without setup. Your agent checks the environment in Get Ready before building or changing a live app.</p><p data-init-ready-workspace hidden></p></div><a href="/ready">Get Ready <ArrowRight size={16} aria-hidden="true"/></a>
 </div>
 <script>
 import {savedReadyReport,readyReportEvent} from '../lib/ready-session';
-import {inspectReadinessReport} from '../../lib/get-ready/report.mjs';
+import {inspectReadinessReport,progressWorkspace} from '../../lib/get-ready/report.mjs';
 const box=document.querySelector('[data-init-readiness]')!;let timer:ReturnType<typeof setTimeout>|undefined;
 function update(){
  clearTimeout(timer);
+ const workspace=box.querySelector<HTMLElement>('[data-init-ready-workspace]')!;workspace.hidden=true;workspace.textContent='';
  try{const report=savedReadyReport();if(!report){box.querySelector('[data-init-ready-label]')!.textContent='Configure now, verify before deployment.';box.querySelector('[data-init-ready-detail]')!.textContent='You can explore without setup. Your agent checks the environment in Get Ready before building or changing a live app.';return;}
+  workspace.hidden=false;workspace.textContent=progressWorkspace(report);
   const {inspection}=inspectReadinessReport(report),count=Object.values(inspection.capabilities).filter(Boolean).length;
   box.querySelector('[data-init-ready-label]')!.textContent=inspection.ready?'Your saved report has four current checks.':'Your setup still needs attention.';
   box.querySelector('[data-init-ready-detail]')!.textContent=inspection.ready?'Continue with your app settings. Your agent rechecks the actual account, source and target before it deploys.':count+' of 4 saved checks are current. You can keep exploring here; return to Get Ready for the next action.';

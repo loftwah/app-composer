@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {createReadinessSession,inspectReadiness,recipe} from '../lib/get-ready/index.mjs';
-import {readinessReport,validateReadinessReport,inspectReadinessReport,progressStep,progressHelp} from '../lib/get-ready/report.mjs';
+import {readinessReport,validateReadinessReport,inspectReadinessReport,progressStep,progressHelp,progressWorkspace} from '../lib/get-ready/report.mjs';
 const now=Date.parse('2026-10-14T00:00:00.000Z');
 function fixture(){return {version:2,recipe:recipe.id,state:'verified',expiresAt:new Date(now+3600000).toISOString(),context:{account:'fictional-secret-account',workspace:'/fictional/private-path',repo:'private-owner/private-repo'},checks:Object.fromEntries(recipe.checks.map(id=>[id,{state:'verified',verifiedAt:new Date(now).toISOString(),evidence:{secret:'fictional-secret'}}]))};}
 
@@ -26,7 +26,7 @@ test('browser progress uses the core freshness and pending-operation semantics w
 
 test('progress import rejects private receipts, secret fields, duplicate checks, future dates and incompatible versions',()=>{
  assert.throws(()=>validateReadinessReport(fixture(),now));
- for(const mutate of [r=>r.context={token:'secret'},r=>r.version=2,r=>r.recipe='arbitrary-recipe',r=>r.checks[1]=r.checks[0],r=>r.checks[0].verifiedAt=new Date(now+1).toISOString(),r=>r.exportedAt=new Date(now+300001).toISOString(),r=>r.checks[0].action='untrusted instructions',r=>r.operations=[{id:'arbitrary-shell',state:'failed',recovery:'agent-repair'}]]){
+ for(const mutate of [r=>r.context={token:'secret'},r=>r.version=3,r=>r.recipe='arbitrary-recipe',r=>r.checks[1]=r.checks[0],r=>r.checks[0].verifiedAt=new Date(now+1).toISOString(),r=>r.exportedAt=new Date(now+300001).toISOString(),r=>r.checks[0].action='untrusted instructions',r=>r.operations=[{id:'arbitrary-shell',state:'failed',recovery:'agent-repair'}]]){
   const report=readinessReport(fixture(),now);mutate(report);assert.throws(()=>validateReadinessReport(report,now));
  }
 });
@@ -49,4 +49,12 @@ test('account help identifies supported services and unfinished acquisition with
  assert.equal(progressHelp(cloudflare,true),null);assert.equal(progressHelp({...cloudflare,state:'verified'}),null);
  const session=fixture();session.state='action_required';session.expiresAt=null;session.pendingOperations=[{id:'clone-reference',state:'action_required',recovery:'human-authentication'}];
  const report=readinessReport(session,now);assert.equal(inspectReadinessReport(report,now).inspection.ready,false);assert.match(progressStep(report.operations[0],false),/GitHub/);
+});
+
+
+test('local work observations are bounded and legacy reports never imply a clean checkout',()=>{
+ for(const [dirty,expected] of [[true,'changed'],[false,'clean'],[null,'unknown'],[undefined,'unknown']]){const session=fixture();session.context.dirty=dirty;const report=readinessReport(session,now);assert.equal(report.version,2);assert.equal(report.workingTree,expected);assert.equal(inspectReadinessReport(report,now).inspection.ready,true,'An observation is not a new capability or approval');assert.doesNotMatch(JSON.stringify(report),/private-path|private-owner|fictional-secret/);}
+ const legacy=readinessReport(fixture(),now);legacy.version=1;delete legacy.workingTree;assert.deepEqual(validateReadinessReport(legacy,now),legacy);assert.match(progressWorkspace(legacy),/does not establish/);
+ for(const mutate of [r=>delete r.workingTree,r=>r.workingTree='/private/path',r=>r.workingTree={secret:'private'},r=>r.workingTree=null]){const report=readinessReport(fixture(),now);mutate(report);assert.throws(()=>validateReadinessReport(report,now));}
+ const extra={...legacy,workingTree:'clean'};assert.throws(()=>validateReadinessReport(extra,now));
 });

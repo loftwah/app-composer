@@ -261,3 +261,12 @@ test('legacy blocked intent cannot disappear when an unrelated reference setup s
  const cancelled=await runReadinessSession(createReadinessSession(context(),resumed),adapter(),()=>{},{cancel:true});
  const checked=await runReadinessSession(createReadinessSession(context(),cancelled),adapter());assert.equal(inspectReadiness(checked).ready,true);
 });
+
+
+test('local edits and commits preserve unfinished intent in the same target scope without retries',async()=>{
+ const original=context();let installs=0;const a={...adapter(),installReferenceTools:async()=>{installs++;throw new ReadinessFailure('unavailable');}};
+ const failed=await runReadinessSession(createReadinessSession(original),a,()=>{},{operation:'install-reference-tools'});assert.equal(failed.state,'failed');
+ for(const patch of [{dirty:true},{source:'e'.repeat(40)}]){const next=await runReadinessSession(createReadinessSession({...original,...patch},failed),a);assert.equal(inspectReadiness(next).ready,false);assert.equal(next.pendingOperations[0].id,'install-reference-tools');assert.equal(next.pendingOperations[0].recovery,'agent-recheck');assert.equal(installs,1);assert.ok(Object.values(inspectReadiness(next).capabilities).every(Boolean));}
+ const other=createReadinessSession({...original,workspace:'/fictional/different-project'},failed);assert.equal(other.pendingOperations,undefined);
+ const cancelled=await runReadinessSession(createReadinessSession({...original,dirty:true},failed),a,()=>{},{cancel:true});assert.equal(cancelled.state,'cancelled');assert.equal(inspectReadiness(cancelled).ready,false);assert.equal(installs,1);
+});

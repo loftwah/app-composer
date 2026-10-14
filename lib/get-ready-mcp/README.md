@@ -97,3 +97,8 @@ If GitHub CLI/pnpm were prepared elsewhere, explicitly add `--tools-workspace /a
 The bounded `preparation` result reports completion, whether installation changed files, and verified Wrangler/pnpm versions. Completion is separate from overall readiness: a public clone has no upstream push permission, and missing account/HTTPS proof remains incomplete. A repeat verifies existing tools without reinstalling. Ordinary checks never retry a failed or cancelled installation; partial work remains for agent inspection before a separate explicit retry. Shared exclusivity remains active until the bounded call finishes, even after cancellation, and a cancelled result is not retained as completed evidence.
 
 To remove this capability, stop the connection and remove its allow flag. Existing dependencies, source, receipts and cloud resources remain intact. Native-host discovery and use require their own acceptance; protocol success alone does not establish them.
+
+
+## Report compatibility
+
+Transport 0.6.0/server 1.7.0 returns the shared report version 2, including only the dated clean/changed/unknown local-work observation. It exposes no file names, paths, diffs or content. This does not grant source approval or a new capability. Consumers should update their report validator; the current library/browser also read legacy version 1 reports with local-work status unknown. Local edits or commits in the same selected target do not silently complete an unfinished setup operation, and checks still never retry it.

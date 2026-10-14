@@ -11,6 +11,7 @@ import {progressChecks} from '../../lib/get-ready/report.mjs';
  <noscript><p class="small">This progress viewer needs JavaScript. Your agent can read the report and give you the results directly.</p></noscript>
  <label class="remember-report"><input data-remember-progress type="checkbox" disabled/>Remember this redacted report on this device</label>
  <p data-progress-message class="message" role="status" aria-live="polite"></p>
+ <p data-progress-workspace class="small" hidden></p>
  <p data-progress-overview class="note">No report loaded.</p>
  <ol data-progress-checks class="progress-checks">{Object.values(progressChecks).map(check=><li><h3>{check.label}</h3><span class="small">Not checked here</span><p class="small">{check.help}</p></li>)}</ol>
  <div data-progress-operations hidden></div>
