@@ -90,3 +90,14 @@ test('optional domain MCP tool is host-scoped, read-only and separate from works
   assert.equal((await client.callTool({name:'get_ready_inspect',arguments:{}})).structuredContent.report,null);
  }finally{await client.close();await server.close();}
 });
+
+test('optional project MCP inspection uses fixed host scope and never runs setup or records readiness',async()=>{
+ const root=mkdtempSync(join(tmpdir(),'composer-mcp-project-'));
+ assert.throws(()=>launchScope(['--workspace',root,'--project-purpose','execute']));
+ const server=createReadinessMcp(launchScope(['--workspace',root,'--project-purpose','emdash-site'])),client=await connect(server);
+ try{
+  const tools=(await client.listTools()).tools;assert.equal(tools.length,3);const tool=tools.find(t=>t.name==='get_ready_project');assert.equal(tool.annotations.readOnlyHint,true);assert.equal(tool.annotations.openWorldHint,false);
+  for(const args of [{workspace:'/other/private'},{purpose:'emdash-plugin'},{operation:'install'},{token:'fictional-secret'}])assert.equal((await client.callTool({name:'get_ready_project',arguments:args})).isError,true);
+  const inspected=await client.callTool({name:'get_ready_project',arguments:{}});assert.equal(inspected.structuredContent.report.purpose,'emdash-site');assert.equal(inspected.structuredContent.report.ready,false);assert.equal(inspected.structuredContent.report.manifest.state,'absent');assert.doesNotMatch(JSON.stringify(inspected),new RegExp(root));assert.equal(existsSync(join(root,'.private')),false);assert.equal((await client.callTool({name:'get_ready_inspect',arguments:{}})).structuredContent.report,null);
+ }finally{await client.close();await server.close();rmSync(root,{recursive:true,force:true});}
+});

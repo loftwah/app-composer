@@ -1,0 +1,2 @@
+export interface ProjectInspectionOptions {workspace:string;purpose?:'auto'|'emdash-site'|'emdash-plugin';diagrams?:boolean}
+export function inspectProject(options:ProjectInspectionOptions):{version:1;kind:'app-composer.project-inspection';inspectedAt:string;workspaceFingerprint:string;purpose:string;readOnly:true;ready:false;manifest:Record<string,unknown>;lockfiles:Record<string,unknown>[];guidance:Record<string,unknown>[];skills:Record<string,unknown>[];source:Record<string,string>;optional:Record<string,string>;findings:{id:string;action:string}[];limits:string[]};

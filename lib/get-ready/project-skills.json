@@ -1,0 +1,21 @@
+{
+  "reviewed": "2026-10-14",
+  "repository": "https://github.com/emdash-cms/skills",
+  "commit": "15dcb07160fb321aab93fa67c6d0cbfc1c33e90f",
+  "licence": "MIT",
+  "documentation": "https://docs.emdashcms.com/agent-skills/",
+  "skills": [
+    {
+      "id": "building-emdash-site",
+      "entrypointSha256": "87393083e92b33db4ec77b7037b35bf76f5c77bdf875e3dc233dcde442c12238"
+    },
+    {
+      "id": "creating-plugins",
+      "entrypointSha256": "66fda54d0060e53d2b9ce448940e75a70a693ee11cc527d89e95ab48aac24709"
+    },
+    {
+      "id": "emdash-cli",
+      "entrypointSha256": "bb4a01fc0263a4b808b000edeeb1a5bcb0bf20809d8cc219e6aff7bf3664e037"
+    }
+  ]
+}
