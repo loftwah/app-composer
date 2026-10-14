@@ -17,9 +17,10 @@ test('complete pinned skills prepare offline; repeat and independent project pre
  }finally{rmSync(root,{recursive:true});}
 });
 test('authored, partial, advertised, user and parent skills are preserved without duplicate installs',()=>{
- for(const scope of ['project','user','parent','advertised','partial']){
+ for(const scope of ['project','user','parent','advertised','partial','custom-codex']){
   const {root,workspace,env}=fixture();try{
-   const folder=scope==='user'?join(env.HOME,'.codex/skills'):scope==='parent'?join(root,'.agents/skills'):join(workspace,'.agents/skills');
+   if(scope==='custom-codex'){env.CODEX_HOME=join(root,'codex');mkdirSync(env.CODEX_HOME);}
+   const folder=scope==='custom-codex'?join(env.CODEX_HOME,'skills'):scope==='user'?join(env.HOME,'.codex/skills'):scope==='parent'?join(root,'.agents/skills'):join(workspace,'.agents/skills');
    if(scope!=='advertised')for(const id of ['building-emdash-site','emdash-cli']){mkdirSync(join(folder,id),{recursive:true});if(scope!=='partial')writeFileSync(join(folder,id,'SKILL.md'),'Fictional custom skill');}
    const before=digest(workspace),result=prepareSiteSkills({workspace,availableSkills:scope==='advertised'?['building-emdash-site','emdash-cli']:[]},env);
    assert.equal(result.changed,false);assert.equal(result.ready,false);assert.deepEqual(digest(workspace),before);assert.equal(result.skills.every(s=>s.state=== (scope==='advertised'?'advertised-by-agent':scope==='project'||scope==='partial'?'preserved-project-copy':'preserved-other-scope')),true);

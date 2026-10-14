@@ -45,6 +45,26 @@ A completed workspace pair is reused by ordinary checks on this connection. Chec
 
 To remove this capability, stop the connection and remove the allow flag from the host’s launch configuration. The package never changes that configuration itself. Existing tools, receipts and cloud resources are retained.
 
+## Optional EmDash site guidance
+
+Use this for an exact declared EmDash 1.2.0 project on Node22 in an active Codex workspace. First inspect the selected task’s actual enabled skill catalogue, including plugin skills, and preserve existing guidance. Map applicable namespaced skills to `building-emdash-site`, `emdash-cli` or `creating-plugins`. The host must supply that current inventory and explicitly authorise this local preparation:
+
+```sh
+/absolute/integration/node_modules/.bin/get-ready-mcp \
+  --workspace /absolute/authorised/emdash-project \
+  --allow-site-skill-setup --available-skills none
+```
+
+`none` means the current catalogue was checked and none of those skills is advertised. When applicable skills are available, supply their canonical IDs as a comma-separated list, for example `--available-skills building-emdash-site,emdash-cli`. The allow flag without an inventory, or an inventory without the flag, is refused. The API equivalent is `allowSiteSkillSetup: true, availableSkills: []` after that observation. This is host authority for the selected local preparation, never an inventory chosen by a model tool call or an imported report.
+
+The zero-argument `get_ready_prepare_site_skills` invokes the existing core `prepare-site-skills` operation. It adds only missing complete pinned official site/CLI trees, references and MIT notices in the selected root’s `.agents/skills`. It checks known project/ancestor/user scopes, including an explicitly selected `CODEX_HOME`, and preserves existing, partial, custom and agent-advertised copies. It performs no remote installer, package install, project execution, account connection, global edit or cloud deployment. The regular readiness checks still run with the host’s existing scope; this operation grants none of their missing permissions.
+
+Its bounded preparation result records state and, on completion, `changed` and the pinned public source commit. Paths, skill bodies, raw inventory and private evidence are excluded. The report retains a prepared review and `ready:false`. An ordinary check never retries installation or certifies discovery/use. Cancellation can leave completed or partial files; inspect those before an explicit retry. Stop the connection and remove both flags to disable preparation; existing files stay intact.
+
+After preparation, refresh the catalogue in a fresh task for **that project**. Confirm both relevant skills are enabled and resolve to the intended preserved or prepared copies. Ask that task to apply the skills to a small read-only review: inspect the actual schema and published-content query, consult current official documentation, and check the installed CLI’s help without running content mutations. Record discovery and actual use separately from preparation. CLI content creation publishes by default unless `--draft` is supplied. Do not use a help banner alone to establish the installed version: the tested EmDash 1.2.0 package’s banner reported `v0.0.0`; inspect installed package metadata and lock/source identity separately.
+
+On 14 October 2026, a fresh native Codex CLI 0.145.0 inventory found neither skill in an isolated fictional generated EmDash project. The independently installed production core prepared the trees, a new native inventory discovered both as enabled project skills, and a fresh read-only Codex task used their references, official documentation and installed CLI help to review the collection, publication filter and draft flag. Source and saved host configuration were unchanged by the review. This proves that local Codex path; desktop/IDE plugin discovery, other runtimes, complete environment readiness and customer deployment remain separate checks.
+
 ## Optional maintained starter acquisition
 
 A host already authorised to fetch the public Hello starter may add `--reference-destination /absolute/authorised/new-hello` to its launch. The programmatic scope is `referenceDestination`. This enables only zero-argument `get_ready_clone_reference`, invoking the existing core `clone-reference` operation. Model calls cannot choose another destination, repository or revision. The default launch exposes no acquisition tool; removing the destination and reconnecting disables it without deleting files.

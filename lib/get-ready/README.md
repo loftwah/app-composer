@@ -102,7 +102,7 @@ const state = await runLocalReadiness({
 console.log(state.operation);
 ```
 
-A trusted custom engine adapter implements `prepareSiteSkills(availableSkills)`. The package also exports `prepareSiteSkills({workspace, availableSkills})` for that local adapter. Do not treat imported reports or a saved inventory as permission to prepare files. The existing `get_ready_project` MCP remains read-only; it cannot install skills.
+A trusted custom engine adapter implements `prepareSiteSkills(availableSkills)`. The package also exports `prepareSiteSkills({workspace, availableSkills})` for that local adapter. Do not treat imported reports or a saved inventory as permission to prepare files. The existing `get_ready_project` MCP remains read-only; it cannot install skills. The optional MCP transport exposes this same preparation separately only when its trusted host supplies both `--allow-site-skill-setup` and the current `--available-skills` inventory. Its zero-argument `get_ready_prepare_site_skills` cannot select an inventory or scope. See the transport README; ordinary checks never prepare skills.
 
 A successful preparation is **action-required**, even if the environment checks pass. That unresolved review survives ordinary check/resume without reinstallation. There is no automatic discovery certification; `--cancel` discards the pending intent, never verifies the capability. Its private operation evidence distinguishes prepared trees, exact existing trees, preserved copies and agent-advertised skills. It always reports `ready:false`, `agentVisible:'not-probed'`, `exercised:false` and installed EmDash `not-probed`. The redacted environment report shows the remaining review step without exporting this private evidence.
 
