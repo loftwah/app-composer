@@ -68,3 +68,10 @@ Fixed reads inspect package declarations and the presence of build/test/check co
 The optional repository MCP exposes the same function when the trusted host adds `--project-purpose emdash-site` to its existing absolute workspace launch arguments. `get_ready_project` accepts no model-selected scope or arguments, makes no provider calls and leaves check/inspect evidence untouched. The SDK transport stays separate from this dependency-free archive.
 
 Official references reviewed 14 October 2026: [EmDash agent skills](https://docs.emdashcms.com/agent-skills/) and [documentation MCP](https://docs.emdashcms.com/docs-mcp/). Entrypoint metadata records the reviewed MIT skills repository revision; it does not establish permission to execute or overwrite project instructions.
+
+
+### Read a project observation independently
+
+`validateProjectReport(report)` and `inspectProjectReport(report)` are exported from the core and browser-safe `@loftwah/get-ready/project-report` entrypoint. They use the same findings and purpose rules as filesystem inspection. The strict versioned boundary refuses unknown/private fields, incompatible sources, unsafe paths, injected advice, inconsistent hashes/states and fabricated installed/visible/exercised/readiness claims. Inspecting derives a one-hour stale caution; readiness always remains false. Re-export with the matching current Get Ready version if a source/schema is incompatible.
+
+MP can open the separate JSON report at https://composer.loftwah.com/ready#project-check . The local-only viewer never uploads or persists it; clear removes its displayed metadata. A fictional example explains the view before inspection. An imported timestamp, fingerprint or matching hash does not authenticate the report or establish current scope/permissions. Existing environment and domain report formats stay separate. The browser request handoff contains no imported report data.
