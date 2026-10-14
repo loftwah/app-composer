@@ -1,5 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import child from 'node:child_process';import {syncBuiltinESMExports} from 'node:module';import {tmpdir} from 'node:os';import {join,resolve} from 'node:path';import {createHash} from 'node:crypto';
 import {createContentProject,contentProjectFiles} from '../lib/content-model/project.mjs';import {starterModel} from '../lib/content-model/index.mjs';import {contentPattern,contentPatternSummaries} from '../lib/content-model/patterns.mjs';import {validateSeed} from 'emdash/seed';
+import {childDirectory} from '../lib/get-ready/project-write.mjs';
 const fixture=()=>fs.realpathSync(fs.mkdtempSync(join(tmpdir(),'composer-project-recipe-'))),hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 function tree(path){return fs.readdirSync(path,{withFileTypes:true}).map(entry=>[entry.name,entry.isDirectory()?tree(join(path,entry.name)):entry.isSymbolicLink()?'link':hash(fs.readFileSync(join(path,entry.name)))]);}
 test('every supported model becomes independently owned fixed source and a native EmDash seed, with no imported code',()=>{
@@ -32,9 +33,16 @@ test('interrupted preparation keeps partial files and refuses automatic replacem
  try{child.spawnSync=(command,args,options)=>{if(JSON.parse(options.input).operation==='files'&&++fileGroups===2)return {status:2,stdout:'',stderr:''};return original(command,args,options);};syncBuiltinESMExports();assert.throws(()=>createContentProject({model:starterModel,destination}));assert.equal(fs.existsSync(join(destination,'package.json')),true);const before=tree(destination);child.spawnSync=original;syncBuiltinESMExports();assert.throws(()=>createContentProject({model:starterModel,destination}));assert.deepEqual(tree(destination),before);}finally{child.spawnSync=original;syncBuiltinESMExports();fs.rmSync(root,{recursive:true});}
 });
 test('the agent CLI creates only a new reviewed source project and refuses cloud deployment and unsupported input',()=>{
- const root=fixture(),file=join(root,'model.json'),destination=join(root,'site');fs.writeFileSync(file,JSON.stringify(starterModel));const command=resolve('scripts/init-site.mjs');
+ const root=fixture(),file=join(root,'model.json'),parent=join(root,'My Projects café'),destination=join(parent,'Field defaults café');fs.mkdirSync(parent);fs.writeFileSync(file,JSON.stringify(starterModel));const command=resolve('scripts/init-site.mjs');
  try{const result=child.spawnSync(process.execPath,[command,'--model',file,'--destination',destination],{encoding:'utf8'});assert.equal(result.status,0,result.stderr);assert.equal(JSON.parse(result.stdout).state,'project-created');const deploy=child.spawnSync(process.execPath,[join(destination,'scripts/deploy.mjs')],{cwd:destination,encoding:'utf8',env:{PATH:process.env.PATH,HOME:root}});assert.equal(deploy.status,1);assert.match(deploy.stderr,/No deployment was attempted/);
   for(const flags of [['--model',file,'--destination',destination],['--model',file,'--destination',join(root,'new'),'--apply'],['--model',file,'--destination','relative'],['--model',file,'--destination',join(root,'new'),'--account','fictional']])assert.equal(child.spawnSync(process.execPath,[command,...flags],{encoding:'utf8'}).status,1);assert.equal(fs.existsSync(join(root,'new')),false);
+ }finally{fs.rmSync(root,{recursive:true});}
+});
+
+test('directory creation accepts ordinary folder names but refuses path components and control characters',()=>{
+ const root=fixture(),stat=fs.lstatSync(root),identity={dev:stat.dev,ino:stat.ino};try{
+  for(const name of ['', '.', '..', '../outside', 'nested/child', 'nested\\child', 'bad\0name', 'bad\nname'])assert.throws(()=>childDirectory(root,identity,name,true));
+  assert.deepEqual(fs.readdirSync(root),[]);const created=childDirectory(root,identity,'Field defaults café',true);assert.equal(fs.lstatSync(join(root,'Field defaults café')).ino,created.ino);assert.throws(()=>childDirectory(root,identity,'Field defaults café',true));
  }finally{fs.rmSync(root,{recursive:true});}
 });
 
