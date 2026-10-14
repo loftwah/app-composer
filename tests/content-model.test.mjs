@@ -1,0 +1,45 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {mkdtempSync,writeFileSync,readFileSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {execFileSync} from 'node:child_process';
+import {DatabaseSync} from 'node:sqlite';
+// Exact installed EmDash 1.2.0 runtime validator; revisit on a dependency update.
+import {n as nativeFieldSchema} from '../node_modules/emdash/dist/zod-generator-BQilAboC.mjs';
+import {validateSeed} from 'emdash/seed';
+import {validateContentModel,validateModelValues,visibleModelFields,emdashSeed,contentModelHandoff,starterModel} from '../lib/content-model/index.mjs';
+const sample=()=>structuredClone(starterModel);
+test('portable field structure validates against the actual installed EmDash seed implementation',()=>{
+ const model=validateContentModel(sample()),seed=emdashSeed(model),check=validateSeed(seed);assert.equal(check.valid,true,JSON.stringify(check));assert.equal(seed.collections[0].routable,false);assert.deepEqual(seed.collections[0].supports,['drafts','revisions']);assert.equal(seed.collections[0].fields.find(field=>field.slug==='materials').validation.subFields.length,2);assert.doesNotMatch(JSON.stringify(seed),/when|group|token|secret/);assert.match(contentModelHandoff(model),/Native EmDash admin is not claimed to hide conditional fields/);
+});
+test('model import refuses unknown authority, reserved fields, nesting, duplicate keys and circular/invalid conditions',()=>{
+ for(const change of [m=>m.version=2,m=>m.token='fictional-secret',m=>m.fields[0].key='__proto__',m=>m.fields[1].key=m.fields[0].key,m=>m.fields[0].type='script',m=>m.fields[0].when={field:'format',equals:'Online'},m=>m.fields[3].required=true,m=>m.fields[3].when.equals='Missing',m=>m.fields[4].fields[0].type='repeater',m=>m.fields[4].limit=999,m=>m.fields[2].choices=['Same','Same']]){const model=sample();change(model);assert.throws(()=>validateContentModel(model));}
+ const oversized=sample();oversized.fields=Array.from({length:13},(_,i)=>({...oversized.fields[0],key:'field_'+i}));assert.throws(()=>validateContentModel(oversized));
+});
+test('the same model hides inactive values, validates repeaters and refuses unsafe links before content use',()=>{
+ const model=sample(),values={title:'A fictional workshop',description:'Synthetic data only',format:'In person',join_link:'javascript:ignored-inactive-value',materials:[{item:'Paper',note:'Recycled'}]};
+ assert.equal(visibleModelFields(model,values).some(field=>field.key==='join_link'),false);assert.equal(Object.hasOwn(validateModelValues(model,values),'join_link'),false);
+ assert.throws(()=>validateModelValues(model,{...values,format:'Online'}),/HTTPS/);assert.equal(validateModelValues(model,{...values,format:'Online',join_link:'https://example.com/join'}).join_link,'https://example.com/join');
+ for(const change of [v=>v.extra='unknown',v=>v.title='',v=>v.materials=[{item:'',note:'Required'}],v=>v.materials=[{item:'Paper',script:'x'}],v=>v.materials=Array(7).fill({item:'Paper'}),v=>v.format='Unknown']){const input=structuredClone(values);change(input);assert.throws(()=>validateModelValues(model,input));}
+});
+test('actual native EmDash CLI applies the compiled model to an exclusive fictional SQLite database',()=>{
+ const root=mkdtempSync(join(tmpdir(),'composer-content-model-')),seedPath=join(root,'model.json'),database=join(root,'model.db');writeFileSync(seedPath,JSON.stringify(emdashSeed(sample())));
+ const output=execFileSync(process.execPath,['node_modules/emdash/dist/cli/index.mjs','seed',seedPath,'--database',database,'--cwd',root,'--on-conflict','error','--no-content'],{encoding:'utf8',timeout:30000,env:{PATH:process.env.PATH,HOME:root,TMPDIR:root}});assert.match(output,/seed|collection/i);assert.ok(readFileSync(database).length>0);
+ // Read-only inspection checks the actual persisted native schema, not only JSON acceptance.
+ const db=new DatabaseSync(database,{readOnly:true});try{const rows=db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();assert.ok(rows.some(row=>row.name==='ec_workshops'));const columns=db.prepare("PRAGMA table_info(ec_workshops)").all();for(const name of ['title','description','format','join_link','materials'])assert.ok(columns.some(column=>column.name===name));}finally{db.close();}
+});
+
+test('accepted models roundtrip with normalised choices and false boolean defaults',()=>{
+ const input=sample();input.fields[2].choices=[' In person ','Online '];input.fields[3].when.equals='Online ';const clean=validateContentModel(input);assert.deepEqual(validateContentModel(clean),clean);assert.equal(clean.fields[3].when.equals,'Online');assert.doesNotThrow(()=>emdashSeed(clean));assert.ok(visibleModelFields(clean,{format:'Online'}).some(field=>field.key==='join_link'));
+ const boolean=sample();boolean.fields[2]={key:'online',label:'Online?',type:'boolean',required:false,group:'Useful details'};boolean.fields[3].when={field:'online',equals:false};assert.ok(Object.hasOwn(validateModelValues(boolean,{title:'Fictional workshop'}),'join_link'));
+});
+
+test('optional typed values and repeater rows satisfy actual native EmDash value schemas',()=>{
+ const model=sample();model.fields=[{key:'count',label:'Count',type:'integer',required:false,group:model.groups[0]},{key:'choice',label:'Choice',type:'select',required:false,group:model.groups[0],choices:['One','Two']},{key:'enabled',label:'Enabled',type:'boolean',required:false,group:model.groups[0]},{key:'note',label:'Note',type:'text',required:false,group:model.groups[0],when:{field:'enabled',equals:false}},{key:'rows',label:'Rows',type:'repeater',required:false,group:model.groups[0],limit:2,fields:[{key:'count',label:'Count',type:'integer',required:false},{key:'choice',label:'Choice',type:'select',required:false,choices:['One','Two']}]}];
+ for(const enabled of [undefined,null,'',false]){const values=validateModelValues(model,{enabled,rows:[{}]});assert.equal(values.enabled,false);assert.ok(Object.hasOwn(values,'note'));assert.equal(values.count,null);assert.equal(values.choice,null);for(const field of emdashSeed(model).collections[0].fields)assert.ok(nativeFieldSchema(field).safeParse(values[field.slug]).success,field.slug);}
+});
+test('native reserved collection and field names are refused before export',()=>{
+ for(const collection of ['users','content','relations','reorder'])assert.throws(()=>validateContentModel({...sample(),collection}));
+ for(const key of ['primary_byline_id','scheduled_at','deleted_at','version','terms','bylines']){const input=sample();input.fields[0].key=key;assert.throws(()=>validateContentModel(input));}
+});
+test('the actual formatted export and compact saved draft can reopen under the same byte cap',()=>{
+ const input=sample();input.fields=Array.from({length:12},(_,i)=>({key:'rows_'+i,label:'A bounded repeated group',type:'repeater',required:false,group:input.groups[0],limit:12,fields:Array.from({length:6},(_,j)=>({key:'choice_'+j,label:'A choice field',type:'select',required:false,choices:Array.from({length:8},(_,k)=>String(k)+'x'.repeat(59))}))}));
+ const accepted=validateContentModel(input);assert.ok(Buffer.byteLength(JSON.stringify(accepted,null,2))>32768);for(const spacing of [undefined,2])assert.deepEqual(validateContentModel(JSON.parse(JSON.stringify(accepted,null,spacing))),accepted);
+ const large=structuredClone(input);for(const field of large.fields)for(const sub of field.fields)sub.choices=sub.choices.map(choice=>choice.replaceAll('x','界'));assert.throws(()=>validateContentModel(large),/64 KiB/);
+});
