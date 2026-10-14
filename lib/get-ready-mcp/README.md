@@ -31,7 +31,7 @@ The host may additionally select the known `--account ACCOUNT_ID --reference-wor
 - `get_ready_project`, when enabled by the host, reads fixed project metadata and preserved skill entrypoints without writes or project execution. Matching files do not prove agent discovery/use.
 - `get_ready_domain`, when enabled by the host, reads the exact selected Cloudflare zone, nameservers and DNSSEC/DS observations. It does not change DNS or prove global propagation/HTTPS.
 
-The host retains authorised tools and credentials; this is not a sandbox for arbitrary source. One check runs at a time. Cancellation clears the cached result and does not force-stop an underlying bounded check or undo private progress. Full setup remains an explicit agent-operated library/CLI journey. A protocol connection is not a verified customer environment, actual agent entitlement or acceptance in a particular native MCP host.
+The host retains authorised tools and credentials; this is not a sandbox for arbitrary source. One check runs at a time. Cancellation clears the cached result and does not force-stop an underlying bounded check or undo private progress. Other setup steps remain an explicit agent-operated library/CLI journey. A protocol connection is not a verified customer environment, actual agent entitlement or acceptance in a particular native MCP host.
 
 ## Optional workspace tool preparation
 
@@ -44,6 +44,16 @@ The explicit tool response adds a bounded `preparation` result with its operatio
 A completed workspace pair is reused by ordinary checks on this connection. Checks never retry setup. After reconnecting, explicitly select the prepared folder with `--tools-workspace /absolute/authorised/project`, or make a separate authorised preparation call to verify/reuse the existing pair. Cancellation can leave partial/completed local work and private progress; inspect it before explicitly retrying. It keeps other operations blocked until the bounded underlying call finishes, and never enables cached selection from a cancelled result.
 
 To remove this capability, stop the connection and remove the allow flag from the host’s launch configuration. The package never changes that configuration itself. Existing tools, receipts and cloud resources are retained.
+
+## Optional maintained starter acquisition
+
+A host already authorised to fetch the public Hello starter may add `--reference-destination /absolute/authorised/new-hello` to its launch. The programmatic scope is `referenceDestination`. This enables only zero-argument `get_ready_clone_reference`, invoking the existing core `clone-reference` operation. Model calls cannot choose another destination, repository or revision. The default launch exposes no acquisition tool; removing the destination and reconnecting disables it without deleting files.
+
+Select an absent destination whose parent already exists, or an unchanged checkout of the actual maintained Hello main. The operation requires supported active agent tools and a fresh GitHub source read through the authorised local CLI. Git acquisition uses an isolated environment without service credentials or user hooks. Existing, modified and partial copies are preserved; only a verified unchanged checkout can return `changed:false`. Private progress can retain unfinished intent. An ordinary check never retries acquisition.
+
+The bounded `preparation` result names `clone-reference`, its state and, on completion, `changed` plus the exact public source commit. It excludes the destination and raw evidence. Failed/partial work does not claim unchanged files. Acquisition neither installs project dependencies nor executes project code, creates a personally owned repository, authenticates, configures DNS or deploys.
+
+The current connection keeps checking its original workspace. To inspect or prepare the acquired checkout, stop and have the host explicitly select it as `--workspace`; if tools were prepared elsewhere, also select that folder with `--tools-workspace`. A parent receipt is not readiness for the acquired checkout. Subsequent ownership, dependency preparation and deployment require their existing separately authorised library/CLI operations. Cancellation can leave a completed/partial checkout; inspect it before a separate retry.
 
 ## Source and recovery
 
