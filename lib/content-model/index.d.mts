@@ -10,3 +10,5 @@ export function visibleModelFields(input:unknown,values:Record<string,unknown>):
 export function validateModelValues(input:unknown,values:Record<string,unknown>):Record<string,unknown>;
 export function emdashSeed(input:unknown):{version:'1';meta:{name:string};collections:{slug:string;label:string;routable:boolean;supports:string[];fields:Record<string,unknown>[]}[]};
 export function contentModelHandoff(input:unknown):string;
+
+export function contentProjectHandoff(input:unknown):string;
