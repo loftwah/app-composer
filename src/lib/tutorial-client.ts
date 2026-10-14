@@ -17,9 +17,9 @@ try {
  }
 } catch {storageStatus.textContent = 'Device storage is unavailable. Notes work for this visit.';}
 
-function save() {
+function save(announce = true) {
  try {localStorage.setItem(tutorialKey, JSON.stringify({version:1, checked:[...checked], lesson:current}));
-  storageStatus.textContent = 'Learning notes saved on this device.';
+  if (announce) storageStatus.textContent = 'Learning notes saved on this device.';
  } catch {storageStatus.textContent = 'Notes could not be saved. They work for this visit; keep this tab open.';}
 }
 function updateObservations() {
@@ -29,10 +29,15 @@ function updateObservations() {
  for (const id of lessonIds) {
   const ids = checkIds.filter(check => check.startsWith(id+'-'));
   const count = ids.filter(check => checked.has(check)).length;
-  root.querySelector(`[data-lesson-state="${id}"]`)!.textContent = count ? `${count} of ${ids.length} observations noted` : 'Not noted yet';
+  const state = root.querySelector<HTMLElement>(`[data-lesson-state="${id}"]`)!;
+  state.hidden = count === 0;
+  state.textContent = `${count} of ${ids.length} observations noted`;
  }
+ root.querySelector('[data-notes-count]')!.textContent = `${checked.size}/${checkIds.length}`;
 }
-function showLesson(focus = false) {
+const initialLesson = current;
+const picker = root.querySelector<HTMLSelectElement>('[data-lesson-picker]')!;
+function showLesson() {
  const requested = location.hash.slice(1);
  current = lessonIds.includes(requested) ? requested : current;
  for (const lesson of lessons) lesson.hidden = lesson.dataset.lesson !== current;
@@ -41,15 +46,55 @@ function showLesson(focus = false) {
   else link.removeAttribute('aria-current');
  }
  root.querySelector('[data-lesson-context]')!.textContent = `Lesson ${lessonIds.indexOf(current)+1} of ${lessonIds.length} · reviewed 14 October 2026`;
+ picker.value = current;
+ const index = lessonIds.indexOf(current);
+ for (const [selector, nextIndex, label] of [['[data-lesson-previous]',index-1,'Previous'],['[data-lesson-next]',index+1,'Next']] as const) {
+  const link = root.querySelector<HTMLAnchorElement>(selector)!;
+  const next = lessons[nextIndex];link.hidden = !next;
+  if (next) {
+   link.href = '#'+next.dataset.lesson;
+   link.setAttribute('aria-label',`${label} lesson: ${next.querySelector('h2')!.textContent}`);
+  }
+ }
+ updateAnchorOffset();
  const start = document.querySelector<HTMLAnchorElement>('[data-start]')!;
  start.href = '#'+current;
  start.firstChild!.textContent = current === lessonIds[0] ? 'Start the tutorial ' : 'Continue the tutorial ';
- if (focus) {
-  const title = document.getElementById(current+'-title')!;
-  title.focus({preventScroll:true});
-  title.scrollIntoView({block:'start',behavior:'instant'});
- }
 }
+function updateAnchorOffset() {
+ const article = lessons.find(lesson=>lesson.dataset.lesson===current)!;
+ const content = root.querySelector<HTMLElement>('.lesson-content')!;
+ // Native fragment restoration can run after pageshow. Give it the same
+ // document offset as our controller so a bookmark cannot slide under the bar.
+ article.style.scrollMarginTop = `${article.getBoundingClientRect().top-content.getBoundingClientRect().top+16}px`;
+}
+window.addEventListener('resize',updateAnchorOffset);
+function positionLesson(focus = false) {
+ // Measure the document position, not the sticky toolbar's current position.
+ const content = root.querySelector<HTMLElement>('.lesson-content')!;
+ const top = Math.max(0,content.getBoundingClientRect().top+window.scrollY-16);
+ if (focus) document.getElementById(current+'-title')!.focus({preventScroll:true});
+ window.scrollTo({top,behavior:'instant'});
+}
+function navigateLesson(id: string) {
+ if (!lessonIds.includes(id)) return;
+ if (location.hash !== '#'+id) history.pushState(null,'','#'+id);
+ current=id;showLesson();positionLesson(true);save(false);
+}
+// Keep ordinary links, copy-link and new-tab behaviour. Own only same-page,
+// unmodified activation so native fragment scrolling cannot race panel changes.
+document.addEventListener('click',event=>{
+ if (event.defaultPrevented || event.button!==0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+ const target=event.target instanceof Element?event.target.closest<HTMLAnchorElement>('a[href]'):null;
+ if(!target||target.target||target.hasAttribute('download'))return;
+ const url=new URL(target.href);
+ if(url.origin!==location.origin||url.pathname!==location.pathname||url.search!==location.search)return;
+ const id=url.hash.slice(1);if(!lessonIds.includes(id))return;
+ event.preventDefault();navigateLesson(id);
+});
+picker.hidden=false;picker.disabled=false;
+picker.addEventListener('change',()=>navigateLesson(picker.value));
+root.dataset.tutorialEnhanced='true';
 for (const input of observations) {
  input.disabled = false;
  input.addEventListener('change', () => {
@@ -87,8 +132,14 @@ root.querySelector('[data-confirm-clear]')!.addEventListener('click', () => {
  try {localStorage.removeItem(tutorialKey); storageStatus.textContent = 'Learning notes cleared. Your setup report and Init draft are unaffected.';}
  catch {storageStatus.textContent = 'Notes cleared for this visit. Device storage could not be changed.';}
  confirm.hidden=true; clear.hidden=false;
- history.replaceState(null,'','#'+current); showLesson(true);
+ history.replaceState(null,'','#'+current); showLesson();positionLesson(true);
 });
-window.addEventListener('hashchange', () => {showLesson(true); save();});
-window.addEventListener('pageshow', () => {updateObservations(); showLesson();});
-updateObservations(); showLesson();
+// Back/Forward changes the URL before rendering. Let the browser retain its
+// saved scroll position; do not force a new title jump on history traversal.
+let historyHash: string | null = null;
+window.addEventListener('popstate',()=>{historyHash=location.hash;current=lessonIds.includes(location.hash.slice(1))?location.hash.slice(1):initialLesson;showLesson();save(false);});
+window.addEventListener('hashchange',event=>{const restored=historyHash===new URL(event.newURL).hash;historyHash=null;if(restored)return;showLesson();if(lessonIds.includes(location.hash.slice(1)))positionLesson(true);});
+function positionDirectLink(){if(lessonIds.includes(location.hash.slice(1)))requestAnimationFrame(()=>positionLesson());}
+window.addEventListener('pageshow',event=>{updateObservations();showLesson();if(!event.persisted)positionDirectLink();});
+updateObservations();showLesson();
+if(document.readyState==='complete')positionDirectLink();
