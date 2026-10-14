@@ -56,10 +56,19 @@ function showLesson() {
    link.setAttribute('aria-label',`${label} lesson: ${next.querySelector('h2')!.textContent}`);
   }
  }
+ updateAnchorOffset();
  const start = document.querySelector<HTMLAnchorElement>('[data-start]')!;
  start.href = '#'+current;
  start.firstChild!.textContent = current === lessonIds[0] ? 'Start the tutorial ' : 'Continue the tutorial ';
 }
+function updateAnchorOffset() {
+ const article = lessons.find(lesson=>lesson.dataset.lesson===current)!;
+ const content = root.querySelector<HTMLElement>('.lesson-content')!;
+ // Native fragment restoration can run after pageshow. Give it the same
+ // document offset as our controller so a bookmark cannot slide under the bar.
+ article.style.scrollMarginTop = `${article.getBoundingClientRect().top-content.getBoundingClientRect().top+16}px`;
+}
+window.addEventListener('resize',updateAnchorOffset);
 function positionLesson(focus = false) {
  // Measure the document position, not the sticky toolbar's current position.
  const content = root.querySelector<HTMLElement>('.lesson-content')!;
