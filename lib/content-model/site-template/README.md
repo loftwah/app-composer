@@ -15,6 +15,17 @@ pnpm dev
 
 Open the local URL printed by Astro. The dev server binds to localhost. Use the printed localhost URL for passkeys; a numeric IP such as 127.0.0.1 can fail WebAuthn registration. D1 and R2 are simulated in this project’s ignored `.wrangler` directory. No real account, cloud resource or customer data is used. Native EmDash applies its migrations and the model schema on first request. Use `/_emdash/admin` for the initial owner setup and content editing; complete required passkey interaction yourself. Create entries as drafts, then explicitly publish those intended for public reading. An empty page is expected before publication. The kit includes no sample content or user account.
 
+### Set up the owner and publish one entry
+
+1. Open the exact `http://localhost:PORT/_emdash/admin` address printed by your agent. Enter a site title and optional tagline, leave the empty-site option selected, then choose **Continue**.
+2. Enter your owner email and name, then choose **Continue**. Choose **Create passkey** and finish your browser’s credential-manager prompt. The agent cannot supply your fingerprint, PIN or consent. This local passkey is bound to localhost; it is not a production sign-in credential.
+3. Wait for **Passkey created**, then choose **Open the dashboard**. If EmDash shows its login page, choose **Sign in with Passkey** and use the passkey you just created. Dismiss the first-run welcome with **Get Started**.
+4. On the dashboard, choose the shortcut bearing your collection’s name. Fill its required fields and choose **Save**. This creates a draft. Open the local public homepage in another tab: the draft should be absent.
+5. Return to the editor and choose **Publish now**, then confirm **Publish now** in its dialog. Refresh the public page: the entry should now appear with its supported fields and repeating rows.
+6. To revise a live entry, edit its fields and choose **Save**. Visitors keep seeing the old published version. Choose **Publish changes** and confirm only when the revision is ready.
+
+If passkey creation is cancelled, remain on the setup screen and try again through the browser. Seeing **Passkey created** is a successful registration, not an instruction to create another credential. Keep the same localhost hostname; changing to a numeric IP changes the passkey context. A credential created for local testing does not establish production account recovery. Configure and verify the chosen production authentication/recovery separately before accepting valuable content.
+
 `pnpm build` compiles the Cloudflare Worker. It does not deploy or prove account ownership. The supplied `pnpm deploy` refuses execution: the all-zero D1 ID and local resource names are placeholders, not an authorised destination.
 
 ## Before any cloud deployment
