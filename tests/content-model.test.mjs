@@ -19,10 +19,11 @@ test('the same model hides inactive values, validates repeaters and refuses unsa
  for(const change of [v=>v.extra='unknown',v=>v.title='',v=>v.materials=[{item:'',note:'Required'}],v=>v.materials=[{item:'Paper',script:'x'}],v=>v.materials=Array(7).fill({item:'Paper'}),v=>v.format='Unknown']){const input=structuredClone(values);change(input);assert.throws(()=>validateModelValues(model,input));}
 });
 test('actual native EmDash CLI applies the compiled model to an exclusive fictional SQLite database',()=>{
- const root=mkdtempSync(join(tmpdir(),'composer-content-model-')),seedPath=join(root,'model.json'),database=join(root,'model.db');writeFileSync(seedPath,JSON.stringify(emdashSeed(sample())));
+ const model=sample();model.fields[0].defaultValue='Fictional native default';model.fields[2].defaultValue='Online';
+ const root=mkdtempSync(join(tmpdir(),'composer-content-model-')),seedPath=join(root,'model.json'),database=join(root,'model.db');writeFileSync(seedPath,JSON.stringify(emdashSeed(model)));
  const output=execFileSync(process.execPath,['node_modules/emdash/dist/cli/index.mjs','seed',seedPath,'--database',database,'--cwd',root,'--on-conflict','error','--no-content'],{encoding:'utf8',timeout:30000,env:{PATH:process.env.PATH,HOME:root,TMPDIR:root}});assert.match(output,/seed|collection/i);assert.ok(readFileSync(database).length>0);
  // Read-only inspection checks the actual persisted native schema, not only JSON acceptance.
- const db=new DatabaseSync(database,{readOnly:true});try{const rows=db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();assert.ok(rows.some(row=>row.name==='ec_workshops'));const columns=db.prepare("PRAGMA table_info(ec_workshops)").all();for(const name of ['title','description','format','join_link','materials'])assert.ok(columns.some(column=>column.name===name));}finally{db.close();}
+ const db=new DatabaseSync(database,{readOnly:true});try{const rows=db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();assert.ok(rows.some(row=>row.name==='ec_workshops'));const columns=db.prepare("PRAGMA table_info(ec_workshops)").all();for(const name of ['title','description','format','join_link','materials'])assert.ok(columns.some(column=>column.name===name));const defaults=db.prepare('SELECT slug, default_value FROM _emdash_fields WHERE default_value IS NOT NULL').all();assert.equal(JSON.parse(defaults.find(row=>row.slug==='title').default_value),'Fictional native default');assert.equal(JSON.parse(defaults.find(row=>row.slug==='format').default_value),'Online');}finally{db.close();}
 });
 
 test('accepted models roundtrip with normalised choices and false boolean defaults',()=>{
@@ -42,4 +43,22 @@ test('the actual formatted export and compact saved draft can reopen under the s
  const input=sample();input.fields=Array.from({length:12},(_,i)=>({key:'rows_'+i,label:'A bounded repeated group',type:'repeater',required:false,group:input.groups[0],limit:12,fields:Array.from({length:6},(_,j)=>({key:'choice_'+j,label:'A choice field',type:'select',required:false,choices:Array.from({length:8},(_,k)=>String(k)+'x'.repeat(59))}))}));
  const accepted=validateContentModel(input);assert.ok(Buffer.byteLength(JSON.stringify(accepted,null,2))>32768);for(const spacing of [undefined,2])assert.deepEqual(validateContentModel(JSON.parse(JSON.stringify(accepted,null,spacing))),accepted);
  const large=structuredClone(input);for(const field of large.fields)for(const sub of field.fields)sub.choices=sub.choices.map(choice=>choice.replaceAll('x','界'));assert.throws(()=>validateContentModel(large),/64 KiB/);
+});
+
+test('typed starting values survive export/native validation and apply only to omitted new-entry values',()=>{
+ const model=sample();model.fields[0].defaultValue='Fictional default workshop';model.fields[1].defaultValue='A fictional starting description';model.fields[2].defaultValue='Online';model.fields[3].defaultValue='https://example.com/join';model.fields.push({key:'seats',label:'Seats',type:'integer',required:false,group:model.groups[1],defaultValue:0},{key:'featured',label:'Featured',type:'boolean',required:false,group:model.groups[1],defaultValue:true});
+ const clean=validateContentModel(model),seed=emdashSeed(clean);assert.deepEqual(validateContentModel(clean),clean);assert.equal(validateSeed(seed).valid,true);
+ const omitted=validateModelValues(clean,{});assert.equal(omitted.title,'Fictional default workshop');assert.equal(omitted.format,'Online');assert.equal(omitted.join_link,'https://example.com/join');assert.equal(omitted.seats,0);assert.equal(omitted.featured,true);
+ for(const field of seed.collections[0].fields.filter(field=>Object.hasOwn(field,'defaultValue'))){assert.equal(nativeFieldSchema(field).parse(undefined),omitted[field.slug]);assert.ok(nativeFieldSchema(field).safeParse(omitted[field.slug]).success);}
+ const overrides=validateModelValues(clean,{title:'An explicit title',description:'',format:'In person',join_link:'javascript:inactive',seats:0,featured:false});assert.equal(overrides.title,'An explicit title');assert.equal(overrides.description,null);assert.equal(overrides.seats,0);assert.equal(overrides.featured,false);assert.equal(Object.hasOwn(overrides,'join_link'),false);
+ assert.equal(validateModelValues(clean,{join_link:null}).join_link,null);assert.equal(validateModelValues(clean,{join_link:''}).join_link,null);assert.throws(()=>validateModelValues(clean,{title:''}),/required/);assert.throws(()=>validateModelValues(clean,{format:''}),/required/);
+ // Existing published records do not acquire default values or new visibility.
+ assert.equal(visibleModelFields(clean,{}).some(field=>field.key==='join_link'),false);assert.equal(visibleModelFields(clean,{format:null}).some(field=>field.key==='join_link'),false);
+});
+
+test('invalid, unsafe, mismatched and repeater starting values refuse before seed/project output',()=>{
+ for(const [index,value] of [[0,null],[0,{}],[0,' '],[0,'x'.repeat(241)],[1,'x'.repeat(2001)],[2,'Not a choice'],[3,'javascript:alert(1)'],[3,'https://user:password@example.com'],[4,[]]]){const model=sample();model.fields[index].defaultValue=value;assert.throws(()=>validateContentModel(model));assert.throws(()=>emdashSeed(model));}
+ for(const [type,value] of [['boolean','false'],['integer','0'],['integer',1.1],['integer',1000001]]){const model=sample();model.fields=[{key:'value',label:'Value',type,required:false,group:model.groups[0],defaultValue:value}];assert.throws(()=>validateContentModel(model));}
+ const sub=sample();sub.fields[4].fields[0].defaultValue='No row defaults';assert.throws(()=>validateContentModel(sub),/top-level/);
+ const old=sample();assert.deepEqual(validateContentModel(old),old);assert.equal(emdashSeed(old).collections[0].fields.some(field=>Object.hasOwn(field,'defaultValue')),false);
 });
