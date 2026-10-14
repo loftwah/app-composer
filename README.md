@@ -15,6 +15,10 @@ Astro 7.3.5, EmDash 1.2.0, Cloudflare adapter 14.3.3, Wrangler 4.143.1. The lock
 
 The first pair mounts through declared, separately pinned integrated Worker services. `pnpm compose:promote` compiles the exact reviewed pins, deploys those services and leaves standalone upstream version changes outside the composition code. Approved items become featured cards through a generic provider API. Current privacy is resolved on every public request. Code rollback does not restore old data or permissions.
 
+## Follow along
+
+The [interactive tutorial](https://composer.loftwah.com/learn) follows setup, a changed Hello app, composition, content forms and ownership. Its optional device-local observations record learning, separately from Get Ready verification. Vendor/account details stay in the maintained setup guide; the tutorial reuses existing handoffs, reports and Init.
+
 ## Local operation
 
 `pnpm install`, `pnpm dev`, `pnpm check`, `pnpm build`. Local EmDash D1 state is disposable and separate from production. To demonstrate seeded catalogue content locally, use the documented EmDash seed/migration tools against the local database; remote content is never silently copied into local or preview state.

@@ -52,6 +52,7 @@ const questions = [
 
     {lesson.id==='workspace'&&<>
      <p>You decide what you want to make. Your coding agent works in your project folder: it inspects files, handles routine setup, builds and checks the result. You handle account sign-in and decisions about permissions or spending.</p>
+     <p class="small">You can read this guide on any device. Automated starter setup is currently verified with Codex on an Apple Silicon Mac with Node 22 and Git. Ask your agent to check support first on another setup.</p>
      <h3>Try this</h3><ol><li>Open your coding agent and select a project folder. An empty folder is fine.</li><li>Ask it to inspect the folder before changing anything. If it contains work already, ask it to preserve that work.</li><li>Read its response: it should identify the actual folder, available tools and the next useful step.</li></ol>
      <div class="agent-request"><h3>Ask your agent</h3><p data-agent-prompt="workspace">Inspect this selected project folder without changing it. Explain what is already here, what tools you can actually use and the smallest next step for App Composer Get Ready. Preserve existing work. Do not install, create repositories, change accounts or deploy during this inspection. Keep credentials and private files out of the response.</p><button class="secondary" data-copy-prompt="workspace" hidden><Copy size={16} aria-hidden="true"/>Copy inspection request</button><p role="status" data-copy-status="workspace"></p></div>
      <h3>What a useful result looks like</h3><p>The agent can explain what it inspected and distinguish a missing tool from a missing login. “Everything looks good” without those checks is a reason to ask for the evidence.</p>
@@ -59,7 +60,7 @@ const questions = [
     </>}
 
     {lesson.id==='ready'&&<>
-     <p>Now hand over preparation. Get Ready uses one shared engine to check tools, GitHub source, Cloudflare access and a deployed starter. Start with a temporary workers.dev address in an existing authorised Cloudflare account; you can consider a domain later.</p>
+     <p>Now hand over preparation. Get Ready uses one shared engine to check tools, GitHub source, Cloudflare access and a deployed starter. For a starter with a private source repository, begin with a temporary workers.dev address in an existing authorised Cloudflare account; you can consider a domain later.</p>
      <h3>Try this</h3><ol><li>Open <a href="/ready" target="_blank" rel="noopener">Get Ready in another tab</a>. Keep this lesson open while you choose your first address.</li><li>Copy the setup request there, paste it into the agent for your folder and send it.</li><li>If the agent identifies a login, finish only that step on the provider’s official screen. Tell the agent when you are ready so it can recheck.</li><li>Open the HTTPS address it gives you. Ask it to match the live app to the intended repository and deployed source.</li></ol>
      <details><summary>Copy a setup, inspection or resume request here</summary><ReadyHandoff/></details>
      <h3>See actual check results</h3><p>Ask the agent for its redacted Get Ready JSON export, then open it below. This reuses Get Ready’s report viewer and freshness checks. It reads the file locally. The private receipt is a different file and should stay private.</p><ReadyProgress/>
