@@ -311,6 +311,8 @@ Server-side `GUESTBOOK_OWNER_TOKEN` and `SHOWCASE_OWNER_TOKEN` connect the exist
 
 For the authorised production operator connection only, the clean-pushed-main deploy guard accepts `node scripts/deploy.mjs --miniapp-secrets` with `.private/miniapp-admin-secrets.json` containing exactly those two server secret names. Use a mode-0600 ignored file prepared from the verified existing app credentials. The pinned Wrangler uploads secrets alongside code, preserving other secrets; this avoids separately activating an old Worker version. Ordinary deploys need no secrets file. Customer provisioning and preview credentials are outside this operation.
 
+The [working admin screenshots](https://composer.loftwah.com/guide#admin-screenshots) are unedited production captures with public [source/pin provenance](public/guides/miniapps-admin-20261014.provenance.json). Native image moderation/featuring/revocation, link draft/publication/reorder/hide and settings paths were exercised with disposable generated fixtures; existing records/configuration were preserved. An expired owner sign-in failed closed and recovered through the existing Cloudflare login. Physical devices and broader customer acceptance remain separate.
+
 
 ### Create an independent EmDash content project
 

@@ -1,0 +1,49 @@
+{
+  "reviewed": "2026-10-14",
+  "capturedAtUTC": "2026-10-14T06:26:16.307Z",
+  "captureLiveSource": "2e73735d3311b0e8c9adc454553a4f1ca438b422",
+  "workflowVerifiedSource": "2fdde55570d10995d8143933d770a6ef9ec334f0",
+  "workflowWorker": "c95fd61a-69a7-4c1c-b72a-d6a372d70b16",
+  "cms": "EmDash1.2.0 (b5f37c646)",
+  "composition": "16e287e97dee17795a4bc0018ad479f7613405f1f6df529a4bee1d0bc5756219",
+  "pins": [
+    {
+      "id": "guestbook",
+      "commit": "33244a8789b656786e861dce7ae09cf320db546c"
+    },
+    {
+      "id": "showcase",
+      "commit": "1afcac6fc391b9a5bf3d9d8fce7f7c872fbcfe92"
+    }
+  ],
+  "method": "Unedited native browser captures of authenticated production administration; active public generated sample contributions only.",
+  "images": [
+    {
+      "path": "/guides/miniapps-admin-20261014.jpg",
+      "sha256": "0b62aaf70895f523761fa0a6d97689811bfa252e9e80cb5f0a602dd5a57e9ee2"
+    },
+    {
+      "path": "/guides/miniapps-moderation-20261014.jpg",
+      "sha256": "3452ebb30d1a2e49ea2f9eb3e18f539aefc3ba230a38b8e26287db3b41c1a332"
+    },
+    {
+      "path": "/guides/miniapps-showcase-20261014.jpg",
+      "sha256": "085077753d6f920da46e09c673ac1df873d4d999d24f93fbff7c94b4a7985734"
+    }
+  ],
+  "verified": [
+    "native image upload -> pending; both unauthenticated media paths404",
+    "native approve -> feature -> browser original open -> source hide; both public collections revoke; both media paths404",
+    "native draft link -> publish -> public card -> reorder -> hide",
+    "per-app settings draft preserved during switching; native unchanged settings save",
+    "own disposable fixtures removed; pre-existing records and configuration exactly preserved",
+    "native admin 390px and1728px; dark/light; no horizontal overflow at390px",
+    "expired sign-in refused data access; existing Cloudflare sign-in refresh restored previews"
+  ],
+  "remaining": [
+    "General customer provisioning and tailored administration for every app",
+    "Catalogue media-field/gallery renderer and broader CMS authoring acceptance",
+    "Physical device verification",
+    "Shopify, Stripe and Printful connectors (#105): planned, not implemented"
+  ]
+}
