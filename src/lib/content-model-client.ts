@@ -16,7 +16,19 @@ function editControl(label:string,value:string,change:(value:string)=>void,optio
 }
 function tick(label:string,checked:boolean,change:(value:boolean)=>void){const wrap=node('label','','model-check'),input=document.createElement('input');input.type='checkbox';input.checked=checked;input.addEventListener('change',()=>{change(input.checked);refresh();});wrap.append(input,document.createTextNode(label));return wrap;}
 function newField(fields:ContentField[],sub=false):ContentField{let id=1;while(fields.some(field=>field.key==='field_'+id))id++;return {key:'field_'+id,label:'New field',type:'string',required:false,...(!sub?{group:model.groups[0]}:{})};}
-function typeChange(field:ContentField,type:string){field.type=type as FieldKind;delete field.defaultValue;delete field.choices;delete field.fields;delete field.limit;if(type==='select')field.choices=['First option','Second option'];if(type==='repeater'){field.limit=6;field.fields=[{key:'item',label:'Item',type:'string',required:true}];}renderEditor();}
+function typeChange(field:ContentField,type:string){field.type=type as FieldKind;delete field.defaultValue;delete field.validation;delete field.choices;delete field.fields;delete field.limit;if(type==='select')field.choices=['First option','Second option'];if(type==='repeater'){field.limit=6;field.fields=[{key:'item',label:'Item',type:'string',required:true}];}renderEditor();}
+function limitsEditor(field:ContentField,opened?:boolean){
+ const details=document.createElement('details');details.className='model-limits';details.append(node('summary','Field limits (optional)'));
+ const enabled=Object.hasOwn(field,'validation');details.open=opened??enabled;
+ details.append(tick('Set custom limits',enabled,value=>{if(value)field.validation=field.type==='integer'?{min:-1000000,max:1000000}:{maxLength:field.type==='text'?2000:240};else delete field.validation;renderEditor();}));
+ if(enabled){
+  const grid=node('div','','model-field-grid');
+  const number=(label:string,name:'min'|'max'|'maxLength',fallback:number)=>{const control=editControl(label,String(field.validation?.[name]??fallback),value=>{field.validation![name]=value===''?Number.NaN:Number(value);renderEditor();});const input=control.querySelector('input')!;input.type='number';input.step='1';input.min=name==='maxLength'?'1':'-1000000';input.max=name==='maxLength'?String(field.type==='text'?2000:240):'1000000';return control;};
+  if(field.type==='integer')grid.append(number('Smallest number','min',-1000000),number('Largest number','max',1000000));else grid.append(number('Maximum characters','maxLength',field.type==='text'?2000:240));
+  details.append(grid,node('p',field.type==='integer'?'Starting values and new or edited entries must fit this range.':'Starting values and new or edited entries must fit this length.','small'));
+ }
+ return details;
+}
 function defaultEditor(field:ContentField,opened?:boolean){
  const details=document.createElement('details');details.className='model-default';details.append(node('summary','Starting value (optional)'));
  const enabled=Object.hasOwn(field,'defaultValue');details.open=opened??enabled;
@@ -25,14 +37,14 @@ function defaultEditor(field:ContentField,opened?:boolean){
   const choices=field.type==='boolean'?['No','Yes']:field.type==='select'?field.choices:undefined;
   const control=editControl('Starting value',field.type==='boolean'?(field.defaultValue?'Yes':'No'):String(field.defaultValue??''),value=>{field.defaultValue=field.type==='boolean'?value==='Yes':field.type==='integer'&&value!==''?Number(value):value;},choices,field.type==='text');
   const input=control.querySelector('input,textarea') as HTMLInputElement|HTMLTextAreaElement|null;
-  if(input){input.maxLength=field.type==='text'?2000:240;if(input instanceof HTMLInputElement){input.type=field.type==='integer'?'number':field.type==='url'?'url':'text';if(field.type==='integer'){input.min='-1000000';input.max='1000000';input.step='1';}}}
+  if(input){const cap=field.type==='text'?2000:240,length=field.validation?.maxLength;input.maxLength=typeof length==='number'&&Number.isSafeInteger(length)&&length>=1&&length<=cap?length:cap;if(input instanceof HTMLInputElement){input.type=field.type==='integer'?'number':field.type==='url'?'url':'text';if(field.type==='integer'){input.min=String(field.validation?.min??-1000000);input.max=String(field.validation?.max??1000000);input.step='1';}}}
   details.append(control);
  }
  return details;
 }
 function renderEditor(){
  const list=document.querySelector('[data-model-fields]')!,active=document.activeElement as HTMLElement,activeField=active?.closest<HTMLElement>('[data-field-key]'),focusKey=activeField?.dataset.fieldKey,focusIndex=activeField?Array.from(activeField.querySelectorAll('input,select,textarea,button,summary')).indexOf(active):-1;
- const defaultOpen=new Map<string,boolean>();for(const disclosure of list.querySelectorAll<HTMLDetailsElement>('details.model-default'))defaultOpen.set(disclosure.closest<HTMLElement>('[data-field-key]')!.dataset.fieldKey!,disclosure.open);
+ const disclosureOpen=new Map<string,boolean>();for(const disclosure of list.querySelectorAll<HTMLDetailsElement>('details.model-default,details.model-limits,details.model-condition'))disclosureOpen.set(disclosure.closest<HTMLElement>('[data-field-key]')!.dataset.fieldKey+':'+disclosure.className,disclosure.open);
  const opened=Array.from(list.querySelectorAll<HTMLDetailsElement>('details[open][data-field-key]')).map(el=>el.dataset.fieldKey);list.replaceChildren();
  model.fields.forEach((field,index)=>{
   const details=document.createElement('details');details.className='model-field';details.dataset.fieldKey=field.key;details.open=opened.includes(field.key)||model.fields.length===1;
@@ -41,7 +53,8 @@ function renderEditor(){
   grid.append(editControl('Field label',field.label,value=>{field.label=value;title.firstChild!.textContent=value;}),editControl('Field key',field.key,value=>{field.key=value;details.dataset.fieldKey=value;}),editControl('Field type',field.type,value=>typeChange(field,value),Object.keys(fieldTypes)),editControl('Field group',field.group??'',value=>{field.group=value;},model.groups));
   details.append(grid,tick('Required',field.required,value=>{field.required=value;}));
   if(field.type==='select')details.append(editControl('Choices, one per line',(field.choices??[]).join('\n'),value=>{field.choices=value.split('\n').filter(Boolean);},undefined,true));
-  if(field.type!=='repeater')details.append(defaultEditor(field,defaultOpen.get(field.key)));
+  if(['string','text','integer'].includes(field.type))details.append(limitsEditor(field,disclosureOpen.get(field.key+':model-limits')));
+  if(field.type!=='repeater')details.append(defaultEditor(field,disclosureOpen.get(field.key+':model-default')));
   if(field.type==='repeater'){
    const sub=node('div','','model-sub-fields');sub.append(node('h3','Fields in each row'),editControl('Maximum rows',String(field.limit),value=>{field.limit=Number(value);}));
    field.fields!.forEach((child,childIndex)=>{
@@ -51,7 +64,7 @@ function renderEditor(){
     group.append(button('Remove row field',()=>{field.fields!.splice(childIndex,1);renderEditor();refresh();}));sub.append(group);
    });sub.append(button('Add row field',()=>{if(field.fields!.length>=6){tell(Error('Six fields is the supported limit in a repeating row.'));return;}field.fields!.push(newField(field.fields!,true));renderEditor();refresh();}));details.append(sub);
   }
-  const condition=document.createElement('details');condition.className='model-condition';condition.append(node('summary','Show this field conditionally'));
+  const condition=document.createElement('details');condition.className='model-condition';condition.open=disclosureOpen.get(field.key+':model-condition')??false;condition.append(node('summary','Show this field conditionally'));
   const controllers=model.fields.slice(0,index).filter(item=>!item.when&&['boolean','select'].includes(item.type));
   const chooser=node('label','Show when'),select=document.createElement('select');select.append(new Option('Always show',''));for(const controller of controllers)select.append(new Option(controller.label,controller.key));select.value=field.when?.field??'';
   select.addEventListener('change',()=>{const controller=controllers.find(item=>item.key===select.value);if(controller){field.when={field:controller.key,equals:controller.type==='boolean'?true:controller.choices![0]};field.required=false;}else delete field.when;renderEditor();refresh();});chooser.append(select);condition.append(chooser);
@@ -67,8 +80,8 @@ function sampleControl(field:ContentField,value:unknown,change:(value:unknown)=>
  const wrap=node('label',field.label+(field.required?' (required)':''));
  const input=field.type==='select'?document.createElement('select'):field.type==='text'?document.createElement('textarea'):document.createElement('input');
  if(input instanceof HTMLSelectElement){input.append(new Option('Choose an option',''));for(const option of field.choices!)input.append(new Option(option,option));input.value=typeof value==='string'?value:'';}
- else if(input instanceof HTMLInputElement){input.type=field.type==='boolean'?'checkbox':field.type==='integer'?'number':field.type==='url'?'url':'text';if(field.type==='boolean'){input.checked=value===true;wrap.className='model-check';wrap.textContent='';}else input.value=value===undefined||value===null?'':String(value);if(field.type==='integer'){input.min='-1000000';input.max='1000000';input.step='1';}else input.maxLength=240;}
- else{input.value=typeof value==='string'?value:'';input.maxLength=2000;}
+ else if(input instanceof HTMLInputElement){input.type=field.type==='boolean'?'checkbox':field.type==='integer'?'number':field.type==='url'?'url':'text';if(field.type==='boolean'){input.checked=value===true;wrap.className='model-check';wrap.textContent='';}else input.value=value===undefined||value===null?'':String(value);if(field.type==='integer'){input.min=String(field.validation?.min??-1000000);input.max=String(field.validation?.max??1000000);input.step='1';}else input.maxLength=field.validation?.maxLength??240;}
+ else{input.value=typeof value==='string'?value:'';input.maxLength=field.validation?.maxLength??2000;}
  input.required=field.required;input.dataset.sampleField=field.key;input.dataset.previewPath=path;
  input.addEventListener('input',()=>{const selected=input instanceof HTMLInputElement&&field.type==='boolean'?input.checked:field.type==='integer'&&input.value!==''?Number(input.value):input.value;change(selected);if(['boolean','select'].includes(field.type))renderForm(path);});
  if(field.type==='boolean')wrap.append(input,document.createTextNode(field.label));else wrap.append(input);return wrap;

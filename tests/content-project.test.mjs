@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import child from 'node:child_process';import {syncBuiltinESMExports} from 'node:module';import {tmpdir} from 'node:os';import {join,resolve} from 'node:path';import {createHash} from 'node:crypto';
-import {createContentProject,contentProjectFiles} from '../lib/content-model/project.mjs';import {starterModel} from '../lib/content-model/index.mjs';import {contentPattern,contentPatternSummaries} from '../lib/content-model/patterns.mjs';import {validateSeed} from 'emdash/seed';
+import {createContentProject,contentProjectFiles} from '../lib/content-model/project.mjs';import {starterModel,emdashSeed} from '../lib/content-model/index.mjs';import {contentPattern,contentPatternSummaries} from '../lib/content-model/patterns.mjs';import {validateSeed} from 'emdash/seed';
 import {childDirectory} from '../lib/get-ready/project-write.mjs';
 const fixture=()=>fs.realpathSync(fs.mkdtempSync(join(tmpdir(),'composer-project-recipe-'))),hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 function tree(path){return fs.readdirSync(path,{withFileTypes:true}).map(entry=>[entry.name,entry.isDirectory()?tree(join(path,entry.name)):entry.isSymbolicLink()?'link':hash(fs.readFileSync(join(path,entry.name)))]);}
@@ -53,4 +53,15 @@ test('generated compatibility hook only normalises submitted selected optional l
  for(const value of [null,undefined,'https://example.test/link','javascript:unsafe',' ']){const data={join_link:value};assert.equal(await save({collection:'workshops',content:data}),data);}
  const absent={title:'No link was submitted'};assert.equal(await save({collection:'workshops',content:absent}),absent);assert.equal(await save({collection:'other',content:submitted}),undefined);
  for(const options of [{collection:'../outside',links:[]},{collection:'workshops',links:['__proto__']},{collection:'workshops',links:['link','link']},{collection:'workshops',links:Array(13).fill('link')},{collection:'workshops',links:'all'}])assert.throws(()=>createPlugin(options));
+});
+
+
+test('only the generated site seed selects its bundled native integer widget; portable seeds stay independent',()=>{
+ const model=structuredClone(starterModel);model.fields.push({key:'seats',label:'Seats',type:'integer',required:false,group:model.groups[0],validation:{min:1,max:50},defaultValue:12});
+ const standalone=emdashSeed(model),site=contentProjectFiles(model),seed=JSON.parse(site.files['seed/seed.json']);assert.equal(standalone.collections[0].fields.find(field=>field.slug==='seats').widget,undefined);assert.equal(seed.collections[0].fields.find(field=>field.slug==='seats').widget,'composer-content-fields:integer');assert.equal(validateSeed(seed).valid,true);
+ for(const field of seed.collections[0].fields.filter(field=>field.type!=='integer'))assert.equal(field.widget,undefined);
+ assert.equal(JSON.parse(site.files['package.json']).dependencies['@cloudflare/kumo'],'2.6.0');for(const name of ['src/lib/editor-fields.tsx','src/lib/number-input.mjs'])assert.equal(hash(site.files[name]),site.provenance.files[name]);
+});
+test('native integer editing preserves an explicit zero and clears an empty control to null',async()=>{
+ const {numberInputValue}=await import('../lib/content-model/site-template/src/lib/number-input.mjs');assert.equal(numberInputValue(''),null);for(const value of ['0','-1','1','50','51'])assert.equal(numberInputValue(value),Number(value));
 });
