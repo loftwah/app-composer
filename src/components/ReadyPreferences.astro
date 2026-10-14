@@ -1,0 +1,21 @@
+---
+import { Globe, ExternalLink, ArrowRight, FolderOpen } from '@lucide/astro';
+---
+<section class="setup-choices" aria-labelledby="setup-choice-heading">
+ <h2 id="setup-choice-heading">Where should your first app live?</h2>
+ <p>Start with a small Hello app. No application idea required. Your agent reuses what you already have and prepares the missing pieces.</p>
+ <form data-setup-preferences>
+  <fieldset><legend>Choose a first address</legend>
+   <label class="address-choice"><input type="radio" name="destination" value="preview" checked/><span><strong>A free Cloudflare address <span class="recommended">Recommended</span></strong><small>A workers.dev address in your account. No domain purchase. You can connect a domain later.</small></span></label>
+   <label class="address-choice"><input type="radio" name="destination" value="existing-domain"/><span><strong>A domain I already own</strong><small>Your agent checks ownership, current DNS and whether it can safely use the hostname.</small></span></label>
+   <label class="address-choice"><input type="radio" name="destination" value="new-domain"/><span><strong>I’d like a new domain</strong><small>Explore a name first. Registration and its price require your explicit approval.</small></span></label>
+  </fieldset>
+  <label data-setup-hostname-label hidden>Full hostname<input name="setup-hostname" disabled maxlength="253" placeholder="hello.example.com" aria-describedby="address-help"/></label>
+  <p id="address-help" data-setup-choice-help class="small">Use the existing supported Cloudflare account. A free address does not make usage unlimited; your agent should review the actual account limits.</p>
+  <div class="actions"><button type="submit" class="secondary" disabled data-save-setup>Save address choice</button><button type="button" class="secondary" disabled data-forget-setup>Reset address choice</button></div>
+  <p class="small" role="status" aria-live="polite" data-setup-choice-message>Your choice is kept on this device when saved. It grants no account or DNS access.</p>
+ </form>
+ <details><summary>What do I need to do myself?</summary><ol class="human-steps"><li><FolderOpen size={20} aria-hidden="true"/><div><strong>Open a folder in Codex.</strong><p>Use an empty folder or your intended project. You do not need to set up a repository yourself.</p></div></li><li><ExternalLink size={20} aria-hidden="true"/><div><strong>Give your agent the setup request below.</strong><p>The agent checks tools, connects your GitHub and Cloudflare accounts, prepares your private starter and verifies an HTTPS deployment.</p></div></li><li><Globe size={20} aria-hidden="true"/><div><strong>Complete official sign-in when asked.</strong><p>Keep codes and credentials in the provider’s login screen. Tell the agent when you’ve finished so it can continue.</p></div></li></ol><p><a href="/ready/guide">Open the illustrated setup guide <ArrowRight size={16} aria-hidden="true"/></a></p></details>
+ <noscript><p>The setup handoff below uses the safe temporary-address default. To choose another address, tell your agent directly; no choice is saved without JavaScript.</p></noscript>
+</section>
+<script src="../lib/ready-preferences-client.ts"></script>

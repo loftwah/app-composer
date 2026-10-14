@@ -18,5 +18,35 @@
       "width": 332,
       "height": 986
     }
+  },
+  "get-ready": {
+    "desktop": {
+      "width": 2065,
+      "height": 192
+    },
+    "mobile": {
+      "width": 493,
+      "height": 769
+    }
+  },
+  "composition": {
+    "desktop": {
+      "width": 1871,
+      "height": 183
+    },
+    "mobile": {
+      "width": 517,
+      "height": 769
+    }
+  },
+  "extension": {
+    "desktop": {
+      "width": 2022,
+      "height": 239
+    },
+    "mobile": {
+      "width": 654,
+      "height": 769
+    }
   }
 }

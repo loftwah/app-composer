@@ -1,5 +1,7 @@
 # App Composer
 
+App Composer is an agent-operated application studio built around EmDash and Cloudflare. Get Ready prepares the supported environment before an idea; Init turns content, fields and app choices into a portable specification; composition connects independently maintained mini-apps. The product carries forward WordPress’s useful content/form/white-label lessons while agents handle implementation and operations. See the [whole platform](https://composer.loftwah.com/architecture) and [product definition](PRODUCT.md) for current capability and remaining work.
+
 An agent-operated platform for a verified development environment and genuinely composed independent applications. Target: https://composer.loftwah.com. MP directs; agents implement, verify and recover. Reviewed 13 October 2026. MIT.
 
 ## Supported implementation

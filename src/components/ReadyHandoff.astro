@@ -1,11 +1,12 @@
 ---
 import { readyTasks } from '../lib/ready-handoff';
 import { Copy } from '@lucide/astro';
+const { preferences=false }=Astro.props;
 const selected=Astro.url.searchParams.get('task');
 const taskId=selected&&Object.hasOwn(readyTasks,selected)?selected as keyof typeof readyTasks:'setup';
 const initial=readyTasks[taskId];
 ---
-<div data-ready-handoff>
+<div data-ready-handoff data-use-setup-preferences={preferences ? "true" : undefined}>
  <label>What should the agent do?
   <select data-ready-task disabled>{Object.entries(readyTasks).map(([id,task])=><option value={id} selected={id===taskId}>{task.label}</option>)}</select>
  </label>
@@ -17,6 +18,7 @@ const initial=readyTasks[taskId];
 </div>
 <script>
 import {readyTasks} from '../lib/ready-handoff';
+import {setupPreferenceHandoff} from '../../lib/get-ready/preferences.mjs';
 for(const container of document.querySelectorAll<HTMLElement>('[data-ready-handoff]')){
  const selector=container.querySelector<HTMLSelectElement>('[data-ready-task]')!;
  const button=container.querySelector<HTMLButtonElement>('[data-copy-ready]')!;
@@ -24,16 +26,24 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
  const message=container.querySelector<HTMLElement>('[data-ready-message]')!;
  const update=()=>{
   const task=readyTasks[selector.value as keyof typeof readyTasks]??readyTasks.setup;
-  prompt.textContent=task.prompt;
+  let text=task.prompt;button.disabled=false;
+  if(container.dataset.useSetupPreferences){
+   const form=document.querySelector<HTMLFormElement>('[data-setup-preferences]');
+   try{if(form)text+=setupPreferenceHandoff({version:1,destination:(form.elements.namedItem('destination') as RadioNodeList).value,hostname:(form.elements.namedItem('setup-hostname') as HTMLInputElement).value});}
+   catch(error){button.disabled=true;message.textContent=error instanceof Error?error.message:'Choose a supported address.';prompt.textContent='Complete your address choice before copying the setup request.';return;}
+  }
+  prompt.textContent=text;
   container.querySelector('[data-ready-help]')!.textContent=task.help;
   message.textContent='';
  };
  // Reconcile browser-restored form state before enabling copy.
- update();selector.disabled=false;button.disabled=false;
+ selector.disabled=false;update();
  selector.addEventListener('change',update);
  // Native form restoration may finish after the module first executes.
  window.addEventListener('pageshow',update);
+ window.addEventListener('composer:setup-choice',update);
  button.addEventListener('click',async()=>{
+  update();if(button.disabled)return;
   const task=selector.value;const text=prompt.textContent!;
   try{
    await navigator.clipboard.writeText(text);

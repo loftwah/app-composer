@@ -1,7 +1,10 @@
 import {readFileSync,writeFileSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
-const directory='public/diagrams',dimensions={};
-for(const kind of ['composer','state']){
+const directory='public/diagrams',dimensions=JSON.parse(readFileSync(directory+'/journey-dimensions.json','utf8'));
+const supported=['composer','state','get-ready','composition','extension'];
+const kinds=process.argv.length>2?process.argv.slice(2):supported;
+if(kinds.some(kind=>!supported.includes(kind)))throw Error('Choose an existing source-owned diagram.');
+for(const kind of kinds){
  dimensions[kind]={};
  for(const layout of ['desktop','mobile']){
   const stem=kind+'-journey'+(layout==='mobile'?'-mobile':'');
@@ -18,4 +21,4 @@ for(const kind of ['composer','state']){
  }
 }
 writeFileSync(directory+'/journey-dimensions.json',JSON.stringify(dimensions,null,2)+'\n');
-console.log('Rendered both journeys for phone/desktop and saved dark/light themes.');
+console.log('Rendered selected journeys for phone/desktop and saved dark/light themes.');
