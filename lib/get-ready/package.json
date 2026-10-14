@@ -10,12 +10,16 @@
   "exports": {
     ".": "./index.mjs",
     "./report": "./report.mjs",
-    "./preferences": "./preferences.mjs"
+    "./preferences": "./preferences.mjs",
+    "./domain-report": "./domain-report.mjs"
   },
   "bin": {
     "get-ready": "./cli.mjs"
   },
   "files": [
+    "domain.mjs",
+    "domain-report.mjs",
+    "domain-report.d.mts",
     "check.mjs",
     "cli.mjs",
     "engine.mjs",

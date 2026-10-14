@@ -41,3 +41,13 @@ The optional local MCP adapter remains a separate thin transport in the source r
 ## Source and licence
 
 `SOURCE.json` identifies the repository revision and SHA-256 of each packaged input. Local uncommitted builds are labelled as development snapshots. The production deployment guard publishes clean pushed main. The archive includes only the reviewed core allowlist, this README, package metadata, MIT licence and source record; no environment files, receipts, customer data or credentials. MIT notices must be preserved. These are release provenance records, not a vendor endorsement or security certification.
+
+## Read-only domain diagnosis
+
+`get-ready --inspect-domain example.com --account SELECTED_ACCOUNT_ID` is a separate read-only mode. It requires an existing authorised Cloudflare API token in the runtime, with Zone Read and DNSSEC Read access for the selected zone. No workspace, receipt, DNS change, zone creation or setup operation is performed. Other operation flags cannot be combined. The exit status is nonzero if DNS does not match or a check is incomplete; stdout can still contain a valid portable report.
+
+The equivalent API is `diagnoseDomain({account,domain}, authorisedEnvironment)`, exported from this package. `inspectDomainReport(report)` derives the same dated findings used by Composer’s local report viewer. Account/zone IDs, credentials and raw provider errors are excluded. Domain names, assigned/observed nameservers and public DS record values are included; review a report before sharing it. API credentials are sent only to fixed Cloudflare API URLs, never the public DNS resolver. Requests have time/body bounds, refuse redirects and never retry automatically.
+
+The host selects an exact full-setup zone, not an inferred parent or registrar. Partial/secondary/multi-signer setups stay unsupported. A nameserver mismatch or old DS record requires agent review of existing DNS/email, security and migration order before any MP-approved change. Recursive DNS can be cached; this does not prove current parent delegation, worldwide propagation, cryptographic DNSSEC correctness or an HTTPS app. Results expire after an hour for display; reports never grant execution authority.
+
+Official references reviewed 14 October 2026: https://developers.cloudflare.com/api/resources/zones/methods/list/ , https://developers.cloudflare.com/api/resources/dns/subresources/dnssec/methods/get/ , https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/make-api-requests/dns-json/ , https://developers.cloudflare.com/dns/dnssec/ .

@@ -6,7 +6,7 @@ import {basename,dirname,join,resolve,relative,isAbsolute} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const repository=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const runtime=['check.mjs','cli.mjs','engine.mjs','index.mjs','inspect.mjs','local-checks.mjs','local.mjs','ownership.mjs','preferences.d.mts','preferences.mjs','report.d.mts','report.mjs','state.mjs','workspace-tools.mjs'];
+const runtime=['domain.mjs','domain-report.mjs','domain-report.d.mts','check.mjs','cli.mjs','engine.mjs','index.mjs','inspect.mjs','local-checks.mjs','local.mjs','ownership.mjs','preferences.d.mts','preferences.mjs','report.d.mts','report.mjs','state.mjs','workspace-tools.mjs'];
 const inputs=[...runtime,'README.md','package.json'];
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const same=(a,b)=>a.dev===b.dev&&a.ino===b.ino&&a.size===b.size&&a.mtimeMs===b.mtimeMs&&a.ctimeMs===b.ctimeMs;

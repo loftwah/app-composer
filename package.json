@@ -25,7 +25,8 @@
     "test:mcp": "node --test tests/readiness-mcp.test.mjs",
     "test:models": "node --test tests/content-model.test.mjs tests/content-patterns.test.mjs",
     "ready:pack": "node scripts/package-get-ready.mjs",
-    "test:package": "node --test tests/readiness-package.test.mjs"
+    "test:package": "node --test tests/readiness-package.test.mjs",
+    "test:domain": "node --test tests/readiness-domain.test.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.3.3",
