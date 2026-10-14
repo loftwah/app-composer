@@ -17,9 +17,9 @@ function editControl(label:string,value:string,change:(value:string)=>void,optio
 function tick(label:string,checked:boolean,change:(value:boolean)=>void){const wrap=node('label','','model-check'),input=document.createElement('input');input.type='checkbox';input.checked=checked;input.addEventListener('change',()=>{change(input.checked);refresh();});wrap.append(input,document.createTextNode(label));return wrap;}
 function newField(fields:ContentField[],sub=false):ContentField{let id=1;while(fields.some(field=>field.key==='field_'+id))id++;return {key:'field_'+id,label:'New field',type:'string',required:false,...(!sub?{group:model.groups[0]}:{})};}
 function typeChange(field:ContentField,type:string){field.type=type as FieldKind;delete field.defaultValue;delete field.choices;delete field.fields;delete field.limit;if(type==='select')field.choices=['First option','Second option'];if(type==='repeater'){field.limit=6;field.fields=[{key:'item',label:'Item',type:'string',required:true}];}renderEditor();}
-function defaultEditor(field:ContentField){
+function defaultEditor(field:ContentField,opened?:boolean){
  const details=document.createElement('details');details.className='model-default';details.append(node('summary','Starting value (optional)'));
- const enabled=Object.hasOwn(field,'defaultValue');details.open=enabled;
+ const enabled=Object.hasOwn(field,'defaultValue');details.open=opened??enabled;
  details.append(tick('Use a starting value',enabled,value=>{if(value)field.defaultValue=field.type==='boolean'?false:field.type==='integer'?0:field.type==='select'?field.choices?.[0]??'':'';else delete field.defaultValue;renderEditor();}));
  if(enabled){
   const choices=field.type==='boolean'?['No','Yes']:field.type==='select'?field.choices:undefined;
@@ -32,6 +32,7 @@ function defaultEditor(field:ContentField){
 }
 function renderEditor(){
  const list=document.querySelector('[data-model-fields]')!,active=document.activeElement as HTMLElement,activeField=active?.closest<HTMLElement>('[data-field-key]'),focusKey=activeField?.dataset.fieldKey,focusIndex=activeField?Array.from(activeField.querySelectorAll('input,select,textarea,button,summary')).indexOf(active):-1;
+ const defaultOpen=new Map<string,boolean>();for(const disclosure of list.querySelectorAll<HTMLDetailsElement>('details.model-default'))defaultOpen.set(disclosure.closest<HTMLElement>('[data-field-key]')!.dataset.fieldKey!,disclosure.open);
  const opened=Array.from(list.querySelectorAll<HTMLDetailsElement>('details[open][data-field-key]')).map(el=>el.dataset.fieldKey);list.replaceChildren();
  model.fields.forEach((field,index)=>{
   const details=document.createElement('details');details.className='model-field';details.dataset.fieldKey=field.key;details.open=opened.includes(field.key)||model.fields.length===1;
@@ -40,7 +41,7 @@ function renderEditor(){
   grid.append(editControl('Field label',field.label,value=>{field.label=value;title.firstChild!.textContent=value;}),editControl('Field key',field.key,value=>{field.key=value;details.dataset.fieldKey=value;}),editControl('Field type',field.type,value=>typeChange(field,value),Object.keys(fieldTypes)),editControl('Field group',field.group??'',value=>{field.group=value;},model.groups));
   details.append(grid,tick('Required',field.required,value=>{field.required=value;}));
   if(field.type==='select')details.append(editControl('Choices, one per line',(field.choices??[]).join('\n'),value=>{field.choices=value.split('\n').filter(Boolean);},undefined,true));
-  if(field.type!=='repeater')details.append(defaultEditor(field));
+  if(field.type!=='repeater')details.append(defaultEditor(field,defaultOpen.get(field.key)));
   if(field.type==='repeater'){
    const sub=node('div','','model-sub-fields');sub.append(node('h3','Fields in each row'),editControl('Maximum rows',String(field.limit),value=>{field.limit=Number(value);}));
    field.fields!.forEach((child,childIndex)=>{
