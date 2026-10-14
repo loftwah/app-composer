@@ -24,6 +24,8 @@ Open the local URL printed by Astro. The dev server binds to localhost. Use the 
 5. Return to the editor and choose **Publish now**, then confirm **Publish now** in its dialog. Refresh the public page: the entry should now appear with its supported fields and repeating rows.
 6. To revise a live entry, edit its fields and choose **Save**. Visitors keep seeing the old published version. Choose **Publish changes** and confirm only when the revision is ready.
 
+Starting values supplied by the model fill new entries in the native editor. Review them before saving. An explicit cleared field, No or zero is not replaced by its default; required fields still need a valid value. Defaults do not backfill existing content. Repeating rows have no defaults in this recipe.
+
 If passkey creation is cancelled, remain on the setup screen and try again through the browser. Seeing **Passkey created** is a successful registration, not an instruction to create another credential. Keep the same localhost hostname; changing to a numeric IP changes the passkey context. A credential created for local testing does not establish production account recovery. Configure and verify the chosen production authentication/recovery separately before accepting valuable content.
 
 `pnpm build` compiles the Cloudflare Worker. It does not deploy or prove account ownership. The supplied `pnpm deploy` refuses execution: the all-zero D1 ID and local resource names are placeholders, not an authorised destination.

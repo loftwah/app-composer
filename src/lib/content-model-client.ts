@@ -16,7 +16,20 @@ function editControl(label:string,value:string,change:(value:string)=>void,optio
 }
 function tick(label:string,checked:boolean,change:(value:boolean)=>void){const wrap=node('label','','model-check'),input=document.createElement('input');input.type='checkbox';input.checked=checked;input.addEventListener('change',()=>{change(input.checked);refresh();});wrap.append(input,document.createTextNode(label));return wrap;}
 function newField(fields:ContentField[],sub=false):ContentField{let id=1;while(fields.some(field=>field.key==='field_'+id))id++;return {key:'field_'+id,label:'New field',type:'string',required:false,...(!sub?{group:model.groups[0]}:{})};}
-function typeChange(field:ContentField,type:string){field.type=type as FieldKind;delete field.choices;delete field.fields;delete field.limit;if(type==='select')field.choices=['First option','Second option'];if(type==='repeater'){field.limit=6;field.fields=[{key:'item',label:'Item',type:'string',required:true}];}renderEditor();}
+function typeChange(field:ContentField,type:string){field.type=type as FieldKind;delete field.defaultValue;delete field.choices;delete field.fields;delete field.limit;if(type==='select')field.choices=['First option','Second option'];if(type==='repeater'){field.limit=6;field.fields=[{key:'item',label:'Item',type:'string',required:true}];}renderEditor();}
+function defaultEditor(field:ContentField){
+ const details=document.createElement('details');details.className='model-default';details.append(node('summary','Starting value (optional)'));
+ const enabled=Object.hasOwn(field,'defaultValue');details.open=enabled;
+ details.append(tick('Use a starting value',enabled,value=>{if(value)field.defaultValue=field.type==='boolean'?false:field.type==='integer'?0:field.type==='select'?field.choices?.[0]??'':'';else delete field.defaultValue;renderEditor();}));
+ if(enabled){
+  const choices=field.type==='boolean'?['No','Yes']:field.type==='select'?field.choices:undefined;
+  const control=editControl('Starting value',field.type==='boolean'?(field.defaultValue?'Yes':'No'):String(field.defaultValue??''),value=>{field.defaultValue=field.type==='boolean'?value==='Yes':field.type==='integer'&&value!==''?Number(value):value;},choices,field.type==='text');
+  const input=control.querySelector('input,textarea') as HTMLInputElement|HTMLTextAreaElement|null;
+  if(input){input.maxLength=field.type==='text'?2000:240;if(input instanceof HTMLInputElement){input.type=field.type==='integer'?'number':field.type==='url'?'url':'text';if(field.type==='integer'){input.min='-1000000';input.max='1000000';input.step='1';}}}
+  details.append(control);
+ }
+ return details;
+}
 function renderEditor(){
  const list=document.querySelector('[data-model-fields]')!,active=document.activeElement as HTMLElement,activeField=active?.closest<HTMLElement>('[data-field-key]'),focusKey=activeField?.dataset.fieldKey,focusIndex=activeField?Array.from(activeField.querySelectorAll('input,select,textarea,button,summary')).indexOf(active):-1;
  const opened=Array.from(list.querySelectorAll<HTMLDetailsElement>('details[open][data-field-key]')).map(el=>el.dataset.fieldKey);list.replaceChildren();
@@ -27,6 +40,7 @@ function renderEditor(){
   grid.append(editControl('Field label',field.label,value=>{field.label=value;title.firstChild!.textContent=value;}),editControl('Field key',field.key,value=>{field.key=value;details.dataset.fieldKey=value;}),editControl('Field type',field.type,value=>typeChange(field,value),Object.keys(fieldTypes)),editControl('Field group',field.group??'',value=>{field.group=value;},model.groups));
   details.append(grid,tick('Required',field.required,value=>{field.required=value;}));
   if(field.type==='select')details.append(editControl('Choices, one per line',(field.choices??[]).join('\n'),value=>{field.choices=value.split('\n').filter(Boolean);},undefined,true));
+  if(field.type!=='repeater')details.append(defaultEditor(field));
   if(field.type==='repeater'){
    const sub=node('div','','model-sub-fields');sub.append(node('h3','Fields in each row'),editControl('Maximum rows',String(field.limit),value=>{field.limit=Number(value);}));
    field.fields!.forEach((child,childIndex)=>{
@@ -52,7 +66,7 @@ function sampleControl(field:ContentField,value:unknown,change:(value:unknown)=>
  const wrap=node('label',field.label+(field.required?' (required)':''));
  const input=field.type==='select'?document.createElement('select'):field.type==='text'?document.createElement('textarea'):document.createElement('input');
  if(input instanceof HTMLSelectElement){input.append(new Option('Choose an option',''));for(const option of field.choices!)input.append(new Option(option,option));input.value=typeof value==='string'?value:'';}
- else if(input instanceof HTMLInputElement){input.type=field.type==='boolean'?'checkbox':field.type==='integer'?'number':field.type==='url'?'url':'text';if(field.type==='boolean'){input.checked=value===true;wrap.className='model-check';wrap.textContent='';}else input.value=value===undefined?'':String(value);if(field.type==='integer'){input.min='-1000000';input.max='1000000';input.step='1';}else input.maxLength=240;}
+ else if(input instanceof HTMLInputElement){input.type=field.type==='boolean'?'checkbox':field.type==='integer'?'number':field.type==='url'?'url':'text';if(field.type==='boolean'){input.checked=value===true;wrap.className='model-check';wrap.textContent='';}else input.value=value===undefined||value===null?'':String(value);if(field.type==='integer'){input.min='-1000000';input.max='1000000';input.step='1';}else input.maxLength=240;}
  else{input.value=typeof value==='string'?value:'';input.maxLength=2000;}
  input.required=field.required;input.dataset.sampleField=field.key;input.dataset.previewPath=path;
  input.addEventListener('input',()=>{const selected=input instanceof HTMLInputElement&&field.type==='boolean'?input.checked:field.type==='integer'&&input.value!==''?Number(input.value):input.value;change(selected);if(['boolean','select'].includes(field.type))renderForm(path);});
@@ -60,10 +74,12 @@ function sampleControl(field:ContentField,value:unknown,change:(value:unknown)=>
 }
 function renderForm(focus?:string){
  if(!valid)return;const list=document.querySelector('[data-model-form]')!;list.replaceChildren();
- const visible=visibleModelFields(valid,sample);
+ // New-entry defaults belong to this preview, never to existing published data.
+ const effective=Object.fromEntries(valid.fields.map(field=>[field.key,sample[field.key]===undefined?field.defaultValue:sample[field.key]]));
+ const visible=visibleModelFields(valid,effective);
  for(const name of valid.groups){const fields=visible.filter(field=>field.group===name);if(!fields.length)continue;const group=document.createElement('fieldset');group.className='model-preview-group';group.append(node('legend',name));
   for(const field of fields){
-   if(field.type!=='repeater'){group.append(sampleControl(field,sample[field.key],value=>{sample[field.key]=value;},field.key));continue;}
+   if(field.type!=='repeater'){group.append(sampleControl(field,sample[field.key]===undefined?field.defaultValue:sample[field.key],value=>{sample[field.key]=value;},field.key));continue;}
    const holder=node('div');holder.append(node('p',field.label+(field.required?' (required)':'')));
    const rows=(Array.isArray(sample[field.key])?sample[field.key]:[]) as Record<string,unknown>[];
    rows.forEach((row,index)=>{const frame=document.createElement('fieldset');frame.className='model-row';frame.append(node('legend',field.label+' · row '+(index+1)));for(const child of field.fields!)frame.append(sampleControl(child,row[child.key],value=>{row[child.key]=value;},field.key+'.'+index+'.'+child.key));
@@ -79,7 +95,7 @@ function refresh(){
  generation++;document.querySelector('[data-model-values]')!.textContent='No sample checked for this model.';document.querySelector('[data-model-values-message]')!.textContent='';
  try{model.label=(editor.querySelector('[data-model-label]') as HTMLInputElement).value;model.collection=(editor.querySelector('[data-model-collection]') as HTMLInputElement).value;model.groups=(editor.querySelector('[data-model-groups]') as HTMLTextAreaElement).value.split('\n').filter(Boolean);valid=validateContentModel(model);sample={};
   try{history.replaceState({...((history.state&&typeof history.state==='object')?history.state:{}),composerContentModel:valid},'');}catch{}
-  document.querySelector('[data-model-output]')!.textContent=JSON.stringify(valid,null,2);document.querySelector('[data-seed-output]')!.textContent=JSON.stringify(emdashSeed(valid),null,2);document.querySelector('[data-model-prompt]')!.textContent=contentModelHandoff(valid);document.querySelector('[data-model-preview-state]')!.textContent='Model edits reset sample entries. Conditions and validation use the same model as the export.';
+  document.querySelector('[data-model-output]')!.textContent=JSON.stringify(valid,null,2);document.querySelector('[data-seed-output]')!.textContent=JSON.stringify(emdashSeed(valid),null,2);document.querySelector('[data-model-prompt]')!.textContent=contentModelHandoff(valid);document.querySelector('[data-model-preview-state]')!.textContent='Model edits reset sample entries to their starting values. Cleared values stay cleared. Conditions and validation use the exported model.';
   for(const selector of ['[data-model-copy]','[data-model-project-copy]','[data-model-download]','[data-seed-download]','[data-model-save]','[data-model-test]'])(document.querySelector(selector) as HTMLButtonElement).disabled=false;
   message.textContent='Model ready to preview or export. Nothing has been applied to a CMS.';renderForm();
  }catch(error){valid=null;for(const selector of ['[data-model-copy]','[data-model-project-copy]','[data-model-download]','[data-seed-download]','[data-model-save]','[data-model-test]'])(document.querySelector(selector) as HTMLButtonElement).disabled=true;document.querySelector('[data-model-preview-state]')!.textContent='Preview paused. Fix the model to update the form; the last form remains visible.';tell(error);}
