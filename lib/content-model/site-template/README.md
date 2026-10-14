@@ -2,7 +2,7 @@
 
 Created by App Composer’s reviewed content-project recipe, 14 October 2026. This is independent application source under MIT. It uses Astro 7.3.5, EmDash 1.2.0, Tailwind 4.3.3 and the Cloudflare adapter. Get Ready and Woodhouse are not runtime dependencies.
 
-Your field model is `src/content-model.json`; its native EmDash schema is `seed/seed.json`. `src/pages/index.astro` reads at most 20 published entries. Draft/private entries are not requested. Optional display conditions affect this page; native EmDash editing does not hide conditional fields. Invalid HTTPS links are rendered as text. Repeating rows are escaped text, not rich HTML.
+Your field model is `src/content-model.json`; its native EmDash schema is `seed/seed.json`. `src/pages/index.astro` reads 20 published entries per page. Native Previous page / Next page links appear above and below longer collections, so older entries stay reachable without JavaScript. Page addresses can be bookmarked; invalid or duplicate page values are refused, and an empty later page returns 404 with a route back to the first page. The bounded page number supports up to 99,999 pages. Publication changes between requests can shift offset pages; each request still reads only currently published entries. Draft/private entries are not requested. Optional display conditions affect this page; native EmDash editing does not hide conditional fields. Invalid HTTPS links are rendered as text. Repeating rows are escaped text, not rich HTML.
 
 ## Run locally
 
