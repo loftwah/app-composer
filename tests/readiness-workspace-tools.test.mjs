@@ -1,10 +1,16 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,symlinkSync,existsSync,rmSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';
 import {downloadWorkspaceTool,prepareWorkspaceTools,workspaceToolEnvironment} from '../lib/get-ready/workspace-tools.mjs';
-import {createReadinessSession,runReadinessSession,inspectReadiness,ReadinessFailure} from '../lib/get-ready/index.mjs';
+import {execFileSync} from 'node:child_process';
+import {createReadinessSession,runReadinessSession,inspectReadiness,ReadinessFailure,runLocalReadiness} from '../lib/get-ready/index.mjs';
 const active={...process.env,CODEX_THREAD_ID:'fictional-tool-fixture'};
 const supported=process.platform==='darwin'&&process.arch==='arm64'&&process.versions.node.startsWith('22.');
 const fixture=()=>{const root=mkdtempSync(join(tmpdir(),'composer-tool-preparation-')),workspace=join(root,'workspace');mkdirSync(workspace);return {root,workspace};};
+
+test('engine tool preparation refuses a nested project before writing into its parent Git workspace',async()=>{
+ const {root,workspace}=fixture(),nested=join(workspace,'nested');mkdirSync(nested);const env={PATH:process.env.PATH,HOME:root,GIT_CONFIG_GLOBAL:'/dev/null',GIT_CONFIG_NOSYSTEM:'1',CODEX_THREAD_ID:'fictional-scope-fixture'};
+ try{execFileSync('git',['init','-b','main'],{cwd:workspace,env,stdio:'pipe'});await assert.rejects(runLocalReadiness({workspace:nested,operation:'install-workspace-tools'},env),error=>error instanceof ReadinessFailure&&error.code==='configuration');assert.equal(existsSync(join(workspace,'.private')),false);assert.equal(existsSync(join(nested,'.private')),false);}finally{rmSync(root,{recursive:true});}
+});
 
 test('fixed distributions refuse redirected authorities, error statuses, excess bytes and corrupt exact-size payloads',async()=>{
  for(const request of [

@@ -1,6 +1,6 @@
 {
   "name": "@loftwah/get-ready-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Host-scoped local MCP transport for the shared Get Ready engine.",
   "type": "module",

@@ -2,11 +2,41 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {Client,InMemoryTransport} from '@modelcontextprotocol/client';
 import {StdioClientTransport} from '@modelcontextprotocol/client/stdio';
 import {createReadinessMcp,launchScope,mcpEnvironment} from '../lib/get-ready-mcp/server.mjs';
-import {createReadinessSession,runReadinessSession,recipe} from '../lib/get-ready/index.mjs';
+import {createReadinessSession,runReadinessSession,recipe,ReadinessFailure} from '../lib/get-ready/index.mjs';
 import {mkdtempSync,readFileSync,existsSync,rmSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {fileURLToPath} from 'node:url';import {spawnSync} from 'node:child_process';
 
 async function connect(server){const [a,b]=InMemoryTransport.createLinkedPair();const client=new Client({name:'fictional-ready-consumer',version:'1.0.0'});await server.connect(b);await client.connect(a);return client;}
 async function completed(){return runReadinessSession(createReadinessSession({workspace:'/fictional-private-path',repo:'fictional/private-repository',source:'a'.repeat(40),account:'b'.repeat(32)}),{checks:recipe.checks.map(id=>({id,label:id,verify:async()=>({secret:'fictional-secret-token'})}))});}
+
+test('workspace preparation is absent by default and only an exact host capability enables its fixed engine operation',async()=>{
+ const base=launchScope(['--workspace','/fictional/selected']);assert.equal(base.allowWorkspaceToolSetup,undefined);
+ for(const args of [['--workspace','/fictional','--allow-workspace-tool-setup','true'],['--workspace','/fictional','--allow-workspace-tool-setup','--allow-workspace-tool-setup']])assert.throws(()=>launchScope(args));
+ for(const value of ['true',0,null])assert.throws(()=>createReadinessMcp({...base,allowWorkspaceToolSetup:value}));
+ const scope=launchScope(['--workspace','/fictional/selected','--allow-workspace-tool-setup']);assert.equal(scope.allowWorkspaceToolSetup,true);assert.ok(Object.isFrozen(scope));
+ let setups=0,previous=null;const calls=[];
+ const check=async options=>{calls.push(options);assert.equal(options.workspace,scope.workspace);assert.equal(options.allowWorkspaceToolSetup,undefined);const session=createReadinessSession({workspace:scope.workspace},previous);previous=await runReadinessSession(session,{checks:recipe.checks.map(id=>({id,label:id,verify:async()=>{if(id!=='agent')throw new ReadinessFailure('configuration');return {fixture:true};}})),installWorkspaceTools:async()=>({changed:++setups===1,scope:'workspace',private:'fictional-private-evidence'})},()=>{},{operation:options.operation});return previous;};
+ const server=createReadinessMcp(scope,{check}),client=await connect(server);
+ try{
+  const tools=(await client.listTools()).tools;assert.equal(tools.find(t=>t.name==='get_ready_prepare_tools').annotations.readOnlyHint,false);
+  for(const args of [{workspace:'/outside'},{operation:'deploy-reference'},{version:'latest'},{allowWorkspaceToolSetup:true},{token:'fictional-secret'}])assert.equal((await client.callTool({name:'get_ready_prepare_tools',arguments:args})).isError,true);assert.equal(calls.length,0);
+  await client.callTool({name:'get_ready_check',arguments:{}});assert.equal(setups,0);assert.equal(calls.at(-1).operation,null);
+  const prepared=await client.callTool({name:'get_ready_prepare_tools',arguments:{}});assert.equal(setups,1);assert.equal(prepared.structuredContent.inspection.ready,false);assert.deepEqual(prepared.structuredContent.preparation,{operation:'install-workspace-tools',state:'performed',changed:true,scope:'workspace'});assert.equal(prepared.structuredContent.report.operations.length,0,'Completed work does not enter the unfinished-work report');assert.doesNotMatch(JSON.stringify(prepared),/fictional-private-evidence|fictional\/selected/);
+  await client.callTool({name:'get_ready_check',arguments:{}});assert.equal(setups,1);assert.equal(calls.at(-1).operation,null);assert.equal(calls.at(-1).useWorkspaceTools,true);
+  await client.callTool({name:'get_ready_prepare_tools',arguments:{}});assert.equal(setups,2,'A separate explicit call is a new authorised intent, never a check-side retry');
+ }finally{await client.close();await server.close();}
+});
+
+test('failed optional preparation stays unfinished on read-only resume without selecting or reinstalling tools',async()=>{
+ const scope=launchScope(['--workspace','/fictional/selected','--allow-workspace-tool-setup']);let setups=0,previous=null;const calls=[];
+ const server=createReadinessMcp(scope,{check:async options=>{calls.push(options);previous=await runReadinessSession(createReadinessSession({workspace:scope.workspace},previous),{checks:recipe.checks.map(id=>({id,label:id,verify:async()=>({fixture:true})})),installWorkspaceTools:async()=>{setups++;throw new ReadinessFailure('unavailable');}},()=>{},{operation:options.operation});return previous;}}),client=await connect(server);
+ try{const failed=await client.callTool({name:'get_ready_prepare_tools',arguments:{}});assert.equal(failed.structuredContent.inspection.ready,false);assert.equal(failed.structuredContent.report.operations[0].state,'failed');const resumed=await client.callTool({name:'get_ready_check',arguments:{}});assert.equal(resumed.structuredContent.inspection.ready,false);assert.equal(resumed.structuredContent.report.operations[0].state,'failed');assert.equal(calls.at(-1).useWorkspaceTools,undefined);assert.equal(setups,1);}finally{await client.close();await server.close();}
+});
+
+test('cancelled preparation shares exclusivity and cannot enable cached tool selection or retain a completed report',async()=>{
+ let release,started,finished;const gate=new Promise(resolve=>release=resolve),entered=new Promise(resolve=>started=resolve),done=new Promise(resolve=>finished=resolve),calls=[];
+ const server=createReadinessMcp(launchScope(['--workspace','/fictional/selected','--allow-workspace-tool-setup']),{check:async options=>{calls.push(options);if(options.operation){started();await gate;}const session=await completed();if(options.operation){session.operation={id:'install-workspace-tools',label:'Prepare verified workspace tools',state:'performed',evidence:{scope:'workspace',changed:true}};finished();}return session;}}),client=await connect(server);
+ try{const controller=new AbortController(),pending=client.callTool({name:'get_ready_prepare_tools',arguments:{}},{signal:controller.signal});await entered;assert.equal((await client.callTool({name:'get_ready_check',arguments:{}})).isError,true);assert.equal((await client.callTool({name:'get_ready_prepare_tools',arguments:{}})).isError,true);controller.abort();await assert.rejects(pending);assert.equal((await client.callTool({name:'get_ready_inspect',arguments:{}})).structuredContent.checking,true);release();await done;await new Promise(resolve=>setImmediate(resolve));assert.equal((await client.callTool({name:'get_ready_inspect',arguments:{}})).structuredContent.report,null);await client.callTool({name:'get_ready_check',arguments:{}});assert.equal(calls.at(-1).useWorkspaceTools,undefined);assert.equal(calls.filter(o=>o.operation).length,1);}finally{release();await client.close();await server.close();}
+});
 
 test('host scope is explicit and immutable; setup/credential flags and ambient execution controls are refused',()=>{
  const scope=launchScope(['--workspace','/fictional/workspace','--account','a'.repeat(32),'--reference-worker','fictional-reference','--reference-url','https://example.com','--reference-repo','fixture/hello']);assert.ok(Object.isFrozen(scope));assert.ok(Object.isFrozen(scope.target));
