@@ -1,7 +1,9 @@
 ---
+import {calendarDateLabel} from '../lib/calendar-date.mjs';
 interface Props {field:any;value:any}
 const {field,value}=Astro.props;
 const safeURL=(input:unknown)=>{try{const url=new URL(String(input));return url.protocol==='https:'&&!url.username&&!url.password?url.href:null;}catch{return null;}};
+const date=field.type==='date'?calendarDateLabel(value):null;
 const url=field.type==='url'?safeURL(value):null;
 ---
-{field.type==='repeater'&&Array.isArray(value)?<ol class="rows">{value.map(row=><li><dl>{field.fields.map((sub:any)=><div><dt>{sub.label}</dt><dd>{row?.[sub.key]===undefined||row?.[sub.key]===null?'—':sub.type==='boolean'?(row[sub.key]?'Yes':'No'):String(row[sub.key])}</dd></div>)}</dl></li>)}</ol>:url?<a href={url} rel="noreferrer">{value}</a>:<span>{value===null||value===undefined||value===''?'—':field.type==='boolean'?(value?'Yes':'No'):String(value)}</span>}
+{field.type==='repeater'&&Array.isArray(value)?<ol class="rows">{value.map(row=><li><dl>{field.fields.map((sub:any)=><div><dt>{sub.label}</dt><dd>{row?.[sub.key]===undefined||row?.[sub.key]===null?'—':sub.type==='boolean'?(row[sub.key]?'Yes':'No'):String(row[sub.key])}</dd></div>)}</dl></li>)}</ol>:date?<time datetime={value}>{date}</time>:url?<a href={url} rel="noreferrer">{value}</a>:<span>{value===null||value===undefined||value===''?'—':field.type==='boolean'?(value?'Yes':'No'):String(value)}</span>}

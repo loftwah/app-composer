@@ -37,7 +37,7 @@ function defaultEditor(field:ContentField,opened?:boolean){
   const choices=field.type==='boolean'?['No','Yes']:field.type==='select'?field.choices:undefined;
   const control=editControl('Starting value',field.type==='boolean'?(field.defaultValue?'Yes':'No'):String(field.defaultValue??''),value=>{field.defaultValue=field.type==='boolean'?value==='Yes':field.type==='integer'&&value!==''?Number(value):value;},choices,field.type==='text');
   const input=control.querySelector('input,textarea') as HTMLInputElement|HTMLTextAreaElement|null;
-  if(input){const cap=field.type==='text'?2000:240,length=field.validation?.maxLength;input.maxLength=typeof length==='number'&&Number.isSafeInteger(length)&&length>=1&&length<=cap?length:cap;if(input instanceof HTMLInputElement){input.type=field.type==='integer'?'number':field.type==='url'?'url':'text';if(field.type==='integer'){input.min=String(field.validation?.min??-1000000);input.max=String(field.validation?.max??1000000);input.step='1';}}}
+  if(input){const cap=field.type==='text'?2000:240,length=field.validation?.maxLength;input.maxLength=typeof length==='number'&&Number.isSafeInteger(length)&&length>=1&&length<=cap?length:cap;if(input instanceof HTMLInputElement){input.type=field.type==='integer'?'number':field.type==='url'?'url':field.type==='date'?'date':'text';if(field.type==='date'){input.min='0001-01-01';input.max='9999-12-31';}if(field.type==='integer'){input.min=String(field.validation?.min??-1000000);input.max=String(field.validation?.max??1000000);input.step='1';}}}
   details.append(control);
  }
  return details;
@@ -52,13 +52,14 @@ function renderEditor(){
   const grid=node('div','','model-field-grid');
   grid.append(editControl('Field label',field.label,value=>{field.label=value;title.firstChild!.textContent=value;}),editControl('Field key',field.key,value=>{field.key=value;details.dataset.fieldKey=value;}),editControl('Field type',field.type,value=>typeChange(field,value),Object.keys(fieldTypes)),editControl('Field group',field.group??'',value=>{field.group=value;},model.groups));
   details.append(grid,tick('Required',field.required,value=>{field.required=value;}));
+  if(field.type==='date')details.append(node('p','A calendar day, without a time or timezone. Stored as YYYY-MM-DD; use a separate field for a time or location.','small'));
   if(field.type==='select')details.append(editControl('Choices, one per line',(field.choices??[]).join('\n'),value=>{field.choices=value.split('\n').filter(Boolean);},undefined,true));
   if(['string','text','integer'].includes(field.type))details.append(limitsEditor(field,disclosureOpen.get(field.key+':model-limits')));
   if(field.type!=='repeater')details.append(defaultEditor(field,disclosureOpen.get(field.key+':model-default')));
   if(field.type==='repeater'){
    const sub=node('div','','model-sub-fields');sub.append(node('h3','Fields in each row'),editControl('Maximum rows',String(field.limit),value=>{field.limit=Number(value);}));
    field.fields!.forEach((child,childIndex)=>{
-    const group=node('div','','model-sub-field'),controls=node('div','','model-field-grid');controls.append(editControl('Row field label',child.label,value=>{child.label=value;}),editControl('Row field key',child.key,value=>{child.key=value;}),editControl('Row field type',child.type,value=>typeChange(child,value),Object.keys(fieldTypes).filter(type=>type!=='repeater')));
+    const group=node('div','','model-sub-field'),controls=node('div','','model-field-grid');controls.append(editControl('Row field label',child.label,value=>{child.label=value;}),editControl('Row field key',child.key,value=>{child.key=value;}),editControl('Row field type',child.type,value=>typeChange(child,value),Object.keys(fieldTypes).filter(type=>!['repeater','date'].includes(type))));
     group.append(controls,tick('Row field required',child.required,value=>{child.required=value;}));
     if(child.type==='select')group.append(editControl('Row choices, one per line',(child.choices??[]).join('\n'),value=>{child.choices=value.split('\n').filter(Boolean);},undefined,true));
     group.append(button('Remove row field',()=>{field.fields!.splice(childIndex,1);renderEditor();refresh();}));sub.append(group);
@@ -80,11 +81,11 @@ function sampleControl(field:ContentField,value:unknown,change:(value:unknown)=>
  const wrap=node('label',field.label+(field.required?' (required)':''));
  const input=field.type==='select'?document.createElement('select'):field.type==='text'?document.createElement('textarea'):document.createElement('input');
  if(input instanceof HTMLSelectElement){input.append(new Option('Choose an option',''));for(const option of field.choices!)input.append(new Option(option,option));input.value=typeof value==='string'?value:'';}
- else if(input instanceof HTMLInputElement){input.type=field.type==='boolean'?'checkbox':field.type==='integer'?'number':field.type==='url'?'url':'text';if(field.type==='boolean'){input.checked=value===true;wrap.className='model-check';wrap.textContent='';}else input.value=value===undefined||value===null?'':String(value);if(field.type==='integer'){input.min=String(field.validation?.min??-1000000);input.max=String(field.validation?.max??1000000);input.step='1';}else input.maxLength=field.validation?.maxLength??240;}
+ else if(input instanceof HTMLInputElement){input.type=field.type==='boolean'?'checkbox':field.type==='integer'?'number':field.type==='url'?'url':field.type==='date'?'date':'text';if(field.type==='boolean'){input.checked=value===true;wrap.className='model-check';wrap.textContent='';}else input.value=value===undefined||value===null?'':String(value);if(field.type==='date'){input.min='0001-01-01';input.max='9999-12-31';}if(field.type==='integer'){input.min=String(field.validation?.min??-1000000);input.max=String(field.validation?.max??1000000);input.step='1';}else input.maxLength=field.validation?.maxLength??240;}
  else{input.value=typeof value==='string'?value:'';input.maxLength=field.validation?.maxLength??2000;}
  input.required=field.required;input.dataset.sampleField=field.key;input.dataset.previewPath=path;
  input.addEventListener('input',()=>{const selected=input instanceof HTMLInputElement&&field.type==='boolean'?input.checked:field.type==='integer'&&input.value!==''?Number(input.value):input.value;change(selected);if(['boolean','select'].includes(field.type))renderForm(path);});
- if(field.type==='boolean')wrap.append(input,document.createTextNode(field.label));else wrap.append(input);return wrap;
+ if(field.type==='boolean')wrap.append(input,document.createTextNode(field.label));else wrap.append(input);if(field.type==='date')wrap.append(node('span','Calendar day only; no timezone conversion.','small'));return wrap;
 }
 function renderForm(focus?:string){
  if(!valid)return;const list=document.querySelector('[data-model-form]')!;list.replaceChildren();
