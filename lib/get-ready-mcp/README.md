@@ -82,3 +82,18 @@ The current connection keeps checking its original workspace. To inspect or prep
 If the host cannot start the server, check its Node22 executable, absolute server path, dependency installation and explicit workspace privately. Invalid launch arguments fail without echoing private input. Reconnect to recheck; stale or imported reports grant no authority. Stop the host connection and remove its configuration through that host’s controls to disconnect. Uninstall the package through your integration folder’s package manager if no longer needed; private workspace receipts and cloud resources are not deleted by this package.
 
 Official sources: https://github.com/modelcontextprotocol/typescript-sdk and https://modelcontextprotocol.io/docs/2026-07-28/develop/build-server .
+
+
+## Optional reviewed reference dependencies
+
+After acquiring Hello, have the host select that checkout as the workspace on a new connection. An authorised host may add `--allow-reference-tool-setup` (programmatic scope: `allowReferenceToolSetup: true`) to expose zero-argument `get_ready_prepare_reference_tools`. Acquisition consent alone does not enable dependency installation. The package never edits saved host configuration.
+
+```sh
+get-ready-mcp --workspace /absolute/selected/hello --allow-reference-tool-setup
+```
+
+If GitHub CLI/pnpm were prepared elsewhere, explicitly add `--tools-workspace /absolute/selected/tool-folder`. The tool delegates to the same `install-reference-tools` engine operation as the CLI. It supports clean exact-main maintained Hello or its verified unchanged private owned copy, active Codex on Apple Silicon macOS, Node 22 and pnpm 12.8.1/12.9.1. It freshly reads GitHub source and verifies committed dependency inputs before installing with the frozen lockfile, scripts/hooks disabled, isolated registry configuration and service credentials excluded. It does not execute a project build, install global tools, authenticate, create ownership, change DNS or deploy.
+
+The bounded `preparation` result reports completion, whether installation changed files, and verified Wrangler/pnpm versions. Completion is separate from overall readiness: a public clone has no upstream push permission, and missing account/HTTPS proof remains incomplete. A repeat verifies existing tools without reinstalling. Ordinary checks never retry a failed or cancelled installation; partial work remains for agent inspection before a separate explicit retry. Shared exclusivity remains active until the bounded call finishes, even after cancellation, and a cancelled result is not retained as completed evidence.
+
+To remove this capability, stop the connection and remove its allow flag. Existing dependencies, source, receipts and cloud resources remain intact. Native-host discovery and use require their own acceptance; protocol success alone does not establish them.

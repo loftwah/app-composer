@@ -9,7 +9,7 @@ const fixture=()=>{const root=mkdtempSync(join(tmpdir(),'composer-tool-preparati
 
 test('engine tool preparation refuses a nested project before writing into its parent Git workspace',async()=>{
  const {root,workspace}=fixture(),nested=join(workspace,'nested');mkdirSync(nested);const env={PATH:process.env.PATH,HOME:root,GIT_CONFIG_GLOBAL:'/dev/null',GIT_CONFIG_NOSYSTEM:'1',CODEX_THREAD_ID:'fictional-scope-fixture'};
- try{execFileSync('git',['init','-b','main'],{cwd:workspace,env,stdio:'pipe'});await assert.rejects(runLocalReadiness({workspace:nested,operation:'install-workspace-tools'},env),error=>error instanceof ReadinessFailure&&error.code==='configuration');assert.equal(existsSync(join(workspace,'.private')),false);assert.equal(existsSync(join(nested,'.private')),false);}finally{rmSync(root,{recursive:true});}
+ try{execFileSync('git',['init','-b','main'],{cwd:workspace,env,stdio:'pipe'});for(const operation of ['install-workspace-tools','install-reference-tools']){await assert.rejects(runLocalReadiness({workspace:nested,operation},env),error=>error instanceof ReadinessFailure&&error.code==='configuration');assert.equal(existsSync(join(workspace,'.private')),false);assert.equal(existsSync(join(nested,'.private')),false);}}finally{rmSync(root,{recursive:true});}
 });
 
 test('fixed distributions refuse redirected authorities, error statuses, excess bytes and corrupt exact-size payloads',async()=>{
