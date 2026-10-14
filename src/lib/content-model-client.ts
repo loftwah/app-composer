@@ -73,8 +73,8 @@ function renderForm(focus?:string){
  if(focus)list.querySelector<HTMLElement>('[data-preview-path="'+CSS.escape(focus)+'"]')?.focus({preventScroll:true});
 }
 function refresh(){
- generation++;
- try{model.label=(editor.querySelector('[data-model-label]') as HTMLInputElement).value;model.collection=(editor.querySelector('[data-model-collection]') as HTMLInputElement).value;model.groups=(editor.querySelector('[data-model-groups]') as HTMLTextAreaElement).value.split('\n').filter(Boolean);valid=validateContentModel(model);sample={};document.querySelector('[data-model-values]')!.textContent='No sample checked for this model.';document.querySelector('[data-model-values-message]')!.textContent='';
+ generation++;document.querySelector('[data-model-values]')!.textContent='No sample checked for this model.';document.querySelector('[data-model-values-message]')!.textContent='';
+ try{model.label=(editor.querySelector('[data-model-label]') as HTMLInputElement).value;model.collection=(editor.querySelector('[data-model-collection]') as HTMLInputElement).value;model.groups=(editor.querySelector('[data-model-groups]') as HTMLTextAreaElement).value.split('\n').filter(Boolean);valid=validateContentModel(model);sample={};
   try{history.replaceState({...((history.state&&typeof history.state==='object')?history.state:{}),composerContentModel:valid},'');}catch{}
   document.querySelector('[data-model-output]')!.textContent=JSON.stringify(valid,null,2);document.querySelector('[data-seed-output]')!.textContent=JSON.stringify(emdashSeed(valid),null,2);document.querySelector('[data-model-prompt]')!.textContent=contentModelHandoff(valid);document.querySelector('[data-model-preview-state]')!.textContent='Model edits reset sample entries. Conditions and validation use the same model as the export.';
   for(const selector of ['[data-model-copy]','[data-model-download]','[data-seed-download]','[data-model-save]','[data-model-test]'])(document.querySelector(selector) as HTMLButtonElement).disabled=false;
