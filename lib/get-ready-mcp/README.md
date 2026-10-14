@@ -33,6 +33,18 @@ The host may additionally select the known `--account ACCOUNT_ID --reference-wor
 
 The host retains authorised tools and credentials; this is not a sandbox for arbitrary source. One check runs at a time. Cancellation clears the cached result and does not force-stop an underlying bounded check or undo private progress. Full setup remains an explicit agent-operated library/CLI journey. A protocol connection is not a verified customer environment, actual agent entitlement or acceptance in a particular native MCP host.
 
+## Optional workspace tool preparation
+
+Default launches expose no setup tool. Only a trusted host already authorised to prepare local tools may add `--allow-workspace-tool-setup` to the server launch. The programmatic scope equivalent is the boolean `allowWorkspaceToolSetup: true`; tool calls cannot enable it. This exposes the separate zero-argument `get_ready_prepare_tools` tool and invokes the existing core `install-workspace-tools` operation.
+
+The supported operation requires active Codex on Apple Silicon macOS, Node22 and Git. Select the actual repository root, or an existing folder outside Git; a nested project is refused before parent-workspace writes. The installer checks usable existing tools first, otherwise downloads only the fixed verified GitHub CLI/pnpm pair into the selected workspace’s `.private/workspace-tools`. It preserves existing/partial copies, authored files and user profiles. It does not install global tools or skills, authenticate, create a repository, change DNS, create cloud resources or deploy.
+
+The explicit tool response adds a bounded `preparation` result with its operation/state and, on completed preparation, whether files changed and whether tools came from the workspace or existing environment. This sits beside the ordinary readiness report; completed work does not enter that report’s unfinished-operation list. A failed/partial action does not claim that files were unchanged. Preparation alone does not prove GitHub access, Cloudflare access or HTTPS.
+
+A completed workspace pair is reused by ordinary checks on this connection. Checks never retry setup. After reconnecting, explicitly select the prepared folder with `--tools-workspace /absolute/authorised/project`, or make a separate authorised preparation call to verify/reuse the existing pair. Cancellation can leave partial/completed local work and private progress; inspect it before explicitly retrying. It keeps other operations blocked until the bounded underlying call finishes, and never enables cached selection from a cancelled result.
+
+To remove this capability, stop the connection and remove the allow flag from the host’s launch configuration. The package never changes that configuration itself. Existing tools, receipts and cloud resources are retained.
+
 ## Source and recovery
 
 `SOURCE.json` hashes every packaged input and records the exact Composer source revision. `lib/get-ready/SOURCE.json` records the same core snapshot as the standalone core archive. Preserve MIT notices. SDK dependency licences are installed with those packages. Core usage and setup boundaries are in `lib/get-ready/README.md`.
