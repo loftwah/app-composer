@@ -13,12 +13,17 @@
     "./preferences": "./preferences.mjs",
     "./domain-report": "./domain-report.mjs",
     "./project": "./project.mjs",
+    "./site-skills": "./site-skills.mjs",
     "./project-report": "./project-report.mjs"
   },
   "bin": {
     "get-ready": "./cli.mjs"
   },
   "files": [
+    "project-files.mjs",
+    "site-skills.mjs",
+    "site-skills.d.mts",
+    "site-skills.json",
     "project-report.mjs",
     "project-report.d.mts",
     "project.mjs",

@@ -75,3 +75,37 @@ Official references reviewed 14 October 2026: [EmDash agent skills](https://docs
 `validateProjectReport(report)` and `inspectProjectReport(report)` are exported from the core and browser-safe `@loftwah/get-ready/project-report` entrypoint. They use the same findings and purpose rules as filesystem inspection. The strict versioned boundary refuses unknown/private fields, incompatible sources, unsafe paths, injected advice, inconsistent hashes/states and fabricated installed/visible/exercised/readiness claims. Inspecting derives a one-hour stale caution; readiness always remains false. Re-export with the matching current Get Ready version if a source/schema is incompatible.
 
 MP can open the separate JSON report at https://composer.loftwah.com/ready#project-check . The local-only viewer never uploads or persists it; clear removes its displayed metadata. A fictional example explains the view before inspection. An imported timestamp, fingerprint or matching hash does not authenticate the report or establish current scope/permissions. Existing environment and domain report formats stay separate. The browser request handoff contains no imported report data.
+
+
+## Prepare missing EmDash site skills
+
+This explicit local operation prepares the complete reviewed `building-emdash-site` and `emdash-cli` trees, with their MIT notice, inside the selected project’s `.agents/skills/`. It supports an exact declared EmDash **1.2.0**, Node 22 and an active Codex workspace. In a Git checkout, select the repository root; nested project folders are refused rather than silently preparing their parent. Other versions, plugin preparation, updates and global installs remain outside this operation. Installed EmDash compatibility still needs checking.
+
+The agent first reads the actual current task’s skill catalogue, including enabled plugins. Map applicable namespaced EmDash skills to their canonical IDs. Pass those observations explicitly; `none` means the agent checked and found none, not “skip checking”. Known project/ancestor `.agents/skills` and `.claude/skills`, user `.agents/skills` and `.codex/skills`, and the selected `CODEX_HOME/skills` are also checked for existing copies. Other runtimes/scopes require separate inspection. Existing, partial, linked or authored skill copies are preserved. Their presence does not establish that they work.
+
+```sh
+# Only after checking the current agent catalogue and selecting this project:
+get-ready --workspace /absolute/selected/project --prepare-site-skills \
+  --available-skills none --report
+```
+
+If the agent already advertises both skills, use `--available-skills building-emdash-site,emdash-cli`. Missing skills use the archive’s pinned official source at `15dcb07160fb321aab93fa67c6d0cbfc1c33e90f`; preparation performs no network download, package install, project script, global change, account connection or cloud mutation. It preserves existing instructions, content and dependencies. Every copied file is digest-checked, including references. A repeat compares the whole prepared tree and returns `changed:false`; different/partial copies stay intact for agent review. Interrupted preparation retains files; inspect them rather than deleting or retrying automatically.
+
+The same engine operation is available to independent consumers:
+
+```js
+const state = await runLocalReadiness({
+  workspace: '/absolute/selected/project',
+  operation: 'prepare-site-skills',
+  availableSkills: [], // Current agent catalogue was inspected; neither is advertised.
+});
+console.log(state.operation);
+```
+
+A trusted custom engine adapter implements `prepareSiteSkills(availableSkills)`. The package also exports `prepareSiteSkills({workspace, availableSkills})` for that local adapter. Do not treat imported reports or a saved inventory as permission to prepare files. The existing `get_ready_project` MCP remains read-only; it cannot install skills.
+
+A successful preparation is **action-required**, even if the environment checks pass. That unresolved review survives ordinary check/resume without reinstallation. There is no automatic discovery certification; `--cancel` discards the pending intent, never verifies the capability. Its private operation evidence distinguishes prepared trees, exact existing trees, preserved copies and agent-advertised skills. It always reports `ready:false`, `agentVisible:'not-probed'`, `exercised:false` and installed EmDash `not-probed`. The redacted environment report shows the remaining review step without exporting this private evidence.
+
+Next, confirm discovery in the actual selected agent task, then exercise one relevant read-only task against current official documentation. A runtime may need to refresh its skill catalogue; EmDash’s Codex plugin instructions specifically require a new task after plugin installation. This project-file preparation does not install that plugin or automatically start another task. Capture the actual source and successful use separately before claiming this capability works. No copied file, caller inventory or Hello deployment proves it.
+
+Source: [official EmDash skill guidance](https://docs.emdashcms.com/agent-skills/), reviewed 14 October 2026. The bundled unmodified text retains Cloudflare Inc.’s MIT notice in each prepared skill directory.
