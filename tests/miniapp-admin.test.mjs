@@ -47,3 +47,8 @@ test('writes use fixed app API routes and explicit supported payloads',async()=>
 test('provider refusal and interrupted writes do not leak bodies or retry',async()=>{
  for(const opts of [{status:409},{status:302},{throws:true}]){const f=fixture(opts);const result=await manageMiniapps(context({app:'guestbook',action:'moderate',id:'photo',status:'approved'}),f.runtime,pins);assert.equal(result.ok,false);assert.equal(f.calls.length,2);assert.doesNotMatch(JSON.stringify(result),/provider secret|sensitive provider/);}
 });
+
+test('the full bounded Guestbook queue is available with newest records first',async()=>{
+ const f=fixture();const service=f.runtime.GUESTBOOK,fetch=service.fetch;service.fetch=async request=>{if(!request.url.endsWith('/api/export'))return fetch(request);return Response.json({dataVersion:1,config:{},items:Array.from({length:200},(_,i)=>({id:'photo-'+i,status:i===199?'pending':'approved',created_at:String(i).padStart(3,'0')}))});};
+ const result=await manageMiniapps(context({app:'guestbook',action:'snapshot'}),f.runtime,pins);assert.equal(result.items.length,200);assert.equal(result.items[0].id,'photo-199');assert.equal(result.items[0].status,'pending');
+});
