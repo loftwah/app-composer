@@ -1,0 +1,21 @@
+---
+import {appSettings} from '../lib/app-settings.mjs';
+import {SlidersHorizontal} from '@lucide/astro';
+---
+<details id="app-settings" class="app-settings">
+ <summary><span class="summary-label"><SlidersHorizontal size={18} aria-hidden="true"/>Settings for each app</span></summary>
+ <p class="small">Use the shared title and appearance above, or give each app its own settings. These fields come from the app versions included in this composition.</p>
+ {Object.values(appSettings).map(app=><section data-app-settings={app.id} aria-labelledby={'settings-'+app.id}>
+  <h3 id={'settings-'+app.id}>{app.name}</h3>
+  <p class="small">{app.id==='guestbook'?'The invitation-only collection where photos are submitted and reviewed.':'The public collection of curated links and currently approved photos.'}</p>
+  <label class="separate-choice"><input type="checkbox" data-separate-settings={app.id}/>Use separate settings for {app.name}</label>
+  <fieldset data-app-fields={app.id} hidden disabled><legend class="sr-only">{app.name} settings</legend>
+   {app.fields.map(field=><div class="app-setting-field"><label for={app.id+'-'+field.key}>{field.label}</label>{field.type==='select'?<select id={app.id+'-'+field.key} name={app.id+'-'+field.key} data-app-field={field.key}>{field.choices.map(choice=><option value={choice.value}>{choice.label}</option>)}</select>:field.key==='intro'?<textarea id={app.id+'-'+field.key} name={app.id+'-'+field.key} data-app-field={field.key} maxlength={field.maxLength}/>:<input id={app.id+'-'+field.key} name={app.id+'-'+field.key} data-app-field={field.key} maxlength={field.maxLength} required={field.key==='title'}/>}</div>)}
+   <button type="button" class="secondary" data-app-defaults={app.id}>Use this app’s defaults</button>
+  </fieldset>
+ </section>)}
+ <p class="small">Uncheck separate settings to inherit the shared values. Unfinished values stay in this form while you explore; only active settings go into the saved spec.</p>
+</details>
+<style>
+ .app-settings{margin:24px 0}.app-settings summary{min-height:48px;padding:10px 0}.summary-label{display:inline-flex;align-items:center;gap:8px;vertical-align:middle}.app-settings section{padding:20px 0;border-top:1px solid var(--color-border)}.app-settings h3{font-size:1.25rem;margin:0 0 8px}.app-settings fieldset{border:0;padding:0;margin:0}.app-settings .app-setting-field>label{margin:18px 0 0}.separate-choice{display:flex;align-items:center;gap:12px;min-height:44px}.separate-choice input{width:20px;height:20px;flex:none;margin:0;accent-color:var(--color-accent)}.app-settings :global([hidden]){display:none}
+</style>

@@ -14,7 +14,7 @@ test('conditional hostname intent ignores hidden values while visible domain/car
  assert.throws(()=>validateSpec({...valid(),cards:[{title:'   ',url:'https://example.com/'}]}),/Give each card a title/);
  assert.equal(validateSpec({...valid(),cards:[{title:'A useful link',url:'https://example.com/'}]}).cards[0].title,'A useful link');
 });
-test('unsafe destinations, schema drift and approval bypass are rejected',()=>{for(const patch of [{version:2},{privacy:'public-without-review'},{config:{...valid().config,title:'\u0000'}},{cards:[{title:'X',url:'javascript:alert(1)'}]}])assert.throws(()=>validateSpec({...valid(),...patch}));const s=validateSpec({...valid(),deployment:{mode:'new-domain',hostname:''}});assert.equal(s.deployment.approval,'purchase-required');});
+test('unsafe destinations, schema drift and approval bypass are rejected',()=>{for(const patch of [{version:3},{privacy:'public-without-review'},{config:{...valid().config,title:'\u0000'}},{cards:[{title:'X',url:'javascript:alert(1)'}]}])assert.throws(()=>validateSpec({...valid(),...patch}));const s=validateSpec({...valid(),deployment:{mode:'new-domain',hostname:''}});assert.equal(s.deployment.approval,'purchase-required');});
 test('Hello exports only supported configuration and ignores hidden gallery layout',()=>{
  const input={...valid(),preset:'hello',config:{...valid().config,layout:'hidden-stale-value'},deployment:{mode:'existing-domain',hostname:'hello.example.com'}};
  assert.equal(validateSpec(input).config.layout,'grid');
