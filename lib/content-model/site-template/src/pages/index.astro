@@ -16,7 +16,7 @@ else if(missing)Astro.response.status=404;
 const paginated=page!==null&&!missing&&!error&&entries.length>0&&(page>1||hasMore);
 const heading=model.fields.find(field=>field.type==='string'&&!field.when)?.key;
 ---
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width"/><link rel="icon" href="/brand/icon.png" type="image/png"/><meta name="robots" content="noindex,nofollow"/><title>{page===null||missing?'Page not found · '+model.label:model.label+(page>1?' · Page '+page:'')}</title><meta name="description" content={'Browse published '+model.label.toLowerCase()+'.'}/></head><body>
+<!doctype html><html lang="en" class="composer-content-site"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width"/><link rel="icon" href="/brand/icon.png" type="image/png"/><meta name="robots" content="noindex,nofollow"/><title>{page===null||missing?'Page not found · '+model.label:model.label+(page>1?' · Page '+page:'')}</title><meta name="description" content={'Browse published '+model.label.toLowerCase()+'.'}/></head><body>
 <!-- THESIS: Let the owner publish a useful collection through native EmDash editing.
 OWN-WORLD: Inherit App Composer's charcoal/ivory, signal orange, Space headings and open ruled rows.
 STORY: Read published content; the owner follows Edit content to draft and publish.
