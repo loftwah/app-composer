@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import {serveStdio,StdioServerTransport} from '@modelcontextprotocol/server/stdio';
 import {createReadinessMcp,launchScope} from '../lib/get-ready-mcp/server.mjs';
 

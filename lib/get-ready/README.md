@@ -36,7 +36,7 @@ console.log(JSON.stringify(readinessReport(state)));
 
 Use actual validated account/repository/origin values. With no `operation`, this performs checks and saves private progress only. The exported report omits the private evidence. `createReadinessSession`, `runReadinessSession` and `inspectReadiness` expose the same engine to an explicitly trusted adapter with the four supported checks. The host controls capabilities; imported reports never grant execution authority. `@loftwah/get-ready/report` validates and inspects redacted reports; `@loftwah/get-ready/preferences` carries bounded address and assistance intent, not readiness proof or execution authority.
 
-The optional local MCP adapter remains a separate thin transport in the source repository with its own SDK dependencies. It is not bundled here. This package opens no network listener and does not expose a hosted API. It makes provider calls only when a selected check/operation needs them. Read the source and supported boundary before integrating.
+The optional local MCP adapter has a separate installable archive at https://composer.loftwah.com/docs#local-get-ready-mcp with its own SDK dependencies and this same core snapshot. It is not bundled in this dependency-free core archive. This package opens no network listener and does not expose a hosted API. It makes provider calls only when a selected check/operation needs them. Read the source and supported boundary before integrating.
 
 ## Source and licence
 
