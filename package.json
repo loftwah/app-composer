@@ -9,6 +9,7 @@
     "build": "node scripts/identity.mjs && node scripts/package-get-ready.mjs && astro build",
     "check": "pnpm check:types && pnpm test",
     "test": "node --test tests/*.test.mjs",
+    "audit": "pnpm audit --audit-level low",
     "deploy": "node scripts/deploy.mjs",
     "ready": "node scripts/ready.mjs",
     "compose": "node scripts/compose.mjs",
