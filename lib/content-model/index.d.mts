@@ -1,4 +1,4 @@
-export type FieldKind='string'|'text'|'url'|'integer'|'boolean'|'select'|'repeater';
+export type FieldKind='string'|'text'|'url'|'date'|'integer'|'boolean'|'select'|'repeater';
 export interface ContentField {key:string;label:string;type:FieldKind;required:boolean;defaultValue?:string|number|boolean;validation?:{min?:number;max?:number;maxLength?:number};group?:string;choices?:string[];limit?:number;fields?:ContentField[];when?:{field:string;equals:string|boolean}}
 export interface ContentModel {schema:'app-composer.content-model';version:1;collection:string;label:string;groups:string[];fields:ContentField[]}
 export const modelVersion:1;

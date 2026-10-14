@@ -78,3 +78,5 @@ The initial CSS presentation is dark. With JavaScript, the initial choice follow
 - **Do** inspect phone and desktop composition and both themes when changing the surface.
 - **Do** keep publication and authentication claims tied to their actual evidence.
 - **Don't** add generic decoration, fabricated activity or a Composer runtime dependency to this reading surface.
+
+Calendar dates, reviewed 14 October 2026: top-level date fields use a labelled Kumo native date input in administration, bounded to years 0001–9999, with day-only guidance; clearing an optional date leaves it empty. The public reader presents the same day with a written month in a semantic time element, without timezone conversion. Dates inherit the existing typography, theme tokens and open ruled field rows, including label/value stacking at 600px and below. Init configures their optional starting value through its existing native disclosure and date control.
