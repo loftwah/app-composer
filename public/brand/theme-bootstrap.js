@@ -1,0 +1,1 @@
+try{const theme=localStorage.getItem("composer-theme");if(theme==="light"){document.documentElement.dataset.theme="light";document.querySelector("meta[name=theme-color]")?.setAttribute("content","#faf9f7");}}catch{}
