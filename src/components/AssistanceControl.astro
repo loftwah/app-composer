@@ -1,0 +1,17 @@
+---
+import {assistanceLevels} from '../../lib/get-ready/preferences.mjs';
+---
+<div class="assistance-control" data-assistance-control>
+ <label>Help level<select data-assistance-select disabled aria-describedby="assistance-help">{Object.entries(assistanceLevels).map(([value,item])=><option value={value}>{item.label}{value==='easy'?' · recommended':''}</option>)}</select></label>
+ <p id="assistance-help" data-assistance-help class="small">{assistanceLevels.easy.help}</p>
+ <p data-assistance-status class="small" role="status" aria-live="polite"></p>
+ <noscript><p class="small">All settings and optional help remain readable. Changing help level needs JavaScript.</p></noscript>
+</div>
+<style>
+ .assistance-control{display:grid;grid-template-columns:260px minmax(0,1fr);gap:0 24px;align-items:center;border-block:1px solid var(--color-border);padding:18px 0;margin:24px 0 32px}.assistance-control label{display:flex;gap:12px;align-items:center;font-size:14px;margin:0;white-space:nowrap}.assistance-control select{width:auto;min-width:130px;margin:0;font-size:14px;min-height:44px;padding:10px}.assistance-control p{margin:0;max-width:72ch}.assistance-control [data-assistance-status]{grid-column:2;margin-top:4px;font-size:12px}.assistance-control [data-assistance-status]:empty{display:none}
+ @media(max-width:650px){.assistance-control{grid-template-columns:1fr;gap:12px}.assistance-control label{justify-content:space-between}.assistance-control select{width:66%}.assistance-control [data-assistance-status]{grid-column:1;margin-top:0}}
+</style>
+<script>
+import {initialiseAssistance} from '../lib/assistance';
+initialiseAssistance();
+</script>

@@ -23,6 +23,8 @@ The [interactive tutorial](https://composer.loftwah.com/learn) follows setup, a 
 
 `pnpm install`, `pnpm dev`, `pnpm check`, `pnpm build`. Local EmDash D1 state is disposable and separate from production. To demonstrate seeded catalogue content locally, use the documented EmDash seed/migration tools against the local database; remote content is never silently copied into local or preview state.
 
+Get Ready and Init offer Easy, Guided and Advanced help. The device-local preference changes explanations and optional detail, travels through task links when storage is blocked, and adds bounded presentation instructions to the agent handoff. It never changes readiness evidence, app configuration or execution authority. Init recommends existing apps from the chosen goal, previews before applying, and preserves edited content, appearance and inactive app fields while you explore. Save remains explicit; a fictional preview does not provision a customer deployment.
+
 The public Get Ready handoff offers complete setup, read-only inspection and rechecking after sign-in. Each uses the same core and current repository instructions. Copying a prompt executes nothing; check/resume requests prohibit setup mutations and automatic retries. Manual copy remains available without JavaScript or clipboard permission.
 
 `pnpm ready` verifies the actual authorised Codex/GitHub/Cloudflare workspace, selected account hostname routing and exact HTTPS Hello source, saving private progress even when a check fails. It does not inspect another user's environment or obtain credentials on their behalf.
