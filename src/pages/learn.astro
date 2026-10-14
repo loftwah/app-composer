@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import ReadyHandoff from '../components/ReadyHandoff.astro';
 import ReadyProgress from '../components/ReadyProgress.astro';
-import { ArrowRight, ArrowLeft, Check, BookOpen, Copy } from '@lucide/astro';
+import { ArrowRight, ArrowLeft, Check, BookOpen, Copy, ChevronDown } from '@lucide/astro';
 const lessons = [
  {id:'workspace', title:'Meet your agent', result:'A folder your agent can actually inspect'},
  {id:'ready', title:'Prepare & prove', result:'Your own starter, running over HTTPS'},
@@ -53,11 +53,16 @@ const questions = [
  <div class="learn-layout" data-tutorial>
   <aside class="lesson-index">
    <h2>Your route</h2>
-   <nav aria-label="Tutorial lessons"><ol>{lessons.map((lesson,index)=><li><a href={'#'+lesson.id} data-lesson-link={lesson.id}><span class="lesson-stop" aria-hidden="true">{index+1}</span><span>{lesson.title}<small data-lesson-state={lesson.id}>Not noted yet</small></span></a></li>)}</ol></nav>
-   <div class="learning-progress"><p data-progress-count>0 of 16 observations noted</p><progress value="0" max="16" aria-label="Self-reported tutorial observations"></progress><p class="small">Your learning notes, saved on this device. These are separate from verified setup results.</p><p class="small" data-storage-status role="status"></p><button class="secondary" data-clear-progress hidden>Clear my learning notes</button><div data-clear-confirm hidden><p>Remove only this tutorial’s saved observations and return to lesson 1?</p><button data-confirm-clear>Clear notes</button><button class="secondary" data-cancel-clear>Keep notes</button></div></div>
+   <nav aria-label="Tutorial lessons"><ol>{lessons.map((lesson,index)=><li><a href={'#'+lesson.id} data-lesson-link={lesson.id}><span class="lesson-stop" aria-hidden="true">{index+1}</span><span>{lesson.title}<small data-lesson-state={lesson.id} hidden></small></span></a></li>)}</ol></nav>
+   <details class="learning-progress"><summary>Learning notes <span data-notes-count>0/16</span><ChevronDown size={16} aria-hidden="true"/></summary><p data-progress-count>0 of 16 observations noted</p><progress value="0" max="16" aria-label="Self-reported tutorial observations"></progress><p class="small">Your learning notes, saved on this device. These are separate from verified setup results.</p><p class="small" data-storage-status role="status"></p><button class="secondary" data-clear-progress hidden>Clear my learning notes</button><div data-clear-confirm hidden><p>Remove only this tutorial’s saved observations and return to lesson 1?</p><button data-confirm-clear>Clear notes</button><button class="secondary" data-cancel-clear>Keep notes</button></div></details>
   </aside>
   <div class="lesson-content">
-   <p class="lesson-context" data-lesson-context>Follow along at your own pace · reviewed 14 October 2026</p>
+   <div class="lesson-toolbar" data-lesson-toolbar>
+    <p class="lesson-context" data-lesson-context>Follow along at your own pace · reviewed 14 October 2026</p>
+    <select data-lesson-picker aria-label="Choose a lesson" disabled hidden>{lessons.map((lesson,index)=><option value={lesson.id}>{index+1}. {lesson.title}</option>)}</select>
+    <a class="button secondary" data-lesson-previous href="#workspace" hidden><ArrowLeft size={18} aria-hidden="true"/><span>Previous</span></a>
+    <a class="button secondary" data-lesson-next href="#ready" hidden><span>Next</span><ArrowRight size={18} aria-hidden="true"/></a>
+   </div>
    {lessons.map((lesson,index)=><article id={lesson.id} class="lesson" data-lesson={lesson.id} aria-labelledby={lesson.id+'-title'}>
     <div class="lesson-heading"><span class="lesson-number" aria-hidden="true">{index+1}</span><div><h2 id={lesson.id+'-title'} tabindex="-1">{lesson.title}</h2><p>{lesson.result}</p></div></div>
     <section class="lesson-rationale" aria-labelledby={lesson.id+'-why'}>
@@ -164,6 +169,8 @@ const questions = [
  <script src="../lib/tutorial-client.ts"></script>
 </Base>
 <style>
+ .lesson-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px;background:var(--color-background);padding:12px 0;margin-bottom:28px;border-bottom:1px solid var(--color-border)}[data-tutorial-enhanced] .lesson-toolbar{position:sticky;top:0;z-index:2}.lesson-toolbar .lesson-context{margin:0;font-size:12px;line-height:1.5}.lesson-toolbar .button{min-height:44px;padding:8px 12px;font-size:13px}.lesson-toolbar select{display:none}.learning-progress summary{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;min-height:44px}.learning-progress summary :global(svg){flex-shrink:0}.learning-progress[open] summary :global(svg){transform:rotate(180deg)}.learning-progress summary span{margin-left:auto;font-size:12px;color:var(--color-muted)}[data-tutorial-enhanced] .lesson-index a{min-height:48px}.lesson-heading h2{scroll-margin-top:100px}
+ @media(max-width:760px){[data-tutorial-enhanced] .lesson-index>h2,[data-tutorial-enhanced] .lesson-index nav{display:none}[data-tutorial-enhanced] .learn-layout{gap:8px}[data-tutorial-enhanced] .learning-progress{margin:0;padding:0;border-top:0}.lesson-toolbar{gap:8px;padding:12px 0;margin-bottom:24px}.lesson-toolbar .lesson-context{grid-column:1/-1}.lesson-toolbar select{display:block;grid-column:1;width:100%;min-width:0;margin:0;padding:8px;font-size:16px;min-height:44px}.lesson-toolbar .button{padding:8px;min-width:44px}.lesson-toolbar .button span{display:none}}
  .learn-purpose{max-width:94ch;margin:28px 0;color:var(--color-muted);font-size:15px;line-height:1.7}.learn-purpose strong{color:var(--color-foreground)}
  .lesson-rationale{margin:24px 0 32px;padding-bottom:24px;border-bottom:1px solid var(--color-border)}.lesson-rationale h3{font-size:1.2rem;margin:0 0 12px}.lesson-rationale>p{margin:0 0 20px}.lesson-rationale dl{margin:0}.lesson-rationale dl>div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:20px;margin-top:16px}.lesson-rationale dt{font-size:14px;margin:0;line-height:1.7}.lesson-rationale dd{font-size:15px;margin:0;line-height:1.7}.approach-table{margin:24px 0 28px;table-layout:fixed}.approach-table caption{text-align:left;font-weight:600;margin-bottom:12px}.approach-table th:first-child{width:28%}.approach-table p{margin:0 0 10px;font-size:15px}.approach-table p:last-child{margin-bottom:0}.approach-table th{font-weight:600;overflow-wrap:anywhere}.approach-table td{overflow-wrap:anywhere}.lesson details [data-copy-status]:empty{display:none}
  @media(max-width:760px){.lesson-rationale dl>div{grid-template-columns:1fr;gap:4px;margin-top:20px}.approach-table th,.approach-table td{padding:14px 8px}.approach-table th:first-child{width:32%}.approach-table p{font-size:14px}}
