@@ -38,6 +38,11 @@ Use actual validated account/repository/origin values. With no `operation`, this
 
 The optional local MCP adapter has a separate installable archive at https://composer.loftwah.com/docs#local-get-ready-mcp with its own SDK dependencies and this same core snapshot. It is not bundled in this dependency-free core archive. This package opens no network listener and does not expose a hosted API. It makes provider calls only when a selected check/operation needs them. Read the source and supported boundary before integrating.
 
+
+Readiness exports now use report version 2, including only a bounded `workingTree` observation: `clean`, `changed` or `unknown`. This reveals no file names, paths, repository identifiers, counts or content. It records what was observed when checked and does not grant source approval or alter capability freshness. `progressWorkspace(report)` supplies the same plain-language explanation used by Get Ready and Init; CLI text output also includes it. Version 1 imports remain readable, with local-work status unknown. Older consumers that only validate version 1 must update before consuming a version 2 export.
+
+Local edits or commits in the same workspace/repository/account/target do not complete failed setup. Read-only checks preserve that unfinished intent for inspection without retrying it. Selecting another account/repository/target remains a separate scope; the earlier project-skill review keeps its existing preservation rule. No files are committed, stashed, reset or removed by this observation.
+
 ## Source and licence
 
 `SOURCE.json` identifies the repository revision and SHA-256 of each packaged input. Local uncommitted builds are labelled as development snapshots. The production deployment guard publishes clean pushed main. The archive includes only the reviewed core allowlist, this README, package metadata, MIT licence and source record; no environment files, receipts, customer data or credentials. MIT notices must be preserved. These are release provenance records, not a vendor endorsement or security certification.

@@ -1,4 +1,4 @@
-import {validateReadinessReport,inspectReadinessReport,progressChecks,progressOperationLabels,progressStep,progressHelp,type ReadinessReport} from '../../lib/get-ready/report.mjs';
+import {validateReadinessReport,inspectReadinessReport,progressChecks,progressOperationLabels,progressStep,progressHelp,progressWorkspace,type ReadinessReport} from '../../lib/get-ready/report.mjs';
 import {savedReportKey,savedReadyReport,announceReadyReport} from './ready-session';
 const container=document.querySelector<HTMLElement>('[data-ready-progress]')!;
 const fileInput=container.querySelector<HTMLInputElement>('[data-progress-file]')!;
@@ -19,6 +19,7 @@ function refresh(){
  const disclaimer=container.querySelector<HTMLElement>('[data-progress-disclaimer]')!;
  operations.replaceChildren();operations.hidden=true;actions.hidden=!report;disclaimer.hidden=!report;
  const overview=container.querySelector('[data-progress-overview]')!;
+ const workspace=container.querySelector<HTMLElement>('[data-progress-workspace]')!;workspace.hidden=!report;workspace.textContent=report?progressWorkspace(report):'';
  if(!report){container.querySelector('[data-ready-summary]')!.textContent='Waiting for your agent’s report';container.querySelector('[data-ready-next]')!.textContent='Let your agent check the environment. Its report will identify the next action and who needs to take it.';container.querySelector('[data-ready-init]')!.textContent='Explore app settings';overview.textContent='No report loaded.';list.replaceChildren(...Object.values(progressChecks).map(check=>{const row=document.createElement('li');row.append(node('h3',check.label),node('span','Not checked here','small'),node('p',check.help,'small'));return row;}));return;}
  const {inspection}=inspectReadinessReport(report);
  const human=report.checks.find(check=>!inspection.capabilities[check.id]&&['human-authentication','human-permission'].includes(check.recovery??''))??report.operations.find(step=>['human-authentication','human-permission'].includes(step.recovery??''));
