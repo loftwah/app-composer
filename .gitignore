@@ -14,3 +14,6 @@ output/
 public/downloads/get-ready-core.tgz
 public/downloads/get-ready-core.json
 src/lib/get-ready-package.json
+public/downloads/get-ready-mcp.tgz
+public/downloads/get-ready-mcp.json
+src/lib/get-ready-mcp-package.json

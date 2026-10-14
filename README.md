@@ -262,6 +262,8 @@ If a later app fails, completed settings remain for inspection. There is no auto
 
 ## Optional local Get Ready MCP
 
+The [MCP archive and matching source/checksum manifest](https://composer.loftwah.com/docs#local-get-ready-mcp) install the existing stdio transport and same captured core without a Composer checkout. Install the reviewed downloaded archive with `npm install --ignore-scripts --no-audit --no-fund ./get-ready-mcp.tgz` in a chosen local integration folder using Node22. It adds the pinned official MCP server2.3.1 and Zod4.6.7 dependencies; registry/cache access is required. Keep the generated lockfile. Configure the host separately with the absolute installed `node_modules/.bin/get-ready-mcp` executable and explicit `--workspace` arguments; installation changes no host configuration. The [bundled README](lib/get-ready-mcp/README.md) distinguishes protocol operation from setup/native-host acceptance. No npm registry publication, remote endpoint or additional tool authority is implied.
+
 Another agent can recheck the supported environment through the same engine using a local stdio connection. This first adapter exposes `get_ready_check` and `get_ready_inspect`, both with empty arguments. The host selects the trusted workspace, account and reference at launch; a model cannot change those selections, run shell commands or request a setup/deployment operation. A check saves the existing private receipt, while its model-visible output is the same redacted dated report and shared freshness/unfinished-operation inspection used by Composer. Inspect reads the latest completed report on that connection, without provider calls; it is empty before a check or after an aborted check.
 
 ```sh

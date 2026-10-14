@@ -1,4 +1,5 @@
 import {assertReleasePackage} from './package-get-ready.mjs';
+import {assertMcpReleasePackage} from './package-get-ready-mcp.mjs';
 import {verifyLive} from './verify-live.mjs';
 import {readFileSync} from 'node:fs';
 import {resolve,dirname} from 'node:path';
@@ -22,6 +23,7 @@ execFileSync('pnpm',['run','audit'],{stdio:'inherit'});
 execFileSync('pnpm',['check'],{stdio:'inherit'});
 execFileSync('pnpm',['build'],{stdio:'inherit'});
 assertReleasePackage(JSON.parse(readFileSync('public/downloads/get-ready-core.json','utf8')),readFileSync('public/downloads/get-ready-core.tgz'),sha);
+assertMcpReleasePackage(JSON.parse(readFileSync('public/downloads/get-ready-mcp.json','utf8')),readFileSync('public/downloads/get-ready-mcp.tgz'),sha);
 const pointer=resolve('.wrangler/deploy/config.json');
 const generatedPath=resolve(dirname(pointer),JSON.parse(readFileSync(pointer,'utf8')).configPath);
 if(generatedPath!==resolve('dist/server/wrangler.json'))throw Error('Unexpected generated deployment configuration path.');

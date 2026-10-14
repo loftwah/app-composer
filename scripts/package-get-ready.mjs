@@ -24,7 +24,7 @@ function directoryGuard(path,boundary=repository,create=false){
  }
  return ()=>{const now=lstatSync(base);if(now.isSymbolicLink()||realpathSync(base)!==canonical||now.ino!==initial.ino||now.dev!==initial.dev)throw Error('Package directory changed.');for(const entry of directories){const actual=lstatSync(entry.path);if(!actual.isDirectory()||actual.isSymbolicLink()||actual.ino!==entry.stat.ino||actual.dev!==entry.stat.dev)throw Error('Package directory changed.');}return cursor;};
 }
-function readInput(path,boundary=repository){
+export function readPackageInput(path,boundary=repository){
  const check=directoryGuard(dirname(path),boundary),canonical=join(check(),basename(path)),before=lstatSync(canonical);
  if(!before.isFile()||before.isSymbolicLink()||before.nlink!==1)throw Error('Package input must be an ordinary unlinked source file: '+basename(path));
  const fd=openSync(canonical,constants.O_RDONLY|constants.O_NOFOLLOW);
@@ -38,20 +38,25 @@ export function writePackageArtifact(path,bytes,{boundary=repository}={}){
  try{writeFileSync(temporary,bytes,{flag:'wx',mode:0o644});check();const after=current();if(before?!after||!same(before,after):after!==null)throw Error('Package output changed.');renameSync(temporary,canonical);}finally{try{unlinkSync(temporary);}catch(error){if(error.code!=='ENOENT')throw error;}}
 }
 // The explicit list prevents private receipts or unreviewed files entering a release.
+export function captureGetReady({directory=join(repository,'lib/get-ready'),sourceBoundary=repository}={}){
+ const files={};for(const name of inputs)files[name]=readPackageInput(join(directory,name),sourceBoundary);
+ const manifest=JSON.parse(files['package.json']),expected=[...runtime,'README.md','LICENSE','SOURCE.json'].sort();
+ if(manifest.name!=='@loftwah/get-ready'||manifest.version!=='0.1.0'||manifest.private!==true||JSON.stringify([...manifest.files].sort())!==JSON.stringify(expected)||manifest.scripts||manifest.dependencies||manifest.optionalDependencies||manifest.devDependencies)throw Error('Review package identity, file allowlist and dependency/lifecycle policy before changing them.');
+ files.LICENSE=readPackageInput(join(repository,'LICENSE'));
+ const hashes=Object.fromEntries(Object.entries(files).map(([name,bytes])=>[name,hash(bytes)]));
+ const git=(args,encoding='utf8')=>execFileSync('git',args,{cwd:repository,encoding,stdio:['ignore','pipe','pipe']});
+ const commit=git(['rev-parse','HEAD']).trim();
+ // Bind captured bytes to blobs even when status hides an input edit.
+ const matchesCommit=Object.entries(hashes).every(([name,digest])=>{try{return hash(git(['show',commit+':'+(name==='LICENSE'?'LICENSE':'lib/get-ready/'+name)],null))===digest;}catch{return false;}});
+ const source={repository:'https://github.com/loftwah/app-composer',commit,developmentSnapshot:!!git(['status','--porcelain']).trim()||!matchesCommit,files:hashes};
+ files['SOURCE.json']=Buffer.from(JSON.stringify(source,null,2)+'\n');
+ return {files,source,manifest};
+}
 export function packageGetReady({directory=join(repository,'lib/get-ready'),destination=join(repository,'public/downloads'),sourceBoundary=repository,destinationBoundary=repository}={}){
  const root=mkdtempSync(join(tmpdir(),'composer-get-ready-package-'));
  try{
   const stage=join(root,'package'),packed=join(root,'packed');mkdirSync(stage);mkdirSync(packed);
-  const hashes={};for(const name of inputs){const bytes=readInput(join(directory,name),sourceBoundary);hashes[name]=hash(bytes);writeFileSync(join(stage,name),bytes);}
-  const manifest=JSON.parse(readFileSync(join(stage,'package.json'),'utf8')),expected=[...runtime,'README.md','LICENSE','SOURCE.json'].sort();
-  if(manifest.name!=='@loftwah/get-ready'||manifest.version!=='0.1.0'||manifest.private!==true||JSON.stringify([...manifest.files].sort())!==JSON.stringify(expected)||manifest.scripts||manifest.dependencies||manifest.optionalDependencies||manifest.devDependencies)throw Error('Review package identity, file allowlist and dependency/lifecycle policy before changing them.');
-  const licence=readInput(join(repository,'LICENSE'));writeFileSync(join(stage,'LICENSE'),licence);hashes.LICENSE=hash(licence);chmodSync(join(stage,'cli.mjs'),0o755);
-  const git=(args,encoding='utf8')=>execFileSync('git',args,{cwd:repository,encoding,stdio:['ignore','pipe','pipe']});
-  const commit=git(['rev-parse','HEAD']).trim();
-  // Git status can hide assume-unchanged/skip-worktree edits. Bind captured bytes to blobs.
-  const matchesCommit=Object.entries(hashes).every(([name,digest])=>{try{return hash(git(['show',commit+':'+(name==='LICENSE'?'LICENSE':'lib/get-ready/'+name)],null))===digest;}catch{return false;}});
-  const source={repository:'https://github.com/loftwah/app-composer',commit,developmentSnapshot:!!git(['status','--porcelain']).trim()||!matchesCommit,files:hashes};
-  writeFileSync(join(stage,'SOURCE.json'),JSON.stringify(source,null,2)+'\n');
+  const {files,source,manifest}=captureGetReady({directory,sourceBoundary});for(const [name,bytes] of Object.entries(files))writeFileSync(join(stage,name),bytes);chmodSync(join(stage,'cli.mjs'),0o755);
   writeFileSync(join(root,'user.npmrc'),'');writeFileSync(join(root,'global.npmrc'),'');
   const env={PATH:process.env.PATH,HOME:root,TMPDIR:root,NPM_CONFIG_USERCONFIG:join(root,'user.npmrc'),NPM_CONFIG_GLOBALCONFIG:join(root,'global.npmrc'),NPM_CONFIG_CACHE:join(root,'cache'),NPM_CONFIG_UPDATE_NOTIFIER:'false'};
   const result=JSON.parse(execFileSync('npm',['pack','--offline','--ignore-scripts','--json','--pack-destination',packed],{cwd:stage,env,encoding:'utf8',timeout:20000,maxBuffer:2*1024*1024}));
