@@ -28,23 +28,28 @@ owns release evidence.
    Sources: [undici TLS advisory](https://github.com/advisories/GHSA-w293-vg96-wgc3)
    and [sharp advisory](https://github.com/advisories/GHSA-wq5f-xc86-pv6w).
 
-2. **High conditional build exposure — open in #10.** `scripts/promote.mjs:3`
-   passes inherited process credentials and controls to its local compile path
-   and compiles from the working checkout. A synthetic dry-run fixture confirmed
-   that an unrelated environment canary reaches that subprocess. Clean Git status
-   and an exact commit pin do not isolate ignored files, hooks or build inputs.
-   Only the two reviewed authored apps are supported; there is no public build
-   endpoint. Before broadening that path, reuse Get Ready's verified temporary
-   snapshot, credential-free build and selected upload environment, with negative
-   tests for hidden edits and inherited controls. This review did not promote any
-   integrated service. Impact requires compromised local build inputs or tooling.
+2. **High conditional build exposure — fixed in the follow-up.** The previous
+   `scripts/promote.mjs` passed inherited process values to its compiler and used
+   the working checkout. A synthetic canary reproduced that exposure. The new
+   `scripts/promotion-boundary.mjs` admits only the reviewed authored pair, copies
+   exact Git blobs into private temporary snapshots, rechecks all tracked bytes
+   (including hidden edits), excludes ignored files and Git execution controls,
+   and uses the pinned Composer Wrangler with a stripped environment and dotenv
+   disabled. Both apps compile before any cloud mutation. Upload uses the checked
+   compiled artifact with `--no-bundle`, selected Cloudflare credentials and each
+   selected app token on stdin. Snapshot/artifact/target guards repeat around
+   subprocess waits; private provider errors are not copied into output. The root
+   target file must retain its original unshared inode. Existing data bindings and
+   current pins remain unchanged. This is not a sandbox for arbitrary repositories.
 
-3. **Medium hardening gap — open in #10.** `src/middleware.ts:8` supplies headers
-   but no main-site CSP; the live Composer homepage also returned none. No
-   attacker-controlled script sink was established in this pass. Add an Astro-
-   compatible policy without weakening it to allow arbitrary inline execution;
-   verify the main pages and native CMS separately. Guestbook/Showcase already
-   supply nonce policies; the fictional state demo retains `connect-src 'none'`.
+3. **Medium CSP gap — fixed in the follow-up.** Astro's supported `security.csp`
+   now emits main-page HTTP policies with generated script/style hashes, no
+   `unsafe-inline` or `unsafe-eval`, no frames/objects/base overrides, same-origin
+   connections/forms and Cloudflare’s beacon filename plus its versioned child path. The initial
+   theme script is self-hosted; activity bars use numeric SVG attributes instead
+   of inline styles. Independent mounted apps keep their own nonce policies;
+   native EmDash authentication keeps its existing outer JWT gate. See the official
+   [Astro CSP configuration](https://docs.astro.build/en/reference/configuration-reference/#securitycsp).
 
 Live anonymous probes confirmed the owner Access redirect on the custom domain,
 403 on alternate Worker and preview CMS routes, 400 for ambiguous encoded paths,
@@ -58,3 +63,15 @@ The vault remains fictional-only under #31–34. This pass does not prove privat
 authenticated storage, cross-profile authorisation, second-device recovery,
 provider interoperability, a restore drill or security certification. No secrets,
 personal uploads, new cloud resources or permissions were changed for this review.
+
+Follow-up validation, reviewed 14 October 2026: 149 tests and production build
+passed, as did real credential-free compile and no-bundle artifact-validation
+dry runs for both exact app pins. Synthetic tests cover selected credential
+routing, ignored file exclusion, audit failure, hidden tracked edits, snapshot
+mutation, artifact tampering, additional upload assets, custom build hooks and
+linked root targets. Local built-page browser checks covered eight
+main routes, theme and launcher/search/focus controls, phone/desktop composition,
+and actual refusal of injected inline script, with no normal-flow CSP violations.
+Use #11 for the exact merged-source release and production browser receipts;
+local results do not establish deployment, and a dry run does not establish an
+integrated service promotion.
