@@ -45,7 +45,7 @@ owns release evidence.
 3. **Medium CSP gap — fixed in the follow-up.** Astro's supported `security.csp`
    now emits main-page HTTP policies with generated script/style hashes, no
    `unsafe-inline` or `unsafe-eval`, no frames/objects/base overrides, same-origin
-   connections/forms and the existing exact Cloudflare beacon script. The initial
+   connections/forms and Cloudflare’s beacon filename plus its versioned child path. The initial
    theme script is self-hosted; activity bars use numeric SVG attributes instead
    of inline styles. Independent mounted apps keep their own nonce policies;
    native EmDash authentication keeps its existing outer JWT gate. See the official
