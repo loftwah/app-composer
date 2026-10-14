@@ -233,3 +233,13 @@ Standalone publishers are opt-in server code with app-scoped write-only tokens, 
 Optional local diagnostics: append `?vitals=1`, then open Page performance. The self-hosted standard Web Vitals 6.2.3 bundle (Apache-2.0, licence/provenance included) reports current-load LCP/INP/CLS. No metrics or element attribution are uploaded or persisted. Unsupported measurements remain unavailable. The console shows fixed public source/activity links; no private content. This does not claim a site-wide field pass.
 
 GitHub source-authority checks explicitly select [github.com](https://cli.github.com/manual/gh_api), matching supported Git remotes rather than inherited enterprise-host settings. Reviewed 14 October 2026.
+
+## Separate app settings in Init
+
+Open [Init](https://composer.loftwah.com/init), choose Guestbook + Showcase and open **Settings for each app**. Enable a separate group, edit its title/introduction/theme/layout, or use that app's declared defaults. Uncheck it to inherit the shared values. The form renders the fields and constraints from the reviewed `composition.lock.json` manifests. A separate group contains every supported field; partial per-field inheritance is not supported in this version.
+
+Saved/exported specs are version 2 and include exact selected source commits and manifest digests. Version 1 drafts migrate with their existing shared values; a saved version 2 whose contracts differ is refused with a compatibility message and its saved file is preserved. Unknown settings and incomplete groups fail validation. The effective per-app configuration powers both the preview and the agent command.
+
+For a settings-only change to this already verified operator pair, use `node --env-file=.env scripts/compose.mjs --spec PATH --apply-settings` from clean pushed Composer main after the normal read-only doctor. Composer main must already be deployed. The command checks the actual pinned standalone/mounted source again before each owner API write, then confirms the exact configuration response. It leaves cards, source pins, release records and Worker deployments unchanged. It refuses preview/purchase/other-target/Hello intent and any card additions. Existing composition/card application remains the separate `--apply` path. This is not public provisioning.
+
+If a later app fails, completed settings remain for inspection. There is no automatic retry or rollback; the agent checks the live values before an explicit retry. Provider identity reads are snapshots, not an atomic guarantee against a simultaneous app deployment.
