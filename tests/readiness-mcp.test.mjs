@@ -76,3 +76,17 @@ test('actual client cancellation clears evidence and retains exclusivity until t
   const after=await client.callTool({name:'get_ready_inspect',arguments:{}});assert.equal(after.structuredContent.report,null);assert.equal(after.structuredContent.checking,false);
  }finally{release();await client.close();await server.close();}
 });
+
+test('optional domain MCP tool is host-scoped, read-only and separate from workspace readiness',async()=>{
+ let calls=0;const account='a'.repeat(32),domain='example.test';
+ assert.throws(()=>launchScope(['--workspace','/fictional','--domain',domain]));
+ const scope=launchScope(['--workspace','/fictional','--account',account,'--domain',domain]);
+ const domainReport={schema:'app-composer.domain-report',version:1,checkedAt:new Date().toISOString(),domain,zone:{state:'pending',issue:null},nameservers:{lookup:'answered',issue:null,assigned:['one.ns.cloudflare.com'],observed:['old.example.test']},dnssec:{state:'disabled',issue:null,expected:null,lookup:'answered',lookupIssue:null,published:[]}};
+ const server=createReadinessMcp(scope,{env:{CLOUDFLARE_API_TOKEN:'fictional-secret'},domainCheck:async(input,env)=>{calls++;assert.deepEqual(input,{account,domain});assert.equal(env.CLOUDFLARE_API_TOKEN,'fictional-secret');return domainReport;}}),client=await connect(server);
+ try{
+  const tools=(await client.listTools()).tools;assert.equal(tools.length,3);assert.equal(tools.find(t=>t.name==='get_ready_domain').annotations.readOnlyHint,true);
+  for(const args of [{domain:'another.test'},{account:'c'.repeat(32)},{operation:'edit-dns'}])assert.equal((await client.callTool({name:'get_ready_domain',arguments:args})).isError,true);assert.equal(calls,0);
+  const checked=await client.callTool({name:'get_ready_domain',arguments:{}});assert.equal(checked.structuredContent.report.domain,domain);assert.equal(checked.structuredContent.inspection.dnsReady,false);assert.equal(calls,1);assert.doesNotMatch(JSON.stringify(checked),/fictional-secret|aaaaaaaa/);
+  assert.equal((await client.callTool({name:'get_ready_inspect',arguments:{}})).structuredContent.report,null);
+ }finally{await client.close();await server.close();}
+});

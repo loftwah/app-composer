@@ -1,0 +1,31 @@
+---
+import {Globe, Copy, FileText, ChevronDown} from '@lucide/astro';
+---
+<details class="ready-domain" id="domain-check" data-domain-viewer>
+ <summary><Globe size={20} aria-hidden="true"/><span>Check a domain or nameserver change</span><ChevronDown class="domain-chevron" size={18} aria-hidden="true"/></summary>
+ <div class="domain-content">
+  <h2>Your address, explained.</h2><p>Your agent can check the exact domain in your Cloudflare account, compare assigned and observed nameservers, and inspect DNSSEC records. It changes nothing.</p>
+  <div class="actions"><button type="button" data-domain-copy disabled><Copy size={17} aria-hidden="true"/>Ask your agent to check</button><button type="button" class="secondary" data-domain-example disabled>Try a fictional example</button></div>
+  <textarea data-domain-request readonly hidden aria-label="Domain check request for manual copy"></textarea>
+  <label class="domain-file"><FileText size={18} aria-hidden="true"/>Open the domain report your agent returns<input type="file" accept="application/json,.json" data-domain-file disabled aria-describedby="domain-file-help"/></label>
+  <p class="small" id="domain-file-help">Read on this device; never uploaded or saved. Use the domain report, not a private workspace receipt.</p>
+  <p role="status" aria-live="polite" data-domain-message></p>
+  <div data-domain-result hidden>
+   <p class="domain-example-label" data-domain-example-label hidden>Fictional example. No account or domain was checked.</p>
+   <h3 data-domain-name></h3><p data-domain-summary class="domain-summary"></p><p data-domain-date class="small"></p>
+   <dl class="domain-facts"><div><dt>Cloudflare zone</dt><dd data-domain-zone></dd></div><div><dt>Nameservers</dt><dd data-domain-ns-state></dd></div><div><dt>Cloudflare DNSSEC</dt><dd data-domain-dnssec></dd></div></dl>
+   <div class="domain-nameservers"><section><h4>Assigned by Cloudflare</h4><ul data-domain-assigned></ul></section><section><h4>Observed by the resolver</h4><ul data-domain-observed></ul></section></div>
+   <div data-domain-next></div>
+   <details class="domain-ds"><summary>DNSSEC record details</summary><p class="small">A DS record connects your registrar’s security settings to your DNS provider. The agent must review migration order and get approval before changing it.</p><h4>Expected Cloudflare DS</h4><pre data-domain-expected></pre><h4>Observed DS records</h4><pre data-domain-published></pre></details>
+   <p class="small">A dated observation through Cloudflare’s public resolver. Cached answers do not prove worldwide propagation or the current registrar setting. This report grants no access; a working HTTPS app still needs its own deployment proof.</p>
+   <button type="button" class="secondary" data-domain-clear>Clear domain report</button>
+  </div>
+  <noscript><p>Ask your agent to use the <a href="/docs#domain-diagnosis">read-only domain diagnosis</a>. Viewing a report here needs JavaScript.</p></noscript>
+  <p class="small"><a href="/docs#domain-diagnosis">Library, CLI and MCP instructions</a> · <a href="/ready/guide#nameserver-help">Nameserver help</a></p>
+ </div>
+</details>
+<style>
+ .ready-domain{border-block:1px solid var(--color-border);margin:40px 0;padding:20px 0;scroll-margin-top:24px}.ready-domain>summary{display:flex;align-items:center;gap:12px;cursor:pointer;font-weight:600;min-height:44px}.ready-domain>summary .domain-chevron{margin-left:auto;flex-shrink:0}.ready-domain[open]>summary .domain-chevron{transform:rotate(180deg)}.domain-content{max-width:900px;padding:24px 0 12px}.domain-content h2{font-size:2rem}.domain-content h3{overflow-wrap:anywhere;margin:28px 0 8px;font-size:1.8rem}.domain-content h4{font-size:1rem;margin:0 0 10px;font-weight:600}.domain-summary{font-weight:600;margin:0}.domain-file{max-width:600px;font-weight:500;margin-top:28px}.domain-file>svg{display:inline;vertical-align:middle;margin-right:6px}.domain-facts{display:flex;gap:24px 64px;flex-wrap:wrap;margin:24px 0;padding:20px 0;border-block:1px solid var(--color-border)}.domain-facts dt{font-size:13px;color:var(--color-muted)}.domain-facts dd{margin:4px 0 0;font-weight:500}.domain-nameservers{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin:28px 0}.domain-nameservers ul{padding-left:20px;margin:0}.domain-nameservers :global(li){overflow-wrap:anywhere;font-size:15px}.domain-ds{padding:20px 0;border-block:1px solid var(--color-border);margin:28px 0}.domain-ds summary{cursor:pointer;min-height:44px}.domain-ds pre{font-size:13px;margin:8px 0 24px;max-height:none}.domain-example-label{padding:12px 0;border-block:1px solid var(--color-border);font-weight:600}.domain-content :global([data-domain-next] h4){margin:24px 0 12px}.domain-content :global([data-domain-next] li){margin-bottom:14px;max-width:74ch}.domain-content :global([data-domain-next] a){display:inline-block;margin-top:4px;font-size:14px}.domain-content input{max-width:100%}.domain-content .actions{gap:12px;flex-wrap:wrap}.domain-content .actions button{font-size:14px}.domain-content [data-domain-request]{min-height:240px}
+ @media(max-width:600px){.domain-content h2{font-size:1.7rem}.domain-nameservers{grid-template-columns:1fr;gap:24px}.domain-facts{gap:18px 32px}.domain-content .actions{display:grid;grid-template-columns:1fr}.domain-content .actions button{width:100%}}
+</style>
+<script src="../lib/ready-domain-client.ts"></script>

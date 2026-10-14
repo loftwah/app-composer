@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import ReadyHandoff from '../components/ReadyHandoff.astro';
 import ReadyProgress from '../components/ReadyProgress.astro';
+import ReadyDomain from '../components/ReadyDomain.astro';
 import ReadyPreferences from '../components/ReadyPreferences.astro';
 import { ArrowRight, BookOpen, Bot, GitBranch, Cloud, Globe, ShieldCheck } from '@lucide/astro';
 const stages=[{icon:Bot,title:'Agent & tools',detail:'A working folder and the tools to build.'},{icon:GitBranch,title:'Your GitHub source',detail:'A private starter you own and can update.'},{icon:Cloud,title:'Your Cloudflare account',detail:'The intended account and deployment access.'},{icon:Globe,title:'A live HTTPS app',detail:'The exact source, deployed and verified.'}];
@@ -17,6 +18,7 @@ const stages=[{icon:Bot,title:'Agent & tools',detail:'A working folder and the t
   </div>
   <aside class="ready-evidence"><ReadyProgress/><div class="owner-boundary"><ShieldCheck size={20} aria-hidden="true"/><p>No account connection happens on this website. Credentials stay with your authorised agent and provider. Your report is read on this device.</p></div></aside>
  </div>
+ <ReadyDomain/>
  <section class="readiness-outcome"><div><h2>Keep what you build.</h2><p>Your first app is a small, configurable Hello page with its own source. Keep it, change the greeting or use the verified environment for something bigger.</p><div class="actions"><a class="button secondary" href="https://ready.loftwah.com">Open the launch reference <ArrowRight size={18} aria-hidden="true"/></a><a href="/apps">Explore the building blocks</a></div><p class="small">The launch reference belongs to this operator. Opening it does not verify your environment.</p></div><ol class="readiness-map" aria-label="What your agent verifies">{stages.map(({icon:Icon,title,detail})=><li><Icon size={22} aria-hidden="true"/><div><strong>{title}</strong><p>{detail}</p></div></li>)}</ol></section>
  <noscript><p>Saved address choices, progress reports and copied handoffs require JavaScript. You can still read the request, use the guide and explore all public apps.</p></noscript>
 </Base>
