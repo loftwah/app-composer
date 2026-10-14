@@ -17,7 +17,7 @@ The first pair mounts through declared, separately pinned integrated Worker serv
 
 ## Follow along
 
-The [interactive tutorial](https://composer.loftwah.com/learn) follows setup, a changed Hello app, composition, content forms and ownership. Its optional device-local observations record learning, separately from Get Ready verification. Vendor/account details stay in the maintained setup guide; the tutorial reuses existing handoffs, reports and Init.
+The [interactive tutorial](https://composer.loftwah.com/learn) follows setup, a changed Hello app, composition, content forms and ownership. Each stage explains its benefits, useful situations and trade-offs; direct builds and standalone mini-apps remain valid alternatives to composition. Project instructions/skills and proportionate backup/recovery advice are inline. Its optional device-local observations record learning, separately from Get Ready verification. Vendor/account details stay in the maintained setup guide; the tutorial reuses existing handoffs, reports and Init.
 
 ## Local operation
 
