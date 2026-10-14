@@ -1,11 +1,11 @@
 {
-  "id": "34a9541b9e446655259f50b72fd9f34e98136940c6619974261e7b99bfe955c1",
+  "id": "16e287e97dee17795a4bc0018ad479f7613405f1f6df529a4bee1d0bc5756219",
   "reviewed": "2026-10-14",
   "apps": [
     {
       "id": "guestbook",
       "repository": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "de4aef4e61934a581b9de075ac40be01719c43c8",
+      "commit": "33244a8789b656786e861dce7ae09cf320db546c",
       "url": "https://guestbook.loftwah.com",
       "manifest": {
         "contract": 1,
@@ -58,13 +58,13 @@
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "6a1f655deb4ac337bafabb75a0a67864523f237b",
+      "commit": "1afcac6fc391b9a5bf3d9d8fce7f7c872fbcfe92",
       "url": "https://showcase.loftwah.com",
       "manifest": {
         "contract": 1,
         "id": "showcase",
-        "name": "Good company",
-        "version": "1.0.0",
+        "name": "Top shelf",
+        "version": "1.0.1",
         "repository": "https://github.com/loftwah/app-composer-showcase",
         "runtime": "cloudflare-worker",
         "entry": "src/worker.ts",
@@ -79,7 +79,7 @@
         "configuration": {
           "title": {
             "type": "string",
-            "default": "Good company",
+            "default": "Top shelf",
             "maxLength": 80
           },
           "intro": {
@@ -105,7 +105,7 @@
           }
         }
       },
-      "manifestDigest": "sha256:d589e8bdc3e407e28c29f621a82662a0976c1d4547db4f164485e5a374af3512"
+      "manifestDigest": "sha256:7267e18c0a27c74ed4d5b42186902a4dea51c43d292daa9ce7fc81b5c63e262e"
     }
   ]
 }
