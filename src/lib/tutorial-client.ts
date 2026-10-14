@@ -130,6 +130,7 @@ root.querySelector('[data-confirm-clear]')!.addEventListener('click', () => {
 let historyHash: string | null = null;
 window.addEventListener('popstate',()=>{historyHash=location.hash;current=lessonIds.includes(location.hash.slice(1))?location.hash.slice(1):initialLesson;showLesson();save(false);});
 window.addEventListener('hashchange',event=>{const restored=historyHash===new URL(event.newURL).hash;historyHash=null;if(restored)return;showLesson();if(lessonIds.includes(location.hash.slice(1)))positionLesson(true);});
-window.addEventListener('pageshow',()=>{updateObservations();showLesson();});
-updateObservations(); showLesson();
-if(lessonIds.includes(location.hash.slice(1))) requestAnimationFrame(()=>positionLesson());
+function positionDirectLink(){if(lessonIds.includes(location.hash.slice(1)))requestAnimationFrame(()=>positionLesson());}
+window.addEventListener('pageshow',event=>{updateObservations();showLesson();if(!event.persisted)positionDirectLink();});
+updateObservations();showLesson();
+if(document.readyState==='complete')positionDirectLink();
