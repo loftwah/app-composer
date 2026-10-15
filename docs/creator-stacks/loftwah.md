@@ -25,7 +25,7 @@ MP clarified that the shared guest puzzle code and owner login must be separate.
 
 The requested `hunter2` guest experience is submission-only: create a new pending contribution, never publish, moderate, edit/delete existing entries, read unpublished records/media, export owner data or change settings. The code is a playful shared affordance, not the security boundary. Server-enforced capabilities, consent, byte/text/queue/daily limits, sanitisation, rate limits and moderation must carry the boundary. Keep the generic feature default-off and make owner activation explicit. Guest text-first participation is the preferred product direction; invited photos retain their current protections until their separate guest path qualifies. No guest route may authenticate as the owner.
 
-This guest capability is requested, not live or verified by the brief. Public opening requires negative API tests, owner/guest journeys, direct and composed visibility checks, exact source pins, preserved owner records and guarded release evidence.
+Guest postcards are implemented as an optional, default-closed capability. The public puzzle creates new pending items only; it never creates an owner session. Opening a deployment requires negative API tests, owner/guest journeys, direct and composed visibility checks, exact source pins, preserved owner records and guarded release evidence. Actual activation and source/version evidence belong in #11; this brief alone never proves a deployment is open.
 
 ## Console and CLI personality
 

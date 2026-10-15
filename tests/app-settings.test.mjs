@@ -5,7 +5,7 @@ import {configurationPlan,applyConfiguration,verifyConfigurationTarget} from '..
 import lock from '../composition.lock.json' with {type:'json'};
 import {mkdtempSync,writeFileSync,readFileSync,existsSync,rmSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {spawnSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
 const old=()=>({version:1,preset:'composition',config:{title:'Fictional shared title',intro:'Fictional shared introduction',theme:'daylight',layout:'grid'},privacy:'review-first',cards:[],deployment:{mode:'existing-domain',hostname:'composer.loftwah.com'}});
-const spec=()=>({...validateSpec(old()),appSettings:{guestbook:{...old().config,title:'Fictional submissions',theme:'midnight'},showcase:{...Object.fromEntries(appSettings.showcase.fields.map(field=>[field.key,field.default])),...old().config,title:'Fictional favourites',layout:'editorial'}}});
+const spec=()=>({...validateSpec(old()),appSettings:{guestbook:{...Object.fromEntries(appSettings.guestbook.fields.map(field=>[field.key,field.default])),...old().config,title:'Fictional submissions',theme:'midnight'},showcase:{...Object.fromEntries(appSettings.showcase.fields.map(field=>[field.key,field.default])),...old().config,title:'Fictional favourites',layout:'editorial'}}});
 
 test('legacy drafts migrate without changing effective settings and v2 pins survive deterministic reopen',()=>{
  const migrated=validateSpec(old());assert.equal(migrated.version,2);assert.deepEqual(migrated.appSettings,{});assert.deepEqual(migrated.sources,selectedSources(migrated.apps));
@@ -69,4 +69,12 @@ test('shared-only and legacy settings omit profile clears while explicit profile
   const sent=[];await applyConfiguration(plan,{credential:()=> 'fictional-token',beforeWrite:()=>{},request:async(_url,options)=>{const patch=JSON.parse(options.body);sent.push(patch);return Response.json({ok:true,config:patch});}});assert.equal(Object.hasOwn(sent[1],'handle'),false);assert.equal(Object.hasOwn(sent[1],'github'),false);
  }
  const explicit=spec();explicit.appSettings.showcase.handle='';explicit.appSettings.showcase.github='';const full=configurationPlan(explicit,lock.apps).find(app=>app.id==='showcase').configuration;assert.equal(Object.hasOwn(full,'handle'),true);assert.equal(full.github,'');
+});
+
+test('new guest mode stays closed in previews and old shared specs never change live guest access',()=>{
+ const migrated=validateSpec(old());assert.equal(appConfiguration(migrated,'guestbook').guestAccess,'closed');
+ const legacyPatch=configurationPlan(old(),lock.apps).find(app=>app.id==='guestbook').configuration;assert.equal(Object.hasOwn(legacyPatch,'guestAccess'),false);
+ const explicit=spec();explicit.appSettings.guestbook.guestAccess='postcards';assert.equal(configurationPlan(explicit,lock.apps).find(app=>app.id==='guestbook').configuration.guestAccess,'postcards');
+ assert.throws(()=>validateSpec({...explicit,appSettings:{...explicit.appSettings,guestbook:{...explicit.appSettings.guestbook,guestAccess:'public'}}}),/Choose a supported/);
+ const incomplete=structuredClone(explicit);delete incomplete.appSettings.guestbook.guestAccess;assert.throws(()=>validateSpec(incomplete),/complete field group/);
 });
