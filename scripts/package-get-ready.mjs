@@ -41,7 +41,7 @@ export function writePackageArtifact(path,bytes,{boundary=repository}={}){
 export function captureGetReady({directory=join(repository,'lib/get-ready'),sourceBoundary=repository}={}){
  const files={};for(const name of inputs)files[name]=readPackageInput(join(directory,name),sourceBoundary);
  const manifest=JSON.parse(files['package.json']),expected=[...runtime,'README.md','LICENSE','SOURCE.json'].sort();
- if(manifest.name!=='@loftwah/get-ready'||manifest.version!=='0.6.0'||manifest.private!==true||JSON.stringify([...manifest.files].sort())!==JSON.stringify(expected)||manifest.scripts||manifest.dependencies||manifest.optionalDependencies||manifest.devDependencies)throw Error('Review package identity, file allowlist and dependency/lifecycle policy before changing them.');
+ if(manifest.name!=='@loftwah/get-ready'||manifest.version!=='0.7.0'||manifest.private!==true||JSON.stringify([...manifest.files].sort())!==JSON.stringify(expected)||manifest.scripts||manifest.dependencies||manifest.optionalDependencies||manifest.devDependencies)throw Error('Review package identity, file allowlist and dependency/lifecycle policy before changing them.');
  files.LICENSE=readPackageInput(join(repository,'LICENSE'));
  const hashes=Object.fromEntries(Object.entries(files).map(([name,bytes])=>[name,hash(bytes)]));
  const git=(args,encoding='utf8')=>execFileSync('git',args,{cwd:repository,encoding,stdio:['ignore','pipe','pipe']});
@@ -60,7 +60,7 @@ export function packageGetReady({directory=join(repository,'lib/get-ready'),dest
   writeFileSync(join(root,'user.npmrc'),'');writeFileSync(join(root,'global.npmrc'),'');
   const env={PATH:process.env.PATH,HOME:root,TMPDIR:root,NPM_CONFIG_USERCONFIG:join(root,'user.npmrc'),NPM_CONFIG_GLOBALCONFIG:join(root,'global.npmrc'),NPM_CONFIG_CACHE:join(root,'cache'),NPM_CONFIG_UPDATE_NOTIFIER:'false'};
   const result=JSON.parse(execFileSync('npm',['pack','--offline','--ignore-scripts','--json','--pack-destination',packed],{cwd:stage,env,encoding:'utf8',timeout:20000,maxBuffer:2*1024*1024}));
-  const item=result[0];if(result.length!==1||item.filename!=='loftwah-get-ready-0.6.0.tgz'||JSON.stringify(item.files.map(file=>file.path).sort())!==JSON.stringify([...inputs,'LICENSE','SOURCE.json'].sort()))throw Error('Archive contents differ from reviewed source inputs.');
+  const item=result[0];if(result.length!==1||item.filename!=='loftwah-get-ready-0.7.0.tgz'||JSON.stringify(item.files.map(file=>file.path).sort())!==JSON.stringify([...inputs,'LICENSE','SOURCE.json'].sort()))throw Error('Archive contents differ from reviewed source inputs.');
   const bytes=readFileSync(join(packed,item.filename)),metadata={name:manifest.name,version:manifest.version,source:source.commit,developmentSnapshot:source.developmentSnapshot,sha256:hash(bytes),bytes:bytes.length,url:'/downloads/get-ready-core.tgz',licence:'MIT',runtimeDependencies:0};
   writePackageArtifact(join(destination,'get-ready-core.tgz'),bytes,{boundary:destinationBoundary});writePackageArtifact(join(destination,'get-ready-core.json'),JSON.stringify(metadata,null,2)+'\n',{boundary:destinationBoundary});return metadata;
  }finally{rmSync(root,{recursive:true});}

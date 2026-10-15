@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,existsSync} from 'node:fs';
+import fs from 'node:fs';
+import {syncBuiltinESMExports} from 'node:module';
+import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,existsSync,symlinkSync,linkSync,lstatSync,renameSync,readdirSync,realpathSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -59,7 +61,7 @@ test('owned source creates a private personal repository, pushes only reviewed m
   assert.equal((await f.adapter().ownReference('fixture/my-hello')).changed,false);
   const after=readFileSync(f.calls,'utf8').slice(before.length);
   assert.ok(!after.includes('user/repos'));assert.ok(!after.includes('"push"'));assert.ok(!after.includes('"set-url"'));
-  const receipt=JSON.parse(readFileSync(join(f.workspace,'.private/ownership.json'),'utf8'));assert.equal(receipt.id,123);
+  const receipt=JSON.parse(readFileSync(join(f.workspace,'.private/ownership.json'),'utf8'));assert.equal(receipt.id,123);assert.equal(lstatSync(join(f.workspace,'.private/ownership.json')).mode&0o777,0o600);assert.deepEqual(readdirSync(join(f.workspace,'.private')),['ownership.json']);
   assert.ok(!JSON.stringify(receipt).includes('fictional-not-for-git'));
  }finally{f.cleanup();}
 });
@@ -140,4 +142,88 @@ test('CLI rejects ambiguous ownership intent before writes; independent consumer
   try{execFileSync(process.execPath,[example,root],{cwd:root,env:{PATH:''},encoding:'utf8',stdio:['ignore','pipe','pipe']});assert.fail('An empty environment cannot pass readiness');}catch(error){output=JSON.parse(String(error.stdout));}
   assert.equal(output.ready,false);assert.equal(output.capabilities.github,false);assert.ok(existsSync(join(root,'.private/readiness.json')));
  }finally{rmSync(root,{recursive:true});}
+});
+
+test('ownership preserves a legacy temporary symlink or hardlink instead of overwriting owner files',async()=>{
+ for(const kind of ['symlink','hardlink']){const f=fixture();try{
+  const outside=join(f.root,'owner-work.txt'),legacy=join(f.workspace,'.private/ownership.json.tmp');writeFileSync(outside,'Owner work must survive.');
+  if(kind==='symlink')symlinkSync(outside,legacy);else linkSync(outside,legacy);
+  const identity=lstatSync(legacy);assert.equal((await f.adapter().ownReference('fixture/my-hello')).changed,true);
+  assert.equal(readFileSync(outside,'utf8'),'Owner work must survive.');assert.equal(lstatSync(legacy).ino,identity.ino);assert.equal(lstatSync(legacy).isSymbolicLink(),kind==='symlink');
+ }finally{f.cleanup();}}
+});
+
+
+test('unsafe receipt storage is preserved and refused before any provider command',async()=>{
+ for(const kind of ['malformed','unknown','oversize','directory','symlink','hardlink','missing-storage','linked-storage']){
+  const f=fixture();try{
+   const storage=join(f.workspace,'.private'),path=join(storage,'ownership.json'),outside=join(f.root,'owner-work.txt');writeFileSync(outside,'Owner work must survive.');
+   if(kind==='malformed')writeFileSync(path,'{owner work');
+   if(kind==='unknown')writeFileSync(path,JSON.stringify({id:123,repository:'fixture/my-hello',source:f.source,ownerNote:'preserve'}));
+   if(kind==='oversize')writeFileSync(path,'x'.repeat(16385));
+   if(kind==='directory')mkdirSync(path);
+   if(kind==='symlink')symlinkSync(outside,path);
+   if(kind==='hardlink')linkSync(outside,path);
+   if(kind==='missing-storage')rmSync(storage,{recursive:true});
+   if(kind==='linked-storage'){renameSync(storage,join(f.root,'retained-private'));symlinkSync(join(f.root,'retained-private'),storage);}
+   const prior=existsSync(path)&&!lstatSync(path).isDirectory()?readFileSync(path):null;
+   await assert.rejects(f.adapter().ownReference('fixture/my-hello'),error=>error instanceof ReadinessFailure);
+   assert.equal(existsSync(f.calls),false,kind+' must stop before gh');assert.equal(existsSync(f.state),false);
+   if(prior)assert.deepEqual(readFileSync(path),prior);
+   assert.equal(readFileSync(outside,'utf8'),'Owner work must survive.');
+   assert.equal(f.git(['remote','get-url','origin']),'https://github.com/loftwah/app-composer-hello.git');
+  }finally{f.cleanup();}
+ }
+});
+
+test('a valid receipt for another selection is preserved without creating or pushing',async()=>{
+ const f=fixture();try{
+  const path=join(f.workspace,'.private/ownership.json'),bytes=JSON.stringify({id:987,repository:'fixture/another',source:f.source});writeFileSync(path,bytes);
+  await assert.rejects(f.adapter().ownReference('fixture/my-hello'),error=>error instanceof ReadinessFailure&&error.code==='configuration');
+  assert.equal(readFileSync(path,'utf8'),bytes);assert.equal(existsSync(f.state),false);assert.ok(!readFileSync(f.calls,'utf8').includes('"push"'));
+ }finally{f.cleanup();}
+});
+
+function recovery(storage){
+ const names=readdirSync(storage).filter(name=>name.startsWith('.ownership-'));assert.equal(names.length,1);
+ const path=join(storage,names[0],'receipt.json');assert.equal(lstatSync(path).mode&0o777,0o600);return {path,bytes:readFileSync(path,'utf8')};
+}
+
+test('provider-wait receipt creation preserves the owner destination and retains the new repository recovery copy',async()=>{
+ const f=fixture();try{
+  const path=join(f.workspace,'.private/ownership.json');f.gh({afterCreate:`fs.writeFileSync(${JSON.stringify(path)},'Owner receipt appeared.');`});
+  await assert.rejects(f.adapter().ownReference('fixture/my-hello'),error=>error instanceof ReadinessFailure&&error.code==='source');
+  assert.equal(readFileSync(path,'utf8'),'Owner receipt appeared.');assert.equal(JSON.parse(recovery(join(f.workspace,'.private')).bytes).id,123);
+  const before=readFileSync(f.calls,'utf8');assert.ok(!before.includes('"push"'));
+  await assert.rejects(f.adapter().ownReference('fixture/my-hello'),error=>error instanceof ReadinessFailure);
+  assert.equal(readFileSync(f.calls,'utf8'),before);assert.equal(f.git(['remote','get-url','origin']),'https://github.com/loftwah/app-composer-hello.git');
+ }finally{f.cleanup();}
+});
+
+test('provider-wait storage replacement retains the original private recovery descriptor without redirecting writes',async()=>{
+ for(const kind of ['directory','symlink']){const f=fixture();try{
+  const storage=join(f.workspace,'.private'),retained=join(f.root,'retained-private'),replacement=join(f.root,'replacement');mkdirSync(replacement);writeFileSync(join(replacement,'owner.txt'),'Replacement owner work.');
+  f.gh({afterCreate:`fs.renameSync(${JSON.stringify(storage)},${JSON.stringify(retained)});${kind==='directory'?`fs.mkdirSync(${JSON.stringify(storage)});`:`fs.symlinkSync(${JSON.stringify(replacement)},${JSON.stringify(storage)});`}`});
+  await assert.rejects(f.adapter().ownReference('fixture/my-hello'),error=>error instanceof ReadinessFailure&&error.code==='source');
+  assert.equal(JSON.parse(recovery(retained).bytes).id,123);assert.equal(existsSync(join(storage,'ownership.json')),false);
+  assert.deepEqual(readdirSync(storage),kind==='directory'?[]:['owner.txt']);assert.equal(readFileSync(join(replacement,'owner.txt'),'utf8'),'Replacement owner work.');
+  assert.ok(!readFileSync(f.calls,'utf8').includes('"push"'));assert.equal(f.git(['remote','get-url','origin']),'https://github.com/loftwah/app-composer-hello.git');
+ }finally{f.cleanup();}}
+});
+
+test('owner edits to the reserved recovery file during provider wait are never overwritten or published',async()=>{
+ const f=fixture();try{
+  const storage=join(f.workspace,'.private');f.gh({afterCreate:`const dir=fs.readdirSync(${JSON.stringify(storage)}).find(n=>n.startsWith('.ownership-'));fs.writeFileSync(${JSON.stringify(storage)}+'/'+dir+'/receipt.json','Owner recovery edits.');`});
+  await assert.rejects(f.adapter().ownReference('fixture/my-hello'),error=>error instanceof ReadinessFailure&&error.code==='source');
+  assert.equal(recovery(storage).bytes,'Owner recovery edits.');assert.equal(existsSync(join(storage,'ownership.json')),false);assert.ok(!readFileSync(f.calls,'utf8').includes('"push"'));
+ }finally{f.cleanup();}
+});
+
+test('exclusive receipt publication preserves an owner file appearing after its final absence check',async()=>{
+ const f=fixture(),original=fs.linkSync;let intercepted=false;try{
+  const path=join(realpathSync(f.workspace),'.private/ownership.json');
+  fs.linkSync=(source,destination)=>{if(destination===path){intercepted=true;writeFileSync(path,'Owner file wins the race.');}return original(source,destination);};syncBuiltinESMExports();
+  await assert.rejects(f.adapter().ownReference('fixture/my-hello'),error=>error instanceof ReadinessFailure&&error.code==='source');
+  assert.equal(intercepted,true);assert.equal(readFileSync(path,'utf8'),'Owner file wins the race.');assert.equal(JSON.parse(recovery(join(f.workspace,'.private')).bytes).id,123);assert.ok(!readFileSync(f.calls,'utf8').includes('"push"'));
+ }finally{fs.linkSync=original;syncBuiltinESMExports();f.cleanup();}
 });
