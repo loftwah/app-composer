@@ -13,3 +13,16 @@ test('a transaction failure after the counter swap rolls back schema and all old
  const db=new DatabaseSync(':memory:');try{db.exec(readFileSync(new URL('../migrations/0002_usage.sql',import.meta.url),'utf8'));db.prepare('INSERT INTO composer_usage VALUES(?,?,?,?,?)').run('2026-10-15','hello','app_open','standalone',7);const old=db.prepare("SELECT sql FROM sqlite_schema WHERE name='composer_usage'").get().sql;db.exec('BEGIN');assert.throws(()=>db.exec(readFileSync(new URL('../migrations/0003_postcard_receipts.sql',import.meta.url),'utf8')+'SELECT * FROM deliberately_missing_fixture_table;'));db.exec('ROLLBACK');assert.equal(db.prepare("SELECT sql FROM sqlite_schema WHERE name='composer_usage'").get().sql,old);assert.equal(db.prepare('SELECT n FROM composer_usage').get().n,7);
  }finally{db.close();}
 });
+
+test('transaction-local transfer assertion rejects altered copied values before dropping old data',()=>{
+ const db=new DatabaseSync(':memory:');try{
+  db.exec(readFileSync(new URL('../migrations/0002_usage.sql',import.meta.url),'utf8'));
+  db.prepare('INSERT INTO composer_usage VALUES(?,?,?,?,?)').run('2026-10-15','guestbook','item_open','composed',7);
+  const before=db.prepare('SELECT * FROM composer_usage').all();
+  const source=readFileSync(new URL('../migrations/0003_postcard_receipts.sql',import.meta.url),'utf8');
+  const broken=source.replace('SELECT day,app,event,surface,n FROM composer_usage;', 'SELECT day,app,event,surface,n+1 FROM composer_usage;');assert.notEqual(broken,source);
+  db.exec('BEGIN');assert.throws(()=>db.exec(broken),/CHECK constraint failed/);db.exec('ROLLBACK');
+  assert.deepEqual(db.prepare('SELECT * FROM composer_usage').all(),before);
+  assert.deepEqual(db.prepare("SELECT name FROM sqlite_schema WHERE name LIKE 'composer_usage%' ORDER BY name").all().map(x=>x.name),['composer_usage']);
+ }finally{db.close();}
+});
