@@ -74,11 +74,11 @@
         "slug": "showcase",
         "status": "published",
         "data": {
-          "title": "Good company",
-          "description": "A configurable Curated Showcase. Publish your own links or feature an eligible source contribution; current source privacy is checked on each request.",
+          "title": "Linkarooie",
+          "description": "A configurable profile and link collection. Publish your own links or feature an eligible source contribution; current source privacy is checked on each request.",
           "href": "https://showcase.loftwah.com",
           "source": "https://github.com/loftwah/app-composer-showcase",
-          "reviewed": "2026-10-13"
+          "reviewed": "2026-10-15"
         }
       }
     ]

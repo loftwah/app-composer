@@ -2,7 +2,7 @@ import composition from '../../composition.lock.json' with {type:'json'};
 
 const labels={title:'Title',intro:'Introduction',theme:'Theme',layout:'Layout',handle:'Handle',website:'Website',github:'GitHub',bluesky:'Bluesky',linkedin:'LinkedIn'};
 const options={daylight:'Daylight',midnight:'Midnight',grid:'Gallery grid',editorial:'Larger editorial images',compact:'Compact links'};
-const names={guestbook:'Photo Guestbook',showcase:'Curated Showcase'};
+const names={guestbook:'Photo Guestbook',showcase:'Linkarooie'};
 // Only the reviewed composition's data contracts reach the form; no remote code runs.
 export const appSettings=Object.freeze(Object.fromEntries(composition.apps.map(app=>[app.id,{
  id:app.id,name:names[app.id]??app.manifest.name,cardPresentation:app.manifest.cardPresentation??null,
