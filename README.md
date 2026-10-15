@@ -1,5 +1,11 @@
 # App Composer
 
+## Browser policy and Cloudflare detections
+
+Reviewed 15 October 2026 against Astro 7.3.5 and the [official Cloudflare JavaScript Detections guidance](https://developers.cloudflare.com/cloudflare-challenges/challenge-types/javascript-detections/). The shared public layout adds a fresh cryptographic 128-bit script nonce through Astro's [CSP runtime API](https://docs.astro.build/en/reference/api-reference/#csp). Astro retains its generated script/style hashes and other directives in the SSR response header; Cloudflare reads that header and nonces its own edge injection. Public HTML remains `no-store`. No arbitrary page content receives nonce attributes. Mounted apps and native admin retain their own policies.
+
+Use the rendered layout API: the installed runtime ignores additions made in middleware before its render result exists. Built isolated-preview browser checks confirm one fresh nonce per response, preserved hashes, working Init/theme/launcher scripts and rejection of both nonce-free and prior-response-nonce inline scripts. Live edge verification is required separately; successful execution is not a bot-score or human-verification claim.
+
 App Composer is an agent-operated application studio built around EmDash and Cloudflare. Get Ready prepares the supported environment before an idea; Init turns content, fields and app choices into a portable specification; composition connects independently maintained mini-apps. The product carries forward WordPress’s useful content/form/white-label lessons while agents handle implementation and operations. See the [CMS, cloud and business-service guide](https://composer.loftwah.com/guide), [whole platform](https://composer.loftwah.com/architecture) and [product definition](PRODUCT.md) for current capability and remaining work.
 
 An agent-operated platform for a verified development environment and genuinely composed independent applications. Target: https://composer.loftwah.com. MP directs; agents implement, verify and recover. Reviewed 13 October 2026. MIT.
