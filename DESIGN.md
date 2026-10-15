@@ -1,3 +1,15 @@
+---
+name: App Composer
+description: Existing transit identity and native administration extension
+colors:
+  native-focus: "#e77743"
+  native-control-border: "color-mix(in srgb,currentColor 30%,transparent)"
+  native-rule: "color-mix(in srgb,currentColor 18%,transparent)"
+typography:
+  native-field: {fontSize: "16px"}
+rounded: {native-field: "6px", native-button: "8px"}
+---
+
 # Design
 Reviewed 13 October 2026. Ordinary creative direction delegated by MP.
 
@@ -42,3 +54,11 @@ Profile configuration, reviewed 15 October 2026: Init extends its existing separ
 Native link editing extends each authored card's existing row with a disclosure, four labelled controls and a text-only local preview. Saving the selected visibility is explicit. Drafts stay in page state across app switches and failed snapshot reloads; removed records retain copyable unsaved text and discard controls. Stale saves expose the current saved fields alongside Use saved link and Keep my edits. Native form controls use readable 16px text, wrapping destinations and theme-inherited rules; no new visual world or remote preview is introduced. Browser reload protection applies while edits differ from their baseline; no persistent private draft storage is added.
 
 Coordinated identity, prepared 15 October 2026: Linkarooie replaces Top shelf as the app label across current library/launcher, Init, administration, composition navigation and diagrams. The profile remains on the existing `showcase` IDs/routes/repository; authored titles are configuration, not labels to overwrite. Native CMS publication and exact-source activation are separate release gates, recorded in STATUS and #11.
+
+Milestones & credits, reviewed 16 October 2026: native Linkarooie administration extends the existing Operate surface with an open ruled saved list and one inline editor. Keep host foreground/background colours, native readable fields, wrapping actions, a text-only local preview and inherited focus treatment. This does not replace the transit seed or make public Showcase typography the native admin's font system. Shared product authority remains this checkout's PRODUCT.md; no separate Showcase product world is introduced.
+
+New achievements save as private drafts, with explicit Publish/Hide and immediate-publication wording when a published item is edited. Dates are optional year, month or real calendar day; never invent missing precision. Title, optional description/destination, fixed icon and visibility use the existing labelled controls. Field-adjacent validation retains authored text, names the valid calendar/HTTPS recovery, and associates invalid fields through aria-invalid/aria-describedby. Invalid values disable Save and Preview until corrected; corrected values restore those actions. The date and URL help stays visible beside its field, rather than leaving a disabled action unexplained.
+
+Save/discard guards item switching. Saved-versus-edited comparison offers Use saved version and Keep my edits; ambiguous creates and removed records retain copyable text without automatic resubmission. Remove retains native confirmation. The related public Showcase surface is a ruled milestone list with Space (22px) titles, title-anchored fixed SVG symbols, optional written dates and omission of absent content; native administration continues to inherit host colours and controls.
+
+Local finish boundary: the preserved Showcase original FIX and separate SHIP verdict score only the two material fixes. The retained private confirmation manifest records Showcase `119732524f2027a3606cd7c5cb4d6bca7ec77aed`, this native source `623e7e4e310fcaca1521e542298f6321371a5e3e`, and 16 confirmation frames at (390px)/(1440px) in both themes. Title association and visible invalid-date/credential-bearing-URL recovery are resolved; the manifest separately records Remove cancel/accept stages. Original 25-stage local qualification remains in Showcase `.private/achievement-local-qualification.json`. Evidence uses fictional data and the actual native component/bridge with simulated role 50; production, source-pin activation, human authentication and the complete homepage/artwork remain outside this finish result.
