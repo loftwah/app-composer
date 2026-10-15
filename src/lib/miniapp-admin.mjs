@@ -4,6 +4,10 @@ const ids = new Set(['guestbook', 'showcase']);
 const identifier = value => typeof value === 'string' && /^[a-zA-Z0-9-]{1,64}$/.test(value);
 const text = (value, max) => typeof value === 'string' && value.trim().length > 0 && value.length <= max;
 const fail = (code, message) => ({ok:false, code, message});
+const linkFields = (value,maxURL=2048) => {
+ if(!value||typeof value!=='object'||Array.isArray(value)||!text(value.title,100)||typeof value.description!=='string'||value.description.length>240||typeof value.url!=='string'||value.url.length>maxURL||!['draft','published','hidden'].includes(value.status))return false;
+ try{const url=new URL(value.url);return url.protocol==='https:'&&!url.username&&!url.password&&url.href.length<=maxURL;}catch{return false;}
+};
 
 // The host authenticates first. This second boundary refuses machine tokens,
 // non-admin users, preview, arbitrary targets and imported execution instructions.
@@ -31,10 +35,12 @@ export async function manageMiniapps(ctx, runtime, pins) {
   path='/api/upload'; body={caption:command.caption,author:command.author,consent:true,png:command.png};
  } else if (action === 'card' && app === 'showcase' && identifier(command.id) && ['draft','published','hidden'].includes(command.status)) {
   path='/api/cards'; body={id:command.id,status:command.status};
+ } else if(action==='edit-link'&&app==='showcase'&&identifier(command.id)&&linkFields(command)&&linkFields(command.expected,24576)&&Object.keys(command.expected).length===4){
+  path='/api/cards';body={id:command.id,title:command.title,description:command.description,url:command.url,status:command.status,expected:{title:command.expected.title,description:command.expected.description,url:command.expected.url,status:command.expected.status}};
  } else if (action === 'feature' && app === 'showcase' && identifier(command.item)) {
   path='/api/cards'; body={item:command.item,status:'published'};
  } else if (action === 'link' && app === 'showcase' && text(command.title,100) && typeof command.description === 'string' && command.description.length <= 240 && typeof command.url === 'string' && command.url.length <= 2048) {
-  try {const url=new URL(command.url); if(url.protocol!=='https:' || url.username || url.password) throw Error();} catch {return fail('INVALID','Choose an HTTPS link without embedded credentials.');}
+  try {const url=new URL(command.url); if(url.protocol!=='https:' || url.username || url.password || url.href.length>2048) throw Error();} catch {return fail('INVALID','Choose an HTTPS link up to 2048 characters without embedded credentials.');}
   path='/api/cards'; body={title:command.title,description:command.description,url:command.url,status:'draft'};
  } else if(action==='presentation'&&app==='showcase'&&identifier(command.id)&&typeof command.pinned==='boolean'&&appSettings.showcase.cardPresentation?.icons.includes(command.icon)){
   path='/api/presentation';body={id:command.id,pinned:command.pinned,icon:command.icon};
@@ -50,7 +56,7 @@ export async function manageMiniapps(ctx, runtime, pins) {
   const build=await identity.json();
   if(build.app!==app || build.revision!==pins[app] || build.dataVersion!==1) return fail('SOURCE','The connected app differs from the reviewed composition. Ask your agent to check the release.');
   const response=await send(path,{method:reading?'GET':'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
-  if(!response.ok) return fail('APP', ({401:'The owner connection was refused. Ask your agent to check it.',403:'The app refused this action. Check its owner settings.',404:'This item is no longer available. Refresh the app.',409:'The collection changed or reached its limit. Refresh before retrying.',429:'The app has reached its temporary limit. Try again later.'})[response.status] || 'The app could not complete this action. Refresh before retrying.');
+  if(!response.ok){if(action==='edit-link'&&response.status===409)return fail('CONFLICT','This link changed. Compare the saved link before saving your edits.');return fail('APP', ({401:'The owner connection was refused. Ask your agent to check it.',403:'The app refused this action. Check its owner settings.',404:'This item is no longer available. Refresh the app.',409:'The collection changed or reached its limit. Refresh before retrying.',429:'The app has reached its temporary limit. Try again later.'})[response.status] || 'The app could not complete this action. Refresh before retrying.');}
   if(action==='preview') {
    if(response.headers.get('Content-Type')!=='image/png') return fail('MEDIA','This preview is unavailable.');
    const bytes=await response.arrayBuffer(); if(bytes.byteLength>1048576) return fail('MEDIA','This preview exceeds the supported size.');

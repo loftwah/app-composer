@@ -38,6 +38,7 @@ test('imported targets, arbitrary actions, deletion and invalid input cannot exp
   {app:'guestbook',action:'preview',id:'../secrets'},
   {app:'showcase',action:'link',title:'Card',description:'',url:'https://username:password@example.com'},
   {app:'showcase',action:'link',title:'Card',description:'',url:'javascript:alert(1)'},
+  {app:'showcase',action:'link',title:'Card',description:'',url:'https://example.test/'+'é'.repeat(600)},
   {app:'showcase',action:'reorder',ids:['card','card']},
   {app:'guestbook',action:'upload',caption:'A photo',author:'',consent:false,png:'YWJj'},
  ]){const f=fixture();const result=await manageMiniapps(context(input),f.runtime,pins);assert.equal(result.code,'INVALID');assert.equal(f.calls.length,0);}
@@ -61,4 +62,14 @@ test('profile configuration and presentation use reviewed fields without clearin
  const legacy=fixture();assert.equal((await manageMiniapps(context({app:'showcase',action:'settings',title:'Legacy',intro:'',theme:'daylight',layout:'grid'}),legacy.runtime,pins)).ok,true);assert.equal(Object.hasOwn(await legacy.calls[1].json(),'github'),false);
  const styled=fixture();assert.equal((await manageMiniapps(context({app:'showcase',action:'presentation',id:'card',pinned:true,icon:'book',status:'published'}),styled.runtime,pins)).ok,true);assert.equal(styled.calls[1].url,origin+'/showcase/api/presentation');assert.deepEqual(await styled.calls[1].json(),{id:'card',pinned:true,icon:'book'});
  for(const input of [{app:'showcase',action:'settings',...fields,github:'https://github.com.evil.test/'},{app:'showcase',action:'presentation',id:'card',pinned:'true',icon:'book'},{app:'showcase',action:'presentation',id:'card',pinned:true,icon:'<script>'},{app:'guestbook',action:'presentation',id:'card',pinned:true,icon:'link'}]){const bad=fixture();assert.equal((await manageMiniapps(context(input),bad.runtime,pins)).ok,false);assert.equal(bad.calls.length,0);}
+});
+
+test('editing an authored link sends an explicit bounded compare snapshot and preserves publication intent',async()=>{
+ const expected={title:'Fictional existing',description:'Original note',url:'https://example.test/original',status:'hidden'};
+ const input={app:'showcase',action:'edit-link',id:'card',title:'Fictional edited',description:'Edited note',url:'https://example.test/edited',status:'hidden',expected};
+ const f=fixture();assert.equal((await manageMiniapps(context({...input,delete:true,token:'ignored',provider:'injected'}),f.runtime,pins)).ok,true);assert.deepEqual(await f.calls[1].json(),{id:'card',title:input.title,description:input.description,url:input.url,status:'hidden',expected});
+ for(const patch of [{expected:undefined},{expected:{...expected,extra:'not-supported'}},{url:'javascript:alert(1)'},{url:'https://owner:credential@example.test/'},{url:'https://example.test/'+'é'.repeat(600)},{status:undefined},{app:'guestbook'},{title:''}]){const bad=fixture();assert.equal((await manageMiniapps(context({...input,...patch}),bad.runtime,pins)).code,'INVALID');assert.equal(bad.calls.length,0);}
+ const conflict=fixture({status:409});assert.equal((await manageMiniapps(context(input),conflict.runtime,pins)).code,'CONFLICT');assert.equal(conflict.calls.length,2);
+ const legacy=fixture();const old={...expected,url:new URL('https://example.test/'+'é'.repeat(600)).href};assert.equal((await manageMiniapps(context({...input,expected:old}),legacy.runtime,pins)).ok,true);assert.deepEqual((await legacy.calls[1].json()).expected,old);
+ const denied=fixture();assert.equal((await manageMiniapps(context(input,{role:20}),denied.runtime,pins)).code,'FORBIDDEN');assert.equal(denied.calls.length,0);
 });
