@@ -1,0 +1,21 @@
+---
+import {getEmDashCollection} from 'emdash';
+import model from '../../../content-model.json';
+import ContentLayout from '../../../layouts/ContentLayout.astro';
+import ContentFields from '../../../components/ContentFields.astro';
+import {entryPath,entryTitle,entryDescription} from '../../../lib/entry.mjs';
+const id=Astro.params.id??'';
+// Match the collection reader's explicit publication scope. A stable ID lookup
+// never tries another entry's slug, a draft fallback or a user-selected collection.
+const {entries,error}=entryPath(id)?await getEmDashCollection(model.collection,{status:'published',where:{id},limit:1}):{entries:[],error:undefined};
+const entry=entries.find(item=>item.data.id===id);
+Astro.response.headers.set('Cache-Control','no-store');
+if(error)Astro.response.status=503;
+else if(!entry)Astro.response.status=404;
+const title=entry?entryTitle(model,entry.data):error?'Content unavailable':'Entry not found';
+const description=entry?entryDescription(model,entry.data):'Return to '+model.label+' to browse its published entries.';
+---
+<ContentLayout title={title+' · '+model.label} description={description} article={!!entry}>
+ <a class="entry-back" href="/#content">Back to {model.label}</a>
+ {entry?<article class="entry-detail"><h1>{title}</h1><ContentFields values={entry.data} detail/></article>:<section class="empty"><h1>{title}</h1><p role={error?'alert':undefined}>{error?'Content is temporarily unavailable. Try again shortly.':'This entry may be unpublished, removed or have a different address. Browse the collection for its current published entries.'}</p></section>}
+</ContentLayout>

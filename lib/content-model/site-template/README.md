@@ -1,6 +1,6 @@
 # Your EmDash content site
 
-Created by App Composer’s reviewed content-project recipe, 14 October 2026. This is independent application source under MIT. It uses Astro 7.3.5, EmDash 1.2.0, Tailwind 4.3.3 and the Cloudflare adapter. Get Ready and Woodhouse are not runtime dependencies.
+Created by App Composer’s reviewed content-project recipe, 15 October 2026. This is independent application source under MIT. It uses Astro 7.3.5, EmDash 1.2.0, Tailwind 4.3.3 and the Cloudflare adapter. Get Ready and Woodhouse are not runtime dependencies.
 
 Your field model is `src/content-model.json`; its native EmDash schema is `seed/seed.json`. `src/pages/index.astro` reads 20 published entries per page. Native Previous page / Next page links appear above and below longer collections, so older entries stay reachable without JavaScript. Page addresses can be bookmarked; invalid or duplicate page values are refused, and an empty later page returns 404 with a route back to the first page. The bounded page number supports up to 99,999 pages. Publication changes between requests can shift offset pages; each request still reads only currently published entries. Draft/private entries are not requested. Optional display conditions affect this page; native EmDash editing does not hide conditional fields. Invalid HTTPS links are rendered as text. Repeating rows are escaped text, not rich HTML.
 
@@ -51,3 +51,10 @@ Replace local placeholders only through the project’s reviewed release path. P
 Commit the generated files and lockfile to your own repository after review. `composer-project.json` records generated file hashes and captured template hashes; neither hashes nor a successful build certify agent discovery, security or deployment. Re-run creation only into a new absent directory; this recipe never updates existing files. Keep current edits and data separate from upstream updates. Test changed user journeys and build before deployment.
 
 Official guidance: https://docs.emdashcms.com/agent-skills/ and https://docs.emdashcms.com/deployment/cloudflare/ . Font: Space Grotesk, SIL OFL; the notice is in `public/brand/OFL-Space-Grotesk.txt`.
+
+
+## Individual entry pages
+
+Each entry title in the collection links to `/entries/CONTENT_ID`, using the native stable content ID rather than an editable title or slug. Renaming a title keeps that address. The detail page repeats the same visible model fields, groups, date formatting and escaped values as the collection, with one first-level title and a keyboard-accessible route back. It works without JavaScript. Native D1 queries are restricted to the selected collection, explicit published status and the exact bounded ID. Missing, unpublished or removed entries return 404; a database failure returns 503. Detail responses are not cached. The native authenticated preview/edit context is owned by EmDash and is not a public permission grant; public acceptance here uses ordinary unauthenticated requests.
+
+Individual titles and short descriptions supply page and Open Graph metadata. These local pages stay noindex/nofollow; no canonical origin, share artwork, indexing approval or production deployment is invented. Review those separately for the actual public site. The source recipe creates new projects only and never adds routes to an existing owner project automatically.

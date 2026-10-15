@@ -20,6 +20,10 @@ typography:
     fontSize: "clamp(2.5rem, 6vw, 5rem)"
     lineHeight: 1.12
     letterSpacing: "-0.025em"
+  group:
+    fontFamily: "Space, system-ui, sans-serif"
+    fontSize: "1.25rem"
+    lineHeight: 1.12
   body:
     fontFamily: "system-ui, sans-serif"
     fontSize: "17px"
@@ -80,3 +84,6 @@ The initial CSS presentation is dark. With JavaScript, the initial choice follow
 - **Don't** add generic decoration, fabricated activity or a Composer runtime dependency to this reading surface.
 
 Calendar dates, reviewed 14 October 2026: top-level date fields use a labelled Kumo native date input in administration, bounded to years 0001–9999, with day-only guidance; clearing an optional date leaves it empty. The public reader presents the same day with a written month in a semantic time element, without timezone conversion. Dates inherit the existing typography, theme tokens and open ruled field rows, including label/value stacking at 600px and below. Init configures their optional starting value through its existing native disclosure and date control.
+
+
+Individual entry pages, reviewed 15 October 2026: published collection titles are underlined native links to stable content-ID addresses. A detail page inherits the shared header, footer, typography, theme and open labelled field rows. A quiet bordered 48px-high Back to collection link precedes its sole h1; model group headings become h2 at1.25rem. The same visible fields and safe formatting serve both pages. Missing entries and unavailable content use the existing open recovery treatment and never render hidden entry titles. Navigation, skip links and theme work across pages at phone/tablet/desktop widths, with a JavaScript-free reading path. No imagery or visual world is replaced.

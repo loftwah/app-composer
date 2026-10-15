@@ -1,10 +1,10 @@
 ---
 import {getEmDashCollection} from 'emdash';
 import model from '../content-model.json';
-import {visibleModelFields} from '../lib/content-model.mjs';
-import FieldValue from '../components/FieldValue.astro';
+import ContentLayout from '../layouts/ContentLayout.astro';
+import ContentFields from '../components/ContentFields.astro';
+import {entryTitle,entryPath} from '../lib/entry.mjs';
 import CollectionPages from '../components/CollectionPages.astro';
-import '../styles/site.css';
 const selected=Astro.url.searchParams.getAll('page');
 const page=selected.length===0?1:selected.length===1&&/^[1-9][0-9]{0,4}$/.test(selected[0])?Number(selected[0]):null;
 const perPage=20;
@@ -14,21 +14,11 @@ if(page===null)Astro.response.status=400;
 else if(error)Astro.response.status=503;
 else if(missing)Astro.response.status=404;
 const paginated=page!==null&&!missing&&!error&&entries.length>0&&(page>1||hasMore);
-const heading=model.fields.find(field=>field.type==='string'&&!field.when)?.key;
 ---
-<!doctype html><html lang="en" class="composer-content-site"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width"/><link rel="icon" href="/brand/icon.png" type="image/png"/><meta name="robots" content="noindex,nofollow"/><title>{page===null||missing?'Page not found · '+model.label:model.label+(page>1?' · Page '+page:'')}</title><meta name="description" content={'Browse published '+model.label.toLowerCase()+'.'}/></head><body>
-<!-- THESIS: Let the owner publish a useful collection through native EmDash editing.
-OWN-WORLD: Inherit App Composer's charcoal/ivory, signal orange, Space headings and open ruled rows.
-STORY: Read published content; the owner follows Edit content to draft and publish.
-FIRST VIEWPORT: Collection name and theme/edit controls precede the collection heading and entries or a useful empty state.
-FORM: Reading surface, content-project-v1; an extension of the established world.
-FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md -->
-<a class="skip" href="#content">Skip to content</a>
-<header><a href="/" class="site-name">{model.label}</a><nav aria-label="Site"><a class="button" href="/_emdash/admin">Edit content</a><button class="theme-toggle" type="button" aria-label="Switch colour theme" data-theme-toggle>Light / dark</button></nav></header>
-<main id="content"><h1>{model.label}</h1>
+<ContentLayout title={page===null||missing?'Page not found · '+model.label:model.label+(page>1?' · Page '+page:'')}>
+<h1>{model.label}</h1>
 {paginated&&<CollectionPages page={page!} hasMore={hasMore===true} start={(page!-1)*perPage+1} end={(page!-1)*perPage+entries.length}/>}
-{page===null||missing?<section class="empty"><h2>This page is unavailable.</h2><p>The address may be incorrect, or its entries may have moved after publication changed.</p><a class="button" href="/#content">Back to the first page</a></section>:error?<p role="alert">Content is temporarily unavailable. Your agent can inspect the local database and collection setup.</p>:entries.length?<div class="entries">{entries.map(entry=><article><h2>{heading?String(entry.data[heading]??entry.id):entry.id}</h2>{model.groups.map(group=><section><h3>{group}</h3><dl class="fields">{visibleModelFields(model,entry.data).filter(field=>field.group===group&&field.key!==heading).map(field=><div><dt>{field.label}</dt><dd><FieldValue field={field} value={entry.data[field.key]}/></dd></div>)}</dl></section>)}</article>)}</div>:<section class="empty"><h2>Your collection is ready for its first entry.</h2><p>Add an entry in EmDash, keep it as a draft while you work, then publish when you are ready for it to appear here.</p><a class="button" href="/_emdash/admin">Open EmDash</a></section>}
+{page===null||missing?<section class="empty"><h2>This page is unavailable.</h2><p>The address may be incorrect, or its entries may have moved after publication changed.</p><a class="button" href="/#content">Back to the first page</a></section>:error?<p role="alert">Content is temporarily unavailable. Your agent can inspect the local database and collection setup.</p>:entries.length?<div class="entries">{entries.map(entry=><article><h2>{entryPath(entry.data.id)?<a href={entryPath(entry.data.id)!}>{entryTitle(model,entry.data)}</a>:entryTitle(model,entry.data)}</h2><ContentFields values={entry.data}/></article>)}</div>:<section class="empty"><h2>Your collection is ready for its first entry.</h2><p>Add an entry in EmDash, keep it as a draft while you work, then publish when you are ready for it to appear here.</p><a class="button" href="/_emdash/admin">Open EmDash</a></section>}
 {paginated&&<CollectionPages page={page!} hasMore={hasMore===true} start={(page!-1)*perPage+1} end={(page!-1)*perPage+entries.length}/>}
-</main><footer><span>{model.label}</span><a href="/_emdash/admin">Manage this collection</a></footer>
-<script>const button=document.querySelector<HTMLButtonElement>('[data-theme-toggle]');let theme=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';try{const saved=localStorage.getItem('content-site-theme');if(saved==='light'||saved==='dark')theme=saved;}catch{}document.documentElement.dataset.theme=theme;button?.addEventListener('click',()=>{theme=theme==='dark'?'light':'dark';document.documentElement.dataset.theme=theme;try{localStorage.setItem('content-site-theme',theme);}catch{}});</script>
-</body></html>
+
+</ContentLayout>
