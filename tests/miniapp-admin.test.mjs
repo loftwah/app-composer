@@ -1,3 +1,4 @@
+import {appSettings} from '../src/lib/app-settings.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {manageMiniapps} from '../src/lib/miniapp-admin.mjs';
@@ -51,4 +52,13 @@ test('provider refusal and interrupted writes do not leak bodies or retry',async
 test('the full bounded Guestbook queue is available with newest records first',async()=>{
  const f=fixture();const service=f.runtime.GUESTBOOK,fetch=service.fetch;service.fetch=async request=>{if(!request.url.endsWith('/api/export'))return fetch(request);return Response.json({dataVersion:1,config:{},items:Array.from({length:200},(_,i)=>({id:'photo-'+i,status:i===199?'pending':'approved',created_at:String(i).padStart(3,'0')}))});};
  const result=await manageMiniapps(context({app:'guestbook',action:'snapshot'}),f.runtime,pins);assert.equal(result.items.length,200);assert.equal(result.items[0].id,'photo-199');assert.equal(result.items[0].status,'pending');
+});
+
+test('profile configuration and presentation use reviewed fields without clearing omitted optional values',async()=>{
+ assert.equal(appSettings.showcase.cardPresentation.version,1);
+ const fields={title:'Fictional profile',intro:'A fictional bio',theme:'midnight',layout:'compact',handle:'garden.studio',github:'https://github.com/example',website:'https://example.test/',bluesky:'',linkedin:''};
+ const f=fixture();assert.equal((await manageMiniapps(context({app:'showcase',action:'settings',...fields,token:'ignored'}),f.runtime,pins)).ok,true);assert.deepEqual(await f.calls[1].json(),fields);
+ const legacy=fixture();assert.equal((await manageMiniapps(context({app:'showcase',action:'settings',title:'Legacy',intro:'',theme:'daylight',layout:'grid'}),legacy.runtime,pins)).ok,true);assert.equal(Object.hasOwn(await legacy.calls[1].json(),'github'),false);
+ const styled=fixture();assert.equal((await manageMiniapps(context({app:'showcase',action:'presentation',id:'card',pinned:true,icon:'book',status:'published'}),styled.runtime,pins)).ok,true);assert.equal(styled.calls[1].url,origin+'/showcase/api/presentation');assert.deepEqual(await styled.calls[1].json(),{id:'card',pinned:true,icon:'book'});
+ for(const input of [{app:'showcase',action:'settings',...fields,github:'https://github.com.evil.test/'},{app:'showcase',action:'presentation',id:'card',pinned:'true',icon:'book'},{app:'showcase',action:'presentation',id:'card',pinned:true,icon:'<script>'},{app:'guestbook',action:'presentation',id:'card',pinned:true,icon:'link'}]){const bad=fixture();assert.equal((await manageMiniapps(context(input),bad.runtime,pins)).ok,false);assert.equal(bad.calls.length,0);}
 });

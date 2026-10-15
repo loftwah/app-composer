@@ -1,5 +1,5 @@
 {
-  "id": "16e287e97dee17795a4bc0018ad479f7613405f1f6df529a4bee1d0bc5756219",
+  "id": "0b5e613b05682fc36400d077fd286c8b7f1ec0bf60626343e5807d1aa94f4ad7",
   "reviewed": "2026-10-14",
   "apps": [
     {
@@ -58,13 +58,13 @@
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "1afcac6fc391b9a5bf3d9d8fce7f7c872fbcfe92",
+      "commit": "1dbb6b695549a6c1fcb3df5a42c4d3e996de786d",
       "url": "https://showcase.loftwah.com",
       "manifest": {
         "contract": 1,
         "id": "showcase",
         "name": "Top shelf",
-        "version": "1.0.1",
+        "version": "1.1.0",
         "repository": "https://github.com/loftwah/app-composer-showcase",
         "runtime": "cloudflare-worker",
         "entry": "src/worker.ts",
@@ -99,13 +99,65 @@
             "type": "select",
             "options": [
               "grid",
-              "editorial"
+              "editorial",
+              "compact"
             ],
             "default": "grid"
+          },
+          "handle": {
+            "type": "string",
+            "default": "",
+            "maxLength": 40,
+            "format": "handle"
+          },
+          "website": {
+            "type": "string",
+            "default": "",
+            "maxLength": 2048,
+            "format": "https-url"
+          },
+          "github": {
+            "type": "string",
+            "default": "",
+            "maxLength": 2048,
+            "format": "https-url",
+            "hosts": [
+              "github.com"
+            ]
+          },
+          "bluesky": {
+            "type": "string",
+            "default": "",
+            "maxLength": 2048,
+            "format": "https-url",
+            "hosts": [
+              "bsky.app"
+            ]
+          },
+          "linkedin": {
+            "type": "string",
+            "default": "",
+            "maxLength": 2048,
+            "format": "https-url",
+            "hosts": [
+              "linkedin.com",
+              "www.linkedin.com"
+            ]
           }
+        },
+        "cardPresentation": {
+          "version": 1,
+          "icons": [
+            "link",
+            "book",
+            "code",
+            "music",
+            "video",
+            "heart"
+          ]
         }
       },
-      "manifestDigest": "sha256:7267e18c0a27c74ed4d5b42186902a4dea51c43d292daa9ce7fc81b5c63e262e"
+      "manifestDigest": "sha256:24cf06d2aa20f97591c1cc31414f9db4173e24d94dea298c4e76aadf516e0459"
     }
   ]
 }

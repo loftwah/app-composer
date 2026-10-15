@@ -1,12 +1,12 @@
 import {validateSpec} from '../src/lib/spec.mjs';
-import {appConfiguration,appSettings,validateAppSettings} from '../src/lib/app-settings.mjs';
+import {appConfigurationPatch,appSettings,validateConfigurationPatch} from '../src/lib/app-settings.mjs';
 
 export function configurationPlan(input,apps){
  const spec=validateSpec(input);
  return spec.sources.map(source=>{
   const app=apps.find(value=>value.id===source.id);
   if(!app||app.url!=='https://'+source.id+'.loftwah.com'||['repository','commit','manifestDigest'].some(key=>app[key]!==source[key]))throw Error('Selected source changed; review the current contracts before applying this specification.');
-  return {id:app.id,url:app.url,source:{...source},configuration:appConfiguration(spec,app.id)};
+  return {id:app.id,url:app.url,source:{...source},configuration:appConfigurationPatch(spec,app.id)};
  });
 }
 
@@ -27,8 +27,7 @@ export async function applyConfiguration(plan,{credential,beforeWrite,request=fe
  const ids=new Set();
  for(const app of plan){
   if(!app||!Object.hasOwn(appSettings,app.id)||ids.has(app.id)||app.url!=='https://'+app.id+'.loftwah.com'||!app.source||Object.entries(appSettings[app.id].source).some(([key,value])=>app.source[key]!==value))throw Error('Unsupported operator configuration target.');
-  ids.add(app.id);validateAppSettings({[app.id]:app.configuration},[app.id]);
-  if(Object.keys(app.configuration).length!==appSettings[app.id].fields.length)throw Error('Configure the complete supported app settings.');
+  ids.add(app.id);validateConfigurationPatch(app.configuration,app.id);
  }
  const completed=[];
  for(const app of plan){
