@@ -50,3 +50,11 @@ test('historical custom ranges query retained SQLite rows and stop at the reques
  const boundary=await portfolioSummary(db,{from:'2026-10-27',to:'2026-10-28'},new Date('2026-12-01T12:00:00Z'));
  assert.equal(boundary.coverage.quality,'partial');assert.deepEqual(boundary.metrics[0].daily,[{date:'2026-10-28',value:0}]);
 });
+
+test('public analytics metadata satisfies the portable plain-text consumer boundary',async()=>{
+ const db={prepare(){return{bind(){return{async all(){return{success:true,results:[]}}}}}}};
+ const report=await portfolioSummary(db,7,new Date('2026-10-15T12:00:00Z'));
+ const plain=(value,max)=>typeof value==='string'&&value.length>0&&value.length<=max&&!/[<>\u0000-\u001f]/.test(value);
+ for(const metric of report.metrics){assert(plain(metric.label,100),metric.key+' label');assert(plain(metric.definition,1600),metric.key+' definition');}
+ for(const limitation of report.coverage.limitations)assert(plain(limitation,600));
+});
