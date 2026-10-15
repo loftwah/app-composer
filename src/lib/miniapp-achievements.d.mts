@@ -10,3 +10,4 @@ export function achievementFields(value:unknown):AchievementValues;
 export function achievementCommand(value:unknown):Record<string,unknown>;
 export function achievementCollection(value:unknown):AchievementCollection;
 export function achievementValues(item:AchievementValues):AchievementValues;
+export class AchievementFieldError extends Error {field:string;constructor(field:string,message:string);}

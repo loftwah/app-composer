@@ -11,10 +11,18 @@ export function validAchievementDate(value){return typeof value==='string'&&(val
 export function achievementDateLabel(value){if(!validAchievementDate(value)||!value)return '';if(value.length===4)return value;if(value.length===7)return new Intl.DateTimeFormat('en-AU',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(value+'-15T12:00:00.000Z'));return calendarDateLabel(value)??'';}
 export const achievementValues=item=>Object.fromEntries(keys.map(key=>[key,key==='description'?item[key].replace(/\r\n?/g,'\n'):item[key]]));
 export const sameAchievement=(a,b)=>!!a&&!!b&&keys.every(key=>key==='description'?a[key].replace(/\r\n?/g,'\n')===b[key].replace(/\r\n?/g,'\n'):a[key]===b[key]);
+export class AchievementFieldError extends Error {constructor(field,message){super(message);this.field=field;}}
+const invalid=(field,message)=>{throw new AchievementFieldError(field,message);};
 export function achievementFields(value){
- if(!exact(value,keys)||typeof value.title!=='string'||!value.title.trim()||value.title.length>100||typeof value.description!=='string'||value.description.length>240||typeof value.date!=='string'||value.date.length>10||!validAchievementDate(value.date.trim())||typeof value.url!=='string'||value.url.length>2048||!icons.includes(value.icon)||!['draft','published','hidden'].includes(value.status))throw Error('Check the achievement fields.');
- if(/[\u0000-\u001f]/.test(value.title+value.date+value.url)||/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(value.description))throw Error('Check the achievement text.');
- let url=value.url.trim();if(url){const parsed=new URL(url);if(parsed.protocol!=='https:'||parsed.username||parsed.password||parsed.href.length>2048)throw Error('Use an HTTPS destination without embedded credentials, up to 2,048 characters.');url=parsed.href;}
+ if(!exact(value,keys))invalid('form','Use the supported achievement fields.');
+ if(typeof value.title!=='string'||!value.title.trim()||value.title.length>100||/[\u0000-\u001f]/.test(value.title))invalid('title','Give the achievement a title up to 100 characters without control characters.');
+ if(typeof value.description!=='string'||value.description.length>240||/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(value.description))invalid('description','Use a description up to 240 characters without control characters.');
+ if(typeof value.date!=='string'||value.date.length>10||/[\u0000-\u001f]/.test(value.date)||!validAchievementDate(value.date.trim()))invalid('date','Use a year (YYYY), a month (YYYY-MM) or a real calendar day (YYYY-MM-DD). Leave blank if unknown.');
+ const destinationMessage='Use a full HTTPS address without embedded credentials, up to 2,048 characters. Leave blank if no destination is needed.';
+ if(typeof value.url!=='string'||value.url.length>2048||/[\u0000-\u001f]/.test(value.url))invalid('url',destinationMessage);
+ let url=value.url.trim();if(url){try{const parsed=new URL(url);if(parsed.protocol!=='https:'||parsed.username||parsed.password||parsed.href.length>2048)invalid('url',destinationMessage);url=parsed.href;}catch{invalid('url',destinationMessage);}}
+ if(!icons.includes(value.icon))invalid('icon','Choose a supported achievement icon.');
+ if(!['draft','published','hidden'].includes(value.status))invalid('status','Choose draft, published or hidden visibility.');
  return {...value,title:value.title.trim(),date:value.date.trim(),url};
 }
 export function achievementCommand(value){
