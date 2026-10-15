@@ -1,17 +1,17 @@
 {
-  "id": "9e9cf4142126a2d04a5687f7e3c6ec3db4fa80fec4bf3524ce214bd185da8e1e",
+  "id": "829abbd7c35cb2697e32eaddf54d697c5d26ce0383889a418ba1567f68e8234d",
   "reviewed": "2026-10-14",
   "apps": [
     {
       "id": "guestbook",
       "repository": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "ea539287d863d07ccf885742dbed17c6ca17b2ed",
+      "commit": "a0991201971f0a9e8452738bb7493b2b976106e1",
       "url": "https://guestbook.loftwah.com",
       "manifest": {
         "contract": 1,
         "id": "guestbook",
         "name": "Here / there",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "repository": "https://github.com/loftwah/app-composer-guestbook",
         "runtime": "cloudflare-worker",
         "entry": "src/worker.ts",
@@ -61,18 +61,18 @@
           }
         }
       },
-      "manifestDigest": "sha256:749cececace5611e1e3c3392c6f65b9361956fe81d19e02a746893f0ab8b673f"
+      "manifestDigest": "sha256:b6c218b58a511009eda21980880ca873fce8aa00aca3f47a42978e1206e6e562"
     },
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "33791cf12748b09452e058351ff4b5356bb5674b",
+      "commit": "d38795f6dd8ae084ca1bea982f0394a308b3c8ab",
       "url": "https://showcase.loftwah.com",
       "manifest": {
         "contract": 1,
         "id": "showcase",
         "name": "Linkarooie",
-        "version": "1.1.1",
+        "version": "1.2.0",
         "repository": "https://github.com/loftwah/app-composer-showcase",
         "runtime": "cloudflare-worker",
         "entry": "src/worker.ts",
@@ -163,9 +163,18 @@
             "video",
             "heart"
           ]
+        },
+        "achievementCollection": {
+          "version": 1,
+          "limit": 8,
+          "datePrecisions": [
+            "year",
+            "month",
+            "day"
+          ]
         }
       },
-      "manifestDigest": "sha256:e1885540809ab54991496961f1440533edc760c738fb81dbb67450ef9f14955a"
+      "manifestDigest": "sha256:5b397beb165bea20834d0312762290e6913c8766c58818fdf99623da4e7afc6a"
     }
   ]
 }
