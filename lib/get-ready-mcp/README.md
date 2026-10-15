@@ -101,7 +101,7 @@ To remove this capability, stop the connection and remove its allow flag. Existi
 
 ## Report compatibility
 
-Transport 0.10.0/server 1.11.0 returns the shared report version 2, including only the dated clean/changed/unknown local-work observation. It exposes no file names, paths, diffs or content. This does not grant source approval or a new capability. Consumers should update their report validator; the current library/browser also read legacy version 1 reports with local-work status unknown. Local edits or commits in the same selected target do not silently complete an unfinished setup operation, and checks still never retry it.
+Transport 0.11.0/server 1.12.0 returns the shared report version 2, including only the dated clean/changed/unknown local-work observation. It exposes no file names, paths, diffs or content. This does not grant source approval or a new capability. Consumers should update their report validator; the current library/browser also read legacy version 1 reports with local-work status unknown. Local edits or commits in the same selected target do not silently complete an unfinished setup operation, and checks still never retry it.
 
 ### Host-selected plugin guidance
 
