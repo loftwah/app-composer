@@ -5,7 +5,7 @@ import { ArrowRight, Image, PanelsTopLeft, GitBranch, ExternalLink } from '@luci
 <Base title="A photo collection, composed" description="Open a curated photo, follow it into its source guestbook and see how two independently owned apps share one collection.">
  <div class="composition-heading">
   <h1>Build a collection from approved photos.</h1>
-  <p class="lede">Here / there collects the moments. Top shelf chooses what to feature. Open a photo in the showcase to visit its original guestbook entry.</p>
+  <p class="lede">Here / there collects the moments. Linkarooie chooses what to feature. Open a photo in the showcase to visit its original guestbook entry.</p>
   <div class="actions"><a class="button" href="/showcase/">Explore the collection <ArrowRight size={18} aria-hidden="true"/></a><a class="button secondary" href="/guestbook/">Visit the guestbook</a></div>
  </div>
  <section class="composition-flow" aria-labelledby="flow-title">
@@ -13,7 +13,7 @@ import { ArrowRight, Image, PanelsTopLeft, GitBranch, ExternalLink } from '@luci
   <ol>
    <li><strong>Submit</strong><span>An invited contributor sends a photo to Here / there.</span></li>
    <li><strong>Approve</strong><span>The owner reviews it before anything is public.</span></li>
-   <li><strong>Feature</strong><span>Top shelf adds the approved photo to its collection.</span></li>
+   <li><strong>Feature</strong><span>Linkarooie adds the approved photo to its collection.</span></li>
    <li><strong>Open</strong><span>The card leads back to the original contribution.</span></li>
   </ol>
   <p class="small">Hide or delete the source and it disappears from both public views on the next request. Downloaded copies cannot be recalled.</p>
@@ -26,11 +26,11 @@ import { ArrowRight, Image, PanelsTopLeft, GitBranch, ExternalLink } from '@luci
    <div class="app-links"><a class="button secondary" href="/guestbook/">Open guestbook <ArrowRight size={18} aria-hidden="true"/></a><a href="https://guestbook.loftwah.com">Standalone app <ExternalLink size={16} aria-hidden="true"/></a><a href="https://github.com/loftwah/app-composer-guestbook">Source <GitBranch size={16} aria-hidden="true"/></a></div>
   </section>
   <section aria-labelledby="showcase-title">
-   <a class="composition-preview" href="/showcase/" aria-label="Open Top shelf showcase"><img src="/brand/coastal-path-ai-v1.jpg" alt="Generated fictional coastal steps beside a calm sea" width="1200" height="800" loading="lazy"/></a>
-   <h2 id="showcase-title"><PanelsTopLeft size={24} aria-hidden="true"/>Top shelf</h2>
+   <a class="composition-preview" href="/showcase/" aria-label="Open Linkarooie showcase"><img src="/brand/coastal-path-ai-v1.jpg" alt="Generated fictional coastal steps beside a calm sea" width="1200" height="800" loading="lazy"/></a>
+   <h2 id="showcase-title"><PanelsTopLeft size={24} aria-hidden="true"/>Linkarooie</h2>
    <p>Arrange your own links alongside approved photos. Each linked photo keeps its source and current visibility.</p>
    <div class="app-links"><a class="button secondary" href="/showcase/">Open showcase <ArrowRight size={18} aria-hidden="true"/></a><a href="https://showcase.loftwah.com">Standalone app <ExternalLink size={16} aria-hidden="true"/></a><a href="https://github.com/loftwah/app-composer-showcase">Source <GitBranch size={16} aria-hidden="true"/></a></div>
   </section>
  </div>
- <details class="composition-details"><summary>How the apps work together</summary><p>These are independently deployed apps with separate GitHub repositories, configuration and storage. Composer runs reviewed source versions together; Showcase asks Guestbook for currently approved items through a versioned contract.</p><p>The public collection uses labelled original generated artwork. Uploading, moderation and curation require an invited owner credential. Public browsing requires no account.</p><a href="/release">See the verified composition and recovery evidence</a></details>
+ <details class="composition-details"><summary>How the apps work together</summary><p>These are independently deployed apps with separate GitHub repositories, configuration and storage. Composer runs reviewed source versions together; Linkarooie asks Guestbook for currently approved items through a versioned contract.</p><p>The public collection uses labelled original generated artwork. Uploading, moderation and curation require an invited owner credential. Public browsing requires no account.</p><a href="/release">See the verified composition and recovery evidence</a></details>
 </Base>

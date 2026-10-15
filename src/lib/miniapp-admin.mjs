@@ -23,7 +23,7 @@ export async function manageMiniapps(ctx, runtime, pins) {
  if (request.method !== (reading ? 'GET' : 'POST')) return fail('METHOD', 'This action uses a different request method.');
  if (!reading && (request.headers.get('Origin') !== origin || request.headers.get('X-EmDash-Request') !== '1')) return fail('FORBIDDEN', 'Refresh Composer administration before saving.');
  const app = command.app;
- if (!ids.has(app)) return fail('INVALID', 'Choose Guestbook or Showcase.');
+ if (!ids.has(app)) return fail('INVALID', 'Choose Guestbook or Linkarooie.');
  let path, body;
  if (action === 'snapshot') path = '/api/export';
  else if (action === 'preview' && app === 'guestbook' && identifier(command.id)) path = '/media/' + command.id;
