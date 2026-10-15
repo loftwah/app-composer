@@ -1,4 +1,4 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {mkdtempSync,writeFileSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {execFileSync} from 'node:child_process';import {DatabaseSync} from 'node:sqlite';
+import test from 'node:test';import assert from 'node:assert/strict';import {mkdtempSync,rmSync,writeFileSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {execFileSync} from 'node:child_process';import {DatabaseSync} from 'node:sqlite';
 import {validateSeed} from 'emdash/seed';
 // Exact installed native 1.2.0 validator, pinned/reviewed alongside content-model tests.
 import {n as nativeFieldSchema} from '../node_modules/emdash/dist/zod-generator-BQilAboC.mjs';
@@ -17,7 +17,7 @@ test('pattern conditions remove inactive values and invalid example edits remain
  const values=contentPatternSample('directory');values.opening[0].hours='';assert.throws(()=>validateModelValues(contentPattern('directory'),values),/required/);
 });
 
-test('one actual native CLI seed creates all four pattern schemas in exclusive fictional storage',()=>{
- const root=mkdtempSync(join(tmpdir(),'composer-pattern-seed-')),database=join(root,'patterns.db'),seed=join(root,'patterns.json');const models=contentPatternSummaries.map(pattern=>contentPattern(pattern.id));writeFileSync(seed,JSON.stringify({version:'1',meta:{name:'Fictional content patterns'},collections:models.flatMap(model=>emdashSeed(model).collections)}));
+test('one actual native CLI seed creates all four pattern schemas in exclusive fictional storage',t=>{
+ const root=mkdtempSync(join(tmpdir(),'composer-pattern-seed-')),database=join(root,'patterns.db'),seed=join(root,'patterns.json');t.after(()=>rmSync(root,{recursive:true,force:true}));const models=contentPatternSummaries.map(pattern=>contentPattern(pattern.id));writeFileSync(seed,JSON.stringify({version:'1',meta:{name:'Fictional content patterns'},collections:models.flatMap(model=>emdashSeed(model).collections)}));
  execFileSync(process.execPath,['node_modules/emdash/dist/cli/index.mjs','seed',seed,'--database',database,'--cwd',root,'--on-conflict','error','--no-content'],{env:{PATH:process.env.PATH,HOME:root,TMPDIR:root},stdio:'pipe',timeout:30000});const db=new DatabaseSync(database,{readOnly:true});try{for(const model of models){const columns=db.prepare('PRAGMA table_info(ec_'+model.collection+')').all().map(column=>column.name);for(const field of model.fields)assert.ok(columns.includes(field.key),model.collection+':'+field.key);}}finally{db.close();}
 });
