@@ -78,3 +78,11 @@ test('unsupported apply targets fail before workspace checks, staging or provide
   }
  }finally{rmSync(workspace,{recursive:true,force:true});}
 });
+
+test('guest postcard configuration is app-scoped and defaults closed before promotion',()=>{
+ const field={type:'select',options:['closed','postcards'],default:'closed'};const guest={...app('guestbook'),configuration:{guestAccess:field}};
+ assert.equal(validateComposition([guest]),true);
+ for(const patch of [{default:'postcards'},{type:'string'},{options:['closed','public']},{options:['postcards','closed']},{options:null}])assert.throws(()=>validateComposition([{...guest,configuration:{guestAccess:{...field,...patch}}}]),/default closed/);
+ assert.throws(()=>validateComposition([{...app('showcase'),configuration:{guestAccess:field}}]),/Unsupported configuration/);
+ assert.equal(guardPromotion({id:'current',apps:[{id:'guestbook',manifest:app('guestbook')}]},{apps:[{id:'guestbook',manifest:guest}]},'current'),true);
+});
