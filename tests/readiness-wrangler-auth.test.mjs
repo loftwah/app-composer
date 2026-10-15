@@ -49,7 +49,7 @@ test('workers.dev proof requires the exact selected subdomain and enabled Worker
 
 test('explicit API tokens stay selected across denial/outage and never resolve a fallback identity',async()=>{
  const f=fixture(),explicit='fictional_selected-api-token';let status=200,calls=0;
- const restore=provider(async(url,options)=>{calls++;assert.equal(options.headers.Authorization,'Bearer '+explicit);return json([{hostname:'hello.example.test',service:'fictional-hello',environment:'production',enabled:true}],status);});
+ const restore=provider(async(_url,options)=>{calls++;assert.equal(options.headers.Authorization,'Bearer '+explicit);return json([{hostname:'hello.example.test',service:'fictional-hello',environment:'production',enabled:true}],status);});
  try{
   const env={...environment(),CLOUDFLARE_API_TOKEN:explicit};await verifyReferenceRouting(context(f.root),env);
   for(const [value,code]of [[401,'authentication'],[403,'permission'],[429,'unavailable'],[503,'unavailable']]){status=value;await assert.rejects(verifyReferenceRouting(context(f.root),env),{code});}
