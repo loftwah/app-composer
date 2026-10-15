@@ -21,6 +21,8 @@ The [interactive tutorial](https://composer.loftwah.com/learn) follows setup, a 
 
 ## Local operation
 
+Reviewed 15 October 2026: `/api/portfolio-analytics?days=7|30|90` exposes the existing #62 public D1 counts through `woodhouse.portfolio-analytics/1` for Woodhouse #34. It separates app requests, original-photo opens and completed inspections, with daily series, fixed definitions and source revision. Only the retained 35-day window beginning no earlier than 14 October 2026 is available; 90-day requests do not backfill unavailable days. The daily cap, publisher losses and rate limits remain explicit lower-bound limitations. No visitor IDs or private creator metrics are added; #112/#116 retain those separate outcomes.
+
 `pnpm install`, `pnpm dev`, `pnpm check`, `pnpm build`. Local EmDash D1 state is disposable and separate from production. To demonstrate seeded catalogue content locally, use the documented EmDash seed/migration tools against the local database; remote content is never silently copied into local or preview state.
 
 Get Ready and Init offer Easy, Guided and Advanced help. The device-local preference changes explanations and optional detail, travels through task links when storage is blocked, and adds bounded presentation instructions to the agent handoff. It never changes readiness evidence, app configuration or execution authority. Init recommends existing apps from the chosen goal, previews before applying, and preserves edited content, appearance and inactive app fields while you explore. Save remains explicit; a fictional preview does not provision a customer deployment.
