@@ -1,0 +1,760 @@
+{
+  "schema": "app-composer.reference-creator-links/1",
+  "creator": "loftwah",
+  "reviewedAt": "2026-10-15T14:07:19.387Z",
+  "reviewedTimezone": "Australia/Melbourne",
+  "status": "authoring-reference-not-live-seed",
+  "source": {
+    "repository": "loftwah/linkarooie-3",
+    "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+    "file": "src/data/profiles/loftwah.ts",
+    "extraction": "Static TypeScript AST; direct socialLinks/links/achievements only; no imported source execution."
+  },
+  "method": "Public HTTPS GET; up to3 redirects,8s per response,64KiB body per hop,3 concurrent; HTTP reachability is not functionality or ownership proof.",
+  "exclusions": {
+    "withheldPersonalItems": 2,
+    "ownerExcludedProject": 1,
+    "legacyBiographyImported": false,
+    "technologyTagCitationsImported": false
+  },
+  "entries": [
+    {
+      "id": "loftwah",
+      "title": "Loftwah",
+      "url": "https://loftwah.com",
+      "category": "profile",
+      "publication": "candidate",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:19.387Z",
+        "status": "redirect-observed",
+        "httpStatus": 301,
+        "finalUrl": "https://woodhouse.loftwah.com/"
+      },
+      "reason": "Canonical public ecosystem address currently redirects to Woodhouse."
+    },
+    {
+      "id": "composer",
+      "title": "App Composer",
+      "url": "https://composer.loftwah.com",
+      "category": "product",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:13.962Z",
+        "httpStatus": 200,
+        "finalUrl": "https://composer.loftwah.com/",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "woodhouse",
+      "title": "Woodhouse",
+      "url": "https://woodhouse.loftwah.com",
+      "category": "product",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:13.965Z",
+        "httpStatus": 200,
+        "finalUrl": "https://woodhouse.loftwah.com/",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "fm",
+      "title": "LoftwahFM",
+      "url": "https://fm.loftwah.com",
+      "category": "music",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:13.966Z",
+        "httpStatus": 200,
+        "finalUrl": "https://fm.loftwah.com/",
+        "status": "response-title-observed"
+      },
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.links",
+        "id": "loftwahfm"
+      }
+    },
+    {
+      "id": "protocol11",
+      "title": "Protocol 11",
+      "url": "https://protocol11.loftwah.com",
+      "category": "game",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:14.107Z",
+        "httpStatus": 200,
+        "finalUrl": "https://protocol11.loftwah.com/",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "bubbles",
+      "title": "Bubbles",
+      "url": "https://bubbles.loftwah.com",
+      "category": "game",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:14.221Z",
+        "httpStatus": 200,
+        "finalUrl": "https://bubbles.loftwah.com/",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "shoalshot",
+      "title": "SHOALSHOT",
+      "url": "https://shoalshot.loftwah.com",
+      "category": "game",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:14.223Z",
+        "httpStatus": 200,
+        "finalUrl": "https://shoalshot.loftwah.com/",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "fighter",
+      "title": "Fighter",
+      "url": "https://fighter.loftwah.com",
+      "category": "game",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:14.260Z",
+        "httpStatus": 200,
+        "finalUrl": "https://fighter.loftwah.com/",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "assets",
+      "title": "Asset Hunter",
+      "url": "https://assets.loftwah.com",
+      "category": "tool",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:14.339Z",
+        "httpStatus": 200,
+        "finalUrl": "https://assets.loftwah.com/",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "techdeck",
+      "title": "TechDeck",
+      "url": "https://techdeck.life",
+      "category": "project",
+      "publication": "hold",
+      "reason": "DNS NXDOMAIN confirmed with Cloudflare DNS-over-HTTPS; do not feature until reverified.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:14.344Z",
+        "httpStatus": null,
+        "finalUrl": null,
+        "status": "dns-unresolved",
+        "error": "ENOTFOUND",
+        "externalDns": {
+          "resolver": "Cloudflare DNS-over-HTTPS",
+          "type": "A",
+          "status": 3
+        }
+      },
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.links",
+        "id": "techdeck"
+      }
+    },
+    {
+      "id": "grabit",
+      "title": "GRABIT.SH",
+      "url": "https://grabit.sh",
+      "category": "project",
+      "publication": "hold",
+      "reason": "DNS NXDOMAIN confirmed with Cloudflare DNS-over-HTTPS; do not feature until reverified.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:14.381Z",
+        "httpStatus": null,
+        "finalUrl": null,
+        "status": "dns-unresolved",
+        "error": "ENOTFOUND",
+        "externalDns": {
+          "resolver": "Cloudflare DNS-over-HTTPS",
+          "type": "A",
+          "status": 3
+        }
+      },
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.links",
+        "id": "grabit"
+      }
+    },
+    {
+      "id": "pirates",
+      "title": "Linux for Pirates",
+      "url": "https://linuxforpirates.deanlofts.xyz",
+      "category": "writing",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:14.409Z",
+        "httpStatus": 200,
+        "finalUrl": "https://linuxforpirates.deanlofts.xyz/",
+        "status": "response-title-observed"
+      },
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.links",
+        "id": "lfp"
+      }
+    },
+    {
+      "id": "bogan",
+      "title": "Bogan Hustler",
+      "url": "https://boganhustler.deanlofts.xyz",
+      "category": "project",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:14.610Z",
+        "httpStatus": 200,
+        "finalUrl": "https://boganhustler.deanlofts.xyz/",
+        "status": "response-title-observed"
+      },
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.links",
+        "id": "bogan-hustler"
+      }
+    },
+    {
+      "id": "pizza",
+      "title": "Pizza demo",
+      "url": "https://pizza.deanlofts.xyz",
+      "category": "experiment",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:14.799Z",
+        "httpStatus": 200,
+        "finalUrl": "https://pizza.deanlofts.xyz/",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "blog",
+      "title": "Blog",
+      "url": "https://blog.deanlofts.xyz",
+      "category": "writing",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:14.987Z",
+        "httpStatus": 200,
+        "finalUrl": "https://blog.deanlofts.xyz/",
+        "status": "response-title-observed"
+      },
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.links",
+        "id": "blog"
+      }
+    },
+    {
+      "id": "linkarooie",
+      "title": "Legacy Linkarooie",
+      "url": "https://linkarooie.com/loftwah/",
+      "category": "profile",
+      "publication": "hold",
+      "reason": "DNS NXDOMAIN confirmed with Cloudflare DNS-over-HTTPS; do not feature until reverified.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:15.157Z",
+        "httpStatus": null,
+        "finalUrl": null,
+        "status": "dns-unresolved",
+        "error": "ENOTFOUND",
+        "externalDns": {
+          "resolver": "Cloudflare DNS-over-HTTPS",
+          "type": "A",
+          "status": 3
+        }
+      }
+    },
+    {
+      "id": "github",
+      "title": "GitHub",
+      "url": "https://github.com/loftwah",
+      "category": "social",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:15.325Z",
+        "httpStatus": 200,
+        "finalUrl": "https://github.com/loftwah",
+        "status": "response-title-observed"
+      },
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.socialLinks"
+      }
+    },
+    {
+      "id": "bluesky",
+      "title": "Bluesky",
+      "url": "https://bsky.app/profile/loftwah.bsky.social",
+      "category": "social",
+      "publication": "published-profile",
+      "reason": "Owner-authorised profile destination, applied through the reviewed settings-only spec. Destination content/ownership interaction remains unverified; HTTP reachability does not remove that limitation.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:15.356Z",
+        "httpStatus": 200,
+        "finalUrl": "https://bsky.app/profile/loftwah.bsky.social",
+        "status": "response-title-observed"
+      },
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.socialLinks"
+      }
+    },
+    {
+      "id": "linkedin",
+      "title": "LinkedIn",
+      "url": "https://linkedin.com/in/deanlofts",
+      "category": "social",
+      "publication": "published-profile",
+      "reason": "Owner-authorised profile destination, applied through the reviewed settings-only spec. Destination content/ownership interaction remains unverified; HTTP reachability does not remove that limitation.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:15.642Z",
+        "httpStatus": 200,
+        "finalUrl": "https://linkedin.com/in/deanlofts",
+        "status": "challenge-or-blocked"
+      },
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.socialLinks"
+      }
+    },
+    {
+      "id": "x",
+      "title": "X",
+      "url": "https://x.com/loftwah",
+      "category": "social",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:15.958Z",
+        "httpStatus": 200,
+        "finalUrl": "https://x.com/loftwah",
+        "status": "response-title-observed"
+      },
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.socialLinks"
+      }
+    },
+    {
+      "id": "beats",
+      "title": "Original beats playlist",
+      "url": "https://www.youtube.com/playlist?list=PLKBAUoCO_FtlACntcZqTOD4hckJ8IAWZ3",
+      "category": "music",
+      "publication": "hold",
+      "reason": "HTTP response obtained; content/playlist/credit meaning needs verification.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:16.399Z",
+        "httpStatus": 200,
+        "finalUrl": "https://www.youtube.com/playlist?list=PLKBAUoCO_FtlACntcZqTOD4hckJ8IAWZ3",
+        "status": "response-only"
+      },
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.links",
+        "id": "beats"
+      }
+    },
+    {
+      "id": "credits",
+      "title": "Production credits playlist",
+      "url": "https://www.youtube.com/playlist?list=PLKBAUoCO_FtkHiwRzyGzfhauIhNMBFw66",
+      "category": "music",
+      "publication": "hold",
+      "reason": "HTTP response obtained; content/playlist/credit meaning needs verification.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:16.419Z",
+        "httpStatus": 200,
+        "finalUrl": "https://www.youtube.com/playlist?list=PLKBAUoCO_FtkHiwRzyGzfhauIhNMBFw66",
+        "status": "response-only"
+      },
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.links",
+        "id": "produced"
+      }
+    },
+    {
+      "id": "medium",
+      "title": "Medium",
+      "url": "https://loftwah.medium.com",
+      "category": "writing",
+      "publication": "hold",
+      "reason": "Owner-supplied profile; challenge/access prevents current content verification.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:16.681Z",
+        "httpStatus": 403,
+        "finalUrl": "https://loftwah.medium.com/",
+        "status": "challenge-or-blocked"
+      }
+    },
+    {
+      "id": "dailydev",
+      "title": "daily.dev",
+      "url": "https://daily.dev/loftwah",
+      "category": "social",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:16.793Z",
+        "httpStatus": 200,
+        "finalUrl": "https://daily.dev/loftwah",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "spotify-beatsmiff",
+      "title": "Loftwah The Beatsmiff",
+      "url": "https://open.spotify.com/artist/4RutEiEhEl0PH7J77J7mz8",
+      "category": "music",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:16.829Z",
+        "httpStatus": 200,
+        "finalUrl": "https://open.spotify.com/artist/4RutEiEhEl0PH7J77J7mz8",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "spotify-loftwah",
+      "title": "Loftwah artist page",
+      "url": "https://open.spotify.com/artist/1H7nwwjikAmMdARWejXyd1",
+      "category": "music",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:16.834Z",
+        "httpStatus": 200,
+        "finalUrl": "https://open.spotify.com/artist/1H7nwwjikAmMdARWejXyd1",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "apple",
+      "title": "Apple Music",
+      "url": "https://music.apple.com/au/artist/loftwah-the-beatsmiff/1459124888",
+      "category": "music",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:17.225Z",
+        "httpStatus": 200,
+        "finalUrl": "https://music.apple.com/au/artist/loftwah-the-beatsmiff/1459124888",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "discogs-dean",
+      "title": "Dean Lofts credits",
+      "url": "https://www.discogs.com/artist/3573134-Dean-Lofts",
+      "category": "credit",
+      "publication": "hold",
+      "reason": "Source destination exists or was supplied, but precise credit/ownership role remains unverified.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:17.350Z",
+        "httpStatus": 403,
+        "finalUrl": "https://www.discogs.com/artist/3573134-Dean-Lofts",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "discogs-loftee",
+      "title": "Loftee Beats credits",
+      "url": "https://www.discogs.com/artist/3573135-Loftee-Beats",
+      "category": "credit",
+      "publication": "hold",
+      "reason": "Source destination exists or was supplied, but precise credit/ownership role remains unverified.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:17.504Z",
+        "httpStatus": 403,
+        "finalUrl": "https://www.discogs.com/artist/3573135-Loftee-Beats",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "unearthed",
+      "title": "triple j Unearthed",
+      "url": "https://www.abc.net.au/triplejunearthed/artist/loftwah-beatsmiff",
+      "category": "music",
+      "publication": "candidate",
+      "reason": "Owner-supplied public destination; HTTP response/title checked, full interaction and current ownership are separate evidence.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:17.586Z",
+        "httpStatus": 200,
+        "finalUrl": "https://www.abc.net.au/triplejunearthed/artist/loftwah-beatsmiff",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "soundbetter",
+      "title": "SoundBetter",
+      "url": "https://soundbetter.com/profiles/194332-loftwah-the-beatsmiff",
+      "category": "credit",
+      "publication": "hold",
+      "reason": "Source destination exists or was supplied, but precise credit/ownership role remains unverified.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:17.844Z",
+        "httpStatus": 200,
+        "finalUrl": "https://soundbetter.com/profiles/194332-loftwah-the-beatsmiff",
+        "status": "response-only"
+      }
+    },
+    {
+      "id": "salty-waterz",
+      "title": "Salty Waterz",
+      "url": "https://optimystic-mc.bandcamp.com/album/salty-waterz",
+      "category": "credit",
+      "publication": "hold",
+      "reason": "Source destination exists or was supplied, but precise credit/ownership role remains unverified.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:17.875Z",
+        "httpStatus": 200,
+        "finalUrl": "https://optimystic-mc.bandcamp.com/album/salty-waterz",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "shadow",
+      "title": "Followed by the Shadow",
+      "url": "https://optimystic-mc.bandcamp.com/album/followed-by-the-shadow",
+      "category": "credit",
+      "publication": "hold",
+      "reason": "Source destination exists or was supplied, but precise credit/ownership role remains unverified.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:17.905Z",
+        "httpStatus": 200,
+        "finalUrl": "https://optimystic-mc.bandcamp.com/album/followed-by-the-shadow",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "such-iz-life",
+      "title": "Such Iz Life 2",
+      "url": "https://69records.bandcamp.com/album/such-iz-life-2",
+      "category": "credit",
+      "publication": "hold",
+      "reason": "Source destination exists or was supplied, but precise credit/ownership role remains unverified.",
+      "identityEvidence": "owner-supplied",
+      "verification": {
+        "checkedAt": "2026-10-15T14:07:18.635Z",
+        "httpStatus": 200,
+        "finalUrl": "https://69records.bandcamp.com/album/such-iz-life-2",
+        "status": "response-title-observed"
+      }
+    },
+    {
+      "id": "legacy-must-haves",
+      "title": "Must haves in DevOps and the road to AI",
+      "url": "https://www.makethelist.io/d/devops-must-haves",
+      "category": "community",
+      "publication": "hold",
+      "reason": "Authored legacy destination; current content still needs verification.",
+      "identityEvidence": "pinned-public-source",
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.links",
+        "id": "must-haves"
+      },
+      "verification": {
+        "status": "unverified",
+        "checkedAt": null,
+        "httpStatus": null
+      }
+    },
+    {
+      "id": "legacy-linux-pirates",
+      "title": "Linux for Pirates! My daily.dev squad",
+      "url": "https://dly.to/3R9tSuu9oHB",
+      "category": "community",
+      "publication": "hold",
+      "reason": "Authored legacy destination; current content still needs verification.",
+      "identityEvidence": "pinned-public-source",
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.links",
+        "id": "linux-pirates"
+      },
+      "verification": {
+        "status": "unverified",
+        "checkedAt": null,
+        "httpStatus": null
+      }
+    },
+    {
+      "id": "legacy-mashable",
+      "title": "Featured in Mashable",
+      "url": "https://mashable.com/article/crowdstrike-outage-reactions",
+      "category": "achievement",
+      "publication": "hold",
+      "reason": "Historical source date retained; verify claim/current credential validity before rendering as a card.",
+      "identityEvidence": "pinned-public-source",
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.achievements",
+        "id": "mashable",
+        "date": "19 Jul 2024"
+      },
+      "verification": {
+        "status": "unverified",
+        "checkedAt": null,
+        "httpStatus": null
+      }
+    },
+    {
+      "id": "legacy-terraform",
+      "title": "HashiCorp Certified: Terraform Associate (003)",
+      "url": "https://www.credly.com/badges/0e437888-1deb-4a2d-8b82-cefb6b87b35d/public_url",
+      "category": "achievement",
+      "publication": "hold",
+      "reason": "Historical source date retained; verify claim/current credential validity before rendering as a card.",
+      "identityEvidence": "pinned-public-source",
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.achievements",
+        "id": "terraform",
+        "date": "18 Apr 2024"
+      },
+      "verification": {
+        "status": "unverified",
+        "checkedAt": null,
+        "httpStatus": null
+      }
+    },
+    {
+      "id": "legacy-github-followers",
+      "title": "Crossed 1K followers on GitHub",
+      "url": "https://github.com/loftwah?tab=achievements",
+      "category": "achievement",
+      "publication": "hold",
+      "reason": "Historical source date retained; verify claim/current credential validity before rendering as a card.",
+      "identityEvidence": "pinned-public-source",
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.achievements",
+        "id": "github-followers",
+        "date": "12 Jul 2023"
+      },
+      "verification": {
+        "status": "unverified",
+        "checkedAt": null,
+        "httpStatus": null
+      }
+    },
+    {
+      "id": "legacy-aws-certified",
+      "title": "AWS Certified Solutions Architect \u2013 Professional",
+      "url": "https://www.credly.com/badges/c97a35fc-ba6b-427a-b521-19b9ab28cfdb/facebook",
+      "category": "achievement",
+      "publication": "hold",
+      "reason": "Historical source date retained; verify claim/current credential validity before rendering as a card.",
+      "identityEvidence": "pinned-public-source",
+      "legacySource": {
+        "repository": "loftwah/linkarooie-3",
+        "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+        "file": "src/data/profiles/loftwah.ts",
+        "path": "loftwah.achievements",
+        "id": "aws-certified",
+        "date": "12 Jul 2023"
+      },
+      "verification": {
+        "status": "unverified",
+        "checkedAt": null,
+        "httpStatus": null
+      }
+    }
+  ]
+}
