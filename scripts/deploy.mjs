@@ -1,6 +1,7 @@
 import {assertReleasePackage} from './package-get-ready.mjs';
 import {assertMcpReleasePackage} from './package-get-ready-mcp.mjs';
 import {verifyLive} from './verify-live.mjs';
+import {verifySharing} from './verify-sharing.mjs';
 import {readFileSync} from 'node:fs';
 import {resolve,dirname} from 'node:path';
 import {query} from './records.mjs';
@@ -37,6 +38,7 @@ try {
  execFileSync('pnpm',['wrangler','deploy','--message','App Composer '+sha,...(snapshot?['--secrets-file',snapshot.path]:[])],{stdio:'inherit'});
 } finally {snapshot?.remove();}
 await verifyLive(sha,lock);
+await verifySharing('https://composer.loftwah.com');
 for(const path of ['/_emdash/admin/setup','/_emdash/api/users','/_emdash/api/setup/status','/_emdash/api/plugins/composer-miniapps/read?app=guestbook&action=snapshot']){
  const res=await fetch('https://composer.loftwah.com'+path,{redirect:'manual',headers:{'User-Agent':'Mozilla/5.0 (AppComposer verification)'}});
  const location=res.headers.get('location'),redirect=location?new URL(location,'https://composer.loftwah.com'):null;

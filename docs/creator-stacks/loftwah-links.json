@@ -344,8 +344,8 @@
       "title": "Bluesky",
       "url": "https://bsky.app/profile/loftwah.bsky.social",
       "category": "social",
-      "publication": "published-profile",
-      "reason": "Owner-authorised profile destination, applied through the reviewed settings-only spec. Destination content/ownership interaction remains unverified; HTTP reachability does not remove that limitation.",
+      "publication": "excluded",
+      "reason": "Removed at MP direction on 16 October 2026; do not republish or restore from legacy data.",
       "identityEvidence": "owner-supplied",
       "verification": {
         "checkedAt": "2026-10-15T14:07:15.356Z",
