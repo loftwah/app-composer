@@ -1,7 +1,8 @@
 ---
-interface Props {page:number;hasMore:boolean;start:number;end:number}
-const {page,hasMore,start,end}=Astro.props;
-const address=(value:number)=>(value===1?'/':'/?page='+value)+'#content';
+import {collectionAddress} from '../lib/collection.mjs';
+interface Props {page:number;hasMore:boolean;start:number;end:number;filter?:string}
+const {page,hasMore,start,end,filter=''}=Astro.props;
+const address=(value:number)=>collectionAddress(value,filter);
 ---
 <nav class="collection-pages" aria-label="Collection pages">
  <p><span aria-current="page">Page {page}</span><span class="page-range">Entries {start}–{end}</span></p>

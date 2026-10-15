@@ -87,3 +87,8 @@ Calendar dates, reviewed 14 October 2026: top-level date fields use a labelled K
 
 
 Individual entry pages, reviewed 15 October 2026: published collection titles are underlined native links to stable content-ID addresses. A detail page inherits the shared header, footer, typography, theme and open labelled field rows. A quiet bordered 48px-high Back to collection link precedes its sole h1; model group headings become h2 at1.25rem. The same visible fields and safe formatting serve both pages. Missing entries and unavailable content use the existing open recovery treatment and never render hidden entry titles. Navigation, skip links and theme work across pages at phone/tablet/desktop widths, with a JavaScript-free reading path. No imagery or visual world is replaced.
+
+
+Collection filter, reviewed 15 October 2026: one native labelled select derives from the first unconditional choice field. Its 48px control and action sit below the collection heading, inheriting the charcoal/ivory surfaces, orange action, visible focus and open reading layout. Phone layouts give the select a full row; the form and recovery links work without JavaScript. A quiet sentence names the active choice, while pagination shows positions within that filtered result, never an invented total. No-result and invalid-filter states keep a route back.
+
+The select keeps native keyboard and picker behaviour, with a scoped custom painted shell and an 18px, 2px-stroke chevron matching the existing line-icon language. This prevents WebKit’s compact menulist appearance from reducing its rendered touch target below 48px. It does not style the EmDash admin.
