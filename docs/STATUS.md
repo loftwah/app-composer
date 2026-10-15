@@ -1,6 +1,8 @@
 # Continuation
 Reviewed 13 October 2026. MP activated implementation; historical epic hold is lifted.
 
+Native profile-settings portability is implemented in a source candidate under#25/#118. It adds download, retained file selection, text-only saved/file review and explicit guarded Apply to the existing mini-app admin, using the independent app-owned API and declared format. Unknown/private extensions and app records stay outside the file; older pins keep bridge and controls disconnected. [The feature note](profile-settings-portability.md) distinguishes source/unit evidence from pending browser/finish, exact source-pin activation and guarded release.
+
 Built: real Astro/EmDash/D1 catalogue; independent Guestbook and Showcase Workers with configurable owner studios, private validated uploads and generic eligible-item contract; independently deployed configurable Hello reference; saved Init specs and matching external-Codex handoffs; branching non-executing Explorer; optional MV3 dashboard extension; independent encrypted synthetic-only state demo.
 
 Evidence: private runtime receipts under `.private/`; public canonical index is GitHub #11 and `/release`. Exact pins are `composition.lock.json`. The live pair test performs real PNG submit/pending/approve/feature/hide/delete and direct-media revocation, never personal uploads. Typed Init configuration changed the live title, theme and layout. Hello was changed and redeployed with exact HTTPS identity. Vault round-trip/tamper/wrong-key/allowlist/unique-ID/scoped-disclosure tests pass.

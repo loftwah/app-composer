@@ -1,0 +1,15 @@
+# Profile settings portability — source under qualification
+
+Mini-app management belongs in the native Composer dashboard, using its existing forms, disclosures, shared action lock and recovery conventions. The standalone app keeps its independently usable owner studio. Both surfaces call the same app-owned settings API; data and private operator credentials stay with that app.
+
+Linkarooie's optional `profileSettings` descriptor declares version 1, the fixed `linkarooie.profile-settings` JSON format and a 32 KiB file limit. Older source pins expose neither native controls nor bridge actions. The bridge fixes the selected service and `/api/profile-settings` endpoint in code. A public manifest or file cannot select a server, supply a credential or execute instructions.
+
+The native flow downloads settings, retains a selected file across app switches, reviews saved/file differences without writing, and requires explicit Apply. Applying updates the public profile immediately. Existing app-settings edits block Apply; other link, style, tag and milestone drafts stay in place. Conflicts or uncertain applies retain the file/comparison and require another explicit read-only review. File data stays in memory, never browser storage. Pending reads, invalid files, matching/no-change files and connection recovery have distinct states.
+
+Only title, introduction, theme, layout, handle and four supported website/social addresses belong in the file. Links, publication/moderation states, media, provider references, tags, milestones and private app-owned extensions are excluded. Unknown or credential fields, executable modules, unsafe addresses and unsupported versions are refused. Destinations are not fetched. This is presentation-settings portability, not full collection backup/recovery acceptance.
+
+The existing invited administrator role, host Origin/CSRF checks, exact source identity and server-only app credential remain enforced. Export is read-only; review uses protected POST but writes nothing; Apply uses the reviewed saved fields and the app's exact-byte atomic comparison. Responses are bounded, strictly parsed and redacted on incompatibility. No operation retries itself.
+
+The native pure validation copy is MIT source from `loftwah/app-composer-showcase`, `public/brand/profile-settings-fields.mjs` and its declaration file at `e71de77f0e1ab76827bbb91215b592f2ab2ac428`. These copied bytes are separately owned here. There is no runtime cross-repository import or mandatory Composer dependency in the independent app. Extracting the pure module preserved existing profile-validation behavior.
+
+Current evidence is source/unit/type evidence only. Focused tests cover role/Origin/source refusal, malformed or secret-bearing input, fixed routes, conflicts, uncertain writes, redacted responses and actual React rendering. The independent app's43 tests and types pass. Actual browser interaction, focus/cancelled navigation, native host authentication, responsive/theme finish review, exact composition activation and normal clean-main release remain separate gates. Existing#25/#118 own delivery and#11 owns final live evidence.

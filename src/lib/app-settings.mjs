@@ -5,7 +5,7 @@ const options={closed:'Closed',postcards:'Postcards with guest code',daylight:'D
 const names={guestbook:'Photo Guestbook',showcase:'Linkarooie'};
 // Only the reviewed composition's data contracts reach the form; no remote code runs.
 export const appSettings=Object.freeze(Object.fromEntries(composition.apps.map(app=>[app.id,{
- id:app.id,name:names[app.id]??app.manifest.name,cardPresentation:app.manifest.cardPresentation??null,achievementCollection:app.manifest.achievementCollection??null,tagCollection:app.manifest.tagCollection??null,
+ id:app.id,name:names[app.id]??app.manifest.name,cardPresentation:app.manifest.cardPresentation??null,achievementCollection:app.manifest.achievementCollection??null,tagCollection:app.manifest.tagCollection??null,profileSettings:app.manifest.profileSettings??null,
  source:{id:app.id,repository:app.repository,commit:app.commit,manifestDigest:app.manifestDigest},
  fields:Object.entries(app.manifest.configuration).map(([key,field])=>({key,label:labels[key]??key,...field,choices:field.type==='select'?field.options.map(value=>({value,label:options[value]??value})):[]})),
 }])));
