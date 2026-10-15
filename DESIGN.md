@@ -30,3 +30,5 @@ Project skill purpose, reviewed 15 October 2026: the existing optional Get Ready
 
 
 Generated content entry pages, reviewed 15 October 2026: the new-project disclosure now explains the published collection and stable individual pages. The generated reader extends content-project-v1 with linked entry titles, an inherited detail surface and a quiet bordered Back to collection link; the same shell, fields, theme and typography serve both routes. No new form control or product visual world is introduced.
+
+Installed-package observations, reviewed 15 October 2026: the existing Get Ready project panel adds one inherited small-text paragraph below the declared commands, using the shared report wording for EmDash package metadata observed on disk or an older report's uninspected state. It retains the dark/light tokens, phone wrapping and open ruled rows, without new controls, badges or layout styling. Imported observations remain untrusted and never certify readiness, runtime compatibility or a working build; package code is not loaded or executed by the inspection.
