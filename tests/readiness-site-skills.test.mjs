@@ -10,7 +10,7 @@ test('complete pinned skills prepare offline; repeat and independent project pre
   writeFileSync(join(workspace,'AGENTS.md'),'Fictional authored instructions');
   const first=prepareSiteSkills({workspace,availableSkills:[]},env);assert.equal(first.changed,true);assert.equal(first.ready,false);assert.equal(first.source.commit,bundle.commit);
   assert.deepEqual(first.skills.map(s=>s.state),['prepared','prepared']);for(const skill of first.skills){assert.equal(skill.agentVisible,'not-probed');assert.equal(skill.exercised,false);}
-  for(const [name,file] of Object.entries(bundle.files)){if(name==='LICENSE')continue;const actual=readFileSync(join(workspace,'.agents',name));assert.equal(hash(actual),file.sha256);}
+  for(const [name,file] of Object.entries(bundle.files)){if(name==='LICENSE'||name.startsWith('skills/creating-plugins/'))continue;const actual=readFileSync(join(workspace,'.agents',name));assert.equal(hash(actual),file.sha256);}
   assert.match(readFileSync(join(workspace,'.agents/skills/emdash-cli/LICENSE'),'utf8'),/MIT License/);
   const before=digest(workspace),second=prepareSiteSkills({workspace,availableSkills:[]},env);assert.equal(second.changed,false);assert.deepEqual(second.skills.map(s=>s.state),['reviewed-copy','reviewed-copy']);assert.deepEqual(digest(workspace),before);
   const other=join(root,'different-project');mkdirSync(other);writeFileSync(join(other,'package.json'),JSON.stringify({devDependencies:{emdash:'1.2.0'}}));assert.equal(prepareSiteSkills({workspace:other,availableSkills:[]},env).changed,true);assert.deepEqual(digest(workspace),before);
@@ -85,4 +85,29 @@ test('kernel-bound write directories refuse replacement before launch without wr
 test('nested Git projects are refused instead of silently preparing their repository parent',async()=>{
  const {execFileSync}=await import('node:child_process'),{runLocalReadiness}=await import('../lib/get-ready/index.mjs'),{root,workspace,env}=fixture();
  try{execFileSync('git',['init','--quiet',workspace],{env:{PATH:process.env.PATH,HOME:env.HOME},stdio:'pipe'});const nested=join(workspace,'nested');mkdirSync(nested);writeFileSync(join(nested,'package.json'),JSON.stringify({dependencies:{emdash:'1.2.0'}}));await assert.rejects(runLocalReadiness({workspace:nested,operation:'prepare-site-skills',availableSkills:[]},{...env,PATH:process.env.PATH}));assert.equal((await import('node:fs')).existsSync(join(workspace,'.private')),false);assert.equal((await import('node:fs')).existsSync(join(workspace,'.agents')),false);}finally{rmSync(root,{recursive:true});}
+});
+
+test('explicit plugin purpose prepares its complete pinned tree and CLI without adding unrelated site guidance',()=>{
+ const {root,workspace,env}=fixture();try{
+  writeFileSync(join(workspace,'AGENTS.md'),'Fictional authored instructions');const first=prepareSiteSkills({workspace,availableSkills:[],purpose:'emdash-plugin'},env);assert.equal(first.purpose,'emdash-plugin');assert.equal(first.changed,true);assert.equal(first.ready,false);assert.deepEqual(first.skills.map(s=>s.id),['creating-plugins','emdash-cli']);
+  for(const [name,file] of Object.entries(bundle.files).filter(([name])=>name.startsWith('skills/creating-plugins/')))assert.equal(hash(readFileSync(join(workspace,'.agents',name))),file.sha256,name);
+  assert.match(readFileSync(join(workspace,'.agents/skills/creating-plugins/LICENSE'),'utf8'),/MIT License/);assert.equal(readdirSync(join(workspace,'.agents/skills')).includes('building-emdash-site'),false);assert.equal(readFileSync(join(workspace,'AGENTS.md'),'utf8'),'Fictional authored instructions');const before=digest(workspace),again=prepareSiteSkills({workspace,availableSkills:[],purpose:'emdash-plugin'},env);assert.equal(again.changed,false);assert.deepEqual(again.skills.map(s=>s.state),['reviewed-copy','reviewed-copy']);assert.deepEqual(digest(workspace),before);
+  const reference=join(workspace,'.agents/skills/creating-plugins/references/hooks.md');writeFileSync(reference,'Fictional authored hook guidance');const changed=digest(workspace);assert.equal(prepareSiteSkills({workspace,availableSkills:[],purpose:'emdash-plugin'},env).skills[0].state,'preserved-project-copy');assert.deepEqual(digest(workspace),changed);
+ }finally{rmSync(root,{recursive:true});}
+});
+test('plugin purpose preserves existing user and advertised guidance without confusing site preparation',()=>{
+ for(const scope of ['user','advertised','site-first']){const {root,workspace,env}=fixture();try{
+  const inventory=scope==='advertised'?['creating-plugins','emdash-cli']:[];
+  if(scope==='user'){for(const id of ['creating-plugins','emdash-cli']){mkdirSync(join(env.HOME,'.codex/skills',id),{recursive:true});writeFileSync(join(env.HOME,'.codex/skills',id,'SKILL.md'),'Fictional custom guidance');}}
+  if(scope==='site-first')prepareSiteSkills({workspace,availableSkills:[]},env);const before=digest(workspace),first=prepareSiteSkills({workspace,availableSkills:inventory,purpose:'emdash-plugin'},env);assert.equal(first.ready,false);assert.equal(first.purpose,'emdash-plugin');if(scope!=='site-first'){assert.equal(first.changed,false);assert.deepEqual(digest(workspace),before);}else{assert.equal(first.changed,true);assert.equal(first.skills[1].state,'reviewed-copy');assert.match(readFileSync(join(workspace,'.agents/skills/building-emdash-site/SKILL.md'),'utf8'),/building-emdash-site/);}
+ }finally{rmSync(root,{recursive:true});}}
+});
+test('invalid purpose and purpose without an operation refuse before local workspace writes',async()=>{
+ const {runLocalReadiness}=await import('../lib/get-ready/index.mjs');
+ for(const purpose of ['auto','general','../outside',null,{},['emdash-plugin'],new String('emdash-plugin'),true]){const {root,workspace,env}=fixture();try{const before=digest(workspace);assert.throws(()=>prepareSiteSkills({workspace,availableSkills:[],purpose},env));assert.deepEqual(digest(workspace),before);if(purpose!==null){await assert.rejects(runLocalReadiness({workspace,operation:'prepare-site-skills',availableSkills:[],skillPurpose:purpose},env));assert.deepEqual(digest(workspace),before);}}finally{rmSync(root,{recursive:true});}}
+ const {root,workspace,env}=fixture();try{const before=digest(workspace);await assert.rejects(runLocalReadiness({workspace,skillPurpose:'emdash-plugin'},env));assert.deepEqual(digest(workspace),before);}finally{rmSync(root,{recursive:true});}
+});
+test('engine sends explicit plugin purpose only to preparation; check/resume cannot switch or retry it',async()=>{
+ const context={workspace:'/fictional/plugin'},seen=[],checks=['agent','github','cloudflare','https'].map(id=>({id,label:id,verify:async()=>({})})),adapter={checks,prepareSiteSkills:async(inventory,options)=>{seen.push(options);assert.deepEqual(inventory,[]);return {changed:true,purpose:options.skillPurpose,ready:false};}};
+ const first=await runReadinessSession(createReadinessSession(context),adapter,()=>{},{operation:'prepare-site-skills',availableSkills:[],skillPurpose:'emdash-plugin'});assert.equal(seen[0].skillPurpose,'emdash-plugin');assert.equal(first.state,'action_required');assert.equal(first.operation.evidence.purpose,'emdash-plugin');const resumed=await runReadinessSession(createReadinessSession(context,first),adapter);assert.equal(resumed.state,'action_required');assert.equal(seen.length,1);assert.equal(readinessReport(resumed).operations[0].state,'prepared');await assert.rejects(runReadinessSession(createReadinessSession(context),adapter,()=>{},{skillPurpose:'emdash-plugin'}));
 });
