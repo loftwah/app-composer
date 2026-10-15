@@ -155,11 +155,12 @@ test('ownership preserves a legacy temporary symlink or hardlink instead of over
 
 
 test('unsafe receipt storage is preserved and refused before any provider command',async()=>{
- for(const kind of ['malformed','unknown','oversize','directory','symlink','hardlink','missing-storage','linked-storage']){
+ for(const kind of ['malformed','unknown','coerced-repository','coerced-source','oversize','directory','symlink','hardlink','missing-storage','linked-storage']){
   const f=fixture();try{
    const storage=join(f.workspace,'.private'),path=join(storage,'ownership.json'),outside=join(f.root,'owner-work.txt');writeFileSync(outside,'Owner work must survive.');
    if(kind==='malformed')writeFileSync(path,'{owner work');
    if(kind==='unknown')writeFileSync(path,JSON.stringify({id:123,repository:'fixture/my-hello',source:f.source,ownerNote:'preserve'}));
+   if(kind==='coerced-repository'||kind==='coerced-source')writeFileSync(path,JSON.stringify({id:123,repository:kind==='coerced-repository'?['fixture/my-hello']:'fixture/my-hello',source:kind==='coerced-source'?[f.source]:f.source}));
    if(kind==='oversize')writeFileSync(path,'x'.repeat(16385));
    if(kind==='directory')mkdirSync(path);
    if(kind==='symlink')symlinkSync(outside,path);
