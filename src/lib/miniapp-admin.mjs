@@ -1,3 +1,4 @@
+import {appSettings,validateAppSettingValue} from './app-settings.mjs';
 const origin = 'https://composer.loftwah.com';
 const ids = new Set(['guestbook', 'showcase']);
 const identifier = value => typeof value === 'string' && /^[a-zA-Z0-9-]{1,64}$/.test(value);
@@ -22,8 +23,8 @@ export async function manageMiniapps(ctx, runtime, pins) {
  let path, body;
  if (action === 'snapshot') path = '/api/export';
  else if (action === 'preview' && app === 'guestbook' && identifier(command.id)) path = '/media/' + command.id;
- else if (action === 'settings' && text(command.title,80) && typeof command.intro === 'string' && command.intro.length <= 240 && ['daylight','midnight'].includes(command.theme) && ['grid','editorial'].includes(command.layout)) {
-  path='/api/config'; body={title:command.title,intro:command.intro,theme:command.theme,layout:command.layout};
+ else if (action === 'settings' && text(command.title,80) && typeof command.intro === 'string' && command.intro.length <= 240 && ['daylight','midnight'].includes(command.theme) && appSettings[app].fields.find(field=>field.key==='layout').options.includes(command.layout)) {
+  path='/api/config'; body={};try{for(const field of appSettings[app].fields){if(Object.hasOwn(command,field.key))body[field.key]=validateAppSettingValue(field,command[field.key],appSettings[app].name);}}catch{return fail('INVALID','Check the profile text and use supported HTTPS social addresses.');}
  } else if (action === 'moderate' && app === 'guestbook' && identifier(command.id) && ['approved','hidden','rejected'].includes(command.status)) {
   path='/api/moderate'; body={id:command.id,status:command.status};
  } else if (action === 'upload' && app === 'guestbook' && text(command.caption,160) && typeof command.author === 'string' && command.author.length <= 60 && command.consent === true && typeof command.png === 'string' && command.png.length <= 1400000 && /^[A-Za-z0-9+/]+={0,2}$/.test(command.png)) {
@@ -35,6 +36,8 @@ export async function manageMiniapps(ctx, runtime, pins) {
  } else if (action === 'link' && app === 'showcase' && text(command.title,100) && typeof command.description === 'string' && command.description.length <= 240 && typeof command.url === 'string' && command.url.length <= 2048) {
   try {const url=new URL(command.url); if(url.protocol!=='https:' || url.username || url.password) throw Error();} catch {return fail('INVALID','Choose an HTTPS link without embedded credentials.');}
   path='/api/cards'; body={title:command.title,description:command.description,url:command.url,status:'draft'};
+ } else if(action==='presentation'&&app==='showcase'&&identifier(command.id)&&typeof command.pinned==='boolean'&&appSettings.showcase.cardPresentation?.icons.includes(command.icon)){
+  path='/api/presentation';body={id:command.id,pinned:command.pinned,icon:command.icon};
  } else if (action === 'reorder' && app === 'showcase' && Array.isArray(command.ids) && command.ids.length <= 8 && command.ids.every(identifier) && new Set(command.ids).size===command.ids.length) {
   path='/api/reorder'; body={ids:command.ids};
  } else return fail('INVALID', 'Check the fields and choose a supported action.');

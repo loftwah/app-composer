@@ -5,11 +5,11 @@ import {configurationPlan,applyConfiguration,verifyConfigurationTarget} from '..
 import lock from '../composition.lock.json' with {type:'json'};
 import {mkdtempSync,writeFileSync,readFileSync,existsSync,rmSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {spawnSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
 const old=()=>({version:1,preset:'composition',config:{title:'Fictional shared title',intro:'Fictional shared introduction',theme:'daylight',layout:'grid'},privacy:'review-first',cards:[],deployment:{mode:'existing-domain',hostname:'composer.loftwah.com'}});
-const spec=()=>({...validateSpec(old()),appSettings:{guestbook:{...old().config,title:'Fictional submissions',theme:'midnight'},showcase:{...old().config,title:'Fictional favourites',layout:'editorial'}}});
+const spec=()=>({...validateSpec(old()),appSettings:{guestbook:{...old().config,title:'Fictional submissions',theme:'midnight'},showcase:{...Object.fromEntries(appSettings.showcase.fields.map(field=>[field.key,field.default])),...old().config,title:'Fictional favourites',layout:'editorial'}}});
 
 test('legacy drafts migrate without changing effective settings and v2 pins survive deterministic reopen',()=>{
  const migrated=validateSpec(old());assert.equal(migrated.version,2);assert.deepEqual(migrated.appSettings,{});assert.deepEqual(migrated.sources,selectedSources(migrated.apps));
- for(const id of migrated.apps)assert.deepEqual(appConfiguration(migrated,id),old().config);
+ for(const id of migrated.apps)assert.deepEqual(appConfiguration(migrated,id),{...Object.fromEntries(appSettings[id].fields.map(field=>[field.key,field.default])),...old().config});
  const configured=validateSpec(spec());assert.deepEqual(validateSpec(JSON.parse(JSON.stringify(configured))),configured);
  assert.equal(appConfiguration(configured,'guestbook').title,'Fictional submissions');assert.equal(appConfiguration(configured,'guestbook').layout,'grid');assert.equal(appConfiguration(configured,'showcase').theme,'daylight');assert.equal(appConfiguration(configured,'showcase').layout,'editorial');
  assert.match(handoff(configured),/Specification \(version 2\)/);assert.ok(handoff(configured).includes(lock.apps[0].commit));
@@ -54,4 +54,19 @@ test('app source drift between writes refuses the later app and retains the comp
  const request=async(_url,options)=>{if(options.method==='POST'){writes++;return Response.json({ok:true,config:JSON.parse(options.body)});}reads++;return Response.json({revision:writes?'a'.repeat(40):plan[0].source.commit});};
  await assert.rejects(applyConfiguration(plan,{credential:()=> 'fictional-token',beforeWrite:app=>verifyConfigurationTarget(app,request),request}),/Current app source changed/);
  assert.equal(writes,1);assert.equal(reads,3);
+});
+
+test('profile contracts configure compact identity and refuse unsafe social values before apply',()=>{
+ const complete=spec();complete.appSettings.showcase={...complete.appSettings.showcase,layout:'compact',handle:'fictional.studio',github:'https://github.com/example',website:'https://example.test/'};
+ const configured=validateSpec(complete),effective=appConfiguration(configured,'showcase');assert.equal(effective.layout,'compact');assert.equal(effective.handle,'fictional.studio');assert.equal(effective.github,'https://github.com/example');assert.deepEqual(validateSpec(JSON.parse(JSON.stringify(configured))),configured);
+ for(const patch of [{github:'https://example.test/spoof'},{website:'javascript:alert(1)'},{website:'https://owner:secret@example.test/'},{handle:'<script>'},{website:'https://example.test/'+'é'.repeat(600)},{bluesky:'https://bsky.app.evil.test/'}])assert.throws(()=>validateSpec({...complete,appSettings:{...complete.appSettings,showcase:{...complete.appSettings.showcase,...patch}}}));
+ assert.equal(appConfiguration(validateSpec(old()),'showcase').handle,'');assert.deepEqual(appSettings.showcase.cardPresentation.icons,['link','book','code','music','video','heart']);
+});
+
+test('shared-only and legacy settings omit profile clears while explicit profile groups can clear them',async()=>{
+ for(const input of [old(),validateSpec(old())]){
+  const plan=configurationPlan(input,lock.apps);const target=plan.find(app=>app.id==='showcase');assert.deepEqual(target.configuration,old().config);
+  const sent=[];await applyConfiguration(plan,{credential:()=> 'fictional-token',beforeWrite:()=>{},request:async(_url,options)=>{const patch=JSON.parse(options.body);sent.push(patch);return Response.json({ok:true,config:patch});}});assert.equal(Object.hasOwn(sent[1],'handle'),false);assert.equal(Object.hasOwn(sent[1],'github'),false);
+ }
+ const explicit=spec();explicit.appSettings.showcase.handle='';explicit.appSettings.showcase.github='';const full=configurationPlan(explicit,lock.apps).find(app=>app.id==='showcase').configuration;assert.equal(Object.hasOwn(full,'handle'),true);assert.equal(full.github,'');
 });
