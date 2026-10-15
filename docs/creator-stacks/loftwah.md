@@ -71,3 +71,15 @@ The [public app analytics receipt](https://github.com/loftwah/app-composer/issue
 The next #25 tag source slice is under qualification in the independently owned app and native bridge. Short labels can carry optional explanation/source/related-work references through native keyboard/touch disclosures; draft/private states, bounded data and exact-revision recovery remain enforced. Pure-field schema copies are MIT and separately owned. No tag catalogue has been imported or seeded, and source/unit acceptance is not a live tag release. Existing #25/#11 retain the remaining browser, finish, pin activation and production evidence.
 
 Intentional first-reference curation, 16 October 2026: one genuine App Composer milestone is public on both Linkarooie hosts, dated October 2026 and linked to `https://composer.loftwah.com/`. The same app-owned ID passed API draft/publish/hide/restore visibility at revisions 4–7, preserving all original cards and settings. This is independently labelled API curation; it does not fill the remaining native UI acceptance. [The canonical #11 receipt](https://github.com/loftwah/app-composer/issues/11#issuecomment-6200990739) records exact active versions, marked pending guest admission/cleanup, owner preservation and incomplete native/public-rendering gates.
+
+## Owner access and guest participation
+
+MP's routine owner entry is [Manage mini-apps](https://composer.loftwah.com/_emdash/admin/plugins/composer-miniapps/apps) in the existing invited EmDash administrator session. It provides Guestbook moderation and Linkarooie editing together. If that session expires, use the normal sign-in flow; an agent's Cloudflare API credential does not establish browser authentication.
+
+| Audience | Entry | Available work |
+| --- | --- | --- |
+| Owner | Composer's Manage mini-apps | Review/moderate Guestbook contributions; edit, preview and explicitly publish/hide Linkarooie content. |
+| Guest | [Guestbook](https://guestbook.loftwah.com/) with `hunter2` | Submit a new pending postcard under the existing consent, content and admission limits. |
+| Independent app owner | Each app's `/owner` studio | Use that app's separate private owner credential for its own records and configuration. |
+
+The standalone operator credential is retained in each independent checkout's private `OWNER_API_TOKEN` file. Its value stays private and is never included in the creator catalogue, browser console, portable public specifications or guest instructions. The shared guest code grants no owner session, moderation, settings change, private export or existing-record edit/delete capability. These are server-enforced boundaries. The browser-control failure recorded in #11 is separate from actual sign-in, which was observed working.
