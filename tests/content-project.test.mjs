@@ -65,3 +65,13 @@ test('only the generated site seed selects its bundled native integer widget; po
 test('native integer editing preserves an explicit zero and clears an empty control to null',async()=>{
  const {numberInputValue}=await import('../lib/content-model/site-template/src/lib/number-input.mjs');assert.equal(numberInputValue(''),null);for(const value of ['0','-1','1','50','51'])assert.equal(numberInputValue(value),Number(value));
 });
+
+
+test('optional row links clear without mutating submitted rows, required links or unrelated collections',async()=>{
+ const {createPlugin}=await import('../lib/content-model/site-template/src/lib/editor-compatibility.mjs');
+ const rows=[{key:'credits',links:['website']}],plugin=createPlugin({collection:'projects',links:['project_link'],rows});rows[0].links.push('required_link');rows.push({key:'outside',links:['website']});const save=plugin.hooks['content:beforeSave'].handler;
+ const untouched={name:'Fictional unchanged',website:'https://example.test/studio'},submitted={project_link:'',title:'Fictional project',credits:[{name:'Fictional studio',website:'',required_link:'',flag:false,zero:0},untouched,{name:'Absent link'},null,['unexpected row']],outside:[{website:''}]},before=structuredClone(submitted),result=await save({collection:'projects',content:submitted});
+ assert.deepEqual(submitted,before);assert.equal(result.project_link,null);assert.equal(result.credits[0].website,null);assert.equal(result.credits[0].required_link,'');assert.equal(result.credits[0].flag,false);assert.equal(result.credits[0].zero,0);assert.equal(result.credits[1],untouched);assert.equal(result.credits[2],submitted.credits[2]);assert.equal(result.credits[3],null);assert.equal(result.credits[4],submitted.credits[4]);assert.equal(result.outside,submitted.outside);
+ const noChange={credits:[{website:null},{website:'https://example.test'},{website:'javascript:unsafe'},{website:' '},{}]};assert.equal(await save({collection:'projects',content:noChange}),noChange);for(const credits of [undefined,null,'wrong shape',{}]){const content={credits};assert.equal(await save({collection:'projects',content}),content);}assert.equal(await save({collection:'other',content:submitted}),undefined);
+ for(const rows of ['all',[null],[{key:'credits',links:'all'}],[{key:'../outside',links:[]}],[{key:'constructor',links:[]}],[{key:'credits',links:['prototype']}],[{key:'credits',links:['website','website']}],[{key:'credits',links:[],execute:'untrusted'}],[{key:'credits',links:[]},{key:'credits',links:[]}]])assert.throws(()=>createPlugin({collection:'projects',links:[],rows}));
+});
