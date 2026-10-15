@@ -101,7 +101,7 @@ To remove this capability, stop the connection and remove its allow flag. Existi
 
 ## Report compatibility
 
-Transport 0.8.0/server 1.9.0 returns the shared report version 2, including only the dated clean/changed/unknown local-work observation. It exposes no file names, paths, diffs or content. This does not grant source approval or a new capability. Consumers should update their report validator; the current library/browser also read legacy version 1 reports with local-work status unknown. Local edits or commits in the same selected target do not silently complete an unfinished setup operation, and checks still never retry it.
+Transport 0.9.0/server 1.10.0 returns the shared report version 2, including only the dated clean/changed/unknown local-work observation. It exposes no file names, paths, diffs or content. This does not grant source approval or a new capability. Consumers should update their report validator; the current library/browser also read legacy version 1 reports with local-work status unknown. Local edits or commits in the same selected target do not silently complete an unfinished setup operation, and checks still never retry it.
 
 ### Host-selected plugin guidance
 
@@ -111,3 +111,6 @@ The bundled plugin tree includes its complete pinned references and MIT notice. 
 
 
 The shared check now reuses the selected workspace Wrangler 4.143.1 OAuth sign-in for account routing and exact HTTPS/source verification. An explicit runtime API token stays preferred, and a denied selection never switches identity. No model argument can select credentials or start login; credential output is captured, disk logging disabled, and only redacted results leave the engine. Wrangler can refresh its own existing OAuth cache. This does not enable deployment/target preparation through MCP or replace the separate domain diagnostic's token requirement. See the bundled core README for the exact boundary.
+
+
+Core0.5 also permits its existing separately invoked library/CLI starter target/deployment operations to select the current Wrangler credential, with credential capture and isolated build/upload HOME. Transport0.9/server1.10 adds no corresponding tool or model-selected operation: MCP cloud writes remain unavailable. Check/inspect scope and optional local preparation gates are unchanged. Real customer OAuth upload acceptance is recorded separately from source fixtures and existing API-token evidence.
