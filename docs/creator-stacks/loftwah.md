@@ -33,8 +33,8 @@ MP explicitly wants tasteful technical discoveries: small ASCII art, source/owne
 
 ## Existing ownership and next delivery
 
-1. #25: finish the existing protected editor, coordinated Linkarooie naming and a reviewed Loftwah profile using the filtered source catalogue. Preserve authored records and exact app source pins.
-2. #24: deliver the separate guest contributor boundary and enjoyable Guestbook presentation. Keep owner moderation/revocation effective in every public view.
+1. #25: continue the verified Linkarooie profile/editor with bounded milestones, rich tags and portable configuration. Protected link editing and coordinated naming have shipped; preserve authored records and exact source pins rather than importing the catalogue wholesale.
+2. #24: extend the active, separate guest postcard experience while keeping owner moderation/revocation effective in every public view. The guest code never grants owner access.
 3. #112/#113/#114: reusable creator workspaces, saved stacks/pages, publishing and ownership. No secret Loftwah-only permissions or one-off product fork.
 4. #116 and Woodhouse #34: creator analytics versus the existing bounded public programme. Count actual requests/actions/listening with their definitions; no invented unique people, conversions, lifetime growth or “NEW BEST” from incomparable history.
 5. #118/#8/#9: connection health, source updates, export and tested recovery that preserve owner changes and publication state. Source rollback is not data recovery.
@@ -45,14 +45,13 @@ Woodhouse coordinates the shared host's browser/build queue and the portfolio an
 
 [The catalogue](loftwah-links.json) records reviewed current destinations and withheld/unverified states, with a pinned legacy-profile source. It is authoring/reference data, not a live seed, executable recipe, ownership receipt or deployment authority. Only intended profile/social/link/achievement arrays are extracted; technology-tag citations are not silently imported as Loftwah projects. The old profile biography and withheld URLs are excluded.
 
-The current app has eight stored-card slots, not unlimited grouped pages. Preserve existing cards; add/reorder only within the actual supported contract. Grouped pages, achievements, thumbnails, avatar/banner, visitor text submissions, richer cards and private creator analytics remain work until shipped. Report what was imported/configured, the actual public URLs, source/Worker identities, tested journeys and the remaining gate.
+The current app has eight stored-card slots, not unlimited grouped pages. Preserve existing cards; add/reorder only within the actual supported contract. Guest text postcards are active under their separate pending/moderation boundary. The optional eight-entry milestone collection is the separately qualified candidate below, pending live release acceptance. Grouped pages, avatar/banner, broader media, rich tags, import and private creator analytics remain open. Report actual configuration, public URLs, source/Worker identities, tested journeys and remaining gates.
 
 ## Initial configuration evidence (historical)
 
 The supported version-2 [profile specification](loftwah-profile.spec.json) was validated and applied settings-only to clean pushed/live Composer main `b2d2839d385e9c5b43d268701bd16e8ed3d8f75a`, retaining the active pair pins: Guestbook `33244a8789b656786e861dce7ae09cf320db546c`, Showcase `1dbb6b695549a6c1fcb3df5a42c4d3e996de786d`. A fresh Get Ready run verified the selected workspace before the guarded apply. The explicit Showcase candidate selected the already reviewed/deployed composition pin; its newer guarded-editor main is not deployed yet. No source promotion or root deployment was performed.
 
 Public HTTP HTML now shows Loftwah's profile/bio/handle/socials and compact layout at https://showcase.loftwah.com/ and https://composer.loftwah.com/showcase/ ; Guestbook displays Loftwah's guestbook at https://guestbook.loftwah.com/ and https://composer.loftwah.com/guestbook/ . All four authenticated configurations matched the intended spec, and complete non-configuration collection fingerprints matched the privately retained pre-apply snapshots. No photo, card, publication state or owner credential was changed. Browser interaction/layout confirmation remains queued; this does not complete the profile catalogue, guest submission, native CMS authentication or coordinated Linkarooie rename.
-
 
 ## Verified continuation, 16 October 2026
 
