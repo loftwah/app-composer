@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-15T18:37:23.984267+00:00",
+  "title": "Design System: App Composer",
+  "extensions": {
+    "colorMeta": {
+      "native-focus": {
+        "role": "primary",
+        "displayName": "Native focus orange",
+        "canonical": "#e77743",
+        "tonalRamp": [
+          "oklch(15% 0.1538 44.10)",
+          "oklch(26.4% 0.1538 44.10)",
+          "oklch(37.9% 0.1538 44.10)",
+          "oklch(49.3% 0.1538 44.10)",
+          "oklch(60.7% 0.1538 44.10)",
+          "oklch(72.1% 0.1538 44.10)",
+          "oklch(83.6% 0.1538 44.10)",
+          "oklch(95% 0.1538 44.10)"
+        ]
+      },
+      "native-control-border": {
+        "role": "neutral",
+        "displayName": "Host-relative control border",
+        "canonical": "color-mix(in srgb,currentColor 30%,transparent)"
+      },
+      "native-rule": {
+        "role": "neutral",
+        "displayName": "Host-relative ruled separator",
+        "canonical": "color-mix(in srgb,currentColor 18%,transparent)"
+      }
+    },
+    "typographyMeta": {
+      "native-field": {
+        "displayName": "Native field",
+        "purpose": "16px readable fields; family and colour inherited from the host."
+      }
+    },
+    "shadows": [],
+    "motion": [],
+    "breakpoints": [
+      {
+        "name": "native-fields-stack",
+        "value": "600px"
+      },
+      {
+        "name": "native-workspace-stack",
+        "value": "1050px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Native save action",
+      "kind": "button",
+      "description": "Host-coloured native administration action.",
+      "html": "<div class=\"ds-native\"><button>Save draft</button></div>",
+      "css": ".ds-native{font:inherit;line-height:1.55;color:inherit}.ds-native p{max-width:70ch;margin:0 0 16px}.ds-native label{display:grid;gap:8px;font-size:.9rem;font-weight:550}.ds-native input{box-sizing:border-box;width:100%;font:inherit;font-size:16px;font-weight:400;color:inherit;background:transparent;border:1px solid color-mix(in srgb,currentColor 30%,transparent);border-radius:6px;padding:10px;min-height:44px}.ds-native input:focus-visible{outline:3px solid #e77743;outline-offset:3px}.ds-muted{opacity:.8;font-size:.9rem}.ds-actions{display:flex;gap:8px;flex-wrap:wrap}.ds-native button{font:inherit;color:inherit;background:transparent;border:1px solid color-mix(in srgb,currentColor 25%,transparent);border-radius:8px;padding:8px 14px;min-height:44px;cursor:pointer}.ds-native button:hover{background:color-mix(in srgb,currentColor 8%,transparent)}.ds-native button:disabled{opacity:.5;cursor:wait}.ds-native button:focus-visible{outline:3px solid #e77743;outline-offset:3px}"
+    },
+    {
+      "name": "Native date recovery",
+      "kind": "input",
+      "description": "Retained invalid date, associated reason and disabled Save/Preview. Correcting the value restores actions in the application.",
+      "html": "<div class=\"ds-native\"><label>Known date<input value=\"2026-02-30\" aria-invalid=\"true\" aria-describedby=\"ds-date-error\"></label><p id=\"ds-date-error\" class=\"ds-muted\" role=\"status\">Use a year (YYYY), a month (YYYY-MM) or a real calendar day (YYYY-MM-DD). Leave blank if unknown.</p><div class=\"ds-actions\"><button disabled>Save draft</button><button disabled>Preview without saving</button></div></div>",
+      "css": ".ds-native{font:inherit;line-height:1.55;color:inherit}.ds-native p{max-width:70ch;margin:0 0 16px}.ds-native label{display:grid;gap:8px;font-size:.9rem;font-weight:550}.ds-native input{box-sizing:border-box;width:100%;font:inherit;font-size:16px;font-weight:400;color:inherit;background:transparent;border:1px solid color-mix(in srgb,currentColor 30%,transparent);border-radius:6px;padding:10px;min-height:44px}.ds-native input:focus-visible{outline:3px solid #e77743;outline-offset:3px}.ds-muted{opacity:.8;font-size:.9rem}.ds-actions{display:flex;gap:8px;flex-wrap:wrap}.ds-native button{font:inherit;color:inherit;background:transparent;border:1px solid color-mix(in srgb,currentColor 25%,transparent);border-radius:8px;padding:8px 14px;min-height:44px;cursor:pointer}.ds-native button:hover{background:color-mix(in srgb,currentColor 8%,transparent)}.ds-native button:disabled{opacity:.5;cursor:wait}.ds-native button:focus-visible{outline:3px solid #e77743;outline-offset:3px}"
+    },
+    {
+      "name": "Native destination recovery",
+      "kind": "input",
+      "description": "Source field help rejects embedded credentials while retaining edits. Fictional specimen.",
+      "html": "<div class=\"ds-native\"><label>Destination (optional)<input value=\"https://fictional:example@example.test/credit\" aria-invalid=\"true\" aria-describedby=\"ds-url-error\"></label><p id=\"ds-url-error\" class=\"ds-muted\" role=\"status\">Use a full HTTPS address without embedded credentials, up to 2,048 characters. Leave blank if no destination is needed.</p></div>",
+      "css": ".ds-native{font:inherit;line-height:1.55;color:inherit}.ds-native p{max-width:70ch;margin:0 0 16px}.ds-native label{display:grid;gap:8px;font-size:.9rem;font-weight:550}.ds-native input{box-sizing:border-box;width:100%;font:inherit;font-size:16px;font-weight:400;color:inherit;background:transparent;border:1px solid color-mix(in srgb,currentColor 30%,transparent);border-radius:6px;padding:10px;min-height:44px}.ds-native input:focus-visible{outline:3px solid #e77743;outline-offset:3px}.ds-muted{opacity:.8;font-size:.9rem}.ds-actions{display:flex;gap:8px;flex-wrap:wrap}"
+    },
+    {
+      "name": "Native milestone row",
+      "kind": "custom",
+      "description": "Ruled saved list with host type and wrapping native actions.",
+      "html": "<article class=\"ds-native ds-row\"><h3>Fictional milestone</h3><p class=\"ds-muted\">draft \u00b7 October 2026</p><div class=\"ds-actions\"><button>Edit</button><button>Publish</button><button>Move up</button><button>Remove</button></div></article>",
+      "css": ".ds-native{font:inherit;line-height:1.55;color:inherit}.ds-native p{max-width:70ch;margin:0 0 16px}.ds-native label{display:grid;gap:8px;font-size:.9rem;font-weight:550}.ds-native input{box-sizing:border-box;width:100%;font:inherit;font-size:16px;font-weight:400;color:inherit;background:transparent;border:1px solid color-mix(in srgb,currentColor 30%,transparent);border-radius:6px;padding:10px;min-height:44px}.ds-native input:focus-visible{outline:3px solid #e77743;outline-offset:3px}.ds-muted{opacity:.8;font-size:.9rem}.ds-actions{display:flex;gap:8px;flex-wrap:wrap}.ds-native button{font:inherit;color:inherit;background:transparent;border:1px solid color-mix(in srgb,currentColor 25%,transparent);border-radius:8px;padding:8px 14px;min-height:44px;cursor:pointer}.ds-native button:hover{background:color-mix(in srgb,currentColor 8%,transparent)}.ds-native button:disabled{opacity:.5;cursor:wait}.ds-native button:focus-visible{outline:3px solid #e77743;outline-offset:3px}.ds-row{padding:20px 0;border-bottom:1px solid color-mix(in srgb,currentColor 18%,transparent);overflow-wrap:anywhere}.ds-row h3{font-size:1.05rem;font-weight:600;margin:0 0 8px}"
+    },
+    {
+      "name": "Native retained comparison",
+      "kind": "custom",
+      "description": "Saved values and explicit retained-edit recovery, without automatic resubmission.",
+      "html": "<section class=\"ds-native ds-compare\"><p role=\"status\">Compare the saved achievement before saving again. Your edits are kept here; nothing was resubmitted.</p><dl><dt>Saved title</dt><dd>Fictional milestone</dd><dt>Saved status</dt><dd>draft</dd></dl><div class=\"ds-actions\"><button>Use saved version</button><button>Keep my edits</button></div></section>",
+      "css": ".ds-native{font:inherit;line-height:1.55;color:inherit}.ds-native p{max-width:70ch;margin:0 0 16px}.ds-native label{display:grid;gap:8px;font-size:.9rem;font-weight:550}.ds-native input{box-sizing:border-box;width:100%;font:inherit;font-size:16px;font-weight:400;color:inherit;background:transparent;border:1px solid color-mix(in srgb,currentColor 30%,transparent);border-radius:6px;padding:10px;min-height:44px}.ds-native input:focus-visible{outline:3px solid #e77743;outline-offset:3px}.ds-muted{opacity:.8;font-size:.9rem}.ds-actions{display:flex;gap:8px;flex-wrap:wrap}.ds-native button{font:inherit;color:inherit;background:transparent;border:1px solid color-mix(in srgb,currentColor 25%,transparent);border-radius:8px;padding:8px 14px;min-height:44px;cursor:pointer}.ds-native button:hover{background:color-mix(in srgb,currentColor 8%,transparent)}.ds-native button:disabled{opacity:.5;cursor:wait}.ds-native button:focus-visible{outline:3px solid #e77743;outline-offset:3px}.ds-compare{border-block:1px solid color-mix(in srgb,currentColor 20%,transparent);padding-block:16px}.ds-compare dl{display:grid;gap:4px;margin:0 0 16px;overflow-wrap:anywhere}.ds-compare dt{font-size:14px;font-weight:600}.ds-compare dd{margin:0 0 12px;white-space:pre-wrap}"
+    }
+  ],
+  "narrative": {
+    "northStar": "",
+    "overview": "The product's unique mechanism is connecting independently owned pieces into working software. The audience works between an idea, a repository and a live site. Grounded visual directions considered: modular Swiss identity manual; publishing paste-up; transit interchange diagram; audio routing console; annotated engineering notebook; exhibition catalogue; film edit timeline. The design seed assigned the third direction. Transit interchange carries cross-app routing with clearer product meaning than the bitmap specimen, layered reference manual or star-atlas challengers.\n\nUse a warm ivory reading surface, charcoal text and decisive signal orange, with dark ink work areas. Source connections are crisp geometric routes; independent modules retain colours. Self-hosted Space Grotesk display and native sans body. No decorative dashboards, fabricated metrics or glow. Wide open typography and substantial rules; compact task controls stay predictable. Logo is two interlocking open squares and a joining route. Main landing mode: Persuade; Get Ready, Init and Explorer: Operate; docs: Read. Small motion traces the joining route only, disabled under reduced motion.",
+    "keyCharacteristics": [],
+    "rules": [],
+    "dos": [],
+    "donts": []
+  }
+}
