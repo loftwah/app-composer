@@ -2,7 +2,7 @@ import type {D1Database,RateLimit,ExecutionContext,ScheduledController} from '@c
 import handler, { createScheduledHandler, PluginBridge } from '@emdash-cms/cloudflare/worker';
 import {protectAdministration,type AccessRuntime} from './lib/access-boundary.mjs';
 import {collect,record,purge} from '../lib/usage/index.mjs';
-import {health,pageEvent} from '../lib/usage/publisher.mjs';
+import {health,pageEvent,postcardReceiptEvent} from '../lib/usage/publisher.mjs';
 import {usageSummary} from './lib/usage';
 import {portfolioWindow,portfolioSummary} from '../lib/usage/portfolio.mjs';
 import build from './lib/build.json';
@@ -22,7 +22,7 @@ const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runti
  if(path==='/api/usage'){if(request.method!=='GET')return new Response(null,{status:405});try{return Response.json(await usageSummary(runtime.DB,new URL(request.url).searchParams,runtime.PUBLIC_ORIGIN),{headers:{'Cache-Control':'public,max-age=60','X-Content-Type-Options':'nosniff'}});}catch{return Response.json({error:'Counts temporarily unavailable.'},{status:503,headers:{'Cache-Control':'no-store'}});}}
  const response=await handler.fetch!(request,runtime,context);
  const app=path.match(/^\/(guestbook|showcase)(?:\/|$)/)?.[1];
- if(app&&request.headers.get('X-Composer-Verification')!=='1'){const event=pageEvent(request,response,'/'+app);if(event)context.waitUntil((async()=>{if(runtime.USAGE_LIMIT&&(await runtime.USAGE_LIMIT.limit({key:app+':'+event})).success)await record(runtime.DB,app,event,'composed');})().catch(()=>{}));}
+ if(app&&request.headers.get('X-Composer-Verification')!=='1'){const event=(app==='guestbook'?postcardReceiptEvent(request,response,'/'+app):null)??pageEvent(request,response,'/'+app);if(event)context.waitUntil((async()=>{if(runtime.USAGE_LIMIT&&(await runtime.USAGE_LIMIT.limit({key:app+':'+event})).success)await record(runtime.DB,app,event,'composed');})().catch(()=>{}));}
  return response;
 };
 const cmsScheduled=createScheduledHandler();
