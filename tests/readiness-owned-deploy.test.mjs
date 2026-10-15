@@ -60,7 +60,7 @@ test('hidden provider-wait edits, build-time edits and newly occupied names refu
  }
 });
 
-test('Wrangler tooling receives only selected credentials and safe controls, excluding CI/API/Node overrides',()=>{const selected=wranglerEnvironment({PATH:'/fixture/bin',HOME:'/fixture/home',CLOUDFLARE_API_TOKEN:'fictional-token',CLOUDFLARE_ACCOUNT_ID:'a'.repeat(32),WRANGLER_CI_OVERRIDE_NAME:'unrelated',CF_API_BASE_URL:'https://untrusted.example.test',CLOUDFLARE_API_BASE_URL:'https://untrusted.example.test',NODE_OPTIONS:'--import=/fixture/untrusted.mjs',RESEND_API_KEY:'fictional-other-key'});assert.deepEqual(selected,{PATH:'/fixture/bin',HOME:'/fixture/home',CLOUDFLARE_API_TOKEN:'fictional-token',CLOUDFLARE_ACCOUNT_ID:'a'.repeat(32),WRANGLER_SEND_METRICS:'false'});});
+test('Wrangler tooling receives only selected credentials and safe controls, excluding CI/API/Node overrides',()=>{const selected=wranglerEnvironment({PATH:'/fixture/bin',HOME:'/fixture/home',CLOUDFLARE_API_TOKEN:'fictional-token',CLOUDFLARE_ACCOUNT_ID:'a'.repeat(32),WRANGLER_CI_OVERRIDE_NAME:'unrelated',CF_API_BASE_URL:'https://untrusted.example.test',CLOUDFLARE_API_BASE_URL:'https://untrusted.example.test',NODE_OPTIONS:'--import=/fixture/untrusted.mjs',RESEND_API_KEY:'fictional-other-key'});assert.deepEqual(selected,{PATH:'/fixture/bin',HOME:'/fixture/home',CLOUDFLARE_API_TOKEN:'fictional-token',CLOUDFLARE_ACCOUNT_ID:'a'.repeat(32),WRANGLER_SEND_METRICS:'false',WRANGLER_WRITE_LOGS:'false'});});
 
 test('actual isolated Wrangler argv retains strict auth/identity classification',()=>{
  const args=['/fictional/node_modules/wrangler/bin/wrangler.js','whoami','--json','--env-file=/dev/null'];
