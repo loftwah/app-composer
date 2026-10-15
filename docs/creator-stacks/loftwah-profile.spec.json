@@ -9,14 +9,14 @@
     {
       "id": "guestbook",
       "repository": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "33244a8789b656786e861dce7ae09cf320db546c",
-      "manifestDigest": "sha256:54d2f464d9e0ed2e2a529bee67ce5ab94bb8b7592ece560b18b55bc12efbfda3"
+      "commit": "67c4694e342a67b0ea7be864bfb0b2ad51d016a3",
+      "manifestDigest": "sha256:b6c218b58a511009eda21980880ca873fce8aa00aca3f47a42978e1206e6e562"
     },
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "1dbb6b695549a6c1fcb3df5a42c4d3e996de786d",
-      "manifestDigest": "sha256:24cf06d2aa20f97591c1cc31414f9db4173e24d94dea298c4e76aadf516e0459"
+      "commit": "b06e5ef1f83c61b0f9baece2b10b00ab4eb1102e",
+      "manifestDigest": "sha256:5b397beb165bea20834d0312762290e6913c8766c58818fdf99623da4e7afc6a"
     }
   ],
   "appSettings": {
@@ -24,7 +24,8 @@
       "title": "Loftwah's guestbook",
       "intro": "A little piece of your day, approved before it is shared.",
       "theme": "midnight",
-      "layout": "editorial"
+      "layout": "editorial",
+      "guestAccess": "postcards"
     },
     "showcase": {
       "title": "Loftwah",
@@ -34,7 +35,7 @@
       "handle": "loftwah",
       "website": "https://loftwah.com/",
       "github": "https://github.com/loftwah",
-      "bluesky": "https://bsky.app/profile/loftwah.bsky.social",
+      "bluesky": "",
       "linkedin": "https://linkedin.com/in/deanlofts"
     }
   },

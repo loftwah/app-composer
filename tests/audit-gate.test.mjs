@@ -23,7 +23,7 @@ test('failed dependency audit stops the actual clean-main deploy path before bui
   writeFileSync(join(bin,'pnpm'),'#!/usr/bin/env node\nconsole.log("fixture invocation "+process.argv.slice(2).join(" "));process.exit(1);',{mode:0o700});
   assert.throws(()=>execFileSync(process.execPath,['scripts/deploy.mjs'],{cwd:root,env,encoding:'utf8',timeout:10000,stdio:'pipe'}),error=>{
    assert.equal(error.status,1);
-   assert.equal(String(error.stdout).trim(),'fixture invocation run audit');
+   assert.equal(String(error.stdout).trim(),'fixture invocation run audit',String(error.stderr));
    return true;
   });
  }finally{rmSync(root,{recursive:true,force:true});}

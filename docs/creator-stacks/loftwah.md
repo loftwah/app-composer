@@ -12,6 +12,11 @@ Linkarooie is the personalised entry point: a deliberate featured Top 8 and grou
 
 ## Publication decisions
 
+MP explicitly removed Bluesky on 16 October 2026. Its live profile field is empty on both hosts and the saved profile spec keeps it empty. The legacy catalogue row is excluded; do not reintroduce it through import, remix or settings restoration.
+
+MP requires polished sharing across public pages and apps, with app-specific artwork and coherent title/description/image metadata. Public text links use no underlines; retain clear affordance and visible keyboard focus.
+
+
 - Publish approved brand/work/profile links after checking their current destination and meaning. Public repository visibility is not blanket personal disclosure approval.
 - Keep the CV and explicitly withheld personal material out of public data, DOM, console output, exports and images. Do not retain their URLs in the public catalogue.
 - Legacy Linkarooie `hidden` can mean a browser-console discovery feature. It is a presentation marker to inspect, not a universal privacy classification. Current app `draft`, `hidden`, `rejected`, `deleted` and revoked-provider states remain actual enforced visibility rules. Never unhide those records as a branding/import side effect.
