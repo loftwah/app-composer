@@ -22,7 +22,7 @@ Point your host’s supported local stdio configuration at the absolute installe
 
 Use the host’s own configuration format; this command is the server executable, not a client and not a command that prints a completed report. Its stdout is exclusively MCP messages. Keep secrets out of launch arguments and host configuration examples; use the host’s approved runtime credential handling. Review the selected host and workspace before enabling it. No configuration file is modified automatically.
 
-The host may additionally select the known `--account ACCOUNT_ID --reference-worker WORKER --reference-url HTTPS_ORIGIN --reference-repo OWNER/REPO`. Missing target selections remain incomplete; there is no operator-account fallback. `--tools-workspace ABSOLUTE_PATH` reuses a separately prepared reviewed tool pair. `--project-purpose emdash-site` enables bounded project inspection. `--domain example.com --account ACCOUNT_ID` enables read-only domain diagnosis using already authorised scopes. Tool calls accept no model-selected paths, targets, setup commands or credentials.
+The host may additionally select the known `--account ACCOUNT_ID --reference-worker WORKER --reference-url HTTPS_ORIGIN --reference-repo OWNER/REPO`. Missing target selections remain incomplete; there is no operator-account fallback. `--tools-workspace ABSOLUTE_PATH` reuses a separately prepared reviewed tool pair. `--project-purpose emdash-site` enables bounded project inspection. `--domain example.com --account ACCOUNT_ID` enables read-only domain diagnosis using already authorised scopes. It prefers an explicit runtime API token, or reuses the host-selected workspace’s pinned Wrangler sign-in when no token is supplied. It starts no login or permission request. Tool calls accept no model-selected paths, targets, setup commands or credentials.
 
 ## What the tools do
 
@@ -101,7 +101,7 @@ To remove this capability, stop the connection and remove its allow flag. Existi
 
 ## Report compatibility
 
-Transport 0.11.0/server 1.12.0 returns the shared report version 2, including only the dated clean/changed/unknown local-work observation. It exposes no file names, paths, diffs or content. This does not grant source approval or a new capability. Consumers should update their report validator; the current library/browser also read legacy version 1 reports with local-work status unknown. Local edits or commits in the same selected target do not silently complete an unfinished setup operation, and checks still never retry it.
+Transport 0.12.0/server 1.13.0 returns the shared report version 2, including only the dated clean/changed/unknown local-work observation. It exposes no file names, paths, diffs or content. This does not grant source approval or a new capability. Consumers should update their report validator; the current library/browser also read legacy version 1 reports with local-work status unknown. Local edits or commits in the same selected target do not silently complete an unfinished setup operation, and checks still never retry it.
 
 ### Host-selected plugin guidance
 
