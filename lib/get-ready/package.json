@@ -1,6 +1,6 @@
 {
   "name": "@loftwah/get-ready",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Resumable agent-operated environment preparation and verified HTTPS readiness.",
   "type": "module",
   "license": "MIT",
