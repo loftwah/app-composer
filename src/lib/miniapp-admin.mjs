@@ -1,3 +1,4 @@
+import {achievementCommand,achievementCollection} from './miniapp-achievements.mjs';
 import {appSettings,validateAppSettingValue} from './app-settings.mjs';
 const origin = 'https://composer.loftwah.com';
 const ids = new Set(['guestbook', 'showcase']);
@@ -26,7 +27,12 @@ export async function manageMiniapps(ctx, runtime, pins) {
  if (!ids.has(app)) return fail('INVALID', 'Choose Guestbook or Linkarooie.');
  let path, body;
  if (action === 'snapshot') path = '/api/export';
- else if (action === 'preview' && app === 'guestbook' && identifier(command.id)) path = '/media/' + command.id;
+ else if(action==='achievement'&&app==='showcase'&&appSettings.showcase.achievementCollection?.version===1){
+  const {app:ignored,action:outer,operation,...values}=command;
+  try{body=achievementCommand({action:operation,...values});}catch{return fail('INVALID','Check the achievement fields and current revision.');}
+  path='/api/achievements';
+ }
+ else if (action === 'preview'  && app === 'guestbook' && identifier(command.id)) path = '/media/' + command.id;
  else if (action === 'settings' && text(command.title,80) && typeof command.intro === 'string' && command.intro.length <= 240 && ['daylight','midnight'].includes(command.theme) && appSettings[app].fields.find(field=>field.key==='layout').options.includes(command.layout)) {
   path='/api/config'; body={};try{for(const field of appSettings[app].fields){if(Object.hasOwn(command,field.key))body[field.key]=validateAppSettingValue(field,command[field.key],appSettings[app].name);}}catch{return fail('INVALID','Check the profile text and use supported HTTPS social addresses.');}
  } else if (action === 'moderate' && app === 'guestbook' && identifier(command.id) && ['approved','hidden','rejected'].includes(command.status)) {
@@ -56,7 +62,7 @@ export async function manageMiniapps(ctx, runtime, pins) {
   const build=await identity.json();
   if(build.app!==app || build.revision!==pins[app] || build.dataVersion!==1) return fail('SOURCE','The connected app differs from the reviewed composition. Ask your agent to check the release.');
   const response=await send(path,{method:reading?'GET':'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
-  if(!response.ok){if(action==='edit-link'&&response.status===409)return fail('CONFLICT','This link changed. Compare the saved link before saving your edits.');return fail('APP', ({401:'The owner connection was refused. Ask your agent to check it.',403:'The app refused this action. Check its owner settings.',404:'This item is no longer available. Refresh the app.',409:'The collection changed or reached its limit. Refresh before retrying.',429:'The app has reached its temporary limit. Try again later.'})[response.status] || 'The app could not complete this action. Refresh before retrying.');}
+  if(!response.ok){if(action==='achievement'){if(response.status===409)return fail('CONFLICT','Achievements changed. Compare the saved version before saving again.');if(response.status>=500)return fail('UNCONFIRMED','The save could not be confirmed. Refresh achievements before retrying.');if(response.status===400)return fail('INVALID','Check the achievement fields. Nothing was resubmitted.');}if(action==='edit-link'&&response.status===409)return fail('CONFLICT','This link changed. Compare the saved link before saving your edits.');return fail('APP', ({401:'The owner connection was refused. Ask your agent to check it.',403:'The app refused this action. Check its owner settings.',404:'This item is no longer available. Refresh the app.',409:'The collection changed or reached its limit. Refresh before retrying.',429:'The app has reached its temporary limit. Try again later.'})[response.status] || 'The app could not complete this action. Refresh before retrying.');}
   if(action==='preview') {
    if(response.headers.get('Content-Type')!=='image/png') return fail('MEDIA','This preview is unavailable.');
    const bytes=await response.arrayBuffer(); if(bytes.byteLength>1048576) return fail('MEDIA','This preview exceeds the supported size.');
@@ -65,8 +71,9 @@ export async function manageMiniapps(ctx, runtime, pins) {
   const result=await response.json();
   if(action==='snapshot') {
    if(result.dataVersion!==1 || !result.config || (app==='guestbook'?!Array.isArray(result.items):!Array.isArray(result.cards))) return fail('APP','The app returned an incompatible management response.');
-   return {ok:true,app,config:result.config,items:app==='guestbook'?result.items.filter(item=>item.status!=='deleted').sort((a,b)=>String(b.created_at ?? '').localeCompare(String(a.created_at ?? ''))).slice(0,200):result.cards.slice(0,8)};
+   let achievements={};if(app==='showcase'&&appSettings.showcase.achievementCollection?.version===1){try{achievements={achievementCollection:achievementCollection(result.achievementCollection)};}catch{achievements={achievementCollection:null,achievementProblem:'review_required'};}}
+   return {ok:true,app,...achievements,config:result.config,items:app==='guestbook'?result.items.filter(item=>item.status!=='deleted').sort((a,b)=>String(b.created_at ?? '').localeCompare(String(a.created_at ?? ''))).slice(0,200):result.cards.slice(0,8)};
   }
   return {ok:true,id:result.id ?? null};
- } catch {return fail('UNAVAILABLE','The app connection was interrupted. Refresh to check the result before retrying.');}
+ } catch {return fail(action==='achievement'?'UNCONFIRMED':'UNAVAILABLE','The app connection was interrupted. Refresh to check the result before retrying.');}
 }
