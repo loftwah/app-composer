@@ -451,8 +451,8 @@
       "title": "Medium",
       "url": "https://loftwah.medium.com",
       "category": "writing",
-      "publication": "hold",
-      "reason": "Owner-supplied profile; challenge/access prevents current content verification.",
+      "publication": "excluded",
+      "reason": "MP explicitly removed Medium from his public profile on 16 October 2026. Do not reintroduce it from legacy references.",
       "identityEvidence": "owner-supplied",
       "verification": {
         "checkedAt": "2026-10-15T14:07:16.681Z",

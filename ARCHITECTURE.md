@@ -1,4 +1,6 @@
 # Architecture
+
+For module ownership inside the native editor and maintenance of copied public UI assets, see [Maintaining the source](docs/source-maintenance.md).
 Reviewed 13 October 2026.
 
 Composer is an Astro/EmDash Cloudflare Worker. EmDash owns catalogue descriptions and documentation in its own D1/R2. The independently deployed Guestbook and Showcase own separate GitHub histories, D1 state and storage. Composer mounts separately pinned integrated Worker services under one origin. Standalone upstream deployments cannot change this consumer code. Each integrated service uses the app-owned D1/R2, so current moderation remains shared while executable versions stay pinned. Promotion validates exact reviewed source pins and explicitly deploys the integrated services. The Showcase asks a versioned generic item provider for current eligibility; it never copies a private image or treats saved approval as permission. Each service remains deployable without Composer or Woodhouse.
