@@ -1,4 +1,4 @@
-# Profile settings portability — source under qualification
+# Profile settings portability
 
 Mini-app management belongs in the native Composer dashboard, using its existing forms, disclosures, shared action lock and recovery conventions. The standalone app keeps its independently usable owner studio. Both surfaces call the same app-owned settings API; data and private operator credentials stay with that app.
 
@@ -12,4 +12,4 @@ The existing invited administrator role, host Origin/CSRF checks, exact source i
 
 The native pure validation copy is MIT source from `loftwah/app-composer-showcase`, `public/brand/profile-settings-fields.mjs` and its declaration file at `e71de77f0e1ab76827bbb91215b592f2ab2ac428`. These copied bytes are separately owned here. There is no runtime cross-repository import or mandatory Composer dependency in the independent app. Extracting the pure module preserved existing profile-validation behavior.
 
-Current evidence is source/unit/type evidence only. Focused tests cover role/Origin/source refusal, malformed or secret-bearing input, fixed routes, conflicts, uncertain writes, redacted responses and actual React rendering. The independent app's43 tests and types pass. Actual browser interaction, focus/cancelled navigation, native host authentication, responsive/theme finish review, exact composition activation and normal clean-main release remain separate gates. Existing#25/#118 own delivery and#11 owns final live evidence.
+Independent source review found no material defects. The independent app passes 46 tests and type checks; 23 focused native settings/tag/bridge cases and the focused native TypeScript check pass. Actual standalone and native-component browsers exercised file download/review/apply, refused unsafe input, no-change detection, unsaved-settings protection, app-switch draft retention, conflicting concurrent edits and explicit re-review, cancel focus, exact downloaded bytes and complete non-settings preservation. Phone/desktop and both themes were inspected. The local native host simulates authentication; actual Access-host interaction and exact production identities are separate evidence in #11. Full collection/media import, workspace recovery and broader provider acceptance remain open under #25/#118.
