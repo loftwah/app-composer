@@ -17,7 +17,7 @@ Author source for review: normal indentation, readable statements and explicit c
 | `showcase-workspace.tsx` | Collection, tags, achievements, retained edits and eligible photos. |
 | `types.ts` | The existing editor's shared types. |
 
-State stays above the two workspaces so switching apps retains unsaved work. Keep component identities stable; do not define components inside the page or hook. Mutations and profile-file operations share one exclusion reference. Snapshot generation checks prevent an older refresh from replacing a newer response. The server bridge in `src/lib/miniapp-admin.mjs` still owns authorization, validation and app service calls; extracting components grants no additional authority.
+State stays above the two workspaces so switching apps retains unsaved work. A single `?app=showcase` selects Linkarooie on entry; absent, unknown or duplicated app parameters select Guestbook. This selects a view only and grants no permission. Keep component identities stable; do not define components inside the page or hook. Mutations and profile-file operations share one exclusion reference. Snapshot generation checks prevent an older refresh from replacing a newer response. The server bridge in `src/lib/miniapp-admin.mjs` still owns authorization, validation and app service calls; extracting components grants no additional authority.
 
 ## Public sharing and theme assets
 

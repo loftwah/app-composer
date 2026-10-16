@@ -38,7 +38,13 @@ export function useMiniapps() {
       else delete next[id];
       return next;
     });
-  const [selected, setSelected] = useState<AppID>("guestbook");
+  const [selected, setSelected] = useState<AppID>(() => {
+    if (typeof window === "undefined") return "guestbook";
+    const values = new URLSearchParams(window.location.search).getAll("app");
+    return values.length === 1 && values[0] === "showcase"
+      ? "showcase"
+      : "guestbook";
+  });
   const [visible, setVisible] = useState(12);
   const [showHidden, setShowHidden] = useState(false);
   const [snapshots, setSnapshots] = useState<Partial<Record<AppID, Snapshot>>>(
