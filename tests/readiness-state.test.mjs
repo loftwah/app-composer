@@ -38,7 +38,11 @@ test('composition apply shares current capability and unfinished-operation check
   r=>r.checks.https.verifiedAt=new Date(now+1).toISOString(),
   r=>r.pendingOperations=[{id:'deploy-reference',state:'failed',recovery:'agent-recheck'}],
   r=>r.operation={id:'prepare-site-skills',state:'performed'},
- ]){const receipt=structuredClone(valid);mutate(receipt);assert.throws(()=>requireVerifiedReadiness(receipt,context,now),'A future overall expiry must not override stale checks or unfinished work');}
+  r=>delete r.checks,
+  r=>r.checks=null,
+  r=>r.pendingOperations={},
+  r=>r.pendingOperations=42,
+ ]){const receipt=structuredClone(valid);mutate(receipt);assert.throws(()=>requireVerifiedReadiness(receipt,context,now),/Readiness is missing.*Run pnpm ready/,'Malformed, stale or unfinished evidence must provide the same actionable recovery');}
  assert.throws(()=>requireVerifiedReadiness(valid,{...context,source:'c'.repeat(40)},now),'A changed source cannot inherit the prior pass');
  assert.doesNotThrow(()=>requireVerifiedReadiness(valid,context,now+3599999));
  assert.throws(()=>requireVerifiedReadiness(valid,context,now+3600000));

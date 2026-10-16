@@ -105,6 +105,9 @@ test('composition CLI refuses stale, unfinished and changed-source readiness bef
   const cases=[
    ['stale check',r=>r.checks.agent.verifiedAt=new Date(Date.now()-3600001).toISOString()],
    ['unfinished deployment',r=>r.pendingOperations=[{id:'deploy-reference',state:'failed',recovery:'agent-recheck'}]],
+   ['missing checks',r=>delete r.checks],
+   ['null checks',r=>r.checks=null],
+   ['malformed pending work',r=>r.pendingOperations={}],
    ['changed source',()=>{writeFileSync(join(workspace,'revision.txt'),'Changed fictional source\n');git(['add','revision.txt']);git(['-c','user.name=Fictional test','-c','user.email=fixture@example.test','commit','-m','Changed apply fixture']);assert.notEqual(git(['rev-parse','HEAD']),source);}]
   ];
   for(const [label,mutate] of cases){
