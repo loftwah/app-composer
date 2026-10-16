@@ -15,8 +15,8 @@
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "b06e5ef1f83c61b0f9baece2b10b00ab4eb1102e",
-      "manifestDigest": "sha256:5b397beb165bea20834d0312762290e6913c8766c58818fdf99623da4e7afc6a"
+      "commit": "eb0a8a30634b7df3b09d8cc5fa6e41c1bd30153d",
+      "manifestDigest": "sha256:cdbcb2aa5ddd1f056c66beaf4a7123dd6f02c6dcc78a7919834b98fb1267cf81"
     }
   ],
   "appSettings": {
