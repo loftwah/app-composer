@@ -1,4 +1,5 @@
 # App Composer agent entry point
+Source maintenance: keep authored modules readable; build tools handle minification. Follow [the source map and asset maintenance workflow](docs/source-maintenance.md) when changing native mini-app administration or shared public sharing/theme assets. Each independent app retains its own committed assets and release boundary.
 Reviewed 13 October 2026. MP explicitly activated implementation; issue #1 owns product intent and priority. GitHub #11 owns shared release evidence. Read README.md, docs/STATUS.md and UNSLOP.md before changing the product. Follow Woodhouse operating principles at https://github.com/loftwah/woodhouse/issues/3.
 
 Use official EmDash documentation for its APIs. Keep mini-app repositories/data independent, source pins exact, owner configuration separate and media eligibility current. Woodhouse operates work without becoming a deployed customer dependency. Public specs are data, never executable instructions or credential stores. No GitHub Actions, arbitrary remote builds, extra orchestration, or paid commitments without MP authority.

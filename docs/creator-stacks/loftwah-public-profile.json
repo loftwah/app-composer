@@ -212,15 +212,6 @@
       "pinned": false
     },
     {
-      "reference": "medium",
-      "title": "Loftwah on Medium",
-      "description": "More of my writing.",
-      "url": "https://loftwah.medium.com",
-      "group": "Writing",
-      "icon": "book",
-      "pinned": false
-    },
-    {
       "reference": "github",
       "title": "GitHub",
       "description": "Source code and projects.",

@@ -1,91 +1,224 @@
-import {ProfileSettings,profileFileUnsaved,type ProfileFileDraft} from './profile-settings-admin.tsx';
-import {Tags,tagUnsaved,type TagDraft} from './tags-admin.tsx';
-import type {TagCollection} from '../lib/miniapp-tag-fields.mjs';
-import {Achievements,achievementUnsaved,type AchievementDraft} from './achievements-admin.tsx';
-import type {AchievementCollection} from '../lib/miniapp-achievements.mjs';
-import {useCallback,useEffect,useRef,useState,type SubmitEvent} from 'react';
-import {apiFetch,parseApiResponse} from 'emdash/plugin-utils';
-import type {PluginAdminExports} from 'emdash';
-import './miniapps-admin.css';
-import {appSettings} from '../lib/app-settings.mjs';
-type AppID='guestbook'|'showcase';
-type Item={id:string;caption?:string;title?:string;description?:string;author?:string;status:string;provider?:string;item_id?:string;url?:string;revision?:number;pinned?:boolean;icon?:string;group?:string};
-type LinkValues={title:string;description:string;url:string;status:string};
-type LinkDraft={from:LinkValues;value:LinkValues};
-type StyleValues={icon:string;pinned:boolean;group?:string};
-type StyleDraft={from:StyleValues;value:StyleValues;title?:string};
-type Snapshot={ok:boolean;app:AppID;message?:string;config:Record<string,string>&{title:string;intro:string;theme:string;layout:string};items:Item[];achievementCollection?:AchievementCollection|null;achievementProblem?:string;tagCollection?:TagCollection|null;tagProblem?:string};
-const names={guestbook:'Here / there',showcase:'Linkarooie'};
-async function call(app:AppID,action:string,fields:Record<string,unknown>={}) {
- const read=action==='snapshot'||action==='preview'||(action==='profile-settings'&&fields.operation==='export');
- const values={app,action,...fields};
- const route='/_emdash/api/plugins/composer-miniapps/'+(read?'read?'+new URLSearchParams(values as Record<string,string>):'write');
- const response=await apiFetch(route,read?{cache:'no-store'}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(values)});
- const data=await parseApiResponse<any>(response,'Composer could not complete this request. Refresh before retrying.');
- if(!data?.ok) throw Object.assign(Error(data?.message || 'The connected app is unavailable.'),{code:data?.code});
- return data;
-}
-function PhotoPreview({item,refresh}:{item:Item;refresh:number}) {
- const canvas=useRef<HTMLCanvasElement>(null);const [failed,setFailed]=useState(false);
- useEffect(()=>{let active=true;setFailed(false);void (async()=>{try{const result=await call('guestbook','preview',{id:item.id});const bytes=Uint8Array.from(atob(result.png),char=>char.charCodeAt(0));const bitmap=await createImageBitmap(new Blob([bytes],{type:'image/png'}));if(active&&canvas.current){canvas.current.width=bitmap.width;canvas.current.height=bitmap.height;canvas.current.getContext('2d')?.drawImage(bitmap,0,0);}bitmap.close();}catch{if(active)setFailed(true);}})();return()=>{active=false;};},[item.id,item.revision,refresh]);
- return <>{failed&&<p className="ca-muted">Preview unavailable. Refresh to check the source.</p>}<canvas hidden={failed} className="ca-photo" ref={canvas} role="img" aria-label={item.caption || 'Private contribution preview'}/></>;
-}
-function Settings({app,config,change,save,busy}:{app:AppID;config:Snapshot['config'];change:(value:Snapshot['config'])=>void;save:(fields:Record<string,unknown>,failed?:(message:string)=>void)=>Promise<boolean>;busy:boolean}) {
- const [status,setStatus]=useState('');
- const submit=async(event:SubmitEvent<HTMLFormElement>)=>{event.preventDefault();const values=Object.fromEntries(new FormData(event.currentTarget));setStatus('Saving settings…');if(await save(values,setStatus))setStatus('App settings saved.');};
- return <form onSubmit={submit} onInput={()=>setStatus('')} className="ca-form"><h2>Appearance &amp; introduction</h2><p className="ca-muted">Saving updates this app’s standalone and composed views.</p><label>Title<input name="title" disabled={busy} maxLength={80} required value={config.title} onChange={event=>change({...config,title:event.target.value})}/></label><label>Introduction<textarea name="intro" disabled={busy} maxLength={240} rows={3} value={config.intro} onChange={event=>change({...config,intro:event.target.value})}/></label><div className="ca-fields"><label>Theme<select name="theme" disabled={busy} value={config.theme} onChange={event=>change({...config,theme:event.target.value})}><option value="daylight">Daylight</option><option value="midnight">Midnight</option></select></label><label>Layout<select name="layout" disabled={busy} value={config.layout} onChange={event=>change({...config,layout:event.target.value})}><option value="grid">Grid</option><option value="editorial">Editorial</option>{app==='showcase'&&<option value="compact">Compact links</option>}</select></label></div>{app==='guestbook'&&appSettings.guestbook.fields.some(field=>field.key==='guestAccess')&&<label>Guest contributions<select name="guestAccess" disabled={busy} value={config.guestAccess??'closed'} onChange={event=>change({...config,guestAccess:event.target.value})}><option value="closed">Closed</option><option value="postcards">Postcards with guest code</option></select><span className="ca-muted">The public puzzle code hunter2 permits new pending postcards only. Guests cannot publish, change settings or enter the owner studio. Close this to stop guest submissions.</span></label>}{app==='showcase'&&<details className="ca-disclosure"><summary>Profile &amp; social links</summary><p className="ca-muted">The title is your profile name and the introduction is its bio. Empty links stay out of the public page.</p>{appSettings.showcase.fields.filter(field=>!['title','intro','theme','layout'].includes(field.key)).map(field=><label key={field.key}>{field.label}<input name={field.key} type={field.format==='https-url'?'url':'text'} pattern={field.format==='https-url'?'https://.*':undefined} maxLength={field.maxLength} disabled={busy} value={config[field.key]??field.default??''} onChange={event=>change({...config,[field.key]:event.target.value})}/></label>)}</details>}<button disabled={busy} type="submit">Save app settings</button><p role="status" aria-live="polite" data-settings-status>{status}</p></form>;
-}
-function LinkEditor({item,edit,onEdit,busy,save,removed=false}:{item:Item;edit?:LinkDraft;onEdit:(value?:LinkDraft)=>void;busy:boolean;save:(fields:Record<string,unknown>,failed?:(message:string)=>void)=>Promise<boolean>;removed?:boolean}) {
- const current:LinkValues={title:item.title??'',description:item.description??'',url:item.url??'',status:item.status};
- const [status,setStatus]=useState(''),[preview,setPreview]=useState(false);
- const value=edit?.value??current;
- const same=(a:LinkValues,b:LinkValues)=>(['title','description','url','status'] as const).every(key=>a[key]===b[key]);
- const dirty=!same(value,current),stale=!!edit&&!same(edit.from,current);
- const change=(patch:Partial<LinkValues>)=>{setStatus('');onEdit({from:edit?.from??current,value:{...value,...patch}});};
- let destination:string|undefined;try{const url=new URL(value.url);if(url.protocol==='https:'&&!url.username&&!url.password&&url.href.length<=2048)destination=url.href;}catch{}
- const valid=!!value.title.trim()&&!!destination;
- return <details className="ca-disclosure ca-link-editor" open={removed?true:undefined}><summary>{removed?'Retained edit of a removed link':'Edit link'}{dirty&&!removed&&' · Unsaved changes'}</summary><form className="ca-form" onSubmit={async event=>{event.preventDefault();if(stale||removed)return;if(!valid){setStatus('Use a title and a full HTTPS address without embedded credentials.');return;}setStatus('Saving link…');if(await save({id:item.id,...value,expected:edit?.from??current},setStatus)){onEdit();setStatus('Link saved.');}}}>
-  {removed&&<p role="status">This link was removed. Your unsaved text is retained here to copy.</p>}
-  <label>Link title<input name="title" value={value.title} disabled={busy} required maxLength={100} onChange={event=>change({title:event.target.value})}/></label>
-  <label>Link description<textarea name="description" value={value.description} disabled={busy} maxLength={240} rows={3} onChange={event=>change({description:event.target.value})}/></label>
-  <label>HTTPS destination<input name="url" type="url" pattern="https://.*" value={value.url} disabled={busy} required maxLength={2048} aria-invalid={!!value.url&&!destination} aria-describedby={"link-url-"+item.id} onChange={event=>change({url:event.target.value})}/></label><p id={"link-url-"+item.id} className="ca-muted">{value.url&&!destination?"Use a shorter HTTPS destination, up to 2,048 characters, without embedded credentials.":"A full HTTPS address, up to 2,048 characters."}</p>
-  <label>Visibility<select name="status" value={value.status} disabled={busy||removed} onChange={event=>change({status:event.target.value})}><option value="draft">Draft · private</option><option value="published">Published · public</option><option value="hidden">Hidden · private</option></select></label>
-  {!removed&&<p className="ca-muted">{value.status==='published'?'Saving updates the published link in both live views.':'Draft and hidden links stay out of the public collection.'} Preview does not save or fetch the destination.</p>}
-  {stale&&!removed&&<div className="ca-link-conflict"><p role="status">The saved link changed. Your edits are still here. Compare before choosing which version to save.</p><dl><dt>Saved title</dt><dd>{current.title}</dd><dt>Saved description</dt><dd>{current.description||'No description'}</dd><dt>Saved destination</dt><dd>{current.url}</dd><dt>Saved visibility</dt><dd>{current.status}</dd></dl><div className="ca-actions"><button type="button" disabled={busy} onClick={()=>{onEdit();setStatus('Using the saved link.');}}>Use saved link</button><button type="button" disabled={busy} onClick={()=>{onEdit({from:current,value});setStatus('Your edits are kept. Check the visibility before saving.');}}>Keep my edits</button></div></div>}
-  <div className="ca-actions"><button type="submit" disabled={busy||stale||removed||!dirty}>Save link</button><button type="button" disabled={busy||!valid} onClick={()=>setPreview(open=>!open)}>{preview?'Close preview':'Preview without saving'}</button>{edit&&<button type="button" disabled={busy} onClick={()=>{onEdit();setStatus('Edit discarded.');}}>Discard edit</button>}</div>
-  <p role="status" aria-live="polite">{status}</p>
-  {preview&&<div className="ca-link-preview"><p className="ca-muted">Preview · {dirty||removed?'not saved':'saved link'}</p>{destination?<a href={destination} target="_blank" rel="noopener noreferrer"><strong>{value.title}</strong>{value.description&&<span>{value.description}</span>}<small>{destination}</small></a>:<p>Enter a safe HTTPS destination to preview this link.</p>}</div>}
- </form></details>;
-}
-function LinkStyle({item,busy,save,edit,onEdit}:{item:Item;busy:boolean;save:(fields:Record<string,unknown>,failed?:(message:string)=>void)=>Promise<boolean>;edit?:StyleDraft;onEdit:(value?:StyleDraft)=>void}) {
- const [status,setStatus]=useState('');
- const current={icon:item.icon??'link',pinned:item.pinned??false,...(appSettings.showcase.cardCollection?{group:item.group??''}:{})};
- const value=edit?.value??current,stale=!!edit&&(edit.from.icon!==current.icon||edit.from.pinned!==current.pinned||edit.from.group!==current.group);
- const change=(patch:Partial<typeof current>)=>{setStatus('');onEdit({from:edit?.from??current,value:{...value,...patch}});};
- return <form className="ca-link-style" onSubmit={async event=>{event.preventDefault();if(stale)return;setStatus('Saving link style…');if(await save({id:item.id,...value},setStatus)){onEdit();setStatus('Link style saved.');}}}><label>Link icon<select name="icon" disabled={busy} value={value.icon} onChange={event=>change({icon:event.target.value})}>{(appSettings.showcase.cardPresentation?.icons??['link']).map(icon=><option key={icon} value={icon}>{icon}</option>)}</select></label>{appSettings.showcase.cardCollection&&<label>Link group<select name="group" disabled={busy} value={value.group??''} onChange={event=>change({group:event.target.value})}><option value="">Other links</option>{appSettings.showcase.cardCollection.groups.map(group=><option key={group}>{group}</option>)}</select></label>}<label className="ca-check"><input name="pinned" type="checkbox" disabled={busy} checked={value.pinned} onChange={event=>change({pinned:event.target.checked})}/>{appSettings.showcase.cardCollection?'Feature in the top eight':'Pin before other links'}</label><button disabled={busy||stale} type="submit">Save link style</button>{status&&<p role="status" aria-live="polite">{status}</p>}{stale&&<><p role="status">The saved style changed. Review the current saved style before editing again.</p><button type="button" disabled={busy} onClick={()=>onEdit()}>Use saved style</button></>}</form>;
-}
+import { ProfileSettings } from "./profile-settings-admin";
+import type { PluginAdminExports } from "emdash";
+import { appSettings } from "../lib/app-settings.mjs";
+import { Settings } from "./miniapps/settings";
+import { GuestbookWorkspace } from "./miniapps/guestbook-workspace";
+import { ShowcaseWorkspace } from "./miniapps/showcase-workspace";
+import { useMiniapps } from "./miniapps/use-miniapps";
+import type { AppID } from "./miniapps/types";
+import "./miniapps-admin.css";
+const names = { guestbook: "Here / there", showcase: "Linkarooie" };
 function AppPage() {
- const [achievementDraft,setAchievementDraft]=useState<AchievementDraft>();
- const [tagDraft,setTagDraft]=useState<TagDraft>();
- const [profileFileDraft,setProfileFileDraft]=useState<ProfileFileDraft>();
- const [linkDrafts,setLinkDrafts]=useState<Record<string,LinkDraft>>({});const [styleDrafts,setStyleDrafts]=useState<Record<string,StyleDraft>>({});
- const linkEdit=(id:string,value?:LinkDraft)=>setLinkDrafts(previous=>{const next={...previous};if(value)next[id]=value;else delete next[id];return next;});
- const styleEdit=(id:string,value?:StyleDraft)=>setStyleDrafts(previous=>{const next={...previous};if(value)next[id]=value;else delete next[id];return next;});
- const [selected,setSelected]=useState<AppID>('guestbook');const [visible,setVisible]=useState(12);const [showHidden,setShowHidden]=useState(false);const [snapshots,setSnapshots]=useState<Partial<Record<AppID,Snapshot>>>({});const [errors,setErrors]=useState<Partial<Record<AppID,string>>>({});const [busy,setBusy]=useState(false);const [message,setMessage]=useState('');const [drafts,setDrafts]=useState<Partial<Record<AppID,Snapshot['config']>>>({});const mutating=useRef(false);const generation=useRef(0);
- const unsaved=busy||profileFileUnsaved(profileFileDraft)||achievementUnsaved(achievementDraft)||tagUnsaved(tagDraft)||Object.values(linkDrafts).some(draft=>(['title','description','url','status'] as const).some(key=>draft.from[key]!==draft.value[key]))||Object.values(styleDrafts).some(draft=>draft.from.icon!==draft.value.icon||draft.from.pinned!==draft.value.pinned||draft.from.group!==draft.value.group)||Object.entries(drafts).some(([app,values])=>Object.entries(values??{}).some(([key,value])=>value!==snapshots[app as AppID]?.config[key]));
- useEffect(()=>{if(!unsaved)return;const leaving=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue='';};window.addEventListener('beforeunload',leaving);return()=>window.removeEventListener('beforeunload',leaving);},[unsaved]);
- const reload=useCallback(async()=>{const version=++generation.current;const results=await Promise.allSettled((['guestbook','showcase'] as AppID[]).map(app=>call(app,'snapshot')));const next:Partial<Record<AppID,Snapshot>>={},failures:Partial<Record<AppID,string>>={};results.forEach((result,index)=>{const app=(['guestbook','showcase'] as AppID[])[index];if(result.status==='fulfilled')next[app]=result.value;else failures[app]=result.reason.message;});if(version===generation.current){setSnapshots(next);setErrors(failures);}},[]);
- useEffect(()=>{void reload();},[reload]);
- const act=async(app:AppID,action:string,fields:Record<string,unknown>,success:string,failed?:(message:string,code?:string)=>void)=>{if(mutating.current)return false;mutating.current=true;setBusy(true);setMessage('Saving…');try{await call(app,action,fields);setMessage(success);await reload();return true;}catch(error){const failure=error instanceof Error?error.message:'The action failed. Refresh before retrying.';setMessage(failure);const code=error instanceof Error&&"code"in error?String(error.code):undefined;failed?.(failure,code);if(code==='CONFLICT'||((action==='achievement'||action==='tag')&&code!=='INVALID'))await reload();return false;}finally{mutating.current=false;setBusy(false);}};
- const profileRequest=async(operation:'export'|'review'|'apply',fields:Record<string,unknown>={})=>{
-  if(mutating.current)throw Error('Wait for the current app action to finish.');mutating.current=true;setBusy(true);
-  try{const result=await call('showcase','profile-settings',{operation,...fields});if(operation==='apply'){setDrafts(previous=>{const next={...previous};delete next.showcase;return next;});await reload();setMessage('Profile settings applied.');}return result;}
-  catch(error){setMessage(error instanceof Error?error.message:'The settings request could not be confirmed.');if(operation==='apply'&&(!(error instanceof Error)||!('code'in error)||error.code!=='INVALID'))await reload();throw error;}
-  finally{mutating.current=false;setBusy(false);}
- };
- const upload=async(event:SubmitEvent<HTMLFormElement>)=>{event.preventDefault();const form=event.currentTarget,values=new FormData(form),file=values.get('image') as File;if(file.size>10000000){setMessage('Choose an image under 10 MB.');return;}try{const bitmap=await createImageBitmap(file);const scale=Math.min(1,1200/bitmap.width,1200/bitmap.height),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));canvas.getContext('2d')!.drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();const png=canvas.toDataURL('image/png').split(',')[1];if(png.length>1400000){setMessage('This image remains too large. Choose a smaller image.');return;}if(await act('guestbook','upload',{png,caption:values.get('caption'),author:values.get('author'),consent:values.has('consent')},'Photo submitted for review. Approve it when it is ready to publish.'))form.reset();}catch{setMessage('This image could not be prepared. Choose a supported image file.');}};
- const addLink=async(event:SubmitEvent<HTMLFormElement>)=>{event.preventDefault();const form=event.currentTarget;if(await act('showcase','link',Object.fromEntries(new FormData(form)),'Link saved as a draft. Publish it when it is ready.'))form.reset();};
- const snapshot=snapshots[selected];const contributions=(snapshot?.items ?? []).filter(item=>showHidden || ['approved','pending'].includes(item.status));const approved=snapshots.guestbook?.items.filter(item=>item.status==='approved') ?? [];
- return <section className="composer-admin"><div className="ca-heading"><div><h1>Manage your mini-apps</h1><p>Review a contribution, feature it in your collection, then open the result.</p></div><button type="button" disabled={busy} onClick={()=>void reload()}>Refresh apps</button></div><nav className="ca-switcher" aria-label="Choose a connected mini-app">{(['guestbook','showcase'] as AppID[]).map(app=><button key={app} type="button" disabled={busy} aria-pressed={selected===app} onClick={()=>{setSelected(app);setMessage('');}}>{names[app]} <span>{app==='guestbook'?'Photo guestbook':'Curated collection'}</span></button>)}</nav><p role="status" aria-live="polite" className="ca-message">{message}</p>{errors[selected]?<div role="alert"><p>{errors[selected]}</p><button type="button" onClick={()=>void reload()}>Check connection again</button></div>:!snapshot?<p role="status">Loading the app’s current records…</p>:<><div className="ca-app-heading"><div><h2>{snapshot.config.title}</h2><p className="ca-muted">{selected==='guestbook'?'Own database + private photo bucket':'Own database + approved Guestbook items'} · source pinned to the reviewed release</p></div><div className="ca-links"><a href={'/'+selected+'/'} target="_blank" rel="noopener noreferrer">Open live app ↗</a><a href={'https://'+selected+'.loftwah.com'} target="_blank" rel="noopener noreferrer">Standalone ↗</a></div></div><div className="ca-workspace"><div className="ca-main">{selected==='guestbook'?<><details className="ca-disclosure"><summary>Add a photo for review</summary><form onSubmit={upload} className="ca-form"><label>Image<input name="image" type="file" accept="image/*" required/></label><p className="ca-muted">We resize to 1200 pixels and remove metadata. The app independently validates a PNG under 1 MB.</p><label>Image description<input name="caption" maxLength={160} required/></label><label>Name or alias<input name="author" maxLength={60}/></label><label className="ca-check"><input name="consent" type="checkbox" required/>I have permission to publish this image.</label><button disabled={busy} type="submit">Submit for review</button></form></details><h2>Review contributions</h2><p className="ca-muted">Only approved photos can appear publicly or be featured. Hiding a source also removes its controlled Showcase view.</p><label className="ca-check ca-filter"><input type="checkbox" checked={showHidden} onChange={event=>{setShowHidden(event.target.checked);setVisible(12);}}/> Include hidden and rejected contributions</label>{contributions.length===0?<p>No contributions yet. Add a photo to start the collection.</p>:<div className="ca-contributions">{contributions.slice(0,visible).map(item=><article key={item.id}><PhotoPreview item={item} refresh={generation.current}/><div><span className="ca-state">{item.status}</span><h3>{item.caption}</h3><p className="ca-muted">{item.author || 'No alias supplied'}</p><div className="ca-actions">{item.status!=='approved'&&<button disabled={busy} onClick={()=>void act('guestbook','moderate',{id:item.id,status:'approved'},'Photo approved. It is now public and eligible for Linkarooie.')}>Approve photo</button>}{item.status==='approved'&&<button disabled={busy} onClick={()=>void act('showcase','feature',{item:item.id},'Photo featured in Linkarooie. Open the live collection to see it.')}>Feature in Linkarooie</button>}{item.status!=='hidden'&&<button disabled={busy} onClick={()=>void act('guestbook','moderate',{id:item.id,status:'hidden'},'Photo hidden. Controlled public and featured paths now refuse it.')}>Hide photo</button>}</div></div></article>)}{contributions.length>visible&&<button disabled={busy} onClick={()=>setVisible(count=>count+12)}>Show more contributions ({contributions.length-visible} remaining)</button>}</div>}</>:<><details className="ca-disclosure"><summary>Add a link</summary><form onSubmit={addLink} className="ca-form"><label>Title<input name="title" maxLength={100} required/></label><label>Description<textarea name="description" maxLength={240}/></label><label>HTTPS destination<input name="url" type="url" pattern="https://.*" required/></label><button disabled={busy} type="submit">Save draft link</button></form></details>{appSettings.showcase.achievementCollection?.version===1&&<Achievements collection={snapshot.achievementCollection??null} draft={achievementDraft} change={setAchievementDraft} busy={busy} save={(fields,failed)=>act('showcase','achievement',fields,'Achievement saved.',failed)}/>}{appSettings.showcase.tagCollection?.version===1&&<Tags collection={snapshot.tagCollection??null} draft={tagDraft} change={setTagDraft} busy={busy} save={(fields,failed)=>act('showcase','tag',fields,'Tag saved.',failed)}/>}<h2>Your collection</h2><p className="ca-muted">Up to {appSettings.showcase.cardCollection?.limit??8} cards{appSettings.showcase.cardCollection?', with eight featured picks and grouped discovery':''}. Photo visibility remains controlled by Guestbook.</p>{snapshot.items.length===0?<p>No cards yet. Add a link or feature an approved contribution.</p>:snapshot.items.map((item,index)=><article className="ca-card-row" key={item.id}><div><span className="ca-state">{item.status}</span><h3>{item.title}</h3><p className="ca-muted">{item.provider?'Connected Guestbook photo':item.url}</p>{!item.provider&&<LinkEditor item={item} edit={linkDrafts[item.id]} onEdit={draft=>linkEdit(item.id,draft)} busy={busy} save={(fields,failed)=>act("showcase","edit-link",fields,"Link saved.",failed)}/>}<LinkStyle item={item} edit={styleDrafts[item.id]} onEdit={draft=>styleEdit(item.id,draft?{...draft,title:item.title}:undefined)} busy={busy} save={(fields,failed)=>act('showcase','presentation',fields,'Link style saved. Content and visibility are unchanged.',failed)}/></div><div className="ca-actions">{item.status!=='published'&&<button disabled={busy} onClick={()=>void act('showcase','card',{id:item.id,status:'published'},'Card published. Open Linkarooie to see the current collection.')}>Publish card</button>}{item.status==='published'&&<button disabled={busy} onClick={()=>void act('showcase','card',{id:item.id,status:'hidden'},'Card hidden from the public collection.')}>Hide card</button>}{index>0&&<button disabled={busy} aria-label={'Move '+item.title+' up'} onClick={()=>{const order=snapshot.items.map(card=>card.id);[order[index-1],order[index]]=[order[index],order[index-1]];void act('showcase','reorder',{ids:order},'Card order saved.');}}>Move up</button>}</div></article>)}{Object.entries(linkDrafts).filter(([id])=>!snapshot.items.some(item=>item.id===id)).map(([id,draft])=><LinkEditor key={id} item={{id,...draft.from}} edit={draft} onEdit={value=>linkEdit(id,value)} removed busy={busy} save={async()=>false}/>)}{Object.entries(styleDrafts).filter(([id])=>!snapshot.items.some(item=>item.id===id)).map(([id,draft])=><section className="ca-disclosure" key={id}><h3>Retained style edit{draft.title?" · "+draft.title:""}</h3><p>This card was removed. The unsaved style was {draft.value.icon}{draft.value.pinned?", pinned before other cards":", without pinning"}.</p><button type="button" disabled={busy} onClick={()=>styleEdit(id)}>Discard style edit</button></section>)}<details className="ca-disclosure"><summary>Feature an approved photo ({approved.length})</summary>{errors.guestbook?<p>{errors.guestbook}</p>:approved.map(item=><div className="ca-card-row" key={item.id}><p>{item.caption}</p><button disabled={busy} onClick={()=>void act('showcase','feature',{item:item.id},'Approved photo featured.')}>Feature photo</button></div>)}</details></>}</div><aside>{drafts[selected]&&<p className="ca-muted">Unsaved app settings</p>}<Settings key={selected} app={selected} config={drafts[selected] ?? snapshot.config} change={value=>setDrafts(previous=>({...previous,[selected]:value}))} busy={busy} save={async(fields,failed)=>{const saved=await act(selected,'settings',fields,'App settings saved. Open the live app to see the result.',failed);if(saved)setDrafts(previous=>{const next={...previous};delete next[selected];return next;});return saved;}}/>{selected==='showcase'&&appSettings.showcase.profileSettings?.version===1&&<ProfileSettings draft={profileFileDraft} change={setProfileFileDraft} busy={busy} settingsDirty={!!drafts.showcase&&JSON.stringify(drafts.showcase)!==JSON.stringify(snapshot.config)} request={profileRequest}/>}<div className="ca-resource-note"><h2>Where your work lives</h2><p>This app owns its records. Composer calls its reviewed management API; it does not move them into the CMS database.</p><p>Private owner credentials stay on the server. This connection is available to invited Composer administrators.</p><a href="/guide#resources" target="_blank" rel="noopener noreferrer">Understand resources &amp; ownership ↗</a></div></aside></div></>}<p className="ca-muted ca-footnote">Hello and Link Check keep their own workflows. Portable AI State remains fictional-only. Commerce connections are future work.</p></section>;
+  const {
+    achievementDraft,
+    setAchievementDraft,
+    tagDraft,
+    setTagDraft,
+    profileFileDraft,
+    setProfileFileDraft,
+    linkDrafts,
+    linkEdit,
+    styleDrafts,
+    styleEdit,
+    selected,
+    setSelected,
+    visible,
+    setVisible,
+    showHidden,
+    setShowHidden,
+    errors,
+    busy,
+    message,
+    setMessage,
+    drafts,
+    setDrafts,
+    generation,
+    reload,
+    act,
+    profileRequest,
+    upload,
+    addLink,
+    snapshot,
+    contributions,
+    approved,
+  } = useMiniapps();
+  return (
+    <section className="composer-admin">
+      <div className="ca-heading">
+        <div>
+          <h1>Manage your mini-apps</h1>
+          <p>
+            Review a contribution, feature it in your collection, then open the
+            result.
+          </p>
+        </div>
+        <button type="button" disabled={busy} onClick={() => void reload()}>
+          Refresh apps
+        </button>
+      </div>
+      <nav className="ca-switcher" aria-label="Choose a connected mini-app">
+        {(["guestbook", "showcase"] as AppID[]).map((app) => (
+          <button
+            key={app}
+            type="button"
+            disabled={busy}
+            aria-pressed={selected === app}
+            onClick={() => {
+              setSelected(app);
+              setMessage("");
+            }}
+          >
+            {names[app]}{" "}
+            <span>
+              {app === "guestbook" ? "Photo guestbook" : "Curated collection"}
+            </span>
+          </button>
+        ))}
+      </nav>
+      <p role="status" aria-live="polite" className="ca-message">
+        {message}
+      </p>
+      {errors[selected] ? (
+        <div role="alert">
+          <p>{errors[selected]}</p>
+          <button type="button" onClick={() => void reload()}>
+            Check connection again
+          </button>
+        </div>
+      ) : !snapshot ? (
+        <p role="status">Loading the app’s current records…</p>
+      ) : (
+        <>
+          <div className="ca-app-heading">
+            <div>
+              <h2>{snapshot.config.title}</h2>
+              <p className="ca-muted">
+                {selected === "guestbook"
+                  ? "Own database + private photo bucket"
+                  : "Own database + approved Guestbook items"}{" "}
+                · source pinned to the reviewed release
+              </p>
+            </div>
+            <div className="ca-links">
+              <a
+                href={"/" + selected + "/"}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open live app ↗
+              </a>
+              <a
+                href={"https://" + selected + ".loftwah.com"}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Standalone ↗
+              </a>
+            </div>
+          </div>
+          <div className="ca-workspace">
+            <div className="ca-main">
+              {selected === "guestbook" ? (
+                <GuestbookWorkspace
+                  busy={busy}
+                  upload={upload}
+                  showHidden={showHidden}
+                  setShowHidden={setShowHidden}
+                  setVisible={setVisible}
+                  contributions={contributions}
+                  visible={visible}
+                  refresh={generation.current}
+                  act={act}
+                />
+              ) : (
+                <ShowcaseWorkspace
+                  busy={busy}
+                  addLink={addLink}
+                  snapshot={snapshot}
+                  achievementDraft={achievementDraft}
+                  setAchievementDraft={setAchievementDraft}
+                  tagDraft={tagDraft}
+                  setTagDraft={setTagDraft}
+                  linkDrafts={linkDrafts}
+                  linkEdit={linkEdit}
+                  styleDrafts={styleDrafts}
+                  styleEdit={styleEdit}
+                  act={act}
+                  errors={errors}
+                  approved={approved}
+                />
+              )}
+            </div>
+            <aside>
+              {drafts[selected] && (
+                <p className="ca-muted">Unsaved app settings</p>
+              )}
+              <Settings
+                key={selected}
+                app={selected}
+                config={drafts[selected] ?? snapshot.config}
+                change={(value) =>
+                  setDrafts((previous) => ({ ...previous, [selected]: value }))
+                }
+                busy={busy}
+                save={async (fields, failed) => {
+                  const saved = await act(
+                    selected,
+                    "settings",
+                    fields,
+                    "App settings saved. Open the live app to see the result.",
+                    failed,
+                  );
+                  if (saved)
+                    setDrafts((previous) => {
+                      const next = { ...previous };
+                      delete next[selected];
+                      return next;
+                    });
+                  return saved;
+                }}
+              />
+              {selected === "showcase" &&
+                appSettings.showcase.profileSettings?.version === 1 && (
+                  <ProfileSettings
+                    draft={profileFileDraft}
+                    change={setProfileFileDraft}
+                    busy={busy}
+                    settingsDirty={
+                      !!drafts.showcase &&
+                      JSON.stringify(drafts.showcase) !==
+                        JSON.stringify(snapshot.config)
+                    }
+                    request={profileRequest}
+                  />
+                )}
+              <div className="ca-resource-note">
+                <h2>Where your work lives</h2>
+                <p>
+                  This app owns its records. Composer calls its reviewed
+                  management API; it does not move them into the CMS database.
+                </p>
+                <p>
+                  Private owner credentials stay on the server. This connection
+                  is available to invited Composer administrators.
+                </p>
+                <a
+                  href="/guide#resources"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Understand resources &amp; ownership ↗
+                </a>
+              </div>
+            </aside>
+          </div>
+        </>
+      )}
+      <p className="ca-muted ca-footnote">
+        Hello and Link Check keep their own workflows. Portable AI State remains
+        fictional-only. Commerce connections are future work.
+      </p>
+    </section>
+  );
 }
-export const pages:PluginAdminExports['pages']={'/apps':AppPage};
+export const pages: PluginAdminExports["pages"] = { "/apps": AppPage };

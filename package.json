@@ -12,6 +12,7 @@
     "deploy": "node scripts/deploy.mjs",
     "ready": "node scripts/ready.mjs",
     "compose": "node scripts/compose.mjs",
+    "ui:assets": "node scripts/public-ui-assets.mjs",
     "compose:promote": "node scripts/promote.mjs",
     "check:types": "node scripts/identity.mjs && node scripts/package-downloads.mjs && astro check",
     "test:core": "node --test tests/core.test.mjs",
