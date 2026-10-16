@@ -62,8 +62,9 @@ export async function manageMiniapps(ctx, runtime, pins) {
   try {const url=new URL(command.url); if(url.protocol!=='https:' || url.username || url.password || url.href.length>2048) throw Error();} catch {return fail('INVALID','Choose an HTTPS link up to 2048 characters without embedded credentials.');}
   path='/api/cards'; body={title:command.title,description:command.description,url:command.url,status:'draft'};
  } else if(action==='presentation'&&app==='showcase'&&identifier(command.id)&&typeof command.pinned==='boolean'&&appSettings.showcase.cardPresentation?.icons.includes(command.icon)){
-  path='/api/presentation';body={id:command.id,pinned:command.pinned,icon:command.icon};
- } else if (action === 'reorder' && app === 'showcase' && Array.isArray(command.ids) && command.ids.length <= 8 && command.ids.every(identifier) && new Set(command.ids).size===command.ids.length) {
+  if(command.group!==undefined&&(typeof command.group!=='string'||command.group!==''&&!appSettings.showcase.cardCollection?.groups.includes(command.group)))return fail('INVALID','Choose a supported link group.');
+  path='/api/presentation';body={id:command.id,pinned:command.pinned,icon:command.icon,...(command.group!==undefined?{group:command.group}:{})};
+ } else if (action === 'reorder' && app === 'showcase' && Array.isArray(command.ids) && command.ids.length <= (appSettings.showcase.cardCollection?.limit??8) && command.ids.every(identifier) && new Set(command.ids).size===command.ids.length) {
   path='/api/reorder'; body={ids:command.ids};
  } else return fail('INVALID', 'Check the fields and choose a supported action.');
  const service=runtime[app.toUpperCase()], token=runtime[app.toUpperCase()+'_OWNER_TOKEN'];
@@ -90,7 +91,7 @@ export async function manageMiniapps(ctx, runtime, pins) {
    if(result.dataVersion!==1 || !result.config || (app==='guestbook'?!Array.isArray(result.items):!Array.isArray(result.cards))) return fail('APP','The app returned an incompatible management response.');
    let achievements={};if(app==='showcase'&&appSettings.showcase.achievementCollection?.version===1){try{achievements={achievementCollection:achievementCollection(result.achievementCollection)};}catch{achievements={achievementCollection:null,achievementProblem:'review_required'};}}
    let tags={};if(app==='showcase'&&appSettings.showcase.tagCollection?.version===1){try{tags={tagCollection:tagCollection(result.tagCollection)};}catch{tags={tagCollection:null,tagProblem:'review_required'};}}
-   return {ok:true,app,...achievements,...tags,config:result.config,items:app==='guestbook'?result.items.filter(item=>item.status!=='deleted').sort((a,b)=>String(b.created_at ?? '').localeCompare(String(a.created_at ?? ''))).slice(0,200):result.cards.slice(0,8)};
+   return {ok:true,app,...achievements,...tags,config:result.config,items:app==='guestbook'?result.items.filter(item=>item.status!=='deleted').sort((a,b)=>String(b.created_at ?? '').localeCompare(String(a.created_at ?? ''))).slice(0,200):result.cards.slice(0,appSettings.showcase.cardCollection?.limit??8)};
   }
   return {ok:true,id:result.id ?? null};
  } catch {return fail((action==='achievement'||action==='tag'||(action==='profile-settings'&&command.operation==='apply'))?'UNCONFIRMED':'UNAVAILABLE','The app connection was interrupted. Refresh to check the result before retrying.');}

@@ -1,3 +1,5 @@
+Owner-instance correction, 16 October 2026: the reference now has separate public owner configuration and an instance homepage for Loftwah’s apps, music, games and writing. Linkarooie’s reviewed pair adds the established kangaroo identity, original portrait/banner, personal sharing, eight featured picks and grouped discovery over up to64 existing cards. Phone/desktop rendering, search and the legacy-settings round trip pass locally; native bridge review fixed its former8-card truncation. The existing generic product homepage remains available. Actual guarded release, deliberate reference curation and live acceptance belong in #11; this source note does not claim full workspace/stack/analytics delivery.
+
 # Continuation
 Reviewed 13 October 2026. MP activated implementation; historical epic hold is lifted.
 

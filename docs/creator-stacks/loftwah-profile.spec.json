@@ -15,8 +15,8 @@
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "eb0a8a30634b7df3b09d8cc5fa6e41c1bd30153d",
-      "manifestDigest": "sha256:cdbcb2aa5ddd1f056c66beaf4a7123dd6f02c6dcc78a7919834b98fb1267cf81"
+      "commit": "a3ed1eb2c5ac6c7299883cd55af498b9c73db580",
+      "manifestDigest": "sha256:632373357094f7ffc2df74147519fce29f8b9a2600b28a797a55a3481e79d0a6"
     }
   ],
   "appSettings": {
@@ -29,14 +29,17 @@
     },
     "showcase": {
       "title": "Loftwah",
-      "intro": "I like building things and making them work.",
+      "intro": "Dean Lofts · Australian software builder, DevOps engineer and music producer. I like building things and making them work.",
       "theme": "midnight",
-      "layout": "compact",
+      "layout": "profile",
       "handle": "loftwah",
       "website": "https://loftwah.com/",
       "github": "https://github.com/loftwah",
-      "bluesky": "",
-      "linkedin": "https://linkedin.com/in/deanlofts"
+      "x": "https://x.com/loftwah",
+      "linkedin": "https://linkedin.com/in/deanlofts",
+      "avatar": "https://showcase.loftwah.com/brand/creators/loftwah-avatar-v1.jpg",
+      "banner": "https://showcase.loftwah.com/brand/creators/loftwah-banner-v1.jpg",
+      "shareImage": "https://showcase.loftwah.com/brand/creators/loftwah-share-v1.jpg"
     }
   },
   "config": {

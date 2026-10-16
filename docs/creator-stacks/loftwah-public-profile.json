@@ -1,0 +1,260 @@
+{
+  "schema": "app-composer.reference-creator-profile/1",
+  "creator": "loftwah",
+  "source": {
+    "repository": "loftwah/linkarooie-3",
+    "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+    "file": "src/data/profiles/loftwah.ts",
+    "extraction": "Static TypeScript AST; direct socialLinks/links/achievements only; no imported source execution."
+  },
+  "profile": {
+    "title": "Loftwah",
+    "intro": "Dean Lofts · Australian software builder, DevOps engineer and music producer. I like building things and making them work.",
+    "theme": "midnight",
+    "layout": "profile",
+    "handle": "loftwah",
+    "website": "https://loftwah.com/",
+    "github": "https://github.com/loftwah",
+    "x": "https://x.com/loftwah",
+    "linkedin": "https://linkedin.com/in/deanlofts",
+    "avatar": "https://showcase.loftwah.com/brand/creators/loftwah-avatar-v1.jpg",
+    "banner": "https://showcase.loftwah.com/brand/creators/loftwah-banner-v1.jpg",
+    "shareImage": "https://showcase.loftwah.com/brand/creators/loftwah-share-v1.jpg"
+  },
+  "cards": [
+    {
+      "reference": "fm",
+      "title": "LoftwahFM",
+      "description": "My music, releases and radio.",
+      "url": "https://fm.loftwah.com",
+      "group": "Music",
+      "icon": "music",
+      "pinned": true
+    },
+    {
+      "reference": "spotify-beatsmiff",
+      "title": "Loftwah the Beatsmiff",
+      "description": "Listen on Spotify.",
+      "url": "https://open.spotify.com/artist/4RutEiEhEl0PH7J77J7mz8",
+      "group": "Music",
+      "icon": "music",
+      "pinned": true
+    },
+    {
+      "reference": "protocol11",
+      "title": "Protocol 11",
+      "description": "Play my card game.",
+      "url": "https://protocol11.loftwah.com",
+      "group": "Games",
+      "icon": "heart",
+      "pinned": true
+    },
+    {
+      "reference": "bubbles",
+      "title": "Bubbles",
+      "description": "Open the game and play.",
+      "url": "https://bubbles.loftwah.com",
+      "group": "Games",
+      "icon": "heart",
+      "pinned": true
+    },
+    {
+      "reference": "shoalshot",
+      "title": "SHOALSHOT",
+      "description": "Read the tide. Place the shot.",
+      "url": "https://shoalshot.loftwah.com",
+      "group": "Games",
+      "icon": "heart",
+      "pinned": true
+    },
+    {
+      "reference": "composer",
+      "title": "App Composer",
+      "description": "My apps, connected. This is the workspace behind this profile.",
+      "url": "https://composer.loftwah.com",
+      "group": "Projects",
+      "icon": "code",
+      "pinned": true
+    },
+    {
+      "reference": "woodhouse",
+      "title": "Woodhouse",
+      "description": "The software factory behind the work.",
+      "url": "https://woodhouse.loftwah.com",
+      "group": "Projects",
+      "icon": "code",
+      "pinned": true
+    },
+    {
+      "reference": "blog",
+      "title": "Writing by Dean Lofts",
+      "description": "Articles, notes and things I’ve learned.",
+      "url": "https://blog.deanlofts.xyz",
+      "group": "Writing",
+      "icon": "book",
+      "pinned": true
+    },
+    {
+      "reference": "spotify-loftwah",
+      "title": "Loftwah on Spotify",
+      "description": "My Loftwah artist catalogue.",
+      "url": "https://open.spotify.com/artist/1H7nwwjikAmMdARWejXyd1",
+      "group": "Music",
+      "icon": "music",
+      "pinned": false
+    },
+    {
+      "reference": "apple",
+      "title": "Apple Music",
+      "description": "Loftwah the Beatsmiff.",
+      "url": "https://music.apple.com/au/artist/loftwah-the-beatsmiff/1459124888",
+      "group": "Music",
+      "icon": "music",
+      "pinned": false
+    },
+    {
+      "reference": "unearthed",
+      "title": "triple j Unearthed",
+      "description": "My Australian artist profile.",
+      "url": "https://www.abc.net.au/triplejunearthed/artist/loftwah-beatsmiff",
+      "group": "Music",
+      "icon": "music",
+      "pinned": false
+    },
+    {
+      "reference": "beats",
+      "title": "Beats on YouTube",
+      "description": "My beats playlist.",
+      "url": "https://www.youtube.com/playlist?list=PLKBAUoCO_FtlACntcZqTOD4hckJ8IAWZ3",
+      "group": "Music",
+      "icon": "video",
+      "pinned": false
+    },
+    {
+      "reference": "credits",
+      "title": "Production credits on YouTube",
+      "description": "The playlist from my original profile.",
+      "url": "https://www.youtube.com/playlist?list=PLKBAUoCO_FtkHiwRzyGzfhauIhNMBFw66",
+      "group": "Music",
+      "icon": "video",
+      "pinned": false
+    },
+    {
+      "reference": "discogs-dean",
+      "title": "Discogs · Dean Lofts",
+      "description": "Discography and credits under Dean Lofts.",
+      "url": "https://www.discogs.com/artist/3573134-Dean-Lofts",
+      "group": "Music",
+      "icon": "music",
+      "pinned": false
+    },
+    {
+      "reference": "discogs-loftee",
+      "title": "Discogs · Loftee Beats",
+      "description": "Discography and credits under Loftee Beats.",
+      "url": "https://www.discogs.com/artist/3573135-Loftee-Beats",
+      "group": "Music",
+      "icon": "music",
+      "pinned": false
+    },
+    {
+      "reference": "soundbetter",
+      "title": "SoundBetter",
+      "description": "My Loftwah the Beatsmiff profile.",
+      "url": "https://soundbetter.com/profiles/194332-loftwah-the-beatsmiff",
+      "group": "Music",
+      "icon": "music",
+      "pinned": false
+    },
+    {
+      "reference": "fighter",
+      "title": "Loftwah Fighter",
+      "description": "Pick your fight.",
+      "url": "https://fighter.loftwah.com",
+      "group": "Games",
+      "icon": "heart",
+      "pinned": false
+    },
+    {
+      "reference": "bogan",
+      "title": "Bogan Hustler",
+      "description": "Underground empire trading game.",
+      "url": "https://boganhustler.deanlofts.xyz",
+      "group": "Games",
+      "icon": "heart",
+      "pinned": false
+    },
+    {
+      "reference": "assets",
+      "title": "Asset Hunter",
+      "description": "A field guide to what can be made.",
+      "url": "https://assets.loftwah.com",
+      "group": "Projects",
+      "icon": "code",
+      "pinned": false
+    },
+    {
+      "reference": "pizza",
+      "title": "Loftwah Pizza Shop",
+      "description": "A pizza shop project.",
+      "url": "https://pizza.deanlofts.xyz",
+      "group": "Projects",
+      "icon": "code",
+      "pinned": false
+    },
+    {
+      "reference": "pirates",
+      "title": "Linux for Pirates!",
+      "description": "My Linux project.",
+      "url": "https://linuxforpirates.deanlofts.xyz",
+      "group": "Writing",
+      "icon": "book",
+      "pinned": false
+    },
+    {
+      "reference": "medium",
+      "title": "Loftwah on Medium",
+      "description": "More of my writing.",
+      "url": "https://loftwah.medium.com",
+      "group": "Writing",
+      "icon": "book",
+      "pinned": false
+    },
+    {
+      "reference": "github",
+      "title": "GitHub",
+      "description": "Source code and projects.",
+      "url": "https://github.com/loftwah",
+      "group": "Connect",
+      "icon": "code",
+      "pinned": false
+    },
+    {
+      "reference": "x",
+      "title": "X · @loftwah",
+      "description": "Find me on X.",
+      "url": "https://x.com/loftwah",
+      "group": "Connect",
+      "icon": "link",
+      "pinned": false
+    },
+    {
+      "reference": "linkedin",
+      "title": "LinkedIn",
+      "description": "My professional profile.",
+      "url": "https://linkedin.com/in/deanlofts",
+      "group": "Connect",
+      "icon": "link",
+      "pinned": false
+    },
+    {
+      "reference": "dailydev",
+      "title": "daily.dev",
+      "description": "Developer links and discussions.",
+      "url": "https://daily.dev/loftwah",
+      "group": "Connect",
+      "icon": "link",
+      "pinned": false
+    }
+  ]
+}

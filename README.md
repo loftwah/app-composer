@@ -1,6 +1,8 @@
 # App Composer
 
-Profile-settings portability is under source qualification: independent and native admin surfaces share a versioned download/review/explicit-apply flow with app-owned storage, retained drafts and guarded comparison. Older pins keep it disabled. See [scope, ownership and remaining gates](docs/profile-settings-portability.md); source checks do not establish browser, native-host or production acceptance.
+This checkout is Loftwah’s own App Composer instance. Public owner identity and connected projects live in `config/instance.json`; turn off that instance configuration to use the generic product homepage. Linkarooie’s reference profile uses the original portrait/banner and a reviewed public catalogue, with editable featured picks and grouped discovery. Private material and invented activity are excluded. Actual deployment/content evidence stays in [#11](https://github.com/loftwah/app-composer/issues/11).
+
+Tags and basic profile-settings portability share the app-owned APIs and standalone/native controls. Version1 settings files keep their original nine-field boundary; creator images/X and collection data are outside that basic file. See [scope and remaining gates](docs/profile-settings-portability.md).
 
 App Composer is an agent-operated application studio built around EmDash and Cloudflare. Get Ready prepares the supported environment before an idea; Init turns content, fields and app choices into a portable specification; composition connects independently maintained mini-apps. The product carries forward WordPress’s useful content/form/white-label lessons while agents handle implementation and operations. See the [CMS, cloud and business-service guide](https://composer.loftwah.com/guide), [whole platform](https://composer.loftwah.com/architecture) and [product definition](PRODUCT.md) for current capability and remaining work.
 

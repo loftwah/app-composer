@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "name": "Loftwah’s App Composer",
+  "owner": "Loftwah",
+  "person": "Dean Lofts",
+  "handle": "loftwah",
+  "description": "Dean Lofts’ own App Composer workspace: Linkarooie, a guestbook, tools and the music, games and projects around them.",
+  "bio": "I like building things and making them work.",
+  "portrait": "/brand/creators/loftwah-avatar-v1.jpg",
+  "banner": "/brand/creators/loftwah-banner-v1.jpg",
+  "profile": "/showcase/",
+  "connections": [
+    {"title":"LoftwahFM","description":"My music, releases and radio.","href":"https://fm.loftwah.com/","kind":"Music"},
+    {"title":"Protocol 11","description":"Play my card game.","href":"https://protocol11.loftwah.com/","kind":"Games"},
+    {"title":"Bubbles","description":"Open the game and play.","href":"https://bubbles.loftwah.com/","kind":"Games"},
+    {"title":"SHOALSHOT","description":"Read the tide. Place the shot.","href":"https://shoalshot.loftwah.com/","kind":"Games"},
+    {"title":"Woodhouse","description":"The software factory behind the work.","href":"https://woodhouse.loftwah.com/","kind":"Projects"},
+    {"title":"Writing","description":"Notes, articles and things I’ve learned.","href":"https://blog.deanlofts.xyz/","kind":"Writing"}
+  ]
+}

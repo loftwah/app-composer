@@ -41,8 +41,8 @@ export function ProfileSettings({draft,change,busy,settingsDirty,request}:Props)
    const anchor=document.createElement('a');anchor.href=url;anchor.download='linkarooie-profile.json';document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),0);setStatus('The profile settings file is ready.');
   }catch(error){setStatus(error instanceof Error?error.message:'The settings file could not be prepared.');}
  };
- return <details className="ca-disclosure ca-profile-portability" open={expanded} onToggle={event=>setExpanded(event.currentTarget.open)}><summary>Move profile settings</summary>
-  <p>Take your name, bio, appearance and social links with you. Your links, milestones, tags and photos stay in this app.</p>
+ return <details className="ca-disclosure ca-profile-portability" open={expanded} onToggle={event=>setExpanded(event.currentTarget.open)}><summary>Move basic profile settings</summary>
+  <p>Move your name, bio, theme, layout and basic profile links. Portrait, banner, share image, X and your collection stay in this app.</p>
   <button type="button" disabled={pending} onClick={()=>void download()}>Download profile settings</button>
   <div className="ca-form"><label>Profile settings file<input ref={input} type="file" accept=".json,application/json" disabled={pending} aria-describedby="ca-profile-file-help" onChange={event=>{const file=event.currentTarget.files?.[0];if(file)void readFile(file);}}/></label><p className="ca-muted" id="ca-profile-file-help">Choose a Linkarooie JSON settings file, up to 32 KiB. Reviewing saves nothing.</p>
   {draft&&<p className="ca-retained-text">Selected file: {draft.name}</p>}
