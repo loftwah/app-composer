@@ -86,3 +86,39 @@ test('guest postcard configuration is app-scoped and defaults closed before prom
  assert.throws(()=>validateComposition([{...app('showcase'),configuration:{guestAccess:field}}]),/Unsupported configuration/);
  assert.equal(guardPromotion({id:'current',apps:[{id:'guestbook',manifest:app('guestbook')}]},{apps:[{id:'guestbook',manifest:guest}]},'current'),true);
 });
+
+
+test('composition CLI refuses stale, unfinished and changed-source readiness before provider access or writes',()=>{
+ const fixture=mkdtempSync(join(tmpdir(),'composer-apply-current-')),workspace=join(fixture,'composer'),bin=join(fixture,'bin');mkdirSync(workspace);mkdirSync(bin);
+ const git=args=>execFileSync('git',args,{cwd:workspace,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+ try{
+  git(['init','-b','main']);git(['remote','add','origin','https://github.com/loftwah/app-composer.git']);
+  const account='b'.repeat(32),lock='original fictional composition\n';
+  writeFileSync(join(workspace,'wrangler.jsonc'),JSON.stringify({account_id:account}));
+  writeFileSync(join(workspace,'composition.lock.json'),lock);writeFileSync(join(workspace,'.gitignore'),'.private/\n');
+  git(['add','.']);git(['-c','user.name=Fictional test','-c','user.email=fixture@example.test','commit','-m','Synthetic apply fixture']);
+  const source=git(['rev-parse','HEAD']);mkdirSync(join(workspace,'.private'));
+  const marker=join(fixture,'provider-called');
+  writeFileSync(join(bin,'gh'),'#!/bin/sh\ntouch "'+marker+'"\nexit 91\n',{mode:0o755});
+  const preload=join(fixture,'no-network.mjs');writeFileSync(preload,'import {writeFileSync} from "node:fs";globalThis.fetch=async()=>{writeFileSync('+JSON.stringify(marker)+',"fetch called");throw Error("Fixture prohibits provider IO");};');
+  const spec=join(fixture,'spec.json');writeFileSync(spec,JSON.stringify({...valid(),deployment:{mode:'existing-domain',hostname:'composer.loftwah.com'}}));
+  const cases=[
+   ['stale check',r=>r.checks.agent.verifiedAt=new Date(Date.now()-3600001).toISOString()],
+   ['unfinished deployment',r=>r.pendingOperations=[{id:'deploy-reference',state:'failed',recovery:'agent-recheck'}]],
+   ['missing checks',r=>delete r.checks],
+   ['null checks',r=>r.checks=null],
+   ['malformed pending work',r=>r.pendingOperations={}],
+   ['changed source',()=>{writeFileSync(join(workspace,'revision.txt'),'Changed fictional source\n');git(['add','revision.txt']);git(['-c','user.name=Fictional test','-c','user.email=fixture@example.test','commit','-m','Changed apply fixture']);assert.notEqual(git(['rev-parse','HEAD']),source);}]
+  ];
+  for(const [label,mutate] of cases){
+   const now=Date.now(),receipt={version:2,recipe:'codex-github-cloudflare-hello-v2',state:'verified',expiresAt:new Date(now+3600000).toISOString(),context:{workspace:git(['rev-parse','--show-toplevel']),repo:'loftwah/app-composer',source,account,dirty:false,target:{origin:'https://ready.loftwah.com',repo:'loftwah/app-composer-hello'},worker:'composer-hello'},checks:Object.fromEntries(['agent','github','cloudflare','https'].map(id=>[id,{state:'verified',verifiedAt:new Date(now).toISOString(),evidence:{source,account}}]))};
+   mutate(receipt);const bytes=JSON.stringify(receipt);writeFileSync(join(workspace,'.private/readiness.json'),bytes);
+   for(const operation of ['--apply','--apply-settings']){
+    const result=spawnSync(process.execPath,['--import',preload,fileURLToPath(new URL('../scripts/compose.mjs',import.meta.url)),operation,'--spec',spec],{cwd:workspace,env:{PATH:bin+':'+process.env.PATH},encoding:'utf8',timeout:5000});
+    assert.equal(result.error,undefined,label);assert.equal(result.status,1,label);assert.match(result.stderr,/Readiness is missing/,label);
+    assert.equal(existsSync(marker),false,label);assert.equal(readFileSync(join(workspace,'composition.lock.json'),'utf8'),lock);
+    assert.equal(readFileSync(join(workspace,'.private/readiness.json'),'utf8'),bytes);assert.equal(existsSync(join(workspace,'.private/candidates')),false);assert.equal(git(['status','--porcelain']),'');
+   }
+  }
+ }finally{rmSync(fixture,{recursive:true,force:true});}
+});
