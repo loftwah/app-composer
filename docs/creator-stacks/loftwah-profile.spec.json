@@ -9,20 +9,20 @@
     {
       "id": "guestbook",
       "repository": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "67c4694e342a67b0ea7be864bfb0b2ad51d016a3",
+      "commit": "87eadb0d1c116c9e2b568e853ba5ef96cd4a6b6e",
       "manifestDigest": "sha256:b6c218b58a511009eda21980880ca873fce8aa00aca3f47a42978e1206e6e562"
     },
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "a3ed1eb2c5ac6c7299883cd55af498b9c73db580",
+      "commit": "860551d67c77637b4b2da6eb43e5508634681c16",
       "manifestDigest": "sha256:632373357094f7ffc2df74147519fce29f8b9a2600b28a797a55a3481e79d0a6"
     }
   ],
   "appSettings": {
     "guestbook": {
       "title": "Loftwah's guestbook",
-      "intro": "A little piece of your day, approved before it is shared.",
+      "intro": "Leave a postcard for Loftwah. Your message stays private until I approve it.",
       "theme": "midnight",
       "layout": "editorial",
       "guestAccess": "postcards"
