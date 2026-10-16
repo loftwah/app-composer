@@ -57,8 +57,8 @@ test('the full bounded Guestbook queue is available with newest records first',a
 
 test('profile configuration and presentation use reviewed fields without clearing omitted optional values',async()=>{
  assert.equal(appSettings.showcase.cardPresentation.version,1);
- const fields={title:'Fictional profile',intro:'A fictional bio',theme:'midnight',layout:'compact',handle:'garden.studio',github:'https://github.com/example',website:'https://example.test/',bluesky:'',linkedin:''};
- const f=fixture();assert.equal((await manageMiniapps(context({app:'showcase',action:'settings',...fields,token:'ignored'}),f.runtime,pins)).ok,true);assert.deepEqual(await f.calls[1].json(),fields);
+ const fields={title:'Fictional profile',intro:'A fictional bio',theme:'midnight',layout:'compact',handle:'garden.studio',github:'https://github.com/example',website:'https://example.test/',x:'https://x.com/example',avatar:'https://showcase.example.test/avatar.jpg',banner:'',shareImage:'',linkedin:''};
+ const f=fixture();assert.equal((await manageMiniapps(context({app:'showcase',action:'settings',...fields,bluesky:'https://bsky.app/profile/ignored',token:'ignored'}),f.runtime,pins)).ok,true);assert.deepEqual(await f.calls[1].json(),fields);
  const legacy=fixture();assert.equal((await manageMiniapps(context({app:'showcase',action:'settings',title:'Legacy',intro:'',theme:'daylight',layout:'grid'}),legacy.runtime,pins)).ok,true);assert.equal(Object.hasOwn(await legacy.calls[1].json(),'github'),false);
  const styled=fixture();assert.equal((await manageMiniapps(context({app:'showcase',action:'presentation',id:'card',pinned:true,icon:'book',status:'published'}),styled.runtime,pins)).ok,true);assert.equal(styled.calls[1].url,origin+'/showcase/api/presentation');assert.deepEqual(await styled.calls[1].json(),{id:'card',pinned:true,icon:'book'});
  for(const input of [{app:'showcase',action:'settings',...fields,github:'https://github.com.evil.test/'},{app:'showcase',action:'presentation',id:'card',pinned:'true',icon:'book'},{app:'showcase',action:'presentation',id:'card',pinned:true,icon:'<script>'},{app:'guestbook',action:'presentation',id:'card',pinned:true,icon:'link'}]){const bad=fixture();assert.equal((await manageMiniapps(context(input),bad.runtime,pins)).ok,false);assert.equal(bad.calls.length,0);}
@@ -72,4 +72,17 @@ test('editing an authored link sends an explicit bounded compare snapshot and pr
  const conflict=fixture({status:409});assert.equal((await manageMiniapps(context(input),conflict.runtime,pins)).code,'CONFLICT');assert.equal(conflict.calls.length,2);
  const legacy=fixture();const old={...expected,url:new URL('https://example.test/'+'é'.repeat(600)).href};assert.equal((await manageMiniapps(context({...input,expected:old}),legacy.runtime,pins)).ok,true);assert.deepEqual((await legacy.calls[1].json()).expected,old);
  const denied=fixture();assert.equal((await manageMiniapps(context(input,{role:20}),denied.runtime,pins)).code,'FORBIDDEN');assert.equal(denied.calls.length,0);
+});
+
+test('expanded card contracts expose every owned card and accept its complete reorder',async()=>{
+ const original=appSettings.showcase.cardCollection;
+ try{
+  appSettings.showcase.cardCollection={version:1,limit:64,featuredLimit:8,groups:['Music','Games','Projects','Writing','Connect']};
+  const f=fixture(),service=f.runtime.SHOWCASE,fetch=service.fetch,ids=Array.from({length:26},(_,i)=>'card-'+i);
+  service.fetch=async request=>request.url.endsWith('/api/export')?Response.json({dataVersion:1,config:{},cards:ids.map(id=>({id,title:id,status:'published',group:'Music'}))}):fetch(request);
+  const snapshot=await manageMiniapps(context({app:'showcase',action:'snapshot'}),f.runtime,pins);assert.equal(snapshot.items.length,26);
+  const ordered=[...ids].reverse(),response=await manageMiniapps(context({app:'showcase',action:'reorder',ids:ordered}),f.runtime,pins);assert.equal(response.ok,true);assert.deepEqual(await f.calls.at(-1).json(),{ids:ordered});
+  const styled=fixture();assert.equal((await manageMiniapps(context({app:'showcase',action:'presentation',id:ids[0],pinned:true,icon:'music',group:'Music'}),styled.runtime,pins)).ok,true);assert.equal((await styled.calls.at(-1).json()).group,'Music');
+  appSettings.showcase.cardCollection=null;const older=await manageMiniapps(context({app:'showcase',action:'snapshot'}),f.runtime,pins);assert.equal(older.items.length,8);const before=f.calls.length;assert.equal((await manageMiniapps(context({app:'showcase',action:'reorder',ids}),f.runtime,pins)).code,'INVALID');assert.equal(f.calls.length,before);
+ }finally{appSettings.showcase.cardCollection=original;}
 });

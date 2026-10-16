@@ -1,11 +1,11 @@
 import composition from '../../composition.lock.json' with {type:'json'};
 
-const labels={guestAccess:'Guest contributions',title:'Title',intro:'Introduction',theme:'Theme',layout:'Layout',handle:'Handle',website:'Website',github:'GitHub',bluesky:'Bluesky',linkedin:'LinkedIn'};
-const options={closed:'Closed',postcards:'Postcards with guest code',daylight:'Daylight',midnight:'Midnight',grid:'Gallery grid',editorial:'Larger editorial images',compact:'Compact links'};
+const labels={guestAccess:'Guest contributions',title:'Title',intro:'Introduction',theme:'Theme',layout:'Layout',handle:'Handle',website:'Website',github:'GitHub',bluesky:'Bluesky',linkedin:'LinkedIn',x:'X',avatar:'Profile portrait URL',banner:'Profile banner URL',shareImage:'Social preview image URL (1200 × 630)'};
+const options={closed:'Closed',postcards:'Postcards with guest code',daylight:'Daylight',midnight:'Midnight',grid:'Gallery grid',editorial:'Larger editorial images',compact:'Compact links',profile:'Creator profile'};
 const names={guestbook:'Photo Guestbook',showcase:'Linkarooie'};
 // Only the reviewed composition's data contracts reach the form; no remote code runs.
 export const appSettings=Object.freeze(Object.fromEntries(composition.apps.map(app=>[app.id,{
- id:app.id,name:names[app.id]??app.manifest.name,cardPresentation:app.manifest.cardPresentation??null,achievementCollection:app.manifest.achievementCollection??null,tagCollection:app.manifest.tagCollection??null,profileSettings:app.manifest.profileSettings??null,
+ id:app.id,name:names[app.id]??app.manifest.name,cardPresentation:app.manifest.cardPresentation??null,cardCollection:app.manifest.cardCollection??null,achievementCollection:app.manifest.achievementCollection??null,tagCollection:app.manifest.tagCollection??null,profileSettings:app.manifest.profileSettings??null,
  source:{id:app.id,repository:app.repository,commit:app.commit,manifestDigest:app.manifestDigest},
  fields:Object.entries(app.manifest.configuration).map(([key,field])=>({key,label:labels[key]??key,...field,choices:field.type==='select'?field.options.map(value=>({value,label:options[value]??value})):[]})),
 }])));
@@ -53,6 +53,7 @@ export function validateAppSettingValue(field,value,name){
  if(clean&&field.format==='https-url'){
   let url;try{url=new URL(clean);}catch{throw Error('Use a full HTTPS address for '+field.label+'.');}
   if(url.href.length>field.maxLength||url.protocol!=='https:'||url.username||url.password||field.hosts&&!field.hosts.includes(url.hostname))throw Error('Use an HTTPS '+field.label+' address without embedded credentials.');
+  if(['avatar','banner','shareImage'].includes(field.key)&&!/^[a-zA-Z0-9.:/\[\]-]+$/.test(url.origin))throw Error('Use an image address with a valid HTTPS hostname.');
   return url.href;
  }
  return clean;

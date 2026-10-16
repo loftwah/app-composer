@@ -1,5 +1,5 @@
 {
-  "id": "2f4b2886543f0c3b6b58a757d8deb91c66221ed7e0b8ffeb0cc36e6f588fa913",
+  "id": "117013ed7a9ff8be394da2dab0ac8ede6e92139e7b681e68d13017590877a032",
   "reviewed": "2026-10-14",
   "apps": [
     {
@@ -66,13 +66,13 @@
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "eb0a8a30634b7df3b09d8cc5fa6e41c1bd30153d",
+      "commit": "a3ed1eb2c5ac6c7299883cd55af498b9c73db580",
       "url": "https://showcase.loftwah.com",
       "manifest": {
         "contract": 1,
         "id": "showcase",
         "name": "Linkarooie",
-        "version": "1.4.0",
+        "version": "1.5.0",
         "repository": "https://github.com/loftwah/app-composer-showcase",
         "runtime": "cloudflare-worker",
         "entry": "src/worker.ts",
@@ -108,7 +108,8 @@
             "options": [
               "grid",
               "editorial",
-              "compact"
+              "compact",
+              "profile"
             ],
             "default": "grid"
           },
@@ -133,15 +134,6 @@
               "github.com"
             ]
           },
-          "bluesky": {
-            "type": "string",
-            "default": "",
-            "maxLength": 2048,
-            "format": "https-url",
-            "hosts": [
-              "bsky.app"
-            ]
-          },
           "linkedin": {
             "type": "string",
             "default": "",
@@ -151,6 +143,34 @@
               "linkedin.com",
               "www.linkedin.com"
             ]
+          },
+          "x": {
+            "type": "string",
+            "default": "",
+            "maxLength": 2048,
+            "format": "https-url",
+            "hosts": [
+              "x.com",
+              "twitter.com"
+            ]
+          },
+          "avatar": {
+            "type": "string",
+            "default": "",
+            "maxLength": 2048,
+            "format": "https-url"
+          },
+          "banner": {
+            "type": "string",
+            "default": "",
+            "maxLength": 2048,
+            "format": "https-url"
+          },
+          "shareImage": {
+            "type": "string",
+            "default": "",
+            "maxLength": 2048,
+            "format": "https-url"
           }
         },
         "cardPresentation": {
@@ -186,9 +206,21 @@
           "version": 1,
           "format": "linkarooie.profile-settings",
           "maxFileBytes": 32768
+        },
+        "cardCollection": {
+          "version": 1,
+          "limit": 64,
+          "featuredLimit": 8,
+          "groups": [
+            "Music",
+            "Games",
+            "Projects",
+            "Writing",
+            "Connect"
+          ]
         }
       },
-      "manifestDigest": "sha256:cdbcb2aa5ddd1f056c66beaf4a7123dd6f02c6dcc78a7919834b98fb1267cf81"
+      "manifestDigest": "sha256:632373357094f7ffc2df74147519fce29f8b9a2600b28a797a55a3481e79d0a6"
     }
   ]
 }
