@@ -64,7 +64,7 @@ Entries and grouped definition lists remain open and square. Buttons have gently
 
 ## Components
 
-The header places the linked collection name before a native navigation group: **Edit content**, then **Light / dark**. Editing links lead to `/_emdash/admin`. Primary links and buttons have a 48px minimum height and 12px by 20px padding. The theme button uses the quiet surface and a border. The footer repeats the collection name and **Manage this collection**.
+The header places the linked collection name before a native navigation group: **Edit content**, then the compact theme control. Editing links lead to `/_emdash/admin`. Primary links and buttons have a 48px minimum height and 12px by 20px padding. The theme button uses the quiet surface and a border. The footer repeats the collection name and **Manage this collection**.
 
 The collection name is also the page’s sole first-level heading. Each entry uses the first unconditional string field as its second-level title, falling back to its ID. Model groups retain their order as third-level headings; matching visible fields appear as labelled definition-list rows, with the title field omitted from the rows. Groups remain visible even when their row list is empty.
 
@@ -92,3 +92,5 @@ Individual entry pages, reviewed 15 October 2026: published collection titles ar
 Collection filter, reviewed 15 October 2026: one native labelled select derives from the first unconditional choice field. Its 48px control and action sit below the collection heading, inheriting the charcoal/ivory surfaces, orange action, visible focus and open reading layout. Phone layouts give the select a full row; the form and recovery links work without JavaScript. A quiet sentence names the active choice, while pagination shows positions within that filtered result, never an invented total. No-result and invalid-filter states keep a route back.
 
 The select keeps native keyboard and picker behaviour, with a scoped custom painted shell and an 18px, 2px-stroke chevron matching the existing line-icon language. This prevents WebKit’s compact menulist appearance from reducing its rendered touch target below 48px. It does not style the EmDash admin.
+
+Public text links have no underline, including hover. Weight, accent colour and content context keep destinations recognisable, with visible keyboard focus. Theme utilities use the shared current-mode icon and stable accessible pressed state.
