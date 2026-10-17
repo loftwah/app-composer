@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-18",
+  "tool": "built-in image_gen",
+  "prompts": ".artwork/identity-prompts-20261018.json",
+  "exports": [
+    {
+      "id": "composer",
+      "master": ".artwork/masters/icons/composer-20261018-master.png",
+      "sha256": "b3012115fd5c6983921a22830711e7b586a652f3e3f8dd6432176d71b3135b13",
+      "widths": [
+        16,
+        32,
+        48,
+        96,
+        180,
+        192,
+        512
+      ]
+    },
+    {
+      "id": "herethere",
+      "master": ".artwork/masters/icons/herethere-20261018-master.png",
+      "sha256": "62c497b9e40513c2d651dc6dbcd95a03ec1a760b5b51ffbcee37e8aff0d7b1ff",
+      "widths": [
+        16,
+        32,
+        48,
+        96,
+        180,
+        192,
+        512
+      ]
+    },
+    {
+      "id": "linkcheck",
+      "master": ".artwork/masters/icons/linkcheck-20261018-master.png",
+      "sha256": "57a45b7817d19dbd0e6126e4e9f48d65be8c1608ecf1ad88b58c08aaa2940e98",
+      "widths": [
+        16,
+        32,
+        48,
+        96,
+        180,
+        192,
+        512
+      ]
+    },
+    {
+      "id": "hello",
+      "master": ".artwork/masters/icons/hello-20261018-master.png",
+      "sha256": "ec5975d01b7932f18042e7b26a0c689fa6d067f039fcd8bd8f79da06e116e766",
+      "widths": [
+        16,
+        32,
+        48,
+        96,
+        180,
+        192,
+        512
+      ]
+    },
+    {
+      "id": "carryforward",
+      "master": ".artwork/masters/icons/carryforward-20261018-master.png",
+      "sha256": "c47fe6c3368a27c4b3a1be7661bcbb680ae1155651a6fec2b3215216b9f14ef9",
+      "widths": [
+        16,
+        32,
+        48,
+        96,
+        180,
+        192,
+        512
+      ]
+    }
+  ]
+}

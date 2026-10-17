@@ -3,6 +3,7 @@ import { readFileSync, lstatSync, realpathSync, writeFileSync, renameSync, unlin
 import { resolve, dirname, join, isAbsolute } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { createHash } from 'node:crypto';
 import { launcherAsset } from './launcher-assets.mjs';
 
 export const publicUiFiles = Object.freeze([
@@ -12,7 +13,27 @@ export const publicUiFiles = Object.freeze([
   'theme-control.css',
   'launcher.js',
   'launcher.css',
+  'space-latin-20261018.woff2',
+  'apps/linkarooie-small-20261018.webp',
+  'apps/herethere-small-20261018.webp',
+  'apps/linkcheck-small-20261018.webp',
+  'apps/hello-small-20261018.webp',
+  'apps/carryforward-small-20261018.webp',
+  'composer-icon-20261018-96.png',
 ]);
+
+// Reviewed immutable delivery identities. New pixels/fonts get a new name;
+// this operation may create these files, but never replace different bytes.
+const versionedAssets = new Map([
+  ['space-latin-20261018.woff2', '61d00a1c57fcd7d4826c7a69cd85b61d15d133d5471d3c9c4731d70193d9f71f'],
+  ['apps/linkarooie-small-20261018.webp', 'b9b0cad6ce37c35a8a43899b30834bc001ae1a9c7acff4997a16467cd442d033'],
+  ['apps/herethere-small-20261018.webp', '4fec95fe6cfccd8b901c8f424599f4cb57aea6ad2eb11f56e79b95a57260b568'],
+  ['apps/linkcheck-small-20261018.webp', 'be9d5e7b8f24ec6d8b8d073075e3208dbd3e68afc78ecc00c9184882f98b0326'],
+  ['apps/hello-small-20261018.webp', 'c2aef7354c04affc6060d095912307794cc5436acff8a45d26c913b989222db1'],
+  ['apps/carryforward-small-20261018.webp', 'd684c61b50c8f1c44eefc376c232fb9192c40d4b80365eb971a3ad1684add88c'],
+  ['composer-icon-20261018-96.png', 'b20dd22c890237c48a1e47e81fef1e715b5d77968bdeeb624ba0eceb1ae47b66'],
+]);
+const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 
 const sourceDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '../public/brand');
 const appPackages = new Set([
@@ -37,7 +58,10 @@ export function maintainPublicUiAssets(directories, { write = false } = {}) {
   const sources = publicUiFiles.map(name => {
     const path = join(sourceDirectory, name);
     regular(path);
-    return { name, bytes: readFileSync(path) };
+    const bytes = readFileSync(path);
+    if (versionedAssets.has(name) && digest(bytes) !== versionedAssets.get(name))
+      throw Error('Reviewed source identity changed; select a new version: ' + path);
+    return { name, bytes };
   });
   const roots = new Set();
   // Preflight every selected destination before changing any file.
@@ -48,20 +72,26 @@ export function maintainPublicUiAssets(directories, { write = false } = {}) {
     if (roots.has(root)) throw Error('Select each app checkout only once.');
     roots.add(root);
     regular(join(root, 'package.json'));
-    if (!appPackages.has(JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).name)) {
+    const packageName = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).name;
+    if (!appPackages.has(packageName)) {
       throw Error('Unsupported app checkout: ' + root);
     }
     regular(join(root, 'public'), true);
     regular(join(root, 'public/brand'), true);
     return sources.map(({ name, bytes }) => {
-      const path = join(root, 'public/brand', name);
+      const path = name === 'space-latin-20261018.woff2' && packageName === '@loftwah/composer-linkcheck'
+        ? join(root, 'public', name)
+        : join(root, 'public/brand', name);
+      regular(dirname(path), true);
       const stat = existsSync(path) ? regular(path) : (() => {
         try { lstatSync(path); throw Error('Preserve linked destination: ' + path); } catch (error) { if (error.code !== 'ENOENT') throw error; }
-        if (!name.startsWith('launcher.')) throw Error('Expected an existing unlinked file: ' + path);
+        if (!name.startsWith('launcher.') && !versionedAssets.has(name)) throw Error('Expected an existing unlinked file: ' + path);
         return null;
       })();
       if (stat && stat.nlink !== 1) throw Error('Preserve linked destination: ' + path);
       const before = stat ? readFileSync(path) : null;
+      if (before && versionedAssets.has(name) && !before.equals(bytes))
+        throw Error('Preserve different bytes at versioned destination; select a new version: ' + path);
       return { root, name, path, bytes, before, stat, changed: !before?.equals(bytes) };
     });
   });
@@ -85,7 +115,7 @@ export function maintainPublicUiAssets(directories, { write = false } = {}) {
       }
     }
   }
-  return plans.map(({ root, name, changed }) => ({ root, name, changed }));
+  return plans.map(({ root, name, path, changed }) => ({ root, name, path, changed }));
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
@@ -93,7 +123,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     const [mode, ...directories] = process.argv.slice(2);
     if (!['--check', '--write'].includes(mode)) throw Error('Use --check or --write followed by absolute app checkout paths.');
     const results = maintainPublicUiAssets(directories, { write: mode === '--write' });
-    for (const item of results) console.log((item.changed ? (mode === '--write' ? 'Updated ' : 'Differs ') : 'Matches ') + join(item.root, 'public/brand', item.name));
+    for (const item of results) console.log((item.changed ? (mode === '--write' ? 'Updated ' : 'Differs ') : 'Matches ') + item.path);
     if (mode === '--check' && results.some(item => item.changed)) process.exitCode = 1;
   } catch (error) {
     console.error(error.message);

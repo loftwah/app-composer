@@ -1,8 +1,9 @@
 @import "tailwindcss";
 @font-face {
   font-family: Space;
-  src: url("/brand/space.woff2") format("woff2");
+  src: url("/brand/space-latin-20261018.woff2") format("woff2");
   font-display: swap;
+  font-weight: 300 700;
 }
 html.composer-content-site {
   & {

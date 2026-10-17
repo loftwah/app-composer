@@ -37,13 +37,15 @@ Inspect existing copies with explicit checkout paths:
 pnpm ui:assets --check /absolute/app-checkout /absolute/another-app-checkout
 ```
 
-After reviewing the source change, copy those six files into selected checkouts:
+After reviewing the source change, copy those six interaction files and the seven reviewed versioned assets into selected checkouts:
 
 ```sh
 pnpm ui:assets --write /absolute/app-checkout /absolute/another-app-checkout
 ```
 
-Check is read-only and exits nonzero for different bytes. Write preflights every selected app and changes only different named files. It refuses unknown packages and linked destination files/directories. It preserves unrelated branding, configuration and content. Inspect existing edits and review each resulting Git diff before committing; this explicit write command replaces local edits in the six selected files. A repeated write leaves matching files untouched. Updates still use each app's own review/release process and exact composition pins.
+Check is read-only and exits nonzero for different bytes. Write preflights every selected app and changes only different named files. It refuses unknown packages and linked destination files/directories. It preserves unrelated branding, configuration and content. Inspect existing edits and review each resulting Git diff before committing; this explicit write command replaces local edits in the six selected interaction files. A repeated write leaves matching files untouched. Updates still use each app's own review/release process and exact composition pins.
+
+The same explicit operation distributes `space-latin-20261018.woff2`, all five `apps/*-small-20261018.webp` identities and `composer-icon-20261018-96.png`. Their exact reviewed SHA-256 identities are pinned in the maintainer. Missing versioned files may be created; an existing file with different bytes is refused before any selected destination is changed. Every parent directory must already exist and be unlinked. New font/pixel content requires a new filename, source hash and consumer update. The command has no default app paths and never touches owner image settings. Link Check retains its app-owned font location under `public/`; the other apps use `public/brand/`. Active CSS/preload/launcher references remain reviewed app-owned source.
 
 ### Launcher markup and maintenance contract
 

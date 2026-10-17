@@ -14,6 +14,8 @@ The desired animation language can draw on adult science-fiction cartoons, inclu
 
 The [recovered GitHub icon](https://github.com/loftwah/linkarooie-3/blob/149f277bc45baf31eca406878e8e16325b85a06f/src/assets/images/icon.png) was a real historical asset, but MP subsequently confirmed the agent chose the wrong one of two similar references. Do not present it as the intended reference. Preserve its provenance without silently elevating that choice to owner authority.
 
+Independent comparison recovered a concrete alternate: the [seated lime kangaroo in the original Rails Linkarooie](https://github.com/loftwah/linkarooie/blob/d0650199d52f8776c7ff948a2d3c0ffa47d46983/app/assets/images/icon.png), also present in the [smaller Linkarooie 2 icon](https://github.com/loftwah/linkarooie-2/blob/910d4797016c0ee682027e5a78d8acac3960271d/src/assets/images/icon.png). These are distinct from the raised-arms/high-knee Linkarooie 3 reference. Historical evidence identifies the alternatives, not which file MP intended. The accepted curator below remains the authority.
+
 The interlocking chain pictogram loses that identity. The glossy lime kangaroo with a purple cap generated on 18 October was rejected. The later rust-orange head was only a modest improvement, not an approved final direction. Repeating it across the family would compound the problem.
 
 ### Accepted Linkarooie baseline, 18 October
@@ -64,3 +66,9 @@ Agents own routine art-direction and implementation decisions within this brief.
 - [Woodhouse](https://woodhouse.loftwah.com/): public portfolio context. The individual projects retain their own identity.
 
 Private reference photos, unpublished creative material and taste inventories stay private. Research informs judgement; it does not authorise publishing private source material, a personal biography or an inventory of favourites.
+
+## Delivered identity actions, 18 October
+
+The optical app identities are derived from each existing drawing's specific action, rather than a row of new mascot heads. Composer's gripper fits a physical module and its status lamp lights; Here / there presses a postcard pin; Link Check exposes a bad cable contact; Hello's actual relay sends its first signal beside the existing snail; Carry passes its actual memory capsule between hands. Linkarooie keeps the accepted curator and its same-master head crop. The new drawings preserve each source world's material, contour and objects. They do not replace the existing heroes or invent another character for every surface.
+
+The five exact built-in image-generation prompts and public artwork references are in `.artwork/identity-prompts-20261018.json`; source master hashes and finite optical sizes are in `.artwork/identity-exports-20261018.json`. `export-optical-icons.mjs` exports only ignored review output. The selected files are then copied to explicitly chosen owning app checkouts and the shared-maintenance source. The new family is agent-selected within MP's direction; do not call all five new icons MP-approved.

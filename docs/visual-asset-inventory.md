@@ -14,9 +14,7 @@ The owner's Bubbles benchmark concerns composition, a specific moment and whole
 presentation/finish; it does not require copying its appearance or forcing every
 app into a shiny mascot. Generic clipart, glossy interchangeable mascots and the
 old flat symbol family are not
-the selected direction. Linkarooie must derive from its actual original GitHub
-kangaroo reference, with recorded source provenance. The final six masters are
-selected in the owning artwork work, separately from this inventory.
+the selected direction. Linkarooie now has the qualified accepted lime workshop curator recorded in the visual direction. Historical GitHub references remain provenance, including the confirmed wrong-reference selection; they must not replace the accepted character. Other app identities retain separate selection and delivery evidence.
 
 ## Source boundaries
 
@@ -156,12 +154,11 @@ does not authorise changing theme behavior or app state.
 
 ## Linkarooie creator assets and original provenance
 
-The original reference repository identified by the committed Showcase guidance
+The initially selected reference repository identified by the earlier Showcase guidance
 is `loftwah/linkarooie-3` at
 `149f277bc45baf31eca406878e8e16325b85a06f`,
 [`src/assets/images/icon.png`](https://github.com/loftwah/linkarooie-3/blob/149f277bc45baf31eca406878e8e16325b85a06f/src/assets/images/icon.png).
-Inspect that exact asset's bytes before deriving the new kangaroo; the source
-name alone is not proof.
+MP identified this as the wrong one of two similar references. Independent comparison found the original seated kangaroo in Rails Linkarooie at `d0650199` and Linkarooie 2 at `910d4797`; neither historical finding overrides the accepted workshop curator. The source name alone is not visual authority.
 `docs/linkarooie-provenance.md` also records the older Rails behaviour reference
 separately. Do not import its trackers, runtime or private content.
 
@@ -294,3 +291,11 @@ and controls. Check crawler-fetchable HTTPS images and downloaded exports;
 record any unverified OS installation or external platform rendering. A source
 check, a contact sheet or a successful build alone does not establish that
 acceptance.
+
+## Selected delivery update, 18 October
+
+Linkarooie uses the qualified accepted workshop master SHA `0928056f6e8a81bd4ea2e10d4424cc449c021a4f8ed1d471810c1878b4e4b1bc`. Its new share, hero, optical header/favicon/install and launcher exports use dated `20261018` filenames. Composer catalogue bytes match the owning app. The old chain remains an immutable historical asset, without active Linkarooie identity consumers. See the owning app’s `docs/brand/artwork-20261018.json` for the finite inventory and crop coordinates. The historical cross-checkout exporter is disabled.
+
+The repaired browser font is `space-latin-20261018.woff2`, SHA `61d00a1c57fcd7d4826c7a69cd85b61d15d133d5471d3c9c4731d70193d9f71f`. Active source/preload/export templates and generated content projects must select it; retaining the old file does not make it an active consumer. The shared maintainer pins this font and the selected Linkarooie thumbnail, allows explicit creation and refuses different bytes at a versioned destination. This is a source inventory update, not a six-app final-art approval or live receipt.
+
+The optical identity family now replaces active app favicon/touch/header and launcher identities with dated action drawings. Exact masters/prompts are in `.artwork/identity-{prompts,exports}-20261018.json`; original heroes remain unchanged except Linkarooie’s accepted workshop. Composer’s new dated product card repairs typography, thumbnail purpose copy and its matching identity. The extension advances to0.1.1 with its actual new128px identity in the rebuilt archive. Installation, external caches and physical-device acceptance remain separate.
