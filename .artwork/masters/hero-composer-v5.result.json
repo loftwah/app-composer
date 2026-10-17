@@ -1,0 +1,31 @@
+{
+  "id": "hero-composer-v5",
+  "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+  "requestId": "01a14915-06bc-7bf2-8443-a4a8b47d97ed",
+  "submittedAt": "2026-10-17T08:57:56.902Z",
+  "durationMs": 42178,
+  "input": {
+    "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours with varied expressive line weight; strong expressive silhouettes; hard-edged cel shading in two flat tone steps; deliberately drawn dramatic perspective; cinematic wide composition with the vanishing point low and to the right. Scene: a tall assembly hall inside a workshop-station. A central vertical frame spine stands at the right third, and distinct modular units are being carried into it by two slender robot arms and one original alien engineer (tall, four-eyed, wearing a work apron and tool belt, holding a wrench like a conductor's baton). The modules are visibly different from each other and each is understandable: a photo-frame module, a chain-link module, a small signal-dish module, a filing-drawer module and a small terminal screen module. One module is already seated in the spine and its status lamp is lit; the next module is a hand's width away from clicking into place — the focal event. Fine drawn detail: gantries, cables, a control desk with a few simple unlabelled screens, a crate of spare parts. Palette: graphite and deep ink navy structure, warm off-white panels and floor light, purposeful burnt orange accents on the machine and the engineer's tools, one restrained cyan detail on a screen and one acid-green status lamp. Small visual humour: a small round robot cat sitting on a crate, supervising with a clipboard. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+    "image_size": {
+      "width": 1792,
+      "height": 1024
+    },
+    "quality": "high",
+    "num_images": 2
+  },
+  "note": "App Composer hero: distinct modules becoming one working system",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "hero-composer-v5-1.png",
+      "bytes": 2780357,
+      "contentType": "image/png"
+    },
+    {
+      "file": "hero-composer-v5-2.png",
+      "bytes": 3067748,
+      "contentType": "image/png"
+    }
+  ]
+}

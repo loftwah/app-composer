@@ -1,0 +1,26 @@
+{
+  "id": "postcard-ringmarket-v5",
+  "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+  "requestId": "01a14917-7eb7-79e0-bb1f-4de65c85f902",
+  "submittedAt": "2026-10-17T09:00:38.139Z",
+  "durationMs": 43531,
+  "input": {
+    "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours, hard-edged cel shading in two flat tone steps, deliberately drawn wide perspective, landscape composition 4:3. Scene: a bustling open-air market strung between two asteroids at low orbit above a huge ringed planet that fills the sky. Canvas awnings in coral and off-white, market stalls built from salvaged ship parts, a crooked crane lifting a crate of glowing fruit, little spacecraft tethered like bicycles along a rail. Focal event: a market trader (an original stocky four-armed alien with a striped apron) holds up a bright glowing fruit to a customer while a queue waits. Palette: warm coral and burnt orange awnings, deep ink navy space and shadows, warm off-white canvas and highlights, restrained cyan only on the planet's ring shadow and one lantern. Small visual humour: a tiny round robot trying to carry a crate three times its size. Composition keeps clear space in the lower quarter for a written postcard caption bar. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+    "image_size": {
+      "width": 1280,
+      "height": 960
+    },
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Fictional postcard: the ring market at low orbit",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "postcard-ringmarket-v5.png",
+      "bytes": 2107450,
+      "contentType": "image/png"
+    }
+  ]
+}

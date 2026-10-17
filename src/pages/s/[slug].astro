@@ -1,0 +1,77 @@
+---
+// A published creator stack. Only the exact published revision of an exact
+// slug is served; drafts, archives and missing stacks are indistinguishable
+// and never leak their content. The page is Composer-owned presentation over
+// independently owned apps — it links to them and never copies their records.
+import Base from '../../layouts/Base.astro';
+import {publicStack, STACK_APPS} from '../../lib/stacks.mjs';
+import {noindexFor} from '../../lib/indexing.mjs';
+import {env} from 'cloudflare:workers';
+
+const runtime = env as unknown as {DB?: {prepare(sql: string): {bind(...values: unknown[]): {first(): Promise<unknown>}}}};
+let stack: Awaited<ReturnType<typeof publicStack>> = null;
+let unavailable = false;
+if (!runtime.DB || typeof runtime.DB.prepare !== 'function') {
+  unavailable = true;
+} else {
+  try {
+    stack = await publicStack(runtime.DB, Astro.params.slug ?? '');
+  } catch {
+    unavailable = true;
+  }
+}
+if (!stack && !unavailable) Astro.response.status = 404;
+if (unavailable) Astro.response.status = 503;
+
+interface StackInstance { id: string; app: string; label: string; caption: string; visible: boolean }
+const instances: StackInstance[] = stack ? (stack.document.instances as StackInstance[]).filter(instance => instance.visible !== false) : [];
+const title = stack ? stack.name : unavailable ? 'Stack temporarily unavailable' : 'Stack not found';
+const description = stack
+  ? (stack.document.description || `A published App Composer stack: ${instances.map(instance => instance.label).join(', ') || 'no visible apps yet'}.`)
+  : 'This App Composer stack address has no published revision.';
+---
+<Base title={title} description={description} noindex={noindexFor(Astro.url.hostname, Boolean(stack))}>
+{unavailable ? (
+  <>
+    <h1>This stack is temporarily unavailable.</h1>
+    <p class="lede">The workspace database did not answer, so nothing is shown in its place. The address is unchanged; try again shortly.</p>
+    <div class="actions"><a class="button" href={Astro.url.pathname}>Try this page again</a><a class="button secondary" href="/studio">About creator stacks</a></div>
+  </>
+) : !stack ? (
+  <>
+    <h1>No published stack exists at this address.</h1>
+    <p class="lede">Draft, archived and removed stacks read exactly like this: there is nothing to open and nothing to guess.</p>
+    <div class="actions"><a class="button" href="/studio">About creator stacks</a><a class="button secondary" href="/apps">Browse the app library</a></div>
+  </>
+) : (
+  <>
+    <p class="small"><a href="/studio">Creator stacks</a> · published revision {stack.revision}{stack.publishedAt ? ` · ${new Date(String(stack.publishedAt).replace(' ', 'T') + 'Z').toLocaleDateString('en-AU', {day: 'numeric', month: 'long', year: 'numeric'})}` : ''}</p>
+    <h1>{stack.document.name}</h1>
+    {stack.document.description && <p class="lede">{stack.document.description}</p>}
+    <div class={`stack-page stack-${stack.document.theme}`}>
+      {instances.length === 0 && <p class="small">This stack has no visible app instances yet.</p>}
+      {instances.map(instance => {
+        const app = STACK_APPS[instance.app as keyof typeof STACK_APPS];
+        if (!app) return null;
+        const href = app.route.startsWith('http') ? app.route : app.route;
+        const external = app.route.startsWith('http');
+        return (
+          <article class="stack-instance">
+            <h2><a href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>{instance.label}</a></h2>
+            {instance.caption && <p>{instance.caption}</p>}
+            <p class="small">{app.name}{external ? ' · independent deployment' : ' · mounted on App Composer'} · <a href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>Open</a></p>
+          </article>
+        );
+      })}
+    </div>
+    <p class="small">This page is Composer-owned presentation. Each app keeps its own source, records and media; the links above open the live app.</p>
+  </>
+)}
+</Base>
+<style>
+ .stack-page{margin:32px 0 0;display:grid;gap:0}
+ .stack-instance{padding:26px 0;border-top:1px solid var(--color-border)}
+ .stack-instance h2{font-size:1.6rem;margin:0 0 8px}
+ .stack-instance h2 a{text-decoration:none}
+ .stack-instance p{margin:0 0 8px;color:var(--color-muted)}
+</style>

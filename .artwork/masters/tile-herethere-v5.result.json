@@ -1,0 +1,23 @@
+{
+  "id": "tile-herethere-v5",
+  "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+  "requestId": "01a14911-cb3d-7180-a3de-78d40764a8ad",
+  "submittedAt": "2026-10-17T08:54:24.610Z",
+  "durationMs": 51447,
+  "input": {
+    "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours with varied expressive line weight; strong expressive character silhouettes; hard-edged cel shading in two flat tone steps; deliberately drawn dramatic perspective; cinematic square composition. Scene: inside a welcoming interplanetary visitor station built of tall drawn architecture — curved ribbed arches, a big round porthole window looking out at an orange desert planet and two moons, hanging lamps and a long ticket counter. The focal event: an original friendly alien visitor (tall, thin, long-necked, big calm eyes, wearing a knitted scarf and a small backpack) is pinning a postcard-sized photo onto a large collection wall already covered in pinned postcards from many places; a second visitor looks at the wall from the side. Palette: warm coral and burnt orange dominant, deep ink navy shadows, warm off-white walls and postcards, restrained cyan only on a small control panel and one lamp. Small visual humour: a tiny round robot porter carrying an absurdly tall stack of postcards beside the counter, one card slipping off. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Here / there: visitor station receiving a postcard-sized contribution",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "tile-herethere-v5.png",
+      "bytes": 1788191,
+      "contentType": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "note": "Linkarooie v5 — replaces the rejected cut-paper kangaroo with the owner-approved ink-line cel animation direction. The owner explicitly rejected the flat cut-paper/screenprint treatment of v1-v4.",
+  "jobs": [
+    {
+      "id": "tile-linkarooie-v5",
+      "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+      "note": "Linkarooie: kangaroo operating an eccentric sci-fi signal selector",
+      "input": {
+        "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours with varied, expressive line weight; bold character silhouette; strong hard-edged cel shading in two flat tone steps; deliberately drawn dramatic perspective; cinematic square composition. Scene: an unmistakable large red kangaroo with correct powerful anatomy (long feet, strong tail, tall ears, deep chest) leaning forward on its tail and one paw, operating an eccentric retro-futuristic signal-selector console with the other paw. The console is understandable invented technology: a cross between a film projector and a radar dish, with reels, dials, a small round scope and a chunky lever. Many glowing transmission cards travel along a curved pipe into the machine; the kangaroo has just picked one interesting transmission out of the many and holds it up in its paw where it glows brightest — the focal event of the image. Background: a deep ink-blue night workshop, big industrial window showing a strange ringed planet and one small satellite, sparse stars, a few crowded shelves with odd tools. Palette: deep ink blue and near-black graphite shadows, warm off-white highlights, the kangaroo in rust-orange and warm tan fur, acid-green glowing accents only on the chosen signal card and a couple of dial lights. Small visual humour: one tiny purple space critter at the bottom corner quietly nibbling the pile of unpicked transmission cards. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 2
+      }
+    }
+  ]
+}

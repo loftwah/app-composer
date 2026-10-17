@@ -11,6 +11,7 @@ export interface MountedApp {
   commit: string;
   short: string;
   url: string;
+  route: string;
   version: string;
 }
 
@@ -26,6 +27,7 @@ export const mountedApps: MountedApp[] = lock.apps.map((app: any) => ({
   commit: app.commit as string,
   short: String(app.commit).slice(0, 10),
   url: app.url as string,
+  route: (app.manifest.routes as string[] | undefined)?.[0] ?? '/' + app.id,
   version: app.manifest.version as string,
 }));
 

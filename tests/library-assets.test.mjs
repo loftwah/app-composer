@@ -23,13 +23,13 @@ test('each entry ships its own tile, thumbnail, share card and real screenshot',
   const assets={};
   for(const key of ['image','thumbnail','share','preview','previewWide'])
    assets[key]=line.match(new RegExp(key+":'([^']+)'"))?.[1]??(assert.fail(id+' has no '+key));
-  assert.match(assets.image,new RegExp('/brand/apps/[a-z]+-v3\\.webp$'),id+' uses the reviewed tile export');
+  assert.match(assets.image,new RegExp('/brand/apps/[a-z]+-v4\\.webp$'),id+' uses the reviewed tile export');
   // The same file prefix must carry through the whole set, so a tile can never
   // be paired with another app's thumbnail, share card or screenshot.
-  const prefix=assets.image.match(/\/brand\/apps\/([a-z]+)-v3\.webp$/)[1];
+  const prefix=assets.image.match(/\/brand\/apps\/([a-z]+)-v4\.webp$/)[1];
   assert.match(prefix,/^(linkcheck|herethere|linkarooie|hello|carryforward)$/,id+' has a reviewed export prefix');
-  assert.match(assets.thumbnail,new RegExp(`/brand/apps/${prefix}-small-v3\\.webp$`),id+' uses a 48px-safe thumbnail');
-  assert.match(assets.share,new RegExp(`^/brand/apps/${prefix}-share-v3\\.jpg$`),'a JPEG share card keeps og:image:type truthful');
+  assert.match(assets.thumbnail,new RegExp(`/brand/apps/${prefix}-small-v4\\.webp$`),id+' uses a 48px-safe thumbnail');
+  assert.match(assets.share,new RegExp(`^/brand/apps/${prefix}-share-v4\\.jpg$`),'a JPEG share card keeps og:image:type truthful');
   assert.match(assets.preview,new RegExp(`/brand/apps/previews/${prefix}-960\\.webp$`),id+' preview is the real 960px capture');
   assert.match(assets.previewWide,new RegExp(`/brand/apps/previews/${prefix}-1440\\.webp$`),id+' preview has a 1440px source');
   assert.match(line,/previewCaptured:'\d{4}-\d{2}-\d{2}'/,'every screenshot carries its capture date');
@@ -39,7 +39,7 @@ test('each entry ships its own tile, thumbnail, share card and real screenshot',
    assert.ok(size(value)>1000,path+' looks empty');
   }
  }
- for(const retired of ['showcase-v2','guestbook-v2','hello-v1','linkcheck-v1','state-v1'])
+ for(const retired of ['showcase-v1','showcase-v2','linkarooie-v3','guestbook-v1','guestbook-v2','herethere-v3','hello-v1','hello-v3','linkcheck-v1','linkcheck-v3','state-v1','carryforward-v3'])
   assert.doesNotMatch(source,new RegExp('brand/apps/'+retired),retired+' belongs to the retired mixed artwork set');
 });
 

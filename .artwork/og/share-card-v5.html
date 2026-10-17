@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>App Composer share cards v5</title>
+<style>
+  @font-face{font-family:Space;src:url('../../public/brand/space.woff2') format('woff2');font-display:block}
+  *{box-sizing:border-box;margin:0}
+  body{background:#3a3d42;font-family:system-ui,sans-serif}
+  .card{width:1200px;height:630px;position:relative;background:#f4f0e8;overflow:hidden}
+  /* Screenprint-free: a faint drawn paper grain only, no texture that reads as photo. */
+  .card::after{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.10'/></svg>");
+  }
+  .art{position:absolute;left:70px;top:50%;transform:translateY(-52%)}
+  .art img{display:block;width:440px;height:440px;border:3px solid #1d2330;border-radius:10px;background:#f4f0e8}
+  .route{position:absolute;left:-70px;top:46%;width:62px;height:10px;background:var(--accent);border-radius:6px}
+  .copy{position:absolute;left:572px;top:50%;transform:translateY(-50%);width:576px}
+  .eyebrow{font-size:19px;letter-spacing:.16em;text-transform:uppercase;color:#5c616a;margin-bottom:14px}
+  h1{font-family:Space,system-ui;font-size:86px;line-height:1.02;letter-spacing:-.035em;font-weight:600;color:#1d2330;max-width:10ch}
+  h1 em{font-style:normal;color:var(--accent-ink)}
+  .lede{font-size:26px;line-height:1.35;color:#454952;margin-top:20px;max-width:21ch}
+  .family{position:absolute;left:70px;bottom:30px;display:flex;align-items:center;gap:13px;font-size:19px;color:#5c616a}
+  .family svg{width:30px;height:30px;flex:none}
+  .family strong{font-family:Space,system-ui;font-weight:600;color:#1d2330;font-size:21px}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="art"><span class="route"></span><img id="art" alt=""></div>
+  <div class="copy">
+    <p class="eyebrow" id="eyebrow"></p>
+    <h1 id="title"></h1>
+    <p class="lede" id="lede"></p>
+  </div>
+  <p class="family">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#f4f0e8"/><path d="M10 12h32v32H10z" fill="none" stroke="#1d2330" stroke-width="6"/><path d="M24 26h30v28H24z" fill="#f4f0e8" stroke="#d95022" stroke-width="6"/><path d="M24 26v18h18" stroke="#1d2330" stroke-width="6" fill="none"/></svg>
+    <strong>App Composer</strong> · composer.loftwah.com
+  </p>
+</div>
+<script>
+  const apps = {
+    linkarooie:   { art:'tile-linkarooie-v5-1',   title:'Link<em>arooie</em>',   lede:'A kangaroo works an eccentric signal selector and keeps the best transmissions.', accent:'#a5fd0e', ink:'#4f7a00', eyebrow:'Publishing' },
+    herethere:    { art:'tile-herethere-v5',      title:'Here / there',          lede:'A visitor station wall where every approved postcard gets pinned in its place.',        accent:'#d95022', ink:'#b23c14', eyebrow:'Publishing' },
+    linkcheck:    { art:'tile-linkcheck-v5',      title:'Link Check',            lede:'Trace a connection, find the broken link and get the next step.',                      accent:'#2f9fbd', ink:'#1d7288', eyebrow:'Development' },
+    hello:        { art:'tile-hello-v5',          title:'Hello World',           lede:'A tiny relay, one bright signal, and the proof that a deployment works.',              accent:'#ff9b55', ink:'#c25c10', eyebrow:'Development' },
+    carryforward: { art:'tile-carryforward-v5',   title:'Carry / forward',       lede:'A portable memory core carried between two very different machines.',                 accent:'#8b5cf6', ink:'#6d3fd4', eyebrow:'Identity &amp; memory' },
+  };
+  const id = new URLSearchParams(location.search).get('app');
+  const app = apps[id];
+  document.documentElement.style.setProperty('--accent', app.accent);
+  document.documentElement.style.setProperty('--accent-ink', app.ink);
+  document.getElementById('art').src = '../../.artwork/masters/' + app.art + '.png';
+  document.getElementById('eyebrow').innerHTML = app.eyebrow;
+  document.getElementById('title').innerHTML = app.title;
+  document.getElementById('lede').textContent = app.lede;
+  document.title = 'share-' + id;
+</script>
+</body>
+</html>

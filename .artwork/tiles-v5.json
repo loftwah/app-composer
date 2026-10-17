@@ -1,0 +1,60 @@
+{
+  "note": "v5 family — ink-line cel animation direction replacing the rejected flat cut-paper tiles. Original subjects per the owner brief; no existing show characters.",
+  "jobs": [
+    {
+      "id": "tile-herethere-v5",
+      "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+      "note": "Here / there: visitor station receiving a postcard-sized contribution",
+      "input": {
+        "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours with varied expressive line weight; strong expressive character silhouettes; hard-edged cel shading in two flat tone steps; deliberately drawn dramatic perspective; cinematic square composition. Scene: inside a welcoming interplanetary visitor station built of tall drawn architecture — curved ribbed arches, a big round porthole window looking out at an orange desert planet and two moons, hanging lamps and a long ticket counter. The focal event: an original friendly alien visitor (tall, thin, long-necked, big calm eyes, wearing a knitted scarf and a small backpack) is pinning a postcard-sized photo onto a large collection wall already covered in pinned postcards from many places; a second visitor looks at the wall from the side. Palette: warm coral and burnt orange dominant, deep ink navy shadows, warm off-white walls and postcards, restrained cyan only on a small control panel and one lamp. Small visual humour: a tiny round robot porter carrying an absurdly tall stack of postcards beside the counter, one card slipping off. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "tile-linkcheck-v5",
+      "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+      "note": "Link Check: orbital diagnostic tracing a connection to a faulty connector",
+      "input": {
+        "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours with varied expressive line weight; strong silhouettes; hard-edged cel shading in two flat tone steps; deliberately drawn dramatic perspective; cinematic square composition. Scene: a cramped orbital diagnostic bay aboard a space station. A lanky original alien technician in rolled-up overalls and chunky goggles floats slightly, holding a long glowing cyan diagnostic cable that loops from a wall socket, across the bay, and into the back of a battered communications dish. The focal event: the technician has just found the fault — the cable meets a cracked, blackened connector with a single sharp orange spark at the break — while a wall of gauges and small round monitors traces the same connection as a bright cyan line that stops at the fault. Palette: deep ink navy and graphite machinery, controlled cyan for the cable and the traces, warm off-white panels, one small hot orange fault accent only at the broken connector. Small visual humour: a small maintenance robot beside the fault, holding up a tiny flag and pointing at it. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "tile-hello-v5",
+      "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+      "note": "Hello World: a tiny relay sends its first bright orange signal into a huge space",
+      "input": {
+        "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours with varied expressive line weight; strong silhouettes; hard-edged cel shading in two flat tone steps; deliberately drawn dramatic perspective; cinematic square composition with strong scale contrast. Scene: a vast dark launch plain at dusk under an enormous sky; in the lower third sits one tiny newly assembled relay — a small hand-built machine on a tripod, bolted and taped together, with a little dish, one lamp and a single big button. The focal event: the relay has just fired its first signal — a single bright orange beam rising straight up into the huge illustrated space above, past giant distant antenna towers, a huge moon and drifting clouds, until it reaches one small satellite that lights up in answer. The tiny machine is dwarfed by the space around it. Palette: deep ink navy and graphite rock, warm off-white light near the relay, purposeful orange beam and accents only. Small visual humour: one small snail-like critter on a rock beside the relay, watching the beam. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "tile-carryforward-v5",
+      "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+      "note": "Carry / forward: portable memory core moving between two different machines",
+      "input": {
+        "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours with varied expressive line weight; strong silhouettes; hard-edged cel shading in two flat tone steps; deliberately drawn dramatic perspective; cinematic square composition. Scene: a workshop room with two visibly different machines facing each other — on the left a bulky retro mainframe cabinet with reel-to-reel tapes and round dials, on the right a slim modern handheld device on a charging cradle with a clean glass face. Between them, an original alien courier (short, sturdy, four arms, wearing a delivery satchel and cap) carries a distinctive portable memory core: a small canister with a dark shell, a glowing violet centre and two brass contacts, held carefully in gloved hands. The focal event: a continuous glowing violet signal ribbon runs from the mainframe, loops through the carried core, and connects into the handheld — the transfer is happening as the core moves. Palette: graphite and deep ink navy machinery, warm off-white walls, purposeful violet accent on the core and signal ribbon, one small burnt-orange detail on the courier's satchel. Small visual humour: a small round maintenance bot asleep on top of the mainframe. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "hero-composer-v5",
+      "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+      "note": "App Composer hero: distinct modules becoming one working system",
+      "input": {
+        "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours with varied expressive line weight; strong expressive silhouettes; hard-edged cel shading in two flat tone steps; deliberately drawn dramatic perspective; cinematic wide composition with the vanishing point low and to the right. Scene: a tall assembly hall inside a workshop-station. A central vertical frame spine stands at the right third, and distinct modular units are being carried into it by two slender robot arms and one original alien engineer (tall, four-eyed, wearing a work apron and tool belt, holding a wrench like a conductor's baton). The modules are visibly different from each other and each is understandable: a photo-frame module, a chain-link module, a small signal-dish module, a filing-drawer module and a small terminal screen module. One module is already seated in the spine and its status lamp is lit; the next module is a hand's width away from clicking into place — the focal event. Fine drawn detail: gantries, cables, a control desk with a few simple unlabelled screens, a crate of spare parts. Palette: graphite and deep ink navy structure, warm off-white panels and floor light, purposeful burnt orange accents on the machine and the engineer's tools, one restrained cyan detail on a screen and one acid-green status lamp. Small visual humour: a small round robot cat sitting on a crate, supervising with a clipboard. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+        "image_size": {"width": 1792, "height": 1024},
+        "quality": "high",
+        "num_images": 2
+      }
+    }
+  ]
+}

@@ -34,9 +34,9 @@ test('owner configuration adds one instance note, never a second product identit
 
 test('the homepage and default sharing use the product artwork',()=>{
  const base=read('src/layouts/Base.astro');
- assert.match(base,/share-composer-20261014-v2\.jpg/);
+ assert.match(base,/share-composer-20261017\.jpg/);
  assert.doesNotMatch(base,/instance-share/);
- for(const path of ['public/brand/share-composer-20261014-v2.jpg','public/brand/share-composer-20261014-v2.webp','public/brand/share-composer-20261014-v2-600.webp'])assert.equal(exists(path),true,path+' must exist');
+ for(const path of ['public/brand/share-composer-20261017.jpg','public/brand/share-composer-20261017.webp','public/brand/share-composer-20261017-600.webp'])assert.equal(exists(path),true,path+' must exist');
 });
 
 test('the app library describes each app, not the owner',()=>{
@@ -44,9 +44,9 @@ test('the app library describes each app, not the owner',()=>{
  assert.ok(line,'the Linkarooie library entry exists');
  assert.match(line,/description:'Arrange your links and approved Here \/ there photos into a page\.'/);
  assert.match(line,/name:'Linkarooie'/);
- assert.match(line,/image:'\/brand\/apps\/linkarooie-v3\.webp'/);
+ assert.match(line,/image:'\/brand\/apps\/linkarooie-v4\.webp'/);
  assert.doesNotMatch(line,/Loftwah|creators\//);
- assert.equal(exists('public/brand/apps/linkarooie-v3.webp'),true);
+ assert.equal(exists('public/brand/apps/linkarooie-v4.webp'),true);
  const profile=JSON.parse(read('docs/creator-stacks/loftwah-public-profile.json'));
  const card=profile.cards.find(item=>item.reference==='composer');
  assert.equal(card.description,'Build apps with your agent: design the spec, prepare the environment and connect independent mini-apps.');

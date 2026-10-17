@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>App Composer product card</title>
+<style>
+  @font-face{font-family:Space;src:url('../../public/brand/space.woff2') format('woff2');font-display:block}
+  *{box-sizing:border-box;margin:0}
+  .card{width:1200px;height:630px;position:relative;background:#f4f0e8;overflow:hidden;display:grid;grid-template-columns:600px 600px}
+  .copy{padding:64px 24px 0 70px;position:relative;z-index:2}
+  .brand{display:flex;align-items:center;gap:14px;font-size:20px;color:#454952;margin-bottom:44px}
+  .brand svg{width:34px;height:34px}
+  .brand strong{font-family:Space,system-ui;font-weight:600;color:#1d2330;font-size:23px}
+  h1{font-family:Space,system-ui;font-size:74px;line-height:1.02;letter-spacing:-.035em;font-weight:600;color:#1d2330}
+  h1 em{font-style:normal;color:#b23c14}
+  .lede{font-size:24px;line-height:1.4;color:#454952;margin-top:22px;max-width:22ch}
+  .meta{position:absolute;left:70px;bottom:34px;font-size:19px;color:#5c616a}
+  .meta strong{color:#1d2330;font-family:Space,system-ui;font-weight:600}
+  .art{position:relative;overflow:hidden;border-left:3px solid #1d2330;background:#1d2330}
+  .art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:66% 50%}
+  .tag{position:absolute;left:-3px;bottom:44px;background:#d95022;color:#f4f0e8;font:600 17px/1 Space,system-ui;letter-spacing:.08em;text-transform:uppercase;padding:12px 18px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="copy">
+    <p class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#f4f0e8"/><path d="M10 12h32v32H10z" fill="none" stroke="#1d2330" stroke-width="6"/><path d="M24 26h30v28H24z" fill="#f4f0e8" stroke="#d95022" stroke-width="6"/><path d="M24 26v18h18" stroke="#1d2330" stroke-width="6" fill="none"/></svg>
+      <strong>App Composer</strong>
+    </p>
+    <h1>Make software.<br>Keep it <em>yours</em>.</h1>
+    <p class="lede">An agent-operated studio for EmDash and Cloudflare. Get Ready prepares the environment. Init captures the idea. Mini-apps connect.</p>
+    <p class="meta"><strong>composer.loftwah.com</strong> · independent mini-apps, one working system</p>
+  </div>
+  <div class="art">
+    <img src="../../.artwork/masters/hero-composer-v5-2.png" alt="">
+    <span class="tag">One working system</span>
+  </div>
+</div>
+</body>
+</html>
