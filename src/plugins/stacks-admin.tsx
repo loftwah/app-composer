@@ -22,14 +22,17 @@ const APPS: { id: string; name: string; purpose: string }[] = Object.entries(
 const ROLE_COPY: Record<Role, string> = {
   owner: "Owner — full control, including deleting a stack.",
   editor: "Editor — create, configure, publish and duplicate.",
-  viewer: "Viewer — read and export only. You can open, preview and export, but nothing here changes the workspace.",
+  viewer:
+    "Viewer — read and export only. You can open, preview and export, but nothing here changes the workspace.",
 };
 const can = (role: Role | undefined, action: string) =>
-  Boolean(role && (CAPABILITIES as Record<string, string[]>)[role]?.includes(action));
+  Boolean(
+    role && (CAPABILITIES as Record<string, string[]>)[role]?.includes(action),
+  );
 const newInstance = (app: string) => ({
   id: crypto.randomUUID(),
   app,
-  label: APPS.find(entry => entry.id === app)?.name ?? app,
+  label: APPS.find((entry) => entry.id === app)?.name ?? app,
   caption: "",
   visible: true,
   binding: { mode: "own" as const, shareOf: null },
@@ -47,7 +50,10 @@ export function StudioPage() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [conflict, setConflict] = useState<{ message: string; stack?: string }>();
+  const [conflict, setConflict] = useState<{
+    message: string;
+    stack?: string;
+  }>();
   const [publications, setPublications] = useState<StackPublication[]>([]);
   const [instances, setInstances] = useState<InstanceConfiguration[]>([]);
   const [activation, setActivation] = useState<ActivationEntry[]>([]);
@@ -60,8 +66,13 @@ export function StudioPage() {
   const requestGeneration = useRef(0);
   const pending = useRef(false);
   const latestDocument = useRef<StackDocument | undefined>(undefined);
+  const sidecarGeneration = useRef(0);
+  const latestNewName = useRef("");
 
-  const current = useMemo(() => stacks.find(stack => stack.id === selected), [stacks, selected]);
+  const current = useMemo(
+    () => stacks.find((stack) => stack.id === selected),
+    [stacks, selected],
+  );
   const document = draft?.document;
   const role = workspace?.role;
   const editable = can(role, "save") && current?.status !== "archived";
@@ -70,22 +81,35 @@ export function StudioPage() {
     session.current.adopt(stack.id, stack.revision);
     latestDocument.current = structuredClone(stack.draft);
     setSelected(stack.id);
-    setDraft({ document: structuredClone(stack.draft), generation: session.current.generation });
+    setDraft({
+      document: structuredClone(stack.draft),
+      generation: session.current.generation,
+    });
     setDirty(false);
     setConflict(undefined);
   }, []);
 
   const load = useCallback(
     async (keepSelection?: string, { force = false } = {}) => {
-      if (!force && session.current.dirty && !confirm("This stack has unsaved edits. Reload and lose them?")) return;
+      if (
+        !force &&
+        session.current.dirty &&
+        !confirm("This stack has unsaved edits. Reload and lose them?")
+      )
+        return false;
       const checkpoint = session.current.capture();
       const request = ++requestGeneration.current;
       const data = await call("list");
-      if (request !== requestGeneration.current || !session.current.unchanged(checkpoint)) return;
+      if (
+        request !== requestGeneration.current ||
+        !session.current.unchanged(checkpoint)
+      )
+        return false;
       setWorkspace(data.workspace);
       setStacks(data.stacks ?? []);
       const next = keepSelection ?? selected ?? data.stacks?.[0]?.id;
-      const stack = data.stacks?.find(entry => entry.id === next) ?? data.stacks?.[0];
+      const stack =
+        data.stacks?.find((entry) => entry.id === next) ?? data.stacks?.[0];
       if (stack) adopt(stack);
       else {
         setSelected(undefined);
@@ -94,6 +118,7 @@ export function StudioPage() {
         setDirty(false);
         session.current.adopt(undefined);
       }
+      return true;
     },
     [adopt, dirty, selected],
   );
@@ -101,8 +126,13 @@ export function StudioPage() {
   useEffect(() => {
     let live = true;
     load(undefined, { force: true })
-      .catch(cause => {
-        if (live) setError(cause instanceof Error ? cause.message : "The workspace could not be loaded.");
+      .catch((cause) => {
+        if (live)
+          setError(
+            cause instanceof Error
+              ? cause.message
+              : "The workspace could not be loaded.",
+          );
       })
       .finally(() => undefined);
     return () => {
@@ -136,7 +166,10 @@ export function StudioPage() {
       if (cause?.code === "CONFLICT") {
         setConflict({ message: cause.message, stack: selected });
       } else {
-        setError(cause?.message || "The action did not complete. Your draft is still here.");
+        setError(
+          cause?.message ||
+            "The action did not complete. Your draft is still here.",
+        );
       }
     } finally {
       pending.current = false;
@@ -145,11 +178,16 @@ export function StudioPage() {
   };
 
   const loadSidecars = useCallback(async (stackId: string) => {
+    const request = ++sidecarGeneration.current;
     const [history, configuration] = await Promise.all([
       call("publications", { stack: stackId }),
       call("configuration", { stack: stackId }),
     ]);
-    if (session.current.stack !== stackId) return;
+    if (
+      session.current.stack !== stackId ||
+      request !== sidecarGeneration.current
+    )
+      return;
     setPublications(history.publications ?? []);
     setInstances(configuration.instances ?? []);
     setActivation(configuration.configuration?.entries ?? []);
@@ -162,28 +200,49 @@ export function StudioPage() {
     if (selected) void loadSidecars(selected).catch(() => undefined);
   }, [selected, loadSidecars]);
 
-  const openStack = (id: string) => run(async () => {
-    if (id === selected) return "";
-    if (session.current.dirty && !confirm("This stack has unsaved edits. Open another stack and lose them?")) return "Kept editing.";
-    const checkpoint = session.current.capture();
-    const data = await call("open", { stack: id });
-    if (!session.current.unchanged(checkpoint)) return "Your newer edits are still here. Open the other stack again when ready.";
-    if (!data.stack) throw Error("The server did not confirm a saved stack. Your draft is still here.");
-    adopt(data.stack);
-    return `Opened ${data.stack.name} at revision ${data.stack.revision}.`;
-  });
+  const openStack = (id: string) =>
+    run(async () => {
+      if (id === selected) return "";
+      if (
+        session.current.dirty &&
+        !confirm(
+          "This stack has unsaved edits. Open another stack and lose them?",
+        )
+      )
+        return "Kept editing.";
+      const checkpoint = session.current.capture();
+      const data = await call("open", { stack: id });
+      if (!session.current.unchanged(checkpoint))
+        return "Your newer edits are still here. Open the other stack again when ready.";
+      if (!data.stack)
+        throw Error(
+          "The server did not confirm a saved stack. Your draft is still here.",
+        );
+      adopt(data.stack);
+      return `Opened ${data.stack.name} at revision ${data.stack.revision}.`;
+    });
 
   const update = (patch: Partial<StackDocument>) => {
     if (!latestDocument.current) return;
     session.current.edit();
     latestDocument.current = { ...latestDocument.current, ...patch };
-    setDraft({ document: latestDocument.current, generation: session.current.generation });
+    setDraft({
+      document: latestDocument.current,
+      generation: session.current.generation,
+    });
     setDirty(true);
     setMessage("");
   };
-  const updateInstance = (id: string, patch: Partial<StackDocument["instances"][number]>) => {
+  const updateInstance = (
+    id: string,
+    patch: Partial<StackDocument["instances"][number]>,
+  ) => {
     if (!document) return;
-    update({ instances: document.instances.map(instance => (instance.id === id ? { ...instance, ...patch } : instance)) });
+    update({
+      instances: document.instances.map((instance) =>
+        instance.id === id ? { ...instance, ...patch } : instance,
+      ),
+    });
   };
   const move = (index: number, delta: number) => {
     if (!document) return;
@@ -196,18 +255,33 @@ export function StudioPage() {
 
   const create = () =>
     run(async () => {
-      if (session.current.dirty && !confirm("Create a new stack and leave this draft unsaved?")) return "Nothing created.";
+      if (
+        session.current.dirty &&
+        !confirm("Create a new stack and leave this draft unsaved?")
+      )
+        return "Nothing created.";
       const checkpoint = session.current.capture();
       const data = await call("create", { name: newName });
-      setNewName("");
-      if (session.current.unchanged(checkpoint)) await load(data.stack?.id, { force: true });
-      else if (data.stack) setStacks(list => [data.stack!, ...list]);
+      if (latestNewName.current === newName) {
+        latestNewName.current = "";
+        setNewName("");
+      }
+      if (session.current.unchanged(checkpoint))
+        await load(data.stack?.id, { force: true });
+      else if (data.stack) setStacks((list) => [data.stack!, ...list]);
       return `Created ${data.stack?.name}. It starts as a draft at /s/${data.stack?.slug}.`;
     });
 
-  const acknowledge = (stack: Stack, checkpoint: ReturnType<EditorSession["capture"]>, savedDraft = false) => {
-    if (!session.current.acknowledge(checkpoint, stack.revision, savedDraft)) return false;
-    setStacks(list => list.map(entry => (entry.id === stack.id ? stack : entry)));
+  const acknowledge = (
+    stack: Stack,
+    checkpoint: ReturnType<EditorSession["capture"]>,
+    savedDraft = false,
+  ) => {
+    if (!session.current.acknowledge(checkpoint, stack.revision, savedDraft))
+      return false;
+    setStacks((list) =>
+      list.map((entry) => (entry.id === stack.id ? stack : entry)),
+    );
     setDirty(session.current.dirty);
     return true;
   };
@@ -215,79 +289,163 @@ export function StudioPage() {
   const writeDraft = async (): Promise<Stack> => {
     if (!latestDocument.current || !current) throw Error("Open a stack first.");
     const sent = session.current.capture();
-    const payload = normaliseStack(structuredClone(latestDocument.current)) as StackDocument;
-    const data = await call("save", { stack: current.id, document: payload, expectedRevision: session.current.revision });
+    const payload = normaliseStack(
+      structuredClone(latestDocument.current),
+    ) as StackDocument;
+    const data = await call("save", {
+      stack: current.id,
+      document: payload,
+      expectedRevision: session.current.revision,
+    });
     const stack = data.stack;
-    if (!stack || stack.id !== sent.stack || JSON.stringify(stack.draft) !== JSON.stringify(payload)) {
-      throw Error("The server did not confirm the submitted draft. Your edits are still here; reopen the saved revision before retrying.");
+    if (
+      !stack ||
+      stack.id !== sent.stack ||
+      JSON.stringify(stack.draft) !== JSON.stringify(payload)
+    ) {
+      throw Error(
+        "The server did not confirm the submitted draft. Your edits are still here; reopen the saved revision before retrying.",
+      );
     }
-    acknowledge(stack, sent, true);
+    if (!acknowledge(stack, sent, true))
+      throw Error(
+        "The server did not confirm a newer saved revision. Your draft is still here.",
+      );
     return stack;
   };
 
-  const save = () => run(async () => {
-    const stack = await writeDraft();
-    return session.current.dirty
-      ? `Saved revision ${stack.revision}. Your newer edits are still unsaved.`
-      : `Saved draft revision ${stack.revision}.`;
-  });
-
-  const publish = () => run(async () => {
-    if (!current) throw Error("Open a stack first.");
-    const candidate = session.current.dirty ? await writeDraft() : current;
-    const checkpoint = session.current.capture();
-    const data = await call("publish", { stack: current.id, expectedRevision: candidate.revision });
-    const stack = data.stack;
-    if (!stack || stack.id !== current.id || stack.publishedRevision !== candidate.revision) {
-      throw Error("Publication was not confirmed. Your edits are still here; check the saved publication before retrying.");
-    }
-    acknowledge(stack, checkpoint);
-    await loadSidecars(current.id).catch(() => undefined);
-    return `Published saved revision ${stack.publishedRevision}. Public at /s/${current.slug}.` +
-      (session.current.dirty ? " Your newer edits are still unsaved." : "");
-  });
-
-  const simple = (action: string, note: (data: Awaited<ReturnType<typeof call>>) => string, confirmText?: string) => () =>
+  const save = () =>
     run(async () => {
-      if (!current) throw Error("Open a stack first.");
-      if (confirmText && !confirm(confirmText)) return "Nothing changed.";
-      const checkpoint = session.current.capture();
-      const data = await call(action, { stack: current.id, expectedRevision: session.current.revision });
-      if (action === "duplicate") {
-        if (!data.stack) throw Error("The copy was not confirmed. Your draft is still here.");
-        setStacks(list => [data.stack!, ...list]);
-        return note(data) + " Your original draft remains open. Open the copy from Saved stacks.";
-      }
-      if (action === "delete") {
-        if (!data.deleted || data.deleted.id !== current.id) throw Error("Deletion was not confirmed. Your draft is still here.");
-        if (!session.current.unchanged(checkpoint)) return "The stack was deleted. Your newer local edits remain open; copy or export them before leaving.";
-        setStacks(list => list.filter(entry => entry.id !== current.id));
-        session.current.adopt(undefined);
-        setSelected(undefined);
-        setDraft(undefined);
-        latestDocument.current = undefined;
-        setDirty(false);
-      } else {
-        if (!data.stack || data.stack.id !== current.id) throw Error("The change was not confirmed. Your draft is still here.");
-        acknowledge(data.stack, checkpoint);
-      }
-      return note(data) + (session.current.dirty ? " Your unsaved edits remain in this editor." : "");
+      const stack = await writeDraft();
+      return session.current.dirty
+        ? `Saved revision ${stack.revision}. Your newer edits are still unsaved.`
+        : `Saved draft revision ${stack.revision}.`;
     });
 
-  const rollback = (action: "republish" | "restoreRevision", revision: number, label: string) => run(async () => {
-    if (!current) throw Error("Open a stack first.");
-    const scope = action === "republish"
-      ? `Make published revision ${revision} the public page again? The draft is left as it is.`
-      : `Replace the open draft with published revision ${revision} as a new saved revision? Unsaved edits will be replaced; the public page does not change.`;
-    if (!confirm(`${scope}\n\nNeither action restores app records, media or deletions, because Composer never owned them.`)) return "Nothing changed.";
-    const checkpoint = session.current.capture();
-    const data = await call(action, { stack: current.id, revision, expectedRevision: session.current.revision });
-    if (!data.stack || data.stack.id !== current.id) throw Error("The change was not confirmed. Your draft is still here.");
-    if (action === "restoreRevision" && session.current.unchanged(checkpoint)) adopt(data.stack);
-    else acknowledge(data.stack, checkpoint);
-    await loadSidecars(current.id).catch(() => undefined);
-    return label + (session.current.dirty ? " Your newer local edits remain unsaved." : "");
-  });
+  const publish = () =>
+    run(async () => {
+      if (!current) throw Error("Open a stack first.");
+      const candidate = session.current.dirty ? await writeDraft() : current;
+      const checkpoint = session.current.capture();
+      const data = await call("publish", {
+        stack: current.id,
+        expectedRevision: candidate.revision,
+      });
+      const stack = data.stack;
+      if (
+        !stack ||
+        stack.id !== current.id ||
+        stack.publishedRevision !== candidate.revision
+      ) {
+        throw Error(
+          "Publication was not confirmed. Your edits are still here; check the saved publication before retrying.",
+        );
+      }
+      if (!acknowledge(stack, checkpoint))
+        throw Error(
+          "The publication acknowledgement was invalid. Your draft is still here.",
+        );
+      await loadSidecars(current.id).catch(() => undefined);
+      return (
+        `Published saved revision ${stack.publishedRevision}. Public at /s/${current.slug}.` +
+        (session.current.dirty ? " Your newer edits are still unsaved." : "")
+      );
+    });
+
+  const simple =
+    (
+      action: string,
+      note: (data: Awaited<ReturnType<typeof call>>) => string,
+      confirmText?: string,
+    ) =>
+    () =>
+      run(async () => {
+        if (!current) throw Error("Open a stack first.");
+        if (confirmText && !confirm(confirmText)) return "Nothing changed.";
+        const checkpoint = session.current.capture();
+        const data = await call(action, {
+          stack: current.id,
+          expectedRevision: session.current.revision,
+        });
+        if (action === "duplicate") {
+          if (!data.stack)
+            throw Error(
+              "The copy was not confirmed. Your draft is still here.",
+            );
+          setStacks((list) => [data.stack!, ...list]);
+          return (
+            note(data) +
+            " Your original draft remains open. Open the copy from Saved stacks."
+          );
+        }
+        if (action === "delete") {
+          if (!data.deleted || data.deleted.id !== current.id)
+            throw Error(
+              "Deletion was not confirmed. Your draft is still here.",
+            );
+          if (!session.current.unchanged(checkpoint))
+            return "The stack was deleted. Your newer local edits remain open; copy or export them before leaving.";
+          setStacks((list) => list.filter((entry) => entry.id !== current.id));
+          session.current.adopt(undefined);
+          setSelected(undefined);
+          setDraft(undefined);
+          latestDocument.current = undefined;
+          setDirty(false);
+        } else {
+          if (!data.stack || data.stack.id !== current.id)
+            throw Error(
+              "The change was not confirmed. Your draft is still here.",
+            );
+          if (!acknowledge(data.stack, checkpoint))
+            throw Error(
+              "The change acknowledgement was invalid. Your draft is still here.",
+            );
+        }
+        return (
+          note(data) +
+          (session.current.dirty
+            ? " Your unsaved edits remain in this editor."
+            : "")
+        );
+      });
+
+  const rollback = (
+    action: "republish" | "restoreRevision",
+    revision: number,
+    label: string,
+  ) =>
+    run(async () => {
+      if (!current) throw Error("Open a stack first.");
+      const scope =
+        action === "republish"
+          ? `Make published revision ${revision} the public page again? The draft is left as it is.`
+          : `Replace the open draft with published revision ${revision} as a new saved revision? Unsaved edits will be replaced; the public page does not change.`;
+      if (
+        !confirm(
+          `${scope}\n\nNeither action restores app records, media or deletions, because Composer never owned them.`,
+        )
+      )
+        return "Nothing changed.";
+      const checkpoint = session.current.capture();
+      const data = await call(action, {
+        stack: current.id,
+        revision,
+        expectedRevision: session.current.revision,
+      });
+      if (!data.stack || data.stack.id !== current.id)
+        throw Error("The change was not confirmed. Your draft is still here.");
+      if (action === "restoreRevision" && session.current.unchanged(checkpoint))
+        adopt(data.stack);
+      else if (!acknowledge(data.stack, checkpoint))
+        throw Error(
+          "The change acknowledgement was invalid. Your draft is still here.",
+        );
+      await loadSidecars(current.id).catch(() => undefined);
+      return (
+        label +
+        (session.current.dirty ? " Your newer local edits remain unsaved." : "")
+      );
+    });
 
   // Export asks the server for the canonical shape, so the file always carries
   // the statement of exactly what it does and does not contain.
@@ -295,9 +453,12 @@ export function StudioPage() {
     run(async () => {
       if (!current) throw Error("Open a stack first.");
       const data = await call("export", { stack: current.id });
-      if (!data.export) throw Error("The export was not confirmed. Your draft is still here.");
+      if (!data.export)
+        throw Error("The export was not confirmed. Your draft is still here.");
       const payload = data.export;
-      const blob = new Blob([JSON.stringify(payload, null, 2) + "\n"], { type: "application/json" });
+      const blob = new Blob([JSON.stringify(payload, null, 2) + "\n"], {
+        type: "application/json",
+      });
       const url = URL.createObjectURL(blob);
       const link = window.document.createElement("a");
       link.href = url;
@@ -310,6 +471,12 @@ export function StudioPage() {
   // Import always creates a new draft. It never overwrites a stack and never
   // publishes, so a restore cannot change what visitors already see.
   const importFile = async (file: File) => {
+    if (file.size > 120000) {
+      setError(
+        "Choose a stack file smaller than 120 KB. Your draft is still here.",
+      );
+      return;
+    }
     const text = await file.text();
     let payload: unknown;
     try {
@@ -325,11 +492,16 @@ export function StudioPage() {
     )
       return;
     await run(async () => {
-      if (session.current.dirty && !confirm("Import a new stack and replace the open unsaved draft?")) return "Kept editing.";
+      if (
+        session.current.dirty &&
+        !confirm("Import a new stack and replace the open unsaved draft?")
+      )
+        return "Kept editing.";
       const checkpoint = session.current.capture();
       const data = await call("import", { payload });
-      if (session.current.unchanged(checkpoint)) await load(data.stack?.id, { force: true });
-      else if (data.stack) setStacks(list => [data.stack!, ...list]);
+      if (session.current.unchanged(checkpoint))
+        await load(data.stack?.id, { force: true });
+      else if (data.stack) setStacks((list) => [data.stack!, ...list]);
       const imported = data.imported;
       if (!imported) return `Imported ${data.stack?.name} as a draft.`;
       return `Imported ${imported.name} as a draft: ${imported.instances} instance(s) across ${imported.apps.join(", ")}${imported.shared ? `, ${imported.shared} reusing another instance` : ""}${imported.configured ? `, ${imported.configured} with their own settings` : ""}. Nothing was published and no app records or media were copied.`;
@@ -354,21 +526,32 @@ export function StudioPage() {
         <div>
           <h1>Creator stacks</h1>
           <p>
-            Save a named composition of reviewed mini-apps, configure each instance
-            from the settings its app declares, preview the real page and publish
-            one shareable revision. The apps keep their own records, media and
-            credentials.
+            Save a named composition of reviewed mini-apps, configure each
+            instance from the settings its app declares, preview the real page
+            and publish one shareable revision. The apps keep their own records,
+            media and credentials.
           </p>
         </div>
         {role !== "viewer" && (
-          <button type="button" disabled={busy} onClick={() => void run(async () => { await load(); return "Workspace refreshed. Any newer edits remain open."; })}>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              void run(async () =>
+                (await load())
+                  ? "Workspace refreshed."
+                  : "Kept your local edits open.",
+              )
+            }
+          >
             Refresh workspace
           </button>
         )}
       </div>
       {workspace && (
         <p className="ca-muted">
-          Workspace <strong>{workspace.name}</strong> · {ROLE_COPY[workspace.role]}
+          Workspace <strong>{workspace.name}</strong> ·{" "}
+          {ROLE_COPY[workspace.role]}
         </p>
       )}
       <p role="status" aria-live="polite" className="ca-message">
@@ -384,11 +567,21 @@ export function StudioPage() {
           <h2>Another window changed this stack</h2>
           <p>{conflict.message}</p>
           <p className="ca-muted">
-            Your unsaved edits are still in this editor. Reload the saved version to
-            compare, or save yours on top of the newer revision.
+            Your unsaved edits are still in this editor. Reload the saved
+            version to compare, or save yours on top of the newer revision.
           </p>
           <div className="ca-actions">
-            <button type="button" disabled={busy} onClick={() => void load(selected, { force: true }).then(() => setMessage("Reloaded the saved revision. Your unsaved edits were replaced."))}>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() =>
+                void run(async () =>
+                  (await load(selected, { force: true }))
+                    ? "Reloaded the saved revision. Your unsaved edits were replaced."
+                    : "Your newer edits remain open.",
+                )
+              }
+            >
               Reload the saved version
             </button>
             <button
@@ -397,7 +590,8 @@ export function StudioPage() {
               onClick={() =>
                 void run(async () => {
                   const latest = await call("open", { stack: selected });
-                  if (!latest.stack || latest.stack.id !== selected) throw Error("The saved revision was not confirmed.");
+                  if (!latest.stack || latest.stack.id !== selected)
+                    throw Error("The saved revision was not confirmed.");
                   session.current.revision = latest.stack.revision;
                   setConflict(undefined);
                   const stack = await writeDraft();
@@ -407,7 +601,11 @@ export function StudioPage() {
             >
               Save mine on top
             </button>
-            <button type="button" disabled={busy} onClick={() => setConflict(undefined)}>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setConflict(undefined)}
+            >
               Keep editing
             </button>
           </div>
@@ -419,35 +617,77 @@ export function StudioPage() {
             <div className="ca-stack-create">
               <label>
                 New stack name
-                <input value={newName} maxLength={80} onChange={event => setNewName(event.target.value)} placeholder="Loftwah front page" />
+                <input
+                  value={newName}
+                  maxLength={80}
+                  onChange={(event) => {
+                    latestNewName.current = event.target.value;
+                    setNewName(event.target.value);
+                  }}
+                  placeholder="Loftwah front page"
+                />
               </label>
-              <button type="button" disabled={busy || !newName.trim()} onClick={() => void create()}>
+              <button
+                type="button"
+                disabled={busy || !newName.trim()}
+                onClick={() => void create()}
+              >
                 Create stack
               </button>
             </div>
           )}
-          {!document && <p className="ca-muted">No stack yet. {can(role, "create") ? "Name one above to start." : "An owner or editor can create one."}</p>}
+          {!document && (
+            <p className="ca-muted">
+              No stack yet.{" "}
+              {can(role, "create")
+                ? "Name one above to start."
+                : "An owner or editor can create one."}
+            </p>
+          )}
           {document && current && (
             <>
               <div className="ca-stack-state">
-                <span className={`ca-status ca-status-${current.status}`}>{current.status}</span>
+                <span className={`ca-status ca-status-${current.status}`}>
+                  {current.status}
+                </span>
                 <span className="ca-muted">
-                  {dirty ? `Unsaved edits on top of revision ${session.current.revision}` : `Saved revision ${session.current.revision}`}
-                  {current.publishedRevision ? ` · public revision ${current.publishedRevision}` : " · not published"}
+                  {dirty
+                    ? `Unsaved edits on top of revision ${session.current.revision}`
+                    : `Saved revision ${session.current.revision}`}
+                  {current.publishedRevision
+                    ? ` · public revision ${current.publishedRevision}`
+                    : " · not published"}
                 </span>
               </div>
               <div className="ca-form ca-stack-form">
                 <label>
                   Name
-                  <input value={document.name} maxLength={80} disabled={!editable} onChange={event => update({ name: event.target.value })} />
+                  <input
+                    value={document.name}
+                    maxLength={80}
+                    disabled={!editable}
+                    onChange={(event) => update({ name: event.target.value })}
+                  />
                 </label>
                 <label>
                   Description
-                  <textarea rows={2} maxLength={240} disabled={!editable} value={document.description} onChange={event => update({ description: event.target.value })} />
+                  <textarea
+                    rows={2}
+                    maxLength={240}
+                    disabled={!editable}
+                    value={document.description}
+                    onChange={(event) =>
+                      update({ description: event.target.value })
+                    }
+                  />
                 </label>
                 <label>
                   Theme
-                  <select value={document.theme} disabled={!editable} onChange={event => update({ theme: event.target.value })}>
+                  <select
+                    value={document.theme}
+                    disabled={!editable}
+                    onChange={(event) => update({ theme: event.target.value })}
+                  >
                     <option value="midnight">Midnight</option>
                     <option value="daylight">Daylight</option>
                   </select>
@@ -455,43 +695,89 @@ export function StudioPage() {
               </div>
               <h2>App instances</h2>
               <p className="ca-muted">
-                Up to 12 instances. Add the same app twice to show it in two places:
-                the second can reuse the first, which keeps one set of records and
-                settings, or be configured on its own.
+                Up to 12 instances. Add the same app twice to show it in two
+                places: the second can reuse the first, which keeps one set of
+                records and settings, or be configured on its own.
               </p>
               {document.instances.map((instance, index) => {
-                const meta = APPS.find(entry => entry.id === instance.app);
-                const declared = instances.find(entry => entry.app === instance.app)?.declared ?? [];
+                const meta = APPS.find((entry) => entry.id === instance.app);
+                const declared =
+                  instances.find((entry) => entry.app === instance.app)
+                    ?.declared ?? [];
                 const shared = instance.binding?.mode === "shared";
-                const siblings = document.instances.filter(entry => entry.app === instance.app && entry.id !== instance.id && entry.binding?.mode !== "shared");
+                const siblings = document.instances.filter(
+                  (entry) =>
+                    entry.app === instance.app &&
+                    entry.id !== instance.id &&
+                    entry.binding?.mode !== "shared",
+                );
                 return (
-                  <div className="ca-card-row ca-stack-instance" key={instance.id}>
+                  <div
+                    className="ca-card-row ca-stack-instance"
+                    key={instance.id}
+                  >
                     <div>
                       <h3>
-                        {meta?.name ?? instance.app} <span className="ca-muted">· {instance.label}</span>
+                        {meta?.name ?? instance.app}{" "}
+                        <span className="ca-muted">· {instance.label}</span>
                       </h3>
                       <label>
                         Label
-                        <input value={instance.label} maxLength={60} disabled={!editable} onChange={event => updateInstance(instance.id, { label: event.target.value })} />
+                        <input
+                          value={instance.label}
+                          maxLength={60}
+                          disabled={!editable}
+                          onChange={(event) =>
+                            updateInstance(instance.id, {
+                              label: event.target.value,
+                            })
+                          }
+                        />
                       </label>
                       <label>
                         Caption
-                        <input value={instance.caption} maxLength={200} disabled={!editable} onChange={event => updateInstance(instance.id, { caption: event.target.value })} />
+                        <input
+                          value={instance.caption}
+                          maxLength={200}
+                          disabled={!editable}
+                          onChange={(event) =>
+                            updateInstance(instance.id, {
+                              caption: event.target.value,
+                            })
+                          }
+                        />
                       </label>
                       <label className="ca-check">
-                        <input type="checkbox" checked={instance.visible} disabled={!editable} onChange={event => updateInstance(instance.id, { visible: event.target.checked })} /> Visible on the published page
+                        <input
+                          type="checkbox"
+                          checked={instance.visible}
+                          disabled={!editable}
+                          onChange={(event) =>
+                            updateInstance(instance.id, {
+                              visible: event.target.checked,
+                            })
+                          }
+                        />{" "}
+                        Visible on the published page
                       </label>
                       {!shared && (
                         <>
                           <p className="ca-muted">{meta?.purpose}</p>
-                          <fieldset disabled={!editable} className="ca-stack-binding">
+                          <fieldset
+                            disabled={!editable}
+                            className="ca-stack-binding"
+                          >
                             <legend>How this instance is owned</legend>
                             <label className="ca-check">
                               <input
                                 type="radio"
                                 name={`binding-${instance.id}`}
                                 checked={instance.binding?.mode !== "shared"}
-                                onChange={() => updateInstance(instance.id, { binding: { mode: "own", shareOf: null } })}
+                                onChange={() =>
+                                  updateInstance(instance.id, {
+                                    binding: { mode: "own", shareOf: null },
+                                  })
+                                }
                               />
                               Independently configured
                             </label>
@@ -501,9 +787,18 @@ export function StudioPage() {
                                   type="radio"
                                   name={`binding-${instance.id}`}
                                   checked={shared}
-                                  onChange={() => updateInstance(instance.id, { binding: { mode: "shared", shareOf: siblings[0].id }, config: {} })}
+                                  onChange={() =>
+                                    updateInstance(instance.id, {
+                                      binding: {
+                                        mode: "shared",
+                                        shareOf: siblings[0].id,
+                                      },
+                                      config: {},
+                                    })
+                                  }
                                 />
-                                Reuse “{siblings[0].label}” ({meta?.name} already in this stack)
+                                Reuse “{siblings[0].label}” ({meta?.name}{" "}
+                                already in this stack)
                               </label>
                             )}
                           </fieldset>
@@ -511,32 +806,55 @@ export function StudioPage() {
                       )}
                       {shared && (
                         <p className="ca-stack-shared">
-                          Shared with “{document.instances.find(entry => entry.id === instance.binding?.shareOf)?.label ?? "another instance"}”.
-                          The app keeps one set of records, so edits and approvals appear in both places.
-                          <button type="button" disabled={!editable} onClick={() => updateInstance(instance.id, { binding: { mode: "own", shareOf: null } })}>
+                          Shared with “
+                          {document.instances.find(
+                            (entry) => entry.id === instance.binding?.shareOf,
+                          )?.label ?? "another instance"}
+                          ”. The app keeps one set of records, so edits and
+                          approvals appear in both places.
+                          <button
+                            type="button"
+                            disabled={!editable}
+                            onClick={() =>
+                              updateInstance(instance.id, {
+                                binding: { mode: "own", shareOf: null },
+                              })
+                            }
+                          >
                             Make this one independently configured
                           </button>
                         </p>
                       )}
                       {!shared && declared.length > 0 && (
                         <details className="ca-stack-config">
-                          <summary>Settings this app declares{Object.keys(instance.config ?? {}).length ? ` · ${Object.keys(instance.config).length} set here` : ""}</summary>
-                          {declared.map(field => (
+                          <summary>
+                            Settings this app declares
+                            {Object.keys(instance.config ?? {}).length
+                              ? ` · ${Object.keys(instance.config).length} set here`
+                              : ""}
+                          </summary>
+                          {declared.map((field) => (
                             <label key={field.key}>
                               {field.label}
                               {field.options?.length ? (
                                 <select
                                   value={instance.config?.[field.key] ?? ""}
                                   disabled={!editable}
-                                  onChange={event => {
+                                  onChange={(event) => {
                                     const next = { ...(instance.config ?? {}) };
-                                    if (event.target.value) next[field.key] = event.target.value;
+                                    if (event.target.value)
+                                      next[field.key] = event.target.value;
                                     else delete next[field.key];
-                                    updateInstance(instance.id, { config: next });
+                                    updateInstance(instance.id, {
+                                      config: next,
+                                    });
                                   }}
                                 >
-                                  <option value="">Use the app’s default ({field.default || "unset"})</option>
-                                  {field.options.map(option => (
+                                  <option value="">
+                                    Use the app’s default (
+                                    {field.default || "unset"})
+                                  </option>
+                                  {field.options.map((option) => (
                                     <option key={option} value={option}>
                                       {option}
                                     </option>
@@ -548,29 +866,66 @@ export function StudioPage() {
                                   maxLength={field.maxLength ?? 240}
                                   disabled={!editable}
                                   placeholder={field.default}
-                                  onChange={event => {
+                                  onChange={(event) => {
                                     const next = { ...(instance.config ?? {}) };
-                                    if (event.target.value) next[field.key] = event.target.value;
+                                    if (event.target.value)
+                                      next[field.key] = event.target.value;
                                     else delete next[field.key];
-                                    updateInstance(instance.id, { config: next });
+                                    updateInstance(instance.id, {
+                                      config: next,
+                                    });
                                   }}
                                 />
                               )}
                             </label>
                           ))}
                           <p className="ca-muted">
-                            Declared by {meta?.name}. Applying these writes through the app’s own owner API, after it confirms
-                            its live source matches the pinned revision. Nothing is applied until you do that explicitly.
+                            Declared by {meta?.name}. Applying these writes
+                            through the app’s own owner API, after it confirms
+                            its live source matches the pinned revision. Nothing
+                            is applied until you do that explicitly.
                           </p>
                         </details>
                       )}
-                      {!shared && declared.length === 0 && <p className="ca-muted">{meta?.name} does not publish a configuration contract, so this instance can only reuse what the app already holds.</p>}
+                      {!shared && declared.length === 0 && (
+                        <p className="ca-muted">
+                          {meta?.name} does not publish a configuration
+                          contract, so this instance can only reuse what the app
+                          already holds.
+                        </p>
+                      )}
                     </div>
                     {editable && (
                       <div className="ca-actions">
-                        <button type="button" disabled={busy || index === 0} onClick={() => move(index, -1)}>Move up</button>
-                        <button type="button" disabled={busy || index === document.instances.length - 1} onClick={() => move(index, 1)}>Move down</button>
-                        <button type="button" disabled={busy} onClick={() => update({ instances: document.instances.filter(entry => entry.id !== instance.id) })}>Remove</button>
+                        <button
+                          type="button"
+                          disabled={busy || index === 0}
+                          onClick={() => move(index, -1)}
+                        >
+                          Move up
+                        </button>
+                        <button
+                          type="button"
+                          disabled={
+                            busy || index === document.instances.length - 1
+                          }
+                          onClick={() => move(index, 1)}
+                        >
+                          Move down
+                        </button>
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() =>
+                            update({
+                              instances: document.instances.filter(
+                                (entry) => entry.id !== instance.id,
+                              ),
+                            })
+                          }
+                        >
+                          Remove
+                        </button>
                       </div>
                     )}
                   </div>
@@ -578,13 +933,20 @@ export function StudioPage() {
               })}
               {editable && (
                 <div className="ca-stack-add">
-                  {APPS.map(app => (
+                  {APPS.map((app) => (
                     <button
                       key={app.id}
                       type="button"
                       disabled={busy || document.instances.length >= 12}
                       title={app.purpose}
-                      onClick={() => update({ instances: [...document.instances, newInstance(app.id)] })}
+                      onClick={() =>
+                        update({
+                          instances: [
+                            ...document.instances,
+                            newInstance(app.id),
+                          ],
+                        })
+                      }
                     >
                       Add {app.name}
                     </button>
@@ -593,12 +955,20 @@ export function StudioPage() {
               )}
               <div className="ca-stack-actions">
                 {editable && (
-                  <button type="button" disabled={busy || !dirty} onClick={() => void save()}>
+                  <button
+                    type="button"
+                    disabled={busy || !dirty}
+                    onClick={() => void save()}
+                  >
                     Save draft
                   </button>
                 )}
                 {can(role, "publish") && (
-                  <button type="button" disabled={busy} onClick={() => void publish()}>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void publish()}
+                  >
                     Publish
                   </button>
                 )}
@@ -606,15 +976,36 @@ export function StudioPage() {
                   <button
                     type="button"
                     disabled={busy}
-                    onClick={simple("unpublish", () => "Unpublished. The public address now returns 404 until you publish again. The stored publications are kept.", "Unpublish this stack? The public address stops serving it immediately. The draft and its publication history are kept.")}
+                    onClick={simple(
+                      "unpublish",
+                      () =>
+                        "Unpublished. The public address now returns 404 until you publish again. The stored publications are kept.",
+                      "Unpublish this stack? The public address stops serving it immediately. The draft and its publication history are kept.",
+                    )}
                   >
                     Unpublish
                   </button>
                 )}
                 {can(role, "duplicate") && (
-                  <button type="button" disabled={busy} onClick={simple("duplicate", data => `Duplicated as ${data.stack?.name}. It is a separate draft with new instance identities, and the same shared-versus-independent structure.`)}>Duplicate</button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={simple(
+                      "duplicate",
+                      (data) =>
+                        `Duplicated as ${data.stack?.name}. It is a separate draft with new instance identities, and the same shared-versus-independent structure.`,
+                    )}
+                  >
+                    Duplicate
+                  </button>
                 )}
-                <button type="button" disabled={busy} onClick={() => void exportDocument()}>Export JSON</button>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void exportDocument()}
+                >
+                  Export JSON
+                </button>
                 {can(role, "create") && (
                   <label className="ca-stack-import">
                     Import a stack file
@@ -622,7 +1013,7 @@ export function StudioPage() {
                       type="file"
                       accept="application/json,.json"
                       disabled={busy}
-                      onChange={event => {
+                      onChange={(event) => {
                         const file = event.target.files?.[0];
                         event.target.value = "";
                         if (file) void importFile(file);
@@ -630,20 +1021,41 @@ export function StudioPage() {
                     />
                   </label>
                 )}
-                {can(role, "archive") && (
-                  current.status !== "archived" ? (
-                    <button type="button" disabled={busy} onClick={simple("archive", () => "Archived. It stays out of the public address until restored.", "Archive this stack? Its public address stops serving, and the draft is locked until you restore it.")}>Archive</button>
+                {can(role, "archive") &&
+                  (current.status !== "archived" ? (
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={simple(
+                        "archive",
+                        () =>
+                          "Archived. It stays out of the public address until restored.",
+                        "Archive this stack? Its public address stops serving, and the draft is locked until you restore it.",
+                      )}
+                    >
+                      Archive
+                    </button>
                   ) : (
-                    <button type="button" disabled={busy} onClick={simple("restore", () => "Restored as a draft. Publish again when you want it public.")}>Restore</button>
-                  )
-                )}
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={simple(
+                        "restore",
+                        () =>
+                          "Restored as a draft. Publish again when you want it public.",
+                      )}
+                    >
+                      Restore
+                    </button>
+                  ))}
                 {can(role, "delete") && (
                   <button
                     type="button"
                     disabled={busy}
                     onClick={simple(
                       "delete",
-                      data => `Deleted ${data.deleted?.name}. Its configuration and publication history are gone. App records and media were never part of it and are untouched.`,
+                      (data) =>
+                        `Deleted ${data.deleted?.name}. Its configuration and publication history are gone. App records and media were never part of it and are untouched.`,
                       "Delete this stack permanently, including any unsaved edits in this editor? Its configuration and publication history are removed. The apps keep their own records, media and settings.",
                     )}
                   >
@@ -651,10 +1063,14 @@ export function StudioPage() {
                   </button>
                 )}
               </div>
-              <section className="ca-stack-preview" aria-labelledby="stack-preview-title">
+              <section
+                className="ca-stack-preview"
+                aria-labelledby="stack-preview-title"
+              >
                 <h2 id="stack-preview-title">Preview</h2>
                 <p className="ca-muted">
-                  The same renderer the published page uses, applied to your draft. A preview never publishes anything.
+                  The same renderer the published page uses, applied to your
+                  draft. A preview never publishes anything.
                 </p>
                 <StackView document={document} />
               </section>
@@ -662,23 +1078,50 @@ export function StudioPage() {
                 <section className="ca-stack-history">
                   <h2>Published revisions</h2>
                   <p className="ca-muted">
-                    Every revision that was actually activated. Rolling one back changes Composer’s published
-                    configuration only; app content, media and deletions are not restored.
+                    Every revision that was actually activated. Rolling one back
+                    changes Composer’s published configuration only; app
+                    content, media and deletions are not restored.
                   </p>
                   <ul>
-                    {publications.map(publication => (
+                    {publications.map((publication) => (
                       <li key={publication.revision}>
                         <span>
                           Revision {publication.revision}
-                          {publication.revision === current.publishedRevision ? " · public now" : ""}
+                          {publication.revision === current.publishedRevision
+                            ? " · public now"
+                            : ""}
                           <small> {publication.publishedAt}</small>
                         </span>
                         {can(role, "rollback") && (
                           <span className="ca-actions">
-                            <button type="button" disabled={busy || publication.revision === current.publishedRevision} onClick={() => void rollback("republish", publication.revision, `Published revision ${publication.revision} is public again.`)}>
+                            <button
+                              type="button"
+                              disabled={
+                                busy ||
+                                publication.revision ===
+                                  current.publishedRevision
+                              }
+                              onClick={() =>
+                                void rollback(
+                                  "republish",
+                                  publication.revision,
+                                  `Published revision ${publication.revision} is public again.`,
+                                )
+                              }
+                            >
                               Publish this revision
                             </button>
-                            <button type="button" disabled={busy} onClick={() => void rollback("restoreRevision", publication.revision, `Revision ${publication.revision} is in the draft as a new revision.`)}>
+                            <button
+                              type="button"
+                              disabled={busy}
+                              onClick={() =>
+                                void rollback(
+                                  "restoreRevision",
+                                  publication.revision,
+                                  `Revision ${publication.revision} is in the draft as a new revision.`,
+                                )
+                              }
+                            >
                               Restore into draft
                             </button>
                           </span>
@@ -694,12 +1137,21 @@ export function StudioPage() {
         <aside className="ca-aside">
           <h2>Saved stacks</h2>
           <ul className="ca-stack-list">
-            {stacks.map(stack => (
+            {stacks.map((stack) => (
               <li key={stack.id}>
-                <button type="button" aria-pressed={stack.id === selected} disabled={busy} onClick={() => void openStack(stack.id)}>
+                <button
+                  type="button"
+                  aria-pressed={stack.id === selected}
+                  disabled={busy}
+                  onClick={() => void openStack(stack.id)}
+                >
                   <strong>{stack.name}</strong>
-                  <span className={`ca-status ca-status-${stack.status}`}>{stack.status}</span>
-                  <small>revision {stack.revision} · /s/{stack.slug}</small>
+                  <span className={`ca-status ca-status-${stack.status}`}>
+                    {stack.status}
+                  </span>
+                  <small>
+                    revision {stack.revision} · /s/{stack.slug}
+                  </small>
                 </button>
               </li>
             ))}
@@ -709,31 +1161,47 @@ export function StudioPage() {
             <div className="ca-resource-note">
               <h2>Share and ownership</h2>
               <p>
-                Public address: <a href={shareUrl} target="_blank" rel="noopener noreferrer">{shareUrl} ↗</a>
+                Public address:{" "}
+                <a href={shareUrl} target="_blank" rel="noopener noreferrer">
+                  {shareUrl} ↗
+                </a>
               </p>
-              <button type="button" disabled={busy} onClick={() => void copyShare()}>Copy share link</button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void copyShare()}
+              >
+                Copy share link
+              </button>
               {fallback && (
                 <label className="ca-share-fallback">
                   Share address
-                  <input readOnly value={fallback} onFocus={event => event.currentTarget.select()} />
+                  <input
+                    readOnly
+                    value={fallback}
+                    onFocus={(event) => event.currentTarget.select()}
+                  />
                 </label>
               )}
               <p className="ca-muted">
-                Drafts are never served at this address. Publishing stores an immutable revision; later edits stay
-                private until you publish again. Export contains configuration only — app records, media and
-                credentials stay with the apps.
+                Drafts are never served at this address. Publishing stores an
+                immutable revision; later edits stay private until you publish
+                again. Export contains configuration only — app records, media
+                and credentials stay with the apps.
               </p>
               {activation.length > 0 && (
                 <div className="ca-config-status">
                   <h3>App configuration</h3>
                   <ul>
-                    {activation.map(entry => (
+                    {activation.map((entry) => (
                       <li key={entry.instanceId}>
                         <strong>{entry.name}</strong>{" "}
                         {entry.configurable ? (
                           <span>
-                            {entry.settings?.filter(setting => setting.overridden).length
-                              ? `${entry.settings.filter(setting => setting.overridden).length} declared setting(s) stored with this stack; apply through the app’s owner API.`
+                            {entry.settings?.filter(
+                              (setting) => setting.overridden,
+                            ).length
+                              ? `${entry.settings.filter((setting) => setting.overridden).length} declared setting(s) stored with this stack; apply through the app’s owner API.`
                               : "Everything uses the app’s own defaults."}
                           </span>
                         ) : (
