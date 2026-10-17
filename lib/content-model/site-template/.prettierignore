@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.astro/
+.wrangler/
+src/lib/*.mjs
+src/lib/*.d.mts
+src/content-model.json

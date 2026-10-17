@@ -1,6 +1,37 @@
 ---
-import ScalarValue from './ScalarValue.astro';
-interface Props {field:any;value:any}
-const {field,value}=Astro.props;
+import ScalarValue from "./ScalarValue.astro";
+import type { ContentField } from "../lib/content-model.mjs";
+interface Props {
+  field: ContentField;
+  value: unknown;
+}
+const { field, value } = Astro.props;
 ---
-{field.type==='repeater'&&Array.isArray(value)?<ol class="rows">{value.map(row=><li><dl>{field.fields.map((sub:any)=><div><dt>{sub.label}</dt><dd><ScalarValue field={sub} value={row?.[sub.key]}/></dd></div>)}</dl></li>)}</ol>:<ScalarValue field={field} value={value}/>}
+
+{field.type === "repeater" && Array.isArray(value) ? (
+  <ol class="rows">
+    {value.map((row: unknown) => (
+      <li>
+        <dl>
+          {(field.fields ?? []).map((sub) => (
+            <div>
+              <dt>{sub.label}</dt>
+              <dd>
+                <ScalarValue
+                  field={sub}
+                  value={
+                    row && typeof row === "object" && !Array.isArray(row)
+                      ? (row as Record<string, unknown>)[sub.key]
+                      : undefined
+                  }
+                />
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </li>
+    ))}
+  </ol>
+) : (
+  <ScalarValue field={field} value={value} />
+)}

@@ -1,11 +1,33 @@
 ---
-import model from '../content-model.json';
-import {visibleModelFields} from '../lib/content-model.mjs';
-import {titleField} from '../lib/entry.mjs';
-import FieldValue from './FieldValue.astro';
-interface Props {values:Record<string,any>;detail?:boolean}
-const {values,detail=false}=Astro.props;
-const Heading=detail?'h2':'h3';
-const heading=titleField(model);
+import modelInput from "../content-model.json";
+import { validateContentModel } from "../lib/content-model.mjs";
+const model = validateContentModel(modelInput);
+import { visibleModelFields } from "../lib/content-model.mjs";
+import { titleField } from "../lib/entry.mjs";
+import FieldValue from "./FieldValue.astro";
+interface Props {
+  values: Record<string, unknown>;
+  detail?: boolean;
+}
+const { values, detail = false } = Astro.props;
+const Heading = detail ? "h2" : "h3";
+const heading = titleField(model);
 ---
-{model.groups.map(group=><section><Heading>{group}</Heading><dl class="fields">{visibleModelFields(model,values).filter(field=>field.group===group&&field.key!==heading).map(field=><div><dt>{field.label}</dt><dd><FieldValue field={field} value={values[field.key]}/></dd></div>)}</dl></section>)}
+
+{model.groups.map((group) => (
+  <section>
+    <Heading>{group}</Heading>
+    <dl class="fields">
+      {visibleModelFields(model, values)
+        .filter((field) => field.group === group && field.key !== heading)
+        .map((field) => (
+          <div>
+            <dt>{field.label}</dt>
+            <dd>
+              <FieldValue field={field} value={values[field.key]} />
+            </dd>
+          </div>
+        ))}
+    </dl>
+  </section>
+))}

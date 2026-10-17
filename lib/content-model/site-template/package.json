@@ -4,8 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev --host localhost",
-    "build": "astro build",
+    "dev": "pnpm source:write && astro dev --host localhost",
+    "source:write": "node scripts/build-source.mjs --write",
+    "check:types": "node scripts/build-source.mjs --check && astro check && tsc --project tsconfig.worker.json --noEmit && tsc --project tsconfig.browser.json --noEmit",
+    "lint": "node scripts/build-source.mjs --lint",
+    "format:check": "prettier --plugin prettier-plugin-astro --check src scripts tests package.json astro.config.mjs \"tsconfig*.json\"",
+    "format": "prettier --plugin prettier-plugin-astro --write src scripts tests package.json astro.config.mjs \"tsconfig*.json\"",
+    "test": "node --test tests/*.test.mjs",
+    "build": "pnpm check:types && astro build",
+    "check": "pnpm check:types && pnpm lint && pnpm format:check && pnpm test",
     "deploy": "node scripts/deploy.mjs"
   },
   "dependencies": {
@@ -25,7 +32,10 @@
     "typescript": "6.0.3",
     "wrangler": "4.143.1",
     "@types/react": "19.3.0",
-    "@types/react-dom": "19.3.0"
+    "@types/react-dom": "19.3.0",
+    "@astrojs/check": "0.9.10",
+    "prettier": "3.9.10",
+    "prettier-plugin-astro": "1.1.1"
   },
   "engines": {
     "node": ">=22 <23",

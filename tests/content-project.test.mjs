@@ -8,10 +8,10 @@ test('every supported model becomes independently owned fixed source and a nativ
   for(const pattern of contentPatternSummaries){const model=contentPattern(pattern.id),destination=join(root,pattern.id),result=createContentProject({model,destination});assert.equal(result.deployed,false);assert.equal(result.dependenciesInstalled,false);assert.equal(result.agentSkillsVerified,false);
    const seed=JSON.parse(fs.readFileSync(join(destination,'seed/seed.json'),'utf8'));assert.equal(validateSeed(seed).valid,true);assert.equal(seed.collections[0].slug,model.collection);assert.equal(fs.existsSync(join(destination,'node_modules')),false);assert.equal(fs.existsSync(join(destination,'.git')),false);
    const source=JSON.parse(fs.readFileSync(join(destination,'composer-project.json'),'utf8'));for(const [name,digest] of Object.entries(source.files))assert.equal(hash(fs.readFileSync(join(destination,name))),digest);
-   for(const [name,bytes] of Object.entries(baseline.files).filter(([name])=>/\.(?:mjs|astro|ts|css)$/.test(name)))assert.deepEqual(fs.readFileSync(join(destination,name)),bytes);
-   assert.match(fs.readFileSync(join(destination,'src/pages/index.astro'),'utf8'),/status:'published'/);assert.match(fs.readFileSync(join(destination,'public/brand/OFL-Space-Grotesk.txt'),'utf8'),/SIL OPEN FONT LICENSE/);
+   for(const [name,bytes] of Object.entries(baseline.files).filter(([name])=>/\.(?:m[jt]s|astro|tsx?|css)$/.test(name)))assert.deepEqual(fs.readFileSync(join(destination,name)),bytes);
+   assert.match(fs.readFileSync(join(destination,'src/pages/index.astro'),'utf8'),/status:\s*['"]published['"]/);assert.match(fs.readFileSync(join(destination,'public/brand/OFL-Space-Grotesk.txt'),'utf8'),/SIL OPEN FONT LICENSE/);
   }
-  const adversarial={...structuredClone(starterModel),label:'</script><img src=x onerror=alert(1)>'},files=contentProjectFiles(adversarial).files;assert(JSON.parse(files['src/content-model.json']).label.includes('onerror'));for(const [name,bytes] of Object.entries(files).filter(([name])=>/\.(?:mjs|astro|ts|css)$/.test(name)))assert.equal(bytes.includes(Buffer.from('onerror')),false,name);
+  const adversarial={...structuredClone(starterModel),label:'</script><img src=x onerror=alert(1)>'},files=contentProjectFiles(adversarial).files;assert(JSON.parse(files['src/content-model.json']).label.includes('onerror'));for(const [name,bytes] of Object.entries(files).filter(([name])=>/\.(?:m[jt]s|astro|tsx?|css)$/.test(name)))assert.equal(bytes.includes(Buffer.from('onerror')),false,name);
  }finally{fs.rmSync(root,{recursive:true});}
 });
 test('existing empty, authored and linked destinations are preserved; separate projects do not alter each other',()=>{

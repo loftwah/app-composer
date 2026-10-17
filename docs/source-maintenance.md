@@ -2,6 +2,14 @@
 
 Author source for review: normal indentation, readable statements and explicit component boundaries. Build tools handle minification. Keep structural cleanup separate from changes to product behaviour, data contracts or storage.
 
+The [engineering baseline](engineering-baseline.md) records the current checked
+content-model and generated-project slice. `lib/content-model/*.mts` and the
+recipe's application `.mts` modules own their emitted `.mjs`/`.d.mts` files.
+Run `pnpm source:write` after edits; `dev`, `check:types` and `build` reject stale
+outputs. Generated sites carry their own source/checker/lockfile and run their
+own `source:write`, `check` and `build` commands. Preparation does not update an
+existing owner project or establish its deployment.
+
 ## Native mini-app editor
 
 `src/plugins/miniapps-admin.tsx` registers the EmDash page and assembles the editor. The modules in `src/plugins/miniapps/` have distinct responsibilities:
