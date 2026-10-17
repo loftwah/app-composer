@@ -1,5 +1,10 @@
 import { EditorSession } from "./stacks/editor-session";
-import { observeResourceRevision, resourcePreview } from "./stacks/resource-editor";
+import {
+  observeResourceRevision,
+  resourcePreview,
+  resourceDraft,
+  resourceEditsDuringReuse,
+} from "./stacks/resource-editor";
 import type { ResourceBinding } from "./stacks/protocol";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PluginAdminExports } from "emdash";
@@ -69,6 +74,10 @@ export function StudioPage() {
   >([]);
   const [reuseChoices, setReuseChoices] = useState<Record<string, string>>({});
   const [uncertainStacks, setUncertainStacks] = useState<string[]>([]);
+  const [retainedSettings, setRetainedSettings] = useState<
+    { instance: string; config: Record<string, string> }[]
+  >([]);
+  const [sidecarEpoch, setSidecarEpoch] = useState(0);
   const [sidecars, setSidecars] = useState<{
     stack?: string;
     resources: "loading" | "ready" | "failed";
@@ -112,6 +121,8 @@ export function StudioPage() {
     });
     setDirty(false);
     setConflict(undefined);
+    setRetainedSettings([]);
+    setSidecarEpoch((epoch) => epoch + 1);
   }, []);
 
   const load = useCallback(
@@ -241,7 +252,7 @@ export function StudioPage() {
     setAvailableResources([]);
     setReuseChoices({});
     if (selected) void loadSidecars(selected);
-  }, [selected, loadSidecars]);
+  }, [selected, sidecarEpoch, loadSidecars]);
 
   const openStack = (id: string) =>
     run(async () => {
@@ -331,9 +342,15 @@ export function StudioPage() {
 
   const writeDraft = async (): Promise<Stack> => {
     if (!latestDocument.current || !current) throw Error("Open a stack first.");
+    if (retainedSettings.length)
+      throw Error(
+        "Keep the app settings edited during sharing in a new instance before saving. Your edits remain visible below.",
+      );
+    if (hasGuestbook && !resourcesReady)
+      throw Error("Load visitor book ownership before saving its settings.");
     const sent = session.current.capture();
     const payload = normaliseStack(
-      structuredClone(latestDocument.current),
+      resourceDraft(structuredClone(latestDocument.current), resources),
     ) as StackDocument;
     const data = await call("save", {
       stack: current.id,
@@ -420,12 +437,12 @@ export function StudioPage() {
         const latest = (await call("open", { stack: current.id })).stack;
         if (
           !latest || !observeResourceRevision(
-            session.current, beforeRead, latest, latestDocument.current,
+            session.current, beforeRead, latest, current.draft,
           )
         )
-          throw Error(
-            "The saved revision could not be checked. Your local draft is still here.",
-          );
+          throw Object.assign(Error(
+            "The saved draft changed in another window. Your expected revision and local edits are unchanged. Compare the saved version or explicitly choose Save mine on top.",
+          ), { code: "CONFLICT" });
         setStacks((list) =>
           list.map((entry) => entry.id === latest.id ? latest : entry),
         );
@@ -470,6 +487,18 @@ export function StudioPage() {
       }
       if (action === "reuseResource" && exact && data.outcome === "applied")
         adopt(saved);
+      else if (action === "reuseResource" && data.outcome === "applied" && latestDocument.current) {
+        const retained = resourceEditsDuringReuse(
+          latestDocument.current, candidate.draft, data.resources ?? [],
+        );
+        const merged = resourceDraft(latestDocument.current, data.resources ?? []);
+        latestDocument.current = merged;
+        setDraft({ document: merged, generation: session.current.generation });
+        setRetainedSettings((entries) => [
+          ...entries.filter((entry) => !retained.some((next) => next.instance === entry.instance)),
+          ...retained,
+        ]);
+      }
       setResources(data.resources ?? []);
       const uncertain =
         data.outcome === "unknown" ||
@@ -882,6 +911,7 @@ export function StudioPage() {
                   (entry) => entry.instance === instance.id,
                 );
                 const sharedResource = !shared && resource?.shared === true;
+                const retained = retainedSettings.find((entry) => entry.instance === instance.id);
                 const copiedSource = shared
                   ? document.instances.find(
                       (entry) => entry.id === instance.binding.shareOf,
@@ -1129,6 +1159,34 @@ export function StudioPage() {
                             </details>
                           )}
                         </div>
+                      )}
+                      {retained && (
+                        <section className="ca-resource-status" aria-label="Retained app setting edits">
+                          <p>
+                            Settings you edited while sharing this visitor book are kept here.
+                            The shared book uses its confirmed settings; keep these edits in a new independent instance.
+                          </p>
+                          <dl>
+                            {Object.entries(retained.config).map(([key, value]) => (
+                              <div key={key}><dt>{declared.find((field) => field.key === key)?.label ?? key}</dt><dd>{value || "Unset"}</dd></div>
+                            ))}
+                          </dl>
+                          <button
+                            type="button"
+                            disabled={!editable || busy || document.instances.length >= 12}
+                            onClick={() => {
+                              update({ instances: [...document.instances, {
+                                ...newInstance(instance.app),
+                                label: `${instance.label.slice(0, 42)} edited settings`,
+                                caption: instance.caption,
+                                config: { ...retained.config },
+                              }] });
+                              setRetainedSettings((entries) => entries.filter((entry) => entry.instance !== instance.id));
+                            }}
+                          >
+                            Keep edited settings in a new instance
+                          </button>
+                        </section>
                       )}
                       {!shared && !sharedResource && declared.length > 0 && (
                         <details className="ca-stack-config">

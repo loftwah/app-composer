@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { decodeStackReply } from "../src/plugins/stacks/protocol.ts";
 import { EditorSession } from "../src/plugins/stacks/editor-session.ts";
-import { observeResourceRevision, resourcePreview } from "../src/plugins/stacks/resource-editor.ts";
+import { observeResourceRevision, resourcePreview, resourceDraft, resourceEditsDuringReuse } from "../src/plugins/stacks/resource-editor.ts";
 
 const resource = {
   instance: "instance-fixture-0001",
@@ -158,7 +158,7 @@ test("a lost Apply acknowledgement can refresh its committed token while retaini
   editor.edit();
   const generation = editor.generation;
   const saved = decodeStackReply("open", { ok: true, stack: { ...stack, revision: 7 } }).stack;
-  assert.equal(observeResourceRevision(editor, editor.capture(), saved, local), true);
+  assert.equal(observeResourceRevision(editor, editor.capture(), saved, decodeStackReply("open", { ok: true, stack }).stack.draft), true);
   assert.equal(editor.revision, 7);
   assert.equal(editor.generation, generation);
   assert.equal(editor.dirty, true);
@@ -168,7 +168,7 @@ test("a lost Apply acknowledgement can refresh its committed token while retaini
   assert.equal(editor.dirty, true);
 });
 
-test("lost Reuse acknowledgement preserves the open draft and marks its difference from inherited settings unsaved", () => {
+test("a read cannot grant overwrite authority for a changed saved draft after an unconfirmed reuse", () => {
   const editor = new EditorSession();
   editor.adopt(stack.id, 3);
   const local = decodeStackReply("open", { ok: true, stack }).stack.draft;
@@ -176,10 +176,23 @@ test("lost Reuse acknowledgement preserves the open draft and marks its differen
   changed.revision = 4;
   changed.draft.instances[0].config.title = "App-confirmed shared settings";
   const saved = decodeStackReply("open", { ok: true, stack: changed }).stack;
-  assert.equal(observeResourceRevision(editor, editor.capture(), saved, local), true);
-  assert.equal(editor.revision, 4);
-  assert.equal(editor.dirty, true);
+  assert.equal(observeResourceRevision(editor, editor.capture(), saved, local), false);
+  assert.equal(editor.revision, 3);
+  assert.equal(editor.dirty, false);
   assert.equal(local.instances[0].config.title, undefined, "reading the saved token does not adopt its fields");
+});
+
+test("checking another window's saved description keeps the original expected revision until an explicit choice", () => {
+  const editor = new EditorSession();
+  editor.adopt(stack.id, 3);
+  const local = decodeStackReply("open", { ok: true, stack }).stack.draft;
+  const saved = decodeStackReply("open", { ok: true, stack: { ...stack, revision: 4, draft: { ...local, description: "Saved in another window" } } }).stack;
+  const before = editor.capture();
+  assert.equal(observeResourceRevision(editor, before, saved, local), false);
+  assert.deepEqual(editor.capture(), before);
+  editor.edit();
+  assert.equal(editor.capture().revision, 3, "a subsequent save must still conflict rather than overwrite revision 4");
+  assert.equal(local.description, "");
 });
 
 test("resource recovery refuses another stack and regressed or out-of-order read tokens", () => {
@@ -206,4 +219,21 @@ test("shared preview inherits confirmed app values while independent and retaine
   assert.equal(preview.instances[1].config.title, "Independent draft title");
   assert.equal(preview.instances[1].resource, undefined);
   assert.deepEqual(local, before, "a preview cannot rewrite local settings or grant draft resource authority");
+});
+
+test("delayed reuse retains newer captions but projects app-confirmed settings into every saved copy", () => {
+  const submitted = decodeStackReply("open", { ok: true, stack }).stack.draft;
+  submitted.instances[0].config.title = "Original owned title";
+  const local = structuredClone(submitted);
+  local.instances[0].caption = "Keep this newer caption";
+  const bindings = [{ ...resource, shared: true }];
+  assert.deepEqual(resourceEditsDuringReuse(local, submitted, bindings), []);
+  const projected = resourceDraft(local, bindings);
+  assert.equal(projected.instances[0].config.title, "Fictional visitor book");
+  assert.equal(projected.instances[0].caption, "Keep this newer caption");
+  assert.equal(projected.instances[0].resource, undefined);
+  assert.equal(local.instances[0].config.title, "Original owned title", "projection does not mutate the retained input object");
+  local.instances[0].config.title = "App setting typed during reuse";
+  assert.deepEqual(resourceEditsDuringReuse(local, submitted, bindings), [{ instance: resource.instance, config: local.instances[0].config }]);
+  assert.equal(resourceDraft(local, bindings).instances[0].config.title, "Fictional visitor book");
 });
