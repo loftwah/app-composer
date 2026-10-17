@@ -28,7 +28,9 @@
   },
   "vars": {
     "PUBLIC_ORIGIN": "https://composer.loftwah.com",
-    "CF_ACCESS_TEAM_DOMAIN": "jolly-cake-2b85.cloudflareaccess.com"
+    "CF_ACCESS_TEAM_DOMAIN": "jolly-cake-2b85.cloudflareaccess.com",
+    "RESOURCE_ACCOUNT_ID": "1003dc1d93af0ebea56b2f1252f89627",
+    "RESOURCE_ENVIRONMENT": "production"
   },
   "r2_buckets": [
     {
