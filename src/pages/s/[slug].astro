@@ -1,10 +1,12 @@
 ---
 // A published creator stack. Only the exact published revision of an exact
-// slug is served; drafts, archives and missing stacks are indistinguishable
-// and never leak their content. The page is Composer-owned presentation over
-// independently owned apps — it links to them and never copies their records.
+// slug is served, and every field on the page comes from that immutable
+// publication snapshot — never from the mutable draft row. Drafts, archives and
+// missing stacks are indistinguishable and never leak their content.
 import Base from '../../layouts/Base.astro';
-import {publicStack, STACK_APPS} from '../../lib/stacks.mjs';
+import StackView from '../../components/StackView.tsx';
+import StackShare from '../../components/StackShare.astro';
+import {publicStack} from '../../lib/stacks.mjs';
 import {noindexFor} from '../../lib/indexing.mjs';
 import {env} from 'cloudflare:workers';
 
@@ -23,14 +25,16 @@ if (!runtime.DB || typeof runtime.DB.prepare !== 'function') {
 if (!stack && !unavailable) Astro.response.status = 404;
 if (unavailable) Astro.response.status = 503;
 
-interface StackInstance { id: string; app: string; label: string; caption: string; visible: boolean }
-const instances: StackInstance[] = stack ? (stack.document.instances as StackInstance[]).filter(instance => instance.visible !== false) : [];
+const instances = stack ? (stack.document.instances as {label: string; visible?: boolean}[]).filter(instance => instance.visible !== false) : [];
 const title = stack ? stack.name : unavailable ? 'Stack temporarily unavailable' : 'Stack not found';
 const description = stack
-  ? (stack.document.description || `A published App Composer stack: ${instances.map(instance => instance.label).join(', ') || 'no visible apps yet'}.`)
+  ? (stack.description || `A published App Composer stack: ${instances.map(instance => instance.label).join(', ') || 'no visible apps yet'}.`)
   : 'This App Composer stack address has no published revision.';
+// Sharing metadata belongs to the publication, so a later private draft cannot
+// change the card, and the revision is part of the canonical address.
+const shareUrl = stack ? `https://composer.loftwah.com/s/${stack.slug}` : undefined;
 ---
-<Base title={title} description={description} noindex={noindexFor(Astro.url.hostname, Boolean(stack))}>
+<Base title={title} description={description} noindex={noindexFor(Astro.url.hostname, Boolean(stack))} canonical={shareUrl}>
 {unavailable ? (
   <>
     <h1>This stack is temporarily unavailable.</h1>
@@ -46,32 +50,17 @@ const description = stack
 ) : (
   <>
     <p class="small"><a href="/studio">Creator stacks</a> · published revision {stack.revision}{stack.publishedAt ? ` · ${new Date(String(stack.publishedAt).replace(' ', 'T') + 'Z').toLocaleDateString('en-AU', {day: 'numeric', month: 'long', year: 'numeric'})}` : ''}</p>
-    <h1>{stack.document.name}</h1>
-    {stack.document.description && <p class="lede">{stack.document.description}</p>}
-    <div class={`stack-page stack-${stack.document.theme}`}>
-      {instances.length === 0 && <p class="small">This stack has no visible app instances yet.</p>}
-      {instances.map(instance => {
-        const app = STACK_APPS[instance.app as keyof typeof STACK_APPS];
-        if (!app) return null;
-        const href = app.route.startsWith('http') ? app.route : app.route;
-        const external = app.route.startsWith('http');
-        return (
-          <article class="stack-instance">
-            <h2><a href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>{instance.label}</a></h2>
-            {instance.caption && <p>{instance.caption}</p>}
-            <p class="small">{app.name}{external ? ' · independent deployment' : ' · mounted on App Composer'} · <a href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>Open</a></p>
-          </article>
-        );
-      })}
-    </div>
-    <p class="small">This page is Composer-owned presentation. Each app keeps its own source, records and media; the links above open the live app.</p>
+    <StackView document={stack.document} link titleAs="h1" />
+    <StackShare
+      slug={stack.slug}
+      revision={stack.revision}
+      url={shareUrl ?? `https://composer.loftwah.com/s/${stack.slug}`}
+      title={stack.name}
+      description={description}
+      theme={stack.theme}
+      apps={instances.map(instance => instance.label)}
+    />
+    <p class="small">This page is Composer-owned presentation. Each app keeps its own source, records and media; the links above open the live app. Published revision {stack.revision} is the exact configuration this page renders.</p>
   </>
 )}
 </Base>
-<style>
- .stack-page{margin:32px 0 0;display:grid;gap:0}
- .stack-instance{padding:26px 0;border-top:1px solid var(--color-border)}
- .stack-instance h2{font-size:1.6rem;margin:0 0 8px}
- .stack-instance h2 a{text-decoration:none}
- .stack-instance p{margin:0 0 8px;color:var(--color-muted)}
-</style>

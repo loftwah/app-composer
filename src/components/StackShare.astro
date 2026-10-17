@@ -1,0 +1,43 @@
+---
+// Deliberate stack sharing. Everything here is produced from the publication the
+// page already rendered: the card names the published revision, and the QR code
+// encodes the clean published address. A draft never reaches these controls
+// because this component is only rendered for a published stack.
+import {themeTokens} from '../lib/stack-theme.mjs';
+interface Props {
+  slug: string;
+  revision: number;
+  url: string;
+  title: string;
+  description: string;
+  theme: string;
+  apps: string[];
+}
+const {slug, revision, url, title, description, theme, apps} = Astro.props;
+const payload = JSON.stringify({slug, revision, url, title, description, theme: themeTokens(theme), apps});
+---
+<section class="stack-share" data-stack-share hidden>
+  <h2>Share this stack</h2>
+  <p class="small">
+    The card and the QR code are drawn from published revision {revision}. The
+    QR code decodes to <span class="stack-share-url">{url}</span>.
+  </p>
+  <div class="actions">
+    <button type="button" disabled data-stack-card>Download share card</button>
+    <button type="button" disabled data-stack-qr>Download QR code</button>
+    <button type="button" class="secondary" hidden data-stack-native>Share</button>
+  </div>
+  <p role="status" aria-live="polite" class="small" data-stack-share-status></p>
+  <label class="stack-share-fallback" data-stack-share-fallback hidden>
+    Published address
+    <input readonly aria-label="Published stack address" />
+  </label>
+  <script type="application/json" data-stack-share-data set:html={payload} />
+</section>
+<script is:inline type="module" src="/brand/stack-share.mjs"></script>
+<style>
+  .stack-share{margin:36px 0 0;padding:24px;border:1px solid var(--color-border);border-radius:12px;background:var(--color-surface);max-width:64rem}
+  .stack-share h2{font-size:1.3rem;margin:0 0 10px}
+  .stack-share-url{overflow-wrap:anywhere;font-weight:600}
+  .stack-share-fallback{display:grid;gap:6px;margin-top:14px;max-width:34rem}
+</style>
