@@ -54,3 +54,23 @@ export async function verifyLauncher(page, url, { width = 390, height = 600, the
   await dialog.locator('[data-close-apps]').click();
   return { url, width, height, theme, ...initial, controlsFixedAfterScroll: true, emptySearch: true, shortcut: true, escapeFocusReturn: true, reopen: true };
 }
+
+// The caller may route the destination hostname to a local independently built
+// app. The ordinary href, document navigation and browser Back remain real.
+export async function verifyLinkCheckReturn(page, url, destination = 'https://ready.loftwah.com') {
+  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  await page.locator('#url').fill('https://showcase.loftwah.com/');
+  await page.locator('#discovery').check();
+  await page.locator('[data-open-apps]').click();
+  await page.locator(`#app-navigation a[href="${destination}"]`).click();
+  await page.waitForURL(new URL(destination).href);
+  await page.locator('h1').waitFor({ state: 'visible' });
+  await page.goBack({ waitUntil: 'domcontentloaded' });
+  await page.waitForURL(url);
+  if (await page.locator('#url').inputValue() !== 'https://showcase.loftwah.com/' || !await page.locator('#discovery').isChecked()) throw Error('Back navigation lost the public inspection draft.');
+  if (await page.locator('#app-navigation').isVisible()) throw Error('Back navigation retained an open launcher.');
+  await page.locator('[data-open-apps]').click();
+  await page.locator('[data-close-apps]').click();
+  await page.waitForFunction(() => getComputedStyle(document.body).position !== 'fixed');
+  return { destination: new URL(destination).href, destinationRendered: true, backDraftPreserved: true, closeReopen: true };
+}
