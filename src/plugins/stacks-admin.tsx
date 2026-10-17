@@ -434,12 +434,13 @@ export function StudioPage() {
       });
       if (!data.stack || data.stack.id !== current.id)
         throw Error("The change was not confirmed. Your draft is still here.");
-      if (action === "restoreRevision" && session.current.unchanged(checkpoint))
-        adopt(data.stack);
-      else if (!acknowledge(data.stack, checkpoint))
+      const replace =
+        action === "restoreRevision" && session.current.unchanged(checkpoint);
+      if (!acknowledge(data.stack, checkpoint))
         throw Error(
           "The change acknowledgement was invalid. Your draft is still here.",
         );
+      if (replace) adopt(data.stack);
       await loadSidecars(current.id).catch(() => undefined);
       return (
         label +

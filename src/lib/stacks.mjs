@@ -209,12 +209,13 @@ export function instanceConfiguration(stack, instanceId) {
 // publication, never an overwrite — so a restore cannot silently change what the
 // public already sees, and it cannot pretend app records or media came with it.
 export function exportStack(stack) {
+  const document = normaliseStack(stack.draft);
   return {
     format: 'app-composer.stack/v1',
     stack: stack.slug,
     revision: stack.revision,
-    document: stack.draft,
-    configuration: stack.draft.instances.map(instance => ({
+    document,
+    configuration: document.instances.map(instance => ({
       instance: instance.id,
       app: instance.app,
       mode: instance.binding.mode,

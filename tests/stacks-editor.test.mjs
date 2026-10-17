@@ -2,6 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { EditorSession } from "../src/plugins/stacks/editor-session.ts";
 import { decodeStackReply } from "../src/plugins/stacks/protocol.ts";
+import { sqliteD1, migration } from "./helpers/stacks-sqlite.mjs";
+import { manageStacks } from "../src/lib/stacks-admin.mjs";
+import { workspaceForUser } from "../src/lib/stacks.mjs";
 
 test("a delayed save acknowledges only the submitted edit generation", () => {
   const editor = new EditorSession();
@@ -153,4 +156,96 @@ test("incomplete replacing responses and malformed saved documents are refused a
     decodeStackReply("list", { ok: true, workspace, stacks: [] }).stacks,
     [],
   );
+});
+
+test("valid pre-binding snapshots reopen, export and show history without changing persisted publication bytes", async () => {
+  const db = sqliteD1({
+    schema:
+      migration("0003_stacks.sql") + migration("0004_stack_publications.sql"),
+  });
+  try {
+    const user = {
+      id: "legacy-user-0001",
+      name: "Fictional legacy creator",
+      role: 50,
+    };
+    const space = await workspaceForUser(db, user);
+    const legacy = JSON.stringify({
+      version: 1,
+      name: "Legacy stack",
+      description: "",
+      theme: "midnight",
+      instances: [
+        {
+          id: "legacy-instance-0001",
+          app: "guestbook",
+          label: "Guestbook",
+          caption: "",
+          visible: true,
+        },
+      ],
+    });
+    await db
+      .prepare(
+        "INSERT INTO creator_stacks(id,workspace_id,slug,name,status,revision,published_revision,draft_json,published_json) VALUES(?,?,?,?,'published',2,1,?,?)",
+      )
+      .bind(
+        "legacy-stack-0001",
+        space.id,
+        "legacy-stack",
+        "Legacy stack",
+        legacy,
+        legacy,
+      )
+      .run();
+    db.migrate(migration("0005_stack_publications_backfill.sql"));
+    for (const action of ["list", "open", "export", "publications"]) {
+      const result = await manageStacks(
+        {
+          user,
+          request: new Request(
+            "https://composer.loftwah.com/_emdash/api/plugins/composer-stacks/read",
+          ),
+          input: { action, workspace: space.id, stack: "legacy-stack-0001" },
+        },
+        { DB: db, PUBLIC_ORIGIN: "https://composer.loftwah.com" },
+      );
+      const decoded = decodeStackReply(action, result);
+      const document =
+        action === "list"
+          ? decoded.stacks[0].draft
+          : action === "open"
+            ? decoded.stack.draft
+            : action === "export"
+              ? decoded.export.document
+              : decoded.publications[0].document;
+      assert.deepEqual(
+        document.instances[0].binding,
+        { mode: "own", shareOf: null },
+        action,
+      );
+      assert.deepEqual(document.instances[0].config, {}, action);
+    }
+    const row = await db
+      .prepare(
+        "SELECT draft_json,published_json FROM creator_stacks WHERE id=?",
+      )
+      .bind("legacy-stack-0001")
+      .first();
+    assert.equal(row.draft_json, legacy);
+    assert.equal(row.published_json, legacy);
+    assert.equal(
+      (
+        await db
+          .prepare(
+            "SELECT document_json FROM creator_stack_publications WHERE stack_id=?",
+          )
+          .bind("legacy-stack-0001")
+          .first()
+      ).document_json,
+      legacy,
+    );
+  } finally {
+    db.cleanup();
+  }
 });

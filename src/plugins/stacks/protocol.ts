@@ -7,7 +7,7 @@ const strings = z.record(z.string(), z.string());
 const covers = z.record(z.string(), z.boolean());
 const role = z.enum(["owner", "editor", "viewer"]);
 const mode = z.enum(["own", "shared"]);
-const document = z
+const canonicalDocument = z
   .object({
     version: z.literal(1),
     name: z.string(),
@@ -35,6 +35,15 @@ const document = z
       return false;
     }
   }, "The saved stack does not match the app contract.");
+// Earlier saved snapshots omit the optional instance binding/config fields.
+// Upgrade only the editor's decoded copy; stored publication bytes stay exact.
+const document = z.preprocess((value) => {
+  try {
+    return normaliseStack(value);
+  } catch {
+    return value;
+  }
+}, canonicalDocument);
 
 const stack = z.object({
   id,
