@@ -9,6 +9,8 @@ interface Props {
   noindex?: boolean;
   shareImage?: string;
   shareAlt?: string;
+  /** Clean canonical for a page whose address is not just its path. */
+  canonical?: string;
 }
 const {
   title,
@@ -18,7 +20,9 @@ const {
 const pageTitle = title.includes("App Composer")
   ? title
   : title + " · App Composer";
-const canonical = new URL(Astro.url.pathname, "https://composer.loftwah.com");
+const canonical = Astro.props.canonical
+  ? new URL(Astro.props.canonical)
+  : new URL(Astro.url.pathname, "https://composer.loftwah.com");
 const shareImage =
   Astro.props.shareImage ??
   "https://composer.loftwah.com/brand/share-composer-20261017.jpg";

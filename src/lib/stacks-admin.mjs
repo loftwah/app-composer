@@ -16,7 +16,12 @@ import {
   setArchived,
   duplicateStack,
   deleteStack,
+  listPublications,
+  republishRevision,
+  restoreRevisionToDraft,
+  instanceConfiguration,
 } from './stacks.mjs';
+import { activationSummary } from './stack-activation.mjs';
 
 const origin = 'https://composer.loftwah.com';
 const fail = (code, message) => ({ ok: false, code, message });
@@ -39,6 +44,16 @@ export async function manageStacks(ctx, runtime) {
       requireCapability(workspace.role, 'read');
       if (action === 'list') return { ok: true, workspace, stacks: await listStacks(db, workspace.id) };
       if (action === 'open' || action === 'export') return { ok: true, workspace, stack: await readStack(db, workspace.id, command.stack) };
+      if (action === 'publications') {
+        if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
+        return { ok: true, workspace, publications: await listPublications(db, workspace.id, command.stack) };
+      }
+      if (action === 'configuration') {
+        if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
+        const stack = await readStack(db, workspace.id, command.stack);
+        const summary = activationSummary(stack.draft);
+        return { ok: true, workspace, configuration: summary, instances: summary.entries.map(entry => instanceConfiguration(stack.draft, entry.instanceId)) };
+      }
       return fail('INVALID', 'Choose a supported stacks action.');
     }
     if (action === 'create') {
@@ -60,22 +75,31 @@ export async function manageStacks(ctx, runtime) {
     if (action === 'unpublish') {
       requireCapability(workspace.role, 'unpublish');
       if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
-      return { ok: true, workspace, stack: await unpublishStack(db, workspace.id, command.stack) };
+      return { ok: true, workspace, stack: await unpublishStack(db, workspace.id, command.stack, command.expectedRevision) };
     }
     if (action === 'archive' || action === 'restore') {
       requireCapability(workspace.role, action === 'archive' ? 'archive' : 'restore');
       if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
-      return { ok: true, workspace, stack: await setArchived(db, workspace.id, command.stack, action === 'archive') };
+      return { ok: true, workspace, stack: await setArchived(db, workspace.id, command.stack, action === 'archive', command.expectedRevision) };
+    }
+    if (action === 'republish' || action === 'restoreRevision') {
+      requireCapability(workspace.role, 'rollback');
+      if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
+      const revision = Number(command.revision);
+      const stack = action === 'republish'
+        ? await republishRevision(db, workspace.id, command.stack, revision, command.expectedRevision)
+        : await restoreRevisionToDraft(db, workspace.id, command.stack, revision, command.expectedRevision);
+      return { ok: true, workspace, stack };
     }
     if (action === 'duplicate') {
       requireCapability(workspace.role, 'duplicate');
       if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
-      return { ok: true, workspace, stack: await duplicateStack(db, workspace.id, command.stack) };
+      return { ok: true, workspace, stack: await duplicateStack(db, workspace.id, command.stack, command.expectedRevision) };
     }
     if (action === 'delete') {
       requireCapability(workspace.role, 'delete');
       if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
-      return { ok: true, workspace, deleted: await deleteStack(db, workspace.id, command.stack) };
+      return { ok: true, workspace, deleted: await deleteStack(db, workspace.id, command.stack, command.expectedRevision) };
     }
     return fail('INVALID', 'Choose a supported stacks action.');
   } catch (error) {

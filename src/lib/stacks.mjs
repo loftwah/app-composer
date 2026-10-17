@@ -5,6 +5,7 @@
 // credentials stay in the app that owns them. Every operation resolves the
 // caller's workspace from server-side membership; a client-supplied workspace
 // or owner id is never trusted on its own.
+import { appSettings, validateAppSettingValue } from './app-settings.mjs';
 export const STACK_VERSION = 1;
 export const LIMITS = {
   workspaceName: 60,
@@ -17,19 +18,24 @@ export const LIMITS = {
 };
 export const THEMES = ['daylight', 'midnight'];
 export const STATUSES = ['draft', 'published', 'archived'];
+export const BINDING_MODES = ['own', 'shared'];
 // The reviewed apps a stack may reference. Keep in step with src/lib/apps.ts.
+// `purpose` is the public sentence used by the editor, the public page and
+// sharing; it describes what the software does, not how it is built.
 export const STACK_APPS = {
-  guestbook: { name: 'Here / there', route: '/guestbook', standalone: 'https://guestbook.loftwah.com' },
-  showcase: { name: 'Linkarooie', route: '/showcase', standalone: 'https://showcase.loftwah.com' },
-  linkcheck: { name: 'Link Check', route: 'https://share.loftwah.com', standalone: 'https://share.loftwah.com' },
-  hello: { name: 'Hello World', route: 'https://ready.loftwah.com', standalone: 'https://ready.loftwah.com' },
-  state: { name: 'Carry / forward', route: 'https://ai.loftwah.com', standalone: 'https://ai.loftwah.com' },
+  guestbook: { name: 'Here / there', route: '/guestbook', standalone: 'https://guestbook.loftwah.com', purpose: 'Collect visitor photos and messages, with approval before publication.' },
+  showcase: { name: 'Linkarooie', route: '/showcase', standalone: 'https://showcase.loftwah.com', purpose: 'Your links, projects and favourite finds in one place.' },
+  linkcheck: { name: 'Link Check', route: 'https://share.loftwah.com', standalone: 'https://share.loftwah.com', purpose: 'Check a link’s status, redirects and sharing preview.' },
+  hello: { name: 'Hello World', route: 'https://ready.loftwah.com', standalone: 'https://ready.loftwah.com', purpose: 'Deploy your first app and confirm it is live.' },
+  state: { name: 'Carry / forward', route: 'https://ai.loftwah.com', standalone: 'https://ai.loftwah.com', purpose: 'Carry your context between AI tools.' },
 };
 // Least privilege for the first invited-creator slice. Owner adds workspace and
 // destructive actions; editor works on content; viewer reads and exports.
-const CAPABILITIES = {
-  owner: ['read', 'export', 'create', 'save', 'publish', 'unpublish', 'archive', 'restore', 'duplicate', 'delete'],
-  editor: ['read', 'export', 'create', 'save', 'publish', 'unpublish', 'archive', 'restore', 'duplicate'],
+// `rollback` changes only which stored publication is public, so an editor may
+// do it, but it never restores app content or media.
+export const CAPABILITIES = {
+  owner: ['read', 'export', 'create', 'save', 'publish', 'unpublish', 'archive', 'restore', 'duplicate', 'rollback', 'delete'],
+  editor: ['read', 'export', 'create', 'save', 'publish', 'unpublish', 'archive', 'restore', 'duplicate', 'rollback'],
   viewer: ['read', 'export'],
 };
 export class StackError extends Error {
@@ -51,6 +57,48 @@ const isText = (value, max) => typeof value === 'string' && value.trim().length 
 const isOptionalText = (value, max) => value === undefined || value === null || (typeof value === 'string' && value.trim().length <= max && !/[\u0000-\u001f\u007f]/.test(value));
 const isId = value => typeof value === 'string' && /^[a-z0-9-]{6,64}$/.test(value);
 
+// Declared, validated app capability. Composer reads the composition contract's
+// declared configuration and capabilities; it never invents a control an app
+// has not published, and it never stores credentials in a stack document.
+export function declaredConfig(appId) {
+  const model = appSettings[appId];
+  if (!model) return null;
+  return model.fields.map(field => ({
+    key: field.key,
+    label: field.label,
+    type: field.type,
+    default: field.default ?? '',
+    maxLength: field.maxLength ?? null,
+    options: field.choices?.length ? field.choices.map(choice => choice.value) : null,
+  }));
+}
+export function appCapabilities(appId) {
+  return [...(appSettings[appId]?.capabilities ?? [])];
+}
+// A stack may only carry configuration an app has declared for itself, and the
+// values are validated with the same rules the operator apply path uses.
+function normaliseInstanceConfig(app, config, shareOf, label) {
+  const declared = declaredConfig(app);
+  if (config === undefined || config === null) return {};
+  if (!declared || typeof config !== 'object' || Array.isArray(config)) throw new StackError('INVALID', 'Only ' + label + '’s declared settings can be stored on this instance.');
+  const clean = {};
+  for (const [key, value] of Object.entries(config)) {
+    const field = declared.find(entry => entry.key === key);
+    if (!field) throw new StackError('INVALID', '“' + key + '” is not a setting ' + label + ' declares.');
+    if (value === '' || value === null || value === undefined) continue;
+    try {
+      clean[key] = validateAppSettingValue(modelField(app, field), value, label);
+    } catch (error) {
+      throw new StackError('INVALID', error instanceof Error ? error.message : 'Check the instance settings.');
+    }
+  }
+  return clean;
+}
+const modelField = (app, field) => {
+  const model = appSettings[app];
+  return model.fields.find(entry => entry.key === field.key) ?? field;
+};
+
 export function slugify(name) {
   const slug = String(name).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, LIMITS.slug).replace(/-+$/g, '');
@@ -59,8 +107,8 @@ export function slugify(name) {
 }
 
 // Validate and normalise a whole stack document. Unknown apps, duplicate
-// instance ids, unsupported fields and out-of-range values are refused before
-// anything is written.
+// instance ids, unsupported fields, out-of-range values and undeclared settings
+// are refused before anything is written.
 export function normaliseStack(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new StackError('INVALID', 'Choose a stack document.');
   if (input.version !== STACK_VERSION) throw new StackError('INVALID', 'This stack document version is not supported.');
@@ -80,13 +128,45 @@ export function normaliseStack(input) {
     if (!isText(instance.label, LIMITS.instanceLabel)) throw new StackError('INVALID', 'Give every instance a short label.');
     if (!isOptionalText(instance.caption, LIMITS.instanceCaption)) throw new StackError('INVALID', 'Keep instance captions under ' + LIMITS.instanceCaption + ' characters.');
     if (instance.visible !== undefined && typeof instance.visible !== 'boolean') throw new StackError('INVALID', 'Visibility must be on or off.');
+    const bindingInput = instance.binding ?? {};
+    if (bindingInput && (typeof bindingInput !== 'object' || Array.isArray(bindingInput))) throw new StackError('INVALID', 'Check how every instance is bound.');
+    const mode = bindingInput.mode ?? 'own';
+    if (!BINDING_MODES.includes(mode)) throw new StackError('INVALID', 'Choose how the instance is bound.');
+    const shareOf = mode === 'shared' ? bindingInput.shareOf : null;
+    if (mode === 'shared' && !isId(shareOf)) throw new StackError('INVALID', 'A shared instance must name the instance it reuses.');
+    if (mode === 'shared' && instance.config && Object.keys(instance.config).length) {
+      throw new StackError('INVALID', 'A shared instance inherits its settings; it cannot also store its own.');
+    }
+    const config = mode === 'shared' ? {} : normaliseInstanceConfig(instance.app, instance.config, shareOf, app.name);
     return {
       id: instance.id,
       app: instance.app,
       label: instance.label.trim(),
       caption: typeof instance.caption === 'string' ? instance.caption.trim() : '',
       visible: instance.visible !== false,
+      binding: { mode, shareOf: shareOf ?? null },
+      config,
     };
+  });
+  // A shared instance must point at another instance of the same app, and the
+  // referenced instance must be the independently configured one. This is what
+  // makes "reused" and "independent" mean something for app content, which the
+  // app itself owns as one set of records.
+  instances.forEach(instance => {
+    if (instance.binding.mode !== 'shared') return;
+    const source = instances.find(entry => entry.id === instance.binding.shareOf);
+    if (!source || source.id === instance.id) throw new StackError('INVALID', 'A shared instance must reuse another instance in this stack.');
+    if (source.app !== instance.app) throw new StackError('INVALID', 'A shared instance must reuse an instance of the same app.');
+    if (source.binding.mode === 'shared') throw new StackError('INVALID', 'Reuse the independently configured instance, not another shared one.');
+  });
+  // Composer can only apply one configuration per app-owned resource. A second
+  // independently configured instance of the same app would silently overwrite
+  // the first, so it is refused rather than reported as applied.
+  const ownByApp = new Set();
+  instances.forEach(instance => {
+    if (instance.binding.mode !== 'own') return;
+    if (ownByApp.has(instance.app)) throw new StackError('INVALID', 'This stack already configures ' + STACK_APPS[instance.app].name + ' independently. Reuse that instance instead so the two cannot disagree.');
+    ownByApp.add(instance.app);
   });
   return {
     version: STACK_VERSION,
@@ -99,6 +179,25 @@ export function normaliseStack(input) {
 
 export function emptyStack(name) {
   return { version: STACK_VERSION, name: name.trim(), description: '', theme: 'midnight', instances: [] };
+}
+
+// The declared, validated settings an instance may carry, and the plan a safe
+// activation would use. Credentials never appear here; only declared values and
+// the exact pinned source they belong to.
+export function instanceConfiguration(stack, instanceId) {
+  const instance = normaliseStack(stack).instances.find(entry => entry.id === instanceId);
+  if (!instance) throw new StackError('NOT_FOUND', 'That instance is not in this stack.', 404);
+  const source = appSettings[instance.app];
+  return {
+    app: instance.app,
+    name: STACK_APPS[instance.app].name,
+    mode: instance.binding.mode,
+    shareOf: instance.binding.shareOf,
+    declared: declaredConfig(instance.app) ?? [],
+    capabilities: appCapabilities(instance.app),
+    config: instance.config,
+    source: source ? { ...source.source } : null,
+  };
 }
 
 // The workspace bootstrap: an authenticated creator gets one personal
@@ -342,7 +441,19 @@ export async function duplicateStack(db, workspaceId, stackId, expectedRevision)
   let slug = slugify(name);
   if (await db.prepare('SELECT id FROM creator_stacks WHERE slug = ?').bind(slug).first()) slug = slug + '-' + crypto.randomUUID().slice(0, 4);
   const id = crypto.randomUUID();
-  const document = { ...current.draft, name, instances: current.draft.instances.map(instance => ({ ...instance, id: crypto.randomUUID() })) };
+  // Fresh identities, but the reuse relationships are preserved so a duplicated
+  // stack keeps the same shared-versus-independent structure.
+  const remap = new Map(current.draft.instances.map(instance => [instance.id, crypto.randomUUID()]));
+  const document = {
+    ...current.draft,
+    name,
+    instances: current.draft.instances.map(instance => ({
+      ...instance,
+      id: remap.get(instance.id),
+      binding: { mode: instance.binding?.mode ?? 'own', shareOf: instance.binding?.shareOf ? remap.get(instance.binding.shareOf) ?? null : null },
+    })),
+  };
+  normaliseStack(document);
   await db.prepare('INSERT INTO creator_stacks (id, workspace_id, slug, name, draft_json) VALUES (?, ?, ?, ?, ?)')
     .bind(id, workspaceId, slug, document.name, JSON.stringify(document)).run();
   return readStack(db, workspaceId, id);
