@@ -6,6 +6,7 @@
 import {
   StackError,
   resolveWorkspace,
+  membership,
   requireCapability,
   listStacks,
   readStack,
@@ -25,6 +26,7 @@ import {
   describeImport,
 } from './stacks.mjs';
 import { activationSummary } from './stack-activation.mjs';
+import { applyStackResources, reconcileStackResources, reuseStackResource, listStackResources, availableWorkspaceResources, resourcePublication } from './stack-resources.ts';
 
 const origin = 'https://composer.loftwah.com';
 const fail = (code, message) => ({ ok: false, code, message });
@@ -46,6 +48,10 @@ export async function manageStacks(ctx, runtime) {
     if (reading) {
       requireCapability(workspace.role, 'read');
       if (action === 'list') return { ok: true, workspace, stacks: await listStacks(db, workspace.id) };
+      if (action === 'resources') {
+        await readStack(db, workspace.id, command.stack);
+        return { ok: true, workspace, resources: await listStackResources(db, workspace.id, command.stack), availableResources: await availableWorkspaceResources(db, workspace.id) };
+      }
       if (action === 'open') return { ok: true, workspace, stack: await readStack(db, workspace.id, command.stack) };
       if (action === 'export') {
         const stack = await readStack(db, workspace.id, command.stack);
@@ -85,7 +91,19 @@ export async function manageStacks(ctx, runtime) {
     if (action === 'publish') {
       requireCapability(workspace.role, 'publish');
       if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
-      return { ok: true, workspace, stack: await publishStack(db, workspace.id, command.stack, command.expectedRevision) };
+      const current = await readStack(db, workspace.id, command.stack);
+      const document = await resourcePublication(db, workspace.id, command.stack, current.draft, runtime);
+      requireCapability(await membership(db, workspace.id, ctx.user.id), 'publish');
+      return { ok: true, workspace, stack: await publishStack(db, workspace.id, command.stack, command.expectedRevision, document) };
+    }
+    if (action === 'applyResources' || action === 'reconcileResources' || action === 'reuseResource') {
+      requireCapability(workspace.role, 'save');
+      const result = action === 'applyResources'
+        ? await applyStackResources(db, ctx.user.id, workspace.id, command.stack, command.expectedRevision, runtime)
+        : action === 'reconcileResources'
+          ? await reconcileStackResources(db, ctx.user.id, workspace.id, command.stack, command.expectedRevision, runtime)
+          : await reuseStackResource(db, ctx.user.id, workspace.id, command.stack, command.expectedRevision, command.instance, command.resource, runtime);
+      return { ok: true, workspace, ...result };
     }
     if (action === 'unpublish') {
       requireCapability(workspace.role, 'unpublish');

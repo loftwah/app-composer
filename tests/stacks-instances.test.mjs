@@ -34,10 +34,12 @@ test('instance configuration comes from the configuration the app declares for i
   assert.throws(() => normaliseStack(document([{ ...app('hello'), config: { title: 'Hello' } }])), /declared settings/);
 });
 
-test('a stack cannot pretend two independently configured instances of one app are both applied', () => {
+test('Guestbook allows independent resource drafts while apps without resource contracts retain the current limit', () => {
+  const twoGuestbooks = normaliseStack(document([app('guestbook'), { ...app('guestbook'), id: 'guestbook-instance-0002' }]));
+  assert.equal(twoGuestbooks.instances.length, 2);
   assert.throws(
-    () => normaliseStack(document([app('guestbook'), { ...app('guestbook'), id: 'guestbook-instance-0002' }])),
-    /already configures Here \/ there independently/,
+    () => normaliseStack(document([app('showcase'), { ...app('showcase'), id: 'showcase-instance-0002' }])),
+    /already configures Linkarooie independently/,
   );
 });
 

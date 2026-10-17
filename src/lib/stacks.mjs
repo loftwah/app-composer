@@ -168,6 +168,10 @@ export function normaliseStack(input) {
   const ownByApp = new Set();
   instances.forEach(instance => {
     if (instance.binding.mode !== 'own') return;
+    // Guestbook's resource contract provisions each owned instance separately.
+    // Other apps keep their current single-resource limit until they expose
+    // the same reviewed app-owned boundary.
+    if (instance.app === 'guestbook') return;
     if (ownByApp.has(instance.app)) throw new StackError('INVALID', 'This stack already configures ' + STACK_APPS[instance.app].name + ' independently. Reuse that instance instead so the two cannot disagree.');
     ownByApp.add(instance.app);
   });
@@ -261,7 +265,7 @@ export async function importStack(db, workspaceId, payload, { name } = {}) {
   if (!isText(chosen, LIMITS.stackName)) throw new StackError('INVALID', 'Name the imported stack in up to ' + LIMITS.stackName + ' characters.');
   let slug = slugify(chosen);
   if (await db.prepare('SELECT id FROM creator_stacks WHERE slug = ?').bind(slug).first()) slug = (slug + '-' + crypto.randomUUID().slice(0, 4)).slice(0, LIMITS.slug);
-  const document = { ...normaliseStack(payload.document), name: chosen };
+  const document = freshInstanceIdentities({ ...normaliseStack(payload.document), name: chosen });
   const id = crypto.randomUUID();
   // Imported stacks arrive as drafts: nothing becomes public until the creator
   // publishes, and no publication history is invented.
@@ -407,27 +411,27 @@ export async function saveStack(db, workspaceId, stackId, document, expectedRevi
   return acknowledgedStack(row, 'Another window saved first. Your unsaved work is still here; reopen the stack to compare.');
 }
 
-export async function publishStack(db, workspaceId, stackId, expectedRevision) {
+export async function publishStack(db, workspaceId, stackId, expectedRevision, publicationDocument = null) {
   const current = await readStack(db, workspaceId, stackId);
   if (current.status === 'archived') throw new StackError('CONFLICT', 'Restore this stack before publishing it.', 409);
   requireRevision(expectedRevision, current, 'This stack changed in another window. Reopen it before publishing.');
   if (!current.draft.instances.length) throw new StackError('INVALID', 'Add at least one app instance before publishing.');
-  const payload = JSON.stringify(current.draft);
+  const payload = JSON.stringify(publicationDocument ?? current.draft);
   // D1 batches are transactions: readers see the previous publication until
   // both history creation and activation commit, and either failure rolls back
   // both writes. Never activate a publication with different stored bytes.
   const results = await db.batch([
     db.prepare(`INSERT OR IGNORE INTO creator_stack_publications (stack_id, revision, document_json)
-      SELECT id, revision, draft_json FROM creator_stacks
+      SELECT id, revision, ? FROM creator_stacks
       WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ?`)
-      .bind(stackId, workspaceId, current.revision, current.status),
-    db.prepare(`UPDATE creator_stacks SET status = 'published', published_json = draft_json,
+      .bind(payload, stackId, workspaceId, current.revision, current.status),
+    db.prepare(`UPDATE creator_stacks SET status = 'published', published_json = ?,
       published_revision = revision, revision = revision + 1,
       published_at = (SELECT published_at FROM creator_stack_publications WHERE stack_id = ? AND revision = ?),
       updated_at = CURRENT_TIMESTAMP WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ?
       AND EXISTS (SELECT 1 FROM creator_stack_publications WHERE stack_id = ? AND revision = ? AND document_json = ?)
       RETURNING *`)
-      .bind(stackId, current.revision, stackId, workspaceId, current.revision, current.status, stackId, current.revision, payload),
+      .bind(payload, stackId, current.revision, stackId, workspaceId, current.revision, current.status, stackId, current.revision, payload),
   ]);
   return acknowledgedStack(results[1]?.results?.[0], 'Another window changed this stack before it published. Reopen it and publish the revision you want.');
 }
@@ -506,21 +510,21 @@ export async function duplicateStack(db, workspaceId, stackId, expectedRevision)
   const id = crypto.randomUUID();
   // Fresh identities, but the reuse relationships are preserved so a duplicated
   // stack keeps the same shared-versus-independent structure.
-  const remap = new Map(current.draft.instances.map(instance => [instance.id, crypto.randomUUID()]));
-  const document = {
-    ...current.draft,
-    name,
-    instances: current.draft.instances.map(instance => ({
-      ...instance,
-      id: remap.get(instance.id),
-      binding: { mode: instance.binding?.mode ?? 'own', shareOf: instance.binding?.shareOf ? remap.get(instance.binding.shareOf) ?? null : null },
-    })),
-  };
+  const document = freshInstanceIdentities({ ...current.draft, name });
   normaliseStack(document);
   const row = await db.prepare(`INSERT INTO creator_stacks (id, workspace_id, slug, name, draft_json)
     SELECT ?, ?, ?, ?, ? FROM creator_stacks WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ? RETURNING *`)
     .bind(id, workspaceId, slug, document.name, JSON.stringify(document), stackId, workspaceId, current.revision, current.status).first();
   return acknowledgedStack(row, 'Another window changed this stack before it duplicated. Reopen it first.');
+}
+
+function freshInstanceIdentities(document) {
+  const remap = new Map(document.instances.map(instance => [instance.id, crypto.randomUUID()]));
+  return { ...document, instances: document.instances.map(instance => ({
+    ...instance,
+    id: remap.get(instance.id),
+    binding: { mode: instance.binding?.mode ?? 'own', shareOf: instance.binding?.shareOf ? remap.get(instance.binding.shareOf) ?? null : null },
+  })) };
 }
 
 export async function deleteStack(db, workspaceId, stackId, expectedRevision) {
