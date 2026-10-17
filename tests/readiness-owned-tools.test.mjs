@@ -8,11 +8,12 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createLocalAdapter,discoverWorkspace,ReadinessFailure} from '../lib/get-ready/index.mjs';
 
-function fixture() {
+function fixture({typed=false}={}) {
  const root=mkdtempSync(join(tmpdir(),'composer-owned-tools-')),workspace=join(root,'hello'),bin=join(root,'bin'),calls=join(root,'package-calls');mkdirSync(workspace);mkdirSync(bin);
  const git=args=>execFileSync('git',args,{cwd:workspace,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
  git(['init','-b','main']);git(['remote','add','origin','https://github.com/fixture/hello.git']);
  const inputs={'package.json':'{"name":"fictional-owned-starter","private":true}\n','pnpm-lock.yaml':'fictional reviewed lock\n','pnpm-workspace.yaml':'minimumReleaseAge: 1440\n','.gitignore':'.private/\nnode_modules/\n','worker.txt':'Fictional reviewed source\n'};
+ if(typed){inputs['package.json']='{"name":"fictional-owned-starter","private":true,"devDependencies":{"typescript":"6.0.3"}}\n';inputs['scripts/build-source.mjs']='// Fictional committed source checker\n';mkdirSync(join(workspace,'scripts'));}
  for(const [file,bytes] of Object.entries(inputs))writeFileSync(join(workspace,file),bytes);
  git(['add','.']);git(['-c','user.name=Fictional fixture','-c','user.email=fixture@example.test','commit','-m','Synthetic reviewed source']);
  const source=git(['rev-parse','HEAD']);git(['update-ref','refs/remotes/origin/main',source]);
@@ -37,6 +38,7 @@ for(const flag of ['--frozen-lockfile','--ignore-scripts','--ignore-pnpmfile','-
 fs.mkdirSync('node_modules/wrangler/bin',{recursive:true});
 fs.writeFileSync('node_modules/wrangler/package.json',JSON.stringify({name:'wrangler',version:'4.143.1',bin:{wrangler:'./bin/wrangler.js'}}));
 fs.writeFileSync('node_modules/wrangler/bin/wrangler.js','console.log("4.143.1")');
+${typed?`fs.mkdirSync('node_modules/typescript/lib',{recursive:true});fs.writeFileSync('node_modules/typescript/package.json',JSON.stringify({name:'typescript',version:'6.0.3'}));fs.writeFileSync('node_modules/typescript/lib/typescript.js','// Fictional installed compiler');`:''}
 ${duringInstall}
 `,{mode:0o755});
  };
@@ -60,6 +62,21 @@ test('owned starter installs only isolated reviewed dependency inputs, preserves
   assert.equal(f.git(['status','--porcelain']),'');
   assert.equal((await f.adapter().installReferenceTools()).changed,false);assert.equal(readFileSync(f.calls,'utf8').trim().split('\n').length,1);
   await assert.rejects(f.adapter().deployReference(),error=>error instanceof ReadinessFailure&&error.code==='configuration');
+ }finally{f.cleanup();}
+});
+
+test('tracked source checker preparation requires its reviewed exact local compiler and preserves incomplete owner tools',{skip:!supported},async()=>{
+ const f=fixture({typed:true});try{
+  assert.equal((await f.adapter().installReferenceTools()).changed,true);
+  assert.equal((await f.adapter().installReferenceTools()).changed,false);
+  const compiler=join(f.workspace,'node_modules/typescript/package.json'),original=readFileSync(compiler);
+  for(const version of [null,'5.9.3']){
+   if(version===null)rmSync(compiler);else writeFileSync(compiler,JSON.stringify({name:'typescript',version}));
+   await assert.rejects(f.adapter().installReferenceTools(),error=>error instanceof ReadinessFailure&&error.code==='configuration');
+   assert.equal(readFileSync(f.calls,'utf8').trim().split('\n').length,1);
+   assert.equal(existsSync(join(f.workspace,'node_modules/wrangler/bin/wrangler.js')),true);
+   writeFileSync(compiler,original);
+  }
  }finally{f.cleanup();}
 });
 

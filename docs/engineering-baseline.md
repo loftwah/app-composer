@@ -36,6 +36,9 @@ strict Worker/browser emission scripts. Get Ready now runs the exact tracked
 test environment before Wrangler. Any checker failure or tracked-file mutation
 refuses the operation. A selected reference owns its compiler dependencies;
 installing the packed Get Ready core requires no compiler or Composer runtime.
+Explicit tool preparation verifies that reference's exact reviewed TypeScript
+pin is present locally when the tracked checker exists. An incomplete owner
+installation is preserved and refused; ordinary checks do not install or retry.
 
 ## Explicit scope and remaining work
 

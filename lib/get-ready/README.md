@@ -165,3 +165,8 @@ failure or any tracked-byte mutation refuses the build/upload. Legacy reviewed
 fixtures without this script retain their existing test/build path. Get Ready's
 package stays dependency-free: the compiler belongs to the selected reference,
 not the installed Get Ready consumer.
+
+Explicit reference-tool preparation also checks that this reference's exact
+reviewed TypeScript pin is installed locally. It preserves and refuses an
+incomplete owner installation. Preparation does not execute the source checker
+or establish readiness; ordinary checks never retry installation.
