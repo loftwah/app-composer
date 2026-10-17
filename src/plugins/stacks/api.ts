@@ -61,6 +61,22 @@ export interface InstanceConfiguration {
   config: Record<string, string>;
   source: Record<string, string> | null;
 }
+export interface StackExport {
+  format: string;
+  stack: string;
+  revision: number;
+  document: StackDocument;
+  configuration: { instance: string; app: string; mode: string; shareOf: string | null; settings: Record<string, string> }[];
+  covers: Record<string, boolean>;
+}
+export interface StackImportSummary {
+  name: string;
+  instances: number;
+  shared: number;
+  configured: number;
+  apps: string[];
+  covers: Record<string, boolean>;
+}
 export interface ActivationEntry {
   instanceId: string;
   app: string;
@@ -108,6 +124,8 @@ export async function call(
     publications?: StackPublication[];
     instances?: InstanceConfiguration[];
     configuration?: { entries: ActivationEntry[]; shared: { instanceId: string; app: string; name: string; shareOf: string | null }[] };
+    export?: StackExport;
+    imported?: StackImportSummary;
   }>(response, "Composer could not complete this request. Refresh before retrying.");
   if (!data?.ok)
     throw Object.assign(

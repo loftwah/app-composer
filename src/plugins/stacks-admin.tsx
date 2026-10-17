@@ -270,28 +270,47 @@ function StudioPage() {
       return label;
     });
 
-  const exportDocument = () => {
-    if (!document || !current) return;
-    const configuration = instances.map(instance => ({
-      app: instance.app,
-      mode: instance.mode,
-      shareOf: instance.shareOf,
-      config: instance.config,
-    }));
-    const payload = {
-      stack: current.slug,
-      revision: savedRevision.current,
-      document,
-      configuration,
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2) + "\n"], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = window.document.createElement("a");
-    link.href = url;
-    link.download = current.slug + ".stack.json";
-    link.click();
-    URL.revokeObjectURL(url);
-    setMessage(`Exported ${current.slug}.stack.json. Configuration only — no app records, media or credentials.`);
+  // Export asks the server for the canonical shape, so the file always carries
+  // the statement of exactly what it does and does not contain.
+  const exportDocument = () =>
+    run(async () => {
+      if (!current) throw Error("Open a stack first.");
+      const data = await call("export", { stack: current.id });
+      const payload = data.export ?? { format: "app-composer.stack/v1", stack: current.slug, revision: savedRevision.current, document };
+      const blob = new Blob([JSON.stringify(payload, null, 2) + "\n"], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = window.document.createElement("a");
+      link.href = url;
+      link.download = current.slug + ".stack.json";
+      link.click();
+      URL.revokeObjectURL(url);
+      return `Exported ${current.slug}.stack.json. It contains the composition and declared instance settings only — no app records, media, credentials or publication history.`;
+    });
+
+  // Import always creates a new draft. It never overwrites a stack and never
+  // publishes, so a restore cannot change what visitors already see.
+  const importFile = async (file: File) => {
+    const text = await file.text();
+    let payload: unknown;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      setError(`${file.name} is not a JSON file exported from a stack.`);
+      return;
+    }
+    if (
+      !confirm(
+        `Import ${file.name} as a new draft stack?\n\nImporting brings the composition and the declared instance settings. It does not bring app records, media, credentials or publication history, and it does not publish anything.`,
+      )
+    )
+      return;
+    await run(async () => {
+      const data = await call("import", { payload });
+      await load(data.stack?.id, { force: true });
+      const imported = data.imported;
+      if (!imported) return `Imported ${data.stack?.name} as a draft.`;
+      return `Imported ${imported.name} as a draft: ${imported.instances} instance(s) across ${imported.apps.join(", ")}${imported.shared ? `, ${imported.shared} reusing another instance` : ""}${imported.configured ? `, ${imported.configured} with their own settings` : ""}. Nothing was published and no app records or media were copied.`;
+    });
   };
 
   const copyShare = async () => {
@@ -571,7 +590,22 @@ function StudioPage() {
                 {can(role, "duplicate") && (
                   <button type="button" disabled={busy} onClick={simple("duplicate", data => `Duplicated as ${data.stack?.name}. It is a separate draft with new instance identities, and the same shared-versus-independent structure.`)}>Duplicate</button>
                 )}
-                <button type="button" disabled={busy} onClick={exportDocument}>Export JSON</button>
+                <button type="button" disabled={busy} onClick={() => void exportDocument()}>Export JSON</button>
+                {can(role, "create") && (
+                  <label className="ca-stack-import">
+                    Import a stack file
+                    <input
+                      type="file"
+                      accept="application/json,.json"
+                      disabled={busy}
+                      onChange={event => {
+                        const file = event.target.files?.[0];
+                        event.target.value = "";
+                        if (file) void importFile(file);
+                      }}
+                    />
+                  </label>
+                )}
                 {can(role, "archive") && (
                   current.status !== "archived" ? (
                     <button type="button" disabled={busy} onClick={simple("archive", () => "Archived. It stays out of the public address until restored.", "Archive this stack? Its public address stops serving, and the draft is locked until you restore it.")}>Archive</button>

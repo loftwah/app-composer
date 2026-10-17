@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   StackError, STACK_APPS, declaredConfig, appCapabilities, normaliseStack,
-  instanceConfiguration, duplicateStack, workspaceForUser, createStack, saveStack,
+  instanceConfiguration, duplicateStack,
 } from '../src/lib/stacks.mjs';
 import { activationEntries, activationSummary, activateStack, stackSourceStatus } from '../src/lib/stack-activation.mjs';
 import { appSettings } from '../src/lib/app-settings.mjs';

@@ -20,6 +20,9 @@ import {
   republishRevision,
   restoreRevisionToDraft,
   instanceConfiguration,
+  exportStack,
+  importStack,
+  describeImport,
 } from './stacks.mjs';
 import { activationSummary } from './stack-activation.mjs';
 
@@ -43,7 +46,11 @@ export async function manageStacks(ctx, runtime) {
     if (reading) {
       requireCapability(workspace.role, 'read');
       if (action === 'list') return { ok: true, workspace, stacks: await listStacks(db, workspace.id) };
-      if (action === 'open' || action === 'export') return { ok: true, workspace, stack: await readStack(db, workspace.id, command.stack) };
+      if (action === 'open') return { ok: true, workspace, stack: await readStack(db, workspace.id, command.stack) };
+      if (action === 'export') {
+        const stack = await readStack(db, workspace.id, command.stack);
+        return { ok: true, workspace, stack, export: exportStack(stack) };
+      }
       if (action === 'publications') {
         if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
         return { ok: true, workspace, publications: await listPublications(db, workspace.id, command.stack) };
@@ -59,6 +66,14 @@ export async function manageStacks(ctx, runtime) {
     if (action === 'create') {
       requireCapability(workspace.role, 'create');
       return { ok: true, workspace, stack: await createStack(db, workspace.id, command.name) };
+    }
+    if (action === 'import') {
+      requireCapability(workspace.role, 'create');
+      // Validated and summarised before the write, and the summary comes from
+      // the validated document rather than from the file's own claims.
+      const summary = describeImport(command.payload);
+      const stack = await importStack(db, workspace.id, command.payload, { name: command.name });
+      return { ok: true, workspace, stack, imported: summary };
     }
     if (action === 'save') {
       requireCapability(workspace.role, 'save');

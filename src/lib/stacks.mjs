@@ -203,6 +203,72 @@ export function instanceConfiguration(stack, instanceId) {
   };
 }
 
+// Portable configuration export and import. The export is deliberately narrow:
+// it is the stack document plus the declared instance configuration, and it says
+// so. Importing creates a new draft in the caller's workspace — never a
+// publication, never an overwrite — so a restore cannot silently change what the
+// public already sees, and it cannot pretend app records or media came with it.
+export function exportStack(stack) {
+  return {
+    format: 'app-composer.stack/v1',
+    stack: stack.slug,
+    revision: stack.revision,
+    document: stack.draft,
+    configuration: stack.draft.instances.map(instance => ({
+      instance: instance.id,
+      app: instance.app,
+      mode: instance.binding.mode,
+      shareOf: instance.binding.shareOf,
+      settings: instance.config,
+    })),
+    covers: {
+      composition: true,
+      instanceConfiguration: true,
+      publicationHistory: false,
+      appRecords: false,
+      appMedia: false,
+      credentials: false,
+    },
+  };
+}
+
+export function describeImport(payload) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) throw new StackError('INVALID', 'Choose an exported stack file.');
+  if (payload.format !== 'app-composer.stack/v1') throw new StackError('INVALID', 'This file was not exported by App Composer stack sharing.');
+  const document = normaliseStack(payload.document);
+  const shared = document.instances.filter(instance => instance.binding.mode === 'shared').length;
+  return {
+    name: document.name,
+    instances: document.instances.length,
+    shared,
+    configured: document.instances.filter(instance => Object.keys(instance.config).length).length,
+    apps: [...new Set(document.instances.map(instance => STACK_APPS[instance.app].name))],
+    covers: {
+      composition: true,
+      instanceConfiguration: true,
+      publicationHistory: false,
+      appRecords: false,
+      appMedia: false,
+      credentials: false,
+    },
+  };
+}
+
+export async function importStack(db, workspaceId, payload, { name } = {}) {
+  const summary = describeImport(payload);
+  const chosen = typeof name === 'string' && name.trim() ? name.trim().slice(0, LIMITS.stackName) : summary.name;
+  if (!isText(chosen, LIMITS.stackName)) throw new StackError('INVALID', 'Name the imported stack in up to ' + LIMITS.stackName + ' characters.');
+  let slug = slugify(chosen);
+  if (await db.prepare('SELECT id FROM creator_stacks WHERE slug = ?').bind(slug).first()) slug = (slug + '-' + crypto.randomUUID().slice(0, 4)).slice(0, LIMITS.slug);
+  const document = { ...normaliseStack(payload.document), name: chosen };
+  const id = crypto.randomUUID();
+  // Imported stacks arrive as drafts: nothing becomes public until the creator
+  // publishes, and no publication history is invented.
+  await db.prepare('INSERT INTO creator_stacks (id, workspace_id, slug, name, draft_json) VALUES (?, ?, ?, ?, ?)')
+    .bind(id, workspaceId, slug, document.name, JSON.stringify(document)).run();
+  return readStack(db, workspaceId, id);
+}
+
 // The workspace bootstrap: an authenticated creator gets one personal
 // workspace, created once and reused. Membership is the only source of
 // authority for every later call.
