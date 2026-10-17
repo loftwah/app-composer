@@ -48,7 +48,9 @@ test('preview and public output share the renderer and the theme tokens', () => 
   assert.match(view, /import "\.\.\/styles\/stack-view\.css"/);
   const editor = read('src/plugins/stacks-admin.tsx');
   assert.match(editor, /import \{ StackView \} from "\.\.\/components\/StackView"/);
-  assert.match(editor, /<StackView document=\{document\} \/>/);
+  // Shared app settings are resolved into a preview copy without changing the
+  // saved draft. Both copies still use the same published-page renderer.
+  assert.match(editor, /<StackView document=\{resourcesReady \? resourcePreview\(document, resources\) : document\} \/>/);
   const tokens = read('src/lib/stack-theme.mjs');
   for (const theme of ['daylight', 'midnight']) assert.match(tokens, new RegExp(theme));
 });

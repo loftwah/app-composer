@@ -55,3 +55,20 @@
 .ca-resource-actions{margin:28px 0;padding:20px;border:1px solid color-mix(in srgb,currentColor 22%,transparent);border-radius:10px}
 .ca-resource-actions h2{margin-top:0}
 .ca-resource-actions .ca-actions{display:flex;gap:12px;flex-wrap:wrap}
+.ca-resource-status dl {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+}
+.ca-stacks :is(input, textarea, select) {
+  font: inherit;
+  font-size: max(16px, 1rem);
+}
+.ca-resource-status dt {
+  font-size: .85rem;
+  opacity: .8;
+}
+.ca-resource-status dd {
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+}
