@@ -23,16 +23,20 @@ import {ArrowRight, Settings2} from '@lucide/astro';
   <h2>What the first slice does.</h2>
   <ul>
    <li>One personal workspace per invited creator, with owner, editor and viewer capabilities checked on every request.</li>
-   <li>Two or more named stacks with independent drafts, published revisions and share addresses.</li>
-   <li>Publish, unpublish, archive, restore, duplicate, export and delete with distinct semantics.</li>
+   <li>Two or more named stacks with independent drafts, immutable published revisions and share addresses.</li>
+   <li>Instances configured on their own from the settings each app declares, or reusing an existing instance so one set of records stays authoritative.</li>
+   <li>Publish, unpublish, archive, restore, duplicate, roll a publication back, export and delete with distinct semantics.</li>
    <li>An export that contains configuration only — no app records, media or credentials.</li>
+   <li>A share card and a QR code drawn from the published revision you are looking at.</li>
   </ul>
-  <p class="small">Still open, and labelled as such: inviting other creators, per-instance app-owned configuration writes, custom domains for a stack, QR downloads, scheduled publishing and private creator analytics. The <a href="https://github.com/loftwah/app-composer/issues/112">creator dashboard epic</a> owns those.</p>
+  <p class="small">Still open, and labelled as such: inviting other creators, custom domains for a stack, scheduled publishing and private creator analytics. The <a href="https://github.com/loftwah/app-composer/issues/112">creator dashboard epic</a> owns those.</p>
  </div>
 </section>
 <section class="section">
- <h2>Why a stack is not a second CMS.</h2>
- <p>Composer stores the composition: which app, in what order, with which label. The app keeps the records. Guestbook owns its approved photos and moderation; Linkarooie owns its cards and profile; Carry / forward owns nothing but a fictional local file. A stack page links to those live apps instead of copying them, so hiding or deleting a contribution still revokes it everywhere.</p>
+ <h2>See it working.</h2>
+ <p>The two demonstration stacks make the whole loop inspectable. <strong>Fictional Trail Notes</strong> shows the same app twice — one instance configured on its own and one that reuses it — beside an independently configured Linkarooie instance. <strong>Fictional Launch Board</strong> shows three apps that declare no settings at all. Both are fiction, labelled in their own names, in their own workspace.</p>
+ <pre><code>node scripts/seed-demo-stacks.mjs
+npx wrangler d1 execute app-composer-emdash --local --file output/demo-stacks.sql</code></pre>
  <p><a href="/demo">See the connected pair</a> · <a href="/release">Read what is verified</a> · <a href="https://github.com/loftwah/app-composer/issues/114">Follow the stack work</a><ArrowRight size={16} aria-hidden="true"/></p>
 </section>
 </Base>

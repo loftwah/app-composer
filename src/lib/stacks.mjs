@@ -78,9 +78,12 @@ export function appCapabilities(appId) {
 // A stack may only carry configuration an app has declared for itself, and the
 // values are validated with the same rules the operator apply path uses.
 function normaliseInstanceConfig(app, config, shareOf, label) {
-  const declared = declaredConfig(app);
   if (config === undefined || config === null) return {};
-  if (!declared || typeof config !== 'object' || Array.isArray(config)) throw new StackError('INVALID', 'Only ' + label + '’s declared settings can be stored on this instance.');
+  if (typeof config !== 'object' || Array.isArray(config)) throw new StackError('INVALID', 'Check the settings stored on this instance.');
+  // An empty group is not a claim about the app; it is simply nothing set here.
+  if (!Object.keys(config).length) return {};
+  const declared = declaredConfig(app);
+  if (!declared) throw new StackError('INVALID', 'Only ' + label + '’s declared settings can be stored on this instance.');
   const clean = {};
   for (const [key, value] of Object.entries(config)) {
     const field = declared.find(entry => entry.key === key);
