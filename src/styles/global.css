@@ -55,3 +55,11 @@ header .brand{flex-wrap:wrap;gap:8px}.instance-brand-context{display:block;width
 header .header-utilities{display:flex;align-items:center;gap:10px;flex:none}
 header>nav{margin-left:auto}
 @media(max-width:700px){header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;padding:12px 24px;gap:6px 10px}header .brand{font-size:20px;gap:8px}header .brand>svg{width:30px;height:30px}header .instance-brand-context{font-size:11px}header>nav{grid-column:1/-1;grid-row:2;justify-content:flex-start;margin:0;gap:8px 24px}header .header-utilities{gap:4px;grid-column:2;grid-row:1}header .header-utilities [data-open-apps]{padding-inline:10px}}
+
+/* Long forms on phones: quiet jump links to the preview/export panel and back.
+   They stay hidden where both panels are already on screen. */
+.jump-links{display:flex;flex-wrap:wrap;gap:8px 24px}
+.jump-link{display:none}
+.jump-target{scroll-margin-top:24px}
+.jump-target:focus-visible{outline:2px solid var(--color-accent);outline-offset:4px;border-radius:4px}
+@media(max-width:950px){.jump-link{display:inline-flex;align-items:center;min-height:44px;font-size:14px}.jump-back{margin:18px 0 0}}

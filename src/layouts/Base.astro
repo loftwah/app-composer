@@ -99,27 +99,17 @@ Astro.csp?.insertScriptResource(
         App Composer
         {instance.enabled && (
           <span class="instance-brand-context">
-            {instance.owner}’s workspace
+            {instance.owner}’s instance
           </span>
         )}
       </a>
       <nav aria-label="Main navigation">
-        {instance.enabled ? (
-          <>
-            <a href={instance.profile}>My profile</a>
-            <a href="/guestbook/">Guestbook</a>
-            <a href="/init">Build</a>
-          </>
-        ) : (
-          <>
-            <a href="/learn">Learn</a>
-            <a href="/ready">Get Ready</a>
-            <a href="/init">Init</a>
-            <a href="/demo">Connected apps</a>
-            <a href="/explore">Explore</a>
-            <a href="/architecture">How it works</a>
-          </>
-        )}
+        <a href="/learn">Learn</a>
+        <a href="/ready">Get Ready</a>
+        <a href="/init">Init</a>
+        <a href="/demo">Connected apps</a>
+        <a href="/explore">Explore</a>
+        <a href="/architecture">How it works</a>
       </nav>
       <div class="header-utilities">
         <AppLauncher />
@@ -185,8 +175,9 @@ Astro.csp?.insertScriptResource(
       <p>
         {instance.enabled ? (
           <>
-            This is <a href={instance.profile}>{instance.owner}’s</a> App
-            Composer. Built and run here.
+            This is <a href={instance.profile}>{instance.owner}’s</a> instance of
+            App Composer. Product and source are shared; the apps, media and
+            owner settings are {instance.owner}’s.
           </>
         ) : (
           <>

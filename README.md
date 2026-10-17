@@ -1,6 +1,6 @@
 # App Composer
 
-This checkout is Loftwah’s own App Composer instance. Public owner identity and connected projects live in `config/instance.json`; turn off that instance configuration to use the generic product homepage. Linkarooie’s reference profile uses the original portrait/banner and a reviewed public catalogue, with editable featured picks and grouped discovery. Private material and invented activity are excluded. Actual deployment/content evidence stays in [#11](https://github.com/loftwah/app-composer/issues/11).
+This checkout runs Loftwah’s instance of App Composer. The homepage is always the product’s front door — what App Composer is, the shipped app library and the supported Get Ready/Init journey. `config/instance.json` only adds the instance note, a profile link and owner attribution; it never replaces the product identity or metadata. Loftwah’s own profile, music, games and writing live in Linkarooie (`/showcase/`), which owns the portrait, banner, featured picks and grouped discovery. Private material and invented activity are excluded. Actual deployment/content evidence stays in [#11](https://github.com/loftwah/app-composer/issues/11).
 
 Tags and basic profile-settings portability share the app-owned APIs and standalone/native controls. Version1 settings files keep their original nine-field boundary; creator images/X and collection data are outside that basic file. See [scope and remaining gates](docs/profile-settings-portability.md).
 

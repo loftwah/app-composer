@@ -70,7 +70,7 @@
     {
       "reference": "composer",
       "title": "App Composer",
-      "description": "My apps, connected. This is the workspace behind this profile.",
+      "description": "Build apps with your agent: design the spec, prepare the environment and connect independent mini-apps.",
       "url": "https://composer.loftwah.com",
       "group": "Projects",
       "icon": "code",

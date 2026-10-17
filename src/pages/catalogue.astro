@@ -2,6 +2,19 @@
 import Base from '../layouts/Base.astro';
 import {getEmDashCollection} from 'emdash';
 const {entries,error}=await getEmDashCollection('catalogue',{limit:20});
-if(error)return new Response('Published catalogue is unavailable. Please try again later.',{status:503});
+if(error)Astro.response.status=503;
 ---
-<Base title="Independent mini-app catalogue" description="The EmDash-managed catalogue of independently maintained App Composer mini-apps, with source ownership and current boundaries."><h1>Choose your mini-apps.</h1><p class="lede">Collect photos, review contributions and curate a showcase. Each app has its own source and deployment.</p>{entries.map(entry=><section class="route-row"><h2><a href={'/catalogue/'+entry.id}>{entry.data.title}</a></h2><div><p>{entry.data.description}</p><p class="small">Reviewed {entry.data.reviewed}</p><a href={entry.data.source}>Independent GitHub source</a></div><a class="button" href={entry.data.href}>Open app</a></section>)}<p class="small">Published entries: {entries.length}. An unavailable catalogue fails visibly rather than substituting an invented adoption claim.</p><a href="/init">Configure a supported preset</a></Base>
+<Base title="Independent mini-app catalogue" description="The EmDash-managed catalogue of independently maintained App Composer mini-apps, with source ownership and current boundaries.">
+{error ? (
+ <>
+  <h1>The catalogue is unavailable.</h1>
+  <p class="lede">EmDash did not return the published mini-app contracts, so nothing is listed in their place. The shipped app library comes from this deployment’s own source and stays available.</p>
+  <div class="actions"><a class="button" href="/catalogue">Try the catalogue again</a><a class="button secondary" href="/apps">Browse the shipped app library</a></div>
+  <p class="small">This page fails visibly rather than substituting an invented adoption claim. The apps themselves are unaffected.</p>
+ </>
+) : (
+ <>
+  <h1>Choose your mini-apps.</h1><p class="lede">Collect photos, review contributions and curate a showcase. Each app has its own source and deployment.</p>{entries.map(entry=><section class="route-row"><h2><a href={'/catalogue/'+entry.id}>{entry.data.title}</a></h2><div><p>{entry.data.description}</p><p class="small">Reviewed {entry.data.reviewed}</p><a href={entry.data.source}>Independent GitHub source</a></div><a class="button" href={entry.data.href}>Open app</a></section>)}<p class="small">Published entries: {entries.length}. An unavailable catalogue fails visibly rather than substituting an invented adoption claim.</p><a href="/init">Configure a supported preset</a>
+ </>
+)}
+</Base>

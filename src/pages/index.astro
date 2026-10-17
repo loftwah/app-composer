@@ -1,6 +1,6 @@
 ---
+// The homepage is always the product front door. Owner configuration (instance.json)
+// only adds an instance note inside the homepage; it never replaces the product.
 import ProductHome from '../components/ProductHome.astro';
-import InstanceHome from '../components/InstanceHome.astro';
-import instance from '../../config/instance.json';
 ---
-{instance.enabled ? <InstanceHome instance={instance}/> : <ProductHome/>}
+<ProductHome/>
