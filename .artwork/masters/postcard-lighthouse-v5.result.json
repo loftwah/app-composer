@@ -1,0 +1,26 @@
+{
+  "id": "postcard-lighthouse-v5",
+  "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+  "requestId": "01a14918-32d4-75e1-8704-81789487af8a",
+  "submittedAt": "2026-10-17T09:01:24.795Z",
+  "durationMs": 42433,
+  "input": {
+    "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours, hard-edged cel shading in two flat tone steps, deliberately drawn low horizon and steep perspective, landscape composition 4:3. Scene: a tall crooked lighthouse built of salvaged metal standing in a shallow glowing sea on a slow-turning moon; the water shows a huge planet rising in the sky like a second sun. Focal event: the lighthouse keeper (an original tall, thin, long-necked alien in a yellow raincoat) is climbing the outside stairs with a lantern, while the lighthouse lamp at the top sweeps one warm orange beam across the water toward a small incoming boat. Palette: deep ink navy sky and sea, warm off-white and yellow raincoat highlights, purposeful orange beam and lamp, restrained cyan in the water glow. Small visual humour: a small six-legged crab on the rocks wearing a tiny knitted hat. Composition keeps clear space in the lower quarter for a written postcard caption bar. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+    "image_size": {
+      "width": 1280,
+      "height": 960
+    },
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Fictional postcard: the tide lighthouse on a slow moon",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "postcard-lighthouse-v5.png",
+      "bytes": 1776859,
+      "contentType": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mark family proof</title>
+<style>
+  body{margin:0;background:#f4f0e8;font:14px system-ui;color:#1d2330;padding:24px}
+  h1{font-size:16px;margin:0 0 16px}
+  .row{display:flex;align-items:flex-end;gap:28px;margin-bottom:28px}
+  .cell{text-align:center}
+  .cell img{display:block;background:#fff}
+  .lbl{font-size:11px;color:#5c616a;margin-top:6px}
+  .dark{background:#17181b;padding:20px;border-radius:8px}
+</style>
+</head>
+<body>
+<h1>Mark family at delivery sizes (light surface)</h1>
+<div class="row" id="light"></div>
+<h1>On the dark workspace</h1>
+<div class="row dark" id="dark"></div>
+<script>
+  const apps = [
+    ['herethere','/app-composer-guestbook/public/brand/mark.svg'],
+    ['linkarooie','/app-composer-showcase/public/brand/mark.svg'],
+    ['linkcheck','/app-composer-linkcheck/public/brand/mark.svg'],
+    ['hello','/app-composer-hello/public/brand/mark.svg'],
+    ['carryforward','/app-composer-state/public/brand/mark.svg'],
+  ];
+  for (const target of ['light','dark']) {
+    const row = document.getElementById(target);
+    for (const [name, path] of apps) {
+      for (const size of [16,24,48,96]) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        const img = document.createElement('img');
+        img.src = path; img.width = size; img.height = size; img.alt = name + ' ' + size;
+        cell.append(img);
+        const lbl = document.createElement('div');
+        lbl.className = 'lbl'; lbl.textContent = name + ' ' + size;
+        cell.append(lbl);
+        row.append(cell);
+      }
+    }
+  }
+</script>
+</body>
+</html>

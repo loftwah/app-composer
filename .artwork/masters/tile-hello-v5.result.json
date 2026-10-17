@@ -1,0 +1,23 @@
+{
+  "id": "tile-hello-v5",
+  "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+  "requestId": "01a14913-759f-7640-927a-f3262eae2ce5",
+  "submittedAt": "2026-10-17T08:56:14.220Z",
+  "durationMs": 47932,
+  "input": {
+    "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours with varied expressive line weight; strong silhouettes; hard-edged cel shading in two flat tone steps; deliberately drawn dramatic perspective; cinematic square composition with strong scale contrast. Scene: a vast dark launch plain at dusk under an enormous sky; in the lower third sits one tiny newly assembled relay — a small hand-built machine on a tripod, bolted and taped together, with a little dish, one lamp and a single big button. The focal event: the relay has just fired its first signal — a single bright orange beam rising straight up into the huge illustrated space above, past giant distant antenna towers, a huge moon and drifting clouds, until it reaches one small satellite that lights up in answer. The tiny machine is dwarfed by the space around it. Palette: deep ink navy and graphite rock, warm off-white light near the relay, purposeful orange beam and accents only. Small visual humour: one small snail-like critter on a rock beside the relay, watching the beam. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Hello World: a tiny relay sends its first bright orange signal into a huge space",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "tile-hello-v5.png",
+      "bytes": 1453083,
+      "contentType": "image/png"
+    }
+  ]
+}

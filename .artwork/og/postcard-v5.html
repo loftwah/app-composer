@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Demo postcard composer</title>
+<style>
+  @font-face{font-family:Space;src:url('../../public/brand/space.woff2') format('woff2');font-display:block}
+  *{box-sizing:border-box;margin:0}
+  .card{width:1200px;height:900px;position:relative;background:#f4f0e8;overflow:hidden}
+  .art{position:absolute;inset:0 0 150px 0;overflow:hidden}
+  .art img{width:100%;height:100%;object-fit:cover;object-position:center 42%}
+  .bar{position:absolute;left:0;right:0;bottom:0;height:150px;background:#f4f0e8;border-top:4px solid #1d2330;display:flex;align-items:center;justify-content:space-between;padding:0 44px;gap:24px}
+  .titles h2{font-family:Space,system-ui;font-size:40px;line-height:1.05;letter-spacing:-.02em;color:#1d2330;font-weight:600}
+  .titles p{font-size:20px;color:#454952;margin-top:8px}
+  .stamp{flex:none;border:3px solid #1d2330;background:#d95022;color:#f4f0e8;font:600 20px/1 Space,system-ui;letter-spacing:.14em;text-transform:uppercase;padding:14px 18px;transform:rotate(-3deg)}
+  .mark{position:absolute;right:36px;top:32px;display:flex;align-items:center;gap:10px;background:rgba(244,240,232,.94);border:2.5px solid #1d2330;border-radius:999px;padding:9px 16px;font:600 17px/1 Space,system-ui;color:#1d2330}
+  .mark svg{width:22px;height:22px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="art"><img id="art" alt=""></div>
+  <p class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#f4f0e8"/><path d="M10 12h32v32H10z" fill="none" stroke="#1d2330" stroke-width="6"/><path d="M24 26h30v28H24z" fill="#f4f0e8" stroke="#d95022" stroke-width="6"/><path d="M24 26v18h18" stroke="#1d2330" stroke-width="6" fill="none"/></svg>App Composer demo</p>
+  <div class="bar">
+    <div class="titles">
+      <h2 id="title"></h2>
+      <p id="subtitle"></p>
+    </div>
+    <span class="stamp">Fictional</span>
+  </div>
+</div>
+<script>
+  const cards = {
+    ringmarket: { art:'postcard-ringmarket-v5', title:'Signal check at the ring market', subtitle:'Fictional demo postcard for Here / there · illustrated artwork, not a real visitor photo' },
+    lighthouse: { art:'postcard-lighthouse-v5', title:'The tide lighthouse, slow moon', subtitle:'Fictional demo postcard for Here / there · illustrated artwork, not a real visitor photo' },
+  };
+  const id = new URLSearchParams(location.search).get('card');
+  const card = cards[id];
+  document.getElementById('art').src = '../../.artwork/masters/' + card.art + '.png';
+  document.getElementById('title').textContent = card.title;
+  document.getElementById('subtitle').textContent = card.subtitle;
+  document.title = 'postcard-' + id;
+</script>
+</body>
+</html>

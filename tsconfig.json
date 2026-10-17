@@ -6,7 +6,8 @@
   ],
   "exclude": [
     "dist",
-    "lib/content-model/site-template"
+    "lib/content-model/site-template",
+    "output"
   ],
   "compilerOptions": {
     "types": [

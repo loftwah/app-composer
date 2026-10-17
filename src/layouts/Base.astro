@@ -21,10 +21,10 @@ const pageTitle = title.includes("App Composer")
 const canonical = new URL(Astro.url.pathname, "https://composer.loftwah.com");
 const shareImage =
   Astro.props.shareImage ??
-  "https://composer.loftwah.com/brand/share-composer-20261014-v2.jpg";
+  "https://composer.loftwah.com/brand/share-composer-20261017.jpg";
 const shareAlt =
   Astro.props.shareAlt ??
-  "App Composer: From setup to software. Built for Cloudflare and EmDash. Illustrated form, photo and collection connected by an orange route.";
+  "App Composer: Make software. Keep it yours. An illustrated assembly hall where separate modules become one working system.";
 Astro.response.headers.set("Cache-Control", "no-store");
 // Cloudflare reads the SSR CSP header to nonce its own detection scripts.
 // Keep Astro's generated hashes; never add nonces to untrusted page content.
@@ -111,6 +111,7 @@ Astro.csp?.insertScriptResource(
         <a href="/learn">Learn</a>
         <a href="/ready">Get Ready</a>
         <a href="/init">Init</a>
+        <a href="/studio">Creator stacks</a>
         <a href="/demo">Connected apps</a>
         <a href="/explore">Explore</a>
         <a href="/architecture">How it works</a>

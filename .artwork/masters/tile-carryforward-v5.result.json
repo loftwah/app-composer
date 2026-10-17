@@ -1,0 +1,23 @@
+{
+  "id": "tile-carryforward-v5",
+  "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+  "requestId": "01a14914-3913-7531-86aa-9703b16d14d4",
+  "submittedAt": "2026-10-17T08:57:04.253Z",
+  "durationMs": 50520,
+  "input": {
+    "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours with varied expressive line weight; strong silhouettes; hard-edged cel shading in two flat tone steps; deliberately drawn dramatic perspective; cinematic square composition. Scene: a workshop room with two visibly different machines facing each other — on the left a bulky retro mainframe cabinet with reel-to-reel tapes and round dials, on the right a slim modern handheld device on a charging cradle with a clean glass face. Between them, an original alien courier (short, sturdy, four arms, wearing a delivery satchel and cap) carries a distinctive portable memory core: a small canister with a dark shell, a glowing violet centre and two brass contacts, held carefully in gloved hands. The focal event: a continuous glowing violet signal ribbon runs from the mainframe, loops through the carried core, and connects into the handheld — the transfer is happening as the core moves. Palette: graphite and deep ink navy machinery, warm off-white walls, purposeful violet accent on the core and signal ribbon, one small burnt-orange detail on the courier's satchel. Small visual humour: a small round maintenance bot asleep on top of the mainframe. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Carry / forward: portable memory core moving between two different machines",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "tile-carryforward-v5.png",
+      "bytes": 1426380,
+      "contentType": "image/png"
+    }
+  ]
+}

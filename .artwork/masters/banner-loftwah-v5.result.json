@@ -1,0 +1,31 @@
+{
+  "id": "banner-loftwah-v5",
+  "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+  "requestId": "01a14916-fb00-7ca3-9902-a0856641fedf",
+  "submittedAt": "2026-10-17T09:00:04.425Z",
+  "durationMs": 29963,
+  "input": {
+    "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours with varied expressive line weight; hard-edged cel shading in two flat tone steps; deliberately drawn one-point perspective down a long room; cinematic ultra-wide banner composition, 3:1. Scene: a personal signal room at night, eccentric but understandable electronics — a wall of small monitors and toggle switches, a reel-to-reel tape machine, a ham radio rig, a leaning stack of vinyl records, a coffee mug, a guitar propped in the corner, coiled cables, a small synthesizer, a framed picture of a tiny robot. One clear orange signal path runs as a drawn cable from a microphone at the left, loops through the equipment and exits toward a big round window at the right. Outside the window: an impossible space — a ringed planet, a second smaller planet with a visible city light line, and a distant space station shaped like an old radio tower. The left third of the image is deliberately calm and uncluttered so a profile picture can sit over it; the busy detail sits in the middle and right. Palette: deep ink navy and graphite, warm off-white walls, purposeful burnt orange on the signal cable and a few knobs, one restrained cyan screen and one acid-green power lamp. Small visual humour: a small round robot cat asleep on the tape machine. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+    "image_size": {
+      "width": 1536,
+      "height": 512
+    },
+    "quality": "high",
+    "num_images": 2
+  },
+  "note": "Loftwah's personal signal room banner",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "banner-loftwah-v5-1.png",
+      "bytes": 1217743,
+      "contentType": "image/png"
+    },
+    {
+      "file": "banner-loftwah-v5-2.png",
+      "bytes": 1242675,
+      "contentType": "image/png"
+    }
+  ]
+}

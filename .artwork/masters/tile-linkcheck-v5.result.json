@@ -1,0 +1,23 @@
+{
+  "id": "tile-linkcheck-v5",
+  "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+  "requestId": "01a14912-9d55-7ac0-bb69-effedde1402e",
+  "submittedAt": "2026-10-17T08:55:18.844Z",
+  "durationMs": 53348,
+  "input": {
+    "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours with varied expressive line weight; strong silhouettes; hard-edged cel shading in two flat tone steps; deliberately drawn dramatic perspective; cinematic square composition. Scene: a cramped orbital diagnostic bay aboard a space station. A lanky original alien technician in rolled-up overalls and chunky goggles floats slightly, holding a long glowing cyan diagnostic cable that loops from a wall socket, across the bay, and into the back of a battered communications dish. The focal event: the technician has just found the fault — the cable meets a cracked, blackened connector with a single sharp orange spark at the break — while a wall of gauges and small round monitors traces the same connection as a bright cyan line that stops at the fault. Palette: deep ink navy and graphite machinery, controlled cyan for the cable and the traces, warm off-white panels, one small hot orange fault accent only at the broken connector. Small visual humour: a small maintenance robot beside the fault, holding up a tiny flag and pointing at it. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Link Check: orbital diagnostic tracing a connection to a faulty connector",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "tile-linkcheck-v5.png",
+      "bytes": 1765862,
+      "contentType": "image/png"
+    }
+  ]
+}

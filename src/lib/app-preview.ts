@@ -12,11 +12,11 @@ export function renderAppPreview(spec:PreviewSpec,target=document.querySelector(
   if(id==='showcase'){const social=element('div','','sample-social');for(const field of ['website','github','bluesky','linkedin'])if(config[field])social.append(element('span',field==='github'?'GitHub':field==='linkedin'?'LinkedIn':field==='bluesky'?'Bluesky':'Website'));if(social.childElementCount)app.append(social);}
   if(id!=='hello'&&config.layout!=='compact'){
    const photos=element('div','','sample-photos '+config.layout);
-   for(const [src,caption] of [['/brand/courtyard-ai-v1.jpg','Courtyard, late afternoon'],['/brand/coastal-path-ai-v1.jpg','The walk home']].slice(0,config.layout==='editorial'?1:2)){
-    const figure=element('figure'),image=document.createElement('img');image.src=src;image.alt='Generated fictional '+caption.toLowerCase();image.width=1200;image.height=src.includes('courtyard')?630:800;image.loading='lazy';figure.append(image,element('figcaption',caption));photos.append(figure);
+   for(const [src,caption] of [['/brand/demo/ringmarket-v5.webp','Signal check at the ring market'],['/brand/demo/lighthouse-v5.webp','The tide lighthouse, slow moon']].slice(0,config.layout==='editorial'?1:2)){
+    const figure=element('figure'),image=document.createElement('img');image.src=src;image.alt='Fictional demo postcard: '+caption.toLowerCase();image.width=1200;image.height=900;image.loading='lazy';figure.append(image,element('figcaption',caption));photos.append(figure);
    }app.append(photos);
    }
-  if(id==='showcase') {if(config.layout==='compact')for(const title of ['Courtyard, late afternoon','The walk home'])app.append(element('div',title,'sample-link'));for(const card of spec.cards){const line=element('div',card.title,'sample-link'),url=element('small',new URL(card.url).hostname);line.append(document.createElement('br'),url);app.append(line);}
+  if(id==='showcase') {if(config.layout==='compact')for(const title of ['Signal check at the ring market','The tide lighthouse, slow moon'])app.append(element('div',title,'sample-link'));for(const card of spec.cards){const line=element('div',card.title,'sample-link'),url=element('small',new URL(card.url).hostname);line.append(document.createElement('br'),url);app.append(line);}
   }
   app.append(element('p',id==='hello'?'Title, introduction and theme':id==='guestbook'?'Sample approved photos · submissions require review':'Sample collection · approved originals stay connected','sample-kind'));target.append(app);
  }

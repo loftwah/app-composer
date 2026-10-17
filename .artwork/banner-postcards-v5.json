@@ -1,0 +1,38 @@
+{
+  "note": "Wide banner for Loftwah's Linkarooie profile and the two fictional demo postcards for Here / there.",
+  "jobs": [
+    {
+      "id": "banner-loftwah-v5",
+      "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+      "note": "Loftwah's personal signal room banner",
+      "input": {
+        "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours with varied expressive line weight; hard-edged cel shading in two flat tone steps; deliberately drawn one-point perspective down a long room; cinematic ultra-wide banner composition, 3:1. Scene: a personal signal room at night, eccentric but understandable electronics — a wall of small monitors and toggle switches, a reel-to-reel tape machine, a ham radio rig, a leaning stack of vinyl records, a coffee mug, a guitar propped in the corner, coiled cables, a small synthesizer, a framed picture of a tiny robot. One clear orange signal path runs as a drawn cable from a microphone at the left, loops through the equipment and exits toward a big round window at the right. Outside the window: an impossible space — a ringed planet, a second smaller planet with a visible city light line, and a distant space station shaped like an old radio tower. The left third of the image is deliberately calm and uncluttered so a profile picture can sit over it; the busy detail sits in the middle and right. Palette: deep ink navy and graphite, warm off-white walls, purposeful burnt orange on the signal cable and a few knobs, one restrained cyan screen and one acid-green power lamp. Small visual humour: a small round robot cat asleep on the tape machine. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+        "image_size": {"width": 1536, "height": 512},
+        "quality": "high",
+        "num_images": 2
+      }
+    },
+    {
+      "id": "postcard-ringmarket-v5",
+      "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+      "note": "Fictional postcard: the ring market at low orbit",
+      "input": {
+        "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours, hard-edged cel shading in two flat tone steps, deliberately drawn wide perspective, landscape composition 4:3. Scene: a bustling open-air market strung between two asteroids at low orbit above a huge ringed planet that fills the sky. Canvas awnings in coral and off-white, market stalls built from salvaged ship parts, a crooked crane lifting a crate of glowing fruit, little spacecraft tethered like bicycles along a rail. Focal event: a market trader (an original stocky four-armed alien with a striped apron) holds up a bright glowing fruit to a customer while a queue waits. Palette: warm coral and burnt orange awnings, deep ink navy space and shadows, warm off-white canvas and highlights, restrained cyan only on the planet's ring shadow and one lantern. Small visual humour: a tiny round robot trying to carry a crate three times its size. Composition keeps clear space in the lower quarter for a written postcard caption bar. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+        "image_size": {"width": 1280, "height": 960},
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "postcard-lighthouse-v5",
+      "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+      "note": "Fictional postcard: the tide lighthouse on a slow moon",
+      "input": {
+        "prompt": "Original hand-drawn adult animated science-fiction illustration, 2D cel animation look. Confident dark ink contours, hard-edged cel shading in two flat tone steps, deliberately drawn low horizon and steep perspective, landscape composition 4:3. Scene: a tall crooked lighthouse built of salvaged metal standing in a shallow glowing sea on a slow-turning moon; the water shows a huge planet rising in the sky like a second sun. Focal event: the lighthouse keeper (an original tall, thin, long-necked alien in a yellow raincoat) is climbing the outside stairs with a lantern, while the lighthouse lamp at the top sweeps one warm orange beam across the water toward a small incoming boat. Palette: deep ink navy sky and sea, warm off-white and yellow raincoat highlights, purposeful orange beam and lamp, restrained cyan in the water glow. Small visual humour: a small six-legged crab on the rocks wearing a tiny knitted hat. Composition keeps clear space in the lower quarter for a written postcard caption bar. Entirely illustrated by hand; no photograph, no 3D render, no glossy plastic, no gradients, no glow haze, no text, letters, numbers, logos, signatures or watermarks.",
+        "image_size": {"width": 1280, "height": 960},
+        "quality": "high",
+        "num_images": 1
+      }
+    }
+  ]
+}
