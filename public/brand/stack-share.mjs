@@ -1,237 +1,165 @@
-// Deliberate, stack-specific sharing for a published page. The card is drawn
-// from the published snapshot the page already rendered — never from a draft —
-// and the QR code encodes the exact canonical address. Both are produced in the
-// browser, so the address never leaves it to make an image.
-//
-// Fonts and any images are awaited before drawing, so an export cannot capture
-// a fallback face or a half-loaded mark.
+// Generated from src/browser/stack-share.ts; edit the source and run scripts/stack-share-assets.mjs --write.
+// The public PNG and native attachment are the same publication-bound bytes.
+// Only the QR is drawn locally; its address never goes to a third-party service.
 import { currentShareURL } from './page-share-url.mjs';
 import { qrMatrix } from './qr-code.mjs';
-
-const CARD = { width: 1200, height: 630 };
-
 function read(element) {
-  const source = element.querySelector('script[data-stack-share-data]')?.textContent ?? element.getAttribute('data-stack-share') ?? '';
-  try {
-    return JSON.parse(source);
-  } catch {
-    return null;
-  }
-}
-
-function wrap(context, text, font, maxWidth, maxLines) {
-  context.font = font;
-  const words = String(text).split(/\s+/).filter(Boolean);
-  const lines = [];
-  let line = '';
-  for (const word of words) {
-    const candidate = line ? line + ' ' + word : word;
-    if (context.measureText(candidate).width <= maxWidth || !line) line = candidate;
-    else {
-      lines.push(line);
-      line = word;
-      if (lines.length === maxLines) break;
-    }
-  }
-  if (lines.length < maxLines && line) lines.push(line);
-  if (lines.length === maxLines) {
-    const remainder = words.slice(lines.join(' ').split(/\s+/).length);
-    if (remainder.length) {
-      let last = lines[maxLines - 1];
-      while (context.measureText(last + ' …').width > maxWidth && last.includes(' ')) last = last.slice(0, last.lastIndexOf(' '));
-      lines[maxLines - 1] = last + ' …';
-    }
-  }
-  return lines;
-}
-
-// The product mark, drawn rather than fetched, so a missing asset can never
-// produce a blank tile. It is the same two-module glyph the site header uses.
-function drawMark(context, x, y, size, accent, background) {
-  context.save();
-  context.fillStyle = accent;
-  const radius = size * 0.22;
-  context.beginPath();
-  context.roundRect(x, y, size, size, radius);
-  context.fill();
-  context.fillStyle = background;
-  const pad = size * 0.24;
-  const unit = (size - pad * 2) / 2;
-  const gap = unit * 0.16;
-  context.fillRect(x + pad, y + pad, unit - gap, unit - gap);
-  context.fillRect(x + pad + unit, y + pad + unit, unit - gap, unit - gap);
-  context.fillRect(x + pad, y + pad + unit, unit - gap, unit - gap);
-  context.fillStyle = accent;
-  context.fillRect(x + pad + unit, y + pad, unit - gap, unit - gap);
-  context.restore();
-}
-
-function drawQr(context, matrix, x, y, size, dark, light) {
-  const quiet = 3;
-  const total = matrix.size + quiet * 2;
-  const unit = size / total;
-  context.save();
-  context.fillStyle = light;
-  context.fillRect(x, y, size, size);
-  context.fillStyle = dark;
-  for (let row = 0; row < matrix.size; row += 1) {
-    for (let column = 0; column < matrix.size; column += 1) {
-      if (!matrix.modules[row][column]) continue;
-      context.fillRect(
-        x + (column + quiet) * unit,
-        y + (row + quiet) * unit,
-        Math.ceil(unit),
-        Math.ceil(unit),
-      );
-    }
-  }
-  context.restore();
-}
-
-function canvasToBlob(canvas) {
-  return new Promise((resolve, reject) => {
-    canvas.toBlob(blob => (blob ? resolve(blob) : reject(Error('The image could not be produced.'))), 'image/png');
-  });
-}
-
-export async function stackShareArtifacts(element) {
-  const data = read(element);
-  if (!data || !data.url) throw Error('This page has no published stack to share yet.');
-  if (document.fonts?.ready) await document.fonts.ready;
-  const theme = data.theme ?? { background: '#17181b', foreground: '#f2f3f5', muted: '#a7abb3', accent: '#ff9b55' };
-
-  let shareUrl = data.url;
-  try {
-    shareUrl = await currentShareURL(data.url, data.title, data.description ?? '', '');
-  } catch {
-    shareUrl = data.url;
-  }
-  // The card and the QR both name the clean published address; a scan or a read
-  // of the card should show the address a person can type. The revisioned share
-  // URL is only used for the copy/share metadata identity.
-  const url = data.url;
-
-  const card = document.createElement('canvas');
-  card.width = CARD.width;
-  card.height = CARD.height;
-  const context = card.getContext('2d');
-  context.fillStyle = theme.background;
-  context.fillRect(0, 0, CARD.width, CARD.height);
-  context.fillStyle = theme.foreground;
-  drawMark(context, 72, 64, 64, theme.accent, theme.background);
-  context.font = '600 30px Space, system-ui, sans-serif';
-  context.fillText('App Composer', 156, 108);
-
-  context.fillStyle = theme.foreground;
-  const titleLines = wrap(context, data.title, '500 68px Space, system-ui, sans-serif', CARD.width - 460, 2);
-  let y = 236;
-  for (const line of titleLines) {
-    context.fillText(line, 72, y);
-    y += 78;
-  }
-  if (data.description) {
-    context.fillStyle = theme.muted;
-    for (const line of wrap(context, data.description, '400 32px Space, system-ui, sans-serif', CARD.width - 460, 2)) {
-      context.fillText(line, 72, y + 6);
-      y += 42;
-    }
-  }
-  if (Array.isArray(data.apps) && data.apps.length) {
-    context.fillStyle = theme.accent;
-    context.font = '600 28px Space, system-ui, sans-serif';
-    context.fillText(data.apps.slice(0, 4).join('  ·  '), 72, CARD.height - 118);
-  }
-  context.fillStyle = theme.muted;
-  context.font = '400 24px Space, system-ui, sans-serif';
-  context.fillText(url, 72, CARD.height - 66);
-
-  // A scanner reads dark modules on a light plate most reliably, so the card's
-  // code keeps that contrast regardless of the stack's own theme.
-  drawQr(context, qrMatrix(url), CARD.width - 292, 150, 220, '#17181b', '#ffffff');
-
-  const qr = document.createElement('canvas');
-  qr.width = 640;
-  qr.height = 640;
-  const qrContext = qr.getContext('2d');
-  qrContext.fillStyle = '#ffffff';
-  qrContext.fillRect(0, 0, 640, 640);
-  drawQr(qrContext, qrMatrix(url), 32, 32, 576, '#17181b', '#ffffff');
-
-  return { url, shareUrl, card: await canvasToBlob(card), qr: await canvasToBlob(qr), title: data.title, slug: data.slug };
-}
-
-function save(blob, filename) {
-  const href = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = href;
-  link.download = filename;
-  document.body.append(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(href), 10000);
-}
-
-for (const element of document.querySelectorAll('[data-stack-share]')) {
-  const status = element.querySelector('[data-stack-share-status]');
-  const cardButton = element.querySelector('[data-stack-card]');
-  const qrButton = element.querySelector('[data-stack-qr]');
-  const nativeButton = element.querySelector('[data-stack-native]');
-  const fallback = element.querySelector('[data-stack-share-fallback]');
-  const data = read(element);
-  if (!data) continue;
-  element.hidden = false;
-  let cached;
-  let failure;
-
-  // Produced once per page and reused, so a click never redraws and a failure is
-  // reported instead of leaving a control that looks like it worked.
-  const artefacts = async () => {
-    if (cached) return cached;
-    if (failure) throw failure;
+    const source = element.querySelector('script[data-stack-share-data]')?.textContent ?? '';
     try {
-      cached = await stackShareArtifacts(element);
-      for (const button of [cardButton, qrButton, nativeButton]) if (button) button.disabled = false;
-      if (fallback) fallback.querySelector('input').value = cached.shareUrl;
-      return cached;
-    } catch (error) {
-      failure = error;
-      if (status) status.textContent = error instanceof Error ? error.message : 'The share images could not be produced.';
-      throw error;
+        const value = JSON.parse(source);
+        if (!value || typeof value !== 'object')
+            return null;
+        const data = value;
+        if (typeof data.slug !== 'string' || !/^[a-z0-9-]{1,60}$/.test(data.slug))
+            return null;
+        if (!Number.isSafeInteger(data.revision) || Number(data.revision) < 1)
+            return null;
+        if (typeof data.title !== 'string' || typeof data.description !== 'string')
+            return null;
+        const canonical = `https://composer.loftwah.com/s/${data.slug}`;
+        if (data.url !== canonical || typeof data.imagePath !== 'string')
+            return null;
+        const prefix = `/s/${data.slug}/share/v1-r${data.revision}-`;
+        if (!data.imagePath.startsWith(prefix) || !/^[a-f0-9]{64}\.png$/.test(data.imagePath.slice(prefix.length)))
+            return null;
+        if (data.imageUrl !== `https://composer.loftwah.com${data.imagePath}`)
+            return null;
+        return { slug: data.slug, revision: Number(data.revision), url: canonical, title: data.title, description: data.description, imagePath: data.imagePath, imageUrl: String(data.imageUrl) };
     }
-  };
-
-  const use = work => void artefacts().then(work).catch(() => undefined);
-
-  cardButton?.addEventListener('click', () => use(async built => {
-    save(built.card, `${data.slug}-share-card-1200x630.png`);
-    if (status) status.textContent = `Saved the 1200 × 630 card for published revision ${data.revision}.`;
-  }));
-
-  qrButton?.addEventListener('click', () => use(async built => {
-    save(built.qr, `${data.slug}-qr-code.png`);
-    if (status) status.textContent = 'Saved the QR code. It decodes to the same published address as the link above.';
-  }));
-
-  if (typeof navigator.canShare === 'function' && nativeButton) {
-    nativeButton.hidden = false;
-    nativeButton.addEventListener('click', () => use(async built => {
-      const file = new File([built.card], `${data.slug}-share-card.png`, { type: 'image/png' });
-      if (!navigator.canShare({ files: [file] })) {
-        if (status) status.textContent = 'This browser cannot attach the card; use Download share card instead.';
-        return;
-      }
-      try {
-        await navigator.share({ title: built.title, text: data.description ?? '', url: built.shareUrl, files: [file] });
-        if (status) status.textContent = 'Shared.';
-      } catch (error) {
-        if (status && error?.name !== 'AbortError') status.textContent = 'Sharing was cancelled or unavailable. Download the card instead.';
-      }
-    }));
-  }
-
-  // Prepare the artefacts as soon as the page is idle, so the first click is
-  // instant; a missing font or a failure surfaces in the status region.
-  const start = () => void artefacts().catch(() => undefined);
-  if (document.readyState === 'complete') start();
-  else window.addEventListener('load', start, { once: true });
+    catch {
+        return null;
+    }
+}
+async function shareAddress(data) {
+    const title = data.title.includes('App Composer') ? data.title : `${data.title} · App Composer`;
+    try {
+        return await currentShareURL(data.url, title, data.description, data.imageUrl);
+    }
+    catch {
+        return data.url;
+    }
+}
+export function stackQrBlob(url) {
+    const matrix = qrMatrix(url);
+    const canvas = document.createElement('canvas');
+    canvas.width = 640;
+    canvas.height = 640;
+    const context = canvas.getContext('2d');
+    if (!context)
+        return Promise.reject(Error('The QR image could not be produced. Copy the published address instead.'));
+    const quiet = 4;
+    const unit = Math.floor(640 / (matrix.size + quiet * 2));
+    const offset = Math.floor((640 - matrix.size * unit) / 2);
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, 640, 640);
+    context.fillStyle = '#17181b';
+    for (let row = 0; row < matrix.size; row += 1) {
+        for (let column = 0; column < matrix.size; column += 1) {
+            if (matrix.modules[row][column])
+                context.fillRect(offset + column * unit, offset + row * unit, unit, unit);
+        }
+    }
+    return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(Error('The QR image could not be produced. Copy the published address instead.')), 'image/png'));
+}
+export async function stackShareArtifacts(element) {
+    const data = read(element);
+    if (!data)
+        throw Error('This page has no published stack to share.');
+    // Resolve on this origin so preview/local checks never request production.
+    // The path is validated above and cannot be an arbitrary URL or redirect.
+    const response = await fetch(data.imagePath, { credentials: 'omit', redirect: 'error', cache: 'no-store' });
+    if (!response.ok || response.headers.get('content-type')?.split(';')[0] !== 'image/png') {
+        throw Error('The published card is unavailable. Copy the address or download the QR code instead.');
+    }
+    return { url: data.url, shareUrl: await shareAddress(data), card: await response.blob(), qr: await stackQrBlob(data.url), title: data.title, slug: data.slug };
+}
+function save(blob, filename) {
+    const href = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = filename;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(href), 10000);
+}
+for (const element of document.querySelectorAll('[data-stack-share]')) {
+    const data = read(element);
+    if (!data)
+        continue;
+    const status = element.querySelector('[data-stack-share-status]');
+    const qrButton = element.querySelector('[data-stack-qr]');
+    const copyButton = element.querySelector('[data-stack-copy]');
+    const nativeButton = element.querySelector('[data-stack-native]');
+    const fallback = element.querySelector('[data-stack-share-fallback]');
+    const fallbackInput = fallback?.querySelector('input');
+    let currentAddress = data.url;
+    // Prepare the metadata revision ahead of the click so native sharing starts
+    // inside its user gesture, including browsers with strict activation rules.
+    void shareAddress(data).then(address => { currentAddress = address; });
+    const report = (message) => { if (status)
+        status.textContent = message; };
+    let busy = false;
+    const use = async (work) => {
+        if (busy)
+            return;
+        busy = true;
+        for (const button of [qrButton, copyButton, nativeButton])
+            if (button)
+                button.disabled = true;
+        try {
+            await work();
+        }
+        catch (error) {
+            report(error instanceof Error ? error.message : 'Sharing is unavailable. Copy the published address below.');
+        }
+        finally {
+            busy = false;
+            for (const button of [qrButton, copyButton, nativeButton])
+                if (button)
+                    button.disabled = false;
+        }
+    };
+    if (qrButton) {
+        qrButton.hidden = false;
+        qrButton.addEventListener('click', () => void use(async () => {
+            save(await stackQrBlob(data.url), `${data.slug}-qr-code.png`);
+            report('Saved the QR code for the published address.');
+        }));
+    }
+    if (copyButton) {
+        copyButton.hidden = false;
+        copyButton.addEventListener('click', () => void use(async () => {
+            const url = await shareAddress(data);
+            try {
+                await navigator.clipboard.writeText(url);
+                report('Copied the published stack link.');
+            }
+            catch {
+                if (fallback && fallbackInput) {
+                    fallback.hidden = false;
+                    fallbackInput.value = url;
+                    fallbackInput.focus();
+                    fallbackInput.select();
+                }
+                report('Select and copy the published address below.');
+            }
+        }));
+    }
+    if (typeof navigator.share === 'function' && nativeButton) {
+        nativeButton.hidden = false;
+        nativeButton.addEventListener('click', () => void use(async () => {
+            try {
+                // Start the share sheet in the user gesture; the browser can always
+                // share the publication URL, including when it cannot attach files.
+                await navigator.share({ title: data.title, text: data.description, url: currentAddress });
+                report('Shared the published stack link.');
+            }
+            catch (error) {
+                report(error instanceof DOMException && error.name === 'AbortError'
+                    ? 'Sharing cancelled.'
+                    : 'Sharing is unavailable. Use Copy stack link instead.');
+            }
+        }));
+    }
 }

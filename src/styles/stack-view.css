@@ -1,0 +1,28 @@
+@import './stack-theme.generated.css';
+
+/* Preview and published HTML share these classes. Runtime style attributes are
+   refused by the public CSP; all theme values come from the authored tokens. */
+.stack-view {
+  background: var(--stack-background);
+  color: var(--stack-foreground);
+  border: 1px solid var(--stack-border);
+  border-radius: 12px;
+  padding: 28px 26px 10px;
+  overflow-wrap: anywhere;
+}
+
+.stack-view-compact { padding: 18px 18px 6px; }
+.stack-view .stack-view-title { margin: 0 0 10px; font-size: 1.7rem; line-height: 1.2; }
+.stack-view-compact .stack-view-title { font-size: 1.35rem; }
+.stack-view-description { margin: 0 0 18px; color: var(--stack-muted); max-width: 60ch; }
+.stack-view-empty { margin: 0 0 18px; color: var(--stack-muted); }
+.stack-view-instance { padding: 18px 0; border-top: 1px solid var(--stack-border); }
+.stack-view .stack-instance-title { margin: 0 0 6px; font-size: 1.2rem; line-height: 1.3; }
+.stack-view a { color: var(--stack-accent); text-decoration: none; }
+.stack-instance-caption { margin: 0 0 8px; color: var(--stack-muted); }
+.stack-instance-purpose { margin: 0 0 8px; }
+.stack-instance-shared { margin: 0 0 8px; color: var(--stack-muted); font-size: .92rem; }
+.stack-instance-config { display: grid; gap: 4px; margin: 0 0 10px; font-size: .92rem; }
+.stack-instance-config p { margin: 0; }
+.stack-instance-config-label { color: var(--stack-muted); }
+.stack-instance-meta { margin: 0; color: var(--stack-muted); font-size: .88rem; }

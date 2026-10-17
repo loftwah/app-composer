@@ -1,14 +1,17 @@
 // MIT. Source maintenance only: each app keeps its own committed, deployable copy.
-import { readFileSync, lstatSync, realpathSync, writeFileSync, renameSync, unlinkSync } from 'node:fs';
+import { readFileSync, lstatSync, realpathSync, writeFileSync, renameSync, unlinkSync, existsSync } from 'node:fs';
 import { resolve, dirname, join, isAbsolute } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { launcherAsset } from './launcher-assets.mjs';
 
 export const publicUiFiles = Object.freeze([
   'page-share-url.mjs',
   'page-share.mjs',
   'page-share.css',
   'theme-control.css',
+  'launcher.js',
+  'launcher.css',
 ]);
 
 const sourceDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '../public/brand');
@@ -30,6 +33,7 @@ function regular(path, directory = false) {
 
 export function maintainPublicUiAssets(directories, { write = false } = {}) {
   if (!directories.length) throw Error('Select at least one absolute app checkout path.');
+  launcherAsset();
   const sources = publicUiFiles.map(name => {
     const path = join(sourceDirectory, name);
     regular(path);
@@ -51,14 +55,23 @@ export function maintainPublicUiAssets(directories, { write = false } = {}) {
     regular(join(root, 'public/brand'), true);
     return sources.map(({ name, bytes }) => {
       const path = join(root, 'public/brand', name);
-      const stat = regular(path);
-      if (stat.nlink !== 1) throw Error('Preserve linked destination: ' + path);
-      const before = readFileSync(path);
-      return { root, name, path, bytes, before, stat, changed: !before.equals(bytes) };
+      const stat = existsSync(path) ? regular(path) : (() => {
+        try { lstatSync(path); throw Error('Preserve linked destination: ' + path); } catch (error) { if (error.code !== 'ENOENT') throw error; }
+        if (!name.startsWith('launcher.')) throw Error('Expected an existing unlinked file: ' + path);
+        return null;
+      })();
+      if (stat && stat.nlink !== 1) throw Error('Preserve linked destination: ' + path);
+      const before = stat ? readFileSync(path) : null;
+      return { root, name, path, bytes, before, stat, changed: !before?.equals(bytes) };
     });
   });
   if (write) {
     for (const plan of plans.filter(plan => plan.changed)) {
+      if (!plan.stat) {
+        // New launcher distribution copies must never overwrite concurrent work.
+        writeFileSync(plan.path, plan.bytes, { flag: 'wx', mode: 0o644 });
+        continue;
+      }
       const stat = regular(plan.path);
       if (stat.ino !== plan.stat.ino || stat.nlink !== 1 || !readFileSync(plan.path).equals(plan.before)) {
         throw Error('Destination changed during review; inspect before retrying: ' + plan.path);

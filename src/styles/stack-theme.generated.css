@@ -1,0 +1,18 @@
+/* Generated from src/lib/stack-theme.mjs by scripts/stack-share-assets.mjs. */
+.stack-view[data-stack-theme="daylight"] {
+  --stack-background: #faf9f7;
+  --stack-foreground: #22252b;
+  --stack-muted: #5c616b;
+  --stack-border: rgba(34,37,43,.16);
+  --stack-surface: #ffffff;
+  --stack-accent: #b8451c;
+}
+
+.stack-view[data-stack-theme="midnight"] {
+  --stack-background: #17181b;
+  --stack-foreground: #f2f3f5;
+  --stack-muted: #a7abb3;
+  --stack-border: rgba(242,243,245,.18);
+  --stack-surface: #1f2126;
+  --stack-accent: #ff9b55;
+}

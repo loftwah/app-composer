@@ -1,31 +1,35 @@
 ---
-// Deliberate stack sharing. Everything here is produced from the publication the
-// page already rendered: the card names the published revision, and the QR code
-// encodes the clean published address. A draft never reaches these controls
-// because this component is only rendered for a published stack.
-import {themeTokens} from '../lib/stack-theme.mjs';
+// The server card and public page use the exact same publication. A download
+// remains available without JavaScript; local QR/copy controls enhance it.
+import {stackSharePayload} from '../lib/stack-sharing.ts';
 interface Props {
   slug: string;
   revision: number;
   url: string;
   title: string;
   description: string;
-  theme: string;
-  apps: string[];
+  imagePath: string;
+  imageUrl: string;
+  imageAlt: string;
 }
-const {slug, revision, url, title, description, theme, apps} = Astro.props;
-const payload = JSON.stringify({slug, revision, url, title, description, theme: themeTokens(theme), apps});
+const {slug, revision, url, title, description, imagePath, imageUrl, imageAlt} = Astro.props;
+// Text is data even inside a JSON script element. Escaping '<' prevents an
+// authored title such as '</script>' from changing the surrounding HTML.
+const payload = stackSharePayload({slug, revision, url, title, description, imagePath, imageUrl});
 ---
-<section class="stack-share" data-stack-share hidden>
+<section class="stack-share" data-stack-share>
   <h2>Share this stack</h2>
-  <p class="small">
-    The card and the QR code are drawn from published revision {revision}. The
-    QR code decodes to <span class="stack-share-url">{url}</span>.
-  </p>
-  <div class="actions">
-    <button type="button" disabled data-stack-card>Download share card</button>
-    <button type="button" disabled data-stack-qr>Download QR code</button>
-    <button type="button" class="secondary" hidden data-stack-native>Share</button>
+  <p class="small">The card shows published revision {revision}. The QR code opens <a class="stack-share-url" href={url}>{url}</a>.</p>
+  <div class="stack-share-layout">
+    <a class="stack-share-preview" href={imagePath} aria-label={`Open the full share card for ${title}`}>
+      <img src={imagePath} alt={imageAlt} width="1200" height="630" loading="lazy" />
+    </a>
+    <div class="actions">
+      <a class="button" href={imagePath} download={`${slug}-share-card-1200x630.png`} data-stack-card>Download share card</a>
+      <button type="button" class="secondary" hidden data-stack-copy>Copy stack link</button>
+      <button type="button" class="secondary" hidden data-stack-qr>Download QR code</button>
+      <button type="button" class="secondary" hidden data-stack-native>Share stack</button>
+    </div>
   </div>
   <p role="status" aria-live="polite" class="small" data-stack-share-status></p>
   <label class="stack-share-fallback" data-stack-share-fallback hidden>
@@ -36,8 +40,15 @@ const payload = JSON.stringify({slug, revision, url, title, description, theme: 
 </section>
 <script is:inline type="module" src="/brand/stack-share.mjs"></script>
 <style>
-  .stack-share{margin:36px 0 0;padding:24px;border:1px solid var(--color-border);border-radius:12px;background:var(--color-surface);max-width:64rem}
+  .stack-share{margin:36px 0 0;padding:24px 0;border-top:1px solid var(--color-border);max-width:64rem}
   .stack-share h2{font-size:1.3rem;margin:0 0 10px}
+  .stack-share-layout{display:grid;grid-template-columns:minmax(0,30rem) minmax(0,1fr);gap:24px;align-items:start;margin-top:20px}
+  .stack-share-preview{display:block;line-height:0;border:1px solid var(--color-border);border-radius:8px;overflow:hidden}
+  .stack-share-preview img{display:block;width:100%;height:auto}
+  .stack-share .actions{margin:0;align-items:start}
+  .stack-share .actions>*{max-width:100%}
   .stack-share-url{overflow-wrap:anywhere;font-weight:600}
   .stack-share-fallback{display:grid;gap:6px;margin-top:14px;max-width:34rem}
+  .stack-share-fallback[hidden]{display:none}
+  @media(max-width:40rem){.stack-share-layout{grid-template-columns:minmax(0,1fr);gap:18px}}
 </style>

@@ -9,6 +9,7 @@ interface Props {
   noindex?: boolean;
   shareImage?: string;
   shareAlt?: string;
+  shareType?: string;
   /** Clean canonical for a page whose address is not just its path. */
   canonical?: string;
 }
@@ -41,7 +42,8 @@ Astro.csp?.insertScriptResource(
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <link rel="stylesheet" href="/brand/launcher.css" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -72,7 +74,7 @@ Astro.csp?.insertScriptResource(
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={shareImage} />
     <meta name="twitter:image:alt" content={shareAlt} />
-    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:type" content={Astro.props.shareType ?? "image/jpeg"} />
     {noindex && <meta name="robots" content="noindex,nofollow" />}
     <script is:inline src="/brand/theme-bootstrap.js"></script>
     <link rel="stylesheet" href="/brand/page-share.css" />
