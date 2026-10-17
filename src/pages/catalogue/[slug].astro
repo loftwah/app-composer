@@ -2,7 +2,31 @@
 import Base from '../../layouts/Base.astro';
 import {getEmDashEntry} from 'emdash';
 const {entry,error}=await getEmDashEntry('catalogue',Astro.params.slug!);
-if(error)return new Response('This mini-app is temporarily unavailable.',{status:503});
-if(!entry)return new Response('Mini-app not found.',{status:404});
+if(error)Astro.response.status=503;
+else if(!entry)Astro.response.status=404;
+const title=error?'Mini-app temporarily unavailable':entry?entry.data.title:'Mini-app not found';
+const description=error?'The published catalogue entry could not be loaded. The shipped app library remains available and unaffected.':entry?.data.description??'This catalogue address has no published mini-app contract.';
 ---
-<Base title={entry.data.title} description={entry.data.description}><a href="/catalogue">All mini-apps</a><h1>{entry.data.title}</h1><p class="lede">{entry.data.description}</p><p class="small">Reviewed {entry.data.reviewed}</p><div class="actions"><a class="button" href={entry.data.href}>Open app</a><a class="button secondary" href={entry.data.source}>View GitHub source</a></div><section class="section"><h2>Build with this app</h2><p>Configure the supported pair in Init, then give the saved specification to your authorised coding agent.</p><a href="/init">Configure your app</a></section></Base>
+<Base title={title} description={description} noindex={Boolean(error)||!entry}>
+{error ? (
+ <>
+  <a href="/catalogue">All mini-apps</a>
+  <h1>This mini-app is temporarily unavailable.</h1>
+  <p class="lede">EmDash could not load this published contract. The address is unchanged; nothing has been substituted in its place.</p>
+  <div class="actions"><a class="button" href={'/catalogue/'+Astro.params.slug}>Try this page again</a><a class="button secondary" href="/apps">Browse the shipped app library</a></div>
+  <p class="small">The apps themselves are separate deployments and are unaffected by this catalogue outage.</p>
+ </>
+) : !entry ? (
+ <>
+  <a href="/catalogue">All mini-apps</a>
+  <h1>No mini-app exists at this address.</h1>
+  <p class="lede">The published catalogue has no contract for <code>{Astro.params.slug}</code>. It may have been renamed, or the link may be incomplete.</p>
+  <div class="actions"><a class="button" href="/catalogue">See every published mini-app</a><a class="button secondary" href="/apps">Browse the shipped app library</a></div>
+  <p class="small">The shipped library lists apps from this deployment’s own source, whether or not a catalogue contract has been published.</p>
+ </>
+) : (
+ <>
+  <a href="/catalogue">All mini-apps</a><h1>{entry.data.title}</h1><p class="lede">{entry.data.description}</p><p class="small">Reviewed {entry.data.reviewed}</p><div class="actions"><a class="button" href={entry.data.href}>Open app</a><a class="button secondary" href={entry.data.source}>View GitHub source</a></div><section class="section"><h2>Build with this app</h2><p>Configure the supported pair in Init, then give the saved specification to your authorised coding agent.</p><a href="/init">Configure your app</a></section>
+ </>
+)}
+</Base>
