@@ -3,7 +3,7 @@ import type { Stack, StackDocument, StackInstance } from '../plugins/stacks/api'
 import { membership, requireCapability, normaliseStack, StackError } from './stacks.mjs';
 import {
   resourceConnection, effectiveGuestbookConfiguration, configurationDigest,
-  type ResourceRuntime, type ResourceCommand, type RemoteOutcome,
+  type ResourceRuntime, type ResourceCommand, type RemoteOutcome, type AppAcknowledgement,
 } from './resource-client.ts';
 
 interface StackRow {
@@ -158,7 +158,7 @@ async function operation(ctx: MutationContext, instance: StackInstance, resource
   let pending = await unfinished(ctx.db, resource.id);
   if (pending) {
     try {
-      const confirmed = await connection.reconcile(resource.id, pending.id, JSON.parse(pending.request_json) as ResourceCommand);
+      const confirmed = await connection.reconcile(resource.id, pending.id, JSON.parse(pending.request_json) as ResourceCommand, pending.source_revision);
       if (confirmed) { const outcome: RemoteOutcome = { outcome: 'applied', reply: confirmed }; await record(ctx, pending, outcome); return outcome; }
       if (!retry || pending.source_revision !== connection.source) return { outcome: 'unknown', message: 'This operation is not confirmed. Its recorded request must be reconciled before a new operation is started.' };
     } catch { return { outcome: 'unknown', message: 'The app operation could not be reconciled. Nothing was resubmitted.' }; }
@@ -179,6 +179,22 @@ function sameTarget(resource: ResourceRow, connection: ReturnType<typeof resourc
   if (resource.account_id !== connection.account || resource.environment !== connection.environment || resource.target !== connection.target) {
     throw new StackError('FORBIDDEN', 'This resource belongs to another selected app target or environment.', 403);
   }
+}
+
+async function refresh(ctx: MutationContext, selected: ResourceRow, actual: AppAcknowledgement): Promise<boolean> {
+  const configuration = actual.configuration;
+  const state = configuration ? 'ready' : 'reserved';
+  const revision = configuration?.revision ?? null, digest = configuration?.digest ?? null;
+  const source = configuration?.source ?? null, valuesJSON = configuration ? JSON.stringify(configuration.values) : null;
+  if (selected.version === actual.resource.version && selected.state === state && selected.configuration_revision === revision &&
+      selected.configuration_digest === digest && selected.configuration_source === source && selected.configuration_json === valuesJSON) return false;
+  // Refresh only private confirmed metadata. The saved draft and immutable
+  // publication remain byte-for-byte intact, guarded by the stack revision CAS.
+  await change(ctx, (condition, values) => [ctx.db.prepare(`UPDATE creator_app_resources SET version=?,state=?,
+    configuration_revision=?,configuration_digest=?,configuration_source=?,configuration_json=?
+    WHERE id=? AND workspace_id=? AND version<=? AND ${condition}`)
+    .bind(actual.resource.version, state, revision, digest, source, valuesJSON, selected.id, ctx.workspace, actual.resource.version, ...values)]);
+  return true;
 }
 
 export async function applyStackResources(db: D1Database, user: string, workspace: string, stack: string, expected: number, runtime: ResourceRuntime): Promise<ResourceOperationResult> {
@@ -219,14 +235,29 @@ export async function reconcileStackResources(db: D1Database, user: string, work
   const ctx = await context(db, user, workspace, stack, expected), connection = resourceConnection(runtime, workspace);
   const completed: string[] = [], problems: ResourceOperationResult['problems'] = [];
   for (const instance of ctx.document.instances.filter(instance => instance.app === 'guestbook' && instance.binding.mode !== 'shared')) {
-    const selected = await binding(db, workspace, stack, instance.id);
+    let selected = await binding(db, workspace, stack, instance.id);
     if (!selected) continue;
     sameTarget(selected, connection);
     const pending = await unfinished(db, selected.id);
-    if (!pending) continue;
-    const outcome = await operation(ctx, instance, selected, connection, pending.action, {}, false);
-    if (outcome.outcome === 'applied') completed.push(instance.id);
-    else problems.push({ instance: instance.id, outcome: outcome.outcome, message: outcome.message ?? 'The app operation remains unconfirmed.' });
+    let recovered = false;
+    if (pending) {
+      const outcome = await operation(ctx, instance, selected, connection, pending.action, {}, false);
+      if (outcome.outcome !== 'applied') {
+        problems.push({ instance: instance.id, outcome: outcome.outcome, message: outcome.message ?? 'The app operation remains unconfirmed.' });
+        continue;
+      }
+      recovered = true;
+      selected = (await binding(db, workspace, stack, instance.id))!;
+    }
+    let actual: AppAcknowledgement;
+    try {
+      actual = await connection.status(selected.id);
+      if (actual.resource.version < selected.version) throw Error('The app returned an older resource version.');
+    } catch {
+      problems.push({ instance: instance.id, outcome: 'unknown', message: 'The current app resource could not be verified. Nothing was resubmitted.' });
+      continue;
+    }
+    if (await refresh(ctx, selected, actual) || recovered) completed.push(instance.id);
   }
   await guard(ctx);
   return { outcome: problems.length ? (completed.length ? 'partial' : 'unknown') : (completed.length ? 'applied' : 'unchanged'), stack: stackView(ctx.row), resources: await listStackResources(db, workspace, stack), completed, problems, publicationUnchanged: true };

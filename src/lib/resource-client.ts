@@ -3,6 +3,7 @@ import { appSettings, validateConfigurationPatch } from './app-settings.mjs';
 import { StackError } from './stacks.mjs';
 
 const id = z.string().regex(/^[a-z0-9-]{6,64}$/);
+const sourceRevision = z.string().regex(/^[a-f0-9]{40}$/);
 const revision = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 const config = z.object({
   title: z.string().min(1).max(80), intro: z.string().max(240),
@@ -17,7 +18,7 @@ const resource = z.object({
 });
 const configuration = z.object({
   revision: revision.refine(value => value > 0), digest: z.string().regex(/^[a-f0-9]{64}$/),
-  source: z.string().regex(/^[a-f0-9]{40}$/), values: config,
+  source: sourceRevision, values: config,
 });
 const acknowledgement = z.object({ contract: z.literal(1), outcome: z.literal('applied'), resource, configuration: configuration.nullable() });
 export type AppAcknowledgement = z.infer<typeof acknowledgement>;
@@ -100,7 +101,7 @@ export function resourceConnection(runtime: ResourceRuntime, workspace: string) 
     const build = z.object({ app: z.literal('guestbook'), revision: z.literal(source as string), dataVersion: z.literal(1), resourceContract: z.literal(1), resourcesEnabled: z.literal(true), resourceAccount: z.literal(account as string), resourceEnvironment: z.literal(environment as string) }).parse(await boundedJSON(response));
     if (!response.ok || build.revision !== source) throw Error('The connected app source or runtime does not match.');
   }
-  async function checked(value: unknown, resourceId: string, command?: ResourceCommand): Promise<AppAcknowledgement> {
+  async function checked(value: unknown, resourceId: string, command?: ResourceCommand, operationSource = source): Promise<AppAcknowledgement> {
     const reply = acknowledgement.parse(value);
     const selected = reply.resource;
     if (selected.id !== resourceId || selected.workspace !== workspace || selected.account !== account || selected.environment !== environment || selected.target !== target) throw Error('The app acknowledged another resource or target.');
@@ -108,8 +109,8 @@ export function resourceConnection(runtime: ResourceRuntime, workspace: string) 
     if (command) {
       const expectedVersion = command.action === 'create' ? 0 : (command.expectedVersion ?? -1) + 1;
       if (reply.resource.version !== expectedVersion) throw Error('The app acknowledged another version.');
-      if (command.action === 'stage' && (!reply.configuration || reply.configuration.revision !== expectedVersion || reply.configuration.source !== source || reply.configuration.digest !== await configurationDigest(command.configuration!))) throw Error('The staged configuration acknowledgement differs.');
-      if (command.action === 'activate' && (!reply.configuration || reply.resource.activeRevision !== command.configurationRevision || reply.configuration.revision !== command.configurationRevision || reply.configuration.digest !== command.configurationDigest || reply.configuration.source !== source)) throw Error('The activation acknowledgement differs.');
+      if (command.action === 'stage' && (!reply.configuration || reply.configuration.revision !== expectedVersion || reply.configuration.source !== operationSource || reply.configuration.digest !== await configurationDigest(command.configuration!))) throw Error('The staged configuration acknowledgement differs.');
+      if (command.action === 'activate' && (!reply.configuration || reply.resource.activeRevision !== command.configurationRevision || reply.configuration.revision !== command.configurationRevision || reply.configuration.digest !== command.configurationDigest || reply.configuration.source !== operationSource)) throw Error('The activation acknowledgement differs.');
     }
     return reply;
   }
@@ -119,14 +120,19 @@ export function resourceConnection(runtime: ResourceRuntime, workspace: string) 
       await verify();
       const response = await send('/api/resources/' + id.parse(resourceId));
       if (!response.ok) throw Error('The selected app resource could not be read.');
-      return checked(await boundedJSON(response), resourceId);
+      const actual = await checked(await boundedJSON(response), resourceId);
+      if (actual.resource.activeRevision !== (actual.configuration?.revision ?? null)) throw Error('The current app configuration and active revision disagree.');
+      return actual;
     },
-    async reconcile(resourceId: string, operationId: string, command?: ResourceCommand): Promise<AppAcknowledgement | null> {
+    async reconcile(resourceId: string, operationId: string, command: ResourceCommand, operationSource: string): Promise<AppAcknowledgement | null> {
+      // Reads verify the currently deployed source. A historical receipt belongs
+      // to the immutable source recorded when its operation was submitted.
+      const recordedSource = sourceRevision.parse(operationSource);
       await verify();
       const response = await send('/api/resources/' + id.parse(resourceId) + '?operation=' + encodeURIComponent(operationId));
       if (!response.ok) throw Error('The app operation could not be reconciled.');
       const value = z.object({ contract: z.literal(1), recorded: z.boolean(), result: z.unknown().optional() }).parse(await boundedJSON(response));
-      return value.recorded ? checked(value.result, resourceId, command) : null;
+      return value.recorded ? checked(value.result, resourceId, command, recordedSource) : null;
     },
     async command(resourceId: string, command: ResourceCommand, beforeWrite: () => Promise<void>): Promise<RemoteOutcome> {
       // Recheck both membership/revision and the actual integrated service

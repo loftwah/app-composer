@@ -25,7 +25,7 @@ const document = (name, instances) => ({ version: 1, name, description: '', them
 function appContract() {
   const resources = new Map(), operations = new Map(), writes = [];
   let afterWrite, badBuild = false, malformed = false;
-  const source = appSettings.guestbook.source.commit;
+  let source = appSettings.guestbook.source.commit;
   const reply = (row, candidate = row.active) => ({ contract: 1, outcome: 'applied', resource: { id: row.id, workspace: row.workspace, account, environment: 'production', target: origin + '/guestbook', version: row.version, activeRevision: row.active?.revision ?? null, visible: true, paused: false }, configuration: candidate ?? null });
   const send = async request => {
     const url = new URL(request.url);
@@ -68,6 +68,7 @@ function appContract() {
   };
   return { fetch: send, resources, operations, writes,
     afterWrite(fn) { afterWrite = fn; },
+    source(value) { source = value; },
     badBuild(value) { badBuild = value; }, malformed(value) { malformed = value; },
   };
 }
@@ -296,6 +297,115 @@ test('account/environment drift and viewer authority refuse apply before app wri
         await assert.rejects(applyStackResources(f.db, user.id, space.id, stack.id, stack.revision, f.runtime), error => error.code === 'FORBIDDEN');
       } else assert.equal((await applyStackResources(f.db, user.id, space.id, stack.id, stack.revision, f.runtime)).outcome, 'refused');
       assert.equal(f.app.writes.length, 0);
+    } finally { f.close(); }
+  }
+});
+
+test('explicit reconciliation refreshes app-owned version changes without replacing the draft or publication', async () => {
+  const f = fixture();
+  try {
+    const space = await workspaceForUser(f.db, user);
+    const initial = await saved(f, space.id, 'App-owned moderation', [instance('moderation-instance-0001', 'Published title')]);
+    const applied = await applyStackResources(f.db, user.id, space.id, initial.id, initial.revision, f.runtime);
+    const published = await f.route({ action: 'publish', workspace: space.id, stack: initial.id, expectedRevision: applied.stack.revision });
+    const previous = await publicStack(f.db, initial.slug);
+    const edited = await saveStack(f.db, space.id, initial.id, document(initial.name, [instance('moderation-instance-0001', 'Keep authored changes')]), published.stack.revision);
+    const actual = f.app.resources.get(applied.resources[0].resource);
+    actual.version++; // An app-owned moderation/control write legitimately advances its version.
+    const refused = await applyStackResources(f.db, user.id, space.id, initial.id, edited.revision, f.runtime);
+    assert.equal(refused.outcome, 'refused'); assert.equal(refused.resources[0].version, 2);
+    assert.equal(f.app.writes.at(-1).command.expectedVersion, 2);
+    const attempts = f.app.writes.length;
+    const beforeJSON = f.sqlite.prepare('SELECT draft_json,published_json FROM creator_stacks WHERE id=?').get(initial.id);
+    const reconciled = await reconcileStackResources(f.db, user.id, space.id, initial.id, refused.stack.revision, f.runtime);
+    assert.equal(reconciled.outcome, 'applied'); assert.equal(reconciled.resources[0].version, 3);
+    assert.equal(reconciled.resources[0].configuration.values.title, 'Published title');
+    assert.ok(reconciled.stack.revision > refused.stack.revision);
+    assert.deepEqual(reconciled.stack.draft, edited.draft);
+    assert.deepEqual(await publicStack(f.db, initial.slug), previous);
+    assert.deepEqual(f.sqlite.prepare('SELECT draft_json,published_json FROM creator_stacks WHERE id=?').get(initial.id), beforeJSON);
+    assert.equal(f.app.writes.length, attempts, 'explicit reconciliation only reads app state');
+    const repeated = await reconcileStackResources(f.db, user.id, space.id, initial.id, reconciled.stack.revision, f.runtime);
+    assert.equal(repeated.outcome, 'unchanged'); assert.equal(repeated.stack.revision, reconciled.stack.revision);
+    const retry = await applyStackResources(f.db, user.id, space.id, initial.id, repeated.stack.revision, f.runtime);
+    assert.equal(retry.outcome, 'applied'); assert.equal(f.app.writes[attempts].command.expectedVersion, 3);
+    assert.equal(retry.resources[0].configuration.values.title, 'Keep authored changes');
+    assert.deepEqual(await publicStack(f.db, initial.slug), previous);
+    assert.deepEqual(f.sqlite.prepare('PRAGMA foreign_key_check').all(), []);
+  } finally { f.close(); }
+});
+
+for (const action of ['stage', 'activate']) {
+  test(`historical ${action} acknowledgement reconciles after a verified source upgrade without replaying the old request`, async () => {
+    const f = fixture(), originalSource = appSettings.guestbook.source.commit;
+    try {
+      const space = await workspaceForUser(f.db, user);
+      const stack = await saved(f, space.id, 'Upgrade ' + action, [instance('upgrade-instance-0001', 'Preserve upgrade intent')]);
+      f.app.afterWrite(({ command }) => { if (command.action === action) throw Error('committed acknowledgement lost'); });
+      const unknown = await applyStackResources(f.db, user.id, space.id, stack.id, stack.revision, f.runtime);
+      assert.equal(unknown.outcome, 'unknown');
+      const pending = f.sqlite.prepare("SELECT * FROM creator_resource_operations WHERE state='unknown'").get();
+      assert.equal(pending.action, action); assert.equal(pending.source_revision, originalSource);
+      const receipt = f.app.operations.get(pending.id), attempts = f.app.writes.length;
+      const upgradedSource = originalSource === 'a'.repeat(40) ? 'c'.repeat(40) : 'a'.repeat(40);
+      appSettings.guestbook.source.commit = upgradedSource; f.app.source(upgradedSource); f.app.afterWrite(null);
+      // A current verified connection cannot replay an unconfirmed old-source operation.
+      f.app.operations.delete(pending.id);
+      const missing = await applyStackResources(f.db, user.id, space.id, stack.id, unknown.stack.revision, f.runtime);
+      assert.equal(missing.outcome, 'unknown'); assert.equal(f.app.writes.length, attempts);
+      // A receipt falsely attributed to today's pin cannot settle yesterday's operation.
+      f.app.operations.set(pending.id, { ...receipt, configuration: { ...receipt.configuration, source: upgradedSource } });
+      const incompatible = await reconcileStackResources(f.db, user.id, space.id, stack.id, missing.stack.revision, f.runtime);
+      assert.equal(incompatible.outcome, 'unknown'); assert.equal(f.app.writes.length, attempts);
+      f.app.operations.set(pending.id, receipt);
+      const reconciled = await reconcileStackResources(f.db, user.id, space.id, stack.id, incompatible.stack.revision, f.runtime);
+      assert.equal(reconciled.outcome, 'applied'); assert.equal(f.app.writes.length, attempts);
+      assert.equal(f.sqlite.prepare('SELECT state FROM creator_resource_operations WHERE id=?').get(pending.id).state, 'confirmed');
+      assert.deepEqual(reconciled.stack.draft, stack.draft);
+      assert.equal(await publicStack(f.db, stack.slug), null);
+      if (action === 'activate') assert.equal(reconciled.resources[0].configuration.source, originalSource);
+      const applied = await applyStackResources(f.db, user.id, space.id, stack.id, reconciled.stack.revision, f.runtime);
+      assert.equal(applied.outcome, 'applied'); assert.equal(applied.resources[0].configuration.source, upgradedSource);
+      assert.deepEqual(f.app.writes.slice(attempts).map(write => write.command.action), ['stage', 'activate']);
+      assert.notEqual(f.app.writes[attempts].command.operationId, pending.id);
+    } finally { appSettings.guestbook.source.commit = originalSource; f.close(); }
+  });
+}
+
+test('resource status refresh verifies the current source and scope and loses to a concurrent draft save', async () => {
+  for (const failure of ['source', 'scope', 'save']) {
+    const f = fixture();
+    try {
+      const space = await workspaceForUser(f.db, user);
+      const stack = await saved(f, space.id, 'Refresh guard ' + failure, [instance('refresh-instance-0001', 'Original title')]);
+      const applied = await applyStackResources(f.db, user.id, space.id, stack.id, stack.revision, f.runtime);
+      const published = await f.route({ action: 'publish', workspace: space.id, stack: stack.id, expectedRevision: applied.stack.revision });
+      const previous = await publicStack(f.db, stack.slug), attempts = f.app.writes.length;
+      f.app.resources.get(applied.resources[0].resource).version++;
+      if (failure === 'source') f.app.badBuild(true);
+      else {
+        const fetch = f.app.fetch;
+        f.app.fetch = async request => {
+          const response = await fetch(request), url = new URL(request.url);
+          if (request.method !== 'GET' || !url.pathname.includes('/api/resources/') || url.search) return response;
+          if (failure === 'scope') {
+            const reply = await response.json(); reply.resource.workspace = 'foreign-workspace-0001';
+            return Response.json(reply);
+          }
+          await saveStack(f.db, space.id, stack.id, document(stack.name, [instance('refresh-instance-0001', 'Saved during refresh')]), published.stack.revision);
+          return response;
+        };
+      }
+      const reconcile = () => reconcileStackResources(f.db, user.id, space.id, stack.id, published.stack.revision, f.runtime);
+      if (failure === 'save') await assert.rejects(reconcile(), error => error.code === 'CONFLICT');
+      else {
+        const result = await reconcile();
+        assert.equal(result.outcome, 'unknown'); assert.equal(result.stack.revision, published.stack.revision);
+      }
+      assert.equal((await listStackResources(f.db, space.id, stack.id))[0].version, 2);
+      assert.equal(f.app.writes.length, attempts);
+      assert.deepEqual(await publicStack(f.db, stack.slug), previous);
+      if (failure === 'save') assert.equal((await readStack(f.db, space.id, stack.id)).draft.instances[0].config.title, 'Saved during refresh');
     } finally { f.close(); }
   }
 });
