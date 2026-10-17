@@ -1,9 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {execFileSync} from 'node:child_process';
-import {mkdtempSync, readFileSync, rmSync} from 'node:fs';
-import {tmpdir} from 'node:os';
-import {join} from 'node:path';
 import {
   StackError, capabilityFor, requireCapability, normaliseStack, slugify,
   workspaceForUser, resolveWorkspace, listStacks, readStack, createStack,
@@ -14,49 +10,7 @@ import {
 // Real SQLite behind a D1-shaped shim: UNIQUE, CHECK and transaction semantics
 // are the database's, not a mock's. The file persists across the calls of one
 // test so a lifecycle can actually run.
-const fixture = String.raw`import sqlite3,json,sys
-p=json.load(sys.stdin)
-db=sqlite3.connect(p['path'])
-db.executescript(p['schema'])
-db.row_factory=sqlite3.Row
-try:
-    cur=db.execute(p['sql'],p['params'])
-    if p['mode']=='run':
-        db.commit();print(json.dumps({'success':True,'meta':{'changes':cur.rowcount}}))
-    elif p['mode']=='first':
-        row=cur.fetchone();print(json.dumps({'row':dict(row) if row else None}))
-    else:
-        print(json.dumps({'rows':[dict(r) for r in cur.fetchall()]}))
-except Exception as e:
-    print(json.dumps({'error':str(e)}))
-`;
-function sqliteD1() {
-  const dir = mkdtempSync(join(tmpdir(), 'composer-stacks-'));
-  const path = join(dir, 'stacks.db');
-  const schema = readFileSync(new URL('../migrations/0003_stacks.sql', import.meta.url), 'utf8')
-    + '\n' + readFileSync(new URL('../migrations/0004_stack_publications.sql', import.meta.url), 'utf8');
-  const call = (mode, sql, params) => {
-    const output = execFileSync('python3', ['-c', fixture], { input: JSON.stringify({ path, schema, sql, params, mode }), encoding: 'utf8' });
-    const data = JSON.parse(output);
-    if (data.error) throw Error(data.error);
-    return data;
-  };
-  return {
-    path,
-    cleanup: () => rmSync(dir, { recursive: true, force: true }),
-    prepare(sql) {
-      return {
-        bind(...params) {
-          return {
-            async first() { return call('first', sql, params).row ?? null; },
-            async all() { return { results: call('all', sql, params).rows }; },
-            async run() { return call('run', sql, params); },
-          };
-        },
-      };
-    },
-  };
-}
+import { sqliteD1 } from './helpers/stacks-sqlite.mjs';
 
 const alice = { id: 'user-alice-0001', name: 'Alice', role: 50 };
 const bob = { id: 'user-bob-0002', name: 'Bob', role: 50 };
@@ -121,19 +75,19 @@ test('two fictional creators keep independent workspaces, drafts and published r
     assert.equal((await publicStack(db, 'loftwah-front-page')).document.description, 'Two useful apps');
     const republished = await publishStack(db, aliceSpace.id, front.id, edited.revision);
     assert.equal((await publicStack(db, 'loftwah-front-page')).document.description, 'Changed later');
-    assert.equal(republished.publishedRevision, 3);
+    assert.equal(republished.publishedRevision, edited.revision);
 
     // Unpublish, archive and restore all keep the draft intact.
-    await unpublishStack(db, aliceSpace.id, front.id);
+    const unpublished = await unpublishStack(db, aliceSpace.id, front.id, republished.revision);
     assert.equal(await publicStack(db, 'loftwah-front-page'), null);
-    await setArchived(db, aliceSpace.id, front.id, true);
+    const archived = await setArchived(db, aliceSpace.id, front.id, true, unpublished.revision);
     await assert.rejects(saveStack(db, aliceSpace.id, front.id, sample('Loftwah front page'), 3), /Restore this stack/);
-    const restored = await setArchived(db, aliceSpace.id, front.id, false);
+    const restored = await setArchived(db, aliceSpace.id, front.id, false, archived.revision);
     assert.equal(restored.status, 'draft');
     assert.equal(restored.draft.description, 'Changed later');
 
     // Duplication copies configuration with fresh instance identities.
-    const copy = await duplicateStack(db, aliceSpace.id, front.id);
+    const copy = await duplicateStack(db, aliceSpace.id, front.id, restored.revision);
     assert.notEqual(copy.id, front.id);
     assert.notEqual(copy.draft.instances[0].id, edited.draft.instances[0].id);
     assert.equal(copy.draft.instances[0].app, 'guestbook');
@@ -144,7 +98,7 @@ test('two fictional creators keep independent workspaces, drafts and published r
     await assert.rejects(resolveWorkspace(db, bob, aliceSpace.id), error => error.status === 403);
     assert.equal((await listStacks(db, bobSpace.id)).length, 0);
 
-    await deleteStack(db, aliceSpace.id, second.id);
+    await deleteStack(db, aliceSpace.id, second.id, second.revision);
     assert.equal((await listStacks(db, aliceSpace.id)).length, 2);
   } finally {
     db.cleanup();
