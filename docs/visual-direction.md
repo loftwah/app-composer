@@ -12,9 +12,15 @@ The desired animation language can draw on adult science-fiction cartoons, inclu
 
 ## Linkarooie
 
-Start with the actual [original GitHub icon](https://github.com/loftwah/linkarooie-3/blob/149f277bc45baf31eca406878e8e16325b85a06f/src/assets/images/icon.png): the acid-green kangaroo, raised-leg pose and irreverent gesture. Preserve recognisable character and movement when making a variation. Lime/purple are identity cues, not permission to fill every surface with neon.
+The [recovered GitHub icon](https://github.com/loftwah/linkarooie-3/blob/149f277bc45baf31eca406878e8e16325b85a06f/src/assets/images/icon.png) was a real historical asset, but MP subsequently confirmed the agent chose the wrong one of two similar references. Do not present it as the intended reference. Preserve its provenance without silently elevating that choice to owner authority.
 
 The interlocking chain pictogram loses that identity. The glossy lime kangaroo with a purple cap generated on 18 October was rejected. The later rust-orange head was only a modest improvement, not an approved final direction. Repeating it across the family would compound the problem.
+
+### Accepted Linkarooie baseline, 18 October
+
+MP accepted the later lime-green workshop curator at 8/10: keep this character, pose and colours. The staged scene shows the kangaroo selecting an orange cassette beside a purple handheld game and cream notebook, with rejected transmission tags going to a bin. The character remains locked despite the wrong-reference mistake. The acceptance was qualified: the surrounding result still has glitches; it is not approval of every export, crop, icon or final integration.
+
+The selected master is `.artwork/masters/linkarooie-curator-accepted-20261018.png` (1732×908); its owning-app copy is `public/brand/linkarooie-curator-20261018-master.png`. MP also accepted the conservative “Keep the good stuff together” text treatment. Keep this identity and copy while correcting technical/visual defects and producing the coherent delivery family. Do not replace or regenerate the character because a later agent prefers another style. Any new pose or optical crop must preserve this character rather than introducing another lookalike.
 
 ## Drawing and composition
 
