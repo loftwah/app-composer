@@ -2,6 +2,7 @@ import {assertReleasePackage} from './package-get-ready.mjs';
 import {assertMcpReleasePackage} from './package-get-ready-mcp.mjs';
 import {verifyLive} from './verify-live.mjs';
 import {verifySharing} from './verify-sharing.mjs';
+import {auditPublication} from './audit-publication.mjs';
 import {readFileSync} from 'node:fs';
 import {resolve,dirname} from 'node:path';
 import {query} from './records.mjs';
@@ -42,6 +43,9 @@ try {
 } finally {snapshot?.remove();}
 await verifyLive(sha,lock);
 await verifySharing('https://composer.loftwah.com');
+const publication=await auditPublication('https://composer.loftwah.com',{downloads:['/downloads/get-ready-core.tgz','/downloads/get-ready-mcp.tgz','/downloads/cloudflare-extension.zip']});
+console.log(JSON.stringify(publication));
+if(!publication.ok)throw Error('Live publication privacy verification failed.');
 for(const path of ['/_emdash/admin/setup','/_emdash/api/users','/_emdash/api/setup/status','/_emdash/api/plugins/composer-miniapps/read?app=guestbook&action=snapshot']){
  const res=await fetch('https://composer.loftwah.com'+path,{redirect:'manual',headers:{'User-Agent':'Mozilla/5.0 (AppComposer verification)'}});
  const location=res.headers.get('location'),redirect=location?new URL(location,'https://composer.loftwah.com'):null;
