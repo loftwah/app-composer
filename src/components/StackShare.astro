@@ -1,6 +1,7 @@
 ---
 // The server card and public page use the exact same publication. A download
 // remains available without JavaScript; local QR/copy controls enhance it.
+import {stackSharePayload} from '../lib/stack-sharing.ts';
 interface Props {
   slug: string;
   revision: number;
@@ -14,7 +15,7 @@ interface Props {
 const {slug, revision, url, title, description, imagePath, imageUrl, imageAlt} = Astro.props;
 // Text is data even inside a JSON script element. Escaping '<' prevents an
 // authored title such as '</script>' from changing the surrounding HTML.
-const payload = JSON.stringify({slug, revision, url, title, description, imagePath, imageUrl}).replaceAll('<', '\\u003c');
+const payload = stackSharePayload({slug, revision, url, title, description, imagePath, imageUrl});
 ---
 <section class="stack-share" data-stack-share>
   <h2>Share this stack</h2>

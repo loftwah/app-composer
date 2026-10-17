@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
 import {publicStack} from '../src/lib/stacks.mjs';
-import {stackShareDetails, isStackImageIdentity} from '../src/lib/stack-sharing.ts';
+import {stackShareDetails, stackSharePayload, isStackImageIdentity} from '../src/lib/stack-sharing.ts';
 import {stackShareSvg, wrapCardText} from '../src/lib/stack-share-svg.ts';
 import {initWasm, Resvg} from '@resvg/resvg-wasm';
 import {createRequire} from 'node:module';
@@ -19,6 +19,15 @@ const sample = {
 const row = document => ({id: 'stack-identity-0001', slug: 'trail-notes', revision: 3, published_at: '2026-10-18 00:00:00', document_json: JSON.stringify(document)});
 const db = source => ({prepare() { return {bind() { return {async first() { return source; }}}}; }});
 const measure = text => Array.from(text).length * 20;
+
+test('script data preserves less-than signs, closing tags, quotes and backslashes exactly', () => {
+  for (const title of ['<', '</script>', '"quoted"', String.raw`one\two`, String.raw`<a "quote" \ backslash></script>`]) {
+    const data = {title, description: `Description: ${title}`, url: 'https://composer.loftwah.com/s/trail-notes'};
+    const payload = stackSharePayload(data);
+    assert.equal(payload.includes('<'), false, 'raw script data cannot terminate the HTML script element');
+    assert.deepEqual(JSON.parse(payload), data, 'JSON must restore the exact authored strings');
+  }
+});
 
 test('card identity, copy, alt and visible labels come only from the persisted publication', async () => {
   const persisted = row(sample);

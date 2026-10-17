@@ -32,6 +32,12 @@ export interface StackShareDetails {
   imageAlt: string;
 }
 
+// JSON inside a script element must not contain an HTML closing tag. String.raw
+// keeps the one JSON escape explicit; JSON.parse restores the original text.
+export function stackSharePayload(value: Record<string, unknown>): string {
+  return JSON.stringify(value).replaceAll('<', String.raw`\u003c`);
+}
+
 export function publicStackDescription(stack: PublishedStackShare): string {
   const apps = stack.document.instances.filter(instance => instance.visible !== false).map(instance => instance.label);
   return stack.description || `A published App Composer stack: ${apps.join(', ') || 'no visible apps yet'}.`;

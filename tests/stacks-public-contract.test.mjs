@@ -62,7 +62,7 @@ test('the share controls use the publication-specific public image and local QR 
   const component = read('src/components/StackShare.astro');
   assert.match(component, /data-stack-share-data/);
   assert.match(component, /href=\{imagePath\} download=/);
-  assert.match(component, /replaceAll\('<', '\\\\u003c'\)/);
+  assert.match(component, /const payload = stackSharePayload\(/);
   const page = read('src/pages/s/[slug].astro');
   assert.match(page, /shareImage=\{sharing\?\.imageUrl\}/);
   assert.match(page, /shareAlt=\{sharing\?\.imageAlt\}/);
