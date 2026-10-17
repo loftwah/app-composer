@@ -1,6 +1,6 @@
 import {renderAppPreview} from './app-preview';
 import {currentAssistance} from './assistance';
-import {presetRecommendation,recommendationSpec,assistedHandoff} from './init-recommendations.mjs';
+import {presetRecommendation,recommendationSpec,assistedHandoff,initialRecommendation} from './init-recommendations.mjs';
 import {setupPreferenceKey,validateSetupPreferences} from '../../lib/get-ready/preferences.mjs';
 import {validateSpec,presets,specVersion} from './spec.mjs';
 import {appSettings,selectedSources,appConfiguration} from './app-settings.mjs';
@@ -89,4 +89,8 @@ document.querySelector('#replace-import')!.addEventListener('click',()=>{
  const candidate=pendingImport;revision++;dismissImport();fill(candidate);goal.value=value('preset');edited();show();previewRecommendation();message.textContent='Imported into the form. Choose Save draft to keep it on this device.';(form.elements.namedItem('title') as HTMLInputElement).focus();
 });
 document.querySelector('#cancel-import')!.addEventListener('click',()=>{revision++;dismissImport();message.textContent='Import cancelled. Your current and saved drafts are unchanged.';importInput.focus();});
-show();observedSnapshot=snapshot();goal.value=value('preset');previewRecommendation();
+show();
+observedSnapshot=snapshot();
+// A demo link selects the recommendation only. Saved work changes after Use.
+goal.value=initialRecommendation(location.search,value('preset'));
+previewRecommendation();

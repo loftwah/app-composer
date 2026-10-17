@@ -1,8 +1,20 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {defaultAssistancePreference,validateAssistancePreference,assistanceHandoff,defaultSetupPreferences,validateSetupPreferences} from '../lib/get-ready/preferences.mjs';
-import {presetRecommendation,recommendationSpec,assistedHandoff} from '../src/lib/init-recommendations.mjs';
+import {presetRecommendation,recommendationSpec,assistedHandoff,initialRecommendation} from '../src/lib/init-recommendations.mjs';
 import {validateSpec,presets} from '../src/lib/spec.mjs';import {selectedSources} from '../src/lib/app-settings.mjs';
 const initial=()=>validateSpec({version:2,preset:'composition',sources:selectedSources(['guestbook','showcase']),config:{title:presets.composition.title,intro:presets.composition.intro,theme:'midnight',layout:'editorial'},cards:[{title:'A fictional reference',url:'https://example.test/'}],privacy:'review-first',deployment:{mode:'existing-domain',hostname:'app.example.test'},decisions:{goal:'composition',target:'existing-domain',privacy:'review-first',appearance:'midnight','owner-priority':'Keep the source'}});
+test('a composition link previews its starting point without replacing a saved draft',()=>{
+ const saved=recommendationSpec(initial(),'showcase');
+ const before=JSON.stringify(saved);
+ assert.equal(initialRecommendation('?start=composition&analytics=off&qa=1',saved.preset),'composition');
+ assert.equal(JSON.stringify(saved),before);
+ for(const search of ['', '?start=unreviewed', '?start=constructor', '?start=composition&start=hello'])assert.equal(initialRecommendation(search,saved.preset),'showcase');
+ const applied=recommendationSpec(saved,initialRecommendation('?start=composition',saved.preset));
+ assert.deepEqual(applied.apps,['guestbook','showcase']);
+ assert.deepEqual(applied.cards,saved.cards);
+ assert.equal(applied.config.theme,saved.config.theme);
+ assert.equal(applied.deployment.hostname,saved.deployment.hostname);
+});
 test('assistance intent is strict, independent of address and cannot grant execution authority',()=>{
  assert.equal(defaultAssistancePreference.level,'easy');for(const level of ['easy','guided','advanced']){const preference=validateAssistancePreference({version:1,level});assert.match(assistanceHandoff(preference),/grants no access, setup, purchase, permission, destructive action or deployment authority/);assert.deepEqual(validateSetupPreferences(defaultSetupPreferences),defaultSetupPreferences);}
  for(const input of [{version:2,level:'easy'},{version:1,level:'execute'},{version:1,level:'advanced',token:'fictional'},{version:1,level:'constructor'},{version:1,level:['easy']},{version:1,level:null}])assert.throws(()=>validateAssistancePreference(input));
