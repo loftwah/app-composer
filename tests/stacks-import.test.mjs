@@ -3,52 +3,12 @@
 // the round trip exercises the same constraints the deployed instance does.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import {
   normaliseStack, workspaceForUser, createStack, saveStack, listStacks, listPublications,
   exportStack, describeImport, importStack,
 } from '../src/lib/stacks.mjs';
 
-const fixture = String.raw`import sqlite3,json,sys
-p=json.load(sys.stdin)
-db=sqlite3.connect(p['path'])
-db.executescript(p['schema'])
-db.row_factory=sqlite3.Row
-try:
-    cur=db.execute(p['sql'],p['params'])
-    if p['mode']=='run':
-        db.commit();print(json.dumps({'success':True,'meta':{'changes':cur.rowcount}}))
-    elif p['mode']=='first':
-        row=cur.fetchone();print(json.dumps({'row':dict(row) if row else None}))
-    else:
-        print(json.dumps({'rows':[dict(r) for r in cur.fetchall()]}))
-except Exception as e:
-    print(json.dumps({'error':str(e)}))
-`;
-function sqliteD1() {
-  const dir = mkdtempSync(join(tmpdir(), 'composer-stacks-import-'));
-  const path = join(dir, 'stacks.db');
-  const schema = readFileSync(new URL('../migrations/0003_stacks.sql', import.meta.url), 'utf8')
-    + '\n' + readFileSync(new URL('../migrations/0004_stack_publications.sql', import.meta.url), 'utf8');
-  const call = (mode, sql, params) => {
-    const data = JSON.parse(execFileSync('python3', ['-c', fixture], { input: JSON.stringify({ path, schema, sql, params, mode }), encoding: 'utf8' }));
-    if (data.error) throw Error(data.error);
-    return data;
-  };
-  return {
-    cleanup: () => rmSync(dir, { recursive: true, force: true }),
-    prepare(sql) {
-      return { bind(...params) { return {
-        async first() { return call('first', sql, params).row ?? null; },
-        async all() { return { results: call('all', sql, params).rows }; },
-        async run() { return call('run', sql, params); },
-      }; } };
-    },
-  };
-}
+import { sqliteD1 } from './helpers/stacks-sqlite.mjs';
 
 const alice = { id: 'user-alice-0001', name: 'Alice', role: 50 };
 const bob = { id: 'user-bob-0002', name: 'Bob', role: 50 };

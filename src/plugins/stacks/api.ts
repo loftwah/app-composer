@@ -1,4 +1,5 @@
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
+import { decodeStackReply } from "./protocol";
 
 export type Role = "owner" | "editor" | "viewer";
 export interface Workspace {
@@ -66,7 +67,13 @@ export interface StackExport {
   stack: string;
   revision: number;
   document: StackDocument;
-  configuration: { instance: string; app: string; mode: string; shareOf: string | null; settings: Record<string, string> }[];
+  configuration: {
+    instance: string;
+    app: string;
+    mode: string;
+    shareOf: string | null;
+    settings: Record<string, string>;
+  }[];
   covers: Record<string, boolean>;
 }
 export interface StackImportSummary {
@@ -83,7 +90,12 @@ export interface ActivationEntry {
   name: string;
   configurable: boolean;
   reason?: string;
-  settings?: { key: string; label: string; value: string; overridden: boolean }[];
+  settings?: {
+    key: string;
+    label: string;
+    value: string;
+    overridden: boolean;
+  }[];
 }
 
 // One call shape for reads and writes, matching the other native plugin pages.
@@ -113,24 +125,9 @@ export async function call(
           body: JSON.stringify(values),
         },
   );
-  const data = await parseApiResponse<{
-    ok: boolean;
-    code?: string;
-    message?: string;
-    workspace?: Workspace;
-    stacks?: Stack[];
-    stack?: Stack;
-    deleted?: { id: string; name: string; slug?: string; removedPublications?: boolean };
-    publications?: StackPublication[];
-    instances?: InstanceConfiguration[];
-    configuration?: { entries: ActivationEntry[]; shared: { instanceId: string; app: string; name: string; shareOf: string | null }[] };
-    export?: StackExport;
-    imported?: StackImportSummary;
-  }>(response, "Composer could not complete this request. Refresh before retrying.");
-  if (!data?.ok)
-    throw Object.assign(
-      Error(data?.message || "The creator workspace is unavailable."),
-      { code: data?.code },
-    );
-  return data;
+  const data = await parseApiResponse<unknown>(
+    response,
+    "Composer could not complete this request. Your draft is still here; check the saved version before retrying.",
+  );
+  return decodeStackReply(action, data);
 }
