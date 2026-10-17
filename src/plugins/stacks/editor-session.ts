@@ -59,4 +59,16 @@ export class EditorSession {
     if (savedDraft && exact) this.acknowledged = checkpoint.generation;
     return true;
   }
+
+  // A read-only resource reconciliation can confirm the same saved revision.
+  // It never saves or replaces local edits and cannot accept an older token.
+  acknowledgeUnchanged(checkpoint: EditCheckpoint, revision: number) {
+    return (
+      Number.isSafeInteger(revision) &&
+      revision > 0 &&
+      checkpoint.stack === this.stack &&
+      revision === checkpoint.revision &&
+      revision === this.revision
+    );
+  }
 }
