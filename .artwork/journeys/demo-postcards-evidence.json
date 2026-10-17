@@ -1,0 +1,270 @@
+[
+  {
+    "step": "before",
+    "publicItems": [
+      {
+        "id": "6b3a8299-1add-472e-b7e0-a9157f8543df",
+        "title": "Demo moment 2 · fictional fixture. Publi"
+      },
+      {
+        "id": "0982dc50-522f-4b6e-8e7b-b97012645754",
+        "title": "Demo moment 1 · fictional fixture. Publi"
+      }
+    ]
+  },
+  {
+    "step": "upload+approve",
+    "id": "5b4cf3ad-b3c1-4b56-8099-8e3e6d6d39bd",
+    "status": "approved"
+  },
+  {
+    "step": "upload+approve",
+    "id": "faf5889d-69f1-47d9-8e78-a51ac7218aa1",
+    "status": "approved"
+  },
+  {
+    "step": "collected",
+    "card": "567d5768-e2c2-49d4-a219-707dbbce49d6",
+    "item": "5b4cf3ad-b3c1-4b56-8099-8e3e6d6d39bd"
+  },
+  {
+    "step": "retired card",
+    "card": "81e6ac64-4b37-490e-aa38-c1c0b21829b5",
+    "title": "Demo moment 1 · fictional fixture. Publi"
+  },
+  {
+    "step": "retired item",
+    "id": "6b3a8299-1add-472e-b7e0-a9157f8543df",
+    "status": "deleted"
+  },
+  {
+    "step": "retired item",
+    "id": "0982dc50-522f-4b6e-8e7b-b97012645754",
+    "status": "deleted"
+  },
+  {
+    "step": "after",
+    "publicItems": [
+      {
+        "id": "faf5889d-69f1-47d9-8e78-a51ac7218aa1",
+        "title": "The tide lighthouse, slow moon · fictional demo po",
+        "image": "https://guestbook.loftwah.com/media/faf5889d-69f1-47d9-8e78-a51ac7218aa1"
+      },
+      {
+        "id": "5b4cf3ad-b3c1-4b56-8099-8e3e6d6d39bd",
+        "title": "Signal check at the ring market · fictional demo p",
+        "image": "https://guestbook.loftwah.com/media/5b4cf3ad-b3c1-4b56-8099-8e3e6d6d39bd"
+      }
+    ],
+    "publicCards": [
+      {
+        "id": "37fb3a2f-a127-4f05-ba8f-278707808431",
+        "title": "LoftwahFM",
+        "provider": null,
+        "item": null,
+        "group": "Music",
+        "pinned": true
+      },
+      {
+        "id": "55c08736-2323-4c9d-8338-c570052969e5",
+        "title": "Loftwah the Beatsmiff",
+        "provider": null,
+        "item": null,
+        "group": "Music",
+        "pinned": true
+      },
+      {
+        "id": "0a0bf6a7-4d72-4391-8be6-f68fceb3a519",
+        "title": "Protocol 11",
+        "provider": null,
+        "item": null,
+        "group": "Games",
+        "pinned": true
+      },
+      {
+        "id": "843e328d-ca06-47a7-8707-caa7aa32bed3",
+        "title": "Bubbles",
+        "provider": null,
+        "item": null,
+        "group": "Games",
+        "pinned": true
+      },
+      {
+        "id": "5dc03c55-d261-428f-84c4-196d0d99abf0",
+        "title": "SHOALSHOT",
+        "provider": null,
+        "item": null,
+        "group": "Games",
+        "pinned": true
+      },
+      {
+        "id": "d94ffbcb-a467-4154-bf54-c662bb9e06f4",
+        "title": "App Composer",
+        "provider": null,
+        "item": null,
+        "group": "Projects",
+        "pinned": true
+      },
+      {
+        "id": "75e54fa2-d382-4553-9ed9-c79a17cb8791",
+        "title": "Woodhouse",
+        "provider": null,
+        "item": null,
+        "group": "Projects",
+        "pinned": true
+      },
+      {
+        "id": "97522cee-5ddf-4156-bf61-dc9a107d126d",
+        "title": "Writing by Dean Lofts",
+        "provider": null,
+        "item": null,
+        "group": "Writing",
+        "pinned": true
+      },
+      {
+        "id": "004c61ee-f7af-4eb3-aaa6-e7d13f8e0d50",
+        "title": "Loftwah on Spotify",
+        "provider": null,
+        "item": null,
+        "group": "Music",
+        "pinned": false
+      },
+      {
+        "id": "0a3b2d1b-7bcc-432c-ab9c-cdc297d87392",
+        "title": "Apple Music",
+        "provider": null,
+        "item": null,
+        "group": "Music",
+        "pinned": false
+      },
+      {
+        "id": "92198b71-100e-4239-831d-3517ce6bd2ef",
+        "title": "triple j Unearthed",
+        "provider": null,
+        "item": null,
+        "group": "Music",
+        "pinned": false
+      },
+      {
+        "id": "66de4ed4-f557-4203-98c0-74276a0eac9f",
+        "title": "Beats on YouTube",
+        "provider": null,
+        "item": null,
+        "group": "Music",
+        "pinned": false
+      },
+      {
+        "id": "f00220cd-db87-4611-b6c0-1fd00c6a11ea",
+        "title": "Production credits on YouTube",
+        "provider": null,
+        "item": null,
+        "group": "Music",
+        "pinned": false
+      },
+      {
+        "id": "02ab4e69-cb3c-4d6f-a332-b310b868bc81",
+        "title": "Discogs · Dean Lofts",
+        "provider": null,
+        "item": null,
+        "group": "Music",
+        "pinned": false
+      },
+      {
+        "id": "564ce6b1-4bd9-4d67-8ca7-efef0a0ec6bb",
+        "title": "Discogs · Loftee Beats",
+        "provider": null,
+        "item": null,
+        "group": "Music",
+        "pinned": false
+      },
+      {
+        "id": "dbee767b-335d-4339-9b55-1841d7f054b1",
+        "title": "SoundBetter",
+        "provider": null,
+        "item": null,
+        "group": "Music",
+        "pinned": false
+      },
+      {
+        "id": "d956e73e-ffea-4e62-afec-9401df154936",
+        "title": "Loftwah Fighter",
+        "provider": null,
+        "item": null,
+        "group": "Games",
+        "pinned": false
+      },
+      {
+        "id": "109940e4-1ed3-4d2b-ac5a-ee840189313a",
+        "title": "Bogan Hustler",
+        "provider": null,
+        "item": null,
+        "group": "Games",
+        "pinned": false
+      },
+      {
+        "id": "be97a972-3f69-4e7b-92d9-122a51b80fb9",
+        "title": "Asset Hunter",
+        "provider": null,
+        "item": null,
+        "group": "Projects",
+        "pinned": false
+      },
+      {
+        "id": "0bb6d15e-79bc-4319-a32e-8b66c874ae4a",
+        "title": "Loftwah Pizza Shop",
+        "provider": null,
+        "item": null,
+        "group": "Projects",
+        "pinned": false
+      },
+      {
+        "id": "faf57139-3736-4a3c-8672-309d1752d4d1",
+        "title": "Linux for Pirates!",
+        "provider": null,
+        "item": null,
+        "group": "Writing",
+        "pinned": false
+      },
+      {
+        "id": "85c912e0-f83e-4e55-9bca-1cfc6be64290",
+        "title": "GitHub",
+        "provider": null,
+        "item": null,
+        "group": "Connect",
+        "pinned": false
+      },
+      {
+        "id": "a9da4e6c-b09f-4985-927d-c3adf9714ddc",
+        "title": "X · @loftwah",
+        "provider": null,
+        "item": null,
+        "group": "Connect",
+        "pinned": false
+      },
+      {
+        "id": "7e420c4d-c318-48db-9829-f180082d3b17",
+        "title": "LinkedIn",
+        "provider": null,
+        "item": null,
+        "group": "Connect",
+        "pinned": false
+      },
+      {
+        "id": "8cd67f3c-ed22-4f98-a5ff-b75d8efbbdca",
+        "title": "daily.dev",
+        "provider": null,
+        "item": null,
+        "group": "Connect",
+        "pinned": false
+      },
+      {
+        "id": "567d5768-e2c2-49d4-a219-707dbbce49d6",
+        "title": "Signal check at the ring market · fictional demo p",
+        "provider": "guestbook",
+        "item": "5b4cf3ad-b3c1-4b56-8099-8e3e6d6d39bd",
+        "group": "",
+        "pinned": false
+      }
+    ]
+  }
+]
