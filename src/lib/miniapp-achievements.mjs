@@ -2,7 +2,7 @@
 // Composer validates its private bridge; the app remains the final write authority.
 import {isCalendarDate,calendarDateLabel} from '../../lib/content-model/calendar-date.mjs';
 const keys=['title','description','date','url','icon','status'];
-const icons=['link','book','code','music','video','heart'];
+const icons=['link','book','code','music','video','game','heart','star'];
 const uuid=value=>typeof value==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(value);
 const exact=(value,fields)=>!!value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).length===fields.length&&fields.every(key=>Object.hasOwn(value,key));
 export const achievementIcons=icons;
