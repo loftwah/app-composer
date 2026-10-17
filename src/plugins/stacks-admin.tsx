@@ -1,3 +1,4 @@
+import { EditorSession } from "./stacks/editor-session";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PluginAdminExports } from "emdash";
 import {
@@ -10,7 +11,7 @@ import {
   type StackPublication,
   type Workspace,
 } from "./stacks/api";
-import { CAPABILITIES, STACK_APPS } from "../lib/stacks.mjs";
+import { CAPABILITIES, STACK_APPS, normaliseStack } from "../lib/stacks.mjs";
 import { StackView } from "../components/StackView";
 import "./stacks-admin.css";
 
@@ -37,7 +38,7 @@ const newInstance = (app: string) => ({
 
 type Draft = { document: StackDocument; generation: number };
 
-function StudioPage() {
+export function StudioPage() {
   const [workspace, setWorkspace] = useState<Workspace>();
   const [stacks, setStacks] = useState<Stack[]>([]);
   const [selected, setSelected] = useState<string>();
@@ -55,27 +56,32 @@ function StudioPage() {
   // The revision the server last acknowledged for this editor. Any local edit
   // bumps the generation; a response only marks the editor clean when the
   // generation it was sent for is still the current one.
-  const savedRevision = useRef(0);
-  const generation = useRef(0);
+  const session = useRef(new EditorSession());
+  const requestGeneration = useRef(0);
+  const pending = useRef(false);
+  const latestDocument = useRef<StackDocument | undefined>(undefined);
 
   const current = useMemo(() => stacks.find(stack => stack.id === selected), [stacks, selected]);
   const document = draft?.document;
   const role = workspace?.role;
-  const editable = can(role, "save");
+  const editable = can(role, "save") && current?.status !== "archived";
 
   const adopt = useCallback((stack: Stack) => {
-    generation.current += 1;
-    savedRevision.current = stack.revision;
+    session.current.adopt(stack.id, stack.revision);
+    latestDocument.current = structuredClone(stack.draft);
     setSelected(stack.id);
-    setDraft({ document: structuredClone(stack.draft), generation: generation.current });
+    setDraft({ document: structuredClone(stack.draft), generation: session.current.generation });
     setDirty(false);
     setConflict(undefined);
   }, []);
 
   const load = useCallback(
     async (keepSelection?: string, { force = false } = {}) => {
-      if (!force && dirty && !confirm("This stack has unsaved edits. Reload and lose them?")) return;
+      if (!force && session.current.dirty && !confirm("This stack has unsaved edits. Reload and lose them?")) return;
+      const checkpoint = session.current.capture();
+      const request = ++requestGeneration.current;
       const data = await call("list");
+      if (request !== requestGeneration.current || !session.current.unchanged(checkpoint)) return;
       setWorkspace(data.workspace);
       setStacks(data.stacks ?? []);
       const next = keepSelection ?? selected ?? data.stacks?.[0]?.id;
@@ -84,8 +90,9 @@ function StudioPage() {
       else {
         setSelected(undefined);
         setDraft(undefined);
+        latestDocument.current = undefined;
         setDirty(false);
-        savedRevision.current = 0;
+        session.current.adopt(undefined);
       }
     },
     [adopt, dirty, selected],
@@ -117,6 +124,8 @@ function StudioPage() {
   }, [dirty]);
 
   const run = async (work: () => Promise<string>) => {
+    if (pending.current) return;
+    pending.current = true;
     setBusy(true);
     setError("");
     setMessage("");
@@ -130,6 +139,7 @@ function StudioPage() {
         setError(cause?.message || "The action did not complete. Your draft is still here.");
       }
     } finally {
+      pending.current = false;
       setBusy(false);
     }
   };
@@ -139,46 +149,35 @@ function StudioPage() {
       call("publications", { stack: stackId }),
       call("configuration", { stack: stackId }),
     ]);
+    if (session.current.stack !== stackId) return;
     setPublications(history.publications ?? []);
     setInstances(configuration.instances ?? []);
     setActivation(configuration.configuration?.entries ?? []);
   }, []);
 
   useEffect(() => {
-    if (!selected) {
-      setPublications([]);
-      setInstances([]);
-      setActivation([]);
-      return;
-    }
-    let live = true;
-    loadSidecars(selected).catch(() => undefined);
-    return () => {
-      live = false;
-    };
+    setPublications([]);
+    setInstances([]);
+    setActivation([]);
+    if (selected) void loadSidecars(selected).catch(() => undefined);
   }, [selected, loadSidecars]);
 
-  const openStack = async (id: string) => {
-    if (id === selected) return;
-    if (dirty && !confirm("This stack has unsaved edits. Open another stack and lose them?")) return;
-    setBusy(true);
-    setError("");
-    try {
-      const data = await call("open", { stack: id });
-      if (data.stack) {
-        adopt(data.stack);
-        setMessage(`Opened ${data.stack.name} at revision ${data.stack.revision}.`);
-      }
-    } catch (cause: any) {
-      setError(cause?.message || "That stack could not be opened.");
-    } finally {
-      setBusy(false);
-    }
-  };
+  const openStack = (id: string) => run(async () => {
+    if (id === selected) return "";
+    if (session.current.dirty && !confirm("This stack has unsaved edits. Open another stack and lose them?")) return "Kept editing.";
+    const checkpoint = session.current.capture();
+    const data = await call("open", { stack: id });
+    if (!session.current.unchanged(checkpoint)) return "Your newer edits are still here. Open the other stack again when ready.";
+    if (!data.stack) throw Error("The server did not confirm a saved stack. Your draft is still here.");
+    adopt(data.stack);
+    return `Opened ${data.stack.name} at revision ${data.stack.revision}.`;
+  });
 
   const update = (patch: Partial<StackDocument>) => {
-    generation.current += 1;
-    setDraft(current => (current ? { document: { ...current.document, ...patch }, generation: generation.current } : current));
+    if (!latestDocument.current) return;
+    session.current.edit();
+    latestDocument.current = { ...latestDocument.current, ...patch };
+    setDraft({ document: latestDocument.current, generation: session.current.generation });
     setDirty(true);
     setMessage("");
   };
@@ -197,78 +196,98 @@ function StudioPage() {
 
   const create = () =>
     run(async () => {
-      if (dirty && !confirm("Create a new stack and leave this draft unsaved?")) return "Nothing created.";
+      if (session.current.dirty && !confirm("Create a new stack and leave this draft unsaved?")) return "Nothing created.";
+      const checkpoint = session.current.capture();
       const data = await call("create", { name: newName });
       setNewName("");
-      await load(data.stack?.id, { force: true });
+      if (session.current.unchanged(checkpoint)) await load(data.stack?.id, { force: true });
+      else if (data.stack) setStacks(list => [data.stack!, ...list]);
       return `Created ${data.stack?.name}. It starts as a draft at /s/${data.stack?.slug}.`;
     });
 
-  // One save path. It records which local generation it is writing, and only a
-  // response for the current generation may mark the editor clean.
-  const writeDraft = async (): Promise<Stack> => {
-    if (!document || !current) throw Error("Open a stack first.");
-    const sent = generation.current;
-    const payload = structuredClone(document);
-    const data = await call("save", { stack: current.id, document: payload, expectedRevision: savedRevision.current });
-    const stack = data.stack as Stack;
+  const acknowledge = (stack: Stack, checkpoint: ReturnType<EditorSession["capture"]>, savedDraft = false) => {
+    if (!session.current.acknowledge(checkpoint, stack.revision, savedDraft)) return false;
     setStacks(list => list.map(entry => (entry.id === stack.id ? stack : entry)));
-    savedRevision.current = stack.revision;
-    if (generation.current === sent) setDirty(false);
+    setDirty(session.current.dirty);
+    return true;
+  };
+
+  const writeDraft = async (): Promise<Stack> => {
+    if (!latestDocument.current || !current) throw Error("Open a stack first.");
+    const sent = session.current.capture();
+    const payload = normaliseStack(structuredClone(latestDocument.current)) as StackDocument;
+    const data = await call("save", { stack: current.id, document: payload, expectedRevision: session.current.revision });
+    const stack = data.stack;
+    if (!stack || stack.id !== sent.stack || JSON.stringify(stack.draft) !== JSON.stringify(payload)) {
+      throw Error("The server did not confirm the submitted draft. Your edits are still here; reopen the saved revision before retrying.");
+    }
+    acknowledge(stack, sent, true);
     return stack;
   };
 
-  const save = () =>
-    run(async () => {
-      const stack = await writeDraft();
-      if (dirty) return `Saved revision ${stack.revision}. Your newer edits are still unsaved.`;
-      return `Saved draft revision ${stack.revision}.`;
-    });
+  const save = () => run(async () => {
+    const stack = await writeDraft();
+    return session.current.dirty
+      ? `Saved revision ${stack.revision}. Your newer edits are still unsaved.`
+      : `Saved draft revision ${stack.revision}.`;
+  });
 
-  const publish = () =>
-    run(async () => {
-      if (!current) throw Error("Open a stack first.");
-      // Publishing always activates the revision the editor shows, so any
-      // unsaved work is written first through the one save path.
-      if (dirty) await writeDraft();
-      const data = await call("publish", { stack: current.id, expectedRevision: savedRevision.current });
-      const stack = data.stack as Stack;
-      setStacks(list => list.map(entry => (entry.id === stack.id ? stack : entry)));
-      savedRevision.current = stack.revision;
-      await loadSidecars(current.id);
-      if (stack.publishedRevision !== savedRevision.current) {
-        return `Another window moved this stack while it published, so nothing changed. The public page still shows revision ${stack.publishedRevision}. Reload to publish the revision you want.`;
-      }
-      return `Published revision ${stack.publishedRevision}. Public at /s/${current.slug}.`;
-    });
+  const publish = () => run(async () => {
+    if (!current) throw Error("Open a stack first.");
+    const candidate = session.current.dirty ? await writeDraft() : current;
+    const checkpoint = session.current.capture();
+    const data = await call("publish", { stack: current.id, expectedRevision: candidate.revision });
+    const stack = data.stack;
+    if (!stack || stack.id !== current.id || stack.publishedRevision !== candidate.revision) {
+      throw Error("Publication was not confirmed. Your edits are still here; check the saved publication before retrying.");
+    }
+    acknowledge(stack, checkpoint);
+    await loadSidecars(current.id).catch(() => undefined);
+    return `Published saved revision ${stack.publishedRevision}. Public at /s/${current.slug}.` +
+      (session.current.dirty ? " Your newer edits are still unsaved." : "");
+  });
 
-  const simple = (action: string, note: (data: any) => string, confirmText?: string) => () =>
+  const simple = (action: string, note: (data: Awaited<ReturnType<typeof call>>) => string, confirmText?: string) => () =>
     run(async () => {
       if (!current) throw Error("Open a stack first.");
       if (confirmText && !confirm(confirmText)) return "Nothing changed.";
-      const data = await call(action, { stack: current.id, expectedRevision: savedRevision.current });
-      if (action !== "delete") await load(current.id, { force: true });
-      else await load(undefined, { force: true });
-      return note(data);
+      const checkpoint = session.current.capture();
+      const data = await call(action, { stack: current.id, expectedRevision: session.current.revision });
+      if (action === "duplicate") {
+        if (!data.stack) throw Error("The copy was not confirmed. Your draft is still here.");
+        setStacks(list => [data.stack!, ...list]);
+        return note(data) + " Your original draft remains open. Open the copy from Saved stacks.";
+      }
+      if (action === "delete") {
+        if (!data.deleted || data.deleted.id !== current.id) throw Error("Deletion was not confirmed. Your draft is still here.");
+        if (!session.current.unchanged(checkpoint)) return "The stack was deleted. Your newer local edits remain open; copy or export them before leaving.";
+        setStacks(list => list.filter(entry => entry.id !== current.id));
+        session.current.adopt(undefined);
+        setSelected(undefined);
+        setDraft(undefined);
+        latestDocument.current = undefined;
+        setDirty(false);
+      } else {
+        if (!data.stack || data.stack.id !== current.id) throw Error("The change was not confirmed. Your draft is still here.");
+        acknowledge(data.stack, checkpoint);
+      }
+      return note(data) + (session.current.dirty ? " Your unsaved edits remain in this editor." : "");
     });
 
-  const rollback = (action: "republish" | "restoreRevision", revision: number, label: string) =>
-    run(async () => {
-      if (!current) throw Error("Open a stack first.");
-      const scope =
-        action === "republish"
-          ? `Make published revision ${revision} the public page again? The draft is left as it is.`
-          : `Bring published revision ${revision} back into the draft as a new editable revision? The public page does not change.`;
-      if (!confirm(`${scope}\n\nNeither action restores app records, media or deletions, because Composer never owned them.`)) return "Nothing changed.";
-      const data = await call(action, { stack: current.id, revision, expectedRevision: savedRevision.current });
-      const stack = data.stack as Stack;
-      setStacks(list => list.map(entry => (entry.id === stack.id ? stack : entry)));
-      setDraft({ document: structuredClone(stack.draft), generation: ++generation.current });
-      savedRevision.current = stack.revision;
-      setDirty(action === "restoreRevision");
-      await loadSidecars(current.id);
-      return label;
-    });
+  const rollback = (action: "republish" | "restoreRevision", revision: number, label: string) => run(async () => {
+    if (!current) throw Error("Open a stack first.");
+    const scope = action === "republish"
+      ? `Make published revision ${revision} the public page again? The draft is left as it is.`
+      : `Replace the open draft with published revision ${revision} as a new saved revision? Unsaved edits will be replaced; the public page does not change.`;
+    if (!confirm(`${scope}\n\nNeither action restores app records, media or deletions, because Composer never owned them.`)) return "Nothing changed.";
+    const checkpoint = session.current.capture();
+    const data = await call(action, { stack: current.id, revision, expectedRevision: session.current.revision });
+    if (!data.stack || data.stack.id !== current.id) throw Error("The change was not confirmed. Your draft is still here.");
+    if (action === "restoreRevision" && session.current.unchanged(checkpoint)) adopt(data.stack);
+    else acknowledge(data.stack, checkpoint);
+    await loadSidecars(current.id).catch(() => undefined);
+    return label + (session.current.dirty ? " Your newer local edits remain unsaved." : "");
+  });
 
   // Export asks the server for the canonical shape, so the file always carries
   // the statement of exactly what it does and does not contain.
@@ -276,7 +295,8 @@ function StudioPage() {
     run(async () => {
       if (!current) throw Error("Open a stack first.");
       const data = await call("export", { stack: current.id });
-      const payload = data.export ?? { format: "app-composer.stack/v1", stack: current.slug, revision: savedRevision.current, document };
+      if (!data.export) throw Error("The export was not confirmed. Your draft is still here.");
+      const payload = data.export;
       const blob = new Blob([JSON.stringify(payload, null, 2) + "\n"], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const link = window.document.createElement("a");
@@ -305,8 +325,11 @@ function StudioPage() {
     )
       return;
     await run(async () => {
+      if (session.current.dirty && !confirm("Import a new stack and replace the open unsaved draft?")) return "Kept editing.";
+      const checkpoint = session.current.capture();
       const data = await call("import", { payload });
-      await load(data.stack?.id, { force: true });
+      if (session.current.unchanged(checkpoint)) await load(data.stack?.id, { force: true });
+      else if (data.stack) setStacks(list => [data.stack!, ...list]);
       const imported = data.imported;
       if (!imported) return `Imported ${data.stack?.name} as a draft.`;
       return `Imported ${imported.name} as a draft: ${imported.instances} instance(s) across ${imported.apps.join(", ")}${imported.shared ? `, ${imported.shared} reusing another instance` : ""}${imported.configured ? `, ${imported.configured} with their own settings` : ""}. Nothing was published and no app records or media were copied.`;
@@ -338,7 +361,7 @@ function StudioPage() {
           </p>
         </div>
         {role !== "viewer" && (
-          <button type="button" disabled={busy} onClick={() => void load()}>
+          <button type="button" disabled={busy} onClick={() => void run(async () => { await load(); return "Workspace refreshed. Any newer edits remain open."; })}>
             Refresh workspace
           </button>
         )}
@@ -374,7 +397,8 @@ function StudioPage() {
               onClick={() =>
                 void run(async () => {
                   const latest = await call("open", { stack: selected });
-                  if (latest.stack) savedRevision.current = latest.stack.revision;
+                  if (!latest.stack || latest.stack.id !== selected) throw Error("The saved revision was not confirmed.");
+                  session.current.revision = latest.stack.revision;
                   setConflict(undefined);
                   const stack = await writeDraft();
                   return `Saved your version as revision ${stack.revision}.`;
@@ -408,7 +432,7 @@ function StudioPage() {
               <div className="ca-stack-state">
                 <span className={`ca-status ca-status-${current.status}`}>{current.status}</span>
                 <span className="ca-muted">
-                  {dirty ? `Unsaved edits on top of revision ${savedRevision.current}` : `Saved revision ${savedRevision.current}`}
+                  {dirty ? `Unsaved edits on top of revision ${session.current.revision}` : `Saved revision ${session.current.revision}`}
                   {current.publishedRevision ? ` · public revision ${current.publishedRevision}` : " · not published"}
                 </span>
               </div>
@@ -620,7 +644,7 @@ function StudioPage() {
                     onClick={simple(
                       "delete",
                       data => `Deleted ${data.deleted?.name}. Its configuration and publication history are gone. App records and media were never part of it and are untouched.`,
-                      "Delete this stack permanently? Its configuration and publication history are removed. The apps keep their own records, media and settings.",
+                      "Delete this stack permanently, including any unsaved edits in this editor? Its configuration and publication history are removed. The apps keep their own records, media and settings.",
                     )}
                   >
                     Delete stack

@@ -67,8 +67,8 @@ test('the editor keeps one save model and does not lose local work', () => {
   const editor = read('src/plugins/stacks-admin.tsx');
   // One save path, one acknowledged revision, one edit generation.
   assert.match(editor, /const writeDraft = async \(\): Promise<Stack>/);
-  assert.match(editor, /if \(generation\.current === sent\) setDirty\(false\)/);
-  assert.match(editor, /savedRevision\.current = stack\.revision/);
+  assert.match(editor, /session\.current\.acknowledge\(checkpoint, stack\.revision, savedDraft\)/);
+  assert.match(editor, /setDirty\(session\.current\.dirty\)/);
   // Draft-replacing actions are guarded, including refresh and navigation.
   assert.match(editor, /beforeunload/);
   assert.match(editor, /unsaved edits/);
