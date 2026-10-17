@@ -1,73 +1,73 @@
 {
-  "reviewed": "2026-10-13",
-  "generator": "Built-in image_gen",
-  "purpose": "Original editorial app illustrations; decorative thumbnails, never vendor UI or documentary photos.",
-  "commonDirection": "Square tactile studio still life, warm off-white limestone, terracotta orange and graphite. Natural soft directional daylight, realistic material grain, simple silhouette readable at 48 pixels, no text, numbers, UI, logos, copied branding or glowing AI motifs.",
+  "reviewed": "2026-10-17",
+  "supersedes": "The 13 October 2026 built-in generator set, which mixed glossy postcard renders with sculptural still lifes. Retained files remain on disk for the apps that still reference them until each app's own release replaces them.",
+  "direction": "App Composer cut-paper screenprint: warm ivory paper #f4f0e8, graphite ink #252923, burnt orange #d95022 and signal orange #ff9b55, with one accent per app (Linkarooie lime #a5fd0e, Here / there burnt orange, Link Check teal #2f9fbd, Hello orange, Carry / forward violet #8b5cf6). Flat shapes, ink-lined paper edges, coarse screenprint grain, deliberate registration offset. No shading, perspective, gloss, 3D render look, gradients or glow.",
+  "commonDirection": "Every tile holds one simple silhouette that still reads at 48 pixels, carries no text, numbers, logos, watermarks or user-interface chrome, and never presents a drawing as a screenshot. Product names are typeset in HTML, never baked into artwork.",
+  "generation": {
+    "provider": "fal.ai",
+    "endpoints": [
+      "openai/gpt-image-2.5/sunburst/text-to-image (final tile rasters)",
+      "openai/gpt-image-2.5/flare/text-to-image (direction drafts only, discarded)",
+      "fal-ai/recraft/v4.1/pro/text-to-vector (mark experiment, discarded)"
+    ],
+    "jobs": 20,
+    "images": 21,
+    "billing": "Paid per generated image under the account's existing provider plan. The provider sets and can change its price; no price is asserted in this record. Review the provider's current listing before repeating a batch.",
+    "keyHandling": "scripts/generate-app-art.mjs reads FAL_AI_API_KEY (or FAL_KEY) from the environment only. The key is never printed, never written to a job manifest, never committed and never shipped to the browser. Job manifests record the prompt and request identity, not credentials.",
+    "driver": "scripts/generate-app-art.mjs (official queue API, per-job <id>.result.json, --dry-run)",
+    "requestIds": {
+      "cmp-a-linkarooie": "01a147d5-800e-7592-962a-b95de7589b27",
+      "cmp-a-herethere": "01a147d5-e6da-74e2-bfde-fa5ec3104634",
+      "cmp-a-linkcheck": "01a147d6-581b-7041-9e53-00659f3bbd16",
+      "cmp-b-linkarooie": "01a147d6-c896-71b0-9883-97dfb3b708ef",
+      "cmp-b-herethere": "01a147d7-21f3-74f2-bbd9-79568a5e4eba",
+      "cmp-b-linkcheck": "01a147d7-90df-7ff3-a932-b271f87364ba",
+      "cmp-c-linkarooie": "01a147d7-eb44-7ba1-abea-bd1a1316e60b",
+      "cmp-c-herethere": "01a147d8-5b89-7fd3-9c74-1b42219f2498",
+      "cmp-c-linkcheck": "01a147d8-cb6d-70d1-8807-12412f3aaa46",
+      "tile-linkarooie-v3": "01a147da-18ad-7a82-924a-4fae4a083058",
+      "tile-linkarooie-v4": "01a147de-1cbd-7a03-9297-adf754cdbc42",
+      "tile-herethere-v3": "01a147da-cb4a-7942-b530-d856e77f72ea",
+      "tile-linkcheck-v3": "01a147db-5c32-7a52-aa46-921868e021f2",
+      "tile-hello-v3": "01a147db-f5a8-7001-82d5-84423a57de6b",
+      "tile-carryforward-v3": "01a147dc-918d-74e0-a209-ddc9eab7db05",
+      "mark-rec-a-linkarooie": "01a147df-aac8-7d72-a2f5-50a051a44714",
+      "mark-rec-b-herethere": "01a147df-f6ce-72f3-93fc-817ee2f7aa7a",
+      "mark-rec-c-linkcheck": "01a147e0-2b3e-79f0-831c-8b10edaf90c9",
+      "mark-rec-d-hello": "01a147e0-70b6-7232-8148-3ef85c9d727e",
+      "mark-rec-e-carryforward": "01a147e0-a760-73e0-a4af-48d95a9a8fd5"
+    },
+    "rejected": [
+      "Direction drafts (flare, 9 images): kept only as the comparison record. Direction A was chosen for silhouette, material warmth and family coherence; a geometric pictogram set and a third option were not used.",
+      "Recraft v4.1 vector marks (5 images): semantically uneven across apps and incoherent as a family at 24-48px. Replaced by hand-authored SVG marks in one grammar. Masters kept under .artwork/masters/marks/ as the comparison record.",
+      "First Linkarooie tile attempt (tile-linkarooie-v3): the ribbon coil read as a curled tail, not a link, at 48 pixels. Regenerated as tile-linkarooie-v4 with the link drawn separately from the animal."
+    ],
+    "corrections": [
+      "A padlock was removed from an early Carry / forward mark because a lock implies a security guarantee the app's own acceptance gates do not yet make.",
+      "The Hello arrow was redrawn after review so the route line reads as entering the archway rather than leaving it."
+    ]
+  },
   "assets": [
-    {
-      "id": "hello",
-      "promptSubject": "A terracotta-orange doorway with warm light and a graphite stepping stone.",
-      "masterFilename": "exec-980201f6-bbc9-4503-b5b0-fb1cd5a01bfd.png",
-      "exports": [
-        "/brand/apps/hello-v1.webp",
-        "/brand/apps/hello-small-v1.webp"
-      ],
-      "dimensions": [
-        480,
-        96
-      ]
-    },
-    {
-      "id": "linkcheck",
-      "promptSubject": "An orange glass magnifying lens revealing a landscape print beside a graphite paper link.",
-      "masterFilename": "exec-b0c1937c-e975-4975-be9c-9cdfbf6f1aa8.png",
-      "exports": [
-        "/brand/apps/linkcheck-v1.webp",
-        "/brand/apps/linkcheck-small-v1.webp"
-      ],
-      "dimensions": [
-        480,
-        96
-      ]
-    },
-    {
-      "id": "guestbook",
-      "promptSubject": "Cream postcards, a fictional courtyard photograph, a terracotta pencil and graphite paperclip.",
-      "masterFilename": "exec-584cbdb4-ad4c-41d5-ad4f-2cc7d40c608c.png",
-      "exports": [
-        "/brand/apps/guestbook-v1.webp",
-        "/brand/apps/guestbook-small-v1.webp"
-      ],
-      "dimensions": [
-        480,
-        96
-      ]
-    },
-    {
-      "id": "showcase",
-      "promptSubject": "A graphite shelf holding picture frames and an orange sculptural object.",
-      "masterFilename": "exec-cfd10850-9e83-40e1-8d60-536ed8b8be9d.png",
-      "exports": [
-        "/brand/apps/showcase-v1.webp",
-        "/brand/apps/showcase-small-v1.webp"
-      ],
-      "dimensions": [
-        480,
-        96
-      ]
-    },
-    {
-      "id": "state",
-      "promptSubject": "A graphite locked keepsake box with an orange translucent key and blank memory notes.",
-      "masterFilename": "exec-c85de76b-ca93-4fe6-b90a-895240321cc0.png",
-      "exports": [
-        "/brand/apps/state-v1.webp",
-        "/brand/apps/state-small-v1.webp"
-      ],
-      "dimensions": [
-        480,
-        96
-      ]
-    }
-  ]
+    {"id":"linkarooie","tile":"/brand/apps/linkarooie-v3.webp","thumbnail":"/brand/apps/linkarooie-small-v3.webp","share":"/brand/apps/linkarooie-share-v3.jpg","master":"tile-linkarooie-v4-1.png","subject":"A green paper kangaroo mid-hop beside a two-link burnt-orange paper chain.","exports":[480,96]},
+    {"id":"herethere","tile":"/brand/apps/herethere-v3.webp","thumbnail":"/brand/apps/herethere-small-v3.webp","share":"/brand/apps/herethere-share-v3.jpg","master":"tile-herethere-v3.png","subject":"A burnt-orange paper postbox with one ivory postcard slipping into its slot, stamped with a permission-green square.","exports":[480,96]},
+    {"id":"linkcheck","tile":"/brand/apps/linkcheck-v3.webp","thumbnail":"/brand/apps/linkcheck-small-v3.webp","share":"/brand/apps/linkcheck-share-v3.jpg","master":"tile-linkcheck-v3.png","subject":"A teal paper magnifier over an ivory page card holding a burnt-orange landscape panel above two text rules.","exports":[480,96]},
+    {"id":"hello","tile":"/brand/apps/hello-v3.webp","thumbnail":"/brand/apps/hello-small-v3.webp","share":"/brand/apps/hello-share-v3.jpg","master":"tile-hello-v3.png","subject":"A burnt-orange paper archway with a graphite route line stepping through it.","exports":[480,96]},
+    {"id":"carryforward","tile":"/brand/apps/carryforward-v3.webp","thumbnail":"/brand/apps/carryforward-small-v3.webp","share":"/brand/apps/carryforward-share-v3.jpg","master":"tile-carryforward-v3.png","subject":"A graphite paper suitcase beside a violet route line carrying two paper tags.","exports":[480,96]}
+  ],
+  "shareCards": {
+    "method": "Authored as local HTML (.artwork/og/share-card.html) and captured in Chromium at 1200x630. The tile image is placed as artwork; every product name, category, line of description and the App Composer lockup are typeset live in the font stack, never generated inside an image.",
+    "outputs": ["1200x630 JPEG for Open Graph and X", "1200x630 WebP", "600x315 WebP for compact previews"],
+    "typography": "Space Grotesk (SIL OFL, licence retained at public/brand/OFL-Space-Grotesk.txt)."
+  },
+  "marks": {
+    "method": "Hand-authored SVG in one geometry grammar, one per app, drawn on a 40-unit grid with a 4-unit stroke and currentColor ink so the same file serves dark, light and small sizes.",
+    "masters": ".artwork/marks/authored/<app>.svg with .artwork/marks/authored/proof.html",
+    "verified": "Rendered at 16, 24, 48, 64 and 128 pixels on the dark and light surfaces in Chromium before use.",
+    "copiesInto": "Each app owns its copy; each app keeps its own favicon, install icon and header."
+  },
+  "screenshots": {
+    "method": "Real browser captures of the deployed apps through the Chromium session (Playwright), never generated images and never re-drawn interfaces.",
+    "outputs": "/brand/apps/previews/<app>-960.webp and -1440.webp, captured 17 October 2026",
+    "guard": "The library labels each capture as a real screenshot with its capture date, and says the illustration beside it is identity artwork rather than a screen. Alt text describes the actual interface state in the capture."
+  }
 }

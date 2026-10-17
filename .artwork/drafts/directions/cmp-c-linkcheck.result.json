@@ -1,0 +1,23 @@
+{
+  "id": "cmp-c-linkcheck",
+  "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+  "requestId": "01a147d8-cb6d-70d1-8807-12412f3aaa46",
+  "submittedAt": "2026-10-17T03:12:32.409Z",
+  "durationMs": 23149,
+  "input": {
+    "prompt": "Hand-painted gouache miniature illustration, square composition, warm ivory paper ground. A brass-rimmed magnifier lying flat on a desk of drawn paper sheets; through the lens a small painted coastal landscape is enlarged and slightly softened; a paper link cut from card rests beside it. Visible brush strokes and dry-brush edges, muted ochre, graphite grey, ocean teal and terracotta. Painted scene, not a photograph, not a 3D render. Clear silhouette and readable shapes. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, lens flare or drop shadows.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Direction C: hand-painted gouache miniature scene",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "cmp-c-linkcheck.png",
+      "bytes": 2384337,
+      "contentType": "image/png"
+    }
+  ]
+}

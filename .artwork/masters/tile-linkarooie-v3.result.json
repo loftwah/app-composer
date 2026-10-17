@@ -1,0 +1,23 @@
+{
+  "id": "tile-linkarooie-v3",
+  "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+  "requestId": "01a147da-18ad-7a82-924a-4fae4a083058",
+  "submittedAt": "2026-10-17T03:13:57.193Z",
+  "durationMs": 43383,
+  "input": {
+    "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition, generous margin around the subject. A stylised Australian kangaroo cut from one flat lime-green paper shape, body stretched forward in a hop toward the right. A single burnt-orange paper ribbon leaves the curve of its tail and coils twice into a bold open chain-link loop that sits clear of the animal. Graphite-black ink lines define the paper edges. Coarse screenprint grain, slight registration offset. Two flat colours plus graphite, no shading, no perspective, no gloss. Bold simple silhouette that still reads at 48 pixels. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, 3D render or drop shadows.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Linkarooie: kangaroo carrying a link, lime accent",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "tile-linkarooie-v3.png",
+      "bytes": 1568088,
+      "contentType": "image/png"
+    }
+  ]
+}

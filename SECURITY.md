@@ -4,7 +4,7 @@ Report vulnerabilities privately through this repository's GitHub **Security →
 
 Include the affected commit/URL, a minimal reproduction using fictional data, expected and actual behavior, and potential impact. Do not test other users, damage deployed resources or publish keys. A report does not authorize access to production. No response deadline or bounty is promised.
 
-The maintained version is current reviewed `main`. Fork operators own their keys, resources and updates. Public specs and imported inspection reports are untrusted data; they do not authorize builds or deployments. Administrative Access is exact-owner protected. Portable AI State remains fictional-only until its independent security acceptance is proven.
+The maintained version is current reviewed `main`. Fork operators own their keys, resources and updates. Public specs and imported inspection reports are untrusted data; they do not authorize builds or deployments. Administrative Access is exact-owner protected. Carry / forward remains fictional-only until its independent security acceptance is proven.
 
 Read the repository guidance and owning GitHub issues for current boundaries. Reviewed 13 October 2026.
 

@@ -1,0 +1,38 @@
+{
+  "id": "mark-rec-c-linkcheck",
+  "endpoint": "fal-ai/recraft/v4.1/pro/text-to-vector",
+  "requestId": "01a147e0-2b3e-79f0-831c-8b10edaf90c9",
+  "submittedAt": "2026-10-17T03:20:35.685Z",
+  "durationMs": 16127,
+  "input": {
+    "prompt": "Flat app mark on a plain solid cream background: a bold magnifying glass with a thick circular ring and a short straight handle, drawn in solid teal blue outline, sitting over the corner of a pale rectangular card with a thick dark charcoal outline so the ring overlaps the card edge. Flat cut paper look. Simple bold geometry, even stroke weight, centred with generous margin. No text, no letters, no numbers, no watermark, no gradient, no shadow, no 3D, no perspective, no clutter inside the lens.",
+    "image_size": "square_hd",
+    "colors": [
+      {
+        "r": 15,
+        "g": 118,
+        "b": 138
+      },
+      {
+        "r": 37,
+        "g": 41,
+        "b": 35
+      },
+      {
+        "r": 244,
+        "g": 240,
+        "b": 232
+      }
+    ]
+  },
+  "note": "Link Check app mark, flat screenprint grammar",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "mark-rec-c-linkcheck.svg",
+      "bytes": 20452,
+      "contentType": "image/svg+xml"
+    }
+  ]
+}

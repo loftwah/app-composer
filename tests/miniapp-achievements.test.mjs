@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {appSettings} from '../src/lib/app-settings.mjs';
 import {manageMiniapps} from '../src/lib/miniapp-admin.mjs';
-import {achievementFields,achievementValues,achievementCollection,achievementCommand,sameAchievement,validAchievementDate,achievementDateLabel} from '../src/lib/miniapp-achievements.mjs';
+import {achievementFields,achievementValues,achievementCollection,achievementCommand,sameAchievement,validAchievementDate,achievementDateLabel,achievementIcons} from '../src/lib/miniapp-achievements.mjs';
 import {validateManifest} from '../scripts/contracts.mjs';
 const origin='https://composer.loftwah.com',revision='a'.repeat(40),id='00000000-0000-4000-8000-000000000001',pins={showcase:revision,guestbook:revision};
 const descriptor={version:1,limit:8,datePrecisions:['year','month','day']};
@@ -48,3 +48,17 @@ test('private snapshots expose only the supported bounded achievement shape and 
  const f=fixture();const result=await manageMiniapps(context({app:'showcase',action:'snapshot'}),f.runtime,pins);assert.deepEqual(result.achievementCollection,collection);assert(!JSON.stringify(result).includes('token'));
  for(const exported of [null,{version:2,private:'PRIVATE EXPORTED MARKER'}, {...collection,items:[{...collection.items[0],secret:'PRIVATE EXPORTED MARKER'}]}]){const bad=fixture({exported});const result=await manageMiniapps(context({app:'showcase',action:'snapshot'}),bad.runtime,pins);assert.equal(result.ok,true);assert.equal(result.achievementCollection,null);assert.equal(result.achievementProblem,'review_required');assert.deepEqual(result.items,[]);assert(!JSON.stringify(result).includes('PRIVATE'));}
 }));
+
+test('the reviewed eight card and achievement symbols are accepted and anything else is not',()=>{
+ const reviewed=['link','book','code','music','video','game','heart','star'];
+ const base={contract:1,id:'showcase',runtime:'cloudflare-worker',dataVersion:1,routes:['/showcase'],capabilities:['items:read','features:write']};
+ const presentation={version:1,icons:reviewed};
+ assert.equal(validateManifest({...base,cardPresentation:presentation}).cardPresentation.icons.length,8);
+ // `game` and `star` are the two symbols the collector page needed; `heart` stays
+ // because published cards already store it.
+ assert.deepEqual(achievementIcons,reviewed);
+ for(const icons of [['rocket'],['link','book','code','music','video','game','heart','star','link'],[...reviewed.slice(0,7),'pin'],null,'link'])
+  assert.throws(()=>validateManifest({...base,cardPresentation:{version:1,icons}}),/Unsupported card presentation/);
+ for(const icon of ['rocket','pin',''])assert.throws(()=>achievementFields(values({icon})));
+ assert.deepEqual(achievementFields(values({icon:'game'})).icon,'game');
+});

@@ -1,0 +1,28 @@
+{
+  "id": "tile-linkarooie-v4",
+  "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+  "requestId": "01a147de-1cbd-7a03-9297-adf754cdbc42",
+  "submittedAt": "2026-10-17T03:18:20.447Z",
+  "durationMs": 34986,
+  "input": {
+    "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition, generous margin around the subject. A stylised Australian kangaroo cut from one flat lime-green paper shape, body stretched forward in a hop toward the lower right, tail a plain simple curve. Completely separate from the animal, in the upper right of the composition, sits one clearly drawn burnt-orange chain link: two rounded rectangular rings that overlap and interlock, drawn as flat paper with an open centre in each ring, exactly like a link in a chain. The kangaroo is not touching the link. Graphite-black ink lines define the paper edges. Coarse screenprint grain, slight registration offset. Two flat colours plus graphite, no shading, no perspective, no gloss. Bold simple silhouette that still reads at 48 pixels. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, 3D render or drop shadows.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 2
+  },
+  "note": "Linkarooie: kangaroo beside a separately drawn chain link",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "tile-linkarooie-v4-1.png",
+      "bytes": 1737642,
+      "contentType": "image/png"
+    },
+    {
+      "file": "tile-linkarooie-v4-2.png",
+      "bytes": 1633202,
+      "contentType": "image/png"
+    }
+  ]
+}

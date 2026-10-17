@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Hello World">
+  <rect width="64" height="64" rx="14" fill="#f4f0e8"/>
+  <rect x="10" y="50" width="44" height="4.5" rx="2.25" fill="#252923"/>
+  <path d="M6 39h34" stroke="#252923" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M19 50V31a13 13 0 0 1 26 0v19z" fill="#ff9b55"/>
+  <path d="M27 50V33a5 5 0 0 1 10 0v17z" fill="#f4f0e8"/>
+  <path d="M53 39 41 33.5v11z" fill="#252923"/>
+</svg>

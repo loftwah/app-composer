@@ -1,0 +1,38 @@
+{
+  "id": "mark-rec-a-linkarooie",
+  "endpoint": "fal-ai/recraft/v4.1/pro/text-to-vector",
+  "requestId": "01a147df-aac8-7d72-a2f5-50a051a44714",
+  "submittedAt": "2026-10-17T03:20:02.224Z",
+  "durationMs": 18857,
+  "input": {
+    "prompt": "Flat app mark on a plain solid cream background: a chain link made of two interlocking open rounded rings, filled solid lime green with a bold dark charcoal outline, drawn as flat cut paper. Simple bold geometry, even stroke weight, centred with generous margin. No text, no letters, no numbers, no watermark, no gradient, no shadow, no 3D, no perspective.",
+    "image_size": "square_hd",
+    "colors": [
+      {
+        "r": 165,
+        "g": 253,
+        "b": 14
+      },
+      {
+        "r": 37,
+        "g": 41,
+        "b": 35
+      },
+      {
+        "r": 244,
+        "g": 240,
+        "b": 232
+      }
+    ]
+  },
+  "note": "Linkarooie app mark, flat screenprint grammar",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "mark-rec-a-linkarooie.svg",
+      "bytes": 21204,
+      "contentType": "image/svg+xml"
+    }
+  ]
+}

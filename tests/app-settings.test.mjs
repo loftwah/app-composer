@@ -60,7 +60,7 @@ test('profile contracts configure compact identity and refuse unsafe social valu
  const complete=spec();complete.appSettings.showcase={...complete.appSettings.showcase,layout:'compact',handle:'fictional.studio',github:'https://github.com/example',website:'https://example.test/'};
  const configured=validateSpec(complete),effective=appConfiguration(configured,'showcase');assert.equal(effective.layout,'compact');assert.equal(effective.handle,'fictional.studio');assert.equal(effective.github,'https://github.com/example');assert.deepEqual(validateSpec(JSON.parse(JSON.stringify(configured))),configured);
  for(const patch of [{github:'https://example.test/spoof'},{website:'javascript:alert(1)'},{website:'https://owner:secret@example.test/'},{handle:'<script>'},{website:'https://example.test/'+'é'.repeat(600)},{bluesky:'https://bsky.app.evil.test/'}])assert.throws(()=>validateSpec({...complete,appSettings:{...complete.appSettings,showcase:{...complete.appSettings.showcase,...patch}}}));
- assert.equal(appConfiguration(validateSpec(old()),'showcase').handle,'');assert.deepEqual(appSettings.showcase.cardPresentation.icons,['link','book','code','music','video','heart']);
+ assert.equal(appConfiguration(validateSpec(old()),'showcase').handle,'');assert.deepEqual(appSettings.showcase.cardPresentation.icons,['link','book','code','music','video','game','heart','star']);
 });
 
 test('shared-only and legacy settings omit profile clears while explicit profile groups can clear them',async()=>{

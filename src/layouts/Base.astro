@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import instance from "../../config/instance.json";
 import AppLauncher from "../components/AppLauncher.astro";
+import {noindexFor} from "../lib/indexing.mjs";
 interface Props {
   title: string;
   description: string;
@@ -12,7 +13,7 @@ interface Props {
 const {
   title,
   description,
-  noindex = Astro.url.hostname.includes("workers.dev"),
+  noindex = noindexFor(Astro.url.hostname),
 } = Astro.props;
 const pageTitle = title.includes("App Composer")
   ? title
@@ -44,6 +45,9 @@ Astro.csp?.insertScriptResource(
     <meta name="theme-color" content="#17181b" />
     <link rel="icon" href="/brand/mark.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/brand/icon.png" />
+    <!-- Deliberate: /brand/space.woff2 is the declared source of the one bundled
+         face in global.css and the family every heading asks for, so the single
+         early request is consumed. tests/font-preload.test.mjs locks the pairing. -->
     <link
       rel="preload"
       href="/brand/space.woff2"

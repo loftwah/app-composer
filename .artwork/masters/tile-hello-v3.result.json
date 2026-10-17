@@ -1,0 +1,23 @@
+{
+  "id": "tile-hello-v3",
+  "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+  "requestId": "01a147db-f5a8-7001-82d5-84423a57de6b",
+  "submittedAt": "2026-10-17T03:15:59.828Z",
+  "durationMs": 36784,
+  "input": {
+    "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition, generous margin around the subject. A plain burnt-orange doorway arch cut from flat paper sits on a graphite-black ground rule, the opening left as the ivory paper showing through. One bold graphite-black route line with a single right-angle bend steps up to the opening and passes through it, ending in a small solid graphite arrowhead on the far side. One small permission-green square sits inside the opening near the ground. Graphite-black ink lines define the paper edges. Coarse screenprint grain, slight registration offset. Two flat colours plus graphite, no shading, no perspective, no gloss. Bold simple silhouette that still reads at 48 pixels. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, 3D render or drop shadows.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Hello World: an open doorway with a route stepping through it",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "tile-hello-v3.png",
+      "bytes": 1656357,
+      "contentType": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "note": "Final Direction A (cut-paper screenprint) tile illustrations for all five shipped apps. Authored masters are re-exported into the owning repositories. No text in any image: product names are typeset in the owning app, never baked into artwork.",
+  "shared": "Flat cut-paper screenprint collage on warm ivory paper (#f4f0e8), square composition. Shapes are cut from flat coloured paper with graphite-black ink (#252923) defining the paper edges; coarse screenprint grain with a deliberate slight registration offset. Two or three flat colours only, no shading, no perspective, no gloss. Bold simple silhouette that still reads at 48 pixels. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, lens flare, stock-photo gloss, 3D render look, plastic drop shadows or user-interface screenshots.",
+  "jobs": [
+    {
+      "id": "tile-linkarooie-v3",
+      "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+      "note": "Linkarooie: kangaroo carrying a link, lime accent",
+      "input": {
+        "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition, generous margin around the subject. A stylised Australian kangaroo cut from one flat lime-green paper shape, body stretched forward in a hop toward the right. A single burnt-orange paper ribbon leaves the curve of its tail and coils twice into a bold open chain-link loop that sits clear of the animal. Graphite-black ink lines define the paper edges. Coarse screenprint grain, slight registration offset. Two flat colours plus graphite, no shading, no perspective, no gloss. Bold simple silhouette that still reads at 48 pixels. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, 3D render or drop shadows.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "tile-herethere-v3",
+      "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+      "note": "Here / there: postbox releasing one postcard, permission green accent",
+      "input": {
+        "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition, generous margin around the subject. A bold burnt-orange postal box cut from flat paper shapes, standing on a graphite-black ground rule. One pale ivory postcard lifts out of the slot and tips diagonally above the box, with a small permission-green paper square in its corner. Graphite-black ink lines define the paper edges. Coarse screenprint grain, slight registration offset. Two flat colours plus graphite, no shading, no perspective, no gloss. Bold simple silhouette that still reads at 48 pixels. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, 3D render or drop shadows.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "tile-linkcheck-v3",
+      "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+      "note": "Link Check: magnifier ring over a page card, teal accent",
+      "input": {
+        "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition, generous margin around the subject. One teal-blue paper ring with a short straight handle lies over a pale ivory paper card; inside the ring a single burnt-orange paper rectangle shows a very simple flat landscape of one hill curve and one round sun. Two graphite-black rules run across the card beneath the ring. Graphite-black ink lines define the paper edges. Coarse screenprint grain, slight registration offset. Two flat colours plus graphite, no shading, no perspective, no gloss. Bold simple silhouette that still reads at 48 pixels. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, 3D render or drop shadows.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "tile-hello-v3",
+      "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+      "note": "Hello World: an open doorway with a route stepping through it",
+      "input": {
+        "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition, generous margin around the subject. A plain burnt-orange doorway arch cut from flat paper sits on a graphite-black ground rule, the opening left as the ivory paper showing through. One bold graphite-black route line with a single right-angle bend steps up to the opening and passes through it, ending in a small solid graphite arrowhead on the far side. One small permission-green square sits inside the opening near the ground. Graphite-black ink lines define the paper edges. Coarse screenprint grain, slight registration offset. Two flat colours plus graphite, no shading, no perspective, no gloss. Bold simple silhouette that still reads at 48 pixels. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, 3D render or drop shadows.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "tile-carryforward-v3",
+      "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+      "note": "Carry / forward: a flat case carried on a violet route, deliberate selection",
+      "input": {
+        "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition, generous margin around the subject. A small flat graphite-black travelling case cut from paper shapes sits on a bold violet-purple paper route line that runs across the composition from lower left to right and bends once at a right angle. Two pale ivory paper tags are threaded onto the route line to the right of the case; exactly one tag is filled with solid burnt orange and the other stays plain ivory, so one is clearly chosen and one is not. A thin graphite-black handle arcs over the case but no lock and no key is drawn anywhere. Graphite-black ink lines define the paper edges. Coarse screenprint grain, slight registration offset. Two flat colours plus graphite, no shading, no perspective, no gloss. Bold simple silhouette that still reads at 48 pixels. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, 3D render or drop shadows.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    }
+  ]
+}

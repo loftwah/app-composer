@@ -10,6 +10,7 @@ dist/
 *.db-*
 src/lib/build.json
 .playwright-cli/
+.playwright-mcp/
 output/
 public/downloads/get-ready-core.tgz
 public/downloads/get-ready-core.json
@@ -17,3 +18,7 @@ src/lib/get-ready-package.json
 public/downloads/get-ready-mcp.tgz
 public/downloads/get-ready-mcp.json
 src/lib/get-ready-mcp-package.json
+# Generated rasters stay on the working machine; the job manifests with their
+# request identities, the authored marks, the share-card HTML and each app's own
+# copy of its master are committed.
+.artwork/**/*.png

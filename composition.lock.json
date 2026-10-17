@@ -1,11 +1,11 @@
 {
-  "id": "f335575498e71830cd15d7e789c73d9a44d645c64c1bd2437457d3957796b1ad",
-  "reviewed": "2026-10-16",
+  "id": "17af47030bc195572769aebdf4728486f44616609aa28b519d0855067d69505e",
+  "reviewed": "2026-10-17",
   "apps": [
     {
       "id": "guestbook",
       "repository": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "b5c917a78990a88a8dc0b74fdefe505c28c3a58e",
+      "commit": "c04002aae7a384c39eb7789b131012d2593072bc",
       "url": "https://guestbook.loftwah.com",
       "manifest": {
         "contract": 1,
@@ -66,13 +66,13 @@
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "88e821f75ef8706918a6ba49e5898fe901b057b5",
+      "commit": "30a135c88ee534f1b4dd56c9e2bc12c347a6a2db",
       "url": "https://showcase.loftwah.com",
       "manifest": {
         "contract": 1,
         "id": "showcase",
         "name": "Linkarooie",
-        "version": "1.5.0",
+        "version": "1.6.0",
         "repository": "https://github.com/loftwah/app-composer-showcase",
         "runtime": "cloudflare-worker",
         "entry": "src/worker.ts",
@@ -92,7 +92,7 @@
           },
           "intro": {
             "type": "string",
-            "default": "A few things we think you should see.",
+            "default": "A small collection, chosen with care. Feature a moment from the guestbook or add something of your own.",
             "maxLength": 240
           },
           "theme": {
@@ -181,7 +181,9 @@
             "code",
             "music",
             "video",
-            "heart"
+            "game",
+            "heart",
+            "star"
           ]
         },
         "achievementCollection": {
@@ -220,7 +222,7 @@
           ]
         }
       },
-      "manifestDigest": "sha256:632373357094f7ffc2df74147519fce29f8b9a2600b28a797a55a3481e79d0a6"
+      "manifestDigest": "sha256:fc4f8022ad79046c33819ef88e78b14164adca7906c25934abbc4dd1c046487e"
     }
   ]
 }

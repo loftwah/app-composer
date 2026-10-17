@@ -1,0 +1,23 @@
+{
+  "id": "cmp-a-linkarooie",
+  "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+  "requestId": "01a147d5-800e-7592-962a-b95de7589b27",
+  "submittedAt": "2026-10-17T03:08:56.055Z",
+  "durationMs": 24206,
+  "input": {
+    "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition. A stylised Australian kangaroo made from three flat lime-green paper shapes leaps left-to-right, leaving a burnt-orange flat ribbon that curls behind it into a single bold chain-link shape. Graphite-black ink lines define the paper edges. Coarse screenprint texture with a deliberate half-millimetre registration offset in the orange layer. Two-colour overprint, no shading, no perspective, no gloss. Bold simple silhouette that reads instantly at very small size. No letters, words, numbers, logos, watermarks, gradients, glow, 3D render or drop shadows.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Direction A: cut-paper screenprint",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "cmp-a-linkarooie.png",
+      "bytes": 1944170,
+      "contentType": "image/png"
+    }
+  ]
+}

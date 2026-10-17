@@ -43,9 +43,10 @@ test('the app library describes each app, not the owner',()=>{
  const line=read('src/lib/apps.ts').split('\n').find(entry=>entry.includes("id:'showcase'"));
  assert.ok(line,'the Linkarooie library entry exists');
  assert.match(line,/description:'Arrange your links and approved Here \/ there photos into a page\.'/);
- assert.match(line,/image:'\/brand\/apps\/showcase-v2\.webp'/);
+ assert.match(line,/name:'Linkarooie'/);
+ assert.match(line,/image:'\/brand\/apps\/linkarooie-v3\.webp'/);
  assert.doesNotMatch(line,/Loftwah|creators\//);
- assert.equal(exists('public/brand/apps/showcase-v2.webp'),true);
+ assert.equal(exists('public/brand/apps/linkarooie-v3.webp'),true);
  const profile=JSON.parse(read('docs/creator-stacks/loftwah-public-profile.json'));
  const card=profile.cards.find(item=>item.reference==='composer');
  assert.equal(card.description,'Build apps with your agent: design the spec, prepare the environment and connect independent mini-apps.');
@@ -56,7 +57,8 @@ test('reviewed client guards stay in place',()=>{
  const explorer=read('src/lib/explorer-client.ts');
  assert.match(explorer,/initDraftReplacePrompt/,'Use in Init must ask before replacing an existing draft');
  assert.match(explorer,/data-focus-key/,'Explorer re-renders must restore keyboard focus');
- assert.match(explorer,/storageWarning/,'Blocked local storage must be explained, not thrown');
+ assert.match(explorer,/saveStatus\.refused\(\)/,'Blocked local storage must be explained, not thrown');
+ assert.match(read('src/lib/explorer-status.mjs'),/blockedStorageNotice/,'the blocked-storage notice keeps its own standing copy');
  const model=read('src/lib/content-model-client.ts');
  assert.match(model,/data-model-import[\s\S]*if\(pending&&!confirm\(/,'Importing a model must confirm before replacing open work');
  const review=read('src/pages/review.astro');
