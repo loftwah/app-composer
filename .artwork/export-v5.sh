@@ -51,7 +51,7 @@ share linkarooie-share-v5 linkarooie "$SC/public/brand"
 # Loftwah's configured profile images keep their configured filenames so the live
 # owner settings continue to resolve; only the bytes change.
 magick "$M/banner-loftwah-v5-2.png" -resize 1500x500^ -gravity center -extent 1500x500 -strip -quality 85 "$SC/public/brand/creators/loftwah-banner-v1.jpg"
-magick "$ROOT/loftwah-avatar.png" -resize 400x400 -strip -quality 88 "$SC/public/brand/creators/loftwah-avatar-v1.jpg"
+magick "$ROOT/.private/owner-references/loftwah-avatar.png" -resize 400x400 -strip -quality 88 "$SC/public/brand/creators/loftwah-avatar-v1.jpg"
 magick "$OG/loftwah-share-v5.png" -strip -quality 88 "$SC/public/brand/creators/loftwah-share-v1.jpg"
 # The standalone header mark used the retired kangaroo illustration; it becomes
 # the app's own flat mark so header, favicon and install icon agree.
