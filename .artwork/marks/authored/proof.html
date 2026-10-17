@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Mark proof</title>
+<style>
+ body{margin:0;font:14px system-ui;background:#17181b;color:#f2f3f5}
+ section{padding:18px 24px;border-bottom:1px solid #444952}
+ section.light{background:#faf9f7;color:#22252b;border-color:#d3d1cc}
+ h2{font-size:13px;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
+ .row{display:flex;gap:26px;align-items:flex-end;flex-wrap:wrap}
+ figure{margin:0;text-align:center}
+ img{display:block;image-rendering:auto}
+ figcaption{font-size:11px;opacity:.6;margin-top:5px}
+</style></head><body>
+<section><h2>Dark surface</h2><div class="row" id="dark"></div></section>
+<section class="light"><h2>Light surface</h2><div class="row" id="light"></div></section>
+<script>
+ const names=["linkarooie","herethere","linkcheck","hello","carryforward"];
+ const sizes=[16,24,32,48,64,128];
+ for(const id of ["dark","light"]){
+  const host=document.getElementById(id);
+  for(const name of names){
+   const fig=document.createElement("figure");
+   const box=document.createElement("div");
+   box.style.display="flex";box.style.gap="14px";box.style.alignItems="flex-end";
+   for(const size of sizes){
+    const wrap=document.createElement("div");
+    const img=document.createElement("img");
+    img.src="./"+name+".svg";img.width=size;img.height=size;img.alt=name+" mark at "+size+" pixels";
+    const cap=document.createElement("figcaption");cap.textContent=size+"px";
+    wrap.append(img,cap);box.append(wrap);
+   }
+   fig.append(box);host.append(fig);
+   host.append(Object.assign(document.createElement("div"),{style:"height:8px"}));
+  }
+ }
+</script></body></html>

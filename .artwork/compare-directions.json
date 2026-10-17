@@ -1,0 +1,108 @@
+{
+  "note": "Direction comparison for the App Composer mini-app family. Drafts use the faster flare endpoint; the selected direction is re-run on sunburst for final rasters. No text, numbers, logos or UI chrome in any image.",
+  "shared": {
+    "palette": "warm ivory (#f4f0e8), graphite black (#252923), burnt orange (#d95022) and signal orange (#ff9b55)",
+    "ban": "no letters, words, numbers, logos, watermarks, signatures, gradients, glow, lens flare, stock-photo gloss, 3D render look, drop-shadowed plastic, user-interface screenshots"
+  },
+  "jobs": [
+    {
+      "id": "cmp-a-linkarooie",
+      "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+      "note": "Direction A: cut-paper screenprint",
+      "input": {
+        "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition. A stylised Australian kangaroo made from three flat lime-green paper shapes leaps left-to-right, leaving a burnt-orange flat ribbon that curls behind it into a single bold chain-link shape. Graphite-black ink lines define the paper edges. Coarse screenprint texture with a deliberate half-millimetre registration offset in the orange layer. Two-colour overprint, no shading, no perspective, no gloss. Bold simple silhouette that reads instantly at very small size. No letters, words, numbers, logos, watermarks, gradients, glow, 3D render or drop shadows.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "cmp-a-herethere",
+      "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+      "note": "Direction A: cut-paper screenprint",
+      "input": {
+        "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition. A bold burnt-orange mail postbox built from flat paper shapes stands on a graphite-black ground line; one sheet of pale paper lifts out of its slot and becomes a postcard shape tipped diagonally above it, with a small permission-green stamp square in the corner. Graphite ink lines define the paper edges. Coarse screenprint texture with a deliberate registration offset in the orange layer. Two-colour overprint, no shading, no perspective, no gloss. Bold simple silhouette that reads instantly at very small size. No letters, words, numbers, logos, watermarks, gradients, glow, 3D render or drop shadows.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "cmp-a-linkcheck",
+      "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+      "note": "Direction A: cut-paper screenprint",
+      "input": {
+        "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition. A bold teal-blue ring magnifier cut from flat paper overlaps a pale paper card; inside the ring a burnt-orange inset square shows a miniature flat landscape. A single graphite ink rule runs across the card beneath the ring. Coarse screenprint texture with a deliberate registration offset in the teal layer. Two-colour overprint, no shading, no perspective, no gloss. Bold simple silhouette that reads instantly at very small size. No letters, words, numbers, logos, watermarks, gradients, glow, 3D render or drop shadows.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "cmp-b-linkarooie",
+      "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+      "note": "Direction B: geometric wayfinding pictogram",
+      "input": {
+        "prompt": "Minimal geometric wayfinding pictogram, square composition, flat vector look, exactly three solid colours on a hand-flat warm ivory field: graphite black, burnt orange and lime green. A kangaroo reduced to angular straight-edged planes in a leaping pose, enclosed by a bold circular route ring with one straight orange connector line leaving the ring at the lower right. Absolutely no texture, no outline, no shading, no perspective. Figure-ground contrast like a public transport sign. Bold simple silhouette that reads instantly at very small size. No letters, words, numbers, logos, watermarks, gradients, glow, 3D render or drop shadows.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "cmp-b-herethere",
+      "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+      "note": "Direction B: geometric wayfinding pictogram",
+      "input": {
+        "prompt": "Minimal geometric wayfinding pictogram, square composition, flat vector look, exactly three solid colours on a hand-flat warm ivory field: graphite black, burnt orange and permission green. A postbox reduced to straight-edged rectangles with a single angled flag, and one rectangular card shape rising at a diagonal to the upper right. Absolutely no texture, no outline, no shading, no perspective. Figure-ground contrast like a public transport sign. Bold simple silhouette that reads instantly at very small size. No letters, words, numbers, logos, watermarks, gradients, glow, 3D render or drop shadows.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "cmp-b-linkcheck",
+      "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+      "note": "Direction B: geometric wayfinding pictogram",
+      "input": {
+        "prompt": "Minimal geometric wayfinding pictogram, square composition, flat vector look, exactly three solid colours on a hand-flat warm ivory field: graphite black, burnt orange and teal blue. A teal ring outline overlapping a solid graphite rectangle card, with one straight burnt-orange horizontal rule. Absolutely no texture, no outline detail beyond the ring, no shading, no perspective. Figure-ground contrast like a public transport sign. Bold simple silhouette that reads instantly at very small size. No letters, words, numbers, logos, watermarks, gradients, glow, 3D render or drop shadows.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "cmp-c-linkarooie",
+      "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+      "note": "Direction C: hand-painted gouache miniature scene",
+      "input": {
+        "prompt": "Hand-painted gouache miniature illustration, square composition, warm ivory paper ground. A red kangaroo in mid-hop across a sun-bleached Australian paddock at late afternoon; behind it a leaning gum tree and a distant ridge; a chain of three small paper tags is tied to the curve of its tail. Visible brush strokes and dry-brush edges, muted ochre, eucalyptus green and terracotta. Painted scene, not a photograph, not a 3D render. Clear silhouette and readable shapes. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, lens flare or drop shadows.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "cmp-c-herethere",
+      "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+      "note": "Direction C: hand-painted gouache miniature scene",
+      "input": {
+        "prompt": "Hand-painted gouache miniature illustration, square composition, warm ivory paper ground. A weathered orange mail postbox on a coastal roadside at late afternoon; three paper postcards lift out of it and drift upward; behind it a quiet beach road, agave plants and a distant headland. Visible brush strokes and dry-brush edges, muted ochre, eucalyptus green, ocean teal and terracotta. Painted scene, not a photograph, not a 3D render. Clear silhouette and readable shapes. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, lens flare or drop shadows.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    },
+    {
+      "id": "cmp-c-linkcheck",
+      "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+      "note": "Direction C: hand-painted gouache miniature scene",
+      "input": {
+        "prompt": "Hand-painted gouache miniature illustration, square composition, warm ivory paper ground. A brass-rimmed magnifier lying flat on a desk of drawn paper sheets; through the lens a small painted coastal landscape is enlarged and slightly softened; a paper link cut from card rests beside it. Visible brush strokes and dry-brush edges, muted ochre, graphite grey, ocean teal and terracotta. Painted scene, not a photograph, not a 3D render. Clear silhouette and readable shapes. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, lens flare or drop shadows.",
+        "image_size": "square_hd",
+        "quality": "high",
+        "num_images": 1
+      }
+    }
+  ]
+}

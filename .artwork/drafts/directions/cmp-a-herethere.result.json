@@ -1,0 +1,23 @@
+{
+  "id": "cmp-a-herethere",
+  "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+  "requestId": "01a147d5-e6da-74e2-bfde-fa5ec3104634",
+  "submittedAt": "2026-10-17T03:09:22.828Z",
+  "durationMs": 26158,
+  "input": {
+    "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition. A bold burnt-orange mail postbox built from flat paper shapes stands on a graphite-black ground line; one sheet of pale paper lifts out of its slot and becomes a postcard shape tipped diagonally above it, with a small permission-green stamp square in the corner. Graphite ink lines define the paper edges. Coarse screenprint texture with a deliberate registration offset in the orange layer. Two-colour overprint, no shading, no perspective, no gloss. Bold simple silhouette that reads instantly at very small size. No letters, words, numbers, logos, watermarks, gradients, glow, 3D render or drop shadows.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Direction A: cut-paper screenprint",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "cmp-a-herethere.png",
+      "bytes": 1989165,
+      "contentType": "image/png"
+    }
+  ]
+}

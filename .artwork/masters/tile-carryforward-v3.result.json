@@ -1,0 +1,23 @@
+{
+  "id": "tile-carryforward-v3",
+  "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+  "requestId": "01a147dc-918d-74e0-a209-ddc9eab7db05",
+  "submittedAt": "2026-10-17T03:16:39.739Z",
+  "durationMs": 33997,
+  "input": {
+    "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition, generous margin around the subject. A small flat graphite-black travelling case cut from paper shapes sits on a bold violet-purple paper route line that runs across the composition from lower left to right and bends once at a right angle. Two pale ivory paper tags are threaded onto the route line to the right of the case; exactly one tag is filled with solid burnt orange and the other stays plain ivory, so one is clearly chosen and one is not. A thin graphite-black handle arcs over the case but no lock and no key is drawn anywhere. Graphite-black ink lines define the paper edges. Coarse screenprint grain, slight registration offset. Two flat colours plus graphite, no shading, no perspective, no gloss. Bold simple silhouette that still reads at 48 pixels. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, 3D render or drop shadows.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Carry / forward: a flat case carried on a violet route, deliberate selection",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "tile-carryforward-v3.png",
+      "bytes": 1793683,
+      "contentType": "image/png"
+    }
+  ]
+}

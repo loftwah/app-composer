@@ -1,0 +1,23 @@
+{
+  "id": "cmp-c-linkarooie",
+  "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+  "requestId": "01a147d7-eb44-7ba1-abea-bd1a1316e60b",
+  "submittedAt": "2026-10-17T03:11:35.029Z",
+  "durationMs": 25759,
+  "input": {
+    "prompt": "Hand-painted gouache miniature illustration, square composition, warm ivory paper ground. A red kangaroo in mid-hop across a sun-bleached Australian paddock at late afternoon; behind it a leaning gum tree and a distant ridge; a chain of three small paper tags is tied to the curve of its tail. Visible brush strokes and dry-brush edges, muted ochre, eucalyptus green and terracotta. Painted scene, not a photograph, not a 3D render. Clear silhouette and readable shapes. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, lens flare or drop shadows.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Direction C: hand-painted gouache miniature scene",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "cmp-c-linkarooie.png",
+      "bytes": 2413572,
+      "contentType": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "tile-herethere-v3",
+  "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+  "requestId": "01a147da-cb4a-7942-b530-d856e77f72ea",
+  "submittedAt": "2026-10-17T03:14:43.449Z",
+  "durationMs": 34254,
+  "input": {
+    "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition, generous margin around the subject. A bold burnt-orange postal box cut from flat paper shapes, standing on a graphite-black ground rule. One pale ivory postcard lifts out of the slot and tips diagonally above the box, with a small permission-green paper square in its corner. Graphite-black ink lines define the paper edges. Coarse screenprint grain, slight registration offset. Two flat colours plus graphite, no shading, no perspective, no gloss. Bold simple silhouette that still reads at 48 pixels. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, 3D render or drop shadows.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Here / there: postbox releasing one postcard, permission green accent",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "tile-herethere-v3.png",
+      "bytes": 1606727,
+      "contentType": "image/png"
+    }
+  ]
+}

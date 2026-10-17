@@ -1,0 +1,23 @@
+{
+  "id": "cmp-b-linkcheck",
+  "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+  "requestId": "01a147d7-90df-7ff3-a932-b271f87364ba",
+  "submittedAt": "2026-10-17T03:11:11.885Z",
+  "durationMs": 20542,
+  "input": {
+    "prompt": "Minimal geometric wayfinding pictogram, square composition, flat vector look, exactly three solid colours on a hand-flat warm ivory field: graphite black, burnt orange and teal blue. A teal ring outline overlapping a solid graphite rectangle card, with one straight burnt-orange horizontal rule. Absolutely no texture, no outline detail beyond the ring, no shading, no perspective. Figure-ground contrast like a public transport sign. Bold simple silhouette that reads instantly at very small size. No letters, words, numbers, logos, watermarks, gradients, glow, 3D render or drop shadows.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Direction B: geometric wayfinding pictogram",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "cmp-b-linkcheck.png",
+      "bytes": 809685,
+      "contentType": "image/png"
+    }
+  ]
+}

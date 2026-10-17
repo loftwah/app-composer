@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import instance from "../../config/instance.json";
 import AppLauncher from "../components/AppLauncher.astro";
+import {noindexFor} from "../lib/indexing.mjs";
 interface Props {
   title: string;
   description: string;
@@ -12,7 +13,7 @@ interface Props {
 const {
   title,
   description,
-  noindex = Astro.url.hostname.includes("workers.dev"),
+  noindex = noindexFor(Astro.url.hostname),
 } = Astro.props;
 const pageTitle = title.includes("App Composer")
   ? title

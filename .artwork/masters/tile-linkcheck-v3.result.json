@@ -1,0 +1,23 @@
+{
+  "id": "tile-linkcheck-v3",
+  "endpoint": "openai/gpt-image-2.5/sunburst/text-to-image",
+  "requestId": "01a147db-5c32-7a52-aa46-921868e021f2",
+  "submittedAt": "2026-10-17T03:15:20.544Z",
+  "durationMs": 36692,
+  "input": {
+    "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition, generous margin around the subject. One teal-blue paper ring with a short straight handle lies over a pale ivory paper card; inside the ring a single burnt-orange paper rectangle shows a very simple flat landscape of one hill curve and one round sun. Two graphite-black rules run across the card beneath the ring. Graphite-black ink lines define the paper edges. Coarse screenprint grain, slight registration offset. Two flat colours plus graphite, no shading, no perspective, no gloss. Bold simple silhouette that still reads at 48 pixels. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, 3D render or drop shadows.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Link Check: magnifier ring over a page card, teal accent",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "tile-linkcheck-v3.png",
+      "bytes": 1893904,
+      "contentType": "image/png"
+    }
+  ]
+}

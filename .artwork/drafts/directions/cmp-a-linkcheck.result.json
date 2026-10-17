@@ -1,0 +1,23 @@
+{
+  "id": "cmp-a-linkcheck",
+  "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+  "requestId": "01a147d6-581b-7041-9e53-00659f3bbd16",
+  "submittedAt": "2026-10-17T03:09:51.821Z",
+  "durationMs": 26042,
+  "input": {
+    "prompt": "Flat cut-paper screenprint collage on warm ivory paper, square composition. A bold teal-blue ring magnifier cut from flat paper overlaps a pale paper card; inside the ring a burnt-orange inset square shows a miniature flat landscape. A single graphite ink rule runs across the card beneath the ring. Coarse screenprint texture with a deliberate registration offset in the teal layer. Two-colour overprint, no shading, no perspective, no gloss. Bold simple silhouette that reads instantly at very small size. No letters, words, numbers, logos, watermarks, gradients, glow, 3D render or drop shadows.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Direction A: cut-paper screenprint",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "cmp-a-linkcheck.png",
+      "bytes": 2160057,
+      "contentType": "image/png"
+    }
+  ]
+}

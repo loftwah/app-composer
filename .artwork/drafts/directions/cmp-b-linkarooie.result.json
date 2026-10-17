@@ -1,0 +1,23 @@
+{
+  "id": "cmp-b-linkarooie",
+  "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+  "requestId": "01a147d6-c896-71b0-9883-97dfb3b708ef",
+  "submittedAt": "2026-10-17T03:10:20.615Z",
+  "durationMs": 20385,
+  "input": {
+    "prompt": "Minimal geometric wayfinding pictogram, square composition, flat vector look, exactly three solid colours on a hand-flat warm ivory field: graphite black, burnt orange and lime green. A kangaroo reduced to angular straight-edged planes in a leaping pose, enclosed by a bold circular route ring with one straight orange connector line leaving the ring at the lower right. Absolutely no texture, no outline, no shading, no perspective. Figure-ground contrast like a public transport sign. Bold simple silhouette that reads instantly at very small size. No letters, words, numbers, logos, watermarks, gradients, glow, 3D render or drop shadows.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Direction B: geometric wayfinding pictogram",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "cmp-b-linkarooie.png",
+      "bytes": 853029,
+      "contentType": "image/png"
+    }
+  ]
+}

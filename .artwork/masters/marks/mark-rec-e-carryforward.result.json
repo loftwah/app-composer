@@ -1,0 +1,38 @@
+{
+  "id": "mark-rec-e-carryforward",
+  "endpoint": "fal-ai/recraft/v4.1/pro/text-to-vector",
+  "requestId": "01a147e0-a760-73e0-a4af-48d95a9a8fd5",
+  "submittedAt": "2026-10-17T03:21:07.452Z",
+  "durationMs": 15598,
+  "input": {
+    "prompt": "Flat app mark on a plain solid cream background: a small dark charcoal travelling case with a thin arched handle, sitting on a thick violet purple route line that bends at a right angle, with two pale rectangular paper tags threaded on the line to the right, exactly one of them filled solid burnt orange. Flat cut paper look. No lock, no key, no padlock anywhere. Simple bold geometry, even stroke weight, centred with generous margin. No text, no letters, no numbers, no watermark, no gradient, no shadow, no 3D, no perspective.",
+    "image_size": "square_hd",
+    "colors": [
+      {
+        "r": 107,
+        "g": 70,
+        "b": 193
+      },
+      {
+        "r": 37,
+        "g": 41,
+        "b": 35
+      },
+      {
+        "r": 217,
+        "g": 80,
+        "b": 34
+      }
+    ]
+  },
+  "note": "Carry / forward app mark, flat screenprint grammar",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "mark-rec-e-carryforward.svg",
+      "bytes": 23584,
+      "contentType": "image/svg+xml"
+    }
+  ]
+}

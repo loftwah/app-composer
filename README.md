@@ -15,7 +15,7 @@ Astro 7.3.5, EmDash 1.2.0, Cloudflare adapter 14.3.3, Wrangler 4.143.1. The lock
 - [Photo Guestbook](https://github.com/loftwah/app-composer-guestbook), standalone at https://guestbook.loftwah.com.
 - [Linkarooie](https://github.com/loftwah/app-composer-showcase), standalone at https://showcase.loftwah.com.
 - [Hello World reference](https://github.com/loftwah/app-composer-hello), https://ready.loftwah.com.
-- [Fictional Portable AI State](https://github.com/loftwah/app-composer-state), https://ai.loftwah.com. Synthetic-only pending full security gates.
+- [Carry / forward](https://github.com/loftwah/app-composer-state), https://ai.loftwah.com. Fictional portable assistant state; synthetic-only pending full security gates.
 
 The first pair mounts through declared, separately pinned integrated Worker services. `pnpm compose:promote` compiles the exact reviewed pins, deploys those services and leaves standalone upstream version changes outside the composition code. Approved items become featured cards through a generic provider API. Current privacy is resolved on every public request. Code rollback does not restore old data or permissions.
 

@@ -1,0 +1,23 @@
+{
+  "id": "cmp-c-herethere",
+  "endpoint": "openai/gpt-image-2.5/flare/text-to-image",
+  "requestId": "01a147d8-5b89-7fd3-9c74-1b42219f2498",
+  "submittedAt": "2026-10-17T03:12:03.770Z",
+  "durationMs": 25924,
+  "input": {
+    "prompt": "Hand-painted gouache miniature illustration, square composition, warm ivory paper ground. A weathered orange mail postbox on a coastal roadside at late afternoon; three paper postcards lift out of it and drift upward; behind it a quiet beach road, agave plants and a distant headland. Visible brush strokes and dry-brush edges, muted ochre, eucalyptus green, ocean teal and terracotta. Painted scene, not a photograph, not a 3D render. Clear silhouette and readable shapes. No letters, words, numbers, logos, watermarks, signatures, gradients, glow, lens flare or drop shadows.",
+    "image_size": "square_hd",
+    "quality": "high",
+    "num_images": 1
+  },
+  "note": "Direction C: hand-painted gouache miniature scene",
+  "reference": null,
+  "error": null,
+  "outputs": [
+    {
+      "file": "cmp-c-herethere.png",
+      "bytes": 2282196,
+      "contentType": "image/png"
+    }
+  ]
+}
