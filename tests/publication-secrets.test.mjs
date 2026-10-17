@@ -369,3 +369,16 @@ test("a credential embedded in a publication filename is refused and its path is
   assert.equal(result.ok, false);
   assert.equal(JSON.stringify(result).includes(canary), false);
 });
+test("rejects trailing compressed payload hidden inside a ZIP packed member", (t) => {
+  const f = fixture(t);
+  const original = zip("safe.js", "safe");
+  const start = original.readUInt32LE(original.length - 6);
+  const local = Buffer.from(original.subarray(0, start)),
+    directory = Buffer.from(original.subarray(start));
+  const tail = deflateRawSync(Buffer.from(canary));
+  local.writeUInt32LE(local.readUInt32LE(18) + tail.length, 18);
+  directory.writeUInt32LE(directory.readUInt32LE(20) + tail.length, 20);
+  directory.writeUInt32LE(start + tail.length, directory.length - 6);
+  f.put("dist/tail.zip", Buffer.concat([local, tail, directory]));
+  assert.equal(f.scan().ok, false);
+});

@@ -224,8 +224,16 @@ export function archiveMembers(name, bytes) {
       if (start + packed > centralStart) throw Error("invalid zip data");
       localCursor = start + packed;
       const raw = bytes.subarray(start, start + packed);
-      const data =
-        method === 8 ? inflateRawSync(raw, { maxOutputLength: maxBytes }) : raw;
+      let data = raw;
+      if (method === 8) {
+        const inflated = inflateRawSync(raw, {
+          info: true,
+          maxOutputLength: maxBytes,
+        });
+        if (inflated.engine.bytesWritten !== raw.length)
+          throw Error("unconsumed deflate data");
+        data = inflated.buffer;
+      }
       expanded += data.length;
       if (
         data.length !== size ||
