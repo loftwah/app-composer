@@ -22,6 +22,9 @@ const cfg=JSON.parse(readFileSync('wrangler.jsonc','utf8'));
 const lock=JSON.parse(readFileSync('composition.lock.json','utf8'));
 assertProductionTarget(cfg,cfg,lock);
 execFileSync('pnpm',['run','audit'],{stdio:'inherit'});
+// The workspace schema ships with the Worker. Applying recorded migrations here is
+// idempotent and prevents a release serving a page whose tables do not exist yet.
+execFileSync('pnpm',['wrangler','d1','migrations','apply','app-composer-emdash','--remote'],{stdio:'inherit'});
 const usageSchema=await query("SELECT sql FROM sqlite_schema WHERE type='table' AND name='composer_usage'");
 assertReceiptCounterSchema(usageSchema[0]?.results?.[0]?.sql);
 execFileSync('pnpm',['check'],{stdio:'inherit'});
