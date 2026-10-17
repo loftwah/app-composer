@@ -21,7 +21,7 @@ function fixture(run) {
 test('checking is read-only; explicit writing updates only named assets and repeats without writes', () => fixture(app => {
   const sentinel = join(app, 'public/brand/owner.svg');
   writeFileSync(sentinel, 'owner artwork');
-  assert.equal(maintainPublicUiAssets([app]).filter(item => item.changed).length, 4);
+  assert.equal(maintainPublicUiAssets([app]).filter(item => item.changed).length, publicUiFiles.length);
   assert.equal(readFileSync(join(app, 'public/brand/page-share.mjs'), 'utf8'), 'old source');
   maintainPublicUiAssets([app], { write: true });
   for (const name of publicUiFiles) assert.deepEqual(readFileSync(join(app, 'public/brand', name)), readFileSync(new URL('../public/brand/' + name, import.meta.url)));
@@ -45,4 +45,13 @@ test('invalid or linked destinations are refused before any selected app is upda
   assert.throws(() => maintainPublicUiAssets([app], { write: true }), /unlinked file/);
   assert.equal(readFileSync(owner, 'utf8'), 'owner styles');
   assert.equal(readFileSync(join(app, 'public/brand/page-share.mjs'), 'utf8'), 'old source');
+}));
+
+
+test('first launcher copy is explicit and later drift remains visible', () => fixture(app => {
+  for (const name of ['launcher.js', 'launcher.css']) rmSync(join(app, 'public/brand', name));
+  assert(maintainPublicUiAssets([app]).find(item => item.name === 'launcher.js').changed);
+  maintainPublicUiAssets([app], { write: true });
+  writeFileSync(join(app, 'public/brand/launcher.js'), 'local changed copy');
+  assert(maintainPublicUiAssets([app]).find(item => item.name === 'launcher.js').changed);
 }));
