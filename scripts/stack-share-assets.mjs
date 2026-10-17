@@ -3,6 +3,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import ts from 'typescript';
+import {STACK_THEMES} from '../src/lib/stack-theme.mjs';
 
 const write = process.argv.slice(2).join(' ') === '--write';
 if (!write && process.argv.slice(2).join(' ') !== '--check') throw Error('Use --write or --check.');
@@ -35,4 +36,6 @@ for (const [source, output] of files) {
   const emitted = result.outputText.replaceAll('../lib/qr-code.ts', './qr-code.mjs').replaceAll('../../public/brand/page-share-url.mjs', './page-share-url.mjs');
   asset(output, `// Generated from ${source}; edit the source and run scripts/stack-share-assets.mjs --write.\n${emitted}`);
 }
+const themes = Object.entries(STACK_THEMES).map(([name, tokens]) => `.stack-view[data-stack-theme="${name}"] {\n${Object.entries(tokens).map(([key, value]) => `  --stack-${key}: ${value};`).join('\n')}\n}`).join('\n\n');
+asset('src/styles/stack-theme.generated.css', `/* Generated from src/lib/stack-theme.mjs by scripts/stack-share-assets.mjs. */\n${themes}\n`);
 if (changed) process.exitCode = 1;

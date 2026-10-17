@@ -43,7 +43,9 @@ test('the published page renders one shared component and the publication snapsh
 test('preview and public output share the renderer and the theme tokens', () => {
   const view = read('src/components/StackView.tsx');
   assert.match(view, /import \{ STACK_APPS, declaredConfig \} from "\.\.\/lib\/stacks\.mjs"/);
-  assert.match(view, /import \{ themeTokens \} from "\.\.\/lib\/stack-theme\.mjs"/);
+  assert.match(view, /import \{ STACK_THEMES, themeTokens \} from "\.\.\/lib\/stack-theme\.mjs"/);
+  assert.doesNotMatch(view, /style=\{/);
+  assert.match(view, /import "\.\.\/styles\/stack-view\.css"/);
   const editor = read('src/plugins/stacks-admin.tsx');
   assert.match(editor, /import \{ StackView \} from "\.\.\/components\/StackView"/);
   assert.match(editor, /<StackView document=\{document\} \/>/);
