@@ -51,16 +51,19 @@ test('preview and public output share the renderer and the theme tokens', () => 
   for (const theme of ['daylight', 'midnight']) assert.match(tokens, new RegExp(theme));
 });
 
-test('the share controls are produced from the publication and stay offline', () => {
+test('the share controls use the publication-specific public image and local QR encoder', () => {
   const share = read('public/brand/stack-share.mjs');
   assert.match(share, /import \{ currentShareURL \} from '\.\/page-share-url\.mjs'/);
   assert.match(share, /import \{ qrMatrix \} from '\.\/qr-code\.mjs'/);
-  assert.match(share, /await document\.fonts\.ready/);
-  // Nothing about sharing leaves the browser to make an image.
-  assert.doesNotMatch(share, /fetch\(/);
+  assert.match(share, /fetch\(data\.imagePath/);
+  assert.match(share, /credentials: 'omit', redirect: 'error'/);
   const component = read('src/components/StackShare.astro');
   assert.match(component, /data-stack-share-data/);
-  assert.match(component, /themeTokens\(theme\)/);
+  assert.match(component, /href=\{imagePath\} download=/);
+  assert.match(component, /replaceAll\('<', '\\\\u003c'\)/);
+  const page = read('src/pages/s/[slug].astro');
+  assert.match(page, /shareImage=\{sharing\?\.imageUrl\}/);
+  assert.match(page, /shareAlt=\{sharing\?\.imageAlt\}/);
 });
 
 test('the editor keeps one save model and does not lose local work', () => {

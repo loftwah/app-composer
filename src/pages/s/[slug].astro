@@ -8,6 +8,7 @@ import StackView from '../../components/StackView.tsx';
 import StackShare from '../../components/StackShare.astro';
 import {publicStack} from '../../lib/stacks.mjs';
 import {noindexFor} from '../../lib/indexing.mjs';
+import {stackShareDetails} from '../../lib/stack-sharing.ts';
 import {env} from 'cloudflare:workers';
 
 const runtime = env as unknown as {DB?: {prepare(sql: string): {bind(...values: unknown[]): {first(): Promise<unknown>}}}};
@@ -25,16 +26,14 @@ if (!runtime.DB || typeof runtime.DB.prepare !== 'function') {
 if (!stack && !unavailable) Astro.response.status = 404;
 if (unavailable) Astro.response.status = 503;
 
-const instances = stack ? (stack.document.instances as {label: string; visible?: boolean}[]).filter(instance => instance.visible !== false) : [];
 const title = stack ? stack.name : unavailable ? 'Stack temporarily unavailable' : 'Stack not found';
-const description = stack
-  ? (stack.description || `A published App Composer stack: ${instances.map(instance => instance.label).join(', ') || 'no visible apps yet'}.`)
-  : 'This App Composer stack address has no published revision.';
-// Sharing metadata belongs to the publication, so a later private draft cannot
-// change the card, and the revision is part of the canonical address.
-const shareUrl = stack ? `https://composer.loftwah.com/s/${stack.slug}` : undefined;
+const sharing = stack ? await stackShareDetails(stack) : null;
+const description = sharing?.description ?? 'This App Composer stack address has no published revision.';
+// SEO keeps the clean address. The social image includes the exact publication
+// identity, so draft edits cannot change its pixels or metadata.
+const shareUrl = sharing?.url;
 ---
-<Base title={title} description={description} noindex={noindexFor(Astro.url.hostname, Boolean(stack))} canonical={shareUrl}>
+<Base title={title} description={description} noindex={noindexFor(Astro.url.hostname, Boolean(stack))} canonical={shareUrl} shareImage={sharing?.imageUrl} shareAlt={sharing?.imageAlt} shareType={sharing ? 'image/png' : undefined}>
 {unavailable ? (
   <>
     <h1>This stack is temporarily unavailable.</h1>
@@ -57,8 +56,9 @@ const shareUrl = stack ? `https://composer.loftwah.com/s/${stack.slug}` : undefi
       url={shareUrl ?? `https://composer.loftwah.com/s/${stack.slug}`}
       title={stack.name}
       description={description}
-      theme={stack.theme}
-      apps={instances.map(instance => instance.label)}
+      imagePath={sharing!.imagePath}
+      imageUrl={sharing!.imageUrl}
+      imageAlt={sharing!.imageAlt}
     />
     <p class="small">This page is Composer-owned presentation. Each app keeps its own source, records and media; the links above open the live app. Published revision {stack.revision} is the exact configuration this page renders.</p>
   </>
