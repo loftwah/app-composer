@@ -6,7 +6,7 @@
   "packageManager": "pnpm@12.8.1",
   "scripts": {
     "dev": "node scripts/package-downloads.mjs && astro dev --host 127.0.0.1",
-    "build": "node scripts/identity.mjs && node scripts/package-downloads.mjs && astro build",
+    "build": "node scripts/identity.mjs && node scripts/package-downloads.mjs && astro build && node scripts/check-publication.mjs",
     "check": "pnpm check:types && pnpm test",
     "test": "node --test --test-concurrency=4 tests/*.test.mjs",
     "deploy": "node scripts/deploy.mjs",
@@ -29,7 +29,8 @@
     "test:package": "node --test tests/readiness-package.test.mjs",
     "test:domain": "node --test tests/readiness-domain.test.mjs",
     "audit": "pnpm audit --audit-level low",
-    "init:site": "node scripts/init-site.mjs"
+    "init:site": "node scripts/init-site.mjs",
+    "check:publication": "node scripts/check-publication.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.3.3",
