@@ -1,6 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Here / there">
   <rect width="64" height="64" rx="14" fill="#f4f0e8"/>
-  <path d="M12 30a16 16 0 0 1 32 0v18a4 4 0 0 1-4 4H16a4 4 0 0 1-4-4z" fill="#d95022"/>
-  <rect x="17" y="30" width="22" height="7" rx="2.5" fill="#252923"/>
-  <rect x="47" y="21" width="11" height="10" rx="1.5" fill="#252923"/>
+  <g transform="rotate(-10 32 32)">
+    <rect x="13" y="15" width="38" height="34" rx="3" fill="#f4f0e8" stroke="#252923" stroke-width="4.5"/>
+    <rect x="38" y="21" width="9" height="9" rx="1.5" fill="#d95022"/>
+    <path d="M20 44h24" stroke="#252923" stroke-width="4" stroke-linecap="round"/>
+  </g>
 </svg>
