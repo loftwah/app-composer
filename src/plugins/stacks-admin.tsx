@@ -59,6 +59,7 @@ export function StudioPage() {
   const session = useRef(new EditorSession());
   const requestGeneration = useRef(0);
   const pending = useRef(false);
+  const latestDocument = useRef<StackDocument | undefined>(undefined);
 
   const current = useMemo(() => stacks.find(stack => stack.id === selected), [stacks, selected]);
   const document = draft?.document;
@@ -67,6 +68,7 @@ export function StudioPage() {
 
   const adopt = useCallback((stack: Stack) => {
     session.current.adopt(stack.id, stack.revision);
+    latestDocument.current = structuredClone(stack.draft);
     setSelected(stack.id);
     setDraft({ document: structuredClone(stack.draft), generation: session.current.generation });
     setDirty(false);
@@ -88,6 +90,7 @@ export function StudioPage() {
       else {
         setSelected(undefined);
         setDraft(undefined);
+        latestDocument.current = undefined;
         setDirty(false);
         session.current.adopt(undefined);
       }
@@ -171,8 +174,10 @@ export function StudioPage() {
   });
 
   const update = (patch: Partial<StackDocument>) => {
+    if (!latestDocument.current) return;
     session.current.edit();
-    setDraft(current => (current ? { document: { ...current.document, ...patch }, generation: session.current.generation } : current));
+    latestDocument.current = { ...latestDocument.current, ...patch };
+    setDraft({ document: latestDocument.current, generation: session.current.generation });
     setDirty(true);
     setMessage("");
   };
@@ -208,9 +213,9 @@ export function StudioPage() {
   };
 
   const writeDraft = async (): Promise<Stack> => {
-    if (!document || !current) throw Error("Open a stack first.");
+    if (!latestDocument.current || !current) throw Error("Open a stack first.");
     const sent = session.current.capture();
-    const payload = normaliseStack(structuredClone(document)) as StackDocument;
+    const payload = normaliseStack(structuredClone(latestDocument.current)) as StackDocument;
     const data = await call("save", { stack: current.id, document: payload, expectedRevision: session.current.revision });
     const stack = data.stack;
     if (!stack || stack.id !== sent.stack || JSON.stringify(stack.draft) !== JSON.stringify(payload)) {
@@ -260,6 +265,7 @@ export function StudioPage() {
         session.current.adopt(undefined);
         setSelected(undefined);
         setDraft(undefined);
+        latestDocument.current = undefined;
         setDirty(false);
       } else {
         if (!data.stack || data.stack.id !== current.id) throw Error("The change was not confirmed. Your draft is still here.");
