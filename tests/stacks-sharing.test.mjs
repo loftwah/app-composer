@@ -5,6 +5,8 @@ import {execFileSync} from 'node:child_process';
 import {publicStack} from '../src/lib/stacks.mjs';
 import {stackShareDetails, isStackImageIdentity} from '../src/lib/stack-sharing.ts';
 import {stackShareSvg, wrapCardText} from '../src/lib/stack-share-svg.ts';
+import {initWasm, Resvg} from '@resvg/resvg-wasm';
+import {createRequire} from 'node:module';
 
 const sample = {
   version: 1, name: 'Trail Notes', description: 'Fictional weekend photos and favourite finds.', theme: 'midnight',
@@ -76,4 +78,23 @@ test('the Worker route rechecks public visibility and the exact image identity b
 
 test('deployable browser and QR modules match their checked TypeScript sources', () => {
   execFileSync(process.execPath, ['scripts/stack-share-assets.mjs', '--check'], {cwd: new URL('..', import.meta.url), stdio: 'pipe'});
+});
+
+test('the bundled server face renders Latin letters rather than repeated missing-glyph boxes', async () => {
+  const require = createRequire(import.meta.url);
+  await initWasm(readFileSync(require.resolve('@resvg/resvg-wasm/index_bg.wasm')));
+  const font = readFileSync(new URL('../src/assets/fonts/SpaceGrotesk.ttf.bin', import.meta.url));
+  const width = text => {
+    const renderer = new Resvg(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200"><text x="0" y="100" font-family="Space Grotesk" font-size="100">${text}</text></svg>`, {font: {fontBuffers: [font], defaultFontFamily: 'Space Grotesk'}});
+    const bounds = renderer.innerBBox();
+    try { return bounds?.width ?? 0; }
+    finally { bounds?.free(); renderer.free(); }
+  };
+  const narrow = width('IIIIIIII');
+  const wide = width('WWWWWWWW');
+  assert.ok(narrow > 0);
+  // A font with no Latin cmap rendered the same .notdef glyph for every
+  // character. It parsed without error and had nonzero bounds, so merely
+  // accepting the font or observing image dimensions did not catch the defect.
+  assert.ok(wide > narrow * 2, `Latin glyph widths must differ: ${wide}/${narrow}`);
 });

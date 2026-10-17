@@ -156,7 +156,9 @@ for (const element of document.querySelectorAll<HTMLElement>('[data-stack-share]
         await navigator.share({title: data.title, text: data.description, url: currentAddress});
         report('Shared the published stack link.');
       } catch (error) {
-        if (!(error instanceof DOMException && error.name === 'AbortError')) report('Sharing is unavailable. Use Copy stack link instead.');
+        report(error instanceof DOMException && error.name === 'AbortError'
+          ? 'Sharing cancelled.'
+          : 'Sharing is unavailable. Use Copy stack link instead.');
       }
     }));
   }

@@ -156,8 +156,9 @@ for (const element of document.querySelectorAll('[data-stack-share]')) {
                 report('Shared the published stack link.');
             }
             catch (error) {
-                if (!(error instanceof DOMException && error.name === 'AbortError'))
-                    report('Sharing is unavailable. Use Copy stack link instead.');
+                report(error instanceof DOMException && error.name === 'AbortError'
+                    ? 'Sharing cancelled.'
+                    : 'Sharing is unavailable. Use Copy stack link instead.');
             }
         }));
     }
