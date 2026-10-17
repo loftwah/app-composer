@@ -58,18 +58,18 @@ function qrSvg(url: string, x: number, y: number, side: number): string {
   return `<rect x="${x}" y="${y}" width="${side}" height="${side}" rx="8" fill="#fff"/><path fill="#17181b" d="${modules.join('')}"/>`;
 }
 
-export function stackShareSvg(stack: PublishedStackShare, share: StackShareDetails, measure: Measure): string {
+export function stackShareSvg(stack: PublishedStackShare, share: StackShareDetails, measure: Measure, brandImage: string): string {
   const theme = themeTokens(stack.theme);
   const title = wrapCardText(share.title, 70, 600, 760, 2, measure);
   const description = wrapCardText(share.description, 31, 400, 760, 2, measure);
   const apps = wrapCardText(share.apps.length ? share.apps.join(' · ') : 'No visible apps yet', 26, 500, 1056, 1, measure);
   const address = wrapCardText(share.url.replace('https://', ''), 24, 400, 1056, 1, measure);
   const descriptionY = title.length > 1 ? 382 : 304;
-  // Crisp routes and the established interlocking module mark preserve the
-  // product's transit identity. The publication, rather than decoration, leads.
+  // The renderer supplies the fixed bundled Composer PNG as a data URI. Stack
+  // documents cannot select an image or make the card fetch an external asset.
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${STACK_CARD_WIDTH}" height="${STACK_CARD_HEIGHT}" viewBox="0 0 1200 630">
 <rect width="1200" height="630" fill="${theme.background}"/>
-<path d="M72 108h40v40H72z M92 128h40v40H92z" fill="${theme.background}" stroke="${theme.accent}" stroke-width="5"/>
+<image x="72" y="108" width="48" height="48" href="${escapeXml(brandImage)}"/>
 <g font-family="Space Grotesk">
 ${textLines(['App Composer'], 154, 144, 30, 0, theme.foreground, 500)}
 ${textLines(title, 72, 244, 70, 78, theme.foreground, 600)}

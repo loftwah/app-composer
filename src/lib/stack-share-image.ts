@@ -1,6 +1,7 @@
 import { initWasm, Resvg } from '@resvg/resvg-wasm';
 import wasm from '@resvg/resvg-wasm/index_bg.wasm?module';
 import fontBuffer from '../assets/fonts/SpaceGrotesk.ttf.bin';
+import brandBuffer from '../assets/composer-icon-20261018-96.png.bin';
 import { stackShareSvg } from './stack-share-svg.ts';
 import type { PublishedStackShare, StackShareDetails } from './stack-sharing.ts';
 
@@ -9,6 +10,9 @@ import type { PublishedStackShare, StackShareDetails } from './stack-sharing.ts'
 // The promise is shared by simultaneous requests in this isolate.
 let ready: Promise<void> | undefined;
 const font = new Uint8Array(fontBuffer);
+// Import the selected 96px raster as bytes, like the bundled font. The SVG
+// receives only this fixed image; neither rendering nor module setup fetches it.
+const brandImage = `data:image/png;base64,${btoa(Array.from(new Uint8Array(brandBuffer), byte => String.fromCharCode(byte)).join(''))}`;
 export async function renderStackShareImage(stack: PublishedStackShare, share: StackShareDetails): Promise<Uint8Array<ArrayBuffer>> {
   ready ??= initWasm(wasm);
   await ready;
@@ -22,7 +26,7 @@ export async function renderStackShareImage(stack: PublishedStackShare, share: S
     svg.free();
     return width;
   };
-  const renderer = new Resvg(stackShareSvg(stack, share, measure), fontOptions);
+  const renderer = new Resvg(stackShareSvg(stack, share, measure, brandImage), fontOptions);
   try {
     const image = renderer.render();
     try { return new Uint8Array(image.asPng()); }
