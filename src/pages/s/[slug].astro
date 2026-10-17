@@ -5,6 +5,7 @@
 // missing stacks are indistinguishable and never leak their content.
 import Base from '../../layouts/Base.astro';
 import StackView from '../../components/StackView.tsx';
+import StackShare from '../../components/StackShare.astro';
 import {publicStack} from '../../lib/stacks.mjs';
 import {noindexFor} from '../../lib/indexing.mjs';
 import {env} from 'cloudflare:workers';
@@ -49,8 +50,16 @@ const shareUrl = stack ? `https://composer.loftwah.com/s/${stack.slug}` : undefi
 ) : (
   <>
     <p class="small"><a href="/studio">Creator stacks</a> · published revision {stack.revision}{stack.publishedAt ? ` · ${new Date(String(stack.publishedAt).replace(' ', 'T') + 'Z').toLocaleDateString('en-AU', {day: 'numeric', month: 'long', year: 'numeric'})}` : ''}</p>
-    <h1>{stack.name}</h1>
-    <StackView document={stack.document} link />
+    <StackView document={stack.document} link titleAs="h1" />
+    <StackShare
+      slug={stack.slug}
+      revision={stack.revision}
+      url={shareUrl ?? `https://composer.loftwah.com/s/${stack.slug}`}
+      title={stack.name}
+      description={description}
+      theme={stack.theme}
+      apps={instances.map(instance => instance.label)}
+    />
     <p class="small">This page is Composer-owned presentation. Each app keeps its own source, records and media; the links above open the live app. Published revision {stack.revision} is the exact configuration this page renders.</p>
   </>
 )}

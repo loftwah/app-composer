@@ -44,10 +44,13 @@ export function StackView({
   document,
   link = false,
   compact = false,
+  titleAs: Title = "h2",
 }: {
   document: StackViewDocument;
   link?: boolean;
   compact?: boolean;
+  /** The public page supplies the page's own h1; the editor preview reads as a section. */
+  titleAs?: "h1" | "h2";
 }): ReactElement {
   const tokens = themeTokens(document.theme);
   const instances = (document.instances ?? []).filter(instance => instance.visible !== false);
@@ -64,7 +67,7 @@ export function StackView({
         padding: compact ? "18px 18px 6px" : "28px 26px 10px",
       }}
     >
-      <h2 style={{ margin: "0 0 10px", fontSize: compact ? "1.35rem" : "1.7rem", lineHeight: 1.2 }}>{document.name}</h2>
+      <Title style={{ margin: "0 0 10px", fontSize: compact ? "1.35rem" : "1.7rem", lineHeight: 1.2 }}>{document.name}</Title>
       {document.description ? (
         <p style={{ margin: "0 0 18px", color: tokens.muted, maxWidth: "60ch" }}>{document.description}</p>
       ) : null}
@@ -96,14 +99,13 @@ export function StackView({
               </p>
             ) : null}
             {lines.length ? (
-              <dl style={{ margin: "0 0 8px", display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 12px", fontSize: ".92rem" }}>
+              <div style={{ margin: "0 0 10px", fontSize: ".92rem", display: "grid", gap: 4 }}>
                 {lines.map(line => (
-                  <div key={line.key} style={{ display: "contents" }}>
-                    <dt style={{ color: tokens.muted }}>{line.label}</dt>
-                    <dd style={{ margin: 0 }}>{line.value}</dd>
-                  </div>
+                  <p key={line.key} style={{ margin: 0 }}>
+                    <span style={{ color: tokens.muted }}>{line.label}</span> {line.value}
+                  </p>
                 ))}
-              </dl>
+              </div>
             ) : null}
             {app ? (
               <p style={{ margin: 0, color: tokens.muted, fontSize: ".88rem" }}>
