@@ -4,14 +4,19 @@ import type { PluginAdminExports } from "emdash";
 import {
   call,
   type ActivationEntry,
-  type InstanceConfiguration,
+  type DeclaredField,
   type Role,
   type Stack,
   type StackDocument,
   type StackPublication,
   type Workspace,
 } from "./stacks/api";
-import { CAPABILITIES, STACK_APPS, normaliseStack } from "../lib/stacks.mjs";
+import {
+  CAPABILITIES,
+  STACK_APPS,
+  normaliseStack,
+  declaredConfig,
+} from "../lib/stacks.mjs";
 import { StackView } from "../components/StackView";
 import "./stacks-admin.css";
 
@@ -55,7 +60,6 @@ export function StudioPage() {
     stack?: string;
   }>();
   const [publications, setPublications] = useState<StackPublication[]>([]);
-  const [instances, setInstances] = useState<InstanceConfiguration[]>([]);
   const [activation, setActivation] = useState<ActivationEntry[]>([]);
   const [newName, setNewName] = useState("");
   const [fallback, setFallback] = useState("");
@@ -189,13 +193,11 @@ export function StudioPage() {
     )
       return;
     setPublications(history.publications ?? []);
-    setInstances(configuration.instances ?? []);
     setActivation(configuration.configuration?.entries ?? []);
   }, []);
 
   useEffect(() => {
     setPublications([]);
-    setInstances([]);
     setActivation([]);
     if (selected) void loadSidecars(selected).catch(() => undefined);
   }, [selected, loadSidecars]);
@@ -702,9 +704,8 @@ export function StudioPage() {
               </p>
               {document.instances.map((instance, index) => {
                 const meta = APPS.find((entry) => entry.id === instance.app);
-                const declared =
-                  instances.find((entry) => entry.app === instance.app)
-                    ?.declared ?? [];
+                const declared = (declaredConfig(instance.app) ??
+                  []) as DeclaredField[];
                 const shared = instance.binding?.mode === "shared";
                 const siblings = document.instances.filter(
                   (entry) =>
