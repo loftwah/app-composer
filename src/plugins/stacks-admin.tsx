@@ -1309,15 +1309,22 @@ export function StudioPage() {
                         <button
                           type="button"
                           disabled={busy}
-                          onClick={() =>
+                          onClick={() => {
+                            if (
+                              retained &&
+                              !confirm("Remove this app and discard the app setting edits kept here?")
+                            ) return;
+                            setRetainedSettings((entries) =>
+                              entries.filter((entry) => entry.instance !== instance.id),
+                            );
                             update({
                               instances: document.instances.filter(
                                 (entry) => entry.id !== instance.id,
                               ),
-                            })
-                          }
+                            });
+                          }}
                         >
-                          Remove
+                          {retained ? "Remove app and retained edits" : "Remove"}
                         </button>
                       </div>
                     )}
