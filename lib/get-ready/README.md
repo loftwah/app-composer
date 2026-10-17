@@ -154,3 +154,14 @@ Current readers accept older version 1 project reports with installation unknown
 Reviewed 15 October 2026. Explicit personal-starter ownership preflights the selected workspace's real `.private` directory and bounded existing `ownership.json` before contacting GitHub. `runLocalReadiness` prepares private progress storage; direct `createLocalAdapter(...).ownReference(...)` consumers must supply that real directory. Missing, linked or malformed storage is refused before repository creation. Supported legacy receipts remain readable, but a receipt for another selection is preserved and refused.
 
 A new operation reserves a random private directory and exclusive mode-0600 recovery descriptor before the provider request. It writes only through that descriptor and publishes the complete receipt without replacing an existing destination. Owner files, legacy temporary paths and edits observed during a provider wait are preserved; publication/storage changes stop the operation before any push. A failed attempt can leave `.private/.ownership-*/receipt.json` for agent inspection. Do not delete or blindly retry an ambiguous provider result: inspect the actual GitHub repository and retained record, then use the existing explicit resume intent only when its source/identity checks permit it. No automatic recovery or repository deletion is added. These checks handle observed filesystem changes; they are not a sandbox against a malicious concurrent process. Reports and MCP permissions are unchanged.
+
+### Check a reviewed reference's source distributions
+
+A maintained reference that tracks `scripts/build-source.mjs` now runs that exact
+script with `--check` from the frozen source snapshot before tests or Wrangler.
+It uses the same stripped test environment and selected pinned dependency tree;
+provider credentials and ignored owner files never enter the check. A checker
+failure or any tracked-byte mutation refuses the build/upload. Legacy reviewed
+fixtures without this script retain their existing test/build path. Get Ready's
+package stays dependency-free: the compiler belongs to the selected reference,
+not the installed Get Ready consumer.

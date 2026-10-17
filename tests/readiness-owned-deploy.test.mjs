@@ -40,6 +40,32 @@ test('actual owned adapter builds only committed source, isolates ignored owner 
  }finally{globalThis.fetch=prior;f.cleanup();}
 });
 
+test('tracked source checks run from the frozen snapshot with stripped environment before Wrangler',async()=>{
+ const prior=globalThis.fetch;
+ for(const mode of ['source-success','source-failure','source-mutation']){
+  const f=ownedFixture(mode);try{
+   globalThis.fetch=provider(f);
+   const adapter=createLocalAdapter(f.context,{...f.env,RESEND_API_KEY:'fictional-other-key',NODE_OPTIONS:'--require=/fictional/not-permitted.cjs',WRANGLER_CI_OVERRIDE_NAME:'unrelated-worker',CLOUDFLARE_API_BASE_URL:'https://untrusted.example.test'});
+   if(mode==='source-success')await adapter.deployOwnedReference();
+   else await assert.rejects(adapter.deployOwnedReference());
+   const checked=JSON.parse(readFileSync(join(f.root,'source-check.json'),'utf8'));
+   assert.notEqual(checked.cwd,f.workspace);assert.deepEqual(checked.args,['--check']);assert.equal(existsSync(checked.cwd),false,'owned staging is removed after both success and failure');
+   assert.equal(f.events().length,mode==='source-success'?2:0,'a failed or mutating source check cannot reach Wrangler');
+   assert.equal(f.git(['status','--porcelain']),'','the selected owner workspace stays unchanged');
+  }finally{globalThis.fetch=prior;f.cleanup();}
+ }
+});
+
+test('an ignored owner build script cannot join a legacy reviewed snapshot',async()=>{
+ const f=ownedFixture(),prior=globalThis.fetch;try{
+  mkdirSync(join(f.workspace,'scripts'));writeFileSync(join(f.workspace,'scripts/build-source.mjs'),"throw Error('Ignored owner code must not execute');\n");
+  writeFileSync(join(f.workspace,'.git/info/exclude'),readFileSync(join(f.workspace,'.git/info/exclude'),'utf8')+'scripts/\n');
+  assert.equal(f.git(['status','--porcelain']),'');globalThis.fetch=provider(f);
+  await createLocalAdapter(f.context,f.env).deployOwnedReference();assert.equal(f.events().length,2);
+  assert.match(readFileSync(join(f.workspace,'scripts/build-source.mjs'),'utf8'),/Ignored owner code/);
+ }finally{globalThis.fetch=prior;f.cleanup();}
+});
+
 test('unreviewed executable/data inventory, deployment bindings, public ownership and denied writes cannot reach build or upload',async()=>{
  const prior=globalThis.fetch;
  for(const mode of ['code','new-file','bad-profile','public','denied']){
