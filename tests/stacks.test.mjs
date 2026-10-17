@@ -33,7 +33,8 @@ except Exception as e:
 function sqliteD1() {
   const dir = mkdtempSync(join(tmpdir(), 'composer-stacks-'));
   const path = join(dir, 'stacks.db');
-  const schema = readFileSync(new URL('../migrations/0003_stacks.sql', import.meta.url), 'utf8');
+  const schema = readFileSync(new URL('../migrations/0003_stacks.sql', import.meta.url), 'utf8')
+    + '\n' + readFileSync(new URL('../migrations/0004_stack_publications.sql', import.meta.url), 'utf8');
   const call = (mode, sql, params) => {
     const output = execFileSync('python3', ['-c', fixture], { input: JSON.stringify({ path, schema, sql, params, mode }), encoding: 'utf8' });
     const data = JSON.parse(output);
