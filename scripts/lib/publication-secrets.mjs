@@ -2,7 +2,7 @@
 // paths, never matched bytes. No source/config name prefix grants an exemption.
 import { execFileSync } from "node:child_process";
 import { lstatSync, readdirSync, readFileSync } from "node:fs";
-import { join, relative, resolve } from "node:path";
+import { join, relative, resolve, posix } from "node:path";
 import { gunzipSync, inflateRawSync } from "node:zlib";
 
 const patterns = [
@@ -102,7 +102,8 @@ function crc32(bytes) {
 export function archiveMembers(name, bytes) {
   if (/\.(?:tgz|tar\.gz)$/i.test(name)) {
     const tar = gunzipSync(bytes, { maxOutputLength: maxExpandedBytes });
-    const files = [];
+    const files = [],
+      names = new Set();
     let end = 0;
     while (end + 512 <= tar.length) {
       const header = tar.subarray(end, end + 512);
@@ -133,6 +134,10 @@ export function archiveMembers(name, bytes) {
         end + 512 + size > tar.length
       )
         throw Error("unsupported tar member");
+      const canonical = posix.normalize(member.replace(/\/$/, ""));
+      if (names.has(canonical) || (type === "5" && size !== 0))
+        throw Error("duplicate or nonempty directory member");
+      names.add(canonical);
       if (type !== "5")
         files.push([member, tar.subarray(end + 512, end + 512 + size)]);
       end += 512 + Math.ceil(size / 512) * 512;
@@ -168,7 +173,10 @@ export function archiveMembers(name, bytes) {
       throw Error("unsupported zip volume");
     let cursor = bytes.readUInt32LE(end + 16),
       expanded = 0;
-    const files = [];
+    const files = [],
+      names = new Set();
+    const centralStart = cursor;
+    let localCursor = 0;
     for (let i = 0; i < count; i++) {
       if (cursor + 46 > end || bytes.readUInt32LE(cursor) !== 0x02014b50)
         throw Error("invalid zip member");
@@ -186,12 +194,18 @@ export function archiveMembers(name, bytes) {
       if (
         !safeMember(member) ||
         (mode & 0xf000) === 0xa000 ||
-        flags & 1 ||
+        (flags & ~0x800) !== 0 ||
         ![0, 8].includes(method) ||
         size > maxBytes
       )
         throw Error("unsupported zip member");
+      const canonical = posix.normalize(member.replace(/\/$/, ""));
+      if (names.has(canonical) || (member.endsWith("/") && size !== 0))
+        throw Error("duplicate or nonempty directory member");
+      names.add(canonical);
       const local = bytes.readUInt32LE(cursor + 42);
+      if (local !== localCursor)
+        throw Error("unindexed or overlapping zip data");
       if (local + 30 > cursor || bytes.readUInt32LE(local) !== 0x04034b50)
         throw Error("invalid zip local header");
       const localLength = bytes.readUInt16LE(local + 26);
@@ -200,11 +214,15 @@ export function archiveMembers(name, bytes) {
           .subarray(local + 30, local + 30 + localLength)
           .toString("utf8") !== member ||
         bytes.readUInt16LE(local + 8) !== method ||
-        bytes.readUInt16LE(local + 6) !== flags
+        bytes.readUInt16LE(local + 6) !== flags ||
+        bytes.readUInt32LE(local + 14) !== bytes.readUInt32LE(cursor + 16) ||
+        bytes.readUInt32LE(local + 18) !== packed ||
+        bytes.readUInt32LE(local + 22) !== size
       )
         throw Error("zip local header differs");
       const start = local + 30 + localLength + bytes.readUInt16LE(local + 28);
-      if (start + packed > cursor) throw Error("invalid zip data");
+      if (start + packed > centralStart) throw Error("invalid zip data");
+      localCursor = start + packed;
       const raw = bytes.subarray(start, start + packed);
       const data =
         method === 8 ? inflateRawSync(raw, { maxOutputLength: maxBytes }) : raw;
@@ -218,7 +236,7 @@ export function archiveMembers(name, bytes) {
       if (!member.endsWith("/")) files.push([member, data]);
       cursor += 46 + length + extra + comment;
     }
-    if (cursor !== end || !files.length)
+    if (cursor !== end || localCursor !== centralStart || !files.length)
       throw Error("invalid zip directory size");
     return files;
   }
@@ -229,8 +247,16 @@ export function scanPublication({ roots, values = privateValues() }) {
   const findings = [];
   let files = 0,
     members = 0;
-  const add = (path, label) => findings.push({ path, label });
+  const add = (path, label) =>
+    findings.push({
+      path: textFindings(path, values).length
+        ? "<redacted publication path>"
+        : path,
+      label,
+    });
   function inspect(name, bytes, depth = 0) {
+    if (textFindings(name, values).length)
+      add(name, "private value in publication path");
     const reason = riskyPath(name);
     if (reason) add(name, "published " + reason);
     for (const label of textFindings(bytes, values)) add(name, label);

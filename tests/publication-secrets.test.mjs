@@ -1,4 +1,8 @@
 import test from "node:test";
+import {
+  checkPublication,
+  publicationPrivateValues,
+} from "../scripts/check-publication.mjs";
 import assert from "node:assert/strict";
 import {
   mkdtempSync,
@@ -11,7 +15,7 @@ import {
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
-import { gzipSync, deflateRawSync } from "node:zlib";
+import { gzipSync, deflateRawSync, gunzipSync } from "node:zlib";
 import {
   scanPublication,
   privateValues,
@@ -223,4 +227,145 @@ test("normal guard rejects a tracked credential source file and passes clean tra
   assert.equal(result.status, 1);
   assert.match(result.stderr, /tracked environment file/);
   assert.equal((result.stdout + result.stderr).includes(canary), false);
+});
+
+function combineTar(entries) {
+  return gzipSync(
+    Buffer.concat([
+      ...entries.map((bytes) => gunzipSync(bytes).subarray(0, -1024)),
+      Buffer.alloc(1024),
+    ]),
+  );
+}
+function combineZip(entries) {
+  const locals = [],
+    central = [];
+  let offset = 0;
+  for (const bytes of entries) {
+    const start = bytes.readUInt32LE(bytes.length - 6);
+    const directory = Buffer.from(bytes.subarray(start, -22));
+    directory.writeUInt32LE(offset, 42);
+    locals.push(bytes.subarray(0, start));
+    central.push(directory);
+    offset += start;
+  }
+  const end = Buffer.alloc(22);
+  end.writeUInt32LE(0x06054b50);
+  end.writeUInt16LE(entries.length, 8);
+  end.writeUInt16LE(entries.length, 10);
+  end.writeUInt32LE(
+    central.reduce((sum, item) => sum + item.length, 0),
+    12,
+  );
+  end.writeUInt32LE(offset, 16);
+  return Buffer.concat([...locals, ...central, end]);
+}
+for (const [extension, make, combine] of [
+  ["tgz", tar, combineTar],
+  ["zip", zip, combineZip],
+]) {
+  test("rejects duplicate " + extension + " member paths", (t) => {
+    const f = fixture(t);
+    f.put(
+      "dist/duplicate." + extension,
+      combine([make("same.js", "safe"), make("same.js", "safe again")]),
+    );
+    assert.equal(f.scan().ok, false);
+  });
+  test("rejects nonempty " + extension + " directory member data", (t) => {
+    const f = fixture(t);
+    let directory = make("docs/", canary);
+    if (extension === "tgz") {
+      const raw = gunzipSync(directory);
+      raw[156] = "5".charCodeAt(0);
+      raw.fill(32, 148, 156);
+      raw.write(
+        [...raw.subarray(0, 512)]
+          .reduce((sum, byte) => sum + byte, 0)
+          .toString(8)
+          .padStart(6, "0") + "\0 ",
+        148,
+      );
+      directory = gzipSync(raw);
+    }
+    f.put(
+      "dist/directory." + extension,
+      combine([directory, make("safe.js", "safe")]),
+    );
+    assert.equal(f.scan().ok, false);
+  });
+}
+test("rejects unindexed ZIP local records with hidden compressed content", (t) => {
+  const f = fixture(t);
+  const combined = combineZip([
+    zip("hidden.js", canary),
+    zip("safe.js", "safe"),
+  ]);
+  const start = combined.readUInt32LE(combined.length - 6);
+  const firstLength = 46 + combined.readUInt16LE(start + 28);
+  const central = combined.subarray(start + firstLength, -22);
+  const end = Buffer.from(combined.subarray(-22));
+  end.writeUInt16LE(1, 8);
+  end.writeUInt16LE(1, 10);
+  end.writeUInt32LE(central.length, 12);
+  f.put(
+    "dist/unindexed.zip",
+    Buffer.concat([combined.subarray(0, start), central, end]),
+  );
+  assert.equal(f.scan().ok, false);
+});
+for (const [label, source, value] of [
+  ["unquoted inline comment", canary + " # comment", canary],
+  ["quoted inline comment", '"' + canary + '" # comment', canary],
+  [
+    "literal multiline",
+    '"' + canary + '\ncontinuation"',
+    canary + "\ncontinuation",
+  ],
+  [
+    "escaped newline",
+    JSON.stringify(canary + "\ncontinuation"),
+    canary + "\ncontinuation",
+  ],
+  [
+    "single quoted hash",
+    "'" + canary + "#inside' # comment",
+    canary + "#inside",
+  ],
+])
+  test("local runtime env syntax: " + label, (t) => {
+    const f = fixture(t);
+    f.put(".env", "PUBLIC_API_TOKEN=" + source + "\n");
+    f.put("dist/app.js", value);
+    assert.ok(
+      publicationPrivateValues({ directory: f.root, environment: {} }).includes(
+        value,
+      ),
+    );
+    assert.equal(
+      checkPublication({
+        directory: f.root,
+        environment: {},
+        roots: [join(f.root, "dist")],
+      }).ok,
+      false,
+    );
+  });
+test("retains credentials from every local source instead of overriding earlier files", (t) => {
+  const f = fixture(t);
+  f.put(".env", "API_TOKEN=" + canary);
+  f.put(".env.local", "API_TOKEN=" + canary + "-second");
+  const values = publicationPrivateValues({
+    directory: f.root,
+    environment: {},
+  });
+  assert.ok(values.includes(canary));
+  assert.ok(values.includes(canary + "-second"));
+});
+test("a credential embedded in a publication filename is refused and its path is redacted", (t) => {
+  const f = fixture(t);
+  f.put("dist/.env." + canary, "innocuous");
+  const result = f.scan();
+  assert.equal(result.ok, false);
+  assert.equal(JSON.stringify(result).includes(canary), false);
 });

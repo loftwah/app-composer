@@ -51,6 +51,8 @@ export async function auditPublication(
     }
   }
   function inspect(path, bytes) {
+    if (textFindings(path, values).length)
+      findings.push({ path, label: "private value in public asset path" });
     for (const label of textFindings(bytes, values))
       findings.push({ path, label });
   }
@@ -150,7 +152,18 @@ export async function auditPublication(
       }
     }
   }
-  return { ok: findings.length === 0, origin: base.origin, records, findings };
+  const redact = (item) => ({
+    ...item,
+    path: textFindings(item.path, values).length
+      ? "<redacted publication path>"
+      : item.path,
+  });
+  return {
+    ok: findings.length === 0,
+    origin: base.origin,
+    records: records.map(redact),
+    findings: findings.map(redact),
+  };
 }
 if (
   process.argv[1] &&

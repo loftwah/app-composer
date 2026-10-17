@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseEnv } from "node:util";
 import {
   privateValues,
   scanPublication,
@@ -14,20 +15,11 @@ export function publicationPrivateValues({
   const local = {};
   for (const name of readdirSync(directory)) {
     if (!/^(?:\.env(?:\..*)?|\.dev\.vars(?:\..*)?)$/.test(name)) continue;
-    for (const line of readFileSync(resolve(directory, name), "utf8").split(
-      /\r?\n/,
-    )) {
-      const match =
-        /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/.exec(line);
-      if (!match) continue;
-      let value = match[2];
-      if (
-        (value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))
-      )
-        value = value.slice(1, -1);
-      // Preserve every source's values, even when the same name is overridden.
-      local[match[1] + "_" + Object.keys(local).length] = value;
+    // Node's parser handles quoted/inline comments, multiline values and
+    // escaped newlines. A line splitter compared a different value than runtime.
+    const parsed = parseEnv(readFileSync(resolve(directory, name), "utf8"));
+    for (const [key, value] of Object.entries(parsed)) {
+      local[key + "_" + Object.keys(local).length] = value;
     }
   }
   return [...privateValues(environment), ...privateValues(local)];

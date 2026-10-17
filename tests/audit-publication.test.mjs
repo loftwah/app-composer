@@ -59,3 +59,16 @@ test("network errors fail without logging error content", async () => {
   assert.equal(result.ok, false);
   assert.equal(JSON.stringify(result).includes(canary), false);
 });
+test("asset paths containing a configured credential are refused without echoing their query", async () => {
+  const result = await auditPublication("https://example.test", {
+    values: [canary],
+    fetcher: async (url) =>
+      url.pathname === "/"
+        ? response('<script src="/app.js?token=' + canary + '"></script>')
+        : url.pathname === "/app.js"
+          ? response("innocuous")
+          : response("", 404),
+  });
+  assert.equal(result.ok, false);
+  assert.equal(JSON.stringify(result).includes(canary), false);
+});
