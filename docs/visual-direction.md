@@ -29,6 +29,20 @@ Do not default to glossy sports/team mascots, children's sticker packs, rounded 
 
 ## Judge the delivered use
 
+### The Bubbles process is the directing benchmark
+
+MP explicitly reaffirmed the current Bubbles card on 18 October: learn how it was directed, not its appearance. The actual [source and evidence](https://github.com/loftwah/bubbles/tree/455f9d56b9feda26d06aa1ad78838797184c4453/evidence/issue-1326) establish the useful method:
+
+1. Lock an existing recognisable identity. Bubbles used its shipped Bubblecap character, with explicit anatomy invariants; it did not invent a new mascot for the card.
+2. Stage one meaningful moment. A blue shot makes a match; the character reacts. The scene communicates the game's appeal without pretending to be a screenshot.
+3. Direct camera, focal point, motion and negative space for the specific format. A wide social card and a tiny icon need different compositions.
+4. Generate illustration without lettering. Compose the real product wordmark, existing copy and actual font in a reproducible renderer after the art exists.
+5. Compare editorial treatments at full size, 600px and 300px. Use the same master to distinguish composition/copy choices from an entirely different art concept.
+6. Inspect and state crop limits. The Bubbles work explicitly exposed square-crop clipping rather than calling one wide image a universal icon.
+7. Select through visual judgement, then complete provenance, cache/version changes, all consumers and live pixel verification.
+
+Do not reduce this method to “make a cute character,” “use more neon,” or another long list of style adjectives. Identity, an idea, staging, typography and the final use have to work together.
+
 Inspect decoded/exported pixels after fonts and images load. Review the actual header, launcher, catalogue, browser tab, installed icon, public page and social card in both themes, on a phone and desktop. Check 16/32/48/96px identity, 180/192/512px install crops and the real 1200×630 sharing presentation. Important subjects and copy must remain legible at thumbnail size.
 
 All six repositories need their own reviewed output. Standalone and mounted routes, owner/editor surfaces, cached URLs, HTML metadata and catalogue copies must agree. Keep old immutable URLs intact; changed bytes receive a new versioned name and every active consumer is updated. An HTTP 200 or matching hash proves delivery, not artistic quality.
