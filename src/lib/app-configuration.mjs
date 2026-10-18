@@ -3,6 +3,10 @@
 // The caller supplies fresh authority; credentials never enter persisted data.
 import { appSettings, validateConfigurationPatch, } from "./app-settings.mjs";
 const record = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+function strings(value) {
+    return (record(value) &&
+        Object.values(value).every((item) => typeof item === "string"));
+}
 function target(value) {
     if (!record(value) ||
         typeof value.id !== "string" ||
@@ -55,10 +59,13 @@ export async function applyConfiguration(plan, { credential, beforeWrite, reques
         if (ids.has(app.id) || !record(value))
             throw Error("Unsupported operator configuration target.");
         ids.add(app.id);
-        return {
-            ...app,
-            configuration: validateConfigurationPatch(value.configuration, app.id),
-        };
+        const configuration = value.configuration;
+        validateConfigurationPatch(configuration, app.id);
+        if (!strings(configuration))
+            throw Error("Unsupported operator configuration values.");
+        // Validation is not a request to normalize the operator's existing data.
+        // Retain the exact declared strings sent by the independently used API.
+        return { ...app, configuration: { ...configuration } };
     });
     const completed = [];
     for (const app of entries) {
