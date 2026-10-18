@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node scripts/content-source.mjs --check && node scripts/creator-source.mjs --check && node scripts/package-downloads.mjs && astro dev --host 127.0.0.1",
     "build": "node scripts/content-source.mjs --check && node scripts/creator-source.mjs --check && node scripts/launcher-assets.mjs --check && node scripts/stack-share-assets.mjs --check && node scripts/identity.mjs && node scripts/package-downloads.mjs && astro build && node scripts/check-publication.mjs",
-    "check": "pnpm check:types && pnpm test",
+    "check": "pnpm check:types && pnpm lint && pnpm format:check && pnpm test",
     "test": "node --test --test-concurrency=4 tests/*.test.mjs",
     "deploy": "node scripts/deploy.mjs",
     "ready": "node scripts/ready.mjs",
@@ -31,7 +31,10 @@
     "audit": "pnpm audit --audit-level low",
     "init:site": "node scripts/init-site.mjs",
     "check:publication": "node scripts/check-publication.mjs",
-    "source:write": "node scripts/content-source.mjs --write && node scripts/creator-source.mjs --write && node scripts/launcher-assets.mjs --write && node scripts/stack-share-assets.mjs --write"
+    "source:write": "node scripts/content-source.mjs --write && node scripts/creator-source.mjs --write && node scripts/launcher-assets.mjs --write && node scripts/stack-share-assets.mjs --write",
+    "lint": "node scripts/content-source.mjs --lint && node scripts/creator-source.mjs --lint",
+    "format:check": "node scripts/creator-format.mjs --check",
+    "format": "node scripts/creator-format.mjs --write"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.3.3",
@@ -56,6 +59,7 @@
     "@types/react-dom": "19.3.0",
     "jsqr": "1.4.0",
     "pngjs": "7.0.0",
+    "prettier": "3.9.10",
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",
     "wrangler": "4.143.1",

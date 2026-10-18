@@ -334,7 +334,7 @@ export function validateConfigurationPatch(
   input: unknown,
   id: string,
 ): Record<string, string> {
-  const model = appSettings[id];
+  const model = Object.hasOwn(appSettings, id) ? appSettings[id] : undefined;
   if (
     !model ||
     !object(input) ||
