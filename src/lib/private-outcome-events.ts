@@ -138,6 +138,7 @@ export async function collectStackAction(
   instance: string,
 ) {
   if (request.method !== "POST") return empty(405);
+  if (new URL(request.url).search) return empty(400);
   const origin =
     typeof runtime.PUBLIC_ORIGIN === "string" ? runtime.PUBLIC_ORIGIN : "";
   if (

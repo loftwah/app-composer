@@ -120,7 +120,7 @@ export async function manageStacks(ctx, runtime) {
       const selection = { stack: command.stack, instance: command.instance, expectedRevision: command.expectedRevision };
       const mutation = action === 'reconcileResourceContent' ? 'reconcile'
         : action === 'retryResourceContent' ? 'retry' : command.change;
-      return { ok: true, workspace, ...await manageResourceContent(db, ctx.user.id, workspace.id, selection, mutation, runtime) };
+      return { ok: true, workspace, ...await manageResourceContent(db, ctx.user.id, workspace.id, selection, mutation, runtime, { suppress: request.headers.get('X-Composer-Verification') === '1' }) };
     }
     if (action === 'unpublish') {
       requireCapability(workspace.role, 'unpublish');

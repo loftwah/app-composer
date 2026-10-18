@@ -2,6 +2,7 @@ import { definePlugin } from "emdash";
 import { creatorPermission } from "./creator-access.ts";
 import { manageStacks } from "./stacks-admin.mjs";
 import { manageWorkspaceAccess } from "./workspace-access.ts";
+import { managePrivateOutcomes } from "./private-outcomes.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
 
@@ -16,6 +17,7 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
       pages: [
         { path: "/stacks", label: "Creator stacks", icon: "stack" },
         { path: "/workspaces", label: "Workspace access", icon: "users" },
+        { path: "/outcomes", label: "Workspace outcomes", icon: "chart" },
       ],
     },
     routes: {
@@ -40,6 +42,17 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         permission: creatorPermission,
         request: { body: "json", maxBytes: 8000 },
         handler: (ctx) => manageWorkspaceAccess(ctx, runtime),
+      },
+      outcomesRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => managePrivateOutcomes(ctx, runtime),
+      },
+      outcomesWrite: {
+        methods: ["POST"],
+        permission: creatorPermission,
+        request: { body: "json", maxBytes: 1000 },
+        handler: (ctx) => managePrivateOutcomes(ctx, runtime),
       },
     },
   });

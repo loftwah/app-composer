@@ -1,0 +1,308 @@
+.composer-outcomes {
+  --co-ink: var(--color-foreground, #242424);
+  --co-muted: var(--color-muted-foreground, #666);
+  --co-line: var(--color-border, #c5c5c5);
+  --co-surface: var(--color-background, #fff);
+  --co-accent: #ad440f;
+  color: var(--co-ink);
+  max-width: 1400px;
+  margin: auto;
+  padding: clamp(16px, 3vw, 40px);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.co-heading,
+.co-period {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.composer-outcomes h1 {
+  font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin: 0 0 12px;
+}
+.composer-outcomes h2 {
+  font-size: 24px;
+  line-height: 1.25;
+  margin: 0 0 14px;
+}
+.composer-outcomes h3 {
+  font-size: 18px;
+  margin: 24px 0 8px;
+}
+.composer-outcomes p {
+  max-width: 74ch;
+  margin: 8px 0 16px;
+}
+.composer-outcomes a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.co-scope {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--co-line);
+}
+.co-filters {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 20px 0 28px;
+}
+.composer-outcomes label {
+  display: grid;
+  gap: 7px;
+  font-weight: 600;
+  min-width: 0;
+}
+.composer-outcomes select,
+.composer-outcomes button {
+  font: inherit;
+  color: inherit;
+  background: var(--co-surface);
+  border: 1px solid var(--co-line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  min-height: 44px;
+}
+.composer-outcomes select {
+  width: 100%;
+  max-width: 330px;
+  text-overflow: ellipsis;
+}
+.composer-outcomes button {
+  cursor: pointer;
+  font-weight: 600;
+}
+.composer-outcomes button:hover:not(:disabled) {
+  border-color: var(--co-accent);
+}
+.composer-outcomes button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.composer-outcomes :focus-visible {
+  outline: 3px solid var(--co-accent);
+  outline-offset: 3px;
+}
+.co-muted,
+.co-period span,
+.co-timeline figcaption span {
+  color: var(--co-muted);
+}
+.co-error {
+  border: 1px solid currentColor;
+  padding: 14px;
+}
+.co-period {
+  margin-top: 26px;
+}
+.co-period span {
+  font-size: 16px;
+  font-weight: 400;
+}
+.co-signals {
+  display: flex;
+  flex-wrap: wrap;
+  border-block: 1px solid var(--co-line);
+  margin: 26px 0 30px;
+}
+.co-signals button {
+  flex: 1 1 180px;
+  border: 0;
+  border-radius: 0;
+  text-align: left;
+  padding: 18px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-height: 145px;
+}
+.co-signals button[aria-pressed="true"] {
+  background: var(--co-ink);
+  color: var(--co-surface);
+}
+.co-signals strong {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+.co-signals small {
+  font-size: 13px;
+  font-weight: 400;
+}
+.co-analysis {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(240px, 1fr);
+  gap: clamp(24px, 4vw, 60px);
+}
+.co-timeline {
+  margin: 0;
+}
+.co-timeline figcaption {
+  font-size: 20px;
+  font-weight: 600;
+}
+.co-timeline svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 16px 0;
+  overflow: visible;
+}
+.co-axis,
+.co-grid {
+  stroke: var(--co-line);
+  stroke-width: 1;
+}
+.co-grid {
+  stroke-dasharray: 3 5;
+}
+.co-axis-label {
+  fill: var(--co-muted);
+  font-size: 13px;
+}
+.co-bar {
+  fill: var(--co-accent);
+}
+.co-day-selected .co-bar {
+  fill: var(--co-ink);
+}
+.co-gap {
+  stroke: var(--co-muted);
+  stroke-width: 2;
+}
+.co-zero {
+  fill: var(--co-muted);
+}
+.co-inspector {
+  grid-template-columns: auto minmax(70px, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+}
+.co-inspector input {
+  width: 100%;
+  accent-color: var(--co-accent);
+}
+.co-inspector output {
+  min-width: 135px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.co-definition h3:first-child {
+  margin-top: 0;
+}
+.co-definition {
+  padding-top: 3px;
+}
+.co-section {
+  margin-top: 40px;
+  border-top: 1px solid var(--co-line);
+  padding-top: 28px;
+}
+.co-table {
+  overflow-x: auto;
+  margin-top: 22px;
+}
+.co-table summary {
+  cursor: pointer;
+  padding: 10px 0;
+  font-weight: 600;
+}
+.composer-outcomes table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.composer-outcomes th,
+.composer-outcomes td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--co-line);
+  overflow-wrap: anywhere;
+}
+.composer-outcomes td:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.composer-outcomes th small {
+  display: block;
+  font-weight: 400;
+  color: var(--co-muted);
+}
+.composer-outcomes caption {
+  text-align: left;
+  padding: 12px 0;
+}
+.co-classification label {
+  max-width: 330px;
+  margin: 18px 0 12px;
+}
+.composer-outcomes li {
+  margin-bottom: 10px;
+  max-width: 76ch;
+}
+.composer-outcomes dt {
+  font-weight: 600;
+}
+.composer-outcomes dd {
+  margin: 4px 0 20px;
+  max-width: 72ch;
+}
+:is(.dark, [data-theme="dark"]) .composer-outcomes {
+  --co-ink: var(--color-foreground, #f2eee7);
+  --co-muted: var(--color-muted-foreground, #bdb8b0);
+  --co-line: var(--color-border, #696760);
+  --co-surface: var(--color-background, #20201f);
+  --co-accent: #f49a61;
+}
+@media (max-width: 700px) {
+  .co-analysis {
+    grid-template-columns: 1fr;
+  }
+  .co-filters {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .co-filters label:first-child,
+  .co-filters label:nth-child(2) {
+    grid-column: 1/-1;
+  }
+  .co-filters button {
+    grid-column: 1/-1;
+  }
+  .composer-outcomes select {
+    max-width: none;
+  }
+  .co-signals button {
+    flex-basis: 45%;
+    min-width: 0;
+    padding: 14px;
+  }
+  .co-inspector {
+    grid-template-columns: 1fr auto;
+  }
+  .co-inspector input {
+    grid-column: 1/-1;
+    grid-row: 2;
+  }
+  .co-definition {
+    border-top: 1px solid var(--co-line);
+    padding-top: 24px;
+  }
+  .co-timeline figcaption {
+    font-size: 18px;
+  }
+  .composer-outcomes th,
+  .composer-outcomes td {
+    padding: 10px 6px;
+  }
+  .co-heading a {
+    font-size: 14px;
+  }
+}
