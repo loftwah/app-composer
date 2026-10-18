@@ -8,7 +8,12 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const mode = process.argv[2];
 if (!["--check", "--write", "--lint"].includes(mode))
   throw Error("Use --check, --write or --lint.");
-const sources = ["src/lib/app-settings.mts"];
+const sources = [
+  "src/lib/app-settings.mts",
+  "src/lib/stacks.mts",
+  "src/lib/app-configuration.mts",
+  "src/lib/stack-activation.mts",
+];
 const outputRoot = resolve(root, "output/creator-source-emission");
 const options = {
   target: ts.ScriptTarget.ES2022,

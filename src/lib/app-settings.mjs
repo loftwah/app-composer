@@ -207,7 +207,7 @@ export function appConfigurationPatch(spec, id) {
     return Object.fromEntries(Object.entries(effective).filter(([key]) => Object.hasOwn(spec.config, key)));
 }
 export function validateConfigurationPatch(input, id) {
-    const model = appSettings[id];
+    const model = Object.hasOwn(appSettings, id) ? appSettings[id] : undefined;
     if (!model ||
         !object(input) ||
         ["title", "intro", "theme", "layout"].some((key) => !Object.hasOwn(input, key)))
