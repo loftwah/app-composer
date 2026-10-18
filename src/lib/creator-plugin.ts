@@ -3,6 +3,7 @@ import { creatorPermission } from "./creator-access.ts";
 import { manageStacks } from "./stacks-admin.mjs";
 import { manageWorkspaceAccess } from "./workspace-access.ts";
 import { managePrivateOutcomes } from "./private-outcomes.ts";
+import { manageMaintenance } from "./creator-maintenance.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
 
@@ -18,6 +19,7 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         { path: "/stacks", label: "Creator stacks", icon: "stack" },
         { path: "/workspaces", label: "Workspace access", icon: "users" },
         { path: "/outcomes", label: "Workspace outcomes", icon: "chart" },
+        { path: "/maintenance", label: "Workspace maintenance", icon: "wrench" },
       ],
     },
     routes: {
@@ -31,6 +33,11 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         permission: creatorPermission,
         request: { body: "json", maxBytes: 120000 },
         handler: (ctx) => manageStacks(ctx, runtime),
+      },
+      maintenanceRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageMaintenance(ctx, runtime),
       },
       accessRead: {
         methods: ["GET"],

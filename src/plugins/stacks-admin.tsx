@@ -2,6 +2,7 @@ import { EditorSession } from "./stacks/editor-session";
 import { useNavigationGuard } from "./stacks/use-navigation-guard";
 import { WorkspaceAccessPage } from "./workspace-access";
 import { OutcomesPage } from "./outcomes";
+import { MaintenancePage } from "./maintenance-page";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
 import {
   observeResourceRevision,
@@ -1776,4 +1777,9 @@ function WorkspaceStudio({ search }: { search: string }) {
     </section>
   );
 }
-export const pages: PluginAdminExports["pages"] = { "/stacks": StudioPage, "/workspaces": WorkspaceAccessPage, "/outcomes": OutcomesPage };
+export const pages: PluginAdminExports["pages"] = {
+  "/stacks": StudioPage,
+  "/workspaces": WorkspaceAccessPage,
+  "/outcomes": OutcomesPage,
+  "/maintenance": MaintenancePage,
+};
