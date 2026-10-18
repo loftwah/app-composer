@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "App Composer for Cloudflare",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An optional third-party App Composer workspace on the Cloudflare dashboard. Agent handoffs, never harvested credentials.",
   "permissions": [
     "activeTab",

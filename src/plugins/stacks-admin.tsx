@@ -1,4 +1,11 @@
 import { EditorSession } from "./stacks/editor-session";
+import {
+  observeResourceRevision,
+  resourcePreview,
+  resourceDraft,
+  resourceEditsDuringReuse,
+} from "./stacks/resource-editor";
+import type { ResourceBinding } from "./stacks/protocol";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PluginAdminExports } from "emdash";
 import {
@@ -61,6 +68,21 @@ export function StudioPage() {
   }>();
   const [publications, setPublications] = useState<StackPublication[]>([]);
   const [activation, setActivation] = useState<ActivationEntry[]>([]);
+  const [resources, setResources] = useState<ResourceBinding[]>([]);
+  const [availableResources, setAvailableResources] = useState<
+    ResourceBinding[]
+  >([]);
+  const [reuseChoices, setReuseChoices] = useState<Record<string, string>>({});
+  const [uncertainStacks, setUncertainStacks] = useState<string[]>([]);
+  const [retainedSettings, setRetainedSettings] = useState<
+    { instance: string; config: Record<string, string> }[]
+  >([]);
+  const [sidecarEpoch, setSidecarEpoch] = useState(0);
+  const [sidecars, setSidecars] = useState<{
+    stack?: string;
+    resources: "loading" | "ready" | "failed";
+    failures: string[];
+  }>({ resources: "loading", failures: [] });
   const [newName, setNewName] = useState("");
   const [fallback, setFallback] = useState("");
   // The revision the server last acknowledged for this editor. Any local edit
@@ -80,6 +102,14 @@ export function StudioPage() {
   const document = draft?.document;
   const role = workspace?.role;
   const editable = can(role, "save") && current?.status !== "archived";
+  const resourcesReady =
+    sidecars.stack === selected && sidecars.resources === "ready";
+  const hasGuestbook = Boolean(
+    document?.instances.some((instance) => instance.app === "guestbook"),
+  );
+  const needsReconciliation =
+    Boolean(selected && uncertainStacks.includes(selected)) ||
+    resources.some((resource) => resource.state === "unknown");
 
   const adopt = useCallback((stack: Stack) => {
     session.current.adopt(stack.id, stack.revision);
@@ -91,6 +121,8 @@ export function StudioPage() {
     });
     setDirty(false);
     setConflict(undefined);
+    setRetainedSettings([]);
+    setSidecarEpoch((epoch) => epoch + 1);
   }, []);
 
   const load = useCallback(
@@ -183,24 +215,44 @@ export function StudioPage() {
 
   const loadSidecars = useCallback(async (stackId: string) => {
     const request = ++sidecarGeneration.current;
-    const [history, configuration] = await Promise.all([
+    setSidecars({ stack: stackId, resources: "loading", failures: [] });
+    const [history, configuration, owned] = await Promise.allSettled([
       call("publications", { stack: stackId }),
       call("configuration", { stack: stackId }),
+      call("resources", { stack: stackId }),
     ]);
     if (
       session.current.stack !== stackId ||
       request !== sidecarGeneration.current
     )
       return;
-    setPublications(history.publications ?? []);
-    setActivation(configuration.configuration?.entries ?? []);
+    if (history.status === "fulfilled")
+      setPublications(history.value.publications ?? []);
+    if (configuration.status === "fulfilled")
+      setActivation(configuration.value.configuration?.entries ?? []);
+    if (owned.status === "fulfilled") {
+      setResources(owned.value.resources ?? []);
+      setAvailableResources(owned.value.availableResources ?? []);
+    }
+    setSidecars({
+      stack: stackId,
+      resources: owned.status === "fulfilled" ? "ready" : "failed",
+      failures: [
+        ...(history.status === "rejected" ? ["publication history"] : []),
+        ...(configuration.status === "rejected" ? ["declared settings"] : []),
+        ...(owned.status === "rejected" ? ["visitor book ownership and app operations"] : []),
+      ],
+    });
   }, []);
 
   useEffect(() => {
     setPublications([]);
     setActivation([]);
-    if (selected) void loadSidecars(selected).catch(() => undefined);
-  }, [selected, loadSidecars]);
+    setResources([]);
+    setAvailableResources([]);
+    setReuseChoices({});
+    if (selected) void loadSidecars(selected);
+  }, [selected, sidecarEpoch, loadSidecars]);
 
   const openStack = (id: string) =>
     run(async () => {
@@ -290,9 +342,15 @@ export function StudioPage() {
 
   const writeDraft = async (): Promise<Stack> => {
     if (!latestDocument.current || !current) throw Error("Open a stack first.");
+    if (retainedSettings.length)
+      throw Error(
+        "Keep the app settings edited during sharing in a new instance before saving. Your edits remain visible below.",
+      );
+    if (hasGuestbook && !resourcesReady)
+      throw Error("Load visitor book ownership before saving its settings.");
     const sent = session.current.capture();
     const payload = normaliseStack(
-      structuredClone(latestDocument.current),
+      resourceDraft(structuredClone(latestDocument.current), resources),
     ) as StackDocument;
     const data = await call("save", {
       stack: current.id,
@@ -327,6 +385,8 @@ export function StudioPage() {
   const publish = () =>
     run(async () => {
       if (!current) throw Error("Open a stack first.");
+      if (hasGuestbook && (!resourcesReady || needsReconciliation))
+        throw Error("Load the visitor book ownership and check any unfinished operation before publishing.");
       const candidate = session.current.dirty ? await writeDraft() : current;
       const checkpoint = session.current.capture();
       const data = await call("publish", {
@@ -347,10 +407,135 @@ export function StudioPage() {
         throw Error(
           "The publication acknowledgement was invalid. Your draft is still here.",
         );
-      await loadSidecars(current.id).catch(() => undefined);
+      await loadSidecars(current.id);
       return (
         `Published saved revision ${stack.publishedRevision}. Public at /s/${current.slug}.` +
         (session.current.dirty ? " Your newer edits are still unsaved." : "")
+      );
+    });
+
+  const resourceAction = (
+    action: "applyResources" | "reconcileResources" | "reuseResource",
+    fields: Record<string, unknown> = {},
+  ) =>
+    run(async () => {
+      if (!current) throw Error("Open a stack first.");
+      if (action !== "reconcileResources" && !resourcesReady)
+        throw Error("Load the visitor book ownership before changing app resources.");
+      if (action === "applyResources" && needsReconciliation)
+        throw Error("Check the previous app operation before applying again.");
+      if (action === "reuseResource" && session.current.dirty)
+        throw Error("Save your draft before choosing an existing resource.");
+      let candidate =
+        action === "applyResources" && session.current.dirty
+          ? await writeDraft()
+          : current;
+      if (action === "reconcileResources") {
+        // A lost response may have advanced the saved token. Read that token
+        // before reconciliation, retaining every local field and generation.
+        const beforeRead = session.current.capture();
+        const latest = (await call("open", { stack: current.id })).stack;
+        if (
+          !latest || !observeResourceRevision(
+            session.current, beforeRead, latest, current.draft,
+          )
+        )
+          throw Object.assign(Error(
+            "The saved draft changed in another window. Your expected revision and local edits are unchanged. Compare the saved version or explicitly choose Save mine on top.",
+          ), { code: "CONFLICT" });
+        setStacks((list) =>
+          list.map((entry) => entry.id === latest.id ? latest : entry),
+        );
+        setDirty(session.current.dirty);
+        candidate = latest;
+      }
+      const checkpoint = session.current.capture();
+      let data: Awaited<ReturnType<typeof call>>;
+      try {
+        data = await call(action, {
+          stack: current.id,
+          expectedRevision: candidate.revision,
+          ...fields,
+        });
+        if (
+          !data.stack || data.stack.id !== checkpoint.stack ||
+          (action !== "reuseResource" &&
+            JSON.stringify(data.stack.draft) !== JSON.stringify(candidate.draft))
+        )
+          throw Error("The app operation did not confirm this saved draft. Keep your edits and check the operation before retrying.");
+      } catch (cause) {
+        // The request may have committed remotely before its acknowledgement was
+        // lost. A new apply must reconcile rather than repeat that write.
+        setUncertainStacks((list) => [...new Set([...list, current.id])]);
+        throw cause;
+      }
+      const saved = data.stack!;
+      const exact = session.current.unchanged(checkpoint);
+      const sameRevision =
+        session.current.acknowledgeUnchanged(checkpoint, saved.revision) &&
+        ["unchanged", "unknown"].includes(data.outcome ?? "") &&
+        JSON.stringify(saved.draft) === JSON.stringify(candidate.draft);
+      if (sameRevision) {
+        setStacks((list) =>
+          list.map((entry) => (entry.id === saved.id ? saved : entry)),
+        );
+      } else if (!acknowledge(saved, checkpoint)) {
+        setUncertainStacks((list) => [...new Set([...list, current.id])]);
+        throw Error(
+          "The app operation returned an invalid revision. Your draft is still here; check the operation before retrying.",
+        );
+      }
+      if (action === "reuseResource" && exact && data.outcome === "applied")
+        adopt(saved);
+      else if (action === "reuseResource" && data.outcome === "applied" && latestDocument.current) {
+        const retained = resourceEditsDuringReuse(
+          latestDocument.current, candidate.draft, data.resources ?? [],
+        );
+        const merged = resourceDraft(latestDocument.current, data.resources ?? []);
+        latestDocument.current = merged;
+        setDraft({ document: merged, generation: session.current.generation });
+        setRetainedSettings((entries) => [
+          ...entries.filter((entry) => !retained.some((next) => next.instance === entry.instance)),
+          ...retained,
+        ]);
+      }
+      setResources(data.resources ?? []);
+      const uncertain =
+        data.outcome === "unknown" ||
+        data.problems?.some((problem) => problem.outcome === "unknown") ||
+        data.resources?.some((resource) => resource.state === "unknown");
+      setUncertainStacks((list) =>
+        uncertain
+          ? [...new Set([...list, current.id])]
+          : list.filter((id) => id !== current.id),
+      );
+      await loadSidecars(current.id);
+      const notes = {
+        applied:
+          action === "reuseResource"
+            ? "Reused the selected app resource and its confirmed settings. This instance is shared."
+            : action === "reconcileResources"
+              ? "Confirmed the app resource and its current configuration. Your saved draft and stack publication have not changed."
+              : "Applied the saved app settings. Publish the stack to share these exact configuration references.",
+        unchanged: "The app confirmed no change was needed.",
+        refused:
+          "The app refused the change. The previous publication is still available. Check the app operation to refresh its confirmed version before retrying.",
+        partial: uncertain
+          ? "Some app settings were applied. Check the operation before continuing; the stack publication has not changed."
+          : "Some app settings were applied and others were refused. Review the reported problems before retrying; the stack publication has not changed.",
+        unknown:
+          "The app outcome is not confirmed. Check the operation before applying again; the stack publication has not changed.",
+      };
+      return (
+        notes[data.outcome!] +
+        (data.problems?.length
+          ? " " + data.problems.map((problem) => problem.message).join(" ")
+          : "") +
+        (session.current.dirty
+          ? action === "reuseResource"
+            ? " Your newer local edits remain unsaved. Reopen the saved stack when ready to load its inherited settings."
+            : " Your newer local edits remain unsaved."
+          : "")
       );
     });
 
@@ -443,7 +628,7 @@ export function StudioPage() {
           "The change acknowledgement was invalid. Your draft is still here.",
         );
       if (replace) adopt(data.stack);
-      await loadSidecars(current.id).catch(() => undefined);
+      await loadSidecars(current.id);
       return (
         label +
         (session.current.dirty ? " Your newer local edits remain unsaved." : "")
@@ -662,6 +847,21 @@ export function StudioPage() {
                     : " · not published"}
                 </span>
               </div>
+              {sidecars.stack === selected && sidecars.failures.length > 0 && (
+                <div className="ca-stack-error" role="alert">
+                  <p>
+                    Could not load {sidecars.failures.join(", ")}. Your draft is still here.
+                    {!resourcesReady && " App actions wait for confirmed ownership."}
+                  </p>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void loadSidecars(current.id)}
+                  >
+                    Retry stack details
+                  </button>
+                </div>
+              )}
               <div className="ca-form ca-stack-form">
                 <label>
                   Name
@@ -707,6 +907,22 @@ export function StudioPage() {
                 const declared = (declaredConfig(instance.app) ??
                   []) as DeclaredField[];
                 const shared = instance.binding?.mode === "shared";
+                const resource = resources.find(
+                  (entry) => entry.instance === instance.id,
+                );
+                const sharedResource = !shared && resource?.shared === true;
+                const retained = retainedSettings.find((entry) => entry.instance === instance.id);
+                const copiedSource = shared
+                  ? document.instances.find(
+                      (entry) => entry.id === instance.binding.shareOf,
+                    )
+                  : instance;
+                const copiedResource = resources.find(
+                  (entry) => entry.instance === copiedSource?.id,
+                );
+                const copiedSettings = copiedResource?.shared
+                  ? copiedResource.configuration?.values ?? copiedSource?.config ?? {}
+                  : copiedSource?.config ?? {};
                 const siblings = document.instances.filter(
                   (entry) =>
                     entry.app === instance.app &&
@@ -762,7 +978,8 @@ export function StudioPage() {
                         />{" "}
                         Visible on the published page
                       </label>
-                      {!shared && (
+                      {!shared && !sharedResource &&
+                        (instance.app !== "guestbook" || resourcesReady) && (
                         <>
                           <p className="ca-muted">{meta?.purpose}</p>
                           <fieldset
@@ -827,7 +1044,151 @@ export function StudioPage() {
                           </button>
                         </p>
                       )}
-                      {!shared && declared.length > 0 && (
+                      {instance.app === "guestbook" && !shared && (
+                        <div className="ca-resource-status">
+                          <p>
+                            {!resourcesReady
+                              ? sidecars.stack === selected && sidecars.resources === "failed"
+                                ? "Visitor book ownership could not be loaded. Retry stack details or check the app operation before continuing."
+                                : "Loading visitor book ownership and app operations…"
+                              : resource?.state === "ready" && resource.configuration
+                                ? `${sharedResource ? "Shared" : "Owned"} visitor book · ${resource.resource.slice(0, 8)} · configuration ${resource.configuration.revision}`
+                              : resource?.state === "unknown"
+                                ? "The app operation needs checking before another apply."
+                                : resource?.state === "refused"
+                                  ? "The app refused the last change. Your published stack is unchanged."
+                                  : resource?.state === "reserved"
+                                    ? `Visitor book reserved · ${resource.resource.slice(0, 8)}. Its settings are not fully activated.`
+                                    : "A new visitor book will be created when you apply this stack’s settings."}
+                          </p>
+                          {resourcesReady && resource?.configuration && (
+                            <p>
+                              <a href={resource.configuration.path} target="_blank" rel="noopener noreferrer">
+                                Open confirmed visitor book
+                              </a>
+                            </p>
+                          )}
+                          {resourcesReady && sharedResource && (
+                            <>
+                              <p className="ca-stack-shared">
+                              This visitor book shares its records, moderation
+                              and settings with other uses. Its confirmed
+                              settings are inherited here.
+                              </p>
+                              <details className="ca-stack-config">
+                                <summary>Inherited app settings (read only)</summary>
+                                <dl>
+                                  {declared.map((field) => (
+                                    <div key={field.key}>
+                                      <dt>{field.label}</dt>
+                                      <dd>{resource?.configuration?.values[field.key] || "Unset"}</dd>
+                                    </div>
+                                  ))}
+                                </dl>
+                              </details>
+                            </>
+                          )}
+                          {resourcesReady && availableResources.some(
+                            (entry) =>
+                              entry.state === "ready" &&
+                              entry.configuration &&
+                              entry.resource !== resource?.resource,
+                          ) && (
+                            <details>
+                              <summary>Reuse an existing visitor book</summary>
+                              <p>
+                                Reusing shares one set of records and approvals.
+                                Save this draft first.
+                              </p>
+                              <label>
+                                Visitor book in this workspace
+                                <select
+                                  value={reuseChoices[instance.id] ?? ""}
+                                  disabled={
+                                    !editable || busy || dirty ||
+                                    !resourcesReady || needsReconciliation
+                                  }
+                                  onChange={(event) =>
+                                    setReuseChoices((choices) => ({
+                                      ...choices,
+                                      [instance.id]: event.target.value,
+                                    }))
+                                  }
+                                >
+                                  <option value="">
+                                    Choose a visitor book
+                                  </option>
+                                  {availableResources
+                                    .filter(
+                                      (entry) =>
+                                        entry.state === "ready" &&
+                                        entry.configuration &&
+                                        entry.resource !== resource?.resource,
+                                    )
+                                    .map((entry) => (
+                                      <option
+                                        key={entry.resource}
+                                        value={entry.resource}
+                                      >
+                                        {entry.configuration?.values.title ||
+                                          "Visitor book"}{" "}
+                                        · {entry.resource.slice(0, 8)}
+                                      </option>
+                                    ))}
+                                </select>
+                              </label>
+                              <button
+                                type="button"
+                                disabled={
+                                  !editable ||
+                                  busy ||
+                                  dirty ||
+                                  !resourcesReady ||
+                                  !reuseChoices[instance.id] ||
+                                  needsReconciliation
+                                }
+                                onClick={() =>
+                                  void resourceAction("reuseResource", {
+                                    instance: instance.id,
+                                    resource: reuseChoices[instance.id],
+                                  })
+                                }
+                              >
+                                Reuse selected visitor book
+                              </button>
+                            </details>
+                          )}
+                        </div>
+                      )}
+                      {retained && (
+                        <section className="ca-resource-status" aria-label="Retained app setting edits">
+                          <p>
+                            Settings you edited while sharing this visitor book are kept here.
+                            The shared book uses its confirmed settings; keep these edits in a new independent instance.
+                          </p>
+                          <dl>
+                            {Object.entries(retained.config).map(([key, value]) => (
+                              <div key={key}><dt>{declared.find((field) => field.key === key)?.label ?? key}</dt><dd>{value || "Unset"}</dd></div>
+                            ))}
+                          </dl>
+                          <button
+                            type="button"
+                            disabled={!editable || busy || document.instances.length >= 12}
+                            onClick={() => {
+                              update({ instances: [...document.instances, {
+                                ...newInstance(instance.app),
+                                label: `${instance.label.slice(0, 42)} edited settings`,
+                                caption: instance.caption,
+                                config: { ...retained.config },
+                              }] });
+                              setRetainedSettings((entries) => entries.filter((entry) => entry.instance !== instance.id));
+                            }}
+                          >
+                            Keep edited settings in a new instance
+                          </button>
+                        </section>
+                      )}
+                      {!shared && !sharedResource && declared.length > 0 && (
                         <details className="ca-stack-config">
                           <summary>
                             Settings this app declares
@@ -841,7 +1202,10 @@ export function StudioPage() {
                               {field.options?.length ? (
                                 <select
                                   value={instance.config?.[field.key] ?? ""}
-                                  disabled={!editable}
+                                  disabled={
+                                    !editable ||
+                                    (instance.app === "guestbook" && !resourcesReady)
+                                  }
                                   onChange={(event) => {
                                     const next = { ...(instance.config ?? {}) };
                                     if (event.target.value)
@@ -866,7 +1230,10 @@ export function StudioPage() {
                                 <input
                                   value={instance.config?.[field.key] ?? ""}
                                   maxLength={field.maxLength ?? 240}
-                                  disabled={!editable}
+                                  disabled={
+                                    !editable ||
+                                    (instance.app === "guestbook" && !resourcesReady)
+                                  }
                                   placeholder={field.default}
                                   onChange={(event) => {
                                     const next = { ...(instance.config ?? {}) };
@@ -882,10 +1249,9 @@ export function StudioPage() {
                             </label>
                           ))}
                           <p className="ca-muted">
-                            Declared by {meta?.name}. Applying these writes
-                            through the app’s own owner API, after it confirms
-                            its live source matches the pinned revision. Nothing
-                            is applied until you do that explicitly.
+                            {instance.app === "guestbook"
+                              ? "Apply these settings to this visitor book, then publish the stack. Saving a draft alone does not change the visitor book."
+                              : "These declared settings are saved with this stack. This app’s existing public destination is shared; independent activation is not available here yet."}
                           </p>
                         </details>
                       )}
@@ -899,6 +1265,31 @@ export function StudioPage() {
                     </div>
                     {editable && (
                       <div className="ca-actions">
+                        {instance.app === "guestbook" && (
+                          <button
+                            type="button"
+                            disabled={
+                              busy || document.instances.length >= 12 || !resourcesReady
+                            }
+                            onClick={() =>
+                              update({
+                                instances: [
+                                  ...document.instances,
+                                  {
+                                    ...newInstance(instance.app),
+                                    label: `${instance.label.slice(0, 50)} copy`,
+                                    caption: instance.caption,
+                                    config: {
+                                      ...copiedSettings,
+                                    },
+                                  },
+                                ],
+                              })
+                            }
+                          >
+                            Duplicate settings into a new instance
+                          </button>
+                        )}
                         <button
                           type="button"
                           disabled={busy || index === 0}
@@ -918,15 +1309,22 @@ export function StudioPage() {
                         <button
                           type="button"
                           disabled={busy}
-                          onClick={() =>
+                          onClick={() => {
+                            if (
+                              retained &&
+                              !confirm("Remove this app and discard the app setting edits kept here?")
+                            ) return;
+                            setRetainedSettings((entries) =>
+                              entries.filter((entry) => entry.instance !== instance.id),
+                            );
                             update({
                               instances: document.instances.filter(
                                 (entry) => entry.id !== instance.id,
                               ),
-                            })
-                          }
+                            });
+                          }}
                         >
-                          Remove
+                          {retained ? "Remove app and retained edits" : "Remove"}
                         </button>
                       </div>
                     )}
@@ -955,6 +1353,47 @@ export function StudioPage() {
                   ))}
                 </div>
               )}
+              {document.instances.some(
+                (instance) => instance.app === "guestbook",
+              ) && (
+                <section
+                  className="ca-resource-actions"
+                  aria-label="App configuration activation"
+                >
+                  <h2>Apply visitor book settings</h2>
+                  <p>
+                    Each new owned instance gets its own visitor book. Apply
+                    prepares the saved settings; Publish chooses what the stack
+                    shares. Existing published configurations stay available.
+                  </p>
+                  {needsReconciliation && (
+                    <p role="status">
+                      The previous app operation is not fully confirmed. Check
+                      it before applying or publishing again.
+                    </p>
+                  )}
+                  {editable && (
+                    <div className="ca-actions">
+                      <button
+                        type="button"
+                        disabled={busy || !resourcesReady || needsReconciliation}
+                        onClick={() => void resourceAction("applyResources")}
+                      >
+                        Save and apply app settings
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() =>
+                          void resourceAction("reconcileResources")
+                        }
+                      >
+                        Check app operation
+                      </button>
+                    </div>
+                  )}
+                </section>
+              )}
               <div className="ca-stack-actions">
                 {editable && (
                   <button
@@ -968,7 +1407,9 @@ export function StudioPage() {
                 {can(role, "publish") && (
                   <button
                     type="button"
-                    disabled={busy}
+                    disabled={
+                      busy || (hasGuestbook && (!resourcesReady || needsReconciliation))
+                    }
                     onClick={() => void publish()}
                   >
                     Publish
@@ -1074,7 +1515,7 @@ export function StudioPage() {
                   The same renderer the published page uses, applied to your
                   draft. A preview never publishes anything.
                 </p>
-                <StackView document={document} />
+                <StackView document={resourcesReady ? resourcePreview(document, resources) : document} />
               </section>
               {publications.length > 0 && (
                 <section className="ca-stack-history">

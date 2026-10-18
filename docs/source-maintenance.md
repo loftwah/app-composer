@@ -2,6 +2,14 @@
 
 Author source for review: normal indentation, readable statements and explicit component boundaries. Build tools handle minification. Keep structural cleanup separate from changes to product behaviour, data contracts or storage.
 
+The [engineering baseline](engineering-baseline.md) records the current checked
+content-model and generated-project slice. `lib/content-model/*.mts` and the
+recipe's application `.mts` modules own their emitted `.mjs`/`.d.mts` files.
+Run `pnpm source:write` after edits; `dev`, `check:types` and `build` reject stale
+outputs. Generated sites carry their own source/checker/lockfile and run their
+own `source:write`, `check` and `build` commands. Preparation does not update an
+existing owner project or establish its deployment.
+
 ## Native mini-app editor
 
 `src/plugins/miniapps-admin.tsx` registers the EmDash page and assembles the editor. The modules in `src/plugins/miniapps/` have distinct responsibilities:
@@ -29,13 +37,15 @@ Inspect existing copies with explicit checkout paths:
 pnpm ui:assets --check /absolute/app-checkout /absolute/another-app-checkout
 ```
 
-After reviewing the source change, copy those six files into selected checkouts:
+After reviewing the source change, copy those six interaction files and the seven reviewed versioned assets into selected checkouts:
 
 ```sh
 pnpm ui:assets --write /absolute/app-checkout /absolute/another-app-checkout
 ```
 
-Check is read-only and exits nonzero for different bytes. Write preflights every selected app and changes only different named files. It refuses unknown packages and linked destination files/directories. It preserves unrelated branding, configuration and content. Inspect existing edits and review each resulting Git diff before committing; this explicit write command replaces local edits in the six selected files. A repeated write leaves matching files untouched. Updates still use each app's own review/release process and exact composition pins.
+Check is read-only and exits nonzero for different bytes. Write preflights every selected app and changes only different named files. It refuses unknown packages and linked destination files/directories. It preserves unrelated branding, configuration and content. Inspect existing edits and review each resulting Git diff before committing; this explicit write command replaces local edits in the six selected interaction files. A repeated write leaves matching files untouched. Updates still use each app's own review/release process and exact composition pins.
+
+The same explicit operation distributes `space-latin-20261018.woff2`, all five `apps/*-small-20261018.webp` identities and `composer-icon-20261018-96.png`. Their exact reviewed SHA-256 identities are pinned in the maintainer. Missing versioned files may be created; an existing file with different bytes is refused before any selected destination is changed. Every parent directory must already exist and be unlinked. New font/pixel content requires a new filename, source hash and consumer update. The command has no default app paths and never touches owner image settings. Link Check retains its app-owned font location under `public/`; the other apps use `public/brand/`. Active CSS/preload/launcher references remain reviewed app-owned source.
 
 ### Launcher markup and maintenance contract
 

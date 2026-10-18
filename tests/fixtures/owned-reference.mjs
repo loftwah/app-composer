@@ -3,6 +3,18 @@ const version='11111111-2222-4333-8444-555555555555';
 export function ownedFixture(mode='success'){
  const f=fixture();
  writeFileSync(join(f.workspace,'config.json'),JSON.stringify({title:'Fictional welcome',intro:'Fictional starter',theme:'midnight'}));
+ if(mode.startsWith('source-')){
+  mkdirSync(join(f.workspace,'scripts'));
+  writeFileSync(join(f.workspace,'scripts/build-source.mjs'),`import assert from 'node:assert/strict';import {readFileSync,writeFileSync,existsSync} from 'node:fs';
+assert.deepEqual(process.argv.slice(2),['--check']);assert.notEqual(process.cwd(),${JSON.stringify(f.workspace)});
+for(const key of ['CLOUDFLARE_API_TOKEN','CLOUDFLARE_ACCOUNT_ID','RESEND_API_KEY','NODE_OPTIONS','WRANGLER_CI_OVERRIDE_NAME','CLOUDFLARE_API_BASE_URL'])assert.equal(process.env[key],undefined,key);
+assert.notEqual(process.env.HOME,${JSON.stringify(f.workspace)});assert.equal(existsSync('.env'),false);
+assert.ok(process.env.TMPDIR.startsWith(process.cwd()+'/'));
+writeFileSync(${JSON.stringify(join(f.root,'source-check.json'))},JSON.stringify({cwd:process.cwd(),args:process.argv.slice(2)}));
+${mode==='source-failure'?"throw Error('Fictional stale source distribution');":''}
+${mode==='source-mutation'?"writeFileSync('worker.txt','Fictional changed frozen source\\n');":''}
+`);
+ }
  mkdirSync(join(f.workspace,'tests'));writeFileSync(join(f.workspace,'tests/source.test.mjs'),"import assert from 'node:assert/strict';assert.equal(process.env.CLOUDFLARE_API_TOKEN,undefined);assert.equal(process.env.RESEND_API_KEY,undefined);\n");
  f.git(['add','.']);f.git(['-c','user.name=Fictional fixture','-c','user.email=fixture@example.test','commit','-m','Synthetic maintained release']);const baseline=f.git(['rev-parse','HEAD']);
  const proposed=referenceDeployment(f.context,'2026-10-13','fixture');writeFileSync(join(f.workspace,'wrangler.jsonc'),JSON.stringify(proposed,null,2)+'\n');

@@ -9,9 +9,9 @@ function fixture(run) {
   const root = mkdtempSync(join(tmpdir(), 'composer-ui-assets-'));
   try {
     const app = join(root, 'app');
-    mkdirSync(join(app, 'public/brand'), { recursive: true });
+    mkdirSync(join(app, 'public/brand/apps'), { recursive: true });
     writeFileSync(join(app, 'package.json'), JSON.stringify({ name: 'app-composer-hello' }));
-    for (const name of publicUiFiles) writeFileSync(join(app, 'public/brand', name), 'old source');
+    for (const name of publicUiFiles) if (!name.includes('20261018')) writeFileSync(join(app, 'public/brand', name), 'old source');
     return run(app, root);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -54,4 +54,13 @@ test('first launcher copy is explicit and later drift remains visible', () => fi
   maintainPublicUiAssets([app], { write: true });
   writeFileSync(join(app, 'public/brand/launcher.js'), 'local changed copy');
   assert(maintainPublicUiAssets([app]).find(item => item.name === 'launcher.js').changed);
+}));
+
+// Immutable named art must not be overwritten, even in a multi-app write.
+test('a versioned artwork collision preserves every selected destination', () => fixture(app => {
+  const target = join(app, 'public/brand/apps/linkarooie-small-20261018.webp');
+  writeFileSync(target, 'independent owner bytes');
+  assert.throws(() => maintainPublicUiAssets([app], { write: true }), /Preserve different bytes at versioned destination/);
+  assert.equal(readFileSync(target, 'utf8'), 'independent owner bytes');
+  assert.equal(readFileSync(join(app, 'public/brand/page-share.mjs'), 'utf8'), 'old source');
 }));

@@ -1,6 +1,6 @@
 # Your EmDash content site
 
-Created by App Composer’s reviewed content-project recipe, 15 October 2026. This is independent application source under MIT. It uses Astro 7.3.5, EmDash 1.2.0, Tailwind 4.3.3 and the Cloudflare adapter. Get Ready and Woodhouse are not runtime dependencies.
+Created by App Composer’s reviewed content-project recipe, 18 October 2026. This is independent application source under MIT. It uses Astro 7.3.5, EmDash 1.2.0, Tailwind 4.3.3 and the Cloudflare adapter. Get Ready and Woodhouse are not runtime dependencies.
 
 Your field model is `src/content-model.json`; its native EmDash schema is `seed/seed.json`. `src/pages/index.astro` reads 20 published entries per page. Native Previous page / Next page links appear above and below longer collections, so older entries stay reachable without JavaScript. Page addresses can be bookmarked; invalid or duplicate page values are refused, and an empty later page returns 404 with a route back to the first page. The bounded page number supports up to 99,999 pages. Publication changes between requests can shift offset pages; each request still reads only currently published entries. Draft/private entries are not requested. Optional display conditions affect this page; native EmDash editing does not hide conditional fields. Invalid HTTPS links are rendered as text. Repeating rows are escaped text, not rich HTML.
 
@@ -10,6 +10,8 @@ An authorised agent checks the project’s current instructions, Node22, pnpm12.
 
 ```
 pnpm install --frozen-lockfile --ignore-scripts
+pnpm check
+pnpm build
 pnpm dev
 ```
 
@@ -67,3 +69,28 @@ The first top-level select field without a display condition becomes the public 
 Choose a value and select **Filter entries**. The native GET form starts at the first matching page; pagination retains the choice, and **Clear filter** returns to the full collection. Filtered addresses can be shared or bookmarked. This works without JavaScript. No matching published entries is an ordinary empty result, with a way back to all entries; an unavailable later page retains a route to the first matching page. Invalid/duplicate filter or page values return 400 before any collection query. Only an exact declared choice can become a native field-equality query; URL input cannot select field names, operators, status or draft access. Entry detail pages keep their stable addresses.
 
 Only this new project's generated seed marks the selected filter field as indexed. The portable seed stays unchanged; no existing project's schema or data is migrated. Indexing supports the native field-equality query and is not an assertion of a measured performance improvement. Reviewed 15 October 2026 against the official [content query guide](https://docs.emdashcms.com/guides/querying-content/) and pinned EmDash 1.2.0.
+
+## Quality and maintained source
+
+Use Node 22 and the declared pnpm 12.9.1. The complete local workflow is:
+
+```sh
+pnpm install --frozen-lockfile --ignore-scripts
+pnpm check
+pnpm build
+pnpm dev
+```
+
+`check:types` verifies strict application source/output parity, Astro props and
+source, the Worker environment and the browser/React environment separately.
+`lint` checks unused application locals/parameters. `format:check` uses pinned
+Prettier with its Astro plugin. `test` exercises entry-address, field-value,
+calendar and public-query boundaries. `check` aggregates these gates. `build`
+checks types before compiling; `deploy` keeps the existing placeholder refusal.
+
+Edit the `.mts` application sources and run `pnpm source:write` to regenerate
+readable `.mjs` and `.d.mts` together. Commit both reviewed source and output.
+Normal checks refuse stale output. Node build/test/deploy tools stay JavaScript;
+generated JS/declarations follow compiler formatting rather than the formatter.
+No Composer import or compiler is required in the deployed browser or Worker.
+Existing owner projects are never migrated by this new-project recipe.

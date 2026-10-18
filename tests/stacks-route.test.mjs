@@ -15,7 +15,7 @@ const context = (user, input, { method = 'POST', origin = ORIGIN, emdash = '1', 
   request: new Request(ORIGIN + '/_emdash/api/plugins/composer-stacks/' + path, { method, headers: { ...(origin ? { Origin: origin } : {}), ...(emdash ? { 'X-EmDash-Request': emdash } : {}) } }),
 });
 const runtime = db => ({ PUBLIC_ORIGIN: ORIGIN, DB: db });
-const document = { version: 1, name: 'Loftwah front page', description: '', theme: 'midnight', instances: [{ id: 'aaaaaaaa-1111-2222-3333-444444444444', app: 'guestbook', label: 'Guestbook', caption: '', visible: true }] };
+const document = { version: 1, name: 'Loftwah front page', description: '', theme: 'midnight', instances: [{ id: 'aaaaaaaa-1111-2222-3333-444444444444', app: 'hello', label: 'Hello', caption: '', visible: true }] };
 
 test('the stacks route refuses anyone the host did not authenticate as an administrator', async () => {
   const db = sqliteD1();
@@ -63,7 +63,7 @@ test('an owner can run the whole stack lifecycle through the route', async () =>
     const list = await manageStacks(context(admin, { action: 'list' }, { method: 'GET', path: 'read' }), env);
     assert.equal(list.stacks.length, 1);
     const exported = await manageStacks(context(admin, { action: 'export', stack: created.stack.id }, { method: 'GET', path: 'read' }), env);
-    assert.equal(exported.stack.draft.instances[0].app, 'guestbook');
+    assert.equal(exported.stack.draft.instances[0].app, 'hello');
 
     const duplicated = await manageStacks(context(admin, { action: 'duplicate', stack: created.stack.id, expectedRevision: published.stack.revision }), env);
     assert.equal(duplicated.ok, true);

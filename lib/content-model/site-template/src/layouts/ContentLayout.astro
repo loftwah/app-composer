@@ -1,18 +1,129 @@
 ---
-import model from '../content-model.json';
-import '../styles/site.css';
-interface Props {title?:string;description?:string;article?:boolean}
-const {title=model.label,description='Browse published '+model.label.toLowerCase()+'.',article=false}=Astro.props;
+import model from "../content-model.json";
+import "../styles/site.css";
+interface Props {
+  title?: string;
+  description?: string;
+  article?: boolean;
+}
+const {
+  title = model.label,
+  description = "Browse published " + model.label.toLowerCase() + ".",
+  article = false,
+} = Astro.props;
 ---
-<!doctype html><html lang="en" class="composer-content-site"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width"/><link rel="icon" href="/brand/icon.png" type="image/png"/><meta name="robots" content="noindex,nofollow"/><title>{title}</title><meta name="description" content={description}/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><meta property="og:type" content={article?'article':'website'}/></head><body>
-<!-- THESIS: Let the owner publish a useful collection through native EmDash editing.
+
+<!doctype html>
+<html lang="en" class="composer-content-site">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link
+      rel="icon"
+      href="/brand/composer-icon-20261018-512.png"
+      type="image/png"
+    />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={article ? "article" : "website"} />
+  </head>
+  <body>
+    <!-- THESIS: Let the owner publish a useful collection through native EmDash editing.
 OWN-WORLD: Inherit App Composer's charcoal/ivory, signal orange, Space headings and open ruled rows.
 STORY: Read published content; the owner follows Edit content to draft and publish.
 FIRST VIEWPORT: Collection name and theme/edit controls precede the collection heading and entries or a useful empty state.
 FORM: Reading surface, content-project-v1; an extension of the established world.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md -->
-<a class="skip" href="#content">Skip to content</a>
-<header><a href="/" class="site-name">{model.label}</a><nav aria-label="Site"><a class="button" href="/_emdash/admin">Edit content</a><button class="theme-control secondary theme-toggle" type="button" aria-label="Dark theme" aria-pressed="true" title="Switch to light theme" data-theme-toggle><svg data-theme-glyph="dark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg><svg data-theme-glyph="light" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button></nav></header>
-<main id="content"><slot/></main><footer><span>{model.label}</span><a href="/_emdash/admin">Manage this collection</a></footer>
-<script>const button=document.querySelector<HTMLButtonElement>('[data-theme-toggle]');let theme=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';try{const saved=localStorage.getItem('content-site-theme');if(saved==='light'||saved==='dark')theme=saved;}catch{}document.documentElement.dataset.theme=theme;const label=()=>{const dark=theme==="dark";button?.setAttribute("aria-pressed",String(dark));if(button)button.title=dark?"Switch to light theme":"Switch to dark theme";};label();button?.addEventListener('click',()=>{theme=theme==='dark'?'light':'dark';document.documentElement.dataset.theme=theme;try{localStorage.setItem('content-site-theme',theme);}catch{}label();});</script>
-</body></html>
+    <a class="skip" href="#content">
+      Skip to content
+    </a>
+    <header>
+      <a href="/" class="site-name">
+        {model.label}
+      </a>
+      <nav aria-label="Site">
+        <a class="button" href="/_emdash/admin">
+          Edit content
+        </a>
+        <button
+          class="theme-control secondary theme-toggle"
+          type="button"
+          aria-label="Dark theme"
+          aria-pressed="true"
+          title="Switch to light theme"
+          data-theme-toggle
+        >
+          <svg
+            data-theme-glyph="dark"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+          </svg>
+          <svg
+            data-theme-glyph="light"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" />
+          </svg>
+        </button>
+      </nav>
+    </header>
+    <main id="content">
+      <slot />
+    </main>
+    <footer>
+      <span>{model.label}</span>
+      <a href="/_emdash/admin">Manage this collection</a>
+    </footer>
+    <script>
+      const button = document.querySelector<HTMLButtonElement>(
+        "[data-theme-toggle]",
+      );
+      let theme = matchMedia("(prefers-color-scheme: light)").matches
+        ? "light"
+        : "dark";
+      try {
+        const saved = localStorage.getItem("content-site-theme");
+        if (saved === "light" || saved === "dark") theme = saved;
+      } catch {}
+      document.documentElement.dataset.theme = theme;
+      const label = () => {
+        const dark = theme === "dark";
+        button?.setAttribute("aria-pressed", String(dark));
+        if (button)
+          button.title = dark
+            ? "Switch to light theme"
+            : "Switch to dark theme";
+      };
+      label();
+      button?.addEventListener("click", () => {
+        theme = theme === "dark" ? "light" : "dark";
+        document.documentElement.dataset.theme = theme;
+        try {
+          localStorage.setItem("content-site-theme", theme);
+        } catch {}
+        label();
+      });
+    </script>
+  </body>
+</html>

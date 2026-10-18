@@ -23,13 +23,13 @@ test('each entry ships its own tile, thumbnail, share card and real screenshot',
   const assets={};
   for(const key of ['image','thumbnail','share','preview','previewWide'])
    assets[key]=line.match(new RegExp(key+":'([^']+)'"))?.[1]??(assert.fail(id+' has no '+key));
-  assert.match(assets.image,new RegExp('/brand/apps/[a-z]+-v4\\.webp$'),id+' uses the reviewed tile export');
-  // The same file prefix must carry through the whole set, so a tile can never
-  // be paired with another app's thumbnail, share card or screenshot.
-  const prefix=assets.image.match(/\/brand\/apps\/([a-z]+)-v4\.webp$/)[1];
-  assert.match(prefix,/^(linkcheck|herethere|linkarooie|hello|carryforward)$/,id+' has a reviewed export prefix');
-  assert.match(assets.thumbnail,new RegExp(`/brand/apps/${prefix}-small-v4\\.webp$`),id+' uses a 48px-safe thumbnail');
-  assert.match(assets.share,new RegExp(`^/brand/apps/${prefix}-share-v4\\.jpg$`),'a JPEG share card keeps og:image:type truthful');
+  // Identity crops evolve independently from the retained hero illustrations.
+  const prefix={guestbook:'herethere',showcase:'linkarooie',linkcheck:'linkcheck',hello:'hello',state:'carryforward'}[id];
+  assert.ok(prefix,id+' has a reviewed export prefix');
+  const hero=id==='showcase'?`${prefix}-art-20261018-480.webp`:`${prefix}-v4.webp`;
+  assert.equal(assets.image,`/brand/apps/${hero}`,id+' uses its selected hero export');
+  assert.equal(assets.thumbnail,`/brand/apps/${prefix}-small-20261018.webp`,id+' uses its optical thumbnail');
+  assert.equal(assets.share,`/brand/apps/${prefix}-share-20261018.jpg`,'a JPEG share card keeps og:image:type truthful');
   assert.match(assets.preview,new RegExp(`/brand/apps/previews/${prefix}-960\\.webp$`),id+' preview is the real 960px capture');
   assert.match(assets.previewWide,new RegExp(`/brand/apps/previews/${prefix}-1440\\.webp$`),id+' preview has a 1440px source');
   assert.match(line,/previewCaptured:'\d{4}-\d{2}-\d{2}'/,'every screenshot carries its capture date');

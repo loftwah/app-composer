@@ -1,13 +1,33 @@
 ---
-import {collectionAddress} from '../lib/collection.mjs';
-interface Props {page:number;hasMore:boolean;start:number;end:number;filter?:string}
-const {page,hasMore,start,end,filter=''}=Astro.props;
-const address=(value:number)=>collectionAddress(value,filter);
+import { collectionAddress } from "../lib/collection.mjs";
+interface Props {
+  page: number;
+  hasMore: boolean;
+  start: number;
+  end: number;
+  filter?: string;
+}
+const { page, hasMore, start, end, filter = "" } = Astro.props;
+const address = (value: number) => collectionAddress(value, filter);
 ---
+
 <nav class="collection-pages" aria-label="Collection pages">
- <p><span aria-current="page">Page {page}</span><span class="page-range">Entries {start}–{end}</span></p>
- <div>
-  {page>1&&<a class="button" href={address(page-1)} rel="prev">Previous page</a>}
-  {hasMore&&<a class="button" href={address(page+1)} rel="next">Next page</a>}
- </div>
+  <p>
+    <span aria-current="page">Page {page}</span>
+    <span class="page-range">
+      Entries {start}–{end}
+    </span>
+  </p>
+  <div>
+    {page > 1 && (
+      <a class="button" href={address(page - 1)} rel="prev">
+        Previous page
+      </a>
+    )}
+    {hasMore && (
+      <a class="button" href={address(page + 1)} rel="next">
+        Next page
+      </a>
+    )}
+  </div>
 </nav>

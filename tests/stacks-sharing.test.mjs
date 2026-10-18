@@ -7,6 +7,20 @@ import {stackShareDetails, stackSharePayload, isStackImageIdentity} from '../src
 import {stackShareSvg, wrapCardText} from '../src/lib/stack-share-svg.ts';
 import {initWasm, Resvg} from '@resvg/resvg-wasm';
 import {createRequire} from 'node:module';
+import {createHash} from 'node:crypto';
+import jsQR from 'jsqr';
+import pngjs from 'pngjs';
+
+const brandBytes = readFileSync(new URL('../src/assets/composer-icon-20261018-96.png.bin', import.meta.url));
+const brandImage = `data:image/png;base64,${brandBytes.toString('base64')}`;
+const font = readFileSync(new URL('../src/assets/fonts/SpaceGrotesk.ttf.bin', import.meta.url));
+const fontOptions = {font: {fontBuffers: [font], defaultFontFamily: 'Space Grotesk'}};
+let rendererReady;
+function prepareRenderer() {
+  const require = createRequire(import.meta.url);
+  rendererReady ??= initWasm(readFileSync(require.resolve('@resvg/resvg-wasm/index_bg.wasm')));
+  return rendererReady;
+}
 
 const sample = {
   version: 1, name: 'Trail Notes', description: 'Fictional weekend photos and favourite finds.', theme: 'midnight',
@@ -38,10 +52,10 @@ test('card identity, copy, alt and visible labels come only from the persisted p
   const later = await stackShareDetails(await publicStack(db(persisted), 'trail-notes'));
   assert.deepEqual(later, first);
   assert.equal(first.url, 'https://composer.loftwah.com/s/trail-notes');
-  assert.match(first.imagePath, /^\/s\/trail-notes\/share\/v1-r3-[a-f0-9]{64}\.png$/);
+  assert.match(first.imagePath, /^\/s\/trail-notes\/share\/v2-r3-[a-f0-9]{64}\.png$/);
   assert.equal(isStackImageIdentity(first.imageIdentity), true);
   assert.deepEqual(first.apps, ['Weekend postcards', 'Favourite trails']);
-  const svg = stackShareSvg(await publicStack(db(persisted), 'trail-notes'), first, measure);
+  const svg = stackShareSvg(await publicStack(db(persisted), 'trail-notes'), first, measure, brandImage);
   assert.match(svg, /width="1200" height="630"/);
   assert.match(svg, />Trail Notes</);
   assert.doesNotMatch(svg + first.imageAlt + JSON.stringify(first), /Secret|Withheld label/);
@@ -56,7 +70,7 @@ test('republishing, recreated slugs and document changes cannot reuse an image i
     {...stack, document: {...stack.document, theme: 'daylight'}},
     {...stack, document: {...stack.document, description: 'A later public description'}},
   ]) assert.notEqual((await stackShareDetails(next)).imageIdentity, original.imageIdentity);
-  for (const invalid of ['', '../x', original.imageIdentity + '.png', original.imageIdentity.replace('-r3-', '-r0-')]) {
+  for (const invalid of ['', '../x', original.imageIdentity + '.png', original.imageIdentity.replace('-r3-', '-r0-'), original.imageIdentity.replace('v2-', 'v1-')]) {
     assert.equal(isStackImageIdentity(invalid), false);
   }
 });
@@ -65,8 +79,10 @@ test('card text is bounded and XML-safe, including long unspaced words', async (
   const hostile = {...sample, name: '</text><image href="https://example.test/private"/>', description: 'A & B < C\u0000'};
   const stack = await publicStack(db(row(hostile)), 'trail-notes');
   const share = await stackShareDetails(stack);
-  const svg = stackShareSvg(stack, share, measure);
-  assert.doesNotMatch(svg, /<image|\u0000/);
+  const svg = stackShareSvg(stack, share, measure, brandImage);
+  assert.equal(svg.match(/<image\s/g)?.length, 1, 'only the fixed bundled Composer PNG can be an image element');
+  assert.ok(svg.includes(`href="${brandImage}"`));
+  assert.doesNotMatch(svg, /href="https:|\u0000/);
   assert.match(svg, /&lt;/);
   assert.match(svg, /A &amp; B &lt; C/);
   const lines = wrapCardText('W'.repeat(80), 70, 600, 120, 2, measure);
@@ -89,12 +105,69 @@ test('deployable browser and QR modules match their checked TypeScript sources',
   execFileSync(process.execPath, ['scripts/stack-share-assets.mjs', '--check'], {cwd: new URL('..', import.meta.url), stdio: 'pipe'});
 });
 
+test('the selected Composer PNG is embedded in the rendered card and the independent decoder still reads its QR', async () => {
+  assert.equal(createHash('sha256').update(brandBytes).digest('hex'), 'b20dd22c890237c48a1e47e81fef1e715b5d77968bdeeb624ba0eceb1ae47b66');
+  const selected = pngjs.PNG.sync.read(brandBytes);
+  assert.equal(selected.width, 96);
+  assert.equal(selected.height, 96);
+  await prepareRenderer();
+  for (const theme of ['midnight', 'daylight']) {
+    const stack = await publicStack(db(row({...sample, theme})), 'trail-notes');
+    const share = await stackShareDetails(stack);
+    const svg = stackShareSvg(stack, share, measure, brandImage);
+    assert.doesNotMatch(svg, /M72 108h40v40H72z/, 'the superseded geometric mark cannot remain behind the raster');
+    const renderer = new Resvg(svg, fontOptions);
+    let image;
+    try {
+      image = renderer.render();
+      const card = pngjs.PNG.sync.read(Buffer.from(image.asPng()));
+      assert.equal(card.width, 1200);
+      assert.equal(card.height, 630);
+      const colours = new Set();
+      for (let y = 108; y < 156; y++) {
+        for (let x = 72; x < 120; x++) {
+          const offset = (y * card.width + x) * 4;
+          colours.add(card.data.subarray(offset, offset + 4).toString('hex'));
+        }
+      }
+      assert.ok(colours.size > 100, 'the card header must contain the selected raster pixels, not a missing-image blank');
+      const result = jsQR(new Uint8ClampedArray(card.data), card.width, card.height);
+      assert.equal(result?.data, share.url, `${theme} QR must still decode after embedding the PNG`);
+    } finally {
+      image?.free();
+      renderer.free();
+    }
+  }
+});
+
+test('the checked browser accepts the current image version and refuses the superseded version before fetching', async () => {
+  const originalDocument = globalThis.document;
+  const originalFetch = globalThis.fetch;
+  try {
+    globalThis.document = {querySelectorAll() { return []; }};
+    const {stackShareArtifacts} = await import('../public/brand/stack-share.mjs');
+    const stack = await publicStack(db(row(sample)), 'trail-notes');
+    const share = await stackShareDetails(stack);
+    const data = {slug: stack.slug, revision: stack.revision, title: stack.name, description: share.description, url: share.url, imagePath: share.imagePath, imageUrl: share.imageUrl};
+    const element = value => ({querySelector() { return {textContent: JSON.stringify(value)}; }});
+    const requested = [];
+    globalThis.fetch = async url => { requested.push(url); return new Response(null, {status: 404}); };
+    await assert.rejects(stackShareArtifacts(element(data)), /published card is unavailable/);
+    assert.deepEqual(requested, [share.imagePath], 'v2 reaches only the publication-derived local PNG route');
+    requested.length = 0;
+    await assert.rejects(stackShareArtifacts(element({...data, imagePath: data.imagePath.replace('/v2-', '/v1-'), imageUrl: data.imageUrl.replace('/v2-', '/v1-')})), /no published stack to share/);
+    assert.equal(requested.length, 0, 'v1 must be refused before any image request');
+  } finally {
+    if (originalDocument === undefined) delete globalThis.document;
+    else globalThis.document = originalDocument;
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test('the bundled server face renders Latin letters rather than repeated missing-glyph boxes', async () => {
-  const require = createRequire(import.meta.url);
-  await initWasm(readFileSync(require.resolve('@resvg/resvg-wasm/index_bg.wasm')));
-  const font = readFileSync(new URL('../src/assets/fonts/SpaceGrotesk.ttf.bin', import.meta.url));
+  await prepareRenderer();
   const width = text => {
-    const renderer = new Resvg(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200"><text x="0" y="100" font-family="Space Grotesk" font-size="100">${text}</text></svg>`, {font: {fontBuffers: [font], defaultFontFamily: 'Space Grotesk'}});
+    const renderer = new Resvg(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200"><text x="0" y="100" font-family="Space Grotesk" font-size="100">${text}</text></svg>`, fontOptions);
     const bounds = renderer.innerBBox();
     try { return bounds?.width ?? 0; }
     finally { bounds?.free(); renderer.free(); }

@@ -28,7 +28,9 @@
   },
   "vars": {
     "PUBLIC_ORIGIN": "https://composer.loftwah.com",
-    "CF_ACCESS_TEAM_DOMAIN": "jolly-cake-2b85.cloudflareaccess.com"
+    "CF_ACCESS_TEAM_DOMAIN": "jolly-cake-2b85.cloudflareaccess.com",
+    "RESOURCE_ACCOUNT_ID": "1003dc1d93af0ebea56b2f1252f89627",
+    "RESOURCE_ENVIRONMENT": "production"
   },
   "r2_buckets": [
     {
@@ -39,11 +41,11 @@
   "services": [
     {
       "binding": "GUESTBOOK",
-      "service": "composer-guestbook-9624565b92670aaf"
+      "service": "composer-guestbook-c4d0f590a7dd9892"
     },
     {
       "binding": "SHOWCASE",
-      "service": "composer-showcase-9624565b92670aaf"
+      "service": "composer-showcase-c4d0f590a7dd9892"
     }
   ],
   "triggers": {

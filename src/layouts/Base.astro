@@ -26,7 +26,7 @@ const canonical = Astro.props.canonical
   : new URL(Astro.url.pathname, "https://composer.loftwah.com");
 const shareImage =
   Astro.props.shareImage ??
-  "https://composer.loftwah.com/brand/share-composer-20261017.jpg";
+  "https://composer.loftwah.com/brand/share-composer-20261018.jpg";
 const shareAlt =
   Astro.props.shareAlt ??
   "App Composer: Make software. Keep it yours. An illustrated assembly hall where separate modules become one working system.";
@@ -49,14 +49,15 @@ Astro.csp?.insertScriptResource(
     <link rel="canonical" href={canonical} />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#17181b" />
-    <link rel="icon" href="/brand/mark.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/brand/icon.png" />
-    <!-- Deliberate: /brand/space.woff2 is the declared source of the one bundled
+    <link rel="icon" href="/brand/composer-icon-20261018-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/brand/composer-icon-20261018-48.png" type="image/png" sizes="48x48" />
+    <link rel="apple-touch-icon" href="/brand/composer-icon-20261018-180.png" sizes="180x180" />
+    <!-- Deliberate: /brand/space-latin-20261018.woff2 is the declared source of the one bundled
          face in global.css and the family every heading asks for, so the single
          early request is consumed. tests/font-preload.test.mjs locks the pairing. -->
     <link
       rel="preload"
-      href="/brand/space.woff2"
+      href="/brand/space-latin-20261018.woff2"
       as="font"
       type="font/woff2"
       crossorigin
@@ -86,26 +87,7 @@ Astro.csp?.insertScriptResource(
     </a>
     <header>
       <a class="brand select-none" href="/">
-        <svg viewBox="0 0 40 40" aria-hidden="true">
-          <path
-            d="M5 7h22v22H5z"
-            fill="none"
-            stroke="#252923"
-            stroke-width="4"
-          />
-          <path
-            d="M15 17h20v19H15z"
-            fill="#f4f0e8"
-            stroke="#d95022"
-            stroke-width="4"
-          />
-          <path
-            d="M15 17v12h12"
-            stroke="#252923"
-            stroke-width="4"
-            fill="none"
-          />
-        </svg>
+        <img src="/brand/composer-icon-20261018-96.png" width="38" height="38" alt="" />
         App Composer
         {instance.enabled && (
           <span class="instance-brand-context">

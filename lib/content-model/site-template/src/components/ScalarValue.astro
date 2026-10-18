@@ -1,9 +1,40 @@
 ---
-import {calendarDateLabel} from '../lib/calendar-date.mjs';
-interface Props {field:any;value:any}
-const {field,value}=Astro.props;
-const safeURL=(input:unknown)=>{try{const url=new URL(String(input));return url.protocol==='https:'&&!url.username&&!url.password?url.href:null;}catch{return null;}};
-const date=field.type==='date'?calendarDateLabel(value):null;
-const url=field.type==='url'?safeURL(value):null;
+import { calendarDateLabel } from "../lib/calendar-date.mjs";
+import type { ContentField } from "../lib/content-model.mjs";
+interface Props {
+  field: ContentField;
+  value: unknown;
+}
+const { field, value } = Astro.props;
+const safeURL = (input: unknown) => {
+  try {
+    if (typeof input !== "string") return null;
+    const url = new URL(input);
+    return url.protocol === "https:" && !url.username && !url.password
+      ? url.href
+      : null;
+  } catch {
+    return null;
+  }
+};
+const date = field.type === "date" ? calendarDateLabel(value) : null;
+const url = field.type === "url" ? safeURL(value) : null;
 ---
-{date?<time datetime={value}>{date}</time>:url?<a href={url} rel="noreferrer">{value}</a>:<span>{value===null||value===undefined||value===''?'—':field.type==='boolean'?(value?'Yes':'No'):String(value)}</span>}
+
+{date ? (
+  <time datetime={typeof value === "string" ? value : undefined}>{date}</time>
+) : url ? (
+  <a href={url} rel="noreferrer">
+    {String(value)}
+  </a>
+) : (
+  <span>
+    {value === null || value === undefined || value === ""
+      ? "—"
+      : field.type === "boolean"
+        ? value
+          ? "Yes"
+          : "No"
+        : String(value)}
+  </span>
+)}

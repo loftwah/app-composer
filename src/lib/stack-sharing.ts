@@ -1,7 +1,7 @@
 // Publication presentation only. Callers obtain this value through publicStack,
 // which joins the active immutable publication and enforces current visibility.
 // A renderer change that changes pixels must advance this version as well.
-export const STACK_CARD_VERSION = 'v1';
+export const STACK_CARD_VERSION = 'v2';
 export const STACK_CARD_WIDTH = 1200;
 export const STACK_CARD_HEIGHT = 630;
 export const STACK_ORIGIN = 'https://composer.loftwah.com';
@@ -65,5 +65,5 @@ export async function stackShareDetails(stack: PublishedStackShare): Promise<Sta
 }
 
 export function isStackImageIdentity(identity: string): boolean {
-  return /^v1-r[1-9][0-9]{0,14}-[a-f0-9]{64}$/.test(identity);
+  return /^v2-r[1-9][0-9]{0,14}-[a-f0-9]{64}$/.test(identity);
 }

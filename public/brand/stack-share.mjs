@@ -19,7 +19,7 @@ function read(element) {
         const canonical = `https://composer.loftwah.com/s/${data.slug}`;
         if (data.url !== canonical || typeof data.imagePath !== 'string')
             return null;
-        const prefix = `/s/${data.slug}/share/v1-r${data.revision}-`;
+        const prefix = `/s/${data.slug}/share/v2-r${data.revision}-`;
         if (!data.imagePath.startsWith(prefix) || !/^[a-f0-9]{64}\.png$/.test(data.imagePath.slice(prefix.length)))
             return null;
         if (data.imageUrl !== `https://composer.loftwah.com${data.imagePath}`)

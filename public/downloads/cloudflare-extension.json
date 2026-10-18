@@ -1,6 +1,6 @@
 {
   "name": "cloudflare-extension",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "files": [
     "manifest.json",
     "background.js",
@@ -9,7 +9,7 @@
     "README.md",
     "icon.png"
   ],
-  "bytes": 9909,
-  "sha256": "d2f7f67f89037e1c4dc7c7f58cf577dc38debb549955f5c108a0e0c00cad823b",
+  "bytes": 34173,
+  "sha256": "818eaece42bcfb3e4f7b141f56650181895d012eea7fb91acfa3b725cee60e2e",
   "built": "2026-10-17"
 }

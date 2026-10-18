@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <title>Loftwah Linkarooie share card</title>
 <style>
-  @font-face{font-family:Space;src:url('../../public/brand/space.woff2') format('woff2');font-display:block}
+  @font-face{font-family:Space;src:url('../../public/brand/space-latin-20261018.woff2') format('woff2');font-display:block;font-weight:300 700}
   *{box-sizing:border-box;margin:0}
+  body{font-family:Space,Arial,sans-serif}
   .card{width:1200px;height:630px;position:relative;background:#f4f0e8;overflow:hidden}
   .banner{position:absolute;inset:0 0 auto 0;height:392px;overflow:hidden;border-bottom:3px solid #1d2330}
   .banner img{width:100%;height:100%;object-fit:cover;object-position:38% 50%}
@@ -16,19 +17,19 @@
   .copy p{font-size:23px;color:#454952;margin-top:12px;max-width:40ch}
   .handle{position:absolute;left:70px;top:522px;font:600 21px/1 Space,system-ui;color:#b23c14}
   .mark{position:absolute;right:70px;top:36px;display:flex;align-items:center;gap:10px;background:rgba(244,240,232,.92);border:2px solid #1d2330;border-radius:999px;padding:8px 16px;font:600 17px/1 Space,system-ui;color:#1d2330}
-  .mark svg{width:22px;height:22px}
+  .mark img{width:32px;height:32px;border-radius:5px}
 </style>
 </head>
 <body>
 <div class="card">
-  <div class="banner"><img src="../../.artwork/masters/banner-loftwah-v5-2.png" alt=""></div>
-  <div class="avatar"><img src="../../loftwah-avatar.png" alt=""></div>
+  <div class="banner"><img src="BANNER" alt=""></div>
+  <div class="avatar"><img src="PORTRAIT" alt=""></div>
   <p class="handle">@loftwah</p>
   <div class="copy">
     <h1>Loftwah</h1>
     <p>Dean Lofts · builder, DevOps engineer and music producer. I like building things and making them work.</p>
   </div>
-  <p class="mark"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#f4f0e8"/><path d="M10 12h32v32H10z" fill="none" stroke="#1d2330" stroke-width="6"/><path d="M24 26h30v28H24z" fill="#f4f0e8" stroke="#d95022" stroke-width="6"/><path d="M24 26v18h18" stroke="#1d2330" stroke-width="6" fill="none"/></svg>Linkarooie</p>
+  <p class="mark"><img src="MARK" alt="">Linkarooie</p>
 </div>
 </body>
 </html>

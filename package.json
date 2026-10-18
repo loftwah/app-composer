@@ -5,8 +5,8 @@
   "type": "module",
   "packageManager": "pnpm@12.8.1",
   "scripts": {
-    "dev": "node scripts/package-downloads.mjs && astro dev --host 127.0.0.1",
-    "build": "node scripts/launcher-assets.mjs --check && node scripts/stack-share-assets.mjs --check && node scripts/identity.mjs && node scripts/package-downloads.mjs && astro build && node scripts/check-publication.mjs",
+    "dev": "node scripts/content-source.mjs --check && node scripts/package-downloads.mjs && astro dev --host 127.0.0.1",
+    "build": "node scripts/content-source.mjs --check && node scripts/launcher-assets.mjs --check && node scripts/stack-share-assets.mjs --check && node scripts/identity.mjs && node scripts/package-downloads.mjs && astro build && node scripts/check-publication.mjs",
     "check": "pnpm check:types && pnpm test",
     "test": "node --test --test-concurrency=4 tests/*.test.mjs",
     "deploy": "node scripts/deploy.mjs",
@@ -14,7 +14,7 @@
     "compose": "node scripts/compose.mjs",
     "ui:assets": "node scripts/public-ui-assets.mjs",
     "compose:promote": "node scripts/promote.mjs",
-    "check:types": "node scripts/launcher-assets.mjs --check && node scripts/stack-share-assets.mjs --check && node scripts/identity.mjs && node scripts/package-downloads.mjs && astro check",
+    "check:types": "node scripts/content-source.mjs --check && node scripts/launcher-assets.mjs --check && node scripts/stack-share-assets.mjs --check && node scripts/identity.mjs && node scripts/package-downloads.mjs && astro check",
     "test:core": "node --test tests/core.test.mjs",
     "test:ready": "node --test tests/readiness-state.test.mjs tests/readiness-recovery.test.mjs tests/readiness-tools.test.mjs tests/readiness-report.test.mjs tests/readiness-storage.test.mjs tests/readiness-workspace-tools.test.mjs tests/readiness-engine.test.mjs tests/readiness-wrangler-auth.test.mjs tests/readiness-session-setup.test.mjs tests/readiness-clone.test.mjs tests/readiness-ownership.test.mjs tests/readiness-owned-tools.test.mjs tests/readiness-target.test.mjs tests/readiness-owned-deploy.test.mjs tests/readiness-owned-init.test.mjs tests/readiness-maintained-release.test.mjs",
     "test:access": "node --test tests/access-boundary.test.mjs",
@@ -30,7 +30,8 @@
     "test:domain": "node --test tests/readiness-domain.test.mjs",
     "audit": "pnpm audit --audit-level low",
     "init:site": "node scripts/init-site.mjs",
-    "check:publication": "node scripts/check-publication.mjs"
+    "check:publication": "node scripts/check-publication.mjs",
+    "source:write": "node scripts/content-source.mjs --write && node scripts/launcher-assets.mjs --write && node scripts/stack-share-assets.mjs --write"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.3.3",
@@ -58,5 +59,8 @@
     "typescript": "6.0.3",
     "wrangler": "4.143.1",
     "zod": "4.6.7"
+  },
+  "engines": {
+    "node": ">=22 <23"
   }
 }

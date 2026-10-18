@@ -1,0 +1,18 @@
+{
+  "repository": "loftwah/linkarooie-3",
+  "commit": "149f277bc45baf31eca406878e8e16325b85a06f",
+  "references": [
+    {
+      "source": "https://github.com/loftwah/linkarooie-3/blob/149f277bc45baf31eca406878e8e16325b85a06f/src/assets/images/icon.png",
+      "blob": "25314556a5a396aa5fb4332fa6cf847979238d6a",
+      "file": "linkarooie-original-github.png",
+      "sha256": "14335e278295a9593f344ae8c1fb1ddb6f18723e2a4c1ebdd188a17f756eaebb"
+    },
+    {
+      "source": "https://github.com/loftwah/linkarooie-3/blob/149f277bc45baf31eca406878e8e16325b85a06f/public/apple-touch-icon.png",
+      "blob": "09c81b2fef34ad2ccd128de511309246dc548ee2",
+      "file": "linkarooie-original-touch.png",
+      "sha256": "f5ab3fe20f14c2cbaa61973f644dad3c5239861b703ac846b55194ba723abe17"
+    }
+  ]
+}

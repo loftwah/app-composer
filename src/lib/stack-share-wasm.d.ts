@@ -7,3 +7,8 @@ declare module '*.ttf.bin' {
   const buffer: ArrayBuffer;
   export default buffer;
 }
+
+declare module '*.png.bin' {
+  const buffer: ArrayBuffer;
+  export default buffer;
+}

@@ -19,6 +19,14 @@ export interface StackInstance {
   visible: boolean;
   binding: StackBinding;
   config: Record<string, string>;
+  resource?: {
+    id: string;
+    configurationRevision: number;
+    digest: string;
+    source: string;
+    path: string;
+    shared: boolean;
+  };
 }
 export interface StackDocument {
   version: number;
@@ -108,7 +116,8 @@ export async function call(
     action === "open" ||
     action === "export" ||
     action === "publications" ||
-    action === "configuration";
+    action === "configuration" ||
+    action === "resources";
   const values = { action, ...fields };
   const route =
     "/_emdash/api/plugins/composer-stacks/" +
