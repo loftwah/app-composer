@@ -1,379 +1,62 @@
 # App Composer
 
-Build a named stack of independent apps, configure each instance, then preview and publish a shareable revision. The apps keep their own source, records, media and credentials. EmDash provides the native creator interface; Cloudflare runs this instance.
+Build a stack of independent apps, configure its instances, then preview and publish a shareable revision. Each app keeps its own source, records, media and release. EmDash provides the creator interface; this installation runs on Cloudflare.
 
-[Open App Composer](https://composer.loftwah.com/) · [Browse the apps](https://composer.loftwah.com/apps) · [Published Trail Notes](https://composer.loftwah.com/s/fictional-trail-notes) · [Published Launch Board](https://composer.loftwah.com/s/fictional-launch-board)
+[Open App Composer](https://composer.loftwah.com/) · [Browse apps](https://composer.loftwah.com/apps) · [Follow the tutorial](https://composer.loftwah.com/learn)
 
-The two fictional examples were created and published through the protected native editor. Their visitor books have independent settings and records; Trail Notes also labels an intentional shared view. Public browsing needs no Composer account. Creator access uses this installation's existing Cloudflare Access boundary; these examples do not establish new-user admission or universal app provisioning.
+Try the published fictional examples: [Trail Notes](https://composer.loftwah.com/s/fictional-trail-notes) and [Launch Board](https://composer.loftwah.com/s/fictional-launch-board). They have independent visitor books; Trail Notes also labels an intentional shared view. They were created through the native editor. These demonstrations establish neither new-user admission nor customer adoption.
 
-![App Composer public homepage, captured from production](docs/images/composer-20261018-desktop.png)
+![App Composer public homepage](docs/images/composer-20261018-desktop.png)
 
-Actual public UI captured 18 October 2026, source `1bc90251200f9950203220b8d50ee3f4bab54ade`. [Phone capture](docs/images/composer-20261018-phone.png) · [Capture provenance](docs/images/capture-20261018.json).
+Actual production capture, 18 October 2026, source `1bc90251200f9950203220b8d50ee3f4bab54ade`. [Phone view](docs/images/composer-20261018-phone.png) · [Capture provenance](docs/images/capture-20261018.json).
 
-This checkout runs Loftwah’s instance of App Composer. The homepage is always the product’s front door — what App Composer is, the shipped app library and the supported Get Ready/Init journey. `config/instance.json` only adds the instance note, a profile link and owner attribution; it never replaces the product identity or metadata. Loftwah’s own profile, music, games and writing live in Linkarooie (`/showcase/`), which owns the portrait, banner, featured picks and grouped discovery. Private material and invented activity are excluded. Actual deployment/content evidence stays in [#11](https://github.com/loftwah/app-composer/issues/11).
+## Run locally
 
-Tags and basic profile-settings portability share the app-owned APIs and standalone/native controls. Version1 settings files keep their original nine-field boundary; creator images/X and collection data are outside that basic file. See [scope and remaining gates](docs/profile-settings-portability.md).
-
-App Composer is an agent-operated application studio built around EmDash and Cloudflare. Get Ready prepares the supported environment before an idea; Init turns content, fields and app choices into a portable specification; composition connects independently maintained mini-apps. The product carries forward WordPress’s useful content/form/white-label lessons while agents handle implementation and operations. See the [CMS, cloud and business-service guide](https://composer.loftwah.com/guide), [whole platform](https://composer.loftwah.com/architecture) and [product definition](PRODUCT.md) for current capability and remaining work.
-
-MP directs; agents implement, verify and recover. Reviewed 18 October 2026. MIT.
-
-## Supported implementation
-
-Astro 7.3.5, EmDash 1.2.0, Cloudflare adapter 14.3.3, Wrangler 4.143.1. The lockfile pins the tested Cloudflare Vite integration and Workers runtime. EmDash manages the published catalogue through isolated D1/R2. It is a real query-backed CMS boundary; customer mini-apps are independent Workers, not forced into CMS plugins.
-
-- [Photo Guestbook](https://github.com/loftwah/app-composer-guestbook), standalone at https://guestbook.loftwah.com.
-- [Linkarooie](https://github.com/loftwah/app-composer-showcase), standalone at https://showcase.loftwah.com.
-- [Hello World reference](https://github.com/loftwah/app-composer-hello), https://ready.loftwah.com.
-- [Carry / forward](https://github.com/loftwah/app-composer-state), https://ai.loftwah.com. Fictional portable assistant state; synthetic-only pending full security gates.
-
-The first pair mounts through declared, separately pinned integrated Worker services. `pnpm compose:promote` compiles the exact reviewed pins, deploys those services and leaves standalone upstream version changes outside the composition code. Approved items become featured cards through a generic provider API. Current privacy is resolved on every public request. Code rollback does not restore old data or permissions.
-
-## Follow along
-
-The [interactive tutorial](https://composer.loftwah.com/learn) follows setup, a changed Hello app, composition, content forms and ownership. Each stage explains its benefits, useful situations and trade-offs; direct builds and standalone mini-apps remain valid alternatives to composition. Project instructions/skills and proportionate backup/recovery advice are inline. Its optional device-local observations record learning, separately from Get Ready verification. Vendor/account details stay in the maintained setup guide; the tutorial reuses existing handoffs, reports and Init.
-
-## Local operation
-
-[Source maintenance](docs/source-maintenance.md) maps native editor responsibilities and documents the explicit `pnpm ui:assets --check|--write` workflow for shared sharing/theme files. Independent apps retain their own committed copies and deployment boundaries.
-
-[The engineering baseline](docs/engineering-baseline.md) describes checked model/recipe source, generated JavaScript/declarations and the independent project commands. Composer uses Node 22 with pnpm 12.8.1; new content projects retain their separately verified pnpm 12.9.1 lockfile. Edit maintained `.mts` source and run `pnpm source:write`; normal checks refuse stale emitted files.
-
-Reviewed 15 October 2026: `/api/portfolio-analytics?days=7|30|90` (or paired `from=YYYY-MM-DD&to=YYYY-MM-DD`) exposes the existing #62 public D1 counts through `woodhouse.portfolio-analytics/1` for Woodhouse #34. It separates app requests, original-photo opens and completed inspections, with daily series, fixed definitions and source revision. Only the retained 35-day window beginning no earlier than the first recorded UTC day, 13 October 2026, is available; that first day is partial and 90-day requests do not backfill unavailable days. The daily cap, publisher losses and rate limits remain explicit lower-bound limitations. Custom ranges use real ordered UTC dates, include both endpoints, span 1–90 days and cannot include future days; duplicate, mixed or unknown query parameters are rejected. `period.complete` indicates only that the selected end day has finished, separately from collection coverage. Wholly pre-collection or expired ranges return unavailable/null metrics, while retained days with no recorded events remain zero. `coverage.comparableFrom` is null because capped counts do not qualify as exact growth records. No visitor IDs or private creator metrics are added; #112/#116 retain those separate outcomes.
-
-`pnpm install`, `pnpm dev`, `pnpm check`, `pnpm build`. Local EmDash D1 state is disposable and separate from production. Tests and tool preparation remove their owned temporary databases, probe homes and download staging on success or failure. For one-off verification, use a single temporary root with `finally`/shell-trap cleanup, save only useful evidence under ignored `output/`, and remove copied dependency installs before finishing. To demonstrate seeded catalogue content locally, use the documented EmDash seed/migration tools against the local database; remote content is never silently copied into local or preview state.
-
-Get Ready and Init offer Easy, Guided and Advanced help. The device-local preference changes explanations and optional detail, travels through task links when storage is blocked, and adds bounded presentation instructions to the agent handoff. It never changes readiness evidence, app configuration or execution authority. Init recommends existing apps from the chosen goal, previews before applying, and preserves edited content, appearance and inactive app fields while you explore. Save remains explicit; a fictional preview does not provision a customer deployment. Init shows saved versus unsaved work and keeps the last valid sample visible while fields are incomplete. File imports open a review before replacing the form; replacing does not overwrite the saved draft. Save explicitly to keep the replacement. Failed browser storage leaves edits available for a spec download.
-
-The public Get Ready handoff offers complete setup, read-only inspection and rechecking after sign-in. Each uses the same core and current repository instructions. Copying a prompt executes nothing; check/resume requests prohibit setup mutations and automatic retries. Manual copy remains available without JavaScript or clipboard permission.
-
-`pnpm ready` verifies the actual authorised Codex/GitHub/Cloudflare workspace, selected account hostname routing and exact HTTPS Hello source, saving private progress even when a check fails. It does not inspect another user's environment or obtain credentials on their behalf.
-
-Reviewed 16 October 2026: composition `--apply` and `--apply-settings` use Get Ready's shared freshness and unfinished-operation inspection in addition to the existing exact workspace/source/account/target checks. A future receipt expiry cannot override an expired, missing or future check timestamp, nor unfinished setup. Recheck with `pnpm ready`; imported display reports remain separate from private apply receipts. Focused CLI/boundary checks: `node --test tests/readiness-state.test.mjs tests/core.test.mjs tests/readiness-report.test.mjs`.
-
-The doctor distinguishes human authentication/permission steps from agent setup, provider retries and agent repairs. HTTP 429/5xx and network interruption produce a failed check without readiness expiry; other independent checks continue. A rerun rechecks actual permissions and source identity rather than trusting a saved green receipt. Errors and provider bodies are not copied into receipts. A public site's 403 is not assumed to mean its operator needs another API permission.
-
-The tool check probes Git, GitHub CLI and pnpm independently and reports every missing or unusable tool together, with official installation/repair links. Successful evidence keeps only validated versions. An active Codex desktop workspace works without a separately installed Codex CLI; an installed CLI alone does not establish an active agent. The agent owns ordinary tool repair, but this doctor performs no global installations. Reviewed 14 October 2026 against the official [Git](https://git-scm.com/install/), [GitHub CLI](https://github.com/cli/cli#installation) and [pnpm](https://pnpm.io/installation) instructions.
-
-### Inspect the project you intend to build
-
-`pnpm ready --inspect-project /absolute/selected/project --purpose emdash-site` uses the same package API to inspect declared tooling, existing project guidance and canonical EmDash skill entrypoints without writes or project execution. It distinguishes missing, unavailable and changed copies, preserves authored guidance and never equates an entrypoint with agent visibility or readiness. The optional host-scoped MCP exposes this as `get_ready_project`; see the [standalone API instructions](lib/get-ready/README.md#inspect-the-actual-output-project) and [public guide](https://composer.loftwah.com/docs#project-inspection). Open the returned report privately in [Get Ready’s project view](https://composer.loftwah.com/ready#project-check). It shows existing guidance, preserved skill copies and remaining gaps without uploading or saving the report. The explicit reviewed site-skill preparation below can add missing copies; runtime discovery/use remains a separate requirement. Fast checks: `node --test tests/readiness-project.test.mjs`.
-
-### Prepare missing EmDash site guidance
-
-After inspecting the current agent catalogue and existing scopes, the agent can use `pnpm ready --workspace /absolute/project-root --prepare-site-skills --available-skills none --report`. This supports exact declared EmDash 1.2.0 and Node 22 in active Codex. If applicable skills are already advertised, pass their canonical IDs instead of `none`. It prepares pinned complete site/CLI skill trees and MIT notices offline, preserving existing/custom/user/ancestor copies and all authored project instructions. Repeat runs do not replace or reinstall existing copies. Unsupported or nested Git scopes are refused. Preparation stays action-required until discovery and relevant use are checked; it does not certify installed EmDash or deploy a project. See [the reusable operation](lib/get-ready/README.md#prepare-missing-emdash-site-skills). Focused check: `node --test tests/readiness-site-skills.test.mjs`.
-
-### Show your own progress
-
-The agent can add `--report` to the doctor to output a redacted JSON progress report instead of its text summary. Capture that stdout in a new JSON file and open it in **Your setup progress** at `/ready`. An incomplete doctor still returns a nonzero exit status with a valid report. The private `.private/readiness.json` receipt is a different format and is refused by the viewer.
-
-The export includes fixed check IDs/states/timestamps, bounded tool diagnoses, a clean/changed/unknown local-work observation and unfinished operation names; it excludes account IDs, repository names, local paths, raw actions, credentials and provider evidence. `readinessReport(session)` and `inspectReadinessReport(report)` expose the same interface to independent consumers. Browser inspection uses the core’s existing freshness rules, not a second readiness engine. Current exports use report version 2; legacy version 1 reports remain readable and do not imply a clean folder. This is display data, not source authority, permission or proof of the current environment. The browser reads the selected file locally without uploading it; remembering the redacted report on this device is an explicit option. expired reports need an actual agent recheck. Unknown versions/fields and oversize files are refused while the previous displayed report remains intact. Clearing removes the report from that page. Without JavaScript, use the agent’s own results instead.
-
-An independent Hello workspace can run the same doctor without importing EmDash or Woodhouse: `node /path/to/app-composer/scripts/ready.mjs --workspace /path/to/hello --account ACCOUNT_ID --reference-worker WORKER_NAME --reference-url https://YOUR_HOST --reference-repo OWNER/REPO`. Tools and credentials are checked in the selected workspace.
-
-The importable core is `lib/get-ready/index.mjs`: create a scoped session, run/resume the supported checks, inspect capabilities and next recovery steps, or use the locked local adapter. `examples/get-ready.mjs` is a minimal independent Node consumer. It accepts workspace, account, Worker, HTTPS origin and repository as arguments; unselected pre-idea targets use `-`. The module contains no EmDash, composition or Woodhouse runtime imports. Sessions reject credential fields; adapter credentials stay in the authorised process. MIT licence and attribution apply to the reusable source.
-
-Verification is read-only. The explicit `--deploy-reference` CLI flag (or `deploy-reference` example operation) freshly checks prerequisites, then builds a verified temporary snapshot of the reviewed Hello source and verifies its deployment over HTTPS. This first action supports the authored Hello repository on clean pushed main, the exact installed Wrangler 4.143.1, matching account/Worker/configured origin and an existing account-owned route. It creates no domains, accounts or resources and executes no arbitrary repository or supplied shell command. The adapter passes the selected repository/account/Worker/origin as explicit non-secret release inputs. The adapter executes Hello’s independently maintained target contract from the verified snapshot, matching these inputs to its Git remote and actual Wrangler configuration. It checks every tracked byte before and after testing/building, preserves ignored owner files, and uploads through the selected pinned Wrangler with a stripped environment and dotenv disabled. Tests and dry-run receive no service credentials; only the upload receives the selected Cloudflare credentials. Inherited CI Worker names, API base URLs and Node controls cannot alter this supported release. It verifies the selected hostname without redirects. The independent Hello repository’s manual deploy command remains separate; this protection applies to the Get Ready operation. A failed deployment cannot become ready merely because an old site still responds. The explicit `--install-reference-tools` operation runs before the Cloudflare check, after fresh agent/tool checks and an independent exact-main source read. This local preparation does not require or grant upstream push permission; the doctor remains incomplete when its GitHub write check fails. It supports clean reviewed Hello checkouts on macOS Apple Silicon, Node 22 and pnpm 12.8.1/12.9.1. It matches actual package/lockfile bytes to committed Git blobs before package/tool execution and after installation, including edits hidden from Git status. It detects the actual local Wrangler executable first, installs missing pinned dependencies with a frozen lockfile and disabled scripts/hooks, isolates unrelated user/global registry settings and excludes service credentials from the install process. A repeat verifies the local tool without installing again. No global tools or cloud resources are changed. Global Git/GitHub CLI/pnpm/Codex installation, initial account/domain bootstrap, general customer-fork execution and hosted API/MCP remain unfinished; the bounded private-starter initial deployment is described below.
-
-### Prepare a missing reference checkout
-
-The agent can use the same engine to acquire the maintained public Hello source from an **authorised Codex folder**, including one with no Git repository or app idea. Git, GitHub CLI and pnpm must already be installed. Explicitly choose a new directory whose parent already exists:
+Use Node 22 and the declared pnpm 12.8.1. Install the pinned dependencies, then start the local site:
 
 ```sh
-node /path/to/app-composer/scripts/ready.mjs \
-  --workspace /path/to/empty-folder --clone-reference /path/to/new-hello
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
-`clone-reference` checks the active agent/tools and freshly reads Hello’s exact main revision through GitHub CLI at `github.com` before reserving the new directory. Reading this public source requires no parent/upstream push permission. A confirmed missing login or denied source read is recorded as a human authentication/permission step; malformed responses stay with the agent. The clone then verifies its clean main checkout and remote. Git hooks, templates, URL rewrites and inherited Git configuration are disabled; the public clone receives no service credentials. Existing files, empty directories, symlinks and unrelated/modified checkouts are refused. An already unchanged exact-main Hello checkout returns `changed:false`. A failed or interrupted acquisition keeps partial files for agent inspection, and read-only resume never retries it. Cancel its recorded intent before selecting a different destination. No GitHub repository or cloud resource is created.
-
-The receipt still describes the **parent folder**; it does not declare the new checkout ready. A completed acquisition can therefore accompany an `action_required` doctor and nonzero CLI exit. Read the operation result separately from overall readiness. Run the doctor against the destination next, selecting the account and existing route explicitly. Missing pinned tools can then be installed without upstream push permission. Use the Composer-owned command from outside the selected Hello checkout:
-
-```sh
-node /path/to/app-composer/scripts/ready.mjs --workspace /path/to/new-hello --install-reference-tools \
-  --account ACCOUNT_ID --reference-worker WORKER_NAME \
-  --reference-url https://YOUR_HOST --reference-repo loftwah/app-composer-hello
-```
-
-This is maintained-reference acquisition, not customer source ownership: a public clone does not grant upstream push permission. Personal private source ownership and initial deployment are supported below; general customer-fork execution remains unfinished. Deployment still requires fresh GitHub write permission; public acquisition and local tool preparation do not supply it. The independent consumer accepts `clone-reference ABSOLUTE_DESTINATION` as its final arguments. Official [Git clone options](https://git-scm.com/docs/git-clone) and [hook configuration](https://git-scm.com/docs/git-config) reviewed 14 October 2026.
-
-### Own the prepared source
-
-After acquiring the maintained checkout, the agent can explicitly prepare a **new personal private GitHub repository**. Select the account and unused name; this creates source storage, not a deployment:
-
-```sh
-node /path/to/app-composer/scripts/ready.mjs \
-  --workspace /path/to/new-hello --own-reference YOUR_GITHUB_LOGIN/my-first-app
-```
-
-The authenticated GitHub account must match the selected owner. Organisations and public repository creation are not supported by this operation. GitHub atomically refuses a name that already exists; the agent never guesses that a failed read means a name is available. The starter must be unchanged at the actual maintained main SHA, including actual file bytes hidden from Git status. No working files, secrets or local configuration are uploaded: only the captured public commit and its existing MIT history are pushed. The operation verifies the private repository ID, current write/admin access and remote refs, uses an empty-branch lease, then changes the checkout's origin to that repository. It adds no Actions, collaborators, cloud resources or billing commitment.
-
-A private local receipt records the created repository ID and source. Before creating a repository, ownership checks the existing receipt and real private storage. Malformed, linked, oversized or differently selected receipts are preserved and refused. New receipts use an exclusive private recovery file and exclusive final publication; a concurrent owner file is never replaced. If storage changes during the provider wait, the operation stops before pushing and retains any recovery copy for agent inspection. A legacy `ownership.json.tmp` is left untouched. An interrupted creation/push retains both local and remote work for agent inspection; it never deletes a repository or retries automatically. An explicit repeat of a fully rebound checkout verifies the selected account, source, privacy, repository identity, both remote directions and refs before returning `changed:false`. A partial creation requires separate `--resume-ownership` intent after agent inspection: this explicitly authorises completing that selected existing personal private repository, while refusing unexpected branches or source. A receipt alone cannot authorise a push or origin change. The operation refuses multiple origin URLs or an explicit origin push URL before creation, so an ordinary future push cannot silently go to upstream. An ambiguous provider outcome must be investigated, not repeated under another name. Ownership always requires a new doctor run under the changed origin; it does not supply a verified deployment target. The same local-tool installer now supports an unchanged personal private copy, after actual GitHub owner/permission and maintained-source checks. A separate initial deployment operation supports the committed prepared profile described below; The supported owned Init/update path is described below; general source updates/cleanup and the complete fresh-user journey remain unfinished.
-
-After ownership, prepare local tools with the same operation:
-
-```sh
-node /path/to/app-composer/scripts/ready.mjs \
-  --workspace /path/to/new-hello --install-reference-tools
-```
-
-For an owned copy, current GitHub main must equal the actual maintained main SHA. The authenticated personal owner, private repository and source access are checked again; local ownership receipts do not grant source authority. Local preparation does not require write/admin access; GitHub write readiness remains a separate deployment prerequisite. All tracked bytes and both origin directions are verified, including hidden changes. Modified source and organisational/public copies are outside this install path. The supported Mac/Node/pnpm versions remain unchanged.
-
-Missing dependencies install in a temporary project containing only verified package, lock and workspace-policy inputs. Copied bytes are matched to the captured commit. Ignored local registry files/hooks and service credentials are excluded, scripts stay disabled, and source is rechecked before exclusively reserving `node_modules`. Relative package links are preserved. An existing valid local installation returns `changed:false`; an incomplete/unrelated directory is preserved for agent repair rather than replaced. This prepares tools, not a deployed app. No target, account or cloud resource is created. Reviewed 14 October 2026 against the selected runtime and official [pnpm installation](https://pnpm.io/cli/install) and [package-layout documentation](https://pnpm.io/symlinked-node-modules-structure).
-
-### Prepare the owned deployment destination
-
-With local tools installed and the owned starter still unchanged, the agent can select an **unused workers.dev address in an existing authorised account**:
-
-```sh
-node /path/to/app-composer/scripts/ready.mjs \
-  --workspace /path/to/new-hello --prepare-reference-target \
-  --account YOUR_ACCOUNT_ID --reference-worker my-first-app \
-  --reference-url https://my-first-app.YOUR_SUBDOMAIN.workers.dev \
-  --reference-repo YOUR_GITHUB_LOGIN/my-first-app
-```
-
-Use the account’s actual Workers subdomain, not the launch operator’s. The shared engine verifies the installed Wrangler account, reads that account’s subdomain and current Worker inventory, and rejects an existing name, mismatched origin, malformed/partial response or conflicting inherited account. Fresh personal/private/source checks and all tracked bytes are rechecked around provider reads. Only the local `wrangler.jsonc` is changed; its original regular file must have one hard link and retain its inode. Existing edits, linked owner files and changed source are preserved.
-
-The prepared profile binds that account, name and origin, disables preview URLs and includes the starter’s fixed asset settings with a 10ms CPU limit. It adds no domains, routes, storage, services, secrets or analytics publisher. **The name is not reserved and no Worker is created.** The CPU limit is not a dollar spending cap. Preparation reports `action_required`, without readiness expiry, and redacted inspection names the review/commit/push/initial-deployment step. It does not retry automatically. A repeat refuses the now-modified source for agent inspection; never reset the prepared file to make the doctor green. Initial owned deployment requires the separate explicit operation below; the subsequent three-field owned Init/update path is also described below. The independent example accepts `prepare-reference-target` after the same five explicit scope arguments. Reviewed 14 October 2026 against official [workers.dev routing](https://developers.cloudflare.com/workers/configuration/routing/workers-dev/), [Wrangler configuration](https://developers.cloudflare.com/workers/wrangler/configuration/) and [Worker inventory API](https://developers.cloudflare.com/api/resources/workers/subresources/scripts/methods/list/).
-
-### Deploy the prepared owned starter
-
-The agent reviews the local deployment file, commits/pushes **only that prepared configuration** to the owned private main, then explicitly runs:
-
-```sh
-node /path/to/app-composer/scripts/ready.mjs \
-  --workspace /path/to/new-hello --deploy-owned-reference \
-  --account YOUR_ACCOUNT_ID --reference-worker my-first-app \
-  --reference-url https://my-first-app.YOUR_SUBDOMAIN.workers.dev \
-  --reference-repo YOUR_GITHUB_LOGIN/my-first-app
-```
-
-This is initial Worker creation in an existing authorised account. Fresh agent/GitHub-write/Cloudflare checks precede it. Actual personal ownership, private/default-main metadata, local/remote/GitHub main and all tracked bytes are rebound. The current maintained GitHub SHA anchors the executable/public file inventory and modes; only the exact prepared Wrangler profile may differ. Other source/configuration changes are refused. This operation requires the already installed pinned local tools.
-
-Tests and a real pinned-Wrangler dry-run run against a temporary snapshot of verified tracked bytes, excluding ignored owner `.env`, registry files and hooks. Tests/build receive no service credentials. The upload receives only the selected Cloudflare token/account and safe runtime controls; CI target/API/Node overrides are stripped and Wrangler’s dotenv loading is disabled. Source, GitHub ownership/write authority, local tooling/account and Worker-name availability are checked again after the build. Availability reads are snapshots, **not an atomic reservation**; an agent should use a name it controls and avoid simultaneous deployments to it.
-
-After upload, bounded checks verify the selected account’s routing and exact HTTPS app/source/title/contract/data version. The doctor then rechecks that source independently before readiness can pass. A failed build/verification never earns readiness. Existing and partially created Workers are refused before another upload, including an explicit repeated creation request: inspect the actual provider outcome and use read-only verification instead of blindly retrying. Receipts cannot authorise overwrites; cancellation deletes no resource, and automatic cleanup and general source updates remain unfinished. A separate explicit Init/update path is described below. A successful creation adds one Worker with the bounded profile and static assets, without new storage/domains/subscriptions or analytics publishing. Existing plan costs still apply; no dollar cap is implied. The independent example accepts `deploy-owned-reference` after the same five explicit scope arguments. Reviewed 14 October 2026 against the pinned Wrangler runtime and official [Workers deployment commands](https://developers.cloudflare.com/workers/wrangler/commands/workers/) and [version/deployment semantics](https://developers.cloudflare.com/workers/versions-and-deployments/).
-
-### Configure and update the verified owned app
-
-Once the owned starter is verified, export **Hello** from Init with a title, introduction and theme. Keep temporary-address intent for an already verified workers.dev app. It changes no hostname and provisions no new target. Plan without provider/workspace IO, then apply explicitly:
-
-```sh
-node scripts/init-hello.mjs --spec hello-spec.json \
-  --workspace /path/to/owned-hello --account YOUR_ACCOUNT_ID \
-  --reference-worker my-first-app \
-  --reference-url https://my-first-app.YOUR_SUBDOMAIN.workers.dev \
-  --reference-repo YOUR_GITHUB_LOGIN/my-first-app
-# Add --apply after reviewing the planned fields.
-```
-
-The same shared engine checks actual ownership/current private main and the old HTTPS source before preparing only `config.json`. It rechecks all bytes after provider waits, preserves changed owner work and refuses hard-linked/replaced files. Portable multiline introductions use the same text policy in plan/apply. A changed configuration stays action-required with no readiness expiry; it is not a deployment. An unchanged request writes nothing. The maintained authored custom-domain path remains supported separately.
-
-Review/commit/push that configuration, then explicitly update using the **source SHA and active Worker version actually verified before the change**:
-
-```sh
-node scripts/ready.mjs --workspace /path/to/owned-hello \
-  --account YOUR_ACCOUNT_ID --reference-worker my-first-app \
-  --reference-url https://my-first-app.YOUR_SUBDOMAIN.workers.dev \
-  --reference-repo YOUR_GITHUB_LOGIN/my-first-app \
-  --update-owned-reference --previous-source PREVIOUS_SHA \
-  --previous-version PREVIOUS_WORKER_VERSION
-```
-
-The update accepts only the three bounded Hello fields plus the prepared deployment profile; every other tracked byte/mode must match actual maintained main. It proves the previous source is in the selected private repository/history and has the same target/profile. Actual routing, previous HTTPS app/source/title and Cloudflare’s latest active single 100% version must agree. Split traffic, foreign/stale bindings and changed source are refused. The version is rechecked **after** the final routing/HTTPS wait, before synchronous source/snapshot checks and upload. These provider reads are snapshots, not an atomic compare-and-swap lease: avoid simultaneous writes to the selected Worker. A local receipt alone authorises no overwrite, and direct adapter calls with absent/malformed update intent cannot fall back to creation.
-
-The update shares initial deployment’s isolated tests/build, stripped tooling environment and pinned Wrangler upload. The new active version and exact HTTPS identity must verify; a separate doctor can then recheck readiness without uploading. There is no automatic retry/rollback/delete. General executable-source updates, customer account bootstrap and automatic cleanup remain unfinished. The independent Node example accepts `update-owned-reference PREVIOUS_SHA PREVIOUS_VERSION` after the five target arguments. Programmatic consumers use the same `runLocalReadiness` with `configure-owned-reference`/three-field `configuration`, or `update-owned-reference`/two-field `previousDeployment`; no site/CMS runtime is needed. Official [deployment-list contract](https://developers.cloudflare.com/api/resources/workers/subresources/scripts/subresources/deployments/methods/list/) reviewed 14 October 2026: its first result is the latest active deployment. Existing credential/plan costs apply; no subscription or permission is added.
-
-The independent Node example also supports pre-idea setup without invented cloud targets. Use `-` for each unselected target: `node examples/get-ready.mjs /path/to/new-hello - - - - own-reference YOUR_GITHUB_LOGIN/my-first-app`. For acquisition, replace the last two arguments with `clone-reference /path/to/new-hello`. Reviewed 14 October 2026 against [GitHub's personal repository API](https://docs.github.com/en/rest/repos/repos#create-a-repository-for-the-authenticated-user) and the installed Git/GitHub CLI; credentials stay in the authorised process.
-
-`pnpm compose` fetches and validates known public app manifests at exact commits, verifies their actual deployed identities and stages an inspectable cached candidate. Arbitrary catalogue repositories are never executed. `pnpm compose --spec path/to/spec.json --apply` additionally validates the portable spec and applies authorised configuration using private owner credential files in the adjacent independent app checkouts; purchases and unverified targets are blocked. This operator path is deliberately narrow, not public multi-tenant provisioning.
-
-Production uses `pnpm deploy`: clean pushed main, type/risk checks, production build, Wrangler and exact live-host source verification. There are no GitHub Actions. Preview is a separate named environment with separate D1/R2 and no production app service bindings; missing app services fail explicitly rather than sharing production data.
-
-## Secrets and human gates
-
-`OWNER_API_TOKEN` and `EMDASH_ENCRYPTION_KEY` are runtime secrets, generated in private operator storage and passed to Wrangler over stdin. They never enter specs, source or browser output. EmDash admin/API paths are protected by the exact-owner Cloudflare Access policy and a Worker-level JWT issuer/audience check. Native EmDash Access authentication validates the signed identity and provisions its first protected owner as Admin; production passkeys, self-signup and invites are replaced by Access. Preview has no audience and remains closed. The policy was activated in the authenticated browser with MP approval; preserve the exact owner allowlist. Never make admin public to work around that gate.
-
-The optional unpacked Chrome extension has explicit-click activeTab injection, Get Ready/Init handoffs and local decision exploration. No Cloudflare dashboard credential scraping, native-product/partnership claim or public build API. Installed dashboard acceptance and Web Store publishing are distinct.
-
-## Boundaries and evidence
-
-Read `ARCHITECTURE.md`, `composition.lock.json`, `docs/STATUS.md` and GitHub #11. Public browsing and configuration drafts need no account. Upload/moderation/curation require invited owner access. Demo artwork and vault personas are original/synthetic, never real private records. Current manifest support is the authored first pair; wider registrars/providers, automated update policies, arbitrary builds and real-data vault import are not advertised as shipped.
-
-Official integration references reviewed 13 October 2026: [EmDash Cloudflare](https://docs.emdashcms.com/deployment/cloudflare/), [content queries](https://docs.emdashcms.com/guides/querying-content/), [Access JWT validation](https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/), [Worker rollback](https://developers.cloudflare.com/workers/versions-and-deployments/rollbacks/). Runtime/public evidence must be checked independently of source or tests.
-
-## Assets
-
-Original editable marks and functional diagrams are in `public/brand/`. Presentation and social imagery uses generated raster originals, with provenance beside delivered JPEGs. PNG icon exports derive from the editable mark. Fictional gallery originals use the real moderated upload pipeline; generation is never presented as documentary photography. Space Grotesk is SIL OFL, originally by Florian Karsten; the licence is retained with the font. No Koji assets or proprietary source is used. Real screenshots belong to release evidence, never fabricated UI illustrations.
-
-Default dark and saved light themes use Tailwind 4.3.3 semantic tokens and native Astro controls. Read [UNSLOP.md](UNSLOP.md) for the writing/interface standard. Native controls handle the present forms without an extra shadcn client runtime.
-
-Preview: select `CLOUDFLARE_ENV=preview pnpm build` before `pnpm wrangler deploy`. Verify the generated config names only the preview D1/R2/KV and has no app services, then apply preview migrations and deploy. Passing `--env` only at deploy time does not select the Vite build environment. Restore a production build before any production command.
-
-Cost controls: the operator keeps public builds/signups closed, owner uploads capped and mutation rates bounded. Composer has a 1,000ms CPU limit per invocation and bounded deployment verification retries. These limits do not enforce a dollar budget. The existing account usage alert is US$5 and excludes fixed subscription fees; no new paid plan was introduced by Composer. A traffic surge can still incur usage charges on the existing paid Workers/R2 account.
-
-Wrangler secret commands require an explicit environment: use `--env preview` for preview and `--env=""` for the root Worker. They do not follow the generated Vite build target. Keep distinct private encryption key files and confirm the printed Worker name. Never print key values.
-
-Email: the native `composer-resend` transport reads `RESEND_API_KEY`, `RESEND_FROM_ADDRESS` and `RESEND_ALLOWED_RECIPIENTS` from deployment secrets at delivery time. It adds no public route and denies every recipient not explicitly invited, including unlisted plus aliases. The sender domain is verified at Resend. Activate the provider and test it in native EmDash Settings → Email; configuration alone is not delivery evidence. Preview has no email secrets. Keys never enter plugin options or CMS settings. The native format is necessary for deployment-secret access; the older npm Resend plugin targets EmDash 0.5. Official [email setup](https://docs.emdashcms.com/guides/email/) and [native secret handling](https://docs.emdashcms.com/plugins/creating-native-plugins/your-first-native-plugin/) reviewed 13 October 2026.
-
-Readiness doctor: a fork selects `pnpm ready --workspace /path/to/project --account ACCOUNT_ID --reference-worker WORKER_NAME --reference-url https://hello.example.com --reference-repo OWNER/HELLO_REPO`. The account-routing check reuses the selected workspace's existing Wrangler OAuth sign-in, or prefers an explicitly supplied scoped `CLOUDFLARE_API_TOKEN`. It checks the actual account-owned Worker hostname before HTTPS/source verification; sign-in alone is insufficient. No token is printed or saved in the receipt. Explicit supported starter target preparation and deployment can also reuse that selected sign-in, with all source/target/operation guards retained. Deployment freezes one credential and isolates build/upload HOME from cached logins; expiry or denial does not switch identity. Separate workspace-free domain diagnosis still requires its runtime API token. GitHub push, active Codex runtime, authenticated Wrangler account and account-owned custom-domain/workers.dev routing must all pass. `--cancel` cancels only the receipt; it does not delete infrastructure. Private receipt updates are atomic, concurrent runs are excluded and an interrupted process leaves an explicit incomplete state. Storage refuses linked private folders/receipts and malformed or unrelated JSON. Exclusive temporary files replace the old predictable filename; receipt or lock edits during a run stop later writes and preserve the changed bytes. The agent must inspect and relocate unrelated or damaged receipt files before explicitly rerunning; the doctor does not repair or discard them. A stale lock must be checked against its recorded process before removal. Every resume revalidates credentials and current source; no cached client report grants execution authority. Source/target changes start fresh scoped evidence. `--publish-proof` is an explicit launch-operator-only action; ordinary runs never overwrite the public launch proof. Global tool installation, initial DNS setup, domain purchases and fresh-user provisioning still require the agent’s supported authorised workflow; the doctor does not claim to perform them.
-
-Composition `--apply` first rejects missing specs, Hello, preview, purchases and unsupported hostnames before inspecting workspace authority, fetching providers or writing staging state. The supported existing operator target also requires a verified, finite unexpired readiness receipt matching the clean current launch workspace, source and Cloudflare account. Failed, cancelled, interrupted and legacy receipts are rejected before staging or writes; a fork’s receipt cannot authorise the launch operator’s production targets.
-
-Hello Init uses `pnpm init:hello --spec FILE --workspace /path/to/hello --account ACCOUNT_ID --reference-worker WORKER_NAME --reference-url https://YOUR_HOST`. Without `--apply` it prints the proposed title/introduction/theme without inspecting the workspace or calling providers. Explicit `--apply` requires the authored clean exact-main Hello repository and a matching existing-domain spec, then runs the same Get Ready engine before preparing `config.json`. Failed readiness or a workspace change leaves the configuration untouched; unrelated existing fields are preserved. The command never commits, pushes or deploys. The agent reviews the diff, follows the independent repository release path and uses `deploy-reference` to verify the changed HTTPS result. Unsupported preview/purchase/hostname intent is rejected before setup writes. Hello's hidden gallery layout normalises to the stable spec default and does not create a fictional configuration feature. Customer-fork provisioning remains unfinished.
-
-EmDash 1.2.0 upgrade: direct CMS/Cloudflare packages move together, with a rehearsed raw D1 recovery export and retained runtime keys before its forward core migrations. Native admin ships English only and caps media uploads at 1 MiB; customer mini-app media limits remain independent. Vendor-generated upgrade work orders and refreshed skills are private operator evidence.
-
-Focused checks: `pnpm check:types`, `pnpm test:core`, `pnpm test:ready`, `pnpm test:access`, `pnpm test:email` and `pnpm test:release` run independently without network mutation. Run the relevant group while developing; `pnpm check` retains every required release gate. For a single regression, use `node --test --test-name-pattern="name" tests/example.test.mjs`. Browser, real deployment and disaster-recovery checks are separate explicit operations, never hidden behind a unit test.
-
-The public app library at `/apps` and native nine-dot launcher share one list of shipped entry points. That navigation list does not replace EmDash's published catalogue contracts.
-
-Contributions of code, documentation, design and accessibility feedback are welcome: [Contributing](CONTRIBUTING.md), [Code of Conduct](CODE_OF_CONDUCT.md), [Security](SECURITY.md), [Accessibility](ACCESSIBILITY.md). Ctrl/Cmd+K opens the searchable app/task launcher; the nine-dot button provides the same path.
-
-Supported dependency-install behaviour was checked against the selected pnpm runtime and current official [install options](https://pnpm.io/cli/install), [configuration locations](https://pnpm.io/cli/config) and [local Wrangler installation guidance](https://developers.cloudflare.com/workers/wrangler/install-and-update/) on 13 October 2026. A fresh Hello clone ran missing-tool detection → pinned install → unchanged repeat → exact-source HTTPS deployment. This used existing account/domain credentials and is not first-account provisioning evidence.
-
-First-time users can follow [/ready/guide](https://composer.loftwah.com/ready/guide). Native disclosure steps link to current vendor instructions; generated images never imitate sign-in screens. Editable D2 workflow sources live in `public/diagrams/`. Lucide 1.56.0 (ISC) supplies static Astro icons. Original app artwork and optimised thumbnails include provenance in `public/brand/apps/`; MP-supplied concept originals remain unchanged at the root, with explicitly labelled public derivatives. These guides do not claim new-user account/domain/fork provisioning is automated.
-
-Failed reference operations retain their scoped intent through read-only resume. The standalone inspector’s `ready` result requires current checks and no unfinished operation; individually passing HTTPS checks do not hide a failed deployment. `next` reports unfinished operations alongside missing/stale checks. Rerunning the doctor never retries an operation automatically. An explicit successful retry clears its intent; cancellation or a changed workspace/account/source/target starts a separate scope. Repairing dependencies does not silently discard an unfinished deployment. Prior failure summaries are marked for agent recheck rather than reused as proof that human authentication is still required.
-Older blocked receipts may not identify the operation. Their unfinished intent is retained through unrelated setup; the agent explicitly cancels that legacy intent before starting a new scoped operation. Cancellation changes only the local receipt and does not remove infrastructure.
-
-Init conditional drafts: only the visible existing-domain choice validates and exports a hostname. Hidden card/layout/hostname controls cannot block native form submission. Switching back keeps unfinished values in the current form so they can be repaired; only applicable validated fields enter the saved/exported spec. Active link cards need a title and HTTPS destination, and removing a row immediately refreshes the spec/handoff. No form choice authorises setup or deployment.
-
-## Prepare missing workspace tools
-
-Reviewed 14 October 2026. The explicit supported step uses active Codex on macOS Apple Silicon, Node 22 and existing Git. It checks existing tools first. Usable GitHub CLI and pnpm are reused; otherwise it prepares GitHub CLI 2.98.0 and pnpm 12.9.1 inside the selected workspace. It changes no machine installation, shell profile, account login or cloud resource. The Node command works before pnpm is available:
-
-```sh
-node /path/to/app-composer/scripts/ready.mjs --workspace /your/authorised-folder --install-workspace-tools
-```
-
-Official release URLs, sizes and SHA-256 digests are fixed in `lib/get-ready/workspace-tools.mjs`. Only one GitHub release-assets redirect is allowed. Decoded bytes are bounded and hashed; compressed HTTP lengths do not replace those checks. pnpm’s full runtime and both tools’ licences are retained. The complete installed file tree is checked before execution and again after isolated version probes; service credentials and inherited execution controls are excluded from preparation. Existing, linked or partial tool folders are preserved for inspection. Private temporary preparation bytes remain available after failure; the agent never deletes an interrupted install automatically.
-
-When the result’s scope is `workspace`, explicitly select it for later checks or supported operations:
-
-```sh
-node /path/to/app-composer/scripts/ready.mjs --workspace /your/authorised-folder --use-workspace-tools --report
-node /path/to/app-composer/scripts/ready.mjs --workspace /your/hello-checkout --tools-workspace /your/authorised-folder --report
-```
-
-The second command reuses the verified pair in a different output repository. It does not install another copy or grant repository/account/deployment authority. An `existing` result needs no prepared-tool flag. Ordinary resumes do not activate private executables or retry setup implicitly. Programmatic consumers use the same `runLocalReadiness` operation and `useWorkspaceTools`/`toolsWorkspace` options; there is no second installer/doctor. Git/Node installation, new account sign-in and domain setup remain separate supported-workflow gaps.
-
-Pins were checked against the official [GitHub CLI release](https://github.com/cli/cli/releases/tag/v2.98.0), [pnpm release](https://github.com/pnpm/pnpm/releases/tag/v12.9.1) and [installation guidance](https://pnpm.io/installation). These are reviewed versions, not an automatic latest-version policy.
-
-## App activity and health
-
-Reviewed 14 October 2026. `/activity` ranks recorded public home-page opens across the five mini-apps, with original photo opens and completed inspections separately labelled. `/api/usage` exposes the same aggregate data. Existing Composer D1 stores only UTC day/app/event/version counters; no individual event, IP, cookie, user, URL, search or vault data is saved. Seven- or thirty-day views use six finite cache keys per UTC day and a one-minute cache. Retention runs once daily on the existing CMS schedule and keeps 35 inclusive UTC day buckets. Daily counters cap at 1,000 per app/event/version. A native shared limit drops excess events at 60 per minute per app/event per Cloudflare location; capped cells are suppressed in each active isolate. This bounds recorded work, not account spending or global HTTP traffic. The US$5 alert remains an alert.
-
-Standalone publishers are opt-in server code with app-scoped write-only tokens, a 1.5-second timeout, no retries and no redirect following. Fork defaults are disconnected. Promoted services remove optional publisher variables; Composer records their successful mounted responses itself, avoiding double counts and a runtime dependency cycle. Tests use `X-Composer-Verification: 1`; unmarked bots and reloads may count, outages and rate limits may lose events. Never label these numbers people or exhaustive totals.
-
-`GET /healthz` returns liveness and the public source revision only; all mini-apps expose it too, under their mount where applicable. `HEAD` is supported and other methods return 405. It does not inspect storage, return environment details, prove an app flow or replace Get Ready. Use exact `/build.json` plus real interactions for release acceptance. `node --test tests/usage.test.mjs` checks collector permissions, byte bounds, actual SQLite cap/pruning, rate refusal, cap suppression, publisher failure and liveness semantics. Official [Workers rate limits](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/) and [background work](https://developers.cloudflare.com/workers/runtime-apis/context/#waituntil) checked 14 October 2026.
-
-Optional local diagnostics: append `?vitals=1`, then open Page performance. The self-hosted standard Web Vitals 6.2.3 bundle (Apache-2.0, licence/provenance included) reports current-load LCP/INP/CLS. No metrics or element attribution are uploaded or persisted. Unsupported measurements remain unavailable. The console shows fixed public source/activity links; no private content. This does not claim a site-wide field pass.
-
-GitHub source-authority checks explicitly select [github.com](https://cli.github.com/manual/gh_api), matching supported Git remotes rather than inherited enterprise-host settings. Reviewed 14 October 2026.
-
-## Separate app settings in Init
-
-Open [Init](https://composer.loftwah.com/init), choose Guestbook + Linkarooie and open **Settings for each app**. Enable a separate group, edit its title/introduction/theme/layout, or use that app's declared defaults. Uncheck it to inherit the shared values. The form renders the fields and constraints from the reviewed `composition.lock.json` manifests. A separate group contains every supported field; partial per-field inheritance is not supported in this version.
-
-Saved/exported specs are version 2 and include exact selected source commits and manifest digests. Version 1 drafts migrate with their existing shared values; a saved version 2 whose contracts differ is refused with a compatibility message and its saved file is preserved. Unknown settings and incomplete groups fail validation. The effective per-app configuration powers the fictional preview. Shared-only application writes preserve existing profile links; an explicit complete Linkarooie group also configures or clears its handle and social addresses. Optional profile controls and Compact links come from the pinned app contract.
-
-For a settings-only change to this already verified operator pair, use `node --env-file=.env scripts/compose.mjs --spec PATH --apply-settings` from clean pushed Composer main after the normal read-only doctor. Composer main must already be deployed. The command checks the actual pinned standalone/mounted source again before each owner API write, then confirms the exact configuration response. It leaves cards, source pins, release records and Worker deployments unchanged. It refuses preview/purchase/other-target/Hello intent and any card additions. Existing composition/card application remains the separate `--apply` path. This is not public provisioning.
-
-If a later app fails, completed settings remain for inspection. There is no automatic retry or rollback; the agent checks the live values before an explicit retry. Provider identity reads are snapshots, not an atomic guarantee against a simultaneous app deployment.
-
-## Optional local Get Ready MCP
-
-The [MCP archive and matching source/checksum manifest](https://composer.loftwah.com/docs#local-get-ready-mcp) install the existing stdio transport and same captured core without a Composer checkout. Install the reviewed downloaded archive with `npm install --ignore-scripts --no-audit --no-fund ./get-ready-mcp.tgz` in a chosen local integration folder using Node22. It adds the pinned official MCP server2.3.1 and Zod4.6.7 dependencies; registry/cache access is required. Keep the generated lockfile. Configure the host separately with the absolute installed `node_modules/.bin/get-ready-mcp` executable and explicit `--workspace` arguments; installation changes no host configuration. The [bundled README](lib/get-ready-mcp/README.md) distinguishes protocol operation from setup/native-host acceptance. No npm registry publication, remote endpoint or additional tool authority is implied.
-
-Another agent can recheck the supported environment through the same engine using a local stdio connection. A default launch exposes `get_ready_check` and `get_ready_inspect`, both with empty arguments. The host selects the trusted workspace, account and reference at launch; the default tools cannot change those selections, run shell commands or request a setup/deployment operation. A check saves the existing private receipt, while its model-visible output is the same redacted dated report and shared freshness/unfinished-operation inspection used by Composer. Inspect reads the latest completed report on that connection, without provider calls; it is empty before a check or after an aborted check.
-
-```sh
-node /path/to/app-composer/scripts/get-ready-mcp.mjs \
-  --workspace /absolute/path/to/your/trusted/hello \
-  --account YOUR_ACCOUNT_ID --reference-worker YOUR_WORKER \
-  --reference-url https://YOUR_VERIFIED_HOST --reference-repo YOUR_OWNER/YOUR_REPO
-```
-
-For an incomplete environment, supply only the explicit workspace and the selections already known. Missing account/reference choices remain action-required; there is no launch-operator fallback. `--tools-workspace /absolute/path/to/prepared/folder` explicitly reuses a verified workspace tool pair. Global installations, authentication, repo creation, DNS and deployment are unavailable through these tools. Repeat checks do not retry an unfinished setup operation. An active supported Codex runtime and its authorised tools still matter; merely launching MCP cannot certify an agent.
-
-Use the host's normal local runtime credential handling. Tokens/passwords do not belong in launch arguments, MCP tool arguments or exported reports. The adapter retains only selected GitHub/Cloudflare runtime variables and ordinary tool paths; it strips unrelated credentials and execution controls. It accepts one check at a time, refuses unknown tool arguments, limits incoming stdio messages to 64 KiB and clears cached results if a check fails or request cancellation is observed. Cancellation does not forcibly stop the bounded underlying doctor or undo private progress; another check stays blocked until it finishes. No HTTP endpoint, public build service, new cloud resource or automatic client configuration is added. Trusting a local host still grants access to that selected runtime; this is not a sandbox for arbitrary downloaded tools or repositories.
-
-An explicitly authorised host can opt into local tool preparation with `--allow-workspace-tool-setup`. This exposes only zero-argument `get_ready_prepare_tools`, invoking the existing `install-workspace-tools` engine operation. The supported active Codex/Apple Silicon/Node22/Git path verifies existing tools or prepares the pinned GitHub CLI/pnpm pair in the selected root’s private folder. Nested Git folders are refused before writing into a parent. No global/profile, authentication, repository, DNS or cloud operation is granted. Its bounded preparation result is separate from the shared unfinished-work report. Checks reuse a successfully prepared pair on this connection without retrying setup. A new connection explicitly selects `--tools-workspace` or makes another separately authorised preparation call. Cancellation preserves retained work and exclusivity; it cannot activate cached tool selection from a cancelled result. See the [transport README](lib/get-ready-mcp/README.md#optional-workspace-tool-preparation). This flag is absent from default configurations and never written automatically.
-
-An authorised host can separately select `--reference-destination /absolute/authorised/new-hello` to expose zero-argument `get_ready_clone_reference`. It uses the same core acquisition operation, fetches only maintained Hello main and preserves existing/custom/partial directories. Its bounded result reports completion/change/source without private paths. It grants no dependency execution, ownership or deployment. The connection stays in its original workspace; a host explicitly selects the acquired checkout and any separately prepared tools on a new connection. Ordinary checks never retry acquisition. See the [transport README](lib/get-ready-mcp/README.md#optional-maintained-starter-acquisition).
-
-An explicitly authorised MCP host can continue from acquired Hello source to its reviewed local dependencies with `--allow-reference-tool-setup` and zero-argument `get_ready_prepare_reference_tools`. This reuses the existing frozen, script-disabled core installer in the host-selected checkout; it does not grant source ownership or deployment. Checks never retry installation, existing tools are verified before installing, and completed preparation remains distinct from readiness. See [host setup and recovery](lib/get-ready-mcp/README.md#optional-reviewed-reference-dependencies).
-
-A minimal client is available at `examples/get-ready-mcp.mjs`. Run it with the same scope flags to print only the report JSON for the browser viewer; it exits nonzero if readiness is incomplete. It never exports the private receipt or the entire protocol result. Focused development checks: `pnpm test:mcp`. The real proof copied the ten-module MIT core and adapter outside Composer/EmDash/Woodhouse, used the official SDK client to recheck the unchanged maintained Hello with existing operator credentials, and verified all four capabilities over the protocol. This does not prove a fresh customer's setup or installation into a native MCP host; those remain separate acceptance work.
-
-Protocol implementation uses pinned official `@modelcontextprotocol/server`/`client` 2.3.1 and Zod 4.6.7 as optional local tooling dependencies. SDK package metadata declares Apache-2.0; its retained licence also describes legacy MIT contributions. Zod is MIT. Notices are in [docs/third-party](docs/third-party/); the core and this repository keep their MIT licence. Official [stdio serving](https://ts.sdk.modelcontextprotocol.io/v2/serving/stdio) and [client connection](https://ts.sdk.modelcontextprotocol.io/v2/clients/connect) references were checked 14 October 2026.
-
-## Content and form models
-
-[Init’s content-model editor](https://composer.loftwah.com/init/content) turns an agent’s structured field design into an editable, testable form and compatible EmDash seed. Describe the form and copy a design request, import the model JSON, edit labels/types/groups and optional conditions, then test fictional sample values. The portable `app-composer.content-model` version 1 is separate from pinned app configuration/source and readiness. It never grants CMS or deployment authority.
-
-The independent MIT implementation is in `lib/content-model`. It supports text, calendar dates, HTTPS URLs, whole numbers, booleans, choices and bounded non-nested repeaters. Earlier always-visible Boolean/Choice fields can control optional display. Required conditional fields and nested repeaters are refused. Grouping/conditions belong to the generated app form; native EmDash admin is not claimed to hide them. `emdashSeed` emits compatible fields only, while `validateModelValues` excludes inactive values and validates typed entries. The actual installed EmDash 1.2.0 seed/value validators and isolated native SQLite creation are exercised by `pnpm test:models`.
-
-Calendar dates store a day as `YYYY-MM-DD` (years 0001–9999). The same Gregorian rule validates defaults, preview values and native EmDash string fields, including century leap years. The generated site bundles a native date picker and renders a semantic date with a written month, without timezone conversion. Cleared optional dates stay null. The portable seed uses its host’s string control with the same validation and no widget dependency. Repeating-row dates and automatic scheduling are not supported. Existing saved models without dates remain unchanged.
-
-
-Models have an exact formatted-export byte cap of 64 KiB, shared with imports and saved-draft restore. Only explicitly saved model structure persists in local storage; valid edits also survive Back in their browser-history entry. Sample entries are not persisted. Review the target’s existing schema and data before applying a downloaded seed; the public editor never modifies a CMS, creates a cloud resource or publishes content. General customer implementation/deployment acceptance remains open under #3/#21.
-
-### Installable Get Ready release archive
-
-Reviewed 14 October 2026. [Download the same core and CLI](https://composer.loftwah.com/docs#standalone-get-ready), with its source/checksum manifest and bundled MIT README. `pnpm ready:pack` packages only the reviewed core allowlist using offline npm pack with lifecycle scripts disabled and an isolated configuration/environment. The website build includes that archive; npm registry publication is not claimed. `scripts/ready.mjs` delegates to the packaged CLI, so operation validation and checks stay in one implementation. There are no runtime dependencies in the archive; the optional SDK-backed MCP transport stays separate. `pnpm test:package` verifies actual isolated installation/API/CLI and private-input/link refusal.
-
-### Reusable content patterns
-
-Reviewed 14 October 2026. [Init content/forms](https://composer.loftwah.com/init/content) includes workshop listings, project case studies, a community directory and project enquiries. Each pattern has a validated fictional example and the same portable model/native EmDash seed export. Project credits include optional websites; generated collections and entry pages render HTTPS links in repeating rows with the same safety rules as top-level links. Clearing an optional row link in native EmDash saves null without changing required links or other row values. This extends the new-project recipe; existing generated sites are not migrated automatically. Opening a pattern preserves the explicit saved draft; Restore saved draft brings it back. Example entry values are never persisted or sent. Model changes or failed checks clear stale validated sample output. These are implementation starting points for the authorised agent, not already deployed customer forms or an enquiry inbox. `pnpm test:models` covers model and pattern/native-compatibility tests.
-
-### Diagnose a domain without changing it
-
-The same installable Get Ready core exports `diagnoseDomain` and `inspectDomainReport`. Use `node scripts/ready.mjs --inspect-domain example.com --account SELECTED_ACCOUNT_ID` with the existing authorised runtime token, or add `--workspace /absolute/authorised/workspace` to reuse its existing pinned Wrangler sign-in. For an existing sign-in it verifies selected-account membership, then resolves one transient credential before provider reads; denial never switches identity or retries. The workspace-free path remains token-only. This diagnostic never opens a readiness receipt or starts a login. It performs bounded read-only Cloudflare zone/DNSSEC and public NS/DS lookups, binds the exact account/zone and emits a portable domain report. It cannot combine with setup flags. A nonzero result may contain a valid report of incomplete configuration. The website’s optional domain viewer reads it locally, shows assigned versus observed nameservers and explains pending or mismatched DNSSEC without creating a zone or prescribing a destructive repair. A fictional migration example demonstrates the flow.
-
-The optional local MCP enables `get_ready_domain` only when the trusted launch includes `--domain example.com --account SELECTED_ACCOUNT_ID`; model calls accept no scope arguments. The default check/inspect tools remain unchanged. Zone Read and DNSSEC Read permissions must already exist. Account/zone IDs and credentials stay out of the report; public domain/NS/DS values remain, so inspect it before sharing. Full setup only; partial/secondary/multi-signer and registrar writes remain unsupported. Resolver observations are cached snapshots, not worldwide propagation, current registrar state, cryptographic DNSSEC certification or HTTPS proof. Reports grant no authority. See the bundled core README and https://composer.loftwah.com/docs#domain-diagnosis for sources and boundaries.
-
-## Mini-app admin and service choices
-
-Reviewed 14 October 2026. The homepage and `/guide` explain the browser-to-agent journey, EmDash content editing, app-owned Cloudflare resources, WordPress/AWS fit, WooCommerce migration responsibilities, email, costs and recovery. Shopify/Stripe/Printful are planned connectors under #105, not currently provisioned services. Each order has one checkout owner.
-
-The native `composer-miniapps` extension supplies `/_emdash/admin/plugins/composer-miniapps/apps`. Its private GET/read and POST/write routes require EmDash `plugins:manage` and a host-attested role-50 user; unbound machine tokens are refused. The outer Cloudflare Access gate remains in force. Writes additionally require the exact production Origin and EmDash CSRF header. It supports the current Guestbook/Linkarooie only, validates their exact composition source before authenticated IO, and calls their own management APIs. It does not query their databases or turn public specs into credentials or commands.
-
-Authored links have an existing-link editor with explicit draft/published/hidden visibility, a text preview without destination fetching, local save/error states and a saved-field comparison after conflicts. The pinned app performs an atomic compare of the original title/description/URL/status before changing them; source-owned cards cannot use this action. Link/style edits survive app switches and failed snapshot refreshes in this page's memory. Removed-card edits remain available to copy or discard; unsaved changes warn on browser reload. They are not persisted across a completed page navigation. New URLs are bounded after encoding; a bounded oversized legacy snapshot can still be replaced with a shorter URL.
-
-Server-side `GUESTBOOK_OWNER_TOKEN` and `SHOWCASE_OWNER_TOKEN` connect the existing app-owned credentials; no browser or public specification receives them. Never provision these secrets in preview. Preview's distinct origin and absent app services keep the extension disconnected. A new customer/site requires its own scoped integration and acceptance rather than inheriting these operator credentials. Native APIs were checked against official EmDash React-admin/API-route docs and the installed 1.2.0 source. Focused checks: `node --test tests/miniapp-admin.test.mjs`.
-
-For the authorised production operator connection only, the clean-pushed-main deploy guard accepts `node scripts/deploy.mjs --miniapp-secrets` with `.private/miniapp-admin-secrets.json` containing exactly those two server secret names. Use a mode-0600 ignored file prepared from the verified existing app credentials. The pinned Wrangler uploads secrets alongside code, preserving other secrets; this avoids separately activating an old Worker version. Ordinary deploys need no secrets file. Customer provisioning and preview credentials are outside this operation.
-
-The [working admin screenshots](https://composer.loftwah.com/guide#admin-screenshots) are unedited production captures with public [source/pin provenance](public/guides/miniapps-admin-20261014.provenance.json). Native image moderation/featuring/revocation, link draft/publication/reorder/hide and settings paths were exercised with disposable generated fixtures; existing records/configuration were preserved. An expired owner sign-in failed closed and recovered through the existing Cloudflare login. Physical devices and broader customer acceptance remain separate.
-
-
-### Create an independent EmDash content project
-
-In [the content builder](https://composer.loftwah.com/init/content), open “Create a new EmDash site from these fields” and copy the new-project request. The agent uses `pnpm init:site --model MODEL.json --destination /absolute/parent/new-site` to create an absent project from the validated model. The Node API is `createContentProject({model,destination})` in `lib/content-model/project.mjs`. It copies a reviewed template, complete native CMS seed, standalone model logic, lockfile, theme, favicon/font notices and source hashes. Model values remain JSON, never executable source. Existing/partial projects and linked parents are preserved. No dependency installation, account connection, cloud mutation or deployment is performed.
-
-The reviewed local path is Node22, pnpm12.9.1, Astro7.3.5, EmDash1.2.0 and Cloudflare’s local D1/R2 simulation. The agent installs the frozen lockfile with lifecycle scripts disabled, builds and opens the printed localhost URL. The native owner setup/editor and published-only page run independently of Composer/Woodhouse. Authenticated owner acceptance remains separate from local build/query evidence. Customer cloud deployment, public submission forms and enquiry handling remain separate work; `pnpm deploy` refuses the local placeholders. See [the project template README](lib/content-model/site-template/README.md) and [public instructions](https://composer.loftwah.com/docs#content-project). Focused checks: `node --test tests/content-project.test.mjs`.
-
-
-### Project package metadata — reviewed 15 October 2026
-
-The same Get Ready project inspector now distinguishes the declared EmDash dependency from the fixed project-local package metadata found on disk. It supports contained npm/pnpm layouts and preserves external/shared, invalid or changing installations without running them. Version 2 project reports record this bounded observation; version 1 reports remain readable with installation unknown. A version on disk does not certify compatibility, a build, agent discovery or readiness. API, CLI, optional host-selected MCP and the private report viewer use the same interpretation. See [the core boundary](lib/get-ready/README.md#installed-emdash-package-observation).
-
-## Browser policy and Cloudflare detections
-
-Reviewed 15 October 2026 against Astro 7.3.5 and the [official Cloudflare JavaScript Detections guidance](https://developers.cloudflare.com/cloudflare-challenges/challenge-types/javascript-detections/). The shared public layout adds a fresh cryptographic 128-bit script nonce through Astro's [CSP runtime API](https://docs.astro.build/en/reference/api-reference/#csp). Astro retains its generated script/style hashes and other directives in the SSR response header; Cloudflare reads that header and nonces its own edge injection. Public HTML remains `no-store`. No arbitrary page content receives nonce attributes. Mounted apps and native admin retain their own policies.
-
-Use the rendered layout API: the installed runtime ignores additions made in middleware before its render result exists. Built isolated-preview browser checks confirm one fresh nonce per response, preserved hashes, working Init/theme/launcher scripts and rejection of both nonce-free and prior-response-nonce inline scripts. Live edge verification is required separately; successful execution is not a bot-score or human-verification claim.
-
-### Guest postcard receipt counter
-
-The optional server-only postcard receipt measure counts new pending acceptance, separately from page opens and owner publication. A first retained recorded receipt establishes an observed lower bound, not the date every publisher was enabled. Earlier history is unavailable; the first observed day is partial and later zero means no recorded receipt. The existing action metric keeps its previous meaning. See [the event contract](docs/analytics-events.md).
-
-The reviewed `0003_postcard_receipts.sql` migration extends the existing aggregate table while copying its rows unchanged. The production release guard refuses the old schema. Apply only to the verified Composer database, through the existing D1 migration path, with exact old-schema validation, retained aggregate snapshots, transaction-local copy equality and D1 rollback evidence; app-owned Guestbook records and media are outside that migration. Source tests do not prove live migration or publisher adoption.
-
-The native mini-app extension also understands the pinned Linkarooie achievement-collection descriptor. With a supported source it uses the app's own bounded achievement API for drafts, editing, explicit publication, ordering, hiding and removal. An older pin exposes no achievement controls or write action. Local achievement text survives app switching and snapshot failures; stale/removed records and unconfirmed writes require explicit comparison or discard. Owner role, Origin, CSRF, source identity and app-owned credentials remain required. This adds no public authoring or customer-workspace provisioning capability.
-
-Public release acceptance also checks matching page/Open Graph/X copy and the public JPEG with a bounded crawler-style request. Visual review covers readable artwork and link states without underlines; keyboard focus remains visible. Crawler checks do not prove a social platform has refreshed an existing cached card. Loftwah's reference profile excludes Bluesky by owner direction.
-
-The native mini-app extension also understands the additive pinned Linkarooie `tagCollection` version 1 descriptor: up to twelve short tags with optional explanation, source and related-work HTTPS references. Older pins expose no tag actions or editor. The app owns the versioned row and exact-revision writes; Composer retains one lifted draft across app switches/outages, specific field recovery, explicit publish/hide and the existing shared mutation lock. References are text and safe addresses, never fetched instructions or HTML. Public keyboard/Enter/Escape/focus checks and standalone/native-component owner recovery are qualified; exact live source/pin activation is recorded in #11.
+Local EmDash data is separate from production. A fresh checkout does not contain the owner's records, credentials or Access session. [The operator reference](docs/operator-reference.md) explains native administration, local setup, reference apps, selected accounts and generated projects.
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm dev` | Check generated application source and start local Astro |
+| `pnpm check:types` | Check strict source, emitted distributions and Astro |
+| `pnpm test` | Run the existing behavioural and boundary tests |
+| `pnpm check` | Run the current required quality gates |
+| `pnpm build` | Build and inspect the public artifact |
+| `pnpm source:write` | Explicitly regenerate checked runtime files |
+| `pnpm deploy` | Guarded clean pushed-main production release and live verification |
+| `pnpm ready` | Inspect the explicitly selected workspace and environment |
+| `pnpm init:site` | Generate an independent content project |
+| `pnpm wordpress:lab` | Operate the isolated fictional WordPress publisher fixture |
+
+[Engineering baseline and checker coverage](docs/engineering-baseline.md) · [Source map and generated-asset maintenance](docs/source-maintenance.md). The content-site recipe deliberately retains its separately exercised pnpm 12.9.1 lockfile. The remaining unchecked legacy source and whole-repository command gaps stay explicit in #175.
+
+## Independent apps
+
+| App | What it does | Source | Standalone |
+| --- | --- | --- | --- |
+| Here / there | Moderated photographs and visitor postcards | [Guestbook](https://github.com/loftwah/app-composer-guestbook) | [Open](https://guestbook.loftwah.com/) |
+| Linkarooie | Curated links and eligible source contributions | [Showcase](https://github.com/loftwah/app-composer-showcase) | [Open](https://showcase.loftwah.com/) |
+| Link Check | Inspect a destination and explain its findings | [Link Check](https://github.com/loftwah/app-composer-linkcheck) | [Open](https://share.loftwah.com/) |
+| Hello World | Small configurable starter for the Get Ready journey | [Hello](https://github.com/loftwah/app-composer-hello) | [Open](https://ready.loftwah.com/) |
+| Carry / forward | Fictional portable assistant state | [State](https://github.com/loftwah/app-composer-state) | [Open](https://ai.loftwah.com/) |
+
+Guestbook and Linkarooie also mount at `/guestbook` and `/showcase` through separately pinned Worker services. Guestbook owns provider/upload APIs and source eligibility; Linkarooie consumes those APIs and owns curation. Updating a standalone app does not silently promote its source into Composer. Carry / forward remains fictional-only until its separate security acceptance.
+
+## Find the right guide
+
+- [Documentation index](docs/README.md): current guides, source maps and detailed commands.
+- [Product](PRODUCT.md), [architecture](ARCHITECTURE.md), [design](DESIGN.md) and [interface standard](UNSLOP.md).
+- [Published demo workflow](docs/creator-stacks/demo-stacks.md), [workspace access](docs/workspace-access.md) and [WordPress observation ledger](labs/wordpress/weekender/OBSERVATIONS.md).
+- [Current delivery status](docs/STATUS.md) and [canonical release evidence](https://github.com/loftwah/app-composer/issues/11). Dated history is linked separately.
+
+Owner administration retains this installation's Cloudflare Access and native EmDash permission boundaries. Specs and exports are data, never credentials or execution authority. Code rollback, configuration rollback and content/media recovery have different coverage. New accounts, permissions, invitations, purchases and public arbitrary builds are separate gates.
+
+App Composer stays the product identity. Loftwah is its first reference creator; personal material belongs only on the appropriate owner surfaces. Artwork provenance and font licences travel with the assets. Real UI captures demonstrate software; generated artwork never substitutes for a screenshot.
+
+[Contributing](CONTRIBUTING.md) · [Code of conduct](CODE_OF_CONDUCT.md) · [Security](SECURITY.md) · [Accessibility](ACCESSIBILITY.md) · [MIT licence](LICENSE)
