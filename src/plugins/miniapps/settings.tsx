@@ -18,6 +18,9 @@ export function Settings({
   busy: boolean;
 }) {
   const [status, setStatus] = useState("");
+  const layouts =
+    appSettings[app].fields.find((field) => field.key === "layout")?.choices ??
+    [];
   const submit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const values = Object.fromEntries(new FormData(event.currentTarget));
@@ -77,11 +80,14 @@ export function Settings({
               change({ ...config, layout: event.target.value })
             }
           >
-            <option value="grid">Grid</option>
-            <option value="editorial">Editorial</option>
-            {app === "showcase" && (
-              <option value="compact">Compact links</option>
+            {!layouts.some((choice) => choice.value === config.layout) && (
+              <option value={config.layout}>{config.layout} (saved)</option>
             )}
+            {layouts.map((choice) => (
+              <option key={choice.value} value={choice.value}>
+                {choice.label}
+              </option>
+            ))}
           </select>
         </label>
       </div>

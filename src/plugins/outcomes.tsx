@@ -613,9 +613,14 @@ function WorkspaceOutcomes({ search }: { search: string }) {
             <section className="co-section co-classification">
               <h2>Classify future recording</h2>
               <p>
-                For this stack only. Choose demonstration for deliberate tests
-                or release exercises. Earlier activity stays as recorded;
-                unclassified does not mean customer demand.
+                For{" "}
+                <strong>
+                  {stacks.find((value) => value.id === setting.stack)?.name ??
+                    setting.stack}
+                </strong>{" "}
+                only. Choose demonstration for deliberate tests or release
+                exercises. Earlier activity stays as recorded; unclassified does
+                not mean customer demand.
               </p>
               <label>
                 Future traffic
@@ -649,31 +654,39 @@ function WorkspaceOutcomes({ search }: { search: string }) {
           )}
           <section className="co-section">
             <h2>Evidence and limits</h2>
-            <ul>
-              {report.limits.notes.map((note) => (
-                <li key={note}>{note}</li>
-              ))}
-            </ul>
             <p>
-              Action aggregates and idempotency receipts expire after{" "}
-              {report.limits.retentionDays} UTC days. At most{" "}
-              {report.limits.dailyCap} new outcomes per stack/day are retained.
-              Navigation and moderation keep working when recording is
-              unavailable.
+              These are retained action counts. Missing history is not a
+              measured zero, and demonstration traffic is separate from
+              unclassified activity.
             </p>
-            <h3>Unavailable measures</h3>
-            <dl>
-              {report.unavailable.map((value) => (
-                <div key={value.key}>
-                  <dt>{value.label}</dt>
-                  <dd>{value.reason}</dd>
-                </div>
-              ))}
-            </dl>
-            <p>
-              <a href="/activity">Public activity</a> uses its own public
-              aggregate definitions; it is not workspace attribution.
-            </p>
+            <details>
+              <summary>How these numbers work</summary>
+              <ul>
+                {report.limits.notes.map((note) => (
+                  <li key={note}>{note}</li>
+                ))}
+              </ul>
+              <p>
+                Action aggregates and idempotency receipts expire after{" "}
+                {report.limits.retentionDays} UTC days. At most{" "}
+                {report.limits.dailyCap} new outcomes per stack/day are
+                retained. Navigation and moderation keep working when recording
+                is unavailable.
+              </p>
+              <h3>Unavailable measures</h3>
+              <dl>
+                {report.unavailable.map((value) => (
+                  <div key={value.key}>
+                    <dt>{value.label}</dt>
+                    <dd>{value.reason}</dd>
+                  </div>
+                ))}
+              </dl>
+              <p>
+                <a href="/activity">Public activity</a> uses its own public
+                aggregate definitions; it is not workspace attribution.
+              </p>
+            </details>
           </section>
         </>
       )}
