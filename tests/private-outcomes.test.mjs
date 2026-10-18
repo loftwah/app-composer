@@ -653,6 +653,80 @@ test("stack deletion removes its private measurements without orphaning or chang
 
 // The private report reuses native role/membership, not a parallel analytics user.
 const privateModule = await import("../src/lib/private-outcomes.ts");
+test("one report snapshot cannot turn a concurrently arriving first action into zero while its target row says one", async () => {
+  const f = setup();
+  try {
+    const p = await page(f);
+    let inserted = false;
+    const arrive = () => {
+      if (inserted) return;
+      inserted = true;
+      f.sqlite
+        .prepare("INSERT INTO creator_outcome_daily VALUES(?,?,?,?,?,?,?,?,?)")
+        .run(
+          new Date().toISOString().slice(0, 10),
+          p.workspace.id,
+          p.stack.id,
+          "fictional-hello-instance",
+          "app_open_action",
+          "keyboard",
+          "same_tab",
+          "unclassified",
+          1,
+        );
+    };
+    const statement = (sql, params = []) => ({
+      sql,
+      params,
+      bind(...values) {
+        return statement(sql, values);
+      },
+      async all() {
+        const result = await f.db
+          .prepare(sql)
+          .bind(...params)
+          .all();
+        if (sql.includes("SELECT day,event,SUM")) arrive();
+        return result;
+      },
+    });
+    const racing = {
+      prepare: statement,
+      async batch(statements) {
+        const result = await f.db.batch(statements);
+        arrive();
+        return result;
+      },
+    };
+    const report = await privateModule.privateOutcomeReport(
+      racing,
+      p.workspace.id,
+      { action: "report" },
+    );
+    assert.equal(
+      report.metrics.find((metric) => metric.key === "app_open_action").value,
+      null,
+      "The snapshot predates the first retained action",
+    );
+    assert.deepEqual(
+      report.targets,
+      [],
+      "Coverage, metrics and targets must describe the same read snapshot",
+    );
+    const current = await privateModule.privateOutcomeReport(
+      f.db,
+      p.workspace.id,
+      { action: "report" },
+    );
+    assert.equal(
+      current.metrics.find((metric) => metric.key === "app_open_action").value,
+      1,
+    );
+    assert.equal(current.targets[0].n, 1);
+  } finally {
+    f.close();
+  }
+});
 const native = (f, actor, input, reading = true, headers = {}) =>
   privateModule.managePrivateOutcomes(
     {

@@ -184,18 +184,64 @@ export async function privateOutcomeReport(
     scopeValues[3],
     scopeValues[3],
   ];
-  const rows = await db
+  const rowQuery = db
     .prepare(
       `SELECT day,event,SUM(n) AS n FROM creator_outcome_daily WHERE ${scope} AND day>=? AND day<=? GROUP BY day,event ORDER BY day,event`,
     )
-    .bind(...values, priorFrom > retainedFrom ? priorFrom : retainedFrom, to)
-    .all<{ day: string; event: OutcomeEvent; n: number }>();
-  const coverage = await db
+    .bind(...values, priorFrom > retainedFrom ? priorFrom : retainedFrom, to);
+  const coverageQuery = db
     .prepare(
       `SELECT event,MIN(day) AS first FROM creator_outcome_daily WHERE ${scope} AND day>=? AND day<=? GROUP BY event`,
     )
-    .bind(...values, retainedFrom, today)
-    .all<{ event: OutcomeEvent; first: string }>();
+    .bind(...values, retainedFrom, today);
+  const snapshotScope = `s.workspace_id=? AND (?='' OR s.id=?) AND (?='' OR EXISTS(SELECT 1 FROM json_each(CASE WHEN json_valid(p.document_json) THEN p.document_json ELSE '{}' END,'$.instances') i WHERE json_extract(i.value,'$.id')=?))`;
+  const snapshotQuery = db
+    .prepare(
+      `SELECT substr(p.published_at,1,10) AS day,COUNT(*) AS n FROM creator_stack_publications p JOIN creator_stacks s ON s.id=p.stack_id
+    WHERE ${snapshotScope} AND p.published_at>=? AND p.published_at<? GROUP BY substr(p.published_at,1,10) ORDER BY day`,
+    )
+    .bind(
+      workspace,
+      input.stack ?? "",
+      input.stack ?? "",
+      input.instance ?? "",
+      input.instance ?? "",
+      priorFrom,
+      shift(to, 1),
+    );
+  const targetQuery = db
+    .prepare(
+      `SELECT stack_id AS stack,instance_id AS instance,event,SUM(n) AS n FROM creator_outcome_daily WHERE ${scope} AND day>=? AND day<=?
+    GROUP BY stack_id,instance_id,event ORDER BY n DESC,stack_id,instance_id,event LIMIT 40`,
+    )
+    .bind(...values, from > retainedFrom ? from : retainedFrom, to);
+  // Metrics, coverage, history and targets share one D1 transaction snapshot.
+  // A new arrival cannot create a target that is absent from the metric total.
+  const batch = await db.batch([
+    rowQuery,
+    coverageQuery,
+    snapshotQuery,
+    targetQuery,
+  ]);
+  const rows = {
+      results: batch[0].results as {
+        day: string;
+        event: OutcomeEvent;
+        n: number;
+      }[],
+    },
+    coverage = {
+      results: batch[1].results as { event: OutcomeEvent; first: string }[],
+    },
+    snapshots = { results: batch[2].results as { day: string; n: number }[] },
+    targets = {
+      results: batch[3].results as {
+        stack: string;
+        instance: string;
+        event: OutcomeEvent;
+        n: number;
+      }[],
+    };
   const daysInWindow = dateRange(from, to);
   const metrics: OutcomeMetric[] = outcomeEvents.map((key) => {
     const first = coverage.results.find((r) => r.event === key)?.first ?? null;
@@ -248,22 +294,6 @@ export async function privateOutcomeReport(
       })),
     };
   });
-  const snapshotScope = `s.workspace_id=? AND (?='' OR s.id=?) AND (?='' OR EXISTS(SELECT 1 FROM json_each(CASE WHEN json_valid(p.document_json) THEN p.document_json ELSE '{}' END,'$.instances') i WHERE json_extract(i.value,'$.id')=?))`;
-  const snapshots = await db
-    .prepare(
-      `SELECT substr(p.published_at,1,10) AS day,COUNT(*) AS n FROM creator_stack_publications p JOIN creator_stacks s ON s.id=p.stack_id
-    WHERE ${snapshotScope} AND p.published_at>=? AND p.published_at<? GROUP BY substr(p.published_at,1,10) ORDER BY day`,
-    )
-    .bind(
-      workspace,
-      input.stack ?? "",
-      input.stack ?? "",
-      input.instance ?? "",
-      input.instance ?? "",
-      priorFrom,
-      shift(to, 1),
-    )
-    .all<{ day: string; n: number }>();
   const snapshotCount = (start: string, through: string) =>
     snapshots.results
       .filter((r) => r.day >= start && r.day <= through)
@@ -288,13 +318,6 @@ export async function privateOutcomeReport(
       value: snapshots.results.find((r) => r.day === date)?.n ?? 0,
     })),
   });
-  const targets = await db
-    .prepare(
-      `SELECT stack_id AS stack,instance_id AS instance,event,SUM(n) AS n FROM creator_outcome_daily WHERE ${scope} AND day>=? AND day<=?
-    GROUP BY stack_id,instance_id,event ORDER BY n DESC,stack_id,instance_id,event LIMIT 40`,
-    )
-    .bind(...values, from > retainedFrom ? from : retainedFrom, to)
-    .all<{ stack: string; instance: string; event: OutcomeEvent; n: number }>();
   return {
     schema: "composer.private-outcomes/1",
     generatedAt: now.toISOString(),
