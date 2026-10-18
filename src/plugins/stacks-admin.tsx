@@ -11,6 +11,7 @@ import {
 import type { ResourceBinding } from "./stacks/protocol";
 import { ResourceContent, type ResourceContentAction } from "./stacks/resource-content";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "@tanstack/react-router";
 import type { PluginAdminExports } from "emdash";
 import {
   call as stackCall,
@@ -58,6 +59,14 @@ const newInstance = (app: string) => ({
 type Draft = { document: StackDocument; generation: number };
 
 export function StudioPage() {
+  const search = useLocation({ select: (location) => location.searchStr });
+  return <WorkspaceStudio key={search} search={search} />;
+}
+
+// EmDash retains plugin pages during same-page query navigation. A confirmed
+// route change starts a new editor scope, after the current editor's blocker
+// has protected its unsaved work and pending operations.
+function WorkspaceStudio({ search }: { search: string }) {
   const scope = useRef<{ workspace?: string; error?: Error }>({});
   const call = useCallback(async (action: string, fields: Record<string, unknown> = {}) => {
     if (scope.current.error) throw scope.current.error;
@@ -110,7 +119,7 @@ export function StudioPage() {
   const latestNewName = useRef("");
 
   useEffect(() => {
-    try { scope.current.workspace = workspaceSelection(window.location.search); }
+    try { scope.current.workspace = workspaceSelection(search); }
     catch (cause) { scope.current.error = cause instanceof Error ? cause : Error('Choose a workspace from Workspace access.'); }
   }, []);
 
@@ -1421,6 +1430,7 @@ export function StudioPage() {
               {current && editable && managedInstance &&
                 document.instances.some(instance => instance.id === managedInstance) && (
                   <ResourceContent key={`${current.id}:${managedInstance}`}
+                    request={call}
                     stack={current} instance={managedInstance} busy={busy}
                     uncertain={needsReconciliation} onAction={contentAction}
                     onClose={() => setManagedInstance(undefined)} />

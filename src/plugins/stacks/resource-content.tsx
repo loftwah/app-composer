@@ -13,10 +13,12 @@ function PrivatePostcard({
   stack,
   book,
   item,
+  request,
 }: {
   stack: Stack;
   book: ResourceBook;
   item: ResourceBook["items"][number];
+  request: typeof call;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [state, setState] = useState("loading");
@@ -25,7 +27,7 @@ function PrivatePostcard({
     setState("loading");
     void (async () => {
       try {
-        const { media } = await call("resourceMedia", {
+        const { media } = await request("resourceMedia", {
           stack: stack.id,
           instance: book.instance,
           expectedRevision: stack.revision,
@@ -59,6 +61,7 @@ function PrivatePostcard({
       active = false;
     };
   }, [
+    request,
     stack.id,
     stack.revision,
     book.resource,
@@ -92,6 +95,7 @@ export function ResourceContent({
   uncertain,
   onAction,
   onClose,
+  request,
 }: {
   stack: Stack;
   instance: string;
@@ -99,6 +103,7 @@ export function ResourceContent({
   uncertain: boolean;
   onAction: ResourceContentAction;
   onClose: () => void;
+  request: typeof call;
 }) {
   const [book, setBook] = useState<ResourceBook>();
   const [refresh, setRefresh] = useState(0);
@@ -109,7 +114,7 @@ export function ResourceContent({
     setBook(undefined);
     setFailure("");
     setPreviews([]);
-    void call("resourceContent", {
+    void request("resourceContent", {
       stack: stack.id,
       instance,
       expectedRevision: stack.revision,
@@ -132,7 +137,7 @@ export function ResourceContent({
     return () => {
       active = false;
     };
-  }, [stack.id, stack.revision, instance, refresh]);
+  }, [request, stack.id, stack.revision, instance, refresh]);
 
   const act = (change: ResourceContentChange | null | "retry") =>
     onAction(instance, change, (data) => {
@@ -286,7 +291,7 @@ export function ResourceContent({
               <article key={item.id}>
                 <div>
                   {previews.includes(item.id) ? (
-                    <PrivatePostcard stack={stack} book={book} item={item} />
+                    <PrivatePostcard stack={stack} book={book} item={item} request={request} />
                   ) : (
                     <button
                       type="button"
