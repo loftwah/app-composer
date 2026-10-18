@@ -18,6 +18,7 @@ const activation = z
   .object({
     contract: z.literal(1),
     publication: revision,
+    publicationKey: z.string().regex(/^[a-f0-9]{64}$/),
     token: z
       .string()
       .regex(
@@ -27,6 +28,18 @@ const activation = z
     disposition: z.enum(["same_tab", "new_tab"]),
   })
   .strict();
+
+// A revision can recur when a slug is deleted and recreated. This public,
+// opaque key binds an activation to one immutable stack/publication identity.
+export async function publicationActionKey(stack: string, revision: number) {
+  const bytes = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(`composer.stack-actions/1\0${stack}\0${revision}`),
+  );
+  return Array.from(new Uint8Array(bytes), (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  ).join("");
+}
 export interface OutcomeRuntime {
   DB?: D1Database;
   PUBLIC_ORIGIN?: unknown;
@@ -171,6 +184,11 @@ export async function collectStackAction(
   try {
     const stack = await publicStack(runtime.DB, slug);
     if (!stack || stack.revision !== input.publication) return empty();
+    if (
+      input.publicationKey !==
+      (await publicationActionKey(stack.id, stack.revision))
+    )
+      return empty();
     const target = stack.document.instances.find(
       (value: { id: string }) => value.id === instance,
     );

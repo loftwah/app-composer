@@ -18,7 +18,7 @@ Scoped Linkarooie card actions, enquiries, scoped guest submissions, external de
 
 ## Scope and collection
 
-Public collection accepts a versioned fixed body containing only the current publication revision, supported activation enums and a random token generated for that activation. Slug/instance selectors resolve the current published stack and workspace on the server. No body field selects a workspace, app, destination or record owner. Draft, archived, missing, invisible, stale or invalid instances cannot record.
+Public collection accepts a versioned fixed body containing only the current publication revision, an opaque immutable publication key, supported activation enums and a random token generated for that activation. Slug/instance selectors resolve the current published stack and workspace on the server. No body field selects a workspace, app, destination or record owner. Draft, archived, missing, invisible, stale or invalid instances cannot record. A deleted/recreated slug cannot receive an old page’s action even when its numeric revision and instance IDs happen to match.
 
 No visitor IDs, cookies, IP addresses, entered URLs, raw referrers, captions, account emails, search text or app content enter the aggregate store or export. The opaque token deduplicates one delivery and expires with the counters; it is never reused across actions. There is no cross-domain beacon or analytics provider.
 
