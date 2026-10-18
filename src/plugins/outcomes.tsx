@@ -107,6 +107,7 @@ function Timeline({ metric }: { metric: OutcomeMetric }) {
         Inspect a day{" "}
         <input
           type="range"
+          aria-label="Inspect a day"
           min="0"
           max={metric.daily.length - 1}
           value={index}
@@ -363,6 +364,7 @@ function WorkspaceOutcomes({ search }: { search: string }) {
           <label>
             Stack
             <select
+              aria-label="Stack"
               value={filters.stack}
               disabled={busy}
               onChange={(event) => change("stack", event.target.value)}
@@ -378,6 +380,7 @@ function WorkspaceOutcomes({ search }: { search: string }) {
           <label>
             App instance
             <select
+              aria-label="App instance"
               value={filters.instance}
               disabled={
                 busy || !filters.stack || filters.stack !== applied?.stack
@@ -395,6 +398,7 @@ function WorkspaceOutcomes({ search }: { search: string }) {
           <label>
             Window
             <select
+              aria-label="Window"
               value={filters.days}
               disabled={busy}
               onChange={(event) =>
@@ -408,6 +412,7 @@ function WorkspaceOutcomes({ search }: { search: string }) {
           <label>
             Through
             <select
+              aria-label="Through"
               value={filters.end}
               disabled={busy}
               onChange={(event) =>
@@ -421,6 +426,7 @@ function WorkspaceOutcomes({ search }: { search: string }) {
           <label>
             Recorded traffic
             <select
+              aria-label="Recorded traffic"
               value={filters.traffic}
               disabled={busy}
               onChange={(event) =>
@@ -614,6 +620,7 @@ function WorkspaceOutcomes({ search }: { search: string }) {
               <label>
                 Future traffic
                 <select
+                  aria-label="Future traffic"
                   value={trafficChoice}
                   disabled={busy || changedFilters}
                   onChange={(event) =>
