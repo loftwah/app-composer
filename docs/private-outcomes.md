@@ -24,7 +24,7 @@ No visitor IDs, cookies, IP addresses, entered URLs, raw referrers, captions, ac
 
 The owner may explicitly classify a stack's **future** recorded activity as demonstration traffic. The setting is workspace-authorized, revision-guarded and read by the collector. A public payload or URL cannot choose that classification. Earlier records stay unclassified. Marked verification/release probes and confidently recognized robots are excluded; unmarked demonstrations, automation and bots may still count. Unclassified traffic is not evidence of customer demand.
 
-New aggregates and activation receipts expire after 35 UTC days. Daily counts are capped at 1,000 per stack; public ingestion also uses the existing bounded location rate limiter. Caps, outage and best-effort delivery make counts lower bounds. Existing app journals/publication history retain their existing ownership and lifecycle; this feature does not silently delete or copy them.
+New aggregates and activation receipts expire after 35 UTC days. Deleting a stack also removes its outcome rows, so remaining totals can fall and deleted-stack activity becomes unavailable. Daily counts are capped at 1,000 per stack; public ingestion also uses the existing bounded location rate limiter. Caps, outage and best-effort delivery make counts lower bounds. Existing app journals/publication history retain their existing ownership and lifecycle; this feature does not silently delete or copy them.
 
 ## Reporting and export
 

@@ -9,6 +9,7 @@ import {
   publishStack,
   readStack,
   setArchived,
+  deleteStack,
 } from "../src/lib/stacks.mjs";
 import { applyStackResources } from "../src/lib/stack-resources.ts";
 import {
@@ -592,6 +593,59 @@ test("35-day retention removes only analytics rows and leaves app journals, publ
       (await readStack(f.db, p.workspace.id, p.stack.id)).revision,
       p.stack.revision,
     );
+  } finally {
+    f.close();
+  }
+});
+
+test("stack deletion removes its private measurements without orphaning or changing another workspace's retained data", async () => {
+  const f = setup();
+  try {
+    const a = await page(f),
+      b = await page(f, "Fictional other workspace", {
+        ...user,
+        id: "fictional-other-creator",
+      });
+    for (const p of [a, b])
+      await collectStackAction(
+        request(p.stack),
+        runtime(f),
+        p.stack.slug,
+        "fictional-hello-instance",
+      );
+    const before = f.sqlite
+      .prepare("SELECT * FROM creator_outcome_daily WHERE workspace_id=?")
+      .all(b.workspace.id);
+    await deleteStack(
+      f.db,
+      a.workspace.id,
+      a.stack.id,
+      a.stack.revision,
+      user.id,
+    );
+    assert.equal(
+      f.sqlite
+        .prepare(
+          "SELECT COUNT(*) n FROM creator_outcome_daily WHERE workspace_id=?",
+        )
+        .get(a.workspace.id).n,
+      0,
+    );
+    assert.equal(
+      f.sqlite
+        .prepare(
+          "SELECT COUNT(*) n FROM creator_outcome_receipts WHERE stack_id=?",
+        )
+        .get(a.stack.id).n,
+      0,
+    );
+    assert.deepEqual(
+      f.sqlite
+        .prepare("SELECT * FROM creator_outcome_daily WHERE workspace_id=?")
+        .all(b.workspace.id),
+      before,
+    );
+    assert.deepEqual(f.sqlite.prepare("PRAGMA foreign_key_check").all(), []);
   } finally {
     f.close();
   }
