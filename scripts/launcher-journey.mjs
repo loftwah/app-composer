@@ -95,6 +95,11 @@ export async function verifyCommandMenu(page, url) {
   ensure(await brand.locator('img').evaluate(image => image.complete && image.naturalWidth === 96), 'Composer artwork is not decoded');
   const order = await dialog.locator('[data-launcher-group=apps] a > span:not(.task-icon)').evaluateAll(nodes => nodes.map(node => node.firstChild.textContent));
   ensure(JSON.stringify(order) === JSON.stringify(['Linkarooie', 'Here / there', 'Link Check', 'Hello World', 'Carry / forward']), 'app order differs across menus');
+  await search.fill('Hello World');
+  for (const composition of [{isComposing: true, keyCode: 13}, {isComposing: false, keyCode: 229}]) {
+    await search.evaluate((input, shape) => input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true, cancelable: true, ...shape})), composition);
+    ensure(await dialog.isVisible() && page.url() === url, 'IME confirmation activated a destination');
+  }
   await search.fill('website icons');
   ensure(await dialog.locator('[data-destination]:visible').count() === 1, 'task aliases did not match');
   ensure((await dialog.locator('[data-destination]:visible').textContent()).includes('Link Check'), 'task alias chose the wrong app');

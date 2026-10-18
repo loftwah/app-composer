@@ -309,7 +309,7 @@
   // Safari can omit links from sequential keyboard focus when Full Keyboard
   // Access is disabled. Keep Tab within the menu with the same visible controls.
   dialog.addEventListener("keydown", event => {
-    if (event.isComposing || event.altKey || event.metaKey || event.ctrlKey) return;
+    if (event.isComposing || event.keyCode === 229 || event.altKey || event.metaKey || event.ctrlKey) return;
     // Search inputs consume Escape to clear text in some engines. Closing the
     // command menu must work on the first press, including a nonempty query.
     if (event.key === "Escape") { event.preventDefault(); close(); return; }
@@ -348,6 +348,7 @@
   });
   // The shortcut enters search from any ordinary page control.
   document.addEventListener("keydown", event => {
+    if (event.isComposing || event.keyCode === 229) return;
     if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "k") {
       event.preventDefault();
       if (!dialog.open) open(true);
@@ -356,7 +357,7 @@
   });
   search?.addEventListener("input", filter);
   search?.addEventListener("keydown", event => {
-    if (event.key !== "Enter" || event.isComposing) return;
+    if (event.key !== "Enter" || event.isComposing || event.keyCode === 229) return;
     const first = (activeEntry ?? entries.find(entry => !entry.hidden))?.querySelector("a");
     if (first) {
       event.preventDefault();
