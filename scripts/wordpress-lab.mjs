@@ -568,6 +568,7 @@ async function transport(run) {
     /^https:\/\/[a-z0-9-]+\.trycloudflare\.com$/.test(run.sourceOrigin)
   ) {
     const health = await fetch(run.sourceOrigin + "/wp-json/", {
+      redirect: "error",
       signal: AbortSignal.timeout(15000),
     });
     if (
@@ -597,6 +598,7 @@ async function transport(run) {
         "127.0.0.1:0",
       ],
       {
+        detached: true,
         env: {
           PATH: process.env.PATH,
           HOME: join(run.root, "home"),
@@ -636,6 +638,78 @@ async function transport(run) {
     }
     if (!origin)
       throw Error("The bounded temporary HTTPS source did not become ready.");
+    // A URL banner does not prove that the remote edge can reach WordPress.
+    // Own a separate process group so returning this short CLI does not end
+    // its transport. The registered source controller still stops this exact
+    // verified PID during source-off/finally cleanup.
+    let ready = false;
+    const observations = [];
+    const readinessDeadline = Date.now() + 180000;
+    for (let attempt = 0; Date.now() < readinessDeadline; attempt++) {
+      if (startupError || child.exitCode !== null || child.signalCode !== null)
+        throw Error(
+          "The owned HTTPS transport exited before source readiness.",
+        );
+      try {
+        const response = await fetch(origin + "/wp-json/", {
+          redirect: "manual",
+          signal: AbortSignal.timeout(2000),
+        });
+        const observation = {
+          attempt: attempt + 1,
+          at: new Date().toISOString(),
+          status: response.status,
+          markerMatches: false,
+        };
+        observations.push(observation);
+        if (response.ok) {
+          const reader = response.body.getReader();
+          const chunks = [];
+          let length = 0;
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              length += value.byteLength;
+              if (length > 2 * 1024 * 1024)
+                throw Error("Source health response exceeds its bound.");
+              chunks.push(Buffer.from(value));
+            }
+          } finally {
+            await reader.cancel();
+          }
+          if (
+            JSON.parse(Buffer.concat(chunks).toString("utf8")).name ===
+            "Macedon Weekender — fictional lab"
+          ) {
+            observation.markerMatches = true;
+            ready = true;
+            break;
+          }
+        }
+      } catch (error) {
+        observations.push({
+          attempt: attempt + 1,
+          at: new Date().toISOString(),
+          requestFailed: true,
+          ...(typeof error?.cause?.code === "string" &&
+          /^[A-Z_]{1,60}$/.test(error.cause.code)
+            ? { code: error.cause.code }
+            : {}),
+        });
+        // Bounded initial edge/DNS readiness only. This operation does not
+        // retry content/media import or change source URLs while unhealthy.
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+    writeFileSync(
+      join(dirname(runPath), "transport-health.json"),
+      JSON.stringify({ origin, ready, observations }, null, 2) + "\n",
+    );
+    if (!ready)
+      throw Error(
+        "The temporary HTTPS source is not ready; source URLs were preserved.",
+      );
     if (wp(run, ["option", "get", "composer_weekender_fixture"]).trim() !== "1")
       throw Error(
         "Select the seeded fictional source before source URL changes.",

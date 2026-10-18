@@ -84,6 +84,181 @@ function registeredRun(root) {
   return { owned, registry };
 }
 
+function transportFixture(root, exitsEarly = false) {
+  // OS/process and refusal injection only. No network/WordPress acceptance.
+  const { owned, registry } = registeredRun(root);
+  const repository = join(root, "fixture-repository");
+  mkdirSync(join(repository, "scripts"), { recursive: true });
+  mkdirSync(join(repository, "labs/wordpress/weekender"), { recursive: true });
+  const copiedScript = join(repository, "scripts/wordpress-lab.mjs");
+  writeFileSync(copiedScript, readFileSync(script));
+  const vendor = join(owned, "cloudflared");
+  const bytes = `#!${process.execPath}\nprocess.stdout.write('https://controlled-weekender-lifecycle.trycloudflare.com\\n');${exitsEarly ? "process.exit(0);" : "setInterval(()=>{},1000);"}\n`;
+  writeFileSync(vendor, bytes, { mode: 0o755 });
+  const pins = JSON.parse(
+    readFileSync(
+      new URL("../labs/wordpress/weekender/versions.json", import.meta.url),
+    ),
+  );
+  pins.cloudflared.binarySHA256 = createHash("sha256")
+    .update(bytes)
+    .digest("hex");
+  writeFileSync(
+    join(repository, "labs/wordpress/weekender/versions.json"),
+    JSON.stringify(pins),
+  );
+  const preload = join(root, "controlled-source-health.mjs");
+  writeFileSync(
+    preload,
+    `globalThis.fetch=async url=>{if(new URL(url).hostname!=='controlled-weekender-lifecycle.trycloudflare.com')throw Error('Unexpected fixture network');return new Response(JSON.stringify({name:'Macedon Weekender — fictional lab'}));};`,
+  );
+  const marker = join(root, "docker-commands.jsonl");
+  writeFileSync(
+    join(root, "bin/docker"),
+    `#!${process.execPath}
+const fs=require('node:fs'),path=require('node:path');const args=process.argv.slice(2);fs.appendFileSync(${JSON.stringify(marker)},JSON.stringify(args)+'\\n');const owned=args[args.indexOf('--project-directory')+1];
+if(args.includes('get')&&args.includes('composer_weekender_fixture'))console.log('1');
+else if(args.includes('eval-file'))console.log(JSON.stringify({version:'7.1.3',fictional:true,articles:[{status:'publish',url:'https://controlled-weekender-lifecycle.trycloudflare.com/fictional'}],pages:[]}));
+else if(args.includes('export'))fs.writeFileSync(path.join(owned,'evidence/weekender.xml'),'<wp:wxr_version>TRANSPORT_LIFECYCLE_FIXTURE_ONLY</wp:wxr_version>');
+else if(args.includes('version'))console.log(args.includes('core')?'7.1.3':'WP-CLI 2.12.0');
+else if(args.includes('eval'))console.log('8.3.35');
+else if(args.includes('--version'))console.log('MariaDB transport lifecycle fixture');
+`,
+    { mode: 0o755 },
+  );
+  return { owned, registry, copiedScript, preload, marker, vendor };
+}
+
+async function stopFixtureVendor(value) {
+  const run = JSON.parse(readFileSync(value.registry));
+  const pid = run.cloudflared?.pid;
+  if (!Number.isSafeInteger(pid)) return;
+  const command = spawnSync("ps", ["-p", String(pid), "-o", "command="], {
+    encoding: "utf8",
+  }).stdout;
+  if (!command) return;
+  assert(
+    command.includes(value.vendor),
+    "Never stop a PID outside this exact fixture.",
+  );
+  process.kill(pid, "SIGTERM");
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const remaining = spawnSync("ps", ["-p", String(pid), "-o", "command="], {
+      encoding: "utf8",
+    }).stdout;
+    if (!remaining.includes(value.vendor)) return;
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+  throw Error("The exact owned fixture transport did not exit before cleanup.");
+}
+
+test(
+  "a source transport survives cleanup of its short-lived CLI process group",
+  { skip: process.platform !== "darwin" || process.arch !== "arm64" },
+  () =>
+    fixture(async (root) => {
+      const value = transportFixture(root);
+      try {
+        const result = spawnSync(
+          process.execPath,
+          [
+            "--import",
+            value.preload,
+            value.copiedScript,
+            "transport",
+            "--run",
+            value.registry,
+          ],
+          {
+            encoding: "utf8",
+            timeout: 20000,
+            detached: true,
+            env: {
+              PATH: join(root, "bin") + delimiter + process.env.PATH,
+              HOME: join(root, "home"),
+              TMPDIR: join(root, "tmp"),
+            },
+          },
+        );
+        assert.equal(result.status, 0, result.stderr);
+        const run = JSON.parse(readFileSync(value.registry));
+        try {
+          process.kill(-result.pid, "SIGTERM");
+        } catch (error) {
+          if (error.code !== "ESRCH") throw error;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        const alive = spawnSync(
+          "ps",
+          ["-p", String(run.cloudflared.pid), "-o", "command="],
+          { encoding: "utf8" },
+        ).stdout;
+        assert(
+          alive.includes(value.vendor),
+          "The selected source tunnel must outlive the command that started it.",
+        );
+        assert.equal(
+          run.sourceOrigin,
+          "https://controlled-weekender-lifecycle.trycloudflare.com",
+        );
+      } finally {
+        await stopFixtureVendor(value);
+      }
+    }),
+);
+
+test(
+  "a source URL banner followed by process exit cannot rewrite the WordPress source",
+  { skip: process.platform !== "darwin" || process.arch !== "arm64" },
+  () =>
+    fixture(async (root) => {
+      const value = transportFixture(root, true);
+      try {
+        const result = spawnSync(
+          process.execPath,
+          [
+            "--import",
+            value.preload,
+            value.copiedScript,
+            "transport",
+            "--run",
+            value.registry,
+          ],
+          {
+            encoding: "utf8",
+            timeout: 20000,
+            env: {
+              PATH: join(root, "bin") + delimiter + process.env.PATH,
+              HOME: join(root, "home"),
+              TMPDIR: join(root, "tmp"),
+            },
+          },
+        );
+        assert.notEqual(result.status, 0);
+        assert.match(result.stderr, /transport exited before source readiness/);
+        const run = JSON.parse(readFileSync(value.registry));
+        assert.equal(run.sourceOrigin, "http://localhost:12345");
+        const commands = existsSync(value.marker)
+          ? readFileSync(value.marker, "utf8")
+              .trim()
+              .split("\n")
+              .map(JSON.parse)
+          : [];
+        assert.equal(
+          commands.some(
+            (args) =>
+              args.includes("search-replace") ||
+              args.includes("update") ||
+              args.includes("export"),
+          ),
+          false,
+        );
+      } finally {
+        await stopFixtureVendor(value);
+      }
+    }),
+);
+
 test("changed or incomplete source recovery points refuse before a new runtime exists", () =>
   fixture((root) => {
     const marker = fakeDocker(root);
