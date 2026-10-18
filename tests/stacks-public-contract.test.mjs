@@ -29,7 +29,7 @@ test('the published page renders one shared component and the publication snapsh
   assert.match(page, /import StackView from '\.\.\/\.\.\/components\/StackView\.tsx'/);
   assert.match(page, /import StackShare from '\.\.\/\.\.\/components\/StackShare\.astro'/);
   assert.match(page, /stack = await publicStack\(runtime\.DB, Astro\.params\.slug \?\? ''\)/);
-  assert.match(page, /<StackView document=\{stack\.document\} link titleAs="h1" \/>/);
+  assert.match(page, /<StackView document=\{stack\.document\} link titleAs="h1" outcomes=\{\{slug:stack\.slug,publication:stack\.revision,key:actionKey\}\} \/>/);
   assert.match(page, /title=\{stack\.name\}/);
   assert.match(page, /description=\{description\}/);
   // A stack never becomes indexable from a draft or a missing publication.

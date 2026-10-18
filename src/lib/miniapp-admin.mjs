@@ -1,4 +1,5 @@
 import {profileSettingsCommand,profileSettingsResult} from './miniapp-profile-settings.mjs';
+import {manageMiniappCollection} from './miniapp-collection.ts';
 import {achievementCommand,achievementCollection} from './miniapp-achievements.mjs';
 import {tagCommand} from './miniapp-tags.mjs';
 import {tagCollection} from './miniapp-tag-fields.mjs';
@@ -23,11 +24,13 @@ export async function manageMiniapps(ctx, runtime, pins) {
  const command = ctx.input;
  if (!command || typeof command !== 'object' || Array.isArray(command)) return fail('INVALID', 'Choose a supported app action.');
  const action = command.action;
- const reading = action === 'snapshot' || action === 'preview' || (action==='profile-settings'&&command.operation==='export');
+ const collection = ['collection-sources','collection-items','collection-check','feature-resource'].includes(action);
+ const reading = action === 'snapshot' || action === 'preview' || (collection && action!=='feature-resource') || (action==='profile-settings'&&command.operation==='export');
  if (request.method !== (reading ? 'GET' : 'POST')) return fail('METHOD', 'This action uses a different request method.');
  if (!reading && (request.headers.get('Origin') !== origin || request.headers.get('X-EmDash-Request') !== '1')) return fail('FORBIDDEN', 'Refresh Composer administration before saving.');
  const app = command.app;
  if (!ids.has(app)) return fail('INVALID', 'Choose Guestbook or Linkarooie.');
+ if (collection) return manageMiniappCollection(ctx,runtime,pins);
  let path, body;
  if (action === 'snapshot') path = '/api/export';
  else if(action==='profile-settings'&&app==='showcase'&&appSettings.showcase.profileSettings?.version===1){

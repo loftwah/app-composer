@@ -6,6 +6,7 @@ import {health,pageEvent,postcardReceiptEvent} from '../lib/usage/publisher.mjs'
 import {usageSummary} from './lib/usage';
 import {portfolioWindow,portfolioSummary} from '../lib/usage/portfolio.mjs';
 import build from './lib/build.json';
+import {purgePrivateOutcomes} from './lib/private-outcome-events';
 type Runtime=AccessRuntime & {DB:D1Database;PUBLIC_ORIGIN:string;USAGE_TOKENS?:string;USAGE_LIMIT?:RateLimit};
 export { PluginBridge };
 const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runtime:Runtime,context:ExecutionContext)=>{
@@ -29,5 +30,6 @@ const cmsScheduled=createScheduledHandler();
 export default {...handler,fetch:guardedFetch,scheduled:async(controller:ScheduledController,runtime:Runtime,context:ExecutionContext)=>{
  const date=new Date(controller.scheduledTime);
  if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(purge(runtime.DB,date).catch(()=>{console.error('Daily count retention unavailable');}));
+ if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(purgePrivateOutcomes(runtime.DB,date).catch(()=>{console.error('Private outcome retention unavailable');}));
  return cmsScheduled(controller,runtime,context);
 }};

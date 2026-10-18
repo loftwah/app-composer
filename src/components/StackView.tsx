@@ -66,12 +66,15 @@ export function StackView({
   link = false,
   compact = false,
   titleAs: Title = "h2",
+  outcomes,
 }: {
   document: StackViewDocument;
   link?: boolean;
   compact?: boolean;
   /** The public page supplies the page's own h1; the editor preview reads as a section. */
   titleAs?: "h1" | "h2";
+  /** Set only by the published public page; native previews never collect. */
+  outcomes?: { slug: string; publication: number; key: string };
 }): ReactElement {
   const tokens = themeTokens(document.theme);
   const theme =
@@ -88,6 +91,9 @@ export function StackView({
     <div
       className={`stack-view${compact ? " stack-view-compact" : ""}`}
       data-stack-theme={theme}
+      data-outcome-slug={outcomes?.slug}
+      data-outcome-publication={outcomes?.publication}
+      data-outcome-key={outcomes?.key}
     >
       <Title className="stack-view-title">{document.name}</Title>
       {document.description ? (
@@ -171,6 +177,7 @@ export function StackView({
                     {" · "}
                     <a
                       href={href}
+                      data-outcome-instance={outcomes && instance.app !== "state" ? instance.id : undefined}
                       target={external ? "_blank" : undefined}
                       rel={external ? "noopener noreferrer" : undefined}
                     >

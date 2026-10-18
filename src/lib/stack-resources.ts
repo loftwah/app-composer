@@ -1,4 +1,5 @@
 import type { D1Database, D1PreparedStatement } from '@cloudflare/workers-types';
+import { prepareModerationOutcome, recordModerationOutcome } from './private-outcome-proof.ts';
 import { z } from 'zod';
 import type { Stack, StackDocument, StackInstance } from '../plugins/stacks/api';
 import { membership, requireCapability, normaliseStack, StackError } from './stacks.mjs';
@@ -45,6 +46,7 @@ export interface ResourceOperationResult {
 }
 interface MutationContext {
   db: D1Database; user: string; workspace: string; row: StackRow; document: StackDocument;
+  measureOutcomes?: boolean;
 }
 const conflict = () => new StackError('CONFLICT', 'This stack changed while the app operation was running. Keep your edits and reconcile its resource before retrying.', 409);
 const id = (value: unknown): value is string => typeof value === 'string' && /^[a-z0-9-]{6,64}$/.test(value);
@@ -153,6 +155,10 @@ async function record(ctx: MutationContext, operation: OperationRow, outcome: Re
         active ? configuration.source : null, active ? JSON.stringify(configuration.values) : null,
         operation.resource_id, reply?.resource.version ?? null, ...values),
   ]);
+  if (ctx.measureOutcomes !== false && outcome.outcome === 'applied' && operation.action === 'moderate') {
+    try { await recordModerationOutcome(ctx.db, ctx.workspace, ctx.row.id, operation.id); }
+    catch { /* A reporting outage cannot change the app's confirmed result. */ }
+  }
 }
 
 async function operation(ctx: MutationContext, instance: StackInstance, resource: ResourceRow, connection: ReturnType<typeof resourceConnection>, action: ResourceCommand['action'], fields: Omit<ResourceCommand, 'action' | 'operationId'>, retry: boolean, operationId: string = crypto.randomUUID()): Promise<RemoteOutcome> {
@@ -171,6 +177,12 @@ async function operation(ctx: MutationContext, instance: StackInstance, resource
       .bind(pending!.id, resource.id, ctx.row.id, instance.id, action, connection.source, pending!.request_json, ...values)]);
   }
   const command = JSON.parse(pending.request_json) as ResourceCommand;
+  // Capture only before the first dispatch. A retry must use its original proof;
+  // later current state must never manufacture an earlier transition.
+  if (ctx.measureOutcomes !== false && !retry && pending.action === 'moderate') {
+    try { await prepareModerationOutcome({ db: ctx.db, user: ctx.user, workspace: ctx.workspace, stack: ctx.row.id, instance: instance.id }, pending, connection, () => guard(ctx)); }
+    catch { /* Missing proof drops measurement; the app operation still proceeds. */ }
+  }
   const outcome = await connection.command(resource.id, command, () => guard(ctx));
   await record(ctx, pending, outcome);
   return outcome;
@@ -455,9 +467,11 @@ export async function manageResourceContent(
   input: unknown,
   mutation: unknown,
   runtime: ResourceRuntime,
+  measurement: { suppress?: boolean } = {},
 ) {
   const owner = await ownerContext(db, user, workspace, input, runtime);
   const { ctx, instance, selected, connection } = owner;
+  ctx.measureOutcomes = !measurement.suppress;
   let outcome: RemoteOutcome | { outcome: "unchanged"; message?: string };
   if (mutation === "reconcile" || mutation === "retry") {
     const pending = await unfinished(db, selected.id);

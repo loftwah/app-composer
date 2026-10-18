@@ -9,6 +9,7 @@ import StackShare from '../../components/StackShare.astro';
 import {publicStack} from '../../lib/stacks.mjs';
 import {noindexFor} from '../../lib/indexing.mjs';
 import {stackShareDetails} from '../../lib/stack-sharing.ts';
+import {publicationActionKey} from '../../lib/private-outcome-events';
 import {env} from 'cloudflare:workers';
 
 const runtime = env as unknown as {DB?: {prepare(sql: string): {bind(...values: unknown[]): {first(): Promise<unknown>}}}};
@@ -28,6 +29,7 @@ if (unavailable) Astro.response.status = 503;
 
 const title = stack ? stack.name : unavailable ? 'Stack temporarily unavailable' : 'Stack not found';
 const sharing = stack ? await stackShareDetails(stack) : null;
+const actionKey = stack ? await publicationActionKey(stack.id,stack.revision) : '';
 const description = sharing?.description ?? 'This App Composer stack address has no published revision.';
 // SEO keeps the clean address. The social image includes the exact publication
 // identity, so draft edits cannot change its pixels or metadata.
@@ -49,7 +51,7 @@ const shareUrl = sharing?.url;
 ) : (
   <>
     <p class="small"><a href="/studio">Creator stacks</a> · published revision {stack.revision}{stack.publishedAt ? ` · ${new Date(String(stack.publishedAt).replace(' ', 'T') + 'Z').toLocaleDateString('en-AU', {day: 'numeric', month: 'long', year: 'numeric'})}` : ''}</p>
-    <StackView document={stack.document} link titleAs="h1" />
+    <StackView document={stack.document} link titleAs="h1" outcomes={{slug:stack.slug,publication:stack.revision,key:actionKey}} />
     <StackShare
       slug={stack.slug}
       revision={stack.revision}
@@ -64,3 +66,7 @@ const shareUrl = sharing?.url;
   </>
 )}
 </Base>
+<script>
+  import { installStackActions } from '../../browser/private-stack-actions';
+  installStackActions();
+</script>

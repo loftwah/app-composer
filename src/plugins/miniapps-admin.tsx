@@ -5,6 +5,7 @@ import { Settings } from "./miniapps/settings";
 import { GuestbookWorkspace } from "./miniapps/guestbook-workspace";
 import { ShowcaseWorkspace } from "./miniapps/showcase-workspace";
 import { useMiniapps } from "./miniapps/use-miniapps";
+import { CollectionSources } from "./miniapps/collection-sources";
 import type { AppID } from "./miniapps/types";
 import "./miniapps-admin.css";
 const names = { guestbook: "Here / there", showcase: "Linkarooie" };
@@ -36,8 +37,11 @@ function AppPage() {
     reload,
     act,
     profileRequest,
+    collectionRequest,
     upload,
     addLink,
+    newLink,
+    changeNewLink,
     snapshot,
     contributions,
     approved,
@@ -78,6 +82,11 @@ function AppPage() {
       <p role="status" aria-live="polite" className="ca-message">
         {message}
       </p>
+      <CollectionSources
+        active={selected === "showcase"}
+        busy={busy}
+        request={collectionRequest}
+      />
       {errors[selected] ? (
         <div role="alert">
           <p>{errors[selected]}</p>
@@ -134,6 +143,8 @@ function AppPage() {
                 <ShowcaseWorkspace
                   busy={busy}
                   addLink={addLink}
+                  newLink={newLink}
+                  changeNewLink={changeNewLink}
                   snapshot={snapshot}
                   achievementDraft={achievementDraft}
                   setAchievementDraft={setAchievementDraft}

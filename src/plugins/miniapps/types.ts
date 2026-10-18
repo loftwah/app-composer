@@ -15,6 +15,7 @@ export type Item = {
   pinned?: boolean;
   icon?: string;
   group?: string;
+  sourceState?: "available" | "unavailable";
 };
 export type LinkValues = {
   title: string;
@@ -22,6 +23,7 @@ export type LinkValues = {
   url: string;
   status: string;
 };
+export type NewLink = Pick<LinkValues, "title" | "description" | "url">;
 export type LinkDraft = { from: LinkValues; value: LinkValues };
 export type StyleValues = { icon: string; pinned: boolean; group?: string };
 export type StyleDraft = {
