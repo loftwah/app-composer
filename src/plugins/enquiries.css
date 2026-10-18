@@ -99,8 +99,7 @@
   flex-wrap: wrap;
 }
 .ce-retained {
-  border-left: 4px solid #ee8f4a;
-  padding-left: 20px;
+  padding-inline: 0;
 }
 .ce-retained code {
   display: block;
@@ -114,7 +113,7 @@
   overflow-wrap: anywhere;
 }
 .ce-alert {
-  border-left: 4px solid #c66a37;
+  border-color: currentColor;
 }
 .ce-heading,
 .ce-brief-heading {

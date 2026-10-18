@@ -477,10 +477,15 @@ function WorkspaceEnquiries({ search }: { search: string }) {
   const selectedScope = inbox?.scopes.find((scope) =>
     currentPublication
       ? scope.provenance.kind === "composer.publication" &&
+        scope.provenance.resource === resource &&
+        scope.provenance.configuration ===
+          currentPublication.item.configuration &&
         scope.provenance.stack === currentPublication.stack.id &&
         scope.provenance.publication === currentPublication.stack.publication &&
         scope.provenance.instance === currentPublication.item.id
-      : scope.provenance.kind === "standalone",
+      : scope.provenance.kind === "standalone" &&
+        scope.provenance.resource === resource &&
+        scope.provenance.configuration === inbox?.resource.active_revision,
   );
   const canRead = options?.workspace.role !== "viewer",
     canConfigure = options?.workspace.role === "owner";
@@ -499,8 +504,10 @@ function WorkspaceEnquiries({ search }: { search: string }) {
       enabled,
     });
   return (
-    <div className="ce-inbox" aria-busy={busy}>
-      {busy && <p role="status">Loading private app data…</p>}
+    <div className="ce-inbox" aria-busy={busy || (!options && !error)}>
+      {(busy || (!options && !error)) && (
+        <p role="status">Loading private app data…</p>
+      )}
       <header>
         <p className="ce-kicker">
           PRIVATE WORKSPACE · {options?.workspace.name ?? "Loading"}
@@ -602,7 +609,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
           Refresh inbox
         </button>
       </section>
-      {!options?.resources.length && !busy && (
+      {options && options.resources.length === 0 && !busy && (
         <p>
           No app-owned visitor book is ready here. Create a Creator stack, add
           Here / there, then apply its resource before opening a form.
@@ -614,150 +621,159 @@ function WorkspaceEnquiries({ search }: { search: string }) {
           require an owner or editor membership.
         </p>
       )}
-      {inbox && canRead && (
-        <>
-          <section className="ce-form-controls">
-            <div>
-              <h2>Open a private form</h2>
+      {inbox &&
+        canRead &&
+        inbox.resource.id === resource &&
+        inbox.status === status &&
+        inbox.page === page && (
+          <>
+            <section className="ce-form-controls">
+              <div>
+                <h2>Open a private form</h2>
+                <p>
+                  Forms start closed. A Composer form belongs to one immutable
+                  publication; publishing a new revision does not open it
+                  automatically. The standalone resource form has its own
+                  setting.
+                </p>
+              </div>
+              <label>
+                Form scope
+                <select
+                  value={publication}
+                  disabled={busy || Boolean(held) || !canConfigure}
+                  onChange={(event) => setPublication(event.target.value)}
+                >
+                  <option value="">Standalone resource form</option>
+                  {options?.stacks.flatMap((stack) =>
+                    stack.instances
+                      .filter((item) => item.resource === resource)
+                      .map((item) => (
+                        <option
+                          key={stack.id + ":" + item.id}
+                          value={stack.id + ":" + item.id}
+                        >
+                          {stack.name} · {item.label} · published{" "}
+                          {stack.publication}
+                        </option>
+                      )),
+                  )}
+                </select>
+              </label>
               <p>
-                Forms start closed. A Composer form belongs to one immutable
-                publication; publishing a new revision does not open it
-                automatically. The standalone resource form has its own setting.
+                <strong>
+                  {selectedScope?.enabled
+                    ? "Enabled in the app"
+                    : "Closed in the app"}
+                </strong>
+                . Current publication and source privacy controls still apply.
               </p>
-            </div>
-            <label>
-              Form scope
-              <select
-                value={publication}
-                disabled={busy || Boolean(held) || !canConfigure}
-                onChange={(event) => setPublication(event.target.value)}
-              >
-                <option value="">Standalone resource form</option>
-                {options?.stacks.flatMap((stack) =>
-                  stack.instances
-                    .filter((item) => item.resource === resource)
-                    .map((item) => (
-                      <option
-                        key={stack.id + ":" + item.id}
-                        value={stack.id + ":" + item.id}
-                      >
-                        {stack.name} · {item.label} · published{" "}
-                        {stack.publication}
-                      </option>
-                    )),
+              <div className="ce-actions">
+                <button
+                  disabled={busy || Boolean(held) || !canConfigure}
+                  onClick={() => void run(() => configure(true))}
+                >
+                  Enable this form
+                </button>
+                <button
+                  disabled={
+                    busy || Boolean(held) || !canConfigure || !selectedScope
+                  }
+                  onClick={() => void run(() => configure(false))}
+                >
+                  Close this form
+                </button>
+                {selectedScope?.enabled && (
+                  <a
+                    href={
+                      currentPublication
+                        ? `/s/${currentPublication.stack.slug}/enquiry/${currentPublication.item.id}`
+                        : `/guestbook/r/${resource}/c/${selectedScope.provenance.configuration}/enquiry`
+                    }
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    Open form
+                  </a>
                 )}
-              </select>
-            </label>
-            <p>
-              <strong>
-                {selectedScope?.enabled
-                  ? "Enabled in the app"
-                  : "Closed in the app"}
-              </strong>
-              . Current publication and source privacy controls still apply.
-            </p>
-            <div className="ce-actions">
+              </div>
+              {!canConfigure && (
+                <p>
+                  Only the workspace owner can open or close forms. Editors can
+                  review private briefs.
+                </p>
+              )}
+            </section>
+            <div className="ce-heading">
+              <h2>
+                {status === "all"
+                  ? "Retained briefs"
+                  : status[0].toUpperCase() + status.slice(1) + " briefs"}
+              </h2>
               <button
-                disabled={busy || Boolean(held) || !canConfigure}
-                onClick={() => void run(() => configure(true))}
+                disabled={busy || Boolean(held)}
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "Download this visitor book’s retained private briefs? Keep the resulting file private.",
+                    )
+                  )
+                    void run(exportInbox);
+                }}
               >
-                Enable this form
+                Export private inbox
               </button>
+            </div>
+            <p className="ce-muted">
+              Bodies expire after 30 days; minimal delivery and operation
+              receipts remain for 35 days. Deleted briefs are cleared
+              immediately. A zero here means no retained entry matches this page
+              and filter.
+            </p>
+            {inbox.items.length === 0 ? (
+              <p className="ce-empty">No retained briefs on this page.</p>
+            ) : (
+              <div className="ce-briefs">
+                {inbox.items.map((item) => (
+                  <Brief
+                    key={item.id}
+                    item={item}
+                    busy={busy || Boolean(held)}
+                    change={(action) =>
+                      void run(() =>
+                        mutate({
+                          action,
+                          item: item.id,
+                          expectedRevision: item.revision,
+                        }),
+                      )
+                    }
+                  />
+                ))}
+              </div>
+            )}
+            <nav className="ce-pages" aria-label="Enquiry inbox pages">
+              <button
+                disabled={busy || Boolean(held) || page === 1}
+                onClick={() => setPage(page - 1)}
+              >
+                Previous
+              </button>
+              <span>Page {page} · up to 20 briefs</span>
               <button
                 disabled={
-                  busy || Boolean(held) || !canConfigure || !selectedScope
+                  busy ||
+                  Boolean(held) ||
+                  page === 10 ||
+                  inbox.items.length < 20
                 }
-                onClick={() => void run(() => configure(false))}
+                onClick={() => setPage(page + 1)}
               >
-                Close this form
+                Next
               </button>
-              {selectedScope?.enabled && (
-                <a
-                  href={
-                    currentPublication
-                      ? `/s/${currentPublication.stack.slug}/enquiry/${currentPublication.item.id}`
-                      : `/guestbook/r/${resource}/c/${selectedScope.provenance.configuration}/enquiry`
-                  }
-                  target="_blank"
-                  rel="noopener"
-                >
-                  Open form
-                </a>
-              )}
-            </div>
-            {!canConfigure && (
-              <p>
-                Only the workspace owner can open or close forms. Editors can
-                review private briefs.
-              </p>
-            )}
-          </section>
-          <div className="ce-heading">
-            <h2>
-              {status === "all"
-                ? "Retained briefs"
-                : status[0].toUpperCase() + status.slice(1) + " briefs"}
-            </h2>
-            <button
-              disabled={busy || Boolean(held)}
-              onClick={() => {
-                if (
-                  window.confirm(
-                    "Download this visitor book’s retained private briefs? Keep the resulting file private.",
-                  )
-                )
-                  void run(exportInbox);
-              }}
-            >
-              Export private inbox
-            </button>
-          </div>
-          <p className="ce-muted">
-            Bodies expire after 30 days; minimal delivery and operation receipts
-            remain for 35 days. Deleted briefs are cleared immediately. A zero
-            here means no retained entry matches this page and filter.
-          </p>
-          {inbox.items.length === 0 ? (
-            <p className="ce-empty">No retained briefs on this page.</p>
-          ) : (
-            <div className="ce-briefs">
-              {inbox.items.map((item) => (
-                <Brief
-                  key={item.id}
-                  item={item}
-                  busy={busy || Boolean(held)}
-                  change={(action) =>
-                    void run(() =>
-                      mutate({
-                        action,
-                        item: item.id,
-                        expectedRevision: item.revision,
-                      }),
-                    )
-                  }
-                />
-              ))}
-            </div>
-          )}
-          <nav className="ce-pages" aria-label="Enquiry inbox pages">
-            <button
-              disabled={busy || Boolean(held) || page === 1}
-              onClick={() => setPage(page - 1)}
-            >
-              Previous
-            </button>
-            <span>Page {page} · up to 20 briefs</span>
-            <button
-              disabled={
-                busy || Boolean(held) || page === 10 || inbox.items.length < 20
-              }
-              onClick={() => setPage(page + 1)}
-            >
-              Next
-            </button>
-          </nav>
-        </>
-      )}
+            </nav>
+          </>
+        )}
     </div>
   );
 }

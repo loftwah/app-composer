@@ -29,7 +29,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
             id: string;
             caption: string;
             author: string;
-            status: "hidden" | "approved" | "deleted" | "pending" | "rejected";
+            status: "hidden" | "pending" | "approved" | "deleted" | "rejected";
             revision: number;
             synthetic: boolean;
             createdAt: string;
@@ -255,7 +255,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
     imported?: undefined;
     deleted?: undefined;
 } | {
-    outcome: "unknown" | "applied" | "refused" | "unchanged";
+    outcome: "unknown" | "refused" | "applied" | "unchanged";
     message: string | undefined;
     stack: import("./stacks.mjs").Stack;
     resources: import("./stack-resources.ts").ResourceBindingView[];
@@ -273,7 +273,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
             id: string;
             caption: string;
             author: string;
-            status: "hidden" | "approved" | "deleted" | "pending" | "rejected";
+            status: "hidden" | "pending" | "approved" | "deleted" | "rejected";
             revision: number;
             synthetic: boolean;
             createdAt: string;
