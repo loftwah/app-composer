@@ -16,6 +16,14 @@ stale emitted bytes and do not rewrite them. Composer's model/recipe gate is
 `scripts/content-source.mjs`; a generated project owns its copy of
 `scripts/build-source.mjs` and its source/configuration/dependency boundary.
 
+The reviewed app-setting model and its runtime validators are authored in
+`src/lib/app-settings.mts`. The Creator source gate uses strict Worker-compatible
+globals, generates its JavaScript and declarations, and checks both before
+development, type checking or a build. Settings received from a specification
+remain unknown until validation. A controlled-error fixture proves compiler
+failure cannot replace the last valid distribution and stale output is refused.
+Stack storage and the legacy activation helper are still outside this slice.
+
 Generated projects validate imported model JSON before typed presentation. They
 carry their own source, emitted files, compiler configuration, native editor,
 behavior tests and lockfile. The project-file allowlist and provenance capture
