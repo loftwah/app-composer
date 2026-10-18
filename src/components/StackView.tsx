@@ -67,7 +67,6 @@ export function StackView({
   compact = false,
   titleAs: Title = "h2",
   outcomes,
-  enquirySlug,
 }: {
   document: StackViewDocument;
   link?: boolean;
@@ -76,7 +75,6 @@ export function StackView({
   titleAs?: "h1" | "h2";
   /** Set only by the published public page; native previews never collect. */
   outcomes?: { slug: string; publication: number; key: string };
-  enquirySlug?: string;
 }): ReactElement {
   const tokens = themeTokens(document.theme);
   const theme =
@@ -185,7 +183,6 @@ export function StackView({
                     >
                       Open
                     </a>
-                    {enquirySlug && instance.app === "guestbook" && resource ? <>{" · "}<a href={`/s/${enquirySlug}/enquiry/${instance.id}`}>Private brief</a></> : null}
                   </>
                 ) : null}
               </p>
