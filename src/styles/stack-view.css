@@ -60,7 +60,8 @@
   color: var(--stack-muted);
   font-size: 0.9rem;
 }
-.stack-view a {
+.stack-view a:not(.button),
+.stack-view a:not(.button):hover {
   color: var(--stack-accent);
   text-decoration: none;
 }
