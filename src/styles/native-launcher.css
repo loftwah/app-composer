@@ -1,0 +1,52 @@
+/* App-owned native utility; outside the EmDash React root, never its header. */
+@font-face {
+  font-family: Space;
+  src: url("/brand/space-latin-20261018.woff2") format("woff2");
+  font-weight: 300 700;
+  font-display: swap;
+}
+.native-app-launcher {
+  position: fixed;
+  inset-inline-end: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 40;
+}
+.native-apps-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 1px solid #817c73;
+  border-radius: 8px;
+  background: #f4f0e7;
+  color: #25272d;
+  font:
+    600 15px/1.4 Space,
+    system-ui,
+    sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+}
+:root[data-mode="dark"] .native-apps-trigger {
+  background: #1c1e22;
+  color: #f4f0e7;
+  border-color: #676b75;
+}
+.native-apps-trigger img {
+  flex: none;
+}
+.native-apps-trigger:focus-visible {
+  outline: 3px solid #e77743;
+  outline-offset: 3px;
+}
+.native-app-launcher[data-keyboard="true"] > .native-apps-trigger {
+  visibility: hidden;
+  pointer-events: none;
+}
+@media (max-width: 600px) {
+  .native-apps-trigger kbd {
+    display: none;
+  }
+}

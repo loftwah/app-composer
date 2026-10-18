@@ -7,6 +7,13 @@ const mode = process.argv[2];
 if (!["--check", "--write"].includes(mode))
   throw Error("Use --check or --write.");
 const files = [
+  "src/browser/launcher.ts",
+  "src/browser/native-launcher.ts",
+  "src/integrations/native-menu.ts",
+  "src/styles/native-launcher.css",
+  "scripts/native-menu-source.mjs",
+  "tsconfig.native-launcher.json",
+  "tests/native-menu-source.test.mjs",
   ...[
     "app-settings",
     "stacks",

@@ -96,3 +96,5 @@ pnpm check:types
 For editor changes, exercise app switching, unsaved inputs, refresh/conflict recovery and explicit saves with fictional fixtures. Check the protected live editor after release using an existing authorized administrator session. Source cleanup does not justify mutating owner content. Existing production deployment checks remain the release boundary.
 
 The new-project copier is authored in `lib/content-model/project.mts`; the existing content-source command emits/checks its readable JavaScript and declarations. Narrow declarations describe the existing tested filesystem helpers; they do not convert or widen those helpers. Shared launcher source/script/config copies retain the source repository formatting so their bytes and provenance stay exact; this narrow Prettier exception is listed in the generated project.
+
+The native Apps entry uses the same controller through its idempotent mount/dispose API; [native lifecycle and consumer delivery](native-command-menu.md) records the Astro extension boundary, selected-workspace navigation and explicit five-app distribution requirements.
