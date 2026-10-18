@@ -26,7 +26,7 @@ Local EmDash data is separate from production. A fresh checkout does not contain
 | `pnpm dev` | Check generated application source and start local Astro |
 | `pnpm check:types` | Check strict source, emitted distributions and Astro |
 | `pnpm lint` | Check semantic and unused-source rules in the maintained content/Creator programs |
-| `pnpm format:check` | Check the ten named Creator source/check/test files |
+| `pnpm format:check` | Check the eighteen named Creator source/check/test files |
 | `pnpm test` | Run the existing behavioural and boundary tests |
 | `pnpm check` | Run the current required quality gates |
 | `pnpm build` | Build and inspect the public artifact |
