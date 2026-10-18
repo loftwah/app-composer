@@ -155,6 +155,64 @@ async function moderate(f, b, status = "approved", extra = {}) {
   return result;
 }
 
+test("forward 0008/0009 migration preserves existing private stack, publication, resource and confirmed journal bytes", async () => {
+  const f = fixture();
+  try {
+    const b = await book(f);
+    await moderate(f, b);
+    await publishStack(
+      f.db,
+      b.space.id,
+      b.stack.id,
+      b.selection.expectedRevision,
+    );
+    const tables = [
+      "creator_stacks",
+      "creator_stack_publications",
+      "creator_app_resources",
+      "creator_stack_resource_bindings",
+      "creator_resource_operations",
+    ];
+    const before = Object.fromEntries(
+      tables.map((table) => [
+        table,
+        f.sqlite.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all(),
+      ]),
+    );
+    const members = f.sqlite
+      .prepare(
+        "SELECT workspace_id,user_id,role FROM creator_members ORDER BY workspace_id,user_id",
+      )
+      .all();
+    for (const file of [
+      "0008_workspace_access.sql",
+      "0009_private_outcomes.sql",
+    ])
+      f.sqlite.exec(readFileSync("migrations/" + file, "utf8"));
+    for (const table of tables)
+      assert.deepEqual(
+        f.sqlite.prepare(`SELECT * FROM ${table} ORDER BY rowid`).all(),
+        before[table],
+      );
+    assert.deepEqual(
+      f.sqlite
+        .prepare(
+          "SELECT workspace_id,user_id,role FROM creator_members ORDER BY workspace_id,user_id",
+        )
+        .all(),
+      members,
+    );
+    assert.equal(
+      f.sqlite.prepare("SELECT COUNT(*) n FROM creator_outcome_daily").get().n,
+      0,
+      "Old journals cannot invent previous-state proof",
+    );
+    assert.deepEqual(f.sqlite.prepare("PRAGMA foreign_key_check").all(), []);
+  } finally {
+    f.close();
+  }
+});
+
 test("current publication derives every private dimension; duplicate activation tokens count once and reject body authority", async () => {
   const f = setup();
   try {

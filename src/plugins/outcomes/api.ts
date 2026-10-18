@@ -19,26 +19,33 @@ export async function outcomeCall(
     ),
   };
   const write = action === "setTraffic";
-  const response = await apiFetch(
-    "/_emdash/api/plugins/composer-stacks/" +
-      (write
-        ? "outcomesWrite"
-        : "outcomesRead?" +
-          new URLSearchParams(values as Record<string, string>)),
-    write
-      ? {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
-        }
-      : { cache: "no-store" },
-  );
-  return decodeOutcomeReply(
-    action,
-    await parseApiResponse<unknown>(
-      response,
-      "Outcomes are unavailable. Your choice is still here; refresh before retrying a change.",
-    ),
-    values,
-  );
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await apiFetch(
+      "/_emdash/api/plugins/composer-stacks/" +
+        (write
+          ? "outcomesWrite"
+          : "outcomesRead?" +
+            new URLSearchParams(values as Record<string, string>)),
+      write
+        ? {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(values),
+            signal: controller.signal,
+          }
+        : { cache: "no-store", signal: controller.signal },
+    );
+    return decodeOutcomeReply(
+      action,
+      await parseApiResponse<unknown>(
+        response,
+        "Outcomes are unavailable. Your choice is still here; refresh before retrying a change.",
+      ),
+      values,
+    );
+  } finally {
+    clearTimeout(timeout);
+  }
 }
