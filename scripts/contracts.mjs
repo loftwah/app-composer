@@ -1,3 +1,15 @@
+function exactDescriptor(value, reviewed) {
+  return Boolean(
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    Object.keys(value).length === Object.keys(reviewed).length &&
+    Object.entries(reviewed).every(
+      ([key, expected]) => Object.hasOwn(value, key) && value[key] === expected,
+    ),
+  );
+}
+
 export function validateManifest(m) {
   if (m.contract !== 1) throw new Error("Unsupported contract version");
   if (!/^[a-z][a-z0-9-]{0,40}$/.test(m.id))
@@ -173,6 +185,36 @@ export function validateManifest(m) {
     )
       throw new Error("Unsupported scoped provider sources");
   }
+  if (
+    m.portability !== undefined &&
+    (m.id !== "guestbook" ||
+      !exactDescriptor(m.portability, {
+        version: 1,
+        format: "guestbook.approved-portable/v1",
+        export: "/api/resources/:resource/portable",
+        restore: "/api/resources/:freshResource/restore",
+        maximumItems: 8,
+        scope: "current-authorized-workspace-account-environment-target",
+        restoredVisibility: "private",
+        requiresLiveSource: true,
+      }))
+  )
+    throw new Error("Unsupported approved-content portability");
+  if (
+    m.privateEnquiries !== undefined &&
+    (m.id !== "guestbook" ||
+      !exactDescriptor(m.privateEnquiries, {
+        version: 1,
+        model: "briefs/v1",
+        owner: "/api/resources/:resource/enquiries",
+        public: "/r/:resource/c/:configuration/enquiry",
+        default: "closed",
+        retentionDays: 30,
+        receiptDays: 35,
+        notifications: false,
+      }))
+  )
+    throw new Error("Unsupported private enquiry contract");
   return m;
 }
 export function validateComposition(manifests) {
