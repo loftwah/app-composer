@@ -49,7 +49,7 @@ const shareUrl = sharing?.url;
 ) : (
   <>
     <p class="small"><a href="/studio">Creator stacks</a> · published revision {stack.revision}{stack.publishedAt ? ` · ${new Date(String(stack.publishedAt).replace(' ', 'T') + 'Z').toLocaleDateString('en-AU', {day: 'numeric', month: 'long', year: 'numeric'})}` : ''}</p>
-    <StackView document={stack.document} link titleAs="h1" />
+    <StackView document={stack.document} link titleAs="h1" outcomes={{slug:stack.slug,publication:stack.revision}} />
     <StackShare
       slug={stack.slug}
       revision={stack.revision}
@@ -64,3 +64,7 @@ const shareUrl = sharing?.url;
   </>
 )}
 </Base>
+<script>
+  import { installStackActions } from '../../browser/private-stack-actions';
+  installStackActions();
+</script>
