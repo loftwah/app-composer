@@ -1,0 +1,248 @@
+---
+import { getEmDashCollection, getEmDashEntry } from "emdash";
+import { Image } from "emdash/ui";
+import { ownedImage } from "../lib/owned-image.mjs";
+import Layout from "../layouts/ContentLayout.astro";
+import routes from "../old-routes.json";
+import type { ComponentProps } from "astro/types";
+type Article = {
+  title?: string;
+  slug?: string;
+  excerpt?: string;
+  featured_image?: ComponentProps<typeof Image>["image"];
+  content?: unknown[];
+  byline?: unknown;
+  terms?: unknown;
+};
+import "../styles/publisher.css";
+const legacyKey = Astro.url.searchParams.has("p")
+  ? "p"
+  : Astro.url.searchParams.has("page_id")
+    ? "page_id"
+    : null;
+if (legacyKey) {
+  const values = Astro.url.searchParams.getAll(legacyKey);
+  if (
+    values.length !== 1 ||
+    !/^[1-9][0-9]{0,9}$/.test(values[0]!) ||
+    [...Astro.url.searchParams.keys()].some((key) => key !== legacyKey)
+  )
+    return new Response("Choose one valid old article or page address.", {
+      status: 400,
+    });
+  const mapped = routes.find(
+    (route) =>
+      String(route.wordpressId) === values[0] &&
+      route.collection === (legacyKey === "p" ? "posts" : "pages"),
+  );
+  if (!mapped)
+    return new Response("This old address does not name a published story.", {
+      status: 404,
+    });
+  const { entry, error } = await getEmDashEntry<string, Article>(
+    mapped.collection,
+    mapped.slug,
+  );
+  if (error)
+    return new Response("The magazine is temporarily unavailable.", {
+      status: 503,
+    });
+  if (!entry)
+    return new Response("This old address does not name a published story.", {
+      status: 404,
+    });
+  return Astro.redirect(
+    mapped.path === "/"
+      ? "/stories/" + encodeURIComponent(mapped.slug) + "/"
+      : mapped.path,
+    301,
+  );
+}
+const q = Astro.url.searchParams.get("q") ?? "";
+const category = Astro.url.searchParams.get("category") ?? "";
+const valid =
+  q.length <= 120 &&
+  !/[\u0000-\u001f]/.test(q) &&
+  category.length <= 100 &&
+  [...Astro.url.searchParams.keys()].every((key) =>
+    ["q", "category"].includes(key),
+  ) &&
+  ["q", "category"].every(
+    (key) => Astro.url.searchParams.getAll(key).length <= 1,
+  );
+const { entries, error } = valid
+  ? await getEmDashCollection<"posts", Article>("posts", {
+      status: "published",
+      limit: 100,
+      orderBy: { published_at: "desc" },
+    })
+  : { entries: [], error: undefined };
+const record = (v: unknown): v is Record<string, unknown> =>
+  !!v && typeof v === "object" && !Array.isArray(v);
+const text = (v: unknown) => (typeof v === "string" ? v : "");
+const categories = (v: unknown): string[] =>
+  record(v)
+    ? Object.values(v).flatMap((value) =>
+        Array.isArray(value)
+          ? value.flatMap((term) =>
+              record(term) && typeof term.label === "string"
+                ? [term.label]
+                : record(term) && typeof term.name === "string"
+                  ? [term.name]
+                  : [],
+            )
+          : [],
+      )
+    : [];
+const bodyText = (value: unknown): string =>
+  Array.isArray(value)
+    ? value
+        .flatMap((block) =>
+          record(block) && Array.isArray(block.children)
+            ? block.children.flatMap((span) =>
+                record(span) && typeof span.text === "string"
+                  ? [span.text]
+                  : [],
+              )
+            : [],
+        )
+        .join(" ")
+    : "";
+const byline = (v: unknown) =>
+  record(v) ? text(v.displayName) || text(v.display_name) || text(v.name) : "";
+const href = (slug: string) =>
+  routes.find(
+    (route) =>
+      route.collection === "posts" &&
+      route.slug === slug &&
+      !route.query &&
+      route.path !== "/",
+  )?.path ?? "/stories/" + encodeURIComponent(slug) + "/";
+const items = await Promise.all(
+  entries.map(async (entry) => ({
+    entry,
+    media: await ownedImage(entry.data.featured_image),
+    slug: text(entry.data.slug) || entry.id,
+    title: text(entry.data.title),
+    excerpt: text(entry.data.excerpt),
+    byline: byline(entry.data.byline),
+    terms: categories(entry.data.terms),
+    body: bodyText(entry.data.content),
+  })),
+);
+const visible = items.filter(
+  (item) =>
+    (!q ||
+      (item.title + " " + item.excerpt + " " + item.byline + " " + item.body)
+        .toLocaleLowerCase()
+        .includes(q.toLocaleLowerCase())) &&
+    (!category || item.terms.includes(category)),
+);
+const choices = [...new Set(items.flatMap((item) => item.terms))].sort();
+if (!valid) Astro.response.status = 400;
+else if (error) Astro.response.status = 503;
+Astro.response.headers.set("Cache-Control", "no-store");
+---
+
+<Layout
+  title="Macedon Weekender · Stories for a slower weekend"
+  description="A fictional regional magazine. Walks, good tables and field notes, imported from WordPress into an independently editable App Composer site."
+>
+  <div class="publisher">
+    <h1>A little further from the rush.</h1>
+    <p class="publisher-intro">
+      Walks, good tables and field notes. A fictional regional magazine.
+    </p>
+    <nav class="publisher-nav" aria-label="Magazine">
+      <a href="/">The latest</a>
+      <a href="/about/">About the Weekender</a>
+      <a href="/weekend-guide/">Plan a slow weekend</a>
+    </nav>
+    <details class="publisher-tools" open={!!q || !!category}>
+      <summary>Find a story or topic</summary>
+      <form class="publisher-search" method="get" action="/">
+        <label for="story-query">
+          Find a story
+          <input
+            id="story-query"
+            name="q"
+            type="search"
+            value={q}
+            maxlength="120"
+          />
+        </label>
+        <label for="story-category">
+          Browse a topic
+          <select id="story-category" name="category">
+            <option value="">All topics</option>
+            {choices.map((choice) => (
+              <option selected={category === choice}>{choice}</option>
+            ))}
+          </select>
+        </label>
+        <button type="submit">Find stories</button>
+      </form>
+    </details>
+    {!valid ? (
+      <section role="alert">
+        <h2>Choose a shorter search.</h2>
+        <p>Use one topic and a search of up to 120 characters.</p>
+        <a href="/">Return to the latest stories</a>
+      </section>
+    ) : error ? (
+      <section role="alert">
+        <h2>The magazine is temporarily unavailable.</h2>
+        <p>
+          The local owner can inspect the selected EmDash database. No WordPress
+          fallback is used.
+        </p>
+      </section>
+    ) : !visible.length ? (
+      <section>
+        <h2>
+          {q || category
+            ? "No stories match yet."
+            : "The magazine is ready for its import."}
+        </h2>
+        <p>
+          {q || category
+            ? "Try another word or browse every story."
+            : "The owner can import the actual WordPress export through the native dashboard. Published articles will appear here."}
+        </p>
+        <a href="/">Browse every story</a>
+      </section>
+    ) : (
+      <section class="publisher-stories" aria-label="Published stories">
+        {visible.map((item, index) => (
+          <article
+            class:list={[
+              "publisher-story",
+              { lead: index === 0 && !q && !category },
+            ]}
+          >
+            {item.media.image && (
+              <a href={href(item.slug)} tabindex="-1" aria-hidden="true">
+                <Image image={item.media.image} priority={index === 0} />
+              </a>
+            )}
+            <div>
+              <h2>
+                <a href={href(item.slug)}>{item.title}</a>
+              </h2>
+              {item.byline && <p class="publisher-byline">By {item.byline}</p>}
+              <p>{item.excerpt}</p>
+              <a href={href(item.slug)}>
+                Read the story<span class="sr-only">: {item.title}</span>
+              </a>
+            </div>
+          </article>
+        ))}
+      </section>
+    )}
+    <p class="publisher-credit">
+      An independent fictional publisher built with{" "}
+      <a href="https://composer.loftwah.com/">App Composer</a>. No real reader
+      or customer activity is implied.
+    </p>
+  </div>
+</Layout>

@@ -31,7 +31,8 @@
     "audit": "pnpm audit --audit-level low",
     "init:site": "node scripts/init-site.mjs",
     "check:publication": "node scripts/check-publication.mjs",
-    "source:write": "node scripts/content-source.mjs --write && node scripts/launcher-assets.mjs --write && node scripts/stack-share-assets.mjs --write"
+    "source:write": "node scripts/content-source.mjs --write && node scripts/launcher-assets.mjs --write && node scripts/stack-share-assets.mjs --write",
+    "wordpress:lab": "node scripts/wordpress-lab.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.3.3",

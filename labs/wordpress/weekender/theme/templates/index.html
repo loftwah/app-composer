@@ -1,0 +1,30 @@
+<!-- wp:template-part {"slug":"header","tagName":"header"} /-->
+<!-- wp:group {"tagName":"main","align":"wide","layout":{"type":"constrained"},"style":{"spacing":{"padding":{"top":"48px","bottom":"48px"}}}} -->
+<main
+  class="wp-block-group alignwide"
+  style="padding-top: 48px; padding-bottom: 48px"
+>
+  <!-- wp:heading {"level":1,"align":"wide","style":{"typography":{"fontSize":"clamp(2.5rem,6vw,4.5rem)"}}} -->
+  <h1
+    class="wp-block-heading alignwide"
+    style="font-size: clamp(2.5rem, 6vw, 4.5rem)"
+  >
+    A little further from the rush.
+  </h1>
+  <!-- /wp:heading --><!-- wp:paragraph {"align":"wide"} -->
+  <p class="alignwide">
+    Walks, good tables and field notes for a considered weekend. A fictional
+    regional magazine, published with WordPress.
+  </p>
+  <!-- /wp:paragraph --><!-- wp:query {"align":"wide","query":{"perPage":6,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","inherit":true}} -->
+  <div class="wp-block-query alignwide">
+    <!-- wp:post-template {"layout":{"type":"grid","columnCount":2}} --><!-- wp:post-featured-image {"isLink":true} /--><!-- wp:post-title {"isLink":true} /--><!-- wp:group {"layout":{"type":"flex"}} -->
+    <div class="wp-block-group">
+      <!-- wp:post-author-name /--><!-- wp:post-date /-->
+    </div>
+    <!-- /wp:group --><!-- wp:post-excerpt {"moreText":"Read the story"} /--><!-- /wp:post-template --><!-- wp:query-pagination {"layout":{"type":"flex","justifyContent":"space-between"}} --><!-- wp:query-pagination-previous /--><!-- wp:query-pagination-next /--><!-- /wp:query-pagination -->
+  </div>
+  <!-- /wp:query -->
+</main>
+<!-- /wp:group -->
+<!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->

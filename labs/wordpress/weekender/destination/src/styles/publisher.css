@@ -1,0 +1,173 @@
+@font-face {
+  font-family: "Weekender Editorial";
+  src: url("/brand/weekender/literata-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+html.composer-content-site .publisher {
+  --publisher-ink: var(--ink, #f0eee6);
+  max-width: 1180px;
+  margin-inline: auto;
+}
+html.composer-content-site .publisher h1,
+html.composer-content-site .publisher h2 {
+  font-family: "Weekender Editorial", serif;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+html.composer-content-site .publisher h1 {
+  max-width: 15ch;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  line-height: 1.08;
+  margin-block: 1rem 1.5rem;
+}
+html.composer-content-site .publisher-intro {
+  max-width: 62ch;
+  font-size: 1.15rem;
+}
+html.composer-content-site .publisher-nav {
+  display: flex;
+  gap: 1rem 2rem;
+  flex-wrap: wrap;
+  padding-block: 1.5rem;
+  border-block: 1px solid currentColor;
+  margin-block: 2rem;
+}
+html.composer-content-site .publisher-search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: end;
+  margin-block: 2rem 3rem;
+}
+html.composer-content-site .publisher-search label {
+  display: grid;
+  gap: 0.5rem;
+  flex: 1 1 210px;
+}
+html.composer-content-site .publisher-search input,
+html.composer-content-site .publisher-search select {
+  width: 100%;
+  font-size: max(1rem, 16px);
+  min-height: 44px;
+}
+html.composer-content-site .publisher-stories {
+  display: block;
+}
+html.composer-content-site .publisher-story {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 2fr;
+  gap: 2rem;
+  border-top: 1px solid currentColor;
+  padding-block: 2rem;
+}
+html.composer-content-site .publisher-story.lead {
+  grid-template-columns: 1.2fr 1fr;
+}
+html.composer-content-site .publisher-story img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16/10;
+  object-fit: cover;
+}
+html.composer-content-site .publisher-story h2 {
+  font-size: clamp(1.7rem, 3.2vw, 2.8rem);
+  line-height: 1.15;
+  margin-block: 0 1rem;
+}
+html.composer-content-site .publisher-byline {
+  font-size: 0.9rem;
+}
+html.composer-content-site .publisher-detail {
+  max-width: 760px;
+}
+html.composer-content-site .publisher-detail > img {
+  width: 100%;
+  height: auto;
+}
+html.composer-content-site .publisher-prose {
+  max-width: 70ch;
+  line-height: 1.8;
+}
+html.composer-content-site .publisher-prose h2 {
+  font-size: 2rem;
+  margin-top: 2.5rem;
+}
+html.composer-content-site .publisher-prose img {
+  max-width: 100%;
+  height: auto;
+}
+html.composer-content-site .publisher-credit {
+  font-size: 0.9rem;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid currentColor;
+}
+html.composer-content-site .publisher .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+@media (max-width: 680px) {
+  html.composer-content-site .publisher-story,
+  html.composer-content-site .publisher-story.lead {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  html.composer-content-site .publisher-nav {
+    gap: 1rem;
+  }
+  html.composer-content-site .publisher-search > button {
+    width: 100%;
+  }
+  html.composer-content-site .publisher h1 {
+    max-width: 100%;
+  }
+}
+
+html.composer-content-site .publisher-tools {
+  margin-block: 1rem;
+  border-block: 1px solid var(--border);
+  padding-block: 0.75rem;
+}
+html.composer-content-site .publisher-tools summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding-block: 0.5rem;
+}
+html.composer-content-site .publisher-search {
+  margin-block: 1rem;
+}
+html.composer-content-site .publisher-search :is(input, select) {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+}
+@media (max-width: 680px) {
+  html.composer-content-site main {
+    padding-top: 24px;
+  }
+  html.composer-content-site .publisher h1 {
+    font-size: 2.3rem;
+    margin-block: 0.5rem 1rem;
+  }
+  html.composer-content-site .publisher-intro {
+    font-size: 1rem;
+  }
+  html.composer-content-site .publisher-nav {
+    margin-block: 1.25rem;
+    padding-block: 1rem;
+    gap: 0.5rem 1rem;
+  }
+  html.composer-content-site .publisher-story.lead {
+    padding-top: 1rem;
+  }
+  html.composer-content-site .publisher-story.lead img {
+    max-height: 210px;
+  }
+}
