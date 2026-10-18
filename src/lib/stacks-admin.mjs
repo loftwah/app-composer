@@ -1,6 +1,6 @@
 // Route logic for the creator-stacks plugin. The host authenticates and
 // authorises the caller before dispatch; this second boundary rechecks the
-// admin role, the exact origin and the workspace membership, then applies the
+// creator role, the exact origin and the workspace membership, then applies the
 // capability matrix. A workspace or owner id from the request body is only a
 // selector and can never widen authority.
 import {
@@ -25,6 +25,7 @@ import {
   importStack,
   describeImport,
 } from './stacks.mjs';
+import { isCreatorRole } from './creator-access.ts';
 import { activationSummary } from './stack-activation.mjs';
 import { applyStackResources, reconcileStackResources, reuseStackResource, listStackResources, availableWorkspaceResources, resourcePublication } from './stack-resources.ts';
 import { readResourceContent, readResourceMedia, manageResourceContent } from './stack-resources.ts';
@@ -34,7 +35,7 @@ const fail = (code, message) => ({ ok: false, code, message });
 const identifier = value => typeof value === 'string' && /^[a-z0-9-]{6,64}$/.test(value);
 
 export async function manageStacks(ctx, runtime) {
-  if (!ctx.user || ctx.user.role !== 50) return fail('FORBIDDEN', 'An invited Composer administrator is required.');
+  if (!ctx.user || !isCreatorRole(ctx.user.role)) return fail('FORBIDDEN', 'A signed-in Composer creator is required.');
   if (runtime.PUBLIC_ORIGIN !== origin) return fail('UNAVAILABLE', 'Creator stacks are disconnected in this environment.');
   const request = ctx.request;
   const command = ctx.input && typeof ctx.input === 'object' && !Array.isArray(ctx.input) ? ctx.input : {};
@@ -80,14 +81,14 @@ export async function manageStacks(ctx, runtime) {
     }
     if (action === 'create') {
       requireCapability(workspace.role, 'create');
-      return { ok: true, workspace, stack: await createStack(db, workspace.id, command.name) };
+      return { ok: true, workspace, stack: await createStack(db, workspace.id, command.name, ctx.user.id) };
     }
     if (action === 'import') {
       requireCapability(workspace.role, 'create');
       // Validated and summarised before the write, and the summary comes from
       // the validated document rather than from the file's own claims.
       const summary = describeImport(command.payload);
-      const stack = await importStack(db, workspace.id, command.payload, { name: command.name });
+      const stack = await importStack(db, workspace.id, command.payload, { name: command.name, actor: ctx.user.id });
       return { ok: true, workspace, stack, imported: summary };
     }
     if (action === 'save') {
@@ -95,7 +96,7 @@ export async function manageStacks(ctx, runtime) {
       if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
       const document = command.document;
       if (document && typeof document === 'object' && typeof command.name === 'string' && command.name.trim()) document.name = command.name;
-      return { ok: true, workspace, stack: await saveStack(db, workspace.id, command.stack, document, command.expectedRevision) };
+      return { ok: true, workspace, stack: await saveStack(db, workspace.id, command.stack, document, command.expectedRevision, ctx.user.id) };
     }
     if (action === 'publish') {
       requireCapability(workspace.role, 'publish');
@@ -103,7 +104,7 @@ export async function manageStacks(ctx, runtime) {
       const current = await readStack(db, workspace.id, command.stack);
       const document = await resourcePublication(db, workspace.id, command.stack, current.draft, runtime);
       requireCapability(await membership(db, workspace.id, ctx.user.id), 'publish');
-      return { ok: true, workspace, stack: await publishStack(db, workspace.id, command.stack, command.expectedRevision, document) };
+      return { ok: true, workspace, stack: await publishStack(db, workspace.id, command.stack, command.expectedRevision, document, ctx.user.id) };
     }
     if (action === 'applyResources' || action === 'reconcileResources' || action === 'reuseResource') {
       requireCapability(workspace.role, 'save');
@@ -124,31 +125,31 @@ export async function manageStacks(ctx, runtime) {
     if (action === 'unpublish') {
       requireCapability(workspace.role, 'unpublish');
       if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
-      return { ok: true, workspace, stack: await unpublishStack(db, workspace.id, command.stack, command.expectedRevision) };
+      return { ok: true, workspace, stack: await unpublishStack(db, workspace.id, command.stack, command.expectedRevision, ctx.user.id) };
     }
     if (action === 'archive' || action === 'restore') {
       requireCapability(workspace.role, action === 'archive' ? 'archive' : 'restore');
       if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
-      return { ok: true, workspace, stack: await setArchived(db, workspace.id, command.stack, action === 'archive', command.expectedRevision) };
+      return { ok: true, workspace, stack: await setArchived(db, workspace.id, command.stack, action === 'archive', command.expectedRevision, ctx.user.id) };
     }
     if (action === 'republish' || action === 'restoreRevision') {
       requireCapability(workspace.role, 'rollback');
       if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
       const revision = Number(command.revision);
       const stack = action === 'republish'
-        ? await republishRevision(db, workspace.id, command.stack, revision, command.expectedRevision)
-        : await restoreRevisionToDraft(db, workspace.id, command.stack, revision, command.expectedRevision);
+        ? await republishRevision(db, workspace.id, command.stack, revision, command.expectedRevision, ctx.user.id)
+        : await restoreRevisionToDraft(db, workspace.id, command.stack, revision, command.expectedRevision, ctx.user.id);
       return { ok: true, workspace, stack };
     }
     if (action === 'duplicate') {
       requireCapability(workspace.role, 'duplicate');
       if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
-      return { ok: true, workspace, stack: await duplicateStack(db, workspace.id, command.stack, command.expectedRevision) };
+      return { ok: true, workspace, stack: await duplicateStack(db, workspace.id, command.stack, command.expectedRevision, ctx.user.id) };
     }
     if (action === 'delete') {
       requireCapability(workspace.role, 'delete');
       if (!identifier(command.stack)) return fail('INVALID', 'Choose a valid stack.');
-      return { ok: true, workspace, deleted: await deleteStack(db, workspace.id, command.stack, command.expectedRevision) };
+      return { ok: true, workspace, deleted: await deleteStack(db, workspace.id, command.stack, command.expectedRevision, ctx.user.id) };
     }
     return fail('INVALID', 'Choose a supported stacks action.');
   } catch (error) {

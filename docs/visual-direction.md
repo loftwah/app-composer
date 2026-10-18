@@ -26,6 +26,12 @@ The selected master is `.artwork/masters/linkarooie-curator-accepted-20261018.pn
 
 ## Drawing and composition
 
+### Cloudflare marketing influence, 18 October 2026
+
+MP supplied a Cloudflare Clef advertisement as a future direction reference: a flat orange field, large white type, simple geometric symbols, thin ruled divisions and a clear action. Apply roughly 30–50% influence where it helps future work. Keep Composer's own identity, original imagery and accepted Linkarooie character; the reference is a composition and simplification influence, not a replacement brand or vendor-logo treatment.
+
+MP explicitly requested no immediate design changes from this reference. Do not use it to reopen the current artwork or trigger a blanket restyle. Review official Cloudflare creative direction periodically and retain only useful, materially new lessons. A monthly quiet review is attached to the delivery chat; it does not authorise automatic redesign or publication.
+
 - Choose an idea specific to the app before describing a style. Explain what the subject is doing and why it belongs to that software.
 - Give each app a distinct silhouette and focal action within the same visual world. A row of interchangeable smiling heads is insufficient.
 - Use confident drawn contours, clear shapes and controlled flat/cel colour. Keep the deliberate quirks that make a figure recognisable.

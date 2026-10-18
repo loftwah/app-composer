@@ -1,0 +1,76 @@
+{
+  "capturedAt": "2026-10-18T01:11:19.744Z",
+  "method": "actual production browser at1440x960; derived960/1440 WebP, no source UI modification; marked verification traffic",
+  "files": [
+    {
+      "path": "public/brand/apps/previews/herethere-20261018-1440.webp",
+      "sourceScreenshot": "docs/images/herethere-20261018-desktop.png",
+      "sha256": "28cc137bfb445bd3486ce097fdf67fbbeff4e4f584059214e5f6f7c85d55a197",
+      "source": "1ea82adbafac109be3a13d30071b39fddb925562",
+      "url": "https://guestbook.loftwah.com/"
+    },
+    {
+      "path": "public/brand/apps/previews/herethere-20261018-960.webp",
+      "sourceScreenshot": "docs/images/herethere-20261018-desktop.png",
+      "sha256": "bfb20c50d0f6b5b39a13f02d53629856d76542cf117590334d0dd08172736383",
+      "source": "1ea82adbafac109be3a13d30071b39fddb925562",
+      "url": "https://guestbook.loftwah.com/"
+    },
+    {
+      "path": "public/brand/apps/previews/linkarooie-20261018-1440.webp",
+      "sourceScreenshot": "docs/images/linkarooie-20261018-desktop.png",
+      "sha256": "629ded900d049d514af2e1f53d7c4cbc206ec96fe9762a7a3696f48f1ed1075b",
+      "source": "d2183515c4f603a3a6d17152d5952f740896b29d",
+      "url": "https://showcase.loftwah.com/"
+    },
+    {
+      "path": "public/brand/apps/previews/linkarooie-20261018-960.webp",
+      "sourceScreenshot": "docs/images/linkarooie-20261018-desktop.png",
+      "sha256": "184028617072b10bf9559a0720ebaa5b6cfb73f7b0ae1d79dd736d137ca2f9c4",
+      "source": "d2183515c4f603a3a6d17152d5952f740896b29d",
+      "url": "https://showcase.loftwah.com/"
+    },
+    {
+      "path": "public/brand/apps/previews/linkcheck-20261018-1440.webp",
+      "sourceScreenshot": "docs/images/linkcheck-20261018-desktop.png",
+      "sha256": "4108398cfb655af286b69e0f15beb4958a43e05021fc6bf8b605f8e7f367aae1",
+      "source": "3cfedf45e24095c4c16a48fbf8abba33b67bb668",
+      "url": "https://share.loftwah.com/"
+    },
+    {
+      "path": "public/brand/apps/previews/linkcheck-20261018-960.webp",
+      "sourceScreenshot": "docs/images/linkcheck-20261018-desktop.png",
+      "sha256": "ac0c2d0469bec84c20dd7c89c99c66a03ba0b1cd0057a36ff468509c92d97a85",
+      "source": "3cfedf45e24095c4c16a48fbf8abba33b67bb668",
+      "url": "https://share.loftwah.com/"
+    },
+    {
+      "path": "public/brand/apps/previews/hello-20261018-1440.webp",
+      "sourceScreenshot": "docs/images/hello-20261018-desktop.png",
+      "sha256": "5439aabc70a664b634b902d33caa1a0479aae6a77d665a8575945d14ac465abc",
+      "source": "13628d0e69470a81abf3cbfffeda509605cafc7d",
+      "url": "https://ready.loftwah.com/"
+    },
+    {
+      "path": "public/brand/apps/previews/hello-20261018-960.webp",
+      "sourceScreenshot": "docs/images/hello-20261018-desktop.png",
+      "sha256": "29e97857c738284a39ad1e287d0393289fb0ce6c8ac92c87b0e8e53f7feb1450",
+      "source": "13628d0e69470a81abf3cbfffeda509605cafc7d",
+      "url": "https://ready.loftwah.com/"
+    },
+    {
+      "path": "public/brand/apps/previews/carryforward-20261018-1440.webp",
+      "sourceScreenshot": "docs/images/carryforward-20261018-desktop.png",
+      "sha256": "1e045004e769a3bda25cef5a4eaac8877c6a968a0c2fb5cbddca4755ac31a547",
+      "source": "41eaf1432a8006a14a83809d8129358238a914b6",
+      "url": "https://ai.loftwah.com/"
+    },
+    {
+      "path": "public/brand/apps/previews/carryforward-20261018-960.webp",
+      "sourceScreenshot": "docs/images/carryforward-20261018-desktop.png",
+      "sha256": "535700fcd3aef47c476be7baa9b8eaef15c30fcd2993d39b1c23f1e4795ebef6",
+      "source": "41eaf1432a8006a14a83809d8129358238a914b6",
+      "url": "https://ai.loftwah.com/"
+    }
+  ]
+}

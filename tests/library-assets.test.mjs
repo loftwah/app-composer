@@ -30,8 +30,8 @@ test('each entry ships its own tile, thumbnail, share card and real screenshot',
   assert.equal(assets.image,`/brand/apps/${hero}`,id+' uses its selected hero export');
   assert.equal(assets.thumbnail,`/brand/apps/${prefix}-small-20261018.webp`,id+' uses its optical thumbnail');
   assert.equal(assets.share,`/brand/apps/${prefix}-share-20261018.jpg`,'a JPEG share card keeps og:image:type truthful');
-  assert.match(assets.preview,new RegExp(`/brand/apps/previews/${prefix}-960\\.webp$`),id+' preview is the real 960px capture');
-  assert.match(assets.previewWide,new RegExp(`/brand/apps/previews/${prefix}-1440\\.webp$`),id+' preview has a 1440px source');
+  assert.match(assets.preview,new RegExp(`/brand/apps/previews/${prefix}-20261018-960\\.webp$`),id+' preview is the real 960px capture');
+  assert.match(assets.previewWide,new RegExp(`/brand/apps/previews/${prefix}-20261018-1440\\.webp$`),id+' preview has a 1440px source');
   assert.match(line,/previewCaptured:'\d{4}-\d{2}-\d{2}'/,'every screenshot carries its capture date');
   for(const value of Object.values(assets)){
    const path='public'+value;

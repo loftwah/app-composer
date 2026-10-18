@@ -1,0 +1,53 @@
+.ca-access-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+  gap: 40px;
+  margin-top: 28px;
+}
+.ca-access-layout > * {
+  min-width: 0;
+}
+.ca-access-members article,
+.ca-access-invitations li {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: start;
+  padding: 20px 0;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  overflow-wrap: anywhere;
+}
+.ca-access-invitations {
+  list-style: none;
+  padding: 0;
+}
+.ca-access-members p,
+.ca-access-invitations p {
+  margin: 4px 0 0;
+}
+.ca-access-invite {
+  max-width: 36rem;
+  margin: 20px 0 32px;
+}
+.ca-access-members label {
+  display: grid;
+  gap: 6px;
+}
+.ca-workspace-access :is(input, select) {
+  font-size: max(16px, 1rem);
+}
+.ca-incoming-access {
+  border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  margin-top: 40px;
+  padding-top: 24px;
+}
+@media (max-width: 900px) {
+  .ca-access-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .ca-access-members article,
+  .ca-access-invitations li {
+    flex-direction: column;
+  }
+}

@@ -87,7 +87,10 @@ through `apps.ts` / `AppLauncher.astro`; the other launchers declare them in
 their shell source. New identity thumbnails must use the chosen app's icon
 master, rather than an arbitrary centre crop of its large scene.
 
-`public/brand/apps/previews/{herethere,linkarooie,linkcheck,hello,carryforward}-{960,1440}.webp`
+Current previews use `public/brand/apps/previews/{herethere,linkarooie,linkcheck,hello,carryforward}-20261018-{960,1440}.webp`.
+They were captured from the actual independently released production apps at 1440×960 on 18 October, after the common command menu shipped. The source PNGs and phone captures are in `docs/images/`; exact app revisions, capture settings and hashes are in `docs/images/capture-20261018.json` and the preview directory's dated capture receipt. There are no asset/request overrides or fictional UI fixtures. Requests carry the existing verification marker. The old undated preview files remain intact.
+
+The preview files
 are captured app screens, selected through `preview` / `previewWide`. Keep their
 honest screenshot role and capture date. Recapture after the new visible UI
 ships; do not replace screenshots with character artwork. `apps.astro` and

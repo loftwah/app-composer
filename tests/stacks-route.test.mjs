@@ -8,7 +8,7 @@ import { sqliteD1 } from './helpers/stacks-sqlite.mjs';
 
 const ORIGIN = 'https://composer.loftwah.com';
 const admin = { id: 'user-owner-0001', name: 'Owner', email: 'owner@example.test', role: 50, createdAt: '' };
-const visitor = { id: 'user-visitor-01', name: 'Visitor', email: 'visitor@example.test', role: 20, createdAt: '' };
+const visitor = { id: 'user-visitor-01', name: 'Visitor', email: 'visitor@example.test', role: 10, createdAt: '' };
 const context = (user, input, { method = 'POST', origin = ORIGIN, emdash = '1', path = 'write' } = {}) => ({
   user,
   input,
@@ -17,12 +17,12 @@ const context = (user, input, { method = 'POST', origin = ORIGIN, emdash = '1', 
 const runtime = db => ({ PUBLIC_ORIGIN: ORIGIN, DB: db });
 const document = { version: 1, name: 'Loftwah front page', description: '', theme: 'midnight', instances: [{ id: 'aaaaaaaa-1111-2222-3333-444444444444', app: 'hello', label: 'Hello', caption: '', visible: true }] };
 
-test('the stacks route refuses anyone the host did not authenticate as an administrator', async () => {
+test('the stacks route refuses unauthenticated and below-contributor callers', async () => {
   const db = sqliteD1();
   try {
     for (const [name, ctx] of [
       ['no user', context(undefined, { action: 'list' })],
-      ['non-admin user', context(visitor, { action: 'list' })],
+      ['below-contributor user', context(visitor, { action: 'list' })],
     ]) {
       const result = await manageStacks(ctx, runtime(db));
       assert.equal(result.ok, false, name);
