@@ -867,6 +867,12 @@ function cleanup(run) {
 }
 async function start(run, recoveryPoint) {
   const port = run.port;
+  // wp-config.php reads this policy from the invoking container environment.
+  // WP-CLI must use the same local/update/cron policy as HTTP WordPress.
+  const wordpressPolicy =
+    "define('WP_ENVIRONMENT_TYPE','local'); define('AUTOMATIC_UPDATER_DISABLED',true); define('WP_AUTO_UPDATE_CORE',false); define('DISALLOW_FILE_EDIT',true);" +
+    (run.scenario === "publisher" ? " define('DISABLE_WP_CRON',true);" : "") +
+    " if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO']==='https') { $$_SERVER['HTTPS']='on'; }";
   const composeConfig = {
     services: {
       database: {
@@ -897,12 +903,7 @@ async function start(run, recoveryPoint) {
           WORDPRESS_DB_NAME: "weekender",
           WORDPRESS_DB_USER: "weekender",
           WORDPRESS_DB_PASSWORD: "${LAB_DATABASE_PASSWORD}",
-          WORDPRESS_CONFIG_EXTRA:
-            "define('WP_ENVIRONMENT_TYPE','local'); define('AUTOMATIC_UPDATER_DISABLED',true); define('WP_AUTO_UPDATE_CORE',false); define('DISALLOW_FILE_EDIT',true);" +
-            (run.scenario === "publisher"
-              ? " define('DISABLE_WP_CRON',true);"
-              : "") +
-            " if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO']==='https') { $$_SERVER['HTTPS']='on'; }",
+          WORDPRESS_CONFIG_EXTRA: wordpressPolicy,
         },
         volumes: ["wordpress:/var/www/html"],
         healthcheck: {
@@ -929,6 +930,7 @@ async function start(run, recoveryPoint) {
           WORDPRESS_DB_NAME: "weekender",
           WORDPRESS_DB_USER: "weekender",
           WORDPRESS_DB_PASSWORD: "${LAB_DATABASE_PASSWORD}",
+          WORDPRESS_CONFIG_EXTRA: wordpressPolicy,
           HOME: "/tmp",
         },
         volumes: [
@@ -965,6 +967,13 @@ async function start(run, recoveryPoint) {
   )
     throw Error(
       "Compose changed the literal PHP variables; refusing source startup.",
+    );
+  if (
+    effective.services.cli.environment.WORDPRESS_CONFIG_EXTRA !==
+    effective.services.wordpress.environment.WORDPRESS_CONFIG_EXTRA
+  )
+    throw Error(
+      "CLI and web WordPress policies differ; refusing source startup.",
     );
   compose(run, [
     "up",

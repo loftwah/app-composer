@@ -40,14 +40,14 @@ function execute(root, args) {
     },
   });
 }
-function fakeDocker(root) {
+function fakeDocker(root, policyDrift = false) {
   // Failure injection only: this is never used as source/runtime/import evidence.
   const marker = join(root, "docker-commands.jsonl");
   writeFileSync(
     join(root, "bin/docker"),
     `#!/usr/bin/env node
 const fs=require('node:fs');const args=process.argv.slice(2);fs.appendFileSync(${JSON.stringify(marker)},JSON.stringify(args)+'\\n');
-if(args.includes('config')&&args.includes('--format')){console.log(JSON.stringify({services:{wordpress:{healthcheck:{test:['CMD','php','-r','$s=1;']},environment:{WORDPRESS_CONFIG_EXTRA:'$_SERVER'}}}}));process.exit(0);}
+if(args.includes('config')&&args.includes('--format')){const cfg=JSON.parse(fs.readFileSync(args[args.indexOf('--file')+1],'utf8').replaceAll('$$','$'));if(${policyDrift})delete cfg.services.cli.environment.WORDPRESS_CONFIG_EXTRA;console.log(JSON.stringify(cfg));process.exit(0);}
 if(args.includes('install')){console.error('FICTIONAL_SETUP_FAILURE');process.exit(7);}process.exit(0);
 `,
     { mode: 0o755 },
@@ -543,7 +543,7 @@ test("a live controller stays alive and SIGTERM executes scoped finally cleanup"
       join(root, "bin/docker"),
       `#!/usr/bin/env node
 const fs=require('node:fs'),path=require('node:path');const args=process.argv.slice(2);fs.appendFileSync(${JSON.stringify(marker)},JSON.stringify(args)+'\\n');const owned=args[args.indexOf('--project-directory')+1];
-if(args.includes('config')&&args.includes('--format')) console.log(JSON.stringify({services:{wordpress:{healthcheck:{test:['CMD','php','-r','$s=1;']},environment:{WORDPRESS_CONFIG_EXTRA:'$_SERVER'}}}}));
+if(args.includes('config')&&args.includes('--format')) console.log(fs.readFileSync(args[args.indexOf('--file')+1],'utf8').replaceAll('$$','$'));
 else if(args.includes('eval-file')) console.log(JSON.stringify({version:'7.1.3',fictional:true,articles:[{status:'publish',url:'http://localhost:12345/fictional'}],pages:[]}));
 else if(args.includes('export')) fs.writeFileSync(path.join(owned,'evidence/weekender.xml'),'<wp:wxr_version>FAKE_LIFECYCLE_ONLY</wp:wxr_version>');
 else if(args.includes('version')) console.log(args.includes('core')?'7.1.3':'WP-CLI 2.12.0');
@@ -596,6 +596,16 @@ else if(args.includes('--version')) console.log('MariaDB fictional lifecycle fix
         null,
         "An unsettled top-level await must not terminate the live lab",
       );
+      const registered = JSON.parse(readFileSync(registry, "utf8"));
+      const config = JSON.parse(
+        readFileSync(join(registered.root, "compose.json")),
+      );
+      const cliPolicy = config.services.cli.environment.WORDPRESS_CONFIG_EXTRA;
+      assert.equal(
+        cliPolicy,
+        config.services.wordpress.environment.WORDPRESS_CONFIG_EXTRA,
+      );
+      assert.match(cliPolicy, /AUTOMATIC_UPDATER_DISABLED/);
       const observed = execute(root, ["snapshot", "--run", registry]);
       assert.equal(observed.status, 0, observed.stderr);
       child.kill("SIGTERM");
@@ -687,4 +697,32 @@ test("cleanup retains a live owned dev consumer, then recovers only that root af
       }
       rmSync(owned, { recursive: true, force: true });
     }
+  }));
+
+test("a CLI policy mismatch refuses before any WordPress source container starts", () =>
+  fixture((root) => {
+    const marker = fakeDocker(root, true);
+    const registry = join(root, "run.json");
+    const result = execute(root, [
+      "run",
+      "--run",
+      registry,
+      "--scenario",
+      "publisher",
+    ]);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /CLI and web WordPress policies differ/);
+    const commands = readFileSync(marker, "utf8")
+      .trim()
+      .split("\n")
+      .map(JSON.parse);
+    assert.equal(
+      commands.some((args) => args.includes("up")),
+      false,
+    );
+    assert.equal(
+      JSON.parse(readFileSync(join(root, "cleanup.json"))).rootRemoved,
+      true,
+    );
+    assert.deepEqual(readdirSync(join(root, "tmp")), []);
   }));
