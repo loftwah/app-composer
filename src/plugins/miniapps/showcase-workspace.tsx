@@ -95,7 +95,12 @@ export function ShowcaseWorkspace({
           <article className="ca-card-row" key={item.id}>
             <div>
               <span className="ca-state">{item.status}</span>
-              <h3>{item.title}</h3>
+              <h3>
+                {item.title ??
+                  (item.sourceState === "unavailable"
+                    ? "Source contribution unavailable"
+                    : "Connected contribution")}
+              </h3>
               <p className="ca-muted">
                 {item.provider ? "Connected Guestbook photo" : item.url}
               </p>
@@ -165,7 +170,11 @@ export function ShowcaseWorkspace({
               {index > 0 && (
                 <button
                   disabled={busy}
-                  aria-label={"Move " + item.title + " up"}
+                  aria-label={
+                    "Move " +
+                    (item.title ?? "unavailable source contribution") +
+                    " up"
+                  }
                   onClick={() => {
                     const order = snapshot.items.map((card) => card.id);
                     [order[index - 1], order[index]] = [

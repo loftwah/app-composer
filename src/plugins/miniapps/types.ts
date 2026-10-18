@@ -15,6 +15,7 @@ export type Item = {
   pinned?: boolean;
   icon?: string;
   group?: string;
+  sourceState?: "available" | "unavailable";
 };
 export type LinkValues = {
   title: string;

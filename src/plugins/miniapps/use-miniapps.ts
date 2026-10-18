@@ -15,6 +15,7 @@ import {
   type ProfileFileDraft,
 } from "../profile-settings-admin";
 import { call } from "./api";
+import { callCollection, type CollectionRequest } from "./collection-api";
 import type { AppID, LinkDraft, StyleDraft, Snapshot } from "./types";
 export function useMiniapps() {
   const [achievementDraft, setAchievementDraft] = useState<AchievementDraft>();
@@ -190,6 +191,21 @@ export function useMiniapps() {
       setBusy(false);
     }
   };
+  const collectionRequest: CollectionRequest = async (action, fields) => {
+    if (mutating.current)
+      throw Error("Wait for the current app action to finish.");
+    mutating.current = true;
+    setBusy(true);
+    try {
+      const result = await callCollection(action, fields);
+      if (action === "feature-resource" || action === "collection-check")
+        await reload();
+      return result;
+    } finally {
+      mutating.current = false;
+      setBusy(false);
+    }
+  };
   const upload = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget,
@@ -283,6 +299,7 @@ export function useMiniapps() {
     reload,
     act,
     profileRequest,
+    collectionRequest,
     upload,
     addLink,
     snapshot,
