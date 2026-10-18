@@ -5,6 +5,7 @@ import {
   type Incoming,
   type Workspace,
 } from "./workspaces/api";
+import { useNavigationGuard } from "./stacks/use-navigation-guard";
 import { workspaceSelection } from "./stacks/workspace-scope";
 import "./workspace-access.css";
 
@@ -41,8 +42,11 @@ export function WorkspaceAccessPage() {
   const live = useRef(true);
   const draft = selected ? (drafts[selected] ?? emptyDraft()) : emptyDraft();
   const owner = access?.workspace.role === "owner";
-  const existingInvitation = access?.invitations.some(entry =>
-    entry.status === 'pending' && entry.email === draft.email.trim().toLowerCase());
+  const existingInvitation = access?.invitations.some(
+    (entry) =>
+      entry.status === "pending" &&
+      entry.email === draft.email.trim().toLowerCase(),
+  );
 
   const load = async (requested = target.current) => {
     const request = ++generation.current;
@@ -53,8 +57,7 @@ export function WorkspaceAccessPage() {
     setWorkspaces(listing.workspaces ?? []);
     setIncoming(listing.incoming ?? []);
     const chosen = requested ?? listing.workspaces?.[0]?.id;
-    if (!chosen)
-      throw Error("No workspace is available for this administrator.");
+    if (!chosen) throw Error("No workspace is available for this account.");
     const opened = await workspaceCall("open", { workspace: chosen });
     if (!opened.access || opened.access.workspace.id !== chosen)
       throw Error("The server did not confirm the selected workspace.");
@@ -115,15 +118,14 @@ export function WorkspaceAccessPage() {
   const hasEntries =
     newName.length > 0 ||
     Object.values(drafts).some((entry) => entry.email.length > 0);
-  useEffect(() => {
-    if (!hasEntries && !busy && !uncertain) return;
-    const warn = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = "";
-    };
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [hasEntries, busy, uncertain]);
+  useNavigationGuard({
+    changed: hasEntries || uncertain,
+    pending: busy,
+    onPending: () =>
+      setMessage(
+        "Wait for the current workspace operation before leaving. Your entries remain here.",
+      ),
+  });
 
   const updateDraft = (patch: Partial<Pick<InviteDraft, "email" | "role">>) => {
     if (!selected) return;
@@ -268,9 +270,9 @@ export function WorkspaceAccessPage() {
         </button>
       </div>
       <p>
-        Workspace membership requires an existing invited EmDash administrator
-        and Cloudflare Access sign-in. It does not grant either. Invitations
-        here are pending records; no email is sent.
+        Sign in with an existing Access-authorized Composer account. Workspace
+        membership does not grant site administration or bypass Access.
+        Invitations here are pending records; no email is sent.
       </p>
       {error && (
         <p role="alert" className="ca-stack-error">
@@ -477,7 +479,7 @@ export function WorkspaceAccessPage() {
                     }}
                   >
                     <label>
-                      Administrator email
+                      Account email
                       <input
                         type="email"
                         required
@@ -505,10 +507,17 @@ export function WorkspaceAccessPage() {
                         </option>
                       </select>
                     </label>
-                    {existingInvitation && <p>A pending invitation already exists for this administrator. Review or revoke it below before preparing another.</p>}
+                    {existingInvitation && (
+                      <p>
+                        A pending invitation already exists for this account.
+                        Review or revoke it below before preparing another.
+                      </p>
+                    )}
                     <button
                       type="submit"
-                      disabled={disabled || !draft.email.trim() || existingInvitation}
+                      disabled={
+                        disabled || !draft.email.trim() || existingInvitation
+                      }
                     >
                       Record pending invitation
                     </button>
@@ -589,20 +598,20 @@ export function WorkspaceAccessPage() {
       </div>
       <section
         className="ca-incoming-access"
-        aria-label="Invitations for your administrator account"
+        aria-label="Invitations for your account"
       >
-        <h2>Invitations for your administrator account</h2>
+        <h2>Invitations for your account</h2>
         <p>
-          Only invitations matching your authenticated administrator email
-          appear here. A copied page link cannot change the recipient or bypass
+          Only invitations matching your authenticated account email appear
+          here. A copied page link cannot change the recipient or bypass
           sign-in.
         </p>
         {requestedInvitation &&
           !busy &&
           !incoming.some((entry) => entry.id === requestedInvitation) && (
             <p role="status">
-              This invitation is unavailable for the signed-in administrator. It
-              may be revoked, already accepted or addressed to another account.
+              This invitation is unavailable for the signed-in account. It may
+              be revoked, already accepted or addressed to another account.
             </p>
           )}
         {!incoming.length && <p>No pending invitations for this account.</p>}

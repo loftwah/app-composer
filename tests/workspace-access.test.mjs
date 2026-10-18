@@ -7,6 +7,8 @@ import {
   readWorkspaceAccess,
   changeWorkspaceAccess,
 } from "../src/lib/workspace-access.ts";
+import { creatorPlugin } from "../src/lib/creator-plugin.ts";
+import { manageMiniapps } from "../src/lib/miniapp-admin.mjs";
 import { manageStacks } from "../src/lib/stacks-admin.mjs";
 import {
   workspaceForUser,
@@ -21,30 +23,46 @@ import {
   confirmWorkspace,
 } from "../src/plugins/stacks/workspace-scope.ts";
 
+// The packaged test entry also imports Astro virtual config. Follow its exact
+// re-export to exercise the unmodified production policy function in plain Node.
+const testRuntime = new URL(
+  import.meta.resolve("emdash/internal/plugin-test-runtime"),
+);
+const dispatchExport = readFileSync(testRuntime, "utf8").match(
+  /import \{[^}]*?([A-Za-z]+) as dispatchPluginApiRequest[^}]*?\} from "([^"]+)"/,
+);
+assert.ok(
+  dispatchExport,
+  "Installed EmDash must expose its production plugin dispatcher",
+);
+const dispatchPluginApiRequest = (
+  await import(new URL(dispatchExport[2], testRuntime))
+)[dispatchExport[1]];
+
 const origin = "https://composer.loftwah.com";
 const owner = {
   id: "fictional-owner-0001",
   email: "owner@example.test",
   name: "Fictional owner",
-  role: 50,
+  role: 20,
 };
 const editor = {
   id: "fictional-editor-0002",
   email: "editor@example.test",
   name: "Fictional editor",
-  role: 50,
+  role: 20,
 };
 const viewer = {
   id: "fictional-viewer-0003",
   email: "viewer@example.test",
   name: "Fictional viewer",
-  role: 50,
+  role: 20,
 };
 const outside = {
   id: "fictional-outside-0004",
   email: "outside@example.test",
   name: "Fictional outsider",
-  role: 50,
+  role: 20,
 };
 const ctx = (user, input, reading = false, headers = {}) => ({
   user,
@@ -286,7 +304,7 @@ test("actual revocation before the durable native stack write refuses it without
   }
 });
 
-test("pending invitations are recipient-bound one-time grants within the existing administrator boundary", async () => {
+test("pending invitations are recipient-bound one-time grants within the existing authenticated creator boundary", async () => {
   const f = fixture();
   try {
     const personal = await workspaceForUser(f.db, owner);
@@ -294,7 +312,7 @@ test("pending invitations are recipient-bound one-time grants within the existin
     const acceptance = await invite(f, personal.id, editor, "editor");
     assert.equal((await f.route(outside, acceptance)).code, "CONFLICT");
     assert.equal(
-      (await f.route({ ...editor, role: 20 }, acceptance)).code,
+      (await f.route({ ...editor, role: 10 }, acceptance)).code,
       "FORBIDDEN",
     );
     assert.equal((await f.route(undefined, acceptance)).code, "FORBIDDEN");
@@ -800,7 +818,10 @@ test("revocation before a resource journal CAS leaves no new resource, binding o
 test("native route origin, account role, selectors and strict decoder cannot supply authority from browser data", async () => {
   const f = fixture();
   try {
-    for (const caller of [undefined, { ...owner, role: 20 }])
+    for (const caller of [
+      undefined,
+      ...[10, 0, 99, "20"].map((role) => ({ ...owner, role })),
+    ])
       assert.equal(
         (await f.route(caller, { action: "list" }, true)).code,
         "FORBIDDEN",
@@ -866,6 +887,174 @@ test("native route origin, account role, selectors and strict decoder cannot sup
         },
       }),
     );
+  } finally {
+    f.close();
+  }
+});
+
+test("actual EmDash permission dispatch admits role20 Creator work and refuses legacy/global administration", async () => {
+  const f = fixture();
+  try {
+    const definition = creatorPlugin("fictional-admin-entry", f.runtime);
+    let invocations = 0;
+    const host = {
+      getPluginRouteMeta(plugin, path) {
+        if (plugin === "composer-stacks")
+          return definition.routes[path.slice(1)] ?? null;
+        if (plugin === "composer-miniapps")
+          return { methods: ["POST"], permission: "plugins:manage" };
+        return null;
+      },
+      async handlePluginApiRoute(plugin, method, path, request, user) {
+        invocations++;
+        const input =
+          method === "GET"
+            ? Object.fromEntries(new URL(request.url).searchParams)
+            : await request.json();
+        const data =
+          plugin === "composer-stacks"
+            ? await definition.routes[path.slice(1)].handler({
+                request,
+                input,
+                user,
+              })
+            : await manageMiniapps({ request, input, user }, f.runtime, {});
+        return { success: true, data };
+      },
+    };
+    const dispatch = (
+      user,
+      path,
+      input,
+      pluginId = "composer-stacks",
+      headers = {},
+    ) => {
+      const reading = path.endsWith("Read") || path === "/read";
+      const request = new Request(
+        origin +
+          "/_emdash/api/plugins/" +
+          pluginId +
+          path +
+          (reading ? "?" + new URLSearchParams(input) : ""),
+        {
+          method: reading ? "GET" : "POST",
+          headers: { Origin: origin, "X-EmDash-Request": "1", ...headers },
+          ...(reading ? {} : { body: JSON.stringify(input) }),
+        },
+      );
+      return dispatchPluginApiRequest({
+        runtime: host,
+        pluginId,
+        path,
+        request,
+        user,
+      });
+    };
+    for (const caller of [undefined, { ...owner, role: 10 }]) {
+      assert.equal(
+        (await dispatch(caller, "/accessRead", { action: "list" })).status,
+        caller ? 403 : 401,
+      );
+      assert.equal(
+        invocations,
+        0,
+        "Host refuses before a Creator handler runs",
+      );
+    }
+    for (const role of [20, 30, 40, 50]) {
+      const response = await dispatch({ ...owner, role }, "/accessRead", {
+        action: "list",
+      });
+      assert.equal(response.status, 200);
+      assert.equal((await response.json()).data.ok, true);
+    }
+    const personal = await workspaceForUser(f.db, owner);
+    const createdResponse = await dispatch(owner, "/write", {
+      action: "create",
+      workspace: personal.id,
+      name: "Role20 Creator project",
+    });
+    const created = (await createdResponse.json()).data;
+    assert.equal(created.ok, true);
+    assert.equal(created.workspace.role, "owner");
+    const accepted = await dispatch(
+      editor,
+      "/accessWrite",
+      await invite(f, personal.id, editor, "editor"),
+    );
+    assert.equal((await accepted.json()).data.ok, true);
+    const changed = await dispatch(editor, "/write", {
+      action: "save",
+      workspace: personal.id,
+      stack: created.stack.id,
+      expectedRevision: created.stack.revision,
+      document: sample("Role20 editor project"),
+    });
+    assert.equal((await changed.json()).data.ok, true);
+    assert.equal(
+      (
+        await (
+          await dispatch(outside, "/read", {
+            action: "open",
+            workspace: personal.id,
+            stack: created.stack.id,
+          })
+        ).json()
+      ).data.code,
+      "FORBIDDEN",
+    );
+    const beforeGlobal = invocations;
+    assert.equal(
+      (
+        await dispatch(
+          owner,
+          "/write",
+          { action: "settings" },
+          "composer-miniapps",
+        )
+      ).status,
+      403,
+    );
+    assert.equal(
+      invocations,
+      beforeGlobal,
+      "Global mini-app handler is never reached by role20",
+    );
+    assert.equal(
+      (await manageMiniapps(ctx(owner, { action: "settings" }), f.runtime, {}))
+        .code,
+      "FORBIDDEN",
+      "Second global boundary stays role50",
+    );
+    const packageEntry = import.meta.resolve("emdash");
+    const { GET: usersGet } = await import(
+      new URL("./astro/routes/api/admin/users/index.mjs", packageEntry)
+    );
+    const { POST: pluginDisable } = await import(
+      new URL("./astro/routes/api/admin/plugins/_id_/disable.mjs", packageEntry)
+    );
+    const globalContext = {
+      locals: { user: owner, emdash: { db: {} } },
+      url: new URL(origin + "/_emdash/api/admin/users"),
+      params: { id: "composer-miniapps" },
+    };
+    assert.equal((await usersGet(globalContext)).status, 403);
+    assert.equal((await pluginDisable(globalContext)).status, 403);
+    assert.equal(
+      (
+        await dispatch(
+          owner,
+          "/write",
+          { action: "create", name: "No CSRF" },
+          "composer-stacks",
+          { "X-EmDash-Request": "" },
+        )
+      ).status,
+      403,
+    );
+    assert.equal(owner.role, 20);
+    assert.equal(editor.role, 20);
+    assert.deepEqual(f.sqlite.prepare("PRAGMA foreign_key_check").all(), []);
   } finally {
     f.close();
   }

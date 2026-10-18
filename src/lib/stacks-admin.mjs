@@ -1,6 +1,6 @@
 // Route logic for the creator-stacks plugin. The host authenticates and
 // authorises the caller before dispatch; this second boundary rechecks the
-// admin role, the exact origin and the workspace membership, then applies the
+// creator role, the exact origin and the workspace membership, then applies the
 // capability matrix. A workspace or owner id from the request body is only a
 // selector and can never widen authority.
 import {
@@ -25,6 +25,7 @@ import {
   importStack,
   describeImport,
 } from './stacks.mjs';
+import { isCreatorRole } from './creator-access.ts';
 import { activationSummary } from './stack-activation.mjs';
 import { applyStackResources, reconcileStackResources, reuseStackResource, listStackResources, availableWorkspaceResources, resourcePublication } from './stack-resources.ts';
 import { readResourceContent, readResourceMedia, manageResourceContent } from './stack-resources.ts';
@@ -34,7 +35,7 @@ const fail = (code, message) => ({ ok: false, code, message });
 const identifier = value => typeof value === 'string' && /^[a-z0-9-]{6,64}$/.test(value);
 
 export async function manageStacks(ctx, runtime) {
-  if (!ctx.user || ctx.user.role !== 50) return fail('FORBIDDEN', 'An invited Composer administrator is required.');
+  if (!ctx.user || !isCreatorRole(ctx.user.role)) return fail('FORBIDDEN', 'A signed-in Composer creator is required.');
   if (runtime.PUBLIC_ORIGIN !== origin) return fail('UNAVAILABLE', 'Creator stacks are disconnected in this environment.');
   const request = ctx.request;
   const command = ctx.input && typeof ctx.input === 'object' && !Array.isArray(ctx.input) ? ctx.input : {};

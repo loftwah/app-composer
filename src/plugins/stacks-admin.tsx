@@ -1,4 +1,5 @@
 import { EditorSession } from "./stacks/editor-session";
+import { useNavigationGuard } from "./stacks/use-navigation-guard";
 import { WorkspaceAccessPage } from "./workspace-access";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
 import {
@@ -199,17 +200,12 @@ export function StudioPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // A browser refresh, a closed tab or a jump away is a draft-replacing action
-  // too, so it gets the same protection as switching stacks.
-  useEffect(() => {
-    if (!dirty && !busy) return;
-    const warn = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = "";
-    };
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [dirty, busy]);
+  useNavigationGuard({
+    changed: dirty,
+    pending: busy,
+    onPending: () =>
+      setMessage("Wait for the current stack operation before leaving. Your edits remain here."),
+  });
 
   const run = async (work: () => Promise<string>) => {
     if (pending.current) return;

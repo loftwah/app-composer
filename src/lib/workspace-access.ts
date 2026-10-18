@@ -3,6 +3,7 @@ import type {
   D1PreparedStatement,
 } from "@cloudflare/workers-types";
 import { z } from "zod";
+import { isCreatorRole } from "./creator-access.ts";
 import {
   StackError,
   workspaceForUser,
@@ -110,11 +111,16 @@ const conflict = () =>
     "Workspace access changed. Refresh its current members and invitations before trying again.",
     409,
   );
-const requireAdministrator = (user: User) => {
-  if (!user || user.role !== 50 || typeof user.id !== "string" || !user.id)
+const requireCreator = (user: User) => {
+  if (
+    !user ||
+    !isCreatorRole(user.role) ||
+    typeof user.id !== "string" ||
+    !user.id
+  )
     throw new StackError(
       "FORBIDDEN",
-      "An invited Composer administrator is required. Workspace membership does not grant CMS access.",
+      "A signed-in Composer creator is required. Workspace membership does not grant global administration.",
       403,
     );
 };
@@ -123,7 +129,7 @@ const trustedEmail = (user: User) => {
   if (!parsed.success)
     throw new StackError(
       "FORBIDDEN",
-      "A trusted administrator email is required for workspace invitations.",
+      "A trusted account email is required for workspace invitations.",
       403,
     );
   return parsed.data;
@@ -148,7 +154,7 @@ export async function listWorkspaceAccess(
   user: User,
   now = Date.now(),
 ) {
-  requireAdministrator(user);
+  requireCreator(user);
   await workspaceForUser(db, user);
   const spaces = await db
     .prepare(
@@ -187,7 +193,7 @@ export async function readWorkspaceAccess(
   workspace: string,
   now = Date.now(),
 ) {
-  requireAdministrator(user);
+  requireCreator(user);
   const memberRole = await membership(db, workspace, user.id);
   requireCapability(memberRole, "read");
   const current = await db
@@ -293,7 +299,7 @@ export async function changeWorkspaceAccess(
   input: unknown,
   now = Date.now(),
 ) {
-  requireAdministrator(user);
+  requireCreator(user);
   const parsed = commands.safeParse(input);
   if (!parsed.success)
     throw new StackError(
@@ -392,7 +398,7 @@ export async function changeWorkspaceAccess(
     if (command.email === trustedEmail(user))
       throw new StackError(
         "INVALID",
-        "You already own this workspace. Invite another administrator.",
+        "You already own this workspace. Invite another creator.",
       );
     const invitation = crypto.randomUUID();
     const eligible = `${ownerGuard} AND NOT EXISTS(SELECT 1 FROM creator_members WHERE workspace_id=? AND lower(email)=?)
@@ -500,10 +506,10 @@ export async function manageWorkspaceAccess(ctx: Context, runtime: Runtime) {
     code,
     message,
   });
-  if (!ctx.user || ctx.user.role !== 50)
+  if (!ctx.user || !isCreatorRole(ctx.user.role))
     return fail(
       "FORBIDDEN",
-      "An invited Composer administrator is required. Workspace membership does not grant CMS access.",
+      "A signed-in Composer creator is required. Workspace membership does not grant global administration.",
     );
   if (runtime.PUBLIC_ORIGIN !== origin || !runtime.DB)
     return fail(

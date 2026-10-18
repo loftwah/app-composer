@@ -8,24 +8,29 @@ or a copied invitation page link grants no authority. The existing personal
 workspace remains the default even when another membership was created at the
 same time. Saved stacks and publication snapshots remain in their workspace.
 
-## Administrator access comes first
+## Existing Access authentication comes first
 
-This collaboration slice stays behind the existing Cloudflare Access boundary,
-EmDash administrator role 50 and native `plugins:manage` permission. Access
-auto-provisioning currently gives role 20 and does not itself grant these native
-administration permissions. Workspace membership cannot create a CMS account,
-promote an EmDash user, change an Access policy or bypass either sign-in check.
-There is no public signup or guest-to-owner login path here.
+Creator pages and their private routes use EmDash 1.2.0's native React page
+registration and existing `content:read_drafts` contributor permission. An
+already Access-authorized contributor (role 20, the current auto-provisioning
+default) can use their personal Creator workspace and accept an explicitly
+recorded editor/viewer invitation. Every Creator operation also checks the
+selected workspace membership and capability. Subscribers (role 10), anonymous
+callers and machine tokens without a bound user cannot use these routes.
 
-Workspace roles govern the scoped Creator APIs. They do not reduce an existing
-EmDash administrator’s independent site or legacy global mini-app privileges.
-Admitting a new person as a CMS administrator is a separate consequential grant;
-this is not a least-privilege customer-admission or tenant-signup workflow.
+Workspace membership cannot create a CMS account, promote an EmDash user,
+change an Access policy or bypass sign-in. No global permissions are granted.
+Legacy **Manage mini-apps** remains `plugins:manage`/role 50, as do the existing
+EmDash global administrator APIs. Existing site administrators retain their
+independent global privileges; a workspace role does not reduce them.
 
-The site operator must separately admit any real administrator through the
-supported Access and EmDash account process. This feature does not perform or
-verify that prerequisite for a new person. See the official
-[EmDash authentication guide](https://docs.emdashcms.com/guides/authentication/).
+A new person still needs the site's existing Access admission. This feature
+neither performs nor verifies that consequential prerequisite and does not
+change authentication configuration or the auto-provisioning role. The official
+[EmDash authentication guide](https://docs.emdashcms.com/guides/authentication/)
+and [native page/API documentation](https://docs.emdashcms.com/plugins/creating-native-plugins/react-admin/)
+describe these host boundaries. Installed 1.2.0 page routing and the production
+plugin permission dispatcher are exercised by the fictional local proof.
 
 ## Roles and invitations
 
@@ -40,10 +45,10 @@ their own workspace role. No site-wide user directory is exposed. Existing
 legacy member rows keep their IDs; accepted members supply their own trusted
 account name/email for that workspace’s roster.
 
-An owner records an invitation for an administrator email and an editor/viewer
+An owner records an invitation for an account email and an editor/viewer
 role. It remains pending for seven days. **No email is sent.** The optional
 copied link opens the protected Workspace access page; it is not a bearer
-credential. Only the authenticated administrator whose trusted account email
+credential. Only the authenticated creator whose trusted account email
 matches the record can accept it. Acceptance is explicit, atomic and one-time.
 It adds that workspace membership while keeping the recipient’s existing
 personal workspace. Revoked or expired records cannot grant access. Preparing
@@ -79,7 +84,7 @@ responses for another workspace are refused. Workspace access keeps invitation
 entries with their original workspace and disables selection while a request
 is pending.
 
-Limits are 32 memberships per administrator, 64 members per workspace and 32
+Limits are 32 memberships per account, 64 members per workspace and 32
 unexpired pending invitations per workspace. The owner view shows up to 50
 recent invitation records, with pending records first.
 
