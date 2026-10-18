@@ -1,0 +1,33 @@
+# Complete publisher run: source and recovery observations
+
+18 October 2026. These observations cover a genuine local fictional WordPress source and its recovery. They do not establish the complete destination, Classic Editor, hosted, physical-device or issues 165–168 gates.
+
+## Genuine source
+
+The clean `bf4bbbdf50d9edefe263d03e9bdc47637589172f` controller started the exact official image digests in `../versions.json`. Actual runtime: WordPress 7.1.3, PHP 8.3.35, WP-CLI 2.12.0 and MariaDB 11.4.8 on aarch64. Native WordPress APIs created 30 complete articles, eight pages, three author bylines, three attachments and two threaded comments. Twenty-four articles were public; two draft, one private, one pending and two future. Two real `wp_block` records were each referenced by two articles. Two galleries preserved the source image order and captions. A real `core/latest-posts` block rendered a changing list in WordPress.
+
+Native `wp export` produced 121,385 bytes, SHA-256 `b530f8e2018a191ee5bc6b3c6c1ca1318c3a8f9010be73c67bade66387f8a0da`. This was the first local source export; subsequent origin changes and exports have their own hashes. Never carry this hash forward to a later import file without comparing the bytes.
+
+The actual near-term schedule was 18 October 2026 14:55:06 Australia/Melbourne / 03:55:06 UTC. The original far-future record remained 22 April 2032 08:30 Melbourne / 21 April 2032 22:30 UTC. Neither scheduled execution nor destination parity was inferred from those stored values.
+
+## Actual SQL/files recovery
+
+The source entered native maintenance mode while a complete database export and source-files archive were taken. The database was 135,639 bytes; SHA-256 `81ae0eb08769a097d77e17ce845346051c42bcdc84f7a41ef2e5558d84e36c49`. The compressed source archive was 13,973,568 bytes, SHA-256 `e09d1e3217991fbcea00c8af9d39c69062f6a0634a2b48a29746789e6dd7a88a`: 467 files / 15,531,791 uncompressed bytes, including 11 upload files, 404 theme files, 49 plugin files and the configuration. Those plugin files were the source's actual stock files; this checkpoint did not contain the EmDash Exporter or Classic Editor. The private manifest hash is `c05191e2b9ef892ed816bde962c9a24a63cbf7580ab5c2d903b69471cc252745`. Configuration, SQL and credentials remain in the private ignored recovery bundle and are excluded from public captures.
+
+The original WordPress/database pair was stopped and its origin was observed unreachable. At `f28d5c06c206e1e629a044d42fdcb487a2670e68`, a new registered Docker project, database, volume and local credentials restored the actual SQL and file archive. Before origin/password adaptation, the entire native inventory matched the backup, including source body hashes, IDs, statuses, dates, hierarchy, media metadata/bytes, blocks and comments. Native search-replace then changed only that new source's origin while retaining GUIDs; its new generated DB wiring was kept and fictional administrator password rotated. The original project's volumes and temporary root were then removed exactly. The private recovery point remained available outside that removed runtime.
+
+Fresh Chromium 155.0.8059.80 verified the restored source while the original remained unreachable: 32 public article/page addresses 200, six nonpublic cases 404 and all three attachment hashes exact. Actual story/gallery/shared-note reading and category→Back passed; 390px had no horizontal overflow, page errors or requests to the old source origin. The initial ambiguous image/title link selector failure was retained before correcting it to the observed heading link. Owned browser profile and restore staging were removed in `finally`.
+
+Two real PHP negative cases, not mock source proof, refused before extraction: archive path traversal and an entry checksum mismatch. The complete native source inventory stayed equal after both. Ten focused Node lifecycle/preflight tests additionally cover interrupted backup cleanup, pre-existing maintenance/staging/lock preservation, changed image pins, unrelated origins and incomplete/corrupt recovery manifests.
+
+## Installed converter gap and explicit repair
+
+The exact installed `@emdash-cms/gutenberg-to-portable-text@1.2.0` converted genuine WXR bodies from source posts 19 and 36. It retained the gallery but dropped their empty self-closing `core/block` and `core/latest-posts` references. This is a direct converter observation, not a completed native database import. The original WXR bodies and converted output are retained in the ignored run bundle.
+
+The publisher's empty recipe target adds two optional native Story fields: shared-note section slug and latest-published-stories choice. The generated migration ledger names source post/block IDs and the required **owner-set** values. It seeds no destination records or feature choices. The reader uses EmDash 1.2.0's current native section and published collection queries; a library edit and new published story must still prove the resulting behavior after actual import. The automatic-fidelity gap remains explicit. Native section insertion copies content; the centrally queried shared-note path is the deliberate synchronized adaptation described by the [official sections guide](https://docs.emdashcms.com/guides/sections/).
+
+## Remaining execution
+
+Actual empty-target WXR and Exporter imports; every-field reconciliation and manual metadata/hierarchy repairs; late shared-note edit reaching both articles; new native story reaching the dynamic list; real timezone/scheduler execution; native edit/preview/publish/media; conventional Classic theme plus actual Classic Editor; failed-media/credential/retry/changed-slug/freeze/delta cases; executable update/rollback and separate destination DB/media recovery with post-backup writes; complete URL/archive/SEO matrix; source-off fresh Chromium/WebKit destination journeys and persisted restart. Hosted cutover/reversal, physical authentication and finished captioned films remain separate. Elementor/ACF remain next, not complete.
+
+Useful bounded receipts and raw captures are under ignored `output/wordpress-publisher-complete-20261018/` and `output/playwright/wordpress-publisher-complete-20261018/`. They include exact runtime inputs, actual WXR, inventory, private-backup public metadata, restoration and negative-case/browser receipts, failed attempts, screenshots and real 1280×800 reading segments. They exclude owner cookies, auth headers and the whole temporary project. Root owns any later release and captioned film production.

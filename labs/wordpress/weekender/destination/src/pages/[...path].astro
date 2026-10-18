@@ -1,5 +1,5 @@
 ---
-import { getEmDashEntry } from "emdash";
+import { getEmDashEntry, getEmDashCollection, getSection } from "emdash";
 import { Image, PortableText } from "emdash/ui";
 import { Comments } from "emdash/ui/comments";
 import { ownedImage } from "../lib/owned-image.mjs";
@@ -15,6 +15,8 @@ type Article = {
   content?: unknown[];
   byline?: unknown;
   terms?: unknown;
+  shared_note?: unknown;
+  show_latest?: unknown;
 };
 import "../styles/publisher.css";
 const path = "/" + (Astro.params.path ?? "").replace(/^\/+|\/+$/g, "") + "/";
@@ -46,8 +48,63 @@ const byline =
       text(entry.data.byline.display_name) ||
       text(entry.data.byline.name)
     : "";
+const sharedSlug = collection === "posts" ? entry?.data.shared_note : undefined;
+const sharedRequested =
+  sharedSlug !== undefined && sharedSlug !== null && sharedSlug !== "";
+let sharedNote: Awaited<ReturnType<typeof getSection>> = null;
+let featureError = false;
+if (sharedRequested) {
+  if (typeof sharedSlug !== "string" || !/^[a-z0-9-]{1,100}$/.test(sharedSlug))
+    featureError = true;
+  else {
+    try {
+      sharedNote = await getSection(sharedSlug);
+      featureError = !sharedNote;
+    } catch {
+      featureError = true;
+    }
+  }
+}
+const showLatest = collection === "posts" ? entry?.data.show_latest : undefined;
+if (
+  showLatest !== undefined &&
+  showLatest !== null &&
+  typeof showLatest !== "boolean"
+)
+  featureError = true;
+const latest =
+  showLatest === true
+    ? await getEmDashCollection<"posts", Article>("posts", {
+        status: "published",
+        limit: 6,
+        orderBy: { published_at: "desc" },
+      })
+    : { entries: [], error: undefined };
+featureError ||= !!latest.error;
+const latestStories = latest.entries
+  .flatMap((item) => {
+    const slug = text(item.data.slug);
+    const title = text(item.data.title);
+    if (
+      slug === text(entry?.data.slug) ||
+      !/^[a-z0-9-]{1,200}$/.test(slug) ||
+      !title
+    )
+      return [];
+    const href =
+      routes.find(
+        (route) =>
+          route.collection === "posts" &&
+          route.slug === slug &&
+          !route.query &&
+          route.path !== "/",
+      )?.path ?? "/stories/" + encodeURIComponent(slug) + "/";
+    return [{ title, href }];
+  })
+  .slice(0, 5);
 if (error) Astro.response.status = 503;
 else if (!entry) Astro.response.status = 404;
+else if (featureError) Astro.response.status = 503;
 Astro.response.headers.set("Cache-Control", "no-store");
 ---
 
@@ -82,6 +139,34 @@ Astro.response.headers.set("Cache-Control", "no-store");
             value={Array.isArray(entry.data.content) ? entry.data.content : []}
           />
         </div>
+        {sharedNote && (
+          <aside
+            class="publisher-shared publisher-prose"
+            aria-label={sharedNote.title}
+          >
+            <PortableText value={sharedNote.content} />
+          </aside>
+        )}
+        {latestStories.length > 0 && (
+          <section
+            class="publisher-latest"
+            aria-labelledby="latest-stories-title"
+          >
+            <h2 id="latest-stories-title">The latest from the Weekender</h2>
+            <ul>
+              {latestStories.map((story) => (
+                <li>
+                  <a href={story.href}>{story.title}</a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {featureError && (
+          <p role="alert">
+            Part of this story is temporarily unavailable. Try again later.
+          </p>
+        )}
         {collection === "posts" && typeof entry.data.id === "string" && (
           <Comments collection="posts" contentId={entry.data.id} threaded />
         )}

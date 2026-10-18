@@ -105,6 +105,25 @@ html.composer-content-site .publisher-credit {
   padding-top: 1.5rem;
   border-top: 1px solid currentColor;
 }
+html.composer-content-site :is(.publisher-shared, .publisher-latest) {
+  margin-block: 2.5rem;
+  padding-block: 1.5rem;
+  border-block: 1px solid var(--border);
+}
+html.composer-content-site .publisher-latest h2 {
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  line-height: 1.2;
+  margin-block: 0 1rem;
+}
+html.composer-content-site .publisher-latest ul {
+  padding-inline-start: 1.25rem;
+}
+html.composer-content-site .publisher-latest a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-block: 0.5rem;
+}
 html.composer-content-site .publisher .sr-only {
   position: absolute;
   width: 1px;

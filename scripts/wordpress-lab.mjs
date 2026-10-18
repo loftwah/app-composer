@@ -1092,6 +1092,24 @@ try {
             required: false,
             group: "Story",
           },
+          ...(run.scenario === "publisher"
+            ? [
+                {
+                  key: "shared_note",
+                  label: "Shared note (native section slug)",
+                  type: "string",
+                  required: false,
+                  group: "Story",
+                },
+                {
+                  key: "show_latest",
+                  label: "Show the latest published stories",
+                  type: "boolean",
+                  required: false,
+                  group: "Story",
+                },
+              ]
+            : []),
         ],
       };
       const inventory = JSON.parse(
@@ -1122,6 +1140,64 @@ try {
           query: url.search,
         };
       });
+      const sections = new Map(
+        (inventory.syncedBlocks ?? []).map((section) => [section.id, section]),
+      );
+      const walkBlocks = (blocks, depth = 0) => {
+        if (!Array.isArray(blocks) || blocks.length > 200 || depth > 10)
+          throw Error("The actual source block inventory exceeds its bound.");
+        return blocks.flatMap((block) => [
+          block,
+          ...walkBlocks(block.children ?? [], depth + 1),
+        ]);
+      };
+      const adaptation = inventory.articles.flatMap((article) => {
+        const operations = walkBlocks(article.blocks ?? []).flatMap((block) => {
+          if (block.name === "core/block") {
+            const section = sections.get(block.attributes?.ref);
+            if (!section || !/^[a-z0-9-]{1,100}$/.test(section.slug))
+              throw Error(
+                "A source synced reference needs a supported mapping decision.",
+              );
+            return [
+              {
+                sourceBlock: block.name,
+                sourceBlockId: section.id,
+                sourceSectionSlug: section.slug,
+                field: "shared_note",
+                ownerValue: section.slug,
+              },
+            ];
+          }
+          return block.name === "core/latest-posts"
+            ? [
+                {
+                  sourceBlock: block.name,
+                  field: "show_latest",
+                  ownerValue: true,
+                },
+              ]
+            : [];
+        });
+        for (const field of ["shared_note", "show_latest"])
+          if (
+            operations.filter((operation) => operation.field === field).length >
+            1
+          )
+            throw Error(
+              "This publisher has one shared-note/latest field per article; multiple source blocks need a separate mapping decision.",
+            );
+        return operations.length
+          ? [
+              {
+                sourcePostId: article.id,
+                sourceSlug: article.slug,
+                sourceStatus: article.status,
+                operations,
+              },
+            ]
+          : [];
+      });
       createContentProject({ model, destination });
       const overlay = join(fixture, "destination");
       const authored = {};
@@ -1139,10 +1215,38 @@ try {
         JSON.stringify(routes, null, 2) + "\n",
       );
       writeFileSync(
+        join(destination, "weekender-migration.json"),
+        JSON.stringify(
+          {
+            schema: "app-composer.weekender-adaptation/1",
+            sourceBase: run.sourceBase,
+            automaticReferenceFidelity: adaptation.length ? false : null,
+            ownerSetMappingRequired: adaptation.length > 0,
+            destinationEntriesSeeded: 0,
+            mapping: adaptation,
+          },
+          null,
+          2,
+        ) + "\n",
+      );
+      writeFileSync(
+        join(destination, "MIGRATION.md"),
+        `# Weekender migration decisions\n\nImport the actual WordPress source through the native authenticated importer. No entries, media, owner account or feature values have been seeded here.\n\nThe installed EmDash 1.2.0 converter drops empty self-closing core/block and core/latest-posts references, even when wp_block records become native sections. This is an automatic-fidelity gap. The exact source IDs and owner-set mapping are in weekender-migration.json. After import, use the native Story editor to set Shared note to the listed imported section slug and enable Show the latest published stories only for the listed article. Save and publish each explicit adaptation; record actual destination entry/section IDs and the owner actions in the reconciliation ledger. Never call this automatic preservation.\n\nThe reader queries the current native section value on each request. Editing that native library section must update both referencing articles. Its latest list queries only current published native stories, including a newly published story; drafts/private/future records remain excluded. A copied /section insertion has different copy semantics and is not a synchronized reference.\n\nRepair and record imported image alt/caption and category hierarchy in the normal native controls if their installed importer gaps remain. Preserve the original source and all failed attempts. A successful build or a generated mapping is not completed migration proof.\n`,
+      );
+      writeFileSync(
         join(destination, "weekender-lab.json"),
         JSON.stringify(
           {
             sourceBase: run.sourceBase,
+            destinationSourceBase: spawnSync("git", ["rev-parse", "HEAD"], {
+              cwd: repository,
+              encoding: "utf8",
+            }).stdout.trim(),
+            destinationSourceDirty: !!spawnSync(
+              "git",
+              ["status", "--porcelain", "--untracked-files=normal"],
+              { cwd: repository, encoding: "utf8" },
+            ).stdout.trim(),
             recipe: "Composer createContentProject",
             overlay: authored,
             oldRoutesSHA256: hash(Buffer.from(JSON.stringify(routes))),
