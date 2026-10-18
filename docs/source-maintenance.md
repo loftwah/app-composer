@@ -57,7 +57,7 @@ Touch/click opening focuses Close without opening the keyboard. Cmd/Ctrl+K opens
 
 For each update: edit maintained TS/CSS, emit the controller, explicitly check/write all five checkout paths, review each diff, check/build each independent app, and verify both mounted routes after their exact source-pin promotion. The maintenance check type-checks the controller before comparing all selected copies and refuses stale generated source. A new launcher copy is allowed only through explicit write; existing sharing/theme files and linked paths retain their safety checks.
 
-App-specific navigation/header branding, theme storage keys and bootstrap scripts remain separate. The content-site template has its own simple site header rather than an Apps launcher and is not a launcher consumer.
+App-specific navigation/header branding, theme storage keys and bootstrap scripts remain separate. New content-site projects are also independent launcher consumers. Their finite copier captures the checked controller source, emission script/config, local distribution/styles, Space font/OFL, Composer return identity and all five mini-app thumbnails in `composer-project.json`. Their header uses absolute external app destinations and an explicit Composer home. The same controller supplies the task list and keyboard behaviour; no Composer runtime asset fetch is introduced. `pnpm check:types` in each generated project verifies its own checked launcher and output. Existing owner projects are never silently updated.
 
 ## Verification
 
@@ -70,3 +70,5 @@ pnpm check:types
 ```
 
 For editor changes, exercise app switching, unsaved inputs, refresh/conflict recovery and explicit saves with fictional fixtures. Check the protected live editor after release using an existing authorized administrator session. Source cleanup does not justify mutating owner content. Existing production deployment checks remain the release boundary.
+
+The new-project copier is authored in `lib/content-model/project.mts`; the existing content-source command emits/checks its readable JavaScript and declarations. Narrow declarations describe the existing tested filesystem helpers; they do not convert or widen those helpers. Shared launcher source/script/config copies retain the source repository formatting so their bytes and provenance stay exact; this narrow Prettier exception is listed in the generated project.

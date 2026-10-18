@@ -10,6 +10,7 @@ if (!["--check", "--write", "--lint"].includes(mode))
 const sources = [
   "lib/content-model/calendar-date.mts",
   "lib/content-model/index.mts",
+  "lib/content-model/project.mts",
   ...["collection", "entry", "number-input", "editor-compatibility"].map(
     (name) => "lib/content-model/site-template/src/lib/" + name + ".mts",
   ),
@@ -31,12 +32,21 @@ const options = {
 const host = ts.createCompilerHost(options);
 // A generated site receives this same model source as content-model.mts. Resolve
 // its helpers against the authored implementation here, never a stale declaration.
-const templateLibrary = resolve(root, "lib/content-model/site-template/src/lib");
-host.resolveModuleNames = (names, containingFile) => names.map(name =>
-  name === "./content-model.mjs" && dirname(containingFile) === templateLibrary
-    ? {resolvedFileName: resolve(root, "lib/content-model/index.mts"), extension: ts.Extension.Mts}
-    : ts.resolveModuleName(name, containingFile, options, host).resolvedModule
+const templateLibrary = resolve(
+  root,
+  "lib/content-model/site-template/src/lib",
 );
+host.resolveModuleNames = (names, containingFile) =>
+  names.map((name) =>
+    name === "./content-model.mjs" &&
+    dirname(containingFile) === templateLibrary
+      ? {
+          resolvedFileName: resolve(root, "lib/content-model/index.mts"),
+          extension: ts.Extension.Mts,
+        }
+      : ts.resolveModuleName(name, containingFile, options, host)
+          .resolvedModule,
+  );
 const program = ts.createProgram(
     sources.map((name) => resolve(root, name)),
     options,

@@ -1,0 +1,100 @@
+---
+import { getEmDashEntry } from "emdash";
+import { Image, PortableText } from "emdash/ui";
+import { Comments } from "emdash/ui/comments";
+import { ownedImage } from "../lib/owned-image.mjs";
+import Layout from "../layouts/ContentLayout.astro";
+import routes from "../old-routes.json";
+import type { ComponentProps } from "astro/types";
+type Article = {
+  id?: string;
+  title?: string;
+  slug?: string;
+  excerpt?: string;
+  featured_image?: ComponentProps<typeof Image>["image"];
+  content?: unknown[];
+  byline?: unknown;
+  terms?: unknown;
+};
+import "../styles/publisher.css";
+const path = "/" + (Astro.params.path ?? "").replace(/^\/+|\/+$/g, "") + "/";
+const old = routes.find((route) => route.path === path);
+const fresh = /^\/(stories|blog|posts|pages)\/([a-z0-9-]{1,200})\/$/.exec(path);
+const pageSlug = /^\/([a-z0-9-]{1,200})\/$/.exec(path);
+const collection =
+  old?.collection ??
+  (fresh
+    ? fresh[1] === "pages"
+      ? "pages"
+      : "posts"
+    : pageSlug
+      ? "pages"
+      : null);
+const slug = old?.slug ?? fresh?.[2] ?? pageSlug?.[1];
+const { entry, error } =
+  collection && slug
+    ? await getEmDashEntry<string, Article>(collection, slug)
+    : { entry: undefined, error: undefined };
+const record = (v: unknown): v is Record<string, unknown> =>
+  !!v && typeof v === "object" && !Array.isArray(v);
+const text = (v: unknown) => (typeof v === "string" ? v : "");
+const media = await ownedImage(entry?.data.featured_image);
+const title = entry ? text(entry.data.title) : "This story is unavailable.";
+const byline =
+  entry && record(entry.data.byline)
+    ? text(entry.data.byline.displayName) ||
+      text(entry.data.byline.display_name) ||
+      text(entry.data.byline.name)
+    : "";
+if (error) Astro.response.status = 503;
+else if (!entry) Astro.response.status = 404;
+Astro.response.headers.set("Cache-Control", "no-store");
+---
+
+<Layout
+  title={title + " · Macedon Weekender"}
+  description={
+    entry
+      ? text(entry.data.excerpt)
+      : "Browse the latest published Weekender stories."
+  }
+  article={!!entry}
+>
+  <article class="publisher publisher-detail">
+    <a href="/">Back to the latest stories</a>
+    <h1>{title}</h1>
+    {error ? (
+      <p role="alert">
+        The story is temporarily unavailable. Try again after the local owner
+        checks its EmDash storage.
+      </p>
+    ) : entry ? (
+      <>
+        {byline && <p class="publisher-byline">By {byline}</p>}
+        {media.image && (
+          <figure>
+            <Image image={media.image} priority />
+            {media.caption && <figcaption>{media.caption}</figcaption>}
+          </figure>
+        )}
+        <div class="publisher-prose">
+          <PortableText
+            value={Array.isArray(entry.data.content) ? entry.data.content : []}
+          />
+        </div>
+        {collection === "posts" && typeof entry.data.id === "string" && (
+          <Comments collection="posts" contentId={entry.data.id} threaded />
+        )}
+      </>
+    ) : (
+      <p>
+        This address does not name a currently published story. Draft and
+        private work remains with the editor.
+      </p>
+    )}
+    <p class="publisher-credit">
+      Macedon Weekender is a fictional publishing demonstration, built with{" "}
+      <a href="https://composer.loftwah.com/">App Composer</a>.
+    </p>
+  </article>
+</Layout>

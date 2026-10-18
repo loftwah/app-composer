@@ -1,0 +1,59 @@
+# Macedon Weekender: genuine WordPress publisher lab
+
+This fictional publisher is the first local vertical slice for App Composer issues 165–168. WordPress owns and exports the source. EmDash must import into an empty, independent Composer-created destination. A destination separately seeded from these story files is not migration proof.
+
+The initial scope is four complete public articles, four non-public status cases, three pages including a nested page, three guest-author identities, a hierarchical category, tags, two theme-provided photographs, a downloadable text guide and a threaded fictional comment. The approximately 30-article/full publishing scenario, Classic Editor, synced/dynamic block coverage, scheduling parity, retry/cutover/restore and hosted deployment remain separate unproven gates. Elementor, ACF and commerce are untouched.
+
+`versions.json` pins actual official multi-platform image digests: WordPress 7.1.3/PHP8.3, MariaDB 11.4.8 and WP-CLI 2.12.0. The Composer-created destination retains EmDash 1.2.0/Astro 7.3.5/Node 22 and its separately pinned pnpm 12.9.1 lockfile. Image digests were resolved from the official Docker registry; no remote build is involved. Images can be acquired through ordinary `docker pull` by digest. No public customer source, real people or external private credentials are used.
+
+## Start the isolated source
+
+Use Node 22 and the local Docker context reviewed for this machine (`orbstack`, explicit local socket). This checkout has no provider authority. Root scripts never call Composer production deploy/compose or use production bindings.
+
+```sh
+mkdir -p output/wordpress-weekender
+node scripts/wordpress-lab.mjs run --run "$PWD/output/wordpress-weekender/run.json"
+```
+
+The long-lived controller allocates exactly one registered temporary root, unique Docker Compose project/network/volumes, random local-only credentials and an available loopback port. It caps each persistent source service at 0.5 CPU / 384 MB, installs the genuine source, seeds once through WordPress APIs as the fictional administrator, then independently observes the source and invokes native `wp export`. Snapshots are read-only and never reseed or overwrite source edits. Repeated seeding is refused. The source remains running while the actual import is performed; SIGTERM/interrupt runs finally cleanup. A failed setup also cleans only this registered project. Keep the controller terminal alive.
+
+The recorded `source-inventory.json` and `source-wordpress-export.xml` come from the live WordPress engine. The fixture JSON supplies only deterministic WordPress seeding input; it is never an EmDash content seed. Photographs are copied from the pinned official source theme assets through WordPress media APIs; inspect and retain the originating theme’s image licences/credits before publishing a public story. This does not claim the pictures depict Macedon.
+
+Run these from another terminal using the exact same registry:
+
+```sh
+node scripts/wordpress-lab.mjs status --run /absolute/output/run.json
+node scripts/wordpress-lab.mjs snapshot --run /absolute/output/run.json
+node scripts/wordpress-lab.mjs transport --run /absolute/output/run.json
+node scripts/wordpress-lab.mjs exporter --run /absolute/output/run.json
+node scripts/wordpress-lab.mjs source-off --run /absolute/output/run.json
+node scripts/wordpress-lab.mjs down --run /absolute/output/run.json
+```
+
+`destination --run /absolute/output/run.json` creates an empty, independent project through the actual Composer recipe and overlays the publisher reader. It seeds no entries or accounts. Install its frozen lockfile and run the native setup/import UI; the ordinary passkey path can be tested with a clearly labelled isolated virtual authenticator, without claiming physical or production authentication. The independent target has its own strict type/format/test/build gates; its source template is excluded from Composer’s application TS program because it is checked in the generated project.
+
+`resume --run /absolute/output/run.json` reattaches cleanup ownership only after the recorded controller has exited; it refuses a still-live PID and preserves the exact existing fictional source.
+
+`source-off` stops only the selected WordPress/database services and their registered temporary tunnel; it leaves an independent destination running. Close this run’s registered browser/dev server before `down`. The source controller never kills an operator’s dev server or browser; if a local consumer still refers to its owned root it retains the files and records that cleanup gate. After closing the exact consumer, run `down` again to finish recovery. `down` verifies the controller identity before signalling it, and `cleanup.json` records actual removal. Never use global Docker cleanup. The existing protected Protocol 11 image and unrelated projects remain intact. Container images are a separately inventoried cache; remove only exact newly acquired digests after checking no other container/run uses them.
+
+## Actual import and acceptance boundary
+
+EmDash 1.2.0’s WordPress media importer rejects private-network URLs. Use temporary HTTPS source transport, retaining these guards. `versions.json` records a pinned, checksummed cloudflared archive for this Mac; it is a local temporary tool, never a global install. A Quick Tunnel is transient and is not a durable destination or a deployment receipt. `transport` downloads only that pinned archive/binary into the registered root, starts the temporary source tunnel, updates only this fictional WordPress source’s home/site URL and source-content URLs through native WP-CLI, then exports WXR again. Existing healthy registered transport is reused. No application importer private-network guard is disabled. Stable WordPress GUIDs remain identifiers. `exporter` installs only the checksummed official EmDash Exporter 1.2.0 ZIP in that source and calls its native application-password migration-key generator. Its key stays in the private registered root, with mode 0600, and is never printed or copied to evidence. Paste it privately into the normal owner import UI. The source remains the real WordPress engine; vendor JSON responses are not hand-authored import fixtures.
+
+Create a fresh independent project with Composer’s reviewed content-project recipe, prepare an ordinary fictional local owner, and use the native `/_emdash/admin/import/wordpress` flow: analyze WXR, prepare compatible native fields, import, copy attachments and rewrite media URLs. Current official docs are useful but actual installed 1.2.0 code and responses own the tested contract. The separate conversion-only CLI cannot stand in for this database/admin import. Do not disable authentication or seed destination content to hide an importer failure.
+
+Before accepting a publisher result: reconcile every source ID/status/byline/taxonomy/media and URL disposition; inspect native rich-text editing; revise/imported draft/preview/publish; upload/replace an image; create a new article and find it in its public archive/search; inspect desktop and phone in both themes. Then stop WordPress and its tunnel, start a fresh empty-cache browser, and verify public routes plus owned attachment bytes with network evidence. A build, WXR file, row count or static screenshot does not establish those gates. First complete this publisher slice before extending Elementor/ACF.
+
+Use one bounded run bundle under ignored `output/`: actual source/target versions and source digest, WXR/inventory, mapping and reconciliation, meaningful failures and actual UI captures. Keep credentials/cookies out of exported evidence. Preserve reproducible source here; remove temporary projects/databases/dependency copies after recording useful proof. Hosted release, physical/native authentication and issue 165–168 completion require their own observations.
+
+Current implementation source commands and schema are local-lab scope. Public HTTPS transport and the native import/owner/browser run are recorded as actual run steps rather than hidden deployment automation. No claimed supported state is inferred from the scaffold.
+
+## Reader and native owner workflow
+
+The publisher overlay renders native Portable Text, three ordinary pages and the original dated article paths. It also supports the native `/posts/{slug}` owner view/preview addresses and new `/stories/{slug}/` links. A native page’s root slug is supported alongside its preserved nested old address. The legacy `?p=ID`/`?page_id=ID` handler checks an exact bounded mapping and native publication visibility before redirecting. It never uses a source URL as a redirect destination. Search matches title, excerpt, byline and Portable Text span text; topic filtering is a normal GET form over the bounded first 100 published stories; larger archives need the full scenario’s pagination work.
+
+After importing, use Content Types → the posts collection to choose the ordinary publisher features: label Story/Stories, routable with `/posts/{slug}`, Preview, Search, and comments if the owner wants the imported thread visible. Select **Save** explicitly; merely changing those controls does not persist them. The reader includes the native approved-comment component and no public submission form.
+
+The installed 1.2.0 WXR path does not import comments or site settings. The official 1.2.0 exporter retry can skip existing content and reconstruct the source-ID map, adding threaded comments and site identity. The tested media import preserved bytes but left alt/caption blank, including a deduplicated exporter retry. The category names and article assignments survived, but the parent of Walks was flattened in both paths. Restore Walks → Field notes in the native Categories editor and explicitly record that manual reconciliation; automatic hierarchy fidelity remains unmet. The installed runtime retained the future article as scheduled with the same UTC instant, whereas current documentation describes a draft conversion. Execution at the future clock is untested. This remains an upstream automatic-metadata gap. For this small publisher, reconcile the exact source alt/caption in the native Media Library before accepting it. `owned-image.mts` then reads only the referenced ready image from this app’s native database, so current owner-edited metadata renders even when the importer left a rewritten local URL with an empty external ID. It neither fetches source media nor rewrites stored content. Its readable JS/declarations are checked by the independent project’s existing strict source guard.
+
+Draft editing and publication remain separate native actions. Verify the old public version while a revision is saved, use the native Preview action, then confirm Publish now. For a new story, choose an app-owned image, save, verify its public URL still returns 404, preview through the native owner session, publish and find it in the archive/search. Native crop-copy and replacement can be tested on a new owned copy while preserving all imported originals. A virtual authenticator exercises browser WebAuthn only; it proves neither a physical passkey nor hosted recovery.

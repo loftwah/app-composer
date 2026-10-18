@@ -1,0 +1,20 @@
+[
+  {
+    "file": "404-image.webp",
+    "sha256": "6873efa2823693885dcb88526d155c461d23d785f817249e5721b92025133059",
+    "title": "Totara tree above Porirua Harbour",
+    "alt": "A small totara tree on a ridge above a harbour.",
+    "caption": "CC0 photograph by Leslie Adkin, depicting Porirua Harbour, supplied with the WordPress theme. Used for a fictional story; this is not a photograph of Macedon.",
+    "source": "https://www.rawpixel.com/image/13029755",
+    "license": "CC0"
+  },
+  {
+    "file": "botany-flowers-closeup.webp",
+    "sha256": "29d0c0b5ac0c692f00a5ff0bcc7ae7e169448df3ce62f3b81cd9cba09ff31220",
+    "title": "Botanical flowers",
+    "alt": "A close view of botanical flowers.",
+    "caption": "CC0 botanical image supplied with the WordPress theme, used to illustrate a fictional Weekender story.",
+    "source": "https://www.rawpixel.com/image/8812207",
+    "license": "CC0"
+  }
+]

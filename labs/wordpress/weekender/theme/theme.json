@@ -1,0 +1,110 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "settings": {
+    "appearanceTools": true,
+    "layout": {
+      "contentSize": "720px",
+      "wideSize": "1180px"
+    },
+    "color": {
+      "palette": [
+        {
+          "slug": "paper",
+          "name": "Paper",
+          "color": "#f4f1e9"
+        },
+        {
+          "slug": "ink",
+          "name": "Ink",
+          "color": "#263b35"
+        },
+        {
+          "slug": "clay",
+          "name": "Clay",
+          "color": "#aa4e28"
+        }
+      ]
+    },
+    "typography": {
+      "fontFamilies": [
+        {
+          "slug": "editorial",
+          "name": "Weekender Editorial",
+          "fontFamily": "\"Weekender Editorial\",serif",
+          "fontFace": [
+            {
+              "fontFamily": "Weekender Editorial",
+              "fontStyle": "normal",
+              "fontWeight": "400",
+              "src": ["file:./assets/fonts/Literata72pt-Regular.woff2"]
+            }
+          ]
+        },
+        {
+          "slug": "reader",
+          "name": "Reader",
+          "fontFamily": "system-ui,sans-serif"
+        }
+      ]
+    }
+  },
+  "styles": {
+    "color": {
+      "background": "var:preset|color|paper",
+      "text": "var:preset|color|ink"
+    },
+    "spacing": {
+      "padding": {
+        "left": "24px",
+        "right": "24px"
+      },
+      "blockGap": "1.5rem"
+    },
+    "typography": {
+      "fontFamily": "var:preset|font-family|reader",
+      "fontSize": "18px",
+      "lineHeight": "1.65"
+    },
+    "elements": {
+      "heading": {
+        "typography": {
+          "fontFamily": "var:preset|font-family|editorial",
+          "fontWeight": "400",
+          "lineHeight": "1.1"
+        }
+      },
+      "link": {
+        "color": {
+          "text": "var:preset|color|ink"
+        }
+      }
+    },
+    "blocks": {
+      "core/site-title": {
+        "typography": {
+          "fontFamily": "var:preset|font-family|editorial",
+          "fontSize": "2.5rem",
+          "fontWeight": "400"
+        }
+      },
+      "core/post-title": {
+        "typography": {
+          "fontSize": "2.25rem"
+        }
+      }
+    }
+  },
+  "templateParts": [
+    {
+      "name": "header",
+      "title": "Header",
+      "area": "header"
+    },
+    {
+      "name": "footer",
+      "title": "Footer",
+      "area": "footer"
+    }
+  ]
+}

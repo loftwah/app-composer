@@ -1,5 +1,6 @@
 ---
 import model from "../content-model.json";
+import AppLauncher from "../components/AppLauncher.astro";
 import "../styles/site.css";
 interface Props {
   title?: string;
@@ -23,6 +24,7 @@ const {
       href="/brand/composer-icon-20261018-512.png"
       type="image/png"
     />
+    <link rel="stylesheet" href="/brand/launcher.css" />
     <meta name="robots" content="noindex,nofollow" />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -44,7 +46,21 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       <a href="/" class="site-name">
         {model.label}
       </a>
-      <nav aria-label="Site">
+      <nav class="app-tools" aria-label="Site">
+        <a
+          class="composer-return"
+          href="https://composer.loftwah.com/"
+          aria-label="App Composer home"
+          title="App Composer home"
+        >
+          <img
+            src="/brand/composer-icon-20261018-96.png"
+            alt=""
+            width="28"
+            height="28"
+          />
+        </a>
+        <AppLauncher />
         <a class="button" href="/_emdash/admin">
           Edit content
         </a>
