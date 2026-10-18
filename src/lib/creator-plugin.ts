@@ -3,6 +3,8 @@ import { creatorPermission } from "./creator-access.ts";
 import { manageStacks } from "./stacks-admin.mjs";
 import { manageWorkspaceAccess } from "./workspace-access.ts";
 import { managePrivateOutcomes } from "./private-outcomes.ts";
+import { manageMaintenance } from "./creator-maintenance.ts";
+import { manageEnquiries } from "./private-enquiries.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
 
@@ -18,6 +20,12 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         { path: "/stacks", label: "Creator stacks", icon: "stack" },
         { path: "/workspaces", label: "Workspace access", icon: "users" },
         { path: "/outcomes", label: "Workspace outcomes", icon: "chart" },
+        {
+          path: "/maintenance",
+          label: "Workspace maintenance",
+          icon: "wrench",
+        },
+        { path: "/enquiries", label: "Private enquiries", icon: "inbox" },
       ],
     },
     routes: {
@@ -32,6 +40,11 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         request: { body: "json", maxBytes: 120000 },
         handler: (ctx) => manageStacks(ctx, runtime),
       },
+      maintenanceRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageMaintenance(ctx, runtime),
+      },
       accessRead: {
         methods: ["GET"],
         permission: creatorPermission,
@@ -42,6 +55,17 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         permission: creatorPermission,
         request: { body: "json", maxBytes: 8000 },
         handler: (ctx) => manageWorkspaceAccess(ctx, runtime),
+      },
+      enquiriesRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageEnquiries(ctx, runtime),
+      },
+      enquiriesWrite: {
+        methods: ["POST"],
+        permission: creatorPermission,
+        request: { body: "json", maxBytes: 4000 },
+        handler: (ctx) => manageEnquiries(ctx, runtime),
       },
       outcomesRead: {
         methods: ["GET"],

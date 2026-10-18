@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { appSettings, validateConfigurationPatch } from './app-settings.mjs';
 import { StackError } from './stacks.mjs';
+import { portableGuestbook } from '../plugins/maintenance/protocol.ts';
 
 const id = z.string().regex(/^[a-z0-9-]{6,64}$/);
 const sourceRevision = z.string().regex(/^[a-f0-9]{40}$/);
@@ -113,8 +114,9 @@ export function resourceConnection(runtime: ResourceRuntime, workspace: string) 
   }));
   async function verify() {
     const response = await service!.fetch(new Request(target + '/build.json', { redirect: 'manual', signal: AbortSignal.timeout(8000), headers: { 'X-Composer-Verification': '1' } }));
-    const build = z.object({ app: z.literal('guestbook'), revision: z.literal(source as string), dataVersion: z.literal(1), resourceContract: z.literal(1), resourcesEnabled: z.literal(true), resourceAccount: z.literal(account as string), resourceEnvironment: z.literal(environment as string) }).parse(await boundedJSON(response));
+    const build = z.object({ app: z.literal('guestbook'), revision: z.literal(source as string), dataVersion: z.literal(1), resourceContract: z.literal(1), resourcesEnabled: z.literal(true), resourceAccount: z.literal(account as string), resourceEnvironment: z.literal(environment as string), portabilityContract: z.literal(1).optional() }).parse(await boundedJSON(response));
     if (!response.ok || build.revision !== source) throw Error('The connected app source or runtime does not match.');
+    return build;
   }
   async function checked(value: unknown, resourceId: string, command?: ResourceCommand, operationSource = source): Promise<AppAcknowledgement> {
     const reply = acknowledgement.parse(value);
@@ -132,6 +134,55 @@ export function resourceConnection(runtime: ResourceRuntime, workspace: string) 
   }
   return {
     account, environment, source, target,
+    async inspect(resourceId: string) {
+      const build = await verify();
+      return { actual: await this.status(resourceId), portabilitySupported: build.portabilityContract === 1 };
+    },
+    async portable(resourceId: string) {
+      const build = await verify();
+      if (build.portabilityContract !== 1) throw new StackError('UNAVAILABLE', 'The pinned Guestbook source does not support approved content and media portability.');
+      const response = await send('/api/resources/' + id.parse(resourceId) + '/portable');
+      if (!response.ok) throw new StackError('UNAVAILABLE', 'The app could not export current approved content. No recovery coverage has been confirmed.');
+      const file = portableGuestbook.parse(await boundedJSON(response, 1200000));
+      if (file.source.resource !== resourceId || file.source.workspace !== workspace || file.source.account !== account || file.source.environment !== environment || file.source.target !== target || file.source.build !== source || file.configuration.digest !== await configurationDigest(file.configuration.values)) throw Error('The app export does not belong to this exact source and scope.');
+      for (const item of file.items) {
+        const bytes = Uint8Array.from(atob(item.media.base64), char => char.charCodeAt(0));
+        const signature = [137, 80, 78, 71, 13, 10, 26, 10];
+        const data = new DataView(bytes.buffer);
+        if (bytes.length < 33 || bytes.length > 100000 || signature.some((byte, index) => bytes[index] !== byte) ||
+            String.fromCharCode(...bytes.slice(12, 16)) !== 'IHDR' || data.getUint32(16) < 1 || data.getUint32(16) > 1200 || data.getUint32(20) < 1 || data.getUint32(20) > 900) throw Error('The exported image is incompatible.');
+        const digest = await crypto.subtle.digest('SHA-256', bytes);
+        if (Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('') !== item.media.sha256) throw Error('The exported image digest does not match.');
+      }
+      const current = await this.status(resourceId);
+      if (current.resource.version !== file.source.version || current.configuration?.revision !== file.configuration.revision || current.configuration.digest !== file.configuration.digest) throw Error('The app resource changed during export. Check again.');
+      return file;
+    },
+    async enquiry(
+      resourceId: string,
+      suffix: '' | 'export' | 'receipt',
+      command?: unknown,
+      clientIP?: string,
+      query?: { status?: string; page?: string; operation?: string },
+      beforeDispatch?: () => Promise<void>,
+    ) {
+      if (command !== undefined && !beforeDispatch) {
+        throw Error('A private enquiry dispatch requires a current workspace/publication guard.');
+      }
+      await verify();
+      await beforeDispatch?.();
+      const path = target + '/api/resources/' + id.parse(resourceId) + '/enquiries'
+        + (suffix ? '/' + suffix : '')
+        + (query ? '?' + new URLSearchParams(query) : '');
+      const response = await service.fetch(new Request(path, {
+        method: command === undefined ? 'GET' : 'POST',
+        redirect: 'manual',
+        signal: AbortSignal.timeout(8000),
+        headers: { ...headers, ...(clientIP ? { 'CF-Connecting-IP': clientIP } : {}) },
+        ...(command === undefined ? {} : { body: JSON.stringify(command) }),
+      }));
+      return { status: response.status, body: await boundedJSON(response, 2500000) };
+    },
     async content(resourceId: string) {
       await verify();
       const response = await send('/api/resources/' + id.parse(resourceId) + '/export');

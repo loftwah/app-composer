@@ -11,7 +11,8 @@ own `source:write`, `check` and `build` commands. Preparation does not update an
 existing owner project or establish its deployment.
 
 The Creator domain's maintained authors are `src/lib/app-settings.mts`,
-`stacks.mts`, `stack-activation.mts` and `app-configuration.mts`.
+`stacks.mts`, `stack-activation.mts`, `app-configuration.mts`, `miniapp-admin.mts`,
+the profile/tag/achievement validator authors and `stacks-admin.mts`.
 `scripts/creator-source.mjs` enumerates this closed source set, checks strict
 Worker globals and D1 types, and emits the same-path readable `.mjs` and `.d.mts`
 in memory. Edit the author, run `pnpm format` and `pnpm source:write`, then check.
@@ -46,7 +47,7 @@ and Get Ready are not represented as fully converted.
 | `types.ts` | The existing editor's shared types. |
 | `collection-sources.tsx` / `collection-api.ts` | Explicit saved visitor-book selection, strict collection receipts and retained uncertain-reference checks across app switches. |
 
-State stays above the two workspaces so switching apps retains unsaved work. A single `?app=showcase` selects Linkarooie on entry; absent, unknown or duplicated app parameters select Guestbook. This selects a view only and grants no permission. Keep component identities stable; do not define components inside the page or hook. Mutations and profile-file operations share one exclusion reference. Snapshot generation checks prevent an older refresh from replacing a newer response. The server bridge in `src/lib/miniapp-admin.mjs` still owns authorization, validation and app service calls; extracting components grants no additional authority.
+State stays above the two workspaces so switching apps retains unsaved work. A single `?app=showcase` selects Linkarooie on entry; absent, unknown or duplicated app parameters select Guestbook. This selects a view only and grants no permission. Keep component identities stable; do not define components inside the page or hook. Mutations and profile-file operations share one exclusion reference. Snapshot generation checks prevent an older refresh from replacing a newer response. The server bridge author `src/lib/miniapp-admin.mts` owns authorization, validation and app service calls; its `.mjs` and declarations are checked distributions. Extracting components grants no additional authority. [Exact runtime coverage](runtime-source-coverage.md) lists the remaining JavaScript exceptions.
 
 The scoped collection bridge is `src/lib/miniapp-collection.ts`, with shared strict schemas in `miniapp-collection-contract.ts`. It is called only after the existing global administrator, origin and method checks in `miniapp-admin.mjs`. See [scoped collection authority and recovery](scoped-collection.md). Source selection does not change a saved draft or publication.
 

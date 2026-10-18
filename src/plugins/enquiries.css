@@ -1,0 +1,200 @@
+.ce-inbox {
+  max-width: 1080px;
+  padding: 24px;
+  color: inherit;
+  font:
+    16px/1.55 Space,
+    system-ui,
+    sans-serif;
+}
+.ce-inbox h1 {
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.1;
+  margin: 8px 0 20px;
+}
+.ce-inbox h2 {
+  font-size: 22px;
+  margin: 0 0 12px;
+}
+.ce-inbox h3 {
+  font-size: 24px;
+  margin: 12px 0;
+}
+.ce-kicker {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.ce-inbox header {
+  border-bottom: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  padding-bottom: 24px;
+}
+.ce-inbox header > p {
+  max-width: 68ch;
+}
+.ce-controls {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+  flex-wrap: wrap;
+  margin: 28px 0;
+}
+.ce-inbox label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+}
+.ce-inbox select,
+.ce-inbox button {
+  font: inherit;
+  font-size: 16px;
+  min-height: 44px;
+  padding: 9px 14px;
+  border: 1px solid color-mix(in srgb, currentColor 42%, transparent);
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+}
+.ce-inbox select {
+  height: 44px;
+  max-width: 100%;
+  min-width: 200px;
+}
+.ce-inbox button {
+  cursor: pointer;
+}
+.ce-inbox button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.ce-inbox :focus-visible {
+  outline: 3px solid #ff9b50;
+  outline-offset: 3px;
+}
+.ce-inbox a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 10px 0;
+}
+.ce-inbox button:hover:not(:disabled) {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.ce-form-controls,
+.ce-retained {
+  padding: 24px 0;
+  border-block: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  margin: 24px 0;
+}
+.ce-form-controls > div > p {
+  max-width: 75ch;
+}
+.ce-form-controls select {
+  width: min(100%, 600px);
+}
+.ce-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.ce-retained {
+  padding-inline: 0;
+}
+.ce-retained code {
+  display: block;
+  overflow-wrap: anywhere;
+  margin-bottom: 16px;
+}
+.ce-alert,
+.ce-message {
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+  overflow-wrap: anywhere;
+}
+.ce-alert {
+  border-color: currentColor;
+}
+.ce-heading,
+.ce-brief-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.ce-heading {
+  margin-top: 36px;
+}
+.ce-brief {
+  padding: 28px 0;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  overflow-wrap: anywhere;
+}
+.ce-brief-heading span,
+.ce-muted {
+  font-size: 13px;
+  opacity: 0.8;
+}
+.ce-goal {
+  white-space: pre-wrap;
+  max-width: 74ch;
+}
+.ce-brief dl {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 8px 18px;
+  font-size: 14px;
+}
+.ce-brief dt {
+  font-weight: 600;
+}
+.ce-brief dd {
+  margin: 0;
+}
+.ce-brief li p {
+  margin: 4px 0 16px;
+}
+.ce-pages {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 24px 0;
+}
+.ce-empty {
+  padding: 32px 0;
+  border-block: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+}
+@media (max-width: 600px) {
+  .ce-inbox {
+    padding: 16px;
+  }
+  .ce-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .ce-controls label,
+  .ce-controls select {
+    min-width: 0;
+    width: 100%;
+  }
+  .ce-heading,
+  .ce-brief-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+  .ce-brief dl {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .ce-brief dd {
+    margin-bottom: 10px;
+  }
+  .ce-actions > * {
+    flex: 1;
+  }
+  .ce-pages span {
+    font-size: 13px;
+  }
+}

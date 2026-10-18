@@ -26,7 +26,7 @@ Local EmDash data is separate from production. A fresh checkout does not contain
 | `pnpm dev` | Check generated application source and start local Astro |
 | `pnpm check:types` | Check strict source, emitted distributions and Astro |
 | `pnpm lint` | Check semantic and unused-source rules in the maintained content/Creator programs |
-| `pnpm format:check` | Check the ten named Creator source/check/test files |
+| `pnpm format:check` | Check maintained Creator and enquiry files named by the format gate |
 | `pnpm test` | Run the existing behavioural and boundary tests |
 | `pnpm check` | Run the current required quality gates |
 | `pnpm build` | Build and inspect the public artifact |
@@ -54,7 +54,7 @@ Guestbook and Linkarooie also mount at `/guestbook` and `/showcase` through sepa
 
 - [Documentation index](docs/README.md): current guides, source maps and detailed commands.
 - [Product](PRODUCT.md), [architecture](ARCHITECTURE.md), [design](DESIGN.md) and [interface standard](UNSLOP.md).
-- [Published demo workflow](docs/creator-stacks/demo-stacks.md), [workspace access](docs/workspace-access.md), [private outcomes](docs/private-outcomes.md), [scoped collection](docs/scoped-collection.md) and [WordPress observation ledger](labs/wordpress/weekender/OBSERVATIONS.md).
+- [Published demo workflow](docs/creator-stacks/demo-stacks.md), [workspace access](docs/workspace-access.md), [private outcomes](docs/private-outcomes.md), [scoped collection](docs/scoped-collection.md), [private enquiries](docs/private-enquiries.md), [maintenance and approved exports](docs/workspace-maintenance.md) and [WordPress observation ledger](labs/wordpress/weekender/OBSERVATIONS.md).
 - [Current delivery status](docs/STATUS.md) and [canonical release evidence](https://github.com/loftwah/app-composer/issues/11). Dated history is linked separately.
 
 Owner administration retains this installation's Cloudflare Access and native EmDash permission boundaries. Specs and exports are data, never credentials or execution authority. Code rollback, configuration rollback and content/media recovery have different coverage. New accounts, permissions, invitations, purchases and public arbitrary builds are separate gates.

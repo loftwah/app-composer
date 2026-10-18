@@ -1,6 +1,5 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createRequire } from "node:module";
 import { spawnSync } from "node:child_process";
 import {
   copyFileSync,
@@ -19,31 +18,47 @@ test("Creator author errors and stale output fail without rewriting distribution
   const root = mkdtempSync(join(tmpdir(), "composer-creator-source-"));
   try {
     const source = fileURLToPath(new URL("../", import.meta.url));
-    for (const name of [
+    const authors = [
+      "app-settings",
+      "stacks",
+      "app-configuration",
+      "stack-activation",
+      "miniapp-profile-settings-fields",
+      "miniapp-profile-settings",
+      "miniapp-achievements",
+      "miniapp-tag-fields",
+      "miniapp-tags",
+      "miniapp-admin",
+      "stacks-admin",
+    ];
+    const files = [
       "scripts/creator-source.mjs",
-      "src/lib/app-settings.mts",
-      "src/lib/app-settings.mjs",
-      "src/lib/app-settings.d.mts",
-      ...["stacks", "app-configuration", "stack-activation"].flatMap((name) =>
+      "composition.lock.json",
+      "src/plugins/maintenance/protocol.ts",
+      ...authors.flatMap((name) =>
         [".mts", ".mjs", ".d.mts"].map((suffix) => "src/lib/" + name + suffix),
       ),
-      "composition.lock.json",
-    ]) {
+      ...[
+        "resource-client",
+        "private-outcome-events",
+        "private-outcome-proof",
+        "stack-resources",
+        "miniapp-collection-contract",
+        "miniapp-collection",
+        "creator-access",
+      ].map((name) => "src/lib/" + name + ".ts"),
+      ...[".mts", ".mjs", ".d.mts"].map(
+        (suffix) => "lib/content-model/calendar-date" + suffix,
+      ),
+    ];
+    for (const name of files) {
       mkdirSync(dirname(join(root, name)), { recursive: true });
       copyFileSync(join(source, name), join(root, name));
     }
-    // Reuse the reviewed compiler read-only; this fixture installs nothing.
-    mkdirSync(join(root, "node_modules"));
-    const require = createRequire(import.meta.url);
+    // Reuse the reviewed dependencies read-only; this fixture installs nothing.
     symlinkSync(
-      dirname(dirname(require.resolve("typescript"))),
-      join(root, "node_modules/typescript"),
-      "dir",
-    );
-    mkdirSync(join(root, "node_modules/@cloudflare"));
-    symlinkSync(
-      dirname(require.resolve("@cloudflare/workers-types/package.json")),
-      join(root, "node_modules/@cloudflare/workers-types"),
+      join(source, "node_modules"),
+      join(root, "node_modules"),
       "dir",
     );
     const run = (mode) =>
@@ -52,22 +67,13 @@ test("Creator author errors and stale output fail without rewriting distribution
         encoding: "utf8",
         timeout: 15000,
       });
-    assert.equal(run("--check").status, 0);
+    const initial = run("--check");
+    assert.equal(initial.status, 0, initial.stderr || initial.stdout);
     assert.equal(run("--lint").status, 0);
-    for (const name of [
-      "app-settings",
-      "stacks",
-      "app-configuration",
-      "stack-activation",
-    ]) {
+    for (const name of authors) {
       const author = join(root, "src/lib/" + name + ".mts");
       const original = readFileSync(author, "utf8");
-      const outputs = [
-        "app-settings",
-        "stacks",
-        "app-configuration",
-        "stack-activation",
-      ].flatMap((name) =>
+      const outputs = authors.flatMap((name) =>
         [".mjs", ".d.mts"].map((suffix) =>
           join(root, "src/lib/" + name + suffix),
         ),

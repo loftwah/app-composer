@@ -1,7 +1,7 @@
 import type { D1Database, D1PreparedStatement } from '@cloudflare/workers-types';
 import { prepareModerationOutcome, recordModerationOutcome } from './private-outcome-proof.ts';
 import { z } from 'zod';
-import type { Stack, StackDocument, StackInstance } from '../plugins/stacks/api';
+import type { Stack, StackDocument, StackInstance } from './stacks.mjs';
 import { membership, requireCapability, normaliseStack, StackError } from './stacks.mjs';
 import {
   resourceConnection, effectiveGuestbookConfiguration, configurationDigest,

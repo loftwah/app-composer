@@ -47,7 +47,7 @@ apply and is never implicitly called by Publish.
 Root `pnpm check` now runs types/parity, scoped semantic `pnpm lint`, scoped
 `pnpm format:check` and behavior tests. Lint covers the maintained content and
 Creator source programs with unused-local/parameter checks. Formatting uses
-pinned Prettier 3.9.10 on the ten named Creator author/check/test files in
+pinned Prettier 3.9.10 on the maintained Creator and enquiry files named in
 `scripts/creator-format.mjs`; generated output retains compiler formatting.
 Run `pnpm format` then `pnpm source:write` after Creator edits. This is not a
 whole-repository ESLint or formatting claim, and normal checks never rewrite
@@ -76,6 +76,11 @@ installing the packed Get Ready core requires no compiler or Composer runtime.
 Explicit tool preparation verifies that reference's exact reviewed TypeScript
 pin is present locally when the tracked checker exists. An incomplete owner
 installation is preserved and refused; ordinary checks do not install or retry.
+
+The native mini-app/profile/tag/achievement and stack administration bridges now
+join this closed Creator program. [Exact runtime and command coverage](runtime-source-coverage.md)
+records all eleven authors, their declaration/emission boundary, the six
+inspected repository heads and the remaining JavaScript/tooling exceptions.
 
 ## Explicit scope and remaining work
 
