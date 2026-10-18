@@ -653,6 +653,51 @@ test("stack deletion removes its private measurements without orphaning or chang
 
 // The private report reuses native role/membership, not a parallel analytics user.
 const privateModule = await import("../src/lib/private-outcomes.ts");
+test("a previous 30-day action window cannot present five retained days as a complete previous total", async () => {
+  const f = setup();
+  try {
+    const p = await page(f);
+    for (const [day, n] of [
+      ["2026-09-14", 3],
+      ["2026-09-16", 4],
+      ["2026-10-05", 2],
+    ])
+      f.sqlite
+        .prepare("INSERT INTO creator_outcome_daily VALUES(?,?,?,?,?,?,?,?,?)")
+        .run(
+          day,
+          p.workspace.id,
+          p.stack.id,
+          "fictional-hello-instance",
+          "app_open_action",
+          "keyboard",
+          "same_tab",
+          "unclassified",
+          n,
+        );
+    const report = await privateModule.privateOutcomeReport(
+      f.db,
+      p.workspace.id,
+      { action: "report", days: "30" },
+      new Date("2026-10-18T12:00:00Z"),
+    );
+    const metric = report.metrics.find(
+      (value) => value.key === "app_open_action",
+    );
+    assert.equal(metric.value, 2);
+    assert.equal(metric.previous, null);
+    assert.equal(metric.delta, null);
+    assert.equal(metric.percent, null);
+    assert.equal(
+      report.metrics.find((value) => value.key === "retained_snapshots")
+        .previous,
+      0,
+      "Retained publication history has its own lifetime, independent of action retention",
+    );
+  } finally {
+    f.close();
+  }
+});
 test("one report snapshot cannot turn a concurrently arriving first action into zero while its target row says one", async () => {
   const f = setup();
   try {

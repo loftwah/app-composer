@@ -257,7 +257,13 @@ export async function privateOutcomeReport(
             )
             .reduce((n, r) => n + r.n, 0);
     const value = read(from, to),
-      previous = read(priorFrom, priorTo);
+      previousCovered = Boolean(
+        first &&
+        priorFrom > first &&
+        priorFrom >= retainedFrom &&
+        priorTo < today,
+      ),
+      previous = previousCovered ? read(priorFrom, priorTo) : null;
     const complete = Boolean(
       first &&
       from > first &&
