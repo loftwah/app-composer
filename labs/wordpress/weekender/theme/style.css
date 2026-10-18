@@ -1,0 +1,70 @@
+/*
+Theme Name: Macedon Weekender Lab
+Description: Fictional publisher fixture for App Composer migration qualification.
+Version: 1.0.0
+Author: App Composer
+License: MIT
+Text Domain: macedon-weekender-lab
+*/
+:root {
+  color-scheme: light dark;
+}
+html {
+  scroll-padding-top: 2rem;
+}
+body {
+  margin: 0;
+}
+a {
+  text-underline-offset: 0.2em;
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid #b45e30;
+  outline-offset: 4px;
+}
+main {
+  min-height: 55vh;
+}
+.wp-block-post-featured-image img {
+  aspect-ratio: 16/10;
+  object-fit: cover;
+}
+.wp-block-post-title {
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.wp-block-post-excerpt p {
+  max-width: 65ch;
+}
+figure {
+  margin-inline: 0;
+}
+input,
+textarea,
+select {
+  font-size: max(1rem, 16px);
+}
+@media (max-width: 600px) {
+  .wp-block-site-title {
+    font-size: 1.7rem !important;
+  }
+  .wp-block-post-template {
+    grid-template-columns: 1fr !important;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --wp--preset--color--paper: #182924;
+    --wp--preset--color--ink: #f2eee4;
+    --wp--preset--color--clay: #edaf88;
+  }
+  body {
+    background: #182924;
+    color: #f2eee4;
+  }
+  a {
+    color: inherit;
+  }
+}
