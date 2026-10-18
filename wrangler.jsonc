@@ -41,11 +41,11 @@
   "services": [
     {
       "binding": "GUESTBOOK",
-      "service": "composer-guestbook-b8d1d9eb5b242e47"
+      "service": "composer-guestbook-4588da82dada5260"
     },
     {
       "binding": "SHOWCASE",
-      "service": "composer-showcase-b8d1d9eb5b242e47"
+      "service": "composer-showcase-4588da82dada5260"
     }
   ],
   "triggers": {

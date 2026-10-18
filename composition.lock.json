@@ -1,11 +1,11 @@
 {
-  "id": "b8d1d9eb5b242e471f0411e30eac8f110b322d40ed4df58b9064ba68f8e4659b",
+  "id": "4588da82dada5260fb89d3f5491caa1fbc86afae0a320009d5acefb19757b1f6",
   "reviewed": "2026-10-18",
   "apps": [
     {
       "id": "guestbook",
       "repository": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "1ea82adbafac109be3a13d30071b39fddb925562",
+      "commit": "4adca16a4048500b89393396fa32d3da1bc25fb1",
       "url": "https://guestbook.loftwah.com",
       "manifest": {
         "contract": 1,
@@ -59,9 +59,29 @@
             ],
             "default": "closed"
           }
+        },
+        "portability": {
+          "version": 1,
+          "format": "guestbook.approved-portable/v1",
+          "export": "/api/resources/:resource/portable",
+          "restore": "/api/resources/:freshResource/restore",
+          "maximumItems": 8,
+          "scope": "current-authorized-workspace-account-environment-target",
+          "restoredVisibility": "private",
+          "requiresLiveSource": true
+        },
+        "privateEnquiries": {
+          "version": 1,
+          "model": "briefs/v1",
+          "owner": "/api/resources/:resource/enquiries",
+          "public": "/r/:resource/c/:configuration/enquiry",
+          "default": "closed",
+          "retentionDays": 30,
+          "receiptDays": 35,
+          "notifications": false
         }
       },
-      "manifestDigest": "sha256:b6c218b58a511009eda21980880ca873fce8aa00aca3f47a42978e1206e6e562"
+      "manifestDigest": "sha256:ca260944b8096d4f915c4017e3c914d48b2cd7102f0d9f0ae9bfca480406ab26"
     },
     {
       "id": "showcase",
