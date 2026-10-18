@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "@tanstack/react-router";
 import {
   workspaceCall,
   type AccessSnapshot,
@@ -21,6 +22,11 @@ const emptyDraft = (): InviteDraft => ({
 });
 
 export function WorkspaceAccessPage() {
+  const search = useLocation({ select: (location) => location.searchStr });
+  return <WorkspaceAccess key={search} search={search} />;
+}
+
+function WorkspaceAccess({ search }: { search: string }) {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [incoming, setIncoming] = useState<Incoming[]>([]);
   const [selected, setSelected] = useState<string>();
@@ -95,8 +101,8 @@ export function WorkspaceAccessPage() {
   useEffect(() => {
     live.current = true;
     void run(async () => {
-      target.current = workspaceSelection(window.location.search);
-      const invitation = new URLSearchParams(window.location.search).getAll(
+      target.current = workspaceSelection(search);
+      const invitation = new URLSearchParams(search).getAll(
         "invitation",
       );
       if (
