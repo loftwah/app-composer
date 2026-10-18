@@ -474,19 +474,21 @@ function WorkspaceEnquiries({ search }: { search: string }) {
         .map((item) => ({ stack, item, key: stack.id + ":" + item.id })),
     )
     .find((item) => item.key === publication);
-  const selectedScope = inbox?.scopes.find((scope) =>
+  const configuredScope = inbox?.scopes.find((scope) =>
     currentPublication
       ? scope.provenance.kind === "composer.publication" &&
         scope.provenance.resource === resource &&
-        scope.provenance.configuration ===
-          currentPublication.item.configuration &&
         scope.provenance.stack === currentPublication.stack.id &&
         scope.provenance.publication === currentPublication.stack.publication &&
         scope.provenance.instance === currentPublication.item.id
       : scope.provenance.kind === "standalone" &&
-        scope.provenance.resource === resource &&
-        scope.provenance.configuration === inbox?.resource.active_revision,
+        scope.provenance.resource === resource,
   );
+  const selectedScope =
+    configuredScope?.provenance.configuration ===
+    (currentPublication?.item.configuration ?? inbox?.resource.active_revision)
+      ? configuredScope
+      : undefined;
   const canRead = options?.workspace.role !== "viewer",
     canConfigure = options?.workspace.role === "owner";
   const configure = (enabled: boolean) =>
@@ -500,7 +502,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
             publication: currentPublication.stack.publication,
           }
         : { configuration: inbox?.resource.active_revision }),
-      expectedScopeRevision: selectedScope?.revision ?? 0,
+      expectedScopeRevision: configuredScope?.revision ?? 0,
       enabled,
     });
   return (
@@ -521,6 +523,14 @@ function WorkspaceEnquiries({ search }: { search: string }) {
       {error && (
         <p className="ce-alert" role="alert">
           {error}
+          {!options && (
+            <>
+              <br />
+              <button disabled={busy} onClick={() => void run(loadOptions)}>
+                Retry visitor books
+              </button>
+            </>
+          )}
         </p>
       )}
       {message && (

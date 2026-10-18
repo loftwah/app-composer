@@ -34,6 +34,7 @@ test("Creator author errors and stale output fail without rewriting distribution
     const files = [
       "scripts/creator-source.mjs",
       "composition.lock.json",
+      "src/plugins/maintenance/protocol.ts",
       ...authors.flatMap((name) =>
         [".mts", ".mjs", ".d.mts"].map((suffix) => "src/lib/" + name + suffix),
       ),
@@ -66,7 +67,8 @@ test("Creator author errors and stale output fail without rewriting distribution
         encoding: "utf8",
         timeout: 15000,
       });
-    assert.equal(run("--check").status, 0);
+    const initial = run("--check");
+    assert.equal(initial.status, 0, initial.stderr || initial.stdout);
     assert.equal(run("--lint").status, 0);
     for (const name of authors) {
       const author = join(root, "src/lib/" + name + ".mts");
