@@ -293,7 +293,11 @@ test("remote JSON must confirm exact source and settings; malformed or lost ACK 
       {
         credential: () => "fictional-token",
         beforeWrite: () => {},
-        request: async () => {
+        request: async (href) => {
+          if (new URL(href).pathname.endsWith("/build.json"))
+            return Response.json({
+              revision: appSettings.guestbook.source.commit,
+            });
           writes++;
           return {
             ok: true,
@@ -332,6 +336,8 @@ test("independent operator transport preserves exact validated strings and respo
       credential: () => "fictional-token",
       beforeWrite: () => {},
       request: async (url, init) => {
+        if (new URL(url).pathname.endsWith("/build.json"))
+          return Response.json({ revision: appSettings[id].source.commit });
         requests++;
         assert.equal(url, entry.url + "/api/config");
         assert.deepEqual(JSON.parse(init.body), entry.configuration);

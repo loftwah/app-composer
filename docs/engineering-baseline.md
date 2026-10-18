@@ -36,11 +36,18 @@ operator code. The compiler fixture checks every Creator author, rejects Node
 globals and proves that errors cannot replace any distribution. Real SQLite and
 transport negatives cover prototype-key selectors, corrupt persisted data,
 source/target validation, partial outcomes and malformed/lost acknowledgments.
+Every actual operator/activation write checks both standalone and mounted source
+identities after awaited credentials and workspace guards, then rechecks workspace
+authority after those HTTP waits. The validated plan is frozen against guard
+mutation. Sequential checks remain snapshots, not an atomic remote source/CAS
+guarantee. A lost acknowledgement leaves an app write unconfirmed; no automatic
+retry or rollback is performed. This transport is separate from native resource
+apply and is never implicitly called by Publish.
 
 Root `pnpm check` now runs types/parity, scoped semantic `pnpm lint`, scoped
 `pnpm format:check` and behavior tests. Lint covers the maintained content and
 Creator source programs with unused-local/parameter checks. Formatting uses
-pinned Prettier 3.9.10 on the nine named Creator author/check/test files in
+pinned Prettier 3.9.10 on the ten named Creator author/check/test files in
 `scripts/creator-format.mjs`; generated output retains compiler formatting.
 Run `pnpm format` then `pnpm source:write` after Creator edits. This is not a
 whole-repository ESLint or formatting claim, and normal checks never rewrite

@@ -5,8 +5,8 @@
 // own ownership boundary (`POST /api/config`), verifies the app's live source
 // first and verifies the response afterwards. Applying never creates an
 // instance and never rewrites a publication: each app is applied one at a time,
-// a failure leaves that app's previous configuration in place, and later apps
-// are left untouched. The caller decides what to do with a partial result.
+// an unconfirmed write may already have changed the app. Later apps remain
+// untouched; no retry or rollback is automatic. The caller reviews partial results.
 import {
   appSettings,
   validateConfigurationPatch,
@@ -174,8 +174,8 @@ export async function stackSourceStatus(
 
 // Explicit activation. `credential(appId)` supplies the app owner credential at
 // the moment of writing; it is never stored, logged or returned. Each app is
-// applied on its own so a downstream failure is reported against that app and
-// the previous configuration stays usable.
+// applied on its own. A downstream error is reported against that app; a lost
+// acknowledgement requires inspection before any explicit retry.
 export async function activateStack(
   stack: unknown,
   { credential, beforeWrite, request = fetch }: ConfigurationOptions = {},
