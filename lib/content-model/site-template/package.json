@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm source:write && astro dev --host localhost",
-    "source:write": "node scripts/build-source.mjs --write",
-    "check:types": "node scripts/build-source.mjs --check && astro check && tsc --project tsconfig.worker.json --noEmit && tsc --project tsconfig.browser.json --noEmit",
+    "source:write": "node scripts/build-source.mjs --write && node scripts/launcher-assets.mjs --write",
+    "check:types": "node scripts/build-source.mjs --check && node scripts/launcher-assets.mjs --check && astro check && tsc --project tsconfig.worker.json --noEmit && tsc --project tsconfig.browser.json --noEmit",
     "lint": "node scripts/build-source.mjs --lint",
     "format:check": "prettier --plugin prettier-plugin-astro --check src scripts tests package.json astro.config.mjs \"tsconfig*.json\"",
     "format": "prettier --plugin prettier-plugin-astro --write src scripts tests package.json astro.config.mjs \"tsconfig*.json\"",
