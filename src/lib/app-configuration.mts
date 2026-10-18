@@ -21,6 +21,12 @@ export interface ConfigurationOptions {
 }
 const record = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);
+function strings(value: unknown): value is Record<string, string> {
+  return (
+    record(value) &&
+    Object.values(value).every((item) => typeof item === "string")
+  );
+}
 function target(value: unknown): ConfigurationTarget {
   if (
     !record(value) ||
@@ -89,10 +95,13 @@ export async function applyConfiguration(
     if (ids.has(app.id) || !record(value))
       throw Error("Unsupported operator configuration target.");
     ids.add(app.id);
-    return {
-      ...app,
-      configuration: validateConfigurationPatch(value.configuration, app.id),
-    };
+    const configuration = value.configuration;
+    validateConfigurationPatch(configuration, app.id);
+    if (!strings(configuration))
+      throw Error("Unsupported operator configuration values.");
+    // Validation is not a request to normalize the operator's existing data.
+    // Retain the exact declared strings sent by the independently used API.
+    return { ...app, configuration: { ...configuration } };
   });
   const completed: string[] = [];
   for (const app of entries) {

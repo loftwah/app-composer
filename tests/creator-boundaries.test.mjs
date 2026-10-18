@@ -312,3 +312,36 @@ test("remote JSON must confirm exact source and settings; malformed or lost ACK 
     assert.equal(result.publicationUnchanged, true);
   }
 });
+
+test("independent operator transport preserves exact validated strings and response confirmation", async () => {
+  for (const id of Object.keys(appSettings)) {
+    const entry = {
+      id,
+      url: "https://" + id + ".loftwah.com",
+      source: { ...appSettings[id].source },
+      configuration: Object.fromEntries(
+        appSettings[id].fields.map((field) => [field.key, field.default]),
+      ),
+    };
+    entry.configuration.title = "  Fictional operator title  ";
+    entry.configuration.intro = " Original declared text ";
+    if (Object.hasOwn(entry.configuration, "website"))
+      entry.configuration.website = "https://example.test";
+    let requests = 0;
+    const result = await applyConfiguration([entry], {
+      credential: () => "fictional-token",
+      beforeWrite: () => {},
+      request: async (url, init) => {
+        requests++;
+        assert.equal(url, entry.url + "/api/config");
+        assert.deepEqual(JSON.parse(init.body), entry.configuration);
+        return {
+          ok: true,
+          json: async () => ({ ok: true, config: entry.configuration }),
+        };
+      },
+    });
+    assert.equal(requests, 1);
+    assert.deepEqual(result, { configured: [id], deployed: false });
+  }
+});
