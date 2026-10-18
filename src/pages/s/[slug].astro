@@ -6,12 +6,13 @@
 import Base from '../../layouts/Base.astro';
 import StackView from '../../components/StackView.tsx';
 import StackShare from '../../components/StackShare.astro';
+import type { D1Database } from '@cloudflare/workers-types';
 import {publicStack} from '../../lib/stacks.mjs';
 import {noindexFor} from '../../lib/indexing.mjs';
 import {stackShareDetails} from '../../lib/stack-sharing.ts';
 import {env} from 'cloudflare:workers';
 
-const runtime = env as unknown as {DB?: {prepare(sql: string): {bind(...values: unknown[]): {first(): Promise<unknown>}}}};
+const runtime = env as unknown as {DB?: D1Database};
 let stack: Awaited<ReturnType<typeof publicStack>> = null;
 let unavailable = false;
 if (!runtime.DB || typeof runtime.DB.prepare !== 'function') {
