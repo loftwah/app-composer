@@ -8,6 +8,7 @@ import {
   type OutcomeMetric,
 } from "./outcomes/api";
 import { useNavigationGuard } from "./stacks/use-navigation-guard";
+import { workspaceSelection } from "./stacks/workspace-scope";
 import "./outcomes.css";
 
 const quantity = (n: number | null) =>
@@ -111,10 +112,10 @@ function Timeline({ metric }: { metric: OutcomeMetric }) {
 
 export function OutcomesPage() {
   const search = useLocation({ select: (location) => location.searchStr });
-  return <WorkspaceOutcomes key={search} />;
+  return <WorkspaceOutcomes key={search} search={search} />;
 }
 
-function WorkspaceOutcomes() {
+function WorkspaceOutcomes({ search }: { search: string }) {
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [snapshot, setSnapshot] = useState<{
     reply: ReportReply;
@@ -158,9 +159,11 @@ function WorkspaceOutcomes() {
     setMessage("");
     const request = ++generation.current;
     try {
+      const workspace =
+        snapshot?.reply.workspace.id ?? workspaceSelection(search);
       const raw = await outcomeCall("report", {
         ...requested,
-        ...(snapshot ? { workspace: snapshot.reply.workspace.id } : {}),
+        ...(workspace ? { workspace } : {}),
       });
       if (!live.current || request !== generation.current || !("report" in raw))
         return;
