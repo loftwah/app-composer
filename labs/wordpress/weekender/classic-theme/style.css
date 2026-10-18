@@ -1,0 +1,199 @@
+/*
+Theme Name: Macedon Weekender Classic Lab
+Description: Conventional PHP publisher source for real Classic Editor migration qualification.
+Version: 1.0.0
+Author: App Composer
+License: MIT
+Text Domain: macedon-weekender-classic-lab
+*/
+@font-face {
+  font-family: "Weekender Editorial";
+  src: url("assets/fonts/Literata72pt-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+:root {
+  color-scheme: light dark;
+  --paper: #f5f1e6;
+  --ink: #193c30;
+  --clay: #a14e29;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--paper);
+  font:
+    17px/1.65 system-ui,
+    sans-serif;
+}
+a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+}
+:focus-visible {
+  outline: 3px solid var(--clay);
+  outline-offset: 4px;
+}
+.wrap {
+  width: min(1180px, calc(100% - 48px));
+  margin-inline: auto;
+}
+.skip-link {
+  position: absolute;
+  transform: translateY(-150%);
+  background: var(--paper);
+  padding: 12px;
+  z-index: 20;
+}
+.skip-link:focus {
+  transform: none;
+}
+.site-header {
+  padding-block: 36px 20px;
+  border-bottom: 1px solid;
+}
+.site-name {
+  font:
+    400 clamp(1.6rem, 4vw, 2.5rem)/1.2 "Weekender Editorial",
+    serif;
+  text-decoration: none;
+}
+.site-header p {
+  margin-block: 12px 20px;
+}
+.site-header ul,
+.story-neighbours {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  list-style: none;
+  padding: 0;
+}
+.edition-heading {
+  margin-block: 56px 40px;
+}
+h1,
+h2 {
+  font-family: "Weekender Editorial", serif;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+h1 {
+  font-size: clamp(2.4rem, 6vw, 4.8rem);
+  line-height: 1.1;
+  max-width: 18ch;
+}
+h2 {
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  line-height: 1.2;
+  margin-block: 8px 20px;
+}
+.eyebrow,
+.byline,
+figcaption {
+  font-size: 0.9rem;
+}
+.story-card {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 2fr;
+  gap: 32px;
+  padding-block: 32px;
+  border-top: 1px solid;
+}
+.story-card img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16/10;
+  object-fit: cover;
+}
+.story {
+  max-width: 760px;
+  margin: 48px auto;
+}
+figure {
+  margin-inline: 0;
+}
+.story img,
+.prose img {
+  max-width: 100%;
+  height: auto;
+}
+.prose > p {
+  max-width: 68ch;
+}
+.story-neighbours {
+  border-top: 1px solid;
+  padding-top: 24px;
+  margin-top: 40px;
+}
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  min-height: 44px;
+  max-width: 100%;
+}
+input[type="search"] {
+  width: min(100%, 400px);
+  padding: 8px 12px;
+  border: 1px solid;
+  background: transparent;
+  color: inherit;
+}
+input[type="submit"],
+button {
+  padding: 8px 16px;
+  border: 1px solid;
+  background: var(--ink);
+  color: var(--paper);
+}
+.navigation.pagination {
+  margin-block: 40px;
+}
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.site-footer {
+  margin-block: 64px 32px;
+  padding-top: 20px;
+  border-top: 1px solid;
+}
+@media (max-width: 600px) {
+  .wrap {
+    width: calc(100% - 32px);
+  }
+  .story-card {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .site-header {
+    padding-top: 24px;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #182924;
+    --ink: #f2eee4;
+    --clay: #edaf88;
+  }
+}
+
+.screen-reader-text {
+  border: 0;
+  clip-path: inset(50%);
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+}

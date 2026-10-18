@@ -53,6 +53,7 @@ if (
     "destination",
     "transport",
     "exporter",
+    "classic",
   ].includes(action) ||
   args.length !== 2 ||
   args[0] !== "--run" ||
@@ -61,7 +62,7 @@ if (
   (restorePath !== undefined && !isAbsolute(restorePath))
 ) {
   console.error(
-    "Use node scripts/wordpress-lab.mjs run|resume|status|snapshot|backup|destination|transport|exporter|source-off|down --run /absolute/ignored-output/run.json. A new run may add --scenario publisher or --restore /absolute/private-backup/manifest.json; the default preserves the small replay. run owns finally cleanup; down ends only this run. No remote deployment is implemented.",
+    "Use node scripts/wordpress-lab.mjs run|resume|status|snapshot|backup|destination|transport|exporter|classic|source-off|down --run /absolute/ignored-output/run.json. A new run may add --scenario publisher or --restore /absolute/private-backup/manifest.json; the default preserves the small replay. run owns finally cleanup; down ends only this run. No remote deployment is implemented.",
   );
   process.exit(1);
 }
@@ -476,7 +477,11 @@ function restoreSource(run, point) {
 }
 // Only the reviewed vendor assets below can be acquired, under this run root.
 async function acquire(run, url, sha256, name) {
-  const allowed = [versions.cloudflared.macOSArm64, versions.exporter.url];
+  const allowed = [
+    versions.cloudflared.macOSArm64,
+    versions.exporter.url,
+    versions.classicEditor.url,
+  ];
   if (
     !allowed.includes(url) ||
     !/^[a-f0-9]{64}$/.test(sha256) ||
@@ -500,6 +505,7 @@ async function acquire(run, url, sha256, name) {
       "github.com",
       "release-assets.githubusercontent.com",
       "objects.githubusercontent.com",
+      "downloads.wordpress.org",
     ].includes(new URL(response.url).hostname)
   )
     throw Error("Reviewed vendor download failed.");
@@ -794,6 +800,61 @@ async function exporter(run) {
     "Pinned native exporter ready. Use the private migration key in the ordinary owner import UI: " +
       path +
       ". Never copy the key into evidence.",
+  );
+}
+
+async function classic(run) {
+  if (run.scenario !== "publisher" || run.stage !== "source-exported")
+    throw Error(
+      "Select the running registered publisher source before its Classic variant.",
+    );
+  // Preflight protects any source-side theme edits before plugin acquisition or activation.
+  wp(run, ["eval-file", "/fixture/classic.php", "check"]);
+  const installed = JSON.parse(
+    wp(run, ["plugin", "list", "--name=classic-editor", "--format=json"]),
+  );
+  if (
+    installed.length > 1 ||
+    (installed.length &&
+      installed[0].version !== versions.classicEditor.version)
+  )
+    throw Error(
+      "An existing Classic Editor version differs; it was preserved.",
+    );
+  if (!installed.length) {
+    const archive = await acquire(
+      run,
+      versions.classicEditor.url,
+      versions.classicEditor.sha256,
+      "classic-editor.1.7.0.zip",
+    );
+    copyFileSync(archive, join(run.root, "evidence/classic-editor.zip"));
+    chmodSync(join(run.root, "evidence/classic-editor.zip"), 0o644);
+    wp(run, [
+      "plugin",
+      "install",
+      "/evidence/classic-editor.zip",
+      "--activate",
+    ]);
+  } else wp(run, ["plugin", "activate", "classic-editor"]);
+  const actual = JSON.parse(
+    wp(run, ["eval-file", "/fixture/classic.php", "apply"]),
+  );
+  if (
+    actual.classicEditor !== versions.classicEditor.version ||
+    actual.blockTheme !== false ||
+    actual.blockEditor !== false
+  )
+    throw Error(
+      "The actual source has not selected its reviewed Classic Editor/PHP theme.",
+    );
+  writeFileSync(
+    join(dirname(runPath), "source-classic-variant.json"),
+    JSON.stringify(actual, null, 2) + "\n",
+  );
+  snapshot(run);
+  console.log(
+    "Pinned Classic Editor and conventional PHP theme selected in this fictional source. No article was seeded or imported; verify actual owner editing and export separately.",
   );
 }
 
@@ -1365,6 +1426,7 @@ try {
       );
     if (action === "transport") await transport(run);
     if (action === "exporter") await exporter(run);
+    if (action === "classic") await classic(run);
     if (action === "snapshot")
       console.log(JSON.stringify(snapshot(run), null, 2));
     if (action === "backup") backup(run);

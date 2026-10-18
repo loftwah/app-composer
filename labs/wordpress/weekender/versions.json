@@ -29,5 +29,12 @@
     "version": "1.2.0",
     "url": "https://github.com/emdash-cms/wp-emdash/releases/download/v1.2.0/emdash-exporter.zip",
     "sha256": "57fa5d5d249da8abf151f4d050c375c26498430ed4c9a6d65a39ea2d7e2585fc"
+  },
+  "classicEditor": {
+    "version": "1.7.0",
+    "url": "https://downloads.wordpress.org/plugin/classic-editor.1.7.0.zip",
+    "sha256": "7cc7799b0b7d820fbb7528dbff8027c736e52513992416cb37279f44d3d9dd77",
+    "licence": "GPL-2.0-or-later",
+    "scope": "Actual Classic plugin plus conventional PHP lab theme; no block-theme/FSE claim"
   }
 }

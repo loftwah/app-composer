@@ -726,3 +726,63 @@ test("a CLI policy mismatch refuses before any WordPress source container starts
     );
     assert.deepEqual(readdirSync(join(root, "tmp")), []);
   }));
+
+test("Classic selection refuses a small or stopped source before Docker", () =>
+  fixture((root) => {
+    const marker = fakeDocker(root);
+    const value = registeredRun(root);
+    const run = JSON.parse(readFileSync(value.registry));
+    run.stage = "source-off";
+    writeFileSync(value.registry, JSON.stringify(run));
+    const result = execute(root, ["classic", "--run", value.registry]);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /running registered publisher source/);
+    assert.equal(existsSync(marker), false);
+  }));
+
+for (const fault of ["edited-theme", "different-plugin"]) {
+  test(`Classic ${fault} refuses before installation or variant mutation`, () =>
+    fixture((root) => {
+      const value = registeredRun(root);
+      const run = JSON.parse(readFileSync(value.registry));
+      run.stage = "source-exported";
+      writeFileSync(value.registry, JSON.stringify(run));
+      const marker = join(root, "classic-commands.jsonl");
+      writeFileSync(
+        join(root, "bin/docker"),
+        `#!${process.execPath}
+const fs=require('node:fs'),args=process.argv.slice(2);fs.appendFileSync(${JSON.stringify(marker)},JSON.stringify(args)+'\\n');
+if(args.includes('/fixture/classic.php')&&args.at(-1)==='check'){if(${fault === "edited-theme"}){console.error('Existing Classic theme bytes differ; source edits were preserved.');process.exit(17);}console.log('Fictional preflight passed.');}
+else if(args.includes('list')) console.log('[{"version":"0.0.1","status":"active"}]');
+`,
+        { mode: 0o755 },
+      );
+      const result = execute(root, ["classic", "--run", value.registry]);
+      assert.notEqual(result.status, 0);
+      assert.match(
+        result.stderr,
+        fault === "edited-theme"
+          ? /source edits were preserved/
+          : /Classic Editor version differs/,
+      );
+      const commands = readFileSync(marker, "utf8")
+        .trim()
+        .split("\n")
+        .map(JSON.parse);
+      assert.equal(
+        commands.some(
+          (args) =>
+            args.includes("install") ||
+            args.includes("activate") ||
+            args.at(-1) === "apply",
+        ),
+        false,
+      );
+      if (fault === "edited-theme")
+        assert.equal(
+          commands.some((args) => args.includes("plugin")),
+          false,
+        );
+      assert.equal(readFileSync(value.registry, "utf8"), JSON.stringify(run));
+    }));
+}
