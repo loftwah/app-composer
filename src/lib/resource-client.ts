@@ -30,13 +30,25 @@ export interface ResourceRuntime {
   GUESTBOOK?: { fetch(request: Request): Promise<Response> };
 }
 export interface ResourceCommand {
-  action: 'create' | 'stage' | 'activate';
+  action: 'create' | 'stage' | 'activate' | 'moderate' | 'control';
   operationId: string;
   expectedVersion?: number;
   configuration?: GuestbookConfiguration;
   configurationRevision?: number;
   configurationDigest?: string;
+  item?: string;
+  itemRevision?: number;
+  status?: 'approved' | 'hidden' | 'deleted';
+  visible?: boolean;
+  paused?: boolean;
 }
+const resourceItem = z.object({
+  id, caption: z.string().max(160), author: z.string().max(60),
+  status: z.enum(['pending', 'approved', 'hidden', 'rejected', 'deleted']),
+  revision: revision.refine(value => value > 0),
+  synthetic: z.union([z.literal(0), z.literal(1)]), created_at: z.string().max(40),
+});
+export type ResourceItem = z.infer<typeof resourceItem>;
 export interface RemoteOutcome {
   outcome: 'applied' | 'refused' | 'unknown';
   reply?: AppAcknowledgement;
@@ -52,7 +64,7 @@ export function effectiveGuestbookConfiguration(values: Record<string, string>):
   return config.parse(validateConfigurationPatch(complete, 'guestbook'));
 }
 
-async function boundedJSON(response: Response): Promise<unknown> {
+async function boundedBytes(response: Response, limit: number): Promise<Uint8Array> {
   const reader = response.body?.getReader();
   if (!reader) throw Error('Missing app response.');
   const chunks: Uint8Array[] = [];
@@ -61,13 +73,16 @@ async function boundedJSON(response: Response): Promise<unknown> {
     const { done, value } = await reader.read();
     if (done) break;
     length += value.length;
-    if (length > 32768) { await reader.cancel(); throw Error('Oversized app response.'); }
+    if (length > limit) { await reader.cancel(); throw Error('Oversized app response.'); }
     chunks.push(value);
   }
   const bytes = new Uint8Array(length);
   let offset = 0;
   for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
-  return JSON.parse(new TextDecoder().decode(bytes)) as unknown;
+  return bytes;
+}
+async function boundedJSON(response: Response, limit = 32768): Promise<unknown> {
+  return JSON.parse(new TextDecoder().decode(await boundedBytes(response, limit))) as unknown;
 }
 
 export function resourceConnection(runtime: ResourceRuntime, workspace: string) {
@@ -111,11 +126,43 @@ export function resourceConnection(runtime: ResourceRuntime, workspace: string) 
       if (reply.resource.version !== expectedVersion) throw Error('The app acknowledged another version.');
       if (command.action === 'stage' && (!reply.configuration || reply.configuration.revision !== expectedVersion || reply.configuration.source !== operationSource || reply.configuration.digest !== await configurationDigest(command.configuration!))) throw Error('The staged configuration acknowledgement differs.');
       if (command.action === 'activate' && (!reply.configuration || reply.resource.activeRevision !== command.configurationRevision || reply.configuration.revision !== command.configurationRevision || reply.configuration.digest !== command.configurationDigest || reply.configuration.source !== operationSource)) throw Error('The activation acknowledgement differs.');
+      if (command.action === 'control' && (selected.visible !== command.visible || selected.paused !== command.paused)) throw Error('The app acknowledged different controls.');
     }
     return reply;
   }
   return {
     account, environment, source, target,
+    async content(resourceId: string) {
+      await verify();
+      const response = await send('/api/resources/' + id.parse(resourceId) + '/export');
+      if (!response.ok) throw Error('The selected visitor book content could not be read.');
+      const exported = z.object({
+        contract: z.literal(1), format: z.literal('guestbook.resource-export/v1'),
+        resource: z.object({
+          id, workspace_id: z.literal(workspace), account_id: z.literal(account),
+          environment: z.literal(environment), target: z.literal(target), version: revision,
+        }),
+        items: z.array(resourceItem).max(10000),
+      }).parse(await boundedJSON(response, 2097152));
+      if (exported.resource.id !== resourceId) throw Error('The app returned another visitor book.');
+      // Export spans several reads in the app. A final version read makes
+      // moderation/control drift explicit instead of displaying a mixed view.
+      const actual = await this.status(resourceId);
+      if (actual.resource.version !== exported.resource.version) throw Error('The visitor book changed while its content was loading. Refresh it.');
+      return { actual, items: exported.items.filter(item => item.status !== 'deleted') };
+    },
+    async media(resourceId: string, item: string): Promise<Uint8Array> {
+      await verify();
+      const response = await send('/api/resources/' + id.parse(resourceId) + '/media/' + id.parse(item));
+      if (!response.ok || response.headers.get('Content-Type')?.split(';')[0] !== 'image/png') throw Error('The private postcard is unavailable.');
+      const bytes = await boundedBytes(response, 100000);
+      const signature = [137, 80, 78, 71, 13, 10, 26, 10];
+      const data = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+      if (bytes.length < 33 || signature.some((byte, index) => bytes[index] !== byte) ||
+          String.fromCharCode(...bytes.slice(12, 16)) !== 'IHDR' || data.getUint32(16) < 1 || data.getUint32(16) > 1200 ||
+          data.getUint32(20) < 1 || data.getUint32(20) > 900) throw Error('The app returned an incompatible postcard image.');
+      return bytes;
+    },
     async status(resourceId: string): Promise<AppAcknowledgement> {
       await verify();
       const response = await send('/api/resources/' + id.parse(resourceId));

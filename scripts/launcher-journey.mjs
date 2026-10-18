@@ -16,6 +16,8 @@ export async function verifyLauncher(page, url, { width = 390, height = 600, the
     const input = element.querySelector('input'), close = element.querySelector('[data-close-apps]'), list = element.querySelector('ul');
     return { dialog: box(element), input: box(input), close: box(close), font: parseFloat(getComputedStyle(input).fontSize), inputFocused: document.activeElement === input, closeFocused: document.activeElement === close, listOverflow: getComputedStyle(list).overflowY, pageOverflow: document.documentElement.scrollWidth > innerWidth, bodyLocked: getComputedStyle(document.body).position === 'fixed', viewport: { width: visualViewport.width, height: visualViewport.height, scale: visualViewport.scale }, scrollY };
   });
+  await dialog.locator('img').evaluateAll(images => Promise.all(images.map(image => image.decode())));
+  ensure(await dialog.locator('img').evaluateAll(images => images.every(image => image.naturalWidth > 0 && getComputedStyle(image).visibility !== 'hidden')), 'decoded menu artwork is hidden');
   const initial = await read();
   ensure(initial.closeFocused && !initial.inputFocused, 'click opening must focus Close');
   ensure(initial.font >= 16, 'search is smaller than 16px');
@@ -73,4 +75,51 @@ export async function verifyLinkCheckReturn(page, url, destination = 'https://re
   await page.locator('[data-close-apps]').click();
   await page.waitForFunction(() => getComputedStyle(document.body).position !== 'fixed');
   return { destination: new URL(destination).href, destinationRendered: true, backDraftPreserved: true, closeReopen: true };
+}
+
+// Verify the shared navigation frame and ordinary keyboard navigation. Real
+// destination navigation is checked separately so this helper never submits data.
+export async function verifyCommandMenu(page, url) {
+  const ensure = (value, message) => { if (!value) throw Error(`${url}: ${message}`); };
+  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  const trigger = page.locator('[data-open-apps]');
+  await trigger.waitFor();
+  await trigger.focus();
+  await page.keyboard.press('Control+k');
+  const dialog = page.locator('#app-navigation');
+  const search = dialog.locator('input[type=search]');
+  ensure(await search.evaluate(input => input === document.activeElement), 'Cmd/Ctrl K did not enter search');
+  const brand = dialog.locator('.launcher-brand');
+  await brand.locator('img').evaluate(image => image.decode());
+  ensure(await brand.getAttribute('aria-label') === 'App Composer home', 'Composer branding/link missing');
+  ensure(await brand.locator('img').evaluate(image => image.complete && image.naturalWidth === 96), 'Composer artwork is not decoded');
+  const order = await dialog.locator('[data-launcher-group=apps] a > span:not(.task-icon)').evaluateAll(nodes => nodes.map(node => node.firstChild.textContent));
+  ensure(JSON.stringify(order) === JSON.stringify(['Linkarooie', 'Here / there', 'Link Check', 'Hello World', 'Carry / forward']), 'app order differs across menus');
+  await search.fill('Hello World');
+  for (const composition of [{isComposing: true, keyCode: 13}, {isComposing: false, keyCode: 229}]) {
+    await search.evaluate((input, shape) => input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true, cancelable: true, ...shape})), composition);
+    ensure(await dialog.isVisible() && page.url() === url, 'IME confirmation activated a destination');
+  }
+  await search.fill('website icons');
+  ensure(await dialog.locator('[data-destination]:visible').count() === 1, 'task aliases did not match');
+  ensure((await dialog.locator('[data-destination]:visible').textContent()).includes('Link Check'), 'task alias chose the wrong app');
+  await search.fill('');
+  await page.keyboard.press('ArrowDown');
+  ensure(await dialog.locator('[data-active=true]').evaluate(entry => entry.contains(document.activeElement)), 'arrow selection is not focusable');
+  ensure((await dialog.locator('[data-active=true]').textContent()).includes('Linkarooie'), 'first arrow selected wrong result');
+  await page.keyboard.press('ArrowDown');
+  ensure((await dialog.locator('[data-active=true]').textContent()).includes('Here / there'), 'second arrow did not move');
+  await page.keyboard.press('End');
+  await page.keyboard.press('ArrowDown');
+  ensure((await dialog.locator('[data-active=true]').textContent()).includes('Linkarooie'), 'result navigation did not wrap');
+  await page.keyboard.type('postcard');
+  ensure(await search.inputValue() === 'postcard', 'typing after arrows lost search characters');
+  ensure(await dialog.locator('[data-destination]:visible').count() === 1, 'typed task search did not filter');
+  ensure((await dialog.locator('[data-destination]:visible').textContent()).includes('Here / there'), 'postcard search chose wrong app');
+  const shortcutHint = await trigger.locator('kbd').textContent();
+  ensure(['⌘ K', 'Ctrl K'].includes(shortcutHint), 'platform keyboard hint missing');
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => !document.querySelector('#app-navigation').open && document.activeElement === document.querySelector('[data-open-apps]'));
+  ensure(await trigger.evaluate(button => button === document.activeElement), 'shortcut close lost prior focus');
+  return { url, brandedHome: await brand.getAttribute('href'), allApps: await dialog.locator('.launcher-all').getAttribute('href'), orderedApps: order, aliasSearch: true, arrowSelection: true, wrap: true, typingAfterSelection: true, focusReturn: true };
 }

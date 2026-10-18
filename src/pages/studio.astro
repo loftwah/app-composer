@@ -34,9 +34,8 @@ import {ArrowRight, Settings2} from '@lucide/astro';
 </section>
 <section class="section">
  <h2>See it working.</h2>
- <p>The two demonstration stacks make the whole loop inspectable. <strong>Fictional Trail Notes</strong> shows the same app twice — one instance configured on its own and one that reuses it — beside an independently configured Linkarooie instance. <strong>Fictional Launch Board</strong> shows three apps that declare no settings at all. Both are fiction, labelled in their own names, in their own workspace.</p>
- <pre><code>node scripts/seed-demo-stacks.mjs
-npx wrangler d1 execute app-composer-emdash --local --file output/demo-stacks.sql</code></pre>
+ <p>Open two fictional stacks created, saved and published through the creator studio. Trail Notes has its own visitor book and an intentional second view of that same book. Launch Board uses a separate book, with separate settings and records. Each published page includes its share card and QR download.</p>
+ <div class="actions"><a class="button" href="/s/fictional-trail-notes">Explore Trail Notes <ArrowRight size={18} aria-hidden="true"/></a><a class="button secondary" href="/s/fictional-launch-board">Open Launch Board</a></div>
  <p><a href="/demo">See the connected pair</a> · <a href="/release">Read what is verified</a> · <a href="https://github.com/loftwah/app-composer/issues/114">Follow the stack work</a><ArrowRight size={16} aria-hidden="true"/></p>
 </section>
 </Base>
