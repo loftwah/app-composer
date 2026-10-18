@@ -54,6 +54,134 @@ if(args.includes('install')){console.error('FICTIONAL_SETUP_FAILURE');process.ex
   return marker;
 }
 
+function registeredRun(root) {
+  const owned = mkdtempSync(
+    join(realpathSync(join(root, "tmp")), "composer-weekender-"),
+  );
+  const nonce = "d".repeat(32);
+  mkdirSync(join(owned, "evidence"));
+  writeFileSync(join(owned, "source.env"), "");
+  writeFileSync(
+    join(owned, "ownership.json"),
+    JSON.stringify({ schema: "app-composer.wordpress-lab/1", nonce }),
+  );
+  const registry = join(root, "run.json");
+  writeFileSync(
+    registry,
+    JSON.stringify({
+      schema: "app-composer.wordpress-lab/1",
+      root: owned,
+      nonce,
+      project: "composer-weekender-" + nonce.slice(0, 12),
+      dockerHost: "unix:///Users/deanlofts/.orbstack/run/docker.sock",
+      scenario: "publisher",
+      sourceBase: "a".repeat(40),
+      sourceOrigin: "http://localhost:12345",
+      resources: [],
+    }),
+  );
+  return { owned, registry };
+}
+
+test("unknown scenarios and scenario changes on existing runs refuse before Docker", () =>
+  fixture((root) => {
+    const marker = fakeDocker(root);
+    for (const args of [
+      ["run", "--run", join(root, "new.json"), "--scenario", "customer"],
+      ["snapshot", "--run", join(root, "new.json"), "--scenario", "publisher"],
+    ]) {
+      const result = execute(root, args);
+      assert.notEqual(result.status, 0);
+      assert.equal(existsSync(marker), false);
+      assert.deepEqual(readdirSync(join(root, "tmp")), []);
+    }
+  }));
+
+test("a failed database backup exits maintenance and removes only its own partial recovery staging", () =>
+  fixture((root) => {
+    const { owned, registry } = registeredRun(root);
+    const marker = join(root, "docker-commands.jsonl");
+    writeFileSync(join(owned, "evidence", "keep-source-work.txt"), "preserve");
+    writeFileSync(
+      join(root, "bin/docker"),
+      `#!/usr/bin/env node
+const fs=require('node:fs');const args=process.argv.slice(2);fs.appendFileSync(${JSON.stringify(marker)},JSON.stringify(args)+'\\n');
+if(args.includes('eval'))console.log('inactive');
+if(args.includes('db')&&args.includes('export')){fs.writeFileSync(${JSON.stringify(join(owned, "evidence", "source-database.sql"))},'PARTIAL_SQL_FAILURE_FIXTURE');console.error('FICTIONAL_BACKUP_INTERRUPTED');process.exit(7);}
+`,
+      { mode: 0o755 },
+    );
+    const result = execute(root, ["backup", "--run", registry]);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /FICTIONAL_BACKUP_INTERRUPTED/);
+    assert.equal(existsSync(join(owned, "backup.lock")), false);
+    assert.deepEqual(readdirSync(join(owned, "evidence")), [
+      "keep-source-work.txt",
+    ]);
+    assert.equal(
+      readFileSync(join(owned, "evidence", "keep-source-work.txt"), "utf8"),
+      "preserve",
+    );
+    assert.equal(
+      readdirSync(root).some((name) => name.startsWith("source-backup-")),
+      false,
+    );
+    const calls = readFileSync(marker, "utf8")
+      .trim()
+      .split("\n")
+      .map(JSON.parse);
+    assert(
+      calls.some(
+        (args) =>
+          args.includes("maintenance-mode") && args.includes("activate"),
+      ),
+    );
+    assert(
+      calls.some(
+        (args) =>
+          args.includes("maintenance-mode") && args.includes("deactivate"),
+      ),
+    );
+    assert.equal(
+      calls.some((args) => args.includes("down") || args.includes("prune")),
+      false,
+    );
+  }));
+
+test("backup preserves an existing maintenance state, prior staging and another backup lock", () =>
+  fixture((root) => {
+    const { owned, registry } = registeredRun(root);
+    const marker = join(root, "docker-commands.jsonl");
+    writeFileSync(
+      join(root, "bin/docker"),
+      `#!/usr/bin/env node
+const fs=require('node:fs');const args=process.argv.slice(2);fs.appendFileSync(${JSON.stringify(marker)},JSON.stringify(args)+'\\n');if(args.includes('eval'))console.log('active');`,
+      { mode: 0o755 },
+    );
+    const active = execute(root, ["backup", "--run", registry]);
+    assert.notEqual(active.status, 0);
+    assert.match(active.stderr, /already in maintenance/);
+    assert.equal(readFileSync(marker, "utf8").trim().split("\n").length, 1);
+    assert.equal(existsSync(join(owned, "backup.lock")), false);
+    const staged = join(owned, "evidence", "source-database.sql");
+    writeFileSync(staged, "unconfirmed prior source backup");
+    const prior = execute(root, ["backup", "--run", registry]);
+    assert.notEqual(prior.status, 0);
+    assert.match(prior.stderr, /staging is preserved/);
+    assert.equal(
+      readFileSync(staged, "utf8"),
+      "unconfirmed prior source backup",
+    );
+    writeFileSync(join(owned, "backup.lock"), "other owned backup is active");
+    const locked = execute(root, ["backup", "--run", registry]);
+    assert.notEqual(locked.status, 0);
+    assert.match(locked.stderr, /EEXIST/);
+    assert.equal(
+      readFileSync(join(owned, "backup.lock"), "utf8"),
+      "other owned backup is active",
+    );
+  }));
+
 test("the lab refuses an existing selected registry before any Docker operation", () =>
   fixture((root) => {
     const marker = fakeDocker(root),

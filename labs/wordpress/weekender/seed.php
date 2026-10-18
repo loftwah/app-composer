@@ -8,6 +8,13 @@ if (!preg_match('~^https?://(?:localhost|127\.0\.0\.1)(?::[0-9]+)?$|^https://[a-
     WP_CLI::error('The fictional lab refuses an unrelated WordPress origin.');
 }
 $fixture = json_decode(file_get_contents('/fixture/stories.json'), true, 32, JSON_THROW_ON_ERROR);
+$scenario = $args[0] ?? 'small';
+if (!in_array($scenario, ['small', 'publisher'], true)) {
+    WP_CLI::error('Select the small or complete publisher source fixture.');
+}
+if ($scenario === 'publisher') {
+    require '/fixture/complete/fixture.php';
+}
 if (($fixture['fictional'] ?? false) !== true || get_option('blogname') !== 'Macedon Weekender — fictional lab') {
     WP_CLI::error('Select the fictional Weekender installation.');
 }
@@ -125,6 +132,7 @@ $guideId = weekender_result(wp_insert_attachment([
 
 $published = [];
 $all = [];
+$sections = $scenario === 'publisher' ? weekender_complete_sections(reset($authors)) : [];
 foreach ($fixture['articles'] as $index => $story) {
     $content = '';
     foreach ($story['paragraphs'] as $paragraph) {
@@ -134,6 +142,15 @@ foreach ($fixture['articles'] as $index => $story) {
         $content .= '<!-- wp:heading --><h2 class="wp-block-heading">Make it your own</h2><!-- /wp:heading -->' . "\n";
         $content .= '<!-- wp:paragraph --><p>Read our <a href="' . esc_url(wp_get_attachment_url($guideId)) . '">fictional weekend guide</a>, and leave time for a useful detour.</p><!-- /wp:paragraph -->';
     }
+    if ($scenario === 'publisher') {
+        $content .= weekender_complete_blocks($story, $attachmentIds, $sections);
+    }
+    $date = $story['date'] ?? ($scenario === 'publisher'
+        ? gmdate('Y-m-d', strtotime('2026-09-30 00:00:00 UTC') - $index * DAY_IN_SECONDS) . ' 09:00:00'
+        : '2026-09-' . str_pad((string) (20 - $index), 2, '0', STR_PAD_LEFT) . ' 09:00:00');
+    if (isset($story['scheduleAfterMinutes'])) {
+        $date = current_datetime()->modify('+' . (int) $story['scheduleAfterMinutes'] . ' minutes')->format('Y-m-d H:i:s');
+    }
     $id = weekender_result(wp_insert_post([
         'post_name' => $story['slug'],
         'post_type' => 'post',
@@ -142,13 +159,13 @@ foreach ($fixture['articles'] as $index => $story) {
         'post_content' => $content,
         'post_status' => $story['status'],
         'post_author' => $authors[$story['author']],
-        'post_date' => $story['date'] ?? '2026-09-' . str_pad((string) (20 - $index), 2, '0', STR_PAD_LEFT) . ' 09:00:00',
+        'post_date' => $date,
         'comment_status' => 'closed',
     ], true));
     weekender_result(wp_set_post_categories($id, [$terms[$story['category']]]));
     weekender_result(wp_set_post_tags($id, isset($story['tag']) ? [$story['tag']] : []));
     if ($story['status'] === 'publish') {
-        set_post_thumbnail($id, $attachmentIds[$index % 2]);
+        set_post_thumbnail($id, $attachmentIds[$index % count($attachmentIds)]);
         $published[] = $id;
     }
     $all[] = [
@@ -168,17 +185,30 @@ $pageFixtures = [
     ['editorial-policy', 'Our editorial policy', 'We label fictional content, preserve image attribution and keep unpublished work private. No fictional reader comment is a customer endorsement.'],
 ];
 $pages = [];
+if ($scenario === 'publisher') {
+    $pageFixtures = json_decode(file_get_contents('/fixture/complete/pages.json'), true, 32, JSON_THROW_ON_ERROR);
+}
+$pageIds = [];
 foreach ($pageFixtures as $index => $page) {
+    $slug = $scenario === 'publisher' ? $page['slug'] : $page[0];
+    $title = $scenario === 'publisher' ? $page['title'] : $page[1];
+    $paragraphs = $scenario === 'publisher' ? $page['paragraphs'] : [$page[2]];
+    $body = '';
+    foreach ($paragraphs as $paragraph) {
+        $body .= '<!-- wp:paragraph --><p>' . esc_html($paragraph) . '</p><!-- /wp:paragraph -->' . "\n";
+    }
+    $parent = $scenario === 'publisher' ? (isset($page['parent']) ? $pageIds[$page['parent']] : 0) : ($index === 2 ? $pages[0]['id'] : 0);
     $id = weekender_result(wp_insert_post([
         'post_type' => 'page',
-        'post_name' => $page[0],
-        'post_title' => $page[1],
-        'post_content' => '<!-- wp:paragraph --><p>' . esc_html($page[2]) . '</p><!-- /wp:paragraph -->',
+        'post_name' => $slug,
+        'post_title' => $title,
+        'post_content' => $body,
         'post_status' => 'publish',
         'post_author' => reset($authors),
-        'post_parent' => $index === 2 ? $pages[0]['id'] : 0,
+        'post_parent' => $parent,
     ], true));
-    $pages[] = ['id' => $id, 'slug' => $page[0], 'url' => get_permalink($id)];
+    $pageIds[$slug] = $id;
+    $pages[] = ['id' => $id, 'slug' => $slug, 'url' => get_permalink($id)];
 }
 
 $first = $published[0];
@@ -216,8 +246,10 @@ foreach ($iterator as $item) {
 switch_theme('macedon-weekender-lab');
 flush_rewrite_rules();
 update_option('composer_weekender_fixture', 1);
+update_option('composer_weekender_scenario', $scenario);
 WP_CLI::line(json_encode([
     'fictional' => true,
+    'scenario' => $scenario,
     'version' => get_bloginfo('version'),
     'timezone' => wp_timezone_string(),
     'permalink' => get_option('permalink_structure'),

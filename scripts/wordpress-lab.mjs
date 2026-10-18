@@ -31,6 +31,11 @@ const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const dockerHost = "unix:///Users/deanlofts/.orbstack/run/docker.sock";
 const args = process.argv.slice(2);
 const action = args.shift();
+let scenario = "small";
+if (args.length === 4 && args[2] === "--scenario" && action === "run") {
+  scenario = args[3];
+  args.splice(2, 2);
+}
 if (
   ![
     "run",
@@ -39,16 +44,18 @@ if (
     "source-off",
     "down",
     "snapshot",
+    "backup",
     "destination",
     "transport",
     "exporter",
   ].includes(action) ||
   args.length !== 2 ||
   args[0] !== "--run" ||
-  !isAbsolute(args[1])
+  !isAbsolute(args[1]) ||
+  !["small", "publisher"].includes(scenario)
 ) {
   console.error(
-    "Use node scripts/wordpress-lab.mjs run|resume|status|snapshot|destination|transport|exporter|source-off|down --run /absolute/ignored-output/run.json. run owns finally cleanup; down ends only this run. No remote deployment is implemented.",
+    "Use node scripts/wordpress-lab.mjs run|resume|status|snapshot|backup|destination|transport|exporter|source-off|down --run /absolute/ignored-output/run.json. A new run may add --scenario publisher; the default preserves the small replay. run owns finally cleanup; down ends only this run. No remote deployment is implemented.",
   );
   process.exit(1);
 }
@@ -183,6 +190,7 @@ function snapshot(run) {
   };
   const result = {
     fictional: true,
+    scenario: inventory.scenario ?? "small",
     nativeWordPressExport: true,
     wxrSHA256: hash(wxr),
     wxrBytes: wxr.length,
@@ -203,6 +211,124 @@ function snapshot(run) {
     : run.sourceOrigin;
   writeRun(run);
   return result;
+}
+function backup(run) {
+  const lock = join(run.root, "backup.lock");
+  const descriptor = openSync(lock, "wx", 0o600);
+  try {
+    return createBackup(run);
+  } finally {
+    closeSync(descriptor);
+    rmSync(lock);
+  }
+}
+function createBackup(run) {
+  // Maintenance mode blocks public requests while this local recovery point is
+  // assembled. It is separate from the WXR transfer and never called a restore.
+  const staging = [
+    "source-database.sql",
+    "source-files.tar.gz",
+    "source-files.tar",
+    "source-files.json",
+  ];
+  if (staging.some((name) => existsSync(join(run.root, "evidence", name))))
+    throw Error("Existing source backup staging is preserved for inspection.");
+  const active = wp(run, [
+    "eval",
+    'if (get_option("composer_weekender_fixture") !== "1" || get_option("blogname") !== "Macedon Weekender — fictional lab") { WP_CLI::error("Select the registered fictional source."); } echo file_exists(ABSPATH . ".maintenance") ? "active" : "inactive";',
+  ]).trim();
+  if (active !== "inactive")
+    throw Error(
+      "The source is already in maintenance mode; preserve its state.",
+    );
+  const name = "source-backup-" + randomBytes(8).toString("hex");
+  const destination = join(dirname(runPath), name);
+  mkdirSync(destination, { mode: 0o700 });
+  let complete = false;
+  let maintenance = false;
+  try {
+    wp(run, ["maintenance-mode", "activate"]);
+    maintenance = true;
+    wp(run, [
+      "db",
+      "export",
+      "/evidence/source-database.sql",
+      "--single-transaction",
+      "--skip-lock-tables",
+    ]);
+    wp(run, ["eval-file", "/fixture/backup.php"]);
+    const observed = snapshot(run);
+    const selected = [
+      ["source-database.sql", 64 * 1024 * 1024],
+      ["source-files.tar.gz", 128 * 1024 * 1024],
+      ["source-files.json", 4 * 1024 * 1024],
+    ];
+    const files = {};
+    for (const [name, maximum] of selected) {
+      const source = join(run.root, "evidence", name);
+      if (
+        lstatSync(source).isSymbolicLink() ||
+        !lstatSync(source).isFile() ||
+        lstatSync(source).size < 1 ||
+        lstatSync(source).size > maximum
+      )
+        throw Error(
+          "A source recovery artifact is absent or exceeds its bound.",
+        );
+      const bytes = readFileSync(source);
+      files[name] = { bytes: bytes.length, sha256: hash(bytes) };
+      writeFileSync(join(destination, name), bytes, { mode: 0o600 });
+    }
+    const inventory = readFileSync(join(run.root, "inventory.json"));
+    writeFileSync(join(destination, "source-inventory.json"), inventory, {
+      mode: 0o600,
+    });
+    files["source-inventory.json"] = {
+      bytes: inventory.length,
+      sha256: hash(inventory),
+    };
+    const manifest = {
+      schema: "app-composer.wordpress-source-backup/1",
+      fictional: true,
+      sourceBase: run.sourceBase,
+      sourceScenario: run.scenario ?? "small",
+      sourceOrigin: run.sourceOrigin,
+      capturedAt: new Date().toISOString(),
+      sourceRuntime: observed.runtime,
+      images: {
+        wordpress: versions.wordpress.image,
+        cli: versions.cli.image,
+        database: versions.database.image,
+      },
+      private: true,
+      containsSecrets: true,
+      maintenanceQuiesced: true,
+      files,
+    };
+    writeFileSync(
+      join(destination, "manifest.json"),
+      JSON.stringify(manifest, null, 2) + "\n",
+      { mode: 0o600 },
+    );
+    run.backups = [...(run.backups ?? []), destination];
+    writeRun(run);
+    complete = true;
+    console.log(
+      "Created a private SQL + uploads/themes/plugins/config recovery point: " +
+        join(destination, "manifest.json") +
+        ". It contains fictional credentials and is not public evidence. Restore remains a separate gate.",
+    );
+  } finally {
+    try {
+      if (maintenance) wp(run, ["maintenance-mode", "deactivate"]);
+    } finally {
+      for (const name of staging) {
+        const staged = join(run.root, "evidence", name);
+        if (existsSync(staged)) rmSync(staged);
+      }
+      if (!complete) rmSync(destination, { recursive: true });
+    }
+  }
 }
 // Only the reviewed vendor assets below can be acquired, under this run root.
 async function acquire(run, url, sha256, name) {
@@ -554,7 +680,11 @@ async function start(run) {
           WORDPRESS_DB_USER: "weekender",
           WORDPRESS_DB_PASSWORD: "${LAB_DATABASE_PASSWORD}",
           WORDPRESS_CONFIG_EXTRA:
-            "define('WP_ENVIRONMENT_TYPE','local'); define('AUTOMATIC_UPDATER_DISABLED',true); define('WP_AUTO_UPDATE_CORE',false); define('DISALLOW_FILE_EDIT',true); if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO']==='https') { $$_SERVER['HTTPS']='on'; }",
+            "define('WP_ENVIRONMENT_TYPE','local'); define('AUTOMATIC_UPDATER_DISABLED',true); define('WP_AUTO_UPDATE_CORE',false); define('DISALLOW_FILE_EDIT',true);" +
+            (run.scenario === "publisher"
+              ? " define('DISABLE_WP_CRON',true);"
+              : "") +
+            " if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO']==='https') { $$_SERVER['HTTPS']='on'; }",
         },
         volumes: ["wordpress:/var/www/html"],
         healthcheck: {
@@ -642,7 +772,7 @@ async function start(run) {
     ],
     { input: readFileSync(join(run.root, "wp-password"), "utf8") },
   );
-  wp(run, ["eval-file", "/fixture/seed.php"]);
+  wp(run, ["eval-file", "/fixture/seed.php", run.scenario ?? "small"]);
   return snapshot(run);
 }
 
@@ -674,6 +804,7 @@ try {
         project: "composer-weekender-" + nonce.slice(0, 12),
         dockerHost,
         sourceBase,
+        scenario,
         pid: process.pid,
         port,
         stage: "registered",
@@ -899,6 +1030,7 @@ try {
     if (action === "exporter") await exporter(run);
     if (action === "snapshot")
       console.log(JSON.stringify(snapshot(run), null, 2));
+    if (action === "backup") backup(run);
     if (action === "source-off") {
       stopSourceTunnel(run);
       compose(run, ["stop", "wordpress", "database"]);

@@ -1,0 +1,78 @@
+[
+  {
+    "slug": "about",
+    "title": "About the Weekender",
+    "paragraphs": [
+      "Macedon Weekender is an invented independent regional publisher. Its authors, places, gatherings and reader comments are fictional. The articles demonstrate a real WordPress source moving into an independently editable App Composer destination.",
+      "Our editorial world is a quiet weekend newspaper: field observations, shared tables and time outdoors. Photographs come from the pinned WordPress theme's licensed collection and are labelled as illustrative, not as evidence of a visit to a real business or place.",
+      "The source and destination use ordinary owner interfaces. Published stories should remain readable after the original source is stopped; drafts and private work should remain outside the public site. The lab records actual behavior and every repair rather than treating this introduction as migration proof."
+    ]
+  },
+  {
+    "slug": "weekend-guide",
+    "title": "Plan a slow weekend",
+    "paragraphs": [
+      "Choose one walk, one table and one thing worth noticing. Leave enough time between them to change the plan. This is a fictional editorial guide and offers no current transport, access, weather, accommodation or safety advice.",
+      "For a real outing, check reliable local information and make the decision with the people taking part. Consider rest, food, water, access needs and the trip home. A shorter plan that suits everyone is more useful than a full page of destinations.",
+      "Our downloadable guide is a real attachment in the source media library. The destination must own a working copy, retain its identity and make it available after WordPress is unavailable. A link back to a stopped source is not a migrated download."
+    ]
+  },
+  {
+    "slug": "editorial-policy",
+    "title": "Our editorial policy",
+    "parent": "about",
+    "paragraphs": [
+      "We label fictional content and keep its purpose visible. No invented reader, quote or comment is a customer endorsement. The lab does not import personal records, real addresses or private creative material.",
+      "Images retain their original attribution and honest descriptions. Captions explain when a photograph is illustrative rather than a picture of the invented scene. Missing metadata is a reconciliation finding, not permission to invent a location or photographer.",
+      "Draft, pending, scheduled and private records have different publication states. Moving them to a new system must not silently make them public. A native owner decides when a draft is ready; a verified scheduler handles a genuinely due article."
+    ]
+  },
+  {
+    "slug": "our-contributors",
+    "title": "Our contributors",
+    "parent": "about",
+    "paragraphs": [
+      "Mira Fielding, Jo Bell and Eli Park are fictional editorial identities. They provide three distinct source bylines for relationship and archive tests. None represents a real author, biography, employment claim or private account.",
+      "Mira writes field notes and quiet journeys. Jo writes about the ordinary work of sharing a table. Eli keeps a walking notebook, with attention to light, sound and the practical choice to turn back.",
+      "The migration preserves the byline relationship while native owner access remains separate. A guest author record is not a new administrator, and a public name on a story is not authority to manage the destination."
+    ]
+  },
+  {
+    "slug": "image-credits",
+    "title": "Image credits",
+    "parent": "about",
+    "paragraphs": [
+      "The lab uses non-personal photographs supplied by the pinned official WordPress theme. Exact source files, original credits, licences and SHA-256 hashes are recorded in the maintained media manifest.",
+      "The photographs illustrate fictional editorial scenes. They do not establish that a place, meal or event exists in Macedon, and they are not customer uploads. Captions must keep that distinction visible.",
+      "Migrated originals must match their source bytes. Resized variants and owner-created crops are separate files; replacing a featured image must not remove an original still referenced by another story."
+    ]
+  },
+  {
+    "slug": "contribute",
+    "title": "Contribute to the fictional edition",
+    "paragraphs": [
+      "This page is a fictional publisher fixture, not an invitation to send personal stories, images or contact details. The demonstration has no public submission endpoint or real editorial inbox.",
+      "In the lab, an owner can create a new article through the ordinary native editor, upload an owned image, save a draft, preview it and publish explicitly. That journey is verified separately from importing the existing source.",
+      "A future real publication would need clear editorial, privacy and rights arrangements before receiving contributions. This local scenario does not establish those permissions or imply that a customer has joined the product."
+    ]
+  },
+  {
+    "slug": "access-and-care",
+    "title": "Access and care",
+    "parent": "weekend-guide",
+    "paragraphs": [
+      "The routes and places in these articles are invented. They provide no reliable accessibility, opening, weather or track information for a real destination. Seek current advice from the relevant operator before making a real plan.",
+      "A useful outing is chosen with the people taking part. Ask about distance, surfaces, seating, transport and the option to change course. Leave room for a different choice without treating it as a failed day.",
+      "This publisher also needs to remain usable on a phone and with a keyboard. The source-off check covers readable articles, visible focus, a working search and menu, and a layout that fits a short viewport. It does not substitute for physical-device or human accessibility acceptance."
+    ]
+  },
+  {
+    "slug": "archive-notes",
+    "title": "How the archive works",
+    "paragraphs": [
+      "The archive groups published stories by their current topics and dates. Search should find useful words from the title, excerpt, author and article body. Unpublished editorial work stays outside those public results.",
+      "Old article and nested-page addresses are mapped deliberately. A known public query address may redirect to its local article; an unknown or private source ID must not reveal a title or become a redirect to an arbitrary host.",
+      "During a migration, the editor records changed slugs, retired paths and any late source edits. A second import is not assumed to be a complete synchronisation system. The reconciliation report explains which record and route survived, and why."
+    ]
+  }
+]

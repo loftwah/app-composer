@@ -9,6 +9,26 @@ if (!$owner || !user_can($owner, 'manage_options')) {
 }
 wp_set_current_user($owner->ID);
 $statuses = ['publish', 'draft', 'private', 'pending', 'future'];
+function weekender_block_inventory($content, $depth = 0) {
+    if ($depth > 10) {
+        WP_CLI::error('A source block tree exceeds the bounded lab depth.');
+    }
+    $result = [];
+    $blocks = is_string($content) ? parse_blocks($content) : $content;
+    if (count($blocks) > 200) {
+        WP_CLI::error('A source block tree exceeds the bounded lab size.');
+    }
+    foreach ($blocks as $block) {
+        if ($block['blockName'] !== null) {
+            $result[] = [
+                'name' => $block['blockName'],
+                'attributes' => $block['attrs'],
+                'children' => weekender_block_inventory($block['innerBlocks'], $depth + 1),
+            ];
+        }
+    }
+    return $result;
+}
 $articles = [];
 $pages = [];
 foreach (['post', 'page'] as $type) {
@@ -30,6 +50,9 @@ foreach (['post', 'page'] as $type) {
             'parentId' => $post->post_parent, 'excerpt' => $post->post_excerpt,
             'text' => trim(preg_replace('/\s+/u', ' ', wp_strip_all_tags($post->post_content))),
             'dateUTC' => $post->post_date_gmt,
+            'dateLocal' => $post->post_date,
+            'sourceBodySHA256' => hash('sha256', $post->post_content),
+            'blocks' => weekender_block_inventory($post->post_content),
             'featuredImage' => get_post_thumbnail_id($post),
             'categories' => wp_get_post_terms($post->ID, 'category', ['fields' => 'names']),
             'tags' => wp_get_post_terms($post->ID, 'post_tag', ['fields' => 'names'])
@@ -41,6 +64,17 @@ foreach (['post', 'page'] as $type) {
         }
     }
 }
+$synced = get_posts(['post_type' => 'wp_block', 'post_status' => $statuses, 'numberposts' => 101, 'orderby' => 'ID', 'order' => 'ASC']);
+if (count($synced) > 100) {
+    WP_CLI::error('The bounded synced-block inventory exceeds 100.');
+}
+$synced = array_map(fn($post) => [
+    'id' => $post->ID, 'slug' => $post->post_name,
+    'title' => $post->post_title, 'status' => $post->post_status,
+    'text' => trim(preg_replace('/\s+/u', ' ', wp_strip_all_tags($post->post_content))),
+    'sourceBodySHA256' => hash('sha256', $post->post_content),
+    'blocks' => weekender_block_inventory($post->post_content),
+], $synced);
 $attachments = get_posts([
     'post_type' => 'attachment', 'post_status' => 'inherit', 'numberposts' => 101,
     'orderby' => 'ID', 'order' => 'ASC'
@@ -85,8 +119,12 @@ foreach (['category', 'post_tag'] as $taxonomy) {
 }
 WP_CLI::line(json_encode([
     'fictional' => true, 'version' => get_bloginfo('version'),
+    'scenario' => get_option('composer_weekender_scenario', 'small'),
     'site' => ['title' => get_bloginfo('name'), 'origin' => get_option('home')],
     'timezone' => wp_timezone_string(), 'permalink' => get_option('permalink_structure'),
     'articles' => $articles, 'pages' => $pages, 'media' => $media,
-    'comments' => $comments, 'taxonomies' => $taxonomies
+    'comments' => $comments, 'taxonomies' => $taxonomies,
+    'syncedBlocks' => $synced,
+    'theme' => ['name' => wp_get_theme()->get('Name'), 'stylesheet' => get_stylesheet(), 'blockTheme' => wp_is_block_theme()],
+    'plugins' => array_map(fn($path) => plugin_basename($path), get_option('active_plugins', [])),
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));

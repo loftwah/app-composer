@@ -4,6 +4,10 @@ This fictional publisher is the first local vertical slice for App Composer issu
 
 The initial scope is four complete public articles, four non-public status cases, three pages including a nested page, three guest-author identities, a hierarchical category, tags, two theme-provided photographs, a downloadable text guide and a threaded fictional comment. The approximately 30-article/full publishing scenario, Classic Editor, synced/dynamic block coverage, scheduling parity, retry/cutover/restore and hosted deployment remain separate unproven gates. Elementor, ACF and commerce are untouched.
 
+[The complete publisher execution plan](COMPLETE-SCENARIO.md) extends that replay in a separately selected source. `run --run /absolute/output/run.json --scenario publisher` seeds 30 complete fictional articles, eight pages, two referenced synced blocks, galleries and a dynamic latest-posts case through the real WordPress APIs. The default `small` source is unchanged. The near-term scheduled article is due one hour after seeding; observe the actual recorded Melbourne and UTC times rather than assuming it is still future when import finishes. Fixture availability does not establish complete import, execution, Classic Editor, recovery or hosted acceptance.
+
+The complete source disables opportunistic HTTP-triggered WP-Cron so browsing and backup do not consume its scheduled cases before observation. Exercise the real due event through the selected source's WP-CLI scheduler after the recorded instant; do not manually publish or advance a clock and call that timer proof. The independent destination's actual scheduler needs its own observed invocation and resulting public revision.
+
 `versions.json` pins actual official multi-platform image digests: WordPress 7.1.3/PHP8.3, MariaDB 11.4.8 and WP-CLI 2.12.0. The Composer-created destination retains EmDash 1.2.0/Astro 7.3.5/Node 22 and its separately pinned pnpm 12.9.1 lockfile. Image digests were resolved from the official Docker registry; no remote build is involved. Images can be acquired through ordinary `docker pull` by digest. No public customer source, real people or external private credentials are used.
 
 ## Start the isolated source
@@ -24,6 +28,7 @@ Run these from another terminal using the exact same registry:
 ```sh
 node scripts/wordpress-lab.mjs status --run /absolute/output/run.json
 node scripts/wordpress-lab.mjs snapshot --run /absolute/output/run.json
+node scripts/wordpress-lab.mjs backup --run /absolute/output/run.json
 node scripts/wordpress-lab.mjs transport --run /absolute/output/run.json
 node scripts/wordpress-lab.mjs exporter --run /absolute/output/run.json
 node scripts/wordpress-lab.mjs source-off --run /absolute/output/run.json
@@ -33,6 +38,8 @@ node scripts/wordpress-lab.mjs down --run /absolute/output/run.json
 `destination --run /absolute/output/run.json` creates an empty, independent project through the actual Composer recipe and overlays the publisher reader. It seeds no entries or accounts. Install its frozen lockfile and run the native setup/import UI; the ordinary passkey path can be tested with a clearly labelled isolated virtual authenticator, without claiming physical or production authentication. The independent target has its own strict type/format/test/build gates; its source template is excluded from Composer’s application TS program because it is checked in the generated project.
 
 `resume --run /absolute/output/run.json` reattaches cleanup ownership only after the recorded controller has exited; it refuses a still-live PID and preserves the exact existing fictional source.
+
+`snapshot` observes the live source and exports WXR; it is not a database/media recovery point. `backup` separately quiesces the selected fictional source with native maintenance mode, exports its complete database and archives `wp-content`, `wp-config.php` and `.htaccess` when present. That includes uploads, themes and plugins; core is reproduced from the exact image digest. A private hash/size manifest records the files and runtime. The backup contains fictional credentials and password hashes: keep its directory private, exclude it from public captures and never commit it. It is retained under the selected ignored evidence directory, separately from the temporary runtime root, so cleanup does not destroy the recovery point. A failed attempt removes only its new partial staging and exits the maintenance state it activated. Existing maintenance, staging and another backup lock are preserved. Actual restoration is a separate gate; an archive is not restore evidence.
 
 `source-off` stops only the selected WordPress/database services and their registered temporary tunnel; it leaves an independent destination running. Close this run’s registered browser/dev server before `down`. The source controller never kills an operator’s dev server or browser; if a local consumer still refers to its owned root it retains the files and records that cleanup gate. After closing the exact consumer, run `down` again to finish recovery. `down` verifies the controller identity before signalling it, and `cleanup.json` records actual removal. Never use global Docker cleanup. The existing protected Protocol 11 image and unrelated projects remain intact. Container images are a separately inventoried cache; remove only exact newly acquired digests after checking no other container/run uses them.
 
