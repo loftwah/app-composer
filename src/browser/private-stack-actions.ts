@@ -1,6 +1,25 @@
 // Progressive enhancement only: the original app href and default navigation
 // stay intact. One activation nonce is not a visitor or session identifier.
 export function installStackActions(root: Document = document) {
+  // Some engines expose a touch-generated click as a compatibility MouseEvent.
+  // Keep only the immediately preceding input on the same link, in memory.
+  let touch: { anchor: Element; at: number } | undefined;
+  const input = (event: Event) => {
+    if (!event.isTrusted) return;
+    const anchor =
+      event.target instanceof Element
+        ? event.target.closest("a[data-outcome-instance]")
+        : null;
+    touch =
+      anchor &&
+      (event.type === "touchstart" ||
+        ("pointerType" in event && event.pointerType === "touch"))
+        ? { anchor, at: performance.now() }
+        : undefined;
+  };
+  const keyboard = (event: KeyboardEvent) => {
+    if (event.isTrusted) touch = undefined;
+  };
   const activate = (event: MouseEvent) => {
     if (
       !event.isTrusted ||
@@ -13,6 +32,9 @@ export function installStackActions(root: Document = document) {
         ? event.target.closest<HTMLAnchorElement>("a[data-outcome-instance]")
         : null;
     if (!anchor) return;
+    const touched =
+      touch?.anchor === anchor && performance.now() - touch.at < 1500;
+    touch = undefined;
     const page = anchor.closest<HTMLElement>(
       "[data-outcome-slug][data-outcome-publication]",
     );
@@ -28,10 +50,10 @@ export function installStackActions(root: Document = document) {
     )
       return;
     const interaction =
-      event.detail === 0
-        ? "keyboard"
-        : "pointerType" in event && event.pointerType === "touch"
-          ? "touch"
+      touched || ("pointerType" in event && event.pointerType === "touch")
+        ? "touch"
+        : event.detail === 0
+          ? "keyboard"
           : "pointer";
     const disposition =
       anchor.target === "_blank" ||
@@ -64,8 +86,15 @@ export function installStackActions(root: Document = document) {
   };
   root.addEventListener("click", activate);
   root.addEventListener("auxclick", activate);
+  root.addEventListener("pointerdown", input, { passive: true });
+  root.addEventListener("touchstart", input, { passive: true });
+  root.addEventListener("keydown", keyboard);
   return () => {
     root.removeEventListener("click", activate);
     root.removeEventListener("auxclick", activate);
+    root.removeEventListener("pointerdown", input);
+    root.removeEventListener("touchstart", input);
+    root.removeEventListener("keydown", keyboard);
+    touch = undefined;
   };
 }

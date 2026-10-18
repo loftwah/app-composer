@@ -316,6 +316,7 @@ export async function privateOutcomeReport(
       notes: [
         "New action aggregates are recorded lower bounds. Recording, rate limits, daily caps and outages can drop events.",
         "The first retained observation is partial, not a deployment or enablement date. Earlier/expired history is unavailable; later zero means no recorded event.",
+        "Deleting a stack also removes its private outcome rows. Totals can fall when stacks are removed; deleted-stack activity is unavailable.",
         "Marked verification/release probes and confidently identified robots are excluded. Unmarked bots and demonstrations can count; unclassified is not evidence of customer demand.",
         "A demonstration setting applies only when a future action is collected. Earlier classification is not rewritten; original publication history has no traffic classification.",
         "The traffic filter applies only to collected actions. Original publication history has no recorded demonstration classification.",
