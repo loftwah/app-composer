@@ -10,6 +10,15 @@ outputs. Generated sites carry their own source/checker/lockfile and run their
 own `source:write`, `check` and `build` commands. Preparation does not update an
 existing owner project or establish its deployment.
 
+`src/lib/app-settings.mts` owns the reviewed composition's setting model and
+runtime validators. `scripts/creator-source.mjs` checks this shared domain
+source with strict Worker-compatible globals and emits readable `.mjs` and
+`.d.mts` distributions in memory. External settings remain `unknown` until
+validated; the generated declarations include the actual app capabilities.
+The same normal development/build gates refuse stale output. This checked
+module does not establish TypeScript coverage of the remaining stack store,
+activation helper or Get Ready implementation.
+
 ## Native mini-app editor
 
 `src/plugins/miniapps-admin.tsx` registers the EmDash page and assembles the editor. The modules in `src/plugins/miniapps/` have distinct responsibilities:
