@@ -61,6 +61,15 @@ test('card identity, copy, alt and visible labels come only from the persisted p
   assert.doesNotMatch(svg + first.imageAlt + JSON.stringify(first), /Secret|Withheld label/);
 });
 
+test('legacy immutable publication JSON retains its exact shape and social identity', async () => {
+  const original = {...sample, description: '  Original publication whitespace  ', extension: {reviewed: 'inert public data'}};
+  const stack = await publicStack(db(row(original)), 'trail-notes');
+  assert.deepEqual(stack.document, original, 'read validation never fills, strips or reorders publication fields');
+  assert.equal(JSON.stringify(stack.document), JSON.stringify(original));
+  const expected = await stackShareDetails({id: 'stack-identity-0001', slug: 'trail-notes', revision: 3, name: original.name, description: original.description, theme: original.theme, document: original});
+  assert.equal((await stackShareDetails(stack)).imageIdentity, expected.imageIdentity);
+});
+
 test('republishing, recreated slugs and document changes cannot reuse an image identity', async () => {
   const stack = await publicStack(db(row(sample)), 'trail-notes');
   const original = await stackShareDetails(stack);
@@ -77,7 +86,10 @@ test('republishing, recreated slugs and document changes cannot reuse an image i
 
 test('card text is bounded and XML-safe, including long unspaced words', async () => {
   const hostile = {...sample, name: '</text><image href="https://example.test/private"/>', description: 'A & B < C\u0000'};
-  const stack = await publicStack(db(row(hostile)), 'trail-notes');
+  assert.equal(await publicStack(db(row(hostile)), 'trail-notes'), null, 'corrupt stored text is refused before presentation');
+  // Exercise the renderer defensively too, independently of the storage guard.
+  const valid = await publicStack(db(row(sample)), 'trail-notes');
+  const stack = {...valid, name: hostile.name, description: hostile.description, document: {...valid.document, name: hostile.name, description: hostile.description}};
   const share = await stackShareDetails(stack);
   const svg = stackShareSvg(stack, share, measure, brandImage);
   assert.equal(svg.match(/<image\s/g)?.length, 1, 'only the fixed bundled Composer PNG can be an image element');

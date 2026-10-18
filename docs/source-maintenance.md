@@ -10,6 +10,26 @@ outputs. Generated sites carry their own source/checker/lockfile and run their
 own `source:write`, `check` and `build` commands. Preparation does not update an
 existing owner project or establish its deployment.
 
+The Creator domain's maintained authors are `src/lib/app-settings.mts`,
+`stacks.mts`, `stack-activation.mts` and `app-configuration.mts`.
+`scripts/creator-source.mjs` enumerates this closed source set, checks strict
+Worker globals and D1 types, and emits the same-path readable `.mjs` and `.d.mts`
+in memory. Edit the author, run `pnpm format` and `pnpm source:write`, then check.
+Normal development, types and build commands refuse stale runtime/declarations.
+The Node operator's `scripts/app-configuration.mjs` retains the validated
+specification plan and re-exports the checked configuration transport; its
+independent command never requires a Composer server.
+
+External documents, persisted snapshots and remote response JSON must be
+validated before typed use. Preserve the stack store's actual SQL, actor/CAS
+checks and immutable publication identity. Published app-owned resource metadata
+is validated and retained; it is not a draft or a claim to own app records/media.
+Compiler and boundary tests exercise invalid source, stale output, inherited-key
+selectors, corrupt stored documents and unknown acknowledgments. The root lint
+and format commands deliberately cover the maintained source slice recorded in
+the [engineering baseline](engineering-baseline.md); remaining legacy Node tools
+and Get Ready are not represented as fully converted.
+
 ## Native mini-app editor
 
 `src/plugins/miniapps-admin.tsx` registers the EmDash page and assembles the editor. The modules in `src/plugins/miniapps/` have distinct responsibilities:

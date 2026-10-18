@@ -16,6 +16,43 @@ stale emitted bytes and do not rewrite them. Composer's model/recipe gate is
 `scripts/content-source.mjs`; a generated project owns its copy of
 `scripts/build-source.mjs` and its source/configuration/dependency boundary.
 
+The reviewed app-setting model, saved-stack store, activation planner and
+app-owned configuration transport are maintained in `src/lib/{app-settings,
+stacks,stack-activation,app-configuration}.mts`. The closed Creator source gate
+uses strict Worker-compatible globals and the pinned D1 types. Its same-path
+JavaScript and declarations come from that actual implementation; normal dev,
+type and build commands reject stale bytes. Incoming documents, stored JSON and
+remote acknowledgments remain unknown until runtime validation. Immutable
+Guestbook resource references survive publication reads; corrupt snapshots never
+fall back to the private draft. A publication validator returns the original
+validated JSON object, retaining legacy optional fields, ordering and social-image
+identity. Only an editable draft copy receives normalized defaults. SQL transactions, actor predicates, revision
+checks and exact publication bytes retain their existing release boundary.
+
+The Node operator still imports `scripts/app-configuration.mjs`: its existing
+validated specification planner remains a small JavaScript tooling exception,
+and it re-exports the checked Worker-safe transport. No Worker imports Node-only
+operator code. The compiler fixture checks every Creator author, rejects Node
+globals and proves that errors cannot replace any distribution. Real SQLite and
+transport negatives cover prototype-key selectors, corrupt persisted data,
+source/target validation, partial outcomes and malformed/lost acknowledgments.
+Every actual operator/activation write checks both standalone and mounted source
+identities after awaited credentials and workspace guards, then rechecks workspace
+authority after those HTTP waits. The validated plan is frozen against guard
+mutation. Sequential checks remain snapshots, not an atomic remote source/CAS
+guarantee. A lost acknowledgement leaves an app write unconfirmed; no automatic
+retry or rollback is performed. This transport is separate from native resource
+apply and is never implicitly called by Publish.
+
+Root `pnpm check` now runs types/parity, scoped semantic `pnpm lint`, scoped
+`pnpm format:check` and behavior tests. Lint covers the maintained content and
+Creator source programs with unused-local/parameter checks. Formatting uses
+pinned Prettier 3.9.10 on the ten named Creator author/check/test files in
+`scripts/creator-format.mjs`; generated output retains compiler formatting.
+Run `pnpm format` then `pnpm source:write` after Creator edits. This is not a
+whole-repository ESLint or formatting claim, and normal checks never rewrite
+source or emitted bytes.
+
 Generated projects validate imported model JSON before typed presentation. They
 carry their own source, emitted files, compiler configuration, native editor,
 behavior tests and lockfile. The project-file allowlist and provenance capture
@@ -59,7 +96,10 @@ Focused development checks:
 
 ```sh
 node scripts/content-source.mjs --check
-node scripts/content-source.mjs --lint
+pnpm lint
+pnpm format:check
+node scripts/creator-source.mjs --check
+node --test tests/creator-source.test.mjs tests/creator-boundaries.test.mjs tests/stacks-database.test.mjs tests/stacks-instances.test.mjs tests/app-settings.test.mjs
 node --test tests/content-model.test.mjs tests/content-project.test.mjs tests/content-calendar.test.mjs tests/content-entry.test.mjs tests/content-filter.test.mjs
 node --test tests/readiness-owned-deploy.test.mjs tests/readiness-maintained-release.test.mjs tests/readiness-package.test.mjs
 ```

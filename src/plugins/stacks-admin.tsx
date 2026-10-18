@@ -83,6 +83,7 @@ function WorkspaceStudio({ search }: { search: string }) {
   const [draft, setDraft] = useState<Draft>();
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [conflict, setConflict] = useState<{
@@ -203,9 +204,12 @@ function WorkspaceStudio({ search }: { search: string }) {
               : "The workspace could not be loaded.",
           );
       })
-      .finally(() => undefined);
+      .finally(() => {
+        if (live) setInitialLoading(false);
+      });
     return () => {
       live = false;
+      requestGeneration.current++;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -805,7 +809,7 @@ function WorkspaceStudio({ search }: { search: string }) {
         {role !== "viewer" && (
           <button
             type="button"
-            disabled={busy}
+            disabled={busy || initialLoading}
             onClick={() =>
               void run(async () =>
                 (await load())
@@ -829,6 +833,9 @@ function WorkspaceStudio({ search }: { search: string }) {
           Workspace <strong>{workspace.name}</strong> ·{" "}
           {ROLE_COPY[workspace.role]}
         </p>
+      )}
+      {initialLoading && (
+        <p role="status" className="ca-muted">Loading your workspace and saved stacks…</p>
       )}
       <p role="status" aria-live="polite" className="ca-message">
         {message}
@@ -912,7 +919,7 @@ function WorkspaceStudio({ search }: { search: string }) {
               </button>
             </div>
           )}
-          {!document && (
+          {!initialLoading && workspace && !document && (
             <p className="ca-muted">
               No stack yet.{" "}
               {can(role, "create")
@@ -1703,7 +1710,9 @@ function WorkspaceStudio({ search }: { search: string }) {
                 </button>
               </li>
             ))}
-            {!stacks.length && <li className="ca-muted">No stacks yet.</li>}
+            {!initialLoading && workspace && !stacks.length && (
+              <li className="ca-muted">No stacks yet.</li>
+            )}
           </ul>
           {current && (
             <div className="ca-resource-note">
