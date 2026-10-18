@@ -33,21 +33,13 @@ async function install() {
   fallback.textContent = "Apps";
   fallback.setAttribute("aria-label", "Browse apps");
   container.append(fallback);
-  document.body.append(container);
+  document.body.prepend(container);
   const ownedAssets: HTMLElement[] = [];
   let controller: Controller | null = null;
   let dialog: HTMLDialogElement | null = null;
   const initialKeys = new AbortController();
   let requestedSearch = false;
   let disposed = false;
-  const resize = () => {
-    const viewport = window.visualViewport;
-    container.dataset.keyboard = String(
-      Boolean(
-        viewport && innerHeight - viewport.height - viewport.offsetTop > 150,
-      ),
-    );
-  };
   const dispose = () => {
     if (disposed) return;
     disposed = true;
@@ -89,13 +81,6 @@ async function install() {
   window.addEventListener("popstate", () => controller?.close(), {
     signal: events.signal,
   });
-  window.visualViewport?.addEventListener("resize", resize, {
-    signal: events.signal,
-  });
-  window.visualViewport?.addEventListener("scroll", resize, {
-    signal: events.signal,
-  });
-  resize();
   function asset(tag: "link" | "script", href: string) {
     return new Promise<void>((resolve, reject) => {
       const node = document.createElement(tag);
