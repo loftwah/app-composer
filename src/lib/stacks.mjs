@@ -541,52 +541,69 @@ function workspaceRow(row) {
 }
 // Persisted JSON is external data too. Check its declared document and preserve
 // validated app-owned publication references; never fall back to a private draft.
-function storedDocument(value) {
-    const parsed = parse(value);
+function storedDraft(value) {
     try {
-        return publicationDocument(parsed);
+        return normaliseStack(parse(value));
     }
     catch {
         throw unavailable();
     }
 }
-function publicationDocument(value) {
-    const document = normaliseStack(value);
-    if (!record(value) || !Array.isArray(value.instances))
+function storedPublication(value) {
+    try {
+        return publicationDocument(parse(value));
+    }
+    catch {
         throw unavailable();
+    }
+}
+function isResource(value) {
+    return (record(value) &&
+        isId(value.id) &&
+        positiveInteger(value.configurationRevision) &&
+        typeof value.digest === "string" &&
+        /^[a-f0-9]{64}$/.test(value.digest) &&
+        typeof value.source === "string" &&
+        /^[a-f0-9]{40}$/.test(value.source) &&
+        value.path ===
+            `/guestbook/r/${value.id}/c/${value.configurationRevision}/` &&
+        typeof value.shared === "boolean");
+}
+function isPublicationDocument(value) {
+    // Reuse declaration/range/relationship checks without returning the normalised
+    // object. Only the native editor's decoded copy upgrades legacy defaults.
+    normaliseStack(value);
+    if (!record(value) ||
+        !Array.isArray(value.instances) ||
+        typeof value.theme !== "string" ||
+        (value.description !== undefined && typeof value.description !== "string"))
+        return false;
     const originals = value.instances;
-    return {
-        ...document,
-        instances: document.instances.map((instance, index) => {
-            const original = originals[index];
-            if (!record(original) || original.resource === undefined)
-                return instance;
-            const resource = original.resource;
-            if (instance.app !== "guestbook" ||
-                !record(resource) ||
-                !isId(resource.id) ||
-                !positiveInteger(resource.configurationRevision) ||
-                typeof resource.digest !== "string" ||
-                !/^[a-f0-9]{64}$/.test(resource.digest) ||
-                typeof resource.source !== "string" ||
-                !/^[a-f0-9]{40}$/.test(resource.source) ||
-                resource.path !==
-                    `/guestbook/r/${resource.id}/c/${resource.configurationRevision}/` ||
-                typeof resource.shared !== "boolean")
-                throw new StackError("INVALID", "Check the published Guestbook resource reference.");
-            return {
-                ...instance,
-                resource: {
-                    id: resource.id,
-                    configurationRevision: resource.configurationRevision,
-                    digest: resource.digest,
-                    source: resource.source,
-                    path: resource.path,
-                    shared: resource.shared,
-                },
-            };
-        }),
-    };
+    for (const original of originals) {
+        if (!record(original) ||
+            (original.caption !== undefined &&
+                typeof original.caption !== "string") ||
+            (original.config !== undefined &&
+                (!record(original.config) ||
+                    Object.values(original.config).some((item) => typeof item !== "string"))) ||
+            (original.binding !== undefined &&
+                (!record(original.binding) ||
+                    (original.binding.mode !== undefined &&
+                        original.binding.mode !== "own" &&
+                        original.binding.mode !== "shared") ||
+                    (original.binding.shareOf !== undefined &&
+                        original.binding.shareOf !== null &&
+                        typeof original.binding.shareOf !== "string"))) ||
+            (original.resource !== undefined &&
+                (original.app !== "guestbook" || !isResource(original.resource))))
+            return false;
+    }
+    return true;
+}
+function publicationDocument(value) {
+    if (!isPublicationDocument(value))
+        throw new StackError("INVALID", "Check the published stack document and resource references.");
+    return value;
 }
 // RETURNING acknowledges this exact changed row, never a later competing read.
 const acknowledgedStack = (row, message) => {
@@ -617,8 +634,8 @@ const toStack = (row) => {
         publishedRevision: row.published_revision ?? null,
         updatedAt: row.updated_at,
         publishedAt: row.published_at ?? null,
-        draft: storedDocument(row.draft_json),
-        published: row.published_json == null ? null : storedDocument(row.published_json),
+        draft: storedDraft(row.draft_json),
+        published: row.published_json == null ? null : storedPublication(row.published_json),
     };
 };
 // A public field may only come from the immutable publication snapshot. The
@@ -634,7 +651,7 @@ const publishedView = (row) => {
         return null;
     let document;
     try {
-        document = storedDocument(row.document_json);
+        document = storedPublication(row.document_json);
     }
     catch {
         return null;
@@ -747,7 +764,7 @@ export async function listPublications(db, workspaceId, stackId) {
         return {
             revision: row.revision,
             publishedAt: row.published_at,
-            document: storedDocument(row.document_json),
+            document: storedPublication(row.document_json),
         };
     });
 }
@@ -795,7 +812,7 @@ async function publicationRow(db, workspaceId, stackId, revision) {
         .bind(stackId, workspaceId, revision)
         .first();
     if (row)
-        storedDocument(row.document_json);
+        storedPublication(row.document_json);
     return row;
 }
 export async function unpublishStack(db, workspaceId, stackId, expectedRevision, actor = null) {

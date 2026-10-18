@@ -24,7 +24,9 @@ JavaScript and declarations come from that actual implementation; normal dev,
 type and build commands reject stale bytes. Incoming documents, stored JSON and
 remote acknowledgments remain unknown until runtime validation. Immutable
 Guestbook resource references survive publication reads; corrupt snapshots never
-fall back to the private draft. SQL transactions, actor predicates, revision
+fall back to the private draft. A publication validator returns the original
+validated JSON object, retaining legacy optional fields, ordering and social-image
+identity. Only an editable draft copy receives normalized defaults. SQL transactions, actor predicates, revision
 checks and exact publication bytes retain their existing release boundary.
 
 The Node operator still imports `scripts/app-configuration.mjs`: its existing

@@ -34,6 +34,26 @@ export interface StackDocument {
     theme: string;
     instances: StackInstance[];
 }
+export interface PublicationInstance {
+    id: string;
+    app: string;
+    label: string;
+    caption?: string;
+    visible?: boolean;
+    binding?: {
+        mode?: "own" | "shared";
+        shareOf?: string | null;
+    };
+    config?: Record<string, string>;
+    resource?: StackResource;
+}
+export interface PublicationDocument {
+    version: number;
+    name: string;
+    description?: string;
+    theme: string;
+    instances: PublicationInstance[];
+}
 export interface Stack {
     id: string;
     slug: string;
@@ -44,7 +64,7 @@ export interface Stack {
     updatedAt: string;
     publishedAt: string | null;
     draft: StackDocument;
-    published: StackDocument | null;
+    published: PublicationDocument | null;
 }
 export interface PublicStack {
     id: string;
@@ -54,7 +74,7 @@ export interface PublicStack {
     name: string;
     description: string;
     theme: string;
-    document: StackDocument;
+    document: PublicationDocument;
 }
 export interface DeclaredField {
     key: string;
@@ -165,7 +185,7 @@ export declare function publishStack(db: D1Database, workspaceId: string, stackI
 export declare function listPublications(db: D1Database, workspaceId: string, stackId: string): Promise<{
     revision: number;
     publishedAt: string;
-    document: StackDocument;
+    document: PublicationDocument;
 }[]>;
 export declare function republishRevision(db: D1Database, workspaceId: string, stackId: string, revision: unknown, expectedRevision: unknown, actor?: unknown): Promise<Stack>;
 export declare function restoreRevisionToDraft(db: D1Database, workspaceId: string, stackId: string, revision: unknown, expectedRevision: unknown, actor?: unknown): Promise<Stack>;

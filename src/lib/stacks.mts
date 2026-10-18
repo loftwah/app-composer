@@ -43,6 +43,25 @@ export interface StackDocument {
   theme: string;
   instances: StackInstance[];
 }
+// Earlier immutable snapshots omit instance defaults. Validate their original
+// shape without filling defaults: their exact JSON also owns social identity.
+export interface PublicationInstance {
+  id: string;
+  app: string;
+  label: string;
+  caption?: string;
+  visible?: boolean;
+  binding?: { mode?: "own" | "shared"; shareOf?: string | null };
+  config?: Record<string, string>;
+  resource?: StackResource;
+}
+export interface PublicationDocument {
+  version: number;
+  name: string;
+  description?: string;
+  theme: string;
+  instances: PublicationInstance[];
+}
 export interface Stack {
   id: string;
   slug: string;
@@ -53,7 +72,7 @@ export interface Stack {
   updatedAt: string;
   publishedAt: string | null;
   draft: StackDocument;
-  published: StackDocument | null;
+  published: PublicationDocument | null;
 }
 export interface PublicStack {
   id: string;
@@ -63,7 +82,7 @@ export interface PublicStack {
   name: string;
   description: string;
   theme: string;
-  document: StackDocument;
+  document: PublicationDocument;
 }
 export interface DeclaredField {
   key: string;
@@ -811,54 +830,78 @@ function workspaceRow(row: Row): Workspace {
 }
 // Persisted JSON is external data too. Check its declared document and preserve
 // validated app-owned publication references; never fall back to a private draft.
-function storedDocument(value: unknown): StackDocument {
-  const parsed = parse(value);
+function storedDraft(value: unknown): StackDocument {
   try {
-    return publicationDocument(parsed);
+    return normaliseStack(parse(value));
   } catch {
     throw unavailable();
   }
 }
-function publicationDocument(value: unknown): StackDocument {
-  const document = normaliseStack(value);
-  if (!record(value) || !Array.isArray(value.instances)) throw unavailable();
+function storedPublication(value: unknown): PublicationDocument {
+  try {
+    return publicationDocument(parse(value));
+  } catch {
+    throw unavailable();
+  }
+}
+function isResource(value: unknown): value is StackResource {
+  return (
+    record(value) &&
+    isId(value.id) &&
+    positiveInteger(value.configurationRevision) &&
+    typeof value.digest === "string" &&
+    /^[a-f0-9]{64}$/.test(value.digest) &&
+    typeof value.source === "string" &&
+    /^[a-f0-9]{40}$/.test(value.source) &&
+    value.path ===
+      `/guestbook/r/${value.id}/c/${value.configurationRevision}/` &&
+    typeof value.shared === "boolean"
+  );
+}
+function isPublicationDocument(value: unknown): value is PublicationDocument {
+  // Reuse declaration/range/relationship checks without returning the normalised
+  // object. Only the native editor's decoded copy upgrades legacy defaults.
+  normaliseStack(value);
+  if (
+    !record(value) ||
+    !Array.isArray(value.instances) ||
+    typeof value.theme !== "string" ||
+    (value.description !== undefined && typeof value.description !== "string")
+  )
+    return false;
   const originals: unknown[] = value.instances;
-  return {
-    ...document,
-    instances: document.instances.map((instance, index) => {
-      const original = originals[index];
-      if (!record(original) || original.resource === undefined) return instance;
-      const resource = original.resource;
-      if (
-        instance.app !== "guestbook" ||
-        !record(resource) ||
-        !isId(resource.id) ||
-        !positiveInteger(resource.configurationRevision) ||
-        typeof resource.digest !== "string" ||
-        !/^[a-f0-9]{64}$/.test(resource.digest) ||
-        typeof resource.source !== "string" ||
-        !/^[a-f0-9]{40}$/.test(resource.source) ||
-        resource.path !==
-          `/guestbook/r/${resource.id}/c/${resource.configurationRevision}/` ||
-        typeof resource.shared !== "boolean"
-      )
-        throw new StackError(
-          "INVALID",
-          "Check the published Guestbook resource reference.",
-        );
-      return {
-        ...instance,
-        resource: {
-          id: resource.id,
-          configurationRevision: resource.configurationRevision,
-          digest: resource.digest,
-          source: resource.source,
-          path: resource.path,
-          shared: resource.shared,
-        },
-      };
-    }),
-  };
+  for (const original of originals) {
+    if (
+      !record(original) ||
+      (original.caption !== undefined &&
+        typeof original.caption !== "string") ||
+      (original.config !== undefined &&
+        (!record(original.config) ||
+          Object.values(original.config).some(
+            (item) => typeof item !== "string",
+          ))) ||
+      (original.binding !== undefined &&
+        (!record(original.binding) ||
+          (original.binding.mode !== undefined &&
+            original.binding.mode !== "own" &&
+            original.binding.mode !== "shared") ||
+          (original.binding.shareOf !== undefined &&
+            original.binding.shareOf !== null &&
+            typeof original.binding.shareOf !== "string"))) ||
+      (original.resource !== undefined &&
+        (original.app !== "guestbook" || !isResource(original.resource)))
+    )
+      return false;
+  }
+  return true;
+}
+function publicationDocument(value: unknown): PublicationDocument {
+  if (!isPublicationDocument(value))
+    throw new StackError(
+      "INVALID",
+      "Check the published stack document and resource references.",
+    );
+  return value;
 }
 // RETURNING acknowledges this exact changed row, never a later competing read.
 const acknowledgedStack = (
@@ -893,9 +936,9 @@ const toStack = (row: Row): Stack => {
     publishedRevision: row.published_revision ?? null,
     updatedAt: row.updated_at,
     publishedAt: row.published_at ?? null,
-    draft: storedDocument(row.draft_json),
+    draft: storedDraft(row.draft_json),
     published:
-      row.published_json == null ? null : storedDocument(row.published_json),
+      row.published_json == null ? null : storedPublication(row.published_json),
   };
 };
 // A public field may only come from the immutable publication snapshot. The
@@ -911,9 +954,9 @@ const publishedView = (row: Row): PublicStack | null => {
     typeof row.published_at !== "string"
   )
     return null;
-  let document: StackDocument;
+  let document: PublicationDocument;
   try {
-    document = storedDocument(row.document_json);
+    document = storedPublication(row.document_json);
   } catch {
     return null;
   }
@@ -1154,7 +1197,7 @@ export async function listPublications(
     return {
       revision: row.revision,
       publishedAt: row.published_at,
-      document: storedDocument(row.document_json),
+      document: storedPublication(row.document_json),
     };
   });
 }
@@ -1281,7 +1324,7 @@ async function publicationRow(
     )
     .bind(stackId, workspaceId, revision)
     .first<Row>();
-  if (row) storedDocument(row.document_json);
+  if (row) storedPublication(row.document_json);
   return row;
 }
 
