@@ -30,6 +30,7 @@ export function Maintenance({ search }: { search: string }) {
   const [file, setFile] = useState<PortableGuestbook>();
   const [busy, setBusy] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [invalidScope, setInvalidScope] = useState(false);
   const [error, setError] = useState("");
   const [now, setNow] = useState(Date.now());
   const request = useRef(0),
@@ -45,7 +46,7 @@ export function Maintenance({ search }: { search: string }) {
     action: "list" | "check" | "export",
     fields: Record<string, string> = {},
   ) => {
-    if (pending.current) return;
+    if (pending.current || invalidScope) return;
     pending.current = true;
     const epoch = ++request.current;
     setBusy(true);
@@ -101,6 +102,7 @@ export function Maintenance({ search }: { search: string }) {
       selection.current = workspaceSelection(search);
       void run("list");
     } catch (cause) {
+      setInvalidScope(true);
       setError(
         cause instanceof Error
           ? cause.message
@@ -176,7 +178,11 @@ export function Maintenance({ search }: { search: string }) {
         </div>
       )}
       <div className="ca-maintenance-actions">
-        <button type="button" disabled={busy} onClick={() => void run("list")}>
+        <button
+          type="button"
+          disabled={busy || invalidScope}
+          onClick={() => void run("list")}
+        >
           Refresh saved selections
         </button>
         {workspace && (
