@@ -1,4 +1,6 @@
 import { EditorSession } from "./stacks/editor-session";
+import { WorkspaceAccessPage } from "./workspace-access";
+import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
 import {
   observeResourceRevision,
   resourcePreview,
@@ -10,7 +12,7 @@ import { ResourceContent, type ResourceContentAction } from "./stacks/resource-c
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PluginAdminExports } from "emdash";
 import {
-  call,
+  call as stackCall,
   type ActivationEntry,
   type DeclaredField,
   type Role,
@@ -55,6 +57,15 @@ const newInstance = (app: string) => ({
 type Draft = { document: StackDocument; generation: number };
 
 export function StudioPage() {
+  const scope = useRef<{ workspace?: string; error?: Error }>({});
+  const call = useCallback(async (action: string, fields: Record<string, unknown> = {}) => {
+    if (scope.current.error) throw scope.current.error;
+    const expected = scope.current.workspace;
+    const data = await stackCall(action, { ...fields, ...(expected ? { workspace: expected } : {}) });
+    const confirmed = confirmWorkspace(expected, data.workspace?.id);
+    if (!scope.current.workspace) scope.current.workspace = confirmed;
+    return data;
+  }, []);
   const [workspace, setWorkspace] = useState<Workspace>();
   const [stacks, setStacks] = useState<Stack[]>([]);
   const [selected, setSelected] = useState<string>();
@@ -96,6 +107,11 @@ export function StudioPage() {
   const latestDocument = useRef<StackDocument | undefined>(undefined);
   const sidecarGeneration = useRef(0);
   const latestNewName = useRef("");
+
+  useEffect(() => {
+    try { scope.current.workspace = workspaceSelection(window.location.search); }
+    catch (cause) { scope.current.error = cause instanceof Error ? cause : Error('Choose a workspace from Workspace access.'); }
+  }, []);
 
   const current = useMemo(
     () => stacks.find((stack) => stack.id === selected),
@@ -186,14 +202,14 @@ export function StudioPage() {
   // A browser refresh, a closed tab or a jump away is a draft-replacing action
   // too, so it gets the same protection as switching stacks.
   useEffect(() => {
-    if (!dirty) return;
+    if (!dirty && !busy) return;
     const warn = (event: BeforeUnloadEvent) => {
       event.preventDefault();
       event.returnValue = "";
     };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
-  }, [dirty]);
+  }, [dirty, busy]);
 
   const run = async (work: () => Promise<string>) => {
     if (pending.current) return;
@@ -796,8 +812,14 @@ export function StudioPage() {
           </button>
         )}
       </div>
+      <p>
+        <a href={`/_emdash/admin/plugins/composer-stacks/workspaces${workspace ? `?workspace=${workspace.id}` : ''}`}
+          aria-disabled={busy} onClick={event => { if (pending.current) event.preventDefault(); }}>
+          Workspace access
+        </a>
+      </p>
       {workspace && (
-        <p className="ca-muted">
+      <p className="ca-muted">
           Workspace <strong>{workspace.name}</strong> ·{" "}
           {ROLE_COPY[workspace.role]}
         </p>
@@ -1738,4 +1760,4 @@ export function StudioPage() {
     </section>
   );
 }
-export const pages: PluginAdminExports["pages"] = { "/stacks": StudioPage };
+export const pages: PluginAdminExports["pages"] = { "/stacks": StudioPage, "/workspaces": WorkspaceAccessPage };

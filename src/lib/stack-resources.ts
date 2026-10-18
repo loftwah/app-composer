@@ -81,8 +81,8 @@ async function change(ctx: MutationContext, build: (condition: string, values: s
   const condition = 'EXISTS(SELECT 1 FROM creator_stacks WHERE id=? AND workspace_id=? AND resource_mutation=?)';
   const values = [ctx.row.id, ctx.workspace, nonce];
   const results = await ctx.db.batch([
-    ctx.db.prepare("UPDATE creator_stacks SET revision=revision+1,resource_mutation=?,draft_json=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND workspace_id=? AND revision=? AND draft_json=? AND status!='archived' RETURNING *")
-      .bind(nonce, document ? JSON.stringify(normaliseStack(document)) : ctx.row.draft_json, ctx.row.id, ctx.workspace, ctx.row.revision, ctx.row.draft_json),
+    ctx.db.prepare("UPDATE creator_stacks SET revision=revision+1,resource_mutation=?,draft_json=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND workspace_id=? AND revision=? AND draft_json=? AND status!='archived' AND EXISTS(SELECT 1 FROM creator_members WHERE workspace_id=? AND user_id=? AND role IN ('owner','editor')) RETURNING *")
+      .bind(nonce, document ? JSON.stringify(normaliseStack(document)) : ctx.row.draft_json, ctx.row.id, ctx.workspace, ctx.row.revision, ctx.row.draft_json, ctx.workspace, ctx.user),
     ...build(condition, values),
   ]);
   const row = results[0]?.results?.[0] as unknown as StackRow | undefined;

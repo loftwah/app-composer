@@ -1,5 +1,6 @@
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
 import { decodeStackReply } from "./protocol";
+import { workspaceSelection, confirmWorkspace } from "./workspace-scope";
 
 export type Role = "owner" | "editor" | "viewer";
 export interface Workspace {
@@ -111,6 +112,10 @@ export async function call(
   action: string,
   fields: Record<string, unknown> = {},
 ) {
+  const selected = typeof window === 'undefined' ? undefined : workspaceSelection(window.location.search);
+  if (selected && fields.workspace && selected !== fields.workspace)
+    throw Error('Open the selected workspace before requesting its stacks.');
+  const workspace = selected ?? (typeof fields.workspace === 'string' ? fields.workspace : undefined);
   const read =
     action === "list" ||
     action === "open" ||
@@ -120,7 +125,7 @@ export async function call(
     action === "resources" ||
     action === "resourceContent" ||
     action === "resourceMedia";
-  const values = { action, ...fields };
+  const values = { action, ...fields, ...(workspace ? { workspace } : {}) };
   const route =
     "/_emdash/api/plugins/composer-stacks/" +
     (read
@@ -140,5 +145,7 @@ export async function call(
     response,
     "Composer could not complete this request. Your draft is still here; check the saved version before retrying.",
   );
-  return decodeStackReply(action, data);
+  const decoded = decodeStackReply(action, data);
+  confirmWorkspace(workspace, decoded.workspace?.id);
+  return decoded;
 }

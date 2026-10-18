@@ -53,6 +53,22 @@ export function requireCapability(role, action) {
   if (!capabilityFor(role, action)) throw new StackError('FORBIDDEN', 'This role cannot ' + action + ' in this workspace.', 403);
 }
 
+// Native requests supply the authenticated actor. Trusted server-side tools
+// and existing fixtures may omit it; no browser field selects this authority.
+function writeMembership(workspaceId, actor, action) {
+  if (actor === null) return { sql: '', values: [] };
+  if (typeof actor !== 'string' || !actor) throw new StackError('FORBIDDEN', 'A current workspace member is required.', 403);
+  const roles = Object.keys(CAPABILITIES).filter(role => capabilityFor(role, action));
+  return {
+    sql: ` AND EXISTS(SELECT 1 FROM creator_members WHERE workspace_id=? AND user_id=? AND role IN (${roles.map(() => '?').join(',')}))`,
+    values: [workspaceId, actor, ...roles],
+  };
+}
+async function acknowledgedWrite(db, workspaceId, actor, action, row, message) {
+  if (!row && actor !== null) requireCapability(await membership(db, workspaceId, actor), action);
+  return acknowledgedStack(row, message);
+}
+
 const isText = (value, max) => typeof value === 'string' && value.trim().length > 0 && value.trim().length <= max && !/[\u0000-\u001f\u007f]/.test(value);
 const isOptionalText = (value, max) => value === undefined || value === null || (typeof value === 'string' && value.trim().length <= max && !/[\u0000-\u001f\u007f]/.test(value));
 const isId = value => typeof value === 'string' && /^[a-z0-9-]{6,64}$/.test(value);
@@ -259,7 +275,8 @@ export function describeImport(payload) {
   };
 }
 
-export async function importStack(db, workspaceId, payload, { name } = {}) {
+export async function importStack(db, workspaceId, payload, { name, actor = null } = {}) {
+  const access = writeMembership(workspaceId, actor, 'create');
   const summary = describeImport(payload);
   const chosen = typeof name === 'string' && name.trim() ? name.trim().slice(0, LIMITS.stackName) : summary.name;
   if (!isText(chosen, LIMITS.stackName)) throw new StackError('INVALID', 'Name the imported stack in up to ' + LIMITS.stackName + ' characters.');
@@ -269,9 +286,10 @@ export async function importStack(db, workspaceId, payload, { name } = {}) {
   const id = crypto.randomUUID();
   // Imported stacks arrive as drafts: nothing becomes public until the creator
   // publishes, and no publication history is invented.
-  await db.prepare('INSERT INTO creator_stacks (id, workspace_id, slug, name, draft_json) VALUES (?, ?, ?, ?, ?)')
-    .bind(id, workspaceId, slug, document.name, JSON.stringify(document)).run();
-  return readStack(db, workspaceId, id);
+  const row = await db.prepare(`INSERT INTO creator_stacks (id, workspace_id, slug, name, draft_json)
+    SELECT ?,?,?,?,? WHERE 1${access.sql} RETURNING *`)
+    .bind(id, workspaceId, slug, document.name, JSON.stringify(document), ...access.values).first();
+  return acknowledgedWrite(db, workspaceId, actor, 'create', row, 'Workspace access changed before this stack was created. Refresh its access.');
 }
 
 // The workspace bootstrap: an authenticated creator gets one personal
@@ -287,8 +305,9 @@ export async function importStack(db, workspaceId, payload, { name } = {}) {
 export async function workspaceForUser(db, user) {
   if (!user || typeof user.id !== 'string' || !user.id) throw new StackError('FORBIDDEN', 'Sign in to use creator stacks.', 403);
   const existing = await db.prepare(
-    'SELECT w.id, w.name, m.role FROM creator_members m JOIN creator_workspaces w ON w.id = m.workspace_id WHERE m.user_id = ? ORDER BY m.created_at, w.id LIMIT 1',
-  ).bind(user.id).first();
+    `SELECT w.id, w.name, m.role FROM creator_members m JOIN creator_workspaces w ON w.id = m.workspace_id WHERE m.user_id = ?
+      ORDER BY CASE WHEN w.id=(SELECT workspace_id FROM creator_personal_workspaces WHERE user_id=?) THEN 0 ELSE 1 END,m.created_at,w.id LIMIT 1`,
+  ).bind(user.id, user.id).first();
   if (existing) return { id: existing.id, name: existing.name, role: existing.role };
   const name = (typeof user.name === 'string' && user.name.trim().slice(0, LIMITS.workspaceName)) || 'My workspace';
   const candidate = crypto.randomUUID();
@@ -306,7 +325,7 @@ export async function workspaceForUser(db, user) {
       AND NOT EXISTS (SELECT 1 FROM creator_members WHERE user_id = ?)`)
       .bind(user.id, user.id, user.id),
     db.prepare(`SELECT w.id, w.name, m.role FROM creator_members m JOIN creator_workspaces w ON w.id = m.workspace_id
-      WHERE m.user_id = ? ORDER BY m.created_at, w.id LIMIT 1`).bind(user.id),
+      WHERE m.user_id = ? ORDER BY CASE WHEN w.id=(SELECT workspace_id FROM creator_personal_workspaces WHERE user_id=?) THEN 0 ELSE 1 END,m.created_at,w.id LIMIT 1`).bind(user.id, user.id),
   ]);
   const row = results[3]?.results?.[0];
   if (!row) throw new StackError('UNAVAILABLE', 'The workspace could not be opened. Try again.', 503);
@@ -388,30 +407,34 @@ export async function readStack(db, workspaceId, stackId) {
   return toStack(row);
 }
 
-export async function createStack(db, workspaceId, name) {
+export async function createStack(db, workspaceId, name, actor = null) {
+  const access = writeMembership(workspaceId, actor, 'create');
   if (!isText(name, LIMITS.stackName)) throw new StackError('INVALID', 'Name the stack in up to ' + LIMITS.stackName + ' characters.');
   const slug = slugify(name);
   const existing = await db.prepare('SELECT id FROM creator_stacks WHERE slug = ?').bind(slug).first();
   if (existing) throw new StackError('CONFLICT', 'Another stack already uses that share address. Choose a different name.', 409);
   const id = crypto.randomUUID();
   const document = emptyStack(name);
-  await db.prepare('INSERT INTO creator_stacks (id, workspace_id, slug, name, draft_json) VALUES (?, ?, ?, ?, ?)')
-    .bind(id, workspaceId, slug, document.name, JSON.stringify(document)).run();
-  return readStack(db, workspaceId, id);
+  const row = await db.prepare(`INSERT INTO creator_stacks (id, workspace_id, slug, name, draft_json)
+    SELECT ?,?,?,?,? WHERE 1${access.sql} RETURNING *`)
+    .bind(id, workspaceId, slug, document.name, JSON.stringify(document), ...access.values).first();
+  return acknowledgedWrite(db, workspaceId, actor, 'create', row, 'Workspace access changed before this stack was created. Refresh its access.');
 }
 
-export async function saveStack(db, workspaceId, stackId, document, expectedRevision) {
+export async function saveStack(db, workspaceId, stackId, document, expectedRevision, actor = null) {
+  const access = writeMembership(workspaceId, actor, 'save');
   const current = await readStack(db, workspaceId, stackId);
   if (current.status === 'archived') throw new StackError('CONFLICT', 'Restore this stack before editing it.', 409);
   requireRevision(expectedRevision, current, 'This stack changed in another window. Your work is still here; reopen the stack to compare.');
   const next = normaliseStack(document);
   const payload = JSON.stringify(next);
-  const row = await db.prepare('UPDATE creator_stacks SET draft_json = ?, name = ?, revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ? RETURNING *')
-    .bind(payload, next.name, stackId, workspaceId, current.revision, current.status).first();
-  return acknowledgedStack(row, 'Another window saved first. Your unsaved work is still here; reopen the stack to compare.');
+  const row = await db.prepare(`UPDATE creator_stacks SET draft_json = ?, name = ?, revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ?${access.sql} RETURNING *`)
+    .bind(payload, next.name, stackId, workspaceId, current.revision, current.status, ...access.values).first();
+  return acknowledgedWrite(db, workspaceId, actor, 'save', row, 'Another window saved first. Your unsaved work is still here; reopen the stack to compare.');
 }
 
-export async function publishStack(db, workspaceId, stackId, expectedRevision, publicationDocument = null) {
+export async function publishStack(db, workspaceId, stackId, expectedRevision, publicationDocument = null, actor = null) {
+  const access = writeMembership(workspaceId, actor, 'publish');
   const current = await readStack(db, workspaceId, stackId);
   if (current.status === 'archived') throw new StackError('CONFLICT', 'Restore this stack before publishing it.', 409);
   requireRevision(expectedRevision, current, 'This stack changed in another window. Reopen it before publishing.');
@@ -423,17 +446,17 @@ export async function publishStack(db, workspaceId, stackId, expectedRevision, p
   const results = await db.batch([
     db.prepare(`INSERT OR IGNORE INTO creator_stack_publications (stack_id, revision, document_json)
       SELECT id, revision, ? FROM creator_stacks
-      WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ?`)
-      .bind(payload, stackId, workspaceId, current.revision, current.status),
+      WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ?${access.sql}`)
+      .bind(payload, stackId, workspaceId, current.revision, current.status, ...access.values),
     db.prepare(`UPDATE creator_stacks SET status = 'published', published_json = ?,
       published_revision = revision, revision = revision + 1,
       published_at = (SELECT published_at FROM creator_stack_publications WHERE stack_id = ? AND revision = ?),
       updated_at = CURRENT_TIMESTAMP WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ?
       AND EXISTS (SELECT 1 FROM creator_stack_publications WHERE stack_id = ? AND revision = ? AND document_json = ?)
-      RETURNING *`)
-      .bind(payload, stackId, current.revision, stackId, workspaceId, current.revision, current.status, stackId, current.revision, payload),
+      ${access.sql} RETURNING *`)
+      .bind(payload, stackId, current.revision, stackId, workspaceId, current.revision, current.status, stackId, current.revision, payload, ...access.values),
   ]);
-  return acknowledgedStack(results[1]?.results?.[0], 'Another window changed this stack before it published. Reopen it and publish the revision you want.');
+  return acknowledgedWrite(db, workspaceId, actor, 'publish', results[1]?.results?.[0], 'Another window changed this stack before it published. Reopen it and publish the revision you want.');
 }
 
 // Immutable publication history, newest first. The published snapshot alone is
@@ -451,27 +474,29 @@ export async function listPublications(db, workspaceId, stackId) {
 // leaves the current draft untouched; restoring one into the draft brings that
 // configuration forward as a new editable revision. Neither restores app
 // records, media or deletions, because Composer never owned them.
-export async function republishRevision(db, workspaceId, stackId, revision, expectedRevision) {
+export async function republishRevision(db, workspaceId, stackId, revision, expectedRevision, actor = null) {
+  const access = writeMembership(workspaceId, actor, 'rollback');
   const current = await readStack(db, workspaceId, stackId);
   if (current.status === 'archived') throw new StackError('CONFLICT', 'Restore this stack before publishing it.', 409);
   requireRevision(expectedRevision, current, 'This stack changed in another window. Reopen it before rolling the public page back.');
   const release = await publicationRow(db, workspaceId, stackId, revision);
   if (!release) throw new StackError('NOT_FOUND', 'That published revision is not in this stack’s history.', 404);
   const row = await db.prepare(
-    "UPDATE creator_stacks SET status = 'published', published_json = ?, published_revision = ?, revision = revision + 1, published_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ? RETURNING *",
-  ).bind(release.document_json, revision, stackId, workspaceId, current.revision, current.status).first();
-  return acknowledgedStack(row, 'Another window changed this stack. Reopen it before rolling the public page back.');
+    `UPDATE creator_stacks SET status = 'published', published_json = ?, published_revision = ?, revision = revision + 1, published_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ?${access.sql} RETURNING *`,
+  ).bind(release.document_json, revision, stackId, workspaceId, current.revision, current.status, ...access.values).first();
+  return acknowledgedWrite(db, workspaceId, actor, 'rollback', row, 'Another window changed this stack. Reopen it before rolling the public page back.');
 }
-export async function restoreRevisionToDraft(db, workspaceId, stackId, revision, expectedRevision) {
+export async function restoreRevisionToDraft(db, workspaceId, stackId, revision, expectedRevision, actor = null) {
+  const access = writeMembership(workspaceId, actor, 'rollback');
   const current = await readStack(db, workspaceId, stackId);
   if (current.status === 'archived') throw new StackError('CONFLICT', 'Restore this stack before editing it.', 409);
   requireRevision(expectedRevision, current, 'This stack changed in another window. Reopen it before restoring configuration.');
   const release = await publicationRow(db, workspaceId, stackId, revision);
   if (!release) throw new StackError('NOT_FOUND', 'That published revision is not in this stack’s history.', 404);
   const document = normaliseStack(parse(release.document_json));
-  const row = await db.prepare('UPDATE creator_stacks SET draft_json = ?, name = ?, revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ? RETURNING *')
-    .bind(JSON.stringify(document), document.name, stackId, workspaceId, current.revision, current.status).first();
-  return acknowledgedStack(row, 'Another window changed this stack. Reopen it before restoring configuration.');
+  const row = await db.prepare(`UPDATE creator_stacks SET draft_json = ?, name = ?, revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ?${access.sql} RETURNING *`)
+    .bind(JSON.stringify(document), document.name, stackId, workspaceId, current.revision, current.status, ...access.values).first();
+  return acknowledgedWrite(db, workspaceId, actor, 'rollback', row, 'Another window changed this stack. Reopen it before restoring configuration.');
 }
 async function publicationRow(db, workspaceId, stackId, revision) {
   if (!Number.isInteger(revision) || revision < 1) throw new StackError('INVALID', 'Choose a published revision.');
@@ -480,28 +505,31 @@ async function publicationRow(db, workspaceId, stackId, revision) {
   ).bind(stackId, workspaceId, revision).first();
 }
 
-export async function unpublishStack(db, workspaceId, stackId, expectedRevision) {
+export async function unpublishStack(db, workspaceId, stackId, expectedRevision, actor = null) {
+  const access = writeMembership(workspaceId, actor, 'unpublish');
   const current = await readStack(db, workspaceId, stackId);
   if (current.status !== 'published') throw new StackError('CONFLICT', 'This stack is not published.', 409);
   requireRevision(expectedRevision, current, 'This stack changed in another window. Reopen it before unpublishing.');
-  const row = await db.prepare("UPDATE creator_stacks SET status = 'draft', revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND workspace_id = ? AND revision = ? AND status = 'published' RETURNING *")
-    .bind(stackId, workspaceId, current.revision).first();
-  return acknowledgedStack(row, 'Another window changed this stack before it unpublished. Reopen it.');
+  const row = await db.prepare(`UPDATE creator_stacks SET status = 'draft', revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND workspace_id = ? AND revision = ? AND status = 'published'${access.sql} RETURNING *`)
+    .bind(stackId, workspaceId, current.revision, ...access.values).first();
+  return acknowledgedWrite(db, workspaceId, actor, 'unpublish', row, 'Another window changed this stack before it unpublished. Reopen it.');
 }
 
-export async function setArchived(db, workspaceId, stackId, archived, expectedRevision) {
+export async function setArchived(db, workspaceId, stackId, archived, expectedRevision, actor = null) {
+  const access = writeMembership(workspaceId, actor, archived ? 'archive' : 'restore');
   const current = await readStack(db, workspaceId, stackId);
   const status = archived ? 'archived' : 'draft';
   if (archived ? current.status === 'archived' : current.status !== 'archived') throw new StackError('CONFLICT', archived ? 'This stack is already archived.' : 'This stack is not archived.', 409);
   requireRevision(expectedRevision, current, 'This stack changed in another window. Reopen it first.');
   // Archiving keeps the publication recorded but stops serving it; restoring
   // returns the stack to draft so the owner chooses when it is public again.
-  const row = await db.prepare('UPDATE creator_stacks SET status = ?, revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ? RETURNING *')
-    .bind(status, stackId, workspaceId, current.revision, current.status).first();
-  return acknowledgedStack(row, 'Another window changed this stack before it moved. Reopen it first.');
+  const row = await db.prepare(`UPDATE creator_stacks SET status = ?, revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ?${access.sql} RETURNING *`)
+    .bind(status, stackId, workspaceId, current.revision, current.status, ...access.values).first();
+  return acknowledgedWrite(db, workspaceId, actor, archived ? 'archive' : 'restore', row, 'Another window changed this stack before it moved. Reopen it first.');
 }
 
-export async function duplicateStack(db, workspaceId, stackId, expectedRevision) {
+export async function duplicateStack(db, workspaceId, stackId, expectedRevision, actor = null) {
+  const access = writeMembership(workspaceId, actor, 'duplicate');
   const current = await readStack(db, workspaceId, stackId);
   requireRevision(expectedRevision, current, 'This stack changed in another window. Reopen it before duplicating.');
   const name = (current.name + ' copy').slice(0, LIMITS.stackName);
@@ -513,9 +541,9 @@ export async function duplicateStack(db, workspaceId, stackId, expectedRevision)
   const document = freshInstanceIdentities({ ...current.draft, name });
   normaliseStack(document);
   const row = await db.prepare(`INSERT INTO creator_stacks (id, workspace_id, slug, name, draft_json)
-    SELECT ?, ?, ?, ?, ? FROM creator_stacks WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ? RETURNING *`)
-    .bind(id, workspaceId, slug, document.name, JSON.stringify(document), stackId, workspaceId, current.revision, current.status).first();
-  return acknowledgedStack(row, 'Another window changed this stack before it duplicated. Reopen it first.');
+    SELECT ?, ?, ?, ?, ? FROM creator_stacks WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ?${access.sql} RETURNING *`)
+    .bind(id, workspaceId, slug, document.name, JSON.stringify(document), stackId, workspaceId, current.revision, current.status, ...access.values).first();
+  return acknowledgedWrite(db, workspaceId, actor, 'duplicate', row, 'Another window changed this stack before it duplicated. Reopen it first.');
 }
 
 function freshInstanceIdentities(document) {
@@ -527,10 +555,12 @@ function freshInstanceIdentities(document) {
   })) };
 }
 
-export async function deleteStack(db, workspaceId, stackId, expectedRevision) {
+export async function deleteStack(db, workspaceId, stackId, expectedRevision, actor = null) {
+  const access = writeMembership(workspaceId, actor, 'delete');
   const current = await readStack(db, workspaceId, stackId);
   requireRevision(expectedRevision, current, 'This stack changed in another window. Reopen it before deleting.');
-  const row = await db.prepare('DELETE FROM creator_stacks WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ? RETURNING *').bind(stackId, workspaceId, current.revision, current.status).first();
+  const row = await db.prepare(`DELETE FROM creator_stacks WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ?${access.sql} RETURNING *`).bind(stackId, workspaceId, current.revision, current.status, ...access.values).first();
+  if (!row && actor !== null) requireCapability(await membership(db, workspaceId, actor), 'delete');
   if (!row) throw lostRace('Another window changed this stack before it was deleted. Reopen it first.');
   // Removing the configuration also removes its publication history; the
   // response says so, because app records, media and app-owned configuration
