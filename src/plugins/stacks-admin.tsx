@@ -1430,6 +1430,7 @@ function WorkspaceStudio({ search }: { search: string }) {
               {current && editable && managedInstance &&
                 document.instances.some(instance => instance.id === managedInstance) && (
                   <ResourceContent key={`${current.id}:${managedInstance}`}
+                    request={call}
                     stack={current} instance={managedInstance} busy={busy}
                     uncertain={needsReconciliation} onAction={contentAction}
                     onClose={() => setManagedInstance(undefined)} />
