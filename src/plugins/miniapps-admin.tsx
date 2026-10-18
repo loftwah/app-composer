@@ -40,6 +40,8 @@ function AppPage() {
     collectionRequest,
     upload,
     addLink,
+    newLink,
+    changeNewLink,
     snapshot,
     contributions,
     approved,
@@ -141,6 +143,8 @@ function AppPage() {
                 <ShowcaseWorkspace
                   busy={busy}
                   addLink={addLink}
+                  newLink={newLink}
+                  changeNewLink={changeNewLink}
                   snapshot={snapshot}
                   achievementDraft={achievementDraft}
                   setAchievementDraft={setAchievementDraft}

@@ -3,9 +3,18 @@ import { appSettings } from "../../lib/app-settings.mjs";
 import { Achievements, type AchievementDraft } from "../achievements-admin";
 import { Tags, type TagDraft } from "../tags-admin";
 import { LinkEditor, LinkStyle } from "./link-editor";
-import type { AppAction, Snapshot, Item, LinkDraft, StyleDraft } from "./types";
+import type {
+  AppAction,
+  Snapshot,
+  Item,
+  LinkDraft,
+  StyleDraft,
+  NewLink,
+} from "./types";
 interface Props {
   busy: boolean;
+  newLink: NewLink;
+  changeNewLink: (value: NewLink) => void;
   addLink: (event: SubmitEvent<HTMLFormElement>) => Promise<void>;
   snapshot: Snapshot;
   achievementDraft: AchievementDraft | undefined;
@@ -23,6 +32,8 @@ interface Props {
 export function ShowcaseWorkspace({
   busy,
   addLink,
+  newLink,
+  changeNewLink,
   snapshot,
   achievementDraft,
   setAchievementDraft,
@@ -43,15 +54,39 @@ export function ShowcaseWorkspace({
         <form onSubmit={addLink} className="ca-form">
           <label>
             Title
-            <input name="title" maxLength={100} required />
+            <input
+              name="title"
+              maxLength={100}
+              required
+              value={newLink.title}
+              onChange={(event) =>
+                changeNewLink({ ...newLink, title: event.target.value })
+              }
+            />
           </label>
           <label>
             Description
-            <textarea name="description" maxLength={240} />
+            <textarea
+              name="description"
+              maxLength={240}
+              value={newLink.description}
+              onChange={(event) =>
+                changeNewLink({ ...newLink, description: event.target.value })
+              }
+            />
           </label>
           <label>
             HTTPS destination
-            <input name="url" type="url" pattern="https://.*" required />
+            <input
+              name="url"
+              type="url"
+              pattern="https://.*"
+              required
+              value={newLink.url}
+              onChange={(event) =>
+                changeNewLink({ ...newLink, url: event.target.value })
+              }
+            />
           </label>
           <button disabled={busy} type="submit">
             Save draft link

@@ -16,8 +16,15 @@ import {
 } from "../profile-settings-admin";
 import { call } from "./api";
 import { callCollection, type CollectionRequest } from "./collection-api";
-import type { AppID, LinkDraft, StyleDraft, Snapshot } from "./types";
+import type { AppID, LinkDraft, StyleDraft, Snapshot, NewLink } from "./types";
 export function useMiniapps() {
+  const emptyLink: NewLink = { title: "", description: "", url: "" };
+  const [newLink, setNewLink] = useState<NewLink>(emptyLink);
+  const linkGeneration = useRef(0);
+  const changeNewLink = (value: NewLink) => {
+    linkGeneration.current += 1;
+    setNewLink(value);
+  };
   const [achievementDraft, setAchievementDraft] = useState<AchievementDraft>();
   const [tagDraft, setTagDraft] = useState<TagDraft>();
   const [profileFileDraft, setProfileFileDraft] = useState<ProfileFileDraft>();
@@ -61,6 +68,7 @@ export function useMiniapps() {
   const generation = useRef(0);
   const unsaved =
     busy ||
+    Object.values(newLink).some(Boolean) ||
     profileFileUnsaved(profileFileDraft) ||
     achievementUnsaved(achievementDraft) ||
     tagUnsaved(tagDraft) ||
@@ -252,16 +260,20 @@ export function useMiniapps() {
   };
   const addLink = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const form = event.currentTarget;
+    const version = linkGeneration.current;
+    const submitted = { ...newLink };
     if (
       await act(
         "showcase",
         "link",
-        Object.fromEntries(new FormData(form)),
+        submitted,
         "Link saved as a draft. Publish it when it is ready.",
       )
-    )
-      form.reset();
+    ) {
+      // A delayed acknowledgement must not clear newer input, even if someone
+      // edited and then restored the same text while the save was running.
+      if (version === linkGeneration.current) changeNewLink(emptyLink);
+    }
   };
   const snapshot = snapshots[selected];
   const contributions = (snapshot?.items ?? []).filter(
@@ -272,6 +284,8 @@ export function useMiniapps() {
     [];
 
   return {
+    newLink,
+    changeNewLink,
     achievementDraft,
     setAchievementDraft,
     tagDraft,
