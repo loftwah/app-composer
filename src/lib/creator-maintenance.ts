@@ -213,6 +213,13 @@ export async function manageMaintenance(ctx: Context, runtime: Runtime) {
           409,
         );
       const portable = await connection.portable(row.id);
+      if (
+        portable.source.version !== row.version ||
+        portable.configuration.revision !== row.configuration_revision ||
+        portable.configuration.digest !== row.configuration_digest ||
+        portable.configuration.source !== row.configuration_source
+      )
+        throw conflict();
       await guard();
       return { ok: true, workspace, portable };
     }

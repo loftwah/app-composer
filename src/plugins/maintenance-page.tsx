@@ -154,7 +154,7 @@ export function Maintenance({ search }: { search: string }) {
     window.setTimeout(() => URL.revokeObjectURL(url), 0);
   };
   return (
-    <section className="ca-maintenance">
+    <section className="composer-admin ca-maintenance">
       <header>
         <p className="ca-kicker">Workspace maintenance</p>
         <h1>Keep an approved Guestbook copy.</h1>
@@ -200,7 +200,7 @@ export function Maintenance({ search }: { search: string }) {
         </p>
       )}
       {stacks.length > 0 && (
-        <div className="ca-maintenance-selection">
+        <div className="ca-form ca-maintenance-selection">
           <label>
             Saved stack
             <select
@@ -279,7 +279,7 @@ export function Maintenance({ search }: { search: string }) {
               export.
             </p>
           )}
-          <details className="ca-maintenance-identity">
+          <details className="ca-disclosure ca-maintenance-identity">
             <summary>Exact connection identity and check coverage</summary>
             <p>
               Saved resource <code>{check.resource}</code>

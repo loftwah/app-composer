@@ -374,3 +374,21 @@ test("strict maintenance decoder rejects missing results, malformed identity and
     f.close();
   }
 });
+
+test("fresh app export cannot bypass a stale saved resource confirmation", async () => {
+  const f = fixture();
+  try {
+    const p = await prepared(f);
+    exportService(f, p, (value) => {
+      f.app.resources.get(p.resource).version++;
+      value.source.version++;
+      return value;
+    });
+    const result = await run(f, "export", p.fields);
+    assert.equal(result.ok, false);
+    assert.equal(result.code, "CONFLICT");
+    assert.equal(result.portable, undefined);
+  } finally {
+    f.close();
+  }
+});
