@@ -1,0 +1,15 @@
+direction: down
+style.fill: "#17181b"
+*.style: { font-size: 22; bold: false; fill: "#23252a"; stroke: "#747a85"; font-color: "#f2f3f5"; border-radius: 6 }
+(* -> *)[*].style: { stroke: "#ff9b55"; stroke-width: 2; font-color: "#f2f3f5"; font-size: 18 }
+decision: Your decision\nChoose the outcome { shape: document }
+ready: Get Ready\nTools, account and HTTPS
+brief: Init\nEditable portable brief { shape: document }
+source: Your repository\nAgent builds + tests { shape: package }
+worker: Your Cloudflare account\nApp Worker + owned D1 / R2
+visitor: Public site\nUse the published app
+decision -> ready: authorise your agent
+ready -> brief: private evidence stays local
+brief -> source: data, not credentials
+source -> worker: exact source\nguarded release
+worker -> visitor: published HTTPS routes

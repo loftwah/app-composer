@@ -1,0 +1,11 @@
+direction: down
+style.fill: "#17181b"
+*.style: { font-size: 22; bold: false; fill: "#23252a"; stroke: "#747a85"; font-color: "#f2f3f5"; border-radius: 6 }
+(* -> *)[*].style: { stroke: "#ff9b55"; stroke-width: 2; font-color: "#f2f3f5"; font-size: 18 }
+request: Public request or action\nHome page · contribution\nInspection · guest postcard
+app: Owning app\nRecognises a supported event
+counter: Composer daily counter\nUTC day, app, event, version\n35-day retention { shape: cylinder }
+report: Public report\nRecorded counts, not visitors
+request -> app: successful response / commit
+app -> counter: publisher / mounted route\nLimits and outages drop events
+counter -> report: retained daily totals\nNo identity or private content
