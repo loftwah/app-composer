@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { spawn, spawnSync } from "node:child_process";
 import {
   existsSync,
@@ -82,6 +83,93 @@ function registeredRun(root) {
   );
   return { owned, registry };
 }
+
+test("changed or incomplete source recovery points refuse before a new runtime exists", () =>
+  fixture((root) => {
+    const marker = fakeDocker(root);
+    const directory = join(root, "private-backup");
+    mkdirSync(directory, { mode: 0o700 });
+    const pins = JSON.parse(
+      readFileSync(
+        new URL("../labs/wordpress/weekender/versions.json", import.meta.url),
+      ),
+    );
+    const inventory = {
+      fictional: true,
+      version: "7.1.3",
+      scenario: "publisher",
+    };
+    const artifacts = {
+      "source-database.sql": "SQL_GUARD_FIXTURE_ONLY",
+      "source-files.tar.gz": "ARCHIVE_GUARD_FIXTURE_ONLY",
+      "source-files.json": '{"guardFixtureOnly":true}',
+      "source-inventory.json": JSON.stringify(inventory),
+    };
+    const files = {};
+    for (const [name, text] of Object.entries(artifacts)) {
+      writeFileSync(join(directory, name), text, { mode: 0o600 });
+      files[name] = {
+        bytes: Buffer.byteLength(text),
+        sha256: createHash("sha256").update(text).digest("hex"),
+      };
+    }
+    const original = {
+      schema: "app-composer.wordpress-source-backup/1",
+      fictional: true,
+      private: true,
+      containsSecrets: true,
+      maintenanceQuiesced: true,
+      sourceScenario: "publisher",
+      sourceBase: "a".repeat(40),
+      sourceOrigin: "http://localhost:12345",
+      images: {
+        wordpress: pins.wordpress.image,
+        cli: pins.cli.image,
+        database: pins.database.image,
+      },
+      files,
+    };
+    const path = join(directory, "manifest.json");
+    for (const mutate of [
+      (value) => {
+        value.images.wordpress = "wordpress:latest";
+      },
+      (value) => {
+        value.sourceOrigin = "https://customer.example";
+      },
+      (value) => {
+        value.private = false;
+      },
+      (value) => {
+        delete value.files["source-database.sql"];
+      },
+      (value) => {
+        value.files["../../owner-file"] = value.files["source-database.sql"];
+      },
+      (value) => {
+        value.files["source-files.tar.gz"].sha256 = "f".repeat(64);
+      },
+    ]) {
+      const manifest = structuredClone(original);
+      mutate(manifest);
+      writeFileSync(path, JSON.stringify(manifest), { mode: 0o600 });
+      const result = execute(root, [
+        "run",
+        "--run",
+        join(root, "new-run.json"),
+        "--restore",
+        path,
+      ]);
+      assert.notEqual(result.status, 0);
+      assert.equal(existsSync(marker), false);
+      assert.equal(existsSync(join(root, "new-run.json")), false);
+      assert.deepEqual(readdirSync(join(root, "tmp")), []);
+      assert.equal(
+        readFileSync(join(directory, "source-database.sql"), "utf8"),
+        artifacts["source-database.sql"],
+      );
+    }
+  }));
 
 test("unknown scenarios and scenario changes on existing runs refuse before Docker", () =>
   fixture((root) => {

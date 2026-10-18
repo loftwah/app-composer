@@ -32,8 +32,13 @@ const dockerHost = "unix:///Users/deanlofts/.orbstack/run/docker.sock";
 const args = process.argv.slice(2);
 const action = args.shift();
 let scenario = "small";
+let restorePath;
 if (args.length === 4 && args[2] === "--scenario" && action === "run") {
   scenario = args[3];
+  args.splice(2, 2);
+}
+if (args.length === 4 && args[2] === "--restore" && action === "run") {
+  restorePath = args[3];
   args.splice(2, 2);
 }
 if (
@@ -52,10 +57,11 @@ if (
   args.length !== 2 ||
   args[0] !== "--run" ||
   !isAbsolute(args[1]) ||
-  !["small", "publisher"].includes(scenario)
+  !["small", "publisher"].includes(scenario) ||
+  (restorePath !== undefined && !isAbsolute(restorePath))
 ) {
   console.error(
-    "Use node scripts/wordpress-lab.mjs run|resume|status|snapshot|backup|destination|transport|exporter|source-off|down --run /absolute/ignored-output/run.json. A new run may add --scenario publisher; the default preserves the small replay. run owns finally cleanup; down ends only this run. No remote deployment is implemented.",
+    "Use node scripts/wordpress-lab.mjs run|resume|status|snapshot|backup|destination|transport|exporter|source-off|down --run /absolute/ignored-output/run.json. A new run may add --scenario publisher or --restore /absolute/private-backup/manifest.json; the default preserves the small replay. run owns finally cleanup; down ends only this run. No remote deployment is implemented.",
   );
   process.exit(1);
 }
@@ -328,6 +334,144 @@ function createBackup(run) {
       }
       if (!complete) rmSync(destination, { recursive: true });
     }
+  }
+}
+function loadBackup(path) {
+  if (
+    lstatSync(path).isSymbolicLink() ||
+    !lstatSync(path).isFile() ||
+    lstatSync(path).size > 16384
+  )
+    throw Error("Select a bounded regular private lab backup manifest.");
+  const manifestBytes = readFileSync(path);
+  const manifest = JSON.parse(manifestBytes);
+  const selected = {
+    "source-database.sql": 64 * 1024 * 1024,
+    "source-files.tar.gz": 128 * 1024 * 1024,
+    "source-files.json": 4 * 1024 * 1024,
+    "source-inventory.json": 4 * 1024 * 1024,
+  };
+  if (
+    manifest.schema !== "app-composer.wordpress-source-backup/1" ||
+    manifest.fictional !== true ||
+    manifest.private !== true ||
+    manifest.containsSecrets !== true ||
+    manifest.maintenanceQuiesced !== true ||
+    !["small", "publisher"].includes(manifest.sourceScenario) ||
+    !/^[a-f0-9]{40}$/.test(manifest.sourceBase) ||
+    manifest.images?.wordpress !== versions.wordpress.image ||
+    manifest.images?.cli !== versions.cli.image ||
+    manifest.images?.database !== versions.database.image ||
+    !manifest.files ||
+    Object.keys(manifest.files).sort().join(",") !==
+      Object.keys(selected).sort().join(",")
+  )
+    throw Error(
+      "Select this lab's complete fictional source recovery point with its exact pinned images.",
+    );
+  const origin = new URL(manifest.sourceOrigin);
+  if (
+    origin.href !== origin.origin + "/" ||
+    origin.username ||
+    origin.password ||
+    !(
+      (origin.protocol === "http:" &&
+        ["localhost", "127.0.0.1"].includes(origin.hostname)) ||
+      (origin.protocol === "https:" &&
+        /^[a-z0-9-]+\.trycloudflare\.com$/.test(origin.hostname))
+    )
+  )
+    throw Error(
+      "The source recovery origin is outside the fictional local transport.",
+    );
+  const files = {};
+  for (const [name, maximum] of Object.entries(selected)) {
+    const item = manifest.files[name];
+    const source = join(dirname(path), name);
+    if (
+      !Number.isSafeInteger(item?.bytes) ||
+      item.bytes < 1 ||
+      item.bytes > maximum ||
+      !/^[a-f0-9]{64}$/.test(item.sha256) ||
+      lstatSync(source).isSymbolicLink() ||
+      !lstatSync(source).isFile() ||
+      lstatSync(source).size !== item.bytes
+    )
+      throw Error(
+        "A source recovery file is absent, changed or outside its bound.",
+      );
+    const bytes = readFileSync(source);
+    if (hash(bytes) !== item.sha256)
+      throw Error(
+        "A source recovery checksum changed; no new runtime was started.",
+      );
+    files[name] = bytes;
+  }
+  const inventory = JSON.parse(files["source-inventory.json"]);
+  if (
+    inventory.fictional !== true ||
+    inventory.version !== versions.wordpress.version ||
+    inventory.scenario !== manifest.sourceScenario
+  )
+    throw Error(
+      "The source recovery inventory does not match the selected engine/fixture.",
+    );
+  return { manifest, manifestSHA256: hash(manifestBytes), files, inventory };
+}
+function restoreSource(run, point) {
+  const staging = join(run.root, "evidence/restore");
+  mkdirSync(staging, { mode: 0o755 });
+  try {
+    // The parent run root is private on the host; only its explicitly selected
+    // source CLI has this evidence mount. Retained recovery artifacts stay0600.
+    for (const [name, bytes] of Object.entries(point.files))
+      writeFileSync(join(staging, name), bytes, { mode: 0o644 });
+    wp(run, ["db", "import", "/evidence/restore/source-database.sql"]);
+    wp(run, ["eval-file", "/fixture/restore.php"]);
+    const actual = JSON.parse(wp(run, ["eval-file", "/fixture/inventory.php"]));
+    if (JSON.stringify(actual) !== JSON.stringify(point.inventory))
+      throw Error(
+        "The restored source differs from its actual backup inventory before origin/credential adaptation.",
+      );
+    wp(run, [
+      "search-replace",
+      point.manifest.sourceOrigin,
+      run.sourceOrigin,
+      "--all-tables-with-prefix",
+      "--skip-columns=guid",
+      "--precise",
+      "--recurse-objects",
+    ]);
+    wp(run, ["user", "update", "fictional-editor", "--prompt=user_pass"], {
+      input: readFileSync(join(run.root, "wp-password"), "utf8"),
+    });
+    wp(run, ["cache", "flush"]);
+    writeFileSync(
+      join(dirname(runPath), "source-restored.json"),
+      JSON.stringify(
+        {
+          fictional: true,
+          manifestSHA256: point.manifestSHA256,
+          sourceBase: run.sourceBase,
+          backupSourceBase: point.manifest.sourceBase,
+          preAdaptationInventoryEqual: true,
+          articles: actual.articles.length,
+          pages: actual.pages.length,
+          media: actual.media.length,
+          syncedBlocks: actual.syncedBlocks.length,
+          originalSourceOrigin: point.manifest.sourceOrigin,
+          restoredSourceOrigin: run.sourceOrigin,
+          preservedGUIDs: true,
+          localDatabaseWiringRegenerated: true,
+          fictionalOwnerPasswordRotated: true,
+          restoredAt: new Date().toISOString(),
+        },
+        null,
+        2,
+      ) + "\n",
+    );
+  } finally {
+    rmSync(staging, { recursive: true });
   }
 }
 // Only the reviewed vendor assets below can be acquired, under this run root.
@@ -647,7 +791,7 @@ function cleanup(run) {
   );
   if (failure) throw Error("Retained owned runtime for inspection: " + failure);
 }
-async function start(run) {
+async function start(run, recoveryPoint) {
   const port = run.port;
   const composeConfig = {
     services: {
@@ -772,7 +916,8 @@ async function start(run) {
     ],
     { input: readFileSync(join(run.root, "wp-password"), "utf8") },
   );
-  wp(run, ["eval-file", "/fixture/seed.php", run.scenario ?? "small"]);
+  if (recoveryPoint) restoreSource(run, recoveryPoint);
+  else wp(run, ["eval-file", "/fixture/seed.php", run.scenario ?? "small"]);
   return snapshot(run);
 }
 
@@ -784,6 +929,8 @@ try {
       );
     if (!existsSync(dirname(runPath)))
       throw Error("Create the selected ignored evidence folder first.");
+    const recoveryPoint = restorePath ? loadBackup(restorePath) : null;
+    if (recoveryPoint) scenario = recoveryPoint.manifest.sourceScenario;
     const port = await availablePort();
     const sourceBase = spawnSync("git", ["rev-parse", "HEAD"], {
       cwd: repository,
@@ -805,6 +952,9 @@ try {
         dockerHost,
         sourceBase,
         scenario,
+        ...(recoveryPoint
+          ? { restoredFromManifestSHA256: recoveryPoint.manifestSHA256 }
+          : {}),
         pid: process.pid,
         port,
         stage: "registered",
@@ -848,7 +998,7 @@ try {
         process.once("SIGTERM", accept);
       });
       keepAlive = setInterval(() => {}, 60000);
-      console.log(JSON.stringify(await start(run), null, 2));
+      console.log(JSON.stringify(await start(run, recoveryPoint), null, 2));
       console.log(
         "Fictional WordPress ready at " +
           run.sourceOrigin +
