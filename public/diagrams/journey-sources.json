@@ -1,0 +1,8 @@
+{
+  "composer": "composer-transit-20261018",
+  "composition": "composition-transit-20261018",
+  "activity": "activity-transit-20261018",
+  "get-ready": "get-ready-journey",
+  "state": "state-journey",
+  "extension": "extension-journey"
+}

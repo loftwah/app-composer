@@ -1,12 +1,12 @@
 {
   "composer": {
     "desktop": {
-      "width": 1868,
-      "height": 137
+      "width": 1201,
+      "height": 415
     },
     "mobile": {
-      "width": 342,
-      "height": 917
+      "width": 390,
+      "height": 1313
     }
   },
   "state": {
@@ -31,12 +31,12 @@
   },
   "composition": {
     "desktop": {
-      "width": 1870,
-      "height": 183
+      "width": 1177,
+      "height": 487
     },
     "mobile": {
-      "width": 517,
-      "height": 769
+      "width": 465,
+      "height": 1263
     }
   },
   "extension": {
@@ -47,6 +47,16 @@
     "mobile": {
       "width": 654,
       "height": 769
+    }
+  },
+  "activity": {
+    "desktop": {
+      "width": 833,
+      "height": 424
+    },
+    "mobile": {
+      "width": 422,
+      "height": 935
     }
   }
 }

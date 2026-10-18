@@ -1,0 +1,280 @@
+---
+import {
+  signalKeys,
+  signalView,
+  count,
+  dateLabel,
+  describeDay,
+  type PublicHistory,
+  type SignalKey,
+} from "../lib/activity-view";
+interface Props {
+  report: PublicHistory;
+  selected: SignalKey;
+  surface: string;
+  days: number;
+}
+const { report, selected, surface, days } = Astro.props;
+const signals = signalKeys
+  .map((key) => signalView(report, key))
+  .filter((value) => value !== undefined);
+---
+
+<section
+  class="activity-history"
+  data-activity-history
+  aria-label="Daily public activity"
+>
+  <form method="get" class="signal-picker">
+    <input type="hidden" name="days" value={days} />
+    <input type="hidden" name="surface" value={surface} />
+    <label for="activity-signal">
+      Recorded signal
+      <select id="activity-signal" name="metric" data-signal-picker>
+        {signals.map((signal) => (
+          <option value={signal.key} selected={selected === signal.key}>
+            {signal.label}
+          </option>
+        ))}
+      </select>
+    </label>
+    <button class="secondary signal-fallback" type="submit">
+      Show signal
+    </button>
+    <p>
+      Daily counts · all connected versions
+      <br />
+      <span>
+        {dateLabel(report.period.from)} – {dateLabel(report.period.to, true)} ·
+        UTC
+      </span>
+    </p>
+  </form>
+  {signals.map((signal) => {
+    const width = 900 / signal.days.length;
+    const initial = signal.days[signal.initial];
+    return (
+      <section
+        data-signal={signal.key}
+        hidden={selected !== signal.key}
+        aria-labelledby={`signal-${signal.key}`}
+      >
+        <div class="signal-heading">
+          <h2 id={`signal-${signal.key}`}>{signal.label}</h2>
+          <p>
+            <strong>
+              {signal.value === null ? "Unavailable" : count(signal.value)}
+            </strong>
+            {signal.value !== null && " recorded in this window"}
+          </p>
+        </div>
+        <figure class="signal-figure">
+          <div class="signal-scale" aria-hidden="true">
+            <span>{count(signal.ceiling)}</span>
+            <span>{count(signal.ceiling / 2)}</span>
+            <span>0</span>
+          </div>
+          <div class="signal-plot">
+            <svg
+              viewBox="0 0 900 240"
+              preserveAspectRatio="none"
+              role="img"
+              aria-labelledby={`plot-title-${signal.key} plot-description-${signal.key}`}
+              data-signal-plot
+            >
+              <title
+                id={`plot-title-${signal.key}`}
+              >{signal.label} by UTC day</title>
+              <desc id={`plot-description-${signal.key}`}>
+                {signal.available} days of recorded counts in the selected{" "}
+                {days}-day window. Gaps have unavailable history. Retained zero
+                counts sit on the baseline. Today and the first recorded day are
+                partial. The complete values are in the table below.
+              </desc>
+              {[0, 120, 239].map((y) => (
+                <line x1="0" x2="900" y1={y} y2={y} class="signal-grid" />
+              ))}
+              {signal.days.map((day, index) => (
+                <g
+                  data-day-index={index}
+                  class:list={{
+                    "signal-day": true,
+                    "is-inspected": index === signal.initial,
+                    "is-missing": day.value === null,
+                    "is-partial": day.partial || day.current,
+                  }}
+                >
+                  <rect
+                    x={index * width + 1}
+                    y="0"
+                    width={Math.max(1, width - 2)}
+                    height="240"
+                    class="signal-hit"
+                  />
+                  {day.value === null ? (
+                    <line
+                      x1={(index + 0.5) * width}
+                      x2={(index + 0.5) * width}
+                      y1="222"
+                      y2="236"
+                      class="signal-unavailable"
+                    />
+                  ) : day.value === 0 ? (
+                    <circle
+                      cx={(index + 0.5) * width}
+                      cy="237"
+                      r="3"
+                      class="signal-zero"
+                    />
+                  ) : (
+                    <rect
+                      x={index * width + width * 0.2}
+                      y={239 - (230 * day.value) / signal.ceiling}
+                      width={width * 0.6}
+                      height={(230 * day.value) / signal.ceiling}
+                      rx="2"
+                      class="signal-bar"
+                    />
+                  )}
+                  <line
+                    x1={(index + 0.5) * width}
+                    x2={(index + 0.5) * width}
+                    y1="0"
+                    y2="240"
+                    class="signal-cursor"
+                  />
+                </g>
+              ))}
+            </svg>
+            {signal.value === null && (
+              <p class="signal-empty">
+                No retained observation for this signal.
+                <br />
+                Earlier days are unavailable, rather than zero.
+              </p>
+            )}
+            <div class="signal-dates" aria-hidden="true">
+              <span>{dateLabel(signal.days[0].date)}</span>
+              <span>
+                {dateLabel(
+                  signal.days[Math.floor(signal.days.length / 2)].date,
+                )}
+              </span>
+              <span>{dateLabel(signal.days.at(-1)!.date)}</span>
+            </div>
+          </div>
+          <figcaption>
+            <span class="signal-key">
+              <i aria-hidden="true"></i>Recorded count
+            </span>
+            <span class="signal-key signal-gap">
+              <i aria-hidden="true"></i>History unavailable
+            </span>
+            <span>Today is in progress. Counts are lower bounds.</span>
+          </figcaption>
+        </figure>
+        <div class="signal-inspector" data-day-inspector>
+          <button
+            type="button"
+            class="secondary"
+            data-step="-1"
+            aria-label="Inspect previous UTC day"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              aria-hidden="true"
+            >
+              <path d="m14 6-6 6 6 6" />
+            </svg>
+          </button>
+          <label>
+            Inspect a UTC day
+            <input
+              type="range"
+              min="0"
+              max={signal.days.length - 1}
+              value={signal.initial}
+              step="1"
+              aria-valuetext={describeDay(initial)}
+              data-day-range
+            />
+          </label>
+          <button
+            type="button"
+            class="secondary"
+            data-step="1"
+            aria-label="Inspect next UTC day"
+            disabled
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              aria-hidden="true"
+            >
+              <path d="m10 6 6 6-6 6" />
+            </svg>
+          </button>
+          <p role="status" aria-live="polite" data-day-description>
+            {describeDay(initial)}
+          </p>
+        </div>
+        <p class="signal-coverage">
+          {signal.available
+            ? `${signal.available} of ${days} requested UTC days have retained counts.`
+            : "This window has no recorded history for this signal."}{" "}
+          {signal.missing > 0 &&
+            `${signal.missing} ${signal.missing === 1 ? "day is" : "days are"} unavailable.`}{" "}
+          A retained zero means no event was recorded; publishers and recording
+          limits can miss events.
+        </p>
+        <details class="signal-data">
+          <summary>Read the daily values and definition</summary>
+          <p>{signal.definition}</p>
+          <div class="table-wrap">
+            <table>
+              <caption>{signal.label}, all connected versions</caption>
+              <thead>
+                <tr>
+                  <th scope="col">UTC day</th>
+                  <th scope="col">Recorded count</th>
+                  <th scope="col">Coverage</th>
+                </tr>
+              </thead>
+              <tbody>
+                {signal.days.map((day) => (
+                  <tr data-day-date={day.date} data-day-text={describeDay(day)}>
+                    <th scope="row">{dateLabel(day.date, true)}</th>
+                    <td>
+                      {day.value === null ? "Unavailable" : count(day.value)}
+                    </td>
+                    <td>
+                      {day.value === null
+                        ? "Outside recorded history"
+                        : day.current
+                          ? "Day in progress"
+                          : day.partial
+                            ? "First recorded day · partial"
+                            : "Bounded recording"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+    );
+  })}
+</section>
+<script>
+  import "../browser/activity";
+</script>

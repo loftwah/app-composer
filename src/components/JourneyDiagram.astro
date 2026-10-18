@@ -1,12 +1,119 @@
 ---
-interface Props { kind: 'composer' | 'state' | 'get-ready' | 'composition' | 'extension' }
+import sources from "../../public/diagrams/journey-sources.json";
+interface Props {
+  kind: keyof typeof sources;
+}
 const { kind } = Astro.props;
-const captions={ 'get-ready':'The same Get Ready core connects the authorised agent host to supported tools, verifies source and HTTPS, saves private evidence and rechecks on resume.',composition:'A photo goes from Here / there through owner approval to a Linkarooie card. Opening it resolves the original, and source visibility stays current.',extension:'An explicit Cloudflare extension click opens App Composer. Its workspace hands the same specification to an authorised agent with a planned manual return of redacted progress. That report-return interface is not yet implemented in the extension.' };
-const text = Object.hasOwn(captions,kind) ? captions[kind as keyof typeof captions] : kind === 'composer' ? 'Get Ready prepares tools, accounts and an HTTPS app. Init saves settings. Your agent builds and deploys. Compose connects apps through data and actions. Own retains source, updates and recovery.' : 'On your device, a fictional assistant document is encrypted with an owner-held passphrase. You retain the encrypted export. Separately, you review and consent to copying selected memories to a provider. The passphrase never crosses.';
-import dimensions from '../../public/diagrams/journey-dimensions.json';
-const size=dimensions[kind];
+const captions = {
+  "get-ready":
+    "The same Get Ready core connects the authorised agent host to supported tools, verifies source and HTTPS, saves private evidence and rechecks on resume.",
+  composition:
+    "A photo goes from Here / there through owner approval to a Linkarooie card. Opening it resolves the original, and source visibility stays current.",
+  extension:
+    "An explicit Cloudflare extension click opens App Composer. Its workspace hands the same specification to an authorised agent with a planned manual return of redacted progress. That report-return interface is not yet implemented in the extension.",
+};
+const text = Object.hasOwn(captions, kind)
+  ? captions[kind as keyof typeof captions]
+  : kind === "composer"
+    ? "Get Ready prepares tools, accounts and an HTTPS app. Init saves settings. Your agent builds and deploys. Compose connects apps through data and actions. Own retains source, updates and recovery."
+    : "On your device, a fictional assistant document is encrypted with an owner-held passphrase. You retain the encrypted export. Separately, you review and consent to copying selected memories to a provider. The passphrase never crosses.";
+import dimensions from "../../public/diagrams/journey-dimensions.json";
+const size = dimensions[kind];
+const stem = sources[kind];
+const readings = {
+  composer: {
+    caption:
+      "A brief crosses into an authorised workspace; reviewed source crosses into your Cloudflare account. Source, private evidence and app records have separate owners.",
+    steps: [
+      "You choose the useful outcome and authorise the selected agent.",
+      "Get Ready checks supported tools, accounts and HTTPS. Private evidence stays in the local execution environment and is rechecked on resume.",
+      "Init supplies an editable portable brief. The brief contains data, never credentials or execution authority.",
+      "The authorised agent implements and tests source in your repository. A guarded deployment releases an exact source into the selected Cloudflare account.",
+      "Independent app Workers read and write their own D1/R2 records and media. Public visitors use published routes; browsing grants no build or owner authority. Code rollback cannot restore deleted data.",
+    ],
+  },
+  composition: {
+    caption:
+      "Here / there owns the contribution and media. Linkarooie keeps a source reference. A current privacy decision governs both public views.",
+    steps: [
+      "A visitor submits a contribution to Here / there. The pending record and media are private.",
+      "An invited owner reviews it through the authenticated administration boundary.",
+      "An approved contribution eligible through the existing provider can be featured in Linkarooie. The curated card references its source item ID and public metadata.",
+      "Opening the card resolves the original at Here / there, which checks current eligibility and visibility.",
+      "Hiding or deleting at the source revokes public access. An older card or executable does not revive the media. This is the connected contribution/provider workflow, not a claim that every scoped visitor book is exposed through that provider.",
+    ],
+  },
+  activity: {
+    caption:
+      "Only a supported event reaches the public daily totals. Content and visitor identity do not travel with it.",
+    steps: [
+      "A successful public home-page or contribution-page request, completed inspection or committed pending guest postcard is recognised by its owning app.",
+      "An optional authenticated publisher, or Composer’s mounted-route recorder, can increment the corresponding public daily counter.",
+      "Composer stores UTC day, app, event, surface and a bounded count. Counters expire after 35 days; limits and outages can drop events.",
+      "The public APIs return retained aggregates and daily counts. No visitor IDs, entered URLs, search text, private creator records or vault contents are included.",
+      "Reloads, bots and unmarked demonstration traffic can count. Recorded totals do not establish unique visitors, conversions, customer adoption or demand.",
+    ],
+  },
+};
+const reading = Object.hasOwn(readings, kind)
+  ? readings[kind as keyof typeof readings]
+  : undefined;
 ---
+
 <figure class="journey-diagram">
-{(['dark','light'] as const).map(theme=><picture class={`diagram-${theme}`}><source media="(max-width:1000px)" srcset={`/diagrams/${kind}-journey-mobile-${theme}.svg`} width={size.mobile.width} height={size.mobile.height}/><img src={`/diagrams/${kind}-journey-${theme}.svg`} width={size.desktop.width} height={size.desktop.height} alt={text} loading="lazy" decoding="async"/></picture>)}
-<figcaption>{Object.hasOwn(captions,kind) ? captions[kind as keyof typeof captions] : kind === 'composer' ? 'The full product journey. The stage notes below distinguish working features from remaining work.' : 'The fictional proof: local encryption, separate key ownership and a reviewed clipboard handoff.'} <a href={`/diagrams/${kind}-journey.d2`}>Editable D2 diagram</a></figcaption>
+  {(["dark", "light"] as const).map((theme) => (
+    <picture class={`diagram-${theme}`}>
+      <source
+        media="(max-width:1000px)"
+        srcset={`/diagrams/${stem}-mobile-${theme}.svg`}
+        width={size.mobile.width}
+        height={size.mobile.height}
+      />
+      <img
+        src={`/diagrams/${stem}-${theme}.svg`}
+        width={size.desktop.width}
+        height={size.desktop.height}
+        alt={reading?.caption ?? text}
+        loading="lazy"
+        decoding="async"
+      />
+    </picture>
+  ))}
+  <figcaption>
+    {reading?.caption ??
+      (Object.hasOwn(captions, kind)
+        ? captions[kind as keyof typeof captions]
+        : kind === "composer"
+          ? "The full product journey. The stage notes below distinguish working features from remaining work."
+          : "The fictional proof: local encryption, separate key ownership and a reviewed clipboard handoff.")}{" "}
+    <a href={`/diagrams/${stem}.d2`}>Editable D2 diagram</a>
+  </figcaption>
+  {reading && (
+    <details class="journey-reading">
+      <summary>Read the diagram in text</summary>
+      <ol>
+        {reading.steps.map((step) => (
+          <li>{step}</li>
+        ))}
+      </ol>
+    </details>
+  )}
 </figure>
+<style>
+  .journey-reading {
+    border-block: 1px solid var(--color-border);
+    margin: 20px 0 0;
+    padding-bottom: 8px;
+  }
+  .journey-reading summary {
+    font-size: 0.9rem;
+  }
+  .journey-reading ol {
+    font-size: 0.95rem;
+    max-width: 78ch;
+  }
+  .journey-reading li {
+    padding-left: 6px;
+    margin: 14px 0;
+  }
+</style>

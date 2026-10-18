@@ -1,0 +1,18 @@
+style.fill: "#17181b"
+*.style: { font-size: 20; bold: false; fill: "#23252a"; stroke: "#747a85"; font-color: "#f2f3f5"; border-radius: 6 }
+(* -> *)[*].style: { stroke: "#ff9b55"; stroke-width: 2; font-color: "#f2f3f5"; font-size: 16 }
+grid-rows: 2
+grid-columns: 3
+horizontal-gap: 96
+vertical-gap: 100
+visitor: Visitor\nLeaves a contribution { shape: person }
+pending: Here / there · pending\nPrivate record + media { shape: document }
+owner: Invited owner\nAuthenticated review { shape: person }
+original: Here / there · original\nVisibility checked now\nHide / delete revokes access { shape: document }
+card: Linkarooie · curated card\nKeeps the source item ID
+approved: Here / there · approved\nProvider-eligible contribution
+visitor -> pending: submit
+pending -> owner: review
+owner -> approved: approve
+approved -> card: public ID
+card -> original: open source

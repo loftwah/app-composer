@@ -1,27 +1,269 @@
 ---
-import Base from '../layouts/Base.astro';
-import {apps} from '../lib/apps';
-import {env} from 'cloudflare:workers';
-import type {D1Database} from '@cloudflare/workers-types';
-import {usageSummary} from '../lib/usage';
-import {selection} from '../../lib/usage/index.mjs';
-import {ArrowUpRight} from '@lucide/astro';
-const selected=selection(Astro.url.searchParams);
-let report:Awaited<ReturnType<typeof usageSummary>>|undefined;
-try{report=await usageSummary((env as unknown as {DB:D1Database}).DB,Astro.url.searchParams,(env as unknown as {PUBLIC_ORIGIN:string}).PUBLIC_ORIGIN);}catch{Astro.response.status=503;}
-const rows=(report?.apps??apps.map(a=>({app:a.id,opens:0,actions:0,opensLimited:false,actionsLimited:false,limited:false}))).map(row=>({...row,definition:apps.find(a=>a.id===row.app)!}));
-const total=report?.apps.reduce((n,a)=>n+a.opens,0)??0;
-const top=Math.max(1,...rows.map(a=>a.opens));
-const number=(n:number)=>n.toLocaleString('en-AU');
+import Base from "../layouts/Base.astro";
+import ActivityHistory from "../components/ActivityHistory.astro";
+import JourneyDiagram from "../components/JourneyDiagram.astro";
+import { apps } from "../lib/apps";
+import { env } from "cloudflare:workers";
+import type { D1Database } from "@cloudflare/workers-types";
+import { usageSummary } from "../lib/usage";
+import { selection } from "../../lib/usage/index.mjs";
+import { portfolioSummary } from "../../lib/usage/portfolio.mjs";
+import {
+  count,
+  dateLabel,
+  signalSelection,
+  type PublicHistory,
+} from "../lib/activity-view";
+import { ArrowUpRight } from "@lucide/astro";
+import "../styles/activity.css";
+const selected = selection(Astro.url.searchParams);
+const metric = signalSelection(Astro.url.searchParams.get("metric"));
+const runtime = env as unknown as { DB: D1Database; PUBLIC_ORIGIN: string };
+const [totals, timeline] = await Promise.allSettled([
+  usageSummary(runtime.DB, Astro.url.searchParams, runtime.PUBLIC_ORIGIN),
+  portfolioSummary(runtime.DB, selected.days),
+]);
+const report = totals.status === "fulfilled" ? totals.value : undefined;
+const history =
+  timeline.status === "fulfilled"
+    ? (timeline.value as PublicHistory)
+    : undefined;
+if (!report && !history) Astro.response.status = 503;
+const rows = (
+  report?.apps ??
+  apps.map((app) => ({
+    app: app.id,
+    opens: 0,
+    actions: 0,
+    opensLimited: false,
+    actionsLimited: false,
+    limited: false,
+  }))
+).map((row) => ({
+  ...row,
+  definition: apps.find((app) => app.id === row.app)!,
+}));
+const top = Math.max(1, ...rows.map((row) => row.opens));
+const where =
+  selected.surface === "standalone"
+    ? "Standalone apps"
+    : selected.surface === "composed"
+      ? "Inside Composer"
+      : "All connected versions";
 ---
-<Base title="App activity" description="See which App Composer mini-apps get opened and which public actions complete. Daily counts, without visitor profiles.">
-<h1>What gets used.</h1><p class="lede">A small leaderboard of app opens, with completed actions beside them.</p>
-<form method="get" class="activity-controls"><label>Time window<select name="days"><option value="7" selected={selected.days===7}>Past 7 days</option><option value="30" selected={selected.days===30}>Past 30 days</option></select></label><label>Where<select name="surface"><option value="all" selected={selected.surface==='all'}>All versions</option><option value="standalone" selected={selected.surface==='standalone'}>Standalone apps</option><option value="composed" selected={selected.surface==='composed'}>Inside Composer</option></select></label><button type="submit">Update view</button></form>
-{!report?<p class="activity-notice" role="status">Counts are temporarily unavailable. The apps are still available; try this page again later.</p>:<p class="activity-period">{total?`${number(total)} recorded app opens`:'No app opens recorded in this view yet'}. {report.from} to {report.through}, UTC. Counts can take a minute to appear.</p>}
-<ol class="activity-list" aria-label="Apps ordered by recorded opens">{rows.map(row=><li><span class="activity-rank" aria-label={report&&row.opens?`${rows.filter(a=>a.opens>row.opens).length+1} in this view`:'Not ranked'}>{report&&row.opens?rows.filter(a=>a.opens>row.opens).length+1:'—'}</span><img src={row.definition.thumbnail} width="96" height="96" alt=""/><div class="activity-app"><h2><a href={row.definition.href}>{row.definition.name}<ArrowUpRight size={18} aria-hidden="true"/></a></h2><p>{row.definition.description}</p><div class="activity-bar" aria-hidden="true"><svg viewBox="0 0 100 4" preserveAspectRatio="none"><rect width={report?100*row.opens/top:0} height="4"/></svg></div><p class="small">{!report?'Actions unavailable.':row.app==='guestbook'?`${number(row.actions)} original photo ${row.actions===1?'opened':'opens'}`:row.app==='linkcheck'?`${number(row.actions)} ${row.actions===1?'inspection':'inspections'} completed`:row.app==='state'?'Private vault actions are never counted.':'App opens only; no further actions counted.'}{row.limited&&' Daily recording limit reached; counts are a lower bound.'}</p></div><div class="activity-count"><strong>{report?number(row.opens):'—'}{row.opensLimited&&'+'}</strong><span>{report&&row.opens===1?'app open':'app opens'}</span></div></li>)}</ol>
-<section class="section activity-notes"><h2>Read the numbers fairly.</h2><p>An open is a successful request for an app’s home page. Reloads and bots can count; these are not unique people. Original photo opens and completed Link Check inspections are separate actions, not comparable scores.</p><p>Recording began with this release. Daily totals are kept for 35 days and stop at 1,000 per app, action and version. Shared recording is limited to 60 events per minute per app/action at each Cloudflare location. Excess events are dropped; these are recorded counts, not exhaustive totals. Release probes marked for verification are excluded. An optional publisher can miss counts during an outage; apps keep working.</p><p>No visitor IDs, cookies, entered URLs, search text, identities or vault contents go into these counts. Forks do not report here unless their operator explicitly connects them.</p><a href="/apps">Browse the apps</a> · <a href="/privacy">Privacy</a> · <a href="/api/usage">Read this data as JSON</a></section>
+
+<Base
+  title="App activity"
+  description="Explore recorded public app requests and actions by UTC day and version. Counts, coverage and definitions without visitor profiles."
+>
+  <div class="activity-intro">
+    <h1>What gets used.</h1>
+    <p class="lede">
+      Follow the recorded requests and actions moving through the apps. Pick a
+      signal, inspect a day, then see where the apps were opened.
+    </p>
+    <form method="get" class="activity-window">
+      <input type="hidden" name="surface" value={selected.surface} />
+      <input type="hidden" name="metric" value={metric} />
+      <label for="activity-days">
+        Time window
+        <select name="days" id="activity-days">
+          <option value="7" selected={selected.days === 7}>
+            Past 7 UTC days
+          </option>
+          <option value="30" selected={selected.days === 30}>
+            Past 30 UTC days
+          </option>
+        </select>
+      </label>
+      <button type="submit">Update window</button>
+      <p>
+        Public counts, not people.
+        <br />
+        Refreshes can take a minute.
+      </p>
+    </form>
+  </div>
+  {history ? (
+    <ActivityHistory
+      report={history}
+      selected={metric}
+      surface={selected.surface}
+      days={selected.days}
+    />
+  ) : (
+    <section class="activity-unavailable" role="status">
+      <h2>Daily history is unavailable.</h2>
+      <p>
+        The reporting query could not complete. This is not a zero count. Try
+        this page again later; the apps remain available.
+      </p>
+      <a href="/apps">Browse the apps</a>
+    </section>
+  )}
+  <section class="activity-where" aria-labelledby="activity-where-title">
+    <div class="activity-section-heading">
+      <div>
+        <h2 id="activity-where-title">Where apps were opened.</h2>
+        <p>
+          Compare successful home-page requests in this view. Reloads, bots and
+          unmarked demonstration traffic can count.
+        </p>
+      </div>
+      <form method="get" class="activity-surface">
+        <input type="hidden" name="days" value={selected.days} />
+        <input type="hidden" name="metric" value={metric} />
+        <label for="activity-surface">
+          App comparison
+          <select id="activity-surface" name="surface">
+            <option value="all" selected={selected.surface === "all"}>
+              All connected versions
+            </option>
+            <option
+              value="standalone"
+              selected={selected.surface === "standalone"}
+            >
+              Standalone apps
+            </option>
+            <option value="composed" selected={selected.surface === "composed"}>
+              Inside Composer
+            </option>
+          </select>
+        </label>
+        <button type="submit" class="secondary">
+          Compare
+        </button>
+      </form>
+    </div>
+    <p class="activity-scope">
+      {where}
+      {report &&
+        ` · ${dateLabel(report.from)} – ${dateLabel(report.through, true)}, UTC`}
+      . This filter changes the comparison below; the daily chart includes all
+      connected versions.
+    </p>
+    {!report && (
+      <p class="activity-unavailable" role="status">
+        App totals are temporarily unavailable. A dash means the query failed,
+        not that an app had no activity.
+      </p>
+    )}
+    <ol class="activity-apps" aria-label={`Recorded app requests: ${where}`}>
+      {rows.map((row) => (
+        <li>
+          <img
+            src={row.definition.thumbnail}
+            width="48"
+            height="48"
+            alt=""
+            loading="lazy"
+          />
+          <div class="activity-app-copy">
+            <h3>
+              <a href={row.definition.href}>
+                {row.definition.name}
+                <ArrowUpRight size={18} aria-hidden="true" />
+              </a>
+            </h3>
+            <p>
+              {row.app === "guestbook"
+                ? "Photos and postcards"
+                : row.app === "linkcheck"
+                  ? "Website and sharing checks"
+                  : row.app === "showcase"
+                    ? "Links and collections"
+                    : row.app === "hello"
+                      ? "First deployment"
+                      : "Fictional assistant memory"}
+            </p>
+          </div>
+          <div class="activity-app-count">
+            <strong>
+              {report ? count(row.opens) : "—"}
+              {report && row.opensLimited && "+"}
+            </strong>
+            <span>recorded {row.opens === 1 ? "open" : "opens"}</span>
+          </div>
+          <div class="activity-app-bar" aria-hidden="true">
+            <svg viewBox="0 0 100 6" preserveAspectRatio="none">
+              <line x1="0" y1="3" x2="100" y2="3" />
+              <rect
+                x="0"
+                y="0"
+                width={report ? (100 * row.opens) / top : 0}
+                height="6"
+              />
+            </svg>
+          </div>
+          <p class="activity-app-action">
+            {!report
+              ? "Other actions unavailable."
+              : row.app === "guestbook"
+                ? `${count(row.actions)} contribution-page ${row.actions === 1 ? "open" : "opens"} recorded`
+                : row.app === "linkcheck"
+                  ? `${count(row.actions)} completed ${row.actions === 1 ? "inspection" : "inspections"} recorded`
+                  : row.app === "state"
+                    ? "Private vault actions are never counted."
+                    : "Home-page requests only."}
+            {row.limited && " A daily cap was reached; this is a lower bound."}
+          </p>
+        </li>
+      ))}
+    </ol>
+  </section>
+  <section class="activity-method" aria-labelledby="activity-method-title">
+    <h2 id="activity-method-title">An event becomes a count.</h2>
+    <p>
+      A public request or completed action can add one to an app’s daily total.
+      The original records stay with the app. The route below explains what
+      reaches this page.
+    </p>
+    <JourneyDiagram kind="activity" />
+    <details>
+      <summary>Coverage, limits and what these counts mean</summary>
+      <div class="activity-definition-list">
+        <p>
+          Recording began on 13 October 2026. That UTC day and today are
+          partial. Counts expire after 35 days. Earlier or expired days are
+          unavailable; an available day with no recorded event is zero.
+        </p>
+        <p>
+          Each app, event and version stops at 1,000 recorded events per UTC
+          day. Shared recording is limited to 60 events per minute per
+          app/action at each Cloudflare location. Optional publishers can lose
+          events during an outage. Counts are lower bounds; they cannot
+          establish exact growth, unique visitors or a conversion rate.
+        </p>
+        <p>
+          Marked verification probes are excluded. Ordinary demonstrations,
+          reloads, unmarked automation and bots can count. This public view
+          cannot separate them, so it does not establish customer adoption or
+          demand.
+        </p>
+        <p>
+          App opens are successful mini-app home-page HTML requests.
+          Contribution opens are successful public Guestbook contribution-page
+          requests, not image downloads. Completed inspections are counted by
+          Link Check after completion. Postcards received counts committed
+          pending submissions after the first retained observation; it is not an
+          approval or publication count.
+        </p>
+        <p>
+          No visitor IDs, cookies, entered URLs, search text, identities,
+          private creator activity or vault contents go into these counters.
+          Forks report only when their operator connects them. Private workspace
+          outcomes remain separate work.
+        </p>
+      </div>
+    </details>
+    <div class="activity-data-links">
+      <a href={`/api/portfolio-analytics?days=${selected.days}`}>
+        Daily data and definitions <ArrowUpRight size={16} aria-hidden="true" />
+      </a>
+      <a href={`/api/usage?days=${selected.days}&surface=${selected.surface}`}>
+        App comparison as JSON <ArrowUpRight size={16} aria-hidden="true" />
+      </a>
+      <a href="/privacy">Privacy</a>
+    </div>
+  </section>
 </Base>
-<style>
-.activity-controls{display:flex;flex-wrap:wrap;align-items:end;gap:1rem;margin-block:2rem}.activity-controls label{display:grid;gap:.5rem;min-width:12rem}.activity-controls select{margin:0}.activity-period{color:var(--color-muted)}.activity-list{list-style:none;padding:0;max-width:none;margin:2rem 0}.activity-list li{display:grid;grid-template-columns:2rem 72px minmax(0,1fr) 7rem;gap:1.25rem;align-items:start;padding:1.75rem 0;border-top:1px solid var(--color-border)}.activity-list li:last-child{border-bottom:1px solid var(--color-border)}.activity-list img{width:72px;height:72px;border-radius:12px}.activity-rank{padding-top:1rem;color:var(--color-muted);font-variant-numeric:tabular-nums}.activity-app h2{font-size:1.35rem;margin:0 0 .5rem}.activity-app h2 a{display:inline-flex;align-items:center;gap:.5rem}.activity-app p{margin:.5rem 0;max-width:52ch}.activity-count{text-align:right;display:grid;gap:.4rem;white-space:nowrap}.activity-count strong{font-size:2rem;line-height:1.2;font-variant-numeric:tabular-nums}.activity-count span{font-size:.85rem;color:var(--color-muted)}.activity-bar{height:4px;background:var(--color-border);max-width:25rem;margin:1rem 0;border-radius:4px;overflow:hidden}.activity-bar svg{display:block;width:100%;height:100%}.activity-bar rect{fill:var(--color-accent)}.activity-notes{max-width:70ch}.activity-notice{border:1px solid var(--color-border);border-radius:8px;padding:1rem;background:var(--color-surface)}
-@media(max-width:600px){.activity-list li{grid-template-columns:48px minmax(0,1fr);gap:.8rem;padding-block:1.4rem}.activity-rank{display:none}.activity-list img{width:48px;height:48px;border-radius:8px}.activity-app{grid-column:2;grid-row:1}.activity-count{grid-column:2;grid-row:1;justify-self:end}.activity-app h2{font-size:1.05rem;padding-right:5.2rem;min-height:2.7rem}.activity-app p{font-size:.9rem}.activity-count strong{font-size:1.5rem}.activity-controls label{min-width:0;flex:1 1 9rem}.activity-controls button{width:100%}}
-</style>

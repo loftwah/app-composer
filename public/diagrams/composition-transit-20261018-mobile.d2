@@ -1,0 +1,15 @@
+direction: down
+style.fill: "#17181b"
+*.style: { font-size: 22; bold: false; fill: "#23252a"; stroke: "#747a85"; font-color: "#f2f3f5"; border-radius: 6 }
+(* -> *)[*].style: { stroke: "#ff9b55"; stroke-width: 2; font-color: "#f2f3f5"; font-size: 18 }
+submit: Here / there\nA visitor leaves a contribution
+pending: Private contribution\nHere / there owns\nrecord + media
+review: Invited owner\nApproves the contribution
+card: Linkarooie\nCurated card stores source item ID
+original: Open the original\nHere / there checks visibility
+revoke: Hide / delete at source\nRevokes both public views
+submit -> pending: pending, not public
+pending -> review: authenticated review
+review -> card: eligible ID + metadata
+card -> original: source action
+original -> revoke: current privacy always applies { style.stroke-dash: 4 }

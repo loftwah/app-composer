@@ -1,6 +1,11 @@
 The Source Sans Pro, Source Code Pro, and Fuzzy Bubbles fonts bundled with D2
 are licensed under the SIL Open Font License 1.1.
 
+The dated 20261018 transit diagrams bundle the existing Space Grotesk variable
+font from src/assets/fonts/SpaceGrotesk.ttf.bin. Its pinned upstream source,
+SHA-256 and SIL Open Font License are recorded in src/assets/fonts/README.md
+and src/assets/fonts/OFL-Space-Grotesk.txt. No remote font is fetched.
+
 Attribution and license: http://scripts.sil.org/OFL
 
 Noto Color Emoji version 2.051
