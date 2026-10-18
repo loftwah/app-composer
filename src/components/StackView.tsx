@@ -36,6 +36,13 @@ const catalogue = STACK_APPS as Record<
   string,
   { name: string; purpose: string; route: string; standalone: string }
 >;
+const artwork: Record<string, string> = {
+  guestbook: "herethere",
+  showcase: "linkarooie",
+  linkcheck: "linkcheck",
+  hello: "hello",
+  state: "carryforward",
+};
 
 export function appView(id: string) {
   return catalogue[id] ?? null;
@@ -123,19 +130,34 @@ export function StackView({
         const href = resource?.path ?? (app ? app.route : "#");
         return (
           <article key={instance.id} className="stack-view-instance">
-            <h3 className="stack-instance-title">
-              {link ? (
-                <a
-                  href={href}
-                  target={external ? "_blank" : undefined}
-                  rel={external ? "noopener noreferrer" : undefined}
-                >
-                  {instance.label}
-                </a>
-              ) : (
-                instance.label
-              )}
-            </h3>
+            <div className="stack-instance-heading">
+              {app && artwork[instance.app] ? (
+                <img
+                  className="stack-instance-art"
+                  src={`/brand/apps/${artwork[instance.app]}-small-20261018.webp`}
+                  width="64"
+                  height="64"
+                  alt=""
+                  decoding="async"
+                />
+              ) : null}
+              <div>
+                <h3 className="stack-instance-title">
+                  {link ? (
+                    <a
+                      href={href}
+                      target={external ? "_blank" : undefined}
+                      rel={external ? "noopener noreferrer" : undefined}
+                    >
+                      {instance.label}
+                    </a>
+                  ) : (
+                    instance.label
+                  )}
+                </h3>
+                {app ? <p className="stack-instance-app">{app.name}</p> : null}
+              </div>
+            </div>
             {instance.caption ? (
               <p className="stack-instance-caption">{instance.caption}</p>
             ) : null}
@@ -154,38 +176,46 @@ export function StackView({
                 shared with its other uses.
               </p>
             ) : null}
-            {lines.length ? (
-              <div className="stack-instance-config">
-                {lines.map((line) => (
-                  <p key={line.key}>
-                    <span className="stack-instance-config-label">
-                      {line.label}
-                    </span>{" "}
-                    {line.value}
-                  </p>
-                ))}
-              </div>
-            ) : null}
-            {app ? (
-              <p className="stack-instance-meta">
-                {app.name}
-                {external
-                  ? " · independent deployment"
-                  : " · mounted on App Composer"}
-                {link ? (
-                  <>
-                    {" · "}
-                    <a
-                      href={href}
-                      data-outcome-instance={outcomes && instance.app !== "state" ? instance.id : undefined}
-                      target={external ? "_blank" : undefined}
-                      rel={external ? "noopener noreferrer" : undefined}
-                    >
-                      Open
-                    </a>
-                  </>
-                ) : null}
+            {app && link ? (
+              <p className="stack-instance-actions">
+                <a
+                  className="stack-instance-open"
+                  href={href}
+                  aria-label={`Open ${instance.label}`}
+                  data-outcome-instance={
+                    outcomes && instance.app !== "state"
+                      ? instance.id
+                      : undefined
+                  }
+                  target={external ? "_blank" : undefined}
+                  rel={external ? "noopener noreferrer" : undefined}
+                >
+                  Open {app.name}
+                </a>
               </p>
+            ) : null}
+            {lines.length || app ? (
+              <details className="stack-instance-details">
+                <summary>Configuration and app details</summary>
+                <div className="stack-instance-config">
+                  {lines.map((line) => (
+                    <p key={line.key}>
+                      <span className="stack-instance-config-label">
+                        {line.label}
+                      </span>{" "}
+                      {line.value}
+                    </p>
+                  ))}
+                </div>
+                {app ? (
+                  <p className="stack-instance-meta">
+                    {app.name}
+                    {external
+                      ? " · independent deployment"
+                      : " · mounted on App Composer"}
+                  </p>
+                ) : null}
+              </details>
             ) : null}
           </article>
         );

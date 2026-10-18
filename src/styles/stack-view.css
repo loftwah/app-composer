@@ -1,28 +1,150 @@
-@import './stack-theme.generated.css';
+@import "./stack-theme.generated.css";
 
-/* Preview and published HTML share these classes. Runtime style attributes are
-   refused by the public CSP; all theme values come from the authored tokens. */
+/* Preview and publication use the same renderer and CSP-safe theme tokens. */
 .stack-view {
   background: var(--stack-background);
   color: var(--stack-foreground);
   border: 1px solid var(--stack-border);
   border-radius: 12px;
-  padding: 28px 26px 10px;
+  padding: 32px 32px 12px;
   overflow-wrap: anywhere;
 }
 
-.stack-view-compact { padding: 18px 18px 6px; }
-.stack-view .stack-view-title { margin: 0 0 10px; font-size: 1.7rem; line-height: 1.2; }
-.stack-view-compact .stack-view-title { font-size: 1.35rem; }
-.stack-view-description { margin: 0 0 18px; color: var(--stack-muted); max-width: 60ch; }
-.stack-view-empty { margin: 0 0 18px; color: var(--stack-muted); }
-.stack-view-instance { padding: 18px 0; border-top: 1px solid var(--stack-border); }
-.stack-view .stack-instance-title { margin: 0 0 6px; font-size: 1.2rem; line-height: 1.3; }
-.stack-view a { color: var(--stack-accent); text-decoration: none; }
-.stack-instance-caption { margin: 0 0 8px; color: var(--stack-muted); }
-.stack-instance-purpose { margin: 0 0 8px; }
-.stack-instance-shared { margin: 0 0 8px; color: var(--stack-muted); font-size: .92rem; }
-.stack-instance-config { display: grid; gap: 4px; margin: 0 0 10px; font-size: .92rem; }
-.stack-instance-config p { margin: 0; }
-.stack-instance-config-label { color: var(--stack-muted); }
-.stack-instance-meta { margin: 0; color: var(--stack-muted); font-size: .88rem; }
+.stack-view-compact {
+  padding: 18px 18px 6px;
+}
+.stack-view .stack-view-title {
+  margin: 0 0 12px;
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+.stack-view-compact .stack-view-title {
+  font-size: 1.35rem;
+}
+.stack-view-description {
+  margin: 0 0 28px;
+  color: var(--stack-muted);
+  max-width: 65ch;
+}
+.stack-view-empty {
+  margin: 0 0 18px;
+  color: var(--stack-muted);
+}
+.stack-view-instance {
+  padding: 26px 0;
+  border-top: 1px solid var(--stack-border);
+}
+.stack-instance-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.stack-instance-heading > div {
+  min-width: 0;
+}
+.stack-instance-art {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  flex: none;
+}
+.stack-view .stack-instance-title {
+  margin: 0 0 4px;
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+.stack-instance-app {
+  margin: 0;
+  color: var(--stack-muted);
+  font-size: 0.9rem;
+}
+.stack-view a {
+  color: var(--stack-accent);
+  text-decoration: none;
+}
+.stack-view :is(a, summary):focus-visible {
+  outline: 3px solid var(--stack-accent);
+  outline-offset: 4px;
+}
+.stack-instance-caption {
+  margin: 0 0 8px;
+  color: var(--stack-muted);
+  max-width: 65ch;
+}
+.stack-instance-purpose {
+  margin: 0 0 12px;
+  max-width: 65ch;
+}
+.stack-instance-shared {
+  margin: 0 0 12px;
+  color: var(--stack-muted);
+  font-size: 0.92rem;
+  max-width: 65ch;
+}
+.stack-instance-actions {
+  margin: 16px 0;
+}
+.stack-view .stack-instance-open {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--stack-accent);
+  border-radius: 6px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.stack-view .stack-instance-open:hover {
+  background: var(--stack-surface);
+}
+.stack-instance-details {
+  color: var(--stack-muted);
+  font-size: 0.9rem;
+  max-width: 75ch;
+}
+.stack-instance-details summary {
+  width: fit-content;
+  min-height: 44px;
+  padding: 10px 0;
+  cursor: pointer;
+}
+.stack-instance-config {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 12px;
+}
+.stack-instance-config p {
+  margin: 0;
+  color: var(--stack-foreground);
+}
+.stack-instance-config-label {
+  color: var(--stack-muted);
+  margin-right: 0.4em;
+}
+.stack-instance-meta {
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .stack-view {
+    padding: 24px 20px 6px;
+  }
+  .stack-view-compact {
+    padding: 18px 16px 6px;
+  }
+  .stack-view-instance {
+    padding: 22px 0;
+  }
+  .stack-instance-heading {
+    gap: 12px;
+  }
+  .stack-instance-art {
+    width: 52px;
+    height: 52px;
+  }
+  .stack-view .stack-instance-title {
+    font-size: 1.2rem;
+  }
+}
