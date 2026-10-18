@@ -52,7 +52,7 @@ const shareUrl = sharing?.url;
 ) : (
   <>
     <p class="small"><a href="/studio">Creator stacks</a> · published revision {stack.revision}{stack.publishedAt ? ` · ${new Date(String(stack.publishedAt).replace(' ', 'T') + 'Z').toLocaleDateString('en-AU', {day: 'numeric', month: 'long', year: 'numeric'})}` : ''}</p>
-    <StackView document={stack.document} link titleAs="h1" outcomes={{slug:stack.slug,publication:stack.revision,key:actionKey}} />
+    <StackView document={stack.document} link titleAs="h1" enquirySlug={stack.slug} outcomes={{slug:stack.slug,publication:stack.revision,key:actionKey}} />
     <StackShare
       slug={stack.slug}
       revision={stack.revision}
