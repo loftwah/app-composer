@@ -15,6 +15,7 @@ const files = [
   "scripts/app-configuration.mjs",
   "tests/creator-source.test.mjs",
   "tests/creator-boundaries.test.mjs",
+  "tests/configuration-apply.test.mjs",
 ];
 const stale = [];
 for (const name of files) {

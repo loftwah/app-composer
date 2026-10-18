@@ -1,11 +1,18 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {validateSpec,handoff} from '../src/lib/spec.mjs';
 import {appSettings,appConfiguration,selectedSources} from '../src/lib/app-settings.mjs';
-import {configurationPlan,applyConfiguration,verifyConfigurationTarget} from '../scripts/app-configuration.mjs';
+import {configurationPlan,applyConfiguration} from '../scripts/app-configuration.mjs';
 import lock from '../composition.lock.json' with {type:'json'};
 import {mkdtempSync,writeFileSync,readFileSync,existsSync,rmSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {spawnSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
 const old=()=>({version:1,preset:'composition',config:{title:'Fictional shared title',intro:'Fictional shared introduction',theme:'daylight',layout:'grid'},privacy:'review-first',cards:[],deployment:{mode:'existing-domain',hostname:'composer.loftwah.com'}});
 const spec=()=>({...validateSpec(old()),appSettings:{guestbook:{...Object.fromEntries(appSettings.guestbook.fields.map(field=>[field.key,field.default])),...old().config,title:'Fictional submissions',theme:'midnight'},showcase:{...Object.fromEntries(appSettings.showcase.fields.map(field=>[field.key,field.default])),...old().config,title:'Fictional favourites',layout:'editorial'}}});
+
+// Configuration source reads are mandatory transport behavior, independent of
+// the caller's workspace guard. Successful write doubles must serve them too.
+const checkedRequest=write=>async(url,options={})=>{
+ const parsed=new URL(url);if(parsed.pathname.endsWith('/build.json')){const id=parsed.hostname==='composer.loftwah.com'?parsed.pathname.split('/')[1]:parsed.hostname.split('.')[0];return Response.json({revision:appSettings[id].source.commit});}
+ return write(url,options);
+};
 
 test('legacy drafts migrate without changing effective settings and v2 pins survive deterministic reopen',()=>{
  const migrated=validateSpec(old());assert.equal(migrated.version,2);assert.deepEqual(migrated.appSettings,{});assert.deepEqual(migrated.sources,selectedSources(migrated.apps));
@@ -27,11 +34,11 @@ test('actual pinned field constraints reject unsupported nested settings and sou
 
 test('settings-only posts independent effective values, confirms exact responses and preserves partial outcomes on refusal',async()=>{
  const plan=configurationPlan(spec(),lock.apps),calls=[];let checks=0;
- const result=await applyConfiguration(plan,{credential:()=> 'fictional-private-token',beforeWrite:()=>{checks++;},request:async(url,options)=>{calls.push({url,body:JSON.parse(options.body),redirect:options.redirect});return Response.json({ok:true,config:JSON.parse(options.body)});}});
- assert.deepEqual(result,{configured:['guestbook','showcase'],deployed:false});assert.equal(checks,2);assert.equal(calls[0].body.title,'Fictional submissions');assert.equal(calls[1].body.title,'Fictional favourites');assert.deepEqual(calls.map(c=>c.url),['https://guestbook.loftwah.com/api/config','https://showcase.loftwah.com/api/config']);assert.ok(calls.every(c=>c.redirect==='error'));
+ const result=await applyConfiguration(plan,{credential:()=> 'fictional-private-token',beforeWrite:()=>{checks++;},request:checkedRequest(async(url,options)=>{calls.push({url,body:JSON.parse(options.body),redirect:options.redirect});return Response.json({ok:true,config:JSON.parse(options.body)});})});
+ assert.deepEqual(result,{configured:['guestbook','showcase'],deployed:false});assert.equal(checks,6);assert.equal(calls[0].body.title,'Fictional submissions');assert.equal(calls[1].body.title,'Fictional favourites');assert.deepEqual(calls.map(c=>c.url),['https://guestbook.loftwah.com/api/config','https://showcase.loftwah.com/api/config']);assert.ok(calls.every(c=>c.redirect==='error'));
  let writes=0;
- await assert.rejects(applyConfiguration(plan,{credential:()=> 'fictional-token',beforeWrite:()=>{if(writes)throw Error('Workspace changed');},request:async(_url,options)=>{writes++;return Response.json({ok:true,config:JSON.parse(options.body)});}}),/Workspace changed/);assert.equal(writes,1);
- await assert.rejects(applyConfiguration(plan,{credential:()=> 'fictional-token',beforeWrite:()=>{},request:async()=>Response.json({ok:true,config:{title:'wrong'}})}),/did not match/);
+ await assert.rejects(applyConfiguration(plan,{credential:()=> 'fictional-token',beforeWrite:()=>{if(writes)throw Error('Workspace changed');},request:checkedRequest(async(_url,options)=>{writes++;return Response.json({ok:true,config:JSON.parse(options.body)});})}),/Workspace changed/);assert.equal(writes,1);
+ await assert.rejects(applyConfiguration(plan,{credential:()=> 'fictional-token',beforeWrite:()=>{},request:checkedRequest(async()=>Response.json({ok:true,config:{title:'wrong'}}))}),/did not match/);
  for(const invalid of [[],[{...plan[0],url:'https://untrusted.example'}],[plan[0],plan[0]],[{...plan[0],configuration:{title:'incomplete'}}]]){
   let touched=0;await assert.rejects(applyConfiguration(invalid,{credential:()=>{touched++;},beforeWrite:()=>{touched++;},request:async()=>{touched++;}}));assert.equal(touched,0);
  }
@@ -52,7 +59,7 @@ test('settings-only refuses card, preview, purchase and unrelated-target intent 
 test('app source drift between writes refuses the later app and retains the completed first settings',async()=>{
  const plan=configurationPlan(spec(),lock.apps);let writes=0,reads=0;
  const request=async(_url,options)=>{if(options.method==='POST'){writes++;return Response.json({ok:true,config:JSON.parse(options.body)});}reads++;return Response.json({revision:writes?'a'.repeat(40):plan[0].source.commit});};
- await assert.rejects(applyConfiguration(plan,{credential:()=> 'fictional-token',beforeWrite:app=>verifyConfigurationTarget(app,request),request}),/Current app source changed/);
+ await assert.rejects(applyConfiguration(plan,{credential:()=> 'fictional-token',beforeWrite:()=>{},request}),/Current app source changed/);
  assert.equal(writes,1);assert.equal(reads,3);
 });
 
@@ -66,7 +73,7 @@ test('profile contracts configure compact identity and refuse unsafe social valu
 test('shared-only and legacy settings omit profile clears while explicit profile groups can clear them',async()=>{
  for(const input of [old(),validateSpec(old())]){
   const plan=configurationPlan(input,lock.apps);const target=plan.find(app=>app.id==='showcase');assert.deepEqual(target.configuration,old().config);
-  const sent=[];await applyConfiguration(plan,{credential:()=> 'fictional-token',beforeWrite:()=>{},request:async(_url,options)=>{const patch=JSON.parse(options.body);sent.push(patch);return Response.json({ok:true,config:patch});}});assert.equal(Object.hasOwn(sent[1],'handle'),false);assert.equal(Object.hasOwn(sent[1],'github'),false);
+  const sent=[];await applyConfiguration(plan,{credential:()=> 'fictional-token',beforeWrite:()=>{},request:checkedRequest(async(_url,options)=>{const patch=JSON.parse(options.body);sent.push(patch);return Response.json({ok:true,config:patch});})});assert.equal(Object.hasOwn(sent[1],'handle'),false);assert.equal(Object.hasOwn(sent[1],'github'),false);
  }
  const explicit=spec();explicit.appSettings.showcase.handle='';explicit.appSettings.showcase.github='';const full=configurationPlan(explicit,lock.apps).find(app=>app.id==='showcase').configuration;assert.equal(Object.hasOwn(full,'handle'),true);assert.equal(full.github,'');
 });

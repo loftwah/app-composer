@@ -41,7 +41,8 @@ export async function verifyConfigurationTarget(input, request = fetch) {
     }
 }
 // Existing operator targets only. Validate the entire plan before credentials or
-// network IO. A lost or malformed acknowledgment remains a refusal, with no retry.
+// network IO. A lost or malformed acknowledgment leaves the write unconfirmed;
+// it is an error, never evidence that the remote app refused or rolled it back.
 export async function applyConfiguration(plan, { credential, beforeWrite, request = fetch }) {
     if (typeof credential !== "function" || typeof beforeWrite !== "function")
         throw Error("Configuration requires explicit owner credentials and a current workspace guard.");
@@ -65,7 +66,11 @@ export async function applyConfiguration(plan, { credential, beforeWrite, reques
             throw Error("Unsupported operator configuration values.");
         // Validation is not a request to normalize the operator's existing data.
         // Retain the exact declared strings sent by the independently used API.
-        return { ...app, configuration: { ...configuration } };
+        return Object.freeze({
+            ...app,
+            source: Object.freeze({ ...app.source }),
+            configuration: Object.freeze({ ...configuration }),
+        });
     });
     const completed = [];
     for (const app of entries) {
@@ -73,6 +78,13 @@ export async function applyConfiguration(plan, { credential, beforeWrite, reques
         const token = await credential(app.id);
         if (typeof token !== "string" || !token.trim())
             throw Error("Missing owner credential for " + app.id + ".");
+        // Credentials and the caller's guard can both wait. Source verification is
+        // mandatory here, regardless of what beforeWrite does or does not verify.
+        await beforeWrite(app);
+        await verifyConfigurationTarget(app, request);
+        // Source HTTP awaits cannot retain workspace authority. Recheck it before
+        // issuing the write; these observations are snapshots, not remote CAS.
+        await beforeWrite(app);
         const response = await request(app.url + "/api/config", {
             method: "POST",
             redirect: "error",
