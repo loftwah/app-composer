@@ -308,7 +308,7 @@ html.composer-content-site .filter-context strong {
 }
 
 /* MIT. Current theme is the icon; the stable toggle name exposes its state. */
-button.theme-control {
+html.composer-content-site button.theme-control {
   display: inline-grid;
   place-items: center;
   flex: none;
@@ -324,14 +324,14 @@ button.theme-control {
   cursor: pointer;
   vertical-align: middle;
 }
-button.theme-control:hover {
+html.composer-content-site button.theme-control:hover {
   background: color-mix(in srgb, currentColor 9%, transparent) !important;
 }
-button.theme-control:focus-visible {
+html.composer-content-site button.theme-control:focus-visible {
   outline: 2px solid var(--accent, var(--color-accent, currentColor));
   outline-offset: 3px;
 }
-button.theme-control svg {
+html.composer-content-site button.theme-control svg {
   inline-size: 20px;
   block-size: 20px;
   pointer-events: none;
@@ -344,4 +344,35 @@ html[data-theme="light"] .theme-control [data-theme-glyph="light"] {
 }
 html[data-theme="light"] .theme-control [data-theme-glyph="dark"] {
   display: none;
+}
+
+html.composer-content-site .composer-return {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+html.composer-content-site .composer-return img {
+  width: 28px;
+  height: 28px;
+}
+html.composer-content-site .app-tools {
+  gap: 8px;
+}
+html.composer-content-site .apps-trigger {
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+}
+@media (max-width: 600px) {
+  html.composer-content-site header {
+    padding-block: 16px;
+    gap: 12px;
+  }
+  html.composer-content-site .app-tools {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }

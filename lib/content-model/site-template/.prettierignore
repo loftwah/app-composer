@@ -5,3 +5,8 @@ dist/
 src/lib/*.mjs
 src/lib/*.d.mts
 src/content-model.json
+
+# Exact maintained shared source copies; their source/output parity is checked separately.
+src/browser/launcher.ts
+scripts/launcher-assets.mjs
+tsconfig.launcher.json

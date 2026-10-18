@@ -94,3 +94,7 @@ Normal checks refuse stale output. Node build/test/deploy tools stay JavaScript;
 generated JS/declarations follow compiler formatting rather than the formatter.
 No Composer import or compiler is required in the deployed browser or Worker.
 Existing owner projects are never migrated by this new-project recipe.
+
+## Apps and Composer
+
+The Apps button and Cmd/Ctrl+K open the same local command menu used by the Composer family. App Composer branding returns to `https://composer.loftwah.com/`; app destinations are the five independent public sites. Studio shortcuts retain their destination authentication. This project owns the copied controller, strict TypeScript source/emission guard, styles, Space font/OFL, Composer icon and five thumbnails; it fetches no Composer runtime assets. The creation manifest names every captured input. Updating these files is an explicit source change followed by `pnpm source:write`, `pnpm check` and `pnpm build`. Existing projects and owner data are not automatically changed.

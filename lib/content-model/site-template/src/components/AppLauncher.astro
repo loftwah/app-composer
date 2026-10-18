@@ -1,0 +1,93 @@
+---
+// This project owns these committed assets and destinations. The shared local
+// controller supplies the Composer frame, task list and keyboard behaviour.
+const apps = [
+  {
+    name: "Linkarooie",
+    href: "https://showcase.loftwah.com/",
+    image: "linkarooie",
+  },
+  {
+    name: "Here / there",
+    href: "https://guestbook.loftwah.com/",
+    image: "herethere",
+  },
+  {
+    name: "Link Check",
+    href: "https://share.loftwah.com/",
+    image: "linkcheck",
+  },
+  { name: "Hello World", href: "https://ready.loftwah.com/", image: "hello" },
+  {
+    name: "Carry / forward",
+    href: "https://ai.loftwah.com/",
+    image: "carryforward",
+  },
+];
+---
+
+<div class="app-launcher">
+  <button
+    type="button"
+    class="secondary apps-trigger"
+    data-open-apps
+    aria-label="Open apps"
+    title="Apps and shortcuts (Ctrl/Cmd+K)"
+    aria-haspopup="dialog"
+  >
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.75"
+      aria-hidden="true"
+    >
+      <path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z" />
+    </svg>
+    <span>Apps</span>
+    <kbd>⌘ K / Ctrl K</kbd>
+  </button>
+  <dialog
+    id="app-navigation"
+    data-composer-home="https://composer.loftwah.com/"
+    aria-labelledby="app-navigation-title"
+  >
+    <div class="dialog-heading">
+      <h2 id="app-navigation-title">Apps and shortcuts</h2>
+      <button type="button" data-close-apps autofocus>
+        Close
+      </button>
+    </div>
+    <label>
+      Find an app or task
+      <input
+        type="search"
+        placeholder="Search apps and studio shortcuts"
+        autocomplete="off"
+      />
+    </label>
+    <p role="status" aria-live="polite"></p>
+    <ul>
+      {apps.map((app) => (
+        <li data-destination>
+          <a href={app.href}>
+            <img
+              src={"/brand/apps/" + app.image + "-small-20261018.webp"}
+              width="40"
+              height="40"
+              alt=""
+              loading="lazy"
+            />
+            <span>
+              {app.name}
+              <small>Independent app</small>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </dialog>
+</div>
+<script is:inline src="/brand/launcher.js" defer></script>

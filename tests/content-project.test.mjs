@@ -75,3 +75,14 @@ test('optional row links clear without mutating submitted rows, required links o
  const noChange={credits:[{website:null},{website:'https://example.test'},{website:'javascript:unsafe'},{website:' '},{}]};assert.equal(await save({collection:'projects',content:noChange}),noChange);for(const credits of [undefined,null,'wrong shape',{}]){const content={credits};assert.equal(await save({collection:'projects',content}),content);}assert.equal(await save({collection:'other',content:submitted}),undefined);
  for(const rows of ['all',[null],[{key:'credits',links:'all'}],[{key:'../outside',links:[]}],[{key:'constructor',links:[]}],[{key:'credits',links:['prototype']}],[{key:'credits',links:['website','website']}],[{key:'credits',links:[],execute:'untrusted'}],[{key:'credits',links:[]},{key:'credits',links:[]}]])assert.throws(()=>createPlugin({collection:'projects',links:[],rows}));
 });
+
+// Real generated consumer source must own the reviewed menu and every byte it uses.
+test('new projects capture a local checked command menu and external app destinations without changing existing projects', () => {
+ const result=contentProjectFiles(starterModel), paths=['public/brand/launcher.js','public/brand/launcher.css','public/brand/space-latin-20261018.woff2','public/brand/OFL-Space-Grotesk.txt','public/brand/composer-icon-20261018-96.png','src/browser/launcher.ts','scripts/launcher-assets.mjs','tsconfig.launcher.json',...['linkarooie','herethere','linkcheck','hello','carryforward'].map(id=>'public/brand/apps/'+id+'-small-20261018.webp')];
+ for(const path of paths){assert.equal(hash(result.files[path]),hash(fs.readFileSync(path)));assert.equal(result.provenance.sourceFiles[path],hash(result.files[path]));}
+ const component=result.files['src/components/AppLauncher.astro'].toString();
+ for(const host of ['showcase','guestbook','share','ready','ai'])assert.match(component,new RegExp('https://'+host+'\\.loftwah\\.com/'));
+ assert.match(component,/data-composer-home="https:\/\/composer\.loftwah\.com\/"/);assert.match(component,/src="\/brand\/launcher\.js"/);assert.doesNotMatch(component,/href="\/(?:guestbook|showcase)/);
+ const scripts=JSON.parse(result.files['package.json']).scripts;assert.match(scripts['check:types'],/launcher-assets\.mjs --check/);assert.match(scripts['source:write'],/launcher-assets\.mjs --write/);
+ assert.match(result.files['src/layouts/ContentLayout.astro'].toString(),/App Composer home/);assert.match(result.files['src/layouts/ContentLayout.astro'].toString(),/\/brand\/launcher\.css/);
+});
