@@ -253,11 +253,31 @@ export function Maintenance({ search }: { search: string }) {
       )}
       {instance && (
         <p>
-          {instance.app !== "guestbook"
-            ? "This app has no owned-resource maintenance or content portability contract here."
-            : !instance.resource
-              ? "No app-owned resource has been applied for this saved instance."
-              : `${instance.label} · ${instance.shared ? "Shared with another instance" : "Owned by this instance"} · ${instance.state === "ready" ? "Applied · not checked here" : instance.state === "unknown" || instance.state === "reserved" ? "Pending app confirmation" : instance.state === "refused" ? "App change refused" : "Not applied"}`}
+          {instance.app !== "guestbook" ? (
+            "This app has no owned-resource maintenance or content portability contract here."
+          ) : !instance.resource ? (
+            "No app-owned resource has been applied for this saved instance."
+          ) : (
+            <>
+              {instance.label} ·{" "}
+              {instance.shared
+                ? "Shared with another instance"
+                : "Owned by this instance"}{" "}
+              ·{" "}
+              {check
+                ? stale
+                  ? "Check expired"
+                  : labels[check.outcome]
+                : instance.state === "ready"
+                  ? "Applied · not checked here"
+                  : instance.state === "unknown" ||
+                      instance.state === "reserved"
+                    ? "Pending app confirmation"
+                    : instance.state === "refused"
+                      ? "App change refused"
+                      : "Not applied"}
+            </>
+          )}
         </p>
       )}
       {check && (
