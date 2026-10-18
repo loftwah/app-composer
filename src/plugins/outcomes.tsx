@@ -27,24 +27,39 @@ const quality = {
 };
 function Timeline({ metric }: { metric: OutcomeMetric }) {
   const [day, setDay] = useState(metric.daily.length - 1);
+  const figure = useRef<HTMLElement>(null);
+  const [width, setWidth] = useState(700);
+  useEffect(() => {
+    if (!figure.current) return;
+    const observer = new ResizeObserver((entries) =>
+      setWidth(
+        Math.max(220, Math.min(700, Math.floor(entries[0].contentRect.width))),
+      ),
+    );
+    observer.observe(figure.current);
+    return () => observer.disconnect();
+  }, []);
   const index = Math.min(day, metric.daily.length - 1),
     point = metric.daily[index];
   const maximum = Math.max(1, ...metric.daily.map((value) => value.value ?? 0));
-  const step = 620 / metric.daily.length;
+  const step = (width - 80) / metric.daily.length;
   return (
-    <figure className="co-timeline">
+    <figure className="co-timeline" ref={figure}>
       <figcaption>
         {metric.label} <span>· daily, UTC</span>
       </figcaption>
       <svg
-        viewBox="0 0 700 250"
+        viewBox={`0 0 ${width} 250`}
         role="img"
         aria-label={`${metric.label}: ${quantity(metric.value)}. Daily values are available in the table below.`}
       >
-        <line className="co-axis" x1="52" y1="210" x2="680" y2="210" />
-        <line className="co-grid" x1="52" y1="34" x2="680" y2="34" />
+        <line className="co-axis" x1="52" y1="210" x2={width - 20} y2="210" />
+        <line className="co-grid" x1="52" y1="34" x2={width - 20} y2="34" />
         <text className="co-axis-label" x="42" y="39" textAnchor="end">
-          {maximum}
+          {new Intl.NumberFormat("en-AU", {
+            notation: "compact",
+            maximumFractionDigits: 1,
+          }).format(maximum)}
         </text>
         <text className="co-axis-label" x="42" y="213" textAnchor="end">
           0
@@ -84,7 +99,7 @@ function Timeline({ metric }: { metric: OutcomeMetric }) {
         <text className="co-axis-label" x="56" y="239">
           {dayLabel(metric.daily[0].date)}
         </text>
-        <text className="co-axis-label" x="678" y="239" textAnchor="end">
+        <text className="co-axis-label" x={width - 22} y="239" textAnchor="end">
           {dayLabel(metric.daily.at(-1)!.date)}
         </text>
       </svg>
@@ -121,12 +136,14 @@ function WorkspaceOutcomes({ search }: { search: string }) {
     reply: ReportReply;
     filters: Filters;
   }>();
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [metricKey, setMetricKey] = useState("app_open_action");
   const [trafficChoice, setTrafficChoice] = useState<"demo" | "unclassified">(
     "unclassified",
   );
   const [busy, setBusy] = useState(false),
     [uncertain, setUncertain] = useState(false);
+  const [writing, setWriting] = useState(false);
   const [error, setError] = useState(""),
     [message, setMessage] = useState("");
   const pending = useRef(false),
@@ -140,7 +157,7 @@ function WorkspaceOutcomes({ search }: { search: string }) {
   );
   useNavigationGuard({
     changed: dirty || uncertain,
-    pending: busy,
+    pending: writing,
     onPending: () =>
       setError("Wait for this outcome request to finish before leaving."),
   });
@@ -171,6 +188,7 @@ function WorkspaceOutcomes({ search }: { search: string }) {
       setSnapshot({ reply, filters: { ...requested } });
       setTrafficChoice(reply.setting?.traffic ?? "unclassified");
       setUncertain(false);
+      setFiltersOpen(false);
     } catch (cause) {
       if (live.current && request === generation.current)
         setError(
@@ -215,6 +233,7 @@ function WorkspaceOutcomes({ search }: { search: string }) {
     setError("");
     setMessage("");
     const submitted = trafficChoice;
+    setWriting(true);
     try {
       const raw = await outcomeCall("setTraffic", {
         workspace: snapshot.reply.workspace.id,
@@ -243,7 +262,10 @@ function WorkspaceOutcomes({ search }: { search: string }) {
       }
     } finally {
       pending.current = false;
-      if (live.current) setBusy(false);
+      if (live.current) {
+        setBusy(false);
+        setWriting(false);
+      }
     }
   };
   const download = async () => {
@@ -296,7 +318,9 @@ function WorkspaceOutcomes({ search }: { search: string }) {
             you.
           </p>
         </div>
-        <a href="/_emdash/admin/plugins/composer-stacks/workspaces">
+        <a
+          href={`/_emdash/admin/plugins/composer-stacks/workspaces${snapshot ? "?workspace=" + snapshot.reply.workspace.id : ""}`}
+        >
           Workspace access
         </a>
       </header>
@@ -310,95 +334,109 @@ function WorkspaceOutcomes({ search }: { search: string }) {
           "Checking workspace membership…"
         )}
       </p>
-      <form
-        className="co-filters"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void load(filters);
-        }}
-      >
-        <label>
-          Stack
-          <select
-            value={filters.stack}
-            disabled={busy}
-            onChange={(event) => change("stack", event.target.value)}
-          >
-            <option value="">All workspace stacks</option>
-            {stacks.map((value) => (
-              <option key={value.id} value={value.id}>
-                {value.name} · {value.status}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          App instance
-          <select
-            value={filters.instance}
-            disabled={
-              busy || !filters.stack || filters.stack !== applied?.stack
-            }
-            onChange={(event) => change("instance", event.target.value)}
-          >
-            <option value="">All instances</option>
-            {instances.map((value) => (
-              <option key={value.id} value={value.id}>
-                {value.label} · {value.app}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Window
-          <select
-            value={filters.days}
-            disabled={busy}
-            onChange={(event) =>
-              change("days", event.target.value as Filters["days"])
-            }
-          >
-            <option value="7">7 days</option>
-            <option value="30">30 days</option>
-          </select>
-        </label>
-        <label>
-          Through
-          <select
-            value={filters.end}
-            disabled={busy}
-            onChange={(event) =>
-              change("end", event.target.value as Filters["end"])
-            }
-          >
-            <option value="today">Today · partial</option>
-            <option value="yesterday">Yesterday · complete UTC days</option>
-          </select>
-        </label>
-        <label>
-          Recorded traffic
-          <select
-            value={filters.traffic}
-            disabled={busy}
-            onChange={(event) =>
-              change("traffic", event.target.value as Filters["traffic"])
-            }
-          >
-            <option value="unclassified">Unclassified</option>
-            <option value="demo">Declared demonstration</option>
-            <option value="all">Both classifications</option>
-          </select>
-        </label>
-        <button type="submit" disabled={busy}>
+      <div className="co-report-tools">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void load(snapshot?.filters ?? filters)}
+        >
           {busy
             ? "Loading…"
-            : changedFilters
-              ? "Apply filters"
-              : uncertain
-                ? "Check saved classification"
-                : "Refresh report"}
+            : uncertain
+              ? "Check saved classification"
+              : "Refresh displayed scope"}
         </button>
-      </form>
+      </div>
+      <details
+        className="co-filter-drawer"
+        open={filtersOpen}
+        onToggle={(event) => setFiltersOpen(event.currentTarget.open)}
+      >
+        <summary>Choose a stack, period or traffic</summary>
+        <form
+          className="co-filters"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void load(filters);
+          }}
+        >
+          <label>
+            Stack
+            <select
+              value={filters.stack}
+              disabled={busy}
+              onChange={(event) => change("stack", event.target.value)}
+            >
+              <option value="">All workspace stacks</option>
+              {stacks.map((value) => (
+                <option key={value.id} value={value.id}>
+                  {value.name} · {value.status}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            App instance
+            <select
+              value={filters.instance}
+              disabled={
+                busy || !filters.stack || filters.stack !== applied?.stack
+              }
+              onChange={(event) => change("instance", event.target.value)}
+            >
+              <option value="">All instances</option>
+              {instances.map((value) => (
+                <option key={value.id} value={value.id}>
+                  {value.label} · {value.app}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Window
+            <select
+              value={filters.days}
+              disabled={busy}
+              onChange={(event) =>
+                change("days", event.target.value as Filters["days"])
+              }
+            >
+              <option value="7">7 days</option>
+              <option value="30">30 days</option>
+            </select>
+          </label>
+          <label>
+            Through
+            <select
+              value={filters.end}
+              disabled={busy}
+              onChange={(event) =>
+                change("end", event.target.value as Filters["end"])
+              }
+            >
+              <option value="today">Today · partial</option>
+              <option value="yesterday">Yesterday · complete UTC days</option>
+            </select>
+          </label>
+          <label>
+            Recorded traffic
+            <select
+              value={filters.traffic}
+              disabled={busy}
+              onChange={(event) =>
+                change("traffic", event.target.value as Filters["traffic"])
+              }
+            >
+              <option value="unclassified">Unclassified</option>
+              <option value="demo">Declared demonstration</option>
+              <option value="all">Both classifications</option>
+            </select>
+          </label>
+          <button type="submit" disabled={busy}>
+            {busy ? "Loading…" : "Apply filters"}
+          </button>
+        </form>
+      </details>
       {error && (
         <p className="co-error" role="alert">
           {error}

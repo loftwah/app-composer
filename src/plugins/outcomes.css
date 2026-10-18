@@ -1,8 +1,8 @@
 .composer-outcomes {
-  --co-ink: var(--color-foreground, #242424);
-  --co-muted: var(--color-muted-foreground, #666);
-  --co-line: var(--color-border, #c5c5c5);
-  --co-surface: var(--color-background, #fff);
+  --co-ink: var(--text-color-kumo-default, #242424);
+  --co-muted: var(--text-color-kumo-subtle, #666);
+  --co-line: color-mix(in srgb, var(--co-ink) 50%, var(--co-surface));
+  --co-surface: var(--color-kumo-base, #fff);
   --co-accent: #ad440f;
   color: var(--co-ink);
   max-width: 1400px;
@@ -254,12 +254,17 @@
   margin: 4px 0 20px;
   max-width: 72ch;
 }
-:is(.dark, [data-theme="dark"]) .composer-outcomes {
-  --co-ink: var(--color-foreground, #f2eee7);
-  --co-muted: var(--color-muted-foreground, #bdb8b0);
-  --co-line: var(--color-border, #696760);
-  --co-surface: var(--color-background, #20201f);
+[data-mode="dark"] .composer-outcomes {
   --co-accent: #f49a61;
+}
+.co-report-tools {
+  margin: 18px 0;
+}
+.co-filter-drawer summary {
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 44px;
+  padding: 10px 0;
 }
 @media (max-width: 700px) {
   .co-analysis {
@@ -279,8 +284,12 @@
   .composer-outcomes select {
     max-width: none;
   }
+  .co-signals {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
   .co-signals button {
-    flex-basis: 45%;
+    flex: 0 0 195px;
     min-width: 0;
     padding: 14px;
   }
