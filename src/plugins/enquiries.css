@@ -57,6 +57,7 @@
   color: inherit;
 }
 .ce-inbox select {
+  height: 44px;
   max-width: 100%;
   min-width: 200px;
 }
