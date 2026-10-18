@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "@tanstack/react-router";
 import {
   outcomeCall,
   defaultFilters,
@@ -109,6 +110,11 @@ function Timeline({ metric }: { metric: OutcomeMetric }) {
 }
 
 export function OutcomesPage() {
+  const search = useLocation({ select: (location) => location.searchStr });
+  return <WorkspaceOutcomes key={search} />;
+}
+
+function WorkspaceOutcomes() {
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [snapshot, setSnapshot] = useState<{
     reply: ReportReply;
