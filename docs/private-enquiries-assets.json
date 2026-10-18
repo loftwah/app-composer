@@ -1,0 +1,43 @@
+{
+  "schema": "composer.enquiry-assets/1",
+  "repository": "https://github.com/loftwah/app-composer-guestbook",
+  "commit": "e751e448d4caa5288a4e78a53d528c7aeb6aa1f9",
+  "license": "MIT",
+  "copies": [
+    {
+      "source": "src/enquiry-model.ts",
+      "sha256": "9ba0b16eaa1f20ce986630bcc75cfae222b783180605d280fa224126a96a9928",
+      "local": "src/enquiries/enquiry-model.ts"
+    },
+    {
+      "source": "src/enquiry-model-validator.ts",
+      "sha256": "bd5c53313c6b63e69dece4de91201ee92722afcb1a6595f9fa773b2481dc35eb",
+      "local": "src/enquiries/enquiry-model-validator.ts"
+    },
+    {
+      "source": "src/enquiry-calendar.ts",
+      "sha256": "db67e56c7c3e0ac01e266ff69a1c50c41df3908c22b7302363789ac01c64fd49",
+      "local": "src/enquiries/enquiry-calendar.ts"
+    },
+    {
+      "source": "src/browser/enquiry-form.ts",
+      "sha256": "2a61578bf4019ad7a66473f74062a94f0fb564f1962c2c79d7d981e3ab3e36f2",
+      "local": "src/enquiries/browser/enquiry-form.ts"
+    },
+    {
+      "source": "public/brand/enquiry-form.css",
+      "sha256": "5fb277f1253f8d479f767d8a1732c1c12e9e1284915be576ede0339723adb32b",
+      "local": "public/brand/enquiries/enquiry-form.css"
+    }
+  ],
+  "renderer": {
+    "source": "src/resource-enquiries.ts#enquiryForm",
+    "sourceFileSHA256": "b05fb37d8f18d7e4627b3d28b7913e3dcf2a1cc5aaf99fe1c99dc96177a77cfa",
+    "local": "src/lib/enquiry-form.ts",
+    "adaptations": [
+      "Local app-owned asset prefix",
+      "Immutable publication key data attribute; no credential or private body"
+    ]
+  },
+  "updates": "Explicit reviewed source capture only; no cross-origin asset fetch, runtime app import or automatic update."
+}

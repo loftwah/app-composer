@@ -9,6 +9,8 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 - [Workspace access](workspace-access.md): membership, scoped authority, invitations and admission limits.
 - [Private workspace outcomes](private-outcomes.md): retained actions, demonstration classification, chart/table/export and missing history.
 - [Collect from saved visitor books](scoped-collection.md): explicit source selection, app-owned eligibility and uncertain-operation recovery.
+- [Private enquiry inbox](private-enquiries.md): explicitly enabled private brief forms, app-owned retention, exact publication scope and delivery receipts.
+- [Workspace maintenance](workspace-maintenance.md): fresh connection observations and approved contribution/PNG exports, with the actual recovery limits.
 - [Basic profile-settings portability](profile-settings-portability.md): actual supported fields and exclusions.
 - [Public activity](public-activity.md) and [event definitions](analytics-events.md): what the public aggregate signals measure and omit.
 - [WordPress publisher lab](../labs/wordpress/weekender/README.md) and [observation ledger](../labs/wordpress/weekender/OBSERVATIONS.md): reproduce the small actual native import and inspect its explicit repairs and remaining cases.

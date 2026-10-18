@@ -3,6 +3,7 @@ import { useNavigationGuard } from "./stacks/use-navigation-guard";
 import { WorkspaceAccessPage } from "./workspace-access";
 import { OutcomesPage } from "./outcomes";
 import { MaintenancePage } from "./maintenance-page";
+import { EnquiriesPage } from "./enquiries";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
 import {
   observeResourceRevision,
@@ -1782,4 +1783,5 @@ export const pages: PluginAdminExports["pages"] = {
   "/workspaces": WorkspaceAccessPage,
   "/outcomes": OutcomesPage,
   "/maintenance": MaintenancePage,
+  "/enquiries": EnquiriesPage,
 };

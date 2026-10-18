@@ -158,6 +158,31 @@ export function resourceConnection(runtime: ResourceRuntime, workspace: string) 
       if (current.resource.version !== file.source.version || current.configuration?.revision !== file.configuration.revision || current.configuration.digest !== file.configuration.digest) throw Error('The app resource changed during export. Check again.');
       return file;
     },
+    async enquiry(
+      resourceId: string,
+      suffix: '' | 'export' | 'receipt',
+      command?: unknown,
+      clientIP?: string,
+      query?: { status?: string; page?: string; operation?: string },
+      beforeDispatch?: () => Promise<void>,
+    ) {
+      if (command !== undefined && !beforeDispatch) {
+        throw Error('A private enquiry dispatch requires a current workspace/publication guard.');
+      }
+      await verify();
+      await beforeDispatch?.();
+      const path = target + '/api/resources/' + id.parse(resourceId) + '/enquiries'
+        + (suffix ? '/' + suffix : '')
+        + (query ? '?' + new URLSearchParams(query) : '');
+      const response = await service.fetch(new Request(path, {
+        method: command === undefined ? 'GET' : 'POST',
+        redirect: 'manual',
+        signal: AbortSignal.timeout(8000),
+        headers: { ...headers, ...(clientIP ? { 'CF-Connecting-IP': clientIP } : {}) },
+        ...(command === undefined ? {} : { body: JSON.stringify(command) }),
+      }));
+      return { status: response.status, body: await boundedJSON(response, 2500000) };
+    },
     async content(resourceId: string) {
       await verify();
       const response = await send('/api/resources/' + id.parse(resourceId) + '/export');

@@ -47,7 +47,7 @@ apply and is never implicitly called by Publish.
 Root `pnpm check` now runs types/parity, scoped semantic `pnpm lint`, scoped
 `pnpm format:check` and behavior tests. Lint covers the maintained content and
 Creator source programs with unused-local/parameter checks. Formatting uses
-pinned Prettier 3.9.10 on the eighteen named Creator author/check/test files in
+pinned Prettier 3.9.10 on the maintained Creator and enquiry files named in
 `scripts/creator-format.mjs`; generated output retains compiler formatting.
 Run `pnpm format` then `pnpm source:write` after Creator edits. This is not a
 whole-repository ESLint or formatting claim, and normal checks never rewrite
