@@ -1,12 +1,22 @@
 # App Composer
 
+Build a named stack of independent apps, configure each instance, then preview and publish a shareable revision. The apps keep their own source, records, media and credentials. EmDash provides the native creator interface; Cloudflare runs this instance.
+
+[Open App Composer](https://composer.loftwah.com/) · [Browse the apps](https://composer.loftwah.com/apps) · [Published Trail Notes](https://composer.loftwah.com/s/fictional-trail-notes) · [Published Launch Board](https://composer.loftwah.com/s/fictional-launch-board)
+
+The two fictional examples were created and published through the protected native editor. Their visitor books have independent settings and records; Trail Notes also labels an intentional shared view. Public browsing needs no Composer account. Creator access uses this installation's existing Cloudflare Access boundary; these examples do not establish new-user admission or universal app provisioning.
+
+![App Composer public homepage, captured from production](docs/images/composer-20261018-desktop.png)
+
+Actual public UI captured 18 October 2026, source `1bc90251200f9950203220b8d50ee3f4bab54ade`. [Phone capture](docs/images/composer-20261018-phone.png) · [Capture provenance](docs/images/capture-20261018.json).
+
 This checkout runs Loftwah’s instance of App Composer. The homepage is always the product’s front door — what App Composer is, the shipped app library and the supported Get Ready/Init journey. `config/instance.json` only adds the instance note, a profile link and owner attribution; it never replaces the product identity or metadata. Loftwah’s own profile, music, games and writing live in Linkarooie (`/showcase/`), which owns the portrait, banner, featured picks and grouped discovery. Private material and invented activity are excluded. Actual deployment/content evidence stays in [#11](https://github.com/loftwah/app-composer/issues/11).
 
 Tags and basic profile-settings portability share the app-owned APIs and standalone/native controls. Version1 settings files keep their original nine-field boundary; creator images/X and collection data are outside that basic file. See [scope and remaining gates](docs/profile-settings-portability.md).
 
 App Composer is an agent-operated application studio built around EmDash and Cloudflare. Get Ready prepares the supported environment before an idea; Init turns content, fields and app choices into a portable specification; composition connects independently maintained mini-apps. The product carries forward WordPress’s useful content/form/white-label lessons while agents handle implementation and operations. See the [CMS, cloud and business-service guide](https://composer.loftwah.com/guide), [whole platform](https://composer.loftwah.com/architecture) and [product definition](PRODUCT.md) for current capability and remaining work.
 
-An agent-operated platform for a verified development environment and genuinely composed independent applications. Target: https://composer.loftwah.com. MP directs; agents implement, verify and recover. Reviewed 13 October 2026. MIT.
+MP directs; agents implement, verify and recover. Reviewed 18 October 2026. MIT.
 
 ## Supported implementation
 
