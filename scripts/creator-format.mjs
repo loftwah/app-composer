@@ -7,15 +7,26 @@ const mode = process.argv[2];
 if (!["--check", "--write"].includes(mode))
   throw Error("Use --check or --write.");
 const files = [
-  ...["app-settings", "stacks", "app-configuration", "stack-activation"].map(
-    (name) => "src/lib/" + name + ".mts",
-  ),
+  ...[
+    "app-settings",
+    "stacks",
+    "app-configuration",
+    "stack-activation",
+    "miniapp-profile-settings-fields",
+    "miniapp-profile-settings",
+    "miniapp-achievements",
+    "miniapp-tag-fields",
+    "miniapp-tags",
+    "miniapp-admin",
+    "stacks-admin",
+  ].map((name) => "src/lib/" + name + ".mts"),
   "scripts/creator-source.mjs",
   "scripts/creator-format.mjs",
   "scripts/app-configuration.mjs",
   "tests/creator-source.test.mjs",
   "tests/creator-boundaries.test.mjs",
   "tests/configuration-apply.test.mjs",
+  "tests/miniapp-boundaries.test.mjs",
 ];
 const stale = [];
 for (const name of files) {
