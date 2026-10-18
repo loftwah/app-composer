@@ -39,6 +39,7 @@
     "@emdash-cms/cloudflare": "1.2.0",
     "@lucide/astro": "1.56.0",
     "@resvg/resvg-wasm": "2.6.2",
+    "@tanstack/react-router": "1.163.2",
     "astro": "7.3.5",
     "emdash": "1.2.0",
     "jose": "6.1.3",

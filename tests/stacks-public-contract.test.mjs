@@ -78,7 +78,7 @@ test('the editor keeps one save model and does not lose local work', () => {
   assert.match(editor, /setDirty\(session\.current\.dirty\)/);
   // Draft-replacing actions are guarded, including refresh and navigation.
   assert.match(editor, /useNavigationGuard/);
-  assert.match(readFileSync(new URL("../src/plugins/stacks/use-navigation-guard.ts", import.meta.url), "utf8"), /beforeunload/);
+  assert.match(readFileSync(new URL("../src/plugins/stacks/use-navigation-guard.ts", import.meta.url), "utf8"), /enableBeforeUnload/);
   assert.match(editor, /unsaved edits/);
   // Real conflict recovery that keeps the local draft.
   assert.match(editor, /Save mine on top/);

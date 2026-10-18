@@ -78,8 +78,22 @@ cancelled by changing a local membership; its existing operation receipt and
 reconciliation contract still applies. This feature does not claim remote
 cancellation, general account recovery or production invitation delivery.
 
-Creator stacks warns before leaving unsaved edits or a pending operation. Its
-workspace selector is fixed for the page and sent explicitly on requests;
+Creator and Workspace access forms use the installed EmDash host router's
+supported navigation blocker for sidebar links and browser Back/Forward. Dirty
+forms ask before discarding entries; pending operations refuse these route
+changes. Full-document refresh/navigation retains the native beforeunload
+warning. The exact direct `@tanstack/react-router` dependency matches EmDash
+1.2.0's existing 1.163.2 dependency and resolves to the same router context;
+it adds no second router/provider or authentication layer. The exact old
+`@tanstack/history@1.161.4` request is overridden to official `1.162.2`, the
+first release containing [upstream traversal fix #8264](https://github.com/TanStack/router/pull/8264).
+The installed older history always reversed a blocked POP by one forward entry,
+which left cancelled Forward/multi-entry traversals at the wrong browser URL.
+The fixed release restores the signed traversal distance and preserves native
+unload warnings. No runtime history method is patched by Composer. See the
+[TanStack navigation-blocking API](https://tanstack.com/router/latest/docs/api/router/useBlockerHook).
+
+Creator stacks keeps its workspace selector fixed for the page and sends it explicitly on requests;
 responses for another workspace are refused. Workspace access keeps invitation
 entries with their original workspace and disables selection while a request
 is pending.

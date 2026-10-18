@@ -17,3 +17,5 @@ overrides:
   sharp: 0.35.5
   workerd: 1.20261013.1
   '@cloudflare/vite-plugin': 1.62.0
+  # Native POP blockers: upstream TanStack/router#8264, first fixed 1.162.2.
+  '@tanstack/history@1.161.4': 1.162.2

@@ -167,6 +167,7 @@ overrides:
   sharp: 0.35.5
   workerd: 1.20261013.1
   '@cloudflare/vite-plugin': 1.62.0
+  '@tanstack/history@1.161.4': 1.162.2
 
 importers:
 
@@ -187,6 +188,9 @@ importers:
       '@resvg/resvg-wasm':
         specifier: 2.6.2
         version: 2.6.2
+      '@tanstack/react-router':
+        specifier: 1.163.2
+        version: 1.163.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       astro:
         specifier: 7.3.5
         version: 7.3.5(@types/node@26.6.5)(jiti@2.7.0)(yaml@2.9.1)
@@ -1786,8 +1790,8 @@ packages:
     peerDependencies:
       vite: ^5.2.0 || ^6 || ^7 || ^8
 
-  '@tanstack/history@1.161.4':
-    resolution: {integrity: sha512-Kp/WSt411ZWYvgXy6uiv5RmhHrz9cAml05AQPrtdAp7eUqvIDbMGPnML25OKbzR3RJ1q4wgENxDTvlGPa9+Mww==}
+  '@tanstack/history@1.162.2':
+    resolution: {integrity: sha512-Lemp3DJbzNqcin/nZpWxycDaEqySDbnIshDbyHJMMCapD4ZQMe57szRpBXOfzfP6fyWAtHNrLrcBUyANJ6Vlow==}
     engines: {node: '>=20.19'}
 
   '@tanstack/query-core@5.90.20':
@@ -5689,7 +5693,7 @@ snapshots:
       tailwindcss: 4.3.3
       vite: 8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
-  '@tanstack/history@1.161.4': {}
+  '@tanstack/history@1.162.2': {}
 
   '@tanstack/query-core@5.90.20': {}
 
@@ -5700,7 +5704,7 @@ snapshots:
 
   '@tanstack/react-router@1.163.2(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@tanstack/history': 1.161.4
+      '@tanstack/history': 1.162.2
       '@tanstack/react-store': 0.9.3(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tanstack/router-core': 1.163.2
       isbot: 5.2.2
@@ -5718,7 +5722,7 @@ snapshots:
 
   '@tanstack/router-core@1.163.2':
     dependencies:
-      '@tanstack/history': 1.161.4
+      '@tanstack/history': 1.162.2
       '@tanstack/store': 0.9.3
       cookie-es: 2.0.1
       seroval: 1.6.9
