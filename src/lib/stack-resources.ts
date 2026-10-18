@@ -1,4 +1,5 @@
 import type { D1Database, D1PreparedStatement } from '@cloudflare/workers-types';
+import { z } from 'zod';
 import type { Stack, StackDocument, StackInstance } from '../plugins/stacks/api';
 import { membership, requireCapability, normaliseStack, StackError } from './stacks.mjs';
 import {
@@ -21,7 +22,7 @@ interface ResourceRow {
 }
 interface BindingRow extends ResourceRow { instance_id: string; mode: 'own' | 'shared' }
 interface OperationRow {
-  id: string; resource_id: string; action: 'create' | 'stage' | 'activate';
+  id: string; resource_id: string; action: ResourceCommand['action'];
   state: 'pending' | 'confirmed' | 'unknown' | 'refused';
   source_revision: string; request_json: string; result_json: string | null;
 }
@@ -139,7 +140,7 @@ async function unfinished(db: D1Database, resource: string): Promise<OperationRo
 
 async function record(ctx: MutationContext, operation: OperationRow, outcome: RemoteOutcome) {
   const reply = outcome.reply, configuration = reply?.configuration;
-  const active = operation.action === 'activate' && configuration;
+  const active = ['activate', 'moderate', 'control'].includes(operation.action) && configuration;
   await change(ctx, (condition, values) => [
     ctx.db.prepare(`UPDATE creator_resource_operations SET state=?,result_json=? WHERE id=? AND ${condition}`)
       .bind(outcome.outcome === 'applied' ? 'confirmed' : outcome.outcome, reply ? JSON.stringify(reply) : null, operation.id, ...values),
@@ -154,7 +155,7 @@ async function record(ctx: MutationContext, operation: OperationRow, outcome: Re
   ]);
 }
 
-async function operation(ctx: MutationContext, instance: StackInstance, resource: ResourceRow, connection: ReturnType<typeof resourceConnection>, action: ResourceCommand['action'], fields: Omit<ResourceCommand, 'action' | 'operationId'>, retry: boolean): Promise<RemoteOutcome> {
+async function operation(ctx: MutationContext, instance: StackInstance, resource: ResourceRow, connection: ReturnType<typeof resourceConnection>, action: ResourceCommand['action'], fields: Omit<ResourceCommand, 'action' | 'operationId'>, retry: boolean, operationId: string = crypto.randomUUID()): Promise<RemoteOutcome> {
   let pending = await unfinished(ctx.db, resource.id);
   if (pending) {
     try {
@@ -163,7 +164,7 @@ async function operation(ctx: MutationContext, instance: StackInstance, resource
       if (!retry || pending.source_revision !== connection.source) return { outcome: 'unknown', message: 'This operation is not confirmed. Its recorded request must be reconciled before a new operation is started.' };
     } catch { return { outcome: 'unknown', message: 'The app operation could not be reconciled. Nothing was resubmitted.' }; }
   } else {
-    const command: ResourceCommand = { action, operationId: crypto.randomUUID(), ...fields };
+    const command: ResourceCommand = { action, operationId, ...fields };
     pending = { id: command.operationId, resource_id: resource.id, action, state: 'pending', source_revision: connection.source, request_json: JSON.stringify(command), result_json: null };
     await change(ctx, (condition, values) => [ctx.db.prepare(`INSERT INTO creator_resource_operations(id,resource_id,stack_id,instance_id,action,state,source_revision,request_json)
       SELECT ?,?,?,?,?,'pending',?,? WHERE ${condition}`)
@@ -282,6 +283,282 @@ export async function reuseStackResource(db: D1Database, user: string, workspace
       .bind(stack, instanceId, resourceId, ...values),
   ], inherited);
   return { outcome: 'applied', stack: stackView(ctx.row), resources: await listStackResources(db, workspace, stack), completed: [instanceId], problems: [], publicationUnchanged: true };
+}
+
+const ownerSelection = z.object({
+  stack: z.string().regex(/^[a-z0-9-]{6,64}$/),
+  instance: z.string().regex(/^[a-z0-9-]{6,64}$/),
+  expectedRevision: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+});
+const ownerMutation = z.discriminatedUnion("command", [
+  z
+    .object({
+      command: z.literal("moderate"),
+      operationId: z.uuid(),
+      resource: z.string().regex(/^[a-z0-9-]{6,64}$/),
+      expectedVersion: z
+        .number()
+        .int()
+        .nonnegative()
+        .max(Number.MAX_SAFE_INTEGER),
+      item: z.string().regex(/^[a-z0-9-]{6,64}$/),
+      itemRevision: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+      status: z.enum(["approved", "hidden", "deleted"]),
+    })
+    .strict(),
+  z
+    .object({
+      command: z.literal("control"),
+      operationId: z.uuid(),
+      resource: z.string().regex(/^[a-z0-9-]{6,64}$/),
+      expectedVersion: z
+        .number()
+        .int()
+        .nonnegative()
+        .max(Number.MAX_SAFE_INTEGER),
+      visible: z.boolean(),
+      paused: z.boolean(),
+    })
+    .strict(),
+]);
+
+async function ownerContext(
+  db: D1Database,
+  user: string,
+  workspace: string,
+  input: unknown,
+  runtime: ResourceRuntime,
+) {
+  const parsed = ownerSelection.safeParse(input);
+  if (!parsed.success)
+    throw new StackError(
+      "INVALID",
+      "Choose the saved stack, visitor book and current revision.",
+    );
+  const selection = parsed.data;
+  const ctx = await context(
+    db,
+    user,
+    workspace,
+    selection.stack,
+    selection.expectedRevision,
+  );
+  const instance = ctx.document.instances.find(
+    (entry) => entry.id === selection.instance && entry.app === "guestbook",
+  );
+  const source =
+    instance?.binding.mode === "shared"
+      ? ctx.document.instances.find(
+          (entry) =>
+            entry.id === instance.binding.shareOf &&
+            entry.app === "guestbook" &&
+            entry.binding.mode === "own",
+        )
+      : instance;
+  if (!instance || !source)
+    throw new StackError(
+      "NOT_FOUND",
+      "This saved instance is not an owned visitor book in this stack.",
+      404,
+    );
+  const selected = await binding(db, workspace, ctx.row.id, source.id);
+  if (!selected?.configuration_revision)
+    throw new StackError(
+      "CONFLICT",
+      "Apply this saved visitor book before managing its content.",
+      409,
+    );
+  const connection = resourceConnection(runtime, workspace);
+  sameTarget(selected, connection);
+  return {
+    ctx,
+    instance,
+    selected,
+    connection,
+    shared: instance.binding.mode === "shared" || selected.mode === "shared",
+  };
+}
+type OwnerContext = Awaited<ReturnType<typeof ownerContext>>;
+
+async function contentView(owner: OwnerContext) {
+  const { ctx, instance, selected, connection, shared } = owner;
+  const { actual, items } = await connection.content(selected.id);
+  await guard(ctx);
+  if (actual.resource.version < selected.version || !actual.configuration)
+    throw new StackError(
+      "UNAVAILABLE",
+      "The app did not confirm this visitor book and its current configuration.",
+    );
+  return {
+    instance: instance.id,
+    resource: selected.id,
+    shared,
+    title: actual.configuration.values.title,
+    path: `/guestbook/r/${selected.id}/c/${actual.configuration.revision}/`,
+    version: actual.resource.version,
+    visible: actual.resource.visible,
+    paused: actual.resource.paused,
+    pending: Boolean(await unfinished(ctx.db, selected.id)),
+    items: items.map((item) => ({
+      id: item.id,
+      caption: item.caption,
+      author: item.author,
+      status: item.status,
+      revision: item.revision,
+      synthetic: Boolean(item.synthetic),
+      createdAt: item.created_at,
+    })),
+  };
+}
+
+export async function readResourceContent(
+  db: D1Database,
+  user: string,
+  workspace: string,
+  input: unknown,
+  runtime: ResourceRuntime,
+) {
+  return contentView(await ownerContext(db, user, workspace, input, runtime));
+}
+
+export async function readResourceMedia(
+  db: D1Database,
+  user: string,
+  workspace: string,
+  input: unknown,
+  item: unknown,
+  runtime: ResourceRuntime,
+) {
+  if (!id(item))
+    throw new StackError(
+      "INVALID",
+      "Choose a postcard from this visitor book.",
+    );
+  const owner = await ownerContext(db, user, workspace, input, runtime);
+  const bytes = await owner.connection.media(owner.selected.id, item);
+  // Membership, saved binding and revision are rechecked after the app await.
+  await guard(owner.ctx);
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return {
+    instance: owner.instance.id,
+    resource: owner.selected.id,
+    item,
+    png: btoa(binary),
+  };
+}
+
+export async function manageResourceContent(
+  db: D1Database,
+  user: string,
+  workspace: string,
+  input: unknown,
+  mutation: unknown,
+  runtime: ResourceRuntime,
+) {
+  const owner = await ownerContext(db, user, workspace, input, runtime);
+  const { ctx, instance, selected, connection } = owner;
+  let outcome: RemoteOutcome | { outcome: "unchanged"; message?: string };
+  if (mutation === "reconcile" || mutation === "retry") {
+    const pending = await unfinished(db, selected.id);
+    const retry =
+      mutation === "retry" &&
+      pending &&
+      ["moderate", "control"].includes(pending.action);
+    outcome = pending
+      ? await operation(
+          ctx,
+          instance,
+          selected,
+          connection,
+          pending.action,
+          {},
+          Boolean(retry),
+        )
+      : { outcome: "unchanged" };
+    if (outcome.outcome !== "unknown" && outcome.outcome !== "refused") {
+      try {
+        const actual = await connection.status(selected.id);
+        if (actual.resource.version < selected.version)
+          throw Error("Older app resource.");
+        if (await refresh(ctx, selected, actual))
+          outcome = { outcome: "applied", reply: actual };
+      } catch {
+        outcome = {
+          outcome: "unknown",
+          message:
+            "The current visitor book could not be verified. Nothing was resubmitted. Check again before changing it.",
+        };
+      }
+    }
+  } else {
+    const parsed = ownerMutation.safeParse(mutation);
+    if (!parsed.success)
+      throw new StackError(
+        "INVALID",
+        "Choose a supported visitor book change with its current item and app revisions.",
+      );
+    if (parsed.data.resource !== selected.id)
+      throw new StackError(
+        "CONFLICT",
+        "The saved instance now selects another visitor book. Refresh its content before changing it.",
+        409,
+      );
+    if (await unfinished(db, selected.id)) {
+      outcome = {
+        outcome: "unknown",
+        message:
+          "Check the unfinished app operation before making another change. Nothing was resubmitted.",
+      };
+    } else {
+      const {
+        command,
+        operationId,
+        resource: _resource,
+        ...fields
+      } = parsed.data;
+      // A client token may identify only one operation. Reconciliation reads
+      // the recorded request; an ordinary click never replays a receipt.
+      if (
+        await db
+          .prepare("SELECT id FROM creator_resource_operations WHERE id=?")
+          .bind(operationId)
+          .first()
+      )
+        throw new StackError(
+          "CONFLICT",
+          "This operation was already submitted. Check its result before making another change.",
+          409,
+        );
+      outcome = await operation(
+        ctx,
+        instance,
+        selected,
+        connection,
+        command,
+        fields,
+        false,
+        operationId,
+      );
+    }
+  }
+  await guard(ctx);
+  let book: Awaited<ReturnType<typeof contentView>> | undefined;
+  try {
+    book = await contentView(owner);
+  } catch {
+    /* A confirmed write stays confirmed even if the follow-up read fails. */
+  }
+  const resources = await listStackResources(db, workspace, ctx.row.id);
+  await guard(ctx);
+  return {
+    outcome: outcome.outcome,
+    message: outcome.message,
+    stack: stackView(ctx.row),
+    resources,
+    book,
+    publicationUnchanged: true as const,
+  };
 }
 
 export async function resourcePublication(db: D1Database, workspace: string, stack: string, document: StackDocument, runtime?: ResourceRuntime) {

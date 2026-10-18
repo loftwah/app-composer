@@ -6,6 +6,7 @@ import {
   resourceEditsDuringReuse,
 } from "./stacks/resource-editor";
 import type { ResourceBinding } from "./stacks/protocol";
+import { ResourceContent, type ResourceContentAction } from "./stacks/resource-content";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PluginAdminExports } from "emdash";
 import {
@@ -73,6 +74,7 @@ export function StudioPage() {
     ResourceBinding[]
   >([]);
   const [reuseChoices, setReuseChoices] = useState<Record<string, string>>({});
+  const [managedInstance, setManagedInstance] = useState<string>();
   const [uncertainStacks, setUncertainStacks] = useState<string[]>([]);
   const [retainedSettings, setRetainedSettings] = useState<
     { instance: string; config: Record<string, string> }[]
@@ -158,6 +160,10 @@ export function StudioPage() {
     },
     [adopt, dirty, selected],
   );
+
+  useEffect(() => {
+    setManagedInstance(undefined);
+  }, [selected]);
 
   useEffect(() => {
     let live = true;
@@ -537,6 +543,60 @@ export function StudioPage() {
             : " Your newer local edits remain unsaved."
           : "")
       );
+    });
+
+  const contentAction: ResourceContentAction = (instance, change, accept) =>
+    run(async () => {
+      if (!current) throw Error("Open a saved stack first.");
+      const reconciling = change === null || change === "retry";
+      if (!reconciling && needsReconciliation)
+        throw Error("Check the unfinished app operation before changing visitor book content.");
+      let candidate = current;
+      if (reconciling) {
+        const checkpoint = session.current.capture();
+        const latest = (await call("open", { stack: current.id })).stack;
+        if (!latest || !observeResourceRevision(session.current, checkpoint, latest, current.draft))
+          throw Object.assign(Error(
+            "The saved draft changed in another window. Your expected revision and local edits are unchanged. Compare the saved version before checking this content operation.",
+          ), { code: "CONFLICT" });
+        setStacks(list => list.map(entry => entry.id === latest.id ? latest : entry));
+        candidate = latest;
+      }
+      const checkpoint = session.current.capture();
+      let data: Awaited<ReturnType<typeof call>>;
+      try {
+        data = await call(change === "retry" ? "retryResourceContent" : change ? "moderateResource" : "reconcileResourceContent", {
+          stack: current.id, instance, expectedRevision: candidate.revision,
+          ...(!reconciling ? { change } : {}),
+        });
+        const saved = data.stack;
+        if (!saved || saved.id !== checkpoint.stack ||
+            JSON.stringify(saved.draft) !== JSON.stringify(candidate.draft) ||
+            (data.book && data.book.instance !== instance))
+          throw Error("The app did not confirm this saved stack and visitor book. Check the content operation before retrying.");
+        const same = ["unchanged", "unknown"].includes(data.outcome ?? "") &&
+          session.current.acknowledgeUnchanged(checkpoint, saved.revision);
+        if (!same && !acknowledge(saved, checkpoint))
+          throw Error("The app did not confirm a valid saved revision. Check the content operation before retrying.");
+        if (same) setStacks(list => list.map(entry => entry.id === saved.id ? saved : entry));
+      } catch (cause) {
+        setUncertainStacks(list => [...new Set([...list, current.id])]);
+        throw cause;
+      }
+      setDirty(session.current.dirty);
+      setResources(data.resources ?? []);
+      const unknown = data.outcome === "unknown" || !data.book || data.book.pending;
+      setUncertainStacks(list => unknown
+        ? [...new Set([...list, current.id])]
+        : list.filter(id => id !== current.id));
+      accept(data);
+      const note = data.outcome === "applied"
+        ? change ? "The app confirmed the visitor book change." : "Confirmed the content operation and current visitor book."
+        : data.outcome === "unchanged" ? "The app confirmed no content change was needed."
+        : data.outcome === "refused" ? "The app refused this change. Refresh the content or check the app operation before trying again."
+        : "The content outcome is not confirmed. Check the content operation before changing this book again.";
+      return note + (data.message ? " " + data.message : "") +
+        (session.current.dirty ? " Your stack edits remain unsaved." : "");
     });
 
   const simple =
@@ -1044,6 +1104,15 @@ export function StudioPage() {
                           </button>
                         </p>
                       )}
+                      {instance.app === "guestbook" && editable && resourcesReady &&
+                        copiedResource?.configuration &&
+                        current?.draft.instances.some(entry => entry.id === instance.id &&
+                          JSON.stringify(entry.binding) === JSON.stringify(instance.binding)) && (
+                          <button type="button" disabled={busy}
+                            onClick={() => setManagedInstance(instance.id)}>
+                            Manage saved visitor book content
+                          </button>
+                        )}
                       {instance.app === "guestbook" && !shared && (
                         <div className="ca-resource-status">
                           <p>
@@ -1331,6 +1400,13 @@ export function StudioPage() {
                   </div>
                 );
               })}
+              {current && editable && managedInstance &&
+                document.instances.some(instance => instance.id === managedInstance) && (
+                  <ResourceContent key={`${current.id}:${managedInstance}`}
+                    stack={current} instance={managedInstance} busy={busy}
+                    uncertain={needsReconciliation} onAction={contentAction}
+                    onClose={() => setManagedInstance(undefined)} />
+                )}
               {editable && (
                 <div className="ca-stack-add">
                   {APPS.map((app) => (

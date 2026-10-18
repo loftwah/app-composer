@@ -27,6 +27,7 @@ import {
 } from './stacks.mjs';
 import { activationSummary } from './stack-activation.mjs';
 import { applyStackResources, reconcileStackResources, reuseStackResource, listStackResources, availableWorkspaceResources, resourcePublication } from './stack-resources.ts';
+import { readResourceContent, readResourceMedia, manageResourceContent } from './stack-resources.ts';
 
 const origin = 'https://composer.loftwah.com';
 const fail = (code, message) => ({ ok: false, code, message });
@@ -47,6 +48,14 @@ export async function manageStacks(ctx, runtime) {
     const action = typeof command.action === 'string' ? command.action : '';
     if (reading) {
       requireCapability(workspace.role, 'read');
+      if (action === 'resourceContent' || action === 'resourceMedia') {
+        requireCapability(workspace.role, 'save');
+        const selection = { stack: command.stack, instance: command.instance,
+          expectedRevision: /^\d{1,16}$/.test(String(command.expectedRevision)) ? Number(command.expectedRevision) : null };
+        return action === 'resourceContent'
+          ? { ok: true, workspace, book: await readResourceContent(db, ctx.user.id, workspace.id, selection, runtime) }
+          : { ok: true, workspace, media: await readResourceMedia(db, ctx.user.id, workspace.id, selection, command.item, runtime) };
+      }
       if (action === 'list') return { ok: true, workspace, stacks: await listStacks(db, workspace.id) };
       if (action === 'resources') {
         await readStack(db, workspace.id, command.stack);
@@ -104,6 +113,13 @@ export async function manageStacks(ctx, runtime) {
           ? await reconcileStackResources(db, ctx.user.id, workspace.id, command.stack, command.expectedRevision, runtime)
           : await reuseStackResource(db, ctx.user.id, workspace.id, command.stack, command.expectedRevision, command.instance, command.resource, runtime);
       return { ok: true, workspace, ...result };
+    }
+    if (action === 'moderateResource' || action === 'reconcileResourceContent' || action === 'retryResourceContent') {
+      requireCapability(workspace.role, 'save');
+      const selection = { stack: command.stack, instance: command.instance, expectedRevision: command.expectedRevision };
+      const mutation = action === 'reconcileResourceContent' ? 'reconcile'
+        : action === 'retryResourceContent' ? 'retry' : command.change;
+      return { ok: true, workspace, ...await manageResourceContent(db, ctx.user.id, workspace.id, selection, mutation, runtime) };
     }
     if (action === 'unpublish') {
       requireCapability(workspace.role, 'unpublish');

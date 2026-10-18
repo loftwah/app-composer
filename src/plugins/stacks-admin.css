@@ -72,3 +72,22 @@
   margin: 2px 0 0;
   overflow-wrap: anywhere;
 }
+.ca-owned-content {
+  margin: 28px 0;
+  padding: 24px 0;
+  border-block: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  overflow-wrap: anywhere;
+}
+.ca-owned-content .ca-heading {
+  align-items: start;
+}
+.ca-owned-content .ca-content-controls {
+  margin: 20px 0 28px;
+}
+.ca-owned-content h4 {
+  margin: 8px 0;
+}
+.ca-owned-content .ca-actions {
+  flex-direction: row;
+  flex-wrap: wrap;
+}

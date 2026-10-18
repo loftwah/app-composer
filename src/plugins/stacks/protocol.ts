@@ -49,6 +49,50 @@ const resourceBinding = z
         `/guestbook/r/${value.resource}/c/${value.configuration.revision}/`,
   );
 export type ResourceBinding = z.infer<typeof resourceBinding>;
+const resourceBook = z
+  .object({
+    instance: id,
+    resource: id,
+    shared: z.boolean(),
+    title: z.string().max(80),
+    path: z.string(),
+    version: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+    visible: z.boolean(),
+    paused: z.boolean(),
+    pending: z.boolean(),
+    items: z
+      .array(
+        z.object({
+          id,
+          caption: z.string().max(160),
+          author: z.string().max(60),
+          status: z.enum(["pending", "approved", "hidden", "rejected"]),
+          revision,
+          synthetic: z.boolean(),
+          createdAt: z.string().max(40),
+        }),
+      )
+      .max(200),
+  })
+  .refine((value) =>
+    new RegExp(`^/guestbook/r/${value.resource}/c/[1-9][0-9]*/$`).test(
+      value.path,
+    ),
+  );
+export type ResourceBook = z.infer<typeof resourceBook>;
+export type ResourceContentChange = {
+  operationId: string;
+  resource: string;
+  expectedVersion: number;
+} & (
+  | {
+      command: "moderate";
+      item: string;
+      itemRevision: number;
+      status: "approved" | "hidden" | "deleted";
+    }
+  | { command: "control"; visible: boolean; paused: boolean }
+);
 const canonicalDocument = z
   .object({
     version: z.literal(1),
@@ -153,6 +197,18 @@ const reply = z.object({
   workspace: z.object({ id, name: z.string(), role }).optional(),
   stacks: z.array(stack).max(50).optional(),
   stack: stack.optional(),
+  book: resourceBook.optional(),
+  media: z
+    .object({
+      instance: id,
+      resource: id,
+      item: id,
+      png: z
+        .string()
+        .max(133336)
+        .regex(/^[A-Za-z0-9+/]+={0,2}$/),
+    })
+    .optional(),
   resources: z.array(resourceBinding).max(12).optional(),
   availableResources: z.array(resourceBinding).max(100).optional(),
   outcome: z
@@ -271,7 +327,7 @@ export function decodeStackReply(action: string, value: unknown) {
       Error(data.message || "The creator workspace is unavailable."),
       { code: data.code },
     );
-  const valid =
+  let valid: unknown =
     action === "list"
       ? data.workspace && data.stacks
       : [
@@ -310,6 +366,12 @@ export function decodeStackReply(action: string, value: unknown) {
                   : action === "configuration"
                     ? data.configuration && data.instances
                     : false;
+  if (action === "resourceContent") valid = data.book;
+  if (action === "resourceMedia") valid = data.media;
+  if (["moderateResource", "reconcileResourceContent", "retryResourceContent"].includes(action))
+    valid = data.stack && data.resources &&
+      ["applied", "unchanged", "refused", "unknown"].includes(data.outcome ?? "") &&
+      data.publicationUnchanged;
   if (!valid)
     throw Error(
       "The server did not acknowledge this action. Your draft is still here; check the saved version before retrying.",

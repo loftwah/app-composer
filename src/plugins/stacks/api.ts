@@ -117,7 +117,9 @@ export async function call(
     action === "export" ||
     action === "publications" ||
     action === "configuration" ||
-    action === "resources";
+    action === "resources" ||
+    action === "resourceContent" ||
+    action === "resourceMedia";
   const values = { action, ...fields };
   const route =
     "/_emdash/api/plugins/composer-stacks/" +
