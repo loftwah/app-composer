@@ -15,6 +15,7 @@ import { applyStackResources } from "../src/lib/stack-resources.ts";
 import {
   collectStackAction,
   purgePrivateOutcomes,
+  publicationActionKey,
 } from "../src/lib/private-outcome-events.ts";
 import { recordModerationOutcome } from "../src/lib/private-outcome-proof.ts";
 import { decodeOutcomeReply } from "../src/plugins/outcomes/protocol.ts";
@@ -59,7 +60,7 @@ async function page(f, name = "Fictional action page", actor = user) {
   );
   return { workspace, stack: published };
 }
-function request(
+async function request(
   stack,
   patch = {},
   headers = {},
@@ -78,6 +79,10 @@ function request(
       body: JSON.stringify({
         contract: 1,
         publication: stack.publishedRevision,
+        publicationKey: await publicationActionKey(
+          stack.id,
+          stack.publishedRevision,
+        ),
         token: crypto.randomUUID(),
         interaction: "keyboard",
         disposition: "same_tab",
@@ -223,7 +228,7 @@ test("current publication derives every private dimension; duplicate activation 
       assert.equal(
         (
           await collectStackAction(
-            request(a.stack, { token }),
+            await request(a.stack, { token }),
             runtime(f),
             a.stack.slug,
             "fictional-hello-instance",
@@ -233,7 +238,7 @@ test("current publication derives every private dimension; duplicate activation 
       );
     assert.equal(total(f), 1);
     await collectStackAction(
-      request(a.stack, { token }, {}, "fictional-link-instance"),
+      await request(a.stack, { token }, {}, "fictional-link-instance"),
       runtime(f),
       a.stack.slug,
       "fictional-link-instance",
@@ -242,7 +247,7 @@ test("current publication derives every private dimension; duplicate activation 
     assert.equal(
       (
         await collectStackAction(
-          request(a.stack, { workspace: "spoofed-workspace" }),
+          await request(a.stack, { workspace: "spoofed-workspace" }),
           runtime(f),
           a.stack.slug,
           "fictional-hello-instance",
@@ -252,13 +257,13 @@ test("current publication derives every private dimension; duplicate activation 
     );
     for (const target of ["fictional-hidden-instance", "not-existing-instance"])
       await collectStackAction(
-        request(a.stack, {}, {}, target),
+        await request(a.stack, {}, {}, target),
         runtime(f),
         a.stack.slug,
         target,
       );
     await collectStackAction(
-      request(a.stack, { publication: 1 }),
+      await request(a.stack, { publication: 1 }),
       runtime(f),
       a.stack.slug,
       "fictional-hello-instance",
@@ -269,7 +274,7 @@ test("current publication derives every private dimension; duplicate activation 
       name: "Another creator",
     });
     await collectStackAction(
-      request(b.stack, {}, {}, "fictional-link-instance"),
+      await request(b.stack, {}, {}, "fictional-link-instance"),
       runtime(f),
       b.stack.slug,
       "fictional-link-instance",
@@ -304,7 +309,7 @@ test("current publication derives every private dimension; duplicate activation 
       a.stack.revision,
     );
     await collectStackAction(
-      request(archived),
+      await request(archived),
       runtime(f),
       a.stack.slug,
       "fictional-hello-instance",
@@ -316,12 +321,46 @@ test("current publication derives every private dimension; duplicate activation 
   }
 });
 
+test("an old public page cannot attribute its Open to a recreated slug in another workspace", async () => {
+  const f = setup();
+  try {
+    const a = await page(f),
+      old = await request(a.stack);
+    await deleteStack(
+      f.db,
+      a.workspace.id,
+      a.stack.id,
+      a.stack.revision,
+      user.id,
+    );
+    const b = await page(f, "Fictional action page", {
+      ...user,
+      id: "fictional-recreated-owner",
+    });
+    assert.equal(b.stack.slug, a.stack.slug);
+    assert.equal(b.stack.publishedRevision, a.stack.publishedRevision);
+    await collectStackAction(
+      old,
+      runtime(f),
+      a.stack.slug,
+      "fictional-hello-instance",
+    );
+    assert.equal(
+      total(f),
+      0,
+      "A publication revision is not globally unique across recreated stacks",
+    );
+  } finally {
+    f.close();
+  }
+});
+
 test("owner-recorded demo mode is captured only on future receipts; limits/outage/probes never authorize navigation", async () => {
   const f = setup();
   try {
     const p = await page(f);
     await collectStackAction(
-      request(p.stack),
+      await request(p.stack),
       runtime(f),
       p.stack.slug,
       "fictional-hello-instance",
@@ -332,7 +371,7 @@ test("owner-recorded demo mode is captured only on future receipts; limits/outag
       )
       .run(p.stack.id, p.workspace.id);
     await collectStackAction(
-      request(p.stack),
+      await request(p.stack),
       runtime(f),
       p.stack.slug,
       "fictional-hello-instance",
@@ -352,7 +391,7 @@ test("owner-recorded demo mode is captured only on future receipts; limits/outag
       { "User-Agent": "Googlebot" },
     ])
       await collectStackAction(
-        request(p.stack, {}, headers),
+        await request(p.stack, {}, headers),
         runtime(f),
         p.stack.slug,
         "fictional-hello-instance",
@@ -360,7 +399,7 @@ test("owner-recorded demo mode is captured only on future receipts; limits/outag
     assert.equal(
       (
         await collectStackAction(
-          request(p.stack, {}, { Origin: "https://outside.test" }),
+          await request(p.stack, {}, { Origin: "https://outside.test" }),
           runtime(f),
           p.stack.slug,
           "fictional-hello-instance",
@@ -369,7 +408,7 @@ test("owner-recorded demo mode is captured only on future receipts; limits/outag
       403,
     );
     await collectStackAction(
-      request(p.stack),
+      await request(p.stack),
       {
         ...runtime(f),
         USAGE_LIMIT: {
@@ -384,7 +423,7 @@ test("owner-recorded demo mode is captured only on future receipts; limits/outag
     assert.equal(
       (
         await collectStackAction(
-          request(p.stack),
+          await request(p.stack),
           {
             ...runtime(f),
             DB: {
@@ -404,9 +443,9 @@ test("owner-recorded demo mode is captured only on future receipts; limits/outag
       .prepare("UPDATE creator_outcome_daily SET n=998 WHERE traffic='demo'")
       .run();
     await Promise.all(
-      [1, 2, 3].map(() =>
+      [1, 2, 3].map(async () =>
         collectStackAction(
-          request(p.stack),
+          await request(p.stack),
           runtime(f),
           p.stack.slug,
           "fictional-hello-instance",
@@ -560,7 +599,7 @@ test("35-day retention removes only analytics rows and leaves app journals, publ
   try {
     const p = await page(f);
     await collectStackAction(
-      request(p.stack),
+      await request(p.stack),
       runtime(f),
       p.stack.slug,
       "fictional-hello-instance",
@@ -608,7 +647,7 @@ test("stack deletion removes its private measurements without orphaning or chang
       });
     for (const p of [a, b])
       await collectStackAction(
-        request(p.stack),
+        await request(p.stack),
         runtime(f),
         p.stack.slug,
         "fictional-hello-instance",
@@ -862,7 +901,7 @@ test("private reporting/export match scoped totals and reject another workspace,
     const p = await page(f);
     const actor = { ...user, role: 20, email: "fictional-owner@example.test" };
     await collectStackAction(
-      request(p.stack),
+      await request(p.stack),
       runtime(f),
       p.stack.slug,
       "fictional-hello-instance",
@@ -956,7 +995,7 @@ test("only a current workspace owner declares future demonstration mode, with ex
       "FORBIDDEN",
     );
     await collectStackAction(
-      request(p.stack),
+      await request(p.stack),
       runtime(f),
       p.stack.slug,
       "fictional-hello-instance",
@@ -965,7 +1004,7 @@ test("only a current workspace owner declares future demonstration mode, with ex
     assert.equal(first.setting.revision, 1);
     assert.equal(first.setting.traffic, "demo");
     await collectStackAction(
-      request(p.stack),
+      await request(p.stack),
       runtime(f),
       p.stack.slug,
       "fictional-hello-instance",

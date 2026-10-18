@@ -39,11 +39,14 @@ export function installStackActions(root: Document = document) {
       "[data-outcome-slug][data-outcome-publication]",
     );
     const slug = page?.dataset.outcomeSlug,
+      publicationKey = page?.dataset.outcomeKey,
       instance = anchor.dataset.outcomeInstance,
       publication = Number(page?.dataset.outcomePublication);
     if (
       !slug ||
       !instance ||
+      !publicationKey ||
+      !/^[a-f0-9]{64}$/.test(publicationKey) ||
       !Number.isSafeInteger(publication) ||
       publication < 1 ||
       !crypto.randomUUID
@@ -74,6 +77,7 @@ export function installStackActions(root: Document = document) {
           body: JSON.stringify({
             contract: 1,
             publication,
+            publicationKey,
             token: crypto.randomUUID(),
             interaction,
             disposition,
