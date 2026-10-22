@@ -57,6 +57,7 @@ const rows = (report?.apps ?? apps.map((app) => ({ app: app.id, opens: 0, action
 const top = Math.max(1, ...rows.map((row) => row.opens));
 const findings = history ? buildFindings(history, surfaces) : [];
 const view = history ? signalView(history, metric) : undefined;
+const scopeOpens = report ? report.apps.reduce((sum, app) => sum + app.opens, 0) : null;
 const actionValue = report ? report.apps.reduce((sum, app) => sum + app.actions, 0) : null;
 const postcardMetric = history?.metrics.find((value) => value.key === "guest_postcards_received");
 const postcardValue = postcardMetric?.value ?? null;
@@ -99,7 +100,7 @@ const shareHref = (app: string | null, signal: typeof metric) =>
   </header>
 
   <section class="analytics-summary" aria-label="Recorded summary for this scope">
-    <div><span>Recorded app opens</span><strong>{report ? count(surfaces.all) : "—"}</strong><small>{where} · homes only</small></div>
+    <div><span>Recorded app opens</span><strong>{scopeOpens === null ? "—" : count(scopeOpens)}</strong><small>{where} · homes only</small></div>
     <div><span>Completed actions</span><strong>{actionValue === null ? "—" : count(actionValue)}</strong><small>Contribution opens and finished inspections</small></div>
     <div><span>Notes to review</span><strong>{postcardValue === null ? "—" : count(postcardValue)}</strong><small>Committed pending postcards, not approvals</small></div>
     <div><span>Retained days</span><strong>{view ? `${retained}/${selected.days}` : "—"}</strong><small>Available UTC days in this window</small></div>

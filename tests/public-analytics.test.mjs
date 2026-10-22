@@ -187,4 +187,8 @@ test("owner analytics is labelled, stack-scoped and returns to the useful existi
   const manage = readFileSync("src/pages/manage.astro", "utf8");
   assert.match(manage, /id="analytics-proof"/);
   assert.match(manage, /Preview a frozen story/);
+  const activity = readFileSync("src/pages/activity.astro", "utf8");
+  assert.match(activity, /const scopeOpens = report \? report\.apps\.reduce/);
+  assert.match(activity, /scopeOpens === null \? "—" : count\(scopeOpens\)/);
+  assert.doesNotMatch(activity, /strong>\{report \? count\(surfaces\.all\)/);
 });
