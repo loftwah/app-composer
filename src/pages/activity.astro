@@ -190,7 +190,7 @@ const shareHref = (app: string | null, signal: typeof metric) =>
                   <h3><a href={`/activity/${row.app}?${scopeQuery}`}>{row.definition.name} <ArrowUpRight size={16} aria-hidden="true"/></a></h3>
                   <p>{appActions[row.app] ?? row.definition.category}</p>
                 </div>
-                <div class="analytics-app-bar" aria-hidden="true"><span style={`width:${(100 * row.opens) / top}%`}></span></div>
+                <div class="analytics-app-bar" aria-hidden="true"><svg viewBox="0 0 100 8" preserveAspectRatio="none"><rect width={(100 * row.opens) / top} height="8"/></svg></div>
                 <div class="analytics-app-count">
                   <strong>{count(row.opens)}{row.limited ? "+" : ""}</strong>
                   <small>{row.opens === 1 ? "recorded open" : "recorded opens"}</small>

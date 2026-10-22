@@ -70,14 +70,21 @@ const payload = report ? JSON.stringify({ url: reportUrl(report.id), title: repo
           <h2 id="report-chart-title">{report.metricLabel} by UTC day</h2>
           <p>{report.period.days} days · {report.period.surface === "all" ? "all connected versions" : report.period.surface === "composed" ? "inside Composer" : "standalone apps"}</p>
         </div>
-        <div class="frozen-report-bars" aria-hidden="true">
-          {report.daily.map((day) => (
-            <span
-              class:list={{ "is-gap": day.value === null, "is-zero": day.value === 0 }}
-              style={`--bar:${day.value === null ? 0 : Math.max(2, (day.value / maximum) * 100)}%`}
-              title={`${day.date}: ${day.value === null ? "history unavailable" : day.value}`}
-            ></span>
-          ))}
+        <div class="frozen-report-bars">
+          <svg viewBox="0 0 900 240" preserveAspectRatio="none" role="img" aria-label={`${report.metricLabel}: ${report.value === null ? "unavailable" : report.value}. Daily values are in the table below.`}>
+            {[0, 120, 239].map((y) => <line x1="0" x2="900" y1={y} y2={y} class="report-grid"/>)}
+            {report.daily.map((day, index) => {
+              const step = 900 / report.daily.length;
+              const cx = step * (index + 0.5);
+              return day.value === null ? (
+                <line x1={cx} x2={cx} y1="222" y2="238" class="report-gap"/>
+              ) : day.value === 0 ? (
+                <circle cx={cx} cy="237" r="3" class="report-zero"/>
+              ) : (
+                <rect x={cx - step * 0.28} y={239 - (230 * day.value) / maximum} width={Math.max(2, step * 0.56)} height={(230 * day.value) / maximum} rx="2" class="report-bar"/>
+              );
+            })}
+          </svg>
         </div>
         <div class="frozen-report-axis" aria-hidden="true"><span>{report.period.from}</span><span>{report.period.to}</span></div>
         <details>

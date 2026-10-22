@@ -158,7 +158,7 @@ const metricLabels: Record<string, string> = {
                 </h3>
                 <p>{appActions[value.app]}</p>
               </div>
-              <div class="analytics-app-bar" aria-hidden="true"><span style={`width:${(100 * value.opens) / maximum}%`}></span></div>
+              <div class="analytics-app-bar" aria-hidden="true"><svg viewBox="0 0 100 8" preserveAspectRatio="none"><rect width={(100 * value.opens) / maximum} height="8"/></svg></div>
               <div class="analytics-app-count"><strong>{count(value.opens)}</strong><small>recorded opens</small></div>
             </li>
           ))}
