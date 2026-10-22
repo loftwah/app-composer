@@ -19,3 +19,5 @@ overrides:
   '@cloudflare/vite-plugin': 1.62.0
   # Native POP blockers: upstream TanStack/router#8264, first fixed 1.162.2.
   '@tanstack/history@1.161.4': 1.162.2
+  # GHSA-c9rx-x947-fp3h; patched 2.18.1, reviewed 22 October 2026.
+  sanitize-html: 2.18.1
