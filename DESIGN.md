@@ -2,7 +2,7 @@
 name: App Composer
 description: Approved orange-and-white identity, editorial campaign and native administration extension
 colors:
-  brand-orange: "#f75b05"
+  brand-orange: "#fc5b05"
   brand-orange-text: "#c74400"
   native-focus: "#e77743"
   native-control-border: "color-mix(in srgb,currentColor 30%,transparent)"
