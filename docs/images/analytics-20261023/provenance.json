@@ -46,6 +46,27 @@
       "source": "local analytics worktree before release",
       "fixture": true,
       "note": "Fictional daily rows inserted into the local D1 emulation only. Not production evidence."
+    },
+    {
+      "file": "analytics-activity-production-light-1440.png",
+      "url": "https://composer.loftwah.com/activity?days=30&surface=all",
+      "viewport": "1440x1000",
+      "theme": "light",
+      "observed": "4 findings, 5 app rows, summary 1,690 opens / 72 actions / 2 notes / 10 of 30 retained days; no horizontal overflow"
+    },
+    {
+      "file": "analytics-report-production-light-1440.png",
+      "url": "https://composer.loftwah.com/reports/r69e0e7b9ecc786a62746669e",
+      "viewport": "1440x1000",
+      "theme": "light",
+      "observed": "Frozen 2 pending postcards; landscape 1200x630, square 1080x1080 and portrait 1080x1920 loaded; canonical and OG image on Composer origin"
+    },
+    {
+      "file": "owner-outcomes-stack-light-1440.png",
+      "url": "https://composer.loftwah.com/_emdash/admin/plugins/composer-stacks/outcomes?workspace=3c918195-59cd-4ffa-8cae-761e75bedbf5&stack=ab9b31bc-ab06-4e78-828d-b0e7a5caa2fe",
+      "viewport": "1440x1000",
+      "theme": "light",
+      "observed": "Authenticated owner report for Fictional Trail Notes, 30 days, both traffic classifications: 1 Open action, 1 approval, 1 hide, deletion unavailable, 1 retained snapshot; Back to this stack, Private enquiries and Compare public activity present. Filters only; no record or setting changed."
     }
   ],
   "unverified": [
@@ -53,5 +74,11 @@
     "screen-reader acceptance",
     "external social platform unfurl rendering",
     "native share sheet success on a physical device"
-  ]
+  ],
+  "analyticsRelease": {
+    "composer": "25cd6bed79d18d759471ba32ed33b7d21cb7f250",
+    "worker": "c95ff23f-966b-45c4-b202-11a73b60c45d",
+    "frozenReport": "https://composer.loftwah.com/reports/r69e0e7b9ecc786a62746669e",
+    "secondReport": "https://composer.loftwah.com/reports/r6588fa7e01d74181e9632673"
+  }
 }

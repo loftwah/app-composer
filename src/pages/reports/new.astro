@@ -85,14 +85,20 @@ const maximum = report ? Math.max(1, ...report.daily.map((day) => day.value ?? 0
           <h2 id="report-preview-title">{report.headline}</h2>
           <p class="report-preview-value">{report.value === null ? "—" : report.value.toLocaleString("en-AU")} <span>{report.unit}</span></p>
           <p class="report-preview-period">{reportPeriodLabel(report)}</p>
-          <div class="report-preview-chart" aria-hidden="true">
-            {report.daily.map((day) => (
-              <span
-                class:list={{ "is-gap": day.value === null, "is-zero": day.value === 0 }}
-                style={`--bar:${day.value === null ? 0 : Math.max(2, (day.value / maximum) * 100)}%`}
-                title={`${day.date}: ${day.value === null ? "unavailable" : day.value}`}
-              ></span>
-            ))}
+          <div class="report-preview-chart">
+            <svg viewBox="0 0 900 140" preserveAspectRatio="none" role="img" aria-label={`${report.metricLabel}: ${report.value === null ? "unavailable" : report.value}. Daily values are in the frozen report.`}>
+              {report.daily.map((day, index) => {
+                const step = 900 / report.daily.length;
+                const cx = step * (index + 0.5);
+                return day.value === null ? (
+                  <line x1={cx} x2={cx} y1="126" y2="138" class="report-gap"/>
+                ) : day.value === 0 ? (
+                  <circle cx={cx} cy="137" r="2.5" class="report-zero"/>
+                ) : (
+                  <rect x={cx - step * 0.28} y={139 - (130 * day.value) / maximum} width={Math.max(2, step * 0.56)} height={(130 * day.value) / maximum} rx="2" class="report-bar"/>
+                );
+              })}
+            </svg>
           </div>
           <p class="report-preview-detail">{report.detail}</p>
         </article>
