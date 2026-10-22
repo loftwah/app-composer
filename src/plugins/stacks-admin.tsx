@@ -1039,6 +1039,15 @@ function WorkspaceStudio({ search }: { search: string }) {
                         {meta?.name ?? instance.app}{" "}
                         <span className="ca-muted">· {instance.label}</span>
                       </h3>
+                      {workspace && (
+                        <p className="ca-instance-analytics">
+                          <a
+                            href={`/_emdash/admin/plugins/composer-stacks/outcomes?workspace=${workspace.id}&stack=${current.id}&instance=${instance.id}`}
+                          >
+                            Analytics for this app instance
+                          </a>
+                        </p>
+                      )}
                       <label>
                         Label
                         <input
