@@ -8,6 +8,7 @@ import {
   collectionRevision as revision,
   collectionSource,
   collectionSelection,
+  collectionInvitationSetting,
   collectionInvitationState,
   type CollectionSelection,
   type CollectionSource,
@@ -59,6 +60,7 @@ const commands = z.discriminatedUnion("action", [
       action: z.literal("collection-invitation-set"),
       ...selected,
       operation: z.enum(["enable", "disable"]),
+      expected: collectionInvitationSetting.nullable(),
     })
     .strict(),
 ]);
@@ -524,6 +526,7 @@ export async function manageMiniappCollection(
           await selected.guard();
           response = await connection.send("/api/invitation", {
             action: command.operation,
+            expected: command.expected,
             ...(command.operation === "enable" ? { source: selected.source } : {}),
           });
         }

@@ -24,6 +24,12 @@ export const collectionSelection = z
   .strict();
 export type CollectionSelection = z.infer<typeof collectionSelection>;
 export type CollectionSource = z.infer<typeof collectionSource>;
+export const collectionInvitationSetting = z
+  .object({ version: z.literal(1), source: collectionSource })
+  .strict();
+export type CollectionInvitationSetting = z.infer<
+  typeof collectionInvitationSetting
+>;
 export const collectionChoice = collectionSelection.extend({
   stackName: z.string().max(80),
   label: z.string().max(80),

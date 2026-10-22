@@ -146,6 +146,12 @@ async function prepared() {
           origin + "/showcase",
         );
         const body = await request.json();
+        const expected = invitation ? { version: 1, source: invitation } : null;
+        if (JSON.stringify(body.expected) !== JSON.stringify(expected))
+          return Response.json(
+            { error: "This invitation changed in another tab. Reload before replacing it." },
+            { status: 409 },
+          );
         if (body.action === "enable") {
           invitation = body.source;
           return Response.json({
@@ -276,6 +282,7 @@ test("an owner links one exact saved book for contributions, can replace or stop
       await f.route("collection-invitation-set", {
         ...f.selection(0),
         operation: "enable",
+        expected: null,
       }),
     );
     assert.equal(enabled.configured, true);
@@ -296,6 +303,7 @@ test("an owner links one exact saved book for contributions, can replace or stop
       await f.route("collection-invitation-set", {
         ...f.selection(1),
         operation: "enable",
+        expected: { version: 1, source: book0.source },
       }),
     );
     assert.equal(replaced.source.resource, book1.source.resource);
@@ -308,15 +316,29 @@ test("an owner links one exact saved book for contributions, can replace or stop
     const refused = await f.route("collection-invitation-set", {
       ...f.selection(1),
       operation: "enable",
+      expected: { version: 1, source: book1.source },
     });
     assert.equal(refused.code, "CONFLICT");
     assert.match(refused.message, /Publish this visitor book/);
     hidden.visible = true;
 
+    const stale = await f.route("collection-invitation-set", {
+      ...f.selection(1),
+      operation: "disable",
+      expected: { version: 1, source: book0.source },
+    });
+    assert.equal(stale.code, "CONFLICT");
+    assert.match(stale.message, /changed in another tab/);
+    const stillLinked = collectionInvitationReply.parse(
+      await f.route("collection-invitation", f.selection(1)),
+    );
+    assert.deepEqual(stillLinked.linked, book1.source, "the newer choice survives");
+
     const disabled = collectionInvitationReply.parse(
       await f.route("collection-invitation-set", {
         ...f.selection(1),
         operation: "disable",
+        expected: { version: 1, source: book1.source },
       }),
     );
     assert.equal(disabled.configured, false);

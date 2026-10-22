@@ -23,6 +23,10 @@ It returns the current active configuration, `open | paused | closed | full`, `a
 
 Linkarooie checks this response through its configured `ITEM_PROVIDER` service binding. A malformed, redirected, foreign-origin or partial response becomes `unavailable`; it never becomes `open`. The saved reference is the exact resource and activated configuration selected by the owner. Acceptance follows that resource's current active configuration, so a reviewable configuration advance does not break the link.
 
+## Stale owner tabs
+
+The owner studio and the native collection control send the exact invitation setting they observed. Stopping or replacing is a conditional write against that setting: if another tab already changed it, the request returns a conflict and the newer choice survives. The owner sees a plain reload message. A missing expected setting is refused rather than treated as “stop whatever is current.” This is an expected-state guard, not a second permission system; the app still owns the record and the native owner authentication still applies.
+
 ## Owner controls
 
 The native Composer **Collect from a saved visitor book** control reads the current state for the selected stack instance. It can link that exact book for contributions, replace the reference or stop inviting. Enabling is refused for a hidden or pending visitor book. The standalone Linkarooie studio exposes the same `GET/POST /api/invitation` boundary when the Composer studio is not configured.
