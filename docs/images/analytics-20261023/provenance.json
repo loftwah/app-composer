@@ -1,0 +1,57 @@
+{
+  "reviewed": "2026-10-23",
+  "brandRelease": {
+    "composer": "dade1530d865b06d63a6b352ea654edd6e8bfa2d",
+    "worker": "46e6ebbd-4619-469a-ab9c-923084fbd570"
+  },
+  "captures": [
+    {
+      "file": "brand-214-demo-light-1440.png",
+      "url": "https://composer.loftwah.com/demo",
+      "viewport": "1440x1000",
+      "theme": "light",
+      "observed": "CTA rgb(252,91,5) with rgb(23,24,27) ink; active nav and process markers rgb(199,68,0); no horizontal overflow"
+    },
+    {
+      "file": "brand-214-demo-dark-1440.png",
+      "url": "https://composer.loftwah.com/demo",
+      "viewport": "1440x1000",
+      "theme": "dark",
+      "observed": "CTA rgb(252,91,5) with rgb(23,24,27) ink; active nav and process markers rgb(252,91,5); no horizontal overflow"
+    },
+    {
+      "file": "brand-214-launcher-phone-light-390.png",
+      "url": "https://composer.loftwah.com/demo",
+      "viewport": "390x844",
+      "theme": "light",
+      "observed": "launcher menu-signal #c74400; Close focused on touch open; search input computed 16px"
+    },
+    {
+      "file": "brand-214-launcher-phone-dark-390.png",
+      "url": "https://composer.loftwah.com/demo",
+      "viewport": "390x844",
+      "theme": "dark",
+      "observed": "launcher menu-signal #fc5b05; Close focused; search input computed 16px"
+    },
+    {
+      "file": "analytics-report-fixture-light-1440.png",
+      "url": "http://127.0.0.1:4322/reports/r7e548406fa254d173ed74e8a",
+      "source": "local analytics worktree before release",
+      "fixture": true,
+      "note": "Fictional daily rows inserted into the local D1 emulation only. Not production evidence."
+    },
+    {
+      "file": "analytics-activity-fixture-phone-light-390.png",
+      "url": "http://127.0.0.1:4322/activity?days=30&surface=all",
+      "source": "local analytics worktree before release",
+      "fixture": true,
+      "note": "Fictional daily rows inserted into the local D1 emulation only. Not production evidence."
+    }
+  ],
+  "unverified": [
+    "physical iOS Safari software-keyboard/zoom",
+    "screen-reader acceptance",
+    "external social platform unfurl rendering",
+    "native share sheet success on a physical device"
+  ]
+}

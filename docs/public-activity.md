@@ -1,31 +1,45 @@
-# Public activity and process diagrams
+# Public analytics and frozen reports
 
-The public `/activity` page presents the existing counters. It does not add private creator analytics, visitor identification or conversion measures.
+Reviewed 23 October 2026. The public analytics destination is `/activity`, with one app record per supported app at `/activity/<app>`. It uses the existing bounded counters; it does not add visitor identification, a vendor or a private-record feed.
 
-`lib/usage/portfolio.mjs` owns daily UTC signals and coverage. `lib/usage/index.mjs` owns the separate 7/30-day app and surface totals. The page calls those same existing summary functions; the public API, collection rules, query definitions, retention and security are unchanged. The daily series includes all connected versions because that contract has no per-surface series. The separate app comparison applies the standalone/composed selector. Never silently apply that selector to the daily chart.
+## One scope
 
-`src/lib/activity-view.ts` projects the returned daily series into the requested window. Missing days stay null, including days before the first retained postcard receipt. Retained days without events remain zero. Today, collection's first UTC day and the postcard signal's first partial day are identified separately. The view does not estimate missed events or earlier history. Optional recording, caps and unmarked demonstration/bot traffic prevent exact growth, visitor or adoption claims.
+`lib/usage/portfolio.mjs` now accepts an optional `surface` (`all`, `standalone`, `composed`) and applies it to the daily series, app totals and Guestbook receipt coverage. `lib/usage/index.mjs` remains the separate app/surface summary used by the comparison. The page passes the same window and surface to both.
 
-`ActivityHistory.astro` supplies the plotted geometry, definitions and complete HTML tables. `src/browser/activity.ts` only enhances metric selection and day inspection. Native GET forms and tables remain the no-script path. A failed summary renders unavailable rather than zero, and independent summary failures do not discard the other view. SVG geometry uses attributes and inherited tokens; there are no inline-style mutations or remote chart dependencies.
+The `period`, `surface`, `apps` and `metrics` values are returned together. `apps[].signals` carries the app-owned daily event series (`app_open`, `item_open`, `inspection_completed`), while `apps[].postcards` carries the receipt measure with its own first-observed coverage. A selected surface cannot be silently dropped from one view.
 
-## Reproduce the diagrams
+The signal picker changes only the chart. The scope form changes the summary, findings, chart, comparison and report links. The chart and comparison state their route scope explicitly.
 
-The existing local D2 0.9.0 toolchain renders the maintained sources:
+## Findings
 
-```sh
-node scripts/render-journeys.mjs composer composition activity
-```
+`src/lib/activity-view.ts` builds a small number of findings from the supported measures:
 
-`public/diagrams/journey-sources.json` selects the dated source stems. `JourneyDiagram.astro` uses that same map and generated dimensions. Each diagram has a separate phone layout and both product themes, plus a native text equivalent. Old source/SVG URLs remain intact. New published pixels need a new versioned stem; do not overwrite a previously published dated asset.
+- most opened app in the selected scope;
+- Guestbook postcards that reached review, with contribution-page opens kept as a separate context;
+- completed Link Check inspections;
+- standalone/composed distribution when the full scope is selected;
+- the busiest recorded UTC day.
 
-The three transit drawings bundle the existing licensed local Space Grotesk face. D2 requires a `.ttf` suffix, so the renderer copies the exact `.bin` bytes into an owned temporary directory and removes it in `finally`. D2 subsets that face into embedded WOFF; no font/image server is fetched. Existing legacy drawings retain their original font/padding rules. The source relationships come from the current supported workflow, app provider and public counter contracts. They do not prove fresh-user onboarding, all-book provider compatibility or data/media restoration.
+Findings never claim unique people, growth, causation or conversion. A small count is a real first observation, not a milestone invented by the interface. Missing history stays unavailable, a retained zero stays zero, and a capped total stays a lower bound.
+
+## Frozen reports
+
+`/reports/new` is a server-rendered preview. It requires a supported app, signal, 7/30-day UTC window and surface, reads the same public aggregate, and shows the exact story before storing anything.
+
+`POST /api/reports` recomputes the public aggregate instead of trusting the form values, builds `composer.public-report/1`, and stores one allowlisted snapshot in `composer_reports` (`migrations/0010_public_reports.sql`). The snapshot id is a SHA-256 prefix of the evidence body, so the same scope and values share one stable address; a changed value or period creates a new one. The table has no workspace, visitor, enquiry or stack reference. It is not a private owner export.
+
+`/reports/<id>` shows the frozen headline, value, unit, period, surface, daily values, coverage, limitations, source revision and creation time. It links into the current app record and Init, and offers the three images. The report is independent of the 35-day counter retention because its values are stored.
+
+`/reports/<id>/landscape.png`, `square.png` and `portrait.png` are deterministic reflows of the same snapshot. They use the approved Composer mark and the relevant app's existing optical mark, with the canonical orange roles. The cards are generated locally by the existing Resvg WASM path; no external image or analytics service is contacted.
+
+The preview and endpoint accept only public aggregate scopes. An owner-derived public report would need a separate explicit allowlist and publication step; the current public report is not built from private outcomes, enquiry text, workspace records or visitor identity.
 
 ## Check this slice
 
 ```sh
-node --test tests/activity-view.test.mjs tests/portfolio-analytics.test.mjs tests/usage.test.mjs
+node --test tests/public-analytics.test.mjs tests/activity-view.test.mjs tests/portfolio-analytics.test.mjs tests/usage.test.mjs
 pnpm check
-CLOUDFLARE_ENV=preview pnpm build
+pnpm build
 ```
 
-Use isolated fictional daily rows for visual verification, explicitly identify their fixture provenance, and test missing, zero, partial and query-failure states. Check keyboard metric/day selection, native period/surface submission, the no-script path, decoded diagrams and fonts, strict CSP, phone/desktop and both themes. Source/build/local interaction do not establish production or physical-device acceptance.
+Inspect the overview and one app record at 390px and 1440px in both themes. Check the native GET forms, keyboard focus, missing/zero/partial states, long labels, and a freshly created report. Open each downloaded PNG at its declared dimensions and inspect the report landing page's OG metadata. Source/build/local interaction does not establish production, external unfurl or physical-device acceptance.

@@ -1,0 +1,135 @@
+---
+import Base from "../../layouts/Base.astro";
+import { env } from "cloudflare:workers";
+import type { D1Database } from "@cloudflare/workers-types";
+import { readReport, reportCaption, reportImagePath, reportUrl, reportPeriodLabel, reportFormats } from "../../lib/public-report";
+import { apps } from "../../lib/apps";
+import { ArrowUpRight, Download, Share2 } from "@lucide/astro";
+import "../../styles/reports.css";
+
+const id = Astro.params.id ?? "";
+const runtime = env as unknown as { DB?: D1Database };
+let report;
+let unavailable = false;
+try {
+  if (!runtime.DB || typeof runtime.DB.prepare !== "function") unavailable = true;
+  else report = await readReport(runtime.DB, id);
+} catch {
+  unavailable = true;
+}
+if (!report) {
+  Astro.response.status = unavailable ? 503 : 404;
+}
+const canonical = report ? reportUrl(report.id) : undefined;
+const landscape = report ? reportImagePath(report.id, "landscape") : undefined;
+const app = report?.app ? apps.find((value) => value.id === report.app) : undefined;
+const maximum = report ? Math.max(1, ...report.daily.map((day) => day.value ?? 0)) : 1;
+const payload = report ? JSON.stringify({ url: reportUrl(report.id), title: report.headline, text: reportCaption(report) }).replaceAll("<", "\\u003c") : "";
+---
+<Base
+  title={report ? report.headline : "Report unavailable"}
+  description={report ? report.detail : "This frozen App Composer analytics report is unavailable."}
+  shareImage={landscape ? `https://composer.loftwah.com${landscape}` : undefined}
+  shareAlt={report ? `App Composer analytics card: ${report.headline}` : undefined}
+  shareWidth={1200}
+  shareHeight={630}
+  shareType="image/png"
+  canonical={canonical}
+  noindex={!report}
+>
+  {!report ? (
+    <section class="report-unavailable" role="status">
+      <h1>{unavailable ? "This report is temporarily unavailable." : "No frozen report exists at this address."}</h1>
+      <p>{unavailable ? "The stored report could not be read. This is not a zero count. Try again later." : "The address may be incomplete, or the report was never created."}</p>
+      <p><a href="/activity">Explore current app activity</a></p>
+    </section>
+  ) : (
+    <article class="frozen-report">
+      <header class="frozen-report-hero">
+        <div class="frozen-report-identity">
+          <img src="/brand/composer-icon-20261022b-96.png" width="56" height="56" alt=""/>
+          <div><p class="report-kicker">App Composer · Analytics</p><p class="frozen-report-app">{report.appLabel ?? "All connected apps"}</p></div>
+          {app && <img src={app.thumbnail} width="64" height="64" alt=""/>}
+        </div>
+        <h1>{report.headline}</h1>
+        <p class="frozen-report-value">{report.value === null ? "—" : report.value.toLocaleString("en-AU")} <span>{report.unit}</span></p>
+        <p class="frozen-report-period">{reportPeriodLabel(report)} · frozen {new Date(report.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}</p>
+        <p class="frozen-report-detail">{report.detail}</p>
+        <div class="frozen-report-actions">
+          <a class="button" href={app ? app.href : "/apps"}>Open {app ? app.name : "the apps"} <ArrowUpRight size={18} aria-hidden="true"/></a>
+          <a class="button secondary" href="/init">Build something similar</a>
+          <button type="button" class="secondary" data-report-native hidden><Share2 size={18} aria-hidden="true"/> Share this story</button>
+          <button type="button" class="secondary" data-report-copy>Copy report link</button>
+        </div>
+        <p role="status" aria-live="polite" data-report-status></p>
+        <label class="frozen-report-fallback" data-report-fallback hidden>Report URL<input readonly value={reportUrl(report.id)}/></label>
+      </header>
+
+      <section class="frozen-report-chart" aria-labelledby="report-chart-title">
+        <div class="frozen-report-section-heading">
+          <h2 id="report-chart-title">{report.metricLabel} by UTC day</h2>
+          <p>{report.period.days} days · {report.period.surface === "all" ? "all connected versions" : report.period.surface === "composed" ? "inside Composer" : "standalone apps"}</p>
+        </div>
+        <div class="frozen-report-bars" aria-hidden="true">
+          {report.daily.map((day) => (
+            <span
+              class:list={{ "is-gap": day.value === null, "is-zero": day.value === 0 }}
+              style={`--bar:${day.value === null ? 0 : Math.max(2, (day.value / maximum) * 100)}%`}
+              title={`${day.date}: ${day.value === null ? "history unavailable" : day.value}`}
+            ></span>
+          ))}
+        </div>
+        <div class="frozen-report-axis" aria-hidden="true"><span>{report.period.from}</span><span>{report.period.to}</span></div>
+        <details>
+          <summary>Read the daily values</summary>
+          <div class="table-wrap">
+            <table>
+              <caption>{report.metricLabel}, {reportPeriodLabel(report)}</caption>
+              <thead><tr><th scope="col">UTC day</th><th scope="col">Recorded</th><th scope="col">Coverage</th></tr></thead>
+              <tbody>
+                {report.daily.map((day) => (
+                  <tr><th scope="row">{day.date}</th><td>{day.value === null ? "Unavailable" : day.value.toLocaleString("en-AU")}</td><td>{day.value === null ? "Before retained history" : day.date === report.createdAt.slice(0, 10) ? "Day in progress when frozen" : "Bounded recording"}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+
+      <section class="frozen-report-downloads" aria-labelledby="report-downloads-title">
+        <div class="frozen-report-section-heading">
+          <h2 id="report-downloads-title">Take the story with you</h2>
+          <p>Deliberate reflows of the same frozen values.</p>
+        </div>
+        <div class="report-format-grid">
+          {Object.entries(reportFormats).map(([format, value]) => (
+            <figure>
+              <a href={reportImagePath(report.id, format as keyof typeof reportFormats)} aria-label={`Open the ${value.label.toLowerCase()} report image`}>
+                <img src={reportImagePath(report.id, format as keyof typeof reportFormats)} width={value.width} height={value.height} alt={`${report.headline}. ${value.width} by ${value.height} App Composer report card.`} loading="eager"/>
+              </a>
+              <figcaption><strong>{value.label}</strong> · {value.width} × {value.height} <a href={reportImagePath(report.id, format as keyof typeof reportFormats)} download={`composer-report-${report.id}-${format}.png`}><Download size={16} aria-hidden="true"/> Download</a></figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
+      <section class="frozen-report-method" aria-labelledby="report-method-title">
+        <h2 id="report-method-title">What this snapshot means</h2>
+        <p>This is a frozen public aggregate, not a live dashboard. The values were read from Composer's bounded daily counters and will not change when the 35-day counters expire or a later app release ships.</p>
+        <dl>
+          <div><dt>Frozen</dt><dd>{new Date(report.createdAt).toLocaleString("en-AU", { timeZone: "UTC" })} UTC</dd></div>
+          <div><dt>Source</dt><dd><code>{report.sourceRevision}</code></dd></div>
+          <div><dt>Coverage</dt><dd>{report.coverage.quality}. Counters began {report.coverage.startedAt.slice(0, 10)} and stop at 1,000 per app/event/surface per UTC day.</dd></div>
+          <div><dt>Scope</dt><dd>{reportPeriodLabel(report)}</dd></div>
+        </dl>
+        <ul>{report.coverage.limitations.map((limitation) => <li>{limitation}</li>)}</ul>
+        <p class="small">The public aggregate does not identify people, sessions, private enquiries, workspace records or vault contents. A recorded request is not a person, a contribution open is not a submission, and a received postcard is not an approval or feature.</p>
+        <p><a href={`/activity${report.app ? `/${report.app}` : ""}?days=${report.period.days}&surface=${report.period.surface}`}>Explore the current {report.appLabel ?? "app"} activity</a> · <a href="/manage">How the owner report works</a></p>
+      </section>
+      <script type="application/json" data-report-payload set:html={payload}/>
+      <script>
+        import "../../browser/report-share";
+      </script>
+    </article>
+  )}
+</Base>

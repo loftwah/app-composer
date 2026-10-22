@@ -13,6 +13,10 @@ Existing `lib/usage/index.mjs` remains the runtime allowlist and owning aggregat
 
 Standalone Guestbook uses its optional existing publisher. Composed Guestbook receipts are recorded once by Composer after the pinned service's successful response; pinned services omit standalone publisher credentials. Native owner API paths do not match the guest route and are not counted. Verification is excluded by the app/proxy and by an authenticated, shape-validated collector; the marker never supplies authentication. Publisher outage, rate limits and daily caps can drop counts without blocking submission.
 
+## Public views and snapshots
+
+`/activity` and `/activity/<app>` apply one UTC window and route surface to the daily series, app totals and receipt coverage. The published finding is a lower bound, not a conversion path. `/reports/new` previews a frozen public story; `POST /api/reports` recomputes the aggregate and stores only the allowlisted `composer.public-report/1` snapshot in `composer_reports`. The snapshot contains the app, signal, period, surface, daily values, coverage, source revision and creation time. It contains no visitor, enquiry, workspace, stack or private record. See [public analytics](public-activity.md) for the route and image contracts.
+
 ## History and availability
 
 The existing table has no publisher-enablement registry. Use the first **retained observed receipt day**, queried across the retained range rather than merely the selected window, as a conservative per-measure lower bound. With no observation, or when a selected window ends before it, return `null`, unavailable quality and no daily points. Never invent older zeroes. The first observed day is partial; later zero means no recorded receipt, not proof that nobody submitted or that every publisher stayed enabled. Existing measures keep their own earlier availability.

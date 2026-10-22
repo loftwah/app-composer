@@ -1,0 +1,125 @@
+---
+import Base from "../../layouts/Base.astro";
+import { env } from "cloudflare:workers";
+import type { D1Database } from "@cloudflare/workers-types";
+import { portfolioSummary } from "../../../lib/usage/portfolio.mjs";
+import type { PublicHistory } from "../../lib/activity-view";
+import {
+  buildReport,
+  reportScope,
+  reportScopeParams,
+  reportPeriodLabel,
+} from "../../lib/public-report";
+import build from "../../lib/build.json";
+import { ArrowLeft, ArrowUpRight } from "@lucide/astro";
+import "../../styles/reports.css";
+
+let report;
+let error = "";
+try {
+  const scope = reportScope(Astro.url.searchParams);
+  const runtime = env as unknown as { DB?: D1Database };
+  if (!runtime.DB || typeof runtime.DB.prepare !== "function")
+    throw new Error("Public reporting is disconnected in this environment.");
+  const summary = (await portfolioSummary(
+    runtime.DB,
+    scope.days,
+    new Date(),
+    build.commit,
+    scope.surface as "all" | "standalone" | "composed",
+  )) as unknown as PublicHistory;
+  report = await buildReport(summary, scope, build.commit);
+} catch (cause) {
+  error =
+    cause instanceof Error
+      ? cause.message
+      : "The report preview could not be prepared.";
+  Astro.response.status = 400;
+}
+const thumbnails: Record<string, string> = {
+  guestbook: "herethere",
+  showcase: "linkarooie",
+  linkcheck: "linkcheck",
+  hello: "hello",
+  state: "carryforward",
+};
+const fields = report
+  ? reportScopeParams({
+      app: report.app,
+      metric: report.metric,
+      days: report.period.days,
+      surface: report.period.surface,
+    })
+  : null;
+const maximum = report ? Math.max(1, ...report.daily.map((day) => day.value ?? 0)) : 1;
+---
+<Base
+  title="Preview a frozen analytics report"
+  description="Review the exact public app, signal, period, coverage and values before freezing an App Composer analytics story."
+  noindex
+>
+  <div class="report-preview-heading">
+    <a href="/activity" class="report-back"><ArrowLeft size={18} aria-hidden="true"/> Back to analytics</a>
+    <p class="report-kicker">Analytics · preview</p>
+    <h1>Preview the story before it is frozen.</h1>
+    <p class="lede">This page reads the same bounded public aggregate as the selected finding. Nothing is published or stored until you create the frozen report.</p>
+  </div>
+  {error ? (
+    <section class="report-unavailable" role="alert">
+      <h2>This report could not be prepared.</h2>
+      <p>{error}</p>
+      <p><a href="/activity">Return to analytics</a></p>
+    </section>
+  ) : (
+    report && fields && (
+      <>
+        <article class="report-preview-card" aria-labelledby="report-preview-title">
+          <div class="report-preview-brand">
+            <img src="/brand/composer-icon-20261022b-96.png" width="48" height="48" alt=""/>
+            <span>App Composer · Analytics</span>
+            {report.app && (
+              <img class="report-preview-app" src={`/brand/apps/${thumbnails[report.app]}-small-20261018.webp`} width="48" height="48" alt=""/>
+            )}
+          </div>
+          <p class="report-preview-app-name">{report.appLabel ?? "All connected apps"}</p>
+          <h2 id="report-preview-title">{report.headline}</h2>
+          <p class="report-preview-value">{report.value === null ? "—" : report.value.toLocaleString("en-AU")} <span>{report.unit}</span></p>
+          <p class="report-preview-period">{reportPeriodLabel(report)}</p>
+          <div class="report-preview-chart" aria-hidden="true">
+            {report.daily.map((day) => (
+              <span
+                class:list={{ "is-gap": day.value === null, "is-zero": day.value === 0 }}
+                style={`--bar:${day.value === null ? 0 : Math.max(2, (day.value / maximum) * 100)}%`}
+                title={`${day.date}: ${day.value === null ? "unavailable" : day.value}`}
+              ></span>
+            ))}
+          </div>
+          <p class="report-preview-detail">{report.detail}</p>
+        </article>
+        <div class="report-preview-actions">
+          <form method="post" action="/api/reports">
+            {Object.entries(fields).map(([key, value]) => (
+              <input type="hidden" name={key} value={value}/>
+            ))}
+            <button type="submit">Create frozen report</button>
+          </form>
+          <a class="button secondary" href={`/activity${report.app ? `/${report.app}` : ""}?days=${report.period.days}&surface=${report.period.surface}`}>
+            Keep exploring <ArrowUpRight size={18} aria-hidden="true"/>
+          </a>
+        </div>
+        <section class="report-preview-scope">
+          <h2>What will be stored</h2>
+          <dl>
+            <div><dt>Story</dt><dd>{report.headline}</dd></div>
+            <div><dt>App</dt><dd>{report.appLabel ?? "All connected apps"}</dd></div>
+            <div><dt>Signal</dt><dd>{report.metricLabel}</dd></div>
+            <div><dt>Period</dt><dd>{reportPeriodLabel(report)}</dd></div>
+            <div><dt>Values</dt><dd>{report.value === null ? "Unavailable" : report.value.toLocaleString("en-AU")} {report.unit}. Daily values and coverage are retained exactly.</dd></div>
+            <div><dt>Source</dt><dd><code>{report.sourceRevision}</code></dd></div>
+          </dl>
+          <p class="small">The stored snapshot contains only this aggregate story. It does not contain visitor identities, enquiry text, private workspace records, stack names or credentials. The report landing page and its landscape, square and portrait images are created from the stored values.</p>
+        </section>
+      </>
+    )
+  )}
+</Base>
