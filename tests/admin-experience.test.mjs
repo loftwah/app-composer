@@ -54,10 +54,10 @@ test('the live stack captures have the declared dimensions and provenance', () =
   const receipt = JSON.parse(
     text('public/guides/app-admin-20261022.provenance.json'),
   );
-  assert.equal(receipt.liveSource, 'd4b5efee22934151315251b90572ab4c00cfbfed');
+  assert.equal(receipt.liveSource, '6df805f4f9649ff085e6d18f4e168e09f35ef28f');
   assert.equal(receipt.url, 'https://composer.loftwah.com/s/fictional-trail-notes');
   assert.equal(receipt.publishedRevision, 11);
   assert.equal(receipt.images.length, 1);
-  assert.equal(receipt.images[0].sha256, '759c63db4d4ea37a6ad3871fd08934c84112da5617bea36e4930dca2ba354c07');
-  assert.equal(receipt.images[0].bytes, 81800);
+  assert.equal(receipt.images[0].sha256, '0fd1c2f9df7c77770b37e80a6325676c9bdfdb28836403e7f4b26f4cafa69eaa');
+  assert.equal(receipt.images[0].bytes, 81548);
 });
