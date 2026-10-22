@@ -81,6 +81,13 @@
       "viewport": "390x844",
       "theme": "light",
       "observed": "4 findings, no horizontal overflow, scope controls and app rows readable."
+    },
+    {
+      "file": "linkcheck-launcher-short-390x600.png",
+      "url": "https://share.loftwah.com/",
+      "viewport": "390x600",
+      "theme": "dark",
+      "observed": "Close focused; search 16px; dialog not scrolling; destination list scrolls; Close top 33.05px and search top 132.29px before and after scrolling; approved 20261022b icon and #fc5b05 signal."
     }
   ],
   "unverified": [
