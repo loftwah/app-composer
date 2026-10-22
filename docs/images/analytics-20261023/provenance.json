@@ -81,6 +81,13 @@
       "viewport": "390x844",
       "theme": "light",
       "observed": "4 findings, no horizontal overflow, scope controls and app rows readable."
+    },
+    {
+      "file": "linkcheck-launcher-short-390x600.png",
+      "url": "https://share.loftwah.com/",
+      "viewport": "390x600",
+      "theme": "dark",
+      "observed": "Close focused; search 16px; dialog not scrolling; destination list scrolls; Close top 33.05px and search top 132.29px before and after scrolling; approved 20261022b icon and #fc5b05 signal."
     }
   ],
   "unverified": [
@@ -95,5 +102,20 @@
     "frozenReport": "https://composer.loftwah.com/reports/r69e0e7b9ecc786a62746669e",
     "secondReport": "https://composer.loftwah.com/reports/r6588fa7e01d74181e9632673",
     "dependencyOverride": "DOMPurify 3.4.17"
+  },
+  "finalRelease": {
+    "composer": "cfd6dc34e4dc965a058977d8892c670b7ec20b2e",
+    "composerWorker": "4033bc23-3a62-437c-92db-d8c78977620e",
+    "composition": "1c9c84b913fb2a847136a47e2277eafb747af3e0d8d879b0ff334059469237b4",
+    "guestbook": "eff4c73e178888ca603745333f5e26df71a99ecb",
+    "guestbookWorker": "e5fbacc8-041d-4b13-bec6-b20598561bf2",
+    "showcase": "aed5f518de2a32538b5926c444191ef1af1e4928",
+    "showcaseWorker": "6b7a9356-a6f5-4d63-9057-aa43c022d288",
+    "linkcheck": "6404c441f6b0ed1c9848b46319c35d141b3b98dc",
+    "linkcheckWorker": "56aa4077-cd4d-4142-8235-910c72387d32",
+    "hello": "8efc6a4fb1d44b78d011b7237917920d7e1c2aef",
+    "helloWorker": "6f0eaa03-9075-46b9-bed3-dac869a78b79",
+    "state": "f3d279f87ec3ce6b913e5dcd4f4d2a9380997fae",
+    "stateWorker": "64c489d1-f70c-49d7-8c09-57f468765ff7"
   }
 }
