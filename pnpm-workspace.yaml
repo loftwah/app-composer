@@ -21,3 +21,5 @@ overrides:
   '@tanstack/history@1.161.4': 1.162.2
   # GHSA-c9rx-x947-fp3h; patched 2.18.1, reviewed 22 October 2026.
   sanitize-html: 2.18.1
+  # GHSA-mrv2-3pqr-j5jr and related DOMPurify advisories; patched 3.4.17, reviewed 23 October 2026.
+  dompurify: 3.4.17
