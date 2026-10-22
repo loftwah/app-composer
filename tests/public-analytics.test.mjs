@@ -174,6 +174,7 @@ test("owner analytics is labelled, stack-scoped and returns to the useful existi
   const stacks = readFileSync("src/plugins/stacks-admin.tsx", "utf8");
   assert.match(stacks, /requestedStack/);
   assert.match(stacks, /outcomes\?workspace=\$\{workspace\.id\}&stack=\$\{stack\.id\}/);
+  assert.match(stacks, /outcomes\?workspace=\$\{workspace\.id\}&stack=\$\{current\.id\}&instance=\$\{instance\.id\}/);
   const outcomes = readFileSync("src/plugins/outcomes.tsx", "utf8");
   assert.match(outcomes, /Back to this stack/);
   assert.match(outcomes, /Private enquiries/);
