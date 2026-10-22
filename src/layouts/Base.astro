@@ -29,7 +29,7 @@ const canonical = Astro.props.canonical
   : new URL(Astro.url.pathname, "https://composer.loftwah.com");
 const shareImage =
   Astro.props.shareImage ??
-  "https://composer.loftwah.com/brand/campaign/product-og-20261022.jpg";
+  "https://composer.loftwah.com/brand/campaign/product-og-20261022b.jpg";
 const shareAlt =
   Astro.props.shareAlt ??
   "App Composer: Make software. Keep it yours. The approved orange mark and wordmark on a flat orange field.";
@@ -54,12 +54,12 @@ Astro.csp?.insertScriptResource(
     <link rel="canonical" href={canonical} />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#17181b" />
-    <link rel="icon" href="/brand/composer-icon-tile-20261022.svg" type="image/svg+xml" />
-    <link rel="icon" href="/brand/favicon-20261022.ico" sizes="any" />
-    <link rel="icon" href="/brand/composer-icon-20261022-16.png" type="image/png" sizes="16x16" />
-    <link rel="icon" href="/brand/composer-icon-20261022-32.png" type="image/png" sizes="32x32" />
-    <link rel="icon" href="/brand/composer-icon-20261022-48.png" type="image/png" sizes="48x48" />
-    <link rel="apple-touch-icon" href="/brand/composer-icon-20261022-180.png" sizes="180x180" />
+    <link rel="icon" href="/brand/composer-icon-tile-20261022b.svg" type="image/svg+xml" />
+    <link rel="icon" href="/brand/favicon-20261022b.ico" sizes="any" />
+    <link rel="icon" href="/brand/composer-icon-20261022b-16.png" type="image/png" sizes="16x16" />
+    <link rel="icon" href="/brand/composer-icon-20261022b-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/brand/composer-icon-20261022b-48.png" type="image/png" sizes="48x48" />
+    <link rel="apple-touch-icon" href="/brand/composer-icon-20261022b-180.png" sizes="180x180" />
     <!-- Deliberate: /brand/space-latin-20261018.woff2 is the declared source of the one bundled
          face in global.css and the family every heading asks for, so the single
          early request is consumed. tests/font-preload.test.mjs locks the pairing. -->
@@ -97,7 +97,7 @@ Astro.csp?.insertScriptResource(
     </a>
     <header>
       <a class="brand select-none" href="/">
-        <img src="/brand/composer-icon-tile-20261022.svg" width="38" height="38" alt="" />
+        <img src="/brand/composer-icon-tile-20261022b.svg" width="38" height="38" alt="" />
         App Composer
         {instance.enabled && (
           <span class="instance-brand-context">

@@ -21,7 +21,7 @@ const asset = async (path, mime) => {
 };
 const template = async name => (await readFile(resolve(root, `.artwork/og/${name}`), "utf8"))
   .replaceAll("../../public/brand/space-latin-20261018.woff2", fontUri)
-  .replaceAll("COMPOSER_IDENTITY", await asset(resolve(root, "public/brand/composer-icon-20261022-96.png"), "image/png"));
+  .replaceAll("COMPOSER_IDENTITY", await asset(resolve(root, "public/brand/composer-icon-20261022b-96.png"), "image/png"));
 const product = (await template("composer-card-v5.html")).replace("../../public/brand/hero-composer-v5-1600.webp", await asset(resolve(root, "public/brand/hero-composer-v5-1600.webp"), "image/webp"));
 jobs.push({ name: "share-composer-20261018", html: product });
 const identities = new Map([

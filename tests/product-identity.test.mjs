@@ -34,9 +34,9 @@ test('owner configuration adds one instance note, never a second product identit
 
 test('the homepage and default sharing use the product artwork',()=>{
  const base=read('src/layouts/Base.astro');
- assert.match(base,/product-og-20261022\.jpg/);
+ assert.match(base,/product-og-20261022b\.jpg/);
  assert.doesNotMatch(base,/instance-share/);
- for(const path of ['public/brand/campaign/product-og-20261022.jpg','public/brand/campaign/product-og-20261022.png'])assert.equal(exists(path),true,path+' must exist');
+ for(const path of ['public/brand/campaign/product-og-20261022b.jpg','public/brand/campaign/product-og-20261022b.png'])assert.equal(exists(path),true,path+' must exist');
 });
 
 test('the app library describes each app, not the owner',()=>{

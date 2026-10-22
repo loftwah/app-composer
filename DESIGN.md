@@ -17,7 +17,7 @@ Reviewed 22 October 2026. Ordinary creative direction delegated by MP.
 
 ## Approved identity and campaign direction — 22 October 2026
 
-MP approved the orange-and-white merging-block icon as App Composer's canonical identity. The editable vector master is `public/brand/composer-icon-20261022.svg`; the orange tile, reversed mark and wordmark lockups are derived from it. Use the approved artwork in the header, favicons, Apple touch icon, PWA icons, maskable icon, launcher, extension and generated content sites. Do not restore the rejected assembly-scene crop or the old interlocking-squares mark, and do not reinterpret the mark as a new logo.
+MP approved the orange-and-white merging-block icon as App Composer's canonical identity. The editable vector master is `public/brand/composer-icon-20261022b.svg`; the orange tile, reversed mark and wordmark lockups are derived from it. Use the approved artwork in the header, favicons, Apple touch icon, PWA icons, maskable icon, launcher, extension and generated content sites. Do not restore the rejected assembly-scene crop or the old interlocking-squares mark, and do not reinterpret the mark as a new logo.
 
 The PHP2Shell campaign uses a flat orange-and-white editorial surface: large Space Grotesk type, simple geometry, generous negative space, thin white rules and a clear action. The supplied campaign artwork is the approved asset. Its square and vertical exports are deliberate reflows of the same copy, not crops or stretches. Campaign surfaces may be brighter and flatter than the operational UI; operational screens keep their existing tokens, controls and mini-app identities. Avoid neon, glows, gradients, fake 3D, circuit-board decoration and generic AI illustration.
 

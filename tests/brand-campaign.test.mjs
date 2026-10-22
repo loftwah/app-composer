@@ -21,7 +21,7 @@ function hasColour(image, test) {
 }
 
 test('the approved merging-block mark is a clean editable vector, not the retired squares', () => {
-  const mark = text('public/brand/composer-icon-20261022.svg');
+  const mark = text('public/brand/composer-icon-20261022b.svg');
   assert.match(mark, /id="block-top"/);
   assert.match(mark, /id="block-bottom"/);
   assert.match(mark, /id="block-field"/);
@@ -29,23 +29,23 @@ test('the approved merging-block mark is a clean editable vector, not the retire
   assert.match(mark, /fill="#fc5b05"/);
   assert.match(mark, /fill="#fff"/);
   assert.doesNotMatch(mark, /M10 12h32v32H10z|M24 26h30v28H24z/, 'the old interlocking-squares mark is retired');
-  assert.equal(exists('public/brand/composer-icon-tile-20261022.svg'), true);
-  assert.equal(exists('public/brand/composer-mark-reverse-20261022.svg'), true);
-  assert.equal(exists('public/brand/composer-icon-maskable-20261022.svg'), true);
-  for (const logo of ['composer-logo-20261022.svg', 'composer-logo-dark-20261022.svg', 'composer-logo-reverse-20261022.svg'])
+  assert.equal(exists('public/brand/composer-icon-tile-20261022b.svg'), true);
+  assert.equal(exists('public/brand/composer-mark-reverse-20261022b.svg'), true);
+  assert.equal(exists('public/brand/composer-icon-maskable-20261022b.svg'), true);
+  for (const logo of ['composer-logo-20261022b.svg', 'composer-logo-dark-20261022b.svg', 'composer-logo-reverse-20261022b.svg'])
     assert.equal(exists('public/brand/' + logo), true, logo + ' must ship');
 });
 
 test('the icon system ships the required sizes, a maskable tile and an .ico', () => {
   const sizes = {16: '16', 32: '32', 48: '48', 96: '96', 180: '180', 192: '192', 512: '512'};
   for (const [size, suffix] of Object.entries(sizes)) {
-    const image = png(`public/brand/composer-icon-20261022-${suffix}.png`);
+    const image = png(`public/brand/composer-icon-20261022b-${suffix}.png`);
     assert.equal(image.width, Number(size));
     assert.equal(image.height, Number(size));
     assert.ok(hasColour(image, (r, g, b) => r > 220 && g > 60 && g < 130 && b < 40), `orange field missing at ${size}px`);
     assert.ok(hasColour(image, (r, g, b) => r > 235 && g > 235 && b > 235), `white mark missing at ${size}px`);
   }
-  const maskable = png('public/brand/composer-icon-20261022-maskable-512.png');
+  const maskable = png('public/brand/composer-icon-20261022b-maskable-512.png');
   assert.equal(maskable.width, 512);
   assert.equal(maskable.height, 512);
   const safeX = 512 * 0.2, safeY = 512 * 0.2, safeMax = 512 * 0.8;
@@ -60,8 +60,8 @@ test('the icon system ships the required sizes, a maskable tile and an .ico', ()
     }
   }
   assert.ok(minX >= safeX && minY >= safeY && maxX <= safeMax && maxY <= safeMax, 'maskable content must stay inside the safe zone');
-  assert.ok(exists('public/brand/favicon-20261022.ico'));
-  assert.ok(read('public/brand/favicon-20261022.ico').length > 1000);
+  assert.ok(exists('public/brand/favicon-20261022b.ico'));
+  assert.ok(read('public/brand/favicon-20261022b.ico').length > 1000);
 });
 
 test('every active Composer identity consumer uses the approved versioned assets', () => {
@@ -85,7 +85,7 @@ test('every active Composer identity consumer uses the approved versioned assets
   ]);
   for (const icon of manifest.icons) assert.equal(exists('public' + icon.src), true);
   assert.equal(manifest.theme_color, '#fc5b05');
-  assert.deepEqual(read('src/assets/composer-icon-20261022-96.png.bin'), read('public/brand/composer-icon-20261022-96.png'));
+  assert.deepEqual(read('src/assets/composer-icon-20261022b-96.png.bin'), read('public/brand/composer-icon-20261022b-96.png'));
   const extension = png('extension/icon.png');
   assert.equal(extension.width, 128);
   assert.equal(extension.height, 128);
@@ -94,22 +94,22 @@ test('every active Composer identity consumer uses the approved versioned assets
 
 test('the product and campaign sharing assets are correctly composed at their declared sizes', () => {
   for (const path of [
-    'public/brand/campaign/product-og-20261022.jpg',
-    'public/brand/campaign/php2shell-australia-1200x630.jpg',
+    'public/brand/campaign/product-og-20261022b.jpg',
+    'public/brand/campaign/php2shell-australia-20261022b-1200x630.jpg',
   ]) {
     const dimensions = jpegDimensions(read(path));
     assert.deepEqual([dimensions.width, dimensions.height], [1200, 630], path);
   }
-  const square = png('public/brand/campaign/php2shell-australia-1080x1080.png');
+  const square = png('public/brand/campaign/php2shell-australia-20261022b-1080x1080.png');
   assert.deepEqual([square.width, square.height], [1080, 1080]);
-  const vertical = png('public/brand/campaign/php2shell-australia-1080x1920.png');
+  const vertical = png('public/brand/campaign/php2shell-australia-20261022b-1080x1920.png');
   assert.deepEqual([vertical.width, vertical.height], [1080, 1920]);
   for (const path of [
-    'public/brand/campaign/php2shell-australia-1200x630.webp',
-    'public/brand/campaign/php2shell-australia-800x420.webp',
-    'public/brand/campaign/php2shell-australia-480x252.webp',
-    'public/brand/campaign/php2shell-australia-1080x1080.webp',
-    'public/brand/campaign/php2shell-australia-1080x1920.webp',
+    'public/brand/campaign/php2shell-australia-20261022b-1200x630.webp',
+    'public/brand/campaign/php2shell-australia-20261022b-800x420.webp',
+    'public/brand/campaign/php2shell-australia-20261022b-480x252.webp',
+    'public/brand/campaign/php2shell-australia-20261022b-1080x1080.webp',
+    'public/brand/campaign/php2shell-australia-20261022b-1080x1920.webp',
   ]) assert.ok(read(path).length > 1000, path + ' must be a real export');
 });
 
@@ -117,12 +117,12 @@ test('the homepage features the approved campaign and links to the Australia bri
   const home = text('src/components/ProductHome.astro');
   assert.match(home, /home-briefing/);
   assert.match(home, /href="\/php2shell"/);
-  assert.match(home, /php2shell-australia-1200x630\.webp/);
-  assert.match(home, /php2shell-australia-1080x1080\.webp/);
+  assert.match(home, /php2shell-australia-20261022b-1200x630\.webp/);
+  assert.match(home, /php2shell-australia-20261022b-1080x1080\.webp/);
   assert.match(home, /When PHP broke, Australia felt it/);
   const article = text('src/pages/php2shell.astro');
   assert.match(article, /canonical="https:\/\/composer.loftwah\.com\/php2shell"/);
-  assert.match(article, /php2shell-australia-1200x630\.jpg/);
+  assert.match(article, /php2shell-australia-20261022b-1200x630\.jpg/);
   assert.match(article, /article:published_time/);
   assert.match(article, /not a breach count/);
   assert.match(article, /not aware of successful active exploitation within Australia/);
