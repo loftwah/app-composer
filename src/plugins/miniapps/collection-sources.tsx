@@ -152,12 +152,17 @@ export function CollectionSources({
     });
   const changeInvitation = (operation: "enable" | "disable") =>
     run(async () => {
-      if (!book) return;
+      if (!book || !invitation) return;
       setInvitationError("");
+      const expected =
+        invitation.configured && invitation.linked
+          ? { version: 1 as const, source: invitation.linked }
+          : null;
       const result = collectionInvitationReply.parse(
         await request("collection-invitation-set", {
           ...book.selection,
           operation,
+          expected,
         }),
       );
       if (
