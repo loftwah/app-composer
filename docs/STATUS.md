@@ -1,6 +1,17 @@
 # Delivery status
 
-Reviewed 22 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+Reviewed 23 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+
+## Analytics and colour system — 23 October 2026
+
+Composer source `221966e45d4eb41ff01110e5a525ca3930436592`, Worker `061111f8-69aa-4087-9667-dfd111b0695a`, through the clean pushed-main guard. PRs [#223](https://github.com/loftwah/app-composer/pull/223) (colour roles), [#224](https://github.com/loftwah/app-composer/pull/224) (analytics and frozen reports), [#225](https://github.com/loftwah/app-composer/pull/225) (CSP-safe charts and production captures) and [#226](https://github.com/loftwah/app-composer/pull/226) (patched DOMPurify 3.4.17 override). Existing composition `c880498d…`, Guestbook `019ce0d…` and Linkarooie `20ef9a5…` are unchanged.
+
+- `#FC5B05` is the one canonical Composer orange. `src/styles/global.css` names the role variants; the launcher, stack themes, native admin panels, campaign page, generated content-site defaults and published diagrams consume them. Text uses `#c74400` on ivory and `#fc5b05` on charcoal; actions use the canonical fill with charcoal ink; focus uses `#fc5b05`. Independent app palettes and the approved icon/campaign masters are unchanged. New dated diagram stems keep earlier published pixels.
+- `/activity` now applies one UTC window and route scope to the daily series, findings, app totals and Guestbook receipt coverage. Findings, app records at `/activity/<app>`, ranked comparison, missing/zero/partial states and share links use the same scope.
+- `/reports/new` previews the exact public story. `POST /api/reports` recomputes the aggregate and stores an allowlisted `composer.public-report/1` snapshot in `composer_reports`; `/reports/<id>` keeps its values after counter retention and serves landscape 1200×630, square 1080×1080 and portrait 1080×1920 images. Example: [2 guest postcards reached review](https://composer.loftwah.com/reports/r69e0e7b9ecc786a62746669e). The snapshot contains no visitor, enquiry, workspace, stack or private record.
+- Native **Analytics & outcomes** accepts `workspace` and `stack` context from Creator stacks, links back to the stack and private Inbox, and keeps public activity separate. An authenticated production read for Fictional Trail Notes (30 days, both classifications) showed 1 Open action, 1 approval, 1 hide, deletion unavailable and 1 retained snapshot; filters only, no record or setting changed.
+- Local checks: 600 tests pass; Astro 0 errors/0 warnings; production build/publication guard 1,015 files / 74 archive members; `pnpm audit` clean after the DOMPurify override. The first live analytics deploy exposed CSP-blocked inline bar styles; PR #225 replaced them with SVG geometry and the live report now renders the recorded bar, 24 unavailable-history gaps and 5 retained zeros.
+- Remaining gates: physical iOS keyboard/zoom/IME, screen-reader use, native share-sheet success on a physical device, external social unfurl rendering and a fresh-customer onboarding journey. The frozen report is a public aggregate lower bound, not a person-level funnel or demand proof.
 
 ## Brand and PHP2Shell campaign — 22 October 2026
 

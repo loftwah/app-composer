@@ -67,6 +67,20 @@
       "viewport": "1440x1000",
       "theme": "light",
       "observed": "Authenticated owner report for Fictional Trail Notes, 30 days, both traffic classifications: 1 Open action, 1 approval, 1 hide, deletion unavailable, 1 retained snapshot; Back to this stack, Private enquiries and Compare public activity present. Filters only; no record or setting changed."
+    },
+    {
+      "file": "analytics-report-production-final-light-1440.png",
+      "url": "https://composer.loftwah.com/reports/r69e0e7b9ecc786a62746669e",
+      "viewport": "1440x1000",
+      "theme": "light",
+      "observed": "After the CSP-safe SVG chart fix: one 230px bar, 24 unavailable-history gaps and 5 retained zeros; no CSP style violations; three report images loaded."
+    },
+    {
+      "file": "analytics-activity-production-phone-light-390.png",
+      "url": "https://composer.loftwah.com/activity?days=30&surface=all",
+      "viewport": "390x844",
+      "theme": "light",
+      "observed": "4 findings, no horizontal overflow, scope controls and app rows readable."
     }
   ],
   "unverified": [
@@ -76,9 +90,10 @@
     "native share sheet success on a physical device"
   ],
   "analyticsRelease": {
-    "composer": "25cd6bed79d18d759471ba32ed33b7d21cb7f250",
-    "worker": "c95ff23f-966b-45c4-b202-11a73b60c45d",
+    "composer": "221966e45d4eb41ff01110e5a525ca3930436592",
+    "worker": "061111f8-69aa-4087-9667-dfd111b0695a",
     "frozenReport": "https://composer.loftwah.com/reports/r69e0e7b9ecc786a62746669e",
-    "secondReport": "https://composer.loftwah.com/reports/r6588fa7e01d74181e9632673"
+    "secondReport": "https://composer.loftwah.com/reports/r6588fa7e01d74181e9632673",
+    "dependencyOverride": "DOMPurify 3.4.17"
   }
 }
