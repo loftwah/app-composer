@@ -109,7 +109,7 @@ for (const card of spec.cards) {
 const invitation = await request(linkarooie + "/api/invitation", {
   method: "POST",
   headers: showcaseHeaders,
-  body: JSON.stringify({ action: "enable", source }),
+  body: JSON.stringify({ action: "enable", source, expected: null }),
 });
 const report = {
   generated: new Date().toISOString(),
