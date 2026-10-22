@@ -119,20 +119,20 @@ export function contentProjectFiles(input: unknown) {
   add("lib/content-model/calendar-date.d.mts", "src/lib/calendar-date.d.mts");
   add("LICENSE", "LICENSE");
   add(
-    "public/brand/composer-icon-20261022-32.png",
-    "public/brand/composer-icon-20261022-32.png",
+    "public/brand/composer-icon-20261022b-32.png",
+    "public/brand/composer-icon-20261022b-32.png",
   );
   add(
-    "public/brand/composer-icon-20261022-96.png",
-    "public/brand/composer-icon-20261022-96.png",
+    "public/brand/composer-icon-20261022b-96.png",
+    "public/brand/composer-icon-20261022b-96.png",
   );
   add(
-    "public/brand/composer-icon-20261022-180.png",
-    "public/brand/composer-icon-20261022-180.png",
+    "public/brand/composer-icon-20261022b-180.png",
+    "public/brand/composer-icon-20261022b-180.png",
   );
   add(
-    "public/brand/composer-icon-20261022-512.png",
-    "public/brand/composer-icon-20261022-512.png",
+    "public/brand/composer-icon-20261022b-512.png",
+    "public/brand/composer-icon-20261022b-512.png",
   );
   add(
     "public/brand/space-latin-20261018.woff2",

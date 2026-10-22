@@ -1,7 +1,7 @@
 import { initWasm, Resvg } from '@resvg/resvg-wasm';
 import wasm from '@resvg/resvg-wasm/index_bg.wasm?module';
 import fontBuffer from '../assets/fonts/SpaceGrotesk.ttf.bin';
-import brandBuffer from '../assets/composer-icon-20261022-96.png.bin';
+import brandBuffer from '../assets/composer-icon-20261022b-96.png.bin';
 import { stackShareSvg } from './stack-share-svg.ts';
 import type { PublishedStackShare, StackShareDetails } from './stack-sharing.ts';
 

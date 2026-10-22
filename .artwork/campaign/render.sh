@@ -13,6 +13,6 @@ render() {
     --virtual-time-budget=2500 --screenshot="$OUT/$2" --window-size="$3" \
     "file://$ROOT/.artwork/campaign/$1" >/dev/null 2>&1
 }
-render product-og.html product-og-20261022.png 1200,630
-render php2shell-square.html php2shell-australia-1080x1080.png 1080,1080
-render php2shell-vertical.html php2shell-australia-1080x1920.png 1080,1920
+render product-og.html product-og-20261022b.png 1200,630
+render php2shell-square.html php2shell-australia-20261022b-1080x1080.png 1080,1080
+render php2shell-vertical.html php2shell-australia-20261022b-1080x1920.png 1080,1920

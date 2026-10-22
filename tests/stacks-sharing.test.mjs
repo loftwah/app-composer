@@ -11,7 +11,7 @@ import {createHash} from 'node:crypto';
 import jsQR from 'jsqr';
 import pngjs from 'pngjs';
 
-const brandBytes = readFileSync(new URL('../src/assets/composer-icon-20261022-96.png.bin', import.meta.url));
+const brandBytes = readFileSync(new URL('../src/assets/composer-icon-20261022b-96.png.bin', import.meta.url));
 const brandImage = `data:image/png;base64,${brandBytes.toString('base64')}`;
 const font = readFileSync(new URL('../src/assets/fonts/SpaceGrotesk.ttf.bin', import.meta.url));
 const fontOptions = {font: {fontBuffers: [font], defaultFontFamily: 'Space Grotesk'}};
