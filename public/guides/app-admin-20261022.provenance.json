@@ -1,0 +1,31 @@
+{
+  "reviewed": "2026-10-22",
+  "capturedAtUTC": "2026-10-22T07:10:58Z",
+  "liveSource": "d4b5efee22934151315251b90572ab4c00cfbfed",
+  "url": "https://composer.loftwah.com/s/fictional-trail-notes",
+  "publishedRevision": 11,
+  "method": "Unedited Chromium viewport captures of the public published stack. No request overrides, synthetic DOM changes or authenticated owner data.",
+  "images": [
+    {
+      "path": "/guides/app-admin-20261022-trail-desktop.png",
+      "width": 1000,
+      "height": 900,
+      "theme": "dark",
+      "sha256": "759c63db4d4ea37a6ad3871fd08934c84112da5617bea36e4930dca2ba354c07",
+      "bytes": 81800
+    },
+    {
+      "path": "/guides/app-admin-20261022-trail-phone.png",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "sha256": "6526dc1ed006b18c212624e6b10888ad8413ede8624fb205356863a5b877e64e",
+      "bytes": 68443
+    }
+  ],
+  "notes": [
+    "Fictional Trail Notes is a controlled demonstration stack, not customer activity.",
+    "The capture shows the public page only. It does not show authenticated owner administration.",
+    "The earlier admin screenshots remain dated historical evidence at /guide#admin-screenshots."
+  ]
+}

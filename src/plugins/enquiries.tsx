@@ -7,11 +7,13 @@ import {
   enquiryID,
   enquiryInbox,
   enquiryExport,
+  enquirySummary,
   enquiryOperation,
   enquiryScope,
   type EnquiryScope,
   type EnquiryInbox,
   type EnquiryItem,
+  type EnquirySummary,
 } from "../lib/enquiry-protocol";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
 import { useNavigationGuard } from "./stacks/use-navigation-guard";
@@ -133,7 +135,10 @@ function WorkspaceEnquiries({ search }: { search: string }) {
     [status, setStatus] = useState("pending"),
     [page, setPage] = useState(1),
     [inbox, setInbox] = useState<EnquiryInbox>(),
-    [publication, setPublication] = useState("");
+    [publication, setPublication] = useState(""),
+    [summary, setSummary] = useState<EnquirySummary>(),
+    [summaryError, setSummaryError] = useState("");
+  const summaryGeneration = useRef(0);
   const [checkedAbsent, setCheckedAbsent] = useState(false);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -262,9 +267,45 @@ function WorkspaceEnquiries({ search }: { search: string }) {
     if (!live.current || n !== generation.current) return;
     setInbox(reply.inbox);
   }
+  async function loadSummary(selected = resource) {
+    if (!workspace || !selected) return;
+    const n = ++summaryGeneration.current;
+    setSummary(undefined);
+    setSummaryError("");
+    try {
+      const raw = await call("summary", {
+        workspace,
+        resource: selected,
+      });
+      const reply = z
+        .object({
+          ok: z.literal(true),
+          workspace: workspaceSchema,
+          summary: enquirySummary,
+        })
+        .strict()
+        .parse(raw);
+      if (reply.summary.resource.id !== selected)
+        throw Error("The app summarised another visitor book.");
+      if (!live.current || n !== summaryGeneration.current) return;
+      setSummary(reply.summary);
+      setSummaryError("");
+    } catch (cause) {
+      if (!live.current || n !== summaryGeneration.current) return;
+      setSummary(undefined);
+      setSummaryError(
+        cause instanceof Error
+          ? cause.message
+          : "The page summary is unavailable. This is not a zero count.",
+      );
+    }
+  }
   useEffect(() => {
     void run(loadOptions);
   }, []);
+  useEffect(() => {
+    if (options && resource && !heldRef.current) void loadSummary();
+  }, [resource, options?.workspace.id]);
   useEffect(() => {
     if (options && resource && !heldRef.current) void run(() => loadInbox());
   }, [resource, status, page, options?.workspace.id]);
@@ -325,6 +366,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
         "The app confirmed this private change. No notification or publication was sent.",
       );
       await loadInbox();
+      await loadSummary();
     } catch (cause) {
       throw Error(
         (cause instanceof Error
@@ -414,6 +456,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
     retain(undefined);
     setMessage("The exact app operation is confirmed. No retry was sent.");
     await loadInbox(hold.resource);
+    await loadSummary(hold.resource);
   }
   async function retryExact() {
     const hold = heldRef.current;
@@ -440,6 +483,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
       "The exact retained operation is confirmed. No new operation identity was allocated.",
     );
     await loadInbox(hold.resource);
+    await loadSummary(hold.resource);
   }
   async function exportInbox() {
     if (!workspace || !resource) return;
@@ -505,6 +549,13 @@ function WorkspaceEnquiries({ search }: { search: string }) {
       expectedScopeRevision: configuredScope?.revision ?? 0,
       enabled,
     });
+  const pageLabel = (group: NonNullable<EnquirySummary>["groups"][number]) => {
+    if (group.kind === "standalone") return "Standalone visitor book";
+    const stack = options?.stacks.find((row) => row.id === group.stack);
+    if (!stack) return "Earlier Composer page";
+    const instance = stack.instances.find((row) => row.id === group.instance);
+    return `${stack.name} · ${instance?.label ?? "Earlier instance"}`;
+  };
   return (
     <div className="ce-inbox" aria-busy={busy || (!options && !error)}>
       {(busy || (!options && !error)) && (
@@ -575,6 +626,8 @@ function WorkspaceEnquiries({ search }: { search: string }) {
               setResource(event.target.value);
               setPublication("");
               setInbox(undefined);
+              setSummary(undefined);
+              setSummaryError("");
               setPage(1);
             }}
           >
@@ -613,6 +666,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
             void run(async () => {
               await loadOptions();
               await loadInbox();
+              await loadSummary();
             })
           }
         >
@@ -630,6 +684,87 @@ function WorkspaceEnquiries({ search }: { search: string }) {
           This workspace grants read-only stack access. Private submitted briefs
           require an owner or editor membership.
         </p>
+      )}
+      {canRead && resource && (
+        <section className="ce-summary" aria-labelledby="ce-summary-title">
+          <h2 id="ce-summary-title">Enquiries by page</h2>
+          <p>
+            Counts of retained briefs for this visitor book, grouped by the
+            published page or standalone scope that delivered them. Reviewed
+            means an owner marked the brief; it is not a sale, contact or
+            conversion.
+          </p>
+          {summaryError ? (
+            <p className="ce-alert" role="alert">
+              {summaryError}
+            </p>
+          ) : summary ? (
+            summary.groups.length > 0 ? (
+              <>
+                <div className="ce-summary-wrap">
+                  <table>
+                    <caption>
+                      {summary.total} retained brief
+                      {summary.total === 1 ? "" : "s"} · bodies expire after 30
+                      days
+                    </caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Page</th>
+                        <th scope="col">Reviewed</th>
+                        <th scope="col">Pending</th>
+                        <th scope="col">Rejected</th>
+                        <th scope="col">Total</th>
+                        <th scope="col">Latest</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {summary.groups.map((group) => (
+                        <tr
+                          key={[
+                            group.kind,
+                            group.stack,
+                            group.publication,
+                            group.instance,
+                          ].join(":")}
+                        >
+                          <th scope="row">
+                            {pageLabel(group)}
+                            {group.publication !== null && (
+                              <small>
+                                Published revision {group.publication}
+                              </small>
+                            )}
+                          </th>
+                          <td>{group.reviewed}</td>
+                          <td>{group.pending}</td>
+                          <td>{group.rejected}</td>
+                          <td>{group.total}</td>
+                          <td>
+                            {group.latest ? date(group.latest) : "Unavailable"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {summary.capped && (
+                  <p className="ce-muted">
+                    This summary covers the 200 retained briefs available in the
+                    current export. Older retained briefs may sit outside that
+                    cap.
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="ce-empty">
+                No retained briefs belong to this visitor book.
+              </p>
+            )
+          ) : (
+            <p role="status">Loading page summary…</p>
+          )}
+        </section>
       )}
       {inbox &&
         canRead &&

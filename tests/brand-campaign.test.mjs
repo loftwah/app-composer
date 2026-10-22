@@ -104,6 +104,11 @@ test('the product and campaign sharing assets are correctly composed at their de
   assert.deepEqual([square.width, square.height], [1080, 1080]);
   const vertical = png('public/brand/campaign/php2shell-australia-20261022b-1080x1920.png');
   assert.deepEqual([vertical.width, vertical.height], [1080, 1920]);
+  const banner = jpegDimensions(read('public/brand/campaign/product-x-banner-20261022b.jpg'));
+  assert.deepEqual([banner.width, banner.height], [1500, 500]);
+  assert.ok(read('public/brand/campaign/product-x-banner-20261022b.jpg').length < 250000, 'the X banner must stay lightweight');
+  const bannerPng = png('public/brand/campaign/product-x-banner-20261022b.png');
+  assert.deepEqual([bannerPng.width, bannerPng.height], [1500, 500]);
   for (const path of [
     'public/brand/campaign/php2shell-australia-20261022b-1200x630.webp',
     'public/brand/campaign/php2shell-australia-20261022b-800x420.webp',
@@ -127,6 +132,8 @@ test('the homepage features the approved campaign and links to the Australia bri
   assert.match(article, /not a breach count/);
   assert.match(article, /not aware of successful active exploitation within Australia/);
   assert.match(article, /WAF helps\. Patching is essential/);
+  assert.match(article, /product-x-banner-20261022b\.jpg/);
+  assert.match(article, /php2shell-australia-20261022b-1080x1080\.jpg/);
   for (const source of [
     'https://www.php.net/archive/2026.php#2026-10-21-5',
     'https://blog.cloudflare.com/php-vulnerabilities-waf-protection',

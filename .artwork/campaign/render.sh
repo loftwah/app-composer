@@ -16,3 +16,7 @@ render() {
 render product-og.html product-og-20261022b.png 1200,630
 render php2shell-square.html php2shell-australia-20261022b-1080x1080.png 1080,1080
 render php2shell-vertical.html php2shell-australia-20261022b-1080x1920.png 1080,1920
+render x-banner.html product-x-banner-20261022b.png 1500,500
+magick "$OUT/product-x-banner-20261022b.png" -background '#fc5b05' -alpha remove -alpha off \
+  -strip -interlace Plane -sampling-factor 4:2:0 -quality 88 \
+  "$OUT/product-x-banner-20261022b.jpg"

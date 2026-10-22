@@ -1,0 +1,377 @@
+---
+import Base from '../layouts/Base.astro';
+import { ArrowRight, Check, CircleSlash, Database, Inbox, Settings2, ShieldCheck, Users } from '@lucide/astro';
+---
+<Base
+ title="Your app, your admin"
+ description="Describe the app you want to run, then get the owner tools to publish content, moderate contributions, manage links, read private enquiries and inspect supported outcomes. App Composer keeps each app's source and data independent."
+ canonical="https://composer.loftwah.com/manage"
+>
+<article class="manage">
+ <header class="manage-hero">
+  <div class="manage-hero-copy">
+   <p class="manage-kicker">App Composer · owner experience</p>
+   <h1>Describe the app.<br/>Get the tools to run it.</h1>
+   <p class="manage-lede">A public site is only half the job. The owner also needs a familiar place to publish, approve, configure, measure and recover. App Composer wires that administration to the actual application instead of handing over another dashboard to maintain.</p>
+   <div class="manage-actions">
+    <a class="button" href="#journey">Follow the owner journey <ArrowRight size={18} aria-hidden="true"/></a>
+    <a class="button secondary" href="/studio">Open Creator stacks</a>
+   </div>
+   <p class="manage-boundary"><ShieldCheck size={17} aria-hidden="true"/> Owner surfaces sit behind the existing Cloudflare Access policy and EmDash roles. Public visitors cannot reach them.</p>
+  </div>
+  <div class="manage-hero-mark" aria-hidden="true">
+   <img src="/brand/composer-mark-reverse-20261022b.svg" width="360" height="360" alt=""/>
+   <p>One public result.<br/>Two ownership boundaries.</p>
+  </div>
+ </header>
+
+ <nav class="manage-jump" aria-label="On this page">
+  <a href="#request">The request</a>
+  <a href="#surfaces">Two surfaces</a>
+  <a href="#wiring">The wiring</a>
+  <a href="#journey">The owner journey</a>
+  <a href="#second-request">A second request</a>
+  <a href="#proof">What is proved</a>
+ </nav>
+
+ <section class="manage-section" id="request">
+  <p class="manage-kicker">01 / The request</p>
+  <h2>A local club asks for a website and a way to run it.</h2>
+  <blockquote>“Build a local club site with news, a photo wall, links and an enquiry form. I need to approve photos, edit the welcome, see which links people use and keep the app up to date.”</blockquote>
+  <p>That sentence contains a product request and an operations request. The website needs pages, a welcome message, a place for member photos, useful links and a way for people to get in touch. The owner needs moderation, editing, configuration, a private inbox, a connection check and an honest export. Neither half is useful alone.</p>
+  <p>App Composer keeps the work in the existing owners: Init for the brief and content model, the independent apps for their records and source, EmDash for the owner interface, and Cloudflare for the runtime and storage. The result is a composed stack with a public address and a separate owner workspace.</p>
+  <div class="manage-plan">
+   <article>
+    <h3><Check size={18} aria-hidden="true"/> Supported now</h3>
+    <ul>
+     <li>Saved stacks with draft, preview, publish and a shareable revision.</li>
+     <li>Here / there photo contributions with pending review, approval and revocation.</li>
+     <li>Linkarooie links, profile settings and collection from an approved source.</li>
+     <li>A private enquiry inbox owned by the app, with retained-record limits.</li>
+     <li>Page-level enquiry counts in the owner Inbox.</li>
+     <li>Connection checks and approved-content export for a saved Here / there instance.</li>
+     <li>Private workspace outcomes for recorded actions.</li>
+    </ul>
+   </article>
+   <article>
+    <h3><Settings2 size={18} aria-hidden="true"/> Needs configuration</h3>
+    <ul>
+     <li>Each app's title, introduction, theme and declared settings.</li>
+     <li>Who may enter the workspace as owner, editor or viewer.</li>
+     <li>Whether a public enquiry form is open for a specific publication.</li>
+     <li>Which contributions are approved, hidden or featured.</li>
+     <li>Whether a stack is a draft, published or archived.</li>
+    </ul>
+   </article>
+   <article>
+    <h3><CircleSlash size={18} aria-hidden="true"/> Not supported yet</h3>
+    <ul>
+     <li>General self-service signup and a fresh customer workspace.</li>
+     <li>Turning an arbitrary plugin, theme or Drupal site into a working app.</li>
+     <li>A native news/pages collection wired into this stack. EmDash content authoring exists; this composed stack does not mount it as a page type.</li>
+     <li>Notifications, replies or email delivery for enquiries.</li>
+     <li>Full media recovery, point-in-time restore or account migration.</li>
+     <li>Automatic code changes from a prompt without review and deployment.</li>
+    </ul>
+   </article>
+  </div>
+ </section>
+
+ <section class="manage-section" id="surfaces">
+  <p class="manage-kicker">02 / Two surfaces</p>
+  <h2>The visitor sees the app. The owner sees the work.</h2>
+  <p>The public page is deliberately quiet. It presents the club, its links and the approved contributions. The owner workspace is a separate address behind authentication, with the same app data underneath and no copied records in a second dashboard.</p>
+  <div class="manage-public">
+   <figure>
+    <img src="/guides/app-admin-20261022-trail-desktop.png" width="1000" height="900" alt="A live App Composer stack page for Fictional Trail Notes, showing two Here / there instances with Open actions and a published revision notice." loading="lazy" decoding="async"/>
+    <figcaption>Actual production capture, 22 October 2026. <a href="https://composer.loftwah.com/s/fictional-trail-notes">Fictional Trail Notes</a> is a published demonstration stack created through the native editor. It is fiction, not customer activity.</figcaption>
+   </figure>
+   <div>
+    <h3>What a visitor can do</h3>
+    <ul>
+     <li>Read a published revision without an account.</li>
+     <li>Open a mounted app in the context of the stack.</li>
+     <li>Submit a photo or a private brief only when the owner has opened that route.</li>
+     <li>Use the page on a phone, with keyboard focus and both supported themes.</li>
+    </ul>
+    <p class="small">A published revision is immutable. Editing the draft does not change what visitors see until the owner publishes again.</p>
+   </div>
+  </div>
+  <div class="manage-admin">
+   <div>
+    <h3>What the owner can do</h3>
+    <p>These are the current native surfaces. They share the invited-owner Access boundary, and each one names the app or workspace it acts on.</p>
+    <ul class="manage-admin-list">
+     <li><strong>Creator stacks</strong><span>Edit the composition, configure declared app settings, preview, publish, unpublish, archive, duplicate and export configuration.</span></li>
+     <li><strong>Private enquiries</strong><span>Read retained briefs, mark reviewed or rejected, delete, export, and see counts by published page.</span></li>
+     <li><strong>Workspace outcomes</strong><span>Inspect recorded opens and verified moderation transitions, with definitions, caps and missing history stated.</span></li>
+     <li><strong>Workspace maintenance</strong><span>Check a saved app connection and prepare an approved-content file with verified PNGs.</span></li>
+     <li><strong>Workspace access</strong><span>Prepare editor or viewer invitations with expiry. Trusted-account acceptance remains separate.</span></li>
+     <li><strong>App-owned studios</strong><span>Here / there and Linkarooie keep their own owner routes for photos, links and settings.</span></li>
+    </ul>
+   </div>
+   <aside class="manage-admin-note">
+    <Users size={24} aria-hidden="true"/>
+    <h3>One owner, explicit roles</h3>
+    <p>Every read and write rechecks the selected workspace and role. A viewer can read and export where allowed but cannot change a stack. Only a workspace owner can open or close an enquiry form or classify future demonstration traffic.</p>
+    <p class="small">Global mini-app administration remains a separate EmDash permission. Workspace membership does not grant it.</p>
+   </aside>
+  </div>
+ </section>
+
+ <section class="manage-section" id="wiring">
+  <p class="manage-kicker">03 / The wiring</p>
+  <h2>Each app keeps its data. Composer brokers the work.</h2>
+  <p>The important boundary is not a logo on a dashboard. It is where the records live and who can write them. Here / there owns photo contributions and their private media. Linkarooie owns its cards and curation. Composer owns workspaces, saved stacks, publication revisions and the scoped operation journal. The bridge passes only the fields and actions each app declares.</p>
+  <figure class="manage-diagram">
+   <div class="manage-diagram-wide">
+    <svg viewBox="0 0 1200 430" role="img" aria-labelledby="wiring-title wiring-desc">
+     <title id="wiring-title">How an App Composer request becomes a public app and an owner admin</title>
+     <desc id="wiring-desc">Describe and plan lead to independent app source and app-owned data. A scoped Composer bridge connects those apps to EmDash owner administration and a published public stack. The owner can approve, edit, measure and export without copying app records into Composer.</desc>
+     <rect width="1200" height="430" fill="#f4f0e8"/>
+     <g stroke="#17181b" opacity=".16">
+      <path d="M300 40v150"/>
+      <path d="M590 40v150"/>
+      <path d="M885 40v150"/>
+     </g>
+     <g font-family="Space, system-ui, sans-serif">
+      <g fill="#17181b">
+       <text x="48" y="54" font-size="13" font-weight="700" letter-spacing="2">BUILD</text>
+       <text x="48" y="88" font-size="22" font-weight="700">Describe and plan</text>
+       <text x="48" y="118" font-size="16">Plain-language brief</text>
+       <text x="48" y="140" font-size="16">Declared capabilities</text>
+       <text x="48" y="162" font-size="16">Unsupported work marked</text>
+      </g>
+      <g fill="#17181b">
+       <text x="328" y="54" font-size="13" font-weight="700" letter-spacing="2">OWN</text>
+       <text x="328" y="88" font-size="22" font-weight="700">Independent apps</text>
+       <text x="328" y="118" font-size="16">Own repository and release</text>
+       <text x="328" y="140" font-size="16">Own D1 / R2 records</text>
+       <text x="328" y="162" font-size="16">Owner API and source pin</text>
+      </g>
+      <g fill="#17181b">
+       <text x="620" y="54" font-size="13" font-weight="700" letter-spacing="2">BROKER</text>
+       <text x="620" y="88" font-size="22" font-weight="700">Scoped bridge</text>
+       <text x="620" y="118" font-size="16">Workspace membership</text>
+       <text x="620" y="140" font-size="16">Publication binding</text>
+       <text x="620" y="162" font-size="16">Exact source and revision</text>
+      </g>
+      <g fill="#17181b">
+       <text x="920" y="54" font-size="13" font-weight="700" letter-spacing="2">OPERATE</text>
+       <text x="920" y="88" font-size="22" font-weight="700">Owner admin</text>
+       <text x="920" y="118" font-size="16">Approve and edit</text>
+       <text x="920" y="140" font-size="16">Read private enquiries</text>
+       <text x="920" y="162" font-size="16">Check, export, measure</text>
+      </g>
+      <g stroke="#fc5b05" stroke-width="4" fill="none">
+       <path d="M270 126h42"/>
+       <path d="M558 126h42"/>
+       <path d="M862 126h42"/>
+      </g>
+      <g fill="#fc5b05">
+       <path d="M312 118l14 8-14 8z"/>
+       <path d="M600 118l14 8-14 8z"/>
+       <path d="M904 118l14 8-14 8z"/>
+      </g>
+      <rect x="48" y="226" width="1104" height="1" fill="#17181b" opacity=".22"/>
+      <g fill="#17181b">
+       <text x="48" y="270" font-size="13" font-weight="700" letter-spacing="2">PUBLIC RESULT</text>
+       <text x="48" y="304" font-size="22" font-weight="700">Published stack at /s/&lt;slug&gt;</text>
+       <text x="48" y="334" font-size="16">Immutable revision · visitor page · mounted apps</text>
+       <text x="48" y="356" font-size="16">No draft records, no owner controls</text>
+      </g>
+      <g fill="#17181b">
+       <text x="700" y="270" font-size="13" font-weight="700" letter-spacing="2">BOUNDARY</text>
+       <text x="700" y="304" font-size="22" font-weight="700">Records stay with their app</text>
+       <text x="700" y="334" font-size="16">Composer never becomes a second content store</text>
+       <text x="700" y="356" font-size="16">Rollback of code does not restore data</text>
+      </g>
+     </g>
+    </svg>
+   </div>
+   <ol class="manage-diagram-mobile">
+    <li><strong>Describe and plan.</strong> The brief names the app and the owner work. Supported capabilities are separated from unsupported requests.</li>
+    <li><strong>Independent apps.</strong> Each app keeps its repository, release, records and owner API.</li>
+    <li><strong>Scoped bridge.</strong> Composer checks workspace membership, the exact publication, source and revision before an action.</li>
+    <li><strong>Owner admin.</strong> EmDash and the native Composer pages approve, edit, measure and export.</li>
+    <li><strong>Public result.</strong> A published stack serves the immutable public revision; drafts and owner controls stay private.</li>
+   </ol>
+   <figcaption>The diagram is authored in the page as SVG; the text list is the mobile and no-graphics equivalent. It describes the implemented stack, contribution, enquiry and maintenance paths, not an arbitrary plugin runtime.</figcaption>
+  </figure>
+ </section>
+
+ <section class="manage-section" id="journey">
+  <p class="manage-kicker">04 / The owner journey</p>
+  <h2>From “make it” to “I can run it”.</h2>
+  <ol class="manage-steps">
+   <li>
+    <span>1</span>
+    <div><h3>Describe the app and the job.</h3><p>Use Init to capture the purpose, content shape, apps, appearance and deployment intent. The brief is data. It does not grant execution or deployment authority.</p></div>
+   </li>
+   <li>
+    <span>2</span>
+    <div><h3>See the plan before the build.</h3><p>The supported stack is explicit: which apps exist, which settings they declare, which contributions can be moderated and which requested capabilities are still unsupported. A missing capability stays visible rather than becoming a dead menu item.</p></div>
+   </li>
+   <li>
+    <span>3</span>
+    <div><h3>Build and wire the real pieces.</h3><p>The authorised agent works in the independent repositories, verifies their source and tests, then binds a saved stack to the app-owned resources. Composer checks the current source and account before a configuration write.</p></div>
+   </li>
+   <li>
+    <span>4</span>
+    <div><h3>Operate from the owner workspace.</h3><p>Approve a photo, edit a link, change a welcome message, read a private brief, check a connection or prepare an approved-content export. The public page reflects only the published revision.</p></div>
+   </li>
+   <li>
+    <span>5</span>
+    <div><h3>Change by describing the next job.</h3><p>“Show me which page the enquiries came from” becomes a reviewable admin change. “Add moderation” becomes a reviewed app change where the app already supports it. Neither request silently widens permission or deploys unreviewed code.</p></div>
+   </li>
+  </ol>
+ </section>
+
+ <section class="manage-section" id="second-request">
+  <p class="manage-kicker">05 / A second request</p>
+  <h2>“Show me which page the enquiries came from.”</h2>
+  <p>The first version could read one private brief at a time but could not show how many belonged to each published page. The owner Inbox now groups retained briefs by the exact published stack and app instance that delivered them, and shows reviewed, pending and rejected counts beside each page. The change is in Composer's admin; the briefs still live in the app.</p>
+  <h3 class="manage-table-title">Enquiries by page</h3>
+  <div class="manage-example">
+   <table>
+    <caption>Fictional example · retained private briefs · 30-day body retention</caption>
+    <thead><tr><th scope="col">Page</th><th scope="col">Reviewed</th><th scope="col">Pending</th><th scope="col">Rejected</th><th scope="col">Total</th><th scope="col">Latest</th></tr></thead>
+    <tbody>
+     <tr><th scope="row">Fictional Trail Notes · Trail postcards<small>Published revision 11</small></th><td>2</td><td>1</td><td>0</td><td>3</td><td>21 Oct</td></tr>
+     <tr><th scope="row">Fictional Trail Notes · Shared trail view<small>Published revision 11</small></th><td>1</td><td>0</td><td>1</td><td>2</td><td>20 Oct</td></tr>
+     <tr><th scope="row">Standalone visitor book</th><td>0</td><td>1</td><td>0</td><td>1</td><td>19 Oct</td></tr>
+    </tbody>
+   </table>
+  </div>
+  <p class="small">Fictional counts for the demonstration, not customer activity. “Reviewed” means an owner marked the brief. It is not a sale, a contact, a conversion or proof that anyone received a reply. Briefs expire after 30 days; the summary is capped at the 200 records the app exports and says so when the cap is reached.</p>
+  <div class="manage-change">
+   <div><Inbox size={24} aria-hidden="true"/><h3>App change</h3><p>The public form belongs to one immutable publication and is opened by the workspace owner. Closing, archiving or replacing that publication closes the route without changing a separate standalone form.</p></div>
+   <div><Database size={24} aria-hidden="true"/><h3>Admin change</h3><p>The Inbox asks the app for the retained export, validates the resource and source, and counts by provenance. It returns no submitted text, contact field or visitor identity in the summary.</p></div>
+  </div>
+ </section>
+
+ <section class="manage-section" id="proof">
+  <p class="manage-kicker">06 / What is proved</p>
+  <h2>Look at the live pieces, then read the limits.</h2>
+  <div class="manage-proof">
+   <a href="https://composer.loftwah.com/s/fictional-trail-notes"><strong>Fictional Trail Notes</strong><span>Published stack, revision 11, with a shared Here / there view.</span><ArrowRight size={18} aria-hidden="true"/></a>
+   <a href="https://composer.loftwah.com/s/fictional-launch-board"><strong>Fictional Launch Board</strong><span>A second published stack with its own saved configuration.</span><ArrowRight size={18} aria-hidden="true"/></a>
+   <a href="https://showcase.loftwah.com/"><strong>Linkarooie</strong><span>The owner's curated links and featured contributions.</span><ArrowRight size={18} aria-hidden="true"/></a>
+   <a href="/studio"><strong>Creator stacks</strong><span>The public explanation and the route into the owner editor.</span><ArrowRight size={18} aria-hidden="true"/></a>
+   <a href="/release"><strong>Release evidence</strong><span>Exact source, Worker identities and the remaining gates.</span><ArrowRight size={18} aria-hidden="true"/></a>
+  </div>
+  <div class="manage-limits">
+   <h3>What this does not prove</h3>
+   <ul>
+    <li>A new person can sign up, create a workspace and deploy a customer app without an operator.</li>
+    <li>Every WordPress, Drupal or arbitrary plugin feature has an equivalent.</li>
+    <li>A private brief was answered, notified or converted into work.</li>
+    <li>All app records and media can be restored after loss. Approved-content export is a bounded copy, not a backup.</li>
+    <li>Physical-device, screen-reader, native social unfurl or external-provider acceptance.</li>
+   </ul>
+   <p>The <a href="/guide#admin-screenshots">earlier administration screenshots</a> remain available as historical production evidence. They are dated; this page describes the current surfaces rather than presenting an old capture as today's UI.</p>
+  </div>
+ </section>
+
+ <section class="manage-cta">
+  <div>
+   <p class="manage-kicker">Start with the useful part</p>
+   <h2>Describe what you need to run.</h2>
+   <p>Start with Get Ready if the environment is not ready. Use Init when the app and its owner work are clear. Continue into Creator stacks when the pieces should become one published result.</p>
+  </div>
+  <div class="manage-actions">
+   <a class="button" href="/ready">Start with Get Ready <ArrowRight size={18} aria-hidden="true"/></a>
+   <a class="button secondary" href="/init">Scope the app</a>
+  </div>
+ </section>
+</article>
+<style>
+ .manage{max-width:1180px;margin:0 auto}
+ .manage-hero{position:relative;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);gap:48px;align-items:center;background:#fc5b05;color:#fff;padding:56px 56px 52px;border-radius:10px;margin:8px 0 26px}
+ .manage-kicker{font-size:12px;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin:0 0 14px}
+ .manage-hero .manage-kicker{color:rgba(255,255,255,.9)}
+ .manage-hero h1{font-size:clamp(3rem,6vw,5.5rem);line-height:.94;letter-spacing:-.05em;max-width:13ch;margin:0 0 24px;color:#fff}
+ .manage-lede{font-size:clamp(1.08rem,1.8vw,1.35rem);line-height:1.45;max-width:52ch;color:rgba(255,255,255,.94);margin:0 0 28px}
+ .manage-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+ .manage-hero .button{background:#17181b;color:#fff}
+ .manage-hero .button:hover{background:#000}
+ .manage-hero .button.secondary{background:transparent;color:#fff;border-color:#fff}
+ .manage-hero .button.secondary:hover{background:rgba(0,0,0,.12)}
+ .manage-boundary{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5;color:rgba(255,255,255,.9);max-width:46ch;margin:22px 0 0}
+ .manage-boundary svg{flex-shrink:0;margin-top:2px}
+ .manage-hero-mark{display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid rgba(255,255,255,.5);padding-left:40px;min-width:0}
+ .manage-hero-mark img{display:block;width:min(100%,300px);height:auto}
+ .manage-hero-mark p{font-size:15px;line-height:1.4;font-weight:600;text-align:center;margin:18px 0 0;color:rgba(255,255,255,.94)}
+ .manage-jump{display:flex;flex-wrap:wrap;gap:6px 22px;padding:14px 0;border-bottom:1px solid var(--color-border);font-size:13px;font-weight:600}
+ .manage-jump a{color:var(--color-muted);min-height:32px;display:inline-flex;align-items:center}
+ .manage-jump a:hover{color:var(--color-foreground)}
+ .manage-section{padding:56px 0;border-bottom:1px solid var(--color-border)}
+ .manage-section h2{font-size:clamp(2rem,4vw,3.2rem);line-height:1.02;max-width:20ch;margin:0 0 24px}
+ .manage-section h3{font-size:1.25rem;margin:0 0 12px}
+ .manage-section p{font-size:1.02rem;line-height:1.7;max-width:72ch}
+ .manage-section blockquote{margin:28px 0;padding:24px 28px;border-left:5px solid #fc5b05;background:var(--color-surface);font-size:clamp(1.2rem,2.4vw,1.6rem);line-height:1.35;font-weight:600;max-width:58ch}
+ .manage-plan{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--color-border);border:1px solid var(--color-border);margin:32px 0 0}
+ .manage-plan article{background:var(--color-surface);padding:26px 24px}
+ .manage-plan h3{display:flex;gap:8px;align-items:center;font-size:1.05rem;margin:0 0 16px}
+ .manage-plan ul{padding-left:18px;margin:0;font-size:.93rem;line-height:1.6;color:var(--color-muted)}
+ .manage-plan li{margin:0 0 10px}
+ .manage-public{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:44px;align-items:start;margin:34px 0 0}
+ .manage-public figure{margin:0}
+ .manage-public img{display:block;width:100%;height:auto;border:1px solid var(--color-border);border-radius:8px;background:var(--color-field)}
+ .manage-public figcaption{font-size:12px;line-height:1.55;color:var(--color-muted);margin-top:10px;max-width:70ch}
+ .manage-public figcaption a{color:var(--color-accent)}
+ .manage-public ul,.manage-admin-list{list-style:none;padding:0;margin:0}
+ .manage-public li{padding:10px 0;border-bottom:1px solid var(--color-border);font-size:.95rem}
+ .manage-admin{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:44px;align-items:start;margin:44px 0 0;padding-top:36px;border-top:1px solid var(--color-border)}
+ .manage-admin-list li{display:grid;grid-template-columns:180px minmax(0,1fr);gap:20px;padding:13px 0;border-bottom:1px solid var(--color-border);font-size:.94rem;line-height:1.6}
+ .manage-admin-list strong{font-weight:650}
+ .manage-admin-list span{color:var(--color-muted)}
+ .manage-admin-note{background:var(--color-surface);padding:26px;border-radius:8px}
+ .manage-admin-note svg{color:var(--color-accent);margin-bottom:12px}
+ .manage-admin-note p{font-size:.94rem}
+ .manage-diagram{margin:34px 0 0}
+ .manage-diagram-wide{border:1px solid var(--color-border);border-radius:8px;overflow:hidden;background:#f4f0e8}
+ .manage-diagram-wide svg{display:block;width:100%;height:auto}
+ .manage-diagram figcaption{font-size:12px;line-height:1.55;color:var(--color-muted);margin-top:12px;max-width:76ch}
+ .manage-diagram-mobile{display:none}
+ .manage-steps{list-style:none;padding:0;margin:32px 0 0;max-width:860px}
+ .manage-steps li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:20px;padding:26px 0;border-top:1px solid var(--color-border)}
+ .manage-steps li>span{width:36px;height:36px;border:1px solid var(--color-control-border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--color-accent);font-weight:600}
+ .manage-steps h3{margin:0 0 8px;font-size:1.2rem}
+ .manage-steps p{margin:0;color:var(--color-muted);font-size:.98rem}
+ .manage-table-title{font-size:1.05rem;margin:30px 0 0}
+ .manage-example{overflow-x:auto;margin:12px 0 18px;border:1px solid var(--color-border)}
+ .manage-example table{width:100%;min-width:720px;border-collapse:collapse;margin:0;font-size:14px}
+ .manage-example caption{text-align:left;padding:14px 16px;font-size:12px;color:var(--color-muted);border-bottom:1px solid var(--color-border)}
+ .manage-example th,.manage-example td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--color-border);vertical-align:top}
+ .manage-example thead th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted)}
+ .manage-example tbody th{min-width:260px}
+ .manage-example tbody th small{display:block;font-size:11px;font-weight:400;color:var(--color-muted);margin-top:3px}
+ .manage-example tr:last-child th,.manage-example tr:last-child td{border-bottom:0}
+ .manage-change{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:24px 0 0}
+ .manage-change>div{border-top:2px solid #fc5b05;padding:20px 0 0}
+ .manage-change svg{color:var(--color-accent);margin-bottom:10px}
+ .manage-change p{font-size:.93rem;color:var(--color-muted);margin:0}
+ .manage-proof{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--color-border);border:1px solid var(--color-border);margin:28px 0}
+ .manage-proof a{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 20px;align-items:center;background:var(--color-surface);padding:20px 22px;min-height:72px;text-decoration:none}
+ .manage-proof a:hover{background:var(--color-selected)}
+ .manage-proof strong{grid-column:1;font-size:1.02rem}
+ .manage-proof span{grid-column:1;font-size:.86rem;line-height:1.5;color:var(--color-muted)}
+ .manage-proof svg{grid-column:2;grid-row:1/3;color:var(--color-accent)}
+ .manage-limits{margin:38px 0 0;padding:28px;background:var(--color-surface);border-radius:8px}
+ .manage-limits ul{max-width:80ch;padding-left:20px;font-size:.94rem;line-height:1.6;color:var(--color-muted)}
+ .manage-limits li{margin:0 0 10px}
+ .manage-limits>p{font-size:.9rem;color:var(--color-muted);margin:18px 0 0}
+ .manage-cta{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(250px,.75fr);gap:36px;align-items:center;background:#17181b;color:#f4f0e8;padding:40px;border-radius:10px;margin:36px 0 0}
+ .manage-cta h2{font-size:clamp(1.9rem,3.5vw,2.8rem);margin:0 0 14px;color:#f4f0e8}
+ .manage-cta p{font-size:.98rem;line-height:1.65;color:#d8d2c8;margin:0;max-width:54ch}
+ .manage-cta .manage-kicker{color:#fc5b05}
+ .manage-cta .manage-actions{justify-content:flex-end}
+ .manage-cta .button{background:#fc5b05;color:#17181b}
+ .manage-cta .button:hover{background:#ff7a35}
+ .manage-cta .button.secondary{background:transparent;color:#f4f0e8;border-color:#f4f0e8}
+ @media(max-width:1100px){.manage-diagram-wide{display:none}.manage-diagram-mobile{display:block;padding-left:22px;margin:20px 0 0;max-width:70ch}.manage-diagram-mobile li{padding:10px 0;border-bottom:1px solid var(--color-border);font-size:.92rem;line-height:1.6}}
+ @media(max-width:900px){.manage-hero{grid-template-columns:1fr;padding:40px 30px}.manage-hero-mark{border-left:0;border-top:1px solid rgba(255,255,255,.5);padding:26px 0 0;flex-direction:row;gap:24px;justify-content:flex-start}.manage-hero-mark img{width:150px}.manage-hero-mark p{text-align:left;margin:0}.manage-plan{grid-template-columns:1fr}.manage-public,.manage-admin{grid-template-columns:1fr;gap:28px}.manage-proof{grid-template-columns:1fr}.manage-cta{grid-template-columns:1fr;padding:30px}.manage-cta .manage-actions{justify-content:flex-start}}
+ @media(max-width:700px){.manage-section{padding:40px 0}.manage-hero{margin-top:0;padding:30px 22px}.manage-hero h1{font-size:3rem}.manage-jump{gap:4px 16px}.manage-admin-list li{grid-template-columns:1fr;gap:4px}.manage-change{grid-template-columns:1fr}.manage-steps li{grid-template-columns:34px minmax(0,1fr);gap:14px}.manage-steps li>span{width:30px;height:30px;font-size:14px}.manage-hero-mark{flex-direction:column;align-items:flex-start}.manage-hero-mark img{width:120px}}
+</style>
+</Base>

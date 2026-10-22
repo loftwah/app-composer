@@ -111,9 +111,13 @@ retired `share-ai-v1`, personal-profile homepage cards and the rejected
 assembly-scene product card remain unused historical files. Do not restore them
 while replacing an icon.
 
+The [Your app, your admin](https://composer.loftwah.com/manage) page uses unedited public captures of the live Fictional Trail Notes stack at 1440 × 1000 and 390 × 844. The files and hashes are `public/guides/app-admin-20261022-trail-{desktop,phone}.png` with `public/guides/app-admin-20261022.provenance.json`. They are public page captures, not authenticated admin screens; the older dated admin captures remain historical evidence on `/guide#admin-screenshots`.
+
 The PHP2Shell article uses campaign-specific artwork:
 `public/brand/campaign/php2shell-australia-20261022b-1200x630.jpg` for Open Graph/X,
-with deliberate 1080 × 1080 and 1080 × 1920 reflows. Its HTML render sources
+with deliberate 1080 × 1080 and 1080 × 1920 reflows. The product X profile banner
+is `public/brand/campaign/product-x-banner-20261022b.jpg` (1500 × 500), separate
+from the campaign cards and linked from the article. Its HTML render sources
 and export command live in `.artwork/campaign/`; supplied masters, hashes and
 the verification boundary are recorded in `docs/assets/brand/PROVENANCE.md`.
 

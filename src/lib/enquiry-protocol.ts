@@ -131,6 +131,35 @@ export const enquiryExport = z
     scope: z.literal("current-resource-only"),
   })
   .strict();
+const enquiryCount = z.number().int().min(0).max(200);
+export const enquirySummary = z
+  .object({
+    contract: z.literal(1),
+    format: z.literal("guestbook.enquiry-summary/v1"),
+    source: enquirySource,
+    resource,
+    retentionDays: z.literal(30),
+    capped: z.boolean(),
+    total: enquiryCount,
+    groups: z
+      .array(
+        z
+          .object({
+            kind: z.enum(["standalone", "composer.publication"]),
+            stack: enquiryID.nullable(),
+            instance: enquiryID.nullable(),
+            publication: enquiryPositive.nullable(),
+            pending: enquiryCount,
+            reviewed: enquiryCount,
+            rejected: enquiryCount,
+            total: enquiryCount,
+            latest: z.string().max(40).nullable(),
+          })
+          .strict(),
+      )
+      .max(64),
+  })
+  .strict();
 const operationResource = z
   .object({
     id: enquiryID,
@@ -170,6 +199,7 @@ export const enquiryReceipt = z
   .strict();
 export type EnquiryInbox = z.infer<typeof enquiryInbox>;
 export type EnquiryItem = z.infer<typeof enquiryItem>;
+export type EnquirySummary = z.infer<typeof enquirySummary>;
 export const enquiryFormReply = z
   .object({
     contract: z.literal(1),

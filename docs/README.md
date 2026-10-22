@@ -5,6 +5,7 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 ## Create and operate
 
 - [Detailed operator reference](operator-reference.md): setup, Get Ready, account/target selection, Init, composition, native administration, independent packages and deployment commands.
+- [Your app, your admin](admin-experience.md): the owner surface, page-level enquiry counts and the actual boundary.
 - [Published fictional stacks](creator-stacks/demo-stacks.md): real creator workflow and demonstrated separation.
 - [Workspace access](workspace-access.md): membership, scoped authority, invitations and admission limits.
 - [Private workspace outcomes](private-outcomes.md): retained actions, demonstration classification, chart/table/export and missing history.
