@@ -1,5 +1,5 @@
 {
-  "id": "0c1c9d701bffa9e682ab50583c6434a9b4a890c73783681cbc912f1de5f31aff",
+  "id": "fd65c3c4c50801a6d2d1ea6a291bf63be5a776ff980b11289502e4306e66c761",
   "reviewed": "2026-10-18",
   "apps": [
     {
@@ -86,7 +86,7 @@
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "21d0fb4f4bf46c26df711f4cf53bdf93e6b3401d",
+      "commit": "ddea1d33c64c95d2dccb9095519865b6bf141780",
       "url": "https://showcase.loftwah.com",
       "manifest": {
         "contract": 1,
