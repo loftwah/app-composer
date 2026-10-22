@@ -2,7 +2,7 @@
 
 Build a stack of independent apps, configure its instances, then preview and publish a shareable revision. Each app keeps its own source, records, media and release. EmDash provides the creator interface; this installation runs on Cloudflare.
 
-[Open App Composer](https://composer.loftwah.com/) · [Browse apps](https://composer.loftwah.com/apps) · [Your app, your admin](https://composer.loftwah.com/manage) · [Follow the tutorial](https://composer.loftwah.com/learn)
+[Open App Composer](https://composer.loftwah.com/) · [Browse apps](https://composer.loftwah.com/apps) · [Your app, your admin](https://composer.loftwah.com/manage) · [Follow the tutorial](https://composer.loftwah.com/learn) · [Read the build story](https://composer.loftwah.com/building)
 
 Try the published fictional examples: [Trail Notes](https://composer.loftwah.com/s/fictional-trail-notes) and [Launch Board](https://composer.loftwah.com/s/fictional-launch-board). They have independent visitor books; Trail Notes also labels an intentional shared view. They were created through the native editor. These demonstrations establish neither new-user admission nor customer adoption.
 
@@ -54,7 +54,7 @@ Guestbook and Linkarooie also mount at `/guestbook` and `/showcase` through sepa
 
 - [Documentation index](docs/README.md): current guides, source maps and detailed commands.
 - [Product](PRODUCT.md), [architecture](ARCHITECTURE.md), [design](DESIGN.md) and [interface standard](UNSLOP.md).
-- [Published demo workflow](docs/creator-stacks/demo-stacks.md), [workspace access](docs/workspace-access.md), [private outcomes](docs/private-outcomes.md), [scoped collection](docs/scoped-collection.md), [private enquiries](docs/private-enquiries.md), [maintenance and approved exports](docs/workspace-maintenance.md) and [WordPress observation ledger](labs/wordpress/weekender/OBSERVATIONS.md).
+- [Published demo workflow](docs/creator-stacks/demo-stacks.md), [workspace access](docs/workspace-access.md), [private outcomes](docs/private-outcomes.md), [scoped collection](docs/scoped-collection.md), [Guestbook contributions from Linkarooie](docs/guestbook-contributions.md), [private enquiries](docs/private-enquiries.md), [maintenance and approved exports](docs/workspace-maintenance.md) and [WordPress observation ledger](labs/wordpress/weekender/OBSERVATIONS.md).
 - [Current delivery status](docs/STATUS.md) and [canonical release evidence](https://github.com/loftwah/app-composer/issues/11). Dated history is linked separately.
 
 Owner administration retains this installation's Cloudflare Access and native EmDash permission boundaries. Specs and exports are data, never credentials or execution authority. Code rollback, configuration rollback and content/media recovery have different coverage. New accounts, permissions, invitations, purchases and public arbitrary builds are separate gates.

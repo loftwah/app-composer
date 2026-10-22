@@ -49,6 +49,10 @@ export declare function manageMiniapps(ctx: MiniappContext, runtime: unknown, pi
     code?: undefined;
     selection?: undefined;
     source?: undefined;
+    linked?: undefined;
+    configured?: undefined;
+    invitation?: undefined;
+    outcome?: undefined;
     title?: undefined;
     visible?: undefined;
     pending?: undefined;
@@ -74,6 +78,47 @@ export declare function manageMiniapps(ctx: MiniappContext, runtime: unknown, pi
     workspaces?: undefined;
     sources?: undefined;
     selection?: undefined;
+    linked?: undefined;
+    configured?: undefined;
+    invitation?: undefined;
+    title?: undefined;
+    visible?: undefined;
+    pending?: undefined;
+    items?: undefined;
+} | {
+    ok: boolean;
+    selection: {
+        workspace: string;
+        stack: string;
+        instance: string;
+        expectedRevision: number;
+    };
+    source: {
+        kind: "guestbook.resource";
+        version: 1;
+        resource: string;
+        configuration: number;
+    };
+    linked: {
+        kind: "guestbook.resource";
+        version: 1;
+        resource: string;
+        configuration: number;
+    } | null;
+    configured: boolean;
+    invitation: {
+        state: "closed" | "open" | "paused" | "full" | "none" | "unavailable";
+        configuration?: number | undefined;
+        contribute?: string | undefined;
+        collection?: string | undefined;
+    };
+    outcome: string;
+    message: string;
+    code?: undefined;
+    supported?: undefined;
+    workspace?: undefined;
+    workspaces?: undefined;
+    sources?: undefined;
     title?: undefined;
     visible?: undefined;
     pending?: undefined;
@@ -106,6 +151,10 @@ export declare function manageMiniapps(ctx: MiniappContext, runtime: unknown, pi
     workspace?: undefined;
     workspaces?: undefined;
     sources?: undefined;
+    linked?: undefined;
+    configured?: undefined;
+    invitation?: undefined;
+    outcome?: undefined;
 } | {
     ok: boolean;
     code: string;

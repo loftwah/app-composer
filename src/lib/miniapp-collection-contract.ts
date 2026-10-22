@@ -63,6 +63,27 @@ export const collectionItemsReply = z.object({
     )
     .max(200),
 });
+export const collectionInvitationState = z
+  .object({
+    state: z.enum(["open", "paused", "closed", "full", "unavailable", "none"]),
+    configuration: collectionRevision.optional(),
+    contribute: z.string().url().max(2048).optional(),
+    collection: z.string().url().max(2048).optional(),
+  })
+  .strict();
+export const collectionInvitationReply = z.object({
+  ok: z.literal(true),
+  selection: collectionSelection,
+  source: collectionSource,
+  linked: collectionSource.nullable(),
+  configured: z.boolean(),
+  invitation: collectionInvitationState,
+  outcome: z.enum(["applied", "unchanged", "refused", "unknown"]),
+  message: z.string().max(500),
+});
+export type CollectionInvitationReply = z.infer<
+  typeof collectionInvitationReply
+>;
 export const collectionReceipt = z
   .object({
     ok: z.literal(true),

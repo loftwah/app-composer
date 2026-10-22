@@ -19,6 +19,7 @@ import {
   collectionSourcesReply,
   collectionItemsReply,
   collectionReceipt,
+  collectionInvitationReply,
 } from "../src/lib/miniapp-collection-contract.ts";
 
 const pin = "a".repeat(40),
@@ -29,6 +30,7 @@ async function prepared() {
     selected = [],
     calls = [],
     cards = [];
+  let invitation = null;
   for (const [index, title] of [
     "Fictional Trail",
     "Fictional Launch",
@@ -108,6 +110,70 @@ async function prepared() {
         if (faults.afterExport) await faults.afterExport();
         return Response.json({ dataVersion: 1, cards });
       }
+      if (path === "/showcase/api/invitation") {
+        if (request.method === "GET")
+          return Response.json({
+            contract: 1,
+            configured: Boolean(invitation),
+            ...(invitation ? { source: invitation } : {}),
+            ...(invitation
+              ? {
+                  invitation: {
+                    state: "open",
+                    configuration: invitation.configuration,
+                    contribute:
+                      "https://guestbook.example.test/r/" +
+                      invitation.resource +
+                      "/c/" +
+                      invitation.configuration +
+                      "/contribute",
+                    collection:
+                      "https://guestbook.example.test/r/" +
+                      invitation.resource +
+                      "/c/" +
+                      invitation.configuration +
+                      "/",
+                  },
+                }
+              : { state: "none" }),
+          });
+        assert.equal(
+          request.headers.get("X-Composer-Source"),
+          faults.source,
+        );
+        assert.equal(
+          request.headers.get("X-Composer-Target"),
+          origin + "/showcase",
+        );
+        const body = await request.json();
+        if (body.action === "enable") {
+          invitation = body.source;
+          return Response.json({
+            contract: 1,
+            configured: true,
+            source: invitation,
+            invitation: {
+              state: "open",
+              configuration: invitation.configuration,
+              contribute:
+                "https://guestbook.example.test/r/" +
+                invitation.resource +
+                "/c/" +
+                invitation.configuration +
+                "/contribute",
+              collection:
+                "https://guestbook.example.test/r/" +
+                invitation.resource +
+                "/c/" +
+                invitation.configuration +
+                "/",
+            },
+          });
+        }
+        assert.equal(body.action, "disable");
+        invitation = null;
+        return Response.json({ contract: 1, configured: false, state: "none" });
+      }
       assert.equal(path, "/showcase/api/cards");
       assert.equal(request.headers.get("X-Composer-Source"), pin);
       assert.equal(
@@ -153,9 +219,15 @@ async function prepared() {
         request: new Request(
           origin +
             "/_emdash/api/plugins/composer-miniapps/" +
-            (action === "feature-resource" ? "write" : "read"),
+            (["feature-resource", "collection-invitation-set"].includes(action)
+              ? "write"
+              : "read"),
           {
-            method: action === "feature-resource" ? "POST" : "GET",
+            method: ["feature-resource", "collection-invitation-set"].includes(
+              action,
+            )
+              ? "POST"
+              : "GET",
             headers: { Origin: origin, "X-EmDash-Request": "1" },
           },
         ),
@@ -182,6 +254,80 @@ async function prepared() {
     },
   };
 }
+
+test("an owner links one exact saved book for contributions, can replace or stop it, and never features a note", async () => {
+  const f = await prepared();
+  try {
+    const none = collectionInvitationReply.parse(
+      await f.route("collection-invitation", f.selection(0)),
+    );
+    assert.equal(none.configured, false);
+    assert.equal(none.invitation.state, "none");
+    assert.equal(none.outcome, "unchanged");
+    assert.equal(f.cards.length, 0);
+    const book0 = collectionItemsReply.parse(
+      await f.route("collection-items", f.selection(0)),
+    );
+    const book1 = collectionItemsReply.parse(
+      await f.route("collection-items", f.selection(1)),
+    );
+
+    const enabled = collectionInvitationReply.parse(
+      await f.route("collection-invitation-set", {
+        ...f.selection(0),
+        operation: "enable",
+      }),
+    );
+    assert.equal(enabled.configured, true);
+    assert.equal(enabled.outcome, "applied");
+    assert.deepEqual(enabled.source, book0.source);
+    assert.deepEqual(enabled.linked, book0.source);
+    assert.equal(enabled.invitation.state, "open");
+    assert.equal(f.cards.length, 0, "linking an invitation does not feature a note");
+
+    const other = collectionInvitationReply.parse(
+      await f.route("collection-invitation", f.selection(1)),
+    );
+    assert.equal(other.configured, true);
+    assert.equal(other.source.resource, book1.source.resource);
+    assert.equal(other.linked.resource, book0.source.resource);
+
+    const replaced = collectionInvitationReply.parse(
+      await f.route("collection-invitation-set", {
+        ...f.selection(1),
+        operation: "enable",
+      }),
+    );
+    assert.equal(replaced.source.resource, book1.source.resource);
+    assert.deepEqual(replaced.linked, book1.source);
+    assert.equal(f.cards.length, 0);
+
+    const hidden = f.app.resources.get(book1.source.resource);
+    assert.ok(hidden);
+    hidden.visible = false;
+    const refused = await f.route("collection-invitation-set", {
+      ...f.selection(1),
+      operation: "enable",
+    });
+    assert.equal(refused.code, "CONFLICT");
+    assert.match(refused.message, /Publish this visitor book/);
+    hidden.visible = true;
+
+    const disabled = collectionInvitationReply.parse(
+      await f.route("collection-invitation-set", {
+        ...f.selection(1),
+        operation: "disable",
+      }),
+    );
+    assert.equal(disabled.configured, false);
+    assert.equal(disabled.linked, null);
+    assert.equal(disabled.invitation.state, "none");
+    assert.equal(disabled.outcome, "applied");
+    assert.equal(f.cards.length, 0);
+  } finally {
+    f.close();
+  }
+});
 
 test("native selectors expose two exact saved resources and only approved visible items without changing stacks", async () => {
   const f = await prepared();

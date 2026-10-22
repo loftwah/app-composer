@@ -1,17 +1,17 @@
 {
-  "id": "fd65c3c4c50801a6d2d1ea6a291bf63be5a776ff980b11289502e4306e66c761",
+  "id": "c880498d8b848544c875eb7d01a0d2f5f12645688f25cea4be89ee4504d0f5de",
   "reviewed": "2026-10-18",
   "apps": [
     {
       "id": "guestbook",
       "repository": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "4adca16a4048500b89393396fa32d3da1bc25fb1",
+      "commit": "019ce0d117f9f89e472a5c7642d51d85301f7fcd",
       "url": "https://guestbook.loftwah.com",
       "manifest": {
         "contract": 1,
         "id": "guestbook",
         "name": "Here / there",
-        "version": "1.2.0",
+        "version": "1.3.0",
         "repository": "https://github.com/loftwah/app-composer-guestbook",
         "runtime": "cloudflare-worker",
         "entry": "src/worker.ts",
@@ -79,20 +79,39 @@
           "retentionDays": 30,
           "receiptDays": 35,
           "notifications": false
+        },
+        "guestInvitation": {
+          "version": 1,
+          "kind": "postcard",
+          "route": "/r/:resource/api/invitation",
+          "states": [
+            "open",
+            "paused",
+            "closed",
+            "full"
+          ],
+          "default": "closed",
+          "limits": {
+            "message": 160,
+            "alias": 60,
+            "width": 1200,
+            "height": 900,
+            "bytes": 100000
+          }
         }
       },
-      "manifestDigest": "sha256:ca260944b8096d4f915c4017e3c914d48b2cd7102f0d9f0ae9bfca480406ab26"
+      "manifestDigest": "sha256:58dcb0573a416730cb954d1e5649b31e1db1c5ec94ab8039bf48d741ea51493f"
     },
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "ddea1d33c64c95d2dccb9095519865b6bf141780",
+      "commit": "20ef9a50c19c7a3419dc06fdae020c6a677ed5cf",
       "url": "https://showcase.loftwah.com",
       "manifest": {
         "contract": 1,
         "id": "showcase",
         "name": "Linkarooie",
-        "version": "1.7.0",
+        "version": "1.8.0",
         "repository": "https://github.com/loftwah/app-composer-showcase",
         "runtime": "cloudflare-worker",
         "entry": "src/worker.ts",
@@ -251,7 +270,7 @@
           "eligibility": "checked-at-each-render-and-export"
         }
       },
-      "manifestDigest": "sha256:92b5bcfa858731859ad8206d250f43b075e9ef81ed1688d0cdd72deff3eb85c4"
+      "manifestDigest": "sha256:37ef87c63fc981f1e49d129deb623806123fa799ae66290a5fc4f142c2bacdfa"
     }
   ]
 }

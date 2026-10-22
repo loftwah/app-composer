@@ -4,5 +4,8 @@
   "activity": "activity-transit-20261018",
   "get-ready": "get-ready-journey",
   "state": "state-journey",
-  "extension": "extension-journey"
+  "extension": "extension-journey",
+  "building-architecture": "building-architecture-20261022",
+  "building-workflow": "building-workflow-20261022",
+  "building-contribution": "building-contribution-20261022"
 }

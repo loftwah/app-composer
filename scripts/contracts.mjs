@@ -215,6 +215,34 @@ export function validateManifest(m) {
       }))
   )
     throw new Error("Unsupported private enquiry contract");
+  if (m.guestInvitation !== undefined) {
+    const invitation = m.guestInvitation,
+      limits = invitation?.limits;
+    if (
+      m.id !== "guestbook" ||
+      !invitation ||
+      typeof invitation !== "object" ||
+      Array.isArray(invitation) ||
+      Object.keys(invitation).sort().join(",") !==
+        "default,kind,limits,route,states,version" ||
+      invitation.version !== 1 ||
+      invitation.kind !== "postcard" ||
+      invitation.route !== "/r/:resource/api/invitation" ||
+      !Array.isArray(invitation.states) ||
+      invitation.states.join(",") !== "open,paused,closed,full" ||
+      invitation.default !== "closed" ||
+      !limits ||
+      typeof limits !== "object" ||
+      Array.isArray(limits) ||
+      Object.keys(limits).sort().join(",") !== "alias,bytes,height,message,width" ||
+      limits.message !== 160 ||
+      limits.alias !== 60 ||
+      limits.width !== 1200 ||
+      limits.height !== 900 ||
+      limits.bytes !== 100000
+    )
+      throw new Error("Unsupported guest invitation contract");
+  }
   return m;
 }
 export function validateComposition(manifests) {

@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   collectionSourcesReply,
   collectionItemsReply,
+  collectionInvitationReply,
   collectionReceipt,
   type CollectionReceipt,
 } from "../../lib/miniapp-collection-contract";
@@ -11,6 +12,15 @@ import { useNavigationGuard } from "../stacks/use-navigation-guard";
 
 type Sources = z.infer<typeof collectionSourcesReply>;
 type Book = z.infer<typeof collectionItemsReply>;
+type Invitation = z.infer<typeof collectionInvitationReply>;
+const invitationLabels: Record<string, string> = {
+  open: "Open · visitors can send a note for review",
+  paused: "Paused · no send action is shown",
+  closed: "Closed · no send action is shown",
+  full: "Review queue full · no send action is shown",
+  unavailable: "Unavailable · Linkarooie cannot reach the Guestbook",
+  none: "Not linked · no contribution action is shown",
+};
 const reason = (error: unknown) =>
   error instanceof Error
     ? error.message
@@ -35,6 +45,8 @@ export function CollectionSources({
   const [book, setBook] = useState<Book>();
   const [item, setItem] = useState("");
   const [receipt, setReceipt] = useState<CollectionReceipt>();
+  const [invitation, setInvitation] = useState<Invitation>();
+  const [invitationError, setInvitationError] = useState("");
   const [message, setMessage] = useState(
     "Choose a workspace to load its saved visitor books.",
   );
@@ -113,6 +125,8 @@ export function CollectionSources({
           "The saved book changed. Refresh its sources before collecting.",
         );
       setBook(result);
+      setInvitation(undefined);
+      setInvitationError("");
       setMessage(
         result.pending
           ? "This book has an unresolved app operation. Reconcile it in Creator before collecting."
@@ -122,6 +136,37 @@ export function CollectionSources({
               ? "Choose an approved contribution. Guestbook will recheck public eligibility when collecting."
               : "No approved public contributions in this saved book.",
       );
+      try {
+        const invite = collectionInvitationReply.parse(
+          await request("collection-invitation", { ...result.selection }),
+        );
+        if (
+          !same(invite.selection, result.selection) ||
+          !same(invite.source, result.source)
+        )
+          throw Error("The app returned another invitation source.");
+        setInvitation(invite);
+      } catch (error) {
+        setInvitationError(reason(error));
+      }
+    });
+  const changeInvitation = (operation: "enable" | "disable") =>
+    run(async () => {
+      if (!book) return;
+      setInvitationError("");
+      const result = collectionInvitationReply.parse(
+        await request("collection-invitation-set", {
+          ...book.selection,
+          operation,
+        }),
+      );
+      if (
+        !same(result.selection, book.selection) ||
+        !same(result.source, book.source)
+      )
+        throw Error("Linkarooie acknowledged another contribution source.");
+      setInvitation(result);
+      setMessage(result.message);
     });
   const feature = () =>
     run(async () => {
@@ -230,6 +275,8 @@ export function CollectionSources({
               setChoice("");
               setItem("");
               setReceipt(undefined);
+              setInvitation(undefined);
+              setInvitationError("");
               void load(selected);
             }}
           >
@@ -319,6 +366,85 @@ export function CollectionSources({
               Feature approved contribution
             </button>
           </>
+        )}
+        {book && (
+          <div className="ca-invitation">
+            <h3>Guestbook contributions</h3>
+            <p>
+              Guestbook owns the short postcard form, private review, approval
+              and hiding. Linkarooie links to that real form only while the
+              Guestbook says it accepts postcards. This is not a comment feed
+              and never publishes a note automatically.
+            </p>
+            {invitationError ? (
+              <>
+                <p role="status">{invitationError}</p>
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={disabled || uncertain || !choice}
+                  onClick={() => void choose(choice)}
+                >
+                  Check contribution state
+                </button>
+              </>
+            ) : invitation ? (
+              <>
+                <p>
+                  <strong>Current:</strong>{" "}
+                  {invitationLabels[invitation.invitation.state] ??
+                    invitationLabels.unavailable}
+                  .{" "}
+                  {invitation.configured && same(invitation.linked, book.source)
+                    ? "This book is linked for contributions."
+                    : invitation.configured
+                      ? "A different Guestbook is linked for contributions."
+                      : "No Guestbook is linked for contributions."}
+                </p>
+                {invitation.configured && same(invitation.linked, book.source) ? (
+                  <button
+                    type="button"
+                    className="secondary"
+                    disabled={disabled || uncertain}
+                    onClick={() => void changeInvitation("disable")}
+                  >
+                    Stop inviting from this book
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={
+                      disabled ||
+                      uncertain ||
+                      !book.visible ||
+                      book.pending
+                    }
+                    onClick={() => void changeInvitation("enable")}
+                  >
+                    Use this Guestbook for contributions
+                  </button>
+                )}
+                {invitation.configured &&
+                  !same(invitation.linked, book.source) && (
+                    <p>
+                      Choosing this book replaces the linked contribution
+                      reference. It does not change either Guestbook’s records,
+                      settings or visibility.
+                    </p>
+                  )}
+                {!book.visible && (
+                  <p>Publish this visitor book before inviting contributions.</p>
+                )}
+              </>
+            ) : (
+              <p>Checking the contribution state…</p>
+            )}
+            <p className="small">
+              Review and approve notes in Guestbook. Featuring an approved note
+              is still a separate choice under “Feature approved contribution”.
+              Hiding it at the source removes it from both views.
+            </p>
+          </div>
         )}
         {receipt && (
           <p>

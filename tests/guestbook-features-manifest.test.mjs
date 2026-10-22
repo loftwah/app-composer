@@ -22,6 +22,14 @@ const privateEnquiries = {
   receiptDays: 35,
   notifications: false,
 };
+const guestInvitation = {
+  version: 1,
+  kind: "postcard",
+  route: "/r/:resource/api/invitation",
+  states: ["open", "paused", "closed", "full"],
+  default: "closed",
+  limits: { message: 160, alias: 60, width: 1200, height: 900, bytes: 100000 },
+};
 const manifest = (id = "guestbook") => ({
   contract: 1,
   id,
@@ -37,7 +45,8 @@ test("legacy Guestbook and exact separately reviewed contracts retain the existi
     {},
     { portability },
     { privateEnquiries },
-    { portability, privateEnquiries },
+    { guestInvitation },
+    { portability, privateEnquiries, guestInvitation },
   ]) {
     const after = { ...before, ...structuredClone(fields) };
     assert.equal(validateManifest(after), after);
@@ -64,6 +73,7 @@ test("legacy Guestbook and exact separately reviewed contracts retain the existi
 for (const [field, approved] of Object.entries({
   portability,
   privateEnquiries,
+  guestInvitation,
 })) {
   test(`${field} refuses missing, inherited, extra and malformed authority-bearing fields`, () => {
     const invalid = [
@@ -131,5 +141,23 @@ test("changed portability/enquiry scope, publication, endpoint, retention and no
           privateEnquiries: { ...privateEnquiries, ...change },
         }),
       /Unsupported private enquiry contract/,
+    );
+  for (const change of [
+    { default: "open" },
+    { kind: "comment" },
+    { route: "/api/invitation" },
+    { states: ["open", "closed"] },
+    { states: ["open", "paused", "closed", "full", "unknown"] },
+    { limits: { ...guestInvitation.limits, message: 1000 } },
+    { limits: { ...guestInvitation.limits, bytes: 140000 } },
+    { guestCode: "hunter2" },
+  ])
+    assert.throws(
+      () =>
+        validateManifest({
+          ...manifest(),
+          guestInvitation: { ...guestInvitation, ...change },
+        }),
+      /Unsupported guest invitation contract/,
     );
 });

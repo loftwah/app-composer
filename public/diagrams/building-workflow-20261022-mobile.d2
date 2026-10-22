@@ -1,0 +1,21 @@
+direction: down
+style.fill: "#17181b"
+*.style: { font-size: 18; bold: false; fill: "#23252a"; stroke: "#747a85"; font-color: "#f2f3f5"; border-radius: 6 }
+(* -> *)[*].style: { stroke: "#ff9b55"; stroke-width: 2; font-color: "#f2f3f5"; font-size: 14 }
+brief: Brief
+ready: Ready
+init: Init spec
+build: Agent build
+local: Local run
+review: Review
+release: Release
+live: Live check
+brief -> ready: when needed
+ready -> init: target
+init -> build: handoff
+build -> local: run
+local -> review: result
+review -> build: fix
+review -> release: accept
+release -> live: deploy
+live -> brief: next

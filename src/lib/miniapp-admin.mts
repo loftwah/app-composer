@@ -157,12 +157,15 @@ export async function manageMiniapps(
     "collection-sources",
     "collection-items",
     "collection-check",
+    "collection-invitation",
+    "collection-invitation-set",
     "feature-resource",
   ].includes(action);
   const reading =
     action === "snapshot" ||
     action === "preview" ||
-    (collection && action !== "feature-resource") ||
+    (collection &&
+      !["feature-resource", "collection-invitation-set"].includes(action)) ||
     (action === "profile-settings" && command.operation === "export");
   if (request.method !== (reading ? "GET" : "POST"))
     return fail("METHOD", "This action uses a different request method.");
