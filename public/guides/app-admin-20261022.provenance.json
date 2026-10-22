@@ -1,7 +1,7 @@
 {
   "reviewed": "2026-10-22",
-  "capturedAtUTC": "2026-10-22T07:10:58Z",
-  "liveSource": "d4b5efee22934151315251b90572ab4c00cfbfed",
+  "capturedAtUTC": "2026-10-22T08:30:55Z",
+  "liveSource": "6df805f4f9649ff085e6d18f4e168e09f35ef28f",
   "url": "https://composer.loftwah.com/s/fictional-trail-notes",
   "publishedRevision": 11,
   "method": "Unedited Chromium viewport captures of the public published stack. No request overrides, synthetic DOM changes or authenticated owner data.",
@@ -11,8 +11,8 @@
       "width": 1000,
       "height": 900,
       "theme": "dark",
-      "sha256": "759c63db4d4ea37a6ad3871fd08934c84112da5617bea36e4930dca2ba354c07",
-      "bytes": 81800
+      "sha256": "0fd1c2f9df7c77770b37e80a6325676c9bdfdb28836403e7f4b26f4cafa69eaa",
+      "bytes": 81548
     }
   ],
   "notes": [
