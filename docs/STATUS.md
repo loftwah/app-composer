@@ -22,7 +22,7 @@ The [build story](https://composer.loftwah.com/building) publishes “Building A
 
 Guestbook `019ce0d117f9f89e472a5c7642d51d85301f7fcd` publishes the versioned `GET /r/:resource/api/invitation` contract: `open`, `paused`, `closed` or `full`, the active configuration, exact form paths and postcard limits. Linkarooie `20ef9a50c19c7a3419dc06fdae020c6a677ed5cf` links one exact source, shows the real action only when open, and explains the other states without a dead form. Approval and featuring remain separate. The native Composer collection control can link, replace or stop the invitation; it does not copy credentials or guest text.
 
-Local checks: Composer 591 tests pass; Astro 0 errors/0 warnings; production build/publication guard 945 files, 74 archive members. Guestbook 103 and Linkarooie 100 tests pass. The local capture asserts pending media 404, approved public source, hidden item/media 404, card removal and no send action when closed. A hosted contribution CTA was not enabled on the owner’s live profile; exact release identity and live checks belong in #11.
+Local checks: Composer 591 tests pass; Astro 0 errors/0 warnings; production build/publication guard 949 files, 74 archive members. Guestbook 103 and Linkarooie 100 tests pass. The local capture asserts pending media 404, approved public source, hidden item/media 404, card removal and no send action when closed. A hosted contribution CTA was not enabled on the owner’s live profile; exact release identity and live checks belong in #11.
 
 ## Shipped and demonstrated
 
