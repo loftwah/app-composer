@@ -8,7 +8,7 @@ const guestbook = process.env.GUESTBOOK_URL || "https://localhost:8788";
 const linkarooie = process.env.LINKAROOIE_URL || "https://localhost:8787";
 const token = process.env.OWNER_TOKEN || "build-199-fictional-owner";
 const resource = process.env.RESOURCE_ID || "build199-trail";
-const specPath = process.env.INIT_SPEC || "output/build-199/init-spec.json";
+const specPath = process.env.INIT_SPEC || "public/downloads/building-199-init-spec.json";
 const out = process.env.SEED_OUT || "output/build-199/seed.json";
 if (!/^[a-z0-9-]{6,64}$/.test(resource)) throw Error("Use a safe resource ID.");
 if (!/^https:\/\/localhost:\d+$/.test(guestbook) || !/^https:\/\/localhost:\d+$/.test(linkarooie))

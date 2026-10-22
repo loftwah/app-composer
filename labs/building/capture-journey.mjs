@@ -14,10 +14,10 @@ const linkarooie = process.env.LINKAROOIE_URL || "https://localhost:8787";
 const token = process.env.OWNER_TOKEN || "build-199-fictional-owner";
 const resource = process.env.RESOURCE_ID || "build199-trail";
 const output =
-  process.env.CAPTURE_OUT || "/Users/deanlofts/gits/app-composer/output/build-199/captures";
+  process.env.CAPTURE_OUT || "output/build-199/captures";
 const specPath =
   process.env.INIT_SPEC ||
-  "/Users/deanlofts/gits/app-composer/output/build-199/init-spec.json";
+  "public/downloads/building-199-init-spec.json";
 mkdirSync(output, { recursive: true });
 const spec = JSON.parse(readFileSync(specPath, "utf8"));
 const NOTE = "A postcard from the edge of the map.";

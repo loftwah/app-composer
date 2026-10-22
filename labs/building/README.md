@@ -28,11 +28,11 @@ It writes the root to `output/build-199/local-root` and leaves a `run.env` insid
 
 ## Seed
 
-Generate or provide a real Init specification first. The committed article uses `output/build-199/init-spec.json`; without it, download a spec from `/init` and point `INIT_SPEC` at the file.
+Generate or provide a real Init specification first. The committed article uses `public/downloads/building-199-init-spec.json`. You can replace it with a spec downloaded from `/init` and point `INIT_SPEC` at that file.
 
 ```sh
 RESOURCE_ID=build199-trail-8 \
-  INIT_SPEC=output/build-199/init-spec.json \
+  INIT_SPEC=public/downloads/building-199-init-spec.json \
   node labs/building/seed-local.mjs
 ```
 
