@@ -13,8 +13,12 @@ html.composer-content-site {
     --muted: #afb3bb;
     --border: #464a52;
     --surface: #23252a;
-    --accent: #ff9b55;
+    --accent: #fc5b05;
+    --action: #fc5b05;
+    --action-hover: #ff7a33;
+    --action-pressed: #e85404;
     --button-text: #17181b;
+    --focus: #fc5b05;
   }
   &[data-theme="light"] {
     color-scheme: light;
@@ -23,8 +27,12 @@ html.composer-content-site {
     --muted: #5c616a;
     --border: #b9bec5;
     --surface: #efeeea;
-    --accent: #a63d08;
-    --button-text: #fff;
+    --accent: #c74400;
+    --action: #fc5b05;
+    --action-hover: #ff7a33;
+    --action-pressed: #e85404;
+    --button-text: #17181b;
+    --focus: #fc5b05;
   }
   * {
     box-sizing: border-box;
@@ -74,12 +82,20 @@ html.composer-content-site {
     padding: 12px 20px;
     border: 0;
     border-radius: 8px;
-    background: var(--accent);
+    background: var(--action);
     color: var(--button-text);
     display: inline-flex;
     align-items: center;
     cursor: pointer;
     text-decoration: none;
+  }
+  button:hover,
+  .button:hover {
+    background: var(--action-hover);
+  }
+  button:active,
+  .button:active {
+    background: var(--action-pressed);
   }
   .theme-toggle {
     background: var(--surface);
@@ -164,7 +180,7 @@ html.composer-content-site {
     color: var(--muted);
   }
   :focus-visible {
-    outline: 3px solid var(--accent);
+    outline: 3px solid var(--focus);
     outline-offset: 5px;
   }
   .skip {
@@ -328,7 +344,7 @@ html.composer-content-site button.theme-control:hover {
   background: color-mix(in srgb, currentColor 9%, transparent) !important;
 }
 html.composer-content-site button.theme-control:focus-visible {
-  outline: 2px solid var(--accent, var(--color-accent, currentColor));
+  outline: 2px solid var(--focus, var(--color-focus, currentColor));
   outline-offset: 3px;
 }
 html.composer-content-site button.theme-control svg {

@@ -61,8 +61,8 @@
   },
   "building-architecture": {
     "desktop": {
-      "width": 1039,
-      "height": 655
+      "width": 1200,
+      "height": 640
     },
     "mobile": {
       "width": 658,
@@ -71,8 +71,8 @@
   },
   "building-workflow": {
     "desktop": {
-      "width": 956,
-      "height": 455
+      "width": 1200,
+      "height": 560
     },
     "mobile": {
       "width": 290,
@@ -81,8 +81,8 @@
   },
   "building-contribution": {
     "desktop": {
-      "width": 894,
-      "height": 455
+      "width": 1200,
+      "height": 560
     },
     "mobile": {
       "width": 279,

@@ -64,14 +64,14 @@ test("the editable diagrams have source, light/dark plates, phone variants and t
   const page = text("src/pages/building.astro");
   const dimensions = JSON.parse(text("public/diagrams/journey-dimensions.json"));
   for (const name of ["architecture", "workflow", "contribution"]) {
-    assert(existsSync(new URL(`public/diagrams/building-${name}-20261022.d2`, root)));
-    assert(existsSync(new URL(`public/diagrams/building-${name}-20261022-mobile.d2`, root)));
+    assert(existsSync(new URL(`public/diagrams/building-${name}-20261023.d2`, root)));
+    assert(existsSync(new URL(`public/diagrams/building-${name}-20261023-mobile.d2`, root)));
     for (const variant of ["dark", "light", "mobile-dark", "mobile-light"])
-      assert(existsSync(new URL(`public/diagrams/building-${name}-20261022-${variant}.svg`, root)), name + " " + variant);
+      assert(existsSync(new URL(`public/diagrams/building-${name}-20261023-${variant}.svg`, root)), name + " " + variant);
     assert(dimensions[`building-${name}`].desktop.width > 0);
     assert(dimensions[`building-${name}`].mobile.height > 0);
-    assert.match(page, new RegExp(`/diagrams/building-${name}-20261022-dark\\.svg`));
-    assert.match(page, new RegExp(`/diagrams/building-${name}-20261022-light\\.svg`));
+    assert.match(page, new RegExp(`/diagrams/building-${name}-20261023-dark\\.svg`));
+    assert.match(page, new RegExp(`/diagrams/building-${name}-20261023-light\\.svg`));
   }
   assert.match(page, /Text version of the contribution flow/);
   assert.match(page, /Text version of the architecture/);

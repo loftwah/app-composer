@@ -270,12 +270,12 @@ labs/building/stop-local.sh`}</code></pre>
         <h2>Why this is composition, not a merged app</h2>
         <figure class="build-figure">
           <picture class="diagram-dark">
-            <source media="(max-width: 700px)" srcset="/diagrams/building-contribution-20261022-mobile-dark.svg" />
-            <img src="/diagrams/building-contribution-20261022-dark.svg" width={contribution.desktop.width} height={contribution.desktop.height} alt="Flow from a visitor note to the Guestbook form, pending review, owner approval, a separate Linkarooie featuring choice, a profile card, and source revocation removing both public views." loading="lazy" />
+            <source media="(max-width: 700px)" srcset="/diagrams/building-contribution-20261023-mobile-dark.svg" />
+            <img src="/diagrams/building-contribution-20261023-dark.svg" width={contribution.desktop.width} height={contribution.desktop.height} alt="Flow from a visitor note to the Guestbook form, pending review, owner approval, a separate Linkarooie featuring choice, a profile card, and source revocation removing both public views." loading="lazy" />
           </picture>
           <picture class="diagram-light">
-            <source media="(max-width: 700px)" srcset="/diagrams/building-contribution-20261022-mobile-light.svg" />
-            <img src="/diagrams/building-contribution-20261022-light.svg" width={contribution.desktop.width} height={contribution.desktop.height} alt="Flow from a visitor note to the Guestbook form, pending review, owner approval, a separate Linkarooie featuring choice, a profile card, and source revocation removing both public views." loading="lazy" />
+            <source media="(max-width: 700px)" srcset="/diagrams/building-contribution-20261023-mobile-light.svg" />
+            <img src="/diagrams/building-contribution-20261023-light.svg" width={contribution.desktop.width} height={contribution.desktop.height} alt="Flow from a visitor note to the Guestbook form, pending review, owner approval, a separate Linkarooie featuring choice, a profile card, and source revocation removing both public views." loading="lazy" />
           </picture>
           <figcaption>The source owns the record. Linkarooie owns the curation. The two public views resolve the same source state, so revocation is not a second copy to clean up.</figcaption>
         </figure>
@@ -309,12 +309,12 @@ labs/building/stop-local.sh`}</code></pre>
         <h2>The shape of the system</h2>
         <figure class="build-figure">
           <picture class="diagram-dark">
-            <source media="(max-width: 700px)" srcset="/diagrams/building-architecture-20261022-mobile-dark.svg" />
-            <img src="/diagrams/building-architecture-20261022-dark.svg" width={architecture.desktop.width} height={architecture.desktop.height} alt="Architecture diagram: visitors and owners reach App Composer; the agent changes reviewed source; Composer pins source and connects to independent Guestbook and Linkarooie Workers with their own D1 and R2 data; live identity is observed separately." loading="lazy" />
+            <source media="(max-width: 700px)" srcset="/diagrams/building-architecture-20261023-mobile-dark.svg" />
+            <img src="/diagrams/building-architecture-20261023-dark.svg" width={architecture.desktop.width} height={architecture.desktop.height} alt="Architecture diagram: visitors and owners reach App Composer; the agent changes reviewed source; Composer pins source and connects to independent Guestbook and Linkarooie Workers with their own D1 and R2 data; live identity is observed separately." loading="lazy" />
           </picture>
           <picture class="diagram-light">
-            <source media="(max-width: 700px)" srcset="/diagrams/building-architecture-20261022-mobile-light.svg" />
-            <img src="/diagrams/building-architecture-20261022-light.svg" width={architecture.desktop.width} height={architecture.desktop.height} alt="Architecture diagram: visitors and owners reach App Composer; the agent changes reviewed source; Composer pins source and connects to independent Guestbook and Linkarooie Workers with their own D1 and R2 data; live identity is observed separately." loading="lazy" />
+            <source media="(max-width: 700px)" srcset="/diagrams/building-architecture-20261023-mobile-light.svg" />
+            <img src="/diagrams/building-architecture-20261023-light.svg" width={architecture.desktop.width} height={architecture.desktop.height} alt="Architecture diagram: visitors and owners reach App Composer; the agent changes reviewed source; Composer pins source and connects to independent Guestbook and Linkarooie Workers with their own D1 and R2 data; live identity is observed separately." loading="lazy" />
           </picture>
           <figcaption>The local run substitutes local Wrangler services for the hosted bindings. The ownership boundaries and app code are the same; the deployment identity is not.</figcaption>
         </figure>
@@ -334,12 +334,12 @@ labs/building/stop-local.sh`}</code></pre>
         <h2>The workflow that produced it</h2>
         <figure class="build-figure">
           <picture class="diagram-dark">
-            <source media="(max-width: 700px)" srcset="/diagrams/building-workflow-20261022-mobile-dark.svg" />
-            <img src="/diagrams/building-workflow-20261022-dark.svg" width={workflow.desktop.width} height={workflow.desktop.height} alt="Workflow from brief to Get Ready, Init, agent implementation, local run, review, guarded release and live verification, with a feedback loop back to implementation." loading="lazy" />
+            <source media="(max-width: 700px)" srcset="/diagrams/building-workflow-20261023-mobile-dark.svg" />
+            <img src="/diagrams/building-workflow-20261023-dark.svg" width={workflow.desktop.width} height={workflow.desktop.height} alt="Workflow from brief to Get Ready, Init, agent implementation, local run, review, guarded release and live verification, with a feedback loop back to implementation." loading="lazy" />
           </picture>
           <picture class="diagram-light">
-            <source media="(max-width: 700px)" srcset="/diagrams/building-workflow-20261022-mobile-light.svg" />
-            <img src="/diagrams/building-workflow-20261022-light.svg" width={workflow.desktop.width} height={workflow.desktop.height} alt="Workflow from brief to Get Ready, Init, agent implementation, local run, review, guarded release and live verification, with a feedback loop back to implementation." loading="lazy" />
+            <source media="(max-width: 700px)" srcset="/diagrams/building-workflow-20261023-mobile-light.svg" />
+            <img src="/diagrams/building-workflow-20261023-light.svg" width={workflow.desktop.width} height={workflow.desktop.height} alt="Workflow from brief to Get Ready, Init, agent implementation, local run, review, guarded release and live verification, with a feedback loop back to implementation." loading="lazy" />
           </picture>
           <figcaption>The dashed edge is the part that matters. A local run or a review finding sends the work back to implementation; it is not a one-way pipeline.</figcaption>
         </figure>

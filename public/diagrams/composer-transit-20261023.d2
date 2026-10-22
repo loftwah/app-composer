@@ -1,0 +1,18 @@
+style.fill: "#17181b"
+*.style: { font-size: 20; bold: false; fill: "#23252a"; stroke: "#747a85"; font-color: "#f2f3f5"; border-radius: 6 }
+(* -> *)[*].style: { stroke: "#fc5b05"; stroke-width: 2; font-color: "#f2f3f5"; font-size: 16 }
+grid-rows: 2
+grid-columns: 3
+horizontal-gap: 96
+vertical-gap: 100
+intent: Your decision\nChoose the useful outcome { shape: document }
+ready: Get Ready\nAuthorised workspace\nPrivate evidence stays local
+brief: Init\nEditable portable brief\nData, not credentials { shape: document }
+public: Public site\nUse published HTTPS routes
+cloud: Your Cloudflare account\nApp Workers + owned D1 / R2
+source: Your repository\nAgent implements and tests\nExact source stays yours { shape: package }
+intent -> ready: authorise
+ready -> brief: checked
+brief -> source: brief
+source -> cloud: guarded\nrelease
+cloud -> public: HTTPS

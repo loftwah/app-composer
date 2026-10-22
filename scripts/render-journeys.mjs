@@ -35,7 +35,7 @@ try {
             ["#17181b", "#faf9f7"],
             ["#23252a", "#efeeea"],
             ["#f2f3f5", "#22252b"],
-            ["#ff9b55", "#a63d08"],
+            ["#fc5b05", "#c74400"],
           ])
             input = input.replaceAll(from, to);
         // The existing licensed local Space face is bundled, with no asset fetches.

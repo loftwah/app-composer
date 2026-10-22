@@ -1,0 +1,37 @@
+direction: right
+style.fill: "#17181b"
+*.style: { font-size: 20; bold: false; fill: "#23252a"; stroke: "#747a85"; font-color: "#f2f3f5"; border-radius: 6 }
+(* -> *)[*].style: { stroke: "#fc5b05"; stroke-width: 2; font-color: "#f2f3f5"; font-size: 16 }
+grid-rows: 3
+grid-columns: 3
+horizontal-gap: 90
+vertical-gap: 80
+visitor: Visitor\npublic HTTPS { shape: person }
+owner: Invited owner\nAccess + EmDash role { shape: person }
+agent: Authorised coding agent\nbrief · source · checks { shape: person }
+composer: App Composer\nAstro pages + EmDash admin\nD1 / R2 binding {
+  shape: rectangle
+  style.fill: "#2b211c"
+}
+guestbook: Here / there\nindependent Worker\nD1 + R2 | submit · review {
+  shape: rectangle
+  style.fill: "#1f2a22"
+}
+linkarooie: Linkarooie\nindependent Worker\nD1 | curate · profile {
+  shape: rectangle
+  style.fill: "#222631"
+}
+source: Source and release pins\nGitHub repositories\nmanifests + exact commits {
+  shape: document
+}
+evidence: Live identity\nWorker version + hostname\nbehaviour observed
+visitor -> composer: pages
+owner -> composer: authenticated admin
+agent -> source: reviewed commits
+source -> composer: pinned composition
+composer -> guestbook: service binding
+composer -> linkarooie: service binding
+linkarooie -> guestbook: invitation + approved items\nno copied credentials
+composer -> evidence: guarded release
+guestbook -> evidence: standalone identity
+linkarooie -> evidence: standalone identity
