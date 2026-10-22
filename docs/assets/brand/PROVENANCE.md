@@ -45,7 +45,7 @@ Source files: `.artwork/campaign/php2shell-square.html`, `.artwork/campaign/php2
 | `public/brand/campaign/product-x-banner-20261022b.jpg` | 1500 × 500 | Product X profile banner. Keeps the lockup, headline and URL inside the central crop and away from the avatar overlap. |
 | `public/brand/campaign/product-x-banner-20261022b.png` | 1500 × 500 | Editable-render source for the X banner. |
 
-The 1500 × 500 X banner is a product asset, not a third campaign card. It uses the approved reverse mark, the existing product line and the clean product address. The JPEG is 47 KB; the editable HTML source is `.artwork/campaign/x-banner.html`. The article links the banner and the three campaign cards as downloads.
+The 1500 × 500 X banner is a product asset, not a third campaign card. It uses the approved reverse mark, the existing product line and the clean product address. The footer begins at x=200 and sits above the lower-left profile-avatar overlap zone. The JPEG is 49 KB; the editable HTML source is `.artwork/campaign/x-banner.html`. The article links the banner and the three campaign cards as downloads.
 
 The product card uses the approved mark and the existing product line, "Make software. Keep it yours." It is separate from the campaign card so the homepage retains a product sharing identity.
 

@@ -139,7 +139,7 @@ export const enquirySummary = z
     source: enquirySource,
     resource,
     retentionDays: z.literal(30),
-    capped: z.boolean(),
+    atExportLimit: z.boolean(),
     total: enquiryCount,
     groups: z
       .array(
@@ -157,7 +157,7 @@ export const enquirySummary = z
           })
           .strict(),
       )
-      .max(64),
+      .max(200),
   })
   .strict();
 const operationResource = z

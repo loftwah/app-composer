@@ -12,7 +12,9 @@ The Australia-first [PHP2Shell briefing](https://composer.loftwah.com/php2shell)
 
 The public [Your app, your admin](https://composer.loftwah.com/manage) explanation now connects the plain-language request to the actual owner surfaces: Creator stacks, private enquiries, workspace outcomes, workspace maintenance and workspace access, plus the app-owned studios. It uses a live published stack capture, an authored wiring diagram with a mobile text equivalent, and a status table that separates supported work, configuration and unsupported requests.
 
-The private enquiry Inbox now groups retained briefs by exact published page and app instance, with reviewed, pending and rejected counts and the latest date. It reads the app's bounded private export, validates resource/source/provenance and returns no brief text, contact field or visitor identity. The summary is capped at 200 items and stated as such. “Reviewed” remains an owner decision, not a sale, reply or conversion.
+The private enquiry Inbox now groups retained briefs by exact published page and app instance, with reviewed, pending and rejected counts and the latest date. It reads the app's bounded private export, validates resource/source/provenance and returns no brief text, contact field or visitor identity. The summary covers up to the 200 items Composer accepts and states when that limit is reached. “Reviewed” remains an owner decision, not a sale, reply or conversion.
+
+Local checks for this slice: 582 tests pass; Astro reports 0 errors/0 warnings; the production build and publication guard pass (907 files, 74 archive members). Live source/Worker identity and production interaction are recorded in #11 after the guarded release.
 
 ## Shipped and demonstrated
 

@@ -479,6 +479,7 @@ export async function manageEnquiries(ctx: Context, runtime: EnquiryRuntime) {
           b.total - a.total ||
           (b.latest ?? "").localeCompare(a.latest ?? "") ||
           String(a.stack).localeCompare(String(b.stack)) ||
+          String(a.publication).localeCompare(String(b.publication)) ||
           String(a.instance).localeCompare(String(b.instance)),
       );
       return {
@@ -490,7 +491,7 @@ export async function manageEnquiries(ctx: Context, runtime: EnquiryRuntime) {
           source: reply.source,
           resource: reply.resource,
           retentionDays: 30,
-          capped: reply.items.length >= 200,
+          atExportLimit: reply.items.length >= 200,
           total: reply.items.length,
           groups: ordered,
         }),

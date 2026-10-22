@@ -236,6 +236,7 @@ test("page summary counts retained briefs by exact publication scope without ret
     );
     assert.equal(result.ok, true, result.message);
     assert.equal(result.summary.total, 3);
+    assert.equal(result.summary.atExportLimit, false);
     assert.equal(result.summary.groups.length, 2);
     const published = result.summary.groups.find(
       (group) => group.kind === "composer.publication",
@@ -280,6 +281,73 @@ test("page summary counts retained briefs by exact publication scope without ret
         )
       ).code,
       "FORBIDDEN",
+    );
+  } finally {
+    f.close();
+  }
+});
+
+test("page summary handles more than sixty-four exact publication groups without dropping counts", async () => {
+  const f = await prepared();
+  try {
+    const items = Array.from({ length: 65 }, (_, index) => {
+      const suffix = String(index).padStart(2, "0");
+      return {
+        id: `fictional-group-${suffix}`,
+        scope_key: "c".repeat(64),
+        configuration_revision: 1,
+        provenance: {
+          kind: "composer.publication",
+          resource: f.resource,
+          configuration: 1,
+          stack: `fictional-stack-${suffix}`,
+          publication: 1,
+          instance: `fictional-instance-${suffix}`,
+        },
+        model_version: 1,
+        producer_source: source,
+        values: {
+          title: "Fictional group",
+          goal: "Fictional only",
+          starting_point: "New idea",
+          deliverables: [],
+        },
+        consent_version: 1,
+        consent_at: "2026-10-20 09:00:00",
+        status: "reviewed",
+        revision: 1,
+        created_at: "2026-10-20 10:00:00",
+        expires_at: "2026-11-19 09:00:00",
+      };
+    });
+    f.handler(() =>
+      Response.json({
+        contract: 1,
+        format: "guestbook.private-enquiries/v1",
+        source,
+        resource: f.row(),
+        retentionDays: 30,
+        items,
+        covers: {
+          privateBodies: true,
+          consent: true,
+          provenance: true,
+          notifications: false,
+          credentials: false,
+        },
+        scope: "current-resource-only",
+      }),
+    );
+    const result = await f.route(
+      { action: "summary", workspace: f.space.id, resource: f.resource },
+      true,
+    );
+    assert.equal(result.ok, true, result.message);
+    assert.equal(result.summary.total, 65);
+    assert.equal(result.summary.groups.length, 65);
+    assert.equal(
+      result.summary.groups.reduce((sum, group) => sum + group.total, 0),
+      65,
     );
   } finally {
     f.close();

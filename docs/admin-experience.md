@@ -30,7 +30,7 @@ Every Composer route rechecks the current role after remote waits and immediatel
 
 ## Page-level enquiry counts
 
-The Inbox calls the app's existing private export, validates the resource/source and each item's provenance, then counts by exact publication scope. It returns counts and dates, not brief text, contact fields or visitor identity. The summary is capped at the 200 exported items and states that cap when reached. “Reviewed” is an owner decision, not a sale, contact, reply or conversion. Bodies expire after 30 days; minimal receipts remain for 35. Notifications and email delivery are not implemented.
+The Inbox calls the app's existing private export, validates the resource/source and each item's provenance, then counts by exact publication scope. It returns counts and dates, not brief text, contact fields or visitor identity. The summary covers up to the 200 items Composer accepts from the export and says when that limit is reached. “Reviewed” is an owner decision, not a sale, contact, reply or conversion. Bodies expire after 30 days; minimal receipts remain for 35. Notifications and email delivery are not implemented.
 
 The page is built from the app's own records. Composer does not create a parallel enquiry database.
 

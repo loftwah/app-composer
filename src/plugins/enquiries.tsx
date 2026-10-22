@@ -139,6 +139,8 @@ function WorkspaceEnquiries({ search }: { search: string }) {
     [summary, setSummary] = useState<EnquirySummary>(),
     [summaryError, setSummaryError] = useState("");
   const summaryGeneration = useRef(0);
+  const resourceRef = useRef("");
+  resourceRef.current = resource;
   const [checkedAbsent, setCheckedAbsent] = useState(false);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -285,9 +287,17 @@ function WorkspaceEnquiries({ search }: { search: string }) {
         })
         .strict()
         .parse(raw);
-      if (reply.summary.resource.id !== selected)
+      if (
+        reply.summary.resource.id !== selected ||
+        reply.summary.resource.workspace_id !== workspace
+      )
         throw Error("The app summarised another visitor book.");
-      if (!live.current || n !== summaryGeneration.current) return;
+      if (
+        !live.current ||
+        n !== summaryGeneration.current ||
+        resourceRef.current !== selected
+      )
+        return;
       setSummary(reply.summary);
       setSummaryError("");
     } catch (cause) {
@@ -623,6 +633,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
             value={resource}
             disabled={busy || Boolean(held)}
             onChange={(event) => {
+              summaryGeneration.current++;
               setResource(event.target.value);
               setPublication("");
               setInbox(undefined);
@@ -685,7 +696,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
           require an owner or editor membership.
         </p>
       )}
-      {canRead && resource && (
+      {canRead && resource && !held && (
         <section className="ce-summary" aria-labelledby="ce-summary-title">
           <h2 id="ce-summary-title">Enquiries by page</h2>
           <p>
@@ -701,7 +712,12 @@ function WorkspaceEnquiries({ search }: { search: string }) {
           ) : summary ? (
             summary.groups.length > 0 ? (
               <>
-                <div className="ce-summary-wrap">
+                <div
+                  className="ce-summary-wrap"
+                  role="region"
+                  aria-label="Enquiries by page table"
+                  tabIndex={0}
+                >
                   <table>
                     <caption>
                       {summary.total} retained brief
@@ -748,11 +764,11 @@ function WorkspaceEnquiries({ search }: { search: string }) {
                     </tbody>
                   </table>
                 </div>
-                {summary.capped && (
+                {summary.atExportLimit && (
                   <p className="ce-muted">
-                    This summary covers the 200 retained briefs available in the
-                    current export. Older retained briefs may sit outside that
-                    cap.
+                    This export reached Composer's 200-record acceptance limit.
+                    Older retained briefs may sit outside it; this is not a
+                    claim that the app has no further records.
                   </p>
                 )}
               </>
