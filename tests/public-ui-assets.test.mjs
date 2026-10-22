@@ -11,7 +11,7 @@ function fixture(run) {
     const app = join(root, 'app');
     mkdirSync(join(app, 'public/brand/apps'), { recursive: true });
     writeFileSync(join(app, 'package.json'), JSON.stringify({ name: 'app-composer-hello' }));
-    for (const name of publicUiFiles) if (!name.includes('20261018')) writeFileSync(join(app, 'public/brand', name), 'old source');
+    for (const name of publicUiFiles) if (!/(20261018|20261022)/.test(name)) writeFileSync(join(app, 'public/brand', name), 'old source');
     return run(app, root);
   } finally {
     rmSync(root, { recursive: true, force: true });

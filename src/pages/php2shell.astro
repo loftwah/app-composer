@@ -1,0 +1,216 @@
+---
+import Base from '../layouts/Base.astro';
+const title = 'PHP2Shell: Australia felt it';
+const description = 'Two critical flaws in the PHP runtime prompted Australian government sites to go offline as a precaution. What happened, what Cloudflare\'s WAF did, and why patching is still the fix.';
+const shareImage = 'https://composer.loftwah.com/brand/campaign/php2shell-australia-1200x630.jpg';
+const shareAlt = 'Flat orange and white PHP2Shell briefing graphic with the App Composer mark, the headline "PHP2Shell. Australia felt it." and three facts about the critical PHP flaws, Australian service disruption and Cloudflare\'s early WAF response.';
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: title,
+  description,
+  datePublished: '2026-10-22',
+  dateModified: '2026-10-22',
+  inLanguage: 'en-AU',
+  mainEntityOfPage: 'https://composer.loftwah.com/php2shell',
+  image: shareImage,
+  author: { '@type': 'Organization', name: 'App Composer' },
+  publisher: { '@type': 'Organization', name: 'App Composer' },
+};
+---
+<Base
+  title={title}
+  description={description}
+  shareImage={shareImage}
+  shareAlt={shareAlt}
+  canonical="https://composer.loftwah.com/php2shell"
+  ogType="article"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <meta slot="head" property="article:published_time" content="2026-10-22" />
+  <meta slot="head" property="article:modified_time" content="2026-10-22" />
+  <article class="briefing">
+    <header class="briefing-head">
+      <p class="briefing-kicker"><span>Briefing</span> · <time datetime="2026-10-22">22 October 2026</time> · 9 min read</p>
+      <h1>PHP2Shell: Australia felt it.</h1>
+      <p class="briefing-lede">Two critical flaws in the PHP runtime prompted Australian government sites to go offline as a precaution. The patch is the urgent part. The way we build and run these systems is the longer lesson.</p>
+      <nav class="briefing-jump" aria-label="In this briefing">
+        <a href="#runtime">The runtime flaw</a>
+        <a href="#australia">What Australia saw</a>
+        <a href="#footprint">The Drupal footprint</a>
+        <a href="#cloudflare">WAF is not a patch</a>
+        <a href="#engineering">The engineering lesson</a>
+        <a href="#next">What to do now</a>
+      </nav>
+    </header>
+
+    <figure class="briefing-hero">
+      <img class="briefing-hero-wide" src="/brand/campaign/php2shell-australia-1200x630.webp" width="1200" height="630" alt={shareAlt} fetchpriority="high" />
+      <img class="briefing-hero-square" src="/brand/campaign/php2shell-australia-1080x1080.webp" width="1080" height="1080" alt={shareAlt} fetchpriority="high" />
+      <figcaption>The approved PHP2Shell briefing artwork. It records platform footprint, not a breach count.</figcaption>
+    </figure>
+
+    <div class="briefing-body">
+      <section id="runtime">
+        <h2>Two flaws in the runtime, not a plugin</h2>
+        <p>On 21 October 2026, PHP released 8.5.12, 8.4.27, 8.3.36 and 8.2.35. The releases fix CVE-2026-109618 and CVE-2026-109619, two memory-safety flaws rated 9.2 under CVSS v4.0. Both can allow unauthenticated remote code execution. Researchers also demonstrated a way to read live PHP worker memory, including passwords, tokens and API keys belonging to other requests.</p>
+        <p>The details matter because this is not a WordPress plugin, a Drupal module or a bad theme. The bugs sit in PHP's own memory management and error handling. One is reached when a request runs out of memory at the wrong moment and cleanup treats partially initialised data as valid. The other leaves request-owned state pointing at freed memory; a later request on the same worker can reuse it. Every PHP installation serving web requests is in scope, including PHP-FPM, Apache with mod_php, php-cgi, FrankenPHP and LiteSpeed. PHP rates the risk highest for mod_php, where an unauthenticated request can trigger the bug before application code runs.</p>
+        <p>The affected range is broad. Cloudflare says the vulnerabilities affect all web servers running PHP 5.4 or later. PHP 8.1 and older no longer receive project updates; some distributions and long-term support vendors have backported fixes. Updating application code alone does nothing. The runtime is the thing that has to change.</p>
+        <div class="briefing-facts" aria-label="The two vulnerabilities">
+          <div><span>CVE-2026-109618</span><strong>Out-of-memory corruption</strong><p>A memory limit reached at the wrong point can leave internal request data half-built. Cleanup can then corrupt memory.</p></div>
+          <div><span>CVE-2026-109619</span><strong>Stale global state</strong><p>A fatal error can leave a worker holding references to freed memory. The next request on that worker can follow them.</p></div>
+        </div>
+      </section>
+
+      <section id="australia">
+        <h2>Why Australia noticed</h2>
+        <p>The ABC reported <a href="https://www.abc.net.au/news/2026-10-22/php-vulnerabilities-cyber-asd/107294812">outages at cyber.gov.au and other Australian government websites</a>. A spokesperson for Home Affairs Minister Tony Burke said several Australian websites, including government sites, had been disrupted, and that some were temporarily unavailable while agencies mitigated the risk. The Australian Signals Directorate's Australian Cyber Security Centre published its own alert and told organisations to inventory PHP, apply vendor updates and watch for suspicious activity.</p>
+        <p>That is disruption, not proof of compromise. The ACSC said it was not aware of successful active exploitation within Australia at the time of its alert. Cloudflare, which sees traffic across a much larger estate, said it had observed attack traffic targeting its customers and watched attackers mutate payloads to evade its rules. Those are global exploitation attempts. They are not the same as a confirmed Australian breach.</p>
+        <p>NSW made the distinction explicitly. On 22 October, the NSW Government said some NSW Government websites had been taken down temporarily as a precaution while patches were applied. Cyber Security NSW was working with agencies, and no NSW Government agency had reported an information breach to it at that point. The sites went offline to reduce risk, not because someone had demonstrated they were already compromised.</p>
+        <p>The same pattern appeared overseas. The Netherlands, Finland and France took government services offline as a precaution. Wikipedia worked through the fix. A Danish municipal IT provider shut several services, including a national school communication platform. Those examples are useful context, but the Australian story is not a copy of them. It is about a public sector with a particularly large shared publishing footprint.</p>
+      </section>
+
+      <section id="footprint">
+        <h2>The Drupal footprint is real. It is not a breach count.</h2>
+        <p>Australia's government web estate has a large shared Drupal footprint. The Australian Government Architecture describes <a href="https://architecture.digital.gov.au/design/govcms">GovCMS</a> as a whole-of-government content management and hosting service built on Drupal, with more than 300 government websites for more than 100 government agencies. Victoria's <a href="https://www.vic.gov.au/single-digital-presence">Single Digital Presence</a> says more than 60 websites use the platform, with more than 120 sections on vic.gov.au across all 10 departments. Its <a href="https://www.vic.gov.au/sdp-features-services">features page</a> describes SDP as established on Drupal in 2016. <a href="https://www.nsw.gov.au/nsw-government/onecx-program/about/how-nswgovau-built-and-what-it-can-do">nsw.gov.au</a> says its platform runs Drupal 10 and will move to Drupal 11 in 2026.</p>
+        <p>Those numbers describe platform footprint. They do not say that 300 sites were vulnerable, that every agency was affected, or that anyone breached GovCMS. A Drupal site with a patched PHP runtime and current Drupal core is a different proposition from an unpatched one. The useful question is not "how many sites run Drupal?" It is "which services still run an affected PHP version, who owns them, and how quickly can they be updated and checked?"</p>
+        <div class="briefing-table-wrap">
+          <table class="briefing-table">
+            <caption>Documented Australian government platforms</caption>
+            <thead><tr><th scope="col">Platform</th><th scope="col">What the source documents</th><th scope="col">What it does not establish</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">GovCMS</th><td>Drupal-based whole-of-government CMS; 300+ websites across 100+ agencies.</td><td>That those sites were vulnerable, disrupted or breached.</td></tr>
+              <tr><th scope="row">Victoria SDP</th><td>Drupal platform; 60+ websites and 120+ sections on vic.gov.au.</td><td>That every SDP site was affected or taken offline.</td></tr>
+              <tr><th scope="row">nsw.gov.au</th><td>Drupal 10, with an upgrade to Drupal 11 planned for 2026.</td><td>That the main site was compromised or taken down.</td></tr>
+              <tr><th scope="row">cyber.gov.au</th><td>The ABC reported outages at cyber.gov.au and other government sites.</td><td>A confirmed exploit or data breach.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Running Drupal is not the same as running a vulnerable PHP runtime. Running a vulnerable runtime is not the same as being exploited. And an outage is not a breach. Keeping those categories separate is basic incident hygiene. It also makes the response more useful: patch the runtime, update the application, check the logs, and only then draw conclusions about impact.</p>
+      </section>
+
+      <section id="cloudflare">
+        <h2>Cloudflare moved early. The WAF still is not the fix</h2>
+        <p>Cloudflare says it had been developing and deploying WAF protections since early October, and the rules were live about nine hours before public disclosure. From 21 October at 03:02 UTC, customers on free and paid WAF plans were protected by default. The rules were not just request signatures. Cloudflare introduced full transaction detection, combining request and response signals in the same HTTP transaction, and used it to block responses that looked like successful exploitation. The company says it kept updating the rules as attackers changed payloads.</p>
+        <p>That is a serious piece of incident engineering. It bought time for organisations that could not patch within hours. It also shows why managed edge protection belongs in the plan: somebody else was watching the attack patterns while site owners were still working out which systems ran PHP.</p>
+        <p>It is still a layer, not a cure. A WAF can miss a variant, can be misconfigured, and does nothing for traffic that does not pass through it. The vulnerable code remains on the origin until the runtime is updated. Cloudflare's own advice is to keep the protections on and patch PHP as soon as possible. That order matters: protect, patch, then verify. Not protect instead of patch.</p>
+        <blockquote>WAF helps. Patching is essential. The two actions belong together, but they are not interchangeable.</blockquote>
+      </section>
+
+      <section id="engineering">
+        <h2>The engineering lesson is not "never use PHP"</h2>
+        <p>PHP runs a large share of the web, including WordPress, Drupal, Joomla and MediaWiki. It is not going away, and it is not inherently unsafe. The failure mode here is familiar: a critical dependency sits under many services, the fix is in the runtime rather than the application, and the estate is large enough that inventory and change control become the hard part.</p>
+        <p>Good engineering is mostly invisible until a week like this. The organisations that coped best probably had a current inventory of what ran where, an owner for each service, a tested path from vendor patch to production, logs they could actually search, and a rehearsed way to take a service offline without losing data. They could answer "which PHP versions do we run?" without starting a spreadsheet from scratch. They could patch a shared runtime without waiting for ten application teams to agree.</p>
+        <p>That is not heroics. It is preparation. The same preparation pays off for a failed deploy, a compromised credential, a bad plugin update or a storage outage. It also changes the economics of incidents: less time spent discovering the estate, more time spent fixing the actual problem.</p>
+        <p>Managed protection is part of that preparation. So is observability. So is the decision to remove a runtime you do not need. That last one is an architecture choice, not a security silver bullet.</p>
+      </section>
+
+      <section id="work">
+        <h2>Where Workers and App Composer fit</h2>
+        <p>Some applications do not need a traditional PHP stack. A small content site, an internal tool, a form, a catalogue or a focused public app can often run as an Astro application on Cloudflare Workers, with EmDash for editing and D1 or R2 for data and media. That removes PHP from the request path for that workload. It does not remove the need to patch Workers dependencies, manage access, back up data or test recovery. It changes the surface area, not the responsibility.</p>
+        <p>App Composer's supported route is deliberately concrete. <a href="/ready">Get Ready</a> checks the environment, source and Cloudflare target before an idea. <a href="/init">Init</a> turns the app's content, fields and appearance into a portable specification. <a href="/studio">Creator stacks</a> and <a href="/demo">the connected apps</a> show how independent pieces can share data without becoming one monolith. The agent builds, previews, deploys and verifies the result. Each app keeps its own source and configuration.</p>
+        <p>That route suits a new application or a deliberate rebuild. It is not a one-click Drupal or GovCMS migration, and we should not pretend otherwise. A government platform carries content models, permissions, accessibility obligations, integrations, statutory records and years of editorial behaviour. Moving one is a project with its own discovery and acceptance. WordPress migration is further along, but it is still evaluated case by case: content, media, URLs, themes, forms, plugin behaviour, roles and transactions all need checking. The <a href="/guide">platform guide</a> explains the current boundaries.</p>
+        <p>For a suitable workload, the benefit is straightforward: fewer self-managed moving parts, a smaller runtime surface, managed edge protection and a release path that can be tested. For an unsuitable one, the honest answer is to keep the current platform, patch it properly and improve the operations around it. Architecture should follow the work, not the campaign.</p>
+      </section>
+
+      <section id="next">
+        <h2>What to do now</h2>
+        <ol class="briefing-actions">
+          <li><strong>Inventory PHP.</strong> Include containers, appliances, vendor products and shared hosting, not just the sites you remember. Record versions and owners.</li>
+          <li><strong>Patch the runtime.</strong> Move to PHP 8.5.12, 8.4.27, 8.3.36 or 8.2.35, or a vendor backport. Restart workers so old state cannot survive. Updating a CMS or plugin is not a substitute.</li>
+          <li><strong>Keep the WAF on.</strong> Treat managed rules as time and defence in depth. Check that the rules are actually deployed for the zones that need them.</li>
+          <li><strong>Look for evidence, not headlines.</strong> Review PHP and WAF logs for exploitation attempts, unusual multipart requests, memory-limit errors and worker churn. Preserve logs before they rotate.</li>
+          <li><strong>Verify the application.</strong> Check logins, forms, uploads and published content after patching. A 200 response from the home page is not a full check.</li>
+          <li><strong>Fix the next incident before it happens.</strong> Name an owner, test a restore, document the rollback and rehearse taking a service offline. That work is less visible than a WAF rule and just as important.</li>
+        </ol>
+        <div class="briefing-cta">
+          <div><h2>Build the next one with less runtime to patch.</h2><p>Start with a supported environment, scope the application in Init, and keep the source yours.</p></div>
+          <div class="briefing-cta-links"><a class="button" href="/ready">Start with Get Ready</a><a class="button secondary" href="/init">Scope an application</a></div>
+        </div>
+      </section>
+
+      <section class="briefing-sources" id="sources">
+        <h2>Sources and dates</h2>
+        <p>Checked against the primary material below on 22 October 2026. Figures are quoted as the sources state them. This briefing is not incident advice for a specific agency or a substitute for the ACSC's current guidance.</p>
+        <ul>
+          <li><a href="https://www.php.net/archive/2026.php#2026-10-21-5">PHP security advisory: critical remote code execution vulnerabilities</a>, 21 October 2026.</li>
+          <li><a href="https://thephp.foundation/blog/2026/10/21/todays-php-security-release-and-how-were-strengthening-php-security/">The PHP Foundation: today's security release and how PHP security is changing</a>, 21 October 2026.</li>
+          <li><a href="https://blog.cloudflare.com/php-vulnerabilities-waf-protection">Cloudflare: protections against the php2shell vulnerability</a>, 21 October 2026.</li>
+          <li><a href="https://www.wiz.io/blog/php2shell-php-rce">Wiz Research: PHP2Shell technical analysis</a>, 21 October 2026.</li>
+          <li><a href="https://www.cyber.gov.au/alert/critical-vulnerabilities-in-php">ASD ACSC: critical vulnerabilities in PHP</a>, accessed 22 October 2026.</li>
+          <li><a href="https://www.abc.net.au/news/2026-10-22/php-vulnerabilities-cyber-asd/107294812">ABC News: Australian government sites among those exposed</a>, 22 October 2026.</li>
+          <li><a href="https://www.miragenews.com/update-on-php-response-1764582/">NSW Government: update on PHP response</a>, 22 October 2026.</li>
+          <li><a href="https://architecture.digital.gov.au/design/govcms">Australian Government Architecture: GovCMS</a>, current at publication.</li>
+          <li><a href="https://www.vic.gov.au/single-digital-presence">Victorian Government: Single Digital Presence</a> and <a href="https://www.vic.gov.au/sdp-features-services">SDP features and services</a>, updated 15 September 2026.</li>
+          <li><a href="https://www.nsw.gov.au/nsw-government/onecx-program/about/how-nswgovau-built-and-what-it-can-do">NSW Government: how nsw.gov.au is built</a>, updated 2 June 2026.</li>
+        </ul>
+      </section>
+    </div>
+  </article>
+</Base>
+<style>
+  .briefing{max-width:1120px;margin:0 auto}
+  .briefing-head{display:block;min-height:0;border-bottom:0;padding:12px 0 8px;max-width:760px;margin:0 auto}
+  .briefing-kicker{font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);margin:0 0 18px;font-weight:600}
+  .briefing-kicker span{color:#f75b05}
+  :root[data-theme="light"] .briefing-kicker span{color:#c74400}
+  .briefing h1{font-size:clamp(3rem,7vw,6rem);max-width:13ch;margin:0 0 22px;line-height:.96;letter-spacing:-.045em;text-wrap:balance}
+  .briefing-lede{font-size:clamp(1.2rem,2.1vw,1.55rem);line-height:1.45;max-width:52ch;color:var(--color-muted);margin:0 0 28px}
+  .briefing-jump{display:flex;flex-wrap:wrap;gap:8px 20px;padding:18px 0;border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border);font-size:14px}
+  .briefing-jump a{color:var(--color-muted);min-height:32px;display:inline-flex;align-items:center}
+  .briefing-jump a:hover{color:var(--color-foreground)}
+  .briefing-hero{margin:36px 0 44px}
+  .briefing-hero img{display:block;width:100%;height:auto;border-radius:8px}
+  .briefing-hero .briefing-hero-square{display:none}
+  .briefing-hero figcaption{font-size:13px;color:var(--color-muted);margin-top:12px;max-width:70ch}
+  .briefing-body{max-width:760px;margin:0 auto}
+  .briefing-body section{margin:0 0 52px}
+  .briefing-body h2{font-size:clamp(1.9rem,3.6vw,2.8rem);max-width:24ch;margin:0 0 18px;line-height:1.02}
+  .briefing-body h3{font-size:1.35rem;margin:32px 0 12px}
+  .briefing-body p{font-size:1.05rem;line-height:1.68;margin:0 0 18px;max-width:70ch}
+  .briefing-body a{color:var(--color-accent);text-decoration:none}
+  .briefing-body a:hover{text-decoration:none;color:var(--color-accent-hover)}
+  .briefing-body strong{font-weight:650}
+  .briefing-facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--color-border);border:1px solid var(--color-border);margin:28px 0 0}
+  .briefing-facts div{background:var(--color-surface);padding:22px}
+  .briefing-facts span{display:block;font:600 12px/1.3 ui-monospace,monospace;letter-spacing:.04em;color:#f75b05;margin-bottom:8px}
+  :root[data-theme="light"] .briefing-facts span{color:#c74400}
+  .briefing-facts strong{display:block;font-size:1.1rem;margin-bottom:8px}
+  .briefing-facts p{font-size:.92rem;line-height:1.55;margin:0;color:var(--color-muted)}
+  .briefing-table-wrap{overflow-x:auto;margin:28px 0 20px;border:1px solid var(--color-border)}
+  .briefing-table{min-width:640px;margin:0;font-size:.9rem}
+  .briefing-table caption{text-align:left;padding:14px 16px;font-size:13px;color:var(--color-muted);border-bottom:1px solid var(--color-border)}
+  .briefing-table th,.briefing-table td{padding:14px 16px;border-bottom:1px solid var(--color-border);vertical-align:top}
+  .briefing-table thead th{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--color-muted)}
+  .briefing-table tbody th{white-space:nowrap}
+  .briefing-table tbody tr:last-child th,.briefing-table tbody tr:last-child td{border-bottom:0}
+  .briefing blockquote{margin:30px 0;padding:24px 26px;border-left:5px solid #f75b05;background:var(--color-surface);font-size:1.25rem;line-height:1.45;font-weight:600;max-width:62ch}
+  .briefing-actions{padding-left:22px;max-width:70ch}
+  .briefing-actions li{margin:0 0 18px;padding-left:6px}
+  .briefing-actions strong{display:block;margin-bottom:4px}
+  .briefing-cta{display:grid;grid-template-columns:1.2fr auto;gap:30px;align-items:center;background:#c74400;color:#fff;padding:30px 32px;border-radius:10px;margin:36px 0 0}
+  .briefing-cta h2{color:#fff;font-size:1.8rem;margin:0 0 8px;max-width:20ch}
+  .briefing-cta p{margin:0;color:#fff;font-size:.98rem;max-width:44ch}
+  .briefing-cta .button{background:#fff;color:#17181b}
+  .briefing-cta .button:hover{background:#ffe6d7}
+  .briefing-cta .button.secondary{background:transparent;color:#fff;border-color:#fff}
+  .briefing-cta .button.secondary:hover{background:rgba(255,255,255,.12)}
+  .briefing-cta-links{display:flex;flex-direction:column;gap:10px;min-width:190px}
+  .briefing-sources{border-top:1px solid var(--color-border);padding-top:28px}
+  .briefing-sources h2{font-size:1.6rem}
+  .briefing-sources ul{padding-left:20px;max-width:70ch}
+  .briefing-sources li{margin:0 0 10px;font-size:.88rem;line-height:1.55;color:var(--color-muted)}
+  .briefing-sources a{color:var(--color-accent)}
+  @media(max-width:760px){
+    .briefing-head{padding-top:4px}
+    .briefing h1{font-size:3.25rem}
+    .briefing-jump{gap:4px 16px;font-size:13px}
+    .briefing-hero{margin:26px 0 34px}
+    .briefing-hero .briefing-hero-wide{display:none}
+    .briefing-hero .briefing-hero-square{display:block}
+    .briefing-body section{margin-bottom:42px}
+    .briefing-facts{grid-template-columns:1fr}
+    .briefing-cta{grid-template-columns:1fr;padding:24px}
+    .briefing-cta-links{flex-direction:row;flex-wrap:wrap}
+  }
+</style>

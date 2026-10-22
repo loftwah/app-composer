@@ -105,10 +105,17 @@ to an ignored file does not make that source available in a fresh checkout.
 ## Social cards and persisted publications
 
 Keep the current product social identity:
-`public/brand/share-composer-20261017.jpg` (1200 × 630), its `.webp` and
-`-600.webp` derivatives, and `Base.astro`'s matching metadata. The retired
-`share-ai-v1` and personal-profile homepage cards remain removed. Do not restore
-them while replacing an icon.
+`public/brand/campaign/product-og-20261022.jpg` (1200 × 630), rendered from the
+approved mark and the existing product line. `Base.astro` defaults to it; the
+retired `share-ai-v1`, personal-profile homepage cards and the rejected
+assembly-scene product card remain unused historical files. Do not restore them
+while replacing an icon.
+
+The PHP2Shell article uses campaign-specific artwork:
+`public/brand/campaign/php2shell-australia-1200x630.jpg` for Open Graph/X,
+with deliberate 1080 × 1080 and 1080 × 1920 reflows. Its HTML render sources
+and export command live in `.artwork/campaign/`; supplied masters, hashes and
+the verification boundary are recorded in `docs/assets/brand/PROVENANCE.md`.
 
 Each app's own share prefix in the table produces `.jpg`, `.webp` and
 `-600.webp` (600 × 315). Composer's copies are in `public/brand/apps/`; app shell

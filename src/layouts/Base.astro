@@ -10,6 +10,9 @@ interface Props {
   shareImage?: string;
   shareAlt?: string;
   shareType?: string;
+  shareWidth?: number;
+  ogType?: "website" | "article";
+  shareHeight?: number;
   /** Clean canonical for a page whose address is not just its path. */
   canonical?: string;
 }
@@ -26,10 +29,12 @@ const canonical = Astro.props.canonical
   : new URL(Astro.url.pathname, "https://composer.loftwah.com");
 const shareImage =
   Astro.props.shareImage ??
-  "https://composer.loftwah.com/brand/share-composer-20261018.jpg";
+  "https://composer.loftwah.com/brand/campaign/product-og-20261022.jpg";
 const shareAlt =
   Astro.props.shareAlt ??
-  "App Composer: Make software. Keep it yours. An illustrated assembly hall where separate modules become one working system.";
+  "App Composer: Make software. Keep it yours. The approved orange mark and wordmark on a flat orange field.";
+const shareWidth = Astro.props.shareWidth ?? 1200;
+const shareHeight = Astro.props.shareHeight ?? 630;
 Astro.response.headers.set("Cache-Control", "no-store");
 // Cloudflare reads the SSR CSP header to nonce its own detection scripts.
 // Keep Astro's generated hashes; never add nonces to untrusted page content.
@@ -49,9 +54,12 @@ Astro.csp?.insertScriptResource(
     <link rel="canonical" href={canonical} />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#17181b" />
-    <link rel="icon" href="/brand/composer-icon-20261018-32.png" type="image/png" sizes="32x32" />
-    <link rel="icon" href="/brand/composer-icon-20261018-48.png" type="image/png" sizes="48x48" />
-    <link rel="apple-touch-icon" href="/brand/composer-icon-20261018-180.png" sizes="180x180" />
+    <link rel="icon" href="/brand/composer-icon-tile-20261022.svg" type="image/svg+xml" />
+    <link rel="icon" href="/brand/favicon-20261022.ico" sizes="any" />
+    <link rel="icon" href="/brand/composer-icon-20261022-16.png" type="image/png" sizes="16x16" />
+    <link rel="icon" href="/brand/composer-icon-20261022-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/brand/composer-icon-20261022-48.png" type="image/png" sizes="48x48" />
+    <link rel="apple-touch-icon" href="/brand/composer-icon-20261022-180.png" sizes="180x180" />
     <!-- Deliberate: /brand/space-latin-20261018.woff2 is the declared source of the one bundled
          face in global.css and the family every heading asks for, so the single
          early request is consumed. tests/font-preload.test.mjs locks the pairing. -->
@@ -62,13 +70,14 @@ Astro.csp?.insertScriptResource(
       type="font/woff2"
       crossorigin
     />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={Astro.props.ogType ?? "website"} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="App Composer" />
     <meta property="og:image" content={shareImage} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:image:width" content={String(shareWidth)} />
+    <meta property="og:image:height" content={String(shareHeight)} />
     <meta property="og:image:alt" content={shareAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
@@ -77,6 +86,7 @@ Astro.csp?.insertScriptResource(
     <meta name="twitter:image:alt" content={shareAlt} />
     <meta property="og:image:type" content={Astro.props.shareType ?? "image/jpeg"} />
     {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <slot name="head" />
     <script is:inline src="/brand/theme-bootstrap.js"></script>
     <link rel="stylesheet" href="/brand/page-share.css" />
     <link rel="stylesheet" href="/brand/theme-control.css" />
@@ -87,7 +97,7 @@ Astro.csp?.insertScriptResource(
     </a>
     <header>
       <a class="brand select-none" href="/">
-        <img src="/brand/composer-icon-20261018-96.png" width="38" height="38" alt="" />
+        <img src="/brand/composer-icon-tile-20261022.svg" width="38" height="38" alt="" />
         App Composer
         {instance.enabled && (
           <span class="instance-brand-context">

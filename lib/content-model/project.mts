@@ -119,8 +119,20 @@ export function contentProjectFiles(input: unknown) {
   add("lib/content-model/calendar-date.d.mts", "src/lib/calendar-date.d.mts");
   add("LICENSE", "LICENSE");
   add(
-    "public/brand/composer-icon-20261018-512.png",
-    "public/brand/composer-icon-20261018-512.png",
+    "public/brand/composer-icon-20261022-32.png",
+    "public/brand/composer-icon-20261022-32.png",
+  );
+  add(
+    "public/brand/composer-icon-20261022-96.png",
+    "public/brand/composer-icon-20261022-96.png",
+  );
+  add(
+    "public/brand/composer-icon-20261022-180.png",
+    "public/brand/composer-icon-20261022-180.png",
+  );
+  add(
+    "public/brand/composer-icon-20261022-512.png",
+    "public/brand/composer-icon-20261022-512.png",
   );
   add(
     "public/brand/space-latin-20261018.woff2",
@@ -133,7 +145,6 @@ export function contentProjectFiles(input: unknown) {
   for (const name of [
     "launcher.js",
     "launcher.css",
-    "composer-icon-20261018-96.png",
     ...["linkarooie", "herethere", "linkcheck", "hello", "carryforward"].map(
       (id) => "apps/" + id + "-small-20261018.webp",
     ),

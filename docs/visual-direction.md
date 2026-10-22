@@ -1,6 +1,6 @@
 # Visual direction
 
-Owner direction, 18 October 2026. This supplements DESIGN.md and the source/asset maintenance contract. Read it before proposing, generating or changing artwork, identity marks, icons or social cards. It applies to App Composer and its five independent mini-apps. Each app retains its own committed assets and release.
+Owner direction, 18–22 October 2026. This supplements DESIGN.md and the source/asset maintenance contract. Read it before proposing, generating or changing artwork, identity marks, icons or social cards. It applies to App Composer and its five independent mini-apps. Each app retains its own committed assets and release.
 
 ## What the work needs to express
 
@@ -26,11 +26,11 @@ The selected master is `.artwork/masters/linkarooie-curator-accepted-20261018.pn
 
 ## Drawing and composition
 
-### Cloudflare marketing influence, 18 October 2026
+### Approved flat orange-and-white direction, 22 October 2026
 
-MP supplied a Cloudflare Clef advertisement as a future direction reference: a flat orange field, large white type, simple geometric symbols, thin ruled divisions and a clear action. Apply roughly 30–50% influence where it helps future work. Keep Composer's own identity, original imagery and accepted Linkarooie character; the reference is a composition and simplification influence, not a replacement brand or vendor-logo treatment.
+MP approved the flat orange/white direction and the orange-and-white merging-block mark for App Composer. The supplied PHP2Shell artwork is the approved campaign asset. Use the exact mark, typography and copy; do not reinterpret the logo, restore the rejected assembly-scene crop or invent a replacement campaign.
 
-MP explicitly requested no immediate design changes from this reference. Do not use it to reopen the current artwork or trigger a blanket restyle. Review official Cloudflare creative direction periodically and retain only useful, materially new lessons. A monthly quiet review is attached to the delivery chat; it does not authorise automatic redesign or publication.
+The direction is a flat orange field, large white type, simple geometric symbols, thin ruled divisions and a clear action. Apply it to App Composer brand, editorial and social surfaces. Do not blanket-restyle operational interfaces, owner administration or the five independent mini-app identities. The Cloudflare reference remains a composition and simplification influence, not a vendor-logo treatment or implied affiliation.
 
 - Choose an idea specific to the app before describing a style. Explain what the subject is doing and why it belongs to that software.
 - Give each app a distinct silhouette and focal action within the same visual world. A row of interchangeable smiling heads is insufficient.
@@ -78,3 +78,5 @@ Private reference photos, unpublished creative material and taste inventories st
 The optical app identities are derived from each existing drawing's specific action, rather than a row of new mascot heads. Composer's gripper fits a physical module and its status lamp lights; Here / there presses a postcard pin; Link Check exposes a bad cable contact; Hello's actual relay sends its first signal beside the existing snail; Carry passes its actual memory capsule between hands. Linkarooie keeps the accepted curator and its same-master head crop. The new drawings preserve each source world's material, contour and objects. They do not replace the existing heroes or invent another character for every surface.
 
 The five exact built-in image-generation prompts and public artwork references are in `.artwork/identity-prompts-20261018.json`; source master hashes and finite optical sizes are in `.artwork/identity-exports-20261018.json`. `export-optical-icons.mjs` exports only ignored review output. The selected files are then copied to explicitly chosen owning app checkouts and the shared-maintenance source. The new family is agent-selected within MP's direction; do not call all five new icons MP-approved.
+
+Superseded 22 October 2026: the Composer gripper/assembly crop is historical and must not be used as the product identity. MP's flat orange-and-white merging-block mark is the approved canonical App Composer mark. The five mini-app identities remain independent and are not part of this replacement.

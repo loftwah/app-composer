@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">App Composer maskable icon</title>
+  <rect id="field" width="512" height="512" fill="#f75b05"/>
+  <g id="mark" transform="translate(64.55 64.55) scale(0.3054)">
+  <title id="title">App Composer mark</title>
+    <desc id="desc">Two orange rounded blocks joined by a white path into a single block with a forward arrow.</desc>
+    <!-- Faithful vector reconstruction of MP's approved App Composer icon, 22 October 2026. -->
+    <g id="blocks" fill="#fff">
+      <rect id="block-top" x="124" y="288" width="302" height="299" rx="65"/>
+      <rect id="block-bottom" x="124" y="667" width="302" height="299" rx="65"/>
+      <rect id="block-field" x="630" y="385" width="501" height="487" rx="94"/>
+    </g>
+    <!-- The arrow is reversed for the orange field. -->
+    <path id="join-arrow" fill="#f75b05" d="M 426 407 L 498 408 L 526 416 L 553 432 L 569 447 L 585 469 L 607 527 L 621 552 L 641 573 L 662 586 L 701 596 L 796 596 L 798 548 L 810 532 L 829 528 L 845 535 L 942 607 L 950 621 L 950 635 L 939 650 L 841 721 L 829 726 L 815 725 L 800 712 L 797 702 L 796 662 L 694 662 L 661 671 L 640 684 L 618 708 L 606 730 L 596 762 L 582 790 L 568 808 L 550 824 L 532 835 L 502 845 L 426 846 L 426 780 L 484 780 L 512 769 L 530 749 L 548 701 L 566 668 L 605 628 L 577 602 L 563 583 L 548 554 L 531 507 L 512 485 L 486 474 L 426 473 L 426 407 Z"/>
+  </g>
+</svg>

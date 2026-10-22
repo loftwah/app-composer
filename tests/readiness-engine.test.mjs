@@ -104,9 +104,12 @@ test('the installer isolates unrelated scoped registries and credentials while k
     const run=(key,env,args=[])=>execFileSync('pnpm',['config','get',key,...args],{cwd:workspace,env,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
     assert.equal(run('@cloudflare:registry',env),'https://private.example.test/');
     const installEnv=referenceInstallEnvironment(env,isolated),flags=referenceInstallArgs.filter(arg=>arg.startsWith('--registry=')||arg.startsWith('--userconfig='));
-    assert.equal(run('@cloudflare:registry',installEnv,flags),'undefined');
-    assert.equal(run('registry',installEnv,flags),'https://registry.npmjs.org/');
-    assert.equal(run('minimumReleaseAge',installEnv,flags),'1440');
+    // `pnpm config get` rejects install-only flags on pnpm 12.8.1, especially for a
+    // scoped key. Query the same isolated values through its config-option form.
+    const configFlags=flags.map(flag=>flag.startsWith('--registry=')?'--config.registry='+flag.slice('--registry='.length):'--config.userconfig='+flag.slice('--userconfig='.length));
+    assert.equal(run('@cloudflare:registry',installEnv,configFlags),'undefined');
+    assert.equal(run('registry',installEnv,configFlags),'https://registry.npmjs.org/');
+    assert.equal(run('minimumReleaseAge',installEnv,configFlags),'1440');
     assert.equal(installEnv.CLOUDFLARE_API_TOKEN,undefined);assert.equal(installEnv.NPM_CONFIG_USERCONFIG,undefined);
   }finally{rmSync(fixture,{recursive:true});}
 });

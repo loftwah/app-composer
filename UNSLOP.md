@@ -5,6 +5,8 @@ Write the action and its result. “Feature an approved photo” is useful; “I
 
 Use original functional graphics, clear hierarchy, restrained motion, readable contrast and native keyboard controls. Avoid an interchangeable tile grid, gratuitous gradients/glows, decorative terminal output, oversized slogan stacks and icons without meaning. Cloudflare-adjacent neutral surfaces and orange accents are welcome; its logo, claimed affiliation and exact dashboard reproduction are not our identity.
 
+Approved App Composer identity, 22 October 2026: use MP's orange-and-white merging-block icon and the supplied PHP2Shell artwork. The flat orange/white campaign direction is approved for editorial and social surfaces; keep operational interfaces and independent mini-app identities intact. Campaign writing leads with Australia, separates a vulnerable runtime from a precautionary outage and a confirmed breach, attributes every figure and link, and treats WAF protection and runtime patching as separate actions. Do not turn an incident into fear marketing, repeat slogans or claim government migrations that have not been demonstrated.
+
 Dark mode is the default. Light mode is a saved reader choice. Theme affects presentation only, never credentials or deployment authority. Inspect both at phone and desktop widths before publishing a visual change. Preserve reduced-motion preferences.
 
 AI assistance is part of the product, not a fact to conceal. Quality comes from specific writing, useful interaction and verified software; no detector score proves authorship or quality.
