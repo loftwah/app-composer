@@ -11,7 +11,7 @@ import {createHash} from 'node:crypto';
 import jsQR from 'jsqr';
 import pngjs from 'pngjs';
 
-const brandBytes = readFileSync(new URL('../src/assets/composer-icon-20261018-96.png.bin', import.meta.url));
+const brandBytes = readFileSync(new URL('../src/assets/composer-icon-20261022-96.png.bin', import.meta.url));
 const brandImage = `data:image/png;base64,${brandBytes.toString('base64')}`;
 const font = readFileSync(new URL('../src/assets/fonts/SpaceGrotesk.ttf.bin', import.meta.url));
 const fontOptions = {font: {fontBuffers: [font], defaultFontFamily: 'Space Grotesk'}};
@@ -118,7 +118,7 @@ test('deployable browser and QR modules match their checked TypeScript sources',
 });
 
 test('the selected Composer PNG is embedded in the rendered card and the independent decoder still reads its QR', async () => {
-  assert.equal(createHash('sha256').update(brandBytes).digest('hex'), 'b20dd22c890237c48a1e47e81fef1e715b5d77968bdeeb624ba0eceb1ae47b66');
+  assert.equal(createHash('sha256').update(brandBytes).digest('hex'), '46430b9644c2c5332d177745976a2460861f300bd37283591b8dad6d41b22a35');
   const selected = pngjs.PNG.sync.read(brandBytes);
   assert.equal(selected.width, 96);
   assert.equal(selected.height, 96);

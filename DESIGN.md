@@ -1,7 +1,9 @@
 ---
 name: App Composer
-description: Existing transit identity and native administration extension
+description: Approved orange-and-white identity, editorial campaign and native administration extension
 colors:
+  brand-orange: "#f75b05"
+  brand-orange-text: "#c74400"
   native-focus: "#e77743"
   native-control-border: "color-mix(in srgb,currentColor 30%,transparent)"
   native-rule: "color-mix(in srgb,currentColor 18%,transparent)"
@@ -11,11 +13,17 @@ rounded: {native-field: "6px", native-button: "8px"}
 ---
 
 # Design
-Reviewed 13 October 2026. Ordinary creative direction delegated by MP.
+Reviewed 22 October 2026. Ordinary creative direction delegated by MP.
+
+## Approved identity and campaign direction — 22 October 2026
+
+MP approved the orange-and-white merging-block icon as App Composer's canonical identity. The editable vector master is `public/brand/composer-icon-20261022.svg`; the orange tile, reversed mark and wordmark lockups are derived from it. Use the approved artwork in the header, favicons, Apple touch icon, PWA icons, maskable icon, launcher, extension and generated content sites. Do not restore the rejected assembly-scene crop or the old interlocking-squares mark, and do not reinterpret the mark as a new logo.
+
+The PHP2Shell campaign uses a flat orange-and-white editorial surface: large Space Grotesk type, simple geometry, generous negative space, thin white rules and a clear action. The supplied campaign artwork is the approved asset. Its square and vertical exports are deliberate reflows of the same copy, not crops or stretches. Campaign surfaces may be brighter and flatter than the operational UI; operational screens keep their existing tokens, controls and mini-app identities. Avoid neon, glows, gradients, fake 3D, circuit-board decoration and generic AI illustration.
 
 The product's unique mechanism is connecting independently owned pieces into working software. The audience works between an idea, a repository and a live site. Grounded visual directions considered: modular Swiss identity manual; publishing paste-up; transit interchange diagram; audio routing console; annotated engineering notebook; exhibition catalogue; film edit timeline. The design seed assigned the third direction. Transit interchange carries cross-app routing with clearer product meaning than the bitmap specimen, layered reference manual or star-atlas challengers.
 
-Use a warm ivory reading surface, charcoal text and decisive signal orange, with dark ink work areas. Source connections are crisp geometric routes; independent modules retain colours. Self-hosted Space Grotesk display and native sans body. No decorative dashboards, fabricated metrics or glow. Wide open typography and substantial rules; compact task controls stay predictable. Logo is two interlocking open squares and a joining route. Main landing mode: Persuade; Get Ready, Init and Explorer: Operate; docs: Read. Small motion traces the joining route only, disabled under reduced motion.
+Use a warm ivory reading surface, charcoal text and decisive signal orange, with dark ink work areas. Source connections are crisp geometric routes; independent modules retain colours. Self-hosted Space Grotesk display and native sans body. No decorative dashboards, fabricated metrics or glow. Wide open typography and substantial rules; compact task controls stay predictable. The canonical mark is MP's approved orange-and-white merging-block icon: two rounded blocks joined into a forward arrow. Use the supplied geometry, not a reinterpretation or the retired interlocking-squares mark. Main landing mode: Persuade; Get Ready, Init and Explorer: Operate; docs: Read. Small motion traces the joining route only, disabled under reduced motion.
 
 The `/learn` tutorial (reviewed 14 October 2026) is Read/Operate within the existing transit world: an open numbered route beside one focused lesson, orange for the current stop, restrained task panels and native observation/answer controls. On phones, enhanced navigation uses a sticky native chapter picker with previous/next controls; the two-column index remains the JavaScript-free fallback. Native fragment links support keyboard navigation and direct entry; all lessons remain readable without JavaScript, and enhanced navigation focuses the lesson title. Both themes reuse the product tokens. Progress describes personal observations saved on the device, while actual setup results use the existing Get Ready report component.
 

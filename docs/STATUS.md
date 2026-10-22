@@ -2,6 +2,12 @@
 
 Reviewed 18 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Brand and PHP2Shell campaign — 22 October 2026
+
+MP's approved orange-and-white merging-block icon replaces the rejected assembly-scene crop across the Composer header, favicon/ICO, Apple touch, PWA and maskable icons, launcher, extension and generated content projects. The editable vector master, supplied raster masters, export commands and provenance are in `public/brand/` and `docs/assets/brand/`.
+
+The Australia-first [PHP2Shell briefing](https://composer.loftwah.com/php2shell) is published with a homepage feature. It separates a vulnerable PHP runtime, attempted exploitation, precautionary outages and confirmed breaches; cites PHP, Cloudflare, Wiz, the ACSC, ABC, NSW, GovCMS, Victorian SDP and nsw.gov.au; and states the supported App Composer/Workers route without claiming a Drupal or GovCMS migration. Campaign-specific 1200×630, 1080×1080 and 1080×1920 assets are shipped, while the general product card remains product-focused. Exact release source, Worker identity and live checks are recorded in #11/#28/#197.
+
 ## Shipped and demonstrated
 
 The latest recorded production qualification is Composer main `7bc0aadea9befda369f8f771df10254615468a25`, Worker `54db95b3-ce38-4c81-a17c-c99290abff7d`, through the clean pushed-main guard. [PR #189 receipt](https://github.com/loftwah/app-composer/issues/11#issuecomment-6244914257): 524 tests pass, type errors/warnings zero, public artifact 861 files/74 archive members, exact live source and boundaries verified, owned release clone removed. Later deployments belong to #11 rather than an inferred claim from this dated snapshot.
@@ -25,6 +31,6 @@ Composition is `b8d1d9eb5b242e471f0411e30eac8f110b322d40ed4df58b9064ba68f8e4659b
 
 ## Current visual direction
 
-Keep the accepted lime Linkarooie curator and illustrated science-fiction family. Bubbles is an art-direction quality reference. The newer Cloudflare flat advertisement contributes 30–50% influence to suitable future work; MP explicitly requested no immediate restyle from it. The new flat Composer mark is an unshipped candidate. The quiet recurring reference review cannot redesign or publish automatically. See [visual direction](visual-direction.md).
+Keep the accepted lime Linkarooie curator and illustrated science-fiction family. Bubbles is an art-direction quality reference. The newer Cloudflare flat advertisement contributes 30–50% influence to suitable future work. The flat merging-block Composer mark is now the approved canonical identity and is shipped; the rejected assembly-scene crop and old interlocking-squares mark must not return. The quiet recurring reference review cannot redesign or publish automatically. See [visual direction](visual-direction.md).
 
 Owner references, private records, dirty worktrees, browser sessions and unrelated temporary roots remain protected.
