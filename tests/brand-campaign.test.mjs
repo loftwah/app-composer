@@ -26,7 +26,7 @@ test('the approved merging-block mark is a clean editable vector, not the retire
   assert.match(mark, /id="block-bottom"/);
   assert.match(mark, /id="block-field"/);
   assert.match(mark, /id="join-arrow"/);
-  assert.match(mark, /fill="#f75b05"/);
+  assert.match(mark, /fill="#fc5b05"/);
   assert.match(mark, /fill="#fff"/);
   assert.doesNotMatch(mark, /M10 12h32v32H10z|M24 26h30v28H24z/, 'the old interlocking-squares mark is retired');
   assert.equal(exists('public/brand/composer-icon-tile-20261022.svg'), true);
@@ -84,7 +84,7 @@ test('every active Composer identity consumer uses the approved versioned assets
     ['192x192', 'any'], ['512x512', 'any'], ['512x512', 'maskable'],
   ]);
   for (const icon of manifest.icons) assert.equal(exists('public' + icon.src), true);
-  assert.equal(manifest.theme_color, '#f75b05');
+  assert.equal(manifest.theme_color, '#fc5b05');
   assert.deepEqual(read('src/assets/composer-icon-20261022-96.png.bin'), read('public/brand/composer-icon-20261022-96.png'));
   const extension = png('extension/icon.png');
   assert.equal(extension.width, 128);

@@ -1,12 +1,12 @@
 # App Composer identity and PHP2Shell campaign
 
-Approved by MP on 22 October 2026. This record accompanies the supplied source files, the editable vector and the shipped derivatives. The icon and campaign artwork are MP-supplied; the square and vertical campaign cards are deliberate reflows of the same approved copy, not new art direction.
+Approved by MP on 22 October 2026. This record accompanies the supplied source files, the editable vector and the shipped derivatives. The icon and campaign artwork are MP-supplied; the square and vertical campaign cards are deliberate reflows of the same approved copy, not new art direction. The icon's sampled orange `#fc5b05` is the canonical brand orange. The supplied campaign master uses a nearby orange; exported derivatives are colour-corrected to the icon orange, while the supplied master is retained unchanged.
 
 ## Supplied masters
 
 | File | SHA-256 | Notes |
 | --- | --- | --- |
-| `docs/assets/brand/app-composer-mark-master-20261022.png` | `a1b205ebed6804b0aaecc47f474ea1518c22064f468c1eb3f5a35dda7ababa80` | Original 1254 × 1254 RGBA icon supplied by MP. Orange `#f75b05`; transparent field. |
+| `docs/assets/brand/app-composer-mark-master-20261022.png` | `a1b205ebed6804b0aaecc47f474ea1518c22064f468c1eb3f5a35dda7ababa80` | Original 1254 × 1254 RGBA icon supplied by MP. Orange `#fc5b05`; transparent field. This sampled icon orange is the canonical brand orange. |
 | `docs/assets/brand/php2shell-australia-master-20261022.jpg` | `d6fd1f40d2ea8552dde39d01cab2ed161ec6b612c3df6045da6a4ace280f8778` | Original 1730 × 909 approved PHP2Shell artwork. |
 
 The supplied files are retained unchanged. The vector master is an editable reconstruction, not a replacement raster.

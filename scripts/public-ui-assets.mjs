@@ -31,7 +31,7 @@ const versionedAssets = new Map([
   ['apps/linkcheck-small-20261018.webp', 'be9d5e7b8f24ec6d8b8d073075e3208dbd3e68afc78ecc00c9184882f98b0326'],
   ['apps/hello-small-20261018.webp', 'c2aef7354c04affc6060d095912307794cc5436acff8a45d26c913b989222db1'],
   ['apps/carryforward-small-20261018.webp', 'd684c61b50c8f1c44eefc376c232fb9192c40d4b80365eb971a3ad1684add88c'],
-  ['composer-icon-20261022-96.png', '46430b9644c2c5332d177745976a2460861f300bd37283591b8dad6d41b22a35'],
+  ['composer-icon-20261022-96.png', 'ecbadefaf28866750a7db31e848a50f2023ecac1d6cb6db4a598a04b60cc5992'],
 ]);
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 

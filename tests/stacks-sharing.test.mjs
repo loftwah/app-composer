@@ -118,7 +118,7 @@ test('deployable browser and QR modules match their checked TypeScript sources',
 });
 
 test('the selected Composer PNG is embedded in the rendered card and the independent decoder still reads its QR', async () => {
-  assert.equal(createHash('sha256').update(brandBytes).digest('hex'), '46430b9644c2c5332d177745976a2460861f300bd37283591b8dad6d41b22a35');
+  assert.equal(createHash('sha256').update(brandBytes).digest('hex'), 'ecbadefaf28866750a7db31e848a50f2023ecac1d6cb6db4a598a04b60cc5992');
   const selected = pngjs.PNG.sync.read(brandBytes);
   assert.equal(selected.width, 96);
   assert.equal(selected.height, 96);
