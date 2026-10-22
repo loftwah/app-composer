@@ -1,0 +1,14 @@
+style.fill: "#17181b"
+*.style: { font-size: 20; bold: false; fill: "#23252a"; stroke: "#747a85"; font-color: "#f2f3f5"; border-radius: 6 }
+(* -> *)[*].style: { stroke: "#fc5b05"; stroke-width: 2; font-color: "#f2f3f5"; font-size: 16 }
+grid-rows: 2
+grid-columns: 2
+horizontal-gap: 130
+vertical-gap: 100
+request: Public request / action\nHome page · contribution\nInspection · guest postcard
+app: Owning app\nRecognises a supported event
+report: This public report\nRetained lower bounds\nNo visitor identity
+counter: Composer daily counter\nDay, app, event, version\n35-day retention { shape: cylinder }
+request -> app: event
+app -> counter: publisher or mounted route
+counter -> report: counts

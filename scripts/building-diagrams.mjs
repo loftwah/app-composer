@@ -8,7 +8,7 @@ const palettes = {
     border: "#4a505a",
     text: "#f2f3f5",
     muted: "#b3b8c2",
-    accent: "#ff9b55",
+    accent: "#fc5b05",
   },
   light: {
     background: "#faf9f7",
@@ -16,7 +16,7 @@ const palettes = {
     border: "#c9c7c1",
     text: "#22252b",
     muted: "#5c616a",
-    accent: "#a63d08",
+    accent: "#c74400",
   },
 };
 const esc = (value) =>
@@ -131,7 +131,7 @@ const contribution = (p) =>
 for (const [name, render] of Object.entries({ architecture, workflow, contribution }))
   for (const [theme, palette] of Object.entries(palettes))
     writeFileSync(
-      `public/diagrams/building-${name}-20261022-${theme}.svg`,
+      `public/diagrams/building-${name}-20261023-${theme}.svg`,
       render(palette),
     );
 console.log("Rendered building diagrams.");

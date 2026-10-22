@@ -3,7 +3,7 @@
   --co-muted: var(--text-color-kumo-subtle, #666);
   --co-line: color-mix(in srgb, var(--co-ink) 50%, var(--co-surface));
   --co-surface: var(--color-kumo-base, #fff);
-  --co-accent: #ad440f;
+  --co-accent: #c74400;
   color: var(--co-ink);
   max-width: 1400px;
   margin: auto;
@@ -255,7 +255,7 @@
   max-width: 72ch;
 }
 [data-mode="dark"] .composer-outcomes {
-  --co-accent: #f49a61;
+  --co-accent: #fc5b05;
 }
 .co-report-tools {
   margin: 18px 0;

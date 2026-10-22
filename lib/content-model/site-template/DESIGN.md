@@ -7,13 +7,13 @@ colors:
   dark-muted: "#afb3bb"
   dark-border: "#464a52"
   dark-surface: "#23252a"
-  dark-accent: "#ff9b55"
+  dark-accent: "#fc5b05"
   light-background: "#faf9f7"
   light-foreground: "#22252b"
   light-muted: "#5c616a"
   light-border: "#b9bec5"
   light-surface: "#efeeea"
-  light-accent: "#a63d08"
+  light-accent: "#c74400"
 typography:
   display:
     fontFamily: "Space, system-ui, sans-serif"
@@ -42,7 +42,7 @@ The built surface presents a collection name, editing/theme controls, a large co
 
 ## Colors
 
-Dark presentation pairs charcoal with pale text and warm orange. Light presentation pairs ivory with charcoal text and a darker orange. Muted text identifies labels and footer information; borders separate content; the quiet surface colour belongs to the theme and skip controls. Primary controls use charcoal text in dark mode and white text in light mode.
+Dark presentation pairs charcoal with pale text and warm orange. Light presentation pairs ivory with charcoal text and a darker orange. Muted text identifies labels and footer information; borders separate content; the quiet surface colour belongs to the theme and skip controls. Primary controls use the canonical #FC5B05 action fill with charcoal ink in both modes (5.61:1). Light-theme links use #C74400 (4.69:1); dark-theme links use #FC5B05. Focus uses #FC5B05, which meets the 3:1 non-text threshold on both surfaces.
 
 ## Typography
 

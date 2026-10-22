@@ -5,7 +5,7 @@
   --stack-muted: #5c616b;
   --stack-border: rgba(34,37,43,.16);
   --stack-surface: #ffffff;
-  --stack-accent: #b8451c;
+  --stack-accent: #c74400;
 }
 
 .stack-view[data-stack-theme="midnight"] {
@@ -14,5 +14,5 @@
   --stack-muted: #a7abb3;
   --stack-border: rgba(242,243,245,.18);
   --stack-surface: #1f2126;
-  --stack-accent: #ff9b55;
+  --stack-accent: #fc5b05;
 }

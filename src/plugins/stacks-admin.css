@@ -25,7 +25,7 @@
 .ca-stack-list{list-style:none;padding:0;margin:0 0 24px}
 .ca-stack-list li{margin:0 0 8px}
 .ca-stack-list button{width:100%;text-align:left;display:grid;gap:4px;padding:12px 14px}
-.ca-stack-list button[aria-pressed=true]{border-color:#e77743;background:color-mix(in srgb,#e77743 12%,transparent)}
+.ca-stack-list button[aria-pressed=true]{border-color:#fc5b05;background:color-mix(in srgb,#fc5b05 12%,transparent)}
 .ca-stack-list small{font-size:.8rem;opacity:.75}
 @media(max-width:900px){.ca-stacks .ca-workspace{grid-template-columns:1fr}.ca-stack-instance{display:block}.ca-stack-instance .ca-actions{flex-direction:row;flex-wrap:wrap;margin-top:12px}}
 .ca-stack-conflict{border:1px solid #c0563f;border-radius:10px;padding:16px 20px;margin:16px 0;background:color-mix(in srgb,#c0563f 8%,transparent)}
@@ -33,7 +33,7 @@
 .ca-stack-conflict .ca-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .ca-stack-binding{border:1px solid color-mix(in srgb,currentColor 22%,transparent);border-radius:8px;padding:12px 14px;margin:14px 0;display:grid;gap:8px}
 .ca-stack-binding legend{padding:0 6px;font-size:.85rem;font-weight:600}
-.ca-stack-shared{border-left:3px solid #e77743;padding:8px 0 8px 12px;margin:12px 0;display:grid;gap:8px;justify-items:start}
+.ca-stack-shared{border-left:3px solid #fc5b05;padding:8px 0 8px 12px;margin:12px 0;display:grid;gap:8px;justify-items:start}
 .ca-stack-config{margin:14px 0}
 .ca-stack-config summary{cursor:pointer;font-weight:600}
 .ca-stack-config label{display:grid;gap:6px;font-size:.9rem;margin-top:12px;max-width:34rem}

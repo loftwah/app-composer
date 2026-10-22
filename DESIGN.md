@@ -4,7 +4,8 @@ description: Approved orange-and-white identity, editorial campaign and native a
 colors:
   brand-orange: "#fc5b05"
   brand-orange-text: "#c74400"
-  native-focus: "#e77743"
+  brand-action-pressed: "#e85404"
+  brand-focus: "#fc5b05"
   native-control-border: "color-mix(in srgb,currentColor 30%,transparent)"
   native-rule: "color-mix(in srgb,currentColor 18%,transparent)"
 typography:
@@ -20,6 +21,22 @@ Reviewed 22 October 2026. Ordinary creative direction delegated by MP.
 MP approved the orange-and-white merging-block icon as App Composer's canonical identity. The editable vector master is `public/brand/composer-icon-20261022b.svg`; the orange tile, reversed mark and wordmark lockups are derived from it. Use the approved artwork in the header, favicons, Apple touch icon, PWA icons, maskable icon, launcher, extension and generated content sites. Do not restore the rejected assembly-scene crop or the old interlocking-squares mark, and do not reinterpret the mark as a new logo.
 
 The PHP2Shell campaign uses a flat orange-and-white editorial surface: large Space Grotesk type, simple geometry, generous negative space, thin white rules and a clear action. The supplied campaign artwork is the approved asset. Its square and vertical exports are deliberate reflows of the same copy, not crops or stretches. Campaign surfaces may be brighter and flatter than the operational UI; operational screens keep their existing tokens, controls and mini-app identities. Avoid neon, glows, gradients, fake 3D, circuit-board decoration and generic AI illustration.
+
+## Colour roles, reviewed 23 October 2026
+
+`#FC5B05` is the single canonical App Composer orange. It is an identity and action colour, not a universal text colour. `src/styles/global.css` owns the public tokens; `public/brand/launcher.css`, `src/lib/stack-theme.mjs`, the generated content-site template and the native Composer admin panels consume the same roles.
+
+| Role | Dark | Light | Declared pair |
+| --- | --- | --- | --- |
+| Brand identity / primary action fill | `#fc5b05` | `#fc5b05` | Ink `#17181b` on fill: 5.61:1 |
+| Action hover | `#ff7a33` | `#ff7a33` | Ink `#17181b`: 6.83:1 |
+| Action pressed | `#e85404` | `#e85404` | Ink `#17181b`: 4.82:1 |
+| Links and text accents | `#fc5b05` | `#c74400` | `#fc5b05` on `#17181b`: 5.61:1; `#c74400` on `#faf9f7`: 4.69:1 |
+| Link hover | `#ff7a33` | `#a63a00` | 6.83:1; 6.19:1 |
+| Focus / non-text indicator | `#fc5b05` | `#fc5b05` | 5.61:1 on dark, 3.01:1 on `#faf9f7` |
+| Selected surface | `#3b2b21` | `#fff0e5` | Paired with foreground, not brand text |
+
+The launcher uses `#fc5b05` on its dark paper and `#c74400` on its light paper because the same variable also labels “You’re here”. Composer-default generated sites split `--accent` (text) from `--action` (fill), so a custom owner palette can change both deliberately. Independent Here / there, Linkarooie, Link Check, Hello World and Carry / forward keep their own artwork and accent colours.
 
 The product's unique mechanism is connecting independently owned pieces into working software. The audience works between an idea, a repository and a live site. Grounded visual directions considered: modular Swiss identity manual; publishing paste-up; transit interchange diagram; audio routing console; annotated engineering notebook; exhibition catalogue; film edit timeline. The design seed assigned the third direction. Transit interchange carries cross-app routing with clearer product meaning than the bitmap specimen, layered reference manual or star-atlas challengers.
 
