@@ -117,9 +117,10 @@ The PHP2Shell article uses campaign-specific artwork:
 `public/brand/campaign/php2shell-australia-20261022b-1200x630.jpg` for Open Graph/X,
 with deliberate 1080 × 1080 and 1080 × 1920 reflows. The product X profile banner
 is `public/brand/campaign/product-x-banner-20261022b.jpg` (1500 × 500), separate
-from the campaign cards and linked from the article. Its HTML render sources
-and export command live in `.artwork/campaign/`; supplied masters, hashes and
-the verification boundary are recorded in `docs/assets/brand/PROVENANCE.md`.
+from the campaign cards and exported for the account profile. Reader-facing
+pages do not link the banner or carry campaign production notes. Its HTML render
+sources and export command live in `.artwork/campaign/`; supplied masters, hashes
+and the verification boundary are recorded in `docs/assets/brand/PROVENANCE.md`.
 
 Each app's own share prefix in the table produces `.jpg`, `.webp` and
 `-600.webp` (600 × 315). Composer's copies are in `public/brand/apps/`; app shell

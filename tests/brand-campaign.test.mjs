@@ -132,8 +132,12 @@ test('the homepage features the approved campaign and links to the Australia bri
   assert.match(article, /not a breach count/);
   assert.match(article, /not aware of successful active exploitation within Australia/);
   assert.match(article, /WAF helps\. Patching is essential/);
-  assert.match(article, /product-x-banner-20261022b\.jpg/);
-  assert.match(article, /php2shell-australia-20261022b-1080x1080\.jpg/);
+  assert.match(article, /const shareImage = 'https:\/\/composer\.loftwah\.com\/brand\/campaign\/php2shell-australia-20261022b-1200x630\.jpg'/);
+  assert.doesNotMatch(article, /\bMP\b/, 'reader-facing campaign copy must not name the owner by initials');
+  assert.doesNotMatch(article, /Use the approved artwork|product-x-banner|briefing-asset/, 'internal campaign notes and profile exports stay off the public page');
+  for (const path of ['src/lib/ready-handoff.ts', 'src/lib/init-client.ts']) {
+    assert.doesNotMatch(text(path), /\bMP\b/, `${path} is copied or shown to visitors and must not name the owner by initials`);
+  }
   for (const source of [
     'https://www.php.net/archive/2026.php#2026-10-21-5',
     'https://blog.cloudflare.com/php-vulnerabilities-waf-protection',
