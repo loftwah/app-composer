@@ -8,6 +8,7 @@ import {
   collectionRevision as revision,
   collectionSource,
   collectionSelection,
+  collectionInvitationState,
   type CollectionSelection,
   type CollectionSource,
 } from "./miniapp-collection-contract.ts";
@@ -47,6 +48,17 @@ const commands = z.discriminatedUnion("action", [
       resource: id,
       configuration: z.coerce.number().pipe(revision),
       item: id,
+    })
+    .strict(),
+  z
+    .object({ app, action: z.literal("collection-invitation"), ...selected })
+    .strict(),
+  z
+    .object({
+      app,
+      action: z.literal("collection-invitation-set"),
+      ...selected,
+      operation: z.enum(["enable", "disable"]),
     })
     .strict(),
 ]);
@@ -248,6 +260,36 @@ const storedCard = savedCard.extend({
   source_resource: z.string().nullable().optional(),
   source_configuration: z.number().nullable().optional(),
 });
+const invitationReply = z
+  .object({
+    contract: z.literal(1),
+    configured: z.boolean(),
+    source: collectionSource.optional(),
+    invitation: collectionInvitationState.optional(),
+    state: z.literal("none").optional(),
+  })
+  .strict();
+const invitationFailure = z.object({ error: z.string().min(1).max(500) });
+const invitationState = (
+  value: z.infer<typeof invitationReply>,
+): z.infer<typeof collectionInvitationState> =>
+  value.invitation ?? (value.state === "none" ? { state: "none" } : { state: "unavailable" });
+const invitationMessages: Record<string, string> = {
+  open: "Linkarooie now links this Guestbook's real form while it accepts postcards. Every note still waits for Guestbook review.",
+  paused:
+    "The Guestbook is paused. Linkarooie links it without showing a send action until it reopens.",
+  closed:
+    "The Guestbook is closed. Linkarooie explains that without showing a send action.",
+  full: "The Guestbook's review queue is full. Linkarooie explains that without showing a send action.",
+  unavailable:
+    "Linkarooie cannot reach this Guestbook right now, so it shows no send action.",
+  none: "No Guestbook is linked for contributions.",
+};
+const invitationMessage = (state: string, configured: boolean) =>
+  !configured
+    ? "Linkarooie no longer shows a contribution action. Approved featured notes and all authored links are unchanged."
+    : (invitationMessages[state] ??
+      "Linkarooie could not confirm the contribution state. Refresh the saved book.");
 
 // Existing role-50 / plugins:manage, origin and method checks run before this
 // helper. Selections grant no authority and never supply a service URL or token.
@@ -462,6 +504,59 @@ export async function manageMiniappCollection(
     await connection.verify();
     await selected.guard();
     if (book.resource !== selected.source.resource) throw conflict();
+    if (
+      command.action === "collection-invitation" ||
+      command.action === "collection-invitation-set"
+    ) {
+      let response: Response;
+      try {
+        if (command.action === "collection-invitation") {
+          // Reading the owner-only invitation status grants no public authority;
+          // it only reflects the Guestbook's current state through Linkarooie.
+          response = await connection.send("/api/invitation");
+        } else {
+          if (command.operation === "enable" && (!book.visible || book.pending))
+            throw new StackError(
+              "CONFLICT",
+              "Publish this visitor book before inviting contributions. Nothing was changed.",
+              409,
+            );
+          await selected.guard();
+          response = await connection.send("/api/invitation", {
+            action: command.operation,
+            ...(command.operation === "enable" ? { source: selected.source } : {}),
+          });
+        }
+      } catch (error) {
+        if (error instanceof StackError) throw error;
+        throw unavailable(
+          "The invitation change could not be confirmed. Refresh this saved book before trying again.",
+        );
+      }
+      const value = await json(response, 8192);
+      const confirmed = invitationReply.safeParse(value);
+      if (!response.ok || !confirmed.success) {
+        const reason = invitationFailure.safeParse(value);
+        throw new StackError(
+          response.status === 409 ? "CONFLICT" : "UNAVAILABLE",
+          reason.success
+            ? reason.data.error
+            : "Linkarooie returned an incompatible invitation result. Refresh this saved book.",
+          response.status === 409 ? 409 : 503,
+        );
+      }
+      const invitation = invitationState(confirmed.data);
+      return {
+        ok: true,
+        selection,
+        source: selected.source,
+        linked: confirmed.data.source ?? null,
+        configured: confirmed.data.configured,
+        invitation,
+        outcome: command.action === "collection-invitation" ? "unchanged" : "applied",
+        message: invitationMessage(invitation.state, confirmed.data.configured),
+      };
+    }
     const approved =
       book.visible && !book.pending
         ? book.items.filter((item) => item.status === "approved")

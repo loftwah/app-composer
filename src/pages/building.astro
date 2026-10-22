@@ -1,0 +1,490 @@
+---
+import Base from '../layouts/Base.astro';
+import dims from '../../public/diagrams/journey-dimensions.json';
+
+const title = 'Building App Composer, and building with it.';
+const description = 'A real brief, a local Worker run, and a guestbook note that earns its place. How App Composer is built, and how two independent apps learned to agree about a contribution.';
+const shareImage = 'https://composer.loftwah.com/brand/building/building-hero-20261022.jpg';
+const shareAlt = 'Flat orange App Composer graphic with the white merging-block mark, the headline "Building App Composer, and building with it." and composer.loftwah.com.';
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: title,
+  description,
+  datePublished: '2026-10-22',
+  dateModified: '2026-10-22',
+  inLanguage: 'en-AU',
+  mainEntityOfPage: 'https://composer.loftwah.com/building',
+  image: shareImage,
+  author: { '@type': 'Organization', name: 'App Composer' },
+  publisher: { '@type': 'Organization', name: 'App Composer' },
+};
+const guestbookCommit = '019ce0d117f9f89e472a5c7642d51d85301f7fcd';
+const linkarooieCommit = '20ef9a50c19c7a3419dc06fdae020c6a677ed5cf';
+const architecture = dims['building-architecture'] as { desktop: { width: number; height: number }; mobile: { width: number; height: number } };
+const workflow = dims['building-workflow'] as { desktop: { width: number; height: number }; mobile: { width: number; height: number } };
+const contribution = dims['building-contribution'] as { desktop: { width: number; height: number }; mobile: { width: number; height: number } };
+---
+<Base
+  title={title}
+  description={description}
+  shareImage={shareImage}
+  shareAlt={shareAlt}
+  canonical="https://composer.loftwah.com/building"
+  ogType="article"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <meta slot="head" property="article:published_time" content="2026-10-22" />
+  <meta slot="head" property="article:modified_time" content="2026-10-22" />
+  <article class="build">
+    <header class="build-head">
+      <p class="build-kicker"><span>Walkthrough</span> · <time datetime="2026-10-22">22 October 2026</time> · 12 min read</p>
+      <h1>Building App Composer, <br />and building with it.</h1>
+      <p class="build-lede">A real brief, a local Worker run, and one guestbook note that earns its place. This is how App Composer is put together, and how two independent apps learned to agree about a contribution without merging their data.</p>
+      <nav class="build-jump" aria-label="In this walkthrough">
+        <a href="#result">The result</a>
+        <a href="#product">The product</a>
+        <a href="#brief">The brief</a>
+        <a href="#init">The Init handoff</a>
+        <a href="#change">The change</a>
+        <a href="#run">Run it locally</a>
+        <a href="#journey">The journey</a>
+        <a href="#limits">Limits</a>
+      </nav>
+    </header>
+
+    <figure class="build-hero">
+      <picture>
+        <source media="(max-width: 700px)" srcset="/brand/building/building-hero-mobile-20261022.webp" />
+        <img src="/brand/building/building-hero-wide-20261022.webp" width="1600" height="640" alt="Flat orange build-story graphic with the white App Composer mark and three steps: a real brief with limits, two independent Workers running locally, and one guestbook note that earns its place." fetchpriority="high" />
+      </picture>
+      <figcaption>The article hero has a deliberate phone crop; the separate 1200 × 630 share card keeps its own composition. Editable HTML and export commands live in <code>.artwork/building/</code>.</figcaption>
+    </figure>
+
+    <div class="build-body">
+      <section id="result">
+        <h2>The finished result comes first</h2>
+        <p>A visitor opens a Linkarooie profile and sees four curated links, a short explanation, and one clear action: <strong>Leave a note in the guestbook</strong>. The action opens Here / there's real postcard form. The note becomes a pending, private record. The owner approves it in Guestbook. Only then does Linkarooie offer it as a separate featuring choice. Hiding it at the source removes the card and media on the next request.</p>
+        <div class="build-plates build-plates--result">
+          <figure class="build-result-desktop">
+            <img src="/guides/building/featured-profile-desktop.webp" width="1200" height="833" alt="Fictional Linkarooie profile with the Leave a note guestbook panel, two featured authored links and a featured postcard from a fictional visitor." loading="eager" />
+            <figcaption>Local fictional run at 1440 × 1000. The approved note is featured, while the contribution action remains open.</figcaption>
+          </figure>
+          <figure class="build-phone build-result-phone">
+            <img src="/guides/building/profile-open-phone.webp" width="390" height="844" alt="Phone view of the fictional Linkarooie profile with the guestbook invitation, navigation and the start of the featured section." loading="eager" />
+            <figcaption>Same profile at 390 × 844. The jump navigation wraps instead of clipping a label.</figcaption>
+          </figure>
+        </div>
+        <p class="build-note">These are actual browser captures from two locally running Workers, not mockups. The note, name, links and profile are fictional. The local addresses are visible because the run is local; no hosted deployment is implied.</p>
+      </section>
+
+      <section id="product">
+        <h2>What App Composer is, and what it is not</h2>
+        <p>App Composer is a place to compose independent apps into one public result. Each app keeps its own source repository, records, media, owner API and release. Composer keeps the workspace, the saved stack, the publication revision and the reviewed connection between them. It is not a second content store, and it does not make every app share one database.</p>
+        <div class="build-roles">
+          <article><h3>App Composer</h3><p>Astro pages for the public product, EmDash for native administration, D1 and R2 for Composer's own workspace and publication records, and a small bridge for declared app actions.</p></article>
+          <article><h3>Here / there</h3><p>An independent Cloudflare Worker. It owns postcard submissions, private review, approval, PNG media, source visibility and revocation. Its D1 and R2 data stay with that app.</p></article>
+          <article><h3>Linkarooie</h3><p>Another independent Worker. It owns the profile, authored links, curation and which approved source items are featured. It asks Guestbook for current eligibility on every render.</p></article>
+          <article><h3>The agent</h3><p>A coding agent works in the selected repositories: it reads the brief, prepares the environment, changes source, runs checks and follows the release path. Account access, spending and consequential permissions stay human decisions.</p></article>
+        </div>
+        <h3>The development history, briefly and accurately</h3>
+        <p>The first commit is 11 October 2026. The working foundation landed on 13 October: the public site, independent composition, Init, the decision explorer, guarded Access administration and a first readiness handoff. The following days added the readiness core, a verified Hello update, the app library and launcher, the composed collection, workspace roles, private outcomes, the enquiry inbox, the owner experience and the approved orange identity. This article describes a change made on 22 October; it is not a retrospective claim that the whole product appeared in one session.</p>
+        <p><strong>Where the self-build claim is real:</strong> Composer's own Init produced the portable specification used to configure the local Linkarooie instance below. This article is itself an Astro page in the Composer repository, built and released through Composer's own checks and guarded deployment. We are not claiming that Composer autonomously wrote its own source, chose its own architecture or deployed without an agent and an owner.</p>
+      </section>
+
+      <section id="brief">
+        <h2>The brief was a question, not a feature list</h2>
+        <blockquote>Why would I want Guestbook entries on Linkarooie? Isn't Guestbook how other people write or comment on my Linkarooie?</blockquote>
+        <p>The relationship was real but hard to discover. Linkarooie could feature an approved Guestbook moment, yet the profile did not explain where notes come from, who reviews them, or why a featured card is not the same thing as a submission. The easiest wrong answer was a comment box inside Linkarooie. That would duplicate Guestbook's intake, moderation, retention and revocation, and it would create a second place where private visitor text could leak.</p>
+        <p>The accepted brief separated three states in plain language:</p>
+        <div class="build-states">
+          <article><span>1</span><h3>Sent for review</h3><p>The visitor writes a short postcard. It is pending and private. Nothing appears on the profile.</p></article>
+          <article><span>2</span><h3>Approved in Guestbook</h3><p>The owner reviews it at the source. Approval makes it public in the Guestbook collection.</p></article>
+          <article><span>3</span><h3>Featured in Linkarooie</h3><p>The owner makes a separate curation choice. The card resolves the live source and disappears when that source is hidden.</p></article>
+        </div>
+        <p>The action must be honest. If the configured Guestbook is closed, paused, full or unreachable, the profile must not show a send button that leads to a dead form. It also must not expose the guest code, owner credentials or technical abuse controls on the profile. The full acceptance criteria live in <a href="https://github.com/loftwah/app-composer/issues/196">#196</a>.</p>
+      </section>
+
+      <section id="init">
+        <h2>From the brief to a real Init specification</h2>
+        <p>Init is the part of Composer that turns configuration into a portable handoff. For this walkthrough it produced a version 2 composition spec with the title, introduction, separate Guestbook and Linkarooie settings, four authored links and a preview destination. The spec pinned the reviewed app sources it was generated from. It did not contain a credential, and it did not decide how the contribution contract should work.</p>
+        <figure class="build-plate">
+          <img src="/guides/building/init-handoff.webp" width="1200" height="833" alt="App Composer Init page configured for a fictional Guestbook and Linkarooie composition, with a portable specification preview." loading="lazy" />
+          <figcaption>The real <a href="/init">Init</a> form used for the starting composition. The downloaded spec is <a href="/downloads/building-199-init-spec.json">available as data</a>; it grants no execution or deployment authority.</figcaption>
+        </figure>
+        <details class="build-code">
+          <summary>The specification's operative settings</summary>
+          <pre><code>{`{
+  "preset": "composition",
+  "appSettings": {
+    "guestbook": {
+      "title": "Fictional Trail Notes",
+      "theme": "daylight",
+      "guestAccess": "postcards"
+    },
+    "showcase": {
+      "title": "Fictional Trail Notes",
+      "theme": "daylight",
+      "layout": "profile"
+    }
+  },
+  "cards": [
+    { "title": "Field notes: the long way round", "url": "https://example.test/field-notes" },
+    { "title": "A small toolkit for slow software", "url": "https://example.test/slow-software" },
+    { "title": "Weekend radio", "url": "https://example.test/weekend-radio" },
+    { "title": "Reading list, autumn", "url": "https://example.test/reading" }
+  ],
+  "deployment": { "mode": "preview" }
+}`}</code></pre>
+        </details>
+        <p>The handoff fixed the starting shape. The agent still had to implement the missing cross-app contract, the public state handling, the owner control and the tests. That is the useful division: Init records the decisions a person can review; the agent owns the implementation and the evidence.</p>
+      </section>
+
+      <section id="change">
+        <h2>The change: ask the source, do not guess</h2>
+        <p>Guestbook already had a public contribution page and an owner review flow. What it lacked was a small, versioned answer to a different question: <em>does this exact Guestbook currently accept guest postcards?</em> The new public endpoint is deliberately boring:</p>
+        <pre class="build-snippet"><code>{`GET /r/:resource/api/invitation
+
+{
+  "contract": 1,
+  "provider": "guestbook",
+  "resource": "…",
+  "invitation": {
+    "version": 1,
+    "kind": "postcard",
+    "state": "open | paused | closed | full",
+    "accepts": true,
+    "configuration": 3,
+    "contribute": "https://…/c/3/contribute",
+    "collection": "https://…/c/3/",
+    "limits": { "message": 160, "alias": 60,
+                "width": 1200, "height": 900, "bytes": 100000 }
+  }
+}`}</code></pre>
+        <p>The state follows the resource's <strong>current active</strong> configuration, not the historical activation path. Paused wins over open. A closed postcard setting is closed. A pending queue at 16 or a non-deleted item count at 200 is full. The same function now controls the Guestbook's own <code>/contribute</code> page, so the source no longer shows a form that would immediately fail. The response contains no guest code, owner token, media or submission text.</p>
+        <p>Composer's promotion boundary validates the exact manifest descriptor, so a future release cannot quietly add a state or widen the limits:</p>
+        <pre class="build-snippet"><code>{`"guestInvitation": {
+  "version": 1,
+  "kind": "postcard",
+  "route": "/r/:resource/api/invitation",
+  "states": ["open", "paused", "closed", "full"],
+  "default": "closed",
+  "limits": { "message": 160, "alias": 60,
+              "width": 1200, "height": 900, "bytes": 100000 }
+}`}</code></pre>
+        <p>Linkarooie stores one exact <code>{`{ kind, version, resource, configuration }`}</code> reference. It fetches the invitation through its configured service binding, checks the provider, resource, field set, limits and exact contribution paths, and treats a redirect, foreign origin or partial response as unavailable. The public panel then renders one of five states. Only <code>open</code> produces a send action.</p>
+        <div class="build-callout">
+          <h3>What the owner controls</h3>
+          <p>The native <strong>Collect from a saved visitor book</strong> control can link, replace or stop the invitation for an exact saved stack instance. Enabling is refused for a hidden or pending book. The same owner boundary exists in the standalone Linkarooie studio. Guestbook still owns approval; Linkarooie still owns the separate featuring choice.</p>
+        </div>
+        <p>The implementation touched both independent repositories and Composer's bridge:</p>
+        <ul class="build-links">
+          <li><a href={`https://github.com/loftwah/app-composer-guestbook/commit/${guestbookCommit}`}>Guestbook {guestbookCommit.slice(0, 7)}</a>: public invitation state, shared contribution-page state, manifest descriptor and tests.</li>
+          <li><a href={`https://github.com/loftwah/app-composer-showcase/commit/${linkarooieCommit}`}>Linkarooie {linkarooieCommit.slice(0, 7)}</a>: exact source reader, public panel, owner endpoint and studio controls, collection export.</li>
+          <li><a href="https://github.com/loftwah/app-composer/blob/main/src/lib/miniapp-collection.ts">Composer's collection bridge</a>: native link/replace/stop actions and a versioned reply that separates the selected book from the linked source.</li>
+        </ul>
+        <p>Local checks: 103 Guestbook tests, 100 Linkarooie tests, and the full Composer suite. The article adds a publication check for its own assets and links. The tests include malformed provider responses, a foreign origin, a changed limit, a hidden book, a configuration advance, mounted and standalone links, and the full open, closed, paused and full public states.</p>
+      </section>
+
+      <section id="run">
+        <h2>Run the same thing locally</h2>
+        <p>The demonstration uses the actual app source and Wrangler's local Workers runtime. It does not need a Cloudflare account, an Access session, a paid service or a hosted deployment. It needs Node 22, the declared pnpm version, the pinned dependencies, a native Wrangler install, and a host browser for the captures.</p>
+        <p><strong>Docker was not used for this run.</strong> The supported local path is Wrangler's <code>workerd</code> with local D1 and R2 emulation; a container would still download a platform-specific runtime and would still need a host browser for screenshots. That boundary is stated rather than hidden. Docker support for this walkthrough remains unexercised work.</p>
+        <ol class="build-steps">
+          <li><strong>Start two disposable Workers.</strong> <code>labs/building/start-local.sh</code> copies the two app repositories to one owned temporary root, prepares local migrations, writes fictional local configuration and starts Guestbook on 8788 and Linkarooie on 8787. It leaves the working repositories and their owner state untouched.</li>
+          <li><strong>Apply the Init spec.</strong> <code>seed-local.mjs</code> creates a fresh Guestbook resource, stages and activates the Guestbook settings, applies the Linkarooie profile and links, and links the exact source for contributions. It talks only to the asserted localhost Workers.</li>
+          <li><strong>Exercise the real journey.</strong> <code>capture-journey.mjs</code> opens the profile, submits a fictional postcard through the real form, records the pending receipt, approves it through the app-owned moderation contract, features it, hides it at source, closes and reopens the Guestbook, and captures phone and desktop states. Every assertion is written to <code>output/build-199/captures/report.json</code>.</li>
+          <li><strong>Stop and remove the owned run.</strong> <code>stop-local.sh</code> stops only the two processes it started and removes the temporary root. The working repositories, their <code>.wrangler</code> state, owner records and browser sessions are not touched.</li>
+        </ol>
+        <details class="build-code">
+          <summary>Commands used in this run</summary>
+          <pre><code>{`# From the Composer repository
+labs/building/start-local.sh
+RESOURCE_ID=build199-trail-8 \
+  INIT_SPEC=output/build-199/init-spec.json \
+  node labs/building/seed-local.mjs
+RESOURCE_ID=build199-trail-8 \
+  PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs \
+  node labs/building/capture-journey.mjs
+labs/building/stop-local.sh`}</code></pre>
+        </details>
+        <p>The exact local addresses, source revisions, screenshot hashes and capture note are in <a href="/guides/building/provenance.json">the capture provenance</a>. The run is not a deployment: it proves the app contracts, states and browser behaviour under local emulation, not a Cloudflare release or a live owner configuration.</p>
+      </section>
+
+      <section id="journey">
+        <h2>The journey, in the order a person sees it</h2>
+        <h3>1. The visitor writes a note</h3>
+        <div class="build-plates build-plates--two">
+          <figure>
+            <img src="/guides/building/contribution-filled-desktop.webp" width="1200" height="833" alt="Guestbook postcard form with a fictional message, alias and consent checked, and the guest code field left blank for the capture." loading="lazy" />
+            <figcaption>The Guestbook-owned form. The owner shares the guest code separately; the code is omitted from this capture. The message and alias are the visitor's own words.</figcaption>
+          </figure>
+          <figure>
+            <img src="/guides/building/pending-receipt-desktop.webp" width="1200" height="833" alt="Guestbook postcard form after submission with the Postcard sent button and a status saying the postcard is with the owner and stays private unless approved." loading="lazy" />
+            <figcaption>The pending receipt. The record is private; its media is not public. The button says “Postcard sent”, not “Published”.</figcaption>
+          </figure>
+        </div>
+
+        <h3>2. The owner reviews at the source</h3>
+        <div class="build-plates build-plates--two">
+          <figure>
+            <img src="/guides/building/guestbook-approved-desktop.webp" width="1200" height="833" alt="Public Guestbook page showing the approved fictional postcard and the Leave a postcard action." loading="lazy" />
+            <figcaption>After owner approval, the postcard is public in Guestbook. The source page still owns the approved collection and its media.</figcaption>
+          </figure>
+          <figure>
+            <img src="/guides/building/featured-profile-desktop.webp" width="1200" height="833" alt="Linkarooie profile with the approved postcard in the featured section, a Leave a note panel and four authored links." loading="lazy" />
+            <figcaption>After a separate featuring choice, Linkarooie shows the card and resolves its live source. The contribution action remains available.</figcaption>
+          </figure>
+        </div>
+
+        <h3>3. Revocation and closed states are visible, not implied</h3>
+        <div class="build-plates build-plates--two">
+          <figure>
+            <img src="/guides/building/revoked-profile-desktop.webp" width="1200" height="833" alt="Linkarooie profile after the source note was hidden, with the featured postcard gone and no stale media." loading="lazy" />
+            <figcaption>Hiding the item at source removed the card on the next request. Media and item API returned 404; the authored links and the open invitation remained.</figcaption>
+          </figure>
+          <figure>
+            <img src="/guides/building/closed-profile-desktop.webp" width="1200" height="833" alt="Linkarooie profile with a Guestbook panel explaining that postcards are closed and no Leave a note button." loading="lazy" />
+            <figcaption>With the Guestbook's active configuration closed, the profile explains the state and keeps the approved-note link. No send action is invented.</figcaption>
+          </figure>
+        </div>
+
+        <div class="build-plates build-plates--phone">
+          <figure class="build-phone">
+            <img src="/guides/building/featured-phone.webp" width="390" height="474" alt="Phone featured section showing two authored links and the fictional approved postcard." loading="lazy" />
+            <figcaption>The featured section at 390px.</figcaption>
+          </figure>
+          <figure class="build-phone">
+            <img src="/guides/building/contribution-phone.webp" width="390" height="844" alt="Phone contribution form with the guest code explanation, message, alias and consent fields." loading="lazy" />
+            <figcaption>The real form at 390px. The guest code is not exposed on the profile.</figcaption>
+          </figure>
+        </div>
+        <figure class="build-figure">
+          <img src="/guides/building/featured-profile-dark-desktop.webp" width="1200" height="833" alt="Dark theme Linkarooie profile with the guestbook panel and featured postcard." loading="lazy" />
+          <figcaption>The same profile in the dark theme. The panel, source card and state logic are identical; only the colour tokens change.</figcaption>
+        </figure>
+        <p class="build-note">The postcard image is generated by the visitor's browser from the message and alias. It is not a photograph, and the CTA does not add a photo-upload path to Linkarooie. The screenshot set is labelled by state; a pending note never appears in the featured section.</p>
+      </section>
+
+      <section id="composition">
+        <h2>Why this is composition, not a merged app</h2>
+        <figure class="build-figure">
+          <picture class="diagram-dark">
+            <source media="(max-width: 700px)" srcset="/diagrams/building-contribution-20261022-mobile-dark.svg" />
+            <img src="/diagrams/building-contribution-20261022-dark.svg" width={contribution.desktop.width} height={contribution.desktop.height} alt="Flow from a visitor note to the Guestbook form, pending review, owner approval, a separate Linkarooie featuring choice, a profile card, and source revocation removing both public views." loading="lazy" />
+          </picture>
+          <picture class="diagram-light">
+            <source media="(max-width: 700px)" srcset="/diagrams/building-contribution-20261022-mobile-light.svg" />
+            <img src="/diagrams/building-contribution-20261022-light.svg" width={contribution.desktop.width} height={contribution.desktop.height} alt="Flow from a visitor note to the Guestbook form, pending review, owner approval, a separate Linkarooie featuring choice, a profile card, and source revocation removing both public views." loading="lazy" />
+          </picture>
+          <figcaption>The source owns the record. Linkarooie owns the curation. The two public views resolve the same source state, so revocation is not a second copy to clean up.</figcaption>
+        </figure>
+        <details class="build-text-version">
+          <summary>Text version of the contribution flow</summary>
+          <ol>
+            <li>A visitor opens the profile. The Guestbook form is offered only while the source says it is open.</li>
+            <li>The form creates a pending private record and media in Guestbook.</li>
+            <li>The owner approves, rejects or hides it in Guestbook.</li>
+            <li>An approved item is public in Guestbook. Linkarooie may feature it only after a separate owner choice.</li>
+            <li>Hiding or revoking it at source removes the card and media on the next request.</li>
+          </ol>
+        </details>
+        <div class="build-table-wrap" role="region" aria-label="Who owns what table" tabindex="0">
+        <table class="build-table">
+          <caption>Who owns what</caption>
+          <thead><tr><th scope="col">Thing</th><th scope="col">Owner</th><th scope="col">What the other app may do</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Postcard text and PNG</th><td>Guestbook</td><td>Linkarooie receives only a current public item projection when eligible.</td></tr>
+            <tr><th scope="row">Review, approval, hide, delete</th><td>Guestbook</td><td>Linkarooie cannot moderate, reply or restore it.</td></tr>
+            <tr><th scope="row">Which item is featured</th><td>Linkarooie</td><td>Guestbook does not publish a card on Linkarooie.</td></tr>
+            <tr><th scope="row">Workspace, stack, publication</th><td>App Composer</td><td>The apps keep their own records and APIs.</td></tr>
+            <tr><th scope="row">Invitation state</th><td>Guestbook, current active configuration</td><td>Linkarooie reads it and renders the honest public state.</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p>The contract is a request, not a copy. Linkarooie does not receive a moderation token, a guest code, the pending text or a durable copy of the media. It stores the exact source reference and a card. Every public render resolves the source again.</p>
+      </section>
+
+      <section id="architecture">
+        <h2>The shape of the system</h2>
+        <figure class="build-figure">
+          <picture class="diagram-dark">
+            <source media="(max-width: 700px)" srcset="/diagrams/building-architecture-20261022-mobile-dark.svg" />
+            <img src="/diagrams/building-architecture-20261022-dark.svg" width={architecture.desktop.width} height={architecture.desktop.height} alt="Architecture diagram: visitors and owners reach App Composer; the agent changes reviewed source; Composer pins source and connects to independent Guestbook and Linkarooie Workers with their own D1 and R2 data; live identity is observed separately." loading="lazy" />
+          </picture>
+          <picture class="diagram-light">
+            <source media="(max-width: 700px)" srcset="/diagrams/building-architecture-20261022-mobile-light.svg" />
+            <img src="/diagrams/building-architecture-20261022-light.svg" width={architecture.desktop.width} height={architecture.desktop.height} alt="Architecture diagram: visitors and owners reach App Composer; the agent changes reviewed source; Composer pins source and connects to independent Guestbook and Linkarooie Workers with their own D1 and R2 data; live identity is observed separately." loading="lazy" />
+          </picture>
+          <figcaption>The local run substitutes local Wrangler services for the hosted bindings. The ownership boundaries and app code are the same; the deployment identity is not.</figcaption>
+        </figure>
+        <details class="build-text-version">
+          <summary>Text version of the architecture</summary>
+          <ol>
+            <li>The visitor uses public HTTPS pages; the invited owner uses the existing Access and EmDash role boundary.</li>
+            <li>The authorised agent changes reviewed source in the independent repositories. Prompt text is data, not authority.</li>
+            <li>Composer pins exact app source and connects to the apps through declared service bindings.</li>
+            <li>Guestbook keeps its own D1, R2 media, review and revocation. Linkarooie keeps its own D1, links and curation.</li>
+            <li>Live identity is a separate check of the deployed Worker version, custom hostname and observed behaviour.</li>
+          </ol>
+        </details>
+      </section>
+
+      <section id="workflow">
+        <h2>The workflow that produced it</h2>
+        <figure class="build-figure">
+          <picture class="diagram-dark">
+            <source media="(max-width: 700px)" srcset="/diagrams/building-workflow-20261022-mobile-dark.svg" />
+            <img src="/diagrams/building-workflow-20261022-dark.svg" width={workflow.desktop.width} height={workflow.desktop.height} alt="Workflow from brief to Get Ready, Init, agent implementation, local run, review, guarded release and live verification, with a feedback loop back to implementation." loading="lazy" />
+          </picture>
+          <picture class="diagram-light">
+            <source media="(max-width: 700px)" srcset="/diagrams/building-workflow-20261022-mobile-light.svg" />
+            <img src="/diagrams/building-workflow-20261022-light.svg" width={workflow.desktop.width} height={workflow.desktop.height} alt="Workflow from brief to Get Ready, Init, agent implementation, local run, review, guarded release and live verification, with a feedback loop back to implementation." loading="lazy" />
+          </picture>
+          <figcaption>The dashed edge is the part that matters. A local run or a review finding sends the work back to implementation; it is not a one-way pipeline.</figcaption>
+        </figure>
+        <details class="build-text-version">
+          <summary>Text version of the workflow</summary>
+          <ol>
+            <li>Start with the outcome and limits. Use Get Ready only when the environment or target is not already verified.</li>
+            <li>Turn the brief into an Init specification. The spec is portable data; it grants no execution authority.</li>
+            <li>The agent implements the change in the selected source, with tests and a local run.</li>
+            <li>Review the rendered phone, desktop, keyboard and failure states. Send findings back to implementation.</li>
+            <li>Release through the guarded path, then verify the exact source, hostname and behaviour. The next change starts a new loop.</li>
+          </ol>
+        </details>
+      </section>
+
+      <section id="limits">
+        <h2>What this proves, and what it does not</h2>
+        <div class="build-limits">
+          <div><h3>Proved in this run</h3><ul>
+            <li>The exact-source invitation contract works against two real local Workers and real SQLite-backed D1 behaviour.</li>
+            <li>A pending note is private; approval makes it public; featuring is a separate explicit card; hiding returns 404 for the item API and media and removes the card.</li>
+            <li>Closed, paused, full and unavailable states do not render a send action, and mounted/standalone links preserve their destinations.</li>
+            <li>The owner can link, replace or stop the invitation from the native collection control; a hidden or pending book is refused.</li>
+            <li>The article, screenshots and diagrams are built from the same repository and capture run that are linked here.</li>
+          </ul></div>
+          <div><h3>Not proved</h3><ul>
+            <li>No hosted deployment of this contribution feature is claimed from the local run, and the owner's live profile configuration was not changed.</li>
+            <li>No photo upload from the Linkarooie CTA, no public comment thread, no replies, notifications, guest accounts or general multi-tenant signup.</li>
+            <li>No screen-reader, physical touch-device, external social unfurl or full migration acceptance.</li>
+            <li>Docker was not exercised for this walkthrough; the supported local path is Wrangler's runtime.</li>
+            <li>Restoring code does not restore hidden or deleted data. Configuration rollback and content/media recovery remain separate.</li>
+          </ul></div>
+        </div>
+        <p>The guest code is an existing narrow admission control, shared by the owner. It is not an account, and it never grants the owner studio. If the owner has not shared it, the form explains that before asking for a message.</p>
+      </section>
+
+      <section id="next">
+        <h2>Try it, or take the source</h2>
+        <p>The starting point is <a href="/init">Init</a> for a portable composition, <a href="/ready">Get Ready</a> when the environment is not yet proven, and <a href="/manage">Your app, your admin</a> for the owner surface. The public fictional stacks remain available at <a href="/s/fictional-trail-notes">Fictional Trail Notes</a> and <a href="/s/fictional-launch-board">Fictional Launch Board</a>.</p>
+        <div class="build-cta">
+          <a class="button" href="/init">Configure a composition</a>
+          <a class="button secondary" href="https://github.com/loftwah/app-composer-guestbook/commit/019ce0d117f9f89e472a5c7642d51d85301f7fcd">Read the Guestbook change</a>
+          <a class="button secondary" href="https://github.com/loftwah/app-composer-showcase/commit/20ef9a50c19c7a3419dc06fdae020c6a677ed5cf">Read the Linkarooie change</a>
+        </div>
+        <h3>Narration and shot list</h3>
+        <p class="build-note">A short version for a recorded walkthrough. The article is the complete reference; the list is not a separate claim.</p>
+        <ol class="build-shotlist">
+          <li><strong>Open on the finished profile.</strong> “This is a real profile, four links, one guestbook invitation and one approved note.” Show desktop then phone.</li>
+          <li><strong>Explain the two jobs.</strong> “Guestbook owns the note and the review. Linkarooie owns the profile and the choice to feature it.”</li>
+          <li><strong>Show the brief and the Init spec.</strong> “The starting composition is portable data. It does not grant deployment authority.”</li>
+          <li><strong>Show the change.</strong> “The source now answers one question: does this exact Guestbook accept a postcard right now?”</li>
+          <li><strong>Submit the note.</strong> Show the real form, the pending receipt and the private state.</li>
+          <li><strong>Approve and feature.</strong> Show the Guestbook page, then the separate Linkarooie featuring step and card.</li>
+          <li><strong>Hide at source.</strong> Refresh the profile. “The card and media are gone; the source still owns the record.”</li>
+          <li><strong>Close the Guestbook.</strong> Refresh. “No button, no dead form. The profile explains the state.” End on the source links and the local run procedure.</li>
+        </ol>
+      </section>
+    </div>
+
+    <footer class="build-footer">
+      <p>Fictional demonstration. Local source revisions: Guestbook <code>{guestbookCommit.slice(0, 7)}</code>, Linkarooie <code>{linkarooieCommit.slice(0, 7)}</code>. Release and live identity belong in <a href="https://github.com/loftwah/app-composer/issues/11">#11</a>; this article is the build story for <a href="https://github.com/loftwah/app-composer/issues/199">#199</a>.</p>
+      <p><a href="/building#result">Back to the result</a> · <a href="/docs#guestbook-contributions">Read the maintained contract note</a></p>
+    </footer>
+  </article>
+</Base>
+
+<style>
+.build{max-width:860px;margin:auto;padding:24px 24px 72px}
+.build-head{display:block;border:0;padding:12px 0 28px}
+.build-kicker{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;color:var(--color-muted);margin:0 0 18px}
+.build-kicker span{display:inline-block;background:var(--color-accent);color:#fff;padding:4px 10px;border-radius:4px;font-weight:650;letter-spacing:.02em}
+.build h1{font-size:clamp(2.35rem,5.2vw,4rem);line-height:1.04;letter-spacing:-.045em;max-width:100%;margin:0 0 22px;text-wrap:balance}
+.build-lede{font-size:clamp(1.05rem,1.8vw,1.3rem);line-height:1.55;color:var(--color-muted);max-width:60ch;margin:0 0 26px}
+.build-jump{display:flex;flex-wrap:wrap;gap:6px 18px;border-block:1px solid var(--color-border);padding:12px 0}
+.build-jump a{min-height:44px;display:inline-flex;align-items:center;font-size:14px}
+.build-hero{margin:8px 0 34px}
+.build-hero img{display:block;width:100%;height:auto;border-radius:8px}
+.build figcaption{font-size:12px;line-height:1.6;color:var(--color-muted);margin-top:10px;max-width:72ch}
+.build-body{font-size:17px;line-height:1.7}
+.build-body section{padding:30px 0;border-top:1px solid var(--color-border)}
+.build-body h2{font-size:clamp(1.6rem,3.4vw,2.15rem);letter-spacing:-.03em;line-height:1.15;margin:0 0 18px;max-width:22ch}
+.build-body h3{font-size:1.22rem;line-height:1.3;margin:30px 0 10px}
+.build-body p{margin:0 0 16px}
+.build-body a{color:var(--color-accent);text-underline-offset:3px}
+.build-body blockquote{margin:24px 0;padding:18px 22px;border-left:4px solid var(--color-accent);background:var(--color-surface);font-size:1.15rem;line-height:1.55;color:var(--color-text)}
+.build-plates{display:grid;gap:18px;margin:22px 0}
+.build-plates figure{margin:0}
+.build-plates img{display:block;width:100%;height:auto;border:1px solid var(--color-border);border-radius:8px;background:var(--color-surface)}
+.build-plates--result{grid-template-columns:1fr;align-items:start}
+.build-plates--two{grid-template-columns:1fr}
+.build-plates--phone{grid-template-columns:repeat(3,minmax(0,1fr));align-items:start}
+.build-phone img{max-width:390px;margin:auto}
+.build-plates--result .build-phone{max-width:390px;margin:0 auto}
+.build-note{font-size:14px;line-height:1.6;color:var(--color-muted)}
+.build-roles{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0}
+.build-roles article,.build-states article{border:1px solid var(--color-border);border-radius:8px;padding:18px;background:var(--color-surface)}
+.build-roles h3{margin:0 0 8px;font-size:1.05rem}
+.build-roles p{margin:0;font-size:15px;line-height:1.6;color:var(--color-muted)}
+.build-states{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0}
+.build-states span{display:inline-flex;width:34px;height:34px;align-items:center;justify-content:center;border-radius:50%;background:var(--color-accent);color:#fff;font-weight:700;font-size:14px;margin-bottom:10px}
+.build-states h3{margin:0 0 8px;font-size:1.02rem}
+.build-states p{margin:0;font-size:14px;line-height:1.6;color:var(--color-muted)}
+.build-callout{border:1px solid var(--color-border);border-left:4px solid var(--color-accent);border-radius:8px;padding:18px 20px;margin:22px 0;background:var(--color-surface)}
+.build-callout h3{margin:0 0 8px}
+.build-callout p{margin:0}
+.build-links{padding-left:20px}
+.build-links li{margin:0 0 10px}
+.build-steps{padding-left:22px}
+.build-steps li{margin:0 0 16px}
+.build-steps code,.build-body code{overflow-wrap:anywhere}
+.build-snippet,.build-code pre{background:var(--color-surface);border:1px solid var(--color-border);border-radius:8px;padding:16px;overflow:auto;font-size:13px;line-height:1.55;max-width:100%}
+.build-snippet{margin:18px 0}
+.build-code{margin:18px 0}
+.build-code summary,.build-text-version summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--color-text)}
+.build-text-version{border-block:1px solid var(--color-border);padding:8px 0;margin:18px 0}
+.build-text-version ol{padding-left:22px;font-size:15px;line-height:1.65;color:var(--color-muted)}
+.build-table-wrap{overflow-x:auto;margin:22px 0}
+.build-table{width:100%;border-collapse:collapse;font-size:14px;min-width:620px}
+.build-table caption{text-align:left;font-size:13px;color:var(--color-muted);padding-bottom:8px}
+.build-table th,.build-table td{border-bottom:1px solid var(--color-border);padding:10px 12px;text-align:left;vertical-align:top}
+.build-table thead th{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--color-muted)}
+.build-table tbody th{font-weight:600}
+.build-figure{margin:22px 0}
+.build-figure img{display:block;width:100%;height:auto;border:1px solid var(--color-border);border-radius:8px}
+.build-limits{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:20px 0}
+.build-limits>div{border:1px solid var(--color-border);border-radius:8px;padding:18px;background:var(--color-surface)}
+.build-limits h3{margin:0 0 10px}
+.build-limits ul{padding-left:20px;margin:0;font-size:14px;line-height:1.6;color:var(--color-muted)}
+.build-limits li{margin-bottom:8px}
+.build-cta{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 28px}
+.build-shotlist{padding-left:22px}
+.build-shotlist li{margin:0 0 12px}
+.build-footer{display:block;border-top:1px solid var(--color-border);margin-top:24px;padding:20px 0 0;font-size:13px;line-height:1.65;color:var(--color-muted)}
+.build-footer p{margin:0 0 10px}
+html[data-theme=dark] .diagram-light{display:none}
+html[data-theme=light] .diagram-dark{display:none}
+@media(max-width:780px){
+ .build{padding:18px 18px 56px}
+ .build-plates--result,.build-plates--two,.build-roles,.build-limits{grid-template-columns:1fr}
+ .build-plates--phone{grid-template-columns:1fr 1fr}
+ .build-plates--phone figure:last-child{grid-column:1/-1}
+ .build-states{grid-template-columns:1fr}
+ .build-table{font-size:13px}
+ .build-table th,.build-table td{padding:8px}
+}
+@media(max-width:700px){.build-result-desktop{display:none}.build-plates--result .build-result-phone{max-width:100%}}
+@media(max-width:520px){.build-plates--phone{grid-template-columns:1fr}.build-plates--phone figure:last-child{grid-column:auto}.build h1{font-size:2.2rem}.build h1 br{display:none}}
+</style>

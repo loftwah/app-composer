@@ -1,0 +1,79 @@
+{
+  "version": 2,
+  "preset": "composition",
+  "apps": [
+    "guestbook",
+    "showcase"
+  ],
+  "sources": [
+    {
+      "id": "guestbook",
+      "repository": "https://github.com/loftwah/app-composer-guestbook",
+      "commit": "4adca16a4048500b89393396fa32d3da1bc25fb1",
+      "manifestDigest": "sha256:ca260944b8096d4f915c4017e3c914d48b2cd7102f0d9f0ae9bfca480406ab26"
+    },
+    {
+      "id": "showcase",
+      "repository": "https://github.com/loftwah/app-composer-showcase",
+      "commit": "ddea1d33c64c95d2dccb9095519865b6bf141780",
+      "manifestDigest": "sha256:92b5bcfa858731859ad8206d250f43b075e9ef81ed1688d0cdd72deff3eb85c4"
+    }
+  ],
+  "appSettings": {
+    "guestbook": {
+      "title": "Fictional Trail Notes",
+      "intro": "A small trail of projects, notes and guestbook moments, kept together with care.",
+      "theme": "daylight",
+      "layout": "grid",
+      "guestAccess": "postcards"
+    },
+    "showcase": {
+      "title": "Fictional Trail Notes",
+      "intro": "A small trail of projects, notes and guestbook moments, kept together with care.",
+      "theme": "daylight",
+      "layout": "profile",
+      "handle": "",
+      "website": "",
+      "github": "",
+      "linkedin": "",
+      "x": "",
+      "avatar": "",
+      "banner": "",
+      "shareImage": ""
+    }
+  },
+  "config": {
+    "title": "Fictional Trail Notes",
+    "intro": "A small trail of projects, notes and guestbook moments, kept together with care.",
+    "theme": "daylight",
+    "layout": "grid"
+  },
+  "privacy": "review-first",
+  "cards": [
+    {
+      "title": "Field notes: the long way round",
+      "url": "https://example.test/field-notes"
+    },
+    {
+      "title": "A small toolkit for slow software",
+      "url": "https://example.test/slow-software"
+    },
+    {
+      "title": "Weekend radio",
+      "url": "https://example.test/weekend-radio"
+    },
+    {
+      "title": "Reading list, autumn",
+      "url": "https://example.test/reading"
+    }
+  ],
+  "deployment": {
+    "mode": "preview",
+    "hostname": "",
+    "approval": "verification-required"
+  },
+  "updates": "validated-manual",
+  "decisions": {
+    "goal": "composition"
+  }
+}

@@ -10,6 +10,7 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 - [Workspace access](workspace-access.md): membership, scoped authority, invitations and admission limits.
 - [Private workspace outcomes](private-outcomes.md): retained actions, demonstration classification, chart/table/export and missing history.
 - [Collect from saved visitor books](scoped-collection.md): explicit source selection, app-owned eligibility and uncertain-operation recovery.
+- [Guestbook contributions from Linkarooie](guestbook-contributions.md): the versioned invitation, open/closed states, owner control, revocation and limits. The [build story](/building) runs the journey locally.
 - [Private enquiry inbox](private-enquiries.md): explicitly enabled private brief forms, app-owned retention, exact publication scope and delivery receipts.
 - [Workspace maintenance](workspace-maintenance.md): fresh connection observations and approved contribution/PNG exports, with the actual recovery limits.
 - [Basic profile-settings portability](profile-settings-portability.md): actual supported fields and exclusions.

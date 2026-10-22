@@ -122,7 +122,7 @@ import { ArrowRight, Check, CircleSlash, Database, Inbox, Settings2, ShieldCheck
  <section class="manage-section" id="wiring">
   <p class="manage-kicker">03 / The wiring</p>
   <h2>Each app keeps its data. Composer brokers the work.</h2>
-  <p>The important boundary is not a logo on a dashboard. It is where the records live and who can write them. Here / there owns photo contributions and their private media. Linkarooie owns its cards and curation. Composer owns workspaces, saved stacks, publication revisions and the scoped operation journal. The bridge passes only the fields and actions each app declares.</p>
+  <p>The useful admin follows where the records live and who may change them. Here / there owns photo submissions and private media. Linkarooie owns links, featured notes and curation. App Composer owns workspaces, saved stacks, published revisions and the record of approved actions. Each app shares only the fields and actions it declares, so a familiar admin can exist without merging every app into one database.</p>
   <figure class="manage-diagram">
    <div class="manage-diagram-wide">
     <svg viewBox="0 0 1200 430" role="img" aria-labelledby="wiring-title wiring-desc">
@@ -150,11 +150,11 @@ import { ArrowRight, Check, CircleSlash, Database, Inbox, Settings2, ShieldCheck
        <text x="328" y="162" font-size="16">Owner API and source pin</text>
       </g>
       <g fill="#17181b">
-       <text x="620" y="54" font-size="13" font-weight="700" letter-spacing="2">BROKER</text>
-       <text x="620" y="88" font-size="22" font-weight="700">Scoped bridge</text>
-       <text x="620" y="118" font-size="16">Workspace membership</text>
-       <text x="620" y="140" font-size="16">Publication binding</text>
-       <text x="620" y="162" font-size="16">Exact source and revision</text>
+       <text x="620" y="54" font-size="13" font-weight="700" letter-spacing="2">CONNECT</text>
+       <text x="620" y="88" font-size="22" font-weight="700">Reviewed connection</text>
+       <text x="620" y="118" font-size="16">Who may act</text>
+       <text x="620" y="140" font-size="16">What is connected</text>
+       <text x="620" y="162" font-size="16">Which exact version</text>
       </g>
       <g fill="#17181b">
        <text x="920" y="54" font-size="13" font-weight="700" letter-spacing="2">OPERATE</text>
@@ -196,7 +196,7 @@ import { ArrowRight, Check, CircleSlash, Database, Inbox, Settings2, ShieldCheck
     <li><strong>Owner admin.</strong> EmDash and the native Composer pages approve, edit, measure and export.</li>
     <li><strong>Public result.</strong> A published stack serves the immutable public revision; drafts and owner controls stay private.</li>
    </ol>
-   <figcaption>The diagram is authored in the page as SVG; the text list is the mobile and no-graphics equivalent. It describes the implemented stack, contribution, enquiry and maintenance paths, not an arbitrary plugin runtime.</figcaption>
+   <figcaption>Read left to right: the request you describe, the apps that keep their own records, the reviewed connection between them, the owner tools you use day to day, and the public result. It covers the supported stack, contribution, enquiry and maintenance paths, not an arbitrary plugin runtime or a second content store. Hiding or removing a record at its source changes the public views; restoring code does not bring deleted data back.</figcaption>
   </figure>
  </section>
 

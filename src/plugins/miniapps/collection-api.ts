@@ -3,6 +3,7 @@ import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
 import {
   collectionSourcesReply,
   collectionItemsReply,
+  collectionInvitationReply,
   collectionReceipt,
 } from "../../lib/miniapp-collection-contract";
 
@@ -10,6 +11,8 @@ export type CollectionAction =
   | "collection-sources"
   | "collection-items"
   | "collection-check"
+  | "collection-invitation"
+  | "collection-invitation-set"
   | "feature-resource";
 export type CollectionRequest = (
   action: CollectionAction,
@@ -19,7 +22,9 @@ export const callCollection: CollectionRequest = async (
   action,
   fields = {},
 ) => {
-  const reading = action !== "feature-resource",
+  const reading = !["feature-resource", "collection-invitation-set"].includes(
+      action,
+    ),
     values = { app: "showcase", action, ...fields };
   const query = new URLSearchParams(
     Object.entries(values).map(([key, value]) => [key, String(value)]),
@@ -63,6 +68,9 @@ export const callCollection: CollectionRequest = async (
       ? collectionSourcesReply
       : action === "collection-items"
         ? collectionItemsReply
-        : collectionReceipt
+        : action === "collection-invitation" ||
+            action === "collection-invitation-set"
+          ? collectionInvitationReply
+          : collectionReceipt
   ).parse(data);
 };

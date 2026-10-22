@@ -16,6 +16,14 @@ The private enquiry Inbox now groups retained briefs by exact published page and
 
 Local checks for this slice: 582 tests pass; Astro reports 0 errors/0 warnings; the production build and publication guard pass (907 files, 74 archive members). Live source/Worker identity and production interaction are recorded in #11 after the guarded release.
 
+## Build story and contribution invitation — 22 October 2026
+
+The [build story](https://composer.loftwah.com/building) publishes “Building App Composer, and building with it.” with a real brief → Init spec → agent implementation → local Worker run → screenshots. The local fictional journey in `labs/building/` exercises a Guestbook postcard → pending → owner approval → explicit Linkarooie feature → hide at source. The article uses real captures, editable diagrams with phone text equivalents, a deliberate 1600 × 640 hero and a separate 1200 × 630 share card. Docker was not used; the supported local path is Wrangler’s `workerd` with D1/R2 emulation.
+
+Guestbook `019ce0d117f9f89e472a5c7642d51d85301f7fcd` publishes the versioned `GET /r/:resource/api/invitation` contract: `open`, `paused`, `closed` or `full`, the active configuration, exact form paths and postcard limits. Linkarooie `20ef9a50c19c7a3419dc06fdae020c6a677ed5cf` links one exact source, shows the real action only when open, and explains the other states without a dead form. Approval and featuring remain separate. The native Composer collection control can link, replace or stop the invitation; it does not copy credentials or guest text.
+
+Local checks: Composer 591 tests pass; Astro 0 errors/0 warnings; production build/publication guard 945 files, 74 archive members. Guestbook 103 and Linkarooie 100 tests pass. The local capture asserts pending media 404, approved public source, hidden item/media 404, card removal and no send action when closed. A hosted contribution CTA was not enabled on the owner’s live profile; exact release identity and live checks belong in #11.
+
 ## Shipped and demonstrated
 
 The latest recorded production qualification is Composer main `7bc0aadea9befda369f8f771df10254615468a25`, Worker `54db95b3-ce38-4c81-a17c-c99290abff7d`, through the clean pushed-main guard. [PR #189 receipt](https://github.com/loftwah/app-composer/issues/11#issuecomment-6244914257): 524 tests pass, type errors/warnings zero, public artifact 861 files/74 archive members, exact live source and boundaries verified, owned release clone removed. Later deployments belong to #11 rather than an inferred claim from this dated snapshot.
@@ -29,7 +37,7 @@ The latest recorded production qualification is Composer main `7bc0aadea9befda36
 - Linkarooie’s ordinary and featured cards now share one interaction contract: the same surface and accent border on hover, a 2px focus ring with no display or dimension change, a pressed state for touch, and reduced-motion support. Gallery titles and images use the same accent treatment, compact rows move their arrow, and the whole card remains clickable. Actual production hover/focus states were inspected in both themes at 1440px and 390px with no horizontal overflow.
 - The [WordPress publisher ledger](../labs/wordpress/weekender/OBSERVATIONS.md) records a real 11-entry import with three original attachments, guest bylines, threaded comments and ordinary owner editing. The independent destination worked with WordPress stopped. Image descriptions and category parent were manually repaired; the larger migration scenario remains open.
 
-Composition is `fd65c3c4c50801a6d2d1ea6a291bf63be5a776ff980b11289502e4306e66c761`; migration 0009 is applied. Guestbook is `4adca16a4048500b89393396fa32d3da1bc25fb1`; Linkarooie is `ddea1d33c64c95d2dccb9095519865b6bf141780`. Both exact promoted services and independent app identities are in the linked receipt chain. Owner settings remain unchanged; the labelled demo source remains Hidden.
+Composition is `c880498d8b848544c875eb7d01a0d2f5f12645688f25cea4be89ee4504d0f5de`; migration 0009 is applied. Guestbook is `019ce0d117f9f89e472a5c7642d51d85301f7fcd`; Linkarooie is `20ef9a50c19c7a3419dc06fdae020c6a677ed5cf`. Both exact promoted services and independent app identities are in the linked receipt chain. Owner settings remain unchanged; the labelled demo source remains Hidden.
 
 ## Active mission gates
 

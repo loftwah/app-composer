@@ -1,0 +1,26 @@
+direction: right
+style.fill: "#17181b"
+*.style: { font-size: 20; bold: false; fill: "#23252a"; stroke: "#747a85"; font-color: "#f2f3f5"; border-radius: 6 }
+(* -> *)[*].style: { stroke: "#ff9b55"; stroke-width: 2; font-color: "#f2f3f5"; font-size: 16 }
+grid-rows: 3
+grid-columns: 3
+horizontal-gap: 70
+vertical-gap: 70
+brief: Brief\noutcome + limits
+ready: Get Ready\nenvironment + target
+init: Init\nportable spec
+build: Agent implementation\nsource + tests
+local: Local run\nWorkers · D1 · R2
+review: Review\nphone · keyboard · failure
+release: Guarded release\nsource + Worker identity
+live: Live verification\nhostname + behaviour
+brief -> ready: when needed
+ready -> init: verified target
+init -> build: handoff
+build -> local: run
+local -> build: failures
+local -> review: rendered result
+review -> build: refinements
+review -> release: accepted change
+release -> live: deployed
+live -> brief: next change

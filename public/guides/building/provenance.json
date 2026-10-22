@@ -1,0 +1,123 @@
+{
+  "captured": "2026-10-22",
+  "kind": "local fictional Worker run",
+  "urls": {
+    "linkarooie": "https://localhost:8787",
+    "guestbook": "https://localhost:8788"
+  },
+  "workingTreeBasedOn": {
+    "guestbook": "4adca16a4048500b89393396fa32d3da1bc25fb1",
+    "linkarooie": "ddea1d33c64c95d2dccb9095519865b6bf141780"
+  },
+  "script": "labs/building/capture-journey.mjs",
+  "procedure": "labs/building/README.md",
+  "initSpec": {
+    "path": "/downloads/building-199-init-spec.json",
+    "bytes": 2150,
+    "sha256": "8eea919d2c8db7e879f1ff5ca8da2dced1c4ca8e7879e1142d897037c405b9f0"
+  },
+  "images": [
+    {
+      "name": "closed-profile-desktop.webp",
+      "width": 1200,
+      "height": 833,
+      "bytes": 30406,
+      "sha256": "a91856b2d2bc6b1b50fe0a23b14bf0b814420ff76d82a77993c78460af85ee19"
+    },
+    {
+      "name": "contribution-filled-desktop.webp",
+      "width": 1200,
+      "height": 833,
+      "bytes": 22336,
+      "sha256": "b7258049249a60e5fb5ddd4040027c440c55ca5a3b3ce1a56bf69ea78e076c7f"
+    },
+    {
+      "name": "contribution-phone.webp",
+      "width": 390,
+      "height": 844,
+      "bytes": 17096,
+      "sha256": "d07d9ecb6ab6c14eb47193d7f22b7b2bb8e975ed6e225b2c9d21becb91ede2f5"
+    },
+    {
+      "name": "featured-phone.webp",
+      "width": 390,
+      "height": 474,
+      "bytes": 10792,
+      "sha256": "cd8ab8f1a3c895e60d480e2b51bb5a36669861f0ebcf2b82958cd9bc47d30667"
+    },
+    {
+      "name": "featured-profile-dark-desktop.webp",
+      "width": 1200,
+      "height": 833,
+      "bytes": 32752,
+      "sha256": "6e425ae86aab86ff0df2ddac01ac2acbb9de14e3a328670274c56e797c68bcb2"
+    },
+    {
+      "name": "featured-profile-desktop.webp",
+      "width": 1200,
+      "height": 833,
+      "bytes": 32146,
+      "sha256": "9b1f459c5b08517e6d7227286e34f6d857be7464729ab2fc29ca4d232fd13212"
+    },
+    {
+      "name": "guestbook-approved-desktop.webp",
+      "width": 1200,
+      "height": 833,
+      "bytes": 17132,
+      "sha256": "b4df87d66dce652c2bbaa0dba77c7d6070fb16143260b24b9e26ae4160255db7"
+    },
+    {
+      "name": "init-handoff.webp",
+      "width": 1200,
+      "height": 833,
+      "bytes": 63892,
+      "sha256": "b4c9b75702e66196bc7313720b26c65f77dc8d2094f1d7b609b139d1453ec11c"
+    },
+    {
+      "name": "pending-receipt-desktop.webp",
+      "width": 1200,
+      "height": 833,
+      "bytes": 24960,
+      "sha256": "84a1a7effe711dd743fb4fbab312268a050944bb3470eecb892450373507abf1"
+    },
+    {
+      "name": "profile-open-desktop.webp",
+      "width": 1200,
+      "height": 833,
+      "bytes": 30822,
+      "sha256": "438903a84851b6118eba883bbcbc20826252be7b5348ced408467c41c4cb9781"
+    },
+    {
+      "name": "profile-open-phone.webp",
+      "width": 390,
+      "height": 844,
+      "bytes": 27724,
+      "sha256": "7263d4a123d8af840a0af431df94d12aa71b6f1746b9aaef4ce8a6ce8b100c0e"
+    },
+    {
+      "name": "revoked-profile-desktop.webp",
+      "width": 1200,
+      "height": 833,
+      "bytes": 30822,
+      "sha256": "438903a84851b6118eba883bbcbc20826252be7b5348ced408467c41c4cb9781"
+    }
+  ],
+  "notes": [
+    "Visual states were captured after fonts, assets and SSR content loaded.",
+    "The guest code is omitted from the form captures; submission used the fictional local code.",
+    "The featured note is an explicit owner collection decision; approval and revocation happened at the Guestbook source.",
+    "No hosted deployment or external-service result is inferred from this local run.",
+    "The published screenshots came from the working tree based on the listed base revisions; the released app commits contain the same change plus the version bump."
+  ],
+  "releasedSources": {
+    "guestbook": "019ce0d117f9f89e472a5c7642d51d85301f7fcd",
+    "linkarooie": "20ef9a50c19c7a3419dc06fdae020c6a677ed5cf"
+  },
+  "procedureValidation": {
+    "scripts": "labs/building/start-local.sh → seed-local.mjs → capture-journey.mjs → stop-local.sh",
+    "result": "passed",
+    "resource": "build199-script-test",
+    "captures": "output/build-199/script-captures",
+    "note": "A separate fresh local root was started, seeded, captured and stopped after the article captures. The plugin/seed assertions passed and the owned temporary root and listeners were removed."
+  }
+}
