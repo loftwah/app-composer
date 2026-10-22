@@ -2,7 +2,7 @@
 
 Build a stack of independent apps, configure its instances, then preview and publish a shareable revision. Each app keeps its own source, records, media and release. EmDash provides the creator interface; this installation runs on Cloudflare.
 
-[Open App Composer](https://composer.loftwah.com/) · [Browse apps](https://composer.loftwah.com/apps) · [Follow the tutorial](https://composer.loftwah.com/learn)
+[Open App Composer](https://composer.loftwah.com/) · [Browse apps](https://composer.loftwah.com/apps) · [Your app, your admin](https://composer.loftwah.com/manage) · [Follow the tutorial](https://composer.loftwah.com/learn)
 
 Try the published fictional examples: [Trail Notes](https://composer.loftwah.com/s/fictional-trail-notes) and [Launch Board](https://composer.loftwah.com/s/fictional-launch-board). They have independent visitor books; Trail Notes also labels an intentional shared view. They were created through the native editor. These demonstrations establish neither new-user admission nor customer adoption.
 

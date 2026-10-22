@@ -144,6 +144,16 @@ const articleSchema = {
           <li><a href="https://www.vic.gov.au/single-digital-presence">Victorian Government: Single Digital Presence</a> and <a href="https://www.vic.gov.au/sdp-features-services">SDP features and services</a>, updated 15 September 2026.</li>
           <li><a href="https://www.nsw.gov.au/nsw-government/onecx-program/about/how-nswgovau-built-and-what-it-can-do">NSW Government: how nsw.gov.au is built</a>, updated 2 June 2026.</li>
         </ul>
+        <div class="briefing-assets">
+          <h3>Use the approved artwork</h3>
+          <p>The campaign uses MP's approved App Composer mark, the supplied PHP2Shell landscape and deliberate reflows of the same copy. The X banner is intended for the account profile; the three cards below carry the briefing. The general product card stays separate from this campaign.</p>
+          <ul class="briefing-asset-links">
+            <li><a href="/brand/campaign/product-x-banner-20261022b.jpg" download>X banner <span>1500 × 500 JPEG</span></a></li>
+            <li><a href="/brand/campaign/php2shell-australia-20261022b-1200x630.jpg" download>Landscape card <span>1200 × 630 JPEG</span></a></li>
+            <li><a href="/brand/campaign/php2shell-australia-20261022b-1080x1080.jpg" download>Square card <span>1080 × 1080 JPEG</span></a></li>
+            <li><a href="/brand/campaign/php2shell-australia-20261022b-1080x1920.jpg" download>Vertical card <span>1080 × 1920 JPEG</span></a></li>
+          </ul>
+        </div>
       </section>
     </div>
   </article>
@@ -201,6 +211,14 @@ const articleSchema = {
   .briefing-sources ul{padding-left:20px;max-width:70ch}
   .briefing-sources li{margin:0 0 10px;font-size:.88rem;line-height:1.55;color:var(--color-muted)}
   .briefing-sources a{color:var(--color-accent)}
+  .briefing-assets{margin:34px 0 0;padding-top:24px;border-top:1px solid var(--color-border)}
+  .briefing-assets h3{font-size:1.25rem;margin:0 0 10px}
+  .briefing-assets p{font-size:.9rem;line-height:1.6;color:var(--color-muted);max-width:68ch}
+  .briefing-asset-links{display:grid;grid-template-columns:1fr 1fr;gap:10px;list-style:none;padding:0;max-width:none;margin:18px 0 0}
+  .briefing-asset-links li{margin:0}
+  .briefing-asset-links a{display:flex;align-items:baseline;justify-content:space-between;gap:16px;min-height:48px;padding:12px 14px;border:1px solid var(--color-border);border-radius:6px;color:var(--color-foreground);font-weight:600;text-decoration:none}
+  .briefing-asset-links a:hover{border-color:var(--color-accent)}
+  .briefing-asset-links span{font-size:.78rem;font-weight:500;color:var(--color-muted);white-space:nowrap}
   @media(max-width:760px){
     .briefing-head{padding-top:4px}
     .briefing h1{font-size:3.25rem}
@@ -212,5 +230,6 @@ const articleSchema = {
     .briefing-facts{grid-template-columns:1fr}
     .briefing-cta{grid-template-columns:1fr;padding:24px}
     .briefing-cta-links{flex-direction:row;flex-wrap:wrap}
+    .briefing-asset-links{grid-template-columns:1fr}
   }
 </style>

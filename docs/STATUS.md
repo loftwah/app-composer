@@ -6,7 +6,15 @@ Reviewed 18 October 2026. This page is the current navigation snapshot; [issue #
 
 MP's approved orange-and-white merging-block icon replaces the rejected assembly-scene crop across the Composer header, favicon/ICO, Apple touch, PWA and maskable icons, launcher, extension and generated content projects. The editable vector master, supplied raster masters, export commands and provenance are in `public/brand/` and `docs/assets/brand/`.
 
-The Australia-first [PHP2Shell briefing](https://composer.loftwah.com/php2shell) is published with a homepage feature. It separates a vulnerable PHP runtime, attempted exploitation, precautionary outages and confirmed breaches; cites PHP, Cloudflare, Wiz, the ACSC, ABC, NSW, GovCMS, Victorian SDP and nsw.gov.au; and states the supported App Composer/Workers route without claiming a Drupal or GovCMS migration. Campaign-specific 1200×630, 1080×1080 and 1080×1920 assets are shipped, while the general product card remains product-focused. Exact release source, Worker identity and live checks are recorded in #11/#28/#197.
+The Australia-first [PHP2Shell briefing](https://composer.loftwah.com/php2shell) is published with a homepage feature. It separates a vulnerable PHP runtime, attempted exploitation, precautionary outages and confirmed breaches; cites PHP, Cloudflare, Wiz, the ACSC, ABC, NSW, GovCMS, Victorian SDP and nsw.gov.au; and states the supported App Composer/Workers route without claiming a Drupal or GovCMS migration. Campaign-specific 1200×630, 1080×1080 and 1080×1920 assets are shipped, while the general product card remains product-focused. The separately linked product X banner is 1500 × 500 and keeps the approved mark, headline and address inside the central crop. Exact release source, Worker identity and live checks are recorded in #11/#28/#197.
+
+## Owner experience — 22 October 2026
+
+The public [Your app, your admin](https://composer.loftwah.com/manage) explanation now connects the plain-language request to the actual owner surfaces: Creator stacks, private enquiries, workspace outcomes, workspace maintenance and workspace access, plus the app-owned studios. It uses a live published stack capture, an authored wiring diagram with a mobile text equivalent, and a status table that separates supported work, configuration and unsupported requests.
+
+The private enquiry Inbox now groups retained briefs by exact published page and app instance, with reviewed, pending and rejected counts and the latest date. It reads the app's bounded private export, validates resource/source/provenance and returns no brief text, contact field or visitor identity. The summary covers up to the 200 items Composer accepts and states when that limit is reached. “Reviewed” remains an owner decision, not a sale, reply or conversion.
+
+Local checks for this slice: 582 tests pass; Astro reports 0 errors/0 warnings; the production build and publication guard pass (907 files, 74 archive members). Live source/Worker identity and production interaction are recorded in #11 after the guarded release.
 
 ## Shipped and demonstrated
 

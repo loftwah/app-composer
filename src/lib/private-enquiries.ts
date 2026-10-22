@@ -15,6 +15,7 @@ import {
   enquiryIntent,
   enquiryInbox,
   enquiryExport,
+  enquirySummary,
   enquiryOperation,
   type EnquiryScope,
 } from "./enquiry-protocol.ts";
@@ -67,6 +68,13 @@ const readInput = z.discriminatedUnion("action", [
     .strict(),
   z
     .object({ action: z.literal("export"), ...common, resource: enquiryID })
+    .strict(),
+  z
+    .object({
+      action: z.literal("summary"),
+      ...common,
+      resource: enquiryID,
+    })
     .strict(),
   z
     .object({
@@ -404,6 +412,89 @@ export async function manageEnquiries(ctx: Context, runtime: EnquiryRuntime) {
         ok: true as const,
         workspace,
         ...(input.action === "inbox" ? { inbox: reply } : { export: reply }),
+      };
+    }
+    if (input.action === "summary") {
+      const remote = await connection.enquiry(resource.id, "export");
+      appFailure(remote);
+      await guard();
+      const reply = enquiryExport.parse(remote.body);
+      checkResource(reply.resource, resource, connection);
+      if (reply.source !== connection.source)
+        throw Error("The app returned another source.");
+      for (const item of reply.items)
+        if (
+          item.provenance.resource !== resource.id ||
+          item.provenance.configuration !== item.configuration_revision
+        )
+          throw Error("A private entry has inconsistent provenance.");
+      const groups = new Map<
+        string,
+        {
+          kind: "standalone" | "composer.publication";
+          stack: string | null;
+          instance: string | null;
+          publication: number | null;
+          pending: number;
+          reviewed: number;
+          rejected: number;
+          total: number;
+          latest: string | null;
+        }
+      >();
+      for (const item of reply.items) {
+        const provenance = item.provenance;
+        const key =
+          provenance.kind === "standalone"
+            ? `standalone:${provenance.resource}`
+            : `publication:${provenance.stack}:${provenance.publication}:${provenance.instance}`;
+        const group = groups.get(key) ?? {
+          kind: provenance.kind,
+          stack:
+            provenance.kind === "composer.publication"
+              ? provenance.stack
+              : null,
+          instance:
+            provenance.kind === "composer.publication"
+              ? provenance.instance
+              : null,
+          publication:
+            provenance.kind === "composer.publication"
+              ? provenance.publication
+              : null,
+          pending: 0,
+          reviewed: 0,
+          rejected: 0,
+          total: 0,
+          latest: null,
+        };
+        group[item.status] += 1;
+        group.total += 1;
+        if (!group.latest || item.created_at > group.latest)
+          group.latest = item.created_at;
+        groups.set(key, group);
+      }
+      const ordered = [...groups.values()].sort(
+        (a, b) =>
+          b.total - a.total ||
+          (b.latest ?? "").localeCompare(a.latest ?? "") ||
+          String(a.stack).localeCompare(String(b.stack)) ||
+          String(a.publication).localeCompare(String(b.publication)) ||
+          String(a.instance).localeCompare(String(b.instance)),
+      );
+      return {
+        ok: true as const,
+        workspace,
+        summary: enquirySummary.parse({
+          contract: 1,
+          format: "guestbook.enquiry-summary/v1",
+          source: reply.source,
+          resource: reply.resource,
+          retentionDays: 30,
+          atExportLimit: reply.items.length >= 200,
+          total: reply.items.length,
+          groups: ordered,
+        }),
       };
     }
     if (input.action === "receipt") {

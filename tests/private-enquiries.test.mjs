@@ -157,6 +157,204 @@ test("private inbox is role20 plus current workspace editor authority, rejects f
     f.close();
   }
 });
+test("page summary counts retained briefs by exact publication scope without returning private text", async () => {
+  const f = await prepared();
+  try {
+    const publication = {
+        kind: "composer.publication",
+        resource: f.resource,
+        configuration: 1,
+        stack: f.published.id,
+        publication: f.published.publishedRevision,
+        instance: "fictional-enquiry-instance",
+      },
+      standalone = {
+        kind: "standalone",
+        resource: f.resource,
+        configuration: 1,
+      },
+      item = (id, provenance, status, created_at) => ({
+        id,
+        scope_key: "c".repeat(64),
+        configuration_revision: 1,
+        provenance,
+        model_version: 1,
+        producer_source: source,
+        values: {
+          title: "Fictional private title",
+          goal: "Fictional private goal that must not enter the summary.",
+          starting_point: "New idea",
+          deliverables: [],
+        },
+        consent_version: 1,
+        consent_at: "2026-10-20 09:00:00",
+        status,
+        revision: 1,
+        created_at,
+        expires_at: "2026-11-19 09:00:00",
+      });
+    f.handler(() =>
+      Response.json({
+        contract: 1,
+        format: "guestbook.private-enquiries/v1",
+        source,
+        resource: f.row(),
+        retentionDays: 30,
+        items: [
+          item(
+            "fictional-item-one",
+            publication,
+            "reviewed",
+            "2026-10-20 10:00:00",
+          ),
+          item(
+            "fictional-item-two",
+            publication,
+            "reviewed",
+            "2026-10-21 10:00:00",
+          ),
+          item(
+            "fictional-item-three",
+            standalone,
+            "pending",
+            "2026-10-19 10:00:00",
+          ),
+        ],
+        covers: {
+          privateBodies: true,
+          consent: true,
+          provenance: true,
+          notifications: false,
+          credentials: false,
+        },
+        scope: "current-resource-only",
+      }),
+    );
+    const result = await f.route(
+      { action: "summary", workspace: f.space.id, resource: f.resource },
+      true,
+    );
+    assert.equal(result.ok, true, result.message);
+    assert.equal(result.summary.total, 3);
+    assert.equal(result.summary.atExportLimit, false);
+    assert.equal(result.summary.groups.length, 2);
+    const published = result.summary.groups.find(
+      (group) => group.kind === "composer.publication",
+    );
+    assert.deepEqual(
+      {
+        reviewed: published.reviewed,
+        pending: published.pending,
+        total: published.total,
+        stack: published.stack,
+        instance: published.instance,
+        publication: published.publication,
+      },
+      {
+        reviewed: 2,
+        pending: 0,
+        total: 2,
+        stack: f.published.id,
+        instance: "fictional-enquiry-instance",
+        publication: f.published.publishedRevision,
+      },
+    );
+    assert.equal(
+      result.summary.groups.find((group) => group.kind === "standalone")
+        .pending,
+      1,
+    );
+    assert.doesNotMatch(
+      JSON.stringify(result),
+      /Fictional private goal|Fictional private title/,
+    );
+    f.sqlite
+      .prepare(
+        "UPDATE creator_members SET role='viewer' WHERE workspace_id=? AND user_id=?",
+      )
+      .run(f.space.id, user.id);
+    assert.equal(
+      (
+        await f.route(
+          { action: "summary", workspace: f.space.id, resource: f.resource },
+          true,
+        )
+      ).code,
+      "FORBIDDEN",
+    );
+  } finally {
+    f.close();
+  }
+});
+
+test("page summary handles more than sixty-four exact publication groups without dropping counts", async () => {
+  const f = await prepared();
+  try {
+    const items = Array.from({ length: 200 }, (_, index) => {
+      const suffix = String(index).padStart(3, "0");
+      return {
+        id: `fictional-group-${suffix}`,
+        scope_key: "c".repeat(64),
+        configuration_revision: 1,
+        provenance: {
+          kind: "composer.publication",
+          resource: f.resource,
+          configuration: 1,
+          stack: `fictional-stack-${suffix}`,
+          publication: 1,
+          instance: `fictional-instance-${suffix}`,
+        },
+        model_version: 1,
+        producer_source: source,
+        values: {
+          title: "Fictional group",
+          goal: "Fictional only",
+          starting_point: "New idea",
+          deliverables: [],
+        },
+        consent_version: 1,
+        consent_at: "2026-10-20 09:00:00",
+        status: "reviewed",
+        revision: 1,
+        created_at: "2026-10-20 10:00:00",
+        expires_at: "2026-11-19 09:00:00",
+      };
+    });
+    f.handler(() =>
+      Response.json({
+        contract: 1,
+        format: "guestbook.private-enquiries/v1",
+        source,
+        resource: f.row(),
+        retentionDays: 30,
+        items,
+        covers: {
+          privateBodies: true,
+          consent: true,
+          provenance: true,
+          notifications: false,
+          credentials: false,
+        },
+        scope: "current-resource-only",
+      }),
+    );
+    const result = await f.route(
+      { action: "summary", workspace: f.space.id, resource: f.resource },
+      true,
+    );
+    assert.equal(result.ok, true, result.message);
+    assert.equal(result.summary.total, 200);
+    assert.equal(result.summary.atExportLimit, true);
+    assert.equal(result.summary.groups.length, 200);
+    assert.equal(
+      result.summary.groups.reduce((sum, group) => sum + group.total, 0),
+      200,
+    );
+  } finally {
+    f.close();
+  }
+});
+
 test("a permission change during source verification prevents the credential-bearing private write", async () => {
   const f = await prepared();
   try {
