@@ -290,8 +290,8 @@ test("page summary counts retained briefs by exact publication scope without ret
 test("page summary handles more than sixty-four exact publication groups without dropping counts", async () => {
   const f = await prepared();
   try {
-    const items = Array.from({ length: 65 }, (_, index) => {
-      const suffix = String(index).padStart(2, "0");
+    const items = Array.from({ length: 200 }, (_, index) => {
+      const suffix = String(index).padStart(3, "0");
       return {
         id: `fictional-group-${suffix}`,
         scope_key: "c".repeat(64),
@@ -343,11 +343,12 @@ test("page summary handles more than sixty-four exact publication groups without
       true,
     );
     assert.equal(result.ok, true, result.message);
-    assert.equal(result.summary.total, 65);
-    assert.equal(result.summary.groups.length, 65);
+    assert.equal(result.summary.total, 200);
+    assert.equal(result.summary.atExportLimit, true);
+    assert.equal(result.summary.groups.length, 200);
     assert.equal(
       result.summary.groups.reduce((sum, group) => sum + group.total, 0),
-      65,
+      200,
     );
   } finally {
     f.close();

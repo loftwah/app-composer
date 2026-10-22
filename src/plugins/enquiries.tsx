@@ -562,9 +562,9 @@ function WorkspaceEnquiries({ search }: { search: string }) {
   const pageLabel = (group: NonNullable<EnquirySummary>["groups"][number]) => {
     if (group.kind === "standalone") return "Standalone visitor book";
     const stack = options?.stacks.find((row) => row.id === group.stack);
-    if (!stack) return "Earlier Composer page";
+    if (!stack) return "Other Composer page";
     const instance = stack.instances.find((row) => row.id === group.instance);
-    return `${stack.name} · ${instance?.label ?? "Earlier instance"}`;
+    return `${stack.name} · ${instance?.label ?? "Other instance"}`;
   };
   return (
     <div className="ce-inbox" aria-busy={busy || (!options && !error)}>
