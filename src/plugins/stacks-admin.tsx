@@ -121,6 +121,7 @@ function WorkspaceStudio({ search }: { search: string }) {
   const latestDocument = useRef<StackDocument | undefined>(undefined);
   const sidecarGeneration = useRef(0);
   const latestNewName = useRef("");
+  const requestedStack = useRef<string | null>(new URLSearchParams(search).get("stack"));
 
   useEffect(() => {
     try { scope.current.workspace = workspaceSelection(search); }
@@ -175,7 +176,9 @@ function WorkspaceStudio({ search }: { search: string }) {
         return false;
       setWorkspace(data.workspace);
       setStacks(data.stacks ?? []);
-      const next = keepSelection ?? selected ?? data.stacks?.[0]?.id;
+      const next =
+        keepSelection ?? requestedStack.current ?? selected ?? data.stacks?.[0]?.id;
+      requestedStack.current = null;
       const stack =
         data.stacks?.find((entry) => entry.id === next) ?? data.stacks?.[0];
       if (stack) adopt(stack);
@@ -1710,6 +1713,14 @@ function WorkspaceStudio({ search }: { search: string }) {
                     revision {stack.revision} · /s/{stack.slug}
                   </small>
                 </button>
+                {workspace && (
+                  <a
+                    className="ca-stack-analytics"
+                    href={`/_emdash/admin/plugins/composer-stacks/outcomes?workspace=${workspace.id}&stack=${stack.id}`}
+                  >
+                    Analytics
+                  </a>
+                )}
               </li>
             ))}
             {!initialLoading && workspace && !stacks.length && (
@@ -1732,6 +1743,14 @@ function WorkspaceStudio({ search }: { search: string }) {
               >
                 Copy share link
               </button>
+              <p>
+                <a
+                  className="button secondary"
+                  href={`/_emdash/admin/plugins/composer-stacks/outcomes?workspace=${workspace?.id ?? ""}&stack=${current.id}`}
+                >
+                  Open analytics for this stack
+                </a>
+              </p>
               {fallback && (
                 <label className="ca-share-fallback">
                   Share address

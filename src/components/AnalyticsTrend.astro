@@ -1,0 +1,66 @@
+---
+import { count, dateLabel } from "../lib/activity-view";
+interface Props {
+  label: string;
+  definition: string;
+  unit: string;
+  value: number | null;
+  quality: string;
+  daily: { date: string; value: number | null }[];
+  from: string;
+  to: string;
+  surface: string;
+  caption?: string;
+}
+const { label, definition, unit, value, quality, daily, from, to, surface, caption } = Astro.props;
+const maximum = Math.max(1, ...daily.map((day) => day.value ?? 0));
+const magnitude = 10 ** Math.floor(Math.log10(maximum));
+const ceiling = [1, 2, 5, 10].find((step) => step * magnitude >= maximum)! * magnitude;
+const width = 900;
+const step = width / Math.max(1, daily.length);
+const where = surface === "standalone" ? "standalone apps" : surface === "composed" ? "inside Composer" : "all connected versions";
+---
+<figure class="trend">
+  <div class="trend-heading">
+    <figcaption>{label}</figcaption>
+    <p><strong>{value === null ? "Unavailable" : count(value)}</strong> {value === null ? "in this scope" : unit}</p>
+  </div>
+  <div class="trend-plot">
+    <div class="trend-scale" aria-hidden="true"><span>{count(ceiling)}</span><span>{count(ceiling / 2)}</span><span>0</span></div>
+    <div>
+      <svg viewBox={`0 0 ${width} 250`} preserveAspectRatio="none" role="img" aria-label={`${label}: ${value === null ? "unavailable" : count(value)}. Daily values are in the table below.`}>
+        {[0, 124, 248].map((y) => <line x1="0" x2={width} y1={y} y2={y} class="trend-grid"/>)}
+        {daily.map((day, index) => (
+          <g class:list={{ "trend-day": true, "is-gap": day.value === null, "is-zero": day.value === 0 }}>
+            {day.value === null ? (
+              <line x1={(index + 0.5) * step} x2={(index + 0.5) * step} y1="226" y2="244" class="trend-gap"/>
+            ) : day.value === 0 ? (
+              <circle cx={(index + 0.5) * step} cy="247" r="3" class="trend-zero"/>
+            ) : (
+              <rect x={index * step + step * 0.18} y={249 - (230 * day.value) / ceiling} width={Math.max(2, step * 0.64)} height={(230 * day.value) / ceiling} rx="2" class="trend-bar"/>
+            )}
+          </g>
+        ))}
+        <line x1="0" x2={width} y1="249" y2="249" class="trend-axis"/>
+      </svg>
+      <div class="trend-dates" aria-hidden="true"><span>{dateLabel(from)}</span><span>{dateLabel(to, true)}</span></div>
+    </div>
+  </div>
+  <p class="trend-caption">{caption ?? `${where} · ${dateLabel(from)} – ${dateLabel(to, true)}, UTC. A gap is unavailable history; a dot on the baseline is a retained zero.`}</p>
+  <details>
+    <summary>Read the daily values and definition</summary>
+    <p>{definition}</p>
+    <div class="table-wrap">
+      <table>
+        <caption>{label}, {where}, UTC</caption>
+        <thead><tr><th scope="col">UTC day</th><th scope="col">Recorded</th><th scope="col">Coverage</th></tr></thead>
+        <tbody>
+          {daily.map((day) => (
+            <tr><th scope="row">{dateLabel(day.date, true)}</th><td>{day.value === null ? "Unavailable" : count(day.value)}</td><td>{day.value === null ? "Before retained history" : "Bounded recording"}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="small">Quality: {quality}. Counts are lower bounds; reloads, bots and optional publishers can change what is recorded.</p>
+  </details>
+</figure>

@@ -119,6 +119,28 @@ export const defaultFilters: Filters = {
   traffic: "unclassified",
 };
 
+const identifier = /^[a-z0-9-]{6,64}$/;
+export function filtersFromSearch(search: string): Filters {
+  const params = new URLSearchParams(search);
+  const stack = params.get("stack") ?? "";
+  const instance = params.get("instance") ?? "";
+  const days = params.get("days") === "30" ? "30" : "7";
+  const end = params.get("end") === "yesterday" ? "yesterday" : "today";
+  const traffic =
+    params.get("traffic") === "demo"
+      ? "demo"
+      : params.get("traffic") === "all"
+        ? "all"
+        : "unclassified";
+  return {
+    days,
+    end,
+    stack: identifier.test(stack) ? stack : "",
+    instance: identifier.test(instance) ? instance : "",
+    traffic,
+  };
+}
+
 export function decodeOutcomeReply(
   action: "report" | "export" | "setTraffic",
   raw: unknown,

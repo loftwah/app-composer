@@ -1,6 +1,6 @@
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
 import { decodeOutcomeReply } from "./protocol";
-export { defaultFilters } from "./protocol";
+export { defaultFilters, filtersFromSearch } from "./protocol";
 export type {
   Filters,
   ReportReply,

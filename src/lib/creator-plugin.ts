@@ -19,7 +19,7 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
       pages: [
         { path: "/stacks", label: "Creator stacks", icon: "stack" },
         { path: "/workspaces", label: "Workspace access", icon: "users" },
-        { path: "/outcomes", label: "Workspace outcomes", icon: "chart" },
+        { path: "/outcomes", label: "Analytics & outcomes", icon: "chart" },
         {
           path: "/maintenance",
           label: "Workspace maintenance",

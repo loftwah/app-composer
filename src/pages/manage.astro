@@ -31,6 +31,7 @@ import { ArrowRight, Check, CircleSlash, Database, Inbox, Settings2, ShieldCheck
   <a href="#wiring">The wiring</a>
   <a href="#journey">The owner journey</a>
   <a href="#second-request">A second request</a>
+  <a href="#analytics-proof">Analytics proof</a>
   <a href="#proof">What is proved</a>
  </nav>
 
@@ -250,8 +251,27 @@ import { ArrowRight, Check, CircleSlash, Database, Inbox, Settings2, ShieldCheck
   </div>
  </section>
 
+ <section class="manage-section" id="analytics-proof">
+  <p class="manage-kicker">06 / Analytics proof</p>
+  <h2>From “show me what works” to a shareable public record.</h2>
+  <p>A plain-language request can ask for the activity that matters without asking for a visitor identity: which app was opened, which supported task finished, and whether a note reached review. The current path uses the existing Guestbook contribution contract, Composer's bounded counters and the owner outcomes report. It does not add a second analytics vendor or a parallel dashboard.</p>
+  <ol class="manage-steps">
+   <li><span>1</span><div><h3>Describe the useful outcome.</h3><p>“Show contribution-page opens and postcards that reached review. Keep the same period in my owner report, and let me share a public summary.”</p></div></li>
+   <li><span>2</span><div><h3>Use the supported contract.</h3><p>Guestbook owns the contribution page, the pending record and its review state. Linkarooie owns the exact source reference and featuring choice. Composer records only the declared app events; private briefs, visitor identity and enquiry text stay out.</p></div></li>
+   <li><span>3</span><div><h3>Inspect the owner result.</h3><p>Workspace outcomes shows recorded app Opens and verified approval, hide and deletion transitions for the selected stack, with a previous window, definitions and missing-history states. The public aggregate is a separate measure and never inherits the private report.</p></div></li>
+   <li><span>4</span><div><h3>Freeze the public story.</h3><p>The preview page shows the exact app, signal, period, coverage and daily values before anything is stored. Creating it writes one allowlisted aggregate snapshot on Composer's origin, with landscape, square and portrait images and a route back to the app or Init.</p></div></li>
+  </ol>
+  <div class="manage-proof">
+   <a href="/activity"><strong>Public analytics</strong><span>Findings, app records, daily evidence and the scope controls.</span><ArrowRight size={18} aria-hidden="true"/></a>
+   <a href="/reports/new?days=30&surface=all&metric=guest_postcards_received&app=guestbook"><strong>Preview a frozen story</strong><span>The exact guestbook postcard measure before publication.</span><ArrowRight size={18} aria-hidden="true"/></a>
+   <a href="/activity/guestbook"><strong>Here / there app record</strong><span>Opens, contribution opens and receipt coverage in one scope.</span><ArrowRight size={18} aria-hidden="true"/></a>
+   <a href="/studio"><strong>Creator stacks</strong><span>The owner editor now carries a stack-scoped Analytics route.</span><ArrowRight size={18} aria-hidden="true"/></a>
+  </div>
+  <p class="small">Supported now: recorded app opens, Guestbook contribution-page opens, pending guest postcards after committed acceptance, completed Link Check inspections, private owner outcomes and frozen public snapshots. Not yet: unique people, sessions, a person-level funnel, enquiry-to-revenue attribution, or a public report derived automatically from private records. A snapshot is a lower bound, not proof of demand.</p>
+ </section>
+
  <section class="manage-section" id="proof">
-  <p class="manage-kicker">06 / What is proved</p>
+  <p class="manage-kicker">07 / What is proved</p>
   <h2>Look at the live pieces, then read the limits.</h2>
   <div class="manage-proof">
    <a href="https://composer.loftwah.com/s/fictional-trail-notes"><strong>Fictional Trail Notes</strong><span>Published stack, revision 11, with a shared Here / there view.</span><ArrowRight size={18} aria-hidden="true"/></a>

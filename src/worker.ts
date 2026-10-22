@@ -16,8 +16,9 @@ const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runti
  const probe=health(request,'/healthz','app-composer',build.commit);if(probe)return probe;
  if(path==='/api/portfolio-analytics'){
   if(request.method!=='GET')return new Response(null,{status:405,headers:{Allow:'GET'}});
-  const now=new Date();let period;try{period=portfolioWindow(new URL(request.url).searchParams,now);}catch{return Response.json({error:'invalid_parameters'},{status:400,headers:{'Cache-Control':'no-store'}});}
-  try{return Response.json(await portfolioSummary(runtime.DB,period,now,build.commit),{headers:{'Cache-Control':'public,max-age=60,s-maxage=300','X-Content-Type-Options':'nosniff'}});}catch{return Response.json({error:'reporting_unavailable'},{status:503,headers:{'Cache-Control':'no-store'}});}
+  const now=new Date();const params=new URL(request.url).searchParams;let period;try{period=portfolioWindow(params,now);}catch{return Response.json({error:'invalid_parameters'},{status:400,headers:{'Cache-Control':'no-store'}});}
+  const surface=['standalone','composed'].includes(params.get('surface')??'')?params.get('surface') as 'standalone'|'composed':'all';
+  try{return Response.json(await portfolioSummary(runtime.DB,period,now,build.commit,surface),{headers:{'Cache-Control':'public,max-age=60,s-maxage=300','X-Content-Type-Options':'nosniff'}});}catch{return Response.json({error:'reporting_unavailable'},{status:503,headers:{'Cache-Control':'no-store'}});}
  }
  const ingest=path.match(/^\/api\/usage\/(hello|guestbook|showcase|linkcheck|state)$/);if(ingest)return collect(request,runtime,ingest[1]);
  if(path==='/api/usage'){if(request.method!=='GET')return new Response(null,{status:405});try{return Response.json(await usageSummary(runtime.DB,new URL(request.url).searchParams,runtime.PUBLIC_ORIGIN),{headers:{'Cache-Control':'public,max-age=60','X-Content-Type-Options':'nosniff'}});}catch{return Response.json({error:'Counts temporarily unavailable.'},{status:503,headers:{'Cache-Control':'no-store'}});}}

@@ -25,7 +25,7 @@
 .ca-stack-list{list-style:none;padding:0;margin:0 0 24px}
 .ca-stack-list li{margin:0 0 8px}
 .ca-stack-list button{width:100%;text-align:left;display:grid;gap:4px;padding:12px 14px}
-.ca-stack-list button[aria-pressed=true]{border-color:#fc5b05;background:color-mix(in srgb,#fc5b05 12%,transparent)}
+.ca-stack-list .ca-stack-analytics{display:inline-flex;align-items:center;min-height:36px;font-size:13px;color:inherit;opacity:.85}.ca-stack-list button[aria-pressed=true]{border-color:#fc5b05;background:color-mix(in srgb,#fc5b05 12%,transparent)}
 .ca-stack-list small{font-size:.8rem;opacity:.75}
 @media(max-width:900px){.ca-stacks .ca-workspace{grid-template-columns:1fr}.ca-stack-instance{display:block}.ca-stack-instance .ca-actions{flex-direction:row;flex-wrap:wrap;margin-top:12px}}
 .ca-stack-conflict{border:1px solid #c0563f;border-radius:10px;padding:16px 20px;margin:16px 0;background:color-mix(in srgb,#c0563f 8%,transparent)}

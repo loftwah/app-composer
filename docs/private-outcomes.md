@@ -30,6 +30,8 @@ New aggregates and activation receipts expire after 35 UTC days. Deleting a stac
 
 The native report has bounded 7/30-day UTC windows, a preceding window of the same length, and workspace-owned stack/instance selectors. The server verifies membership and every selected dimension. Previous periods outside retained or observed coverage remain unavailable. Today and first observed days are partial. Percentage change is unavailable when periods are missing/partial or the prior denominator is zero.
 
+The native page is now labelled **Analytics & outcomes** and is reachable from a saved stack (`?workspace=…&stack=…`), from Workspace access or from the launcher. The selected stack and period stay in the URL and the report; the page links back to that stack, to the private enquiry Inbox and to the separate public aggregate. Entering from a stack does not publish anything or widen the report scope.
+
 The aggregate export uses the same selected report and definitions. It contains internal scope IDs, UTC dates, enum dimensions and totals, without visitor identity, links, captions or request payloads. A failed report is unavailable rather than zero. The HTML table remains the accessible equivalent of the plotted values.
 
 ## Verification and delivery gates

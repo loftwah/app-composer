@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
 import {
   outcomeCall,
-  defaultFilters,
+  filtersFromSearch,
   type Filters,
   type ReportReply,
   type OutcomeMetric,
@@ -132,7 +132,8 @@ export function OutcomesPage() {
 }
 
 function WorkspaceOutcomes({ search }: { search: string }) {
-  const [filters, setFilters] = useState<Filters>(defaultFilters);
+  const initial = filtersFromSearch(search);
+  const [filters, setFilters] = useState<Filters>(initial);
   const [snapshot, setSnapshot] = useState<{
     reply: ReportReply;
     filters: Filters;
@@ -206,7 +207,7 @@ function WorkspaceOutcomes({ search }: { search: string }) {
   };
   useEffect(() => {
     live.current = true;
-    void load(defaultFilters);
+    void load(filtersFromSearch(search));
     return () => {
       live.current = false;
       generation.current++;
@@ -319,11 +320,23 @@ function WorkspaceOutcomes({ search }: { search: string }) {
             you.
           </p>
         </div>
-        <a
-          href={`/_emdash/admin/plugins/composer-stacks/workspaces${snapshot ? "?workspace=" + snapshot.reply.workspace.id : ""}`}
-        >
-          Workspace access
-        </a>
+        <div className="co-heading-links">
+          {snapshot && report?.scope.stack && (
+            <a href={`/_emdash/admin/plugins/composer-stacks/stacks?workspace=${snapshot.reply.workspace.id}&stack=${report.scope.stack}`}>
+              Back to this stack
+            </a>
+          )}
+          {snapshot && (
+            <a href={`/_emdash/admin/plugins/composer-stacks/enquiries?workspace=${snapshot.reply.workspace.id}`}>
+              Private enquiries
+            </a>
+          )}
+          <a
+            href={`/_emdash/admin/plugins/composer-stacks/workspaces${snapshot ? "?workspace=" + snapshot.reply.workspace.id : ""}`}
+          >
+            Workspace access
+          </a>
+        </div>
       </header>
       <p className="co-scope">
         {snapshot ? (
@@ -652,6 +665,32 @@ function WorkspaceOutcomes({ search }: { search: string }) {
               )}
             </section>
           )}
+          <section className="co-section co-next">
+            <h2>Next useful action</h2>
+            <p>
+              The report shows recorded activity. Use the existing owner
+              surfaces to inspect the records, change the stack or compare the
+              public aggregate.
+            </p>
+            <div className="co-actions">
+              {report.scope.stack && (
+                <a className="button secondary" href={`/_emdash/admin/plugins/composer-stacks/stacks?workspace=${snapshot.reply.workspace.id}&stack=${report.scope.stack}`}>
+                  Open the stack context
+                </a>
+              )}
+              <a className="button secondary" href={`/_emdash/admin/plugins/composer-stacks/enquiries?workspace=${snapshot.reply.workspace.id}`}>
+                Review private enquiries
+              </a>
+              <a className="button secondary" href={`/activity?days=${report.period.days}`}>
+                Compare public activity
+              </a>
+            </div>
+            <p className="co-muted">
+              A reviewed enquiry is an owner decision, not a sale, reply or
+              customer acquisition. Public activity uses a separate aggregate
+              and cannot be attributed to this workspace.
+            </p>
+          </section>
           <section className="co-section">
             <h2>Evidence and limits</h2>
             <p>
