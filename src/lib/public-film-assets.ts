@@ -18,6 +18,55 @@ interface FilmCache {
 interface FilmCaches {
   open(name: string): Promise<FilmCache>;
 }
+interface FilmExecution {
+  waitUntil(task: Promise<unknown>): void;
+}
+const representationHeaders = (source: Response, bytes: number) => {
+  const headers = new Headers({
+    "Content-Type": "video/mp4",
+    "Content-Length": String(bytes),
+    "Cache-Control": "public, max-age=31536000, immutable",
+    "Accept-Ranges": "bytes",
+    "X-Content-Type-Options": "nosniff",
+  });
+  for (const name of ["etag", "last-modified"]) {
+    const value = source.headers.get(name);
+    if (value !== null) headers.set(name, value);
+  }
+  return headers;
+};
+// ASSETS may omit Content-Length internally. Native FixedLengthStream enforces
+// the authored size and supplies a known-length body without buffering it.
+const fixedBody = (source: Response, bytes: number, signal: AbortSignal) => {
+  const NativeFixedLengthStream = (
+    globalThis as unknown as {
+      FixedLengthStream: new (length: number) => {
+        readable: ReadableStream<Uint8Array>;
+        writable: WritableStream<Uint8Array>;
+      };
+    }
+  ).FixedLengthStream;
+  const stream = new NativeFixedLengthStream(bytes);
+  const controller = new AbortController();
+  const abort = () => {
+    controller.abort(signal.reason);
+    // Also release backpressure if a consumer rejected before reading. A
+    // locked reader is cancelled by its consuming API or the request lifetime.
+    void stream.readable.cancel().catch(() => {});
+  };
+  if (signal.aborted) abort();
+  else signal.addEventListener("abort", abort, { once: true });
+  const done = source
+    .body!.pipeTo(stream.writable, { signal: controller.signal })
+    .catch(async (error: unknown) => {
+      await source.body!.cancel().catch(() => {});
+      throw error;
+    })
+    .finally(() => signal.removeEventListener("abort", abort));
+  // A caller always owns done below; also cover synchronous consumer failures.
+  void done.catch(() => {});
+  return { body: stream.readable, done, abort };
+};
 const publicHeaders = [
   "range",
   "if-range",
@@ -71,6 +120,7 @@ export async function publicFilmAsset(
   request: Request,
   assets: Assets | undefined,
   storage: FilmCaches = globalThis.caches,
+  execution?: FilmExecution,
 ): Promise<Response | null> {
   const film = films.get(new URL(request.url).pathname as `/${string}`);
   if (!film) return null;
@@ -137,23 +187,42 @@ export async function publicFilmAsset(
     if (
       source.headers.get("content-type")?.split(";", 1)[0].trim() !==
         "video/mp4" ||
-      source.headers.get("content-length") !== String(film.bytes) ||
+      (source.headers.has("content-length") &&
+        source.headers.get("content-length") !== String(film.bytes)) ||
       ![null, "identity"].includes(source.headers.get("content-encoding"))
     ) {
       await cancel(source);
       return failure();
     }
-    // Keep native HEAD and full/conditional reads, including uncommon native
-    // preconditions the Cache API does not promise to implement.
+    const stored = representationHeaders(source, film.bytes);
+    if (request.method === "HEAD") {
+      await cancel(source);
+      return new Response(null, { headers: stored });
+    }
+    if (!source.body) return failure();
+    // Native Assets evaluated preconditions above. Full reads still need exact
+    // length enforcement, and the Worker context owns their streaming lifetime.
     if (
-      request.method === "HEAD" ||
       !partial ||
       headers.has("if-match") ||
       headers.has("if-unmodified-since") ||
       !ifRangeMatches(headers.get("if-range"), source)
-    )
-      return source;
-    if (!source.body) return failure();
+    ) {
+      if (!execution) {
+        await cancel(source);
+        return failure();
+      }
+      const transfer = fixedBody(source, film.bytes, request.signal);
+      try {
+        const response = new Response(transfer.body, { headers: stored });
+        execution.waitUntil(transfer.done.catch(() => {}));
+        return response;
+      } catch (error) {
+        transfer.abort();
+        await transfer.done.catch(() => {});
+        throw error;
+      }
+    }
 
     const cache = await storage.open("composer-public-films-v1");
     const key = new Request(origin + film.href + "?film-sha256=" + film.sha256);
@@ -166,20 +235,18 @@ export async function publicFilmAsset(
     let response = await cache.match(lookup);
     if (response) await cancel(source);
     else {
-      const stored = new Headers({
-        "Content-Type": "video/mp4",
-        "Content-Length": String(film.bytes),
-        "Cache-Control": "public, max-age=31536000, immutable",
-        "Accept-Ranges": "bytes",
-        "X-Content-Type-Options": "nosniff",
-      });
-      for (const name of ["etag", "last-modified"]) {
-        const value = source.headers.get(name);
-        if (value !== null) stored.set(name, value);
+      const transfer = fixedBody(source, film.bytes, request.signal);
+      // Both producer and cache consumer must finish. A rejected cache write
+      // aborts the producer; no detached pipe, partial cache result or retry.
+      let put: Promise<unknown> | undefined;
+      try {
+        put = cache.put(key, new Response(transfer.body, { headers: stored }));
+        await Promise.all([transfer.done, put]);
+      } catch (error) {
+        transfer.abort();
+        await Promise.allSettled([transfer.done, put]);
+        throw error;
       }
-      // The existing fixed-length Assets body streams directly to native cache.
-      // No arrayBuffer, blob, clone/tee, application slicing or full-file buffer.
-      await cache.put(key, new Response(source.body, { headers: stored }));
       response = await cache.match(lookup);
     }
     if (!response) return failure();

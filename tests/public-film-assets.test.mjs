@@ -8,6 +8,32 @@ import { pathToFileURL } from "node:url";
 import { publicFilmAsset } from "../src/lib/public-film-assets.ts";
 import { demoFilms } from "../src/lib/platform-demo.ts";
 
+// Labelled Node stream contract double, not native workerd evidence. The
+// admitted runtime diagnostic separately proves the real FixedLengthStream.
+const originalFixedLengthStream = globalThis.FixedLengthStream;
+globalThis.FixedLengthStream = class {
+  constructor(expected) {
+    let count = 0;
+    const stream = new TransformStream({
+      transform(chunk, controller) {
+        count += chunk.byteLength;
+        if (count > expected) throw Error("Fixed length overflow");
+        controller.enqueue(chunk);
+      },
+      flush() {
+        if (count !== expected) throw Error("Fixed length underflow");
+      },
+    });
+    this.readable = stream.readable;
+    this.writable = stream.writable;
+  }
+};
+test.after(() => {
+  if (originalFixedLengthStream === undefined)
+    delete globalThis.FixedLengthStream;
+  else globalThis.FixedLengthStream = originalFixedLengthStream;
+});
+
 const ready = demoFilms.filter((film) => film.status === "ready");
 const film = ready[0],
   path = film.video.href;
@@ -27,7 +53,8 @@ function fixture(options = {}) {
   const calls = [],
     lookups = [],
     puts = [],
-    stats = { cancelled: 0, chunks: 0 };
+    stats = { cancelled: 0, chunks: 0 },
+    tasks = [];
   let stored;
   const partial = (req, body, headers) => {
     if (
@@ -107,6 +134,7 @@ function fixture(options = {}) {
       if (options.encoding) headers.set("Content-Encoding", options.encoding);
       if (options.type) headers.set("Content-Type", options.type);
       if (options.length) headers.set("Content-Length", options.length);
+      if (options.unknownLength) headers.delete("Content-Length");
       if (options.cookie) headers.set("Set-Cookie", "fictional-private=secret");
       if (req.headers.get("if-none-match") === etag)
         return new Response(null, { status: 304, headers });
@@ -117,16 +145,25 @@ function fixture(options = {}) {
       if (options.nativeRange && req.headers.has("range"))
         return partial(req, bytes, headers);
       let offset = 0;
+      const body = options.shortBody
+        ? bytes.subarray(0, bytes.length - 1)
+        : options.longBody
+          ? Buffer.concat([bytes, Buffer.from([0])])
+          : bytes;
       const stream = new ReadableStream(
         {
           pull(controller) {
-            if (offset === bytes.length) {
+            if (options.sourceError && offset > 0) {
+              controller.error(Error("Source interrupted"));
+              return;
+            }
+            if (offset === body.length) {
               controller.close();
               return;
             }
-            const end = Math.min(offset + 65536, bytes.length);
+            const end = Math.min(offset + 65536, body.length);
             stats.chunks++;
-            controller.enqueue(bytes.subarray(offset, end));
+            controller.enqueue(body.subarray(offset, end));
             offset = end;
           },
           cancel() {
@@ -145,7 +182,13 @@ function fixture(options = {}) {
     puts,
     lookups,
     stats,
-    run: (req) => publicFilmAsset(req, assets, storage),
+    tasks,
+    run: (req) =>
+      publicFilmAsset(req, assets, storage, {
+        waitUntil(task) {
+          tasks.push(task);
+        },
+      }),
   };
 }
 
@@ -399,3 +442,126 @@ test("full GET, missing asset and unsupported/multipart ranges retain native Ass
   assert.equal((await f.run(request("bytes=0-1"))).status, 404);
   assert.equal(f.puts.length, 0);
 });
+
+test("missing internal ASSETS length uses exact-length stream for cold and warm ranges", async () => {
+  const f = fixture({ unknownLength: true });
+  const first = await f.run(request("bytes=0-127"));
+  assert.equal(first.status, 206);
+  assert.equal(
+    sha(Buffer.from(await first.arrayBuffer())),
+    sha(bytes.subarray(0, 128)),
+  );
+  const chunks = f.stats.chunks;
+  const second = await f.run(request("bytes=-128"));
+  assert.equal(second.status, 206);
+  assert.equal(
+    sha(Buffer.from(await second.arrayBuffer())),
+    sha(bytes.subarray(-128)),
+  );
+  assert.equal(f.stats.chunks, chunks);
+  assert.equal(f.stats.cancelled, 1);
+});
+
+test("unknown-length full reads have exact metadata and an owned producer lifetime", async () => {
+  const f = fixture({ unknownLength: true });
+  const response = await f.run(request());
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("content-length"), String(bytes.length));
+  assert.equal(f.tasks.length, 1);
+  assert.equal(f.puts.length, 0);
+  assert.equal(
+    sha(Buffer.from(await response.arrayBuffer())),
+    film.video.sha256,
+  );
+  await Promise.all(f.tasks);
+});
+
+test("unknown-length HEAD returns trusted length without consuming or caching a body", async () => {
+  const f = fixture({ unknownLength: true });
+  const response = await f.run(request("bytes=0-", {}, "HEAD"));
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("content-length"), String(bytes.length));
+  assert.equal(response.headers.get("etag"), etag);
+  assert.equal(response.body, null);
+  assert.equal(f.stats.chunks, 0);
+  assert.equal(f.puts.length, 0);
+  assert.equal(f.tasks.length, 0);
+});
+
+for (const option of ["shortBody", "longBody", "sourceError"])
+  test(
+    "cache fill refuses " + option + " without partial success or a retry",
+    { timeout: 2000 },
+    async () => {
+      const f = fixture({ unknownLength: true, [option]: true });
+      const response = await f.run(request("bytes=0-127"));
+      assert.equal(response.status, 503);
+      assert.equal(f.calls.length, 1);
+      assert.equal(f.puts.length, 1);
+      assert.equal(f.lookups.length, 1);
+    },
+  );
+
+test(
+  "cache rejection aborts the owned producer promptly",
+  { timeout: 2000 },
+  async () => {
+    const f = fixture({ unknownLength: true, cacheFailure: true });
+    assert.equal((await f.run(request("bytes=0-127"))).status, 503);
+    assert.equal(f.stats.cancelled, 1);
+    assert.ok(f.stats.chunks <= 1);
+  },
+);
+
+test("full-read underflow errors the response rather than declaring a complete film", async () => {
+  const f = fixture({ unknownLength: true, shortBody: true });
+  const response = await f.run(request());
+  assert.equal(response.status, 200);
+  await assert.rejects(response.arrayBuffer(), /underflow/);
+  await Promise.all(f.tasks);
+});
+
+test(
+  "downstream cancellation terminates the full-read producer",
+  { timeout: 2000 },
+  async () => {
+    const f = fixture({ unknownLength: true });
+    const response = await f.run(request());
+    await response.body.cancel("Viewer left");
+    await Promise.all(f.tasks);
+    assert.equal(f.stats.cancelled, 1, JSON.stringify(f.stats));
+  },
+);
+
+test(
+  "aborted request cancels source and cannot populate the range cache",
+  { timeout: 2000 },
+  async () => {
+    const f = fixture({ unknownLength: true });
+    const controller = new AbortController();
+    const selected = new Request(request("bytes=0-127"), {
+      signal: controller.signal,
+    });
+    controller.abort();
+    assert.equal((await f.run(selected)).status, 503);
+    assert.equal(f.stats.cancelled, 1);
+    assert.equal(f.lookups.length, 1);
+  },
+);
+
+test(
+  "request abort releases an unread full response and its owned task",
+  { timeout: 2000 },
+  async () => {
+    const f = fixture({ unknownLength: true });
+    const controller = new AbortController();
+    const response = await f.run(
+      new Request(request(), { signal: controller.signal }),
+    );
+    assert.equal(response.status, 200);
+    assert.equal(f.tasks.length, 1);
+    controller.abort();
+    await Promise.all(f.tasks);
+    assert.equal(f.stats.cancelled, 1, JSON.stringify(f.stats));
+  },
+);

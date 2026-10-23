@@ -15,7 +15,7 @@ export { PluginBridge };
 const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runtime:Runtime,context:ExecutionContext)=>{
  const rejection=await protectAdministration(request as unknown as Request,runtime as AccessRuntime);
  if(rejection)return rejection;
- const film=await publicFilmAsset(request,runtime.ASSETS);if(film)return film;
+ const film=await publicFilmAsset(request,runtime.ASSETS,undefined,context);if(film)return film;
  const navigation=builderNavigationRedirect(request);if(navigation)return navigation;
  const path=new URL(request.url).pathname;
  const probe=health(request,'/healthz','app-composer',build.commit);if(probe)return probe;
