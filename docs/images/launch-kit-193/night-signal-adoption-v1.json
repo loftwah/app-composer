@@ -1,0 +1,11 @@
+{
+  "format": "app-composer.launch-kit-adoption",
+  "version": 1,
+  "packageSha256": "1eff106876c4c9612508bb8309763e16b76b496aac27c1eab7b652efdc1ed843",
+  "fields": {
+    "title": true,
+    "subtitle": true,
+    "icons": true,
+    "social": true
+  }
+}

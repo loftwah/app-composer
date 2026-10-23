@@ -1,0 +1,463 @@
+{
+  "sourceSha": "248d6271d0afca585e1a6d7978159ac5491eb479",
+  "contract": 1,
+  "kind": "page-inspection",
+  "checkedAt": "2026-10-23T04:09:45.282Z",
+  "guidanceReviewed": "2026-10-13",
+  "diagnosticsReviewed": "2026-10-14",
+  "url": "https://composer.loftwah.com/launch-kit/example/",
+  "redirects": [],
+  "htmlBytes": 2779,
+  "title": "Night Signal",
+  "description": "Good company after dark.",
+  "canonical": "https://composer.loftwah.com/launch-kit/example/",
+  "tags": {
+    "viewport": [
+      "width=device-width,initial-scale=1"
+    ],
+    "description": [
+      "Good company after dark."
+    ],
+    "og:title": [
+      "Night Signal"
+    ],
+    "og:description": [
+      "Good company after dark."
+    ],
+    "og:type": [
+      "website"
+    ],
+    "og:url": [
+      "https://composer.loftwah.com/launch-kit/example/"
+    ],
+    "theme-color": [
+      "#fc5b05"
+    ],
+    "og:image": [
+      "https://composer.loftwah.com/launch-kit/example/social-1200x630.png"
+    ],
+    "og:image:width": [
+      "1200"
+    ],
+    "og:image:height": [
+      "630"
+    ],
+    "og:image:type": [
+      "image/png"
+    ],
+    "og:image:alt": [
+      "A purple analogue radio tuning in beside a curious moth."
+    ],
+    "twitter:card": [
+      "summary_large_image"
+    ]
+  },
+  "lang": "en",
+  "h1": 1,
+  "robots": "",
+  "structured": [],
+  "findings": [
+    {
+      "status": "pass",
+      "label": "Page title",
+      "detail": "Night Signal",
+      "category": "Search",
+      "priority": "low",
+      "why": "Search engines combine several signals and can rewrite titles, snippets and canonicals. These checks describe the supplied HTML.",
+      "action": "Review the observed HTML against the page's purpose. Change only justified source or template values, then deploy and check again.",
+      "source": "https://developers.google.com/search/docs/appearance/title-link"
+    },
+    {
+      "status": "pass",
+      "label": "Description",
+      "detail": "Good company after dark.",
+      "category": "Search",
+      "priority": "low",
+      "why": "Search engines combine several signals and can rewrite titles, snippets and canonicals. These checks describe the supplied HTML.",
+      "action": "Use a page-specific description grounded in the content. Do not add text solely to hit a character count.",
+      "source": "https://developers.google.com/search/docs/appearance/snippet"
+    },
+    {
+      "status": "pass",
+      "label": "Canonical URL",
+      "detail": "https://composer.loftwah.com/launch-kit/example/",
+      "category": "Search",
+      "priority": "low",
+      "why": "Search engines combine several signals and can rewrite titles, snippets and canonicals. These checks describe the supplied HTML.",
+      "action": "Choose the intended public URL. Align the canonical, og:url, internal links and redirects when they refer to the same page.",
+      "source": "https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls"
+    },
+    {
+      "status": "pass",
+      "label": "og:title",
+      "detail": "Night Signal",
+      "category": "Sharing",
+      "priority": "low",
+      "why": "Share crawlers read metadata and fetch image files independently. A working page in your browser is separate evidence.",
+      "action": "Review the observed tags, keep intended platform differences, then verify a public test link in the target client.",
+      "source": "https://ogp.me/"
+    },
+    {
+      "status": "pass",
+      "label": "og:type",
+      "detail": "website",
+      "category": "Sharing",
+      "priority": "low",
+      "why": "Share crawlers read metadata and fetch image files independently. A working page in your browser is separate evidence.",
+      "action": "Review the observed tags, keep intended platform differences, then verify a public test link in the target client.",
+      "source": "https://ogp.me/"
+    },
+    {
+      "status": "pass",
+      "label": "og:url",
+      "detail": "https://composer.loftwah.com/launch-kit/example/",
+      "category": "Sharing",
+      "priority": "low",
+      "why": "Share crawlers read metadata and fetch image files independently. A working page in your browser is separate evidence.",
+      "action": "Review the observed tags, keep intended platform differences, then verify a public test link in the target client.",
+      "source": "https://ogp.me/"
+    },
+    {
+      "status": "pass",
+      "label": "og:image",
+      "detail": "https://composer.loftwah.com/launch-kit/example/social-1200x630.png",
+      "category": "Sharing",
+      "priority": "low",
+      "why": "Share crawlers read metadata and fetch image files independently. A working page in your browser is separate evidence.",
+      "action": "Review the observed tags, keep intended platform differences, then verify a public test link in the target client.",
+      "source": "https://ogp.me/"
+    },
+    {
+      "status": "pass",
+      "label": "Image description",
+      "detail": "A purple analogue radio tuning in beside a curious moth.",
+      "category": "Sharing",
+      "priority": "low",
+      "why": "Share crawlers read metadata and fetch image files independently. A working page in your browser is separate evidence.",
+      "action": "Use a page-specific description grounded in the content. Do not add text solely to hit a character count.",
+      "source": "https://ogp.me/"
+    },
+    {
+      "status": "pass",
+      "label": "Language",
+      "detail": "en",
+      "category": "Accessibility",
+      "priority": "low",
+      "why": "Semantic HTML helps people navigate and understand a page. Source checks cannot evaluate the complete rendered experience.",
+      "action": "Review the relevant HTML in its page context, then check keyboard, zoom and assistive-technology behavior. Decorative images can correctly use empty alt.",
+      "source": "https://www.w3.org/WAI/WCAG22/Understanding/language-of-page.html"
+    },
+    {
+      "status": "pass",
+      "label": "Mobile viewport",
+      "detail": "width=device-width,initial-scale=1",
+      "category": "Accessibility",
+      "priority": "low",
+      "why": "Semantic HTML helps people navigate and understand a page. Source checks cannot evaluate the complete rendered experience.",
+      "action": "Review the relevant HTML in its page context, then check keyboard, zoom and assistive-technology behavior. Decorative images can correctly use empty alt.",
+      "source": "https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html"
+    },
+    {
+      "status": "pass",
+      "label": "Main heading",
+      "detail": "1 h1 elements found. Review the page outline; this count alone is not an accessibility or ranking verdict.",
+      "category": "Accessibility",
+      "priority": "low",
+      "why": "Semantic HTML helps people navigate and understand a page. Source checks cannot evaluate the complete rendered experience.",
+      "action": "Review the relevant HTML in its page context, then check keyboard, zoom and assistive-technology behavior. Decorative images can correctly use empty alt.",
+      "source": "https://www.w3.org/WAI/tutorials/page-structure/headings/"
+    },
+    {
+      "status": "pass",
+      "label": "Content image descriptions",
+      "detail": "1 HTML images; 0 without alt; 1 with empty alt. Empty alt can be correct for decorative images. Text quality and rendered visibility are not evaluated.",
+      "category": "Accessibility",
+      "priority": "low",
+      "why": "Semantic HTML helps people navigate and understand a page. Source checks cannot evaluate the complete rendered experience.",
+      "action": "Review the relevant HTML in its page context, then check keyboard, zoom and assistive-technology behavior. Decorative images can correctly use empty alt.",
+      "source": "https://www.w3.org/WAI/tutorials/images/"
+    },
+    {
+      "status": "pass",
+      "label": "Search and share identity",
+      "detail": "og:url is absolute HTTPS and agrees with the canonical when one is declared.",
+      "category": "Sharing",
+      "priority": "low",
+      "why": "Share crawlers read metadata and fetch image files independently. A working page in your browser is separate evidence.",
+      "action": "Choose the intended public URL. Align the canonical, og:url, internal links and redirects when they refer to the same page.",
+      "source": "https://ogp.me/"
+    },
+    {
+      "status": "pass",
+      "label": "Share description",
+      "detail": "Good company after dark.",
+      "category": "Sharing",
+      "priority": "low",
+      "why": "Share crawlers read metadata and fetch image files independently. A working page in your browser is separate evidence.",
+      "action": "Use a page-specific description grounded in the content. Do not add text solely to hit a character count.",
+      "source": "https://ogp.me/"
+    },
+    {
+      "status": "review",
+      "label": "X card declaration",
+      "detail": "Declared summary_large_image. Current X card eligibility rules are unavailable; verify the actual shared result.",
+      "category": "Sharing",
+      "priority": "normal",
+      "why": "Share crawlers read metadata and fetch image files independently. A working page in your browser is separate evidence.",
+      "action": "Review the observed tags, keep intended platform differences, then verify a public test link in the target client.",
+      "source": "https://docs.x.com/overview"
+    },
+    {
+      "status": "pass",
+      "label": "Indexing directive",
+      "detail": "No noindex directive in the response. This does not prove robots.txt access or search indexing.",
+      "category": "Search",
+      "priority": "low",
+      "why": "Search engines combine several signals and can rewrite titles, snippets and canonicals. These checks describe the supplied HTML.",
+      "action": "Confirm whether this page should appear in search. Keep intentional noindex on private or demonstration pages; inspect crawler access before changing it.",
+      "source": "https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag"
+    },
+    {
+      "status": "review",
+      "label": "Structured data",
+      "detail": "No JSON-LD found. It is optional; choose a supported schema only when it describes the actual page.",
+      "category": "Structured data",
+      "priority": "normal",
+      "why": "A valid JSON document can still describe the wrong thing or fail a search feature's requirements.",
+      "action": "Choose a schema that describes the real page. Validate it with Google's Rich Results Test and Schema.org; do not invent facts to satisfy a test.",
+      "source": "https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data"
+    },
+    {
+      "status": "pass",
+      "label": "Favicon",
+      "detail": "image/png, 1892 bytes, 32 × 32. Public icon file and dimensions inspected.",
+      "category": "Site identity",
+      "priority": "low",
+      "why": "Browsers choose icons and presentation from declarations and supported file formats. Installation needs a separate check.",
+      "action": "Keep the declared asset public and correctly typed. Test the intended browser or installation flow separately.",
+      "source": "https://html.spec.whatwg.org/multipage/links.html#rel-icon"
+    },
+    {
+      "status": "pass",
+      "label": "Apple touch icon",
+      "detail": "image/png, 30998 bytes, 180 × 180. Public icon file and dimensions inspected.",
+      "category": "Site identity",
+      "priority": "low",
+      "why": "Browsers choose icons and presentation from declarations and supported file formats. Installation needs a separate check.",
+      "action": "Keep the declared asset public and correctly typed. Test the intended browser or installation flow separately.",
+      "source": "https://html.spec.whatwg.org/multipage/links.html#rel-icon"
+    },
+    {
+      "status": "review",
+      "label": "Browser theme colour",
+      "detail": "Declared: #fc5b05. Browser application depends on support and media conditions.",
+      "category": "Site identity",
+      "priority": "normal",
+      "why": "Browsers choose icons and presentation from declarations and supported file formats. Installation needs a separate check.",
+      "action": "Keep the declared asset public and correctly typed. Test the intended browser or installation flow separately.",
+      "source": "https://html.spec.whatwg.org/multipage/links.html#rel-icon"
+    },
+    {
+      "status": "pass",
+      "label": "Web app manifest",
+      "detail": "Public manifest JSON fetched and parsed. Installation, start URL and manifest icons are not verified.",
+      "category": "Site identity",
+      "priority": "low",
+      "why": "Browsers choose icons and presentation from declarations and supported file formats. Installation needs a separate check.",
+      "action": "Keep the declared asset public and correctly typed. Test the intended browser or installation flow separately.",
+      "source": "https://html.spec.whatwg.org/multipage/links.html#rel-icon"
+    },
+    {
+      "status": "pass",
+      "label": "Open Graph image file",
+      "detail": "Public image response and file dimensions inspected.",
+      "category": "Sharing",
+      "priority": "low",
+      "why": "Share crawlers read metadata and fetch image files independently. A working page in your browser is separate evidence.",
+      "action": "Fix the referenced public image or its declared properties, then re-inspect the actual bytes. Refresh platform caches using their official debugger.",
+      "source": "https://ogp.me/"
+    },
+    {
+      "status": "pass",
+      "label": "Share image dimensions (width)",
+      "detail": "Declared 1200; fetched file 1200 pixels. Properties belong to the first image declaration.",
+      "category": "Sharing",
+      "priority": "low",
+      "why": "Share crawlers read metadata and fetch image files independently. A working page in your browser is separate evidence.",
+      "action": "Fix the referenced public image or its declared properties, then re-inspect the actual bytes. Refresh platform caches using their official debugger.",
+      "source": "https://ogp.me/"
+    },
+    {
+      "status": "pass",
+      "label": "Share image dimensions (height)",
+      "detail": "Declared 630; fetched file 630 pixels. Properties belong to the first image declaration.",
+      "category": "Sharing",
+      "priority": "low",
+      "why": "Share crawlers read metadata and fetch image files independently. A working page in your browser is separate evidence.",
+      "action": "Fix the referenced public image or its declared properties, then re-inspect the actual bytes. Refresh platform caches using their official debugger.",
+      "source": "https://ogp.me/"
+    },
+    {
+      "status": "pass",
+      "label": "Share image media type",
+      "detail": "Declared image/png; response and file bytes are image/png.",
+      "category": "Sharing",
+      "priority": "low",
+      "why": "Share crawlers read metadata and fetch image files independently. A working page in your browser is separate evidence.",
+      "action": "Fix the referenced public image or its declared properties, then re-inspect the actual bytes. Refresh platform caches using their official debugger.",
+      "source": "https://ogp.me/"
+    },
+    {
+      "status": "pass",
+      "label": "X / Twitter image file",
+      "detail": "Public image response and file dimensions inspected.",
+      "category": "Sharing",
+      "priority": "low",
+      "why": "Share crawlers read metadata and fetch image files independently. A working page in your browser is separate evidence.",
+      "action": "Fix the referenced public image or its declared properties, then re-inspect the actual bytes. Refresh platform caches using their official debugger.",
+      "source": "https://ogp.me/"
+    }
+  ],
+  "icons": [
+    {
+      "rel": "icon",
+      "href": "/launch-kit/example/favicon-32.png",
+      "sizes": "",
+      "type": "image/png",
+      "media": ""
+    },
+    {
+      "rel": "apple-touch-icon",
+      "href": "/launch-kit/example/apple-touch-icon.png",
+      "sizes": "",
+      "type": "",
+      "media": ""
+    }
+  ],
+  "manifests": [
+    "/launch-kit/example/site.webmanifest"
+  ],
+  "headings": [
+    {
+      "level": 1,
+      "text": "Night Signal"
+    },
+    {
+      "level": 2,
+      "text": "Make room for a listening session."
+    }
+  ],
+  "contentImages": {
+    "total": 1,
+    "missingAlt": 0,
+    "emptyAlt": 1
+  },
+  "imageDeclarations": [
+    {
+      "url": "https://composer.loftwah.com/launch-kit/example/social-1200x630.png",
+      "width": "1200",
+      "height": "630",
+      "type": "image/png",
+      "alt": "A purple analogue radio tuning in beside a curious moth."
+    }
+  ],
+  "textLengths": {
+    "title": 12,
+    "description": 24
+  },
+  "discovery": {
+    "status": "not-requested",
+    "findings": []
+  },
+  "identity": {
+    "icons": [
+      {
+        "kind": "Favicon",
+        "declared": "/launch-kit/example/favicon-32.png",
+        "url": "https://composer.loftwah.com/launch-kit/example/favicon-32.png",
+        "status": "verified",
+        "message": "Public icon file and dimensions inspected.",
+        "width": 32,
+        "height": 32,
+        "bytes": 1892,
+        "type": "image/png",
+        "redirects": []
+      },
+      {
+        "kind": "Apple touch icon",
+        "declared": "/launch-kit/example/apple-touch-icon.png",
+        "url": "https://composer.loftwah.com/launch-kit/example/apple-touch-icon.png",
+        "status": "verified",
+        "message": "Public icon file and dimensions inspected.",
+        "width": 180,
+        "height": 180,
+        "bytes": 30998,
+        "type": "image/png",
+        "redirects": []
+      }
+    ],
+    "manifest": {
+      "status": "verified",
+      "url": "https://composer.loftwah.com/launch-kit/example/site.webmanifest",
+      "name": "Night Signal",
+      "display": "standalone",
+      "iconDeclarations": 4
+    },
+    "findings": [
+      {
+        "status": "pass",
+        "label": "Favicon",
+        "detail": "image/png, 1892 bytes, 32 × 32. Public icon file and dimensions inspected."
+      },
+      {
+        "status": "pass",
+        "label": "Apple touch icon",
+        "detail": "image/png, 30998 bytes, 180 × 180. Public icon file and dimensions inspected."
+      },
+      {
+        "status": "review",
+        "label": "Browser theme colour",
+        "detail": "Declared: #fc5b05. Browser application depends on support and media conditions."
+      },
+      {
+        "status": "pass",
+        "label": "Web app manifest",
+        "detail": "Public manifest JSON fetched and parsed. Installation, start URL and manifest icons are not verified."
+      }
+    ]
+  },
+  "images": [
+    {
+      "kind": "Open Graph",
+      "declared": "https://composer.loftwah.com/launch-kit/example/social-1200x630.png",
+      "url": "https://composer.loftwah.com/launch-kit/example/social-1200x630.png",
+      "status": "verified",
+      "width": 1200,
+      "height": 630,
+      "bytes": 290333,
+      "type": "image/png",
+      "redirects": [],
+      "message": "Public image response and file dimensions inspected."
+    },
+    {
+      "kind": "X / Twitter",
+      "declared": "https://composer.loftwah.com/launch-kit/example/social-1200x630.png",
+      "url": "https://composer.loftwah.com/launch-kit/example/social-1200x630.png",
+      "status": "verified",
+      "width": 1200,
+      "height": 630,
+      "bytes": 290333,
+      "type": "image/png",
+      "redirects": [],
+      "message": "Public image response and file dimensions inspected."
+    }
+  ],
+  "limits": {
+    "searchIndex": "not-verified",
+    "platformUnfurl": "not-verified",
+    "robotsTxt": "not-requested",
+    "sitemap": "not-requested",
+    "crawlerPolicy": "not-simulated",
+    "renderedJavascript": "not-executed"
+  }
+}

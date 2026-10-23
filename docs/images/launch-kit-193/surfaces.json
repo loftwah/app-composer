@@ -1,0 +1,69 @@
+{
+  "results": [
+    {
+      "page": "editor",
+      "width": 390,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "editor",
+      "width": 390,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "editor",
+      "width": 1440,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "editor",
+      "width": 1440,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "import",
+      "width": 390,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "import",
+      "width": 390,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "import",
+      "width": 1440,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "import",
+      "width": 1440,
+      "theme": "light",
+      "overflow": false
+    }
+  ],
+  "editorSource": {
+    "app": "launch-kit",
+    "version": "1.0.0",
+    "sourceSha": "c8de43321c868b37e865aae746549fee1d301b2f",
+    "processing": "browser-local",
+    "runtime": "static-assets"
+  },
+  "demoCold": {
+    "bytes": 535791,
+    "overflow": false
+  },
+  "source": {
+    "app": "app-composer",
+    "commit": "94c0e7bb909e38cca2ec93d84b18966b8be4793f",
+    "reviewed": "2026-10-13",
+    "contract": 1
+  }
+}

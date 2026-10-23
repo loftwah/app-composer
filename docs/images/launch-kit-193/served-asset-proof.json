@@ -1,0 +1,194 @@
+{
+  "ok": true,
+  "checkedUTC": "2026-10-23T04:10:27.369Z",
+  "checkedMelbourne": "Friday, 23 October 2026 at 3:10:27 pm AEDT",
+  "app": {
+    "app": "launch-kit",
+    "version": "1.0.0",
+    "sourceSha": "c8de43321c868b37e865aae746549fee1d301b2f",
+    "processing": "browser-local",
+    "runtime": "static-assets"
+  },
+  "composer": {
+    "app": "app-composer",
+    "commit": "94c0e7bb909e38cca2ec93d84b18966b8be4793f",
+    "reviewed": "2026-10-13",
+    "contract": 1
+  },
+  "packageSha256": "1eff106876c4c9612508bb8309763e16b76b496aac27c1eab7b652efdc1ed843",
+  "adoption": {
+    "format": "app-composer.launch-kit-adoption",
+    "version": 1,
+    "packageSha256": "1eff106876c4c9612508bb8309763e16b76b496aac27c1eab7b652efdc1ed843",
+    "fields": {
+      "title": true,
+      "subtitle": true,
+      "icons": true,
+      "social": true
+    }
+  },
+  "base": "https://composer.loftwah.com/launch-kit/example/",
+  "assets": [
+    {
+      "name": "index.html",
+      "status": 200,
+      "type": "text/html",
+      "sha256": "1c3591fbaaac2cae3dadefcc4e03ad5b1718e534624f47b77600e7f2d77eaae7",
+      "bytes": 4021,
+      "htmlEvidence": {
+        "rawBytesMatch": false,
+        "applicationMarkupMatch": true,
+        "applicationSha256": "d33a719102fcbbcca87594bb635b9052145e688c3b0f0b7e58766922598e26f9",
+        "cloudflareAdditions": {
+          "contentLink": 1,
+          "jsDetectionScript": 1
+        }
+      }
+    },
+    {
+      "name": "app.css",
+      "status": 200,
+      "type": "text/css",
+      "sha256": "4a5fa15b6a73c58fff5bfd8d05a5d148ecbe6a49de38298bd2498d867dbba5cc",
+      "bytes": 1301,
+      "rawBytesMatch": true
+    },
+    {
+      "name": "app.js",
+      "status": 200,
+      "type": "text/javascript",
+      "sha256": "9bb8bfdac96c09619863f11075b57bbedf25b25c2557de18f8006925cb1ba738",
+      "bytes": 1233,
+      "rawBytesMatch": true
+    },
+    {
+      "name": "site.webmanifest",
+      "status": 200,
+      "type": "application/manifest+json",
+      "sha256": "2c8d2d1e62e830b22f12c97ad67af9d7f0e6a7598ee100b0ba2693ae411d3225",
+      "bytes": 770,
+      "rawBytesMatch": true
+    },
+    {
+      "name": "favicon-16.png",
+      "status": 200,
+      "type": "image/png",
+      "sha256": "8d0138833bf14d00400b9bede3e6b7d480adf032aa1e8f00f473169903cc8cb9",
+      "bytes": 698,
+      "rawBytesMatch": true,
+      "width": 16,
+      "height": 16
+    },
+    {
+      "name": "favicon-32.png",
+      "status": 200,
+      "type": "image/png",
+      "sha256": "92f0c24a9575e7abc0404503639ac33eb6e87f36518b106c44b58a7a1ea9527c",
+      "bytes": 1892,
+      "rawBytesMatch": true,
+      "width": 32,
+      "height": 32
+    },
+    {
+      "name": "favicon-48.png",
+      "status": 200,
+      "type": "image/png",
+      "sha256": "9cb95d9a173f2e2524f171854b4a6a870287c446b374c187ef585525fbb01712",
+      "bytes": 3491,
+      "rawBytesMatch": true,
+      "width": 48,
+      "height": 48
+    },
+    {
+      "name": "apple-touch-icon.png",
+      "status": 200,
+      "type": "image/png",
+      "sha256": "94553dd02ab884cb4b7e4d9657a0c90bc59372176b0baf40a13b9758dfffb15f",
+      "bytes": 30998,
+      "rawBytesMatch": true,
+      "width": 180,
+      "height": 180
+    },
+    {
+      "name": "icon-192.png",
+      "status": 200,
+      "type": "image/png",
+      "sha256": "6cdcaea008ae1db3c44865badf90339f2b6fc092bae9380984c0ad5e08a9239a",
+      "bytes": 35551,
+      "rawBytesMatch": true,
+      "width": 192,
+      "height": 192
+    },
+    {
+      "name": "icon-512.png",
+      "status": 200,
+      "type": "image/png",
+      "sha256": "da663a9885d6fd2d774c56bfb2ef929b9f4b1240dc23a50bca48a2dfee66d946",
+      "bytes": 203580,
+      "rawBytesMatch": true,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "name": "maskable-192.png",
+      "status": 200,
+      "type": "image/png",
+      "sha256": "40aa56244d1866d385085fdb3ee8ba4b70efb1a35f47253fac3cc935257749ec",
+      "bytes": 19116,
+      "rawBytesMatch": true,
+      "width": 192,
+      "height": 192
+    },
+    {
+      "name": "maskable-512.png",
+      "status": 200,
+      "type": "image/png",
+      "sha256": "4604318eac1f953efc5473f5f650ae3323ba6acbc4e72d8923e3db3389fef88f",
+      "bytes": 105772,
+      "rawBytesMatch": true,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "name": "social-1200x630.png",
+      "status": 200,
+      "type": "image/png",
+      "sha256": "d45e3d5cbb9395bc672f6d83fde338dc9b0ffc2b7b2f21c526b2e666f0581cb2",
+      "bytes": 290333,
+      "rawBytesMatch": true,
+      "width": 1200,
+      "height": 630
+    }
+  ],
+  "manifest": {
+    "start_url": "/launch-kit/example/",
+    "scope": "/launch-kit/example/",
+    "icons": [
+      {
+        "src": "./icon-192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "./icon-512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "./maskable-192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "maskable"
+      },
+      {
+        "src": "./maskable-512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "maskable"
+      }
+    ]
+  },
+  "htmlMetadataVerified": true
+}
