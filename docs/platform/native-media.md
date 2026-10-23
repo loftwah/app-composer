@@ -175,6 +175,12 @@ The package contains:
   hashes, scope and owned-root cleanup. Failure writes `failure-receipt.json`.
   Receipt checksum sidecars bind the final JSON after cleanup.
 
+The video already displays its explanatory captions. WebVTT keeps the exact
+recording provenance in a non-displaying `NOTE` and offers the timed explanation
+as each cue, so enabling optional captions does not overlay every technical hash
+and resource identifier on the interface. Transcripts and the editing record
+retain the complete provenance for every segment.
+
 ffprobe checks actual encoded streams and duration. That does not establish
 pixel quality or useful teaching. Review final playback, chapter transitions,
 caption overflow/legibility, exact source labels and posters. Compare chosen
