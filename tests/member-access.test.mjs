@@ -476,7 +476,7 @@ test("profile create binds selected capabilities only; account/resource forgery 
           workspace,
           operation: "profile-settings",
           resource: "fictional-profile-a",
-          command: { operation: "export" },
+          command: { action: "export" },
         })
       ).code,
       "FORBIDDEN",

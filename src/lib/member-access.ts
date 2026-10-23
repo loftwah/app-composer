@@ -392,13 +392,13 @@ async function bindProfile(
           ),
         db
           .prepare(
-            `INSERT INTO creator_app_access_audit(id,issuer,workspace_id,actor_id,member_id,app,resource_id,action,event,grant_revision) SELECT ?,?,?,?,?,'showcase',?,?,'bind',1 WHERE ${condition}`,
+            `INSERT INTO creator_app_access_audit(id,issuer,workspace_id,actor_id,member_id,app,resource_id,action,event,grant_revision) SELECT ?,issuer,workspace_id,?,user_id,app,resource_id,action,'bind',revision FROM creator_app_grants WHERE issuer=? AND workspace_id=? AND user_id=? AND app='showcase' AND resource_id=? AND action=? AND status='active' AND ${condition}`,
           )
           .bind(
             crypto.randomUUID(),
+            user.id,
             memberIssuer,
             workspace,
-            user.id,
             user.id,
             resource,
             g.action,
@@ -445,8 +445,10 @@ export async function dispatchMemberApp(
             (input.operation === "profile-settings" &&
               typeof input.command === "object" &&
               input.command !== null &&
-              "operation" in input.command &&
-              input.command.operation === "export")
+              (("operation" in input.command &&
+                input.command.operation === "export") ||
+                ("action" in input.command &&
+                  input.command.action === "export")))
           ? "export"
           : ["publish", "hide", "share-card"].includes(input.operation)
             ? "publish"
