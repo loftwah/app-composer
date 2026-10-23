@@ -949,10 +949,24 @@ async function reconcilePlatformRequest(
   requireCapability(await membership(db, workspace, user.id), "save");
   if (
     !row.stack_id ||
+    row.status !== "needs-attention" ||
     row.revision !== expected ||
     (row.lease_until ?? 0) > Date.now()
   )
     throw conflict();
+  if (
+    !(await db
+      .prepare(
+        "SELECT id FROM creator_resource_operations WHERE stack_id=? AND state IN ('pending','unknown') LIMIT 1",
+      )
+      .bind(row.stack_id)
+      .first())
+  )
+    throw new StackError(
+      "CONFLICT",
+      "There is no uncertain app operation to reconcile. Inspect its existing result before planning a change.",
+      409,
+    );
   const token = crypto.randomUUID();
   const claimed = await db
     .prepare(

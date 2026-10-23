@@ -802,3 +802,34 @@ test("policy drift preserves read-only reconciliation before fresh planning of a
     f.close();
   }
 });
+
+test("manual reconciliation cannot downgrade a completed service without an uncertain operation", async () => {
+  const f = setup();
+  try {
+    const w = await enabled(f),
+      created = (
+        await f.call({
+          action: "submit",
+          workspace: w.id,
+          key: crypto.randomUUID(),
+          request: request(),
+        })
+      ).requests[0];
+    const response = await f.call({
+      action: "reconcile",
+      workspace: w.id,
+      id: created.id,
+      expectedRevision: created.revision,
+    });
+    assert.equal(response.code, "CONFLICT");
+    const listed = await f.call(
+      { action: "list", workspace: w.id },
+      user,
+      true,
+    );
+    assert.equal(listed.requests[0].status, "complete");
+    assert.equal(listed.requests[0].revision, created.revision);
+  } finally {
+    f.close();
+  }
+});
