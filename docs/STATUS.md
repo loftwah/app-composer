@@ -2,11 +2,13 @@
 
 Reviewed 23 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
-## Composition workbench and reconciled outcomes — 23 October 2026 candidate
+## Composition workbench and reconciled outcomes — 23 October 2026
 
-This is the integrated candidate, not a claim that the Composer root has already
-been deployed. [Issue #11](https://github.com/loftwah/app-composer/issues/11) owns
-the current runtime receipt and the final guarded-release identity. The earlier
+Composer source `71abb3ccc89c1d9de2b340831b997acc2e7a1f4b`, Worker
+`a5b22e5a-6771-4bd9-8248-79aeb3937421`, is deployed through the clean pushed-main
+release guard ([PR #240](https://github.com/loftwah/app-composer/pull/240)).
+[Issue #11](https://github.com/loftwah/app-composer/issues/11) owns canonical live
+receipts and the subsequent local-outcomes extension receipt. The earlier
 same-day runtime below is historical context.
 
 - `/demo` now contains an isolated fictional Guestbook → Linkarooie workbench,
@@ -35,9 +37,10 @@ same-day runtime below is historical context.
   [snapshot](https://composer.loftwah.com/reports/r971f5140bbe0c84c8147a64b).
   `/manage#analytics-proof` explains that reconciled path separately from public
   postcard totals; local sandbox gestures send no production activity events.
-- Candidate checks: `pnpm check` passed 612 tests and `pnpm build` passed the
-  publication guard before the final bounded interaction refinements. Focused
-  state/source/report tests pass after those refinements. Browser checks proved
+- The exact released root passed 612 tests, type checking with zero errors or
+  warnings, and the production publication guard (1,026 files / 74 archive
+  members). Independent source and both-theme viewport review passed. Browser
+  checks proved
   same-event publish/edit and restore/edit ordering, latest preview, pointer
   identity, hidden/later-record boundaries and preservation of a valid saved Init
   draft. A 60-second 390×844 rendering profile recorded p95 16.8ms frame intervals
@@ -48,10 +51,22 @@ same-day runtime below is historical context.
   navigation retained exact saved bytes. Owned temporary validation roots and
   credential references were removed. Browser emulation is not physical-device
   or screen-reader acceptance.
-- Final gates: settled viewport-only visual review in both themes, exact committed
-  candidate review, then the clean pushed-main root release/live verification and
-  cold production transfer comparison. The first stitched landscape captures
-  were rejected as evidence; warm 304 byte counts are not initial payload proof.
+- Settled normal-viewport captures passed at 390×844, 844×390 and 1440×1000 in
+  both themes. The first stitched landscape captures were rejected as evidence;
+  warm 304 byte counts are not initial payload proof. Fresh uncached production
+  contexts measured 401,174 → 535,271 transferred bytes on phone and
+  401,218 → 535,250 on desktop, from `fa3639e` to `71abb3c`; neither overflowed.
+  This measures the core release, not the later local-outcomes extension. The
+  live ten-action journey passed at `71abb3c`: four revisions, current hidden
+  eligibility, later-record preservation and deliberate Init replacement all held,
+  with zero browser errors and no application writes. One incidental Cloudflare
+  security-challenge POST is retained separately in the network receipt. Exact
+  journey, normal-speed recording and transfer receipts are tracked in #11.
+- The accepted local-outcomes followup derives approved source postcards,
+  currently eligible connected references and retained local revisions on this
+  device. Its separate hosted proof links do not combine local gestures with
+  public totals or send activity events. Its focused checks, independent review
+  and exact extension source/Worker/live release identity are recorded in #11.
 
 ## Earlier same-day analytics and colour release — 23 October 2026
 

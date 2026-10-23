@@ -8,6 +8,7 @@ import {
 } from "react";
 import {
   DEMO_KEY,
+  demoOutcomes,
   HANDOFF_KEY,
   eligible,
   featured,
@@ -160,6 +161,7 @@ export default function CompositionWorkbench({
     } | null>(null);
   const stateRef = useRef(state);
   stateRef.current = state;
+  const outcomes = demoOutcomes(state);
   const item = state.items.find((item) => item.id === state.selected)!;
   const revision =
     state.revisions.find((revision) => revision.id === preview) ??
@@ -995,7 +997,27 @@ export default function CompositionWorkbench({
       </section>
       <footer className="bench-finish">
         <div>
-          <h2>Keep the experiment going.</h2>
+          <h2>Your local result.</h2>
+          <p className="bench-outcome-scope">
+            On this device · current draft · fictional records
+          </p>
+          <dl
+            className="bench-outcomes"
+            aria-label="Current local demonstration result"
+          >
+            <div>
+              <dt>Approved postcards</dt>
+              <dd>{outcomes.approvedPostcards}</dd>
+            </div>
+            <div>
+              <dt>Connected references</dt>
+              <dd>{outcomes.connectedReferences}</dd>
+            </div>
+            <div>
+              <dt>Saved revisions</dt>
+              <dd>{outcomes.savedRevisions}</dd>
+            </div>
+          </dl>
           <p>
             {[
               "connect",
@@ -1007,11 +1029,24 @@ export default function CompositionWorkbench({
               "publish",
             ].every((name) => state.milestones.includes(name))
               ? "You have connected, changed and inspected your own local composition."
-              : `${state.milestones.length} local discoveries saved. Try editing, hiding and disconnecting, then publish three arrangements.`}
+              : "Try editing, hiding and disconnecting, then publish three arrangements. Your result updates here."}
+          </p>
+          <p className="bench-hosted-proof">
+            A separate hosted demonstration follows one real Open action through
+            its owner report to an explicitly permitted public snapshot.{" "}
+            <a href="/reports/r971f5140bbe0c84c8147a64b">
+              Read the hosted demonstration report
+            </a>{" "}
+            ·{" "}
+            <a href="/manage#analytics-proof">
+              See how the outcome was reconciled
+            </a>
+            .
           </p>
           <p className="bench-footnote">
-            Init carries supported appearance and configuration. Fictional demo
-            records and sandbox history stay here.
+            Your local actions do not send public activity events. Up to 24 demo
+            revisions are retained. Init carries supported appearance and
+            configuration. Fictional demo records and sandbox history stay here.
           </p>
         </div>
         <button type="button" className="button" onClick={handoff}>

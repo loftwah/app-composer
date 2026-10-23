@@ -114,6 +114,15 @@ export function featured(state: BenchState, presentation = state.draft) {
   });
 }
 
+// Current local state only: never mix this sandbox with hosted activity totals.
+export function demoOutcomes(state: BenchState) {
+  return {
+    approvedPostcards: state.items.filter(eligible).length,
+    connectedReferences: featured(state).filter(Boolean).length,
+    savedRevisions: state.revisions.length,
+  };
+}
+
 export function transition(current: BenchState, action: Action): BenchState {
   const state = copy(current),
     item = state.items.find((item) => item.id === state.selected);
