@@ -6,6 +6,19 @@ export const WOODHOUSE_BUILDER_RETURN =
 export function isBuilderPath(path) {
   return (
     [
+      "/",
+      "/apps",
+      "/docs",
+      "/architecture",
+      "/guide",
+      "/explore",
+      "/review",
+      "/catalogue",
+      "/release",
+      "/privacy",
+      "/extension",
+      "/php2shell",
+      "/ready/guide",
       "/demo",
       "/manage",
       "/studio", // Public explanation; the /_emdash editor remains excluded.
@@ -22,8 +35,12 @@ export function isBuilderPath(path) {
     /^\/reports\/(?:new|r[a-f0-9]{24})$/.test(path) ||
     /^\/activity\/[a-z-]+$/.test(path) ||
     /^\/s\/[a-z0-9-]{1,60}$/.test(path) ||
-    /^\/guestbook\/?$/.test(path) ||
-    /^\/guestbook\/r\/[a-z0-9-]{6,64}\/c\/[1-9][0-9]*\/(?:contribute|item\/[a-z0-9-]{6,64})?$/.test(path)
+    /^\/(?:guestbook|showcase)\/?$/.test(path) ||
+    /^\/guestbook\/(?:contribute|item\/[a-z0-9-]{6,64})$/.test(path) ||
+    /^\/catalogue\/[a-z0-9-]+$/.test(path) ||
+    /^\/guestbook\/r\/[a-z0-9-]{6,64}\/c\/[1-9][0-9]*\/(?:contribute|item\/[a-z0-9-]{6,64})?$/.test(
+      path,
+    )
   );
 }
 
@@ -45,7 +62,8 @@ export function builderHref(source, destination) {
     !isBuilderPath(url.pathname)
   )
     return destination;
-  if (hasBuilderContext(source)) url.searchParams.set("from", "woodhouse-edition");
+  if (hasBuilderContext(source))
+    url.searchParams.set("from", "woodhouse-edition");
   // Verification controls stay explicit; no other incoming query becomes state.
   for (const [key, value] of [
     ["analytics", "off"],
@@ -80,4 +98,25 @@ export function builderReturnHref(source) {
   for (const [key, value] of builderParameters(source))
     if (key !== "from") url.searchParams.set(key, value);
   return url.href;
+}
+
+// A native launcher can create links after server rendering. Repair a known
+// reader navigation at ingress too, before optional collection or page work.
+export function builderNavigationRedirect(request) {
+  if (request.method !== "GET") return null;
+  let referrer;
+  try {
+    referrer = new URL(request.headers.get("Referer") ?? "");
+  } catch {
+    return null;
+  }
+  const current = new URL(request.url);
+  if (referrer.origin !== current.origin) return null;
+  const destination = builderHref(referrer, current.href);
+  const next = new URL(destination, current);
+  if (next.href === current.href) return null;
+  return new Response(null, {
+    status: 302,
+    headers: { Location: next.href, "Cache-Control": "no-store" },
+  });
 }

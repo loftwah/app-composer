@@ -15,7 +15,7 @@ export function mountedBuilderNavigation(request: Request, response: Response) {
   const source = new URL(request.url);
   if (
     request.method !== "GET" ||
-    !source.pathname.startsWith("/guestbook/") ||
+    !/^\/(?:guestbook|showcase)(?:\/|$)/.test(source.pathname) ||
     !response.headers.get("Content-Type")?.startsWith("text/html") ||
     !builderParameters(source).length
   )
