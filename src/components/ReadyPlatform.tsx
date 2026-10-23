@@ -1,36 +1,21 @@
 import { useEffect, useRef, useState } from "react";
-import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
-import { z } from "zod";
 import {
   memberSession,
   sameAccount,
   downloadJson,
   type MemberSession,
 } from "./members/api";
-import { decodePlatformList } from "../plugins/platform/protocol";
 import {
   platformObservation,
   inspectPlatformReport,
   type PlatformAssessment,
 } from "../../lib/get-ready/platform.mjs";
+import {
+  currentPlatform,
+  platformContinuation,
+  unavailable,
+} from "./ready-platform-read";
 import "./ready-platform.css";
-
-const setup = z
-  .object({
-    target: z
-      .object({
-        account: z.string().max(80),
-        environment: z.string().max(40),
-        url: z.string().max(250),
-      })
-      .strict(),
-    existingStacks: z.number().int().min(0).max(1000000),
-    managed: z.boolean(),
-    canConfigurePolicy: z.boolean().optional(),
-  })
-  .strict();
-const unavailable =
-  "Sign in with EmDash, then check again. Your account needs current workspace access; an invitation alone does not grant it.";
 
 async function confirmSource(source: string | null) {
   const response = await fetch("/api/build.json", {
@@ -47,37 +32,6 @@ async function confirmSource(source: string | null) {
     throw Error(
       "The installation changed since this page opened. Reload Get Ready before checking its current setup.",
     );
-}
-
-async function currentPlatform(workspace: string) {
-  const query = new URLSearchParams({ action: "list", workspace });
-  const options = { cache: "no-store", redirect: "error" } as const;
-  let response = await apiFetch(
-    "/_emdash/api/plugins/composer-members/platformRead?" + query,
-    options,
-  );
-  // Compatibility with the first platform release. A denial never triggers
-  // another identity or route; only an absent endpoint uses the older reader.
-  if (response.status === 404)
-    response = await apiFetch(
-      "/_emdash/api/plugins/composer-stacks/platformRead?" + query,
-      options,
-    );
-  const raw = await parseApiResponse<unknown>(response, unavailable);
-  const snapshot = decodePlatformList(raw);
-  if (snapshot.workspace.id !== workspace)
-    throw Error(
-      "The server returned another workspace. Select the intended team and check again.",
-    );
-  const extra =
-    raw && typeof raw === "object" && "setup" in raw
-      ? setup.parse(raw.setup)
-      : undefined;
-  if (extra && extra.target.url !== location.origin + "/guestbook")
-    throw Error(
-      "The reported app connection belongs to another installation. Ask the operator to inspect it.",
-    );
-  return { ...snapshot, ...(extra ? { setup: extra } : {}) };
 }
 
 export default function ReadyPlatform({
@@ -161,7 +115,7 @@ export default function ReadyPlatform({
         throw Error(
           "This account does not have current access to the selected workspace. Choose an authorised team; the selection has not been replaced.",
         );
-      const snapshot = await currentPlatform(selected);
+      const snapshot = await currentPlatform(selected, location.origin);
       const [after] = await Promise.all([
         memberSession(),
         confirmSource(source),
@@ -204,17 +158,9 @@ export default function ReadyPlatform({
     }
   };
   const report = assessment?.report;
-  const native =
-    "/_emdash/admin/plugins/composer-stacks/platform?" +
-    new URLSearchParams({ workspace: selected });
-  const member =
-    "/me?" + new URLSearchParams({ view: "platform", workspace: selected });
-  const nextHref =
-    assessment?.next.id === "adoption"
-      ? "/people"
-      : report?.operator
-        ? native
-        : member;
+  const continuation = assessment
+    ? platformContinuation(assessment)
+    : undefined;
   return (
     <section
       className="ready-platform"
@@ -361,12 +307,8 @@ export default function ReadyPlatform({
                 Check current setup
               </button>
             ) : (
-              <a className="button" href={nextHref}>
-                {assessment.next.id === "adoption"
-                  ? "Review teams and access"
-                  : report.operator
-                    ? "Open protected platform"
-                    : "Open my team applications"}
+              <a className="button" href={continuation?.href}>
+                {continuation?.label}
               </a>
             )}
             {assessment.next.id === "request" && !assessment.stale && (

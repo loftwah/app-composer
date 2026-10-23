@@ -1212,14 +1212,36 @@ export async function manageMemberPlatform(
     selected.data.workspace,
     ctx.user.id,
   );
-  if (role !== "editor" && role !== "owner")
-    return {
-      ok: false as const,
-      code: "FORBIDDEN",
-      message:
-        "A current workspace editor or owner delegation is required. App and profile grants alone do not grant platform access.",
-    };
+  const reading =
+    ctx.request.method === "GET" && selected.data.action === "list";
+  const creator = isCreatorRole(ctx.user.role);
+  const allowed = (current: typeof role) =>
+    current === "editor" ||
+    current === "owner" ||
+    (reading && creator && current === "viewer");
+  const forbidden = {
+    ok: false as const,
+    code: "FORBIDDEN",
+    message:
+      "A current workspace editor or owner delegation is required for self-service. Creator viewers may only read team applications. App and profile grants alone do not grant platform access.",
+  };
+  if (!allowed(role)) return forbidden;
   const result = await handlePlatform({ ...ctx, input }, runtime, true);
+  if (result.ok && reading) {
+    const current = await membership(
+      runtime.DB,
+      selected.data.workspace,
+      ctx.user.id,
+    );
+    if (!allowed(current)) return forbidden;
+    if (current !== role)
+      return {
+        ok: false as const,
+        code: "CONFLICT",
+        message:
+          "Workspace access changed during the check. Refresh before continuing.",
+      };
+  }
   return { ...result, actor: { issuer: origin, subject: ctx.user.id } };
 }
 
