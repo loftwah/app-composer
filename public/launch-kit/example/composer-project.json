@@ -17,7 +17,7 @@
   "origin": "https://composer.loftwah.com",
   "deployed": false,
   "files": {
-    "public/index.html": "427edff12d4b4ea512def70fe13fe8ec0b526e27ed94b9cc265afa03d6cae728",
+    "public/index.html": "d33a719102fcbbcca87594bb635b9052145e688c3b0f0b7e58766922598e26f9",
     "public/app.css": "4a5fa15b6a73c58fff5bfd8d05a5d148ecbe6a49de38298bd2498d867dbba5cc",
     "public/app.js": "9bb8bfdac96c09619863f11075b57bbedf25b25c2557de18f8006925cb1ba738",
     "public/site.webmanifest": "2c8d2d1e62e830b22f12c97ad67af9d7f0e6a7598ee100b0ba2693ae411d3225",

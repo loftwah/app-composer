@@ -138,6 +138,7 @@ test("fresh static app has real timer and exact selected identity, refuses misma
     const html = readFileSync(join(destination, "public/index.html"), "utf8");
     assert.match(html, /<title>Night Signal<\/title>/);
     assert.match(html, /id="start"/);
+    assert.match(html, /property="og:url" content="https:\/\/composer\.loftwah\.com\/launch-kit\/example\/"/);
     const manifest = JSON.parse(
       readFileSync(join(destination, "public/site.webmanifest")),
     );
