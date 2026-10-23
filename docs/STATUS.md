@@ -1,6 +1,11 @@
 # Delivery status
 
-Reviewed 23 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+Reviewed 24 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+
+## Finding the shipped work — 24 October 2026
+
+The product front door and [Explore directory](https://composer.loftwah.com/discover) lead with [Launch Kit](https://composer.loftwah.com/launch-kit) and the [team application films](https://composer.loftwah.com/platform/demo), then link directly to invited profiles, analytics and owner workflows. The existing decision planner remains at `/explore`. The shared launcher includes the newer tools and resolves them through each shell’s selected Composer instance. The owning issue is [#273](https://github.com/loftwah/app-composer/issues/273); exact release identities and production checks belong in #11.
+
 
 ## Invited creators — 23 October 2026
 

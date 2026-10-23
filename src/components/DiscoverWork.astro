@@ -1,0 +1,88 @@
+---
+import { ArrowRight, Play } from '@lucide/astro';
+---
+
+<section class="discover-work" aria-labelledby="discover-heading">
+  <div class="discover-heading">
+    <h2 id="discover-heading">See what you can make.</h2>
+    <p>Make something here, follow a working application, or open the tools that run it.</p>
+  </div>
+
+  <div class="discover-features">
+    <article>
+      <a class="discover-preview" href="/launch-kit" aria-label="Explore Launch Kit">
+        <img src="/launch-kit/cards/river-typography.png" width="1200" height="630" alt="River, a fictional profile card typeset with Launch Kit." loading="lazy" decoding="async" />
+      </a>
+      <h3><a href="/launch-kit">Your next profile card starts here.</a></h3>
+      <p>Use your own words and artwork. Compare treatments, inspect the finished PNG and download it. Launch Kit also makes app icons and complete launch packages.</p>
+      <a class="discover-action" href="https://composer-launch-kit.loftwah.workers.dev/profile.html">Make a profile card <ArrowRight size={18} aria-hidden="true" /></a>
+    </article>
+
+    <article>
+      <a class="discover-preview discover-film" href="/platform/demo" aria-label="Watch the team application walkthroughs">
+        <img src="/demos/platform-native-25dc7589-b3cd5894/overview-poster.jpg" width="1600" height="1200" alt="Recorded native application screens from the fictional two-team walkthrough." loading="lazy" decoding="async" />
+        <span><Play size={18} aria-hidden="true" /> Watch the team journey</span>
+      </a>
+      <h3><a href="/platform/demo">From a team request to a working app.</a></h3>
+      <p>Watch the 75-second overview or six-minute technical walkthrough: request an app, review contributions and update it. Recorded locally with fictional teams.</p>
+      <div class="discover-actions">
+        <a class="discover-action" href="/platform/demo">Watch the films <ArrowRight size={18} aria-hidden="true" /></a>
+        <a href="/platform">Read the platform guide</a>
+      </div>
+    </article>
+  </div>
+
+  <div class="discover-tools">
+    <article>
+      <h3><a href="/me">My profile / My apps</a></h3>
+      <p>Edit and publish your Linkarooie profile, and use the apps shared with you. EmDash sign-in and an invitation are required.</p>
+      <a class="discover-action" href="/me">Open my apps <ArrowRight size={18} aria-hidden="true" /></a>
+    </article>
+    <article>
+      <h3><a href="/activity">Analytics &amp; reports</a></h3>
+      <p>Inspect recorded app actions and their coverage. Freeze a finding as a report with matching images to share.</p>
+      <a class="discover-action" href="/activity">Explore analytics <ArrowRight size={18} aria-hidden="true" /></a>
+    </article>
+    <article>
+      <h3><a href="/manage">Your app, your admin</a></h3>
+      <p>See how content editing, photo approval, private enquiries and workspace tools connect to the app you publish.</p>
+      <a class="discover-action" href="/manage">Follow the owner journey <ArrowRight size={18} aria-hidden="true" /></a>
+    </article>
+  </div>
+  <p class="discover-more"><a href="/apps">Browse all six apps <ArrowRight size={17} aria-hidden="true" /></a><a href="/building">Read the build story <ArrowRight size={17} aria-hidden="true" /></a></p>
+</section>
+
+<style>
+  .discover-work { padding-block: 40px; border-top: 1px solid var(--color-border); }
+  .discover-heading { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 40px; margin-bottom: 28px; }
+  .discover-heading h2 { font-size: clamp(2rem, 3.6vw, 3rem); line-height: 1.08; margin: 0; max-width: 15ch; }
+  .discover-heading p { color: var(--color-muted); margin: 0; max-width: 48ch; }
+  .discover-features { display: grid; grid-template-columns: 1.15fr 1fr; gap: 40px; }
+  .discover-features article { min-width: 0; }
+  .discover-preview { display: block; aspect-ratio: 1200 / 630; overflow: hidden; background: var(--color-surface); }
+  .discover-preview img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .discover-film { position: relative; }
+  .discover-film span { position: absolute; bottom: 12px; left: 12px; right: 12px; display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #17181b; color: #fff; font-size: 14px; }
+  .discover-film svg { flex-shrink: 0; }
+  h3 { font-size: 1.4rem; line-height: 1.2; margin: 24px 0 12px; }
+  h3 a { color: var(--color-foreground); }
+  article p { color: var(--color-muted); max-width: 65ch; margin: 0 0 12px; }
+  .discover-action, .discover-more a { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; }
+  .discover-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 24px; }
+  .discover-actions > a { min-height: 44px; display: inline-flex; align-items: center; }
+  .discover-tools { margin-top: 36px; border-top: 1px solid var(--color-border); }
+  .discover-tools article { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr); gap: 24px; align-items: start; padding-block: 22px; border-bottom: 1px solid var(--color-border); }
+  .discover-tools h3 { font-size: 1.2rem; margin: 8px 0 0; }
+  .discover-tools p { font-size: 15px; margin: 6px 0 0; }
+  .discover-tools .discover-action { justify-self: end; font-size: 14px; }
+  .discover-more { display: flex; flex-wrap: wrap; gap: 8px 32px; margin: 20px 0 0; }
+  @media (max-width: 760px) {
+    .discover-heading, .discover-features { grid-template-columns: 1fr; gap: 20px; }
+    .discover-heading { gap: 14px; }
+    .discover-features { gap: 32px; }
+    .discover-tools article { grid-template-columns: 1fr; gap: 8px; }
+    .discover-tools h3, .discover-tools p { margin: 0; }
+    .discover-tools .discover-action { justify-self: start; }
+    .discover-film span { font-size: 13px; }
+  }
+</style>
