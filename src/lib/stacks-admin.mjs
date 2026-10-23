@@ -1,4 +1,6 @@
 // Generated from checked TypeScript; edit the corresponding .mts source. MIT.
+// MIT. Checked native administration and domain source.
+import { guardPlatformLifecycle } from "./platform-guard.ts";
 import { StackError, resolveWorkspace, membership, requireCapability, listStacks, readStack, createStack, saveStack, publishStack, unpublishStack, setArchived, duplicateStack, deleteStack, listPublications, republishRevision, restoreRevisionToDraft, instanceConfiguration, exportStack, importStack, describeImport, } from "./stacks.mjs";
 import { isCreatorRole } from "./creator-access.ts";
 import { activationSummary } from "./stack-activation.mjs";
@@ -105,6 +107,7 @@ export async function manageStacks(ctx, runtime) {
             }
             return fail("INVALID", "Choose a supported stacks action.");
         }
+        await guardPlatformLifecycle(db, workspace.id, action);
         if (action === "create") {
             requireCapability(workspace.role, "create");
             return {

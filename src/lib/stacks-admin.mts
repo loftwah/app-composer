@@ -1,4 +1,5 @@
 // MIT. Checked native administration and domain source.
+import { guardPlatformLifecycle } from "./platform-guard.ts";
 import type { D1Database } from "@cloudflare/workers-types";
 import {
   StackError,
@@ -176,6 +177,7 @@ export async function manageStacks(ctx: StackAdminContext, runtime: unknown) {
       }
       return fail("INVALID", "Choose a supported stacks action.");
     }
+    await guardPlatformLifecycle(db, workspace.id, action);
     if (action === "create") {
       requireCapability(workspace.role, "create");
       return {

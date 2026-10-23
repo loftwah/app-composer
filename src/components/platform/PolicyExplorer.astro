@@ -1,0 +1,125 @@
+<div class="policy-explorer" data-policy-explorer>
+  <div>
+    <p class="example-label">Illustrative policy · fictional organisation</p>
+    <h3>Change the request. See the decision.</h3>
+    <p>
+      This teaching example runs only in your browser. It neither grants permission nor submits
+      a request. Your platform’s trusted policy and current identity make the real decision.
+    </p>
+    <fieldset>
+      <legend>Example application request</legend>
+      <label>
+        Requester’s access
+        <select name="membership">
+          <option value="current">Current member of owning team</option>
+          <option value="other">Different team</option>
+          <option value="revoked">Revoked membership</option>
+        </select>
+      </label>
+      <label>
+        Hosting target
+        <select name="runtime">
+          <option value="workers">Ordinary Workers</option>
+          <option value="kubernetes">Kubernetes candidate</option>
+        </select>
+      </label>
+      <label>
+        Data requirement
+        <select name="location">
+          <option value="standard">Approved synthetic / internal data</option>
+          <option value="australia">Strict Australian-only handling</option>
+        </select>
+      </label>
+      <label>
+        Change
+        <select name="change">
+          <option value="routine">Routine supported update</option>
+          <option value="exception">Exception to standing policy</option>
+        </select>
+      </label>
+    </fieldset>
+  </div>
+  <div class="policy-result" aria-live="polite" aria-atomic="true">
+    <p class="example-label">Example outcome</p>
+    <h3 data-decision>Allowed</h3>
+    <p data-reason>
+      The current team member’s supported Workers update fits this example’s standing policy.
+    </p>
+    <p>
+      {" "}<strong>Next:</strong>{" "}
+      {" "}<span data-next>
+        A trusted runner would recheck identity, candidate and policy before any provider
+        effect, then verify the service independently.
+      </span>{" "}
+    </p>
+    <p class="small">
+      Real-world authority stays with the server and selected runner. A downloaded plan, this
+      example and a provider acknowledgement cannot authorise a release.
+    </p>
+  </div>
+</div>
+<noscript>
+  <p>
+    The interactive example needs JavaScript. The rules are: other-team or revoked access is
+    denied; an unqualified target or unsubstantiated Australian-only requirement is
+    unsupported; an exception requires approval; a routine supported update is allowed. These
+    are illustrative rules only.
+  </p>
+</noscript>
+<style>
+  .policy-explorer {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 40px;
+    margin: 32px 0;
+    padding: 28px;
+    background: var(--color-surface);
+    border-radius: 8px;
+  }
+  .policy-explorer h3 {
+    margin: 8px 0 20px;
+  }
+  .policy-explorer p {
+    max-width: 65ch;
+  }
+  .example-label {
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    margin: 0;
+  }
+  .policy-explorer fieldset {
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    padding: 20px 0 0;
+    margin: 24px 0 0;
+    min-width: 0;
+  }
+  .policy-explorer legend {
+    padding: 0 12px 0 0;
+  }
+  .policy-explorer label {
+    margin: 0 0 16px;
+    font-size: 0.95rem;
+  }
+  .policy-explorer select {
+    font-size: 16px;
+    min-height: 48px;
+  }
+  .policy-result {
+    border-top: 2px solid var(--color-accent);
+    padding-top: 24px;
+    align-self: start;
+  }
+  .policy-result h3 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--color-accent);
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 700px) {
+    .policy-explorer {
+      grid-template-columns: 1fr;
+      padding: 20px;
+      gap: 20px;
+    }
+  }
+</style>

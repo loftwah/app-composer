@@ -221,7 +221,7 @@ Astro.csp?.insertScriptResource(
         } catch {}
         label();
       });
-      document.querySelectorAll<HTMLAnchorElement>("nav a").forEach((a) => {
+      document.querySelectorAll<HTMLAnchorElement>('nav[aria-label="Main navigation"] a').forEach((a) => {
         if (a.pathname === location.pathname)
           a.setAttribute("aria-current", "page");
       });

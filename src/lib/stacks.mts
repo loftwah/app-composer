@@ -215,11 +215,53 @@ export function requireCapability(role: unknown, action: string) {
     );
 }
 
+// Only trusted in-process platform code can create this identity. JSON imports
+// cannot reproduce WeakMap membership or select the execution grant.
+interface PlatformActor {
+  userId: string;
+  requestId: string;
+  leaseToken: string;
+}
+const platformActors = new WeakMap<object, PlatformActor>();
+export function trustedPlatformActor(
+  userId: string,
+  requestId: string,
+  leaseToken: string,
+): object {
+  if (
+    ![userId, requestId, leaseToken].every(
+      (value) => typeof value === "string" && value.length > 0,
+    )
+  )
+    throw new StackError(
+      "FORBIDDEN",
+      "A current platform execution is required.",
+      403,
+    );
+  const actor = Object.freeze({});
+  platformActors.set(actor, { userId, requestId, leaseToken });
+  return actor;
+}
+function platformActor(actor: unknown): PlatformActor | undefined {
+  return actor !== null && typeof actor === "object"
+    ? platformActors.get(actor)
+    : undefined;
+}
+function actorId(actor: unknown): unknown {
+  return platformActor(actor)?.userId ?? actor;
+}
+
 // Native requests supply the authenticated actor. Trusted server-side tools
 // and existing fixtures may omit it; no browser field selects this authority.
 function writeMembership(workspaceId: string, actor: unknown, action: string) {
   if (actor === null) return { sql: "", values: [] };
-  if (typeof actor !== "string" || !actor)
+  const execution = platformActor(actor);
+  const member = actorId(actor);
+  if (
+    typeof member !== "string" ||
+    !member ||
+    (execution && action !== "publish")
+  )
     throw new StackError(
       "FORBIDDEN",
       "A current workspace member is required.",
@@ -228,9 +270,33 @@ function writeMembership(workspaceId: string, actor: unknown, action: string) {
   const roles = Object.keys(CAPABILITIES).filter((role) =>
     capabilityFor(role, action),
   );
+  const membershipSQL = ` AND EXISTS(SELECT 1 FROM creator_members WHERE workspace_id=? AND user_id=? AND role IN (${roles.map(() => "?").join(",")}))`;
+  if (execution)
+    return {
+      sql:
+        membershipSQL +
+        ` AND EXISTS(SELECT 1 FROM creator_platform_requests r
+        JOIN creator_platform_profiles p ON p.workspace_id=r.workspace_id
+        WHERE r.id=? AND r.workspace_id=? AND r.stack_id=creator_stacks.id
+        AND r.lease_token=? AND r.status IN ('running','verifying')
+        AND r.lease_until>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)
+        AND r.policy_revision=p.revision AND json_extract(p.profile_json,'$.enabled')=1)`,
+      values: [
+        workspaceId,
+        member,
+        ...roles,
+        execution.requestId,
+        workspaceId,
+        execution.leaseToken,
+      ],
+    };
   return {
-    sql: ` AND EXISTS(SELECT 1 FROM creator_members WHERE workspace_id=? AND user_id=? AND role IN (${roles.map(() => "?").join(",")}))`,
-    values: [workspaceId, actor, ...roles],
+    // Managed mode remains an authority boundary when policy is paused. The
+    // predicate belongs to the write, closing races after the HTTP preflight.
+    sql:
+      membershipSQL +
+      " AND NOT EXISTS(SELECT 1 FROM creator_platform_profiles WHERE workspace_id=?)",
+    values: [workspaceId, member, ...roles, workspaceId],
   };
 }
 async function acknowledgedWrite(
@@ -242,7 +308,10 @@ async function acknowledgedWrite(
   message: string,
 ) {
   if (!row && actor !== null)
-    requireCapability(await membership(db, workspaceId, actor), action);
+    requireCapability(
+      await membership(db, workspaceId, actorId(actor)),
+      action,
+    );
   return acknowledgedStack(row, message);
 }
 
@@ -1515,7 +1584,10 @@ export async function deleteStack(
     )
     .first<Row>();
   if (!row && actor !== null)
-    requireCapability(await membership(db, workspaceId, actor), "delete");
+    requireCapability(
+      await membership(db, workspaceId, actorId(actor)),
+      "delete",
+    );
   if (!row)
     throw lostRace(
       "Another window changed this stack before it was deleted. Reopen it first.",

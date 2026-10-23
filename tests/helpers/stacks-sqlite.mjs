@@ -37,7 +37,7 @@ finally:
 `;
 
 export const migration = name => readFileSync(new URL('../../migrations/' + name, import.meta.url), 'utf8');
-export const stackSchema = () => ['0003_stacks.sql', '0004_stack_publications.sql', '0005_stack_publications_backfill.sql', '0006_stack_resources.sql'].map(migration).join('\n');
+export const stackSchema = () => ['0003_stacks.sql', '0004_stack_publications.sql', '0005_stack_publications_backfill.sql', '0006_stack_resources.sql', '0011_platform_requests.sql'].map(migration).join('\n');
 
 export function sqliteD1({ schema = stackSchema(), interleave, afterBatch } = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'composer-stacks-'));

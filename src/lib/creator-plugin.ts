@@ -1,3 +1,4 @@
+import { managePlatform } from "./platform-admin.ts";
 import { definePlugin } from "emdash";
 import { creatorPermission } from "./creator-access.ts";
 import { manageStacks } from "./stacks-admin.mjs";
@@ -18,6 +19,7 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
       entry: adminEntry,
       pages: [
         { path: "/stacks", label: "Creator stacks", icon: "stack" },
+        { path: "/platform", label: "Internal platform", icon: "buildings" },
         { path: "/workspaces", label: "Workspace access", icon: "users" },
         { path: "/outcomes", label: "Analytics & outcomes", icon: "chart" },
         {
@@ -29,6 +31,17 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
       ],
     },
     routes: {
+      platformRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => managePlatform(ctx, runtime),
+      },
+      platformWrite: {
+        methods: ["POST"],
+        permission: creatorPermission,
+        request: { body: "json", maxBytes: 8000 },
+        handler: (ctx) => managePlatform(ctx, runtime),
+      },
       read: {
         methods: ["GET"],
         permission: creatorPermission,

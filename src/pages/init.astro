@@ -4,10 +4,124 @@ import AssistanceControl from '../components/AssistanceControl.astro';
 import {questions} from '../lib/spec.mjs';
 import AppSettings from '../components/AppSettings.astro';
 import InitReadiness from '../components/InitReadiness.astro';
+import { appSettings } from '../lib/app-settings.mjs';
+const profiles = Astro.url.searchParams.getAll('profile');
+const platformSelected = profiles.length === 1 && profiles[0] === 'platform';
+const workspaces = Astro.url.searchParams.getAll('workspace');
+const workspace = workspaces.length === 1 && /^[a-z0-9-]{6,64}$/.test(workspaces[0]) ? workspaces[0] : undefined;
+const nativePlatform = '/_emdash/admin/plugins/composer-stacks/platform' + (workspace ? '?' + new URLSearchParams({workspace}) : '');
+const platformSelf = '/init?' + new URLSearchParams({profile:'platform', ...(workspace ? {workspace} : {})});
+const platformReady = '/ready?' + new URLSearchParams({profile:'platform', ...(workspace ? {workspace} : {})});
+const source = appSettings.guestbook.source;
 ---
-<Base title="Init: make it yours" description="Configure independent mini-apps and export one portable specification with a complete copy-to-Codex handoff."><div class="init-heading"><h1>Give your app some shape.</h1><p class="lede">Your agent prepares the environment in <a href="/ready">Get Ready</a>, then uses this specification to build and deploy. Edit the fields, preview the result and take the portable specification to your agent. Save a draft on this device or download it to keep a portable copy.</p></div><AssistanceControl/><InitReadiness/><p class="content-model-entry">Need your own content types and fields? <a href="/init/content">Design an EmDash content model and try its form.</a></p><section id="starting-point" class="init-recommendation" data-init-recommendation><div><h2>What should the app do?</h2><label>Your goal<select data-recommendation-goal disabled>{questions.find(q=>q.id==='goal')!.options.map(([id,label])=><option value={id}>{label}</option>)}</select></label><p data-recommendation-reason></p><p data-recommendation-limit class="small"></p><p data-assistance-guided class="small">Choose the outcome first. Your agent owns the technical setup. You can inspect another starting point before applying it; title, introduction, appearance, address and shared app settings are preserved where they apply.</p><details data-assistance-detail><summary>Apps and source contracts</summary><div data-recommendation-sources></div></details></div><div class="recommendation-visual"><p class="preview-caption">Recommendation preview · fictional content</p><div data-recommendation-preview></div></div><div class="recommendation-actions"><button data-recommendation-use type="button" disabled>Use this starting point</button><p data-recommendation-message role="status" aria-live="polite"></p></div></section><section class="draft-toolbar" aria-label="Draft actions"><div><strong id="draft-status" role="status" aria-live="polite">New draft · not saved yet</strong><p class="small">Saving keeps this draft in this browser. Download a spec to move it elsewhere.</p><p id="validation-message" class="small" role="status" aria-live="polite"></p></div><button type="submit" form="init-form" id="save-draft">Save draft</button><nav class="jump-links" aria-label="Draft shortcuts"><a class="jump-link" href="#draft-preview">Preview &amp; export</a></nav></section><section id="import-review" class="import-review" hidden tabindex="-1" aria-labelledby="import-heading"><h2 id="import-heading">Review the imported draft</h2><p id="import-summary"></p><p class="small">Replacing changes the form. Your saved draft stays intact until you choose Save draft.</p><div class="actions"><button type="button" id="replace-import">Replace current draft</button><button type="button" id="cancel-import" class="secondary">Keep current draft</button></div></section><div class="workbench init-workspace"><form id="init-form" aria-describedby="validation-message"><fieldset><legend>Your starting point</legend><label>Apps<select name="preset"><option value="composition">Guestbook + Linkarooie</option><option value="guestbook">Photo Guestbook</option><option value="showcase">Linkarooie</option><option value="hello">Hello World reference</option></select></label><label>Title<input name="title" required maxlength="80" value="Our corner"/></label><label>Introduction<textarea name="intro" maxlength="240">A shared collection of moments worth keeping.</textarea></label></fieldset><fieldset><legend>Appearance</legend><label>Theme<select name="theme"><option value="daylight">Daylight</option><option value="midnight">Midnight</option></select></label><label id="layout-label">Layout<select name="layout"><option value="grid">Gallery grid</option><option value="editorial">Larger editorial images</option></select></label></fieldset><AppSettings/><fieldset id="privacy"><legend>Publication</legend><p>Submitted photos stay private until the owner approves them. Hiding a contribution removes its controlled media and featured cards.</p><span class="badge">Review first · supported safe default</span></fieldset><fieldset id="cards-field"><legend>Your curated links</legend><p class="small">Give each card a title and an HTTPS link. Remove an unfinished card to leave it out. Connected galleries supply featured photos.</p><div id="card-rows"></div><button type="button" class="secondary" id="add-card">Add a card</button></fieldset><fieldset><legend>Deployment intent</legend><label>Destination<select name="target"><option value="preview">A temporary Cloudflare address</option><option value="existing-domain">An existing domain</option><option value="new-domain">Explore a new domain</option></select></label><label id="hostname-label" hidden>Hostname<input name="hostname" placeholder="app.example.com" maxlength="253"/></label><p id="target-help" class="small">The agent verifies the actual account and toolchain before deployment.</p></fieldset><div class="actions"><button type="submit">Save draft</button><button type="button" id="reset" class="secondary">Start a fresh draft</button></div><label>Import a saved spec<input id="import" type="file" accept="application/json"/></label><p role="status" aria-live="polite" id="message" class="message"></p></form><aside class="sticky jump-target" id="draft-preview" tabindex="-1" aria-label="Draft preview and export"><div class="actions"><button id="download" class="secondary">Download spec</button><button id="copy">Copy to Codex</button></div><div class="app-layout-preview" data-layout-preview><div class="preview-caption" id="preview-caption">Layout preview · sample content</div><div data-app-layout></div></div><div class="ink preview-detail"><h2 id="preview-title">Our corner</h2><p id="preview-intro" class="lede">A shared collection of moments worth keeping.</p><p id="preview-apps">Guestbook + Linkarooie</p><div id="preview-settings"></div><p class="small" id="preset-story">Here / there collects and reviews the photos. Linkarooie gives approved moments and curated links a place together.</p></div><details data-assistance-detail><summary>Portable specification</summary><pre id="spec"></pre></details><details data-assistance-detail><summary>Read the agent handoff</summary><pre id="prompt" tabindex="-1"></pre></details><p class="small">No credentials go into this spec. A copied prompt is a handoff, not proof that an agent executed it.</p><p class="jump-back"><a class="jump-link" href="#init-form">Back to the form</a></p></aside></div><script src="../lib/init-client.ts"></script></Base>
+<Base title={platformSelected ? 'Init: request an approved application' : 'Init: make it yours'} description={platformSelected ? 'Open your authorised platform workspace to request a maintained synthetic preview application and inspect its exact policy, source and target before execution.' : 'Configure independent mini-apps and export one portable specification with a complete copy-to-Codex handoff.'}>
+ <div class="init-heading">
+  <h1>{platformSelected ? 'Request an approved application.' : 'Give your app some shape.'}</h1>
+  <p class="lede">{platformSelected ? 'Use the recipes and standing policy your operator has prepared. The request lives in your team’s native EmDash workspace, alongside its decisions, application resources and operating links.' : <>Your agent prepares the environment in <a href="/ready">Get Ready</a>, then uses this specification to build and deploy. Edit the fields, preview the result and take the portable specification to your agent. Save a draft on this device or download it to keep a portable copy.</>}</p>
+ </div>
+ <nav class="build-paths" aria-label="Choose your application path">
+  <a href="/init" aria-current={!platformSelected ? 'page' : undefined}><strong>My app</strong><span>Shape your independent app.</span></a>
+  <a href="/_emdash/admin/plugins/composer-stacks/workspaces"><strong>My team</strong><span>Open your existing workspace and access.</span></a>
+  <a href={platformSelf} aria-current={platformSelected ? 'page' : undefined}><strong>Internal platform</strong><span>Request an approved application in your workspace.</span></a>
+ </nav>
+ {platformSelected ? (
+  <div class="platform-request-entry">
+   <section class="platform-request-next" aria-labelledby="platform-request-heading">
+    <h2 id="platform-request-heading">Open your team’s governed request.</h2>
+    <p>Name the application and choose its data-location requirement in the native workspace. Composer evaluates the validated plan against current membership and standing policy. Routine permitted work runs through the trusted adapter; an actual exception follows the recorded review decision.</p>
+    <div class="actions"><a class="button" href={nativePlatform}>Open application requests</a><a href={platformReady}>Check the operator prerequisites</a></div>
+    <p class="small">{workspace ? <>Selected workspace <code>{workspace}</code>. This address selects a view; the server still checks your membership.</> : 'EmDash resolves your authorised default workspace. Use Workspace access there to select the intended team.'} This public page does not submit a request or execute an application.</p>
+   </section>
+   <section class="platform-request-plan" aria-labelledby="platform-plan-heading">
+    <h2 id="platform-plan-heading">The plan and request share one validated state.</h2>
+    <dl>
+     <div><dt>Owner and authority</dt><dd>Your confirmed workspace, current role, saved policy revision and exact plan digest. A profile or exported specification does not grant operator access.</dd></div>
+     <div><dt>Maintained recipe</dt><dd>Moderated Guestbook visitor book, pinned to <code>{source.commit}</code>. Each app retains its independent source and records.</dd></div>
+     <div><dt>Target and resources</dt><dd>The native plan identifies the actual selected account and runtime environment. The supported request creates an app-owned resource in the existing Guestbook Worker/database and a Composer presentation page.</dd></div>
+     <div><dt>Data and limits</dt><dd>Fictional synthetic data, small quota class and your workspace’s application limit. Australian-only handling cannot be substantiated here and produces an unsupported outcome.</dd></div>
+     <div><dt>Operation and evidence</dt><dd>Requests retain their identity through waiting, execution and verification. A completed service links to its application, administration and resource checks. Portable specifications and handoffs come from the saved validated plan.</dd></div>
+    </dl>
+   </section>
+   <section class="platform-request-limits" aria-labelledby="platform-limits-heading">
+    <h2 id="platform-limits-heading">Keep the scope explicit.</h2>
+    <p>This path supports a synthetic preview visitor book on a shared existing runtime. It does not provision a dedicated Worker/database or qualify knowledge applications, production promotion, internal/sensitive records, Kubernetes or strict Australian-only handling.</p>
+    <p>Application visitors do not gain platform permissions. An imported plan cannot select credentials, another team’s resource or an arbitrary execution target.</p>
+    <div class="actions"><a href="/platform#readiness">Read the current platform scope</a><a href="/init">Use the independent app form</a></div>
+    <p class="small">Your existing independent-app draft stays on this device. Open My app to continue editing it.</p>
+   </section>
+  </div>
+ ) : (<>
+<AssistanceControl/><InitReadiness/><p class="content-model-entry">Need your own content types and fields? <a href="/init/content">Design an EmDash content model and try its form.</a></p><section id="starting-point" class="init-recommendation" data-init-recommendation><div><h2>What should the app do?</h2><label>Your goal<select data-recommendation-goal disabled>{questions.find(q=>q.id==='goal')!.options.map(([id,label])=><option value={id}>{label}</option>)}</select></label><p data-recommendation-reason></p><p data-recommendation-limit class="small"></p><p data-assistance-guided class="small">Choose the outcome first. Your agent owns the technical setup. You can inspect another starting point before applying it; title, introduction, appearance, address and shared app settings are preserved where they apply.</p><details data-assistance-detail><summary>Apps and source contracts</summary><div data-recommendation-sources></div></details></div><div class="recommendation-visual"><p class="preview-caption">Recommendation preview · fictional content</p><div data-recommendation-preview></div></div><div class="recommendation-actions"><button data-recommendation-use type="button" disabled>Use this starting point</button><p data-recommendation-message role="status" aria-live="polite"></p></div></section><section class="draft-toolbar" aria-label="Draft actions"><div><strong id="draft-status" role="status" aria-live="polite">New draft · not saved yet</strong><p class="small">Saving keeps this draft in this browser. Download a spec to move it elsewhere.</p><p id="validation-message" class="small" role="status" aria-live="polite"></p></div><button type="submit" form="init-form" id="save-draft">Save draft</button><nav class="jump-links" aria-label="Draft shortcuts"><a class="jump-link" href="#draft-preview">Preview &amp; export</a></nav></section><section id="import-review" class="import-review" hidden tabindex="-1" aria-labelledby="import-heading"><h2 id="import-heading">Review the imported draft</h2><p id="import-summary"></p><p class="small">Replacing changes the form. Your saved draft stays intact until you choose Save draft.</p><div class="actions"><button type="button" id="replace-import">Replace current draft</button><button type="button" id="cancel-import" class="secondary">Keep current draft</button></div></section><div class="workbench init-workspace"><form id="init-form" aria-describedby="validation-message"><fieldset><legend>Your starting point</legend><label>Apps<select name="preset"><option value="composition">Guestbook + Linkarooie</option><option value="guestbook">Photo Guestbook</option><option value="showcase">Linkarooie</option><option value="hello">Hello World reference</option></select></label><label>Title<input name="title" required maxlength="80" value="Our corner"/></label><label>Introduction<textarea name="intro" maxlength="240">A shared collection of moments worth keeping.</textarea></label></fieldset><fieldset><legend>Appearance</legend><label>Theme<select name="theme"><option value="daylight">Daylight</option><option value="midnight">Midnight</option></select></label><label id="layout-label">Layout<select name="layout"><option value="grid">Gallery grid</option><option value="editorial">Larger editorial images</option></select></label></fieldset><AppSettings/><fieldset id="privacy"><legend>Publication</legend><p>Submitted photos stay private until the owner approves them. Hiding a contribution removes its controlled media and featured cards.</p><span class="badge">Review first · supported safe default</span></fieldset><fieldset id="cards-field"><legend>Your curated links</legend><p class="small">Give each card a title and an HTTPS link. Remove an unfinished card to leave it out. Connected galleries supply featured photos.</p><div id="card-rows"></div><button type="button" class="secondary" id="add-card">Add a card</button></fieldset><fieldset><legend>Deployment intent</legend><label>Destination<select name="target"><option value="preview">A temporary Cloudflare address</option><option value="existing-domain">An existing domain</option><option value="new-domain">Explore a new domain</option></select></label><label id="hostname-label" hidden>Hostname<input name="hostname" placeholder="app.example.com" maxlength="253"/></label><p id="target-help" class="small">The agent verifies the actual account and toolchain before deployment.</p></fieldset><div class="actions"><button type="submit">Save draft</button><button type="button" id="reset" class="secondary">Start a fresh draft</button></div><label>Import a saved spec<input id="import" type="file" accept="application/json"/></label><p role="status" aria-live="polite" id="message" class="message"></p></form><aside class="sticky jump-target" id="draft-preview" tabindex="-1" aria-label="Draft preview and export"><div class="actions"><button id="download" class="secondary">Download spec</button><button id="copy">Copy to Codex</button></div><div class="app-layout-preview" data-layout-preview><div class="preview-caption" id="preview-caption">Layout preview · sample content</div><div data-app-layout></div></div><div class="ink preview-detail"><h2 id="preview-title">Our corner</h2><p id="preview-intro" class="lede">A shared collection of moments worth keeping.</p><p id="preview-apps">Guestbook + Linkarooie</p><div id="preview-settings"></div><p class="small" id="preset-story">Here / there collects and reviews the photos. Linkarooie gives approved moments and curated links a place together.</p></div><details data-assistance-detail><summary>Portable specification</summary><pre id="spec"></pre></details><details data-assistance-detail><summary>Read the agent handoff</summary><pre id="prompt" tabindex="-1"></pre></details><p class="small">No credentials go into this spec. A copied prompt is a handoff, not proof that an agent executed it.</p><p class="jump-back"><a class="jump-link" href="#init-form">Back to the form</a></p></aside></div></>)}
+ <script>
+  if (document.querySelector('#init-form')) void import('../lib/init-client');
+ </script>
+</Base>
 
 <style>
+ .platform-request-entry {
+  max-width:1000px
+ }
+ .platform-request-next {
+  padding:24px 0 32px
+ }
+ .platform-request-entry h2 {
+  font-size:1.7rem;
+  max-width:34ch;
+  margin:0 0 16px
+ }
+ .platform-request-entry p {
+  max-width:74ch
+ }
+ .platform-request-plan,.platform-request-limits {
+  border-top:1px solid var(--color-border);
+  padding-top:28px;
+  margin-top:28px
+ }
+ .platform-request-plan dl {
+  margin:0
+ }
+ .platform-request-plan dl>div {
+  display:grid;
+  grid-template-columns:210px minmax(0,1fr);
+  gap:24px;
+  padding:20px 0;
+  border-bottom:1px solid var(--color-border)
+ }
+ .platform-request-plan dt {
+  font-weight:600
+ }
+ .platform-request-plan dd {
+  margin:0;
+  color:var(--color-muted);
+  max-width:70ch
+ }
+ .platform-request-entry code {
+  overflow-wrap:anywhere
+ }
+ .platform-request-entry .actions {
+  flex-wrap:wrap;
+  gap:16px
+ }
+ .platform-request-entry .actions a {
+  min-height:44px;
+  display:inline-flex;
+  align-items:center
+ }
+ @media(max-width:600px) {
+  .platform-request-plan dl>div {
+  grid-template-columns:1fr;
+  gap:8px
+ }
+ .platform-request-entry h2 {
+  font-size:1.5rem
+ }
+ .platform-request-next {
+  padding-top:16px
+ }
+ }
+
+ .build-paths{display:flex;flex-wrap:wrap;gap:0 32px;border-block:1px solid var(--color-border);margin:28px 0 16px}.build-paths a{flex:1 1 180px;display:grid;gap:4px;padding:16px 0;min-height:44px;color:var(--color-foreground);text-decoration:none}.build-paths a[aria-current]{box-shadow:inset 0 -2px var(--color-accent)}.build-paths a:hover strong{text-decoration:underline;text-underline-offset:4px}.build-paths span{font-size:13px;line-height:1.5;color:var(--color-muted)}
+
  .draft-toolbar{display:flex;align-items:center;justify-content:space-between;gap:24px;border-block:1px solid var(--color-border);padding:20px 0;margin-bottom:24px}.draft-toolbar p{margin:6px 0 0}.draft-toolbar strong{font-size:1rem}.draft-toolbar button{flex-shrink:0}.import-review{padding:24px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:12px;margin-bottom:28px}.import-review h2{font-size:1.5rem;max-width:none;margin-bottom:16px}.import-review p{overflow-wrap:anywhere}.import-review .actions{margin-bottom:0}.init-workspace button:disabled,.draft-toolbar button:disabled{cursor:not-allowed}#validation-message:empty{display:none}
  .init-recommendation{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"choices preview" "actions preview";gap:0 48px;border-bottom:1px solid var(--color-border);padding:24px 0 40px;margin-bottom:32px}.init-recommendation>div:first-child{grid-area:choices}.recommendation-visual{grid-area:preview}.recommendation-actions{grid-area:actions;align-self:start}.init-recommendation h2{font-size:1.7rem;max-width:none}.init-recommendation :global(pre){font-size:12px;max-height:260px}.init-recommendation button{margin-top:20px}.init-recommendation>div{min-width:0}.init-recommendation :global(code){overflow-wrap:anywhere}.init-heading h1{font-size:3rem;max-width:26ch;margin-top:0}.init-heading .lede{font-size:1.1rem;max-width:76ch}.init-workspace{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:48px}.app-layout-preview{background:var(--color-surface);border-radius:10px;padding:16px;border:1px solid var(--color-border);margin-top:24px}.preview-caption{font-size:12px;color:var(--color-muted);margin-bottom:14px}.preview-detail{margin-top:20px;padding:22px}.preview-detail h2{font-size:1.7rem}.preview-detail :global(h3){font-size:1.1rem;margin:18px 0 8px}.preview-detail :global(p){font-size:14px}.init-workspace :global(fieldset){padding:20px}.init-workspace :global(legend){font-size:15px}
  @media(max-width:900px){.draft-toolbar{align-items:flex-start;flex-direction:column;gap:16px}.init-recommendation{grid-template-columns:1fr;grid-template-areas:"choices" "preview" "actions";gap:24px}.init-workspace{grid-template-columns:1fr;gap:24px}.init-workspace>aside{position:static}.init-heading h1{font-size:2.3rem}.app-layout-preview{margin-top:0}}

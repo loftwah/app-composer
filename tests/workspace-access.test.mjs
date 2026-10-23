@@ -86,6 +86,7 @@ function fixture() {
     "0005_stack_publications_backfill.sql",
     "0006_stack_resources.sql",
     "0008_workspace_access.sql",
+    "0011_platform_requests.sql",
   ])
     sqlite.exec(
       readFileSync(new URL("../migrations/" + name, import.meta.url), "utf8"),

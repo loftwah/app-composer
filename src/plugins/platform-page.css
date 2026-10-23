@@ -1,0 +1,270 @@
+.ca-platform {
+  max-width: 78rem;
+  padding-bottom: 3rem;
+  overflow-wrap: anywhere;
+}
+.ca-platform :is(h1, h2, h3, p) {
+  color: inherit;
+}
+.ca-platform h1 {
+  font-size: 1.8rem;
+  margin: 0 0 0.6rem;
+}
+.ca-platform h2 {
+  font-size: 1.3rem;
+  margin: 0 0 0.75rem;
+}
+.ca-platform h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+}
+.ca-platform p {
+  line-height: 1.6;
+  max-width: 72ch;
+  margin: 0.5rem 0 1rem;
+}
+.ca-platform a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.ca-platform :is(button, input, select, textarea) {
+  font: inherit;
+  font-size: max(16px, 1rem);
+  color: inherit;
+}
+.ca-platform :is(button, input, select, textarea) {
+  border: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+  border-radius: 6px;
+  background: transparent;
+  padding: 0.6rem 0.8rem;
+  min-height: 44px;
+}
+.ca-platform button {
+  cursor: pointer;
+  font-weight: 550;
+}
+.ca-platform button:hover:not(:disabled) {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.ca-platform button:active:not(:disabled) {
+  background: color-mix(in srgb, currentColor 13%, transparent);
+}
+.ca-platform button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.ca-platform :is(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+.ca-platform option {
+  color: CanvasText;
+  background: Canvas;
+}
+.ca-platform-heading,
+.ca-platform-context {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+}
+.ca-platform-context {
+  border-block: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  padding: 1rem 0;
+  margin-top: 1.5rem;
+  align-items: center;
+}
+.ca-platform-context p {
+  margin: 0;
+}
+.ca-platform-context small,
+.ca-platform-help {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.ca-platform-message {
+  min-height: 1.6rem;
+}
+.ca-platform-notice {
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+.ca-platform-notice p:last-child {
+  margin-bottom: 0;
+}
+.ca-platform-jumps,
+.ca-platform-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+}
+.ca-platform-actions a,
+.ca-platform-jumps a,
+.ca-platform-heading > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.ca-platform-boundary {
+  padding: 1.5rem 0;
+  margin-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+}
+.ca-platform-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 3rem;
+  border-block: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  padding: 2rem 0;
+}
+.ca-platform-workbench > section {
+  min-width: 0;
+  scroll-margin-top: 1.5rem;
+}
+.ca-platform-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.ca-platform-form label,
+.ca-platform-review label,
+.ca-platform-fallback {
+  display: grid;
+  gap: 0.5rem;
+  font-weight: 550;
+}
+.ca-platform :is(input, select, textarea) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+.ca-platform textarea {
+  resize: vertical;
+}
+.ca-platform-form button {
+  justify-self: start;
+}
+.ca-platform-form .ca-platform-check {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+.ca-platform-policy-scope {
+  display: grid;
+  gap: 0.75rem;
+  border: 0;
+  padding: 0;
+  margin: 0.5rem 0;
+}
+.ca-platform-policy-scope legend {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+.ca-platform-check input {
+  width: 20px;
+  min-height: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.ca-platform-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 2rem;
+  margin: 1rem 0;
+}
+.ca-platform-facts dt {
+  font-size: 0.875rem;
+}
+.ca-platform-facts dd {
+  margin: 0.25rem 0 0;
+}
+.ca-platform-requests {
+  padding-top: 2rem;
+  scroll-margin-top: 1.5rem;
+}
+.ca-platform-request-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 0;
+}
+.ca-platform-request-list > li {
+  border-top: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  padding: 1.5rem 0;
+}
+.ca-platform-request header {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+.ca-platform-request header p {
+  margin-top: 0;
+}
+.ca-platform-request > ul {
+  padding-left: 1.4rem;
+  margin: 0.5rem 0 1rem;
+}
+.ca-platform-review {
+  border: 0;
+  border-block: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  margin: 1.5rem 0;
+  padding: 1rem 0;
+}
+.ca-platform-review legend {
+  font-weight: 600;
+  padding-right: 1rem;
+}
+.ca-platform-request details {
+  margin-top: 1rem;
+}
+.ca-platform summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 0.6rem 0;
+}
+.ca-platform pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.8rem;
+  max-height: 25rem;
+  overflow: auto;
+  padding: 1rem;
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+.ca-platform code {
+  font-size: 0.85em;
+}
+.ca-platform-footer {
+  padding-top: 2rem;
+  margin-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+}
+.ca-platform-fallback {
+  margin: 1rem 0;
+}
+@media (max-width: 900px) {
+  .ca-platform-workbench {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .ca-platform-workbench > section + section {
+    border-top: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+    padding-top: 2rem;
+  }
+}
+@media (max-width: 600px) {
+  .ca-platform-facts {
+    grid-template-columns: 1fr;
+  }
+  .ca-platform-actions {
+    align-items: start;
+  }
+  .ca-platform-actions button {
+    max-width: 100%;
+  }
+}

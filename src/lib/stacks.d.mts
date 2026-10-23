@@ -111,6 +111,7 @@ export declare class StackError extends Error {
 }
 export declare function capabilityFor(role: unknown, action: string): boolean;
 export declare function requireCapability(role: unknown, action: string): void;
+export declare function trustedPlatformActor(userId: string, requestId: string, leaseToken: string): object;
 export declare function declaredConfig(appId: string): DeclaredField[] | null;
 export declare function appCapabilities(appId: string): string[];
 export declare function slugify(name: unknown): string;

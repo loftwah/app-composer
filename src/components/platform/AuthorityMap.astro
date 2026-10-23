@@ -1,0 +1,100 @@
+<figure class="authority-map">
+  <figcaption>Who decides. What runs.</figcaption>
+  <p class="map-note">
+    Proposed platform responsibility model · current runtime shown separately below
+  </p>
+  <ol>
+    <li>
+      <span>People &amp; identity</span>
+      <strong>
+        Operator sets the boundaries.
+        <br />
+        Team requests an application.
+      </strong>
+      <small>Enterprise admission and current team membership</small>
+    </li>
+    <li>
+      <span>Composer in EmDash</span>
+      <strong>Recipe, plan &amp; policy</strong>
+      <small>Exact source, owning team, environment and review</small>
+    </li>
+    <li>
+      <span>Trusted delivery</span>
+      <strong>Recheck. Execute. Verify.</strong>
+      <small>Selected runner holds scoped credentials; the browser does not</small>
+    </li>
+    <li>
+      <span>Application runtime</span>
+      <strong>Workers or a qualified alternative</strong>
+      <small>App-owned resources, user access and independent releases</small>
+    </li>
+  </ol>
+  <p class="map-note">
+    A request crosses an authority boundary before execution. Runtime capability is separately
+    configured; it never follows from a portal role.
+  </p>
+</figure>
+<style>
+  .authority-map {
+    margin: 0;
+    padding: 28px;
+    background: var(--color-surface);
+    border-radius: 8px;
+  }
+  .authority-map figcaption {
+    font: 500 1.5rem/1.2 var(--font-display);
+    letter-spacing: -0.025em;
+  }
+  .map-note {
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    margin: 12px 0 0;
+  }
+  .authority-map ol {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0;
+    max-width: none;
+  }
+  .authority-map li {
+    position: relative;
+    margin: 0;
+    padding: 20px 0 20px 25px;
+    border-top: 1px solid var(--color-border);
+  }
+  .authority-map li::before {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--color-accent);
+    background: var(--color-surface);
+    left: 0;
+    top: 26px;
+    border-radius: 50%;
+  }
+  .authority-map li:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    width: 1px;
+    background: var(--color-accent);
+    left: 4px;
+    top: 36px;
+    bottom: -26px;
+  }
+  .authority-map li > span {
+    display: block;
+    color: var(--color-muted);
+    font-size: 0.85rem;
+  }
+  .authority-map strong {
+    display: block;
+    font-size: 1rem;
+    margin: 5px 0;
+  }
+  .authority-map small {
+    color: var(--color-muted);
+    display: block;
+    font-size: 0.85rem;
+  }
+</style>
