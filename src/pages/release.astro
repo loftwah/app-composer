@@ -7,6 +7,7 @@ import {composition,mountedApps} from '../lib/composition';
 const lockDate = new Date(composition.reviewed + 'T00:00:00Z').toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
 ---
 <Base title="Verified release evidence" description="Actual source identities, deployed outcomes and remaining App Composer acceptance gates. Preparation and production are distinct."><h1>Show the working result.</h1><p class="lede">{release.state}</p><p>This Composer build is source <code>{build.commit}</code>.</p>
+<p><a href="/discover">Open the working tools and walkthroughs →</a></p>
 <section class="section"><h2>Serving now</h2><p>Composition <code>{composition.id.slice(0,12)}</code>, activated {lockDate}. Each app runs at its own origin and is mounted on Composer at the path below. Both serve the same pinned revision, and that route’s <code>build.json</code> returns it.</p>
 <div class="table-wrap"><table><thead><tr><th>App</th><th>Standalone origin</th><th>Mounted on Composer</th><th>Source revision</th></tr></thead><tbody>{mountedApps.map(app=><tr><td>{app.name} <span class="small">v{app.version}</span><br/><a href={app.repository}>Repository</a></td><td><a href={app.url}>{app.url.replace('https://','')}</a></td><td><a href={app.route}>{app.route}</a></td><td><code>{app.short}</code></td></tr>)}</tbody></table></div>
 <p class="small">Editing this list by hand cannot change what runs. Update the pins by promoting a reviewed composition, which rewrites <code>composition.lock.json</code>.</p></section>
