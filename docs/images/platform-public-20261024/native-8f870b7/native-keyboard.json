@@ -1,0 +1,23 @@
+{
+  "source": "8f870b79616d353898fa3b5edd34fbb701c5ea7c",
+  "scope": "Ordinary native Chrome keyboard interaction in the client-only fictional policy teaching example.",
+  "inputMethod": "native key d then Return; native key c then Return",
+  "before": {
+    "membership": "current",
+    "decision": "Allowed"
+  },
+  "after": {
+    "decision": "Denied",
+    "focused": "membership",
+    "membership": "other"
+  },
+  "restored": {
+    "decision": "Allowed",
+    "focused": "membership",
+    "membership": "current"
+  },
+  "selectOptionUsed": false,
+  "productRequestsSubmitted": false,
+  "arrowSelectionClaim": false,
+  "sanitized": "Local browser tab identifier omitted; observed source/state retained."
+}

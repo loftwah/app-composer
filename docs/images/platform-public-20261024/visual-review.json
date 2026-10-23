@@ -1,0 +1,13 @@
+{
+  "guideSource": "a0f539c21960386b4e48ae20cca7e45152052b48",
+  "captionSource": "8f870b79616d353898fa3b5edd34fbb701c5ea7c",
+  "reviewer": "independent readiness_visual_review agent",
+  "guideVerdict": "PASS for20normalguideframes and10controlled200%root-fontframes; source-identical guide files at8f. ActualTabfocus frame supplemented by ordinaryChrome native keyboard proof.",
+  "captionVerdict": "PASS. All26replacementframes reviewed; former288boundary andcontinuous captions short/legible/contained; recorded UI substantially visible. All4fullscreen frames pass including portrait upper letterbox.",
+  "findings": [],
+  "limits": [
+    "NativeArrow selection not qualified; actual type-to-select D/Return and C/Return verified separately",
+    "NativeEscape exit not qualified; explicitFullscreenAPI exit recorded",
+    "No physical-device, actualscreenreader, externalnativeunfurl or newmemberadmission acceptance"
+  ]
+}
