@@ -69,6 +69,7 @@ export async function authenticateNativeActors(browser, lab, options = {}) {
     const context = await browser.newContext({
       ignoreHTTPSErrors: true,
       viewport: { width: 1440, height: 1000 },
+      reducedMotion: "reduce",
       ...(options.output
         ? {
             recordVideo: {
