@@ -74,7 +74,7 @@ export default function GuestbookTools({
   const resources = [...new Set(grants.map((g) => g.resource))];
   const [selected, setSelected] = useState(resources[0] ?? "");
   const [message, setMessage] = useState("");
-  const [alias, setAlias] = useState(account.actor.name ?? "");
+  const [alias, setAlias] = useState((account.actor.name ?? "").slice(0, 60));
   const [consent, setConsent] = useState(false);
   const [list, setList] = useState<Review>();
   const [busy, setBusy] = useState(false);
@@ -175,8 +175,10 @@ export default function GuestbookTools({
             setError("");
           }}
         >
-          {resources.map((resource) => (
-            <option key={resource}>{resource}</option>
+          {resources.map((resource, index) => (
+            <option key={resource} value={resource}>
+              Shared visitor book {index + 1}
+            </option>
           ))}
         </select>
       </label>
