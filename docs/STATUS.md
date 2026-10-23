@@ -47,6 +47,34 @@ Access/authentication change; no real invitations or email delivery are claimed.
 Physical iPhone, actual screen-reader, native social and owner acceptance remain
 open. This section will be reconciled with the final root release receipt.
 
+## Governed team requests — 23 October 2026
+
+The selected internal-platform path connects [Get Ready](/ready?profile=platform),
+[Init](/init?profile=platform), native EmDash requests and the [public field guide](/platform).
+An admitted workspace owner configures standing policy in an empty workspace;
+an editor or owner can request a synthetic Guestbook visitor book. Permitted work
+uses the existing trusted adapter automatically. Optional independent review,
+revisions, compatible configuration updates, quotas and retained operation
+identities remain server-enforced. Pausing policy preserves the managed-workspace
+lifecycle fence. Complete records exact app and public-page checks at that time.
+
+This path creates an app-owned scoped resource and immutable Composer publication
+on existing Workers/databases. It does not create dedicated team infrastructure
+or admit a new person. Internal/sensitive records, strict Australian-only handling,
+knowledge applications and production promotion remain unsupported. Retirement,
+credential rotation, complete backup restoration and continuous health are not
+implemented by this slice.
+
+The [operating path](platform/operating-path.md), [local two-team specimen](platform/demo.md),
+[integration contracts](platform/integrations.md) and [runtime qualification](platform/runtime-qualification.md)
+record their separate evidence. The real pinned Guestbook fetch module runs with
+local SQLite/media and simulated host admission; its lost-acknowledgement recovery
+does not establish production Access admission, Workers entrypoint/service-binding
+execution or the full #215 incident journey. [Local media excerpts](platform/media.md)
+are useful evidence, while #221's complete native walkthrough remains open.
+Research #250 is preserved. #216–#221 and #251–#257 retain the broader programme;
+#11 owns the exact deployed source, runtime identity and actual live observations.
+
 ## Launch Kit profile cards — 23 October 2026
 
 The [focused card editor](https://composer-launch-kit.loftwah.workers.dev/profile.html)

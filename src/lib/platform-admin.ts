@@ -792,7 +792,62 @@ export async function runPlatformRequest(
         },
       },
     };
-    const current = await readStack(db, workspace, row.stack_id!);
+    let current = await readStack(db, workspace, row.stack_id!);
+    const retained = await listStackResources(db, workspace, current.id);
+    const unfinished = await db
+      .prepare(
+        "SELECT id FROM creator_resource_operations WHERE stack_id=? AND state IN ('pending','unknown') LIMIT 1",
+      )
+      .bind(current.id)
+      .first();
+    if (
+      retained.length > 0 &&
+      retained.every((resource) =>
+        ["ready", "refused"].includes(resource.state),
+      ) &&
+      !unfinished
+    ) {
+      // App-owned content moderation advances the remote resource version without
+      // changing this candidate. Observe its current metadata before staging an
+      // authorised update, including a prior version-conflict refusal. Uncertain
+      // operations keep the existing recovery path.
+      advancing = true;
+      const observed = await reconcileStackResources(
+        db,
+        user.id,
+        workspace,
+        current.id,
+        current.revision,
+        {
+          ...scopedRuntime,
+          GUESTBOOK: {
+            fetch(request) {
+              if (request.method !== "GET")
+                throw new StackError(
+                  "FORBIDDEN",
+                  "Resource preflight cannot send an app mutation.",
+                  403,
+                );
+              return scopedRuntime.GUESTBOOK!.fetch(request);
+            },
+          },
+        },
+      );
+      advancing = false;
+      await db
+        .prepare(
+          "UPDATE creator_platform_requests SET expected_stack_revision=? WHERE id=? AND lease_token=?",
+        )
+        .bind(observed.stack.revision, row.id, token)
+        .run();
+      await guard();
+      if (observed.problems.length)
+        throw new StackError(
+          "UNAVAILABLE",
+          "The current app resource could not be observed before this update. No app mutation was sent; preserve its existing identity and recheck the connection.",
+        );
+      current = observed.stack;
+    }
     advancing = true;
     const applied = await applyStackResources(
       db,

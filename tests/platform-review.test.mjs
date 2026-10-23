@@ -5,6 +5,7 @@ import { platformPublicFixture } from "./helpers/platform-public-fixture.mjs";
 import { workspaceForUser, readStack } from "../src/lib/stacks.mjs";
 import { managePlatform } from "../src/lib/platform-admin.ts";
 import { platformPlan } from "../src/lib/platform-contract.ts";
+import { resourceConnection } from "../src/lib/resource-client.ts";
 
 const profile = {
   enabled: true,
@@ -221,4 +222,209 @@ test("scoped platform handoff never recommends applying global paired-app settin
     JSON.stringify(plan.handoff),
     /--apply-settings|pnpm compose/,
   );
+});
+
+test("a routine update observes independently moderated resource version without changing its content", async () => {
+  const f = await setup();
+  try {
+    const made = (await submit(f)).requests[0];
+    const resource = made.resources[0].resource;
+    const item = "fictional-member-postcard";
+    f.app.items.set(item, {
+      resource,
+      id: item,
+      caption: "Retain this member contribution",
+      author: "Fictional member",
+      revision: 1,
+      status: "pending",
+    });
+    // Execute the same app-owned moderation contract used by the separate
+    // member service, without updating Composer's private resource cache.
+    const moderated = await resourceConnection(
+      f.runtime,
+      f.workspace.id,
+    ).command(
+      resource,
+      {
+        action: "moderate",
+        operationId: crypto.randomUUID(),
+        expectedVersion: made.resources[0].version,
+        item,
+        itemRevision: 1,
+        status: "approved",
+      },
+      async () => {},
+    );
+    assert.equal(moderated.outcome, "applied");
+    const content = structuredClone(f.app.items.get(item));
+    const seen = [];
+    const service = f.runtime.GUESTBOOK;
+    f.runtime.GUESTBOOK = {
+      fetch(req) {
+        seen.push({ method: req.method, path: new URL(req.url).pathname });
+        return service.fetch(req);
+      },
+    };
+    const writeCount = f.app.writes.length;
+    const updated = await f.call({
+      action: "update",
+      workspace: f.workspace.id,
+      id: made.id,
+      expectedRevision: made.revision,
+      request: { ...request, name: "Updated after member moderation" },
+    });
+    assert.equal(updated.ok, true, JSON.stringify(updated));
+    assert.equal(
+      updated.requests[0].status,
+      "complete",
+      updated.requests[0].reason,
+    );
+    assert.equal(updated.requests[0].resources[0].resource, resource);
+    assert.equal(updated.requests[0].stackId, made.stackId);
+    assert.deepEqual(f.app.items.get(item), content);
+    assert.deepEqual(
+      f.app.writes.slice(writeCount).map(({ command }) => command.action),
+      ["stage", "activate"],
+    );
+    assert.equal(
+      f.app.writes[writeCount].command.expectedVersion,
+      moderated.reply.resource.version,
+    );
+    const firstPost = seen.findIndex((entry) => entry.method === "POST");
+    assert.ok(firstPost > 0);
+    assert.ok(
+      seen.slice(0, firstPost).every((entry) => entry.method === "GET"),
+    );
+    assert.ok(
+      seen
+        .slice(0, firstPost)
+        .some((entry) => entry.path === `/guestbook/api/resources/${resource}`),
+    );
+  } finally {
+    f.close();
+  }
+});
+
+test("resource preflight preserves policy, membership and exact-candidate guards before app writes", async () => {
+  for (const change of ["policy", "role", "candidate"]) {
+    const f = await setup();
+    try {
+      const made = (await submit(f)).requests[0];
+      const before = f.app.writes.length;
+      let changed = false;
+      const service = f.runtime.GUESTBOOK;
+      if (change === "policy") {
+        assert.equal(
+          (
+            await f.call({
+              action: "configure",
+              workspace: f.workspace.id,
+              expectedRevision: 1,
+              profile: { ...profile, allowedRecipes: [] },
+            })
+          ).ok,
+          true,
+        );
+      }
+      f.runtime.GUESTBOOK = {
+        async fetch(req) {
+          const response = await service.fetch(req);
+          if (!changed && new URL(req.url).pathname.endsWith("/build.json")) {
+            changed = true;
+            if (change === "role")
+              f.sqlite
+                .prepare(
+                  "UPDATE creator_members SET role='viewer' WHERE workspace_id=? AND user_id=?",
+                )
+                .run(f.workspace.id, user.id);
+            if (change === "candidate") {
+              const stack = f.sqlite
+                .prepare("SELECT draft_json FROM creator_stacks WHERE id=?")
+                .get(made.stackId);
+              const draft = JSON.parse(stack.draft_json);
+              draft.instances[0].config.title = "Outside this exact plan";
+              f.sqlite
+                .prepare(
+                  "UPDATE creator_stacks SET draft_json=?,revision=revision+1 WHERE id=?",
+                )
+                .run(JSON.stringify(draft), made.stackId);
+            }
+          }
+          return response;
+        },
+      };
+      const result = await f.call({
+        action: "update",
+        workspace: f.workspace.id,
+        id: made.id,
+        expectedRevision: made.revision,
+        request: { ...request, name: "Blocked update" },
+      });
+      assert.equal(result.ok, true, JSON.stringify(result));
+      assert.equal(
+        result.requests[0].status,
+        change === "policy" ? "denied" : "needs-attention",
+      );
+      assert.equal(
+        f.app.writes.length,
+        before,
+        change + " must prevent app writes",
+      );
+    } finally {
+      f.close();
+    }
+  }
+});
+
+test("a content version change after preflight can be refreshed on explicit resumption", async () => {
+  const f = await setup();
+  try {
+    const made = (await submit(f)).requests[0];
+    const resource = made.resources[0].resource;
+    const service = f.runtime.GUESTBOOK;
+    let changed = false;
+    f.runtime.GUESTBOOK = {
+      async fetch(req) {
+        if (
+          req.method === "POST" &&
+          !changed &&
+          (await req.clone().json()).action === "stage"
+        ) {
+          changed = true;
+          // A concurrent app-owned content operation wins after the GET. The
+          // stale configuration write must lose its CAS, then refresh on retry.
+          f.app.resources.get(resource).version++;
+        }
+        return service.fetch(req);
+      },
+    };
+    const update = await f.call({
+      action: "update",
+      workspace: f.workspace.id,
+      id: made.id,
+      expectedRevision: made.revision,
+      request: { ...request, name: "Update racing content" },
+    });
+    assert.equal(update.requests[0].status, "needs-attention");
+    assert.equal(update.requests[0].resources[0].state, "refused");
+    const result = await f.call({
+      action: "run",
+      workspace: f.workspace.id,
+      id: made.id,
+      expectedRevision: update.requests[0].revision,
+    });
+    assert.equal(
+      result.requests[0].status,
+      "complete",
+      result.requests[0].reason,
+    );
+    assert.equal(result.requests[0].resources[0].resource, resource);
+    assert.equal(f.app.resources.size, 1);
+    assert.equal(
+      f.app.writes.filter(({ command }) => command.action === "create").length,
+      1,
+    );
+  } finally {
+    f.close();
+  }
 });
