@@ -101,3 +101,45 @@ test("a presentation restore cannot resurrect deleted source data", () => {
   assert.equal(featured(state)[0], null);
   assert.equal(state.items[0].status, "deleted");
 });
+
+test("local outcomes follow current eligibility and references independently of hosted totals", async () => {
+  const { demoOutcomes } = await import("../src/lib/workbench.ts");
+  let state = initialBench();
+  assert.deepEqual(demoOutcomes(state), {
+    approvedPostcards: 2,
+    connectedReferences: 0,
+    savedRevisions: 0,
+  });
+  state = transition(state, { type: "connect", slot: 0 });
+  state = transition(state, { type: "publish" });
+  assert.deepEqual(demoOutcomes(state), {
+    approvedPostcards: 2,
+    connectedReferences: 1,
+    savedRevisions: 1,
+  });
+  state = transition(state, { type: "visibility" });
+  assert.deepEqual(demoOutcomes(state), {
+    approvedPostcards: 1,
+    connectedReferences: 0,
+    savedRevisions: 1,
+  });
+  state = transition(state, { type: "restore", revision: 1 });
+  assert.deepEqual(demoOutcomes(state), {
+    approvedPostcards: 1,
+    connectedReferences: 0,
+    savedRevisions: 2,
+  });
+  state = transition(state, { type: "visibility" });
+  state = transition(state, { type: "connect", slot: 0 });
+  state = transition(state, { type: "disconnect" });
+  assert.equal(demoOutcomes(state).connectedReferences, 0);
+  assert.equal(demoOutcomes(state).approvedPostcards, 2);
+  state = transition(state, { type: "later" });
+  assert.deepEqual(demoOutcomes(state), {
+    approvedPostcards: 3,
+    connectedReferences: 0,
+    savedRevisions: 2,
+  });
+  for (let n = 0; n < 30; n++) state = transition(state, { type: "publish" });
+  assert.equal(demoOutcomes(state).savedRevisions, 24);
+});
