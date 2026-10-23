@@ -16,6 +16,12 @@ Access wrapper. Production source and policy remain intact. A loopback-only TLS
 proxy on port 8443 plus an isolated Chrome resolver maps the HTTPS endpoint to that local port and keeps the stable installation
 issuer and the exact same-origin guards. No system DNS/hosts setting changes.
 The self-signed certificate is trusted only by the isolated browser context.
+Each Wrangler process uses an explicit `--local-upstream` and HTTPS upstream
+protocol. Wrangler rewrites URL-bearing headers, including Origin, to that
+upstream; selecting it preserves the exact site Origin instead of weakening
+Composer's production CSRF check. App PUBLIC_ORIGIN mirrors the mounted Composer
+service; Showcase PROFILE_ORIGIN retains its stable standalone receipt identity.
+Local standalone canonical/publication proof remains a separate qualification.
 
 Start after Composer integration includes the member plugin and exact app pins:
 

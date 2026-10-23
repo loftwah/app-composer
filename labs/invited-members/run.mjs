@@ -202,6 +202,10 @@ if (action === "refresh-composer") {
       join(meta.root, "composer-state"),
       "--local-protocol",
       "http",
+      "--local-upstream",
+      "composer.loftwah.com",
+      "--upstream-protocol",
+      "https",
       "--local",
       "--inspector-port",
       "0",
@@ -301,6 +305,10 @@ if (action === "reset-accounts") {
       join(meta.root, "composer-state"),
       "--local-protocol",
       "http",
+      "--local-upstream",
+      "composer.loftwah.com",
+      "--upstream-protocol",
+      "https",
       "--local",
       "--inspector-port",
       "0",
@@ -548,6 +556,7 @@ try {
       );
       config.main = "./local-entry.ts";
       config.vars.OWNER_API_TOKEN = tokens.owner;
+      config.vars.PUBLIC_ORIGIN = meta.origins.composer;
       if (name === "guestbook")
         Object.assign(config.vars, {
           RESOURCE_ACCOUNT_ID: "invited-local-account",
@@ -647,6 +656,10 @@ try {
         join(root, name + "-state"),
         "--local-protocol",
         "http",
+        "--local-upstream",
+        meta.origins[name].replace("https://", ""),
+        "--upstream-protocol",
+        "https",
         "--local",
         "--inspector-port",
         "0",
