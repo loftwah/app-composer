@@ -1,0 +1,64 @@
+{
+  "source": "a0f539c21960386b4e48ae20cca7e45152052b48",
+  "checkedAt": "2026-10-23T18:43:27.092Z",
+  "pages": [
+    {
+      "path": "/platform",
+      "status": 200,
+      "metadata": {
+        "title": "An internal platform, with clear boundaries · App Composer",
+        "description": "A sourced field guide to App Composer for platform teams: Workers and Kubernetes, policy, enterprise integrations, permissions, service lifecycle and Australian data handling.",
+        "image": "https://composer.loftwah.com/brand/campaign/product-og-20261022b.jpg",
+        "declared": true,
+        "width": 1200,
+        "height": 630
+      },
+      "imageStatus": 200,
+      "imageType": "image/jpeg",
+      "imageBytes": 92248,
+      "dimensions": {
+        "width": 1200,
+        "height": 630,
+        "format": "image/jpeg"
+      },
+      "sha256": "0ed47d3fea0628308dec42db8e294bd462c1d82b9092905a5b207df61b31afad",
+      "matchesCommittedApprovedPixels": true
+    },
+    {
+      "path": "/platform/demo",
+      "status": 200,
+      "metadata": {
+        "title": "Watch the team application journey · App Composer",
+        "description": "Two films following a fictional two-team application journey, with native forms, source identities and a clear local qualification boundary.",
+        "image": "https://composer.loftwah.com/brand/campaign/product-og-20261022b.jpg",
+        "declared": true,
+        "width": 1200,
+        "height": 630
+      },
+      "imageStatus": 200,
+      "imageType": "image/jpeg",
+      "imageBytes": 92248,
+      "dimensions": {
+        "width": 1200,
+        "height": 630,
+        "format": "image/jpeg"
+      },
+      "sha256": "0ed47d3fea0628308dec42db8e294bd462c1d82b9092905a5b207df61b31afad",
+      "matchesCommittedApprovedPixels": true
+    }
+  ],
+  "before": {
+    "app": "app-composer",
+    "commit": "a0f539c21960386b4e48ae20cca7e45152052b48",
+    "reviewed": "2026-10-13",
+    "contract": 1
+  },
+  "nativeSocialRenderingVerified": false,
+  "after": {
+    "app": "app-composer",
+    "commit": "a0f539c21960386b4e48ae20cca7e45152052b48",
+    "reviewed": "2026-10-13",
+    "contract": 1
+  },
+  "sourceUnchanged": true
+}

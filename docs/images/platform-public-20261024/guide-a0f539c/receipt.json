@@ -1,0 +1,365 @@
+{
+  "schema": "composer.platform-public-browser/1",
+  "checkedAt": "2026-10-23T18:39:00.402Z",
+  "url": "https://composer.loftwah.com/platform",
+  "expectedSource": "a0f539c21960386b4e48ae20cca7e45152052b48",
+  "scope": "Public guide only, derived from source-bound browser run. The original run demo caption pixels were rejected and are excluded here; final corrected caption evidence is separate at8f.",
+  "steps": [
+    "actual-browser-canonical-page-link-copy",
+    "24-policy-combinations-denial-precedence",
+    "actual-tab-focus-reduced-motion",
+    "both-themes-phone-desktop-settled-pixels",
+    "large-root-font-contained-both-themes",
+    "no-javascript-rule-alternative",
+    "public-ready-init-navigation",
+    "no-javascript-native-films-transcripts-chapters",
+    "two-native-films-mouse-play-pause-seek-media-api-far-seek-captions-transcripts-downloads"
+  ],
+  "screenshots": [
+    "keyboard-policy-desktop.png",
+    "dark-1440-top.png",
+    "dark-1440-authority.png",
+    "dark-1440-policy.png",
+    "dark-1440-hosting.png",
+    "dark-1440-region.png",
+    "light-1440-top.png",
+    "light-1440-authority.png",
+    "light-1440-policy.png",
+    "light-1440-hosting.png",
+    "light-1440-region.png",
+    "dark-390-top.png",
+    "dark-390-authority.png",
+    "dark-390-policy.png",
+    "dark-390-hosting.png",
+    "dark-390-region.png",
+    "light-390-top.png",
+    "light-390-authority.png",
+    "light-390-policy.png",
+    "light-390-hosting.png",
+    "light-390-region.png",
+    "dark-390-large-text-opening.png",
+    "dark-390-large-text-authority.png",
+    "dark-390-large-text-policy.png",
+    "dark-390-large-text-table.png",
+    "dark-390-large-text-heading.png",
+    "light-390-large-text-opening.png",
+    "light-390-large-text-authority.png",
+    "light-390-large-text-policy.png",
+    "light-390-large-text-table.png",
+    "light-390-large-text-heading.png"
+  ],
+  "errors": [],
+  "mutationRequests": [],
+  "browserVersion": "155.0.8059.85",
+  "providerPosts": [
+    {
+      "method": "POST",
+      "path": "/cdn-cgi/rum"
+    },
+    {
+      "method": "POST",
+      "path": "/cdn-cgi/challenge-platform/[ephemeral]"
+    },
+    {
+      "method": "POST",
+      "path": "/cdn-cgi/rum"
+    },
+    {
+      "method": "POST",
+      "path": "/cdn-cgi/rum"
+    }
+  ],
+  "consoleErrors": [],
+  "before": {
+    "app": "app-composer",
+    "commit": "a0f539c21960386b4e48ae20cca7e45152052b48",
+    "reviewed": "2026-10-13",
+    "contract": 1
+  },
+  "canonical": "https://composer.loftwah.com/platform",
+  "metadata": [
+    {
+      "property": "og:type",
+      "content": "article"
+    },
+    {
+      "property": "og:title",
+      "content": "An internal platform, with clear boundaries \u00b7 App Composer"
+    },
+    {
+      "property": "og:description",
+      "content": "A sourced field guide to App Composer for platform teams: Workers and Kubernetes, policy, enterprise integrations, permissions, service lifecycle and Australian data handling."
+    },
+    {
+      "property": "og:url",
+      "content": "https://composer.loftwah.com/platform"
+    },
+    {
+      "property": "og:site_name",
+      "content": "App Composer"
+    },
+    {
+      "property": "og:image",
+      "content": "https://composer.loftwah.com/brand/campaign/product-og-20261022b.jpg"
+    },
+    {
+      "property": "og:image:width",
+      "content": "1200"
+    },
+    {
+      "property": "og:image:height",
+      "content": "630"
+    },
+    {
+      "property": "og:image:alt",
+      "content": "App Composer: Make software. Keep it yours. The approved orange mark and wordmark on a flat orange field."
+    },
+    {
+      "property": "og:image:type",
+      "content": "image/jpeg"
+    }
+  ],
+  "codeExampleBlocks": 0,
+  "sourceLinks": [
+    "https://github.com/loftwah/app-composer/issues/216",
+    "https://github.com/loftwah/app-composer/tree/29fc65c2983769f140bad3bdef298a20c0185b0e",
+    "https://github.com/loftwah/app-composer/blob/8a107b710e941c8fb584c9e13acc52bee41b2b25/docs/platform/field-guide.md#3-moving-a-business-to-the-model",
+    "https://github.com/loftwah/app-composer/issues/170",
+    "https://github.com/loftwah/app-composer/issues/217",
+    "https://github.com/loftwah/app-composer/issues/252",
+    "https://github.com/loftwah/app-composer/issues/253",
+    "https://github.com/loftwah/app-composer/issues/218",
+    "https://github.com/loftwah/app-composer/issues/219",
+    "https://github.com/loftwah/app-composer/issues/254",
+    "https://github.com/loftwah/app-composer/blob/29fc65c2983769f140bad3bdef298a20c0185b0e/docs/workspace-access.md",
+    "https://github.com/loftwah/app-composer/issues/257",
+    "https://github.com/loftwah/app-composer/issues/220",
+    "https://github.com/loftwah/app-composer/issues/118",
+    "https://github.com/loftwah/app-composer/issues/215",
+    "https://github.com/loftwah/app-composer/blob/main/docs/platform/integrations.md",
+    "https://github.com/loftwah/app-composer/blob/8a107b710e941c8fb584c9e13acc52bee41b2b25/docs/platform/field-guide.md#9-integration-catalogue",
+    "https://github.com/loftwah/app-composer/issues/255",
+    "https://github.com/loftwah/app-composer/issues/256",
+    "https://github.com/loftwah/app-composer/blob/8a107b710e941c8fb584c9e13acc52bee41b2b25/docs/platform/field-guide.md",
+    "https://github.com/loftwah/app-composer/issues/251",
+    "https://github.com/loftwah/app-composer/issues/221",
+    "https://github.com/loftwah/app-composer/issues/11"
+  ],
+  "copiedPublicURL": "https://composer.loftwah.com/platform?share=0cf21493f084e17a",
+  "anchorChecks": [
+    {
+      "href": "#readiness",
+      "exists": true
+    },
+    {
+      "href": "#fit",
+      "exists": true
+    },
+    {
+      "href": "#hosting",
+      "exists": true
+    },
+    {
+      "href": "#delivery",
+      "exists": true
+    },
+    {
+      "href": "#permissions",
+      "exists": true
+    },
+    {
+      "href": "#lifecycle",
+      "exists": true
+    },
+    {
+      "href": "#integrations",
+      "exists": true
+    },
+    {
+      "href": "#australia",
+      "exists": true
+    },
+    {
+      "href": "#assurance",
+      "exists": true
+    }
+  ],
+  "tableSemantics": [
+    {
+      "caption": "Hosting choices and the qualification still required",
+      "headers": 8,
+      "region": "region",
+      "label": "Hosting choices",
+      "tabindex": "0"
+    },
+    {
+      "caption": "Each domain has its own owner and enforcement point",
+      "headers": 9,
+      "region": "region",
+      "label": "Six permission domains",
+      "tabindex": "0"
+    },
+    {
+      "caption": "What the current public documentation establishes",
+      "headers": 7,
+      "region": "region",
+      "label": "Australian data location requirements",
+      "tabindex": "0"
+    }
+  ],
+  "keyboardTrace": [
+    {
+      "key": "ArrowDown",
+      "value": "current",
+      "decision": "Allowed",
+      "focus": "membership"
+    },
+    {
+      "key": "ArrowDown",
+      "value": "current",
+      "decision": "Allowed",
+      "focus": "membership"
+    },
+    {
+      "key": "Enter",
+      "value": "current",
+      "decision": "Allowed",
+      "focus": "membership"
+    },
+    {
+      "key": "Tab",
+      "value": "current",
+      "decision": "Allowed",
+      "focus": "runtime"
+    }
+  ],
+  "keyboardEvents": [
+    {
+      "key": "ArrowDown",
+      "defaultPrevented": false,
+      "value": "current"
+    },
+    {
+      "key": "ArrowDown",
+      "defaultPrevented": false,
+      "value": "current"
+    },
+    {
+      "key": "Enter",
+      "defaultPrevented": false,
+      "value": "current"
+    },
+    {
+      "key": "Tab",
+      "defaultPrevented": false,
+      "value": "current"
+    }
+  ],
+  "keyboardPolicyChanged": false,
+  "keyboardLimitation": "Native select received unprevented ArrowDown events but did not change value in headless macOS Chrome. Actual Tab focus passed; 24 programmatic select combinations passed. Native Arrow selection remains unqualified in this runner.",
+  "geometry": [
+    {
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "demo",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440
+    },
+    {
+      "route": "demo",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440
+    },
+    {
+      "route": "demo",
+      "theme": "dark",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "demo",
+      "theme": "light",
+      "width": 390,
+      "scroll": 390
+    }
+  ],
+  "largeTextGeometry": [
+    {
+      "theme": "dark",
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "scroll": 390
+    }
+  ],
+  "guideCsp": [],
+  "after": {
+    "app": "app-composer",
+    "commit": "a0f539c21960386b4e48ae20cca7e45152052b48",
+    "reviewed": "2026-10-13",
+    "contract": 1
+  },
+  "sourceUnchanged": true,
+  "success": true,
+  "completed": true,
+  "ownedRootRemoved": true,
+  "imageSha256": {
+    "keyboard-policy-desktop.png": "111314b7f4fce625da893f2c1a6626398f7f070c214abe79184032db057ec81c",
+    "dark-1440-top.png": "44b8c2e3dddc13b20822ab390a946d38fe921300cd6a14331042b27dea9b82a6",
+    "dark-1440-authority.png": "fbe3588cc48007ac94e95d949cc04afb002b335bdf45bb59de03cdbee91d3013",
+    "dark-1440-policy.png": "feed431dadc441af30588b4156886d0d478086cc018c6f7ea77527e96b520aaa",
+    "dark-1440-hosting.png": "8878713110995e53e855a911aceece2154af45fd7054ca06e982593a585e56ba",
+    "dark-1440-region.png": "e3cf2f93a7a2e3b53b8f2cf5a3fa9ef5171bcce16a828b8f3ade14fda96fb478",
+    "light-1440-top.png": "b07047b72b87ac93706129ae1fa518286495cd70b6c809e7fc68a4161b26bbec",
+    "light-1440-authority.png": "a43b5ef304d14b7c66f653d23ad3f3ab65a4d49dd67289b80b56bda18463ad90",
+    "light-1440-policy.png": "348187d4b915fb8569353127b55d03460d5f69cd9e0b46ad183482c106212006",
+    "light-1440-hosting.png": "6bcab1fdf43f3ed0a0eda22c59c46e904f41af1dc423557f28791e5fa00f8bfe",
+    "light-1440-region.png": "6e9ccdef1cc6e63acc2975d7510ca406db117a1c31e80fddf59d9ef85f546be7",
+    "dark-390-top.png": "7636df4f7920ca8afa60afc90263eea26d7004631dd41372a746cc93bc35033c",
+    "dark-390-authority.png": "210035293cd8e7d53eeaadba220e93b8c929103090f3baaad3e63d0bc46bad0f",
+    "dark-390-policy.png": "e7662edcd9f5f59a8d25044d294838ef193f32c7d30ff5ba440123874ad089a8",
+    "dark-390-hosting.png": "dbb058fcadda7127958527b6fcfee1f978b73b01d57e789318a9b1e01b107236",
+    "dark-390-region.png": "87fcb99829ce83056d48b7192ddf039d5853d827d3c92e94bd62c5c81d4158ee",
+    "light-390-top.png": "e39dfb43827eb11d84a3585df455fca8f98ee319e8073bae93d027a39981d1a6",
+    "light-390-authority.png": "0df0ace8ff06536fdc2a665109c0c7204a03c1bb3bcd36b4a68edfed462a2f8d",
+    "light-390-policy.png": "92226d10247a3008e58841b4d61d1180c0a686616c2dd46d8a8bdce61e5c3bb8",
+    "light-390-hosting.png": "f5fe99a5311ce36afebc240da00c62347a25b76ffef0e26bea688781d92da799",
+    "light-390-region.png": "2bf0fe14174005c4396035ff2fb6a9f800e1f22deefedae1d2cd00e13ec4dba3",
+    "dark-390-large-text-opening.png": "52a33357462c305ac24cdcbe8ca3246f9369d19985544d4c0ef62489a99ef9a1",
+    "dark-390-large-text-authority.png": "e9edc95951f39360a5143f8e25b02b81050032d24aea9144a5cc92b287d8dea1",
+    "dark-390-large-text-policy.png": "a9ef844b9d53202efbba613150db4f7800b02ac4198312fda923c6b538411e7f",
+    "dark-390-large-text-table.png": "9ff8a8b79726d9640bd6d89e42b07a419d7e669180d0e3891862a2b9bbae133b",
+    "dark-390-large-text-heading.png": "5858e0bc086616d33e1f9b91c0f9df82f23e756d34955175b06c5c3c1cd61f16",
+    "light-390-large-text-opening.png": "c4d585f5c3de6a0d1c503211beb17ddc394f1f7337d0594d550f77d0c8b6cf8b",
+    "light-390-large-text-authority.png": "d9f3f8445a1cf6a7db1e7630073a3a3580887d4c209c2ddc8c44a845a4934f33",
+    "light-390-large-text-policy.png": "02bf2706fd56194cb7d98879aedf6cf825b321b8347f80280fa8dce2ab4a3381",
+    "light-390-large-text-table.png": "d127135e0d06ab9d7708c1fb7daae1d11509a475700fb287ef033a8e8e785fbc",
+    "light-390-large-text-heading.png": "f60342d02b1c69869cadd1dd4fb1814367135f01fbe46c154cc7d44add037cb1"
+  },
+  "originalBrowserReceiptSha256": "eade0bfa78cc985a83e75757c74c1199847457a6a5816251e067e8ce74647626",
+  "harnessCheckout": "df575bcc6a242af55547d7c99777503099ce9f03",
+  "nativeKeyboardSupplement": "../native-8f870b7/native-keyboard.json"
+}

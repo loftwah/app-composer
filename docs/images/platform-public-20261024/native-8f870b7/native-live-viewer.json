@@ -1,0 +1,26 @@
+{
+  "source": "8f870b79616d353898fa3b5edd34fbb701c5ea7c",
+  "worker": "f0efc10d-0710-4138-b239-10f15c163fb8",
+  "captionChoice": "English selected through native More > Captions menu",
+  "nativeCaptionPixels": "two readable lines observed",
+  "nativeFullscreenThroughThisExtensionTab": "not established; document.fullscreenElement stayed null",
+  "media": {
+    "currentTime": 289.581589,
+    "duration": 360,
+    "paused": true,
+    "readyState": 4,
+    "seekable": [
+      [
+        0,
+        360
+      ]
+    ],
+    "src": "https://composer.loftwah.com/demos/platform-native-25dc7589-b3cd5894/technical-walkthrough.mp4"
+  },
+  "trackSources": [
+    "https://composer.loftwah.com/demos/platform-native-25dc7589-b3cd5894/overview-cc-20261024.vtt",
+    "https://composer.loftwah.com/demos/platform-native-25dc7589-b3cd5894/technical-walkthrough-cc-20261024.vtt"
+  ],
+  "scope": "Ordinary existing Chrome tab; cache not cleared. Source/asset identity additionally verified by separate fresh HTTP checks. Cue-list counts are not established by this extension readback.",
+  "sanitized": "Local browser tab identifier omitted; observed source/state retained."
+}

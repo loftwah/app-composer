@@ -1,0 +1,1663 @@
+{
+  "schema": "composer.final-native-captions/1",
+  "expectedSource": "8f870b79616d353898fa3b5edd34fbb701c5ea7c",
+  "checkedAt": "2026-10-23T19:11:05.619Z",
+  "scope": "Anonymous UNROUTED Chrome. Actual native WebVTT rendering enabled through HTMLMediaElement textTracks; native mouse play/pause; no CSS/font overrides. Fullscreen uses native player control. No physical-device, authentication, screen-reader or external-social acceptance.",
+  "films": [
+    {
+      "id": "overview",
+      "nativePlay": {
+        "time": 0.411767,
+        "duration": 75,
+        "paused": false,
+        "seeking": false,
+        "readyState": 4,
+        "seekable": [
+          [
+            0,
+            75
+          ]
+        ],
+        "tracks": [
+          {
+            "mode": "disabled",
+            "active": []
+          }
+        ]
+      },
+      "nativePause": {
+        "time": 0.440543,
+        "duration": 75,
+        "paused": true,
+        "seeking": false,
+        "readyState": 4,
+        "seekable": [
+          [
+            0,
+            75
+          ]
+        ],
+        "tracks": [
+          {
+            "mode": "disabled",
+            "active": []
+          }
+        ]
+      },
+      "captionPath": "/demos/platform-native-25dc7589-b3cd5894/overview-cc-20261024.vtt",
+      "loaded": {
+        "time": 0.440543,
+        "duration": 75,
+        "paused": true,
+        "seeking": false,
+        "readyState": 4,
+        "seekable": [
+          [
+            0,
+            75
+          ]
+        ],
+        "tracks": [
+          {
+            "mode": "showing",
+            "cues": 14,
+            "active": [
+              {
+                "start": 0,
+                "end": 7.168,
+                "text": "Get Ready observes current\naccess. Policy setup also",
+                "line": 10,
+                "position": 50,
+                "size": 90
+              }
+            ]
+          }
+        ]
+      },
+      "cueAudit": [
+        {
+          "start": 0,
+          "end": 7.168,
+          "lines": 2,
+          "maxLine": 26,
+          "charsPerSecond": 7.254464285714286
+        },
+        {
+          "start": 7.208,
+          "end": 13.96,
+          "lines": 2,
+          "maxLine": 24,
+          "charsPerSecond": 7.257109004739336
+        },
+        {
+          "start": 14,
+          "end": 21.043,
+          "lines": 2,
+          "maxLine": 25,
+          "charsPerSecond": 7.241232429362488
+        },
+        {
+          "start": 21.083,
+          "end": 23.96,
+          "lines": 1,
+          "maxLine": 21,
+          "charsPerSecond": 7.2992700729926945
+        },
+        {
+          "start": 24,
+          "end": 30.416,
+          "lines": 2,
+          "maxLine": 25,
+          "charsPerSecond": 7.948877805486283
+        },
+        {
+          "start": 30.456,
+          "end": 33.96,
+          "lines": 1,
+          "maxLine": 28,
+          "charsPerSecond": 7.990867579908673
+        },
+        {
+          "start": 34,
+          "end": 42.246,
+          "lines": 2,
+          "maxLine": 29,
+          "charsPerSecond": 7.03371331554693
+        },
+        {
+          "start": 42.286,
+          "end": 45.96,
+          "lines": 1,
+          "maxLine": 26,
+          "charsPerSecond": 7.076755579749593
+        },
+        {
+          "start": 46,
+          "end": 55.091,
+          "lines": 2,
+          "maxLine": 30,
+          "charsPerSecond": 6.489935100648993
+        },
+        {
+          "start": 55.131,
+          "end": 58.96,
+          "lines": 1,
+          "maxLine": 25,
+          "charsPerSecond": 6.529119874640897
+        },
+        {
+          "start": 59,
+          "end": 64.513,
+          "lines": 2,
+          "maxLine": 32,
+          "charsPerSecond": 10.701977144930154
+        },
+        {
+          "start": 64.553,
+          "end": 66.96,
+          "lines": 1,
+          "maxLine": 26,
+          "charsPerSecond": 10.801828001661836
+        },
+        {
+          "start": 67,
+          "end": 72.136,
+          "lines": 2,
+          "maxLine": 27,
+          "charsPerSecond": 10.70872274143303
+        },
+        {
+          "start": 72.176,
+          "end": 74.96,
+          "lines": 1,
+          "maxLine": 30,
+          "charsPerSecond": 10.77586206896555
+        }
+      ],
+      "nativeFullscreenControl": true,
+      "nativeEscape": false
+    },
+    {
+      "id": "technical",
+      "nativePlay": {
+        "time": 0.415281,
+        "duration": 360,
+        "paused": false,
+        "seeking": false,
+        "readyState": 4,
+        "seekable": [
+          [
+            0,
+            360
+          ]
+        ],
+        "tracks": [
+          {
+            "mode": "disabled",
+            "active": []
+          }
+        ]
+      },
+      "nativePause": {
+        "time": 0.447191,
+        "duration": 360,
+        "paused": true,
+        "seeking": false,
+        "readyState": 4,
+        "seekable": [
+          [
+            0,
+            360
+          ]
+        ],
+        "tracks": [
+          {
+            "mode": "disabled",
+            "active": []
+          }
+        ]
+      },
+      "captionPath": "/demos/platform-native-25dc7589-b3cd5894/technical-walkthrough-cc-20261024.vtt",
+      "loaded": {
+        "time": 0.447191,
+        "duration": 360,
+        "paused": true,
+        "seeking": false,
+        "readyState": 4,
+        "seekable": [
+          [
+            0,
+            360
+          ]
+        ],
+        "tracks": [
+          {
+            "mode": "showing",
+            "cues": 59,
+            "active": [
+              {
+                "start": 0,
+                "end": 5.6,
+                "text": "Get Ready reads this\nworkspace. Its observation",
+                "line": 10,
+                "position": 50,
+                "size": 90
+              }
+            ]
+          }
+        ]
+      },
+      "cueAudit": [
+        {
+          "start": 0,
+          "end": 5.6,
+          "lines": 2,
+          "maxLine": 26,
+          "charsPerSecond": 8.392857142857144
+        },
+        {
+          "start": 5.64,
+          "end": 11.96,
+          "lines": 2,
+          "maxLine": 29,
+          "charsPerSecond": 8.386075949367086
+        },
+        {
+          "start": 12,
+          "end": 18.276,
+          "lines": 2,
+          "maxLine": 27,
+          "charsPerSecond": 7.966857871255577
+        },
+        {
+          "start": 18.316,
+          "end": 23.96,
+          "lines": 2,
+          "maxLine": 22,
+          "charsPerSecond": 7.973068745570514
+        },
+        {
+          "start": 24,
+          "end": 32.346,
+          "lines": 2,
+          "maxLine": 32,
+          "charsPerSecond": 6.949436855978915
+        },
+        {
+          "start": 32.386,
+          "end": 35.96,
+          "lines": 1,
+          "maxLine": 25,
+          "charsPerSecond": 6.994963626189148
+        },
+        {
+          "start": 36,
+          "end": 42.069,
+          "lines": 2,
+          "maxLine": 32,
+          "charsPerSecond": 9.227220299884657
+        },
+        {
+          "start": 42.109,
+          "end": 47.96,
+          "lines": 2,
+          "maxLine": 28,
+          "charsPerSecond": 9.229191591180996
+        },
+        {
+          "start": 48,
+          "end": 53.838,
+          "lines": 2,
+          "maxLine": 27,
+          "charsPerSecond": 8.221993833504623
+        },
+        {
+          "start": 53.878,
+          "end": 59.96,
+          "lines": 2,
+          "maxLine": 29,
+          "charsPerSecond": 8.220979940808943
+        },
+        {
+          "start": 60,
+          "end": 68.047,
+          "lines": 2,
+          "maxLine": 31,
+          "charsPerSecond": 7.704734683733071
+        },
+        {
+          "start": 68.087,
+          "end": 71.96,
+          "lines": 1,
+          "maxLine": 30,
+          "charsPerSecond": 7.745933384972909
+        },
+        {
+          "start": 72,
+          "end": 80.6,
+          "lines": 2,
+          "maxLine": 29,
+          "charsPerSecond": 6.2790697674418645
+        },
+        {
+          "start": 80.64,
+          "end": 83.96,
+          "lines": 1,
+          "maxLine": 21,
+          "charsPerSecond": 6.32530120481929
+        },
+        {
+          "start": 84,
+          "end": 89.488,
+          "lines": 2,
+          "maxLine": 21,
+          "charsPerSecond": 7.4708454810495635
+        },
+        {
+          "start": 89.528,
+          "end": 95.96,
+          "lines": 2,
+          "maxLine": 26,
+          "charsPerSecond": 7.462686567164193
+        },
+        {
+          "start": 96,
+          "end": 104.05,
+          "lines": 2,
+          "maxLine": 31,
+          "charsPerSecond": 7.4534161490683255
+        },
+        {
+          "start": 104.09,
+          "end": 107.96,
+          "lines": 1,
+          "maxLine": 29,
+          "charsPerSecond": 7.493540051679605
+        },
+        {
+          "start": 108,
+          "end": 116.268,
+          "lines": 2,
+          "maxLine": 31,
+          "charsPerSecond": 7.619738751814223
+        },
+        {
+          "start": 116.308,
+          "end": 119.96,
+          "lines": 1,
+          "maxLine": 28,
+          "charsPerSecond": 7.6670317634173335
+        },
+        {
+          "start": 120,
+          "end": 125.471,
+          "lines": 2,
+          "maxLine": 31,
+          "charsPerSecond": 11.332480350941319
+        },
+        {
+          "start": 125.511,
+          "end": 127.96,
+          "lines": 1,
+          "maxLine": 28,
+          "charsPerSecond": 11.43323805634954
+        },
+        {
+          "start": 128,
+          "end": 134.566,
+          "lines": 2,
+          "maxLine": 30,
+          "charsPerSecond": 9.137983551629604
+        },
+        {
+          "start": 134.606,
+          "end": 139.96,
+          "lines": 2,
+          "maxLine": 26,
+          "charsPerSecond": 9.152035861038453
+        },
+        {
+          "start": 140,
+          "end": 146.46,
+          "lines": 2,
+          "maxLine": 27,
+          "charsPerSecond": 8.04953560371516
+        },
+        {
+          "start": 146.5,
+          "end": 151.96,
+          "lines": 2,
+          "maxLine": 25,
+          "charsPerSecond": 8.058608058608048
+        },
+        {
+          "start": 152,
+          "end": 162.509,
+          "lines": 2,
+          "maxLine": 30,
+          "charsPerSecond": 5.709391949757358
+        },
+        {
+          "start": 162.549,
+          "end": 167.96,
+          "lines": 1,
+          "maxLine": 31,
+          "charsPerSecond": 5.729070412123451
+        },
+        {
+          "start": 168,
+          "end": 174.263,
+          "lines": 2,
+          "maxLine": 26,
+          "charsPerSecond": 8.302730320932454
+        },
+        {
+          "start": 174.303,
+          "end": 179.96,
+          "lines": 2,
+          "maxLine": 23,
+          "charsPerSecond": 8.308290613399313
+        },
+        {
+          "start": 180,
+          "end": 183.96,
+          "lines": 2,
+          "maxLine": 31,
+          "charsPerSecond": 15.656565656565625
+        },
+        {
+          "start": 184,
+          "end": 190.71,
+          "lines": 2,
+          "maxLine": 30,
+          "charsPerSecond": 8.04769001490312
+        },
+        {
+          "start": 190.75,
+          "end": 197.96,
+          "lines": 2,
+          "maxLine": 29,
+          "charsPerSecond": 8.044382801664346
+        },
+        {
+          "start": 198,
+          "end": 207.293,
+          "lines": 2,
+          "maxLine": 27,
+          "charsPerSecond": 5.16517809103626
+        },
+        {
+          "start": 207.333,
+          "end": 211.96,
+          "lines": 1,
+          "maxLine": 24,
+          "charsPerSecond": 5.186946185433316
+        },
+        {
+          "start": 212,
+          "end": 219.389,
+          "lines": 2,
+          "maxLine": 27,
+          "charsPerSecond": 7.037488158072802
+        },
+        {
+          "start": 219.429,
+          "end": 225.96,
+          "lines": 2,
+          "maxLine": 24,
+          "charsPerSecond": 7.043331802174239
+        },
+        {
+          "start": 226,
+          "end": 232.823,
+          "lines": 2,
+          "maxLine": 26,
+          "charsPerSecond": 7.328154770628748
+        },
+        {
+          "start": 232.863,
+          "end": 239.96,
+          "lines": 2,
+          "maxLine": 27,
+          "charsPerSecond": 7.327039594194721
+        },
+        {
+          "start": 240,
+          "end": 245.507,
+          "lines": 2,
+          "maxLine": 24,
+          "charsPerSecond": 8.897766479026686
+        },
+        {
+          "start": 245.547,
+          "end": 251.96,
+          "lines": 2,
+          "maxLine": 29,
+          "charsPerSecond": 8.888195852175254
+        },
+        {
+          "start": 252,
+          "end": 257.593,
+          "lines": 2,
+          "maxLine": 25,
+          "charsPerSecond": 8.22456642231358
+        },
+        {
+          "start": 257.633,
+          "end": 263.96,
+          "lines": 2,
+          "maxLine": 26,
+          "charsPerSecond": 8.218745060850326
+        },
+        {
+          "start": 264,
+          "end": 270.2,
+          "lines": 2,
+          "maxLine": 27,
+          "charsPerSecond": 8.387096774193564
+        },
+        {
+          "start": 270.24,
+          "end": 275.96,
+          "lines": 2,
+          "maxLine": 24,
+          "charsPerSecond": 8.391608391608434
+        },
+        {
+          "start": 276,
+          "end": 281.738,
+          "lines": 2,
+          "maxLine": 28,
+          "charsPerSecond": 9.062391077030325
+        },
+        {
+          "start": 281.778,
+          "end": 287.96,
+          "lines": 2,
+          "maxLine": 28,
+          "charsPerSecond": 9.058557101261787
+        },
+        {
+          "start": 288,
+          "end": 293.899,
+          "lines": 2,
+          "maxLine": 26,
+          "charsPerSecond": 8.30649262586879
+        },
+        {
+          "start": 293.939,
+          "end": 299.96,
+          "lines": 2,
+          "maxLine": 26,
+          "charsPerSecond": 8.304268393954551
+        },
+        {
+          "start": 300,
+          "end": 306.085,
+          "lines": 2,
+          "maxLine": 27,
+          "charsPerSecond": 8.052588331963873
+        },
+        {
+          "start": 306.125,
+          "end": 311.96,
+          "lines": 2,
+          "maxLine": 26,
+          "charsPerSecond": 8.054841473864638
+        },
+        {
+          "start": 312,
+          "end": 317.644,
+          "lines": 2,
+          "maxLine": 22,
+          "charsPerSecond": 7.97306874557051
+        },
+        {
+          "start": 317.684,
+          "end": 323.96,
+          "lines": 2,
+          "maxLine": 25,
+          "charsPerSecond": 7.966857871255636
+        },
+        {
+          "start": 324,
+          "end": 329.674,
+          "lines": 2,
+          "maxLine": 27,
+          "charsPerSecond": 8.812125484666936
+        },
+        {
+          "start": 329.714,
+          "end": 335.96,
+          "lines": 2,
+          "maxLine": 28,
+          "charsPerSecond": 8.805635606788371
+        },
+        {
+          "start": 336,
+          "end": 342.146,
+          "lines": 2,
+          "maxLine": 25,
+          "charsPerSecond": 8.135372600065063
+        },
+        {
+          "start": 342.186,
+          "end": 347.96,
+          "lines": 2,
+          "maxLine": 27,
+          "charsPerSecond": 8.139937651541391
+        },
+        {
+          "start": 348,
+          "end": 353.254,
+          "lines": 2,
+          "maxLine": 24,
+          "charsPerSecond": 8.564902931100082
+        },
+        {
+          "start": 353.294,
+          "end": 359.96,
+          "lines": 2,
+          "maxLine": 31,
+          "charsPerSecond": 8.550855085508555
+        }
+      ],
+      "nativeFullscreenControl": true,
+      "nativeEscape": false
+    }
+  ],
+  "samples": [
+    {
+      "id": "overview",
+      "width": 1440,
+      "target": 14,
+      "time": 14,
+      "duration": 75,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          75
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 14,
+          "active": [
+            {
+              "start": 14,
+              "end": 21.043,
+              "text": "Editor delegation enables\nteam requests. The member",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "width": 1440,
+      "target": 24,
+      "time": 24,
+      "duration": 75,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          75
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 14,
+          "active": [
+            {
+              "start": 24,
+              "end": 30.416,
+              "text": "An exact app grant admits\nfictional canvas content.",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "width": 1440,
+      "target": 60,
+      "time": 60,
+      "duration": 75,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          75
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 14,
+          "active": [
+            {
+              "start": 59,
+              "end": 64.513,
+              "text": "Cross-team and ungranted actions\nare denied. Sensitive-data",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "width": 1440,
+      "target": 60.5,
+      "time": 60.5,
+      "duration": 75,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          75
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 14,
+          "active": [
+            {
+              "start": 59,
+              "end": 64.513,
+              "text": "Cross-team and ungranted actions\nare denied. Sensitive-data",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "width": 1440,
+      "continuous": true,
+      "time": 61.007087,
+      "duration": 75,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          75
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 14,
+          "active": [
+            {
+              "start": 59,
+              "end": 64.513,
+              "text": "Cross-team and ungranted actions\nare denied. Sensitive-data",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "width": 1440,
+      "fullscreen": true,
+      "entryMethod": "native-player-control",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "time": 61.007087,
+      "duration": 75,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          75
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 14,
+          "active": [
+            {
+              "start": 59,
+              "end": 64.513,
+              "text": "Cross-team and ungranted actions\nare denied. Sensitive-data",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "width": 390,
+      "target": 14,
+      "time": 14,
+      "duration": 75,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          75
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 14,
+          "active": [
+            {
+              "start": 14,
+              "end": 21.043,
+              "text": "Editor delegation enables\nteam requests. The member",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "width": 390,
+      "target": 24,
+      "time": 24,
+      "duration": 75,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          75
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 14,
+          "active": [
+            {
+              "start": 24,
+              "end": 30.416,
+              "text": "An exact app grant admits\nfictional canvas content.",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "width": 390,
+      "target": 60,
+      "time": 60,
+      "duration": 75,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          75
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 14,
+          "active": [
+            {
+              "start": 59,
+              "end": 64.513,
+              "text": "Cross-team and ungranted actions\nare denied. Sensitive-data",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "width": 390,
+      "target": 60.5,
+      "time": 60.5,
+      "duration": 75,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          75
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 14,
+          "active": [
+            {
+              "start": 59,
+              "end": 64.513,
+              "text": "Cross-team and ungranted actions\nare denied. Sensitive-data",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "width": 390,
+      "continuous": true,
+      "time": 61.006029,
+      "duration": 75,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          75
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 14,
+          "active": [
+            {
+              "start": 59,
+              "end": 64.513,
+              "text": "Cross-team and ungranted actions\nare denied. Sensitive-data",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "width": 390,
+      "fullscreen": true,
+      "entryMethod": "native-player-control",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "time": 61.006029,
+      "duration": 75,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          75
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 14,
+          "active": [
+            {
+              "start": 59,
+              "end": 64.513,
+              "text": "Cross-team and ungranted actions\nare denied. Sensitive-data",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "width": 1440,
+      "target": 181,
+      "time": 181,
+      "duration": 360,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          360
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 59,
+          "active": [
+            {
+              "start": 180,
+              "end": 183.96,
+              "text": "Team A keeps the same request,\nstack and application resource.",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "width": 1440,
+      "target": 183.5,
+      "time": 183.5,
+      "duration": 360,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          360
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 59,
+          "active": [
+            {
+              "start": 180,
+              "end": 183.96,
+              "text": "Team A keeps the same request,\nstack and application resource.",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "width": 1440,
+      "target": 288,
+      "time": 288,
+      "duration": 360,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          360
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 59,
+          "active": [
+            {
+              "start": 288,
+              "end": 293.899,
+              "text": "Public guest admission\nstays separate from member",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "width": 1440,
+      "target": 288.5,
+      "time": 288.5,
+      "duration": 360,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          360
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 59,
+          "active": [
+            {
+              "start": 288,
+              "end": 293.899,
+              "text": "Public guest admission\nstays separate from member",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "width": 1440,
+      "target": 289.5,
+      "time": 289.5,
+      "duration": 360,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          360
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 59,
+          "active": [
+            {
+              "start": 288,
+              "end": 293.899,
+              "text": "Public guest admission\nstays separate from member",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "width": 1440,
+      "continuous": true,
+      "time": 290.004584,
+      "duration": 360,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          360
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 59,
+          "active": [
+            {
+              "start": 288,
+              "end": 293.899,
+              "text": "Public guest admission\nstays separate from member",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "width": 1440,
+      "fullscreen": true,
+      "entryMethod": "native-player-control",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "time": 290.004584,
+      "duration": 360,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          360
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 59,
+          "active": [
+            {
+              "start": 288,
+              "end": 293.899,
+              "text": "Public guest admission\nstays separate from member",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "width": 390,
+      "target": 181,
+      "time": 181,
+      "duration": 360,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          360
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 59,
+          "active": [
+            {
+              "start": 180,
+              "end": 183.96,
+              "text": "Team A keeps the same request,\nstack and application resource.",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "width": 390,
+      "target": 183.5,
+      "time": 183.5,
+      "duration": 360,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          360
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 59,
+          "active": [
+            {
+              "start": 180,
+              "end": 183.96,
+              "text": "Team A keeps the same request,\nstack and application resource.",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "width": 390,
+      "target": 288,
+      "time": 288,
+      "duration": 360,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          360
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 59,
+          "active": [
+            {
+              "start": 288,
+              "end": 293.899,
+              "text": "Public guest admission\nstays separate from member",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "width": 390,
+      "target": 288.5,
+      "time": 288.5,
+      "duration": 360,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          360
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 59,
+          "active": [
+            {
+              "start": 288,
+              "end": 293.899,
+              "text": "Public guest admission\nstays separate from member",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "width": 390,
+      "target": 289.5,
+      "time": 289.5,
+      "duration": 360,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          360
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 59,
+          "active": [
+            {
+              "start": 288,
+              "end": 293.899,
+              "text": "Public guest admission\nstays separate from member",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "width": 390,
+      "continuous": true,
+      "time": 290.006561,
+      "duration": 360,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          360
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 59,
+          "active": [
+            {
+              "start": 288,
+              "end": 293.899,
+              "text": "Public guest admission\nstays separate from member",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technical",
+      "width": 390,
+      "fullscreen": true,
+      "entryMethod": "native-player-control",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "time": 290.006561,
+      "duration": 360,
+      "paused": true,
+      "seeking": false,
+      "readyState": 4,
+      "seekable": [
+        [
+          0,
+          360
+        ]
+      ],
+      "tracks": [
+        {
+          "mode": "showing",
+          "cues": 59,
+          "active": [
+            {
+              "start": 288,
+              "end": 293.899,
+              "text": "Public guest admission\nstays separate from member",
+              "line": 10,
+              "position": 50,
+              "size": 90
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    "overview-1440-14.png",
+    "overview-1440-24.png",
+    "overview-1440-60.png",
+    "overview-1440-60_5.png",
+    "overview-1440-continuous.png",
+    "overview-1440-fullscreen.png",
+    "overview-390-14.png",
+    "overview-390-24.png",
+    "overview-390-60.png",
+    "overview-390-60_5.png",
+    "overview-390-continuous.png",
+    "overview-390-fullscreen.png",
+    "technical-1440-181.png",
+    "technical-1440-183_5.png",
+    "technical-1440-288.png",
+    "technical-1440-288_5.png",
+    "technical-1440-289_5.png",
+    "technical-1440-continuous.png",
+    "technical-1440-fullscreen.png",
+    "technical-390-181.png",
+    "technical-390-183_5.png",
+    "technical-390-288.png",
+    "technical-390-288_5.png",
+    "technical-390-289_5.png",
+    "technical-390-continuous.png",
+    "technical-390-fullscreen.png"
+  ],
+  "pageErrors": [],
+  "consoleErrors": [],
+  "productMutationRequests": [],
+  "providerPosts": [
+    {
+      "method": "POST",
+      "path": "/cdn-cgi/rum"
+    },
+    {
+      "method": "POST",
+      "path": "/cdn-cgi/challenge-platform/[ephemeral]"
+    }
+  ],
+  "csp": [],
+  "browser": "155.0.8059.85",
+  "before": {
+    "app": "app-composer",
+    "commit": "8f870b79616d353898fa3b5edd34fbb701c5ea7c",
+    "reviewed": "2026-10-13",
+    "contract": 1
+  },
+  "ancillary": [
+    {
+      "path": "/demos/platform-native-25dc7589-b3cd5894/overview.transcript.md",
+      "status": 200,
+      "bytes": 15598,
+      "sha256": "6b548f05727c032ea7039cbf285cd76ae1eda0e826fe07c6026d19091600218d"
+    },
+    {
+      "path": "/demos/platform-native-25dc7589-b3cd5894/overview-cc-20261024.vtt",
+      "status": 200,
+      "bytes": 2835,
+      "sha256": "b7ce234fba7eb93f0956aace4db19cddf3ad8ee7af40444c3122d123d51aa8aa"
+    },
+    {
+      "path": "/demos/platform-native-25dc7589-b3cd5894/overview.mp4",
+      "status": 200,
+      "bytes": 2077340,
+      "sha256": "973c67f1c0cd8c2108dc28c2ff1428bd74ba90f9c5b1dc4f30b3c28eed19d6f2"
+    },
+    {
+      "path": "/demos/platform-native-25dc7589-b3cd5894/receipt-cc-20261024.json",
+      "status": 200,
+      "bytes": 15999,
+      "sha256": "82c871d41af7675bde57e456540721fc6227848fab365c7d53ddba70ef289622"
+    },
+    {
+      "path": "/demos/platform-native-25dc7589-b3cd5894/edit-manifest.json",
+      "status": 200,
+      "bytes": 80047,
+      "sha256": "6aaded6368d633b3c5ec1aab38c6286d685a66621be6bba447dd160ffbd8d369"
+    },
+    {
+      "path": "/demos/platform-native-25dc7589-b3cd5894/technical-walkthrough.transcript.md",
+      "status": 200,
+      "bytes": 38811,
+      "sha256": "f7a0571a6e792dc66281242b46c4693c74d30b22213a3d3365121fab1ace9eef"
+    },
+    {
+      "path": "/demos/platform-native-25dc7589-b3cd5894/technical-walkthrough-cc-20261024.vtt",
+      "status": 200,
+      "bytes": 8660,
+      "sha256": "461ab517408299ba441ec0f05725f631c89be520e31b0c3633ad4c3d4bf3ad5c"
+    },
+    {
+      "path": "/demos/platform-native-25dc7589-b3cd5894/technical-walkthrough.mp4",
+      "status": 200,
+      "bytes": 8447665,
+      "sha256": "54a58bd3f8859bdb7a9f19e7d22cabbf512efa23a01324acf630dde535bfbff2"
+    }
+  ],
+  "sourceLabels": [
+    "https://github.com/loftwah/app-composer/tree/25dc7589f7a92d5ba22eb44c49b9a774991799a3",
+    "https://github.com/loftwah/app-composer/tree/25dc7589f7a92d5ba22eb44c49b9a774991799a3"
+  ],
+  "after": {
+    "app": "app-composer",
+    "commit": "8f870b79616d353898fa3b5edd34fbb701c5ea7c",
+    "reviewed": "2026-10-13",
+    "contract": 1
+  },
+  "sourceUnchanged": true,
+  "success": true,
+  "ownedRootRemoved": true,
+  "imageSha256": {
+    "overview-1440-14.png": "7dd2343d5dce6cba7e82bdb9c6c92177e1e0c7ab7d90dcfdc088a617fad55cec",
+    "overview-1440-24.png": "e5153ef44af2b1f763ff4b7b10ae4803c73a7cf2860674740bc6de47cc2be6b6",
+    "overview-1440-60.png": "c9fbbeccf50287a8c67f5b9abd1ad5bf87e567bdd0067185f3fcd8be8ca207de",
+    "overview-1440-60_5.png": "952b94e26ba7b3e175d3b482e09f44709656392141cfe952ab303e2d55fdc446",
+    "overview-1440-continuous.png": "5c0d4ca1ff77d2a8f5d1a99df16167f89db8b08a354133e16179f855c26fb7bf",
+    "overview-1440-fullscreen.png": "e08e5c3b3cf3009430bc1c22cbf07302f4dfcad917c52b1e1a4f1c4622378da2",
+    "overview-390-14.png": "7dbacbc57199d3aa2a46f08ab24695a5b4b14428c66720e26b4890e9ef24c828",
+    "overview-390-24.png": "da41cdae1eaa0b649efa0784228ec56b91933aecb425b21dad282c4ea4717141",
+    "overview-390-60.png": "04ca6948a2cf3b492ebbf02caca727b4c999ab88cc626d861b3c0c9d966ca235",
+    "overview-390-60_5.png": "6075b6986d08d0f0a7e497a05abb9768490ad213d9c7dbce37680bf231e790a3",
+    "overview-390-continuous.png": "2529439ecc09288d409a96ba0cae088911c7a08b9628e6118eee0a5bb90229ea",
+    "overview-390-fullscreen.png": "7e914de40c4f9b10d0d763e168ef49e00ef2cc503457384b05438d0e6ade7a37",
+    "technical-1440-181.png": "787b7ab4877ab877b64fd1352bbb380a4071c903f9e2e124b44a65bedc0889ba",
+    "technical-1440-183_5.png": "bfa0cd0f5fe38d67c2b8678b9e33eda5cb1ea5b32b112854288162dfed1cd776",
+    "technical-1440-288.png": "3991265846354ac8176cf204d4c029775e8e21c8cd7cd3e28bf10022d3f4ec6f",
+    "technical-1440-288_5.png": "3350d582f502da1457aef8766bd56f71cb5c0791847f5aa459490a20f90cf945",
+    "technical-1440-289_5.png": "17d9293208fbbd419e39791872802d768e1745fcf8ba191071c71ee92b630d06",
+    "technical-1440-continuous.png": "2ac5622fed3aed4617617b87b07457fd3fe25abe1dabc0f926c6a99b6739001e",
+    "technical-1440-fullscreen.png": "af881d4549b34c328c3f586c1a941fa55602f7a7b3fda8bb24ab2fb35401c349",
+    "technical-390-181.png": "1448d71a32db69f445920bd3a37bb68d50aa1a3046282eca6b7d2824a218eb73",
+    "technical-390-183_5.png": "0f673b818a692464adde6aa4dabbb05c5a2abac10e7bc3abfb8aacb7f12b49f8",
+    "technical-390-288.png": "689cab30afdeba86f6d342feb6db62d9e32ad012e3322aab0b8a3f6ff18a92f2",
+    "technical-390-288_5.png": "c2da01f684624b117b8b7b97f82d980fd5bc3d57397a0d2cce619e5d103583cd",
+    "technical-390-289_5.png": "7186ab8356f458e6690797c28bdd2c9518ffbd1e5337ed11f5eab5d99e91d796",
+    "technical-390-continuous.png": "4854f86a77e6214738b8fa7a6c5f1fbc82b436273b40bddb9fc69e4fe038192e",
+    "technical-390-fullscreen.png": "78e209d217532135e4a21c5e58562f397d3fc5327920f8efafa034449705644b"
+  }
+}

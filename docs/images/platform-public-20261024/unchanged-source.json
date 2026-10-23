@@ -1,0 +1,73 @@
+{
+  "guideBrowserSource": "a0f539c21960386b4e48ae20cca7e45152052b48",
+  "currentLiveCaptionSource": "8f870b79616d353898fa3b5edd34fbb701c5ea7c",
+  "files": [
+    {
+      "path": "src/pages/platform.astro",
+      "guideProofBlob": "320d84085734cea37233a143ea05d2b2fe108f3e",
+      "currentBlob": "320d84085734cea37233a143ea05d2b2fe108f3e",
+      "unchanged": true
+    },
+    {
+      "path": "src/components/platform/AuthorityMap.astro",
+      "guideProofBlob": "c0389a0bbb7587c7e61930cc2681e508b3bf4a3e",
+      "currentBlob": "c0389a0bbb7587c7e61930cc2681e508b3bf4a3e",
+      "unchanged": true
+    },
+    {
+      "path": "src/components/platform/PolicyExplorer.astro",
+      "guideProofBlob": "124ff66fef8b672dd13246bb954214282dc4cedf",
+      "currentBlob": "124ff66fef8b672dd13246bb954214282dc4cedf",
+      "unchanged": true
+    },
+    {
+      "path": "src/browser/platform-guide.ts",
+      "guideProofBlob": "c33c093d66d1f5d44d44e11cbce8a11e4651a034",
+      "currentBlob": "c33c093d66d1f5d44d44e11cbce8a11e4651a034",
+      "unchanged": true
+    },
+    {
+      "path": "src/layouts/Base.astro",
+      "guideProofBlob": "44c396a9a398129055c3632a42c86010358c1596",
+      "currentBlob": "44c396a9a398129055c3632a42c86010358c1596",
+      "unchanged": true
+    },
+    {
+      "path": "src/styles/global.css",
+      "guideProofBlob": "938eae0aa74167e9a925b2b7c7975182b9bb8f0a",
+      "currentBlob": "938eae0aa74167e9a925b2b7c7975182b9bb8f0a",
+      "unchanged": true
+    },
+    {
+      "path": "public/brand/page-share.mjs",
+      "guideProofBlob": "a892266a86b69464a7f304a23a21380087a49078",
+      "currentBlob": "a892266a86b69464a7f304a23a21380087a49078",
+      "unchanged": true
+    },
+    {
+      "path": "public/brand/page-share-url.mjs",
+      "guideProofBlob": "bdb901665db0c7530280b94fb5115f48696afc5e",
+      "currentBlob": "bdb901665db0c7530280b94fb5115f48696afc5e",
+      "unchanged": true
+    },
+    {
+      "path": "public/brand/campaign/product-og-20261022b.jpg",
+      "guideProofBlob": "b52230c25c718794a83ef6c7142bf02325186ad9",
+      "currentBlob": "b52230c25c718794a83ef6c7142bf02325186ad9",
+      "unchanged": true
+    },
+    {
+      "path": "src/pages/platform/demo.astro",
+      "guideProofBlob": "633fde80a58b4b44ba5bd7f7b3dfb536d3523dc3",
+      "currentBlob": "633fde80a58b4b44ba5bd7f7b3dfb536d3523dc3",
+      "unchanged": true
+    },
+    {
+      "path": "src/styles/platform-demo.css",
+      "guideProofBlob": "8f9ac4c3d68ab9e4684e0d135feccb70de2cd9ca",
+      "currentBlob": "8f9ac4c3d68ab9e4684e0d135feccb70de2cd9ca",
+      "unchanged": true
+    }
+  ],
+  "allUnchanged": true
+}
