@@ -11,6 +11,10 @@ export interface DemoRecording {
   showcaseSha: string;
   recordedAt: string;
 }
+export interface DemoChapter {
+  startSeconds: number;
+  title: string;
+}
 interface FilmDescription {
   id: "overview" | "technical";
   title: string;
@@ -24,6 +28,7 @@ export type DemoFilm = FilmDescription &
         status: "ready";
         recording: DemoRecording;
         durationSeconds: number;
+        chapters: readonly DemoChapter[];
         width: 1600;
         height: 1200;
         codec: "h264";
@@ -78,6 +83,31 @@ export function reviewedDemoFilms(films: readonly DemoFilm[]) {
       film.codec !== "h264"
     )
       throw Error("Publish exact reviewed film and recording identities.");
+    if (
+      !Array.isArray(film.chapters) ||
+      film.chapters.length !== 6 ||
+      Array.from(film.chapters).some(
+        (chapter, index) =>
+          !chapter ||
+          Object.keys(chapter).length !== 2 ||
+          !Object.hasOwn(chapter, "startSeconds") ||
+          !Object.hasOwn(chapter, "title") ||
+          !Number.isFinite(chapter.startSeconds) ||
+          chapter.startSeconds < 0 ||
+          chapter.startSeconds >= film.durationSeconds ||
+          (index === 0
+            ? chapter.startSeconds !== 0
+            : chapter.startSeconds <= film.chapters[index - 1].startSeconds) ||
+          typeof chapter.title !== "string" ||
+          chapter.title.length < 1 ||
+          chapter.title.length > 120 ||
+          chapter.title !== chapter.title.trim() ||
+          /[\x00-\x1f\x7f]/.test(chapter.title),
+      )
+    )
+      throw Error(
+        "Publish six titled, ordered film chapters starting at zero and within the reviewed duration.",
+      );
     for (const asset of [
       film.video,
       film.poster,

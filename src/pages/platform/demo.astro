@@ -28,6 +28,10 @@ const duration = (seconds: number) => {
         Start with the short overview, then follow the native interface and its
         checks in the technical walkthrough.
       </p>
+      <p id="film-viewing-help">
+        Both films are silent. Explanations appear on screen and in the
+        transcripts. Use fullscreen to read interface details.
+      </p>
       <nav class="film-jumps" aria-label="Choose a film">
         <a href="#overview">The overview</a>
         <a href="#technical">The technical walkthrough</a>
@@ -64,7 +68,7 @@ const duration = (seconds: number) => {
                 height={film.height}
                 poster={film.poster.href}
                 aria-label={film.title}
-                aria-describedby={`${film.id}-scope`}
+                aria-describedby={`${film.id}-scope film-viewing-help`}
               >
                 <source src={film.video.href} type="video/mp4" />
                 <track
@@ -72,7 +76,6 @@ const duration = (seconds: number) => {
                   src={film.captions.href}
                   srclang="en"
                   label="English"
-                  default
                 />
                 <p><a href={film.video.href}>Download the MP4</a> to watch this film.</p>
               </video>
@@ -86,6 +89,18 @@ const duration = (seconds: number) => {
               <a href={film.captions.href} download>Download captions</a>
               <a href={film.video.href} download>Download MP4</a>
             </div>
+            <section class="film-chapters" aria-labelledby={`${film.id}-chapters`}>
+              <h3 id={`${film.id}-chapters`}>Chapters</h3>
+              <p>Use these times with the video controls.</p>
+              <ol role="list">
+                {film.chapters.map((chapter) => (
+                  <li>
+                    <time datetime={`PT${chapter.startSeconds}S`}>{duration(Math.floor(chapter.startSeconds))}</time>
+                    <span>{chapter.title}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
             <details class="film-evidence">
               <summary>Recording source and evidence</summary>
               <dl>

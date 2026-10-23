@@ -91,6 +91,34 @@
 .film-downloads {
   margin-block: 12px 20px;
 }
+.film-chapters {
+  margin-block: 24px 32px;
+  max-width: 70ch;
+}
+.film-chapters h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.film-chapters p {
+  margin-block: 8px 16px;
+  color: var(--color-muted);
+}
+.film-chapters ol {
+  padding: 0;
+  list-style: none;
+}
+.film-chapters li {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 16px;
+  margin-block: 12px;
+}
+.film-chapters time {
+  font-variant-numeric: tabular-nums;
+}
+.film-chapters span {
+  overflow-wrap: anywhere;
+}
 .film-evidence {
   border-top: 1px solid var(--color-border);
 }
