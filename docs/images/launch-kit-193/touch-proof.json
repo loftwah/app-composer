@@ -1,0 +1,16 @@
+{
+  "touchEvents": [
+    "touch",
+    "touch",
+    "touch",
+    "touch",
+    "touch"
+  ],
+  "launcher": true,
+  "exported": true,
+  "adopted": true,
+  "paused": "19:59",
+  "reset": "20:00",
+  "overflow": false,
+  "physicalDevice": false
+}

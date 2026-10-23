@@ -2,7 +2,7 @@
   "sourceSha": "248d6271d0afca585e1a6d7978159ac5491eb479",
   "contract": 1,
   "kind": "page-inspection",
-  "checkedAt": "2026-10-23T04:09:45.282Z",
+  "checkedAt": "2026-10-23T04:26:12.694Z",
   "guidanceReviewed": "2026-10-13",
   "diagnosticsReviewed": "2026-10-14",
   "url": "https://composer.loftwah.com/launch-kit/example/",
@@ -230,7 +230,7 @@
     {
       "status": "pass",
       "label": "Favicon",
-      "detail": "image/png, 1892 bytes, 32 × 32. Public icon file and dimensions inspected.",
+      "detail": "image/png, 1892 bytes, 32 \u00d7 32. Public icon file and dimensions inspected.",
       "category": "Site identity",
       "priority": "low",
       "why": "Browsers choose icons and presentation from declarations and supported file formats. Installation needs a separate check.",
@@ -240,7 +240,7 @@
     {
       "status": "pass",
       "label": "Apple touch icon",
-      "detail": "image/png, 30998 bytes, 180 × 180. Public icon file and dimensions inspected.",
+      "detail": "image/png, 30998 bytes, 180 \u00d7 180. Public icon file and dimensions inspected.",
       "category": "Site identity",
       "priority": "low",
       "why": "Browsers choose icons and presentation from declarations and supported file formats. Installation needs a separate check.",
@@ -407,12 +407,12 @@
       {
         "status": "pass",
         "label": "Favicon",
-        "detail": "image/png, 1892 bytes, 32 × 32. Public icon file and dimensions inspected."
+        "detail": "image/png, 1892 bytes, 32 \u00d7 32. Public icon file and dimensions inspected."
       },
       {
         "status": "pass",
         "label": "Apple touch icon",
-        "detail": "image/png, 30998 bytes, 180 × 180. Public icon file and dimensions inspected."
+        "detail": "image/png, 30998 bytes, 180 \u00d7 180. Public icon file and dimensions inspected."
       },
       {
         "status": "review",

@@ -52,12 +52,12 @@
   "editorSource": {
     "app": "launch-kit",
     "version": "1.0.0",
-    "sourceSha": "c8de43321c868b37e865aae746549fee1d301b2f",
+    "sourceSha": "61e4cfa4ea576dfa09d030c7ab0391df0871f937",
     "processing": "browser-local",
     "runtime": "static-assets"
   },
   "demoCold": {
-    "bytes": 535791,
+    "bytes": 535851,
     "overflow": false
   },
   "source": {
