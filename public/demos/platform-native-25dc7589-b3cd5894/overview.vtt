@@ -1,0 +1,72 @@
+WEBVTT
+
+NOTE Recording provenance; full cuts and holds are in edit-manifest.json
+LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 6s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a
+Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb
+Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7
+Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338
+
+1
+00:00:00.000 --> 00:00:06.000
+1 · Get Ready and current authority
+Get Ready observes this signed-in workspace. Creator permission and current ownership permit policy setup; the observation grants no authority.
+
+2
+00:00:06.000 --> 00:00:10.000
+1 · Get Ready and current authority
+Get Ready observes this signed-in workspace. Creator permission and current ownership permit policy setup; the observation grants no authority.
+
+3
+00:00:10.000 --> 00:00:14.000
+1 · Get Ready and current authority
+Get Ready observes this signed-in workspace. Creator permission and current ownership permit policy setup; the observation grants no authority.
+
+4
+00:00:14.000 --> 00:00:18.000
+2 · Two teams and role-10 delegation
+Two teams retain different requests, stacks and app resources. Explicit editor delegation enables self-service while the member stays global role 10.
+
+5
+00:00:18.000 --> 00:00:22.000
+2 · Two teams and role-10 delegation
+Two teams retain different requests, stacks and app resources. Explicit editor delegation enables self-service while the member stays global role 10.
+
+6
+00:00:22.000 --> 00:00:24.000
+2 · Two teams and role-10 delegation
+Two teams retain different requests, stacks and app resources. Explicit editor delegation enables self-service while the member stays global role 10.
+
+7
+00:00:24.000 --> 00:00:34.000
+3 · Private canvas, moderation and media
+The native canvas submits fictional content through the exact app grant and named Guestbook v2 service. Its pending media remains private.
+
+8
+00:00:34.000 --> 00:00:46.000
+3 · Private canvas, moderation and media
+The authorised moderator approves, hides and reapproves the same postcard. Anonymous media follows 404 → 200 → 404 → 200; public contributions stay closed.
+
+9
+00:00:46.000 --> 00:00:50.000
+4 · Content-preserving update and Team B control
+Team A's compatible title update retains its request, stack, resource, postcard and media. Team B is checked unchanged in this same run.
+
+10
+00:00:50.000 --> 00:00:55.000
+4 · Content-preserving update and Team B control
+Team A's compatible title update retains its request, stack, resource, postcard and media. Team B is checked unchanged in this same run.
+
+11
+00:00:55.000 --> 00:00:59.000
+4 · Content-preserving update and Team B control
+Team A's compatible title update retains its request, stack, resource, postcard and media. Team B is checked unchanged in this same run.
+
+12
+00:00:59.000 --> 00:01:07.000
+5 · Denials and the recovery contract
+Cross-team access, ungranted app actions and role-10 operator actions are denied. The sensitive-data request creates no stack or app resource.
+
+13
+00:01:07.000 --> 00:01:15.000
+6 · Exact limits and source receipt
+This local run proves the recorded native path only. Production SSO, provider permissions, regional storage, full restore, retirement and the incident foundation remain unqualified.

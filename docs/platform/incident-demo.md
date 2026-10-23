@@ -1,6 +1,6 @@
 # Local availability recovery foundation
 
-This optional exercise extends the native two-team fixture after its ordinary request, contribution, moderation, update and export journey succeeds. It is a deterministic runbook for a deliberately isolated resource visibility fault. It is **not** the complete [#215 Agentic Responder](https://github.com/loftwah/app-composer/issues/215), a code rollback, data restoration or a live PagerDuty integration. Pre-incident captures and edits retain their own source and scope; replacement films are not yet published.
+This optional exercise extends the native two-team fixture after its ordinary request, contribution, moderation, update and export journey succeeds. It is a deterministic runbook for a deliberately isolated resource visibility fault. It is **not** the complete [#215 Agentic Responder](https://github.com/loftwah/app-composer/issues/215), a code rollback, data restoration or a live PagerDuty integration. The [platform films](/platform/demo) retain their own pre-incident source and scope and show no outage or incident response.
 
 ## Recorded local result — 23 October 2026
 

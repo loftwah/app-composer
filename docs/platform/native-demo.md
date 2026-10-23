@@ -101,8 +101,8 @@ A separate opt-in run at the same source exercised the
 it is not an input for the pre-incident films. The
 [#11 qualification record](https://github.com/loftwah/app-composer/issues/11#issuecomment-6364634030)
 also records 774 passing tests without skips, check/build and publication checks.
-These local results do not advance the production source, which remains
-`97582498e05bd1ab06bdde71b61e1faab89252b1` at this review.
+The recorded source remains distinct from subsequent production releases.
+Use #11 and `/api/build.json` for the current deployed identity.
 
 ## Remaining product and film gates
 
@@ -125,11 +125,11 @@ separate availability exercise qualifies only deterministic local visibility
 recovery, not the complete #215 responder. There is no filler interaction for
 those remaining gates.
 
-Issue #221 still requires its reviewed 60–90 second overview and 5–8 minute
-technical walkthrough. The retained raw actor WebMs remain local evidence inputs,
-not completed films. Replacement encoding and review are in progress; no film
-page or replacement media is published. The historical [local excerpts](media.md) remain separately
-identified. Actual footage must be inspected before sharing. Production Access,
+The [reviewed film pair](/platform/demo) contains the 75-second overview and
+six-minute chaptered technical walkthrough from the canonical pre-incident run.
+Raw actor WebMs remain private local evidence inputs; only reviewed encoded
+media and sanitised projections are public. The historical [local excerpts](media.md)
+remain separately identified. Film delivery does not complete the wider #221 scope. Production Access,
 physical passkeys, enterprise SSO, provider permissions/interoperability,
 Kubernetes, residency guarantees and public-edge deployment need their own proof.
 

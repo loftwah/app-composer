@@ -1,9 +1,10 @@
 # Edit one qualified native run into the two films
 
-This is a prepared source workflow for a 75-second overview and six-minute
-technical film. No canonical native input or film is bundled with it. A passed
-native receipt, matching capture-time assets, a reviewed edit and actual encoded
-pixel/playback inspection remain required. Film duration does not complete #221:
+This maintained workflow produced the [75-second overview and six-minute
+technical film](/platform/demo). The canonical native receipt and raw captures
+stay private; the public package contains reviewed encodes and sanitised evidence.
+A fresh passed receipt, matching capture-time assets, reviewed edit and actual
+encoded pixel/playback inspection are required for another run. Duration does not complete #221:
 the incident foundation, full restore and retirement remain outside this journey.
 The maintained captions describe a pre-incident run. A receipt containing the
 optional availability exercise is refused; that exercise needs its own accurately
@@ -27,11 +28,21 @@ earlier full-page capture approach. Select new cuts from decoded frames, never
 wall-clock offsets or old crop coordinates. The first edit from the earlier
 `97582498` capture failed pixel review and must not be published.
 
-Replacement encoding and pixel/playback review are in progress. No replacement
-film or film page is published. The separate availability receipt is excluded
-from this workflow; its local recovery evidence remains in [incident-demo.md](incident-demo.md).
-Production remains `97582498e05bd1ab06bdde71b61e1faab89252b1` at this review;
-final publication and release evidence belong in #11.
+The selected edit SHA-256 is
+`0fe47f8a720a32304f87e11214f2c2d232a6185b21b3530555b7ec9ffb4984fc`.
+It contains 28 seconds of normal-speed footage in the 75-second overview and
+76 seconds across all four actors in the six-minute technical film; the remaining
+time is explicitly disclosed genuine still holds. Both MP4s passed actual browser
+play/pause, chapter seeking, optional VTT loading and full decode. Pixel review
+covered posters, chapter frames and sampled beginning/middle/end cut observations.
+The final still uses a clean desktop observation; the original narrow-screen
+action-spacing defect was fixed separately in current product source. The films
+retain the historical recording identity and do not imply a recapture of that fix.
+Agent review is not owner/human acceptance.
+
+The separate availability receipt is excluded; its bounded local recovery
+evidence remains in [incident-demo.md](incident-demo.md). Final release identity,
+public asset hashes and actual live observations belong in #11.
 
 ## Select the canonical run
 

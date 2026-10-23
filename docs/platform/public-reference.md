@@ -98,12 +98,12 @@ The initial lane checks below are historical source evidence. The later
 [25dc7589 local qualification](https://github.com/loftwah/app-composer/issues/11#issuecomment-6364634030)
 covers the native two-team journey, approved-subset export and a separate local
 availability exercise; it does not complete public-page or #221 acceptance.
-Production remains `97582498e05bd1ab06bdde71b61e1faab89252b1` at this review,
-and replacement films/their page are not published. Use the final combined
-release receipt in [#11](https://github.com/loftwah/app-composer/issues/11) for
-deployed source and actual live observations.
+The [platform films](/platform/demo) package the separately reviewed pre-incident
+recording and its sanitised evidence. Use the combined release receipt in
+[#11](https://github.com/loftwah/app-composer/issues/11) for deployed source,
+asset hashes and actual live observations.
 
-The release still needs its relevant desktop/phone, both-theme checks for policy
+Release acceptance requires the relevant desktop/phone, both-theme checks for policy
 outcomes, deep links, keyboard/focus, reduced motion, overflow, readable tables
 and metadata/share identity. Rendered review, production interaction and
 physical-device acceptance remain distinct; no completed acceptance is inferred

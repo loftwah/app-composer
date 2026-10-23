@@ -92,10 +92,11 @@ retain their own source and scope.
 [Historical media excerpts](platform/media.md) and the
 [receipt-bound native film workflow](platform/native-media.md) identify their
 separate source/capture gates; #221 remains open for its complete scope.
-At this review, production remains
-`97582498e05bd1ab06bdde71b61e1faab89252b1`. Replacement films are being prepared;
-their page and media are not published. The earlier rejected film pair must not
-be used. Final release identity and live observations remain with #11.
+The [75-second overview and six-minute technical film](/platform/demo) package
+the reviewed pre-incident recording with six chapters, optional captions,
+transcripts and sanitised evidence. Their recorded Composer source is `25dc7589`;
+current production source and final live acceptance belong to #11. Earlier
+rejected film candidates remain unpublished. Full #221/#215 acceptance is separate.
 Research #250 is preserved. #216–#221 and #251–#257 retain the broader programme;
 #11 owns the exact deployed source, runtime identity and actual live observations.
 

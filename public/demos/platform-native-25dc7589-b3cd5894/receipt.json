@@ -1,0 +1,389 @@
+{
+  "schema": "composer.platform-native-media/1",
+  "status": "encoded-awaiting-human-pixel-and-playback-review",
+  "createdAt": "2026-10-23T12:38:12.841Z",
+  "rendererSource": "42ea1c73ad02136daf92e315215021589c1789d7",
+  "rendererHashes": {
+    "labs/platform/capture-walkthrough.mjs": "6257db9fd0c229d78cb65658df6c6fb63e8f90ec78b1c5e50a3b926564b75d7f",
+    "labs/platform/native-media.mjs": "1e5905e0cb22dbcdd322a05053f75c8905efe002f74fec723f9444ddea71bd38",
+    "labs/platform/native-media-plan.mjs": "bbaa7f38f8bf218e2b7330c0ac8a1a809d000a56a9f831316aa5bb5453184a30",
+    "labs/platform/media-captions.mjs": "27eaa2b90870cb45555d3356164a0c694cda331726ba41cd40ef2b33c332f8d4",
+    "public/brand/space-latin-20261018.woff2": "61d00a1c57fcd7d4826c7a69cd85b61d15d133d5471d3c9c4731d70193d9f71f"
+  },
+  "nativeReceiptSHA256": "b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+  "editSHA256": "0fe47f8a720a32304f87e11214f2c2d232a6185b21b3530555b7ec9ffb4984fc",
+  "nativeRun": {
+    "startedAt": "2026-10-23T12:08:38.569Z",
+    "finishedAt": "2026-10-23T12:11:08.789Z",
+    "sources": {
+      "composer": "25dc7589f7a92d5ba22eb44c49b9a774991799a3",
+      "guestbook": "e097e4dd46abe5dd49a0ee1209276cc506e601fa",
+      "showcase": "9e166d3c3dcc9d3746ba1680b9f74015c0b521cb"
+    },
+    "teams": {
+      "a": {
+        "workspace": "09981451-5427-41f5-b7e9-989f5fbdf648",
+        "request": "a108ef66-c3e3-407f-90b5-1e1473449e06",
+        "stack": "a108ef66-c3e3-407f-90b5-1e1473449e06",
+        "resource": "87952ca6-598f-4c9b-9b7e-d1f9153783e7"
+      },
+      "b": {
+        "workspace": "fa1f642b-5def-4f45-8c0c-9e906c3dc391",
+        "request": "931332e1-b22d-4385-ac8f-c3e204988e0f",
+        "stack": "931332e1-b22d-4385-ac8f-c3e204988e0f",
+        "resource": "9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+      }
+    },
+    "authoredHashes": {
+      "labs/platform/native-run.mjs": "5ac524395947d8525d41223050b6c4c6cd938565f82caf6a0e38e4e6fc246b6b",
+      "labs/platform/native-auth.mjs": "3eadddd5f983fa9b75994deec638b633392d5bdf8fd7a93c33c7078c5af6e23c",
+      "labs/platform/native-journey.mjs": "ec0a12ec17e279eede50e30cdbe05a9e571df420b7925f56174bddac4cc927af",
+      "docs/platform/native-demo.md": "abf552eada99f1ccca90f3d0a965adc069a7f4002fcc495f8ce33ce8d85d7e6f"
+    },
+    "captureInspectionHoldMs": 2000,
+    "recordedInspectionHoldSeconds": 2
+  },
+  "qualification": "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified",
+  "limits": [
+    "Edited excerpts of one continuous per-actor native run; source clips play at normal speed. Explicit still holds and cuts are declared in edit-manifest.json.",
+    "Local virtual passkeys and synthetic app data; no production SSO, regional storage or upstream provider-permission claim.",
+    "Recovery chapter explains the retained-operation contract; no incident injection, full restore or retirement footage exists in this native run.",
+    "No narrated voice, music or unapproved audio."
+  ],
+  "viewport": {
+    "width": 1600,
+    "height": 1200,
+    "stageHeight": 900,
+    "captionHeight": 300
+  },
+  "films": [
+    {
+      "name": "overview.mp4",
+      "duration": 75,
+      "codec": "h264",
+      "pixelFormat": "yuv420p",
+      "width": 1600,
+      "height": 1200,
+      "frameRate": "30/1",
+      "chapters": [
+        {
+          "id": "authority",
+          "title": "1 · Get Ready and current authority",
+          "start": 0,
+          "end": 14
+        },
+        {
+          "id": "teams",
+          "title": "2 · Two teams and role-10 delegation",
+          "start": 14,
+          "end": 24
+        },
+        {
+          "id": "content",
+          "title": "3 · Private canvas, moderation and media",
+          "start": 24,
+          "end": 46
+        },
+        {
+          "id": "update",
+          "title": "4 · Content-preserving update and Team B control",
+          "start": 46,
+          "end": 59
+        },
+        {
+          "id": "boundaries",
+          "title": "5 · Denials and the recovery contract",
+          "start": 59,
+          "end": 67
+        },
+        {
+          "id": "limits",
+          "title": "6 · Exact limits and source receipt",
+          "start": 67,
+          "end": 75
+        }
+      ],
+      "audio": "none; burned captions and VTT",
+      "normalSpeed": true,
+      "keyframes": [
+        {
+          "path": "overview-chapter-authority.jpg",
+          "at": 2,
+          "chapter": "authority"
+        },
+        {
+          "path": "overview-chapter-teams.jpg",
+          "at": 16,
+          "chapter": "teams"
+        },
+        {
+          "path": "overview-chapter-content.jpg",
+          "at": 26,
+          "chapter": "content"
+        },
+        {
+          "path": "overview-chapter-update.jpg",
+          "at": 48,
+          "chapter": "update"
+        },
+        {
+          "path": "overview-chapter-boundaries.jpg",
+          "at": 61,
+          "chapter": "boundaries"
+        },
+        {
+          "path": "overview-chapter-limits.jpg",
+          "at": 69,
+          "chapter": "limits"
+        }
+      ]
+    },
+    {
+      "name": "technical-walkthrough.mp4",
+      "duration": 360,
+      "codec": "h264",
+      "pixelFormat": "yuv420p",
+      "width": 1600,
+      "height": 1200,
+      "frameRate": "30/1",
+      "chapters": [
+        {
+          "id": "authority",
+          "title": "1 · Get Ready and current authority",
+          "start": 0,
+          "end": 60
+        },
+        {
+          "id": "teams",
+          "title": "2 · Two teams and role-10 delegation",
+          "start": 60,
+          "end": 120
+        },
+        {
+          "id": "content",
+          "title": "3 · Private canvas, moderation and media",
+          "start": 120,
+          "end": 180
+        },
+        {
+          "id": "update",
+          "title": "4 · Content-preserving update and Team B control",
+          "start": 180,
+          "end": 240
+        },
+        {
+          "id": "boundaries",
+          "title": "5 · Denials and the recovery contract",
+          "start": 240,
+          "end": 300
+        },
+        {
+          "id": "limits",
+          "title": "6 · Exact limits and source receipt",
+          "start": 300,
+          "end": 360
+        }
+      ],
+      "audio": "none; burned captions and VTT",
+      "normalSpeed": true,
+      "keyframes": [
+        {
+          "path": "technical-walkthrough-chapter-authority.jpg",
+          "at": 2,
+          "chapter": "authority"
+        },
+        {
+          "path": "technical-walkthrough-chapter-teams.jpg",
+          "at": 62,
+          "chapter": "teams"
+        },
+        {
+          "path": "technical-walkthrough-chapter-content.jpg",
+          "at": 122,
+          "chapter": "content"
+        },
+        {
+          "path": "technical-walkthrough-chapter-update.jpg",
+          "at": 182,
+          "chapter": "update"
+        },
+        {
+          "path": "technical-walkthrough-chapter-boundaries.jpg",
+          "at": 242,
+          "chapter": "boundaries"
+        },
+        {
+          "path": "technical-walkthrough-chapter-limits.jpg",
+          "at": 302,
+          "chapter": "limits"
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "overview-chapter-authority.jpg",
+      "bytes": 191043,
+      "sha256": "e668fea39f576007793d28d65d96003ae3d0f4e5b621625f0bb3aa6a20cecc07"
+    },
+    {
+      "path": "overview-chapter-teams.jpg",
+      "bytes": 170823,
+      "sha256": "ec933fdce5c06132ef5f6cb361222f178057de4561b5e07119c69968f326fee2"
+    },
+    {
+      "path": "overview-chapter-content.jpg",
+      "bytes": 135486,
+      "sha256": "d7147fef54dc0599721ea75381f18e7704e7fa27f88be4fcb21c6d1812b82170"
+    },
+    {
+      "path": "overview-chapter-update.jpg",
+      "bytes": 165823,
+      "sha256": "81e60a496b1842430ec731e7e85cc59a0e420cc8264a6cb1ab0475d45af9fb6d"
+    },
+    {
+      "path": "overview-chapter-boundaries.jpg",
+      "bytes": 172494,
+      "sha256": "6a0603d96b39fcec501207d8a0e860f99d99de26428bcebd48b399e607240584"
+    },
+    {
+      "path": "overview-chapter-limits.jpg",
+      "bytes": 159614,
+      "sha256": "30d88265c775706ed599066b0d72e2f0bc847b0ff4925d4ff791e39db299e036"
+    },
+    {
+      "path": "overview.mp4",
+      "bytes": 2077340,
+      "sha256": "973c67f1c0cd8c2108dc28c2ff1428bd74ba90f9c5b1dc4f30b3c28eed19d6f2"
+    },
+    {
+      "path": "overview.vtt",
+      "bytes": 3798,
+      "sha256": "a509f42ece27e09deb2d56d6d262359828891371e2eca185748b742b25a48f72"
+    },
+    {
+      "path": "overview.transcript.md",
+      "bytes": 15598,
+      "sha256": "6b548f05727c032ea7039cbf285cd76ae1eda0e826fe07c6026d19091600218d"
+    },
+    {
+      "path": "overview.chapters.json",
+      "bytes": 893,
+      "sha256": "40854fa176ff3598100ae1c7cec2ca8dd45068386970eec55e1bd6140ecd5530"
+    },
+    {
+      "path": "overview-poster.jpg",
+      "bytes": 191043,
+      "sha256": "e668fea39f576007793d28d65d96003ae3d0f4e5b621625f0bb3aa6a20cecc07"
+    },
+    {
+      "path": "technical-walkthrough-chapter-authority.jpg",
+      "bytes": 213055,
+      "sha256": "3f925c127a5c0942950221472f92f5b443e61b3f141a61326da8840217c980db"
+    },
+    {
+      "path": "technical-walkthrough-chapter-teams.jpg",
+      "bytes": 245231,
+      "sha256": "1cc2374bddb12db5889a1a73f8c276e404ff4ec5ec3e72019d9d5509de82d10a"
+    },
+    {
+      "path": "technical-walkthrough-chapter-content.jpg",
+      "bytes": 177925,
+      "sha256": "9915e69738e7843d61134157fa2cbb97dd987015e1a91d2fb662c4885dfdc15c"
+    },
+    {
+      "path": "technical-walkthrough-chapter-update.jpg",
+      "bytes": 190899,
+      "sha256": "61e58f52515fbb42a2e92b15f3953747f96a9a8322f87cc339292e111b9b7d86"
+    },
+    {
+      "path": "technical-walkthrough-chapter-boundaries.jpg",
+      "bytes": 244168,
+      "sha256": "a0b4f9b57d1186d02bbfd4d8bab98bda77ce43bd3a8e1d26d5ddc908bf23c006"
+    },
+    {
+      "path": "technical-walkthrough-chapter-limits.jpg",
+      "bytes": 246840,
+      "sha256": "77635a07208ecce70aef78bc2cbf0322fd61faa3d59c3ccbe4375fc819b58405"
+    },
+    {
+      "path": "technical-walkthrough.mp4",
+      "bytes": 8447665,
+      "sha256": "54a58bd3f8859bdb7a9f19e7d22cabbf512efa23a01324acf630dde535bfbff2"
+    },
+    {
+      "path": "technical-walkthrough.vtt",
+      "bytes": 10612,
+      "sha256": "0958ead480c5a9ba69d13bcf599bffb024e924f1050e821a149159fc8c867532"
+    },
+    {
+      "path": "technical-walkthrough.transcript.md",
+      "bytes": 38811,
+      "sha256": "f7a0571a6e792dc66281242b46c4693c74d30b22213a3d3365121fab1ace9eef"
+    },
+    {
+      "path": "technical-walkthrough.chapters.json",
+      "bytes": 902,
+      "sha256": "da003236d9f27ec394a9e98622776dd9e5fee653e6cfb70ec410ef7359f820f4"
+    },
+    {
+      "path": "technical-walkthrough-poster.jpg",
+      "bytes": 213055,
+      "sha256": "3f925c127a5c0942950221472f92f5b443e61b3f141a61326da8840217c980db"
+    },
+    {
+      "path": "edit-manifest.json",
+      "bytes": 80047,
+      "sha256": "6aaded6368d633b3c5ec1aab38c6286d685a66621be6bba447dd160ffbd8d369"
+    },
+    {
+      "path": "native-edit.json",
+      "bytes": 11175,
+      "sha256": "0fe47f8a720a32304f87e11214f2c2d232a6185b21b3530555b7ec9ffb4984fc"
+    },
+    {
+      "path": "render-instructions.md",
+      "bytes": 746,
+      "sha256": "94a4c0ef55e2eaa8283651f4c1559b5618915ceb2ade9fb986261b8ad47ef1e3"
+    }
+  ],
+  "browser": "155.0.8059.85",
+  "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+  "ffprobe": "ffprobe version 9.0.2 Copyright (c) 2007-2026 the FFmpeg developers",
+  "cleanup": {
+    "browserClosed": true,
+    "ownedTemporaryRootRemoved": true
+  },
+  "originalMediaReceiptSHA256": "06dd1d0a842d72cb1c8958c5f68ce2a52b411c69d622e0881cd07ccc9355afb6",
+  "agentReview": {
+    "kind": "agent-pixel-and-playback-review",
+    "passed": true,
+    "reviewedAt": "2026-10-23T12:41:16.697Z",
+    "mediaReceiptSHA256": "06dd1d0a842d72cb1c8958c5f68ce2a52b411c69d622e0881cd07ccc9355afb6",
+    "playbackReviewSHA256": "6f2989caf71a6943ea1beb92de46dfac5f027e13eef05c409c3c49026a6d8a1f",
+    "nativeReceiptSHA256": "b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+    "editSHA256": "0fe47f8a720a32304f87e11214f2c2d232a6185b21b3530555b7ec9ffb4984fc",
+    "recordedComposerSource": "25dc7589f7a92d5ba22eb44c49b9a774991799a3",
+    "rendererSource": "42ea1c73ad02136daf92e315215021589c1789d7",
+    "observations": [
+      "Posters and all twelve chapter frames inspected; local fictional qualification and source labels remain visible.",
+      "Beginning/middle/end playback observations captured for all43 cuts; complete contact grids and selected full-resolution frames inspected.",
+      "Real Ready/Init, policy, separate teams, grants, filled canvas, moderation, retained postcard and updated result agree with captions in inspected frames.",
+      "Corrected final twelve-second still uses a genuine desktop completed request. Historical inline adjacency is readable; current product spacing fix is separate.",
+      "Actual H.264 playback advances, pauses, seeks all six chapters per film, and loads13/30 optional VTT cues. Both full MP4 decodes passed.",
+      "No observed grey capture region, auth JSON, misleading replacement screenshot or caption clipping in inspected final frames."
+    ],
+    "limits": [
+      "Sampled agent pixel review, not every-frame inspection or owner human approval.",
+      "Local workerd/native virtual-passkey fictional recording; production admission, physical devices, enterprise SSO and provider delivery remain separately qualified.",
+      "The pre-incident films contain no availability-fault exercise or full restore/retirement demonstration."
+    ],
+    "ownerHumanAcceptance": false,
+    "cleanup": {
+      "rendererBrowserClosed": true,
+      "ownedTemporaryRootRemoved": true,
+      "playbackBrowserClosed": true,
+      "playbackServerClosed": true
+    }
+  }
+}
