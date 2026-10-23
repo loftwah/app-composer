@@ -1,9 +1,11 @@
-# Member-only contributions: prepared increment
+# Governed member-only contributions
 
-This increment is prepared from Composer `7a9b964dfab7b39a0d561ee55af3a64911f472c6`.
-It does not promote an independent app, change credentials or configure production.
-The committed Guestbook source remains the version 1 member-service release;
-member contributions remain **unqualified** on that source.
+Reviewed 23 October 2026. Independent Guestbook source
+`e097e4dd46abe5dd49a0ee1209276cc506e601fa` passed its actual named workerd
+entrypoint qualification and normal standalone release. Composer deliberately
+selects that version 2 contract in its reviewed composition. The standalone
+release, private service promotion, root release and native member journey have
+separate receipts in #11; the source pin alone proves none of those later gates.
 
 ## Request and policy
 
@@ -43,6 +45,10 @@ unrelated profile service.
 target, confirmed workspace stack count and managed state. A disabled existing
 profile remains managed. It carries no credentials or grants. Older responses
 may omit the field.
+Its optional `canConfigurePolicy` observes the current native Creator role and
+final workspace ownership check. It is distinct from global account/grant
+administration. An explicit false overrides older administrator hints; an older
+response conservatively recognizes only an administrator workspace owner.
 Runner availability validates adapter configuration only. It does not establish
 upstream network connectivity or provider permission; execution checks the
 actual app service separately.
@@ -88,16 +94,17 @@ is being accepted, membership acceptance leaves the current scope intact.
 
 ## Verification and remaining gates
 
-Focused tests cover unchanged omitted-field plan bytes/digest, current v1 refusal,
+Focused tests cover omitted-field closed plan bytes/digest at the reviewed pin,
+finite source qualification, explicit policy opt-in and generic portable refusal,
 finite manifest qualification, delegated role 10 access, current native/CMS
 denials, additive setup observations and stable receipt identity. A separate
 in-memory synthetic module graph exercises the v2 bridge and policy/grant/source/
 configuration denials without editing the actual lock or qualifying its source.
 That fixture is not independent Guestbook runtime proof.
 
-Before release: independently qualify/release Guestbook's exact v2 source,
-deliberately promote its manifest/source pin, rerun source and native interaction
-checks, inspect both themes and phone/desktop operation, then use Composer's
-normal clean pushed-main release guard. Browser, production, physical-device and
-human acceptance remain separate. No build, deployment, invitations or production
-records are authorised by this document.
+Release evidence must identify Guestbook's exact qualified source, private
+service promotion, native interactions and the clean pushed-main Composer guard.
+Inspect both themes and phone/desktop operation at the integrated source.
+Browser, production, physical-device and human acceptance remain separate.
+No build, deployment, invitations or production records are authorised by this
+document.

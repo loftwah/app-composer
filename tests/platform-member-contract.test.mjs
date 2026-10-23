@@ -16,6 +16,7 @@ import {
 } from "../src/lib/member-contribution-contract.ts";
 import { effectiveGuestbookConfiguration } from "../src/lib/resource-client.ts";
 import { validateManifest } from "../scripts/contracts.mjs";
+import { validateSpec } from "../src/lib/spec.mjs";
 import { governedSyntheticConfiguration } from "../src/lib/member-contribution-bridge.ts";
 import {
   beginContribution,
@@ -51,17 +52,18 @@ const target = {
   url: "https://composer.loftwah.com/guestbook",
 };
 
-test("existing closed plan JSON and digest stay exact until an explicit contribution update", async () => {
+test("omitted contribution fields preserve the released source's closed canonical plan", async () => {
   const parsed = platformRequest.parse(request);
   const { version, revision, ...input } = profile;
   const saved = platformProfile.parse(input);
   assert.equal(Object.hasOwn(parsed, "contributions"), false);
   assert.equal(Object.hasOwn(saved, "allowMemberContributions"), false);
   const plan = platformPlan(parsed, profile, target);
+  assert.equal(plan.source.commit, "e097e4dd46abe5dd49a0ee1209276cc506e601fa");
   assert.equal(Object.hasOwn(plan, "contributionMode"), false);
   assert.equal(
     await platformDigest(plan),
-    "e127122c2e5f5d7c72a8f6c511e314451ecf15a5226252f1cff12a49937dd401",
+    "c676bea87fe44d187011b27e8ad4a0b2e14e5bb7102ce5c501ec0746cf98973d",
   );
   assert.equal(plan.spec.appSettings.guestbook.guestAccess, "closed");
 });
@@ -172,8 +174,8 @@ test("durable pending contribution resumes only explicitly with its frozen origi
   assert.equal(dispatches, 1);
 });
 
-test("current v1 pin cannot qualify member mode or silently replace it with postcards", () => {
-  assert.equal(memberContributionsQualified(), false);
+test("released v2 source requires explicit member policy and cannot enter generic portable settings", () => {
+  assert.equal(memberContributionsQualified(), true);
   const input = platformRequest.parse({ ...request, contributions: "members" });
   assert.equal(
     evaluatePlatformRequest(
@@ -181,16 +183,18 @@ test("current v1 pin cannot qualify member mode or silently replace it with post
       { ...profile, allowMemberContributions: true },
       0,
     ).outcome,
-    "unsupported",
+    "allowed",
   );
+  assert.equal(evaluatePlatformRequest(input, profile, 0).outcome, "denied");
   const plan = platformPlan(input, profile, target);
   assert.deepEqual(plan.contributionMode, {
     requested: "members",
-    effective: "closed",
-    qualified: false,
+    effective: "members",
+    qualified: true,
   });
-  assert.match(plan.handoff, /non-executable fallback/);
+  assert.match(plan.handoff, /qualified member service/);
   assert.doesNotMatch(plan.handoff, /guestAccess": "postcards/);
+  assert.throws(() => validateSpec(plan.spec));
   assert.equal(
     effectiveGuestbookConfiguration({ guestAccess: "closed" }).guestAccess,
     "closed",
@@ -199,8 +203,9 @@ test("current v1 pin cannot qualify member mode or silently replace it with post
     effectiveGuestbookConfiguration({ guestAccess: "postcards" }).guestAccess,
     "postcards",
   );
-  assert.throws(() =>
-    effectiveGuestbookConfiguration({ guestAccess: "members" }),
+  assert.equal(
+    effectiveGuestbookConfiguration({ guestAccess: "members" }).guestAccess,
+    "members",
   );
 });
 
