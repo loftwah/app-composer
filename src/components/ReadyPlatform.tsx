@@ -223,8 +223,8 @@ export default function ReadyPlatform({
       <h2 id="platform-check-heading">Check your team’s setup.</h2>
       <p>
         Use your current EmDash session to inspect the selected team, its
-        standing rules and its app connection. Then continue with the action
-        that is available to you.
+        standing rules and its configured app adapter. Then continue with the
+        action that is available to you.
       </p>
       {invalidSelection ? (
         <p role="alert">
@@ -326,11 +326,11 @@ export default function ReadyPlatform({
               </dd>
             </div>
             <div>
-              <dt>App connection</dt>
+              <dt>App adapter</dt>
               <dd>
                 {report.runner
-                  ? "Available at this check"
-                  : "Unavailable; keep existing requests"}
+                  ? "Configured; upstream access not checked"
+                  : "Not configured; keep existing requests"}
               </dd>
             </div>
           </dl>

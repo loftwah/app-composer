@@ -7,7 +7,8 @@ grant. Invalid, repeated, unavailable or mismatched selections are refused rathe
 than replaced with a personal workspace.
 
 The check reads current membership, the saved standing policy, scoped stack
-inventory and the host-selected app connection. It confirms the account and
+inventory and the host-selected app adapter configuration. This read does not
+probe upstream health or verify a deployment credential. It confirms the account and
 runtime only when the server supplies them. Older installations display **Not
 observed**. The runtime is the existing Guestbook service; synthetic preview
 intent does not establish isolated staging infrastructure.
