@@ -70,9 +70,7 @@ export default function MyApps() {
     }
     if (!readProfile) {
       setSnapshot(undefined);
-      setStatus(
-        "Workspace access loaded. Choose an available action below.",
-      );
+      setStatus("Workspace access loaded. Choose an available action below.");
       return;
     }
     const grant =
