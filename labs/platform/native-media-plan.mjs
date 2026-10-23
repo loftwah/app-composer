@@ -37,154 +37,192 @@ export const chapters = {
 export const captions = {
   authority: {
     chapter: "authority",
+    cc: "Get Ready observes current access. Policy setup also needs creator permission and workspace ownership.",
     text: "Get Ready observes this signed-in workspace. Creator permission and current ownership permit policy setup; the observation grants no authority.",
   },
   delegation: {
     chapter: "teams",
+    cc: "Editor delegation enables team requests. The member stays global role 10.",
     text: "Two teams retain different requests, stacks and app resources. Explicit editor delegation enables self-service while the member stays global role 10.",
   },
   canvas: {
     chapter: "content",
+    cc: "An exact app grant admits fictional canvas content. Pending media stays private.",
     text: "The native canvas submits fictional content through the exact app grant and named Guestbook v2 service. Its pending media remains private.",
   },
   moderation: {
     chapter: "content",
+    cc: "The moderator approves, hides and reapproves. Public guest contributions stay closed.",
     text: "The authorised moderator approves, hides and reapproves the same postcard. Anonymous media follows 404 → 200 → 404 → 200; public contributions stay closed.",
   },
   update: {
     chapter: "update",
+    cc: "Team A keeps its content and resource after a title update. Team B remains unchanged.",
     text: "Team A's compatible title update retains its request, stack, resource, postcard and media. Team B is checked unchanged in this same run.",
   },
   denials: {
     chapter: "boundaries",
+    cc: "Cross-team and ungranted actions are denied. Sensitive-data requests allocate nothing.",
     text: "Cross-team access, ungranted app actions and role-10 operator actions are denied. The sensitive-data request creates no stack or app resource.",
   },
   recovery: {
     chapter: "boundaries",
+    cc: "Keep the operation identity and inspect its receipt. This run does not prove incident recovery.",
     text: "Recovery contract explanation: retain the operation identity and inspect its receipt before retrying. This native run does not inject an outage or prove incident recovery.",
   },
   limits: {
     chapter: "limits",
+    cc: "Local native run only. SSO, providers, full restore and retirement remain unqualified.",
     text: "This local run proves the recorded native path only. Production SSO, provider permissions, regional storage, full restore, retirement and the incident foundation remain unqualified.",
   },
   "authority-session": {
     chapter: "authority",
+    cc: "Fictional actors use native sessions and virtual passkeys. Production admission is a separate gate.",
     text: "These fictional actors register and sign in through native EmDash sessions with local virtual passkeys. The harness does not insert identity or session rows. Production Access admission and physical credentials are separate gates.",
   },
   "authority-source": {
     chapter: "authority",
+    cc: "Exact Composer and app sources are pinned. A later source promotion needs its own qualification.",
     text: "The run selects exact clean Composer, Guestbook and Linkarooie sources. Copied runtime source identities must match them. Guestbook's named member-service descriptor is qualified against the mounted app; a later source promotion needs its own run.",
   },
   "authority-capability": {
     chapter: "authority",
+    cc: "A creator who owns the workspace can set policy. An editor or role-10 member cannot.",
     text: "A creator who owns the selected workspace can establish policy. A creator invited as editor cannot. A global role-10 member never gains native policy configuration from an invitation or an application grant.",
   },
   "authority-observation": {
     chapter: "authority",
+    cc: "Get Ready reads this workspace. Its observation grants no provider permission or execution authority.",
     text: "Get Ready reads current session, workspace and adapter configuration, then links to the protected workspace. Its dated observation neither establishes upstream provider permission nor executes a build. Changing accounts or access requires a fresh check.",
   },
   "authority-scope": {
     chapter: "authority",
+    cc: "The operator opts into synthetic member requests. Public guests stay closed; existing infrastructure is reused.",
     text: "The operator deliberately enables the supported Guestbook recipe, synthetic preview requests and member-only contributions. Public guest admission remains closed. This is an app-owned resource on existing infrastructure, not a newly provisioned Worker or database per team.",
   },
   "teams-invitation": {
     chapter: "teams",
+    cc: "The owner invites each creator to a separate team. A workspace URL does not grant membership.",
     text: "The owner creates two workspaces and invites each creator as editor. Native acceptance persists each membership. The workspace selector is an explicit scope choice; a URL parameter cannot add membership or silently substitute another team.",
   },
   "teams-member": {
     chapter: "teams",
+    cc: "An explicit editor invitation enables member requests. Global role stays 10.",
     text: "The ordinary member first receives HTTP 403 for both native and member platform routes. After a deliberate Team A editor invitation, the member can request an application through the delegated member route while global EmDash role remains 10.",
   },
   "teams-mode": {
     chapter: "teams",
+    cc: "Team A chooses member contributions; Team B stays closed. Their resources remain distinct.",
     text: "Team A explicitly requests member-only contributions. Team B requests a closed visitor book. The completed records retain distinct request, stack and Guestbook resource identities. Their synthetic preview policy does not establish separate physical staging infrastructure.",
   },
   "teams-delegation": {
     chapter: "teams",
+    cc: "Role 10 can request, but cannot set policy or approve. Saved plans cannot widen that role.",
     text: "Self-service and policy administration use different protected routes. Even after editor delegation, role 10 cannot configure policy or approve requests through either route. A saved plan, profile or imported receipt cannot widen that role.",
   },
   "teams-complete": {
     chapter: "teams",
+    cc: "The adapter verifies both local pages. Completion here does not qualify the production edge.",
     text: "Complete means the adapter recorded the app configuration and checked the composed and application pages in this run. This isolated lab reaches those handlers through a fixed host binding; it does not qualify the public production edge.",
   },
   "content-grants": {
     chapter: "content",
+    cc: "The operator grants contribute and moderate separately, on the exact existing app resource.",
     text: "Before an exact app grant, the member cannot submit. The operator grants contribute on Team A's existing Guestbook resource and separately grants moderate to its creator. Membership or a profile grant alone grants neither action.",
   },
   "content-canvas": {
     chapter: "content",
+    cc: "The canvas supplies fictional text, PNG and consent. Trusted request context determines synthetic eligibility.",
     text: "The maintained 1200 by 900 canvas supplies the PNG, short message, alias and explicit consent. Composer derives synthetic eligibility from the governed request and current resource. A browser-supplied data-class flag cannot select trusted admission.",
   },
   "content-private": {
     chapter: "content",
+    cc: "Guestbook checks source, configuration and operation identity. Pending private media returns 404.",
     text: "The named Guestbook v2 service receives the current source, exact active configuration and stable actor-scoped operation identity. The pending contribution is app-owned synthetic content. An anonymous read of its private media returns 404.",
   },
   "content-moderator": {
     chapter: "content",
+    cc: "The authorised creator reviews and approves. The contributor and other team cannot moderate.",
     text: "The authorised creator loads the real review queue and approves the postcard. The receipt and app list confirm the pending item, not just a toast. The contributor and the other team's creator cannot use this moderation capability.",
   },
   "content-revocation": {
     chapter: "content",
+    cc: "Hide removes public media access; reapprove restores the same bytes. This is not lost-data recovery.",
     text: "Approval makes the same media readable anonymously; hiding removes that public access. Reapproval restores visibility of retained bytes with the same digest. Restoring visibility is exercised here; recovering a lost database or object store is not.",
   },
   "update-plan": {
     chapter: "update",
+    cc: "The server rechecks the update against current source, policy and revision. Earlier completion is not permission.",
     text: "The requester plans a compatible update to the existing completed service. Member-only contributions stay explicit. The server evaluates the current request revision, source and standing policy instead of treating the earlier completion as continuing permission.",
   },
   "update-identity": {
     chapter: "update",
+    cc: "Team A keeps the same request, stack and application resource.",
     text: "The updated Team A record retains its original request, stack and Guestbook resource. Only its compatible configuration and resulting publication advance. The edit's source and identity footer distinguishes that native run from the media renderer's later source.",
   },
   "update-content": {
     chapter: "update",
+    cc: "The title changes; content, moderation and media digest remain unchanged.",
     text: "The native journey compares the complete contribution list before and after the title change. Content, moderation state and item revision remain equal. It also reads the updated public page and confirms the approved media's SHA-256 remains unchanged.",
   },
   "update-control": {
     chapter: "update",
+    cc: "Team B is checked unchanged and remains closed. This is a two-team check, not portfolio acceptance.",
     text: "Team B is the control: its request record is compared with the original complete record after Team A's content and title changes. Its distinct resource remains closed. This two-team check does not claim portfolio-wide isolation acceptance.",
   },
   "update-public": {
     chapter: "update",
+    cc: "An anonymous browser reads both teams. These local observations do not qualify the production hostname.",
     text: "A separate anonymous browser reads both teams' composed and app pages without native sessions. The isolated TLS bridge marker and expected application names bind those observations to this local run, not to production browser cookies or a public hostname check.",
   },
   "boundaries-scope": {
     chapter: "boundaries",
+    cc: "Other-team reads, writes and resource lookups are denied. Current scope and app grants are separate checks.",
     text: "The other team's native read and write requests are denied. The contributor also cannot select Team B's resource for contribution-status lookup. The selected workspace, current membership and exact app resource remain separate checks.",
   },
   "boundaries-policy": {
     chapter: "boundaries",
+    cc: "A sensitive-labelled request is refused before allocation. All actors and content remain fictional.",
     text: "A request labelled sensitive is evaluated as denied and has no stack or app resources. This demonstrates the supported refusal before allocation. It does not exercise real sensitive data; all test content and actors remain fictional.",
   },
   "boundaries-operation": {
     chapter: "boundaries",
+    cc: "Keep the original operation and payload. Inspect its receipt before retrying an uncertain submission.",
     text: "An uncertain submission must keep its original operation identity and payload. Read-only contribution-status lookup uses current grants and the current configuration to inspect the original receipt. Do not replace an unknown operation with a new send identity.",
   },
   "boundaries-test": {
     chapter: "boundaries",
+    cc: "Tests cover interrupted work and duplicate receipts. These stills do not show an outage or incident recovery.",
     text: "Source tests cover changed-payload conflicts, duplicate receipts, configuration drift and interrupted PNG or storage work. This chapter explains that tested contract over captured stills. It is not footage of an outage or a successful production incident response.",
   },
   "boundaries-privacy": {
     chapter: "boundaries",
+    cc: "Public guest admission stays separate from member access. Private states and moderation still apply.",
     text: "Closed public guest admission remains independent of member contribution permission. App private states, source/configuration checks and moderation still apply. A guest puzzle, public page, downloaded report or media film grants no owner or member authority.",
   },
   "limits-runtime": {
     chapter: "limits",
+    cc: "Local workerd, native sessions and fictional data only. TLS and self-binding seams are disclosed.",
     text: "The qualified scope is native local EmDash sessions, actual local workerd service bindings, app-owned SQLite and private object storage, and fictional synthetic content. Host-resolved TLS and fixed self-binding verification are disclosed local seams.",
   },
   "limits-source": {
     chapter: "limits",
+    cc: "Recording and renderer sources stay separate. Source hashes alone grant no deployment authority.",
     text: "Every caption retains the native Composer and independent app sources, both teams' identifiers and the canonical receipt hash. The renderer's own source and edit hash are separate. Matching a source hash does not establish a later deployment or permissions.",
   },
   "limits-edit": {
     chapter: "limits",
+    cc: "Cuts and genuine still holds are declared. Missing actions are never replaced by generated success frames.",
     text: "The edit manifest declares normal-speed source intervals, cuts, genuine still holds and any explicit still crop. Raw per-actor WebM and capture-time screenshot hashes must match. No missing operation is replaced by a generated success frame or an automatic padding loop.",
   },
   "limits-gates": {
     chapter: "limits",
+    cc: "SSO, provider onboarding, Australian-only storage, full restore and retirement remain unqualified.",
     text: "Production SSO, fresh-person provider onboarding, Australian-only storage and vendor interoperability have no acceptance claim here. Full backup restoration, retirement and the broader incident foundation also remain outside this demonstrated product journey.",
   },
   "limits-review": {
     chapter: "limits",
+    cc: "Keep raw native evidence private. Publish the reviewed films, captions, transcripts and source receipt.",
     text: "The encoded H.264 MP4s, WebVTT, transcripts, chapters, posters and asset hashes travel together. Final pixel and playback review remains a separate step. Keep original native evidence private; publish only the reviewed, correctly scoped media package.",
   },
 };
@@ -625,6 +663,7 @@ export function planNativeEdit(edit, native) {
         actor: asset.actor,
         sourceSHA256: asset.sha256,
         body: captions[entry.caption].text,
+        cc: captions[entry.caption].cc,
         heading: chapters[entry.chapter],
         provenance,
       };

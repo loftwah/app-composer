@@ -13,7 +13,11 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { captionHTML, captionStamp } from "./media-captions.mjs";
+import {
+  captionHTML,
+  captionStamp,
+  readableCaptionVTT,
+} from "./media-captions.mjs";
 import {
   chapters,
   inspectNativeMedia,
@@ -460,18 +464,7 @@ export async function nativeMediaCLI(argv) {
           probe.chapters.length === 6,
         "The encoded MP4 does not satisfy the declared stream, duration or chapter contract.",
       );
-      await writeFile(
-        join(out, film.name + ".vtt"),
-        "WEBVTT\n\nNOTE Recording provenance; full cuts and holds are in edit-manifest.json\n" +
-          film.segments[0].provenance.join("\n") +
-          "\n\n" +
-          film.segments
-            .map(
-              (entry, i) =>
-                `${i + 1}\n${captionStamp(entry.start)} --> ${captionStamp(entry.end)}\n${entry.heading}\n${entry.body}\n`,
-            )
-            .join("\n"),
-      );
+      await writeFile(join(out, film.name + ".vtt"), readableCaptionVTT(film));
       await writeFile(
         join(out, film.name + ".transcript.md"),
         `# App Composer: ${film.name}\n\n${scope}\n\n` +
