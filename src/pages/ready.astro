@@ -28,7 +28,7 @@ const source = appSettings.guestbook.source;
    <h1>{platformSelected ? 'Prepare your internal platform.' : <>Get ready.<br/>Then make something.</>}</h1>
    <p class="lede">{platformSelected ? 'Prepare the workspace and standing rules once, then give teams an approved way to request applications. Start with the current installation; no application idea is needed here.' : 'A working environment comes first. Your agent handles setup, builds your first Hello app and checks that it works online. You handle sign-in and choices that need your say.'}</p>
   </div>
-  <a class="button secondary" href={platformSelected ? '/platform' : '/ready/guide'}><BookOpen size={18} aria-hidden="true"/>{platformSelected ? 'Platform field guide' : 'Step-by-step help'}</a>
+  <a class:list={['button', {secondary: !platformSelected}]} href={platformSelected ? '#platform-check-heading' : '/ready/guide'}>{platformSelected ? <ArrowRight size={18} aria-hidden="true"/> : <BookOpen size={18} aria-hidden="true"/>}{platformSelected ? 'Open team setup' : 'Step-by-step help'}</a>
  </div>
  <nav class="build-paths" aria-label="Choose your application path">
   <a href="/ready" aria-current={!platformSelected ? 'page' : undefined}><strong>My app</strong><span>Prepare your environment and start building.</span></a>

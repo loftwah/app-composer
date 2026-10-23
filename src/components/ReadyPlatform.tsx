@@ -277,7 +277,21 @@ export default function ReadyPlatform({
                   ? "Check current setup"
                   : "Check my signed-in access"}
             </button>
-            <a href="/_emdash/admin/login">Sign in with EmDash</a>
+            <a
+              href={
+                "/_emdash/admin/login?" +
+                new URLSearchParams({
+                  redirect:
+                    "/ready?" +
+                    new URLSearchParams({
+                      profile: "platform",
+                      ...(selected ? { workspace: selected } : {}),
+                    }),
+                })
+              }
+            >
+              Sign in with EmDash
+            </a>
             <a href="/me">My apps and invitations</a>
           </div>
         </>

@@ -3,6 +3,12 @@
   padding-block: 28px;
   margin-block: 28px;
 }
+.ready-platform h2 {
+  font-size: 1.7rem;
+  line-height: 1.25;
+  margin: 0 0 16px;
+  max-width: 32ch;
+}
 .ready-platform p {
   max-width: 72ch;
 }
