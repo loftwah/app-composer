@@ -59,11 +59,11 @@ test("omitted contribution fields preserve the released source's closed canonica
   assert.equal(Object.hasOwn(parsed, "contributions"), false);
   assert.equal(Object.hasOwn(saved, "allowMemberContributions"), false);
   const plan = platformPlan(parsed, profile, target);
-  assert.equal(plan.source.commit, "e097e4dd46abe5dd49a0ee1209276cc506e601fa");
+  assert.equal(plan.source.commit, "e7bb0b35d37973207b9e40866fc38fdda4ab2401");
   assert.equal(Object.hasOwn(plan, "contributionMode"), false);
   assert.equal(
     await platformDigest(plan),
-    "c676bea87fe44d187011b27e8ad4a0b2e14e5bb7102ce5c501ec0746cf98973d",
+    "68453e6609852ec78210e19a978efa8860484ce9a6dceb0e06e091e4d1c705a0",
   );
   assert.equal(plan.spec.appSettings.guestbook.guestAccess, "closed");
 });
