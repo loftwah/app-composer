@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import "../styles/header.css";
 import instance from "../../config/instance.json";
 import AppLauncher from "../components/AppLauncher.astro";
 import BuilderContext from "../components/BuilderContext.astro";
@@ -96,26 +97,45 @@ Astro.csp?.insertScriptResource(
     <a class="skip" href="#main">
       Skip to content
     </a>
-    <header>
+    <header class="site-header">
       <a class="brand select-none" href="/">
         <img src="/brand/composer-icon-tile-20261022b.svg" width="38" height="38" alt="" />
-        App Composer
-        {instance.enabled && (
-          <span class="instance-brand-context">
-            {instance.owner}’s instance
-          </span>
-        )}
+        <span class="brand-copy">
+          <span>App Composer</span>
+          {instance.enabled && (
+            <span class="instance-brand-context">{instance.owner}’s instance</span>
+          )}
+        </span>
       </a>
-      <nav aria-label="Main navigation">
-        <a href="/learn">Learn</a>
-        <a href="/ready">Get Ready</a>
-        <a href="/init">Init</a>
-        <a href="/studio">Creator stacks</a>
-        <a href="/manage">Your admin</a>
-        <a href="/me">My apps</a>
-        <a href="/demo">Demos</a>
-        <a href="/activity">Analytics</a>
-        <a href="/explore">Explore</a>
+      <nav class="site-navigation" aria-label="Main navigation">
+        <a class="nav-direct" href="/learn">Learn</a>
+        <a class="nav-direct" href="/ready">Get Ready</a>
+        <a class="nav-direct" href="/demo">Demos</a>
+        <details class="site-menu">
+          <summary aria-label="More navigation">
+            <span class="menu-word">More</span>
+            <svg class="menu-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+            <svg class="menu-bars" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </summary>
+          <div class="site-menu-panel">
+            <div class="site-menu-group">
+              <p class="site-menu-heading">Build</p>
+              <a class="compact-only" href="/ready">Get Ready</a>
+              <a href="/init">Init</a>
+              <a href="/studio">Creator stacks</a>
+              <a href="/manage">Your admin</a>
+              <a href="/me">My apps</a>
+            </div>
+            <div class="site-menu-group">
+              <p class="site-menu-heading">Discover</p>
+              <a class="compact-only" href="/learn">Learn</a>
+              <a class="compact-only" href="/demo">Demos</a>
+              <a href="/explore">Explore</a>
+              <a href="/activity">Analytics</a>
+              <a href="/architecture">Platform</a>
+            </div>
+          </div>
+        </details>
       </nav>
       <div class="header-utilities">
         <AppLauncher />
@@ -220,6 +240,24 @@ Astro.csp?.insertScriptResource(
           localStorage.setItem("composer-theme", theme);
         } catch {}
         label();
+      });
+      const siteMenu = document.querySelector<HTMLDetailsElement>(".site-menu")!;
+      const menuSummary = siteMenu.querySelector("summary")!;
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && siteMenu.open) {
+          siteMenu.open = false;
+          menuSummary.focus();
+        }
+      });
+      document.addEventListener("click", (event) => {
+        if (event.target instanceof Node && !siteMenu.contains(event.target)) {
+          siteMenu.open = false;
+        }
+      });
+      siteMenu.addEventListener("focusout", (event) => {
+        if (event.relatedTarget instanceof Node && !siteMenu.contains(event.relatedTarget)) {
+          siteMenu.open = false;
+        }
       });
       document.querySelectorAll<HTMLAnchorElement>('nav[aria-label="Main navigation"] a').forEach((a) => {
         if (a.pathname === location.pathname)
