@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { fixture, user, origin } from "./helpers/resource-fixture.mjs";
 import { platformPublicFixture } from "./helpers/platform-public-fixture.mjs";
-import { workspaceForUser, readStack } from "../src/lib/stacks.mjs";
+import { workspaceForUser, readStack, StackError } from "../src/lib/stacks.mjs";
 import { managePlatform } from "../src/lib/platform-admin.ts";
 import { platformPlan } from "../src/lib/platform-contract.ts";
 import { resourceConnection } from "../src/lib/resource-client.ts";
@@ -133,6 +133,135 @@ test("correct standalone resource HTML does not substitute for composed publicat
   } finally {
     f.close();
   }
+});
+
+test("public verification failures identify the exact stage without exposing transport errors or response bodies", async () => {
+  const failures = [
+    [
+      "transport",
+      () => {
+        throw Error("fictional-sensitive-transport-token");
+      },
+      "could not reach the public endpoint",
+    ],
+    [
+      "HTTP",
+      () =>
+        new Response("fictional-sensitive-response-body", {
+          status: 403,
+          statusText: "fictional-sensitive-status",
+        }),
+      "received HTTP 403",
+    ],
+    [
+      "type",
+      () =>
+        new Response("fictional-sensitive-response-body", {
+          headers: { "Content-Type": "application/json" },
+        }),
+      "expected an HTML response",
+    ],
+    [
+      "identity",
+      () =>
+        new Response("<html>fictional-sensitive-response-body</html>", {
+          headers: { "Content-Type": "text/html" },
+        }),
+      "did not match the expected identity",
+    ],
+    [
+      "empty",
+      () => new Response(null, { headers: { "Content-Type": "text/html" } }),
+      "returned no response body",
+    ],
+    [
+      "stream",
+      () =>
+        new Response(
+          new ReadableStream({
+            start(controller) {
+              controller.error(Error("fictional-sensitive-stream-token"));
+            },
+          }),
+          { headers: { "Content-Type": "text/html" } },
+        ),
+      "could not read the public response",
+    ],
+    [
+      "size",
+      () =>
+        new Response("x".repeat(500001), {
+          headers: { "Content-Type": "text/html" },
+        }),
+      "exceeded the response size limit",
+    ],
+    [
+      "typed-stream-error",
+      () =>
+        new Response(
+          new ReadableStream({
+            start(controller) {
+              controller.error(
+                new StackError(
+                  "UNAVAILABLE",
+                  "fictional-sensitive-stream-token",
+                ),
+              );
+            },
+          }),
+          { headers: { "Content-Type": "text/html" } },
+        ),
+      "could not read the public response",
+    ],
+    [
+      "locked-stream",
+      () => {
+        const response = new Response("fictional-sensitive-response-body", {
+          headers: { "Content-Type": "text/html" },
+        });
+        response.body.getReader();
+        return response;
+      },
+      "could not read the public response",
+    ],
+  ];
+  for (const stage of ["application", "publication"])
+    for (const [kind, fail, message] of failures) {
+      const f = await setup();
+      try {
+        const good = platformPublicFixture(f),
+          seen = [];
+        f.runtime.PLATFORM_PUBLIC_FETCH = async (req) => {
+          seen.push(req);
+          return new URL(req.url).pathname.startsWith("/s/") ===
+            (stage === "publication")
+            ? fail()
+            : good(req);
+        };
+        const result = await submit(f),
+          entry = result.requests[0];
+        assert.equal(entry.status, "needs-attention", stage + ": " + kind);
+        assert.equal(
+          entry.reason,
+          `Public ${stage} verification ${message}. Existing resources are retained.`,
+          stage + ": " + kind,
+        );
+        assert.doesNotMatch(
+          entry.reason,
+          /fictional-sensitive|https:|Bearer|token/,
+        );
+        assert.equal(f.app.resources.size, 1);
+        assert.equal(seen.length, stage === "application" ? 1 : 2);
+        for (const req of seen) {
+          assert.equal(new URL(req.url).origin, origin);
+          assert.equal(req.headers.get("Authorization"), null);
+          assert.equal(req.headers.get("Cookie"), null);
+          assert.equal(req.redirect, "manual");
+        }
+      } finally {
+        f.close();
+      }
+    }
 });
 
 test("actual legacy republish endpoint cannot bypass enabled standing policy", async () => {

@@ -3,6 +3,18 @@ import {mkdtempSync,readFileSync,statSync,rmSync,writeFileSync} from 'node:fs';i
 import {assertProductionEnvironment,assertProductionTarget,parseAdminSecrets,snapshotAdminSecrets,compositionServices} from '../scripts/deployment-target.mjs';
 const lock={id:'a'.repeat(64),apps:[{id:'guestbook'},{id:'showcase'}]};
 const config={name:'app-composer',account_id:'selected-account',vars:{PUBLIC_ORIGIN:'https://composer.loftwah.com'},services:lock.apps.map(app=>({binding:app.id.toUpperCase(),service:'composer-'+app.id+'-'+lock.id.slice(0,16)}))};
+test('public self-verification uses the public fetch compatibility flag without connecting preview to production',()=>{
+ const selected=JSON.parse(readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8'));
+ assert.ok(selected.compatibility_flags.includes('global_fetch_strictly_public'));
+ assert.ok(selected.compatibility_flags.includes('nodejs_compat'));
+ assert.equal(selected.compatibility_flags.includes('global_fetch_private_origin'),false);
+ assert.deepEqual(selected.env.preview.services,[]);
+ assert.notEqual(selected.env.preview.vars.PUBLIC_ORIGIN,selected.vars.PUBLIC_ORIGIN);
+ for(const binding of ['d1_databases','r2_buckets','kv_namespaces']) {
+  assert.ok(selected.env.preview[binding].length>0);
+  assert.notDeepEqual(selected.env.preview[binding],selected[binding]);
+ }
+});
 test('production refuses selected environments and generated target drift',()=>{
  assert.doesNotThrow(()=>assertProductionEnvironment({}));assert.throws(()=>assertProductionEnvironment({CLOUDFLARE_ENV:'preview'}));
  assert.doesNotThrow(()=>assertProductionTarget(config,config,lock));
