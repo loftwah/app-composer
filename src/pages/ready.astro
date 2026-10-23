@@ -9,15 +9,17 @@ import ReadyProgress from '../components/ReadyProgress.astro';
 import ReadyDomain from '../components/ReadyDomain.astro';
 import ReadyProject from '../components/ReadyProject.astro';
 import ReadyPreferences from '../components/ReadyPreferences.astro';
+import ReadyPlatform from '../components/ReadyPlatform';
+import build from '../lib/build.json';
 import { ArrowRight, BookOpen, Bot, GitBranch, Cloud, Globe, ShieldCheck } from '@lucide/astro';
 const stages=[{icon:Bot,title:'Agent & tools',detail:'A working folder and the tools to build.'},{icon:GitBranch,title:'Your GitHub source',detail:'A private starter you own and can update.'},{icon:Cloud,title:'Your Cloudflare account',detail:'The intended account and deployment access.'},{icon:Globe,title:'A live HTTPS app',detail:'The exact source, deployed and verified.'}];
 const profiles = Astro.url.searchParams.getAll('profile');
 const platformSelected = profiles.length === 1 && profiles[0] === 'platform';
 const workspaces = Astro.url.searchParams.getAll('workspace');
+const invalidSelection = workspaces.length > 0 && (workspaces.length !== 1 || !/^[a-z0-9-]{6,64}$/.test(workspaces[0]));
 const workspace = workspaces.length === 1 && /^[a-z0-9-]{6,64}$/.test(workspaces[0]) ? workspaces[0] : undefined;
 const nativePlatform = '/_emdash/admin/plugins/composer-stacks/platform' + (workspace ? '?' + new URLSearchParams({workspace}) : '');
 const platformSelf = '/ready?' + new URLSearchParams({profile:'platform', ...(workspace ? {workspace} : {})});
-const platformInit = '/init?' + new URLSearchParams({profile:'platform', ...(workspace ? {workspace} : {})});
 const source = appSettings.guestbook.source;
 ---
 <Base title={platformSelected ? 'Get Ready: prepare your internal platform' : 'Get Ready: your first working environment'} description={platformSelected ? 'Prepare the operator prerequisites, inspect your authorised workspace and current adapter, then let teams request supported synthetic preview applications.' : 'Start before you have an app idea. Let your agent prepare tools, GitHub and Cloudflare, then verify your first HTTPS app. Save your address choice and resume progress.'}>
@@ -26,21 +28,17 @@ const source = appSettings.guestbook.source;
    <h1>{platformSelected ? 'Prepare your internal platform.' : <>Get ready.<br/>Then make something.</>}</h1>
    <p class="lede">{platformSelected ? 'Prepare the workspace and standing rules once, then give teams an approved way to request applications. Start with the current installation; no application idea is needed here.' : 'A working environment comes first. Your agent handles setup, builds your first Hello app and checks that it works online. You handle sign-in and choices that need your say.'}</p>
   </div>
-  <a class="button secondary" href={platformSelected ? '/platform' : '/ready/guide'}><BookOpen size={18} aria-hidden="true"/>{platformSelected ? 'Platform field guide' : 'Step-by-step help'}</a>
+  <a class:list={['button', {secondary: !platformSelected}]} href={platformSelected ? '#platform-check-heading' : '/ready/guide'}>{platformSelected ? <ArrowRight size={18} aria-hidden="true"/> : <BookOpen size={18} aria-hidden="true"/>}{platformSelected ? 'Open team setup' : 'Step-by-step help'}</a>
  </div>
  <nav class="build-paths" aria-label="Choose your application path">
   <a href="/ready" aria-current={!platformSelected ? 'page' : undefined}><strong>My app</strong><span>Prepare your environment and start building.</span></a>
-  <a href="/_emdash/admin/plugins/composer-stacks/workspaces"><strong>My team</strong><span>Use your existing workspace and access.</span></a>
+  <a href="/me"><strong>My team</strong><span>Use your existing workspace and access.</span></a>
   <a href={platformSelf} aria-current={platformSelected ? 'page' : undefined}><strong>Internal platform</strong><span>Give teams approved ways to build, release and run.</span></a>
  </nav>
  {platformSelected ? (
   <div class="platform-preparation">
-   <section class="platform-next" aria-labelledby="platform-prepare-heading">
-    <h2 id="platform-prepare-heading">Inspect the workspace you will operate.</h2>
-    <p>The native EmDash workspace checks your current owner, editor or viewer role, loads the saved policy and reports whether its trusted app-resource adapter is connected. A workspace owner establishes the supported scope and application limit; a team editor requests within it.</p>
-    <div class="actions"><a class="button" href={nativePlatform}>Inspect platform workspace <ArrowRight size={18} aria-hidden="true"/></a><a href="/_emdash/admin/plugins/composer-stacks/workspaces">Choose a team or review access</a></div>
-    <p class="small">{workspace ? <>Selected workspace <code>{workspace}</code>. The server still checks membership.</> : 'No workspace selected here. EmDash resolves your authorised default; use Workspace access to select another.'} Opening this public page does not inspect a local account, grant access or certify readiness.</p>
-   </section>
+   <ReadyPlatform client:load workspace={workspace} invalidSelection={invalidSelection} source={build.commit}/>
+   <noscript><p>Checking setup on this page needs JavaScript. <a href={invalidSelection ? '/ready?profile=platform' : nativePlatform}>{invalidSelection ? 'Clear the invalid workspace selection' : 'Open the protected platform'}</a> to continue.</p></noscript>
    <section class="platform-prerequisites" aria-labelledby="platform-prerequisites-heading">
     <h2 id="platform-prerequisites-heading">Prepare the prerequisites that affect this path.</h2>
     <dl>
@@ -55,7 +53,7 @@ const source = appSettings.guestbook.source;
     <p>The current path uses an app-owned visitor book resource in the independently deployed Guestbook Worker and its existing database. “Preview” labels the synthetic application request; it does not create an isolated preview Worker or database.</p>
     <p>Knowledge applications, production promotion and strict Australian-only processing/storage are unsupported by this automatic path. Do not enter internal or sensitive records. The request policy records unsupported or denied requirements instead of weakening them.</p>
     <p class="small">Reviewed Guestbook source <code>{source.commit}</code>. Source qualification, current adapter connection and a verified application are separate evidence.</p>
-    <div class="actions"><a class="button secondary" href={platformInit}>Continue to the team request <ArrowRight size={18} aria-hidden="true"/></a><a href="/platform#permissions">Review the permission domains</a></div>
+    <div class="actions"><a class="button secondary" href="/platform#lifecycle">Explore the supported lifecycle <ArrowRight size={18} aria-hidden="true"/></a><a href="/platform#permissions">Review the permission domains</a></div>
    </section>
    <details class="platform-new-host"><summary>Preparing a separate installation?</summary><p>Use the <a href="/ready">independent environment setup</a> for the supported tools, source and first HTTPS application, then follow the <a href="/docs">operator documentation</a> for the intended host. That setup report is an observation; it does not configure platform admission, server credentials or standing policy automatically.</p></details>
   </div>
@@ -79,9 +77,6 @@ const source = appSettings.guestbook.source;
 <style>
  .platform-preparation {
   max-width:1000px
- }
- .platform-next {
-  padding:24px 0 32px
  }
  .platform-preparation h2 {
   font-size:1.7rem;
@@ -139,12 +134,9 @@ const source = appSettings.guestbook.source;
  .platform-preparation h2 {
   font-size:1.5rem
  }
- .platform-next {
-  padding-top:16px
- }
  }
 
- .build-paths{display:flex;flex-wrap:wrap;gap:0 32px;border-block:1px solid var(--color-border);margin:28px 0 16px}.build-paths a{flex:1 1 180px;display:grid;gap:4px;padding:16px 0;min-height:44px;color:var(--color-foreground);text-decoration:none}.build-paths a[aria-current]{box-shadow:inset 0 -2px var(--color-accent)}.build-paths a:hover strong{text-decoration:underline;text-underline-offset:4px}.build-paths span{font-size:13px;line-height:1.5;color:var(--color-muted)}
+ .build-paths{display:flex;flex-wrap:wrap;gap:0 32px;border-block:1px solid var(--color-border);margin:28px 0 16px}.build-paths a{flex:1 1 180px;display:grid;gap:4px;padding:16px 0;min-height:44px;color:var(--color-foreground);text-decoration:none}.build-paths a[aria-current]{box-shadow:inset 0 -2px var(--color-accent)}.build-paths a:hover strong{color:var(--color-accent)}.build-paths span{font-size:13px;line-height:1.5;color:var(--color-muted)}
 
  .workspace-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;margin-bottom:32px}.workspace-heading h1{font-size:3.25rem;max-width:24ch;margin-top:0;margin-bottom:18px}.workspace-heading .lede{font-size:1.1rem;max-width:64ch;margin:0}.workspace-heading>.button{flex-shrink:0}.journey-nav{display:flex;gap:0;border-block:1px solid var(--color-border);margin:32px 0 40px;overflow:auto;flex-wrap:nowrap}.journey-nav a{display:flex;gap:10px;align-items:center;padding:18px 24px 18px 0;margin-right:24px;white-space:nowrap;font-weight:500;color:var(--color-muted);text-decoration:none;min-height:58px}.journey-nav a[aria-current]{color:var(--color-foreground);border-bottom:2px solid var(--color-accent)}.journey-nav span{font-size:13px;border:1px solid var(--color-control-border);border-radius:50%;width:24px;height:24px;display:grid;place-items:center}.journey-nav a[aria-current] span{color:var(--color-accent)}.ready-workspace{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:56px;align-items:start}.ready-main :global(h2){font-size:1.6rem;max-width:none;margin-bottom:14px}.agent-request{border-top:1px solid var(--color-border);padding-top:32px;margin-top:32px;scroll-margin-top:24px}.agent-request>p{color:var(--color-muted)}.owner-boundary{display:flex;gap:12px;padding:18px 0}.owner-boundary svg{flex-shrink:0;margin-top:4px;color:var(--color-muted)}.owner-boundary p{font-size:13px;color:var(--color-muted);margin:0}.readiness-outcome{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;border-top:1px solid var(--color-border);margin-top:56px;padding-top:40px}.readiness-outcome h2{font-size:2rem;margin-bottom:18px}.readiness-map{list-style:none;margin:0;padding:0;max-width:none}.readiness-map li{display:flex;gap:16px;margin:0;padding:16px 0;border-bottom:1px solid var(--color-border)}.readiness-map svg{flex-shrink:0;color:var(--color-muted);margin-top:3px}.readiness-map p{font-size:14px;color:var(--color-muted);margin:4px 0 0}
  @media(max-width:950px){.workspace-heading{display:block}.workspace-heading>.button{margin-top:24px}.ready-workspace{grid-template-columns:1fr;gap:32px}.readiness-outcome{gap:32px}.journey-nav a{margin-right:12px;padding-right:18px}}
