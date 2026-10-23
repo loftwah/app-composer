@@ -257,6 +257,37 @@ test("static native media validation binds one passed cleaned run, sources and c
   });
 });
 
+test("native plugin denial envelopes require explicit FORBIDDEN while member operator denials remain HTTP 403", async () => {
+  await fixture(async ({ path, receipt, save }) => {
+    receipt.journey.crossTeamRead = { status: 200, code: "FORBIDDEN" };
+    receipt.journey.crossTeamWrite = { status: 200, code: "FORBIDDEN" };
+    await inspectNativeMedia(path, await save());
+    for (const key of ["crossTeamRead", "crossTeamWrite"]) {
+      for (const reply of [
+        { status: 200 },
+        { status: 200, code: "OK" },
+        { status: 201, code: "FORBIDDEN" },
+        { status: 500, code: "FORBIDDEN" },
+      ]) {
+        receipt.journey[key] = reply;
+        await assert.rejects(
+          inspectNativeMedia(path, await save()),
+          /access and sensitive-data denials/,
+        );
+      }
+      receipt.journey[key] = { status: 200, code: "FORBIDDEN" };
+    }
+    receipt.journey.ordinaryUser.nativeConfigure = {
+      status: 200,
+      code: "FORBIDDEN",
+    };
+    await assert.rejects(
+      inspectNativeMedia(path, await save()),
+      /role-10 operator denial/,
+    );
+  });
+});
+
 test("recorded inspection holds are bounded, legacy-defaulted and distinct from edited still holds", async () => {
   await fixture(async ({ path, hash, receipt, save }) => {
     const legacy = await inspectNativeMedia(path, hash);
