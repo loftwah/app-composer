@@ -302,6 +302,33 @@ test("exact Guestbook grant, standalone-resistant service dispatch and next-requ
     );
     assert.equal((await f.call(b, request)).ok, true);
     assert.equal(calls.length, 1);
+    f.runtime.GUESTBOOK_MEMBERS = {
+      async fetch() {
+        return Response.json(
+          {
+            id: "fictional-postcard",
+            resource,
+            status: "pending",
+            message: "Your postcard is waiting for review.",
+          },
+          { status: 201 },
+        );
+      },
+    };
+    const contribution = await f.call(a, {
+      action: "guestbook",
+      workspace,
+      resource,
+      capability: "contribute",
+      input: {
+        caption: "A postcard",
+        author: "A",
+        consent: true,
+        png: "fictional-png",
+      },
+    });
+    assert.equal(contribution.ok, true, JSON.stringify(contribution));
+    assert.equal(contribution.result.status, "pending");
     assert.deepEqual(calls[0].body.actor, { issuer: origin, accountId: b.id });
     assert.equal(calls[0].url, origin + "/guestbook/__composer/member");
     assert.equal(
@@ -476,7 +503,7 @@ test("profile create binds selected capabilities only; account/resource forgery 
           workspace,
           operation: "profile-settings",
           resource: "fictional-profile-a",
-          command: { action: "export" },
+          command: { action: "download" },
         })
       ).code,
       "FORBIDDEN",

@@ -448,7 +448,9 @@ export async function dispatchMemberApp(
               (("operation" in input.command &&
                 input.command.operation === "export") ||
                 ("action" in input.command &&
-                  input.command.action === "export")))
+                  ["export", "download"].includes(
+                    String(input.command.action),
+                  ))))
           ? "export"
           : ["publish", "hide", "share-card"].includes(input.operation)
             ? "publish"
@@ -606,15 +608,22 @@ export async function dispatchMemberApp(
   const result = await boundedReply(
     await runtime.GUESTBOOK_MEMBERS.fetch(request),
   );
-  const receipt = z
-    .object({
-      contract: z.literal(1),
-      resource: z.object({
-        id: z.literal(input.resource),
-        version: z.number().int().nonnegative(),
-      }),
-    })
-    .safeParse(result);
+  const receipt = (
+    input.capability === "contribute"
+      ? z.object({
+          id: z.string().min(1).max(128),
+          resource: z.literal(input.resource),
+          status: z.literal("pending"),
+          message: z.string().max(500),
+        })
+      : z.object({
+          contract: z.literal(1),
+          resource: z.object({
+            id: z.literal(input.resource),
+            version: z.number().int().nonnegative(),
+          }),
+        })
+  ).safeParse(result);
   if (!receipt.success)
     throw new StackError(
       "UNAVAILABLE",
