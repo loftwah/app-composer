@@ -9,7 +9,11 @@ const lock = JSON.parse(
 );
 const selected = lock.apps.find((app) => app.id === "guestbook");
 selected.manifest.memberService.version = 2;
-selected.manifest.configuration.guestAccess.options.push("members");
+selected.manifest.configuration.guestAccess.options = [
+  "closed",
+  "postcards",
+  "members",
+];
 registerHooks({
   load(url, context, nextLoad) {
     if (url === new URL("../../composition.lock.json", import.meta.url).href)
@@ -42,7 +46,7 @@ const { validateSpec } = await import("../../src/lib/spec.mjs");
 assert.equal(
   memberContributionsQualified(),
   true,
-  "Only this isolated synthetic module graph qualifies v2.",
+  "This isolated graph requires the finite v2 contract; it does not qualify its runtime.",
 );
 const {
   appSettings,
@@ -588,6 +592,6 @@ console.log(
   JSON.stringify({
     syntheticContractOnly: true,
     scenarios: 11,
-    actualPinPromoted: false,
+    actualPinModifiedByTest: false,
   }),
 );
