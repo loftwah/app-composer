@@ -1146,6 +1146,23 @@ export async function nativeJourney({
       })
       .scrollIntoViewIfNeeded();
     await screenshot(ordinary, "team-a-role10-update-content-preserved");
+    const { qualifyNativeApprovedExport } = await import("./native-export.mjs");
+    result.approvedExport = await qualifyNativeApprovedExport({
+      owner: actors.owner,
+      lab,
+      teamA: {
+        workspace: wa,
+        request: updatedA.id,
+        stack: updatedA.stackId,
+        instance: resource.instance,
+        resource: resource.resource,
+      },
+      approvedItemId: receipt.id,
+      expectedMediaSha: approvedDigest,
+    });
+    result.checks.push(
+      "The actual native approved-subset export retained the same synthetic item and PNG digest without changing the selected request, policy, stack or app resource; full backup and restoration remain unqualified.",
+    );
     if (availabilityFixture) {
       const { runLocalAvailabilityExercise } =
         await import("./native-incident.mjs");

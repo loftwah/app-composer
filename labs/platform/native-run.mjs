@@ -139,6 +139,8 @@ const authored = [
   "docs/platform/native-demo.md",
   "labs/platform/native-incident.mjs",
   "docs/platform/incident-demo.md",
+  "labs/platform/native-export.mjs",
+  "docs/platform/native-export.md",
 ];
 const authoredHashes = Object.fromEntries(
   authored.map((path) => [path, hash(readFileSync(join(repo, path)))]),
