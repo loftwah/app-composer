@@ -43,6 +43,7 @@ test("Creator author errors and stale output fail without rewriting distribution
       ),
       ...[
         "resource-client",
+        "member-contribution-contract",
         "private-outcome-events",
         "private-outcome-proof",
         "stack-resources",
