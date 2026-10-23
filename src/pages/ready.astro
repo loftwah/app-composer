@@ -20,7 +20,6 @@ const invalidSelection = workspaces.length > 0 && (workspaces.length !== 1 || !/
 const workspace = workspaces.length === 1 && /^[a-z0-9-]{6,64}$/.test(workspaces[0]) ? workspaces[0] : undefined;
 const nativePlatform = '/_emdash/admin/plugins/composer-stacks/platform' + (workspace ? '?' + new URLSearchParams({workspace}) : '');
 const platformSelf = '/ready?' + new URLSearchParams({profile:'platform', ...(workspace ? {workspace} : {})});
-const platformInit = '/init?' + new URLSearchParams({profile:'platform', ...(workspace ? {workspace} : {})});
 const source = appSettings.guestbook.source;
 ---
 <Base title={platformSelected ? 'Get Ready: prepare your internal platform' : 'Get Ready: your first working environment'} description={platformSelected ? 'Prepare the operator prerequisites, inspect your authorised workspace and current adapter, then let teams request supported synthetic preview applications.' : 'Start before you have an app idea. Let your agent prepare tools, GitHub and Cloudflare, then verify your first HTTPS app. Save your address choice and resume progress.'}>
@@ -33,19 +32,13 @@ const source = appSettings.guestbook.source;
  </div>
  <nav class="build-paths" aria-label="Choose your application path">
   <a href="/ready" aria-current={!platformSelected ? 'page' : undefined}><strong>My app</strong><span>Prepare your environment and start building.</span></a>
-  <a href="/_emdash/admin/plugins/composer-stacks/workspaces"><strong>My team</strong><span>Use your existing workspace and access.</span></a>
+  <a href="/me"><strong>My team</strong><span>Use your existing workspace and access.</span></a>
   <a href={platformSelf} aria-current={platformSelected ? 'page' : undefined}><strong>Internal platform</strong><span>Give teams approved ways to build, release and run.</span></a>
  </nav>
  {platformSelected ? (
   <div class="platform-preparation">
    <ReadyPlatform client:load workspace={workspace} invalidSelection={invalidSelection} source={build.commit}/>
-   <noscript><p>Open the protected platform to inspect current setup. Checking it on this page needs JavaScript.</p></noscript>
-   <section class="platform-next" aria-labelledby="platform-prepare-heading">
-    <h2 id="platform-prepare-heading">Inspect the workspace you will operate.</h2>
-    <p>The native EmDash workspace checks your current owner, editor or viewer role, loads the saved policy and reports whether its trusted app-resource adapter is connected. A workspace owner establishes the supported scope and application limit; a team editor requests within it.</p>
-    <div class="actions"><a class="button" href={nativePlatform}>Inspect platform workspace <ArrowRight size={18} aria-hidden="true"/></a><a href="/_emdash/admin/plugins/composer-stacks/workspaces">Choose a team or review access</a></div>
-    <p class="small">{workspace ? <>Selected workspace <code>{workspace}</code>. The server still checks membership.</> : 'No workspace selected here. EmDash resolves your authorised default; use Workspace access to select another.'} Opening this public page does not inspect a local account, grant access or certify readiness.</p>
-   </section>
+   <noscript><p>Checking setup on this page needs JavaScript. <a href={invalidSelection ? '/ready?profile=platform' : nativePlatform}>{invalidSelection ? 'Clear the invalid workspace selection' : 'Open the protected platform'}</a> to continue.</p></noscript>
    <section class="platform-prerequisites" aria-labelledby="platform-prerequisites-heading">
     <h2 id="platform-prerequisites-heading">Prepare the prerequisites that affect this path.</h2>
     <dl>
@@ -60,7 +53,7 @@ const source = appSettings.guestbook.source;
     <p>The current path uses an app-owned visitor book resource in the independently deployed Guestbook Worker and its existing database. “Preview” labels the synthetic application request; it does not create an isolated preview Worker or database.</p>
     <p>Knowledge applications, production promotion and strict Australian-only processing/storage are unsupported by this automatic path. Do not enter internal or sensitive records. The request policy records unsupported or denied requirements instead of weakening them.</p>
     <p class="small">Reviewed Guestbook source <code>{source.commit}</code>. Source qualification, current adapter connection and a verified application are separate evidence.</p>
-    <div class="actions"><a class="button secondary" href={platformInit}>Continue to the team request <ArrowRight size={18} aria-hidden="true"/></a><a href="/platform#permissions">Review the permission domains</a></div>
+    <div class="actions"><a class="button secondary" href="/platform#lifecycle">Explore the supported lifecycle <ArrowRight size={18} aria-hidden="true"/></a><a href="/platform#permissions">Review the permission domains</a></div>
    </section>
    <details class="platform-new-host"><summary>Preparing a separate installation?</summary><p>Use the <a href="/ready">independent environment setup</a> for the supported tools, source and first HTTPS application, then follow the <a href="/docs">operator documentation</a> for the intended host. That setup report is an observation; it does not configure platform admission, server credentials or standing policy automatically.</p></details>
   </div>
@@ -84,9 +77,6 @@ const source = appSettings.guestbook.source;
 <style>
  .platform-preparation {
   max-width:1000px
- }
- .platform-next {
-  padding:24px 0 32px
  }
  .platform-preparation h2 {
   font-size:1.7rem;
@@ -143,9 +133,6 @@ const source = appSettings.guestbook.source;
  }
  .platform-preparation h2 {
   font-size:1.5rem
- }
- .platform-next {
-  padding-top:16px
  }
  }
 

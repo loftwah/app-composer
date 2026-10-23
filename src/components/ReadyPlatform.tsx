@@ -31,6 +31,23 @@ const setup = z
 const unavailable =
   "Sign in with EmDash, then check again. Your account needs current workspace access; an invitation alone does not grant it.";
 
+async function confirmSource(source: string | null) {
+  const response = await fetch("/api/build.json", {
+    cache: "no-store",
+    redirect: "error",
+  });
+  const identity = response.ok ? await response.json() : null;
+  if (
+    !identity ||
+    identity.app !== "app-composer" ||
+    !source ||
+    identity.commit !== source
+  )
+    throw Error(
+      "The installation changed since this page opened. Reload Get Ready before checking its current setup.",
+    );
+}
+
 async function currentPlatform(workspace: string) {
   const query = new URLSearchParams({ action: "list", workspace });
   const options = { cache: "no-store", redirect: "error" } as const;
@@ -113,21 +130,10 @@ export default function ReadyPlatform({
     setAssessment(undefined);
     setStatus("Checking your current session and workspace…");
     try {
-      const [before, identityResponse] = await Promise.all([
+      const [before] = await Promise.all([
         memberSession(),
-        fetch("/api/build.json", { cache: "no-store", redirect: "error" }),
+        confirmSource(source),
       ]);
-      const identity = identityResponse.ok
-        ? await identityResponse.json()
-        : null;
-      if (
-        !identity ||
-        identity.app !== "app-composer" ||
-        identity.commit !== source
-      )
-        throw Error(
-          "The installation changed since this page opened. Reload Get Ready before checking its current setup.",
-        );
       if (!live.current || epoch !== generation.current) return;
       if (
         observedAccount.current &&
@@ -155,7 +161,10 @@ export default function ReadyPlatform({
           "This account does not have current access to the selected workspace. Choose an authorised team; the selection has not been replaced.",
         );
       const snapshot = await currentPlatform(selected);
-      const after = await memberSession();
+      const [after] = await Promise.all([
+        memberSession(),
+        confirmSource(source),
+      ]);
       if (!live.current || epoch !== generation.current) return;
       if (
         !sameAccount(before, after) ||
@@ -344,6 +353,21 @@ export default function ReadyPlatform({
                     ? "Open protected platform"
                     : "Open my team applications"}
               </a>
+            )}
+            {assessment.next.id === "request" && !assessment.stale && (
+              <p>
+                <a
+                  href={
+                    "/init?" +
+                    new URLSearchParams({
+                      profile: "platform",
+                      workspace: selected,
+                    })
+                  }
+                >
+                  Continue in Init with this team
+                </a>
+              </p>
             )}
           </div>
           <details>
