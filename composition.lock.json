@@ -1,5 +1,5 @@
 {
-  "id": "115e6d85f86af78436cdee88b63616448997befc6278665963dcfc7284232a7a",
+  "id": "b78b83ff30749557520c2da2aad718b1a8e534f0e12e848a8faf9b16dbaa0d47",
   "reviewed": "2026-10-23",
   "apps": [
     {
@@ -105,13 +105,13 @@
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "4819a05e2d4862161ad8a6597c3babd96d1f7e04",
+      "commit": "2f9280d3ae754076174b5527ab15224c918b8580",
       "url": "https://showcase.loftwah.com",
       "manifest": {
         "contract": 1,
         "id": "showcase",
         "name": "Linkarooie",
-        "version": "1.8.0",
+        "version": "1.9.0",
         "repository": "https://github.com/loftwah/app-composer-showcase",
         "runtime": "cloudflare-worker",
         "entry": "src/worker.ts",
@@ -268,9 +268,15 @@
           "provider": "guestbook",
           "selection": "explicit-resource-and-activated-configuration",
           "eligibility": "checked-at-each-render-and-export"
+        },
+        "profileShareCard": {
+          "version": 1,
+          "format": "linkarooie.share-card",
+          "maxReceiptBytes": 16384,
+          "activation": "deployed-immutable-asset"
         }
       },
-      "manifestDigest": "sha256:37ef87c63fc981f1e49d129deb623806123fa799ae66290a5fc4f142c2bacdfa"
+      "manifestDigest": "sha256:fa5c064d60e16bc545b0fda87abbebd9bc1941bd1590ce3fa6554da628cc8dd4"
     }
   ]
 }

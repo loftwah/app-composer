@@ -1,0 +1,18 @@
+{
+  "browser": "155.0.8059.85",
+  "network": "Only synthetic app origin fulfilled through real Worker runtime; external requests blocked.",
+  "database": "Independent in-memory SQLite with fictional profile; real SQL and owner cookie login.",
+  "passed": [
+    "standalone owner login",
+    "local receipt+PNG decode comparison",
+    "unsaved profile edits blocked and retained",
+    "explicit adoption through deployed-byte validation",
+    "public byte/type/dimensions/revision verification",
+    "manual/default rollback",
+    "mounted owner same profile",
+    "cancel selection",
+    "390px no horizontal overflow",
+    "fictional mounted example actual PNG decode"
+  ],
+  "pageErrors": []
+}
