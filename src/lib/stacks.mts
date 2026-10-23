@@ -247,6 +247,13 @@ function platformActor(actor: unknown): PlatformActor | undefined {
     ? platformActors.get(actor)
     : undefined;
 }
+// Resource staging shares the same unforgeable in-process execution identity.
+export function platformExecutionIdentity(
+  actor: unknown,
+): Readonly<PlatformActor> | undefined {
+  const execution = platformActor(actor);
+  return execution ? Object.freeze({ ...execution }) : undefined;
+}
 function actorId(actor: unknown): unknown {
   return platformActor(actor)?.userId ?? actor;
 }

@@ -1,17 +1,17 @@
 {
-  "id": "e7e3dfe08d5c30d33b1ca083457daf790c32a60032fffb150932ddbc3131969c",
+  "id": "a15f9ba2150e78d1d24ec0bb9ef8e94f1a0255d67f84c11356b29d31b7fb9e5c",
   "reviewed": "2026-10-23",
   "apps": [
     {
       "id": "guestbook",
       "repository": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "9515b359bf268e6c79efbf6ad3497da132973c3e",
+      "commit": "e097e4dd46abe5dd49a0ee1209276cc506e601fa",
       "url": "https://guestbook.loftwah.com",
       "manifest": {
         "contract": 1,
         "id": "guestbook",
         "name": "Here / there",
-        "version": "1.4.0",
+        "version": "1.5.0",
         "repository": "https://github.com/loftwah/app-composer-guestbook",
         "runtime": "cloudflare-worker",
         "entry": "src/worker.ts",
@@ -20,7 +20,7 @@
           "/guestbook"
         ],
         "memberService": {
-          "version": 1,
+          "version": 2,
           "entrypoint": "GuestbookMemberService",
           "transport": "service-binding",
           "path": "/__composer/member"
@@ -61,7 +61,8 @@
             "type": "select",
             "options": [
               "closed",
-              "postcards"
+              "postcards",
+              "members"
             ],
             "default": "closed"
           }
@@ -106,7 +107,7 @@
           }
         }
       },
-      "manifestDigest": "sha256:0975138b8b679c7b9f6aebd307ad135b85074f90dbb0e7259785add60b40ab84"
+      "manifestDigest": "sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972"
     },
     {
       "id": "showcase",

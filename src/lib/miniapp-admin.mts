@@ -10,7 +10,10 @@ import {
 } from "./miniapp-achievements.mjs";
 import { tagCommand } from "./miniapp-tags.mjs";
 import { tagCollection } from "./miniapp-tag-fields.mjs";
-import { appSettings, validateAppSettingValue } from "./app-settings.mjs";
+import {
+  globalAppSettings as appSettings,
+  validateAppSettingValue,
+} from "./app-settings.mjs";
 import { shareCardCommand, shareCardSnapshot } from "./miniapp-share-card.mjs";
 
 export interface MiniappContext {

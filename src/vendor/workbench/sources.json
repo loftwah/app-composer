@@ -4,7 +4,7 @@
     {
       "id": "guestbook",
       "repository": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "9515b359bf268e6c79efbf6ad3497da132973c3e",
+      "commit": "e097e4dd46abe5dd49a0ee1209276cc506e601fa",
       "source": "src/photo-view.ts",
       "copy": "src/vendor/workbench/guestbook-photo-view.ts",
       "sha256": "8eae9eb6c7a4f7763f40ebc109e79e0486fd42e5fc00416127b2890061b942ba"

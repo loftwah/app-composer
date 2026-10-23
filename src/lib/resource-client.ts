@@ -1,7 +1,8 @@
 import { z } from 'zod';
-import { appSettings, validateConfigurationPatch } from './app-settings.mjs';
+import { appSettings, validateScopedConfigurationPatch } from './app-settings.mjs';
 import { StackError } from './stacks.mjs';
 import { portableGuestbook } from '../plugins/maintenance/protocol.ts';
+import { memberContributionsQualified } from './member-contribution-contract.ts';
 
 const id = z.string().regex(/^[a-z0-9-]{6,64}$/);
 const sourceRevision = z.string().regex(/^[a-f0-9]{40}$/);
@@ -9,7 +10,7 @@ const revision = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 const config = z.object({
   title: z.string().min(1).max(80), intro: z.string().max(240),
   theme: z.enum(['daylight', 'midnight']), layout: z.enum(['grid', 'editorial']),
-  guestAccess: z.enum(['closed', 'postcards']),
+  guestAccess: z.enum(['closed', 'postcards', 'members']).refine(value => value !== 'members' || memberContributionsQualified(), 'Member contributions require a qualified current source.'),
 }).strict();
 export type GuestbookConfiguration = z.infer<typeof config>;
 const resource = z.object({
@@ -62,7 +63,7 @@ export const configurationDigest = async (value: GuestbookConfiguration) => {
 export function effectiveGuestbookConfiguration(values: Record<string, string>): GuestbookConfiguration {
   const model = appSettings.guestbook;
   const complete = Object.fromEntries(model.fields.map(field => [field.key, values[field.key] ?? field.default]));
-  return config.parse(validateConfigurationPatch(complete, 'guestbook'));
+  return config.parse(validateScopedConfigurationPatch(complete, 'guestbook'));
 }
 
 async function boundedBytes(response: Response, limit: number): Promise<Uint8Array> {

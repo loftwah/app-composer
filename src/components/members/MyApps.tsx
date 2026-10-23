@@ -10,6 +10,12 @@ import {
 import { profile, decodeProfile, type Profile } from "./profile";
 import ProfileEditor from "./ProfileEditor";
 import GuestbookTools from "./GuestbookTools";
+import PlatformRequests from "./PlatformRequests";
+import {
+  memberPageSelection,
+  memberScopeBlocked,
+  acceptInvitationPreservingScope,
+} from "./selection";
 import "./members.css";
 
 export default function MyApps() {
@@ -24,27 +30,47 @@ export default function MyApps() {
     generation = useRef(0),
     live = useRef(true),
     dirty = useRef(false),
+    appDrafts = useRef({ guestbook: false, platform: false }),
     scope = useRef("");
   const currentAccount = useRef<MemberSession | undefined>(undefined);
-  const load = async (id = scope.current) => {
+  const load = async (id = scope.current, readProfile = true) => {
     const mine = ++generation.current;
     const next = await memberSession();
     if (!live.current || mine !== generation.current) return;
+    if (
+      id &&
+      scope.current &&
+      id !== scope.current &&
+      memberScopeBlocked(dirty.current, false, appDrafts.current)
+    )
+      throw Error(
+        "Current work started while workspace access was loading. Your entries and operation identities are retained; finish or check them before changing workspace.",
+      );
     if (currentAccount.current && !sameAccount(currentAccount.current, next)) {
       setSnapshot(undefined);
       dirty.current = false;
     }
     currentAccount.current = next;
     setAccount(next);
-    const workspace =
-      next.workspaces.find((w) => w.id === id) ?? next.workspaces[0];
+    const workspace = id
+      ? next.workspaces.find((w) => w.id === id)
+      : next.workspaces[0];
     scope.current = workspace?.id ?? "";
     setSelected(scope.current);
     if (!workspace) {
       setSnapshot(undefined);
+      if (id)
+        throw Error(
+          "The selected workspace is not confirmed for this account. Your address will not fall back to another workspace.",
+        );
       setStatus(
         "Your account is signed in. Accept an invitation below to join its workspace; a profile has not been created.",
       );
+      return;
+    }
+    if (!readProfile) {
+      setSnapshot(undefined);
+      setStatus("Workspace access loaded. Choose an available action below.");
       return;
     }
     const grant =
@@ -65,7 +91,14 @@ export default function MyApps() {
     if (!grant) {
       setSnapshot(undefined);
       setStatus(
-        "Workspace membership is active. Ask its owner for the profile or app actions you need.",
+        next.grants.some(
+          (entry) =>
+            entry.workspace === workspace.id &&
+            entry.app === "guestbook" &&
+            entry.status !== "revoked",
+        )
+          ? "Your shared app tools are available in My apps. Profile editing needs a separate grant."
+          : "Workspace membership is active. Ask its owner for the profile or app actions you need.",
       );
       return;
     }
@@ -107,15 +140,29 @@ export default function MyApps() {
   };
   useEffect(() => {
     live.current = true;
-    void load().catch((e) =>
+    try {
+      const initial = memberPageSelection(location.search);
+      setView(initial.view);
+      void load(initial.workspace ?? "", initial.view !== "platform").catch(
+        (e) =>
+          setError(
+            e instanceof Error
+              ? e.message
+              : "Sign in with EmDash to open your apps.",
+          ),
+      );
+    } catch (cause) {
       setError(
-        e instanceof Error
-          ? e.message
-          : "Sign in with EmDash to open your apps.",
-      ),
-    );
+        cause instanceof Error ? cause.message : "Choose a valid member view.",
+      );
+    }
     const before = (event: BeforeUnloadEvent) => {
-      if (dirty.current || pending.current) event.preventDefault();
+      if (
+        dirty.current ||
+        pending.current ||
+        Object.values(appDrafts.current).some(Boolean)
+      )
+        event.preventDefault();
     };
     const follow = (event: MouseEvent) => {
       const anchor =
@@ -125,7 +172,9 @@ export default function MyApps() {
         !anchor.target &&
         anchor.origin === location.origin &&
         anchor.pathname !== location.pathname &&
-        (dirty.current || pending.current) &&
+        (dirty.current ||
+          pending.current ||
+          Object.values(appDrafts.current).some(Boolean)) &&
         !window.confirm(
           "You have unsaved edits or an operation in progress. Leave this page?",
         )
@@ -321,18 +370,45 @@ export default function MyApps() {
                 invite.status !== "pending" ||
                 Date.parse(invite.expiresAt) <= Date.now()
               }
-              onClick={() =>
+              onClick={() => {
+                if (
+                  memberScopeBlocked(
+                    dirty.current,
+                    pending.current,
+                    appDrafts.current,
+                  )
+                ) {
+                  setError(
+                    "Finish or check the current profile, application request or contribution before accepting an invitation into another workspace. Your entries and operation identities are retained.",
+                  );
+                  return;
+                }
                 void execute(async () => {
-                  await memberCall("accept", {
-                    expectedActor: actorConstraint(account),
-                    workspace: invite.workspace,
-                    expectedRevision: invite.workspaceRevision,
-                    invitation: invite.id,
-                    invitationRevision: invite.revision,
-                  });
-                  await load(invite.workspace);
-                })
-              }
+                  const switched = await acceptInvitationPreservingScope(
+                    () =>
+                      memberScopeBlocked(
+                        dirty.current,
+                        false,
+                        appDrafts.current,
+                      ),
+                    async () => {
+                      await memberCall("accept", {
+                        expectedActor: actorConstraint(account),
+                        workspace: invite.workspace,
+                        expectedRevision: invite.workspaceRevision,
+                        invitation: invite.id,
+                        invitationRevision: invite.revision,
+                      });
+                    },
+                    () => load(invite.workspace, view !== "platform"),
+                  );
+                  if (!switched) {
+                    setStatus(
+                      "Workspace invitation accepted. Finish or check the current work before selecting the new workspace; your entries and operation identities are retained.",
+                    );
+                  }
+                });
+              }}
             >
               Accept workspace invitation
             </button>
@@ -345,15 +421,21 @@ export default function MyApps() {
             value={selected}
             disabled={busy}
             onChange={(event) => {
-              if (dirty.current) {
+              if (
+                memberScopeBlocked(
+                  dirty.current,
+                  pending.current,
+                  appDrafts.current,
+                )
+              ) {
                 setError(
-                  "Save or discard your profile edits before changing workspace. Your edits are retained.",
+                  "Finish or check the current profile, application request or contribution before changing workspace. Your entries and operation identities are retained.",
                 );
                 return;
               }
               const id = event.target.value;
               setSnapshot(undefined);
-              void execute(() => load(id));
+              void execute(() => load(id, view !== "platform"));
             }}
           >
             {account.workspaces.map((w) => (
@@ -368,7 +450,10 @@ export default function MyApps() {
         <nav className="member-actions" aria-label="My work">
           <button
             aria-pressed={view === "profile"}
-            onClick={() => setView("profile")}
+            onClick={() => {
+              setView("profile");
+              if (!snapshot) void execute(() => load());
+            }}
           >
             My profile
           </button>
@@ -378,6 +463,18 @@ export default function MyApps() {
           >
             My apps
           </button>
+          {account?.workspaces.some(
+            (workspace) =>
+              workspace.id === selected &&
+              ["owner", "editor"].includes(workspace.role),
+          ) && (
+            <button
+              aria-pressed={view === "platform"}
+              onClick={() => setView("platform")}
+            >
+              Team application requests
+            </button>
+          )}
         </nav>
       )}
       <div hidden={view !== "profile"}>
@@ -435,8 +532,40 @@ export default function MyApps() {
             workspace={selected}
             account={account!}
             refreshAccess={() => load()}
+            dirtyChanged={(value) => {
+              appDrafts.current.guestbook = value;
+            }}
           />
         )}
+      </div>
+      <div hidden={view !== "platform"}>
+        {account &&
+          account.workspaces.some(
+            (workspace) =>
+              workspace.id === selected &&
+              ["owner", "editor"].includes(workspace.role),
+          ) && (
+            <PlatformRequests
+              key={`${account.actor.subject}/${selected}/platform`}
+              account={account}
+              workspace={selected}
+              dirtyChanged={(value) => {
+                appDrafts.current.platform = value;
+              }}
+            />
+          )}
+        {account &&
+          !account.workspaces.some(
+            (workspace) =>
+              workspace.id === selected &&
+              ["owner", "editor"].includes(workspace.role),
+          ) && (
+            <p>
+              Team application requests require explicit editor or owner
+              delegation in the selected workspace. Profile and app grants alone
+              do not grant this access.
+            </p>
+          )}
       </div>
     </div>
   );

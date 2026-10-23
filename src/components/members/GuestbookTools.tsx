@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import {
+  beginContribution,
+  confirmContribution,
+  observeContribution,
+  contributionRecovery,
+  recoverContribution,
+  type ContributionAttempt,
+} from "./contribution-state";
+import {
   memberCall,
   memberSession,
   sameAccount,
@@ -11,7 +19,7 @@ import {
 } from "./api";
 
 const review = z.object({
-  contract: z.literal(1),
+  contract: z.union([z.literal(1), z.literal(2)]),
   resource: z.object({ id: z.string(), version: z.number().int().positive() }),
   items: z
     .array(
@@ -67,11 +75,13 @@ export default function GuestbookTools({
   workspace,
   account,
   refreshAccess,
+  dirtyChanged,
 }: {
   grants: Grant[];
   workspace: string;
   account: MemberSession;
   refreshAccess: () => Promise<void>;
+  dirtyChanged?: (value: boolean) => void;
 }) {
   const resources = [...new Set(grants.map((g) => g.resource))];
   const [selected, setSelected] = useState(resources[0] ?? "");
@@ -83,12 +93,33 @@ export default function GuestbookTools({
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [uncertain, setUncertain] = useState(false);
+  const [recovery, setRecovery] = useState<"retry" | "resume">();
+  const recoveryObservation = useRef<unknown>(undefined);
+  const attempt = useRef<ContributionAttempt | undefined>(undefined);
   const canvas = useRef<HTMLCanvasElement>(null),
     pending = useRef(false),
     live = useRef(true),
     generation = useRef(0);
   const allowed = (action: string) =>
     grants.some((g) => g.resource === selected && g.action === action);
+  const membersOnly = grants.some(
+    (g) => g.resource === selected && g.contributions === "members",
+  );
+  useEffect(() => {
+    const changed = busy || uncertain || !!message.trim();
+    dirtyChanged?.(changed);
+    const leave = (event: BeforeUnloadEvent) => {
+      if (changed) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", leave);
+    return () => {
+      window.removeEventListener("beforeunload", leave);
+      dirtyChanged?.(false);
+    };
+  }, [busy, uncertain, message, dirtyChanged]);
   useEffect(() => {
     live.current = true;
     return () => {
@@ -100,7 +131,7 @@ export default function GuestbookTools({
     if (canvas.current) drawPostcard(canvas.current, message, alias);
   }, [message, alias]);
   const call = async (
-    capability: "contribute" | "moderate",
+    capability: "contribute" | "moderate" | "contribution-status",
     input: Record<string, unknown>,
   ) => {
     const before = await memberSession();
@@ -129,7 +160,8 @@ export default function GuestbookTools({
           g.workspace === workspace &&
           g.resource === selected &&
           g.app === "guestbook" &&
-          g.action === capability,
+          g.action ===
+            (capability === "contribution-status" ? "contribute" : capability),
       )
     ) {
       setList(undefined);
@@ -168,13 +200,24 @@ export default function GuestbookTools({
       throw Error("The review list belongs to a different visitor book.");
     if (live.current && mine === generation.current) setList(result);
   };
+  const finishContribution = () => {
+    attempt.current = undefined;
+    setUncertain(false);
+    setRecovery(undefined);
+    recoveryObservation.current = undefined;
+    setMessage("");
+    setConsent(false);
+    setStatus(
+      "Postcard submitted for review. It remains private until an authorised moderator approves it.",
+    );
+  };
   return (
     <section>
       <h3>Here / there</h3>
       <label className="member-scope">
         Selected visitor book
         <select
-          disabled={busy || !!message.trim()}
+          disabled={busy || uncertain || !!message.trim()}
           value={selected}
           onChange={(e) => {
             generation.current++;
@@ -201,8 +244,15 @@ export default function GuestbookTools({
       </p>
       {allowed("contribute") && (
         <details open>
-          <summary>Contribute a postcard</summary>
+          <summary>
+            {membersOnly
+              ? "Contribute a fictional member postcard"
+              : "Contribute a postcard"}
+          </summary>
           <p>
+            {membersOnly
+              ? "Use fictional messages and aliases only in this synthetic team service. Public postcard admission stays closed. "
+              : ""}
             Your message is drawn on this device. It goes to this visitor book’s
             pending queue for a separately authorised moderator.
           </p>
@@ -213,13 +263,25 @@ export default function GuestbookTools({
               void run(async () => {
                 if (!canvas.current || !consent || uncertain) return;
                 const png = canvas.current.toDataURL("image/png").split(",")[1];
-                setUncertain(true);
-                const result = await call("contribute", {
+                const input = {
                   caption: message,
                   author: alias,
                   consent,
                   png,
-                });
+                };
+                if (membersOnly) {
+                  attempt.current ??= beginContribution(selected, input);
+                  setUncertain(true);
+                  const result = await call(
+                    "contribute",
+                    attempt.current.input,
+                  );
+                  confirmContribution(attempt.current, result);
+                  finishContribution();
+                  return;
+                }
+                setUncertain(true);
+                const result = await call("contribute", input);
                 const receipt = z
                   .object({
                     id: z.string(),
@@ -231,12 +293,7 @@ export default function GuestbookTools({
                   throw Error(
                     "The receipt does not confirm this visitor book. Check before retrying.",
                   );
-                setUncertain(false);
-                setMessage("");
-                setConsent(false);
-                setStatus(
-                  "Postcard submitted for review. It remains private until an authorised moderator approves it.",
-                );
+                finishContribution();
               });
             }}
           >
@@ -245,7 +302,7 @@ export default function GuestbookTools({
               <textarea
                 required
                 maxLength={160}
-                disabled={busy}
+                disabled={busy || uncertain}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
               />
@@ -255,7 +312,7 @@ export default function GuestbookTools({
               <input
                 required
                 maxLength={60}
-                disabled={busy}
+                disabled={busy || uncertain}
                 value={alias}
                 onChange={(e) => setAlias(e.target.value)}
               />
@@ -276,7 +333,7 @@ export default function GuestbookTools({
               <input
                 type="checkbox"
                 required
-                disabled={busy}
+                disabled={busy || uncertain}
                 checked={consent}
                 onChange={(e) => setConsent(e.target.checked)}
               />
@@ -286,11 +343,90 @@ export default function GuestbookTools({
               Submit for review
             </button>
             {uncertain && (
-              <p>
-                The submission result has not been confirmed. Keep this message
-                and ask the visitor-book owner to check its queue before
-                submitting again.
-              </p>
+              <div>
+                <p>
+                  The submission result has not been confirmed. Your message and
+                  original operation identity are retained.
+                </p>
+                {attempt.current ? (
+                  <>
+                    <p>
+                      Operation <code>{attempt.current.input.operationId}</code>
+                    </p>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() =>
+                        void run(async () => {
+                          const pending = attempt.current;
+                          if (!pending) return;
+                          setRecovery(undefined);
+                          recoveryObservation.current = undefined;
+                          const observed = observeContribution(
+                            pending,
+                            await call("contribution-status", {
+                              operationId: pending.input.operationId,
+                            }),
+                          );
+                          if (
+                            observed.outcome === "completed" &&
+                            observed.receipt
+                          ) {
+                            finishContribution();
+                            return;
+                          }
+                          const next = await contributionRecovery(
+                            pending,
+                            observed,
+                          );
+                          recoveryObservation.current = observed;
+                          setRecovery(next);
+                          setStatus(
+                            observed.outcome === "not-recorded"
+                              ? "No receipt is recorded. You may explicitly retry the same unchanged submission and operation."
+                              : next === "resume"
+                                ? "The original submission is pending with matching configuration and postcard data. You may explicitly resume that same unchanged operation."
+                                : "The original submission remains pending but cannot currently be resumed. Keep its operation identity and check its receipt after the service is reviewed; no new submission was sent.",
+                          );
+                        })
+                      }
+                    >
+                      Check original receipt
+                    </button>
+                    {recovery && (
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() =>
+                          void run(async () => {
+                            const pending = attempt.current;
+                            if (!pending) return;
+                            const observed = recoveryObservation.current;
+                            setRecovery(undefined);
+                            recoveryObservation.current = undefined;
+                            await recoverContribution(
+                              pending,
+                              observed,
+                              (input) => call("contribute", input),
+                            );
+                            finishContribution();
+                          })
+                        }
+                      >
+                        {recovery === "resume"
+                          ? "Resume the same submission"
+                          : "Retry the same submission"}
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <p>
+                    Ask the visitor-book owner to check its queue before
+                    submitting again. This older contribution path has no member
+                    receipt lookup.
+                  </p>
+                )}
+              </div>
             )}
           </form>
         </details>

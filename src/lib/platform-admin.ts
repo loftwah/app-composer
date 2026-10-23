@@ -191,14 +191,14 @@ function runner(runtime: PlatformRuntime, workspace: string) {
       available: true,
       kind: "existing-resource-adapter",
       message:
-        "The trusted existing app-resource adapter is connected. No hosted build runner or dedicated per-app infrastructure is implied.",
+        "Adapter configuration is validated only. No upstream network connection or provider permission has been checked by this observation. Execution revalidates the actual app service separately.",
     };
   } catch {
     return {
       available: false,
       kind: "existing-resource-adapter",
       message:
-        "The trusted app-resource adapter is unavailable. Requests remain pending; no cloud work has been started.",
+        "Adapter configuration is incomplete. No upstream network connection or provider permission has been checked; requests remain pending and no cloud work has started.",
     };
   }
 }
@@ -282,7 +282,12 @@ export async function platformSnapshot(
   const requests = await Promise.all(
     rows.results.map((row) => requestView(db, row, user)),
   );
-  requireCapability(await membership(db, workspace.id, user.id), "read");
+  const count = await db
+    .prepare("SELECT COUNT(*) AS n FROM creator_stacks WHERE workspace_id=?")
+    .bind(workspace.id)
+    .first<{ n: number }>();
+  const currentRole = await membership(db, workspace.id, user.id);
+  requireCapability(currentRole, "read");
   return {
     ok: true as const,
     workspace,
@@ -290,6 +295,12 @@ export async function platformSnapshot(
     recipes,
     requests,
     runner: runner(runtime, workspace.id),
+    setup: {
+      target: target(runtime),
+      existingStacks: count?.n ?? 0,
+      managed: profile !== null,
+      canConfigurePolicy: isCreatorRole(user.role) && currentRole === "owner",
+    },
   };
 }
 async function configure(
@@ -851,7 +862,7 @@ export async function runPlatformRequest(
     advancing = true;
     const applied = await applyStackResources(
       db,
-      user.id,
+      trustedPlatformActor(user.id, row.id, token),
       workspace,
       current.id,
       current.revision,
@@ -1129,16 +1140,125 @@ async function reconcilePlatformRequest(
   );
 }
 
+type PlatformContext = { user?: User; request: Request; input: unknown };
 export async function managePlatform(
+  ctx: PlatformContext,
+  runtime: PlatformRuntime,
+) {
+  return handlePlatform(ctx, runtime, false);
+}
+
+// A separate signed-in member route delegates only application self-service.
+// Its explicit workspace role never changes the user's global EmDash role.
+export async function manageMemberPlatform(
+  ctx: PlatformContext,
+  runtime: PlatformRuntime,
+) {
+  if (
+    !ctx.user ||
+    ![10, 20, 30, 40, 50].includes(ctx.user.role) ||
+    !runtime.DB ||
+    runtime.PUBLIC_ORIGIN !== origin
+  )
+    return {
+      ok: false as const,
+      code: "FORBIDDEN",
+      message:
+        "Current workspace delegation is required for platform self-service.",
+    };
+  let input = ctx.input;
+  if (
+    input &&
+    typeof input === "object" &&
+    !Array.isArray(input) &&
+    Object.hasOwn(input, "expectedActor")
+  ) {
+    const expected = z
+      .object({ issuer: z.literal(origin), subject: z.string() })
+      .strict()
+      .safeParse((input as Record<string, unknown>).expectedActor);
+    if (!expected.success || expected.data.subject !== ctx.user.id)
+      return {
+        ok: false as const,
+        code: "CONFLICT",
+        message:
+          "The signed-in account changed. Keep your request and refresh before continuing.",
+      };
+    const { expectedActor: _, ...command } = input as Record<string, unknown>;
+    input = command;
+  }
+  const selected = z
+    .object({
+      workspace: id,
+      action: z.enum([
+        "list",
+        "submit",
+        "revise",
+        "update",
+        "run",
+        "reconcile",
+      ]),
+    })
+    .safeParse(input);
+  if (!selected.success)
+    return {
+      ok: false as const,
+      code: "FORBIDDEN",
+      message:
+        "Choose a delegated application action in an explicit workspace. Operator policy and review use native administration.",
+    };
+  const role = await membership(
+    runtime.DB,
+    selected.data.workspace,
+    ctx.user.id,
+  );
+  const reading =
+    ctx.request.method === "GET" && selected.data.action === "list";
+  const creator = isCreatorRole(ctx.user.role);
+  const allowed = (current: typeof role) =>
+    current === "editor" ||
+    current === "owner" ||
+    (reading && creator && current === "viewer");
+  const forbidden = {
+    ok: false as const,
+    code: "FORBIDDEN",
+    message:
+      "A current workspace editor or owner delegation is required for self-service. Creator viewers may only read team applications. App and profile grants alone do not grant platform access.",
+  };
+  if (!allowed(role)) return forbidden;
+  const result = await handlePlatform({ ...ctx, input }, runtime, true);
+  if (result.ok && reading) {
+    const current = await membership(
+      runtime.DB,
+      selected.data.workspace,
+      ctx.user.id,
+    );
+    if (!allowed(current)) return forbidden;
+    if (current !== role)
+      return {
+        ok: false as const,
+        code: "CONFLICT",
+        message:
+          "Workspace access changed during the check. Refresh before continuing.",
+      };
+  }
+  return { ...result, actor: { issuer: origin, subject: ctx.user.id } };
+}
+
+async function handlePlatform(
   ctx: { user?: User; request: Request; input: unknown },
   runtime: PlatformRuntime,
+  delegated: boolean,
 ) {
   const fail = (code: string, message: string) => ({
     ok: false as const,
     code,
     message,
   });
-  if (!ctx.user || !isCreatorRole(ctx.user.role))
+  if (
+    !ctx.user ||
+    (!isCreatorRole(ctx.user.role) && !(delegated && ctx.user.role === 10))
+  )
     return fail(
       "FORBIDDEN",
       "A signed-in Composer creator is required. Application users do not gain platform authority.",

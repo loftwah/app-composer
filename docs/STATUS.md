@@ -30,16 +30,17 @@ mirror only final public documents under reserved operator-fixture ownership;
 they establish no production member accounts, invitations or grants. Fresh-person
 Access admission still requires the separately reviewed owner-approved change.
 
-Guestbook's reviewed member-service implementation is independently released at
-`9515b359bf268e6c79efbf6ad3497da132973c3e` ([PR #29](https://github.com/loftwah/app-composer-guestbook/pull/29)),
-Worker `4cfae228-e144-43ff-9339-a7e17c83380e`. Its release passed 111 tests and a
-real local workerd named-binding check; production health/build match that
-source, existing public items are byte-identical and public member endpoint
-GET/POST requests return 404. This app release did not change Access policy,
-accounts or member secrets. Its isolated release checkout was checked clean and
-unused, its bounded receipt copied into ignored integration evidence, and only
-that checkout was removed. The active authenticated lab is retained for the
-remaining qualification and has its own explicit cleanup command.
+Guestbook's version 2 member service is independently released at
+`e097e4dd46abe5dd49a0ee1209276cc506e601fa` ([PR #30](https://github.com/loftwah/app-composer-guestbook/pull/30)),
+Worker `60803574-3848-4b95-a06a-c82dbbe2075c`. Its release passed 121 tests,
+build and actual local workerd named-binding qualification at that merged source.
+It adds opt-in, scoped synthetic member contributions while retaining default
+closed/public-postcard modes, private pending media and separate moderation.
+The release preserved existing public settings and changed no Access policy or
+accounts. The earlier member lab, render resources and owned release checkout
+were cleaned after their final receipts. Composer's exact adopted pin and live
+service versions remain recorded in #11; the independent app release alone does
+not establish Composer activation or production member admission.
 
 [Issue #11](https://github.com/loftwah/app-composer/issues/11) remains the canonical
 release/evidence index. Fresh production admission may need an exact owner-approved
@@ -51,8 +52,9 @@ open. This section will be reconciled with the final root release receipt.
 
 The selected internal-platform path connects [Get Ready](/ready?profile=platform),
 [Init](/init?profile=platform), native EmDash requests and the [public field guide](/platform).
-An admitted workspace owner configures standing policy in an empty workspace;
-an editor or owner can request a synthetic Guestbook visitor book. Permitted work
+An admitted creator who owns the workspace configures standing policy in an empty
+workspace; an explicitly delegated editor or owner can request a synthetic
+Guestbook visitor book through My apps, without a global CMS role promotion. Permitted work
 uses the existing trusted adapter automatically. Optional independent review,
 revisions, compatible configuration updates, quotas and retained operation
 identities remain server-enforced. Pausing policy preserves the managed-workspace
@@ -65,13 +67,26 @@ knowledge applications and production promotion remain unsupported. Retirement,
 credential rotation, complete backup restoration and continuous health are not
 implemented by this slice.
 
+Member-only contributions additionally require a qualified v2 app source,
+workspace policy opt-in and an exact app/resource/action grant. Policy and
+independent review remain operator actions. Historical saved plans retain their
+original source and remain inspectable; executing an update revalidates current
+policy, source and authority. Creator viewers retain read-only native access;
+role-10 viewers do not gain platform admission.
+
 The [operating path](platform/operating-path.md), [local two-team specimen](platform/demo.md),
 [integration contracts](platform/integrations.md) and [runtime qualification](platform/runtime-qualification.md)
-record their separate evidence. The real pinned Guestbook fetch module runs with
-local SQLite/media and simulated host admission; its lost-acknowledgement recovery
-does not establish production Access admission, Workers entrypoint/service-binding
-execution or the full #215 incident journey. [Local media excerpts](platform/media.md)
-are useful evidence, while #221's complete native walkthrough remains open.
+record their separate evidence. The historical Node specimen and its simulated
+host admission remain separate from the [actual native workerd two-team run](platform/native-demo.md)
+at `87e3ac749d80a62339f299c67f11616138139775`
+([receipt](https://github.com/loftwah/app-composer/issues/11#issuecomment-6363147709)).
+That native run exercised role-10 Get Ready → Init → My apps, real canvas
+submission/moderation/public media and an update preserving content and Team B.
+Its browser, owned runtime root and pointer were cleaned. It does not establish
+production Access admission, full recovery or the #215 incident journey.
+[Historical media excerpts](platform/media.md) and the
+[receipt-bound native film workflow](platform/native-media.md) identify their
+separate source/capture gates; #221 remains open for its complete scope.
 Research #250 is preserved. #216–#221 and #251–#257 retain the broader programme;
 #11 owns the exact deployed source, runtime identity and actual live observations.
 

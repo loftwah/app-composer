@@ -2,6 +2,7 @@
 import { z } from "zod";
 import { validateSpec } from "./spec.mjs";
 import { appSettings } from "./app-settings.mjs";
+import { memberContributionsQualified } from "./member-contribution-contract.ts";
 
 export const platformRequest = z
   .object({
@@ -12,6 +13,7 @@ export const platformRequest = z
     dataClass: z.enum(["synthetic", "internal", "sensitive"]),
     location: z.enum(["provider-default", "australia-only"]),
     quota: z.literal("small"),
+    contributions: z.enum(["closed", "members"]).optional(),
   })
   .strict();
 export const platformProfile = z
@@ -22,6 +24,7 @@ export const platformProfile = z
     dataClasses: z.array(z.literal("synthetic")).max(1),
     maxApplications: z.number().int().min(1).max(10),
     reviewRequired: z.boolean().default(false),
+    allowMemberContributions: z.boolean().optional(),
   })
   .strict();
 export type PlatformRequest = z.infer<typeof platformRequest>;
@@ -50,6 +53,10 @@ export function evaluatePlatformRequest(
   allocated: number,
 ): PolicyDecision {
   const unsupported = [];
+  if (request.contributions === "members" && !memberContributionsQualified())
+    unsupported.push(
+      "Member contributions require the reviewed version 2 member service and configuration contract. The current source is not qualified; this request will not open public postcard access.",
+    );
   if (request.recipe !== "guestbook")
     unsupported.push(
       "The knowledge application recipe is not qualified for automatic provisioning.",
@@ -65,6 +72,13 @@ export function evaluatePlatformRequest(
   if (unsupported.length)
     return { outcome: "unsupported", reasons: unsupported };
   const denied = [];
+  if (
+    request.contributions === "members" &&
+    profile?.allowMemberContributions !== true
+  )
+    denied.push(
+      "A workspace owner must explicitly allow member contributions in standing policy. App-specific contribution grants remain required.",
+    );
   if (!profile?.enabled)
     denied.push(
       "A workspace owner must enable standing policy before requests can run.",
@@ -135,6 +149,10 @@ export function platformPlan(
     cards: [],
     deployment: { mode: "preview" },
   });
+  // Generic portable specs and global settings cannot select this scoped mode.
+  // The governed runner alone consumes this exact qualified resource plan.
+  if (request.contributions === "members" && memberContributionsQualified())
+    spec.appSettings.guestbook.guestAccess = "members";
   return {
     version: 1 as const,
     policyRevision: profile?.revision ?? 0,
@@ -142,6 +160,17 @@ export function platformPlan(
     target,
     recipe: "guestbook",
     recipeVersion: 1,
+    ...(request.contributions !== undefined
+      ? {
+          contributionMode: {
+            requested: request.contributions,
+            effective: spec.appSettings.guestbook.guestAccess,
+            qualified:
+              request.contributions !== "members" ||
+              memberContributionsQualified(),
+          },
+        }
+      : {}),
     request,
     resources: [
       {
@@ -160,13 +189,22 @@ export function platformPlan(
     ],
     limits: [
       "Shared existing Worker and app-owned database",
-      "Synthetic data only; guest admission closed",
+      request.contributions === "members"
+        ? "Synthetic member contributions only with current workspace policy and explicit app grants; public postcards remain closed"
+        : "Synthetic data only; guest admission closed",
       "No new Worker, D1, R2 or paid service",
       "No Australian-only residency claim",
     ],
     spec,
     handoff:
       "Inspect this governed request in the selected Composer workspace. Use its native Internal platform request and current exact plan digest; revalidate membership, policy, source and target there before execution. The JSON is configuration data and grants no authority. Apply changes only to the request-owned stack and resource through the trusted scoped adapter. Preserve original resource and operation identities. Return verified source, configuration, publication and public URLs.\n\n" +
+      (request.contributions === "members"
+        ? "Requested contribution mode: members. Public postcards remain closed. " +
+          (memberContributionsQualified()
+            ? "Use only the qualified member service with current app grants and synthetic context. "
+            : "The current source does not qualify this mode; the valid closed specification below is a non-executable fallback, not permission to relax the requirement. ") +
+          "\n\n"
+        : "") +
       JSON.stringify(spec, null, 2),
   };
 }

@@ -2,7 +2,7 @@ import type { D1Database, D1PreparedStatement } from '@cloudflare/workers-types'
 import { prepareModerationOutcome, recordModerationOutcome } from './private-outcome-proof.ts';
 import { z } from 'zod';
 import type { Stack, StackDocument, StackInstance } from './stacks.mjs';
-import { membership, requireCapability, normaliseStack, StackError } from './stacks.mjs';
+import { membership, requireCapability, normaliseStack, StackError, platformExecutionIdentity } from './stacks.mjs';
 import {
   resourceConnection, effectiveGuestbookConfiguration, configurationDigest,
   type ResourceRuntime, type ResourceCommand, type RemoteOutcome, type AppAcknowledgement,
@@ -210,8 +210,24 @@ async function refresh(ctx: MutationContext, selected: ResourceRow, actual: AppA
   return true;
 }
 
-export async function applyStackResources(db: D1Database, user: string, workspace: string, stack: string, expected: number, runtime: ResourceRuntime): Promise<ResourceOperationResult> {
-  const ctx = await context(db, user, workspace, stack, expected), connection = resourceConnection(runtime, workspace);
+export async function applyStackResources(db: D1Database, user: string | object, workspace: string, stack: string, expected: number, runtime: ResourceRuntime): Promise<ResourceOperationResult> {
+  const execution = platformExecutionIdentity(user);
+  if (typeof user !== 'string' && !execution) throw new StackError('FORBIDDEN', 'A current platform execution is required.', 403);
+  const ctx = await context(db, execution?.userId ?? user as string, workspace, stack, expected), connection = resourceConnection(runtime, workspace);
+  if (ctx.document.instances.some(instance => instance.app === 'guestbook' && instance.config.guestAccess === 'members')) {
+    // A promoted manifest is configuration data, not authority for ordinary
+    // native stacks to enable members mode. Only the current governed runner
+    // can supply this WeakMap identity; JSON and raw user IDs cannot reproduce it.
+    const permitted = execution && await db.prepare(`SELECT r.id FROM creator_platform_requests r
+      JOIN creator_platform_profiles p ON p.workspace_id=r.workspace_id
+      WHERE r.id=? AND r.workspace_id=? AND r.stack_id=? AND r.lease_token=?
+      AND r.status='running' AND r.lease_until>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)
+      AND r.policy_revision=p.revision AND r.expected_stack_json=?
+      AND json_extract(p.profile_json,'$.enabled')=1 AND json_extract(p.profile_json,'$.allowMemberContributions')=1
+      AND json_extract(r.request_json,'$.contributions')='members' AND json_extract(r.request_json,'$.dataClass')='synthetic'`)
+      .bind(execution.requestId, workspace, stack, execution.leaseToken, ctx.row.draft_json).first();
+    if (!permitted) throw new StackError('FORBIDDEN', 'Member-only resource configuration requires its current governed synthetic request.', 403);
+  }
   const completed: string[] = [], problems: ResourceOperationResult['problems'] = [];
   for (const instance of ctx.document.instances) {
     if (instance.app !== 'guestbook' || instance.binding.mode === 'shared') continue;

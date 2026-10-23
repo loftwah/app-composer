@@ -10,6 +10,7 @@ const platformSelected = profiles.length === 1 && profiles[0] === 'platform';
 const workspaces = Astro.url.searchParams.getAll('workspace');
 const workspace = workspaces.length === 1 && /^[a-z0-9-]{6,64}$/.test(workspaces[0]) ? workspaces[0] : undefined;
 const nativePlatform = '/_emdash/admin/plugins/composer-stacks/platform' + (workspace ? '?' + new URLSearchParams({workspace}) : '');
+const memberPlatform = '/me?' + new URLSearchParams({view:'platform', ...(workspace ? {workspace} : {})});
 const platformSelf = '/init?' + new URLSearchParams({profile:'platform', ...(workspace ? {workspace} : {})});
 const platformReady = '/ready?' + new URLSearchParams({profile:'platform', ...(workspace ? {workspace} : {})});
 const source = appSettings.guestbook.source;
@@ -17,20 +18,20 @@ const source = appSettings.guestbook.source;
 <Base title={platformSelected ? 'Init: request an approved application' : 'Init: make it yours'} description={platformSelected ? 'Open your authorised platform workspace to request a maintained synthetic preview application and inspect its exact policy, source and target before execution.' : 'Configure independent mini-apps and export one portable specification with a complete copy-to-Codex handoff.'}>
  <div class="init-heading">
   <h1>{platformSelected ? 'Request an approved application.' : 'Give your app some shape.'}</h1>
-  <p class="lede">{platformSelected ? 'Use the recipes and standing policy your operator has prepared. The request lives in your team’s native EmDash workspace, alongside its decisions, application resources and operating links.' : <>Your agent prepares the environment in <a href="/ready">Get Ready</a>, then uses this specification to build and deploy. Edit the fields, preview the result and take the portable specification to your agent. Save a draft on this device or download it to keep a portable copy.</>}</p>
+  <p class="lede">{platformSelected ? 'Use the recipes and standing policy your operator has prepared. Your team’s requests, decisions, application resources and operating links stay together in My apps.' : <>Your agent prepares the environment in <a href="/ready">Get Ready</a>, then uses this specification to build and deploy. Edit the fields, preview the result and take the portable specification to your agent. Save a draft on this device or download it to keep a portable copy.</>}</p>
  </div>
  <nav class="build-paths" aria-label="Choose your application path">
   <a href="/init" aria-current={!platformSelected ? 'page' : undefined}><strong>My app</strong><span>Shape your independent app.</span></a>
-  <a href="/_emdash/admin/plugins/composer-stacks/workspaces"><strong>My team</strong><span>Open your existing workspace and access.</span></a>
+  <a href="/me"><strong>My team</strong><span>Open your existing workspace and access.</span></a>
   <a href={platformSelf} aria-current={platformSelected ? 'page' : undefined}><strong>Internal platform</strong><span>Request an approved application in your workspace.</span></a>
  </nav>
  {platformSelected ? (
   <div class="platform-request-entry">
    <section class="platform-request-next" aria-labelledby="platform-request-heading">
     <h2 id="platform-request-heading">Open your team’s governed request.</h2>
-    <p>Name the application and choose its data-location requirement in the native workspace. Composer evaluates the validated plan against current membership and standing policy. Routine permitted work runs through the trusted adapter; an actual exception follows the recorded review decision.</p>
-    <div class="actions"><a class="button" href={nativePlatform}>Open application requests</a><a href={platformReady}>Check the operator prerequisites</a></div>
-    <p class="small">{workspace ? <>Selected workspace <code>{workspace}</code>. This address selects a view; the server still checks your membership.</> : 'EmDash resolves your authorised default workspace. Use Workspace access there to select the intended team.'} This public page does not submit a request or execute an application.</p>
+    <p>Name the application in your team’s request panel. Composer evaluates the validated plan against current membership and standing policy. Routine permitted work runs through the trusted adapter; an actual exception follows the recorded review decision. Operators configure policy, inspect data-location requirements and review exceptions in native administration.</p>
+    <div class="actions"><a class="button" href={memberPlatform}>Open application requests</a><a href={nativePlatform}>Operator administration</a><a href={platformReady}>Check the operator prerequisites</a></div>
+    <p class="small">{workspace ? <>Selected workspace <code>{workspace}</code>. This address selects a view; the server still checks your membership.</> : 'Sign in with EmDash and select your intended team in My apps.'} This public page does not submit a request or execute an application.</p>
    </section>
    <section class="platform-request-plan" aria-labelledby="platform-plan-heading">
     <h2 id="platform-plan-heading">The plan and request share one validated state.</h2>

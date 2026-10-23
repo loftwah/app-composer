@@ -1,5 +1,11 @@
 # Recorded local platform excerpts
 
+The separate [native media workflow](native-media.md) prepares the 75-second and
+six-minute edits from one passed, cleanup-confirmed native run with capture-time
+asset hashes. It is source preparation only until a canonical run and reviewed
+edit are selected and the encoded files pass playback/pixel review. The excerpt
+receipts below are not eligible substitutes for that native input.
+
 Reviewed 23 October 2026. These videos show actual browser pages from the public guide and the [local two-team specimen](demo.md). They are captioned local excerpts of verified results and evidence inspection; they do not show a person completing native administration or enterprise admission.
 
 ## Outputs

@@ -63,6 +63,7 @@ export interface AppConfigurationSpec {
     appSettings?: Record<string, Record<string, string>>;
 }
 export declare const appSettings: Readonly<Record<string, AppSettingsModel>>;
+export declare const globalAppSettings: Readonly<Record<string, AppSettingsModel>>;
 export declare function selectedSources(ids: string[]): AppSource[];
 export declare function validateSources(input: unknown, ids: string[]): AppSource[];
 export declare function validateAppSettings(input: unknown, ids: string[]): Record<string, Record<string, string>>;
@@ -70,4 +71,5 @@ export declare function appConfiguration(spec: AppConfigurationSpec, id: string)
 export declare function validateAppSettingValue(field: AppSettingField, value: unknown, name: string): string;
 export declare function appConfigurationPatch(spec: AppConfigurationSpec, id: string): Record<string, string>;
 export declare function validateConfigurationPatch(input: unknown, id: string): Record<string, string>;
+export declare function validateScopedConfigurationPatch(input: unknown, id: string): Record<string, string>;
 export {};
