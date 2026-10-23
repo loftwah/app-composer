@@ -688,3 +688,148 @@ test("installed EmDash 1.2.0 dispatcher permits role10 member routes and refuses
     f.close();
   }
 });
+
+test("actual dispatcher rejects a stale expected actor before create, grant, invitation or app dispatch", async () => {
+  const f = fixture();
+  try {
+    f.add(a);
+    f.add(b);
+    await f.grant(a, "showcase", "new-profile", "create");
+    await f.grant(a, "showcase", "new-profile", "maintain");
+    let appCalls = 0;
+    f.runtime.SHOWCASE = {
+      async fetch() {
+        appCalls++;
+        return Response.json({ ok: true, resource: "fictional-profile-a" });
+      },
+    };
+    const entry = new URL(
+      import.meta.resolve("emdash/internal/plugin-test-runtime"),
+    );
+    const match = readFileSync(entry, "utf8").match(
+      /import \{[^}]*?([A-Za-z]+) as dispatchPluginApiRequest[^}]*?\} from "([^"]+)"/,
+    );
+    const dispatch = (await import(new URL(match[2], entry)))[match[1]];
+    const definition = memberPlugin(f.runtime, pins);
+    const host = {
+      getPluginRouteMeta(plugin, path) {
+        return definition.routes[path.slice(1)];
+      },
+      async handlePluginApiRoute(plugin, method, path, request, user) {
+        return {
+          success: true,
+          data: await definition.routes[path.slice(1)].handler({
+            request,
+            user,
+            input: await request.json(),
+          }),
+        };
+      },
+    };
+    const invoke = async (user, input) => {
+      const response = await dispatch({
+        runtime: host,
+        pluginId: "composer-members",
+        path: "/write",
+        user,
+        request: new Request(
+          origin + "/_emdash/api/plugins/composer-members/write",
+          {
+            method: "POST",
+            headers: {
+              Origin: origin,
+              "X-EmDash-Request": "1",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(input),
+          },
+        ),
+      });
+      return (await response.json()).data;
+    };
+    const before = JSON.stringify(
+      f.sqlite.prepare("SELECT * FROM creator_app_grants ORDER BY id").all(),
+    );
+    const workspaceRevision = f.revision();
+    for (const expectedActor of [
+      { issuer: origin, subject: b.id },
+      { issuer: "https://other-issuer.example", subject: a.id },
+    ]) {
+      assert.equal(
+        (
+          await invoke(a, {
+            action: "profile",
+            workspace,
+            operation: "create",
+            expectedActor,
+          })
+        ).code,
+        "CONFLICT",
+      );
+      assert.equal(
+        (
+          await invoke(a, {
+            action: "profile",
+            workspace,
+            operation: "read",
+            expectedActor,
+          })
+        ).code,
+        "CONFLICT",
+      );
+    }
+    assert.equal(
+      (
+        await invoke(owner, {
+          action: "grant",
+          workspace,
+          expectedRevision: f.revision(),
+          member: b.id,
+          app: "showcase",
+          resource: "new-profile",
+          capability: "create",
+          expectedActor: { issuer: origin, subject: a.id },
+        })
+      ).code,
+      "CONFLICT",
+    );
+    assert.equal(
+      (
+        await invoke(owner, {
+          action: "invite",
+          workspace,
+          expectedRevision: f.revision(),
+          email: "another@example.test",
+          role: "viewer",
+          expectedActor: { issuer: origin, subject: a.id },
+        })
+      ).code,
+      "CONFLICT",
+    );
+    assert.equal(appCalls, 0);
+    assert.equal(f.revision(), workspaceRevision);
+    assert.equal(
+      JSON.stringify(
+        f.sqlite.prepare("SELECT * FROM creator_app_grants ORDER BY id").all(),
+      ),
+      before,
+    );
+    assert.equal(
+      f.sqlite
+        .prepare("SELECT COUNT(*) AS n FROM creator_workspace_invitations")
+        .get().n,
+      0,
+    );
+    const success = await invoke(a, {
+      action: "profile",
+      workspace,
+      operation: "create",
+      expectedActor: { issuer: origin, subject: a.id },
+    });
+    assert.equal(success.ok, true, JSON.stringify(success));
+    assert.equal(success.actor.subject, a.id);
+    assert.equal(appCalls, 1);
+  } finally {
+    f.close();
+  }
+});

@@ -651,6 +651,34 @@ export async function manageMembers(
       (ctx.request.method !== "GET" && origin !== memberIssuer)
     )
       throw forbidden();
+    let input = ctx.input;
+    if (
+      input &&
+      typeof input === "object" &&
+      !Array.isArray(input) &&
+      Object.hasOwn(input, "expectedActor")
+    ) {
+      const expected = z
+        .object({ issuer: z.string().max(200), subject: account })
+        .strict()
+        .safeParse((input as Record<string, unknown>).expectedActor);
+      if (!expected.success)
+        throw new StackError(
+          "INVALID",
+          "Use the signed-in account identity observed for this action.",
+        );
+      if (
+        expected.data.issuer !== memberIssuer ||
+        expected.data.subject !== user.id
+      )
+        throw new StackError(
+          "CONFLICT",
+          "The signed-in account changed before this action. Refresh its current apps before continuing.",
+          409,
+        );
+      const { expectedActor: _, ...command } = input as Record<string, unknown>;
+      input = command;
+    }
     const session = async () => ({
       actor: { issuer: memberIssuer, subject: user.id, name: user.name },
       operator: user.role === 50,
@@ -658,7 +686,7 @@ export async function manageMembers(
       grants: (await grants(db, user.id)).map(grantView),
     });
     if (ctx.request.method === "GET") {
-      const parsed = reads.safeParse(ctx.input);
+      const parsed = reads.safeParse(input);
       if (!parsed.success)
         throw new StackError("INVALID", "Choose a supported member view.");
       if (parsed.data.action === "session")
@@ -725,18 +753,18 @@ export async function manageMembers(
           "changeRole",
         ]),
       })
-      .safeParse(ctx.input);
+      .safeParse(input);
     if (membershipCommand.success) {
       const changed = await changeWorkspaceAccess(
         db,
         user,
-        ctx.input,
+        input,
         Date.now(),
         true,
       );
       return { ok: true, changed, ...(await session()) };
     }
-    const parsed = writes.safeParse(ctx.input);
+    const parsed = writes.safeParse(input);
     if (!parsed.success)
       throw new StackError(
         "INVALID",

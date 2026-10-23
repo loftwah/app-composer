@@ -64,7 +64,12 @@ is the dispatch boundary. A request already dispatched may finish after a
 revoke; revocation does not undo app content. The next dispatch is denied and
 new profile-grant binding is refused after an intervening access change. Client
 responses retain their original actor identity so account/workspace generation
-checks can discard a delayed result. Removing a member prevents all subsequent
+checks can discard a delayed result. Optional `expectedActor: {issuer, subject}`
+is an equality-only precondition checked against the authenticated server actor
+before command validation or dispatch. It cannot select an account or confer
+ownership. A wrong issuer/subject leaves app calls, invitations and grants
+untouched; clients must also compare the response's attested actor before
+showing any private result. Removing a member prevents all subsequent
 app dispatch without deleting app content.
 
 ## Migration and recovery
