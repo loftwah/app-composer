@@ -378,6 +378,22 @@ Public acceptance needs both themes, phone/desktop layout, keyboard/focus, reduc
 
 Existing owners remain in place: [#216](https://github.com/loftwah/app-composer/issues/216) platform programme; [#217](https://github.com/loftwah/app-composer/issues/217) EmDash/ordinary-Workers/WfP qualification; [#218](https://github.com/loftwah/app-composer/issues/218) catalogue/policy; [#219](https://github.com/loftwah/app-composer/issues/219) trusted provisioning/releases; [#220](https://github.com/loftwah/app-composer/issues/220) operational usage/audit; [#221](https://github.com/loftwah/app-composer/issues/221) two-team demonstration; [#179](https://github.com/loftwah/app-composer/issues/179) Primcloud/celld candidate; [#113](https://github.com/loftwah/app-composer/issues/113) workspace roles; [#198](https://github.com/loftwah/app-composer/issues/198) administration; [#118](https://github.com/loftwah/app-composer/issues/118) recovery; and [#215](https://github.com/loftwah/app-composer/issues/215) incident/PagerDuty proof.
 
+### Research follow-up issues
+
+| Issue | Scope |
+| --- | --- |
+| [#251](https://github.com/loftwah/app-composer/issues/251) | Public field guide, visual decision journeys and evidence labels |
+| [#252](https://github.com/loftwah/app-composer/issues/252) | Kubernetes, celld and EmDash Node qualification on EKS/AKS/GKE |
+| [#253](https://github.com/loftwah/app-composer/issues/253) | Hybrid services, workload placement and tested provider exit |
+| [#254](https://github.com/loftwah/app-composer/issues/254) | Policy-driven delivery, GitOps/Argo CD and ServiceNow changes |
+| [#255](https://github.com/loftwah/app-composer/issues/255) | Enterprise connector reference and operational proof |
+| [#256](https://github.com/loftwah/app-composer/issues/256) | Enterprise/Australian assurance, SOC 2/IRAP and data location |
+| [#257](https://github.com/loftwah/app-composer/issues/257) | EmDash self-service, users, roles, IAM and resource lifecycle |
+
+These follow-ups preserve existing implementation ownership. The public reference can explain the current state while provider-specific qualification remains pending.
+
+### Sequence and acceptance
+
 Prioritise a complete ordinary-Workers internal-app journey, with truthful public explanation, before broad adapter implementation. In parallel, qualify the small alternate-runtime fixture and the most relevant enterprise integration path. Every named tool needs a researched answer; every possible tool does not need to be provisioned before the first useful release.
 
 The acceptance set should include a denied cross-team action, revoked access, stale approval, failed scan, duplicate/ambiguous remote operation, authorised release, independent health check, compatible recovery, data export/restore and retirement. Kubernetes qualification additionally needs process/node failure, private networking, storage interruption and rollout/migration evidence. Commercial tenant admission remains a separate decision.
