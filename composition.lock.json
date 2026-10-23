@@ -1,17 +1,17 @@
 {
-  "id": "b78b83ff30749557520c2da2aad718b1a8e534f0e12e848a8faf9b16dbaa0d47",
+  "id": "e7e3dfe08d5c30d33b1ca083457daf790c32a60032fffb150932ddbc3131969c",
   "reviewed": "2026-10-23",
   "apps": [
     {
       "id": "guestbook",
       "repository": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "376129c8b48d29d26e982777084aa241966569c7",
+      "commit": "9515b359bf268e6c79efbf6ad3497da132973c3e",
       "url": "https://guestbook.loftwah.com",
       "manifest": {
         "contract": 1,
         "id": "guestbook",
         "name": "Here / there",
-        "version": "1.3.0",
+        "version": "1.4.0",
         "repository": "https://github.com/loftwah/app-composer-guestbook",
         "runtime": "cloudflare-worker",
         "entry": "src/worker.ts",
@@ -19,6 +19,12 @@
         "routes": [
           "/guestbook"
         ],
+        "memberService": {
+          "version": 1,
+          "entrypoint": "GuestbookMemberService",
+          "transport": "service-binding",
+          "path": "/__composer/member"
+        },
         "capabilities": [
           "items:read",
           "items:moderate",
@@ -100,18 +106,18 @@
           }
         }
       },
-      "manifestDigest": "sha256:58dcb0573a416730cb954d1e5649b31e1db1c5ec94ab8039bf48d741ea51493f"
+      "manifestDigest": "sha256:0975138b8b679c7b9f6aebd307ad135b85074f90dbb0e7259785add60b40ab84"
     },
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "2f9280d3ae754076174b5527ab15224c918b8580",
+      "commit": "9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
       "url": "https://showcase.loftwah.com",
       "manifest": {
         "contract": 1,
         "id": "showcase",
         "name": "Linkarooie",
-        "version": "1.9.0",
+        "version": "1.10.0",
         "repository": "https://github.com/loftwah/app-composer-showcase",
         "runtime": "cloudflare-worker",
         "entry": "src/worker.ts",
@@ -274,9 +280,16 @@
           "format": "linkarooie.share-card",
           "maxReceiptBytes": 16384,
           "activation": "deployed-immutable-asset"
+        },
+        "memberProfiles": {
+          "version": 1,
+          "ownership": "installation-account",
+          "publication": "explicit-snapshot",
+          "publicPath": "/p/:handle/",
+          "bridge": "/api/member-profiles"
         }
       },
-      "manifestDigest": "sha256:fa5c064d60e16bc545b0fda87abbebd9bc1941bd1590ce3fa6554da628cc8dd4"
+      "manifestDigest": "sha256:2ff55f023d211afc1de5c479a3a52879e1dd2a31fd361ca79acc6360a2bee9be"
     }
   ]
 }
