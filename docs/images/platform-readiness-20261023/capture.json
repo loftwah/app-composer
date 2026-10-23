@@ -1,0 +1,56 @@
+{
+  "kind": "composer.readiness-qualification/1",
+  "source": "f2eeef822bda37b08ca2b0bea617fa59d8cbff2e",
+  "fixture": "Browser API responses are labelled doubles; no native-session, provider or production acceptance.",
+  "steps": [
+    "team-switch-context"
+  ],
+  "reusedGates": {
+    "source": "f2eeef822bda37b08ca2b0bea617fa59d8cbff2e",
+    "checkLogSha256": "0c8a918584394531fbb4f5a6165bfe20cc8314b3e0922a1bf155e1af032f9b46",
+    "buildLogSha256": "8e27df62b0882b7a6d8a1ba63f85caec660df9b99588bd86f7dfa5d4b702738f"
+  },
+  "configSha256": "81bcc828aba0c1089161c658ec45c6c915a9cc9cd9cc7b477aabb5238e4da166",
+  "screenshots": [
+    "setup-f2eeef8-dark-1440-top.png",
+    "setup-f2eeef8-dark-1440-panel.png",
+    "setup-f2eeef8-light-1440-top.png",
+    "setup-f2eeef8-light-1440-panel.png",
+    "setup-f2eeef8-dark-390-top.png",
+    "setup-f2eeef8-dark-390-panel.png",
+    "setup-f2eeef8-dark-390-lower.png",
+    "setup-f2eeef8-light-390-top.png",
+    "setup-f2eeef8-light-390-panel.png",
+    "setup-f2eeef8-light-390-lower.png"
+  ],
+  "brandCount": 1,
+  "pageErrors": [],
+  "network": [
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/platformRead"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/platformRead"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    }
+  ],
+  "success": true,
+  "ownedRootRemoved": true
+}

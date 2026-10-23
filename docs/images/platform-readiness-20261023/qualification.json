@@ -1,0 +1,206 @@
+{
+  "kind": "composer.readiness-qualification/1",
+  "source": "f2eeef822bda37b08ca2b0bea617fa59d8cbff2e",
+  "fixture": "Browser API responses are labelled doubles; no native-session, provider or production acceptance.",
+  "steps": [
+    "check",
+    "build",
+    "team-switch-context",
+    "private-observation-download",
+    "state-empty",
+    "state-adoption",
+    "state-connection",
+    "state-viewer",
+    "state-old",
+    "denial-no-fallback",
+    "workspace-mismatch-refused",
+    "account-race-refused",
+    "signed-out",
+    "invalid-selection-refused",
+    "reduced-motion-keyboard-focus"
+  ],
+  "configSha256": "81bcc828aba0c1089161c658ec45c6c915a9cc9cd9cc7b477aabb5238e4da166",
+  "screenshots": [
+    "setup-f2eeef8-dark-1440-top.png",
+    "setup-f2eeef8-dark-1440-panel.png",
+    "setup-f2eeef8-light-1440-top.png",
+    "setup-f2eeef8-light-1440-panel.png",
+    "setup-f2eeef8-dark-390-top.png",
+    "setup-f2eeef8-dark-390-panel.png",
+    "setup-f2eeef8-dark-390-lower.png",
+    "setup-f2eeef8-light-390-top.png",
+    "setup-f2eeef8-light-390-panel.png",
+    "setup-f2eeef8-light-390-lower.png"
+  ],
+  "brandCount": 1,
+  "pageErrors": [],
+  "network": [
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/platformRead"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/platformRead"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/platformRead"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/platformRead"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/platformRead"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/platformRead"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/platformRead"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-stacks/platformRead"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/platformRead"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/platformRead"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/platformRead"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/platformRead"
+    },
+    {
+      "method": "GET",
+      "path": "/_emdash/api/plugins/composer-members/read"
+    }
+  ],
+  "success": true,
+  "ownedRootRemoved": true,
+  "finalCaptureReceipt": "capture.json",
+  "gates": {
+    "pnpm check": {
+      "passed": 694,
+      "skipped": 0
+    },
+    "astro check": {
+      "errors": 0,
+      "warnings": 0
+    },
+    "pnpm build": {
+      "publicationFiles": 1080,
+      "archiveMembers": 78
+    },
+    "offlinePackageConsumer": {
+      "passed": 6
+    },
+    "pinnedWranglerAuthentication": {
+      "passed": 7
+    }
+  },
+  "imageSha256": {
+    "setup-f2eeef8-dark-1440-top.png": "7c991bdbbddf8e965ac08b245f7b5cb36d9ebc8274c741ca53a48450c5e47f15",
+    "setup-f2eeef8-dark-1440-panel.png": "9d9c606eee5dc8c4b8c6ffdd64586f8acdf46c02bd4c5b86b578a02882cd379a",
+    "setup-f2eeef8-light-1440-top.png": "db5f8f2d23f74c0003648536ab83f16964dc3ac87a418ebfe6da609bf5439cf4",
+    "setup-f2eeef8-light-1440-panel.png": "54173461c32499cb3023a9c23a76cec414dd3d88ccbf7505ca4aaa8a506f01ce",
+    "setup-f2eeef8-dark-390-top.png": "6bbf93878983661f23008cd4e4f6ea3bc4616e8ce80d642177a5959148568033",
+    "setup-f2eeef8-dark-390-panel.png": "1a0569726bc2d6b4da600a765647e98937bba2036a6cee79faf9985b25fce396",
+    "setup-f2eeef8-dark-390-lower.png": "edbbe79131bfc0cf652b7ad4191c9c1a4fbdf9e4d441a6e33369f8f47d52f040",
+    "setup-f2eeef8-light-390-top.png": "a3ac938f10def1d77c52695a9771650195ad30a72c029fd3cff519fedc209036",
+    "setup-f2eeef8-light-390-panel.png": "646db9aad709d6dd5590cbb70b997ff0576dbf41b22e146d88f54aac8329b1b3",
+    "setup-f2eeef8-light-390-lower.png": "296fd2d33a89b3d41aa633a472155b18313e1b54c23d328bd81f9ab46dc2cab8"
+  }
+}

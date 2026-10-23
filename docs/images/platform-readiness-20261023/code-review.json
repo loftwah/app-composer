@@ -1,0 +1,13 @@
+{
+  "base": "b90092418c5b19b78a1fd4093d697b1792c61436",
+  "initialHead": "8758106",
+  "reviewedFixHead": "e03196c",
+  "reviewer": "independent readiness_review agent",
+  "finding": "P2: static Init navigation retained the original team after a workspace change",
+  "resolution": "Removed stale Astro links; render contextual Init action from the checked React workspace and clear it on selection changes",
+  "verdict": "approved for integration; browser regression remains required",
+  "laterHead": "258ab88564435734b245dd7831964dcf49e2c5b4",
+  "laterChange": "Wording only: adapter configuration does not establish upstream health",
+  "finalHead": "f2eeef822bda37b08ca2b0bea617fa59d8cbff2e",
+  "finalVerdict": "No actionable findings in 258ab88..f2eeef8; sign-in retains selected workspace and header targets setup heading; browser regression subsequently passed."
+}

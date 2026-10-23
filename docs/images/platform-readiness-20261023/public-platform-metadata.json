@@ -1,0 +1,37 @@
+{
+  "checkedAt": "2026-10-23T09:43:44.435Z",
+  "url": "https://composer.loftwah.com/platform",
+  "status": 200,
+  "source": "0d887971d66455f51f49430d06fd4b99ac3d34a9",
+  "canonical": "<link rel=\"canonical\" href=\"https://composer.loftwah.com/platform\">",
+  "meta": [
+    "<meta name=\"description\" content=\"A sourced field guide to App Composer for platform teams: Workers and Kubernetes, policy, enterprise integrations, permissions, service lifecycle and Australian data handling.\">",
+    "<meta property=\"og:type\" content=\"article\">",
+    "<meta property=\"og:title\" content=\"An internal platform, with clear boundaries · App Composer\">",
+    "<meta property=\"og:description\" content=\"A sourced field guide to App Composer for platform teams: Workers and Kubernetes, policy, enterprise integrations, permissions, service lifecycle and Australian data handling.\">",
+    "<meta property=\"og:url\" content=\"https://composer.loftwah.com/platform\">",
+    "<meta property=\"og:site_name\" content=\"App Composer\">",
+    "<meta property=\"og:image\" content=\"https://composer.loftwah.com/brand/campaign/product-og-20261022b.jpg\">",
+    "<meta property=\"og:image:width\" content=\"1200\">",
+    "<meta property=\"og:image:height\" content=\"630\">",
+    "<meta property=\"og:image:alt\" content=\"App Composer: Make software. Keep it yours. The approved orange mark and wordmark on a flat orange field.\">",
+    "<meta name=\"twitter:card\" content=\"summary_large_image\">",
+    "<meta name=\"twitter:title\" content=\"An internal platform, with clear boundaries · App Composer\">",
+    "<meta name=\"twitter:description\" content=\"A sourced field guide to App Composer for platform teams: Workers and Kubernetes, policy, enterprise integrations, permissions, service lifecycle and Australian data handling.\">",
+    "<meta name=\"twitter:image\" content=\"https://composer.loftwah.com/brand/campaign/product-og-20261022b.jpg\">",
+    "<meta name=\"twitter:image:alt\" content=\"App Composer: Make software. Keep it yours. The approved orange mark and wordmark on a flat orange field.\">",
+    "<meta property=\"og:image:type\" content=\"image/jpeg\">"
+  ],
+  "image": {
+    "url": "https://composer.loftwah.com/brand/campaign/product-og-20261022b.jpg",
+    "status": 200,
+    "type": "image/jpeg",
+    "bytes": 92248,
+    "dimensions": {
+      "height": 630,
+      "width": 1200
+    }
+  },
+  "sourceUnchanged": true,
+  "scope": "Public HTTP metadata/actual image bytes only. Native platform unfurl rendering and UI copy/keyboard acceptance remain separate."
+}
