@@ -879,6 +879,21 @@ function RequestRow({
             {outcomeLabels[entry.decision.outcome]}
           </p>
         </header>
+        {entry.sourceObservation && (
+          <p>
+            Stored plan source: {entry.sourceObservation.kind} ·{" "}
+            <code>{entry.plan.source.commit}</code>.
+            {entry.sourceObservation.kind === "historical" && (
+              <>
+                {" "}
+                Current Composer pin:{" "}
+                <code>{entry.sourceObservation.currentCommit}</code>. Plan an
+                update to revalidate against that pin; the saved service and
+                audit plan are retained.
+              </>
+            )}
+          </p>
+        )}
         <ul>
           {entry.decision.reasons.map((text, index) => (
             <li key={index}>{text}</li>

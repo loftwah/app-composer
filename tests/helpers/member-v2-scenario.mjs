@@ -36,6 +36,9 @@ const { applyStackResources } =
 const { trustedPlatformActor } = await import("../../src/lib/stacks.mjs");
 const { recoverContribution } =
   await import("../../src/components/members/contribution-state.ts");
+const { decodePlatformList } =
+  await import("../../src/plugins/platform/protocol.ts");
+const { validateSpec } = await import("../../src/lib/spec.mjs");
 assert.equal(
   memberContributionsQualified(),
   true,
@@ -238,6 +241,18 @@ async function setup(lostAcknowledgement = false) {
       created.requests[0].status,
       "complete",
       JSON.stringify(created),
+    );
+    const storedBytes = JSON.stringify(created.requests[0].plan.spec);
+    const decoded = decodePlatformList(created);
+    assert.equal(decoded.requests[0].sourceObservation.kind, "current");
+    assert.equal(
+      decoded.requests[0].plan.spec.appSettings.guestbook.guestAccess,
+      "members",
+    );
+    assert.equal(JSON.stringify(decoded.requests[0].plan.spec), storedBytes);
+    assert.throws(
+      () => validateSpec(created.requests[0].plan.spec),
+      /supported/,
     );
     const service = created.requests[0],
       resource = service.resources[0].resource;

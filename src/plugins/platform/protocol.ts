@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { validateSpec } from "../../lib/spec.mjs";
+import { inspectStoredPlatformPlan, sourceObservation } from "./stored-plan.ts";
 
 const id = z.string().regex(/^[a-z0-9-]{6,64}$/);
 const revision = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
@@ -35,6 +35,9 @@ const request = z.object({
   request: requestInput,
   plan: z.object({
     version: z.literal(1),
+    recipe: z.literal("guestbook"),
+    recipeVersion: z.literal(1),
+    request: requestInput,
     policyRevision: revision,
     source: z.object({
       id: z.literal("guestbook"),
@@ -57,6 +60,7 @@ const request = z.object({
       .optional(),
   }),
   planDigest: z.string().regex(/^[a-f0-9]{64}$/),
+  sourceObservation: sourceObservation.optional(),
   key: z.string().max(80).optional(),
   stackId: id.nullish(),
   url: z
@@ -146,7 +150,10 @@ export function decodePlatformList(value: unknown): PlatformSnapshot {
     );
   for (const entry of parsed.data.requests) {
     try {
-      entry.plan.spec = validateSpec(entry.plan.spec);
+      entry.sourceObservation = inspectStoredPlatformPlan(
+        entry.plan,
+        entry.request,
+      );
     } catch {
       throw Error(
         "A saved request has an invalid application specification. Keep your entries and ask the operator to inspect it.",

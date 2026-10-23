@@ -53,6 +53,15 @@ Runner availability validates adapter configuration only. It does not establish
 upstream network connectivity or provider permission; execution checks the
 actual app service separately.
 
+Saved platform plans use a bounded read-only decoder for the maintained
+guestbook recipe. Its retained spec source must exactly match the saved plan
+source, and member mode must agree with the retained request and qualification
+observation. A historical pin remains inspectable with its original spec bytes;
+the UI identifies the current Composer pin separately. This does not migrate,
+approve or execute old plans. Planning an update and every actual effect retain
+the existing current source/policy/role checks. Generic portable specs and global
+maintenance still refuse stale pins and members mode.
+
 ## Trusted version 2 bridge
 
 The bridge retains the existing binding and dedicated member token. It builds

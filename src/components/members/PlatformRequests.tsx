@@ -248,6 +248,21 @@ export default function PlatformRequests({
                   <p>
                     {request.status} · {request.decision.outcome}
                   </p>
+                  {request.sourceObservation && (
+                    <p>
+                      Stored plan source: {request.sourceObservation.kind} ·{" "}
+                      <code>{request.plan.source.commit}</code>.
+                      {request.sourceObservation.kind === "historical" && (
+                        <>
+                          {" "}
+                          Current Composer pin:{" "}
+                          <code>{request.sourceObservation.currentCommit}</code>
+                          . Plan an update to revalidate the saved service; its
+                          original audit plan is retained.
+                        </>
+                      )}
+                    </p>
+                  )}
                   {request.reason && <p>{request.reason}</p>}
                   {request.decision.reasons.map((reason) => (
                     <p key={reason}>{reason}</p>

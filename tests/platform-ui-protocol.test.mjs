@@ -14,6 +14,7 @@ import {
 import { fixture, user, origin } from "./helpers/resource-fixture.mjs";
 import { workspaceForUser } from "../src/lib/stacks.mjs";
 import { managePlatform } from "../src/lib/platform-admin.ts";
+import { validateSpec } from "../src/lib/spec.mjs";
 
 const workspace = {
   id: "fictional-team-alpha",
@@ -154,6 +155,123 @@ test("native decoder rejects malformed plans, unsafe service links and resource 
     assert.throws(() => decodePlatformList(candidate));
   }
   assert.equal(decodePlatformList(good).workspace.id, workspace.id);
+});
+
+test("saved platform plans retain historical source bytes without enabling stale portable execution", async () => {
+  const response = await snapshot();
+  const entry = response.requests[0];
+  const historical = {
+    ...entry.plan.source,
+    commit: "a".repeat(40),
+    manifestDigest: "sha256:" + "b".repeat(64),
+  };
+  entry.plan.source = historical;
+  entry.plan.spec.sources = [{ ...historical }];
+  entry.status = "complete";
+  entry.resumable = false;
+  entry.stackId = "fictional-retained-stack";
+  entry.url = "/s/fictional-retained-stack";
+  entry.resources = [
+    {
+      instance: "fictional-retained-instance",
+      resource: "fictional-retained-resource",
+      app: "guestbook",
+      shared: false,
+      state: "ready",
+      version: 4,
+      configuration: {
+        revision: 2,
+        digest: "c".repeat(64),
+        source: historical.commit,
+        path: "/guestbook/r/fictional-retained-resource/c/2/",
+      },
+    },
+  ];
+  const original = JSON.stringify(response),
+    originalSpec = JSON.stringify(entry.plan.spec);
+  const decoded = decodePlatformList(response);
+  assert.equal(decoded.requests[0].sourceObservation.kind, "historical");
+  assert.equal(decoded.requests[0].status, "complete");
+  assert.equal(
+    decoded.requests[0].resources[0].configuration.source,
+    historical.commit,
+  );
+  assert.equal(decoded.requests[0].plan.source.commit, historical.commit);
+  assert.equal(JSON.stringify(decoded.requests[0].plan.spec), originalSpec);
+  assert.equal(
+    JSON.stringify(response),
+    original,
+    "Read-only decode must not migrate stored response bytes",
+  );
+  assert.throws(() => validateSpec(entry.plan.spec), /changed|match/);
+  assert.equal(
+    decodePlatformList(await snapshot()).requests[0].sourceObservation.kind,
+    "current",
+  );
+  for (const alter of [
+    (value) => {
+      value.requests[0].plan.spec.sources[0].commit = "c".repeat(40);
+    },
+    (value) => {
+      value.requests[0].plan.spec.appSettings.guestbook.title =
+        "Different title";
+    },
+    (value) => {
+      value.requests[0].plan.spec.appSettings.guestbook.guestAccess =
+        "postcards";
+    },
+    (value) => {
+      value.requests[0].plan.spec.deployment.mode = "existing-domain";
+    },
+    (value) => {
+      value.requests[0].plan.spec.script = "untrusted";
+    },
+    (value) => {
+      value.requests[0].plan.recipe = "other";
+    },
+  ]) {
+    const invalid = structuredClone(response);
+    alter(invalid);
+    assert.throws(() => decodePlatformList(invalid));
+  }
+});
+
+test("read-only member plan decoding requires exact retained request/mode agreement while portable execution refuses members", async () => {
+  const response = await snapshot({ contributions: "members" });
+  const entry = response.requests[0];
+  // Inert retained data from a qualified source, independently of this test
+  // process's current unpromoted v1 pin. Actual qualified graph coverage is in
+  // member-v2-scenario; no lock or runner guard is changed here.
+  entry.plan.contributionMode = {
+    requested: "members",
+    effective: "members",
+    qualified: true,
+  };
+  entry.plan.spec.appSettings.guestbook.guestAccess = "members";
+  const original = JSON.stringify(entry.plan.spec);
+  assert.equal(
+    JSON.stringify(decodePlatformList(response).requests[0].plan.spec),
+    original,
+  );
+  assert.throws(() => validateSpec(entry.plan.spec), /supported/);
+  for (const alter of [
+    (value) => {
+      value.requests[0].plan.contributionMode.qualified = false;
+    },
+    (value) => {
+      value.requests[0].plan.contributionMode.effective = "closed";
+    },
+    (value) => {
+      value.requests[0].plan.request.contributions = "closed";
+    },
+    (value) => {
+      delete value.requests[0].plan.contributionMode;
+    },
+  ]) {
+    const invalid = structuredClone(response);
+    alter(invalid);
+    assert.throws(() => decodePlatformList(invalid));
+  }
 });
 
 test("actual native response validates through configuration, automatic provisioning and public receipt", async () => {
