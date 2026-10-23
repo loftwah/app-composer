@@ -1,0 +1,763 @@
+{
+  "verifiedAtUTC": "2026-10-23T03:22:42.869Z",
+  "verifiedAtMelbourne": "2026-10-23T14:22:42+11:00",
+  "sourceBase": "158d0617fbb21ecdce9f4d2203c58d7375e031d3",
+  "composition": "115e6d85f86af78436cdee88b63616448997befc6278665963dcfc7284232a7a",
+  "independentWorkerVersions": {
+    "guestbook": "8b0b55bf-9a89-475b-ae4d-41d643901fe8",
+    "showcase": "08a8b9d8-f9c2-45fa-b015-936e011351a2",
+    "linkcheck": "30df54ff-69bc-4658-ab7d-7fcc33467ad2",
+    "hello": "b814a393-1b42-4816-a588-4411b52d3255",
+    "state": "59a6487c-325d-4288-b5a1-fa5f14aee919"
+  },
+  "staticDelivery": [
+    {
+      "app": "guestbook",
+      "identity": {
+        "app": "guestbook",
+        "revision": "376129c8b48d29d26e982777084aa241966569c7",
+        "contract": 1,
+        "dataVersion": 1,
+        "resourceContract": 1,
+        "portabilityContract": 1,
+        "enquiryContract": 1,
+        "resourcesEnabled": true,
+        "resourceAccount": "1003dc1d93af0ebea56b2f1252f89627",
+        "resourceEnvironment": "production"
+      },
+      "name": "brand/launcher.css",
+      "status": 200,
+      "sha256": "4412c9e0a89068eb9edaaf3f1c2cdc6c2277a9741c191d15f8cf0dd3187eddae"
+    },
+    {
+      "app": "showcase",
+      "identity": {
+        "app": "showcase",
+        "revision": "4819a05e2d4862161ad8a6597c3babd96d1f7e04",
+        "contract": 1,
+        "dataVersion": 1
+      },
+      "name": "brand/launcher.css",
+      "status": 200,
+      "sha256": "4412c9e0a89068eb9edaaf3f1c2cdc6c2277a9741c191d15f8cf0dd3187eddae"
+    },
+    {
+      "app": "hello",
+      "identity": {
+        "app": "hello",
+        "commit": "81765df1ccbc1868c0e84129ade36b6c2a67858e",
+        "title": "Hello from Loftwah.",
+        "contract": 1,
+        "dataVersion": 1
+      },
+      "name": "brand/launcher.css",
+      "status": 200,
+      "sha256": "4412c9e0a89068eb9edaaf3f1c2cdc6c2277a9741c191d15f8cf0dd3187eddae"
+    },
+    {
+      "app": "hello",
+      "identity": {
+        "app": "hello",
+        "commit": "81765df1ccbc1868c0e84129ade36b6c2a67858e",
+        "title": "Hello from Loftwah.",
+        "contract": 1,
+        "dataVersion": 1
+      },
+      "name": "style.css",
+      "status": 200,
+      "sha256": "4e7dae576f25321e2eeb85c4f4e7ed5fd445e08c0ee800119b1651391ba8f8c2"
+    },
+    {
+      "app": "linkcheck",
+      "identity": {
+        "sha": "248d6271d0afca585e1a6d7978159ac5491eb479",
+        "app": "linkcheck",
+        "contract": 1
+      },
+      "name": "brand/launcher.css",
+      "status": 200,
+      "sha256": "4412c9e0a89068eb9edaaf3f1c2cdc6c2277a9741c191d15f8cf0dd3187eddae"
+    },
+    {
+      "app": "linkcheck",
+      "identity": {
+        "sha": "248d6271d0afca585e1a6d7978159ac5491eb479",
+        "app": "linkcheck",
+        "contract": 1
+      },
+      "name": "style.css",
+      "status": 200,
+      "sha256": "3218b91c23938f2467ef59b4fc77d2e6c5f43a56ee18abb82c0146830d10e45c"
+    },
+    {
+      "app": "state",
+      "identity": {
+        "app": "portable-ai-state",
+        "commit": "055cec2a4157c92e2d822e57b3d280bfbdc0b6a7",
+        "syntheticOnly": true
+      },
+      "name": "brand/launcher.css",
+      "status": 200,
+      "sha256": "4412c9e0a89068eb9edaaf3f1c2cdc6c2277a9741c191d15f8cf0dd3187eddae"
+    },
+    {
+      "app": "state",
+      "identity": {
+        "app": "portable-ai-state",
+        "commit": "055cec2a4157c92e2d822e57b3d280bfbdc0b6a7",
+        "syntheticOnly": true
+      },
+      "name": "style.css",
+      "status": 200,
+      "sha256": "44e3b37255b9de5bae9ec7b7ea3e4e8144d7d7d073eeef7092f7d4e28af48c3e"
+    }
+  ],
+  "browser": [
+    {
+      "url": "https://ready.loftwah.com/",
+      "width": 1440,
+      "theme": "dark",
+      "focus": "#fc5b05",
+      "accent": "#fc5b05",
+      "overflow": false,
+      "default": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(23, 24, 27)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(255, 122, 51)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(232, 84, 4)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://ready.loftwah.com/",
+      "width": 1440,
+      "theme": "light",
+      "focus": "#c74400",
+      "accent": "#c74400",
+      "overflow": false,
+      "default": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(255, 122, 51)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(232, 84, 4)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://ready.loftwah.com/",
+      "width": 390,
+      "theme": "dark",
+      "focus": "#fc5b05",
+      "accent": "#fc5b05",
+      "overflow": false,
+      "default": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(255, 122, 51)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(232, 84, 4)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://ready.loftwah.com/",
+      "width": 390,
+      "theme": "light",
+      "focus": "#c74400",
+      "accent": "#c74400",
+      "overflow": false,
+      "default": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(255, 122, 51)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(232, 84, 4)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://guestbook.loftwah.com/",
+      "width": 1440,
+      "theme": "dark",
+      "focus": "#fc5b05",
+      "accent": "#fc5b05",
+      "overflow": false,
+      "default": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(23, 24, 27)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(255, 122, 51)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(232, 84, 4)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://guestbook.loftwah.com/",
+      "width": 1440,
+      "theme": "light",
+      "focus": "#c74400",
+      "accent": "#c74400",
+      "overflow": false,
+      "default": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(255, 122, 51)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(232, 84, 4)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://guestbook.loftwah.com/",
+      "width": 390,
+      "theme": "dark",
+      "focus": "#fc5b05",
+      "accent": "#fc5b05",
+      "overflow": false,
+      "default": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(255, 122, 51)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(232, 84, 4)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://guestbook.loftwah.com/",
+      "width": 390,
+      "theme": "light",
+      "focus": "#c74400",
+      "accent": "#c74400",
+      "overflow": false,
+      "default": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(255, 122, 51)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(232, 84, 4)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://showcase.loftwah.com/",
+      "width": 1440,
+      "theme": "dark",
+      "focus": "#fc5b05",
+      "accent": "#a5fd0e",
+      "overflow": false,
+      "default": {
+        "background": "rgb(28, 35, 45)",
+        "color": "rgb(245, 245, 246)",
+        "outline": "rgb(245, 245, 246)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(28, 35, 45)",
+        "color": "rgb(245, 245, 246)",
+        "outline": "rgb(165, 253, 14)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(28, 35, 45)",
+        "color": "rgb(245, 245, 246)",
+        "outline": "rgb(165, 253, 14)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(28, 35, 45)",
+        "color": "rgb(245, 245, 246)",
+        "outline": "rgb(165, 253, 14)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://showcase.loftwah.com/",
+      "width": 1440,
+      "theme": "light",
+      "focus": "#c74400",
+      "accent": "#7e22ce",
+      "overflow": false,
+      "default": {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(32, 36, 50)",
+        "outline": "rgb(126, 34, 206)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(32, 36, 50)",
+        "outline": "rgb(126, 34, 206)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(32, 36, 50)",
+        "outline": "rgb(126, 34, 206)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(32, 36, 50)",
+        "outline": "rgb(126, 34, 206)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://showcase.loftwah.com/",
+      "width": 390,
+      "theme": "dark",
+      "focus": "#fc5b05",
+      "accent": "#a5fd0e",
+      "overflow": false,
+      "default": {
+        "background": "rgb(28, 35, 45)",
+        "color": "rgb(245, 245, 246)",
+        "outline": "rgb(165, 253, 14)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(28, 35, 45)",
+        "color": "rgb(245, 245, 246)",
+        "outline": "rgb(165, 253, 14)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(28, 35, 45)",
+        "color": "rgb(245, 245, 246)",
+        "outline": "rgb(165, 253, 14)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(28, 35, 45)",
+        "color": "rgb(245, 245, 246)",
+        "outline": "rgb(165, 253, 14)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://showcase.loftwah.com/",
+      "width": 390,
+      "theme": "light",
+      "focus": "#c74400",
+      "accent": "#7e22ce",
+      "overflow": false,
+      "default": {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(32, 36, 50)",
+        "outline": "rgb(126, 34, 206)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(32, 36, 50)",
+        "outline": "rgb(126, 34, 206)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(32, 36, 50)",
+        "outline": "rgb(126, 34, 206)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(255, 255, 255)",
+        "color": "rgb(32, 36, 50)",
+        "outline": "rgb(126, 34, 206)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://share.loftwah.com/",
+      "width": 1440,
+      "theme": "dark",
+      "focus": "#fc5b05",
+      "accent": "#fc5b05",
+      "overflow": false,
+      "default": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(23, 24, 27)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(255, 122, 51)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(232, 84, 4)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://share.loftwah.com/",
+      "width": 1440,
+      "theme": "light",
+      "focus": "#c74400",
+      "accent": "#c74400",
+      "overflow": false,
+      "default": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(255, 122, 51)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(232, 84, 4)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://share.loftwah.com/",
+      "width": 390,
+      "theme": "dark",
+      "focus": "#fc5b05",
+      "accent": "#fc5b05",
+      "overflow": false,
+      "default": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(255, 122, 51)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(232, 84, 4)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://share.loftwah.com/",
+      "width": 390,
+      "theme": "light",
+      "focus": "#c74400",
+      "accent": "#c74400",
+      "overflow": false,
+      "default": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(252, 91, 5)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(255, 122, 51)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(232, 84, 4)",
+        "color": "rgb(23, 24, 27)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://ai.loftwah.com/",
+      "width": 1440,
+      "theme": "dark",
+      "focus": "#fc5b05",
+      "accent": "#ccb0ed",
+      "overflow": false,
+      "default": {
+        "background": "rgb(41, 36, 47)",
+        "color": "rgb(243, 240, 247)",
+        "outline": "rgb(243, 240, 247)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(41, 36, 47)",
+        "color": "rgb(243, 240, 247)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(41, 36, 47)",
+        "color": "rgb(243, 240, 247)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(41, 36, 47)",
+        "color": "rgb(243, 240, 247)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://ai.loftwah.com/",
+      "width": 1440,
+      "theme": "light",
+      "focus": "#c74400",
+      "accent": "#594272",
+      "overflow": false,
+      "default": {
+        "background": "rgb(230, 220, 240)",
+        "color": "rgb(43, 36, 59)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(230, 220, 240)",
+        "color": "rgb(43, 36, 59)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(230, 220, 240)",
+        "color": "rgb(43, 36, 59)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(230, 220, 240)",
+        "color": "rgb(43, 36, 59)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://ai.loftwah.com/",
+      "width": 390,
+      "theme": "dark",
+      "focus": "#fc5b05",
+      "accent": "#ccb0ed",
+      "overflow": false,
+      "default": {
+        "background": "rgb(41, 36, 47)",
+        "color": "rgb(243, 240, 247)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(41, 36, 47)",
+        "color": "rgb(243, 240, 247)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(41, 36, 47)",
+        "color": "rgb(243, 240, 247)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(41, 36, 47)",
+        "color": "rgb(243, 240, 247)",
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      }
+    },
+    {
+      "url": "https://ai.loftwah.com/",
+      "width": 390,
+      "theme": "light",
+      "focus": "#c74400",
+      "accent": "#594272",
+      "overflow": false,
+      "default": {
+        "background": "rgb(230, 220, 240)",
+        "color": "rgb(43, 36, 59)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "keyboardFocus": {
+        "background": "rgb(230, 220, 240)",
+        "color": "rgb(43, 36, 59)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "hover": {
+        "background": "rgb(230, 220, 240)",
+        "color": "rgb(43, 36, 59)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "pressed": {
+        "background": "rgb(230, 220, 240)",
+        "color": "rgb(43, 36, 59)",
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      }
+    }
+  ],
+  "limits": [
+    "Standalone captures are actual production pages; candidate interception captures are excluded.",
+    "Before captures record observed live palette but did not query build identity in that earlier browser pass.",
+    "Mounted pair awaits Composer binding activation and fresh browser verification.",
+    "Physical-device and screen-reader acceptance remain separate."
+  ]
+}

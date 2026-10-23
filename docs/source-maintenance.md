@@ -114,3 +114,26 @@ Both clean source checkouts must match the selected composition pins. This copie
 only the reviewed pure adapters; it never imports records, credentials, settings
 or remote execution authority. Composer owns the tactile layout and sandbox
 transport. App eligibility/content/destination decisions stay with their source.
+
+### Composer palette propagation (`composer.palette/1`)
+
+The locally copied `launcher.css` carries the versioned `--composer-*` colour
+contract from #214: canonical identity/action `#fc5b05`, dark action ink
+`#17181b`, hover `#ff7a33`, pressed `#e85404`, text `#fc5b05` (dark) /
+`#c74400` (light), text hover `#ff7a33` / `#a63a00`, and focus `#fc5b05` / `#c74400`.
+Light focus uses the approved darker variant because canonical orange drops
+below 3:1 on elevated ivory/violet surfaces.
+The three Composer-default shells (Here / there, Hello and Link Check) alias
+their defaults to those roles. Primary fills never reuse the light text accent.
+Linkarooie retains its lime/purple creator overrides; Carry retains violet
+actions/surfaces. Composer return links and launcher chrome use Composer roles.
+Postcard canvas artwork and immutable app/social artwork are independent assets,
+not UI token consumers. Owner configuration and stored themes are not migrated.
+
+The #237 regression occurred because #214 copied the launcher while native
+styles retained hardcoded peach defaults; matching launcher bytes alone was
+insufficient. Independent `tests/composer-palette.test.mjs` now assert both the
+local contract and applicable native role aliases, including identity exceptions.
+Generated content projects already copy this same launcher contract alongside
+their customisable text/action defaults. Run every app's check/build and verify
+the exact independent releases before promoting composition pins.
