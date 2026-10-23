@@ -1,0 +1,16 @@
+{
+  "file": "linkarooie-profile-snapshot.json",
+  "modified": "2026-10-23T06:33:02.626Z",
+  "bytes": 468,
+  "format": "linkarooie.profile-snapshot",
+  "version": 1,
+  "profileIdentity": "https://showcase.loftwah.com/",
+  "revisionValid": true,
+  "publicTextKeys": [
+    "name",
+    "handle",
+    "description",
+    "alt"
+  ],
+  "noAssets": true
+}

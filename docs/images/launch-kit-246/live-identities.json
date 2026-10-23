@@ -1,0 +1,43 @@
+[
+  {
+    "name": "composer",
+    "status": 200,
+    "identity": {
+      "app": "app-composer",
+      "commit": "29fc65c2983769f140bad3bdef298a20c0185b0e",
+      "reviewed": "2026-10-13",
+      "contract": 1
+    }
+  },
+  {
+    "name": "showcase",
+    "status": 200,
+    "identity": {
+      "app": "showcase",
+      "revision": "2f9280d3ae754076174b5527ab15224c918b8580",
+      "contract": 1,
+      "dataVersion": 1
+    }
+  },
+  {
+    "name": "mounted",
+    "status": 200,
+    "identity": {
+      "app": "showcase",
+      "revision": "2f9280d3ae754076174b5527ab15224c918b8580",
+      "contract": 1,
+      "dataVersion": 1
+    }
+  },
+  {
+    "name": "launch-kit",
+    "status": 200,
+    "identity": {
+      "app": "launch-kit",
+      "version": "1.0.0",
+      "sourceSha": "4e248c0353658569d703db401be226e414c656ef",
+      "processing": "browser-local",
+      "runtime": "static-assets"
+    }
+  }
+]

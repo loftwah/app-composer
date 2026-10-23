@@ -1,0 +1,96 @@
+[
+  {
+    "name": "composer-launch-kit",
+    "deployment": {
+      "id": "c451ee5c-acaf-44fd-b2be-4d1900b9ad77",
+      "source": "wrangler",
+      "strategy": "percentage",
+      "annotations": {
+        "workers/message": "Launch Kit 4e248c0353658569d703db401be226e414c656ef",
+        "workers/triggered_by": "deployment"
+      },
+      "versions": [
+        {
+          "version_id": "0e9c7cd7-3185-48a8-9c7d-a1ebb8a5bf18",
+          "percentage": 100
+        }
+      ],
+      "created_on": "2026-10-23T06:31:54.802661Z"
+    }
+  },
+  {
+    "name": "composer-showcase",
+    "deployment": {
+      "id": "be0360ee-33f7-4e3e-940e-56848d92562e",
+      "source": "wrangler",
+      "strategy": "percentage",
+      "annotations": {
+        "workers/triggered_by": "deployment"
+      },
+      "versions": [
+        {
+          "version_id": "f093c9e3-be95-44ee-9e66-7c0eaf5ad220",
+          "percentage": 100
+        }
+      ],
+      "created_on": "2026-10-23T06:21:54.692132Z"
+    }
+  },
+  {
+    "name": "app-composer",
+    "deployment": {
+      "id": "ab555f28-5985-4bde-85d2-370854940b54",
+      "source": "wrangler",
+      "strategy": "percentage",
+      "annotations": {
+        "workers/message": "App Composer 29fc65c2983769f140bad3bdef298a20c0185b0e",
+        "workers/triggered_by": "deployment"
+      },
+      "versions": [
+        {
+          "version_id": "a2ca93e9-88fb-44cd-8992-32d32f11e827",
+          "percentage": 100
+        }
+      ],
+      "created_on": "2026-10-23T06:30:05.71662Z"
+    }
+  },
+  {
+    "name": "composer-showcase-b78b83ff30749557",
+    "deployment": {
+      "id": "1bce5d0b-7c37-476f-ba73-3cdd8ada6956",
+      "source": "wrangler",
+      "strategy": "percentage",
+      "annotations": {
+        "workers/message": "Pinned composition b78b83ff30749557520c2da2aad718b1a8e534f0e12e848a8faf9b16dbaa0d47",
+        "workers/triggered_by": "deployment"
+      },
+      "versions": [
+        {
+          "version_id": "ca0c3e95-82e9-4aa6-b8be-ebff1ddf1e2a",
+          "percentage": 100
+        }
+      ],
+      "created_on": "2026-10-23T06:23:40.889114Z"
+    }
+  },
+  {
+    "name": "composer-guestbook-b78b83ff30749557",
+    "deployment": {
+      "id": "0498ae1f-7e2d-41a9-b988-37c18045a2f4",
+      "source": "wrangler",
+      "strategy": "percentage",
+      "annotations": {
+        "workers/message": "Pinned composition b78b83ff30749557520c2da2aad718b1a8e534f0e12e848a8faf9b16dbaa0d47",
+        "workers/triggered_by": "deployment"
+      },
+      "versions": [
+        {
+          "version_id": "60e5b710-38e2-4e2d-a7d0-9260ebddd018",
+          "percentage": 100
+        }
+      ],
+      "created_on": "2026-10-23T06:23:26.322229Z"
+    }
+  }
+]

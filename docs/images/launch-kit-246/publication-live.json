@@ -1,0 +1,28 @@
+[
+  {
+    "url": "https://showcase.loftwah.com/examples/launch-kit/",
+    "status": 200,
+    "canonical": "https://showcase.loftwah.com/examples/launch-kit/",
+    "title": "River Morgan",
+    "image": "https://showcase.loftwah.com/brand/generated/profile-eb7c5b695a43702bf42effce699eb93f4a407be5289fd96a964561e315a89a4f.png",
+    "declaredType": "image/png",
+    "responseType": "image/png",
+    "width": 1200,
+    "height": 630,
+    "format": "image/png",
+    "sha256": "eb7c5b695a43702bf42effce699eb93f4a407be5289fd96a964561e315a89a4f"
+  },
+  {
+    "url": "https://composer.loftwah.com/showcase/examples/launch-kit/",
+    "status": 200,
+    "canonical": "https://composer.loftwah.com/showcase/examples/launch-kit/",
+    "title": "River Morgan",
+    "image": "https://composer.loftwah.com/showcase/brand/generated/profile-eb7c5b695a43702bf42effce699eb93f4a407be5289fd96a964561e315a89a4f.png",
+    "declaredType": "image/png",
+    "responseType": "image/png",
+    "width": 1200,
+    "height": 630,
+    "format": "image/png",
+    "sha256": "eb7c5b695a43702bf42effce699eb93f4a407be5289fd96a964561e315a89a4f"
+  }
+]

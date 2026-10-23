@@ -1,0 +1,44 @@
+{
+  "browser": "151.0.7922.34",
+  "rows": [
+    {
+      "url": "https://composer.loftwah.com/launch-kit",
+      "size": "desktop",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/launch-kit",
+      "size": "phone",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "url": "https://composer-launch-kit.loftwah.workers.dev/profile.html?example=night-signal-artwork",
+      "size": "desktop",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "url": "https://composer-launch-kit.loftwah.workers.dev/profile.html?example=night-signal-artwork",
+      "size": "phone",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/showcase/examples/launch-kit/",
+      "size": "desktop",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/showcase/examples/launch-kit/",
+      "size": "phone",
+      "width": 390,
+      "overflow": false
+    }
+  ],
+  "pageErrors": [],
+  "keyboardEditorTab": true,
+  "optionalCardEncodedHash": "db3576e957ee016ebda2a73fef53fcf87f94d77eb0016e35ab9d58e522e7d79c"
+}

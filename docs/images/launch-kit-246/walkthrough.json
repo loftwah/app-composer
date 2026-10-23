@@ -1,0 +1,51 @@
+{
+  "normalSpeed": true,
+  "artificialSpeedup": false,
+  "editor": "https://composer-launch-kit.loftwah.workers.dev/profile.html",
+  "publishedExample": "https://showcase.loftwah.com/examples/launch-kit/",
+  "command": "pnpm render public/examples/river-typography.json output/river --compare",
+  "commandReceipt": {
+    "format": "launch-kit.local-render",
+    "version": 1,
+    "renderer": {
+      "id": "launch-kit-profile",
+      "version": "1.0.0",
+      "font": "Space Grotesk Latin 20261018",
+      "fontSha256": "61d00a1c57fcd7d4826c7a69cd85b61d15d133d5471d3c9c4731d70193d9f71f"
+    },
+    "browser": "151.0.7922.34",
+    "externalNetworking": "blocked before page load; only owned loopback server permitted",
+    "externalRequestsBlocked": 0,
+    "sourceImagesIncluded": false,
+    "outputs": [
+      {
+        "preset": "typography",
+        "file": "profile-eb7c5b695a43702bf42effce699eb93f4a407be5289fd96a964561e315a89a4f.png",
+        "sha256": "eb7c5b695a43702bf42effce699eb93f4a407be5289fd96a964561e315a89a4f",
+        "width": 1200,
+        "height": 630,
+        "type": "image/png"
+      },
+      {
+        "preset": "portrait",
+        "file": "profile-bcfff578ae12979fe6a18e920e5ccfdb2cb5dd57416cfb9a0a0c1213281a39b1.png",
+        "sha256": "bcfff578ae12979fe6a18e920e5ccfdb2cb5dd57416cfb9a0a0c1213281a39b1",
+        "width": 1200,
+        "height": 630,
+        "type": "image/png"
+      },
+      {
+        "preset": "editorial",
+        "file": "profile-332098848fc1e5e74342c3cef51f558940e228b53db61c5957e63ff044470066.png",
+        "sha256": "332098848fc1e5e74342c3cef51f558940e228b53db61c5957e63ff044470066",
+        "width": 1200,
+        "height": 630,
+        "type": "image/png"
+      }
+    ]
+  },
+  "pageErrors": [],
+  "scope": "Actual live editor controls/download, actual local command receipt shown as a labelled document, actual published standalone fictional profile; no production owner mutation",
+  "deliveredDurationSeconds": 48,
+  "phoneScreenshotsSeparate": true
+}

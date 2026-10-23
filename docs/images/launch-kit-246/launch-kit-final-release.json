@@ -1,0 +1,83 @@
+{
+  "sourceSha": "4e248c0353658569d703db401be226e414c656ef",
+  "origin": "https://composer-launch-kit.loftwah.workers.dev",
+  "processing": "browser-local",
+  "verifiedAssets": [
+    {
+      "path": "/release.json",
+      "sha256": "bdfa08a395507713e3e8be587637ea3eca4e5391083976e74d0029eefce8acab",
+      "attempt": 1
+    },
+    {
+      "path": "/",
+      "sha256": "89927cafa9ac5183d926757e329ce0afc0cc476d85e0586bac617a5af19b9ddd",
+      "attempt": 1
+    },
+    {
+      "path": "/modules/client.js",
+      "sha256": "27a5b353bef6d633dcddadcce27a5ed11925d6c88e8dad2e5ba114c33b92dd0f",
+      "attempt": 1
+    },
+    {
+      "path": "/modules/processing.js",
+      "sha256": "0d8b0c85ef80202b92e73924b522c46c21e092550cde5c7cd7501b790e2dee01",
+      "attempt": 1
+    },
+    {
+      "path": "/profile.html",
+      "sha256": "0a43db06671daeac7b86b8f1f01138e5631cf71b748fa2f63ba97abb5dc8213d",
+      "attempt": 1
+    },
+    {
+      "path": "/modules/profile.js",
+      "sha256": "d71ad8e2e3fb8b33c755fa9509e93d262b74549e21037d392e524a64b105f243",
+      "attempt": 1
+    },
+    {
+      "path": "/modules/profile-client.js",
+      "sha256": "a63fab6a7a81defddd2fdc2b80b282ef05e45e39d077e6038a497ab6fb0c84d7",
+      "attempt": 1
+    },
+    {
+      "path": "/modules/font-coverage.js",
+      "sha256": "17c97df9b62cfb8c72a8955481c3b55430f32b378622751c26bd4aebd64e86a2",
+      "attempt": 1
+    },
+    {
+      "path": "/presets.json",
+      "sha256": "2978f0236f0f5d343df2cc8fa1945b2ee04bec5ed21844144a814af699ec7716",
+      "attempt": 1
+    },
+    {
+      "path": "/brand/night-signal-icon-32.png",
+      "sha256": "92f0c24a9575e7abc0404503639ac33eb6e87f36518b106c44b58a7a1ea9527c",
+      "attempt": 1
+    },
+    {
+      "path": "/brand/night-signal-icon-180.png",
+      "sha256": "94553dd02ab884cb4b7e4d9657a0c90bc59372176b0baf40a13b9758dfffb15f",
+      "attempt": 1
+    },
+    {
+      "path": "/examples/river-typography.png",
+      "sha256": "eb7c5b695a43702bf42effce699eb93f4a407be5289fd96a964561e315a89a4f",
+      "attempt": 1
+    },
+    {
+      "path": "/examples/night-signal-music.png",
+      "sha256": "958ac2bdb59ad0bbabe10ac06667d6b0ccf44aae22c06a191a21ba5f5f9f72bd",
+      "attempt": 1
+    },
+    {
+      "path": "/examples/field-notes-editorial.png",
+      "sha256": "5123c56e4af030c89326787397ffeff1104b4eb9f39ccb7ec7c9170dce447c60",
+      "attempt": 1
+    },
+    {
+      "path": "/examples/night-signal-artwork.png",
+      "sha256": "db3576e957ee016ebda2a73fef53fcf87f94d77eb0016e35ab9d58e522e7d79c",
+      "attempt": 1
+    }
+  ],
+  "verified": "2026-10-23T06:31:57.038Z"
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "browser": "26.5",
+    "width": 1440,
+    "name": "Night Signal pointer",
+    "preset": "true",
+    "inputBounds": {
+      "x": 1061,
+      "y": 1202.953125,
+      "width": 233.984375,
+      "height": 42
+    },
+    "labelBounds": {
+      "x": 1060,
+      "y": 1201.953125,
+      "width": 235.984375,
+      "height": 44
+    }
+  },
+  {
+    "browser": "26.5",
+    "width": 390,
+    "name": "Night Signal pointer",
+    "preset": "true",
+    "inputBounds": {
+      "x": 21,
+      "y": 1419.265625,
+      "width": 233.984375,
+      "height": 42
+    },
+    "labelBounds": {
+      "x": 20,
+      "y": 1418.265625,
+      "width": 235.984375,
+      "height": 44
+    }
+  }
+]
