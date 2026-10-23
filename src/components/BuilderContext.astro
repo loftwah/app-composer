@@ -13,11 +13,11 @@ const active = hasBuilderContext(Astro.url);
   </nav>
 </aside>}
 <script>
-  import { builderHref, hasBuilderContext } from '../lib/builder-context.mjs';
+  import { builderHref, builderParameters } from '../lib/builder-context.mjs';
   // Decorate only deliberate navigation to supported public builder surfaces.
   // Canonicals, report payloads, download URLs and owner routes stay untouched.
   function retainContext(event: MouseEvent) {
-    if (!hasBuilderContext(new URL(location.href))) return;
+    if (!builderParameters(new URL(location.href)).length) return;
     const anchor = event.target instanceof Element ? event.target.closest('a[href]') : null;
     if (!(anchor instanceof HTMLAnchorElement) || anchor.hasAttribute('download')) return;
     const href = anchor.getAttribute('href')!;

@@ -389,6 +389,8 @@ test("owner-recorded demo mode is captured only on future receipts; limits/outag
     for (const headers of [
       { "X-Composer-Verification": "1" },
       { "User-Agent": "Googlebot" },
+      { "User-Agent": "Mozilla/5.0", Referer: origin + "/s/fictional?analytics=off" },
+      { "User-Agent": "Mozilla/5.0", Referer: origin + "/s/fictional?qa=1" },
     ])
       await collectStackAction(
         await request(p.stack, {}, headers),
@@ -1202,6 +1204,12 @@ test("one demo Open action reconciles through owner report and explicitly permit
       end: "today",
       traffic: "demo",
     };
+    const absent = await native(f, user, { action: "previewPublicReport", ...fields }, false);
+    assert.equal(absent.ok, false);
+    assert.equal(absent.code, "INVALID");
+    assert.match(absent.message, /No retained Open action/);
+    assert.doesNotMatch(absent.message, /query could not complete/);
+    assert.equal(f.sqlite.prepare("SELECT COUNT(*) AS n FROM composer_reports").get().n, 0);
     await native(
       f,
       user,

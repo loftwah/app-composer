@@ -101,5 +101,38 @@ test("a frozen-report form continues context only in its redirect, rejecting dup
     destination + "?from=woodhouse-edition&analytics=off&qa=1",
   );
   posted.searchParams.append("from", "woodhouse-edition");
-  assert.equal(builderHref(posted, destination), destination);
+  // Invalid editorial context must not resume measurement for an excluded visit.
+  assert.equal(
+    builderHref(posted, destination),
+    destination + "?analytics=off&qa=1",
+  );
+});
+
+test("published stack to its native visitor book keeps exclusion and the fixed edition return", () => {
+  const stack = new URL(
+    "/s/fictional-harbour-notes?from=woodhouse-edition&analytics=off&qa=1",
+    source,
+  );
+  const book = "/guestbook/r/55226db0-675a-400b-ab31-0d79fb6a33fd/c/1/";
+  const opened = builderHref(stack, book);
+  assert.equal(opened, book + "?from=woodhouse-edition&analytics=off&qa=1");
+  const incoming = new URL(opened, source);
+  assert.equal(
+    builderHref(incoming, book + "contribute"),
+    book + "contribute?from=woodhouse-edition&analytics=off&qa=1",
+  );
+  assert.equal(builderHref(incoming, "/guestbook/owner"), "/guestbook/owner");
+  assert.equal(
+    builderHref(
+      incoming,
+      "/guestbook/r/55226db0-675a-400b-ab31-0d79fb6a33fd/api/items",
+    ),
+    "/guestbook/r/55226db0-675a-400b-ab31-0d79fb6a33fd/api/items",
+  );
+  assert.equal(builderReturnHref(incoming), builderReturnHref(source));
+  const manual = new URL(
+    "/s/fictional-harbour-notes?analytics=off&qa=1",
+    source,
+  );
+  assert.equal(builderHref(manual, book), book + "?analytics=off&qa=1");
 });

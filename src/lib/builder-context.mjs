@@ -20,7 +20,10 @@ export function isBuilderPath(path) {
       "/launch-kit/example/",
     ].includes(path) ||
     /^\/reports\/(?:new|r[a-f0-9]{24})$/.test(path) ||
-    /^\/activity\/[a-z-]+$/.test(path)
+    /^\/activity\/[a-z-]+$/.test(path) ||
+    /^\/s\/[a-z0-9-]{1,60}$/.test(path) ||
+    /^\/guestbook\/?$/.test(path) ||
+    /^\/guestbook\/r\/[a-z0-9-]{6,64}\/c\/[1-9][0-9]*\/(?:contribute|item\/[a-z0-9-]{6,64})?$/.test(path)
   );
 }
 
@@ -34,14 +37,15 @@ export function hasBuilderContext(url) {
 
 export function builderHref(source, destination) {
   if (destination.startsWith("#")) return destination;
+  if (!builderParameters(source).length) return destination;
   const url = new URL(destination, source);
   if (
-    !hasBuilderContext(source) ||
+    !isBuilderPath(source.pathname) ||
     url.origin !== source.origin ||
     !isBuilderPath(url.pathname)
   )
     return destination;
-  url.searchParams.set("from", "woodhouse-edition");
+  if (hasBuilderContext(source)) url.searchParams.set("from", "woodhouse-edition");
   // Verification controls stay explicit; no other incoming query becomes state.
   for (const [key, value] of [
     ["analytics", "off"],
@@ -57,9 +61,9 @@ export function builderHref(source, destination) {
 }
 
 export function builderParameters(source) {
-  if (!hasBuilderContext(source)) return [];
+  if (!isBuilderPath(source.pathname)) return [];
   return [
-    ["from", "woodhouse-edition"],
+    ...(hasBuilderContext(source) ? [["from", "woodhouse-edition"]] : []),
     ...[
       ["analytics", "off"],
       ["qa", "1"],
