@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
-import { mkdtemp, readFile, writeFile, mkdir, rm, stat, readdir, realpath } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile, mkdir, rm, stat, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
@@ -18,12 +18,54 @@ import { appSettings } from '../src/lib/app-settings.mjs';
 
 const workspace = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const guestbook = process.env.COMPOSER_DEMO_GUESTBOOK ? resolve(process.env.COMPOSER_DEMO_GUESTBOOK) : resolve(workspace, '../app-composer-guestbook');
-const pin = '376129c8b48d29d26e982777084aa241966569c7';
+const pin = appSettings.guestbook.source.commit;
 const origin = 'https://composer.loftwah.com';
 const account = '1003dc1d93af0ebea56b2f1252f89627';
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const git = (...args) => execFileSync('git', args, { cwd: guestbook, encoding: 'utf8' }).trim();
 const escaped = value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+
+// Select only the exact reviewed default fetch export. Named Worker entrypoints
+// remain outside this Node lab; no cloudflare:workers shim is constructed.
+export function selectGuestbookFetchModule(source, typescript) {
+  const parsed = typescript.createSourceFile(
+    'worker.ts', source, typescript.ScriptTarget.Latest, true,
+    typescript.ScriptKind.TS,
+  );
+  assert.equal(parsed.parseDiagnostics.length, 0,
+    'The reviewed entrypoint must parse without errors.');
+  const namedExport = statement => typescript.isExportDeclaration(statement)
+    && statement.exportClause && typescript.isNamedExports(statement.exportClause);
+  const forwards = parsed.statements.filter(statement => {
+    if (!namedExport(statement) || statement.isTypeOnly || statement.attributes
+      || !statement.moduleSpecifier
+      || !typescript.isStringLiteral(statement.moduleSpecifier)
+      || statement.moduleSpecifier.text !== './app.ts'
+      || statement.exportClause.elements.length !== 1) return false;
+    const selected = statement.exportClause.elements[0];
+    return !selected.isTypeOnly && selected.name.text === 'default'
+      && !selected.propertyName;
+  });
+  const defaultDeclarations = parsed.statements.filter(statement =>
+    typescript.isExportAssignment(statement)
+    || statement.modifiers?.some(modifier =>
+      modifier.kind === typescript.SyntaxKind.DefaultKeyword)
+    || (namedExport(statement) && statement.exportClause.elements.some(element =>
+      element.name.text === 'default')));
+  if (forwards.length === 1 && defaultDeclarations.length === 1) return 'src/app.ts';
+  assert.equal(defaultDeclarations.some(statement =>
+    typescript.isExportDeclaration(statement)), false,
+  'Only the exact ./app.ts default re-export is supported.');
+  assert.equal(defaultDeclarations.length, 1,
+    'The reviewed entrypoint must expose one default implementation.');
+  const cloudflareImport = parsed.statements.some(statement =>
+    typescript.isImportDeclaration(statement)
+    && typescript.isStringLiteral(statement.moduleSpecifier)
+    && statement.moduleSpecifier.text === 'cloudflare:workers');
+  assert.equal(cloudflareImport, false,
+    'Node cannot execute this Workers entrypoint; only an exact default re-export from ./app.ts may select the reviewed fetch module.');
+  return 'src/worker.ts';
+}
 
 function sqliteD1(path) {
   const sqlite = new DatabaseSync(path);
@@ -47,10 +89,12 @@ function sqliteD1(path) {
 export async function runPlatformDemo({ serve = false, onReady } = {}) {
   assert.equal(git('rev-parse', 'HEAD'), pin, 'Select the exact reviewed Guestbook source.');
   assert.equal(git('status', '--porcelain', '--untracked-files=no'), '', 'Preserve and separately review Guestbook changes before running.');
-  assert.equal(appSettings.guestbook.source.commit, pin, 'Composer and actual Guestbook source pins must match.');
+  assert.match(pin, /^[a-f0-9]{40}$/, 'The selected composition requires an exact Guestbook source pin.');
+  const composition = JSON.parse(await readFile(join(workspace, 'composition.lock.json'), 'utf8'));
+  assert.equal(composition.apps.find(app => app.id === 'guestbook')?.commit, pin, 'App settings and the composition lock must select the same exact source.');
   const report = { schema: 'composer.platform-demo/1', observedAt: new Date().toISOString(), composerSource: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: workspace, encoding: 'utf8' }).trim(), guestbookSource: pin,
     runtime: { node: process.version, platform: process.platform, arch: process.arch },
-    boundaries: { admission: 'Synthetic trusted-host actors; Access/EmDash login not exercised', guestbook: 'Exact Worker fetch code over real local HTTP and SQLite; D1/R2 interfaces use local adapters, not workerd', composition: 'Actual StackView React SSR in a labelled local wrapper; Astro routing/layout not exercised', provider: 'No external network, provider writes or vendor events' }, checks: {}, http: [] };
+    boundaries: { admission: 'Synthetic trusted-host actors; Access/EmDash login not exercised', guestbook: 'Exact pinned default fetch module over real local HTTP and SQLite; D1/R2 interfaces use local adapters, not workerd', entrypoint: 'Workers entrypoint and named service binding are not exercised by this Node fetch-module lab', composition: 'Actual StackView React SSR in a labelled local wrapper; Astro routing/layout not exercised', provider: 'No external network, provider writes or vendor events' }, checks: {}, http: [] };
   let server, cms, app;
   const previousBuild = globalThis.BUILD_SHA, previousManifest = globalThis.MANIFEST;
   const root = await mkdtemp(join(tmpdir(), 'composer-platform-demo-'));
@@ -79,7 +123,12 @@ export async function runPlatformDemo({ serve = false, onReady } = {}) {
     report.authoredSourceHashes = Object.fromEntries(await Promise.all(['src/lib/platform-admin.ts', 'src/lib/platform-contract.ts', 'src/lib/platform-guard.ts', 'src/lib/stack-resources.ts', 'src/lib/resource-client.ts', 'scripts/platform-demo.mjs'].map(async path => [path, hash(await readFile(join(workspace, path)))])));
     globalThis.BUILD_SHA = pin;
     globalThis.MANIFEST = JSON.parse(await readFile(join(guestbook, 'app.manifest.json'), 'utf8'));
-    const { default: worker } = await import(pathToFileURL(join(guestbook, 'src/worker.ts')).href);
+    const entrySource = await readFile(join(guestbook, 'src/worker.ts'), 'utf8');
+    const executedModule = selectGuestbookFetchModule(entrySource, typescript.default);
+    const executedBytes = await readFile(join(guestbook, executedModule));
+    report.execution = { entrypoint: 'src/worker.ts', entrypointSha256: hash(entrySource), executedModule, executedModuleSha256: hash(executedBytes), exactDefaultReexport: executedModule === 'src/app.ts', namedServiceBinding: 'not-exercised', workersEntrypointRuntime: 'not-exercised' };
+    const { default: worker } = await import(pathToFileURL(join(guestbook, executedModule)).href);
+    assert.equal(typeof worker?.fetch, 'function', 'The reviewed default module must expose its actual fetch handler.');
     const token = 'fictional-' + crypto.randomUUID();
     const assetTypes = { '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.woff2': 'font/woff2', '.webp': 'image/webp', '.png': 'image/png', '.svg': 'image/svg+xml', '.ico': 'image/x-icon' };
     const asset = async (assetRequest, base = guestbook) => {
@@ -174,6 +223,8 @@ export async function runPlatformDemo({ serve = false, onReady } = {}) {
     report.checks.realApprovedMediaAndPortableExport = true;
     assert.deepEqual(cms.sqlite.prepare('PRAGMA foreign_key_check').all(), []); assert.deepEqual(app.sqlite.prepare('PRAGMA foreign_key_check').all(), []);
     assert.equal(git('rev-parse', 'HEAD'), pin); assert.equal(git('status', '--porcelain', '--untracked-files=no'), '');
+    assert.equal(hash(await readFile(join(guestbook, 'src/worker.ts'))), report.execution.entrypointSha256);
+    assert.equal(hash(await readFile(join(guestbook, executedModule))), report.execution.executedModuleSha256);
     report.services = created.map((row, i) => ({ team: i ? 'Fictional Beacon' : 'Fictional Atlas', workspace: teams[i].id, request: row.id, stack: row.stackId, resource: row.resources[0].resource, canonicalPage: row.url, localPage: localOrigin + row.url, localApp: localOrigin + (i ? created[i] : recovered.requests[0]).resources[0].configuration.path }));
     report.export = { format: exported.format, items: exported.items.length, mediaSha256: exported.items[0].media.sha256, sourceBuild: exported.source.build };
     report.operations = { resources: app.sqlite.prepare('SELECT COUNT(*) AS n FROM guestbook_resources').get().n, durableOperations: app.sqlite.prepare('SELECT COUNT(*) AS n FROM guestbook_resource_operations').get().n, lostAcknowledgementOperation: lostOperation, lostAcknowledgementDispatches: report.http.filter(row => row.method === 'POST' && row.operationId === lostOperation).length };

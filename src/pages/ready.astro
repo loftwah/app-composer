@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import AssistanceControl from '../components/AssistanceControl.astro';
 import pkg from '../../package.json';
+import { appSettings } from '../lib/app-settings.mjs';
 import {recipe} from '../../lib/get-ready/inspect.mjs';
 import ReadyHandoff from '../components/ReadyHandoff.astro';
 import ReadyProgress from '../components/ReadyProgress.astro';
@@ -10,11 +11,55 @@ import ReadyProject from '../components/ReadyProject.astro';
 import ReadyPreferences from '../components/ReadyPreferences.astro';
 import { ArrowRight, BookOpen, Bot, GitBranch, Cloud, Globe, ShieldCheck } from '@lucide/astro';
 const stages=[{icon:Bot,title:'Agent & tools',detail:'A working folder and the tools to build.'},{icon:GitBranch,title:'Your GitHub source',detail:'A private starter you own and can update.'},{icon:Cloud,title:'Your Cloudflare account',detail:'The intended account and deployment access.'},{icon:Globe,title:'A live HTTPS app',detail:'The exact source, deployed and verified.'}];
+const profiles = Astro.url.searchParams.getAll('profile');
+const platformSelected = profiles.length === 1 && profiles[0] === 'platform';
+const workspaces = Astro.url.searchParams.getAll('workspace');
+const workspace = workspaces.length === 1 && /^[a-z0-9-]{6,64}$/.test(workspaces[0]) ? workspaces[0] : undefined;
+const nativePlatform = '/_emdash/admin/plugins/composer-stacks/platform' + (workspace ? '?' + new URLSearchParams({workspace}) : '');
+const platformSelf = '/ready?' + new URLSearchParams({profile:'platform', ...(workspace ? {workspace} : {})});
+const platformInit = '/init?' + new URLSearchParams({profile:'platform', ...(workspace ? {workspace} : {})});
+const source = appSettings.guestbook.source;
 ---
-<Base title="Get Ready: your first working environment" description="Start before you have an app idea. Let your agent prepare tools, GitHub and Cloudflare, then verify your first HTTPS app. Save your address choice and resume progress.">
- <div class="workspace-heading"><div><h1>Get ready.<br/>Then make something.</h1><p class="lede">A working environment comes first. Your agent handles setup, builds your first Hello app and checks that it works online. You handle sign-in and choices that need your say.</p></div><a class="button secondary" href="/ready/guide"><BookOpen size={18} aria-hidden="true"/>Step-by-step help</a></div>
- <nav class="build-paths" aria-label="Choose your application path"><a href="#agent-start" aria-current="page"><strong>My app</strong><span>Prepare your environment and start building.</span></a><a href="/_emdash/admin/plugins/composer-stacks/workspaces"><strong>My team</strong><span>Use your existing workspace and access.</span></a><a href="/platform"><strong>Internal platform</strong><span>Give teams approved ways to build, release and run.</span></a></nav>
- <p class="small">Preparing a platform? <a href="/_emdash/admin/plugins/composer-stacks/platform">Open your authorised platform workspace</a> to inspect its supported recipe, standing policy and runner. <a href="/platform#readiness">See what must be ready.</a></p>
+<Base title={platformSelected ? 'Get Ready: prepare your internal platform' : 'Get Ready: your first working environment'} description={platformSelected ? 'Prepare the operator prerequisites, inspect your authorised workspace and current adapter, then let teams request supported synthetic preview applications.' : 'Start before you have an app idea. Let your agent prepare tools, GitHub and Cloudflare, then verify your first HTTPS app. Save your address choice and resume progress.'}>
+ <div class="workspace-heading">
+  <div>
+   <h1>{platformSelected ? 'Prepare your internal platform.' : <>Get ready.<br/>Then make something.</>}</h1>
+   <p class="lede">{platformSelected ? 'Prepare the workspace and standing rules once, then give teams an approved way to request applications. Start with the current installation; no application idea is needed here.' : 'A working environment comes first. Your agent handles setup, builds your first Hello app and checks that it works online. You handle sign-in and choices that need your say.'}</p>
+  </div>
+  <a class="button secondary" href={platformSelected ? '/platform' : '/ready/guide'}><BookOpen size={18} aria-hidden="true"/>{platformSelected ? 'Platform field guide' : 'Step-by-step help'}</a>
+ </div>
+ <nav class="build-paths" aria-label="Choose your application path">
+  <a href="/ready" aria-current={!platformSelected ? 'page' : undefined}><strong>My app</strong><span>Prepare your environment and start building.</span></a>
+  <a href="/_emdash/admin/plugins/composer-stacks/workspaces"><strong>My team</strong><span>Use your existing workspace and access.</span></a>
+  <a href={platformSelf} aria-current={platformSelected ? 'page' : undefined}><strong>Internal platform</strong><span>Give teams approved ways to build, release and run.</span></a>
+ </nav>
+ {platformSelected ? (
+  <div class="platform-preparation">
+   <section class="platform-next" aria-labelledby="platform-prepare-heading">
+    <h2 id="platform-prepare-heading">Inspect the workspace you will operate.</h2>
+    <p>The native EmDash workspace checks your current owner, editor or viewer role, loads the saved policy and reports whether its trusted app-resource adapter is connected. A workspace owner establishes the supported scope and application limit; a team editor requests within it.</p>
+    <div class="actions"><a class="button" href={nativePlatform}>Inspect platform workspace <ArrowRight size={18} aria-hidden="true"/></a><a href="/_emdash/admin/plugins/composer-stacks/workspaces">Choose a team or review access</a></div>
+    <p class="small">{workspace ? <>Selected workspace <code>{workspace}</code>. The server still checks membership.</> : 'No workspace selected here. EmDash resolves your authorised default; use Workspace access to select another.'} Opening this public page does not inspect a local account, grant access or certify readiness.</p>
+   </section>
+   <section class="platform-prerequisites" aria-labelledby="platform-prerequisites-heading">
+    <h2 id="platform-prerequisites-heading">Prepare the prerequisites that affect this path.</h2>
+    <dl>
+     <div><dt>Repository and tools</dt><dd>Your trusted operator agent checks the intended checkout, exact source, Node 22, Git and the reviewed EmDash <code>{pkg.dependencies.emdash}</code> toolchain. Local preparation and a live service remain separate checks.</dd></div>
+     <div><dt>Identity and membership</dt><dd>Use the existing protected EmDash sign-in. Confirm the intended workspace and owner/editor assignments. A profile, report or exported specification never creates a permission grant.</dd></div>
+     <div><dt>Account, runtime and resources</dt><dd>The operator selects the existing Guestbook connection and runtime identity on the trusted host. The native plan shows its actual account and environment. Credentials and resource bindings stay on that host; this page asks for none.</dd></div>
+     <div><dt>Standing policy and runner</dt><dd>An owner enables the maintained visitor book recipe, synthetic previews and a bounded application quota. Routine allowed requests run through the connected adapter. Missing execution capability leaves a resumable request, not a completed service.</dd></div>
+    </dl>
+   </section>
+   <section class="platform-supported" aria-labelledby="platform-supported-heading">
+    <h2 id="platform-supported-heading">One supported resource path.</h2>
+    <p>The current path uses an app-owned visitor book resource in the independently deployed Guestbook Worker and its existing database. “Preview” labels the synthetic application request; it does not create an isolated preview Worker or database.</p>
+    <p>Knowledge applications, production promotion and strict Australian-only processing/storage are unsupported by this automatic path. Do not enter internal or sensitive records. The request policy records unsupported or denied requirements instead of weakening them.</p>
+    <p class="small">Reviewed Guestbook source <code>{source.commit}</code>. Source qualification, current adapter connection and a verified application are separate evidence.</p>
+    <div class="actions"><a class="button secondary" href={platformInit}>Continue to the team request <ArrowRight size={18} aria-hidden="true"/></a><a href="/platform#permissions">Review the permission domains</a></div>
+   </section>
+   <details class="platform-new-host"><summary>Preparing a separate installation?</summary><p>Use the <a href="/ready">independent environment setup</a> for the supported tools, source and first HTTPS application, then follow the <a href="/docs">operator documentation</a> for the intended host. That setup report is an observation; it does not configure platform admission, server credentials or standing policy automatically.</p></details>
+  </div>
+ ) : (<>
  <AssistanceControl/>
  <p class="small"><a href="#progress-heading">Already have an agent report? Open or resume it here.</a></p>
  <nav class="journey-nav" aria-label="Your application journey"><a href="/ready" aria-current="step"><span>1</span>Get Ready</a><a href="/init"><span>2</span>Configure</a><a href="/demo"><span>3</span>See composition</a><a href="/docs"><span>4</span>Own & update</a></nav>
@@ -29,8 +74,76 @@ const stages=[{icon:Bot,title:'Agent & tools',detail:'A working folder and the t
  <ReadyDomain/>
  <section class="readiness-outcome"><div><h2>Keep what you build.</h2><p>Your first app is a small, configurable Hello page with its own source. Keep it, change the greeting or use the verified environment for something bigger.</p><div class="actions"><a class="button secondary" href="https://ready.loftwah.com">Open the launch reference <ArrowRight size={18} aria-hidden="true"/></a><a href="/apps">Explore the building blocks</a></div><p class="small">The launch reference belongs to this operator. Opening it does not verify your environment.</p></div><ol class="readiness-map" aria-label="What your agent verifies">{stages.map(({icon:Icon,title,detail})=><li><Icon size={22} aria-hidden="true"/><div><strong>{title}</strong><p>{detail}</p></div></li>)}</ol></section>
  <noscript><p>Saved address choices, progress reports and copied handoffs require JavaScript. You can still read the request, use the guide and explore all public apps.</p></noscript>
+ </>)}
 </Base>
 <style>
+ .platform-preparation {
+  max-width:1000px
+ }
+ .platform-next {
+  padding:24px 0 32px
+ }
+ .platform-preparation h2 {
+  font-size:1.7rem;
+  max-width:32ch;
+  margin:0 0 16px
+ }
+ .platform-preparation p {
+  max-width:74ch
+ }
+ .platform-prerequisites,.platform-supported,.platform-new-host {
+  border-top:1px solid var(--color-border);
+  padding-top:28px;
+  margin-top:28px
+ }
+ .platform-prerequisites dl {
+  margin:0
+ }
+ .platform-prerequisites dl>div {
+  display:grid;
+  grid-template-columns:210px minmax(0,1fr);
+  gap:24px;
+  padding:20px 0;
+  border-bottom:1px solid var(--color-border)
+ }
+ .platform-prerequisites dt {
+  font-weight:600
+ }
+ .platform-prerequisites dd {
+  margin:0;
+  color:var(--color-muted);
+  max-width:70ch
+ }
+ .platform-preparation code {
+  overflow-wrap:anywhere
+ }
+ .platform-new-host summary {
+  min-height:44px;
+  cursor:pointer;
+  font-weight:600
+ }
+ .platform-preparation .actions {
+  flex-wrap:wrap;
+  gap:16px
+ }
+ .platform-preparation .actions a {
+  min-height:44px;
+  display:inline-flex;
+  align-items:center
+ }
+ @media(max-width:600px) {
+  .platform-prerequisites dl>div {
+  grid-template-columns:1fr;
+  gap:8px
+ }
+ .platform-preparation h2 {
+  font-size:1.5rem
+ }
+ .platform-next {
+  padding-top:16px
+ }
+ }
+
  .build-paths{display:flex;flex-wrap:wrap;gap:0 32px;border-block:1px solid var(--color-border);margin:28px 0 16px}.build-paths a{flex:1 1 180px;display:grid;gap:4px;padding:16px 0;min-height:44px;color:var(--color-foreground);text-decoration:none}.build-paths a[aria-current]{box-shadow:inset 0 -2px var(--color-accent)}.build-paths a:hover strong{text-decoration:underline;text-underline-offset:4px}.build-paths span{font-size:13px;line-height:1.5;color:var(--color-muted)}
 
  .workspace-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;margin-bottom:32px}.workspace-heading h1{font-size:3.25rem;max-width:24ch;margin-top:0;margin-bottom:18px}.workspace-heading .lede{font-size:1.1rem;max-width:64ch;margin:0}.workspace-heading>.button{flex-shrink:0}.journey-nav{display:flex;gap:0;border-block:1px solid var(--color-border);margin:32px 0 40px;overflow:auto;flex-wrap:nowrap}.journey-nav a{display:flex;gap:10px;align-items:center;padding:18px 24px 18px 0;margin-right:24px;white-space:nowrap;font-weight:500;color:var(--color-muted);text-decoration:none;min-height:58px}.journey-nav a[aria-current]{color:var(--color-foreground);border-bottom:2px solid var(--color-accent)}.journey-nav span{font-size:13px;border:1px solid var(--color-control-border);border-radius:50%;width:24px;height:24px;display:grid;place-items:center}.journey-nav a[aria-current] span{color:var(--color-accent)}.ready-workspace{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:56px;align-items:start}.ready-main :global(h2){font-size:1.6rem;max-width:none;margin-bottom:14px}.agent-request{border-top:1px solid var(--color-border);padding-top:32px;margin-top:32px;scroll-margin-top:24px}.agent-request>p{color:var(--color-muted)}.owner-boundary{display:flex;gap:12px;padding:18px 0}.owner-boundary svg{flex-shrink:0;margin-top:4px;color:var(--color-muted)}.owner-boundary p{font-size:13px;color:var(--color-muted);margin:0}.readiness-outcome{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;border-top:1px solid var(--color-border);margin-top:56px;padding-top:40px}.readiness-outcome h2{font-size:2rem;margin-bottom:18px}.readiness-map{list-style:none;margin:0;padding:0;max-width:none}.readiness-map li{display:flex;gap:16px;margin:0;padding:16px 0;border-bottom:1px solid var(--color-border)}.readiness-map svg{flex-shrink:0;color:var(--color-muted);margin-top:3px}.readiness-map p{font-size:14px;color:var(--color-muted);margin:4px 0 0}

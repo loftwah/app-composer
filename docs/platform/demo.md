@@ -4,14 +4,14 @@ Reviewed 23 October 2026. This reproducible specimen exercises the governed requ
 
 ## Run and inspect
 
-Reuse the installed Composer Node 22 dependencies and a clean existing Guestbook checkout at exact source `376129c8b48d29d26e982777084aa241966569c7`. Select its location with trusted host environment variable `COMPOSER_DEMO_GUESTBOOK`; the default is the sibling `../app-composer-guestbook` checkout. The script refuses a changed tracked checkout or a mismatched Composer source pin. It performs no installation, cloud calls, provider writes or vendor notifications.
+Reuse the installed Composer Node 22 dependencies and a clean existing Guestbook checkout at the exact current `composition.lock.json` Guestbook commit. The shared `appSettings` pin must match that lock, and the selected checkout must match both. Select its location with trusted host environment variable `COMPOSER_DEMO_GUESTBOOK`; the default is the sibling `../app-composer-guestbook` checkout. The script refuses a changed tracked checkout or a mismatched Composer source pin. It performs no installation, cloud calls, provider writes or vendor notifications.
 
 ```sh
 COMPOSER_DEMO_GUESTBOOK=/absolute/existing/app-composer-guestbook node --experimental-transform-types scripts/platform-demo.mjs
 COMPOSER_DEMO_GUESTBOOK=/absolute/existing/app-composer-guestbook node --experimental-transform-types --test tests/platform-demo.test.mjs
 ```
 
-The normal test suite skips this optional lab only when its selected source directory is absent. A present but dirty, mismatched or incomplete checkout fails. Explicit qualification must run it with the reviewed source selected and retain a passing receipt. The first command emits a bounded JSON receipt. Save it under ignored `output/` when useful. `output/platform-demo-20261023.json` records the initial run. Runtime/source changes require a fresh receipt; a fixture is not a production acceptance result.
+The normal test suite skips this optional lab only when its selected source directory is absent. A present but dirty, mismatched or incomplete checkout fails. Explicit qualification must run it with the reviewed source selected and retain a passing receipt. The first command emits a bounded JSON receipt. Save it under ignored `output/` when useful. `output/platform-demo-20261023.json` records the historical initial run at Guestbook `376129c8b48d29d26e982777084aa241966569c7`; it is not qualification of a later pin. Save each fresh selected-source run under a distinct evidence filename. The original local media excerpts retain their historical sources. Runtime/source changes require a fresh receipt; a fixture is not a production acceptance result.
 
 For browser inspection, keep the owned loopback listener alive deliberately:
 
@@ -26,7 +26,7 @@ The ready receipt prints each team's `localPage` and `localApp`. Open those exac
 | Part | Exercised implementation | Evidence boundary |
 | --- | --- | --- |
 | Platform requests/policy/leases | Current `managePlatform`, workspace membership, request store, existing resource adapter and publication functions. | Actors are trusted synthetic host fixtures. Access admission, EmDash dispatch/session lifecycle and human role acceptance are not exercised. |
-| Independent application | Exact Guestbook `src/worker.ts` and its imported resource, public rendering, permission, portability and PNG code, called through real loopback HTTP. | Node 22 executes the Worker fetch handler. This is not workerd, managed Workers or a claim that full Composer runs unchanged on Node. |
+| Independent application | Exact pinned Guestbook default fetch module and its imported resource, public rendering, permission, portability and PNG code, called through real loopback HTTP. The receipt records entrypoint/module paths and SHA-256 hashes. | Node 22 executes only that default fetch module. If `worker.ts` exactly re-exports the default from `./app.ts`, the lab executes `app.ts`; otherwise the older direct-fetch `worker.ts` is supported. The Workers entrypoint and named member service binding are not exercised; no `WorkerEntrypoint` shim is created. This is not workerd, managed Workers or a claim that full Composer runs unchanged on Node. |
 | State | Separate on-disk Composer and Guestbook SQLite databases, actual forward migrations, foreign keys and transactional D1-compatible interface. | Local adapter semantics, not hosted D1 or process/node-loss qualification. |
 | Media | Owned filesystem object storage implements the required R2 methods; real app media/export paths read the stored PNG. | Filesystem fixture, not an R2 durability/network qualification. |
 | Composed page | Unchanged `StackView.tsx` transpiled using existing TypeScript and rendered by `react-dom/server` from actual immutable publication data. | Labelled local HTML wrapper. Astro routing/layout/assets, CSP and browser behaviour require their normal independent proof. |
@@ -45,3 +45,9 @@ The ready receipt prints each team's `localPage` and `localApp`. Open those exac
 The receipt retains authored source hashes for the uncommitted/current modules, bounded HTTP paths/status/body hashes and operation identities, team/request/stack/resource identities, durable-operation count, lost-acknowledgement operation, renderer-source hash, export hash and cleanup result. It excludes credentials and media bytes.
 
 This proves a useful local scoped-resource journey. It does not prove fresh-person admission, isolated per-team Worker/D1 provisioning, vendor integration, external notifications, complete disaster recovery, retirement, physical-device acceptance or a production deployment. The app-owned approved export is bounded and retains the existing live-source recovery limitations described in the Guestbook contract.
+
+## Default fetch module and invited-member release boundary
+
+The invited-member release selects Guestbook `9515b359bf268e6c79efbf6ad3497da132973c3e`. Its `src/worker.ts` imports `cloudflare:workers`, exports the named member service and exactly re-exports the default from `./app.ts`. A Node lab cannot load that Workers entrypoint unchanged. The source selector parses the actual reviewed entrypoint, follows only its exact default re-export, and executes the unmodified `src/app.ts` default handler. Comments, renamed exports, a different target or an additional default declaration cannot authorize that selection.
+
+This is default-fetch-module qualification with actual SQLite and media, not a Node port of the new Worker entrypoint or named service binding. The receipt explicitly records those unexercised boundaries and rechecks both module hashes after the journey. Invited-member service isolation requires its separate workerd/production proof. Select a fresh clean checkout at the actual composition pin when rerunning; an older receipt or a changed local module cannot satisfy the new release.
