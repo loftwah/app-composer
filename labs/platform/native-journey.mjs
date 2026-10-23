@@ -44,7 +44,13 @@ function denied(reply) {
   };
 }
 
-export async function nativeJourney({ actors, lab, output, memberSource }) {
+export async function nativeJourney({
+  actors,
+  lab,
+  output,
+  memberSource,
+  availabilityFixture,
+}) {
   const owner = actors.owner.page,
     a = actors["creator-a"].page,
     b = actors["creator-b"].page;
@@ -109,10 +115,13 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
           status: response.status,
           bytes: length,
           contentType: response.headers.get("content-type"),
+          localBridge: true,
           sha256: Array.from(digest, (byte) =>
             byte.toString(16).padStart(2, "0"),
           ).join(""),
-          text: response.headers.get("content-type")?.includes("json")
+          text: /json|text\/html/.test(
+            response.headers.get("content-type") ?? "",
+          )
             ? new TextDecoder().decode(bytes)
             : undefined,
         };
@@ -1108,6 +1117,39 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
       mediaSha256: approvedDigest,
     };
     await screenshot(ordinary, "team-a-role10-update-content-preserved");
+    if (availabilityFixture) {
+      const { runLocalAvailabilityExercise } =
+        await import("./native-incident.mjs");
+      result.availability = await runLocalAvailabilityExercise({
+        owner: actors.owner,
+        publicPage,
+        lab,
+        ownedRoot: availabilityFixture.ownedRoot,
+        output,
+        teamA: {
+          workspace: wa,
+          request: updatedA.id,
+          stack: updatedA.stackId,
+          instance: resource.instance,
+          resource: resource.resource,
+        },
+        teamB: {
+          workspace: wb,
+          request: initialB.id,
+          stack: initialB.stackId,
+          instance: initialB.resources[0].instance,
+          resource: initialB.resources[0].resource,
+        },
+        expectedMediaSha: approvedDigest,
+        readPublic: publicFetch,
+        capture: screenshot,
+      });
+      check(
+        result.availability.status === "recovered",
+        "Local availability exercise stopped: " +
+          result.availability.failureReason,
+      );
+    }
   } finally {
     await anonymous.close();
   }
@@ -1149,7 +1191,9 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
   );
   result.limits.push(
     "Visibility re-approval of retained hidden media is supported and exercised; full data/media restore is unavailable and unqualified.",
-    "Retirement, knowledge recipes and the #215 incident foundation have no qualified product journey in this fixture.",
+    availabilityFixture
+      ? "The optional availability exercise is deterministic local visibility recovery; agent diagnosis, code rollback, complete restoration and full #215 remain unqualified."
+      : "Retirement, knowledge recipes and the #215 incident foundation have no qualified product journey in this fixture.",
     "Local virtual-passkey admission and app-owned synthetic content do not establish production SSO, regional storage or upstream provider permissions.",
   );
   result.checks.push(
