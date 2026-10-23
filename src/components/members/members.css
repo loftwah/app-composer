@@ -134,6 +134,23 @@
 .member-rows > li > button {
   flex-shrink: 0;
 }
+.member-request-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: 12px;
+}
+.member-request-actions > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.member-request-actions > button {
+  max-width: 100%;
+  white-space: normal;
+  text-align: start;
+}
 .member-rows p {
   font-size: 0.9rem;
   color: var(--color-muted);
