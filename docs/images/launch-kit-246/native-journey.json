@@ -1,0 +1,10 @@
+{
+  "transport": "explicit fictional local simulation; real native component; backend separately tested",
+  "unsavedSnapshotPreserved": true,
+  "dirtyDraftAdoptionBlocked": true,
+  "decodedPreviewRequired": true,
+  "falseDeclaredDimensionsRejected": true,
+  "explicitAdoption": true,
+  "rollback": true,
+  "mobileOverflow": false
+}

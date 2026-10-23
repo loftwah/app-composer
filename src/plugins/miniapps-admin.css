@@ -12,3 +12,11 @@
 
 .ca-profile-portability{margin-top:32px;padding-top:24px;border-top:1px solid color-mix(in srgb,currentColor 18%,transparent)}.ca-profile-portability>button{margin-block:16px}.ca-profile-portability dl>div{padding-block:14px;border-bottom:1px solid color-mix(in srgb,currentColor 18%,transparent)}.ca-profile-portability dt{font-weight:600}.ca-profile-portability dd{margin:8px 0;white-space:pre-wrap;overflow-wrap:anywhere}.ca-profile-portability input[type=file]{max-width:100%;min-width:0}.ca-profile-portability [role=status]:empty{display:none}
 .ca-invitation{border:1px solid color-mix(in srgb,currentColor 22%,transparent);border-left:4px solid #fc5b05;border-radius:10px;padding:18px 20px;margin:8px 0 24px;max-width:70ch}.ca-invitation h3{margin-top:0}.ca-invitation p:last-of-type{margin-bottom:12px}.ca-invitation button{justify-self:start;margin-top:4px}@media(max-width:600px){.ca-invitation{padding:16px}}
+
+.ca-share-card{margin-top:32px;padding-top:24px;border-top:1px solid color-mix(in srgb,currentColor 18%,transparent)}
+.ca-share-card details{margin-top:20px}.ca-share-card summary{cursor:pointer;font-weight:600;padding-block:10px}
+.ca-share-card label{display:grid;gap:8px;margin-block:16px}.ca-share-card input[type=file]{max-width:100%;min-width:0}
+.ca-share-card .ca-share-select{display:flex;align-items:start;gap:10px}.ca-share-select input{width:20px;height:20px;flex-shrink:0;margin-top:3px}
+.ca-share-comparison{display:grid;gap:20px;margin-block:24px}.ca-share-comparison figure{margin:0;min-width:0}.ca-share-comparison figcaption{margin-bottom:8px;font-weight:600}
+.ca-share-comparison img{width:100%;height:auto;display:block;object-fit:contain;background:color-mix(in srgb,currentColor 5%,transparent)}
+.ca-share-card details>button{margin:0 8px 12px 0}.ca-share-card .ca-actions a{display:flex;align-items:center;text-decoration:underline}.ca-share-card [role=status]{margin-top:16px}

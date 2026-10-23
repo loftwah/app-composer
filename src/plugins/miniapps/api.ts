@@ -8,6 +8,7 @@ export async function call(
   const read =
     action === "snapshot" ||
     action === "preview" ||
+    (action === "share-card" && fields.operation === "snapshot") ||
     (action === "profile-settings" && fields.operation === "export");
   const values = { app, action, ...fields };
   const route =

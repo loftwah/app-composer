@@ -164,6 +164,24 @@ export declare function manageMiniapps(ctx: MiniappContext, runtime: unknown, pi
     png: string;
     id?: undefined;
 } | {
+    version: 1;
+    profile: {
+        id: string;
+        revision: string;
+        name: string;
+        handle: string;
+        description: string;
+        shareImage: string;
+    };
+    approved: import("./miniapp-share-card.mjs").ShareImage | null;
+    previous: {
+        shareImage: string;
+        approved: import("./miniapp-share-card.mjs").ShareImage | null;
+    } | null;
+    ok: boolean;
+    png?: undefined;
+    id?: undefined;
+} | {
     config: Record<string, unknown>;
     items: NativeAppItem[];
     tagCollection?: ReturnType<typeof tagCollection> | null;

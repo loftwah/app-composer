@@ -1,0 +1,65 @@
+[
+  {
+    "path": "/release.json",
+    "status": 200,
+    "type": "application/json",
+    "sha256": "7c5ade81b8a11a3152ec65156dfa0adad4eb7395ceefdca23963bfcb6bc11f92",
+    "matchesLocal": true
+  },
+  {
+    "path": "/profile.html",
+    "status": 200,
+    "type": "text/html",
+    "sha256": "0a43db06671daeac7b86b8f1f01138e5631cf71b748fa2f63ba97abb5dc8213d",
+    "matchesLocal": true
+  },
+  {
+    "path": "/modules/profile.js",
+    "status": 200,
+    "type": "text/javascript",
+    "sha256": "d71ad8e2e3fb8b33c755fa9509e93d262b74549e21037d392e524a64b105f243",
+    "matchesLocal": true
+  },
+  {
+    "path": "/modules/profile-client.js",
+    "status": 200,
+    "type": "text/javascript",
+    "sha256": "a63fab6a7a81defddd2fdc2b80b282ef05e45e39d077e6038a497ab6fb0c84d7",
+    "matchesLocal": true
+  },
+  {
+    "path": "/presets.json",
+    "status": 200,
+    "type": "application/json",
+    "sha256": "2978f0236f0f5d343df2cc8fa1945b2ee04bec5ed21844144a814af699ec7716",
+    "matchesLocal": true
+  },
+  {
+    "path": "/examples/river-typography.png",
+    "status": 200,
+    "type": "image/png",
+    "sha256": "eb7c5b695a43702bf42effce699eb93f4a407be5289fd96a964561e315a89a4f",
+    "matchesLocal": true
+  },
+  {
+    "path": "/examples/night-signal-music.png",
+    "status": 200,
+    "type": "image/png",
+    "sha256": "958ac2bdb59ad0bbabe10ac06667d6b0ccf44aae22c06a191a21ba5f5f9f72bd",
+    "matchesLocal": true
+  },
+  {
+    "path": "/examples/field-notes-editorial.png",
+    "status": 200,
+    "type": "image/png",
+    "sha256": "5123c56e4af030c89326787397ffeff1104b4eb9f39ccb7ec7c9170dce447c60",
+    "matchesLocal": true
+  },
+  {
+    "path": "/examples/night-signal-artwork.png",
+    "status": 200,
+    "type": "image/png",
+    "sha256": "db3576e957ee016ebda2a73fef53fcf87f94d77eb0016e35ab9d58e522e7d79c",
+    "matchesLocal": true
+  }
+]

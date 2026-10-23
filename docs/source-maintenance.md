@@ -40,6 +40,7 @@ and Get Ready are not represented as fully converted.
 | `use-miniapps.ts` | Drafts across app switches, current snapshots, request generations, mutation exclusion and recovery. |
 | `api.ts` | Existing EmDash read/write transport and error handling. |
 | `settings.tsx` | App appearance and profile fields. |
+| `share-card.tsx` | Profile snapshot handoff, reviewed image adoption/rollback and explicit served-result verification. |
 | `link-editor.tsx` | Manual link edits, conflicts, preview and card presentation. |
 | `photo-preview.tsx` | Private photo decoding and canvas lifecycle. |
 | `guestbook-workspace.tsx` | Submission and moderation controls. |

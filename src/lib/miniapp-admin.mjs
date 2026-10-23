@@ -6,6 +6,7 @@ import { achievementCommand, achievementCollection, } from "./miniapp-achievemen
 import { tagCommand } from "./miniapp-tags.mjs";
 import { tagCollection } from "./miniapp-tag-fields.mjs";
 import { appSettings, validateAppSettingValue } from "./app-settings.mjs";
+import { shareCardCommand, shareCardSnapshot } from "./miniapp-share-card.mjs";
 const record = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const appService = (value) => record(value) && typeof value.fetch === "function";
 const appItem = (value) => record(value) &&
@@ -112,6 +113,7 @@ export async function manageMiniapps(ctx, runtime, pins) {
     ].includes(action);
     const reading = action === "snapshot" ||
         action === "preview" ||
+        (action === "share-card" && command.operation === "snapshot") ||
         (collection &&
             !["feature-resource", "collection-invitation-set"].includes(action)) ||
         (action === "profile-settings" && command.operation === "export");
@@ -134,6 +136,15 @@ export async function manageMiniapps(ctx, runtime, pins) {
     let path, body;
     if (action === "snapshot")
         path = "/api/export";
+    else if (action === "share-card" && app === "showcase") {
+        try {
+            body = shareCardCommand(command);
+        }
+        catch {
+            return fail("INVALID", "Choose a supported profile image receipt and refresh its saved revision.");
+        }
+        path = "/api/share-card";
+    }
     else if (action === "profile-settings" &&
         app === "showcase" &&
         appSettings.showcase.profileSettings?.version === 1) {
@@ -342,6 +353,15 @@ export async function manageMiniapps(ctx, runtime, pins) {
             ...(body ? { body: JSON.stringify(body) } : {}),
         });
         if (!response.ok) {
+            if (action === "share-card") {
+                return fail(response.status === 409
+                    ? "CONFLICT"
+                    : reading
+                        ? "UNAVAILABLE"
+                        : "UNCONFIRMED", response.status === 409
+                    ? "The profile or its image changed. Refresh and prepare a new card; your edits are retained."
+                    : "The profile image result could not be confirmed. Check the saved image before retrying.");
+            }
             if (action === "profile-settings") {
                 if (response.status === 409)
                     return fail("CONFLICT", "Profile settings changed. Review the file against the saved settings again.");
@@ -395,6 +415,10 @@ export async function manageMiniapps(ctx, runtime, pins) {
             catch {
                 return fail(command.operation === "apply" ? "UNCONFIRMED" : "APP", "The app returned an incompatible settings result. Review the saved settings before continuing.");
             }
+        }
+        if (action === "share-card") {
+            const snapshot = shareCardSnapshot(await responseJSON(response, 32768));
+            return { ok: true, ...snapshot };
         }
         const result = await responseJSON(response, action === "snapshot" ? Infinity : action === "tag" ? 192 * 1024 : 65536);
         if (!record(result))
@@ -457,6 +481,7 @@ export async function manageMiniapps(ctx, runtime, pins) {
     }
     catch {
         return fail(action === "achievement" ||
+            (action === "share-card" && !reading) ||
             action === "tag" ||
             (action === "profile-settings" && command.operation === "apply")
             ? "UNCONFIRMED"

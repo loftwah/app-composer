@@ -1,0 +1,23 @@
+{
+  "format": "app-composer.artwork",
+  "version": 1,
+  "requestId": "night-signal-20261023-02",
+  "provider": "openai",
+  "model": "gpt-image-2-2026-04-21",
+  "promptSha256": "6099ce45c6943e75a69ee8cf7c1db8668ddaa699ea4cfd591280e125d475d5c7",
+  "referenceSha256": [],
+  "role": "banner",
+  "candidateCount": 1,
+  "quality": "high",
+  "size": "1024x1024",
+  "asset": {
+    "path": "public/examples/night-signal-optional-art.png",
+    "sha256": "559117a8c9dffd19dc9a4b671020a6596d763dc8cc3f91152a0fa777fc4cf25b",
+    "included": false,
+    "width": 1024,
+    "height": 1024,
+    "type": "image/png"
+  },
+  "state": "rendered-locally",
+  "adoption": "Review the candidate, then deliberately select it as a local portrait/banner in a profile-card recipe. This does not replace approved artwork or publish anything."
+}

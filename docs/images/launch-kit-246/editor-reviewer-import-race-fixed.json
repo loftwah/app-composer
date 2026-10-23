@@ -1,0 +1,7 @@
+{
+  "case": "Recipe import completion after newer edit",
+  "delayMs": 500,
+  "immediate": "Latest owner edit",
+  "later": "Latest owner edit",
+  "staleImportReplacedNewerEdit": false
+}

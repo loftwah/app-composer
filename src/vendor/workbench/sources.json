@@ -12,7 +12,7 @@
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "4819a05e2d4862161ad8a6597c3babd96d1f7e04",
+      "commit": "2f9280d3ae754076174b5527ab15224c918b8580",
       "source": "src/card-view.ts",
       "copy": "src/vendor/workbench/showcase-card-view.ts",
       "sha256": "0e8de0e57ef798aa8506da40743580a6aadde796487a8f90bd2a1864f48e23b8"

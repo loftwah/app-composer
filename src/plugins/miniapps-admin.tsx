@@ -6,6 +6,7 @@ import { GuestbookWorkspace } from "./miniapps/guestbook-workspace";
 import { ShowcaseWorkspace } from "./miniapps/showcase-workspace";
 import { useMiniapps } from "./miniapps/use-miniapps";
 import { CollectionSources } from "./miniapps/collection-sources";
+import { ShareCard } from "./miniapps/share-card";
 import type { AppID } from "./miniapps/types";
 import "./miniapps-admin.css";
 const names = { guestbook: "Here / there", showcase: "Linkarooie" };
@@ -38,6 +39,7 @@ function AppPage() {
     act,
     profileRequest,
     collectionRequest,
+    shareCardRequest,
     upload,
     addLink,
     newLink,
@@ -189,6 +191,18 @@ function AppPage() {
                   return saved;
                 }}
               />
+              {selected === "showcase" && (
+                <ShareCard
+                  config={drafts.showcase ?? snapshot.config}
+                  dirty={
+                    !!drafts.showcase &&
+                    JSON.stringify(drafts.showcase) !==
+                      JSON.stringify(snapshot.config)
+                  }
+                  busy={busy}
+                  request={shareCardRequest}
+                />
+              )}
               {selected === "showcase" &&
                 appSettings.showcase.profileSettings?.version === 1 && (
                   <ProfileSettings

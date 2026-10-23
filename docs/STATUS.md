@@ -2,6 +2,39 @@
 
 Reviewed 23 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Launch Kit profile cards — 23 October 2026
+
+The [focused card editor](https://composer-launch-kit.loftwah.workers.dev/profile.html)
+and [Composer guide](/launch-kit) join five versioned presets, exact local text,
+optional portrait/banner crops, actual encoded PNG previews and a pinned local
+agent command. The full launch package and focused app-icon operations remain
+available. Three fictional finished examples and a fourth optional-art example
+show the same renderer's output. Original source images are excluded from recipes.
+
+The existing native Linkarooie settings download a public profile snapshot while
+retaining unsaved edits. An agent prepares and deploys an immutable image through
+Linkarooie's committed-asset release route. The owner compares current/proposed
+images and deliberately publishes against the unchanged profile revision; guarded
+rollback restores the previous approved image. Rendering, export, deployed asset,
+publication and served verification remain separate. The owner’s existing manual
+image is preserved. The separate fictional profile is available [standalone](https://showcase.loftwah.com/examples/launch-kit/)
+and [mounted](/showcase/examples/launch-kit/). Its live serving and the actual local
+fictional-D1 activation proof are distinct from a live owner-D1 mutation.
+
+The sharing verifier now compares declared MIME type, response type and real
+raster format, and declared dimensions against actual dimensions. Complete PNG
+validation rejects forged/truncated files. The optional trusted-local artwork
+adapter requires explicit enablement, a selected key, deliberate prompt and
+configured allowance; one useful image was generated and inspected after the
+owner supplied a working key. No automatic paid retry or provider call is part
+of the static editor.
+
+[Evidence](images/launch-kit-246/README.md) records browser/CLI offline rendering,
+Chromium/WebKit and real local Worker/SQLite journeys, reviewed fixes and exact
+output hashes. #11 owns the guarded release identities and live results. Physical
+iPhone/IME/download/share, actual screen-reader use, native social unfurls and
+owner artistic acceptance remain open.
+
 ## Composition workbench and reconciled outcomes — 23 October 2026
 
 Composer source `71abb3ccc89c1d9de2b340831b997acc2e7a1f4b`, Worker

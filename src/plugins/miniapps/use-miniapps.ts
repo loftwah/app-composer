@@ -17,6 +17,7 @@ import {
 import { call } from "./api";
 import { callCollection, type CollectionRequest } from "./collection-api";
 import type { AppID, LinkDraft, StyleDraft, Snapshot, NewLink } from "./types";
+import type { ShareCardSnapshot } from "../../lib/miniapp-share-card.mjs";
 export function useMiniapps() {
   const emptyLink: NewLink = { title: "", description: "", url: "" };
   const [newLink, setNewLink] = useState<NewLink>(emptyLink);
@@ -214,6 +215,41 @@ export function useMiniapps() {
       setBusy(false);
     }
   };
+  const shareCardRequest = async (
+    operation: "snapshot" | "adopt" | "rollback",
+    fields: Record<string, unknown> = {},
+  ): Promise<ShareCardSnapshot> => {
+    if (mutating.current)
+      throw Error("Wait for the current app action to finish.");
+    mutating.current = true;
+    setBusy(true);
+    try {
+      const result = await call("showcase", "share-card", {
+        operation,
+        ...fields,
+      });
+      if (operation !== "snapshot") {
+        // A retained draft may equal the saved settings after an edit is undone.
+        // Retire only that clean draft so its old shareImage cannot undo adoption.
+        setDrafts((previous) => {
+          const draft = previous.showcase;
+          if (
+            !draft ||
+            JSON.stringify(draft) !== JSON.stringify(snapshots.showcase?.config)
+          )
+            return previous;
+          const next = { ...previous };
+          delete next.showcase;
+          return next;
+        });
+        await reload();
+      }
+      return result;
+    } finally {
+      mutating.current = false;
+      setBusy(false);
+    }
+  };
   const upload = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget,
@@ -314,6 +350,7 @@ export function useMiniapps() {
     act,
     profileRequest,
     collectionRequest,
+    shareCardRequest,
     upload,
     addLink,
     snapshot,
