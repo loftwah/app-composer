@@ -1,5 +1,9 @@
 // Supported new-project recipe. Model JSON never becomes executable source.
+import { referenceFiles } from "../launch-kit/reference.mjs";
 import { Buffer } from "node:buffer";
+import { manifest } from "../launch-kit/contract.mjs";
+import { validatePackage } from "../launch-kit/package.mjs";
+import { validateAdoption, adoptedSettings } from "../launch-kit/adoption.mjs";
 import type { DirectoryIdentity } from "../get-ready/project-write.mjs";
 import { lstatSync, realpathSync } from "node:fs";
 import { resolve, dirname, basename, join, isAbsolute } from "node:path";
@@ -38,6 +42,7 @@ const templateFiles = [
   "src/pages/index.astro",
   "src/pages/entries/[id]/index.astro",
   "src/layouts/ContentLayout.astro",
+  "src/launch-kit-branding.json",
   "src/components/AppLauncher.astro",
   "src/components/ContentFields.astro",
   "src/lib/entry.mjs",
@@ -87,7 +92,10 @@ function bound(path: string) {
   check.identity = { dev: entries[0].dev, ino: entries[0].ino };
   return check;
 }
-export function contentProjectFiles(input: unknown) {
+function collectContentProjectFiles(
+  input: unknown,
+  brandingFiles: Record<string, Buffer> = {},
+) {
   const model = validateContentModel(input),
     files: Record<string, Buffer> = {},
     sources: Record<string, string> = {},
@@ -178,6 +186,17 @@ export function contentProjectFiles(input: unknown) {
     JSON.stringify(model, null, 2) + "\n",
   );
   files["seed/seed.json"] = Buffer.from(JSON.stringify(seed, null, 2) + "\n");
+  for (const [name, bytes] of Object.entries(brandingFiles)) {
+    if (
+      !(
+        name.startsWith("public/launch-kit/") &&
+        /^[a-z0-9.-]+$/.test(name.slice(18))
+      ) &&
+      name !== "src/launch-kit-branding.json"
+    )
+      throw Error("Unsupported branding output path.");
+    files[name] = bytes;
+  }
   const provenance = {
     schema: "app-composer.content-project",
     version: 1,
@@ -205,11 +224,23 @@ export function contentProjectFiles(input: unknown) {
     },
   };
 }
-export function createContentProject({
+function writeContentProject({
   model,
   destination,
+  brandingFiles,
+  prepared,
   ...unknown
-}: { model?: unknown; destination?: unknown; [key: string]: unknown } = {}) {
+}: {
+  model?: unknown;
+  destination?: unknown;
+  brandingFiles?: Record<string, Buffer>;
+  prepared?: {
+    files: Record<string, Buffer>;
+    provenance: { collection: string };
+    recheck: () => void;
+  };
+  [key: string]: unknown;
+} = {}) {
   if (
     Object.keys(unknown).length ||
     typeof destination !== "string" ||
@@ -223,7 +254,8 @@ export function createContentProject({
   if (realpathSync(parent) !== parent)
     throw Error("Choose the canonical, unlinked existing parent folder.");
   const check = bound(parent),
-    { files, provenance, recheck } = contentProjectFiles(model);
+    { files, provenance, recheck } =
+      prepared ?? collectContentProjectFiles(model, brandingFiles);
   recheck();
   check();
   const rootIdentity = childDirectory(
@@ -281,7 +313,11 @@ export function createContentProject({
       throw Error("Project output changed. Files are retained for inspection.");
   }
   for (const [name, bytes] of Object.entries(files)) {
-    const actual = selectedFile(destination, name, 1048576);
+    const actual = selectedFile(
+      destination,
+      name,
+      Math.max(1048576, bytes.length),
+    );
     if (actual.state !== "present" || actual.sha256 !== hash(bytes))
       throw Error(
         "Project output could not be verified. Files are retained for inspection.",
@@ -308,4 +344,153 @@ export function createContentProject({
     deployed: false,
     next: "Review the independent source and current agent guidance. Prepare missing skills without duplicates, install the pinned lockfile, run locally and verify native editing/publication. A public deployment needs its actual project/account/domain/auth/storage/cost review.",
   };
+}
+
+export function createContentProject(
+  options: {
+    model?: unknown;
+    destination?: unknown;
+    [key: string]: unknown;
+  } = {},
+) {
+  if (
+    Object.hasOwn(options, "brandingFiles") ||
+    Object.hasOwn(options, "prepared")
+  )
+    throw Error(
+      "Branding requires a validated explicit Launch Kit package and adoption.",
+    );
+  return writeContentProject(options);
+}
+export async function createBrandedContentProject(options: {
+  model: unknown;
+  destination: unknown;
+  packageBytes: Uint8Array;
+  adoption: unknown;
+}) {
+  const kit = await validatePackage(options.packageBytes),
+    adoption = validateAdoption(options.adoption);
+  if (kit.digest !== adoption.packageSha256)
+    throw Error("The adoption record belongs to a different package.");
+  const settings = adoptedSettings(kit.settings, adoption, {
+      ...kit.settings,
+      title: validateContentModel(options.model).label,
+      subtitle:
+        "Browse published " +
+        validateContentModel(options.model).label.toLowerCase() +
+        ".",
+    }),
+    brandingFiles: Record<string, Buffer> = {};
+  const selected = [
+    ...(adoption.fields.icons
+      ? [
+          "favicon-16.png",
+          "favicon-32.png",
+          "favicon-48.png",
+          "apple-touch-icon.png",
+          "icon-192.png",
+          "icon-512.png",
+          "maskable-192.png",
+          "maskable-512.png",
+          "site.webmanifest",
+        ]
+      : []),
+    ...(adoption.fields.social ? ["social-1200x630.png"] : []),
+  ];
+  for (const name of selected)
+    brandingFiles["public/launch-kit/" + name] = Buffer.from(
+      kit.files.get(name)!,
+    );
+  if (adoption.fields.icons)
+    brandingFiles["public/launch-kit/site.webmanifest"] = Buffer.from(
+      JSON.stringify(
+        { ...manifest(settings), id: "/", start_url: "/", scope: "/" },
+        null,
+        2,
+      ) + "\n",
+    );
+  brandingFiles["src/launch-kit-branding.json"] = Buffer.from(
+    JSON.stringify(
+      {
+        version: 1,
+        packageSha256: kit.digest,
+        title: adoption.fields.title ? settings.title : null,
+        subtitle: adoption.fields.subtitle ? settings.subtitle : null,
+        icons: adoption.fields.icons,
+        social: adoption.fields.social,
+        alt: settings.alt,
+        accent: settings.accent,
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+  return writeContentProject({
+    model: options.model,
+    destination: options.destination,
+    brandingFiles,
+  });
+}
+
+export function contentProjectFiles(input: unknown) {
+  return collectContentProjectFiles(input);
+}
+
+export async function createLaunchKitProject(options: {
+  destination: unknown;
+  packageBytes: Uint8Array;
+  adoption: unknown;
+  base?: string;
+  origin?: string;
+}) {
+  const kit = await validatePackage(options.packageBytes),
+    adoption = validateAdoption(options.adoption);
+  if (kit.digest !== adoption.packageSha256)
+    throw Error("The adoption record belongs to a different package.");
+  const settings = adoptedSettings(kit.settings, adoption),
+    base = options.base ?? "/",
+    origin = options.origin ?? "https://example.invalid";
+  const rendered = referenceFiles(settings, {
+      icons: adoption.fields.icons,
+      social: adoption.fields.social,
+      base,
+      origin,
+    }),
+    files: Record<string, Buffer> = {};
+  for (const [name, text] of Object.entries(rendered))
+    if (name !== "site.webmanifest" || adoption.fields.icons)
+      files["public/" + name] = Buffer.from(text);
+  for (const [name, bytes] of kit.files)
+    if (
+      name.endsWith(".png") &&
+      ((name.startsWith("social-") && adoption.fields.social) ||
+        (!name.startsWith("social-") && adoption.fields.icons))
+    )
+      files["public/" + name] = Buffer.from(bytes);
+  const metadata = {
+    format: "app-composer.static-launch-kit-project",
+    version: 1,
+    packageSha256: kit.digest,
+    adoption,
+    base,
+    origin,
+    deployed: false,
+    files: Object.fromEntries(
+      Object.entries(files).map(([name, bytes]) => [name, hash(bytes)]),
+    ),
+  };
+  files["composer-project.json"] = Buffer.from(
+    JSON.stringify(metadata, null, 2) + "\n",
+  );
+  files["README.md"] = Buffer.from(
+    "# Your independent listening timer\n\nServe public/ with a local static HTTP server to use the timer. This app has no server, account, database or runtime Composer dependency. Imported branding is explicit; the source PNGs and original artwork remain yours. Review composer-project.json and your real HTTPS origin/base before a release. example.invalid is a placeholder, not a deployment target. Existing projects are never updated by this recipe.\n",
+  );
+  return writeContentProject({
+    destination: options.destination,
+    prepared: {
+      files,
+      provenance: { collection: "listening-timer" },
+      recheck: () => {},
+    },
+  });
 }

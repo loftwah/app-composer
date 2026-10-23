@@ -1,0 +1,34 @@
+{
+  "format": "app-composer.static-launch-kit-project",
+  "version": 1,
+  "packageSha256": "e5b38bec0015e6b264268c10b1ef35d7b514e75bdbc68fa377ab55f9e2c39665",
+  "adoption": {
+    "format": "app-composer.launch-kit-adoption",
+    "version": 1,
+    "packageSha256": "e5b38bec0015e6b264268c10b1ef35d7b514e75bdbc68fa377ab55f9e2c39665",
+    "fields": {
+      "title": true,
+      "subtitle": true,
+      "icons": true,
+      "social": true
+    }
+  },
+  "base": "/launch-kit/example/",
+  "origin": "https://composer.loftwah.com",
+  "deployed": false,
+  "files": {
+    "public/index.html": "427edff12d4b4ea512def70fe13fe8ec0b526e27ed94b9cc265afa03d6cae728",
+    "public/app.css": "4a5fa15b6a73c58fff5bfd8d05a5d148ecbe6a49de38298bd2498d867dbba5cc",
+    "public/app.js": "9bb8bfdac96c09619863f11075b57bbedf25b25c2557de18f8006925cb1ba738",
+    "public/site.webmanifest": "2c8d2d1e62e830b22f12c97ad67af9d7f0e6a7598ee100b0ba2693ae411d3225",
+    "public/favicon-16.png": "8d0138833bf14d00400b9bede3e6b7d480adf032aa1e8f00f473169903cc8cb9",
+    "public/favicon-32.png": "92f0c24a9575e7abc0404503639ac33eb6e87f36518b106c44b58a7a1ea9527c",
+    "public/favicon-48.png": "9cb95d9a173f2e2524f171854b4a6a870287c446b374c187ef585525fbb01712",
+    "public/apple-touch-icon.png": "94553dd02ab884cb4b7e4d9657a0c90bc59372176b0baf40a13b9758dfffb15f",
+    "public/icon-192.png": "6cdcaea008ae1db3c44865badf90339f2b6fc092bae9380984c0ad5e08a9239a",
+    "public/icon-512.png": "da663a9885d6fd2d774c56bfb2ef929b9f4b1240dc23a50bca48a2dfee66d946",
+    "public/maskable-192.png": "40aa56244d1866d385085fdb3ee8ba4b70efb1a35f47253fac3cc935257749ec",
+    "public/maskable-512.png": "4604318eac1f953efc5473f5f650ae3323ba6acbc4e72d8923e3db3389fef88f",
+    "public/social-1200x630.png": "d45e3d5cbb9395bc672f6d83fde338dc9b0ffc2b7b2f21c526b2e666f0581cb2"
+  }
+}

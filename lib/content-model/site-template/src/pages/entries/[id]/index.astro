@@ -3,6 +3,7 @@ import { getEmDashCollection } from "emdash";
 import modelInput from "../../../content-model.json";
 import { validateContentModel } from "../../../lib/content-model.mjs";
 const model = validateContentModel(modelInput);
+import branding from "../../../launch-kit-branding.json";
 import ContentLayout from "../../../layouts/ContentLayout.astro";
 import ContentFields from "../../../components/ContentFields.astro";
 import {
@@ -35,7 +36,7 @@ const description = entry
 ---
 
 <ContentLayout
-  title={title + " · " + model.label}
+  title={title + " · " + (branding.title ?? model.label)}
   description={description}
   article={!!entry}
 >
