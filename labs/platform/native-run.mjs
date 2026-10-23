@@ -79,8 +79,13 @@ const lifecycle = readFileSync(
   "utf8",
 );
 const originalFactory = "return creatorPlugin(options.adminEntry, env);";
+const localRuntime =
+  "const runtime = { ...env, PLATFORM_PUBLIC_FETCH: (request: Request) => (env as unknown as { PLATFORM_PUBLIC_PAGES: { fetch(request: Request): Promise<Response> } }).PLATFORM_PUBLIC_PAGES.fetch(request) };";
 const localFactory =
-  "const runtime = { ...env, PLATFORM_PUBLIC_FETCH: (request: Request) => (env as unknown as { PLATFORM_PUBLIC_PAGES: { fetch(request: Request): Promise<Response> } }).PLATFORM_PUBLIC_PAGES.fetch(request) };\n  return creatorPlugin(options.adminEntry, runtime);";
+  localRuntime + "\n  return creatorPlugin(options.adminEntry, runtime);";
+const originalMemberFactory = "return memberPlugin(\n    env,";
+const localMemberFactory =
+  localRuntime + "\n  return memberPlugin(\n    runtime,";
 function once(source, before, after) {
   if (source.split(before).length !== 2)
     throw Error(
@@ -96,6 +101,11 @@ const patch = `
       const factorySource = readFileSync(factoryPath, "utf8");
       if (factorySource.split(originalFactory).length !== 2) throw Error("Copied plugin factory changed; re-review local seam.");
       writeFileSync(factoryPath, factorySource.replace(originalFactory, ${JSON.stringify(localFactory)}));
+      const memberFactoryPath = join(dest, "src/plugins/members.ts");
+      const originalMemberFactory = ${JSON.stringify(originalMemberFactory)};
+      const memberFactorySource = readFileSync(memberFactoryPath, "utf8");
+      if (memberFactorySource.split(originalMemberFactory).length !== 2) throw Error("Copied member plugin factory changed; re-review local seam.");
+      writeFileSync(memberFactoryPath, memberFactorySource.replace(originalMemberFactory, ${JSON.stringify(localMemberFactory)}));
       config.services.push({ binding: "PLATFORM_PUBLIC_PAGES", service: "composer-invited-composer" });
 `;
 let derived = once(
@@ -175,10 +185,16 @@ function assertSourcesUnchanged() {
         "Native fixture changed after preflight; no native writes permitted.",
       );
 }
-once(
-  readFileSync(join(repo, "src/plugins/stacks.ts"), "utf8"),
-  originalFactory,
-  localFactory,
+const factorySource = readFileSync(join(repo, "src/plugins/stacks.ts"), "utf8");
+const memberFactorySource = readFileSync(
+  join(repo, "src/plugins/members.ts"),
+  "utf8",
+);
+const derivedFactory = once(factorySource, originalFactory, localFactory);
+const derivedMemberFactory = once(
+  memberFactorySource,
+  originalMemberFactory,
+  localMemberFactory,
 );
 if (!existsSync(playwright))
   throw Error(
@@ -213,7 +229,20 @@ const preflight = {
   authoredHashes,
   lifecycleSha256: hash(lifecycle),
   derivedLifecycleSha256: hash(derived),
-  copiedFactoryPatch: { before: originalFactory, after: localFactory },
+  copiedFactoryPatch: {
+    path: "src/plugins/stacks.ts",
+    before: originalFactory,
+    after: localFactory,
+    originalSha256: hash(factorySource),
+    derivedSha256: hash(derivedFactory),
+  },
+  copiedMemberFactoryPatch: {
+    path: "src/plugins/members.ts",
+    before: originalMemberFactory,
+    after: localMemberFactory,
+    originalSha256: hash(memberFactorySource),
+    derivedSha256: hash(derivedMemberFactory),
+  },
   copiedAccountPatch: {
     before: "invited-local-account",
     after: fictionalLocalAccount,
@@ -336,12 +365,24 @@ try {
     factorySha256: hash(
       readFileSync(join(inner, "composer/src/plugins/stacks.ts")),
     ),
+    memberFactorySha256: hash(
+      readFileSync(join(inner, "composer/src/plugins/members.ts")),
+    ),
     authConfigSha256: hash(
       readFileSync(join(inner, "composer/astro.config.mjs")),
     ),
     entrySha256: hash(readFileSync(join(inner, "composer/lab-entry.ts"))),
     productTree: git(join(inner, "composer"), ["rev-parse", "HEAD^{tree}"]),
   };
+  if (
+    receipt.copiedSource.factorySha256 !==
+      preflight.copiedFactoryPatch.derivedSha256 ||
+    receipt.copiedSource.memberFactorySha256 !==
+      preflight.copiedMemberFactoryPatch.derivedSha256
+  )
+    throw Error(
+      "Copied native/member public verification factories do not match the reviewed local binding seam.",
+    );
   const localConfig = JSON.parse(
     readFileSync(join(inner, "composer/wrangler.local.jsonc"), "utf8"),
   );

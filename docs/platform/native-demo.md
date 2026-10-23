@@ -19,7 +19,7 @@ Native admission uses Chromium virtual passkeys and fictional `example.test` acc
 
 ## Copied-source boundary
 
-Only disposable copies change. The reused lifecycle selects supported EmDash native authentication instead of the production Access wrapper and removes email delivery. The extra platform qualification seam changes the copied `src/plugins/stacks.ts` factory to supply `PLATFORM_PUBLIC_FETCH` through a fixed `PLATFORM_PUBLIC_PAGES` self service binding. Requests reach the actual local `/s` and mounted app handlers without owner headers. Browser/imported inputs cannot select the endpoint or any credential. This establishes local route verification separately from the production public edge.
+Only disposable copies change. The reused lifecycle selects supported EmDash native authentication instead of the production Access wrapper and removes email delivery. The extra platform qualification seam changes both copied `src/plugins/stacks.ts` and `src/plugins/members.ts` factories to supply `PLATFORM_PUBLIC_FETCH` through a fixed `PLATFORM_PUBLIC_PAGES` self service binding. Requests reach the actual local `/s` and mounted app handlers without owner headers. Browser/imported inputs cannot select the endpoint or any credential. Both native creator requests and delegated member requests use this fixed binding; a missing binding throws instead of falling through to global public fetch. Preflight records each exact factory patch and its original/derived SHA-256; the run checks both copied factory hashes before browser admission. This establishes local route verification separately from the production public edge.
 
 The copied lifecycle uses fictional local account identity
 `00000000000000000000000000000001` consistently in Composer and the app. Its
