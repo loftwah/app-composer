@@ -1,0 +1,149 @@
+---
+import Base from "../../layouts/Base.astro";
+import { demoFilms, reviewedDemoFilms } from "../../lib/platform-demo";
+import "../../styles/platform-demo.css";
+
+const films = reviewedDemoFilms(demoFilms);
+const source = "https://github.com/loftwah/app-composer/tree/";
+const duration = (seconds: number) => {
+  const rounded = Math.round(seconds);
+  return `${Math.floor(rounded / 60)}:${String(rounded % 60).padStart(2, "0")}`;
+};
+---
+
+<Base
+  title="Watch the team application journey"
+  description="Two films following a fictional two-team application journey, with native forms, source identities and a clear local qualification boundary."
+  ogType="article"
+>
+  <div class="platform-film-page">
+    <a class="film-back" href="/platform">Platform &amp; service guide</a>
+    <div class="film-introduction">
+      <h1>A team request, end to end.</h1>
+      <p class="lede">
+        Follow two fictional teams from a governed request to their own visitor
+        books, with contribution, moderation and a compatible update.
+      </p>
+      <p>
+        Start with the short overview, then follow the native interface and its
+        checks in the technical walkthrough.
+      </p>
+      <nav class="film-jumps" aria-label="Choose a film">
+        <a href="#overview">The overview</a>
+        <a href="#technical">The technical walkthrough</a>
+      </nav>
+    </div>
+
+    <aside class="film-scope" aria-label="Recording scope">
+      <strong>Local qualification, with fictional accounts.</strong>
+      <p>
+        These recordings use isolated local workerd services and native EmDash
+        sessions with virtual passkeys. Each team uses a scoped resource in the
+        existing app runtime. Production admission, enterprise SSO, physical
+        passkeys, Kubernetes and vendor incident delivery remain separate checks.
+      </p>
+    </aside>
+
+    {films.map((film) => (
+      <section class="platform-film" id={film.id} aria-labelledby={`${film.id}-title`}>
+        <div class="film-heading">
+          <h2 id={`${film.id}-title`}>{film.title}</h2>
+          <p class="film-duration">
+            {film.status === "ready" ? duration(film.durationSeconds) : `Target: ${duration(film.targetSeconds)}`}
+          </p>
+        </div>
+        <p class="film-description">{film.description}</p>
+        {film.status === "ready" ? (
+          <>
+            <figure class="film-player">
+              <video
+                controls
+                playsinline
+                preload="none"
+                width={film.width}
+                height={film.height}
+                poster={film.poster.href}
+                aria-label={film.title}
+                aria-describedby={`${film.id}-scope`}
+              >
+                <source src={film.video.href} type="video/mp4" />
+                <track
+                  kind="captions"
+                  src={film.captions.href}
+                  srclang="en"
+                  label="English"
+                  default
+                />
+                <p><a href={film.video.href}>Download the MP4</a> to watch this film.</p>
+              </video>
+              <figcaption id={`${film.id}-scope`}>
+                <span>Recorded locally on workerd · fictional accounts · virtual passkeys.</span>
+                <span>Recording source: <a href={source + film.recording.composerSha}><code>{film.recording.composerSha}</code></a>.</span>
+              </figcaption>
+            </figure>
+            <div class="film-downloads">
+              <a href={film.transcript.href}>Read the transcript</a>
+              <a href={film.captions.href} download>Download captions</a>
+              <a href={film.video.href} download>Download MP4</a>
+            </div>
+            <details class="film-evidence">
+              <summary>Recording source and evidence</summary>
+              <dl>
+                <div>
+                  <dt>Recorded Composer source</dt>
+                  <dd><a href={source + film.recording.composerSha}><code>{film.recording.composerSha}</code></a></dd>
+                </div>
+                <div>
+                  <dt>Recorded on</dt>
+                  <dd><time datetime={film.recording.recordedAt}>{film.recording.recordedAt}</time></dd>
+                </div>
+                <div>
+                  <dt>Video</dt>
+                  <dd>{film.width} × {film.height} · H.264 · {film.video.bytes.toLocaleString("en-AU")} bytes</dd>
+                </div>
+                <div>
+                  <dt>Video SHA-256</dt>
+                  <dd><code>{film.video.sha256}</code></dd>
+                </div>
+              </dl>
+              <p>
+                <a href={film.publicReceipt.href}>View the sanitised evidence receipt</a> · <a href={film.editRecord.href}>View the editing record</a>
+              </p>
+              <p class="small">
+                The receipt includes the independent app sources and verification scope.
+                Current production identity is recorded separately in
+                <a href="/release">release evidence</a> and the
+                <a href="/api/build.json">current build identity</a>.
+              </p>
+            </details>
+          </>
+        ) : (
+          <div class="film-pending">
+            <h3>Film in preparation</h3>
+            <p>
+              The recording and media review are in progress. The video, poster,
+              captions, transcript and source receipt will appear together after review.
+            </p>
+            <p class="small">
+              No film is available yet. The duration above is a production target.
+            </p>
+          </div>
+        )}
+      </section>
+    ))}
+
+    <section class="film-next" aria-labelledby="film-next-title">
+      <h2 id="film-next-title">Continue with your team.</h2>
+      <p>Check your current access and supported setup before requesting an application.</p>
+      <div class="actions">
+        <a class="button" href="/ready?profile=platform">Check Get Ready</a>
+        <a class="button secondary" href="/init?profile=platform">Open Init</a>
+        <a href="/me">My apps and invitations</a>
+      </div>
+      <p class="small">
+        Use <a href="/release">release evidence</a> for the current production source
+        and its remaining gates.
+      </p>
+    </section>
+  </div>
+</Base>
