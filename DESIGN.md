@@ -107,3 +107,26 @@ A browser pass must demonstrate the useful first action at phone and desktop siz
 
 
 Shared command menu, 18 October 2026: Apps and Cmd/Ctrl+K open one App Composer frame across the six shells and mounted apps. The selected Composer instance is a visible home link with the same dated local assembly icon. Space typography, charcoal/ivory paper, orange keyboard selection and an open ruled footer preserve the transit identity. Each app keeps its own illustration, theme preference and destination address. The same ordered app list and studio shortcuts support task/alias search, arrow navigation and normal links; keyboard hints describe the actual controls. Touch opening focuses Close, shortcut opening focuses search, and Escape, scroll/focus restoration and short visual viewports remain predictable. This Operate extension adds no command execution or account authority.
+
+## Composition workbench — 23 October 2026
+
+`/demo` extends the assembly world as a working local specimen. The selected
+assembly study places Here / there postcards opposite a Linkarooie collection;
+the alternative inline study makes the same records unnecessarily distant.
+Current source records drive both views. DOM postcards, measured SVG references
+and bounded return/contact motion explain placement; no rendering loop owns state.
+
+The ownership handle separates the same collection into four live DOM sheets:
+Composer slots, instance title/layout, the selected Guestbook record/media and
+exact independent source revisions. The selected record or controlling setting
+is highlighted. Publication and history use finite matched-element/shutter
+transitions, with immediate complete reduced-motion behavior. Revision rows name
+slot identities, layout and connection state; snapshots never hold app records.
+Both themes use the existing role palette, typography, original app identities
+and fictional postcard artwork. Phone layout stacks source and destination while
+keeping ordinary scrolling, native controls and tap/place alternatives.
+
+The workbench uses only `composer:workbench:v1` local storage. Its deliberate
+session-staged Init candidate opens the existing review/replace UI and never
+saves over an existing Init draft. This is local demonstration progress, never
+production analytics, customer adoption or a Cloudflare deployment receipt.

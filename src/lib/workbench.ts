@@ -1,3 +1,8 @@
+import {
+  approvedPhoto,
+  publicPhotoView,
+} from "../vendor/workbench/guestbook-photo-view.ts";
+import { linkedCardContent } from "../vendor/workbench/showcase-card-view.ts";
 import type { ResourceItem } from "./resource-client";
 import {
   collectionSource,
@@ -43,13 +48,14 @@ export type Action =
   | { type: "caption"; value: string }
   | { type: "image"; value: number }
   | { type: "visibility" }
-  | { type: "connect"; slot: number }
+  | { type: "connect"; slot: number; id?: string }
   | { type: "disconnect" }
   | { type: "title"; value: string }
   | { type: "layout"; value: "grid" | "editorial" }
   | { type: "publish"; label?: string }
   | { type: "restore"; revision: number }
-  | { type: "later" };
+  | { type: "later" }
+  | { type: "inspect" };
 const copy = <T>(value: T): T => structuredClone(value);
 export function initialBench(): BenchState {
   return {
@@ -88,15 +94,26 @@ export function initialBench(): BenchState {
   };
 }
 export function eligible(item: DemoItem | undefined): item is DemoItem {
-  return !!item && item.status === "approved";
+  return approvedPhoto(item);
+}
+export function sourcePhoto(item: DemoItem) {
+  return publicPhotoView(item, {
+    url: `https://workbench.invalid/item/${item.id}`,
+    image: images[item.image].src,
+  });
 }
 export function featured(state: BenchState, presentation = state.draft) {
-  return presentation.slots.map((id) =>
-    presentation.connected
-      ? (state.items.find((item) => item.id === id && eligible(item)) ?? null)
-      : null,
-  );
+  return presentation.slots.map((id) => {
+    if (!presentation.connected) return null;
+    const item = state.items.find((item) => item.id === id);
+    if (!eligible(item)) return null;
+    const card = linkedCardContent({ id: `featured-${id}` }, sourcePhoto(item));
+    return card
+      ? { ...item, caption: card.title, author: card.description }
+      : null;
+  });
 }
+
 export function transition(current: BenchState, action: Action): BenchState {
   const state = copy(current),
     item = state.items.find((item) => item.id === state.selected);
@@ -143,15 +160,22 @@ export function transition(current: BenchState, action: Action): BenchState {
         } else earned("restore");
       }
       break;
-    case "connect":
-      if (eligible(item) && [0, 1].includes(action.slot)) {
+    case "connect": {
+      const linked = state.items.find(
+        (record) => record.id === (action.id ?? state.selected),
+      );
+      if (eligible(linked) && [0, 1].includes(action.slot)) {
         state.draft.connected = true;
         state.draft.slots = state.draft.slots.map((id) =>
-          id === item.id ? null : id,
+          id === linked.id ? null : id,
         );
-        state.draft.slots[action.slot] = item.id;
+        state.draft.slots[action.slot] = linked.id;
         earned("connect");
       }
+      break;
+    }
+    case "inspect":
+      earned("inspect");
       break;
     case "disconnect":
       state.draft.connected = false;
@@ -206,10 +230,23 @@ export function readBench(raw: string | null): BenchState {
       !Array.isArray(state.items) ||
       state.items.length < 2 ||
       state.items.length > 3 ||
+      new Set(state.items.map((item) => item.id)).size !== state.items.length ||
       !Array.isArray(state.revisions) ||
       state.revisions.length > 24 ||
       !Array.isArray(state.milestones) ||
-      state.milestones.some((value) => typeof value !== "string") ||
+      state.milestones.some(
+        (value) =>
+          ![
+            "connect",
+            "edit",
+            "hide",
+            "restore",
+            "disconnect",
+            "inspect",
+            "publish",
+            "later",
+          ].includes(value),
+      ) ||
       !state.items.some((item) => item.id === state.selected)
     )
       throw Error();

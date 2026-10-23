@@ -74,3 +74,30 @@ test("malformed persistence resets only the sandbox; handoff is a valid current 
   assert.equal(spec.sources.length, 2);
   assert.deepEqual(spec.cards, []);
 });
+
+test("pointer placement binds the captured item even if keyboard selection changes", () => {
+  let state = initialBench();
+  state = transition(state, { type: "select", id: "demo-lighthouse" });
+  state = transition(state, {
+    type: "connect",
+    id: "demo-ringmarket",
+    slot: 0,
+  });
+  assert.equal(featured(state)[0].id, "demo-ringmarket");
+  state = transition(state, { type: "select", id: "demo-ringmarket" });
+  state = transition(state, { type: "visibility" });
+  state = transition(state, {
+    type: "connect",
+    id: "demo-ringmarket",
+    slot: 1,
+  });
+  assert.equal(featured(state)[1], null);
+});
+test("a presentation restore cannot resurrect deleted source data", () => {
+  let state = transition(initialBench(), { type: "connect", slot: 0 });
+  state = transition(state, { type: "publish" });
+  state.items[0].status = "deleted";
+  state = transition(state, { type: "restore", revision: 1 });
+  assert.equal(featured(state)[0], null);
+  assert.equal(state.items[0].status, "deleted");
+});

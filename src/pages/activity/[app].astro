@@ -173,7 +173,7 @@ const metricLabels: Record<string, string> = {
           <li>{id === "guestbook" ? "Contribution opens are page requests, not submissions. Received postcards are pending records after committed acceptance, not approvals or features." : id === "linkcheck" ? "Inspections are counted after the app finishes an inspection, not when the page opens." : id === "state" ? "Carry / forward vault actions remain private and are never counted." : "This app declares no separate public action measure."}</li>
           <li>Counters stop at 1,000 per app/event/surface per UTC day, expire after 35 days and can miss events during an outage.</li>
         </ul>
-        <p><a href={shareHref}>Freeze this app story</a> · <a href={`/activity?${scopeQuery}`}>All analytics</a> · <a href="/api/portfolio-analytics?days={selected.days}&surface={selected.surface}">Daily data</a></p>
+        <p><a href={shareHref}>Freeze this app story</a> · <a href={`/activity?${scopeQuery}`}>All analytics</a> · <a href={`/api/portfolio-analytics?${scopeQuery}`}>Daily data</a></p>
       </section>
     </>
   )}

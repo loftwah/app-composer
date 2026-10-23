@@ -320,6 +320,7 @@ test("finding identity survives preview fields, frozen storage, caption and each
     });
     assert.match(frozen.detail, /2 composed-route opens out of 8 total/);
     assert.match(reportCaption(frozen), /25%/);
+    assert.match(reportCaption(frozen), /2 composed \/ 8 total/);
     assert.deepEqual(
       parseFrozenReport(JSON.parse(JSON.stringify(frozen))),
       frozen,

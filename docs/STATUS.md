@@ -2,7 +2,58 @@
 
 Reviewed 23 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
-## Analytics and colour system — 23 October 2026
+## Composition workbench and reconciled outcomes — 23 October 2026 candidate
+
+This is the integrated candidate, not a claim that the Composer root has already
+been deployed. [Issue #11](https://github.com/loftwah/app-composer/issues/11) owns
+the current runtime receipt and the final guarded-release identity. The earlier
+same-day runtime below is historical context.
+
+- `/demo` now contains an isolated fictional Guestbook → Linkarooie workbench,
+  linked from the product homepage. Two editable postcard identities support
+  pointer placement, keyboard/tap selection and placement, current caption/image
+  updates, source hiding/restoring and independent disconnect/reconnect.
+- Four live ownership sheets identify Composer presentation, instance settings,
+  current app records/media and exact source. Local publication saves real
+  presentation revisions; preview and restore are separate. Restoring creates a
+  new revision without rewinding later app records or current hidden/deleted
+  eligibility. Init receives a separately staged, validated candidate through
+  explicit review/replace; existing saved draft bytes remain intact.
+- Necessary app-owned pure view adapters were independently reviewed and released:
+  [Guestbook #27](https://github.com/loftwah/app-composer-guestbook/pull/27), source
+  `5d44877ebb37470e49cdff63ca054dbd9dceed4a`, Worker
+  `b329c881-cb8c-42d8-ae3b-15144dbee02a`; [Linkarooie #35](https://github.com/loftwah/app-composer-showcase/pull/35),
+  source `1f41a423892c77228a19da5f826e2fb0498a941b`, Worker
+  `55f95e80-0ccf-4a22-b1d2-58d267e68b4c`. Composition
+  `36138a6bb7749dac9356165e375adbad3571cdf089f78005c757cb753a8354a9`
+  promotes those exact services. Reviewed adapter copies carry exact source pins
+  and SHA-256; normal dev/types/build reject drift. No app records/settings changed.
+- Analytics continuity retains composed/total denominators and selected-day
+  identity through preview, frozen stories, captions and exports. The native
+  owner proof follows one demonstration Open action into the same stored scope
+  and its seven-day report (one → two), then an explicit permitted aggregate
+  [snapshot](https://composer.loftwah.com/reports/r971f5140bbe0c84c8147a64b).
+  `/manage#analytics-proof` explains that reconciled path separately from public
+  postcard totals; local sandbox gestures send no production activity events.
+- Candidate checks: `pnpm check` passed 612 tests and `pnpm build` passed the
+  publication guard before the final bounded interaction refinements. Focused
+  state/source/report tests pass after those refinements. Browser checks proved
+  same-event publish/edit and restore/edit ordering, latest preview, pointer
+  identity, hidden/later-record boundaries and preservation of a valid saved Init
+  draft. A 60-second 390×844 rendering profile recorded p95 16.8ms frame intervals
+  and no interval above 33.3ms; caption-to-next-frame host round trips were 7–25ms.
+- Twenty returns each produced one workbench island and retained sandbox state;
+  this is not a heap-retention claim. A separate real off-screen interruption
+  left zero active subtree animations, lifted postcards or drag wire, and a
+  navigation retained exact saved bytes. Owned temporary validation roots and
+  credential references were removed. Browser emulation is not physical-device
+  or screen-reader acceptance.
+- Final gates: settled viewport-only visual review in both themes, exact committed
+  candidate review, then the clean pushed-main root release/live verification and
+  cold production transfer comparison. The first stitched landscape captures
+  were rejected as evidence; warm 304 byte counts are not initial payload proof.
+
+## Earlier same-day analytics and colour release — 23 October 2026
 
 Composer source `5897ba6e94ff4e1ef46d5a54bd835541bafdc6b5`, Worker `ef284f3f-508b-4766-accc-1a88a73446ca`, through the clean pushed-main guard. PRs [#223](https://github.com/loftwah/app-composer/pull/223) (colour roles), [#224](https://github.com/loftwah/app-composer/pull/224) (analytics and frozen reports), [#225](https://github.com/loftwah/app-composer/pull/225) (CSP-safe charts and production captures), [#226](https://github.com/loftwah/app-composer/pull/226) (patched DOMPurify 3.4.17 override) and [#228](https://github.com/loftwah/app-composer/pull/228)/[#230](https://github.com/loftwah/app-composer/pull/230) (invitation conflict guard and launcher promotion). Composition `1c9c84b913fb2a847136a47e2277eafb747af3e0d8d879b0ff334059469237b4`; Guestbook `eff4c73e178888ca603745333f5e26df71a99ecb`; Linkarooie `aed5f518de2a32538b5926c444191ef1af1e4928`.
 

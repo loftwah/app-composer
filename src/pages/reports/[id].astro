@@ -48,7 +48,7 @@ const payload = report ? JSON.stringify({ url: reportUrl(report.id), title: repo
       <header class="frozen-report-hero">
         <div class="frozen-report-identity">
           <img src="/brand/composer-icon-20261022b-96.png" width="56" height="56" alt=""/>
-          <div><p class="report-kicker">App Composer · Analytics</p><p class="frozen-report-app">{report.appLabel ?? "All connected apps"}</p></div>
+          <div><p class="report-kicker">App Composer · Analytics</p><p class="frozen-report-app">{report.origin ? "One selected app instance" : report.appLabel ?? "All connected apps"}</p></div>
           {app && <img src={app.thumbnail} width="64" height="64" alt=""/>}
         </div>
         <h1>{report.headline}</h1>
@@ -57,7 +57,7 @@ const payload = report ? JSON.stringify({ url: reportUrl(report.id), title: repo
         <p>{reportStoryLabel(report)}</p>
         <p class="frozen-report-detail">{report.detail}</p>
         <div class="frozen-report-actions">
-          <a class="button" href={report.origin ? "/demo" : app ? app.href : "/apps"}>{report.origin ? "Try composing the apps" : `Open ${app ? app.name : "the apps"}`} <ArrowUpRight size={18} aria-hidden="true"/></a>
+          <a class="button" href={report.origin ? "/demo" : app ? app.href : "/apps"}>{report.origin ? "Try the composition experiment" : `Open ${app ? app.name : "the apps"}`} <ArrowUpRight size={18} aria-hidden="true"/></a>
           <a class="button secondary" href="/init">Build something similar</a>
           <button type="button" class="secondary" data-report-native hidden><Share2 size={18} aria-hidden="true"/> Share this story</button>
           <button type="button" class="secondary" data-report-copy>Copy report link</button>
@@ -132,7 +132,7 @@ const payload = report ? JSON.stringify({ url: reportUrl(report.id), title: repo
         </dl>
         <ul>{report.coverage.limitations.map((limitation) => <li>{limitation}</li>)}</ul>
         <p class="small">The public aggregate does not identify people, sessions, private enquiries, workspace records or vault contents. A recorded request is not a person, a contribution open is not a submission, and a received postcard is not an approval or feature.</p>
-        <p><a href={`/activity${report.app ? `/${report.app}` : ""}?days=${report.period.days}&surface=${report.period.surface}`}>Explore the current {report.appLabel ?? "app"} activity</a> · <a href="/manage">How the owner report works</a></p>
+        <p><a href={`/activity${report.app ? `/${report.app}` : ""}?days=${report.period.days}&surface=${report.period.surface}`}>Explore the current {report.appLabel ?? "app"} activity</a> · <a href={report.origin ? "/demo" : "/manage"}>{report.origin ? "Try the composition experiment" : "How the owner report works"}</a></p>
       </section>
       <script type="application/json" data-report-payload set:html={payload}/>
       <script>

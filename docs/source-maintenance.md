@@ -96,3 +96,21 @@ pnpm check:types
 For editor changes, exercise app switching, unsaved inputs, refresh/conflict recovery and explicit saves with fictional fixtures. Check the protected live editor after release using an existing authorized administrator session. Source cleanup does not justify mutating owner content. Existing production deployment checks remain the release boundary.
 
 The new-project copier is authored in `lib/content-model/project.mts`; the existing content-source command emits/checks its readable JavaScript and declarations. Narrow declarations describe the existing tested filesystem helpers; they do not convert or widen those helpers. Shared launcher source/script/config copies retain the source repository formatting so their bytes and provenance stay exact; this narrow Prettier exception is listed in the generated project.
+
+## Composition workbench views
+
+The fictional `/demo` transport keeps records and local presentation revisions
+separate. `src/vendor/workbench/` contains exact MIT copies of the browser-safe
+Guestbook photo and Linkarooie card view adapters, owned and used by those apps.
+`sources.json` records each independent source revision, path and SHA-256. The
+normal dev/types/build gates reject a pin or digest mismatch. After independently
+reviewing, releasing and promoting those source commits, run:
+
+```sh
+node scripts/workbench-source.mjs --write /absolute/reviewed-guestbook-checkout /absolute/reviewed-showcase-checkout
+```
+
+Both clean source checkouts must match the selected composition pins. This copies
+only the reviewed pure adapters; it never imports records, credentials, settings
+or remote execution authority. Composer owns the tactile layout and sandbox
+transport. App eligibility/content/destination decisions stay with their source.

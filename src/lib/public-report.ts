@@ -522,7 +522,7 @@ export function reportImagePath(id: string, format: ReportFormat) {
   return `${reportPath(id)}/${format}.png`;
 }
 export function reportCaption(report: FrozenReport) {
-  return `${report.headline}. ${report.origin ? reportStoryLabel(report) + ". " : ""}${report.period.days} UTC days, ${reportSurfaceLabel(report)}, through ${report.period.to}. Recorded lower bound, not unique people. ${reportUrl(report.id)}`;
+  return `${report.headline}. ${report.origin || report.story ? reportStoryLabel(report) + ". " : ""}${report.period.days} UTC days, ${reportSurfaceLabel(report)}, through ${report.period.to}. Recorded lower bound, not unique people. ${reportUrl(report.id)}`;
 }
 export const reportPeriodLabel = (report: FrozenReport) =>
   `${report.period.from} to ${report.period.to} UTC · ${reportSurfaceLabel(report)}`;
