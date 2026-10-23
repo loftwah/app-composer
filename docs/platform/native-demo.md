@@ -80,11 +80,33 @@ node labs/platform/native-run.mjs run --admitted \
 7. A new anonymous context confirms public postcard admission remains closed and the existing pending image is HTTP404. Creator A uses the maintained review buttons to approve (public media HTTP200), hide (HTTP404) and re-approve (HTTP200). Public pages must agree with media visibility and retain the fictional label. The public PNG's digest stays identical across visibility changes.
 8. Cross-team platform/member dispatch and private-media selection are denied using the actual retained item ID. Contributor-only role10 cannot moderate; selecting Team B's resource with a Team A grant is denied.
 9. Role10 plans a compatible title update through its selected `/me` panel. Request, stack, resource, contribution mode, item content/status/revision and PNG digest must remain unchanged except for the requested title/configuration update. The exact Team B snapshot must be unchanged. A sensitive request is denied without stack/resource allocation.
-10. Fresh anonymous pages read both actual StackView and mounted app pages with current exact names. The receipt identifies source, roles, scope, bounded screenshots/continuous actor footage, server dispatch audit and owned cleanup separately from public-edge or production acceptance.
+10. The native operator reads the [approved-subset export](native-export.md) through the existing maintenance route, checks the retained synthetic item's PNG against its measured public digest, and confirms unchanged request/policy/stack/resource state. This read-only evidence precedes any optional availability change.
+11. Fresh anonymous pages read both actual StackView and mounted app pages with current exact names. The receipt identifies source, roles, scope, bounded screenshots/continuous actor footage, server dispatch audit and owned cleanup separately from public-edge or production acceptance.
+
+## Recorded qualification — 23 October 2026
+
+The canonical pre-incident run at Composer
+`25dc7589f7a92d5ba22eb44c49b9a774991799a3` passed with Guestbook
+`e097e4dd46abe5dd49a0ee1209276cc506e601fa` and Linkarooie
+`9e166d3c3dcc9d3746ba1680b9f74015c0b521cb`. Its receipt SHA-256 is
+`b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a`.
+It includes the viewport camera/probe separation and actual approved-subset
+export: one synthetic original, matching 53,187-byte 1200 × 900 PNG, with the
+selected request, policy, stack and resource unchanged. Browser, owned runtime
+root and pointer cleanup were confirmed.
+
+A separate opt-in run at the same source exercised the
+[local availability foundation](incident-demo.md). Its receipt SHA-256 is
+`da2aa155ab9376e34244b6610c6f049085800e9ee25b0ee9c9abff9c5d06ab33`;
+it is not an input for the pre-incident films. The
+[#11 qualification record](https://github.com/loftwah/app-composer/issues/11#issuecomment-6364634030)
+also records 774 passing tests without skips, check/build and publication checks.
+These local results do not advance the production source, which remains
+`97582498e05bd1ab06bdde71b61e1faab89252b1` at this review.
 
 ## Remaining product and film gates
 
-The local run at Composer `87e3ac749d80a62339f299c67f11616138139775`
+The earlier local run at Composer `87e3ac749d80a62339f299c67f11616138139775`
 passed with the actual locked v2 source, 23 hashed product captures, four continuous
 actor recordings and confirmed cleanup. Its receipt SHA-256 is
 `fd9b5ab9bec15bfe1379cae7af4520e911298e83625f399976b1b1bb08c9c4ab`.
@@ -98,12 +120,15 @@ fixture; this harness does not fabricate R2 acknowledgement loss or auto-retry.
 
 Re-approving retained hidden media is a visibility restoration supported by the
 current moderation UI. It is **not full restore**. Full data/media restore,
-retirement, knowledge recipes and the **#215 incident foundation** remain
-unavailable/unqualified here. There is no filler interaction for those gates.
+retirement and knowledge recipes remain unavailable/unqualified here. The
+separate availability exercise qualifies only deterministic local visibility
+recovery, not the complete #215 responder. There is no filler interaction for
+those remaining gates.
 
 Issue #221 still requires its reviewed 60–90 second overview and 5–8 minute
 technical walkthrough. The retained raw actor WebMs remain local evidence inputs,
-not completed films. The historical [local excerpts](media.md) remain separately
+not completed films. Replacement encoding and review are in progress; no film
+page or replacement media is published. The historical [local excerpts](media.md) remain separately
 identified. Actual footage must be inspected before sharing. Production Access,
 physical passkeys, enterprise SSO, provider permissions/interoperability,
 Kubernetes, residency guarantees and public-edge deployment need their own proof.

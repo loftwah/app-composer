@@ -18,6 +18,20 @@ The approved-portable contract declares at most eight original approved contribu
 
 The returned receipt contains exact source and selection IDs, versions, plan/policy/configuration identities, declared approved-subset coverage, bounded media IDs/dimensions/byte counts/digests, manifest-JSON and transport-response hashes, and read-only observations. It returns neither base64, captions, authors, private items, credentials nor the full portable manifest. The caller may retain this bounded result in its existing native receipt.
 
-`node --test tests/platform-native-export.test.mjs tests/creator-maintenance.test.mjs` exercises real Composer route/SQLite guards with explicitly labelled app/browser transport doubles, including byte limits, wrong bridge, altered scope/source/media, private coverage, missing synthetic item and post-export state or capability drift. These are not native browser/workerd evidence. A fresh admitted native run at the integrated source remains required.
+`node --test tests/platform-native-export.test.mjs tests/creator-maintenance.test.mjs` exercises real Composer route/SQLite guards with explicitly labelled app/browser transport doubles, including byte limits, wrong bridge, altered scope/source/media, private coverage, missing synthetic item and post-export state or capability drift. These tests are separate from native browser/workerd evidence; source changes require a fresh admitted run at the integrated revision.
+
+## Recorded local export — 23 October 2026
+
+The native run at Composer `25dc7589f7a92d5ba22eb44c49b9a774991799a3` exercised
+this helper against actual Guestbook `e097e4dd46abe5dd49a0ee1209276cc506e601fa`.
+Canonical receipt SHA-256:
+`b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a`
+([qualification](https://github.com/loftwah/app-composer/issues/11#issuecomment-6364634030)).
+One original approved synthetic contribution was included. Its 53,187-byte,
+1200 × 900 PNG matched the previously measured public digest. The selected
+request/policy, stack and app resource were unchanged; browser, owned-root and
+pointer cleanup were confirmed. The receipt retains bounded identities, hashes
+and coverage, not the portable manifest, base64, captions or authors. The separate
+availability run also exported before changing resource visibility.
 
 Even when `coverage.complete` is true, it describes only the current approved-original subset. This is not a full backup: private records, credentials, restored copies and publication history are excluded. No restore is attempted or qualified; later control changes advance the source version. Production, offline and cross-account recovery remain unqualified.

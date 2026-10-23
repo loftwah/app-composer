@@ -16,6 +16,23 @@ same browser-generated caption-strip compositor, existing Space font and existin
 ffmpeg/ffprobe binaries. No remote Remotion module, new toolchain, installer,
 voice or audio asset is involved.
 
+## Current input and publication state — 23 October 2026
+
+The selected pre-incident input is Composer
+`25dc7589f7a92d5ba22eb44c49b9a774991799a3`, canonical receipt SHA-256
+`b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a`
+([qualification](https://github.com/loftwah/app-composer/issues/11#issuecomment-6364634030)).
+Its viewport-only primary cameras and separate responsive probes replace the
+earlier full-page capture approach. Select new cuts from decoded frames, never
+wall-clock offsets or old crop coordinates. The first edit from the earlier
+`97582498` capture failed pixel review and must not be published.
+
+Replacement encoding and pixel/playback review are in progress. No replacement
+film or film page is published. The separate availability receipt is excluded
+from this workflow; its local recovery evidence remains in [incident-demo.md](incident-demo.md).
+Production remains `97582498e05bd1ab06bdde71b61e1faab89252b1` at this review;
+final publication and release evidence belong in #11.
+
 ## Select the canonical run
 
 The host selects an absolute native receipt path and its independently approved

@@ -1,6 +1,29 @@
 # Local availability recovery foundation
 
-This optional exercise extends the native two-team fixture after its ordinary request, contribution, moderation and update journey succeeds. It is a deterministic runbook for a deliberately isolated resource visibility fault. It is **not** the complete [#215 Agentic Responder](https://github.com/loftwah/app-composer/issues/215), a code rollback, data restoration or a live PagerDuty integration. The existing pre-incident films retain their original source and scope.
+This optional exercise extends the native two-team fixture after its ordinary request, contribution, moderation, update and export journey succeeds. It is a deterministic runbook for a deliberately isolated resource visibility fault. It is **not** the complete [#215 Agentic Responder](https://github.com/loftwah/app-composer/issues/215), a code rollback, data restoration or a live PagerDuty integration. Pre-incident captures and edits retain their own source and scope; replacement films are not yet published.
+
+## Recorded local result — 23 October 2026
+
+Composer `25dc7589f7a92d5ba22eb44c49b9a774991799a3` passed the separate opt-in
+native run with receipt SHA-256
+`da2aa155ab9376e34244b6610c6f049085800e9ee25b0ee9c9abff9c5d06ab33`.
+The scenario `availability-9e304d30-a54f-4443-ba50-1b9b1c3288a2.json` has SHA-256
+`135de57a90f6c02eabd0faf7758bade40f95f23b5b149beed957e321ef5ec63a`.
+The [qualification record](https://github.com/loftwah/app-composer/issues/11#issuecomment-6364634030)
+binds these to Guestbook `e097e4dd46abe5dd49a0ee1209276cc506e601fa` and
+Linkarooie `9e166d3c3dcc9d3746ba1680b9f74015c0b521cb`.
+
+Actual HTML and PNG reads changed from 200 to 404 while source-matched liveness
+stayed 200. Confirmed control operations advanced resource versions 7 → 8 → 9.
+Recovery passed three HTML/PNG samples over 2.08 seconds with the original media
+digest. Team B's semantic HTML digest stayed equal while its raw nonce-bearing
+hash changed. Three correlated change/trigger/resolve events received local HTTP
+202 acknowledgements with matching incident deduplication. Public contributions
+stayed closed, anonymous owner access returned 401 and cross-team media returned
+404. There were **zero retained private items**, so this run did not exercise
+private-item recovery denial. Browser/root/pointer cleanup and receiver closure
+were confirmed. This is local visibility recovery, not production or vendor
+acceptance, lost-acknowledgement recovery, full restore or retirement.
 
 ## What it runs
 
@@ -31,7 +54,7 @@ Preparation starts no browser or service. After the existing shared host admissi
 
 The bounded `availability-RUN_ID.json` receipt records source identities, request/plan/policy/configuration/resource/publication correlation, stable control operation IDs, actual status/digest observations, monotonic timings, three-sample stability, privacy/control results and local event IDs/outcomes. Once admitted, a failed scenario retains its receipt too. The local receiver's redacted event rows appear in that same receipt; routing keys and private browser state do not. Team B raw HTML hashes remain recorded; its separate semantic digest normalizes only the reviewed per-response script CSP nonce, retaining every other byte. Two actual public-page screenshots reuse the native capture helper and source/actor/hash receipts. All service, file, browser and temporary receiver cleanup belongs to the existing one-root `finally` lifecycle.
 
-Focused tests exercise the local target admission guard, actual managed-resource control/journal behaviour on SQLite with labelled app contract doubles, and the verifier's consecutive-sample/flapping semantics. Set the trusted host `COMPOSER_INCIDENT_GUESTBOOK` to the exact clean pinned checkout to also exercise two real Guestbook HTML responses with distinct nonces. Without a sibling checkout, only that supplemental source test skips; an explicit invalid selection fails. These tests do not establish native browser/workerd execution. Actual qualification requires a fresh admitted native run at the candidate source; this document contains no fabricated qualification receipt.
+Focused tests exercise the local target admission guard, actual managed-resource control/journal behaviour on SQLite with labelled app contract doubles, and the verifier's consecutive-sample/flapping semantics. Set the trusted host `COMPOSER_INCIDENT_GUESTBOOK` to the exact clean pinned checkout to also exercise two real Guestbook HTML responses with distinct nonces. Without a sibling checkout, only that supplemental source test skips; an explicit invalid selection fails. These tests do not establish native browser/workerd execution. Source changes require a fresh admitted native run at the candidate revision.
 
 ## Remaining #215 / #221 gates
 
