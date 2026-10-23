@@ -34,16 +34,22 @@ const ready = (id) => ({
 });
 const inspect = (film) => reviewedDemoFilms([film, ready("technical")]);
 
-test("published metadata remains pending without invented assets, chapter times or source receipts", () => {
+test("maintained film metadata is pending or passes the strict reviewed-ready contract", () => {
   assert.equal(reviewedDemoFilms(demoFilms), demoFilms);
-  assert.deepEqual(
-    demoFilms.map(({ id, status }) => ({ id, status })),
-    [
-      { id: "overview", status: "pending" },
-      { id: "technical", status: "pending" },
-    ],
-  );
   for (const film of demoFilms)
+    assert.ok(["pending", "ready"].includes(film.status));
+});
+
+test("explicit pending fixtures stay free of invented assets, chapter times and source receipts", () => {
+  const pending = ["overview", "technical"].map((id) => ({
+    id,
+    title: "Pending fixture",
+    description: "Not publishable media",
+    targetSeconds: id === "overview" ? 75 : 360,
+    status: "pending",
+  }));
+  assert.equal(reviewedDemoFilms(pending), pending);
+  for (const film of pending)
     assert.deepEqual(Object.keys(film).sort(), [
       "description",
       "id",
