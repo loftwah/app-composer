@@ -38,6 +38,12 @@ native default aliases that the launcher-only copy had missed. The same copied
 
 Exact Guestbook/Showcase service promotion prepared composition
 `115e6d85f86af78436cdee88b63616448997befc6278665963dcfc7284232a7a`.
-Composer must activate its prepared service bindings through its normal release,
-then mounted-route source and browser verification can establish that boundary.
+Composer activated those service bindings through its guarded production release
+at source `82cff759980428fcce1abfc9c14f99a64d2f317d`, Worker
+`38a90088-38fb-4a87-b38d-a2307b0e0925` (100% traffic). The final
+[mounted receipt](mounted-receipt.json) records service versions, exact source
+identities, matching launcher hashes and all eight actual mounted browser cases.
+Mounted before/live filenames add `-mounted-` before the stage; both themes and
+viewports are retained. Verified 14:33 AEDT / 03:33 UTC. This evidence-only
+branch does not advance the deployed main source.
 Physical-device, screen-reader and external platform rendering remain separate.

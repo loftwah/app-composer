@@ -1,0 +1,403 @@
+{
+  "at": "2026-10-23T03:31:30.062Z",
+  "identity": {
+    "app": "app-composer",
+    "commit": "82cff759980428fcce1abfc9c14f99a64d2f317d",
+    "reviewed": "2026-10-13",
+    "contract": 1
+  },
+  "deployments": [
+    {
+      "service": "app-composer",
+      "deployment": {
+        "id": "12d94a71-56a3-4166-824f-44a9afdcc20e",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "annotations": {
+          "workers/message": "App Composer 82cff759980428fcce1abfc9c14f99a64d2f317d",
+          "workers/triggered_by": "deployment"
+        },
+        "versions": [
+          {
+            "version_id": "38a90088-38fb-4a87-b38d-a2307b0e0925",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-10-23T03:30:52.175073Z"
+      }
+    },
+    {
+      "service": "composer-guestbook-115e6d85f86af784",
+      "deployment": {
+        "id": "1d232493-fd5b-40a7-973e-f1f149b41143",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "annotations": {
+          "workers/message": "Pinned composition 115e6d85f86af78436cdee88b63616448997befc6278665963dcfc7284232a7a",
+          "workers/triggered_by": "deployment"
+        },
+        "versions": [
+          {
+            "version_id": "d45dd939-dc9b-43af-8b63-59ca9011f0a6",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-10-23T03:21:56.912328Z"
+      }
+    },
+    {
+      "service": "composer-showcase-115e6d85f86af784",
+      "deployment": {
+        "id": "acc0c087-14ce-4c8e-8a29-58114e62ab52",
+        "source": "wrangler",
+        "strategy": "percentage",
+        "annotations": {
+          "workers/message": "Pinned composition 115e6d85f86af78436cdee88b63616448997befc6278665963dcfc7284232a7a",
+          "workers/triggered_by": "deployment"
+        },
+        "versions": [
+          {
+            "version_id": "f3f3d9b9-6be7-4a9b-8994-3da49283740b",
+            "percentage": 100
+          }
+        ],
+        "created_on": "2026-10-23T03:22:12.347315Z"
+      }
+    }
+  ],
+  "hashes": [
+    {
+      "url": "https://composer.loftwah.com/brand/launcher.css",
+      "sha256": "4412c9e0a89068eb9edaaf3f1c2cdc6c2277a9741c191d15f8cf0dd3187eddae"
+    },
+    {
+      "url": "https://composer.loftwah.com/guestbook/brand/launcher.css",
+      "sha256": "4412c9e0a89068eb9edaaf3f1c2cdc6c2277a9741c191d15f8cf0dd3187eddae"
+    },
+    {
+      "url": "https://composer.loftwah.com/showcase/brand/launcher.css",
+      "sha256": "4412c9e0a89068eb9edaaf3f1c2cdc6c2277a9741c191d15f8cf0dd3187eddae"
+    }
+  ],
+  "verifiedAtUTC": "2026-10-23T03:33:00Z",
+  "verifiedAtMelbourne": "2026-10-23T14:33:00+11:00",
+  "before": [
+    {
+      "url": "https://composer.loftwah.com/guestbook/",
+      "build": {
+        "app": "guestbook",
+        "revision": "5d44877ebb37470e49cdff63ca054dbd9dceed4a",
+        "contract": 1,
+        "dataVersion": 1,
+        "resourceContract": 1,
+        "portabilityContract": 1,
+        "enquiryContract": 1,
+        "resourcesEnabled": true,
+        "resourceAccount": "1003dc1d93af0ebea56b2f1252f89627",
+        "resourceEnvironment": "production"
+      },
+      "width": 1440,
+      "theme": "dark",
+      "accent": "#ff9b55",
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/guestbook/",
+      "build": {
+        "app": "guestbook",
+        "revision": "5d44877ebb37470e49cdff63ca054dbd9dceed4a",
+        "contract": 1,
+        "dataVersion": 1,
+        "resourceContract": 1,
+        "portabilityContract": 1,
+        "enquiryContract": 1,
+        "resourcesEnabled": true,
+        "resourceAccount": "1003dc1d93af0ebea56b2f1252f89627",
+        "resourceEnvironment": "production"
+      },
+      "width": 1440,
+      "theme": "light",
+      "accent": "#a63d08",
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/guestbook/",
+      "build": {
+        "app": "guestbook",
+        "revision": "5d44877ebb37470e49cdff63ca054dbd9dceed4a",
+        "contract": 1,
+        "dataVersion": 1,
+        "resourceContract": 1,
+        "portabilityContract": 1,
+        "enquiryContract": 1,
+        "resourcesEnabled": true,
+        "resourceAccount": "1003dc1d93af0ebea56b2f1252f89627",
+        "resourceEnvironment": "production"
+      },
+      "width": 390,
+      "theme": "dark",
+      "accent": "#ff9b55",
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/guestbook/",
+      "build": {
+        "app": "guestbook",
+        "revision": "5d44877ebb37470e49cdff63ca054dbd9dceed4a",
+        "contract": 1,
+        "dataVersion": 1,
+        "resourceContract": 1,
+        "portabilityContract": 1,
+        "enquiryContract": 1,
+        "resourcesEnabled": true,
+        "resourceAccount": "1003dc1d93af0ebea56b2f1252f89627",
+        "resourceEnvironment": "production"
+      },
+      "width": 390,
+      "theme": "light",
+      "accent": "#a63d08",
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/showcase/",
+      "build": {
+        "app": "showcase",
+        "revision": "1f41a423892c77228a19da5f826e2fb0498a941b",
+        "contract": 1,
+        "dataVersion": 1
+      },
+      "width": 1440,
+      "theme": "dark",
+      "accent": "#a5fd0e",
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/showcase/",
+      "build": {
+        "app": "showcase",
+        "revision": "1f41a423892c77228a19da5f826e2fb0498a941b",
+        "contract": 1,
+        "dataVersion": 1
+      },
+      "width": 1440,
+      "theme": "light",
+      "accent": "#7e22ce",
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/showcase/",
+      "build": {
+        "app": "showcase",
+        "revision": "1f41a423892c77228a19da5f826e2fb0498a941b",
+        "contract": 1,
+        "dataVersion": 1
+      },
+      "width": 390,
+      "theme": "dark",
+      "accent": "#a5fd0e",
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/showcase/",
+      "build": {
+        "app": "showcase",
+        "revision": "1f41a423892c77228a19da5f826e2fb0498a941b",
+        "contract": 1,
+        "dataVersion": 1
+      },
+      "width": 390,
+      "theme": "light",
+      "accent": "#7e22ce",
+      "overflow": false
+    }
+  ],
+  "live": [
+    {
+      "url": "https://composer.loftwah.com/guestbook/",
+      "build": {
+        "app": "guestbook",
+        "revision": "376129c8b48d29d26e982777084aa241966569c7",
+        "contract": 1,
+        "dataVersion": 1,
+        "resourceContract": 1,
+        "portabilityContract": 1,
+        "enquiryContract": 1,
+        "resourcesEnabled": true,
+        "resourceAccount": "1003dc1d93af0ebea56b2f1252f89627",
+        "resourceEnvironment": "production"
+      },
+      "width": 1440,
+      "theme": "dark",
+      "focus": {
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "hover": "rgb(255, 122, 51)",
+      "accent": "#fc5b05",
+      "composerFocus": "#fc5b05",
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/guestbook/",
+      "build": {
+        "app": "guestbook",
+        "revision": "376129c8b48d29d26e982777084aa241966569c7",
+        "contract": 1,
+        "dataVersion": 1,
+        "resourceContract": 1,
+        "portabilityContract": 1,
+        "enquiryContract": 1,
+        "resourcesEnabled": true,
+        "resourceAccount": "1003dc1d93af0ebea56b2f1252f89627",
+        "resourceEnvironment": "production"
+      },
+      "width": 1440,
+      "theme": "light",
+      "focus": {
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "hover": "rgb(166, 58, 0)",
+      "accent": "#c74400",
+      "composerFocus": "#c74400",
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/guestbook/",
+      "build": {
+        "app": "guestbook",
+        "revision": "376129c8b48d29d26e982777084aa241966569c7",
+        "contract": 1,
+        "dataVersion": 1,
+        "resourceContract": 1,
+        "portabilityContract": 1,
+        "enquiryContract": 1,
+        "resourcesEnabled": true,
+        "resourceAccount": "1003dc1d93af0ebea56b2f1252f89627",
+        "resourceEnvironment": "production"
+      },
+      "width": 390,
+      "theme": "dark",
+      "focus": {
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "hover": "rgb(255, 122, 51)",
+      "accent": "#fc5b05",
+      "composerFocus": "#fc5b05",
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/guestbook/",
+      "build": {
+        "app": "guestbook",
+        "revision": "376129c8b48d29d26e982777084aa241966569c7",
+        "contract": 1,
+        "dataVersion": 1,
+        "resourceContract": 1,
+        "portabilityContract": 1,
+        "enquiryContract": 1,
+        "resourcesEnabled": true,
+        "resourceAccount": "1003dc1d93af0ebea56b2f1252f89627",
+        "resourceEnvironment": "production"
+      },
+      "width": 390,
+      "theme": "light",
+      "focus": {
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "hover": "rgb(166, 58, 0)",
+      "accent": "#c74400",
+      "composerFocus": "#c74400",
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/showcase/",
+      "build": {
+        "app": "showcase",
+        "revision": "4819a05e2d4862161ad8a6597c3babd96d1f7e04",
+        "contract": 1,
+        "dataVersion": 1
+      },
+      "width": 1440,
+      "theme": "dark",
+      "focus": {
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "hover": "rgb(255, 122, 51)",
+      "accent": "#a5fd0e",
+      "composerFocus": "#fc5b05",
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/showcase/",
+      "build": {
+        "app": "showcase",
+        "revision": "4819a05e2d4862161ad8a6597c3babd96d1f7e04",
+        "contract": 1,
+        "dataVersion": 1
+      },
+      "width": 1440,
+      "theme": "light",
+      "focus": {
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "hover": "rgb(166, 58, 0)",
+      "accent": "#7e22ce",
+      "composerFocus": "#c74400",
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/showcase/",
+      "build": {
+        "app": "showcase",
+        "revision": "4819a05e2d4862161ad8a6597c3babd96d1f7e04",
+        "contract": 1,
+        "dataVersion": 1
+      },
+      "width": 390,
+      "theme": "dark",
+      "focus": {
+        "outline": "rgb(252, 91, 5)",
+        "outlineWidth": "3px"
+      },
+      "hover": "rgb(255, 122, 51)",
+      "accent": "#a5fd0e",
+      "composerFocus": "#fc5b05",
+      "overflow": false
+    },
+    {
+      "url": "https://composer.loftwah.com/showcase/",
+      "build": {
+        "app": "showcase",
+        "revision": "4819a05e2d4862161ad8a6597c3babd96d1f7e04",
+        "contract": 1,
+        "dataVersion": 1
+      },
+      "width": 390,
+      "theme": "light",
+      "focus": {
+        "outline": "rgb(199, 68, 0)",
+        "outlineWidth": "3px"
+      },
+      "hover": "rgb(166, 58, 0)",
+      "accent": "#7e22ce",
+      "composerFocus": "#c74400",
+      "overflow": false
+    }
+  ],
+  "checks": {
+    "composerTests": 614,
+    "checks": "guarded clean pushed-main production deployment completed",
+    "mountedCases": 8,
+    "zeroHorizontalOverflow": true,
+    "launcherByteEquality": "root and both mounts"
+  },
+  "limits": [
+    "Evidence-only commit; deployed source remains 82cff759980428fcce1abfc9c14f99a64d2f317d.",
+    "Physical-device, screen-reader, external unfurl and owner visual acceptance are not established."
+  ]
+}
