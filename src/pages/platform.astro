@@ -844,6 +844,7 @@ const integrations = [
 .platform-guide {
   max-width: 1180px;
   margin: 0 auto;
+  overflow-wrap: anywhere;
 }
 .platform-opening {
   display: grid;
@@ -851,6 +852,11 @@ const integrations = [
   gap: 64px;
   align-items: start;
   padding: 8px 0 48px;
+}
+.platform-opening > div,
+.reading-split > div,
+.section-heading > * {
+  min-width: 0;
 }
 .back-link {
   display: inline-flex;
@@ -922,7 +928,7 @@ const integrations = [
 }
 .reading-split {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 48px;
 }
 .reading-split h3 {
@@ -1009,7 +1015,7 @@ const integrations = [
 }
 .integration-list > div {
   display: grid;
-  grid-template-columns: minmax(160px, 22%) 1fr;
+  grid-template-columns: minmax(160px, 22%) minmax(0, 1fr);
   gap: 24px;
   padding: 18px 0;
   border-top: 1px solid var(--color-border);
@@ -1051,7 +1057,7 @@ const integrations = [
 }
 .regional-map ul {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   list-style: none;
   gap: 28px;
   padding: 0;
@@ -1088,7 +1094,7 @@ summary {
 @media (max-width: 900px) {
   .platform-opening {
     gap: 32px;
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   }
   .platform-opening h1 {
     font-size: 3.3rem;
@@ -1108,12 +1114,12 @@ summary {
     gap: 32px;
   }
   .lifecycle-route {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0;
   }
   .lifecycle-route li {
     display: grid;
-    grid-template-columns: 180px 1fr;
+    grid-template-columns: 180px minmax(0, 1fr);
     gap: 20px;
     border-top: 1px solid var(--color-border);
     padding: 18px 0;
@@ -1124,7 +1130,7 @@ summary {
 }
 @media (max-width: 700px) {
   .platform-opening {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     padding-bottom: 28px;
     gap: 28px;
   }
@@ -1145,7 +1151,7 @@ summary {
     gap: 0 18px;
   }
   .reading-split {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 4px;
   }
   .section-heading h2 {
@@ -1162,7 +1168,7 @@ summary {
     width: 27%;
   }
   .integration-list > div {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 8px;
     padding: 20px 0;
   }
@@ -1170,11 +1176,11 @@ summary {
     padding: 20px;
   }
   .regional-map ul {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 20px;
   }
   .lifecycle-route li {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 8px;
   }
   .platform-guide .actions {

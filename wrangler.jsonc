@@ -112,5 +112,12 @@
         "period": 60
       }
     }
-  ]
+  ],
+  "assets": {
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/demos/platform-native-25dc7589-b3cd5894/overview.mp4",
+      "/demos/platform-native-25dc7589-b3cd5894/technical-walkthrough.mp4"
+    ]
+  }
 }
