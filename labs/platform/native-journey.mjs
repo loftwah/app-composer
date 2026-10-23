@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { join } from "node:path";
 import { nativeCall, nativeData } from "./native-auth.mjs";
 
@@ -48,7 +48,13 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
   const owner = actors.owner.page,
     a = actors["creator-a"].page,
     b = actors["creator-b"].page;
-  const result = { workspaces: [], checks: [], screenshots: [], limits: [] };
+  const result = {
+    workspaces: [],
+    checks: [],
+    screenshots: [],
+    captureAssets: [],
+    limits: [],
+  };
   check(
     /^[a-f0-9]{40}$/.test(memberSource),
     "Select the actual locked qualified Guestbook source.",
@@ -158,11 +164,19 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
     }
   }
   async function screenshot(page, name) {
-    await page.screenshot({
+    const bytes = await page.screenshot({
       path: join(output, name + ".png"),
       fullPage: true,
     });
     result.screenshots.push(name + ".png");
+    result.captureAssets.push({
+      path: name + ".png",
+      sha256: createHash("sha256").update(bytes).digest("hex"),
+      actor:
+        Object.entries(actors).find(([, actor]) => actor.page === page)?.[0] ??
+        "anonymous",
+      capturedAt: new Date().toISOString(),
+    });
   }
   async function observeSetup(page, workspace, label) {
     await page.goto(
