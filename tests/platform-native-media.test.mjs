@@ -329,6 +329,24 @@ test("recorded inspection holds are bounded, legacy-defaulted and distinct from 
   });
 });
 
+test("pre-incident film captions cannot consume an availability exercise receipt", async () => {
+  await fixture(async ({ path, receipt, save }) => {
+    receipt.preflight.availabilityFixture = { enabled: false };
+    await inspectNativeMedia(path, await save());
+    receipt.preflight.availabilityFixture.enabled = true;
+    await assert.rejects(
+      inspectNativeMedia(path, await save()),
+      /pre-incident captions/,
+    );
+    receipt.preflight.availabilityFixture.enabled = false;
+    receipt.journey.availability = { status: "recovered" };
+    await assert.rejects(
+      inspectNativeMedia(path, await save()),
+      /pre-incident captions/,
+    );
+  });
+});
+
 test("failed, dirty, mismatched-source and incomplete native runs never become final media inputs", async () => {
   await fixture(async ({ path, receipt, save }) => {
     const original = structuredClone(receipt);

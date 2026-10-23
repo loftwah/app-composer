@@ -5,6 +5,9 @@ technical film. No canonical native input or film is bundled with it. A passed
 native receipt, matching capture-time assets, a reviewed edit and actual encoded
 pixel/playback inspection remain required. Film duration does not complete #221:
 the incident foundation, full restore and retirement remain outside this journey.
+The maintained captions describe a pre-incident run. A receipt containing the
+optional availability exercise is refused; that exercise needs its own accurately
+scoped edit and cannot inherit captions saying no fault was injected.
 
 The existing `capture-walkthrough.mjs` keeps its earlier local-excerpt mode. Its
 explicit `--native-receipt` mode edits the actual native run; it never launches a

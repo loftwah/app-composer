@@ -310,6 +310,12 @@ export async function inspectNativeMedia(receiptPath, expectedReceiptSHA256) {
     "The actual native run must qualify its exact Guestbook member source without overrides.",
   );
   const journey = receipt.journey;
+  requireValue(
+    !Object.hasOwn(journey, "availability") &&
+      (receipt.preflight.availabilityFixture === undefined ||
+        receipt.preflight.availabilityFixture?.enabled === false),
+    "These pre-incident captions require a native run without the optional availability exercise.",
+  );
   const captureInspectionHoldMs = Object.hasOwn(
     journey,
     "captureInspectionHoldMs",
