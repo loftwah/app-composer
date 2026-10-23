@@ -167,10 +167,15 @@ export default function MyApps() {
     setStatus("");
     try {
       const before = await memberSession();
-      if (!sameAccount(principal, before))
+      if (!sameAccount(principal, before)) {
+        setSnapshot(undefined);
+        dirty.current = false;
+        setAccount(before);
+        currentAccount.current = before;
         throw Error(
           "The signed-in account changed. Refresh before continuing.",
         );
+      }
       const response = await memberCall("profile", {
         workspace: selected,
         operation,
@@ -186,6 +191,8 @@ export default function MyApps() {
         !sameAccount(principal, after)
       ) {
         setSnapshot(undefined);
+        setAccount(after);
+        currentAccount.current = after;
         dirty.current = false;
         throw Error(
           "The account or workspace changed while this operation was running. Refresh its saved state.",

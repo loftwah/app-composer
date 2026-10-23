@@ -431,7 +431,8 @@ export default function ProfileEditor({
         profileDraft
         draft={file}
         change={setFile}
-        busy={busy || !canExport}
+        busy={busy}
+        exportAllowed={canExport}
         settingsDirty={configDirty}
         request={async (operation, fields) => {
           if (operation === "export") {
@@ -503,6 +504,7 @@ function LinkForm({
     setValue = fields.edit,
     saved = fields.saved,
     dirty = fields.dirty;
+  const [uncertain, setUncertain] = useState(false);
   useEffect(() => {
     dirtyChanged(dirty);
   }, [dirty]);
@@ -513,7 +515,7 @@ function LinkForm({
         className="member-form"
         onSubmit={(event) => {
           event.preventDefault();
-          if (fields.conflicts.length) return;
+          if (fields.conflicts.length || uncertain) return;
           void (async () => {
             if (
               await save({
@@ -524,10 +526,17 @@ function LinkForm({
             ) {
               if (!item) setValue({ title: "", description: "", url: "" });
               dirtyChanged(false);
-            }
+            } else setUncertain(true);
           })();
         }}
       >
+        {uncertain && (
+          <p role="status">
+            The link save was not confirmed. Check the saved links before
+            submitting again. Your entry is retained to copy; discard it when
+            you have checked.
+          </p>
+        )}
         {!!fields.conflicts.length && (
           <div role="alert">
             <p>
@@ -602,7 +611,7 @@ function LinkForm({
         </label>
         <div className="member-actions">
           <button
-            disabled={busy || !dirty || !!fields.conflicts.length}
+            disabled={busy || !dirty || !!fields.conflicts.length || uncertain}
             type="submit"
           >
             {item ? "Save link draft" : "Add draft link"}
@@ -612,6 +621,7 @@ function LinkForm({
             disabled={busy || !dirty}
             onClick={() => {
               fields.useSaved();
+              setUncertain(false);
               dirtyChanged(false);
             }}
           >
@@ -782,7 +792,7 @@ function CardEditor({
           </button>
         )}
         <button
-          disabled={busy}
+          disabled={busy || linkDirty || styleDirty}
           onClick={() => void act("cards", { action: "delete", id: item.id })}
         >
           Remove saved link

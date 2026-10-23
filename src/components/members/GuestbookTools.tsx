@@ -102,8 +102,10 @@ export default function GuestbookTools({
     input: Record<string, unknown>,
   ) => {
     const before = await memberSession();
-    if (!sameAccount(account, before))
+    if (!sameAccount(account, before)) {
+      setList(undefined);
       throw Error("The account changed. Refresh your apps before continuing.");
+    }
     const response = await memberCall("guestbook", {
       workspace,
       resource: selected,
