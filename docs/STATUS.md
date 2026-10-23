@@ -2,6 +2,43 @@
 
 Reviewed 23 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Invited creators — local qualification and release in progress, 23 October 2026
+
+[My profile / My apps](/me) and [People & access](/people) are implemented with
+EmDash's existing session and a Subscriber-role member route. Shared membership
+and selected app/resource/action grants protect independent Linkarooie drafts,
+public snapshots, publication/export and one scoped Guestbook contribution/review
+journey. Profile ownership never grants Guestbook moderation. The
+[invited-creator guide](invited-members.md) explains the member/publisher hand-off,
+revision checks, rollback and separate admission states.
+
+The owned local lab has exercised native fictional account registration/login,
+two distinct role-10 members, independent profile editing and local card outputs,
+plus Guestbook contribution, approval, hiding and subsequent moderation denial
+after revocation while the member's own profile remains accessible. Local direct
+requests also deny another resource/profile/export and unrelated CMS routes.
+These observations remain distinct from production admission, a completed
+production member journey and human/device acceptance. The complete two-card
+asset-release/adoption/publication verification and final Composer promotion
+receipt are still being finalised in this integration.
+
+Guestbook's reviewed member-service implementation is independently released at
+`9515b359bf268e6c79efbf6ad3497da132973c3e` ([PR #29](https://github.com/loftwah/app-composer-guestbook/pull/29)),
+Worker `4cfae228-e144-43ff-9339-a7e17c83380e`. Its release passed 111 tests and a
+real local workerd named-binding check; production health/build match that
+source, existing public items are byte-identical and public member endpoint
+GET/POST requests return 404. This app release did not change Access policy,
+accounts or member secrets. Its isolated release checkout was checked clean and
+unused, its bounded receipt copied into ignored integration evidence, and only
+that checkout was removed. The active authenticated lab is retained for the
+remaining qualification and has its own explicit cleanup command.
+
+[Issue #11](https://github.com/loftwah/app-composer/issues/11) remains the canonical
+release/evidence index. Fresh production admission may need an exact owner-approved
+Access/authentication change; no real invitations or email delivery are claimed.
+Physical iPhone, actual screen-reader, native social and owner acceptance remain
+open. This section will be reconciled with the final root release receipt.
+
 ## Launch Kit profile cards — 23 October 2026
 
 The [focused card editor](https://composer-launch-kit.loftwah.workers.dev/profile.html)
