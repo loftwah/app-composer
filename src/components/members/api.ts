@@ -23,6 +23,7 @@ export const grant = z.object({
   revision: z.number().int().positive(),
   status: z.enum(["active", "revoked"]).optional(),
   member: z.string().max(128).optional(),
+  contributions: z.enum(["closed", "postcards", "members"]).optional(),
 });
 const invitation = z.object({
   id: z.string(),

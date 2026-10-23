@@ -1,6 +1,12 @@
 import type { D1Database } from "@cloudflare/workers-types";
 import { z } from "zod";
 import { StackError, membership } from "./stacks.mjs";
+import { prepareGovernedMemberOperation } from "./member-contribution-bridge.ts";
+import {
+  contributionReceipt,
+  contributionStatus,
+} from "./member-contribution-contract.ts";
+import type { ResourceRuntime } from "./resource-client.ts";
 import {
   listWorkspaceAccess,
   readWorkspaceAccess,
@@ -71,7 +77,7 @@ const writes = z.discriminatedUnion("action", [
       action: z.literal("guestbook"),
       workspace: id,
       resource: id,
-      capability: z.enum(["contribute", "moderate"]),
+      capability: z.enum(["contribute", "moderate", "contribution-status"]),
       input: z.unknown(),
     })
     .strict(),
@@ -90,7 +96,7 @@ export interface MemberContext {
 interface Service {
   fetch(request: Request): Promise<Response>;
 }
-export interface MemberRuntime {
+export interface MemberRuntime extends ResourceRuntime {
   DB?: D1Database;
   PUBLIC_ORIGIN?: unknown;
   SHOWCASE?: Service;
@@ -121,6 +127,29 @@ const grantView = (g: Grant) => ({
   revision: g.revision,
   status: g.status,
 });
+async function memberGrantViews(db: D1Database, user: string) {
+  return Promise.all(
+    (await grants(db, user)).map(async (grant) => {
+      if (grant.app !== "guestbook") return grantView(grant);
+      const resource = await db
+        .prepare(
+          "SELECT configuration_json FROM creator_app_resources WHERE id=? AND workspace_id=? AND app='guestbook' AND state='ready'",
+        )
+        .bind(grant.resource_id, grant.workspace_id)
+        .first<{ configuration_json: string | null }>();
+      const mode = resource?.configuration_json
+        ? (JSON.parse(resource.configuration_json) as { guestAccess?: unknown })
+            .guestAccess
+        : undefined;
+      return {
+        ...grantView(grant),
+        ...(["closed", "postcards", "members"].includes(String(mode))
+          ? { contributions: mode as "closed" | "postcards" | "members" }
+          : {}),
+      };
+    }),
+  );
+}
 const forbidden = () =>
   new StackError(
     "FORBIDDEN",
@@ -170,14 +199,19 @@ export async function requireAppGrant(
   if (!grant) throw forbidden();
   return grant;
 }
-async function auditDispatch(db: D1Database, user: MemberUser, grant: Grant) {
+async function auditDispatch(
+  db: D1Database,
+  user: MemberUser,
+  grant: Grant,
+  guard?: { sql: string; values: (string | number)[] },
+) {
   // This is the dispatch linearization point: the audit insert and current-grant
   // check are one SQL statement. Already dispatched app work may finish after a
   // revoke; no subsequent dispatch or entitlement binding can use that grant.
   const event = crypto.randomUUID();
   const result = await db
     .prepare(
-      `INSERT INTO creator_app_access_audit(id,issuer,workspace_id,actor_id,member_id,app,resource_id,action,event,grant_revision) SELECT ?,?,?,?,?,?,?,?,'dispatch',? WHERE EXISTS(SELECT 1 FROM creator_app_grants g JOIN creator_members m ON m.workspace_id=g.workspace_id AND m.user_id=g.user_id WHERE g.id=? AND g.issuer=? AND g.user_id=? AND g.status='active' AND g.revision=?) RETURNING id`,
+      `INSERT INTO creator_app_access_audit(id,issuer,workspace_id,actor_id,member_id,app,resource_id,action,event,grant_revision) SELECT ?,?,?,?,?,?,?,?,'dispatch',? WHERE EXISTS(SELECT 1 FROM creator_app_grants g JOIN creator_members m ON m.workspace_id=g.workspace_id AND m.user_id=g.user_id WHERE g.id=? AND g.issuer=? AND g.user_id=? AND g.status='active' AND g.revision=?)${guard?.sql ?? ""} RETURNING id`,
     )
     .bind(
       event,
@@ -193,6 +227,7 @@ async function auditDispatch(db: D1Database, user: MemberUser, grant: Grant) {
       memberIssuer,
       user.id,
       grant.revision,
+      ...(guard?.values ?? []),
     )
     .first();
   if (!result) throw forbidden();
@@ -563,7 +598,7 @@ export async function dispatchMemberApp(
     );
   const selected = await db
     .prepare(
-      "SELECT id FROM creator_app_resources WHERE id=? AND workspace_id=? AND app='guestbook' AND state='ready' AND account_id=? AND environment=? AND target=?",
+      "SELECT id,configuration_json FROM creator_app_resources WHERE id=? AND workspace_id=? AND app='guestbook' AND state='ready' AND account_id=? AND environment=? AND target=?",
     )
     .bind(
       input.resource,
@@ -572,8 +607,44 @@ export async function dispatchMemberApp(
       runtime.RESOURCE_ENVIRONMENT,
       target,
     )
-    .first();
+    .first<{ id: string; configuration_json: string | null }>();
   if (!selected) throw forbidden();
+  const grant = await requireAppGrant(
+    db,
+    user,
+    input.workspace,
+    "guestbook",
+    input.resource,
+    input.capability === "contribution-status"
+      ? "contribute"
+      : input.capability,
+  );
+  const mode = selected.configuration_json
+    ? (JSON.parse(selected.configuration_json) as { guestAccess?: unknown })
+        .guestAccess
+    : undefined;
+  const governed =
+    mode === "members" || input.capability === "contribution-status";
+  const prepared = governed
+    ? await prepareGovernedMemberOperation(
+        db,
+        { issuer: memberIssuer, accountId: user.id },
+        input.workspace,
+        input.resource,
+        input.capability,
+        input.input,
+        runtime,
+        pins.guestbook!,
+      )
+    : null;
+  const envelope = prepared?.envelope ?? {
+    schema: "composer.member-operation/1",
+    actor: { issuer: memberIssuer, accountId: user.id },
+    workspace: input.workspace,
+    resource: input.resource,
+    action: input.capability,
+    input: input.input,
+  };
   const request = new Request(target + "/__composer/member", {
     method: "POST",
     redirect: "manual",
@@ -587,48 +658,56 @@ export async function dispatchMemberApp(
       "X-Composer-Source": pins.guestbook!,
       "X-Composer-Target": target,
     },
-    body: JSON.stringify({
-      schema: "composer.member-operation/1",
-      actor: { issuer: memberIssuer, accountId: user.id },
-      workspace: input.workspace,
-      resource: input.resource,
-      action: input.capability,
-      input: input.input,
-    }),
+    body: JSON.stringify(envelope),
   });
-  const grant = await requireAppGrant(
-    db,
-    user,
-    input.workspace,
-    "guestbook",
-    input.resource,
-    input.capability,
-  );
-  await auditDispatch(db, user, grant);
+  await auditDispatch(db, user, grant, prepared?.dispatchGuard);
   const result = await boundedReply(
     await runtime.GUESTBOOK_MEMBERS.fetch(request),
   );
   const receipt = (
-    input.capability === "contribute"
-      ? z.object({
-          id: z.string().min(1).max(128),
-          resource: z.literal(input.resource),
-          status: z.literal("pending"),
-          message: z.string().max(500),
-        })
-      : z.object({
-          contract: z.literal(1),
-          resource: z.object({
-            id: z.literal(input.resource),
-            version: z.number().int().nonnegative(),
-          }),
-        })
+    input.capability === "contribution-status"
+      ? contributionStatus
+      : input.capability === "contribute" && governed
+        ? contributionReceipt
+        : input.capability === "contribute"
+          ? z.object({
+              id: z.string().min(1).max(128),
+              resource: z.literal(input.resource),
+              status: z.literal("pending"),
+              message: z.string().max(500),
+            })
+          : z.object({
+              contract: z.literal(governed ? 2 : 1),
+              resource: z.object({
+                id: z.literal(input.resource),
+                version: z.number().int().nonnegative(),
+              }),
+            })
   ).safeParse(result);
   if (!receipt.success)
     throw new StackError(
       "UNAVAILABLE",
       "The app did not confirm the selected Guestbook resource.",
     );
+  if (governed && input.capability !== "moderate") {
+    const actual = receipt.data as {
+      resource: string;
+      operationId: string;
+      receipt?: { resource: string; operationId: string };
+    };
+    const operationId = (envelope.input as { operationId: string }).operationId;
+    if (
+      actual.resource !== input.resource ||
+      actual.operationId !== operationId ||
+      (actual.receipt &&
+        (actual.receipt.resource !== input.resource ||
+          actual.receipt.operationId !== operationId))
+    )
+      throw new StackError(
+        "UNAVAILABLE",
+        "The app receipt does not match this contribution identity. Keep the original operation and check its status.",
+      );
+  }
   return { result, actor: { issuer: memberIssuer, subject: user.id } };
 }
 export async function manageMembers(
@@ -683,7 +762,7 @@ export async function manageMembers(
       actor: { issuer: memberIssuer, subject: user.id, name: user.name },
       operator: user.role === 50,
       ...(await listWorkspaceAccess(db, user, Date.now(), true)),
-      grants: (await grants(db, user.id)).map(grantView),
+      grants: await memberGrantViews(db, user.id),
     });
     if (ctx.request.method === "GET") {
       const parsed = reads.safeParse(input);

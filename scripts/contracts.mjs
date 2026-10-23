@@ -63,7 +63,17 @@ export function validateManifest(m) {
       (f.type !== "select" ||
         f.default !== "closed" ||
         !Array.isArray(f.options) ||
-        f.options.join(",") !== "closed,postcards")
+        ![
+          "closed,postcards",
+          ...(exactDescriptor(m.memberService, {
+            version: 2,
+            entrypoint: "GuestbookMemberService",
+            transport: "service-binding",
+            path: "/__composer/member",
+          })
+            ? ["closed,postcards,members"]
+            : []),
+        ].includes(f.options.join(",")))
     )
       throw new Error(
         "Guest contributions must default closed with the reviewed postcard mode",
@@ -136,8 +146,31 @@ export function validateManifest(m) {
     )
       throw new Error("Unsupported achievement collection");
   }
-  if(m.memberProfiles!==undefined&&(m.id!=='showcase'||!exactDescriptor(m.memberProfiles,{version:1,ownership:'installation-account',publication:'explicit-snapshot',publicPath:'/p/:handle/',bridge:'/api/member-profiles'})))throw Error('Unsupported member profile contract');
-  if(m.memberService!==undefined&&(m.id!=='guestbook'||!exactDescriptor(m.memberService,{version:1,entrypoint:'GuestbookMemberService',transport:'service-binding',path:'/__composer/member'})))throw Error('Unsupported member service contract');
+  if (
+    m.memberProfiles !== undefined &&
+    (m.id !== "showcase" ||
+      !exactDescriptor(m.memberProfiles, {
+        version: 1,
+        ownership: "installation-account",
+        publication: "explicit-snapshot",
+        publicPath: "/p/:handle/",
+        bridge: "/api/member-profiles",
+      }))
+  )
+    throw Error("Unsupported member profile contract");
+  if (
+    m.memberService !== undefined &&
+    (m.id !== "guestbook" ||
+      ![1, 2].some((version) =>
+        exactDescriptor(m.memberService, {
+          version,
+          entrypoint: "GuestbookMemberService",
+          transport: "service-binding",
+          path: "/__composer/member",
+        }),
+      ))
+  )
+    throw Error("Unsupported member service contract");
   if (m.tagCollection !== undefined) {
     const t = m.tagCollection;
     if (
@@ -236,7 +269,8 @@ export function validateManifest(m) {
       !limits ||
       typeof limits !== "object" ||
       Array.isArray(limits) ||
-      Object.keys(limits).sort().join(",") !== "alias,bytes,height,message,width" ||
+      Object.keys(limits).sort().join(",") !==
+        "alias,bytes,height,message,width" ||
       limits.message !== 160 ||
       limits.alias !== 60 ||
       limits.width !== 1200 ||

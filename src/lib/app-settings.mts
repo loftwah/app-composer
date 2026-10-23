@@ -72,6 +72,7 @@ const labels: Record<string, string> = {
 const options: Record<string, string> = {
   closed: "Closed",
   postcards: "Postcards with guest code",
+  members: "Invited members only · public postcards closed",
   daylight: "Daylight",
   midnight: "Midnight",
   grid: "Gallery grid",
@@ -164,6 +165,38 @@ const models: [string, AppSettingsModel][] = composition.apps.map((app) => [
 export const appSettings: Readonly<Record<string, AppSettingsModel>> =
   Object.freeze(Object.fromEntries(models));
 
+// Members mode belongs to a governed resource, never the legacy global app.
+// Keep the scoped manifest contract for stack/resource validation, while global
+// controls and their write validator expose only independently supported modes.
+export const globalAppSettings: Readonly<Record<string, AppSettingsModel>> =
+  Object.freeze(
+    Object.fromEntries(
+      models.map(([id, model]) => [
+        id,
+        id !== "guestbook"
+          ? model
+          : {
+              ...model,
+              fields: model.fields.map((field) =>
+                id === "guestbook" &&
+                field.key === "guestAccess" &&
+                field.type === "select"
+                  ? {
+                      ...field,
+                      options: field.options.filter(
+                        (value) => value !== "members",
+                      ),
+                      choices: field.choices.filter(
+                        (choice) => choice.value !== "members",
+                      ),
+                    }
+                  : field,
+              ),
+            },
+      ]),
+    ),
+  );
+
 export function selectedSources(ids: string[]): AppSource[] {
   return ids
     .filter((id) => Object.hasOwn(appSettings, id))
@@ -203,7 +236,7 @@ export function validateAppSettings(
   for (const id of ids) {
     if (!Object.hasOwn(input, id)) continue;
     const settings = input[id],
-      model = appSettings[id];
+      model = globalAppSettings[id];
     if (
       !object(settings) ||
       Object.keys(settings).some(
@@ -334,7 +367,22 @@ export function validateConfigurationPatch(
   input: unknown,
   id: string,
 ): Record<string, string> {
-  const model = Object.hasOwn(appSettings, id) ? appSettings[id] : undefined;
+  return validatePatch(input, id, globalAppSettings);
+}
+// Configuration data only. The resource runner supplies actual scoped authority;
+// legacy global maintenance must use validateConfigurationPatch above.
+export function validateScopedConfigurationPatch(
+  input: unknown,
+  id: string,
+): Record<string, string> {
+  return validatePatch(input, id, appSettings);
+}
+function validatePatch(
+  input: unknown,
+  id: string,
+  models: Readonly<Record<string, AppSettingsModel>>,
+): Record<string, string> {
+  const model = Object.hasOwn(models, id) ? models[id] : undefined;
   if (
     !model ||
     !object(input) ||

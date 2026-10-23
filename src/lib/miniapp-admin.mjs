@@ -5,7 +5,7 @@ import { manageMiniappCollection } from "./miniapp-collection.ts";
 import { achievementCommand, achievementCollection, } from "./miniapp-achievements.mjs";
 import { tagCommand } from "./miniapp-tags.mjs";
 import { tagCollection } from "./miniapp-tag-fields.mjs";
-import { appSettings, validateAppSettingValue } from "./app-settings.mjs";
+import { globalAppSettings as appSettings, validateAppSettingValue, } from "./app-settings.mjs";
 import { shareCardCommand, shareCardSnapshot } from "./miniapp-share-card.mjs";
 const record = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const appService = (value) => record(value) && typeof value.fetch === "function";

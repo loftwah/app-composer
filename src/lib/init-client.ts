@@ -4,7 +4,7 @@ import {currentAssistance} from './assistance';
 import {presetRecommendation,recommendationSpec,assistedHandoff,initialRecommendation} from './init-recommendations.mjs';
 import {setupPreferenceKey,validateSetupPreferences} from '../../lib/get-ready/preferences.mjs';
 import {validateSpec,presets,specVersion} from './spec.mjs';
-import {appSettings,selectedSources,appConfiguration} from './app-settings.mjs';
+import {globalAppSettings as appSettings,selectedSources,appConfiguration} from './app-settings.mjs';
 const form=document.querySelector<HTMLFormElement>('#init-form')!;
 const message=document.querySelector<HTMLElement>('#message')!;
 const key='composer:init:v1';let decisions:Record<string,string>={},displayedPreset='composition';

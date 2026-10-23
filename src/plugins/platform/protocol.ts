@@ -48,6 +48,13 @@ const request = z.object({
       url: z.literal("https://composer.loftwah.com/guestbook"),
     }),
     spec: z.unknown(),
+    contributionMode: z
+      .object({
+        requested: z.enum(["closed", "members"]),
+        effective: z.enum(["closed", "members"]),
+        qualified: z.boolean(),
+      })
+      .optional(),
   }),
   planDigest: z.string().regex(/^[a-f0-9]{64}$/),
   key: z.string().max(80).optional(),
@@ -110,6 +117,17 @@ const list = z.object({
     kind: z.literal("existing-resource-adapter"),
     message: z.string().max(2000),
   }),
+  setup: z
+    .object({
+      target: z.object({
+        account: z.string().min(1).max(80),
+        environment: z.string().min(1).max(40),
+        url: z.literal("https://composer.loftwah.com/guestbook"),
+      }),
+      existingStacks: z.number().int().nonnegative(),
+      managed: z.boolean(),
+    })
+    .optional(),
 });
 const mutation = z.object({
   ok: z.literal(true),

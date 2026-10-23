@@ -355,7 +355,7 @@ export function PlatformWorkspace({ search }: { search: string }) {
             <p>
               {snapshot.runner.message}{" "}
               {snapshot.runner.available
-                ? "The trusted adapter is available."
+                ? "Configuration is present; this is not a connectivity or permission check."
                 : "Execution is unavailable; requests retain their state."}
             </p>
           </section>
@@ -445,6 +445,31 @@ export function PlatformWorkspace({ search }: { search: string }) {
                     </dd>
                   </div>
                 </dl>
+                <label>
+                  Contributions
+                  <select
+                    value={draft.contributions ?? "closed"}
+                    disabled={busy || !canRequest}
+                    onChange={(event) =>
+                      setDraft({
+                        ...draft,
+                        contributions: event.target.value as
+                          "closed" | "members",
+                      })
+                    }
+                  >
+                    <option value="closed">Closed</option>
+                    <option value="members">
+                      Invited members only · public postcards closed
+                    </option>
+                  </select>
+                </label>
+                <p className="ca-platform-help">
+                  Member contributions require a qualified version 2 source,
+                  workspace policy opt-in and separate app-specific grants.
+                  Unsupported requests remain recorded without opening public
+                  access.
+                </p>
                 <label>
                   Data location requirement
                   <select
@@ -572,6 +597,21 @@ export function PlatformWorkspace({ search }: { search: string }) {
                     }
                   />
                   Enable platform requests
+                </label>
+                <label className="ca-platform-check">
+                  <input
+                    type="checkbox"
+                    checked={profile.allowMemberContributions ?? false}
+                    disabled={!owner || busy}
+                    onChange={(event) =>
+                      setProfile({
+                        ...profile,
+                        allowMemberContributions: event.target.checked,
+                      })
+                    }
+                  />
+                  Allow member-only contributions on qualified synthetic
+                  services
                 </label>
                 <label className="ca-platform-check">
                   <input
@@ -850,6 +890,14 @@ function RequestRow({
           </p>
         )}
         <dl className="ca-platform-facts">
+          <div>
+            <dt>Contributions</dt>
+            <dd>
+              {entry.request.contributions === "members"
+                ? "Invited members only · public postcards closed"
+                : "Closed"}
+            </dd>
+          </div>
           <div>
             <dt>Request</dt>
             <dd>

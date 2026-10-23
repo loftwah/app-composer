@@ -1,5 +1,5 @@
 import { useState, type SubmitEvent } from "react";
-import { appSettings } from "../../lib/app-settings.mjs";
+import { globalAppSettings as appSettings } from "../../lib/app-settings.mjs";
 import type { AppID, Snapshot } from "./types";
 export function Settings({
   app,
