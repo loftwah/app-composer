@@ -1,6 +1,18 @@
 # Native local two-team qualification
 
-Prepared against Composer `7a9b964dfab7b39a0d561ee55af3a64911f472c6`, then source-reviewed and preflighted again at `0d887971d66455f51f49430d06fd4b99ac3d34a9`. This fixture is ready for shared-host admission; preparation alone does not establish a passing native journey. The run receipt records the actual source used at execution time. It selects clean independent Guestbook and Showcase checkouts at the exact commits in `composition.lock.json` and reuses their installed dependencies.
+Prepared in the isolated member-authoring worktree above Composer increment
+`29a649c570e7e183065c06f09fda889194116fa4` (including recovery fix
+`4163e784da2dc0f3754c34884f0a66e0952232d2`), reusing all four baseline harness/doc
+files from `a325a9bfb06a981eb536b807558e197d96efd8cb`. This is a prepared,
+**unexecuted** future-v2 fixture. The current locked v1 source remains unqualified;
+`run` refuses it before creating a temporary root or starting services. There is
+no source-pin override, simulated service response or closed-mode substitute.
+
+Execution requires the independent Guestbook v2 release, exact live source
+qualification, deliberate Composer pin promotion, integration review and shared
+host admission. The actual run receipt records Composer head, independent app
+pins and copied-source identity. Clean independent Guestbook/Showcase checkouts
+must match `composition.lock.json` and reuse existing dependencies.
 
 The fixture derives its disposable lifecycle from `labs/invited-members/run.mjs`. It runs actual local workerd services, local D1 and R2, real EmDash native sessions, actual React administration pages, the named Guestbook member service, mounted app routes and StackView SSR. It uses no identity/session-row injection and no HTTP response doubles. The original invited-members role10 qualification remains separate.
 
@@ -18,7 +30,7 @@ The complete browser recording window is capped at six minutes; exceeding it clo
 
 ## Commands
 
-Read-only preparation checks source pins, existing dependencies, exact patch sentinels and port availability. It starts no server and makes no admission claim:
+After exact app pin promotion and integration, read-only preparation checks source pins, existing dependencies, exact patch sentinels and port availability. It starts no workerd/browser and makes no admission claim:
 
 ```sh
 node labs/platform/native-run.mjs prepare \
@@ -36,16 +48,33 @@ node labs/platform/native-run.mjs run --admitted \
 
 ## Qualification sequence
 
-1. Native setup and passkey sign-in establish the operator. Actual role invitations register the creators and the ordinary app user; logout/sign-in and `/auth/me` confirm persisted roles.
-2. The actual workspace UI creates two teams and accepts editor invitations. The policy UI enables bounded standing policy. Creator attempts to configure that policy are refused.
-3. Each creator requests an app through the actual platform UI. The actual app-owned resources and published StackView pages must complete with distinct retained identities.
-4. Cross-team platform reads/writes and member dispatch are refused. Ordinary role10 platform reads/writes must return HTTP403. A cross-team media selector is denied before item access; an empty collection cannot establish protection of an existing private image.
-5. An explicit native member grant dispatches a moderation list through the actual named service. A separately granted contribution is refused because this recipe closes public guest contributions. No policy, token or database bypass opens it.
-6. Team A updates its title through the native UI, retaining request, stack and resource identity. Team B must remain unchanged. A sensitive-data request is refused before app allocation.
-7. A fresh context without a native session reads the actual local public StackView and mounted app pages for both teams and checks their exact current names.
+1. Native setup and virtual-passkey registration/sign-in establish one role50 operator, two role20 creators and one ordinary role10 account. Actual first-login Welcome dialogs are completed with Get Started; there are no forced clicks through inert UI.
+2. The real workspace UI creates Team A/B and native creator editor invitations are accepted. The operator explicitly enables standing policy and default-off member contributions. Creators cannot configure policy.
+3. Before any editor delegation, ordinary role10 native and member platform reads/writes return HTTP403. The owner prepares an explicit Team A editor invitation; role10 accepts it through `/me`. `/auth/me` must still report role10. Both native and member configure/review routes remain HTTP403 after delegation.
+4. Role10 opens `/me?view=platform&workspace=ID`, confirms that exact selected Team A, requests members mode through the actual form and completes a governed synthetic service. Creator B uses native administration to request its independent closed Team B service. No unsupported request counts as success.
+5. Before an app-specific grant, role10 contribution dispatch is denied. The owner uses the maintained People & access form to grant only contribute on Team A's exact resource to role10, and moderate on that resource to Creator A. Global role, other grants and Team B remain unchanged.
+6. Role10 uses the actual `/me` canvas form to submit one fictional message/alias. Its v2 receipt and real pending list must name the same resource/item/operation, with `synthetic:1`. No PNG, item, configuration, identity or session is injected into storage by the harness.
+7. A new anonymous context confirms public postcard admission remains closed and the existing pending image is HTTP404. Creator A uses the maintained review buttons to approve (public media HTTP200), hide (HTTP404) and re-approve (HTTP200). Public pages must agree with media visibility and retain the fictional label. The public PNG's digest stays identical across visibility changes.
+8. Cross-team platform/member dispatch and private-media selection are denied using the actual retained item ID. Contributor-only role10 cannot moderate; selecting Team B's resource with a Team A grant is denied.
+9. Role10 plans a compatible title update through its selected `/me` panel. Request, stack, resource, contribution mode, item content/status/revision and PNG digest must remain unchanged except for the requested title/configuration update. The exact Team B snapshot must be unchanged. A sensitive request is denied without stack/resource allocation.
+10. Fresh anonymous pages read both actual StackView and mounted app pages with current exact names. The receipt identifies source, roles, scope, bounded screenshots/continuous actor footage, server dispatch audit and owned cleanup separately from public-edge or production acceptance.
 
 ## Remaining product and film gates
 
-This recipe cannot yet show authenticated team content authoring while public guest submission remains closed. Listing an empty moderation queue and observing a closed contribution refusal do not complete content administration or prove an existing private image boundary. A meaningful moderation mutation followed by data-preserving update needs an authorized product path; this fixture must not manufacture one.
+This fixture has not run against a promoted v2 Composer pin. Source/syntax checks
+are preparation, not native journey or rendered-interaction evidence. A passing
+future run can qualify only the exact local sources and operations in its receipt.
+A pending receipt recovery failure must retain its original ID/body and fail the
+fixture; this harness does not fabricate R2 acknowledgement loss or auto-retry.
 
-Issue #221 still requires a 60–90 second overview and a 5–8 minute technical walkthrough. The historical [local excerpts](media.md) remain separately identified. The native qualification should establish real evidence before a full film is recorded. A useful chapter plan is native admission and team boundaries; standing policy and developer request; actual app and StackView publication; cross-team and ordinary-user denials; named-service grant and explicit closed-authoring gap; compatible update and unchanged second team; refused requirements; and receipt/cleanup. Do not pad unavailable workflow or label this local admission as production SSO. Knowledge recipes, retirement and the #215 incident foundation need their own working product and evidence.
+Re-approving retained hidden media is a visibility restoration supported by the
+current moderation UI. It is **not full restore**. Full data/media restore,
+retirement, knowledge recipes and the **#215 incident foundation** remain
+unavailable/unqualified here. There is no filler interaction for those gates.
+
+Issue #221 still requires its reviewed 60–90 second overview and 5–8 minute
+technical walkthrough. The retained raw actor WebMs remain local evidence inputs,
+not completed films. The historical [local excerpts](media.md) remain separately
+identified. Actual footage must be inspected before sharing. Production Access,
+physical passkeys, enterprise SSO, provider permissions/interoperability,
+Kubernetes, residency guarantees and public-edge deployment need their own proof.

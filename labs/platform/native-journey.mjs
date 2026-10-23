@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { randomUUID, createHash } from "node:crypto";
 import { join } from "node:path";
 import { nativeCall, nativeData } from "./native-auth.mjs";
 
@@ -20,6 +20,7 @@ const profile = {
   dataClasses: ["synthetic"],
   maxApplications: 2,
   reviewRequired: false,
+  allowMemberContributions: true,
 };
 const check = (value, message) => {
   if (!value) throw Error(message);
@@ -43,11 +44,39 @@ function denied(reply) {
   };
 }
 
-export async function nativeJourney({ actors, lab, output }) {
+export async function nativeJourney({ actors, lab, output, memberSource }) {
   const owner = actors.owner.page,
     a = actors["creator-a"].page,
     b = actors["creator-b"].page;
   const result = { workspaces: [], checks: [], screenshots: [], limits: [] };
+  check(
+    /^[a-f0-9]{40}$/.test(memberSource),
+    "Select the actual locked qualified Guestbook source.",
+  );
+  const build = await owner.request.get(
+    lab.origins.composer + "/guestbook/build.json",
+  );
+  const buildIdentity = await build.json();
+  const expectedService = {
+    version: 2,
+    entrypoint: "GuestbookMemberService",
+    transport: "service-binding",
+    path: "/__composer/member",
+  };
+  check(
+    build.status() === 200 &&
+      buildIdentity.revision === memberSource &&
+      Object.keys(buildIdentity.memberService ?? {}).length === 4 &&
+      Object.entries(expectedService).every(
+        ([key, value]) => buildIdentity.memberService[key] === value,
+      ),
+    "Actual mounted Guestbook build does not match the exact locked v2 descriptor/source.",
+  );
+  result.memberSource = {
+    revision: memberSource,
+    descriptor: buildIdentity.memberService,
+    sourceOverride: false,
+  };
   async function openWorkspaceAccess(page) {
     await page.goto(
       lab.origins.composer +
@@ -133,6 +162,11 @@ export async function nativeJourney({ actors, lab, output }) {
     await owner.getByLabel("Enable platform requests").check();
     await owner.getByLabel("Require a separate operator decision").uncheck();
     await owner.getByLabel("Maximum applications").fill("2");
+    await owner
+      .getByLabel(
+        "Allow member-only contributions on qualified synthetic services",
+      )
+      .check();
     for (const label of [
       "Allow the visitor book recipe",
       "Allow synthetic preview applications",
@@ -186,40 +220,171 @@ export async function nativeJourney({ actors, lab, output }) {
     }),
   );
   const ordinary = actors["app-user"].page;
-  result.ordinaryUser = {
-    role: actors["app-user"].user.role,
-    read: denied(
-      await nativeCall(
-        ordinary,
-        stacks +
-          "platformRead?" +
-          new URLSearchParams({ action: "list", workspace: wa }),
-      ),
-    ),
-    write: denied(
-      await nativeCall(ordinary, stacks + "platformWrite", {
+  const memberRead = (page, workspace) =>
+    data(
+      page,
+      members +
+        "platformRead?" +
+        new URLSearchParams({ action: "list", workspace }),
+    );
+  result.ordinaryUser = { role: actors["app-user"].user.role };
+  for (const [key, route, body] of [
+    [
+      "nativeRead",
+      stacks +
+        "platformRead?" +
+        new URLSearchParams({ action: "list", workspace: wa }),
+    ],
+    [
+      "nativeWrite",
+      stacks + "platformWrite",
+      {
         action: "submit",
         workspace: wa,
         key: randomUUID(),
-        request: request("Forbidden ordinary request"),
-      }),
-    ),
-  };
-  check(
-    result.ordinaryUser.read.status === 403 &&
-      result.ordinaryUser.write.status === 403,
-    "Role10 native dispatcher must return HTTP403.",
-  );
-  result.checks.push(
-    "Cross-team reads/writes refused; ordinary native role10 platform read/write both HTTP403.",
-  );
-  async function snapshot(page, workspace) {
-    return read(page, "platformRead", { action: "list", workspace });
+        request: request("Forbidden ordinary native request"),
+      },
+    ],
+    [
+      "memberRead",
+      members +
+        "platformRead?" +
+        new URLSearchParams({ action: "list", workspace: wa }),
+    ],
+    [
+      "memberWrite",
+      members + "platformWrite",
+      {
+        action: "submit",
+        workspace: wa,
+        key: randomUUID(),
+        request: request("Forbidden undelegated member request"),
+      },
+    ],
+  ]) {
+    result.ordinaryUser[key] = denied(await nativeCall(ordinary, route, body));
+    check(
+      result.ordinaryUser[key].status === 403,
+      "Undelegated role10 platform denial must remain HTTP403.",
+    );
   }
-  async function completed(page, workspace, name) {
+  result.checks.push(
+    "Ordinary native role10 has no platform authority before explicit editor delegation; native and member routes return HTTP403.",
+  );
+
+  // This is an actual owner invitation and native /me acceptance, not a role or
+  // membership row inserted by the harness. The global role stays Subscriber.
+  const access = await read(owner, "accessRead", {
+    action: "open",
+    workspace: wa,
+  });
+  await write(owner, "accessWrite", {
+    action: "invite",
+    workspace: wa,
+    expectedRevision: access.access.workspace.revision,
+    email: "app-user@example.test",
+    role: "editor",
+  });
+  await ordinary.goto(lab.origins.composer + "/me");
+  await ordinary
+    .getByRole("button", { name: "Accept workspace invitation", exact: true })
+    .click();
+  await ordinary
+    .getByRole("button", { name: "Team application requests", exact: true })
+    .waitFor();
+  const session = await data(ordinary, members + "read?action=session");
+  check(
+    session.workspaces.some(
+      (space) => space.id === wa && space.role === "editor",
+    ),
+    "Role10 editor delegation was not confirmed by the current member session.",
+  );
+  const nativeIdentity = nativeData(
+    await nativeCall(ordinary, "/_emdash/api/auth/me"),
+  );
+  check(
+    nativeIdentity.id === actors["app-user"].user.id &&
+      nativeIdentity.role === 10,
+    "Delegation changed global native role.",
+  );
+  const delegated = await memberRead(ordinary, wa);
+  check(
+    delegated.workspace.id === wa && delegated.workspace.role === "editor",
+    "Member adapter did not retain the selected explicit workspace.",
+  );
+  for (const [key, route, command] of [
+    [
+      "nativeConfigure",
+      stacks + "platformWrite",
+      {
+        action: "configure",
+        expectedRevision: delegated.profile.revision,
+        profile,
+      },
+    ],
+    [
+      "memberConfigure",
+      members + "platformWrite",
+      {
+        action: "configure",
+        expectedRevision: delegated.profile.revision,
+        profile,
+      },
+    ],
+    [
+      "nativeReview",
+      stacks + "platformWrite",
+      {
+        action: "review",
+        id: randomUUID(),
+        expectedRevision: 1,
+        decision: "accept",
+        reason: "Forbidden operator action",
+      },
+    ],
+    [
+      "memberReview",
+      members + "platformWrite",
+      {
+        action: "review",
+        id: randomUUID(),
+        expectedRevision: 1,
+        decision: "accept",
+        reason: "Forbidden operator action",
+      },
+    ],
+  ]) {
+    result.ordinaryUser[key] = denied(
+      await nativeCall(ordinary, route, { workspace: wa, ...command }),
+    );
+    check(
+      result.ordinaryUser[key].status === 403,
+      "Delegated Subscriber gained native operator admission.",
+    );
+  }
+  result.delegation = {
+    workspace: wa,
+    role: "editor",
+    nativeRole: nativeIdentity.role,
+    invitationAcceptedInUI: true,
+  };
+  result.crossTeamDelegated = denied(
+    await nativeCall(
+      ordinary,
+      members +
+        "platformRead?" +
+        new URLSearchParams({ action: "list", workspace: wb }),
+    ),
+  );
+
+  const snapshot = (page, workspace) =>
+    read(page, "platformRead", { action: "list", workspace });
+  async function completed(page, workspace, name, member = false) {
     for (let attempt = 0; attempt < 40; attempt++) {
-      const current = await snapshot(page, workspace),
-        row = current.requests.find((item) => item.name === name);
+      const current = await (member
+        ? memberRead(page, workspace)
+        : snapshot(page, workspace));
+      const row = current.requests.find((item) => item.name === name);
       if (row?.status === "complete") return row;
       if (
         row &&
@@ -230,124 +395,205 @@ export async function nativeJourney({ actors, lab, output }) {
     }
     throw Error("Native request did not complete within bounded observation.");
   }
-  async function submitUI(page, workspace, name) {
-    await page.goto(
-      lab.origins.composer +
-        "/_emdash/admin/plugins/composer-stacks/platform?workspace=" +
-        workspace,
-    );
-    await page.getByLabel("Application name").fill(name);
-    await page
-      .getByRole("button", { name: "Request application", exact: true })
-      .click();
-    return completed(page, workspace, name);
-  }
-  const initialA = await submitUI(a, wa, "Fictional Team A visitor book");
-  const initialB = await submitUI(b, wb, "Fictional Team B visitor book");
+  await ordinary.goto(
+    lab.origins.composer + "/me?view=platform&workspace=" + wa,
+  );
+  await ordinary
+    .getByRole("heading", { name: "Team application requests", exact: true })
+    .waitFor();
+  check(
+    (await ordinary.getByLabel("Workspace", { exact: true }).inputValue()) ===
+      wa,
+    "Readiness deep link changed workspace.",
+  );
+  await ordinary
+    .getByLabel("Application name", { exact: true })
+    .fill("Fictional Team A member visitor book");
+  await ordinary
+    .getByLabel("Contributions", { exact: true })
+    .selectOption("members");
+  await ordinary
+    .getByRole("button", { name: "Request application", exact: true })
+    .click();
+  const initialA = await completed(
+    ordinary,
+    wa,
+    "Fictional Team A member visitor book",
+    true,
+  );
+  check(
+    initialA.request.contributions === "members" &&
+      initialA.plan.contributionMode.effective === "members" &&
+      initialA.plan.contributionMode.qualified,
+    "The explicit members requirement was substituted or remained unsupported.",
+  );
+  await b.goto(
+    lab.origins.composer +
+      "/_emdash/admin/plugins/composer-stacks/platform?workspace=" +
+      wb,
+  );
+  await b
+    .getByLabel("Application name", { exact: true })
+    .fill("Fictional Team B closed visitor book");
+  await b.getByLabel("Contributions", { exact: true }).selectOption("closed");
+  await b
+    .getByRole("button", { name: "Request application", exact: true })
+    .click();
+  const initialB = await completed(
+    b,
+    wb,
+    "Fictional Team B closed visitor book",
+  );
   check(
     initialA.resources[0].resource !== initialB.resources[0].resource &&
       initialA.stackId !== initialB.stackId,
-    "Teams share an owned identity.",
+    "Teams share an owned resource identity.",
   );
-  await screenshot(a, "team-a-complete");
-  await screenshot(b, "team-b-complete");
   result.initial = { a: initialA, b: initialB };
-  result.checks.push(
-    "Actual native request UI provisioned two app-owned resources and published actual local StackView routes.",
+  await screenshot(ordinary, "team-a-role10-members-complete");
+  await screenshot(b, "team-b-closed-complete");
+  const resource = initialA.resources[0],
+    caption = "Fictional Team A native member postcard",
+    author = "Fictional invited member";
+  result.beforeAppGrant = denied(
+    await nativeCall(ordinary, members + "write", {
+      action: "guestbook",
+      workspace: wa,
+      resource: resource.resource,
+      capability: "contribute",
+      input: {
+        operationId: randomUUID(),
+        caption,
+        author,
+        consent: true,
+        png: "not-sent-without-grant",
+      },
+    }),
   );
-  const resource = initialA.resources[0];
+
+  async function grantUI(member, capability) {
+    await owner.goto(lab.origins.composer + "/people");
+    await owner.getByLabel("Workspace", { exact: true }).selectOption(wa);
+    await owner.getByLabel("Person", { exact: true }).selectOption(member);
+    await owner.getByLabel("App", { exact: true }).selectOption("guestbook");
+    await owner.getByLabel("Action", { exact: true }).selectOption(capability);
+    await owner
+      .getByLabel("Existing visitor-book resource", { exact: true })
+      .selectOption(resource.resource);
+    const response = owner.waitForResponse(
+      (reply) =>
+        reply.url().includes(members + "write") &&
+        reply.request().method() === "POST",
+    );
+    await owner
+      .getByRole("button", { name: "Grant selected action", exact: true })
+      .click();
+    const reply = await response;
+    nativeData({ status: reply.status(), body: await reply.json() });
+    await owner
+      .getByText(
+        "Selected permission granted. Other app permissions are unchanged.",
+        { exact: true },
+      )
+      .waitFor();
+  }
+  await grantUI(actors["app-user"].user.id, "contribute");
+  await grantUI(actors["creator-a"].user.id, "moderate");
   const people = await data(
     owner,
     members +
       "read?" +
       new URLSearchParams({ action: "people", workspace: wa }),
   );
-  await data(owner, members + "write", {
-    action: "grant",
-    workspace: wa,
-    expectedRevision: people.workspace.revision,
-    member: actors["creator-a"].user.id,
-    app: "guestbook",
-    resource: resource.resource,
-    capability: "moderate",
-  });
-  const memberList = await data(a, members + "write", {
-    action: "guestbook",
-    workspace: wa,
-    resource: resource.resource,
-    capability: "moderate",
-    input: { operation: "list" },
-  });
-  result.namedService = { operation: "moderate/list", result: memberList };
-  const currentPeople = await data(
-    owner,
-    members +
-      "read?" +
-      new URLSearchParams({ action: "people", workspace: wa }),
+  check(
+    people.grants.some(
+      (grant) =>
+        grant.member === actors["app-user"].user.id &&
+        grant.resource === resource.resource &&
+        grant.action === "contribute",
+    ),
+    "Exact contribution grant was not persisted.",
   );
   check(
-    currentPeople.audit.some(
-      (item) =>
-        item.event === "dispatch" &&
-        item.member === actors["creator-a"].user.id &&
-        item.resource === resource.resource,
+    !people.grants.some(
+      (grant) =>
+        grant.member === actors["app-user"].user.id &&
+        grant.action === "moderate",
     ),
-    "No server member dispatch audit.",
+    "Contributor gained moderation authority.",
   );
-  await data(owner, members + "write", {
-    action: "grant",
-    workspace: wa,
-    expectedRevision: currentPeople.workspace.revision,
-    member: actors["creator-a"].user.id,
-    app: "guestbook",
-    resource: resource.resource,
-    capability: "contribute",
-  });
-  await a.goto(lab.origins.composer + "/me");
-  await a.getByLabel("Workspace", { exact: true }).selectOption(wa);
-  await a.getByRole("button", { name: "My apps", exact: true }).click();
-  await a
-    .getByRole("button", { name: "Load contributions to review", exact: true })
-    .click();
-  await a
-    .getByText("No contributions need review in this visitor book.", {
-      exact: true,
-    })
+  await ordinary.goto(lab.origins.composer + "/me?view=apps&workspace=" + wa);
+  await ordinary
+    .getByText("Contribute a fictional member postcard", { exact: true })
     .waitFor();
-  await screenshot(a, "team-a-member-empty-review");
-  await a
-    .getByLabel("Your message", { exact: true })
-    .fill("Fictional closed-path probe");
-  await a.getByLabel("Public alias", { exact: true }).fill("Fictional Team A");
-  await a
+  await ordinary.getByLabel("Your message", { exact: true }).fill(caption);
+  await ordinary.getByLabel("Public alias", { exact: true }).fill(author);
+  await ordinary
     .getByLabel("I agree to publish this message and alias if approved.", {
       exact: true,
     })
     .check();
-  const contributionResponse = a.waitForResponse(
-    (response) =>
-      response.url().includes(members + "write") &&
-      response.request().method() === "POST",
+  // Canvas itself is authored UI. Its PNG is generated by that UI, never inserted
+  // into R2/D1 or substituted by an evaluated synthetic HTTP body in this harness.
+  check(
+    (await ordinary
+      .locator('canvas[aria-label="Postcard preview"]')
+      .getAttribute("width")) === "1200",
+    "Actual maintained canvas was not mounted.",
   );
-  await a
+  const submission = ordinary.waitForResponse(
+    (reply) =>
+      reply.url().includes(members + "write") &&
+      reply.request().method() === "POST",
+  );
+  await ordinary
     .getByRole("button", { name: "Submit for review", exact: true })
     .click();
-  const response = await contributionResponse;
-  const closed = { status: response.status(), body: await response.json() };
-  const closedValue = closed.body?.data ?? closed.body;
-  result.closedContribution = {
-    ...denied(closed),
-    result: closedValue,
-    grantedContribute: true,
-    recipeGuestAccess: "closed",
-    bridgeMessage:
-      "The member bridge intentionally returns a generic app-refusal message.",
-  };
-  await a
-    .getByRole("alert")
-    .filter({ hasText: "The app refused this operation" })
+  const contributionResponse = await submission;
+  const contribution = nativeData({
+    status: contributionResponse.status(),
+    body: await contributionResponse.json(),
+  });
+  const receipt = contribution.result;
+  check(
+    receipt?.resource === resource.resource &&
+      receipt.status === "pending" &&
+      typeof receipt.operationId === "string",
+    "Actual v2 contribution returned no matching pending receipt.",
+  );
+  await ordinary
+    .getByText(
+      "Postcard submitted for review. It remains private until an authorised moderator approves it.",
+      { exact: true },
+    )
     .waitFor();
-  await screenshot(a, "team-a-member-contribution-refused");
+  result.contribution = {
+    actor: actors["app-user"].user.id,
+    resource: receipt.resource,
+    item: receipt.id,
+    operationId: receipt.operationId,
+    status: receipt.status,
+    canvas: "maintained 1200x900 UI",
+    dataClass: "synthetic",
+  };
+  await screenshot(ordinary, "team-a-role10-postcard-submitted");
+  const memberList = () =>
+    data(a, members + "write", {
+      action: "guestbook",
+      workspace: wa,
+      resource: resource.resource,
+      capability: "moderate",
+      input: { operation: "list" },
+    });
+  const pendingList = (await memberList()).result;
+  const pendingItem = pendingList.items.find((item) => item.id === receipt.id);
+  check(
+    pendingList.contract === 2 &&
+      pendingItem?.status === "pending" &&
+      pendingItem.synthetic === 1 &&
+      pendingItem.caption === caption,
+    "Pending native postcard is missing or lacks trusted synthetic attribution.",
+  );
   result.crossTeamMember = denied(
     await nativeCall(b, members + "write", {
       action: "guestbook",
@@ -357,66 +603,233 @@ export async function nativeJourney({ actors, lab, output }) {
       input: { operation: "list" },
     }),
   );
+  result.contributorModeration = denied(
+    await nativeCall(ordinary, members + "write", {
+      action: "guestbook",
+      workspace: wa,
+      resource: resource.resource,
+      capability: "moderate",
+      input: { operation: "list" },
+    }),
+  );
+  result.foreignResource = denied(
+    await nativeCall(ordinary, members + "write", {
+      action: "guestbook",
+      workspace: wa,
+      resource: initialB.resources[0].resource,
+      capability: "contribution-status",
+      input: { operationId: receipt.operationId },
+    }),
+  );
   const opened = await read(a, "read", {
     action: "open",
     workspace: wa,
     stack: initialA.stackId,
   });
-  const selection = {
-    action: "resourceMedia",
-    workspace: wa,
-    stack: initialA.stackId,
-    instance: resource.instance,
-    expectedRevision: String(opened.stack.revision),
-    item: "fictional-nonexistent-postcard",
-  };
   result.crossTeamMedia = {
     ...denied(
-      await nativeCall(b, stacks + "read?" + new URLSearchParams(selection)),
+      await nativeCall(
+        b,
+        stacks +
+          "read?" +
+          new URLSearchParams({
+            action: "resourceMedia",
+            workspace: wa,
+            stack: initialA.stackId,
+            instance: resource.instance,
+            expectedRevision: String(opened.stack.revision),
+            item: receipt.id,
+          }),
+      ),
     ),
-    existingPrivateMediaExercised: false,
+    existingPrivateMediaExercised: true,
   };
-  result.limits.push(
-    "Recipe closes guest contributions. Named member moderation list and dispatch are exercised; mutation of an existing pending postcard and existing private media are not established by this empty collection.",
-  );
-  await a.goto(
-    lab.origins.composer +
-      "/_emdash/admin/plugins/composer-stacks/platform?workspace=" +
+  const browser = ordinary.context().browser();
+  const anonymous = await browser.newContext({
+    ignoreHTTPSErrors: true,
+    viewport: { width: 1440, height: 1000 },
+  });
+  let approvedDigest;
+  result.visibility = [];
+  try {
+    const publicPage = await anonymous.newPage();
+    const invitation = await anonymous.request.get(
+      lab.origins.composer +
+        "/guestbook/r/" +
+        resource.resource +
+        "/api/invitation",
+    );
+    const publicAdmission = await invitation.json();
+    check(
+      invitation.status() === 200 &&
+        publicAdmission.invitation.state === "closed" &&
+        publicAdmission.invitation.accepts === false,
+      "Member-only admission opened public postcard contributions.",
+    );
+    result.publicAdmission = {
+      state: publicAdmission.invitation.state,
+      accepts: false,
+      nativeSession: false,
+    };
+    const mediaPath =
+      "/guestbook/r/" + resource.resource + "/media/" + receipt.id;
+    async function publicState(
+      phase,
+      expectedStatus,
+      path = resource.configuration.path,
+    ) {
+      const media = await anonymous.request.get(
+        lab.origins.composer + mediaPath,
+        { failOnStatusCode: false },
+      );
+      check(
+        media.status() === expectedStatus,
+        phase + " public media status was " + media.status(),
+      );
+      check(
+        media.headers()["x-composer-isolated-lab"] ===
+          lab.root.split("/").at(-1),
+        "Media request escaped isolated runtime.",
+      );
+      const evidence = {
+        phase,
+        item: receipt.id,
+        status: media.status(),
+        nativeSession: false,
+      };
+      if (expectedStatus === 200) {
+        const bytes = await media.body();
+        check(
+          bytes.length <= 150000 &&
+            media.headers()["content-type"].startsWith("image/png"),
+          "Actual public postcard media is not bounded PNG.",
+        );
+        evidence.sha256 = createHash("sha256").update(bytes).digest("hex");
+        if (approvedDigest)
+          check(
+            evidence.sha256 === approvedDigest,
+            "Visibility or title update changed postcard media bytes.",
+          );
+        approvedDigest ??= evidence.sha256;
+      }
+      const pageResponse = await publicPage.goto(lab.origins.composer + path);
+      check(
+        pageResponse.status() === 200,
+        "Actual public resource page unavailable.",
+      );
+      const text = await publicPage.locator("body").innerText();
+      check(
+        text.includes(caption) === (expectedStatus === 200),
+        phase + " public page visibility disagrees with media.",
+      );
+      if (expectedStatus === 200)
+        check(
+          text.includes("Fictional demonstration"),
+          "Approved postcard lost synthetic public label.",
+        );
+      result.visibility.push(evidence);
+      await screenshot(publicPage, "team-a-public-" + phase);
+    }
+    await publicState("pending-private", 404);
+    await a.goto(lab.origins.composer + "/me?view=apps&workspace=" + wa);
+    await a
+      .getByRole("button", {
+        name: "Load contributions to review",
+        exact: true,
+      })
+      .click();
+    const itemRow = a
+      .getByRole("listitem")
+      .filter({ has: a.getByRole("heading", { name: caption, exact: true }) });
+    await itemRow.waitFor();
+    async function moderateUI(status) {
+      await itemRow.getByRole("button", { name: status, exact: true }).click();
+      await itemRow
+        .getByText(author + " · " + status, { exact: true })
+        .waitFor();
+      const list = (await memberList()).result;
+      check(
+        list.items.find((item) => item.id === receipt.id)?.status === status,
+        "UI moderation status was not confirmed by actual named service.",
+      );
+      await screenshot(a, "team-a-review-" + status);
+      return list.items;
+    }
+    await moderateUI("approved");
+    await publicState("approved-public", 200);
+    await moderateUI("hidden");
+    await publicState("hidden-private", 404);
+    // The maintained moderation UI supports re-approval of hidden retained
+    // media. This is visibility restoration, not full data/media restore.
+    await moderateUI("approved");
+    await publicState("reapproved-public", 200);
+    const contentBeforeUpdate = (await memberList()).result.items;
+    await ordinary.goto(
+      lab.origins.composer + "/me?view=platform&workspace=" + wa,
+    );
+    await ordinary
+      .getByRole("button", { name: "Plan an update", exact: true })
+      .click();
+    await ordinary
+      .getByLabel("Application name", { exact: true })
+      .fill("Fictional Team A updated member visitor book");
+    check(
+      (await ordinary
+        .getByLabel("Contributions", { exact: true })
+        .inputValue()) === "members",
+      "Update reset the explicit contribution mode.",
+    );
+    await ordinary
+      .getByRole("button", { name: "Evaluate revised request", exact: true })
+      .click();
+    const updatedA = await completed(
+      ordinary,
       wa,
-  );
-  await a.getByRole("button", { name: "Plan an update", exact: true }).click();
-  await a
-    .getByLabel("Application name")
-    .fill("Fictional Team A updated visitor book");
-  await a
-    .getByRole("button", { name: "Submit revised request", exact: true })
-    .click();
-  const updatedA = await completed(
-    a,
-    wa,
-    "Fictional Team A updated visitor book",
-  );
-  const unchangedB = (await snapshot(b, wb)).requests.find(
-    (item) => item.id === initialB.id,
-  );
-  check(
-    updatedA.id === initialA.id &&
-      updatedA.stackId === initialA.stackId &&
-      updatedA.resources[0].resource === resource.resource,
-    "Compatible update replaced retained identity.",
-  );
-  check(
-    JSON.stringify(unchangedB) === JSON.stringify(initialB),
-    "Team B changed after Team A update.",
-  );
-  result.updated = { a: updatedA, bUnchanged: true };
-  await screenshot(a, "team-a-updated");
-  const refused = await write(a, "platformWrite", {
+      "Fictional Team A updated member visitor book",
+      true,
+    );
+    const unchangedB = (await snapshot(b, wb)).requests.find(
+      (item) => item.id === initialB.id,
+    );
+    check(
+      updatedA.id === initialA.id &&
+        updatedA.stackId === initialA.stackId &&
+        updatedA.resources[0].resource === resource.resource,
+      "Compatible title update replaced retained request/stack/resource identity.",
+    );
+    check(
+      JSON.stringify(unchangedB) === JSON.stringify(initialB),
+      "Team B changed after Team A content or title update.",
+    );
+    const contentAfterUpdate = (await memberList()).result.items;
+    check(
+      JSON.stringify(contentAfterUpdate) ===
+        JSON.stringify(contentBeforeUpdate),
+      "Title update changed contribution content/status/revision.",
+    );
+    await publicState(
+      "updated-content-preserved",
+      200,
+      updatedA.resources[0].configuration.path,
+    );
+    result.updated = {
+      a: updatedA,
+      bUnchanged: true,
+      contentPreserved: true,
+      mediaSha256: approvedDigest,
+    };
+    await screenshot(ordinary, "team-a-role10-update-content-preserved");
+  } finally {
+    await anonymous.close();
+  }
+  const updatedA = result.updated.a;
+  const refused = await data(ordinary, members + "platformWrite", {
     action: "submit",
     workspace: wa,
     key: randomUUID(),
     request: {
       ...request("Fictional sensitive request refused"),
+      contributions: "members",
       dataClass: "sensitive",
     },
   });
@@ -427,11 +840,32 @@ export async function nativeJourney({ actors, lab, output }) {
     refusedRow?.decision.outcome === "denied" &&
       !refusedRow.stackId &&
       !refusedRow.resources.length,
-    "Sensitive request created app state or escaped policy.",
+    "Sensitive request allocated app state or escaped policy.",
   );
   result.policyDenied = refusedRow;
-  await a.reload();
-  await screenshot(a, "team-a-policy-denied");
+  const audit = await data(
+    owner,
+    members +
+      "read?" +
+      new URLSearchParams({ action: "people", workspace: wa }),
+  );
+  check(
+    audit.audit.some(
+      (item) =>
+        item.event === "dispatch" &&
+        item.member === actors["app-user"].user.id &&
+        item.resource === resource.resource,
+    ),
+    "Actual native member dispatch has no server audit.",
+  );
+  result.limits.push(
+    "Visibility re-approval of retained hidden media is supported and exercised; full data/media restore is unavailable and unqualified.",
+    "Retirement, knowledge recipes and the #215 incident foundation have no qualified product journey in this fixture.",
+    "Local virtual-passkey admission and app-owned synthetic content do not establish production SSO, regional storage or upstream provider permissions.",
+  );
+  result.checks.push(
+    "Delegated native role10 self-service retained global role10 and operator denials; exact app grants admitted real canvas synthetic authoring; actual anonymous media followed 404→200→404→200; compatible title update preserved content/media and Team B.",
+  );
   const publicContext = await a
     .context()
     .browser()

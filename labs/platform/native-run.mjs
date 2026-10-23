@@ -54,6 +54,26 @@ const git = (source, args) =>
 const lock = JSON.parse(
   readFileSync(join(repo, "composition.lock.json"), "utf8"),
 );
+const memberApp = lock.apps.find((app) => app.id === "guestbook");
+const memberDescriptor = {
+  version: 2,
+  entrypoint: "GuestbookMemberService",
+  transport: "service-binding",
+  path: "/__composer/member",
+};
+const memberQualified =
+  !!memberApp &&
+  Object.keys(memberApp.manifest.memberService ?? {}).length === 4 &&
+  Object.entries(memberDescriptor).every(
+    ([key, value]) => memberApp.manifest.memberService[key] === value,
+  ) &&
+  memberApp.manifest.configuration.guestAccess.default === "closed" &&
+  JSON.stringify(memberApp.manifest.configuration.guestAccess.options) ===
+    JSON.stringify(["closed", "postcards", "members"]);
+if (action === "run" && !memberQualified)
+  throw Error(
+    "Member authoring fixture is unavailable on the actual locked source. Release and qualify Guestbook v2, deliberately promote its exact source pin, and integrate Composer first. No pin override or closed-mode substitute is supported.",
+  );
 const lifecycle = readFileSync(
   join(repo, "labs/invited-members/run.mjs"),
   "utf8",
@@ -171,6 +191,14 @@ for (const port of [8443, 8811, 8812, 8813]) {
 const preflight = {
   schema: "composer.platform-native-preflight/1",
   composerHead: identities.composer.head,
+  fixtureBaseline: "a325a9bfb06a981eb536b807558e197d96efd8cb",
+  memberContract: {
+    qualified: memberQualified,
+    source: memberApp.commit,
+    required: memberDescriptor,
+    sourceOverride: false,
+    nativeExecution: "not-run",
+  },
   sources: identities,
   authoredHashes,
   lifecycleSha256: hash(lifecycle),
@@ -334,7 +362,12 @@ try {
     onActorContext: (recording) => actorContexts.push(recording),
   });
   receipt.authentication = { identities: auth.receipt, ...auth.qualification };
-  receipt.journey = await nativeJourney({ actors: auth.actors, lab, output });
+  receipt.journey = await nativeJourney({
+    actors: auth.actors,
+    lab,
+    output,
+    memberSource: memberApp.commit,
+  });
   receipt.qualification = "passed";
 } catch (error) {
   receipt.qualification = "failed";
