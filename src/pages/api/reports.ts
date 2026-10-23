@@ -1,10 +1,8 @@
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
 import type { D1Database } from "@cloudflare/workers-types";
-import { portfolioSummary } from "../../../lib/usage/portfolio.mjs";
-import type { PublicHistory } from "../../lib/activity-view.ts";
 import {
-  buildReport,
+  preparePublicReport,
   reportScope,
   reportUrl,
   storeReport,
@@ -65,14 +63,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
   try {
     // Recompute from the server's public aggregate; never trust a client total.
-    const report = (await portfolioSummary(
-      runtime.DB,
-      scope.days,
-      new Date(),
-      build.commit,
-      scope.surface as "all" | "standalone" | "composed",
-    )) as unknown as PublicHistory;
-    const frozen = await buildReport(report, scope, build.commit);
+    const frozen = await preparePublicReport(runtime.DB, scope, build.commit);
     await storeReport(runtime.DB, frozen);
     if (request.headers.get("accept")?.includes("application/json"))
       return json({
