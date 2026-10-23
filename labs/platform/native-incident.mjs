@@ -136,6 +136,28 @@ export async function stableAvailability(sample, { intervalMs = 1000 } = {}) {
   };
 }
 
+// The reviewed app emits a fresh 16-byte CSP nonce per HTML response. Preserve
+// every other byte for the control comparison; never erase arbitrary content.
+export function controlHTMLDigest(text) {
+  check(
+    typeof text === "string" && text.length <= 500000,
+    "Expected bounded control HTML.",
+  );
+  const values = [];
+  const canonical = text.replace(
+    /(<script\b[^>]*\bnonce=")([A-Za-z0-9+/]{22}==)(")/g,
+    (_match, before, value, after) => {
+      values.push(value);
+      return before + "[generated-csp-nonce]" + after;
+    },
+  );
+  check(
+    values.length >= 3 && values.length <= 16 && new Set(values).size === 1,
+    "The reviewed control HTML nonce contract changed.",
+  );
+  return hash(canonical);
+}
+
 async function receiver(ownedRoot) {
   const token = randomUUID(),
     log = join(ownedRoot, "availability-receiver.ndjson");
@@ -475,6 +497,7 @@ export async function runLocalAvailabilityExercise({
     report.controlBaseline = {
       status: controlPublic.status,
       sha256: controlPublic.sha256,
+      semanticSha256: controlHTMLDigest(controlPublic.text),
     };
     note("baseline-verified");
     sink = await receiver(ownedRoot);
@@ -644,7 +667,8 @@ export async function runLocalAvailabilityExercise({
     const controlAfter = await localRead(control.resource.configuration.path);
     check(
       controlAfter.status === 200 &&
-        controlAfter.sha256 === controlPublic.sha256,
+        controlHTMLDigest(controlAfter.text) ===
+          report.controlBaseline.semanticSha256,
       "The independent control team's public response changed.",
     );
     report.privacy = {
@@ -657,6 +681,7 @@ export async function runLocalAvailabilityExercise({
     report.controlAfter = {
       status: controlAfter.status,
       sha256: controlAfter.sha256,
+      semanticSha256: controlHTMLDigest(controlAfter.text),
     };
     note("recovery-independently-verified");
     await publicPage.goto(origin + baseline.resource.configuration.path);

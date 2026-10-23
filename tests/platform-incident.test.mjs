@@ -9,16 +9,22 @@ import {
   symlink,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { existsSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { createHash } from "node:crypto";
 import {
   assertOwnedAvailabilityLab,
   runLocalAvailabilityExercise,
   stableAvailability,
+  controlHTMLDigest,
 } from "../labs/platform/native-incident.mjs";
 import { fixture, user, origin } from "./helpers/resource-fixture.mjs";
 import { platformPublicFixture } from "./helpers/platform-public-fixture.mjs";
 import { managePlatform } from "../src/lib/platform-admin.ts";
 import { workspaceForUser, readStack } from "../src/lib/stacks.mjs";
+import { appSettings } from "../src/lib/app-settings.mjs";
 
 const account = "00000000000000000000000000000001";
 const services = [
@@ -31,6 +37,76 @@ const services = [
   { binding: "SHOWCASE", service: "composer-invited-showcase" },
   { binding: "PLATFORM_PUBLIC_PAGES", service: "composer-invited-composer" },
 ];
+
+test("control comparison normalizes only the reviewed generated nonce and still rejects content drift", () => {
+  const document = (nonce) =>
+    `<html><h1>Fictional control</h1><script nonce="${nonce}">one</script><script nonce="${nonce}" src="/two.js"></script><script nonce="${nonce}" src="/three.js"></script></html>`;
+  const a = document("a".repeat(22) + "=="),
+    b = document("b".repeat(22) + "==");
+  assert.equal(controlHTMLDigest(a), controlHTMLDigest(b));
+  assert.notEqual(
+    controlHTMLDigest(a),
+    controlHTMLDigest(b.replace("Fictional control", "Changed content")),
+  );
+  assert.throws(
+    () =>
+      controlHTMLDigest(
+        b
+          .replace("one", "one")
+          .replace('nonce="' + "b".repeat(22), 'nonce="' + "c".repeat(22)),
+      ),
+    /nonce contract/,
+  );
+  assert.throws(
+    () => controlHTMLDigest("<html>Unrelated response</html>"),
+    /nonce contract/,
+  );
+});
+
+const guestbook = resolve(
+  process.env.COMPOSER_INCIDENT_GUESTBOOK ??
+    fileURLToPath(new URL("../../app-composer-guestbook", import.meta.url)),
+);
+test(
+  "exact selected Guestbook HTML changes raw nonce hashes while its unchanged semantic digest remains stable",
+  {
+    skip:
+      !process.env.COMPOSER_INCIDENT_GUESTBOOK &&
+      !existsSync(join(guestbook, "src/common.ts")),
+  },
+  async () => {
+    const git = (args) =>
+      execFileSync("git", args, { cwd: guestbook, encoding: "utf8" }).trim();
+    assert.equal(
+      git(["rev-parse", "HEAD"]),
+      appSettings.guestbook.source.commit,
+    );
+    assert.equal(git(["status", "--porcelain"]), "");
+    const { html } = await import(
+      pathToFileURL(join(guestbook, "src/common.ts")).href
+    );
+    const render = (body) =>
+      html(
+        "Fictional control",
+        body,
+        "/guestbook",
+        "guestbook",
+        "midnight",
+        "Fictional",
+        origin,
+        "/r/fictional-control/c/2/",
+      ).text();
+    const a = await render("<h1>Fictional control</h1>"),
+      b = await render("<h1>Fictional control</h1>");
+    const raw = (text) => createHash("sha256").update(text).digest("hex");
+    assert.notEqual(raw(a), raw(b));
+    assert.equal(controlHTMLDigest(a), controlHTMLDigest(b));
+    assert.notEqual(
+      controlHTMLDigest(a),
+      controlHTMLDigest(await render("<h1>Changed content</h1>")),
+    );
+  },
+);
 
 test("availability admission requires the owned local lifecycle, exact self-binding and no remote resource", async () => {
   const owned = await mkdtemp(join(tmpdir(), "composer-incident-test-"));
