@@ -19,6 +19,7 @@ const sources = [
   "src/lib/miniapp-tag-fields.mts",
   "src/lib/miniapp-tags.mts",
   "src/lib/miniapp-admin.mts",
+  "src/lib/miniapp-share-card.mts",
   "src/lib/stacks-admin.mts",
 ];
 const outputRoot = resolve(root, "output/creator-source-emission");

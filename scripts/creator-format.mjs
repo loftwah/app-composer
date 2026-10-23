@@ -18,6 +18,7 @@ const files = [
     "miniapp-tag-fields",
     "miniapp-tags",
     "miniapp-admin",
+    "miniapp-share-card",
     "stacks-admin",
   ].map((name) => "src/lib/" + name + ".mts"),
   "tests/private-enquiries.test.mjs",

@@ -11,6 +11,7 @@ import {
 import { tagCommand } from "./miniapp-tags.mjs";
 import { tagCollection } from "./miniapp-tag-fields.mjs";
 import { appSettings, validateAppSettingValue } from "./app-settings.mjs";
+import { shareCardCommand, shareCardSnapshot } from "./miniapp-share-card.mjs";
 
 export interface MiniappContext {
   user?: { id?: string; role: number };
@@ -164,6 +165,7 @@ export async function manageMiniapps(
   const reading =
     action === "snapshot" ||
     action === "preview" ||
+    (action === "share-card" && command.operation === "snapshot") ||
     (collection &&
       !["feature-resource", "collection-invitation-set"].includes(action)) ||
     (action === "profile-settings" && command.operation === "export");
@@ -190,7 +192,17 @@ export async function manageMiniapps(
     );
   let path: string, body: Record<string, unknown> | null | undefined;
   if (action === "snapshot") path = "/api/export";
-  else if (
+  else if (action === "share-card" && app === "showcase") {
+    try {
+      body = shareCardCommand(command);
+    } catch {
+      return fail(
+        "INVALID",
+        "Choose a supported profile image receipt and refresh its saved revision.",
+      );
+    }
+    path = "/api/share-card";
+  } else if (
     action === "profile-settings" &&
     app === "showcase" &&
     appSettings.showcase.profileSettings?.version === 1
@@ -444,6 +456,18 @@ export async function manageMiniapps(
       ...(body ? { body: JSON.stringify(body) } : {}),
     });
     if (!response.ok) {
+      if (action === "share-card") {
+        return fail(
+          response.status === 409
+            ? "CONFLICT"
+            : reading
+              ? "UNAVAILABLE"
+              : "UNCONFIRMED",
+          response.status === 409
+            ? "The profile or its image changed. Refresh and prepare a new card; your edits are retained."
+            : "The profile image result could not be confirmed. Check the saved image before retrying.",
+        );
+      }
       if (action === "profile-settings") {
         if (response.status === 409)
           return fail(
@@ -539,6 +563,10 @@ export async function manageMiniapps(
         );
       }
     }
+    if (action === "share-card") {
+      const snapshot = shareCardSnapshot(await responseJSON(response, 32768));
+      return { ok: true, ...snapshot };
+    }
     const result = await responseJSON(
       response,
       action === "snapshot" ? Infinity : action === "tag" ? 192 * 1024 : 65536,
@@ -624,6 +652,7 @@ export async function manageMiniapps(
   } catch {
     return fail(
       action === "achievement" ||
+        (action === "share-card" && !reading) ||
         action === "tag" ||
         (action === "profile-settings" && command.operation === "apply")
         ? "UNCONFIRMED"

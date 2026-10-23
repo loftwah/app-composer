@@ -29,6 +29,7 @@ test("Creator author errors and stale output fail without rewriting distribution
       "miniapp-tag-fields",
       "miniapp-tags",
       "miniapp-admin",
+      "miniapp-share-card",
       "stacks-admin",
     ];
     const files = [
