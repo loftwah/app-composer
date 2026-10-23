@@ -1,4 +1,5 @@
 ---
+import BuilderFields from '../../components/BuilderFields.astro';
 import Base from "../../layouts/Base.astro";
 import AnalyticsTrend from "../../components/AnalyticsTrend.astro";
 import { apps } from "../../lib/apps";
@@ -89,7 +90,7 @@ const metricLabels: Record<string, string> = {
             <h2 id="app-chart-title">{metricLabels[metric] ?? "Recorded signal"}</h2>
           </div>
           <div>
-            <form method="get">
+            <form method="get"><BuilderFields/>
               <input type="hidden" name="days" value={selected.days} />
               <input type="hidden" name="surface" value={selected.surface} />
               <label for="app-signal">Recorded signal
@@ -99,7 +100,7 @@ const metricLabels: Record<string, string> = {
               </label>
               <button type="submit" class="secondary">Show signal</button>
             </form>
-            <form method="get">
+            <form method="get"><BuilderFields/>
               <input type="hidden" name="metric" value={metric} />
               <label for="app-days">Scope
                 <select name="days" id="app-days">

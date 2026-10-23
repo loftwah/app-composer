@@ -1,4 +1,5 @@
 ---
+import BuilderFields from '../../components/BuilderFields.astro';
 import Base from "../../layouts/Base.astro";
 import { env } from "cloudflare:workers";
 import type { D1Database } from "@cloudflare/workers-types";
@@ -93,6 +94,7 @@ const maximum = report ? Math.max(1, ...report.daily.map((day) => day.value ?? 0
         </article>
         <div class="report-preview-actions">
           <form method="post" action="/api/reports">
+            <BuilderFields/>
             {Object.entries(fields).map(([key, value]) => (
               <input type="hidden" name={key} value={value}/>
             ))}

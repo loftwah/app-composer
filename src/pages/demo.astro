@@ -7,9 +7,16 @@ import { ArrowRight, Image, PanelsTopLeft, GitBranch, ExternalLink } from '@luci
 <Base title="Make a collection with connected apps" description="Connect two fictional postcards, edit their source, inspect ownership and publish local demonstration revisions before taking your configuration to Init.">
  <div class="composition-heading">
   <h1>Two apps. Make the connection.</h1>
-  <p class="lede">Move a postcard into Linkarooie. Change its source, peel back the ownership and publish your own local revisions. The apps keep their own content.</p>
+  <p class="lede">Make a small collection from two independent apps. Here / there keeps the photos; Linkarooie arranges the collection. Change a source postcard and see what follows.</p>
  </div>
+ <nav class="composition-route" aria-label="Choose your next step">
+  <a href="#composition-workbench"><strong>Try a change <ArrowRight size={18} aria-hidden="true"/></strong><span>Connect, edit and hide fictional postcards on this device.</span></a>
+  <a href="/manage#analytics-proof"><strong>Inspect hosted demo proof <ArrowRight size={18} aria-hidden="true"/></strong><span>Follow a recorded demonstration Open into its permitted report.</span></a>
+  <a href="/init?start=composition"><strong>Configure your own pair <ArrowRight size={18} aria-hidden="true"/></strong><span>Configure the pair in Init and take the specification to your agent.</span></a>
+ </nav>
+ <section id="composition-workbench" aria-label="Local composition experiment" class="composition-workbench">
  <CompositionWorkbench sources={mountedApps.filter(app=>['guestbook','showcase'].includes(app.id))} client:visible />
+ </section>
  <noscript><p>This interactive local experiment needs JavaScript. You can still <a href="/guestbook/">browse Here / there</a>, <a href="/showcase/">open Linkarooie</a> or <a href="/init?start=composition">configure the pair in Init</a>.</p></noscript>
  <h2 class="composition-live-title">The independent live pair.</h2>
  <p>The experiment above stays on this device. These links open the separately published apps; public browsing is available, while owner writes remain protected.</p>
@@ -38,4 +45,21 @@ import { ArrowRight, Image, PanelsTopLeft, GitBranch, ExternalLink } from '@luci
   </section>
  </div>
  <details class="composition-details"><summary>How the apps work together</summary><p>These are independently deployed apps with separate GitHub repositories, configuration and storage. Composer runs reviewed source versions together; Linkarooie asks Guestbook for currently approved items through a versioned contract.</p><p>The pair shown here is Loftwah’s live instance. Uploading, moderation and curation require an invited owner credential; public browsing requires no account. Contributions stay private until the owner approves them.</p><a href="/release">See the verified composition and recovery evidence</a></details>
+ <section class="composition-next">
+  <h2>Take the useful part into your own app.</h2>
+  <p>For a club visitor book or a small collection, Init captures the app titles, appearance and links. Your agent reviews the specification, prepares the environment and follows the build and publication path. Fictional postcards and local history stay in this experiment; a specification does not create a hosted app.</p>
+  <div class="actions"><a class="button" href="/init?start=composition">Configure this pair <ArrowRight size={18} aria-hidden="true"/></a><a href="/building#brief">Read the request-to-working-result walkthrough</a></div>
+  <p>Working on your app’s identity? <a href="/launch-kit">Launch Kit turns your own artwork into inspected icons and sharing images</a>. Its Night Signal example shows the package in a working listening timer.</p>
+ </section>
 </Base>
+<style>
+ .composition-route{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;border-block:1px solid var(--color-border);padding:20px 0;margin:30px 0}
+ .composition-route a{display:block;padding:8px 0;min-width:0}
+ .composition-route strong{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:1rem;font-weight:600;color:var(--color-accent)}
+ .composition-route svg{flex-shrink:0}
+ .composition-route span{display:block;font-size:.9rem;line-height:1.55;font-weight:400;color:var(--color-muted);margin-top:8px;max-width:36ch}
+ .composition-workbench{scroll-margin-top:24px}
+ .composition-next{border-top:1px solid var(--color-border);padding-top:40px;margin-top:32px}
+ .composition-next h2{font-size:clamp(1.8rem,3vw,2.8rem);max-width:25ch}
+ @media(max-width:700px){.composition-route{grid-template-columns:1fr;gap:0;padding:8px 0;margin:20px 0}.composition-route a{display:flex;align-items:center;min-height:44px}.composition-route strong{width:100%;font-size:.95rem}.composition-route span{display:none}.composition-next{padding-top:28px}}
+</style>

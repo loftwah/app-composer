@@ -8,11 +8,15 @@ import {
   storeReport,
 } from "../../lib/public-report.ts";
 import build from "../../lib/build.json";
+import { builderHref } from "../../lib/builder-context.mjs";
 
 const json = (value: unknown, status = 200) =>
   Response.json(value, {
     status,
-    headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" },
+    headers: {
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+    },
   });
 
 export const POST: APIRoute = async ({ request }) => {
@@ -22,14 +26,22 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: "Open this action from App Composer." }, 403);
   const runtime = env as unknown as {
     DB?: D1Database;
-    USAGE_LIMIT?: { limit(input: { key: string }): Promise<{ success: boolean }> };
+    USAGE_LIMIT?: {
+      limit(input: { key: string }): Promise<{ success: boolean }>;
+    };
   };
   if (!runtime.DB || typeof runtime.DB.prepare !== "function")
-    return json({ error: "Public reports are unavailable in this environment." }, 503);
+    return json(
+      { error: "Public reports are unavailable in this environment." },
+      503,
+    );
   if (runtime.USAGE_LIMIT) {
     const allowed = await runtime.USAGE_LIMIT.limit({ key: "public-report" });
     if (!allowed.success)
-      return json({ error: "Too many report requests. Try again in a minute." }, 429);
+      return json(
+        { error: "Too many report requests. Try again in a minute." },
+        429,
+      );
   }
   let params: URLSearchParams;
   const type = request.headers.get("content-type")?.split(";")[0];
@@ -38,14 +50,24 @@ export const POST: APIRoute = async ({ request }) => {
       const body = (await request.json()) as Record<string, unknown>;
       params = new URLSearchParams(
         Object.entries(body)
-          .filter(([, value]) => typeof value === "string" || typeof value === "number")
+          .filter(
+            ([, value]) =>
+              typeof value === "string" || typeof value === "number",
+          )
           .map(([key, value]) => [key, String(value)]),
       );
-    } else if (type === "application/x-www-form-urlencoded" || type === "multipart/form-data") {
+    } else if (
+      type === "application/x-www-form-urlencoded" ||
+      type === "multipart/form-data"
+    ) {
       const body = await request.formData();
       params = new URLSearchParams();
       for (const [key, value] of body)
-        if (typeof value === "string") params.set(key, value);
+        if (typeof value === "string") {
+          if (["from", "analytics", "qa"].includes(key))
+            params.append(key, value);
+          else params.set(key, value);
+        }
     } else {
       return json({ error: "Use a form or JSON request." }, 415);
     }
@@ -57,7 +79,10 @@ export const POST: APIRoute = async ({ request }) => {
     scope = reportScope(params);
   } catch (error) {
     return json(
-      { error: error instanceof Error ? error.message : "Choose a supported report." },
+      {
+        error:
+          error instanceof Error ? error.message : "Choose a supported report.",
+      },
       400,
     );
   }
@@ -78,7 +103,15 @@ export const POST: APIRoute = async ({ request }) => {
       });
     return new Response(null, {
       status: 303,
-      headers: { Location: `/reports/${frozen.id}`, "Cache-Control": "no-store" },
+      headers: {
+        // Context changes only the browser's continuation URL. Stored report
+        // data, JSON responses, canonical URLs and shared images stay clean.
+        Location: builderHref(
+          new URL(`/reports/new?${params}`, origin),
+          `/reports/${frozen.id}`,
+        ),
+        "Cache-Control": "no-store",
+      },
     });
   } catch {
     return json({ error: "The public report could not be created." }, 503);

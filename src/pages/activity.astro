@@ -1,4 +1,5 @@
 ---
+import BuilderFields from '../components/BuilderFields.astro';
 import Base from "../layouts/Base.astro";
 import AnalyticsTrend from "../components/AnalyticsTrend.astro";
 import { apps } from "../lib/apps";
@@ -78,7 +79,7 @@ const shareHref = (app: string | null, signal: typeof metric) =>
       <h1>Small signals, read carefully.</h1>
       <p class="lede">What people opened, what finished, and which note reached review. A bounded record of the apps built here, with the gaps and limits still visible.</p>
     </div>
-    <form method="get" class="analytics-scope" aria-labelledby="scope-title">
+    <form method="get" class="analytics-scope" aria-labelledby="scope-title"><BuilderFields/>
       <h2 id="scope-title">Choose the scope</h2>
       <input type="hidden" name="metric" value={metric} />
       <label for="scope-days">Time window
@@ -148,7 +149,7 @@ const shareHref = (app: string | null, signal: typeof metric) =>
             <p class="analytics-kicker">Daily record · {where}</p>
             <h2 id="chart-title">{view?.label ?? "Recorded signal"}</h2>
           </div>
-          <form method="get">
+          <form method="get"><BuilderFields/>
             <input type="hidden" name="days" value={selected.days} />
             <input type="hidden" name="surface" value={selected.surface} />
             <label for="chart-signal">Recorded signal

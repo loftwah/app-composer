@@ -1,4 +1,5 @@
 import { flushSync } from "react-dom";
+import { builderHref } from "../lib/builder-context.mjs";
 import {
   useEffect,
   useLayoutEffect,
@@ -405,7 +406,12 @@ export default function CompositionWorkbench({
   function handoff() {
     try {
       sessionStorage.setItem(HANDOFF_KEY, JSON.stringify(startingSpec(state)));
-      location.assign("/init?start=workbench#starting-point");
+      location.assign(
+        builderHref(
+          new URL(location.href),
+          "/init?start=workbench#starting-point",
+        ),
+      );
     } catch {
       setMessage(
         "The browser could not prepare the handoff. Allow session storage and try again; your Init draft is unchanged.",

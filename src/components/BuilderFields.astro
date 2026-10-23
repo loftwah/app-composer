@@ -1,0 +1,4 @@
+---
+import { builderParameters } from '../lib/builder-context.mjs';
+---
+{builderParameters(Astro.url).map(([name, value]) => <input type="hidden" name={name} value={value}/>)}
