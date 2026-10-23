@@ -6,6 +6,7 @@ import {
   builderReturnHref,
   hasBuilderContext,
   WOODHOUSE_BUILDER_RETURN,
+  builderNavigationRedirect,
 } from "../src/lib/builder-context.mjs";
 
 const source = new URL(
@@ -27,6 +28,96 @@ test("one named public builder context preserves its fixed frozen edition return
   assert.equal(
     builderHref(source, "/reports/r971f5140bbe0c84c8147a64b"),
     "/reports/r971f5140bbe0c84c8147a64b?from=woodhouse-edition&analytics=off&qa=1",
+  );
+});
+
+test("all observed native reader exits retain exclusion, including client-created launcher links", () => {
+  const book = new URL(
+    "/guestbook/r/55226db0-675a-400b-ab31-0d79fb6a33fd/c/1/?from=woodhouse-edition&analytics=off&qa=1",
+    source,
+  );
+  const readers = [
+    "/",
+    "/guestbook/",
+    "/showcase/",
+    "/guestbook/item/5b4cf3ad-b3c1-4b56-8099-8e3e6d6d39bd",
+    "/init",
+    "/ready",
+    "/learn",
+    "/init/content",
+    "/docs#standalone-get-ready",
+    "/architecture",
+    "/guide",
+    "/explore",
+    "/review",
+    "/activity",
+    "/apps",
+  ];
+  for (const path of readers) {
+    const target = new URL(builderHref(book, path), book);
+    assert.equal(target.searchParams.get("analytics"), "off", path);
+    assert.equal(target.searchParams.get("qa"), "1", path);
+    assert.equal(target.searchParams.get("from"), "woodhouse-edition", path);
+  }
+  // The existing native launcher replaces its links after rendering. A normal
+  // document GET still retains context using only its same-origin Referer.
+  const redirect = builderNavigationRedirect(
+    new Request(new URL("/showcase/", book), {
+      headers: { Referer: book.href, "User-Agent": "Mozilla/5.0" },
+    }),
+  );
+  assert.equal(redirect.status, 302);
+  const showcase = new URL(redirect.headers.get("Location"));
+  assert.equal(showcase.searchParams.get("analytics"), "off");
+  const next = builderNavigationRedirect(
+    new Request(new URL("/", book), { headers: { Referer: showcase.href } }),
+  );
+  assert.equal(
+    new URL(next.headers.get("Location")).searchParams.get("qa"),
+    "1",
+  );
+  assert.equal(
+    builderNavigationRedirect(
+      new Request(showcase, { headers: { Referer: book.href } }),
+    ),
+    null,
+    "already marked destinations cannot loop",
+  );
+  for (const path of [
+    "/guestbook/owner",
+    "/showcase/owner",
+    "/_emdash/admin",
+    "/api/usage",
+    "/guestbook/r/55226db0-675a-400b-ab31-0d79fb6a33fd/api/items",
+    "/guestbook/media/fictional",
+    "/reports/r971f5140bbe0c84c8147a64b/square.png",
+    "/downloads/get-ready-core.tgz",
+  ]) {
+    assert.equal(builderHref(book, path), path);
+    assert.equal(
+      builderNavigationRedirect(
+        new Request(new URL(path, book), { headers: { Referer: book.href } }),
+      ),
+      null,
+      path,
+    );
+  }
+  assert.equal(
+    builderNavigationRedirect(
+      new Request("https://composer.loftwah.com/showcase/", {
+        headers: { Referer: "https://other.example/?analytics=off" },
+      }),
+    ),
+    null,
+  );
+  assert.equal(
+    builderNavigationRedirect(
+      new Request("https://composer.loftwah.com/showcase/", {
+        method: "POST",
+        headers: { Referer: book.href },
+      }),
+    ),
+    null,
   );
 });
 test("unrecognised, duplicated and unrelated contexts never activate or propagate", () => {
