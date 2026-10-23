@@ -1,0 +1,15 @@
+{
+  "source": "f2eeef822bda37b08ca2b0bea617fa59d8cbff2e",
+  "reviewer": "independent readiness_visual_review agent",
+  "verdict": "PASS",
+  "reviewed": "Ten settled normal viewport captures: 390 and 1440 pixels, both themes; page top, setup panel, plus lower phone panel.",
+  "findings": [],
+  "lowerPhoneEvidenceCondition": "Resolved: standing rules, configured-but-upstream-unchecked adapter, protected platform and current-team Init continuation visible and unclipped in both themes.",
+  "limits": [
+    "Fictional browser response doubles",
+    "No native-session acceptance",
+    "No provider acceptance",
+    "No production acceptance",
+    "No physical-device or actual screen-reader acceptance"
+  ]
+}
