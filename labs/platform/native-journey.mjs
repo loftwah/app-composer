@@ -48,6 +48,23 @@ export async function nativeJourney({ actors, lab, output }) {
     a = actors["creator-a"].page,
     b = actors["creator-b"].page;
   const result = { workspaces: [], checks: [], screenshots: [], limits: [] };
+  async function openWorkspaceAccess(page) {
+    await page.goto(
+      lab.origins.composer +
+        "/_emdash/admin/plugins/composer-stacks/workspaces",
+    );
+    await page.getByLabel("New workspace name").waitFor({ state: "visible" });
+    // Actual EmDash first-login welcome makes the background controls inert.
+    // Complete that native step instead of forcing clicks through its dialog.
+    const welcome = page.getByRole("button", {
+      name: "Get Started",
+      exact: true,
+    });
+    if (await welcome.isVisible()) {
+      await welcome.click();
+      await welcome.waitFor({ state: "hidden" });
+    }
+  }
   async function screenshot(page, name) {
     await page.screenshot({
       path: join(output, name + ".png"),
@@ -60,10 +77,7 @@ export async function nativeJourney({ actors, lab, output }) {
     ["a", a, "Fictional platform Team A"],
     ["b", b, "Fictional platform Team B"],
   ]) {
-    await owner.goto(
-      lab.origins.composer +
-        "/_emdash/admin/plugins/composer-stacks/workspaces",
-    );
+    await openWorkspaceAccess(owner);
     await owner.getByLabel("New workspace name").fill(name);
     await owner
       .getByRole("button", { name: "Create workspace", exact: true })
@@ -86,10 +100,7 @@ export async function nativeJourney({ actors, lab, output }) {
       email: "creator-" + key + "@example.test",
       role: "editor",
     });
-    await creator.goto(
-      lab.origins.composer +
-        "/_emdash/admin/plugins/composer-stacks/workspaces",
-    );
+    await openWorkspaceAccess(creator);
     const acceptance = creator.waitForResponse(
       (response) =>
         response.url().includes(stacks + "accessWrite") &&
