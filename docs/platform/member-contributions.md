@@ -75,9 +75,16 @@ PNG. An unconfirmed response retains the original ID and exact input. The UI
 offers an explicit `contribution-status` lookup with only that ID. A matching
 completed receipt confirms the submission. `pending` sends no new submission;
 `not-recorded` permits a deliberate retry of the same unchanged operation.
+For durable `pending` operations, Composer offers an explicit same-ID Resume
+only when the original configuration matches the current governed service and
+its synthetic body digest matches the frozen postcard input. The app performs
+its normal current checks again; no payload edits or new ID are permitted.
 There is no automatic replay or replacement ID. The lookup requires the current
 contribution grant, but can observe the original receipt after an explicit
 closure or policy pause. These reads cannot reopen contribution access.
+An invitation cannot switch workspace while a profile/app draft, in-flight
+operation or uncertain receipt is retained. If work starts while an invitation
+is being accepted, membership acceptance leaves the current scope intact.
 
 ## Verification and remaining gates
 

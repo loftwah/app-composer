@@ -11,7 +11,11 @@ import { profile, decodeProfile, type Profile } from "./profile";
 import ProfileEditor from "./ProfileEditor";
 import GuestbookTools from "./GuestbookTools";
 import PlatformRequests from "./PlatformRequests";
-import { memberPageSelection } from "./selection";
+import {
+  memberPageSelection,
+  memberScopeBlocked,
+  acceptInvitationPreservingScope,
+} from "./selection";
 import "./members.css";
 
 export default function MyApps() {
@@ -33,6 +37,15 @@ export default function MyApps() {
     const mine = ++generation.current;
     const next = await memberSession();
     if (!live.current || mine !== generation.current) return;
+    if (
+      id &&
+      scope.current &&
+      id !== scope.current &&
+      memberScopeBlocked(dirty.current, false, appDrafts.current)
+    )
+      throw Error(
+        "Current work started while workspace access was loading. Your entries and operation identities are retained; finish or check them before changing workspace.",
+      );
     if (currentAccount.current && !sameAccount(currentAccount.current, next)) {
       setSnapshot(undefined);
       dirty.current = false;
@@ -352,18 +365,45 @@ export default function MyApps() {
                 invite.status !== "pending" ||
                 Date.parse(invite.expiresAt) <= Date.now()
               }
-              onClick={() =>
+              onClick={() => {
+                if (
+                  memberScopeBlocked(
+                    dirty.current,
+                    pending.current,
+                    appDrafts.current,
+                  )
+                ) {
+                  setError(
+                    "Finish or check the current profile, application request or contribution before accepting an invitation into another workspace. Your entries and operation identities are retained.",
+                  );
+                  return;
+                }
                 void execute(async () => {
-                  await memberCall("accept", {
-                    expectedActor: actorConstraint(account),
-                    workspace: invite.workspace,
-                    expectedRevision: invite.workspaceRevision,
-                    invitation: invite.id,
-                    invitationRevision: invite.revision,
-                  });
-                  await load(invite.workspace);
-                })
-              }
+                  const switched = await acceptInvitationPreservingScope(
+                    () =>
+                      memberScopeBlocked(
+                        dirty.current,
+                        false,
+                        appDrafts.current,
+                      ),
+                    async () => {
+                      await memberCall("accept", {
+                        expectedActor: actorConstraint(account),
+                        workspace: invite.workspace,
+                        expectedRevision: invite.workspaceRevision,
+                        invitation: invite.id,
+                        invitationRevision: invite.revision,
+                      });
+                    },
+                    () => load(invite.workspace, view !== "platform"),
+                  );
+                  if (!switched) {
+                    setStatus(
+                      "Workspace invitation accepted. Finish or check the current work before selecting the new workspace; your entries and operation identities are retained.",
+                    );
+                  }
+                });
+              }}
             >
               Accept workspace invitation
             </button>
@@ -377,8 +417,11 @@ export default function MyApps() {
             disabled={busy}
             onChange={(event) => {
               if (
-                dirty.current ||
-                Object.values(appDrafts.current).some(Boolean)
+                memberScopeBlocked(
+                  dirty.current,
+                  pending.current,
+                  appDrafts.current,
+                )
               ) {
                 setError(
                   "Finish or check the current profile, application request or contribution before changing workspace. Your entries and operation identities are retained.",

@@ -10,7 +10,11 @@ import {
 import { decodePlatformList } from "../src/plugins/platform/protocol.ts";
 import { memberPlugin } from "../src/lib/member-plugin.ts";
 import { readFileSync } from "node:fs";
-import { memberPageSelection } from "../src/components/members/selection.ts";
+import {
+  memberPageSelection,
+  memberScopeBlocked,
+  acceptInvitationPreservingScope,
+} from "../src/components/members/selection.ts";
 
 const profile = {
   enabled: true,
@@ -62,6 +66,79 @@ test("readiness links select one platform view and explicit workspace without gr
     "?view=admin",
   ])
     assert.throws(() => memberPageSelection(query));
+});
+
+test("invitation and selector transitions retain pending contribution identities and platform drafts", async () => {
+  for (const drafts of [
+    { guestbook: true, platform: false },
+    { guestbook: false, platform: true },
+  ]) {
+    assert.equal(memberScopeBlocked(false, false, drafts), true);
+    // Recheck after an invitation acknowledgement: a child may have started work
+    // while the parent acceptance request was awaiting the server.
+    assert.equal(memberScopeBlocked(false, false, { ...drafts }), true);
+  }
+  assert.equal(memberScopeBlocked(true, false, {}), true);
+  assert.equal(memberScopeBlocked(false, true, {}), true);
+  assert.equal(
+    memberScopeBlocked(false, false, { guestbook: false, platform: false }),
+    false,
+  );
+  for (const child of ["guestbook", "platform"]) {
+    const retained = {
+      workspace: "fictional-team-a",
+      operationId: crypto.randomUUID(),
+      input: "Unsaved fictional input",
+    };
+    const original = structuredClone(retained);
+    let accepted = 0,
+      selected = 0;
+    const drafts = { guestbook: false, platform: false };
+    const blocked = () => memberScopeBlocked(false, false, drafts);
+    // An operation starts while acceptance is awaiting the server. The actual
+    // coordinator used by MyApps accepts membership but never switches scope.
+    const switched = await acceptInvitationPreservingScope(
+      blocked,
+      async () => {
+        accepted++;
+        drafts[child] = true;
+      },
+      async () => {
+        selected++;
+        retained.workspace = "fictional-team-b";
+      },
+    );
+    assert.equal(switched, false);
+    assert.equal(accepted, 1);
+    assert.equal(selected, 0);
+    assert.deepEqual(retained, original);
+    await assert.rejects(() =>
+      acceptInvitationPreservingScope(
+        blocked,
+        async () => {
+          accepted++;
+        },
+        async () => {
+          selected++;
+        },
+      ),
+    );
+    assert.equal(accepted, 1);
+    drafts[child] = false;
+    assert.equal(
+      await acceptInvitationPreservingScope(
+        blocked,
+        async () => {
+          accepted++;
+        },
+        async () => {
+          selected++;
+        },
+      ),
+      true,
+    );
+    assert.equal(selected, 1);
+  }
 });
 
 test("role10 editor self-service is explicit and never grants native operator or CMS authority", async () => {

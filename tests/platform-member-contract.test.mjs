@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import {
   platformRequest,
@@ -11,6 +12,7 @@ import {
 import {
   memberContributionsQualified,
   qualifiedMemberManifest,
+  pendingContributionResumable,
 } from "../src/lib/member-contribution-contract.ts";
 import { effectiveGuestbookConfiguration } from "../src/lib/resource-client.ts";
 import { validateManifest } from "../scripts/contracts.mjs";
@@ -19,6 +21,8 @@ import {
   beginContribution,
   confirmContribution,
   observeContribution,
+  contributionRecovery,
+  recoverContribution,
 } from "../src/components/members/contribution-state.ts";
 
 const request = {
@@ -60,6 +64,112 @@ test("existing closed plan JSON and digest stay exact until an explicit contribu
     "e127122c2e5f5d7c72a8f6c511e314451ecf15a5226252f1cff12a49937dd401",
   );
   assert.equal(plan.spec.appSettings.guestbook.guestAccess, "closed");
+});
+
+test("durable pending contribution resumes only explicitly with its frozen original body and current configuration", async () => {
+  const attempt = beginContribution("fictional-resource", {
+    caption: " Fictional pending message ",
+    author: "Fictional member",
+    consent: true,
+    png: "fictional-png",
+  });
+  const original = structuredClone(attempt.input);
+  const { operationId, caption, author, consent, png } = attempt.input;
+  const configuration = {
+    revision: 2,
+    digest: "a".repeat(64),
+    source: "b".repeat(40),
+  };
+  const pending = {
+    contract: 2,
+    resource: attempt.resource,
+    operationId,
+    outcome: "pending",
+    identity: {
+      configuration,
+      dataClass: "synthetic",
+      bodyDigest: createHash("sha256")
+        .update(JSON.stringify({ operationId, caption, author, consent, png }))
+        .digest("hex"),
+    },
+  };
+  const observed = {
+    ...pending,
+    resumablePending: pendingContributionResumable(
+      pending,
+      configuration,
+      true,
+    ),
+  };
+  assert.equal(await contributionRecovery(attempt, observed), "resume");
+  assert.throws(() => {
+    attempt.input.caption = "Changed message";
+  }, TypeError);
+  assert.throws(() => {
+    attempt.input.operationId = crypto.randomUUID();
+  }, TypeError);
+  assert.deepEqual(attempt.input, original);
+  let dispatches = 0;
+  const receipt = {
+    id: "fictional-item",
+    resource: attempt.resource,
+    operationId,
+    status: "pending",
+    message: "Review required",
+  };
+  const dispatch = async (input) => {
+    dispatches++;
+    assert.strictEqual(input, attempt.input);
+    assert.deepEqual(input, original);
+    return receipt;
+  };
+  assert.equal(dispatches, 0, "Receipt observation itself sends no submission");
+  for (const invalid of [
+    { ...observed, resumablePending: false },
+    { ...observed, identity: undefined },
+    {
+      ...observed,
+      identity: { ...observed.identity, bodyDigest: "c".repeat(64) },
+    },
+    { ...observed, resource: "other-resource" },
+    { ...observed, operationId: crypto.randomUUID() },
+  ])
+    await assert.rejects(() => recoverContribution(attempt, invalid, dispatch));
+  assert.equal(dispatches, 0);
+  for (const patch of [
+    { revision: 3 },
+    { digest: "c".repeat(64) },
+    { source: "c".repeat(40) },
+  ])
+    assert.equal(
+      pendingContributionResumable(
+        { ...observed, resumablePending: true },
+        { ...configuration, ...patch },
+        true,
+      ),
+      false,
+    );
+  assert.equal(
+    pendingContributionResumable(observed, configuration, false),
+    false,
+  );
+  assert.equal(
+    pendingContributionResumable(
+      { ...pending, identity: { ...pending.identity, dataClass: "internal" } },
+      configuration,
+      true,
+    ),
+    false,
+  );
+  assert.deepEqual(
+    await recoverContribution(attempt, observed, dispatch),
+    receipt,
+  );
+  assert.equal(dispatches, 1);
+  const completed = { ...observed, outcome: "completed", receipt };
+  assert.equal(observeContribution(attempt, completed).receipt.id, receipt.id);
+  assert.equal(await contributionRecovery(attempt, completed), undefined);
+  assert.equal(dispatches, 1);
 });
 
 test("current v1 pin cannot qualify member mode or silently replace it with postcards", () => {

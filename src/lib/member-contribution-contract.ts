@@ -69,6 +69,9 @@ export const contributionStatus = z
     resource: z.string().regex(/^[a-z0-9-]{6,64}$/),
     operationId: z.uuid(),
     outcome: z.enum(["not-recorded", "pending", "completed"]),
+    // Composer supplies this observation after checking current governed state.
+    // An app response cannot select its own resume eligibility.
+    resumablePending: z.boolean().optional(),
     receipt: contributionReceipt.optional(),
     identity: z
       .object({
@@ -79,3 +82,21 @@ export const contributionStatus = z
       .optional(),
   })
   .refine((value) => value.outcome !== "completed" || !!value.receipt);
+
+export function pendingContributionResumable(
+  value: unknown,
+  configuration: z.infer<typeof contributionConfiguration>,
+  contributionAllowed: boolean,
+) {
+  const observed = contributionStatus.safeParse(value);
+  const original = observed.success ? observed.data.identity : undefined;
+  return (
+    contributionAllowed &&
+    observed.success &&
+    observed.data.outcome === "pending" &&
+    !!original &&
+    original.configuration.revision === configuration.revision &&
+    original.configuration.digest === configuration.digest &&
+    original.configuration.source === configuration.source
+  );
+}

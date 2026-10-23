@@ -16,7 +16,7 @@ test("isolated synthetic v2 contract exercises trusted dispatch, receipt lookup 
   );
   assert.deepEqual(JSON.parse(result), {
     syntheticContractOnly: true,
-    scenarios: 10,
+    scenarios: 11,
     actualPinPromoted: false,
   });
 });

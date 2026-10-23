@@ -198,6 +198,18 @@ export async function prepareGovernedMemberOperation(
   const current = await read();
   if (!current || JSON.stringify(current) !== JSON.stringify(before))
     throw conflict();
+  let contributionAllowed = false;
+  if (action === "contribution-status") {
+    try {
+      governedSyntheticConfiguration(current, resource, true);
+      contributionAllowed =
+        actual.resource.visible &&
+        !actual.resource.paused &&
+        actual.configuration.values.guestAccess === "members";
+    } catch {
+      /* Original receipts remain observable after explicit closure. */
+    }
+  }
   const envelope = {
     schema: "composer.member-operation/2" as const,
     actor,
@@ -210,6 +222,7 @@ export async function prepareGovernedMemberOperation(
   };
   return {
     envelope,
+    contributionAllowed,
     dispatchGuard: {
       sql: ` AND EXISTS(SELECT 1 ${selection} AND p.profile_json=? AND r.request_json=?
       AND r.status='complete' AND s.status='published' AND s.published_json=?

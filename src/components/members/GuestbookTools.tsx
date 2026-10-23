@@ -4,6 +4,8 @@ import {
   beginContribution,
   confirmContribution,
   observeContribution,
+  contributionRecovery,
+  recoverContribution,
   type ContributionAttempt,
 } from "./contribution-state";
 import {
@@ -91,7 +93,8 @@ export default function GuestbookTools({
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [uncertain, setUncertain] = useState(false);
-  const [retryConfirmed, setRetryConfirmed] = useState(false);
+  const [recovery, setRecovery] = useState<"retry" | "resume">();
+  const recoveryObservation = useRef<unknown>(undefined);
   const attempt = useRef<ContributionAttempt | undefined>(undefined);
   const canvas = useRef<HTMLCanvasElement>(null),
     pending = useRef(false),
@@ -200,7 +203,8 @@ export default function GuestbookTools({
   const finishContribution = () => {
     attempt.current = undefined;
     setUncertain(false);
-    setRetryConfirmed(false);
+    setRecovery(undefined);
+    recoveryObservation.current = undefined;
     setMessage("");
     setConsent(false);
     setStatus(
@@ -356,6 +360,8 @@ export default function GuestbookTools({
                         void run(async () => {
                           const pending = attempt.current;
                           if (!pending) return;
+                          setRecovery(undefined);
+                          recoveryObservation.current = undefined;
                           const observed = observeContribution(
                             pending,
                             await call("contribution-status", {
@@ -369,20 +375,25 @@ export default function GuestbookTools({
                             finishContribution();
                             return;
                           }
-                          setRetryConfirmed(
-                            observed.outcome === "not-recorded",
+                          const next = await contributionRecovery(
+                            pending,
+                            observed,
                           );
+                          recoveryObservation.current = observed;
+                          setRecovery(next);
                           setStatus(
                             observed.outcome === "not-recorded"
                               ? "No receipt is recorded. You may explicitly retry the same unchanged submission and operation."
-                              : "The original submission is still pending. Check its receipt again; no new submission was sent.",
+                              : next === "resume"
+                                ? "The original submission is pending with matching configuration and postcard data. You may explicitly resume that same unchanged operation."
+                                : "The original submission remains pending but cannot currently be resumed. Keep its operation identity and check its receipt after the service is reviewed; no new submission was sent.",
                           );
                         })
                       }
                     >
                       Check original receipt
                     </button>
-                    {retryConfirmed && (
+                    {recovery && (
                       <button
                         type="button"
                         disabled={busy}
@@ -390,16 +401,21 @@ export default function GuestbookTools({
                           void run(async () => {
                             const pending = attempt.current;
                             if (!pending) return;
-                            setRetryConfirmed(false);
-                            confirmContribution(
+                            const observed = recoveryObservation.current;
+                            setRecovery(undefined);
+                            recoveryObservation.current = undefined;
+                            await recoverContribution(
                               pending,
-                              await call("contribute", pending.input),
+                              observed,
+                              (input) => call("contribute", input),
                             );
                             finishContribution();
                           })
                         }
                       >
-                        Retry the same submission
+                        {recovery === "resume"
+                          ? "Resume the same submission"
+                          : "Retry the same submission"}
                       </button>
                     )}
                   </>

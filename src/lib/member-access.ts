@@ -5,6 +5,7 @@ import { prepareGovernedMemberOperation } from "./member-contribution-bridge.ts"
 import {
   contributionReceipt,
   contributionStatus,
+  pendingContributionResumable,
 } from "./member-contribution-contract.ts";
 import type { ResourceRuntime } from "./resource-client.ts";
 import {
@@ -661,7 +662,7 @@ export async function dispatchMemberApp(
     body: JSON.stringify(envelope),
   });
   await auditDispatch(db, user, grant, prepared?.dispatchGuard);
-  const result = await boundedReply(
+  let result = await boundedReply(
     await runtime.GUESTBOOK_MEMBERS.fetch(request),
   );
   const receipt = (
@@ -707,6 +708,19 @@ export async function dispatchMemberApp(
         "UNAVAILABLE",
         "The app receipt does not match this contribution identity. Keep the original operation and check its status.",
       );
+  }
+  if (input.capability === "contribution-status" && prepared) {
+    const observed = contributionStatus.parse(result);
+    result = {
+      ...observed,
+      // Override any upstream assertion. The current host-prepared configuration
+      // must match the original receipt before an unchanged resume is offered.
+      resumablePending: pendingContributionResumable(
+        observed,
+        prepared.envelope.configuration,
+        prepared.contributionAllowed,
+      ),
+    };
   }
   return { result, actor: { issuer: memberIssuer, subject: user.id } };
 }

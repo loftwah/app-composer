@@ -3,6 +3,7 @@
 import assert from "node:assert/strict";
 import { registerHooks } from "node:module";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 const lock = JSON.parse(
   readFileSync(new URL("../../composition.lock.json", import.meta.url), "utf8"),
 );
@@ -33,6 +34,8 @@ const { memberContributionsQualified } =
 const { applyStackResources } =
   await import("../../src/lib/stack-resources.ts");
 const { trustedPlatformActor } = await import("../../src/lib/stacks.mjs");
+const { recoverContribution } =
+  await import("../../src/components/members/contribution-state.ts");
 assert.equal(
   memberContributionsQualified(),
   true,
@@ -192,7 +195,7 @@ const context = (actor, input) => ({
     headers: { Origin: origin, "X-EmDash-Request": "1" },
   }),
 });
-async function setup() {
+async function setup(lostAcknowledgement = false) {
   const f = fixture();
   try {
     for (const migration of [
@@ -251,6 +254,8 @@ async function setup() {
       .run(grant, origin, workspace, member.id, resource, user.id);
     const calls = [];
     const receipts = new Map();
+    let interrupted = false,
+      pendingEnvelope;
     f.runtime.GUESTBOOK_MEMBER_TOKEN = "fictional-member-token";
     f.runtime.GUESTBOOK_MEMBERS = {
       async fetch(req) {
@@ -267,6 +272,32 @@ async function setup() {
         assert.equal(body.configuration.source, selected.commit);
         if (body.action === "contribution-status") {
           const receipt = receipts.get(body.input.operationId);
+          if (pendingEnvelope) {
+            const { operationId, caption, author, consent, png } =
+              pendingEnvelope.input;
+            return Response.json({
+              contract: 2,
+              resource,
+              operationId,
+              outcome: "pending",
+              resumablePending: true, // Upstream cannot grant its own eligibility.
+              identity: {
+                configuration: pendingEnvelope.configuration,
+                dataClass: "synthetic",
+                bodyDigest: createHash("sha256")
+                  .update(
+                    JSON.stringify({
+                      operationId,
+                      caption,
+                      author,
+                      consent,
+                      png,
+                    }),
+                  )
+                  .digest("hex"),
+              },
+            });
+          }
           return Response.json({
             contract: 2,
             resource,
@@ -275,6 +306,25 @@ async function setup() {
             ...(receipt ? { receipt } : {}),
           });
         }
+        if (lostAcknowledgement && !interrupted) {
+          interrupted = true;
+          pendingEnvelope = structuredClone(body);
+          return Response.json(
+            {
+              resource,
+              operationId: body.input.operationId,
+              outcome: "unknown",
+            },
+            { status: 503 },
+          );
+        }
+        if (pendingEnvelope)
+          assert.deepEqual(
+            body,
+            pendingEnvelope,
+            "Resume must retain its exact envelope and body",
+          );
+        pendingEnvelope = undefined;
         let receipt = receipts.get(body.input.operationId);
         if (!receipt) {
           receipt = {
@@ -328,6 +378,7 @@ async function setup() {
 
 for (const scenario of [
   "success",
+  "pending-resume",
   "no-grant",
   "cross-team",
   "source",
@@ -338,8 +389,61 @@ for (const scenario of [
   "revoke",
   "browser-proof",
 ]) {
-  const f = await setup();
+  const f = await setup(scenario === "pending-resume");
   try {
+    if (scenario === "pending-resume") {
+      const first = await f.invoke();
+      assert.equal(first.ok, false);
+      assert.equal(f.calls.length, 1);
+      const lookup = () =>
+        f.invoke({
+          capability: "contribution-status",
+          input: { operationId: f.input.operationId },
+        });
+      const pending = await lookup();
+      assert.equal(pending.ok, true, JSON.stringify(pending));
+      assert.equal(pending.result.outcome, "pending");
+      assert.equal(pending.result.resumablePending, true);
+      await f.platform({
+        action: "configure",
+        expectedRevision: 1,
+        profile: { ...profile, enabled: false },
+      });
+      const paused = await lookup();
+      assert.equal(paused.ok, true);
+      assert.equal(
+        paused.result.resumablePending,
+        false,
+        "Upstream true assertion cannot override current policy pause",
+      );
+      assert.equal(
+        f.calls.filter((call) => call.action === "contribute").length,
+        1,
+      );
+      await f.platform({ action: "configure", expectedRevision: 2, profile });
+      const current = await lookup();
+      const attempt = Object.freeze({
+        resource: f.resource,
+        input: Object.freeze(f.input),
+      });
+      const receipt = await recoverContribution(
+        attempt,
+        current.result,
+        async (input) => {
+          const result = await f.invoke({ input });
+          assert.equal(result.ok, true, JSON.stringify(result));
+          return result.result;
+        },
+      );
+      assert.equal(receipt.operationId, f.input.operationId);
+      const completed = await lookup();
+      assert.equal(completed.result.outcome, "completed");
+      assert.equal(
+        f.calls.filter((call) => call.action === "contribute").length,
+        2,
+      );
+      continue;
+    }
     if (scenario === "success") {
       const first = await f.invoke();
       assert.equal(first.ok, true, JSON.stringify(first));
@@ -468,7 +572,7 @@ for (const scenario of [
 console.log(
   JSON.stringify({
     syntheticContractOnly: true,
-    scenarios: 10,
+    scenarios: 11,
     actualPinPromoted: false,
   }),
 );
