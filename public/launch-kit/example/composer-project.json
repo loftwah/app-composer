@@ -1,11 +1,11 @@
 {
   "format": "app-composer.static-launch-kit-project",
   "version": 1,
-  "packageSha256": "e5b38bec0015e6b264268c10b1ef35d7b514e75bdbc68fa377ab55f9e2c39665",
+  "packageSha256": "1eff106876c4c9612508bb8309763e16b76b496aac27c1eab7b652efdc1ed843",
   "adoption": {
     "format": "app-composer.launch-kit-adoption",
     "version": 1,
-    "packageSha256": "e5b38bec0015e6b264268c10b1ef35d7b514e75bdbc68fa377ab55f9e2c39665",
+    "packageSha256": "1eff106876c4c9612508bb8309763e16b76b496aac27c1eab7b652efdc1ed843",
     "fields": {
       "title": true,
       "subtitle": true,

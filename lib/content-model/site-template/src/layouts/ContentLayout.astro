@@ -10,7 +10,8 @@ interface Props {
 }
 const {
   title = branding.title ?? model.label,
-  description = branding.subtitle ?? "Browse published " + model.label.toLowerCase() + ".",
+  description = branding.subtitle ??
+    "Browse published " + model.label.toLowerCase() + ".",
   article = false,
 } = Astro.props;
 ---
@@ -22,11 +23,41 @@ const {
     <meta name="viewport" content="width=device-width" />
     <link
       rel="icon"
-      href={branding.icons ? "/launch-kit/favicon-32.png" : "/brand/composer-icon-20261022b-32.png"}
+      href={
+        branding.icons
+          ? "/launch-kit/favicon-32.png"
+          : "/brand/composer-icon-20261022b-32.png"
+      }
       type="image/png"
     />
-    {branding.icons && <><link rel="apple-touch-icon" href="/launch-kit/apple-touch-icon.png"/><link rel="manifest" href="/launch-kit/site.webmanifest"/><meta name="theme-color" content={branding.accent}/></>}
-    {branding.social && <><meta property="og:image" content={new URL("/launch-kit/social-1200x630.png", Astro.url.origin).href}/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image:type" content="image/png"/><meta property="og:image:alt" content={branding.alt}/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:image" content={new URL("/launch-kit/social-1200x630.png", Astro.url.origin).href}/></>}
+    {branding.icons && (
+      <>
+        <link rel="apple-touch-icon" href="/launch-kit/apple-touch-icon.png" />
+        <link rel="manifest" href="/launch-kit/site.webmanifest" />
+        <meta name="theme-color" content={branding.accent} />
+      </>
+    )}
+    {branding.social && (
+      <>
+        <meta
+          property="og:image"
+          content={
+            new URL("/launch-kit/social-1200x630.png", Astro.url.origin).href
+          }
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:alt" content={branding.alt} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:image"
+          content={
+            new URL("/launch-kit/social-1200x630.png", Astro.url.origin).href
+          }
+        />
+      </>
+    )}
     <link rel="stylesheet" href="/brand/launcher.css" />
     <meta name="robots" content="noindex,nofollow" />
     <title>{title}</title>
