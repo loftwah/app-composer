@@ -310,6 +310,19 @@ export async function inspectNativeMedia(receiptPath, expectedReceiptSHA256) {
     "The actual native run must qualify its exact Guestbook member source without overrides.",
   );
   const journey = receipt.journey;
+  const captureInspectionHoldMs = Object.hasOwn(
+    journey,
+    "captureInspectionHoldMs",
+  )
+    ? journey.captureInspectionHoldMs
+    : 0;
+  requireValue(
+    typeof captureInspectionHoldMs === "number" &&
+      Number.isFinite(captureInspectionHoldMs) &&
+      captureInspectionHoldMs >= 0 &&
+      captureInspectionHoldMs <= 5000,
+    "Recorded capture inspection holds must be finite milliseconds between 0 and 5000.",
+  );
   requireValue(
     Array.isArray(journey.setup) &&
       journey.setup.length >= 2 &&
@@ -494,6 +507,8 @@ export async function inspectNativeMedia(receiptPath, expectedReceiptSHA256) {
     finishedAt: receipt.finishedAt,
     assets,
     authoredHashes,
+    captureInspectionHoldMs,
+    recordedInspectionHoldSeconds: captureInspectionHoldMs / 1000,
   };
 }
 
@@ -583,7 +598,7 @@ export function planNativeEdit(edit, native) {
       const start = position;
       position += entry.duration;
       const provenance = [
-        `${scope} · ${asset.actor} · ${entry.kind === "clip" ? `normal speed / source ${entry.start.toFixed(3)}–${(entry.start + entry.duration).toFixed(3)}s` : `captured still / hold ${entry.duration}s`} · receipt ${native.receiptSHA256}`,
+        `${scope} · ${asset.actor} · ${entry.kind === "clip" ? `normal speed / source ${entry.start.toFixed(3)}–${(entry.start + entry.duration).toFixed(3)}s` : `captured still / edited hold ${entry.duration}s`} · recorded inspection ${native.recordedInspectionHoldSeconds}s/snapshot · receipt ${native.receiptSHA256}`,
         `Composer ${native.sources.composer} · Guestbook ${native.sources.guestbook} · Linkarooie ${native.sources.showcase}`,
         ...["a", "b"].map((key) => {
           const team = native.teams[key];
@@ -651,6 +666,8 @@ export function planNativeEdit(edit, native) {
     sources: native.sources,
     teams: native.teams,
     qualification: scope,
+    captureInspectionHoldMs: native.captureInspectionHoldMs,
+    recordedInspectionHoldSeconds: native.recordedInspectionHoldSeconds,
     films,
   };
 }

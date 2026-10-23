@@ -98,6 +98,8 @@ export async function nativeMediaCLI(argv) {
           browser: "not-started",
           assets: "capture-time hashes verified",
           qualification: scope,
+          captureInspectionHoldMs: native.captureInspectionHoldMs,
+          recordedInspectionHoldSeconds: native.recordedInspectionHoldSeconds,
         },
         null,
         2,
@@ -168,6 +170,8 @@ export async function nativeMediaCLI(argv) {
       sources: native.sources,
       teams: native.teams,
       authoredHashes: native.authoredHashes,
+      captureInspectionHoldMs: native.captureInspectionHoldMs,
+      recordedInspectionHoldSeconds: native.recordedInspectionHoldSeconds,
     },
     qualification: scope,
     limits: [

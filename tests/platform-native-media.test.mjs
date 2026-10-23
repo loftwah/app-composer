@@ -257,6 +257,47 @@ test("static native media validation binds one passed cleaned run, sources and c
   });
 });
 
+test("recorded inspection holds are bounded, legacy-defaulted and distinct from edited still holds", async () => {
+  await fixture(async ({ path, hash, receipt, save }) => {
+    const legacy = await inspectNativeMedia(path, hash);
+    assert.equal(legacy.captureInspectionHoldMs, 0);
+    assert.equal(legacy.recordedInspectionHoldSeconds, 0);
+    for (const milliseconds of [0, 2000, 5000, 1234.5]) {
+      receipt.journey.captureInspectionHoldMs = milliseconds;
+      const native = await inspectNativeMedia(path, await save());
+      const plan = planNativeEdit(edit(native), native);
+      assert.equal(plan.captureInspectionHoldMs, milliseconds);
+      assert.equal(plan.recordedInspectionHoldSeconds, milliseconds / 1000);
+      assert.deepEqual(
+        plan.films.map((film) => film.duration),
+        [75, 360],
+      );
+      for (const film of plan.films)
+        for (const segment of film.segments) {
+          assert.ok(
+            segment.provenance[0].includes(
+              `recorded inspection ${milliseconds / 1000}s/snapshot`,
+            ),
+          );
+          if (segment.kind === "still")
+            assert.ok(
+              segment.provenance[0].includes(
+                `captured still / edited hold ${segment.duration}s`,
+              ),
+            );
+          else assert.match(segment.provenance[0], /normal speed \/ source/);
+        }
+    }
+    for (const invalid of [null, "2000", -1, 5001, true]) {
+      receipt.journey.captureInspectionHoldMs = invalid;
+      await assert.rejects(
+        inspectNativeMedia(path, await save()),
+        /finite milliseconds between 0 and 5000/,
+      );
+    }
+  });
+});
+
 test("failed, dirty, mismatched-source and incomplete native runs never become final media inputs", async () => {
   await fixture(async ({ path, receipt, save }) => {
     const original = structuredClone(receipt);

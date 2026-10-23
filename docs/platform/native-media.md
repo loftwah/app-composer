@@ -35,6 +35,11 @@ Validation requires:
   actual returned screenshot bytes, plus the compatible `screenshots` filename
   list. Names must be unique, local and unlinked. Capture times must belong to
   that run. Legacy filename-only screenshots cannot become final media inputs.
+- Optional `journey.captureInspectionHoldMs` records deliberate visible
+  inspection time after each real screenshot, within 0–5000 finite milliseconds.
+  Older receipts default to zero. Every caption and media receipt discloses the
+  recorded seconds per snapshot separately from an edited still's hold duration;
+  recorded inspection is not represented as another performed action.
 
 Neither source checks nor imported receipts establish production SSO, provider
 permission, public-edge verification or a fresh-person admission claim. The
