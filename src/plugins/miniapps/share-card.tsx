@@ -99,7 +99,9 @@ export function ShareCard({
       if (alive.current && version === generation.current) {
         setSaved(snapshot);
         setStatus(
-          "Current published image loaded. Your unsaved settings are retained.",
+          draftOnly
+            ? "Current saved image loaded. Your unsaved settings are retained."
+            : "Current published image loaded. Your unsaved settings are retained.",
         );
       }
       return alive.current && version === generation.current
@@ -352,12 +354,19 @@ export function ShareCard({
         </p>
       )}
       <details>
-        <summary>Apply and publish a prepared card</summary>
+        <summary>
+          {draftOnly
+            ? "Select a prepared card"
+            : "Apply and publish a prepared card"}
+        </summary>
         <p>
           The editor renders locally. Download its PNG and recipe, then ask your
           agent to prepare the immutable asset in Linkarooie’s repository and
           deploy it through the existing release route. Return with the adoption
-          receipt to publish it here.
+          receipt to{" "}
+          {draftOnly
+            ? "select it in your saved draft. Publish your profile separately to activate it for visitors."
+            : "publish it here."}
         </p>
         <p>
           <a
@@ -386,7 +395,9 @@ export function ShareCard({
         {saved && (
           <div className="ca-share-comparison">
             <figure>
-              <figcaption>Current published image</figcaption>
+              <figcaption>
+                {draftOnly ? "Current saved image" : "Current published image"}
+              </figcaption>
               <img
                 src={currentImage(saved.profile.shareImage)}
                 alt="Current profile shared-link image"
