@@ -8,6 +8,7 @@ export function isBuilderPath(path) {
     [
       "/demo",
       "/manage",
+      "/studio", // Public explanation; the /_emdash editor remains excluded.
       "/activity",
       "/init",
       "/init/content",

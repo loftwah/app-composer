@@ -34,7 +34,7 @@ test("unrecognised, duplicated and unrelated contexts never activate or propagat
     "/demo",
     "/demo?from=other",
     "/demo?from=woodhouse-edition&from=woodhouse-edition",
-    "/studio?from=woodhouse-edition",
+    "/_emdash/admin/plugins/composer-stacks/stacks?from=woodhouse-edition",
   ]) {
     const incoming = new URL(url, source);
     assert.equal(hasBuilderContext(incoming), false);
@@ -43,7 +43,7 @@ test("unrecognised, duplicated and unrelated contexts never activate or propagat
 });
 test("context cannot decorate owner, external, download, image or API destinations", () => {
   for (const path of [
-    "/studio",
+    "/_emdash/admin/plugins/composer-stacks/stacks",
     "/_emdash/admin",
     "/api/usage",
     "/reports/r971f5140bbe0c84c8147a64b/square.png",
@@ -52,6 +52,22 @@ test("context cannot decorate owner, external, download, image or API destinatio
     "//other.example/demo",
   ])
     assert.equal(builderHref(source, path), path);
+});
+test("the public Creator stacks explanation retains context without decorating its protected editor", () => {
+  const studio = builderHref(source, "/studio");
+  assert.equal(studio, "/studio?from=woodhouse-edition&analytics=off&qa=1");
+  const entry = new URL(studio, source);
+  assert.equal(hasBuilderContext(entry), true);
+  assert.equal(
+    builderHref(entry, "/manage#analytics-proof"),
+    "/manage?from=woodhouse-edition&analytics=off&qa=1#analytics-proof",
+  );
+  const editor = "/_emdash/admin/plugins/composer-stacks/stacks";
+  assert.equal(builderHref(entry, editor), editor);
+  assert.equal(
+    hasBuilderContext(new URL(editor + "?from=woodhouse-edition", source)),
+    false,
+  );
 });
 test("only explicit verification controls propagate; existing target scope is retained", () => {
   const url = new URL("/demo?from=woodhouse-edition&qa=2&analytics=on", source);
