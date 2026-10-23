@@ -1188,3 +1188,223 @@ test("the original marked native ingress suppresses measurement without changing
     f.close();
   }
 });
+
+test("one demo Open action reconciles through owner report and explicitly permitted frozen aggregate", async () => {
+  const f = setup();
+  f.sqlite.exec(readFileSync("migrations/0010_public_reports.sql", "utf8"));
+  try {
+    const p = await page(f, "Private workspace label must never leave");
+    const fields = {
+      workspace: p.workspace.id,
+      stack: p.stack.id,
+      instance: "fictional-hello-instance",
+      days: "7",
+      end: "today",
+      traffic: "demo",
+    };
+    await native(
+      f,
+      user,
+      {
+        action: "setTraffic",
+        workspace: p.workspace.id,
+        stack: p.stack.id,
+        expectedRevision: 0,
+        traffic: "demo",
+      },
+      false,
+    );
+    await collectStackAction(
+      await request(p.stack),
+      runtime(f),
+      p.stack.slug,
+      fields.instance,
+    );
+    const nativeReport = await native(f, user, { action: "report", ...fields });
+    assert.equal(
+      nativeReport.report.metrics.find(
+        (metric) => metric.key === "app_open_action",
+      ).value,
+      1,
+    );
+    const preview = await native(
+      f,
+      user,
+      { action: "previewPublicReport", ...fields },
+      false,
+    );
+    assert.equal(preview.ok, true, JSON.stringify(preview));
+    assert.equal(preview.publicReport.value, 1);
+    assert.equal(
+      preview.publicReport.app,
+      null,
+      "historic instance actions must not inherit the current app identity",
+    );
+    assert.doesNotMatch(preview.publicReport.headline, /Hello World/);
+    assert.equal(preview.publicReport.origin.traffic, "demo");
+    assert.equal(
+      f.sqlite.prepare("SELECT COUNT(*) AS n FROM composer_reports").get().n,
+      0,
+    );
+    assert.equal(
+      (
+        await native(
+          f,
+          user,
+          {
+            action: "publishPublicReport",
+            ...fields,
+            expectedReport: preview.publicReport.id,
+          },
+          false,
+        )
+      ).code,
+      "CONFLICT",
+    );
+    const published = await native(
+      f,
+      user,
+      {
+        action: "publishPublicReport",
+        ...fields,
+        expectedReport: preview.publicReport.id,
+        consent: true,
+      },
+      false,
+    );
+    assert.equal(published.ok, true, JSON.stringify(published));
+    const saved = JSON.parse(
+      f.sqlite
+        .prepare("SELECT payload_json FROM composer_reports WHERE id=?")
+        .get(preview.publicReport.id).payload_json,
+    );
+    assert.equal(
+      saved.value,
+      nativeReport.report.metrics.find(
+        (metric) => metric.key === "app_open_action",
+      ).value,
+    );
+    const { reportCaption } = await import("../src/lib/public-report.ts");
+    const { reportShareSvg } = await import("../src/lib/report-share-svg.ts");
+    for (const output of [
+      JSON.stringify(saved),
+      reportCaption(saved),
+      ...["landscape", "square", "portrait"].map((format) =>
+        reportShareSvg(
+          saved,
+          format,
+          (text, size) => text.length * size * 0.5,
+          "data:image/png;base64,AA==",
+        ),
+      ),
+    ]) {
+      for (const secret of [
+        p.workspace.id,
+        p.stack.id,
+        fields.instance,
+        p.stack.name,
+        user.id,
+      ])
+        assert.ok(!output.includes(secret), secret);
+      assert.doesNotMatch(
+        output,
+        /all connected versions|requests, not people/,
+      );
+      assert.match(output.toLowerCase(), /demo/);
+    }
+    // A later action invalidates the old preview rather than consenting to a new total.
+    await collectStackAction(
+      await request(p.stack),
+      runtime(f),
+      p.stack.slug,
+      fields.instance,
+    );
+    assert.equal(
+      (
+        await native(
+          f,
+          user,
+          {
+            action: "publishPublicReport",
+            ...fields,
+            expectedReport: preview.publicReport.id,
+            consent: true,
+          },
+          false,
+        )
+      ).code,
+      "CONFLICT",
+    );
+    assert.equal(saved.value, 1, "stored snapshot remains frozen");
+    for (const patch of [
+      { metric: "private_record_body" },
+      { traffic: "organic" },
+      { stack: "foreign-stack" },
+      { instance: "foreign-instance" },
+    ]) {
+      assert.equal(
+        (
+          await native(
+            f,
+            user,
+            { action: "previewPublicReport", ...fields, ...patch },
+            false,
+          )
+        ).ok,
+        false,
+      );
+    }
+    assert.equal(
+      (
+        await native(
+          f,
+          null,
+          { action: "previewPublicReport", ...fields },
+          false,
+        )
+      ).code,
+      "FORBIDDEN",
+    );
+    f.sqlite
+      .prepare(
+        "INSERT INTO creator_members(workspace_id,user_id,role) VALUES(?,?,'editor')",
+      )
+      .run(p.workspace.id, "fictional-public-editor");
+    assert.equal(
+      (
+        await native(
+          f,
+          { id: "fictional-public-editor", role: 20 },
+          { action: "previewPublicReport", ...fields },
+          false,
+        )
+      ).code,
+      "FORBIDDEN",
+    );
+    // Even a previously permitted ID must still pass final current-owner SQL guard.
+    const { storeOwnerReport } =
+      await import("../src/lib/owner-public-report.ts");
+    f.sqlite
+      .prepare(
+        "UPDATE creator_members SET role='viewer' WHERE workspace_id=? AND user_id=?",
+      )
+      .run(p.workspace.id, user.id);
+    await assert.rejects(
+      () =>
+        storeOwnerReport(f.db, saved, {
+          user: user.id,
+          workspace: p.workspace.id,
+          stack: p.stack.id,
+          instance: fields.instance,
+          app: "hello",
+        }),
+      /Ownership/,
+    );
+    assert.equal(
+      f.sqlite.prepare("SELECT COUNT(*) AS n FROM composer_reports").get().n,
+      1,
+    );
+  } finally {
+    f.close();
+  }
+});

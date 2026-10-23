@@ -101,8 +101,8 @@ const shareHref = (app: string | null, signal: typeof metric) =>
 
   <section class="analytics-summary" aria-label="Recorded summary for this scope">
     <div><span>Recorded app opens</span><strong>{scopeOpens === null ? "—" : count(scopeOpens)}</strong><small>{where} · homes only</small></div>
-    <div><span>Completed actions</span><strong>{actionValue === null ? "—" : count(actionValue)}</strong><small>Contribution opens and finished inspections</small></div>
-    <div><span>Notes to review</span><strong>{postcardValue === null ? "—" : count(postcardValue)}</strong><small>Committed pending postcards, not approvals</small></div>
+    <div><span>Recorded app actions</span><strong>{actionValue === null ? "—" : count(actionValue)}</strong><small>Contribution opens and finished inspections</small></div>
+    <div><span>Postcards received</span><strong>{postcardValue === null ? "—" : count(postcardValue)}</strong><small>Accepted during this period, not the current queue</small></div>
     <div><span>Retained days</span><strong>{view ? `${retained}/${selected.days}` : "—"}</strong><small>Available UTC days in this window</small></div>
   </section>
 
@@ -166,7 +166,7 @@ const shareHref = (app: string | null, signal: typeof metric) =>
           <AnalyticsTrend
             label={view.label}
             definition={view.definition}
-            unit={view.key === "app_opens" || view.key === "photo_opens" ? "recorded opens" : view.key === "inspection_completed" ? "completed inspections" : "pending postcards"}
+            unit={view.key === "app_opens" || view.key === "photo_opens" ? "recorded opens" : view.key === "inspection_completed" ? "completed inspections" : "postcards received"}
             value={view.value}
             quality={view.quality}
             daily={view.days.map((day) => ({ date: day.date, value: day.value }))}

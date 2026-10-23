@@ -2,12 +2,9 @@
 // aggregate contract as /activity, then stored so its values do not change
 // when the 35-day counters or a later release move on.
 import type { D1Database } from "@cloudflare/workers-types";
-import type {
-  PublicHistory,
-  PublicMetric,
-  SignalKey,
-} from "./activity-view.ts";
-import { appLabels, signalKeys } from "./activity-view.ts";
+import type { PublicHistory, SignalKey } from "./activity-view.ts";
+import { portfolioSummary } from "../../lib/usage/portfolio.mjs";
+import { appLabels, dateLabel, signalKeys } from "./activity-view.ts";
 
 export const REPORT_ORIGIN = "https://composer.loftwah.com";
 export const REPORT_SCHEMA = "composer.public-report/1" as const;
@@ -26,14 +23,27 @@ export interface ReportScope {
   metric: SignalKey;
   days: number;
   surface: string;
+  story?: "composed-share" | "peak-day";
+  day?: string;
 }
+export type ReportStory =
+  | { kind: "composed-share"; numerator: number; denominator: number }
+  | { kind: "peak-day"; date: string };
+
+export type PublicReportMetric = SignalKey | "app_open_action";
+
 export interface FrozenReport {
+  origin?: {
+    kind: "owner-permitted";
+    traffic: "demo" | "unclassified" | "all";
+  };
+  story?: ReportStory;
   schema: typeof REPORT_SCHEMA;
   id: string;
   createdAt: string;
   app: string | null;
   appLabel: string | null;
-  metric: SignalKey;
+  metric: PublicReportMetric;
   metricLabel: string;
   headline: string;
   detail: string;
@@ -67,7 +77,7 @@ const appMetricDefinitions: Record<
       label: "Guest postcards received",
       definition:
         "New pending guest postcards counted after committed acceptance by Guestbook. Not approvals, publications, unique people or a conversion rate. Before the first retained receipt, history is unavailable.",
-      unit: "pending postcards",
+      unit: "postcards received",
     },
   },
   linkcheck: {
@@ -110,7 +120,10 @@ const appMetricDefinitions: Record<
   },
 };
 
-const globalFallback: Record<string, { label: string; definition: string; unit: string }> = {
+const globalFallback: Record<
+  string,
+  { label: string; definition: string; unit: string }
+> = {
   app_opens: {
     label: "Recorded app opens",
     definition:
@@ -133,7 +146,7 @@ const globalFallback: Record<string, { label: string; definition: string; unit: 
     label: "Guest postcards received",
     definition:
       "New pending guest postcards counted after committed acceptance by Guestbook. Not approvals, publications, unique people or a conversion rate.",
-    unit: "pending postcards",
+    unit: "postcards received",
   },
 };
 
@@ -200,7 +213,8 @@ export function reportMetricView(
           ? "item_open"
           : metric;
     const daily = entry.signals[event];
-    if (!daily) throw new Error("No daily series is declared for this measure.");
+    if (!daily)
+      throw new Error("No daily series is declared for this measure.");
     return {
       label: definition.label,
       definition: definition.definition,
@@ -220,17 +234,26 @@ export function reportMetricView(
     unit: definition.unit,
     value: found.value,
     quality: found.quality,
-    daily: dailyWindow(found.daily, report.period, metric === "guest_postcards_received"),
+    daily: dailyWindow(
+      found.daily,
+      report.period,
+      metric === "guest_postcards_received",
+    ),
   };
 }
 
-const headlineFor = (app: string | null, metric: SignalKey, value: number | null) => {
+const headlineFor = (
+  app: string | null,
+  metric: SignalKey,
+  value: number | null,
+) => {
   const amount = value === null ? "Unavailable" : value.toLocaleString("en-AU");
   if (metric === "guest_postcards_received")
     return `${amount} guest ${value === 1 ? "postcard" : "postcards"} reached review`;
   if (metric === "inspection_completed")
     return `${amount} Link Check ${value === 1 ? "inspection" : "inspections"} completed`;
-  if (app) return `${appLabels[app] ?? app}: ${amount} recorded ${value === 1 ? "open" : "opens"}`;
+  if (app)
+    return `${appLabels[app] ?? app}: ${amount} recorded ${value === 1 ? "open" : "opens"}`;
   if (metric === "photo_opens")
     return `${amount} Guestbook contribution ${value === 1 ? "open" : "opens"}`;
   return `${amount} recorded app ${value === 1 ? "open" : "opens"}`;
@@ -241,12 +264,62 @@ export async function buildReport(
   scope: ReportScope,
   sourceRevision: string,
   now = new Date(),
+  comparison?: { composed: number; standalone: number },
 ): Promise<FrozenReport> {
   if (!signalKeys.includes(scope.metric))
     throw new Error("Choose a supported public measure.");
   if (scope.app && !Object.hasOwn(appLabels, scope.app))
     throw new Error("Choose a supported app.");
+  if (
+    scope.days !== report.period.days ||
+    scope.surface !== (report.surface ?? "all")
+  )
+    throw new Error("The report scope does not match its counters.");
   const selected = reportMetricView(report, scope.app, scope.metric);
+  let story: ReportStory | undefined;
+  let headline = headlineFor(scope.app, scope.metric, selected.value);
+  if (scope.story) {
+    if (scope.app || scope.metric !== "app_opens")
+      throw new Error("This finding requires the all-app opens measure.");
+    if (scope.story === "composed-share") {
+      if (
+        scope.surface !== "all" ||
+        !comparison ||
+        !Number.isSafeInteger(comparison.composed) ||
+        comparison.composed < 0 ||
+        !Number.isSafeInteger(comparison.standalone) ||
+        comparison.standalone < 0 ||
+        comparison.composed + comparison.standalone !== selected.value ||
+        !selected.value
+      )
+        throw new Error("A matching route comparison is unavailable.");
+      story = {
+        kind: "composed-share",
+        numerator: comparison.composed,
+        denominator: selected.value,
+      };
+      selected.value = Math.round((100 * story.numerator) / story.denominator);
+      selected.unit = "of recorded opens inside Composer";
+      selected.label = "Recorded app opens";
+      selected.definition = `${story.numerator.toLocaleString("en-AU")} composed-route opens out of ${story.denominator.toLocaleString("en-AU")} total recorded opens; ${comparison.standalone.toLocaleString("en-AU")} standalone. The chart shows daily app opens across both routes. These are requests, not distinct audiences.`;
+      headline = `${selected.value}% of recorded opens arrived inside Composer`;
+    } else {
+      const day = selected.daily.find((point) => point.date === scope.day);
+      const maximum = Math.max(
+        0,
+        ...selected.daily.map((point) => point.value ?? 0),
+      );
+      if (!day || day.value === null || day.value <= 0 || day.value !== maximum)
+        throw new Error(
+          "That day is not a busiest recorded day in this window.",
+        );
+      story = { kind: "peak-day", date: day.date };
+      selected.value = day.value;
+      selected.unit = "recorded opens that day";
+      headline = `${dateLabel(day.date, true)} recorded ${day.value.toLocaleString("en-AU")} app opens`;
+      selected.definition = `Selected UTC day: ${day.date}. The chart retains the whole comparison window. This is a bounded request count, not a trend or proof that a release caused the difference.`;
+    }
+  }
   const period = {
     from: report.period.from,
     to: report.period.to,
@@ -255,6 +328,7 @@ export async function buildReport(
   };
   const body = {
     schema: REPORT_SCHEMA,
+    ...(story ? { story } : {}),
     app: scope.app,
     metric: scope.metric,
     period,
@@ -272,16 +346,23 @@ export async function buildReport(
     "SHA-256",
     new TextEncoder().encode(JSON.stringify(body)),
   );
-  const id = "r" + Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("").slice(0, 24);
+  const id =
+    "r" +
+    Array.from(new Uint8Array(digest), (byte) =>
+      byte.toString(16).padStart(2, "0"),
+    )
+      .join("")
+      .slice(0, 24);
   return {
     schema: REPORT_SCHEMA,
+    ...(story ? { story } : {}),
     id,
     createdAt: now.toISOString(),
     app: scope.app,
     appLabel: scope.app ? (appLabels[scope.app] ?? scope.app) : null,
     metric: scope.metric,
     metricLabel: selected.label,
-    headline: headlineFor(scope.app, scope.metric, selected.value),
+    headline,
     detail: selected.definition,
     value: selected.value,
     unit: selected.unit,
@@ -309,7 +390,10 @@ export function parseFrozenReport(raw: unknown): FrozenReport | undefined {
     typeof value.createdAt !== "string" ||
     Number.isNaN(Date.parse(value.createdAt)) ||
     (value.app !== null && typeof value.app !== "string") ||
-    !signalKeys.includes(value.metric as SignalKey) ||
+    !(
+      signalKeys.includes(value.metric as SignalKey) ||
+      value.metric === "app_open_action"
+    ) ||
     typeof value.metricLabel !== "string" ||
     typeof value.headline !== "string" ||
     typeof value.detail !== "string" ||
@@ -341,11 +425,54 @@ export function parseFrozenReport(raw: unknown): FrozenReport | undefined {
     typeof value.sourceRevision !== "string"
   )
     return undefined;
+  if (value.origin !== undefined || value.metric === "app_open_action") {
+    const origin = value.origin as Record<string, unknown> | undefined;
+    if (
+      !origin ||
+      origin.kind !== "owner-permitted" ||
+      !["demo", "unclassified", "all"].includes(origin.traffic as string) ||
+      value.metric !== "app_open_action"
+    )
+      return undefined;
+  }
   const total = (value.daily as { value: number | null }[]).reduce(
     (sum, day) => sum + (day.value ?? 0),
     0,
   );
-  if (value.value !== null && value.value !== total) return undefined;
+  const story = value.story as Record<string, unknown> | undefined;
+  if (story !== undefined) {
+    if (
+      !story ||
+      typeof story !== "object" ||
+      Array.isArray(story) ||
+      value.app !== null ||
+      value.metric !== "app_opens"
+    )
+      return undefined;
+    if (story.kind === "composed-share") {
+      if (
+        period.surface !== "all" ||
+        !integer(story.numerator) ||
+        !integer(story.denominator) ||
+        story.denominator !== total ||
+        total <= 0 ||
+        (story.numerator as number) > total ||
+        value.value !== Math.round((100 * (story.numerator as number)) / total)
+      )
+        return undefined;
+    } else if (story.kind === "peak-day") {
+      const daily = value.daily as { date: string; value: number | null }[];
+      const selected = daily.find((day) => day.date === story.date);
+      if (
+        !selected ||
+        selected.value === null ||
+        selected.value <= 0 ||
+        value.value !== selected.value ||
+        selected.value !== Math.max(...daily.map((day) => day.value ?? 0))
+      )
+        return undefined;
+    } else return undefined;
+  } else if (value.value !== null && value.value !== total) return undefined;
   return value as unknown as FrozenReport;
 }
 
@@ -359,7 +486,8 @@ export async function storeReport(
     )
     .bind(report.id, JSON.stringify(report), report.sourceRevision)
     .run();
-  if (!result.success) throw new Error("The public report could not be stored.");
+  if (!result.success)
+    throw new Error("The public report could not be stored.");
   // Public creation is rate-limited and bounded. Older snapshots beyond the
   // retained cap become unavailable; current and recent share links stay intact.
   await db
@@ -394,10 +522,10 @@ export function reportImagePath(id: string, format: ReportFormat) {
   return `${reportPath(id)}/${format}.png`;
 }
 export function reportCaption(report: FrozenReport) {
-  return `${report.headline}. ${report.period.days} UTC days, ${surfaceLabel(report.period.surface)}, through ${report.period.to}. Recorded lower bound, not unique people. ${reportUrl(report.id)}`;
+  return `${report.headline}. ${report.origin ? reportStoryLabel(report) + ". " : ""}${report.period.days} UTC days, ${reportSurfaceLabel(report)}, through ${report.period.to}. Recorded lower bound, not unique people. ${reportUrl(report.id)}`;
 }
 export const reportPeriodLabel = (report: FrozenReport) =>
-  `${report.period.from} to ${report.period.to} UTC · ${surfaceLabel(report.period.surface)}`;
+  `${report.period.from} to ${report.period.to} UTC · ${reportSurfaceLabel(report)}`;
 
 export function reportScope(params: URLSearchParams): ReportScope {
   const app = params.get("app");
@@ -407,10 +535,40 @@ export function reportScope(params: URLSearchParams): ReportScope {
   if (!signalKeys.includes(metric as SignalKey))
     throw new Error("Choose a supported public measure.");
   const days = params.get("days") === "30" ? 30 : 7;
-  const surface = ["standalone", "composed"].includes(params.get("surface") ?? "")
+  const surface = ["standalone", "composed"].includes(
+    params.get("surface") ?? "",
+  )
     ? (params.get("surface") as string)
     : "all";
-  return { app: app ?? null, metric: metric as SignalKey, days, surface };
+  const story = params.get("story");
+  const day = params.get("day");
+  if (story && !["composed-share", "peak-day"].includes(story))
+    throw new Error("Choose a supported finding.");
+  if (
+    story &&
+    (app ||
+      metric !== "app_opens" ||
+      (story === "composed-share" && surface !== "all"))
+  )
+    throw new Error("The finding does not match this scope.");
+  if (
+    story === "peak-day" &&
+    (!day ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(day) ||
+      !Number.isFinite(Date.parse(day)) ||
+      new Date(day).toISOString().slice(0, 10) !== day)
+  )
+    throw new Error("Choose a valid UTC day.");
+  if (day && story !== "peak-day")
+    throw new Error("A selected day requires a day finding.");
+  return {
+    app: app || null,
+    metric: metric as SignalKey,
+    days,
+    surface,
+    ...(story ? { story: story as "composed-share" | "peak-day" } : {}),
+    ...(day ? { day } : {}),
+  };
 }
 export function reportScopeParams(scope: ReportScope) {
   return {
@@ -418,5 +576,57 @@ export function reportScopeParams(scope: ReportScope) {
     metric: scope.metric,
     days: String(scope.days),
     surface: scope.surface,
+    ...(scope.story ? { story: scope.story } : {}),
+    ...(scope.day ? { day: scope.day } : {}),
   };
+}
+
+// Preview and publication share one server-owned calculation and one UTC instant.
+export async function preparePublicReport(
+  db: D1Database,
+  scope: ReportScope,
+  revision: string,
+  now = new Date(),
+) {
+  const summary = await portfolioSummary(
+    db,
+    scope.days,
+    now,
+    revision,
+    scope.surface as "all" | "standalone" | "composed",
+  );
+  const comparison = summary.routeTotals ?? undefined;
+  return buildReport(
+    summary as unknown as PublicHistory,
+    scope,
+    revision,
+    now,
+    comparison,
+  );
+}
+export function reportValueLabel(report: FrozenReport) {
+  return report.value === null
+    ? "—"
+    : report.value.toLocaleString("en-AU") +
+        (report.story?.kind === "composed-share" ? "%" : "");
+}
+export function reportStoryLabel(report: FrozenReport) {
+  return report.origin
+    ? `${report.origin.traffic === "demo" ? "Demonstration" : report.origin.traffic === "unclassified" ? "Unclassified" : "Mixed classification"} Open actions · lower bound, not people`
+    : report.story?.kind === "composed-share"
+      ? `${report.story.numerator.toLocaleString("en-AU")} composed / ${report.story.denominator.toLocaleString("en-AU")} total recorded opens`
+      : report.story?.kind === "peak-day"
+        ? `Selected UTC day: ${report.story.date}`
+        : "Daily recorded values · gaps are unavailable history";
+}
+
+export function reportSurfaceLabel(report: FrozenReport) {
+  return report.origin
+    ? "one selected app instance"
+    : surfaceLabel(report.period.surface);
+}
+export function reportEvidenceLabel(report: FrozenReport) {
+  return report.origin
+    ? `${report.origin.traffic === "demo" ? "DEMONSTRATION" : report.origin.traffic === "unclassified" ? "UNCLASSIFIED" : "MIXED CLASSIFICATION"} · ONE SELECTED APP INSTANCE`
+    : `PUBLIC AGGREGATE · ${report.period.surface === "all" ? "ALL CONNECTED VERSIONS" : report.period.surface === "composed" ? "INSIDE COMPOSER" : "STANDALONE APPS"}`;
 }

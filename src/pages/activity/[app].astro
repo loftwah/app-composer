@@ -78,7 +78,7 @@ const metricLabels: Record<string, string> = {
       <section class="analytics-summary" aria-label={`${definition.name} summary`}>
         <div><span>Recorded opens</span><strong>{entry ? count(entry.opens) : "—"}</strong><small>Successful home-page requests</small></div>
         <div><span>{id === "guestbook" ? "Contribution opens" : id === "linkcheck" ? "Completed inspections" : "Supported actions"}</span><strong>{entry ? count(id === "guestbook" ? entry.photoOpens : id === "linkcheck" ? entry.inspections : entry.actions) : "—"}</strong><small>{id === "state" ? "Vault actions stay private" : id === "showcase" || id === "hello" ? "No separate public action is counted" : id === "guestbook" ? "Page opens, not submissions" : "Finished in the app"}</small></div>
-        <div><span>Notes to review</span><strong>{entry?.postcards?.value === null || entry?.postcards === null || !entry?.postcards ? "—" : count(entry.postcards.value)}</strong><small>{entry?.postcards ? "Committed pending postcards" : "No receipt measure declared"}</small></div>
+        <div><span>Postcards received</span><strong>{entry?.postcards?.value === null || entry?.postcards === null || !entry?.postcards ? "—" : count(entry.postcards.value)}</strong><small>{entry?.postcards ? "Accepted during this period" : "No receipt measure declared"}</small></div>
         <div><span>Retained days</span><strong>{view ? `${view.daily.filter((day: { value: number | null }) => day.value !== null).length}/${selected.days}` : "—"}</strong><small>Available UTC days in scope</small></div>
       </section>
 

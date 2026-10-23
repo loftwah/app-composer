@@ -1,5 +1,8 @@
 import type { D1Database } from "@cloudflare/workers-types";
 import { z } from "zod";
+import build from "./build.json" with { type: "json" };
+import { projectOwnerReport, storeOwnerReport } from "./owner-public-report.ts";
+import { reportUrl } from "./public-report.ts";
 import { isCreatorRole } from "./creator-access.ts";
 import {
   resolveWorkspace,
@@ -39,6 +42,23 @@ const settingsInput = z
     traffic: z.enum(["unclassified", "demo"]),
   })
   .strict();
+const publicInput = z
+  .object({
+    action: z.enum(["previewPublicReport", "publishPublicReport"]),
+    workspace: id,
+    stack: id,
+    instance: id,
+    days: z.enum(["7", "30"]),
+    end: z.enum(["today", "yesterday"]),
+    traffic: z.enum(["demo", "unclassified", "all"]),
+    expectedReport: z
+      .string()
+      .regex(/^r[a-f0-9]{24}$/)
+      .optional(),
+    consent: z.literal(true).optional(),
+  })
+  .strict();
+const writeInput = z.union([settingsInput, publicInput]);
 const metricDefinitions = {
   app_open_action: {
     label: "Published app Open actions",
@@ -449,7 +469,7 @@ export async function managePrivateOutcomes(ctx: Context, runtime: Runtime) {
   )
     return fail("FORBIDDEN", "Open this report from Composer administration.");
   try {
-    const input = (reading ? readInput : settingsInput).parse(ctx.input);
+    const input = (reading ? readInput : writeInput).parse(ctx.input);
     if (!reading && ctx.request.method !== "POST")
       throw new StackError("INVALID", "Choose a supported outcome action.");
     if (reading) {
@@ -553,7 +573,68 @@ export async function managePrivateOutcomes(ctx: Context, runtime: Runtime) {
         "INVALID",
         "Choose an instance retained in this stack.",
       );
-    const report = await privateOutcomeReport(db, workspace.id, input);
+    if (
+      input.action === "previewPublicReport" ||
+      input.action === "publishPublicReport"
+    ) {
+      if (workspace.role !== "owner" || !stack || stack.status !== "published")
+        throw new StackError(
+          "FORBIDDEN",
+          "Only the workspace owner can permit a published instance aggregate.",
+          403,
+        );
+      const published = parse(stack.published_json);
+      const target = Array.isArray(published.instances)
+        ? published.instances.find(
+            (item: { id: string; visible?: boolean }) =>
+              item.id === input.instance && item.visible !== false,
+          )
+        : undefined;
+      if (!target)
+        throw new StackError(
+          "INVALID",
+          "Choose an eligible published app instance.",
+        );
+      const privateReport = await privateOutcomeReport(db, workspace.id, {
+        ...input,
+        action: "report",
+      });
+      const frozen = await projectOwnerReport(
+        privateReport,
+        target.app,
+        build.commit,
+      );
+      if ((await membership(db, workspace.id, ctx.user.id)) !== "owner")
+        throw new StackError(
+          "FORBIDDEN",
+          "Your owner access changed. Reopen this report.",
+          403,
+        );
+      if (input.action === "previewPublicReport")
+        return { ok: true as const, publicReport: frozen };
+      if (!input.consent || input.expectedReport !== frozen.id)
+        throw new StackError(
+          "CONFLICT",
+          "The aggregate changed or permission was not confirmed. Preview it again before publishing.",
+          409,
+        );
+      await storeOwnerReport(db, frozen, {
+        user: ctx.user.id,
+        workspace: workspace.id,
+        stack: stack.id,
+        instance: input.instance,
+        app: target.app,
+      });
+      return {
+        ok: true as const,
+        publicReport: frozen,
+        url: reportUrl(frozen.id),
+      };
+    }
+    const report = await privateOutcomeReport(db, workspace.id, {
+      ...input,
+      action: "report",
+    });
     if ((await membership(db, workspace.id, ctx.user.id)) !== workspace.role)
       throw new StackError(
         "FORBIDDEN",

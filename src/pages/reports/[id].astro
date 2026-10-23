@@ -2,7 +2,7 @@
 import Base from "../../layouts/Base.astro";
 import { env } from "cloudflare:workers";
 import type { D1Database } from "@cloudflare/workers-types";
-import { readReport, reportCaption, reportImagePath, reportUrl, reportPeriodLabel, reportFormats } from "../../lib/public-report";
+import { readReport, reportValueLabel, reportStoryLabel, reportSurfaceLabel, reportCaption, reportImagePath, reportUrl, reportPeriodLabel, reportFormats } from "../../lib/public-report";
 import { apps } from "../../lib/apps";
 import { ArrowUpRight, Download, Share2 } from "@lucide/astro";
 import "../../styles/reports.css";
@@ -52,11 +52,12 @@ const payload = report ? JSON.stringify({ url: reportUrl(report.id), title: repo
           {app && <img src={app.thumbnail} width="64" height="64" alt=""/>}
         </div>
         <h1>{report.headline}</h1>
-        <p class="frozen-report-value">{report.value === null ? "—" : report.value.toLocaleString("en-AU")} <span>{report.unit}</span></p>
+        <p class="frozen-report-value">{reportValueLabel(report)} <span>{report.unit}</span></p>
         <p class="frozen-report-period">{reportPeriodLabel(report)} · frozen {new Date(report.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}</p>
+        <p>{reportStoryLabel(report)}</p>
         <p class="frozen-report-detail">{report.detail}</p>
         <div class="frozen-report-actions">
-          <a class="button" href={app ? app.href : "/apps"}>Open {app ? app.name : "the apps"} <ArrowUpRight size={18} aria-hidden="true"/></a>
+          <a class="button" href={report.origin ? "/demo" : app ? app.href : "/apps"}>{report.origin ? "Try composing the apps" : `Open ${app ? app.name : "the apps"}`} <ArrowUpRight size={18} aria-hidden="true"/></a>
           <a class="button secondary" href="/init">Build something similar</a>
           <button type="button" class="secondary" data-report-native hidden><Share2 size={18} aria-hidden="true"/> Share this story</button>
           <button type="button" class="secondary" data-report-copy>Copy report link</button>
@@ -68,7 +69,7 @@ const payload = report ? JSON.stringify({ url: reportUrl(report.id), title: repo
       <section class="frozen-report-chart" aria-labelledby="report-chart-title">
         <div class="frozen-report-section-heading">
           <h2 id="report-chart-title">{report.metricLabel} by UTC day</h2>
-          <p>{report.period.days} days · {report.period.surface === "all" ? "all connected versions" : report.period.surface === "composed" ? "inside Composer" : "standalone apps"}</p>
+          <p>{report.period.days} days · {reportSurfaceLabel(report)}</p>
         </div>
         <div class="frozen-report-bars">
           <svg viewBox="0 0 900 240" preserveAspectRatio="none" role="img" aria-label={`${report.metricLabel}: ${report.value === null ? "unavailable" : report.value}. Daily values are in the table below.`}>
@@ -122,11 +123,11 @@ const payload = report ? JSON.stringify({ url: reportUrl(report.id), title: repo
 
       <section class="frozen-report-method" aria-labelledby="report-method-title">
         <h2 id="report-method-title">What this snapshot means</h2>
-        <p>This is a frozen public aggregate, not a live dashboard. The values were read from Composer's bounded daily counters and will not change when the 35-day counters expire or a later app release ships.</p>
+        <p>{report.origin ? "The owner explicitly permitted this frozen aggregate of Open actions for one selected published app instance. It retains only counts, dates, classification and coverage; private scope identifiers and content are excluded." : "This is a frozen public aggregate, not a live dashboard. The values were read from Composer’s bounded daily counters and will not change when the 35-day counters expire or a later app release ships."}</p>
         <dl>
           <div><dt>Frozen</dt><dd>{new Date(report.createdAt).toLocaleString("en-AU", { timeZone: "UTC" })} UTC</dd></div>
           <div><dt>Source</dt><dd><code>{report.sourceRevision}</code></dd></div>
-          <div><dt>Coverage</dt><dd>{report.coverage.quality}. Counters began {report.coverage.startedAt.slice(0, 10)} and stop at 1,000 per app/event/surface per UTC day.</dd></div>
+          <div><dt>Coverage</dt><dd>{report.coverage.quality}. Retained coverage begins {report.coverage.startedAt.slice(0, 10)}. {report.origin ? "Open action recording is bounded per stack and UTC day." : "Counters stop at 1,000 per app/event/surface per UTC day."}</dd></div>
           <div><dt>Scope</dt><dd>{reportPeriodLabel(report)}</dd></div>
         </dl>
         <ul>{report.coverage.limitations.map((limitation) => <li>{limitation}</li>)}</ul>

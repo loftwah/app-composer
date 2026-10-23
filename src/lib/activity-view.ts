@@ -23,6 +23,7 @@ export interface PublicHistory {
   coverage: { startedAt: string; quality: string; limitations: string[] };
   metrics: PublicMetric[];
   surface?: string;
+  routeTotals?: SurfaceTotals | null;
   apps?: PublicApp[];
 }
 export interface PublicAppPostcards {
@@ -189,6 +190,7 @@ export function buildFindings(
   report: PublicHistory,
   surfaces: SurfaceTotals,
 ): Finding[] {
+  surfaces = report.routeTotals ?? surfaces;
   const days = report.period.days;
   const surface = report.surface ?? "all";
   const findings: Finding[] = [];
@@ -221,7 +223,7 @@ export function buildFindings(
       headline: `${count(postcards)} ${postcards === 1 ? "postcard was" : "postcards were"} committed for review.`,
       detail: `${count(guestbook.photoOpens)} contribution-page ${guestbook.photoOpens === 1 ? "open was" : "opens were"} recorded in the same scope. Page opens are not people, and a received postcard is neither an approval nor a feature.`,
       value: count(postcards),
-      unit: postcards === 1 ? "pending postcard" : "pending postcards",
+      unit: postcards === 1 ? "postcard received" : "postcards received",
       href: `/activity/guestbook?${query(days, surface)}`,
       shareHref: shareHref("guestbook", "guest_postcards_received", days, surface),
     });
@@ -256,7 +258,7 @@ export function buildFindings(
       value: `${composedShare}%`,
       unit: "arrived inside Composer",
       href: `/activity?${query(days, surfaces.composed >= surfaces.standalone ? "composed" : "standalone")}`,
-      shareHref: shareHref(null, "app_opens", days, surface),
+      shareHref: shareHref(null, "app_opens", days, surface) + "&story=composed-share",
     });
   }
   const opens = report.metrics.find((metric) => metric.key === "app_opens");
@@ -275,7 +277,7 @@ export function buildFindings(
       value: count(peak.value),
       unit: "opens that day",
       href: `/activity?${query(days, surface)}&metric=app_opens`,
-      shareHref: shareHref(null, "app_opens", days, surface),
+      shareHref: shareHref(null, "app_opens", days, surface) + `&story=peak-day&day=${peak.date}`,
     });
   }
   return findings.slice(0, 4);
