@@ -14,7 +14,7 @@ const shipped=apps.find(app=>app.id===Astro.params.slug);
 const shareImage=shipped?`https://composer.loftwah.com${shipped.share}`:undefined;
 const reviewed=entry?new Date(entry.data.reviewed+'T00:00:00Z').toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'}):'';
 ---
-<Base title={title} description={description} noindex={noindexFor(Astro.url.hostname,Boolean(entry)&&!error)} shareImage={shareImage} shareAlt={shipped?.shareAlt}>
+<Base title={title} description={description} noindex={noindexFor(Astro.url.hostname,Boolean(entry)&&!error)} shareImage={shareImage} shareType={shipped?.shareType} shareAlt={shipped?.shareAlt}>
 {error ? (
  <>
   <a href="/catalogue">All mini-apps</a>

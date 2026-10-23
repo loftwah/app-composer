@@ -32,6 +32,7 @@ test('each entry ships its own tile, thumbnail, share card and real screenshot',
   assert.equal(assets.share,id==='launch-kit'?'/launch-kit/example/social-1200x630.png':`/brand/apps/${prefix}-share-20261018.jpg`,'the selected PNG/JPEG share card keeps its actual format');
   assert.match(assets.preview,new RegExp(`/brand/apps/previews/${prefix}-${id==='launch-kit'?'20261023':'20261018'}-960\\.webp$`),id+' preview is the real 960px capture');
   assert.match(assets.previewWide,new RegExp(`/brand/apps/previews/${prefix}-${id==='launch-kit'?'20261023':'20261018'}-1440\\.webp$`),id+' preview has a 1440px source');
+  const type=line.match(/shareType:'([^']+)'/)?.[1],header=readFileSync(new URL('public'+assets.share,root));assert.equal(type,header[0]===137?'image/png':header[0]===255&&header[1]===216?'image/jpeg':'unsupported',id+' metadata type matches actual bytes');
   assert.match(line,/previewCaptured:'\d{4}-\d{2}-\d{2}'/,'every screenshot carries its capture date');
   for(const value of Object.values(assets)){
    const path='public'+value;
