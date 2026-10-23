@@ -9,11 +9,14 @@ import ReadyProgress from '../components/ReadyProgress.astro';
 import ReadyDomain from '../components/ReadyDomain.astro';
 import ReadyProject from '../components/ReadyProject.astro';
 import ReadyPreferences from '../components/ReadyPreferences.astro';
+import ReadyPlatform from '../components/ReadyPlatform';
+import build from '../lib/build.json';
 import { ArrowRight, BookOpen, Bot, GitBranch, Cloud, Globe, ShieldCheck } from '@lucide/astro';
 const stages=[{icon:Bot,title:'Agent & tools',detail:'A working folder and the tools to build.'},{icon:GitBranch,title:'Your GitHub source',detail:'A private starter you own and can update.'},{icon:Cloud,title:'Your Cloudflare account',detail:'The intended account and deployment access.'},{icon:Globe,title:'A live HTTPS app',detail:'The exact source, deployed and verified.'}];
 const profiles = Astro.url.searchParams.getAll('profile');
 const platformSelected = profiles.length === 1 && profiles[0] === 'platform';
 const workspaces = Astro.url.searchParams.getAll('workspace');
+const invalidSelection = workspaces.length > 0 && (workspaces.length !== 1 || !/^[a-z0-9-]{6,64}$/.test(workspaces[0]));
 const workspace = workspaces.length === 1 && /^[a-z0-9-]{6,64}$/.test(workspaces[0]) ? workspaces[0] : undefined;
 const nativePlatform = '/_emdash/admin/plugins/composer-stacks/platform' + (workspace ? '?' + new URLSearchParams({workspace}) : '');
 const platformSelf = '/ready?' + new URLSearchParams({profile:'platform', ...(workspace ? {workspace} : {})});
@@ -35,6 +38,8 @@ const source = appSettings.guestbook.source;
  </nav>
  {platformSelected ? (
   <div class="platform-preparation">
+   <ReadyPlatform client:load workspace={workspace} invalidSelection={invalidSelection} source={build.commit}/>
+   <noscript><p>Open the protected platform to inspect current setup. Checking it on this page needs JavaScript.</p></noscript>
    <section class="platform-next" aria-labelledby="platform-prepare-heading">
     <h2 id="platform-prepare-heading">Inspect the workspace you will operate.</h2>
     <p>The native EmDash workspace checks your current owner, editor or viewer role, loads the saved policy and reports whether its trusted app-resource adapter is connected. A workspace owner establishes the supported scope and application limit; a team editor requests within it.</p>
@@ -144,7 +149,7 @@ const source = appSettings.guestbook.source;
  }
  }
 
- .build-paths{display:flex;flex-wrap:wrap;gap:0 32px;border-block:1px solid var(--color-border);margin:28px 0 16px}.build-paths a{flex:1 1 180px;display:grid;gap:4px;padding:16px 0;min-height:44px;color:var(--color-foreground);text-decoration:none}.build-paths a[aria-current]{box-shadow:inset 0 -2px var(--color-accent)}.build-paths a:hover strong{text-decoration:underline;text-underline-offset:4px}.build-paths span{font-size:13px;line-height:1.5;color:var(--color-muted)}
+ .build-paths{display:flex;flex-wrap:wrap;gap:0 32px;border-block:1px solid var(--color-border);margin:28px 0 16px}.build-paths a{flex:1 1 180px;display:grid;gap:4px;padding:16px 0;min-height:44px;color:var(--color-foreground);text-decoration:none}.build-paths a[aria-current]{box-shadow:inset 0 -2px var(--color-accent)}.build-paths a:hover strong{color:var(--color-accent)}.build-paths span{font-size:13px;line-height:1.5;color:var(--color-muted)}
 
  .workspace-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;margin-bottom:32px}.workspace-heading h1{font-size:3.25rem;max-width:24ch;margin-top:0;margin-bottom:18px}.workspace-heading .lede{font-size:1.1rem;max-width:64ch;margin:0}.workspace-heading>.button{flex-shrink:0}.journey-nav{display:flex;gap:0;border-block:1px solid var(--color-border);margin:32px 0 40px;overflow:auto;flex-wrap:nowrap}.journey-nav a{display:flex;gap:10px;align-items:center;padding:18px 24px 18px 0;margin-right:24px;white-space:nowrap;font-weight:500;color:var(--color-muted);text-decoration:none;min-height:58px}.journey-nav a[aria-current]{color:var(--color-foreground);border-bottom:2px solid var(--color-accent)}.journey-nav span{font-size:13px;border:1px solid var(--color-control-border);border-radius:50%;width:24px;height:24px;display:grid;place-items:center}.journey-nav a[aria-current] span{color:var(--color-accent)}.ready-workspace{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:56px;align-items:start}.ready-main :global(h2){font-size:1.6rem;max-width:none;margin-bottom:14px}.agent-request{border-top:1px solid var(--color-border);padding-top:32px;margin-top:32px;scroll-margin-top:24px}.agent-request>p{color:var(--color-muted)}.owner-boundary{display:flex;gap:12px;padding:18px 0}.owner-boundary svg{flex-shrink:0;margin-top:4px;color:var(--color-muted)}.owner-boundary p{font-size:13px;color:var(--color-muted);margin:0}.readiness-outcome{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;border-top:1px solid var(--color-border);margin-top:56px;padding-top:40px}.readiness-outcome h2{font-size:2rem;margin-bottom:18px}.readiness-map{list-style:none;margin:0;padding:0;max-width:none}.readiness-map li{display:flex;gap:16px;margin:0;padding:16px 0;border-bottom:1px solid var(--color-border)}.readiness-map svg{flex-shrink:0;color:var(--color-muted);margin-top:3px}.readiness-map p{font-size:14px;color:var(--color-muted);margin:4px 0 0}
  @media(max-width:950px){.workspace-heading{display:block}.workspace-heading>.button{margin-top:24px}.ready-workspace{grid-template-columns:1fr;gap:32px}.readiness-outcome{gap:32px}.journey-nav a{margin-right:12px;padding-right:18px}}

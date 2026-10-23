@@ -14,12 +14,15 @@
     "./domain-report": "./domain-report.mjs",
     "./project": "./project.mjs",
     "./site-skills": "./site-skills.mjs",
-    "./project-report": "./project-report.mjs"
+    "./project-report": "./project-report.mjs",
+    "./platform": "./platform.mjs"
   },
   "bin": {
     "get-ready": "./cli.mjs"
   },
   "files": [
+    "platform.mjs",
+    "platform.d.mts",
     "project-write.mjs",
     "project-files.mjs",
     "site-skills.mjs",

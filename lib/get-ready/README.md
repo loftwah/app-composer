@@ -170,3 +170,21 @@ Explicit reference-tool preparation also checks that this reference's exact
 reviewed TypeScript pin is installed locally. It preserves and refuses an
 incomplete owner installation. Preparation does not execute the source checker
 or establish readiness; ordinary checks never retry installation.
+# Internal platform observations
+
+The existing installation can be inspected in Get Ready’s internal-platform
+view. Select an authorised team and check its current setup before following the
+protected policy, request or resume action. Account and runtime facts come from
+the authenticated server, never imported configuration. An unavailable field
+remains unobserved. Existing populated workspaces retain their ownership;
+automatic adoption is not supported.
+
+`platformObservation`, `validatePlatformReport` and `inspectPlatformReport` are
+dependency-free exports from the main entry and `./platform`. A downloaded
+`app-composer.platform-observation` version 1 report can be inspected with
+`get-ready --inspect-platform /absolute/path/report.json`. This command reads
+offline data only: `liveAccessChecked` and `ready` are false. It cannot combine
+with setup flags, create resources or authorise another operation. Existing
+environment report version 2 remains unchanged. Workspace/account facts and own
+resumable request IDs are private; no request content, resource IDs, credentials
+or login identities are exported.
