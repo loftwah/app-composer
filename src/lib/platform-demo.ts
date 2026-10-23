@@ -98,10 +98,10 @@ export const demoFilms: readonly DemoFilm[] = [
       bytes: 191043,
     },
     captions: {
-      href: "/demos/platform-native-25dc7589-b3cd5894/overview.vtt",
+      href: "/demos/platform-native-25dc7589-b3cd5894/overview-cc-20261024.vtt",
       sha256:
-        "a509f42ece27e09deb2d56d6d262359828891371e2eca185748b742b25a48f72",
-      bytes: 3798,
+        "b7ce234fba7eb93f0956aace4db19cddf3ad8ee7af40444c3122d123d51aa8aa",
+      bytes: 2835,
     },
     transcript: {
       href: "/demos/platform-native-25dc7589-b3cd5894/overview.transcript.md",
@@ -110,10 +110,10 @@ export const demoFilms: readonly DemoFilm[] = [
       bytes: 15598,
     },
     publicReceipt: {
-      href: "/demos/platform-native-25dc7589-b3cd5894/receipt.json",
+      href: "/demos/platform-native-25dc7589-b3cd5894/receipt-cc-20261024.json",
       sha256:
-        "1aefc42ca8a39375a1257576c3289431a5e3324f94fc7e2c2e8549eb526170e8",
-      bytes: 13890,
+        "82c871d41af7675bde57e456540721fc6227848fab365c7d53ddba70ef289622",
+      bytes: 15999,
     },
     editRecord: {
       href: "/demos/platform-native-25dc7589-b3cd5894/edit-manifest.json",
@@ -178,10 +178,10 @@ export const demoFilms: readonly DemoFilm[] = [
       bytes: 213055,
     },
     captions: {
-      href: "/demos/platform-native-25dc7589-b3cd5894/technical-walkthrough.vtt",
+      href: "/demos/platform-native-25dc7589-b3cd5894/technical-walkthrough-cc-20261024.vtt",
       sha256:
-        "0958ead480c5a9ba69d13bcf599bffb024e924f1050e821a149159fc8c867532",
-      bytes: 10612,
+        "461ab517408299ba441ec0f05725f631c89be520e31b0c3633ad4c3d4bf3ad5c",
+      bytes: 8660,
     },
     transcript: {
       href: "/demos/platform-native-25dc7589-b3cd5894/technical-walkthrough.transcript.md",
@@ -190,10 +190,10 @@ export const demoFilms: readonly DemoFilm[] = [
       bytes: 38811,
     },
     publicReceipt: {
-      href: "/demos/platform-native-25dc7589-b3cd5894/receipt.json",
+      href: "/demos/platform-native-25dc7589-b3cd5894/receipt-cc-20261024.json",
       sha256:
-        "1aefc42ca8a39375a1257576c3289431a5e3324f94fc7e2c2e8549eb526170e8",
-      bytes: 13890,
+        "82c871d41af7675bde57e456540721fc6227848fab365c7d53ddba70ef289622",
+      bytes: 15999,
     },
     editRecord: {
       href: "/demos/platform-native-25dc7589-b3cd5894/edit-manifest.json",

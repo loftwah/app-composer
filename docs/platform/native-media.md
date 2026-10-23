@@ -40,6 +40,19 @@ action-spacing defect was fixed separately in current product source. The films
 retain the historical recording identity and do not imply a recapture of that fix.
 Agent review is not owner/human acceptance.
 
+The 24 October optional-caption revision keeps those MP4s, posters, full
+transcripts and original receipt immutable. Maintained `cc` text supplies concise,
+source-faithful optional captions; the full `text` paragraphs still supply the
+film and transcript. Consecutive identical CC text shares its original source
+span. Word-balanced cues have at most two 32-character lines, at least two
+seconds of display time, at most 20 characters per second and a 40 ms gap.
+Native cue positioning starts at 10% of the video height; browser and fullscreen
+pixel review remains required. Recording identities remain in a non-displayed
+VTT note. The cache-safe `*-cc-20261024.vtt` files and
+`receipt-cc-20261024.json` describe this transport revision separately from the
+historical renderer and native qualification; they make no re-encoding or new
+recording claim.
+
 The separate availability receipt is excluded; its bounded local recovery
 evidence remains in [incident-demo.md](incident-demo.md). Final release identity,
 public asset hashes and actual live observations belong in #11.
