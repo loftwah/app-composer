@@ -523,8 +523,36 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
     throw Error("Native request did not complete within bounded observation.");
   }
   await ordinary.goto(
-    lab.origins.composer + "/me?view=platform&workspace=" + wa,
+    lab.origins.composer + "/ready?profile=platform&workspace=" + wa,
   );
+  await ordinary
+    .getByRole("button", { name: "Check my signed-in access", exact: true })
+    .click();
+  await ordinary
+    .getByRole("heading", { name: "Request a team application", exact: true })
+    .waitFor();
+  await screenshot(ordinary, "ready-role10-team-a-request");
+  const initLink = ordinary.getByRole("link", {
+    name: "Continue in Init with this team",
+    exact: true,
+  });
+  check(
+    (await initLink.getAttribute("href")) ===
+      "/init?profile=platform&workspace=" + wa,
+    "Get Ready changed the member's selected team before Init.",
+  );
+  await initLink.click();
+  const requestLink = ordinary.getByRole("link", {
+    name: "Open application requests",
+    exact: true,
+  });
+  check(
+    (await requestLink.getAttribute("href")) ===
+      "/me?view=platform&workspace=" + wa,
+    "Init did not retain the delegated member request path and selected team.",
+  );
+  await screenshot(ordinary, "init-role10-team-a-request");
+  await requestLink.click();
   await ordinary
     .getByRole("heading", { name: "Team application requests", exact: true })
     .waitFor();
