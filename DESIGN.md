@@ -130,3 +130,10 @@ The workbench uses only `composer:workbench:v1` local storage. Its deliberate
 session-staged Init candidate opens the existing review/replace UI and never
 saves over an existing Init draft. This is local demonstration progress, never
 production analytics, customer adoption or a Cloudflare deployment receipt.
+
+
+## Finding shipped work — 24 October 2026
+
+The homepage and `/discover` expose working capabilities through original finished output and recorded interface pixels. Launch Kit and the team films lead, followed by native links to invited profiles, analytics and owner workflows. The film entry retains its local fictional scope, and signed-in destinations explain admission where it affects use. The PHP briefing remains available after the product work. The grouped header’s Explore destination opens `/discover`; the existing decision planner stays at `/explore`.
+
+A new public capability must have an appropriate visible homepage or discovery entry and a searchable launcher destination before its release is considered discoverable. A route, catalogue record or release receipt alone does not meet that requirement. Keep native links useful without the launcher script. Shared-controller changes still pass through all independent app releases and the exact mounted-source promotion.
