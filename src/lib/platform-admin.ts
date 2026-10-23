@@ -907,51 +907,76 @@ export async function runPlatformRequest(
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#39;");
-    async function publicHTML(path: string, markers: string[]) {
-      const response = await publicRequest(
-        new Request(origin + path, {
-          redirect: "manual",
-          headers: { "X-Composer-Verification": "1" },
-          signal: AbortSignal.timeout(8000),
-        }),
-      );
-      if (
-        !response.ok ||
-        !response.headers.get("content-type")?.includes("text/html")
-      )
-        throw Error(
-          "The public application journey is not independently verified.",
+    async function publicHTML(
+      stage: "application" | "publication",
+      path: string,
+      markers: string[],
+    ) {
+      const failure = (message: string) =>
+        new StackError(
+          "UNAVAILABLE",
+          `Public ${stage} verification ${message}. Existing resources are retained.`,
+          503,
         );
-      const reader = response.body?.getReader();
-      if (!reader) throw Error("The public response is empty.");
+      let response: Response;
+      try {
+        response = await publicRequest(
+          new Request(origin + path, {
+            redirect: "manual",
+            headers: { "X-Composer-Verification": "1" },
+            signal: AbortSignal.timeout(8000),
+          }),
+        );
+      } catch {
+        throw failure("could not reach the public endpoint");
+      }
+      if (!response.ok) {
+        await response.body?.cancel().catch(() => {});
+        throw failure(`received HTTP ${response.status}`);
+      }
+      if (!response.headers.get("content-type")?.includes("text/html")) {
+        await response.body?.cancel().catch(() => {});
+        throw failure("expected an HTML response");
+      }
+      let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+      try {
+        reader = response.body?.getReader();
+      } catch {
+        throw failure("could not read the public response");
+      }
+      if (!reader) throw failure("returned no response body");
       let bytes = 0,
-        html = "";
+        html = "",
+        oversized = false;
       const decoder = new TextDecoder();
       try {
         while (true) {
           const part = await reader.read();
           if (part.done) break;
           bytes += part.value.length;
-          if (bytes > 500000)
-            throw Error("Public verification response exceeds its bound.");
+          if (bytes > 500000) {
+            oversized = true;
+            break;
+          }
           html += decoder.decode(part.value, { stream: true });
         }
         html += decoder.decode();
+      } catch {
+        throw failure("could not read the public response");
       } finally {
-        await reader.cancel();
+        await reader.cancel().catch(() => {});
       }
+      if (oversized) throw failure("exceeded the response size limit");
       if (!markers.every((marker) => html.includes(marker)))
-        throw Error(
-          "The public response does not match the exact app and publication.",
-        );
+        throw failure("did not match the expected identity");
     }
-    await publicHTML(publicPath, [
+    await publicHTML("application", publicPath, [
       'data-app="guestbook"',
       "<h1>" + escape(published.name) + "</h1>",
       'rel="canonical" href="' + origin + publicPath + '"',
     ]);
     await guard();
-    await publicHTML("/s/" + published.slug, [
+    await publicHTML("publication", "/s/" + published.slug, [
       "<title>" +
         (published.name.includes("App Composer")
           ? escape(published.name)
