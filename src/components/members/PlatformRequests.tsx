@@ -125,9 +125,8 @@ export default function PlatformRequests({
     <section>
       <h2>Team application requests</h2>
       <p>
-        Your current workspace editor or owner delegation permits self-service
-        under saved operator policy. Policy changes and independent review stay
-        in native administration.
+        Use your team’s saved rules to request and update applications. Your
+        operator manages policy and review.
       </p>
       {error && (
         <p role="alert" className="member-error">
@@ -141,8 +140,14 @@ export default function PlatformRequests({
         <>
           <p>
             {snapshot.workspace.name} · {snapshot.workspace.role}.{" "}
-            {snapshot.runner.message}
+            {snapshot.runner.available
+              ? "Visitor-book connection configured. Each request checks the service before completion."
+              : "The visitor-book connection needs attention. Your saved requests are retained."}
           </p>
+          <details>
+            <summary>Connection details</summary>
+            <p>{snapshot.runner.message}</p>
+          </details>
           {!snapshot.profile?.enabled && (
             <p>
               An admitted operator must enable workspace standing policy before

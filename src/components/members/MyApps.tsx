@@ -71,7 +71,7 @@ export default function MyApps() {
     if (!readProfile) {
       setSnapshot(undefined);
       setStatus(
-        "Workspace membership loaded. Platform observations validate configuration only; upstream connectivity and provider permissions are checked separately.",
+        "Workspace access loaded. Choose an available action below.",
       );
       return;
     }
@@ -93,7 +93,14 @@ export default function MyApps() {
     if (!grant) {
       setSnapshot(undefined);
       setStatus(
-        "Workspace membership is active. Ask its owner for the profile or app actions you need.",
+        next.grants.some(
+          (entry) =>
+            entry.workspace === workspace.id &&
+            entry.app === "guestbook" &&
+            entry.status !== "revoked",
+        )
+          ? "Your shared app tools are available in My apps. Profile editing needs a separate grant."
+          : "Workspace membership is active. Ask its owner for the profile or app actions you need.",
       );
       return;
     }

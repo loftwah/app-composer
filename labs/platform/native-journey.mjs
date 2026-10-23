@@ -431,6 +431,16 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
       policyRevision: configured.profile.revision,
       creatorPolicy,
     });
+    await creator.goto(
+      lab.origins.composer +
+        "/_emdash/admin/plugins/composer-stacks/platform?workspace=" +
+        workspace.id,
+    );
+    await creator.getByLabel("Application name", { exact: true }).waitFor();
+    check(
+      (await creator.locator("body").innerText()).includes(name),
+      "The native platform did not display the selected team.",
+    );
     await screenshot(creator, "team-" + key + "-workspace");
   }
   result.checks.push(
