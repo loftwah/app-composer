@@ -21,6 +21,12 @@ export function installStackActions(root: Document = document) {
     if (event.isTrusted) touch = undefined;
   };
   const activate = (event: MouseEvent) => {
+    const parameters = new URL(root.URL).searchParams;
+    if (
+      parameters.getAll("analytics").includes("off") ||
+      parameters.getAll("qa").includes("1")
+    )
+      return;
     if (
       !event.isTrusted ||
       event.defaultPrevented ||

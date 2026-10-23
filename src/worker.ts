@@ -7,6 +7,7 @@ import {usageSummary} from './lib/usage';
 import {portfolioWindow,portfolioSummary} from '../lib/usage/portfolio.mjs';
 import build from './lib/build.json';
 import {purgePrivateOutcomes} from './lib/private-outcome-events';
+import {mountedBuilderNavigation} from './lib/mounted-builder-navigation';
 type Runtime=AccessRuntime & {DB:D1Database;PUBLIC_ORIGIN:string;USAGE_TOKENS?:string;USAGE_LIMIT?:RateLimit};
 export { PluginBridge };
 const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runtime:Runtime,context:ExecutionContext)=>{
@@ -25,7 +26,7 @@ const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runti
  const response=await handler.fetch!(request,runtime,context);
  const app=path.match(/^\/(guestbook|showcase)(?:\/|$)/)?.[1];
  if(app&&request.headers.get('X-Composer-Verification')!=='1'){const event=(app==='guestbook'?postcardReceiptEvent(request,response,'/'+app):null)??pageEvent(request,response,'/'+app);if(event)context.waitUntil((async()=>{if(runtime.USAGE_LIMIT&&(await runtime.USAGE_LIMIT.limit({key:app+':'+event})).success)await record(runtime.DB,app,event,'composed');})().catch(()=>{}));}
- return response;
+ return mountedBuilderNavigation(request,response);
 };
 const cmsScheduled=createScheduledHandler();
 export default {...handler,fetch:guardedFetch,scheduled:async(controller:ScheduledController,runtime:Runtime,context:ExecutionContext)=>{
