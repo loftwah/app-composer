@@ -1,0 +1,51 @@
+{
+  "riverPublished": {
+    "status": [
+      "18 destinations",
+      "Profile published. Open it and verify the public card.",
+      "",
+      "",
+      "Use YYYY, YYYY-MM or YYYY-MM-DD. Leave blank if unknown.",
+      "Optional. Use a full HTTPS address without embedded credentials.",
+      "",
+      "",
+      "Image selected in your saved draft. Publish your profile to activate it for visitors, then verify the public result.",
+      "",
+      ""
+    ],
+    "public": "https://composer.loftwah.com/showcase/p/fictional-river/"
+  },
+  "riverServed": {
+    "verified": "Served result verified: mounted profile URL, PNG type, 1200 \u00d7 630 dimensions, exact image hash and current profile revision agree. Native social unfurls remain separate."
+  },
+  "nightPublishedAndServed": {
+    "verified": "Served result verified: mounted profile URL, PNG type, 1200 \u00d7 630 dimensions, exact image hash and current profile revision agree. Native social unfurls remain separate.",
+    "public": "https://composer.loftwah.com/showcase/p/fictional-night-signal/"
+  },
+  "riverRollbackAndRestoration": {
+    "before": {
+      "status": 200,
+      "restoredPreviousManual": true
+    },
+    "generatedCardRestored": true,
+    "verified": "Served result verified: mounted profile URL, PNG type, 1200 \u00d7 630 dimensions, exact image hash and current profile revision agree. Native social unfurls remain separate."
+  },
+  "phoneDiscovery": {
+    "width": {
+      "view": 390,
+      "scroll": 390
+    },
+    "projectVisible": true,
+    "listeningVisible": false
+  },
+  "scope": "Real local native EmDash accounts and app data. Production admission and public operator fixtures are separate.",
+  "applicationPins": {
+    "guestbook": "9515b359bf268e6c79efbf6ad3497da132973c3e",
+    "showcase": "9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+    "composition": "e7e3dfe08d5c30d33b1ca083457daf790c32a60032fffb150932ddbc3131969c"
+  },
+  "localFinalPublicRevision": {
+    "fictional-river": 17,
+    "fictional-night-signal": 17
+  }
+}

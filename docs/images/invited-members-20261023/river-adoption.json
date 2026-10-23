@@ -1,0 +1,31 @@
+{
+  "format": "linkarooie.share-card",
+  "version": 1,
+  "profile": {
+    "id": "https://showcase.loftwah.com/profiles/acfd2f52-cb0d-4f49-a604-6e4ba7d17b05",
+    "revision": "b48598a74230643d050b6a42ea2a4086d9dfe3182f256d002300ce620fa6aa60"
+  },
+  "image": {
+    "path": "/brand/generated/profile-0a32eb8f9a4354137a4d020747ec16e49bad1a4a16ba462819ea6a962d231b86.png",
+    "sha256": "0a32eb8f9a4354137a4d020747ec16e49bad1a4a16ba462819ea6a962d231b86",
+    "type": "image/png",
+    "width": 1200,
+    "height": 630,
+    "alt": "River Morgan · @fictional-river — profile card"
+  },
+  "text": {
+    "name": "River Morgan",
+    "handle": "fictional-river",
+    "description": "A fictional writer and map-maker. Short pieces, long walks, and useful things to read."
+  },
+  "preset": {
+    "id": "typography",
+    "version": 1
+  },
+  "renderer": {
+    "id": "launch-kit-profile",
+    "version": "1.0.0",
+    "font": "Space Grotesk Latin 20261018",
+    "fontSha256": "61d00a1c57fcd7d4826c7a69cd85b61d15d133d5471d3c9c4731d70193d9f71f"
+  }
+}

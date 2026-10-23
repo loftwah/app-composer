@@ -2,7 +2,7 @@
 
 Reviewed 23 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
-## Invited creators — local qualification and release in progress, 23 October 2026
+## Invited creators — 23 October 2026
 
 [My profile / My apps](/me) and [People & access](/people) are implemented with
 EmDash's existing session and a Subscriber-role member route. Shared membership
@@ -17,10 +17,18 @@ two distinct role-10 members, independent profile editing and local card outputs
 plus Guestbook contribution, approval, hiding and subsequent moderation denial
 after revocation while the member's own profile remains accessible. Local direct
 requests also deny another resource/profile/export and unrelated CMS routes.
-These observations remain distinct from production admission, a completed
-production member journey and human/device acceptance. The complete two-card
-asset-release/adoption/publication verification and final Composer promotion
-receipt are still being finalised in this integration.
+Both cards completed asset release, deliberate local selection, separate profile
+publication and exact served-image verification; River additionally exercised
+rollback and restoration. [The normal-speed walkthrough and bounded evidence](images/invited-members-20261023/README.md)
+keep these local authenticated observations separate from production admission
+and human/device acceptance. [The canonical receipt](https://github.com/loftwah/app-composer/issues/11#issuecomment-6360409178)
+owns exact Composer/app deployment and production visitor verification.
+
+Two deliberately fictional public examples are [River Morgan](/showcase/p/fictional-river/)
+and [Night Signal](/showcase/p/fictional-night-signal/). Their production records
+mirror only final public documents under reserved operator-fixture ownership;
+they establish no production member accounts, invitations or grants. Fresh-person
+Access admission still requires the separately reviewed owner-approved change.
 
 Guestbook's reviewed member-service implementation is independently released at
 `9515b359bf268e6c79efbf6ad3497da132973c3e` ([PR #29](https://github.com/loftwah/app-composer-guestbook/pull/29)),

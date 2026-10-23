@@ -1,0 +1,24 @@
+{
+  "format": "launch-kit.local-render",
+  "version": 1,
+  "renderer": {
+    "id": "launch-kit-profile",
+    "version": "1.0.0",
+    "font": "Space Grotesk Latin 20261018",
+    "fontSha256": "61d00a1c57fcd7d4826c7a69cd85b61d15d133d5471d3c9c4731d70193d9f71f"
+  },
+  "browser": "151.0.7922.34",
+  "externalNetworking": "blocked before page load; only owned loopback server permitted",
+  "externalRequestsBlocked": 0,
+  "sourceImagesIncluded": false,
+  "outputs": [
+    {
+      "preset": "music",
+      "file": "profile-0e8ea164c575021719c1e9305534a799af1532e61c42171ec598639de0d8263e.png",
+      "sha256": "0e8ea164c575021719c1e9305534a799af1532e61c42171ec598639de0d8263e",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png"
+    }
+  ]
+}
