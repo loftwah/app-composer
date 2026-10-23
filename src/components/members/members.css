@@ -1,0 +1,229 @@
+.member-workbench {
+  max-width: 1120px;
+  margin-inline: auto;
+  font-family: system-ui, sans-serif;
+  line-height: 1.55;
+}
+.member-workbench h1 {
+  font-family: inherit;
+  font-size: 2rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+}
+.member-workbench h2 {
+  font-family: inherit;
+  font-size: 1.35rem;
+  font-weight: 650;
+  margin: 0 0 14px;
+}
+.member-workbench h3 {
+  font:
+    650 1.05rem/1.4 system-ui,
+    sans-serif;
+  margin: 16px 0 8px;
+}
+.member-workbench p {
+  max-width: 72ch;
+  margin: 0 0 16px;
+  overflow-wrap: anywhere;
+}
+.member-workbench section {
+  border-top: 1px solid var(--color-border);
+  padding-top: 28px;
+  margin-top: 36px;
+}
+.member-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 28px;
+}
+.member-heading > div {
+  min-width: 0;
+}
+.member-heading > a {
+  flex-shrink: 0;
+}
+.member-workbench button,
+.member-workbench .button {
+  font:
+    550 1rem/1.4 system-ui,
+    sans-serif;
+  border: 1px solid var(--color-control-border);
+  border-radius: 8px;
+  color: var(--color-foreground);
+  background: var(--color-surface);
+  padding: 10px 16px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.member-workbench button:hover {
+  background: var(--color-selected);
+}
+.member-workbench button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.member-workbench :is(input, select, textarea) {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  font:
+    400 16px/1.5 system-ui,
+    sans-serif;
+  color: var(--color-foreground);
+  background: var(--color-field);
+  border: 1px solid var(--color-control-border);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.member-workbench textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+.member-workbench
+  :is(input, select, textarea, button, a, summary):focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+.member-workbench label {
+  display: grid;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 550;
+  min-width: 0;
+}
+.member-form {
+  display: grid;
+  gap: 20px;
+  max-width: 720px;
+  margin-block: 20px 28px;
+}
+.member-form > button {
+  justify-self: start;
+}
+.member-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.member-scope {
+  max-width: 500px;
+  margin-block: 24px;
+}
+.member-rows {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+  max-width: none;
+}
+.member-rows > li {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 24px;
+  border-bottom: 1px solid var(--color-border);
+  padding: 20px 0;
+  overflow-wrap: anywhere;
+}
+.member-rows > li > div {
+  min-width: 0;
+}
+.member-rows > li > button {
+  flex-shrink: 0;
+}
+.member-rows p {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  margin: 6px 0 0;
+}
+.member-error {
+  color: var(--color-foreground);
+  border: 1px solid var(--color-control-border);
+  padding: 16px;
+  background: var(--color-surface);
+}
+.member-workbench details {
+  border-block: 1px solid var(--color-border);
+  padding: 16px 0;
+  margin-block: 32px;
+}
+.member-workbench summary {
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  align-content: center;
+}
+.member-workbench details[open] > summary {
+  margin-bottom: 18px;
+}
+.member-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-block: 20px;
+}
+.member-state {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+.member-preview {
+  padding: 24px;
+  background: var(--color-surface);
+  border-radius: 10px;
+  margin-block: 24px;
+  overflow-wrap: anywhere;
+}
+.member-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.member-preview figure {
+  margin: 0;
+}
+.member-preview figcaption {
+  margin-block: 12px;
+  font-size: 0.9rem;
+}
+.member-workbench input[type="checkbox"] {
+  width: 20px;
+  min-height: 20px;
+  accent-color: var(--color-brand);
+}
+.member-check {
+  display: flex !important;
+  align-items: start;
+  gap: 12px !important;
+}
+.member-check input {
+  flex: none;
+  margin-top: 4px;
+}
+@media (max-width: 700px) {
+  .member-heading {
+    display: block;
+  }
+  .member-heading > a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+  }
+  .member-fields {
+    grid-template-columns: 1fr;
+  }
+  .member-rows > li {
+    flex-direction: column;
+    gap: 14px;
+  }
+  .member-workbench h1 {
+    font-size: 1.8rem;
+  }
+  .member-workbench section {
+    margin-top: 28px;
+    padding-top: 24px;
+  }
+}

@@ -689,9 +689,29 @@ export async function manageMembers(
           .bind(memberIssuer, workspace)
           .all()
       ).results;
+      const resources = (
+        await db
+          .prepare(
+            "SELECT id, CASE WHEN json_valid(configuration_json) THEN coalesce(json_extract(configuration_json,'$.title'),json_extract(configuration_json,'$.config.title')) END AS name FROM creator_app_resources WHERE workspace_id=? AND app='guestbook' AND state='ready' ORDER BY created_at,id LIMIT 128",
+          )
+          .bind(workspace)
+          .all<{ id: string; name: unknown }>()
+      ).results.map((resource) => ({
+        id: resource.id,
+        name:
+          typeof resource.name === "string" && resource.name.trim()
+            ? resource.name.slice(0, 80)
+            : "Visitor book",
+      }));
       if ((await membership(db, workspace, user.id)) !== "owner")
         throw forbidden();
-      return { ok: true, ...access, grants: all.map(grantView), audit };
+      return {
+        ok: true,
+        ...access,
+        grants: all.map(grantView),
+        resources,
+        audit,
+      };
     }
     if (ctx.request.method !== "POST")
       throw new StackError("INVALID", "Choose a supported member action.");
