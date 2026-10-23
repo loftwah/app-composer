@@ -31,9 +31,13 @@ export const GET: APIRoute = async ({ params, request }) => {
   try {
     const report = await readReport(runtime.DB, id);
     if (!report) return missing();
+    if (request.method === "HEAD") {
+      headers.set("Content-Type", "image/png");
+      return new Response(null, { headers });
+    }
+    const image = await renderReportImage(report, format);
     headers.set("Content-Type", "image/png");
-    if (request.method === "HEAD") return new Response(null, { headers });
-    return new Response(await renderReportImage(report, format), { headers });
+    return new Response(image, { headers });
   } catch {
     return unavailable();
   }
