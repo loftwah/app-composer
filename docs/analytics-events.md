@@ -26,3 +26,29 @@ The counter remains capped at 1,000 per app/event/surface/day, subject to the ex
 ## Schema and release
 
 `0003_postcard_receipts.sql` rebuilds the existing aggregate table with one additional Guestbook-only event and copies every old row. A bidirectional set-equality constraint verifies the copy inside the same migration transaction before the old table is dropped; a mismatch aborts the migration. It creates no new database/provider and changes no Guestbook content table. The release guard checks the extended schema before upload. Before applying remotely, inspect the actual owned schema/dependencies, require the exact reviewed old DDL, retain a D1 restore bookmark and aggregate before-image, and verify the transaction-local preservation assertion. External snapshots can change with legitimate live recording and must not be labelled an atomic before/after pair. Local SQLite transaction tests are not D1 or production acceptance. Use official [D1 migrations](https://developers.cloudflare.com/d1/reference/migrations/) and [D1 transaction/foreign-key semantics](https://developers.cloudflare.com/d1/sql-api/foreign-keys/); do not turn constraints off. Exact source, migration, live browser/API and collector evidence belongs in #11. No new publisher or measure is adopted merely because this source exists.
+
+## Selected stories and owner-permitted summaries — 23 October 2026
+
+A composed-route finding carries its comparison numerator/denominator through
+`story=composed-share`; a busiest-day finding carries `story=peak-day&day=YYYY-MM-DD`.
+The server derives route totals from the same grouped read as the daily series.
+Preview, frozen storage, captions and all three image formats retain the selected
+story. Existing report URLs and previously stored snapshots remain compatible.
+A received postcard is an acceptance event in the selected period, not the
+current moderation queue. Contribution-page opens remain recorded actions,
+not completed submissions.
+
+The native owner report can preview and explicitly permit a public summary of
+`app_open_action` for one published stack instance. The server recomputes that
+scope, requires the complete preview digest and consent, then checks current
+owner membership and published-instance eligibility in the insertion itself.
+A changed count requires another preview. This route does not accept client
+counts or private record content; the public `/api/reports` route cannot select
+owner measures.
+
+The public projection includes only the event definition, dates, counts/daily
+series, coverage, source revision and demonstration/unclassified/mixed traffic
+classification. It excludes workspace names, instance labels, scope IDs and
+record bodies. Historical counts describe an instance, since an instance ID
+can survive a change of application; they are not relabelled with its current
+app identity. Demonstration summaries are not customer adoption.

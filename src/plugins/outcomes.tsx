@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
 import {
   outcomeCall,
+  publicOutcomeCall,
   filtersFromSearch,
   type Filters,
   type ReportReply,
   type OutcomeMetric,
 } from "./outcomes/api";
+import type { FrozenReport } from "../lib/public-report";
 import { useNavigationGuard } from "./stacks/use-navigation-guard";
 import { workspaceSelection } from "./stacks/workspace-scope";
 import "./outcomes.css";
@@ -138,6 +140,13 @@ function WorkspaceOutcomes({ search }: { search: string }) {
     reply: ReportReply;
     filters: Filters;
   }>();
+  const [publicPreview, setPublicPreview] = useState<{
+    report: FrozenReport;
+    filters: Filters;
+    workspace: string;
+  }>();
+  const [publicUrl, setPublicUrl] = useState("");
+  const [publicConsent, setPublicConsent] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [metricKey, setMetricKey] = useState("app_open_action");
   const [trafficChoice, setTrafficChoice] = useState<"demo" | "unclassified">(
@@ -173,6 +182,9 @@ function WorkspaceOutcomes({ search }: { search: string }) {
     )
       return;
     pending.current = true;
+    setPublicPreview(undefined);
+    setPublicUrl("");
+    setPublicConsent(false);
     setBusy(true);
     setError("");
     setMessage("");
@@ -306,6 +318,62 @@ function WorkspaceOutcomes({ search }: { search: string }) {
       if (live.current) setBusy(false);
     }
   };
+  const shareAggregate = async (publish = false) => {
+    if (!snapshot || pending.current || changedFilters || dirty || uncertain)
+      return;
+    if (publish && (!publicPreview || !publicConsent)) return;
+    pending.current = true;
+    setBusy(true);
+    setWriting(true);
+    setError("");
+    setMessage("");
+    try {
+      const fields =
+        publish && publicPreview
+          ? { ...publicPreview.filters, workspace: publicPreview.workspace }
+          : { ...snapshot.filters, workspace: snapshot.reply.workspace.id };
+      const result = await publicOutcomeCall(
+        publish ? "publishPublicReport" : "previewPublicReport",
+        {
+          ...fields,
+          ...(publish
+            ? { expectedReport: publicPreview!.report.id, consent: true }
+            : {}),
+        },
+      );
+      if (!live.current) return;
+      if (publish) {
+        setPublicUrl(result.url!);
+        setMessage(
+          "The permitted aggregate is now public at the frozen report link.",
+        );
+      } else {
+        setPublicPreview({
+          report: result.report,
+          filters: { ...snapshot.filters },
+          workspace: snapshot.reply.workspace.id,
+        });
+        setPublicConsent(false);
+        setPublicUrl("");
+      }
+    } catch (cause) {
+      if (live.current) {
+        setPublicPreview(undefined);
+        setPublicConsent(false);
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "The public report did not complete. Preview again before retrying.",
+        );
+      }
+    } finally {
+      pending.current = false;
+      if (live.current) {
+        setBusy(false);
+        setWriting(false);
+      }
+    }
+  };
   const report = snapshot?.reply.report,
     metric = report?.metrics.find((value) => value.key === metricKey);
   const stacks = snapshot?.reply.options.stacks ?? [],
@@ -322,12 +390,16 @@ function WorkspaceOutcomes({ search }: { search: string }) {
         </div>
         <div className="co-heading-links">
           {snapshot && report?.scope.stack && (
-            <a href={`/_emdash/admin/plugins/composer-stacks/stacks?workspace=${snapshot.reply.workspace.id}&stack=${report.scope.stack}`}>
+            <a
+              href={`/_emdash/admin/plugins/composer-stacks/stacks?workspace=${snapshot.reply.workspace.id}&stack=${report.scope.stack}`}
+            >
               Back to this stack
             </a>
           )}
           {snapshot && (
-            <a href={`/_emdash/admin/plugins/composer-stacks/enquiries?workspace=${snapshot.reply.workspace.id}`}>
+            <a
+              href={`/_emdash/admin/plugins/composer-stacks/enquiries?workspace=${snapshot.reply.workspace.id}`}
+            >
               Private enquiries
             </a>
           )}
@@ -361,6 +433,87 @@ function WorkspaceOutcomes({ search }: { search: string }) {
               : "Refresh displayed scope"}
         </button>
       </div>
+      {snapshot?.reply.workspace.role === "owner" &&
+        report?.scope.stack &&
+        report.scope.instance && (
+          <section
+            className="co-public-story"
+            aria-labelledby="co-public-story-title"
+          >
+            <h2 id="co-public-story-title">
+              Share a permitted Open-action aggregate
+            </h2>
+            <p>
+              Preview the exact counts, dates and traffic classification.
+              Publication excludes workspace names, instance labels, record
+              bodies and private scope identifiers.
+            </p>
+            <button
+              type="button"
+              disabled={busy || changedFilters || dirty || uncertain}
+              onClick={() => void shareAggregate()}
+            >
+              Preview public aggregate
+            </button>
+            {publicPreview && (
+              <div>
+                <h3>{publicPreview.report.headline}</h3>
+                <p>
+                  {publicPreview.report.value} {publicPreview.report.unit} ·{" "}
+                  {publicPreview.report.period.from} to{" "}
+                  {publicPreview.report.period.to} UTC ·{" "}
+                  {publicPreview.report.origin?.traffic} traffic
+                </p>
+                <p>{publicPreview.report.detail}</p>
+                <p>
+                  {publicPreview.report.coverage.quality} recorded lower bound.
+                  Daily values, coverage and source revision are included.
+                </p>
+                <details>
+                  <summary>Inspect the exact public snapshot</summary>
+                  <pre
+                    style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}
+                  >
+                    {JSON.stringify(publicPreview.report, null, 2)}
+                  </pre>
+                </details>
+                {!publicUrl && (
+                  <>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={publicConsent}
+                        disabled={busy}
+                        onChange={(event) =>
+                          setPublicConsent(event.target.checked)
+                        }
+                      />{" "}
+                      I permit this aggregate to become public.
+                    </label>
+                    <button
+                      type="button"
+                      disabled={
+                        busy ||
+                        !publicConsent ||
+                        changedFilters ||
+                        dirty ||
+                        uncertain
+                      }
+                      onClick={() => void shareAggregate(true)}
+                    >
+                      Publish permitted report
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+            {publicUrl && (
+              <p>
+                <a href={publicUrl}>Open the frozen public report</a>
+              </p>
+            )}
+          </section>
+        )}
       <details
         className="co-filter-drawer"
         open={filtersOpen}
@@ -674,14 +827,23 @@ function WorkspaceOutcomes({ search }: { search: string }) {
             </p>
             <div className="co-actions">
               {report.scope.stack && (
-                <a className="button secondary" href={`/_emdash/admin/plugins/composer-stacks/stacks?workspace=${snapshot.reply.workspace.id}&stack=${report.scope.stack}`}>
+                <a
+                  className="button secondary"
+                  href={`/_emdash/admin/plugins/composer-stacks/stacks?workspace=${snapshot.reply.workspace.id}&stack=${report.scope.stack}`}
+                >
                   Open the stack context
                 </a>
               )}
-              <a className="button secondary" href={`/_emdash/admin/plugins/composer-stacks/enquiries?workspace=${snapshot.reply.workspace.id}`}>
+              <a
+                className="button secondary"
+                href={`/_emdash/admin/plugins/composer-stacks/enquiries?workspace=${snapshot.reply.workspace.id}`}
+              >
                 Review private enquiries
               </a>
-              <a className="button secondary" href={`/activity?days=${report.period.days}`}>
+              <a
+                className="button secondary"
+                href={`/activity?days=${report.period.days}`}
+              >
                 Compare public activity
               </a>
             </div>

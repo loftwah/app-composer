@@ -2,10 +2,10 @@
 import Base from "../../layouts/Base.astro";
 import { env } from "cloudflare:workers";
 import type { D1Database } from "@cloudflare/workers-types";
-import { portfolioSummary } from "../../../lib/usage/portfolio.mjs";
-import type { PublicHistory } from "../../lib/activity-view";
 import {
-  buildReport,
+  preparePublicReport,
+  reportValueLabel,
+  reportStoryLabel,
   reportScope,
   reportScopeParams,
   reportPeriodLabel,
@@ -15,20 +15,15 @@ import { ArrowLeft, ArrowUpRight } from "@lucide/astro";
 import "../../styles/reports.css";
 
 let report;
+let selectedScope;
 let error = "";
 try {
   const scope = reportScope(Astro.url.searchParams);
+  selectedScope = scope;
   const runtime = env as unknown as { DB?: D1Database };
   if (!runtime.DB || typeof runtime.DB.prepare !== "function")
     throw new Error("Public reporting is disconnected in this environment.");
-  const summary = (await portfolioSummary(
-    runtime.DB,
-    scope.days,
-    new Date(),
-    build.commit,
-    scope.surface as "all" | "standalone" | "composed",
-  )) as unknown as PublicHistory;
-  report = await buildReport(summary, scope, build.commit);
+  report = await preparePublicReport(runtime.DB, scope, build.commit);
 } catch (cause) {
   error =
     cause instanceof Error
@@ -43,14 +38,7 @@ const thumbnails: Record<string, string> = {
   hello: "hello",
   state: "carryforward",
 };
-const fields = report
-  ? reportScopeParams({
-      app: report.app,
-      metric: report.metric,
-      days: report.period.days,
-      surface: report.period.surface,
-    })
-  : null;
+const fields = report && selectedScope ? reportScopeParams(selectedScope) : null;
 const maximum = report ? Math.max(1, ...report.daily.map((day) => day.value ?? 0)) : 1;
 ---
 <Base
@@ -83,7 +71,7 @@ const maximum = report ? Math.max(1, ...report.daily.map((day) => day.value ?? 0
           </div>
           <p class="report-preview-app-name">{report.appLabel ?? "All connected apps"}</p>
           <h2 id="report-preview-title">{report.headline}</h2>
-          <p class="report-preview-value">{report.value === null ? "—" : report.value.toLocaleString("en-AU")} <span>{report.unit}</span></p>
+          <p class="report-preview-value">{reportValueLabel(report)} <span>{report.unit}</span></p>
           <p class="report-preview-period">{reportPeriodLabel(report)}</p>
           <div class="report-preview-chart">
             <svg viewBox="0 0 900 140" preserveAspectRatio="none" role="img" aria-label={`${report.metricLabel}: ${report.value === null ? "unavailable" : report.value}. Daily values are in the frozen report.`}>
@@ -100,6 +88,7 @@ const maximum = report ? Math.max(1, ...report.daily.map((day) => day.value ?? 0
               })}
             </svg>
           </div>
+          <p>{reportStoryLabel(report)}</p>
           <p class="report-preview-detail">{report.detail}</p>
         </article>
         <div class="report-preview-actions">
@@ -120,7 +109,7 @@ const maximum = report ? Math.max(1, ...report.daily.map((day) => day.value ?? 0
             <div><dt>App</dt><dd>{report.appLabel ?? "All connected apps"}</dd></div>
             <div><dt>Signal</dt><dd>{report.metricLabel}</dd></div>
             <div><dt>Period</dt><dd>{reportPeriodLabel(report)}</dd></div>
-            <div><dt>Values</dt><dd>{report.value === null ? "Unavailable" : report.value.toLocaleString("en-AU")} {report.unit}. Daily values and coverage are retained exactly.</dd></div>
+            <div><dt>Values</dt><dd>{reportValueLabel(report)} {report.unit}. Daily values and coverage are retained exactly.</dd></div>
             <div><dt>Source</dt><dd><code>{report.sourceRevision}</code></dd></div>
           </dl>
           <p class="small">The stored snapshot contains only this aggregate story. It does not contain visitor identities, enquiry text, private workspace records, stack names or credentials. The report landing page and its landscape, square and portrait images are created from the stored values.</p>
