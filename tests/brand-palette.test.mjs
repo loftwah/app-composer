@@ -106,3 +106,17 @@ test("generated stack themes and the published diagram set follow the maintained
   assert.match(building, /building-workflow-20261023-light\.svg/);
   assert.match(building, /building-contribution-20261023-mobile-dark\.svg/);
 });
+
+// The same local launcher stylesheet is explicitly copied into all five apps
+// and every generated project, so adding a role cannot silently skip consumers.
+test("the copied palette contract carries every approved role", () => {
+  const css = read("public/brand/launcher.css");
+  assert.match(css, /composer\.palette\/1/);
+  for (const [role, expected] of Object.entries({
+    brand: "#fc5b05", action: "#fc5b05", "action-hover": "#ff7a33",
+    "action-pressed": "#e85404", "on-action": "#17181b", focus: "#fc5b05",
+  })) assert.equal(token(css, "composer-" + role), expected, role);
+  assert.match(css, /--composer-accent:\s*#c74400/);
+  assert.match(read("scripts/public-ui-assets.mjs"), /'launcher\.css'/);
+  assert.match(read("lib/content-model/project.mts"), /"launcher\.css"/);
+});
