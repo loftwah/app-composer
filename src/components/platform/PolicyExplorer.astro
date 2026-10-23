@@ -69,12 +69,16 @@
 <style>
   .policy-explorer {
     display: grid;
+    overflow-wrap: anywhere;
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
     gap: 40px;
     margin: 32px 0;
     padding: 28px;
     background: var(--color-surface);
     border-radius: 8px;
+  }
+  .policy-explorer > div {
+    min-width: 0;
   }
   .policy-explorer h3 {
     margin: 8px 0 20px;
@@ -117,7 +121,7 @@
   }
   @media (max-width: 700px) {
     .policy-explorer {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       padding: 20px;
       gap: 20px;
     }
