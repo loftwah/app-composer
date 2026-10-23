@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { STACK_APPS, declaredConfig } from "../lib/stacks.mjs";
 import { STACK_THEMES, themeTokens } from "../lib/stack-theme.mjs";
+import { builderHref } from "../lib/builder-context.mjs";
 import "../styles/stack-view.css";
 
 // One renderer for the stack document. The native editor previews with it and
@@ -74,6 +75,7 @@ export function StackView({
   compact = false,
   titleAs: Title = "h2",
   outcomes,
+  navigationSource,
 }: {
   document: StackViewDocument;
   link?: boolean;
@@ -82,6 +84,7 @@ export function StackView({
   titleAs?: "h1" | "h2";
   /** Set only by the published public page; native previews never collect. */
   outcomes?: { slug: string; publication: number; key: string };
+  navigationSource?: string;
 }): ReactElement {
   const tokens = themeTokens(document.theme);
   const theme =
@@ -127,7 +130,10 @@ export function StackView({
             `/guestbook/r/${instance.resource.id}/c/${instance.resource.configurationRevision}/`
             ? instance.resource
             : undefined;
-        const href = resource?.path ?? (app ? app.route : "#");
+        const destination = resource?.path ?? (app ? app.route : "#");
+        const href = navigationSource
+          ? builderHref(new URL(navigationSource), destination)
+          : destination;
         return (
           <article key={instance.id} className="stack-view-instance">
             <div className="stack-instance-heading">

@@ -599,6 +599,14 @@ export async function managePrivateOutcomes(ctx: Context, runtime: Runtime) {
         ...input,
         action: "report",
       });
+      if (
+        privateReport.metrics.find((metric) => metric.key === "app_open_action")
+          ?.value == null
+      )
+        throw new StackError(
+          "INVALID",
+          "No retained Open action is available to share in this scope. Approval and other private outcomes are not included in this public aggregate.",
+        );
       const frozen = await projectOwnerReport(
         privateReport,
         target.app,

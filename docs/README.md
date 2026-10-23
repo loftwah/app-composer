@@ -17,6 +17,10 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 - [Public analytics and frozen reports](public-activity.md) and [event definitions](analytics-events.md): one scope, app records, shareable snapshots and what the aggregate measures omit.
 - [WordPress publisher lab](../labs/wordpress/weekender/README.md) and [observation ledger](../labs/wordpress/weekender/OBSERVATIONS.md): reproduce the small actual native import and inspect its explicit repairs and remaining cases.
 
+## Platform Teams and enterprise evaluation
+
+- [Enterprise application platform field guide](platform/field-guide.md): business adoption, EmDash self-service and IAM, Workers and Kubernetes, AWS/Azure/Google Cloud, multicloud, policy-driven delivery, GitOps, enterprise integrations and Australian/SOC 2 assurance. Reviewed research and proposed qualification work are distinguished from supported Composer capabilities.
+
 ## Develop and maintain
 
 - [Architecture](../ARCHITECTURE.md), [design](../DESIGN.md) and [interface/content standard](../UNSLOP.md).
@@ -29,3 +33,4 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 ## Evidence and history
 
 [Current status](STATUS.md) identifies the shipped baseline and active gates. [Issue #11](https://github.com/loftwah/app-composer/issues/11) is the canonical release-evidence index; owning issues retain their acceptance criteria. [Earlier status observations](history/status-through-20261018.md) preserve prior receipts, superseded candidates and dated constraints. Source checks, local/browser proofs, actual production interaction and physical/external acceptance remain distinct.
+
