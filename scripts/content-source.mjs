@@ -8,6 +8,11 @@ const mode = process.argv[2];
 if (!["--check", "--write", "--lint"].includes(mode))
   throw Error("Use --check, --write or --lint.");
 const sources = [
+  "lib/launch-kit/contract.mts",
+  "lib/launch-kit/archive.mts",
+  "lib/launch-kit/package.mts",
+  "lib/launch-kit/adoption.mts",
+  "lib/launch-kit/reference.mts",
   "lib/content-model/calendar-date.mts",
   "lib/content-model/index.mts",
   "lib/content-model/project.mts",

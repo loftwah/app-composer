@@ -1,0 +1,36 @@
+{
+  "id": "/launch-kit/example/",
+  "name": "Night Signal",
+  "short_name": "Night Signal",
+  "start_url": "/launch-kit/example/",
+  "scope": "/launch-kit/example/",
+  "display": "standalone",
+  "theme_color": "#fc5b05",
+  "background_color": "#f1ead7",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

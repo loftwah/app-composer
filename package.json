@@ -29,6 +29,7 @@
     "test:package": "node --test tests/readiness-package.test.mjs",
     "test:domain": "node --test tests/readiness-domain.test.mjs",
     "audit": "pnpm audit --audit-level low",
+    "init:launch-kit": "node scripts/init-launch-kit.mjs",
     "init:site": "node scripts/init-site.mjs",
     "check:publication": "node scripts/check-publication.mjs",
     "source:write": "node scripts/content-source.mjs --write && node scripts/creator-source.mjs --write && node scripts/launcher-assets.mjs --write && node scripts/stack-share-assets.mjs --write && node scripts/enquiry-assets.mjs --write",

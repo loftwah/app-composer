@@ -62,3 +62,5 @@ Owner administration retains this installation's Cloudflare Access and native Em
 App Composer stays the product identity. Loftwah is its first reference creator; personal material belongs only on the appropriate owner surfaces. Artwork provenance and font licences travel with the assets. Real UI captures demonstrate software; generated artwork never substitutes for a screenshot.
 
 [Contributing](CONTRIBUTING.md) · [Code of conduct](CODE_OF_CONDUCT.md) · [Security](SECURITY.md) · [Accessibility](ACCESSIBILITY.md) · [MIT licence](LICENSE)
+
+Launch Kit turns local artwork into icons, PWA assets and social graphics. [Open the tool](https://composer.loftwah.com/launch-kit), [review a package](https://composer.loftwah.com/init/launch-kit), or [read the supported application paths](docs/launch-kit.md). Its fictional static reference is a working local listening timer, separate from native CMS deployment.
