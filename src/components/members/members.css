@@ -227,3 +227,32 @@
     padding-top: 24px;
   }
 }
+
+.member-workbench .member-optional-identity {
+  margin: 0;
+  padding-block: 12px;
+}
+.member-workbench .member-optional-identity > .member-form {
+  margin-bottom: 0;
+}
+.member-workbench .member-saved-link {
+  margin: 0;
+  padding-block: 4px;
+  width: 100%;
+}
+.member-workbench .member-saved-link > summary {
+  padding-block: 10px;
+}
+.member-link-title {
+  font-weight: 650;
+}
+.member-link-summary {
+  display: block;
+  margin-top: 6px;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+.member-workbench .member-saved-link .member-link-form {
+  margin-top: 12px;
+}

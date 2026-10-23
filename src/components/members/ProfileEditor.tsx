@@ -113,6 +113,32 @@ export default function ProfileEditor({
         return false;
       }
     };
+  const identityField = (key: string, label: string) => (
+    <label key={key}>
+      {label}
+      {key === "intro" ? (
+        <textarea
+          value={config[key] ?? ""}
+          maxLength={240}
+          disabled={busy}
+          onChange={(e) => setConfig({ ...config, [key]: e.target.value })}
+        />
+      ) : (
+        <input
+          value={config[key] ?? ""}
+          type={
+            ["website", "github", "bluesky", "linkedin"].includes(key)
+              ? "url"
+              : "text"
+          }
+          required={key === "title" || key === "handle"}
+          maxLength={key === "title" ? 80 : key === "handle" ? 40 : 2048}
+          disabled={busy}
+          onChange={(e) => setConfig({ ...config, [key]: e.target.value })}
+        />
+      )}
+    </label>
+  );
   return (
     <div className="composer-admin">
       <div className="member-actions">
@@ -174,68 +200,11 @@ export default function ProfileEditor({
               </div>
             </div>
           )}
-          {Object.entries(fieldNames).map(([key, label]) => (
-            <label key={key}>
-              {label}
-              {key === "intro" ? (
-                <textarea
-                  value={config[key] ?? ""}
-                  maxLength={240}
-                  disabled={busy}
-                  onChange={(e) =>
-                    setConfig({ ...config, [key]: e.target.value })
-                  }
-                />
-              ) : (
-                <input
-                  value={config[key] ?? ""}
-                  type={
-                    ["website", "github", "bluesky", "linkedin"].includes(key)
-                      ? "url"
-                      : "text"
-                  }
-                  required={key === "title" || key === "handle"}
-                  maxLength={
-                    key === "title" ? 80 : key === "handle" ? 40 : 2048
-                  }
-                  disabled={busy}
-                  onChange={(e) =>
-                    setConfig({ ...config, [key]: e.target.value })
-                  }
-                />
-              )}
-            </label>
-          ))}
           <div className="member-fields">
-            <label>
-              Profile theme
-              <select
-                disabled={busy}
-                value={config.theme ?? "daylight"}
-                onChange={(e) =>
-                  setConfig({ ...config, theme: e.target.value })
-                }
-              >
-                <option value="daylight">Daylight</option>
-                <option value="midnight">Midnight</option>
-              </select>
-            </label>
-            <label>
-              Layout
-              <select
-                disabled={busy}
-                value={config.layout ?? "profile"}
-                onChange={(e) =>
-                  setConfig({ ...config, layout: e.target.value })
-                }
-              >
-                <option value="profile">Profile</option>
-                <option value="grid">Grid</option>
-                <option value="editorial">Editorial</option>
-                <option value="compact">Compact</option>
-              </select>
-            </label>
+            {identityField("title", fieldNames.title)}
+            {identityField("handle", fieldNames.handle)}
           </div>
+          {identityField("intro", fieldNames.intro)}
           <div className="member-actions">
             <button
               type="submit"
@@ -258,6 +227,56 @@ export default function ProfileEditor({
               Use saved identity
             </button>
           </div>
+          <details
+            className="member-optional-identity"
+            open={
+              Object.keys(config).some(
+                (key) =>
+                  !["title", "handle", "intro"].includes(key) &&
+                  config[key] !== identity.saved[key],
+              ) ||
+              identity.conflicts.some(
+                (key) => !["title", "handle", "intro"].includes(key),
+              )
+            }
+          >
+            <summary>Links, images & appearance (optional)</summary>
+            <div className="member-form">
+              {Object.entries(fieldNames)
+                .filter(([key]) => !["title", "handle", "intro"].includes(key))
+                .map(([key, label]) => identityField(key, label))}
+              <div className="member-fields">
+                <label>
+                  Profile theme
+                  <select
+                    disabled={busy}
+                    value={config.theme ?? "daylight"}
+                    onChange={(e) =>
+                      setConfig({ ...config, theme: e.target.value })
+                    }
+                  >
+                    <option value="daylight">Daylight</option>
+                    <option value="midnight">Midnight</option>
+                  </select>
+                </label>
+                <label>
+                  Layout
+                  <select
+                    disabled={busy}
+                    value={config.layout ?? "profile"}
+                    onChange={(e) =>
+                      setConfig({ ...config, layout: e.target.value })
+                    }
+                  >
+                    <option value="profile">Profile</option>
+                    <option value="grid">Grid</option>
+                    <option value="editorial">Editorial</option>
+                    <option value="compact">Compact</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          </details>
         </form>
         {preview && (
           <article
@@ -295,7 +314,13 @@ export default function ProfileEditor({
         </p>
         <LinkForm
           busy={busy}
-          save={commandSave("cards")}
+          save={async (fields) => {
+            await request("cards", fields);
+            return true;
+          }}
+          checkSaved={async () => {
+            await request("read");
+          }}
           dirtyChanged={(value) =>
             setLinkDirty((previous) =>
               previous.new === value ? previous : { ...previous, new: value },
@@ -317,6 +342,7 @@ export default function ProfileEditor({
                   busy={busy}
                   index={index}
                   act={act}
+                  request={request}
                   removed={
                     !snapshot.draft.cards.some(
                       (current) => current.id === item.id,
@@ -509,12 +535,14 @@ function LinkForm({
   save,
   dirtyChanged,
   removed = false,
+  checkSaved,
 }: {
   item?: Card;
   busy: boolean;
   save: (fields: Record<string, unknown>) => Promise<boolean>;
   dirtyChanged: (dirty: boolean) => void;
   removed?: boolean;
+  checkSaved: () => Promise<void>;
 }) {
   const fields = useFields({
     title: item?.title ?? "",
@@ -526,11 +554,17 @@ function LinkForm({
     saved = fields.saved,
     dirty = fields.dirty;
   const [uncertain, setUncertain] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [confirmedRefusal, setConfirmedRefusal] = useState(false);
   useEffect(() => {
-    dirtyChanged(dirty);
-  }, [dirty]);
+    dirtyChanged(dirty || uncertain);
+  }, [dirty, uncertain]);
   return (
-    <details open={!!item} className="member-link-form">
+    <details
+      open={dirty || uncertain || !!fields.conflicts.length || removed}
+      className="member-link-form"
+    >
       <summary>{item ? "Edit link" : "Add a link"}</summary>
       {removed && (
         <div>
@@ -546,25 +580,73 @@ function LinkForm({
           event.preventDefault();
           if (fields.conflicts.length || uncertain) return;
           void (async () => {
-            if (
-              await save({
+            try {
+              const success = await save({
                 action: item ? "edit" : "create",
                 ...(item ? { id: item.id } : {}),
                 ...value,
-              })
-            ) {
+              });
+              if (!success) {
+                setUncertain(true);
+                setSaveError("The link save could not be confirmed.");
+                return;
+              }
+              setUncertain(false);
+              setSaveError("");
               if (!item) setValue({ title: "", description: "", url: "" });
               dirtyChanged(false);
-            } else setUncertain(true);
+            } catch (failure) {
+              setUncertain(true);
+              setConfirmedRefusal(
+                ["CONFLICT", "INVALID", "FORBIDDEN"].includes(
+                  String((failure as { code?: string })?.code),
+                ),
+              );
+              setSaveError(
+                failure instanceof Error
+                  ? failure.message
+                  : "The link save could not be confirmed.",
+              );
+            }
           })();
         }}
       >
         {uncertain && (
-          <p role="status">
-            The link save was not confirmed. Check the saved links before
-            submitting again. Your entry is retained to copy; discard it when
-            you have checked.
-          </p>
+          <div role="status">
+            <p>
+              {saveError} Your entry is retained. Check the saved collection
+              before another save.
+            </p>
+            <button
+              type="button"
+              disabled={busy || checking}
+              onClick={() =>
+                void (async () => {
+                  setChecking(true);
+                  try {
+                    await checkSaved();
+                    if (item || confirmedRefusal) {
+                      setUncertain(false);
+                      setSaveError("");
+                    } else
+                      setSaveError(
+                        "The saved list has been refreshed. Compare it with your retained new link, then discard this entry before starting another draft; an absent link cannot prove that an interrupted creation never committed.",
+                      );
+                  } catch (failure) {
+                    setSaveError(
+                      failure instanceof Error
+                        ? failure.message
+                        : "Saved links could not be checked. Your entry is retained.",
+                    );
+                  } finally {
+                    setChecking(false);
+                  }
+                })()
+              }
+            >
+              Check saved links
+            </button>
+          </div>
         )}
         {!!fields.conflicts.length && (
           <div role="alert">
@@ -585,6 +667,7 @@ function LinkForm({
               disabled={busy}
               onClick={() => {
                 fields.useSaved();
+                setUncertain(false);
                 dirtyChanged(false);
               }}
             >
@@ -667,6 +750,7 @@ function CardEditor({
   busy: pending,
   index,
   act,
+  request,
   dirtyChanged,
   removed = false,
   discardRemoved,
@@ -676,6 +760,10 @@ function CardEditor({
   busy: boolean;
   index: number;
   act: ProfileAction;
+  request: (
+    operation: string,
+    command?: Record<string, unknown>,
+  ) => Promise<Record<string, unknown>>;
   dirtyChanged: (dirty: boolean) => void;
   removed?: boolean;
   discardRemoved?: () => void;
@@ -705,7 +793,22 @@ function CardEditor({
     styling.edit({ ...next, pinned: String(next.pinned) });
   };
   return (
-    <div className="member-card-editor">
+    <details
+      className="member-card-editor member-saved-link"
+      open={linkDirty || styleDirty || removed || !!styling.conflicts.length}
+    >
+      <summary>
+        <span className="member-link-title">
+          {item.title || "Linked contribution"}
+        </span>
+        <span className="member-link-summary">
+          {initial.group || "Other links"}
+          {initial.pinned ? " · Featured" : ""} ·{" "}
+          {item.status === "published"
+            ? "Included in next publication"
+            : "Excluded from next publication"}
+        </span>
+      </summary>
       {removed && (
         <div role="status">
           <p>
@@ -717,7 +820,6 @@ function CardEditor({
           </button>
         </div>
       )}
-      <h3>{item.title}</h3>
       <p className="member-state">
         {item.status} in saved draft
         {item.provider ? " · linked contribution" : ""}
@@ -731,7 +833,13 @@ function CardEditor({
             setLinkDirty(value);
             dirtyChanged(value || styleDirty);
           }}
-          save={async (fields) => !!(await act("cards", fields))}
+          save={async (fields) => {
+            await request("cards", fields);
+            return true;
+          }}
+          checkSaved={async () => {
+            await request("read");
+          }}
         />
       )}
       {!!styling.conflicts.length && (
@@ -844,6 +952,6 @@ function CardEditor({
           Remove saved link
         </button>
       </div>
-    </div>
+    </details>
   );
 }
