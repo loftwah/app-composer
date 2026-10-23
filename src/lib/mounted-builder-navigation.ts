@@ -4,6 +4,10 @@ import {
   builderReturnHref,
   hasBuilderContext,
 } from "./builder-context.mjs";
+import type {
+  HTMLRewriter as WorkerHTMLRewriter,
+  Response as WorkerResponse,
+} from "@cloudflare/workers-types";
 
 // Composer owns its mounted adapter; the independent app retains its own HTML,
 // canonical metadata, records and release. Decorate reader navigation only.
@@ -16,7 +20,10 @@ export function mountedBuilderNavigation(request: Request, response: Response) {
     !builderParameters(source).length
   )
     return response;
-  const rewriter = new HTMLRewriter().on("a[href]", {
+  const Rewriter = (
+    globalThis as unknown as { HTMLRewriter: typeof WorkerHTMLRewriter }
+  ).HTMLRewriter;
+  const rewriter = new Rewriter().on("a[href]", {
     element(element) {
       if (element.hasAttribute("download")) return;
       const href = element.getAttribute("href");
@@ -34,5 +41,7 @@ export function mountedBuilderNavigation(request: Request, response: Response) {
         );
       },
     });
-  return rewriter.transform(response);
+  return rewriter.transform(
+    response as unknown as WorkerResponse,
+  ) as unknown as Response;
 }
