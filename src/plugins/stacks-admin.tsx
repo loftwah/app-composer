@@ -1,3 +1,4 @@
+import { PlatformPage } from "./platform-page";
 import { EditorSession } from "./stacks/editor-session";
 import { useNavigationGuard } from "./stacks/use-navigation-guard";
 import { WorkspaceAccessPage } from "./workspace-access";
@@ -1808,6 +1809,7 @@ function WorkspaceStudio({ search }: { search: string }) {
 }
 export const pages: PluginAdminExports["pages"] = {
   "/stacks": StudioPage,
+  "/platform": PlatformPage,
   "/workspaces": WorkspaceAccessPage,
   "/outcomes": OutcomesPage,
   "/maintenance": MaintenancePage,

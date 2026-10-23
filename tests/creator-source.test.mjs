@@ -47,6 +47,7 @@ test("Creator author errors and stale output fail without rewriting distribution
         "miniapp-collection-contract",
         "miniapp-collection",
         "creator-access",
+        "platform-guard",
       ].map((name) => "src/lib/" + name + ".ts"),
       ...[".mts", ".mjs", ".d.mts"].map(
         (suffix) => "lib/content-model/calendar-date" + suffix,

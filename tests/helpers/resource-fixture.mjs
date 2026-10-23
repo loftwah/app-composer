@@ -225,6 +225,7 @@ export function fixture() {
     "0004_stack_publications.sql",
     "0005_stack_publications_backfill.sql",
     "0006_stack_resources.sql",
+    "0011_platform_requests.sql",
     "0007_resource_moderation.sql",
   ])
     sqlite.exec(

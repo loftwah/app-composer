@@ -17,6 +17,14 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 - [Public analytics and frozen reports](public-activity.md) and [event definitions](analytics-events.md): one scope, app records, shareable snapshots and what the aggregate measures omit.
 - [WordPress publisher lab](../labs/wordpress/weekender/README.md) and [observation ledger](../labs/wordpress/weekender/OBSERVATIONS.md): reproduce the small actual native import and inspect its explicit repairs and remaining cases.
 
+## Platform teams
+
+- [Public platform field guide](https://composer.loftwah.com/platform): hosting, authority, illustrative policy decisions, permissions, lifecycle and Australian data handling.
+- [Research and primary sources](platform/field-guide.md): preserved PR #250 research at its named source baseline.
+- [Public-reference maintenance and acceptance](platform/public-reference.md): claim status, current source review and rendered-verification boundary.
+- [First governed operating path](platform/operating-path.md) and [real local two-team demonstration](platform/demo.md).
+- [Integration contracts](platform/integrations.md) and [runtime qualification](platform/runtime-qualification.md): exact local findings and provider gates.
+
 ## Develop and maintain
 
 - [Architecture](../ARCHITECTURE.md), [design](../DESIGN.md) and [interface/content standard](../UNSLOP.md).

@@ -1,0 +1,1179 @@
+---
+import Base from "../layouts/Base.astro";
+import AuthorityMap from "../components/platform/AuthorityMap.astro";
+import PolicyExplorer from "../components/platform/PolicyExplorer.astro";
+
+const source = "29fc65c2983769f140bad3bdef298a20c0185b0e";
+const repository = "https://github.com/loftwah/app-composer";
+const topics = [
+  ["readiness", "The first supported path"],
+  ["fit", "A useful starting point"],
+  ["hosting", "Where applications run"],
+  ["delivery", "Policy & delivery"],
+  ["permissions", "People & permissions"],
+  ["lifecycle", "From request to retirement"],
+  ["integrations", "Enterprise connections"],
+  ["australia", "Australian data handling"],
+  ["assurance", "Evidence & assurance"],
+];
+const permissions = [
+  [
+    "Enterprise identity",
+    "Identity provider / admission operator",
+    "Who can enter; MFA, sign-in, offboarding and active sessions.",
+    "Cloudflare Access protects this installation. Workspace invitations alone do not admit a person.",
+  ],
+  [
+    "EmDash administration",
+    "CMS administrator",
+    "Which native CMS and plugin controls a signed-in person can use.",
+    "Native admin permissions remain required; a public visitor has none.",
+  ],
+  [
+    "Composer authorisation",
+    "Workspace / platform operator",
+    "Which team, app, request and operation this person may control.",
+    "Existing owner/editor/viewer membership is distinct from proposed broader delegation.",
+  ],
+  [
+    "Delivery identity",
+    "Trusted runner / cloud account owner",
+    "Which resource or deployment effect may happen in the selected environment.",
+    "A spec, receipt or approval does not supply cloud credentials.",
+  ],
+  [
+    "Runtime capability",
+    "Application deployment owner",
+    "Which databases, buckets, services and secrets the running app can use.",
+    "Bindings need explicit scope; a portal role cannot create one.",
+  ],
+  [
+    "Application users",
+    "Individual application owner",
+    "Who may use the resulting service and access its business records.",
+    "Application login does not make someone a Composer operator.",
+  ],
+];
+const integrations = [
+  [
+    "HashiCorp Vault",
+    "Lease credentials to a trusted runner; renew or revoke them deliberately.",
+    "https://developer.hashicorp.com/vault/docs/concepts/lease",
+  ],
+  [
+    "Ansible Vault",
+    "Encrypt playbook files and variables at rest; unlock only in the authorised execution environment.",
+    "https://docs.ansible.com/projects/ansible/latest/vault_guide/vault.html",
+  ],
+  [
+    "Snyk",
+    "Scan the exact candidate; distinguish policy findings from failed or incomplete scans.",
+    "https://docs.snyk.io/developer-tools/snyk-cli/cli-commands-and-options-summary",
+  ],
+  [
+    "Splunk",
+    "Receive selected telemetry through a qualified ingestion path and monitor delivery.",
+    "https://developers.cloudflare.com/logs/logpush/logpush-job/enable-destinations/splunk/",
+  ],
+  [
+    "OpenSearch",
+    "Index telemetry through an assessed collector / Data Prepper pipeline.",
+    "https://docs.opensearch.org/latest/observing-your-data/apm/configuring-telemetry-ingestion/",
+  ],
+  [
+    "ClickHouse",
+    "Query application events; keep ingestion credentials, schema and retention explicit.",
+    "https://clickhouse.com/docs/integrations/language-clients/js",
+  ],
+  [
+    "Kafka",
+    "Bridge events through a compatible gateway; inspect per-record failures after HTTP acceptance.",
+    "https://docs.confluent.io/platform/current/kafka-rest/api.html",
+  ],
+  [
+    "Jenkins",
+    "Run a trusted delivery job; isolate untrusted builds from deployment credentials.",
+    "https://www.jenkins.io/doc/book/security/securing-org-folders-and-multibranch-pipelines/",
+  ],
+  [
+    "Terraform",
+    "Plan and apply declared resources with scoped providers, state locking and one owner per property.",
+    "https://developer.hashicorp.com/terraform/language/state/backends",
+  ],
+  [
+    "Ansible Playbooks",
+    "Configure suitable hosts through an authorised runner; check mode has module-specific limits.",
+    "https://docs.ansible.com/projects/ansible/latest/playbook_guide/playbooks_checkmode.html",
+  ],
+  [
+    "ServiceNow",
+    "Bind a change decision to the service, exact candidate and verified outcome.",
+    "https://www.servicenow.com/docs/r/it-service-management/devops-change-velocity/jenkins-integration-dev-ops.html",
+  ],
+  [
+    "PagerDuty",
+    "Keep deployment/change events separate from incident trigger, acknowledgement and resolution.",
+    "https://docs.pagerduty.com/developer/send-alert-event",
+  ],
+  [
+    "Wiz",
+    "Assess documented DNS/exposure and AI endpoint coverage; verify each desired resource type.",
+    "https://www.wiz.io/blog/wiz-cloudflare-ai-security-integration",
+  ],
+  [
+    "Argo CD",
+    "Reconcile Kubernetes desired state; use a separate delivery adapter for Workers.",
+    "https://argoproj.github.io/cd/",
+  ],
+];
+---
+<Base
+  title="An internal platform, with clear boundaries"
+  description="A sourced field guide to App Composer for platform teams: Workers and Kubernetes, policy, enterprise integrations, permissions, service lifecycle and Australian data handling."
+  ogType="article"
+>
+  <div class="platform-guide">
+    <div class="platform-opening">
+      <div>
+        {" "}<a class="back-link" href="/guide">App &amp; service guide</a>{" "}
+        <h1>
+          Give your teams
+          <br />
+          a path to production.
+        </h1>
+        <p class="lede">
+          Approved ways to build, release and run applications. App Composer connects the
+          request, the people who can authorise it, the tools that deliver it and the service
+          you operate.
+        </p>
+        <p>
+          Start with a governed internal platform. Keep working services where they belong.
+          Move a workload only when the fit, recovery and operating cost justify it.
+        </p>
+        <div class="actions">
+          {" "}<a class="button" href="/ready?profile=platform">Prepare your environment</a>{" "}
+          {" "}<a class="button secondary" href="/init?profile=platform">Plan an application</a>{" "}
+        </div>
+      </div>
+      <AuthorityMap />
+    </div>
+
+    <aside class="evidence-boundary" aria-label="Scope and evidence">
+      {" "}<strong>Read the status before the architecture.</strong>{" "}
+      <p>
+        The source inspected for this research runs Composer on ordinary Workers, with EmDash
+        administration and independently owned apps. The bounded first request path is
+        described below; the full enterprise lifecycle is being delivered in
+        {" "}<a href={`${repository}/issues/216`}>Platform Teams</a>. Alternate runtimes and vendor connections need their own qualification.
+      </p>
+      <p class="small">
+        Research reviewed 23 October 2026 (Australia/Melbourne). Source baseline
+        {" "}<a href={`${repository}/tree/${source}`}>{" "}<code>{source.slice(0, 12)}</code>{" "}</a>.
+        {" "}<a href="/release">Release evidence</a>{" "}
+        identifies what actually reached production.
+      </p>
+    </aside>
+
+    <nav class="platform-index" aria-label="Platform field guide topics">
+      {topics.map(([id, title]) => {" "}<a href={`#${id}`}>{title}</a>{" "})}
+    </nav>
+
+    <section id="readiness">
+      <div class="section-heading">
+        <h2>The first path is deliberately small.</h2>
+        {" "}<span class="evidence-label">
+          Current implementation scope · release proof separate
+        </span>{" "}
+      </div>
+      <p>
+        The internal-platform path connects
+        {" "}<a href="/ready?profile=platform">Get Ready</a>,
+        {" "}<a href="/init?profile=platform">Init</a>{" "}
+        and the
+        {" "}<a href="/_emdash/admin/plugins/composer-stacks/platform">
+          native EmDash platform workspace
+        </a>. It plans a synthetic, small preview application on the existing ordinary-Workers
+        deployment and keeps request/review decisions bound to the exact plan.
+      </p>
+      <p>
+        The first resource path is an app-owned, scoped Guestbook visitor book and a published
+        stack page. It uses the independently deployed app’s existing database; it does not
+        provision a new Worker or database for every request. Owner/editor/viewer permissions
+        stay enforced. Broader knowledge recipes, production promotion, Kubernetes and strict
+        Australian-only handling retain their separate gates.
+      </p>
+      <p class="source-note">
+        Use
+        {" "}<a href="/release">the current release receipt</a>{" "}
+        for the source, deployed runtime and actual demonstration. The public policy explorer
+        below is a separate teaching example, not that request interface.
+      </p>
+    </section>
+
+    <section id="fit">
+      <div class="section-heading">
+        <h2>A platform should remove repeated work.</h2>
+        {" "}<span class="evidence-label">Proposed adoption model</span>{" "}
+      </div>
+      <div class="reading-split">
+        <div>
+          <p>
+            A team should be able to find an approved recipe, request an application within its
+            authority and receive a working service with an owner, operating links and a
+            recovery path. Operators establish those boundaries once; teams inherit them.
+          </p>
+          <p>
+            That is useful when repeated setup, permission requests, release checks and
+            incident archaeology slow people down. A small team with one app may be better
+            served by direct Wrangler or Terraform. A mature platform should compare the
+            benefit against another portal to maintain.
+          </p>
+        </div>
+        <div>
+          <h3>Adopt the model before migrating everything.</h3>
+          <ol>
+            <li>Inventory services, owners, users, data, cost and recovery needs.</li>
+            <li>Keep and register what works. Integrate useful existing services.</li>
+            <li>
+              Prove one maintained application path, then a second independently authorised
+              team.
+            </li>
+            <li>
+              Replatform, refactor or retire only with a business case and a tested exit.
+            </li>
+          </ol>
+        </div>
+      </div>
+      <p class="source-note">
+        Decision framework from the
+        {" "}<a href={`${repository}/blob/8a107b710e941c8fb584c9e13acc52bee41b2b25/docs/platform/field-guide.md#3-moving-a-business-to-the-model`}>researched field guide</a>. Cost evidence belongs to
+        {" "}<a href={`${repository}/issues/170`}>#170</a>; no universal savings are established.
+      </p>
+    </section>
+
+    <section id="hosting">
+      <div class="section-heading">
+        <h2>
+          One operating model.
+          <br />
+          Different places to run.
+        </h2>
+        {" "}<span class="evidence-label">Source + provider documentation</span>{" "}
+      </div>
+      <p>
+        Choose for the workload’s protocols, state, locality, skills and failure model. A
+        provider-supported runtime and a qualified Composer deployment are different pieces of
+        evidence.
+      </p>
+      <div class="comparison" role="region" aria-label="Hosting choices" tabindex="0">
+        <table>
+          <caption>Hosting choices and the qualification still required</caption>
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Useful when</th>
+              <th scope="col">Composer evidence boundary</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Managed Workers</th>
+              <td>
+                Compatible web applications, APIs and event-driven work benefit from managed
+                execution.
+              </td>
+              <td>
+                {" "}<strong>Current inspected runtime.</strong>{" "}
+                This installation uses D1, R2, KV and pinned app services. Each new service
+                still needs its own access, limits and recovery checks.
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Workers for Platforms</th>
+              <td>A platform needs a specifically qualified user-worker dispatch model.</td>
+              <td>
+                {" "}<strong>Separate qualification.</strong>{" "}
+                Ordinary Workers do not establish commercial tenant admission, billing or
+                hostile-code safety.
+                {" "}<a href={`${repository}/issues/217`}>#217</a>.
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">celld / workerd</th>
+              <td>A controlled self-hosted Worker-compatible route merits investigation.</td>
+              <td>
+                {" "}<strong>Candidate.</strong>{" "}
+                Check exact compatibility, trust model, fleet ownership, ingress, durable state
+                and recovery. It is not a drop-in guarantee.
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">EmDash on Node</th>
+              <td>
+                A server/container deployment and suitable database/media adapters fit the
+                operating environment.
+              </td>
+              <td>
+                {" "}<strong>Provider-documented route.</strong>{" "}
+                Composer’s Access, bindings, scheduler and plugins need adaptation and
+                independent proof.
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">EKS / AKS / GKE</th>
+              <td>
+                The organisation needs Kubernetes workloads and already operates the cluster
+                and its controls.
+              </td>
+              <td>
+                {" "}<strong>Provider mappings, unqualified here.</strong>{" "}
+                Managed control planes still leave workload security, networking, data and
+                recovery duties.
+                {" "}<a href={`${repository}/issues/252`}>#252</a>.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="reading-split">
+        <div>
+          <h3>Hybrid is a useful first step.</h3>
+          <p>
+            A Worker can call an approved regional API while the database stays on its current
+            platform. Private connectivity, protocol compatibility and identity must all work.
+            Reachable TCP alone does not qualify Kafka, and an app’s private binding does not
+            make its telemetry exporter private.
+          </p>
+        </div>
+        <div>
+          <h3>Portability needs a restore.</h3>
+          <p>
+            Redeploying code, connecting to another cloud, recovering after provider loss and
+            active-active data are separate capabilities. A tested exit includes usable
+            configuration, database and media export, restoration and real application
+            behaviour.
+          </p>
+        </div>
+      </div>
+      <p>
+        Total cost includes engineering/on-call, minimum compute, data, backups, transfer,
+        telemetry, security licences, migration and exit. Compare equivalent operating
+        outcomes. A runtime entry price is not a project quote.
+      </p>
+      <p class="source-note">
+        Sources:
+        {" "}<a href="https://docs.emdashcms.com/deployment/nodejs/">EmDash Node deployment</a>,
+        {" "}<a href="https://github.com/denoland/celld">celld</a>,
+        {" "}<a href="https://celld.dev/docs/security/">celld trust model</a>,
+        {" "}<a href="https://developers.cloudflare.com/workers-vpc/">Workers VPC</a>,
+        {" "}<a href="https://kubernetes.io/docs/concepts/security/multi-tenancy/">
+          Kubernetes tenancy
+        </a>.
+        {" "}<a href={`${repository}/issues/253`}>Hybrid/exit qualification #253</a>.
+      </p>
+    </section>
+
+    <section id="delivery">
+      <div class="section-heading">
+        <h2>
+          Policy turns a request
+          <br />
+          into an authorised action.
+        </h2>
+        {" "}<span class="evidence-label">Illustrative explorer</span>{" "}
+      </div>
+      <p>
+        A plan names the team, application, environment, exact recipe/source, resources, data
+        requirement and operating expectations. Standing policy should let ordinary supported
+        work proceed. A real exception gets a consequential decision.
+      </p>
+      <PolicyExplorer />
+      <div class="reading-split">
+        <div>
+          <h3>Approve a candidate, then recheck it.</h3>
+          <p>
+            Accept, send back and deny belong to the current request and exact candidate. A
+            role revoked after approval, changed source or stale evidence must stop execution.
+            Keep builds away from deployment credentials, and use stable operation identities
+            when a provider result is uncertain.
+          </p>
+        </div>
+        <div>
+          <h3>GitOps depends on the target.</h3>
+          <p>
+            Argo CD reconciles Kubernetes resources. Workers require an appropriate
+            deployment/reconciliation adapter. A Git repository alone does not supply
+            reconciliation. ServiceNow can supply change authority; it must identify the same
+            candidate and receive the verified outcome.
+          </p>
+        </div>
+      </div>
+      <p class="source-note">
+        Sources:
+        {" "}<a href="https://argoproj.github.io/cd/">Argo CD scope</a>,
+        {" "}<a href="https://developers.cloudflare.com/workers/ci-cd/external-cicd/">
+          Workers external delivery
+        </a>. Composer delivery ownership:
+        {" "}<a href={`${repository}/issues/218`}>#218</a>,
+        {" "}<a href={`${repository}/issues/219`}>#219</a>,
+        {" "}<a href={`${repository}/issues/254`}>#254</a>.
+      </p>
+    </section>
+
+    <section id="permissions">
+      <div class="section-heading">
+        <h2>
+          Six permissions.
+          <br />
+          No accidental promotion.
+        </h2>
+        {" "}<span class="evidence-label">Current boundaries + proposed delegation</span>{" "}
+      </div>
+      <p>
+        Signing in, editing content, owning a team and deploying infrastructure are distinct
+        powers. Enforce them again at the API and execution boundary. A team identifier from a
+        browser is a selector, never proof of membership.
+      </p>
+      <div class="comparison" role="region" aria-label="Six permission domains" tabindex="0">
+        <table>
+          <caption>Each domain has its own owner and enforcement point</caption>
+          <thead>
+            <tr>
+              <th scope="col">Domain / owner</th>
+              <th scope="col">Controls</th>
+              <th scope="col">Boundary to preserve</th>
+            </tr>
+          </thead>
+          <tbody>{permissions.map(([name, owner, controls, boundary]) => <tr>
+<th scope="row">{name}<small>{owner}</small>
+</th>
+<td>{controls}</td>
+<td>{boundary}</td>
+</tr>)}</tbody>
+        </table>
+      </div>
+      <p>
+        For offboarding, test admission denial, current Composer membership and already active
+        sessions. Group mapping, SCIM and custom roles should appear as supported only after
+        that exact configured path is exercised. An invitation is neither admission through
+        Access nor a global infrastructure grant.
+      </p>
+      <p class="source-note">
+        Sources:
+        {" "}<a href={`${repository}/blob/${source}/docs/workspace-access.md`}>inspected workspace access</a>,
+        {" "}<a href="https://docs.emdashcms.com/guides/authentication/">EmDash authentication</a>,
+        {" "}<a href="https://developers.cloudflare.com/workers/authorization/workers/">
+          Workers roles
+        </a>.
+        {" "}<a href={`${repository}/issues/257`}>Self-service/IAM #257</a>.
+      </p>
+    </section>
+
+    <section id="lifecycle">
+      <div class="section-heading">
+        <h2>
+          Keep the service’s story
+          <br />
+          with the service.
+        </h2>
+        {" "}<span class="evidence-label">Proposed complete lifecycle</span>{" "}
+      </div>
+      <ol class="lifecycle-route">
+        <li>
+          {" "}<strong>Request</strong>{" "}
+          {" "}<span>Owner, environment, exact recipe and resource plan.</span>{" "}
+        </li>
+        <li>
+          {" "}<strong>Authorise</strong>{" "}
+          {" "}<span>Current actor, policy, candidate and any necessary exception.</span>{" "}
+        </li>
+        <li>
+          {" "}<strong>Deliver</strong>{" "}
+          {" "}<span>Scoped runner, stable operation identity, adopted/created resources.</span>{" "}
+        </li>
+        <li>
+          {" "}<strong>Verify &amp; operate</strong>{" "}
+          {" "}<span>Independent health, release lineage, usage, runbook and incident owner.</span>{" "}
+        </li>
+        <li>
+          {" "}<strong>Recover &amp; retire</strong>{" "}
+          {" "}<span>Compatible rollback, tested data/media restore, export and retention.</span>{" "}
+        </li>
+      </ol>
+      <p>
+        Preparing, waiting for a decision, running, verifying, complete and needs attention
+        should describe real work. An unavailable local runner is pending; it is not an
+        always-online hosted runner. A provider accepting a deployment is not evidence that its
+        service works.
+      </p>
+      <p>
+        Code rollback does not rewind records, restore deleted media or reverse a payment. Keep
+        those recovery procedures separate. Preserve each independent app’s source, settings
+        and data ownership throughout updates and retirement.
+      </p>
+      <p class="source-note">
+        Lifecycle delivery:
+        {" "}<a href={`${repository}/issues/219`}>#219</a>; operating evidence:
+        {" "}<a href={`${repository}/issues/220`}>#220</a>; recovery:
+        {" "}<a href={`${repository}/issues/118`}>#118</a>.
+      </p>
+    </section>
+
+    <section id="integrations">
+      <div class="section-heading">
+        <h2>
+          Connect the tools
+          <br />
+          your organisation uses.
+        </h2>
+        {" "}<span class="evidence-label">Provider-documented / proposed connections</span>{" "}
+      </div>
+      <p>
+        These are researched integration contracts. They are not a claim that all fourteen
+        Composer adapters exist. Version, entitlement, authentication, network path, data
+        handling, authority and failure behaviour must be qualified for the actual
+        installation.
+      </p>
+      <dl class="integration-list">{integrations.map(([name, description, url]) => <div>
+<dt>{" "}<a href={url}>{name}</a>{" "}
+</dt>
+<dd>{description}</dd>
+</div>)}</dl>
+      <p>
+        A Vault server, Kafka broker, Jenkins controller or arbitrary Ansible process belongs
+        on a suitable runtime. Workers may integrate through bounded APIs; they do not become
+        those server processes.
+      </p>
+      <details>
+        <summary>What an operational connection must prove</summary>
+        <p>
+          Bind owner, app, environment, release and operation identities; scope credentials
+          server-side; document the receiver and private/public network path; minimise and
+          redact data; handle duplicates, partial responses, timeouts and ambiguous completion;
+          monitor delivery and retain a recoverable outcome.
+        </p>
+        <p>
+          Workers documents OTLP export for logs and traces with a metrics limitation. Sampling
+          is not a complete audit record. Private application connectivity does not establish
+          private exporter reachability. Retention and
+          {" "}<code>persist:false</code>{" "}
+          do not prove whole-platform residency.
+        </p>
+        <p>
+          {" "}<a
+            href="https://developers.cloudflare.com/workers/observability/opentelemetry-export/"
+          >
+            Workers OpenTelemetry export
+          </a>. The
+          {" "}<a href={`${repository}/issues/215`}>Agentic Responder / PagerDuty demonstration</a>{" "}
+          has its own incident and recovery evidence; this guide does not qualify that provider
+          execution.
+        </p>
+      </details>
+      <p class="source-note">
+        {" "}<a href={`${repository}/blob/main/docs/platform/integrations.md`}>
+          Read the current connector contracts and local adapter evidence
+        </a>{" "}
+        ·
+        {" "}<a href={`${repository}/blob/8a107b710e941c8fb584c9e13acc52bee41b2b25/docs/platform/field-guide.md#9-integration-catalogue`}>Original sourced integration catalogue</a>.
+        {" "}<a href={`${repository}/issues/255`}>Connector qualification #255</a>.
+      </p>
+    </section>
+
+    <section id="australia">
+      <div class="section-heading">
+        <h2>
+          “Australian hosted”
+          <br />
+          needs a data-flow answer.
+        </h2>
+        {" "}<span class="evidence-label">
+          Provider-documented limits · reviewed 23 October 2026
+        </span>{" "}
+      </div>
+      <p>
+        Map each path before promising Australian-only handling. Execution, database storage,
+        media, telemetry, code/secrets, support and subprocessors can have different locations
+        and guarantees.
+      </p>
+      <figure class="regional-map">
+        <figcaption>Regional HTTP processing is one part of the flow.</figcaption>
+        <div class="regional-core">
+          {" "}<strong>Visitor → configured custom domain → eligible HTTP execution</strong>{" "}
+          {" "}<span>
+            Australian Regional Services is a documented configuration option, subject to the
+            account’s entitlements.
+          </span>{" "}
+        </div>
+        <ul>
+          <li>
+            {" "}<strong>Code &amp; secrets</strong>{" "}
+            {" "}<span>
+              Still deployed globally. Background triggers and outgoing subrequests have
+              separate caveats.
+            </span>{" "}
+          </li>
+          <li>
+            {" "}<strong>D1 &amp; media</strong>{" "}
+            {" "}<span>
+              Location hints do not guarantee Australian storage. Check each product’s
+              jurisdictions.
+            </span>{" "}
+          </li>
+          <li>
+            {" "}<strong>Telemetry &amp; support</strong>{" "}
+            {" "}<span>
+              No Australian Customer Metadata Boundary option is listed. Assess exporters,
+              support and subprocessors separately.
+            </span>{" "}
+          </li>
+        </ul>
+      </figure>
+      <div
+        class="comparison"
+        role="region"
+        aria-label="Australian data location requirements"
+        tabindex="0"
+      >
+        <table>
+          <caption>What the current public documentation establishes</caption>
+          <thead>
+            <tr>
+              <th scope="col">Path</th>
+              <th scope="col">Documented position</th>
+              <th scope="col">Consequence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Workers HTTP</th>
+              <td>
+                Regional Services restricts execution and TLS termination on the configured
+                custom domain; other triggers and subrequests have exclusions.
+              </td>
+              <td>
+                Regional processing is not a whole-system residency guarantee.
+                {" "}<a href="https://developers.cloudflare.com/data-localization/how-to/workers/">
+                  Workers regionalisation
+                </a>.
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Regional metadata</th>
+              <td>
+                Australia is listed for Regional Services; Customer Metadata Boundary lists EU
+                and US. IRAP Protected can include locations outside Australia.
+              </td>
+              <td>
+                Do not equate assessment scope, Australian execution and Australian-only
+                metadata.
+                {" "}<a href="https://developers.cloudflare.com/data-localization/region-support/">
+                  Region support
+                </a>.
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">D1</th>
+              <td>
+                Jurisdictions list EU, US and FedRAMP. An Oceania hint is not a guarantee.
+              </td>
+              <td>
+                Australian-only database storage is not substantiated by a hint.
+                {" "}<a href="https://developers.cloudflare.com/d1/configuration/data-location/">
+                  D1 location
+                </a>.
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">R2</th>
+              <td>
+                Location hints are best effort; jurisdiction restrictions are a separate
+                guarantee.
+              </td>
+              <td>
+                Inspect the required jurisdiction, backups and media access path.
+                {" "}<a href="https://developers.cloudflare.com/r2/reference/data-location/">
+                  R2 location
+                </a>.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        {" "}<strong>
+          For a strict Australian-only requirement, the generic all-Cloudflare design is not
+          established.
+        </strong>{" "}
+        Keep that requirement intact. Assess a controlled regional backend, plus its ingress,
+        backups, telemetry, support access, contracts and external APIs.
+      </p>
+      <details>
+        <summary>Open provider-documentation conflict</summary>
+        <p>
+          The Workers configuration guide and product-compatibility table differ on Customer
+          Metadata Boundary with
+          {" "}<code>workers.dev</code>. This guide makes no support claim for that combination. Resolve it with the
+          provider before relying on it.
+          {" "}<a href="https://developers.cloudflare.com/data-localization/compatibility/">
+            Compare the compatibility table
+          </a>.
+        </p>
+      </details>
+    </section>
+
+    <section id="assurance">
+      <div class="section-heading">
+        <h2>
+          Supplier evidence is
+          <br />
+          the beginning of assurance.
+        </h2>
+        {" "}<span class="evidence-label">Assessment guidance · no certification claim</span>{" "}
+      </div>
+      <div class="reading-split">
+        <div>
+          <h3>SOC 2 has a defined scope.</h3>
+          <p>
+            Obtain the supplier’s current report and relevant bridge letter. Match services,
+            period, exceptions and customer controls to the actual design. A supplier
+            examination does not attest to Composer’s authorisation, release process or your
+            support operation.
+          </p>
+          <p>
+            {" "}<a href="https://www.cloudflare.com/trust-hub/compliance-resources/soc-2/">
+              Cloudflare SOC 2 scope and report access
+            </a>.
+          </p>
+        </div>
+        <div>
+          <h3>IRAP is an assessment.</h3>
+          <p>
+            Read the actual report and tested controls. ASD states that assessors do not
+            accredit or endorse systems, and completing an assessment does not establish
+            compliance. The customer still owns its system acceptance decision.
+          </p>
+          <p>
+            {" "}<a href="https://www.cyber.gov.au/irap">ASD’s IRAP limitations</a>.
+          </p>
+        </div>
+      </div>
+      <p>
+        For Australian work, assess applicable Privacy Act / APP 8 cross-border handling, APP
+        11 protection/retention, Notifiable Data Breaches, ISM/ASD Essentials and sector
+        requirements such as APRA CPS 230/234. Applicability depends on the organisation, data
+        and service. This reference does not make that determination.
+      </p>
+      <p>
+        Useful evidence names a control owner and includes access/revocation tests, exact
+        change samples, vulnerability handling, incident exercises, isolated restoration and
+        supplier/exit review. A Wiz finding or a scan badge contributes evidence; neither
+        certifies the application.
+      </p>
+      <p class="source-note">
+        Primary guidance:
+        {" "}<a
+          href="https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines/chapter-8-app-8-cross-border-disclosure-of-personal-information"
+        >
+          APP 8
+        </a>,
+        {" "}<a
+          href="https://www.oaic.gov.au/privacy/australian-privacy-principles/australian-privacy-principles-guidelines/chapter-11-app-11-security-of-personal-information"
+        >
+          APP 11
+        </a>,
+        {" "}<a href="https://www.cyber.gov.au/publication/essentials-for-cloud">
+          Essentials for cloud
+        </a>,
+        {" "}<a href="https://www.apra.gov.au/standards/cps-230">CPS 230</a>,
+        {" "}<a href="https://www.apra.gov.au/standards/cps-234">CPS 234</a>. Assurance ownership:
+        {" "}<a href={`${repository}/issues/256`}>#256</a>.
+      </p>
+    </section>
+
+    <section class="next-path">
+      <h2>Start with one useful application.</h2>
+      <p>
+        Prepare the selected environment, describe the application and use the actual admin.
+        Keep the ordinary creator path as small as it needs to be; the full enterprise
+        catalogue is not a prerequisite.
+      </p>
+      <div class="actions">
+        {" "}<a class="button" href="/ready?profile=platform">Get Ready</a>{" "}
+        {" "}<a class="button secondary" href="/init?profile=platform">Open Init</a>{" "}
+        {" "}<a href="/manage">Find your admin</a>{" "}
+        {" "}<a href="/apps">Browse independent apps</a>{" "}
+      </div>
+      <details>
+        <summary>Sources, status labels and qualification</summary>
+        <p>
+          “Inspected source” identifies implementation at a named revision.
+          “Provider-documented” establishes a supplier capability with conditions. “Proposed”
+          describes intended Composer behaviour. “Qualified” requires a named environment,
+          exact source and observed outcome. “Unsupported” names a concrete limit in the
+          selected scope. No page interaction changes those states.
+        </p>
+        <p>
+          {" "}<a href={`${repository}/blob/8a107b710e941c8fb584c9e13acc52bee41b2b25/docs/platform/field-guide.md`}>Full research and primary-source register</a>{" "}
+          ·
+          {" "}<a href={`${repository}/issues/251`}>Public-reference acceptance #251</a>{" "}
+          ·
+          {" "}<a href={`${repository}/issues/221`}>Two-team demonstration #221</a>{" "}
+          ·
+          {" "}<a href={`${repository}/issues/11`}>Canonical release receipts #11</a>.
+        </p>
+        <p>
+          Existing product captures in
+          {" "}<a href="/guide#admin-screenshots">the admin guide</a>{" "}
+          show that specific verified mini-app journey. They are not screenshots of the
+          proposed full enterprise lifecycle.
+        </p>
+      </details>
+    </section>
+  </div>
+</Base>
+<script>
+  import "../browser/platform-guide";
+</script>
+<style>
+.platform-guide {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.platform-opening {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: 64px;
+  align-items: start;
+  padding: 8px 0 48px;
+}
+.back-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  color: var(--color-accent);
+  font-size: 0.9rem;
+}
+.platform-opening h1 {
+  font-size: clamp(2.8rem, 5vw, 4.8rem);
+  line-height: 1.04;
+  max-width: 16ch;
+  margin-top: 16px;
+  text-wrap: balance;
+}
+.platform-opening .lede {
+  font-size: 1.25rem;
+  max-width: 48ch;
+}
+.platform-guide a:not(.button) {
+  text-decoration: none;
+}
+.evidence-boundary {
+  border-block: 1px solid var(--color-border);
+  padding: 24px 0;
+}
+.evidence-boundary p {
+  max-width: 100ch;
+  margin: 10px 0 0;
+}
+.platform-guide .small {
+  font-size: 0.85rem;
+}
+.platform-index {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0 24px;
+  margin: 24px 0 48px;
+}
+.platform-index a {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+}
+.platform-guide section {
+  padding: 52px 0;
+  border-top: 1px solid var(--color-border);
+  scroll-margin-top: 24px;
+}
+.section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  margin-bottom: 28px;
+}
+.section-heading h2 {
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  max-width: 24ch;
+  margin: 0;
+  text-wrap: balance;
+}
+.evidence-label {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  max-width: 26ch;
+  padding-bottom: 3px;
+}
+.reading-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+.reading-split h3 {
+  font-size: 1.35rem;
+  margin: 20px 0 14px;
+  line-height: 1.25;
+}
+.reading-split p {
+  max-width: 68ch;
+}
+.platform-guide p {
+  max-width: 78ch;
+}
+.source-note {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  margin-top: 28px;
+}
+.comparison {
+  margin: 28px 0;
+  overflow-x: auto;
+}
+.comparison table {
+  table-layout: fixed;
+  min-width: 0;
+  font-size: 0.9rem;
+}
+.comparison caption {
+  text-align: left;
+  margin: 0 0 14px;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+.comparison th,
+.comparison td {
+  padding: 18px 16px 18px 0;
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+}
+.comparison th:first-child {
+  width: 23%;
+}
+.comparison thead th {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+.comparison th small {
+  font-size: 0.8rem;
+  display: block;
+  color: var(--color-muted);
+  font-weight: 400;
+  margin-top: 8px;
+}
+.lifecycle-route {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  list-style: none;
+  padding: 0;
+  margin: 36px 0;
+  max-width: none;
+  gap: 22px;
+}
+.lifecycle-route li {
+  border-top: 2px solid var(--color-accent);
+  padding-top: 16px;
+  margin: 0;
+}
+.lifecycle-route strong,
+.lifecycle-route span {
+  display: block;
+}
+.lifecycle-route strong {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  margin-bottom: 10px;
+  line-height: 1.25;
+}
+.lifecycle-route span {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+.integration-list {
+  margin: 32px 0;
+}
+.integration-list > div {
+  display: grid;
+  grid-template-columns: minmax(160px, 22%) 1fr;
+  gap: 24px;
+  padding: 18px 0;
+  border-top: 1px solid var(--color-border);
+}
+.integration-list dt {
+  font-weight: 600;
+}
+.integration-list dd {
+  margin: 0;
+  max-width: 72ch;
+  color: var(--color-muted);
+}
+.regional-map {
+  padding: 28px;
+  background: var(--color-surface);
+  margin: 32px 0;
+  border-radius: 8px;
+}
+.regional-map figcaption {
+  font: 500 1.4rem/1.3 var(--font-display);
+  margin-bottom: 24px;
+}
+.regional-core {
+  border-block: 1px solid var(--color-accent);
+  padding: 20px 0;
+}
+.regional-core strong,
+.regional-core span {
+  display: block;
+}
+.regional-core strong {
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+.regional-core span {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  margin-top: 8px;
+}
+.regional-map ul {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  list-style: none;
+  gap: 28px;
+  padding: 0;
+  max-width: none;
+  margin: 24px 0 0;
+}
+.regional-map li {
+  margin: 0;
+}
+.regional-map li strong,
+.regional-map li span {
+  display: block;
+}
+.regional-map li span {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  margin-top: 10px;
+}
+.next-path h2 {
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  max-width: 23ch;
+}
+.next-path .actions > a:not(.button) {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+details p {
+  font-size: 0.95rem;
+}
+summary {
+  max-width: 76ch;
+}
+@media (max-width: 900px) {
+  .platform-opening {
+    gap: 32px;
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+  .platform-opening h1 {
+    font-size: 3.3rem;
+  }
+  .platform-index {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .section-heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .evidence-label {
+    max-width: none;
+  }
+  .reading-split {
+    gap: 32px;
+  }
+  .lifecycle-route {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .lifecycle-route li {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 20px;
+    border-top: 1px solid var(--color-border);
+    padding: 18px 0;
+  }
+  .lifecycle-route strong {
+    margin: 0;
+  }
+}
+@media (max-width: 700px) {
+  .platform-opening {
+    grid-template-columns: 1fr;
+    padding-bottom: 28px;
+    gap: 28px;
+  }
+  .platform-opening h1 {
+    font-size: clamp(2.7rem, 11vw, 3.6rem);
+  }
+  .platform-opening .lede {
+    font-size: 1.15rem;
+  }
+  .platform-opening .actions {
+    margin-bottom: 0;
+  }
+  .platform-guide section {
+    padding: 36px 0;
+  }
+  .platform-index {
+    margin: 18px 0 28px;
+    gap: 0 18px;
+  }
+  .reading-split {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .section-heading h2 {
+    font-size: 2.15rem;
+  }
+  .comparison table {
+    font-size: 0.8rem;
+  }
+  .comparison th,
+  .comparison td {
+    padding: 14px 8px 14px 0;
+  }
+  .comparison th:first-child {
+    width: 27%;
+  }
+  .integration-list > div {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 20px 0;
+  }
+  .regional-map {
+    padding: 20px;
+  }
+  .regional-map ul {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .lifecycle-route li {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .platform-guide .actions {
+    gap: 16px;
+  }
+}
+</style>
