@@ -1,6 +1,6 @@
-import { createHash, randomUUID } from "node:crypto";
-import { join } from "node:path";
+import { randomUUID } from "node:crypto";
 import { nativeCall, nativeData } from "./native-auth.mjs";
+import { nativeCapture } from "./native-capture.mjs";
 
 const stacks = "/_emdash/api/plugins/composer-stacks/";
 const members = "/_emdash/api/plugins/composer-members/";
@@ -62,6 +62,12 @@ export async function nativeJourney({
     captureInspectionHoldMs: 2000,
     limits: [],
   };
+  const { screenshot, responsivePage } = nativeCapture({
+    actors,
+    output,
+    result,
+    origin: lab.origins.composer,
+  });
   check(
     /^[a-f0-9]{40}$/.test(memberSource),
     "Select the actual locked qualified Guestbook source.",
@@ -173,131 +179,108 @@ export async function nativeJourney({
       await welcome.waitFor({ state: "hidden" });
     }
   }
-  async function screenshot(page, name) {
-    check(
-      !result.screenshots.includes(name + ".png"),
-      "Native capture path would overwrite an earlier observation.",
-    );
-    const bytes = await page.screenshot({
-      path: join(output, name + ".png"),
-      fullPage: true,
-    });
-    result.screenshots.push(name + ".png");
-    result.captureAssets.push({
-      path: name + ".png",
-      sha256: createHash("sha256").update(bytes).digest("hex"),
-      actor:
-        Object.entries(actors).find(([, actor]) => actor.page === page)?.[0] ??
-        "anonymous",
-      capturedAt: new Date().toISOString(),
-    });
-    // Keep each real settled result readable in the continuous recording.
-    // This deliberate inspection time is disclosed, never an invented action.
-    await page.waitForTimeout(result.captureInspectionHoldMs);
-  }
-  async function responsiveCaptures(page, point) {
-    const originalViewport = page.viewportSize();
-    const originalTheme = await page.locator("html").getAttribute("data-theme");
-    check(
-      originalViewport && ["dark", "light"].includes(originalTheme),
-      "Responsive capture needs the existing viewport and public theme.",
-    );
-    const theme = async (desired) => {
-      if ((await page.locator("html").getAttribute("data-theme")) !== desired)
-        await page.locator("#theme-toggle").click();
-      await page.waitForFunction(
-        (value) => document.documentElement.dataset.theme === value,
-        desired,
+  async function responsiveCaptures(primary, point) {
+    await responsivePage(primary, async (page) => {
+      const originalTheme = await page
+        .locator("html")
+        .getAttribute("data-theme");
+      check(
+        ["dark", "light"].includes(originalTheme),
+        "Responsive capture needs the existing viewport and public theme.",
       );
-    };
-    try {
-      for (const viewport of [
-        { width: 390, height: 844 },
-        { width: 1440, height: 1000 },
-      ]) {
-        await page.setViewportSize(viewport);
-        for (const desired of ["dark", "light"]) {
-          await theme(desired);
-          await page.waitForFunction(
-            () => document.fonts.status === "loaded",
-            null,
-            { timeout: 5000 },
-          );
-          await page.evaluate(async () => {
-            await new Promise(requestAnimationFrame);
-            await new Promise(requestAnimationFrame);
-          });
-          const geometry = await page.evaluate(() => {
-            const root = document.querySelector(".member-workbench");
-            if (!root) throw Error("The actual member workbench is absent.");
-            const width = document.documentElement.clientWidth;
-            const controls = [
-              ...root.querySelectorAll("input,select,textarea,button,canvas"),
-            ].filter((element) => {
-              const rect = element.getBoundingClientRect();
-              return rect.width > 0 && rect.height > 0;
-            });
-            const escaped = controls.flatMap((element) => {
-              const rect = element.getBoundingClientRect();
-              const container = (
-                element.closest("form") ?? root
-              ).getBoundingClientRect();
-              return rect.left < -1 ||
-                rect.right > width + 1 ||
-                rect.left < container.left - 1 ||
-                rect.right > container.right + 1
-                ? [
-                    {
-                      tag: element.tagName.toLowerCase(),
-                      left: rect.left,
-                      right: rect.right,
-                      containerLeft: container.left,
-                      containerRight: container.right,
-                    },
-                  ]
-                : [];
-            });
-            return {
-              viewportWidth: width,
-              pageWidth: Math.max(
-                document.documentElement.scrollWidth,
-                document.body.scrollWidth,
-              ),
-              controls: controls.length,
-              escaped: escaped.slice(0, 12),
-              reducedMotion: matchMedia("(prefers-reduced-motion: reduce)")
-                .matches,
-            };
-          });
-          const name = `${point}-${viewport.width}x${viewport.height}-${desired}`;
-          (result.responsiveCaptures ??= []).push({
-            path: name + ".png",
-            viewport,
-            theme: desired,
-            geometry,
-          });
-          check(
-            geometry.reducedMotion,
-            "The owned actor context did not request reduced motion.",
-          );
-          check(
-            geometry.pageWidth <= geometry.viewportWidth + 1,
-            name + " has horizontal page overflow.",
-          );
-          check(
-            geometry.controls > 0 && geometry.escaped.length === 0,
-            name + " has uncontained form controls.",
-          );
-          await screenshot(page, name);
-        }
-      }
-    } finally {
+      const theme = async (desired) => {
+        if ((await page.locator("html").getAttribute("data-theme")) !== desired)
+          await page.locator("#theme-toggle").click();
+        await page.waitForFunction(
+          (value) => document.documentElement.dataset.theme === value,
+          desired,
+        );
+      };
       try {
-        await theme(originalTheme);
+        for (const viewport of [
+          { width: 390, height: 844 },
+          { width: 1440, height: 1000 },
+        ]) {
+          await page.setViewportSize(viewport);
+          for (const desired of ["dark", "light"]) {
+            await theme(desired);
+            await page.waitForFunction(
+              () => document.fonts.status === "loaded",
+              null,
+              { timeout: 5000 },
+            );
+            await page.evaluate(async () => {
+              await new Promise(requestAnimationFrame);
+              await new Promise(requestAnimationFrame);
+            });
+            const geometry = await page.evaluate(() => {
+              const root = document.querySelector(".member-workbench");
+              if (!root) throw Error("The actual member workbench is absent.");
+              const width = document.documentElement.clientWidth;
+              const controls = [
+                ...root.querySelectorAll("input,select,textarea,button,canvas"),
+              ].filter((element) => {
+                const rect = element.getBoundingClientRect();
+                return rect.width > 0 && rect.height > 0;
+              });
+              const escaped = controls.flatMap((element) => {
+                const rect = element.getBoundingClientRect();
+                const container = (
+                  element.closest("form") ?? root
+                ).getBoundingClientRect();
+                return rect.left < -1 ||
+                  rect.right > width + 1 ||
+                  rect.left < container.left - 1 ||
+                  rect.right > container.right + 1
+                  ? [
+                      {
+                        tag: element.tagName.toLowerCase(),
+                        left: rect.left,
+                        right: rect.right,
+                        containerLeft: container.left,
+                        containerRight: container.right,
+                      },
+                    ]
+                  : [];
+              });
+              return {
+                viewportWidth: width,
+                pageWidth: Math.max(
+                  document.documentElement.scrollWidth,
+                  document.body.scrollWidth,
+                ),
+                controls: controls.length,
+                escaped: escaped.slice(0, 12),
+                reducedMotion: matchMedia("(prefers-reduced-motion: reduce)")
+                  .matches,
+              };
+            });
+            const name = `${point}-${viewport.width}x${viewport.height}-${desired}`;
+            (result.responsiveCaptures ??= []).push({
+              path: name + ".png",
+              viewport,
+              theme: desired,
+              geometry,
+            });
+            check(
+              geometry.reducedMotion,
+              "The owned actor context did not request reduced motion.",
+            );
+            check(
+              geometry.pageWidth <= geometry.viewportWidth + 1,
+              name + " has horizontal page overflow.",
+            );
+            check(
+              geometry.controls > 0 && geometry.escaped.length === 0,
+              name + " has uncontained form controls.",
+            );
+            await screenshot(page, name);
+          }
+        }
       } finally {
-        await page.setViewportSize(originalViewport);
+        await theme(originalTheme);
       }
-    }
+    });
   }
   async function observeSetup(page, workspace, label) {
     await page.goto(
@@ -331,6 +314,12 @@ export async function nativeJourney({
       href,
       configurationObservationOnly: true,
     });
+    await page
+      .getByRole("heading", {
+        name: "Set the standing rules",
+        exact: true,
+      })
+      .scrollIntoViewIfNeeded();
     await screenshot(page, "ready-" + label);
     return continuation;
   }
@@ -658,6 +647,12 @@ export async function nativeJourney({
   await ordinary
     .getByRole("heading", { name: "Request a team application", exact: true })
     .waitFor();
+  await ordinary
+    .getByRole("heading", {
+      name: "Request a team application",
+      exact: true,
+    })
+    .scrollIntoViewIfNeeded();
   await screenshot(ordinary, "ready-role10-team-a-request");
   const initLink = ordinary.getByRole("link", {
     name: "Continue in Init with this team",
@@ -678,6 +673,7 @@ export async function nativeJourney({
       "/me?view=platform&workspace=" + wa,
     "Init did not retain the delegated member request path and selected team.",
   );
+  await requestLink.scrollIntoViewIfNeeded();
   await screenshot(ordinary, "init-role10-team-a-request");
   await requestLink.click();
   await ordinary
@@ -735,6 +731,12 @@ export async function nativeJourney({
     "Teams share an owned resource identity.",
   );
   result.initial = { a: initialA, b: initialB };
+  await ordinary
+    .getByRole("heading", {
+      name: initialA.name,
+      exact: true,
+    })
+    .scrollIntoViewIfNeeded();
   await screenshot(ordinary, "team-a-role10-members-complete");
   await ordinary
     .getByRole("link", { name: "Open application", exact: true })
@@ -743,6 +745,12 @@ export async function nativeJourney({
     ordinary,
     "team-a-role10-members-complete-responsive",
   );
+  await b
+    .getByRole("heading", {
+      name: initialB.name,
+      exact: true,
+    })
+    .scrollIntoViewIfNeeded();
   await screenshot(b, "team-b-closed-complete");
   const resource = initialA.resources[0],
     caption = "Fictional Team A native member postcard",
@@ -849,6 +857,9 @@ export async function nativeJourney({
       reply.url().includes(members + "write") &&
       reply.request().method() === "POST",
   );
+  await ordinary
+    .locator('canvas[aria-label="Postcard preview"]')
+    .scrollIntoViewIfNeeded();
   await screenshot(ordinary, "team-a-role10-postcard-preview");
   await ordinary
     .getByRole("button", { name: "Submit for review", exact: true })
@@ -880,6 +891,12 @@ export async function nativeJourney({
     canvas: "maintained 1200x900 UI",
     dataClass: "synthetic",
   };
+  await ordinary
+    .getByText(
+      "Postcard submitted for review. It remains private until an authorised moderator approves it.",
+      { exact: true },
+    )
+    .scrollIntoViewIfNeeded();
   await screenshot(ordinary, "team-a-role10-postcard-submitted");
   const memberList = () =>
     data(a, members + "write", {
@@ -1022,6 +1039,11 @@ export async function nativeJourney({
           "Approved postcard lost synthetic public label.",
         );
       result.visibility.push(evidence);
+      if (expectedStatus === 200)
+        await publicPage
+          .getByText(caption, { exact: true })
+          .first()
+          .scrollIntoViewIfNeeded();
       await screenshot(publicPage, "team-a-public-" + phase);
     }
     await publicState("pending-private", 404);
@@ -1050,6 +1072,7 @@ export async function nativeJourney({
         list.items.find((item) => item.id === receipt.id)?.status === status,
         "UI moderation status was not confirmed by actual named service.",
       );
+      await itemRow.scrollIntoViewIfNeeded();
       await screenshot(a, "team-a-review-" + phase);
       return list.items;
     }
@@ -1116,6 +1139,12 @@ export async function nativeJourney({
       contentPreserved: true,
       mediaSha256: approvedDigest,
     };
+    await ordinary
+      .getByRole("heading", {
+        name: updatedA.name,
+        exact: true,
+      })
+      .scrollIntoViewIfNeeded();
     await screenshot(ordinary, "team-a-role10-update-content-preserved");
     if (availabilityFixture) {
       const { runLocalAvailabilityExercise } =

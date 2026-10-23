@@ -134,6 +134,7 @@ const identities = {};
 const authored = [
   "labs/platform/native-run.mjs",
   "labs/platform/native-auth.mjs",
+  "labs/platform/native-capture.mjs",
   "labs/platform/native-journey.mjs",
   "docs/platform/native-demo.md",
   "labs/platform/native-incident.mjs",

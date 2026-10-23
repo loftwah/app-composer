@@ -35,7 +35,19 @@ Receipts include the original and derived lifecycle hashes, exact copied factory
 
 Each fictional actor's owned browser context records one continuous 1440 × 1000 WebM, beginning before native authentication and ending at normal context closure. The optional `output` argument to `authenticateNativeActors` enables recording; the lifecycle supplies an owned temporary location and registers each context immediately. No developer tools, network payloads, raw cookies, storage-state export or passkey key material are recorded. Authentication calls run in page evaluation, so invitation tokens are not navigated to or rendered. Actual rendered footage still needs inspection before sharing.
 
-The existing role10 actor page also records eight responsive screenshots: the settled completed-request view and the contribution form before entering its fictional message, each at 390 × 844 and 1440 × 1000 in both public themes. The harness uses the real `#theme-toggle` button, requests reduced motion in the owned actor contexts, checks page overflow and visible control containment, and restores viewport/theme in `finally`. Each screenshot keeps the existing actor/hash/capture-time receipt; geometry observations name the same unique path. This is local Chromium evidence, with physical-device and screen-reader acceptance still separate.
+Primary screenshots capture only the actor's fixed 1440 × 1000 viewport. The
+harness scrolls actual result and canvas controls into view; it does not resize
+the primary camera for a full-page still. Eight responsive full-page screenshots
+use separate probe pages in the same role10 actor context/session: the settled
+completed-request view and the contribution form before entering its fictional
+message, each at 390 × 844 and 1440 × 1000 in both public themes. A probe navigates
+the existing exact member view/workspace and confirms its selected workspace.
+The harness uses the real `#theme-toggle` button, requests reduced motion, checks
+page overflow and visible control containment, and restores the probe theme and
+closes the probe in `finally`. Actor attribution follows the actual context;
+only the primary page's continuous recording is retained. Every screenshot keeps
+its unique actor/hash/capture-time receipt and geometry path. This is local
+Chromium evidence, with physical-device and screen-reader acceptance separate.
 
 The complete browser recording window is capped at six minutes; exceeding it closes the owned browser and fails qualification. Each retained actor file is capped at 32 MiB. Normal context closure flushes the raw footage before browser shutdown. Existing `ffprobe` supplies actual duration, codec, frame size and rate. Only bounded useful files are copied into ignored `output/platform-native/`, with actor, source identities, SHA-256, bytes, duration and explicit local-admission scope in the receipt. Files are neither edited nor sped up. A missing, oversized or uninspectable recording fails the capture result without retaining its temporary project. These raw recordings are evidence inputs, not completed #221 films.
 
@@ -101,3 +113,11 @@ in the normal-speed recording, including a filled postcard preview before sendin
 `journey.captureInspectionHoldMs` discloses this deliberate reading time. These
 holds add no fabricated action or qualification. Film cuts and still holds remain
 separately explicit in the reviewed edit manifest.
+
+Raw WebM offsets must be selected from inspected decoded frames. Screenshot
+`capturedAt` and video `startedAt` are wall-clock provenance, not reliable source
+clip offsets. `journey.captureCamera` retains this limit in the run receipt.
+New viewport captures require new reviewed framing; old full-page crop coordinates
+must not be reused.
+The earlier released-source capture remains historical evidence; its first
+mechanically playable edit failed pixel review and must not be published.
