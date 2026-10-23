@@ -1,0 +1,35 @@
+---
+import { builderHref, builderReturnHref, hasBuilderContext } from '../lib/builder-context.mjs';
+import { ArrowUpRight } from '@lucide/astro';
+const active = hasBuilderContext(Astro.url);
+---
+{active && <aside class="builder-context" aria-label="Your Woodhouse builder visit" data-builder-context>
+  <a class="builder-return" href={builderReturnHref(Astro.url)}>Return to One more round <ArrowUpRight size={18} aria-hidden="true"/></a>
+  <nav aria-label="Builder journey">
+    <a href={builderHref(Astro.url, '/demo')}>Composition</a>
+    <a href={builderHref(Astro.url, '/manage#analytics-proof')}>How it works</a>
+    <a href={builderHref(Astro.url, '/reports/r971f5140bbe0c84c8147a64b')}>Hosted proof</a>
+    <a href={builderHref(Astro.url, '/init?start=composition')}>Build with Init</a>
+  </nav>
+</aside>}
+<script>
+  import { builderHref, hasBuilderContext } from '../lib/builder-context.mjs';
+  // Decorate only deliberate navigation to supported public builder surfaces.
+  // Canonicals, report payloads, download URLs and owner routes stay untouched.
+  function retainContext(event: MouseEvent) {
+    if (!hasBuilderContext(new URL(location.href))) return;
+    const anchor = event.target instanceof Element ? event.target.closest('a[href]') : null;
+    if (!(anchor instanceof HTMLAnchorElement) || anchor.hasAttribute('download')) return;
+    const href = anchor.getAttribute('href')!;
+    anchor.setAttribute('href', builderHref(new URL(location.href), href));
+  }
+  document.addEventListener('click', retainContext);
+  document.addEventListener('auxclick', retainContext);
+</script>
+<style>
+  .builder-context{border-block:1px solid var(--color-border);padding:12px 0;margin:0 0 24px;display:flex;align-items:center;justify-content:space-between;gap:4px 28px;flex-wrap:wrap}
+  .builder-context .builder-return{color:var(--color-accent);min-height:44px;display:flex;align-items:center;gap:10px}
+  .builder-context nav{gap:4px 22px;font-size:.9rem}
+  .builder-context nav a{min-height:44px;display:inline-flex;align-items:center}
+  @media(max-width:700px){.builder-context{gap:0;margin-bottom:20px}.builder-context nav{gap:0 20px}.builder-context nav a{font-size:.85rem}}
+</style>

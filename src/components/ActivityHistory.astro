@@ -1,4 +1,5 @@
 ---
+import BuilderFields from './BuilderFields.astro';
 import {
   signalKeys,
   signalView,
@@ -25,7 +26,7 @@ const signals = signalKeys
   data-activity-history
   aria-label="Daily public activity"
 >
-  <form method="get" class="signal-picker">
+  <form method="get" class="signal-picker"><BuilderFields/>
     <input type="hidden" name="days" value={days} />
     <input type="hidden" name="surface" value={surface} />
     <label for="activity-signal">
