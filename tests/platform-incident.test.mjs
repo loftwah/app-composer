@@ -1,10 +1,18 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, writeFile, rm, symlink } from "node:fs/promises";
+import {
+  mkdtemp,
+  mkdir,
+  writeFile,
+  readFile,
+  rm,
+  symlink,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   assertOwnedAvailabilityLab,
+  runLocalAvailabilityExercise,
   stableAvailability,
 } from "../labs/platform/native-incident.mjs";
 import { fixture, user, origin } from "./helpers/resource-fixture.mjs";
@@ -61,6 +69,37 @@ test("availability admission requires the owned local lifecycle, exact self-bind
       (await assertOwnedAvailabilityLab(lab, owned)).environment,
       "local",
     );
+    const scope = (suffix) => ({
+      workspace: "workspace-" + suffix,
+      stack: "stack-" + suffix,
+      instance: "instance-" + suffix,
+      resource: "resource-" + suffix,
+      request: "request-" + suffix,
+    });
+    // A refused actual dispatch boundary must leave a bounded failure receipt.
+    // This page transport double never creates a browser/session or app write.
+    const failed = await runLocalAvailabilityExercise({
+      owner: {
+        page: { evaluate: async () => ({ status: 401, body: {} }) },
+        user,
+      },
+      lab,
+      ownedRoot: owned,
+      output: owned,
+      teamA: scope("aaaaaa"),
+      teamB: scope("bbbbbb"),
+      expectedMediaSha: "a".repeat(64),
+      readPublic: () => assert.fail("No public reads after admission refusal"),
+      capture: () => assert.fail("No capture after admission refusal"),
+    });
+    assert.equal(failed.status, "blocked");
+    assert.equal(failed.receiverClosed, true);
+    assert.deepEqual(failed.actions, []);
+    const receipt = JSON.parse(
+      await readFile(join(owned, failed.receipt), "utf8"),
+    );
+    assert.equal(receipt.status, "blocked");
+    assert.equal(receipt.classification, "local-workerd-fixture");
     await assert.rejects(
       assertOwnedAvailabilityLab({ ...lab, root: owned }, owned),
       /owned local root/,

@@ -1145,9 +1145,13 @@ export async function nativeJourney({
         capture: screenshot,
       });
       check(
-        result.availability.status === "recovered",
+        result.availability.status === "recovered" &&
+          result.availability.incidentSync === "local-receiver-accepted" &&
+          result.availability.events.change?.status === "accepted" &&
+          result.availability.received?.length === 3,
         "Local availability exercise stopped: " +
-          result.availability.failureReason,
+          (result.availability.failureReason ??
+            result.availability.incidentSync),
       );
     }
   } finally {
