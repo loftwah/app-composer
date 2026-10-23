@@ -110,6 +110,22 @@ export function sameAccount(a: MemberSession, b: MemberSession) {
     a.actor.issuer === b.actor.issuer && a.actor.subject === b.actor.subject
   );
 }
+export function actorConstraint(account: MemberSession) {
+  return { issuer: account.actor.issuer, subject: account.actor.subject };
+}
+export function confirmedActor(
+  reply: Record<string, unknown>,
+  account: MemberSession,
+) {
+  const actor = reply.actor;
+  return (
+    !!actor &&
+    typeof actor === "object" &&
+    !Array.isArray(actor) &&
+    (actor as Record<string, unknown>).issuer === account.actor.issuer &&
+    (actor as Record<string, unknown>).subject === account.actor.subject
+  );
+}
 export function downloadJson(value: unknown, name: string) {
   const url = URL.createObjectURL(
     new Blob([JSON.stringify(value, null, 2) + "\n"], {

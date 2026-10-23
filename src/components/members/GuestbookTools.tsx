@@ -4,6 +4,8 @@ import {
   memberCall,
   memberSession,
   sameAccount,
+  actorConstraint,
+  confirmedActor,
   type Grant,
   type MemberSession,
 } from "./api";
@@ -107,12 +109,19 @@ export default function GuestbookTools({
       throw Error("The account changed. Refresh your apps before continuing.");
     }
     const response = await memberCall("guestbook", {
+      expectedActor: actorConstraint(account),
       workspace,
       resource: selected,
       capability,
       input,
     });
     const after = await memberSession();
+    if (!confirmedActor(response, account)) {
+      setList(undefined);
+      throw Error(
+        "The app result belongs to another account. Refresh your apps before continuing.",
+      );
+    }
     if (
       !sameAccount(account, after) ||
       !after.grants.some(

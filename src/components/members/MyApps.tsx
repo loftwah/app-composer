@@ -3,6 +3,8 @@ import {
   memberCall,
   memberSession,
   sameAccount,
+  actorConstraint,
+  confirmedActor,
   type MemberSession,
 } from "./api";
 import { profile, decodeProfile, type Profile } from "./profile";
@@ -70,6 +72,7 @@ export default function MyApps() {
     const response = await memberCall("profile", {
       workspace: workspace.id,
       operation: "read",
+      expectedActor: actorConstraint(next),
       ...(grant.resource !== "new-profile" ? { resource: grant.resource } : {}),
     });
     const confirmed = await memberSession();
@@ -86,6 +89,13 @@ export default function MyApps() {
     setAccount(confirmed);
     currentAccount.current = confirmed;
     const result = response.result as Record<string, unknown> | undefined;
+    if (
+      !confirmedActor(response, next) ||
+      (grant.resource !== "new-profile" && result?.resource !== grant.resource)
+    )
+      throw Error(
+        "The app result belongs to another account or profile. Refresh before continuing.",
+      );
     setSnapshot(result?.profile === null ? undefined : decodeProfile(result));
     setStatus(
       dirty.current
@@ -179,6 +189,7 @@ export default function MyApps() {
       const response = await memberCall("profile", {
         workspace: selected,
         operation,
+        expectedActor: actorConstraint(principal),
         ...(snapshot
           ? { resource: snapshot.resource, expectedRevision: snapshot.revision }
           : {}),
@@ -199,6 +210,16 @@ export default function MyApps() {
         );
       }
       const result = response.result;
+      if (
+        !confirmedActor(response, principal) ||
+        (snapshot &&
+          typeof result === "object" &&
+          result !== null &&
+          (result as Record<string, unknown>).resource !== snapshot.resource)
+      )
+        throw Error(
+          "The app result does not match the selected account and profile. Refresh before continuing.",
+        );
       if (!result || typeof result !== "object" || Array.isArray(result))
         throw Error(
           "The app did not confirm its result. Refresh before retrying.",
@@ -303,6 +324,7 @@ export default function MyApps() {
               onClick={() =>
                 void execute(async () => {
                   await memberCall("accept", {
+                    expectedActor: actorConstraint(account),
                     workspace: invite.workspace,
                     expectedRevision: invite.workspaceRevision,
                     invitation: invite.id,

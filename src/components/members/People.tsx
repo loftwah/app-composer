@@ -5,6 +5,7 @@ import {
   memberCall,
   memberSession,
   sameAccount,
+  actorConstraint,
   type MemberSession,
   type Workspace,
 } from "./api";
@@ -144,6 +145,7 @@ export default function People() {
     void run(async () => {
       if (!data) return;
       await memberCall("invite", {
+        expectedActor: actorConstraint(account!),
         workspace: selected,
         expectedRevision: data.workspace.revision,
         email,
@@ -161,6 +163,7 @@ export default function People() {
     void run(async () => {
       if (!data) return;
       await memberCall("grant", {
+        expectedActor: actorConstraint(account!),
         workspace: selected,
         expectedRevision: data.workspace.revision,
         member,
@@ -272,6 +275,7 @@ export default function People() {
                       onClick={() =>
                         void run(async () => {
                           await memberCall("revokeInvitation", {
+                            expectedActor: actorConstraint(account!),
                             workspace: selected,
                             expectedRevision: data.workspace.revision,
                             invitation: i.id,
@@ -433,6 +437,7 @@ export default function People() {
                       onClick={() =>
                         void run(async () => {
                           await memberCall("revoke", {
+                            expectedActor: actorConstraint(account!),
                             workspace: selected,
                             expectedRevision: data.workspace.revision,
                             member: g.member,
