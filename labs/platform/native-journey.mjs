@@ -164,6 +164,10 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
     }
   }
   async function screenshot(page, name) {
+    check(
+      !result.screenshots.includes(name + ".png"),
+      "Native capture path would overwrite an earlier observation.",
+    );
     const bytes = await page.screenshot({
       path: join(output, name + ".png"),
       fullPage: true,
@@ -862,7 +866,7 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
       .getByRole("listitem")
       .filter({ has: a.getByRole("heading", { name: caption, exact: true }) });
     await itemRow.waitFor();
-    async function moderateUI(status) {
+    async function moderateUI(status, phase = status) {
       const label = { approved: "Approve", hidden: "Hide", rejected: "Reject" }[
         status
       ];
@@ -876,7 +880,7 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
         list.items.find((item) => item.id === receipt.id)?.status === status,
         "UI moderation status was not confirmed by actual named service.",
       );
-      await screenshot(a, "team-a-review-" + status);
+      await screenshot(a, "team-a-review-" + phase);
       return list.items;
     }
     await moderateUI("approved");
@@ -885,7 +889,7 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
     await publicState("hidden-private", 404);
     // The maintained moderation UI supports re-approval of hidden retained
     // media. This is visibility restoration, not full data/media restore.
-    await moderateUI("approved");
+    await moderateUI("approved", "reapproved");
     await publicState("reapproved-public", 200);
     const contentBeforeUpdate = (await memberList()).result.items;
     await ordinary.goto(
