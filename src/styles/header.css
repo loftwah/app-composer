@@ -1,0 +1,227 @@
+/* Composer's public shell. The shared Apps dialog keeps its own local styles. */
+.site-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  min-height: 88px;
+  padding: 16px max(24px, calc((100% - 1280px) / 2));
+}
+
+.site-header .brand {
+  flex-wrap: nowrap;
+  gap: 10px;
+  font-size: 23px;
+}
+
+.site-header .brand-copy {
+  display: grid;
+  gap: 3px;
+}
+
+.site-header .instance-brand-context {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  font-size: 11px;
+}
+
+.site-header .site-navigation {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 4px;
+  margin: 0;
+  font-size: 14px;
+}
+
+.site-navigation .nav-direct,
+.site-menu > summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.site-navigation .nav-direct:hover,
+.site-menu > summary:hover,
+.site-menu[open] > summary {
+  background: var(--color-surface);
+  color: var(--color-foreground);
+}
+
+.site-menu {
+  position: relative;
+  margin: 0;
+}
+
+.site-menu > summary {
+  list-style: none;
+}
+
+.site-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.site-menu[open] .menu-chevron {
+  transform: rotate(180deg);
+}
+
+.site-menu .menu-bars,
+.site-menu-panel .compact-only {
+  display: none;
+}
+
+.site-menu-panel {
+  position: absolute;
+  z-index: 8;
+  top: calc(100% + 12px);
+  right: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  width: 384px;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-field);
+}
+
+.site-menu-heading {
+  margin: 0 8px 8px;
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.site-menu-panel a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.site-menu-panel a:hover,
+.site-navigation a[aria-current="page"] {
+  background: var(--color-selected);
+  color: var(--color-accent);
+}
+
+.site-header .header-utilities {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.site-header [data-open-apps] {
+  min-height: 44px;
+  padding: 8px 12px;
+}
+
+@media (max-width: 960px) {
+  .site-header {
+    gap: 12px;
+  }
+
+  .site-header [data-open-apps] kbd {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .site-header {
+    min-height: 72px;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 4px;
+    padding: 12px 16px;
+  }
+
+  .site-header .brand {
+    gap: 8px;
+    font-size: 18px;
+  }
+
+  .site-header .brand > img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .site-header .instance-brand-context,
+  .site-navigation .nav-direct,
+  .site-menu .menu-word,
+  .site-menu .menu-chevron,
+  .site-header [data-open-apps] > span {
+    display: none;
+  }
+
+  .site-header .site-navigation,
+  .site-header .header-utilities {
+    grid-column: auto;
+    grid-row: auto;
+    gap: 4px;
+  }
+
+  .site-menu .menu-bars {
+    display: block;
+  }
+
+  .site-menu > summary {
+    width: 44px;
+    padding: 10px;
+    color: var(--color-foreground);
+  }
+
+  .site-menu-panel {
+    position: fixed;
+    top: 72px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+    max-height: calc(100dvh - 88px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .site-menu-panel .compact-only {
+    display: flex;
+  }
+
+  .site-header .header-utilities [data-open-apps],
+  .site-header .theme-toggle {
+    width: 44px;
+    min-width: 44px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 359px) {
+  .site-header {
+    padding-inline: 12px;
+  }
+
+  .site-header .brand {
+    gap: 6px;
+    font-size: 16px;
+  }
+
+  .site-header .brand > img {
+    width: 26px;
+    height: 26px;
+  }
+
+  .site-menu-panel {
+    gap: 8px;
+    padding: 12px;
+  }
+}
