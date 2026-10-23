@@ -22,7 +22,7 @@ const source = appSettings.guestbook.source;
  </div>
  <nav class="build-paths" aria-label="Choose your application path">
   <a href="/init" aria-current={!platformSelected ? 'page' : undefined}><strong>My app</strong><span>Shape your independent app.</span></a>
-  <a href="/_emdash/admin/plugins/composer-stacks/workspaces"><strong>My team</strong><span>Open your existing workspace and access.</span></a>
+  <a href="/me"><strong>My team</strong><span>Open your existing workspace and access.</span></a>
   <a href={platformSelf} aria-current={platformSelected ? 'page' : undefined}><strong>Internal platform</strong><span>Request an approved application in your workspace.</span></a>
  </nav>
  {platformSelected ? (

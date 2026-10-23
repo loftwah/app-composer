@@ -53,6 +53,7 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
     checks: [],
     screenshots: [],
     captureAssets: [],
+    captureInspectionHoldMs: 2000,
     limits: [],
   };
   check(
@@ -181,6 +182,9 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
         "anonymous",
       capturedAt: new Date().toISOString(),
     });
+    // Keep each real settled result readable in the continuous recording.
+    // This deliberate inspection time is disclosed, never an invented action.
+    await page.waitForTimeout(result.captureInspectionHoldMs);
   }
   async function responsiveCaptures(page, point) {
     const originalViewport = page.viewportSize();
@@ -826,6 +830,7 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
       reply.url().includes(members + "write") &&
       reply.request().method() === "POST",
   );
+  await screenshot(ordinary, "team-a-role10-postcard-preview");
   await ordinary
     .getByRole("button", { name: "Submit for review", exact: true })
     .click();

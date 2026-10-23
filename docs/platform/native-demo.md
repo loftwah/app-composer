@@ -72,9 +72,15 @@ node labs/platform/native-run.mjs run --admitted \
 
 ## Remaining product and film gates
 
-This fixture has not run against a promoted v2 Composer pin. Source/syntax checks
-are preparation, not native journey or rendered-interaction evidence. A passing
-future run can qualify only the exact local sources and operations in its receipt.
+The local run at Composer `87e3ac749d80a62339f299c67f11616138139775`
+passed with the actual locked v2 source, 23 hashed product captures, four continuous
+actor recordings and confirmed cleanup. Its receipt SHA-256 is
+`fd9b5ab9bec15bfe1379cae7af4520e911298e83625f399976b1b1bb08c9c4ab`.
+It exercised role-10 Get Ready → Init → My apps, both scoped applications, real
+canvas submission/moderation/public media, denials and content-preserving update.
+This local observation is separate from private service promotion, a later
+Composer production release and that release's fresh canonical capture.
+A passing run qualifies only its exact local sources and recorded operations.
 A pending receipt recovery failure must retain its original ID/body and fail the
 fixture; this harness does not fabricate R2 acknowledgement loss or auto-retry.
 
@@ -89,3 +95,9 @@ not completed films. The historical [local excerpts](media.md) remain separately
 identified. Actual footage must be inspected before sharing. Production Access,
 physical passkeys, enterprise SSO, provider permissions/interoperability,
 Kubernetes, residency guarantees and public-edge deployment need their own proof.
+
+Canonical capture now holds each genuine settled screenshot view for two seconds
+in the normal-speed recording, including a filled postcard preview before sending.
+`journey.captureInspectionHoldMs` discloses this deliberate reading time. These
+holds add no fabricated action or qualification. Film cuts and still holds remain
+separately explicit in the reviewed edit manifest.
