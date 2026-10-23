@@ -35,7 +35,19 @@ Receipts include the original and derived lifecycle hashes, exact copied factory
 
 Each fictional actor's owned browser context records one continuous 1440 × 1000 WebM, beginning before native authentication and ending at normal context closure. The optional `output` argument to `authenticateNativeActors` enables recording; the lifecycle supplies an owned temporary location and registers each context immediately. No developer tools, network payloads, raw cookies, storage-state export or passkey key material are recorded. Authentication calls run in page evaluation, so invitation tokens are not navigated to or rendered. Actual rendered footage still needs inspection before sharing.
 
-The existing role10 actor page also records eight responsive screenshots: the settled completed-request view and the contribution form before entering its fictional message, each at 390 × 844 and 1440 × 1000 in both public themes. The harness uses the real `#theme-toggle` button, requests reduced motion in the owned actor contexts, checks page overflow and visible control containment, and restores viewport/theme in `finally`. Each screenshot keeps the existing actor/hash/capture-time receipt; geometry observations name the same unique path. This is local Chromium evidence, with physical-device and screen-reader acceptance still separate.
+Primary screenshots capture only the actor's fixed 1440 × 1000 viewport. The
+harness scrolls actual result and canvas controls into view; it does not resize
+the primary camera for a full-page still. Eight responsive full-page screenshots
+use separate probe pages in the same role10 actor context/session: the settled
+completed-request view and the contribution form before entering its fictional
+message, each at 390 × 844 and 1440 × 1000 in both public themes. A probe navigates
+the existing exact member view/workspace and confirms its selected workspace.
+The harness uses the real `#theme-toggle` button, requests reduced motion, checks
+page overflow and visible control containment, and restores the probe theme and
+closes the probe in `finally`. Actor attribution follows the actual context;
+only the primary page's continuous recording is retained. Every screenshot keeps
+its unique actor/hash/capture-time receipt and geometry path. This is local
+Chromium evidence, with physical-device and screen-reader acceptance separate.
 
 The complete browser recording window is capped at six minutes; exceeding it closes the owned browser and fails qualification. Each retained actor file is capped at 32 MiB. Normal context closure flushes the raw footage before browser shutdown. Existing `ffprobe` supplies actual duration, codec, frame size and rate. Only bounded useful files are copied into ignored `output/platform-native/`, with actor, source identities, SHA-256, bytes, duration and explicit local-admission scope in the receipt. Files are neither edited nor sped up. A missing, oversized or uninspectable recording fails the capture result without retaining its temporary project. These raw recordings are evidence inputs, not completed #221 films.
 
@@ -68,11 +80,33 @@ node labs/platform/native-run.mjs run --admitted \
 7. A new anonymous context confirms public postcard admission remains closed and the existing pending image is HTTP404. Creator A uses the maintained review buttons to approve (public media HTTP200), hide (HTTP404) and re-approve (HTTP200). Public pages must agree with media visibility and retain the fictional label. The public PNG's digest stays identical across visibility changes.
 8. Cross-team platform/member dispatch and private-media selection are denied using the actual retained item ID. Contributor-only role10 cannot moderate; selecting Team B's resource with a Team A grant is denied.
 9. Role10 plans a compatible title update through its selected `/me` panel. Request, stack, resource, contribution mode, item content/status/revision and PNG digest must remain unchanged except for the requested title/configuration update. The exact Team B snapshot must be unchanged. A sensitive request is denied without stack/resource allocation.
-10. Fresh anonymous pages read both actual StackView and mounted app pages with current exact names. The receipt identifies source, roles, scope, bounded screenshots/continuous actor footage, server dispatch audit and owned cleanup separately from public-edge or production acceptance.
+10. The native operator reads the [approved-subset export](native-export.md) through the existing maintenance route, checks the retained synthetic item's PNG against its measured public digest, and confirms unchanged request/policy/stack/resource state. This read-only evidence precedes any optional availability change.
+11. Fresh anonymous pages read both actual StackView and mounted app pages with current exact names. The receipt identifies source, roles, scope, bounded screenshots/continuous actor footage, server dispatch audit and owned cleanup separately from public-edge or production acceptance.
+
+## Recorded qualification — 23 October 2026
+
+The canonical pre-incident run at Composer
+`25dc7589f7a92d5ba22eb44c49b9a774991799a3` passed with Guestbook
+`e097e4dd46abe5dd49a0ee1209276cc506e601fa` and Linkarooie
+`9e166d3c3dcc9d3746ba1680b9f74015c0b521cb`. Its receipt SHA-256 is
+`b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a`.
+It includes the viewport camera/probe separation and actual approved-subset
+export: one synthetic original, matching 53,187-byte 1200 × 900 PNG, with the
+selected request, policy, stack and resource unchanged. Browser, owned runtime
+root and pointer cleanup were confirmed.
+
+A separate opt-in run at the same source exercised the
+[local availability foundation](incident-demo.md). Its receipt SHA-256 is
+`da2aa155ab9376e34244b6610c6f049085800e9ee25b0ee9c9abff9c5d06ab33`;
+it is not an input for the pre-incident films. The
+[#11 qualification record](https://github.com/loftwah/app-composer/issues/11#issuecomment-6364634030)
+also records 774 passing tests without skips, check/build and publication checks.
+The recorded source remains distinct from subsequent production releases.
+Use #11 and `/api/build.json` for the current deployed identity.
 
 ## Remaining product and film gates
 
-The local run at Composer `87e3ac749d80a62339f299c67f11616138139775`
+The earlier local run at Composer `87e3ac749d80a62339f299c67f11616138139775`
 passed with the actual locked v2 source, 23 hashed product captures, four continuous
 actor recordings and confirmed cleanup. Its receipt SHA-256 is
 `fd9b5ab9bec15bfe1379cae7af4520e911298e83625f399976b1b1bb08c9c4ab`.
@@ -86,13 +120,16 @@ fixture; this harness does not fabricate R2 acknowledgement loss or auto-retry.
 
 Re-approving retained hidden media is a visibility restoration supported by the
 current moderation UI. It is **not full restore**. Full data/media restore,
-retirement, knowledge recipes and the **#215 incident foundation** remain
-unavailable/unqualified here. There is no filler interaction for those gates.
+retirement and knowledge recipes remain unavailable/unqualified here. The
+separate availability exercise qualifies only deterministic local visibility
+recovery, not the complete #215 responder. There is no filler interaction for
+those remaining gates.
 
-Issue #221 still requires its reviewed 60–90 second overview and 5–8 minute
-technical walkthrough. The retained raw actor WebMs remain local evidence inputs,
-not completed films. The historical [local excerpts](media.md) remain separately
-identified. Actual footage must be inspected before sharing. Production Access,
+The [reviewed film pair](/platform/demo) contains the 75-second overview and
+six-minute chaptered technical walkthrough from the canonical pre-incident run.
+Raw actor WebMs remain private local evidence inputs; only reviewed encoded
+media and sanitised projections are public. The historical [local excerpts](media.md)
+remain separately identified. Film delivery does not complete the wider #221 scope. Production Access,
 physical passkeys, enterprise SSO, provider permissions/interoperability,
 Kubernetes, residency guarantees and public-edge deployment need their own proof.
 
@@ -101,3 +138,11 @@ in the normal-speed recording, including a filled postcard preview before sendin
 `journey.captureInspectionHoldMs` discloses this deliberate reading time. These
 holds add no fabricated action or qualification. Film cuts and still holds remain
 separately explicit in the reviewed edit manifest.
+
+Raw WebM offsets must be selected from inspected decoded frames. Screenshot
+`capturedAt` and video `startedAt` are wall-clock provenance, not reliable source
+clip offsets. `journey.captureCamera` retains this limit in the run receipt.
+New viewport captures require new reviewed framing; old full-page crop coordinates
+must not be reused.
+The earlier released-source capture remains historical evidence; its first
+mechanically playable edit failed pixel review and must not be published.

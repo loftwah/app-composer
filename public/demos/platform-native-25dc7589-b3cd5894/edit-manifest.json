@@ -1,0 +1,1209 @@
+{
+  "schema": "composer.platform-native-media-plan/1",
+  "nativeReceiptSHA256": "b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+  "sources": {
+    "composer": "25dc7589f7a92d5ba22eb44c49b9a774991799a3",
+    "guestbook": "e097e4dd46abe5dd49a0ee1209276cc506e601fa",
+    "showcase": "9e166d3c3dcc9d3746ba1680b9f74015c0b521cb"
+  },
+  "teams": {
+    "a": {
+      "workspace": "09981451-5427-41f5-b7e9-989f5fbdf648",
+      "request": "a108ef66-c3e3-407f-90b5-1e1473449e06",
+      "stack": "a108ef66-c3e3-407f-90b5-1e1473449e06",
+      "resource": "87952ca6-598f-4c9b-9b7e-d1f9153783e7"
+    },
+    "b": {
+      "workspace": "fa1f642b-5def-4f45-8c0c-9e906c3dc391",
+      "request": "931332e1-b22d-4385-ac8f-c3e204988e0f",
+      "stack": "931332e1-b22d-4385-ac8f-c3e204988e0f",
+      "resource": "9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+    }
+  },
+  "qualification": "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified",
+  "captureInspectionHoldMs": 2000,
+  "recordedInspectionHoldSeconds": 2,
+  "films": [
+    {
+      "name": "overview",
+      "duration": 75,
+      "target": 75,
+      "segments": [
+        {
+          "chapter": "authority",
+          "caption": "authority",
+          "kind": "still",
+          "asset": "ready-role10-team-a-request.png",
+          "duration": 6,
+          "crop": {
+            "x": 60,
+            "y": 100,
+            "width": 1060,
+            "height": 620
+          },
+          "start": 0,
+          "sourceStart": null,
+          "end": 6,
+          "actor": "app-user",
+          "sourceSHA256": "c3876404f80ac701afeaaae46dabc6892c650ccae3ffb101d2383d5fa1c00a22",
+          "body": "Get Ready observes this signed-in workspace. Creator permission and current ownership permit policy setup; the observation grants no authority.",
+          "heading": "1 · Get Ready and current authority",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 6s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "authority",
+          "caption": "authority",
+          "kind": "still",
+          "asset": "init-role10-team-a-request.png",
+          "duration": 4,
+          "crop": {
+            "x": 60,
+            "y": 165,
+            "width": 1320,
+            "height": 650
+          },
+          "start": 6,
+          "sourceStart": null,
+          "end": 10,
+          "actor": "app-user",
+          "sourceSHA256": "7f1f5125b8708c8337de307d5931713a93a0b4ace643f7c3e96d83d9ba39833f",
+          "body": "Get Ready observes this signed-in workspace. Creator permission and current ownership permit policy setup; the observation grants no authority.",
+          "heading": "1 · Get Ready and current authority",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 4s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "authority",
+          "caption": "authority",
+          "kind": "clip",
+          "asset": "native-owner-25dc7589-zzME0e.webm",
+          "start": 10,
+          "duration": 4,
+          "sourceStart": 16,
+          "end": 14,
+          "actor": "owner",
+          "sourceSHA256": "fbd01fba0a12fc184d3e8f2ef2509f8335c0a204a627af21e15fb8ecfb61da4a",
+          "body": "Get Ready observes this signed-in workspace. Creator permission and current ownership permit policy setup; the observation grants no authority.",
+          "heading": "1 · Get Ready and current authority",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · owner · normal speed / source 16.000–20.000s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "teams",
+          "caption": "delegation",
+          "kind": "clip",
+          "asset": "native-app-user-25dc7589-zzME0e.webm",
+          "start": 14,
+          "duration": 4,
+          "sourceStart": 20,
+          "end": 18,
+          "actor": "app-user",
+          "sourceSHA256": "5e1c9a1c96613af78e86c6219b7d15f5347c011eb39342ec9ed3667ed930648a",
+          "body": "Two teams retain different requests, stacks and app resources. Explicit editor delegation enables self-service while the member stays global role 10.",
+          "heading": "2 · Two teams and role-10 delegation",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · normal speed / source 20.000–24.000s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "teams",
+          "caption": "delegation",
+          "kind": "clip",
+          "asset": "native-creator-b-25dc7589-zzME0e.webm",
+          "start": 18,
+          "duration": 4,
+          "sourceStart": 24,
+          "end": 22,
+          "actor": "creator-b",
+          "sourceSHA256": "8e12ea201341cdd3078fd93197e52402fb00480b1ee22970fd32f9559da66551",
+          "body": "Two teams retain different requests, stacks and app resources. Explicit editor delegation enables self-service while the member stays global role 10.",
+          "heading": "2 · Two teams and role-10 delegation",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · creator-b · normal speed / source 24.000–28.000s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "teams",
+          "caption": "delegation",
+          "kind": "still",
+          "asset": "team-a-role10-members-complete.png",
+          "duration": 2,
+          "crop": {
+            "x": 140,
+            "y": 0,
+            "width": 1060,
+            "height": 1000
+          },
+          "start": 22,
+          "sourceStart": null,
+          "end": 24,
+          "actor": "app-user",
+          "sourceSHA256": "764d01e6d62a9f12cc78f3ae340dff5dda2f17a124c5580e9e092694378090b6",
+          "body": "Two teams retain different requests, stacks and app resources. Explicit editor delegation enables self-service while the member stays global role 10.",
+          "heading": "2 · Two teams and role-10 delegation",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 2s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "content",
+          "caption": "canvas",
+          "kind": "still",
+          "asset": "team-a-role10-postcard-preview.png",
+          "duration": 10,
+          "crop": {
+            "x": 140,
+            "y": 0,
+            "width": 760,
+            "height": 780
+          },
+          "start": 24,
+          "sourceStart": null,
+          "end": 34,
+          "actor": "app-user",
+          "sourceSHA256": "4a2f480e3ca7b947b498fdf86d6368683fecb4d43554327ff2b4e33b8fdec13a",
+          "body": "The native canvas submits fictional content through the exact app grant and named Guestbook v2 service. Its pending media remains private.",
+          "heading": "3 · Private canvas, moderation and media",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 10s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "content",
+          "caption": "moderation",
+          "kind": "clip",
+          "asset": "native-creator-a-25dc7589-zzME0e.webm",
+          "start": 34,
+          "duration": 12,
+          "sourceStart": 52,
+          "end": 46,
+          "actor": "creator-a",
+          "sourceSHA256": "2b0b2d5ce9e26d653ca5daf9359d8908ca60a7c66015ad7c97fe7b85c5b3ac43",
+          "body": "The authorised moderator approves, hides and reapproves the same postcard. Anonymous media follows 404 → 200 → 404 → 200; public contributions stay closed.",
+          "heading": "3 · Private canvas, moderation and media",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · creator-a · normal speed / source 52.000–64.000s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "update",
+          "caption": "update",
+          "kind": "clip",
+          "asset": "native-app-user-25dc7589-zzME0e.webm",
+          "start": 46,
+          "duration": 4,
+          "sourceStart": 68,
+          "end": 50,
+          "actor": "app-user",
+          "sourceSHA256": "5e1c9a1c96613af78e86c6219b7d15f5347c011eb39342ec9ed3667ed930648a",
+          "body": "Team A's compatible title update retains its request, stack, resource, postcard and media. Team B is checked unchanged in this same run.",
+          "heading": "4 · Content-preserving update and Team B control",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · normal speed / source 68.000–72.000s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "update",
+          "caption": "update",
+          "kind": "still",
+          "asset": "team-a-public-updated-content-preserved.png",
+          "duration": 5,
+          "crop": {
+            "x": 105,
+            "y": 180,
+            "width": 1100,
+            "height": 760
+          },
+          "start": 50,
+          "sourceStart": null,
+          "end": 55,
+          "actor": "anonymous",
+          "sourceSHA256": "249384288fbab2a290853418e71df638c2eb3523b2fd8f332ac1fcad0d6753fa",
+          "body": "Team A's compatible title update retains its request, stack, resource, postcard and media. Team B is checked unchanged in this same run.",
+          "heading": "4 · Content-preserving update and Team B control",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · anonymous · captured still / edited hold 5s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "update",
+          "caption": "update",
+          "kind": "still",
+          "asset": "team-b-public-app.png",
+          "duration": 4,
+          "crop": {
+            "x": 105,
+            "y": 195,
+            "width": 1100,
+            "height": 440
+          },
+          "start": 55,
+          "sourceStart": null,
+          "end": 59,
+          "actor": "anonymous",
+          "sourceSHA256": "68cbc26c7f434a2326d3553944b35afde710f9cf0f7231c42e2d38d3be80f3d5",
+          "body": "Team A's compatible title update retains its request, stack, resource, postcard and media. Team B is checked unchanged in this same run.",
+          "heading": "4 · Content-preserving update and Team B control",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · anonymous · captured still / edited hold 4s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "boundaries",
+          "caption": "denials",
+          "kind": "still",
+          "asset": "team-a-role10-members-complete.png",
+          "duration": 8,
+          "crop": {
+            "x": 140,
+            "y": 0,
+            "width": 1060,
+            "height": 1000
+          },
+          "start": 59,
+          "sourceStart": null,
+          "end": 67,
+          "actor": "app-user",
+          "sourceSHA256": "764d01e6d62a9f12cc78f3ae340dff5dda2f17a124c5580e9e092694378090b6",
+          "body": "Cross-team access, ungranted app actions and role-10 operator actions are denied. The sensitive-data request creates no stack or app resource.",
+          "heading": "5 · Denials and the recovery contract",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 8s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "limits",
+          "caption": "limits",
+          "kind": "still",
+          "asset": "team-b-public-app.png",
+          "duration": 8,
+          "crop": {
+            "x": 105,
+            "y": 195,
+            "width": 1100,
+            "height": 440
+          },
+          "start": 67,
+          "sourceStart": null,
+          "end": 75,
+          "actor": "anonymous",
+          "sourceSHA256": "68cbc26c7f434a2326d3553944b35afde710f9cf0f7231c42e2d38d3be80f3d5",
+          "body": "This local run proves the recorded native path only. Production SSO, provider permissions, regional storage, full restore, retirement and the incident foundation remain unqualified.",
+          "heading": "6 · Exact limits and source receipt",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · anonymous · captured still / edited hold 8s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "technical-walkthrough",
+      "duration": 360,
+      "target": 360,
+      "segments": [
+        {
+          "chapter": "authority",
+          "caption": "authority-observation",
+          "kind": "still",
+          "asset": "ready-role10-team-a-request.png",
+          "duration": 12,
+          "crop": {
+            "x": 60,
+            "y": 100,
+            "width": 1060,
+            "height": 620
+          },
+          "start": 0,
+          "sourceStart": null,
+          "end": 12,
+          "actor": "app-user",
+          "sourceSHA256": "c3876404f80ac701afeaaae46dabc6892c650ccae3ffb101d2383d5fa1c00a22",
+          "body": "Get Ready reads current session, workspace and adapter configuration, then links to the protected workspace. Its dated observation neither establishes upstream provider permission nor executes a build. Changing accounts or access requires a fresh check.",
+          "heading": "1 · Get Ready and current authority",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "authority",
+          "caption": "authority-source",
+          "kind": "still",
+          "asset": "ready-creator20-owner.png",
+          "duration": 12,
+          "start": 12,
+          "sourceStart": null,
+          "end": 24,
+          "actor": "creator-a",
+          "sourceSHA256": "2773f611c30982066cb5fd7ced37f0f7c3bb30060cfa17bb7d79e040e22bde3b",
+          "body": "The run selects exact clean Composer, Guestbook and Linkarooie sources. Copied runtime source identities must match them. Guestbook's named member-service descriptor is qualified against the mounted app; a later source promotion needs its own run.",
+          "heading": "1 · Get Ready and current authority",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · creator-a · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "authority",
+          "caption": "authority-capability",
+          "kind": "clip",
+          "asset": "native-creator-a-25dc7589-zzME0e.webm",
+          "start": 24,
+          "duration": 12,
+          "sourceStart": 12,
+          "end": 36,
+          "actor": "creator-a",
+          "sourceSHA256": "2b0b2d5ce9e26d653ca5daf9359d8908ca60a7c66015ad7c97fe7b85c5b3ac43",
+          "body": "A creator who owns the selected workspace can establish policy. A creator invited as editor cannot. A global role-10 member never gains native policy configuration from an invitation or an application grant.",
+          "heading": "1 · Get Ready and current authority",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · creator-a · normal speed / source 12.000–24.000s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "authority",
+          "caption": "authority-scope",
+          "kind": "clip",
+          "asset": "native-owner-25dc7589-zzME0e.webm",
+          "start": 36,
+          "duration": 12,
+          "sourceStart": 16,
+          "end": 48,
+          "actor": "owner",
+          "sourceSHA256": "fbd01fba0a12fc184d3e8f2ef2509f8335c0a204a627af21e15fb8ecfb61da4a",
+          "body": "The operator deliberately enables the supported Guestbook recipe, synthetic preview requests and member-only contributions. Public guest admission remains closed. This is an app-owned resource on existing infrastructure, not a newly provisioned Worker or database per team.",
+          "heading": "1 · Get Ready and current authority",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · owner · normal speed / source 16.000–28.000s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "authority",
+          "caption": "authority-session",
+          "kind": "still",
+          "asset": "ready-operator-team-a.png",
+          "duration": 12,
+          "start": 48,
+          "sourceStart": null,
+          "end": 60,
+          "actor": "owner",
+          "sourceSHA256": "ed38aebcd8ca23dcffe837ca96a6b742e8d83ed55d24aa7add84bc0731f463a5",
+          "body": "These fictional actors register and sign in through native EmDash sessions with local virtual passkeys. The harness does not insert identity or session rows. Production Access admission and physical credentials are separate gates.",
+          "heading": "1 · Get Ready and current authority",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · owner · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "teams",
+          "caption": "teams-invitation",
+          "kind": "still",
+          "asset": "team-b-workspace.png",
+          "duration": 12,
+          "start": 60,
+          "sourceStart": null,
+          "end": 72,
+          "actor": "creator-b",
+          "sourceSHA256": "eca955bfc104165b844494801ff6d4426202da140ac5b558acd2ed9b959ea9b4",
+          "body": "The owner creates two workspaces and invites each creator as editor. Native acceptance persists each membership. The workspace selector is an explicit scope choice; a URL parameter cannot add membership or silently substitute another team.",
+          "heading": "2 · Two teams and role-10 delegation",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · creator-b · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "teams",
+          "caption": "teams-member",
+          "kind": "clip",
+          "asset": "native-app-user-25dc7589-zzME0e.webm",
+          "start": 72,
+          "duration": 12,
+          "sourceStart": 20,
+          "end": 84,
+          "actor": "app-user",
+          "sourceSHA256": "5e1c9a1c96613af78e86c6219b7d15f5347c011eb39342ec9ed3667ed930648a",
+          "body": "The ordinary member first receives HTTP 403 for both native and member platform routes. After a deliberate Team A editor invitation, the member can request an application through the delegated member route while global EmDash role remains 10.",
+          "heading": "2 · Two teams and role-10 delegation",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · normal speed / source 20.000–32.000s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "teams",
+          "caption": "teams-mode",
+          "kind": "still",
+          "asset": "init-role10-team-a-request.png",
+          "duration": 12,
+          "crop": {
+            "x": 60,
+            "y": 165,
+            "width": 1320,
+            "height": 650
+          },
+          "start": 84,
+          "sourceStart": null,
+          "end": 96,
+          "actor": "app-user",
+          "sourceSHA256": "7f1f5125b8708c8337de307d5931713a93a0b4ace643f7c3e96d83d9ba39833f",
+          "body": "Team A explicitly requests member-only contributions. Team B requests a closed visitor book. The completed records retain distinct request, stack and Guestbook resource identities. Their synthetic preview policy does not establish separate physical staging infrastructure.",
+          "heading": "2 · Two teams and role-10 delegation",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "teams",
+          "caption": "teams-delegation",
+          "kind": "still",
+          "asset": "team-a-role10-members-complete.png",
+          "duration": 12,
+          "crop": {
+            "x": 140,
+            "y": 0,
+            "width": 1060,
+            "height": 1000
+          },
+          "start": 96,
+          "sourceStart": null,
+          "end": 108,
+          "actor": "app-user",
+          "sourceSHA256": "764d01e6d62a9f12cc78f3ae340dff5dda2f17a124c5580e9e092694378090b6",
+          "body": "Self-service and policy administration use different protected routes. Even after editor delegation, role 10 cannot configure policy or approve requests through either route. A saved plan, profile or imported receipt cannot widen that role.",
+          "heading": "2 · Two teams and role-10 delegation",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "teams",
+          "caption": "teams-complete",
+          "kind": "clip",
+          "asset": "native-creator-b-25dc7589-zzME0e.webm",
+          "start": 108,
+          "duration": 12,
+          "sourceStart": 24,
+          "end": 120,
+          "actor": "creator-b",
+          "sourceSHA256": "8e12ea201341cdd3078fd93197e52402fb00480b1ee22970fd32f9559da66551",
+          "body": "Complete means the adapter recorded the app configuration and checked the composed and application pages in this run. This isolated lab reaches those handlers through a fixed host binding; it does not qualify the public production edge.",
+          "heading": "2 · Two teams and role-10 delegation",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · creator-b · normal speed / source 24.000–36.000s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "content",
+          "caption": "content-grants",
+          "kind": "clip",
+          "asset": "native-owner-25dc7589-zzME0e.webm",
+          "start": 120,
+          "duration": 8,
+          "sourceStart": 40,
+          "end": 128,
+          "actor": "owner",
+          "sourceSHA256": "fbd01fba0a12fc184d3e8f2ef2509f8335c0a204a627af21e15fb8ecfb61da4a",
+          "body": "Before an exact app grant, the member cannot submit. The operator grants contribute on Team A's existing Guestbook resource and separately grants moderate to its creator. Membership or a profile grant alone grants neither action.",
+          "heading": "3 · Private canvas, moderation and media",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · owner · normal speed / source 40.000–48.000s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "content",
+          "caption": "content-canvas",
+          "kind": "still",
+          "asset": "team-a-role10-postcard-preview.png",
+          "duration": 12,
+          "crop": {
+            "x": 140,
+            "y": 0,
+            "width": 760,
+            "height": 780
+          },
+          "start": 128,
+          "sourceStart": null,
+          "end": 140,
+          "actor": "app-user",
+          "sourceSHA256": "4a2f480e3ca7b947b498fdf86d6368683fecb4d43554327ff2b4e33b8fdec13a",
+          "body": "The maintained 1200 by 900 canvas supplies the PNG, short message, alias and explicit consent. Composer derives synthetic eligibility from the governed request and current resource. A browser-supplied data-class flag cannot select trusted admission.",
+          "heading": "3 · Private canvas, moderation and media",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "content",
+          "caption": "content-private",
+          "kind": "still",
+          "asset": "team-a-role10-postcard-submitted.png",
+          "duration": 12,
+          "crop": {
+            "x": 140,
+            "y": 300,
+            "width": 1060,
+            "height": 650
+          },
+          "start": 140,
+          "sourceStart": null,
+          "end": 152,
+          "actor": "app-user",
+          "sourceSHA256": "c70b2d878f442d3813aea4cfccacd8cde61f13162ae1941fd7bea069698e5bb8",
+          "body": "The named Guestbook v2 service receives the current source, exact active configuration and stable actor-scoped operation identity. The pending contribution is app-owned synthetic content. An anonymous read of its private media returns 404.",
+          "heading": "3 · Private canvas, moderation and media",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "content",
+          "caption": "content-moderator",
+          "kind": "clip",
+          "asset": "native-creator-a-25dc7589-zzME0e.webm",
+          "start": 152,
+          "duration": 16,
+          "sourceStart": 52,
+          "end": 168,
+          "actor": "creator-a",
+          "sourceSHA256": "2b0b2d5ce9e26d653ca5daf9359d8908ca60a7c66015ad7c97fe7b85c5b3ac43",
+          "body": "The authorised creator loads the real review queue and approves the postcard. The receipt and app list confirm the pending item, not just a toast. The contributor and the other team's creator cannot use this moderation capability.",
+          "heading": "3 · Private canvas, moderation and media",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · creator-a · normal speed / source 52.000–68.000s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "content",
+          "caption": "content-revocation",
+          "kind": "still",
+          "asset": "team-a-public-reapproved-public.png",
+          "duration": 12,
+          "crop": {
+            "x": 105,
+            "y": 180,
+            "width": 1100,
+            "height": 760
+          },
+          "start": 168,
+          "sourceStart": null,
+          "end": 180,
+          "actor": "anonymous",
+          "sourceSHA256": "e891ffa17e8a8beb5cb57ddaaffc2216fd1b686b1c33f052b6285864f44c944c",
+          "body": "Approval makes the same media readable anonymously; hiding removes that public access. Reapproval restores visibility of retained bytes with the same digest. Restoring visibility is exercised here; recovering a lost database or object store is not.",
+          "heading": "3 · Private canvas, moderation and media",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · anonymous · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "update",
+          "caption": "update-identity",
+          "kind": "clip",
+          "asset": "native-app-user-25dc7589-zzME0e.webm",
+          "start": 180,
+          "duration": 4,
+          "sourceStart": 68,
+          "end": 184,
+          "actor": "app-user",
+          "sourceSHA256": "5e1c9a1c96613af78e86c6219b7d15f5347c011eb39342ec9ed3667ed930648a",
+          "body": "The updated Team A record retains its original request, stack and Guestbook resource. Only its compatible configuration and resulting publication advance. The edit's source and identity footer distinguishes that native run from the media renderer's later source.",
+          "heading": "4 · Content-preserving update and Team B control",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · normal speed / source 68.000–72.000s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "update",
+          "caption": "update-plan",
+          "kind": "still",
+          "asset": "team-a-role10-update-content-preserved.png",
+          "duration": 14,
+          "crop": {
+            "x": 140,
+            "y": 0,
+            "width": 1060,
+            "height": 1000
+          },
+          "start": 184,
+          "sourceStart": null,
+          "end": 198,
+          "actor": "app-user",
+          "sourceSHA256": "c7fefff12b597df3fb18aec1b5c5c022616d949adf3acb52cb3e1745b8ddd023",
+          "body": "The requester plans a compatible update to the existing completed service. Member-only contributions stay explicit. The server evaluates the current request revision, source and standing policy instead of treating the earlier completion as continuing permission.",
+          "heading": "4 · Content-preserving update and Team B control",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 14s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "update",
+          "caption": "update-content",
+          "kind": "still",
+          "asset": "team-a-public-updated-content-preserved.png",
+          "duration": 14,
+          "crop": {
+            "x": 110,
+            "y": 460,
+            "width": 650,
+            "height": 490
+          },
+          "start": 198,
+          "sourceStart": null,
+          "end": 212,
+          "actor": "anonymous",
+          "sourceSHA256": "249384288fbab2a290853418e71df638c2eb3523b2fd8f332ac1fcad0d6753fa",
+          "body": "The native journey compares the complete contribution list before and after the title change. Content, moderation state and item revision remain equal. It also reads the updated public page and confirms the approved media's SHA-256 remains unchanged.",
+          "heading": "4 · Content-preserving update and Team B control",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · anonymous · captured still / edited hold 14s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "update",
+          "caption": "update-control",
+          "kind": "still",
+          "asset": "team-b-public-app.png",
+          "duration": 14,
+          "crop": {
+            "x": 105,
+            "y": 195,
+            "width": 1100,
+            "height": 440
+          },
+          "start": 212,
+          "sourceStart": null,
+          "end": 226,
+          "actor": "anonymous",
+          "sourceSHA256": "68cbc26c7f434a2326d3553944b35afde710f9cf0f7231c42e2d38d3be80f3d5",
+          "body": "Team B is the control: its request record is compared with the original complete record after Team A's content and title changes. Its distinct resource remains closed. This two-team check does not claim portfolio-wide isolation acceptance.",
+          "heading": "4 · Content-preserving update and Team B control",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · anonymous · captured still / edited hold 14s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "update",
+          "caption": "update-public",
+          "kind": "still",
+          "asset": "team-a-public-stack.png",
+          "duration": 14,
+          "crop": {
+            "x": 60,
+            "y": 180,
+            "width": 1320,
+            "height": 650
+          },
+          "start": 226,
+          "sourceStart": null,
+          "end": 240,
+          "actor": "anonymous",
+          "sourceSHA256": "7620ea1232853dbf9c7f09159df3a68c3e0bdfc6d6c43e98456e546a9da0897e",
+          "body": "A separate anonymous browser reads both teams' composed and app pages without native sessions. The isolated TLS bridge marker and expected application names bind those observations to this local run, not to production browser cookies or a public hostname check.",
+          "heading": "4 · Content-preserving update and Team B control",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · anonymous · captured still / edited hold 14s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "boundaries",
+          "caption": "boundaries-scope",
+          "kind": "still",
+          "asset": "team-b-workspace.png",
+          "duration": 12,
+          "start": 240,
+          "sourceStart": null,
+          "end": 252,
+          "actor": "creator-b",
+          "sourceSHA256": "eca955bfc104165b844494801ff6d4426202da140ac5b558acd2ed9b959ea9b4",
+          "body": "The other team's native read and write requests are denied. The contributor also cannot select Team B's resource for contribution-status lookup. The selected workspace, current membership and exact app resource remain separate checks.",
+          "heading": "5 · Denials and the recovery contract",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · creator-b · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "boundaries",
+          "caption": "boundaries-policy",
+          "kind": "still",
+          "asset": "team-a-role10-members-complete.png",
+          "duration": 12,
+          "crop": {
+            "x": 140,
+            "y": 0,
+            "width": 1060,
+            "height": 1000
+          },
+          "start": 252,
+          "sourceStart": null,
+          "end": 264,
+          "actor": "app-user",
+          "sourceSHA256": "764d01e6d62a9f12cc78f3ae340dff5dda2f17a124c5580e9e092694378090b6",
+          "body": "A request labelled sensitive is evaluated as denied and has no stack or app resources. This demonstrates the supported refusal before allocation. It does not exercise real sensitive data; all test content and actors remain fictional.",
+          "heading": "5 · Denials and the recovery contract",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "boundaries",
+          "caption": "boundaries-operation",
+          "kind": "still",
+          "asset": "team-a-role10-postcard-submitted.png",
+          "duration": 12,
+          "crop": {
+            "x": 140,
+            "y": 300,
+            "width": 1060,
+            "height": 650
+          },
+          "start": 264,
+          "sourceStart": null,
+          "end": 276,
+          "actor": "app-user",
+          "sourceSHA256": "c70b2d878f442d3813aea4cfccacd8cde61f13162ae1941fd7bea069698e5bb8",
+          "body": "An uncertain submission must keep its original operation identity and payload. Read-only contribution-status lookup uses current grants and the current configuration to inspect the original receipt. Do not replace an unknown operation with a new send identity.",
+          "heading": "5 · Denials and the recovery contract",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "boundaries",
+          "caption": "boundaries-test",
+          "kind": "still",
+          "asset": "team-a-public-pending-private.png",
+          "duration": 12,
+          "start": 276,
+          "sourceStart": null,
+          "end": 288,
+          "actor": "anonymous",
+          "sourceSHA256": "8770620e257cc19ef49de61a6722d9955a2538521868efeb5119accc270d461d",
+          "body": "Source tests cover changed-payload conflicts, duplicate receipts, configuration drift and interrupted PNG or storage work. This chapter explains that tested contract over captured stills. It is not footage of an outage or a successful production incident response.",
+          "heading": "5 · Denials and the recovery contract",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · anonymous · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "boundaries",
+          "caption": "boundaries-privacy",
+          "kind": "still",
+          "asset": "team-a-public-hidden-private.png",
+          "duration": 12,
+          "start": 288,
+          "sourceStart": null,
+          "end": 300,
+          "actor": "anonymous",
+          "sourceSHA256": "8770620e257cc19ef49de61a6722d9955a2538521868efeb5119accc270d461d",
+          "body": "Closed public guest admission remains independent of member contribution permission. App private states, source/configuration checks and moderation still apply. A guest puzzle, public page, downloaded report or media film grants no owner or member authority.",
+          "heading": "5 · Denials and the recovery contract",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · anonymous · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "limits",
+          "caption": "limits-runtime",
+          "kind": "still",
+          "asset": "team-a-workspace.png",
+          "duration": 12,
+          "start": 300,
+          "sourceStart": null,
+          "end": 312,
+          "actor": "creator-a",
+          "sourceSHA256": "2db3f6ed469087ca7647ee022c2b1381f6813569282b7de94b97f3f2eea9cdbf",
+          "body": "The qualified scope is native local EmDash sessions, actual local workerd service bindings, app-owned SQLite and private object storage, and fictional synthetic content. Host-resolved TLS and fixed self-binding verification are disclosed local seams.",
+          "heading": "6 · Exact limits and source receipt",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · creator-a · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "limits",
+          "caption": "limits-source",
+          "kind": "still",
+          "asset": "init-role10-team-a-request.png",
+          "duration": 12,
+          "crop": {
+            "x": 60,
+            "y": 165,
+            "width": 1320,
+            "height": 650
+          },
+          "start": 312,
+          "sourceStart": null,
+          "end": 324,
+          "actor": "app-user",
+          "sourceSHA256": "7f1f5125b8708c8337de307d5931713a93a0b4ace643f7c3e96d83d9ba39833f",
+          "body": "Every caption retains the native Composer and independent app sources, both teams' identifiers and the canonical receipt hash. The renderer's own source and edit hash are separate. Matching a source hash does not establish a later deployment or permissions.",
+          "heading": "6 · Exact limits and source receipt",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "limits",
+          "caption": "limits-edit",
+          "kind": "still",
+          "asset": "team-a-public-updated-content-preserved.png",
+          "duration": 12,
+          "crop": {
+            "x": 105,
+            "y": 180,
+            "width": 1100,
+            "height": 760
+          },
+          "start": 324,
+          "sourceStart": null,
+          "end": 336,
+          "actor": "anonymous",
+          "sourceSHA256": "249384288fbab2a290853418e71df638c2eb3523b2fd8f332ac1fcad0d6753fa",
+          "body": "The edit manifest declares normal-speed source intervals, cuts, genuine still holds and any explicit still crop. Raw per-actor WebM and capture-time screenshot hashes must match. No missing operation is replaced by a generated success frame or an automatic padding loop.",
+          "heading": "6 · Exact limits and source receipt",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · anonymous · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "limits",
+          "caption": "limits-gates",
+          "kind": "still",
+          "asset": "team-b-public-app.png",
+          "duration": 12,
+          "crop": {
+            "x": 105,
+            "y": 195,
+            "width": 1100,
+            "height": 440
+          },
+          "start": 336,
+          "sourceStart": null,
+          "end": 348,
+          "actor": "anonymous",
+          "sourceSHA256": "68cbc26c7f434a2326d3553944b35afde710f9cf0f7231c42e2d38d3be80f3d5",
+          "body": "Production SSO, fresh-person provider onboarding, Australian-only storage and vendor interoperability have no acceptance claim here. Full backup restoration, retirement and the broader incident foundation also remain outside this demonstrated product journey.",
+          "heading": "6 · Exact limits and source receipt",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · anonymous · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        },
+        {
+          "chapter": "limits",
+          "caption": "limits-review",
+          "kind": "still",
+          "asset": "team-a-role10-members-complete.png",
+          "duration": 12,
+          "crop": {
+            "x": 140,
+            "y": 0,
+            "width": 1060,
+            "height": 1000
+          },
+          "start": 348,
+          "sourceStart": null,
+          "end": 360,
+          "actor": "app-user",
+          "sourceSHA256": "764d01e6d62a9f12cc78f3ae340dff5dda2f17a124c5580e9e092694378090b6",
+          "body": "The encoded H.264 MP4s, WebVTT, transcripts, chapters, posters and asset hashes travel together. Final pixel and playback review remains a separate step. Keep original native evidence private; publish only the reviewed, correctly scoped media package.",
+          "heading": "6 · Exact limits and source receipt",
+          "provenance": [
+            "LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+            "Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
+            "Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7",
+            "Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338"
+          ]
+        }
+      ]
+    }
+  ],
+  "editSHA256": "0fe47f8a720a32304f87e11214f2c2d232a6185b21b3530555b7ec9ffb4984fc",
+  "inputs": [
+    {
+      "path": "ready-role10-team-a-request.png",
+      "sha256": "c3876404f80ac701afeaaae46dabc6892c650ccae3ffb101d2383d5fa1c00a22",
+      "bytes": 98370,
+      "actor": "app-user",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:09:51.010Z"
+    },
+    {
+      "path": "init-role10-team-a-request.png",
+      "sha256": "7f1f5125b8708c8337de307d5931713a93a0b4ace643f7c3e96d83d9ba39833f",
+      "bytes": 146084,
+      "actor": "app-user",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:09:53.199Z"
+    },
+    {
+      "path": "native-owner-25dc7589-zzME0e.webm",
+      "sha256": "fbd01fba0a12fc184d3e8f2ef2509f8335c0a204a627af21e15fb8ecfb61da4a",
+      "bytes": 5414570,
+      "actor": "owner",
+      "kind": "clip",
+      "startedAt": "2026-10-23T12:09:33.435Z"
+    },
+    {
+      "path": "native-app-user-25dc7589-zzME0e.webm",
+      "sha256": "5e1c9a1c96613af78e86c6219b7d15f5347c011eb39342ec9ed3667ed930648a",
+      "bytes": 3956211,
+      "actor": "app-user",
+      "kind": "clip",
+      "startedAt": "2026-10-23T12:09:34.377Z"
+    },
+    {
+      "path": "native-creator-b-25dc7589-zzME0e.webm",
+      "sha256": "8e12ea201341cdd3078fd93197e52402fb00480b1ee22970fd32f9559da66551",
+      "bytes": 4352040,
+      "actor": "creator-b",
+      "kind": "clip",
+      "startedAt": "2026-10-23T12:09:34.098Z"
+    },
+    {
+      "path": "team-a-role10-members-complete.png",
+      "sha256": "764d01e6d62a9f12cc78f3ae340dff5dda2f17a124c5580e9e092694378090b6",
+      "bytes": 96289,
+      "actor": "app-user",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:09:56.759Z"
+    },
+    {
+      "path": "team-a-role10-postcard-preview.png",
+      "sha256": "4a2f480e3ca7b947b498fdf86d6368683fecb4d43554327ff2b4e33b8fdec13a",
+      "bytes": 53830,
+      "actor": "app-user",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:10:19.889Z"
+    },
+    {
+      "path": "native-creator-a-25dc7589-zzME0e.webm",
+      "sha256": "2b0b2d5ce9e26d653ca5daf9359d8908ca60a7c66015ad7c97fe7b85c5b3ac43",
+      "bytes": 4406058,
+      "actor": "creator-a",
+      "kind": "clip",
+      "startedAt": "2026-10-23T12:09:33.836Z"
+    },
+    {
+      "path": "team-a-public-updated-content-preserved.png",
+      "sha256": "249384288fbab2a290853418e71df638c2eb3523b2fd8f332ac1fcad0d6753fa",
+      "bytes": 69914,
+      "actor": "anonymous",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:10:41.119Z"
+    },
+    {
+      "path": "team-b-public-app.png",
+      "sha256": "68cbc26c7f434a2326d3553944b35afde710f9cf0f7231c42e2d38d3be80f3d5",
+      "bytes": 65948,
+      "actor": "anonymous",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:10:52.171Z"
+    },
+    {
+      "path": "ready-creator20-owner.png",
+      "sha256": "2773f611c30982066cb5fd7ced37f0f7c3bb30060cfa17bb7d79e040e22bde3b",
+      "bytes": 103972,
+      "actor": "creator-a",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:09:37.287Z"
+    },
+    {
+      "path": "ready-operator-team-a.png",
+      "sha256": "ed38aebcd8ca23dcffe837ca96a6b742e8d83ed55d24aa7add84bc0731f463a5",
+      "bytes": 105138,
+      "actor": "owner",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:09:39.581Z"
+    },
+    {
+      "path": "team-b-workspace.png",
+      "sha256": "eca955bfc104165b844494801ff6d4426202da140ac5b558acd2ed9b959ea9b4",
+      "bytes": 168950,
+      "actor": "creator-b",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:09:48.213Z"
+    },
+    {
+      "path": "team-a-role10-postcard-submitted.png",
+      "sha256": "c70b2d878f442d3813aea4cfccacd8cde61f13162ae1941fd7bea069698e5bb8",
+      "bytes": 74878,
+      "actor": "app-user",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:10:22.172Z"
+    },
+    {
+      "path": "team-a-public-reapproved-public.png",
+      "sha256": "e891ffa17e8a8beb5cb57ddaaffc2216fd1b686b1c33f052b6285864f44c944c",
+      "bytes": 66592,
+      "actor": "anonymous",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:10:38.169Z"
+    },
+    {
+      "path": "team-a-role10-update-content-preserved.png",
+      "sha256": "c7fefff12b597df3fb18aec1b5c5c022616d949adf3acb52cb3e1745b8ddd023",
+      "bytes": 85757,
+      "actor": "app-user",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:10:43.213Z"
+    },
+    {
+      "path": "team-a-public-stack.png",
+      "sha256": "7620ea1232853dbf9c7f09159df3a68c3e0bdfc6d6c43e98456e546a9da0897e",
+      "bytes": 100301,
+      "actor": "anonymous",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:10:45.791Z"
+    },
+    {
+      "path": "team-a-public-pending-private.png",
+      "sha256": "8770620e257cc19ef49de61a6722d9955a2538521868efeb5119accc270d461d",
+      "bytes": 64910,
+      "actor": "anonymous",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:10:24.572Z"
+    },
+    {
+      "path": "team-a-public-hidden-private.png",
+      "sha256": "8770620e257cc19ef49de61a6722d9955a2538521868efeb5119accc270d461d",
+      "bytes": 64910,
+      "actor": "anonymous",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:10:33.704Z"
+    },
+    {
+      "path": "team-a-workspace.png",
+      "sha256": "2db3f6ed469087ca7647ee022c2b1381f6813569282b7de94b97f3f2eea9cdbf",
+      "bytes": 168967,
+      "actor": "creator-a",
+      "kind": "still",
+      "capturedAt": "2026-10-23T12:09:42.176Z"
+    }
+  ]
+}

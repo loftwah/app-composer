@@ -310,6 +310,12 @@ export async function inspectNativeMedia(receiptPath, expectedReceiptSHA256) {
     "The actual native run must qualify its exact Guestbook member source without overrides.",
   );
   const journey = receipt.journey;
+  requireValue(
+    !Object.hasOwn(journey, "availability") &&
+      (receipt.preflight.availabilityFixture === undefined ||
+        receipt.preflight.availabilityFixture?.enabled === false),
+    "These pre-incident captions require a native run without the optional availability exercise.",
+  );
   const captureInspectionHoldMs = Object.hasOwn(
     journey,
     "captureInspectionHoldMs",
@@ -393,9 +399,15 @@ export async function inspectNativeMedia(receiptPath, expectedReceiptSHA256) {
       updated.a?.resources?.[0]?.resource === teams.a.resource,
     "The native content-preserving update and unchanged Team B control are required.",
   );
+  // Native plugin routes use a typed error envelope inside HTTP 200; member
+  // routes return HTTP 403. Match the journey's recorded denial contract, not
+  // HTTP success alone. Role-10 operator denials above still require HTTP 403.
+  const crossTeamDenied = (reply) =>
+    reply?.status === 403 ||
+    (reply?.status === 200 && reply.code === "FORBIDDEN");
   requireValue(
-    journey.crossTeamRead?.status === 403 &&
-      journey.crossTeamWrite?.status === 403 &&
+    crossTeamDenied(journey.crossTeamRead) &&
+      crossTeamDenied(journey.crossTeamWrite) &&
       journey.policyDenied?.decision?.outcome === "denied" &&
       !journey.policyDenied.stackId &&
       journey.policyDenied.resources?.length === 0,

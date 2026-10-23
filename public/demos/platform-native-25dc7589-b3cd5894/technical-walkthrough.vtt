@@ -1,0 +1,157 @@
+WEBVTT
+
+NOTE Recording provenance; full cuts and holds are in edit-manifest.json
+LOCAL DEMO · workerd/native sessions · virtual passkeys · fictional synthetic data · public edge unqualified · app-user · captured still / edited hold 12s · recorded inspection 2s/snapshot · receipt b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a
+Composer 25dc7589f7a92d5ba22eb44c49b9a774991799a3 · Guestbook e097e4dd46abe5dd49a0ee1209276cc506e601fa · Linkarooie 9e166d3c3dcc9d3746ba1680b9f74015c0b521cb
+Team A · workspace 09981451-5427-41f5-b7e9-989f5fbdf648 · request a108ef66-c3e3-407f-90b5-1e1473449e06 · stack a108ef66-c3e3-407f-90b5-1e1473449e06 · resource 87952ca6-598f-4c9b-9b7e-d1f9153783e7
+Team B · workspace fa1f642b-5def-4f45-8c0c-9e906c3dc391 · request 931332e1-b22d-4385-ac8f-c3e204988e0f · stack 931332e1-b22d-4385-ac8f-c3e204988e0f · resource 9fc78b5e-bec0-4996-a69e-b9b4ee67b338
+
+1
+00:00:00.000 --> 00:00:12.000
+1 · Get Ready and current authority
+Get Ready reads current session, workspace and adapter configuration, then links to the protected workspace. Its dated observation neither establishes upstream provider permission nor executes a build. Changing accounts or access requires a fresh check.
+
+2
+00:00:12.000 --> 00:00:24.000
+1 · Get Ready and current authority
+The run selects exact clean Composer, Guestbook and Linkarooie sources. Copied runtime source identities must match them. Guestbook's named member-service descriptor is qualified against the mounted app; a later source promotion needs its own run.
+
+3
+00:00:24.000 --> 00:00:36.000
+1 · Get Ready and current authority
+A creator who owns the selected workspace can establish policy. A creator invited as editor cannot. A global role-10 member never gains native policy configuration from an invitation or an application grant.
+
+4
+00:00:36.000 --> 00:00:48.000
+1 · Get Ready and current authority
+The operator deliberately enables the supported Guestbook recipe, synthetic preview requests and member-only contributions. Public guest admission remains closed. This is an app-owned resource on existing infrastructure, not a newly provisioned Worker or database per team.
+
+5
+00:00:48.000 --> 00:01:00.000
+1 · Get Ready and current authority
+These fictional actors register and sign in through native EmDash sessions with local virtual passkeys. The harness does not insert identity or session rows. Production Access admission and physical credentials are separate gates.
+
+6
+00:01:00.000 --> 00:01:12.000
+2 · Two teams and role-10 delegation
+The owner creates two workspaces and invites each creator as editor. Native acceptance persists each membership. The workspace selector is an explicit scope choice; a URL parameter cannot add membership or silently substitute another team.
+
+7
+00:01:12.000 --> 00:01:24.000
+2 · Two teams and role-10 delegation
+The ordinary member first receives HTTP 403 for both native and member platform routes. After a deliberate Team A editor invitation, the member can request an application through the delegated member route while global EmDash role remains 10.
+
+8
+00:01:24.000 --> 00:01:36.000
+2 · Two teams and role-10 delegation
+Team A explicitly requests member-only contributions. Team B requests a closed visitor book. The completed records retain distinct request, stack and Guestbook resource identities. Their synthetic preview policy does not establish separate physical staging infrastructure.
+
+9
+00:01:36.000 --> 00:01:48.000
+2 · Two teams and role-10 delegation
+Self-service and policy administration use different protected routes. Even after editor delegation, role 10 cannot configure policy or approve requests through either route. A saved plan, profile or imported receipt cannot widen that role.
+
+10
+00:01:48.000 --> 00:02:00.000
+2 · Two teams and role-10 delegation
+Complete means the adapter recorded the app configuration and checked the composed and application pages in this run. This isolated lab reaches those handlers through a fixed host binding; it does not qualify the public production edge.
+
+11
+00:02:00.000 --> 00:02:08.000
+3 · Private canvas, moderation and media
+Before an exact app grant, the member cannot submit. The operator grants contribute on Team A's existing Guestbook resource and separately grants moderate to its creator. Membership or a profile grant alone grants neither action.
+
+12
+00:02:08.000 --> 00:02:20.000
+3 · Private canvas, moderation and media
+The maintained 1200 by 900 canvas supplies the PNG, short message, alias and explicit consent. Composer derives synthetic eligibility from the governed request and current resource. A browser-supplied data-class flag cannot select trusted admission.
+
+13
+00:02:20.000 --> 00:02:32.000
+3 · Private canvas, moderation and media
+The named Guestbook v2 service receives the current source, exact active configuration and stable actor-scoped operation identity. The pending contribution is app-owned synthetic content. An anonymous read of its private media returns 404.
+
+14
+00:02:32.000 --> 00:02:48.000
+3 · Private canvas, moderation and media
+The authorised creator loads the real review queue and approves the postcard. The receipt and app list confirm the pending item, not just a toast. The contributor and the other team's creator cannot use this moderation capability.
+
+15
+00:02:48.000 --> 00:03:00.000
+3 · Private canvas, moderation and media
+Approval makes the same media readable anonymously; hiding removes that public access. Reapproval restores visibility of retained bytes with the same digest. Restoring visibility is exercised here; recovering a lost database or object store is not.
+
+16
+00:03:00.000 --> 00:03:04.000
+4 · Content-preserving update and Team B control
+The updated Team A record retains its original request, stack and Guestbook resource. Only its compatible configuration and resulting publication advance. The edit's source and identity footer distinguishes that native run from the media renderer's later source.
+
+17
+00:03:04.000 --> 00:03:18.000
+4 · Content-preserving update and Team B control
+The requester plans a compatible update to the existing completed service. Member-only contributions stay explicit. The server evaluates the current request revision, source and standing policy instead of treating the earlier completion as continuing permission.
+
+18
+00:03:18.000 --> 00:03:32.000
+4 · Content-preserving update and Team B control
+The native journey compares the complete contribution list before and after the title change. Content, moderation state and item revision remain equal. It also reads the updated public page and confirms the approved media's SHA-256 remains unchanged.
+
+19
+00:03:32.000 --> 00:03:46.000
+4 · Content-preserving update and Team B control
+Team B is the control: its request record is compared with the original complete record after Team A's content and title changes. Its distinct resource remains closed. This two-team check does not claim portfolio-wide isolation acceptance.
+
+20
+00:03:46.000 --> 00:04:00.000
+4 · Content-preserving update and Team B control
+A separate anonymous browser reads both teams' composed and app pages without native sessions. The isolated TLS bridge marker and expected application names bind those observations to this local run, not to production browser cookies or a public hostname check.
+
+21
+00:04:00.000 --> 00:04:12.000
+5 · Denials and the recovery contract
+The other team's native read and write requests are denied. The contributor also cannot select Team B's resource for contribution-status lookup. The selected workspace, current membership and exact app resource remain separate checks.
+
+22
+00:04:12.000 --> 00:04:24.000
+5 · Denials and the recovery contract
+A request labelled sensitive is evaluated as denied and has no stack or app resources. This demonstrates the supported refusal before allocation. It does not exercise real sensitive data; all test content and actors remain fictional.
+
+23
+00:04:24.000 --> 00:04:36.000
+5 · Denials and the recovery contract
+An uncertain submission must keep its original operation identity and payload. Read-only contribution-status lookup uses current grants and the current configuration to inspect the original receipt. Do not replace an unknown operation with a new send identity.
+
+24
+00:04:36.000 --> 00:04:48.000
+5 · Denials and the recovery contract
+Source tests cover changed-payload conflicts, duplicate receipts, configuration drift and interrupted PNG or storage work. This chapter explains that tested contract over captured stills. It is not footage of an outage or a successful production incident response.
+
+25
+00:04:48.000 --> 00:05:00.000
+5 · Denials and the recovery contract
+Closed public guest admission remains independent of member contribution permission. App private states, source/configuration checks and moderation still apply. A guest puzzle, public page, downloaded report or media film grants no owner or member authority.
+
+26
+00:05:00.000 --> 00:05:12.000
+6 · Exact limits and source receipt
+The qualified scope is native local EmDash sessions, actual local workerd service bindings, app-owned SQLite and private object storage, and fictional synthetic content. Host-resolved TLS and fixed self-binding verification are disclosed local seams.
+
+27
+00:05:12.000 --> 00:05:24.000
+6 · Exact limits and source receipt
+Every caption retains the native Composer and independent app sources, both teams' identifiers and the canonical receipt hash. The renderer's own source and edit hash are separate. Matching a source hash does not establish a later deployment or permissions.
+
+28
+00:05:24.000 --> 00:05:36.000
+6 · Exact limits and source receipt
+The edit manifest declares normal-speed source intervals, cuts, genuine still holds and any explicit still crop. Raw per-actor WebM and capture-time screenshot hashes must match. No missing operation is replaced by a generated success frame or an automatic padding loop.
+
+29
+00:05:36.000 --> 00:05:48.000
+6 · Exact limits and source receipt
+Production SSO, fresh-person provider onboarding, Australian-only storage and vendor interoperability have no acceptance claim here. Full backup restoration, retirement and the broader incident foundation also remain outside this demonstrated product journey.
+
+30
+00:05:48.000 --> 00:06:00.000
+6 · Exact limits and source receipt
+The encoded H.264 MP4s, WebVTT, transcripts, chapters, posters and asset hashes travel together. Final pixel and playback review remains a separate step. Keep original native evidence private; publish only the reviewed, correctly scoped media package.

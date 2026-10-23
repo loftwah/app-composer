@@ -1,10 +1,14 @@
 # Edit one qualified native run into the two films
 
-This is a prepared source workflow for a 75-second overview and six-minute
-technical film. No canonical native input or film is bundled with it. A passed
-native receipt, matching capture-time assets, a reviewed edit and actual encoded
-pixel/playback inspection remain required. Film duration does not complete #221:
+This maintained workflow produced the [75-second overview and six-minute
+technical film](/platform/demo). The canonical native receipt and raw captures
+stay private; the public package contains reviewed encodes and sanitised evidence.
+A fresh passed receipt, matching capture-time assets, reviewed edit and actual
+encoded pixel/playback inspection are required for another run. Duration does not complete #221:
 the incident foundation, full restore and retirement remain outside this journey.
+The maintained captions describe a pre-incident run. A receipt containing the
+optional availability exercise is refused; that exercise needs its own accurately
+scoped edit and cannot inherit captions saying no fault was injected.
 
 The existing `capture-walkthrough.mjs` keeps its earlier local-excerpt mode. Its
 explicit `--native-receipt` mode edits the actual native run; it never launches a
@@ -12,6 +16,33 @@ replacement demo, changes a source pin or calls a provider. Both modes use the
 same browser-generated caption-strip compositor, existing Space font and existing
 ffmpeg/ffprobe binaries. No remote Remotion module, new toolchain, installer,
 voice or audio asset is involved.
+
+## Current input and publication state — 23 October 2026
+
+The selected pre-incident input is Composer
+`25dc7589f7a92d5ba22eb44c49b9a774991799a3`, canonical receipt SHA-256
+`b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a`
+([qualification](https://github.com/loftwah/app-composer/issues/11#issuecomment-6364634030)).
+Its viewport-only primary cameras and separate responsive probes replace the
+earlier full-page capture approach. Select new cuts from decoded frames, never
+wall-clock offsets or old crop coordinates. The first edit from the earlier
+`97582498` capture failed pixel review and must not be published.
+
+The selected edit SHA-256 is
+`0fe47f8a720a32304f87e11214f2c2d232a6185b21b3530555b7ec9ffb4984fc`.
+It contains 28 seconds of normal-speed footage in the 75-second overview and
+76 seconds across all four actors in the six-minute technical film; the remaining
+time is explicitly disclosed genuine still holds. Both MP4s passed actual browser
+play/pause, chapter seeking, optional VTT loading and full decode. Pixel review
+covered posters, chapter frames and sampled beginning/middle/end cut observations.
+The final still uses a clean desktop observation; the original narrow-screen
+action-spacing defect was fixed separately in current product source. The films
+retain the historical recording identity and do not imply a recapture of that fix.
+Agent review is not owner/human acceptance.
+
+The separate availability receipt is excluded; its bounded local recovery
+evidence remains in [incident-demo.md](incident-demo.md). Final release identity,
+public asset hashes and actual live observations belong in #11.
 
 ## Select the canonical run
 
@@ -171,6 +202,12 @@ The package contains:
   identities, tool versions, dimensions, durations, chapter checks, artifact
   hashes, scope and owned-root cleanup. Failure writes `failure-receipt.json`.
   Receipt checksum sidecars bind the final JSON after cleanup.
+
+The video already displays its explanatory captions. WebVTT keeps the exact
+recording provenance in a non-displaying `NOTE` and offers the timed explanation
+as each cue, so enabling optional captions does not overlay every technical hash
+and resource identifier on the interface. Transcripts and the editing record
+retain the complete provenance for every segment.
 
 ffprobe checks actual encoded streams and duration. That does not establish
 pixel quality or useful teaching. Review final playback, chapter transitions,

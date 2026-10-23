@@ -42,6 +42,7 @@ if (!output.startsWith(join(repo, "output") + "/"))
     "Evidence must remain in this checkout's ignored output directory.",
   );
 const pointer = join(output, "local-root");
+const availabilityFixture = process.argv.includes("--availability-fixture");
 const playwright =
   arg("playwright") ??
   "/Users/deanlofts/.npm/_npx/31e32ef8478fbf80/node_modules/playwright/index.mjs";
@@ -133,8 +134,13 @@ const identities = {};
 const authored = [
   "labs/platform/native-run.mjs",
   "labs/platform/native-auth.mjs",
+  "labs/platform/native-capture.mjs",
   "labs/platform/native-journey.mjs",
   "docs/platform/native-demo.md",
+  "labs/platform/native-incident.mjs",
+  "docs/platform/incident-demo.md",
+  "labs/platform/native-export.mjs",
+  "docs/platform/native-export.md",
 ];
 const authoredHashes = Object.fromEntries(
   authored.map((path) => [path, hash(readFileSync(join(repo, path)))]),
@@ -216,6 +222,11 @@ for (const port of [8443, 8811, 8812, 8813]) {
 }
 const preflight = {
   schema: "composer.platform-native-preflight/1",
+  availabilityFixture: {
+    enabled: availabilityFixture,
+    scope:
+      "Owned local visibility fault and deterministic recovery only; vendor/agent/code rollback unavailable",
+  },
   composerHead: identities.composer.head,
   fixtureBaseline: "a325a9bfb06a981eb536b807558e197d96efd8cb",
   memberContract: {
@@ -424,6 +435,7 @@ try {
     lab,
     output,
     memberSource: memberApp.commit,
+    availabilityFixture: availabilityFixture ? { ownedRoot: owned } : undefined,
   });
   receipt.qualification = "passed";
 } catch (error) {

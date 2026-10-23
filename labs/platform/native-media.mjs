@@ -462,11 +462,13 @@ export async function nativeMediaCLI(argv) {
       );
       await writeFile(
         join(out, film.name + ".vtt"),
-        "WEBVTT\n\n" +
+        "WEBVTT\n\nNOTE Recording provenance; full cuts and holds are in edit-manifest.json\n" +
+          film.segments[0].provenance.join("\n") +
+          "\n\n" +
           film.segments
             .map(
               (entry, i) =>
-                `${i + 1}\n${captionStamp(entry.start)} --> ${captionStamp(entry.end)}\n${entry.heading}\n${entry.body}\n${entry.provenance.join("\n")}\n`,
+                `${i + 1}\n${captionStamp(entry.start)} --> ${captionStamp(entry.end)}\n${entry.heading}\n${entry.body}\n`,
             )
             .join("\n"),
       );

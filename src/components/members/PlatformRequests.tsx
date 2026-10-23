@@ -272,69 +272,71 @@ export default function PlatformRequests({
                   {request.decision.reasons.map((reason) => (
                     <p key={reason}>{reason}</p>
                   ))}
-                  {request.status === "complete" && request.url && (
-                    <a href={request.url}>Open application</a>
-                  )}
-                  {request.actorIsRequester &&
-                    [
-                      "complete",
-                      "waiting",
-                      "denied",
-                      "sent-back",
-                      "needs-attention",
-                    ].includes(request.status) && (
+                  <div className="member-request-actions">
+                    {request.status === "complete" && request.url && (
+                      <a href={request.url}>Open application</a>
+                    )}
+                    {request.actorIsRequester &&
+                      [
+                        "complete",
+                        "waiting",
+                        "denied",
+                        "sent-back",
+                        "needs-attention",
+                      ].includes(request.status) && (
+                        <button
+                          disabled={busy || uncertain}
+                          onClick={() => {
+                            if (
+                              name.trim() &&
+                              !window.confirm(
+                                "Replace the unsaved request entries with this saved request?",
+                              )
+                            )
+                              return;
+                            setEditing({
+                              id: request.id,
+                              revision: request.revision,
+                              action:
+                                request.status === "complete"
+                                  ? "update"
+                                  : "revise",
+                              request: request.request,
+                            });
+                            setName(request.name);
+                            setContributions(
+                              request.request.contributions ?? "closed",
+                            );
+                          }}
+                        >
+                          {request.status === "complete"
+                            ? "Plan an update"
+                            : "Revise saved request"}
+                        </button>
+                      )}
+                    {request.resumable && (
                       <button
                         disabled={busy || uncertain}
-                        onClick={() => {
-                          if (
-                            name.trim() &&
-                            !window.confirm(
-                              "Replace the unsaved request entries with this saved request?",
-                            )
+                        onClick={() =>
+                          void act(() =>
+                            write(
+                              request.resources.some(
+                                (resource) => resource.state === "unknown",
+                              )
+                                ? "reconcile"
+                                : "run",
+                              {
+                                id: request.id,
+                                expectedRevision: request.revision,
+                              },
+                            ),
                           )
-                            return;
-                          setEditing({
-                            id: request.id,
-                            revision: request.revision,
-                            action:
-                              request.status === "complete"
-                                ? "update"
-                                : "revise",
-                            request: request.request,
-                          });
-                          setName(request.name);
-                          setContributions(
-                            request.request.contributions ?? "closed",
-                          );
-                        }}
+                        }
                       >
-                        {request.status === "complete"
-                          ? "Plan an update"
-                          : "Revise saved request"}
+                        Recheck saved operation
                       </button>
                     )}
-                  {request.resumable && (
-                    <button
-                      disabled={busy || uncertain}
-                      onClick={() =>
-                        void act(() =>
-                          write(
-                            request.resources.some(
-                              (resource) => resource.state === "unknown",
-                            )
-                              ? "reconcile"
-                              : "run",
-                            {
-                              id: request.id,
-                              expectedRevision: request.revision,
-                            },
-                          ),
-                        )
-                      }
-                    >
-                      Recheck saved operation
-                    </button>
-                  )}
+                  </div>
                 </div>
               </li>
             ))}

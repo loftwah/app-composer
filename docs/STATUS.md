@@ -76,17 +76,27 @@ role-10 viewers do not gain platform admission.
 
 The [operating path](platform/operating-path.md), [local two-team specimen](platform/demo.md),
 [integration contracts](platform/integrations.md) and [runtime qualification](platform/runtime-qualification.md)
-record their separate evidence. The historical Node specimen and its simulated
-host admission remain separate from the [actual native workerd two-team run](platform/native-demo.md)
-at `87e3ac749d80a62339f299c67f11616138139775`
-([receipt](https://github.com/loftwah/app-composer/issues/11#issuecomment-6363147709)).
-That native run exercised role-10 Get Ready → Init → My apps, real canvas
-submission/moderation/public media and an update preserving content and Team B.
-Its browser, owned runtime root and pointer were cleaned. It does not establish
-production Access admission, full recovery or the #215 incident journey.
+record their separate evidence. The [native workerd qualification](platform/native-demo.md)
+at `25dc7589f7a92d5ba22eb44c49b9a774991799a3` exercised role-10
+Get Ready → Init → My apps, canvas submission/moderation/public media, an update
+preserving content and Team B, and a read-only approved-subset export. A separate
+[availability exercise](platform/incident-demo.md) at the same source hid and
+restored the local resource through existing controls, checked HTML/media against
+liveness, and delivered correlated events to a local receiver. Both runs confirmed
+browser, owned-root and pointer cleanup; the receiver closed.
+[Qualification receipts](https://github.com/loftwah/app-composer/issues/11#issuecomment-6364634030)
+keep these observations separate from production Access, vendor incidents,
+full backup/restoration, retirement and full #215 acceptance. The historical Node
+specimen and [earlier native run](https://github.com/loftwah/app-composer/issues/11#issuecomment-6363147709)
+retain their own source and scope.
 [Historical media excerpts](platform/media.md) and the
 [receipt-bound native film workflow](platform/native-media.md) identify their
 separate source/capture gates; #221 remains open for its complete scope.
+The [75-second overview and six-minute technical film](/platform/demo) package
+the reviewed pre-incident recording with six chapters, optional captions,
+transcripts and sanitised evidence. Their recorded Composer source is `25dc7589`;
+current production source and final live acceptance belong to #11. Earlier
+rejected film candidates remain unpublished. Full #221/#215 acceptance is separate.
 Research #250 is preserved. #216–#221 and #251–#257 retain the broader programme;
 #11 owns the exact deployed source, runtime identity and actual live observations.
 

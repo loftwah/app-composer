@@ -94,15 +94,22 @@ endpoint scope; no expanded resource-coverage claim has been made.
 Public acceptance is owned by #251; Australian assurance by #256; the real
 two-team demonstration by #221; canonical release evidence by #11.
 
-This lane supplies source and source-check evidence. The integration owner must
-check the final combined revision and run the shared desktop/phone, both-theme
-browser pass, including policy outcomes, deep links, keyboard/focus, reduced
-motion, no page overflow, readable tables and metadata/share identity. Rendered
-review, production interaction and physical-device acceptance remain distinct.
-No generated screenshot, external account change, deployment, new subscription
-or owned temporary project is created by this page implementation.
+The initial lane checks below are historical source evidence. The later
+[25dc7589 local qualification](https://github.com/loftwah/app-composer/issues/11#issuecomment-6364634030)
+covers the native two-team journey, approved-subset export and a separate local
+availability exercise; it does not complete public-page or #221 acceptance.
+The [platform films](/platform/demo) package the separately reviewed pre-incident
+recording and its sanitised evidence. Use the combined release receipt in
+[#11](https://github.com/loftwah/app-composer/issues/11) for deployed source,
+asset hashes and actual live observations.
 
-Focused source verification on the lane’s final files:
+Release acceptance requires the relevant desktop/phone, both-theme checks for policy
+outcomes, deep links, keyboard/focus, reduced motion, overflow, readable tables
+and metadata/share identity. Rendered review, production interaction and
+physical-device acceptance remain distinct; no completed acceptance is inferred
+from the initial source checks or the separate local service exercise.
+
+Historical focused source verification on the initial lane’s final files:
 
 - `pnpm exec tsc --ignoreConfig --noEmit --target es2022 --module esnext --lib es2022,dom --skipLibCheck src/browser/platform-guide.ts` passed.
 - A one-shot Node/TypeScript VM exercise passed all 24 input combinations,

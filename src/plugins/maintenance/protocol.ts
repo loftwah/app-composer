@@ -11,7 +11,7 @@ const settings = z
     intro: z.string().max(240),
     theme: z.enum(["daylight", "midnight"]),
     layout: z.enum(["grid", "editorial"]),
-    guestAccess: z.enum(["closed", "postcards"]),
+    guestAccess: z.enum(["closed", "postcards", "members"]),
   })
   .strict();
 export const portableGuestbook = z

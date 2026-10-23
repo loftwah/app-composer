@@ -1,0 +1,41 @@
+{
+  "nativeReceiptSHA256": "b3cd58948625f9746d16b4ee78f7b360a21b4a5fc1346f8983fdb52cbbdd116a",
+  "chapters": [
+    {
+      "id": "authority",
+      "title": "1 · Get Ready and current authority",
+      "start": 0,
+      "end": 60
+    },
+    {
+      "id": "teams",
+      "title": "2 · Two teams and role-10 delegation",
+      "start": 60,
+      "end": 120
+    },
+    {
+      "id": "content",
+      "title": "3 · Private canvas, moderation and media",
+      "start": 120,
+      "end": 180
+    },
+    {
+      "id": "update",
+      "title": "4 · Content-preserving update and Team B control",
+      "start": 180,
+      "end": 240
+    },
+    {
+      "id": "boundaries",
+      "title": "5 · Denials and the recovery contract",
+      "start": 240,
+      "end": 300
+    },
+    {
+      "id": "limits",
+      "title": "6 · Exact limits and source receipt",
+      "start": 300,
+      "end": 360
+    }
+  ]
+}
