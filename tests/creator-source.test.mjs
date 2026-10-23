@@ -35,6 +35,8 @@ test("Creator author errors and stale output fail without rewriting distribution
     const files = [
       "scripts/creator-source.mjs",
       "composition.lock.json",
+      "lib/usage/publisher.mjs",
+      "lib/usage/publisher.d.mts",
       "src/plugins/maintenance/protocol.ts",
       ...authors.flatMap((name) =>
         [".mts", ".mjs", ".d.mts"].map((suffix) => "src/lib/" + name + suffix),

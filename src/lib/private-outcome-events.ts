@@ -1,6 +1,7 @@
 import type { D1Database } from "@cloudflare/workers-types";
 import { z } from "zod";
 import { publicStack, STACK_APPS } from "./stacks.mjs";
+import { verificationRequest } from "../../lib/usage/publisher.mjs";
 
 export const OUTCOME_RETENTION_DAYS = 35;
 export const OUTCOME_DAILY_CAP = 1000;
@@ -174,7 +175,7 @@ export async function collectStackAction(
     return empty(400);
   }
   if (
-    request.headers.get("X-Composer-Verification") === "1" ||
+    verificationRequest(request) ||
     /(?:googlebot|bingbot|duckduckbot|baiduspider|yandexbot|slurp|curl\/|wget\/)/i.test(
       request.headers.get("User-Agent") || "",
     )

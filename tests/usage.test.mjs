@@ -1,6 +1,21 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {execFileSync} from 'node:child_process';import {readFileSync} from 'node:fs';
 import {collect,record,summary,incrementSQL,purge} from '../lib/usage/index.mjs';
 import {health,publish,pageEvent,postcardReceiptEvent} from '../lib/usage/publisher.mjs';
+
+test('ordinary excluded browser requests and their same-origin descendants produce no public measurement', async()=>{
+ const html=new Response('reader',{headers:{'Content-Type':'text/html'}});
+ const json=Response.json({id:'fictional',status:'pending'},{status:201});
+ for(const suffix of ['?analytics=off','?qa=1']){
+  const reader=new Request('https://app.test/guestbook/'+suffix,{headers:{'User-Agent':'Mozilla/5.0'}});
+  assert.equal(pageEvent(reader,html,'/guestbook'),null);
+  const child=new Request('https://app.test/guestbook/api/guest-postcard',{method:'POST',headers:{Referer:reader.url,'User-Agent':'Mozilla/5.0'}});
+  assert.equal(postcardReceiptEvent(child,json,'/guestbook'),null);
+  const pending=[],sent=[];
+  publish({USAGE_ENDPOINT:'https://counts.test/api/usage/guestbook',USAGE_TOKEN:token},{waitUntil(p){pending.push(p)}},child,'postcard_received',async(...args)=>{sent.push(args);return new Response(null,{status:204})});
+  await Promise.all(pending);assert.equal(sent.length,0);
+ }
+ assert.equal(pageEvent(new Request('https://app.test/guestbook/',{headers:{Referer:'https://foreign.test/?analytics=off'}}),html,'/guestbook'),'app_open');
+});
 const token='a'.repeat(48),writes=[];
 const db={prepare(sql){return {bind(...params){return {async run(){writes.push({sql,params});return {success:true};},async all(){return {success:true,results:[{app:'guestbook',event:'app_open',n:9,limited:0},{app:'guestbook',event:'item_open',n:2,limited:0},{app:'hello',event:'app_open',n:3,limited:1}]};}};}};}};
 const env={USAGE_LIMIT:{async limit(){return {success:true}}},DB:db,USAGE_TOKENS:JSON.stringify({hello:token})};

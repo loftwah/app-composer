@@ -37,3 +37,4 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 ## Evidence and history
 
 [Current status](STATUS.md) identifies the shipped baseline and active gates. [Issue #11](https://github.com/loftwah/app-composer/issues/11) is the canonical release-evidence index; owning issues retain their acceptance criteria. [Earlier status observations](history/status-through-20261018.md) preserve prior receipts, superseded candidates and dated constraints. Source checks, local/browser proofs, actual production interaction and physical/external acceptance remain distinct.
+
