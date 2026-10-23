@@ -1,4 +1,4 @@
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useEffect, useRef, useState, type SubmitEvent } from "react";
 import { Tags, tagUnsaved, type TagDraft } from "../../plugins/tags-admin";
 import {
   Achievements,
@@ -61,6 +61,14 @@ export default function ProfileEditor({
   const [file, setFile] = useState<ProfileFileDraft>();
   const [preview, setPreview] = useState(false);
   const [linkDirty, setLinkDirty] = useState<Record<string, boolean>>({});
+  const retainedCards = useRef(snapshot.draft.cards);
+  const removedCards = retainedCards.current.filter(
+    (card) =>
+      linkDirty[card.id] &&
+      !snapshot.draft.cards.some((current) => current.id === card.id),
+  );
+  const visibleCards = [...snapshot.draft.cards, ...removedCards];
+  retainedCards.current = visibleCards;
   const configDirty = identity.dirty;
   const dirty =
     configDirty ||
@@ -294,14 +302,14 @@ export default function ProfileEditor({
             )
           }
         />
-        {snapshot.draft.cards.length === 0 ? (
+        {visibleCards.length === 0 ? (
           <p>
             Add your first useful link above. It stays in your draft until you
             choose to publish.
           </p>
         ) : (
           <ol className="member-rows">
-            {snapshot.draft.cards.map((item, index) => (
+            {visibleCards.map((item, index) => (
               <li key={item.id}>
                 <CardEditor
                   item={item}
@@ -309,6 +317,17 @@ export default function ProfileEditor({
                   busy={busy}
                   index={index}
                   act={act}
+                  removed={
+                    !snapshot.draft.cards.some(
+                      (current) => current.id === item.id,
+                    )
+                  }
+                  discardRemoved={() =>
+                    setLinkDirty((previous) => ({
+                      ...previous,
+                      [item.id]: false,
+                    }))
+                  }
                   dirtyChanged={(value) =>
                     setLinkDirty((previous) =>
                       previous[item.id] === value
@@ -489,11 +508,13 @@ function LinkForm({
   busy,
   save,
   dirtyChanged,
+  removed = false,
 }: {
   item?: Card;
   busy: boolean;
   save: (fields: Record<string, unknown>) => Promise<boolean>;
   dirtyChanged: (dirty: boolean) => void;
+  removed?: boolean;
 }) {
   const fields = useFields({
     title: item?.title ?? "",
@@ -511,6 +532,14 @@ function LinkForm({
   return (
     <details open={!!item} className="member-link-form">
       <summary>{item ? "Edit link" : "Add a link"}</summary>
+      {removed && (
+        <div>
+          <h3>Your retained link edits</h3>
+          <p>{value.title}</p>
+          <p>{value.description}</p>
+          <p>{value.url}</p>
+        </div>
+      )}
       <form
         className="member-form"
         onSubmit={(event) => {
@@ -635,10 +664,12 @@ function LinkForm({
 function CardEditor({
   item,
   snapshot,
-  busy,
+  busy: pending,
   index,
   act,
   dirtyChanged,
+  removed = false,
+  discardRemoved,
 }: {
   item: Card;
   snapshot: Profile;
@@ -646,7 +677,10 @@ function CardEditor({
   index: number;
   act: ProfileAction;
   dirtyChanged: (dirty: boolean) => void;
+  removed?: boolean;
+  discardRemoved?: () => void;
 }) {
+  const busy = pending || removed;
   const initial = snapshot.draft.presentation[item.id] ?? {
     pinned: false,
     icon: "link",
@@ -672,6 +706,17 @@ function CardEditor({
   };
   return (
     <div className="member-card-editor">
+      {removed && (
+        <div role="status">
+          <p>
+            This link was removed elsewhere. Your unsaved edits remain below to
+            copy. Discard the retained edit when you have checked it.
+          </p>
+          <button disabled={pending} onClick={discardRemoved}>
+            Discard retained removed-link edits
+          </button>
+        </div>
+      )}
       <h3>{item.title}</h3>
       <p className="member-state">
         {item.status} in saved draft
@@ -680,6 +725,7 @@ function CardEditor({
       {!item.provider && (
         <LinkForm
           item={item}
+          removed={removed}
           busy={busy}
           dirtyChanged={(value) => {
             setLinkDirty(value);
