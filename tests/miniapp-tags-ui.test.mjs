@@ -8,7 +8,7 @@ const collection={version:1,revision:2,items:[item]};
 test('actual native component renders clean selected fields, retained private drafts, unavailable and pending states',async()=>{
  await mkdir(new URL('../.private/',import.meta.url),{recursive:true});const directory=await mkdtemp(new URL('../.private/tag-ui-',import.meta.url));
  try{
-  const source=(await readFile(new URL('../src/plugins/tags-admin.tsx',import.meta.url),'utf8')).replace("'../lib/miniapp-tag-fields.mjs'",JSON.stringify(new URL('../src/lib/miniapp-tag-fields.mjs',import.meta.url).href));
+  const source=(await readFile(new URL('../src/plugins/tags-admin.tsx',import.meta.url),'utf8')).replace(/(['"])\.\.\/lib\/miniapp-tag-fields\.mjs\1/,JSON.stringify(new URL('../src/lib/miniapp-tag-fields.mjs',import.meta.url).href));
   const compiled=ts.transpileModule(source,{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});const target=directory+'/component.mjs';await writeFile(target,compiled.outputText);const {Tags,tagUnsaved}=await import(pathToFileURL(target));
   const props={collection,change(){},busy:false,save:async()=>false};
   const draft={id,from:tagValues(item),value:tagValues(item)};assert.equal(tagUnsaved(draft),false);

@@ -12,8 +12,8 @@ same time. Saved stacks and publication snapshots remain in their workspace.
 
 Creator pages and their private routes use EmDash 1.2.0's native React page
 registration and existing `content:read_drafts` contributor permission. An
-already Access-authorized contributor (role 20, the current auto-provisioning
-default) can use their personal Creator workspace and accept an explicitly
+already Access-authorized contributor (role 20 or higher) can use their
+personal Creator workspace and accept an explicitly
 recorded editor/viewer invitation. Every Creator operation also checks the
 selected workspace membership and capability. Subscribers (role 10), anonymous
 callers and machine tokens without a bound user cannot use these routes.
@@ -24,9 +24,21 @@ Legacy **Manage mini-apps** remains `plugins:manage`/role 50, as do the existing
 EmDash global administrator APIs. Existing site administrators retain their
 independent global privileges; a workspace role does not reduce them.
 
-A new person still needs the site's existing Access admission. This feature
-neither performs nor verifies that consequential prerequisite and does not
-change authentication configuration or the auto-provisioning role. The official
+The current Access configuration auto-provisions new accounts as subscribers
+(role 10), with role synchronization disabled. Existing account roles, including
+the owner’s administrator role, are preserved. Invited subscribers use **My
+profile / My apps** at `/me`; its private member routes require the supported
+`content:read` permission plus current workspace membership and exact app,
+resource and action grants. Owners manage those invitations and grants at
+`/people`. These member surfaces do not open the legacy Creator routes or
+`Manage mini-apps`, and a workspace invitation does not create a personal
+Creator workspace for a subscriber.
+
+A new person still needs the site's existing Access admission. The member
+feature neither performs nor verifies that consequential prerequisite. The
+historical exact-owner Access allowlist remains unchanged until MP explicitly
+authorizes selected additional identities; changing the new-account role does
+not admit anyone through that policy. The official
 [EmDash authentication guide](https://docs.emdashcms.com/guides/authentication/)
 and [native page/API documentation](https://docs.emdashcms.com/plugins/creating-native-plugins/react-admin/)
 describe these host boundaries. Installed 1.2.0 page routing and the production

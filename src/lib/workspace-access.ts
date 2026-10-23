@@ -153,9 +153,13 @@ export async function listWorkspaceAccess(
   db: D1Database,
   user: User,
   now = Date.now(),
+  memberSurface = false,
 ) {
-  requireCreator(user);
-  await workspaceForUser(db, user);
+  if (!memberSurface) requireCreator(user);
+  else if (!user?.id || ![10, 20, 30, 40, 50].includes(user.role))
+    throw new StackError("FORBIDDEN", "Sign in to Composer.", 403);
+  if (!memberSurface || isCreatorRole(user.role))
+    await workspaceForUser(db, user);
   const spaces = await db
     .prepare(
       `SELECT w.id,w.name,w.access_revision AS revision,m.role
@@ -192,8 +196,11 @@ export async function readWorkspaceAccess(
   user: User,
   workspace: string,
   now = Date.now(),
+  memberSurface = false,
 ) {
-  requireCreator(user);
+  if (!memberSurface) requireCreator(user);
+  else if (!user?.id || ![10, 20, 30, 40, 50].includes(user.role))
+    throw new StackError("FORBIDDEN", "Sign in to Composer.", 403);
   const memberRole = await membership(db, workspace, user.id);
   requireCapability(memberRole, "read");
   const current = await db
@@ -298,8 +305,11 @@ export async function changeWorkspaceAccess(
   user: User,
   input: unknown,
   now = Date.now(),
+  memberSurface = false,
 ) {
-  requireCreator(user);
+  if (!memberSurface) requireCreator(user);
+  else if (!user?.id || ![10, 20, 30, 40, 50].includes(user.role))
+    throw new StackError("FORBIDDEN", "Sign in to Composer.", 403);
   const parsed = commands.safeParse(input);
   if (!parsed.success)
     throw new StackError(
@@ -308,6 +318,7 @@ export async function changeWorkspaceAccess(
     );
   const command = parsed.data;
   if (command.action === "create") {
+    requireCreator(user);
     await workspaceForUser(db, user);
     const workspace = crypto.randomUUID();
     const result = await db.batch([

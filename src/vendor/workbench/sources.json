@@ -4,7 +4,7 @@
     {
       "id": "guestbook",
       "repository": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "376129c8b48d29d26e982777084aa241966569c7",
+      "commit": "9515b359bf268e6c79efbf6ad3497da132973c3e",
       "source": "src/photo-view.ts",
       "copy": "src/vendor/workbench/guestbook-photo-view.ts",
       "sha256": "8eae9eb6c7a4f7763f40ebc109e79e0486fd42e5fc00416127b2890061b942ba"
@@ -12,7 +12,7 @@
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "2f9280d3ae754076174b5527ab15224c918b8580",
+      "commit": "9e166d3c3dcc9d3746ba1680b9f74015c0b521cb",
       "source": "src/card-view.ts",
       "copy": "src/vendor/workbench/showcase-card-view.ts",
       "sha256": "0e8de0e57ef798aa8506da40743580a6aadde796487a8f90bd2a1864f48e23b8"

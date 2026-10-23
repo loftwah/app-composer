@@ -1,51 +1,573 @@
-import {useRef,useState} from 'react';
-import {AchievementFieldError,achievementIcons,achievementValues,achievementFields,achievementDateLabel,blankAchievement,sameAchievement,type AchievementValues,type AchievementCollection} from '../lib/miniapp-achievements.mjs';
-export type AchievementDraft={id:string|null;from:AchievementValues|null;value:AchievementValues;blocked?:'compare'|'ambiguous'};
-export const achievementUnsaved=(draft:AchievementDraft|undefined)=>!!draft&&(!!draft.blocked||!sameAchievement(draft.value,draft.from??blankAchievement()));
-type Props={collection:AchievementCollection|null;draft?:AchievementDraft;change:(draft?:AchievementDraft)=>void;busy:boolean;save:(fields:Record<string,unknown>,failed?:(message:string,code?:string)=>void)=>Promise<boolean>};
-export function Achievements({collection,draft,change,busy,save}:Props){
- const [status,setStatus]=useState(''),[preview,setPreview]=useState(false),form=useRef<HTMLFormElement>(null);
- const value=draft?.value??blankAchievement(),selected=draft?.id??null,current=collection?.items.find(item=>item.id===selected);
- const dirty=achievementUnsaved(draft),removed=!!selected&&!!collection&&!current;
- const stale=!!selected&&!!draft?.from&&!sameAchievement(draft.from,current);
- const blocked=!!draft?.blocked||stale||removed||!collection;
- const focus=(name:string)=>{const control=form.current?.elements.namedItem(name);if(control instanceof HTMLElement)control.focus();};
- const choose=(item?:AchievementCollection['items'][number])=>{
-  if(dirty||stale){setStatus('Save or discard the current edits before opening another achievement.');focus('title');return;}
-  change(item?{id:item.id,from:achievementValues(item),value:achievementValues(item)}:undefined);setStatus('');setPreview(false);focus('title');
- };
- const edit=(patch:Partial<AchievementValues>)=>{change({id:selected,from:draft?.from??(current?achievementValues(current):null),value:{...value,...patch},...(draft?.blocked?{blocked:draft.blocked}:{})});setStatus('');setPreview(false);};
- const action=async(fields:Record<string,unknown>,editing=false)=>{
-  if(!collection||busy)return;
-  setStatus('Saving achievement…');
-  const success=await save({...fields,expectedRevision:collection.revision},(message,code)=>{
-   setStatus(message);
-   if(code!=='INVALID')change({id:selected,from:draft?.from??(current?achievementValues(current):null),value:{...value},blocked:code==='CONFLICT'?'compare':'ambiguous'});
-  });
-  if(success){if(editing||fields.id===selected)change();setStatus(fields.operation==='create'?'Draft saved. Publish it from the list when ready.':fields.operation==='delete'?'Achievement removed.':'Achievement saved.');setPreview(false);}
- };
- let valid=false,checked:AchievementValues|undefined,validation:{field:string;message:string}|undefined;
- try{checked=achievementFields(value);valid=true;}catch(error){validation={field:error instanceof AchievementFieldError?error.field:'form',message:error instanceof Error?error.message:'Check the achievement fields before saving.'};}
- const showValidation=!!draft&&(!sameAchievement(value,blankAchievement())||!!selected);
- const problem=(field:string)=>showValidation&&validation?.field===field?validation.message:undefined;
- if(!collection)return <section className="ca-achievements"><h2>Milestones &amp; credits</h2><p role="status">Saved achievements need owner review or the connection is unavailable. Nothing was changed. Refresh apps to check again.</p>{draft&&<><p>Your unsaved title: {draft.value.title}</p><p className="ca-retained-text">{draft.value.description}</p><p>{draft.value.date} {draft.value.url}</p><button type="button" disabled={busy} onClick={()=>change()}>Discard retained edit</button></>}</section>;
- return <section className="ca-achievements" aria-labelledby="ca-achievements-title"><h2 id="ca-achievements-title">Milestones &amp; credits</h2><p className="ca-muted">Up to eight things you’re proud of. Save a draft, then publish when it’s ready. Dates are optional; enter only what you know.</p><p className="ca-muted">{collection.items.length} of 8 achievements</p>
-  {collection.items.length===0&&<p>No achievements yet. Start with a private draft below.</p>}
-  {collection.items.map((item,index)=><article className="ca-achievement-row" key={item.id}><h3>{item.title}</h3><p className="ca-muted">{item.status}{item.date?' · '+achievementDateLabel(item.date):''}</p><div className="ca-actions"><button type="button" disabled={busy} aria-label={'Edit '+item.title} onClick={()=>choose(item)}>Edit</button>{item.status!=='published'&&<button type="button" disabled={busy||blocked||(selected===item.id&&dirty)} onClick={()=>void action({operation:'visibility',id:item.id,status:'published'})}>Publish</button>}{item.status!=='hidden'&&<button type="button" disabled={busy||blocked||(selected===item.id&&dirty)} onClick={()=>void action({operation:'visibility',id:item.id,status:'hidden'})}>Hide</button>}{(['up','down'] as const).map(direction=><button type="button" key={direction} disabled={busy||blocked||(direction==='up'?index===0:index===collection.items.length-1)} aria-label={'Move '+item.title+' '+direction} onClick={()=>{const ids=collection.items.map(row=>row.id),next=direction==='up'?index-1:index+1;[ids[index],ids[next]]=[ids[next],ids[index]];void action({operation:'reorder',ids});}}>Move {direction}</button>)}<button type="button" disabled={busy||blocked||(selected===item.id&&dirty)} onClick={()=>{if(confirm('Remove “'+item.title+'” from your achievements?'))void action({operation:'delete',id:item.id});}}>Remove</button></div></article>)}
-  <button type="button" disabled={busy} onClick={()=>choose()}>Add another achievement</button>
-  <form ref={form} className="ca-form ca-achievement-editor" onSubmit={event=>{event.preventDefault();if(blocked||!valid)return;void action(selected?{operation:'edit',item:{id:selected,...checked}}:{operation:'create',item:{...checked,status:'draft'}},true);}}><h3>{selected?'Edit achievement':'Add an achievement'}</h3>
-   {removed&&<p role="status">This achievement was removed. Your text is kept here to copy; discard the edit to continue.</p>}
-   <label>Achievement title<input name="title" required maxLength={100} disabled={busy} value={value.title} aria-invalid={!!problem('title')} aria-describedby={problem('title')?'ca-achievement-title-help':undefined} onChange={event=>edit({title:event.target.value})}/></label>{problem('title')&&<p id="ca-achievement-title-help" role="status">{problem('title')}</p>}
-   <label>Description<textarea name="description" maxLength={240} rows={3} disabled={busy} value={value.description} aria-invalid={!!problem('description')} aria-describedby={problem('description')?'ca-achievement-description-help':undefined} onChange={event=>edit({description:event.target.value})}/></label>{problem('description')&&<p id="ca-achievement-description-help" role="status">{problem('description')}</p>}
-   <label>Known date<input name="date" maxLength={10} disabled={busy} value={value.date} aria-invalid={!!problem('date')} placeholder="2026, 2026-10 or 2026-10-16" aria-describedby="ca-achievement-date-help" onChange={event=>edit({date:event.target.value})}/></label><p id="ca-achievement-date-help" className="ca-muted" role="status">{problem('date')||'Use YYYY, YYYY-MM or YYYY-MM-DD. Leave blank if unknown.'}</p>
-   <label>Destination (optional)<input name="url" type="url" pattern="https://.*" maxLength={2048} disabled={busy} value={value.url} aria-invalid={!!problem('url')} aria-describedby="ca-achievement-url-help" onChange={event=>edit({url:event.target.value})}/></label><p id="ca-achievement-url-help" className="ca-muted" role="status">{problem('url')||'Optional. Use a full HTTPS address without embedded credentials.'}</p>
-   <div className="ca-fields"><label>Icon<select name="icon" disabled={busy} value={value.icon} onChange={event=>edit({icon:event.target.value})}>{achievementIcons.map(icon=><option key={icon} value={icon}>{icon}</option>)}</select></label><label>Visibility<select name="status" disabled={busy||!selected} value={value.status} onChange={event=>edit({status:event.target.value})}><option value="draft">Draft · private</option><option value="published">Published · public</option><option value="hidden">Hidden · private</option></select></label></div>
-   <p className="ca-muted">{!selected?'New achievements are saved as private drafts.':value.status==='published'?'Saving publishes these changes immediately.':'Draft and hidden achievements stay out of your public profile.'}</p>
-   {(stale||draft?.blocked)&&!removed&&<div className="ca-link-conflict"><p role="status">{!selected&&draft?.blocked==='ambiguous'?'The draft save could not be confirmed. Check the saved list above before adding it again. Your text remains here to copy; discard it before continuing.':'Compare the saved achievement before saving again. Your edits are kept here; nothing was resubmitted.'}</p>{current&&<dl>{(['title','description','date','url','icon','status'] as const).map(key=><div key={key}><dt>Saved {key}</dt><dd>{current[key]||'Not set'}</dd></div>)}</dl>}{(selected||draft?.blocked!=='ambiguous')&&<div className="ca-actions"><button type="button" disabled={busy} onClick={()=>{change(current?{id:current.id,from:achievementValues(current),value:achievementValues(current)}:undefined);setStatus('Using the saved version.');setPreview(false);focus('title');}}>Use saved version</button><button type="button" disabled={busy} onClick={()=>{change({id:selected,from:current?achievementValues(current):null,value});setStatus('Your edits are kept. Check visibility before saving again.');focus(selected?'status':'title');}}>Keep my edits</button></div>}</div>}
-   {showValidation&&validation&&!['title','description','date','url'].includes(validation.field)&&<p role="status">{validation.message}</p>}
-   <div className="ca-actions"><button type="submit" disabled={busy||blocked||!valid||(!selected&&collection.items.length>=8)}>{selected?(value.status==='published'?'Save published changes':'Save achievement'):'Save draft'}</button><button type="button" disabled={busy||!valid} onClick={()=>{setPreview(open=>!open);setStatus('Preview does not save or fetch the destination.');}}>{preview?'Close preview':'Preview without saving'}</button><button type="button" disabled={busy} onClick={()=>{change(current?{id:current.id,from:achievementValues(current),value:achievementValues(current)}:undefined);setPreview(false);setStatus('Edits discarded. The saved version is shown.');focus('title');}}>Discard edits</button></div>
-   <p role="status" aria-live="polite">{status}</p>
-   {preview&&valid&&<div className="ca-link-preview"><p className="ca-muted">Preview · not saved</p><h3>{checked!.title}</h3>{checked!.date&&<p>{achievementDateLabel(checked!.date)}</p>}{checked!.description&&<p className="ca-retained-text">{checked!.description}</p>}{checked!.url&&<a href={checked!.url} target="_blank" rel="noopener noreferrer">{new URL(checked!.url).hostname}</a>}</div>}
-  </form>
- </section>;
+import { useEffect, useRef, useState } from "react";
+import {
+  AchievementFieldError,
+  achievementIcons,
+  achievementValues,
+  achievementFields,
+  achievementDateLabel,
+  blankAchievement,
+  sameAchievement,
+  type AchievementValues,
+  type AchievementCollection,
+} from "../lib/miniapp-achievements.mjs";
+export type AchievementDraft = {
+  id: string | null;
+  from: AchievementValues | null;
+  value: AchievementValues;
+  blocked?: "compare" | "ambiguous";
+};
+export const achievementUnsaved = (draft: AchievementDraft | undefined) =>
+  !!draft &&
+  (!!draft.blocked ||
+    !sameAchievement(draft.value, draft.from ?? blankAchievement()));
+type Props = {
+  profileDraft?: boolean;
+  collection: AchievementCollection | null;
+  draft?: AchievementDraft;
+  change: (draft?: AchievementDraft) => void;
+  busy: boolean;
+  save: (
+    fields: Record<string, unknown>,
+    failed?: (message: string, code?: string) => void,
+  ) => Promise<boolean>;
+};
+export function Achievements({
+  collection,
+  draft,
+  change,
+  busy,
+  save,
+  profileDraft = false,
+}: Props) {
+  const [status, setStatus] = useState(""),
+    [preview, setPreview] = useState(false),
+    form = useRef<HTMLFormElement>(null);
+  const [editorOpen, setEditorOpen] = useState(!profileDraft || !!draft);
+  const value = draft?.value ?? blankAchievement(),
+    selected = draft?.id ?? null,
+    current = collection?.items.find((item) => item.id === selected);
+  const dirty = achievementUnsaved(draft),
+    removed = !!selected && !!collection && !current;
+  const stale =
+    !!selected && !!draft?.from && !sameAchievement(draft.from, current);
+  const blocked = !!draft?.blocked || stale || removed || !collection;
+  const focus = (name: string) => {
+    const control = form.current?.elements.namedItem(name);
+    if (control instanceof HTMLElement) control.focus();
+  };
+  useEffect(() => {
+    if (editorOpen) focus("title");
+  }, [editorOpen, selected]);
+  const choose = (item?: AchievementCollection["items"][number]) => {
+    if (dirty || stale) {
+      setStatus(
+        "Save or discard the current edits before opening another achievement.",
+      );
+      focus("title");
+      return;
+    }
+    setEditorOpen(true);
+    change(
+      item
+        ? {
+            id: item.id,
+            from: achievementValues(item),
+            value: achievementValues(item),
+          }
+        : undefined,
+    );
+    setStatus("");
+    setPreview(false);
+    focus("title");
+  };
+  const edit = (patch: Partial<AchievementValues>) => {
+    change({
+      id: selected,
+      from: draft?.from ?? (current ? achievementValues(current) : null),
+      value: { ...value, ...patch },
+      ...(draft?.blocked ? { blocked: draft.blocked } : {}),
+    });
+    setStatus("");
+    setPreview(false);
+  };
+  const action = async (fields: Record<string, unknown>, editing = false) => {
+    if (!collection || busy) return;
+    setStatus("Saving achievement…");
+    const success = await save(
+      { ...fields, expectedRevision: collection.revision },
+      (message, code) => {
+        setStatus(message);
+        if (code !== "INVALID")
+          change({
+            id: selected,
+            from: draft?.from ?? (current ? achievementValues(current) : null),
+            value: { ...value },
+            blocked: code === "CONFLICT" ? "compare" : "ambiguous",
+          });
+      },
+    );
+    if (success) {
+      if (editing || fields.id === selected) {
+        change();
+        if (profileDraft) setEditorOpen(false);
+      }
+      setStatus(
+        fields.operation === "create"
+          ? profileDraft
+            ? "Draft saved. Include it in the next profile publication when ready."
+            : "Draft saved. Publish it from the list when ready."
+          : fields.operation === "delete"
+            ? "Achievement removed."
+            : "Achievement saved.",
+      );
+      setPreview(false);
+    }
+  };
+  let valid = false,
+    checked: AchievementValues | undefined,
+    validation: { field: string; message: string } | undefined;
+  try {
+    checked = achievementFields(value);
+    valid = true;
+  } catch (error) {
+    validation = {
+      field: error instanceof AchievementFieldError ? error.field : "form",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Check the achievement fields before saving.",
+    };
+  }
+  const showValidation =
+    !!draft && (!sameAchievement(value, blankAchievement()) || !!selected);
+  const problem = (field: string) =>
+    showValidation && validation?.field === field
+      ? validation.message
+      : undefined;
+  if (!collection)
+    return (
+      <section className="ca-achievements">
+        <h2>Milestones &amp; credits</h2>
+        <p role="status">
+          Saved achievements need owner review or the connection is unavailable.
+          Nothing was changed. Refresh apps to check again.
+        </p>
+        {draft && (
+          <>
+            <p>Your unsaved title: {draft.value.title}</p>
+            <p className="ca-retained-text">{draft.value.description}</p>
+            <p>
+              {draft.value.date} {draft.value.url}
+            </p>
+            <button type="button" disabled={busy} onClick={() => change()}>
+              Discard retained edit
+            </button>
+          </>
+        )}
+      </section>
+    );
+  return (
+    <section
+      className="ca-achievements"
+      aria-labelledby="ca-achievements-title"
+    >
+      <h2 id="ca-achievements-title">Milestones &amp; credits</h2>
+      <p className="ca-muted">
+        {profileDraft
+          ? "Up to eight things you’re proud of. Save a draft, then include it in your next profile publication. Dates are optional; enter only what you know."
+          : "Up to eight things you’re proud of. Save a draft, then publish when it’s ready. Dates are optional; enter only what you know."}
+      </p>
+      <p className="ca-muted">{collection.items.length} of 8 achievements</p>
+      {collection.items.length === 0 && (
+        <p>No achievements yet. Start with a private draft below.</p>
+      )}
+      {collection.items.map((item, index) => (
+        <article className="ca-achievement-row" key={item.id}>
+          <h3>{item.title}</h3>
+          <p className="ca-muted">
+            {profileDraft
+              ? item.status === "published"
+                ? "Included in next publication"
+                : "Excluded from next publication"
+              : item.status}
+            {item.date ? " · " + achievementDateLabel(item.date) : ""}
+          </p>
+          <div className="ca-actions">
+            <button
+              type="button"
+              disabled={busy}
+              aria-label={"Edit " + item.title}
+              onClick={() => choose(item)}
+            >
+              Edit
+            </button>
+            {item.status !== "published" && (
+              <button
+                type="button"
+                disabled={busy || blocked || (selected === item.id && dirty)}
+                onClick={() =>
+                  void action({
+                    operation: "visibility",
+                    id: item.id,
+                    status: "published",
+                  })
+                }
+              >
+                {profileDraft ? "Include in next publication" : "Publish"}
+              </button>
+            )}
+            {item.status !== "hidden" && (
+              <button
+                type="button"
+                disabled={busy || blocked || (selected === item.id && dirty)}
+                onClick={() =>
+                  void action({
+                    operation: "visibility",
+                    id: item.id,
+                    status: "hidden",
+                  })
+                }
+              >
+                {profileDraft ? "Exclude from next publication" : "Hide"}
+              </button>
+            )}
+            {(["up", "down"] as const).map((direction) => (
+              <button
+                type="button"
+                key={direction}
+                disabled={
+                  busy ||
+                  blocked ||
+                  (direction === "up"
+                    ? index === 0
+                    : index === collection.items.length - 1)
+                }
+                aria-label={"Move " + item.title + " " + direction}
+                onClick={() => {
+                  const ids = collection.items.map((row) => row.id),
+                    next = direction === "up" ? index - 1 : index + 1;
+                  [ids[index], ids[next]] = [ids[next], ids[index]];
+                  void action({ operation: "reorder", ids });
+                }}
+              >
+                Move {direction}
+              </button>
+            ))}
+            <button
+              type="button"
+              disabled={busy || blocked || (selected === item.id && dirty)}
+              onClick={() => {
+                if (
+                  confirm("Remove “" + item.title + "” from your achievements?")
+                )
+                  void action({ operation: "delete", id: item.id });
+              }}
+            >
+              Remove
+            </button>
+          </div>
+        </article>
+      ))}
+      <button type="button" disabled={busy} onClick={() => choose()}>
+        Add another achievement
+      </button>
+      <div hidden={profileDraft && !editorOpen && !draft}>
+        <form
+          ref={form}
+          className="ca-form ca-achievement-editor"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (blocked || !valid) return;
+            void action(
+              selected
+                ? { operation: "edit", item: { id: selected, ...checked } }
+                : {
+                    operation: "create",
+                    item: { ...checked, status: "draft" },
+                  },
+              true,
+            );
+          }}
+        >
+          <h3>{selected ? "Edit achievement" : "Add an achievement"}</h3>
+          {removed && (
+            <p role="status">
+              This achievement was removed. Your text is kept here to copy;
+              discard the edit to continue.
+            </p>
+          )}
+          <label>
+            Achievement title
+            <input
+              name="title"
+              required
+              maxLength={100}
+              disabled={busy}
+              value={value.title}
+              aria-invalid={!!problem("title")}
+              aria-describedby={
+                problem("title") ? "ca-achievement-title-help" : undefined
+              }
+              onChange={(event) => edit({ title: event.target.value })}
+            />
+          </label>
+          {problem("title") && (
+            <p id="ca-achievement-title-help" role="status">
+              {problem("title")}
+            </p>
+          )}
+          <label>
+            Description
+            <textarea
+              name="description"
+              maxLength={240}
+              rows={3}
+              disabled={busy}
+              value={value.description}
+              aria-invalid={!!problem("description")}
+              aria-describedby={
+                problem("description")
+                  ? "ca-achievement-description-help"
+                  : undefined
+              }
+              onChange={(event) => edit({ description: event.target.value })}
+            />
+          </label>
+          {problem("description") && (
+            <p id="ca-achievement-description-help" role="status">
+              {problem("description")}
+            </p>
+          )}
+          <label>
+            Known date
+            <input
+              name="date"
+              maxLength={10}
+              disabled={busy}
+              value={value.date}
+              aria-invalid={!!problem("date")}
+              placeholder="2026, 2026-10 or 2026-10-16"
+              aria-describedby="ca-achievement-date-help"
+              onChange={(event) => edit({ date: event.target.value })}
+            />
+          </label>
+          <p id="ca-achievement-date-help" className="ca-muted" role="status">
+            {problem("date") ||
+              "Use YYYY, YYYY-MM or YYYY-MM-DD. Leave blank if unknown."}
+          </p>
+          <label>
+            Destination (optional)
+            <input
+              name="url"
+              type="url"
+              pattern="https://.*"
+              maxLength={2048}
+              disabled={busy}
+              value={value.url}
+              aria-invalid={!!problem("url")}
+              aria-describedby="ca-achievement-url-help"
+              onChange={(event) => edit({ url: event.target.value })}
+            />
+          </label>
+          <p id="ca-achievement-url-help" className="ca-muted" role="status">
+            {problem("url") ||
+              "Optional. Use a full HTTPS address without embedded credentials."}
+          </p>
+          <div className="ca-fields">
+            <label>
+              Icon
+              <select
+                name="icon"
+                disabled={busy}
+                value={value.icon}
+                onChange={(event) => edit({ icon: event.target.value })}
+              >
+                {achievementIcons.map((icon) => (
+                  <option key={icon} value={icon}>
+                    {icon}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Visibility
+              <select
+                name="status"
+                disabled={busy || !selected}
+                value={value.status}
+                onChange={(event) => edit({ status: event.target.value })}
+              >
+                <option value="draft">Draft · private</option>
+                <option value="published">
+                  {profileDraft
+                    ? "Include in profile publication"
+                    : "Published · public"}
+                </option>
+                <option value="hidden">Hidden · private</option>
+              </select>
+            </label>
+          </div>
+          <p className="ca-muted">
+            {!selected
+              ? "New achievements are saved as private drafts."
+              : value.status === "published"
+                ? profileDraft
+                  ? "Saving includes these changes in your next profile publication."
+                  : "Saving publishes these changes immediately."
+                : "Draft and hidden achievements stay out of your public profile."}
+          </p>
+          {(stale || draft?.blocked) && !removed && (
+            <div className="ca-link-conflict">
+              <p role="status">
+                {!selected && draft?.blocked === "ambiguous"
+                  ? "The draft save could not be confirmed. Check the saved list above before adding it again. Your text remains here to copy; discard it before continuing."
+                  : "Compare the saved achievement before saving again. Your edits are kept here; nothing was resubmitted."}
+              </p>
+              {current && (
+                <dl>
+                  {(
+                    [
+                      "title",
+                      "description",
+                      "date",
+                      "url",
+                      "icon",
+                      "status",
+                    ] as const
+                  ).map((key) => (
+                    <div key={key}>
+                      <dt>Saved {key}</dt>
+                      <dd>{current[key] || "Not set"}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+              {(selected || draft?.blocked !== "ambiguous") && (
+                <div className="ca-actions">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => {
+                      change(
+                        current
+                          ? {
+                              id: current.id,
+                              from: achievementValues(current),
+                              value: achievementValues(current),
+                            }
+                          : undefined,
+                      );
+                      setStatus("Using the saved version.");
+                      setPreview(false);
+                      focus("title");
+                    }}
+                  >
+                    Use saved version
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => {
+                      change({
+                        id: selected,
+                        from: current ? achievementValues(current) : null,
+                        value,
+                      });
+                      setStatus(
+                        "Your edits are kept. Check visibility before saving again.",
+                      );
+                      focus(selected ? "status" : "title");
+                    }}
+                  >
+                    Keep my edits
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          {showValidation &&
+            validation &&
+            !["title", "description", "date", "url"].includes(
+              validation.field,
+            ) && <p role="status">{validation.message}</p>}
+          <div className="ca-actions">
+            <button
+              type="submit"
+              disabled={
+                busy ||
+                blocked ||
+                !valid ||
+                (!selected && collection.items.length >= 8)
+              }
+            >
+              {selected
+                ? value.status === "published"
+                  ? profileDraft
+                    ? "Save included changes"
+                    : "Save published changes"
+                  : "Save achievement"
+                : "Save draft"}
+            </button>
+            <button
+              type="button"
+              disabled={busy || !valid}
+              onClick={() => {
+                setPreview((open) => !open);
+                setStatus("Preview does not save or fetch the destination.");
+              }}
+            >
+              {preview ? "Close preview" : "Preview without saving"}
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                change(
+                  current
+                    ? {
+                        id: current.id,
+                        from: achievementValues(current),
+                        value: achievementValues(current),
+                      }
+                    : undefined,
+                );
+                setPreview(false);
+                setStatus("Edits discarded. The saved version is shown.");
+                focus("title");
+              }}
+            >
+              Discard edits
+            </button>
+          </div>
+          <p role="status" aria-live="polite">
+            {status}
+          </p>
+          {preview && valid && (
+            <div className="ca-link-preview">
+              <p className="ca-muted">Preview · not saved</p>
+              <h3>{checked!.title}</h3>
+              {checked!.date && <p>{achievementDateLabel(checked!.date)}</p>}
+              {checked!.description && (
+                <p className="ca-retained-text">{checked!.description}</p>
+              )}
+              {checked!.url && (
+                <a
+                  href={checked!.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {new URL(checked!.url).hostname}
+                </a>
+              )}
+            </div>
+          )}
+        </form>
+      </div>
+      {profileDraft && !editorOpen && !draft && (
+        <p role="status" aria-live="polite">
+          {status}
+        </p>
+      )}
+    </section>
+  );
 }

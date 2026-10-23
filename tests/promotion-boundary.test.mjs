@@ -7,7 +7,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {promoteComposition} from '../scripts/promotion-boundary.mjs';
 
-function fixture({auditFailure=false,snapshotEdit=false,artifactEdit=false,extraAsset=false,customBuild=false}={}){
+function fixture({auditFailure=false,snapshotEdit=false,artifactEdit=false,extraAsset=false,customBuild=false,members=false}={}){
  const root=mkdtempSync(join(tmpdir(),'composer-promotion-test-')),workspace=join(root,'composer'),bin=join(root,'bin'),log=join(root,'calls.jsonl'),sources={};
  const account='a'.repeat(32),env={PATH:bin+':'+process.env.PATH,HOME:root,CLOUDFLARE_API_TOKEN:'synthetic-selected-upload',CLOUDFLARE_ACCOUNT_ID:account,UNRELATED_SECRET:'synthetic-unrelated',NODE_EXTRA_CA_CERTS:'synthetic-unrelated-file',CI_WORKER_NAME:'wrong-target',CLOUDFLARE_API_BASE_URL:'https://fictional.invalid'};
  mkdirSync(workspace);mkdirSync(bin);mkdirSync(join(workspace,'node_modules/wrangler/bin'),{recursive:true});
@@ -15,9 +15,11 @@ function fixture({auditFailure=false,snapshotEdit=false,artifactEdit=false,extra
   const source=join(root,'app-composer-'+id);sources[id]=source;mkdirSync(source);for(const dir of ['src','public','.private'])mkdirSync(join(source,dir));
   const repository='https://github.com/loftwah/app-composer-'+id,url='https://'+id+'.loftwah.com';
   const manifest={contract:1,id,repository,runtime:'cloudflare-worker',entry:'src/worker.ts',dataVersion:1,routes:['/'+id],capabilities:[]};
+  if(members)Object.assign(manifest,id==='guestbook'?{memberService:{version:1,entrypoint:'GuestbookMemberService',transport:'service-binding',path:'/__composer/member'}}:{memberProfiles:{version:1,ownership:'installation-account',publication:'explicit-snapshot',publicPath:'/p/:handle/',bridge:'/api/member-profiles'}});
   const config={name:'composer-'+id,account_id:account,main:'./src/worker.ts',vars:{PUBLIC_ORIGIN:url},assets:{directory:'./public',binding:'ASSETS'},d1_databases:[{binding:'DB',database_id:'fixture-'+id}]};
   if(customBuild)config.build={command:'unsupported build hook'};writeFileSync(join(source,'public/fixture.txt'),'fictional public asset');writeFileSync(join(source,'wrangler.jsonc'),JSON.stringify(config));writeFileSync(join(source,'app.manifest.json'),JSON.stringify(manifest,null,2));writeFileSync(join(source,'src/worker.ts'),'export default {};');
   writeFileSync(join(source,'.gitignore'),'.private/\n.env\n.npmrc\n');writeFileSync(join(source,'.env'),'UNRELATED_SECRET=synthetic-local\n');writeFileSync(join(source,'.npmrc'),'fictional-owner-settings');writeFileSync(join(source,'.private/OWNER_API_TOKEN'),'synthetic-owner-'+id);
+  if(members)writeFileSync(join(source,'.private',id==='guestbook'?'MEMBER_SERVICE_TOKEN':'COMPOSER_PROFILE_BRIDGE_TOKEN'),'synthetic-member-'+id);
   const git=args=>execFileSync('git',['-c','core.hooksPath=/dev/null',...args],{cwd:source,env:{PATH:process.env.PATH,HOME:root,GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null'},encoding:'utf8',stdio:'pipe'}).trim();
   git(['init']);git(['add','.']);git(['-c','user.name=Fictional fixture','-c','user.email=fixture@example.invalid','commit','-m','Synthetic source']);git(['remote','add','origin',repository+'.git']);
   return {id,repository,url,commit:git(['rev-parse','HEAD']),manifest,manifestDigest:'sha256:'+createHash('sha256').update(JSON.stringify(manifest)).digest('hex')};
@@ -54,4 +56,21 @@ test('audit failure, hidden source edits compiled snapshot edits, artifact edits
 
 test('linked root targets are refused before any build or cloud mutation',()=>{
  for(const kind of ['hard','symbolic']){const f=fixture();try{const target=join(f.workspace,'wrangler.jsonc'),owner=join(f.root,'owner.json'),bytes=readFileSync(target);writeFileSync(owner,bytes);rmSync(target);if(kind==='hard')linkSync(owner,target);else symlinkSync(owner,target);assert.throws(()=>promoteComposition(f),/unlinked regular file/);assert.deepEqual(f.calls(),[]);assert.ok(readFileSync(owner).equals(bytes));}finally{f.cleanup();}}
+});
+test('member promotion connects only the reviewed named service and finite separate credentials',()=>{
+ const f=fixture({members:true});try{
+  promoteComposition(f);
+  assert.deepEqual(f.calls().filter(c=>c.kind==='secret').map(c=>c.selectedOwner),['synthetic-owner-guestbook','synthetic-member-guestbook','synthetic-owner-showcase','synthetic-member-showcase']);
+  const connected=JSON.parse(readFileSync(join(f.workspace,'wrangler.jsonc')));
+  assert.equal(connected.services.length,3);
+  assert.deepEqual(connected.services[2],{binding:'GUESTBOOK_MEMBERS',service:'composer-guestbook-'+ 'b'.repeat(16),entrypoint:'GuestbookMemberService'});
+ }finally{f.cleanup();}
+});
+test('missing or equal member credentials stop all uploads before the first cloud mutation',()=>{
+ for(const missing of [true,false]){const f=fixture({members:true});try{
+  const path=join(f.sources.showcase,'.private/COMPOSER_PROFILE_BRIDGE_TOKEN');
+  if(missing)rmSync(path);else writeFileSync(path,'synthetic-owner-showcase');
+  assert.throws(()=>promoteComposition(f));
+  assert.ok(f.calls().every(c=>!['secret','upload'].includes(c.kind)));
+ }finally{f.cleanup();}}
 });

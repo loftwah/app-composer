@@ -1,0 +1,8 @@
+---
+import Base from '../layouts/Base.astro';
+import People from '../components/members/People';
+---
+<Base title="People & access" description="Manage workspace invitations and selected app permissions." noindex={true}>
+  <People client:load />
+  <noscript>Enable JavaScript to use your signed-in workspace tools.</noscript>
+</Base>

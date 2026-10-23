@@ -54,6 +54,7 @@ Guestbook and Linkarooie also mount at `/guestbook` and `/showcase` through sepa
 
 - [Documentation index](docs/README.md): current guides, source maps and detailed commands.
 - [Product](PRODUCT.md), [architecture](ARCHITECTURE.md), [design](DESIGN.md) and [interface standard](UNSLOP.md).
+- [Invited creators: My profile, People and card publication](docs/invited-members.md), with [the shared access contract](docs/invited-member-access.md).
 - [Published demo workflow](docs/creator-stacks/demo-stacks.md), [workspace access](docs/workspace-access.md), [private outcomes](docs/private-outcomes.md), [scoped collection](docs/scoped-collection.md), [Guestbook contributions from Linkarooie](docs/guestbook-contributions.md), [private enquiries](docs/private-enquiries.md), [maintenance and approved exports](docs/workspace-maintenance.md) and [WordPress observation ledger](labs/wordpress/weekender/OBSERVATIONS.md).
 - [Current delivery status](docs/STATUS.md) and [canonical release evidence](https://github.com/loftwah/app-composer/issues/11). Dated history is linked separately.
 

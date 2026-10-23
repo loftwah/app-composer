@@ -1,0 +1,14 @@
+{
+  "format": "linkarooie.profile-snapshot",
+  "version": 1,
+  "profile": {
+    "id": "https://showcase.loftwah.com/profiles/0a058013-3c83-4e09-8f28-611ecd43018e",
+    "revision": "78048354b615396a911de398b0618436e198695172db8f22afecee19491130fd"
+  },
+  "text": {
+    "name": "Night Signal",
+    "handle": "fictional-night-signal",
+    "description": "A fictional listening room for small sounds and late-night ideas. Sessions, sketches, and things worth hearing.",
+    "alt": "Night Signal · @fictional-night-signal — profile card"
+  }
+}

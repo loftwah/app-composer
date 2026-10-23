@@ -1,0 +1,81 @@
+{
+  "marker": "composer-invited-JFDNLd",
+  "revokedModeration": {
+    "status": 200,
+    "ok": false,
+    "code": "FORBIDDEN",
+    "message": "This account does not have the current permission for this app action.",
+    "keys": [
+      "ok",
+      "code",
+      "message"
+    ]
+  },
+  "unrelatedBook": {
+    "status": 200,
+    "ok": false,
+    "code": "FORBIDDEN",
+    "message": "This account does not have the current permission for this app action.",
+    "keys": [
+      "ok",
+      "code",
+      "message"
+    ]
+  },
+  "otherProfile": {
+    "status": 200,
+    "ok": false,
+    "code": "FORBIDDEN",
+    "message": "This account does not have the current permission for this app action.",
+    "keys": [
+      "ok",
+      "code",
+      "message"
+    ]
+  },
+  "otherExport": {
+    "status": 200,
+    "ok": false,
+    "code": "FORBIDDEN",
+    "message": "This account does not have the current permission for this app action.",
+    "keys": [
+      "ok",
+      "code",
+      "message"
+    ]
+  },
+  "ownProfile": {
+    "status": 200,
+    "ok": true,
+    "resource": "0a058013-3c83-4e09-8f28-611ecd43018e",
+    "keys": [
+      "ok",
+      "result",
+      "actor",
+      "operator",
+      "workspaces",
+      "incoming",
+      "grants"
+    ]
+  },
+  "forgedActor": {
+    "status": 200,
+    "ok": false,
+    "code": "CONFLICT",
+    "message": "The signed-in account changed before this action. Refresh its current apps before continuing.",
+    "keys": [
+      "ok",
+      "code",
+      "message"
+    ]
+  },
+  "cms": {
+    "status": 403
+  },
+  "settings": {
+    "status": 403
+  },
+  "users": {
+    "status": 403
+  }
+}
