@@ -1,12 +1,11 @@
 # Native local two-team qualification
 
-Prepared in the isolated member-authoring worktree above Composer increment
-`29a649c570e7e183065c06f09fda889194116fa4` (including recovery fix
-`4163e784da2dc0f3754c34884f0a66e0952232d2`), reusing all four baseline harness/doc
-files from `a325a9bfb06a981eb536b807558e197d96efd8cb`. This is a prepared,
-**unexecuted** future-v2 fixture. The current locked v1 source remains unqualified;
-`run` refuses it before creating a temporary root or starting services. There is
-no source-pin override, simulated service response or closed-mode substitute.
+This fixture selects the actual reviewed composition, including independently
+released Guestbook `e097e4dd46abe5dd49a0ee1209276cc506e601fa`. Preparation is not
+native acceptance: retain the actual run receipt and its exact Composer head.
+`run` refuses an unqualified member-service contract before creating temporary
+storage or starting services. There is no source-pin override, simulated service
+response or closed-mode substitute.
 
 Execution requires the independent Guestbook v2 release, exact live source
 qualification, deliberate Composer pin promotion, integration review and shared
@@ -21,6 +20,16 @@ Native admission uses Chromium virtual passkeys and fictional `example.test` acc
 ## Copied-source boundary
 
 Only disposable copies change. The reused lifecycle selects supported EmDash native authentication instead of the production Access wrapper and removes email delivery. The extra platform qualification seam changes the copied `src/plugins/stacks.ts` factory to supply `PLATFORM_PUBLIC_FETCH` through a fixed `PLATFORM_PUBLIC_PAGES` self service binding. Requests reach the actual local `/s` and mounted app handlers without owner headers. Browser/imported inputs cannot select the endpoint or any credential. This establishes local route verification separately from the production public edge.
+
+The copied lifecycle uses fictional local account identity
+`00000000000000000000000000000001` consistently in Composer and the app. Its
+format permits the real Get Ready observation schema to inspect that selected
+local target; it is never a Cloudflare account or provider-permission receipt.
+The exact two replacements are guarded and recorded. Public build/admission/media
+proof uses browser-side fetch through Chromium's loopback resolver, omits native
+credentials, refuses redirects and verifies the owned TLS bridge header before
+accepting bounded response bytes. Node-side APIRequestContext is not used for
+these proof requests because it does not inherit the browser's host mapping.
 
 Receipts include the original and derived lifecycle hashes, exact copied factory patch, copied authentication configuration and entry hashes, temporary source tree identity, independent app pins, native user roles and bounded operation results. Source and fixture drift is rejected before native writes. Tokens, private browser state, passkey material, database files, certificates and copied source remain inside one owned temporary root. The `finally` handler closes the owned browser, invokes the reused identity-checked lifecycle stop, and removes that root. A failed stop preserves its process handle and reports cleanup failure rather than erasing the only recovery marker.
 
@@ -49,7 +58,7 @@ node labs/platform/native-run.mjs run --admitted \
 ## Qualification sequence
 
 1. Native setup and virtual-passkey registration/sign-in establish one role50 operator, two role20 creators and one ordinary role10 account. Actual first-login Welcome dialogs are completed with Get Started; there are no forced clicks through inert UI.
-2. The real workspace UI creates Team A/B and native creator editor invitations are accepted. The operator explicitly enables standing policy and default-off member contributions. Creators cannot configure policy.
+2. The real workspace UI creates Team A/B and native creator editor invitations are accepted. Actual Get Ready observes the selected empty team and its exact protected continuation before the operator enables standing policy and default-off member contributions. A Creator20 observes policy capability in their personal owner workspace, while the same Creator is refused policy changes as a team editor.
 3. Before any editor delegation, ordinary role10 native and member platform reads/writes return HTTP403. The owner prepares an explicit Team A editor invitation; role10 accepts it through `/me`. `/auth/me` must still report role10. Both native and member configure/review routes remain HTTP403 after delegation.
 4. Role10 opens `/me?view=platform&workspace=ID`, confirms that exact selected Team A, requests members mode through the actual form and completes a governed synthetic service. Creator B uses native administration to request its independent closed Team B service. No unsupported request counts as success.
 5. Before an app-specific grant, role10 contribution dispatch is denied. The owner uses the maintained People & access form to grant only contribute on Team A's exact resource to role10, and moderate on that resource to Creator A. Global role, other grants and Team B remain unchanged.

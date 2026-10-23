@@ -108,6 +108,16 @@ derived = once(
   '      run("git", ["init", "-q"], dest);',
   patch + '\n      run("git", ["init", "-q"], dest);',
 );
+const originalLocalAccount = '"invited-local-account"';
+const fictionalLocalAccount = "00000000000000000000000000000001";
+if (derived.split(originalLocalAccount).length !== 3)
+  throw Error(
+    "Reviewed fictional account selection changed; inspect the lifecycle.",
+  );
+derived = derived.replaceAll(
+  originalLocalAccount,
+  JSON.stringify(fictionalLocalAccount),
+);
 // All selected checkouts and exact source pins are checked before allocating any temporary storage.
 const identities = {};
 const authored = [
@@ -204,6 +214,12 @@ const preflight = {
   lifecycleSha256: hash(lifecycle),
   derivedLifecycleSha256: hash(derived),
   copiedFactoryPatch: { before: originalFactory, after: localFactory },
+  copiedAccountPatch: {
+    before: "invited-local-account",
+    after: fictionalLocalAccount,
+    scope:
+      "Fictional local account identity, never a provider account or permission receipt",
+  },
   authSha256: hash(readFileSync(new URL("./native-auth.mjs", import.meta.url))),
   journeySha256: hash(
     readFileSync(new URL("./native-journey.mjs", import.meta.url)),

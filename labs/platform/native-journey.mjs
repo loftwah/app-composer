@@ -1,4 +1,4 @@
-import { randomUUID, createHash } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { join } from "node:path";
 import { nativeCall, nativeData } from "./native-auth.mjs";
 
@@ -53,10 +53,73 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
     /^[a-f0-9]{40}$/.test(memberSource),
     "Select the actual locked qualified Guestbook source.",
   );
-  const build = await owner.request.get(
-    lab.origins.composer + "/guestbook/build.json",
-  );
-  const buildIdentity = await build.json();
+  async function publicFetch(page, path, limit = 500000) {
+    // Node APIRequestContext does not inherit Chromium's host resolver. All
+    // public proof must use the mapped browser and omit its native credentials.
+    return page.evaluate(
+      async ({ path, origin, marker, limit }) => {
+        const address = new URL(path, location.origin);
+        if (
+          address.origin !== origin ||
+          !address.pathname.startsWith("/guestbook/") ||
+          address.pathname !== path
+        )
+          throw Error("Public proof path escaped the fixed local application.");
+        const response = await fetch(path, {
+          credentials: "omit",
+          redirect: "error",
+          cache: "no-store",
+          signal: AbortSignal.timeout(10000),
+        });
+        if (response.headers.get("x-composer-isolated-lab") !== marker)
+          throw Error("Public proof did not reach the isolated TLS bridge.");
+        const reader = response.body?.getReader();
+        if (!reader) throw Error("Public proof returned no body.");
+        const chunks = [];
+        let length = 0;
+        try {
+          while (true) {
+            const part = await reader.read();
+            if (part.done) break;
+            length += part.value.length;
+            if (length > limit)
+              throw Error("Public proof exceeded its byte bound.");
+            chunks.push(part.value);
+          }
+        } finally {
+          await reader.cancel().catch(() => {});
+        }
+        const bytes = new Uint8Array(length);
+        let offset = 0;
+        for (const chunk of chunks) {
+          bytes.set(chunk, offset);
+          offset += chunk.length;
+        }
+        const digest = new Uint8Array(
+          await crypto.subtle.digest("SHA-256", bytes),
+        );
+        return {
+          status: response.status,
+          bytes: length,
+          contentType: response.headers.get("content-type"),
+          sha256: Array.from(digest, (byte) =>
+            byte.toString(16).padStart(2, "0"),
+          ).join(""),
+          text: response.headers.get("content-type")?.includes("json")
+            ? new TextDecoder().decode(bytes)
+            : undefined,
+        };
+      },
+      {
+        path,
+        origin: lab.origins.composer,
+        marker: lab.root.split("/").at(-1),
+        limit,
+      },
+    );
+  }
+  const build = await publicFetch(owner, "/guestbook/build.json", 32768);
+  const buildIdentity = JSON.parse(build.text);
   const expectedService = {
     version: 2,
     entrypoint: "GuestbookMemberService",
@@ -64,7 +127,7 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
     path: "/__composer/member",
   };
   check(
-    build.status() === 200 &&
+    build.status === 200 &&
       buildIdentity.revision === memberSource &&
       Object.keys(buildIdentity.memberService ?? {}).length === 4 &&
       Object.entries(expectedService).every(
@@ -100,6 +163,41 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
       fullPage: true,
     });
     result.screenshots.push(name + ".png");
+  }
+  async function observeSetup(page, workspace, label) {
+    await page.goto(
+      lab.origins.composer + "/ready?profile=platform&workspace=" + workspace,
+    );
+    await page
+      .getByRole("button", { name: "Check my signed-in access", exact: true })
+      .click();
+    await page
+      .getByRole("heading", { name: "Set the standing rules", exact: true })
+      .waitFor();
+    check(
+      (await page.locator("body").innerText()).includes("can configure policy"),
+      "Native owner policy capability was not observed by Get Ready.",
+    );
+    const continuation = page.getByRole("link", {
+      name: "Open protected platform",
+      exact: true,
+    });
+    const href = await continuation.getAttribute("href");
+    check(
+      href ===
+        "/_emdash/admin/plugins/composer-stacks/platform?workspace=" +
+          workspace,
+      "Get Ready substituted the selected policy workspace.",
+    );
+    (result.setup ??= []).push({
+      workspace,
+      label,
+      action: "configure",
+      href,
+      configurationObservationOnly: true,
+    });
+    await screenshot(page, "ready-" + label);
+    return continuation;
   }
   // The form is the actual native React workspaces page; the API confirms its persisted result.
   for (const [key, creator, name] of [
@@ -146,6 +244,16 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
       ),
       "Native workspace invitation was not accepted.",
     );
+    if (key === "a") {
+      const personal = accepted.workspaces.find(
+        (space) => space.role === "owner",
+      );
+      check(
+        personal,
+        "The actual Creator personal owner context was not retained.",
+      );
+      await observeSetup(creator, personal.id, "creator20-owner");
+    }
     const creatorPolicy = denied(
       await nativeCall(creator, stacks + "platformWrite", {
         action: "configure",
@@ -154,11 +262,12 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
         profile,
       }),
     );
-    await owner.goto(
-      lab.origins.composer +
-        "/_emdash/admin/plugins/composer-stacks/platform?workspace=" +
-        workspace.id,
+    const continueSetup = await observeSetup(
+      owner,
+      workspace.id,
+      "operator-team-" + key,
     );
+    await continueSetup.click();
     await owner.getByLabel("Enable platform requests").check();
     await owner.getByLabel("Require a separate operator decision").uncheck();
     await owner.getByLabel("Maximum applications").fill("2");
@@ -653,15 +762,15 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
   result.visibility = [];
   try {
     const publicPage = await anonymous.newPage();
-    const invitation = await anonymous.request.get(
-      lab.origins.composer +
-        "/guestbook/r/" +
-        resource.resource +
-        "/api/invitation",
+    await publicPage.goto(lab.origins.composer + resource.configuration.path);
+    const invitation = await publicFetch(
+      publicPage,
+      "/guestbook/r/" + resource.resource + "/api/invitation",
+      32768,
     );
-    const publicAdmission = await invitation.json();
+    const publicAdmission = JSON.parse(invitation.text);
     check(
-      invitation.status() === 200 &&
+      invitation.status === 200 &&
         publicAdmission.invitation.state === "closed" &&
         publicAdmission.invitation.accepts === false,
       "Member-only admission opened public postcard contributions.",
@@ -678,33 +787,23 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
       expectedStatus,
       path = resource.configuration.path,
     ) {
-      const media = await anonymous.request.get(
-        lab.origins.composer + mediaPath,
-        { failOnStatusCode: false },
-      );
+      const media = await publicFetch(publicPage, mediaPath, 150000);
       check(
-        media.status() === expectedStatus,
-        phase + " public media status was " + media.status(),
-      );
-      check(
-        media.headers()["x-composer-isolated-lab"] ===
-          lab.root.split("/").at(-1),
-        "Media request escaped isolated runtime.",
+        media.status === expectedStatus,
+        phase + " public media status was " + media.status,
       );
       const evidence = {
         phase,
         item: receipt.id,
-        status: media.status(),
+        status: media.status,
         nativeSession: false,
       };
       if (expectedStatus === 200) {
-        const bytes = await media.body();
         check(
-          bytes.length <= 150000 &&
-            media.headers()["content-type"].startsWith("image/png"),
+          media.bytes <= 150000 && media.contentType?.startsWith("image/png"),
           "Actual public postcard media is not bounded PNG.",
         );
-        evidence.sha256 = createHash("sha256").update(bytes).digest("hex");
+        evidence.sha256 = media.sha256;
         if (approvedDigest)
           check(
             evidence.sha256 === approvedDigest,
@@ -743,7 +842,11 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
       .filter({ has: a.getByRole("heading", { name: caption, exact: true }) });
     await itemRow.waitFor();
     async function moderateUI(status) {
-      await itemRow.getByRole("button", { name: status, exact: true }).click();
+      const label = { approved: "Approve", hidden: "Hide", rejected: "Reject" }[
+        status
+      ];
+      check(label, "Unsupported moderation action in native fixture.");
+      await itemRow.getByRole("button", { name: label, exact: true }).click();
       await itemRow
         .getByText(author + " · " + status, { exact: true })
         .waitFor();
