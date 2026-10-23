@@ -525,15 +525,16 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
     .getByRole("heading", { name: "Team application requests", exact: true })
     .waitFor();
   check(
-    (await ordinary.getByLabel("Workspace", { exact: true }).inputValue()) ===
-      wa,
+    (await ordinary
+      .getByRole("combobox", { name: /^Workspace/ })
+      .inputValue()) === wa,
     "Readiness deep link changed workspace.",
   );
   await ordinary
     .getByLabel("Application name", { exact: true })
     .fill("Fictional Team A member visitor book");
   await ordinary
-    .getByLabel("Contributions", { exact: true })
+    .getByRole("combobox", { name: /^Contributions/ })
     .selectOption("members");
   await ordinary
     .getByRole("button", { name: "Request application", exact: true })
@@ -558,7 +559,9 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
   await b
     .getByLabel("Application name", { exact: true })
     .fill("Fictional Team B closed visitor book");
-  await b.getByLabel("Contributions", { exact: true }).selectOption("closed");
+  await b
+    .getByRole("combobox", { name: /^Contributions/ })
+    .selectOption("closed");
   await b
     .getByRole("button", { name: "Request application", exact: true })
     .click();
@@ -596,12 +599,16 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
 
   async function grantUI(member, capability) {
     await owner.goto(lab.origins.composer + "/people");
-    await owner.getByLabel("Workspace", { exact: true }).selectOption(wa);
-    await owner.getByLabel("Person", { exact: true }).selectOption(member);
-    await owner.getByLabel("App", { exact: true }).selectOption("guestbook");
-    await owner.getByLabel("Action", { exact: true }).selectOption(capability);
+    await owner.getByRole("combobox", { name: /^Workspace/ }).selectOption(wa);
+    await owner.getByRole("combobox", { name: /^Person/ }).selectOption(member);
     await owner
-      .getByLabel("Existing visitor-book resource", { exact: true })
+      .getByRole("combobox", { name: /^App/ })
+      .selectOption("guestbook");
+    await owner
+      .getByRole("combobox", { name: /^Action/ })
+      .selectOption(capability);
+    await owner
+      .getByRole("combobox", { name: /^Existing visitor-book resource/ })
       .selectOption(resource.resource);
     const response = owner.waitForResponse(
       (reply) =>
@@ -892,7 +899,7 @@ export async function nativeJourney({ actors, lab, output, memberSource }) {
       .fill("Fictional Team A updated member visitor book");
     check(
       (await ordinary
-        .getByLabel("Contributions", { exact: true })
+        .getByRole("combobox", { name: /^Contributions/ })
         .inputValue()) === "members",
       "Update reset the explicit contribution mode.",
     );
