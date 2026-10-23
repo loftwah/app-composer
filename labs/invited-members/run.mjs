@@ -184,7 +184,7 @@ if (action === "refresh-composer") {
   const proc = meta.processes.find((p) => p.name === "composer");
   if (proc) terminate({ processes: [proc] });
   await new Promise((r) => setTimeout(r, 600));
-  for (const name of ["src", "public"])
+  for (const name of ["src", "public", "lib", "scripts"])
     run(
       "rsync",
       ["-a", "--delete", join(source, name) + "/", join(dest, name) + "/"],
@@ -221,8 +221,8 @@ if (action === "refresh-composer") {
     join(dest, "src/vendor/workbench/sources.json"),
     JSON.stringify(views, null, 2) + "\n",
   );
-  run("git", ["add", "src", "public", "composition.lock.json"], dest);
-  run(
+  run("git", ["add", "src", "public", "lib", "scripts", "composition.lock.json"], dest);
+  if (run("git", ["diff", "--cached", "--name-only"], dest).trim()) run(
     "git",
     [
       "-c",
