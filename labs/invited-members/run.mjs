@@ -115,6 +115,68 @@ if (action === "status") {
   );
   process.exit(0);
 }
+if (action === "refresh-apps") {
+  const meta = readRun();
+  const names = ["guestbook", "showcase"];
+  const replacements = names.map((name) => {
+    if (!options[name] || !/^[a-f0-9]{40}$/.test(options[name + "-head"] ?? ""))
+      throw Error("Provide explicit --" + name + " PATH and --" + name + "-head SHA.");
+    const source = resolve(options[name]);
+    const head = run("git", ["rev-parse", "HEAD"], source).trim();
+    if (head !== options[name + "-head"] || run("git", ["status", "--porcelain"], source).trim())
+      throw Error("Refresh requires the exact clean reviewed " + name + " checkout.");
+    const proc = meta.processes.find((p) => p.name === name);
+    if (!proc || run("ps", ["-p", String(proc.pid), "-o", "lstart="], repo).trim() !== proc.started)
+      throw Error("The registered " + name + " process identity changed; inspect the lab first.");
+    const dest = join(meta.root, name);
+    const config = JSON.parse(readFileSync(join(dest, "wrangler.local.jsonc"), "utf8"));
+    if (config.name !== "composer-invited-" + name || config.main !== "./local-entry.ts")
+      throw Error("The owned app configuration does not match.");
+    const manifest = JSON.parse(readFileSync(join(source, "app.manifest.json"), "utf8"));
+    return { name, source, head, proc, dest, manifest };
+  });
+  // Preflight both sources and process identities before stopping either app.
+  // State directories, local configuration/secrets, dependencies and browser
+  // sessions are never copied, migrated, deleted or reset by this operation.
+  for (const { name, source, head, proc, dest, manifest } of replacements) {
+    terminate({ processes: [proc] });
+    for (let attempt = 0; attempt < 20; attempt++) {
+      await new Promise((r) => setTimeout(r, 100));
+      try { await available(meta.ports[name]); break; }
+      catch { if (attempt === 19) throw Error("Owned " + name + " port did not close; state preserved."); }
+    }
+    for (const directory of ["src", "public"])
+      run("rsync", ["-a", "--delete", join(source, directory) + "/", join(dest, directory) + "/"], repo);
+    writeFileSync(join(dest, "app.manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
+    const named = name === "guestbook" ? ",{GuestbookMemberService}" : "";
+    writeFileSync(join(dest, "local-entry.ts"),
+      `import worker${named} from './src/worker.ts';\nObject.assign(globalThis,{BUILD_SHA:${JSON.stringify(head)},MANIFEST:${JSON.stringify(manifest)}});\n${name === "guestbook" ? "export {GuestbookMemberService};\n" : ""}export default worker;\n`);
+    const log = openSync(join(meta.root, name + ".log"), "a");
+    const child = spawn("pnpm", ["exec", "wrangler", "dev", "--config", "wrangler.local.jsonc", "--port", String(meta.ports[name]),
+      "--persist-to", join(meta.root, name + "-state"), "--local-protocol", "http", "--local-upstream",
+      new URL(meta.origins[name]).hostname, "--upstream-protocol", "https", "--local", "--inspector-port", "0"],
+      { cwd: dest, detached: true, stdio: ["ignore", log, log] });
+    child.unref();
+    meta.sources[name] = { checkout: source, head, dirty: false };
+    meta.processes = meta.processes.filter((p) => p.name !== name);
+    meta.processes.push({ name, pid: child.pid, started: run("ps", ["-p", String(child.pid), "-o", "lstart="], repo).trim() });
+    meta.appsRequireComposerRefresh = true;
+    writeFileSync(join(meta.root, "run.json"), JSON.stringify(meta, null, 2), { mode: 0o600 });
+    let ready = false;
+    for (let attempt = 0; attempt < 40; attempt++) {
+      try {
+        const build = JSON.parse(run("curl", ["-ksS", "--noproxy", "*", "--connect-to",
+          new URL(meta.origins[name]).hostname + ":443:127.0.0.1:8443", "--max-time", "2", meta.origins[name] + "/build.json"], repo));
+        if (build.app === name && build.revision === head) { ready = true; break; }
+      } catch {}
+      await new Promise((r) => setTimeout(r, 250));
+    }
+    if (!ready) throw Error("Refreshed " + name + " did not become ready; state and process registration preserved.");
+  }
+  console.log(JSON.stringify({ refreshed: Object.fromEntries(names.map((name) => [name, meta.sources[name]])), statePreserved: true,
+    next: "Run refresh-composer before private app actions; its source pins must match the refreshed app builds." }, null, 2));
+  process.exit(0);
+}
 if (action === "refresh-composer") {
   const meta = readRun();
   const source = resolve(options.composer ?? meta.sources.composer.checkout);
@@ -180,6 +242,7 @@ if (action === "refresh-composer") {
     labHead: run("git", ["rev-parse", "HEAD"], dest).trim(),
   };
   meta.localComposition = lock.id;
+  delete meta.appsRequireComposerRefresh;
   writeFileSync(join(meta.root, "run.json"), JSON.stringify(meta, null, 2), {
     mode: 0o600,
   });

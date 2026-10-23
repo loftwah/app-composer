@@ -56,6 +56,32 @@ node labs/invited-members/run.mjs refresh-composer --composer /absolute/integrat
 The refresh explicitly aligns the temporary composition's source/manifests with
 its already running app Workers, verifies unchanged reviewed adapter hashes,
 and records a separate lab source commit. It never promotes production pins.
+
+To refresh both app sources, first pause the journey and select exact clean
+reviewed checkouts and full SHAs. The operation preflights both registered app
+process identities, copies only `src/`, `public/` and the manifest, updates the
+local build identity, and restarts only those two Workers. It retains local
+configuration, credentials, dependencies and every state directory; it performs
+no database migrations. Follow immediately with Composer refresh so the
+temporary composition and the app builds agree before private actions resume:
+
+```sh
+node labs/invited-members/run.mjs refresh-apps \
+  --guestbook /absolute/reviewed-guestbook --guestbook-head FULL_REVIEWED_SHA \
+  --showcase /absolute/reviewed-showcase --showcase-head FULL_REVIEWED_SHA
+node labs/invited-members/run.mjs refresh-composer --composer /absolute/integrated-composer
+```
+
+A Guestbook resource's identity is its workspace, account, environment and
+target. A build refresh retains its active configuration's historical source
+and its resource/item IDs. Member actions send the current composition source
+proof; they do not require rewriting historical configuration receipts. To
+deliberately activate the same configuration under the new source, the owner
+first reconciles current resource versions (including member moderation), then
+uses the supported Apply resources action. That stages and activates a new
+configuration revision without replacing the resource or its content. Do not
+edit configuration source fields or old receipts directly.
+
 An interrupted local auth experiment can use `reset-accounts` to erase only this
 owned Composer fixture's accounts, sessions, stacks and workspace configuration
 without rebuilding or touching independent app data. Do not reset during a
