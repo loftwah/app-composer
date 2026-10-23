@@ -1,3 +1,4 @@
+import { HANDOFF_KEY } from './workbench';
 import {renderAppPreview} from './app-preview';
 import {currentAssistance} from './assistance';
 import {presetRecommendation,recommendationSpec,assistedHandoff,initialRecommendation} from './init-recommendations.mjs';
@@ -94,3 +95,18 @@ observedSnapshot=snapshot();
 // A demo link selects the recommendation only. Saved work changes after Use.
 goal.value=initialRecommendation(location.search,value('preset'));
 previewRecommendation();
+
+// A workbench handoff is a separately staged candidate, never an Init save.
+if(new URLSearchParams(location.search).get('start')==='workbench'){
+ try{
+  const raw=sessionStorage.getItem(HANDOFF_KEY);
+  if(raw){
+   const candidate=validateSpec(JSON.parse(raw));pendingImport=candidate;
+   document.querySelector('#import-summary')!.textContent=candidate.config.title+' · Guestbook + Linkarooie · supported configuration only';
+   importReview.hidden=false;
+   message.textContent='Workbench starting point ready. Review it before replacing the form. Your saved draft is unchanged.';
+   importReview.focus();
+   sessionStorage.removeItem(HANDOFF_KEY);
+  }
+ }catch{message.textContent='The workbench starting point could not be validated. Your current and saved drafts are unchanged.';}
+}

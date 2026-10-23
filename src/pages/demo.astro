@@ -1,14 +1,18 @@
 ---
 import Base from '../layouts/Base.astro';
+import CompositionWorkbench from '../components/CompositionWorkbench';
+import {mountedApps} from '../lib/composition';
 import { ArrowRight, Image, PanelsTopLeft, GitBranch, ExternalLink } from '@lucide/astro';
 ---
-<Base title="Make a collection with connected apps" description="See an approved guestbook postcard in Linkarooie, open its source, then configure your own Guestbook and Linkarooie pair in Init.">
+<Base title="Make a collection with connected apps" description="Connect two fictional postcards, edit their source, inspect ownership and publish local demonstration revisions before taking your configuration to Init.">
  <div class="composition-heading">
-  <h1>Connect a guestbook to your collection.</h1>
-  <p class="lede">Here / there collects photos for review. Linkarooie features approved moments beside your links. Try the pair, then configure your own collection and take its specification to your agent.</p>
-  <div class="actions"><a class="button" href="/init?start=composition#starting-point">Make this collection <ArrowRight size={18} aria-hidden="true"/></a><a class="button secondary" href="/showcase/#links-other-links">See the shared postcard</a><a href="/guestbook/">Visit the guestbook</a></div>
-  <p class="small">The live example is a clearly labelled fictional postcard under Other links in Loftwah’s profile. Open it to visit the original guestbook entry.</p>
+  <h1>Two apps. Make the connection.</h1>
+  <p class="lede">Move a postcard into Linkarooie. Change its source, peel back the ownership and publish your own local revisions. The apps keep their own content.</p>
  </div>
+ <CompositionWorkbench sources={mountedApps.filter(app=>['guestbook','showcase'].includes(app.id))} client:visible />
+ <noscript><p>This interactive local experiment needs JavaScript. You can still <a href="/guestbook/">browse Here / there</a>, <a href="/showcase/">open Linkarooie</a> or <a href="/init?start=composition">configure the pair in Init</a>.</p></noscript>
+ <h2 class="composition-live-title">The independent live pair.</h2>
+ <p>The experiment above stays on this device. These links open the separately published apps; public browsing is available, while owner writes remain protected.</p>
  <section class="composition-flow" aria-labelledby="flow-title">
   <h2 id="flow-title">From contribution to collection</h2>
   <ol>
