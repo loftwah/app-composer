@@ -23,3 +23,7 @@ overrides:
   sanitize-html: 2.18.1
   # GHSA-mrv2-3pqr-j5jr and related DOMPurify advisories; patched 3.4.17, reviewed 23 October 2026.
   dompurify: 3.4.17
+  # Release audit blockers, reviewed 24 October 2026: preserve Zod 4 and body-parser 2.
+  # GHSA-mrhx-c7xc-m3w5 and GHSA-27r3-jxmh-p828.
+  'zod@>=4.0.0 <4.6.6': 4.6.7
+  'body-parser@>=2.0.0 <2.4.0': 2.4.0
