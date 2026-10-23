@@ -268,6 +268,70 @@ test("projection excludes private request bodies, identities and resource identi
   assert.equal(inspectPlatformReport(old, now).next.id, "target");
 });
 
+test("policy setup observations use the workspace capability without borrowing global administrator authority", () => {
+  const snapshot = {
+    workspace: observation().workspace,
+    profile: null,
+    runner: { available: true },
+    requests: [],
+    setup: {
+      target: {
+        account: "b".repeat(32),
+        environment: "production",
+        url: "https://composer.example.test/guestbook",
+      },
+      existingStacks: 0,
+      managed: false,
+    },
+  };
+  const inspect = (operator, capability, role = "owner") => {
+    const setup = { ...snapshot.setup };
+    if (capability !== undefined) setup.canConfigurePolicy = capability;
+    return inspectPlatformReport(
+      platformObservation({
+        origin: "https://composer.example.test",
+        source: "a".repeat(40),
+        operator,
+        snapshot: {
+          ...snapshot,
+          workspace: { ...snapshot.workspace, role },
+          setup,
+        },
+        checkedAt: new Date(now).toISOString(),
+      }),
+      now,
+    );
+  };
+  assert.equal(
+    inspect(false, true).next.id,
+    "configure",
+    "Creator owner uses the observed native capability",
+  );
+  assert.equal(
+    inspect(false, false).next.id,
+    "ask-owner",
+    "Subscriber owner remains outside native configuration",
+  );
+  assert.equal(
+    inspect(true, false).next.id,
+    "ask-owner",
+    "Explicit false overrides an older global operator hint",
+  );
+  assert.equal(
+    inspect(true, undefined).next.id,
+    "configure",
+    "Older administrator owner observation remains supported",
+  );
+  assert.equal(
+    inspect(false, undefined).next.id,
+    "ask-owner",
+    "Older creator observation remains conservative",
+  );
+  assert.equal(inspect(true, undefined, "editor").report.operator, false);
+  for (const invalid of [null, "true", 1])
+    assert.throws(() => inspect(true, invalid));
+});
+
 test("CLI inspects only the selected offline observation and refuses setup flags, aliases and secret-bearing data", () => {
   const root = mkdtempSync(join(tmpdir(), "composer-platform-observation-"));
   try {

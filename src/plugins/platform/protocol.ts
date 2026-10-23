@@ -126,6 +126,7 @@ const list = z.object({
       }),
       existingStacks: z.number().int().nonnegative(),
       managed: z.boolean(),
+      canConfigurePolicy: z.boolean().optional(),
     })
     .optional(),
 });

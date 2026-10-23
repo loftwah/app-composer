@@ -59,6 +59,7 @@ export function platformObservation(input: {
       target: { account: string; environment: string; url: string };
       existingStacks: number;
       managed: boolean;
+      canConfigurePolicy?: boolean;
     };
   };
 }): PlatformObservation;

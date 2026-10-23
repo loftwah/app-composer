@@ -286,7 +286,8 @@ export async function platformSnapshot(
     .prepare("SELECT COUNT(*) AS n FROM creator_stacks WHERE workspace_id=?")
     .bind(workspace.id)
     .first<{ n: number }>();
-  requireCapability(await membership(db, workspace.id, user.id), "read");
+  const currentRole = await membership(db, workspace.id, user.id);
+  requireCapability(currentRole, "read");
   return {
     ok: true as const,
     workspace,
@@ -298,6 +299,7 @@ export async function platformSnapshot(
       target: target(runtime),
       existingStacks: count?.n ?? 0,
       managed: profile !== null,
+      canConfigurePolicy: isCreatorRole(user.role) && currentRole === "owner",
     },
   };
 }

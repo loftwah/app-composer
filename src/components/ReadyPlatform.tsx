@@ -26,6 +26,7 @@ const setup = z
       .strict(),
     existingStacks: z.number().int().min(0).max(1000000),
     managed: z.boolean(),
+    canConfigurePolicy: z.boolean().optional(),
   })
   .strict();
 const unavailable =
@@ -308,7 +309,7 @@ export default function ReadyPlatform({
               <dt>Your access</dt>
               <dd>
                 {report.workspace.role}
-                {report.operator ? " · platform operator" : ""}
+                {report.operator ? " · can configure policy" : ""}
               </dd>
             </div>
             <div>

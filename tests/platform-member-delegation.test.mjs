@@ -321,6 +321,7 @@ test("setup snapshot is additive, workspace-derived and retains managed state wh
       },
       existingStacks: 0,
       managed: false,
+      canConfigurePolicy: true,
     });
     await managePlatform(
       ctx(user, {
@@ -338,6 +339,91 @@ test("setup snapshot is additive, workspace-derived and retains managed state wh
     delete old.setup;
     assert.equal(decodePlatformList(old).setup, undefined);
     assert.doesNotMatch(JSON.stringify(current.setup), /token|secret|grant/i);
+  } finally {
+    f.close();
+  }
+});
+
+test("policy setup capability follows current creator role and final workspace ownership", async () => {
+  const f = fixture();
+  try {
+    const workspace = (await workspaceForUser(f.db, user)).id;
+    for (const role of [10, 20, 30, 40, 50]) {
+      for (const membership of ["owner", "editor", "viewer"]) {
+        f.sqlite
+          .prepare(
+            "UPDATE creator_members SET role=? WHERE workspace_id=? AND user_id=?",
+          )
+          .run(membership, workspace, user.id);
+        const actor = { ...user, role };
+        const response = await (
+          role === 10 ? manageMemberPlatform : managePlatform
+        )(ctx(actor, { action: "list", workspace }, true), f.runtime);
+        if (role === 10 && membership === "viewer") {
+          assert.equal(response.code, "FORBIDDEN");
+          continue;
+        }
+        assert.equal(response.ok, true, JSON.stringify(response));
+        assert.equal(
+          response.setup.canConfigurePolicy,
+          role !== 10 && membership === "owner",
+        );
+      }
+    }
+    f.sqlite
+      .prepare(
+        "UPDATE creator_members SET role='owner' WHERE workspace_id=? AND user_id=?",
+      )
+      .run(workspace, user.id);
+    const prepare = f.db.prepare;
+    let downgraded = false;
+    f.db.prepare = (sql) => {
+      const wrap = (statement) => ({
+        ...statement,
+        bind(...values) {
+          return wrap(statement.bind(...values));
+        },
+        async first() {
+          const result = await statement.first();
+          if (!downgraded && sql.includes("COUNT(*) AS n")) {
+            f.sqlite
+              .prepare(
+                "UPDATE creator_members SET role='viewer' WHERE workspace_id=? AND user_id=?",
+              )
+              .run(workspace, user.id);
+            downgraded = true;
+          }
+          return result;
+        },
+      });
+      return wrap(prepare(sql));
+    };
+    const changed = await managePlatform(
+      ctx(user, { action: "list", workspace }, true),
+      f.runtime,
+    );
+    assert.equal(downgraded, true);
+    assert.equal(changed.setup.canConfigurePolicy, false);
+    const denied = await managePlatform(
+      ctx(user, {
+        action: "configure",
+        workspace,
+        expectedRevision: 0,
+        profile,
+      }),
+      f.runtime,
+    );
+    assert.equal(denied.code, "FORBIDDEN");
+    for (const invalid of [null, "true", 1])
+      assert.throws(() =>
+        decodePlatformList({
+          ...changed,
+          setup: { ...changed.setup, canConfigurePolicy: invalid },
+        }),
+      );
+    const old = structuredClone(changed);
+    delete old.setup.canConfigurePolicy;
+    assert.equal(decodePlatformList(old).setup.canConfigurePolicy, undefined);
   } finally {
     f.close();
   }
