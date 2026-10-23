@@ -1,0 +1,19 @@
+{
+  "backupSha256": "e2a5330e9f09190e63ddab53cf7603d9e013846567765898753864a451853329",
+  "backupPath": ".private/backups/20261023-before-member-profiles.sql",
+  "migration": "0003_member_profiles.sql",
+  "receipts": [
+    {
+      "table": "settings",
+      "rows": 3,
+      "sha256": "3bd1aaab03dfa30382e4ec3b509bc602b83d05347dfa094f957851536b9adfed",
+      "unchanged": true
+    },
+    {
+      "table": "cards",
+      "rows": 33,
+      "sha256": "29f325030c3ccf14dae475f4e968df3bd1178487ccad837586c4bb1f1adb7a0f",
+      "unchanged": true
+    }
+  ]
+}

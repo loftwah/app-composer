@@ -1,0 +1,8 @@
+---
+import Base from '../layouts/Base.astro';
+import MyApps from '../components/members/MyApps';
+---
+<Base title="My profile / My apps" description="Maintain your own Linkarooie profile and use the app actions shared with your EmDash account." noindex={true}>
+  <MyApps client:load />
+  <noscript>Enable JavaScript to open your signed-in profile and app tools.</noscript>
+</Base>

@@ -1,0 +1,68 @@
+{
+  "schema": "composer.native-member-auth/1",
+  "origin": "https://composer.loftwah.com",
+  "mode": "local native passkey",
+  "physicalPasskey": false,
+  "productionAccessAdmission": false,
+  "identities": [
+    {
+      "key": "owner",
+      "role": 50,
+      "name": "Fictional owner"
+    },
+    {
+      "key": "member-a",
+      "role": 10,
+      "name": "Fictional member A",
+      "denied": [
+        {
+          "path": "/_emdash/api/plugins/composer-stacks/read?action=list",
+          "status": 403
+        },
+        {
+          "path": "/_emdash/api/plugins/composer-miniapps/read?app=showcase&action=list",
+          "status": 403
+        },
+        {
+          "path": "/_emdash/api/admin/users",
+          "status": 403
+        },
+        {
+          "path": "/_emdash/api/settings",
+          "status": 403
+        }
+      ],
+      "adminShell": {
+        "status": 200,
+        "finding": "Broad navigation appears in role-10 admin shell, while protected APIs deny access; member tasks use /me."
+      }
+    },
+    {
+      "key": "member-b",
+      "role": 10,
+      "name": "Fictional member B",
+      "denied": [
+        {
+          "path": "/_emdash/api/plugins/composer-stacks/read?action=list",
+          "status": 403
+        },
+        {
+          "path": "/_emdash/api/plugins/composer-miniapps/read?app=showcase&action=list",
+          "status": 403
+        },
+        {
+          "path": "/_emdash/api/admin/users",
+          "status": 403
+        },
+        {
+          "path": "/_emdash/api/settings",
+          "status": 403
+        }
+      ],
+      "adminShell": {
+        "status": 200,
+        "finding": "Broad navigation appears in role-10 admin shell, while protected APIs deny access; member tasks use /me."
+      }
+    }
+  ]
+}

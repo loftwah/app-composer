@@ -6,6 +6,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {readFileSync} from 'node:fs';
+import {compositionServices} from '../scripts/deployment-target.mjs';
 
 const source=fileURLToPath(new URL('..',import.meta.url));
 test('failed dependency audit stops the actual clean-main deploy path before build or upload',()=>{
@@ -16,7 +17,7 @@ test('failed dependency audit stops the actual clean-main deploy path before bui
   // The fixture mirrors the promoted services that the real composition emits.
   const lock=JSON.parse(readFileSync(join(root,'composition.lock.json'),'utf8'));
   const config=JSON.parse(readFileSync(join(root,'wrangler.jsonc'),'utf8'));
-  config.services=lock.apps.map(app=>({binding:app.id.toUpperCase(),service:'composer-'+app.id+'-'+lock.id.slice(0,16)}));
+  config.services=compositionServices(lock);
   writeFileSync(join(root,'wrangler.jsonc'),JSON.stringify(config,null,2)+'\n');
   const env={PATH:bin+':'+process.env.PATH,HOME:root,GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null'};
   const git=args=>execFileSync('git',['-c','core.hooksPath=/dev/null',...args],{cwd:root,env,encoding:'utf8',stdio:'pipe'}).trim();

@@ -1,0 +1,40 @@
+{
+  "format": "launch-kit.local-render",
+  "version": 1,
+  "renderer": {
+    "id": "launch-kit-profile",
+    "version": "1.0.0",
+    "font": "Space Grotesk Latin 20261018",
+    "fontSha256": "61d00a1c57fcd7d4826c7a69cd85b61d15d133d5471d3c9c4731d70193d9f71f"
+  },
+  "browser": "151.0.7922.34",
+  "externalNetworking": "blocked before page load; only owned loopback server permitted",
+  "externalRequestsBlocked": 0,
+  "sourceImagesIncluded": false,
+  "outputs": [
+    {
+      "preset": "typography",
+      "file": "profile-0a32eb8f9a4354137a4d020747ec16e49bad1a4a16ba462819ea6a962d231b86.png",
+      "sha256": "0a32eb8f9a4354137a4d020747ec16e49bad1a4a16ba462819ea6a962d231b86",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png"
+    },
+    {
+      "preset": "portrait",
+      "file": "profile-24821e3edbcc0f103f78cdc8f09b1769dcf5cfba09cc93e0444c409305b8207e.png",
+      "sha256": "24821e3edbcc0f103f78cdc8f09b1769dcf5cfba09cc93e0444c409305b8207e",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png"
+    },
+    {
+      "preset": "editorial",
+      "file": "profile-59adde2075438fd5b26bab943e3aa1b028fb828163c7bbc78bb25bf9938ccc0f.png",
+      "sha256": "59adde2075438fd5b26bab943e3aa1b028fb828163c7bbc78bb25bf9938ccc0f",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png"
+    }
+  ]
+}

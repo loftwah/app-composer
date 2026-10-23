@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   shareCardReceipt,
   type ShareCardSnapshot,
@@ -8,7 +8,12 @@ import type { Snapshot } from "./types";
 type RequestCard = (
   operation: "snapshot" | "adopt" | "rollback",
   fields?: Record<string, unknown>,
-) => Promise<ShareCardSnapshot>;
+) => Promise<
+  ShareCardSnapshot & {
+    publicationRevision?: number | null;
+    unpublished?: boolean;
+  }
+>;
 const editor = "https://composer-launch-kit.loftwah.workers.dev/profile.html";
 function currentImage(value: string) {
   const url = new URL(value, window.location.origin);
@@ -28,15 +33,24 @@ function download(value: unknown) {
 }
 
 export function ShareCard({
-  config,
   dirty,
   busy,
   request,
+  publicPath = "/showcase/",
+  draftOnly = false,
+  canPublish = true,
+  publishedRevision,
+  publicationPending = false,
 }: {
   config: Snapshot["config"];
   dirty: boolean;
   busy: boolean;
   request: RequestCard;
+  publicPath?: string;
+  draftOnly?: boolean;
+  canPublish?: boolean;
+  publishedRevision?: number | null;
+  publicationPending?: boolean;
 }) {
   const [saved, setSaved] = useState<ShareCardSnapshot>();
   const [receipt, setReceipt] = useState<ReturnType<typeof shareCardReceipt>>();
@@ -44,6 +58,33 @@ export function ShareCard({
   const [selected, setSelected] = useState(false);
   const [decoded, setDecoded] = useState(false);
   const generation = useRef(0);
+  const alive = useRef(true);
+  const popup = useRef<Window | null>(null);
+  const handoff = useRef<unknown>(null);
+  useEffect(() => {
+    alive.current = true;
+    const receive = (event: MessageEvent) => {
+      if (
+        event.origin === new URL(editor).origin &&
+        event.source === popup.current &&
+        event.data?.type === "launch-kit:ready" &&
+        handoff.current
+      ) {
+        popup.current?.postMessage(
+          { type: "launch-kit:profile", recipe: handoff.current },
+          new URL(editor).origin,
+        );
+        handoff.current = null;
+      }
+    };
+    window.addEventListener("message", receive);
+    return () => {
+      alive.current = false;
+      generation.current++;
+      handoff.current = null;
+      window.removeEventListener("message", receive);
+    };
+  }, []);
   const eligible =
     !!receipt &&
     !!saved &&
@@ -55,13 +96,17 @@ export function ShareCard({
     const version = ++generation.current;
     try {
       const snapshot = await request("snapshot");
-      if (version === generation.current) {
+      if (alive.current && version === generation.current) {
         setSaved(snapshot);
         setStatus(
-          "Current published image loaded. Your unsaved settings are retained.",
+          draftOnly
+            ? "Current saved image loaded. Your unsaved settings are retained."
+            : "Current published image loaded. Your unsaved settings are retained.",
         );
       }
-      return snapshot;
+      return alive.current && version === generation.current
+        ? snapshot
+        : undefined;
     } catch (error) {
       if (version === generation.current)
         setStatus(
@@ -71,20 +116,42 @@ export function ShareCard({
         );
     }
   };
-  const seed = async () => {
+  const seed = async (openEditor = false) => {
+    const target = new URL(editor);
+    target.searchParams.set("ownerOrigin", window.location.origin);
+    target.searchParams.set(
+      "return",
+      window.location.origin + window.location.pathname,
+    );
+    // A same-origin blank window retains the opening gesture while the saved
+    // snapshot is checked. Its origin/source is verified for the later handoff.
+    const opened = openEditor ? window.open("about:blank", "_blank") : null;
+    if (opened) popup.current = opened;
     const current = await refresh();
-    if (!current) return;
-    download({
+    if (!current) {
+      opened?.close();
+      return;
+    }
+    const recipe = {
       format: "linkarooie.profile-snapshot",
       version: 1,
       profile: { id: current.profile.id, revision: current.profile.revision },
       text: {
-        name: config.title,
-        handle: config.handle ?? "",
-        description: config.intro,
-        alt: `${config.title}${config.handle ? " · @" + config.handle : ""} — profile card`,
+        name: current.profile.name,
+        handle: current.profile.handle,
+        description: current.profile.description,
+        alt: `${current.profile.name}${current.profile.handle ? " · @" + current.profile.handle : ""} — profile card`,
       },
-    });
+    };
+    if (opened) {
+      handoff.current = recipe;
+      opened.location.href = target.href;
+      setStatus(
+        "Saved profile sent to the local card editor. Your unsaved edits remain here. Download a snapshot if the browser prevents the hand-off.",
+      );
+      return;
+    }
+    download(recipe);
     setStatus(
       "Profile snapshot export requested. Check your downloads, then open the card editor and import it. No artwork was copied. This page keeps your edits.",
     );
@@ -126,7 +193,12 @@ export function ShareCard({
     }
   };
   const publish = async (operation: "adopt" | "rollback") => {
-    if (!saved || dirty || (operation === "adopt" && (!selected || !eligible)))
+    if (
+      !canPublish ||
+      !saved ||
+      dirty ||
+      (operation === "adopt" && (!selected || !eligible))
+    )
       return;
     const version = ++generation.current;
     try {
@@ -139,9 +211,11 @@ export function ShareCard({
       setReceipt(undefined);
       setSelected(false);
       setStatus(
-        operation === "adopt"
-          ? "Published. Verify the served page and image next."
-          : "Previous approved image restored and published. Verify the served result next.",
+        draftOnly
+          ? "Image selected in your saved draft. Publish your profile to activate it for visitors, then verify the public result."
+          : operation === "adopt"
+            ? "Published. Verify the served page and image next."
+            : "Previous approved image restored and published. Verify the served result next.",
       );
     } catch (error) {
       if (version === generation.current)
@@ -153,10 +227,10 @@ export function ShareCard({
     }
   };
   const verify = async () => {
-    if (!saved?.approved) return;
+    if (!saved?.approved || publicationPending) return;
     const version = ++generation.current;
     try {
-      const response = await fetch("/showcase/", {
+      const response = await fetch(publicPath, {
         cache: "no-store",
         redirect: "error",
       });
@@ -177,7 +251,21 @@ export function ShareCard({
       ).href;
       if (
         image !== expected ||
-        canonical !== new URL("/showcase/", window.location.origin).href ||
+        html
+          .querySelector('meta[property="og:title"]')
+          ?.getAttribute("content") !== saved.profile.name ||
+        html
+          .querySelector('meta[property="og:description"]')
+          ?.getAttribute("content") !== saved.profile.description ||
+        (draftOnly &&
+          (!publishedRevision ||
+            html
+              .querySelector('meta[name="linkarooie:profile-revision"]')
+              ?.getAttribute("content") !== String(publishedRevision))) ||
+        html
+          .querySelector('meta[property="og:image:alt"]')
+          ?.getAttribute("content") !== saved.approved.alt ||
+        canonical !== new URL(publicPath, window.location.origin).href ||
         html
           .querySelector('meta[property="og:image:type"]')
           ?.getAttribute("content") !== "image/png" ||
@@ -219,7 +307,12 @@ export function ShareCard({
           "The served image differs from the approved encoded output.",
         );
       const current = await request("snapshot");
-      if (current.profile.revision !== saved.profile.revision)
+      if (
+        current.profile.revision !== saved.profile.revision ||
+        (draftOnly &&
+          (current.publicationRevision !== publishedRevision ||
+            current.unpublished))
+      )
         throw Error(
           "The profile changed during verification. Refresh and verify its current image.",
         );
@@ -244,6 +337,9 @@ export function ShareCard({
         Open the editor in a separate tab to keep your work here.
       </p>
       <div className="ca-actions">
+        <button type="button" disabled={busy} onClick={() => void seed(true)}>
+          Prepare share card
+        </button>
         <button type="button" disabled={busy} onClick={() => void seed()}>
           Download profile snapshot
         </button>
@@ -253,17 +349,24 @@ export function ShareCard({
       </div>
       {dirty && (
         <p className="ca-muted">
-          Your unsaved settings can be previewed in a card. Save them, then
-          download a fresh snapshot before publication.
+          The card uses your saved profile. Your unsaved edits stay here; save
+          them before preparing a card that includes those changes.
         </p>
       )}
       <details>
-        <summary>Apply and publish a prepared card</summary>
+        <summary>
+          {draftOnly
+            ? "Select a prepared card"
+            : "Apply and publish a prepared card"}
+        </summary>
         <p>
           The editor renders locally. Download its PNG and recipe, then ask your
           agent to prepare the immutable asset in Linkarooie’s repository and
           deploy it through the existing release route. Return with the adoption
-          receipt to publish it here.
+          receipt to{" "}
+          {draftOnly
+            ? "select it in your saved draft. Publish your profile separately to activate it for visitors."
+            : "publish it here."}
         </p>
         <p>
           <a
@@ -292,7 +395,9 @@ export function ShareCard({
         {saved && (
           <div className="ca-share-comparison">
             <figure>
-              <figcaption>Current published image</figcaption>
+              <figcaption>
+                {draftOnly ? "Current saved image" : "Current published image"}
+              </figcaption>
               <img
                 src={currentImage(saved.profile.shareImage)}
                 alt="Current profile shared-link image"
@@ -352,17 +457,19 @@ export function ShareCard({
               <input
                 type="checkbox"
                 checked={selected}
-                disabled={busy || !eligible}
+                disabled={busy || !canPublish || !eligible}
                 onChange={(event) => setSelected(event.target.checked)}
               />
               I inspected this replacement and want to use it publicly.
             </label>
             <button
               type="button"
-              disabled={busy || !eligible || !selected}
+              disabled={busy || !canPublish || !eligible || !selected}
               onClick={() => void publish("adopt")}
             >
-              Publish selected image
+              {draftOnly
+                ? "Select image for next publication"
+                : "Publish selected image"}
             </button>
             <button
               type="button"
@@ -383,14 +490,18 @@ export function ShareCard({
         {saved?.previous && (
           <button
             type="button"
-            disabled={busy || dirty}
+            disabled={busy || dirty || !canPublish}
             onClick={() => void publish("rollback")}
           >
             Restore previous approved image
           </button>
         )}
         {saved?.approved && (
-          <button type="button" disabled={busy} onClick={() => void verify()}>
+          <button
+            type="button"
+            disabled={busy || publicationPending}
+            onClick={() => void verify()}
+          >
             Verify served result
           </button>
         )}

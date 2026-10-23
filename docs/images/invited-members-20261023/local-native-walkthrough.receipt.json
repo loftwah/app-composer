@@ -1,0 +1,656 @@
+{
+  "scope": "LOCAL: real native EmDash sessions, fictional owner and two subscribers; production Access admission and human acceptance separate",
+  "speed": 1,
+  "audio": "source recordings have no audio; output silent",
+  "trim": "Idle gaps and inactive duplicate popup recordings omitted; no action speed changes",
+  "publicationPending": false,
+  "sources": {
+    "01-membership.webm": {
+      "duration": 46.72,
+      "chapters": [],
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "codec_type": "video",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "sha256": "16acf7dc6f14a3c6c8ed50df39ae0703179462107e04f80e36f1dba192a0bb07"
+    },
+    "02-river-profile.webm": {
+      "duration": 57.0,
+      "chapters": [],
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "codec_type": "video",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "sha256": "d4390265dba0debabf0a89c472ce0011da51c422fb9ed7578266154b0191cd04"
+    },
+    "night-journey.webm": {
+      "duration": 247.28,
+      "chapters": [],
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "codec_type": "video",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "sha256": "992de143151d0a07d9d005c98403dff1deeeb8bee630367a4f45f2bdff0822e2"
+    },
+    "night-journey-1.webm": {
+      "duration": 98.88,
+      "chapters": [],
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "codec_type": "video",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "sha256": "8dcf00757d50f745266535f1270ae4acca566784e137eef5d2f2625200b49974"
+    },
+    "03-scoped-guestbook.webm": {
+      "duration": 14.2,
+      "chapters": [],
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "codec_type": "video",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "sha256": "f1e675968b14f42046c1e2f9089edefb45250715611304c1e9e4dda320be35be"
+    },
+    "04-postcard.webm": {
+      "duration": 12.52,
+      "chapters": [],
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "codec_type": "video",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "sha256": "9e47d399282de318e34e9476077fa4f10c3f0ac257c8fe80c83f1a8e537b9689"
+    },
+    "05-review.webm": {
+      "duration": 10.88,
+      "chapters": [],
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "codec_type": "video",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "sha256": "7e2f9a6faa727b34bb77f957f85731f51d80425dce91113ced87c8c5c3173575"
+    },
+    "06-revoke.webm": {
+      "duration": 4.04,
+      "chapters": [],
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "codec_type": "video",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "sha256": "82fd62f61709ecc3696c1307d594696165cbf760c153c908ce0870c51918b70f"
+    },
+    "07-river-publish.webm": {
+      "duration": 13.8,
+      "chapters": [],
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "codec_type": "video",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "sha256": "367320a5ad1f3a6c60a4e37fcb54d2d5a5c30e37c34f3ae0fefda33e5d81af3d"
+    },
+    "08-night-publish.webm": {
+      "duration": 8.76,
+      "chapters": [],
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "codec_type": "video",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "sha256": "b12cc842b2a42e78037c8f5e7fb7e5b6eaec0cd02ce0bf9e28218a1d2e7a9be7"
+    },
+    "09-river-rollback.webm": {
+      "duration": 36.64,
+      "chapters": [],
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "codec_type": "video",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "sha256": "e9b97afd0c0f6b8d924f44b6e868688090c0531e268d1a304b3261e9dbd01e4f"
+    },
+    "10-river-restore.webm": {
+      "duration": 7.48,
+      "chapters": [],
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "codec_type": "video",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "sha256": "604a2abe7121134b0ffb6f946b4972d8a8c4e64e37cad6a72cedb0af48bc70ab"
+    }
+  },
+  "segments": [
+    {
+      "source": "01-membership.webm",
+      "start": 0,
+      "end": 6,
+      "role": "owner",
+      "title": "Workspace access"
+    },
+    {
+      "source": "01-membership.webm",
+      "start": 30,
+      "end": 36.5,
+      "role": "member A",
+      "title": "Accept workspace membership"
+    },
+    {
+      "source": "01-membership.webm",
+      "start": 39,
+      "end": 46.5,
+      "role": "member B",
+      "title": "A second independent membership"
+    },
+    {
+      "source": "02-river-profile.webm",
+      "start": 0,
+      "end": 10,
+      "role": "member A",
+      "title": "Create a private profile"
+    },
+    {
+      "source": "02-river-profile.webm",
+      "start": 42,
+      "end": 57,
+      "role": "member A",
+      "title": "River: identity and first link"
+    },
+    {
+      "source": "night-journey.webm",
+      "start": 19,
+      "end": 34,
+      "role": "member B",
+      "title": "Night Signal: separate profile identity"
+    },
+    {
+      "source": "night-journey.webm",
+      "start": 57,
+      "end": 78,
+      "role": "member B",
+      "title": "Save and feature a music link"
+    },
+    {
+      "source": "night-journey.webm",
+      "start": 94,
+      "end": 109,
+      "role": "member B",
+      "title": "Add a project link"
+    },
+    {
+      "source": "night-journey.webm",
+      "start": 117,
+      "end": 130,
+      "role": "member B",
+      "title": "Add profile context"
+    },
+    {
+      "source": "night-journey.webm",
+      "start": 138,
+      "end": 154,
+      "role": "member B",
+      "title": "Save a milestone"
+    },
+    {
+      "source": "night-journey.webm",
+      "start": 158,
+      "end": 168,
+      "role": "member B",
+      "title": "Prepare the saved profile for a card"
+    },
+    {
+      "source": "night-journey-1.webm",
+      "start": 29,
+      "end": 43,
+      "role": "member B",
+      "title": "Choose a share-card treatment"
+    },
+    {
+      "source": "03-scoped-guestbook.webm",
+      "start": 7,
+      "end": 14.2,
+      "role": "owner",
+      "title": "Grant actions on one visitor book"
+    },
+    {
+      "source": "04-postcard.webm",
+      "start": 1,
+      "end": 8,
+      "role": "member A",
+      "title": "Submit a postcard for review"
+    },
+    {
+      "source": "05-review.webm",
+      "start": 1,
+      "end": 10.8,
+      "role": "member B",
+      "title": "Review the selected visitor book"
+    },
+    {
+      "source": "06-revoke.webm",
+      "start": 1,
+      "end": 4.04,
+      "role": "owner",
+      "title": "Revoke the moderation action"
+    },
+    {
+      "source": "07-river-publish.webm",
+      "start": 0,
+      "end": 13.8,
+      "role": "member A",
+      "title": "Adopt River's prepared card and publish"
+    },
+    {
+      "source": "08-night-publish.webm",
+      "start": 0,
+      "end": 8.76,
+      "role": "member B",
+      "title": "Publish Night Signal with its own card"
+    },
+    {
+      "source": "09-river-rollback.webm",
+      "start": 0,
+      "end": 6,
+      "role": "member A",
+      "title": "Restore the previous approved image"
+    },
+    {
+      "source": "10-river-restore.webm",
+      "start": 0,
+      "end": 7.48,
+      "role": "member A",
+      "title": "Restore River's generated card and verify"
+    }
+  ],
+  "estimatedSeconds": 257.08,
+  "rendered": "/Users/deanlofts/.codex/worktrees/invited-members/app-composer/output/invited-members/local-native-walkthrough.mp4",
+  "renderProbe": {
+    "duration": 257.12,
+    "chapters": [
+      {
+        "id": 0,
+        "time_base": "1/12800",
+        "start": 0,
+        "start_time": "0.000000",
+        "end": 166400,
+        "end_time": "13.000000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 owner \u00b7 Workspace access"
+        }
+      },
+      {
+        "id": 1,
+        "time_base": "1/12800",
+        "start": 166400,
+        "start_time": "13.000000",
+        "end": 275200,
+        "end_time": "21.500000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member A \u00b7 Accept workspace membership"
+        }
+      },
+      {
+        "id": 2,
+        "time_base": "1/12800",
+        "start": 275200,
+        "start_time": "21.500000",
+        "end": 396800,
+        "end_time": "31.000000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 A second independent membership"
+        }
+      },
+      {
+        "id": 3,
+        "time_base": "1/12800",
+        "start": 396800,
+        "start_time": "31.000000",
+        "end": 550400,
+        "end_time": "43.000000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member A \u00b7 Create a private profile"
+        }
+      },
+      {
+        "id": 4,
+        "time_base": "1/12800",
+        "start": 550400,
+        "start_time": "43.000000",
+        "end": 768000,
+        "end_time": "60.000000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member A \u00b7 River: identity and first link"
+        }
+      },
+      {
+        "id": 5,
+        "time_base": "1/12800",
+        "start": 768000,
+        "start_time": "60.000000",
+        "end": 985600,
+        "end_time": "77.000000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Night Signal: separate profile identity"
+        }
+      },
+      {
+        "id": 6,
+        "time_base": "1/12800",
+        "start": 985600,
+        "start_time": "77.000000",
+        "end": 1280000,
+        "end_time": "100.000000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Save and feature a music link"
+        }
+      },
+      {
+        "id": 7,
+        "time_base": "1/12800",
+        "start": 1280000,
+        "start_time": "100.000000",
+        "end": 1497600,
+        "end_time": "117.000000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Add a project link"
+        }
+      },
+      {
+        "id": 8,
+        "time_base": "1/12800",
+        "start": 1497600,
+        "start_time": "117.000000",
+        "end": 1689600,
+        "end_time": "132.000000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Add profile context"
+        }
+      },
+      {
+        "id": 9,
+        "time_base": "1/12800",
+        "start": 1689600,
+        "start_time": "132.000000",
+        "end": 1920000,
+        "end_time": "150.000000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Save a milestone"
+        }
+      },
+      {
+        "id": 10,
+        "time_base": "1/12800",
+        "start": 1920000,
+        "start_time": "150.000000",
+        "end": 2073600,
+        "end_time": "162.000000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Prepare the saved profile for a card"
+        }
+      },
+      {
+        "id": 11,
+        "time_base": "1/12800",
+        "start": 2073600,
+        "start_time": "162.000000",
+        "end": 2278400,
+        "end_time": "178.000000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Choose a share-card treatment"
+        }
+      },
+      {
+        "id": 12,
+        "time_base": "1/12800",
+        "start": 2278400,
+        "start_time": "178.000000",
+        "end": 2396160,
+        "end_time": "187.200000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 owner \u00b7 Grant actions on one visitor book"
+        }
+      },
+      {
+        "id": 13,
+        "time_base": "1/12800",
+        "start": 2396160,
+        "start_time": "187.200000",
+        "end": 2511360,
+        "end_time": "196.200000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member A \u00b7 Submit a postcard for review"
+        }
+      },
+      {
+        "id": 14,
+        "time_base": "1/12800",
+        "start": 2511360,
+        "start_time": "196.200000",
+        "end": 2662400,
+        "end_time": "208.000000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Review the selected visitor book"
+        }
+      },
+      {
+        "id": 15,
+        "time_base": "1/12800",
+        "start": 2662400,
+        "start_time": "208.000000",
+        "end": 2726912,
+        "end_time": "213.040000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 owner \u00b7 Revoke the moderation action"
+        }
+      },
+      {
+        "id": 16,
+        "time_base": "1/12800",
+        "start": 2726912,
+        "start_time": "213.040000",
+        "end": 2929152,
+        "end_time": "228.840000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member A \u00b7 Adopt River's prepared card and publish"
+        }
+      },
+      {
+        "id": 17,
+        "time_base": "1/12800",
+        "start": 2929152,
+        "start_time": "228.840000",
+        "end": 3066880,
+        "end_time": "239.600000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Publish Night Signal with its own card"
+        }
+      },
+      {
+        "id": 18,
+        "time_base": "1/12800",
+        "start": 3066880,
+        "start_time": "239.600000",
+        "end": 3169280,
+        "end_time": "247.600000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member A \u00b7 Restore the previous approved image"
+        }
+      },
+      {
+        "id": 19,
+        "time_base": "1/12800",
+        "start": 3169280,
+        "start_time": "247.600000",
+        "end": 3290624,
+        "end_time": "257.080000",
+        "tags": {
+          "title": "LOCAL \u00b7 native EmDash \u00b7 member A \u00b7 Restore River's generated card and verify"
+        }
+      }
+    ],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "codec_type": "video",
+        "width": 1440,
+        "height": 1064,
+        "avg_frame_rate": "25/1"
+      },
+      {
+        "codec_name": "bin_data",
+        "codec_type": "data",
+        "width": null,
+        "height": null,
+        "avg_frame_rate": "0/0"
+      }
+    ]
+  },
+  "chapters": [
+    {
+      "start": 5,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 owner \u00b7 Workspace access"
+    },
+    {
+      "start": 13,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member A \u00b7 Accept workspace membership"
+    },
+    {
+      "start": 21.5,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 A second independent membership"
+    },
+    {
+      "start": 31.0,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member A \u00b7 Create a private profile"
+    },
+    {
+      "start": 43.0,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member A \u00b7 River: identity and first link"
+    },
+    {
+      "start": 60.0,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Night Signal: separate profile identity"
+    },
+    {
+      "start": 77.0,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Save and feature a music link"
+    },
+    {
+      "start": 100.0,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Add a project link"
+    },
+    {
+      "start": 117.0,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Add profile context"
+    },
+    {
+      "start": 132.0,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Save a milestone"
+    },
+    {
+      "start": 150.0,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Prepare the saved profile for a card"
+    },
+    {
+      "start": 162.0,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Choose a share-card treatment"
+    },
+    {
+      "start": 178.0,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 owner \u00b7 Grant actions on one visitor book"
+    },
+    {
+      "start": 187.2,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member A \u00b7 Submit a postcard for review"
+    },
+    {
+      "start": 196.2,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Review the selected visitor book"
+    },
+    {
+      "start": 208.0,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 owner \u00b7 Revoke the moderation action"
+    },
+    {
+      "start": 213.04,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member A \u00b7 Adopt River's prepared card and publish"
+    },
+    {
+      "start": 228.84,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member B \u00b7 Publish Night Signal with its own card"
+    },
+    {
+      "start": 239.6,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member A \u00b7 Restore the previous approved image"
+    },
+    {
+      "start": 247.6,
+      "title": "LOCAL \u00b7 native EmDash \u00b7 member A \u00b7 Restore River's generated card and verify"
+    }
+  ],
+  "verification": {
+    "fullDecode": "ffmpeg -v error -i local-native-walkthrough.mp4 -f null - completed without errors",
+    "video": "H.264,1440x1064,25fps; silent",
+    "speed": "1x; only input trims and title-card insertion; no speed-changing filter",
+    "expectedDurationSeconds": 257.08,
+    "observedDurationSeconds": 257.12,
+    "frameQuantizationSeconds": 0.04,
+    "representativeFrames": "Inspected title, membership, editor, book review, card treatment, both served-result confirmations, rollback and restored-result confirmation",
+    "temporaryRenderRootsRemaining": 0,
+    "scope": "Local native EmDash auth; source captures span implementation revisions; production Access and external native social unfurls remain separate"
+  },
+  "outputSha256": "6240b701fc227d3853f5c3810ce30c41d1c2203cedd1e787f6ea4eb2c3487c8a"
+}

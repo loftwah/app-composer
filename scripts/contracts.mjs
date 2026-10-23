@@ -136,6 +136,8 @@ export function validateManifest(m) {
     )
       throw new Error("Unsupported achievement collection");
   }
+  if(m.memberProfiles!==undefined&&(m.id!=='showcase'||!exactDescriptor(m.memberProfiles,{version:1,ownership:'installation-account',publication:'explicit-snapshot',publicPath:'/p/:handle/',bridge:'/api/member-profiles'})))throw Error('Unsupported member profile contract');
+  if(m.memberService!==undefined&&(m.id!=='guestbook'||!exactDescriptor(m.memberService,{version:1,entrypoint:'GuestbookMemberService',transport:'service-binding',path:'/__composer/member'})))throw Error('Unsupported member service contract');
   if (m.tagCollection !== undefined) {
     const t = m.tagCollection;
     if (

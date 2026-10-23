@@ -1,0 +1,31 @@
+{
+  "format": "linkarooie.share-card",
+  "version": 1,
+  "profile": {
+    "id": "https://showcase.loftwah.com/profiles/0a058013-3c83-4e09-8f28-611ecd43018e",
+    "revision": "78048354b615396a911de398b0618436e198695172db8f22afecee19491130fd"
+  },
+  "image": {
+    "path": "/brand/generated/profile-0e8ea164c575021719c1e9305534a799af1532e61c42171ec598639de0d8263e.png",
+    "sha256": "0e8ea164c575021719c1e9305534a799af1532e61c42171ec598639de0d8263e",
+    "type": "image/png",
+    "width": 1200,
+    "height": 630,
+    "alt": "Night Signal · @fictional-night-signal — profile card"
+  },
+  "text": {
+    "name": "Night Signal",
+    "handle": "fictional-night-signal",
+    "description": "A fictional listening room for small sounds and late-night ideas. Sessions, sketches, and things worth hearing."
+  },
+  "preset": {
+    "id": "music",
+    "version": 1
+  },
+  "renderer": {
+    "id": "launch-kit-profile",
+    "version": "1.0.0",
+    "font": "Space Grotesk Latin 20261018",
+    "fontSha256": "61d00a1c57fcd7d4826c7a69cd85b61d15d133d5471d3c9c4731d70193d9f71f"
+  }
+}

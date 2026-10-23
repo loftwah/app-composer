@@ -1,0 +1,14 @@
+{
+  "format": "linkarooie.profile-snapshot",
+  "version": 1,
+  "profile": {
+    "id": "https://showcase.loftwah.com/profiles/acfd2f52-cb0d-4f49-a604-6e4ba7d17b05",
+    "revision": "b48598a74230643d050b6a42ea2a4086d9dfe3182f256d002300ce620fa6aa60"
+  },
+  "text": {
+    "name": "River Morgan",
+    "handle": "fictional-river",
+    "description": "A fictional writer and map-maker. Short pieces, long walks, and useful things to read.",
+    "alt": "River Morgan · @fictional-river — profile card"
+  }
+}
