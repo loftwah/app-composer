@@ -23,8 +23,9 @@ const localAccount = "00000000000000000000000000000001";
 // metadata is remapped to the local lab scope. This is not native/workerd proof.
 async function exercise(kind, verify) {
   const owned = await mkdtemp(join(tmpdir(), "composer-native-export-test-"));
-  const f = fixture();
+  let f;
   try {
+    f = fixture();
     const root = join(owned, "composer-invited-test");
     await mkdir(join(root, "composer"), { recursive: true });
     await writeFile(
@@ -291,8 +292,11 @@ async function exercise(kind, verify) {
     });
     assert.equal(f.app.writes.length, beforeWrites);
   } finally {
-    f.close();
-    await rm(owned, { recursive: true, force: true });
+    try {
+      f?.close();
+    } finally {
+      await rm(owned, { recursive: true, force: true });
+    }
   }
 }
 
