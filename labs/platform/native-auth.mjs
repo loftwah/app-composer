@@ -83,6 +83,7 @@ export async function authenticateNativeActors(browser, lab, options = {}) {
     options.onActorContext?.({
       key,
       context,
+      page,
       video: page.video(),
       startedAt: new Date().toISOString(),
     });

@@ -8,6 +8,8 @@ import {
   rmSync,
   realpathSync,
   statSync,
+  copyFileSync,
+  constants,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -337,6 +339,36 @@ try {
 } catch (error) {
   receipt.qualification = "failed";
   receipt.failure = String(error.message).slice(0, 1500);
+  receipt.failureViews = [];
+  for (const recording of actorContexts) {
+    try {
+      if (recording.page.isClosed()) continue;
+      const address = new URL(recording.page.url());
+      const view = {
+        actor: recording.key,
+        page: address.origin + address.pathname,
+        text: (
+          await recording.page.locator("body").innerText({ timeout: 2000 })
+        )
+          .replace(/[a-zA-Z0-9_-]{32,}/g, "[redacted-long-value]")
+          .slice(0, 12000),
+        buttons: await recording.page.locator("button").evaluateAll((buttons) =>
+          buttons.slice(0, 60).map((button) => ({
+            text: button.innerText.slice(0, 120),
+            disabled: button.disabled,
+          })),
+        ),
+      };
+      const filename = "failure-" + recording.key + ".png";
+      await recording.page.screenshot({
+        path: join(output, filename),
+        timeout: 3000,
+      });
+      receipt.failureViews.push({ ...view, screenshot: filename });
+    } catch {
+      receipt.failureViews.push({ actor: recording.key, unavailable: true });
+    }
+  }
   process.exitCode = 1;
 } finally {
   clearTimeout(videoDeadline);
@@ -395,7 +427,9 @@ try {
         owned.split("-").at(-1) +
         ".webm";
       const destination = join(output, filename);
-      await recording.video.saveAs(destination);
+      // The closed context has already flushed this local file. Copying it does
+      // not depend on a browser connection that has deliberately been closed.
+      copyFileSync(temporaryVideo, destination, constants.COPYFILE_EXCL);
       receipt.videos.push({
         actor: recording.key,
         path: filename,
