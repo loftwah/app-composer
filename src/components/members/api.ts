@@ -72,7 +72,11 @@ export async function memberCall(
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
         },
-  );
+  ).catch(() => {
+    throw Error(
+      "Sign in with EmDash, then refresh your access. Your authentication system must admit you before workspace invitations can be accepted.",
+    );
+  });
   const value = await parseApiResponse<unknown>(
     response,
     "This action could not be confirmed. Your edits are retained; refresh access before retrying.",
@@ -94,7 +98,12 @@ export async function memberCall(
   return result;
 }
 export async function memberSession() {
-  return session.parse(await memberCall("session", {}, true));
+  const result = session.safeParse(await memberCall("session", {}, true));
+  if (!result.success)
+    throw Error(
+      "Your account access could not be read. Refresh before continuing; your edits are retained.",
+    );
+  return result.data;
 }
 export function sameAccount(a: MemberSession, b: MemberSession) {
   return (

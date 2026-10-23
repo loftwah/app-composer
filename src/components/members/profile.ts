@@ -36,7 +36,7 @@ const collection = {
 };
 export const profile = z.object({
   version: z.literal(1),
-  resource: z.string(),
+  resource: z.uuid(),
   revision: z.number().int().positive(),
   handle: z.string().nullable(),
   visibility: z.enum(["draft", "published", "hidden"]),
@@ -71,3 +71,11 @@ export const profile = z.object({
 });
 export type Profile = z.infer<typeof profile>;
 export type Card = z.infer<typeof card>;
+export function decodeProfile(value: unknown): Profile {
+  const parsed = profile.safeParse(value);
+  if (!parsed.success)
+    throw Error(
+      "The saved profile could not be read. Keep your edits and refresh before continuing.",
+    );
+  return parsed.data;
+}

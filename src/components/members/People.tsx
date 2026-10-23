@@ -78,7 +78,12 @@ export default function People() {
     workspace.current = choice.id;
     setSelected(choice.id);
     const result = await memberCall("people", { workspace: choice.id }, true);
-    const parsed = people.parse(result.access ?? result);
+    const decoded = people.safeParse(result.access ?? result);
+    if (!decoded.success)
+      throw Error(
+        "Workspace access could not be read. Your entries are retained; refresh before editing people.",
+      );
+    const parsed = decoded.data;
     const confirmed = await memberSession();
     if (!live.current || mine !== generation.current) return;
     if (!sameAccount(next, confirmed)) {

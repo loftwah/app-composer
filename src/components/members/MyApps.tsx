@@ -5,7 +5,7 @@ import {
   sameAccount,
   type MemberSession,
 } from "./api";
-import { profile, type Profile } from "./profile";
+import { profile, decodeProfile, type Profile } from "./profile";
 import ProfileEditor from "./ProfileEditor";
 import GuestbookTools from "./GuestbookTools";
 import "./members.css";
@@ -86,7 +86,7 @@ export default function MyApps() {
     setAccount(confirmed);
     currentAccount.current = confirmed;
     const result = response.result as Record<string, unknown> | undefined;
-    setSnapshot(result?.profile === null ? undefined : profile.parse(result));
+    setSnapshot(result?.profile === null ? undefined : decodeProfile(result));
     setStatus(
       dirty.current
         ? "Saved profile refreshed. Your unsaved edits are retained for comparison."
@@ -234,7 +234,7 @@ export default function MyApps() {
   };
   const act = async (operation: string, command?: Record<string, unknown>) => {
     try {
-      return profile.parse(await request(operation, command));
+      return decodeProfile(await request(operation, command));
     } catch {
       return undefined;
     }
