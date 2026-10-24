@@ -39,7 +39,10 @@ need durable unique claims, authentication, scoped permissions and reconciliatio
 The repository hook is a local feedback aid, not the release gate. Provider
 hooks and agent-host integrations are described only at their actual support.
 
-Remaining #300 acceptance includes independent fresh-agent exported-change and
-incident exercises, dated longitudinal evidence, existing analytics integration,
+[Two actual fresh-agent trials](../labs/resource-evaluation/2026-10-24.md) exercised an
+exported change and incident recovery from the downloaded production kit. Their
+findings are corrected in the maintained examples; the evaluated change and real
+captures now ship in the archive. Remaining #300 acceptance includes separately
+dated longitudinal evidence, existing analytics integration,
 broader host/provider qualification and physical-device/assistive technology
 acceptance. Record browser and production receipts separately in #11.
