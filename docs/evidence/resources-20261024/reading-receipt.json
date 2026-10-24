@@ -1,0 +1,55 @@
+{
+  "schema": "composer.resource-reading/1",
+  "observedAt": "2026-10-24T12:56:49.338Z",
+  "source": "f2b65fa",
+  "origin": "http://127.0.0.1:4321",
+  "browser": "Chromium 1248 (Playwright 1.64 alpha headless shell)",
+  "receipt": {
+    "longRunbook": {
+      "resource": "incident",
+      "characters": 3846,
+      "complete": true,
+      "keyboardEndAndExit": true,
+      "selectionEnd": 0,
+      "scrollTop": 2955,
+      "scrollHeight": 3340,
+      "clientHeight": 384,
+      "key": "Meta+ArrowDown"
+    },
+    "textSize": [
+      {
+        "width": 390,
+        "theme": "light",
+        "rootPercent": 200,
+        "overflow": false,
+        "actionReachable": true
+      },
+      {
+        "width": 390,
+        "theme": "dark",
+        "rootPercent": 200,
+        "overflow": false,
+        "actionReachable": true
+      },
+      {
+        "width": 1440,
+        "theme": "light",
+        "rootPercent": 200,
+        "overflow": false,
+        "actionReachable": true
+      },
+      {
+        "width": 1440,
+        "theme": "dark",
+        "rootPercent": 200,
+        "overflow": false,
+        "actionReachable": true
+      }
+    ],
+    "reducedMotion": true,
+    "limits": [
+      "200% root text-size scaling is a layout probe, not native browser text-only zoom or assistive-technology acceptance."
+    ]
+  },
+  "pageErrors": []
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "composer.evidence/1",
+  "captured": "2026/10/24 23:53 AEDT (2026/10/24 12:53 UTC)",
+  "source": "f2b65fa",
+  "sourceNote": "Local production-equivalent Astro dev render of the committed source; no production deployment is claimed.",
+  "origin": "http://127.0.0.1:4321",
+  "browser": "Chromium 1248 (Playwright 1.64 alpha headless shell), deviceScaleFactor 1",
+  "pages": ["/resources/incident?analytics=off", "/resources/incident?analytics=off#resource"],
+  "captures": [
+    "phone-light.png — 390x844, light, 100% root text size, first viewport",
+    "phone-light-200-percent-text.png — 390x844, light, 200% root text size, first viewport",
+    "phone-menu-200-percent-text.png — 390x844, light, site menu open at 200% root text size",
+    "desktop-light.png — 1440x960, light, 100% root text size, first viewport"
+  ],
+  "checks": {
+    "layout": "No horizontal overflow at 390 or 1440 widths, light or dark, at 200% root text size.",
+    "keyboard": "After Tab focus, Meta+ArrowDown reached scrollTop 2955 of a 2956 maximum (sub-pixel remainder) in the complete 3846-character incident runbook; Tab exited the control.",
+    "limits": "Root text-size scaling is a layout probe, not native browser text-only zoom or assistive-technology acceptance. Physical-device and screen-reader use remain separate gates."
+  }
+}
