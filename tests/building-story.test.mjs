@@ -80,7 +80,7 @@ test("the editable diagrams have source, light/dark plates, phone variants and t
 });
 
 test("the build story is discoverable and the maintained contract note is linked", async () => {
-  assert.ok((await sitemap().text()).includes("<loc>https://composer.loftwah.com/building</loc>"));
+  assert.ok((await (await sitemap()).text()).includes("<loc>https://composer.loftwah.com/building</loc>"));
   assert.match(text("src/components/ProductHome.astro"), /href="\/building"/);
   assert.match(text("src/pages/learn.astro"), /href="\/building"/);
   const note = text("docs/guestbook-contributions.md");
