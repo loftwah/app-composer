@@ -4,6 +4,7 @@ import { exportWorkflow, workflowExport, workflowRecipes, type WorkflowKind, typ
 import { workflowCall } from './workflows/api';
 import { workspaceSelection } from './stacks/workspace-scope';
 import './workflows-page.css';
+import { focusStoredRecord } from './record-anchor';
 
 export function WorkflowsPage() {
   const search = useLocation({ select: location => location.searchStr });
@@ -11,6 +12,10 @@ export function WorkflowsPage() {
 }
 export function Workflows({ search }: { search: string }) {
   const [snapshot, setSnapshot] = useState<WorkflowSnapshot>();
+  const anchorFocused = useRef(false);
+  useEffect(() => {
+    if (snapshot && !anchorFocused.current) anchorFocused.current = focusStoredRecord('workflow-run-');
+  }, [snapshot]);
   const [names, setNames] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -107,7 +112,7 @@ export function Workflows({ search }: { search: string }) {
       <section className="cw-history" aria-labelledby="workflow-history"><div className="cw-heading"><h2 id="workflow-history">Recent runs</h2><label className="cw-import">Import recipe<input type="file" accept=".json,application/json" disabled={busy || !canWrite} onChange={event => { void importRecipe(event.target.files?.[0]); event.target.value = ''; }} /></label></div>
         <p>Latest 50 receipts, with a limit of 500 retained per workspace. Each source revision has one result. Sample runs are labelled and never count as live activity.</p>
         {!snapshot.runs.length && <p className="cw-empty">Try a sample to inspect the result. Turn on a recipe and scan when your workspace has a publication or a failed platform request.</p>}
-        {snapshot.runs.map(run => <article key={run.id} className="cw-run">
+        {snapshot.runs.map(run => <article key={run.id} id={`workflow-run-${run.id}`} className="cw-run">
           <div className="cw-run-title"><h3>{run.result?.title ?? workflowRecipes.find(recipe => recipe.id === run.recipe)!.name}</h3><span>{run.state === 'finished' ? 'Finished' : 'Needs attention'}{run.synthetic ? ' · Sample data' : ''}</span></div>
           <p>{run.message}</p>
           <ol className="cw-steps">{run.steps.map(step => <li key={step}>{({ observed: 'Source event retained', 'source-checked': 'Source checked', 'draft-prepared': 'Draft prepared' })[step]}</li>)}</ol>

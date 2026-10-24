@@ -3,6 +3,7 @@ import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
 import { z } from "zod";
 import { enquiryID, enquiryIntent } from "../lib/enquiry-protocol";
 import { confirmWorkspace } from "./stacks/workspace-scope";
+import { focusStoredRecord } from './record-anchor';
 const replySchema = z
   .object({
     ok: z.literal(true),
@@ -73,6 +74,10 @@ export function EnquiryNotifications({
     [busy, setBusy] = useState(false);
   const live = useRef(true),
     pending = useRef(false);
+  const anchorFocused = useRef(false);
+  useEffect(() => {
+    if (reply && !anchorFocused.current) anchorFocused.current = focusStoredRecord('notification-');
+  }, [reply]);
   async function call(
     action = "notificationStatus",
     fields: Record<string, unknown> = {},
@@ -202,7 +207,7 @@ export function EnquiryNotifications({
           ) : (
             <ul aria-label="Latest 30 notification records">
               {reply.items.map((item) => (
-                <li key={item.id}>
+                <li key={item.id} id={`notification-${item.id}`}>
                   <strong>{labels[item.state]}</strong>
                   <p>
                     {item.reason ||

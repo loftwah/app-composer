@@ -143,11 +143,10 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
           label,
           status: "checked",
           count: n,
-          atLimit: n >= 100,
-          note:
-            n >= 100
-              ? "Latest 100 matching records only; older problems may remain."
-              : "Current stored problem records only. This does not check provider health or the live application.",
+          atLimit: n >= (id === 'notifications' ? 100 : 50),
+          note: id === 'notifications'
+            ? "Only the latest 30 notification records shown per visitor book, up to 100 matching records in total. Older problems may remain. Provider health and the live application are not checked."
+            : "Only problems among the latest 50 records shown in the owning screen. Older retained problems may remain. Provider health and the live application are not checked.",
         });
         items.push(...found);
       } catch {
@@ -164,17 +163,17 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
     await collect("platform", "Internal platform", async () => {
       const malformed = await db
         .prepare(
-          "SELECT COUNT(*) AS n FROM creator_platform_requests WHERE workspace_id=? AND status='needs-attention' AND (CASE WHEN json_valid(plan_json) THEN COALESCE(json_type(plan_json,'$.target.account'),'missing') ELSE 'invalid' END != 'text' OR CASE WHEN json_valid(plan_json) THEN COALESCE(json_type(plan_json,'$.target.environment'),'missing') ELSE 'invalid' END != 'text')",
+          "SELECT COUNT(*) AS n FROM creator_platform_requests WHERE workspace_id=? AND id IN (SELECT id FROM creator_platform_requests WHERE workspace_id=? ORDER BY created_at DESC,id LIMIT 50) AND status='needs-attention' AND (CASE WHEN json_valid(plan_json) THEN COALESCE(json_type(plan_json,'$.target.account'),'missing') ELSE 'invalid' END != 'text' OR CASE WHEN json_valid(plan_json) THEN COALESCE(json_type(plan_json,'$.target.environment'),'missing') ELSE 'invalid' END != 'text')",
         )
-        .bind(workspace.id)
+        .bind(workspace.id, workspace.id)
         .first<{ n: number }>();
       if (malformed?.n)
         throw Error("A retained platform target cannot be assessed.");
       const rows = await db
         .prepare(
-          "SELECT id,plan_json,created_at,updated_at FROM creator_platform_requests WHERE workspace_id=? AND status='needs-attention' AND CASE WHEN json_valid(plan_json) THEN json_extract(plan_json,'$.target.account') ELSE NULL END=? AND CASE WHEN json_valid(plan_json) THEN json_extract(plan_json,'$.target.environment') ELSE NULL END=? ORDER BY updated_at DESC,id LIMIT 100",
+          "SELECT id,plan_json,created_at,updated_at FROM creator_platform_requests WHERE workspace_id=? AND status='needs-attention' AND CASE WHEN json_valid(plan_json) THEN json_extract(plan_json,'$.target.account') ELSE NULL END=? AND CASE WHEN json_valid(plan_json) THEN json_extract(plan_json,'$.target.environment') ELSE NULL END=? AND id IN (SELECT id FROM creator_platform_requests WHERE workspace_id=? ORDER BY created_at DESC,id LIMIT 50) ORDER BY updated_at DESC,id LIMIT 50",
         )
-        .bind(workspace.id, target.account, target.environment)
+        .bind(workspace.id, target.account, target.environment, workspace.id)
         .all<BaseRow & { plan_json: string }>();
       const matched = rows.results.filter((row) => {
         const plan = z
@@ -203,9 +202,9 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
     await collect("workflows", "Workflows", async () => {
       const rows = await db
         .prepare(
-          "SELECT id,recipe,source_id,created_at,updated_at FROM creator_workflow_runs WHERE workspace_id=? AND account_id=? AND environment=? AND synthetic=0 AND state='needs-attention' ORDER BY updated_at DESC,id LIMIT 100",
+          "SELECT id,recipe,source_id,created_at,updated_at FROM creator_workflow_runs WHERE workspace_id=? AND account_id=? AND environment=? AND synthetic=0 AND state='needs-attention' AND id IN (SELECT id FROM creator_workflow_runs WHERE workspace_id=? AND account_id=? AND environment=? ORDER BY created_at DESC,id DESC LIMIT 50) ORDER BY updated_at DESC,id LIMIT 50",
         )
-        .bind(workspace.id, target.account, target.environment)
+        .bind(workspace.id, target.account, target.environment, workspace.id, target.account, target.environment)
         .all<BaseRow & { recipe: string; source_id: string }>();
       return group(
         rows.results,
@@ -236,7 +235,7 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
       await collect("notifications", "Owner notifications", async () => {
         const rows = await db
           .prepare(
-            "SELECT n.id,n.resource_id,n.created_at,n.updated_at FROM creator_enquiry_notification_outbox n JOIN creator_app_resources r ON r.id=n.resource_id AND r.workspace_id=n.workspace_id WHERE n.workspace_id=? AND n.account_id=? AND n.environment=? AND n.state IN ('blocked','failed','uncertain','sending') AND r.app='guestbook' AND r.account_id=n.account_id AND r.environment=n.environment AND r.target=n.target AND r.state='ready' ORDER BY n.updated_at DESC,n.id LIMIT 100",
+            "SELECT n.id,n.resource_id,n.created_at,n.updated_at FROM creator_enquiry_notification_outbox n JOIN creator_app_resources r ON r.id=n.resource_id AND r.workspace_id=n.workspace_id WHERE n.workspace_id=? AND n.account_id=? AND n.environment=? AND n.state IN ('blocked','failed','uncertain','sending') AND r.app='guestbook' AND r.account_id=n.account_id AND r.environment=n.environment AND r.target=n.target AND r.state='ready' AND n.id IN (SELECT id FROM creator_enquiry_notification_outbox WHERE workspace_id=n.workspace_id AND resource_id=n.resource_id ORDER BY created_at DESC,id LIMIT 30) ORDER BY n.updated_at DESC,n.id LIMIT 100",
           )
           .bind(workspace.id, target.account, target.environment)
           .all<BaseRow & { resource_id: string }>();

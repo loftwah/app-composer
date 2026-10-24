@@ -223,7 +223,7 @@ test("bounded source window is qualified and malformed selectors or targets are 
   const reply = overviewSnapshot.parse(await f.route());
   assert.equal(
     reply.sources.find((source) => source.id === "platform").count,
-    100,
+    50,
   );
   assert.equal(
     reply.sources.find((source) => source.id === "platform").atLimit,
@@ -248,4 +248,23 @@ test("bounded source window is qualified and malformed selectors or targets are 
     ).ok,
     false,
   );
+});
+
+test('overview links only to records retained in the owning screen’s visible window', async (t) => {
+  const f = await prepared(t);
+  for (let index = 0; index < 60; index++) {
+    const suffix = String(index).padStart(12, '0');
+    f.workflow(`aaaaaaaa-aaaa-4aaa-8aaa-${suffix}`);
+    if (index >= 10) f.sqlite.prepare("UPDATE creator_workflow_runs SET state='finished' WHERE id=?").run(`aaaaaaaa-aaaa-4aaa-8aaa-${suffix}`);
+  }
+  for (let index = 0; index < 35; index++) {
+    f.notification(`bbbbbbbb-bbbb-4bbb-8bbb-${String(index).padStart(12, '0')}`, index < 30 ? 'accepted' : 'failed');
+  }
+  const reply = overviewSnapshot.parse(await f.route());
+  // Workflow history uses created_at DESC,id DESC; notification history uses
+  // created_at DESC,id, matching the existing owning screens exactly.
+  assert.equal(reply.sources.find(source => source.id === 'workflows').count, 0);
+  assert.equal(reply.sources.find(source => source.id === 'notifications').count, 0);
+  assert.match(reply.sources.find(source => source.id === 'workflows').note, /latest 50 records shown/);
+  assert.match(reply.sources.find(source => source.id === 'notifications').note, /latest 30 notification records/);
 });

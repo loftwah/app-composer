@@ -11,7 +11,11 @@ failures group by recipe and source; notifications group by visitor book, retain
 record counts and first/latest observation times. Each group links to the owning
 native screen with workspace and record context. Recovery actions stay there.
 
-Each source inspects at most 100 matching records. A full window is labelled;
+Platform and workflow problems are restricted to the latest 50 records visible
+in their owning screens. Notification problems are restricted to each visitor
+book's latest 30 visible records, up to 100 matches overall. Their real record
+anchors are focused after the native screen loads. Every source states this
+partial-history window; older retained problems may remain. A full window is labelled;
 counts are retained observations, not audience, adoption or a complete problem
 total. A database read time is shown as **Records checked**. First/latest dates
 come from stored records, never a fabricated provider observation. Refresh does
