@@ -1,6 +1,6 @@
 {
   "schema": "composer.inbox-journey-acceptance/1",
-  "observedAt": "2026-10-24T23:49:39.567Z",
+  "observedAt": "2026-10-24T23:50:45.878Z",
   "source": "working tree",
   "note": "Local fictional D1 fixture rendered through the actual JourneyDetail component and read model. No EmDash API transport, authentication session, provider delivery or production data is exercised.",
   "fixtures": {

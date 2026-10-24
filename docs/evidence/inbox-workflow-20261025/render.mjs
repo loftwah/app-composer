@@ -436,9 +436,9 @@ const stateRows = [
   ],
   [
     "Workflow",
-    "not-recorded",
-    "no row",
-    "No local record yet; preparing it is a safe repair.",
+    "unlinked",
+    "no link",
+    "No exact receipt-to-brief link; no delivery action is offered.",
   ],
   [
     "Workflow",
