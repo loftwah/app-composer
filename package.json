@@ -29,6 +29,7 @@
     "test:package": "node --test tests/readiness-package.test.mjs",
     "test:domain": "node --test tests/readiness-domain.test.mjs",
     "audit": "pnpm audit --audit-level low",
+    "freshness": "node scripts/freshness.mjs",
     "init:launch-kit": "node scripts/init-launch-kit.mjs",
     "init:site": "node scripts/init-site.mjs",
     "check:publication": "node scripts/check-publication.mjs",
