@@ -2,6 +2,31 @@
 
 Reviewed 25 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Inbox owner journey — 25 October 2026
+
+The native Inbox now links one actual app-owned brief to a body-free Composer
+workflow run and the existing owner-notice outbox. The journey makes the review
+state, workflow state (`queued`, `running`, `finished`, `failed`) and delivery
+state (unconfigured, ready, attempted, accepted, uncertain, failed) visible
+together, with one explicit next action or an explicit “no supported action”.
+Duplicate receipts keep one run and one outbox row; retries reuse the same
+message identity and stop at three; accepted or uncertain notices are refused a
+resend and can only be reconciled locally. The run records its exact
+workspace/resource/account/environment/target and actor, and no recipient
+address, provider key or brief body enters the run metadata. A brief links to
+its receipt only when exactly one pending app-export item matches the same scope
+and submission values; otherwise it stays explicitly `unlinked` with no action. Migration
+`0017_inbox_journey.sql` adds the run and reconciliation columns.
+
+Focused local checks: 16 journey tests, a migration-order guard and the existing
+private-enquiry and notification suites; the rendered 390/1440 dark/light fixture matrix and its
+real measurements are in
+[the inbox journey evidence](evidence/inbox-workflow-20261025/README.md). No
+real mail was sent, no notification was enabled, no inbound-mail adapter exists
+and this branch is not deployed. Authenticated production interaction, provider
+delivery/reconciliation, scheduling, physical-device and screen-reader
+acceptance remain open. #117/#118/#198/#289/#291 retain those gates.
+
 ## Prompts, resources and native operations — 24 October 2026
 
 Production source `f0c12ad` ships the [prompt library](/prompts), portable

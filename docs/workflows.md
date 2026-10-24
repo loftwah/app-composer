@@ -8,6 +8,14 @@ workspace, stack and platform-request machinery:
 | A stack has a published revision   | The exact immutable publication is readable       | A private summary draft with its public link                                   |
 | A platform request needs attention | The same scoped request revision is still failing | One actionable attention item linking to the existing platform recovery screen |
 
+The Inbox uses a separate, explicit enquiry run per confirmed private brief. It
+does not add a third recipe card to this Workflows screen, and it installs no
+background trigger. Its run moves `queued → running → finished/failed`, records
+the exact workspace/app/account/environment target and actor, and prepares the
+existing owner-notice outbox idempotently. Delivery is a separate state with its
+own bounded retry and reconciliation. See
+[the inbox workflow guide](inbox-workflows.md).
+
 **Turn on** enables bounded follow-ups after the canonical native stack publish/
 republish and platform mutation routes confirm a saved result. Only the affected
 server-derived source is considered. GET reads and the existing scheduler never
@@ -16,8 +24,9 @@ trigger these recipes. **Scan now** remains explicit recovery and inspects up to
 the fixed app destination. Neither recipe sends mail, executes an agent,
 changes source records, publishes a post or
 performs remediation. A publication check is not a Worker-release or link-check
-receipt. Inbox/mail remains owned by #117; scheduled and external automation,
-contribution sharing and provider callbacks remain #289/#291 qualification work.
+receipt. The Inbox journey above owns its separate explicit run; real mail,
+inbound replies, scheduled/external automation, contribution sharing and
+provider callbacks remain #117/#289/#291 qualification work.
 
 Source mutation and follow-up capture are separate transactions. A missing table,
 interruption, full receipt limit or failed follow-up cannot roll back or repeat
@@ -74,6 +83,10 @@ belong in #11 before production acceptance.
 These are inspectable preparation examples, not installed or verified Composer
 connectors. Configure credentials in the selected server/connection facility;
 do not paste a webhook URL or key into recipe JSON.
+
+The Inbox run history is native and on demand. The examples below remain
+preparation material for a future reviewed connection; no n8n or IFTTT account,
+webhook, key or external run is installed or exercised here.
 
 For n8n: a Webhook node receives a bounded fictional event, requires Header or
 Basic authentication, and routes a known event type to a review-only draft step.
