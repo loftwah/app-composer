@@ -45,10 +45,10 @@ node scripts/delivery-journey.mjs --verify --receipt output/delivery/verify.json
 | Local checks | `pnpm check` | Existing required gates. No upload and no production claim. |
 | Preview candidate | `pnpm check`, then `CLOUDFLARE_ENV=preview pnpm build` | Build-time environment selection. No upload. |
 | Review | read the printed or saved receipt | The candidate digest, source commit, target, bindings and next action are explicit. |
-| Authorised release | `pnpm deploy` | Explicit `--release` only. Reuses the existing clean pushed-main guard, audit, migrations, build, package checks, upload, live verification and publication checks. |
+| Authorised release | `pnpm check`, `CLOUDFLARE_ENV=preview pnpm build`, `pnpm deploy` | Explicit `--release` only. Reuses the existing clean pushed-main guard, audit, migrations, build, package checks, upload, live verification and publication checks. |
 | Independent result | `scripts/verify-live.mjs` | Re-reads `/build.json` and every mounted `/APP/build.json` after release, or on its own via `--verify`. |
 
-The release mode also rebuilds the preview candidate first and verifies the generated output. The existing deploy script then rebuilds production, so a preview artefact is never uploaded by the production command.
+The release mode reruns the local checks and rebuilds the preview candidate first. The existing deploy script then performs its own check and production build, so a preview artefact is never uploaded by the production command and the release has two independent check invocations.
 
 ## Preview isolation
 
@@ -63,6 +63,8 @@ The checker requires all of the following in `wrangler.jsonc` and in the generat
 - the generated Worker name matches `env.preview`, which proves `CLOUDFLARE_ENV=preview` was selected at build time rather than only at deploy time.
 
 The candidate receipt records the generated configuration digest and `uploaded: false`. It leaves `dist/` containing the preview build; the release step rebuilds production before upload.
+
+Wrangler may warn that top-level service or rate-limit bindings are not inherited by `env.preview`. That warning is expected here: isolation means the preview must not receive those production bindings, and the checker refuses any preview service binding.
 
 A separately deployed preview is still an operator decision. If one is created, it must use the preview D1/R2/KV above and must have no production service bindings. It is not implied by this local candidate and is not claimed as verified here.
 
@@ -94,7 +96,7 @@ Every mode emits the same bounded schema. A successful release looks like this i
   },
   "steps": ["local checks or delegated release steps with durations"],
   "candidate": {"worker": "app-composer-preview", "digest": "sha256:...", "uploaded": false},
-  "release": {"performed": true, "command": "pnpm deploy", "commit": "<SHA>"},
+  "release": {"attempted": true, "performed": true, "command": "pnpm deploy", "commit": "<SHA>"},
   "verification": {"performed": true, "independent": true, "origin": "https://composer.loftwah.com"},
   "nextAction": "Record this receipt in #11 ..."
 }

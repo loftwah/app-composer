@@ -176,6 +176,7 @@ test('the default journey runs local checks only and has no release side effects
   assert.equal(receipt.state, 'passed');
   assert.deepEqual(calls, [['pnpm', 'check']]);
   assert.equal(receipt.release.performed, false);
+  assert.equal(receipt.release.attempted, false);
   assert.equal(receipt.verification.performed, false);
   assert.equal(receipt.candidate, null);
   assert.equal(receipt.review.required, true);
@@ -246,6 +247,7 @@ test('dirty and wrongly sourced release attempts are refused before any command'
     assert.equal(receipt.error.code, code);
     assert.equal(calls, 0, `${code} must not run a command`);
     assert.equal(receipt.release.performed, false);
+    assert.equal(receipt.release.attempted, false);
     assert.match(receipt.nextAction, /No upload occurred/);
   }
 });
@@ -280,10 +282,12 @@ test('an explicitly authorised release reuses the guarded deploy and independent
   });
   assert.equal(receipt.state, 'passed');
   assert.deepEqual(calls, [
+    ['pnpm', 'check', null],
     ['pnpm', 'build', 'preview'],
     ['pnpm', 'deploy', null],
   ]);
   assert.deepEqual(verified, [[source().commit, lock, config.vars.PUBLIC_ORIGIN]]);
+  assert.equal(receipt.release.attempted, true);
   assert.equal(receipt.release.performed, true);
   assert.equal(receipt.release.command, 'pnpm deploy');
   assert.equal(receipt.release.commit, source().commit);
@@ -324,6 +328,27 @@ test('the receipt has a bounded, explicit source, target and release identity', 
   const serialised = JSON.stringify(receipt);
   assert.ok(serialised.length < 20000, 'receipt stays bounded');
   assert.doesNotMatch(serialised, /OWNER_API_TOKEN|EMDASH_ENCRYPTION_KEY|GUESTBOOK_OWNER_TOKEN|SHOWCASE_OWNER_TOKEN/);
+});
+
+test('a failed release attempt stays ambiguous and is never reported as verified', async t => {
+  const workspace = workspaceFixture(t);
+  const receipt = await runDeliveryJourney({
+    workspace,
+    mode: 'release',
+    source: source(),
+    environment: {},
+    execute: async (command, args) => {
+      if (args[0] === 'deploy') throw Object.assign(new Error('fictional deploy failure'), {code: 'command-failed'});
+    },
+    verify: async () => assert.fail('a failed deploy must not claim verification'),
+  });
+  assert.equal(receipt.state, 'failed');
+  assert.equal(receipt.release.attempted, true);
+  assert.equal(receipt.release.performed, false);
+  assert.equal(receipt.release.failed, true);
+  assert.equal(receipt.verification.performed, false);
+  assert.match(receipt.nextAction, /attempted/);
+  assert.match(receipt.nextAction, /ambiguous/);
 });
 
 test('a failed candidate build is reported as failed and never as a candidate', async t => {

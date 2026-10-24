@@ -319,8 +319,8 @@ function nextActionFor(mode, source) {
 }
 
 function failureAction(mode, receipt) {
-  if (mode === 'release' && receipt.release.performed)
-    return 'Inspect the actual Worker version and live source before any retry. Do not repeat an ambiguous upload.';
+  if (mode === 'release' && receipt.release.attempted)
+    return 'The release command was attempted. Inspect the actual Worker version and live source before any retry. Do not repeat an ambiguous upload.';
   if (mode === 'release') return 'No upload occurred. Fix the reported source or target problem, then rerun from clean pushed main.';
   if (mode === 'candidate') return 'Fix the reported candidate problem and rerun from clean pushed source. Nothing was uploaded.';
   if (mode === 'verify') return 'Inspect the live source and deployed version; do not infer production acceptance from local checks.';
@@ -348,7 +348,7 @@ export async function runDeliveryJourney({
     target: null,
     steps,
     candidate: null,
-    release: {performed: false, command: null, commit: null},
+    release: {attempted: false, performed: false, command: null, commit: null},
     verification: {performed: false, independent: false, verifier: 'scripts/verify-live.mjs', origin: null},
     approval: {mode: 'explicit-flag', flag: modeFlags[mode], sourceCommit: null, candidateDigest: null},
     review: {required: mode === 'local' || mode === 'candidate', action: null},
@@ -389,7 +389,7 @@ export async function runDeliveryJourney({
       }
     };
 
-    if (mode === 'local' || mode === 'candidate') {
+    if (mode !== 'verify') {
       await runStep('local-checks', 'Required local checks', 'pnpm', ['check']);
     }
 
@@ -416,6 +416,9 @@ export async function runDeliveryJourney({
 
     if (mode === 'release') {
       receipt.approval.sourceCommit = facts.commit;
+      receipt.release.attempted = true;
+      receipt.release.command = 'pnpm deploy';
+      receipt.release.commit = facts.commit;
       const releaseStepStarted = Date.now();
       try {
         await execute('pnpm', ['deploy'], {workspace, env: productionEnvironment(environment), stdio: 'inherit'});
@@ -438,7 +441,7 @@ export async function runDeliveryJourney({
         });
         throw error;
       }
-      receipt.release = {performed: true, command: 'pnpm deploy', commit: facts.commit};
+      receipt.release = {attempted: true, performed: true, command: 'pnpm deploy', commit: facts.commit};
       const verifyStarted = Date.now();
       try {
         await verify(facts.commit, selectedTarget.lock, selectedTarget.identity.origin);
@@ -497,7 +500,7 @@ export async function runDeliveryJourney({
     const known = error instanceof DeliveryRefusal || error?.code;
     receipt.state = known && !steps.some(step => step.state === 'failed') ? 'refused' : 'failed';
     receipt.error = {code: error?.code ?? 'journey-failed', message: bounded(error?.message)};
-    if (mode === 'release' && receipt.release.performed) receipt.release.failed = true;
+    if (mode === 'release' && receipt.release.attempted) receipt.release.failed = true;
     receipt.nextAction = failureAction(mode, receipt);
   }
   receipt.finishedAt = now().toISOString();
