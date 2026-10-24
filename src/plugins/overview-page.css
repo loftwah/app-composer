@@ -1,0 +1,103 @@
+.co-overview {
+  max-width: 1100px;
+  padding: 24px;
+  color: inherit;
+}
+.co-overview header {
+  display: block;
+  margin-bottom: 24px;
+}
+.co-overview h1 {
+  font-size: 2rem;
+  margin: 0 0 12px;
+}
+.co-overview h2 {
+  font-size: 1.35rem;
+  margin: 32px 0 18px;
+}
+.co-overview p {
+  max-width: 70ch;
+  line-height: 1.6;
+}
+.co-overview button,
+.co-overview a {
+  min-height: 44px;
+}
+.co-overview button {
+  padding: 10px 16px;
+}
+.co-overview summary {
+  min-height: 44px;
+  cursor: pointer;
+  padding-block: 10px;
+}
+.co-overview dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.co-overview code {
+  overflow-wrap: anywhere;
+}
+.co-problems {
+  list-style: none;
+  padding: 0;
+}
+.co-problems li {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 28px;
+  padding-block: 22px;
+  border-top: 1px solid var(--color-border, currentColor);
+}
+.co-problems h3 {
+  font-size: 1.1rem;
+  margin: 0 0 10px;
+}
+.co-problems p {
+  margin: 8px 0;
+}
+.co-problems a {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  flex-shrink: 0;
+}
+.co-muted {
+  font-size: 0.9rem;
+  color: var(--color-muted, inherit);
+}
+.co-error {
+  padding: 16px;
+  border: 1px solid currentColor;
+}
+.co-sources > div {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 24px;
+  padding-block: 18px;
+  border-top: 1px solid var(--color-border, currentColor);
+}
+.co-sources dt {
+  font-weight: 600;
+}
+.co-sources p {
+  margin: 6px 0;
+}
+@media (max-width: 650px) {
+  .co-overview {
+    padding: 16px;
+  }
+  .co-problems li {
+    display: block;
+  }
+  .co-problems a {
+    margin-top: 8px;
+  }
+  .co-sources > div {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
