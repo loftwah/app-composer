@@ -135,7 +135,7 @@ export async function queueEnquiryNotification(
   const now = date();
   await db
     .prepare(
-      "INSERT INTO creator_enquiry_notification_outbox(id,version,workspace_id,resource_id,event_id,account_id,environment,target,owner_id,state,created_at,updated_at) VALUES(?,1,?,?,?,?,?,?,?,'queued',?,?) ON CONFLICT(workspace_id,resource_id,event_id,version) DO NOTHING",
+      "INSERT INTO creator_enquiry_notification_outbox(id,version,workspace_id,resource_id,event_id,account_id,environment,target,owner_id,state,created_at,updated_at) SELECT ?,1,?,?,?,?,?,?,?,'queued',?,? FROM creator_enquiry_notification_preferences p JOIN creator_members m ON m.workspace_id=p.workspace_id AND m.user_id=p.owner_id JOIN creator_app_resources r ON r.id=p.resource_id AND r.workspace_id=p.workspace_id WHERE p.workspace_id=? AND p.resource_id=? AND p.revision=? AND p.owner_id=? AND p.enabled=1 AND m.role='owner' AND r.app='guestbook' AND r.account_id=? AND r.environment=? AND r.target=? AND r.state='ready' ON CONFLICT(workspace_id,resource_id,event_id,version) DO NOTHING",
     )
     .bind(
       crypto.randomUUID(),
@@ -148,6 +148,13 @@ export async function queueEnquiryNotification(
       preference.owner_id,
       now,
       now,
+      scope.workspace,
+      scope.resource,
+      preference.revision,
+      preference.owner_id,
+      scope.account,
+      scope.environment,
+      scope.target,
     )
     .run();
 }
@@ -490,9 +497,17 @@ export async function manageEnquiryNotifications(
       .bind(workspace.id, input.resource)
       .all();
     const mail = connection(runtime);
+    await validResource(db, scope);
+    const currentRole = await membership(db, workspace.id, ctx.user.id);
+    if (currentRole !== "owner" && currentRole !== "editor")
+      throw new StackError(
+        "FORBIDDEN",
+        "Private notification access changed. Refresh the selected workspace.",
+        403,
+      );
     return {
       ok: true as const,
-      workspace,
+      workspace: { ...workspace, role: currentRole },
       resource: input.resource,
       preference: {
         enabled: Boolean(preference?.enabled),
