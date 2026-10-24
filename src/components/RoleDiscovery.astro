@@ -20,7 +20,7 @@ const { role, hub = false } = Astro.props;
       <p class="role-description">{role.description}</p>
       <div class="role-actions"><a class="button" href={role.primary.href}>{role.primary.label}<ArrowRight size={18} aria-hidden="true" /></a><a class="role-start" href={role.start.href}>{role.start.label}<ArrowUpRight size={17} aria-hidden="true" /></a></div>
       {role.id === 'developer' && <ol class="developer-route" aria-label="From project to verified result"><li><a href="/setup">Inspect the project</a></li><li><a href="/init">Export a clear brief</a></li><li><a href="/ready/guide">Build and verify</a></li></ol>}
-      <details class="role-support"><summary>What works now, and what needs your setup</summary><p>{role.support}</p><DeviceSupport support={appDeviceSupport(role.app)} compact /></details>
+      <details class="role-support"><summary>What works now, and what needs your setup</summary><p>{role.support}</p><p><a href="/roles">Working as an agent? Choose a versioned role pack</a> with inputs, evidence, stop rules and a runnable brief.</p><DeviceSupport support={appDeviceSupport(role.app)} compact /></details>
     </div>
     <figure class="role-example">
       <a href={role.example.href} aria-label={'Open ' + role.example.title}><img src={role.example.image} width="1440" height="1000" alt={role.example.alt} loading="eager" decoding="async" /></a>

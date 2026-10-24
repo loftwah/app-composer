@@ -58,6 +58,7 @@ Guestbook and Linkarooie also mount at `/guestbook` and `/showcase` through sepa
 ## Find the right guide
 
 - [Documentation index](docs/README.md): current guides, source maps and detailed commands.
+- [Agent role packs](docs/role-packs.md): six versioned job contracts, a shared fictional bundle and a local brief validator.
 - [Product](PRODUCT.md), [architecture](ARCHITECTURE.md), [design](DESIGN.md) and [interface standard](UNSLOP.md).
 - [Invited creators: My profile, People and card publication](docs/invited-members.md), with [the shared access contract](docs/invited-member-access.md).
 - [Published demo workflow](docs/creator-stacks/demo-stacks.md), [workspace access](docs/workspace-access.md), [private outcomes](docs/private-outcomes.md), [scoped collection](docs/scoped-collection.md), [Guestbook contributions from Linkarooie](docs/guestbook-contributions.md), [private enquiries](docs/private-enquiries.md), [maintenance and approved exports](docs/workspace-maintenance.md) and [WordPress observation ledger](labs/wordpress/weekender/OBSERVATIONS.md).

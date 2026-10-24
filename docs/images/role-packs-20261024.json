@@ -1,0 +1,86 @@
+{
+  "reviewed": "2026-10-25",
+  "source": "local Astro dev server 127.0.0.1:4322 from branch lane-g-roles-20261024",
+  "browser": "Chromium via Playwright MCP",
+  "method": "actual rendered pages; full-page PNG; pngquant 80-95 for committed size",
+  "captures": [
+    {
+      "name": "role-packs-20261024-index-desktop.png",
+      "path": "/roles",
+      "viewport": {
+        "width": 1440,
+        "height": 2957
+      },
+      "theme": "dark",
+      "bytes": 131196,
+      "sha256": "318aaeed44b2886862b594ecea256749ef45a5e5b703679ad8814f0f504927af",
+      "sourceCapture": "output/roles-index-desktop-dark.png",
+      "note": "Pixels inspected at phone and desktop widths; no horizontal overflow."
+    },
+    {
+      "name": "role-packs-20261024-index-desktop-light.png",
+      "path": "/roles",
+      "viewport": {
+        "width": 1440,
+        "height": 2957
+      },
+      "theme": "light",
+      "bytes": 138578,
+      "sha256": "b85bb856c599f5c9403aed541d83bcf105a3177a9aef09fbb6896401deb2f4d0",
+      "sourceCapture": "output/roles-index-desktop-light.png",
+      "note": "Pixels inspected at phone and desktop widths; no horizontal overflow."
+    },
+    {
+      "name": "role-packs-20261024-index-phone.png",
+      "path": "/roles",
+      "viewport": {
+        "width": 390,
+        "height": 4768
+      },
+      "theme": "dark",
+      "bytes": 113683,
+      "sha256": "fa3d3ee5c87fdf075799f45c5cd0a2f4d316b2183518ddd398b5588a2a3838d2",
+      "sourceCapture": "output/roles-index-phone-dark.png",
+      "note": "Pixels inspected at phone and desktop widths; no horizontal overflow."
+    },
+    {
+      "name": "role-packs-20261024-qa-desktop.png",
+      "path": "/roles/qa",
+      "viewport": {
+        "width": 1440,
+        "height": 4647
+      },
+      "theme": "dark",
+      "bytes": 218765,
+      "sha256": "cd9d4fb7f68a96d3749b3d040fdc9493f0f831db52311df45e679c9ebb3ba286",
+      "sourceCapture": "output/roles-qa-desktop-dark.png",
+      "note": "Pixels inspected at phone and desktop widths; no horizontal overflow."
+    },
+    {
+      "name": "role-packs-20261024-qa-phone.png",
+      "path": "/roles/qa",
+      "viewport": {
+        "width": 390,
+        "height": 8266
+      },
+      "theme": "dark",
+      "bytes": 195556,
+      "sha256": "535c9c8942059cf811b0ad323121a71972cae261d8f1b80e707d5d4f35299fbf",
+      "sourceCapture": "output/roles-qa-phone-dark.png",
+      "note": "Pixels inspected at phone and desktop widths; no horizontal overflow."
+    },
+    {
+      "name": "role-packs-20261024-service-owner-brief.png",
+      "path": "/roles/service-owner",
+      "viewport": {
+        "width": 1440,
+        "height": 5439
+      },
+      "theme": "dark",
+      "bytes": 257730,
+      "sha256": "b77acab378787891b1f97a730298e3c764834e9ca27ffec6b7ff9fea4dc74a4c",
+      "sourceCapture": "output/roles-service-owner-brief-desktop-dark.png",
+      "note": "Pixels inspected at phone and desktop widths; no horizontal overflow."
+    }
+  ]
+}

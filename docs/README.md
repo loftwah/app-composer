@@ -5,6 +5,7 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 ## Create and operate
 
 - [Detailed operator reference](operator-reference.md): setup, Get Ready, account/target selection, Init, composition, native administration, independent packages and deployment commands.
+- [Agent role packs](role-packs.md): six versioned job contracts, the shared fictional bundle, refusal rules and the local runner.
 - [Your app, your admin](admin-experience.md): the owner surface, page-level enquiry counts and the actual boundary.
 - [Published fictional stacks](creator-stacks/demo-stacks.md): real creator workflow and demonstrated separation.
 - [Workspace access](workspace-access.md): membership, scoped authority, invitations and admission limits.

@@ -11,6 +11,7 @@ const categories = [...new Set(promptModules.map(item => item.category))];
       <div><h1>Get to the doing.</h1><p>Choose a job. Add your details. Copy a complete request for your agent.</p></div>
       <a href="/setup">Need a full project guide? <span aria-hidden="true">→</span></a>
     </div>
+    <p class="prompt-role-packs">Working from a role rather than a task? <a href="/roles">Open the six agent role packs <span aria-hidden="true">→</span></a></p>
     <noscript><p class="no-script">Every template is readable below. Select the text to copy it, replace its bracketed fields, then paste it into your agent. JavaScript adds search, editable previews and copy buttons.</p></noscript>
     <div class="prompt-desk">
       <aside class="prompt-index" aria-label="Choose a prompt">
@@ -56,6 +57,8 @@ const categories = [...new Set(promptModules.map(item => item.category))];
   .prompt-intro h1 { font-size: clamp(2.7rem, 5.2vw, 4.8rem); margin: 0 0 16px; max-width: none; }
   .prompt-intro p { margin: 0; color: var(--color-muted); font-size: 1.1rem; }
   .prompt-intro > a { color: var(--color-accent); max-width: 24ch; font-size: .95rem; flex-shrink: 0; padding: 10px 0; }
+  .prompt-role-packs { margin: 16px 0 0; font-size: .88rem; color: var(--color-muted); }
+  .prompt-role-packs a { color: var(--color-accent); display: inline-flex; align-items: center; min-height: 44px; }
   .prompt-desk { display: grid; grid-template-columns: 275px minmax(0, 1fr); gap: 48px; padding-top: 32px; align-items: start; }
   .prompt-index { min-width: 0; }
   .prompt-search label { margin: 0; font-size: .9rem; font-weight: 600; }

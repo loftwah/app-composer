@@ -1,0 +1,301 @@
+{
+  "bundle": "composer.role-evidence/1",
+  "fictional": true,
+  "capturedAt": "2026-10-24T02:10:00Z",
+  "asOf": "2026-10-24T03:00:00Z",
+  "workspace": {
+    "id": "ws-fiction-trail",
+    "name": "Fictional Trail Notes",
+    "owner": {
+      "name": "Ada Nguyen",
+      "role": "Workspace owner",
+      "fallback": "Sam Okafor"
+    }
+  },
+  "application": {
+    "id": "app-trail-notes",
+    "name": "Trail Notes",
+    "purpose": "Publish fictional trail notes and approved visitor postcards without exposing pending contributions.",
+    "criticality": "standard",
+    "source": "fiction/trail-notes@7f3a9c2",
+    "release": "rel-20261023-3"
+  },
+  "service": {
+    "id": "svc-trail-notes-web",
+    "name": "Trail Notes web",
+    "kind": "Cloudflare Worker",
+    "account": "fiction-composer-preview",
+    "owner": {
+      "name": "Sam Okafor",
+      "role": "Service owner",
+      "fallback": "Ada Nguyen"
+    },
+    "runbook": "/docs/runbooks/trail-notes.md"
+  },
+  "environment": {
+    "id": "env-preview-qa-postcards",
+    "kind": "production",
+    "target": "composer-production",
+    "isolatedResources": true
+  },
+  "dependencies": [
+    {
+      "from": "app-trail-notes",
+      "to": "svc-trail-notes-web",
+      "kind": "runtime",
+      "note": "The public application and its owner routes."
+    },
+    {
+      "from": "svc-trail-notes-web",
+      "to": "svc-postcards",
+      "kind": "service binding",
+      "note": "Versioned postcards/v1 create and approve API."
+    },
+    {
+      "from": "svc-trail-notes-web",
+      "to": "kv-trail-sessions",
+      "kind": "KV binding",
+      "note": "Owner session references only, never credentials."
+    },
+    {
+      "from": "svc-postcards",
+      "to": "db-postcards",
+      "kind": "D1",
+      "note": "Pending and approved fictional postcards."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "ev-01",
+      "kind": "owner-record",
+      "source": "emdash://workspace/ws-fiction-trail/ownership",
+      "environment": "env-preview-qa-postcards",
+      "observedAt": "2026-10-24T01:00:00Z",
+      "summary": "Primary owner Ada Nguyen; fallback Sam Okafor; last checked by the workspace owner."
+    },
+    {
+      "id": "ev-02",
+      "kind": "slo",
+      "source": "fictional-metrics://trail-notes/7d",
+      "environment": "env-preview-qa-postcards",
+      "observedAt": "2026-10-24T02:00:00Z",
+      "summary": "99.4% successful public reads against a 99.5% target over seven days; one breach window."
+    },
+    {
+      "id": "ev-03",
+      "kind": "journey",
+      "source": "fictional-browser://public-postcard-after-approval",
+      "environment": "env-preview-qa-postcards",
+      "observedAt": "2026-10-24T02:00:00Z",
+      "summary": "Approved postcard remains absent from the public source; the owner moderation view still shows it as approved."
+    },
+    {
+      "id": "ev-04",
+      "kind": "gate-results",
+      "source": "local://node --test tests/postcards.test.mjs",
+      "environment": "env-preview-qa-postcards",
+      "observedAt": "2026-10-24T02:05:00Z",
+      "summary": "Unit and accessibility gates pass; the public-visibility gate fails; physical iOS input was not run."
+    },
+    {
+      "id": "ev-05",
+      "kind": "cost",
+      "source": "fictional-provider-export://weekly-cost",
+      "environment": "env-preview-qa-postcards",
+      "observedAt": "2026-10-23T20:00:00Z",
+      "summary": "Directional weekly export is flat; it is seven hours old and not a live bill."
+    },
+    {
+      "id": "ev-06",
+      "kind": "log",
+      "source": "fictional-worker-log://approve-postcard/request-1042",
+      "environment": "env-preview-qa-postcards",
+      "observedAt": "2026-10-24T02:00:00Z",
+      "summary": "Approval request returns 500 with a D1 NOT NULL violation after the trimmed text becomes empty; the captured authorization header is redacted to Bearer [REDACTED]."
+    },
+    {
+      "id": "ev-07",
+      "kind": "access-test",
+      "source": "fictional-http://preview/api/owner/postcards/pc-1042/approve",
+      "environment": "env-preview-qa-postcards",
+      "observedAt": "2026-10-24T02:00:00Z",
+      "summary": "The owner approval route returns 200 when DEV_BYPASS=1 and no owner session is present."
+    }
+  ],
+  "signals": {
+    "impact": "Visitors can submit a postcard, but an approved postcard never appears on the public page. The owner can still moderate it in the Preview.",
+    "slo": {
+      "target": "99.5% successful public reads",
+      "observed": "99.4%",
+      "window": "7 days to 2026-10-24T02:00:00Z",
+      "status": "breached",
+      "capturedAt": "2026-10-24T02:00:00Z"
+    },
+    "cost": {
+      "trend": "flat week over week",
+      "note": "Weekly provider export is seven hours old; directional only",
+      "capturedAt": "2026-10-23T20:00:00Z"
+    }
+  },
+  "defect": {
+    "id": "TL-142",
+    "summary": "Approving a postcard whose text becomes empty after trimming returns 500 instead of a validation error.",
+    "expected": "A validation response that keeps the postcard pending and explains the empty text.",
+    "actual": "500 from the approval handler with a D1 NOT NULL violation; the pending record is unchanged.",
+    "reproduction": [
+      "Open the Preview as the fictional owner and select the pending postcard pc-1042.",
+      "Approve it; its body contains only spaces.",
+      "Observe the 500 response and the unchanged pending record."
+    ],
+    "failingCheck": "tests/postcards.test.mjs › approval rejects empty-after-trim text",
+    "suspectedFile": "src/postcards/approve.ts:42"
+  },
+  "gates": [
+    {
+      "id": "G1",
+      "name": "Unit tests for postcard moderation",
+      "status": "pass",
+      "runs": "148/148",
+      "expected": "All maintained unit checks pass.",
+      "actual": "All maintained unit checks pass.",
+      "evidence": "ev-04"
+    },
+    {
+      "id": "G2",
+      "name": "Phone and desktop accessibility",
+      "status": "pass",
+      "runs": "1/1",
+      "expected": "Keyboard focus and both themes usable at 390px and 1440px.",
+      "actual": "Checked in the Preview; no horizontal overflow.",
+      "evidence": "ev-04"
+    },
+    {
+      "id": "G3",
+      "name": "Approved postcard becomes public",
+      "status": "fail",
+      "runs": "3/3 failed",
+      "expected": "Public source returns 200 with the approved postcard and status approved.",
+      "actual": "Public source returns 404 after approval; the pending record updates.",
+      "evidence": "ev-03"
+    },
+    {
+      "id": "G4",
+      "name": "Owner moderation remains private",
+      "status": "pass",
+      "runs": "2/2",
+      "expected": "A visitor is denied the owner moderation route.",
+      "actual": "Denied without a session outside the bypass case recorded in ev-07.",
+      "evidence": "ev-07"
+    },
+    {
+      "id": "G5",
+      "name": "Physical iOS keyboard and zoom",
+      "status": "not-run",
+      "runs": "0",
+      "expected": "Physical device input and zoom behave as designed.",
+      "actual": "No physical device available in this fictional lab.",
+      "evidence": "ev-04"
+    }
+  ],
+  "architecture": {
+    "question": "Should Trail Notes keep the shared postcards service binding, inline postcard moderation, or extract a shared client library?",
+    "options": [
+      {
+        "id": "A",
+        "label": "Keep the versioned postcards/v1 service binding",
+        "tradeoff": "One moderation boundary and one contract owner; releases need cross-service coordination."
+      },
+      {
+        "id": "B",
+        "label": "Inline postcard moderation into the Trail Notes Worker",
+        "tradeoff": "Simpler single deploy; creates a second moderation path and duplicates pending/approved rules."
+      },
+      {
+        "id": "C",
+        "label": "Extract a shared client library",
+        "tradeoff": "Type sharing without a network hop; couples deploy versions and hides the runtime failure boundary."
+      }
+    ],
+    "constraints": [
+      "Publishing and moderation must stay one owner-controlled boundary.",
+      "The Preview must use isolated D1/R2/KV and no production service binding.",
+      "The postcards contract is versioned; a breaking change needs a new version.",
+      "No new provider or paid service is authorised by this decision."
+    ]
+  },
+  "drift": [
+    {
+      "id": "drift-01",
+      "resource": "POSTCARDS_DB (D1 binding)",
+      "desired": "db-postcards-preview",
+      "current": "db-postcards-prod",
+      "severity": "high",
+      "productionBindingInPreview": true
+    },
+    {
+      "id": "drift-02",
+      "resource": "TRAIL_MEDIA (R2 binding)",
+      "desired": "trail-media-preview",
+      "current": "trail-media-preview",
+      "severity": "low"
+    },
+    {
+      "id": "drift-03",
+      "resource": "QUEUE (postcard retry)",
+      "desired": "postcards-preview",
+      "current": "postcards-preview",
+      "severity": "low"
+    }
+  ],
+  "security": {
+    "accessPaths": [
+      {
+        "path": "/",
+        "protection": "Public read; only published postcards are returned.",
+        "note": "No owner data in the public payload."
+      },
+      {
+        "path": "/api/postcards",
+        "protection": "Rate-limited public create; records start pending.",
+        "note": "Text-first; media remains disabled in this Preview."
+      },
+      {
+        "path": "/api/owner/postcards/:id/approve",
+        "protection": "EmDash owner session behind Cloudflare Access.",
+        "note": "Preview bypass observed in ev-07."
+      }
+    ],
+    "findings": [
+      {
+        "id": "sec-01",
+        "title": "Preview owner approval route reachable with DEV_BYPASS=1",
+        "severity": "high",
+        "evidence": "ev-07",
+        "exposure": "A visitor could approve a pending postcard in the shared Preview.",
+        "remediation": "Remove the bypass, require the owner session, then retest denied and allowed paths."
+      },
+      {
+        "id": "sec-02",
+        "title": "Redacted authorization header retained in a Preview log",
+        "severity": "medium",
+        "evidence": "ev-06",
+        "exposure": "Rotation status is unconfirmed; the value is not reproduced in this bundle.",
+        "remediation": "Confirm rotation in the owner console and stop capturing the header."
+      }
+    ]
+  },
+  "change": {
+    "id": "chg-20261024-roles",
+    "requestedBy": "agent:opencode/roles-lane",
+    "requestedByKind": "agent",
+    "approvedBy": null,
+    "approvedByKind": null,
+    "scope": "Prepare a defect patch, release review and drift report in the isolated Preview; no production effect.",
+    "target": "env-preview-qa-postcards"
+  },
+  "release": {
+    "id": "rel-20261023-3",
+    "status": "blocked",
+    "notes": "Rollback target rel-20261016-2. Postcard rows created after the release need a data-compatibility check; this plan does not restore deleted media."
+  }
+}

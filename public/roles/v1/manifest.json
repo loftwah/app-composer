@@ -1,0 +1,135 @@
+{
+  "version": "composer.role-packs/1",
+  "reviewed": "2026-10-24",
+  "bytes": 42954,
+  "sha256": "514c93520261c3b05e44404ceb9b80c3375e32b35ce3e46fe72729db4631fe43",
+  "packs": [
+    {
+      "id": "service-owner",
+      "version": "1.0.0",
+      "title": "Service review and change decision"
+    },
+    {
+      "id": "programmer",
+      "version": "1.0.0",
+      "title": "Defect investigation and patch proposal"
+    },
+    {
+      "id": "architect",
+      "version": "1.0.0",
+      "title": "Dependency decision record"
+    },
+    {
+      "id": "devops",
+      "version": "1.0.0",
+      "title": "Drift, rollout and rollback review"
+    },
+    {
+      "id": "security",
+      "version": "1.0.0",
+      "title": "Boundary and exposure review"
+    },
+    {
+      "id": "qa",
+      "version": "1.0.0",
+      "title": "Release gate and journey verification"
+    }
+  ],
+  "files": [
+    {
+      "name": "architect.md",
+      "bytes": 8911,
+      "sha256": "6210ebdc0aac571779c94f671fb6c96d8d1a0662c0f36b3e5e8a602f93db8624"
+    },
+    {
+      "name": "devops.md",
+      "bytes": 8642,
+      "sha256": "669eda3c49178225863ef2f5fda74310c66c370ba708083084e875dd45c78ca3"
+    },
+    {
+      "name": "examples/fictional-trail-notes.json",
+      "bytes": 10863,
+      "sha256": "8b24657fbc98c3cd5e407e0ddbcf19d6196b49ba983f3fc4410bf38903b07340"
+    },
+    {
+      "name": "examples/README.md",
+      "bytes": 778,
+      "sha256": "4847bbb879c359861bf7c7c8760c8bcbbde2fa6c4a35d3c11d4b3fc3d69e7710"
+    },
+    {
+      "name": "examples/unsafe-secret.json",
+      "bytes": 10930,
+      "sha256": "6af932412ab21f78ba8e5b3f69b693a12e1076179caa6381224096220b41780b"
+    },
+    {
+      "name": "examples/unsafe-self-approval.json",
+      "bytes": 10889,
+      "sha256": "3d24b7e16bdff7b093fad23f1a30e44887e4e5fd09f87bbd118e13221611b2c6"
+    },
+    {
+      "name": "examples/wrong-target-production.json",
+      "bytes": 10817,
+      "sha256": "78d51bc4c451f787e09f354e99f7605364ebb3ed1b51a44da1b6673bd837a533"
+    },
+    {
+      "name": "INDEX.md",
+      "bytes": 1796,
+      "sha256": "7db0898e622b64a166ab7162eab5e4e293993a61dbdda089824c489bea99f492"
+    },
+    {
+      "name": "LICENSE",
+      "bytes": 1067,
+      "sha256": "bd7fbce69ba30d4aa6f984be7b10efecf29b57964888e7ac2aa2926cf0235844"
+    },
+    {
+      "name": "programmer.md",
+      "bytes": 9205,
+      "sha256": "0066058c64c1723679c8b1d9aab226b5bcc21e49d17468abf908072f19c45694"
+    },
+    {
+      "name": "prompts/architect.txt",
+      "bytes": 3254,
+      "sha256": "a9bcaea5431bf9baf8c41e172b74e77a08654fdda336494c1fe5a6e1ad644e14"
+    },
+    {
+      "name": "prompts/devops.txt",
+      "bytes": 3177,
+      "sha256": "1fe5b674113da9f3110febe36b7f98cadd1240bede33a1a85a36bf1284c9ac47"
+    },
+    {
+      "name": "prompts/programmer.txt",
+      "bytes": 3417,
+      "sha256": "5629360c7947121269794a2e1abb0531567d99da46594ec7722eafe0e91d50bf"
+    },
+    {
+      "name": "prompts/qa.txt",
+      "bytes": 3208,
+      "sha256": "988e11d1f0ec64030c06e4b2c3c3bcfa596a10fad5c919ddd445b9e693dbd84b"
+    },
+    {
+      "name": "prompts/security.txt",
+      "bytes": 3414,
+      "sha256": "ec189ec344adb49603f9f8ffef99cabc6f8a2e9ddd548aab0e2c55cea363462c"
+    },
+    {
+      "name": "prompts/service-owner.txt",
+      "bytes": 3314,
+      "sha256": "4bdf6b6aad203b666e17db78d61217ec7fe6db67df3dee1a7a56ccf55741df87"
+    },
+    {
+      "name": "qa.md",
+      "bytes": 8695,
+      "sha256": "df644ea0706c2bb5210699be86f00a922528952a811ee93b94ff098071ba647c"
+    },
+    {
+      "name": "security.md",
+      "bytes": 9255,
+      "sha256": "92cd0f8509ade25de1d0e1809dd930980a31937db0d33cbb29a1aa94c427138d"
+    },
+    {
+      "name": "service-owner.md",
+      "bytes": 9129,
+      "sha256": "1572fcaadc688ca5ca26ee0ef80759782fa205283acefbe1644115838e707d0c"
+    }
+  ]
+}

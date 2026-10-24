@@ -73,6 +73,28 @@ is not deployed from this branch. [The bounded receipt](evidence/ldraw-20261025/
 records the commands, captures and remaining gates; #290/#288/#11 retain
 acceptance and release evidence.
 
+## Agent role packs — 25 October 2026
+
+The [role-pack index](/roles) adds six versioned job contracts: Service Owner,
+Programmer, Architect, DevOps/SRE, Security and QA. Each has inputs, required
+evidence, an output schema, stop/escalation rules, prohibited actions, negative
+tests, a worked fictional example and a copy-ready prompt. A Node runner
+(`scripts/roles.mjs`) assembles a role brief from one shared evidence bundle and
+refuses missing ownership, stale telemetry, secret-like values, wrong
+environments and self-approval. Downloadable packs, prompts, the fictional
+bundle and a ZIP are under `/roles/v1/`.
+
+The same invented Trail Notes stack drives all six jobs: a service-owner hold,
+a programmer patch proposal, an architecture dependency decision, a DevOps
+isolation fault, a security bypass finding and a QA release blocker. 24 pack
+negative tests plus repository checks cover manifest validity, generated
+downloads, refusals and brief content. Local `pnpm check` passes 953 tests
+(955 total, 2 skipped); `pnpm build` passes with 1,215 public files and 144
+archive members inspected. Phone/desktop dark/light captures and provenance are
+in [the role-pack guide](role-packs.md). This is a local/draft-PR slice: native
+EmDash accept/request-changes/reject records, connected-agent authentication
+and any production execution remain #311/#315 gates.
+
 ## Finding the shipped work — 24 October 2026
 
 The product front door and [Explore directory](https://composer.loftwah.com/discover) lead with [Launch Kit](https://composer.loftwah.com/launch-kit) and the [team application films](https://composer.loftwah.com/platform/demo), then link directly to invited profiles, analytics and owner workflows. The existing decision planner remains at `/explore`. The shared launcher includes the newer tools and resolves them through each shell’s selected Composer instance. The owning issue is [#273](https://github.com/loftwah/app-composer/issues/273); exact release identities and production checks belong in #11.

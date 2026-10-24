@@ -1,0 +1,256 @@
+---
+import Base from '../../layouts/Base.astro';
+import { buildRoleBrief, getRolePack, renderRolePrompt, rolePackReviewed, rolePackSuite } from '../../lib/role-packs';
+import { rolePackExample } from '../../lib/role-packs-example';
+
+const pack = getRolePack(Astro.params.id);
+if (!pack) Astro.response.status = 404;
+const prompt = pack ? renderRolePrompt(pack.id).trim() : '';
+const brief = pack ? buildRoleBrief(pack.id, rolePackExample) : null;
+const title = pack ? `${pack.label} role pack` : 'Role pack not found';
+const description = pack
+  ? `${pack.title}: inputs, evidence, output, stop rules, prohibited actions, negative tests and a worked fictional example. Version ${pack.version}.`
+  : 'Choose one of the six App Composer agent role packs.';
+---
+<Base title={title} description={description} canonical={pack ? `https://composer.loftwah.com/roles/${pack.id}` : 'https://composer.loftwah.com/roles'}>
+  {pack && brief ? (
+    <article class="pack">
+      <a class="pack-back" href="/roles">← All role packs</a>
+      <section class="pack-heading">
+        <p class="pack-kicker">Role {pack.number} · v{pack.version} · {rolePackSuite} · reviewed {rolePackReviewed}</p>
+        <h1>{pack.label}</h1>
+        <p class="pack-title">{pack.title}</p>
+        <p class="lede">{pack.purpose}</p>
+        <div class="pack-actions">
+          <a class="button" href={`/roles/v1/${pack.id}.md`} download>Download the pack <span>.md</span></a>
+          <a href={`/roles/v1/prompts/${pack.id}.txt`} download>Prompt only (.txt)</a>
+          <button id="copy-prompt" class="secondary" type="button">Copy prompt</button>
+        </div>
+        <p id="copy-status" class="pack-status" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="pack-boundaries" aria-label="Boundaries">
+        <div>
+          <h2>Stops and escalates</h2>
+          <ul>{pack.stops.map((stop) => <li>{stop}</li>)}</ul>
+        </div>
+        <div>
+          <h2>Never does</h2>
+          <ul>{pack.prohibited.map((item) => <li>{item}</li>)}</ul>
+        </div>
+        <div class="pack-owner">
+          <h2>Who decides</h2>
+          <p><strong>{rolePackExample.workspace.owner.name}</strong> is the fictional accountable owner. {rolePackExample.service.owner.name} owns the service; {rolePackExample.workspace.owner.fallback} is the fallback.</p>
+          <p>The agent prepares a proposal. A separate accountable human accepts, requests changes or rejects it. Native EmDash approval and execution are not implied by this page.</p>
+        </div>
+      </section>
+
+      <div class="pack-grid">
+        <div class="pack-main">
+          <section aria-labelledby="job-title">
+            <h2 id="job-title">The job</h2>
+            <p>{pack.job}</p>
+          </section>
+
+          <section aria-labelledby="inputs-title">
+            <h2 id="inputs-title">Ask for these inputs</h2>
+            <table>
+              <thead><tr><th scope="col">Input</th><th scope="col">Required</th><th scope="col">Why</th></tr></thead>
+              <tbody>{pack.inputs.map((input) => <tr><th scope="row">{input.label}</th><td data-label="Required">{input.required ? 'Yes' : 'Optional'}</td><td data-label="Why">{input.note}</td></tr>)}</tbody>
+            </table>
+          </section>
+
+          <section aria-labelledby="evidence-title">
+            <h2 id="evidence-title">Evidence it must cite</h2>
+            <ul class="pack-evidence">{pack.evidence.map((item) => <li>{item}</li>)}</ul>
+          </section>
+
+          <section aria-labelledby="method-title">
+            <h2 id="method-title">Method</h2>
+            <ol class="pack-method">{pack.method.map((step) => <li>{step}</li>)}</ol>
+          </section>
+
+          <section aria-labelledby="output-title">
+            <h2 id="output-title">Returns this</h2>
+            <dl class="pack-output">{pack.output.map((field) => <div><dt>{field.name}</dt><dd>{field.detail}</dd></div>)}</dl>
+          </section>
+
+          <section class="pack-worked" aria-labelledby="worked-title">
+            <p class="pack-kicker">Worked outcome · fictional</p>
+            <h2 id="worked-title">{pack.worked.scenario}</h2>
+            <p>{pack.worked.evidence}</p>
+            <p>{pack.worked.finding}</p>
+            <p class="worked-decision"><strong>Decision.</strong> {pack.worked.decision}</p>
+            <div class="worked-measure">
+              <span>Measured</span>
+              <p>{pack.worked.measured}</p>
+            </div>
+            <p class="small"><strong>Remaining gate.</strong> {pack.worked.remainingGate}</p>
+          </section>
+
+          <section aria-labelledby="tests-title">
+            <h2 id="tests-title">Negative tests</h2>
+            <table>
+              <thead><tr><th scope="col">Test</th><th scope="col">Input</th><th scope="col">Expected refusal</th></tr></thead>
+              <tbody>{pack.negativeTests.map((test) => <tr><th scope="row">{test.id}</th><td data-label="Input">{test.input}</td><td data-label="Expected refusal">{test.expected}</td></tr>)}</tbody>
+            </table>
+          </section>
+
+          <section aria-labelledby="prompt-title">
+            <h2 id="prompt-title">Prompt for a local agent</h2>
+            <p>Replace the bracketed target with your selected workspace facts. Never add credentials or private records.</p>
+            <pre id="prompt-text" tabindex="0">{prompt}</pre>
+          </section>
+
+          <details class="pack-brief">
+            <summary>See the generated brief for the shared bundle</summary>
+            <p class="small">This is assembled by <code>scripts/roles.mjs</code> from the same fictional bundle. Decision for this bundle: <strong>{brief.meta.decision}</strong>. {brief.meta.stops.length} stop rules apply.</p>
+            <pre tabindex="0">{brief.markdown}</pre>
+          </details>
+        </div>
+
+        <aside class="pack-aside">
+          <section aria-labelledby="run-title">
+            <h2 id="run-title">Run it</h2>
+            <pre tabindex="0"><code>node scripts/roles.mjs check
+
+node scripts/roles.mjs brief \
+  --role {pack.id} \
+  --input examples/role-packs/fictional-trail-notes.json</code></pre>
+            <p class="small">Exit 0 is an unblocked brief, 2 is a refusal and 3 is a brief with a blocking stop. The command writes nothing unless you pass <code>--out</code>.</p>
+            <p class="aside-measure"><strong>{brief.meta.evidenceCount}</strong> evidence items · <strong>{pack.negativeTests.length}</strong> negative tests · <strong>{brief.meta.stops.length}</strong> stop rules</p>
+          </section>
+          <section aria-labelledby="files-title">
+            <h2 id="files-title">Files</h2>
+            <ul class="pack-files">
+              <li><a href={`/roles/v1/${pack.id}.md`} download>Pack Markdown</a><span>v{pack.version}</span></li>
+              <li><a href={`/roles/v1/prompts/${pack.id}.txt`} download>Prompt text</a><span>copy-ready</span></li>
+              <li><a href="/roles/v1/examples/fictional-trail-notes.json" download>Shared bundle</a><span>fictional</span></li>
+              <li><a href="/roles/v1/role-packs.zip" download>All six packs</a><span>ZIP</span></li>
+            </ul>
+          </section>
+          <section aria-labelledby="related-title">
+            <h2 id="related-title">Related</h2>
+            <ul class="pack-files">
+              {pack.related.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+              <li><a href="/prompts">Prompt library</a></li>
+              <li><a href="/resources">Operating runbooks</a></li>
+            </ul>
+          </section>
+          <p class="pack-provenance">Proposal only. This pack does not approve, deploy, merge, spend, invite, delete or change access. <a href="https://github.com/loftwah/app-composer/issues/315">#315</a> · <a href="https://github.com/loftwah/app-composer/issues/311">#311</a> · <a href="https://github.com/loftwah/app-composer/issues/314">#314</a></p>
+        </aside>
+      </div>
+    </article>
+  ) : (
+    <div class="pack-missing">
+      <h1>That role pack is not here.</h1>
+      <p><a href="/roles">Choose one of the six role packs</a> or start from the <a href="/prompts">prompt library</a>.</p>
+    </div>
+  )}
+</Base>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('#copy-prompt');
+  const prompt = document.querySelector<HTMLPreElement>('#prompt-text');
+  const status = document.querySelector<HTMLElement>('#copy-status');
+  button?.addEventListener('click', async () => {
+    if (!prompt || !status) return;
+    try {
+      await navigator.clipboard.writeText(prompt.textContent ?? '');
+      status.textContent = 'Prompt copied. Replace the bracketed target before running it.';
+    } catch {
+      prompt.focus();
+      const range = document.createRange();
+      range.selectNodeContents(prompt);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      status.textContent = 'Copy is unavailable. The prompt is selected; use your device’s Copy action.';
+    }
+  });
+</script>
+
+<style>
+  .pack { min-width: 0; }
+  .pack-back { display: inline-flex; align-items: center; min-height: 44px; font-size: .88rem; margin-bottom: 18px; }
+  .pack-heading { display: block; padding: 0 0 32px; border-bottom: 1px solid var(--color-border); }
+  .pack-kicker { margin: 0 0 14px; font-size: .78rem; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--color-accent); }
+  .pack-heading h1 { font-size: clamp(2.9rem, 5.4vw, 5rem); margin: 0 0 8px; max-width: none; }
+  .pack-title { margin: 0 0 18px; font-family: Space, sans-serif; font-size: clamp(1.25rem, 2.2vw, 1.75rem); letter-spacing: -.02em; }
+  .pack-heading .lede { font-size: 1.12rem; max-width: 60ch; margin: 0; }
+  .pack-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 22px; margin-top: 26px; }
+  .pack-actions .button { gap: 10px; }
+  .pack-actions .button span { font-size: .78rem; opacity: .9; }
+  .pack-actions > a:not(.button) { min-height: 44px; display: inline-flex; align-items: center; font-size: .88rem; }
+  .pack-actions button { min-height: 44px; font-size: .88rem; }
+  .pack-status { min-height: 1.4em; margin: 12px 0 0; font-size: .86rem; color: var(--color-accent); }
+  .pack-boundaries { display: grid; grid-template-columns: 1.1fr 1.1fr .9fr; gap: 34px; padding: 34px 0; border-bottom: 1px solid var(--color-border); }
+  .pack-boundaries h2 { font-size: 1.02rem; letter-spacing: 0; margin: 0 0 12px; }
+  .pack-boundaries ul { padding-left: 19px; margin: 0; font-size: .86rem; line-height: 1.6; color: var(--color-muted); }
+  .pack-boundaries li { margin: 7px 0; }
+  .pack-owner p { font-size: .86rem; line-height: 1.6; color: var(--color-muted); margin: 0 0 10px; }
+  .pack-owner strong { color: var(--color-foreground); }
+  .pack-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 52px; padding-top: 12px; align-items: start; }
+  .pack-main section { padding: 30px 0; border-bottom: 1px solid var(--color-border); }
+  .pack-main section:last-of-type { border-bottom: 0; }
+  .pack-main h2 { font-size: clamp(1.45rem, 2.2vw, 1.9rem); margin: 0 0 16px; max-width: 30ch; }
+  .pack-main p { max-width: 70ch; }
+  .pack-main table { margin-top: 8px; }
+  .pack-main th[scope="row"] { font-weight: 600; }
+  .pack-main td { color: var(--color-muted); }
+  .pack-evidence, .pack-method { max-width: none; }
+  .pack-evidence li, .pack-method li { font-size: .94rem; line-height: 1.6; }
+  .pack-evidence li::marker, .pack-method li::marker { color: var(--color-accent); }
+  .pack-output { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+  .pack-output > div { padding: 14px 0; border-top: 1px solid var(--color-border); }
+  .pack-output dt { font-family: Space, sans-serif; font-size: .98rem; font-weight: 550; }
+  .pack-output dd { margin: 5px 0 0; color: var(--color-muted); font-size: .86rem; line-height: 1.55; }
+  .pack-worked { background: var(--color-surface); padding: 30px 32px !important; margin: 30px 0; border: 0 !important; }
+  .pack-worked h2 { font-size: clamp(1.35rem, 2.1vw, 1.75rem); max-width: 34ch; }
+  .pack-worked p { font-size: .93rem; line-height: 1.65; }
+  .pack-worked .worked-decision { border-left: 3px solid var(--color-accent); padding-left: 16px; }
+  .worked-measure { margin: 22px 0; border-top: 1px solid var(--color-border); padding-top: 18px; }
+  .worked-measure span { display: block; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--color-accent); }
+  .worked-measure p { margin: 6px 0 0; font-family: Space, sans-serif; font-size: 1.05rem; }
+  .pack-main pre { font-size: .78rem; line-height: 1.6; max-height: 440px; }
+  .pack-brief { border-top: 1px solid var(--color-border); padding-top: 20px; margin-top: 0; }
+  .pack-brief summary { font-weight: 600; }
+  .pack-brief pre { max-height: 540px; margin-top: 18px; }
+  .pack-aside { position: sticky; top: 24px; }
+  .pack-aside section { padding: 22px 0; border-top: 1px solid var(--color-border); }
+  .pack-aside section:first-child { border-top: 0; padding-top: 0; }
+  .pack-aside h2 { font-size: 1.05rem; letter-spacing: 0; margin: 0 0 12px; }
+  .pack-aside pre { font-size: .74rem; padding: 16px; margin: 0; }
+  .aside-measure { font-size: .8rem; color: var(--color-muted); border-top: 1px solid var(--color-border); padding-top: 12px; margin-top: 16px; }
+  .aside-measure strong { color: var(--color-foreground); }
+  .pack-files { list-style: none; padding: 0; margin: 0; }
+  .pack-files li { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; border-bottom: 1px solid var(--color-border); padding: 10px 0; font-size: .86rem; }
+  .pack-files a { min-height: 32px; display: inline-flex; align-items: center; }
+  .pack-files span { color: var(--color-muted); font-size: .72rem; white-space: nowrap; }
+  .pack-provenance { margin: 26px 0 0; padding-top: 18px; border-top: 1px solid var(--color-border); font-size: .78rem; line-height: 1.6; color: var(--color-muted); }
+  .pack-missing { padding: 40px 0; }
+  @media (max-width: 1050px) {
+    .pack-grid { grid-template-columns: minmax(0, 1fr) 260px; gap: 32px; }
+    .pack-boundaries { grid-template-columns: 1fr 1fr; }
+    .pack-owner { grid-column: 1 / -1; border-top: 1px solid var(--color-border); padding-top: 20px; }
+  }
+  @media (max-width: 800px) {
+    .pack-grid { grid-template-columns: 1fr; gap: 8px; }
+    .pack-aside { position: static; border-top: 1px solid var(--color-border); }
+    .pack-aside section:first-child { border-top: 1px solid var(--color-border); padding-top: 22px; }
+    .pack-boundaries { grid-template-columns: 1fr; gap: 22px; }
+    .pack-owner { border-top: 0; padding-top: 0; }
+    .pack-output { grid-template-columns: 1fr; }
+    .pack-heading h1 { font-size: 3rem; }
+    .pack-worked { padding: 24px 20px !important; margin: 24px 0; }
+    .pack-actions .button { width: 100%; justify-content: space-between; }
+    .pack-main table { display: block; white-space: normal; }
+    .pack-main thead { display: none; }
+    .pack-main tbody, .pack-main tr { display: block; }
+    .pack-main tr { padding: 14px 0; border-bottom: 1px solid var(--color-border); }
+    .pack-main th[scope="row"] { display: block; border: 0; padding: 0 0 4px; font-family: Space, sans-serif; font-size: 1rem; }
+    .pack-main td { display: block; border: 0; padding: 3px 0; }
+    .pack-main td::before { content: attr(data-label) ": "; color: var(--color-foreground); font-weight: 600; }
+    .pack-aside pre { font-size: .7rem; }
+  }
+</style>
