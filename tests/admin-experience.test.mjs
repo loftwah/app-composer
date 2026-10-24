@@ -44,7 +44,7 @@ test('the new page is discoverable from the shell, launcher, homepage and sitema
   assert.match(text('src/layouts/Base.astro'), /href="\/manage">Your admin<\/a>/);
   assert.match(text('src/components/AppLauncher.astro'), /Your app, your admin/);
   assert.match(text('src/components/ProductHome.astro'), /href="\/manage"/);
-  assert.ok((await sitemap().text()).includes("<loc>https://composer.loftwah.com/manage</loc>"));
+  assert.ok((await (await sitemap()).text()).includes("<loc>https://composer.loftwah.com/manage</loc>"));
 });
 
 test('the live stack captures have the declared dimensions and provenance', () => {
