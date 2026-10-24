@@ -1,0 +1,7 @@
+{
+  "schema": "composer.example-enquiry/1",
+  "id": "fictional-enquiry-001",
+  "workspace": "trail-notes-fictional",
+  "environment": "local-fixture",
+  "message": "Could we use a visitor book for our fictional walking club?"
+}

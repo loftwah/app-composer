@@ -20,7 +20,7 @@ function crc32(bytes){
  for(const b of bytes){c^=b;for(let k=0;k<8;k++)c=(c>>>1)^((c&1)?0xedb88320:0);}
  return (c^0xffffffff)>>>0;
 }
-function zip(files){
+export function zip(files){
  const chunks=[],central=[];
  let offset=0;
  const dosTime=0, dosDate=(2026-1980)<<9|10<<5|17; // 2026-10-17, fixed for determinism
