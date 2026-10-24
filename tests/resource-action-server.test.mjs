@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync } from "node:fs";
+import { resources } from "../src/lib/resource-library.ts";
 import {
   collectResourceAction,
   resourceActionSummary,
@@ -83,7 +84,7 @@ const rows = (f) =>
 test("additive resource counters preserve legacy rows and cap atomic writes without identities", async () => {
   const f = fixture();
   try {
-    for (const resource of ["change", "incident", "pipeline", "hook", "kit"]) {
+    for (const resource of resources.map((resource) => resource.id)) {
       for (const action of ["choice", "copy", "download", "example_open"]) {
         assert.equal(
           (
@@ -122,6 +123,11 @@ test("additive resource counters preserve legacy rows and cap atomic writes with
     assert.throws(() =>
       f.sqlite.exec(
         "INSERT INTO composer_resource_usage VALUES('2026-10-24','private','download',1)",
+      ),
+    );
+    assert.throws(() =>
+      f.sqlite.exec(
+        "INSERT INTO composer_resource_usage VALUES('2026-10-24','kit','download',1)",
       ),
     );
   } finally {
@@ -213,8 +219,14 @@ test("verification header, current QA and inherited same-origin QA skip rate lim
     [{ "X-Composer-Verification": "1" }, ""],
     [{}, "?analytics=on&analytics=off"],
     [{}, "?qa=0&qa=1"],
+    [{}, "?qa=resources-reviewed"],
+    [{}, "?qa="],
+    [{}, "?qa=private%20text"],
+    [{}, "?qa=" + "x".repeat(65)],
     [{ Referer: origin + "/resources?analytics=off" }, ""],
     [{ Referer: origin + "/resources?qa=1" }, ""],
+    [{ Referer: origin + "/resources?qa=resources-reviewed" }, ""],
+    [{ Referer: origin + "/resources?qa=" }, ""],
   ])
     assert.equal(
       (
@@ -232,7 +244,9 @@ test("verification header, current QA and inherited same-origin QA skip rate lim
     assert.equal(
       (
         await collectResourceAction(
-          request(undefined, { Referer: "https://foreign.test/?qa=1" }),
+          request(undefined, {
+            Referer: "https://foreign.test/?qa=resources-reviewed",
+          }),
           f.runtime,
           now,
         )
