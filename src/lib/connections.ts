@@ -185,6 +185,35 @@ export async function manageConnections(ctx: Context, runtime: Runtime) {
             ...runtime,
             GUESTBOOK: {
               async fetch(request: Request) {
+                // status() awaits public source verification before dispatching
+                // its authenticated read. Recheck the live local grant and exact
+                // resource after that wait, before forwarding any credential.
+                if (request.headers.has("Authorization")) {
+                  if (
+                    request.method !== "GET" ||
+                    request.url !==
+                      resourceTarget + "/api/resources/" + resource.id
+                  )
+                    throw Error("Unexpected connection read");
+                  const currentResource = await db
+                    .prepare(
+                      "SELECT id FROM creator_app_resources WHERE id=? AND workspace_id=? AND app='guestbook' AND account_id=? AND environment=? AND target=? AND state='ready'",
+                    )
+                    .bind(
+                      resource.id,
+                      workspace.id,
+                      target.account,
+                      target.environment,
+                      resourceTarget,
+                    )
+                    .first();
+                  if (!currentResource)
+                    throw Error("Resource changed before read");
+                  requireCapability(
+                    await membership(db, workspace.id, user.id),
+                    "save",
+                  );
+                }
                 try {
                   const response = await service.fetch(request);
                   statuses.push(response.status);
@@ -237,7 +266,7 @@ export async function manageConnections(ctx: Context, runtime: Runtime) {
               : "unknown";
           guestbook.note =
             guestbook.checkOutcome === "denied"
-              ? "The app refused the selected credential or resource access. Review its scope; no write was attempted."
+              ? "The app denied a required read. Credential validity remains unverified; review its scope. No write was attempted."
               : guestbook.checkOutcome === "rate-limited"
                 ? "The app rate-limited the read. Its credential is not verified; wait before another deliberate check."
                 : guestbook.checkOutcome === "unavailable"

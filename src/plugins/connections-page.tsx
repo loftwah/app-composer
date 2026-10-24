@@ -112,7 +112,7 @@ export function Connections({ search }: { search: string }) {
           Refresh metadata
         </button>
       </div>
-      <p className="cn-scope">
+      <div className="cn-scope">
         {snapshot ? (
           <>
             Workspace <strong>{snapshot.workspace.name}</strong> ·{" "}
@@ -133,7 +133,7 @@ export function Connections({ search }: { search: string }) {
         ) : (
           "Confirming the selected workspace…"
         )}
-      </p>
+      </div>
       {error && (
         <p className="cn-error" role="alert">
           {error}

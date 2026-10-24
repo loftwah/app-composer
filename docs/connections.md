@@ -23,8 +23,10 @@ use local records; no external credential dependency is invented for them.
 **Check an owned visitor-book read** server-selects one ready owned resource and
 uses the existing `resourceConnection.status()` implementation. It reads the fixed
 `/guestbook/build.json` and authenticated resource route, verifies exact reviewed
-source/account/environment/resource identity, then rechecks local scope and
-membership. It proves only that resource read at that time. It does not test
+source/account/environment/resource identity. After public source verification
+returns, it rechecks the exact local resource and current membership immediately
+before forwarding the credential-bearing read, then rechecks scope and membership
+before returning its result. It proves only that resource read at that time. It does not test
 writes, all resources, complete provider grants, expiry or recovery.
 
 Missing configuration/resource means unavailable or unknown without a request.

@@ -270,3 +270,46 @@ test("dependencies exclude another account/environment and missing sources remai
   assert.equal(partial.connections[1].dependencies.available, false);
   assert.equal(partial.connections[1].dependencies.items.length, 0);
 });
+
+test("revocation or resource movement during public source verification prevents the authenticated read", async (t) => {
+  for (const change of ["revoke", "move-resource"]) {
+    const f = await prepared(t),
+      original = f.runtime.GUESTBOOK;
+    let credentialReads = 0;
+    f.runtime.GUESTBOOK = {
+      async fetch(request) {
+        const reply = await original.fetch(request);
+        if (request.url.endsWith("/build.json")) {
+          if (change === "revoke")
+            f.sqlite
+              .prepare(
+                "DELETE FROM creator_members WHERE workspace_id=? AND user_id=?",
+              )
+              .run(f.workspace.id, user.id);
+          else
+            f.sqlite
+              .prepare(
+                "UPDATE creator_app_resources SET environment='different' WHERE id=?",
+              )
+              .run(f.resource);
+        } else if (request.headers.has("Authorization")) credentialReads++;
+        return reply;
+      },
+    };
+    const reply = await f.check();
+    assert.equal(
+      credentialReads,
+      0,
+      "No credential-bearing service request after " + change,
+    );
+    if (change === "revoke") {
+      assert.equal(reply.ok, false);
+      assert.equal(reply.code, "FORBIDDEN");
+      assert.equal(reply.connections, undefined);
+    } else {
+      const snapshot = connectionSnapshot.parse(reply);
+      assert.equal(snapshot.connections[0].checkOutcome, "mismatch");
+      assert.deepEqual(snapshot.connections[0].verifiedCapabilities, []);
+    }
+  }
+});
