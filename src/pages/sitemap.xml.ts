@@ -1,1 +1,9 @@
-export function GET(){const paths=['/','/learn','/ready','/ready/guide','/init','/init/content','/discover','/explore','/demo','/docs','/architecture','/guide','/catalogue','/apps','/activity','/review','/privacy','/release','/extension','/state','/php2shell','/studio','/manage','/building','/launch-kit','/platform','/platform/demo'];return new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+paths.map(p=>'<url><loc>https://composer.loftwah.com'+p+'</loc></url>').join('')+'</urlset>',{headers:{'Content-Type':'application/xml'}});}
+import { publicPagePaths, publicPageCanonical } from '../lib/public-pages.mjs';
+
+export function GET() {
+  const urls = publicPagePaths.map(path => `<url><loc>${publicPageCanonical(path).href}</loc></url>`).join('');
+  return new Response(
+    '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls + '</urlset>',
+    { headers: { 'Content-Type': 'application/xml' } },
+  );
+}

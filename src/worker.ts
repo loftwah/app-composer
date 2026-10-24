@@ -10,11 +10,13 @@ import {publicFilmAsset} from './lib/public-film-assets';
 import {purgePrivateOutcomes} from './lib/private-outcome-events';
 import {mountedBuilderNavigation} from './lib/mounted-builder-navigation';
 import {builderNavigationRedirect} from './lib/builder-context.mjs';
+import {publicPageRedirect} from './lib/public-pages.mjs';
 type Runtime=AccessRuntime & {DB:D1Database;PUBLIC_ORIGIN:string;USAGE_TOKENS?:string;USAGE_LIMIT?:RateLimit;ASSETS?:{fetch(request:Request):Promise<Response>}};
 export { PluginBridge };
 const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runtime:Runtime,context:ExecutionContext)=>{
  const rejection=await protectAdministration(request as unknown as Request,runtime as AccessRuntime);
  if(rejection)return rejection;
+ const canonicalRedirect=publicPageRedirect(request);if(canonicalRedirect)return canonicalRedirect;
  const film=await publicFilmAsset(request,runtime.ASSETS,undefined,context);if(film)return film;
  const navigation=builderNavigationRedirect(request);if(navigation)return navigation;
  const path=new URL(request.url).pathname;
