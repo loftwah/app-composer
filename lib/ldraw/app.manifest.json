@@ -1,0 +1,47 @@
+{
+  "contract": 1,
+  "id": "ldraw",
+  "name": "LDraw",
+  "description": "Local editable drawings, powered by Excalidraw.",
+  "version": "1.0.0",
+  "repository": "https://github.com/loftwah/app-composer-ldraw",
+  "runtime": "static-assets",
+  "dataVersion": 1,
+  "routes": ["/ldraw"],
+  "capabilities": [],
+  "configuration": {},
+  "deviceSupport": {
+    "version": 1,
+    "target": "both",
+    "activities": {
+      "core": {
+        "desktop": {
+          "status": "unknown",
+          "note": "Automated Chromium editing and file journeys are recorded separately from physical device acceptance."
+        },
+        "phone": {
+          "status": "unknown",
+          "note": "390px browser keyboard and pointer journeys are recorded separately. Physical touch support is unverified."
+        },
+        "tablet": {
+          "status": "unknown",
+          "note": "Tablet editing and stylus journeys have not been exercised."
+        }
+      }
+    }
+  },
+  "ldraw": {
+    "version": 1,
+    "entry": "/",
+    "storage": "independent-browser-indexeddb",
+    "sceneFormat": "excalidraw/2",
+    "features": [
+      "local-drawing",
+      "editable-file-import-export",
+      "png-export",
+      "svg-export"
+    ],
+    "offline": "core-editor-precache; requested-fonts-and-helpers-cached-after-load",
+    "agentConnection": "same-browser-window.ldraw; no MCP server"
+  }
+}
