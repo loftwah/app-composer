@@ -1,5 +1,5 @@
 export interface Spec {
-  deviceTarget: import("./device-support.mjs").DeviceTarget;
+  deviceTarget?: import("./device-support.mjs").DeviceTarget;
   version: 2;
   preset: string;
   apps: string[];

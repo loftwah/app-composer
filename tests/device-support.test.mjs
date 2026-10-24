@@ -140,7 +140,8 @@ test("strict contract rejects unbounded unsupported and invented positive metada
   );
 });
 test("portable specs saved roundtrips recommendation changes and handoffs retain device choice", () => {
-  assert.equal(validateSpec(old()).deviceTarget, "unknown");
+  // An omitted optional field must not rewrite historical immutable plans.
+  assert.equal(Object.hasOwn(validateSpec(old()), "deviceTarget"), false);
   for (const deviceTarget of ["desktop", "mobile", "both"]) {
     const spec = validateSpec({ ...old(), deviceTarget });
     assert.deepEqual(validateSpec(JSON.parse(JSON.stringify(spec))), spec);

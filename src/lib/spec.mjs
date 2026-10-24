@@ -116,7 +116,9 @@ export function validateSpec(input) {
     apps,
     sources,
     appSettings,
-    deviceTarget: validateDeviceTarget(input.deviceTarget),
+    ...(input.deviceTarget === undefined
+      ? {}
+      : { deviceTarget: validateDeviceTarget(input.deviceTarget) }),
     config: { title, intro, theme: config.theme, layout },
     privacy: "review-first",
     cards: cleanCards,
@@ -154,7 +156,10 @@ export function handoff(spec) {
     (s.preset === "hello"
       ? "Use Composer’s init:hello command to plan and explicitly apply title/introduction/theme after shared Get Ready verification. For an already deployed personal private starter on workers.dev, pass its exact --reference-repo and verified target; temporary-address intent configures that existing target and never provisions another. Review/commit/push the config diff, then explicitly run update-owned-reference with the previously verified source and active Worker version. Stale/split versions, changed code and mismatched targets are refused. Verify the changed live fields. The maintained authored reference on its existing domain uses deploy-reference instead. Neither path buys a domain or creates a fork from this spec. See https://composer.loftwah.com/docs#hello-init.\n\n"
       : "") +
-    "Preserve the creator deviceTarget (desktop, mobile or both) as an implementation requirement, not verified support. Keep existing per-activity device declarations and recheck actual viewing, editing and file/export journeys for the exact released source. Missing assessments remain unknown. Discovery stays usable on every device; do not block by viewport or discard work.\n\nSpecification (version 2):\n" +
+    (s.deviceTarget === undefined
+      ? ""
+      : "Preserve the creator deviceTarget (desktop, mobile or both) as an implementation requirement, not verified support. Keep existing per-activity device declarations and recheck actual viewing, editing and file/export journeys for the exact released source. Missing assessments remain unknown. Discovery stays usable on every device; do not block by viewport or discard work.\n\n") +
+    "Specification (version 2):\n" +
     JSON.stringify(s, null, 2) +
     (s.preset !== "hello"
       ? "\n\nFor each selected app, resolve shared settings plus its appSettings overrides through the pinned configuration contract. For settings-only changes on the verified operator pair with no new cards, use pnpm compose --spec PATH --apply-settings after fresh Get Ready verification. This requires the clean pushed Composer main already deployed at its verified hostname. It preserves source pins and collections. Other targets need their own reviewed adapter; do not send the shared config unchanged to both apps. Preserve existing cards and other owner settings."
