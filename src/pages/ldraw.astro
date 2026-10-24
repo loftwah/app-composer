@@ -1,0 +1,5 @@
+---
+import { ldrawDestination } from '../lib/ldraw-entry.mjs';
+// Editor code, browser storage and drawings belong to the independent origin.
+return Astro.redirect(ldrawDestination(Astro.url).href, 302);
+---

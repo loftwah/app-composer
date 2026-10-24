@@ -33,7 +33,7 @@ test('task entry is one choice to a focused role or directly to a working tool',
     if (job.role) {
       assert.ok(discoveryRole(job.role));
       assert.equal(new URL(job.href, 'https://composer.loftwah.com').pathname, '/for/' + job.role);
-    } else assert.match(job.href, /^https:\/\/(paperwork|share)\.loftwah\.com$/);
+    } else assert.match(job.href, /^https:\/\/(paperwork|share|ldraw)\.loftwah\.com$/);
   }
 });
 

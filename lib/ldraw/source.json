@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/loftwah/app-composer-ldraw",
+  "commit": "c9c2339a1296ee7c06a7d94f274c69143478acba",
+  "origin": "https://ldraw.loftwah.com",
+  "manifestPath": "public/app.manifest.json",
+  "manifestFileSha256": "fa15f5e279eb4af500331b314a04b3467c46e6f1b6c6e785feddf3bb84db8775",
+  "manifestDigest": "sha256:70b93891984aa8536ce065dd9bca2c52e7340b4f1dce51f28c24a40a3597feaa",
+  "manifestFile": "lib/ldraw/app.manifest.json"
+}

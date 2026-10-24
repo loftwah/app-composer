@@ -95,11 +95,11 @@ export async function verifyCommandMenu(page, url) {
   ensure(await brand.getAttribute('aria-label') === 'App Composer home', 'Composer branding/link missing');
   ensure(await brand.locator('img').evaluate(image => image.complete && image.naturalWidth === 96), 'Composer artwork is not decoded');
   const order = await dialog.locator('[data-launcher-group=apps] a > span:not(.task-icon)').evaluateAll(nodes => nodes.map(node => node.firstChild.textContent));
-  const expectedApps = ['Linkarooie', 'Here / there', 'Link Check', 'Hello World', 'Carry / forward', 'Launch Kit', 'Paperwork'];
+  const expectedApps = ['Linkarooie', 'Here / there', 'Link Check', 'Hello World', 'Carry / forward', 'Launch Kit', 'Paperwork', 'LDraw'];
   ensure(JSON.stringify(order) === JSON.stringify(expectedApps), 'the Apps section must contain every mini-app once, in the same order');
   const studioNames = await dialog.locator('[data-launcher-group=studio] a > span:not(.task-icon)').evaluateAll(nodes => nodes.map(node => node.firstChild.textContent));
   ensure(!studioNames.some(name => expectedApps.includes(name)), 'a mini-app was left under Studio shortcuts');
-  for (const [name, href] of [['Launch Kit', 'https://composer-launch-kit.loftwah.workers.dev/'], ['Paperwork', 'https://composer-paperwork.loftwah.workers.dev/']]) {
+  for (const [name, href] of [['Launch Kit', 'https://composer-launch-kit.loftwah.workers.dev/'], ['Paperwork', 'https://composer-paperwork.loftwah.workers.dev/'], ['LDraw', 'https://ldraw.loftwah.com/']]) {
     const app = dialog.locator('[data-launcher-group=apps] a').filter({ hasText: name });
     ensure(await app.getAttribute('href') === href, `${name} does not open its standalone app`);
     await search.fill(name);

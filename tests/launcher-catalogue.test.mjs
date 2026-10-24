@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import ts from 'typescript';
+import { apps as publicApps } from '../src/lib/apps.ts';
 
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 const source = ts.createSourceFile('launcher.ts', read('src/browser/launcher.ts'), ts.ScriptTarget.Latest, true);
@@ -22,7 +23,7 @@ function registrations(name) {
   assert(result, `Missing ${name} registrations`);
   return result;
 }
-const catalogue = [...read('src/lib/apps.ts').matchAll(/\{id:'([^']+)',name:'([^']+)'/g)].map(([,id,name]) => ({id,name}));
+const catalogue = publicApps.map(({id,name}) => ({id,name}));
 
 test('every shipped mini-app is registered once in Apps and never as a studio task', () => {
   const apps = registrations('apps'), tasks = registrations('tasks');
@@ -31,12 +32,13 @@ test('every shipped mini-app is registered once in Apps and never as a studio ta
   assert(!tasks.some(task => catalogue.some(app => app.name === task.name)));
 });
 
-test('the two standalone editors open their actual app origins', () => {
+test('the standalone editors open their actual app origins', () => {
   const apps = registrations('apps');
-  for (const name of ['Launch Kit', 'Paperwork']) {
+  for (const name of ['Launch Kit', 'Paperwork', 'LDraw']) {
     const app = apps.find(app => app.name === name);
     assert.equal(app.standaloneOnly, true);
-    const line = read('src/lib/apps.ts').split('\n').find(line => line.includes(`name:'${name}'`));
-    assert.equal(app.href, new URL(line.match(/standalone:'([^']+)'/)[1]).href);
+    const listed = publicApps.find(entry => entry.name === name);
+    assert.equal(app.href, new URL(listed.standalone).href);
+    assert.equal(app.explainer, listed.href, name+" rewrites its authored Composer entry to the standalone origin");
   }
 });
