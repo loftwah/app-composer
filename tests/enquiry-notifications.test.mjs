@@ -303,3 +303,108 @@ test("wrong workspace, connection, role, destination and revoked membership neve
     f.close();
   }
 });
+
+function interleaved(db, trigger, mutate) {
+  let fired = false;
+  return {
+    ...db,
+    prepare(sql) {
+      const statement = (params) => ({
+        bind(...values) {
+          return statement(values);
+        },
+        async first() {
+          if (!fired && trigger(sql)) {
+            fired = true;
+            mutate();
+          }
+          return db
+            .prepare(sql)
+            .bind(...params)
+            .first();
+        },
+        async all() {
+          if (!fired && trigger(sql)) {
+            fired = true;
+            mutate();
+          }
+          return db
+            .prepare(sql)
+            .bind(...params)
+            .all();
+        },
+        async run() {
+          if (!fired && trigger(sql)) {
+            fired = true;
+            mutate();
+          }
+          return db
+            .prepare(sql)
+            .bind(...params)
+            .run();
+        },
+      });
+      return statement([]);
+    },
+  };
+}
+test("revocation during status read never returns an outbox snapshot", async () => {
+  const f = await prepared();
+  try {
+    await f.enabled();
+    await queueEnquiryNotification(f.db, f.scope, f.event());
+    const db = interleaved(
+      f.db,
+      (sql) => sql.startsWith("SELECT id,state,attempts"),
+      () =>
+        f.sqlite
+          .prepare(
+            "DELETE FROM creator_members WHERE workspace_id=? AND user_id=?",
+          )
+          .run(f.workspace.id, user.id),
+    );
+    const result = await f.call(
+      { action: "notificationStatus" },
+      true,
+      undefined,
+      { ...f.runtime, DB: db },
+    );
+    assert.equal(result.ok, false);
+    assert.equal(result.code, "FORBIDDEN");
+    assert.equal(result.items, undefined);
+    assert.equal(result.connection, undefined);
+  } finally {
+    f.close();
+  }
+});
+test("pause or owner revocation immediately before queue insertion cannot create a new notice", async () => {
+  for (const change of ["pause", "revoke"]) {
+    const f = await prepared();
+    try {
+      await f.enabled();
+      const db = interleaved(
+        f.db,
+        (sql) =>
+          sql.startsWith("INSERT INTO creator_enquiry_notification_outbox"),
+        () => {
+          if (change === "pause")
+            f.sqlite
+              .prepare(
+                "UPDATE creator_enquiry_notification_preferences SET enabled=0,revision=revision+1 WHERE workspace_id=?",
+              )
+              .run(f.workspace.id);
+          else
+            f.sqlite
+              .prepare(
+                "DELETE FROM creator_members WHERE workspace_id=? AND user_id=?",
+              )
+              .run(f.workspace.id, user.id);
+        },
+      );
+      await queueEnquiryNotification(db, f.scope, f.event());
+      assert.equal(f.rows().length, 0);
+    } finally {
+      f.close();
+    }
+  }
+});
