@@ -84,8 +84,8 @@ test("the demo states outcomes from the recorded scenario, not from counters", (
   assert.match(component, /partial: "Partial evidence"/);
   assert.match(component, /complete: "Every page read"/);
   assert.equal(progressLine(scenario("ready"), 0), "Ready to run the recorded check.");
-  assert.match(progressLine(scenario("ready"), 1), /Step 1 of 6/);
-  assert.match(progressLine(scenario("ready"), 6), /Run complete after 6 steps/);
+  assert.match(progressLine(scenario("ready"), 1), /Step 1 of 5/);
+  assert.match(progressLine(scenario("ready"), 6), /Run complete after 5 steps/);
 });
 
 test("a shared summary carries its synthetic label and pinned source links", () => {
