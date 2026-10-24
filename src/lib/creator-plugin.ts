@@ -13,6 +13,7 @@ import { manageOrders } from "./orders.ts";
 import { manageConnections } from "./connections.ts";
 import { manageResourceInventory } from "./resource-inventory.ts";
 import { manageAgentProposals } from "./agent-proposals.ts";
+import { manageProviderInventory } from "./provider-read.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
 
@@ -64,6 +65,11 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         methods: ["GET"],
         permission: creatorPermission,
         handler: (ctx) => manageResourceInventory(ctx, runtime),
+      },
+      providerRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageProviderInventory(ctx, runtime),
       },
       overviewRead: {
         methods: ["GET"],

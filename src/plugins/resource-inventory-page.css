@@ -322,6 +322,101 @@
   font-size: 14px;
   min-height: 44px;
 }
+.ri-cloud {
+  border: 1px solid var(--ri-rule);
+  border-left: 4px solid var(--ri-accent);
+  padding: 18px;
+  margin: 28px 0 0;
+}
+.ri-cloud h2 {
+  font-size: 20px;
+}
+.ri-cloud-badge {
+  border: 1px solid var(--ri-rule);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.ri-cloud-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 18px 0 6px;
+}
+.ri-file {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  border: 1px solid var(--ri-rule);
+  border-radius: 6px;
+  padding: 9px 14px;
+  background: var(--ri-surface);
+  font: 600 14px/1.4 system-ui;
+  cursor: pointer;
+}
+.ri-file input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+}
+.ri-file:focus-within {
+  outline: 2px solid var(--ri-accent);
+  outline-offset: 3px;
+}
+.ri-cloud-observation {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.ri-cloud-attention {
+  border-top: 1px solid var(--ri-rule);
+  margin-top: 24px;
+  padding-top: 8px;
+}
+.ri-cloud-attention h3 {
+  margin-top: 8px;
+}
+.ri-cloud-other {
+  border-top: 1px solid var(--ri-rule);
+  margin-top: 18px;
+  padding-top: 4px;
+}
+.ri-cloud-table table {
+  min-width: 680px;
+}
+.ri-cloud-detail {
+  display: block;
+  margin-top: 4px;
+  color: var(--ri-muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+.ri-cloud-state {
+  font-size: 12px;
+  border: 1px solid var(--ri-rule);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.ri-cloud-state-match {
+  border-color: #2f6b3a;
+  color: #2f6b3a;
+}
+.ri-cloud-state-drift,
+.ri-cloud-state-missing,
+.ri-cloud-state-inaccessible {
+  border-color: var(--ri-attention);
+  color: var(--ri-attention);
+}
+.ri-cloud-state-unverified,
+.ri-cloud-state-stale {
+  border-color: var(--ri-unknown);
+  color: var(--ri-unknown);
+}
 @media (max-width: 640px) {
   .composer-resources {
     padding: 16px;
@@ -338,5 +433,16 @@
   }
   .ri-counts dd {
     font-size: 20px;
+  }
+  .ri-cloud {
+    padding: 14px;
+  }
+  .ri-cloud-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ri-cloud-actions button,
+  .ri-file {
+    justify-content: center;
   }
 }
