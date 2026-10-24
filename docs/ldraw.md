@@ -55,9 +55,14 @@ configuration.
 Composer's `/ldraw` entry redirects to the fixed independent origin. Only
 `analytics=off` and a bounded verification label may travel with it. Project
 details, drawings, account fields and arbitrary destination parameters do not.
+A fragment stays client-side; the browser never sends it to a server and the
+editor does not read an arbitrary one.
+
 The Apps library, catalogue and common launcher use real captured workspace
-pixels; the small preview is not an invented LDraw logo. Each independent
-common-launcher consumer commits and releases its own copy.
+pixels beside a text title. LDraw has no approved identity mark, so the 96px
+menu/library tile is App Composer's typographic discovery tile — the app's own
+name on the canonical orange — rather than an invented LDraw logo. Each
+independent common-launcher consumer commits and releases its own copy.
 
 Device assessments are bound to the exact reviewed release in
 [`config/device-support.json`](../config/device-support.json). Desktop Chromium

@@ -42,6 +42,37 @@ authenticated Connections proof. Hello's subsequent independent strict-typing
 release passed 24 guard tests and actual phone/desktop journeys; its runtime
 Worker JavaScript stayed byte-identical. #11 records their exact activation.
 
+## LDraw discovery — 25 October 2026
+
+Composer now lists LDraw as an eighth shipped app. The library card and the
+common launcher open the independently released editor at
+`c9c2339a1296ee7c06a7d94f274c69143478acba`, and `/ldraw` answers with a 302 to
+the fixed `https://ldraw.loftwah.com/` origin. Only `analytics=off` and a
+bounded `qa` label survive that handoff; drawing, project, account and unknown
+parameters are dropped.
+
+The reviewed static manifest, capture and share bytes were rechecked against
+the live deployment: `/app.manifest.json` is byte-identical to
+[`lib/ldraw/app.manifest.json`](../lib/ldraw/app.manifest.json), the live
+`build.json` names the same clean source, and every frozen image decodes to its
+recorded pixel hash. Device support stays release-bound: Chromium desktop
+supported, 390px Chromium limited with keyboard and pointer, tablet, stylus,
+touch and screen-reader acceptance unchecked.
+
+LDraw has no approved identity mark, so the 96px launcher/library tile is App
+Composer’s typographic tile using the app’s own name on the canonical orange.
+It is not an LDraw logo; the card and share image keep the real workspace
+capture. This is an agent-selected discovery decision awaiting owner review.
+
+The native LDraw catalogue contract remains the owner’s unpublished EmDash
+draft and was not published, duplicated or edited by this slice. Production
+`/catalogue/ldraw` therefore still has no published entry; the detail page was
+reviewed with a local fictional fixture only. The other seven independent
+launcher consumers have not received the LDraw row or tile, and Composer itself
+is not deployed from this branch. [The bounded receipt](evidence/ldraw-20261025/README.md)
+records the commands, captures and remaining gates; #290/#288/#11 retain
+acceptance and release evidence.
+
 ## Finding the shipped work — 24 October 2026
 
 The product front door and [Explore directory](https://composer.loftwah.com/discover) lead with [Launch Kit](https://composer.loftwah.com/launch-kit) and the [team application films](https://composer.loftwah.com/platform/demo), then link directly to invited profiles, analytics and owner workflows. The existing decision planner remains at `/explore`. The shared launcher includes the newer tools and resolves them through each shell’s selected Composer instance. The owning issue is [#273](https://github.com/loftwah/app-composer/issues/273); exact release identities and production checks belong in #11.

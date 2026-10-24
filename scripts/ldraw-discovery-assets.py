@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "public/brand/apps"
 FONT = ROOT / "src/assets/fonts/SpaceGrotesk.ttf.bin"
 MARK = ROOT / "public/brand/composer-icon-20261022b-512.png"
-RECIPE_REVISION = 1
+RECIPE_REVISION = 2
 RECIPE = "composer.ldraw-discovery/" + str(RECIPE_REVISION)
 LIVE_EDITOR_URL = "https://ldraw.loftwah.com/"
 ORANGE, INK, WHITE = "#FC5B05", "#17181B", "#FFFFFF"
@@ -62,6 +62,32 @@ def contain(image, width, height):
         (round(image.width * scale), round(image.height * scale)),
         Image.Resampling.LANCZOS,
     )
+
+
+def wordmark_tile(label, size=96, padding=8):
+    """An optical tile: the app's own name, no invented symbol.
+
+    A full editor viewport reduced to 40px reads as a blank white square in the
+    shared launcher. This keeps the plain LDraw wordmark legible at that size
+    without inventing an identity the independent app does not have.
+    """
+    tile = Image.new("RGB", (size, size), ORANGE)
+    draw = ImageDraw.Draw(tile)
+    face = font(size)
+    for points in range(size, 7, -1):
+        candidate = font(points)
+        box = draw.textbbox((0, 0), label, font=candidate)
+        if box[2] - box[0] <= size - padding * 2 and box[3] - box[1] <= size - padding * 2:
+            face = candidate
+            break
+    box = draw.textbbox((0, 0), label, font=face)
+    draw.text(
+        ((size - (box[2] - box[0])) / 2 - box[0], (size - (box[3] - box[1])) / 2 - box[1]),
+        label,
+        font=face,
+        fill=WHITE,
+    )
+    return tile
 
 
 def encode(image, kind):
@@ -153,12 +179,9 @@ def render(args):
             encode(resized, "WEBP"), "Workspace screenshot preview",
             "Full original viewport, proportional Lanczos resize only; lossless WebP; no crop, overlay or invented UI")
 
-    thumbnail = Image.new("RGB", (96, 96), INK)
-    tiny = contain(screenshot, 96, 96)
-    thumbnail.paste(tiny, ((96 - tiny.width) // 2, (96 - tiny.height) // 2))
-    add("ldraw-workspace-" + suffix + "-96.webp", encode(thumbnail, "WEBP"),
-        "Actual workspace screenshot thumbnail, not an LDraw logo or icon",
-        "Full viewport proportionally resized and centered on charcoal padding; no crop or invented UI")
+    add("ldraw-tile-" + suffix + "-96.webp", encode(wordmark_tile("LDraw"), "WEBP"),
+        "Composer discovery wordmark tile using LDraw's own name",
+        "Flat canonical-orange field with the LDraw name set in the reviewed Space Grotesk face; no symbol, no invented LDraw logo and nothing copied from the workspace capture")
 
     share = Image.new("RGB", (1200, 630), ORANGE)
     draw = ImageDraw.Draw(share)
@@ -186,7 +209,7 @@ def render(args):
         "compositor": {"path": "scripts/ldraw-discovery-assets.py", "sha256": digest(Path(__file__).read_bytes()), "pillow": pillow_version},
         "capture": {**capture, "preservedAs": capture_name, "url": args.url, "capturedAt": args.captured_at,
                     "releasedSource": args.source, "qualificationReference": args.qualification},
-        "identity": {"ldraw": "Plain text wordmark; screenshot thumbnail is not a newly invented identity",
+        "identity": {"ldraw": "Plain text wordmark; the 96px discovery tile sets that name in the reviewed font on the canonical Composer orange and is not an invented LDraw logo",
                      "composerMark": {"path": str(MARK.relative_to(ROOT)), "sha256": digest(MARK.read_bytes()), "role": "App Composer return destination only"},
                      "font": {"path": str(FONT.relative_to(ROOT)), "sha256": digest(FONT.read_bytes()), "family": "Space Grotesk", "license": "src/assets/fonts/OFL-Space-Grotesk.txt"}},
         "evidenceBoundary": "Supplied capture and release reference are operator inputs. This compositor checks their bytes, preserves the original, and derives only resizes/framing. It performs no browser/source/deployment verification and establishes no owner approval.",

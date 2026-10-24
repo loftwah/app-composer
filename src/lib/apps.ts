@@ -1,9 +1,10 @@
 // Public, shipped applications only. Catalogue publishing remains owned by EmDash.
 // Each entry names the app the way its own repository and interface do, then
 // carries its selected thumbnail, versioned share card and a real screenshot
-// captured from the deployed app. A thumbnail may be an identity illustration
-// or an explicitly labelled workspace screenshot. Screenshots are never
-// generated; the capture date travels with the file so staleness is visible.
+// captured from the deployed app. A thumbnail may be a reviewed identity mark,
+// an explicitly labelled typographic discovery tile, or a labelled workspace
+// screenshot. Screenshots are never generated; the capture date travels with
+// the file so staleness is visible.
 export const apps = [
   // Supported entry URLs stay aligned with the committed launcher copies.
   // Paperwork moves its browser pages to paperwork.loftwah.com before opening a document;
@@ -12,17 +13,20 @@ export const apps = [
 
   {id:'launch-kit',name:'Launch Kit',category:'Development',description:'Prepare icons, PWA assets and social images from local artwork, inspect the files and export a portable package.',image:'/brand/apps/launch-kit-20261023-480.webp',thumbnail:'/brand/apps/launch-kit-20261023-32.png',share:'/launch-kit/example/social-1200x630.png',shareType:'image/png',shareAlt:'Night Signal, the fictional radio identity prepared with Launch Kit.',preview:'/brand/apps/previews/launch-kit-20261023-960.webp',previewWide:'/brand/apps/previews/launch-kit-20261023-1440.webp',previewCaptured:'2026-10-23',previewAlt:'Actual deployed Launch Kit editor with local artwork controls and decoded icon, maskable and social previews.',href:'/launch-kit',standalone:'https://composer-launch-kit.loftwah.workers.dev',source:'https://github.com/loftwah/app-composer-launch-kit'},
   // Source-bound pixels come from the independently qualified live editor.
+  // LDraw has no approved identity mark, so the 96px launcher/library tile is
+  // Composer's typographic discovery tile using the app's own name. It is not
+  // an invented LDraw logo; the real workspace capture carries the screen.
   {id:'ldraw',name:'LDraw',category:'Drawing & diagrams',
     description:'Draw and save editable diagrams locally, then export PNG or SVG.',
-    image:'/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r1-960.webp',
-    thumbnail:'/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r1-96.webp',
-    thumbnailKind:'workspace-screenshot',
-    thumbnailCaption:'The thumbnail beside the title is a reduced workspace screenshot, not an LDraw logo.',
-    share:'/brand/apps/ldraw-share-c9c2339a1296-d2e0dc4b-r1.png',shareType:'image/png',
+    image:'/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r2-960.webp',
+    thumbnail:'/brand/apps/ldraw-tile-c9c2339a1296-d2e0dc4b-r2-96.webp',
+    thumbnailKind:'discovery-wordmark',
+    thumbnailCaption:'The tile beside the title is App Composer’s wordmark tile for LDraw, not an LDraw logo; the real workspace screenshot is below.',
+    share:'/brand/apps/ldraw-share-c9c2339a1296-d2e0dc4b-r2.png',shareType:'image/png',
     shareAlt:'LDraw: an actual editor workspace beside its text title. The App Composer mark labels the return destination.',
-    preview:'/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r1-960.webp',
-    previewWide:'/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r1-1440.webp',
-    previewProvenance:'/brand/apps/ldraw-provenance-c9c2339a1296-d2e0dc4b-r1.json',
+    preview:'/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r2-960.webp',
+    previewWide:'/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r2-1440.webp',
+    previewProvenance:'/brand/apps/ldraw-provenance-c9c2339a1296-d2e0dc4b-r2.json',
     previewCaptured:'2026-10-24',previewOrigin:'https://ldraw.loftwah.com/',
     previewAlt:'Actual deployed LDraw workspace with its drawing canvas and native Excalidraw controls.',
     releasedSource:'c9c2339a1296ee7c06a7d94f274c69143478acba',href:'/ldraw',standalone:'https://ldraw.loftwah.com/',

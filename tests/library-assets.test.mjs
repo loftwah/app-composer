@@ -26,15 +26,21 @@ function ldrawAssets(app){
  assert.match(app.releasedSource,/^[a-f0-9]{40}$/,'LDraw needs the qualified released source, not a pending token');
  assert.match(app.previewCaptured,/^\d{4}-\d{2}-\d{2}$/);
  assert.equal(app.previewOrigin,'https://ldraw.loftwah.com/');
- assert.equal(app.thumbnailKind,'workspace-screenshot');
- assert.match(app.thumbnailCaption,/workspace screenshot, not an LDraw logo/);
+ assert.equal(app.thumbnailKind,'discovery-wordmark');
+ assert.match(app.thumbnailCaption,/wordmark tile for LDraw, not an LDraw logo/);
  assert.equal(app.image,app.preview,'LDraw has no invented identity illustration');
  assert.equal(app.shareType,'image/png');
  const pinned=JSON.parse(read('lib/ldraw/source.json'));
  assert.equal(app.releasedSource,pinned.commit);
  assert.equal(app.source,pinned.repository+'/tree/'+pinned.commit);
  const provenance=JSON.parse(bytes(app.previewProvenance));
- assert.equal(provenance.recipe,'composer.ldraw-discovery/1');
+ const recipe=Number(provenance.recipe.match(/^composer\.ldraw-discovery\/(\d+)$/)?.[1]);
+ assert.ok(recipe>=1,'the LDraw compositor recipe is revisioned');
+ const suffix=app.releasedSource.slice(0,12)+'-'+provenance.capture.sha256.slice(0,8)+'-r'+recipe;
+ assert.equal(app.thumbnail,'/brand/apps/ldraw-tile-'+suffix+'-96.webp','the launcher tile is the reviewed typographic tile');
+ assert.equal(app.image,'/brand/apps/ldraw-workspace-'+suffix+'-960.webp','the card image stays the real workspace capture');
+ assert.equal(app.preview,'/brand/apps/ldraw-workspace-'+suffix+'-960.webp');
+ assert.equal(app.previewWide,'/brand/apps/ldraw-workspace-'+suffix+'-1440.webp');
  assert.equal(provenance.capture.releasedSource,app.releasedSource);
  assert.equal(provenance.capture.url,app.previewOrigin);
  assert.equal(provenance.capture.capturedAt.slice(0,10),app.previewCaptured);
@@ -51,12 +57,17 @@ function ldrawAssets(app){
  assert.ok(provenance.capture.width>=1440);
  for(const key of ['image','thumbnail','share','preview','previewWide']){
   const path=app[key];
-  assert.match(path,new RegExp('^/brand/apps/ldraw-.*'+app.releasedSource.slice(0,12)+'-'+provenance.capture.sha256.slice(0,8)+'-r1'));
-  assert.ok(size(path)>1000,path+' looks empty');
+  assert.match(path,new RegExp('^/brand/apps/ldraw-.*'+suffix));
+  assert.ok(size(path)>500,path+' looks empty');
   const record=provenance.assets[path.split('/').at(-1)];
   assert.ok(record,path+' has no provenance');
   assert.equal(hash(bytes(path)),record.sha256,path+' must match its recorded pixels');
  }
+ const tile=provenance.assets[app.thumbnail.split('/').at(-1)];
+ assert.match(tile.role,/wordmark tile/i);
+ assert.match(String(tile.transformation),/no symbol/);
+ assert.match(String(tile.transformation),/nothing copied from the workspace capture/);
+ assert.ok(size(app.thumbnail)<4000,'the typographic tile stays a small flat asset, not a resized screenshot');
  assert.deepEqual(losslessWebPDimensions(bytes(app.thumbnail)),[96,96]);
  assert.deepEqual(losslessWebPDimensions(bytes(app.preview)),[960,Math.round(provenance.capture.height*960/provenance.capture.width)]);
  assert.deepEqual(losslessWebPDimensions(bytes(app.previewWide)),[1440,Math.round(provenance.capture.height*1440/provenance.capture.width)]);
