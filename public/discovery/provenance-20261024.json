@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "role": "creator",
+      "image": "/discovery/creator-20261024.png",
+      "sha256": "46de611d03067a7bccb99a6d97d737153d48585d8637399f368d3a871c57cbbd",
+      "width": 1200,
+      "height": 630,
+      "capture": {
+        "source": "/brand/apps/previews/linkarooie-20261018-1440.webp",
+        "sha256": "629ded900d049d514af2e1f53d7c4cbc206ec96fe9762a7a3696f48f1ed1075b",
+        "captured": "2026-10-18",
+        "origin": "https://showcase.loftwah.com"
+      },
+      "scope": "Flat code-native sharing layout using the existing actual capture; no generated product screen."
+    },
+    {
+      "role": "small-business",
+      "image": "/discovery/small-business-20261024.png",
+      "sha256": "5fe963df0e36fac33357eccdea124cec1f3a99cb762779e862097482413cce53",
+      "width": 1200,
+      "height": 630,
+      "capture": {
+        "source": "/guides/app-admin-20261022-trail-desktop.png",
+        "sha256": "0fd1c2f9df7c77770b37e80a6325676c9bdfdb28836403e7f4b26f4cafa69eaa",
+        "captured": "2026-10-22",
+        "origin": "https://composer.loftwah.com/s/fictional-trail-notes"
+      },
+      "scope": "Flat code-native sharing layout using the existing actual capture; no generated product screen."
+    },
+    {
+      "role": "developer",
+      "image": "/discovery/developer-20261024.png",
+      "sha256": "1021a8e0ae1907037a401b9b8a0b673711564055799a88603992215440df8597",
+      "width": 1200,
+      "height": 630,
+      "capture": {
+        "source": "/brand/apps/previews/hello-20261018-1440.webp",
+        "sha256": "5439aabc70a664b634b902d33caa1a0479aae6a77d665a8575945d14ac465abc",
+        "captured": "2026-10-18",
+        "origin": "https://ready.loftwah.com"
+      },
+      "scope": "Flat code-native sharing layout using the existing actual capture; no generated product screen."
+    },
+    {
+      "role": "designer",
+      "image": "/discovery/designer-20261024.png",
+      "sha256": "de3da40b00704db1941ee290ef9584fb00b311e45d6c87a210d7c7ef8e158e59",
+      "width": 1200,
+      "height": 630,
+      "capture": {
+        "source": "/brand/apps/previews/launch-kit-20261023-1440.webp",
+        "sha256": "f815fbcd5612121d3c54bf8ba6385a3d5fe586ea40f8876141a4f577196730a9",
+        "captured": "2026-10-23",
+        "origin": "https://composer-launch-kit.loftwah.workers.dev"
+      },
+      "scope": "Flat code-native sharing layout using the existing actual capture; no generated product screen."
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+---
+import { ArrowRight, ArrowUpRight } from '@lucide/astro';
+import { discoveryRoles, discoveryJobs, type DiscoveryRole } from '../lib/role-discovery';
+import DeviceSupport from './DeviceSupport.astro';
+import { appDeviceSupport } from '../lib/app-device-support';
+interface Props { role: DiscoveryRole; hub?: boolean }
+const { role, hub = false } = Astro.props;
+---
+<div class:list={['role-experience', `role-${role.id}`]}>
+  <nav class="role-navigation" aria-label="App Composer for your role">
+    {discoveryRoles.map((entry) => <a href={'/for/' + entry.id} aria-current={!hub && role.id === entry.id ? 'page' : undefined}>{entry.label}<ArrowRight size={16} aria-hidden="true" /></a>)}
+  </nav>
+  <details class="job-picker" open={hub}>
+    <summary>Choose by the job you need done</summary>
+    <nav aria-label="Choose a job">{discoveryJobs.map((job) => <a href={job.href}>{job.label}<ArrowRight size={15} aria-hidden="true" /></a>)}</nav>
+  </details>
+  <section class="role-result" aria-labelledby="role-result-heading">
+    <div class="role-story">
+      <h2 id="role-result-heading">{role.headline}</h2>
+      <p class="role-description">{role.description}</p>
+      <div class="role-actions"><a class="button" href={role.primary.href}>{role.primary.label}<ArrowRight size={18} aria-hidden="true" /></a><a class="role-start" href={role.start.href}>{role.start.label}<ArrowUpRight size={17} aria-hidden="true" /></a></div>
+      {role.id === 'developer' && <ol class="developer-route" aria-label="From project to verified result"><li><a href="/setup">Inspect the project</a></li><li><a href="/init">Export a clear brief</a></li><li><a href="/ready/guide">Build and verify</a></li></ol>}
+      <details class="role-support"><summary>What works now, and what needs your setup</summary><p>{role.support}</p><DeviceSupport support={appDeviceSupport(role.app)} compact /></details>
+    </div>
+    <figure class="role-example">
+      <a href={role.example.href} aria-label={'Open ' + role.example.title}><img src={role.example.image} width="1440" height="1000" alt={role.example.alt} loading="eager" decoding="async" /></a>
+      <figcaption><strong><a href={role.example.href}>{role.example.title}<ArrowUpRight size={15} aria-hidden="true" /></a></strong><p>{role.example.description}</p><small>Actual capture · {role.example.captured} · <a href={role.example.origin}>{new URL(role.example.origin).host}</a></small></figcaption>
+    </figure>
+  </section>
+  {!hub && <details class="role-workflow"><summary>From this example to your own project</summary><ol>{role.steps.map((step) => <li><h3><a href={step.href}>{step.title}<ArrowRight size={16} aria-hidden="true" /></a></h3><p>{step.description}</p></li>)}</ol><p>Role names are starting points. <a href="/discover">Choose another job</a>, <a href="/apps">browse all apps</a> or <a href="/">return to App Composer</a>.</p></details>}
+</div>
+<style>
+  .role-navigation { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border-block:1px solid var(--color-border); }
+  .role-navigation>a { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:17px 16px; min-height:58px; color:var(--color-foreground); font-weight:500; font-size:.91rem; }
+  .role-navigation>a:first-child { padding-left:0; }
+  .role-navigation>a[aria-current] { box-shadow:inset 0 -3px var(--color-brand); color:var(--color-accent); }
+  .role-navigation>a:hover { color:var(--color-accent); }
+  .role-navigation svg { flex-shrink:0; }
+  .job-picker { padding:14px 0; border-bottom:1px solid var(--color-border); }
+  summary { min-height:32px; padding-block:4px; cursor:pointer; font-size:.9rem; }
+  .job-picker nav { display:flex; flex-wrap:wrap; gap:6px 24px; padding-top:10px; }
+  .job-picker a { display:inline-flex; gap:8px; align-items:center; min-height:44px; font-size:.85rem; }
+  .role-result { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr); gap:48px; padding-top:32px; align-items:center; }
+  .role-story { min-width:0; }
+  .role-story h2 { font-size:clamp(2.1rem,3.6vw,3.25rem); line-height:1.08; letter-spacing:-.035em; max-width:17ch; margin:0 0 18px; text-wrap:balance; }
+  .role-description { font-size:1.03rem; line-height:1.7; color:var(--color-muted); margin:0 0 20px; max-width:47ch; }
+  .role-actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px 22px; }
+  .role-actions .button { min-height:46px; font-size:.91rem; }
+  .role-start { display:inline-flex; align-items:center; gap:8px; min-height:44px; font-size:.9rem; }
+  .role-support { margin-top:20px; border-top:1px solid var(--color-border); padding-top:12px; }
+  .role-support p { font-size:.87rem; line-height:1.7; color:var(--color-muted); }
+  .role-example { margin:0; min-width:0; background:var(--color-surface); }
+  .role-example>a { display:block; height:300px; overflow:hidden; border:1px solid var(--color-border); }
+  .role-example img { width:100%; height:100%; object-fit:cover; object-position:top; display:block; }
+  figcaption { padding:16px 20px; }
+  figcaption strong>a { display:inline-flex; align-items:center; gap:8px; color:var(--color-foreground); font-size:1.03rem; }
+  figcaption p { font-size:.87rem; line-height:1.6; color:var(--color-muted); margin:8px 0; }
+  figcaption small { display:block; font-size:.73rem; color:var(--color-muted); overflow-wrap:anywhere; }
+  .role-workflow { border-top:1px solid var(--color-border); margin-top:30px; padding-top:16px; }
+  .role-workflow>summary { font-size:1rem; font-weight:500; }
+  .role-workflow ol { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:28px; padding-left:24px; max-width:none; margin-top:20px; }
+  .role-workflow h3 { font-size:1.05rem; margin:0 0 8px; }
+  .role-workflow h3 a { display:inline-flex; gap:8px; align-items:center; }
+  .role-workflow p { font-size:.88rem; line-height:1.65; color:var(--color-muted); }
+  .developer-route { max-width:none; padding:0; list-style:none; margin:24px 0 0; counter-reset:route; }
+  .developer-route li { display:flex; gap:14px; align-items:center; font-size:.9rem; border-top:1px solid var(--color-border); padding:11px 0; }
+  .developer-route li:before { counter-increment:route; content:counter(route); width:24px; height:24px; display:grid; place-items:center; border:1px solid var(--color-border); border-radius:50%; font-size:.8rem; color:var(--color-accent); }
+  .role-designer .role-result { grid-template-columns:minmax(0,1fr) minmax(0,1.4fr); }
+  .role-designer .role-example>a { height:360px; }
+  .role-designer .role-example img { object-fit:contain; }
+  .role-small-business .role-result { grid-template-columns:minmax(0,1fr) minmax(0,.9fr); }
+  .role-small-business .role-example>a { height:350px; }
+  .role-creator .role-example>a { height:330px; }
+  .role-developer .role-example>a { height:250px; }
+  @media(min-width:1150px) { .role-designer .role-example { grid-column:1; grid-row:1; }.role-designer .role-story { grid-column:2; grid-row:1; }.role-designer .role-result { grid-template-columns:1.35fr 1fr; } }
+  @media(max-width:950px) { .role-result,.role-designer .role-result,.role-small-business .role-result { gap:28px; grid-template-columns:minmax(0,1fr) minmax(0,1fr); }.role-story h2 { font-size:2.3rem; }.role-example>a,.role-creator .role-example>a,.role-designer .role-example>a,.role-small-business .role-example>a { height:280px; }.role-navigation>a { padding-inline:10px; font-size:.82rem; } }
+  @media(max-width:720px) { .role-navigation { grid-template-columns:1fr 1fr; }.role-navigation>a { min-height:52px; font-size:.88rem; padding:14px 8px; }.role-navigation>a:nth-child(2n+1) { padding-left:0; }.role-navigation>a:nth-child(-n+2) { border-bottom:1px solid var(--color-border); }.role-result,.role-designer .role-result,.role-small-business .role-result { grid-template-columns:1fr; gap:24px; padding-top:24px; }.role-story h2 { font-size:2.15rem; max-width:22ch; }.role-description { font-size:.97rem; max-width:65ch; }.role-example>a,.role-creator .role-example>a,.role-designer .role-example>a,.role-small-business .role-example>a { height:auto; aspect-ratio:1.65; }.role-example img { height:100%; }.role-support { margin-top:14px; }.role-workflow ol { grid-template-columns:1fr; gap:14px; }.job-picker nav { display:grid; grid-template-columns:1fr 1fr; gap:2px 18px; }.job-picker a { line-height:1.45; }.developer-route { display:none; } }
+</style>
