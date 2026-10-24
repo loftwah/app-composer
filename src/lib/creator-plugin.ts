@@ -7,6 +7,8 @@ import { managePrivateOutcomes } from "./private-outcomes.ts";
 import { manageMaintenance } from "./creator-maintenance.ts";
 import { manageEnquiries } from "./private-enquiries.ts";
 import { manageWorkflows } from "./workflows.ts";
+import { manageOverview } from "./overview.ts";
+import { manageOrders } from "./orders.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
 
@@ -30,9 +32,27 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         },
         { path: "/enquiries", label: "Private enquiries", icon: "inbox" },
         { path: "/workflows", label: "Workflows", icon: "arrows-clockwise" },
+        { path: "/overview", label: "Needs attention", icon: "warning" },
+        { path: "/orders", label: "Orders", icon: "receipt" },
       ],
     },
     routes: {
+      overviewRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageOverview(ctx, runtime),
+      },
+      ordersRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageOrders(ctx, runtime),
+      },
+      ordersWrite: {
+        methods: ["POST"],
+        permission: creatorPermission,
+        request: { body: "json", maxBytes: 4000 },
+        handler: (ctx) => manageOrders(ctx, runtime),
+      },
       workflowsRead: {
         methods: ["GET"],
         permission: creatorPermission,
