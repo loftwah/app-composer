@@ -2,23 +2,41 @@
 
 Reviewed 24 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
-## Backlog release in qualification — 24 October 2026
+## Prompts, resources and native operations — 24 October 2026
 
-Production source `36187d8` has the public [prompt library](/prompts), portable
-[project setup](/setup), five [runbooks and downloads](/resources), and versioned
-unknown-aware device declarations. The first release and Init compatibility fix
-are PRs #305/#306; #11 records the exact Worker and live browser receipt.
+Production source `f0c12ad` ships the [prompt library](/prompts), portable
+[project setup](/setup), five [runbooks and downloads](/resources), four
+[role/job journeys](/discover), and versioned unknown-aware device declarations.
+The homepage has the exact leading orange prompt action and approved flat mark.
+PRs #305/#306/#308 and #11 own the release history and exact Worker receipts.
 
-The next candidate adds four role/job discovery paths, canonical per-resource
-sharing, the approved flat mark on the homepage, six clocked fresh-agent setup
-trials, two downloaded-kit evaluations and a small Composer-authored keyboard
-improvement. Native Workflows, Needs attention, Connections and fictional Orders
-are being qualified in the existing EmDash administration. Native notification
-outbox work remains default-off and requires selected owner/provider configuration
-before real mail acceptance. Connections currently inventories references and
-checks one scoped owned Guestbook read; credential lifecycle operations remain
-host-managed. Orders exercises provider fixtures only, with no real checkout,
-charge or fulfilment. Candidate source is not a production acceptance receipt.
+The existing EmDash admin now offers Workflows, Needs attention, Connections and
+fictional Orders. Actual production owner interaction verified workflow failure,
+recovery, activation/pause and retained history; uncertain fixture checkout
+reconciliation, payment/refund progression, draft-only fulfilment and rejected
+regression; one exact-source authenticated Guestbook read; scoped overview
+coverage; and default-off Inbox notifications. These observations use the real
+native controls and persisted records, with fixture payment data and no mail or
+financial action. Phone/local fixture and physical/assistive acceptance remain
+separate. See [the bounded native proof](native-operations-20261024.md).
+
+Connections inventories server references and checks one scoped owned Guestbook
+read. Credential lifecycle remains host-managed. Notifications need selected
+owner/provider configuration and delivery qualification. Orders contacts no
+merchant and performs no charge or production fulfilment. Native write hooks
+produce bounded private drafts with explicit Scan recovery across the source/
+capture transaction gap; no autonomous scheduling claim is made.
+
+Six clocked fresh-agent setup trials and two actual downloaded-kit evaluations
+are recorded with autonomous recovery disclosed. Their findings corrected the
+kit examples; the evaluated Python app, patch and real captures ship in the ZIP.
+A Composer-authored native fragment-focus improvement is verified in production,
+including no-JavaScript navigation. Separately dated reliability trials remain.
+
+The seven independent apps have each released the same three launcher links,
+with 399 guard-suite tests, 21 rendered journeys and exact source/asset checks.
+The reviewed pair and Paperwork reproduction pin are being adopted through the
+normal source/promotion/release boundary; #11 records their actual activation.
 
 ## Finding the shipped work — 24 October 2026
 
