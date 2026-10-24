@@ -9,7 +9,6 @@ import {
   assertPreviewGenerated,
   assertReleaseSource,
   inspectPreviewIsolation,
-  inspectTarget,
   isReleaseEligible,
   previewBuildEnvironment,
   productionEnvironment,
