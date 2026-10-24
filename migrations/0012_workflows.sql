@@ -31,6 +31,6 @@ CREATE TABLE IF NOT EXISTS creator_workflow_runs (
   message TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(workspace_id,recipe,event_id)
+  UNIQUE(workspace_id,recipe,event_id,account_id,environment)
 );
 CREATE INDEX IF NOT EXISTS creator_workflow_history ON creator_workflow_runs(workspace_id,created_at);

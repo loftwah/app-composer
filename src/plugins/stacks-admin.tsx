@@ -5,6 +5,7 @@ import { WorkspaceAccessPage } from "./workspace-access";
 import { OutcomesPage } from "./outcomes";
 import { MaintenancePage } from "./maintenance-page";
 import { EnquiriesPage } from "./enquiries";
+import { WorkflowsPage } from "./workflows-page";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
 import {
   observeResourceRevision,
@@ -1814,4 +1815,5 @@ export const pages: PluginAdminExports["pages"] = {
   "/outcomes": OutcomesPage,
   "/maintenance": MaintenancePage,
   "/enquiries": EnquiriesPage,
+  "/workflows": WorkflowsPage,
 };

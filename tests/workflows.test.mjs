@@ -73,6 +73,7 @@ test('failed operation recipe creates one actionable result and never executes r
   assert.equal(reply.ok, true, JSON.stringify(reply)); assert.equal(reply.runs.length, 1);
   assert.equal(reply.runs[0].source, request); assert.equal(reply.runs[0].state, 'finished');
   assert.match(reply.runs[0].result.body, /authorises no remediation/);
+  assert.equal(reply.runs[0].result.href, `/_emdash/admin/plugins/composer-stacks/platform?workspace=${f.workspace.id}`);
   assert.doesNotMatch(JSON.stringify(reply.runs), /Private provider diagnostic/);
   assert.equal(f.sqlite.prepare('SELECT status FROM creator_platform_requests WHERE id=?').get(request).status, 'needs-attention');
 });
@@ -121,6 +122,22 @@ test('changed environment hides old receipts and stops activation and retries', 
   assert.equal(reopened.recipes[0].enabled, false);
   assert.equal((await f.route({ action: 'scan', workspace: f.workspace.id, recipe: 'release-summary', expectedRevision: 1 })).code, 'CONFLICT');
   assert.equal((await f.route({ action: 'retry', workspace: f.workspace.id, run: sample.runs[0].id, expectedRevision: 1 })).code, 'CONFLICT');
+});
+
+test('explicitly enabling a recipe for a new environment can retain its own source receipt', async t => {
+  const f = await prepared(t); await failedRequest(f); await f.activate('operation-attention');
+  const scan = { action: 'scan', workspace: f.workspace.id, recipe: 'operation-attention', expectedRevision: 1 };
+  const first = await f.route(scan);
+  assert.equal(first.runs.length, 1);
+  f.runtime.RESOURCE_ENVIRONMENT = 'different-environment';
+  assert.equal((await f.route(scan)).code, 'CONFLICT');
+  const saved = await f.route({ action: 'save', workspace: f.workspace.id, recipe: 'operation-attention', expectedRevision: 1, name: 'Explicit new environment', enabled: true });
+  assert.equal(saved.ok, true);
+  const second = await f.route({ ...scan, expectedRevision: 2 });
+  assert.equal(second.ok, true, JSON.stringify(second));
+  assert.equal(second.runs.length, 1);
+  assert.notEqual(second.runs[0].id, first.runs[0].id);
+  assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM creator_workflow_runs').get().n, 2);
 });
 
 test('a source recovering during scan cannot create an obsolete attention result', async t => {
