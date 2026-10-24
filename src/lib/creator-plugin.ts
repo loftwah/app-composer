@@ -6,6 +6,7 @@ import { manageWorkspaceAccess } from "./workspace-access.ts";
 import { managePrivateOutcomes } from "./private-outcomes.ts";
 import { manageMaintenance } from "./creator-maintenance.ts";
 import { manageEnquiries } from "./private-enquiries.ts";
+import { manageWorkflows } from "./workflows.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
 
@@ -28,9 +29,21 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
           icon: "wrench",
         },
         { path: "/enquiries", label: "Private enquiries", icon: "inbox" },
+        { path: "/workflows", label: "Workflows", icon: "arrows-clockwise" },
       ],
     },
     routes: {
+      workflowsRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageWorkflows(ctx, runtime),
+      },
+      workflowsWrite: {
+        methods: ["POST"],
+        permission: creatorPermission,
+        request: { body: "json", maxBytes: 4000 },
+        handler: (ctx) => manageWorkflows(ctx, runtime),
+      },
       platformRead: {
         methods: ["GET"],
         permission: creatorPermission,

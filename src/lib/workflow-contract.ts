@@ -27,7 +27,7 @@ export const workflowCommand = z.discriminatedUnion('action', [
   z.object({ action: z.literal('sample'), workspace: id, recipe: workflowKind, operation: z.uuid(), fail: z.boolean() }).strict(),
   z.object({ action: z.literal('retry'), workspace: id, run: z.uuid(), expectedRevision: revision.refine(value => value > 0) }).strict(),
 ]);
-const result = z.object({ title: z.string().max(120), body: z.string().max(1600), href: z.string().regex(/^\/(s\/[a-z0-9-]+|_emdash\/admin\/composer-stacks\/platform\?workspace=[a-z0-9-]+|demo)$/) }).strict();
+const result = z.object({ title: z.string().max(120), body: z.string().max(1600), href: z.string().regex(/^\/(s\/[a-z0-9-]+|_emdash\/admin\/plugins\/composer-stacks\/platform\?workspace=[a-z0-9-]+|demo)$/) }).strict();
 export const workflowRun = z.object({
   id: z.uuid(), recipe: workflowKind, event: z.string().max(180), source: id,
   sourceRevision: revision, recipeRevision: revision, synthetic: z.boolean(),
