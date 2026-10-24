@@ -1,0 +1,51 @@
+.composer-workflows {
+  --cw-ink: var(--text-color-kumo-default, #242424);
+  --cw-muted: var(--text-color-kumo-subtle, #666);
+  --cw-surface: var(--color-kumo-base, #fff);
+  --cw-rule: color-mix(in srgb, var(--cw-ink) 25%, var(--cw-surface));
+  color: var(--cw-ink); max-width: 1400px; margin: auto; padding: 28px; font: 16px/1.55 system-ui, sans-serif;
+}
+.composer-workflows h1 { font-size: 32px; line-height: 1.2; margin: 0 0 12px; }
+.composer-workflows h2 { font-size: 22px; line-height: 1.3; margin: 0; }
+.composer-workflows h3 { font-size: 18px; line-height: 1.4; margin: 0; }
+.composer-workflows p { max-width: 74ch; margin: 12px 0; }
+.cw-heading, .cw-recipe-title, .cw-run-title { display: flex; gap: 20px; justify-content: space-between; align-items: start; flex-wrap: wrap; }
+.cw-heading > div { min-width: 0; }
+.cw-scope { padding-bottom: 16px; border-bottom: 1px solid var(--cw-rule); }
+.cw-scope details { display: inline-block; margin-left: 12px; }
+.cw-scope summary, .cw-details summary { cursor: pointer; min-height: 32px; }
+.cw-links, .cw-actions { display: flex; gap: 10px 20px; align-items: center; flex-wrap: wrap; margin: 16px 0; }
+.composer-workflows a { color: inherit; text-decoration: underline; text-underline-offset: 3px; min-height: 44px; display: inline-flex; align-items: center; }
+.composer-workflows button { min-height: 44px; border: 1px solid var(--cw-rule); border-radius: 6px; padding: 9px 14px; background: var(--cw-surface); color: var(--cw-ink); font: 600 14px/1.4 system-ui; cursor: pointer; }
+.composer-workflows button:hover { background: color-mix(in srgb, var(--cw-ink) 7%, var(--cw-surface)); }
+.composer-workflows button:disabled { opacity: .5; cursor: not-allowed; }
+.composer-workflows :is(button, a, input, textarea, summary):focus-visible { outline: 2px solid #e77743; outline-offset: 3px; }
+.cw-mode { font-size: 14px; color: var(--cw-muted); padding-bottom: 24px; }
+.cw-recipes { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.cw-recipe { border-top: 1px solid var(--cw-rule); padding: 24px 0; min-width: 0; }
+.cw-recipe-title > span, .cw-run-title > span { color: var(--cw-muted); font-size: 13px; }
+.cw-rule { margin: 20px 0; display: grid; gap: 12px; }
+.cw-rule > div { display: grid; grid-template-columns: 50px minmax(0, 1fr); gap: 16px; }
+.cw-rule dt { color: var(--cw-muted); font-size: 14px; }
+.cw-rule dd, .cw-details dd { margin: 0; }
+.cw-recipe > p, .cw-history > p { font-size: 14px; color: var(--cw-muted); }
+.composer-workflows label { display: grid; gap: 8px; font-size: 14px; font-weight: 600; }
+.composer-workflows input:not([type=file]), .composer-workflows textarea { width: 100%; min-width: 0; border: 1px solid var(--cw-rule); border-radius: 6px; padding: 11px; font: 16px/1.5 system-ui; background: var(--cw-surface); color: var(--cw-ink); }
+.cw-secondary button { font-weight: 400; font-size: 13px; }
+.cw-history { margin-top: 20px; border-top: 1px solid var(--cw-rule); padding-top: 24px; }
+.cw-import { max-width: 280px; }
+.cw-import input { max-width: 100%; font-size: 14px; min-height: 44px; }
+.cw-run { border-bottom: 1px solid var(--cw-rule); padding: 24px 0; }
+.cw-run > p { font-size: 14px; }
+.cw-steps { padding-left: 22px; display: flex; gap: 12px 30px; flex-wrap: wrap; font-size: 13px; color: var(--cw-muted); }
+.cw-result { padding: 16px 0; }
+.cw-result p { margin: 0; }
+.cw-details { margin-top: 16px; font-size: 13px; }
+.cw-details dl { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 8px 18px; padding: 12px 0; }
+.cw-details code, .cw-scope code { overflow-wrap: anywhere; }
+.cw-error { border: 1px solid var(--cw-rule); padding: 14px; }
+.cw-status { min-height: 24px; font-size: 14px; }
+.cw-empty { padding: 24px 0; }
+.cw-manual { margin-top: 24px; }
+@media (max-width: 850px) { .cw-recipes { grid-template-columns: 1fr; gap: 0; } }
+@media (max-width: 480px) { .composer-workflows { padding: 16px; } .cw-actions { gap: 10px; } .cw-actions button { flex-grow: 1; } .cw-details dl { grid-template-columns: 1fr; gap: 4px; } .cw-details dd { margin-bottom: 10px; } .cw-run-title, .cw-recipe-title { gap: 8px; } }

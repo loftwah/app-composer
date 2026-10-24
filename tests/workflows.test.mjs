@@ -1,0 +1,119 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { fixture, saved, user, instance, origin } from './helpers/resource-fixture.mjs';
+import { workspaceForUser, publishStack } from '../src/lib/stacks.mjs';
+import { manageWorkflows } from '../src/lib/workflows.ts';
+import { exportWorkflow, workflowExport, workflowSnapshot } from '../src/lib/workflow-contract.ts';
+
+async function prepared(t) {
+  const f = fixture(); t.after(() => f.close());
+  f.sqlite.exec(readFileSync(new URL('../migrations/0012_workflows.sql', import.meta.url), 'utf8'));
+  const workspace = await workspaceForUser(f.db, user);
+  const route = (input, reading = false, caller = user, headers = {}) => manageWorkflows({ input, user: caller, request: new Request(origin + '/_emdash/api/plugins/composer-stacks/workflows', { method: reading ? 'GET' : 'POST', headers: { Origin: origin, 'X-EmDash-Request': '1', ...headers } }) }, f.runtime);
+  const activate = async recipe => {
+    const reply = await route({ action: 'save', workspace: workspace.id, recipe, expectedRevision: 0, name: 'Fictional useful recipe', enabled: true });
+    assert.equal(reply.ok, true, JSON.stringify(reply)); return reply;
+  };
+  return { ...f, workspace, route, activate };
+}
+
+test('native recipes persist sample success, visible failure and a bounded safe recovery', async t => {
+  const f = await prepared(t);
+  for (const recipe of ['release-summary', 'operation-attention']) {
+    const operation = crypto.randomUUID();
+    const command = { action: 'sample', workspace: f.workspace.id, recipe, operation, fail: true };
+    const failed = await f.route(command);
+    assert.equal(failed.ok, true, JSON.stringify(failed));
+    const run = failed.runs.find(run => run.recipe === recipe);
+    assert.equal(run.state, 'needs-attention');
+    assert.deepEqual(run.steps, ['observed']);
+    const duplicate = await f.route(command);
+    assert.equal(duplicate.runs.filter(run => run.recipe === recipe).length, 1);
+    const retry = await f.route({ action: 'retry', workspace: f.workspace.id, run: run.id, expectedRevision: run.revision });
+    const recovered = retry.runs.find(next => next.id === run.id);
+    assert.equal(recovered.state, 'finished'); assert.equal(recovered.attempts, 2);
+    assert.deepEqual(recovered.steps, ['observed', 'source-checked', 'draft-prepared']);
+    assert.equal(recovered.synthetic, true); assert.match(recovered.result.body, /fictional/);
+    const stale = await f.route({ action: 'retry', workspace: f.workspace.id, run: run.id, expectedRevision: run.revision });
+    assert.equal(stale.code, 'CONFLICT');
+  }
+  assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM creator_stacks').get().n, 0);
+});
+
+test('published stack recipe uses the immutable publication, deduplicates and respects pause', async t => {
+  const f = await prepared(t);
+  const draft = await saved(f, f.workspace.id, 'Fictional published title', [instance('fictional-workflow-instance', 'A fictional visitor book')]);
+  const published = await publishStack(f.db, f.workspace.id, draft.id, draft.revision, draft.draft, user.id);
+  await f.activate('release-summary');
+  f.sqlite.prepare('UPDATE creator_stacks SET name=? WHERE id=?').run('Private draft name', draft.id);
+  const command = { action: 'scan', workspace: f.workspace.id, recipe: 'release-summary', expectedRevision: 1 };
+  const first = await f.route(command);
+  assert.equal(first.ok, true, JSON.stringify(first));
+  assert.equal(first.runs.length, 1); assert.equal(first.runs[0].state, 'finished');
+  assert.match(first.runs[0].result.title, /Fictional published title/);
+  assert.doesNotMatch(first.runs[0].result.title, /Private draft/);
+  assert.equal(first.runs[0].sourceRevision, published.publishedRevision);
+  assert.equal((await f.route(command)).runs.length, 1);
+  const paused = await f.route({ action: 'save', workspace: f.workspace.id, recipe: 'release-summary', expectedRevision: 1, name: 'Paused recipe', enabled: false });
+  assert.equal(paused.recipes.find(recipe => recipe.id === 'release-summary').enabled, false);
+  assert.equal((await f.route(command)).code, 'CONFLICT');
+  const reopened = await f.route({ action: 'list', workspace: f.workspace.id }, true);
+  assert.equal(reopened.runs.length, 1); assert.equal(reopened.recipes[0].name, 'Paused recipe');
+});
+
+async function failedRequest(f, id = 'fictional-platform-failure') {
+  await f.db.prepare("INSERT INTO creator_platform_requests (id,workspace_id,actor_id,submission_key,request_json,plan_json,plan_digest,policy_revision,decision_json,status,reason) VALUES (?,?,?,?,?,?,?,?,?,'needs-attention',?)").bind(id, f.workspace.id, user.id, crypto.randomUUID(), '{}', '{}', 'a'.repeat(64), 1, '{}', 'Private provider diagnostic must not enter the draft').run();
+  return id;
+}
+test('failed operation recipe creates one actionable result and never executes remediation', async t => {
+  const f = await prepared(t), request = await failedRequest(f);
+  await f.activate('operation-attention');
+  const reply = await f.route({ action: 'scan', workspace: f.workspace.id, recipe: 'operation-attention', expectedRevision: 1 });
+  assert.equal(reply.ok, true, JSON.stringify(reply)); assert.equal(reply.runs.length, 1);
+  assert.equal(reply.runs[0].source, request); assert.equal(reply.runs[0].state, 'finished');
+  assert.match(reply.runs[0].result.body, /authorises no remediation/);
+  assert.doesNotMatch(JSON.stringify(reply.runs), /Private provider diagnostic/);
+  assert.equal(f.sqlite.prepare('SELECT status FROM creator_platform_requests WHERE id=?').get(request).status, 'needs-attention');
+});
+
+test('wrong workspace, revoked membership, CSRF, malformed events and viewer writes are rejected', async t => {
+  const f = await prepared(t), operation = crypto.randomUUID();
+  const sample = { action: 'sample', workspace: f.workspace.id, recipe: 'release-summary', operation, fail: false };
+  assert.equal((await f.route({ ...sample, workspace: 'another-workspace' })).code, 'FORBIDDEN');
+  assert.equal((await f.route({ ...sample, event: { execute: 'untrusted' } })).code, 'INVALID');
+  assert.equal((await f.route(sample, false, user, { Origin: 'https://example.test' })).code, 'FORBIDDEN');
+  assert.equal((await f.route(sample, false, user, { 'X-EmDash-Request': '' })).code, 'FORBIDDEN');
+  f.sqlite.prepare("UPDATE creator_members SET role='viewer' WHERE workspace_id=? AND user_id=?").run(f.workspace.id, user.id);
+  assert.equal((await f.route(sample)).code, 'FORBIDDEN');
+  assert.equal((await f.route({ action: 'list', workspace: f.workspace.id }, true)).ok, true);
+  // Keep another workspace membership so this models revoked selected access,
+  // rather than the existing first-person personal-workspace bootstrap.
+  f.sqlite.prepare('INSERT INTO creator_workspaces(id,name) VALUES (?,?)').run('another-owned-space', 'Another fictional workspace');
+  f.sqlite.prepare("INSERT INTO creator_members(workspace_id,user_id,role) VALUES (?,?,'viewer')").run('another-owned-space', user.id);
+  f.sqlite.prepare('DELETE FROM creator_members WHERE workspace_id=? AND user_id=?').run(f.workspace.id, user.id);
+  assert.equal((await f.route({ action: 'list', workspace: f.workspace.id }, true)).code, 'FORBIDDEN');
+});
+
+test('revocation or pause between observation and persistence prevents the new result', async t => {
+  const f = await prepared(t); await failedRequest(f); await f.activate('operation-attention');
+  const prepare = f.db.prepare.bind(f.db);
+  let revoke = true;
+  f.db.prepare = sql => {
+    if (revoke && sql.startsWith('INSERT OR IGNORE INTO creator_workflow_runs')) {
+      revoke = false;
+      f.sqlite.prepare('UPDATE creator_workflow_recipes SET enabled=0 WHERE workspace_id=?').run(f.workspace.id);
+    }
+    return prepare(sql);
+  };
+  const reply = await f.route({ action: 'scan', workspace: f.workspace.id, recipe: 'operation-attention', expectedRevision: 1 });
+  assert.equal(reply.code, 'CONFLICT');
+  assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM creator_workflow_runs').get().n, 0);
+});
+
+test('export/import preserves identity, rejects executable fields, mismatched actions and secrets', () => {
+  const exported = exportWorkflow('release-summary', 'A useful recipe');
+  assert.deepEqual(workflowExport.parse(JSON.parse(JSON.stringify(exported))), exported);
+  for (const value of [{ ...exported, command: 'execute' }, { ...exported, action: 'prepare-attention' }, { ...exported, connectionReferences: ['secret-value'] }, { ...exported, recipe: 'constructor' }, { ...exported, token: 'private' }]) assert.equal(workflowExport.safeParse(value).success, false);
+  assert.equal(workflowSnapshot.safeParse({ ok: true, workspace: { id: 'other-scope' } }).success, false);
+});
