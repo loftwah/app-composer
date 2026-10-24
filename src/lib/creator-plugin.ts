@@ -9,6 +9,7 @@ import { manageEnquiries } from "./private-enquiries.ts";
 import { manageWorkflows } from "./workflows.ts";
 import { manageOverview } from "./overview.ts";
 import { manageOrders } from "./orders.ts";
+import { manageConnections } from "./connections.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
 
@@ -34,9 +35,15 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         { path: "/workflows", label: "Workflows", icon: "arrows-clockwise" },
         { path: "/overview", label: "Needs attention", icon: "warning" },
         { path: "/orders", label: "Orders", icon: "receipt" },
+        { path: "/connections", label: "Connections", icon: "plugs" },
       ],
     },
     routes: {
+      connectionsRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageConnections(ctx, runtime),
+      },
       overviewRead: {
         methods: ["GET"],
         permission: creatorPermission,
