@@ -10,6 +10,7 @@
     "check": "pnpm check:types && pnpm lint && pnpm format:check && pnpm test",
     "test": "node --test --test-concurrency=4 tests/*.test.mjs",
     "deploy": "node scripts/deploy.mjs",
+    "delivery": "node scripts/delivery-journey.mjs",
     "ready": "node scripts/ready.mjs",
     "compose": "node scripts/compose.mjs",
     "ui:assets": "node scripts/public-ui-assets.mjs",
