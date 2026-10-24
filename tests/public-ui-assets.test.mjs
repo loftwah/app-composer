@@ -56,6 +56,18 @@ test('first launcher copy is explicit and later drift remains visible', () => fi
   assert(maintainPublicUiAssets([app]).find(item => item.name === 'launcher.js').changed);
 }));
 
+for (const packageName of ['app-composer-launch-kit', 'app-composer-paperwork']) {
+  test(`${packageName} receives only the reviewed launcher assets`, () => fixture(app => {
+    writeFileSync(join(app, 'package.json'), JSON.stringify({ name: packageName }));
+    for (const name of publicUiFiles) if (!/(20261018|20261022)/.test(name)) rmSync(join(app, 'public/brand', name));
+    const results = maintainPublicUiAssets([app], { write: true, launcherOnly: true });
+    assert.equal(results.length, 9);
+    for (const { name, path } of results) assert.deepEqual(readFileSync(path), readFileSync(new URL('../public/brand/' + name, import.meta.url)));
+    assert.throws(() => readFileSync(join(app, 'public/brand/page-share.mjs')), /ENOENT/);
+    assert(maintainPublicUiAssets([app], { launcherOnly: true }).every(item => !item.changed));
+  }));
+}
+
 // Immutable named art must not be overwritten, even in a multi-app write.
 test('a versioned artwork collision preserves every selected destination', () => fixture(app => {
   const target = join(app, 'public/brand/apps/linkarooie-small-20261018.webp');
