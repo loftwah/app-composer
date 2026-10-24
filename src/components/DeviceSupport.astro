@@ -1,0 +1,21 @@
+---
+import {deviceKinds, deviceActivities, deviceAssessment, deviceSummary} from '../lib/device-support.mjs';
+import type {DeviceSupport} from '../lib/device-support.mjs';
+interface Props {support: DeviceSupport; compact?: boolean}
+const {support, compact = false} = Astro.props;
+const labels = {desktop:'Desktop', phone:'Phone', tablet:'Tablet'};
+const activities = {core:'Main task', view:'Viewing', edit:'Editing', play:'Playing', import:'Importing', export:'Exporting'};
+const target = {unknown:'Not chosen', desktop:'Desktop only', mobile:'Mobile only', both:'Desktop and mobile'};
+const rows = deviceActivities.flatMap(activity => deviceKinds.filter(device => support.activities[activity]?.[device]).map(device => ({activity, device, value:deviceAssessment(support, device, activity)})));
+---
+<div class="device-support">
+ <p class="small device-summary">{deviceSummary(support)}</p>
+ {!compact && <details><summary>Device requirements and checks</summary>
+  <p class="small">Creator’s intended target: {target[support.target]}. This is a build requirement; tested support is listed separately.</p>
+  {rows.length ? <ul>{rows.map(({activity, device, value}) => <li><strong>{labels[device]} · {activities[activity]}</strong>: {value.status === 'unknown' ? 'not checked yet' : value.status}. {value.note}{value.requirements?.length ? <> Requires {value.requirements.join(', ')}.</> : null}{value.evidence && <span class="small"> Checked {value.evidence.checked} using {value.evidence.method === 'physical-device' ? 'a physical device' : 'browser emulation'}: {value.evidence.journey} · source <code>{value.evidence.revision.slice(0,12)}</code>.</span>}</li>)}</ul> : <p class="small">This release has no device assessment. A responsive layout or screenshot does not establish that editing, file handling or exports work on your device.</p>}
+  <p class="small">You can open the app to inspect it. Copying its address does not transfer browser-local files or unsaved work.</p>
+ </details>}
+</div>
+<style>
+ .device-support{margin-block:12px;max-width:65ch;overflow-wrap:anywhere}.device-summary{font-weight:600;margin-block:0}.device-support details{margin-block-start:8px}.device-support summary{min-height:44px;display:list-item;cursor:pointer;padding-block:10px}.device-support ul{padding-inline-start:20px}.device-support li{margin-block:12px}.device-support li span{display:block}
+</style>

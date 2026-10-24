@@ -1,4 +1,6 @@
 ---
+import DeviceSupport from '../../components/DeviceSupport.astro';
+import {appDeviceSupport} from '../../lib/app-device-support';
 import Base from '../../layouts/Base.astro';
 import {getEmDashEntry} from 'emdash';
 import {noindexFor} from '../../lib/indexing.mjs';
@@ -33,7 +35,7 @@ const reviewed=entry?new Date(entry.data.reviewed+'T00:00:00Z').toLocaleDateStri
  </>
 ) : (
  <>
-  <a href="/catalogue">All mini-apps</a><h1>{entry.data.title}</h1><p class="lede">{entry.data.description}</p><p class="small">Contract reviewed {reviewed}. The same name appears in the app’s own repository and interface.</p><div class="actions"><a class="button" href={entry.data.href}>Open app</a><a class="button secondary" href={entry.data.source}>View GitHub source</a></div>
+  <a href="/catalogue">All mini-apps</a><h1>{entry.data.title}</h1><p class="lede">{entry.data.description}</p><p class="small">Contract reviewed {reviewed}. The same name appears in the app’s own repository and interface.</p><DeviceSupport support={appDeviceSupport(shipped?.id ?? entry.data.slug ?? Astro.params.slug!)}/><div class="actions"><a class="button" href={entry.data.href}>Open app</a><a class="button secondary" href={entry.data.source}>View GitHub source</a></div>
   {shipped&&<figure class="app-screen"><a href={entry.data.href}><picture><source type="image/webp" srcset={`${shipped.preview} 960w, ${shipped.previewWide} 1440w`} sizes="(max-width: 800px) calc(100vw - 64px), 720px"/><img src={shipped.preview} width="960" height="600" alt={shipped.previewAlt} loading="lazy" decoding="async"/></picture></a><figcaption>Real screenshot of <a href={('previewOrigin' in shipped?shipped.previewOrigin:shipped.standalone)}>{entry.data.title} at {new URL(('previewOrigin' in shipped?shipped.previewOrigin:shipped.standalone)).host}</a>, captured {new Date(shipped.previewCaptured+'T00:00:00Z').toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'})}.</figcaption></figure>}
   {shipped&&<section class="section"><h2>What this app does.</h2><p>{appDetails[shipped.id].example}</p><ul>{appDetails[shipped.id].features.map(feature=><li>{feature}</li>)}</ul><p><strong>Make it yours.</strong> {appDetails[shipped.id].configuration}</p><p><strong>Works with.</strong> {appDetails[shipped.id].connection}</p></section>}
   <section class="section"><h2>Build with this app</h2><p>{shipped?.id==='paperwork' ? 'Configure Paperwork in Init, then reproduce its exact reviewed source in a new directory.' : 'Configure the supported pair in Init, then give the saved specification to your authorised coding agent.'}</p><a href={shipped?.id==='paperwork'?'/init/paperwork':'/init'}>Configure your app</a>{shipped&&<> · <a href="/apps">Compare it with the shipped app library</a></>}</section>

@@ -54,3 +54,10 @@ The first administration slice connects the existing Guestbook/Linkarooie throug
 ## Loftwah reference creator —16 October 2026
 
 MP directs Loftwah to become the first complete creator stack built with reusable Composer capabilities. Linkarooie is the personal entry point, Guestbook the moderated participation surface, and independent music/games/projects the useful content. Composer remains a generic platform. The canonical direction, explicit publication exclusions, guest/owner boundary and console/CLI intent are recorded in [the reference creator brief](docs/creator-stacks/loftwah.md); existing #24/#25/#112/#116 own delivery and #11 owns release proof.
+
+## Device targets — 24 October 2026
+
+Composer discovery stays usable across devices. Independent apps may target
+desktop only, mobile only or both. Creator intent is separate from demonstrated
+phone/tablet/desktop support for viewing, editing, playing and file operations.
+Unknown support stays unknown. See [device declarations](docs/device-support.md).

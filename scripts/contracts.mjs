@@ -1,3 +1,5 @@
+import {validateDeviceSupport} from '../src/lib/device-support.mjs';
+
 function exactDescriptor(value, reviewed) {
   return Boolean(
     value &&
@@ -11,6 +13,7 @@ function exactDescriptor(value, reviewed) {
 }
 
 export function validateManifest(m) {
+  if (m.deviceSupport !== undefined) validateDeviceSupport(m.deviceSupport);
   if (m.contract !== 1) throw new Error("Unsupported contract version");
   if (!/^[a-z][a-z0-9-]{0,40}$/.test(m.id))
     throw new Error("Invalid app namespace");
