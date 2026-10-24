@@ -1,3 +1,4 @@
+import { GET as sitemap } from '../src/pages/sitemap.xml.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync, existsSync} from 'node:fs';
@@ -39,11 +40,11 @@ test('the private enquiry summary is keyboard reachable and waits for a retained
   assert.match(inbox, /atExportLimit/);
 });
 
-test('the new page is discoverable from the shell, launcher, homepage and sitemap', () => {
+test('the new page is discoverable from the shell, launcher, homepage and sitemap', async () => {
   assert.match(text('src/layouts/Base.astro'), /href="\/manage">Your admin<\/a>/);
   assert.match(text('src/components/AppLauncher.astro'), /Your app, your admin/);
   assert.match(text('src/components/ProductHome.astro'), /href="\/manage"/);
-  assert.match(text('src/pages/sitemap.xml.ts'), /'\/manage'/);
+  assert.ok((await sitemap().text()).includes("<loc>https://composer.loftwah.com/manage</loc>"));
 });
 
 test('the live stack captures have the declared dimensions and provenance', () => {

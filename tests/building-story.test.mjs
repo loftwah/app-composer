@@ -1,3 +1,4 @@
+import { GET as sitemap } from '../src/pages/sitemap.xml.ts';
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
@@ -78,8 +79,8 @@ test("the editable diagrams have source, light/dark plates, phone variants and t
   assert.match(page, /Text version of the workflow/);
 });
 
-test("the build story is discoverable and the maintained contract note is linked", () => {
-  assert.match(text("src/pages/sitemap.xml.ts"), /'\/building'/);
+test("the build story is discoverable and the maintained contract note is linked", async () => {
+  assert.ok((await sitemap().text()).includes("<loc>https://composer.loftwah.com/building</loc>"));
   assert.match(text("src/components/ProductHome.astro"), /href="\/building"/);
   assert.match(text("src/pages/learn.astro"), /href="\/building"/);
   const note = text("docs/guestbook-contributions.md");
