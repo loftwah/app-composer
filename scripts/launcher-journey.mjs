@@ -82,6 +82,7 @@ export async function verifyLinkCheckReturn(page, url, destination = 'https://re
 export async function verifyCommandMenu(page, url) {
   const ensure = (value, message) => { if (!value) throw Error(`${url}: ${message}`); };
   await page.goto(url, { waitUntil: 'domcontentloaded' });
+  const loadedUrl = page.url();
   const trigger = page.locator('[data-open-apps]');
   await trigger.waitFor();
   await trigger.focus();
@@ -94,11 +95,20 @@ export async function verifyCommandMenu(page, url) {
   ensure(await brand.getAttribute('aria-label') === 'App Composer home', 'Composer branding/link missing');
   ensure(await brand.locator('img').evaluate(image => image.complete && image.naturalWidth === 96), 'Composer artwork is not decoded');
   const order = await dialog.locator('[data-launcher-group=apps] a > span:not(.task-icon)').evaluateAll(nodes => nodes.map(node => node.firstChild.textContent));
-  ensure(JSON.stringify(order) === JSON.stringify(['Linkarooie', 'Here / there', 'Link Check', 'Hello World', 'Carry / forward']), 'app order differs across menus');
+  const expectedApps = ['Linkarooie', 'Here / there', 'Link Check', 'Hello World', 'Carry / forward', 'Launch Kit', 'Paperwork'];
+  ensure(JSON.stringify(order) === JSON.stringify(expectedApps), 'the Apps section must contain every mini-app once, in the same order');
+  const studioNames = await dialog.locator('[data-launcher-group=studio] a > span:not(.task-icon)').evaluateAll(nodes => nodes.map(node => node.firstChild.textContent));
+  ensure(!studioNames.some(name => expectedApps.includes(name)), 'a mini-app was left under Studio shortcuts');
+  for (const [name, href] of [['Launch Kit', 'https://composer-launch-kit.loftwah.workers.dev/'], ['Paperwork', 'https://composer-paperwork.loftwah.workers.dev/']]) {
+    const app = dialog.locator('[data-launcher-group=apps] a').filter({ hasText: name });
+    ensure(await app.getAttribute('href') === href, `${name} does not open its standalone app`);
+    await search.fill(name);
+    ensure(await dialog.locator('[data-destination]:visible').count() === 1 && await dialog.locator('[data-launcher-group=apps]:visible').count() === 1, `${name} search must return one app result`);
+  }
   await search.fill('Hello World');
   for (const composition of [{isComposing: true, keyCode: 13}, {isComposing: false, keyCode: 229}]) {
     await search.evaluate((input, shape) => input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true, cancelable: true, ...shape})), composition);
-    ensure(await dialog.isVisible() && page.url() === url, 'IME confirmation activated a destination');
+    ensure(await dialog.isVisible() && page.url() === loadedUrl, 'IME confirmation activated a destination');
   }
   await search.fill('website icons');
   ensure(await dialog.locator('[data-destination]:visible').count() === 1, 'task aliases did not match');

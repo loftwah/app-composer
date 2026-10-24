@@ -153,6 +153,8 @@ function collectContentProjectFiles(
   for (const name of [
     "launcher.js",
     "launcher.css",
+    "apps/launch-kit-20261023-32.png",
+    "apps/paperwork-icon-20261024.svg",
     ...["linkarooie", "herethere", "linkcheck", "hello", "carryforward"].map(
       (id) => "apps/" + id + "-small-20261018.webp",
     ),

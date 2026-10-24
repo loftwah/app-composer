@@ -19,6 +19,8 @@ export const publicUiFiles = Object.freeze([
   'apps/linkcheck-small-20261018.webp',
   'apps/hello-small-20261018.webp',
   'apps/carryforward-small-20261018.webp',
+  'apps/launch-kit-20261023-32.png',
+  'apps/paperwork-icon-20261024.svg',
   'composer-icon-20261022b-96.png',
 ]);
 
@@ -31,6 +33,8 @@ const versionedAssets = new Map([
   ['apps/linkcheck-small-20261018.webp', 'be9d5e7b8f24ec6d8b8d073075e3208dbd3e68afc78ecc00c9184882f98b0326'],
   ['apps/hello-small-20261018.webp', 'c2aef7354c04affc6060d095912307794cc5436acff8a45d26c913b989222db1'],
   ['apps/carryforward-small-20261018.webp', 'd684c61b50c8f1c44eefc376c232fb9192c40d4b80365eb971a3ad1684add88c'],
+  ['apps/launch-kit-20261023-32.png', '92f0c24a9575e7abc0404503639ac33eb6e87f36518b106c44b58a7a1ea9527c'],
+  ['apps/paperwork-icon-20261024.svg', '75b36c679c60e04f61bc92f39cff04aa9d55a18ac6372d3c5b5c397a252b1d70'],
   ['composer-icon-20261022b-96.png', 'ecbadefaf28866750a7db31e848a50f2023ecac1d6cb6db4a598a04b60cc5992'],
 ]);
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
