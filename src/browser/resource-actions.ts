@@ -1,5 +1,9 @@
 // Counts describe public interactions, never completed operations or people.
-import { resourceActionPayload } from "../lib/resource-action-contract.ts";
+import {
+  resourceActionPayload,
+  resourceTrafficExcluded,
+  resourceQaLabel,
+} from "../lib/resource-action-contract.ts";
 export { resourceActionPayload } from "../lib/resource-action-contract.ts";
 
 export function recordResourceAction(
@@ -9,11 +13,7 @@ export function recordResourceAction(
   send: typeof fetch = fetch,
 ) {
   const parameters = new URL(url).searchParams;
-  if (
-    parameters.getAll("analytics").includes("off") ||
-    parameters.getAll("qa").includes("1")
-  )
-    return;
+  if (resourceTrafficExcluded(parameters)) return;
   const payload = resourceActionPayload(resource, action);
   if (!payload) return;
   try {
@@ -41,15 +41,13 @@ export function installResourceActions(root: Document = document) {
   )) {
     const target = new URL(anchor.href, root.URL);
     if (target.origin !== new URL(root.URL).origin) continue;
-    if (parameters.getAll("analytics").includes("off"))
+    if (resourceTrafficExcluded(parameters)) {
+      // Invalid/empty QA labels still suppress recording after navigation.
       target.searchParams.set("analytics", "off");
-    if (parameters.getAll("qa").includes("1"))
-      target.searchParams.set("qa", "1");
-    if (
-      parameters.getAll("analytics").includes("off") ||
-      parameters.getAll("qa").includes("1")
-    )
+      const label = resourceQaLabel(parameters);
+      if (label) target.searchParams.set("qa", label);
       anchor.href = target.href;
+    }
   }
   const activate = (event: MouseEvent) => {
     if (

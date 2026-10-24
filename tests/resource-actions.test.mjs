@@ -1,10 +1,32 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resources } from "../src/lib/resource-library.ts";
+import {
+  resourceIds,
+  resourceActions,
+  resourceQaLabel,
+} from "../src/lib/resource-action-contract.ts";
 import {
   resourceActionPayload,
   recordResourceAction,
   installResourceActions,
 } from "../src/browser/resource-actions.ts";
+
+test("resource action IDs match every maintained catalogue module and literal download marker", () => {
+  assert.deepEqual(
+    resourceIds,
+    resources.map((resource) => resource.id),
+  );
+  for (const resource of resources) {
+    for (const action of resourceActions)
+      assert.ok(resourceActionPayload(resource.id, action));
+  }
+  assert.equal(resourceActionPayload("kit", "download"), null);
+  const markup = readFileSync("src/components/ResourceDesk.astro", "utf8");
+  for (const marker of markup.matchAll(/data-resource-id="([^"]+)"/g))
+    assert.ok(resourceIds.includes(marker[1]), marker[1]);
+});
 
 test("resource actions retain only a finite job and action, never entered text or URL", async () => {
   const sent = [];
@@ -68,6 +90,11 @@ test("manual and repeated QA opt-outs suppress all resource action transport", (
     "?qa=1",
     "?analytics=on&analytics=off",
     "?qa=0&qa=1",
+    "?qa=resources-reviewed",
+    "?qa=",
+    "?qa=0",
+    "?qa=private%20text",
+    "?qa=" + "x".repeat(65),
   ]) {
     for (const action of ["choice", "copy", "download", "example_open"]) {
       recordResourceAction(
@@ -79,6 +106,27 @@ test("manual and repeated QA opt-outs suppress all resource action transport", (
     }
   }
   assert.equal(sent.length, 0);
+});
+
+test("only bounded QA labels travel; invalid labels still exclude recording", () => {
+  for (const value of [
+    "",
+    "private text",
+    "x".repeat(65),
+    "https://private.test/",
+  ])
+    assert.equal(
+      resourceQaLabel(new URLSearchParams({ qa: value })),
+      undefined,
+    );
+  assert.equal(
+    resourceQaLabel(new URLSearchParams("qa=resources-reviewed")),
+    "resources-reviewed",
+  );
+  assert.equal(
+    resourceQaLabel(new URLSearchParams("qa=bad%20value&qa=reviewed-2")),
+    "reviewed-2",
+  );
 });
 
 test("offline and unsupported keepalive recording do not own the visitor action or retry", async () => {
@@ -168,6 +216,26 @@ test("activation listeners ignore synthetic/cancelled events and repeated instal
     anchor.dataset.resourceAction = "choice";
     listeners.get("click")(click);
     assert.equal(sent.length, 2);
+    for (const query of [
+      "?qa=resources-reviewed&private=canary",
+      "?qa=&private=canary",
+      "?qa=" + "x".repeat(65),
+    ]) {
+      root.URL = "https://composer.test/resources" + query;
+      anchor.href = "https://composer.test/resources/change#resource";
+      installResourceActions(root);
+      const target = new URL(anchor.href);
+      assert.equal(target.searchParams.get("analytics"), "off");
+      assert.ok(!target.href.includes("canary"));
+      assert.equal(
+        target.searchParams.has("qa"),
+        query.startsWith("?qa=resources-reviewed"),
+      );
+      if (target.searchParams.has("qa"))
+        assert.equal(target.searchParams.get("qa"), "resources-reviewed");
+      listeners.get("click")(click);
+      assert.equal(sent.length, 2);
+    }
     stop();
   } finally {
     globalThis.Element = previousElement;

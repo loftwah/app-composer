@@ -4,7 +4,7 @@ export const resourceIds = [
   "incident",
   "pipeline",
   "hook",
-  "kit",
+  "operating-kit",
 ] as const;
 export const resourceActions = [
   "choice",
@@ -14,6 +14,17 @@ export const resourceActions = [
 ] as const;
 export type ResourceId = (typeof resourceIds)[number];
 export type ResourceAction = (typeof resourceActions)[number];
+
+// Any QA parameter is an exclusion, including empty, repeated or invalid labels.
+// Only bounded public labels may be forwarded through native navigation.
+export function resourceTrafficExcluded(parameters: URLSearchParams) {
+  return parameters.getAll("analytics").includes("off") || parameters.has("qa");
+}
+export function resourceQaLabel(parameters: URLSearchParams) {
+  return parameters
+    .getAll("qa")
+    .find((value) => /^[A-Za-z0-9._-]{1,64}$/.test(value));
+}
 
 export function resourceActionPayload(resource: unknown, action: unknown) {
   if (

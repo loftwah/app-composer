@@ -4,6 +4,7 @@ import {
   resourceActionPayload,
   resourceIds,
   resourceActions,
+  resourceTrafficExcluded,
 } from "./resource-action-contract.ts";
 
 export const resourceDailyCap = 1000;
@@ -92,7 +93,21 @@ export async function collectResourceAction(
       request.headers.get("Sec-Fetch-Site") !== "same-origin")
   )
     return empty(403);
-  if (verificationRequest(request)) return empty();
+  let qaReferrer = false;
+  try {
+    const referrer = new URL(request.headers.get("Referer") ?? "");
+    qaReferrer =
+      referrer.origin === url.origin &&
+      resourceTrafficExcluded(referrer.searchParams);
+  } catch {
+    /* No valid referring page. */
+  }
+  if (
+    verificationRequest(request) ||
+    resourceTrafficExcluded(url.searchParams) ||
+    qaReferrer
+  )
+    return empty();
   if (url.search) return empty(400);
   let input: NonNullable<ReturnType<typeof resourceActionPayload>>;
   try {
