@@ -46,6 +46,8 @@ Inspect the actual project and its trusted instructions first. Preserve existing
 
 ## Companion files
 
+- change-square-20261024.png
+- change-portrait-20261024.png
 - change-release.mmd
 - change-release.svg
 - examples/guarded-pipeline.mjs
