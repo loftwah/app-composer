@@ -90,6 +90,7 @@ export function reproducePaperwork({ source, destination, configuration }) {
     // Reproduction transfers source, never the reference instance's upload target.
     const target = JSON.parse(readFileSync(join(to, "wrangler.jsonc"), "utf8"));
     delete target.account_id;
+    delete target.routes;
     target.name = "paperwork-unconfigured";
     writeFileSync(join(to, "wrangler.jsonc"), JSON.stringify(target, null, 2) + "\n");
     writeFileSync(
