@@ -11,7 +11,7 @@ function fixture(run) {
     const app = join(root, 'app');
     mkdirSync(join(app, 'public/brand/apps'), { recursive: true });
     writeFileSync(join(app, 'package.json'), JSON.stringify({ name: 'app-composer-hello' }));
-    for (const name of publicUiFiles) if (!/(20261018|20261022)/.test(name)) writeFileSync(join(app, 'public/brand', name), 'old source');
+    for (const name of publicUiFiles) if (!/\d{8}/.test(name)) writeFileSync(join(app, 'public/brand', name), 'old source');
     return run(app, root);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -59,9 +59,9 @@ test('first launcher copy is explicit and later drift remains visible', () => fi
 for (const packageName of ['app-composer-launch-kit', 'app-composer-paperwork']) {
   test(`${packageName} receives only the reviewed launcher assets`, () => fixture(app => {
     writeFileSync(join(app, 'package.json'), JSON.stringify({ name: packageName }));
-    for (const name of publicUiFiles) if (!/(20261018|20261022)/.test(name)) rmSync(join(app, 'public/brand', name));
+    for (const name of publicUiFiles) if (!/\d{8}/.test(name)) rmSync(join(app, 'public/brand', name));
     const results = maintainPublicUiAssets([app], { write: true, launcherOnly: true });
-    assert.equal(results.length, 9);
+    assert.equal(results.length, 11);
     for (const { name, path } of results) assert.deepEqual(readFileSync(path), readFileSync(new URL('../public/brand/' + name, import.meta.url)));
     assert.throws(() => readFileSync(join(app, 'public/brand/page-share.mjs')), /ENOENT/);
     assert(maintainPublicUiAssets([app], { launcherOnly: true }).every(item => !item.changed));
