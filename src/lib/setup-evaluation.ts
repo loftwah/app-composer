@@ -32,6 +32,20 @@ function text(value: unknown, max = 600): value is string {
 function list(value: unknown, max = 30): value is string[] {
   return Array.isArray(value) && value.length <= max && value.every((entry) => text(entry));
 }
+function utcTimestamp(value: unknown): value is string {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/.test(value)) return false;
+  const stamp = Date.parse(value);
+  if (!Number.isFinite(stamp)) return false;
+  return new Date(stamp).toISOString() === (value.includes('.') ? value : value.replace('Z', '.000Z'));
+}
+function evidenceReference(value: unknown): value is string {
+  if (!text(value) || /\s/.test(value)) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.hostname === 'github.com' && !url.port && !url.username && !url.password && !url.search &&
+      /^\/loftwah\/[a-z0-9-]+\/(issues\/\d+|pull\/\d+(\/files)?|blob\/[a-zA-Z0-9._/-]+)$/.test(url.pathname);
+  } catch { return false; }
+}
 
 export function validateSetupEvaluation(value: unknown): SetupEvaluationRun[] {
   if (!record(value) || value.schema !== setupEvaluationSchema || !Array.isArray(value.runs) || value.runs.length > 1000 || Object.keys(value).some((key) => !['schema', 'runs'].includes(key))) throw new Error('Expected a bounded versioned setup-evaluation ledger.');
@@ -47,11 +61,12 @@ export function validateSetupEvaluation(value: unknown): SetupEvaluationRun[] {
     if (!(evaluationPaths as readonly unknown[]).includes(run.path) || !(evaluationOutcomes as readonly unknown[]).includes(run.outcome)) throw new Error('Unsupported evaluation path or outcome.');
     if (typeof run.simulated !== 'boolean' || !list(run.tools) || !list(run.provisionedAccess) || !list(run.interventions)) throw new Error('Record tools, provisioned access, interventions and simulation scope.');
     const timestamps = [run.startedAt, run.finishedAt];
-    if (timestamps.some((stamp) => typeof stamp !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/.test(stamp) || !Number.isFinite(Date.parse(stamp)))) throw new Error('Use explicit UTC timestamps.');
+    if (timestamps.some((stamp) => !utcTimestamp(stamp))) throw new Error('Use valid explicit UTC timestamps.');
     if (Date.parse(run.finishedAt as string) < Date.parse(run.startedAt as string)) throw new Error('Run finish precedes its start.');
     if (!Array.isArray(run.checks) || run.checks.length === 0 || run.checks.length > 40 || run.checks.some((check) => !record(check) || Object.keys(check).some((key) => !['command', 'outcome'].includes(key)) || !text(check.command) || !text(check.outcome))) throw new Error('Independent checks and observed outcomes are required.');
-    if (!text(run.evidence) || !/^https:\/\/github\.com\/loftwah\/[a-z0-9-]+\/(issues|pull|blob)\//.test(run.evidence) || /[?#].*(token|secret|key)=/i.test(run.evidence)) throw new Error('Use a stable public source or issue evidence reference.');
+    if (!evidenceReference(run.evidence)) throw new Error('Use a stable public source or issue evidence reference without query values.');
     if (run.outcome === 'completed' && run.interventions.length > 0) throw new Error('Disclose rescue separately from first-attempt completion.');
+    if (run.outcome === 'completed-after-rescue' && run.interventions.length === 0) throw new Error('Record the intervention that rescued this attempt.');
     return run as unknown as SetupEvaluationRun;
   });
 }
@@ -59,7 +74,7 @@ export function validateSetupEvaluation(value: unknown): SetupEvaluationRun[] {
 export function summariseSetupEvaluations(runs: SetupEvaluationRun[], guideVersion: string) {
   return evaluationPaths.map((path) => {
     const matching = runs.filter((run) => run.guideVersion === guideVersion && run.path === path);
-    const ordered = [...matching].sort((a, b) => a.finishedAt.localeCompare(b.finishedAt));
+    const ordered = [...matching].sort((a, b) => Date.parse(a.finishedAt) - Date.parse(b.finishedAt));
     return {
       path,
       attempts: matching.length,

@@ -109,7 +109,22 @@ test('evaluation rejects duplicates, incomplete observations, hidden rescue and 
     ledger([run({ interventions: ['Unrecorded coaching'] })]), ledger([run({ path: 'unit-test' })]),
     ledger([run({ evidence: 'javascript:alert(1)' })]), ledger([run({ evidence: 'https://github.com/loftwah/app-composer/issues/292?token=private' })]),
     ledger([run({ finishedAt: '2026-10-23T00:00:00Z' })]), ledger([run({ simulated: 'no' })]),
+    ledger([run({ startedAt: '2026-02-30T00:00:00Z' })]),
+    ledger([run({ evidence: 'https://github.com/loftwah/app-composer/issues/292?password=private' })]),
+    ledger([run({ evidence: 'https://github.com/loftwah/app-composer/issues/not-an-issue' })]),
+    ledger([run({ outcome: 'completed-after-rescue', interventions: [] })]),
   ]) assert.throws(() => validateSetupEvaluation(invalid));
+});
+
+test('evaluation chronology compares observed timestamps and preserves explicit rescue', () => {
+  const entries = validateSetupEvaluation(ledger([
+    run({ id: 'existing-early', outcome: 'completed-after-rescue', interventions: ['Clarified the documented local port'], finishedAt: '2026-10-24T00:01:00Z' }),
+    run({ id: 'existing-later', outcome: 'failed', finishedAt: '2026-10-24T00:01:00.001Z', evidence: 'https://github.com/loftwah/app-composer/issues/292#issuecomment-123' }),
+  ]));
+  const summary = summariseSetupEvaluations(entries, setupGuideVersion).find((entry) => entry.path === 'existing');
+  assert.equal(summary.latest.id, 'existing-later');
+  assert.equal(summary.rescued, 1);
+  assert.equal(summary.completed, 0);
 });
 
 test('public route and client use one rendered guide, keep details out of URLs and isolate browser storage', async () => {
