@@ -262,7 +262,11 @@ export async function publicEnquiryRequest(
           receipt.intent,
         );
       } catch {
-        /* The app-owned receipt remains authoritative; native status exposes connection failures. */
+        // A source confirmation and this local queue are not one transaction.
+        // Keep only a bounded operational marker, never brief or event values.
+        console.warn(
+          "Composer enquiry notification queue was not persisted; inspect the source Inbox and retained receipt.",
+        );
       }
     }
     // No private body or app owner authority leaves the server boundary.

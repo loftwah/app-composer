@@ -66,3 +66,10 @@ verification, actual delivery/bounce/suppression reconciliation, owner acceptanc
 and production provider proof remain open #117 gates. References:
 [Resend idempotency](https://resend.com/docs/dashboard/emails/idempotency-keys) and
 [send response](https://resend.com/docs/api-reference/emails/send-email).
+
+The app confirmation and Composer queue are not one transaction. A local queue
+failure preserves the app-owned successful receipt and emits a bounded log
+marker without body, account or event values. A later receipt check can repair
+queuing while the receipt remains available. There is no complete source-to-queue
+reconciliation scan in this slice; a missing notification never proves an empty
+Inbox. Reliable autonomous coverage remains an open acceptance gate.
