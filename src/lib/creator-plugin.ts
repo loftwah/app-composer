@@ -12,6 +12,7 @@ import { manageOverview } from "./overview.ts";
 import { manageOrders } from "./orders.ts";
 import { manageConnections } from "./connections.ts";
 import { manageResourceInventory } from "./resource-inventory.ts";
+import { manageAgentProposals } from "./agent-proposals.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
 
@@ -39,9 +40,21 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         { path: "/orders", label: "Orders", icon: "receipt" },
         { path: "/connections", label: "Connections", icon: "plugs" },
         { path: "/resources", label: "App resources", icon: "cloud" },
+        { path: "/proposals", label: "Agent proposals", icon: "robot" },
       ],
     },
     routes: {
+      proposalsRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageAgentProposals(ctx, runtime),
+      },
+      proposalsWrite: {
+        methods: ["POST"],
+        permission: creatorPermission,
+        request: { body: "json", maxBytes: 8000 },
+        handler: (ctx) => manageAgentProposals(ctx, runtime),
+      },
       connectionsRead: {
         methods: ["GET"],
         permission: creatorPermission,

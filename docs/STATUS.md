@@ -95,6 +95,29 @@ in [the role-pack guide](role-packs.md). This is a local/draft-PR slice: native
 EmDash accept/request-changes/reject records, connected-agent authentication
 and any production execution remain #311/#315 gates.
 
+## Agent proposals — 2026/10/25
+
+The local-first proposal channel now persists a scoped agent finding, a human
+decision and a separate handoff. Migration `0016_agent_proposals.sql` adds
+proposal-only grants, deterministic briefings, versioned proposals, review
+records and prepared handoffs. `scripts/agent-proposal.mjs` supports `grant`,
+`brief`, `submit`, `list`, `show`, `review`, `verify`, `revoke` and `handoff`;
+the native **Agent proposals** page lists state, scope, risk, digest, evidence and
+the next action, and records Accept, Request changes or Reject. Accept executes
+nothing; a separate artifact records `execution: not-performed` for the existing
+release flow.
+
+The fictional Trail Notes journey reached v1 → request changes → v2 → accepted
+with an exact digest → verified → prepared handoff, and refused self-approval and
+an `execute` attempt. Fifteen focused tests cover wrong scope, revoked/expired
+grants, stale source, duplicate and interrupted submission, mutated content,
+secret material and native-route access. This is a local SQLite/preview slice:
+connected agent authentication, grant provisioning UI, production D1, real
+Access admission and browser/device acceptance remain #311/#315 gaps. No
+production migration or deployment was performed. See
+[agent proposals](agent-proposals.md) and the
+[bounded transcript](evidence/agent-proposals-20261025/transcript.md).
+
 ## Finding the shipped work — 24 October 2026
 
 The product front door and [Explore directory](https://composer.loftwah.com/discover) lead with [Launch Kit](https://composer.loftwah.com/launch-kit) and the [team application films](https://composer.loftwah.com/platform/demo), then link directly to invited profiles, analytics and owner workflows. The existing decision planner remains at `/explore`. The shared launcher includes the newer tools and resolves them through each shell’s selected Composer instance. The owning issue is [#273](https://github.com/loftwah/app-composer/issues/273); exact release identities and production checks belong in #11.
