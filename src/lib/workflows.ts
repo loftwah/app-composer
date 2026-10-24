@@ -135,8 +135,9 @@ export async function manageWorkflows(ctx: Context, runtime: Runtime) {
         .bind(evaluation.state, JSON.stringify(evaluation.steps), evaluation.result ? JSON.stringify(evaluation.result) : null, evaluation.message, row.id, workspace.id, row.revision, workspace.id, user.id, ...(row.synthetic ? [] : [workspace.id, row.recipe, active!.revision, target.account, target.environment]), ...source.values).first();
       if (!updated) throw conflict();
     }
+    const result = await snapshot(db, workspace, target);
     requireCapability(await membership(db, workspace.id, user.id), writing ? 'save' : 'read');
-    return await snapshot(db, workspace, target);
+    return result;
   } catch (cause) {
     return cause instanceof StackError ? { ok: false as const, code: cause.code, message: cause.message }
       : cause instanceof z.ZodError ? { ok: false as const, code: 'INVALID', message: 'Choose a supported recipe and valid fields. Imported content cannot select an action, account or event.' }

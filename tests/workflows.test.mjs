@@ -111,6 +111,49 @@ test('revocation or pause between observation and persistence prevents the new r
   assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM creator_workflow_runs').get().n, 0);
 });
 
+test('changed environment hides old receipts and stops activation and retries', async t => {
+  const f = await prepared(t); await f.activate('release-summary');
+  const sample = await f.route({ action: 'sample', workspace: f.workspace.id, recipe: 'release-summary', operation: crypto.randomUUID(), fail: true });
+  f.runtime.RESOURCE_ENVIRONMENT = 'different-environment';
+  const reopened = await f.route({ action: 'list', workspace: f.workspace.id }, true);
+  assert.equal(reopened.runs.length, 0);
+  assert.equal(reopened.recipes[0].scopeMatches, false);
+  assert.equal(reopened.recipes[0].enabled, false);
+  assert.equal((await f.route({ action: 'scan', workspace: f.workspace.id, recipe: 'release-summary', expectedRevision: 1 })).code, 'CONFLICT');
+  assert.equal((await f.route({ action: 'retry', workspace: f.workspace.id, run: sample.runs[0].id, expectedRevision: 1 })).code, 'CONFLICT');
+});
+
+test('a source recovering during scan cannot create an obsolete attention result', async t => {
+  const f = await prepared(t), request = await failedRequest(f); await f.activate('operation-attention');
+  const prepare = f.db.prepare.bind(f.db); let recovered = false;
+  f.db.prepare = sql => {
+    if (!recovered && sql.startsWith('INSERT OR IGNORE INTO creator_workflow_runs')) {
+      recovered = true;
+      f.sqlite.prepare("UPDATE creator_platform_requests SET status='complete',revision=revision+1 WHERE id=?").run(request);
+    }
+    return prepare(sql);
+  };
+  const reply = await f.route({ action: 'scan', workspace: f.workspace.id, recipe: 'operation-attention', expectedRevision: 1 });
+  assert.equal(reply.code, 'CONFLICT');
+  assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM creator_workflow_runs').get().n, 0);
+});
+
+test('revoked selected membership during history read cannot expose a snapshot', async t => {
+  const f = await prepared(t);
+  await f.route({ action: 'sample', workspace: f.workspace.id, recipe: 'release-summary', operation: crypto.randomUUID(), fail: false });
+  const prepare = f.db.prepare.bind(f.db); let revoked = false;
+  f.db.prepare = sql => {
+    if (!revoked && sql.startsWith('SELECT * FROM creator_workflow_runs WHERE workspace_id=')) {
+      revoked = true;
+      f.sqlite.prepare('DELETE FROM creator_members WHERE workspace_id=? AND user_id=?').run(f.workspace.id, user.id);
+    }
+    return prepare(sql);
+  };
+  const reply = await f.route({ action: 'list', workspace: f.workspace.id }, true);
+  assert.equal(reply.code, 'FORBIDDEN');
+  assert.equal('runs' in reply, false);
+});
+
 test('export/import preserves identity, rejects executable fields, mismatched actions and secrets', () => {
   const exported = exportWorkflow('release-summary', 'A useful recipe');
   assert.deepEqual(workflowExport.parse(JSON.parse(JSON.stringify(exported))), exported);
