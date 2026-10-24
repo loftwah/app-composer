@@ -5,6 +5,7 @@ import { WorkspaceAccessPage } from "./workspace-access";
 import { OutcomesPage } from "./outcomes";
 import { MaintenancePage } from "./maintenance-page";
 import { EnquiriesPage } from "./enquiries";
+import { ResourceInventoryPage } from "./resource-inventory-page";
 import { WorkflowsPage } from "./workflows-page";
 import { OverviewPage } from "./overview-page";
 import { OrdersPage } from "./orders-page";
@@ -1822,4 +1823,5 @@ export const pages: PluginAdminExports["pages"] = {
   "/overview": OverviewPage,
   "/orders": OrdersPage,
   "/connections": ConnectionsPage,
+  "/resources": ResourceInventoryPage,
 };

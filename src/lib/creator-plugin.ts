@@ -11,6 +11,7 @@ import { afterNativeWorkflowWrite } from "./workflow-events.ts";
 import { manageOverview } from "./overview.ts";
 import { manageOrders } from "./orders.ts";
 import { manageConnections } from "./connections.ts";
+import { manageResourceInventory } from "./resource-inventory.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
 
@@ -37,6 +38,7 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         { path: "/overview", label: "Needs attention", icon: "warning" },
         { path: "/orders", label: "Orders", icon: "receipt" },
         { path: "/connections", label: "Connections", icon: "plugs" },
+        { path: "/resources", label: "App resources", icon: "cloud" },
       ],
     },
     routes: {
@@ -44,6 +46,11 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         methods: ["GET"],
         permission: creatorPermission,
         handler: (ctx) => manageConnections(ctx, runtime),
+      },
+      resourcesRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageResourceInventory(ctx, runtime),
       },
       overviewRead: {
         methods: ["GET"],
