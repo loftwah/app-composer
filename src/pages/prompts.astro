@@ -1,16 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
 import { promptModules, renderPrompt } from '../lib/prompt-library';
+// One selected module, local input and complete portable exports.
 const categories = [...new Set(promptModules.map(item => item.category))];
 ---
-<!--
-THESIS: a working prompt desk: choose a job, add the few details that matter, see the exact handoff.
-OWN-WORLD: incumbent Space typography, charcoal/ivory work surfaces, signal orange and ruled task list.
-STORY: find a task, understand its prerequisites, prepare and copy the complete request.
-FIRST VIEWPORT: compact title over a searchable task rail and a generous selected editor; direct copy action.
-FORM: task index / guided chapter / prompt desk (candidate 3), seed 57dd2139. The user fixes the job-first controls.
-FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
--->
+
 <Base title="Prompts for the job in front of you" description="Choose a job, add your details and copy a complete request for your agent. Public, free to prepare, and no model call required.">
   <div class="prompt-library" data-prompt-library>
     <div class="prompt-intro">
