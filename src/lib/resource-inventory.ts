@@ -220,157 +220,15 @@ export async function manageResourceInventory(ctx: Context, runtime: Runtime) {
       typeof runtime.GUESTBOOK_OWNER_TOKEN === "string" &&
       Boolean(runtime.GUESTBOOK_OWNER_TOKEN.trim());
 
-    const rows = await db
-      .prepare(
-        "SELECT id,account_id,environment,target,version,state,configuration_revision,configuration_digest,configuration_source,configuration_json,created_at FROM creator_app_resources WHERE workspace_id=? AND app='guestbook' ORDER BY created_at,id LIMIT ?",
-      )
-      .bind(workspace.id, RESOURCE_LIMIT)
-      .all<ResourceRow>();
-    const bindings = await db
-      .prepare(
-        "SELECT b.resource_id,b.instance_id,b.mode,b.stack_id,s.name AS stack_name,s.slug AS stack_slug,s.status AS stack_status,s.draft_json,s.published_json FROM creator_stack_resource_bindings b JOIN creator_stacks s ON s.id=b.stack_id WHERE s.workspace_id=? ORDER BY b.resource_id,s.name,b.instance_id LIMIT ?",
-      )
-      .bind(workspace.id, BINDING_LIMIT)
-      .all<BindingRow>();
-    const operations = await db
-      .prepare(
-        "SELECT o.id,o.resource_id,o.action,o.state,o.created_at FROM creator_resource_operations o WHERE o.resource_id IN (SELECT id FROM creator_app_resources WHERE workspace_id=?) ORDER BY o.created_at DESC,o.rowid DESC LIMIT ?",
-      )
-      .bind(workspace.id, OPERATION_LIMIT)
-      .all<OperationRow>();
-
-    const bindingsByResource = new Map<string, BindingRow[]>();
-    for (const row of bindings.results) {
-      const list = bindingsByResource.get(row.resource_id) ?? [];
-      list.push(row);
-      bindingsByResource.set(row.resource_id, list);
-    }
-    const confirmed = new Map<string, OperationRow>(),
-      unfinished = new Map<string, OperationRow>();
-    for (const row of operations.results) {
-      if (row.state === "confirmed" && !confirmed.has(row.resource_id))
-        confirmed.set(row.resource_id, row);
-      if (
-        (row.state === "pending" || row.state === "unknown") &&
-        !unfinished.has(row.resource_id)
-      )
-        unfinished.set(row.resource_id, row);
-    }
-
     const now = Date.now();
-    const actionHref =
-      "/_emdash/admin/plugins/composer-stacks/stacks?" +
-      new URLSearchParams({ workspace: workspace.id });
-    const resources: InventoryResource[] = [];
-    for (const row of rows.results) {
-      const bound = bindingsByResource.get(row.id) ?? [];
-      const configuration = recordedConfiguration(row);
-      const expected = await expectedConfiguration(row, bound, installedSource);
-      const pinned: number[] = [];
-      for (const binding of bound) {
-        const published = parseDocument(binding.published_json);
-        const instance = published?.instances.find(
-          (entry) => entry.id === binding.instance_id,
-        );
-        if (instance?.resource?.id === row.id)
-          pinned.push(instance.resource.configurationRevision);
-      }
-      const labels = {
-        workspace: workspace.name,
-        stack: bound[0]?.stack_name ?? null,
-        instance: bound[0] ? instanceLabel(bound[0]) : null,
-        app: "Guestbook" as const,
-        environment: row.environment,
-      };
-      const providerTags = compareProviderTags(
-        expectedProviderTags({
-          workspace: workspace.name,
-          app: "guestbook",
-          environment: row.environment,
-          resource: row.id,
-        }),
-        null,
-      );
-      const observation: ResourceObservation = {
-        id: row.id,
-        state: row.state,
-        configuration,
-        expected: {
-          available: expected.values !== null,
-          basis: expected.basis,
-          values: expected.values,
-          digest: expected.digest,
-          source: expected.source,
-          note: expected.note,
-        },
-        targetMatches:
-          row.account_id === target.account &&
-          row.environment === target.environment &&
-          row.target === resourceTarget,
-        bindings: bound.length,
-        unfinished: unfinished.has(row.id)
-          ? {
-              action: unfinished.get(row.id)!.action,
-              state:
-                unfinished.get(row.id)!.state === "pending"
-                  ? "pending"
-                  : "unknown",
-              at: storedTimestamp(unfinished.get(row.id)!.created_at),
-            }
-          : null,
-        lastConfirmedAt: confirmed.has(row.id)
-          ? storedTimestamp(confirmed.get(row.id)!.created_at)
-          : null,
-        published:
-          pinned.length > 0
-            ? {
-                pinned,
-                current: configuration?.revision ?? null,
-              }
-            : null,
-        providerTags,
-        actionHref,
-      };
-      const { status, findings } = classifyResource(observation, now);
-      resources.push({
-        id: row.id,
-        app: "guestbook",
-        service: "GUESTBOOK",
-        account: row.account_id,
-        environment: row.environment,
-        target: row.target,
-        recordedAt: storedTimestamp(row.created_at),
-        state: row.state,
-        version: row.version,
-        status,
-        configuration,
-        expected,
-        differences: configurationDifferences(
-          configuration?.values ?? null,
-          expected.values,
-        ),
-        bindings: bound.map((binding) => ({
-          stackId: binding.stack_id,
-          stackName: binding.stack_name,
-          stackSlug: binding.stack_slug,
-          stackStatus: binding.stack_status,
-          instanceId: binding.instance_id,
-          instanceLabel: instanceLabel(binding) ?? binding.instance_id,
-          mode: binding.mode,
-        })),
-        published: observation.published,
-        lastConfirmedOperation: confirmed.has(row.id)
-          ? {
-              action: confirmed.get(row.id)!.action,
-              at: storedTimestamp(confirmed.get(row.id)!.created_at),
-            }
-          : null,
-        unfinishedOperation: observation.unfinished,
-        labels,
-        providerTags,
-        findings,
-      });
-    }
+    const inventory = await readResourceInventory(db, {
+      workspace,
+      account: target.account,
+      environment: target.environment,
+      installedSource,
+      now,
+    });
+    const resources = inventory.resources;
     const currentRole = await membership(db, workspace.id, user.id);
     requireCapability(currentRole, "read");
     return resourceInventory.parse({
@@ -394,7 +252,7 @@ export async function manageResourceInventory(ctx: Context, runtime: Runtime) {
         note: "Composer stores no verified Cloudflare tag snapshot for this account, and this screen performs no provider read. Provider tags are unverified here rather than assumed. Tags are not ownership, access or billing authority.",
       },
       readAt: new Date(now).toISOString(),
-      atLimit: rows.results.length >= RESOURCE_LIMIT,
+      atLimit: inventory.atLimit,
       counts: countStatuses(resources),
       resources,
     });
@@ -410,6 +268,180 @@ export async function manageResourceInventory(ctx: Context, runtime: Runtime) {
   }
 }
 
+/**
+ * One bounded read of Composer's own resource records. The owner Overview and
+ * the App resources screen both call this so their problem counts cannot
+ * disagree for the same workspace.
+ */
+export interface ResourceInventoryRead {
+  resources: InventoryResource[];
+  atLimit: boolean;
+}
+export interface ResourceInventoryReadOptions {
+  workspace: { id: string; name: string };
+  account: string;
+  environment: string;
+  installedSource: string | null;
+  now: number;
+}
+export async function readResourceInventory(
+  db: D1Database,
+  options: ResourceInventoryReadOptions,
+): Promise<ResourceInventoryRead> {
+  const { workspace, installedSource, now } = options;
+  const target = { account: options.account, environment: options.environment };
+  const rows = await db
+    .prepare(
+      "SELECT id,account_id,environment,target,version,state,configuration_revision,configuration_digest,configuration_source,configuration_json,created_at FROM creator_app_resources WHERE workspace_id=? AND app='guestbook' ORDER BY created_at,id LIMIT ?",
+    )
+    .bind(workspace.id, RESOURCE_LIMIT)
+    .all<ResourceRow>();
+  const bindings = await db
+    .prepare(
+      "SELECT b.resource_id,b.instance_id,b.mode,b.stack_id,s.name AS stack_name,s.slug AS stack_slug,s.status AS stack_status,s.draft_json,s.published_json FROM creator_stack_resource_bindings b JOIN creator_stacks s ON s.id=b.stack_id WHERE s.workspace_id=? ORDER BY b.resource_id,s.name,b.instance_id LIMIT ?",
+    )
+    .bind(workspace.id, BINDING_LIMIT)
+    .all<BindingRow>();
+  const operations = await db
+    .prepare(
+      "SELECT o.id,o.resource_id,o.action,o.state,o.created_at FROM creator_resource_operations o WHERE o.resource_id IN (SELECT id FROM creator_app_resources WHERE workspace_id=?) ORDER BY o.created_at DESC,o.rowid DESC LIMIT ?",
+    )
+    .bind(workspace.id, OPERATION_LIMIT)
+    .all<OperationRow>();
+
+  const bindingsByResource = new Map<string, BindingRow[]>();
+  for (const row of bindings.results) {
+    const list = bindingsByResource.get(row.resource_id) ?? [];
+    list.push(row);
+    bindingsByResource.set(row.resource_id, list);
+  }
+  const confirmed = new Map<string, OperationRow>(),
+    unfinished = new Map<string, OperationRow>();
+  for (const row of operations.results) {
+    if (row.state === "confirmed" && !confirmed.has(row.resource_id))
+      confirmed.set(row.resource_id, row);
+    if (
+      (row.state === "pending" || row.state === "unknown") &&
+      !unfinished.has(row.resource_id)
+    )
+      unfinished.set(row.resource_id, row);
+  }
+
+  const actionHref =
+    "/_emdash/admin/plugins/composer-stacks/stacks?" +
+    new URLSearchParams({ workspace: workspace.id });
+  const resources: InventoryResource[] = [];
+  for (const row of rows.results) {
+    const bound = bindingsByResource.get(row.id) ?? [];
+    const configuration = recordedConfiguration(row);
+    const expected = await expectedConfiguration(row, bound, installedSource);
+    const pinned: number[] = [];
+    for (const binding of bound) {
+      const published = parseDocument(binding.published_json);
+      const instance = published?.instances.find(
+        (entry) => entry.id === binding.instance_id,
+      );
+      if (instance?.resource?.id === row.id)
+        pinned.push(instance.resource.configurationRevision);
+    }
+    const labels = {
+      workspace: workspace.name,
+      stack: bound[0]?.stack_name ?? null,
+      instance: bound[0] ? instanceLabel(bound[0]) : null,
+      app: "Guestbook" as const,
+      environment: row.environment,
+    };
+    const providerTags = compareProviderTags(
+      expectedProviderTags({
+        workspace: workspace.name,
+        app: "guestbook",
+        environment: row.environment,
+        resource: row.id,
+      }),
+      null,
+    );
+    const observation: ResourceObservation = {
+      id: row.id,
+      state: row.state,
+      configuration,
+      expected: {
+        available: expected.values !== null,
+        basis: expected.basis,
+        values: expected.values,
+        digest: expected.digest,
+        source: expected.source,
+        note: expected.note,
+      },
+      targetMatches:
+        row.account_id === target.account &&
+        row.environment === target.environment &&
+        row.target === resourceTarget,
+      bindings: bound.length,
+      unfinished: unfinished.has(row.id)
+        ? {
+            action: unfinished.get(row.id)!.action,
+            state:
+              unfinished.get(row.id)!.state === "pending"
+                ? "pending"
+                : "unknown",
+            at: storedTimestamp(unfinished.get(row.id)!.created_at),
+          }
+        : null,
+      lastConfirmedAt: confirmed.has(row.id)
+        ? storedTimestamp(confirmed.get(row.id)!.created_at)
+        : null,
+      published:
+        pinned.length > 0
+          ? {
+              pinned,
+              current: configuration?.revision ?? null,
+            }
+          : null,
+      providerTags,
+      actionHref,
+    };
+    const { status, findings } = classifyResource(observation, now);
+    resources.push({
+      id: row.id,
+      app: "guestbook",
+      service: "GUESTBOOK",
+      account: row.account_id,
+      environment: row.environment,
+      target: row.target,
+      recordedAt: storedTimestamp(row.created_at),
+      state: row.state,
+      version: row.version,
+      status,
+      configuration,
+      expected,
+      differences: configurationDifferences(
+        configuration?.values ?? null,
+        expected.values,
+      ),
+      bindings: bound.map((binding) => ({
+        stackId: binding.stack_id,
+        stackName: binding.stack_name,
+        stackSlug: binding.stack_slug,
+        stackStatus: binding.stack_status,
+        instanceId: binding.instance_id,
+        instanceLabel: instanceLabel(binding) ?? binding.instance_id,
+        mode: binding.mode,
+      })),
+      published: observation.published,
+      lastConfirmedOperation: confirmed.has(row.id)
+        ? {
+            action: confirmed.get(row.id)!.action,
+            at: storedTimestamp(confirmed.get(row.id)!.created_at),
+          }
+        : null,
+      unfinishedOperation: observation.unfinished,
+      labels,
+      providerTags,
+      findings,
+    });
+  }
+  return { resources, atLimit: rows.results.length >= RESOURCE_LIMIT };
+}
 function instanceLabel(binding: BindingRow) {
   const draft = parseDocument(binding.draft_json);
   const instance = draft?.instances.find(

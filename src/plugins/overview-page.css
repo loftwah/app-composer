@@ -1,103 +1,317 @@
+/* Native Needs attention. One scope bar, one lead problem, then quieter lists.
+   Host tokens are used when EmDash provides them; every one has a fallback so
+   the page still works in both admin themes without inventing a palette. */
 .co-overview {
-  max-width: 1100px;
+  --co-line: var(--color-kumo-hairline, currentColor);
+  --co-surface: var(--color-kumo-elevated, transparent);
+  --co-ink: var(--color-kumo-contrast, inherit);
+  --co-muted: color-mix(in srgb, currentColor 66%, transparent);
+  --co-accent: var(--color-kumo-brand, currentColor);
+  --co-danger: var(--color-kumo-danger, currentColor);
+  max-width: 1120px;
   padding: 24px;
-  color: inherit;
-}
-.co-overview header {
-  display: block;
-  margin-bottom: 24px;
+  color: var(--co-ink);
 }
 .co-overview h1 {
-  font-size: 2rem;
-  margin: 0 0 12px;
+  font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.15rem);
+  line-height: 1.15;
+  margin: 0 0 8px;
 }
 .co-overview h2 {
-  font-size: 1.35rem;
-  margin: 32px 0 18px;
+  font-size: 1.3rem;
+  line-height: 1.25;
+  margin: 32px 0 12px;
+}
+.co-overview h3 {
+  font-size: 1.05rem;
+  margin: 0 0 6px;
 }
 .co-overview p {
-  max-width: 70ch;
-  line-height: 1.6;
+  max-width: 68ch;
+  margin: 0 0 10px;
+  line-height: 1.55;
 }
+.co-heading {
+  margin-bottom: 20px;
+}
+.co-heading p {
+  color: var(--co-muted);
+}
+/* Every interactive control keeps a 44px minimum target. */
 .co-overview button,
-.co-overview a {
-  min-height: 44px;
-}
-.co-overview button {
-  padding: 10px 16px;
-}
+.co-overview a,
+.co-overview select,
 .co-overview summary {
   min-height: 44px;
+}
+.co-overview button,
+.co-overview select {
+  padding: 10px 14px;
+  border: 1px solid var(--co-line);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.co-overview button:disabled,
+.co-overview select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.co-overview a {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}
+.co-overview a:hover {
+  text-decoration: none;
+}
+.co-overview :focus-visible {
+  outline: 2px solid var(--co-accent);
+  outline-offset: 2px;
+}
+.co-overview summary {
   cursor: pointer;
   padding-block: 10px;
+  font-weight: 600;
 }
-.co-overview dd {
+.co-scope {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 4px 20px;
+  margin: 0 0 20px;
+  padding: 14px 0;
+  border-top: 1px solid var(--co-line);
+  border-bottom: 1px solid var(--co-line);
+}
+.co-scope-field {
+  margin: 0;
+  min-width: 0;
+}
+.co-scope-field > span,
+.co-scope-field > label,
+.co-scope-account > span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--co-muted);
+}
+.co-scope-field strong,
+.co-scope-field select {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.co-scope-account {
+  margin: 0;
+  min-width: 0;
+}
+.co-scope-account code {
+  overflow-wrap: anywhere;
+}
+.co-next {
+  margin: 0 0 8px;
+  padding: 20px;
+  border: 1px solid var(--co-line);
+  border-left: 4px solid var(--co-accent);
+  border-radius: 2px;
+  background: var(--co-surface);
+}
+.co-kicker {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--co-muted);
+}
+.co-next h2 {
+  margin-top: 0;
+}
+.co-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+}
+.co-primary,
+.co-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 18px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  font-weight: 600;
+  text-align: center;
+  background: transparent;
+}
+/* The primary is the heavier outline and weight, not a new palette. */
+.co-primary {
+  border-width: 2px;
+  border-color: var(--co-accent);
+  font-weight: 700;
+}
+.co-primary:hover,
+.co-secondary:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+.co-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.co-meta,
+.co-muted {
+  font-size: 0.9rem;
+  color: var(--co-muted);
+}
+.co-status {
+  color: var(--co-muted);
+}
+.co-error,
+.co-notice {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--co-line);
+  border-left: 4px solid currentColor;
+  border-radius: 2px;
+}
+.co-error {
+  border-left-color: var(--co-danger);
+}
+.co-error p:last-child,
+.co-notice p:last-child {
+  margin-bottom: 0;
+}
+.co-error button {
+  margin-top: 8px;
+}
+.co-evidence {
+  margin-top: 12px;
+}
+.co-evidence dl,
+.co-sources {
+  margin: 0;
+}
+.co-evidence dl {
+  display: grid;
+  grid-template-columns: minmax(140px, 200px) 1fr;
+  gap: 10px 20px;
+  padding: 8px 0 4px;
+}
+.co-evidence dt {
+  font-weight: 600;
+}
+.co-evidence dd {
   margin: 0;
   overflow-wrap: anywhere;
 }
-.co-overview code {
-  overflow-wrap: anywhere;
-}
-.co-problems {
+.co-list {
   list-style: none;
+  margin: 0;
   padding: 0;
 }
-.co-problems li {
+.co-list li {
   display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 28px;
-  padding-block: 22px;
-  border-top: 1px solid var(--color-border, currentColor);
-}
-.co-problems h3 {
-  font-size: 1.1rem;
-  margin: 0 0 10px;
-}
-.co-problems p {
-  margin: 8px 0;
-}
-.co-problems a {
-  display: inline-flex;
   align-items: center;
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  justify-content: space-between;
+  gap: 20px;
+  padding-block: 16px;
+  border-top: 1px solid var(--co-line);
+}
+.co-list h3 {
+  margin: 0;
+}
+.co-list p {
+  margin: 4px 0 0;
+}
+.co-list a {
   flex-shrink: 0;
+  padding-inline: 4px;
 }
-.co-muted {
-  font-size: 0.9rem;
-  color: var(--color-muted, inherit);
-}
-.co-error {
-  padding: 16px;
-  border: 1px solid currentColor;
+.co-coverage {
+  margin-top: 28px;
+  border-top: 1px solid var(--co-line);
 }
 .co-sources > div {
   display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: 24px;
-  padding-block: 18px;
-  border-top: 1px solid var(--color-border, currentColor);
+  grid-template-columns: minmax(140px, 200px) 1fr;
+  gap: 8px 20px;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--co-line);
 }
 .co-sources dt {
   font-weight: 600;
 }
+.co-sources dd {
+  margin: 0;
+  min-width: 0;
+}
 .co-sources p {
   margin: 6px 0;
 }
-@media (max-width: 650px) {
+.co-sources button {
+  margin-top: 4px;
+}
+.co-source-unavailable dt,
+.co-source-restricted dt {
+  font-style: italic;
+}
+.co-link {
+  min-height: 44px;
+  padding: 0 4px;
+  border: none;
+  border-bottom: 1px solid currentColor;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.co-overview code {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 700px) {
   .co-overview {
     padding: 16px;
   }
-  .co-problems li {
+  .co-scope {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .co-next {
+    padding: 16px;
+  }
+  .co-actions {
+    flex-direction: column;
+  }
+  .co-primary,
+  .co-secondary {
+    width: 100%;
+  }
+  .co-list li,
+  .co-sources > div,
+  .co-evidence dl {
     display: block;
   }
-  .co-problems a {
+  .co-list a,
+  .co-sources dd,
+  .co-evidence dd {
     margin-top: 8px;
   }
-  .co-sources > div {
-    grid-template-columns: 1fr;
-    gap: 8px;
+  .co-evidence dt {
+    margin-top: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .co-overview * {
+    transition: none !important;
+    animation: none !important;
   }
 }
