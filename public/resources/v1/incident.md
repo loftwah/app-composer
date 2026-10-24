@@ -46,6 +46,8 @@ Inspect the actual project and its trusted instructions first. Preserve existing
 
 ## Companion files
 
+- incident-square-20261024.png
+- incident-portrait-20261024.png
 - incident-response.mmd
 - incident-response.svg
 - examples/synthetic-incident.mjs

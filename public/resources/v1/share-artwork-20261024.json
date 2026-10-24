@@ -1,0 +1,113 @@
+{
+  "version": "composer.resource-share-art/1",
+  "kind": "Composed typographic artwork; no product screenshots or new identity",
+  "renderer": {
+    "path": "scripts/resources/assets.py",
+    "sha256": "39e31550833bfad86ac0929edcb60419e5454f229a199df85f640aa34abb58ca",
+    "pillow": "11.3.0"
+  },
+  "portableSource": {
+    "path": "share-artwork-20261024.py",
+    "sha256": "2fd2bb466930af76e861881116ac281dff2c8f1ea762800c045ebae23de67437"
+  },
+  "font": {
+    "path": "fonts/SpaceGrotesk.ttf",
+    "sha256": "acad6de1fc93436f5c0f1f4137751ef04f1aea3063e7036535970ffcfbd79f72",
+    "family": "Space Grotesk",
+    "weight": 550
+  },
+  "mark": {
+    "path": "composer-mark.png",
+    "sha256": "09d6f06331da034db955d96111b2de889086fc787366984ee760aacde2f63ad6",
+    "identity": "Existing approved App Composer merging-block mark"
+  },
+  "assets": [
+    {
+      "path": "change-square-20261024.png",
+      "width": 1080,
+      "height": 1080,
+      "sha256": "8b0413fa6732e430bf6619c056295354283caef1870a9725fe42c788cc1e7cd0",
+      "canonical": "https://composer.loftwah.com/resources/change",
+      "source": {
+        "path": "change.md",
+        "sha256": "a5f4f032f2b413e8705facf4c87c53dd58a49f9e7fb8118aba91eeea1d327a9b"
+      },
+      "title": [
+        "Make a",
+        "change."
+      ],
+      "steps": [
+        "Inspect the current journey.",
+        "Make the change. Run the checks.",
+        "Review, release and verify."
+      ],
+      "transformation": "Format-specific text reflow with the same approved mark, Space font and canonical orange; no landscape crop"
+    },
+    {
+      "path": "change-portrait-20261024.png",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "26c2c04b665d95f0033d078bb18921d9c2cbc2f4b5d31026f5e6ec5a5aab37b9",
+      "canonical": "https://composer.loftwah.com/resources/change",
+      "source": {
+        "path": "change.md",
+        "sha256": "a5f4f032f2b413e8705facf4c87c53dd58a49f9e7fb8118aba91eeea1d327a9b"
+      },
+      "title": [
+        "Make a",
+        "change."
+      ],
+      "steps": [
+        "Inspect the current journey.",
+        "Make the smallest complete change.",
+        "Test the result and a negative case.",
+        "Review, release and verify."
+      ],
+      "transformation": "Format-specific text reflow with the same approved mark, Space font and canonical orange; no landscape crop"
+    },
+    {
+      "path": "incident-square-20261024.png",
+      "width": 1080,
+      "height": 1080,
+      "sha256": "a0765ca5b8cb2cbcb8f8f179f8f6522e171867b9da1f2f6de369c12177630448",
+      "canonical": "https://composer.loftwah.com/resources/incident",
+      "source": {
+        "path": "incident.md",
+        "sha256": "6dd7fb7e70f00a04e5a5bd9bf4ab10f7edf762b00fad9460af9a93f160f396c6"
+      },
+      "title": [
+        "Handle an",
+        "incident."
+      ],
+      "steps": [
+        "Reproduce the failure.",
+        "Apply an authorised response.",
+        "Check recovery independently."
+      ],
+      "transformation": "Format-specific text reflow with the same approved mark, Space font and canonical orange; no landscape crop"
+    },
+    {
+      "path": "incident-portrait-20261024.png",
+      "width": 1080,
+      "height": 1350,
+      "sha256": "d85510798a68bf4d500af2badc4e9a4ea9f47c62779df04a74c7d0f9aa04de26",
+      "canonical": "https://composer.loftwah.com/resources/incident",
+      "source": {
+        "path": "incident.md",
+        "sha256": "6dd7fb7e70f00a04e5a5bd9bf4ab10f7edf762b00fad9460af9a93f160f396c6"
+      },
+      "title": [
+        "Handle an",
+        "incident."
+      ],
+      "steps": [
+        "Preserve the evidence.",
+        "Test the leading hypothesis.",
+        "Apply an authorised response.",
+        "Check recovery independently."
+      ],
+      "transformation": "Format-specific text reflow with the same approved mark, Space font and canonical orange; no landscape crop"
+    }
+  ],
+  "scope": "Composition and deterministic byte checks only. No new independent kit trial, live platform preview or owner approval is established."
+}
