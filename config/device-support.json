@@ -3,7 +3,7 @@
   "releases": [
     {
       "id": "ldraw",
-      "revision": "913af59d76394e55021b75c6d4a970f9e662e1a3",
+      "revision": "c9c2339a1296ee7c06a7d94f274c69143478acba",
       "support": {
         "version": 1,
         "target": "both",
@@ -19,7 +19,7 @@
               ],
               "note": "Verified in Chromium with a keyboard and pointer. Physical devices and screen readers remain unchecked.",
               "evidence": {
-                "revision": "913af59d76394e55021b75c6d4a970f9e662e1a3",
+                "revision": "c9c2339a1296ee7c06a7d94f274c69143478acba",
                 "checked": "2026-10-24",
                 "method": "browser-emulation",
                 "journey": "Chromium: native drawing/text, file roundtrip, PNG/SVG preview/export, autosave and offline current-scene reload. Composer issue #290."
@@ -35,7 +35,7 @@
               ],
               "note": "390px Chromium drawing, text, native file and SVG journeys passed with a pointer and keyboard. Physical touch and mobile file handling remain unchecked.",
               "evidence": {
-                "revision": "913af59d76394e55021b75c6d4a970f9e662e1a3",
+                "revision": "c9c2339a1296ee7c06a7d94f274c69143478acba",
                 "checked": "2026-10-24",
                 "method": "browser-emulation",
                 "journey": "Chromium: native drawing/text, file roundtrip, PNG/SVG preview/export, autosave and offline current-scene reload. Composer issue #290."
