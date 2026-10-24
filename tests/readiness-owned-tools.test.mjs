@@ -36,8 +36,8 @@ const expected=${JSON.stringify(inputs)};
 for(const file of ['package.json','pnpm-lock.yaml','pnpm-workspace.yaml'])if(fs.readFileSync(file,'utf8')!==expected[file])process.exit(1);
 for(const flag of ['--frozen-lockfile','--ignore-scripts','--ignore-pnpmfile','--registry=https://registry.npmjs.org','--userconfig=/dev/null'])if(!args.includes(flag))process.exit(1);
 fs.mkdirSync('node_modules/wrangler/bin',{recursive:true});
-fs.writeFileSync('node_modules/wrangler/package.json',JSON.stringify({name:'wrangler',version:'4.143.1',bin:{wrangler:'./bin/wrangler.js'}}));
-fs.writeFileSync('node_modules/wrangler/bin/wrangler.js','console.log("4.143.1")');
+fs.writeFileSync('node_modules/wrangler/package.json',JSON.stringify({name:'wrangler',version:'4.152.0',bin:{wrangler:'./bin/wrangler.js'}}));
+fs.writeFileSync('node_modules/wrangler/bin/wrangler.js','console.log("4.152.0")');
 ${typed?`fs.mkdirSync('node_modules/typescript/lib',{recursive:true});fs.writeFileSync('node_modules/typescript/package.json',JSON.stringify({name:'typescript',version:'6.0.3'}));fs.writeFileSync('node_modules/typescript/lib/typescript.js','// Fictional installed compiler');`:''}
 ${duringInstall}
 `,{mode:0o755});
@@ -55,7 +55,7 @@ test('owned starter installs only isolated reviewed dependency inputs, preserves
   const config='@cloudflare:registry=https://private.example.test/\n';writeFileSync(join(f.workspace,'.npmrc'),config);
   writeFileSync(join(f.workspace,'.pnpmfile.cjs'),'throw Error("Owner hook must not run");\n');
   f.configure({push:false});
-  const first=await f.adapter().installReferenceTools();assert.equal(first.changed,true);assert.equal(first.wrangler,'4.143.1');
+  const first=await f.adapter().installReferenceTools();assert.equal(first.changed,true);assert.equal(first.wrangler,'4.152.0');
   const called=JSON.parse(readFileSync(f.calls,'utf8'));assert.notEqual(called.cwd,f.workspace);assert.deepEqual(called.files.sort(),['package.json','pnpm-lock.yaml','pnpm-workspace.yaml']);assert.equal(called.credentials,false);
   assert.equal(existsSync(called.cwd),false);assert.equal(readFileSync(join(f.workspace,'.npmrc'),'utf8'),config);
   for(const [file,bytes] of Object.entries(f.inputs))assert.equal(readFileSync(join(f.workspace,file),'utf8'),bytes);

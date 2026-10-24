@@ -30,6 +30,7 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 - [Architecture](../ARCHITECTURE.md), [design](../DESIGN.md) and [interface/content standard](../UNSLOP.md).
 - [Engineering baseline](engineering-baseline.md): checked source, runtime/tool environments, independent distributions and remaining source gaps.
 - [Local delivery journey](local-delivery.md): local checks, safe preview candidate, explicit release and independent live verification with bounded receipts.
+- [Dependency freshness](dependency-freshness.md): the local-only supported-range report, its exit codes and the reviewed policy file.
 - [Source and asset maintenance](source-maintenance.md): authored modules, generated output, shared-asset ownership and release boundaries.
 - [Visual direction](visual-direction.md) and [asset/surface inventory](visual-asset-inventory.md): accepted artwork and deliberate future influences.
 - [Get Ready core](../lib/get-ready/README.md) and [optional local MCP transport](../lib/get-ready-mcp/README.md): independent consumer APIs, installation and host authority.

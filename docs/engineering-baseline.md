@@ -1,10 +1,15 @@
 # Engineering baseline
 
-Reviewed 18 October 2026 for #175. Node 22 and pinned pnpm remain the supported
-local tools; Cloudflare workerd runs deployed Workers. Composer and the plain
-Worker references select pnpm 12.8.1. The independent content-site recipe retains
-its exercised pnpm 12.9.1 lockfile. A local package-manager change would need its
-own install/check/build/package comparison; no Bun comparison was performed.
+Reviewed 24 October 2026 for #175. Node 22.23.4+ and pinned pnpm remain the
+supported local tools; Cloudflare workerd runs deployed Workers. The Node
+floor follows Astro 7.4, which refuses 22.23.1 and earlier. Composer and the
+plain Worker references select pnpm 12.8.1. The independent content-site recipe
+retains its own Astro 7.3.5, EmDash 1.2.0 and separately exercised pnpm 12.9.1
+lockfile. A Node 24 qualification ran the full install, type/Astro check and
+production build successfully; only Get Ready's reviewed Node-22 runtime gate
+fails there, so the declared range stays on the Node 22 line. A local
+package-manager change would need its own install/check/build/package
+comparison; no Bun comparison was performed.
 
 ## Checked source and independent distributions
 

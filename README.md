@@ -14,7 +14,7 @@ Actual production capture, 18 October 2026, source `1bc90251200f9950203220b8d50e
 
 ## Run locally
 
-Use Node 22 and the declared pnpm 12.8.1. Install the pinned dependencies, then start the local site:
+Use Node 22.23.4 or newer on the Node 22 line and the declared pnpm 12.8.1. Astro 7.4 refuses older runtimes. Install the pinned dependencies, then start the local site:
 
 ```sh
 pnpm install --frozen-lockfile
@@ -31,6 +31,7 @@ Local EmDash data is separate from production. A fresh checkout does not contain
 | `pnpm format:check` | Check maintained Creator and enquiry files named by the format gate |
 | `pnpm test` | Run the existing behavioural and boundary tests |
 | `pnpm check` | Run the current required quality gates |
+| `pnpm freshness` | Report installed dependencies against the reviewed supported ranges |
 | `pnpm build` | Build and inspect the public artifact |
 | `pnpm source:write` | Explicitly regenerate checked runtime files |
 | `pnpm deploy` | Guarded clean pushed-main production release and live verification |

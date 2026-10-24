@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';import {exe
 import {calendarDatePattern,isCalendarDate,calendarDateLabel} from '../lib/content-model/calendar-date.mjs';
 import {validateContentModel,validateModelValues,emdashSeed,starterModel} from '../lib/content-model/index.mjs';
 import {contentProjectFiles} from '../lib/content-model/project.mjs';
-import {n as nativeFieldSchema} from '../node_modules/emdash/dist/zod-generator-BQilAboC.mjs';
+import {nativeFieldSchema} from './fixtures/emdash-runtime.mjs';
 import {validateSeed} from 'emdash/seed';
 const model=()=>({schema:'app-composer.content-model',version:1,collection:'events',label:'Fictional events',groups:['Event'],fields:[{key:'day',label:'Event day',type:'date',group:'Event',required:false,defaultValue:'2028-02-29'}]});
 test('calendar days share the actual native Gregorian rule, including century and year boundaries',()=>{
