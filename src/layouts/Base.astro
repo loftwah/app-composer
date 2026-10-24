@@ -5,6 +5,7 @@ import instance from "../../config/instance.json";
 import AppLauncher from "../components/AppLauncher.astro";
 import BuilderContext from "../components/BuilderContext.astro";
 import {noindexFor} from "../lib/indexing.mjs";
+import {publicPageCanonical} from "../lib/public-pages.mjs";
 interface Props {
   title: string;
   description: string;
@@ -28,7 +29,7 @@ const pageTitle = title.includes("App Composer")
   : title + " · App Composer";
 const canonical = Astro.props.canonical
   ? new URL(Astro.props.canonical)
-  : new URL(Astro.url.pathname, "https://composer.loftwah.com");
+  : publicPageCanonical(Astro.url.pathname);
 const shareImage =
   Astro.props.shareImage ??
   "https://composer.loftwah.com/brand/campaign/product-og-20261022b.jpg";
