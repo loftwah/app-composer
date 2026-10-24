@@ -290,8 +290,9 @@ export function JourneyDetail({
             <div>
               <dt>Owner mail</dt>
               <dd>
-                {delivery.destination.configured
-                  ? "Configured"
+                {delivery.destination.configured &&
+                notificationPreference.enabled
+                  ? "Server connection present"
                   : "Not enabled or configured"}
               </dd>
             </div>
@@ -300,7 +301,8 @@ export function JourneyDetail({
               <dd>
                 {delivery.destination.verified
                   ? "Verified owner identity"
-                  : delivery.destination.configured
+                  : delivery.destination.configured &&
+                      notificationPreference.enabled
                     ? "Configured, not verified for this owner"
                     : "Not configured"}
                 {delivery.destination.fingerprint && (
