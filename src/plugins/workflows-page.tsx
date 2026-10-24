@@ -90,7 +90,7 @@ export function Workflows({ search }: { search: string }) {
   return <div className="composer-workflows" aria-busy={busy}>
     <div className="cw-heading"><div><h1>Workflows</h1><p>Small useful recipes. A visible result and a safe way to deal with problems.</p></div><button type="button" disabled={busy || invalidScope.current} onClick={() => void run('list', {}, 'Saved recipes and history refreshed.')}>Refresh</button></div>
     <p className="cw-scope">{snapshot ? <>Workspace <strong>{snapshot.workspace.name}</strong> · {snapshot.workspace.role} · <strong>{snapshot.target.environment}</strong> <details><summary>Account and scope</summary><code>{snapshot.target.account}</code> · <code>{snapshot.workspace.id}</code></details></> : 'Confirming the selected workspace…'}</p>
-    <div className="cw-links"><a href="/_emdash/admin/plugins/composer-stacks/workspaces">Workspace access</a><a href="/prompts#workflow">Prepare a workflow prompt</a><a href="/resources?resource=hook#resource">Hooks and external examples</a></div>
+    <div className="cw-links"><a href="/_emdash/admin/plugins/composer-stacks/workspaces">Workspace access</a><a href="/prompts#workflow">Prepare a workflow prompt</a><a href="/resources/hook#resource">Hooks and external examples</a></div>
     {error && <p className="cw-error" role="alert">{error}</p>}
     <p className="cw-status" role="status">{busy ? 'Checking the saved recipe and source…' : notice}</p>
     <p className="cw-mode"><strong>On-demand native recipes.</strong> Scan now checks up to 20 current source records. Turning on enables that scan; it does not schedule background work. These recipes prepare private drafts and attention items. They send no email, publish nothing and run no remediation.</p>

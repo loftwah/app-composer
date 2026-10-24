@@ -4,7 +4,7 @@ A bounded investigation, a permitted response and an independently checked recov
 
 Version: composer.operating-kit/1
 Reviewed: 2026/10/24 (Australia/Melbourne)
-Source: https://composer.loftwah.com/resources?resource=incident
+Source: https://composer.loftwah.com/resources/incident
 
 ## What you need
 

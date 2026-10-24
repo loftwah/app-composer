@@ -47,7 +47,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
           <div class="prompt-copy-actions" data-enhanced hidden><button type="button" data-copy-completed={item.id}>Copy completed prompt</button><button type="button" class="secondary" data-copy-template={item.id}>Copy template</button><button type="button" class="secondary" data-download={item.id}>Download Markdown</button><a href={`#${item.id}`} data-module-link={item.id}>Link to this job</a></div>
           <p role="status" class="prompt-copy-status" data-copy-status={item.id}></p>
           <div data-manual={item.id} hidden><label for={`manual-${item.id}`}>Manual copy — select the prompt and copy it<textarea id={`manual-${item.id}`} readonly rows="10" /></label></div>
-          <div class="prompt-result"><h3>What you should get back</h3><p>{item.result}</p><div class="prompt-result-links">{item.resource && <a href={`/resources?resource=${item.resource}#resource`}>Open runbook & downloads →</a>}<a href={`#${item.related}`} data-prompt-link={item.related}>Next: {promptModules.find(next => next.id === item.related)?.title} →</a></div></div>
+          <div class="prompt-result"><h3>What you should get back</h3><p>{item.result}</p><div class="prompt-result-links">{item.resource && <a href={`/resources/${item.resource}#resource`}>Open runbook & downloads →</a>}<a href={`#${item.related}`} data-prompt-link={item.related}>Next: {promptModules.find(next => next.id === item.related)?.title} →</a></div></div>
         </article>)}
       </div>
     </div>

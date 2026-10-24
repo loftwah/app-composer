@@ -1,8 +1,8 @@
 # Runbooks & resources
 
 Reviewed 2026/10/24. `/resources` selects one of five jobs, with its Markdown and
-copy action immediately available. Selection links contain a fixed resource ID;
-the page collects no private project fields. `/prompts#change` and the other
+copy action immediately available. Each job has its own canonical path, such as `/resources/incident`;
+the page collects no private project fields. Legacy resource-query links redirect to these finite public paths, preserving QA exclusions. The page-share control retains the selected job. `/prompts#change` and the other
 matching fragments personalise the same maintained prompt modules. Without
 JavaScript the complete selected runbook, template and real downloads remain
 available. Clipboard denial opens a selectable complete-text fallback.
