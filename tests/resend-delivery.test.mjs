@@ -1,28 +1,111 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import {deliverResend} from '../src/lib/resend-delivery.mjs';
-const runtime={RESEND_API_KEY:'fictional-key',RESEND_FROM_ADDRESS:'composer@example.com',RESEND_ALLOWED_RECIPIENTS:'owner@example.com'};
-const message={to:'owner@example.com',subject:'Synthetic transport test',text:'Fictional test message.',cc:['owner@example.com'],replyTo:'reply@example.com'};
-test('email transport preserves recipients and reply address without following redirects',async()=>{
- let actual;
- await deliverResend(message,runtime,async(url,options)=>{if(!['follow','manual'].includes(options.redirect))throw new TypeError('Cloudflare only supports follow or manual redirects');actual={url,options};return new Response('{}');});
- assert.equal(actual.url,'https://api.resend.com/emails');assert.equal(actual.options.redirect,'manual');
- assert.equal(actual.options.headers.Authorization,'Bearer fictional-key');
- const body=JSON.parse(actual.options.body);assert.deepEqual(body.cc,message.cc);assert.equal(body.reply_to,message.replyTo);
- assert.match(actual.options.headers['Idempotency-Key'],/^composer-/);
+import test from "node:test";
+import assert from "node:assert/strict";
+import { deliverResend } from "../src/lib/resend-delivery.mjs";
+const runtime = {
+  RESEND_API_KEY: "fictional-key",
+  RESEND_FROM_ADDRESS: "composer@example.com",
+  RESEND_ALLOWED_RECIPIENTS: "owner@example.com",
+};
+const message = {
+  to: "owner@example.com",
+  subject: "Synthetic transport test",
+  text: "Fictional test message.",
+  cc: ["owner@example.com"],
+  replyTo: "reply@example.com",
+};
+test("email transport preserves recipients and reply address without following redirects", async () => {
+  let actual;
+  await deliverResend(message, runtime, async (url, options) => {
+    if (!["follow", "manual"].includes(options.redirect))
+      throw new TypeError(
+        "Cloudflare only supports follow or manual redirects",
+      );
+    actual = { url, options };
+    return new Response("{}");
+  });
+  assert.equal(actual.url, "https://api.resend.com/emails");
+  assert.equal(actual.options.redirect, "manual");
+  assert.equal(actual.options.headers.Authorization, "Bearer fictional-key");
+  const body = JSON.parse(actual.options.body);
+  assert.deepEqual(body.cc, message.cc);
+  assert.equal(body.reply_to, message.replyTo);
+  assert.match(actual.options.headers["Idempotency-Key"], /^composer-/);
 });
-test('unconfigured, uninvited and plus-alias recipients never reach provider',async()=>{
- let calls=0;const send=async()=>{calls++;return new Response('{}');};
- await assert.rejects(deliverResend(message,{},send),/not configured/);
- for(const override of [{to:'stranger@example.com'},{to:'owner+tag@example.com'},{cc:['stranger@example.com']}]) await assert.rejects(deliverResend({...message,...override},runtime,send),/not invited/);
- assert.equal(calls,0);
+test("unconfigured, uninvited and plus-alias recipients never reach provider", async () => {
+  let calls = 0;
+  const send = async () => {
+    calls++;
+    return new Response("{}");
+  };
+  await assert.rejects(deliverResend(message, {}, send), /not configured/);
+  for (const override of [
+    { to: "stranger@example.com" },
+    { to: "owner+tag@example.com" },
+    { cc: ["stranger@example.com"] },
+  ])
+    await assert.rejects(
+      deliverResend({ ...message, ...override }, runtime, send),
+      /not invited/,
+    );
+  assert.equal(calls, 0);
 });
-test('provider errors expose status only',async()=>{
- await assert.rejects(deliverResend(message,runtime,async()=>new Response('private provider payload',{status:429})),{message:'Composer email delivery failed (429).'});
+test("provider errors expose status only", async () => {
+  await assert.rejects(
+    deliverResend(
+      message,
+      runtime,
+      async () => new Response("private provider payload", { status: 429 }),
+    ),
+    { message: "Composer email delivery failed (429)." },
+  );
 });
 
-test('redirected provider responses fail without a second request',async()=>{
- let calls=0;
- await assert.rejects(deliverResend(message,runtime,async()=>{calls++;return new Response('private redirect payload',{status:302,headers:{Location:'https://untrusted.example'}});}),{message:'Composer email delivery failed (302).'});
- assert.equal(calls,1);
+test("redirected provider responses fail without a second request", async () => {
+  let calls = 0;
+  await assert.rejects(
+    deliverResend(message, runtime, async () => {
+      calls++;
+      return new Response("private redirect payload", {
+        status: 302,
+        headers: { Location: "https://untrusted.example" },
+      });
+    }),
+    { message: "Composer email delivery failed (302)." },
+  );
+  assert.equal(calls, 1);
+});
+
+test("persisted message key and minimal provider identity survive without exposing response payload", async () => {
+  let key;
+  const result = await deliverResend(
+    message,
+    runtime,
+    async (_, options) => {
+      key = options.headers["Idempotency-Key"];
+      return Response.json({
+        id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        private: "discard",
+      });
+    },
+    { idempotencyKey: "composer-enquiry-v1/persisted-message" },
+  );
+  assert.equal(key, "composer-enquiry-v1/persisted-message");
+  assert.deepEqual(result, {
+    accepted: true,
+    id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  });
+  let calls = 0;
+  await assert.rejects(
+    deliverResend(
+      message,
+      runtime,
+      async () => {
+        calls++;
+        return Response.json({});
+      },
+      { idempotencyKey: "bad\r\nheader" },
+    ),
+    /operation key/,
+  );
+  assert.equal(calls, 0);
 });
