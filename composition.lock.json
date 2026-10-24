@@ -1,11 +1,11 @@
 {
-  "id": "135de0373a38196d2930f8d748efe1062118d4f094fa3ad2121fd8f2255d84e5",
+  "id": "cae81c1ec9dd73274ff36a2a04c8bbb800ef4ae6fca0fa97a6e60fc158c23ecb",
   "reviewed": "2026-10-24",
   "apps": [
     {
       "id": "guestbook",
       "repository": "https://github.com/loftwah/app-composer-guestbook",
-      "commit": "db73c2b6600d7b64c2ecff7d3c325d6630bc1907",
+      "commit": "66d876f18e0b6a7c965daca4726e6463fb1dcb3e",
       "url": "https://guestbook.loftwah.com",
       "manifest": {
         "contract": 1,
@@ -112,7 +112,7 @@
     {
       "id": "showcase",
       "repository": "https://github.com/loftwah/app-composer-showcase",
-      "commit": "ab4b4f1b891ba207373c1aee5c0b4de9641843a3",
+      "commit": "859436e10bae0f81374a19d69ebb22ac694fadd9",
       "url": "https://showcase.loftwah.com",
       "manifest": {
         "contract": 1,

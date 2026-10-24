@@ -42,15 +42,15 @@
   "services": [
     {
       "binding": "GUESTBOOK",
-      "service": "composer-guestbook-135de0373a38196d"
+      "service": "composer-guestbook-cae81c1ec9dd7327"
     },
     {
       "binding": "SHOWCASE",
-      "service": "composer-showcase-135de0373a38196d"
+      "service": "composer-showcase-cae81c1ec9dd7327"
     },
     {
       "binding": "GUESTBOOK_MEMBERS",
-      "service": "composer-guestbook-135de0373a38196d",
+      "service": "composer-guestbook-cae81c1ec9dd7327",
       "entrypoint": "GuestbookMemberService"
     }
   ],
