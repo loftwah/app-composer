@@ -7,6 +7,7 @@ import { managePrivateOutcomes } from "./private-outcomes.ts";
 import { manageMaintenance } from "./creator-maintenance.ts";
 import { manageEnquiries } from "./private-enquiries.ts";
 import { manageWorkflows } from "./workflows.ts";
+import { afterNativeWorkflowWrite } from "./workflow-events.ts";
 import { manageOverview } from "./overview.ts";
 import { manageOrders } from "./orders.ts";
 import { manageConnections } from "./connections.ts";
@@ -80,7 +81,13 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         methods: ["POST"],
         permission: creatorPermission,
         request: { body: "json", maxBytes: 8000 },
-        handler: (ctx) => managePlatform(ctx, runtime),
+        handler: async (ctx) =>
+          afterNativeWorkflowWrite(
+            "platform",
+            ctx,
+            runtime,
+            await managePlatform(ctx, runtime),
+          ),
       },
       read: {
         methods: ["GET"],
@@ -91,7 +98,13 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         methods: ["POST"],
         permission: creatorPermission,
         request: { body: "json", maxBytes: 120000 },
-        handler: (ctx) => manageStacks(ctx, runtime),
+        handler: async (ctx) =>
+          afterNativeWorkflowWrite(
+            "stacks",
+            ctx,
+            runtime,
+            await manageStacks(ctx, runtime),
+          ),
       },
       maintenanceRead: {
         methods: ["GET"],
