@@ -153,20 +153,25 @@ export function deviceSummary(support) {
   ) {
     return "View on mobile. Edit on desktop.";
   }
-  if (desktop === "supported" && phone === "supported")
-    return "Desktop and phone";
-  if (desktop === "supported" && phone === "unsupported")
-    return "Desktop only · phone not supported";
-  if (phone === "supported" && desktop === "unsupported")
-    return "Phone only · desktop not supported";
-  if (desktop === "supported")
-    return "Desktop supported · phone not checked yet";
-  if (phone === "supported") return "Phone supported · desktop not checked yet";
-  if (desktop === "limited" || phone === "limited")
-    return "Limited device support · check the details";
-  if (desktop === "unsupported" || phone === "unsupported")
-    return "Some devices are not supported · check the details";
-  return "Device support not checked yet";
+  const labels = { desktop: "Desktop", phone: "Phone", tablet: "Tablet" };
+  const parts = deviceKinds.flatMap((device) => {
+    const value = deviceAssessment(support, device);
+    if (value.status === "unknown") return [];
+    return [
+      labels[device] +
+        (value.status === "unsupported"
+          ? " not supported"
+          : " " + value.status),
+    ];
+  });
+  if (!parts.length) return "Device support not checked yet";
+  if (desktop === "supported" && phone === "supported") {
+    return [
+      "Desktop and phone",
+      ...parts.filter((part) => part.startsWith("Tablet")),
+    ].join(" · ");
+  }
+  return parts.join(" · ");
 }
 
 export function deviceFilterTokens(support) {

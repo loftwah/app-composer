@@ -223,3 +223,34 @@ test("external release assessments avoid self hashes and reject duplicate, stale
     "unknown",
   );
 });
+
+test("summary never calls limited support unchecked or hides a separately checked tablet", () => {
+  const phone = {
+    version: 1,
+    target: "both",
+    activities: {
+      core: {
+        desktop: checked(),
+        phone: {
+          status: "limited",
+          note: "Export needs desktop.",
+          evidence: evidence(),
+        },
+      },
+    },
+  };
+  assert.equal(
+    deviceSummary(validateDeviceSupport(phone)),
+    "Desktop supported · Phone limited",
+  );
+  const tablet = {
+    version: 1,
+    target: "mobile",
+    activities: { core: { tablet: checked() } },
+  };
+  assert.equal(
+    deviceSummary(validateDeviceSupport(tablet)),
+    "Tablet supported",
+  );
+  assert.equal(deviceFilterTokens(validateDeviceSupport(tablet)), "tablet");
+});
