@@ -2,7 +2,13 @@
 import Base from '../../layouts/Base.astro';
 import source from '../../../lib/paperwork/source.json';
 ---
-<Base title="Configure Paperwork" description="Prepare an independently owned browser-local PDF editor with a reviewed source pin and portable configuration.">
+<Base
+  shareImage="https://composer.loftwah.com/paperwork/share-20261024.png"
+  shareAlt="Paperwork: Fill it. Sign it. Get on with your day. An orange stamp press on charcoal."
+  shareType="image/png"
+  shareWidth={1200}
+  shareHeight={630}
+  title="Configure Paperwork PDF editor" description="Prepare an independently owned browser-local PDF editor with a reviewed source pin and portable configuration.">
 <a href="/init">← Init</a><h1>Your own Paperwork.</h1><p class="lede">Set the editor’s title, introduction and starting theme. Download the configuration, then reproduce the independently maintained app from its reviewed source.</p>
 <p><a href={source.origin}>Open Paperwork</a> · <a href="/paperwork">See the working editor</a></p>
 <form id="paperwork-config"><label>Title<input name="title" value="Paperwork" required maxlength="80"/></label><label>Introduction<textarea name="intro" maxlength="240">Fill the fields. Write on the page. Add your signature.</textarea></label><label>Starting theme<select name="theme"><option value="midnight">Dark</option><option value="daylight">Light</option></select></label><div class="actions"><button type="submit">Download configuration</button><button type="button" class="secondary" id="paperwork-copy">Copy creation request</button></div><p id="paperwork-status" role="status" aria-live="polite"></p></form>

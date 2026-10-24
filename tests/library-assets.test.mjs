@@ -24,8 +24,9 @@ test('each entry ships its own tile, thumbnail, share card and real screenshot',
   for(const key of ['image','thumbnail','share','preview','previewWide'])
    assets[key]=line.match(new RegExp(key+":'([^']+)'"))?.[1]??(assert.fail(id+' has no '+key));
   if(id==='paperwork'){
-   assert.deepEqual(assets,{image:'/paperwork/icon.svg',thumbnail:'/paperwork/icon.svg',share:'/paperwork/editor-20261024-printshop.webp',preview:'/paperwork/editor-20261024-printshop.webp',previewWide:'/paperwork/editor-20261024-printshop.webp'});
-   assert.match(line,/shareType:'image\/webp'/);
+   assert.deepEqual(assets,{image:'/paperwork/icon.svg',thumbnail:'/paperwork/icon.svg',share:'/paperwork/share-20261024.png',preview:'/paperwork/editor-20261024-compact.webp',previewWide:'/paperwork/editor-20261024-compact.webp'});
+   assert.match(line,/shareType:'image\/png'/);
+   const share=readFileSync(new URL('public'+assets.share,root));assert.equal(share.toString('hex',0,8),'89504e470d0a1a0a');assert.equal(share.readUInt32BE(16),1200);assert.equal(share.readUInt32BE(20),630);
    const svg=read('public/paperwork/icon.svg');assert.match(svg,/<svg/);assert.ok(svg.length>100);
    const capture=readFileSync(new URL('public'+assets.preview,root));assert.equal(capture.toString('ascii',0,4),'RIFF');assert.equal(capture.toString('ascii',8,12),'WEBP');assert.ok(capture.length>1000);
    assert.match(line,/previewCaptured:'2026-10-24'/);
