@@ -20,6 +20,7 @@ export interface SetupEvaluationRun {
   simulated: boolean;
   checks: { command: string; outcome: string }[];
   interventions: string[];
+  humanActions: string[];
   evidence: string;
 }
 
@@ -50,7 +51,7 @@ function evidenceReference(value: unknown): value is string {
 export function validateSetupEvaluation(value: unknown): SetupEvaluationRun[] {
   if (!record(value) || value.schema !== setupEvaluationSchema || !Array.isArray(value.runs) || value.runs.length > 1000 || Object.keys(value).some((key) => !['schema', 'runs'].includes(key))) throw new Error('Expected a bounded versioned setup-evaluation ledger.');
   const ids = new Set<string>();
-  const allowed = ['id', 'guideVersion', 'guideHash', 'path', 'fixture', 'sourceCommit', 'agent', 'model', 'environment', 'tools', 'provisionedAccess', 'startedAt', 'finishedAt', 'outcome', 'simulated', 'checks', 'interventions', 'evidence'];
+  const allowed = ['id', 'guideVersion', 'guideHash', 'path', 'fixture', 'sourceCommit', 'agent', 'model', 'environment', 'tools', 'provisionedAccess', 'startedAt', 'finishedAt', 'outcome', 'simulated', 'checks', 'interventions', 'humanActions', 'evidence'];
   return value.runs.map((run: unknown) => {
     if (!record(run) || Object.keys(run).some((key) => !allowed.includes(key)) || allowed.some((key) => !Object.hasOwn(run, key))) throw new Error('Run fields are missing or unsupported.');
     if (!text(run.id, 80) || !/^[a-z0-9][a-z0-9-]+$/.test(run.id) || ids.has(run.id)) throw new Error('Run identifiers must be unique safe labels.');
@@ -59,7 +60,7 @@ export function validateSetupEvaluation(value: unknown): SetupEvaluationRun[] {
     if (typeof run.guideHash !== 'string' || !/^[a-f0-9]{64}$/.test(run.guideHash)) throw new Error('Record the SHA-256 of the actual UI export.');
     if (typeof run.sourceCommit !== 'string' || !/^[a-f0-9]{40}$/.test(run.sourceCommit)) throw new Error('Record the full fixture source commit.');
     if (!(evaluationPaths as readonly unknown[]).includes(run.path) || !(evaluationOutcomes as readonly unknown[]).includes(run.outcome)) throw new Error('Unsupported evaluation path or outcome.');
-    if (typeof run.simulated !== 'boolean' || !list(run.tools) || !list(run.provisionedAccess) || !list(run.interventions)) throw new Error('Record tools, provisioned access, interventions and simulation scope.');
+    if (typeof run.simulated !== 'boolean' || !list(run.tools) || !list(run.provisionedAccess) || !list(run.interventions) || !list(run.humanActions)) throw new Error('Record tools, provisioned access, interventions and simulation scope.');
     const timestamps = [run.startedAt, run.finishedAt];
     if (timestamps.some((stamp) => !utcTimestamp(stamp))) throw new Error('Use valid explicit UTC timestamps.');
     if (Date.parse(run.finishedAt as string) < Date.parse(run.startedAt as string)) throw new Error('Run finish precedes its start.');
@@ -84,6 +85,17 @@ export function summariseSetupEvaluations(runs: SetupEvaluationRun[], guideVersi
       failed: matching.filter((run) => run.outcome === 'failed').length,
       simulated: matching.filter((run) => run.simulated).length,
       latest: ordered.at(-1) ?? null,
+      latestDates: ordered.length ? evaluationDates(ordered.at(-1)!.finishedAt) : null,
     };
   });
+}
+
+/** Both clocks derive from one recorded instant; display never invents a run date. */
+export function evaluationDates(instant: string) {
+  const format = (timeZone: string) => {
+    const parts = new Intl.DateTimeFormat('en-AU', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(instant));
+    const value = (type: string) => parts.find((part) => part.type === type)?.value;
+    return `${value('year')}/${value('month')}/${value('day')} ${value('hour')}:${value('minute')}`;
+  };
+  return { utc: format('UTC') + ' UTC', melbourne: format('Australia/Melbourne') + ' Australia/Melbourne' };
 }

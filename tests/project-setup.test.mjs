@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { defaultSetupDetails, normaliseSetupDetails, renderProjectSetupGuide, setupGuideVersion } from '../src/lib/project-setup.ts';
 import { readyTasks } from '../src/lib/ready-handoff.ts';
-import { validateSetupEvaluation, summariseSetupEvaluations, setupEvaluationSchema } from '../src/lib/setup-evaluation.ts';
+import { validateSetupEvaluation, summariseSetupEvaluations, setupEvaluationSchema, evaluationDates } from '../src/lib/setup-evaluation.ts';
 
 const requiredHeadings = ['Purpose and project', 'Read the actual project', 'What you need first', 'Scope of action', 'Setup steps', 'Verify the result', 'Failure, repeat setup and continuation', 'Return to the user and the next agent', 'Provenance and tested scope'];
 
@@ -80,7 +80,7 @@ function run(overrides = {}) {
     startedAt: '2026-10-24T00:00:00Z', finishedAt: '2026-10-24T00:01:00Z',
     outcome: 'completed', simulated: false,
     checks: [{ command: 'python -m unittest', outcome: 'Observed exit 0; fictional example record only' }],
-    interventions: [], evidence: 'https://github.com/loftwah/app-composer/issues/292',
+    interventions: [], humanActions: [], evidence: 'https://github.com/loftwah/app-composer/issues/292',
     ...overrides,
   };
 }
@@ -139,4 +139,11 @@ test('public route and client use one rendered guide, keep details out of URLs a
   assert.doesNotMatch(client, /URLSearchParams|pushState|replaceState|fetch\(|localStorage.clear/);
   assert.match(page, /validateSetupEvaluation\(ledger\)/);
   assert.match(page, /summariseSetupEvaluations/);
+});
+
+test('documented human actions are distinct from rescue and dates share one instant', () => {
+  const completed = run({ humanActions: ['Completed the documented local sign-in step'] });
+  assert.equal(validateSetupEvaluation(ledger([completed]))[0].outcome, 'completed');
+  const dates = evaluationDates('2026-10-24T14:15:00Z');
+  assert.deepEqual(dates, { utc: '2026/10/24 14:15 UTC', melbourne: '2026/10/25 01:15 Australia/Melbourne' });
 });
