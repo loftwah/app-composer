@@ -1,3 +1,4 @@
+import { GET as sitemap } from '../src/pages/sitemap.xml.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync, existsSync} from 'node:fs';
@@ -118,7 +119,7 @@ test('the product and campaign sharing assets are correctly composed at their de
   ]) assert.ok(read(path).length > 1000, path + ' must be a real export');
 });
 
-test('the homepage features the approved campaign and links to the Australia briefing', () => {
+test('the homepage features the approved campaign and links to the Australia briefing', async () => {
   const home = text('src/components/ProductHome.astro');
   assert.match(home, /home-briefing/);
   assert.match(home, /href="\/php2shell"/);
@@ -147,5 +148,5 @@ test('the homepage features the approved campaign and links to the Australia bri
     'https://www.vic.gov.au/single-digital-presence',
     'https://www.nsw.gov.au/nsw-government/onecx-program/about/how-nswgovau-built-and-what-it-can-do',
   ]) assert.ok(article.includes(source), 'missing source ' + source);
-  assert.match(text('src/pages/sitemap.xml.ts'), /'\/php2shell'/);
+  assert.ok((await sitemap().text()).includes("<loc>https://composer.loftwah.com/php2shell</loc>"));
 });
