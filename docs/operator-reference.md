@@ -382,7 +382,7 @@ Public release acceptance also checks matching page/Open Graph/X copy and the pu
 
 The native mini-app extension also understands the additive pinned Linkarooie `tagCollection` version 1 descriptor: up to twelve short tags with optional explanation, source and related-work HTTPS references. Older pins expose no tag actions or editor. The app owns the versioned row and exact-revision writes; Composer retains one lifted draft across app switches/outages, specific field recovery, explicit publish/hide and the existing shared mutation lock. References are text and safe addresses, never fetched instructions or HTML. Public keyboard/Enter/Escape/focus checks and standalone/native-component owner recovery are qualified; exact live source/pin activation is recorded in #11.
 
-## Resource inventory
+## App resources
 
 Reviewed 24 October 2026. The native page `/_emdash/admin/plugins/composer-stacks/resources` and its read-only route `resourcesRead` (`composer.resources/1`) show the app resources stored in `creator_app_resources` for the selected workspace: the recorded Cloudflare account, app (`guestbook`), service binding (`GUESTBOOK`), environment and app target; every saved stack binding with its instance label and mode; the app-confirmed configuration revision, digest, source and values; the saved-draft configuration Composer would expect; field-level differences; the last confirmed app operation and any unfinished one; and any published page that pins a different configuration revision.
 

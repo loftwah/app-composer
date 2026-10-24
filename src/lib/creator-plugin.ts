@@ -38,7 +38,7 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         { path: "/overview", label: "Needs attention", icon: "warning" },
         { path: "/orders", label: "Orders", icon: "receipt" },
         { path: "/connections", label: "Connections", icon: "plugs" },
-        { path: "/resources", label: "Resource inventory", icon: "cloud" },
+        { path: "/resources", label: "App resources", icon: "cloud" },
       ],
     },
     routes: {

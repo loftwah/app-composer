@@ -142,11 +142,12 @@ export function ResourceInventory({ search }: { search: string }) {
     <div className="composer-resources" aria-busy={busy}>
       <div className="ri-heading">
         <div>
-          <h1>Resource inventory</h1>
+          <h1>App resources</h1>
           <p>
             Every app resource Composer recorded for this workspace, the saved
             stack that uses it, the settings Composer expects and the last
-            app-confirmed operation. Read-only.
+            app-confirmed operation. Read-only, and separate from the public
+            Resources library.
           </p>
         </div>
         <button
