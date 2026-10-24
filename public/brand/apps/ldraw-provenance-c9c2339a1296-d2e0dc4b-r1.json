@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "recipe": "composer.ldraw-discovery/1",
+  "compositor": {
+    "path": "scripts/ldraw-discovery-assets.py",
+    "sha256": "c38025c67d3880288000f2547af4c0855add5bd50817f017441678f00982f39e",
+    "pillow": "11.3.0"
+  },
+  "capture": {
+    "sha256": "d2e0dc4bd445d2459f23dfe05b7a4adaa5db0100f484b0ae389c806865db2534",
+    "pixelSha256": "9bd0358afd7a62522342c5d9bf63b7409c284e39ec4457de8666f611aeba0bb4",
+    "pixelHashDefinition": "SHA-256 of decoded row-major RGBA8 bytes; dimensions recorded separately",
+    "width": 1440,
+    "height": 1000,
+    "format": "PNG",
+    "preservedAs": "ldraw-capture-c9c2339a1296-d2e0dc4b-r1.png",
+    "url": "https://ldraw.loftwah.com/",
+    "capturedAt": "2026-10-24T11:59:41.296Z",
+    "releasedSource": "c9c2339a1296ee7c06a7d94f274c69143478acba",
+    "qualificationReference": "https://github.com/loftwah/app-composer/issues/11#issuecomment-6383955270"
+  },
+  "identity": {
+    "ldraw": "Plain text wordmark; screenshot thumbnail is not a newly invented identity",
+    "composerMark": {
+      "path": "public/brand/composer-icon-20261022b-512.png",
+      "sha256": "09d6f06331da034db955d96111b2de889086fc787366984ee760aacde2f63ad6",
+      "role": "App Composer return destination only"
+    },
+    "font": {
+      "path": "src/assets/fonts/SpaceGrotesk.ttf.bin",
+      "sha256": "acad6de1fc93436f5c0f1f4137751ef04f1aea3063e7036535970ffcfbd79f72",
+      "family": "Space Grotesk",
+      "license": "src/assets/fonts/OFL-Space-Grotesk.txt"
+    }
+  },
+  "evidenceBoundary": "Supplied capture and release reference are operator inputs. This compositor checks their bytes, preserves the original, and derives only resizes/framing. It performs no browser/source/deployment verification and establishes no owner approval.",
+  "assets": {
+    "ldraw-capture-c9c2339a1296-d2e0dc4b-r1.png": {
+      "sha256": "d2e0dc4bd445d2459f23dfe05b7a4adaa5db0100f484b0ae389c806865db2534",
+      "pixelSha256": "9bd0358afd7a62522342c5d9bf63b7409c284e39ec4457de8666f611aeba0bb4",
+      "width": 1440,
+      "height": 1000,
+      "format": "PNG",
+      "role": "Original supplied live editor capture",
+      "transformation": "None; original PNG bytes preserved exactly"
+    },
+    "ldraw-workspace-c9c2339a1296-d2e0dc4b-r1-960.webp": {
+      "sha256": "7255f84e3b5d15828e7479419bba578b83e4e0078582655241cc65cc3993fbc8",
+      "pixelSha256": "553f1cc074ecbedb3877ec2ff9ab99f224fdb3478baa407797d2de8f00e0e206",
+      "width": 960,
+      "height": 667,
+      "format": "WEBP",
+      "role": "Workspace screenshot preview",
+      "transformation": "Full original viewport, proportional Lanczos resize only; lossless WebP; no crop, overlay or invented UI"
+    },
+    "ldraw-workspace-c9c2339a1296-d2e0dc4b-r1-1440.webp": {
+      "sha256": "f758f3627b7ebc11ff63c0597c2a097b40635a20b471751039156b15e7efde66",
+      "pixelSha256": "9bd0358afd7a62522342c5d9bf63b7409c284e39ec4457de8666f611aeba0bb4",
+      "width": 1440,
+      "height": 1000,
+      "format": "WEBP",
+      "role": "Workspace screenshot preview",
+      "transformation": "Full original viewport, proportional Lanczos resize only; lossless WebP; no crop, overlay or invented UI"
+    },
+    "ldraw-workspace-c9c2339a1296-d2e0dc4b-r1-96.webp": {
+      "sha256": "5c79258374d9ec32cc625f0c1d99fe4566e133a0649d767ffafe032b500565d1",
+      "pixelSha256": "cff6c0efc693d775e4983e8f92d111fd9eef080c8a6e151876bbf6b66bf18a26",
+      "width": 96,
+      "height": 96,
+      "format": "WEBP",
+      "role": "Actual workspace screenshot thumbnail, not an LDraw logo or icon",
+      "transformation": "Full viewport proportionally resized and centered on charcoal padding; no crop or invented UI"
+    },
+    "ldraw-share-c9c2339a1296-d2e0dc4b-r1.png": {
+      "sha256": "7bde67390c737788696a54b2b1dac5824e3b1a0f6e0509d271834bd4253f9cc3",
+      "pixelSha256": "db22ca29d580bfd79468cf4ea0412ba4e5810e1884d5560124e04dd65a3f4221",
+      "width": 1200,
+      "height": 630,
+      "format": "PNG",
+      "role": "Composed discovery sharing image, not a new product capture",
+      "transformation": {
+        "capture": "ldraw-capture-c9c2339a1296-d2e0dc4b-r1.png",
+        "crop": null,
+        "resizedCaptureRectangle": [
+          390,
+          40,
+          729,
+          506
+        ],
+        "frame": "Flat Composer editorial frame; plain LDraw text title; Composer mark only labels its return destination"
+      }
+    }
+  }
+}
