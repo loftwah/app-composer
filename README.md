@@ -45,7 +45,7 @@ Local EmDash data is separate from production. A fresh checkout does not contain
 
 | App | What it does | Source | Standalone |
 | --- | --- | --- | --- |
-| Paperwork | Browser-local PDF form filling, drawing and visual signatures | [Paperwork](https://github.com/loftwah/app-composer-paperwork) | [Open](https://composer-paperwork.loftwah.workers.dev/) |
+| Paperwork | Browser-local PDF form filling, drawing and visual signatures | [Paperwork](https://github.com/loftwah/app-composer-paperwork) | [Open](https://paperwork.loftwah.com/) |
 | Here / there | Moderated photographs and visitor postcards | [Guestbook](https://github.com/loftwah/app-composer-guestbook) | [Open](https://guestbook.loftwah.com/) |
 | Linkarooie | Curated links and eligible source contributions | [Showcase](https://github.com/loftwah/app-composer-showcase) | [Open](https://showcase.loftwah.com/) |
 | Link Check | Inspect a destination and explain its findings | [Link Check](https://github.com/loftwah/app-composer-linkcheck) | [Open](https://share.loftwah.com/) |
