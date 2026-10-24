@@ -246,3 +246,29 @@
     font-size: 13px;
   }
 }
+
+.ce-notifications {
+  margin-block: 28px;
+  padding-block: 24px;
+  border-block: 1px solid var(--color-border, #c9c9c9);
+}
+.ce-notifications > p,
+.ce-notifications li p {
+  max-width: 70ch;
+}
+.ce-notifications ul {
+  list-style: none;
+  padding: 0;
+}
+.ce-notifications li {
+  padding-block: 20px;
+  border-bottom: 1px solid var(--color-border, #c9c9c9);
+  overflow-wrap: anywhere;
+}
+.ce-notifications button {
+  min-height: 44px;
+  margin-block: 8px;
+}
+.ce-notifications code {
+  overflow-wrap: anywhere;
+}

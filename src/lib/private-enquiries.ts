@@ -1,3 +1,4 @@
+import { manageEnquiryNotifications } from "./enquiry-notifications.ts";
 import type { D1Database } from "@cloudflare/workers-types";
 import { z } from "zod";
 import { isCreatorRole } from "./creator-access.ts";
@@ -21,6 +22,11 @@ import {
 } from "./enquiry-protocol.ts";
 
 export interface EnquiryRuntime extends ResourceRuntime {
+  ENQUIRY_NOTIFICATIONS_ENABLED?: unknown;
+  ENQUIRY_NOTIFICATION_RECIPIENT?: unknown;
+  RESEND_API_KEY?: unknown;
+  RESEND_FROM_ADDRESS?: unknown;
+  RESEND_ALLOWED_RECIPIENTS?: unknown;
   DB?: D1Database;
 }
 interface User {
@@ -255,6 +261,17 @@ export function appScope(scope: EnquiryScope) {
 }
 
 export async function manageEnquiries(ctx: Context, runtime: EnquiryRuntime) {
+  if (
+    ctx.input &&
+    typeof ctx.input === "object" &&
+    "action" in ctx.input &&
+    [
+      "notificationStatus",
+      "notificationPreference",
+      "notificationSend",
+    ].includes(String(ctx.input.action))
+  )
+    return manageEnquiryNotifications(ctx, runtime);
   const fail = (code: string, message: string) => ({
     ok: false as const,
     code,
