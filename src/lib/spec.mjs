@@ -34,7 +34,11 @@ export function validText(v, max, label) {
     /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(v)
   )
     throw new Error(label + " must be text up to " + max + " characters");
-  return v.trim();
+  // Invisible format characters cannot hide or reorder a title, introduction or
+  // card label that later appears in an exported specification.
+  return v
+    .replace(/[\u007f-\u009f\u200b\u200c\u200e\u200f\u202a-\u202e\u2060-\u2069\ufeff]/g, "")
+    .trim();
 }
 export function validateSpec(input) {
   if (!input || ![1, 2].includes(input.version))
