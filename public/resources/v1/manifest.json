@@ -1,7 +1,7 @@
 {
   "version": "composer.operating-kit/1",
-  "bytes": 460999,
-  "sha256": "8f7f62a1b1e1f26c9e5aae2e2f81a0e249491afcf68f7c7e8639d7091016c451",
+  "bytes": 530559,
+  "sha256": "4c9a9ecb73d9db65350727f0b11d6addc00db6500edc89a1c70a73ae7e7c81c1",
   "files": [
     {
       "name": "change-og.png",
@@ -20,8 +20,8 @@
     },
     {
       "name": "change.md",
-      "bytes": 3319,
-      "sha256": "402bb1a026373d076b47c21e9d0410ea5f1c0a51c69a4bf3c713312fc2ad1553"
+      "bytes": 3492,
+      "sha256": "57d2a844db7b8ef91b24bc1ce4ec2cf2351ca18c05810eb70f77e8cc96a986b5"
     },
     {
       "name": "composer-mark.png",
@@ -40,13 +40,68 @@
     },
     {
       "name": "examples/exercise.mjs",
-      "bytes": 2868,
-      "sha256": "ad6cf0e80d3e97d158b58fc3115518a6bcb768f6e7c2e1fd95b5e32206fd3d87"
+      "bytes": 4917,
+      "sha256": "4393289e18937fc64c010927837333c1c35f1b33b40b23a358c601af3532db76"
+    },
+    {
+      "name": "examples/field-notes-about.patch",
+      "bytes": 4465,
+      "sha256": "e800e71f595c153eede3708226842182d6cc9e4293ee3972b69204d51b6bce08"
+    },
+    {
+      "name": "examples/field-notes-desktop-about.png",
+      "bytes": 36057,
+      "sha256": "f2018eccebf0059c3fe090ba7ee92b76a6dd4ade59209ae506577adc61ce954d"
+    },
+    {
+      "name": "examples/field-notes-example.md",
+      "bytes": 2209,
+      "sha256": "0e2e21883c72c2177b42f2d78bbfa42b30f26f20c7a8faf7dc4736969ecb912c"
+    },
+    {
+      "name": "examples/field-notes-mobile-about.png",
+      "bytes": 33235,
+      "sha256": "cf7d3d97f001203813017c5321e604a205d3272e5de71aef91f04a29c3b85987"
+    },
+    {
+      "name": "examples/field-notes-provenance.json",
+      "bytes": 845,
+      "sha256": "b0a229300ff5c4368f4b49d9a32ddca87132bac8ee14d2bed66ac98affa13ccf"
+    },
+    {
+      "name": "examples/field-notes/AGENTS.md",
+      "bytes": 509,
+      "sha256": "6eebc9a91d16c69c80058d42d2c9d4ed598765b7543b21339c5845a7fc28afc9"
+    },
+    {
+      "name": "examples/field-notes/app.py",
+      "bytes": 3003,
+      "sha256": "82608fe277d61cd1fbbcaba0dfae80a127a87f8b1201cd00a874f00819972fd1"
+    },
+    {
+      "name": "examples/field-notes/owner-note.txt",
+      "bytes": 59,
+      "sha256": "2958792fb8548db51fc1fdef41d36e3da8fac4971746e40305a9781eb226cd9b"
+    },
+    {
+      "name": "examples/field-notes/README.md",
+      "bytes": 971,
+      "sha256": "7ad0fd871957509eef9696d937eceeee38a0c9c07c9bb5793d7a278d2d2f4c36"
+    },
+    {
+      "name": "examples/field-notes/site.json",
+      "bytes": 109,
+      "sha256": "e2f2843ff0c823a62b2937e9db35d94a21d71725ef64447817d1e87e745199ae"
+    },
+    {
+      "name": "examples/field-notes/test_app.py",
+      "bytes": 3641,
+      "sha256": "1502bb0c769afe6fb838d79c811a474abafc8a7f7f91b8771a0c761c500a993e"
     },
     {
       "name": "examples/guarded-pipeline.mjs",
-      "bytes": 671,
-      "sha256": "f5501a3428887fb838ae8f4b458fbe0f213f9ad8f5d16195ece71ddabe10c604"
+      "bytes": 1350,
+      "sha256": "e66cda61d3d6cbfcbc842ae21d5c2324ee7277e9a5537a6a76c02f9c13e6d330"
     },
     {
       "name": "examples/repository-check.sh",
@@ -80,8 +135,8 @@
     },
     {
       "name": "hook.md",
-      "bytes": 3803,
-      "sha256": "f9f2443dd8c615f0556c24e4ebc5bb0928497c72b19652c78469314ededce7c6"
+      "bytes": 3794,
+      "sha256": "f5817d7b79d77b37a509faa94a31e34a51b43106788d68d96d28bc3299e840e4"
     },
     {
       "name": "incident-og.png",
@@ -100,13 +155,13 @@
     },
     {
       "name": "incident.md",
-      "bytes": 3791,
-      "sha256": "0eb37944572d09bc4a7bd9e6529c7aeff2d0fe7a090393f74ab0bbed3d710764"
+      "bytes": 3782,
+      "sha256": "fa224f1b8375d329cdaacceeec0aa2b1486c3dc6c198e5853b7691d77176fa87"
     },
     {
       "name": "INDEX.md",
-      "bytes": 2465,
-      "sha256": "92a553748a6b3f859215502bf1bc2ac6c1eeae8504d11e7a3bd0a220dc218b32"
+      "bytes": 2862,
+      "sha256": "98c98afa81a4454b260e08b627770783e1c9defefa6fcb09250e89a7c3b65707"
     },
     {
       "name": "kit-preview.png",
@@ -130,13 +185,13 @@
     },
     {
       "name": "operating-kit.md",
-      "bytes": 3877,
-      "sha256": "3fc4101c2f6e0b8b2635bc0cfb97c83703c0d798b6b860656ccce3a8b5ca56ba"
+      "bytes": 3868,
+      "sha256": "e43b4e23f6d55a0a86aa14c46b6f27c66dd0b990e0dab53be0c54c4e04f17418"
     },
     {
       "name": "pipeline.md",
-      "bytes": 3624,
-      "sha256": "09adaaf92d14ff9b114e763f93e6d92e59d7e492042a0b4305bbceb6f2480304"
+      "bytes": 3615,
+      "sha256": "0c340016fd257de29ad299aa045cfdb0dd90c3fde8109bd97a3a61803880c6d4"
     },
     {
       "name": "resources-og.png",

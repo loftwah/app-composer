@@ -4,7 +4,7 @@ A portable set of instructions, diagrams and examples that fits your existing pr
 
 Version: composer.operating-kit/1
 Reviewed: 2026/10/24 (Australia/Melbourne)
-Source: https://composer.loftwah.com/resources?resource=operating-kit
+Source: https://composer.loftwah.com/resources/operating-kit
 
 ## What you need
 

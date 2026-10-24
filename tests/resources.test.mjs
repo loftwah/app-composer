@@ -10,6 +10,19 @@ import { resources, renderResource, resourceVersion } from '../src/lib/resource-
 import { renderPrompt } from '../src/lib/prompt-library.ts';
 import { packageResources } from '../scripts/package-resources.mjs';
 
+test('resource selection anchors land on the named runbook heading before its download action', () => {
+  const component = readFileSync('src/components/ResourceDesk.astro', 'utf8');
+  const target = component.match(/<([a-z][\w-]*)\b([^>]*\bid="resource"[^>]*)>/);
+  assert.ok(target, 'existing selected-resource fragments keep their destination');
+  assert.equal(target[1], 'h2', 'selection targets the runbook heading');
+  assert.match(target[2], /\btabindex="-1"/, 'the native fragment target accepts focus without adding a Tab stop');
+  assert.match(component, /<section\b[^>]*class="resource-detail"[^>]*aria-labelledby="resource"/);
+  const afterHeading = component.slice(target.index + target[0].length);
+  const nextControl = afterHeading.match(/<(?:a|button|input|select|textarea|summary)\b[^>]*>/)?.[0];
+  assert.match(nextControl ?? '', /^<a\b[^>]*href=\{download\}[^>]*\bdownload(?:\s|>)/, 'the next native Tab destination downloads the selected runbook');
+  assert.ok(component.includes('href={`/resources/${resource.id}#resource`}'), 'selection remains an ordinary resource URL without JavaScript');
+});
+
 test('resource downloads embed the same complete maintained prompt and specific continuation', () => {
   for (const item of resources) {
     const text = renderResource(item.id);

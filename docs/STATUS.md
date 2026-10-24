@@ -2,6 +2,24 @@
 
 Reviewed 24 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Backlog release in qualification — 24 October 2026
+
+Production source `36187d8` has the public [prompt library](/prompts), portable
+[project setup](/setup), five [runbooks and downloads](/resources), and versioned
+unknown-aware device declarations. The first release and Init compatibility fix
+are PRs #305/#306; #11 records the exact Worker and live browser receipt.
+
+The next candidate adds four role/job discovery paths, canonical per-resource
+sharing, the approved flat mark on the homepage, six clocked fresh-agent setup
+trials, two downloaded-kit evaluations and a small Composer-authored keyboard
+improvement. Native Workflows, Needs attention, Connections and fictional Orders
+are being qualified in the existing EmDash administration. Native notification
+outbox work remains default-off and requires selected owner/provider configuration
+before real mail acceptance. Connections currently inventories references and
+checks one scoped owned Guestbook read; credential lifecycle operations remain
+host-managed. Orders exercises provider fixtures only, with no real checkout,
+charge or fulfilment. Candidate source is not a production acceptance receipt.
+
 ## Finding the shipped work — 24 October 2026
 
 The product front door and [Explore directory](https://composer.loftwah.com/discover) lead with [Launch Kit](https://composer.loftwah.com/launch-kit) and the [team application films](https://composer.loftwah.com/platform/demo), then link directly to invited profiles, analytics and owner workflows. The existing decision planner remains at `/explore`. The shared launcher includes the newer tools and resolves them through each shell’s selected Composer instance. The owning issue is [#273](https://github.com/loftwah/app-composer/issues/273); exact release identities and production checks belong in #11.

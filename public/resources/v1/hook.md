@@ -4,7 +4,7 @@ A small event handler with a clear trust boundary and visible failures.
 
 Version: composer.operating-kit/1
 Reviewed: 2026/10/24 (Australia/Melbourne)
-Source: https://composer.loftwah.com/resources?resource=hook
+Source: https://composer.loftwah.com/resources/hook
 
 ## What you need
 

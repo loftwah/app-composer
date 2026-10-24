@@ -1,0 +1,7 @@
+---
+import ResourceDesk from '../../components/ResourceDesk.astro';
+import { resourceById } from '../../lib/resource-library';
+const resource = resourceById(Astro.params.id ?? '');
+if (!resource) return new Response('Resource not found', { status: 404 });
+---
+<ResourceDesk selectedId={resource.id} />

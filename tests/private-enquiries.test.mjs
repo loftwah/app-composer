@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -457,6 +458,20 @@ test("owner form configuration verifies exact source, app version and immutable 
 test("public broker derives scope server-side, gives only bounded receipts and refuses closure after awaited metadata", async () => {
   const f = await prepared();
   try {
+    f.sqlite.exec(
+      readFileSync(
+        new URL(
+          "../migrations/0013_enquiry_notifications.sql",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    f.sqlite
+      .prepare(
+        "INSERT INTO creator_enquiry_notification_preferences(workspace_id,resource_id,owner_id,enabled,updated_at) VALUES(?,?,?,1,?)",
+      )
+      .run(f.space.id, f.resource, user.id, new Date().toISOString());
     const selected = await publicationEnquiry(
         f.db,
         f.published.slug,
@@ -544,6 +559,34 @@ test("public broker derives scope server-side, gives only bounded receipts and r
       received: true,
     });
     assert.equal(delivered, 1);
+    const notification = f.sqlite
+      .prepare("SELECT * FROM creator_enquiry_notification_outbox")
+      .get();
+    assert.equal(notification.event_id, intent);
+    assert.equal(notification.workspace_id, f.space.id);
+    assert.equal(notification.resource_id, f.resource);
+    assert.equal(notification.state, "queued");
+    assert.doesNotMatch(
+      JSON.stringify(notification),
+      /Fictional brief|Invented only/,
+    );
+    // The same app-confirmed intent cannot create a second notification.
+    const repeated = await publicEnquiryRequest(
+      request(body),
+      f.runtime,
+      f.published.slug,
+      "fictional-enquiry-instance",
+      "submit",
+    );
+    assert.equal(repeated.status, 201);
+    assert.equal(
+      f.sqlite
+        .prepare(
+          "SELECT count(*) AS count FROM creator_enquiry_notification_outbox",
+        )
+        .get().count,
+      1,
+    );
     const spoof = await publicEnquiryRequest(
       request({ ...body, workspace: "foreign-workspace" }),
       f.runtime,
@@ -552,7 +595,7 @@ test("public broker derives scope server-side, gives only bounded receipts and r
       "submit",
     );
     assert.notEqual(spoof.status, 201);
-    assert.equal(delivered, 1);
+    assert.equal(delivered, 2);
     const original = f.runtime.GUESTBOOK.fetch;
     f.runtime.GUESTBOOK = {
       async fetch(req) {
@@ -575,7 +618,7 @@ test("public broker derives scope server-side, gives only bounded receipts and r
       "submit",
     );
     assert.equal(closed.status, 409);
-    assert.equal(delivered, 1);
+    assert.equal(delivered, 2);
   } finally {
     f.close();
   }

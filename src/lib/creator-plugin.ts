@@ -6,6 +6,11 @@ import { manageWorkspaceAccess } from "./workspace-access.ts";
 import { managePrivateOutcomes } from "./private-outcomes.ts";
 import { manageMaintenance } from "./creator-maintenance.ts";
 import { manageEnquiries } from "./private-enquiries.ts";
+import { manageWorkflows } from "./workflows.ts";
+import { afterNativeWorkflowWrite } from "./workflow-events.ts";
+import { manageOverview } from "./overview.ts";
+import { manageOrders } from "./orders.ts";
+import { manageConnections } from "./connections.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
 
@@ -28,9 +33,45 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
           icon: "wrench",
         },
         { path: "/enquiries", label: "Private enquiries", icon: "inbox" },
+        { path: "/workflows", label: "Workflows", icon: "arrows-clockwise" },
+        { path: "/overview", label: "Needs attention", icon: "warning" },
+        { path: "/orders", label: "Orders", icon: "receipt" },
+        { path: "/connections", label: "Connections", icon: "plugs" },
       ],
     },
     routes: {
+      connectionsRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageConnections(ctx, runtime),
+      },
+      overviewRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageOverview(ctx, runtime),
+      },
+      ordersRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageOrders(ctx, runtime),
+      },
+      ordersWrite: {
+        methods: ["POST"],
+        permission: creatorPermission,
+        request: { body: "json", maxBytes: 4000 },
+        handler: (ctx) => manageOrders(ctx, runtime),
+      },
+      workflowsRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageWorkflows(ctx, runtime),
+      },
+      workflowsWrite: {
+        methods: ["POST"],
+        permission: creatorPermission,
+        request: { body: "json", maxBytes: 4000 },
+        handler: (ctx) => manageWorkflows(ctx, runtime),
+      },
       platformRead: {
         methods: ["GET"],
         permission: creatorPermission,
@@ -40,7 +81,13 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         methods: ["POST"],
         permission: creatorPermission,
         request: { body: "json", maxBytes: 8000 },
-        handler: (ctx) => managePlatform(ctx, runtime),
+        handler: async (ctx) =>
+          afterNativeWorkflowWrite(
+            "platform",
+            ctx,
+            runtime,
+            await managePlatform(ctx, runtime),
+          ),
       },
       read: {
         methods: ["GET"],
@@ -51,7 +98,13 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         methods: ["POST"],
         permission: creatorPermission,
         request: { body: "json", maxBytes: 120000 },
-        handler: (ctx) => manageStacks(ctx, runtime),
+        handler: async (ctx) =>
+          afterNativeWorkflowWrite(
+            "stacks",
+            ctx,
+            runtime,
+            await manageStacks(ctx, runtime),
+          ),
       },
       maintenanceRead: {
         methods: ["GET"],

@@ -12,6 +12,7 @@ import {
   type PlatformSnapshot,
 } from "./platform/protocol";
 import "./platform-page.css";
+import { focusStoredRecord } from './record-anchor';
 
 const defaults: PlatformProfileInput = {
   enabled: false,
@@ -66,6 +67,10 @@ export function PlatformPage() {
 
 export function PlatformWorkspace({ search }: { search: string }) {
   const [snapshot, setSnapshot] = useState<PlatformSnapshot>();
+  const anchorFocused = useRef(false);
+  useEffect(() => {
+    if (snapshot && !anchorFocused.current) anchorFocused.current = focusStoredRecord('platform-request-');
+  }, [snapshot]);
   const [profile, setProfile] = useState<PlatformProfileInput>({ ...defaults });
   const [profileBase, setProfileBase] = useState<PlatformProfileInput>({
     ...defaults,
@@ -870,7 +875,7 @@ function RequestRow({
   maintenanceUrl?: string;
 }) {
   return (
-    <li>
+    <li id={`platform-request-${entry.id}`}>
       <article className="ca-platform-request">
         <header>
           <h3>{entry.name}</h3>

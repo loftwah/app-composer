@@ -1,4 +1,271 @@
 {
   "schema": "app-composer.setup-evaluation/1",
-  "runs": []
+  "runs": [
+    {
+      "id": "existing-python-20261024-1",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "2a5f94e90c16c969e081587891384e1cefdf1cb460ef51a406eaa725c8a59d19",
+      "path": "existing",
+      "fixture": "Fictional existing Python Field Notes; all six source files matched the pinned fixture",
+      "sourceCommit": "d0b39f0c9978b1d8ac23745209e95265ed277ea7",
+      "agent": "Fresh Codex subagent session 1",
+      "model": "gpt-6.1-sol; high effort, inherited parent host configuration",
+      "environment": "macOS local; Python 3.14.7 standard library; fictional data only",
+      "tools": [
+        "Git",
+        "Python 3.14.7",
+        "localhost HTTP",
+        "real browser"
+      ],
+      "provisionedAccess": [
+        "Local fixture copy and installed tools only; no provider or deployment access"
+      ],
+      "startedAt": "2026-10-24T07:18:48.003Z",
+      "finishedAt": "2026-10-24T07:23:00.047Z",
+      "outcome": "completed-after-rescue",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "python3.14 -m unittest -v",
+          "outcome": "All five fixture assertions passed."
+        },
+        {
+          "command": "Serve the unchanged app.Page on an unused localhost port; inspect home, /health, /missing, then home",
+          "outcome": "HTTP 200/200/404/200 and real browser home → missing page → Back recovery."
+        },
+        {
+          "command": "Compare pinned fixture, configuration, owner note and unrelated work; stop owned service and remove owned root",
+          "outcome": "Source/customisation preserved. Only owned processes/tab/root cleaned; unrelated service preserved."
+        }
+      ],
+      "interventions": [
+        "Autonomous recovery: the documented fixed port was occupied; preserved the unrelated service and used an unused localhost port."
+      ],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/labs/setup-evaluation/evidence/2026-10-24-existing.md"
+    },
+    {
+      "id": "existing-python-20261024-2",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "2a5f94e90c16c969e081587891384e1cefdf1cb460ef51a406eaa725c8a59d19",
+      "path": "existing",
+      "fixture": "Fictional existing Python Field Notes; all six source files matched the pinned fixture",
+      "sourceCommit": "d0b39f0c9978b1d8ac23745209e95265ed277ea7",
+      "agent": "Fresh Codex subagent session 2",
+      "model": "gpt-6.1-sol; high effort, inherited parent host configuration",
+      "environment": "macOS local; Python 3.14.7 standard library; fictional data only",
+      "tools": [
+        "Git",
+        "Python 3.14.7",
+        "localhost HTTP",
+        "real browser"
+      ],
+      "provisionedAccess": [
+        "Local fixture copy and installed tools only; no provider or deployment access"
+      ],
+      "startedAt": "2026-10-24T07:21:36.108Z",
+      "finishedAt": "2026-10-24T07:26:27.952Z",
+      "outcome": "completed-after-rescue",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "python3.14 -m unittest -v",
+          "outcome": "All five fixture assertions passed."
+        },
+        {
+          "command": "Serve the unchanged app.Page on an unused localhost port; inspect home, /health, /missing, then home",
+          "outcome": "HTTP 200/200/404/200 and real browser home → missing page → Back recovery."
+        },
+        {
+          "command": "Compare pinned fixture, configuration, owner note and unrelated work; stop owned service and remove owned root",
+          "outcome": "Source/customisation preserved. Only owned processes/tab/root cleaned; unrelated service preserved."
+        }
+      ],
+      "interventions": [
+        "Selected an installed compatible Python after the default interpreter was below the documented minimum.",
+        "Recovered from shell inspection syntax and glob errors without changing the project.",
+        "An initial shell cleanup launcher was rejected before execution; used a registered TemporaryDirectory/finally cleanup instead.",
+        "Preserved the unrelated fixed-port service and used an OS-selected localhost port.",
+        "A five-second startup observation expired; stopped the owned attempt and used a bounded foreground readiness check."
+      ],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/labs/setup-evaluation/evidence/2026-10-24-existing.md"
+    },
+    {
+      "id": "existing-python-20261024-3",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "2a5f94e90c16c969e081587891384e1cefdf1cb460ef51a406eaa725c8a59d19",
+      "path": "existing",
+      "fixture": "Fictional existing Python Field Notes; all six source files matched the pinned fixture",
+      "sourceCommit": "d0b39f0c9978b1d8ac23745209e95265ed277ea7",
+      "agent": "Fresh Codex subagent session 3",
+      "model": "gpt-6.1-sol; high effort, inherited parent host configuration",
+      "environment": "macOS local; Python 3.14.7 standard library; fictional data only",
+      "tools": [
+        "Git",
+        "Python 3.14.7",
+        "localhost HTTP",
+        "real browser"
+      ],
+      "provisionedAccess": [
+        "Local fixture copy and installed tools only; no provider or deployment access"
+      ],
+      "startedAt": "2026-10-24T07:27:42.727Z",
+      "finishedAt": "2026-10-24T07:32:45.182Z",
+      "outcome": "completed-after-rescue",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "python3.14 -m unittest -v",
+          "outcome": "All five assertions passed twice; repeat changed no fixture files."
+        },
+        {
+          "command": "Serve the unchanged app.Page on an unused localhost port; inspect home, /health, /missing, then home",
+          "outcome": "HTTP 200/200/404/200 and real browser home → missing page → Back recovery."
+        },
+        {
+          "command": "Compare pinned fixture, configuration, owner note and unrelated work; stop owned service and remove owned root",
+          "outcome": "Source/customisation preserved. Only owned processes/tab/root cleaned; unrelated service preserved."
+        }
+      ],
+      "interventions": [
+        "Selected an installed compatible Python after the default interpreter was below the documented minimum.",
+        "Recovered from the documented fixed-port collision using an unused localhost port; the unrelated service was preserved.",
+        "Recovered from a bootstrap/tool invocation failure before the bounded repeat."
+      ],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/labs/setup-evaluation/evidence/2026-10-24-existing.md"
+    },
+    {
+      "id": "new-python-20261024-1",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "dbc36a59e9e96bf025dfccfc165cbcf3cc497c10ae1754dfba931abcf5c86656",
+      "path": "new",
+      "fixture": "Fictional absent-site Python starting folder; owner marker preserved",
+      "sourceCommit": "d0b39f0c9978b1d8ac23745209e95265ed277ea7",
+      "agent": "Fresh Codex qualification subagent 1",
+      "model": "gpt-6.1-sol; high effort, inherited parent host configuration",
+      "environment": "macOS local; Python 3.13.14 standard library; fictional data only",
+      "tools": [
+        "Git",
+        "Python 3.13.14",
+        "localhost HTTP",
+        "real browser"
+      ],
+      "provisionedAccess": [
+        "Local starting folder and installed tools; own localhost only; no provider or deployment access"
+      ],
+      "startedAt": "2026-10-24T08:11:22.000Z",
+      "finishedAt": "2026-10-24T08:16:54.000Z",
+      "outcome": "completed-after-rescue",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "Python 3.13.14: run the created project’s unittest suite",
+          "outcome": "5 meaningful HTTP tests passed; no dependencies installed."
+        },
+        {
+          "command": "Open the actual localhost app and exercise its positive, missing/invalid input and recovery journeys",
+          "outcome": "Home → search → matching detail → return, empty-search recovery and missing-page recovery passed."
+        },
+        {
+          "command": "Compare original starting-folder/owner-marker hashes; clean only owned service, browser tab and root",
+          "outcome": "Original bytes preserved. Owned process absent, port closed, tab and temporary root removed."
+        }
+      ],
+      "interventions": [
+        "Autonomous recovery: the shared browser profile was already in use; preserved it and used an owned IAB localhost tab."
+      ],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/labs/setup-evaluation/evidence/2026-10-24-new.md"
+    },
+    {
+      "id": "new-python-20261024-2",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "dbc36a59e9e96bf025dfccfc165cbcf3cc497c10ae1754dfba931abcf5c86656",
+      "path": "new",
+      "fixture": "Fictional absent-site Python starting folder; owner marker preserved",
+      "sourceCommit": "d0b39f0c9978b1d8ac23745209e95265ed277ea7",
+      "agent": "Fresh Codex qualification subagent 2",
+      "model": "gpt-6.1-sol; high effort, inherited parent host configuration",
+      "environment": "macOS local; Python 3.14.7 standard library; fictional data only",
+      "tools": [
+        "Git",
+        "Python 3.14.7",
+        "localhost HTTP",
+        "real browser"
+      ],
+      "provisionedAccess": [
+        "Local starting folder and installed tools; own localhost only; no provider or deployment access"
+      ],
+      "startedAt": "2026-10-24T08:11:31.000Z",
+      "finishedAt": "2026-10-24T08:15:35.000Z",
+      "outcome": "completed-after-rescue",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "Python 3.14.7: run the created project’s unittest suite",
+          "outcome": "4 meaningful HTTP tests passed; no dependencies installed."
+        },
+        {
+          "command": "Open the actual localhost app and exercise its positive, missing/invalid input and recovery journeys",
+          "outcome": "Create a fictional note → whitespace-only title returned 422 while retaining the observation → correction → reload passed; exactly two fictional SQLite records."
+        },
+        {
+          "command": "Compare original starting-folder/owner-marker hashes; clean only owned service, browser tab and root",
+          "outcome": "Original bytes preserved. Owned process absent, port closed, tab and temporary root removed."
+        }
+      ],
+      "interventions": [
+        "Corrected an unsupported shell inspection option and unmatched glob without modifying the project.",
+        "A snapshot-file path was denied; retained returned snapshot text through the supported file tool."
+      ],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/labs/setup-evaluation/evidence/2026-10-24-new.md"
+    },
+    {
+      "id": "new-python-20261024-3",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "dbc36a59e9e96bf025dfccfc165cbcf3cc497c10ae1754dfba931abcf5c86656",
+      "path": "new",
+      "fixture": "Fictional absent-site Python starting folder; owner marker preserved",
+      "sourceCommit": "d0b39f0c9978b1d8ac23745209e95265ed277ea7",
+      "agent": "Fresh Codex qualification subagent 3",
+      "model": "gpt-6.1-sol; high effort, inherited parent host configuration",
+      "environment": "macOS local; Python 3.13.14 standard library; fictional data only",
+      "tools": [
+        "Git",
+        "Python 3.13.14",
+        "localhost HTTP",
+        "real browser"
+      ],
+      "provisionedAccess": [
+        "Local starting folder and installed tools; own localhost only; no provider or deployment access"
+      ],
+      "startedAt": "2026-10-24T08:11:43.000Z",
+      "finishedAt": "2026-10-24T08:17:14.000Z",
+      "outcome": "completed-after-rescue",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "Python 3.13.14: run the created project’s unittest suite",
+          "outcome": "5 meaningful HTTP tests passed; no dependencies installed."
+        },
+        {
+          "command": "Open the actual localhost app and exercise its positive, missing/invalid input and recovery journeys",
+          "outcome": "Home → search → matching detail → return, empty-search recovery and missing-page recovery passed."
+        },
+        {
+          "command": "Compare original starting-folder/owner-marker hashes; clean only owned service, browser tab and root",
+          "outcome": "Original bytes preserved. Owned process absent, port closed, tab and temporary root removed."
+        }
+      ],
+      "interventions": [
+        "Recovered from shell flags/glob inspection errors.",
+        "Created the owned destination before selecting it as the working directory."
+      ],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/labs/setup-evaluation/evidence/2026-10-24-new.md"
+    }
+  ]
 }

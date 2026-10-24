@@ -25,6 +25,10 @@ node examples/exercise.mjs
 
 This exercises failed-check publication blocking, ordered local stages, missing access, duplicate suppression, authentication/scope rejection, uncertain-effect reconciliation and a bounded synthetic incident. It creates no files, makes no network requests, sends no mail and publishes nothing. The event fixture is not a provider webhook endpoint; its in-memory Map is not a production outbox.
 
+## Complete local change example
+
+See [the actual Field Notes change](examples/field-notes-example.md), its complete resulting Python fixture, reviewable patch, provenance and real browser captures. It needs an already installed compatible Python interpreter only if you choose that optional example. The original failed regression stopped local patch export; it is not production release proof.
+
 ## Editable files
 
 The diagrams are Mermaid source (.mmd) plus readable SVG exports. Open the PDF in a PDF viewer. To regenerate it, use Python 3 with ReportLab and run `python3 operating-cheatsheet.py`; the included Space Grotesk font is under the accompanying OFL licence. The mark is Composer's approved merging-block identity. Share PNGs are composed explanatory artwork, never product screenshots.

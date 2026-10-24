@@ -1,3 +1,4 @@
+import { queueEnquiryNotification } from "./enquiry-notifications.ts";
 import { z } from "zod";
 import { enquiryModel } from "../enquiries/enquiry-model.ts";
 import { resourceConnection } from "./resource-client.ts";
@@ -245,6 +246,29 @@ export async function publicEnquiryRequest(
       (kind === "submit" && !receipt.received)
     )
       throw Error("Unconfirmed exact delivery receipt");
+    if (receipt.received) {
+      // Notification failure must never reverse or duplicate the confirmed brief.
+      // This only queues metadata. Provider effects require a later owner action.
+      try {
+        await queueEnquiryNotification(
+          runtime.DB!,
+          {
+            workspace: selected.row.workspace_id,
+            resource: selected.scope.resource,
+            account: connection.account,
+            environment: connection.environment,
+            target: connection.target,
+          },
+          receipt.intent,
+        );
+      } catch {
+        // A source confirmation and this local queue are not one transaction.
+        // Keep only a bounded operational marker, never brief or event values.
+        console.warn(
+          "Composer enquiry notification queue was not persisted; inspect the source Inbox and retained receipt.",
+        );
+      }
+    }
     // No private body or app owner authority leaves the server boundary.
     return response(receipt, kind === "submit" ? 201 : 200);
   } catch (error) {

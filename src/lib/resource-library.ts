@@ -6,7 +6,7 @@ export const resources = [
     id: 'change', title: 'Make a change', label: 'Change',
     outcome: 'A small, reviewed improvement with evidence that it works.',
     needs: 'An authorised project folder, its existing checks, and the change you want.',
-    scope: 'Adapt for your project. The bundled local example runs with Node 22; release uses your existing guard.',
+    scope: 'Adapt for your project. Node 22 exercises and a complete fictional Python 3.10+ change example are included. Actual Python trial used 3.14.7; release uses your existing guard.',
     steps: [
       'Read the actual project guidance and inspect Git status, worktrees and existing behaviour. Keep unrelated edits. Reproduce the journey before changing it; write down the desired observation.',
       'Identify the smallest owning module and the existing check that can reveal a regression. Use existing commands and dependencies. Define what is outside this change.',
@@ -15,7 +15,7 @@ export const resources = [
       'Review the final diff against the starting revision. Use the authorised release path, verify the affected journey on the actual target, and record exact source, environment, result and remaining gates.',
     ],
     recovery: 'Keep the current diff and failing command. Resume from the last verified step after reconciling source and target. A code rollback does not restore deleted data or configuration.',
-    files: ['change-release.mmd', 'change-release.svg', 'examples/guarded-pipeline.mjs', 'templates/emergency-change.md'],
+    files: ['change-release.mmd', 'change-release.svg', 'examples/guarded-pipeline.mjs', 'templates/emergency-change.md', 'examples/field-notes-example.md', 'examples/field-notes-about.patch', 'examples/field-notes-mobile-about.png'],
   },
   {
     id: 'incident', title: 'Handle an incident', label: 'Incident',
@@ -87,5 +87,5 @@ export function renderResource(id: string): string {
   const resource = resourceById(id);
   if (!resource) throw new Error('Unknown resource');
   const prompt = renderPrompt(resource.id, {}, { template: true }).text;
-  return `# ${resource.title}\n\n${resource.outcome}\n\nVersion: ${resourceVersion}\nReviewed: 2026/10/24 (Australia/Melbourne)\nSource: https://composer.loftwah.com/resources?resource=${resource.id}\n\n## What you need\n\n${resource.needs}\n\n## Supported scope\n\n${resource.scope}\n\n## Runbook\n\n${resource.steps.map((step, index) => `${index + 1}. ${step}`).join('\n\n')}\n\n## Failure and continuation\n\n${resource.recovery}\n\n## Copyable agent prompt (template)\n\nFill the labelled placeholders or explicitly delegate discoverable details to project inspection. Never add secret values.\n\n\`\`\`text\n${prompt}\n\`\`\`\n\n## Companion files\n\n${resource.files.map(file => `- ${file}`).join('\n')}\n\n## Success receipt\n\nRecord the input/export version and hash, actual source/target, commands, observed result, interventions, failure/recovery and remaining gates. Use YYYY/MM/DD with Australia/Melbourne and UTC. Keep private data out of public evidence.\n`;
+  return `# ${resource.title}\n\n${resource.outcome}\n\nVersion: ${resourceVersion}\nReviewed: 2026/10/24 (Australia/Melbourne)\nSource: https://composer.loftwah.com/resources/${resource.id}\n\n## What you need\n\n${resource.needs}\n\n## Supported scope\n\n${resource.scope}\n\n## Runbook\n\n${resource.steps.map((step, index) => `${index + 1}. ${step}`).join('\n\n')}\n\n## Failure and continuation\n\n${resource.recovery}\n\n## Copyable agent prompt (template)\n\nFill the labelled placeholders or explicitly delegate discoverable details to project inspection. Never add secret values.\n\n\`\`\`text\n${prompt}\n\`\`\`\n\n## Companion files\n\n${resource.files.map(file => `- ${file}`).join('\n')}\n\n## Success receipt\n\nRecord the input/export version and hash, actual source/target, commands, observed result, interventions, failure/recovery and remaining gates. Use YYYY/MM/DD with Australia/Melbourne and UTC. Keep private data out of public evidence.\n`;
 }

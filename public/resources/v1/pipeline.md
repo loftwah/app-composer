@@ -4,7 +4,7 @@ A release sequence that stops on failure and checks the deployed result.
 
 Version: composer.operating-kit/1
 Reviewed: 2026/10/24 (Australia/Melbourne)
-Source: https://composer.loftwah.com/resources?resource=pipeline
+Source: https://composer.loftwah.com/resources/pipeline
 
 ## What you need
 

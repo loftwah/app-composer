@@ -1,8 +1,8 @@
 # Runbooks & resources
 
 Reviewed 2026/10/24. `/resources` selects one of five jobs, with its Markdown and
-copy action immediately available. Selection links contain a fixed resource ID;
-the page collects no private project fields. `/prompts#change` and the other
+copy action immediately available. Each job has its own canonical path, such as `/resources/incident`;
+the page collects no private project fields. Legacy resource-query links redirect to these finite public paths, preserving QA exclusions. The page-share control retains the selected job. `/prompts#change` and the other
 matching fragments personalise the same maintained prompt modules. Without
 JavaScript the complete selected runbook, template and real downloads remain
 available. Clipboard denial opens a selectable complete-text fallback.
@@ -39,7 +39,10 @@ need durable unique claims, authentication, scoped permissions and reconciliatio
 The repository hook is a local feedback aid, not the release gate. Provider
 hooks and agent-host integrations are described only at their actual support.
 
-Remaining #300 acceptance includes independent fresh-agent exported-change and
-incident exercises, dated longitudinal evidence, existing analytics integration,
+[Two actual fresh-agent trials](../labs/resource-evaluation/2026-10-24.md) exercised an
+exported change and incident recovery from the downloaded production kit. Their
+findings are corrected in the maintained examples; the evaluated change and real
+captures now ship in the archive. Remaining #300 acceptance includes separately
+dated longitudinal evidence, existing analytics integration,
 broader host/provider qualification and physical-device/assistive technology
 acceptance. Record browser and production receipts separately in #11.

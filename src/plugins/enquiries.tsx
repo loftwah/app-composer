@@ -1,3 +1,4 @@
+import { EnquiryNotifications } from "./enquiry-notifications";
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
@@ -141,6 +142,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
   const summaryGeneration = useRef(0);
   const resourceRef = useRef("");
   resourceRef.current = resource;
+  const [notificationBusy, setNotificationBusy] = useState(false);
   const [checkedAbsent, setCheckedAbsent] = useState(false);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -165,7 +167,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
   };
   useNavigationGuard({
     changed: Boolean(held),
-    pending: busy,
+    pending: busy || notificationBusy,
     onPending: () =>
       setError("Wait for this private app request before leaving."),
   });
@@ -177,7 +179,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
     };
   }, []);
   async function run(task: () => Promise<void>) {
-    if (pending.current) return;
+    if (pending.current || notificationBusy) return;
     pending.current = true;
     setBusy(true);
     setError("");
@@ -207,6 +209,15 @@ function WorkspaceEnquiries({ search }: { search: string }) {
     setResource(
       (current) =>
         current ||
+        (() => {
+          const values = new URLSearchParams(search).getAll("resource");
+          return values.length === 1 &&
+            reply.resources.some(
+              (row) => row.id === values[0] && row.state === "ready",
+            )
+            ? values[0]
+            : "";
+        })() ||
         reply.resources.find((row) => row.state === "ready")?.id ||
         "",
     );
@@ -578,7 +589,8 @@ function WorkspaceEnquiries({ search }: { search: string }) {
         <h1>Enquiries</h1>
         <p>
           Read a brief, mark it reviewed, or remove it. Guestbook owns the
-          records. No email, reply or notification is sent.
+          records. Notifications are separate from review and start off. No
+          reply is sent.
         </p>
       </header>
       {error && (
@@ -631,7 +643,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
           Visitor book
           <select
             value={resource}
-            disabled={busy || Boolean(held)}
+            disabled={busy || notificationBusy || Boolean(held)}
             onChange={(event) => {
               summaryGeneration.current++;
               setResource(event.target.value);
@@ -659,7 +671,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
           Review state
           <select
             value={status}
-            disabled={busy || Boolean(held)}
+            disabled={busy || notificationBusy || Boolean(held)}
             onChange={(event) => {
               setStatus(event.target.value);
               setPage(1);
@@ -695,6 +707,15 @@ function WorkspaceEnquiries({ search }: { search: string }) {
           This workspace grants read-only stack access. Private submitted briefs
           require an owner or editor membership.
         </p>
+      )}
+      {canRead && workspace && resource && !held && (
+        <EnquiryNotifications
+          key={workspace + ":" + resource}
+          workspace={workspace}
+          resource={resource}
+          disabled={busy}
+          onBusyChange={setNotificationBusy}
+        />
       )}
       {canRead && resource && !held && (
         <section className="ce-summary" aria-labelledby="ce-summary-title">
@@ -872,7 +893,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
                   : status[0].toUpperCase() + status.slice(1) + " briefs"}
               </h2>
               <button
-                disabled={busy || Boolean(held)}
+                disabled={busy || notificationBusy || Boolean(held)}
                 onClick={() => {
                   if (
                     window.confirm(
