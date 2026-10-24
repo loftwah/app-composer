@@ -49,7 +49,7 @@ test("the pinned Wrangler local secret loader chooses dev.vars and its actual en
   write(".env.preview.local", "environment-local");
   assert.equal(load().COMPOSER_FICTIONAL_PRECEDENCE.value, "environment-local");
   unlinkSync(join(root, ".env.preview.local"));
-  // This is the installed 4.143.1 export, not a new application loader. Its
+  // This is the installed 4.152.0 export, not a new application loader. Its
   // environment file overrides .env.local, unlike the currently published
   // ordering on the Cloudflare secrets page. Keep this version-specific.
   assert.equal(load().COMPOSER_FICTIONAL_PRECEDENCE.value, "environment");

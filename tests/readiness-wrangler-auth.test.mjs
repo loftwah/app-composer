@@ -11,7 +11,7 @@ const context=workspace=>({workspace,account,worker:'fictional-hello',repo:'fict
 function fixture(){
  const root=mkdtempSync(join(tmpdir(),'composer-wrangler-auth-'));
  mkdirSync(join(root,'node_modules/wrangler/bin'),{recursive:true});
- writeFileSync(join(root,'node_modules/wrangler/package.json'),JSON.stringify({name:'wrangler',version:'4.143.1',bin:{wrangler:'./bin/wrangler.js'}}));
+ writeFileSync(join(root,'node_modules/wrangler/package.json'),JSON.stringify({name:'wrangler',version:'4.152.0',bin:{wrangler:'./bin/wrangler.js'}}));
  const configure=(identity={loggedIn:true,accounts:[{id:account}]},credential={type:'oauth',token})=>writeFileSync(join(root,'node_modules/wrangler/bin/wrangler.js'),`
  import {appendFileSync} from 'node:fs';
  const args=process.argv.slice(2);

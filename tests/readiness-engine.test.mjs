@@ -46,7 +46,7 @@ test('standalone core resumes through actual adapters instead of trusting saved 
 });
 
 test('reference installation runs before Cloudflare, requires fresh prerequisites and cannot hide a failed install',async()=>{
-  const calls=[],a=adapter({},calls);a.installReferenceTools=async()=>{calls.push('install');return {wrangler:'4.143.1'};};
+  const calls=[],a=adapter({},calls);a.installReferenceTools=async()=>{calls.push('install');return {wrangler:'4.152.0'};};
   const result=await runReadinessSession(createReadinessSession(context()),a,()=>{},{operation:'install-reference-tools'});
   assert.deepEqual(calls,['agent','github','install','cloudflare','https']);assert.equal(result.state,'verified');
   const preparationCalls=[];const prepared=await runReadinessSession(createReadinessSession(context()),{...adapter({github:async()=>{throw new ReadinessFailure('permission');}},preparationCalls),installReferenceTools:async()=>{preparationCalls.push('install');return {changed:true};}},()=>{},{operation:'install-reference-tools'});
@@ -62,16 +62,16 @@ test('a missing workspace installation cannot borrow parent Wrangler or request 
   const parent=mkdtempSync(join(tmpdir(),'composer-tool-probe-'));const workspace=join(parent,'child');
   try{
     mkdirSync(join(parent,'node_modules/wrangler'),{recursive:true});mkdirSync(workspace);
-    writeFileSync(join(parent,'node_modules/wrangler/package.json'),JSON.stringify({name:'wrangler',version:'4.143.1'}));
+    writeFileSync(join(parent,'node_modules/wrangler/package.json'),JSON.stringify({name:'wrangler',version:'4.152.0'}));
     assert.throws(()=>installedWrangler(workspace),error=>error instanceof ReadinessFailure&&error.code==='configuration');
     const check=localChecks({...context(),workspace}).find(check=>check.id==='cloudflare');
     const state={checks:{}};const {runReadinessCheck}=await import('../lib/get-ready/check.mjs');
     await runReadinessCheck(state,check,()=>{});
     assert.equal(state.checks.cloudflare.issue.recovery,'agent-setup');assert.ok(state.checks.cloudflare.action.includes('--install-reference-tools'));
     mkdirSync(join(workspace,'node_modules/wrangler'),{recursive:true});
-    writeFileSync(join(workspace,'node_modules/wrangler/package.json'),JSON.stringify({name:'wrangler',version:'4.143.1',bin:{wrangler:'./bin/wrangler.js'}}));
+    writeFileSync(join(workspace,'node_modules/wrangler/package.json'),JSON.stringify({name:'wrangler',version:'4.152.0',bin:{wrangler:'./bin/wrangler.js'}}));
     assert.throws(()=>installedWrangler(workspace));
-    for(const version of ['0.0.0','4.143.1']){
+    for(const version of ['0.0.0','4.152.0']){
       mkdirSync(join(workspace,'node_modules/wrangler/bin'),{recursive:true});
       writeFileSync(join(workspace,'node_modules/wrangler/bin/wrangler.js'),'// fictional entry, not executed');
       writeFileSync(join(workspace,'node_modules/wrangler/package.json'),JSON.stringify({name:'wrangler',version,bin:{wrangler:'./bin/wrangler.js'}}));
@@ -84,7 +84,7 @@ test('local Wrangler execution is bound to the selected package even when PATH o
   const workspace=mkdtempSync(join(tmpdir(),'composer-local-wrangler-'));
   try{
     mkdirSync(join(workspace,'node_modules/wrangler/bin'),{recursive:true});mkdirSync(join(workspace,'borrowed'));
-    writeFileSync(join(workspace,'node_modules/wrangler/package.json'),JSON.stringify({name:'wrangler',version:'4.143.1',bin:{wrangler:'./bin/wrangler.js'}}));
+    writeFileSync(join(workspace,'node_modules/wrangler/package.json'),JSON.stringify({name:'wrangler',version:'4.152.0',bin:{wrangler:'./bin/wrangler.js'}}));
     writeFileSync(join(workspace,'node_modules/wrangler/bin/wrangler.js'),'console.log("local fixture")');
     writeFileSync(join(workspace,'borrowed/wrangler'),'#!/bin/sh\nprintf "borrowed fixture\\n"\n',{mode:0o755});
     assert.equal(runWorkspaceWrangler(workspace,['--version'],{...process.env,PATH:join(workspace,'borrowed')}),'local fixture');
