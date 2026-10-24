@@ -10,9 +10,18 @@ const readInput = z.object({ action: z.literal('list'), workspace: z.string().re
 interface Runtime { DB?: D1Database; PUBLIC_ORIGIN?: unknown; RESOURCE_ACCOUNT_ID?: unknown; RESOURCE_ENVIRONMENT?: unknown }
 interface User { id: string; role: number; name?: string | null }
 interface Context { input: unknown; user?: User; request: Request }
-interface OrderRow { id: string; workspace_id: string; creation_key: string; installation_account: string; installation_environment: string; revision: number; order_json: string; created_at: string }
+interface OrderRow { id: string; workspace_id: string; creation_key: string; installation_account: string; installation_environment: string; provider: string; provider_account: string; payment_environment: string; proof: string; payment_state: string; revision: number; order_json: string; created_at: string }
 interface ActionRow { id: string; kind: 'create-checkout' | 'prepare-fulfilment'; state: 'prepared' | 'unknown' | 'succeeded' | 'failed'; provider_reference: string | null; revision: number }
 const conflict = () => new StackError('CONFLICT', 'This order, operation or account changed. Refresh its persisted history before continuing.', 409);
+function decodeOrder(row: OrderRow): OrderDocument {
+  const order = orderDocument.parse(JSON.parse(row.order_json));
+  if (order.id !== row.id || order.workspace !== row.workspace_id || order.provider !== row.provider || order.providerAccount !== row.provider_account || order.environment !== row.payment_environment || order.proof !== row.proof || order.payment !== row.payment_state) throw new StackError('UNAVAILABLE', 'The stored order identity or payment scope is inconsistent. No operation was performed; inspect the saved record.');
+  return order;
+}
+function confirmCheckout(order: OrderDocument, actions: ActionRow[]): void {
+  const checkout = actions.find(action => action.kind === 'create-checkout');
+  if (!checkout || checkout.id !== order.attempt.id || checkout.provider_reference !== order.attempt.providerReference) throw new StackError('UNAVAILABLE', 'The stored checkout action does not match this payment attempt. No operation was performed; inspect its retained identity.');
+}
 function installation(runtime: Runtime) {
   if (typeof runtime.RESOURCE_ACCOUNT_ID !== 'string' || !/^[a-zA-Z0-9-]{1,80}$/.test(runtime.RESOURCE_ACCOUNT_ID) || typeof runtime.RESOURCE_ENVIRONMENT !== 'string' || !/^[a-z0-9-]{1,40}$/.test(runtime.RESOURCE_ENVIRONMENT)) throw new StackError('UNAVAILABLE', 'Orders need the selected server account and environment.');
   return { account: runtime.RESOURCE_ACCOUNT_ID, environment: runtime.RESOURCE_ENVIRONMENT };
@@ -33,7 +42,9 @@ async function snapshot(db: D1Database, workspace: { id: string; name: string; r
       db.prepare('SELECT operation,kind,outcome,created_at FROM creator_order_events WHERE order_id=? AND workspace_id=? ORDER BY created_at DESC,operation DESC LIMIT 30').bind(row.id, workspace.id).all<{ operation: string; kind: string; outcome: string; created_at: string }>(),
       db.prepare('SELECT * FROM creator_order_actions WHERE order_id=? AND workspace_id=?').bind(row.id, workspace.id).all<ActionRow>(),
     ]);
-    return { order: orderDocument.parse(JSON.parse(row.order_json)), revision: row.revision, createdAt: row.created_at, events: events.results.map(event => ({ operation: event.operation, kind: event.kind, outcome: event.outcome, createdAt: event.created_at })), actions: actions.results.map(action => ({ id: action.id, kind: action.kind, state: action.state, providerReference: action.provider_reference, revision: action.revision })) };
+    const order = decodeOrder(row);
+    confirmCheckout(order, actions.results);
+    return { order, revision: row.revision, createdAt: row.created_at, events: events.results.map(event => ({ operation: event.operation, kind: event.kind, outcome: event.outcome, createdAt: event.created_at })), actions: actions.results.map(action => ({ id: action.id, kind: action.kind, state: action.state, providerReference: action.provider_reference, revision: action.revision })) };
   }));
   return ordersSnapshot.parse({ ok: true, version: orderVersion, workspace, installation: target, orders, limit: 200, providerConnection: 'not-qualified' });
 }
@@ -41,25 +52,27 @@ async function snapshot(db: D1Database, workspace: { id: string; name: string; r
 async function createFixture(db: D1Database, user: User, workspace: string, target: ReturnType<typeof installation>, command: Extract<z.infer<typeof orderCommand>, { action: 'create-fixture' }>) {
   const existing = await db.prepare('SELECT * FROM creator_orders WHERE workspace_id=? AND creation_key=?').bind(workspace, command.operation).first<OrderRow>();
   if (existing) {
-    const order = orderDocument.parse(JSON.parse(existing.order_json));
+    const order = decodeOrder(existing);
     if (existing.installation_account !== target.account || existing.installation_environment !== target.environment || order.provider !== command.provider || order.fulfilmentOwner !== command.fulfilmentOwner) throw conflict();
     return;
   }
   const attempt = crypto.randomUUID(), id = crypto.randomUUID();
   const order = orderDocument.parse({ version: orderVersion, id, workspace, app: 'fictional-reading-club', checkoutOwner: command.provider === 'shopify' ? 'shopify' : 'custom', provider: command.provider, providerAccount: `fixture-${command.provider}`, environment: 'fixture', proof: 'fixture', title: 'Fictional reading-club guide', amount: 1200, currency: 'AUD', payment: 'unpaid', refundedAmount: 0, attempt: { id: attempt, providerReference: null, observationRevision: 0 }, fulfilmentOwner: command.fulfilmentOwner, fulfilment: 'not-requested' });
   await db.batch([
-    db.prepare(`INSERT OR IGNORE INTO creator_orders (id,workspace_id,creation_key,installation_account,installation_environment,provider,payment_state,order_json) SELECT ?,?,?,?,?,?,?,? WHERE ${authority} AND (SELECT COUNT(*) FROM creator_orders WHERE workspace_id=?)<200`).bind(id, workspace, command.operation, target.account, target.environment, order.provider, order.payment, JSON.stringify(order), workspace, user.id, workspace),
+    db.prepare(`INSERT OR IGNORE INTO creator_orders (id,workspace_id,creation_key,installation_account,installation_environment,provider,provider_account,payment_environment,proof,payment_state,order_json) SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ${authority} AND (SELECT COUNT(*) FROM creator_orders WHERE workspace_id=?)<200`).bind(id, workspace, command.operation, target.account, target.environment, order.provider, order.providerAccount, order.environment, order.proof, order.payment, JSON.stringify(order), workspace, user.id, workspace),
     db.prepare(`INSERT OR IGNORE INTO creator_order_actions(id,workspace_id,order_id,kind,state) SELECT ?,?,?,'create-checkout','prepared' WHERE EXISTS(SELECT 1 FROM creator_orders WHERE id=? AND workspace_id=? AND creation_key=?) AND ${authority}`).bind(attempt, workspace, id, id, workspace, command.operation, workspace, user.id),
   ]);
   const saved = await db.prepare('SELECT * FROM creator_orders WHERE workspace_id=? AND creation_key=?').bind(workspace, command.operation).first<OrderRow>();
   if (!saved) throw new StackError('CONFLICT', 'The fixture was not created. Refresh access and history; the workspace may have reached its 200-order limit.', 409);
-  const savedOrder = orderDocument.parse(JSON.parse(saved.order_json));
+  const savedOrder = decodeOrder(saved);
   if (saved.installation_account !== target.account || saved.installation_environment !== target.environment || savedOrder.provider !== command.provider || savedOrder.fulfilmentOwner !== command.fulfilmentOwner) throw conflict();
 }
 
 async function applyFixture(db: D1Database, user: User, workspace: string, target: ReturnType<typeof installation>, command: Exclude<z.infer<typeof orderCommand>, { action: 'create-fixture' }>) {
   const row = await selectedOrder(db, workspace, command.order, target);
-  const order = orderDocument.parse(JSON.parse(row.order_json));
+  const order = decodeOrder(row);
+  const checkout = await db.prepare("SELECT * FROM creator_order_actions WHERE order_id=? AND workspace_id=? AND kind='create-checkout'").bind(row.id, workspace).first<ActionRow>();
+  confirmCheckout(order, checkout ? [checkout] : []);
   if (order.proof !== 'fixture' || order.environment !== 'fixture' || !order.providerAccount.startsWith('fixture-')) throw new StackError('FORBIDDEN', 'Fixture controls cannot change provider-backed orders.', 403);
   const identity = await digest({ action: command.action, order: command.order, ...(command.action === 'observe-fixture' ? { scenario: command.scenario } : {}) });
   const existing = await db.prepare('SELECT order_id,digest FROM creator_order_events WHERE workspace_id=? AND operation=?').bind(workspace, command.operation).first<{ order_id: string; digest: string }>();

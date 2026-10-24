@@ -124,3 +124,37 @@ test('revocation immediately before the atomic event/action transition leaves no
   const raw = f.sqlite.prepare('SELECT order_json,revision FROM creator_orders').get();
   assert.equal(JSON.parse(raw.order_json).payment, 'unpaid'); assert.equal(raw.revision, 1);
 });
+
+test('corrupt persisted order JSON cannot select another identity, scope, payment or checkout action', async t => {
+  const f = await prepared(t), { view } = await f.create();
+  const original = view.order;
+  const write = order => f.sqlite.prepare('UPDATE creator_orders SET order_json=? WHERE id=?').run(JSON.stringify(order), original.id);
+  const command = () => ({ action: 'observe-fixture', workspace: f.workspace.id, order: original.id, operation: crypto.randomUUID(), expectedRevision: view.revision, scenario: 'payment-paid' });
+  for (const patch of [
+    { id: crypto.randomUUID() }, { workspace: 'fictional-other-workspace' }, { provider: 'paypal' },
+    { providerAccount: 'fixture-foreign-account' }, { environment: 'test', proof: 'sandbox' },
+    { payment: 'paid' }, { attempt: { ...original.attempt, id: crypto.randomUUID() } },
+    { attempt: { ...original.attempt, providerReference: 'fixture-session-not-this-attempt' } },
+  ]) {
+    write({ ...original, ...patch });
+    const read = await f.route({ action: 'list', workspace: f.workspace.id }, true);
+    assert.equal(read.ok, false, JSON.stringify(patch)); assert.equal(read.orders, undefined);
+    assert.equal((await f.route(command())).ok, false);
+    assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM creator_order_events').get().n, 0);
+  }
+  write(original);
+  f.sqlite.prepare('UPDATE creator_order_actions SET id=? WHERE order_id=?').run(crypto.randomUUID(), original.id);
+  assert.equal((await f.route({ action: 'list', workspace: f.workspace.id }, true)).ok, false);
+  assert.equal((await f.route(command())).ok, false);
+  assert.equal(f.sqlite.prepare('SELECT revision FROM creator_orders WHERE id=?').get(original.id).revision, 1);
+});
+
+test('corrupt stored provider scope columns also fail closed against the validated document', async t => {
+  const f = await prepared(t), { view } = await f.create();
+  for (const [column, value] of [['provider_account', 'fixture-other-account'], ['payment_environment', 'test'], ['payment_state', 'paid'], ['proof', 'sandbox']]) {
+    const old = f.sqlite.prepare(`SELECT ${column} AS value FROM creator_orders WHERE id=?`).get(view.order.id).value;
+    f.sqlite.prepare(`UPDATE creator_orders SET ${column}=? WHERE id=?`).run(value, view.order.id);
+    assert.equal((await f.route({ action: 'list', workspace: f.workspace.id }, true)).ok, false);
+    f.sqlite.prepare(`UPDATE creator_orders SET ${column}=? WHERE id=?`).run(old, view.order.id);
+  }
+});

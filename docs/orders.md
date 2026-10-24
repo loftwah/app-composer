@@ -62,6 +62,10 @@ not webhook arrival order or a guessed Stripe event sequence.
 
 An event, corresponding action and current order revision update in one D1 batch.
 SQL predicates recheck membership and expected revision at the write boundary.
+Every decoded document must also match its SQL order/workspace/provider/account,
+payment environment, proof and payment-state columns. The checkout action's
+identity/reference must match the exact payment attempt; corrupt stored JSON
+fails closed on both read and mutation.
 Replaying an identical operation returns its saved result; changing its payload
 under the same identity conflicts. An uncertain action must be reconciled before
 repetition. No automatic retry of unknown financial effects exists.

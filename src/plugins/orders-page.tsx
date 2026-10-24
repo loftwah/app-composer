@@ -82,7 +82,7 @@ export function Orders({ search }: { search: string }) {
     <div className="or-heading"><div><h1>Orders</h1><p>Inspect payment, fulfilment and the next safe action.</p></div><button type="button" disabled={busy || invalidScope.current} onClick={() => void run('list', {}, 'Saved orders and operation history refreshed.')}>Refresh</button></div>
     <p className="or-scope">{snapshot ? <>Workspace <strong>{snapshot.workspace.name}</strong> · {snapshot.workspace.role} · installation <strong>{snapshot.installation.environment}</strong></> : 'Confirming the selected workspace…'}</p>
     <p className="or-proof"><strong>Fictional order lab. No merchant is connected.</strong> These records exercise the shared order and recovery contract. They are fixture proof, with no hosted provider checkout, webhook verification or financial transaction.</p>
-    <div className="or-links"><a href="/prompts#stripe">Prepare Stripe sandbox setup</a><a href="/prompts#shopify">Prepare a Shopify connection</a><a href="/_emdash/admin/composer-stacks/workspaces">Workspace access</a></div>
+    <div className="or-links"><a href="/prompts#stripe">Prepare Stripe sandbox setup</a><a href="/prompts#shopify">Prepare a Shopify connection</a><a href="/_emdash/admin/plugins/composer-stacks/workspaces">Workspace access</a></div>
     {error && <p className="or-error" role="alert">{error}</p>}
     <p className="or-status" role="status">{busy ? 'Checking the saved order and operation…' : notice}</p>
     {snapshot && <>
