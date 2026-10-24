@@ -34,7 +34,9 @@ this branch, not generated artwork or production claims.
 | `after-text200-dark-{1440,390}-fold.png` | `/` after, 32px root font | 1440/390 | dark |
 
 Full-page captures use JPEG to keep the evidence bounded; first-viewport
-captures stay PNG so text edges and focus rings are legible.
+captures stay PNG so text edges and focus rings are legible. Lazy images were
+switched to eager and decoded before each full-page shot, because a full-page
+screenshot does not wait for an image that has never entered the viewport.
 
 ## Measured change
 
