@@ -19,11 +19,16 @@ test("the pinned Wrangler local secret loader chooses dev.vars and its actual en
     assert.equal(existsSync(root), false);
   });
   const previous = process.env.CLOUDFLARE_INCLUDE_PROCESS_ENV;
+  const previousLoad = process.env.CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV;
   process.env.CLOUDFLARE_INCLUDE_PROCESS_ENV = "false";
+  process.env.CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV = "true";
   t.after(() => {
     if (previous === undefined)
       delete process.env.CLOUDFLARE_INCLUDE_PROCESS_ENV;
     else process.env.CLOUDFLARE_INCLUDE_PROCESS_ENV = previous;
+    if (previousLoad === undefined)
+      delete process.env.CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV;
+    else process.env.CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV = previousLoad;
   });
   const write = (name, value) =>
     writeFileSync(
