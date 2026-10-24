@@ -1,12 +1,17 @@
 {
   "version": "composer.operating-kit/1",
-  "bytes": 530559,
-  "sha256": "4c9a9ecb73d9db65350727f0b11d6addc00db6500edc89a1c70a73ae7e7c81c1",
+  "bytes": 731068,
+  "sha256": "e2833ee68ad8a0abd61d5e584007f6ef7dd4e1cd857f7230110969c3b4eb9e2b",
   "files": [
     {
       "name": "change-og.png",
       "bytes": 42416,
       "sha256": "b37155afba96fe93f53d1512af420083afea1aa3eaa44842af0d298391608195"
+    },
+    {
+      "name": "change-portrait-20261024.png",
+      "bytes": 63028,
+      "sha256": "26c2c04b665d95f0033d078bb18921d9c2cbc2f4b5d31026f5e6ec5a5aab37b9"
     },
     {
       "name": "change-release.mmd",
@@ -19,9 +24,14 @@
       "sha256": "06cd0294a4cc65871510c989f74cb26dd095dd7c9a909d7258221b74762d6d23"
     },
     {
+      "name": "change-square-20261024.png",
+      "bytes": 50890,
+      "sha256": "8b0413fa6732e430bf6619c056295354283caef1870a9725fe42c788cc1e7cd0"
+    },
+    {
       "name": "change.md",
-      "bytes": 3492,
-      "sha256": "57d2a844db7b8ef91b24bc1ce4ec2cf2351ca18c05810eb70f77e8cc96a986b5"
+      "bytes": 3552,
+      "sha256": "a5f4f032f2b413e8705facf4c87c53dd58a49f9e7fb8118aba91eeea1d327a9b"
     },
     {
       "name": "composer-mark.png",
@@ -144,6 +154,11 @@
       "sha256": "e2f2bd71be982771328eabcf13a136113117667409cfc6ff2c2b62ec84ab88fe"
     },
     {
+      "name": "incident-portrait-20261024.png",
+      "bytes": 60268,
+      "sha256": "d85510798a68bf4d500af2badc4e9a4ea9f47c62779df04a74c7d0f9aa04de26"
+    },
+    {
       "name": "incident-response.mmd",
       "bytes": 135,
       "sha256": "789eca93f3a0bfdabe695aea77b75a7fe4556009db47e39befe0fc49fc9710d1"
@@ -154,9 +169,14 @@
       "sha256": "fba735e0684870a747e6b67c5bfda6e49b083455c9498f9045a32804c6f8dc27"
     },
     {
+      "name": "incident-square-20261024.png",
+      "bytes": 50191,
+      "sha256": "a0765ca5b8cb2cbcb8f8f179f8f6522e171867b9da1f2f6de369c12177630448"
+    },
+    {
       "name": "incident.md",
-      "bytes": 3782,
-      "sha256": "fa224f1b8375d329cdaacceeec0aa2b1486c3dc6c198e5853b7691d77176fa87"
+      "bytes": 3846,
+      "sha256": "6dd7fb7e70f00a04e5a5bd9bf4ab10f7edf762b00fad9460af9a93f160f396c6"
     },
     {
       "name": "INDEX.md",
@@ -207,6 +227,16 @@
       "name": "resources-square.png",
       "bytes": 48243,
       "sha256": "91809ea9db5dc93c1cd4caaea35b4a6d65a9121f0055ebd8cc1e584a065309f4"
+    },
+    {
+      "name": "share-artwork-20261024.json",
+      "bytes": 4051,
+      "sha256": "5ad77a5b5e2f2c006619d2a3ba518e03a260267c1440679931e6dcd8222ce79d"
+    },
+    {
+      "name": "share-artwork-20261024.py",
+      "bytes": 3786,
+      "sha256": "2fd2bb466930af76e861881116ac281dff2c8f1ea762800c045ebae23de67437"
     },
     {
       "name": "templates/emergency-change.md",

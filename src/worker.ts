@@ -4,6 +4,7 @@ import {protectAdministration,type AccessRuntime} from './lib/access-boundary.mj
 import {collect,record,purge} from '../lib/usage/index.mjs';
 import {health,pageEvent,postcardReceiptEvent} from '../lib/usage/publisher.mjs';
 import {usageSummary} from './lib/usage';
+import {collectResourceAction,resourceActionSummary,purgeResourceActions} from './lib/resource-actions';
 import {portfolioWindow,portfolioSummary} from '../lib/usage/portfolio.mjs';
 import build from './lib/build.json';
 import {publicFilmAsset} from './lib/public-film-assets';
@@ -21,6 +22,8 @@ const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runti
  const navigation=builderNavigationRedirect(request);if(navigation)return navigation;
  const path=new URL(request.url).pathname;
  const probe=health(request,'/healthz','app-composer',build.commit);if(probe)return probe;
+ if(path==='/api/resource-actions')return collectResourceAction(request,runtime);
+ if(path==='/api/resource-summary')return resourceActionSummary(request,runtime);
  if(path==='/api/portfolio-analytics'){
   if(request.method!=='GET')return new Response(null,{status:405,headers:{Allow:'GET'}});
   const now=new Date();const params=new URL(request.url).searchParams;let period;try{period=portfolioWindow(params,now);}catch{return Response.json({error:'invalid_parameters'},{status:400,headers:{'Cache-Control':'no-store'}});}
@@ -37,6 +40,7 @@ const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runti
 const cmsScheduled=createScheduledHandler();
 export default {...handler,fetch:guardedFetch,scheduled:async(controller:ScheduledController,runtime:Runtime,context:ExecutionContext)=>{
  const date=new Date(controller.scheduledTime);
+ if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(purgeResourceActions(runtime.DB,date).catch(()=>{console.error('Resource count retention unavailable');}));
  if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(purge(runtime.DB,date).catch(()=>{console.error('Daily count retention unavailable');}));
  if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(purgePrivateOutcomes(runtime.DB,date).catch(()=>{console.error('Private outcome retention unavailable');}));
  return cmsScheduled(controller,runtime,context);

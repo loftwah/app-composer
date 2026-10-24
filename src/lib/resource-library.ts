@@ -15,7 +15,7 @@ export const resources = [
       'Review the final diff against the starting revision. Use the authorised release path, verify the affected journey on the actual target, and record exact source, environment, result and remaining gates.',
     ],
     recovery: 'Keep the current diff and failing command. Resume from the last verified step after reconciling source and target. A code rollback does not restore deleted data or configuration.',
-    files: ['change-release.mmd', 'change-release.svg', 'examples/guarded-pipeline.mjs', 'templates/emergency-change.md', 'examples/field-notes-example.md', 'examples/field-notes-about.patch', 'examples/field-notes-mobile-about.png'],
+    files: ['change-square-20261024.png', 'change-portrait-20261024.png', 'change-release.mmd', 'change-release.svg', 'examples/guarded-pipeline.mjs', 'templates/emergency-change.md', 'examples/field-notes-example.md', 'examples/field-notes-about.patch', 'examples/field-notes-mobile-about.png'],
   },
   {
     id: 'incident', title: 'Handle an incident', label: 'Incident',
@@ -30,7 +30,7 @@ export const resources = [
       'Independently rerun the original journey and a related negative case. Record recovery or continued failure, exact source/configuration, timeline, interventions and follow-up. A healthy process alone does not prove the user journey recovered.',
     ],
     recovery: 'If the result is uncertain, do not repeat the mutation. Inspect its persisted identity and target state first. Escalate only the unavailable permission or capability, with a concise evidence handover.',
-    files: ['incident-response.mmd', 'incident-response.svg', 'examples/synthetic-incident.mjs', 'templates/incident-handover.md', 'templates/post-incident-review.md'],
+    files: ['incident-square-20261024.png', 'incident-portrait-20261024.png', 'incident-response.mmd', 'incident-response.svg', 'examples/synthetic-incident.mjs', 'templates/incident-handover.md', 'templates/post-incident-review.md'],
   },
   {
     id: 'pipeline', title: 'Set up or repair a pipeline', label: 'Pipeline',
