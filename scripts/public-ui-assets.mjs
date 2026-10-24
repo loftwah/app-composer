@@ -42,6 +42,8 @@ const appPackages = new Set([
   'app-composer-hello',
   '@loftwah/composer-linkcheck',
   'app-composer-state',
+  'app-composer-launch-kit',
+  'app-composer-paperwork',
 ]);
 
 function regular(path, directory = false) {
@@ -52,10 +54,10 @@ function regular(path, directory = false) {
   return stat;
 }
 
-export function maintainPublicUiAssets(directories, { write = false } = {}) {
+export function maintainPublicUiAssets(directories, { write = false, launcherOnly = false } = {}) {
   if (!directories.length) throw Error('Select at least one absolute app checkout path.');
   launcherAsset();
-  const sources = publicUiFiles.map(name => {
+  const sources = publicUiFiles.filter(name => !launcherOnly || name.startsWith('launcher.') || versionedAssets.has(name)).map(name => {
     const path = join(sourceDirectory, name);
     regular(path);
     const bytes = readFileSync(path);
@@ -120,9 +122,11 @@ export function maintainPublicUiAssets(directories, { write = false } = {}) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try {
-    const [mode, ...directories] = process.argv.slice(2);
+    const [mode, ...selected] = process.argv.slice(2);
+    const launcherOnly = selected[0] === '--launcher-only';
+    const directories = launcherOnly ? selected.slice(1) : selected;
     if (!['--check', '--write'].includes(mode)) throw Error('Use --check or --write followed by absolute app checkout paths.');
-    const results = maintainPublicUiAssets(directories, { write: mode === '--write' });
+    const results = maintainPublicUiAssets(directories, { write: mode === '--write', launcherOnly });
     for (const item of results) console.log((item.changed ? (mode === '--write' ? 'Updated ' : 'Differs ') : 'Matches ') + item.path);
     if (mode === '--check' && results.some(item => item.changed)) process.exitCode = 1;
   } catch (error) {

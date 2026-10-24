@@ -72,9 +72,17 @@ Check is read-only and exits nonzero for different bytes. Write preflights every
 
 The same explicit operation distributes `space-latin-20261018.woff2`, all five `apps/*-small-20261018.webp` identities and `composer-icon-20261022b-96.png`. Their exact reviewed SHA-256 identities are pinned in the maintainer. Missing versioned files may be created; an existing file with different bytes is refused before any selected destination is changed. Every parent directory must already exist and be unlinked. New font/pixel content requires a new filename, source hash and consumer update. The command has no default app paths and never touches owner image settings. Link Check retains its app-owned font location under `public/`; the other apps use `public/brand/`. Active CSS/preload/launcher references remain reviewed app-owned source.
 
+Launch Kit and Paperwork use the same locally committed launcher files. Their explicit maintenance command leaves app-specific sharing/theme files alone:
+
+```sh
+pnpm ui:assets --write --launcher-only /absolute/launch-kit-checkout /absolute/paperwork-checkout
+```
+
+Check with the same paths and `--check --launcher-only`. This mode distributes only launcher JS/CSS and the seven reviewed font/identity assets. Shell markup must still supply the heading, search, status and illustrated destination rows below, load the local script as a classic deferred script, and define its local Space font face. Renderer-only automation pages are excluded.
+
 ### Launcher markup and maintenance contract
 
-All six shells use the same local launcher assets. The shipped consumers are Guestbook (`public/brand`), Showcase (`public/brand`), Hello (`public/brand`), State (`public/brand`) and Link Check (`public/brand`), plus Composer itself. Guestbook/Showcase use their existing mount prefix for both assets, so the same source serves `/guestbook/` and `/showcase/`; exact composition pins and independent app releases remain required.
+All eight shells use the same local launcher assets. The shipped consumers are Guestbook (`public/brand`), Showcase (`public/brand`), Hello (`public/brand`), State (`public/brand`) and Link Check (`public/brand`), plus Launch Kit, Paperwork and Composer itself. Guestbook/Showcase use their existing mount prefix for both assets, so the same source serves `/guestbook/` and `/showcase/`; exact composition pins and independent app releases remain required.
 
 The markup consists of `[data-open-apps]` (a button with `aria-haspopup="dialog"`), `dialog#app-navigation` with a labelled heading, a first `[data-close-apps]` button with `autofocus`, a labelled `input[type=search]`, `[role=status]`, and `ul > li[data-destination] > a` destinations. Optional images and `span > small` supply aligned artwork and descriptions. Each shell supplies `data-composer-home` on the dialog: Composer uses `/`, and an independent app selects the Composer instance it links to. The shared controller builds the same local branded header, Composer home link, All apps footer, app ordering, task descriptions and studio shortcuts. The logo is resolved beside that shell’s local launcher script, including mounted prefixes. App destinations remain the authored links; studio links resolve against the selected Composer home. Mark known current-app links with `aria-current="page"`; otherwise exact same-origin paths are detected. Missing images keep their alignment space; text-only tasks use the full row. Destinations, app access boundaries, theme storage, galleries and owner settings remain local.
 
