@@ -5,6 +5,7 @@ if (root) {
   const drafts: Record<string, PromptValues> = {};
   let selected = '';
   let sharedProject = '';
+  let copyGeneration = 0;
   const get = <T extends HTMLElement>(selector: string) => root.querySelector<T>(selector)!;
   const all = <T extends HTMLElement>(selector: string) => [...root.querySelectorAll<T>(selector)];
   const search = get<HTMLInputElement>('#prompt-search');
@@ -20,6 +21,7 @@ if (root) {
     return result;
   }
   function select(id: string, focus: boolean) {
+    copyGeneration++;
     if (!promptModule(id)) id = 'setup';
     selected = id;
     for (const article of all<HTMLElement>('[data-prompt-job]')) article.hidden = article.dataset.promptJob !== id;
@@ -52,7 +54,11 @@ if (root) {
       const id = form.dataset.promptFields!;
       for (const field of form.querySelectorAll<HTMLTextAreaElement>('textarea')) field.value = drafts[id]?.[field.name] ?? '';
     }
-    showPreview(selected);
+    for (const item of promptModules) {
+      showPreview(item.id);
+      get<HTMLElement>(`[data-manual="${item.id}"]`).hidden = true;
+      get<HTMLElement>(`[data-copy-status="${item.id}"]`).textContent = '';
+    }
   }
   function validCompleted(id: string) {
     const result = showPreview(id);
@@ -65,14 +71,17 @@ if (root) {
     return result;
   }
   async function copy(id: string, template: boolean) {
+    const generation = ++copyGeneration;
     const result = template ? showPreview(id, true) : validCompleted(id);
     if (!result) return;
     const copyStatus = get<HTMLElement>(`[data-copy-status="${id}"]`);
     try {
       await navigator.clipboard.writeText(result.text);
+      if (generation !== copyGeneration) return;
       copyStatus.textContent = template ? 'Template copied. Replace its bracketed details in your agent.' : 'Prompt copied. Paste it into your agent to begin.';
       get<HTMLElement>(`[data-manual="${id}"]`).hidden = true;
     } catch {
+      if (generation !== copyGeneration) return;
       copyStatus.textContent = 'Your browser could not copy this. Select the complete prompt below and copy it manually.';
       get<HTMLElement>(`[data-manual="${id}"]`).hidden = false;
       const manual = get<HTMLTextAreaElement>(`[data-manual="${id}"] textarea`);
@@ -84,6 +93,7 @@ if (root) {
   for (const form of all<HTMLFormElement>('[data-prompt-fields]')) {
     form.addEventListener('submit', event => event.preventDefault());
     form.addEventListener('input', event => {
+      copyGeneration++;
       const field = event.target;
       if (!(field instanceof HTMLTextAreaElement)) return;
       const id = form.dataset.promptFields!;
