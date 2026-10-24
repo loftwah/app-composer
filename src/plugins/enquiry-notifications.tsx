@@ -3,7 +3,7 @@ import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
 import { z } from "zod";
 import { enquiryID, enquiryIntent } from "../lib/enquiry-protocol";
 import { confirmWorkspace } from "./stacks/workspace-scope";
-import { focusStoredRecord } from './record-anchor';
+import { focusStoredRecord } from "./record-anchor";
 const replySchema = z
   .object({
     ok: z.literal(true),
@@ -76,7 +76,8 @@ export function EnquiryNotifications({
     pending = useRef(false);
   const anchorFocused = useRef(false);
   useEffect(() => {
-    if (reply && !anchorFocused.current) anchorFocused.current = focusStoredRecord('notification-');
+    if (reply && !anchorFocused.current)
+      anchorFocused.current = focusStoredRecord("notification-");
   }, [reply]);
   async function call(
     action = "notificationStatus",

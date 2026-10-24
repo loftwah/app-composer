@@ -7,7 +7,10 @@ import {
   requireCapability,
   StackError,
 } from "./stacks.mjs";
-import { overviewSnapshot, type OverviewSnapshot } from "./overview-contract.ts";
+import {
+  overviewSnapshot,
+  type OverviewSnapshot,
+} from "./overview-contract.ts";
 const origin = "https://composer.loftwah.com";
 const select = z
   .object({
@@ -143,10 +146,11 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
           label,
           status: "checked",
           count: n,
-          atLimit: n >= (id === 'notifications' ? 100 : 50),
-          note: id === 'notifications'
-            ? "Only the latest 30 notification records shown per visitor book, up to 100 matching records in total. Older problems may remain. Provider health and the live application are not checked."
-            : "Only problems among the latest 50 records shown in the owning screen. Older retained problems may remain. Provider health and the live application are not checked.",
+          atLimit: n >= (id === "notifications" ? 100 : 50),
+          note:
+            id === "notifications"
+              ? "Only the latest 30 notification records shown per visitor book, up to 100 matching records in total. Older problems may remain. Provider health and the live application are not checked."
+              : "Only problems among the latest 50 records shown in the owning screen. Older retained problems may remain. Provider health and the live application are not checked.",
         });
         items.push(...found);
       } catch {
@@ -204,7 +208,14 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
         .prepare(
           "SELECT id,recipe,source_id,created_at,updated_at FROM creator_workflow_runs WHERE workspace_id=? AND account_id=? AND environment=? AND synthetic=0 AND state='needs-attention' AND id IN (SELECT id FROM creator_workflow_runs WHERE workspace_id=? AND account_id=? AND environment=? ORDER BY created_at DESC,id DESC LIMIT 50) ORDER BY updated_at DESC,id LIMIT 50",
         )
-        .bind(workspace.id, target.account, target.environment, workspace.id, target.account, target.environment)
+        .bind(
+          workspace.id,
+          target.account,
+          target.environment,
+          workspace.id,
+          target.account,
+          target.environment,
+        )
         .all<BaseRow & { recipe: string; source_id: string }>();
       return group(
         rows.results,
