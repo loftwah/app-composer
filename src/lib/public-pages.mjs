@@ -5,7 +5,7 @@ export const publicPagePaths = Object.freeze([
   '/roles', '/roles/service-owner', '/roles/programmer', '/roles/architect', '/roles/devops', '/roles/security', '/roles/qa',
   '/discover', '/for/creator', '/for/small-business', '/for/developer', '/for/designer', '/explore', '/demo', '/docs', '/architecture', '/guide',
   '/catalogue', '/apps', '/activity', '/review', '/privacy', '/release',
-  '/extension', '/state', '/php2shell', '/studio', '/manage', '/building',
+  '/extension', '/state', '/php2shell', '/studio', '/manage', '/building', '/effect',
   '/launch-kit', '/paperwork', '/init/paperwork', '/platform', '/platform/demo',
 ]);
 

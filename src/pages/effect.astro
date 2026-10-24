@@ -1,0 +1,164 @@
+---
+import Base from '../layouts/Base.astro';
+import EffectRunDemo from '../components/EffectRunDemo.tsx';
+import traceJson from '../lib/effect/run-trace.json';
+import { LINKCHECK_COMMIT, linkcheckSource, outcomeLine } from '../lib/effect/linkcheck.mjs';
+
+const trace = traceJson as unknown as {
+  engine: { effect: string; module: string; tests: string };
+  scenarios: {
+    id: string;
+    name: string;
+    script: string;
+    outcome: { kind: string; code?: string; report?: { status: string } };
+    observed: { inspectorCalls: number };
+  }[];
+};
+const title = 'See a safe release check run';
+const description =
+  'Watch five runs recorded from Link Check’s Effect 4 batch check: permission before reads, two reads at a time, one bounded retry and an honest uncertain result when an origin stops answering.';
+const shareImage = 'https://composer.loftwah.com/brand/effect/effect-batch-20261024.png';
+const shareAlt =
+  'Dark App Composer panel titled “A release check that stops on purpose”, with three verified pages and a synthetic-demo label.';
+---
+<Base
+  title={title}
+  description={description}
+  canonical="https://composer.loftwah.com/effect"
+  shareImage={shareImage}
+  shareAlt={shareAlt}
+  shareType="image/png"
+  shareWidth={1200}
+  shareHeight={630}
+>
+  <div class="effect-head">
+    <p class="effect-head-kicker">Link Check · recorded run · {trace.engine.effect}</p>
+    <h1>See a safe release check run.</h1>
+    <p class="lede">Before sharing a page, Link Check reads it. This page replays five runs recorded from the batch check it actually uses: what is refused before any request, what a stalled origin does to the other pages, and what the operator can act on afterwards.</p>
+    <p class="small">Every number comes from executing Link Check’s code with scripted origins. The page makes no network request and is not a live inspection.</p>
+  </div>
+
+  <EffectRunDemo client:visible />
+
+  <section class="effect-notes" aria-labelledby="effect-guarantees-title">
+    <h2 id="effect-guarantees-title">What the run guarantees</h2>
+    <ul class="effect-guarantees">
+      <li><strong>Permission before reads.</strong> The reviewed host list and duplicate page identities are checked first. A refused batch attempts zero reads.</li>
+      <li><strong>Two reads at a time.</strong> A release check never opens more than four targets or two in-flight requests, and each attempt has its own time budget.</li>
+      <li><strong>One retry, only for reads.</strong> Timeouts, 429s, 5xx and connection errors may be repeated once. A 404, a wrong media type or a denied host is not retried.</li>
+      <li><strong>Uncertain is not a pass.</strong> A page that never answers stays <em>uncertain</em> in the report, while the pages that did answer keep their evidence.</li>
+    </ul>
+  </section>
+
+  <details class="effect-details">
+    <summary>Built with Effect 4</summary>
+    <div class="effect-details-body">
+      <p>The batch runner decodes a versioned request with an Effect <code>Schema</code>, then resolves the reviewed scope and inspector through a <code>Layer</code>. Tests replace that layer to revoke a host, stall a read, inject a defect or count calls without touching the network.</p>
+      <p>The inspection itself stays the existing Effect effect: a typed failure channel, a 12-second <code>timeoutOrElse</code>, and <code>tryPromise</code> receiving an <code>AbortSignal</code>. When the timeout wins, the fiber is interrupted and that fetch is aborted; interrupting the batch does the same for reads in flight. A single retry is allowed only when the failure says a repeat read could help.</p>
+      <p>Per-page outcomes are values, not exceptions: one page failing cannot discard another page’s findings. The Worker maps refusals to 400 or 403 and returns a completed report as 200 even when a page inside it failed.</p>
+      <p class="effect-details-links">
+        <a href={linkcheckSource(trace.engine.module)}>Batch runner</a>
+        <a href={linkcheckSource(trace.engine.tests)}>Runner tests</a>
+        <a href={linkcheckSource('src/inspection.ts')}>Inspection code</a>
+        <a href={linkcheckSource('docs/effect/run-trace.json')}>Recorded trace</a>
+        <a href="https://effect.website/docs/v4/onboarding">Effect 4 documentation</a>
+      </p>
+    </div>
+  </details>
+
+  <section class="effect-next" aria-labelledby="effect-next-title">
+    <h2 id="effect-next-title">Optional by design.</h2>
+    <p>App Composer’s own pages are Astro and TypeScript. This one imports a JSON trace at build time and has no Effect dependency. Link Check opts in where typed failures, interruption and bounded concurrency earn it; another app can start with plain TypeScript and add Effect for one workflow later.</p>
+    <p class="effect-next-links"><a href="https://share.loftwah.com/">Open Link Check</a> · <a href="/apps">The independent apps</a> · <a href="/architecture">How the platform fits together</a> · <a href={`https://github.com/loftwah/app-composer-linkcheck/commit/${LINKCHECK_COMMIT}`}>Link Check commit {LINKCHECK_COMMIT.slice(0, 7)}</a></p>
+  </section>
+
+  <details class="effect-table-details">
+    <summary>All five recorded results, without JavaScript</summary>
+    <div class="table-wrap">
+      <table>
+        <caption>Recorded by executing <code>{trace.engine.module}</code> with scripted inspectors. No reads reached the network.</caption>
+        <thead>
+          <tr><th scope="col">Run</th><th scope="col">Scripted origin</th><th scope="col">Result</th><th scope="col">Reads</th></tr>
+        </thead>
+        <tbody>
+          {trace.scenarios.map((scenario) => (
+            <tr>
+              <th scope="row">{scenario.name}</th>
+              <td>{scenario.script}</td>
+              <td>{outcomeLine(scenario)}</td>
+              <td>{scenario.observed.inspectorCalls}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <p class="effect-boundary small">The recorded runs demonstrate Link Check’s request handling and classification. They do not prove a production release, a real origin’s behaviour, platform unfurls or that other apps should adopt Effect. Link Check’s own release checks remain the evidence for its deployment.</p>
+</Base>
+
+<style>
+  .effect-head { max-width: 900px; }
+  .effect-head-kicker {
+    margin: 0;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .effect-head h1 {
+    font-size: clamp(2.5rem, 5.4vw, 4.6rem);
+    max-width: 17ch;
+    margin: 12px 0 20px;
+  }
+  .effect-head .lede { max-width: 62ch; font-size: 1.18rem; }
+  .effect-head .small { max-width: 74ch; }
+
+  .effect-notes {
+    margin: 44px 0 0;
+    padding: 28px 0;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .effect-notes h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); margin: 0 0 20px; }
+  .effect-guarantees {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 40px;
+    max-width: none;
+  }
+  .effect-guarantees li {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--color-muted);
+    border-top: 1px solid var(--color-border);
+    padding-top: 14px;
+  }
+  .effect-guarantees strong { display: block; color: var(--color-foreground); margin-bottom: 4px; }
+
+  .effect-details { margin: 30px 0; border-bottom: 1px solid var(--color-border); }
+  .effect-details summary { font-size: 1.05rem; }
+  .effect-details-body { max-width: 80ch; }
+  .effect-details-body p { font-size: 0.95rem; }
+  .effect-details-links { display: flex; flex-wrap: wrap; gap: 10px 26px; font-size: 0.95rem; }
+  .effect-details-links a { min-height: 44px; display: inline-flex; align-items: center; }
+
+  .effect-next { max-width: 80ch; margin: 34px 0; }
+  .effect-next h2 { font-size: clamp(1.7rem, 3.2vw, 2.3rem); }
+  .effect-next-links { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+
+  .effect-table-details { margin: 30px 0; }
+  .effect-table-details caption { text-align: left; caption-side: bottom; padding-top: 12px; }
+  .effect-table-details table { min-width: 720px; }
+  .effect-table-details th[scope="row"] { font-weight: 600; white-space: nowrap; }
+  .effect-boundary { max-width: 88ch; margin-top: 30px; }
+
+  @media (max-width: 760px) {
+    .effect-guarantees { grid-template-columns: 1fr; gap: 14px; }
+    .effect-details-links { gap: 4px 20px; }
+  }
+</style>

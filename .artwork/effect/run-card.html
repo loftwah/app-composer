@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face {
+        font-family: Space;
+        src: url("../../public/brand/space-latin-20261018.woff2") format("woff2");
+        font-display: block;
+        font-weight: 300 700;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+      body {
+        background: #17181b;
+        color: #f2f3f5;
+        font-family: Space, system-ui, sans-serif;
+      }
+      .stage {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        padding: 54px 64px 44px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-top: 8px solid #fc5b05;
+      }
+      .top { display: flex; align-items: center; gap: 18px; }
+      .mark { width: 56px; height: 56px; border-radius: 12px; display: block; }
+      .kicker {
+        font-size: 19px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #afb3bb;
+      }
+      .kicker strong { color: #fc5b05; font-weight: 600; }
+      h1 {
+        margin: 26px 0 0;
+        font-size: 84px;
+        line-height: 0.98;
+        letter-spacing: -0.035em;
+        font-weight: 500;
+        max-width: 900px;
+      }
+      h1 span { color: #fc5b05; }
+      .rows { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin-top: 34px; }
+      .row { border-top: 1px solid #464a52; padding-top: 14px; }
+      .row dt { font-size: 17px; letter-spacing: 0.08em; text-transform: uppercase; color: #afb3bb; }
+      .row dd { margin: 8px 0 0; font-size: 34px; font-weight: 500; letter-spacing: -0.02em; }
+      .row dd small { display: block; font-size: 16px; font-weight: 400; letter-spacing: 0; color: #afb3bb; margin-top: 4px; }
+      .foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 24px;
+        border-top: 1px solid #464a52;
+        padding-top: 16px;
+        font-size: 18px;
+        color: #afb3bb;
+      }
+      .synthetic {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: #f2f3f5;
+        border: 1px solid #747a85;
+        border-radius: 999px;
+        padding: 7px 14px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .synthetic i { width: 9px; height: 9px; border-radius: 50%; background: #fc5b05; display: block; }
+      .foot span:last-child { font-weight: 600; color: #f2f3f5; }
+    </style>
+  </head>
+  <body>
+    <div class="stage">
+      <div>
+        <div class="top">
+          <img class="mark" src="../../public/brand/composer-icon-tile-20261022b.svg" alt="" />
+          <p class="kicker">App Composer · <strong>Link Check</strong> · Effect 4</p>
+        </div>
+        <h1>Three pages checked.<br /><span>Two at a time.</span></h1>
+        <dl class="rows">
+          <div class="row"><dt>Verified</dt><dd>3 pages<small>in one bounded run</small></dd></div>
+          <div class="row"><dt>Concurrency</dt><dd>2 reads<small>never more in flight</small></dd></div>
+          <div class="row"><dt>Retry budget</dt><dd>1 repeat<small>read-only failures</small></dd></div>
+        </dl>
+      </div>
+      <div class="foot">
+        <p class="synthetic"><i></i>Recorded demo · synthetic · no live inspection</p>
+        <span>composer.loftwah.com/effect</span>
+      </div>
+    </div>
+  </body>
+</html>
