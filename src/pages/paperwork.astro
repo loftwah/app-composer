@@ -3,7 +3,13 @@ import Base from '../layouts/Base.astro';
 import source from '../../lib/paperwork/source.json';
 const editor=source.origin;
 ---
-<Base title="Paperwork — Fill, draw, sign and print" description="A browser-local PDF editor. Fill the actual fields, write on scanned forms, add your signature and save or print one completed PDF.">
+<Base
+  shareImage="https://composer.loftwah.com/paperwork/share-20261024.png"
+  shareAlt="Paperwork: Fill it. Sign it. Get on with your day. An orange stamp press on charcoal."
+  shareType="image/png"
+  shareWidth={1200}
+  shareHeight={630}
+  title="Paperwork — Fill and sign PDFs" description="A browser-local PDF editor. Fill the actual fields, write on scanned forms, add your signature and save or print one completed PDF.">
 <div class="paperwork-intro">
   <div>
     <h1>A form shouldn’t need a printer and scanner.</h1>
@@ -19,7 +25,7 @@ const editor=source.origin;
     <img src="/paperwork/press-20261024.webp" width="1152" height="768" alt="An orange stamp press and pencil arm put ink and a tick on a form."/>
   </figure>
 </div>
-<figure><a href={editor}><img class="editor-preview" src="/paperwork/editor-20261024-printshop.webp" width="1440" height="1100" alt="Actual deployed Paperwork editor with the fictional mixed form, added text, ink, highlight and demo PNG signature."/></a><figcaption>Working editor, captured 24 October 2026 with the owner-supplied synthetic acceptance form.</figcaption></figure>
+<figure><a href={editor}><img class="editor-preview" src="/paperwork/editor-20261024-compact.webp" width="1440" height="1100" alt="Actual deployed Paperwork editor with the fictional mixed form, added text, ink, highlight and demo PNG signature."/></a><figcaption>Working editor, captured 24 October 2026 with the owner-supplied synthetic acceptance form.</figcaption></figure>
 <section class="section"><h2>One document. One editor. One finished PDF.</h2><p>Use the PDF’s own text fields, multiline answers, checkboxes, radio buttons, dropdowns and lists. Use Text or Tick on printed boxes. Pen and Highlighter work alongside fields; Eraser, Undo and Redo correct your additions. Import a transparent PNG signature, move it and resize it, or sign with Pen.</p><p>Save preserves the original page content and native form values. Print prepares that completed PDF. You can continue correcting additions in the current session; exported additions become normal page content.</p><p>Ordinary PDFs up to 30 MB and 100 pages. Password-protected, XFA and already certificate-signed documents are refused. The bundled font supports Latin and extended Latin. <a href={editor+'/help.html'}>Help and compatibility</a>.</p></section>
 <section class="section"><h2>An independent app you can reproduce.</h2><p>Paperwork owns its source, interface, PDF libraries and static deployment. Composer makes it discoverable and supplies a portable title, introduction and theme specification through Init. No Composer login or service binding is needed to finish a document.</p><div class="actions"><a class="button" href="/init/paperwork">Configure Paperwork in Init</a><a href={source.repository}>Independent source</a><a href={editor+'/app.manifest.json'}>Versioned app contract</a></div><p class="small">Reviewed source: <a href={source.repository+'/tree/'+source.commit}><code>{source.commit}</code></a>. Contract 1 · static assets · no document data capabilities. The reproduction command prepares a new local project; deployment uses its own reviewed target.</p></section>
 <section class="section"><h2>Inspect a finished document.</h2><p>The four-page fictional lab form was filled, drawn on and signed through the served editor. Its downloaded output preserves native values, page geometry, original scan pixels and the transparent demo signature.</p><p><a href="/paperwork/lab-completed-20261024b.pdf">Open the completed fictional PDF</a> · <a href="https://github.com/loftwah/app-composer/blob/main/docs/paperwork-acceptance.md">Read the acceptance record</a></p></section>

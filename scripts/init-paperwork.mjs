@@ -91,6 +91,8 @@ export function reproducePaperwork({ source, destination, configuration }) {
     const target = JSON.parse(readFileSync(join(to, "wrangler.jsonc"), "utf8"));
     delete target.account_id;
     delete target.routes;
+    // A copied instance chooses its own public URL before it becomes indexable.
+    rmSync(join(to, "site.json"), { force: true });
     target.name = "paperwork-unconfigured";
     writeFileSync(join(to, "wrangler.jsonc"), JSON.stringify(target, null, 2) + "\n");
     writeFileSync(
