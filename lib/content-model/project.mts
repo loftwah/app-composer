@@ -155,6 +155,7 @@ function collectContentProjectFiles(
     "launcher.css",
     "apps/launch-kit-20261023-32.png",
     "apps/paperwork-icon-20261024.svg",
+    "apps/__LDRAW_WORKSPACE_96__.webp",
     ...["linkarooie", "herethere", "linkcheck", "hello", "carryforward"].map(
       (id) => "apps/" + id + "-small-20261018.webp",
     ),

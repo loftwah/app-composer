@@ -94,6 +94,7 @@ export const discoveryJobs = [
   { id: 'enquiries', label: 'Collect private enquiries', role: 'small-business', href: '/for/small-business?job=enquiries' },
   { id: 'first-app', label: 'Build or change an app', role: 'developer', href: '/for/developer?job=first-app' },
   { id: 'branding', label: 'Make branded assets', role: 'designer', href: '/for/designer?job=branding' },
+  { id: 'diagram', label: 'Draw an editable diagram', role: null, href: 'https://ldraw.loftwah.com' },
   { id: 'pdf', label: 'Fill or sign a PDF', role: null, href: 'https://paperwork.loftwah.com' },
   { id: 'inspect', label: 'Check a website before sharing', role: null, href: 'https://share.loftwah.com' },
 ] as const;

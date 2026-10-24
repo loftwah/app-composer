@@ -17,8 +17,9 @@ reconciliation, payment/refund progression, draft-only fulfilment and rejected
 regression; one exact-source authenticated Guestbook read; scoped overview
 coverage; and default-off Inbox notifications. These observations use the real
 native controls and persisted records, with fixture payment data and no mail or
-financial action. Phone/local fixture and physical/assistive acceptance remain
-separate. See [the bounded native proof](native-operations-20261024.md).
+financial action. Later bounded phone/tablet browser observations and the failed
+local lab are recorded separately from physical/assistive acceptance. See
+[the bounded native proof](native-operations-20261024.md).
 
 Connections inventories server references and checks one scoped owned Guestbook
 read. Credential lifecycle remains host-managed. Notifications need selected
@@ -35,8 +36,11 @@ including no-JavaScript navigation. Separately dated reliability trials remain.
 
 The seven independent apps have each released the same three launcher links,
 with 399 guard-suite tests, 21 rendered journeys and exact source/asset checks.
-The reviewed pair and Paperwork reproduction pin are being adopted through the
-normal source/promotion/release boundary; #11 records their actual activation.
+The reviewed pair and Paperwork reproduction pin were adopted by PR #309,
+production source `dd4fa371`, with fresh mounted source/navigation and
+authenticated Connections proof. Hello's subsequent independent strict-typing
+release passed 24 guard tests and actual phone/desktop journeys; its runtime
+Worker JavaScript stayed byte-identical. #11 records their exact activation.
 
 ## Finding the shipped work — 24 October 2026
 
