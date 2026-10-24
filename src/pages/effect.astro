@@ -74,7 +74,12 @@ const shareAlt =
 
   <details class="effect-table-details">
     <summary>All five recorded results, without JavaScript</summary>
-    <div class="table-wrap">
+    <div
+      class="table-wrap"
+      tabindex="0"
+      role="region"
+      aria-label="Recorded results table. It scrolls sideways on narrow screens."
+    >
       <table>
         <caption>Recorded by executing <code>{trace.engine.module}</code> with scripted inspectors. No reads reached the network.</caption>
         <thead>

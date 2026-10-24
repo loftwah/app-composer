@@ -5,7 +5,6 @@ import {
   copyText,
   linkcheckSource,
   outcomeLine,
-  phaseTone,
   progressLine,
 } from "../lib/effect/linkcheck.mjs";
 import "../styles/effect-demo.css";
@@ -196,7 +195,7 @@ export default function EffectRunDemo() {
       </div>
 
       <section className="effect-run" aria-labelledby="effect-run-title">
-        <header className="effect-run-head">
+        <div className="effect-run-head">
           <div>
             <p className="effect-kicker">Recorded run · synthetic</p>
             <h2 id="effect-run-title">{scenario.name}</h2>
@@ -207,7 +206,7 @@ export default function EffectRunDemo() {
           <p className={`effect-outcome-chip is-${complete ? "done" : "idle"}`}>
             {complete ? "Finished" : `${revealed}/${scenario.phases.length} steps`}
           </p>
-        </header>
+        </div>
         <p className="effect-script">
           Scripted origin: {scenario.script}. This page replays the recorded
           phases; nothing is fetched here.
@@ -242,7 +241,7 @@ export default function EffectRunDemo() {
             return (
               <li
                 key={phase.id}
-                className={`effect-phase${shown ? ` is-${phaseTone(phase)}` : ""}${next ? " is-next" : ""}`}
+                className={`effect-phase${shown ? ` is-${phase.state}` : ""}${next ? " is-next" : ""}`}
               >
                 <div className="effect-phase-head">
                   <span className="effect-phase-index">
