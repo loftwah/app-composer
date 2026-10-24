@@ -21,7 +21,6 @@ const stackReply = z.object({
 const platformReply = z.object({
   ok: z.literal(true),
   workspace: z.object({ id }),
-  requests: z.array(z.object({ id, key: z.string().optional() })).max(50),
 });
 const target = z.object({
   target: z.object({
@@ -78,23 +77,24 @@ export async function afterNativeWorkflowWrite<T>(
       return result;
     const reply = platformReply.safeParse(result);
     if (!reply.success) return result;
-    const changed = reply.data.requests.find((request) =>
+    // Submission keys are operation selectors, not event payloads. The native
+    // response deliberately does not expose them, so derive the affected row
+    // from the canonical mutation's persisted scope and current actor.
+    const row = await (
       command.data.action === "submit"
-        ? request.key === command.data.key
-        : request.id === command.data.id,
-    );
-    if (!changed) return result;
-    const row = await runtime.DB.prepare(
-      "SELECT id,status,revision,stack_id,plan_json FROM creator_platform_requests WHERE id=? AND workspace_id=?",
-    )
-      .bind(changed.id, reply.data.workspace.id)
-      .first<{
-        id: string;
-        status: string;
-        revision: number;
-        stack_id: string | null;
-        plan_json: string;
-      }>();
+        ? runtime.DB.prepare(
+            "SELECT id,status,revision,stack_id,plan_json FROM creator_platform_requests WHERE submission_key=? AND workspace_id=? AND actor_id=?",
+          ).bind(command.data.key ?? "", reply.data.workspace.id, ctx.user.id)
+        : runtime.DB.prepare(
+            "SELECT id,status,revision,stack_id,plan_json FROM creator_platform_requests WHERE id=? AND workspace_id=?",
+          ).bind(command.data.id ?? "", reply.data.workspace.id)
+    ).first<{
+      id: string;
+      status: string;
+      revision: number;
+      stack_id: string | null;
+      plan_json: string;
+    }>();
     if (!row) return result;
     const planTarget = target.safeParse(JSON.parse(row.plan_json));
     if (
