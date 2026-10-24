@@ -50,6 +50,7 @@ if (root) {
     get<HTMLElement>('#prompt-count').textContent = `${count} ${count === 1 ? 'job' : 'jobs'}${query ? ' found' : ' to choose from'}`;
   }
   function applyDrafts() {
+    copyGeneration++;
     for (const form of all<HTMLFormElement>('[data-prompt-fields]')) {
       const id = form.dataset.promptFields!;
       for (const field of form.querySelectorAll<HTMLTextAreaElement>('textarea')) field.value = drafts[id]?.[field.name] ?? '';
