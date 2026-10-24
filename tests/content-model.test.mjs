@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {mkdtempSync,rmSync,writeFileSync,readFileSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {execFileSync} from 'node:child_process';
 import {DatabaseSync} from 'node:sqlite';
 // Exact installed EmDash 1.2.0 runtime validator; revisit on a dependency update.
-import {n as nativeFieldSchema} from '../node_modules/emdash/dist/zod-generator-BQilAboC.mjs';
+import {nativeFieldSchema} from './fixtures/emdash-runtime.mjs';
 import {validateSeed} from 'emdash/seed';
 import {validateContentModel,validateModelValues,visibleModelFields,emdashSeed,contentModelHandoff,starterModel} from '../lib/content-model/index.mjs';
 const sample=()=>structuredClone(starterModel);

@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {mkdtempSync,rmSync,writeFileSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {execFileSync} from 'node:child_process';import {DatabaseSync} from 'node:sqlite';
 import {validateSeed} from 'emdash/seed';
 // Exact installed native 1.2.0 validator, pinned/reviewed alongside content-model tests.
-import {n as nativeFieldSchema} from '../node_modules/emdash/dist/zod-generator-BQilAboC.mjs';
+import {nativeFieldSchema} from './fixtures/emdash-runtime.mjs';
 import {contentPatternSummaries,contentPattern,contentPatternSample} from '../lib/content-model/patterns.mjs';
 import {validateContentModel,validateModelValues,emdashSeed} from '../lib/content-model/index.mjs';
 
