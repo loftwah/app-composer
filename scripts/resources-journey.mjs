@@ -143,6 +143,19 @@ export async function verifyResourceReading(page, origin, { screenshot } = {}) {
     }
   }
   await page.locator('.resource-jobs a[data-resource-id="change"]').click();
+  // A real page load happens after the click. Wait for the native fragment
+  // target to be focusable and focused before asserting, rather than reading
+  // the new document while it is still loading.
+  await page
+    .waitForFunction(
+      () =>
+        location.pathname === "/resources/change" &&
+        document.readyState === "complete" &&
+        document.activeElement?.id === "resource",
+      undefined,
+      { timeout: 5000 },
+    )
+    .catch(() => {});
   ensure(
     new URL(page.url()).pathname === "/resources/change",
     "Reduced-motion native resource navigation failed",
