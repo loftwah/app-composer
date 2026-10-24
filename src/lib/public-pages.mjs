@@ -5,7 +5,7 @@ export const publicPagePaths = Object.freeze([
   '/discover', '/explore', '/demo', '/docs', '/architecture', '/guide',
   '/catalogue', '/apps', '/activity', '/review', '/privacy', '/release',
   '/extension', '/state', '/php2shell', '/studio', '/manage', '/building',
-  '/launch-kit', '/platform', '/platform/demo',
+  '/launch-kit', '/paperwork', '/init/paperwork', '/platform', '/platform/demo',
 ]);
 
 const origin = 'https://composer.loftwah.com';

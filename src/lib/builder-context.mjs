@@ -30,6 +30,8 @@ export function isBuilderPath(path) {
       "/learn",
       "/building",
       "/launch-kit",
+      "/paperwork",
+      "/init/paperwork",
       "/launch-kit/example/",
     ].includes(path) ||
     /^\/reports\/(?:new|r[a-f0-9]{24})$/.test(path) ||

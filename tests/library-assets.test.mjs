@@ -12,9 +12,9 @@ const size=path=>statSync(new URL('public'+path,root)).size;
 const source=read('src/lib/apps.ts');
 const entries=[...source.matchAll(/\{id:'([^']+)',name:'([^']+)'/g)].map(([,id,name])=>({id,name,line:source.split('\n').find(line=>line.includes(`{id:'${id}'`))}));
 
-test('the shipped library keeps the six reviewed app names',()=>{
- assert.deepEqual(entries.map(entry=>entry.name),['Launch Kit','Link Check','Here / there','Linkarooie','Hello World','Carry / forward']);
- assert.deepEqual(entries.map(entry=>entry.id),['launch-kit','linkcheck','guestbook','showcase','hello','state']);
+test('the shipped library keeps the seven reviewed app names',()=>{
+ assert.deepEqual(entries.map(entry=>entry.name),['Paperwork','Launch Kit','Link Check','Here / there','Linkarooie','Hello World','Carry / forward']);
+ assert.deepEqual(entries.map(entry=>entry.id),['paperwork','launch-kit','linkcheck','guestbook','showcase','hello','state']);
 });
 
 test('each entry ships its own tile, thumbnail, share card and real screenshot',()=>{
@@ -23,6 +23,14 @@ test('each entry ships its own tile, thumbnail, share card and real screenshot',
   const assets={};
   for(const key of ['image','thumbnail','share','preview','previewWide'])
    assets[key]=line.match(new RegExp(key+":'([^']+)'"))?.[1]??(assert.fail(id+' has no '+key));
+  if(id==='paperwork'){
+   assert.deepEqual(assets,{image:'/paperwork/icon.svg',thumbnail:'/paperwork/icon.svg',share:'/paperwork/editor-20261024.webp',preview:'/paperwork/editor-20261024.webp',previewWide:'/paperwork/editor-20261024.webp'});
+   assert.match(line,/shareType:'image\/webp'/);
+   const svg=read('public/paperwork/icon.svg');assert.match(svg,/<svg/);assert.ok(svg.length>100);
+   const capture=readFileSync(new URL('public'+assets.preview,root));assert.equal(capture.toString('ascii',0,4),'RIFF');assert.equal(capture.toString('ascii',8,12),'WEBP');assert.ok(capture.length>1000);
+   assert.match(line,/previewCaptured:'2026-10-24'/);
+   continue;
+  }
   // Identity crops evolve independently from the retained hero illustrations.
   const prefix={'launch-kit':'launch-kit',guestbook:'herethere',showcase:'linkarooie',linkcheck:'linkcheck',hello:'hello',state:'carryforward'}[id];
   assert.ok(prefix,id+' has a reviewed export prefix');

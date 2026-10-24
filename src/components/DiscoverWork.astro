@@ -8,6 +8,10 @@ import { ArrowRight, Play } from '@lucide/astro';
     <p>Make something here, follow a working application, or open the tools that run it.</p>
   </div>
 
+  <article class="paperwork-feature">
+    <a class="discover-preview" href="/paperwork" aria-label="Explore Paperwork"><img src="/paperwork/editor-20261024.webp" width="1440" height="1000" alt="Actual Paperwork editor completing the fictional four-page acceptance form with fields, ink and a transparent demo signature." loading="lazy" decoding="async" /></a>
+    <div><h3><a href="/paperwork">Fill it. Sign it. Get on with your day.</a></h3><p>Open a PDF, fill its fields, draw, add your own signature and download or print the finished document. Paperwork keeps the entire job in your browser.</p><div class="discover-actions"><a class="discover-action" href="https://composer-paperwork.loftwah.workers.dev">Open Paperwork <ArrowRight size={18} aria-hidden="true" /></a><a href="/init/paperwork">Make it yours</a></div></div>
+  </article>
   <div class="discover-features">
     <article>
       <a class="discover-preview" href="/launch-kit" aria-label="Explore Launch Kit">
@@ -49,7 +53,7 @@ import { ArrowRight, Play } from '@lucide/astro';
       <a class="discover-action" href="/manage">Follow the owner journey <ArrowRight size={18} aria-hidden="true" /></a>
     </article>
   </div>
-  <p class="discover-more"><a href="/apps">Browse all six apps <ArrowRight size={17} aria-hidden="true" /></a><a href="/building">Read the build story <ArrowRight size={17} aria-hidden="true" /></a></p>
+  <p class="discover-more"><a href="/apps">Browse all apps <ArrowRight size={17} aria-hidden="true" /></a><a href="/building">Read the build story <ArrowRight size={17} aria-hidden="true" /></a></p>
 </section>
 
 <style>
@@ -57,6 +61,8 @@ import { ArrowRight, Play } from '@lucide/astro';
   .discover-heading { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 40px; margin-bottom: 28px; }
   .discover-heading h2 { font-size: clamp(2rem, 3.6vw, 3rem); line-height: 1.08; margin: 0; max-width: 15ch; }
   .discover-heading p { color: var(--color-muted); margin: 0; max-width: 48ch; }
+  .paperwork-feature { display:grid; grid-template-columns:1.15fr 1fr; gap:40px; align-items:center; margin-block:28px 48px; }
+  .paperwork-feature h3 { font-size:1.8rem; margin-top:0; }
   .discover-features { display: grid; grid-template-columns: 1.15fr 1fr; gap: 40px; }
   .discover-features article { min-width: 0; }
   .discover-preview { display: block; aspect-ratio: 1200 / 630; overflow: hidden; background: var(--color-surface); }
@@ -77,7 +83,7 @@ import { ArrowRight, Play } from '@lucide/astro';
   .discover-tools .discover-action { justify-self: end; font-size: 14px; }
   .discover-more { display: flex; flex-wrap: wrap; gap: 8px 32px; margin: 20px 0 0; }
   @media (max-width: 760px) {
-    .discover-heading, .discover-features { grid-template-columns: 1fr; gap: 20px; }
+    .discover-heading, .discover-features, .paperwork-feature { grid-template-columns: 1fr; gap: 20px; }
     .discover-heading { gap: 14px; }
     .discover-features { gap: 32px; }
     .discover-tools article { grid-template-columns: 1fr; gap: 8px; }

@@ -36,7 +36,8 @@
     "wordpress:lab": "node scripts/wordpress-lab.mjs",
     "lint": "node scripts/content-source.mjs --lint && node scripts/creator-source.mjs --lint",
     "format:check": "node scripts/creator-format.mjs --check",
-    "format": "node scripts/creator-format.mjs --write"
+    "format": "node scripts/creator-format.mjs --write",
+    "init:paperwork": "node scripts/init-paperwork.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.3.3",

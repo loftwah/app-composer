@@ -14,7 +14,7 @@ export function validateManifest(m) {
   if (m.contract !== 1) throw new Error("Unsupported contract version");
   if (!/^[a-z][a-z0-9-]{0,40}$/.test(m.id))
     throw new Error("Invalid app namespace");
-  if (m.runtime !== "cloudflare-worker" || m.dataVersion !== 1)
+  if (!["cloudflare-worker", "static-assets"].includes(m.runtime) || m.dataVersion !== 1)
     throw new Error("Incompatible runtime or data version");
   if (
     !Array.isArray(m.routes) ||
@@ -34,6 +34,7 @@ export function validateManifest(m) {
     )
   )
     throw new Error("Unapproved capability increase");
+  if (m.runtime === "static-assets" && (m.capabilities.length || m.provider || m.memberService || m.features || m.services)) throw new Error("Static utilities cannot declare data or service capabilities");
   for (const [key, f] of Object.entries(m.configuration ?? {})) {
     if (
       ![
