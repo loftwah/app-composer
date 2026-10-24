@@ -1,4 +1,140 @@
 {
   "schema": "app-composer.setup-evaluation/1",
-  "runs": []
+  "runs": [
+    {
+      "id": "existing-python-20261024-1",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "2a5f94e90c16c969e081587891384e1cefdf1cb460ef51a406eaa725c8a59d19",
+      "path": "existing",
+      "fixture": "Fictional existing Python Field Notes; all six source files matched the pinned fixture",
+      "sourceCommit": "d0b39f0c9978b1d8ac23745209e95265ed277ea7",
+      "agent": "Fresh Codex subagent session 1",
+      "model": "Inherited host model; exact model identifier not exposed",
+      "environment": "macOS local; Python 3.14.7 standard library; fictional data only",
+      "tools": [
+        "Git",
+        "Python 3.14.7",
+        "localhost HTTP",
+        "real browser"
+      ],
+      "provisionedAccess": [
+        "Local fixture copy and installed tools only; no provider or deployment access"
+      ],
+      "startedAt": "2026-10-24T07:18:48.003Z",
+      "finishedAt": "2026-10-24T07:23:00.047Z",
+      "outcome": "completed-after-rescue",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "python3.14 -m unittest -v",
+          "outcome": "All five fixture assertions passed."
+        },
+        {
+          "command": "Serve the unchanged app.Page on an unused localhost port; inspect home, /health, /missing, then home",
+          "outcome": "HTTP 200/200/404/200 and real browser home → missing page → Back recovery."
+        },
+        {
+          "command": "Compare pinned fixture, configuration, owner note and unrelated work; stop owned service and remove owned root",
+          "outcome": "Source/customisation preserved. Only owned processes/tab/root cleaned; unrelated service preserved."
+        }
+      ],
+      "interventions": [
+        "Autonomous recovery: the documented fixed port was occupied; preserved the unrelated service and used an unused localhost port."
+      ],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/labs/setup-evaluation/evidence/2026-10-24-existing.md"
+    },
+    {
+      "id": "existing-python-20261024-2",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "2a5f94e90c16c969e081587891384e1cefdf1cb460ef51a406eaa725c8a59d19",
+      "path": "existing",
+      "fixture": "Fictional existing Python Field Notes; all six source files matched the pinned fixture",
+      "sourceCommit": "d0b39f0c9978b1d8ac23745209e95265ed277ea7",
+      "agent": "Fresh Codex subagent session 2",
+      "model": "Inherited host model; exact model identifier not exposed",
+      "environment": "macOS local; Python 3.14.7 standard library; fictional data only",
+      "tools": [
+        "Git",
+        "Python 3.14.7",
+        "localhost HTTP",
+        "real browser"
+      ],
+      "provisionedAccess": [
+        "Local fixture copy and installed tools only; no provider or deployment access"
+      ],
+      "startedAt": "2026-10-24T07:21:36.108Z",
+      "finishedAt": "2026-10-24T07:26:27.952Z",
+      "outcome": "completed-after-rescue",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "python3.14 -m unittest -v",
+          "outcome": "All five fixture assertions passed."
+        },
+        {
+          "command": "Serve the unchanged app.Page on an unused localhost port; inspect home, /health, /missing, then home",
+          "outcome": "HTTP 200/200/404/200 and real browser home → missing page → Back recovery."
+        },
+        {
+          "command": "Compare pinned fixture, configuration, owner note and unrelated work; stop owned service and remove owned root",
+          "outcome": "Source/customisation preserved. Only owned processes/tab/root cleaned; unrelated service preserved."
+        }
+      ],
+      "interventions": [
+        "Selected an installed compatible Python after the default interpreter was below the documented minimum.",
+        "Recovered from shell inspection syntax and glob errors without changing the project.",
+        "An initial shell cleanup launcher was rejected before execution; used a registered TemporaryDirectory/finally cleanup instead.",
+        "Preserved the unrelated fixed-port service and used an OS-selected localhost port.",
+        "A five-second startup observation expired; stopped the owned attempt and used a bounded foreground readiness check."
+      ],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/labs/setup-evaluation/evidence/2026-10-24-existing.md"
+    },
+    {
+      "id": "existing-python-20261024-3",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "2a5f94e90c16c969e081587891384e1cefdf1cb460ef51a406eaa725c8a59d19",
+      "path": "existing",
+      "fixture": "Fictional existing Python Field Notes; all six source files matched the pinned fixture",
+      "sourceCommit": "d0b39f0c9978b1d8ac23745209e95265ed277ea7",
+      "agent": "Fresh Codex subagent session 3",
+      "model": "Inherited host model; exact model identifier not exposed",
+      "environment": "macOS local; Python 3.14.7 standard library; fictional data only",
+      "tools": [
+        "Git",
+        "Python 3.14.7",
+        "localhost HTTP",
+        "real browser"
+      ],
+      "provisionedAccess": [
+        "Local fixture copy and installed tools only; no provider or deployment access"
+      ],
+      "startedAt": "2026-10-24T07:27:42.727Z",
+      "finishedAt": "2026-10-24T07:32:45.182Z",
+      "outcome": "completed-after-rescue",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "python3.14 -m unittest -v",
+          "outcome": "All five assertions passed twice; repeat changed no fixture files."
+        },
+        {
+          "command": "Serve the unchanged app.Page on an unused localhost port; inspect home, /health, /missing, then home",
+          "outcome": "HTTP 200/200/404/200 and real browser home → missing page → Back recovery."
+        },
+        {
+          "command": "Compare pinned fixture, configuration, owner note and unrelated work; stop owned service and remove owned root",
+          "outcome": "Source/customisation preserved. Only owned processes/tab/root cleaned; unrelated service preserved."
+        }
+      ],
+      "interventions": [
+        "Selected an installed compatible Python after the default interpreter was below the documented minimum.",
+        "Recovered from the documented fixed-port collision using an unused localhost port; the unrelated service was preserved.",
+        "Recovered from a bootstrap/tool invocation failure before the bounded repeat."
+      ],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/labs/setup-evaluation/evidence/2026-10-24-existing.md"
+    }
+  ]
 }
