@@ -59,10 +59,23 @@ test("omitted contribution fields preserve the released source's closed canonica
   assert.equal(Object.hasOwn(parsed, "contributions"), false);
   assert.equal(Object.hasOwn(saved, "allowMemberContributions"), false);
   const plan = platformPlan(parsed, profile, target);
-  assert.equal(plan.source.commit, "400fc2219ebb461acf6ea7abc3242a682192dd2c");
+  const released = JSON.parse(
+    readFileSync(new URL("../composition.lock.json", import.meta.url), "utf8"),
+  ).apps.find((app) => app.id === "guestbook");
+  assert.equal(plan.source.commit, released.commit);
+  assert.deepEqual(plan.spec.sources, [plan.source]);
+  assert.ok(plan.handoff.endsWith(JSON.stringify(plan.spec, null, 2)));
   assert.equal(Object.hasOwn(plan, "contributionMode"), false);
+  // Freeze the original closed-plan shape and values while allowing reviewed
+  // source promotions. Normalize only that SHA, including its spec/handoff copies.
+  const legacyPlan = JSON.parse(
+    JSON.stringify(plan).replaceAll(
+      released.commit,
+      "400fc2219ebb461acf6ea7abc3242a682192dd2c",
+    ),
+  );
   assert.equal(
-    await platformDigest(plan),
+    await platformDigest(legacyPlan),
     "9dd7d28e973d843fe00ae6d0bdd3b2a0b83bda0c479de28873b1bb46f9681239",
   );
   assert.equal(plan.spec.appSettings.guestbook.guestAccess, "closed");
