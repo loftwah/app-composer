@@ -32,7 +32,7 @@ ${mode==='source-mutation'?"writeFileSync('worker.txt','Fictional changed frozen
  const events=JSON.parse(readFileSync(log,'utf8'));events.push({dryRun:args.includes('--dry-run'),cwd:process.cwd(),ignored:['.env','.npmrc','.pnpmfile.cjs'].some(file=>existsSync(file)),token:!!process.env.CLOUDFLARE_API_TOKEN,overrides:!!(process.env.WRANGLER_CI_OVERRIDE_NAME||process.env.CLOUDFLARE_API_BASE_URL||process.env.CF_API_BASE_URL||process.env.RESEND_API_KEY||process.env.NODE_OPTIONS),envFileDisabled:args.includes('--env-file=/dev/null')});writeFileSync(log,JSON.stringify(events));
  ${mode==='build-edit'?`if(args.includes('--dry-run'))writeFileSync(${JSON.stringify(join(f.workspace,'worker.txt'))},'Owner edit during build\\n');`:''}
  console.log(args.includes('--dry-run')?'--dry-run: exiting now.':'Current Version ID: ${version}');
- }else console.log('4.143.1');`;
+ }else console.log('4.152.0');`;
  writeFileSync(join(f.workspace,'node_modules/wrangler/bin/wrangler.js'),tool);
  for(const file of ['.env','.npmrc','.pnpmfile.cjs']){writeFileSync(join(f.workspace,file),'Ignored owner work\n');f.git(['-c','core.excludesFile=/dev/null','status','--porcelain']);}
  writeFileSync(join(f.workspace,'.git/info/exclude'),'.env\n.npmrc\n.pnpmfile.cjs\n');

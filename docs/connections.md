@@ -45,7 +45,7 @@ process/agent with file access; naming a reference does not make it invisible.
 Use hosting secrets in production and never inject actual secret values into
 `import.meta.env`, client bundles, prompts or public specifications.
 
-The installed Wrangler **4.143.1** export `unstable_getVarsForDev` was exercised
+The installed Wrangler **4.152.0** export `unstable_getVarsForDev` was exercised
 with fictional files in `tests/local-secret-precedence.test.mjs`:
 
 - `.dev.vars.<environment>` replaces `.dev.vars` and excludes the `.env` family.
