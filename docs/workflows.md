@@ -3,17 +3,31 @@
 The EmDash **Workflows** page offers two small recipes on the existing Composer
 workspace, stack and platform-request machinery:
 
-| When | Condition | Result |
-| --- | --- | --- |
-| A stack has a published revision | The exact immutable publication is readable | A private summary draft with its public link |
+| When                               | Condition                                         | Result                                                                         |
+| ---------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------ |
+| A stack has a published revision   | The exact immutable publication is readable       | A private summary draft with its public link                                   |
 | A platform request needs attention | The same scoped request revision is still failing | One actionable attention item linking to the existing platform recovery screen |
 
-These are on-demand native scans. **Turn on** enables **Scan now**; it creates no
-background schedule. A scan inspects up to 20 current source rows. Neither recipe
+**Turn on** enables bounded follow-ups after the canonical native stack publish/
+republish and platform mutation routes confirm a saved result. Only the affected
+server-derived source is considered. GET reads and the existing scheduler never
+trigger these recipes. **Scan now** remains explicit recovery and inspects up to
+20 current source rows, including matching frozen plan account/environment and
+the fixed app destination. Neither recipe
 sends mail, executes an agent, changes source records, publishes a post or
 performs remediation. A publication check is not a Worker-release or link-check
 receipt. Inbox/mail remains owned by #117; scheduled and external automation,
 contribution sharing and provider callbacks remain #289/#291 qualification work.
+
+Source mutation and follow-up capture are separate transactions. A missing table,
+interruption, full receipt limit or failed follow-up cannot roll back or repeat
+the confirmed source operation. Its original response object remains unchanged;
+a fixed, redacted `WORKFLOW_POST_WRITE_CAPTURE_UNAVAILABLE` warning identifies
+the recovery path. A missed follow-up needs **Scan now** after the cause is
+resolved. This is tested request-path automation, not durable outbox delivery or
+autonomous scheduling/reliability. Writes through other interfaces remain outside
+these two native route hooks. Paused recipes and revoked membership stop effects
+at the same persisted SQL boundary as explicit scans.
 
 Choose the workspace through the existing workspace selector. The server derives
 account/environment from its runtime. A saved recipe records that exact scope;
@@ -74,7 +88,10 @@ Example non-secret event body:
   "id": "fictional-release-001",
   "workspace": "fictional-reading-club",
   "environment": "sandbox",
-  "result": { "title": "A fictional reading list", "url": "https://example.test/reading" }
+  "result": {
+    "title": "A fictional reading list",
+    "url": "https://example.test/reading"
+  }
 }
 ```
 

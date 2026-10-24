@@ -199,6 +199,7 @@ async function events(
   db: D1Database,
   workspace: string,
   recipe: WorkflowKind,
+  target: ReturnType<typeof selectedTarget>,
 ): Promise<Event[]> {
   if (recipe === "release-summary") {
     const rows = await db
@@ -215,9 +216,9 @@ async function events(
   }
   const rows = await db
     .prepare(
-      "SELECT id,revision FROM creator_platform_requests WHERE workspace_id=? AND status='needs-attention' ORDER BY updated_at DESC LIMIT 20",
+      "SELECT id,revision FROM creator_platform_requests WHERE workspace_id=? AND status='needs-attention' AND CASE WHEN json_valid(plan_json) THEN json_extract(plan_json,'$.target.account') ELSE NULL END=? AND CASE WHEN json_valid(plan_json) THEN json_extract(plan_json,'$.target.environment') ELSE NULL END=? AND CASE WHEN json_valid(plan_json) THEN json_extract(plan_json,'$.target.url') ELSE NULL END='https://composer.loftwah.com/guestbook' ORDER BY updated_at DESC LIMIT 20",
     )
-    .bind(workspace)
+    .bind(workspace, target.account, target.environment)
     .all<{ id: string; revision: number }>();
   return rows.results.map((row) => ({
     id: `platform.needs-attention/1:${row.id}:${row.revision}`,
@@ -328,6 +329,7 @@ function currentSource(
   event: Event,
   workspace: string,
   evaluation: Evaluation,
+  target: ReturnType<typeof selectedTarget>,
 ): { sql: string; values: (string | number)[] } {
   if (event.sample || evaluation.state !== "finished")
     return { sql: "", values: [] };
@@ -337,8 +339,14 @@ function currentSource(
         values: [event.source, workspace, event.revision],
       }
     : {
-        sql: " AND EXISTS(SELECT 1 FROM creator_platform_requests WHERE id=? AND workspace_id=? AND status='needs-attention' AND revision=?)",
-        values: [event.source, workspace, event.revision],
+        sql: " AND EXISTS(SELECT 1 FROM creator_platform_requests WHERE id=? AND workspace_id=? AND status='needs-attention' AND revision=? AND CASE WHEN json_valid(plan_json) THEN json_extract(plan_json,'$.target.account') ELSE NULL END=? AND CASE WHEN json_valid(plan_json) THEN json_extract(plan_json,'$.target.environment') ELSE NULL END=? AND CASE WHEN json_valid(plan_json) THEN json_extract(plan_json,'$.target.url') ELSE NULL END='https://composer.loftwah.com/guestbook')",
+        values: [
+          event.source,
+          workspace,
+          event.revision,
+          target.account,
+          target.environment,
+        ],
       };
 }
 async function storeRun(
@@ -358,7 +366,7 @@ async function storeRun(
     .first();
   if (retained) return;
   const evaluation = await evaluate(db, workspace, recipe, event);
-  const source = currentSource(recipe, event, workspace, evaluation);
+  const source = currentSource(recipe, event, workspace, evaluation, target);
   const count = await db
     .prepare(
       "SELECT COUNT(*) AS n FROM creator_workflow_runs WHERE workspace_id=?",
@@ -417,6 +425,85 @@ async function storeRun(
       .first();
     if (!existing) throw conflict();
   }
+}
+
+const nativeSource = z
+  .object({
+    workspace: z.string().regex(/^[a-z0-9-]{6,64}$/),
+    recipe: z.enum(["release-summary", "operation-attention"]),
+    source: z.string().regex(/^[a-z0-9-]{6,64}$/),
+    revision: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+  })
+  .strict();
+
+/** Trusted post-write adapter only. No route accepts an event from a browser.
+ * The same durable store/guards serve native events and explicit Scan recovery. */
+export async function captureNativeWorkflowSource(
+  user: User | undefined,
+  runtime: Runtime,
+  input: z.infer<typeof nativeSource>,
+): Promise<"captured" | "skipped"> {
+  if (
+    !user ||
+    !isCreatorRole(user.role) ||
+    runtime.PUBLIC_ORIGIN !== "https://composer.loftwah.com" ||
+    !runtime.DB
+  )
+    return "skipped";
+  const eventSource = nativeSource.parse(input),
+    db = runtime.DB;
+  // Do not bootstrap or recreate workspace membership from a follow-up hook.
+  requireCapability(
+    await membership(db, eventSource.workspace, user.id),
+    "save",
+  );
+  const target = selectedTarget(runtime);
+  const recipe = await recipeRow(db, eventSource.workspace, eventSource.recipe);
+  if (
+    !recipe?.enabled ||
+    recipe.account_id !== target.account ||
+    recipe.environment !== target.environment
+  )
+    return "skipped";
+  const row =
+    eventSource.recipe === "release-summary"
+      ? await db
+          .prepare(
+            "SELECT id FROM creator_stacks WHERE id=? AND workspace_id=? AND status='published' AND published_revision=?",
+          )
+          .bind(eventSource.source, eventSource.workspace, eventSource.revision)
+          .first()
+      : await db
+          .prepare(
+            "SELECT id FROM creator_platform_requests WHERE id=? AND workspace_id=? AND status='needs-attention' AND revision=? AND CASE WHEN json_valid(plan_json) THEN json_extract(plan_json,'$.target.account') ELSE NULL END=? AND CASE WHEN json_valid(plan_json) THEN json_extract(plan_json,'$.target.environment') ELSE NULL END=? AND CASE WHEN json_valid(plan_json) THEN json_extract(plan_json,'$.target.url') ELSE NULL END='https://composer.loftwah.com/guestbook'",
+          )
+          .bind(
+            eventSource.source,
+            eventSource.workspace,
+            eventSource.revision,
+            target.account,
+            target.environment,
+          )
+          .first();
+  if (!row) return "skipped";
+  const prefix =
+    eventSource.recipe === "release-summary"
+      ? "stack.published/1"
+      : "platform.needs-attention/1";
+  await storeRun(
+    db,
+    user,
+    eventSource.workspace,
+    eventSource.recipe,
+    recipe.revision,
+    target,
+    {
+      id: `${prefix}:${eventSource.source}:${eventSource.revision}`,
+      source: eventSource.source,
+      revision: eventSource.revision,
+    },
+  );
+  return "captured";
 }
 
 /** Called only by the existing authenticated native plugin route. Source rows,
@@ -506,7 +593,12 @@ export async function manageWorkflows(ctx: Context, runtime: Runtime) {
         command.expectedRevision,
         target,
       );
-      for (const event of await events(db, workspace.id, command.recipe))
+      for (const event of await events(
+        db,
+        workspace.id,
+        command.recipe,
+        target,
+      ))
         await storeRun(
           db,
           user,
@@ -556,6 +648,7 @@ export async function manageWorkflows(ctx: Context, runtime: Runtime) {
         },
         workspace.id,
         evaluation,
+        target,
       );
       const activeSQL = row.synthetic
         ? ""

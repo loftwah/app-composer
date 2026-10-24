@@ -114,7 +114,7 @@ export function Workflows({ search }: { search: string }) {
         enabled,
       },
       enabled
-        ? "Recipe turned on. Use Scan now to check the current supported records."
+        ? "Recipe turned on for supported native write events. Use Scan now to recover existing or missed records."
         : "Recipe saved and paused. New scans and real-source retries are stopped.",
     );
   }
@@ -203,7 +203,7 @@ export function Workflows({ search }: { search: string }) {
           Refresh
         </button>
       </div>
-      <p className="cw-scope">
+      <div className="cw-scope">
         {snapshot ? (
           <>
             Workspace <strong>{snapshot.workspace.name}</strong> ·{" "}
@@ -218,15 +218,13 @@ export function Workflows({ search }: { search: string }) {
         ) : (
           "Confirming the selected workspace…"
         )}
-      </p>
+      </div>
       <div className="cw-links">
         <a href="/_emdash/admin/plugins/composer-stacks/workspaces">
           Workspace access
         </a>
         <a href="/prompts#workflow">Prepare a workflow prompt</a>
-        <a href="/resources/hook#resource">
-          Hooks and external examples
-        </a>
+        <a href="/resources/hook#resource">Hooks and external examples</a>
       </div>
       {error && (
         <p className="cw-error" role="alert">
@@ -237,11 +235,11 @@ export function Workflows({ search }: { search: string }) {
         {busy ? "Checking the saved recipe and source…" : notice}
       </p>
       <p className="cw-mode">
-        <strong>On-demand native recipes.</strong> Scan now checks up to 20
-        current source records. Turning on enables that scan; it does not
-        schedule background work. These recipes prepare private drafts and
-        attention items. They send no email, publish nothing and run no
-        remediation.
+        <strong>Native events with explicit recovery.</strong> Enabled recipes
+        prepare drafts after supported native publication or platform writes
+        confirm their saved result. Scan now checks up to 20 current source
+        records and recovers missed follow-ups. No background schedule, email,
+        publication or remediation is created by these recipes.
       </p>
       {snapshot && (
         <>
