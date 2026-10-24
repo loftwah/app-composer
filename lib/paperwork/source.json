@@ -1,0 +1,7 @@
+{
+  "repository": "https://github.com/loftwah/app-composer-paperwork",
+  "commit": "cca9d4afa907ce266cacb11d42c360ecd5bcd44d",
+  "contract": 1,
+  "runtime": "static-assets",
+  "origin": "https://composer-paperwork.loftwah.workers.dev"
+}

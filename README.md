@@ -35,6 +35,7 @@ Local EmDash data is separate from production. A fresh checkout does not contain
 | `pnpm source:write` | Explicitly regenerate checked runtime files |
 | `pnpm deploy` | Guarded clean pushed-main production release and live verification |
 | `pnpm ready` | Inspect the explicitly selected workspace and environment |
+| `pnpm init:paperwork` | Reproduce the exact reviewed static PDF editor with a portable configuration |
 | `pnpm init:site` | Generate an independent content project |
 | `pnpm wordpress:lab` | Operate the isolated fictional WordPress publisher fixture |
 
@@ -44,6 +45,7 @@ Local EmDash data is separate from production. A fresh checkout does not contain
 
 | App | What it does | Source | Standalone |
 | --- | --- | --- | --- |
+| Paperwork | Browser-local PDF form filling, drawing and visual signatures | [Paperwork](https://github.com/loftwah/app-composer-paperwork) | [Open](https://composer-paperwork.loftwah.workers.dev/) |
 | Here / there | Moderated photographs and visitor postcards | [Guestbook](https://github.com/loftwah/app-composer-guestbook) | [Open](https://guestbook.loftwah.com/) |
 | Linkarooie | Curated links and eligible source contributions | [Showcase](https://github.com/loftwah/app-composer-showcase) | [Open](https://showcase.loftwah.com/) |
 | Link Check | Inspect a destination and explain its findings | [Link Check](https://github.com/loftwah/app-composer-linkcheck) | [Open](https://share.loftwah.com/) |
