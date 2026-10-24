@@ -24,7 +24,7 @@ MP directs; agents implement, verify and recover. Reviewed 18 October 2026. MIT.
 
 ## Supported implementation
 
-Astro 7.3.5, EmDash 1.2.0, Cloudflare adapter 14.3.3, Wrangler 4.152.0. The lockfile pins the tested Cloudflare Vite integration and Workers runtime. EmDash manages the published catalogue through isolated D1/R2. It is a real query-backed CMS boundary; customer mini-apps are independent Workers, not forced into CMS plugins.
+Astro 7.4.2, EmDash 1.3.1, Cloudflare adapter 14.4.2, Wrangler 4.152.0. The lockfile pins the tested Cloudflare Vite integration and Workers runtime. EmDash manages the published catalogue through isolated D1/R2. It is a real query-backed CMS boundary; customer mini-apps are independent Workers, not forced into CMS plugins.
 
 - [Photo Guestbook](https://github.com/loftwah/app-composer-guestbook), standalone at https://guestbook.loftwah.com.
 - [Linkarooie](https://github.com/loftwah/app-composer-showcase), standalone at https://showcase.loftwah.com.
@@ -41,7 +41,7 @@ The [interactive tutorial](https://composer.loftwah.com/learn) follows setup, a 
 
 [Source maintenance](../docs/source-maintenance.md) maps native editor responsibilities and documents the explicit `pnpm ui:assets --check|--write` workflow for shared sharing/theme files. Independent apps retain their own committed copies and deployment boundaries.
 
-[The engineering baseline](../docs/engineering-baseline.md) describes checked model/recipe source, generated JavaScript/declarations and the independent project commands. Composer uses Node 22 with pnpm 12.8.1; new content projects retain their separately verified pnpm 12.9.1 lockfile. Edit maintained `.mts` source and run `pnpm source:write`; normal checks refuse stale emitted files.
+[The engineering baseline](../docs/engineering-baseline.md) describes checked model/recipe source, generated JavaScript/declarations and the independent project commands. Composer uses Node 22.23.4+ with pnpm 12.8.1; new content projects retain their separately verified pnpm 12.9.1 lockfile. Edit maintained `.mts` source and run `pnpm source:write`; normal checks refuse stale emitted files.
 
 Reviewed 15 October 2026: `/api/portfolio-analytics?days=7|30|90` (or paired `from=YYYY-MM-DD&to=YYYY-MM-DD`) exposes the existing #62 public D1 counts through `woodhouse.portfolio-analytics/1` for Woodhouse #34. It separates app requests, original-photo opens and completed inspections, with daily series, fixed definitions and source revision. Only the retained 35-day window beginning no earlier than the first recorded UTC day, 13 October 2026, is available; that first day is partial and 90-day requests do not backfill unavailable days. The daily cap, publisher losses and rate limits remain explicit lower-bound limitations. Custom ranges use real ordered UTC dates, include both endpoints, span 1–90 days and cannot include future days; duplicate, mixed or unknown query parameters are rejected. `period.complete` indicates only that the selected end day has finished, separately from collection coverage. Wholly pre-collection or expired ranges return unavailable/null metrics, while retained days with no recorded events remain zero. `coverage.comparableFrom` is null because capped counts do not qualify as exact growth records. No visitor IDs or private creator metrics are added; #112/#116 retain those separate outcomes.
 
