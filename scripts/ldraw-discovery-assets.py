@@ -14,7 +14,6 @@ from io import BytesIO
 import json
 from pathlib import Path
 import re
-from urllib.parse import urlsplit
 
 from PIL import Image, ImageDraw, ImageFont, __version__ as pillow_version
 
@@ -25,6 +24,7 @@ FONT = ROOT / "src/assets/fonts/SpaceGrotesk.ttf.bin"
 MARK = ROOT / "public/brand/composer-icon-20261022b-512.png"
 RECIPE_REVISION = 1
 RECIPE = "composer.ldraw-discovery/" + str(RECIPE_REVISION)
+LIVE_EDITOR_URL = "https://ldraw.loftwah.com/"
 ORANGE, INK, WHITE = "#FC5B05", "#17181B", "#FFFFFF"
 
 
@@ -93,11 +93,8 @@ def validate_release(args, capture):
         raise ValueError("The supplied capture SHA-256 does not match the original PNG.")
     if args.pixel_sha256 and args.pixel_sha256 != capture["pixelSha256"]:
         raise ValueError("The supplied decoded-pixel SHA-256 does not match.")
-    url = urlsplit(args.url)
-    if (url.scheme != "https" or not url.hostname
-            or url.username is not None or url.password is not None
-            or url.query or url.fragment):
-        raise ValueError("--url must be the exact public HTTPS editor URL, without credentials/query/fragment.")
+    if args.url != LIVE_EDITOR_URL:
+        raise ValueError("--url must be exactly " + LIVE_EDITOR_URL)
     captured = datetime.fromisoformat(args.captured_at.replace("Z", "+00:00"))
     if captured.tzinfo is None or captured.utcoffset() is None:
         raise ValueError("--captured-at requires an ISO timestamp with its time zone.")
@@ -210,7 +207,7 @@ def main():
     build.add_argument("--sha256", required=True, help="Expected original PNG file hash")
     build.add_argument("--pixel-sha256", help="Optional expected decoded RGBA8 pixel hash")
     build.add_argument("--source", required=True, help="Exact released 40-character Git SHA")
-    build.add_argument("--url", required=True, help="Exact public editor HTTPS URL")
+    build.add_argument("--url", required=True, help="Exactly " + LIVE_EDITOR_URL)
     build.add_argument("--captured-at", required=True, help="Original capture ISO timestamp with time zone")
     build.add_argument("--qualification", required=True, help="Reference to the existing live/source qualification")
     args = parser.parse_args()
