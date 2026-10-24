@@ -4,7 +4,7 @@ import { resources, resourceById, renderResource } from '../lib/resource-library
 interface Props { selectedId?: string }
 const { selectedId } = Astro.props;
 const selected = resourceById(selectedId ?? '') ?? resources[0];
-const canonical = selectedId ? `/resources/${selected.id}` : '/resources';
+const canonical = 'https://composer.loftwah.com' + (selectedId ? `/resources/${selected.id}` : '/resources');
 const download = `/resources/${selected.id}.md`;
 const shareName = selected.id === 'change' || selected.id === 'incident' ? `${selected.id}-og.png` : 'resources-og.png';
 ---
