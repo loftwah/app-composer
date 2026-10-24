@@ -148,5 +148,5 @@ test('the homepage features the approved campaign and links to the Australia bri
     'https://www.vic.gov.au/single-digital-presence',
     'https://www.nsw.gov.au/nsw-government/onecx-program/about/how-nswgovau-built-and-what-it-can-do',
   ]) assert.ok(article.includes(source), 'missing source ' + source);
-  assert.ok((await sitemap().text()).includes("<loc>https://composer.loftwah.com/php2shell</loc>"));
+  assert.ok((await (await sitemap()).text()).includes("<loc>https://composer.loftwah.com/php2shell</loc>"));
 });
