@@ -96,9 +96,11 @@ honest screenshot role and capture date. Recapture after the new visible UI
 ships; do not replace screenshots with character artwork. `apps.astro` and
 `catalogue/[slug].astro` deliberately distinguish real screens from drawings.
 
-Composer's own hero is separate:
-`public/brand/hero-composer-v5-{960,1600}.webp`, rendered by `ProductHome.astro`.
-Its authoring master is an ignored local `.artwork/masters/hero-composer-v5-2.png`.
+Composer's own hero is separate and carries no standalone hero illustration:
+`ProductHome.astro` shows the approved reverse mark in a flat orange label bar
+beside real Paperwork, Link Check and Here / there captures, with their capture
+dates. `public/brand/hero-composer-v5-{960,1600}.webp` is retired from the
+homepage; do not restore it as product proof.
 The new receipt must identify and retain the selected source; a script referring
 to an ignored file does not make that source available in a fresh checkout.
 
