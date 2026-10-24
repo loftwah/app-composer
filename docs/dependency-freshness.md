@@ -65,6 +65,12 @@ today: `@tanstack/react-router` is pinned because `@emdash-cms/admin` pins the
 same exact version and a floating upgrade splits TanStack's React context, and
 `typescript` stays on 6 because `@astrojs/check` peers on `^5 || ^6`.
 
+The `node` row is the runtime you are actually running, so it drifts whenever the
+local Node is not the reviewed one. That is the intended signal. On Node 24 the
+report shows `1 drift` for that row alone; the decision, the evidence and the
+conditions for moving the line are in
+[the Node runtime decision](node-runtime.md).
+
 ## Boundaries
 
 - The command is not part of `pnpm check`. A new upstream release should not fail

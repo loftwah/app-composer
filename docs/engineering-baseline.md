@@ -1,14 +1,24 @@
 # Engineering baseline
 
-Reviewed 24 October 2026 for #175. Node 22.23.4+ and pinned pnpm remain the
-supported local tools; Cloudflare workerd runs deployed Workers. The Node
+Reviewed 25 October 2026 for #175 and #316. Node 22.23.4+ and pinned pnpm remain
+the supported local tools; Cloudflare workerd runs deployed Workers. The Node
 floor follows Astro 7.4, which refuses 22.23.1 and earlier. Composer and the
 plain Worker references select pnpm 12.8.1. The independent content-site recipe
 retains its own Astro 7.3.5, EmDash 1.2.0 and separately exercised pnpm 12.9.1
-lockfile. A Node 24 qualification ran the full install, type/Astro check and
-production build successfully; only Get Ready's reviewed Node-22 runtime gate
-fails there, so the declared range stays on the Node 22 line. A local
-package-manager change would need its own install/check/build/package
+lockfile.
+
+Node 24.22.1 LTS was qualified against the same gates on 2026/10/25: a fresh
+frozen-lockfile install, type/Astro check with no errors, and an identical
+production build (1243 files, 150 archive members) all pass. It is still not
+declared. The full suite fails seven Get Ready site-skill tests and skips ten
+owned-tool and temporary-storage tests, because `lib/get-ready` deliberately
+refuses a runtime other than Node 22 for the operations that install and run
+pinned third-party binaries. The declared range therefore stays on the Node 22
+line, and `tests/node-runtime.test.mjs` keeps the five `engines.node`
+declarations and the policy on that one reviewed major. Exact commands, versions
+and the conditions for moving are in [the Node runtime decision](node-runtime.md).
+
+A local package-manager change would need its own install/check/build/package
 comparison; no Bun comparison was performed.
 
 ## Checked source and independent distributions
@@ -113,3 +123,23 @@ node --test tests/creator-source.test.mjs tests/creator-boundaries.test.mjs test
 node --test tests/content-model.test.mjs tests/content-project.test.mjs tests/content-calendar.test.mjs tests/content-entry.test.mjs tests/content-filter.test.mjs
 node --test tests/readiness-owned-deploy.test.mjs tests/readiness-maintained-release.test.mjs tests/readiness-package.test.mjs
 ```
+
+## Dev server React islands
+
+Reviewed 2026/10/25. An earlier Astro 7.4.2 observation reported `Invalid hook
+call` on `/effect`. It does not reproduce on the current toolchain (Node 22.23.4,
+Astro 7.4.2, React 19.3.1, `@astrojs/react` 7.1.1). Headless Chromium loaded
+`/effect`, `/ready`, `/me`, `/people` and `/demo` with no page errors and no React
+hook warnings; the `/effect` island hydrated, accepted a click on "Run check" and
+moved its live status from "Ready to run the recorded check." to
+"Step 1 of 5: Request validated." No speculative change was made.
+
+Reproduce with the built-in launcher and a headless browser:
+
+```sh
+pnpm dev                     # prints the 127.0.0.1:4321 address, then `pnpm exec astro dev stop`
+```
+
+A single `Invalid hook call` can still indicate two React copies in a consumer's
+dependency tree. Nothing in this check proves otherwise for a composed or mounted
+app; it establishes the standalone dev server only.
