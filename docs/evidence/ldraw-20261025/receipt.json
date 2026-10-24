@@ -1,0 +1,358 @@
+{
+  "schema": "composer.ldraw-acceptance/1",
+  "observedAt": "2026-10-24T13:57:03.842Z",
+  "source": "90c9eb4",
+  "origin": "http://127.0.0.1:4324",
+  "releasedLdrawSource": "c9c2339a1296ee7c06a7d94f274c69143478acba",
+  "browser": "Chromium 1248 (Playwright 1.64 alpha headless shell), deviceScaleFactor 1",
+  "note": "Local production-equivalent Astro dev render of the committed Composer source. No Composer deployment is claimed.",
+  "fixtures": {
+    "catalogue": "A local fictional 'LDraw' catalogue contract was inserted into this run's own gitignored D1 dev database only to render /catalogue/ldraw for review. It is not the owner's unpublished native draft; nothing was published, deployed or retained."
+  },
+  "pages": {
+    "apps": {
+      "heading": "LDraw",
+      "description": "Draw and save editable diagrams locally, then export PNG or SVG.",
+      "category": "Drawing & diagrams",
+      "deviceSummary": "Desktop supported · Phone limited",
+      "deviceFilterTokens": "desktop limited",
+      "links": [
+        {
+          "text": "Open app",
+          "href": "/ldraw"
+        },
+        {
+          "text": "Standalone",
+          "href": "https://ldraw.loftwah.com/"
+        },
+        {
+          "text": "GitHub source",
+          "href": "https://github.com/loftwah/app-composer-ldraw/tree/c9c2339a1296ee7c06a7d94f274c69143478acba"
+        }
+      ],
+      "thumbnail": {
+        "src": "/brand/apps/ldraw-tile-c9c2339a1296-d2e0dc4b-r2-96.webp",
+        "width": "96",
+        "naturalWidth": 96,
+        "naturalHeight": 96,
+        "complete": true
+      },
+      "preview": {
+        "src": "/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r2-960.webp",
+        "alt": "Actual deployed LDraw workspace with its drawing canvas and native Excalidraw controls.",
+        "naturalWidth": 0,
+        "naturalHeight": 0
+      },
+      "previewWide": "/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r2-960.webp 960w, /brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r2-1440.webp 1440w",
+      "caption": "Real screenshot of LDraw at ldraw.loftwah.com, captured 24 October 2026. The tile beside the title is App Composer’s wordmark tile for LDraw, not an LDraw logo; the real workspace screenshot is below."
+    },
+    "catalogueList": {
+      "rows": [
+        {
+          "title": "LDraw",
+          "href": "/catalogue/ldraw",
+          "openApp": "/ldraw",
+          "deviceSummary": "Desktop supported · Phone limited"
+        }
+      ],
+      "count": "31 destinations"
+    },
+    "catalogue": {
+      "title": "LDraw",
+      "lede": "Local fictional fixture contract for LDraw discovery review. Draw and save editable diagrams locally, then export PNG or SVG.",
+      "deviceSummary": "Desktop supported · Phone limited",
+      "actions": [
+        {
+          "text": "Open app",
+          "href": "/ldraw"
+        },
+        {
+          "text": "View GitHub source",
+          "href": "https://github.com/loftwah/app-composer-ldraw/tree/c9c2339a1296ee7c06a7d94f274c69143478acba"
+        }
+      ],
+      "preview": {
+        "src": "/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r2-960.webp",
+        "alt": "Actual deployed LDraw workspace with its drawing canvas and native Excalidraw controls.",
+        "complete": true,
+        "naturalWidth": 720,
+        "naturalHeight": 500,
+        "currentSrc": "http://127.0.0.1:4324/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r2-960.webp"
+      },
+      "handoff": [
+        "What this app does.Sketch a system, a game scene or a music workflow. Use editable examples as starting points.Draw with Excalidraw’s shapes, text, arrows, images, selection and undo.Keep an editable .excalidraw file; import a checked native scene or export PNG and SVG.Autosave in this browser, with a previous snapshot and a revision check against another tab.Make it yours. Open the independent editor and choose drawing colours and export settings. Keep an editable download before clearing browser data.Works with. Uses its own origin and browser storage. An authorised agent can work with native .excalidraw files or the same-tab window.ldraw interface. Composer does not receive the drawing; there is no MCP service.",
+        "Build with this appUse LDraw’s native .excalidraw files and independent editor source. Give your agent the released source and an editable scene; browser access stays under your authorisation.Build from the native LDraw source · Open LDraw · Compare it with the shipped app library"
+      ],
+      "buildHref": "https://github.com/loftwah/app-composer-ldraw/tree/c9c2339a1296ee7c06a7d94f274c69143478acba",
+      "buildText": "Build from the native LDraw source",
+      "ogImage": "https://composer.loftwah.com/brand/apps/ldraw-share-c9c2339a1296-d2e0dc4b-r2.png",
+      "ogTitle": "LDraw · App Composer"
+    }
+  },
+  "captures": [
+    {
+      "file": "ldraw-thumbnail-96.png",
+      "bytes": 1859,
+      "note": "element screenshot of the real 96x96 catalogue tile"
+    },
+    {
+      "file": "apps-1440-dark.png",
+      "bytes": 100303,
+      "sha256": "8b1112f9b82c4c2fbc6455dddaff4f4973a8b967e10b37f4e22886f4d9dff2ba"
+    },
+    {
+      "file": "apps-1440-light.png",
+      "bytes": 101170,
+      "sha256": "a07ff1d52bbcdf907da6fd7090b643e106134f32bf9b56e30f54016df676b158"
+    },
+    {
+      "file": "apps-390-dark.png",
+      "bytes": 67395,
+      "sha256": "131f14744f4a0b2dd6288f18f5e1547d8f94fb8bc95175acfc8bd17ef7d67060"
+    },
+    {
+      "file": "apps-390-light.png",
+      "bytes": 68259,
+      "sha256": "9f26c1de3fabc0b0595887e128a92cf53aa6cd3eb5042456d7a789b6bd5e7a39"
+    },
+    {
+      "file": "apps-390-dark-200-percent-text.png",
+      "bytes": 47508,
+      "sha256": "d6ebbc93f030c34bc9bd9dc4622ba0b7dc9b4a811166be0fccda0fc2d9c169f4"
+    },
+    {
+      "file": "catalogue-list-1440-dark.png",
+      "bytes": 114827,
+      "sha256": "d39ae108191c7b7ac0e299a5e078df423ce338a6186ea37b12bf2da24a44d471"
+    },
+    {
+      "file": "catalogue-list-390-dark.png",
+      "bytes": 68723,
+      "sha256": "22ade4869cd88b5e26c4852a2643ab06b75b16bc8cc20a405a5adf51ff7c97cf"
+    },
+    {
+      "file": "catalogue-ldraw-1440-dark.png",
+      "bytes": 97173,
+      "sha256": "2a147654262af6815aa488858b71b6182232412d739d3efdd4097180d446066f"
+    },
+    {
+      "file": "catalogue-ldraw-1440-light.png",
+      "bytes": 97071,
+      "sha256": "3ec1899cb8bccc07dfe1c193c579b40653ac40ca3d25792f76d1584401654bf0"
+    },
+    {
+      "file": "catalogue-ldraw-390-dark.png",
+      "bytes": 64445,
+      "sha256": "488a1bd6821e92953bd86ae50deeccb0151389869212a1ebb4f71c1e69034e1e"
+    },
+    {
+      "file": "live-editor-entry-1440.png",
+      "bytes": 72271,
+      "sha256": "74662c52573e05e32914ca579d59e1f0c46576f07809beb7532167115d0b3b53"
+    },
+    {
+      "file": "live-editor-entry-390.png",
+      "bytes": 35219,
+      "sha256": "723593597f32ccce5d47b679c3003cc5f1af4d99e63427b2281af778a48833d1"
+    },
+    {
+      "file": "launcher-1440-dark-ldraw.png",
+      "bytes": 97898,
+      "sha256": "dce1c55ab163b431512abf227f2a4293c6d24609b10315885d76def952c38801"
+    },
+    {
+      "file": "launcher-1440-light.png",
+      "bytes": 141428,
+      "sha256": "d8c2ff0990f8179fe1600cea4dae521ee5f8a6420fb24fd87ed22dbd0202178d"
+    },
+    {
+      "file": "launcher-390-dark.png",
+      "bytes": 68431,
+      "sha256": "fc1adc0d242a737eb8b9994753d46fd116b3ed4e2ad1f0ec78ac2d06e34d838a"
+    },
+    {
+      "file": "launcher-390-light.png",
+      "bytes": 69548,
+      "sha256": "4c500143aeda50f9f8ec9044feb227b24c6081cb4451bc8dc4dc4f996f62855e"
+    },
+    {
+      "file": "launcher-390-dark-200-percent-text.png",
+      "bytes": 65652,
+      "sha256": "bea0179f476a95de70e26662bd2d4ac82e1eb33a1c0c32877c8f950505ec3f9b"
+    }
+  ],
+  "checks": {
+    "card": {
+      "name": true,
+      "openAppHref": "/ldraw",
+      "standaloneHref": "https://ldraw.loftwah.com/",
+      "sourceHref": "https://github.com/loftwah/app-composer-ldraw/tree/c9c2339a1296ee7c06a7d94f274c69143478acba",
+      "thumbnailDecoded": true,
+      "thumbnailSrc": "/brand/apps/ldraw-tile-c9c2339a1296-d2e0dc4b-r2-96.webp",
+      "deviceSummary": "Desktop supported · Phone limited",
+      "deviceFilterTokens": "desktop limited"
+    },
+    "preview": {
+      "complete": true,
+      "naturalWidth": 560,
+      "naturalHeight": 389,
+      "currentSrc": "http://127.0.0.1:4324/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r2-960.webp",
+      "src": "/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r2-960.webp",
+      "alt": "Actual deployed LDraw workspace with its drawing canvas and native Excalidraw controls."
+    },
+    "previewBytes": {
+      "bytes": 42350,
+      "riff": "RIFF",
+      "webp": "WEBP"
+    },
+    "tile": {
+      "corner": [
+        252,
+        91,
+        5
+      ],
+      "centre": [
+        252,
+        91,
+        5
+      ],
+      "whitePixels": 339,
+      "currentSrc": "http://127.0.0.1:4324/brand/apps/ldraw-tile-c9c2339a1296-d2e0dc4b-r2-96.webp"
+    },
+    "appsOverflowdark": {
+      "document": 0,
+      "body": 0
+    },
+    "appsOverflowlight": {
+      "document": 0,
+      "body": 0
+    },
+    "noScriptFallback": {
+      "ldrawRow": true
+    },
+    "appsPhoneOverflowdark": {
+      "document": 0,
+      "body": 0
+    },
+    "appsPhoneOverflowlight": {
+      "document": 0,
+      "body": 0
+    },
+    "appsPhoneOverflow200": {
+      "document": 0,
+      "body": 0
+    },
+    "catalogueListPhoneOverflow": {
+      "document": 0,
+      "body": 0
+    },
+    "catalogueStatus": 200,
+    "catalogue": {
+      "openAppHref": "/ldraw",
+      "sourceHref": "https://github.com/loftwah/app-composer-ldraw/tree/c9c2339a1296ee7c06a7d94f274c69143478acba",
+      "deviceSummary": "Desktop supported · Phone limited",
+      "previewDecoded": true,
+      "previewSrc": "/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r2-960.webp",
+      "nativeHandoff": true,
+      "noInitWizard": true
+    },
+    "catalogueOverflowdark": {
+      "document": 0,
+      "body": 0
+    },
+    "catalogueOverflowlight": {
+      "document": 0,
+      "body": 0
+    },
+    "cataloguePhoneOverflow": {
+      "document": 0,
+      "body": 0
+    },
+    "share": {
+      "url": "https://composer.loftwah.com/brand/apps/ldraw-share-c9c2339a1296-d2e0dc4b-r2.png",
+      "status": 200,
+      "type": "image/png",
+      "bytes": 67478,
+      "png": true,
+      "width": 1200,
+      "height": 630
+    },
+    "entryRedirect": {
+      "status": 302,
+      "location": "https://ldraw.loftwah.com/?analytics=off&qa=proof-290"
+    },
+    "entryStripped": {
+      "status": 302,
+      "location": "https://ldraw.loftwah.com/"
+    },
+    "entry": {
+      "finalUrl": "https://ldraw.loftwah.com/?analytics=off&qa=proof-290#secret",
+      "title": "LDraw — draw and explain",
+      "editorRoot": 1,
+      "header": "LDraw\npowered by Excalidraw\nNew content\nComposer\nInfrastructure\nGame design\nMusic / FM\nGeneral\nExample\nCreator journey\nS",
+      "fragment": "#secret"
+    },
+    "keyboardOpen": {
+      "open": true,
+      "focus": "search"
+    },
+    "launcherRow": {
+      "href": "https://ldraw.loftwah.com/",
+      "text": "LDrawEditable diagrams, PNG and SVG",
+      "imageSrc": "/brand/apps/ldraw-tile-c9c2339a1296-d2e0dc4b-r2-96.webp",
+      "imageDecoded": true,
+      "status": "1 destination",
+      "visibleRows": 1
+    },
+    "launcherKeyboard": {
+      "tag": "A",
+      "href": "https://ldraw.loftwah.com/",
+      "focusedRow": true
+    },
+    "launcherEscape": {
+      "open": false,
+      "focus": "BODY"
+    },
+    "reducedMotion": {
+      "open": true,
+      "animationDuration": "0s",
+      "transitionDuration": "0s",
+      "matches": true
+    },
+    "launcherEscapeFromTrigger": {
+      "open": false,
+      "focus": "apps-trigger"
+    },
+    "launcherPhonedark": {
+      "open": true,
+      "focus": "close",
+      "dialogWidth": 366,
+      "dialogOverflow": 0,
+      "documentOverflow": 0,
+      "listScrolls": true,
+      "ldrawHref": "https://ldraw.loftwah.com/",
+      "ldrawImageDecoded": true,
+      "ldrawVisible": true
+    },
+    "launcherPhonelight": {
+      "open": true,
+      "focus": "close",
+      "dialogWidth": 366,
+      "dialogOverflow": 0,
+      "documentOverflow": 0,
+      "listScrolls": true,
+      "ldrawHref": "https://ldraw.loftwah.com/",
+      "ldrawImageDecoded": true,
+      "ldrawVisible": true
+    },
+    "launcherPhone200": {
+      "dialogOverflow": 0,
+      "documentOverflow": 0,
+      "listOnlyScrolls": true,
+      "searchFontSize": 32,
+      "closeVisible": true
+    }
+  },
+  "pageErrors": [],
+  "problems": []
+}
