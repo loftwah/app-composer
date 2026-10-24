@@ -40,6 +40,10 @@
                 "method": "browser-emulation",
                 "journey": "Chromium: native drawing/text, file roundtrip, PNG/SVG preview/export, autosave and offline current-scene reload. Composer issue #290."
               }
+            },
+            "tablet": {
+              "status": "unknown",
+              "note": "Tablet editing, stylus and file handling have not been checked."
             }
           }
         }
