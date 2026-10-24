@@ -2,7 +2,7 @@
 
 [Open Paperwork](https://composer-paperwork.loftwah.workers.dev/) · [Four-page fictional sample](https://composer-paperwork.loftwah.workers.dev/?sample=lab) · [Completed PDF](https://composer.loftwah.com/paperwork/lab-completed-20261024.pdf) · [Configure in Init](https://composer.loftwah.com/init/paperwork)
 
-Paperwork is independently maintained in [app-composer-paperwork](https://github.com/loftwah/app-composer-paperwork). Served source: `cca9d4afa907ce266cacb11d42c360ecd5bcd44d` ([PR 1](https://github.com/loftwah/app-composer-paperwork/pull/1)); static Worker version `e02bcfa5-fd9d-4df4-8a1b-ef486b148fe5`, account `1003dc1d93af0ebea56b2f1252f89627`. Composer's final source, independently promoted navigation pins and active Worker identity are in the single canonical [#11 release receipt](https://github.com/loftwah/app-composer/issues/11). [#264](https://github.com/loftwah/app-composer/issues/264) owns remaining acceptance.
+Paperwork is independently maintained in [app-composer-paperwork](https://github.com/loftwah/app-composer-paperwork). Served source: `d1801d98179d9fee0f00ec5132ff34659f2ed267` ([PR 1](https://github.com/loftwah/app-composer-paperwork/pull/1), [touch correction PR 3](https://github.com/loftwah/app-composer-paperwork/pull/3)); static Worker version `da983342-d2fd-49a6-8a05-306da4e9fd71`, account `1003dc1d93af0ebea56b2f1252f89627`. Composer's final source, independently promoted navigation pins and active Worker identity are in the single canonical [#11 release receipt](https://github.com/loftwah/app-composer/issues/11). [#264](https://github.com/loftwah/app-composer/issues/264) owns remaining acceptance.
 
 ## Actual results
 
@@ -14,7 +14,7 @@ Paperwork is independently maintained in [app-composer-paperwork](https://github
 | Save/reopen | Pass: actual Chrome 155 download, reopened through Paperwork/PDF.js; supplied verifier checks exact values and every target region. Unchanged source fails completed-document acceptance. |
 | Independent inspection | Pass: PyMuPDF 1.28.2 and Poppler render the actual downloaded PDF. Media/crop/rotation match; original scanned RGB pixels are identical; PNG alpha mask is exact and the placed image remains inside its target. |
 | Print data | Pass: Print prepares exactly the same completed PDF bytes as Save; browser PDF viewer receives that blob. Actual printer dialog, print-to-PDF and physical paper were not qualified. |
-| Phone | Pass: 390×844 touch-enabled WebKit, native field editing, pen touch, undo/redo, signature placement, both themes, no horizontal document overflow and actual exported field value. Physical iPhone/stylus/IME remain unexercised. |
+| Phone | Pass: 390×844 touch-enabled WebKit, native field editing, pen touch, undo/redo, signature placement, both themes, no horizontal document overflow and actual exported field value. A native Chromium touch regression also passes continuous ink, Select scrolling without added ink, two-finger zoom and PNG signature movement/resizing. Physical iPhone/stylus/IME remain unexercised. |
 | Failure recovery | Pass: encrypted and truncated fixtures produce helpful errors while retaining an unrelated unsaved answer. Unsupported glyph export fails with edits intact. |
 | Privacy | Pass: no external HTTP requests or document/signature uploads through the served open/edit/sign/save/print journey; localStorage/sessionStorage/IndexedDB remain empty. Browser-internal Chrome PDF-viewer assets are local, not network egress. |
 | Separate connected Chrome review | Pass for built-in lab sample editing, native dropdown, page/zoom, real mouse ink, undo/redo and actual downloaded native values. PNG file selection was unavailable because the extension's Allow access to file URLs permission is disabled. Full file/PNG workflows passed in the automated Chrome and WebKit sessions. Native OS inspection was unavailable while the Mac was locked. |
@@ -26,6 +26,7 @@ The unchanged owner pack lives under `tests/fixtures/paperwork-fixtures/` in the
 
 ## Fixes discovered during delivery
 
+- Mobile signature drags could become native page pans and be cancelled. The SVG root now owns object touch gestures while blank-page scrolling remains available; the native-touch regression is committed in the independent app.
 - Read-only fields rendered both their original appearance and an HTML value; the overlay now masks the duplicate.
 - Segment-by-segment PDF highlighter strokes darkened at joins; each stroke is now one continuous translucent path, with a focused serialized-stroke regression.
 - Action stripping assumed every dictionary's `A`/`Names` entries were action dictionaries. The focused regression now preserves unrelated keys and destination arrays while disabling actual action dictionaries.
