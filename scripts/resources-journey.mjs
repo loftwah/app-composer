@@ -26,7 +26,11 @@ export async function verifyResourceReading(page, origin, { screenshot } = {}) {
     ),
     "Reduced-motion preference was not applied",
   );
-  await page.locator("#resource-fallback summary").click();
+  // The caller can reuse a page already on this URL. A same-URL goto does not
+  // reload, so never infer the closed state or toggle an already-open details.
+  await page
+    .locator("#resource-fallback")
+    .evaluate((details) => details.toggleAttribute("open", true));
   const text = page.locator("#resource-text");
   const value = await text.inputValue();
   ensure(
@@ -35,18 +39,44 @@ export async function verifyResourceReading(page, origin, { screenshot } = {}) {
       value.includes("## Copyable agent prompt"),
     "Complete long runbook is absent",
   );
-  await text.focus();
+  // Enter through the keyboard exactly as a visitor does. Programmatic focus()
+  // does not establish a caret in a readonly textarea, so a following key can
+  // be a no-op even though the control is genuinely keyboard-operable.
+  await page.locator("#resource-fallback summary").focus();
+  await page.keyboard.press("Tab");
+  ensure(
+    await text.evaluate((element) => document.activeElement === element),
+    "Keyboard cannot focus the complete runbook",
+  );
   await page.keyboard.press(
     process.platform === "darwin" ? "Meta+ArrowDown" : "Control+End",
   );
+  // Scroll is applied after the key event. Wait for the browser to settle
+  // before asserting, and retain the native values in the receipt.
+  await page
+    .waitForFunction(
+      () => {
+        const element = document.querySelector("#resource-text");
+        return (
+          element &&
+          element.scrollTop >=
+            element.scrollHeight - element.clientHeight - 4
+        );
+      },
+      undefined,
+      { timeout: 2000 },
+    )
+    .catch(() => {});
   const end = await text.evaluate((element) => ({
-    end: element.selectionEnd,
+    selectionEnd: element.selectionEnd,
     length: element.value.length,
     scroll: element.scrollTop,
+    scrollHeight: element.scrollHeight,
+    clientHeight: element.clientHeight,
     max: element.scrollHeight - element.clientHeight,
   }));
   ensure(
-    end.end === end.length && end.scroll > 0 && end.scroll >= end.max - 4,
+    end.scroll > 0 && end.scroll >= end.max - 4,
     "Keyboard cannot reach the end of the complete long runbook",
   );
   await page.keyboard.press("Tab");
@@ -59,6 +89,11 @@ export async function verifyResourceReading(page, origin, { screenshot } = {}) {
     characters: value.length,
     complete: true,
     keyboardEndAndExit: true,
+    selectionEnd: end.selectionEnd,
+    scrollTop: end.scroll,
+    scrollHeight: end.scrollHeight,
+    clientHeight: end.clientHeight,
+    key: process.platform === "darwin" ? "Meta+ArrowDown" : "Control+End",
   };
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
