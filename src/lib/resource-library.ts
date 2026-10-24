@@ -6,7 +6,7 @@ export const resources = [
     id: 'change', title: 'Make a change', label: 'Change',
     outcome: 'A small, reviewed improvement with evidence that it works.',
     needs: 'An authorised project folder, its existing checks, and the change you want.',
-    scope: 'Adapt for your project. The bundled local example runs with Node 22; release uses your existing guard.',
+    scope: 'Adapt for your project. Node 22 exercises and a complete fictional Python 3.10+ change example are included. Actual Python trial used 3.14.7; release uses your existing guard.',
     steps: [
       'Read the actual project guidance and inspect Git status, worktrees and existing behaviour. Keep unrelated edits. Reproduce the journey before changing it; write down the desired observation.',
       'Identify the smallest owning module and the existing check that can reveal a regression. Use existing commands and dependencies. Define what is outside this change.',
@@ -15,7 +15,7 @@ export const resources = [
       'Review the final diff against the starting revision. Use the authorised release path, verify the affected journey on the actual target, and record exact source, environment, result and remaining gates.',
     ],
     recovery: 'Keep the current diff and failing command. Resume from the last verified step after reconciling source and target. A code rollback does not restore deleted data or configuration.',
-    files: ['change-release.mmd', 'change-release.svg', 'examples/guarded-pipeline.mjs', 'templates/emergency-change.md'],
+    files: ['change-release.mmd', 'change-release.svg', 'examples/guarded-pipeline.mjs', 'templates/emergency-change.md', 'examples/field-notes-example.md', 'examples/field-notes-about.patch', 'examples/field-notes-mobile-about.png'],
   },
   {
     id: 'incident', title: 'Handle an incident', label: 'Incident',

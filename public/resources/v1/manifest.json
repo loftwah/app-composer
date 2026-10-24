@@ -1,7 +1,7 @@
 {
   "version": "composer.operating-kit/1",
-  "bytes": 461892,
-  "sha256": "b427d2f910da088aa6b7fc96c493d41d43960081ecc763495bda92dbd0f6e813",
+  "bytes": 530559,
+  "sha256": "4c9a9ecb73d9db65350727f0b11d6addc00db6500edc89a1c70a73ae7e7c81c1",
   "files": [
     {
       "name": "change-og.png",
@@ -20,8 +20,8 @@
     },
     {
       "name": "change.md",
-      "bytes": 3310,
-      "sha256": "637b6973c087d240dad1e1df7d958f30724569db9f09f8bde5d12298674fb086"
+      "bytes": 3492,
+      "sha256": "57d2a844db7b8ef91b24bc1ce4ec2cf2351ca18c05810eb70f77e8cc96a986b5"
     },
     {
       "name": "composer-mark.png",
@@ -42,6 +42,61 @@
       "name": "examples/exercise.mjs",
       "bytes": 4917,
       "sha256": "4393289e18937fc64c010927837333c1c35f1b33b40b23a358c601af3532db76"
+    },
+    {
+      "name": "examples/field-notes-about.patch",
+      "bytes": 4465,
+      "sha256": "e800e71f595c153eede3708226842182d6cc9e4293ee3972b69204d51b6bce08"
+    },
+    {
+      "name": "examples/field-notes-desktop-about.png",
+      "bytes": 36057,
+      "sha256": "f2018eccebf0059c3fe090ba7ee92b76a6dd4ade59209ae506577adc61ce954d"
+    },
+    {
+      "name": "examples/field-notes-example.md",
+      "bytes": 2209,
+      "sha256": "0e2e21883c72c2177b42f2d78bbfa42b30f26f20c7a8faf7dc4736969ecb912c"
+    },
+    {
+      "name": "examples/field-notes-mobile-about.png",
+      "bytes": 33235,
+      "sha256": "cf7d3d97f001203813017c5321e604a205d3272e5de71aef91f04a29c3b85987"
+    },
+    {
+      "name": "examples/field-notes-provenance.json",
+      "bytes": 845,
+      "sha256": "b0a229300ff5c4368f4b49d9a32ddca87132bac8ee14d2bed66ac98affa13ccf"
+    },
+    {
+      "name": "examples/field-notes/AGENTS.md",
+      "bytes": 509,
+      "sha256": "6eebc9a91d16c69c80058d42d2c9d4ed598765b7543b21339c5845a7fc28afc9"
+    },
+    {
+      "name": "examples/field-notes/app.py",
+      "bytes": 3003,
+      "sha256": "82608fe277d61cd1fbbcaba0dfae80a127a87f8b1201cd00a874f00819972fd1"
+    },
+    {
+      "name": "examples/field-notes/owner-note.txt",
+      "bytes": 59,
+      "sha256": "2958792fb8548db51fc1fdef41d36e3da8fac4971746e40305a9781eb226cd9b"
+    },
+    {
+      "name": "examples/field-notes/README.md",
+      "bytes": 971,
+      "sha256": "7ad0fd871957509eef9696d937eceeee38a0c9c07c9bb5793d7a278d2d2f4c36"
+    },
+    {
+      "name": "examples/field-notes/site.json",
+      "bytes": 109,
+      "sha256": "e2f2843ff0c823a62b2937e9db35d94a21d71725ef64447817d1e87e745199ae"
+    },
+    {
+      "name": "examples/field-notes/test_app.py",
+      "bytes": 3641,
+      "sha256": "1502bb0c769afe6fb838d79c811a474abafc8a7f7f91b8771a0c761c500a993e"
     },
     {
       "name": "examples/guarded-pipeline.mjs",
@@ -105,8 +160,8 @@
     },
     {
       "name": "INDEX.md",
-      "bytes": 2465,
-      "sha256": "92a553748a6b3f859215502bf1bc2ac6c1eeae8504d11e7a3bd0a220dc218b32"
+      "bytes": 2862,
+      "sha256": "98c98afa81a4454b260e08b627770783e1c9defefa6fcb09250e89a7c3b65707"
     },
     {
       "name": "kit-preview.png",

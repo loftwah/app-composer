@@ -1,0 +1,96 @@
+diff --git a/app.py b/app.py
+index a6d82cb..e20b150 100644
+--- a/app.py
++++ b/app.py
+@@ -19,7 +19,21 @@ def render_page(site):
+     return ("<!doctype html><html lang=en><meta charset=utf-8>"
+             "<meta name=viewport content='width=device-width,initial-scale=1'>"
+             f"<title>{escape(site['title'])}</title><h1>{escape(site['title'])}</h1>"
+-            f"<p>{escape(site['welcome'])}</p><p>Fictional local evaluation fixture.</p></html>")
++            f"<p>{escape(site['welcome'])}</p><p>Fictional local evaluation fixture.</p>"
++            "<p><a href='/about'>About the walking club</a></p></html>")
++
++
++def render_about(site):
++    return ("<!doctype html><html lang=en><meta charset=utf-8>"
++            "<meta name=viewport content='width=device-width,initial-scale=1'>"
++            f"<title>About | {escape(site['title'])}</title>"
++            "<main><h1>About the walking club</h1>"
++            "<p>Fictional Field Notes Walking Club is an imaginary group for people who enjoy "
++            "gentle walks, noticing local plants and sharing notes along the way.</p>"
++            "<p>In this fictional club, walkers meet at the imaginary Willow Park gate "
++            "on Saturday mornings and choose a short route together.</p>"
++            "<p>This is fictional walking-club information for a local evaluation.</p>"
++            "<p><a href='/'>Return home</a></p></main></html>")
+ 
+ 
+ class Page(BaseHTTPRequestHandler):
+@@ -29,6 +43,8 @@ class Page(BaseHTTPRequestHandler):
+             body, content_type, status = b'{"status":"ready"}', "application/json", 200
+         elif path == "/":
+             body, content_type, status = render_page(load_site()).encode(), "text/html; charset=utf-8", 200
++        elif path == "/about":
++            body, content_type, status = render_about(load_site()).encode(), "text/html; charset=utf-8", 200
+         else:
+             body, content_type, status = b"Page not found", "text/plain", 404
+         self.send_response(status)
+diff --git a/test_app.py b/test_app.py
+index a42d297..4776ced 100644
+--- a/test_app.py
++++ b/test_app.py
+@@ -1,4 +1,5 @@
+ """Independent local HTTP assertions; these are not fresh-agent attempts."""
++from html.parser import HTMLParser
+ from http.server import ThreadingHTTPServer
+ import json
+ from pathlib import Path
+@@ -9,6 +10,17 @@ from urllib.request import urlopen
+ from app import Page, load_site, render_page
+ 
+ 
++class Links(HTMLParser):
++    def __init__(self, html):
++        super().__init__()
++        self.targets = []
++        self.feed(html)
++
++    def handle_starttag(self, tag, attrs):
++        if tag == "a":
++            self.targets.extend(value for name, value in attrs if name == "href")
++
++
+ class SiteTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+@@ -38,6 +50,31 @@ class SiteTests(unittest.TestCase):
+         with self.assertRaises(HTTPError) as caught:
+             urlopen(self.base + "/missing", timeout=3)
+         self.assertEqual(caught.exception.code, 404)
++        caught.exception.close()
++
++    def test_about_journey_returns_to_customised_home(self):
++        with urlopen(self.base + "/", timeout=3) as response:
++            home = response.read().decode()
++        self.assertIn("/about", Links(home).targets)
++        with urlopen(self.base + "/about", timeout=3) as response:
++            self.assertEqual(response.status, 200)
++            self.assertEqual(response.headers.get_content_type(), "text/html")
++            about = response.read().decode()
++        self.assertIn("<h1>About the walking club</h1>", about)
++        self.assertIn("Fictional Field Notes Walking Club", about)
++        self.assertIn("fictional", about.lower())
++        self.assertIn("/", Links(about).targets)
++        with urlopen(self.base + "/", timeout=3) as response:
++            returned_home = response.read().decode()
++        self.assertEqual(returned_home, home)
++        self.assertIn(load_site()["welcome"], returned_home)
++
++    def test_malformed_about_route_stays_not_found(self):
++        with self.assertRaises(HTTPError) as caught:
++            urlopen(self.base + "/about%00", timeout=3)
++        self.assertEqual(caught.exception.code, 404)
++        self.assertEqual(caught.exception.read(), b"Page not found")
++        caught.exception.close()
+ 
+     def test_user_text_stays_text(self):
+         self.assertNotIn("<script>", render_page({"title": "<script>", "welcome": "& Fiction"}))

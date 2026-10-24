@@ -12,7 +12,7 @@ An authorised project folder, its existing checks, and the change you want.
 
 ## Supported scope
 
-Adapt for your project. The bundled local example runs with Node 22; release uses your existing guard.
+Adapt for your project. Node 22 exercises and a complete fictional Python 3.10+ change example are included. Actual Python trial used 3.14.7; release uses your existing guard.
 
 ## Runbook
 
@@ -50,6 +50,9 @@ Inspect the actual project and its trusted instructions first. Preserve existing
 - change-release.svg
 - examples/guarded-pipeline.mjs
 - templates/emergency-change.md
+- examples/field-notes-example.md
+- examples/field-notes-about.patch
+- examples/field-notes-mobile-about.png
 
 ## Success receipt
 

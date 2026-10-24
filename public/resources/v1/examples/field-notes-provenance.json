@@ -1,0 +1,14 @@
+{
+  "scope": "Actual fictional local change exercise, not a hosted service",
+  "fixtureSource": "d0b39f0c9978b1d8ac23745209e95265ed277ea7",
+  "inputZipSha256": "8f7f62a1b1e1f26c9e5aae2e2f81a0e249491afcf68f7c7e8639d7091016c451",
+  "patchSha256": "e800e71f595c153eede3708226842182d6cc9e4293ee3972b69204d51b6bce08",
+  "files": {
+    "AGENTS.md": "6eebc9a91d16c69c80058d42d2c9d4ed598765b7543b21339c5845a7fc28afc9",
+    "README.md": "7ad0fd871957509eef9696d937eceeee38a0c9c07c9bb5793d7a278d2d2f4c36",
+    "app.py": "82608fe277d61cd1fbbcaba0dfae80a127a87f8b1201cd00a874f00819972fd1",
+    "owner-note.txt": "2958792fb8548db51fc1fdef41d36e3da8fac4971746e40305a9781eb226cd9b",
+    "site.json": "e2f2843ff0c823a62b2937e9db35d94a21d71725ef64447817d1e87e745199ae",
+    "test_app.py": "1502bb0c769afe6fb838d79c811a474abafc8a7f7f91b8771a0c761c500a993e"
+  }
+}
