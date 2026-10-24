@@ -1,60 +1,717 @@
 ---
 import Base from '../layouts/Base.astro';
-import DiscoverWork from './DiscoverWork.astro';
-import { ArrowRight, Bot, SlidersHorizontal, Blocks, GitBranch, PanelRight, Settings2 } from '@lucide/astro';
-import {apps} from '../lib/apps';
+import { ArrowRight, Play } from '@lucide/astro';
+import { apps } from '../lib/apps';
 import instance from '../../config/instance.json';
 // The homepage is the product's front door. Owner configuration adds one instance
-// note, a link to the owner's profile and the apps running here; it never replaces
-// the product identity, explanation or metadata.
+// note and a link to the owner's profile; it never replaces the product identity,
+// explanation or metadata.
 const ownerInstance = instance.enabled ? instance : null;
+const appById = (id: string) => {
+  const app = apps.find((entry) => entry.id === id);
+  if (!app) throw new Error(`Unknown app in the homepage: ${id}`);
+  return app;
+};
+const paperwork = appById('paperwork');
+const linkCheck = appById('linkcheck');
+const hereThere = appById('guestbook');
+const linkarooie = appById('showcase');
+const launchKit = appById('launch-kit');
+const captured = (date: string) =>
+  new Date(date + 'T00:00:00Z').toLocaleDateString('en-AU', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 const siteSchema = {
- '@context': 'https://schema.org',
- '@type': 'WebSite',
- name: 'App Composer',
- url: 'https://composer.loftwah.com/',
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'App Composer',
+  url: 'https://composer.loftwah.com/',
 };
 ---
+
 <Base
- title="App Composer — Build apps with EmDash and Cloudflare"
- description="Build and connect independent apps with EmDash and Cloudflare. App Composer prepares your environment, captures your brief and keeps your source and data yours."
+  title="App Composer — build apps with your agent on Cloudflare"
+  description="Bring the app you need. Your agent builds it with you on Cloudflare, and the source, the data and the admin stay yours. Start with Get Ready, shape it in Init or copy a prompt straight to your agent."
 >
- <script slot="head" type="application/ld+json" set:html={JSON.stringify(siteSchema)} />
- <section class="composer-home-hero"><div><h1>Make software.<br/>Keep it yours.</h1><p class="lede">App Composer is an agent-operated studio for building applications with EmDash and Cloudflare. EmDash gives you content editing and admin; Cloudflare runs the app and stores its data. Get Ready prepares the environment, Init captures your choices, and mini-app APIs connect the useful pieces.</p><p class="home-prompt-entry"><a class="button home-prompt-button" href="/prompts">TLDR just give me the prompts <ArrowRight size={20} aria-hidden="true"/></a></p><div class="actions"><a class="button secondary" href="/ready">Start with Get Ready <ArrowRight size={18} aria-hidden="true"/></a><a class="button secondary" href="/discover">Explore what you can use</a><a href="/platform/demo">Watch the team journey</a></div><p><a href="/resources">Take the operating kit</a></p><p class="small">Explore here in your browser. Build with your authorised agent, GitHub source and selected Cloudflare account. Public browsing needs no Composer account.</p></div><figure class="home-identity"><div class="home-brand-plate"><img src="/brand/composer-mark-reverse-20261022b.svg" alt="App Composer’s white merging-block mark on a flat orange field." width="420" height="420" fetchpriority="high"/></div><div class="home-real-screens">{apps.filter(a=>['guestbook','showcase','linkcheck'].includes(a.id)).map(app=><a href={app.href}><img src={app.preview} alt={app.previewAlt} width="960" height="540" loading="lazy" decoding="async"/><span>{app.name} — real screen</span></a>)}</div></figure></section>
- <DiscoverWork />
- <section class="home-briefing" aria-labelledby="briefing-heading">
-  <div class="home-briefing-copy">
-   <p class="home-briefing-kicker"><span>Briefing</span> · 22 October 2026</p>
-   <h2 id="briefing-heading">When PHP broke, Australia felt it.</h2>
-   <p>Two critical flaws in the PHP runtime prompted Australian government sites to go offline as a precaution. The patch is urgent. The longer lesson is how we build and run these systems.</p>
-   <a class="home-briefing-link" href="/php2shell">Read the Australia briefing <ArrowRight size={18} aria-hidden="true"/></a>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(siteSchema)} />
+
+  <div class="composer-home">
+    <section class="home-hero" aria-labelledby="home-heading">
+      <div class="home-hero-copy">
+        <h1 id="home-heading">Make software.<br />Keep it yours.</h1>
+        <p class="home-lede">Bring the app you need. Your agent builds it with you on Cloudflare, and the source, the data and the admin stay yours.</p>
+        <div class="home-hero-actions">
+          <a class="button" href="/ready">Start with Get Ready <ArrowRight size={20} aria-hidden="true" /></a>
+        </div>
+        <a class="home-quick" href="/prompts">
+          <span class="home-quick-label">TLDR just give me the prompts <ArrowRight size={20} aria-hidden="true" /></span>
+          <span class="home-quick-note">Copy a complete request for your agent. No account, no setup.</span>
+        </a>
+        <p class="home-look">Looking around needs no account. Building uses your own GitHub source and Cloudflare account, with your agent doing the work.</p>
+      </div>
+
+      <figure class="home-proof">
+        <div class="home-proof-bar">
+          <img src="/brand/composer-mark-reverse-20261022b.svg" width="22" height="22" alt="" />
+          <span>Real apps, running now</span>
+        </div>
+        <div class="home-proof-grid">
+          <a class="home-proof-main" href={paperwork.href}>
+            <img
+              src={paperwork.preview}
+              width="1440"
+              height="1100"
+              alt={paperwork.previewAlt}
+              fetchpriority="high"
+              decoding="async"
+            />
+            <span><strong>Paperwork</strong> PDF editor</span>
+          </a>
+          <a href={linkCheck.href}>
+            <picture>
+              <source type="image/webp" srcset={`${linkCheck.preview} 960w, ${linkCheck.previewWide} 1440w`} sizes="(max-width: 700px) 90vw, 300px" />
+              <img src={linkCheck.preview} width="960" height="640" alt={linkCheck.previewAlt} loading="lazy" decoding="async" />
+            </picture>
+            <span><strong>Link Check</strong> Site review</span>
+          </a>
+          <a href={hereThere.href}>
+            <picture>
+              <source type="image/webp" srcset={`${hereThere.preview} 960w, ${hereThere.previewWide} 1440w`} sizes="(max-width: 700px) 90vw, 300px" />
+              <img src={hereThere.preview} width="960" height="640" alt={hereThere.previewAlt} loading="lazy" decoding="async" />
+            </picture>
+            <span><strong>Here / there</strong> Visitor book</span>
+          </a>
+        </div>
+        <figcaption>
+          Actual screens from the deployed apps, captured {captured(paperwork.previewCaptured)} and {captured(linkCheck.previewCaptured)}. The app illustrations elsewhere are artwork, not screens.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section class="home-paths" aria-labelledby="paths-heading">
+      <h2 id="paths-heading">What are you here to do?</h2>
+      <div class="home-paths-list">
+        <article>
+          <h3>Try a working app</h3>
+          <p>{apps.length} independent apps: a browser PDF editor, a site review, a moderated visitor book and more. Open one without an account.</p>
+          <p class="home-path-action"><a href="/apps">Open the app library <ArrowRight size={17} aria-hidden="true" /></a></p>
+        </article>
+        <article>
+          <h3>Build with your agent</h3>
+          <p>Get Ready checks the tools, source and Cloudflare account. Init turns the idea into a brief your agent implements.</p>
+          <p class="home-path-action"><a href="/ready">Prepare the environment <ArrowRight size={17} aria-hidden="true" /></a><a class="home-path-more" href="/init">Shape it in Init</a></p>
+        </article>
+        <article>
+          <h3>Run it with a team</h3>
+          <p>Approve contributions, read private briefs and see what visitors actually did, without a second dashboard to maintain.</p>
+          <p class="home-path-action"><a href="/manage">See the owner side <ArrowRight size={17} aria-hidden="true" /></a><a class="home-path-more" href="/platform">Internal platform</a></p>
+        </article>
+      </div>
+    </section>
+
+    <section class="home-made" aria-labelledby="made-heading">
+      <div class="home-section-heading">
+        <div>
+          <h2 id="made-heading">Built here, running now.</h2>
+          <p>Each app keeps its own source, data and release. These are its actual interfaces and exports.</p>
+        </div>
+        <a href="/apps">Browse all {apps.length} apps <ArrowRight size={18} aria-hidden="true" /></a>
+      </div>
+      <div class="home-made-list">
+        <article>
+          <a class="home-made-art" href="/launch-kit" aria-label="Open Launch Kit">
+            <img src="/launch-kit/cards/river-typography.png" width="1200" height="630" alt="River, a fictional profile card typeset with Launch Kit." loading="lazy" decoding="async" />
+          </a>
+          <h3><a href="/launch-kit">A profile card from your own artwork</a></h3>
+          <p>Launch Kit also prepares app icons and share images, then exports a package you can check before it ships.</p>
+          <a class="home-made-action" href="/launch-kit">Open Launch Kit <ArrowRight size={16} aria-hidden="true" /></a>
+        </article>
+        <article>
+          <a class="home-made-art" href="/platform/demo">
+            <img src="/demos/platform-native-25dc7589-b3cd5894/overview-poster.jpg" width="1600" height="1200" alt="Recorded native application screens from the fictional two-team walkthrough." loading="lazy" decoding="async" />
+            <span class="home-made-play"><Play size={16} aria-hidden="true" /> Watch</span>
+          </a>
+          <h3><a href="/platform/demo">From a team request to a working app</a></h3>
+          <p>Recorded end to end with fictional teams: request an app, review the contribution and update it.</p>
+          <a class="home-made-action" href="/platform/demo">Watch the team journey <ArrowRight size={16} aria-hidden="true" /></a>
+        </article>
+        <article>
+          <a class="home-made-art" href={linkarooie.href} aria-label="Open Linkarooie">
+            <picture>
+              <source type="image/webp" srcset={`${linkarooie.preview} 960w, ${linkarooie.previewWide} 1440w`} sizes="(max-width: 700px) 90vw, 390px" />
+              <img src={linkarooie.preview} width="960" height="640" alt={linkarooie.previewAlt} loading="lazy" decoding="async" />
+            </picture>
+          </a>
+          <h3><a href={linkarooie.href}>Links and approved photos on one page</a></h3>
+          <p>Linkarooie features photos from Here / there and drops them when the source goes private.</p>
+          <a class="home-made-action" href={linkarooie.href}>Open Linkarooie <ArrowRight size={16} aria-hidden="true" /></a>
+        </article>
+      </div>
+    </section>
+
+    {ownerInstance && (
+      <section class="home-instance" aria-labelledby="instance-heading">
+        <h2 id="instance-heading">Installed in this instance</h2>
+        <p>{ownerInstance.name} — {ownerInstance.description}</p>
+        <a href={ownerInstance.profile}>Open {ownerInstance.owner}’s Linkarooie profile <ArrowRight size={16} aria-hidden="true" /></a>
+      </section>
+    )}
+
+    <section class="home-briefing" aria-labelledby="briefing-heading">
+      <div class="home-briefing-copy">
+        <p class="home-briefing-kicker"><span>Briefing</span> · 22 October 2026</p>
+        <h2 id="briefing-heading">When PHP broke, Australia felt it.</h2>
+        <p>Two critical flaws in the PHP runtime took Australian government sites offline as a precaution. Patching is urgent; the longer lesson is how these systems are built and run.</p>
+        <a class="home-briefing-link" href="/php2shell">Read the Australia briefing <ArrowRight size={18} aria-hidden="true" /></a>
+      </div>
+      <a class="home-briefing-art" href="/php2shell" aria-label="Read the PHP2Shell Australia briefing">
+        <img class="home-briefing-wide" src="/brand/campaign/php2shell-australia-20261022b-1200x630.webp" width="1200" height="630" alt="Flat orange and white PHP2Shell briefing graphic: the App Composer mark, the headline PHP2Shell. Australia felt it., and facts about the critical PHP flaws, Australian service disruption and Cloudflare's early WAF response." decoding="sync" />
+        <img class="home-briefing-square" src="/brand/campaign/php2shell-australia-20261022b-1080x1080.webp" width="1080" height="1080" alt="Flat orange and white PHP2Shell briefing graphic: the App Composer mark, the headline PHP2Shell. Australia felt it., and facts about the critical PHP flaws, Australian service disruption and Cloudflare's early WAF response." loading="lazy" decoding="sync" />
+      </a>
+    </section>
+
+    <section class="home-depth" aria-labelledby="depth-heading">
+      <div class="home-depth-intro">
+        <h2 id="depth-heading">Go deeper when you need it.</h2>
+        <p>App Composer is an agent-operated studio built around EmDash and Cloudflare. The technical detail, the build story and the release evidence live on their own pages.</p>
+      </div>
+      <div class="home-depth-links">
+        <div>
+          <h3>Build</h3>
+          <ul>
+            <li><a href="/prompts">Prompt library</a></li>
+            <li><a href="/init">Init</a></li>
+            <li><a href="/setup">Set up your project</a></li>
+            <li><a href="/learn">Learn the workflow</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Understand</h3>
+          <ul>
+            <li><a href="/architecture">How it works</a></li>
+            <li><a href="/guide">Platform &amp; service guide</a></li>
+            <li><a href="/building">Build story</a></li>
+            <li><a href="/release">Release evidence</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Teams and creators</h3>
+          <ul>
+            <li><a href="/platform">Internal platform</a></li>
+            <li><a href="/studio">Creator stacks</a></li>
+            <li><a href="/activity">Analytics &amp; reports</a></li>
+            <li><a href="/resources">Runbooks &amp; resources</a></li>
+          </ul>
+        </div>
+      </div>
+    </section>
   </div>
-  <a class="home-briefing-art" href="/php2shell" aria-label="Read the PHP2Shell Australia briefing">
-   <img class="home-briefing-wide" src="/brand/campaign/php2shell-australia-20261022b-1200x630.webp" width="1200" height="630" alt="Flat orange and white PHP2Shell briefing graphic: the App Composer mark, the headline PHP2Shell. Australia felt it., and facts about the critical PHP flaws, Australian service disruption and Cloudflare's early WAF response." decoding="sync"/>
-   <img class="home-briefing-square" src="/brand/campaign/php2shell-australia-20261022b-1080x1080.webp" width="1080" height="1080" alt="Flat orange and white PHP2Shell briefing graphic: the App Composer mark, the headline PHP2Shell. Australia felt it., and facts about the critical PHP flaws, Australian service disruption and Cloudflare's early WAF response." loading="lazy" decoding="sync"/>
-  </a>
- </section>
- {ownerInstance && (
-  <section class="home-instance" aria-labelledby="instance-heading">
-   <div class="home-section-heading"><div><h2 id="instance-heading">Installed in this instance</h2><p>{ownerInstance.name} — {ownerInstance.description}</p></div><a href={ownerInstance.profile}>Open {ownerInstance.owner}’s Linkarooie profile <ArrowRight size={17} aria-hidden="true"/></a></div>
-   <p class="small">Personal work — music, games, writing and photos — lives in Linkarooie. Link Check, Hello World and Carry / forward are separate deployments you can open from the <a href="/apps">app library</a>.</p>
-  </section>
- )}
- <section class="home-process" aria-labelledby="process-heading"><h2 id="process-heading">Start wherever you are.</h2><div class="home-process-row"><Bot size={26} aria-hidden="true"/><div><h3>Before the idea</h3><p>Get Ready prepares the actual tools, GitHub source and Cloudflare connection. Your agent finishes by proving a live HTTPS app.</p></div><a href="/ready">Prepare the environment <ArrowRight size={18} aria-hidden="true"/></a></div><div class="home-process-row"><SlidersHorizontal size={26} aria-hidden="true"/><div><h3>When you know what you want</h3><p>Init gives the idea structure: apps, fields, appearance, content and deployment intent. Keep a portable spec and the matching agent request.</p></div><a href="/init">Configure an app <ArrowRight size={18} aria-hidden="true"/></a></div><div class="home-process-row"><Blocks size={26} aria-hidden="true"/><div><h3>When pieces should work together</h3><p>Compose independently maintained apps through their data and actions. Each keeps its own source, configuration and update history.</p></div><a href="/demo">Try the connected pair <ArrowRight size={18} aria-hidden="true"/></a></div></section>
- <section class="home-apps"><div class="home-section-heading"><div><h2>Small apps with a useful purpose.</h2><p>Use a building block on its own, give it your own settings or connect it to another. These are working applications with independent GitHub repositories.</p></div><a href="/apps">Explore all {apps.length} apps <ArrowRight size={18} aria-hidden="true"/></a></div><div class="home-app-list">{apps.filter(a=>['guestbook','showcase','linkcheck'].includes(a.id)).map(app=><article><a class="home-app-art" href={app.href}><img src={app.image} alt={`${app.name} original app artwork`} width="320" height="320" loading="lazy" decoding="async"/></a><div><h3><a href={app.href}>{app.name}</a></h3><p>{app.description}</p><a class="app-open" href={app.href}>Open app <ArrowRight size={16} aria-hidden="true"/></a></div></article>)}</div><p class="small">Here / there owns approved photo contributions. Linkarooie can feature them and open the originals. Hide a source and its controlled feature disappears.</p></section>
- <section class="home-analytics" aria-labelledby="analytics-heading"><div><p class="home-analytics-kicker">Analytics</p><h2 id="analytics-heading">The first useful signals, not a vanity dashboard.</h2><p>See which app was opened, which supported task finished and whether a note reached review. Every view names its UTC window, coverage and limits. Freeze a finding as a landscape, square or portrait story on Composer’s own address.</p><div class="actions"><a class="button" href="/activity">Explore app analytics <ArrowRight size={18} aria-hidden="true"/></a><a class="button secondary" href="/manage#proof">See the owner report</a></div></div><div class="home-analytics-list" aria-label="What the analytics experience covers"><div><strong>01</strong><span>Public record</span><p>Opens, completed actions and pending notes, with the app and period attached.</p></div><div><strong>02</strong><span>Owner context</span><p>Enter from a stack, keep the workspace scope and move to the next useful action.</p></div><div><strong>03</strong><span>Shareable proof</span><p>A frozen snapshot, matching images and a route back to the app or Init.</p></div></div></section>
- <section class="home-process" id="platform-choices"><h2>Content, cloud and commerce: know what each part does.</h2><div class="home-fit"><div><h3>Editable content</h3><p>Start with EmDash’s content types, forms and media. Keep the field and editing habits familiar from ACF and MetaBox; an agent builds the application around the editor. Existing WordPress themes and plugins need an individual fit check.</p></div><div><h3>Cloud and commerce</h3><p>Cloudflare is the current supported cloud; AWS is a valid choice with a different setup and no verified Composer adapter. Shopify, Stripe and Printful are documented directions, not live connectors; each order still needs one checkout owner.</p></div></div><a class="button secondary" href="/guide">Choose your CMS, cloud and business services <ArrowRight size={18} aria-hidden="true"/></a></section>
- <section class="home-process home-admin-callout"><h2>Describe the app. Get the tools to run it.</h2><p>The public page is half the job. The owner also needs to approve a photo, edit a welcome message, read a private brief, check a connection and see which page a contribution came from. App Composer wires that work to the app instead of handing over another dashboard to maintain.</p><a class="button secondary" href="/manage">See your app, your admin <ArrowRight size={18} aria-hidden="true"/></a> · <a href="/building">Read the build story</a> · <a href="/_emdash/admin/plugins/composer-miniapps/apps"><Settings2 size={16} aria-hidden="true"/>Open owner administration</a></section>
- <section class="home-platform"><div><PanelRight size={26} aria-hidden="true"/><h2>Built around the way you work.</h2><p>Get Ready is an independent library, local API and optional MCP, not just a website checklist. The optional Chrome extension brings the same workspace into the Cloudflare dashboard. Structured Init forms carry your intent to the agent.</p><a class="button secondary" href="/architecture">Understand the parts and their status <ArrowRight size={18} aria-hidden="true"/></a></div><div><GitBranch size={26} aria-hidden="true"/><h2>Your source. Your next move.</h2><p>Woodhouse operates implementation without becoming a customer runtime dependency. Your apps keep their independent source, configuration and data. An update must preserve the work you made.</p><p class="small">The working operator path is live. Fresh-account onboarding, customer-deployed content forms and dashboard installation acceptance remain active work.</p><a href="/release">Read what is verified</a> · <a href="https://github.com/loftwah/app-composer">Inspect the source</a></div></section>
 </Base>
+
 <style>
- .composer-home-hero h1 { overflow-wrap: anywhere; }
- .home-prompt-entry { margin:24px 0 18px; }.composer-home-hero .home-prompt-button { padding:20px 24px; min-height:64px; font-size:1rem; white-space:normal; max-width:100%; }
-.home-fit{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin:28px 0}.home-fit h3{font-size:1.4rem;margin:0 0 12px}.home-fit p{font-size:16px;color:var(--color-muted)}@media(max-width:700px){.home-fit{grid-template-columns:1fr;gap:24px}}
- .home-briefing{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:40px;align-items:center;border-top:4px solid var(--color-action);border-bottom:1px solid var(--color-border);padding:30px 0;margin:8px 0 0}.home-briefing-copy{min-width:0}.home-briefing-kicker{font-size:12px;line-height:1.3;letter-spacing:.07em;text-transform:uppercase;color:var(--color-muted);font-weight:600;margin:0 0 12px}.home-briefing-kicker span{color:var(--color-accent)}.home-briefing h2{font-size:clamp(1.9rem,3.2vw,2.65rem);max-width:14ch;margin:0 0 14px;line-height:1.02}.home-briefing p{font-size:15px;line-height:1.55;color:var(--color-muted);max-width:46ch;margin:0 0 18px}.home-briefing-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:14px;color:var(--color-foreground)}.home-briefing-art{display:block;border:1px solid var(--color-border);border-radius:8px;background:#fff}.home-briefing-art img{display:block;width:100%;height:auto;border-radius:8px}.home-briefing-art img.home-briefing-square{display:none}
- .composer-home-hero{display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:center;padding:12px 0 56px}.composer-home-hero h1{font-size:clamp(3rem,5.8vw,5rem);max-width:18ch;margin-top:0}.composer-home-hero .lede{font-size:1.16rem;max-width:56ch}.home-identity img{display:block;width:100%;border-radius:8px}.home-brand-plate{display:grid;place-items:center;aspect-ratio:4/3;background:var(--color-brand)}.home-brand-plate img{width:60%;max-width:340px;height:auto;border-radius:0}.home-identity figcaption{font-size:13px;color:var(--color-muted);margin-top:12px}.home-real-screens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.home-real-screens a{display:block;text-decoration:none;min-width:0}.home-real-screens img{display:block;width:100%;border:1px solid var(--color-border);border-radius:6px;background:var(--color-surface)}.home-real-screens span{display:block;font-size:11px;color:var(--color-muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
- .home-instance{border-top:1px solid var(--color-border);padding:40px 0;margin-top:24px}.home-instance .home-section-heading h2{font-size:1.7rem;margin-bottom:10px}.home-instance .small{margin-top:18px}
- .home-analytics{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:48px;border-top:1px solid var(--color-border);padding:40px 0;margin-top:24px}.home-analytics h2{font-size:clamp(1.9rem,3.2vw,2.6rem);max-width:20ch}.home-analytics p{color:var(--color-muted);max-width:60ch}.home-analytics-kicker{font-size:12px;font-weight:650;letter-spacing:.09em;text-transform:uppercase;color:var(--color-accent);margin:0 0 10px}.home-analytics-list{display:grid;gap:0;border-top:1px solid var(--color-border)}.home-analytics-list>div{display:grid;grid-template-columns:42px minmax(0,1fr);gap:4px 14px;border-bottom:1px solid var(--color-border);padding:18px 0}.home-analytics-list strong{font:600 1.2rem/1 Space,sans-serif;color:var(--color-accent);grid-row:1/3}.home-analytics-list span{font-weight:650}.home-analytics-list p{margin:0;font-size:14px;line-height:1.55}.home-process,.home-apps,.home-platform{border-top:1px solid var(--color-border);padding:40px 0;margin-top:24px}.home-process h2,.home-apps h2,.home-platform h2{font-size:2.1rem;margin-bottom:20px;max-width:26ch}.home-process-row{display:grid;grid-template-columns:32px minmax(0,1fr) 230px;gap:20px;border-bottom:1px solid var(--color-border);padding:24px 0;align-items:start}.home-process-row>svg{color:var(--color-muted);margin-top:3px}.home-process-row h3{font-size:1.35rem;margin:0 0 8px}.home-process-row p{margin:0;color:var(--color-muted);font-size:15px;max-width:65ch}.home-process-row>a,.home-section-heading>a,.app-open{display:flex;align-items:center;gap:8px;min-height:44px;font-size:14px}.home-section-heading{display:flex;justify-content:space-between;gap:48px;align-items:flex-start}.home-section-heading p{margin:0;color:var(--color-muted);max-width:70ch}.home-section-heading>a{white-space:nowrap;flex-shrink:0}.home-app-list{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:32px}.home-app-list article{display:flex;gap:18px}.home-app-art{width:88px;flex-shrink:0}.home-app-art img{display:block;width:100%;border-radius:8px;aspect-ratio:1}.home-app-list h3{font-size:1.35rem;margin:0 0 10px}.home-app-list h3 a{text-decoration:none}.home-app-list p{margin:0;color:var(--color-muted);font-size:14px}.app-open{margin-top:8px}.home-platform{display:grid;grid-template-columns:1fr 1fr;gap:64px}.home-platform svg{color:var(--color-muted);margin-bottom:20px}.home-platform .button svg{margin:0}.home-platform p{color:var(--color-muted)}.home-process>p+p{margin-top:0}
- @media(max-width:1100px){.home-app-list{grid-template-columns:1fr;gap:24px}.home-app-list article{max-width:650px}.home-app-art{width:110px}}
- @media(max-width:800px){.home-analytics{grid-template-columns:1fr;gap:28px}.home-briefing{grid-template-columns:1fr;gap:22px;padding:24px 0}.home-briefing-art img.home-briefing-wide{display:none}.home-briefing-art img.home-briefing-square{display:block}.home-briefing p{max-width:60ch}.composer-home-hero{grid-template-columns:1fr;gap:28px}.composer-home-hero h1{font-size:3rem}.home-identity{max-width:600px}.home-process-row{grid-template-columns:28px 1fr;gap:16px}.home-process-row>a{grid-column:2}.home-section-heading{display:block}.home-section-heading>a{margin-top:16px}.home-platform{grid-template-columns:1fr;gap:36px}.home-process h2,.home-apps h2,.home-platform h2{font-size:1.85rem}.home-app-art{width:88px}}
+  .composer-home {
+    font-size: 1rem;
+  }
+  .composer-home h1,
+  .composer-home h2,
+  .composer-home h3 {
+    letter-spacing: -0.03em;
+  }
+
+  /* First viewport: the task, one action, the prompt shortcut, real screens. */
+  .home-hero {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 2.5rem 3rem;
+    align-items: flex-start;
+    padding: 0 0 3rem;
+  }
+  .home-hero-copy {
+    flex: 1 1 26rem;
+    min-width: 0;
+    max-width: 42rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .home-hero h1 {
+    font-size: clamp(2.6rem, 4.4vw, 3.9rem);
+    line-height: 1.02;
+    margin: 0 0 1.25rem;
+    max-width: 13ch;
+  }
+  .home-lede {
+    font-size: 1.2rem;
+    line-height: 1.5;
+    color: var(--color-muted);
+    max-width: 38ch;
+    margin: 0 0 1.75rem;
+  }
+  .home-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+  .home-hero-actions .button {
+    font-size: 1.05rem;
+    padding: 16px 24px;
+    min-height: 3.5rem;
+  }
+  .home-quick {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin: 1.75rem 0 0;
+    padding: 1rem 1.25rem;
+    max-width: 33rem;
+    border-left: 4px solid var(--color-action);
+    border-radius: 0 8px 8px 0;
+    background: var(--color-surface);
+  }
+  .home-quick-label {
+    display: block;
+    font: 600 1.1rem/1.35 Space, system-ui, sans-serif;
+    overflow-wrap: anywhere;
+  }
+  .home-quick-label svg {
+    display: inline-block;
+    margin-left: 0.45rem;
+    vertical-align: -3px;
+    color: var(--color-accent);
+  }
+  .home-quick-note {
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: var(--color-muted);
+  }
+  .home-quick:hover {
+    background: var(--color-field);
+  }
+  .home-quick:hover .home-quick-label {
+    color: var(--color-accent);
+  }
+  .home-look {
+    margin: 1rem 0 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--color-muted);
+    max-width: 46ch;
+  }
+
+  .home-proof {
+    flex: 0 1 30rem;
+    min-width: 0;
+    margin: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+  .home-proof-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.9rem;
+    background: var(--color-brand);
+    color: #17181b;
+    font-size: 0.82rem;
+    font-weight: 650;
+    letter-spacing: 0.02em;
+  }
+  .home-proof-bar img {
+    display: block;
+    width: 22px;
+    height: 22px;
+  }
+  .home-proof-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--color-border);
+  }
+  .home-proof-grid a {
+    display: block;
+    min-width: 0;
+    background: var(--color-background);
+  }
+  .home-proof-main {
+    grid-column: 1 / -1;
+  }
+  .home-proof-grid img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .home-proof-grid a span {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.4rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: var(--color-muted);
+  }
+  .home-proof-grid a span strong {
+    color: var(--color-foreground);
+    font-weight: 600;
+  }
+  .home-proof-grid a:hover span strong {
+    color: var(--color-accent);
+  }
+  .home-proof figcaption {
+    padding: 0.65rem 0.9rem;
+    border-top: 1px solid var(--color-border);
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--color-muted);
+  }
+
+  /* Three jobs, one destination each. */
+  .home-paths,
+  .home-made,
+  .home-briefing,
+  .home-depth {
+    border-top: 1px solid var(--color-border);
+  }
+  .home-paths {
+    padding: 2.5rem 0;
+  }
+  .home-paths h2 {
+    font-size: clamp(1.75rem, 2.8vw, 2.4rem);
+    margin: 0 0 1.75rem;
+    max-width: 24ch;
+  }
+  .home-paths-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: 0 2.5rem;
+  }
+  .home-paths-list article {
+    min-width: 0;
+    border-top: 1px solid var(--color-border);
+    padding: 1rem 0 0.5rem;
+  }
+  .home-paths-list h3 {
+    font-size: 1.25rem;
+    margin: 0 0 0.6rem;
+  }
+  .home-paths-list p {
+    margin: 0 0 0.9rem;
+    font-size: 0.98rem;
+    line-height: 1.55;
+    color: var(--color-muted);
+    max-width: 34ch;
+  }
+  .home-path-action {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 1.25rem;
+    margin: 0 !important;
+  }
+  .home-path-action a,
+  .home-path-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    font-size: 0.95rem;
+    color: var(--color-foreground);
+  }
+  .home-path-action a svg {
+    color: var(--color-accent);
+  }
+  .home-path-more {
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+
+  /* Real output from the shipped apps. */
+  .home-made {
+    padding: 2.5rem 0;
+  }
+  .home-section-heading {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem 2.5rem;
+  }
+  .home-section-heading h2 {
+    font-size: clamp(1.75rem, 2.8vw, 2.4rem);
+    margin: 0 0 0.6rem;
+    max-width: 22ch;
+  }
+  .home-section-heading p {
+    margin: 0;
+    max-width: 52ch;
+    color: var(--color-muted);
+    font-size: 0.98rem;
+  }
+  .home-section-heading > a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+  .home-made-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: 2rem 2.25rem;
+    margin-top: 2rem;
+  }
+  .home-made-list article {
+    min-width: 0;
+  }
+  .home-made-art {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 10;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+  .home-made-art img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .home-made-play {
+    position: absolute;
+    left: 0.75rem;
+    bottom: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    background: #17181b;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .home-made-list h3 {
+    font-size: 1.2rem;
+    line-height: 1.25;
+    margin: 0.9rem 0 0.5rem;
+  }
+  .home-made-list h3 a {
+    color: var(--color-foreground);
+  }
+  .home-made-list h3 a:hover {
+    color: var(--color-accent);
+  }
+  .home-made-list p {
+    margin: 0 0 0.6rem;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--color-muted);
+    max-width: 42ch;
+  }
+  .home-made-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.75rem;
+    font-size: 0.9rem;
+  }
+  .home-made-action svg {
+    color: var(--color-accent);
+  }
+
+  .home-instance {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 1.5rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .home-instance h2 {
+    margin: 0;
+    font-size: 0.95rem;
+    letter-spacing: 0;
+  }
+  .home-instance p {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--color-muted);
+    max-width: 52ch;
+  }
+  .home-instance a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    font-size: 0.92rem;
+  }
+
+  /* The campaign keeps its own linked section, below the product work. */
+  .home-briefing {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: 2rem 3rem;
+    align-items: center;
+    padding: 2.5rem 0;
+  }
+  .home-briefing-copy {
+    min-width: 0;
+  }
+  .home-briefing-kicker {
+    margin: 0 0 0.75rem;
+    font-size: 0.75rem;
+    line-height: 1.3;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+  .home-briefing-kicker span {
+    color: var(--color-accent);
+  }
+  .home-briefing h2 {
+    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+    line-height: 1.05;
+    max-width: 16ch;
+    margin: 0 0 0.75rem;
+  }
+  .home-briefing-copy p {
+    margin: 0 0 1rem;
+    font-size: 0.98rem;
+    line-height: 1.55;
+    color: var(--color-muted);
+    max-width: 46ch;
+  }
+  .home-briefing-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    font-size: 0.95rem;
+  }
+  .home-briefing-art {
+    display: block;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+  }
+  .home-briefing-art img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .home-briefing-art img.home-briefing-square {
+    display: none;
+  }
+
+  .home-depth {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem 3.5rem;
+    padding: 2.5rem 0 0;
+  }
+  .home-depth-intro {
+    flex: 1 1 21rem;
+    min-width: 0;
+  }
+  .home-depth-intro h2 {
+    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+    margin: 0 0 0.75rem;
+    max-width: 18ch;
+  }
+  .home-depth-intro p {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    max-width: 42ch;
+  }
+  .home-depth-links {
+    flex: 2 1 30rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+    gap: 1.5rem 2rem;
+  }
+  .home-depth-links h3 {
+    font: 650 0.78rem/1.4 system-ui, sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin: 0 0 0.4rem;
+  }
+  .home-depth-links ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .home-depth-links li {
+    margin: 0;
+  }
+  .home-depth-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  @media (max-width: 900px) {
+    .home-hero {
+      gap: 2rem;
+      padding-bottom: 2.5rem;
+    }
+    .home-hero h1 {
+      font-size: clamp(2.5rem, 8vw, 3.4rem);
+    }
+    .home-lede {
+      font-size: 1.1rem;
+    }
+    .home-proof {
+      flex: 1 1 100%;
+      max-width: 44rem;
+    }
+  }
+  @media (max-width: 700px) {
+    .home-proof-grid a:not(.home-proof-main) {
+      display: none;
+    }
+    .home-proof figcaption {
+      font-size: 0.78rem;
+    }
+    .home-paths-list,
+    .home-made-list {
+      gap: 1.5rem;
+    }
+    .home-paths-list article {
+      padding-bottom: 0;
+    }
+    .home-section-heading > a {
+      white-space: normal;
+    }
+    .home-briefing {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .home-briefing-art img.home-briefing-wide {
+      display: none;
+    }
+    .home-briefing-art img.home-briefing-square {
+      display: block;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home-quick,
+    .home-quick-label {
+      transition: none;
+    }
+  }
 </style>
