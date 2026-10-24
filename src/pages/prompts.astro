@@ -1,0 +1,118 @@
+---
+import Base from '../layouts/Base.astro';
+import { promptModules, renderPrompt } from '../lib/prompt-library';
+const categories = [...new Set(promptModules.map(item => item.category))];
+---
+<!--
+THESIS: a working prompt desk: choose a job, add the few details that matter, see the exact handoff.
+OWN-WORLD: incumbent Space typography, charcoal/ivory work surfaces, signal orange and ruled task list.
+STORY: find a task, understand its prerequisites, prepare and copy the complete request.
+FIRST VIEWPORT: compact title over a searchable task rail and a generous selected editor; direct copy action.
+FORM: task index / guided chapter / prompt desk (candidate 3), seed 57dd2139. The user fixes the job-first controls.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+-->
+<Base title="Prompts for the job in front of you" description="Choose a job, add your details and copy a complete request for your agent. Public, free to prepare, and no model call required.">
+  <div class="prompt-library" data-prompt-library>
+    <div class="prompt-intro">
+      <div><h1>Get to the doing.</h1><p>Choose a job. Add your details. Copy a complete request for your agent.</p></div>
+      <a href="/setup">Need a full project guide? <span aria-hidden="true">→</span></a>
+    </div>
+    <noscript><p class="no-script">Every template is readable below. Select the text to copy it, replace its bracketed fields, then paste it into your agent. JavaScript adds search, editable previews and copy buttons.</p></noscript>
+    <div class="prompt-desk">
+      <aside class="prompt-index" aria-label="Choose a prompt">
+        <div class="prompt-search" data-enhanced hidden>
+          <label for="prompt-search">Find your job<input id="prompt-search" type="search" placeholder="Try “change”, “inbox” or “publish”" autocomplete="off" /></label>
+          <p class="prompt-count" id="prompt-count" role="status"></p>
+        </div>
+        <nav class="prompt-tasks" aria-label="Prompt jobs">
+          {categories.map(category => <div data-category><h2>{category}</h2><ul>{promptModules.filter(item => item.category === category).map(item => <li data-task-row={item.id}><a href={`#${item.id}`} data-prompt-link={item.id}>{item.title}</a></li>)}</ul></div>)}
+        </nav>
+        <p class="prompt-empty" data-empty hidden>No matching jobs. Try “build” or clear your search.</p>
+      </aside>
+      <div class="prompt-workspace">
+        <div class="prompt-draft-controls" data-enhanced hidden>
+          <p>Your details stay in this tab until you choose to save them on this device. Never enter passwords, keys or private customer records.</p>
+          <div class="prompt-draft-actions"><button class="secondary" type="button" data-save>Save details on this device</button><button class="secondary" type="button" data-restore>Restore saved details</button><button class="secondary" type="button" data-reset>Clear all prompt details</button></div>
+          <p role="status" data-draft-status></p>
+        </div>
+        {promptModules.map(item => <article id={item.id} class="prompt-job" data-prompt-job={item.id}>
+          <div class="prompt-job-heading"><h2 tabindex="-1">{item.title}</h2><span class="prompt-support">{item.support}</span></div>
+          <p class="prompt-description">{item.description}</p>
+          <div class="prompt-prerequisites"><h3>Before you start</h3><ul>{item.prerequisites.map(link => <li><span>{link.when}. </span><a href={link.href}>{link.label} →</a></li>)}</ul><p>Browsing, preparing and copying need no login or paid model call. Publishing uses your project’s own account and release rules.</p></div>
+          <form data-prompt-fields={item.id} data-enhanced hidden>
+            <fieldset><legend>Your details</legend>{item.fields.map(field => <label for={`${item.id}-${field.key}`}><span>{field.label}{field.required ? <strong> — required</strong> : field.key === 'project' ? ' (or let the agent inspect)' : ''}</span><textarea id={`${item.id}-${field.key}`} name={field.key} rows={field.key === 'project' ? 2 : 3} maxlength="8000" placeholder={field.example} aria-required={field.required ? 'true' : undefined} /><small>{field.key === 'project' ? 'Use a safe folder, app or repository reference. Leave blank to inspect the selected workspace.' : field.required ? 'Describe the result in your own words. You can keep technical choices with the agent.' : 'Leave blank to omit this detail from the prompt.'}</small></label>)}</fieldset>
+          </form>
+          <div class="prompt-preview-heading"><h3>The prompt</h3><span data-preview-mode>Template · replace bracketed details</span></div>
+          <pre class="prompt-preview" tabindex="0" data-prompt-preview={item.id}>{renderPrompt(item.id, {}, { template: true }).text}</pre>
+          <div class="prompt-copy-actions" data-enhanced hidden><button type="button" data-copy-completed={item.id}>Copy completed prompt</button><button type="button" class="secondary" data-copy-template={item.id}>Copy template</button><button type="button" class="secondary" data-download={item.id}>Download Markdown</button><a href={`#${item.id}`} data-module-link={item.id}>Link to this job</a></div>
+          <p role="status" class="prompt-copy-status" data-copy-status={item.id}></p>
+          <div data-manual={item.id} hidden><label for={`manual-${item.id}`}>Manual copy — select the prompt and copy it<textarea id={`manual-${item.id}`} readonly rows="10" /></label></div>
+          <div class="prompt-result"><h3>What you should get back</h3><p>{item.result}</p><div class="prompt-result-links">{item.resource && <a href={`/resources?resource=${item.resource}#resource`}>Open runbook & downloads →</a>}<a href={`#${item.related}`} data-prompt-link={item.related}>Next: {promptModules.find(next => next.id === item.related)?.title} →</a></div></div>
+        </article>)}
+      </div>
+    </div>
+  </div>
+</Base>
+<script>
+  import '../lib/prompt-library-client';
+</script>
+<style>
+  .prompt-library { min-width: 0; }
+  .prompt-intro { display: flex; justify-content: space-between; gap: 32px; align-items: end; padding-bottom: 32px; border-bottom: 1px solid var(--color-border); }
+  .prompt-intro h1 { font-size: clamp(2.7rem, 5.2vw, 4.8rem); margin: 0 0 16px; max-width: none; }
+  .prompt-intro p { margin: 0; color: var(--color-muted); font-size: 1.1rem; }
+  .prompt-intro > a { color: var(--color-accent); max-width: 24ch; font-size: .95rem; flex-shrink: 0; padding: 10px 0; }
+  .prompt-desk { display: grid; grid-template-columns: 275px minmax(0, 1fr); gap: 48px; padding-top: 32px; align-items: start; }
+  .prompt-index { min-width: 0; }
+  .prompt-search label { margin: 0; font-size: .9rem; font-weight: 600; }
+  .prompt-search input { font-size: 16px; margin-top: 10px; }
+  .prompt-count { font-size: .8rem; color: var(--color-muted); min-height: 1.6em; margin: 8px 0 16px; }
+  .prompt-tasks { display: block; font-size: .95rem; }
+  .prompt-tasks h2 { margin: 24px 0 8px; font-size: .85rem; color: var(--color-muted); font-family: system-ui, sans-serif; letter-spacing: 0; font-weight: 600; }
+  .prompt-tasks ul { padding: 0; margin: 0; list-style: none; }
+  .prompt-tasks a { display: block; min-height: 44px; padding: 10px 12px; font-weight: 500; border-radius: 6px; }
+  .prompt-tasks a:hover { background: var(--color-surface); }
+  .prompt-tasks a[aria-current="true"] { background: var(--color-selected); color: var(--color-accent); }
+  .prompt-workspace { min-width: 0; }
+  .prompt-draft-controls { font-size: .85rem; color: var(--color-muted); padding-bottom: 24px; margin-bottom: 28px; border-bottom: 1px solid var(--color-border); }
+  .prompt-draft-controls p { margin: 0 0 12px; }
+  .prompt-draft-controls p[role="status"]:empty { display: none; }
+  .prompt-draft-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .prompt-draft-actions button { font-size: .8rem; padding: 8px 12px; min-height: 44px; }
+  .prompt-job { scroll-margin-top: 24px; border-bottom: 1px solid var(--color-border); padding: 0 0 40px; margin-bottom: 40px; min-width: 0; }
+  .prompt-job-heading { display: flex; justify-content: space-between; gap: 20px; align-items: start; }
+  .prompt-job-heading h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin: 0; max-width: 20ch; }
+  .prompt-job-heading h2:focus { outline-offset: 8px; }
+  .prompt-support { color: var(--color-muted); font-size: .8rem; padding-top: 8px; white-space: nowrap; }
+  .prompt-description { margin: 16px 0 24px; color: var(--color-muted); }
+  .prompt-prerequisites { padding: 18px 0; border-block: 1px solid var(--color-border); font-size: .9rem; }
+  .prompt-job h3 { font-family: system-ui, sans-serif; font-weight: 650; font-size: 1rem; letter-spacing: 0; margin: 0 0 12px; }
+  .prompt-prerequisites ul { padding-left: 22px; margin: 0; }
+  .prompt-prerequisites li { margin: 8px 0; }
+  .prompt-prerequisites p { margin: 14px 0 0; color: var(--color-muted); font-size: .8rem; }
+  .prompt-job a { color: var(--color-accent); }
+  .prompt-job fieldset { margin: 28px 0; border: 0; padding: 0; }
+  .prompt-job legend { padding: 0; margin: 0 0 12px; font-size: 1rem; }
+  .prompt-job label { font-size: .95rem; margin: 0 0 24px; }
+  .prompt-job label strong { font-size: .8rem; font-weight: 500; }
+  .prompt-job textarea { font-size: 16px; min-height: 80px; resize: vertical; }
+  .prompt-job small { display: block; font-size: .8rem; color: var(--color-muted); margin-top: 6px; }
+  .prompt-job [aria-invalid="true"] { border: 2px solid var(--color-accent); }
+  .prompt-preview-heading { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; margin-top: 28px; }
+  .prompt-preview-heading span { font-size: .8rem; color: var(--color-muted); }
+  .prompt-preview { font: .9rem/1.65 system-ui, sans-serif; white-space: pre-wrap; overflow-wrap: anywhere; padding: 24px; margin: 0; max-height: 440px; }
+  .prompt-copy-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 20px 0 0; }
+  .prompt-copy-actions button { font-size: .9rem; }
+  .prompt-copy-actions a { font-size: .85rem; padding: 10px 0; min-height: 44px; }
+  .prompt-copy-status { min-height: 1.6em; font-size: .9rem; color: var(--color-accent); margin: 12px 0 0; }
+  .prompt-result { border-top: 1px solid var(--color-border); padding-top: 24px; margin-top: 24px; }
+  .prompt-result p { font-size: .95rem; margin: 0 0 16px; }
+  .prompt-result-links { display: flex; gap: 16px 28px; flex-wrap: wrap; font-size: .9rem; }
+  .prompt-result-links a { padding: 8px 0; }
+  .prompt-empty, .no-script { padding: 20px 0; color: var(--color-muted); }
+  [hidden] { display: none !important; }
+  @media (min-width: 901px) { .prompt-library[data-enhanced="true"] .prompt-index { position: sticky; top: 24px; max-height: calc(100svh - 48px); overflow: auto; padding-right: 8px; } }
+  @media (max-width: 1100px) { .prompt-desk { gap: 28px; grid-template-columns: 240px minmax(0, 1fr); } .prompt-intro { align-items: start; flex-direction: column; gap: 12px; } .prompt-intro > a { max-width: none; } }
+  @media (max-width: 900px) { .prompt-desk { grid-template-columns: minmax(0, 1fr); padding-top: 24px; gap: 24px; } .prompt-index { border-bottom: 1px solid var(--color-border); padding-bottom: 24px; } .prompt-library[data-enhanced="true"] .prompt-tasks { max-height: 220px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--color-border); border-radius: 6px; padding: 0 8px 12px; } .prompt-tasks h2 { margin-top: 16px; } }
+  @media (max-width: 480px) { .prompt-job-heading { flex-direction: column; gap: 8px; } .prompt-support { padding-top: 0; } .prompt-preview { padding: 18px; } .prompt-preview-heading { flex-direction: column; gap: 0; margin-bottom: 12px; } .prompt-copy-actions { gap: 10px; } .prompt-copy-actions button { width: 100%; } }
+</style>

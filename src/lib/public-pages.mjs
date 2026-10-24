@@ -1,7 +1,7 @@
 // These are the deliberately indexable Composer pages. Mounted apps and private
 // routes keep their own routing and publication policies.
 export const publicPagePaths = Object.freeze([
-  '/', '/learn', '/ready', '/ready/guide', '/init', '/init/content',
+  '/', '/learn', '/ready', '/ready/guide', '/setup', '/prompts', '/resources', '/init', '/init/content',
   '/discover', '/explore', '/demo', '/docs', '/architecture', '/guide',
   '/catalogue', '/apps', '/activity', '/review', '/privacy', '/release',
   '/extension', '/state', '/php2shell', '/studio', '/manage', '/building',

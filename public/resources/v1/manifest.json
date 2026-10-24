@@ -1,0 +1,187 @@
+{
+  "version": "composer.operating-kit/1",
+  "bytes": 460999,
+  "sha256": "8f7f62a1b1e1f26c9e5aae2e2f81a0e249491afcf68f7c7e8639d7091016c451",
+  "files": [
+    {
+      "name": "change-og.png",
+      "bytes": 42416,
+      "sha256": "b37155afba96fe93f53d1512af420083afea1aa3eaa44842af0d298391608195"
+    },
+    {
+      "name": "change-release.mmd",
+      "bytes": 135,
+      "sha256": "1a68f9cc951263c71fe82ec201d54a04cf0421043fc0ba0179689f754da31633"
+    },
+    {
+      "name": "change-release.svg",
+      "bytes": 1242,
+      "sha256": "06cd0294a4cc65871510c989f74cb26dd095dd7c9a909d7258221b74762d6d23"
+    },
+    {
+      "name": "change.md",
+      "bytes": 3319,
+      "sha256": "402bb1a026373d076b47c21e9d0410ea5f1c0a51c69a4bf3c713312fc2ad1553"
+    },
+    {
+      "name": "composer-mark.png",
+      "bytes": 22412,
+      "sha256": "09d6f06331da034db955d96111b2de889086fc787366984ee760aacde2f63ad6"
+    },
+    {
+      "name": "examples/enquiry.json",
+      "bytes": 228,
+      "sha256": "a98c687523ccab7bbaa89c120a12b7872cf6e547b23e7d697caee5ca0c955b11"
+    },
+    {
+      "name": "examples/event-handler.mjs",
+      "bytes": 1536,
+      "sha256": "ec2675abdbbcc1deb42718b1b57e7ca2f837db7889730b98aafe504ddf54b5b4"
+    },
+    {
+      "name": "examples/exercise.mjs",
+      "bytes": 2868,
+      "sha256": "ad6cf0e80d3e97d158b58fc3115518a6bcb768f6e7c2e1fd95b5e32206fd3d87"
+    },
+    {
+      "name": "examples/guarded-pipeline.mjs",
+      "bytes": 671,
+      "sha256": "f5501a3428887fb838ae8f4b458fbe0f213f9ad8f5d16195ece71ddabe10c604"
+    },
+    {
+      "name": "examples/repository-check.sh",
+      "bytes": 261,
+      "sha256": "4f57e5861a791411b7c218bb8e00593a151077087cb624a63c861f18a02c5ee3"
+    },
+    {
+      "name": "examples/synthetic-incident.mjs",
+      "bytes": 817,
+      "sha256": "f90dfd9a45687b02d6d9bebe2d29be5bfd4f0d5d9091aff9188317f651ee3045"
+    },
+    {
+      "name": "fonts/OFL.txt",
+      "bytes": 4495,
+      "sha256": "564ce565c371c5e5bbf286006565a7c9aa55a9f56e7ca58d56e05d649dd61a72"
+    },
+    {
+      "name": "fonts/SpaceGrotesk.ttf",
+      "bytes": 136676,
+      "sha256": "acad6de1fc93436f5c0f1f4137751ef04f1aea3063e7036535970ffcfbd79f72"
+    },
+    {
+      "name": "hook-flow.mmd",
+      "bytes": 127,
+      "sha256": "cbb4e47b498a8158a44e4647b24c7b59841b6ea7a6276049dc701d2cbf5680df"
+    },
+    {
+      "name": "hook-flow.svg",
+      "bytes": 1232,
+      "sha256": "54d6f1eaf115898ba7e4a45281917b6bfc031f7745577ccd2a50a2af0d228d9e"
+    },
+    {
+      "name": "hook.md",
+      "bytes": 3803,
+      "sha256": "f9f2443dd8c615f0556c24e4ebc5bb0928497c72b19652c78469314ededce7c6"
+    },
+    {
+      "name": "incident-og.png",
+      "bytes": 40073,
+      "sha256": "e2f2bd71be982771328eabcf13a136113117667409cfc6ff2c2b62ec84ab88fe"
+    },
+    {
+      "name": "incident-response.mmd",
+      "bytes": 135,
+      "sha256": "789eca93f3a0bfdabe695aea77b75a7fe4556009db47e39befe0fc49fc9710d1"
+    },
+    {
+      "name": "incident-response.svg",
+      "bytes": 1255,
+      "sha256": "fba735e0684870a747e6b67c5bfda6e49b083455c9498f9045a32804c6f8dc27"
+    },
+    {
+      "name": "incident.md",
+      "bytes": 3791,
+      "sha256": "0eb37944572d09bc4a7bd9e6529c7aeff2d0fe7a090393f74ab0bbed3d710764"
+    },
+    {
+      "name": "INDEX.md",
+      "bytes": 2465,
+      "sha256": "92a553748a6b3f859215502bf1bc2ac6c1eeae8504d11e7a3bd0a220dc218b32"
+    },
+    {
+      "name": "kit-preview.png",
+      "bytes": 110501,
+      "sha256": "953e151e6dc70c54537885c05b4387dee54416d2b33336f6a41ed14dcd450bbc"
+    },
+    {
+      "name": "LICENSE",
+      "bytes": 1067,
+      "sha256": "bd7fbce69ba30d4aa6f984be7b10efecf29b57964888e7ac2aa2926cf0235844"
+    },
+    {
+      "name": "operating-cheatsheet.pdf",
+      "bytes": 41505,
+      "sha256": "cfb660b56ce5f148487e7d8bf1c0ba5719e3517aac3b1fe7a8ae96daec50a3c4"
+    },
+    {
+      "name": "operating-cheatsheet.py",
+      "bytes": 3132,
+      "sha256": "b45e0775455146f2271bf7a7ecb4e406c93b320584cf79facc367a386bf975f6"
+    },
+    {
+      "name": "operating-kit.md",
+      "bytes": 3877,
+      "sha256": "3fc4101c2f6e0b8b2635bc0cfb97c83703c0d798b6b860656ccce3a8b5ca56ba"
+    },
+    {
+      "name": "pipeline.md",
+      "bytes": 3624,
+      "sha256": "09adaaf92d14ff9b114e763f93e6d92e59d7e492042a0b4305bbceb6f2480304"
+    },
+    {
+      "name": "resources-og.png",
+      "bytes": 43289,
+      "sha256": "617a9fda8713dfa58f61a52f984d623b90f19af5d6335b0cad6b022d23149b9b"
+    },
+    {
+      "name": "resources-portrait.png",
+      "bytes": 53457,
+      "sha256": "8e2746ea1b09ad80d290fd4fdb9896b8ad4f405e15b415fb8e93094126bda992"
+    },
+    {
+      "name": "resources-square.png",
+      "bytes": 48243,
+      "sha256": "91809ea9db5dc93c1cd4caaea35b4a6d65a9121f0055ebd8cc1e584a065309f4"
+    },
+    {
+      "name": "templates/emergency-change.md",
+      "bytes": 2579,
+      "sha256": "adcaf9b018eda4fd9850f3c5f4ba8bec92f0712c3a2f660413e5fc390a8bdf05"
+    },
+    {
+      "name": "templates/hook-types.md",
+      "bytes": 3450,
+      "sha256": "b730dec46f9b2916de4f90755aff9a6ae911b7adc9d8a54a0040bc4de5ad15f4"
+    },
+    {
+      "name": "templates/incident-handover.md",
+      "bytes": 2108,
+      "sha256": "582ca3d8bd8b145263ed842b22632a9d6930bf4abf9e489e2afea0909c030de0"
+    },
+    {
+      "name": "templates/post-incident-review.md",
+      "bytes": 1874,
+      "sha256": "0176aa0938430cf4758878febfa279c5f481fc3128ca325ab57e0366eb99bb93"
+    },
+    {
+      "name": "templates/project-context.md",
+      "bytes": 1457,
+      "sha256": "e705fb650d16a977a84d03feaeb32dc7d18dcd9e9a585338e2a3dfd62fb3cd7b"
+    },
+    {
+      "name": "templates/session-handover.md",
+      "bytes": 1828,
+      "sha256": "4fa92586705dcc9bb104a1bbdcb770ff930fe94c71b760f1d2b7035774745fd5"
+    }
+  ]
+}
