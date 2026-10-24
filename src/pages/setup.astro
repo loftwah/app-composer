@@ -1,0 +1,121 @@
+---
+import Base from '../layouts/Base.astro';
+import { defaultSetupDetails, renderProjectSetupGuide, setupModes, setupGuideVersion } from '../lib/project-setup';
+import ledger from '../../labs/setup-evaluation/runs.json';
+import { validateSetupEvaluation, summariseSetupEvaluations } from '../lib/setup-evaluation';
+import { ArrowRight, Copy, Download } from '@lucide/astro';
+const initial = renderProjectSetupGuide(defaultSetupDetails);
+const evaluation = summariseSetupEvaluations(validateSetupEvaluation(ledger), setupGuideVersion);
+const corePaths = evaluation.filter((entry) => entry.path === 'new' || entry.path === 'existing');
+---
+<Base title="Set up your project" description="Prepare one complete Markdown guide for your coding agent. Start a project, keep an existing stack or continue interrupted setup.">
+  <div class="setup-heading">
+    <div>
+      <h1>Set up your project.</h1>
+      <p class="lede">A few details. One complete guide for your agent. Start fresh, keep your existing stack or pick up where you left off.</p>
+    </div>
+    <a href="/prompts">Browse all prompts <ArrowRight size={18} aria-hidden="true" /></a>
+  </div>
+  <div class="setup-workspace" data-setup-workspace>
+    <form class="setup-details" data-setup-controls hidden>
+      <fieldset>
+        <legend>Where are you starting?</legend>
+        {Object.entries(setupModes).map(([id, mode]) => <label class="setup-choice"><input type="radio" name="mode" value={id} checked={id === defaultSetupDetails.mode} /><span><strong>{mode.label}</strong><small>{mode.detail}</small></span></label>)}
+      </fieldset>
+      <label for="setup-project">Project or repository <span>Optional</span></label>
+      <input id="setup-project" name="project" type="text" maxlength="600" autocomplete="off" placeholder="A repository address or the folder your agent can use" />
+      <p class="field-help">Leave blank to let the agent inspect its current authorised folder.</p>
+      <label for="setup-outcome">What would you like to get working? <span>Optional</span></label>
+      <textarea id="setup-outcome" name="outcome" rows="2" maxlength="1600" placeholder="For example: run the existing shop locally" />
+      <label for="setup-target">Project path</label>
+      <select id="setup-target" name="target">
+        <option value="existing-stack">Keep my stack / inspect and adapt</option>
+        <option value="composer-hello">Composer Hello · maintained Mac recipe</option>
+      </select>
+      <details class="setup-options">
+        <summary>Constraints and publishing</summary>
+        <label for="setup-constraints">Anything the agent should preserve or work around?</label>
+        <textarea id="setup-constraints" name="constraints" rows="3" maxlength="2400" placeholder="For example: keep Python, use existing accounts, local development only" />
+        <label class="setup-check"><input type="checkbox" name="deploy" /><span>Include publishing to my authorised destination</span></label>
+        <p class="field-help">The guide keeps existing release rules. New spending, accounts and consequential permissions still need your input.</p>
+      </details>
+      <div class="setup-local"><p>Details and guide edits save in this browser only. Use project references, never passwords or keys. Share links contain the template path, not these details.</p><button type="button" class="setup-reset" data-setup-reset>Reset this guide on this device</button></div>
+    </form>
+    <section class="setup-guide" aria-labelledby="setup-guide-heading">
+      <div class="guide-title"><h2 id="setup-guide-heading">Your complete guide</h2><a href="/setup/template.md">Read the template</a></div>
+      <p>Review or edit the Markdown, then give it to your coding agent. Blank details explicitly ask the agent to inspect; they do not become broken placeholders.</p>
+      <div class="setup-actions" data-setup-controls hidden>
+        <button type="button" class="button" data-setup-copy><Copy size={18} aria-hidden="true" /> Copy setup guide</button>
+        <button type="button" class="button secondary" data-setup-download><Download size={18} aria-hidden="true" /> Download Markdown</button>
+      </div>
+      <p class="setup-status" role="status" aria-live="polite" data-setup-status>Editable template · project details are delegated to inspection.</p>
+      <button type="button" class="button secondary setup-rebuild" data-setup-rebuild hidden>Apply details to a fresh guide</button>
+      <label for="setup-preview" class="preview-label">Markdown preview · edits are included in copy and download</label>
+      <textarea id="setup-preview" data-setup-preview spellcheck="false" wrap="soft" maxlength="60000">{initial}</textarea>
+      <dl class="setup-expectations">
+        <div><dt>What you get</dt><dd>Project inspection, relevant setup steps, checks and a note another agent can continue from.</dd></div>
+        <div><dt>What you need</dt><dd>An agent with folder and terminal access. Use a desktop or remote coding environment to run the guide; preparing it works on your phone.</dd></div>
+        <div><dt>When you step in</dt><dd>A missing project choice, provider sign-in or a change outside existing permission.</dd></div>
+      </dl>
+      <noscript><p>Personalising and copying with a button needs JavaScript. Select the complete guide above to copy it, or <a href="/setup/template.md" download="project-setup.md">download the Markdown template</a>.</p></noscript>
+    </section>
+  </div>
+  <section id="tested-setups" class="tested-setups" aria-labelledby="tested-setups-heading">
+    <div><h2 id="tested-setups-heading">Tested setups</h2><p>The maintained Hello recipe has its own <a href="https://github.com/loftwah/app-composer/issues/11">release evidence</a>. This guide version still needs its independent fresh-agent baseline.</p></div>
+    <div class="setup-evidence"><strong>{corePaths.every((entry) => entry.completed >= 3) ? 'Recorded fresh-agent baseline' : 'Fresh-agent evaluation pending'}</strong>{corePaths.map((entry) => <p><b>{entry.path === 'new' ? 'New project' : 'Existing external project'}</b>: {entry.attempts} recorded runs; {entry.completed} completed without rescue, {entry.rescued} after rescue, {entry.blocked} blocked, {entry.failed} failed, {entry.simulated} simulated.{entry.latest && <> Latest: {entry.latest.outcome}, {entry.latest.finishedAt.slice(0, 10)} · <a href={entry.latest.evidence}>evidence</a>.</>}</p>)}<p>Coverage for <code>{setupGuideVersion}</code> comes from the recorded attempts. Resume, later changes, other clients and continued reliability need their own observations.</p><p>Export checks exercise guide generation and boundaries. They do not count as agent setup attempts.</p><a href="https://github.com/loftwah/app-composer/issues/292">Follow the evaluation and remaining coverage <ArrowRight size={16} aria-hidden="true" /></a></div>
+  </section>
+  <p class="setup-next">Prefer the supported first-app walkthrough? <a href="/ready">Open Get Ready</a>. Already have a model to build? <a href="/init">Open Init</a>.</p>
+</Base>
+<script>
+  import { initProjectSetup } from '../browser/project-setup';
+  initProjectSetup();
+</script>
+<style>
+  .setup-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:32px; margin-bottom:36px; }
+  .setup-heading h1 { font-size:clamp(2.4rem,4.7vw,4rem); margin:0 0 16px; max-width:none; }
+  .setup-heading .lede { max-width:58ch; margin:0; font-size:1.08rem; }
+  .setup-heading>a { display:inline-flex; align-items:center; gap:10px; min-height:44px; flex-shrink:0; }
+  .setup-workspace { display:grid; grid-template-columns:minmax(250px,.82fr) minmax(0,1.35fr); gap:48px; border-top:1px solid var(--color-border); padding-top:28px; align-items:start; }
+  .setup-details { min-width:0; }
+  .setup-details[hidden], [hidden] { display:none !important; }
+  fieldset { border:0; margin:0 0 24px; padding:0; min-width:0; }
+  legend { font-weight:600; padding:0; margin-bottom:12px; }
+  .setup-choice { display:flex; align-items:flex-start; gap:12px; padding:13px 0; border-bottom:1px solid var(--color-border); cursor:pointer; }
+  .setup-choice input { flex-shrink:0; width:19px; height:19px; margin-top:3px; accent-color:var(--color-brand); }
+  .setup-choice strong, .setup-choice small { display:block; }
+  .setup-choice small { margin-top:3px; color:var(--color-muted); font-size:.87rem; line-height:1.5; }
+  .setup-details>label, .setup-options>label { display:block; margin:20px 0 8px; font-weight:500; }
+  label>span:not(.setup-choice span) { font-weight:400; }
+  .setup-details>label>span { color:var(--color-muted); font-size:.8rem; margin-left:5px; }
+  .setup-details>input,.setup-details>textarea,.setup-details>select,.setup-options>textarea { width:100%; box-sizing:border-box; background:var(--color-background); color:var(--color-foreground); border:1px solid var(--color-control-border); border-radius:6px; padding:11px 12px; font:inherit; font-size:16px; }
+  .setup-details textarea { resize:vertical; min-height:78px; }
+  .field-help { margin:7px 0 0; font-size:.83rem; color:var(--color-muted); line-height:1.55; }
+  .setup-options { margin-top:22px; border-block:1px solid var(--color-border); padding:14px 0; }
+  summary { cursor:pointer; min-height:24px; font-weight:500; }
+  .setup-check { display:flex !important; gap:10px; align-items:flex-start; font-size:.9rem; }
+  .setup-check input { width:18px; height:18px; flex-shrink:0; margin-top:3px; }
+  .setup-local { margin-top:20px; }
+  .setup-local p { color:var(--color-muted); font-size:.83rem; line-height:1.6; margin-bottom:8px; }
+  .setup-reset { appearance:none; background:none; border:0; padding:8px 0; color:var(--color-accent); font:inherit; font-size:.85rem; text-align:left; cursor:pointer; min-height:44px; }
+  .guide-title { display:flex; justify-content:space-between; align-items:baseline; gap:20px; }
+  .guide-title h2 { margin:0; font-size:1.5rem; max-width:none; }
+  .guide-title a { font-size:.85rem; flex-shrink:0; }
+  .setup-guide>p { color:var(--color-muted); font-size:.9rem; margin:12px 0 18px; }
+  .setup-actions { display:flex; flex-wrap:wrap; gap:10px; }
+  .setup-actions .button { font-size:.88rem; padding:11px 15px; min-height:44px; }
+  .setup-guide .setup-status { min-height:24px; margin:12px 0 8px; color:var(--color-foreground); font-size:.84rem; }
+  .setup-rebuild { margin-bottom:14px; }
+  .preview-label { display:block; color:var(--color-muted); font-size:.8rem; margin-bottom:8px; }
+  #setup-preview { display:block; width:100%; height:510px; box-sizing:border-box; resize:vertical; padding:20px; border:1px solid var(--color-control-border); border-radius:6px; background:var(--color-surface); color:var(--color-foreground); font:14px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace; tab-size:2; }
+  .setup-expectations { display:grid; gap:14px; margin:24px 0 0; }
+  .setup-expectations>div { display:grid; grid-template-columns:112px minmax(0,1fr); gap:18px; font-size:.85rem; }
+  dt { font-weight:600; } dd { margin:0; color:var(--color-muted); line-height:1.65; }
+  .tested-setups { display:grid; grid-template-columns:.82fr 1.35fr; gap:48px; margin-top:44px; padding-top:30px; border-top:1px solid var(--color-border); scroll-margin-top:24px; }
+  .tested-setups h2 { font-size:1.5rem; margin:0 0 12px; }
+  .tested-setups p { font-size:.9rem; color:var(--color-muted); }
+  .setup-evidence a { display:inline-flex; gap:8px; align-items:center; }
+  .setup-evidence code { overflow-wrap:anywhere; }
+  .setup-next { border-top:1px solid var(--color-border); margin-top:32px; padding-top:24px; font-size:.9rem; }
+  @media(max-width:1000px) { .setup-heading { display:block; }.setup-heading>a { margin-top:18px; }.setup-workspace,.tested-setups { gap:28px; grid-template-columns:minmax(230px,.8fr) minmax(0,1fr); }.guide-title { display:block; }.guide-title>a { display:inline-block; margin-top:8px; } }
+  @media(max-width:720px) { .setup-workspace,.tested-setups { grid-template-columns:1fr; gap:32px; }.setup-heading { margin-bottom:24px; }.setup-guide { border-top:1px solid var(--color-border); padding-top:24px; } #setup-preview { height:420px; font-size:16px; padding:14px; }.setup-expectations>div { grid-template-columns:1fr; gap:4px; }.setup-actions { display:grid; }.setup-actions .button { justify-content:center; }.setup-evidence { padding-top:0; }.setup-heading .lede { font-size:1rem; } }
+</style>
