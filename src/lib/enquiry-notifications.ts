@@ -88,7 +88,7 @@ async function validResource(db: D1Database, scope: Scope) {
       "This notification belongs to another or unavailable app connection.",
     );
 }
-function connection(runtime: NotificationRuntime) {
+export function mailConnection(runtime: NotificationRuntime) {
   const recipient =
     typeof runtime.ENQUIRY_NOTIFICATION_RECIPIENT === "string"
       ? runtime.ENQUIRY_NOTIFICATION_RECIPIENT.trim().toLowerCase()
@@ -215,7 +215,7 @@ export async function sendEnquiryNotification(
       "Three attempts were used. Reconcile this notification before any further send.",
       409,
     );
-  const mail = connection(runtime);
+  const mail = mailConnection(runtime);
   if (!mail.ready) {
     await db
       .prepare(
@@ -405,7 +405,7 @@ export async function manageEnquiryNotifications(
           "Only the workspace owner can change notification preferences.",
           403,
         );
-      const mail = connection(runtime);
+      const mail = mailConnection(runtime);
       if (
         input.enabled &&
         mail.ready &&
@@ -496,7 +496,7 @@ export async function manageEnquiryNotifications(
       )
       .bind(workspace.id, input.resource)
       .all();
-    const mail = connection(runtime);
+    const mail = mailConnection(runtime);
     await validResource(db, scope);
     const currentRole = await membership(db, workspace.id, ctx.user.id);
     if (currentRole !== "owner" && currentRole !== "editor")

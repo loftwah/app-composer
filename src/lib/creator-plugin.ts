@@ -6,6 +6,7 @@ import { manageWorkspaceAccess } from "./workspace-access.ts";
 import { managePrivateOutcomes } from "./private-outcomes.ts";
 import { manageMaintenance } from "./creator-maintenance.ts";
 import { manageEnquiries } from "./private-enquiries.ts";
+import { manageInboxJourney } from "./inbox-journey.ts";
 import { manageWorkflows } from "./workflows.ts";
 import { afterNativeWorkflowWrite } from "./workflow-events.ts";
 import { manageOverview } from "./overview.ts";
@@ -139,6 +140,17 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         permission: creatorPermission,
         request: { body: "json", maxBytes: 4000 },
         handler: (ctx) => manageEnquiries(ctx, runtime),
+      },
+      journeyRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageInboxJourney(ctx, runtime),
+      },
+      journeyWrite: {
+        methods: ["POST"],
+        permission: creatorPermission,
+        request: { body: "json", maxBytes: 4000 },
+        handler: (ctx) => manageInboxJourney(ctx, runtime),
       },
       outcomesRead: {
         methods: ["GET"],

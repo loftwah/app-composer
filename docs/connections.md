@@ -17,7 +17,10 @@ claim. Expiry is explicitly unknown.
 Saved Guestbook consumers are read from exact workspace/account/environment/
 target resource bindings. Owner-mail dependencies come from that same scope's
 saved notification preferences. Each list is bounded to 50 and marks unavailable
-storage separately from an empty list. The two current native workflow recipes
+storage separately from an empty list. The Inbox journey reports only whether
+the owner-mail connection is configured, a 12-character SHA-256 destination
+fingerprint and the recorded delivery state; it never renders the recipient or
+sender address, API key or provider response body. The two current native workflow recipes
 use local records; no external credential dependency is invented for them.
 
 **Check an owned visitor-book read** server-selects one ready owned resource and

@@ -73,3 +73,36 @@ marker without body, account or event values. A later receipt check can repair
 queuing while the receipt remains available. There is no complete source-to-queue
 reconciliation scan in this slice; a missing notification never proves an empty
 Inbox. Reliable autonomous coverage remains an open acceptance gate.
+
+## Owner journey and workflow hand-off — 25 October 2026
+
+The native Inbox now selects one retained brief and shows three separate states
+together: the Guestbook-owned review state, Composer's body-free enquiry
+workflow run, and the owner-notice delivery/outbox state. The brief list keeps
+the existing review, reject, delete, export and “Enquiries by page” controls.
+Reading or reviewing a brief still sends nothing and does not enable
+notifications.
+
+A confirmed receipt records one `queued` workflow event for the exact
+workspace/resource/account/environment/target and intent. Because the pinned
+Guestbook export identifies a retained brief by a different id, Composer links
+the two only when exactly one pending export item matches the same scope and
+submission values; otherwise the brief is shown as `unlinked` with no delivery
+action rather than guessing. The owner can process
+that event explicitly; processing rechecks the owned resource and owner
+membership, then prepares the existing outbox notice idempotently. A retry
+reuses the same event and message identity. Workflow and delivery attempts are
+each bounded at three. A definite provider refusal is `failed`; a timeout,
+interruption or identity-less response is `uncertain` and can only be
+reconciled, never silently resent or promoted to success. Provider keys,
+response bodies, sender/recipient addresses and brief text are not stored in the
+run/outbox metadata; the Inbox shows a 12-character destination fingerprint.
+
+`0017_inbox_journey.sql` adds the run table and reconciliation columns on top of
+the existing 0013 outbox. The full state model, reliability rules and remaining
+gates are in [the inbox workflow guide](inbox-workflows.md). Deterministic tests
+and the local rendered captures are in
+[`tests/inbox-journey.test.mjs`](../tests/inbox-journey.test.mjs) and
+[`docs/evidence/inbox-workflow-20261025/`](evidence/inbox-workflow-20261025/README.md).
+No real mail, inbound mail, scheduler, production deployment or authenticated
+click-through of this new build is claimed.
