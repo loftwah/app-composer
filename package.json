@@ -22,6 +22,8 @@
     "test:email": "node --test tests/resend-delivery.test.mjs",
     "test:release": "node --test tests/verify-live.test.mjs",
     "test:reports": "node --test tests/inspection-report.test.mjs",
+    "test:injection": "node --test tests/injection-boundary.test.mjs",
+    "eval:injection": "node scripts/eval-injection-boundary.mjs",
     "init:hello": "node scripts/init-hello.mjs",
     "ready:mcp": "node scripts/get-ready-mcp.mjs",
     "test:mcp": "node --test tests/readiness-mcp.test.mjs",

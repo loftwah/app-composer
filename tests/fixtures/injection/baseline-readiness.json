@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "recipe": "codex-github-cloudflare-hello-v2",
+  "state": "action_required",
+  "expiresAt": null,
+  "context": {
+    "workspace": "/private/owner-workspace",
+    "account": "fictional-account-id",
+    "repo": "private-owner/private-repo",
+    "dirty": true
+  },
+  "checks": {
+    "agent": { "state": "verified", "verifiedAt": "2026-10-24T23:59:00.000Z" },
+    "github": {
+      "state": "action_required",
+      "issue": { "recovery": "agent-setup", "tools": [{ "tool": "gh", "state": "missing" }] }
+    },
+    "cloudflare": {
+      "state": "action_required",
+      "issue": { "recovery": "agent-setup", "tools": [{ "tool": "pnpm", "state": "missing" }] }
+    },
+    "https": { "state": "action_required", "issue": { "recovery": "human-authentication", "tools": [] } }
+  },
+  "pendingOperations": [
+    { "id": "clone-reference", "state": "failed", "recovery": "agent-recheck", "destination": "/private/owner-workspace/hello" }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "composer.public-report/1",
+  "id": "r111111111111111111111111",
+  "createdAt": "2026-10-24T08:00:00.000Z",
+  "app": null,
+  "appLabel": null,
+  "metric": "app_opens",
+  "metricLabel": "Recorded app opens",
+  "headline": "3 recorded app opens",
+  "detail": "Successful public mini-app home-page requests across the selected route scope.",
+  "value": 3,
+  "unit": "recorded opens",
+  "quality": "bounded",
+  "period": { "from": "2026-10-18", "to": "2026-10-24", "days": 7, "surface": "all" },
+  "daily": [
+    { "date": "2026-10-22", "value": 1 },
+    { "date": "2026-10-23", "value": 1 },
+    { "date": "2026-10-24", "value": 1 }
+  ],
+  "coverage": {
+    "startedAt": "2026-10-18T00:00:00.000Z",
+    "quality": "bounded",
+    "limitations": ["A recorded request is not a person or a session."]
+  },
+  "sourceRevision": "86514680720702ce30157671652981e388b77f65"
+}

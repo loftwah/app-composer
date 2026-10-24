@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "preset": "composition",
+  "config": {
+    "title": "Fictional Trail Notes",
+    "intro": "A fictional pair used to exercise the injection boundary.",
+    "theme": "midnight",
+    "layout": "editorial"
+  },
+  "privacy": "review-first",
+  "cards": [],
+  "deployment": { "mode": "preview" },
+  "sources": [
+    {
+      "id": "guestbook",
+      "repository": "https://github.com/loftwah/app-composer-guestbook",
+      "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+      "manifestDigest": "sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972"
+    },
+    {
+      "id": "showcase",
+      "repository": "https://github.com/loftwah/app-composer-showcase",
+      "commit": "f1dd27952ca8548f81fde5c5905346dae4a2b61b",
+      "manifestDigest": "sha256:2ff55f023d211afc1de5c479a3a52879e1dd2a31fd361ca79acc6360a2bee9be"
+    }
+  ],
+  "decisions": { "goal": "composition" }
+}
