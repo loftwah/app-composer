@@ -13,20 +13,25 @@ republish and platform mutation routes confirm a saved result. Only the affected
 server-derived source is considered. GET reads and the existing scheduler never
 trigger these recipes. **Scan now** remains explicit recovery and inspects up to
 20 current source rows, including matching frozen plan account/environment and
-the fixed app destination. Neither recipe
-sends mail, executes an agent, changes source records, publishes a post or
+the fixed app destination. Neither recipe sends mail, executes an agent,
+changes source records, publishes a post or
 performs remediation. A publication check is not a Worker-release or link-check
 receipt. Inbox/mail remains owned by #117; scheduled and external automation,
 contribution sharing and provider callbacks remain #289/#291 qualification work.
 
 Source mutation and follow-up capture are separate transactions. A missing table,
 interruption, full receipt limit or failed follow-up cannot roll back or repeat
-the confirmed source operation. Its original response object remains unchanged;
-a fixed, redacted `WORKFLOW_POST_WRITE_CAPTURE_UNAVAILABLE` warning identifies
-the recovery path. A missed follow-up needs **Scan now** after the cause is
+the confirmed source operation. Its original response object remains unchanged
+while the caller still has current private workspace access; final revocation
+or an unavailable membership check returns a standard denial/unavailable response
+without the old private snapshot. That response states that the write may already
+have completed and must not be replayed. A capture failure emits the fixed,
+redacted `WORKFLOW_POST_WRITE_CAPTURE_UNAVAILABLE` warning. A missed follow-up
+needs **Scan now** after the cause is
 resolved. This is tested request-path automation, not durable outbox delivery or
 autonomous scheduling/reliability. Writes through other interfaces remain outside
-these two native route hooks. Paused recipes and revoked membership stop effects
+these two native Creator route hooks, including writes through member-only
+interfaces. Paused recipes and revoked membership stop effects
 at the same persisted SQL boundary as explicit scans.
 
 Choose the workspace through the existing workspace selector. The server derives
@@ -107,10 +112,16 @@ this native implementation.
 ## Verification
 
 ```sh
-node --test tests/workflows.test.mjs
+node scripts/identity.mjs
+node --test tests/workflows.test.mjs tests/workflow-native-events.test.mjs
 ```
 
-The tests use FK-enabled local SQLite and fictional app fixtures. They exercise
+The tests use FK-enabled local SQLite and fictional app fixtures. Native event
+tests execute the actual creator-plugin declarations through the installed
+EmDash dispatcher: publication/republish, successful platform publication and a
+real fixture operation failure each reach their supported draft automatically.
+They also retain a source after capture failure, recover through Scan, and cover
+late revocation/private-response denial plus revision/target races. They exercise
 the exact native route function, durable samples, unavailable-source recovery,
 publication scope, duplicate events, stale revisions, pause/revocation, unsafe
 imports and current permissions. This is deterministic local contract evidence,

@@ -96,7 +96,14 @@ async function prepared(t) {
         ...(reading ? {} : { body: JSON.stringify(input) }),
       }),
     });
-    return { status: response.status, body: await response.json() };
+    const envelope = await response.json();
+    return {
+      status: response.status,
+      body:
+        envelope.success === true && Object.hasOwn(envelope, "data")
+          ? envelope.data
+          : envelope,
+    };
   };
   const activate = async (recipe) => {
     const response = await call("workflowsWrite", {
@@ -246,6 +253,131 @@ test("an actual failed native platform write automatically becomes a scoped atte
   );
 });
 
+test("a successful native platform publication also reaches the same summary recipe", async (t) => {
+  const f = await prepared(t);
+  await f.activate("release-summary");
+  await f.call("platformWrite", {
+    action: "configure",
+    workspace: f.workspace.id,
+    expectedRevision: 0,
+    profile,
+  });
+  const response = await f.call("platformWrite", {
+    action: "submit",
+    workspace: f.workspace.id,
+    key: crypto.randomUUID(),
+    request: appRequest,
+  });
+  assert.equal(response.body.ok, true, JSON.stringify(response.body));
+  assert.equal(
+    response.body.requests[0].status,
+    "complete",
+    JSON.stringify(response.body),
+  );
+  const run = f.sqlite.prepare("SELECT * FROM creator_workflow_runs").get();
+  assert.ok(run);
+  assert.equal(run.recipe, "release-summary");
+  assert.equal(run.source_id, response.body.requests[0].stackId);
+  assert.equal(run.state, "finished");
+});
+
+test("platform revision or target drift at the final capture predicate cannot inherit the earlier observation", async (t) => {
+  for (const drift of [
+    "revision",
+    "account",
+    "environment",
+    "origin",
+    "malformed",
+  ]) {
+    const f = await prepared(t);
+    await f.activate("operation-attention");
+    await f.call("platformWrite", {
+      action: "configure",
+      workspace: f.workspace.id,
+      expectedRevision: 0,
+      profile,
+    });
+    f.app.badBuild(true);
+    const prepare = f.db.prepare.bind(f.db);
+    let changed = false,
+      prior;
+    t.mock.method(console, "warn", () => {});
+    f.db.prepare = (sql) => {
+      if (
+        !changed &&
+        sql.startsWith("INSERT OR IGNORE INTO creator_workflow_runs")
+      ) {
+        changed = true;
+        prior = f.sqlite
+          .prepare(
+            "SELECT id,plan_json,plan_digest,revision FROM creator_platform_requests",
+          )
+          .get();
+        if (drift === "revision")
+          f.sqlite
+            .prepare(
+              "UPDATE creator_platform_requests SET revision=revision+1 WHERE id=?",
+            )
+            .run(prior.id);
+        else {
+          const plan = JSON.parse(prior.plan_json);
+          if (drift === "account") plan.target.account = "other-account";
+          if (drift === "environment")
+            plan.target.environment = "other-environment";
+          if (drift === "origin")
+            plan.target.url = "https://example.test/guestbook";
+          f.sqlite
+            .prepare(
+              "UPDATE creator_platform_requests SET plan_json=? WHERE id=?",
+            )
+            .run(
+              drift === "malformed" ? "invalid JSON" : JSON.stringify(plan),
+              prior.id,
+            );
+        }
+      }
+      return prepare(sql);
+    };
+    const response = await f.call("platformWrite", {
+      action: "submit",
+      workspace: f.workspace.id,
+      key: crypto.randomUUID(),
+      request: appRequest,
+    });
+    assert.equal(response.body.ok, true);
+    assert.equal(changed, true);
+    assert.equal(
+      f.sqlite.prepare("SELECT COUNT(*) AS n FROM creator_workflow_runs").get()
+        .n,
+      0,
+    );
+    const retained = f.sqlite
+      .prepare(
+        "SELECT status,plan_json,plan_digest FROM creator_platform_requests",
+      )
+      .get();
+    assert.equal(retained.status, "needs-attention");
+    assert.equal(
+      retained.plan_digest,
+      prior.plan_digest,
+      "The hook never rewrites the frozen digest",
+    );
+    if (drift === "revision") {
+      assert.equal(retained.plan_json, prior.plan_json);
+      f.db.prepare = prepare;
+      const recovered = await f.call("workflowsWrite", {
+        action: "scan",
+        workspace: f.workspace.id,
+        recipe: "operation-attention",
+        expectedRevision: 1,
+      });
+      assert.equal(recovered.body.ok, true);
+      assert.equal(recovered.body.runs.length, 1);
+      assert.equal(recovered.body.runs[0].sourceRevision, prior.revision + 1);
+    }
+  }
+});
+
 test("pause, read-only routes and denied source writes create no automatic effects", async (t) => {
   const f = await prepared(t);
   await f.activate("release-summary");
@@ -361,6 +493,24 @@ test("post-hook failure retains the confirmed source response and explicit Scan 
       .get(stack.id),
     source,
   );
+  const success = published.body;
+  assert.equal(
+    await afterNativeWorkflowWrite(
+      "stacks",
+      {
+        user,
+        input: { action: "publish" },
+        request: new Request(origin, {
+          method: "POST",
+          headers: { Origin: origin, "X-EmDash-Request": "1" },
+        }),
+      },
+      f.runtime,
+      success,
+    ),
+    success,
+    "An authorised successful response keeps its exact object identity",
+  );
   const response = {
     ok: false,
     code: "UNAVAILABLE",
@@ -419,7 +569,13 @@ test("revocation or pause at the persisted follow-up boundary cannot create a dr
       stack: stack.id,
       expectedRevision: stack.revision,
     });
-    assert.equal(published.body.ok, true);
+    assert.equal(published.body.ok, change === "pause");
+    if (change === "revoke") {
+      assert.equal(published.body.code, "FORBIDDEN");
+      assert.match(published.body.message, /may already have completed/);
+      assert.match(published.body.message, /Do not replay/);
+      assert.equal(published.body.stack, undefined);
+    }
     assert.equal(
       f.sqlite
         .prepare("SELECT status FROM creator_stacks WHERE id=?")
@@ -432,4 +588,103 @@ test("revocation or pause at the persisted follow-up boundary cannot create a dr
       0,
     );
   }
+});
+
+test("final response access is checked after capture and its read failure cannot return the old private snapshot", async (t) => {
+  for (const failure of ["revoked", "unavailable"]) {
+    const f = await prepared(t);
+    await f.activate("release-summary");
+    const stack = await f.readyStack();
+    const prepare = f.db.prepare.bind(f.db);
+    let captured = false,
+      checked = false;
+    f.db.prepare = (sql) => {
+      if (sql.startsWith("INSERT OR IGNORE INTO creator_workflow_runs"))
+        captured = true;
+      if (
+        captured &&
+        !checked &&
+        sql.includes("SELECT role FROM creator_members")
+      ) {
+        checked = true;
+        if (failure === "unavailable")
+          throw Error("CANARY_PRIVATE_MEMBERSHIP_ERROR");
+        f.sqlite
+          .prepare(
+            "UPDATE creator_members SET role='viewer' WHERE workspace_id=? AND user_id=?",
+          )
+          .run(f.workspace.id, user.id);
+      }
+      return prepare(sql);
+    };
+    const response = await f.call("write", {
+      action: "publish",
+      workspace: f.workspace.id,
+      stack: stack.id,
+      expectedRevision: stack.revision,
+    });
+    assert.equal(checked, true);
+    assert.equal(response.body.ok, false);
+    assert.equal(
+      response.body.code,
+      failure === "revoked" ? "FORBIDDEN" : "UNAVAILABLE",
+    );
+    assert.match(response.body.message, /Do not replay/);
+    assert.equal(response.body.stack, undefined);
+    assert.doesNotMatch(JSON.stringify(response.body), /CANARY_PRIVATE/);
+    assert.equal(
+      f.sqlite
+        .prepare("SELECT status FROM creator_stacks WHERE id=?")
+        .get(stack.id).status,
+      "published",
+    );
+    assert.equal(
+      f.sqlite.prepare("SELECT COUNT(*) AS n FROM creator_workflow_runs").get()
+        .n,
+      1,
+      "The effect completed under valid authority before final response access changed",
+    );
+  }
+});
+
+test("unrelated successful actions and existing error responses retain their contracts without a new membership read", async () => {
+  const response = {
+    ok: true,
+    workspace: { id: "fictional-workspace" },
+    sentinel: { unchanged: true },
+  };
+  const error = {
+    ok: false,
+    code: "CONFLICT",
+    message: "Existing source failure",
+  };
+  const runtime = {
+    DB: {
+      prepare() {
+        throw Error("No follow-up should run");
+      },
+    },
+    PUBLIC_ORIGIN: origin,
+  };
+  const ctx = {
+    user,
+    input: { action: "save" },
+    request: new Request(origin, {
+      method: "POST",
+      headers: { Origin: origin, "X-EmDash-Request": "1" },
+    }),
+  };
+  assert.equal(
+    await afterNativeWorkflowWrite("stacks", ctx, runtime, response),
+    response,
+  );
+  assert.equal(
+    await afterNativeWorkflowWrite(
+      "platform",
+      { ...ctx, input: { action: "run" } },
+      runtime,
+      error,
+    ),
+    error,
+  );
 });

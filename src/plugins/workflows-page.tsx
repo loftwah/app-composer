@@ -255,7 +255,9 @@ export function Workflows({ search }: { search: string }) {
                 <article key={recipe.id} className="cw-recipe">
                   <div className="cw-recipe-title">
                     <h2>{recipe.name}</h2>
-                    <span>{saved.enabled ? "Ready to scan" : "Paused"}</span>
+                    <span>
+                      {saved.enabled ? "Waiting for events" : "Paused"}
+                    </span>
                   </div>
                   <dl className="cw-rule">
                     <div>
