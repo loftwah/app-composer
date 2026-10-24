@@ -318,10 +318,12 @@ function nextActionFor(mode, source) {
   return 'Compare this independent result with the release receipt; local checks alone do not establish production acceptance.';
 }
 
-function failureAction(mode) {
-  if (mode === 'release')
+function failureAction(mode, receipt) {
+  if (mode === 'release' && receipt.release.performed)
     return 'Inspect the actual Worker version and live source before any retry. Do not repeat an ambiguous upload.';
+  if (mode === 'release') return 'No upload occurred. Fix the reported source or target problem, then rerun from clean pushed main.';
   if (mode === 'candidate') return 'Fix the reported candidate problem and rerun from clean pushed source. Nothing was uploaded.';
+  if (mode === 'verify') return 'Inspect the live source and deployed version; do not infer production acceptance from local checks.';
   return 'Fix the reported local problem and rerun. Nothing was released.';
 }
 
@@ -496,7 +498,7 @@ export async function runDeliveryJourney({
     receipt.state = known && !steps.some(step => step.state === 'failed') ? 'refused' : 'failed';
     receipt.error = {code: error?.code ?? 'journey-failed', message: bounded(error?.message)};
     if (mode === 'release' && receipt.release.performed) receipt.release.failed = true;
-    receipt.nextAction = failureAction(mode);
+    receipt.nextAction = failureAction(mode, receipt);
   }
   receipt.finishedAt = now().toISOString();
   return receipt;

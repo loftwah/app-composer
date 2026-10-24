@@ -246,6 +246,7 @@ test('dirty and wrongly sourced release attempts are refused before any command'
     assert.equal(receipt.error.code, code);
     assert.equal(calls, 0, `${code} must not run a command`);
     assert.equal(receipt.release.performed, false);
+    assert.match(receipt.nextAction, /No upload occurred/);
   }
 });
 

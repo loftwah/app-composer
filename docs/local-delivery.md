@@ -89,7 +89,7 @@ Every mode emits the same bounded schema. A successful release looks like this i
     "account": "<account ID>",
     "environment": "production",
     "origin": "https://composer.loftwah.com",
-    "composition": {"id": "<lock digest>", "apps": ["..."]},
+    "composition": {"id": "<lock digest>", "apps": [{"id": "guestbook", "commit": "<SHA>"}]},
     "preview": {"worker": "app-composer-preview", "isolated": true, "services": 0}
   },
   "steps": ["local checks or delegated release steps with durations"],
@@ -104,7 +104,42 @@ The receipt contains no tokens, private keys or command output. It records the e
 
 ## Actual local run
 
-<!-- ACTUAL_RUN -->
+Recorded 24 October 2026 on `lane-h-delivery-20261024` at commit `4b2165d2532c2fcb16ecbda8a09089fa8f3c0d9a`, using the optional runner:
+
+```sh
+examples/local-delivery-runner.sh --candidate
+```
+
+The full check/build stream stays in the ignored `output/delivery/candidate-run.log`. Its journey summary was:
+
+```text
+App Composer delivery journey — candidate
+Source: lane-h-delivery-20261024 @ 4b2165d2532c (pushed to origin/lane-h-delivery-20261024)
+Target: app-composer · account 1003dc1d93af0ebea56b2f1252f89627 · production · https://composer.loftwah.com
+Preview: app-composer-preview · D1/R2/KV distinct · 0 services · 0 routes
+PASS Required local checks: pnpm check (179.5s)
+PASS Safe preview candidate build: pnpm build (15.3s)
+Candidate: app-composer-preview · sha256:89dd64455ea92cf5d2609101a3fb57d5e70bdc8cd9aa0392af386dcaa63259b5 · uploaded: no
+State: passed
+Receipt: output/delivery/candidate.json
+Next: A candidate from a branch is not release approval. Merge the exact commit to clean pushed main before --release.
+```
+
+The actual `pnpm check` inside that run reported Astro/TypeScript `0 errors`, `0 warnings`, `54 hints` across 533 files; the scoped lint and 33-file format checks passed; `961` tests ran with `959` passing and `2` skipped. The preview build's publication guard inspected 1189 files and 125 archive members.
+
+The release gate refused the same branch without running a command or uploading anything:
+
+```sh
+node scripts/delivery-journey.mjs --release --receipt output/delivery/release-refused.json
+```
+
+```text
+State: refused
+Reason: wrong-branch — Production release requires clean pushed main. Current branch is lane-h-delivery-20261024.
+Next: No upload occurred. Fix the reported source or target problem, then rerun from clean pushed main.
+```
+
+No production release or live verification was performed from this branch. The draft PR links [#319](https://github.com/loftwah/app-composer/issues/319); #11 remains the canonical index for an actual authorised deployment receipt.
 
 ## Authorisation and failure
 
