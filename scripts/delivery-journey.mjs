@@ -348,7 +348,7 @@ export async function runDeliveryJourney({
     target: null,
     steps,
     candidate: null,
-    release: {attempted: false, performed: false, command: null, commit: null},
+    release: {attempted: false, performed: false, command: null, commit: null, checks: null},
     verification: {performed: false, independent: false, verifier: 'scripts/verify-live.mjs', origin: null},
     approval: {mode: 'explicit-flag', flag: modeFlags[mode], sourceCommit: null, candidateDigest: null},
     review: {required: mode === 'local' || mode === 'candidate', action: null},
@@ -389,7 +389,10 @@ export async function runDeliveryJourney({
       }
     };
 
-    if (mode !== 'verify') {
+    // The guarded release runs `pnpm check` itself, first, on this exact clean
+    // pushed commit. Repeating the same full gate here would not add a check:
+    // deploy re-reads HEAD, origin/main and the working tree before uploading.
+    if (mode !== 'verify' && mode !== 'release') {
       await runStep('local-checks', 'Required local checks', 'pnpm', ['check']);
     }
 
@@ -441,7 +444,7 @@ export async function runDeliveryJourney({
         });
         throw error;
       }
-      receipt.release = {attempted: true, performed: true, command: 'pnpm deploy', commit: facts.commit};
+      receipt.release = {attempted: true, performed: true, command: 'pnpm deploy', commit: facts.commit, checks: 'pnpm check and pnpm build run inside the guarded deploy'};
       const verifyStarted = Date.now();
       try {
         await verify(facts.commit, selectedTarget.lock, selectedTarget.identity.origin);

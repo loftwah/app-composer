@@ -281,7 +281,6 @@ test('an explicitly authorised release reuses the guarded deploy and independent
   });
   assert.equal(receipt.state, 'passed');
   assert.deepEqual(calls, [
-    ['pnpm', 'check', null],
     ['pnpm', 'build', 'preview'],
     ['pnpm', 'deploy', null],
   ]);
@@ -290,6 +289,7 @@ test('an explicitly authorised release reuses the guarded deploy and independent
   assert.equal(receipt.release.performed, true);
   assert.equal(receipt.release.command, 'pnpm deploy');
   assert.equal(receipt.release.commit, source().commit);
+  assert.match(receipt.release.checks, /pnpm check and pnpm build run inside the guarded deploy/);
   assert.equal(receipt.verification.performed, true);
   assert.equal(receipt.verification.independent, true);
   assert.equal(receipt.approval.flag, '--release');
@@ -331,16 +331,19 @@ test('the receipt has a bounded, explicit source, target and release identity', 
 
 test('a failed release attempt stays ambiguous and is never reported as verified', async t => {
   const workspace = workspaceFixture(t);
+  const calls = [];
   const receipt = await runDeliveryJourney({
     workspace,
     mode: 'release',
     source: source(),
     environment: {},
     execute: async (command, args) => {
+      calls.push([command, ...args]);
       if (args[0] === 'deploy') throw Object.assign(new Error('fictional deploy failure'), {code: 'command-failed'});
     },
     verify: async () => assert.fail('a failed deploy must not claim verification'),
   });
+  assert.deepEqual(calls, [['pnpm', 'build'], ['pnpm', 'deploy']]);
   assert.equal(receipt.state, 'failed');
   assert.equal(receipt.release.attempted, true);
   assert.equal(receipt.release.performed, false);

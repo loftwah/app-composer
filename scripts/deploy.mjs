@@ -22,14 +22,19 @@ guard();
 const cfg=JSON.parse(readFileSync('wrangler.jsonc','utf8'));
 const lock=JSON.parse(readFileSync('composition.lock.json','utf8'));
 assertProductionTarget(cfg,cfg,lock);
-execFileSync('pnpm',['run','audit'],{stdio:'inherit'});
+const stage=async(name,work)=>{const started=Date.now();const result=await work();console.log('Release gate passed: '+name+' ('+((Date.now()-started)/1000).toFixed(1)+'s)');return result;};
+await stage('dependency audit',()=>execFileSync('pnpm',['run','audit'],{stdio:'inherit'}));
+// Required local checks run before any remote mutation, so a failing gate cannot
+// apply migrations first. This is the only full `pnpm check` invocation in a
+// release; the delivery journey delegates here rather than repeating it.
+await stage('required checks (pnpm check)',()=>execFileSync('pnpm',['check'],{stdio:'inherit'}));
 // The workspace schema ships with the Worker. Applying recorded migrations here is
 // idempotent and prevents a release serving a page whose tables do not exist yet.
-execFileSync('pnpm',['wrangler','d1','migrations','apply','app-composer-emdash','--remote'],{stdio:'inherit'});
+await stage('remote D1 migrations',()=>execFileSync('pnpm',['wrangler','d1','migrations','apply','app-composer-emdash','--remote'],{stdio:'inherit'}));
 const usageSchema=await query("SELECT sql FROM sqlite_schema WHERE type='table' AND name='composer_usage'");
 assertReceiptCounterSchema(usageSchema[0]?.results?.[0]?.sql);
-execFileSync('pnpm',['check'],{stdio:'inherit'});
-execFileSync('pnpm',['build'],{stdio:'inherit'});
+console.log('Release gate passed: receipt counter schema');
+await stage('production build',()=>execFileSync('pnpm',['build'],{stdio:'inherit'}));
 assertReleasePackage(JSON.parse(readFileSync('public/downloads/get-ready-core.json','utf8')),readFileSync('public/downloads/get-ready-core.tgz'),sha);
 assertMcpReleasePackage(JSON.parse(readFileSync('public/downloads/get-ready-mcp.json','utf8')),readFileSync('public/downloads/get-ready-mcp.tgz'),sha);
 const pointer=resolve('.wrangler/deploy/config.json');
@@ -38,20 +43,26 @@ if(generatedPath!==resolve('dist/server/wrangler.json'))throw Error('Unexpected 
 assertProductionTarget(cfg,JSON.parse(readFileSync(generatedPath,'utf8')),lock);
 guard();
 const snapshot=validatedSecrets?snapshotAdminSecrets(validatedSecrets,process.cwd()):null;
-try {
- execFileSync('pnpm',['wrangler','deploy','--message','App Composer '+sha,...(snapshot?['--secrets-file',snapshot.path]:[])],{stdio:'inherit'});
-} finally {snapshot?.remove();}
-await verifyLive(sha,lock);
-await verifySharing('https://composer.loftwah.com');
-const publication=await auditPublication('https://composer.loftwah.com',{downloads:['/downloads/get-ready-core.tgz','/downloads/get-ready-mcp.tgz','/downloads/cloudflare-extension.zip']});
+await stage('Worker upload',()=>{
+ try {
+  execFileSync('pnpm',['wrangler','deploy','--message','App Composer '+sha,...(snapshot?['--secrets-file',snapshot.path]:[])],{stdio:'inherit'});
+ } finally {snapshot?.remove();}
+});
+await stage('live source and pinned services',()=>verifyLive(sha,lock));
+await stage('live sharing output',()=>verifySharing('https://composer.loftwah.com'));
+const publication=await stage('live publication privacy',()=>auditPublication('https://composer.loftwah.com',{downloads:['/downloads/get-ready-core.tgz','/downloads/get-ready-mcp.tgz','/downloads/cloudflare-extension.zip']}));
 console.log(JSON.stringify(publication));
 if(!publication.ok)throw Error('Live publication privacy verification failed.');
-for(const path of ['/_emdash/admin/setup','/_emdash/api/users','/_emdash/api/setup/status','/_emdash/api/plugins/composer-miniapps/read?app=guestbook&action=snapshot']){
- const res=await fetch('https://composer.loftwah.com'+path,{redirect:'manual',headers:{'User-Agent':'Mozilla/5.0 (AppComposer verification)'}});
- const location=res.headers.get('location'),redirect=location?new URL(location,'https://composer.loftwah.com'):null;
- const accessLogin=[302,303].includes(res.status)&&redirect?.hostname===cfg.vars.CF_ACCESS_TEAM_DOMAIN&&redirect.pathname.startsWith('/cdn-cgi/access/login');
- if(res.status!==403&&!accessLogin)throw new Error('Unauthenticated administration boundary failed: '+path);
-}
-await query("UPDATE composer_releases SET state='superseded' WHERE state='active' AND id!=?",[lock.id]);
-await query("UPDATE composer_releases SET state='active' WHERE id=?",[lock.id]);
+await stage('anonymous administration boundary',async()=>{
+ for(const path of ['/_emdash/admin/setup','/_emdash/api/users','/_emdash/api/setup/status','/_emdash/api/plugins/composer-miniapps/read?app=guestbook&action=snapshot']){
+  const res=await fetch('https://composer.loftwah.com'+path,{redirect:'manual',headers:{'User-Agent':'Mozilla/5.0 (AppComposer verification)'}});
+  const location=res.headers.get('location'),redirect=location?new URL(location,'https://composer.loftwah.com'):null;
+  const accessLogin=[302,303].includes(res.status)&&redirect?.hostname===cfg.vars.CF_ACCESS_TEAM_DOMAIN&&redirect.pathname.startsWith('/cdn-cgi/access/login');
+  if(res.status!==403&&!accessLogin)throw new Error('Unauthenticated administration boundary failed: '+path);
+ }
+});
+await stage('release record',async()=>{
+ await query("UPDATE composer_releases SET state='superseded' WHERE state='active' AND id!=?",[lock.id]);
+ await query("UPDATE composer_releases SET state='active' WHERE id=?",[lock.id]);
+});
 console.log('Verified exact live Composer source '+sha);
