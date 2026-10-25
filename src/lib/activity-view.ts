@@ -33,6 +33,7 @@ export interface PublicAppPostcards {
 }
 export interface PublicApp {
   app: string;
+  connected: boolean;
   opens: number;
   actions: number;
   photoOpens: number;
@@ -82,6 +83,28 @@ export const appActions: Record<string, string> = {
 
 export const signalSelection = (value: string | null): SignalKey =>
   signalKeys.includes(value as SignalKey) ? (value as SignalKey) : "app_opens";
+export const signalLabels: Record<SignalKey, string> = {
+  app_opens: "App opens",
+  photo_opens: "Contribution-page opens",
+  inspection_completed: "Completed inspections",
+  guest_postcards_received: "Guest postcards received",
+};
+// A public app record can only offer measures that app actually declares.
+// Requesting anything else is named at the chart rather than silently replaced.
+export const appSignals: Record<string, SignalKey[]> = {
+  guestbook: ["app_opens", "photo_opens", "guest_postcards_received"],
+  linkcheck: ["app_opens", "inspection_completed"],
+  showcase: ["app_opens"],
+  hello: ["app_opens"],
+  state: ["app_opens"],
+};
+export function appSignalSelection(app: string, value: string | null) {
+  const requested = signalSelection(value);
+  const supported = appSignals[app] ?? ["app_opens"];
+  return supported.includes(requested)
+    ? { metric: requested, unsupported: null }
+    : { metric: "app_opens" as SignalKey, unsupported: value ? requested : null };
+}
 export const count = (value: number) => value.toLocaleString("en-AU");
 export function dateLabel(value: string, year = false) {
   return new Date(value + "T00:00:00Z").toLocaleDateString("en-AU", {
@@ -208,7 +231,7 @@ export function buildFindings(
       detail: `${count(lead.opens)} successful home-page requests in this window. These are recorded requests, not unique people.`,
       value: count(lead.opens),
       unit: lead.opens === 1 ? "recorded open" : "recorded opens",
-      href: `/activity/${lead.app}?${query(days, surface)}`,
+      href: `/activity/${lead.app}?${query(days, surface)}&metric=app_opens`,
       shareHref: shareHref(lead.app, "app_opens", days, surface),
     });
   }
@@ -224,7 +247,7 @@ export function buildFindings(
       detail: `${count(guestbook.photoOpens)} contribution-page ${guestbook.photoOpens === 1 ? "open was" : "opens were"} recorded in the same scope. Page opens are not people, and a received postcard is neither an approval nor a feature.`,
       value: count(postcards),
       unit: postcards === 1 ? "postcard received" : "postcards received",
-      href: `/activity/guestbook?${query(days, surface)}`,
+      href: `/activity/guestbook?${query(days, surface)}&metric=guest_postcards_received`,
       shareHref: shareHref("guestbook", "guest_postcards_received", days, surface),
     });
   }
@@ -239,7 +262,7 @@ export function buildFindings(
       detail: "Counted by the app after a completed inspection, not when the page opens. It does not establish who ran it or what they changed.",
       value: count(linkcheck.inspections),
       unit: linkcheck.inspections === 1 ? "completed inspection" : "completed inspections",
-      href: `/activity/linkcheck?${query(days, surface)}`,
+      href: `/activity/linkcheck?${query(days, surface)}&metric=inspection_completed`,
       shareHref: shareHref("linkcheck", "inspection_completed", days, surface),
     });
   }

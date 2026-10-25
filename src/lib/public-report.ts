@@ -4,6 +4,7 @@
 import type { D1Database } from "@cloudflare/workers-types";
 import type { PublicHistory, SignalKey } from "./activity-view.ts";
 import { portfolioSummary } from "../../lib/usage/portfolio.mjs";
+import { connectedOn } from "../../lib/usage/index.mjs";
 import { appLabels, dateLabel, signalKeys } from "./activity-view.ts";
 
 export const REPORT_ORIGIN = "https://composer.loftwah.com";
@@ -270,6 +271,10 @@ export async function buildReport(
     throw new Error("Choose a supported public measure.");
   if (scope.app && !Object.hasOwn(appLabels, scope.app))
     throw new Error("Choose a supported app.");
+  if (scope.app && !connectedOn(scope.app, scope.surface))
+    throw new Error(
+      "That app has no composed route. Choose the standalone or all-versions scope.",
+    );
   if (
     scope.days !== report.period.days ||
     scope.surface !== (report.surface ?? "all")

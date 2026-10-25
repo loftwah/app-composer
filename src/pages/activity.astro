@@ -52,9 +52,10 @@ const surfaces: SurfaceTotals = {
   standalone: opens(standaloneResult) ?? 0,
   composed: opens(composedResult) ?? 0,
 };
-const rows = (report?.apps ?? apps.map((app) => ({ app: app.id, opens: 0, actions: 0, limited: false })))
+const rows = (report?.apps ?? apps.map((app) => ({ app: app.id, opens: 0, actions: 0, limited: false, connected: true })))
   .map((row) => ({ ...row, definition: apps.find((app) => app.id === row.app)! }))
   .sort((a, b) => b.opens - a.opens || a.app.localeCompare(b.app));
+const unavailable = rows.filter((row) => row.connected === false);
 const top = Math.max(1, ...rows.map((row) => row.opens));
 const findings = history ? buildFindings(history, surfaces) : [];
 const view = history ? signalView(history, metric) : undefined;
@@ -181,22 +182,32 @@ const shareHref = (app: string | null, signal: typeof metric) =>
       <section class="analytics-section" aria-labelledby="apps-title">
         <div class="analytics-section-heading">
           <h2 id="apps-title">The app comparison</h2>
-          <p>Opens and supported actions by app, in the same {where} scope. A composed route is another address for the same app, not another audience.</p>
+          <p>Opens and supported actions by app, in the same {where} scope. {selected.surface === "composed" ? "Only apps Composer mounts inside its own site have a composed route; the rest are marked as unavailable, not counted as zero." : "A composed route is another address for the same app, not another audience."}</p>
         </div>
         {report ? (
           <ol class="analytics-apps" aria-label={`Recorded app requests: ${where}`}>
             {rows.map((row) => (
-              <li class="analytics-app">
+              <li class:list={{ "analytics-app": true, "is-unavailable": row.connected === false }}>
                 <img src={row.definition.thumbnail} width="48" height="48" alt="" loading="lazy" />
                 <div>
                   <h3><a href={`/activity/${row.app}?${scopeQuery}`}>{row.definition.name} <ArrowUpRight size={16} aria-hidden="true"/></a></h3>
                   <p>{appActions[row.app] ?? row.definition.category}</p>
                 </div>
-                <div class="analytics-app-bar" aria-hidden="true"><svg viewBox="0 0 100 8" preserveAspectRatio="none"><rect width={(100 * row.opens) / top} height="8"/></svg></div>
+                <div class="analytics-app-bar" aria-hidden="true">{row.connected !== false && <svg viewBox="0 0 100 8" preserveAspectRatio="none"><rect width={(100 * row.opens) / top} height="8"/></svg>}</div>
                 <div class="analytics-app-count">
-                  <strong>{count(row.opens)}{row.limited ? "+" : ""}</strong>
-                  <small>{row.opens === 1 ? "recorded open" : "recorded opens"}</small>
-                  <small>{row.actions ? `${count(row.actions)} ${row.app === "linkcheck" ? "completed inspections" : "contribution opens"}` : row.app === "state" ? "Vault actions stay private" : "No supported action recorded"}</small>
+                  {row.connected === false ? (
+                    <>
+                      <strong aria-hidden="true">—</strong>
+                      <small>No composed route</small>
+                      <small>Standalone only</small>
+                    </>
+                  ) : (
+                    <>
+                      <strong>{count(row.opens)}{row.limited ? "+" : ""}</strong>
+                      <small>{row.opens === 1 ? "recorded open" : "recorded opens"}</small>
+                      <small>{row.actions ? `${count(row.actions)} ${row.app === "linkcheck" ? "completed inspections" : "contribution opens"}` : row.app === "state" ? "Vault actions stay private" : "No supported action recorded"}</small>
+                    </>
+                  )}
                 </div>
               </li>
             ))}
@@ -204,13 +215,16 @@ const shareHref = (app: string | null, signal: typeof metric) =>
         ) : (
           <p class="analytics-empty" role="status">App totals are unavailable. A dash means the query failed, not that an app had no activity.</p>
         )}
+        {unavailable.length > 0 && (
+          <p class="analytics-note">No composed route exists for {unavailable.map((row) => row.definition.name).join(", ")}. They publish standalone only, so the dash is unsupported, not zero. <a href={`/activity?days=${selected.days}&surface=standalone`}>Compare standalone activity</a>.</p>
+        )}
       </section>
 
       <section class="analytics-method" aria-labelledby="method-title">
         <h2 id="method-title">How an event becomes this page.</h2>
         <p>A successful public request or a completed action can add one to an app's daily total. The original record stays with the app. No visitor identity, enquiry text, entered URL, search or vault content enters these counters.</p>
         <ol>
-          <li><strong>Scope before claim.</strong> The route filter applies to the daily series and the app comparison. Counts are for the selected UTC window; today is partial.</li>
+          <li><strong>Scope before claim.</strong> The route filter applies to the daily series and the app comparison. An app without the selected route is marked unavailable, not counted as zero. Counts are for the selected UTC window; today is partial.</li>
           <li><strong>Different states stay different.</strong> A missing day is unavailable, a retained zero means no event was recorded, and a capped day is a lower bound. A contribution-page open is not a submission; a received postcard is not an approval, feature or person.</li>
           <li><strong>Coverage is finite.</strong> Recording began {dateLabel(history.coverage.startedAt.slice(0, 10), true)}. Counters stop at 1,000 per app/event/surface per UTC day and expire after 35 days. Optional publishers can miss events; reloads and unmarked automation can count.</li>
         </ol>

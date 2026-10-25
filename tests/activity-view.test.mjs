@@ -6,6 +6,8 @@ import { portfolioSummary } from "../lib/usage/portfolio.mjs";
 import {
   signalView,
   signalSelection,
+  appSignalSelection,
+  buildFindings,
   describeDay,
 } from "../src/lib/activity-view.ts";
 
@@ -126,6 +128,100 @@ test("expired ranges never become zero-valued chart bars or query unavailable ro
     assert.equal(view.ceiling, 1);
   }
   assert.equal(signalSelection("private-workspace-outcomes"), "app_opens");
+});
+
+test("each finding keeps its measure, period and route when it opens the evidence", async () => {
+  const f = fixture();
+  try {
+    const now = new Date("2026-10-18T12:00:00Z");
+    const insert = f.sqlite.prepare(
+      "INSERT INTO composer_usage VALUES(?,?,?,?,?)",
+    );
+    insert.run("2026-10-16", "guestbook", "app_open", "standalone", 5);
+    insert.run("2026-10-16", "guestbook", "app_open", "composed", 3);
+    insert.run("2026-10-16", "guestbook", "item_open", "standalone", 4);
+    insert.run("2026-10-17", "guestbook", "postcard_received", "standalone", 2);
+    insert.run("2026-10-17", "linkcheck", "app_open", "standalone", 1);
+    insert.run(
+      "2026-10-17",
+      "linkcheck",
+      "inspection_completed",
+      "standalone",
+      2,
+    );
+    const report = await portfolioSummary(
+      f.db,
+      7,
+      now,
+      "a".repeat(40),
+      "all",
+    );
+    const findings = buildFindings(report, {
+      all: 8,
+      standalone: 5,
+      composed: 3,
+    });
+    assert(findings.length >= 4);
+    for (const finding of findings) {
+      const href = new URL(finding.href, "https://composer.test");
+      const share = new URL(finding.shareHref, "https://composer.test");
+      assert.equal(href.searchParams.get("days"), "7", finding.key);
+      assert.equal(share.searchParams.get("days"), "7", finding.key);
+      assert.equal(
+        share.searchParams.get("metric"),
+        finding.metric,
+        finding.key,
+      );
+      assert.equal(share.searchParams.get("app"), finding.app ?? null);
+      if (finding.app) {
+        assert.equal(href.searchParams.get("surface"), "all", finding.key);
+        assert.equal(
+          href.searchParams.get("metric"),
+          finding.metric,
+          finding.key,
+        );
+        assert.equal(share.searchParams.get("surface"), "all", finding.key);
+      }
+    }
+    const notes = findings.find((finding) => finding.key === "notes");
+    assert.equal(
+      notes.href,
+      "/activity/guestbook?days=7&surface=all&metric=guest_postcards_received",
+    );
+    const inspections = findings.find(
+      (finding) => finding.key === "inspections",
+    );
+    assert.equal(
+      inspections.href,
+      "/activity/linkcheck?days=7&surface=all&metric=inspection_completed",
+    );
+    const lead = findings.find((finding) => finding.key === "app-lead");
+    assert.equal(
+      lead.href,
+      "/activity/guestbook?days=7&surface=all&metric=app_opens",
+    );
+  } finally {
+    f.close();
+  }
+});
+
+test("an app record names an unsupported measure instead of substituting it silently", () => {
+  assert.deepEqual(appSignalSelection("linkcheck", "inspection_completed"), {
+    metric: "inspection_completed",
+    unsupported: null,
+  });
+  assert.deepEqual(appSignalSelection("linkcheck", "photo_opens"), {
+    metric: "app_opens",
+    unsupported: "photo_opens",
+  });
+  assert.deepEqual(appSignalSelection("guestbook", "guest_postcards_received"), {
+    metric: "guest_postcards_received",
+    unsupported: null,
+  });
+  assert.deepEqual(appSignalSelection("showcase", null), {
+    metric: "app_opens",
+    unsupported: null,
+  });
 });
 
 test("each new D2 source has phone/theme assets with matching dimensions and bundled rather than remote fonts", () => {
