@@ -44,3 +44,8 @@ remains compatible until immutable upstream claims/bindings/recovery are
 qualified, and no native plugin lifecycle or entitlement is claimed.
 
 #11 owns the single canonical run handoff, including later independent slices.
+
+The owner Chrome session also loaded the real production Trust Centre inventory
+(four active, unrated native plugins) and Incident Desk’s genuine empty state.
+[The authenticated observation](authenticated-native-receipt.json) names their
+exact source and limits. No plugin or incident state was written.

@@ -22,7 +22,8 @@ checks, negative paths, timing and retained owner state. It adds:
 - Native **Plugin Trust Centre**, **Brand Studio** and **Incident Desk** pages.
   Trust Centre is read-only, dated and exact-release based; unknown evidence is
   explicit. Brand Studio saves scoped immutable versions, previews the actual
-  native console, publishes a second change and restores a prior appearance.
+  native console, publishes a second change and restores a prior appearance. That
+  owner journey passed in production Chrome, retaining all five versions.
   That exact owner journey also passed in production Chrome, ending at version5
   with all prior versions retained.
   Incident Desk preserves structured SITREPs, revised evidence and decisions,
