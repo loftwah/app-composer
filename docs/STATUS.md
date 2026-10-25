@@ -13,12 +13,19 @@ wrapping flex layout caused the blank space. Representative production
 include both themes, keyboard, text reflow and delayed loading. Native browser
 zoom remains unverified.
 
-The next independently reviewed implementation slice adds:
+The independently reviewed platform slice is live from PR #384/#385, source
+`b9f743729bfca15088a28fd47919b5be8d660997`, Worker
+`c5e8bed2-64ac-41f1-9cb1-3eab33ffcd2b`. Its [release and actual production
+browser receipt](evidence/platform-release-20261025/README.md) records the full
+checks, negative paths, timing and retained owner state. It adds:
 
 - Native **Plugin Trust Centre**, **Brand Studio** and **Incident Desk** pages.
   Trust Centre is read-only, dated and exact-release based; unknown evidence is
   explicit. Brand Studio saves scoped immutable versions, previews the actual
-  native console, publishes a second change and restores a prior appearance.
+  native console, publishes a second change and restores a prior appearance. That
+  owner journey passed in production Chrome, retaining all five versions.
+  That exact owner journey also passed in production Chrome, ending at version5
+  with all prior versions retained.
   Incident Desk preserves structured SITREPs, revised evidence and decisions,
   refusing stale approval. Their actual isolated native browser journeys and
   production release state are linked from #11.
@@ -51,8 +58,15 @@ entitlement and an authorised isolated lifecycle target. No plugin was installed
 Provider inventory remains read-only: all 88 undeclared Workers are classified
 with current evidence; four legacy targets retain real dependencies/uncertainty
 and are not safe deletion candidates. Hosted provider reads and measured money
-cost remain unknown. Team Hub's real passwordless/MFA profile and the WordPress
-migration refresh retain their own evidence and release boundaries. #11 owns
+cost remain unknown. [Team Hub](team-hub.md) has a useful Composer-owned local application slice:
+private requests, assignment/status, attachments, immutable history and explicit
+app grants. Actual native role-10, viewer, cross-team, revocation and disabled-user
+journeys passed. Its production origin stays closed pending verified Access
+coverage for both the document and private APIs, passwordless sign-in and
+mandatory MFA. It is not an independently deployed reference app. The [WordPress lab refresh](../labs/wordpress/weekender/OBSERVATIONS.md)
+qualifies the same fictional publisher database through EmDash1.2.0→1.3.1
+and a subsequent native edit/publish cycle. Existing media URL, metadata,
+hierarchy, fresh-import and broader migration gates remain explicit. #11 owns
 exact final source, checks, Workers, cleanup and remaining gates for this run.
 
 ## Agent entry, diagram atlas and analytics truth — 25 October 2026

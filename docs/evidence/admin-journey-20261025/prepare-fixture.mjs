@@ -104,6 +104,8 @@ rmSync(join(app, "dist"), { recursive: true, force: true });
 rmSync(join(app, "output"), { recursive: true, force: true });
 
 const seams = {};
+const incidentLab = process.argv.includes("--incident-lab");
+const incidentDesk = process.argv.includes("--incident-desk") || incidentLab;
 function patch(file, before, after, note) {
   const full = join(app, file);
   const original = readFileSync(full, "utf8");
@@ -143,10 +145,7 @@ patch(
 
 // Optional consumer of the same isolated native-auth fixture. Apply before the
 // dev server starts: EmDash's plugin registry retains its loaded handlers.
-if (
-  process.argv.includes("--incident-desk") ||
-  process.argv.includes("--plugin-trust")
-) {
+if (incidentDesk || process.argv.includes("--plugin-trust")) {
   // A caller may reuse dependencies by symlink. The Cloudflare Vite runner
   // denies admin stylesheet imports outside its fixture root. Clone the already
   // installed tree with APFS instead of installing anything or widening access.
@@ -158,7 +157,7 @@ if (
       "APFS clone of the existing installed dependency tree; no install and no outside-root Vite imports.";
   }
 }
-if (process.argv.includes("--incident-desk")) {
+if (incidentDesk) {
   patch(
     "src/lib/agent-proposals.ts",
     'const origin = "https://composer.loftwah.com";',
@@ -189,6 +188,18 @@ if (process.argv.includes("--incident-desk")) {
       "Use the real Incident Desk component in the native admin map.",
     );
   }
+}
+if (incidentLab) {
+  const route = readFileSync(
+    join(source, "docs/evidence/incident-lab-20261025/canary-route.txt"),
+    "utf8",
+  );
+  mkdirSync(join(app, "src/pages/incident-lab-canary"), { recursive: true });
+  writeFileSync(join(app, "src/pages/incident-lab-canary/[...path].ts"), route);
+  seams["temporary incident canary"] = {
+    sha256: hash(route),
+    note: "This route exists only in the owned temporary copy. Its local D1 caption can be removed to reproduce a real 500 and restored manually after owner review. No production route or execution adapter is installed.",
+  };
 }
 if (process.argv.includes("--plugin-trust")) {
   for (const field of [

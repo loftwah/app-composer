@@ -80,3 +80,19 @@ identity or design system.
 Cloudflare Access, real IdP/MFA, physical passkeys, screen readers, other owned
 apps, complete native visual finishing and downstream screenshot/video/portfolio
 propagation remain separate gates under #353/#285/#11.
+
+## Production owner journey
+
+After the guarded platform release, the owner directed use of their existing
+signed-in Chrome session. The real production form saved version1, previewed
+the actual native console in desktop and390px phone windows, and publishedv2.
+A second footer change retained the name, approvedmark, palette, spacing and
+text settings, savedv3 and publishedv4; normal reload confirmed that result.
+Restoringv2 createdv5 with the first configuration and preserved all five rows.
+Native phone light/dark pixels were inspected and the original dark preference
+was restored. Read-only D1 reconciliation verifies exact configuration equality
+forv1/v2, v3/v4 andv2/v5 in [the production receipt](production-receipt.json).
+No actor identifier, session, token or credential is included. UI screenshots
+were inspected inline in the task; private overview records were not published
+as repository screenshots. Existing Access sign-in is not new subject-binding
+or MFA qualification. No IdP, role or grant was changed.

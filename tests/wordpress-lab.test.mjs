@@ -297,3 +297,34 @@ test("cleanup retains a live owned dev consumer, then recovers only that root af
       rmSync(owned, { recursive: true, force: true });
     }
   }));
+
+test("the isolated publisher pins its own matching reviewed toolchain and retains Node 22", () => {
+  const fixture = new URL("../labs/wordpress/weekender/", import.meta.url);
+  const { destination } = JSON.parse(
+    readFileSync(new URL("versions.json", fixture), "utf8"),
+  );
+  const manifest = JSON.parse(
+    readFileSync(new URL("destination/package.json", fixture), "utf8"),
+  );
+  assert.equal(manifest.dependencies.emdash, destination.emdash);
+  assert.equal(
+    manifest.dependencies["@emdash-cms/cloudflare"],
+    destination.emdash,
+  );
+  assert.equal(manifest.dependencies.astro, destination.astro);
+  assert.equal(manifest.devDependencies.wrangler, destination.wrangler);
+  assert.equal(manifest.packageManager, "pnpm@" + destination.pnpm);
+  assert.equal(manifest.engines.node, ">=22.23.4 <23");
+  assert.equal(manifest.private, true);
+  const generic = JSON.parse(
+    readFileSync(
+      new URL(
+        "../lib/content-model/site-template/package.json",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  );
+  assert.equal(generic.dependencies.emdash, "1.2.0");
+  assert.equal(generic.engines.node, ">=22 <23");
+});

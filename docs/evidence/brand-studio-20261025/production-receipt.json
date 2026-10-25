@@ -1,0 +1,123 @@
+{
+  "schema": "composer.admin-brand-production/1",
+  "checkedAt": "2026-10-25T09:26:12.395Z",
+  "source": "b9f743729bfca15088a28fd47919b5be8d660997",
+  "worker": "c5e8bed2-64ac-41f1-9cb1-3eab33ffcd2b",
+  "database": "app-composer-emdash",
+  "journey": "Actual existing signed-in owner Chrome session; ordinary Brand Studio form/preview/publish/restore actions. This verification query is read-only.",
+  "current": {
+    "scope": "1003dc1d93af0ebea56b2f1252f89627:composer:production",
+    "revision": 5,
+    "published_version": 5
+  },
+  "versions": [
+    {
+      "version": 1,
+      "event": "draft",
+      "created_at": "2026-10-25 09:17:37",
+      "config": {
+        "schema": "composer.admin-brand/1",
+        "target": {
+          "account": "1003dc1d93af0ebea56b2f1252f89627",
+          "app": "composer",
+          "environment": "production"
+        },
+        "siteName": "App Composer",
+        "footerLabel": "Loftwah’s App Composer",
+        "mark": "composer-approved",
+        "palette": "composer-orange",
+        "density": "comfortable",
+        "typeScale": "standard"
+      }
+    },
+    {
+      "version": 2,
+      "event": "publish",
+      "created_at": "2026-10-25 09:19:15",
+      "config": {
+        "schema": "composer.admin-brand/1",
+        "target": {
+          "account": "1003dc1d93af0ebea56b2f1252f89627",
+          "app": "composer",
+          "environment": "production"
+        },
+        "siteName": "App Composer",
+        "footerLabel": "Loftwah’s App Composer",
+        "mark": "composer-approved",
+        "palette": "composer-orange",
+        "density": "comfortable",
+        "typeScale": "standard"
+      }
+    },
+    {
+      "version": 3,
+      "event": "draft",
+      "created_at": "2026-10-25 09:21:20",
+      "config": {
+        "schema": "composer.admin-brand/1",
+        "target": {
+          "account": "1003dc1d93af0ebea56b2f1252f89627",
+          "app": "composer",
+          "environment": "production"
+        },
+        "siteName": "App Composer",
+        "footerLabel": "Loftwah’s App Composer admin",
+        "mark": "composer-approved",
+        "palette": "composer-orange",
+        "density": "comfortable",
+        "typeScale": "standard"
+      }
+    },
+    {
+      "version": 4,
+      "event": "publish",
+      "created_at": "2026-10-25 09:22:56",
+      "config": {
+        "schema": "composer.admin-brand/1",
+        "target": {
+          "account": "1003dc1d93af0ebea56b2f1252f89627",
+          "app": "composer",
+          "environment": "production"
+        },
+        "siteName": "App Composer",
+        "footerLabel": "Loftwah’s App Composer admin",
+        "mark": "composer-approved",
+        "palette": "composer-orange",
+        "density": "comfortable",
+        "typeScale": "standard"
+      }
+    },
+    {
+      "version": 5,
+      "event": "rollback",
+      "created_at": "2026-10-25 09:24:19",
+      "config": {
+        "schema": "composer.admin-brand/1",
+        "target": {
+          "account": "1003dc1d93af0ebea56b2f1252f89627",
+          "app": "composer",
+          "environment": "production"
+        },
+        "siteName": "App Composer",
+        "footerLabel": "Loftwah’s App Composer",
+        "mark": "composer-approved",
+        "palette": "composer-orange",
+        "density": "comfortable",
+        "typeScale": "standard"
+      }
+    }
+  ],
+  "checks": {
+    "nativeDesktopAnd390pxPhonePreview": true,
+    "nativeLightDarkPixelsReviewed": true,
+    "secondPublishedChangeRetainsFirstIdentity": true,
+    "restoreCreatesNewVersion": true,
+    "originalThemeRestored": true,
+    "grantsOrIdpChanged": false
+  },
+  "limits": [
+    "Existing owner session does not establish new identity binding or MFA qualification.",
+    "Physical devices and assistive technology remain unqualified.",
+    "Pixel screenshots were inspected inline in the task; no private overview records were published as repository screenshots."
+  ]
+}

@@ -1,6 +1,7 @@
 import { definePlugin, pluginResponse } from "emdash";
 import { manageMembers, type MemberRuntime } from "./member-access.ts";
 import { manageMemberPlatform } from "./platform-admin.ts";
+import { teamHubPluginReply, type TeamHubRuntime } from "./team-hub.ts";
 
 async function platformReply(
   ctx: Parameters<typeof manageMemberPlatform>[0],
@@ -38,13 +39,26 @@ async function platformReply(
 // Subscriber's published-content read permission admits a signed-in account;
 // workspace membership and every app/resource/action remain server checks.
 export function memberPlugin(
-  runtime: MemberRuntime,
+  runtime: MemberRuntime & TeamHubRuntime,
   pins: Record<string, string>,
 ) {
   return definePlugin({
     id: "composer-members",
     version: "1.0.0",
     routes: {
+      teamHubRead: {
+        methods: ["GET"],
+        permission: "content:read",
+        response: "raw",
+        handler: (ctx) => teamHubPluginReply(ctx, runtime),
+      },
+      teamHubWrite: {
+        methods: ["POST"],
+        permission: "content:read",
+        request: { body: "json", maxBytes: 24000 },
+        response: "raw",
+        handler: (ctx) => teamHubPluginReply(ctx, runtime),
+      },
       platformRead: {
         methods: ["GET"],
         permission: "content:read",

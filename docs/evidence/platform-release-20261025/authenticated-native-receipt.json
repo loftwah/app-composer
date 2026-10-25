@@ -1,0 +1,40 @@
+{
+  "schema": "composer.native-production-observation/1",
+  "observedAt": "2026-10-25T09:27:00Z",
+  "timePrecision": "minute",
+  "source": "b9f743729bfca15088a28fd47919b5be8d660997",
+  "worker": "c5e8bed2-64ac-41f1-9cb1-3eab33ffcd2b",
+  "method": "Actual existing owner Chrome session through native page navigation. No credential/session export or plugin/incident state mutation.",
+  "pluginTrust": {
+    "route": "/_emdash/admin/plugins/composer-stacks/plugin-trust",
+    "loaded": true,
+    "snapshot": "2026-10-25T06:09:28.960Z",
+    "inventory": [
+      "composer-members",
+      "composer-miniapps",
+      "composer-resend",
+      "composer-stacks"
+    ],
+    "inventoryVersion": "1.0.0",
+    "inventorySource": "native/build-time, active and unrated",
+    "results": [
+      "Freeform0.1.4 policy blocked",
+      "Stripe Checkout0.10.3 needs review"
+    ],
+    "unknownVisible": true,
+    "installationUnqualified": true
+  },
+  "incidentDesk": {
+    "route": "/_emdash/admin/plugins/composer-stacks/incidents",
+    "loaded": true,
+    "shown": 0,
+    "scope": "current owner workspace; proposals limited to local/isolated Preview",
+    "emptyState": "No incident proposals yet; links safe replay and scoped SITREP submission",
+    "productionIncidentSeeded": false
+  },
+  "brandStudio": "Production versions1\u20135 and exact read-only reconciliation are in ../brand-studio-20261025/production-receipt.json",
+  "limits": [
+    "Existing owner access does not qualify immutable upstream binding or new MFA policy.",
+    "Synthetic destructive/permission-negative journeys remain the isolated native fixtures; no real account was disabled/revoked in production."
+  ]
+}

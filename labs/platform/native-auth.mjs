@@ -151,7 +151,7 @@ export async function authenticateNativeActors(browser, lab, options = {}) {
     role: owner.user.role,
     admission: "native setup, WebAuthn registration and sign-in",
   });
-  for (const [key, role] of [
+  for (const [key, role] of options.actorRoles ?? [
     ["creator-a", 20],
     ["creator-b", 20],
     ["app-user", 10],

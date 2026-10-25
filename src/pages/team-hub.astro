@@ -1,0 +1,10 @@
+---
+import Base from '../layouts/Base.astro';
+import TeamHub from '../components/team-hub/TeamHub';
+Astro.response.headers.set('Cache-Control','private, no-store');
+Astro.response.headers.set('X-Robots-Tag','noindex, nofollow');
+---
+<Base title="Team Hub" description="An invited team’s private actions, assigned work and retained decisions." noindex={true}>
+  <TeamHub client:load />
+  <noscript>Enable JavaScript to open your signed-in team application. Private records are never included in this page’s HTML.</noscript>
+</Base>
