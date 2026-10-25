@@ -146,3 +146,16 @@ New viewport captures require new reviewed framing; old full-page crop coordinat
 must not be reused.
 The earlier released-source capture remains historical evidence; its first
 mechanically playable edit failed pixel review and must not be published.
+
+## Optional creator publication round trip
+
+Add `--creator-lifecycle` to the same maintained `prepare`/`run --admitted`
+selection. After the genuine member application/title-change journey, the native
+workspace owner edits a stack instance label and caption, inspects the real
+unsaved preview, saves and publishes. A second caption is saved privately then
+published. The owner republishes the first stored revision through the existing
+confirmation; the second draft, owner label, app configuration, resource identity,
+records/media and both publications must survive. The same scoped native owner
+outcomes page is opened and its supported observations retained without adding
+invented usage. This is an isolated fictional acceptance extension, not permission
+to change an owner's production composition.

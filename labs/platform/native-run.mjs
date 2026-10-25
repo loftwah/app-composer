@@ -43,6 +43,7 @@ if (!output.startsWith(join(repo, "output") + "/"))
   );
 const pointer = join(output, "local-root");
 const availabilityFixture = process.argv.includes("--availability-fixture");
+const creatorLifecycle = process.argv.includes("--creator-lifecycle");
 const playwright =
   arg("playwright") ??
   "/Users/deanlofts/.npm/_npx/31e32ef8478fbf80/node_modules/playwright/index.mjs";
@@ -140,6 +141,7 @@ const authored = [
   "labs/platform/native-incident.mjs",
   "docs/platform/incident-demo.md",
   "labs/platform/native-export.mjs",
+  "labs/platform/native-creator-lifecycle.mjs",
   "docs/platform/native-export.md",
 ];
 const authoredHashes = Object.fromEntries(
@@ -222,6 +224,7 @@ for (const port of [8443, 8811, 8812, 8813]) {
 }
 const preflight = {
   schema: "composer.platform-native-preflight/1",
+  creatorLifecycle,
   availabilityFixture: {
     enabled: availabilityFixture,
     scope:
@@ -436,6 +439,7 @@ try {
     output,
     memberSource: memberApp.commit,
     availabilityFixture: availabilityFixture ? { ownedRoot: owned } : undefined,
+    creatorLifecycle,
   });
   receipt.qualification = "passed";
 } catch (error) {
@@ -606,4 +610,21 @@ try {
       2,
     ),
   );
+  if (
+    receipt.cleanup.browserClosed &&
+    receipt.cleanup.ownedRootRemoved &&
+    receipt.cleanup.pointerRemoved &&
+    !cleanupError &&
+    process.env.LOFTWAH_VALIDATION_COMPLETION &&
+    process.env.LOFTWAH_VALIDATION_GENERATION
+  ) {
+    writeFileSync(
+      process.env.LOFTWAH_VALIDATION_COMPLETION,
+      JSON.stringify({
+        version: 1,
+        generation: process.env.LOFTWAH_VALIDATION_GENERATION,
+        cleanup: "complete",
+      }),
+    );
+  }
 }
