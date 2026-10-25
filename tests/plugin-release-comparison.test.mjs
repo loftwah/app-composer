@@ -51,6 +51,14 @@ test("installed source and exact publisher identity govern comparison, never dis
       .state,
     "native",
   );
+  assert.equal(
+    compareInstalledPlugin(
+      installed({ source: "future-source" }),
+      snapshot,
+      now,
+    ).state,
+    "unknown",
+  );
   for (const changes of [
     { registry_publisher_did: "did:web:other.test" },
     { registry_slug: "lookalike" },

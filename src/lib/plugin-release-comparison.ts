@@ -82,12 +82,19 @@ export function compareInstalledPlugin(
   snapshot: TrustSnapshot,
   now = new Date(),
 ) {
-  if (installed.source !== "registry")
+  if (installed.source === "config")
     return {
       state: "native" as const,
       candidate: null,
       action:
         "Review this plugin's source release and redeploy through its owning repository. Registry recommendations do not describe this installation.",
+    };
+  if (installed.source !== "registry")
+    return {
+      state: "unknown" as const,
+      candidate: null,
+      action:
+        "This installation source is outside the registry comparison. Inspect its owning native EmDash record before changing it.",
     };
   const candidates = snapshot.packages.filter(
     (candidate) =>

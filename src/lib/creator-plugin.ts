@@ -12,6 +12,7 @@ import { afterNativeWorkflowWrite } from "./workflow-events.ts";
 import { manageOverview } from "./overview.ts";
 import { manageOrders } from "./orders.ts";
 import { manageConnections } from "./connections.ts";
+import { manageShopifyCatalogue } from "./shopify-catalogue.ts";
 import { manageResourceInventory } from "./resource-inventory.ts";
 import {
   manageAgentProposals,
@@ -126,6 +127,17 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         methods: ["GET"],
         permission: creatorPermission,
         handler: (ctx) => manageOverview(ctx, runtime),
+      },
+      shopifyCatalogueRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageShopifyCatalogue(ctx, runtime),
+      },
+      shopifyCatalogueCheck: {
+        methods: ["POST"],
+        permission: creatorPermission,
+        request: { body: "json", maxBytes: 1000 },
+        handler: (ctx) => manageShopifyCatalogue(ctx, runtime),
       },
       ordersRead: {
         methods: ["GET"],
