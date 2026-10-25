@@ -15,7 +15,7 @@ const legacyDuplicatePrefixes = new Map([
   ["0010", ["0010_member_app_grants.sql", "0010_public_reports.sql"]],
 ]);
 
-test("migration numbers never add a new collision and the inbox journey uses a fresh prefix", () => {
+test("migration numbers never add a new collision and recorded journey filenames stay stable", () => {
   const files = readdirSync(new URL("../migrations/", import.meta.url))
     .filter((name) => name.endsWith(".sql"))
     .sort();
@@ -55,7 +55,8 @@ test("migration numbers never add a new collision and the inbox journey uses a f
     1,
     "the highest migration prefix must be unique",
   );
-  assert.equal(highest, "0018");
+  // Independent features may append fresh numbers after 0018. The collision
+  // checks above protect their order; recorded filenames below must not move.
   assert.ok(files.includes("0017_inbox_journey.sql"));
   assert.ok(files.includes("0018_agent_grant_connections.sql"));
   assert.ok(!files.includes("0014_inbox_journey.sql"));
