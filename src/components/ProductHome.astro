@@ -49,6 +49,7 @@ const siteSchema = {
           <span class="home-quick-label">TLDR just give me the prompts <ArrowRight size={20} aria-hidden="true" /></span>
           <span class="home-quick-note">Copy a complete request for your agent. No account, no setup.</span>
         </a>
+        <a class="home-agent-link" href="/agent"><span>Point your existing agent here</span> <ArrowRight size={16} aria-hidden="true" /></a>
         <p class="home-look">Looking around needs no account. Building uses your own GitHub source and Cloudflare account, with your agent doing the work.</p>
       </div>
 
@@ -193,6 +194,7 @@ const siteSchema = {
             <li><a href="/architecture">How it works</a></li>
             <li><a href="/guide">Platform &amp; service guide</a></li>
             <li><a href="/building">Build story</a></li>
+            <li><a href="/diagrams">Diagram atlas</a></li>
             <li><a href="/release">Release evidence</a></li>
           </ul>
         </div>
@@ -290,6 +292,18 @@ const siteSchema = {
   }
   .home-quick:hover {
     background: var(--color-field);
+  }
+  .home-agent-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    margin-top: 0.35rem;
+    color: var(--color-accent);
+    font-size: 0.95rem;
+  }
+  .home-agent-link svg {
+    flex: none;
   }
   .home-quick:hover .home-quick-label {
     color: var(--color-accent);

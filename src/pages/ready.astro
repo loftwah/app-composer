@@ -10,6 +10,8 @@ import ReadyDomain from '../components/ReadyDomain.astro';
 import ReadyProject from '../components/ReadyProject.astro';
 import ReadyPreferences from '../components/ReadyPreferences.astro';
 import ReadyPlatform from '../components/ReadyPlatform';
+import DiagramFigure from '../components/DiagramFigure.astro';
+import { diagramByName } from '../lib/diagram-atlas';
 import build from '../lib/build.json';
 import { ArrowRight, BookOpen, Bot, GitBranch, Cloud, Globe, ShieldCheck } from '@lucide/astro';
 const stages=[{icon:Bot,title:'Agent & tools',detail:'A working folder and the tools to build.'},{icon:GitBranch,title:'Your GitHub source',detail:'A private starter you own and can update.'},{icon:Cloud,title:'Your Cloudflare account',detail:'The intended account and deployment access.'},{icon:Globe,title:'A live HTTPS app',detail:'The exact source, deployed and verified.'}];
@@ -70,6 +72,11 @@ const source = appSettings.guestbook.source;
  </div>
  <ReadyProject/>
  <ReadyDomain/>
+ <section class="readiness-diagram" aria-labelledby="readiness-diagram-heading">
+  <h2 id="readiness-diagram-heading">What the four stages actually produce</h2>
+  <p>Get Ready prepares the environment. Init supplies structure. EmDash runs editable content. The application lifecycle begins after release and stays the owner’s responsibility.</p>
+  <DiagramFigure {...diagramByName('get-ready-lifecycle')} />
+ </section>
  <section class="readiness-outcome"><div><h2>Keep what you build.</h2><p>Your first app is a small, configurable Hello page with its own source. Keep it, change the greeting or use the verified environment for something bigger.</p><div class="actions"><a class="button secondary" href="https://ready.loftwah.com">Open the launch reference <ArrowRight size={18} aria-hidden="true"/></a><a href="/apps">Explore the building blocks</a></div><p class="small">The launch reference belongs to this operator. Opening it does not verify your environment.</p></div><ol class="readiness-map" aria-label="What your agent verifies">{stages.map(({icon:Icon,title,detail})=><li><Icon size={22} aria-hidden="true"/><div><strong>{title}</strong><p>{detail}</p></div></li>)}</ol></section>
  <noscript><p>Saved address choices, progress reports and copied handoffs require JavaScript. You can still read the request, use the guide and explore all public apps.</p></noscript>
  </>)}

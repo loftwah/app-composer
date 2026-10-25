@@ -1,0 +1,89 @@
+{
+  "observedAt": "2026-10-25T06:09:28.960Z",
+  "scope": "read-only download + sha256 + manifest.json read; no extraction to disk, no execution",
+  "packages": [
+    {
+      "name": "freeform",
+      "did": "did:plc:tsp7az5h6qsqjzqsgz37wonx",
+      "version": "0.1.4",
+      "releaseCid": "bafyreidigbuiafcrujs3c6vzlcdripd5fzyon57ujycvu7telfgjq6nl6e",
+      "artifactHost": "cdn.jsdelivr.net",
+      "httpStatus": 200,
+      "bytes": 52597,
+      "sha256": "39f94fa80e6942474baa1e416f5cf73f2c08b23059d87a2399429bc9cae6c61c",
+      "checksumMultihash": {
+        "code": 18,
+        "length": 32,
+        "digestHex": "39f94fa80e6942474baa1e416f5cf73f2c08b23059d87a2399429bc9cae6c61c"
+      },
+      "checksumMatches": true,
+      "manifest": {
+        "id": "freeform",
+        "version": "0.1.4",
+        "capabilities": [
+          "network:request:unrestricted",
+          "network:request",
+          "email:send"
+        ],
+        "allowedHosts": [],
+        "declaredAccess": {
+          "network": {
+            "request": {}
+          },
+          "email": {
+            "send": {}
+          }
+        }
+      }
+    },
+    {
+      "name": "stripe",
+      "did": "did:plc:wlshattmcjplayfxlgzbhxvk",
+      "version": "0.10.3",
+      "releaseCid": "bafyreidqkabnn2a3geylff3qjk7jn4p7kcckxwhiav4eregsp5x2rdubvi",
+      "artifactHost": "cdn.em-da.sh",
+      "httpStatus": 200,
+      "bytes": 17509,
+      "sha256": "284fbb37df6e74a6b54b68efcbb9d030aef9e97c20ca47dfaf6f0af774411037",
+      "checksumMultihash": {
+        "code": 18,
+        "length": 32,
+        "digestHex": "284fbb37df6e74a6b54b68efcbb9d030aef9e97c20ca47dfaf6f0af774411037"
+      },
+      "checksumMatches": true,
+      "manifest": {
+        "id": "emdash-stripe-checkout",
+        "version": "0.10.3",
+        "capabilities": [
+          "content:read",
+          "content:write",
+          "schema:read",
+          "media:read",
+          "network:request"
+        ],
+        "allowedHosts": [
+          "api.stripe.com"
+        ],
+        "declaredAccess": {
+          "content": {
+            "read": {},
+            "write": {}
+          },
+          "schema": {
+            "read": {}
+          },
+          "media": {
+            "read": {}
+          },
+          "network": {
+            "request": {
+              "allowedHosts": [
+                "api.stripe.com"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

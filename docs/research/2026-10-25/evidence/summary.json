@@ -1,0 +1,132 @@
+{
+  "observedAt": "2026-10-25T06:09:18.390Z",
+  "files": [
+    {
+      "file": "getLatestRelease-solspace.json",
+      "bytes": 1598,
+      "keys": [
+        "uri",
+        "cid",
+        "did",
+        "package",
+        "version",
+        "release",
+        "artifactCaches",
+        "indexedAt",
+        "labels"
+      ]
+    },
+    {
+      "file": "getLatestRelease-stripe.json",
+      "bytes": 1501,
+      "keys": [
+        "uri",
+        "cid",
+        "did",
+        "package",
+        "version",
+        "release",
+        "artifactCaches",
+        "indexedAt",
+        "labels"
+      ]
+    },
+    {
+      "file": "listReleases-solspace.json",
+      "bytes": 3473,
+      "keys": [
+        "releases"
+      ]
+    },
+    {
+      "file": "listReleases-stripe.json",
+      "bytes": 7626,
+      "keys": [
+        "releases",
+        "cursor"
+      ]
+    },
+    {
+      "file": "probe-labeler-header.json",
+      "bytes": 3226,
+      "keys": [
+        "packages",
+        "cursor"
+      ]
+    },
+    {
+      "file": "probe-missing-package.json",
+      "bytes": 84,
+      "keys": [
+        "error",
+        "message"
+      ]
+    },
+    {
+      "file": "probe-resolve-unknown-handle.json",
+      "bytes": 137,
+      "keys": [
+        "error",
+        "message"
+      ]
+    },
+    {
+      "file": "probe-search-exact.json",
+      "bytes": 6196,
+      "keys": [
+        "packages"
+      ]
+    },
+    {
+      "file": "probe-search-limit-101.json",
+      "bytes": 224,
+      "keys": [
+        "error",
+        "message",
+        "net.kelinci.atcute.issues"
+      ]
+    },
+    {
+      "file": "registry-search.json",
+      "bytes": 8076,
+      "keys": [
+        "packages",
+        "cursor"
+      ]
+    },
+    {
+      "file": "resolve-ecommerceave.com-emdash-stripe-checkout.json",
+      "bytes": 3204,
+      "keys": [
+        "uri",
+        "cid",
+        "did",
+        "slug",
+        "profile",
+        "indexedAt",
+        "labels",
+        "handle",
+        "latestVersion",
+        "historicalReleaseCount",
+        "releaseHistoryComplete"
+      ]
+    },
+    {
+      "file": "resolve-solspace.com-freeform.json",
+      "bytes": 6239,
+      "keys": [
+        "uri",
+        "cid",
+        "did",
+        "slug",
+        "profile",
+        "indexedAt",
+        "labels",
+        "handle",
+        "latestVersion",
+        "historicalReleaseCount",
+        "releaseHistoryComplete"
+      ]
+    }
+  ]
+}
