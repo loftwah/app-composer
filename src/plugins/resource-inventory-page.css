@@ -395,6 +395,29 @@
   font-weight: 400;
   line-height: 1.45;
 }
+.ri-cloud-arithmetic {
+  max-width: 78ch;
+}
+.ri-cloud-identity {
+  border-top: 1px solid var(--ri-rule);
+  margin-top: 24px;
+  padding-top: 8px;
+}
+.ri-cloud-identity h3 {
+  margin-top: 8px;
+}
+.ri-cloud-identity table {
+  min-width: 900px;
+}
+.ri-cloud-evidence {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.ri-cloud-evidence code {
+  overflow-wrap: anywhere;
+}
 .ri-cloud-state {
   font-size: 12px;
   border: 1px solid var(--ri-rule);

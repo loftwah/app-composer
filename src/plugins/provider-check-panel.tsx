@@ -4,7 +4,7 @@ import type {
 } from "../lib/provider-inventory-contract";
 
 const CLOUD_STATE: Record<ProviderCheck["state"], string> = {
-  verified: "Verified read",
+  verified: "Read completed",
   partial: "Partly read",
   inaccessible: "Could not read",
   unconfigured: "Not configured",
@@ -18,6 +18,18 @@ const CLOUD_COMPARISON: Record<ProviderComparisonView["state"], string> = {
   stale: "Check is old",
   untracked: "Not declared",
 };
+const IDENTITY: Record<ProviderCheck["identities"][number]["status"], string> =
+  {
+    verified: "Verified",
+    unknown: "Unknown",
+    drift: "Differs",
+  };
+const utc = (value: string) =>
+  new Date(value).toLocaleString("en-AU", {
+    timeZone: "UTC",
+    dateStyle: "medium",
+    timeStyle: "short",
+  }) + " UTC";
 
 /**
  * The on-demand Cloudflare panel. It is deliberately presentational: the page
@@ -133,11 +145,15 @@ export function ProviderCheckPanel({
           </p>
           <dl className="ri-counts" aria-label="Cloudflare check counts">
             <div>
-              <dt>Expected</dt>
+              <dt>Declared</dt>
               <dd>{check.counts.expected}</dd>
             </div>
             <div>
-              <dt>Observed</dt>
+              <dt>Declared and observed</dt>
+              <dd>{check.counts.declaredObserved}</dd>
+            </div>
+            <div>
+              <dt>Observed in scope</dt>
               <dd>{check.counts.observed}</dd>
             </div>
             <div>
@@ -162,13 +178,179 @@ export function ProviderCheckPanel({
             </div>
             <div>
               <dt>Not declared</dt>
-              <dd>{check.counts.untracked}</dd>
+              <dd>{check.counts.undeclared}</dd>
             </div>
             <div>
               <dt>Needs attention</dt>
               <dd>{check.counts.attention}</dd>
             </div>
           </dl>
+          <p className="ri-muted ri-cloud-arithmetic">
+            Declared {check.counts.expected} = {check.counts.match} match +{" "}
+            {check.counts.drift} differ + {check.counts.missing} missing +{" "}
+            {check.counts.unverified} unverified + {check.counts.inaccessible}{" "}
+            inaccessible. Observed {check.counts.observed} ={" "}
+            {check.counts.declaredObserved} declared + {check.counts.undeclared}{" "}
+            not declared ({check.counts.undeclaredWorkers} Worker scripts:{" "}
+            {check.counts.undeclaredEarlier} from earlier pinned compositions
+            and {check.counts.undeclaredOther} other composer-* scripts;{" "}
+            {check.counts.undeclaredStorage} storage). A declared resource that
+            is missing was not observed, so the two sums are separate. “Needs
+            attention” counts findings, not resources.
+          </p>
+          <p className="ri-muted">
+            This live check is a separate observation from the workspace{" "}
+            <strong>Needs attention</strong> queue, which shows only stored
+            Composer records. Composer’s stored app-source drift compares a
+            saved stack with the last app-confirmed build; it is not this
+            provider comparison, and neither is provider health. Nothing here is
+            saved when the page reloads.
+          </p>
+          <details className="ri-cloud-other">
+            <summary>What these categories mean</summary>
+            <dl className="ri-facts">
+              <dt>Declared / expected</dt>
+              <dd>
+                Composer’s committed declaration for this account, composition,
+                app and environment. A declaration is not provider truth.
+              </dd>
+              <dt>Observed</dt>
+              <dd>
+                Composer-scoped resources returned by the allowlisted GET reads
+                at the labelled time. Unrelated account resources are excluded
+                and counted only.
+              </dd>
+              <dt>Match / differs / missing</dt>
+              <dd>
+                Agreement of the read fields, a read difference, or absence from
+                a list that was actually read. Missing is not proof of
+                historical absence.
+              </dd>
+              <dt>Unverified / inaccessible / check is old</dt>
+              <dd>
+                A field or identity signal was not read, the provider refused a
+                read, or the observation is older than 24 hours. None of these
+                is a clean or healthy result.
+              </dd>
+              <dt>Not declared</dt>
+              <dd>
+                An observed in-scope Worker script or storage resource that no
+                current declaration covers. Retention, rollback role and
+                ownership are unverified; nothing is safe to delete because of
+                this count.
+              </dd>
+              <dt>Verified / unknown</dt>
+              <dd>
+                For a first-party app, verified means a recorded provider signal
+                (its custom domain or its own deployment annotation) agreed. A
+                matching name or tag alone is unknown, not verified.
+              </dd>
+            </dl>
+          </details>
+          {check.identities.length > 0 && (
+            <section
+              className="ri-cloud-identity"
+              aria-labelledby="ri-cloud-identity-title"
+            >
+              <h3 id="ri-cloud-identity-title">First-party app identity</h3>
+              <p className="ri-muted">
+                Recorded identity comes from each app’s committed Wrangler
+                manifest, documented hostname and deployment receipt. Verified
+                identity is not ownership authority or proof that the recorded
+                release is still current. Release receipts are recorded in the
+                app repository and{" "}
+                <a href="https://github.com/loftwah/app-composer/issues/11">
+                  GitHub #11
+                </a>
+                ; the live version may be newer.
+              </p>
+              <div
+                className="ri-table"
+                role="region"
+                aria-label="First-party app identity"
+                tabIndex={0}
+              >
+                <table>
+                  <caption>
+                    {check.identities.length} first-party app Worker(s) · status
+                    is from this observation, not from a name or tag
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">App / Worker</th>
+                      <th scope="col">Environment</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Evidence</th>
+                      <th scope="col">Last observed</th>
+                      <th scope="col">Next action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {check.identities.map((identity) => (
+                      <tr key={identity.worker}>
+                        <th scope="row">
+                          <a href={identity.repo}>{identity.app}</a>
+                          <span className="ri-cloud-detail">
+                            <code>{identity.worker}</code> ·{" "}
+                            {identity.domain ?? "workers.dev host not read"}
+                          </span>
+                        </th>
+                        <td>
+                          <code>{identity.environment}</code>
+                        </td>
+                        <td>
+                          <span
+                            className={
+                              "ri-cloud-state ri-cloud-state-" +
+                              (identity.status === "verified"
+                                ? "match"
+                                : identity.status === "drift"
+                                  ? "drift"
+                                  : "unverified")
+                            }
+                          >
+                            {IDENTITY[identity.status]}
+                          </span>
+                          <span className="ri-cloud-detail">
+                            {identity.statusNote}
+                          </span>
+                        </td>
+                        <td>
+                          <ul className="ri-cloud-evidence">
+                            {identity.evidence.map((item) => (
+                              <li key={item.kind + ":" + item.source}>
+                                {item.kind}:{" "}
+                                <code>{item.value ?? "recorded"}</code>
+                              </li>
+                            ))}
+                          </ul>
+                          {identity.observed && (
+                            <span className="ri-cloud-detail">
+                              Live version{" "}
+                              <code>
+                                {identity.observed.versionId
+                                  ? identity.observed.versionId.slice(0, 12)
+                                  : "not read"}
+                              </code>
+                              {identity.observed.message
+                                ? " · " + identity.observed.message
+                                : ""}
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          {identity.observed
+                            ? utc(identity.observed.observedAt)
+                            : "No provider request"}
+                        </td>
+                        <td>{identity.nextAction}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
           {primary ? (
             <section
               className="ri-cloud-attention"

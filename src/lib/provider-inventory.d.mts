@@ -1,18 +1,22 @@
 // Generated from checked TypeScript; edit the corresponding .mts source. MIT.
 export declare const PROVIDER_INVENTORY_VERSION = "composer.provider-inventory/1";
-export declare const PROVIDER_CHECK_VERSION = "composer.provider-check/1";
+export declare const PROVIDER_CHECK_VERSION = "composer.provider-check/2";
 export declare const DEFAULT_MAX_PAGES = 3;
 export declare const DEFAULT_PER_PAGE = 50;
 export declare const DEFAULT_MAX_REQUESTS = 48;
 export declare const DEFAULT_TIMEOUT_MS = 8000;
 export declare const DEFAULT_DEADLINE_MS = 20000;
 export declare const MAX_RESPONSE_BYTES = 2000000;
-export declare const MAX_DETAIL_WORKERS = 12;
+export declare const MAX_DETAIL_WORKERS = 16;
+/** Bounded parallel detail reads. Requests are still GET-only and counted. */
+export declare const DETAIL_CONCURRENCY = 4;
 /** A provider observation older than this is shown as stale, not current. */
 export declare const STALE_AFTER_HOURS = 24;
 export type ProviderKind = "worker" | "d1" | "r2" | "kv" | "service";
 export type ProviderEnvironment = "production" | "preview" | "unverified";
-export type ObservationState = "verified" | "inaccessible" | "missing" | "unverified" | "stale";
+export type ObservationState = "verified" | "inaccessible" | "unread" | "missing" | "unverified" | "stale";
+/** Whether a list endpoint was actually read, refused, or never attempted. */
+export type CoverageState = "read" | "refused" | "unread";
 export type ComparisonState = "match" | "drift" | "missing" | "unverified" | "inaccessible" | "stale" | "untracked";
 export interface ProviderTag {
     key: string;
@@ -104,6 +108,15 @@ export interface ProviderSnapshot {
     resources: ObservedResource[];
     workersAtLimit: boolean;
     unrelatedResources: number;
+    /** Per-resource-type list coverage. Unread is not refused and not absent. */
+    lists: Partial<Record<"worker" | "d1" | "r2" | "kv", CoverageState>>;
+    /** Per-Worker detail reads: asked, read, refused and never attempted. */
+    detail: {
+        requested: number;
+        read: number;
+        refused: number;
+        unread: number;
+    };
     limitations: string[];
     redactions: number;
     cost: CostUnknown;
@@ -112,6 +125,8 @@ export interface ExpectedCheck {
     field: string;
     expected: string | number | boolean | string[];
     source: string;
+    /** `prefix` compares the start of a string instead of the whole value. */
+    mode?: "equals" | "prefix";
 }
 export interface ExpectedResource {
     kind: ProviderKind;
@@ -124,9 +139,33 @@ export interface ExpectedResource {
     checks: ExpectedCheck[];
     note: string | null;
 }
+/**
+ * The committed evidence Composer records for one first-party app Worker.
+ * This is a declaration, not provider truth: the bounded check compares it
+ * with the account and leaves it unknown when the signal was not read.
+ */
+export interface AppWorkerIdentityRecord {
+    app: string;
+    worker: string;
+    repo: string;
+    manifest: string;
+    environment: ProviderEnvironment;
+    /** The app's documented production hostname, when it has a custom domain. */
+    domain: string | null;
+    /** The app's own deployment annotation prefix, when its deploy sets one. */
+    annotationPrefix: string | null;
+    /** Recorded release evidence; a receipt can be older than the live version. */
+    receipt: {
+        reference: string;
+        versionId: string | null;
+        commit: string | null;
+    };
+    nextAction: string;
+}
 export interface ExpectedInventory {
     account: string;
     resources: ExpectedResource[];
+    identities: AppWorkerIdentityRecord[];
     composition: {
         id: string;
         annotation: string;
@@ -175,20 +214,35 @@ export interface ResourceComparison {
 }
 export interface ProviderComparison {
     comparisons: ResourceComparison[];
-    untrackedWorkers: {
-        earlierCompositions: string[];
-        otherComposerWorkers: string[];
-        unrelatedWorkers: number;
+    /** In-scope observations that no declaration covers, by kind. */
+    undeclared: {
+        total: number;
+        workers: {
+            earlierCompositions: string[];
+            otherComposerWorkers: string[];
+        };
+        storage: {
+            d1: string[];
+            r2: string[];
+            kv: string[];
+        };
+        unrelatedResources: number;
     };
     counts: {
         expected: number;
+        declaredObserved: number;
         observed: number;
         match: number;
         drift: number;
         missing: number;
         unverified: number;
         inaccessible: number;
-        untracked: number;
+        undeclared: number;
+        undeclaredWorkers: number;
+        undeclaredEarlier: number;
+        undeclaredOther: number;
+        undeclaredStorage: number;
+        unrelated: number;
     };
     limitations: string[];
 }

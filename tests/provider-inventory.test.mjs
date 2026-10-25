@@ -17,6 +17,7 @@ import {
   normaliseTags,
   observationLabel,
   providerListPath,
+  providerCountsLine,
   readProviderInventory,
   readProviderJson,
   redactProviderMessage,
@@ -174,6 +175,22 @@ function providerFetch(calls = { n: 0 }) {
           enabled: true,
           previews_enabled: false,
         },
+        ...["ready", "ai", "share", "ldraw", "paperwork"].map((hostname) => ({
+          hostname: hostname + ".loftwah.com",
+          service:
+            hostname === "ready"
+              ? "composer-hello"
+              : hostname === "ai"
+                ? "composer-state"
+                : hostname === "share"
+                  ? "composer-linkcheck"
+                  : hostname === "ldraw"
+                    ? "composer-ldraw"
+                    : "composer-paperwork",
+          environment: "production",
+          enabled: true,
+          previews_enabled: false,
+        })),
       ]);
     if (path === `/accounts/${ACCOUNT}/d1/database`)
       return json([
@@ -189,6 +206,18 @@ function providerFetch(calls = { n: 0 }) {
           num_tables: 0,
           file_size: 1429504,
         },
+        {
+          uuid: "1b7862f8-35ca-46cc-a37d-e21142f81e21",
+          name: "composer-guestbook",
+          num_tables: 0,
+          file_size: 204800,
+        },
+        {
+          uuid: "c366203f-d880-4afc-a78e-d3e607146469",
+          name: "composer-showcase",
+          num_tables: 0,
+          file_size: 90112,
+        },
       ]);
     if (path === `/accounts/${ACCOUNT}/r2/buckets`)
       return json({
@@ -200,6 +229,10 @@ function providerFetch(calls = { n: 0 }) {
           {
             name: "app-composer-media-preview",
             creation_date: "2026-10-13T03:46:04.585Z",
+          },
+          {
+            name: "composer-guestbook-photos",
+            creation_date: "2026-10-13T03:59:26.000Z",
           },
         ],
       });
@@ -266,7 +299,18 @@ function providerFetch(calls = { n: 0 }) {
               "version-pinned-" + name.slice(0, 10),
             ),
           );
-        return json(deployment("First-party " + name, "version-" + name));
+        const annotation = {
+          "composer-linkcheck": "Link Check ",
+          "composer-ldraw": "LDraw ",
+          "composer-paperwork": "Paperwork ",
+          "composer-launch-kit": "Launch Kit ",
+        }[name];
+        return json(
+          deployment(
+            annotation ? annotation + "a".repeat(40) : "First-party " + name,
+            "version-" + name,
+          ),
+        );
       }
       if (action === "settings")
         return json(name === "app-composer" ? settings : previewSettings);
@@ -408,8 +452,8 @@ test("the read normalises Worker, D1, R2 and KV observations with honest states"
   assert.equal(snapshot.account, ACCOUNT);
   assert.equal(snapshot.scope, "composer");
   assert.equal(snapshot.unrelatedResources, 1);
-  assert.equal(snapshot.resources.length, 21);
-  assert.equal(new Set(snapshot.resources.map((item) => item.id)).size, 21);
+  assert.equal(snapshot.resources.length, 24);
+  assert.equal(new Set(snapshot.resources.map((item) => item.id)).size, 24);
   assert.ok(
     !snapshot.resources.some((resource) => resource.name === "asset-hunter"),
   );
@@ -463,13 +507,20 @@ test("drift comparison distinguishes match, drift, missing, unverified, stale an
   const comparison = compareProviderInventory(expected, snapshot, NOW);
   assert.equal(matches(comparison, "app-composer").state, "match");
   assert.equal(matches(comparison, pinnedGuestbook).state, "match");
-  assert.equal(matches(comparison, "composer-hello").state, "unverified");
-  assert.equal(comparison.counts.match, 10);
-  assert.equal(comparison.counts.unverified, 8);
-  assert.equal(comparison.counts.untracked, 3);
-  assert.equal(comparison.untrackedWorkers.earlierCompositions.length, 2);
-  assert.equal(comparison.untrackedWorkers.otherComposerWorkers.length, 1);
-  assert.equal(comparison.untrackedWorkers.unrelatedWorkers, 1);
+  assert.equal(matches(comparison, "composer-hello").state, "match");
+  assert.equal(comparison.counts.match, 21);
+  assert.equal(comparison.counts.unverified, 0);
+  assert.equal(comparison.counts.declaredObserved, 21);
+  assert.equal(comparison.counts.untracked, undefined);
+  assert.equal(comparison.counts.undeclared, 3);
+  assert.equal(comparison.counts.undeclaredWorkers, 3);
+  assert.equal(comparison.counts.undeclaredEarlier, 2);
+  assert.equal(comparison.counts.undeclaredOther, 1);
+  assert.equal(comparison.counts.undeclaredStorage, 0);
+  assert.equal(comparison.undeclared.workers.earlierCompositions.length, 2);
+  assert.equal(comparison.undeclared.workers.otherComposerWorkers.length, 1);
+  assert.equal(comparison.undeclared.unrelatedResources, 1);
+  assert.equal(comparison.counts.unrelated, 1);
 
   const drift = structuredClone(snapshot);
   drift.resources.find(
@@ -528,12 +579,235 @@ test("drift comparison distinguishes match, drift, missing, unverified, stale an
     message: "denied",
     at: new Date(NOW).toISOString(),
   });
+  inaccessible.lists.worker = "refused";
   assert.equal(
     matches(
       compareProviderInventory(expected, inaccessible, NOW),
       "composer-hello",
     ).state,
     "inaccessible",
+  );
+});
+
+test("the summary reconciles declared, observed and undeclared resources without hiding storage", async () => {
+  const snapshot = await readProviderInventory(readOptions(providerFetch()));
+  const comparison = compareProviderInventory(expected, snapshot, NOW);
+  const counts = comparison.counts;
+  assert.equal(
+    counts.declaredObserved + counts.undeclared,
+    counts.observed,
+    "declared observations and undeclared resources must partition the in-scope observations",
+  );
+  assert.equal(
+    counts.match +
+      counts.drift +
+      counts.missing +
+      counts.unverified +
+      counts.inaccessible,
+    counts.expected,
+    "comparison states must partition the declared resources",
+  );
+  assert.equal(
+    counts.undeclared,
+    counts.undeclaredWorkers + counts.undeclaredStorage,
+  );
+  assert.equal(
+    counts.undeclaredWorkers,
+    counts.undeclaredEarlier + counts.undeclaredOther,
+  );
+  assert.equal(comparison.undeclared.unrelatedResources, 1);
+  assert.equal(counts.unrelated, 1);
+
+  const withStorage = structuredClone(snapshot);
+  withStorage.resources.push(
+    {
+      kind: "d1",
+      id: "00000000-0000-4000-8000-000000000001",
+      name: "composer-extra-db",
+      environment: "unverified",
+      state: "unverified",
+      createdOn: null,
+      modifiedOn: null,
+      observedAt: new Date(NOW).toISOString(),
+      tags: null,
+      tagState: "unverified",
+      facts: {},
+      cost: COST_UNKNOWN,
+    },
+    {
+      kind: "r2",
+      id: "composer-extra-media",
+      name: "composer-extra-media",
+      environment: "unverified",
+      state: "verified",
+      createdOn: null,
+      modifiedOn: null,
+      observedAt: new Date(NOW).toISOString(),
+      tags: null,
+      tagState: "unverified",
+      facts: {},
+      cost: COST_UNKNOWN,
+    },
+  );
+  const storage = compareProviderInventory(expected, withStorage, NOW);
+  assert.equal(storage.counts.undeclaredStorage, 2);
+  assert.equal(storage.counts.undeclaredWorkers, 3);
+  assert.equal(storage.counts.undeclared, 5);
+  assert.deepEqual(storage.undeclared.storage.d1, ["composer-extra-db"]);
+  assert.deepEqual(storage.undeclared.storage.r2, ["composer-extra-media"]);
+  assert.equal(
+    storage.counts.declaredObserved + storage.counts.undeclared,
+    storage.counts.observed,
+  );
+  assert.match(providerCountsLine(comparison), /not declared \(3 Worker/);
+});
+
+test("first-party identity needs a recorded provider signal, never a name alone", async () => {
+  const snapshot = await readProviderInventory(readOptions(providerFetch()));
+  const full = providerCheck.parse(
+    buildProviderCheck({
+      expected,
+      snapshot,
+      source: "local-cli",
+      checkedAt: new Date(NOW).toISOString(),
+      now: NOW,
+    }),
+  );
+  assert.equal(full.counts.identityVerified, 8);
+  assert.equal(full.counts.identityUnknown, 0);
+  const guestbook = full.identities.find(
+    (identity) => identity.worker === "composer-guestbook",
+  );
+  assert.equal(guestbook.status, "verified");
+  assert.ok(
+    guestbook.evidence.some(
+      (item) =>
+        item.kind === "committed-manifest" &&
+        item.source.endsWith("/wrangler.jsonc"),
+    ),
+  );
+  assert.ok(guestbook.evidence.some((item) => item.kind === "release-receipt"));
+
+  const noRoute = structuredClone(snapshot);
+  for (const resource of noRoute.resources) {
+    if (resource.kind !== "worker" || !resource.facts) continue;
+    resource.facts.domainsRead = false;
+    resource.facts.domains = [];
+  }
+  const unread = providerCheck.parse(
+    buildProviderCheck({
+      expected,
+      snapshot: noRoute,
+      source: "local-cli",
+      checkedAt: new Date(NOW).toISOString(),
+      now: NOW,
+    }),
+  );
+  assert.equal(unread.counts.identityUnknown, 4);
+  assert.equal(unread.counts.identityVerified, 4);
+  assert.equal(
+    unread.identities.find((item) => item.worker === "composer-guestbook")
+      .status,
+    "unknown",
+  );
+  assert.match(
+    unread.identities.find((item) => item.worker === "composer-guestbook")
+      .statusNote,
+    /name or tag alone is not identity/i,
+  );
+  assert.ok(
+    unread.findings.some((finding) => finding.code === "identity-unverified"),
+  );
+
+  const noAnnotation = structuredClone(noRoute);
+  for (const resource of noAnnotation.resources) {
+    if (resource.kind !== "worker" || !resource.facts) continue;
+    resource.facts.deploymentRead = true;
+    resource.facts.deploymentMessage = null;
+  }
+  const namesOnly = providerCheck.parse(
+    buildProviderCheck({
+      expected,
+      snapshot: noAnnotation,
+      source: "local-cli",
+      checkedAt: new Date(NOW).toISOString(),
+      now: NOW,
+    }),
+  );
+  assert.equal(namesOnly.counts.identityVerified, 0);
+  assert.equal(namesOnly.counts.identityUnknown, 8);
+
+  const drift = structuredClone(snapshot);
+  drift.resources.find(
+    (resource) => resource.name === "composer-hello",
+  ).facts.domains = ["elsewhere.example.com"];
+  const drifted = providerCheck.parse(
+    buildProviderCheck({
+      expected,
+      snapshot: drift,
+      source: "local-cli",
+      checkedAt: new Date(NOW).toISOString(),
+      now: NOW,
+    }),
+  );
+  assert.equal(drifted.counts.drift, 1);
+  assert.equal(drifted.counts.identityDrift, 1);
+  assert.equal(
+    drifted.identities.find((item) => item.worker === "composer-hello").status,
+    "drift",
+  );
+  assert.ok(
+    drifted.findings.some((finding) => finding.code === "expected-drift"),
+  );
+});
+
+test("a detail read that a bound skipped is unread, not refused", async () => {
+  const snapshot = await readProviderInventory({
+    ...readOptions(providerFetch()),
+    maxRequests: 7,
+  });
+  assert.equal(snapshot.state, "partial");
+  assert.equal(snapshot.lists.worker, "read");
+  assert.equal(snapshot.detail.refused, 0);
+  assert.ok(snapshot.detail.unread > 0);
+  assert.equal(
+    snapshot.detail.read + snapshot.detail.refused + snapshot.detail.unread,
+    snapshot.detail.requested,
+  );
+  const tags = snapshot.resources.filter(
+    (resource) => resource.kind === "worker" && resource.tagState === "unread",
+  );
+  assert.equal(tags.length, 12);
+  assert.equal(
+    snapshot.resources.some((resource) => resource.tagState === "inaccessible"),
+    false,
+  );
+  assert.ok(
+    snapshot.limitations.some((line) =>
+      /not attempted because the request or overall time bound/i.test(line),
+    ),
+  );
+  const check = providerCheck.parse(
+    buildProviderCheck({
+      expected,
+      snapshot,
+      source: "local-cli",
+      checkedAt: new Date(NOW).toISOString(),
+      now: NOW,
+    }),
+  );
+  // The route read still confirms seven first-party identities. Only the
+  // launch kit, whose evidence is its deployment annotation, stays unknown.
+  assert.equal(check.counts.identityVerified, 7);
+  assert.equal(check.counts.identityUnknown, 1);
+  assert.equal(
+    check.identities.find((item) => item.worker === "composer-launch-kit")
+      .status,
+    "unknown",
+  );
+  assert.equal(
+    check.comparisons.filter((item) => item.state === "drift").length,
+    0,
   );
 });
 
@@ -578,7 +852,16 @@ test("page and request bounds stop the read and keep unread resources unverified
     maxRequests: 1,
   });
   assert.equal(requests.endpoints.length, 1);
-  assert.ok(requests.limitations.some((line) => /request limit/i.test(line)));
+  assert.ok(
+    requests.limitations.some((line) =>
+      /request or overall time bound|request or time bound/i.test(line),
+    ),
+  );
+  assert.equal(requests.detail.unread > 0, true);
+  assert.equal(requests.lists.worker, "read");
+  assert.equal(requests.lists.d1, "unread");
+  assert.equal(requests.lists.r2, "unread");
+  assert.equal(requests.lists.kv, "unread");
   assert.equal(requests.state, "partial");
 
   const timeout = await readProviderInventory({
@@ -640,14 +923,18 @@ test("the check surfaces undeclared Workers, absent tags and the D1 count limita
     (finding) => finding.severity === "attention",
   );
   assert.equal(primary.code, "untracked-resources");
-  assert.match(primary.title, /3 observed Worker/);
-  assert.match(primary.detail, /2 script\(s\) come from 1 earlier composition/);
+  assert.match(primary.title, /3 observed resources/);
+  assert.match(primary.detail, /2 from 1 earlier composition id/);
   assert.match(primary.detail, /does not mark them safe to delete/);
   assert.doesNotMatch(
     primary.detail,
     /they are safe to delete|can be deleted|is deletable/i,
   );
-  assert.equal(check.counts.untracked, 3);
+  assert.equal(check.counts.undeclared, 3);
+  assert.equal(check.counts.undeclaredWorkers, 3);
+  assert.equal(check.counts.undeclaredStorage, 0);
+  assert.equal(check.counts.identityVerified, 8);
+  assert.equal(check.counts.identityUnknown, 0);
   assert.equal(check.counts.attention >= 1, true);
 
   const tags = check.findings.find(
@@ -660,9 +947,12 @@ test("the check surfaces undeclared Workers, absent tags and the D1 count limita
       (finding) => finding.code === "d1-list-counts-untrusted",
     ),
   );
-  assert.ok(
+  assert.equal(
     check.findings.some((finding) => finding.code === "identity-unrecorded"),
+    false,
   );
+  assert.equal(check.identities.length, 8);
+  assert.ok(check.identities.every((view) => view.status === "verified"));
   assert.ok(
     check.findings.some((finding) => finding.code === "domain-service-split"),
   );
@@ -803,9 +1093,10 @@ test("the configured route reads only GET paths and validates its own summary", 
   assert.equal(result.ok, true);
   assert.equal(result.state, "verified");
   assert.equal(result.expectedRevision, REVISION);
-  assert.equal(result.counts.match, 10);
-  assert.equal(result.counts.unverified, 8);
-  assert.equal(result.counts.untracked, 3);
+  assert.equal(result.counts.match, 21);
+  assert.equal(result.counts.unverified, 0);
+  assert.equal(result.counts.undeclared, 3);
+  assert.equal(result.counts.identityVerified, 8);
   assert.ok(calls.n > 0);
   assert.ok(result.endpoints.every((endpoint) => endpoint.method === "GET"));
   assert.equal(result.cost.state, "unknown");
@@ -858,6 +1149,18 @@ test("the native panel is explicit, keyboard reachable and offers no destructive
     assert.match(html, /<input type="file"/);
     assert.match(html, /Imported local check · not a live read from this page/);
     assert.match(html, /Needs attention/);
+    assert.match(html, /First-party app identity/);
+    assert.match(html, /What these categories mean/);
+    assert.match(html, /Declared 21 = 21 match/);
+    assert.match(
+      html,
+      /Recorded identity comes from each app’s committed Wrangler manifest/,
+    );
+    assert.match(
+      html,
+      /href="https:\/\/github.com\/loftwah\/app-composer-guestbook"/,
+    );
+    assert.match(html, /aria-label="First-party app identity"/);
     assert.match(html, /<th scope="row">app-composer/);
     assert.match(html, /<td>Unknown<\/td>/);
     assert.match(html, /tabindex="0"/);
@@ -979,4 +1282,58 @@ test("the declared expectations match wrangler.jsonc, composition.lock.json and 
   );
   assert.equal(expected.composition.apps[0].commit, lock.apps[0].commit);
   assert.equal(expected.composition.apps[1].commit, lock.apps[1].commit);
+
+  // The first-party identity table cites each app's committed manifest and a
+  // recorded receipt. A name without that evidence is not an identity claim.
+  assert.equal(expected.identities.length, 8);
+  assert.deepEqual(
+    expected.identities.map((identity) => identity.worker).sort(),
+    FIRST_PARTY_WORKERS.map((worker) => worker.name).sort(),
+  );
+  assert.equal(
+    new Set(expected.identities.map((identity) => identity.worker)).size,
+    8,
+  );
+  const release = JSON.parse(
+    await readFile(new URL("../src/lib/release.json", import.meta.url), "utf8"),
+  );
+  for (const identity of expected.identities) {
+    assert.match(identity.worker, /^composer-[a-z-]+$/);
+    assert.equal(identity.environment, "production");
+    assert.match(identity.manifest, /^wrangler\.jsonc?$/);
+    assert.match(identity.repo, /^https:\/\/github.com\/loftwah\//);
+    assert.ok(identity.receipt.reference.length > 0);
+    assert.ok(identity.receipt.versionId || identity.receipt.commit);
+    assert.ok(identity.nextAction.length > 0);
+    const source = release.sources.find(
+      (candidate) => candidate.name === identity.app,
+    );
+    if (source) assert.equal(identity.repo, source.url.replace(/\.git$/, ""));
+    if (identity.annotationPrefix)
+      assert.ok(identity.annotationPrefix.endsWith(" "));
+    if (identity.domain) assert.equal(identity.domain.includes("/"), false);
+  }
+  const launchKit = expected.identities.find(
+    (identity) => identity.app === "launch-kit",
+  );
+  assert.equal(launchKit.domain, null);
+  assert.equal(launchKit.annotationPrefix, "Launch Kit ");
+  for (const identity of expected.identities) {
+    const resource = expected.resources.find(
+      (item) => item.kind === "worker" && item.name === identity.worker,
+    );
+    assert.equal(resource.identityRecorded, true);
+    assert.ok(
+      resource.checks.some((check) => check.field === "name"),
+      identity.worker + " must check its declared name",
+    );
+    assert.ok(
+      resource.checks.some(
+        (check) =>
+          check.field === "customDomains" ||
+          check.field === "deploymentAnnotation",
+      ),
+      identity.worker + " must check a provider identity signal",
+    );
+  }
 });
