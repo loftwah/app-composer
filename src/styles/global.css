@@ -73,3 +73,10 @@ header>nav{margin-left:auto}
 .jump-target{scroll-margin-top:24px}
 .jump-target:focus-visible{outline:2px solid var(--color-focus);outline-offset:4px;border-radius:4px}
 @media(max-width:950px){.jump-link{display:inline-flex;align-items:center;min-height:44px;font-size:14px}.jump-back{margin:18px 0 0}}
+
+/* Anchor navigation must respect the reader's motion preference too. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
