@@ -6,7 +6,7 @@ Your field model is `src/content-model.json`; its native EmDash schema is `seed/
 
 ## Run locally
 
-An authorised agent checks the project’s current instructions, Node 22.23.4+ or 24.22.1+, pnpm12.9.1 and package/lockfile first, then installs the frozen dependencies with lifecycle scripts disabled:
+An authorised agent checks the project’s current instructions, Node22, pnpm12.9.1 and package/lockfile first, then installs the frozen dependencies with lifecycle scripts disabled:
 
 ```
 pnpm install --frozen-lockfile --ignore-scripts
@@ -72,7 +72,7 @@ Only this new project's generated seed marks the selected filter field as indexe
 
 ## Quality and maintained source
 
-Use Node 22.23.4+ or 24.22.1+ and the declared pnpm 12.9.1. The complete local workflow is:
+Use Node 22 and the declared pnpm 12.9.1. The complete local workflow is:
 
 ```sh
 pnpm install --frozen-lockfile --ignore-scripts

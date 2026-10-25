@@ -14,9 +14,9 @@ reuse. Real qualification exposed a Node 24 reserved-directory copy failure
 and a Hello/Composer Wrangler pin mismatch; both were fixed before widening the
 three Get Ready guards. Runtime-gated owned-tool, workspace-tool and cleanup
 fixtures run on both supported lines rather than skipping. The same reviewed
-range is declared in the root, core, MCP and generated-site manifests and the
-existing dependency policy. Exact checks, failed/negative evidence, source
-identities and remaining limits are in [the Node runtime decision](node-runtime.md).
+range is declared in the root, core and MCP manifests and the existing
+dependency policy; the independent generated-site recipe retains Node 22.
+Exact checks, failed/negative evidence, source identities and remaining limits are in [the Node runtime decision](node-runtime.md).
 
 A local package-manager change would need its own install/check/build/package
 comparison; no Bun comparison was performed.

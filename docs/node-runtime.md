@@ -55,14 +55,22 @@ copy of the guard before any source engine declaration was changed:
   the ten previously gated cases; negative credential stripping, inactive
   runtime, source mutation, partial owner tools and cleanup checks remain.
 - Required composition/readiness checks plus runtime-policy checks pass on both
-  lines. Manifests, dependency policy and the MCP archive identity guard move
+  lines. Composer/core/MCP manifests, dependency policy and the MCP archive identity guard move
   together. The shared runtime predicate preserves refusal for unsupported
   versions rather than replacing a guard with a permissive major check.
 
-Both complete `pnpm check` runs pass: 1,171 tests, zero failures/skips, and
+The pre-review complete `pnpm check` runs pass on both lines: 1,171 tests,
+zero failures/skips, and
 635 files with zero type/Astro errors or warnings. Both production builds pass
 the publication guard with 1,268 files / 150 archive members. The Node 24 frozen
 lockfile install succeeds and freshness reports no drift on either runtime.
+A subsequent review adds before/per-child/after destination inode checks,
+refuses linked or replaced reserved roots without outside writes, and retains
+the independent content-site recipe’s Node 22 declaration. All 36 affected
+checks pass on each runtime after that refinement; the required three
+composition/readiness suites pass all 23 tests. The final integrated release
+gates remain recorded once in #11.
+
 Actual Composer dev startup on each line serves the homepage and `/guide`; the
 guide derives EmDash 1.3.1 / Astro 7.4.2 from the maintained package manifest.
 Each local server is stopped after its probe. Bounded
@@ -96,6 +104,7 @@ Real tool setup remains explicit and scoped. It does not authenticate, deploy,
 change an IdP or create a provider resource. The real-operation probe strips
 service credentials from dependency installation; its temporary homes, archives,
 source checkout and node_modules are removed on success/failure. Existing owner
-checkouts and global runtime selection are preserved. The generated content-site
-EmDash 1.2.0 pin remains its own migration gate; Node support is not an implicit
-CMS upgrade.
+checkouts and global runtime selection are preserved. The generated content-site recipe retains EmDash 1.2.0 and its separately
+qualified Node 22 engine range. It has not received an actual generated-site
+Node 24 check/build/browser qualification. Composer/core/MCP Node 24 support
+does not widen that independent recipe or perform a CMS upgrade.

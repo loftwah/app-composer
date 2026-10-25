@@ -22,7 +22,6 @@ const declarations = [
   ['config/dependency-policy.json', () => readJson('config/dependency-policy.json').runtime?.node],
   ['lib/get-ready/package.json', () => readJson('lib/get-ready/package.json').engines?.node],
   ['lib/get-ready-mcp/package.json', () => readJson('lib/get-ready-mcp/package.json').engines?.node],
-  ['lib/content-model/site-template/package.json', () => readJson('lib/content-model/site-template/package.json').engines?.node],
 ];
 
 // Runtimes the reviewed policy must keep out until they are qualified.
@@ -54,4 +53,10 @@ test('an unreadable declaration refuses instead of guessing', () => {
 
 test('prerelease and malformed runtimes stay outside tool execution', () => {
   for (const version of ['24.22.1-rc.1','24.22','current','23.12.0',null]) assert.equal(isSupportedNode(version),false);
+});
+
+test('the independently qualified content-site recipe retains its Node 22 boundary', () => {
+  const range = readJson('lib/content-model/site-template/package.json').engines.node;
+  assert.equal(satisfies('22.23.4', range), true);
+  assert.equal(satisfies('24.22.1', range), false);
 });
