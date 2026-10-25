@@ -46,6 +46,21 @@ function generatedPreview() {
   };
 }
 
+test('preview configuration and generated candidates refuse unqualified Queue or Workflow access', () => {
+  for (const binding of [
+    {queues: {producers: [{binding: 'OUTBOX', queue: 'production-outbox'}]}},
+    {queues: {consumers: [{queue: 'production-outbox'}]}},
+    {workflows: [{binding: 'RECOVERY', name: 'production-recovery', class_name: 'Recovery'}]},
+  ]) {
+    const selected = structuredClone(config);
+    Object.assign(selected.env.preview, binding);
+    assert.throws(() => inspectPreviewIsolation(selected), /Queue|Workflows/);
+    assert.throws(() => assertPreviewGenerated({...generatedPreview(), ...binding}, config), /Queue|Workflows/);
+  }
+  assert.equal(inspectPreviewIsolation(config).isolated, true);
+  assert.equal(assertPreviewGenerated(generatedPreview(), config).isolated, true);
+});
+
 function workspaceFixture(t) {
   const directory = mkdtempSync(join(tmpdir(), 'composer-delivery-journey-'));
   t.after(() => rmSync(directory, {recursive: true, force: true}));

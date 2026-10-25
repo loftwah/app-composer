@@ -131,9 +131,19 @@ function sharedBinding(bindings, production, field) {
   return bindings.find(binding => shared.has(binding.id)) ?? null;
 }
 
+function refuseBackgroundBindings(config, prefix) {
+  // This candidate journey has no isolated Queue/Workflow provisioner. A
+  // producer can mutate production even when the preview has no public route.
+  if (list(config?.queues?.producers).length || list(config?.queues?.consumers).length)
+    throw new DeliveryRefusal(`${prefix}-queue`, 'Preview Queue producers and consumers are not qualified. Remove these bindings before building a safe candidate.');
+  if (list(config?.workflows).length)
+    throw new DeliveryRefusal(`${prefix}-workflow`, 'Preview Workflows are not qualified. Remove these bindings before building a safe candidate.');
+}
+
 export function inspectPreviewIsolation(config) {
   const preview = config?.env?.preview;
   if (!preview) throw new DeliveryRefusal('preview-missing', 'wrangler.jsonc must define an isolated env.preview environment.');
+  refuseBackgroundBindings(preview, 'preview');
   const worker = requireText(preview.name, 'preview-name-missing', 'Preview needs its own Worker name.');
   if (worker === config.name) throw new DeliveryRefusal('preview-shared-worker', 'Preview and production must use different Worker names.');
   if (list(preview.routes).length) throw new DeliveryRefusal('preview-route', 'Preview must not attach a production route.');
@@ -248,6 +258,7 @@ export function readGeneratedConfig(workspace = process.cwd()) {
 
 export function assertPreviewGenerated(generated, config) {
   const preview = inspectPreviewIsolation(config);
+  refuseBackgroundBindings(generated, 'candidate');
   if (generated?.name !== preview.worker)
     throw new DeliveryRefusal('candidate-worker', 'The generated Worker name does not match env.preview. Select CLOUDFLARE_ENV at build time.');
   if (generated?.account_id !== config.account_id)

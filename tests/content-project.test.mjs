@@ -86,3 +86,17 @@ test('new projects capture a local checked command menu and external app destina
  const scripts=JSON.parse(result.files['package.json']).scripts;assert.match(scripts['check:types'],/launcher-assets\.mjs --check/);assert.match(scripts['source:write'],/launcher-assets\.mjs --write/);
  assert.match(result.files['src/layouts/ContentLayout.astro'].toString(),/App Composer home/);assert.match(result.files['src/layouts/ContentLayout.astro'].toString(),/\/brand\/launcher\.css/);
 });
+
+test('directory-bound child failures retain safe local diagnostics without authored input or process output', () => {
+ const original=child.spawnSync;
+ try {
+  for(const [result,reason] of [[{status:2},'directory-or-input-refused'],[{status:null,error:{code:'ETIMEDOUT'}},'timeout'],[{status:null,signal:'SIGTERM'},'signal'],[{status:0,stdout:'not-json'},'invalid-result']]) {
+   child.spawnSync=()=>({...result,stderr:'PRIVATE CHILD CONTENT'});syncBuiltinESMExports();
+   assert.throws(()=>childDirectory('/private/owner-path',{dev:1,ino:2},'PRIVATE OWNER NAME'),error=>{
+    assert.equal(error.code,'source');assert.equal(error.sourceWrite.reason,reason);
+    assert.equal(error.sourceWrite.operation,'directory');assert.equal(Number.isInteger(error.sourceWrite.elapsedMs),true);
+    assert.doesNotMatch(JSON.stringify(error),/PRIVATE|owner-path/);return true;
+   });
+  }
+ } finally {child.spawnSync=original;syncBuiltinESMExports();}
+});
