@@ -116,6 +116,29 @@ stays **limited** and tablet stays **unknown**.
 - `config/device-support.json` keeps the desktop supported / phone limited /
   tablet unknown intention, now with this release's journeys.
 
+## Composer render check
+
+[`render-check.mjs`](render-check.mjs) rendered the committed Composer source in
+a local `pnpm dev` server and recorded
+[`render-check.json`](render-check.json). All nine checks passed:
+
+- the library card names LDraw and decodes the new 96px tile;
+- the card links `/ldraw`, the live origin and the exact new `tree/fa7a2ab…`
+  source;
+- device support still reads **Desktop supported · Phone limited**;
+- the preview request serves the new 960px lossless WebP at 960 × 667 (the
+  element reports a `srcset`-density-corrected width, so the file itself is
+  decoded);
+- the explanation names the default dark workspace and the named block library;
+- the tile caption still says it is not an LDraw logo;
+- the Cmd+K launcher row opens the live editor with the new tile at 96px, and
+  the server-rendered page already carries that row before JavaScript runs.
+
+Screenshots: [`apps-1440-dark.png`](apps-1440-dark.png) (LDraw card),
+[`apps-ldraw-preview-1440-dark.png`](apps-ldraw-preview-1440-dark.png) (card
+preview and caption) and
+[`launcher-1440-dark-ldraw.png`](launcher-1440-dark-ldraw.png) (launcher row).
+
 ## Commands
 
 ```sh
@@ -134,6 +157,7 @@ node <run>/verify-live-device.mjs      # live device journeys
 pnpm source:write
 pnpm check
 pnpm build
+pnpm dev            # review server, then node <run>/render-check.mjs
 ```
 
 ## Limits and remaining gates

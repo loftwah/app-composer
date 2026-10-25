@@ -1,0 +1,86 @@
+{
+  "schema": "composer.ldraw-render-check/1",
+  "observedAt": "2026-10-25T02:20:25.948Z",
+  "origin": "http://127.0.0.1:4322",
+  "checks": [
+    {
+      "name": "the library card names LDraw",
+      "pass": true,
+      "detail": "LDraw"
+    },
+    {
+      "name": "the card tile is the new source-bound name and decodes at 96px",
+      "pass": true,
+      "detail": {
+        "src": "/brand/apps/ldraw-tile-fa7a2ab6171c-010cfbd2-r2-96.webp",
+        "naturalWidth": 96,
+        "naturalHeight": 96,
+        "complete": true
+      }
+    },
+    {
+      "name": "the card opens the bounded entry, the live origin and the exact new source",
+      "pass": true,
+      "detail": [
+        {
+          "text": "Open app",
+          "href": "/ldraw"
+        },
+        {
+          "text": "Standalone",
+          "href": "https://ldraw.loftwah.com/"
+        },
+        {
+          "text": "GitHub source",
+          "href": "https://github.com/loftwah/app-composer-ldraw/tree/fa7a2ab6171cf53edc53c01630fbba2d5d4888aa"
+        }
+      ]
+    },
+    {
+      "name": "device support separates desktop from the limited phone result",
+      "pass": true,
+      "detail": "Desktop supported · Phone limited"
+    },
+    {
+      "name": "the card preview is the new 960px lossless WebP capture",
+      "pass": true,
+      "detail": {
+        "currentSrc": "/brand/apps/ldraw-workspace-fa7a2ab6171c-010cfbd2-r2-960.webp",
+        "complete": true,
+        "bytes": 56544,
+        "riff": "RIFF",
+        "webp": "WEBP",
+        "width": 960,
+        "height": 667
+      }
+    },
+    {
+      "name": "the explanation names the dark workspace and the named block library",
+      "pass": true,
+      "detail": "Real screen and what it does Real screenshot of LDraw at ldraw.loftwah.com, captured 25 October 2026. The tile beside the title is App Composer’s wordmark tile for LDraw, not an LDraw logo; the real workspace screenshot is below. Sketch a system, a game scene or a music workflow. Use editable examples as starting point"
+    },
+    {
+      "name": "the tile caption stays honest",
+      "pass": true,
+      "detail": "Real screenshot of LDraw at ldraw.loftwah.com, captured 25 October 2026. The tile beside the title is App Composer’s wordmark tile for LDraw, not an LDraw logo; the real workspace screenshot is below."
+    },
+    {
+      "name": "the launcher row opens the live editor with the new source-bound tile",
+      "pass": true,
+      "detail": {
+        "href": "https://ldraw.loftwah.com/",
+        "src": "/brand/apps/ldraw-tile-fa7a2ab6171c-010cfbd2-r2-96.webp",
+        "decoded": true
+      }
+    },
+    {
+      "name": "the server-rendered launcher already carries the new LDraw row",
+      "pass": true,
+      "detail": {
+        "bytes": 106662
+      }
+    }
+  ],
+  "problems": [],
+  "finishedAt": "2026-10-25T02:20:27.180Z"
+}
