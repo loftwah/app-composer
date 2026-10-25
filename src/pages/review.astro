@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 ---
 <Base title="Review a Link Check report" description="Bring a versioned page inspection from the independent Link Check mini-app into Composer and prepare an agent review.">
-<h1>Review a share report.</h1><p class="lede">Inspect a public app in Link Check, export the report, then bring its findings here.</p>
+<h1>Review a share report.</h1><p class="lede">Inspect a public page in Link Check, export the report, then bring its findings here.</p>
 <div class="actions"><a class="button" href="https://share.loftwah.com">Open Link Check</a><a href="/apps">All apps</a></div>
 <label>Import a Link Check report<input id="report-file" type="file" accept="application/json,.json"/></label><p class="small">The file stays in this browser. Imported findings are reported evidence, not independently rechecked results or deployment approval.</p><p id="import-status" role="status" aria-live="polite"></p>
 <section id="report-result" hidden class="section"><h2 id="report-name"></h2><p id="report-date" class="small"></p><ul id="report-findings"></ul><button id="copy-review">Copy review to your agent</button><details id="review-details"><summary>Agent review prompt</summary><textarea id="review-prompt" readonly aria-label="Agent review prompt"></textarea></details></section>

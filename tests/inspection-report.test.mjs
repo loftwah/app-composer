@@ -10,10 +10,19 @@ test('Bubbles and LoftwahFM inspection reports retain the public URL boundary', 
     assert.equal(validateInspectionReport({ ...report(), url }).url, url);
     for (const rejected of [
       `https://${host}.evil.test/`,
-      `https://private.${host}/`,
+      `https://${host}.localhost/`,
       `https://u:p@${host}/`,
       `https://${host}/api/private`,
       `https://${host}/?token=secret`,
     ]) assert.throws(() => validateInspectionReport({ ...report(), url: rejected }));
+  }
+});
+
+test('reports from third-party public pages and ordinary public queries import as untrusted data', () => {
+  for (const url of ['https://www.wikipedia.org/', 'https://example.com/article%20one?lang=en', 'https://developers.cloudflare.com/workers/']) {
+    assert.equal(validateInspectionReport({ ...report(), url }).url, url);
+  }
+  for (const url of ['https://localhost/', 'https://127.0.0.1/', 'https://[::1]/', 'https://example.com/%61dmin/', 'https://example.com/?access_token=secret', 'https://example.com/?accessToken=secret', 'https://example.com/?sessionId=secret']) {
+    assert.throws(() => validateInspectionReport({ ...report(), url }));
   }
 });
