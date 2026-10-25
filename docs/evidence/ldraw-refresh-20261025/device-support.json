@@ -1,0 +1,261 @@
+{
+  "schema": "composer.ldraw-live-device-evidence/1",
+  "observedAt": "2026-10-25T02:03:20.878Z",
+  "url": "https://ldraw.loftwah.com/",
+  "expectedSource": "fa7a2ab6171cf53edc53c01630fbba2d5d4888aa",
+  "browser": "Chromium 1248 headless shell (Playwright 1.64 alpha), deviceScaleFactor 1, pointer/keyboard emulation",
+  "checks": [
+    {
+      "name": "desktop: fresh visitor opens the default dark editor",
+      "pass": true,
+      "detail": {
+        "theme": "dark",
+        "appearance": "dark",
+        "editorDark": true,
+        "stored": "dark"
+      }
+    },
+    {
+      "name": "desktop: default Creator journey scene is present and editable",
+      "pass": true,
+      "detail": {
+        "elements": 34,
+        "revision": "892afd5c-38b8-4864-97e7-865868062b50:1"
+      }
+    },
+    {
+      "name": "desktop: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "document": 0
+      }
+    },
+    {
+      "name": "desktop: native keyboard text entry with undo/redo keeping the element",
+      "pass": true,
+      "detail": {
+        "id": "7oBwAOhoeR0hk8xILKTKU",
+        "fontSize": 20,
+        "fontFamily": 5
+      }
+    },
+    {
+      "name": "desktop: named block library opens and inserts an editable block",
+      "pass": true,
+      "detail": {
+        "items": 18,
+        "groups": 6,
+        "before": 35,
+        "after": 50
+      }
+    },
+    {
+      "name": "desktop: native file open and Save editable roundtrip preserve IDs, image bytes and text",
+      "pass": true,
+      "detail": {
+        "bytes": 44940,
+        "sha256": "16f0e4e396e9c10fbf29d054deea2d0afc210ca6744e4c5747ecac43d8539039",
+        "elements": 51,
+        "humanText": "Composer device note"
+      }
+    },
+    {
+      "name": "desktop: PNG and SVG export are real bytes from this release",
+      "pass": true,
+      "detail": {
+        "png": {
+          "signature": "89504e470d0a1a0a",
+          "width": 2296,
+          "height": 1367,
+          "bytes": 256355
+        },
+        "svg": {
+          "bytes": 61194,
+          "hasSvg": true,
+          "hasText": true,
+          "hasEmbeddedImage": true,
+          "hasFontFace": true
+        }
+      }
+    },
+    {
+      "name": "desktop: autosave reload restores the current scene from this browser",
+      "pass": true,
+      "detail": {
+        "elements": 51,
+        "revision": "471d39b4-a1f7-455c-bd3d-8f3dc4e5ed04:1"
+      }
+    },
+    {
+      "name": "desktop: offline cached workspace reload",
+      "pass": true,
+      "detail": {
+        "reloaded": true
+      }
+    },
+    {
+      "name": "phone: fresh visitor opens the default dark editor",
+      "pass": true,
+      "detail": {
+        "theme": "dark",
+        "appearance": "dark",
+        "editorDark": true,
+        "stored": "dark"
+      }
+    },
+    {
+      "name": "phone: default Creator journey scene is present and editable",
+      "pass": true,
+      "detail": {
+        "elements": 34,
+        "revision": "8dc77113-ad08-4987-a7f1-25ad509a671c:1"
+      }
+    },
+    {
+      "name": "phone: no horizontal overflow",
+      "pass": true,
+      "detail": {
+        "document": 0
+      }
+    },
+    {
+      "name": "phone: native keyboard text entry with undo/redo keeping the element",
+      "pass": true,
+      "detail": {
+        "id": "1Jvp0_GmOhKt-eUe7S1lL",
+        "fontSize": 20,
+        "fontFamily": 5
+      }
+    },
+    {
+      "name": "phone: native file open and Save editable roundtrip preserve IDs, image bytes and text",
+      "pass": true,
+      "detail": {
+        "bytes": 31497,
+        "sha256": "033ca1fe47110caf693980e6272446d5a279e3ddb79ad451af23aad83cebce62",
+        "elements": 36,
+        "humanText": "Composer device note"
+      }
+    },
+    {
+      "name": "phone: PNG and SVG export are real bytes from this release",
+      "pass": true,
+      "detail": {
+        "png": {
+          "signature": "89504e470d0a1a0a",
+          "width": 2236,
+          "height": 986,
+          "bytes": 203322
+        },
+        "svg": {
+          "bytes": 51836,
+          "hasSvg": true,
+          "hasText": true,
+          "hasEmbeddedImage": true,
+          "hasFontFace": true
+        }
+      }
+    },
+    {
+      "name": "phone: autosave reload restores the current scene from this browser",
+      "pass": true,
+      "detail": {
+        "elements": 36,
+        "revision": "41b06dbf-65ac-4cd7-91c9-d1f12134aef2:1"
+      }
+    }
+  ],
+  "problems": [],
+  "result": {
+    "desktop": {
+      "label": "desktop",
+      "dark": {
+        "theme": "dark",
+        "appearance": "dark",
+        "editorDark": true,
+        "stored": "dark"
+      },
+      "overflow": {
+        "document": 0
+      },
+      "library": {
+        "items": [
+          "App Composer",
+          "LDraw",
+          "Paperwork",
+          "Linkarooie",
+          "Guestbook",
+          "Showcase",
+          "Link Check",
+          "Launch Kit",
+          "Composer pipeline",
+          "Review boundary",
+          "Cloudflare runtime",
+          "Trust lanes",
+          "Game loop",
+          "Release path",
+          "Browser frame",
+          "Phone frame",
+          "Before / after",
+          "Launch checklist"
+        ],
+        "groups": [
+          "Apps",
+          "App Composer",
+          "Infrastructure",
+          "Games",
+          "Music / FM",
+          "General"
+        ],
+        "before": 35,
+        "after": 50
+      },
+      "export": {
+        "png": {
+          "signature": "89504e470d0a1a0a",
+          "width": 2296,
+          "height": 1367,
+          "bytes": 256355
+        },
+        "svg": {
+          "bytes": 61194,
+          "hasSvg": true,
+          "hasText": true,
+          "hasEmbeddedImage": true,
+          "hasFontFace": true
+        }
+      },
+      "offline": {
+        "reloaded": true
+      }
+    },
+    "phone": {
+      "label": "phone",
+      "dark": {
+        "theme": "dark",
+        "appearance": "dark",
+        "editorDark": true,
+        "stored": "dark"
+      },
+      "overflow": {
+        "document": 0
+      },
+      "export": {
+        "png": {
+          "signature": "89504e470d0a1a0a",
+          "width": 2236,
+          "height": 986,
+          "bytes": 203322
+        },
+        "svg": {
+          "bytes": 51836,
+          "hasSvg": true,
+          "hasText": true,
+          "hasEmbeddedImage": true,
+          "hasFontFace": true
+        }
+      }
+    }
+  },
+  "finishedAt": "2026-10-25T02:03:26.379Z"
+}

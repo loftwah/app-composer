@@ -3,7 +3,7 @@
   "releases": [
     {
       "id": "ldraw",
-      "revision": "c9c2339a1296ee7c06a7d94f274c69143478acba",
+      "revision": "fa7a2ab6171cf53edc53c01630fbba2d5d4888aa",
       "support": {
         "version": 1,
         "target": "both",
@@ -19,10 +19,10 @@
               ],
               "note": "Verified in Chromium with a keyboard and pointer. Physical devices and screen readers remain unchecked.",
               "evidence": {
-                "revision": "c9c2339a1296ee7c06a7d94f274c69143478acba",
-                "checked": "2026-10-24",
+                "revision": "fa7a2ab6171cf53edc53c01630fbba2d5d4888aa",
+                "checked": "2026-10-25",
                 "method": "browser-emulation",
-                "journey": "Chromium: native drawing/text, file roundtrip, PNG/SVG preview/export, autosave and offline current-scene reload. Composer issue #290."
+                "journey": "Chromium at the live release: dark default and Creator journey, named block library insert, native drawing/text with undo/redo, file roundtrip, PNG/SVG export, autosave and offline reload. Issue #290."
               }
             },
             "phone": {
@@ -35,10 +35,10 @@
               ],
               "note": "390px Chromium drawing, text, native file and SVG journeys passed with a pointer and keyboard. Physical touch and mobile file handling remain unchecked.",
               "evidence": {
-                "revision": "c9c2339a1296ee7c06a7d94f274c69143478acba",
-                "checked": "2026-10-24",
+                "revision": "fa7a2ab6171cf53edc53c01630fbba2d5d4888aa",
+                "checked": "2026-10-25",
                 "method": "browser-emulation",
-                "journey": "Chromium: native drawing/text, file roundtrip, PNG/SVG preview/export, autosave and offline current-scene reload. Composer issue #290."
+                "journey": "390px Chromium at the live release: dark default, native drawing/text with undo/redo, file roundtrip, PNG/SVG export and autosave reload using a pointer and keyboard. Issue #290."
               }
             },
             "tablet": {

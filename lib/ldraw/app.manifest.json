@@ -3,7 +3,7 @@
   "id": "ldraw",
   "name": "LDraw",
   "description": "Local editable drawings, powered by Excalidraw.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "repository": "https://github.com/loftwah/app-composer-ldraw",
   "runtime": "static-assets",
   "dataVersion": 1,
@@ -39,7 +39,10 @@
       "local-drawing",
       "editable-file-import-export",
       "png-export",
-      "svg-export"
+      "svg-export",
+      "dark-default-appearance",
+      "named-block-library",
+      "finished-examples"
     ],
     "offline": "core-editor-precache; requested-fonts-and-helpers-cached-after-load",
     "agentConnection": "same-browser-window.ldraw; no MCP server"

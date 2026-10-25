@@ -58,11 +58,21 @@ details, drawings, account fields and arbitrary destination parameters do not.
 A fragment stays client-side; the browser never sends it to a server and the
 editor does not read an arbitrary one.
 
+A fresh visitor opens the dark workspace with the Creator journey example
+already on the canvas. The editor also installs a named portfolio block
+library, so a diagram can start from an editable block instead of a blank
+canvas; both behaviours are part of the reviewed
+`fa7a2ab6171cf53edc53c01630fbba2d5d4888aa` release.
+
 The Apps library, catalogue and common launcher use real captured workspace
 pixels beside a text title. LDraw has no approved identity mark, so the 96px
 menu/library tile is App Composer's typographic discovery tile — the app's own
 name on the canonical orange — rather than an invented LDraw logo. Each
-independent common-launcher consumer commits and releases its own copy.
+independent common-launcher consumer commits and releases its own copy. The
+current pixels, capture timestamp and exact source are recorded in the capture
+provenance beside the artwork. Composer's most recent capture and device
+journeys are in
+[`evidence/ldraw-refresh-20261025/`](evidence/ldraw-refresh-20261025/README.md).
 
 Device assessments are bound to the exact reviewed release in
 [`config/device-support.json`](../config/device-support.json). Desktop Chromium
