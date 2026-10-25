@@ -8,6 +8,7 @@ import {
   type TrustSnapshot,
   type TrustState,
 } from "../lib/plugin-trust-contract";
+import { compareInstalledPlugin } from "../lib/plugin-release-comparison";
 import "./plugin-trust-page.css";
 
 const reportSchema = z.object({
@@ -87,6 +88,21 @@ export function PluginTrustEvidence({
               <code>{plugin.did}</code> / <code>{plugin.slug}</code>
             </p>
             <dl className="pt-facts">
+              <div>
+                <dt>Security / trust</dt>
+                <dd>
+                  {labels[result.security]} · advisory coverage remains unknown
+                </dd>
+              </div>
+              <div>
+                <dt>Maintenance / compatibility</dt>
+                <dd>
+                  {labels[result.maintenance]} ·{" "}
+                  {result.freshness === "stale"
+                    ? "refresh required"
+                    : "dated evidence"}
+                </dd>
+              </div>
               <div>
                 <dt>Exact release CID</dt>
                 <dd>
@@ -192,6 +208,90 @@ export function PluginTrustEvidence({
   );
 }
 
+const comparisonLabels = {
+  native: "Native / build-time",
+  unknown: "Comparison unavailable",
+  stale: "Refresh required",
+  "newer-observed": "Newer version observed",
+  "same-version": "Same version number",
+  "installed-ahead": "Installed version is newer",
+};
+
+export function PluginInstalledInventory({ report }: { report: Report }) {
+  return (
+    <section className="pt-inventory" aria-labelledby="plugin-inventory-title">
+      <div className="pt-package-heading">
+        <h2 id="plugin-inventory-title">This site's installed plugins</h2>
+        <time dateTime={report.checkedAt}>{utc(report.checkedAt)}</time>
+      </div>
+      <p>
+        Read from this site's EmDash state. Only a matching registry publisher
+        DID and package slug can be compared. Native plugins retain their own
+        source and release process.
+      </p>
+      {!report.inventory.available ? (
+        <p role="status">
+          Inventory unavailable. This is not evidence of an empty installation.
+        </p>
+      ) : report.inventory.rows.length ? (
+        <>
+          <div className="pt-installed-list">
+            {report.inventory.rows.map((row) => {
+              const comparison = compareInstalledPlugin(
+                row,
+                report.snapshot,
+                new Date(report.checkedAt),
+              );
+              return (
+                <article key={row.plugin_id} className="pt-installed-row">
+                  <div>
+                    <h3>{row.plugin_id}</h3>
+                    <p>
+                      <strong>Installed {row.version}</strong> · {row.status}
+                    </p>
+                    <p className="pt-identity">
+                      {comparisonLabels[comparison.state]}
+                    </p>
+                  </div>
+                  <div>
+                    {comparison.candidate && (
+                      <p>
+                        Observed registry release:{" "}
+                        <strong>
+                          {comparison.candidate.name}{" "}
+                          {comparison.candidate.version}
+                        </strong>{" "}
+                        · {labels[comparison.candidate.rating]}
+                      </p>
+                    )}
+                    <p>{comparison.action}</p>
+                    {comparison.candidate && (
+                      <p>
+                        <code>
+                          {comparison.candidate.did} /{" "}
+                          {comparison.candidate.slug}
+                        </code>
+                      </p>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+          {report.inventory.atLimit && (
+            <p>Only the first 100 state records are shown.</p>
+          )}
+        </>
+      ) : (
+        <p>
+          No plugin-state rows returned. Build-time configuration may still
+          declare native plugins.
+        </p>
+      )}
+    </section>
+  );
+}
+
 export function PluginTrustPage() {
   const [report, setReport] = useState<Report>();
   const [error, setError] = useState("");
@@ -253,51 +353,16 @@ export function PluginTrustPage() {
       )}
       {report && (
         <>
+          <PluginInstalledInventory report={report} />
+          <h2 className="pt-curated-title">Observed registry releases</h2>
+          <p>
+            These selected releases are dated observations, not a live
+            latest-version feed or an upgrade recommendation.
+          </p>
           <PluginTrustEvidence
             snapshot={report.snapshot}
             checkedAt={report.checkedAt}
           />
-          <section
-            className="pt-inventory"
-            aria-labelledby="plugin-inventory-title"
-          >
-            <h2 id="plugin-inventory-title">This site's installed inventory</h2>
-            <p>
-              Read from EmDash plugin state at {utc(report.checkedAt)}.
-              Native/build-time plugins are unrated; a matching name or version
-              does not establish an exact-release lifecycle receipt.
-            </p>
-            {!report.inventory.available ? (
-              <p role="status">
-                Inventory unavailable. This is not evidence of an empty
-                installation.
-              </p>
-            ) : report.inventory.rows.length ? (
-              <>
-                <ul>
-                  {report.inventory.rows.map((row) => (
-                    <li key={row.plugin_id}>
-                      <strong>{row.plugin_id}</strong> · {row.version} ·{" "}
-                      {row.status} ·{" "}
-                      {row.source === "config"
-                        ? "Native / build-time — unrated"
-                        : row.source === "registry"
-                          ? "Registry installation — exact release unverified"
-                          : "Other installation — unrated"}
-                    </li>
-                  ))}
-                </ul>
-                {report.inventory.atLimit && (
-                  <p>Only the first 100 state records are shown.</p>
-                )}
-              </>
-            ) : (
-              <p>
-                No plugin-state rows returned. Build-time configuration may
-                still declare native plugins.
-              </p>
-            )}
-          </section>
           <section className="pt-installation">
             <h2>Native installation remains unqualified</h2>
             <p>
