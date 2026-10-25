@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import DiagramFigure from '../components/DiagramFigure.astro';
+import { ArrowRight } from '@lucide/astro';
+import { diagramAtlas } from '../lib/diagram-atlas';
+
+const diagrams = diagramAtlas;
+---
+
+<Base
+  title="Diagram atlas — editable views of the real system"
+  description="Three native LDraw diagrams explain the App Composer lifecycle, the agent approval boundary and Cloudflare Production/Preview isolation. Download the editable scene, SVG or PNG."
+>
+  <article class="atlas">
+    <div class="atlas-heading">
+      <p class="eyebrow">Diagram atlas</p>
+      <h1>See the system.<br />Then edit the source.</h1>
+      <p class="lede">Three diagrams explain the parts that are easy to blur: the lifecycle, the human approval boundary and environment isolation. Each is a native LDraw scene you can reopen and revise.</p>
+    </div>
+
+    <section class="atlas-intro" aria-labelledby="atlas-use-heading">
+      <h2 id="atlas-use-heading">What these are for</h2>
+      <p>They are working explanations, not decorative art or screenshots. Text, arrows and boxes stay editable. The SVG and PNG are rendered from the same scene you can download.</p>
+      <p class="small">Rendered with <code>@excalidraw/excalidraw@0.18.1</code> through LDraw’s existing renderer. The source scene, SVG and PNG are committed together; the page does not call a live diagram service.</p>
+    </section>
+
+    <section class="atlas-list" aria-label="Diagrams">
+      {diagrams.map((diagram) => <DiagramFigure {...diagram} />)}
+    </section>
+
+    <section class="atlas-make" aria-labelledby="atlas-make-heading">
+      <h2 id="atlas-make-heading">Revise one without starting again</h2>
+      <ol>
+        <li>Download the <code>.excalidraw</code> scene.</li>
+        <li>Open it in <a href="https://ldraw.loftwah.com">LDraw</a>. The drawing keeps its element IDs, text and connections.</li>
+        <li>Edit the source, export SVG and PNG, and replace all three files together.</li>
+        <li>Inspect the result at phone and desktop widths before publishing. Automated tests cannot certify that a diagram is clear or technically true.</li>
+      </ol>
+      <p><a href="/architecture">Read the full architecture <ArrowRight size={17} aria-hidden="true" /></a> · <a href="/agent">Point your agent at Composer <ArrowRight size={17} aria-hidden="true" /></a></p>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .atlas { max-width: 1120px; }
+  .atlas-heading { max-width: 860px; margin-bottom: 32px; }
+  .atlas-heading h1 { font-size: clamp(2.8rem, 5.6vw, 4.8rem); max-width: 20ch; }
+  .atlas-heading .lede { max-width: 64ch; }
+  .atlas-intro, .atlas-make { border-top: 1px solid var(--color-border); padding-top: 24px; margin-top: 40px; }
+  .atlas-intro h2, .atlas-make h2 { font-size: clamp(1.8rem, 3vw, 2.4rem); }
+  .atlas-intro p { max-width: 76ch; }
+  .atlas-list { margin-top: 36px; }
+  .atlas-make ol { max-width: 78ch; }
+  .atlas-make code { white-space: nowrap; }
+</style>

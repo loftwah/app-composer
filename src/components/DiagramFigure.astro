@@ -1,0 +1,56 @@
+---
+interface Step {
+  title: string;
+  detail: string;
+}
+interface Props {
+  name: string;
+  title: string;
+  alt: string;
+  caption: string;
+  steps: Step[];
+  usedOn?: { label: string; href: string }[];
+}
+const { name, title, alt, caption, steps, usedOn = [] } = Astro.props;
+const base = `/diagrams/ldraw/${name}`;
+---
+
+<figure class="ldraw-figure" data-diagram={name}>
+  <a class="ldraw-image" href={`${base}.png`}>
+    <img src={`${base}.svg`} width="1600" height="700" alt={alt} loading="lazy" decoding="async" />
+  </a>
+  <figcaption>
+    <strong>{title}</strong>
+    <span>{caption}</span>
+    <span class="ldraw-actions">
+      <a href={`${base}.excalidraw`} download={`${name}.excalidraw`}>Download editable scene</a>
+      <a href={`${base}.svg`} download={`${name}.svg`}>SVG</a>
+      <a href={`${base}.png`} download={`${name}.png`}>PNG</a>
+      <a href="https://ldraw.loftwah.com">Open LDraw</a>
+      {usedOn.map((page) => <a href={page.href}>{page.label}</a>)}
+    </span>
+  </figcaption>
+  <details class="ldraw-text">
+    <summary>Read this diagram as text</summary>
+    <ol>{steps.map((step) => <li><strong>{step.title}</strong><span>{step.detail}</span></li>)}</ol>
+  </details>
+</figure>
+
+<style>
+  .ldraw-figure { margin: 28px 0; }
+  .ldraw-image { display: block; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden; background: #f7f4ee; }
+  .ldraw-image img { display: block; width: 100%; height: auto; }
+  figcaption { display: grid; gap: 4px; padding: 12px 2px 0; font-size: 0.9rem; color: var(--color-muted); }
+  figcaption strong { color: var(--color-foreground); font-size: 0.95rem; }
+  .ldraw-actions { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 4px; }
+  .ldraw-actions a { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-accent); font-size: 0.88rem; }
+  .ldraw-text { margin: 8px 0 0; border-top: 1px solid var(--color-border); padding-top: 6px; }
+  .ldraw-text summary { font-size: 0.88rem; min-height: 44px; }
+  .ldraw-text ol { margin: 8px 0 0; padding-left: 24px; }
+  .ldraw-text li { margin: 6px 0; color: var(--color-muted); font-size: 0.9rem; }
+  .ldraw-text li strong { display: block; color: var(--color-foreground); }
+  @media (max-width: 650px) {
+    .ldraw-image { border-radius: 6px; }
+    figcaption { font-size: 0.85rem; }
+  }
+</style>
