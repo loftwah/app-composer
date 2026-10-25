@@ -58,6 +58,17 @@ export async function qualifyNativeCreatorLifecycle({
   };
   const matrix = async (name) =>
     probeAdmin(page, async (probe) => {
+      const label = probe.getByLabel("Label", { exact: true });
+      await label.waitFor({ state: "visible" });
+      if (name === "creator-governed-read-only") {
+        await probe.getByRole("heading", {
+          name: "Changes use application requests", exact: true,
+        }).waitFor();
+        assert.equal(await label.isDisabled(), true);
+      } else {
+        assert.equal(await label.inputValue(), "Fictional creator book · owner label");
+        assert.equal(await label.isEnabled(), true);
+      }
       const original = await probe.locator("html").getAttribute("data-mode");
       try {
         for (const width of [390, 1440])
