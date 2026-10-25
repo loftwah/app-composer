@@ -63,7 +63,7 @@ export async function nativeJourney({
     captureInspectionHoldMs: 2000,
     limits: [],
   };
-  const { screenshot, responsivePage } = nativeCapture({
+  const { screenshot, responsivePage, responsiveAdminPage } = nativeCapture({
     actors,
     output,
     result,
@@ -1178,6 +1178,7 @@ export async function nativeJourney({
         readContent: async () => (await memberList()).result.items,
         readPublic: publicFetch,
         capture: screenshot,
+        probeAdmin: responsiveAdminPage,
       });
       await publicState(
         "creator-rollback-content-media-preserved",

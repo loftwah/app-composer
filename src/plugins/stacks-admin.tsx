@@ -145,7 +145,8 @@ function WorkspaceStudio({ search }: { search: string }) {
   );
   const document = draft?.document;
   const role = workspace?.role;
-  const lifecycleCan = (action: string) => lifecycle === "creator" && can(role, action);
+  const lifecycleCan = (action: string) =>
+    lifecycle === "creator" && can(role, action);
   const contentEditable = can(role, "save") && current?.status !== "archived";
   const editable = lifecycleCan("save") && current?.status !== "archived";
   const resourcesReady =
@@ -181,6 +182,9 @@ function WorkspaceStudio({ search }: { search: string }) {
         return false;
       const checkpoint = session.current.capture();
       const request = ++requestGeneration.current;
+      // Re-confirm operating mode before restoring lifecycle controls. Failed,
+      // stale or malformed reads leave those controls disabled.
+      setLifecycle(undefined);
       const data = await call("list");
       if (
         request !== requestGeneration.current ||
@@ -850,7 +854,9 @@ function WorkspaceStudio({ search }: { search: string }) {
       {workspace && (
       <p className="ca-muted">
           Workspace <strong>{workspace.name}</strong> ·{" "}
-          {lifecycle === "governed" ? `${workspace.role} · governed application requests` : ROLE_COPY[workspace.role]}
+          {lifecycle === "governed"
+            ? `${workspace.role} · governed application requests`
+            : ROLE_COPY[workspace.role]}
         </p>
       )}
       {workspace && lifecycle === "governed" && (
@@ -951,7 +957,11 @@ function WorkspaceStudio({ search }: { search: string }) {
           {!initialLoading && workspace && !document && (
             <p className="ca-muted">
               No stack yet.{" "}
-              {lifecycle === "governed" ? "Request an application in Internal platform to create its governed stack." : lifecycleCan("create") ? "Name one above to start." : "An owner or editor can create one."}
+              {lifecycle === "governed"
+                ? "Request an application in Internal platform to create its governed stack."
+                : lifecycleCan("create")
+                  ? "Name one above to start."
+                  : "An owner or editor can create one."}
             </p>
           )}
           {document && current && (
