@@ -31,7 +31,15 @@ export async function qualifyNativeCreatorLifecycle({
   const selected = before.draft.instances.find(
     (value) => value.id === instance,
   );
-  assert.ok(selected?.resource);
+  assert.ok(selected);
+  const bindingBefore = resourcesBefore.find(
+    (value) => value.instance === instance,
+  );
+  assert.ok(bindingBefore?.configuration && bindingBefore.state === "ready");
+  const publishedResourceBefore = before.published.instances.find(
+    (value) => value.id === instance,
+  )?.resource;
+  assert.equal(publishedResourceBefore?.id, bindingBefore.resource);
   const ownerLabel = "Fictional team visitor book · owner label",
     firstCaption = "Owner customisation: weekly rowing volunteers",
     secondCaption = "Owner customisation: next weekly round";
@@ -84,6 +92,8 @@ export async function qualifyNativeCreatorLifecycle({
     assert.equal(observation.status, 200);
     assert.ok(observation.text.includes(ownerLabel));
     assert.ok(observation.text.includes(caption));
+    if (caption === firstCaption)
+      assert.equal(observation.text.includes(secondCaption), false);
     result.observations.push({
       stage,
       status: observation.status,
@@ -168,7 +178,11 @@ export async function qualifyNativeCreatorLifecycle({
     (value) => value.id === instance,
   );
   assert.deepEqual(retained.config, selected.config);
-  assert.deepEqual(retained.resource, selected.resource);
+  assert.deepEqual(
+    restored.published.instances.find((value) => value.id === instance)
+      .resource,
+    publishedResourceBefore,
+  );
   assert.equal(retained.label, ownerLabel);
   const publications = (await read("publications")).publications;
   assert.ok(
