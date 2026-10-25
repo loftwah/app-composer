@@ -14,6 +14,27 @@ test('setup/check/resume reuse the maintained engine handoffs without instructio
   assert.match(renderPrompt('resume').text, /a saved green receipt grants no permission/);
 });
 
+test('the public agent assessment is read-only, grounded in the real URL and stops before changes', () => {
+  const item = promptModules.find(entry => entry.id === 'assess');
+  assert.ok(item, 'assess module is published');
+  assert.equal(item.category, 'Get started');
+  assert.equal(item.support, 'Ready to use');
+  assert.equal(item.related, 'setup');
+  assert.ok(item.prerequisites.some(entry => entry.href === '/agent'));
+  const result = renderPrompt('assess');
+  assert.deepEqual(result.missing, []);
+  assert.match(result.text, /Start at https:\/\/composer\.loftwah\.com/);
+  assert.match(result.text, /read-only/);
+  assert.match(result.text, /supported now, proven only in a bounded local environment, documented but unverified, planned, and unsupported/);
+  assert.match(result.text, /recommendation of yes, partly or no/);
+  assert.match(result.text, /Never request, print or store passwords, keys, tokens or private records/);
+  assert.match(result.text, /Stop before any change and wait for explicit owner authorisation/);
+  assert.doesNotMatch(result.text, /\[NEEDED:/);
+  const withProject = renderPrompt('assess', { project: '/fictional/field-notes', constraints: 'Keep the current stack' });
+  assert.ok(withProject.text.includes('/fictional/field-notes'));
+  assert.ok(withProject.text.includes('Keep the current stack'));
+});
+
 test('completed change and self-use prompts preserve multiline intent and identify missing required answers', () => {
   for (const id of ['change', 'composer']) {
     const missing = renderPrompt(id);

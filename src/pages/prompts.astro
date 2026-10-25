@@ -9,7 +9,7 @@ const categories = [...new Set(promptModules.map(item => item.category))];
   <div class="prompt-library" data-prompt-library>
     <div class="prompt-intro">
       <div><h1>Get to the doing.</h1><p>Choose a job. Add your details. Copy a complete request for your agent.</p></div>
-      <a href="/setup">Need a full project guide? <span aria-hidden="true">→</span></a>
+      <div class="prompt-intro-links"><a href="/agent">Should we use App Composer? Assess this project <span aria-hidden="true">→</span></a><a href="/setup">Need a full project guide? <span aria-hidden="true">→</span></a></div>
     </div>
     <p class="prompt-role-packs">Working from a role rather than a task? <a href="/roles">Open the six agent role packs <span aria-hidden="true">→</span></a></p>
     <noscript><p class="no-script">Every template is readable below. Select the text to copy it, replace its bracketed fields, then paste it into your agent. JavaScript adds search, editable previews and copy buttons.</p></noscript>
@@ -56,7 +56,8 @@ const categories = [...new Set(promptModules.map(item => item.category))];
   .prompt-intro { display: flex; justify-content: space-between; gap: 32px; align-items: end; padding-bottom: 32px; border-bottom: 1px solid var(--color-border); }
   .prompt-intro h1 { font-size: clamp(2.7rem, 5.2vw, 4.8rem); margin: 0 0 16px; max-width: none; }
   .prompt-intro p { margin: 0; color: var(--color-muted); font-size: 1.1rem; }
-  .prompt-intro > a { color: var(--color-accent); max-width: 24ch; font-size: .95rem; flex-shrink: 0; padding: 10px 0; }
+  .prompt-intro-links { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; max-width: 30ch; }
+  .prompt-intro-links a { color: var(--color-accent); font-size: .95rem; padding: 6px 0; min-height: 44px; display: inline-flex; align-items: center; }
   .prompt-role-packs { margin: 16px 0 0; font-size: .88rem; color: var(--color-muted); }
   .prompt-role-packs a { color: var(--color-accent); display: inline-flex; align-items: center; min-height: 44px; }
   .prompt-desk { display: grid; grid-template-columns: 275px minmax(0, 1fr); gap: 48px; padding-top: 32px; align-items: start; }
@@ -109,7 +110,7 @@ const categories = [...new Set(promptModules.map(item => item.category))];
   .prompt-empty, .no-script { padding: 20px 0; color: var(--color-muted); }
   [hidden] { display: none !important; }
   @media (min-width: 901px) { .prompt-library[data-enhanced="true"] .prompt-index { position: sticky; top: 24px; max-height: calc(100svh - 48px); overflow: auto; padding-right: 8px; } }
-  @media (max-width: 1100px) { .prompt-desk { gap: 28px; grid-template-columns: 240px minmax(0, 1fr); } .prompt-intro { align-items: start; flex-direction: column; gap: 12px; } .prompt-intro > a { max-width: none; } }
+  @media (max-width: 1100px) { .prompt-desk { gap: 28px; grid-template-columns: 240px minmax(0, 1fr); } .prompt-intro { align-items: start; flex-direction: column; gap: 12px; } .prompt-intro-links { max-width: none; } }
   @media (max-width: 900px) { .prompt-desk { grid-template-columns: minmax(0, 1fr); padding-top: 24px; gap: 24px; } .prompt-index { border-bottom: 1px solid var(--color-border); padding-bottom: 24px; } .prompt-library[data-enhanced="true"] .prompt-tasks { max-height: 220px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--color-border); border-radius: 6px; padding: 0 8px 12px; } .prompt-tasks h2 { margin-top: 16px; } }
   @media (max-width: 480px) { .prompt-job-heading { flex-direction: column; gap: 8px; } .prompt-support { padding-top: 0; } .prompt-preview { padding: 18px; } .prompt-preview-heading { flex-direction: column; gap: 0; margin-bottom: 12px; } .prompt-copy-actions { gap: 10px; } .prompt-copy-actions button { width: 100%; } }
 </style>
