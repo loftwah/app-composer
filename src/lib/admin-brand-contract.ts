@@ -62,6 +62,53 @@ export const brandSnapshot = z
 export type BrandVersion = z.infer<typeof brandVersion>;
 export type BrandSnapshot = z.infer<typeof brandSnapshot>;
 
+/** Compare only supported appearance fields; scope can never be imported away. */
+export function compareAdminBrand(
+  before: AdminBrandConfig,
+  after: AdminBrandConfig,
+) {
+  const fields = [
+    ["siteName", "Admin name"],
+    ["footerLabel", "Footer label"],
+    ["density", "Spacing"],
+    ["typeScale", "Text size"],
+    ["mark", "Identity mark"],
+    ["palette", "Palette"],
+  ] as const;
+  return fields
+    .filter(([key]) => before[key] !== after[key])
+    .map(([key, label]) => ({
+      key,
+      label,
+      before: before[key],
+      after: after[key],
+    }));
+}
+
+export const adminReadingPresets = [
+  {
+    id: "everyday",
+    name: "Everyday",
+    description: "Comfortable spacing, standard text",
+    density: "comfortable",
+    typeScale: "standard",
+  },
+  {
+    id: "reading",
+    name: "Room to read",
+    description: "Comfortable spacing, larger text",
+    density: "comfortable",
+    typeScale: "large",
+  },
+  {
+    id: "focused",
+    name: "Focused work",
+    description: "Compact spacing, standard text",
+    density: "compact",
+    typeScale: "standard",
+  },
+] as const;
+
 /** Finite CSS grammar. User text and imported strings never enter CSS. */
 export function adminBrandCss(config: AdminBrandConfig): string {
   const fontSize = config.typeScale === "large" ? "18px" : "16px";

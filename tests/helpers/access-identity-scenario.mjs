@@ -5,7 +5,10 @@ import { registerHooks, createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { generateKeyPair, exportJWK, SignJWT, decodeJwt } from "jose";
-import { protectAdministration } from "../../src/lib/access-boundary.mjs";
+import {
+  protectAdministration,
+  protectResolvedAdministration,
+} from "../../src/lib/access-boundary.mjs";
 import {
   bindingInsertSql,
   validateSubjectBindingInput,
@@ -116,7 +119,8 @@ const runtime = {
 const { privateKey, publicKey } = await generateKeyPair("RS256");
 const jwk = await exportJWK(publicKey);
 jwk.kid = "synthetic-subject-fixture";
-let identityOverride,
+let identityReplies = [],
+  identityOverride,
   identityFailure = false;
 const oldFetch = globalThis.fetch;
 globalThis.fetch = async (url, options) => {
@@ -128,17 +132,18 @@ globalThis.fetch = async (url, options) => {
     options.headers.Cookie.slice("CF_Authorization=".length),
   );
   return Response.json(
-    identityOverride ?? {
-      user_uuid: payload.sub,
-      email: payload.email,
-      name: "Owner",
-      groups: [],
-      idp: { id: "fictional-idp-a", type: "oidc" },
-      oidc_fields: {
-        iss: upstreamIssuer,
-        sub: payload.upstreamSubject ?? "principal-a",
+    identityReplies.shift() ??
+      identityOverride ?? {
+        user_uuid: payload.sub,
+        email: payload.email,
+        name: "Owner",
+        groups: [],
+        idp: { id: "fictional-idp-a", type: "oidc" },
+        oidc_fields: {
+          iss: upstreamIssuer,
+          sub: payload.upstreamSubject ?? "principal-a",
+        },
       },
-    },
   );
 };
 const signed = ({
@@ -161,18 +166,42 @@ const request = (token) =>
   new Request("https://composer.fictional.invalid/_emdash/api/users", {
     headers: { "Cf-Access-Jwt-Assertion": token },
   });
-const nextUser = async (token) => {
-  const req = request(token);
+const nextUser = async (token, guarded = false, path) => {
+  const originalRequest = request(token);
+  const req = path
+    ? new Request(new URL(path, originalRequest.url), originalRequest)
+    : originalRequest;
+  const sessionValues = new Map([["owner-customisation", "retained"]]);
+  if (guarded) {
+    const rejection = await protectAdministration(req, runtime);
+    if (rejection) return { response: rejection, sessionValues };
+  }
   const context = {
     url: new URL(req.url),
     request: req,
     locals: { emdash: { db, config: { auth } } },
-    session: { set() {} },
+    session: {
+      set(key, value) {
+        sessionValues.set(key, value);
+      },
+      delete(key) {
+        sessionValues.delete(key);
+      },
+    },
   };
-  const response = await onRequest(context, async () =>
-    Response.json({ user: context.locals.user }),
-  );
-  return { response, user: context.locals.user };
+  const response = await onRequest(context, async () => {
+    if (guarded) {
+      const rejected = await protectResolvedAdministration(
+        req,
+        context.locals.user,
+        runtime,
+        context.session,
+      );
+      if (rejected) return rejected;
+    }
+    return Response.json({ user: context.locals.user });
+  });
+  return { response, user: context.locals.user, sessionValues };
 };
 const rows = (table) =>
   sqlite.prepare("SELECT * FROM " + table + " ORDER BY 1").all();
@@ -277,6 +306,70 @@ try {
     idp: { id: accepted.idpId, type: "oidc" },
     oidc_fields: { iss: upstreamIssuer, sub: "principal-a" },
   };
+  // The provider may return a different email on core's second identity fetch.
+  // Reproduce actual EmDash resolving that email to a privileged *other* ID,
+  // then prove the Composer post-authentication boundary denies before routing
+  // and removes core's just-written public-page identity from the session.
+  sqlite.exec(
+    "INSERT INTO users (id,email,name,role) VALUES ('recovery-owner','recovery@fictional.invalid','Recovery',50)",
+  );
+  const recoveryIdentity = {
+    ...baseIdentity,
+    email: "recovery@fictional.invalid",
+  };
+  identityReplies = [recoveryIdentity];
+  assert.equal((await nextUser(await signed())).user.id, "recovery-owner");
+  for (const path of [
+    "/_emdash/api/users",
+    "/_emdash/admin/plugins/composer-stacks/brand",
+    "/_emdash/api/plugins/composer-stacks/team-hub",
+  ]) {
+    identityReplies = [baseIdentity, recoveryIdentity, baseIdentity];
+    const result = await nextUser(await signed(), true, path);
+    assert.equal(result.response.status, 403);
+    assert.equal(result.sessionValues.has("user"), false);
+    assert.equal(result.sessionValues.get("owner-customisation"), "retained");
+  }
+  identityReplies = [];
+  assert.equal((await nextUser(await signed(), true)).response.status, 200);
+  assert.equal(
+    (
+      await protectResolvedAdministration(
+        request(await signed()),
+        { id: "fictional-owner", email: accepted.expectedEmail, role: 10 },
+        runtime,
+      )
+    ).status,
+    403,
+    "stale role refuses",
+  );
+
+  // Owner recovery uses a separately reviewed, enabled owner identity. No
+  // email merge, role elevation or recycled binding restores the lost account.
+  bind({
+    ...accepted,
+    subject: "access-recovery",
+    upstreamSubject: "principal-recovery",
+    userId: "recovery-owner",
+    expectedEmail: "recovery@fictional.invalid",
+  });
+  sqlite.exec("UPDATE users SET disabled=1 WHERE id='fictional-owner'");
+  assert.equal((await nextUser(await signed(), true)).response.status, 403);
+  const recovered = await nextUser(
+    await signed({
+      subject: "access-recovery",
+      upstreamSubject: "principal-recovery",
+      email: "recovery@fictional.invalid",
+    }),
+    true,
+  );
+  assert.equal(recovered.response.status, 200);
+  assert.equal(recovered.user.id, "recovery-owner");
+  sqlite.exec("UPDATE users SET disabled=0 WHERE id='fictional-owner'");
+  sqlite.exec(
+    "DELETE FROM composer_access_subject_bindings WHERE user_id='recovery-owner'; DELETE FROM users WHERE id='recovery-owner'",
+  );
+
   for (const identity of [
     { ...baseIdentity, user_uuid: undefined, id: "access-user-a" }, // installed stale type
     { ...baseIdentity, user_uuid: "access-user-b" },
@@ -422,6 +515,10 @@ try {
       retainedAccounts: true,
       retainedMemberships: true,
       retainedGrants: true,
+      postAuthenticationMismatch:
+        "denied before protected route; session identity cleared",
+      ownerRecovery:
+        "independent prebound owner accepted while primary disabled",
       realProviderClaims: "unverified",
       productionEnforcement: "not enabled",
     }),

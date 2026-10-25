@@ -96,6 +96,12 @@ try {
 } catch {
   execFileSync("cp", ["-R", source, app], { stdio: "ignore" });
 }
+// Fresh worktrees do not carry ignored build.json. Generate the ordinary source
+// identity while the cloned Git pointer still exists, before bare Astro startup.
+execFileSync(process.execPath, [join(app, "scripts/identity.mjs")], {
+  cwd: app,
+  stdio: "pipe",
+});
 rmSync(join(app, ".git"), { recursive: true, force: true });
 // Daemon locks and generated dev state belong to the original checkout.
 rmSync(join(app, ".astro"), { recursive: true, force: true });

@@ -1,0 +1,193 @@
+{
+  "schema": "composer.native-plugin-lifecycle/1",
+  "selected": {
+    "did": "did:plc:p5t4ri3u4rr24wglznjsb5uv",
+    "slug": "publish-check",
+    "version": "0.2.0"
+  },
+  "emdash": "1.3.1",
+  "runner": "0.9.5",
+  "workerd": "1.20261013.1",
+  "startedAt": "2026-10-25T10:57:03.232Z",
+  "cleanup": true,
+  "nativeBinary": "workerd 2026-10-13",
+  "outcome": "local-native-lifecycle",
+  "steps": [
+    {
+      "action": "runner",
+      "available": true,
+      "type": "WorkerdSandboxRunner"
+    },
+    {
+      "action": "install",
+      "role": 10,
+      "status": 403,
+      "code": "FORBIDDEN",
+      "detail": "Insufficient permissions"
+    },
+    {
+      "action": "verify",
+      "role": 50,
+      "status": 200,
+      "code": null,
+      "detail": null
+    },
+    {
+      "action": "verify",
+      "role": 50,
+      "status": 200,
+      "code": null,
+      "detail": null
+    },
+    {
+      "action": "install",
+      "role": 50,
+      "status": 400,
+      "code": "RECORD_VERIFICATION_DRIFT",
+      "detail": "The signed package records changed after review. Verify them again."
+    },
+    {
+      "action": "install",
+      "role": 50,
+      "status": 201,
+      "code": null,
+      "detail": null
+    },
+    {
+      "action": "workerd-health",
+      "healthy": true
+    },
+    {
+      "action": "manifest",
+      "routes": [
+        "0"
+      ],
+      "settings": [
+        "mode",
+        "language",
+        "maxTitle",
+        "titleSuffix",
+        "minDesc",
+        "maxDesc",
+        "minInternalLinks",
+        "siteUrl",
+        "checkTitle",
+        "checkDescription",
+        "checkH1",
+        "checkAlt",
+        "checkHeadingOrder",
+        "checkInternalLinks",
+        "checkLinkQuality"
+      ]
+    },
+    {
+      "action": "settings-read",
+      "role": 50,
+      "status": 200,
+      "code": null,
+      "detail": null
+    },
+    {
+      "action": "settings-write",
+      "role": 50,
+      "status": 200,
+      "code": null,
+      "detail": null
+    },
+    {
+      "action": "disable",
+      "role": 50,
+      "status": 200,
+      "code": null,
+      "detail": null
+    },
+    {
+      "action": "enable",
+      "role": 50,
+      "status": 200,
+      "code": null,
+      "detail": null
+    },
+    {
+      "action": "update",
+      "role": 50,
+      "status": 400,
+      "code": "RECORD_VERIFICATION_DRIFT",
+      "detail": "The signed package records changed after review. Verify them again."
+    },
+    {
+      "action": "update",
+      "role": 50,
+      "status": 200,
+      "code": null,
+      "detail": null
+    },
+    {
+      "action": "settings-read",
+      "role": 50,
+      "status": 200,
+      "code": null,
+      "detail": null
+    },
+    {
+      "action": "update",
+      "role": 50,
+      "status": 400,
+      "code": "DOWNGRADE_NOT_ALLOWED",
+      "detail": "An update cannot target a version older than the installed one"
+    },
+    {
+      "action": "uninstall",
+      "role": 50,
+      "status": 200,
+      "code": null,
+      "detail": null
+    },
+    {
+      "action": "install",
+      "role": 50,
+      "status": 201,
+      "code": null,
+      "detail": null
+    },
+    {
+      "action": "settings-read",
+      "role": 50,
+      "status": 200,
+      "code": null,
+      "detail": null
+    },
+    {
+      "action": "uninstall",
+      "role": 50,
+      "status": 200,
+      "code": null,
+      "detail": null
+    }
+  ],
+  "verification": {
+    "profileCid": "bafyreihe2zbg2lxktq5zgw5hvivjy7uwwfi3fjqtzq4a7sobequwkqoq7a",
+    "releaseCid": "bafyreiaeilifez6sbsqg7odgonxq4jmqcph77yq6pqf2czins5d5poiwp4",
+    "provenance": "absent-optional",
+    "policy": {
+      "requireProvenance": false,
+      "confirmation": "escalation-only",
+      "approvers": []
+    }
+  },
+  "updateVerification": {
+    "profileCid": "bafyreihe2zbg2lxktq5zgw5hvivjy7uwwfi3fjqtzq4a7sobequwkqoq7a",
+    "releaseCid": "bafyreicpqwjza2wvv2ocmmbrvcja63samif4csc6727dcb5zo4e2kgeh54",
+    "provenance": "absent-optional",
+    "policy": {
+      "requireProvenance": false,
+      "confirmation": "escalation-only",
+      "approvers": []
+    }
+  },
+  "pluginId": "r_hmnzxttniwtlt4hn",
+  "registryFixture": false,
+  "retainedSettingsRows": 15,
+  "CloudflareLoader": "not tested",
+  "finishedAt": "2026-10-25T10:57:32.183Z"
+}

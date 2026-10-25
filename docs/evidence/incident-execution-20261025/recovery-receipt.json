@@ -1,0 +1,81 @@
+{
+  "version": "composer.isolated-recovery/1",
+  "environment": "owned-local-sqlite-filesystem",
+  "providerCalls": 0,
+  "observations": [
+    {
+      "stage": "baseline",
+      "path": "/content/public?actor=owner",
+      "status": 200,
+      "sha256": "18f66bf62040d6942b29e65b868ce15b4580c43f61019ca0d392b77e5f996d47"
+    },
+    {
+      "stage": "failure",
+      "path": "/content/public?actor=owner",
+      "status": 500,
+      "sha256": "91d355c82f197e5c525fbca5db1708e1c65fbe742fba92d064d78506fb82adeb"
+    },
+    {
+      "stage": "code-rollback-only",
+      "path": "/content/public?actor=owner",
+      "status": 200,
+      "sha256": "6f362f2ccd7bebd558c551529a56131d8eb669ef97d728565bd5ddcd3e939d02"
+    },
+    {
+      "stage": "code-rollback-only",
+      "path": "/media/public?actor=owner",
+      "status": 200,
+      "sha256": "eb7cc357b315874dc7bea224e29f479e5ac218ed94a1bd3da46fe37a0f93e248"
+    },
+    {
+      "stage": "content-restored",
+      "path": "/content/public?actor=owner",
+      "status": 200,
+      "sha256": "18f66bf62040d6942b29e65b868ce15b4580c43f61019ca0d392b77e5f996d47"
+    },
+    {
+      "stage": "content-restored-media-still-corrupt",
+      "path": "/media/public?actor=owner",
+      "status": 200,
+      "sha256": "eb7cc357b315874dc7bea224e29f479e5ac218ed94a1bd3da46fe37a0f93e248"
+    },
+    {
+      "stage": "object-restored",
+      "path": "/media/public?actor=owner",
+      "status": 200,
+      "sha256": "457b9af4a451caf9e3e40fe1fe5aacd0914e2281122dbf0f6850b4139b91bf62"
+    },
+    {
+      "stage": "revocation-retained",
+      "path": "/content/public?actor=revoked",
+      "status": 403,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "stage": "private-draft-retained",
+      "path": "/content/private?actor=owner",
+      "status": 404,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "stage": "deletion-retained",
+      "path": "/content/deleted?actor=owner",
+      "status": 404,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "cleanup": true,
+  "result": {
+    "codeRollback": "restored-release-only",
+    "databaseRestore": "application-content-only",
+    "objectRecovery": "original-bytes-restored",
+    "revocation": "retained",
+    "privateDraft": "nonpublic",
+    "deletedRecord": "not-resurrected"
+  },
+  "limits": [
+    "Owned SQLite and filesystem object fixtures, not a Cloudflare D1/R2 provider restore.",
+    "Selective content restore requires an app-specific schema and current deletion/access ledger. Never apply this fictional SQL to production.",
+    "No production database, media, credential or access policy was read or modified."
+  ]
+}

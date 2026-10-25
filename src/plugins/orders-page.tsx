@@ -10,6 +10,7 @@ import {
 import { ordersCall } from "./orders/api";
 import { workspaceSelection } from "./stacks/workspace-scope";
 import "./orders-page.css";
+import { ShopifyCataloguePanel } from "./shopify-catalogue-panel";
 
 const scenarioLabels: Record<FixtureScenario, string> = {
   "checkout-unpaid": "Completed checkout · payment pending",
@@ -217,8 +218,14 @@ export function Orders({ search }: { search: string }) {
           "Confirming the selected workspace…"
         )}
       </p>
+      {snapshot && (
+        <ShopifyCataloguePanel
+          key={snapshot.workspace.id}
+          workspace={snapshot.workspace.id}
+        />
+      )}
       <p className="or-proof">
-        <strong>Fictional order lab. No merchant is connected.</strong> These
+        <strong>Fictional order lab. These orders are simulated.</strong> These
         records exercise the shared order and recovery contract. They are
         fixture proof, with no hosted provider checkout, webhook verification or
         financial transaction.

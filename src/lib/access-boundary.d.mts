@@ -9,3 +9,10 @@ export function protectAdministration(
   request: Request,
   runtime: AccessRuntime,
 ): Promise<Response | null>;
+
+export function protectResolvedAdministration(
+  request: Request,
+  user: { id: string; email: string; role: number } | null | undefined,
+  runtime: AccessRuntime,
+  session?: { delete(key: string): void },
+): Promise<Response | null>;

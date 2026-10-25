@@ -220,3 +220,52 @@
     gap: 12px;
   }
 }
+
+.th-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px 16px;
+}
+.th-filters label {
+  margin-bottom: 0;
+}
+.team-hub .th-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  grid-column: 1 / -1;
+  min-height: 44px;
+}
+.th-checkbox input {
+  width: 20px;
+  min-height: 20px;
+  accent-color: var(--color-action);
+}
+.th-start {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.team-hub .th-results {
+  margin: 12px 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+.team-hub .th-open,
+.th-reading h3 {
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+.team-hub .th-open[aria-current="true"] {
+  color: var(--color-accent);
+}
+.th-reading p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 450px) {
+  .th-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

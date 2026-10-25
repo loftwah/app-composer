@@ -1,0 +1,142 @@
+{
+  "results": [
+    {
+      "project": "devops-roundrobin",
+      "source": "d4c0d65fbc6f4240bdb80c84221f2133047bb63e",
+      "client": "codex",
+      "checkBefore": {
+        "exit": 0,
+        "signal": null,
+        "elapsedMs": 2210,
+        "logHash": "e9b85db7323988222aed98c0144ab2b9881b3d8bf7e6dd103dc9f89e21006506"
+      },
+      "assessment": {
+        "exit": 0,
+        "signal": null,
+        "elapsedMs": 74735,
+        "logHash": "f2ee557a208eb1781ccebba8dc4c03c1a4d545e2eef76945b2e986c648f2b596"
+      },
+      "checkAfter": {
+        "exit": 0,
+        "signal": null,
+        "elapsedMs": 314,
+        "logHash": "de2b8aa3cb9667b1540ea3253f3da5c7fb3dc2d973eccd5a693ee59a77dffac2"
+      },
+      "changedFiles": [],
+      "ownerDraftPreserved": true,
+      "originalPreserved": true,
+      "manualInterventions": 0,
+      "coverage": "tracked and nonignored untracked files, plus explicitly selected owner files; other ignored data/configuration excluded",
+      "preservationTool": "scripts/lib/project-preservation.mjs",
+      "preservation": {
+        "comparison": {
+          "unchanged": true,
+          "sourceChanged": false,
+          "statusChanged": false,
+          "changedFiles": []
+        },
+        "ownerDraftBefore": "fea6537280be71ea000914606c3f0c0a9cc19964caac328f73f36250d153c000",
+        "ownerDraftAfter": "fea6537280be71ea000914606c3f0c0a9cc19964caac328f73f36250d153c000"
+      },
+      "assessmentSha256": "4cb5fb4b242f4ca780eacbf07423d5ae190c32927cf6e0d26514acaebd74d9bb"
+    },
+    {
+      "project": "app-composer-paperwork",
+      "source": "ab6e77e5bd7a1627dfe6481823c90b77888818c9",
+      "client": "opencode",
+      "checkBefore": {
+        "exit": 0,
+        "signal": null,
+        "elapsedMs": 629,
+        "logHash": "813259ae6cd1597f3fb3a90768c33a1b42241eb02822b22b9177da6a46867c02"
+      },
+      "assessment": {
+        "exit": 0,
+        "signal": null,
+        "elapsedMs": 122270,
+        "logHash": "bdbfa0eeadb82bbc303b2cb9867a46b253c9180b5b71143e623469443679a8eb"
+      },
+      "checkAfter": {
+        "exit": 0,
+        "signal": null,
+        "elapsedMs": 649,
+        "logHash": "382fd3f7b07e45a3b91febe1815886cae05107930eadfed240621b106e1c798f"
+      },
+      "changedFiles": [],
+      "ownerDraftPreserved": true,
+      "originalPreserved": true,
+      "manualInterventions": 0,
+      "coverage": "tracked and nonignored untracked files, plus explicitly selected owner files; other ignored data/configuration excluded",
+      "preservationTool": "scripts/lib/project-preservation.mjs",
+      "preservation": {
+        "comparison": {
+          "unchanged": true,
+          "sourceChanged": false,
+          "statusChanged": false,
+          "changedFiles": []
+        },
+        "ownerDraftBefore": "fea6537280be71ea000914606c3f0c0a9cc19964caac328f73f36250d153c000",
+        "ownerDraftAfter": "fea6537280be71ea000914606c3f0c0a9cc19964caac328f73f36250d153c000"
+      },
+      "assessmentSha256": "40063317ba0c11d74bb0742a782f50408b4b1a49f49a7c29b6c48bc0b1b46ed6"
+    },
+    {
+      "project": "app-composer-launch-kit",
+      "source": "4e248c0353658569d703db401be226e414c656ef",
+      "client": "codex",
+      "checkBefore": {
+        "exit": 0,
+        "signal": null,
+        "elapsedMs": 1201,
+        "logHash": "023cdf16333ba2e46930e5041de1227fd6fcb82d3d2643784db536175708a459"
+      },
+      "assessment": {
+        "exit": 0,
+        "signal": null,
+        "elapsedMs": 67381,
+        "logHash": "4dbc2080094d17383c645de0b130e3885d98a3447713cb78e8af1562130b5474"
+      },
+      "checkAfter": {
+        "exit": 0,
+        "signal": null,
+        "elapsedMs": 1242,
+        "logHash": "e8a84590660898bd04a650f0a39f790f47a2687a3f6f565a8093125d542fd1dc"
+      },
+      "changedFiles": [],
+      "ownerDraftPreserved": true,
+      "originalPreserved": true,
+      "manualInterventions": 0,
+      "coverage": "tracked and nonignored untracked files, plus explicitly selected owner files; other ignored data/configuration excluded",
+      "preservationTool": "scripts/lib/project-preservation.mjs",
+      "preservation": {
+        "comparison": {
+          "unchanged": true,
+          "sourceChanged": false,
+          "statusChanged": false,
+          "changedFiles": []
+        },
+        "ownerDraftBefore": "fea6537280be71ea000914606c3f0c0a9cc19964caac328f73f36250d153c000",
+        "ownerDraftAfter": "fea6537280be71ea000914606c3f0c0a9cc19964caac328f73f36250d153c000"
+      },
+      "assessmentSha256": "34d7e40daa333ccd587a78f8c69662cc9a388ca579d287529a2b4870e63bf34d"
+    }
+  ],
+  "cleanup": true,
+  "schema": "composer.project-adoption-evaluation/1",
+  "clients": {
+    "codex": "0.145.0 / gpt-5.6-sol / ephemeral workspace-write network-enabled sandbox",
+    "opencode": "2.1.4 / opencode-go/deepseek-v4.1-flash / standalone Plan conversation"
+  },
+  "scope": "existing local committed snapshots; synthetic ignored owner draft; no provider mutations or independent releases",
+  "preliminaryCorrections": [
+    "dependency-directory symlink fingerprint refused by initial harness; corrected metadata-only link hashing",
+    "unfenced Go command punctuation produced no matching packages; exact command fence now maintained",
+    "global Git ignore omitted synthetic draft from preliminary byte coverage; explicit owner-file hashing now required",
+    "full Launch Kit test command included browser work; corrected trial uses23 named nonbrowser cases",
+    "initial clients wrote12 generic shared-temp public-response files; exact invocation/birthtime/inode/mtime/no-handle checks preceded removal"
+  ],
+  "qualifiedFailures": [
+    "Codex Go command refused by sandbox global build-cache write boundary; independent actual before/after package tests pass; no client test-pass claim"
+  ],
+  "independentProjectChanges": []
+}

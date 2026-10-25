@@ -10,7 +10,7 @@ const denied = (message) =>
       "X-Content-Type-Options": "nosniff",
     },
   });
-export async function protectAdministration(request, runtime) {
+async function administrationGuard(request, runtime, resolved) {
   let path = new URL(request.url).pathname;
   // Astro repeatedly decodes, collapses separators and resolves dot segments.
   // Reject ambiguous forms before delegation; keep ordinary Unicode/unreserved paths.
@@ -59,9 +59,43 @@ export async function protectAdministration(request, runtime) {
       audience,
       algorithms: ["RS256"],
     });
-    await assertAccessSubjectBinding(payload, jwt, runtime);
+    const binding = await assertAccessSubjectBinding(payload, jwt, runtime);
+    if (
+      resolved &&
+      binding &&
+      (resolved.user?.id !== binding.userId ||
+        resolved.user?.email !== binding.email ||
+        resolved.user?.role !== binding.role)
+    ) {
+      throw new Error("Resolved account does not match the immutable binding");
+    }
     return null;
   } catch {
     return denied("Access identity was not accepted");
   }
+}
+
+export async function protectAdministration(request, runtime) {
+  return administrationGuard(request, runtime);
+}
+
+// Runs after installed EmDash authentication and before Composer route dispatch.
+// EmDash fetches get-identity again and resolves by email; the resolved local ID
+// must still be the exact bound, enabled account with its current local role.
+export async function protectResolvedAdministration(
+  request,
+  user,
+  runtime,
+  session,
+) {
+  if (
+    runtime.CF_ACCESS_SUBJECT_BINDING === undefined ||
+    runtime.CF_ACCESS_SUBJECT_BINDING === "compatibility"
+  )
+    return null;
+  const rejection = await administrationGuard(request, runtime, { user });
+  // Installed middleware persists a public-page identity before next(). Remove
+  // that identity on refusal; retain every unrelated owner session value.
+  if (rejection) session?.delete("user");
+  return rejection;
 }

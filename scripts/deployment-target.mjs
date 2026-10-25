@@ -1,5 +1,8 @@
 import {mkdirSync,mkdtempSync,writeFileSync,unlinkSync,rmdirSync} from 'node:fs';
 import {join} from 'node:path';
+export function assertFreshPushedMain(sha, remoteRef) {
+ if(!/^[a-f0-9]{40}$/.test(sha)||typeof remoteRef!=='string'||remoteRef.trim()!==`${sha}\trefs/heads/main`)throw Error('Remote main changed or could not be verified. Reconstruct the current release before any remote mutation.');
+}
 export function assertProductionEnvironment(environment) {
  if(environment.CLOUDFLARE_ENV) throw Error('Production deployment refuses a selected Cloudflare environment.');
 }

@@ -338,8 +338,40 @@ export function evaluatePlugin(
       : reasons.some((value) => value.state === "AMBER")
         ? "AMBER"
         : "UNKNOWN";
+  const dimension = (codes: string[]): TrustState => {
+    const relevant = reasons.filter((reason) =>
+      codes.some((code) => reason.code.startsWith(code)),
+    );
+    return relevant.some((reason) => reason.state === "RED")
+      ? "RED"
+      : relevant.some((reason) => reason.state === "AMBER")
+        ? "AMBER"
+        : "UNKNOWN";
+  };
   return {
     state,
+    security: dimension([
+      "IDENTITY_",
+      "RELEASE_",
+      "ARTIFACT_",
+      "DIGEST_",
+      "EGRESS_",
+      "WRITE_",
+      "PROVENANCE_",
+      "ADVISORY_",
+      "CAPABILITIES_",
+      "INSPECTION_",
+    ]),
+    maintenance: dimension([
+      "COMPAT_",
+      "HISTORY_",
+      "RECENT_",
+      "CONTACT_",
+      "SOURCE_",
+      "LICENSE_",
+      "INSTALL_",
+    ]),
+    freshness: stale ? ("stale" as const) : ("dated" as const),
     reasons,
     compatible,
     digestMatches: Boolean(

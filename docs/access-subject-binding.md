@@ -156,3 +156,79 @@ boundary/identity tests passed. `pnpm check:types` passed with zero errors and
 warnings (63 informational hints), and `pnpm build` passed its publication guard
 (1,266 files and 150 archive members). These qualify local source/build only;
 the full release gate and real provider acceptance remain separate.
+
+## Completion run: resolved-account guard and owner recovery
+
+The installed middleware makes its own second `get-identity` request after the
+outer Worker guard, selects a local account by email, and persists that identity
+in the Astro session before calling Composer middleware. A provider response
+changing between those reads could previously select another local account
+after the outer check passed. The maintained synthetic fixture now reproduces
+that path with two existing accounts.
+
+Composer middleware now checks the resolved **local user ID, exact email and
+current local role** against the active verified binding before dispatching a
+protected Composer route. Mismatch, missing user, changed role, revoked binding
+or failed current identity check refuses. The refusal removes only the
+`user` session value written by EmDash; unrelated session customisation remains.
+Compatibility mode retains its previous behaviour. Enforcement adds one bounded
+identity lookup after native authentication; its production latency has not been
+measured.
+
+The replay exercises the actual installed EmDash middleware and Cloudflare
+authentication on users, Brand Studio and Team Hub protected paths. A changing
+second identity response resolves to the wrong privileged local ID without the
+new check and returns 403 with no retained session identity when guarded.
+A stale local role is also refused. This is a Composer dispatch boundary test;
+it does not establish live Access, MFA or physical-device acceptance.
+
+The local operator command also supports `--revoke` using the **same complete
+reviewed identity flags** as `--bind`. `--reviewed-by` identifies the original
+reviewed binding to compare; it is not an authentication credential or a newly
+recorded revocation actor. The command sets `revoked_at` only when every reviewed
+identifier, current account/email and active binding matches. It retains the row
+and original review, changes no account/membership/grant, refuses replay and
+never reassigns or clears a revoked association. `--bind --revoke` is refused.
+For an actual deployment, preserve the authorised change receipt separately
+with the revoking operator and reason. This command remains local SQLite only.
+
+### Reversible enforcement rehearsal
+
+1. On an explicitly selected isolated environment, preserve a database backup,
+   runtime configuration, current account IDs/roles/memberships/grants and
+   binding rows. Verify actual immutable upstream claims; synthetic fixture
+   claims are insufficient to select production enforcement.
+2. Explicitly bind the current owner and a separately authorised recovery owner
+   to **different existing local accounts and different immutable principals**.
+   Neither account is created or promoted by the binding tool. Independently
+   verify both identities before changing the selected environment to `enforce`.
+3. Exercise both protected admin and private APIs, mismatched/recycled identity,
+   missing claims, current role reduction, disabled account and revoked binding.
+   The recovery owner must enter while the primary account is disabled; the
+   primary remains denied. The local fixture now proves this exact separation.
+4. For removal, first check the independently bound recovery owner, then revoke
+   the primary's exact reviewed binding and remove its app/workspace access
+   through their existing owner operations. Retain content and binding history.
+   Upstream Access admission/session revocation is a separate authorised action.
+5. If the actual owner journey fails, use the previously reviewed deployment
+   recovery path to restore the prior runtime mode. This restores the known
+   email-resolution risk and must be recorded as a rollback, never success.
+   Preserve accounts and history; do not email-merge, delete/recycle bindings or
+   weaken the private Team Hub profile to regain entry.
+
+**Upstream remediation remains necessary.** EmDash core still resolves external
+users by email and may auto-provision/update or persist a session before Composer
+gets control. The new check prevents rejected identities reaching Composer
+protected handlers and clears their session identity; it cannot undo prior core
+provisioning side effects or promise other EmDash consumers use this boundary.
+Core needs durable immutable-principal resolution and explicit account linking
+before those side effects. Production immutable claims, owner recovery, IdP
+passwordless/mandatory-MFA and revocation remain unqualified; no production mode,
+policy, binding, credential, account or data was changed in this run.
+
+Completion-run local verification: `node --test tests/access-boundary.test.mjs
+tests/access-identity.test.mjs` passed 4 tests, including installed integration,
+CLI exact matching/revocation and owned temporary-root removal. `pnpm check:types`
+passed with zero errors/warnings. `pnpm build` passed with the publication guard
+(1,280 files, 150 archive members). Fixture keys/database are in memory and CLI
+SQLite is removed through the registered owned-root cleanup.

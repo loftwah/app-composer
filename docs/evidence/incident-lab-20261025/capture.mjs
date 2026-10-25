@@ -3,13 +3,19 @@ import assert from "node:assert/strict";
 import { chromium } from "/Users/deanlofts/.npm/_npx/9833c18b2d85bc59/node_modules/playwright/index.mjs";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { createHash } from "node:crypto";
 import {
   provisionAgentGrant,
   createAgentBriefing,
   submitAgentProposal,
+  prepareAgentHandoff,
 } from "../../../src/lib/agent-proposals.ts";
+import { executeCaptionRecovery } from "../../../scripts/lib/incident-execution.mjs";
+import {
+  inspectSource,
+  checkSource,
+} from "../../../scripts/lib/agent-source.mjs";
 import { incidentSitrep } from "../../../src/lib/incident-contract.ts";
 
 const root = process.argv[2],
@@ -29,7 +35,7 @@ const receipt = {
   origin: fixture.origin,
   seams: fixture.seams,
   warning:
-    "Fictional local D1 and native EmDash authentication with a virtual authenticator. Actual injected localhost fault only. No Access/real MFA, production, external email, PagerDuty or agent execution. Recovery is manual lab configuration restoration, not autonomous execution.",
+    "Fictional local D1 and native EmDash authentication with a virtual authenticator. Actual injected localhost fault only. No Access/real MFA, production, external email, PagerDuty or agent execution. Recovery uses an explicitly invoked finite local action, not production or autonomous authority.",
   screenshots: [],
   checks: {},
   errors: [],
@@ -204,18 +210,16 @@ try {
   insert.run("fictional-team-b", controlCaption);
   const routePath = "src/pages/incident-lab-canary/[...path].ts";
   const routeBytes = readFileSync(join(fixture.app, routePath));
-  const source = {
-    kind: "local-path",
-    path: routePath,
-    contentHash: createHash("sha256").update(routeBytes).digest("hex"),
-    files: 1,
-    bytes: routeBytes.length,
-    checkedAt: now,
-  };
+  const source = inspectSource(
+    { kind: "local-path", path: routePath },
+    fixture.app,
+    now,
+  );
+  const routeSha = createHash("sha256").update(routeBytes).digest("hex");
   receipt.target = {
     runtime: "Astro Cloudflare adapter / local workerd / local D1",
     sourcePath: routePath,
-    sourceSha256: source.contentHash,
+    sourceSha256: routeSha,
     databaseScope: "incident_lab_canary / fictional-team-a",
     controlScope: "incident_lab_canary / fictional-team-b",
     proposalApp: "guestbook",
@@ -334,7 +338,7 @@ try {
       "No production/provider outage or notification delivery is exercised; the author of this controlled fault is also the investigator.",
     ],
     nextUpdate:
-      "After owner review, manual configuration restoration and repeated HTTP recovery checks.",
+      "After owner review, explicit guarded local configuration restoration and repeated HTTP recovery checks.",
     recovery: "unverified",
     notification: "not-sent",
   });
@@ -359,7 +363,7 @@ try {
     change: {
       kind: "actions",
       summary:
-        "Investigate the actual localhost caption failure before manual recovery.",
+        "Investigate the actual localhost caption failure before guarded recovery.",
       actions: [
         {
           op: "investigate",
@@ -470,13 +474,18 @@ try {
         change: {
           ...command.change,
           summary:
-            "Restore the prior caption manually after reviewing the actual local evidence.",
+            "Restore the prior caption through the guarded local action after reviewing the actual local evidence.",
           actions: [
             {
               op: "configure",
-              target: fixture.origin + "/incident-lab-canary/page",
-              detail:
-                "Operator restores fictional-team-a caption to the recorded baseline only while revision=2 and caption IS NULL; verify three page responses and the unrelated control. No execution adapter.",
+              target: "incident-canary.caption",
+              detail: JSON.stringify({
+                version: "composer.caption-recovery/1",
+                team: "fictional-team-a",
+                expectedRevision: 2,
+                expectedCaption: null,
+                caption: originalCaption,
+              }),
             },
           ],
           incident: {
@@ -513,7 +522,7 @@ try {
   await page
     .getByRole("textbox", { name: "Reason", exact: true })
     .fill(
-      "Reviewed actual localhost failure, source and unchanged control. Approve only the documented manual lab configuration restore; execution adapter remains unconnected and recovery unverified.",
+      "Reviewed actual localhost failure, source and unchanged control. Approve only the documented local caption action; execution still requires explicit owner-local invocation and independent verification.",
     );
   await page
     .getByRole("button", {
@@ -557,27 +566,59 @@ try {
     2,
   );
   receipt.checks.preserved = { ...saved, versions: 2, reviews: 2 };
-  // Approval above records a decision only. This explicit local operator action
-  // performs the exact guarded restoration; no proposal execution adapter runs.
-  assert.equal(
-    (await sample("accepted-before-manual-recovery", "page")).status,
-    500,
+  // Native approval is still decision only. An explicit owner-local invocation
+  // consumes a prepared handoff, repeats source/grant checks and performs one CAS.
+  assert.equal((await sample("accepted-before-execution", "page")).status, 500);
+  await prepareAgentHandoff(
+    db,
+    {
+      action: "handoff",
+      workspace: workspace.id,
+      proposal: revised.id,
+      environment: environment.id,
+      actor: owner,
+      expectedDigest: revised.digest,
+      destination: "existing-delivery-flow",
+    },
+    { sourceCheck: checkSource(source, fixture.app, new Date().toISOString()) },
   );
-  const restore = sqlite
-    .prepare(
-      "UPDATE incident_lab_canary SET caption=?,revision=revision+1 WHERE team=? AND caption IS NULL AND revision=2",
-    )
-    .run(originalCaption, "fictional-team-a");
-  assert.equal(Number(restore.changes), 1);
-  receipt.manualRecovery = {
-    actor: "authorized local drill harness acting as operator",
-    at: new Date().toISOString(),
-    acceptedDigest: revised.digest,
-    beforeRevision: 2,
-    afterRevision: 3,
-    executionAdapter: "unconnected",
-    sourceChanged: false,
+  writeFileSync(
+    join(root, "incident-target.json"),
+    JSON.stringify({
+      version: "composer.incident-execution-target/1",
+      account: environment.account,
+      environment: environment.id,
+      workspace: workspace.id,
+      app: "guestbook",
+      database: relative(root, fixture.database),
+      sourceRoot: "app",
+      origin: fixture.origin,
+      baseline: baseline.bodySha256,
+      control: controlBefore.bodySha256,
+    }),
+  );
+  const selection = {
+    root,
+    workspace: workspace.id,
+    proposal: revised.id,
+    expectedDigest: revised.digest,
+    actor: owner.id,
+    confirmOwner: true,
+    mode: "execute",
   };
+  await assert.rejects(
+    executeCaptionRecovery({ ...selection, expectedDigest: first.digest }),
+    { code: "EXACT_APPROVAL_REQUIRED" },
+  );
+  receipt.execution = await executeCaptionRecovery(selection);
+  assert.equal(receipt.execution.state, "recovered");
+  receipt.duplicateExecution = await executeCaptionRecovery(selection);
+  assert.equal(receipt.duplicateExecution.duplicate, true);
+  assert.equal(
+    sqlite.prepare("SELECT COUNT(*) n FROM incident_execution_receipts").get()
+      .n,
+    1,
+  );
   const recovered = [];
   for (let index = 0; index < 3; index++) {
     const check = await sample("recovered-" + (index + 1), "page");
@@ -595,7 +636,7 @@ try {
     createHash("sha256")
       .update(readFileSync(join(fixture.app, routePath)))
       .digest("hex"),
-    source.contentHash,
+    routeSha,
   );
   const recoveryEvidence = recovered.map((item, index) => ({
     id: "recovery-0" + (index + 1),
@@ -626,8 +667,8 @@ try {
     ],
     stepsTaken: [
       ...sitrep.stepsTaken,
-      "Owner sent the original investigation back, reviewed revision 2 and approved the exact manual lab restoration.",
-      "Operator manually restored the prior caption with a D1 revision guard; three real page responses matched the baseline and Team B stayed unchanged.",
+      "Owner sent the original investigation back, reviewed revision 2 and approved the exact guarded local restoration.",
+      "Operator restored through the finite local action the prior caption with a D1 revision guard; three real page responses matched the baseline and Team B stayed unchanged.",
     ],
     hypotheses: [
       {
@@ -655,13 +696,13 @@ try {
         change: {
           ...command.change,
           summary:
-            "Record verified local recovery after manual caption restoration.",
+            "Record verified local recovery after the guarded local caption action.",
           actions: [
             {
               op: "verify",
               target: fixture.origin + "/incident-lab-canary/page",
               detail:
-                "Record the three observed HTTP 200 results and unchanged control after explicit manual configuration restoration; no additional action requested.",
+                "Record the three observed HTTP 200 results and unchanged control after explicit explicit guarded local configuration restoration; no additional action requested.",
             },
           ],
           incident: finalSitrep,
@@ -687,7 +728,7 @@ try {
     assert.equal(await page.locator("vite-error-overlay").count(), 0);
     receipt.checks.expectedCanaryDevOverlay = {
       cause: "controlled nullable-caption exception",
-      recoveredBy: "reload real native route after manual recovery",
+      recoveredBy: "reload real native route after guarded recovery",
     };
   }
   await page.getByRole("button", { name: "Refresh", exact: true }).click();

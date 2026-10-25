@@ -33,6 +33,10 @@ test('the public agent assessment is read-only, grounded in the real URL and sto
   const withProject = renderPrompt('assess', { project: '/fictional/field-notes', constraints: 'Keep the current stack' });
   assert.ok(withProject.text.includes('/fictional/field-notes'));
   assert.ok(withProject.text.includes('Keep the current stack'));
+  const exact = renderPrompt('assess', { checks: 'go test ./...' });
+  assert.ok(exact.text.includes('```sh\ngo test ./...\n```'));
+  assert.match(exact.text, /clean Git status does not cover ignored owner drafts/);
+  assert.match(exact.text, /difference alone does not authorise re-pinning/);
 });
 
 test('completed change and self-use prompts preserve multiline intent and identify missing required answers', () => {

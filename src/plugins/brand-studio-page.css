@@ -65,6 +65,77 @@
   gap: 48px;
   margin-top: 32px;
 }
+.bs-presets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.composer-brand-studio .bs-presets button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 6px;
+  padding: 12px;
+}
+.bs-presets button span {
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.composer-brand-studio .bs-presets button[aria-pressed="true"] {
+  border-color: var(--color-kumo-focus, #c74400);
+  outline: 1px solid var(--color-kumo-focus, #c74400);
+}
+.bs-differences {
+  margin: 16px 0 24px;
+}
+.bs-differences > div {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-kumo-line, currentColor);
+}
+.bs-differences dt {
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+.bs-differences dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.bs-palette {
+  margin: 24px 0 32px;
+}
+.bs-palette summary {
+  cursor: pointer;
+  min-height: 44px;
+  font-weight: 600;
+}
+.bs-palette dl > div {
+  margin-bottom: 14px;
+}
+.bs-palette dd {
+  margin: 6px 0 0;
+  font-size: 0.9rem;
+}
+.bs-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-inline-end: 8px;
+  border: 1px solid currentColor;
+}
+.bs-signal {
+  background: #fc5b05;
+}
+.bs-action {
+  background: #c74400;
+}
+.bs-restore {
+  padding-block: 24px;
+  border-block: 1px solid var(--color-kumo-line, currentColor);
+  margin-bottom: 24px;
+}
 .bs-form fieldset {
   border: 0;
   padding: 0;
@@ -222,6 +293,9 @@
   white-space: nowrap;
 }
 @media (max-width: 850px) {
+  .bs-presets {
+    grid-template-columns: 1fr;
+  }
   .composer-brand-studio {
     padding: 20px;
   }

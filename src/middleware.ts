@@ -1,5 +1,9 @@
 import { defineMiddleware } from "astro:middleware";
 import { env } from "cloudflare:workers";
+import {
+  protectResolvedAdministration,
+  type AccessRuntime,
+} from "./lib/access-boundary.mjs";
 import { teamHubPageGate, type TeamHubRuntime } from "./lib/team-hub";
 import {
   prepareAdminBrand,
@@ -8,13 +12,25 @@ import {
   type BrandRuntime,
 } from "./lib/admin-brand";
 
-const runtime = env as unknown as BrandRuntime & TeamHubRuntime & {
-  CF_ACCESS_TEAM_DOMAIN?: string;
-  CF_ACCESS_AUDIENCE?: string;
-  GUESTBOOK?: { fetch(req: Request): Promise<Response> };
-  SHOWCASE?: { fetch(req: Request): Promise<Response> };
-};
+const runtime = env as unknown as BrandRuntime &
+  TeamHubRuntime &
+  AccessRuntime & {
+    CF_ACCESS_TEAM_DOMAIN?: string;
+    CF_ACCESS_AUDIENCE?: string;
+    GUESTBOOK?: { fetch(req: Request): Promise<Response> };
+    SHOWCASE?: { fetch(req: Request): Promise<Response> };
+  };
 export const onRequest = defineMiddleware(async (context, next) => {
+  const identityRejection = await protectResolvedAdministration(
+    context.request,
+    context.locals.user,
+    runtime,
+    context.session,
+  );
+  if (identityRejection) {
+    context.locals.user = undefined;
+    return identityRejection;
+  }
   const app = context.url.pathname.match(
     /^\/(guestbook|showcase)(?:\/|$)/,
   )?.[1];

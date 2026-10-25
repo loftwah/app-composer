@@ -203,7 +203,7 @@ export function Proposals({
       setReason("");
       setNotice(
         decision === "accept"
-          ? "Accepted the exact digest. Nothing was executed. Prepare a separate handoff only when the existing release flow is ready."
+          ? "Accepted the exact digest. Approval itself executes nothing. Prepare a separate handoff only when the authorised flow is ready."
           : decision === "reject"
             ? "Rejected. The proposer must start a new briefing and proposal."
             : "Changes requested. The next version must answer this reason and will receive a new digest.",
@@ -653,7 +653,8 @@ export function Proposals({
                       <p>
                         Accepted by {current.accepted.by} at{" "}
                         {current.accepted.at} UTC · version{" "}
-                        {current.accepted.version}. Nothing was executed.
+                        {current.accepted.version}. Approval itself performs no
+                        execution.
                       </p>
                       {!current.handoff && canAccept && (
                         <button

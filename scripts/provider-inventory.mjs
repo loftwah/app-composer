@@ -12,7 +12,7 @@
 // under this repository's ignored output/ directory, with provider error text
 // redacted. The token is read from CLOUDFLARE_API_TOKEN and never printed.
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, statSync } from "node:fs";
 import { resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -29,6 +29,7 @@ import {
   expectedProviderInventory,
 } from "../src/lib/provider-expected.ts";
 import { buildProviderCheck } from "../src/lib/provider-inventory-check.ts";
+import { providerOperations } from "../src/lib/provider-operations.ts";
 import { providerCheck } from "../src/lib/provider-inventory-contract.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -53,6 +54,7 @@ if (
   const allowed = new Set([
     "--out",
     "--snapshot",
+    "--previous",
     "--revision",
     "--strict",
     "--json",
@@ -111,7 +113,7 @@ function writeJson(name, body) {
   return path;
 }
 
-function summaryMarkdown(check, snapshot) {
+function summaryMarkdown(check, snapshot, operations) {
   const lines = [
     "# App Composer Cloudflare check",
     "",
@@ -205,6 +207,49 @@ function summaryMarkdown(check, snapshot) {
         item.detail.replace(/\|/g, "\\|") +
         " |",
     );
+  lines.push(
+    "",
+    "## Observed dependencies and accountable scope",
+    "",
+    `Worker settings read: ${operations.dependencyCoverage.settingsRead}/${operations.dependencyCoverage.workers}. Reverse dependency coverage is incomplete. Every retirement remains unauthorised.`,
+    "",
+    "| Worker | Declared owner | Environment | Binding | Observed dependency |",
+    "| --- | --- | --- | --- | --- |",
+  );
+  const cell = (value) => String(value).replace(/[\r\n|]/g, " ");
+  for (const row of operations.resources.filter(
+    (row) => row.kind === "worker" && row.dependencyCoverage === "read",
+  )) {
+    for (const binding of row.dependencies)
+      lines.push(
+        `| ${cell(row.name)} | ${cell(row.declaredOwner ?? "unassigned")} | ${cell(row.environment)} | ${cell(binding.binding)} | ${cell(binding.kind + ":" + binding.id)} |`,
+      );
+    if (!row.dependencies.length)
+      lines.push(
+        `| ${cell(row.name)} | ${cell(row.declaredOwner ?? "unassigned")} | ${cell(row.environment)} | — | No service/storage binding observed |`,
+      );
+  }
+  if (operations.baselineAt) {
+    lines.push(
+      "",
+      "## Changes since selected baseline",
+      "",
+      "Baseline: " + operations.baselineAt,
+      "",
+    );
+    for (const change of operations.changes)
+      lines.push(
+        `- ${cell(change.state)} · ${cell(change.name)}${change.fields.length ? " · " + change.fields.join(", ") : ""}. ${change.detail}`,
+      );
+    if (!operations.changes.length)
+      lines.push(
+        "No changes were observed in comparable fields. Unread fields remain unknown.",
+      );
+  } else
+    lines.push(
+      "",
+      "No temporal baseline selected. Use --previous with a prior redacted snapshot to compare observations.",
+    );
   lines.push("", "## Endpoints", "");
   const endpointStates = check.endpoints.reduce((counts, endpoint) => {
     counts[endpoint.state] = (counts[endpoint.state] ?? 0) + 1;
@@ -234,7 +279,10 @@ function writeMarkdown(name, text) {
 }
 
 function readSnapshot(path) {
-  const body = JSON.parse(readFileSync(resolve(root, path), "utf8"));
+  const selected = resolve(root, path);
+  if (statSync(selected).size > 2_000_000)
+    throw Error("Provider observation exceeds 2 MB.");
+  const body = JSON.parse(readFileSync(selected, "utf8"));
   if (
     !body ||
     typeof body !== "object" ||
@@ -430,13 +478,29 @@ async function main() {
         "Read-only: nothing was created, changed, tagged or deleted.",
       );
     }
+    const operations = providerOperations(
+      expected,
+      snapshotPath,
+      value("--previous") ? readSnapshot(value("--previous")) : null,
+    );
     const generated = stamp();
+    const operationsPath = writeJson(
+      generated + "-operations.json",
+      operations,
+    );
     const path = writeJson(generated + "-compare.json", check);
     const summaryPath = writeMarkdown(
       generated + "-summary.md",
-      summaryMarkdown(check, snapshotPath),
+      summaryMarkdown(check, snapshotPath, operations),
     );
-    console.error("Wrote " + path + " and " + summaryPath + " (gitignored).");
+    console.error(
+      "Wrote " +
+        path +
+        " and " +
+        summaryPath +
+        " (gitignored). Operations: " +
+        operationsPath,
+    );
   }
   if (strict && check.counts.attention > 0) process.exitCode = 2;
 }
