@@ -6,7 +6,7 @@ export const publicPagePaths = Object.freeze([
   '/diagrams', '/discover', '/for/creator', '/for/small-business', '/for/developer', '/for/designer', '/explore', '/demo', '/docs', '/architecture', '/guide',
   '/catalogue', '/apps', '/activity', '/review', '/privacy', '/release',
   '/extension', '/state', '/php2shell', '/studio', '/manage', '/building', '/effect',
-  '/launch-kit', '/paperwork', '/init/paperwork', '/platform', '/platform/demo',
+  '/launch-kit', '/paperwork', '/init/paperwork', '/platform', '/platform/demo', '/plugin-trust',
 ]);
 
 const origin = 'https://composer.loftwah.com';

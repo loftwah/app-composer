@@ -18,6 +18,7 @@ import {
   manageAgentTools,
   agentToolInputs,
 } from "./agent-proposals.ts";
+import { managePluginTrust } from "./plugin-trust.ts";
 import { manageProviderInventory } from "./provider-read.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
@@ -47,9 +48,15 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         { path: "/connections", label: "Connections", icon: "plugs" },
         { path: "/resources", label: "App resources", icon: "cloud" },
         { path: "/proposals", label: "Agent proposals", icon: "robot" },
+        { path: "/plugin-trust", label: "Plugin Trust Centre", icon: "shield-check" },
       ],
     },
     routes: {
+      pluginTrustRead: {
+        methods: ["GET"],
+        permission: "plugins:manage",
+        handler: (ctx) => managePluginTrust(ctx, runtime),
+      },
       proposalsRead: {
         methods: ["GET"],
         permission: creatorPermission,

@@ -10,6 +10,7 @@ import { WorkflowsPage } from "./workflows-page";
 import { OverviewPage } from "./overview-page";
 import { OrdersPage } from "./orders-page";
 import { ConnectionsPage } from "./connections-page";
+import { PluginTrustPage } from "./plugin-trust-page";
 import { ProposalsPage } from "./proposals-page";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
 import {
@@ -1826,4 +1827,5 @@ export const pages: PluginAdminExports["pages"] = {
   "/connections": ConnectionsPage,
   "/resources": ResourceInventoryPage,
   "/proposals": ProposalsPage,
+  "/plugin-trust": PluginTrustPage,
 };
