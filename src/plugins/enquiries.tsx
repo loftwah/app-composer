@@ -1,4 +1,3 @@
-import { EnquiryNotifications } from "./enquiry-notifications";
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
@@ -13,9 +12,10 @@ import {
   enquiryScope,
   type EnquiryScope,
   type EnquiryInbox,
-  type EnquiryItem,
   type EnquirySummary,
 } from "../lib/enquiry-protocol";
+import { enquiryLabels, enquiryState } from "../lib/inbox-journey-contract";
+import { InboxJourneyPanel } from "./inbox-journey-panel";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
 import { useNavigationGuard } from "./stacks/use-navigation-guard";
 import "./enquiries.css";
@@ -136,13 +136,14 @@ function WorkspaceEnquiries({ search }: { search: string }) {
     [status, setStatus] = useState("pending"),
     [page, setPage] = useState(1),
     [inbox, setInbox] = useState<EnquiryInbox>(),
+    [selected, setSelected] = useState(""),
     [publication, setPublication] = useState(""),
     [summary, setSummary] = useState<EnquirySummary>(),
     [summaryError, setSummaryError] = useState("");
   const summaryGeneration = useRef(0);
   const resourceRef = useRef("");
   resourceRef.current = resource;
-  const [notificationBusy, setNotificationBusy] = useState(false);
+  const [detailBusy, setDetailBusy] = useState(false);
   const [checkedAbsent, setCheckedAbsent] = useState(false);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -167,7 +168,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
   };
   useNavigationGuard({
     changed: Boolean(held),
-    pending: busy || notificationBusy,
+    pending: busy || detailBusy,
     onPending: () =>
       setError("Wait for this private app request before leaving."),
   });
@@ -179,7 +180,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
     };
   }, []);
   async function run(task: () => Promise<void>) {
-    if (pending.current || notificationBusy) return;
+    if (pending.current || detailBusy) return;
     pending.current = true;
     setBusy(true);
     setError("");
@@ -250,15 +251,15 @@ function WorkspaceEnquiries({ search }: { search: string }) {
     }
   }
   async function loadInbox(
-    selected = resource,
+    selectedResource = resource,
     filter = status,
     selectedPage = page,
   ) {
-    if (!workspace || !selected) return;
+    if (!workspace || !selectedResource) return;
     const n = ++generation.current;
     const raw = await call("inbox", {
       workspace,
-      resource: selected,
+      resource: selectedResource,
       status: filter,
       page: String(selectedPage),
     });
@@ -271,7 +272,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
       .strict()
       .parse(raw);
     if (
-      reply.inbox.resource.id !== selected ||
+      reply.inbox.resource.id !== selectedResource ||
       reply.inbox.resource.workspace_id !== reply.workspace.id ||
       reply.inbox.status !== filter ||
       reply.inbox.page !== selectedPage
@@ -279,16 +280,26 @@ function WorkspaceEnquiries({ search }: { search: string }) {
       throw Error("The app returned another inbox selection.");
     if (!live.current || n !== generation.current) return;
     setInbox(reply.inbox);
+    setSelected((current) => {
+      if (reply.inbox.items.some((item) => item.id === current)) return current;
+      const requested = new URLSearchParams(search).getAll("item");
+      const exact =
+        requested.length === 1 &&
+        reply.inbox.items.some((item) => item.id === requested[0])
+          ? requested[0]
+          : "";
+      return exact || reply.inbox.items[0]?.id || "";
+    });
   }
-  async function loadSummary(selected = resource) {
-    if (!workspace || !selected) return;
+  async function loadSummary(selectedResource = resource) {
+    if (!workspace || !selectedResource) return;
     const n = ++summaryGeneration.current;
     setSummary(undefined);
     setSummaryError("");
     try {
       const raw = await call("summary", {
         workspace,
-        resource: selected,
+        resource: selectedResource,
       });
       const reply = z
         .object({
@@ -299,14 +310,14 @@ function WorkspaceEnquiries({ search }: { search: string }) {
         .strict()
         .parse(raw);
       if (
-        reply.summary.resource.id !== selected ||
+        reply.summary.resource.id !== selectedResource ||
         reply.summary.resource.workspace_id !== workspace
       )
         throw Error("The app summarised another visitor book.");
       if (
         !live.current ||
         n !== summaryGeneration.current ||
-        resourceRef.current !== selected
+        resourceRef.current !== selectedResource
       )
         return;
       setSummary(reply.summary);
@@ -578,7 +589,10 @@ function WorkspaceEnquiries({ search }: { search: string }) {
     return `${stack.name} · ${instance?.label ?? "Other instance"}`;
   };
   return (
-    <div className="ce-inbox" aria-busy={busy || (!options && !error)}>
+    <div
+      className="ce-inbox"
+      aria-busy={busy || detailBusy || (!options && !error)}
+    >
       {(busy || (!options && !error)) && (
         <p role="status">Loading private app data…</p>
       )}
@@ -591,6 +605,11 @@ function WorkspaceEnquiries({ search }: { search: string }) {
           Read a brief, mark it reviewed, or remove it. Guestbook owns the
           records. Notifications are separate from review and start off. No
           reply is sent.
+        </p>
+        <p>
+          Each retained brief now links to its owner-notice workflow and
+          delivery state. Processing is explicit; reviewing a brief sends
+          nothing.
         </p>
       </header>
       {error && (
@@ -643,10 +662,11 @@ function WorkspaceEnquiries({ search }: { search: string }) {
           Visitor book
           <select
             value={resource}
-            disabled={busy || notificationBusy || Boolean(held)}
+            disabled={busy || detailBusy || Boolean(held)}
             onChange={(event) => {
               summaryGeneration.current++;
               setResource(event.target.value);
+              setSelected("");
               setPublication("");
               setInbox(undefined);
               setSummary(undefined);
@@ -671,9 +691,10 @@ function WorkspaceEnquiries({ search }: { search: string }) {
           Review state
           <select
             value={status}
-            disabled={busy || notificationBusy || Boolean(held)}
+            disabled={busy || detailBusy || Boolean(held)}
             onChange={(event) => {
               setStatus(event.target.value);
+              setSelected("");
               setPage(1);
             }}
           >
@@ -708,15 +729,126 @@ function WorkspaceEnquiries({ search }: { search: string }) {
           require an owner or editor membership.
         </p>
       )}
-      {canRead && workspace && resource && !held && (
-        <EnquiryNotifications
-          key={workspace + ":" + resource}
-          workspace={workspace}
-          resource={resource}
-          disabled={busy}
-          onBusyChange={setNotificationBusy}
-        />
-      )}
+      {inbox &&
+        canRead &&
+        workspace &&
+        inbox.resource.id === resource &&
+        inbox.status === status &&
+        inbox.page === page && (
+          <div className="ce-inbox-layout">
+            <section className="ce-list" aria-labelledby="ce-list-title">
+              <div className="ce-heading">
+                <h2 id="ce-list-title">
+                  {status === "all"
+                    ? "Retained briefs"
+                    : status[0].toUpperCase() + status.slice(1) + " briefs"}
+                </h2>
+                <button
+                  disabled={busy || detailBusy || Boolean(held)}
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        "Download this visitor book’s retained private briefs? Keep the resulting file private.",
+                      )
+                    )
+                      void run(exportInbox);
+                  }}
+                >
+                  Export private inbox
+                </button>
+              </div>
+              <p className="ce-muted">
+                Bodies expire after 30 days; minimal delivery and operation
+                receipts remain for 35 days. Deleted briefs are cleared
+                immediately. Choose a brief to read it and see its workflow and
+                delivery state.
+              </p>
+              {inbox.items.length === 0 ? (
+                <p className="ce-empty">No retained briefs on this page.</p>
+              ) : (
+                <ul className="ce-rows" aria-label="Retained briefs">
+                  {inbox.items.map((item) => (
+                    <li key={item.id}>
+                      <button
+                        type="button"
+                        className="ce-row"
+                        aria-current={selected === item.id ? "true" : undefined}
+                        disabled={busy || Boolean(held)}
+                        onClick={() => setSelected(item.id)}
+                      >
+                        <span className="ce-row-title">
+                          {item.values.title}
+                        </span>
+                        <span className="ce-row-meta">
+                          <span
+                            className="ce-chip"
+                            data-kind="enquiry"
+                            data-state={enquiryState(item.status)}
+                          >
+                            {enquiryLabels[enquiryState(item.status)]}
+                          </span>
+                          <span>{date(item.created_at)}</span>
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <nav className="ce-pages" aria-label="Enquiry inbox pages">
+                <button
+                  disabled={busy || Boolean(held) || page === 1}
+                  onClick={() => setPage(page - 1)}
+                >
+                  Previous
+                </button>
+                <span>Page {page} · up to 20 briefs</span>
+                <button
+                  disabled={
+                    busy ||
+                    Boolean(held) ||
+                    page === 10 ||
+                    inbox.items.length < 20
+                  }
+                  onClick={() => setPage(page + 1)}
+                >
+                  Next
+                </button>
+              </nav>
+            </section>
+            <div className="ce-detail-slot">
+              {selected ? (
+                <InboxJourneyPanel
+                  key={selected + ":" + inbox.resource.version}
+                  workspace={workspace}
+                  resource={resource}
+                  item={selected}
+                  busy={busy || Boolean(held)}
+                  onBusyChange={setDetailBusy}
+                  onEnquiryAction={async (action, revision) => {
+                    await run(() =>
+                      mutate({
+                        action,
+                        item: selected,
+                        expectedRevision: revision,
+                      }),
+                    );
+                  }}
+                  onChanged={() => {
+                    void run(async () => {
+                      await loadInbox();
+                      await loadSummary();
+                    });
+                  }}
+                />
+              ) : (
+                <p className="ce-empty">
+                  Choose a brief to read it and see its workflow and delivery
+                  state.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
       {canRead && resource && !held && (
         <section className="ce-summary" aria-labelledby="ce-summary-title">
           <h2 id="ce-summary-title">Enquiries by page</h2>
@@ -805,236 +937,88 @@ function WorkspaceEnquiries({ search }: { search: string }) {
       )}
       {inbox &&
         canRead &&
+        workspace &&
         inbox.resource.id === resource &&
         inbox.status === status &&
         inbox.page === page && (
-          <>
-            <section className="ce-form-controls">
-              <div>
-                <h2>Open a private form</h2>
-                <p>
-                  Forms start closed. A Composer form belongs to one immutable
-                  publication; publishing a new revision does not open it
-                  automatically. The standalone resource form has its own
-                  setting.
-                </p>
-              </div>
-              <label>
-                Form scope
-                <select
-                  value={publication}
-                  disabled={busy || Boolean(held) || !canConfigure}
-                  onChange={(event) => setPublication(event.target.value)}
-                >
-                  <option value="">Standalone resource form</option>
-                  {options?.stacks.flatMap((stack) =>
-                    stack.instances
-                      .filter((item) => item.resource === resource)
-                      .map((item) => (
-                        <option
-                          key={stack.id + ":" + item.id}
-                          value={stack.id + ":" + item.id}
-                        >
-                          {stack.name} · {item.label} · published{" "}
-                          {stack.publication}
-                        </option>
-                      )),
-                  )}
-                </select>
-              </label>
+          <details className="ce-form-controls">
+            <summary>Visitor book form</summary>
+            <div>
+              <h2>Open a private form</h2>
               <p>
-                <strong>
-                  {selectedScope?.enabled
-                    ? "Enabled in the app"
-                    : "Closed in the app"}
-                </strong>
-                . Current publication and source privacy controls still apply.
+                Forms start closed. A Composer form belongs to one immutable
+                publication; publishing a new revision does not open it
+                automatically. The standalone resource form has its own setting.
               </p>
-              <div className="ce-actions">
-                <button
-                  disabled={busy || Boolean(held) || !canConfigure}
-                  onClick={() => void run(() => configure(true))}
-                >
-                  Enable this form
-                </button>
-                <button
-                  disabled={
-                    busy || Boolean(held) || !canConfigure || !selectedScope
-                  }
-                  onClick={() => void run(() => configure(false))}
-                >
-                  Close this form
-                </button>
-                {selectedScope?.enabled && (
-                  <a
-                    href={
-                      currentPublication
-                        ? `/s/${currentPublication.stack.slug}/enquiry/${currentPublication.item.id}`
-                        : `/guestbook/r/${resource}/c/${selectedScope.provenance.configuration}/enquiry`
-                    }
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    Open form
-                  </a>
-                )}
-              </div>
-              {!canConfigure && (
-                <p>
-                  Only the workspace owner can open or close forms. Editors can
-                  review private briefs.
-                </p>
-              )}
-            </section>
-            <div className="ce-heading">
-              <h2>
-                {status === "all"
-                  ? "Retained briefs"
-                  : status[0].toUpperCase() + status.slice(1) + " briefs"}
-              </h2>
-              <button
-                disabled={busy || notificationBusy || Boolean(held)}
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      "Download this visitor book’s retained private briefs? Keep the resulting file private.",
-                    )
-                  )
-                    void run(exportInbox);
-                }}
-              >
-                Export private inbox
-              </button>
             </div>
-            <p className="ce-muted">
-              Bodies expire after 30 days; minimal delivery and operation
-              receipts remain for 35 days. Deleted briefs are cleared
-              immediately. A zero here means no retained entry matches this page
-              and filter.
-            </p>
-            {inbox.items.length === 0 ? (
-              <p className="ce-empty">No retained briefs on this page.</p>
-            ) : (
-              <div className="ce-briefs">
-                {inbox.items.map((item) => (
-                  <Brief
-                    key={item.id}
-                    item={item}
-                    busy={busy || Boolean(held)}
-                    change={(action) =>
-                      void run(() =>
-                        mutate({
-                          action,
-                          item: item.id,
-                          expectedRevision: item.revision,
-                        }),
-                      )
-                    }
-                  />
-                ))}
-              </div>
-            )}
-            <nav className="ce-pages" aria-label="Enquiry inbox pages">
-              <button
-                disabled={busy || Boolean(held) || page === 1}
-                onClick={() => setPage(page - 1)}
+            <label>
+              Form scope
+              <select
+                value={publication}
+                disabled={busy || Boolean(held) || !canConfigure}
+                onChange={(event) => setPublication(event.target.value)}
               >
-                Previous
+                <option value="">Standalone resource form</option>
+                {options?.stacks.flatMap((stack) =>
+                  stack.instances
+                    .filter((item) => item.resource === resource)
+                    .map((item) => (
+                      <option
+                        key={stack.id + ":" + item.id}
+                        value={stack.id + ":" + item.id}
+                      >
+                        {stack.name} · {item.label} · published{" "}
+                        {stack.publication}
+                      </option>
+                    )),
+                )}
+              </select>
+            </label>
+            <p>
+              <strong>
+                {selectedScope?.enabled
+                  ? "Enabled in the app"
+                  : "Closed in the app"}
+              </strong>
+              . Current publication and source privacy controls still apply.
+            </p>
+            <div className="ce-actions">
+              <button
+                disabled={busy || Boolean(held) || !canConfigure}
+                onClick={() => void run(() => configure(true))}
+              >
+                Enable this form
               </button>
-              <span>Page {page} · up to 20 briefs</span>
               <button
                 disabled={
-                  busy ||
-                  Boolean(held) ||
-                  page === 10 ||
-                  inbox.items.length < 20
+                  busy || Boolean(held) || !canConfigure || !selectedScope
                 }
-                onClick={() => setPage(page + 1)}
+                onClick={() => void run(() => configure(false))}
               >
-                Next
+                Close this form
               </button>
-            </nav>
-          </>
+              {selectedScope?.enabled && (
+                <a
+                  href={
+                    currentPublication
+                      ? `/s/${currentPublication.stack.slug}/enquiry/${currentPublication.item.id}`
+                      : `/guestbook/r/${resource}/c/${selectedScope.provenance.configuration}/enquiry`
+                  }
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Open form
+                </a>
+              )}
+            </div>
+            {!canConfigure && (
+              <p>
+                Only the workspace owner can open or close forms. Editors can
+                review private briefs.
+              </p>
+            )}
+          </details>
         )}
     </div>
-  );
-}
-function Brief({
-  item,
-  busy,
-  change,
-}: {
-  item: EnquiryItem;
-  busy: boolean;
-  change: (action: "review" | "reject" | "delete") => void;
-}) {
-  return (
-    <article className="ce-brief">
-      <div className="ce-brief-heading">
-        <p className="ce-kicker">
-          {item.status} · {date(item.created_at)}
-        </p>
-        <span>Expires {date(item.expires_at)}</span>
-      </div>
-      <h3>{item.values.title}</h3>
-      <p className="ce-goal">{item.values.goal}</p>
-      <dl>
-        <dt>Starting point</dt>
-        <dd>{item.values.starting_point}</dd>
-        {item.values.existing_site && (
-          <>
-            <dt>Existing site</dt>
-            <dd>{item.values.existing_site}</dd>
-          </>
-        )}
-        <dt>Delivery scope</dt>
-        <dd>
-          {item.provenance.kind === "standalone"
-            ? "Standalone resource"
-            : `Composer publication ${item.provenance.publication} · instance ${item.provenance.instance.slice(0, 8)}`}
-        </dd>
-      </dl>
-      {item.values.deliverables.length > 0 && (
-        <ul>
-          {item.values.deliverables.map((row, index) => (
-            <li key={index}>
-              <strong>{row.item}</strong>
-              {row.detail && <p>{row.detail}</p>}
-            </li>
-          ))}
-        </ul>
-      )}
-      <p className="ce-muted">
-        Private delivery consent recorded {date(item.consent_at)}. No
-        publication or contact permission.
-      </p>
-      <div className="ce-actions">
-        <button
-          disabled={busy || item.status === "reviewed"}
-          onClick={() => change("review")}
-        >
-          Mark reviewed
-        </button>
-        <button
-          disabled={busy || item.status === "rejected"}
-          onClick={() => change("reject")}
-        >
-          Reject privately
-        </button>
-        <button
-          disabled={busy}
-          onClick={() => {
-            if (
-              window.confirm(
-                "Delete this private brief now? Its submitted text will be cleared; the bounded receipt remains until expiry.",
-              )
-            )
-              change("delete");
-          }}
-        >
-          Delete brief
-        </button>
-      </div>
-    </article>
   );
 }

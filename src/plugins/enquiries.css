@@ -1,5 +1,5 @@
 .ce-inbox {
-  max-width: 1080px;
+  max-width: 1180px;
   padding: 24px;
   color: inherit;
   font:
@@ -93,6 +93,14 @@
 .ce-form-controls select {
   width: min(100%, 600px);
 }
+.ce-form-controls summary {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+}
 .ce-actions {
   display: flex;
   gap: 12px;
@@ -116,22 +124,16 @@
 .ce-alert {
   border-color: currentColor;
 }
-.ce-heading,
-.ce-brief-heading {
+.ce-heading {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-}
-.ce-heading {
   margin-top: 36px;
 }
-.ce-brief {
-  padding: 28px 0;
-  border-bottom: 1px solid color-mix(in srgb, currentColor 22%, transparent);
-  overflow-wrap: anywhere;
+.ce-list .ce-heading {
+  margin-top: 0;
 }
-.ce-brief-heading span,
 .ce-muted {
   font-size: 13px;
   opacity: 0.8;
@@ -139,21 +141,6 @@
 .ce-goal {
   white-space: pre-wrap;
   max-width: 74ch;
-}
-.ce-brief dl {
-  display: grid;
-  grid-template-columns: 140px minmax(0, 1fr);
-  gap: 8px 18px;
-  font-size: 14px;
-}
-.ce-brief dt {
-  font-weight: 600;
-}
-.ce-brief dd {
-  margin: 0;
-}
-.ce-brief li p {
-  margin: 4px 0 16px;
 }
 .ce-summary {
   margin: 28px 0;
@@ -211,8 +198,291 @@
   margin: 24px 0;
 }
 .ce-empty {
-  padding: 32px 0;
+  padding: 32px 12px;
   border-block: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+}
+
+/* One owner journey: the brief list beside its workflow and delivery detail. */
+.ce-inbox-layout {
+  display: grid;
+  gap: 32px;
+  margin-top: 24px;
+  min-width: 0;
+}
+.ce-inbox-layout > * {
+  min-width: 0;
+}
+@media (min-width: 1000px) {
+  .ce-inbox-layout {
+    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+.ce-rows {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+.ce-row {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  align-content: start;
+}
+.ce-row[aria-current="true"] {
+  border-color: currentColor;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.ce-row-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.ce-row-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.ce-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 9px;
+  border: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.ce-chip::before {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ce-dot, currentColor);
+}
+
+/* State dots only; text keeps the inherited, contrast-checked colour. */
+[data-state="new"],
+[data-state="queued"],
+[data-state="not-recorded"] {
+  --ce-dot: #6b7280;
+}
+[data-state="reviewed"],
+[data-state="finished"],
+[data-state="accepted"] {
+  --ce-dot: #2f8f5b;
+}
+[data-state="rejected"],
+[data-state="failed"] {
+  --ce-dot: #b4342a;
+}
+[data-state="running"],
+[data-state="attempted"],
+[data-state="ready"] {
+  --ce-dot: #c2410c;
+}
+[data-state="uncertain"],
+[data-state="unconfigured"] {
+  --ce-dot: #a16207;
+}
+
+.ce-journey {
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-radius: 8px;
+  padding: 22px;
+  overflow-wrap: anywhere;
+}
+.ce-journey-head {
+  display: grid;
+  gap: 12px;
+}
+.ce-journey-heading {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: start;
+  flex-wrap: wrap;
+}
+.ce-journey-head h2 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.ce-facts {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 8px 18px;
+  margin: 0;
+  font-size: 14px;
+}
+.ce-facts > div {
+  display: contents;
+}
+.ce-facts dt {
+  font-weight: 600;
+}
+.ce-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.ce-facts.compact {
+  grid-template-columns: 120px minmax(0, 1fr);
+  font-size: 13px;
+}
+.ce-deliverables {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+.ce-deliverables li {
+  border-left: 3px solid color-mix(in srgb, currentColor 30%, transparent);
+  padding-left: 12px;
+  display: grid;
+  gap: 2px;
+}
+.ce-deliverables span {
+  font-size: 13px;
+  opacity: 0.82;
+}
+.ce-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+}
+.ce-flow li {
+  display: grid;
+  gap: 2px;
+  align-content: start;
+  min-width: 0;
+  padding-top: 10px;
+  border-top: 3px solid var(--ce-dot, currentColor);
+}
+.ce-flow span {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+.ce-flow strong {
+  font-size: 17px;
+}
+.ce-flow small {
+  font-size: 12px;
+  opacity: 0.75;
+}
+.ce-next {
+  display: grid;
+  gap: 8px;
+  margin-block: 20px;
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-left: 4px solid var(--ce-dot, currentColor);
+}
+.ce-next h3 {
+  margin: 0;
+  font-size: 20px;
+}
+.ce-next p {
+  margin: 0;
+  max-width: 70ch;
+}
+.ce-next button {
+  justify-self: start;
+}
+.ce-next[data-kind="none"] {
+  border-left-color: color-mix(in srgb, currentColor 35%, transparent);
+}
+.ce-next[data-kind="process"] {
+  --ce-dot: #c2410c;
+}
+.ce-next[data-kind="send"] {
+  --ce-dot: #c2410c;
+}
+.ce-next[data-kind="reconcile"] {
+  --ce-dot: #a16207;
+}
+.ce-next[data-kind="review"] {
+  --ce-dot: #6b7280;
+}
+.ce-journey-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.ce-stage {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  min-width: 0;
+  padding-top: 16px;
+  border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+}
+.ce-stage-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ce-stage h3 {
+  margin: 0;
+  font-size: 18px;
+}
+.ce-stage p {
+  margin: 0;
+  max-width: 66ch;
+}
+.ce-fingerprint {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+.ce-details summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.ce-details code {
+  overflow-wrap: anywhere;
+}
+.ce-quiet {
+  justify-self: start;
+  margin-top: 8px;
+}
+.ce-detail-slot {
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  .ce-journey-grid,
+  .ce-flow {
+    grid-template-columns: 1fr;
+  }
+  .ce-facts,
+  .ce-facts.compact {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .ce-facts dd {
+    margin-bottom: 10px;
+  }
 }
 @media (max-width: 600px) {
   .ce-inbox {
@@ -227,17 +497,9 @@
     min-width: 0;
     width: 100%;
   }
-  .ce-heading,
-  .ce-brief-heading {
+  .ce-heading {
     align-items: start;
     flex-direction: column;
-  }
-  .ce-brief dl {
-    grid-template-columns: 1fr;
-    gap: 4px;
-  }
-  .ce-brief dd {
-    margin-bottom: 10px;
   }
   .ce-actions > * {
     flex: 1;
@@ -245,30 +507,7 @@
   .ce-pages span {
     font-size: 13px;
   }
-}
-
-.ce-notifications {
-  margin-block: 28px;
-  padding-block: 24px;
-  border-block: 1px solid var(--color-border, #c9c9c9);
-}
-.ce-notifications > p,
-.ce-notifications li p {
-  max-width: 70ch;
-}
-.ce-notifications ul {
-  list-style: none;
-  padding: 0;
-}
-.ce-notifications li {
-  padding-block: 20px;
-  border-bottom: 1px solid var(--color-border, #c9c9c9);
-  overflow-wrap: anywhere;
-}
-.ce-notifications button {
-  min-height: 44px;
-  margin-block: 8px;
-}
-.ce-notifications code {
-  overflow-wrap: anywhere;
+  .ce-journey {
+    padding: 16px;
+  }
 }

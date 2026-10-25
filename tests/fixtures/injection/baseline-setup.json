@@ -1,0 +1,8 @@
+{
+  "mode": "existing",
+  "target": "existing-stack",
+  "project": "Fictional Trail Notes local project",
+  "outcome": "Reach the documented development and check state.",
+  "constraints": "Keep the existing stack and preserve local changes.",
+  "deploy": false
+}

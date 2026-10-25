@@ -109,7 +109,7 @@ const resourceInfo = (
       "This visitor book does not match the current app connection.",
     );
 };
-async function selectedResource(
+export async function selectedResource(
   db: D1Database,
   workspace: string,
   id: string,
@@ -130,7 +130,7 @@ async function selectedResource(
   resourceInfo(row, connection, workspace);
   return row;
 }
-function checkResource(
+export function checkResource(
   value: {
     id: string;
     workspace_id: string;
@@ -150,7 +150,7 @@ function checkResource(
   )
     throw Error("The app returned another private resource.");
 }
-function appFailure(reply: { status: number; body: unknown }) {
+export function appFailure(reply: { status: number; body: unknown }) {
   if (reply.status >= 200 && reply.status < 300) return;
   const value = z
     .object({

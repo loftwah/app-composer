@@ -20,6 +20,7 @@ const files = [
     "miniapp-admin",
     "miniapp-share-card",
     "stacks-admin",
+    "provider-inventory",
   ].map((name) => "src/lib/" + name + ".mts"),
   "tests/private-enquiries.test.mjs",
   "src/enquiries/enquiry-model.ts",
@@ -42,6 +43,14 @@ const files = [
   "tests/creator-boundaries.test.mjs",
   "tests/configuration-apply.test.mjs",
   "tests/miniapp-boundaries.test.mjs",
+  "src/lib/provider-expected.ts",
+  "src/lib/provider-inventory-contract.ts",
+  "src/lib/provider-inventory-check.ts",
+  "src/lib/provider-read.ts",
+  "src/plugins/provider-check-panel.tsx",
+  "src/plugins/resource-inventory-page.tsx",
+  "tests/provider-inventory.test.mjs",
+  "scripts/provider-inventory.mjs",
 ];
 const stale = [];
 for (const name of files) {

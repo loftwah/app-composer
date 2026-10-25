@@ -20,9 +20,13 @@ export const defaultSetupDetails: SetupDetails = {
   mode: 'existing', target: 'existing-stack', project: '', outcome: '', constraints: '', deploy: false,
 };
 
+// Reader text is single-purpose context. Invisible format characters and C1
+// controls carry no product meaning here, so they are removed rather than
+// copied into a generated guide an agent is asked to follow.
+const hidden = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f\u200b\u200c\u200e\u200f\u202a-\u202e\u2060-\u2069\ufeff]/g;
 function field(value: unknown, limit: number): string {
   if (typeof value !== 'string') return '';
-  return value.replace(/\r\n?/g, '\n').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '').trim().slice(0, limit);
+  return value.replace(/\r\n?/g, '\n').replace(hidden, '').trim().slice(0, limit);
 }
 
 export function normaliseSetupDetails(value: unknown): SetupDetails {
