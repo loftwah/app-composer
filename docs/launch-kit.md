@@ -18,7 +18,7 @@ Both paths share the existing inode-bound, absent-directory write path. Neither 
 
 `/launch-kit/example/` is the actual static listening timer generated from the browser-downloaded fictional Night Signal package and the deliberately exported Composer adoption record. Its checked provenance lists every output hash and the package SHA-256. The same trusted renderer can produce an independent root-path app. Hosted reference and generated EmDash app remain separate paths.
 
-Verify the served PNG bytes/manifest/HTML and inspect the public page with existing Link Check. Link Check's current reviewed host boundary stays unchanged; it reads page icons/social assets/manifest but does not itself reconcile every package hash or certify installation/native platform unfurls. Exact-byte checks are recorded separately in #11.
+Verify the served PNG bytes/manifest/HTML and inspect the public page with existing Link Check. Link Check uses its public-HTTPS, DNS and public-egress boundary; it reads page icons/social assets/manifest but does not itself reconcile every package hash or certify installation/native platform unfurls. Exact-byte checks are recorded separately in #11.
 
 Generation, export requested, imported draft, applied project, deployed and served inspection are separate states. Physical iOS, screen-reader use, native social unfurls and MP artistic acceptance remain separate from browser automation. Release receipts in #11 carry exact source/Worker identities and Australia/Melbourne plus UTC timestamps.
 
