@@ -95,6 +95,39 @@ declared so storage cannot disappear from the arithmetic. A Composer-owned
 composition resource and a first-party app-owned resource are still shown
 separately by source.
 
+### Follow-up observation — 25 October 2026 08:30–08:31 UTC
+
+A fresh use of the existing GET-only adapter returned 109 in-scope resources,
+21 declared/observed/matching, zero provider drift/missing/unverified/inaccessible,
+88 undeclared Workers and zero undeclared storage. Fifty-four unrelated resources
+were excluded. The normal observation used 36 GETs; a bounded follow-up selected
+the four previously unexplained scripts using the same adapter (22 GETs).
+No credential was copied to a Worker; no provider setting or resource changed.
+
+| Script | Actual provider evidence | Current disposition |
+| --- | --- | --- |
+| `composer-guestbook-integrated` | Version `49f46bd1-71ed-434f-b2eb-951454f23a1f`, annotation names composition `1c74d860…`; D1 `1b7862f8…` and R2 `composer-guestbook-photos` are the existing production app storage. | Historical composition and shared production data; retain pending a separate rollback/retention decision. |
+| `composer-showcase-integrated` | Version `29ffa56d-7072-4721-9fcd-b084d692f40d`, same composition annotation; D1 `c366203f…`; still service-binds `composer-guestbook-integrated`. | Historical composition with a live service dependency and shared app storage; not an isolated orphan. |
+| `composer-guestbook-61300860` | Version `0a1ed5be-eed9-4e05-840a-46b5ab37d815`, truncated annotation describes the same old composition despite the different name; same production D1/R2 bindings. | Historical/shared-data candidate for review, not automatically safe to retire. |
+| `composer-owned-reference` | Version `ee295a38-3e44-4c06-b33e-5c0caec0d3e8`; no deployment annotation, custom domain, schedule or storage/service binding returned. | Owner/retention/traffic and workers.dev exposure remain unknown. Review before any retirement proposal. |
+
+The full old composition ID is
+`1c74d860ea3c047817cbb785ce6c676cd5c2073dbbd48218f2159cd373f8c55f`,
+recorded in [historical source 55941d3](https://github.com/loftwah/app-composer/blob/55941d3d1976f40facb9faf06701ebb55e79b0c9/composition.lock.json).
+This corroborates the provider annotations rather than inferring history from a
+name. The other 84 scripts still have only the previous composition-namespace
+classification; their individual retention/ownership is not newly qualified.
+Current Composer binds the `8428e16f61c25a4d` pair. Other account-wide incoming
+references and actual traffic were not read, so absence from today's Composer
+binding list is not orphan proof.
+
+Preview's actual settings retained its distinct D1 `bdbbe1c4…`, R2
+`app-composer-media-preview` and KV `2e7ac1e5…`, with no service bindings or
+custom domain. This is configuration evidence, not audience/authentication or
+provider health. Per-resource cost stays unknown. Bounded normalized receipts
+are under ignored `output/provider-ownership-20261025/`; #11 owns the release
+record and #318/#310/#314 retain the owner and hosted least-privilege gates.
+
 ### Stored drift versus live drift
 
 The stored App resources view reported Guestbook app-source drift
