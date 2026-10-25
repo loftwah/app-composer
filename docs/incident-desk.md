@@ -2,8 +2,9 @@
 
 Incident Desk is the incident view of the existing workspace agent proposals.
 It reuses the proposal-only grant, briefing, version digest, owner/editor/viewer
-checks, source freshness and review endpoints. It adds no scheduler, provider
-connection, incident database or execution path.
+checks, source freshness and review endpoints. It adds no scheduler, provider connection or separate incident database.
+The [finite owner-local recovery consumer](incident-execution.md) can execute one
+explicitly approved fictional canary action in the isolated lab.
 
 Open `/_emdash/admin/plugins/composer-stacks/incidents` in the existing creator
 session. An agent submits the optional `change.incident` situation report using
@@ -64,5 +65,17 @@ approval refusal and current approval; then records explicit manual D1
 configuration restoration and three recovery requests matching the baseline.
 The original accepted proposal stays immutable, with recovery observations in
 a separate accepted SITREP. This qualifies that controlled local sequence only.
-The source defect remains, the investigator knew the injected fault, and the
-execution adapter, production recovery and provider notifications remain open.
+That original receipt predates the finite execution consumer below. The source
+defect remains and the investigator knew the injected fault; production recovery
+and provider notifications remain open.
+
+## Explicit local execution
+
+The maintained native incident lab now consumes its exact approved handoff with
+`node scripts/incident-execution.mjs`, rechecking source, grant, scope and revision
+before one fixed caption restoration. The atomic receipt remains
+`applied-unverified` until three independent HTTP samples and the unchanged
+control match baseline. Duplicate invocation does not repeat the action.
+See [the operator procedure](incident-execution.md) and [separate content/object
+recovery drill](recovery-drill.md). This local consumer adds no production action,
+email authority or capability to proposal-only agent connections.

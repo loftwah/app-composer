@@ -120,16 +120,40 @@ try {
       process.kill(pid, "SIGKILL");
     } catch {}
   rmSync(root, { recursive: true, force: true });
+  const survivingProcesses = [...processIds].filter((pid) => {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch {
+      return false;
+    }
+  });
   writeFileSync(
     join(output, "cleanup.json"),
     JSON.stringify(
       {
         temporaryRootRemoved: !existsSync(root),
         processesStopped: processIds.size,
+        survivingProcesses: survivingProcesses.length,
         providerCalls: 0,
       },
       null,
       2,
     ),
   );
+  if (
+    !existsSync(root) &&
+    survivingProcesses.length === 0 &&
+    process.env.LOFTWAH_VALIDATION_COMPLETION &&
+    process.env.LOFTWAH_VALIDATION_GENERATION
+  ) {
+    writeFileSync(
+      process.env.LOFTWAH_VALIDATION_COMPLETION,
+      JSON.stringify({
+        version: 1,
+        generation: process.env.LOFTWAH_VALIDATION_GENERATION,
+        cleanup: "complete",
+      }),
+    );
+  }
 }

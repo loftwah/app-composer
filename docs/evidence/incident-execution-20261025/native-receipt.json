@@ -1,0 +1,493 @@
+{
+  "version": "composer.incident-isolated-lab/1",
+  "observedAt": "2026-10-25T10:35:01.542Z",
+  "source": "4b96dd38c4205deea64092fbb10a2b6584d6f73c",
+  "sourceDirty": true,
+  "origin": "http://localhost:61282",
+  "seams": {
+    "astro.config.mjs :: Cloudflare Access auth removed; EmDash native passkey auth used instead.": {
+      "note": "Cloudflare Access auth removed; EmDash native passkey auth used instead.",
+      "seam": ",auth:access\\(\\{[^}]*\\}\\)"
+    },
+    "astro.config.mjs :: Fixture site origin; WebAuthn relying party must match the local host.": {
+      "note": "Fixture site origin; WebAuthn relying party must match the local host.",
+      "seam": "siteUrl:'https://composer.loftwah.com'"
+    },
+    "src/lib/overview.ts :: Fixture origin guard for the read-only overview; the production guard is unchanged in source.": {
+      "note": "Fixture origin guard for the read-only overview; the production guard is unchanged in source.",
+      "seam": "const origin = \"https://composer.loftwah.com\";"
+    },
+    "src/lib/agent-proposals.ts :: Incident Desk proposal origin guard points only to this local fixture.": {
+      "note": "Incident Desk proposal origin guard points only to this local fixture.",
+      "seam": "const origin = \"https://composer.loftwah.com\";"
+    },
+    "temporary incident canary": {
+      "sha256": "3c46b11706a01b1527d2869356587c2dc158aaf5fb205a4a208b5ac92b2f10fa",
+      "note": "This route exists only in the owned temporary copy. Its local D1 caption can be removed to reproduce a real 500 and restored manually after owner review. No production route or execution adapter is installed."
+    },
+    "wrangler": {
+      "note": "Local D1/R2 only; no routes, cron or provider service bindings.",
+      "vars": {
+        "PUBLIC_ORIGIN": "http://localhost:61282",
+        "RESOURCE_ACCOUNT_ID": "fictional-lane-a-account",
+        "RESOURCE_ENVIRONMENT": "production"
+      }
+    }
+  },
+  "warning": "Fictional local D1 and native EmDash authentication with a virtual authenticator. Actual injected localhost fault only. No Access/real MFA, production, external email, PagerDuty or agent execution. Recovery uses an explicitly invoked finite local action, not production or autonomous authority.",
+  "screenshots": [
+    {
+      "name": "canary-before-1440.png",
+      "sha256": "a5b0a13de2826b8488c4562cf52620ec0defd5332ce5e2c736a3e624670e0d72"
+    },
+    {
+      "name": "canary-failure-1440.png",
+      "sha256": "032ea529ef323a2f1af82346ff55406cf5b01243d2d221f9740dd4d3fc069031"
+    },
+    {
+      "name": "native-entry-diagnostic.png",
+      "sha256": "b4841b31f0e1678051eab26fab8f628af41b1c23ca56cb2def2577339343c17e"
+    },
+    {
+      "name": "submitted-1440-light.png",
+      "sha256": "c234b3ced7b3ff4167b2fa23e4d21003c3ac0eb9bb9d6946bf9ab5b14e7db609"
+    },
+    {
+      "name": "keyboard-reason-1440-light.png",
+      "sha256": "24edd1eeeab8477544d2162aaa2c5155996b286d8212602332828572178f51d7"
+    },
+    {
+      "name": "accepted-history-1440-light.png",
+      "sha256": "d817e0df54858f16b49dbbb16aa13875fda928a5bbb4d2ff32f99c3e102e0c1c"
+    },
+    {
+      "name": "canary-restored-1440.png",
+      "sha256": "a5b0a13de2826b8488c4562cf52620ec0defd5332ce5e2c736a3e624670e0d72"
+    },
+    {
+      "name": "recovered-1440-light.png",
+      "sha256": "a6bef2c269b177e1cfbc94749d4c3428f5f670312bbd13a530447bc1f5f24381"
+    },
+    {
+      "name": "recovered-390-light.png",
+      "sha256": "a537ac9ffb6018e81f544e8c7de85ea021b26aba7f268797ab686d54a50d6de5"
+    },
+    {
+      "name": "recovered-1440-dark.png",
+      "sha256": "1304f7523ab2f72d488076202940dd1df3dc5ac8a3e613aef704c94fc63504fe"
+    },
+    {
+      "name": "recovered-390-dark.png",
+      "sha256": "d0a247f3b46e1b2846711c2f1deba9c217556373184a409c2e48150aa144530e"
+    },
+    {
+      "name": "native-final.png",
+      "sha256": "d0a247f3b46e1b2846711c2f1deba9c217556373184a409c2e48150aa144530e"
+    }
+  ],
+  "checks": {
+    "firstAccountWelcomeDismissed": true,
+    "keyboardReasonReached": true,
+    "staleApproval": {
+      "success": false,
+      "error": {
+        "code": "CONFLICT",
+        "message": "The proposal changed since it was opened. Refresh before reviewing."
+      }
+    },
+    "preserved": {
+      "state": "accepted",
+      "current_version": 2,
+      "accepted_digest": "9ff717e5d2d6e7994a67b7a87520130c4ad7648e236bf2d0e3a6eb941dc2e913",
+      "versions": 2,
+      "reviews": 2
+    },
+    "expectedCanaryDevOverlay": {
+      "cause": "controlled nullable-caption exception",
+      "recoveredBy": "reload real native route after guarded recovery"
+    },
+    "recoveryRecord": {
+      "proposal": "prop-112fc028-c64d-4183-8a65-bbf4af611c45",
+      "digest": "bb8920ec3174dff326aa9bcb9e769ad71ce5b124d584ec69c97c633b733afd54",
+      "mode": "isolated-lab",
+      "recovery": "verified-in-isolated-lab",
+      "recoverySamples": 3,
+      "controlUnchanged": true,
+      "sourceUnchanged": true
+    },
+    "externalEffects": {
+      "email": 0,
+      "pagerDuty": 0,
+      "deployments": 0,
+      "agentCalls": 0
+    },
+    "nativeAuth": {
+      "role": 50,
+      "virtualAuthenticator": true,
+      "cloudflareAccess": false
+    }
+  },
+  "errors": [
+    "Failed to load resource: the server responded with a status of 409 (Conflict)"
+  ],
+  "runtimeSourceHashes": {
+    "src/lib/agent-proposals.ts": {
+      "original": "a4b3268f454e7141e630ba7a04bfcb213ddf1bb643a789c92161a884fa489df1",
+      "executedFixture": "a03483f0d878ca8cf762d5b0ec15658b568f80b23fa219c44ea07af0f8c163c9"
+    },
+    "src/lib/agent-proposal-contract.ts": {
+      "original": "87b90943c99bcc7920eed6e6af935450f1a6d9d84928a63e1005483d5ab9284c",
+      "executedFixture": "87b90943c99bcc7920eed6e6af935450f1a6d9d84928a63e1005483d5ab9284c"
+    },
+    "src/lib/incident-contract.ts": {
+      "original": "63a0b0b5a199a316ca242a07242a7732acb7b3a66b8534d644d446161df99171",
+      "executedFixture": "63a0b0b5a199a316ca242a07242a7732acb7b3a66b8534d644d446161df99171"
+    },
+    "src/plugins/proposals-page.tsx": {
+      "original": "1cc3cec4bfae89f8c368a13e98aab453c840aea5c8b460397f8621bfb0de729f",
+      "executedFixture": "1cc3cec4bfae89f8c368a13e98aab453c840aea5c8b460397f8621bfb0de729f"
+    },
+    "src/plugins/proposals-page.css": {
+      "original": "d0c96d374a2c9297f4acf190da7e1c948775b63ee37a18284d48d100cb83bf36",
+      "executedFixture": "d0c96d374a2c9297f4acf190da7e1c948775b63ee37a18284d48d100cb83bf36"
+    },
+    "src/lib/creator-plugin.ts": {
+      "original": "08061106a0741a27d5edfbc8dd72c0ec83ae0280082ce2b967155562beff0e31",
+      "executedFixture": "08061106a0741a27d5edfbc8dd72c0ec83ae0280082ce2b967155562beff0e31"
+    },
+    "src/plugins/stacks-admin.tsx": {
+      "original": "e9066512ef803bf154cc2cd1a67784d0d9369147daeb66c0d76c6ac70492f984",
+      "executedFixture": "e9066512ef803bf154cc2cd1a67784d0d9369147daeb66c0d76c6ac70492f984"
+    }
+  },
+  "target": {
+    "runtime": "Astro Cloudflare adapter / local workerd / local D1",
+    "sourcePath": "src/pages/incident-lab-canary/[...path].ts",
+    "sourceSha256": "3c46b11706a01b1527d2869356587c2dc158aaf5fb205a4a208b5ac92b2f10fa",
+    "databaseScope": "incident_lab_canary / fictional-team-a",
+    "controlScope": "incident_lab_canary / fictional-team-b",
+    "proposalApp": "guestbook",
+    "actualGuestbookIncident": false,
+    "explanation": "The existing proposal app discriminator is guestbook; the fault target is only the temporary canary, never Guestbook production or provider infrastructure."
+  },
+  "http": [
+    {
+      "stage": "baseline",
+      "path": "page",
+      "url": "http://localhost:61282/incident-lab-canary/page",
+      "status": 200,
+      "observedAt": "2026-10-25T10:35:02.048Z",
+      "bodySha256": "cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e",
+      "bytes": 221,
+      "body": "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><title>Fictional local canary</title><h1>fictional-team-a</h1><p>Fictional Team A canary is available.</p><p>Isolated localhost drill; no production service.</p></html>"
+    },
+    {
+      "stage": "baseline",
+      "path": "control",
+      "url": "http://localhost:61282/incident-lab-canary/control",
+      "status": 200,
+      "observedAt": "2026-10-25T10:35:02.140Z",
+      "bodySha256": "2d02f199df3ccac03530369b1950ca4bb014ca2840e31b23c0cd6cf1b881e4e4",
+      "bytes": 225,
+      "body": "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><title>Fictional local canary</title><h1>fictional-team-b</h1><p>Fictional Team B control stays unchanged.</p><p>Isolated localhost drill; no production service.</p></html>"
+    },
+    {
+      "stage": "fault",
+      "path": "page",
+      "url": "http://localhost:61282/incident-lab-canary/page",
+      "status": 500,
+      "observedAt": "2026-10-25T10:35:02.168Z",
+      "bodySha256": "a5343f5a69f5bedcfa60370dec3962b37fe6f2e36d2c66d30e1053593b8dc26f",
+      "bytes": 3196,
+      "error": "Nullable caption trim failure"
+    },
+    {
+      "stage": "fault-repeat",
+      "path": "page",
+      "url": "http://localhost:61282/incident-lab-canary/page",
+      "status": 500,
+      "observedAt": "2026-10-25T10:35:02.252Z",
+      "bodySha256": "a5343f5a69f5bedcfa60370dec3962b37fe6f2e36d2c66d30e1053593b8dc26f",
+      "bytes": 3196,
+      "error": "Nullable caption trim failure"
+    },
+    {
+      "stage": "fault",
+      "path": "health",
+      "url": "http://localhost:61282/incident-lab-canary/health",
+      "status": 200,
+      "observedAt": "2026-10-25T10:35:02.264Z",
+      "bodySha256": "cca51720e67e5fd70fc987e5529d04b66254979a63a3ade30ef15e0ba9a84736",
+      "bytes": 33,
+      "body": "{\"health\":\"ok\",\"depth\":\"shallow\"}"
+    },
+    {
+      "stage": "fault",
+      "path": "data",
+      "url": "http://localhost:61282/incident-lab-canary/data",
+      "status": 200,
+      "observedAt": "2026-10-25T10:35:02.274Z",
+      "bodySha256": "807b79126425156c11ee747e76adc590d6df46e0ce90243c7865b7f3feee3614",
+      "bytes": 55,
+      "body": "{\"team\":\"fictional-team-a\",\"caption\":null,\"revision\":2}"
+    },
+    {
+      "stage": "fault",
+      "path": "control",
+      "url": "http://localhost:61282/incident-lab-canary/control",
+      "status": 200,
+      "observedAt": "2026-10-25T10:35:02.283Z",
+      "bodySha256": "2d02f199df3ccac03530369b1950ca4bb014ca2840e31b23c0cd6cf1b881e4e4",
+      "bytes": 225,
+      "body": "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><title>Fictional local canary</title><h1>fictional-team-b</h1><p>Fictional Team B control stays unchanged.</p><p>Isolated localhost drill; no production service.</p></html>"
+    },
+    {
+      "stage": "accepted-before-execution",
+      "path": "page",
+      "url": "http://localhost:61282/incident-lab-canary/page",
+      "status": 500,
+      "observedAt": "2026-10-25T10:35:06.910Z",
+      "bodySha256": "a5343f5a69f5bedcfa60370dec3962b37fe6f2e36d2c66d30e1053593b8dc26f",
+      "bytes": 3196,
+      "error": "Nullable caption trim failure"
+    },
+    {
+      "stage": "recovered-1",
+      "path": "page",
+      "url": "http://localhost:61282/incident-lab-canary/page",
+      "status": 200,
+      "observedAt": "2026-10-25T10:35:07.203Z",
+      "bodySha256": "cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e",
+      "bytes": 221,
+      "body": "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><title>Fictional local canary</title><h1>fictional-team-a</h1><p>Fictional Team A canary is available.</p><p>Isolated localhost drill; no production service.</p></html>"
+    },
+    {
+      "stage": "recovered-2",
+      "path": "page",
+      "url": "http://localhost:61282/incident-lab-canary/page",
+      "status": 200,
+      "observedAt": "2026-10-25T10:35:07.519Z",
+      "bodySha256": "cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e",
+      "bytes": 221,
+      "body": "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><title>Fictional local canary</title><h1>fictional-team-a</h1><p>Fictional Team A canary is available.</p><p>Isolated localhost drill; no production service.</p></html>"
+    },
+    {
+      "stage": "recovered-3",
+      "path": "page",
+      "url": "http://localhost:61282/incident-lab-canary/page",
+      "status": 200,
+      "observedAt": "2026-10-25T10:35:07.834Z",
+      "bodySha256": "cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e",
+      "bytes": 221,
+      "body": "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><title>Fictional local canary</title><h1>fictional-team-a</h1><p>Fictional Team A canary is available.</p><p>Isolated localhost drill; no production service.</p></html>"
+    },
+    {
+      "stage": "recovered",
+      "path": "control",
+      "url": "http://localhost:61282/incident-lab-canary/control",
+      "status": 200,
+      "observedAt": "2026-10-25T10:35:07.846Z",
+      "bodySha256": "2d02f199df3ccac03530369b1950ca4bb014ca2840e31b23c0cd6cf1b881e4e4",
+      "bytes": 225,
+      "body": "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><title>Fictional local canary</title><h1>fictional-team-b</h1><p>Fictional Team B control stays unchanged.</p><p>Isolated localhost drill; no production service.</p></html>"
+    }
+  ],
+  "faultInjection": {
+    "at": "2026-10-25T10:35:02.140Z",
+    "actor": "authorized local drill harness",
+    "kind": "temporary local D1 configuration caption set to NULL",
+    "beforeRevision": 1,
+    "afterRevision": 2
+  },
+  "nativeEntry": {
+    "status": 200,
+    "url": "http://localhost:61282/_emdash/admin/plugins/composer-stacks/incidents?workspace=925cafbd-96dc-4055-a29e-26326e92b36e",
+    "text": "Loading configuration...",
+    "overview": 200
+  },
+  "execution": {
+    "version": "composer.incident-execution/1",
+    "id": "c53ad00e-2a6b-4d2f-8048-fdeded14263d",
+    "proposal": "prop-59d58bbb-a950-4437-a4d8-dabd2bddb13d",
+    "proposalVersion": 2,
+    "digest": "9ff717e5d2d6e7994a67b7a87520130c4ad7648e236bf2d0e3a6eb941dc2e913",
+    "actor": "01M5SA1HXAFP4VXKZSVCDBEQVP",
+    "target": {
+      "account": "fictional-local-account",
+      "environment": "incident-desk-local",
+      "workspace": "925cafbd-96dc-4055-a29e-26326e92b36e",
+      "app": "guestbook"
+    },
+    "action": "restore-local-caption",
+    "beforeRevision": 2,
+    "afterRevision": 3,
+    "state": "recovered",
+    "at": "2026-10-25T10:35:06.926Z",
+    "observations": [
+      {
+        "path": "page",
+        "status": 200,
+        "sha256": "cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e",
+        "at": "2026-10-25T10:35:06.942Z"
+      },
+      {
+        "path": "page",
+        "status": 200,
+        "sha256": "cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e",
+        "at": "2026-10-25T10:35:07.057Z"
+      },
+      {
+        "path": "page",
+        "status": 200,
+        "sha256": "cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e",
+        "at": "2026-10-25T10:35:07.172Z"
+      },
+      {
+        "path": "control",
+        "status": 200,
+        "sha256": "2d02f199df3ccac03530369b1950ca4bb014ca2840e31b23c0cd6cf1b881e4e4",
+        "at": "2026-10-25T10:35:07.184Z"
+      }
+    ]
+  },
+  "duplicateExecution": {
+    "version": "composer.incident-execution/1",
+    "id": "c53ad00e-2a6b-4d2f-8048-fdeded14263d",
+    "proposal": "prop-59d58bbb-a950-4437-a4d8-dabd2bddb13d",
+    "proposalVersion": 2,
+    "digest": "9ff717e5d2d6e7994a67b7a87520130c4ad7648e236bf2d0e3a6eb941dc2e913",
+    "actor": "01M5SA1HXAFP4VXKZSVCDBEQVP",
+    "target": {
+      "account": "fictional-local-account",
+      "environment": "incident-desk-local",
+      "workspace": "925cafbd-96dc-4055-a29e-26326e92b36e",
+      "app": "guestbook"
+    },
+    "action": "restore-local-caption",
+    "beforeRevision": 2,
+    "afterRevision": 3,
+    "state": "recovered",
+    "at": "2026-10-25T10:35:06.926Z",
+    "observations": [
+      {
+        "path": "page",
+        "status": 200,
+        "sha256": "cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e",
+        "at": "2026-10-25T10:35:06.942Z"
+      },
+      {
+        "path": "page",
+        "status": 200,
+        "sha256": "cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e",
+        "at": "2026-10-25T10:35:07.057Z"
+      },
+      {
+        "path": "page",
+        "status": 200,
+        "sha256": "cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e",
+        "at": "2026-10-25T10:35:07.172Z"
+      },
+      {
+        "path": "control",
+        "status": 200,
+        "sha256": "2d02f199df3ccac03530369b1950ca4bb014ca2840e31b23c0cd6cf1b881e4e4",
+        "at": "2026-10-25T10:35:07.184Z"
+      }
+    ],
+    "duplicate": true
+  },
+  "persisted": {
+    "proposals": [
+      {
+        "id": "prop-59d58bbb-a950-4437-a4d8-dabd2bddb13d",
+        "state": "accepted",
+        "current_version": 2,
+        "accepted_digest": "9ff717e5d2d6e7994a67b7a87520130c4ad7648e236bf2d0e3a6eb941dc2e913"
+      },
+      {
+        "id": "prop-112fc028-c64d-4183-8a65-bbf4af611c45",
+        "state": "accepted",
+        "current_version": 1,
+        "accepted_digest": "bb8920ec3174dff326aa9bcb9e769ad71ce5b124d584ec69c97c633b733afd54"
+      }
+    ],
+    "versions": [
+      {
+        "proposal_id": "prop-112fc028-c64d-4183-8a65-bbf4af611c45",
+        "version": 1,
+        "digest": "bb8920ec3174dff326aa9bcb9e769ad71ce5b124d584ec69c97c633b733afd54",
+        "source_json": "{\"kind\":\"local-path\",\"path\":\"src/pages/incident-lab-canary/[...path].ts\",\"contentHash\":\"8c7416320ad8958a9602aa1b76a35d1d1e431d0756d5f3744c32a3cee879bf97\",\"files\":1,\"bytes\":1250,\"checkedAt\":\"2026-10-25T10:35:07.901Z\"}",
+        "evidence_json": "[{\"environment\":\"incident-desk-local\",\"id\":\"control-04\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:02.283Z\",\"source\":\"http://localhost:61282/incident-lab-canary/control\",\"summary\":\"Actual localhost 200; response SHA256 2d02f199df3ccac03530369b1950ca4bb014ca2840e31b23c0cd6cf1b881e4e4. Unrelated Team B control matches its baseline.\"},{\"environment\":\"incident-desk-local\",\"id\":\"data-03\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:02.274Z\",\"source\":\"http://localhost:61282/incident-lab-canary/data\",\"summary\":\"Actual localhost 200; response SHA256 807b79126425156c11ee747e76adc590d6df46e0ce90243c7865b7f3feee3614. Scoped D1 read succeeded and caption is null.\"},{\"environment\":\"incident-desk-local\",\"id\":\"failure-01\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:02.168Z\",\"source\":\"http://localhost:61282/incident-lab-canary/page\",\"summary\":\"Actual localhost 500; response SHA256 a5343f5a69f5bedcfa60370dec3962b37fe6f2e36d2c66d30e1053593b8dc26f. Recorded in the owned isolated lab.\"},{\"environment\":\"incident-desk-local\",\"id\":\"health-02\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:02.264Z\",\"source\":\"http://localhost:61282/incident-lab-canary/health\",\"summary\":\"Actual localhost 200; response SHA256 cca51720e67e5fd70fc987e5529d04b66254979a63a3ade30ef15e0ba9a84736. Recorded in the owned isolated lab.\"},{\"environment\":\"incident-desk-local\",\"id\":\"recovery-01\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:07.203Z\",\"source\":\"http://localhost:61282/incident-lab-canary/page\",\"summary\":\"Actual HTTP 200 after manual restoration; body matches baseline SHA256 cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e\"},{\"environment\":\"incident-desk-local\",\"id\":\"recovery-02\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:07.519Z\",\"source\":\"http://localhost:61282/incident-lab-canary/page\",\"summary\":\"Actual HTTP 200 after manual restoration; body matches baseline SHA256 cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e\"},{\"environment\":\"incident-desk-local\",\"id\":\"recovery-03\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:07.834Z\",\"source\":\"http://localhost:61282/incident-lab-canary/page\",\"summary\":\"Actual HTTP 200 after manual restoration; body matches baseline SHA256 cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e\"}]",
+        "change_json": "{\"kind\":\"actions\",\"summary\":\"Record verified local recovery after the guarded local caption action.\",\"actions\":[{\"op\":\"verify\",\"target\":\"http://localhost:61282/incident-lab-canary/page\",\"detail\":\"Record the three observed HTTP 200 results and unchanged control after explicit explicit guarded local configuration restoration; no additional action requested.\"}],\"incident\":{\"version\":\"composer.incident-sitrep/1\",\"id\":\"isolated-caption-fault-0001\",\"mode\":\"isolated-lab\",\"service\":\"Owned localhost caption canary\",\"owner\":\"Fictional incident owner\",\"impact\":\"The temporary Team A canary page returns actual HTTP 500 after an authorized local configuration fault; production is unaffected.\",\"firstSeen\":\"2026-10-25T10:35:02.168Z\",\"lastSeen\":\"2026-10-25T10:35:07.846Z\",\"observations\":[{\"text\":\"Actual localhost 500; response SHA256 a5343f5a69f5bedcfa60370dec3962b37fe6f2e36d2c66d30e1053593b8dc26f. Recorded in the owned isolated lab.\",\"evidence\":\"failure-01\"},{\"text\":\"Actual localhost 200; response SHA256 cca51720e67e5fd70fc987e5529d04b66254979a63a3ade30ef15e0ba9a84736. Recorded in the owned isolated lab.\",\"evidence\":\"health-02\"},{\"text\":\"Actual localhost 200; response SHA256 807b79126425156c11ee747e76adc590d6df46e0ce90243c7865b7f3feee3614. Scoped D1 read succeeded and caption is null.\",\"evidence\":\"data-03\"},{\"text\":\"Actual localhost 200; response SHA256 2d02f199df3ccac03530369b1950ca4bb014ca2840e31b23c0cd6cf1b881e4e4. Unrelated Team B control matches its baseline.\",\"evidence\":\"control-04\"},{\"text\":\"Actual HTTP 200 after manual restoration; body matches baseline SHA256 cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e\",\"evidence\":\"recovery-01\"},{\"text\":\"Actual HTTP 200 after manual restoration; body matches baseline SHA256 cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e\",\"evidence\":\"recovery-02\"},{\"text\":\"Actual HTTP 200 after manual restoration; body matches baseline SHA256 cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e\",\"evidence\":\"recovery-03\"}],\"hypotheses\":[{\"explanation\":\"The optional caption is null but the canary source calls trim without validation.\",\"confidence\":\"supported\",\"nextCheck\":\"Add null-safe validation before treating the defect as fixed; restoration mitigates this known configuration only.\"},{\"explanation\":\"The data store is unavailable.\",\"confidence\":\"disproved\",\"nextCheck\":\"Keep the successful scoped data read; shallow health alone cannot establish the affected journey.\"}],\"stepsTaken\":[\"Injected one documented NULL caption in the owned local D1 canary.\",\"Observed repeated HTTP 500, successful scoped data/health reads and unchanged control.\",\"Owner sent the original investigation back, reviewed revision 2 and approved the exact guarded local restoration.\",\"Operator restored through the finite local action the prior caption with a D1 revision guard; three real page responses matched the baseline and Team B stayed unchanged.\"],\"unknowns\":[\"The nullable-caption source defect remains; only the prior local configuration was restored.\",\"No autonomous investigation independence, execution adapter, production recovery or provider notification is established.\"],\"nextUpdate\":\"Before any code repair or provider exercise; this controlled local configuration drill is complete.\",\"recovery\":\"verified-in-isolated-lab\",\"notification\":\"not-sent\"}}"
+      },
+      {
+        "proposal_id": "prop-59d58bbb-a950-4437-a4d8-dabd2bddb13d",
+        "version": 1,
+        "digest": "e0d208415b389bb5c30142995cf1d76c56f1b43e6528fb7a837d1afb2345218f",
+        "source_json": "{\"kind\":\"local-path\",\"path\":\"src/pages/incident-lab-canary/[...path].ts\",\"contentHash\":\"8c7416320ad8958a9602aa1b76a35d1d1e431d0756d5f3744c32a3cee879bf97\",\"files\":1,\"bytes\":1250,\"checkedAt\":\"2026-10-25T10:35:02.014Z\"}",
+        "evidence_json": "[{\"environment\":\"incident-desk-local\",\"id\":\"control-04\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:02.283Z\",\"source\":\"http://localhost:61282/incident-lab-canary/control\",\"summary\":\"Actual localhost 200; response SHA256 2d02f199df3ccac03530369b1950ca4bb014ca2840e31b23c0cd6cf1b881e4e4. Unrelated Team B control matches its baseline.\"},{\"environment\":\"incident-desk-local\",\"id\":\"data-03\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:02.274Z\",\"source\":\"http://localhost:61282/incident-lab-canary/data\",\"summary\":\"Actual localhost 200; response SHA256 807b79126425156c11ee747e76adc590d6df46e0ce90243c7865b7f3feee3614. Scoped D1 read succeeded and caption is null.\"},{\"environment\":\"incident-desk-local\",\"id\":\"failure-01\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:02.168Z\",\"source\":\"http://localhost:61282/incident-lab-canary/page\",\"summary\":\"Actual localhost 500; response SHA256 a5343f5a69f5bedcfa60370dec3962b37fe6f2e36d2c66d30e1053593b8dc26f. Recorded in the owned isolated lab.\"},{\"environment\":\"incident-desk-local\",\"id\":\"health-02\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:02.264Z\",\"source\":\"http://localhost:61282/incident-lab-canary/health\",\"summary\":\"Actual localhost 200; response SHA256 cca51720e67e5fd70fc987e5529d04b66254979a63a3ade30ef15e0ba9a84736. Recorded in the owned isolated lab.\"}]",
+        "change_json": "{\"kind\":\"actions\",\"summary\":\"Investigate the actual localhost caption failure before guarded recovery.\",\"actions\":[{\"op\":\"investigate\",\"target\":\"http://localhost:61282/incident-lab-canary/page\",\"detail\":\"Check missing-caption input and scoped data response; do not change the service.\"}],\"incident\":{\"version\":\"composer.incident-sitrep/1\",\"id\":\"isolated-caption-fault-0001\",\"mode\":\"isolated-lab\",\"service\":\"Owned localhost caption canary\",\"owner\":\"Fictional incident owner\",\"impact\":\"The temporary Team A canary page returns actual HTTP 500 after an authorized local configuration fault; production is unaffected.\",\"firstSeen\":\"2026-10-25T10:35:02.168Z\",\"lastSeen\":\"2026-10-25T10:35:02.283Z\",\"observations\":[{\"text\":\"Actual localhost 500; response SHA256 a5343f5a69f5bedcfa60370dec3962b37fe6f2e36d2c66d30e1053593b8dc26f. Recorded in the owned isolated lab.\",\"evidence\":\"failure-01\"},{\"text\":\"Actual localhost 200; response SHA256 cca51720e67e5fd70fc987e5529d04b66254979a63a3ade30ef15e0ba9a84736. Recorded in the owned isolated lab.\",\"evidence\":\"health-02\"},{\"text\":\"Actual localhost 200; response SHA256 807b79126425156c11ee747e76adc590d6df46e0ce90243c7865b7f3feee3614. Scoped D1 read succeeded and caption is null.\",\"evidence\":\"data-03\"},{\"text\":\"Actual localhost 200; response SHA256 2d02f199df3ccac03530369b1950ca4bb014ca2840e31b23c0cd6cf1b881e4e4. Unrelated Team B control matches its baseline.\",\"evidence\":\"control-04\"}],\"hypotheses\":[{\"explanation\":\"The optional caption is null but the canary source calls trim without validation.\",\"confidence\":\"supported\",\"nextCheck\":\"Compare the exact retained canary source and D1 row; restore only the prior local caption after owner review.\"},{\"explanation\":\"The data store is unavailable.\",\"confidence\":\"disproved\",\"nextCheck\":\"Keep the successful scoped data read; shallow health alone cannot establish the affected journey.\"}],\"stepsTaken\":[\"Injected one documented NULL caption in the owned local D1 canary.\",\"Observed repeated HTTP 500, successful scoped data/health reads and unchanged control.\"],\"unknowns\":[\"Recovery is not yet verified.\",\"No production/provider outage or notification delivery is exercised; the author of this controlled fault is also the investigator.\"],\"nextUpdate\":\"After owner review, explicit guarded local configuration restoration and repeated HTTP recovery checks.\",\"recovery\":\"unverified\",\"notification\":\"not-sent\"}}"
+      },
+      {
+        "proposal_id": "prop-59d58bbb-a950-4437-a4d8-dabd2bddb13d",
+        "version": 2,
+        "digest": "9ff717e5d2d6e7994a67b7a87520130c4ad7648e236bf2d0e3a6eb941dc2e913",
+        "source_json": "{\"kind\":\"local-path\",\"path\":\"src/pages/incident-lab-canary/[...path].ts\",\"contentHash\":\"8c7416320ad8958a9602aa1b76a35d1d1e431d0756d5f3744c32a3cee879bf97\",\"files\":1,\"bytes\":1250,\"checkedAt\":\"2026-10-25T10:35:06.554Z\"}",
+        "evidence_json": "[{\"environment\":\"incident-desk-local\",\"id\":\"control-04\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:02.283Z\",\"source\":\"http://localhost:61282/incident-lab-canary/control\",\"summary\":\"Actual localhost 200; response SHA256 2d02f199df3ccac03530369b1950ca4bb014ca2840e31b23c0cd6cf1b881e4e4. Unrelated Team B control matches its baseline.\"},{\"environment\":\"incident-desk-local\",\"id\":\"data-03\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:02.274Z\",\"source\":\"http://localhost:61282/incident-lab-canary/data\",\"summary\":\"Actual localhost 200; response SHA256 807b79126425156c11ee747e76adc590d6df46e0ce90243c7865b7f3feee3614. Scoped D1 read succeeded and caption is null.\"},{\"environment\":\"incident-desk-local\",\"id\":\"failure-01\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:02.168Z\",\"source\":\"http://localhost:61282/incident-lab-canary/page\",\"summary\":\"Actual localhost 500; response SHA256 a5343f5a69f5bedcfa60370dec3962b37fe6f2e36d2c66d30e1053593b8dc26f. Recorded in the owned isolated lab.\"},{\"environment\":\"incident-desk-local\",\"id\":\"health-02\",\"kind\":\"actual-local-http\",\"observedAt\":\"2026-10-25T10:35:02.264Z\",\"source\":\"http://localhost:61282/incident-lab-canary/health\",\"summary\":\"Actual localhost 200; response SHA256 cca51720e67e5fd70fc987e5529d04b66254979a63a3ade30ef15e0ba9a84736. Recorded in the owned isolated lab.\"},{\"environment\":\"incident-desk-local\",\"id\":\"source-05\",\"kind\":\"actual-local-source\",\"observedAt\":\"2026-10-25T10:35:06.553Z\",\"source\":\"owned-local-source://canary-route\",\"summary\":\"Retained canary source SHA256 8c7416320ad8958a9602aa1b76a35d1d1e431d0756d5f3744c32a3cee879bf97; nullable caption is passed directly to trim. Exact pre-fault caption and guarded restoration scope are recorded.\"}]",
+        "change_json": "{\"kind\":\"actions\",\"summary\":\"Restore the prior caption through the guarded local action after reviewing the actual local evidence.\",\"actions\":[{\"op\":\"configure\",\"target\":\"incident-canary.caption\",\"detail\":\"{\\\"version\\\":\\\"composer.caption-recovery/1\\\",\\\"team\\\":\\\"fictional-team-a\\\",\\\"expectedRevision\\\":2,\\\"expectedCaption\\\":null,\\\"caption\\\":\\\"Fictional Team A canary is available.\\\"}\"}],\"incident\":{\"version\":\"composer.incident-sitrep/1\",\"id\":\"isolated-caption-fault-0001\",\"mode\":\"isolated-lab\",\"service\":\"Owned localhost caption canary\",\"owner\":\"Fictional incident owner\",\"impact\":\"The temporary Team A canary page returns actual HTTP 500 after an authorized local configuration fault; production is unaffected.\",\"firstSeen\":\"2026-10-25T10:35:02.168Z\",\"lastSeen\":\"2026-10-25T10:35:02.283Z\",\"observations\":[{\"text\":\"Actual localhost 500; response SHA256 a5343f5a69f5bedcfa60370dec3962b37fe6f2e36d2c66d30e1053593b8dc26f. Recorded in the owned isolated lab.\",\"evidence\":\"failure-01\"},{\"text\":\"Actual localhost 200; response SHA256 cca51720e67e5fd70fc987e5529d04b66254979a63a3ade30ef15e0ba9a84736. Recorded in the owned isolated lab.\",\"evidence\":\"health-02\"},{\"text\":\"Actual localhost 200; response SHA256 807b79126425156c11ee747e76adc590d6df46e0ce90243c7865b7f3feee3614. Scoped D1 read succeeded and caption is null.\",\"evidence\":\"data-03\"},{\"text\":\"Actual localhost 200; response SHA256 2d02f199df3ccac03530369b1950ca4bb014ca2840e31b23c0cd6cf1b881e4e4. Unrelated Team B control matches its baseline.\",\"evidence\":\"control-04\"}],\"hypotheses\":[{\"explanation\":\"The optional caption is null but the canary source calls trim without validation.\",\"confidence\":\"supported\",\"nextCheck\":\"Compare the exact retained canary source and D1 row; restore only the prior local caption after owner review.\"},{\"explanation\":\"The data store is unavailable.\",\"confidence\":\"disproved\",\"nextCheck\":\"Keep the successful scoped data read; shallow health alone cannot establish the affected journey.\"}],\"stepsTaken\":[\"Injected one documented NULL caption in the owned local D1 canary.\",\"Observed repeated HTTP 500, successful scoped data/health reads and unchanged control.\",\"Compared actual NULL D1 row with retained canary source; proposed guarded manual restoration of the exact prior caption.\"],\"unknowns\":[\"Recovery is not yet verified.\",\"No production/provider outage or notification delivery is exercised; the author of this controlled fault is also the investigator.\"],\"nextUpdate\":\"After owner review, explicit guarded local configuration restoration and repeated HTTP recovery checks.\",\"recovery\":\"unverified\",\"notification\":\"not-sent\"}}"
+      }
+    ],
+    "reviews": [
+      {
+        "proposal_id": "prop-59d58bbb-a950-4437-a4d8-dabd2bddb13d",
+        "version": 1,
+        "decision": "request-changes",
+        "reason": "Keep the failing request and control. Compare the retained source and exact prior caption before proposing a guarded manual restoration."
+      },
+      {
+        "proposal_id": "prop-59d58bbb-a950-4437-a4d8-dabd2bddb13d",
+        "version": 2,
+        "decision": "accept",
+        "reason": "Reviewed actual localhost failure, source and unchanged control. Approve only the documented local caption action; execution still requires explicit owner-local invocation and independent verification."
+      },
+      {
+        "proposal_id": "prop-112fc028-c64d-4183-8a65-bbf4af611c45",
+        "version": 1,
+        "decision": "accept",
+        "reason": "Accept the separate recovery evidence record: three actual localhost responses match baseline, control unchanged, source defect remains. No execution or provider claim."
+      }
+    ],
+    "canary": [
+      {
+        "team": "fictional-team-a",
+        "caption": "Fictional Team A canary is available.",
+        "revision": 3
+      },
+      {
+        "team": "fictional-team-b",
+        "caption": "Fictional Team B control stays unchanged.",
+        "revision": 1
+      }
+    ]
+  },
+  "expectedConflictConsole": [
+    "Failed to load resource: the server responded with a status of 409 (Conflict)"
+  ],
+  "success": true,
+  "headings": [
+    {
+      "html": "<h1>Incident Desk</h1>",
+      "hidden": false,
+      "role": null
+    },
+    {
+      "html": "<h2>Record verified local recovery after the guarded local caption action.</h2>",
+      "hidden": false,
+      "role": null
+    }
+  ],
+  "finalPage": {
+    "url": "http://localhost:61282/_emdash/admin/plugins/composer-stacks/incidents?workspace=925cafbd-96dc-4055-a29e-26326e92b36e",
+    "text": "Fictional Incident Desk\nDashboard\nCalendar\nContent\nMini-app catalogue\nMedia\nManage\nComments\nMenus\nRedirects\nWidgets\nSections\nCategories\nTags\nBylines\nAdmin\nContent Types\nByline Schema\nUsers\nPlugins\nImport\nSettings\nPlugins\nManage mini-apps\nCreator stacks\nInternal platform\nWorkspace access\nAnalytics & outcomes\nWorkspace maintenance\nPrivate enquiries\nWorkflows\nNeeds attention\nOrders\nConnections\nApp resources\nAgent proposals\nPlugin Trust Centre\nBrand Studio\nIncident Desk\n\nEmDash v1.3.1 (12a179389)\n\nView Site\nSwitch to light\nF\nIncident Desk\nRefresh\n\nWorkspace Fictional incident owner · owner · proposals are limited to local and isolated Preview environments\n\nReview the investigation, send it back with instructions or approve its exact proposal. Approval records a decision; recovery and notification delivery need their own evidence.\n\nRole packs\nOpen the safe replay\nHow proposals work\nWorkspace access\n\nAccepted the exact digest. Nothing was executed. Prepare a separate handoff only when the existing release flow is ready.\n\nShow\nAll states\nSubmitted\nChanges requested\nAccepted\nRejected\n\n2 shown · latest 20 · newest first\n\nRecord verified local recovery after the guarded local caption action.\ndevops · guestbook · incident-desk-local\nAccepted\nLow risk · v1\nRestore the prior caption through the guarded local action after reviewing the actual local evidence.\ndevops · guestbook · incident-desk-local\nAccepted\nLow risk · v2\nRecord verified local recovery after the guarded local caption action.\nAccepted\n\nNext action: The digest is accepted. Prepare a separate handoff for the existing release flow; acceptance alone executes nothing.\n\nCompare versions\nISOLATED LAB\nisolated-caption-fault-0001\nSituation report\n\nThe temporary Team A canary page returns actual HTTP 500 after an authorized local configuration fault; production is unaffected.\n\nService / owner\nOwned localhost caption canary · Fictional incident owner\nFirst / last seen\n2026-10-25T10:35:02.168Z / 2026-10-25T10:35:07.846Z\nReported recovery\nReported verified in isolated lab — inspect cited evidence\nOwner notice\nNot sent\nPagerDuty\nNot connected\nObserved\nActual localhost 500; response SHA256 a5343f5a69f5bedcfa60370dec3962b37fe6f2e36d2c66d30e1053593b8dc26f. Recorded in the owned isolated lab.\nEvidence: failure-01\nActual localhost 200; response SHA256 cca51720e67e5fd70fc987e5529d04b66254979a63a3ade30ef15e0ba9a84736. Recorded in the owned isolated lab.\nEvidence: health-02\nActual localhost 200; response SHA256 807b79126425156c11ee747e76adc590d6df46e0ce90243c7865b7f3feee3614. Scoped D1 read succeeded and caption is null.\nEvidence: data-03\nActual localhost 200; response SHA256 2d02f199df3ccac03530369b1950ca4bb014ca2840e31b23c0cd6cf1b881e4e4. Unrelated Team B control matches its baseline.\nEvidence: control-04\nActual HTTP 200 after manual restoration; body matches baseline SHA256 cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e\nEvidence: recovery-01\nActual HTTP 200 after manual restoration; body matches baseline SHA256 cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e\nEvidence: recovery-02\nActual HTTP 200 after manual restoration; body matches baseline SHA256 cac72ee7b8ae860823a3fb34c6662c1afd4b6444018434a1e6892ecbc7935a5e\nEvidence: recovery-03\nHypotheses to test\nsupported: The optional caption is null but the canary source calls trim without validation.\n\nNext check: Add null-safe validation before treating the defect as fixed; restoration mitigates this known configuration only.\n\ndisproved: The data store is unavailable.\n\nNext check: Keep the successful scoped data read; shallow health alone cannot establish the affected journey.\n\nSteps already taken\nInjected one documented NULL caption in the owned local D1 canary.\nObserved repeated HTTP 500, successful scoped data/health reads and unchanged control.\nOwner sent the original investigation back, reviewed revision 2 and approved the exact guarded local restoration.\nOperator restored through the finite local action the pr"
+  }
+}
