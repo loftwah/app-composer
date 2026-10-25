@@ -65,6 +65,7 @@ The checker requires all of the following in `wrangler.jsonc` and in the generat
 - `PUBLIC_ORIGIN` is distinct from production;
 - D1, R2 and KV bindings each point at a distinct preview resource, never a production ID or bucket;
 - no app service bindings, routes or cron triggers;
+- no Queue producer/consumer or Workflow binding, in either the authored preview or generated candidate; these background paths have no qualified isolation in this journey;
 - the generated Worker name matches `env.preview`, which proves `CLOUDFLARE_ENV=preview` was selected at build time rather than only at deploy time.
 
 The candidate receipt records the generated configuration digest and `uploaded: false`. It leaves `dist/` containing the preview build; the release step rebuilds production before upload.

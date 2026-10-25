@@ -1,0 +1,294 @@
+{
+  "receipts": [
+    {
+      "sourceId": 7,
+      "path": "/2026/09/leave-room-for-a-slow-morning/",
+      "status": 200
+    },
+    {
+      "sourceId": 8,
+      "path": "/2026/09/a-table-beside-the-garden/",
+      "status": 200
+    },
+    {
+      "sourceId": 9,
+      "path": "/2026/09/field-notes-for-the-walk-home/",
+      "status": 200
+    },
+    {
+      "sourceId": 10,
+      "path": "/2026/09/pack-an-unhurried-weekend/",
+      "status": 200
+    },
+    {
+      "sourceId": 11,
+      "path": "/?p=11",
+      "status": 404
+    },
+    {
+      "sourceId": 12,
+      "path": "/2026/09/private-editorial-notes/",
+      "status": 404
+    },
+    {
+      "sourceId": 13,
+      "path": "/?p=13",
+      "status": 404
+    },
+    {
+      "sourceId": 14,
+      "path": "/?p=14",
+      "status": 404
+    },
+    {
+      "sourceId": 15,
+      "path": "/about/",
+      "status": 200
+    },
+    {
+      "sourceId": 16,
+      "path": "/weekend-guide/",
+      "status": 200
+    },
+    {
+      "sourceId": 17,
+      "path": "/about/editorial-policy/",
+      "status": 200
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "light",
+      "overflow": false,
+      "images": [
+        {
+          "src": "http://localhost:61830/brand/composer-icon-20261022b-96.png",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/brand/composer-icon-20261022b-96.png",
+          "loaded": true
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "http://localhost:61830/brand/apps/launch-kit-20261023-32.png",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/brand/apps/paperwork-icon-20261024.svg",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/brand/apps/ldraw-tile-fa7a2ab6171c-010cfbd2-r2-96.webp",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/_image?href=http%3A%2F%2Flocalhost%3A61830%2F_emdash%2Fapi%2Fmedia%2Ffile%2F01M5SABKR808VKM24GFKX1CKP9.webp&w=1048&h=1342&fit=cover&position=center",
+          "loaded": true
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": "dark",
+      "overflow": false,
+      "images": [
+        {
+          "src": "http://localhost:61830/brand/composer-icon-20261022b-96.png",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/brand/composer-icon-20261022b-96.png",
+          "loaded": true
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "http://localhost:61830/brand/apps/launch-kit-20261023-32.png",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/brand/apps/paperwork-icon-20261024.svg",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/brand/apps/ldraw-tile-fa7a2ab6171c-010cfbd2-r2-96.webp",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/_image?href=http%3A%2F%2Flocalhost%3A61830%2F_emdash%2Fapi%2Fmedia%2Ffile%2F01M5SABKR808VKM24GFKX1CKP9.webp&w=1048&h=1342&fit=cover&position=center",
+          "loaded": true
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "light",
+      "overflow": false,
+      "images": [
+        {
+          "src": "http://localhost:61830/brand/composer-icon-20261022b-96.png",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/brand/composer-icon-20261022b-96.png",
+          "loaded": true
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "http://localhost:61830/brand/apps/launch-kit-20261023-32.png",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/brand/apps/paperwork-icon-20261024.svg",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/brand/apps/ldraw-tile-fa7a2ab6171c-010cfbd2-r2-96.webp",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/_image?href=http%3A%2F%2Flocalhost%3A61830%2F_emdash%2Fapi%2Fmedia%2Ffile%2F01M5SABKR808VKM24GFKX1CKP9.webp&w=1048&h=1342&fit=cover&position=center",
+          "loaded": true
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "theme": "dark",
+      "overflow": false,
+      "images": [
+        {
+          "src": "http://localhost:61830/brand/composer-icon-20261022b-96.png",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/brand/composer-icon-20261022b-96.png",
+          "loaded": true
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "",
+          "loaded": false
+        },
+        {
+          "src": "http://localhost:61830/brand/apps/launch-kit-20261023-32.png",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/brand/apps/paperwork-icon-20261024.svg",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/brand/apps/ldraw-tile-fa7a2ab6171c-010cfbd2-r2-96.webp",
+          "loaded": true
+        },
+        {
+          "src": "http://localhost:61830/_image?href=http%3A%2F%2Flocalhost%3A61830%2F_emdash%2Fapi%2Fmedia%2Ffile%2F01M5SABKR808VKM24GFKX1CKP9.webp&w=1048&h=1342&fit=cover&position=center",
+          "loaded": true
+        }
+      ]
+    }
+  ],
+  "bytes": [
+    {
+      "id": "01M5SABKRGPA9PTC7NHX26T0B2",
+      "sha256": "6873efa2823693885dcb88526d155c461d23d785f817249e5721b92025133059",
+      "bytes": 129970
+    },
+    {
+      "id": "01M5SABM4SSTMXAGB5FA5DQ9AQ",
+      "sha256": "29d0c0b5ac0c692f00a5ff0bcc7ae7e169448df3ce62f3b81cd9cba09ff31220",
+      "bytes": 60176
+    },
+    {
+      "id": "01M5SABMGKP5SCSY3XW0MJ4ZTD",
+      "sha256": "90d27dc0bfe74f5d21f8fda2cf49627f6d12f81176ec393b05a84120bb0d0423",
+      "bytes": 221
+    }
+  ],
+  "unauthenticatedMediaInventory": 401,
+  "sourceRequests": []
+}

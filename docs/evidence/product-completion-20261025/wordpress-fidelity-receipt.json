@@ -1,0 +1,32 @@
+{
+  "schema": "composer.wordpress-fidelity/1",
+  "runtime": "emdash@1.3.1",
+  "sourceOrigin": "https://jerusalem-longer-racing-fans.trycloudflare.com",
+  "nativeEntryPatches": 4,
+  "nativeMediaPatches": 2,
+  "categoryParentRestored": true,
+  "revisions": [
+    {
+      "id": "01M5SAAW92J9TS74AHMTJ9HJ77",
+      "draftRevisionId": "01M5SAQ21QTHFHXDBCP6WB2KZP",
+      "previousStatus": "published"
+    },
+    {
+      "id": "01M5SAAWA8JASCV7K37A9MPGSZ",
+      "draftRevisionId": "01M5SAQ24N6EYM2Y4T3ASEHYY9",
+      "previousStatus": "published"
+    },
+    {
+      "id": "01M5SAAWAYS8WQT735JDNMV9XB",
+      "draftRevisionId": "01M5SAQ26P02PEJH4P6VV3R842",
+      "previousStatus": "published"
+    },
+    {
+      "id": "01M5SAAWBPJZ98MYSR2NDD5ZBA",
+      "draftRevisionId": "01M5SAQ28NZ33E1TB9MWN48NA6",
+      "previousStatus": "published"
+    }
+  ],
+  "publication": "explicit native publish for previously published records only",
+  "success": true
+}

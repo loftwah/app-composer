@@ -26,17 +26,17 @@ export const diagramAtlas: readonly AtlasDiagram[] = [
   },
   {
     name: 'agent-approval-boundary',
-    assetName: 'agent-approval-boundary-20261025-model',
+    assetName: 'agent-approval-recovery-20261025',
     imageWidth: 2016, imageHeight: 987,
-    title: 'Local agent → human review → separate release handoff',
-    alt: 'A local agent inspects an authorised workspace and returns a reviewable proposal. A signed-in human accepts, sends back with notes or rejects it. Proposal review rechecks the submitted source and accepted proposal digest. A manual handoff leads to the existing release guard with clean pushed main, app scope, checks and live verification. The execution adapter is not connected. The agent grant cannot approve, deploy, merge, spend, read secrets or change access.',
-    caption: 'Revised through the local LDraw MCP by a Codex session, then curated for readable publication. Approval and execution remain separate actions.',
+    title: 'Local agent → owner review → verified local recovery',
+    alt: 'A local agent investigates a fictional application and submits a proposal. A signed-in human owner accepts, sends back with notes or rejects it. Separate explicit execution checks the accepted digest, source, grant, app scope and current revision before one fixed local caption repair. Three independent HTTP response hashes confirm recovery. Production actions remain separately gated. The agent grant cannot approve, deploy, merge, spend, read secrets or change access.',
+    caption: 'Revised through the local LDraw MCP to explain the qualified local caption repair. Approval, execution and recovery verification remain separate actions.',
     usedOn: [{ label: 'Agent entry', href: '/agent' }, { label: 'Architecture', href: '/architecture#ownership' }],
     steps: [
-      { title: 'Local agent', detail: 'Uses the owner’s machine, model and selected workspace under a read-only scope.' },
+      { title: 'Local agent', detail: 'Investigates the selected workspace under its scoped grant and cites the observed failure, control and uncertainty.' },
       { title: 'Scoped proposal', detail: 'Records source identity, cited evidence, risk, unknowns and one bounded change.' },
       { title: 'Human review', detail: 'Accept, send back with notes, or reject. Returning work preserves prior findings, links and versions.' },
-      { title: 'Execution boundary', detail: 'Approval does not execute. The execution adapter is not connected; a separate manual handoff uses the existing clean pushed-main release path, scoped environment, checks and live verification.' },
+      { title: 'Execution and verification', detail: 'Approval does not execute. An explicit owner-local command rechecks the exact accepted candidate, source, grant and current state before one fixed caption repair. Three independent HTTP samples and the unaffected team must match. Production operations require their own qualified adapter and authority.' },
     ],
   },
   {

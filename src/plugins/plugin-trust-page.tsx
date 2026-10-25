@@ -367,7 +367,7 @@ export function PluginTrustPage() {
             <h2>Installation on this site remains unqualified</h2>
             <p>
               This Composer build has no registry configuration, sandbox runner
-              or LOADER binding. Workers Paid / Dynamic Workers entitlement, an
+              or LOADER binding. Workers Paid / Dynamic Workers entitlement and
               Cloudflare lifecycle qualification remain required. This page
               cannot install, update, enable, disable or uninstall anything.
             </p>

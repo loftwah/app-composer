@@ -1,0 +1,66 @@
+{
+  "schema": "composer.production-owner-acceptance/1",
+  "source": "d3e0b67de2b05315351af9ff2c89b70dec75fd56",
+  "worker": "34bce397-4bc4-4f9a-b2c3-b8502197dcc3",
+  "observedAt": "2026-10-25T11:24:00Z",
+  "method": "Existing owner Chrome session, native EmDash UI through browser extension; read-only D1 count comparison",
+  "brand": {
+    "unsavedReadingPresetCompared": true,
+    "siteNameAndFooterRetained": true,
+    "restoredEverydayToSavedForm": true,
+    "version4RestoreReviewedAndCancelled": true,
+    "savedOrPublished": false,
+    "before": {
+      "revision": 5,
+      "published_version": 5,
+      "retained_versions": 5
+    },
+    "after": {
+      "revision": 5,
+      "published_version": 5,
+      "retained_versions": 5
+    }
+  },
+  "permissions": {
+    "before": [
+      {
+        "grants": 1
+      },
+      {
+        "audits": 2
+      }
+    ],
+    "after": [
+      {
+        "grants": 1
+      },
+      {
+        "audits": 2
+      }
+    ]
+  },
+  "trustCentre": {
+    "nativeInstalledPlugins": 4,
+    "installedVersionsSeparateFromRegistry": true,
+    "unknownAdvisoriesAndProvenanceExplicit": true,
+    "productionInstallerUnqualified": true
+  },
+  "shopify": {
+    "unconfigured": true,
+    "providerReadDisabled": true,
+    "fictionalTwoProductReviewExpanded": true,
+    "merchantCalls": 0,
+    "ordersCreated": 0
+  },
+  "connections": {
+    "ownedGuestbookRead": "passed",
+    "appSource": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+    "checkedAt": "2026-10-25T11:23:59Z",
+    "emailDelivery": "unverified",
+    "encryptedSettingsRecovery": "unverified"
+  },
+  "limits": [
+    "No physical-device, screen-reader, production Access/MFA or merchant acceptance.",
+    "Reading server-reference metadata and an owned resource does not establish encrypted-settings decryption."
+  ]
+}

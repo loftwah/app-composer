@@ -1,0 +1,16 @@
+{
+  "schema": "app-composer.wordpress-lab/1",
+  "project": "composer-weekender-b12fba30dd1d",
+  "sourceBase": "4b96dd38c4205deea64092fbb10a2b6584d6f73c",
+  "resources": [
+    "composer-weekender-b12fba30dd1d-wordpress-1",
+    "composer-weekender-b12fba30dd1d-database-1",
+    "composer-weekender-b12fba30dd1d_wordpress",
+    "composer-weekender-b12fba30dd1d_database",
+    "composer-weekender-b12fba30dd1d_default"
+  ],
+  "stoppedAt": "2026-10-25T11:28:05.749Z",
+  "dockerDownSucceeded": true,
+  "failure": null,
+  "rootRemoved": true
+}

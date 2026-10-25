@@ -4,7 +4,20 @@ Reviewed 25 October 2026. This page is the current navigation snapshot; [issue #
 
 ## Product delivery and platform hardening — 25 October 2026
 
-Current production is Composer `0866bf266382d3ea7d9e48919c819c62c93e76fa`,
+The integration continuation's first production batch is Composer
+`d3e0b67de2b05315351af9ff2c89b70dec75fd56`, Worker
+`34bce397-4bc4-4f9a-b2c3-b8502197dcc3` (PR #389/#390). Its guarded clean-main
+release passed 1,237 tests with two optional skips and zero failures. It adds
+post-resolution identity checks, useful Team Hub request controls, Brand Studio
+presets/restore review, installed-versus-registry plugin comparison, a bounded
+Shopify catalogue companion and stricter release/Preview guards. Production
+Brand version 5, all five versions and existing grant/audit counts survived.
+Actual native owner reads and the separate local plugin, incident execution,
+recovery, adoption and publisher trials are recorded in the
+[continuation receipts](evidence/product-completion-20261025/). Later promotion
+identities belong to the canonical #11 receipt and `/build.json`.
+
+The previous production baseline was Composer `0866bf266382d3ea7d9e48919c819c62c93e76fa`,
 Worker `e0c800d7-44ee-4c8e-9c36-d151cb33ebb9`, after PR #386. The
 [canonical handoff](https://github.com/loftwah/app-composer/issues/11#issuecomment-6396062089)
 and [final receipt](evidence/platform-release-20261025/final-receipt.json) record
@@ -60,8 +73,10 @@ immutable upstream identity claims, reviewed bindings and recovery; an Access
 subject alone is insufficient. No production IdP policy or existing grant was
 changed.
 
-Native plugin installation still requires the official registry/runner, LOADER,
-entitlement and an authorised isolated lifecycle target. No plugin was installed.
+Production plugin installation still requires the official registry/runner,
+LOADER and entitlement qualification. A separate actual native Node/workerd
+lifecycle now proves installation through uninstall/reinstall and retained
+settings; it does not qualify Cloudflare's installed production path.
 Provider inventory remains read-only: all 88 undeclared Workers are classified
 with current evidence; four legacy targets retain real dependencies/uncertainty
 and are not safe deletion candidates. Hosted provider reads and measured money
@@ -109,12 +124,11 @@ registry lifecycle) are committed in
 [the 25 October research index](research/2026-10-25/README.md). None was turned
 into a speculative platform build.
 
-`EMDASH_ENCRYPTION_KEY` remains malformed. A read-only check found no
-`_plugin_storage` rows and zero plugin-state data, so there is currently no
-encrypted plugin secret to lose; the owner recovery action is in
+`EMDASH_ENCRYPTION_KEY` remains malformed. The earlier empty `_plugin_storage`/plugin-state observation did not cover
+native settings in `options` and cannot establish ciphertext absence. The
+corrected metadata-only coverage and owner recovery procedure are in
 [the encryption-key note](evidence/emdash-encryption-key-20261025.md). Encrypted
-settings stay degraded until an owner-authorised restore or replacement is
-verified.
+settings stay degraded until legitimate owner-authorised recovery is verified.
 
 ## 25 October release
 
@@ -176,8 +190,8 @@ Focused local checks: 16 journey tests, a migration-order guard and the existing
 private-enquiry and notification suites; the rendered 390/1440 dark/light fixture matrix and its
 real measurements are in
 [the inbox journey evidence](evidence/inbox-workflow-20261025/README.md). No
-real mail was sent, no notification was enabled, no inbound-mail adapter exists
-and this branch is not deployed. Authenticated production interaction, provider
+real mail was sent, no notification was enabled and no inbound-mail adapter exists.
+The source is merged; the linked receipt describes its local browser acceptance. Authenticated production interaction, provider
 delivery/reconciliation, scheduling, physical-device and screen-reader
 acceptance remain open. #117/#118/#198/#289/#291 retain those gates.
 

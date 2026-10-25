@@ -1,0 +1,81 @@
+{
+  "schema": "composer.brand-studio-acceptance/1",
+  "warning": "Fictional local native EmDash/D1; virtual passkey. No production Access, MFA, provider or physical-device acceptance.",
+  "source": "9c705a1fdbf07119d14a3346dfc320a122ceb432",
+  "sourceDirty": false,
+  "runtimeSourceHashes": {
+    "src/lib/admin-brand.ts": "47a7f5e50107499586c536b680b3fbf4968f145132f6a4fd894aee0780a05277",
+    "src/lib/admin-brand-contract.ts": "63748816f950e28812f5a89c82c38224958e7c0bc4059b0c768d4e0a849982fa",
+    "src/plugins/brand-studio-page.tsx": "8553c286e76d097f3ec9370a42139986eed420afd71a588dfc701e6278979f7a",
+    "src/plugins/brand-studio-page.css": "fff2f8b5789d76fae1d8affa1f79e298424456695374608a8b47b9ccfa839fac",
+    "migrations/0020_admin_brand_studio.sql": "5c94fd8a5ad1490a3717e890447e4b48e1c06ae6b726cf3fb7382840ddb0f125"
+  },
+  "captures": [
+    "before-native-1440-dark.png",
+    "second-draft-native-phone.png",
+    "studio-1440-dark.png",
+    "after-native-1440-dark.png",
+    "studio-1440-light.png",
+    "after-native-1440-light.png",
+    "studio-390-dark.png",
+    "after-native-390-dark.png",
+    "studio-390-light.png",
+    "after-native-390-light.png",
+    "history-390-light.png",
+    "studio-390-light-double-root-text.png"
+  ],
+  "checks": {
+    "actualNativePreview": true,
+    "anonymousStylesDenied": true,
+    "secondChangePreservedFirst": true,
+    "rollbackPreservedHistory": true,
+    "unsafeImportRetainedForm": true,
+    "keyboardForm": true,
+    "doubleRootTextReflow": true,
+    "nativePerRequestConfig": true,
+    "persistedVersions": [
+      {
+        "version": 5,
+        "event": "rollback",
+        "siteName": "App Composer Studio",
+        "footerLabel": "Built with App Composer"
+      },
+      {
+        "version": 4,
+        "event": "publish",
+        "siteName": "App Composer Studio",
+        "footerLabel": "Composer operations"
+      },
+      {
+        "version": 3,
+        "event": "draft",
+        "siteName": "App Composer Studio",
+        "footerLabel": "Composer operations"
+      },
+      {
+        "version": 2,
+        "event": "publish",
+        "siteName": "App Composer Studio",
+        "footerLabel": "Built with App Composer"
+      },
+      {
+        "version": 1,
+        "event": "draft",
+        "siteName": "App Composer Studio",
+        "footerLabel": "Built with App Composer"
+      }
+    ]
+  },
+  "cleanup": true,
+  "integrationSeams": [
+    "Native page/route registration only in fixture copy.",
+    "Existing shared middleware calls prepareAdminBrand before next, brandAdminResponse after next.",
+    "Existing fixture: Access removed; native passkeys, local origin, no provider bindings."
+  ],
+  "pageErrors": [],
+  "success": true,
+  "integrationSeamCorrection": [
+    "Current source supplied native registrations without registration patches.",
+    "Fixture-only Brand middleware replaced the shared middleware; the actual Brand helpers remained in use."
+  ]
+}

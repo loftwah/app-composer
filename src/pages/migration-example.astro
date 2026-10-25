@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="A WordPress publisher, migrated and edited" description="Inspect the fictional Macedon Weekender migration: native EmDash import, owned media, preserved URLs, editable stories and source-off checks.">
+  <article class="migration-example">
+    <h1>Move a publisher.<br />Keep editing its stories.</h1>
+    <p class="lede">Macedon Weekender is a fictional magazine used to test an ordinary publishing job: import from WordPress, repair the details, edit a story and keep publishing after the source is turned off.</p>
+    <div class="example-actions"><a class="button" href="/init/content">Try an editable content model</a><a href="https://github.com/loftwah/app-composer/tree/main/labs/wordpress/weekender">Inspect and run the publisher recipe</a></div>
+    <figure>
+      <a href="/evidence/weekender-reader-20261025.png" aria-label="Inspect the complete source-off article capture"><img src="/evidence/weekender-reader-20261025.png" width="1440" height="2245" alt="Actual local Macedon Weekender article rendered from native EmDash after its WordPress source was stopped." /></a>
+      <figcaption>Actual local browser capture, 25 October 2026. Fictional content, EmDash 1.3.1. The imported photograph's caption identifies its source; it is not a photograph of Macedon.</figcaption>
+    </figure>
+    <section aria-labelledby="work-heading">
+      <h2 id="work-heading">The complete small publishing job</h2>
+      <ol>
+        <li><strong>Import into an empty app.</strong> Composer's content recipe created an independent application. The native EmDash wizard imported eight posts, three pages and three original media files from genuine WordPress 7.1.3.</li>
+        <li><strong>Reconcile before cutover.</strong> The wizard rewrote eight media URLs. Exact media-byte matches guided the conversion of featured-image references, restored alt text/captions and the category parent. Native saves and explicit publication kept the four nonpublic stories private or scheduled.</li>
+        <li><strong>Make a second owner change.</strong> Two native rich-text edits retained every original paragraph, the first owner note, the app-owned image and the downloadable guide. Each saved change remained private until Publish changes was confirmed.</li>
+        <li><strong>Stop the source and check again.</strong> A fresh unauthenticated browser checked the seven public and four nonpublic addresses, all original media bytes, both themes and phone/desktop layouts. No request reached the retired source.</li>
+      </ol>
+    </section>
+    <section aria-labelledby="decision-heading">
+      <h2 id="decision-heading">A migration decision you can inspect</h2>
+      <div class="table-scroll"><table><thead><tr><th scope="col">Requirement</th><th scope="col">This example establishes</th></tr></thead><tbody>
+        <tr><th scope="row">Content and editing</th><td>Original text and bylines; native revisions, explicit publication and nonpublic visibility. WordPress private and pending stories become native drafts.</td></tr>
+        <tr><th scope="row">Media and links</th><td>Destination-owned files with matching bytes, working guide links and reviewed image descriptions.</td></tr>
+        <tr><th scope="row">Old addresses</th><td>The bounded original article/page paths and visibility-aware legacy ID redirects.</td></tr>
+        <tr><th scope="row">Broader WordPress behaviour</th><td>Elementor, ACF, WooCommerce, dynamic blocks, full metadata/comment parity and future scheduling need their own trials.</td></tr>
+        <tr><th scope="row">Deployment and recovery</th><td>This is an isolated local application. Hosted access, production cutover and provider restore remain separate gates.</td></tr>
+      </tbody></table></div>
+      <p>The earlier trial upgraded the same destination database and media from EmDash 1.2 to 1.3.1. This continuation separately exercised a fresh 1.3.1 import. Neither establishes universal WordPress plugin compatibility.</p>
+      <div class="example-actions"><a href="https://github.com/loftwah/app-composer/blob/main/labs/wordpress/weekender/OBSERVATIONS.md">Read the exact observations and go/no-go boundary</a><a href="/plugin-trust">Review plugin evidence</a></div>
+    </section>
+  </article>
+</Base>
+<style>
+  .migration-example { max-width:1080px; }
+  h1 { max-width:21ch; font-size:clamp(2.4rem,5.4vw,4.6rem); line-height:1.08; }
+  .lede { max-width:68ch; font-size:1.15rem; line-height:1.65; margin-block:24px; }
+  .example-actions { display:flex; flex-wrap:wrap; align-items:center; gap:20px; margin-block:24px; }
+  .example-actions a { min-height:44px; display:inline-flex; align-items:center; }
+  figure { margin:36px 0; }
+  figure img { width:100%; height:auto; max-height:760px; object-fit:cover; object-position:top; border:1px solid var(--color-border); border-radius:8px; }
+  figcaption { max-width:76ch; font-size:.9rem; line-height:1.6; color:var(--color-muted); margin-top:12px; }
+  section { border-top:1px solid var(--color-border); padding-top:28px; margin-top:40px; }
+  h2 { font-size:clamp(1.65rem,3vw,2.2rem); line-height:1.25; }
+  ol { padding-left:24px; max-width:76ch; }
+  li { padding-block:12px; line-height:1.75; }
+  p { max-width:76ch; line-height:1.7; }
+  .table-scroll { overflow-x:auto; margin-block:24px; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; vertical-align:top; padding:16px 12px; border-bottom:1px solid var(--color-border); line-height:1.6; }
+  th { font-weight:600; }
+  @media(max-width:600px) { th,td { padding:12px 8px; font-size:.9rem; } figure img { max-height:480px; } }
+</style>

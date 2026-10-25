@@ -1,0 +1,7 @@
+{
+  "scope": "Pure replay of captured initial observations; no stale token dispatched",
+  "entryPatches": 4,
+  "mediaPatches": 2,
+  "currentHelperMatchesExercisedPlan": true,
+  "ownerFieldNegatives": "tests/wordpress-reconciliation.test.mjs"
+}

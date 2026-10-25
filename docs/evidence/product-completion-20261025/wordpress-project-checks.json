@@ -1,0 +1,12 @@
+[
+  {
+    "command": "pnpm check",
+    "status": 0,
+    "elapsedSeconds": 17.141
+  },
+  {
+    "command": "pnpm build",
+    "status": 0,
+    "elapsedSeconds": 16.656
+  }
+]

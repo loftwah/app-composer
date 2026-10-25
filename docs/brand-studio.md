@@ -103,3 +103,23 @@ portfolio icon inventory, video and screenshot/marketing propagation remain
 #353 work. A source commit is not a production appearance change. Broader #285
 does not close from this one configuration path: the native form/draft and a
 second useful change must be observed, with production evidence separate.
+
+## Completion continuation
+
+The native form now offers three reading presets using the existing approved
+mark, palette and schema. Presets change spacing/text only and preserve owner
+names, footer, account and environment. A field comparison shows the current
+form against the published appearance before save/publication; unsaved forms
+still preview only the saved draft. The semantic-colour disclosure explains
+signal, native action and light/dark focus roles without allowing arbitrary CSS.
+Restoring an older publication now shows its actual differences and requires an
+explicit Confirm restore. Cancel performs no write. Version 5 and all its prior
+rows remain compatible and are not migrated or replaced by these controls.
+
+The [continuation receipt](evidence/product-completion-20261025/brand-local-receipt.json)
+records the actual local native save/preview/publish/second-change/restore,
+unsafe-import refusal, keyboard and reflow journey. The maintained replay is
+`node docs/evidence/brand-studio-20261025/capture.mjs`; new captures default to
+ignored `output/brand-studio-acceptance/` and never overwrite the historical
+production evidence. Production identity and owner-state continuity are recorded
+separately in #11.

@@ -1,0 +1,120 @@
+{
+  "schema": "composer.wordpress-source-off-http/1",
+  "sourceStopped": true,
+  "redirects": [
+    {
+      "sourceId": 7,
+      "collection": "posts",
+      "status": 301,
+      "location": "/2026/09/leave-room-for-a-slow-morning/"
+    },
+    {
+      "sourceId": 8,
+      "collection": "posts",
+      "status": 301,
+      "location": "/2026/09/a-table-beside-the-garden/"
+    },
+    {
+      "sourceId": 9,
+      "collection": "posts",
+      "status": 301,
+      "location": "/2026/09/field-notes-for-the-walk-home/"
+    },
+    {
+      "sourceId": 10,
+      "collection": "posts",
+      "status": 301,
+      "location": "/2026/09/pack-an-unhurried-weekend/"
+    },
+    {
+      "sourceId": 11,
+      "collection": "posts",
+      "status": 404,
+      "location": null
+    },
+    {
+      "sourceId": 12,
+      "collection": "posts",
+      "status": 404,
+      "location": null
+    },
+    {
+      "sourceId": 13,
+      "collection": "posts",
+      "status": 404,
+      "location": null
+    },
+    {
+      "sourceId": 14,
+      "collection": "posts",
+      "status": 404,
+      "location": null
+    },
+    {
+      "sourceId": 15,
+      "collection": "pages",
+      "status": 301,
+      "location": "/about/"
+    },
+    {
+      "sourceId": 16,
+      "collection": "pages",
+      "status": 301,
+      "location": "/weekend-guide/"
+    },
+    {
+      "sourceId": 17,
+      "collection": "pages",
+      "status": 301,
+      "location": "/about/editorial-policy/"
+    }
+  ],
+  "guides": [
+    {
+      "sourceId": 7,
+      "href": "/_emdash/api/media/file/01M5SABMGJZKXK8XXQXS8V47R1.txt",
+      "status": 200,
+      "sha256": "90d27dc0bfe74f5d21f8fda2cf49627f6d12f81176ec393b05a84120bb0d0423"
+    },
+    {
+      "sourceId": 8,
+      "href": "/_emdash/api/media/file/01M5SABMGJZKXK8XXQXS8V47R1.txt",
+      "status": 200,
+      "sha256": "90d27dc0bfe74f5d21f8fda2cf49627f6d12f81176ec393b05a84120bb0d0423"
+    },
+    {
+      "sourceId": 9,
+      "href": "/_emdash/api/media/file/01M5SABMGJZKXK8XXQXS8V47R1.txt",
+      "status": 200,
+      "sha256": "90d27dc0bfe74f5d21f8fda2cf49627f6d12f81176ec393b05a84120bb0d0423"
+    },
+    {
+      "sourceId": 10,
+      "href": "/_emdash/api/media/file/01M5SABMGJZKXK8XXQXS8V47R1.txt",
+      "status": 200,
+      "sha256": "90d27dc0bfe74f5d21f8fda2cf49627f6d12f81176ec393b05a84120bb0d0423"
+    }
+  ],
+  "media": [
+    {
+      "id": "01M5SABKRGPA9PTC7NHX26T0B2",
+      "status": 200,
+      "mime": "image/webp",
+      "sha256": "6873efa2823693885dcb88526d155c461d23d785f817249e5721b92025133059"
+    },
+    {
+      "id": "01M5SABM4SSTMXAGB5FA5DQ9AQ",
+      "status": 200,
+      "mime": "image/webp",
+      "sha256": "29d0c0b5ac0c692f00a5ff0bcc7ae7e169448df3ce62f3b81cd9cba09ff31220"
+    },
+    {
+      "id": "01M5SABMGKP5SCSY3XW0MJ4ZTD",
+      "status": 200,
+      "mime": "text/plain",
+      "sha256": "90d27dc0bfe74f5d21f8fda2cf49627f6d12f81176ec393b05a84120bb0d0423"
+    }
+  ],
+  "success": true,
+  "limit": "HTTP proof; fresh anonymous browser and rendered pixels are separate acceptance."
+}
