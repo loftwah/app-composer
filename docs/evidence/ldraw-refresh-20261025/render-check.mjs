@@ -2,7 +2,9 @@
 import { chromium } from "/Users/deanlofts/.npm/_npx/9833c18b2d85bc59/node_modules/playwright/index.mjs";
 import { mkdirSync } from "node:fs";
 
-const RUN = "/private/var/folders/qm/ltm8shgs7tv9k8qfqgfpjxq80000gn/T/opencode/composer-ldraw-refresh-20261025";
+const RUN =
+  process.env.LDRAW_EVIDENCE_RUN ??
+  "/private/var/folders/qm/ltm8shgs7tv9k8qfqgfpjxq80000gn/T/opencode/composer-ldraw-refresh-20261025";
 const SHOTS = RUN + "/render";
 const ORIGIN = process.env.LDRAW_RENDER_ORIGIN ?? "http://127.0.0.1:4397";
 const PROFILE = RUN + "/profile-render";
