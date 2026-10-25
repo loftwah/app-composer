@@ -2,6 +2,29 @@
 
 Reviewed 25 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## 25 October release
+
+The guarded Composer release ships the LDraw dark-default refresh and its new
+source-bound discovery capture, the native owner workflow for scoped agent
+connections and proposal review (migration `0018`), the reconciled Cloudflare
+inventory and first-party identity table, and the local release-feedback
+improvements. Exact source, Worker identity, migration and live interaction
+receipts belong to #11.
+
+Release-feedback improvements are local-first: `pnpm check:fast -- <test files>`
+runs the full generated-source/type, lint and format gates plus only the named
+tests, while `pnpm check` and `pnpm build` remain the release gate. The guarded
+deploy now runs the required full check once, before remote migrations; the same
+change removes a duplicate full check from `delivery-journey --release`.
+`.node-version` pins the supported Node 22.23.4 patch so the repository does not
+silently select a version Astro rejects.
+
+The four independent dependency releases (Paperwork #20, Link Check #28,
+Guestbook #36/#37, Showcase #44/#45) are live on their own origins at the exact
+sources recorded in #321/#11. The shared launcher still contains the LDraw
+entry. Composer composition pins were not changed for those dependency-only
+releases.
+
 ## Self-use club fixture — 25 October 2026
 
 A fictional Riverton Rowing Club was described through the real production
@@ -11,7 +34,11 @@ and notices, a validated joining enquiry and a private owner review, followed by
 an additive volunteer-capacity request. Both browser journeys ran at 390/1440 in
 both themes with real negative cases; 18 app tests and the local dry-run build
 passed. This is one disclosed self-use recipe, not autonomous app generation or a
-deployment. The account, specification, evidence and limits are in
+deployment. A read-only target search found 117 Workers, 19 D1 databases and 16
+R2 buckets but no authorised Riverton/self-use target; the exact built artefact
+and both replay journeys passed locally, and the ordered operator handoff is in
+[the deployment note](../labs/self-use-club/DEPLOYMENT.md). The account,
+specification, evidence and limits are in
 [self-use club](self-use-club.md) and
 [the evidence index](evidence/selfuse-club-20261025/README.md).
 
@@ -110,14 +137,20 @@ Composer’s typographic tile using the app’s own name on the canonical orange
 It is not an LDraw logo; the card and share image keep the real workspace
 capture. This is an agent-selected discovery decision awaiting owner review.
 
-The native LDraw catalogue contract remains the owner’s unpublished EmDash
-draft and was not published, duplicated or edited by this slice. Production
-`/catalogue/ldraw` therefore still has no published entry; the detail page was
-reviewed with a local fictional fixture only. The other seven independent
-launcher consumers have not received the LDraw row or tile, and Composer itself
-is not deployed from this branch. [The bounded receipt](evidence/ldraw-20261025/README.md)
-records the commands, captures and remaining gates; #290/#288/#11 retain
-acceptance and release evidence.
+The native LDraw catalogue contract is published. On 24 October the owner
+session published exactly one entry; on 25 October the same native editor
+updated its structured `source` to `fa7a2ab…` and review date to 2026-10-25 and
+published the revision. `/catalogue/ldraw` returns 200, `/catalogue` reports four
+published entries, and the sitemap lists every catalogue detail route. The
+entry’s “View GitHub source” points at the new release; the “Build from the
+native source” link is supplied by this release’s updated app record.
+
+The other seven independent launcher consumers still serve the reviewed
+`c9c2339a1296…` LDraw row and tile; the old tile bytes remain available and the
+new source-bound tile is byte-identical, so this is a naming/pin difference, not
+a broken link. [The bounded receipt](evidence/ldraw-20261025/README.md) records
+the commands, captures and remaining gates; #290/#288/#11 retain physical,
+assistive and release evidence.
 
 ## Agent role packs — 25 October 2026
 The [role-pack index](/roles) adds six versioned job contracts: Service Owner,
@@ -190,12 +223,40 @@ the native route accepted the exact digest with `execution: not-performed` and n
 handoff row; revocation then made the endpoint refuse to start with
 `GRANT_REVOKED`. A model-driven Codex turn is still blocked by the owner's Codex
 usage limit, so no agent client is claimed beyond the MCP protocol exercise.
-Production D1, a deployed EmDash MCP call, real Access admission and
-browser/device acceptance remain #311/#315 gaps. No production migration or
-deployment was performed. See [agent proposals](agent-proposals.md),
-[connect your agent](agent-connect.md) and the
-[connected transcript](evidence/agent-connect-20261025/transcript.md).
+The guarded 25 October release applies migration `0018` and deploys the native
+owner workflow; exact Worker identity and post-deploy checks belong to #11.
+A deployed EmDash MCP call with an owner PAT, model-driven client use, real
+Access admission and browser/screen-reader acceptance remain #311/#315 gaps.
+See [agent proposals](agent-proposals.md), [connect your agent](agent-connect.md)
+and the [connected transcript](evidence/agent-connect-20261025/transcript.md).
 
+
+## Cloudflare inventory — 25 October 2026
+
+A read-only observation of account `1003…` at 2026-10-25 02:14 UTC now keeps
+declared, observed and undeclared resources separate. It read **109 in-scope
+resources** through 36 GETs: **21 declared**, **21 declared and observed**,
+**21 match**, **0 drift**, **0 unverified**, **0 inaccessible**, and **88
+undeclared Worker scripts** (84 from 42 earlier pinned compositions plus 4 other
+`composer-*` scripts). The previous “91 undeclared” count mixed three app-owned
+storage resources into a Worker-only total; Guestbook’s D1/R2 and Showcase’s D1
+are now declared, leaving zero undeclared storage.
+
+All eight first-party Workers have recorded identity evidence from their own
+committed Wrangler manifests, documented hosts and release receipts. Identity is
+reported **verified** only where a provider signal agrees — a custom domain or
+the app’s own deployment annotation. Names, tags and descriptions alone stay
+unknown. The 88 undeclared scripts remain name-pattern observations; their
+ownership, retention and rollback role are unverified and nothing is marked safe
+to delete. Stored Guestbook source drift remains a saved-stack finding, not live
+provider drift.
+
+The deployed native panel is still **unconfigured** because no distinct
+`PROVIDER_READ_*` secret exists; this release does not copy the broad deployment
+token into a hosted read-only role. A least-privilege operator procedure (Workers
+Scripts Read, D1 Read, KV Read, R2 Read; production-only secret; local test;
+rotation/revocation) is in [the inventory reference](provider-inventory.md).
+Per-resource cost remains unknown, never zero. See #318/#310/#312.
 
 ## Finding the shipped work — 24 October 2026
 
