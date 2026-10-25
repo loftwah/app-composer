@@ -5,6 +5,12 @@ route resolution for `/catalogue/ldraw`, the exact LDraw identity Composer
 publishes, and the publication result the coordinator performed under the
 existing authenticated owner session.
 
+The artwork and source pin below were refreshed on 25 October 2026 for the
+independent LDraw release `fa7a2ab6171cf53edc53c01630fbba2d5d4888aa`. The
+earlier `c9c2339a1296…` capture, share card and tile remain committed unchanged
+under `public/brand/apps/`, and its acceptance evidence remains in
+[`evidence/ldraw-20261025/`](evidence/ldraw-20261025/README.md).
+
 ## What the route actually resolves
 
 `src/pages/catalogue/[slug].astro` asks EmDash for a published entry:
@@ -34,8 +40,8 @@ EmDash database cannot create a duplicate from repository data.
 | --- | --- | --- |
 | Title | LDraw | `lib/ldraw/app.manifest.json`, `src/lib/apps.ts` |
 | Live route (`href`) | `https://ldraw.loftwah.com/` | `lib/ldraw/source.json` → `origin`; `/ldraw` returns 302 to the same origin |
-| Independent source | `https://github.com/loftwah/app-composer-ldraw/tree/c9c2339a1296ee7c06a7d94f274c69143478acba` | `lib/ldraw/source.json` → `repository` + `commit` |
-| Reviewed | 2026/10/24 | release evidence in issue #11 |
+| Independent source | `https://github.com/loftwah/app-composer-ldraw/tree/fa7a2ab6171cf53edc53c01630fbba2d5d4888aa` | `lib/ldraw/source.json` → `repository` + `commit` |
+| Reviewed | 2026/10/25 | release evidence in issue #11 and [`evidence/ldraw-refresh-20261025/`](evidence/ldraw-refresh-20261025/README.md) |
 | Description | Local editable drawings, powered by Excalidraw. | manifest `description`, unchanged |
 
 `tests/ldraw.test.mjs` pins the source commit, the repository, the origin, the
@@ -47,13 +53,21 @@ destination parameters are dropped.
 The catalogue page reuses the shipped library record for artwork, so the entry
 must keep using the committed captures rather than a new upload:
 
-- preview `public/brand/apps/ldraw-workspace-c9c2339a1296-d2e0dc4b-r2-960.webp`
-  with the 1440 variant;
-- share card `public/brand/apps/ldraw-share-c9c2339a1296-d2e0dc4b-r2.png`
+- preview `public/brand/apps/ldraw-workspace-fa7a2ab6171c-010cfbd2-r2-960.webp`
+  with the 1440 variant, both derived from the 25 October capture of the
+  release's default dark Creator journey workspace;
+- share card `public/brand/apps/ldraw-share-fa7a2ab6171c-010cfbd2-r2.png`
   (1200×630);
-- provenance `public/brand/apps/ldraw-provenance-c9c2339a1296-d2e0dc4b-r2.json`;
-- the 96px catalogue/launcher tile, which is Composer's typographic discovery
-  tile rather than an invented LDraw logo.
+- provenance
+  `public/brand/apps/ldraw-provenance-fa7a2ab6171c-010cfbd2-r2.json`;
+- the 96px catalogue/launcher tile
+  `public/brand/apps/ldraw-tile-fa7a2ab6171c-010cfbd2-r2-96.webp`, which is
+  Composer's typographic discovery tile rather than an invented LDraw logo.
+
+The coordinator's catalogue record carries the same commit and review date as
+a structured source/date value. Changing the text, route, source pin or review
+date later means republishing that record; the artwork mapping itself stays
+bound to the shipped record.
 
 Because `/catalogue/[slug]` chooses the image from the shipped record by slug,
 publishing the entry does not change or duplicate the artwork mapping.

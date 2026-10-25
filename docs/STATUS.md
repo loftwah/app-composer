@@ -85,10 +85,17 @@ Worker JavaScript stayed byte-identical. #11 records their exact activation.
 
 Composer now lists LDraw as an eighth shipped app. The library card and the
 common launcher open the independently released editor at
-`c9c2339a1296ee7c06a7d94f274c69143478acba`, and `/ldraw` answers with a 302 to
+`fa7a2ab6171cf53edc53c01630fbba2d5d4888aa`, and `/ldraw` answers with a 302 to
 the fixed `https://ldraw.loftwah.com/` origin. Only `analytics=off` and a
 bounded `qa` label survive that handoff; drawing, project, account and unknown
 parameters are dropped.
+
+The 25 October refresh adopts that release's default dark workspace and named
+block library. A fresh-profile 1440×1000 capture re-bound the card, previews,
+share card and 96px tile to the new commit, and the device journeys were re-run
+against the live editor; the earlier `c9c2339a1296…` pixels and acceptance
+evidence remain committed. See
+[`evidence/ldraw-refresh-20261025/`](evidence/ldraw-refresh-20261025/README.md).
 
 The reviewed static manifest, capture and share bytes were rechecked against
 the live deployment: `/app.manifest.json` is byte-identical to
