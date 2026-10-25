@@ -2,12 +2,27 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { z } from "zod";
 import { isCreatorRole } from "./creator-access.ts";
 import { resolveWorkspace, requireCapability, StackError } from "./stacks.mjs";
+import { apps } from "./apps.ts";
 import {
   AgentProposalError,
+  agentActor,
   agentBriefingVersion,
+  agentCapabilityCatalogue,
   agentChange,
+  agentConnectionAuth,
+  agentConnectionBriefing,
+  agentConnectionResult,
+  agentConnectionRotateRequest,
+  agentConnectionSecret,
+  agentConnectionSubmit,
+  agentConnectionSuite,
+  agentConnectionTokenPrefix,
   agentEvidence,
   agentGrantInput,
+  agentGrantRequest,
+  agentGrantRevokeRequest,
+  agentGrantScope,
+  agentGrantSnapshot,
   agentGrantView,
   agentHandoffArtifact,
   agentHandoffInput,
@@ -18,6 +33,7 @@ import {
   agentProposalSuite,
   agentProposalVersion,
   agentProposalView,
+  agentReservedActions,
   agentReviewInput,
   agentRisk,
   agentStoredSource,
@@ -27,12 +43,16 @@ import {
   canonicalJson,
   getAgentRolePack,
   proposalDigestContent,
+  renderAgentBriefing,
   sha256Hex,
   type AgentActor,
   type AgentBriefingContent,
+  type AgentCapability,
   type AgentChange,
+  type AgentConnectionSecret,
   type AgentEnvironment,
   type AgentEvidence,
+  type AgentGrantScope,
   type AgentGrantView,
   type AgentHandoffArtifact,
   type AgentProposalState,
@@ -66,10 +86,22 @@ const readInput = z.discriminatedUnion("action", [
       proposal: z.string().regex(/^[a-z0-9-]{6,64}$/),
     })
     .strict(),
+  z
+    .object({
+      action: z.literal("grants"),
+      workspace: z
+        .string()
+        .regex(/^[a-z0-9-]{6,64}$/)
+        .optional(),
+    })
+    .strict(),
 ]);
 const writeInput = z.discriminatedUnion("action", [
   agentReviewInput.omit({ actor: true }),
   agentHandoffInput.omit({ actor: true }),
+  agentGrantRequest,
+  agentGrantRevokeRequest,
+  agentConnectionRotateRequest,
 ]);
 
 interface Runtime {
@@ -107,6 +139,11 @@ interface GrantRow {
   expires_at: string;
   revoked_at: string | null;
   revoked_by: string | null;
+  revoke_reason: string | null;
+  connection_hash: string | null;
+  connection_prefix: string | null;
+  connection_issued_at: string | null;
+  connection_last_used_at: string | null;
 }
 interface BriefingRow {
   id: string;
@@ -264,6 +301,12 @@ function grantView(row: GrantRow, now: string): AgentGrantView {
     revokedBy: row.revoked_by,
     revision: row.revision,
     state,
+    connection: {
+      issued: Boolean(row.connection_hash),
+      prefix: row.connection_prefix ?? null,
+      issuedAt: row.connection_issued_at ?? null,
+      lastUsedAt: row.connection_last_used_at ?? null,
+    },
   });
 }
 
@@ -733,6 +776,358 @@ export async function revokeAgentGrant(
     .run();
   const fresh = await grantRow(db, row.id, row.workspace_id);
   return grantView(fresh ?? row, now);
+}
+
+const connectionByteLength = 32;
+/** URL-safe base64 without Buffer, so the same code runs in Workers and Node. */
+function encodeToken(bytes: Uint8Array) {
+  const alphabet =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+  let output = "";
+  for (let index = 0; index < bytes.length; index += 3) {
+    const a = bytes[index] ?? 0;
+    const b = bytes[index + 1];
+    const c = bytes[index + 2];
+    output += alphabet[a >> 2];
+    output += alphabet[((a & 3) << 4) | ((b ?? 0) >> 4)];
+    if (b !== undefined) output += alphabet[((b & 15) << 2) | ((c ?? 0) >> 6)];
+    if (c !== undefined) output += alphabet[c & 63];
+  }
+  return output;
+}
+
+/** Compare two hex digests without leaking position through an early return. */
+function sameDigest(left: string, right: string) {
+  if (left.length !== right.length) return false;
+  let difference = 0;
+  for (let index = 0; index < left.length; index += 1)
+    difference |= left.charCodeAt(index) ^ right.charCodeAt(index);
+  return difference === 0;
+}
+
+function launchCommands(grant: AgentGrantView) {
+  return [
+    `COMPOSER_AGENT_TOKEN=<shown once> node scripts/agent-proposal-mcp.mjs --db <proposal-database> --grant ${grant.id} --workspace ${grant.workspace}`,
+    `codex mcp add composer-agent --env COMPOSER_AGENT_TOKEN=<shown once> -- node scripts/agent-proposal-mcp.mjs --db <proposal-database> --grant ${grant.id} --workspace ${grant.workspace}`,
+    `EmDash MCP: POST /_emdash/api/mcp with an owner PAT scoped mcp:tools:composer-stacks, then call composer-stacks__agent_scope, composer-stacks__agent_brief and composer-stacks__agent_submit.`,
+  ];
+}
+
+function connectionSecret(
+  grant: AgentGrantView,
+  token: string,
+  now: string,
+): AgentConnectionSecret {
+  return agentConnectionSecret.parse({
+    version: agentConnectionSuite,
+    grant: grant.id,
+    workspace: grant.workspace,
+    token,
+    prefix: token.slice(0, agentConnectionTokenPrefix.length + 8),
+    issuedAt: now,
+    expiresAt: grant.expiresAt,
+    revokedWithGrant: true,
+    capabilities: agentCapabilityCatalogue.map((item) => ({ ...item })),
+    launch: launchCommands(grant),
+    execution: "not-performed",
+  });
+}
+
+/** Write a fresh hashed credential. The raw value never reaches the database. */
+async function writeConnection(
+  db: D1Database,
+  row: GrantRow,
+  now: string,
+): Promise<{ secret: AgentConnectionSecret; row: GrantRow }> {
+  const bytes = crypto.getRandomValues(new Uint8Array(connectionByteLength));
+  const token = agentConnectionTokenPrefix + encodeToken(bytes);
+  const hash = await sha256Hex(token);
+  const prefix = token.slice(0, agentConnectionTokenPrefix.length + 8);
+  const result = await db
+    .prepare(
+      "UPDATE creator_agent_grants SET connection_hash=?,connection_prefix=?,connection_issued_at=?,connection_last_used_at=NULL,revision=revision+1 WHERE id=? AND workspace_id=? AND revoked_at IS NULL",
+    )
+    .bind(hash, prefix, now, row.id, row.workspace_id)
+    .run();
+  if ((result.meta?.changes ?? 0) === 0)
+    fail(
+      "GRANT_REVOKED",
+      "This grant was revoked before the connection could be issued.",
+      403,
+    );
+  const fresh = await grantRow(db, row.id, row.workspace_id);
+  if (!fresh) fail("UNAVAILABLE", "The grant could not be re-read.", 500);
+  return {
+    secret: connectionSecret(grantView(fresh, now), token, now),
+    row: fresh,
+  };
+}
+
+/** Owner action: mint the single credential this grant's agent may use. */
+export async function issueAgentGrantConnection(
+  db: D1Database,
+  input: { workspace: string; grant: string; actor: AgentActor },
+  options: AgentStoreOptions = {},
+): Promise<{ grant: AgentGrantView; connection: AgentConnectionSecret }> {
+  const now = options.now ? iso(options.now) : new Date().toISOString();
+  const command = parseOrFail(
+    z
+      .object({
+        workspace: z.string().regex(/^[a-z0-9-]{6,64}$/),
+        grant: z.string().regex(/^[a-z0-9-]{6,64}$/),
+        actor: agentHuman,
+      })
+      .strict(),
+    input,
+    "The connection request could not be read.",
+  );
+  if (options.actorKind === "agent")
+    fail(
+      "SELF_APPROVAL",
+      "An agent cannot issue or rotate its own connection credential.",
+      403,
+    );
+  const row = requireActiveGrant(
+    await grantRow(db, command.grant, command.workspace),
+    now,
+  );
+  if (key(command.actor.id) !== key(row.owner_id))
+    fail(
+      "REVIEWER_NOT_AUTHORISED",
+      "Only the named accountable owner can issue this connection credential.",
+      403,
+    );
+  if (key(row.agent_id) === key(command.actor.id))
+    fail("SELF_APPROVAL", "An agent cannot be its own connection issuer.", 403);
+  const written = await writeConnection(db, row, now);
+  return {
+    grant: grantView(written.row, now),
+    connection: written.secret,
+  };
+}
+
+/** Owner action: replace the credential. The previous value stops working. */
+export async function rotateAgentGrantConnection(
+  db: D1Database,
+  input: unknown,
+  options: AgentStoreOptions = {},
+): Promise<{ grant: AgentGrantView; connection: AgentConnectionSecret }> {
+  const now = options.now ? iso(options.now) : new Date().toISOString();
+  const command = parseOrFail(
+    z
+      .object({
+        workspace: z.string().regex(/^[a-z0-9-]{6,64}$/),
+        grant: z.string().regex(/^[a-z0-9-]{6,64}$/),
+        actor: agentHuman,
+      })
+      .strict(),
+    input,
+    "The rotation request could not be read.",
+  );
+  if (options.actorKind === "agent")
+    fail("SELF_APPROVAL", "An agent cannot rotate its own credential.", 403);
+  const row = requireActiveGrant(
+    await grantRow(db, command.grant, command.workspace),
+    now,
+  );
+  if (key(command.actor.id) !== key(row.owner_id))
+    fail(
+      "REVIEWER_NOT_AUTHORISED",
+      "Only the named accountable owner can rotate this credential.",
+      403,
+    );
+  if (!row.connection_hash)
+    fail(
+      "CONNECTION_NOT_ISSUED",
+      "This grant has no connection credential to rotate.",
+      404,
+    );
+  const written = await writeConnection(db, row, now);
+  return {
+    grant: grantView(written.row, now),
+    connection: written.secret,
+  };
+}
+
+/**
+ * Verify a scoped agent credential. Expiry, revocation and rotation are all
+ * refused here, so every agent-facing operation inherits the same check.
+ */
+export async function verifyAgentConnection(
+  db: D1Database,
+  input: unknown,
+  options: AgentStoreOptions = {},
+): Promise<{ grant: GrantRow; now: string }> {
+  const now = options.now ? iso(options.now) : new Date().toISOString();
+  const command = parseOrFail(
+    agentConnectionAuth,
+    input,
+    "The agent connection could not be read.",
+  );
+  const row = await grantRow(db, command.grant, command.workspace);
+  if (!row)
+    fail(
+      "GRANT_NOT_FOUND",
+      "This grant is not in the selected workspace.",
+      404,
+    );
+  if (!row.connection_hash || !row.connection_prefix)
+    fail(
+      "CONNECTION_NOT_ISSUED",
+      "This grant has no connection credential. Ask the owner to issue one.",
+      403,
+    );
+  requireActiveGrant(row, now);
+  const hash = await sha256Hex(command.token);
+  if (!sameDigest(hash, row.connection_hash))
+    fail(
+      "CONNECTION_INVALID",
+      "This agent credential does not match the grant. It may have been rotated.",
+      403,
+    );
+  await db
+    .prepare(
+      "UPDATE creator_agent_grants SET connection_last_used_at=? WHERE id=? AND workspace_id=?",
+    )
+    .bind(now, row.id, row.workspace_id)
+    .run();
+  return { grant: { ...row, connection_last_used_at: now }, now };
+}
+
+/** Agent action: read only the permitted scope and capability list. */
+export async function readAgentGrantScope(
+  db: D1Database,
+  input: unknown,
+  options: AgentStoreOptions = {},
+): Promise<AgentGrantScope> {
+  const { grant, now } = await verifyAgentConnection(db, input, options);
+  const pack = getAgentRolePack(grant.role_pack);
+  if (!pack) fail("INVALID", "This grant names an unknown role pack.", 400);
+  return agentGrantScope.parse({
+    ok: true,
+    version: agentConnectionSuite,
+    workspace: grant.workspace_id,
+    app: grant.app,
+    environment: {
+      id: grant.environment_id,
+      kind: grant.environment_kind,
+      account: grant.account_id,
+    },
+    rolePack: grant.role_pack,
+    rolePackVersion: pack.version,
+    agent: { id: grant.agent_id, name: grant.agent_name },
+    owner: { id: grant.owner_id, name: grant.owner_name },
+    fallback: { id: grant.fallback_id, name: grant.fallback_name },
+    grant: grant.id,
+    expiresAt: grant.expires_at,
+    capabilities: agentCapabilityCatalogue.map((item) => ({ ...item })),
+    reserved: [...agentReservedActions],
+    execution: "not-performed",
+  });
+}
+
+/** Agent action: read one briefing that belongs to this grant. */
+export async function readAgentBriefing(
+  db: D1Database,
+  input: unknown,
+  options: AgentStoreOptions = {},
+): Promise<{
+  id: string;
+  digest: string;
+  content: AgentBriefingContent;
+  markdown: string;
+}> {
+  const command = parseOrFail(
+    agentConnectionBriefing,
+    input,
+    "The briefing request could not be read.",
+  );
+  const { grant } = await verifyAgentConnection(
+    db,
+    {
+      workspace: command.workspace,
+      grant: command.grant,
+      token: command.token,
+    },
+    options,
+  );
+  const { row, content } = await loadBriefing(
+    db,
+    command.briefing,
+    grant.workspace_id,
+  );
+  if (row.grant_id !== grant.id)
+    fail("SCOPE_MISMATCH", "This briefing belongs to another grant.", 403);
+  return {
+    id: row.id,
+    digest: row.digest,
+    content,
+    markdown: renderAgentBriefing(
+      content,
+      (getAgentRolePack(content.rolePack.id)?.inputs ?? []).map(
+        (field) =>
+          `${field.label}${field.required ? " (required)" : " (optional)"} — ${field.note}`,
+      ),
+    ),
+  };
+}
+
+/** Agent action: submit a proposal bounded by the verified grant scope. */
+export async function submitAgentProposalViaConnection(
+  db: D1Database,
+  input: unknown,
+  options: AgentStoreOptions & { source: AgentStoredSource },
+): Promise<{ view: AgentProposalView; deduplicated: boolean }> {
+  const command = parseOrFail(
+    agentConnectionSubmit,
+    input,
+    "The proposal submission could not be read.",
+  );
+  const { grant, now } = await verifyAgentConnection(
+    db,
+    {
+      workspace: command.workspace,
+      grant: command.grant,
+      token: command.token,
+    },
+    options,
+  );
+  const submit = agentProposalSubmit.parse({
+    action: "submit",
+    workspace: grant.workspace_id,
+    app: grant.app,
+    environment: {
+      id: grant.environment_id,
+      kind: grant.environment_kind,
+      account: grant.account_id,
+    },
+    rolePack: grant.role_pack,
+    grant: grant.id,
+    briefing: command.briefing,
+    ...(command.proposal ? { proposal: command.proposal } : {}),
+    agent: { id: grant.agent_id, name: grant.agent_name },
+    source: command.source,
+    evidence: command.evidence,
+    risk: command.risk,
+    change: command.change,
+  });
+  return submitAgentProposal(db, submit, { ...options, now });
+}
+
+/** Owner-facing list. Connection secrets and hashes never appear here. */
+export async function listAgentGrants(
+  db: D1Database,
+  input: { workspace: string },
+  options: AgentStoreOptions = {},
+): Promise<AgentGrantView[]> {
+  const now = options.now ? iso(options.now) : new Date().toISOString();
+  const rows = await db
+    .prepare(
+      "SELECT * FROM creator_agent_grants WHERE workspace_id=? ORDER BY issued_at DESC,id DESC LIMIT 20",
+    )
+    .bind(input.workspace)
+    .all<GrantRow>();
+  return rows.results.map((row) => grantView(row, now));
 }
 
 /** Read-only briefing for the selected grant. Deterministic for equal input. */
@@ -1649,6 +2044,340 @@ export async function verifyAgentProposal(
   return agentVerifyResult.parse(result);
 }
 
+interface WorkspaceMemberRow {
+  user_id: string;
+  role: "owner" | "editor" | "viewer";
+  display_name?: string | null;
+  email?: string | null;
+}
+
+function memberLabel(
+  row: WorkspaceMemberRow | null,
+  fallback: string | null,
+  who: string,
+): string {
+  const name = [row?.display_name, row?.email, fallback]
+    .map((value) => (typeof value === "string" ? value.trim() : ""))
+    .find((value) => value.length >= 2);
+  if (!name)
+    fail(
+      "INVALID",
+      `${who} needs a display name or email in Workspace access before an agent connection can be authorised.`,
+      400,
+    );
+  return name.slice(0, 80);
+}
+
+async function memberRow(db: D1Database, workspace: string, userId: string) {
+  return db
+    .prepare("SELECT * FROM creator_members WHERE workspace_id=? AND user_id=?")
+    .bind(workspace, userId)
+    .first<WorkspaceMemberRow>();
+}
+
+/** The signed-in creator's own display name, from membership or the session. */
+async function sessionDisplayName(
+  db: D1Database,
+  workspace: string,
+  user: User,
+) {
+  return memberLabel(
+    await memberRow(db, workspace, user.id),
+    user.name ?? null,
+    "Your profile",
+  );
+}
+
+/**
+ * The fallback must be an existing owner or editor of the same workspace. The
+ * request supplies only a member id; names come from the membership record.
+ */
+async function grantFallback(
+  db: D1Database,
+  workspace: string,
+  ownerId: string,
+  request: { fallbackId: string },
+) {
+  if (key(request.fallbackId) === key(ownerId))
+    fail(
+      "INVALID",
+      "Choose a different person as the fallback. The owner cannot be the fallback.",
+      400,
+    );
+  const row = await memberRow(db, workspace, request.fallbackId);
+  if (!row)
+    fail(
+      "MEMBER_NOT_FOUND",
+      "The fallback must already be a member of this workspace.",
+      404,
+    );
+  if (row.role === "viewer")
+    fail(
+      "INVALID",
+      "The fallback must be a workspace owner or editor, not a viewer.",
+      400,
+    );
+  return {
+    id: row.user_id,
+    name: memberLabel(row, null, "The fallback"),
+  };
+}
+
+const isoSeconds = (milliseconds: number) =>
+  new Date(milliseconds).toISOString().replace(/\.\d{3}Z$/, "Z");
+
+/** Issue the grant and its single credential in one supported owner action. */
+async function issueNativeGrant(
+  db: D1Database,
+  command: {
+    workspace: string;
+    actor: AgentActor;
+    fallback: AgentActor;
+    request: {
+      app: string;
+      environment: AgentEnvironment;
+      rolePack: AgentRolePack;
+      agent: AgentActor;
+      expiresInHours: number;
+    };
+  },
+  options: AgentStoreOptions,
+) {
+  const now = options.now ? iso(options.now) : new Date().toISOString();
+  const grant = await provisionAgentGrant(
+    db,
+    {
+      workspace: command.workspace,
+      app: command.request.app,
+      environment: command.request.environment,
+      rolePack: command.request.rolePack,
+      agent: command.request.agent,
+      owner: { id: command.actor.id, name: command.actor.name },
+      fallback: command.fallback,
+      issuedBy: command.actor.name,
+      expiresAt: isoSeconds(
+        Date.parse(now) + command.request.expiresInHours * 3_600_000,
+      ),
+    },
+    { now },
+  );
+  return issueAgentGrantConnection(
+    db,
+    { workspace: command.workspace, grant: grant.id, actor: command.actor },
+    { now },
+  );
+}
+
+const ownerToolScope = z
+  .object({
+    workspace: z.string().regex(/^[a-z0-9-]{6,64}$/),
+    grant: z.string().regex(/^[a-z0-9-]{6,64}$/),
+    agent: agentActor,
+  })
+  .strict();
+const ownerToolBrief = z
+  .object({
+    workspace: z.string().regex(/^[a-z0-9-]{6,64}$/),
+    grant: z.string().regex(/^[a-z0-9-]{6,64}$/),
+    agent: agentActor,
+    evidence: z.array(agentEvidence).min(1).max(20),
+  })
+  .strict();
+/**
+ * The hosted path cannot read the agent's disk, so it accepts only an immutable
+ * repository pin. A mutable local source is verified by the local endpoint.
+ */
+const ownerToolSubmit = z
+  .object({
+    workspace: z.string().regex(/^[a-z0-9-]{6,64}$/),
+    grant: z.string().regex(/^[a-z0-9-]{6,64}$/),
+    agent: agentActor,
+    briefing: z.string().regex(/^[a-z0-9-]{6,64}$/),
+    proposal: z
+      .string()
+      .regex(/^[a-z0-9-]{6,64}$/)
+      .optional(),
+    repository: z.string().trim().min(2).max(200),
+    commit: z.string().regex(/^[a-f0-9]{7,40}$/),
+    evidence: z
+      .array(z.string().regex(/^[a-z0-9][a-z0-9._-]{1,39}$/))
+      .min(1)
+      .max(20),
+    risk: agentRisk,
+    change: agentChange,
+  })
+  .strict();
+
+/** Route inputs shared with the plugin declaration and its MCP tools. */
+export const agentToolInputs = Object.freeze({
+  scope: ownerToolScope,
+  brief: ownerToolBrief,
+  submit: ownerToolSubmit,
+});
+
+/**
+ * EmDash MCP tools for an owner-owned connection.
+ *
+ * These run through EmDash's MCP endpoint, so the caller is an authenticated
+ * user whose EmDash token carries `mcp:tools:composer-stacks`. The grant must
+ * belong to that same user and the declared agent must match the grant. Review
+ * is deliberately absent: only a browser session can record a decision.
+ */
+export async function manageAgentTools(
+  ctx: Context,
+  runtime: Runtime,
+  action: "scope" | "brief" | "submit",
+): Promise<unknown> {
+  try {
+    if (!ctx.user || !isCreatorRole(ctx.user.role))
+      fail("FORBIDDEN", "A signed-in Composer creator is required.", 403);
+    if (!runtime.DB || runtime.PUBLIC_ORIGIN !== origin)
+      fail("UNAVAILABLE", "Agent tools are disconnected in this environment.");
+    if (ctx.request.method !== "POST")
+      fail("INVALID", "Agent tools accept one POST request.", 405);
+    const message = "The agent tool request could not be read.";
+    const scopeInput =
+      action === "scope"
+        ? parseOrFail(ownerToolScope, ctx.input, message)
+        : null;
+    const briefInput =
+      action === "brief"
+        ? parseOrFail(ownerToolBrief, ctx.input, message)
+        : null;
+    const submitInput =
+      action === "submit"
+        ? parseOrFail(ownerToolSubmit, ctx.input, message)
+        : null;
+    const input = scopeInput ?? briefInput ?? submitInput;
+    if (!input) fail("INVALID", "Choose a supported agent tool.", 400);
+    const db = runtime.DB;
+    const user = ctx.user;
+    const workspace = await resolveWorkspace(db, user, input.workspace);
+    requireCapability(workspace.role, "read");
+    const now = new Date().toISOString();
+    const row = requireActiveGrant(
+      await grantRow(db, input.grant, workspace.id),
+      now,
+    );
+    if (key(row.owner_id) !== key(user.id))
+      fail(
+        "REVIEWER_NOT_AUTHORISED",
+        "This agent connection belongs to another accountable owner.",
+        403,
+      );
+    if (key(row.agent_id) !== key(input.agent.id))
+      fail(
+        "SCOPE_MISMATCH",
+        "The declared agent does not match this grant.",
+        403,
+      );
+    const pack = getAgentRolePack(row.role_pack);
+    if (!pack) fail("INVALID", "This grant names an unknown role pack.", 400);
+    if (action === "scope")
+      return agentGrantScope.parse({
+        ok: true,
+        version: agentConnectionSuite,
+        workspace: row.workspace_id,
+        app: row.app,
+        environment: {
+          id: row.environment_id,
+          kind: row.environment_kind,
+          account: row.account_id,
+        },
+        rolePack: row.role_pack,
+        rolePackVersion: pack.version,
+        agent: { id: row.agent_id, name: row.agent_name },
+        owner: { id: row.owner_id, name: row.owner_name },
+        fallback: { id: row.fallback_id, name: row.fallback_name },
+        grant: row.id,
+        expiresAt: row.expires_at,
+        capabilities: agentCapabilityCatalogue.map((item) => ({ ...item })),
+        reserved: [...agentReservedActions],
+        execution: "not-performed",
+      });
+    if (action === "brief") {
+      const briefing = await createAgentBriefing(
+        db,
+        {
+          workspace: row.workspace_id,
+          grant: row.id,
+          asOf: now,
+          evidence: briefInput!.evidence,
+        },
+        {},
+      );
+      return {
+        ok: true,
+        version: agentConnectionSuite,
+        briefing: {
+          id: briefing.id,
+          digest: briefing.digest,
+          asOf: briefing.content.asOf,
+          permittedEvidence: briefing.content.permittedEvidence.map(
+            (item) => item.id,
+          ),
+        },
+        markdown: briefing.markdown,
+        execution: "not-performed",
+      };
+    }
+    const submitted = await submitAgentProposal(
+      db,
+      {
+        action: "submit",
+        workspace: row.workspace_id,
+        app: row.app,
+        environment: {
+          id: row.environment_id,
+          kind: row.environment_kind,
+          account: row.account_id,
+        },
+        rolePack: row.role_pack,
+        grant: row.id,
+        briefing: submitInput!.briefing,
+        ...(submitInput!.proposal ? { proposal: submitInput!.proposal } : {}),
+        agent: { id: row.agent_id, name: row.agent_name },
+        source: {
+          kind: "repo",
+          repository: submitInput!.repository,
+          commit: submitInput!.commit,
+        },
+        evidence: submitInput!.evidence,
+        risk: submitInput!.risk,
+        change: submitInput!.change,
+      },
+      {
+        now,
+        source: agentStoredSource.parse({
+          kind: "repo",
+          repository: submitInput!.repository,
+          commit: submitInput!.commit,
+          checkout: null,
+          contentHash: null,
+          files: 0,
+          bytes: 0,
+          checkedAt: null,
+        }),
+      },
+    );
+    return {
+      ok: true,
+      version: agentConnectionSuite,
+      proposal: submitted.view,
+      deduplicated: submitted.deduplicated,
+      execution: "not-performed",
+    };
+  } catch (error) {
+    if (error instanceof AgentProposalError)
+      throw new StackError(
+        error.code,
+        error.message,
+        error.code === "PRODUCTION_TARGET" ? 403 : 400,
+      );
+    throw error;
+  }
+}
+
 /** Native admin route: read proposals or record one human decision. */
 export async function manageAgentProposals(
   ctx: Context,
@@ -1699,6 +2428,41 @@ export async function manageAgentProposals(
             { workspaceRole: workspace.role },
           ),
         );
+      if (input.action === "grants") {
+        const grants = await listAgentGrants(
+          db,
+          { workspace: workspace.id },
+          { workspaceRole: workspace.role },
+        );
+        const members = await db
+          .prepare(
+            "SELECT * FROM creator_members WHERE workspace_id=? AND role IN ('owner','editor') ORDER BY role,user_id LIMIT 60",
+          )
+          .bind(workspace.id)
+          .all<WorkspaceMemberRow>();
+        return agentGrantSnapshot.parse({
+          ok: true,
+          version: agentConnectionSuite,
+          workspace: {
+            id: workspace.id,
+            name: workspace.name,
+            role: workspace.role,
+          },
+          grants,
+          self: user.id,
+          capabilities: agentCapabilityCatalogue.map((item) => ({ ...item })),
+          reserved: [...agentReservedActions],
+          apps: apps.map((app) => app.id),
+          members: members.results
+            .filter((row) => row.role !== "viewer")
+            .map((row) => ({
+              id: row.user_id,
+              name: memberLabel(row, null, "A workspace member"),
+              role: row.role,
+            })),
+          execution: "not-performed",
+        });
+      }
       const proposals = await listAgentProposals(
         db,
         { workspace: workspace.id, state: input.state },
@@ -1726,7 +2490,63 @@ export async function manageAgentProposals(
     requireCapability(workspace.role, "save");
     if (workspace.role === "viewer")
       fail("FORBIDDEN", "A viewer cannot review a proposal.", 403);
-    const actor = { id: user.id, name: user.name?.trim() || user.id };
+    const actor = {
+      id: user.id,
+      name: await sessionDisplayName(db, workspace.id, user),
+    };
+    if (input.action === "grant") {
+      if (workspace.role !== "owner")
+        fail(
+          "FORBIDDEN",
+          "Only the workspace owner can authorise an agent connection.",
+          403,
+        );
+      const fallback = await grantFallback(db, workspace.id, user.id, input);
+      const issued = await issueNativeGrant(
+        db,
+        { workspace: workspace.id, actor, fallback, request: input },
+        {},
+      );
+      return agentConnectionResult.parse({
+        ok: true,
+        version: agentConnectionSuite,
+        grant: issued.grant,
+        connection: issued.connection,
+        execution: "not-performed",
+      });
+    }
+    if (input.action === "grant-revoke") {
+      const grant = await revokeAgentGrant(
+        db,
+        {
+          workspace: workspace.id,
+          grant: input.grant,
+          actor,
+          reason: input.reason,
+        },
+        { actorKind: "human" },
+      );
+      return {
+        ok: true,
+        version: agentConnectionSuite,
+        grant,
+        execution: "not-performed",
+      };
+    }
+    if (input.action === "connection-rotate") {
+      const rotated = await rotateAgentGrantConnection(
+        db,
+        { workspace: workspace.id, grant: input.grant, actor },
+        { actorKind: "human" },
+      );
+      return agentConnectionResult.parse({
+        ok: true,
+        version: agentConnectionSuite,
+        grant: rotated.grant,
+        connection: rotated.connection,
+        execution: "not-performed",
+      });
+    }
     if (input.action === "review") {
       const result = await reviewAgentProposal(
         db,

@@ -11,6 +11,7 @@ import {
   reviewProposalCall,
 } from "./proposals/api";
 import { workspaceSelection } from "./stacks/workspace-scope";
+import { ConnectAgent } from "./proposals/connect-agent";
 import "./proposals-page.css";
 
 const stateLabels: Record<AgentProposalState, string> = {
@@ -264,6 +265,10 @@ export function Proposals({ search }: { search: string }) {
       </p>
       {snapshot && (
         <>
+          <ConnectAgent
+            workspace={snapshot.workspace.id}
+            onChanged={() => void load("Saved proposals refreshed.")}
+          />
           <div className="ap-controls">
             <label>
               Show

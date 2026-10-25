@@ -16,9 +16,9 @@ flow.
 
 | Capability                                                     | Local slice                                                             | Connected production                                                           |
 | -------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| Owner issues a scoped grant                                    | `node scripts/agent-proposal.mjs grant` against one local SQLite file   | Not implemented. Would need an owner-only EmDash route and D1 migration        |
+| Owner issues a scoped grant                                    | Native owner route and page, or `node scripts/agent-proposal.mjs grant` | Owner-only EmDash route implemented; production D1 not exercised                |
 | Deterministic briefing                                         | Yes. Stored in `creator_agent_briefings`, digest over the exact content | Not implemented as a hosted service                                            |
-| Agent submits a proposal                                       | Yes, through the local CLI. Repo + commit or local path + content hash  | No connected agent authentication                                              |
+| Agent submits a proposal                                       | Local CLI, scoped MCP endpoint, or EmDash MCP tools. Repo + commit or local path + content hash | EmDash MCP tools implemented; not driven against a deployed EmDash |
 | Accept / request changes / reject                              | CLI and native EmDash admin page                                        | Native page exists, but production data and Access were not exercised          |
 | Approval digest                                                | SHA-256 over canonical scope, source, evidence, risk and change         | Same contract                                                                  |
 | Separate handoff artifact                                      | Yes, `prepared` and `not-performed`                                     | The artifact can inform an existing release, but no execution adapter is added |
@@ -211,8 +211,13 @@ Migration `0016_agent_proposals.sql` adds:
 - `creator_agent_proposal_handoffs` — prepared artifacts pinned to the accepted
   digest, always `execution = not-performed`.
 
-The migration is forward-only. Local D1/SQLite is sufficient for this slice; no
-production migration is claimed or required.
+Migration `0018_agent_grant_connections.sql` then adds the hashed connection
+credential (`connection_hash`, `connection_prefix`, `connection_issued_at`,
+`connection_last_used_at`) to `creator_agent_grants`. It changes no EmDash
+session, Access policy, Cloudflare token or Git credential.
+
+Both migrations are forward-only. Local D1/SQLite is sufficient for this slice;
+no production migration is claimed or required.
 
 ## Negative cases
 
@@ -285,5 +290,9 @@ transcript and briefing are committed.
 - Repo + commit without a local checkout is a declared pin, not a proven commit.
 - No execution adapter exists. The handoff must be carried out by a human using
   the existing release or delivery flow.
+- The connected owner workflow, the scoped agent credential and the two MCP
+  interfaces are documented in [Connect your agent](agent-connect.md). A
+  model-driven client turn is still blocked on this machine; the endpoint,
+  proposal, review and revocation were exercised over the real MCP protocol.
 - Production proposals are refused. Multi-workspace and multi-account
   provisioning beyond the explicit scope are #219/#310 work.

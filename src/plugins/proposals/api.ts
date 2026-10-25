@@ -3,6 +3,12 @@ import {
   agentProposalSnapshot,
   agentProposalView,
   agentHandoffArtifact,
+  agentGrantSnapshot,
+  agentGrantView,
+  agentConnectionSecret,
+  type AgentConnectionSecret,
+  type AgentGrantSnapshot,
+  type AgentGrantView,
   type AgentHandoffArtifact,
   type AgentProposalSnapshot,
   type AgentProposalView,
@@ -123,4 +129,122 @@ export async function handoffProposalCall(
     artifact: artifact.data,
     execution: "not-performed",
   };
+}
+
+function message(value: unknown, fallback: string) {
+  return value &&
+    typeof value === "object" &&
+    "message" in value &&
+    typeof value.message === "string"
+    ? value.message
+    : fallback;
+}
+
+export async function grantsCall(
+  workspace?: string,
+): Promise<AgentGrantSnapshot> {
+  const response = await apiFetch(
+    base +
+      "proposalsRead?" +
+      new URLSearchParams({
+        action: "grants",
+        ...(workspace ? { workspace } : {}),
+      }),
+    { cache: "no-store" },
+  );
+  const value = await parseApiResponse<unknown>(
+    response,
+    "The agent connections could not be confirmed. Refresh before authorising one.",
+  );
+  const parsed = agentGrantSnapshot.safeParse(value);
+  if (!parsed.success)
+    throw Error(
+      message(
+        value,
+        "The agent connections could not be validated. Refresh before authorising one.",
+      ),
+    );
+  confirmWorkspace(workspace, parsed.data.workspace.id);
+  return parsed.data;
+}
+
+export interface AgentConnectionResult {
+  grant: AgentGrantView;
+  connection: AgentConnectionSecret;
+}
+
+async function connectionWrite(
+  fields: Record<string, unknown>,
+  workspace: string,
+): Promise<AgentConnectionResult> {
+  const response = await apiFetch(base + "proposalsWrite", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...fields, workspace }),
+  });
+  const value = await parseApiResponse<unknown>(
+    response,
+    "The agent connection could not be confirmed. Refresh before retrying.",
+  );
+  const grant = agentGrantView.safeParse(
+    value && typeof value === "object" && "grant" in value ? value.grant : null,
+  );
+  const connection = agentConnectionSecret.safeParse(
+    value && typeof value === "object" && "connection" in value
+      ? value.connection
+      : null,
+  );
+  if (!grant.success || !connection.success)
+    throw Error(
+      message(
+        value,
+        "The agent connection response could not be validated. Refresh before retrying.",
+      ),
+    );
+  confirmWorkspace(workspace, grant.data.workspace);
+  return { grant: grant.data, connection: connection.data };
+}
+
+export async function createGrantCall(
+  workspace: string,
+  fields: Record<string, unknown>,
+) {
+  return connectionWrite({ ...fields, action: "grant" }, workspace);
+}
+
+export async function rotateConnectionCall(workspace: string, grant: string) {
+  return connectionWrite({ action: "connection-rotate", grant }, workspace);
+}
+
+export async function revokeGrantCall(
+  workspace: string,
+  grant: string,
+  reason: string,
+): Promise<AgentGrantView> {
+  const response = await apiFetch(base + "proposalsWrite", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "grant-revoke",
+      workspace,
+      grant,
+      reason,
+    }),
+  });
+  const value = await parseApiResponse<unknown>(
+    response,
+    "The revocation could not be confirmed. Refresh before retrying.",
+  );
+  const parsed = agentGrantView.safeParse(
+    value && typeof value === "object" && "grant" in value ? value.grant : null,
+  );
+  if (!parsed.success)
+    throw Error(
+      message(
+        value,
+        "The revocation response could not be validated. Refresh before retrying.",
+      ),
+    );
+  confirmWorkspace(workspace, parsed.data.workspace);
+  return parsed.data;
 }
