@@ -34,11 +34,12 @@ original defect and earlier first release; no content was hidden to fix it.
 Native functional acceptance is the actual isolated EmDash/D1 journey for
 [Brand Studio](../brand-studio-20261025/README.md),
 [Incident Desk](../incident-desk-20261025/README.md) and
-[Trust Centre](../plugin-trust-native-20261025/README.md). Production admin
-verification reached Cloudflare Access sign-in; first live appearance publication
-requires the existing human owner session. No login mail or IdP change was
-attempted. Local appearance publication, subsequent change and restoration
-passed; production appearance publication is not claimed. The identity guard
+[Trust Centre](../plugin-trust-native-20261025/README.md). The initial automation browser reached Cloudflare Access sign-in; the owner
+then directed use of the existing signed-in Chrome session. The actual
+production Brand Studio saved/published the first appearance, saved/published
+a second change, and restored the first as version5 while retaining all five
+versions. [Production reconciliation](../brand-studio-20261025/production-receipt.json)
+records exact configuration equality. No login mail or IdP change was attempted. The identity guard
 remains compatible until immutable upstream claims/bindings/recovery are
 qualified, and no native plugin lifecycle or entitlement is claimed.
 

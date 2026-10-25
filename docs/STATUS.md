@@ -23,6 +23,8 @@ checks, negative paths, timing and retained owner state. It adds:
   Trust Centre is read-only, dated and exact-release based; unknown evidence is
   explicit. Brand Studio saves scoped immutable versions, previews the actual
   native console, publishes a second change and restores a prior appearance.
+  That exact owner journey also passed in production Chrome, ending at version5
+  with all prior versions retained.
   Incident Desk preserves structured SITREPs, revised evidence and decisions,
   refusing stale approval. Their actual isolated native browser journeys and
   production release state are linked from #11.
@@ -60,8 +62,10 @@ private requests, assignment/status, attachments, immutable history and explicit
 app grants. Actual native role-10, viewer, cross-team, revocation and disabled-user
 journeys passed. Its production origin stays closed pending verified Access
 coverage for both the document and private APIs, passwordless sign-in and
-mandatory MFA. It is not an independently deployed reference app. The WordPress
-migration refresh retains its own compatibility evidence and boundary. #11 owns
+mandatory MFA. It is not an independently deployed reference app. The [WordPress lab refresh](../labs/wordpress/weekender/OBSERVATIONS.md)
+qualifies the same fictional publisher database through EmDash1.2.0→1.3.1
+and a subsequent native edit/publish cycle. Existing media URL, metadata,
+hierarchy, fresh-import and broader migration gates remain explicit. #11 owns
 exact final source, checks, Workers, cleanup and remaining gates for this run.
 
 ## Agent entry, diagram atlas and analytics truth — 25 October 2026
