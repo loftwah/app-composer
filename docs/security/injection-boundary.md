@@ -101,7 +101,7 @@ changed. Refused means the boundary rejected the input before producing output.
 | inspection-import | `oversized-finding-count` | oversized | refused (more than 80 findings) |
 | inspection-import | `oversized-detail` | oversized | refused (4,001 characters) |
 | inspection-import | `deeply-nested-detail` | oversized | refused (object where text is required) |
-| inspection-import | `foreign-host` | authority fabrication | refused (host allowlist) |
+| inspection-import | `foreign-host` | authority fabrication | refused (reserved .test hostname; public-URL syntax policy) |
 | inspection-import | `javascript-url` | hidden/encoded | refused (non-HTTPS scheme) |
 | inspection-import | `owner-path` | permission escalation | refused (`/_emdash`) |
 | inspection-import | `too-many-images` | oversized | refused (more than two images) |
