@@ -305,3 +305,8 @@ The Worker script endpoint currently documents an array and tag filtering rather
 than page parameters; the existing reader deduplicates repeated whole-list
 responses and retains its bound sentinel. The recorded observed counts are
 unchanged by the storage-completeness correction.
+The main expected-versus-observed check follows the same rule: a declared storage
+resource absent from a successful page is **unverified**, rather than missing.
+Actual observed storage rows retain their normal comparison and drift checks;
+refused lists remain inaccessible. Worker comparison and all observed counts
+are unchanged. No additional provider request or credential scope is introduced.
