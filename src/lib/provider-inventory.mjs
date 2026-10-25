@@ -7,14 +7,18 @@
 // Cost is always unknown here: these endpoints do not expose a per-resource
 // charge, and an unknown cost is not zero.
 export const PROVIDER_INVENTORY_VERSION = "composer.provider-inventory/1";
-export const PROVIDER_CHECK_VERSION = "composer.provider-check/1";
+// Version 2 separates declared/undeclared and recorded/unrecorded identity so
+// a name-only convention cannot be counted as a verified resource.
+export const PROVIDER_CHECK_VERSION = "composer.provider-check/2";
 export const DEFAULT_MAX_PAGES = 3;
 export const DEFAULT_PER_PAGE = 50;
 export const DEFAULT_MAX_REQUESTS = 48;
 export const DEFAULT_TIMEOUT_MS = 8000;
 export const DEFAULT_DEADLINE_MS = 20000;
 export const MAX_RESPONSE_BYTES = 2_000_000;
-export const MAX_DETAIL_WORKERS = 12;
+export const MAX_DETAIL_WORKERS = 16;
+/** Bounded parallel detail reads. Requests are still GET-only and counted. */
+export const DETAIL_CONCURRENCY = 4;
 /** A provider observation older than this is shown as stale, not current. */
 export const STALE_AFTER_HOURS = 24;
 export const COST_UNKNOWN = Object.freeze({
@@ -588,14 +592,16 @@ export async function readProviderInventory(options) {
             at: new Date(now()).toISOString(),
         });
     };
+    const SKIPPED = Symbol("not-attempted");
+    let skippedReads = 0;
     async function get(path) {
         if (budget.used >= budget.max) {
-            limitations.add("The request limit was reached. Unread resources are unverified, not absent.");
-            return null;
+            skippedReads++;
+            return SKIPPED;
         }
         if (Date.now() - wallStart > deadlineMs) {
-            limitations.add("The overall read deadline was reached. Unread resources are unverified, not absent.");
-            return null;
+            skippedReads++;
+            return SKIPPED;
         }
         budget.used++;
         try {
@@ -614,6 +620,20 @@ export async function readProviderInventory(options) {
             return null;
         }
     }
+    async function getMany(paths) {
+        const results = new Array(paths.length);
+        let next = 0;
+        const lanes = Math.min(DETAIL_CONCURRENCY, paths.length);
+        await Promise.all(Array.from({ length: lanes }, async () => {
+            while (true) {
+                const index = next++;
+                if (index >= paths.length)
+                    return;
+                results[index] = await get(paths[index]);
+            }
+        }));
+        return results;
+    }
     const resources = [];
     const listState = new Map();
     let workersAtLimit = false;
@@ -623,6 +643,11 @@ export async function readProviderInventory(options) {
     for (let page = 1; page <= maxPages; page++) {
         const path = providerListPath(account, "/workers/scripts", page, perPage);
         const response = await get(path);
+        if (response === SKIPPED) {
+            workersRead = false;
+            listState.set("worker", "unread");
+            break;
+        }
         if (!response) {
             workersRead = false;
             listState.set("worker", "inaccessible");
@@ -661,12 +686,14 @@ export async function readProviderInventory(options) {
     if (!workersRead)
         limitations.add("The Worker list could not be read. Worker presence is unknown, not empty.");
     const domainsResponse = await get(providerDetailPath(account, "/workers/domains"));
-    if (domainsResponse)
+    if (domainsResponse && domainsResponse !== SKIPPED)
         applyDomains(resources, domainsResponse.result, new Date(now()).toISOString());
+    else if (domainsResponse === SKIPPED)
+        listState.set("service", "unread");
     else
         listState.set("service", "inaccessible");
     const d1Response = await get(providerListPath(account, "/d1/database", 1, perPage));
-    if (d1Response) {
+    if (d1Response && d1Response !== SKIPPED) {
         listState.set("d1", "verified");
         for (const row of rows(d1Response.result)) {
             if (!inScope(String(row.name ?? ""))) {
@@ -679,11 +706,13 @@ export async function readProviderInventory(options) {
         }
     }
     else {
-        listState.set("d1", "inaccessible");
-        limitations.add("D1 databases could not be listed. Database presence is unknown, not empty.");
+        listState.set("d1", d1Response === SKIPPED ? "unread" : "inaccessible");
+        limitations.add(d1Response === SKIPPED
+            ? "D1 databases were not read because the request or time bound was reached. Database presence is unknown, not empty."
+            : "D1 databases could not be listed. Database presence is unknown, not empty.");
     }
     const r2Response = await get(providerDetailPath(account, "/r2/buckets"));
-    if (r2Response) {
+    if (r2Response && r2Response !== SKIPPED) {
         listState.set("r2", "verified");
         const buckets = record(r2Response.result)
             ? rows(r2Response.result.buckets)
@@ -699,11 +728,13 @@ export async function readProviderInventory(options) {
         }
     }
     else {
-        listState.set("r2", "inaccessible");
-        limitations.add("R2 buckets could not be listed. Bucket presence is unknown, not empty.");
+        listState.set("r2", r2Response === SKIPPED ? "unread" : "inaccessible");
+        limitations.add(r2Response === SKIPPED
+            ? "R2 buckets were not read because the request or time bound was reached. Bucket presence is unknown, not empty."
+            : "R2 buckets could not be listed. Bucket presence is unknown, not empty.");
     }
     const kvResponse = await get(providerListPath(account, "/storage/kv/namespaces", 1, perPage));
-    if (kvResponse) {
+    if (kvResponse && kvResponse !== SKIPPED) {
         listState.set("kv", "verified");
         for (const row of rows(kvResponse.result)) {
             if (!inScope(String(row.title ?? row.id ?? ""))) {
@@ -716,8 +747,10 @@ export async function readProviderInventory(options) {
         }
     }
     else {
-        listState.set("kv", "inaccessible");
-        limitations.add("KV namespaces could not be listed. Namespace presence is unknown, not empty.");
+        listState.set("kv", kvResponse === SKIPPED ? "unread" : "inaccessible");
+        limitations.add(kvResponse === SKIPPED
+            ? "KV namespaces were not read because the request or time bound was reached. Namespace presence is unknown, not empty."
+            : "KV namespaces could not be listed. Namespace presence is unknown, not empty.");
     }
     for (const databaseId of databaseIds.slice(0, 4)) {
         const resource = resources.find((item) => item.kind === "d1" && item.id === databaseId);
@@ -725,6 +758,11 @@ export async function readProviderInventory(options) {
             continue;
         const path = providerDetailPath(account, "/d1/database/" + databaseId);
         const response = await get(path);
+        if (response === SKIPPED) {
+            resource.state = "unread";
+            limitations.add("A declared D1 database detail was not read because a bound was reached. Its table count is unknown.");
+            continue;
+        }
         if (!response) {
             resource.state = "inaccessible";
             limitations.add("A declared D1 database detail could not be read. Its table count is unverified.");
@@ -744,7 +782,7 @@ export async function readProviderInventory(options) {
                 facts.tables +
                 ". The list count is not used as fact.");
     }
-    const detailNames = [
+    const allDetailNames = [
         ...new Set([
             ...(options.workerNames ?? []),
             ...resources
@@ -753,41 +791,106 @@ export async function readProviderInventory(options) {
                     Boolean(hints[resource.name])))
                 .map((resource) => resource.name),
         ]),
-    ]
-        .filter((name) => new RegExp(`^${workerNamePattern}$`).test(name))
-        .slice(0, MAX_DETAIL_WORKERS);
-    for (const name of detailNames) {
-        const resource = resources.find((item) => item.kind === "worker" && item.name === name);
-        if (!resource)
-            continue;
-        const facts = workerFacts(resource);
+    ].filter((name) => new RegExp(`^${workerNamePattern}$`).test(name));
+    const detailNames = allDetailNames.slice(0, MAX_DETAIL_WORKERS);
+    if (allDetailNames.length > detailNames.length)
+        limitations.add("Only the first " +
+            MAX_DETAIL_WORKERS +
+            " declared Workers received per-Worker detail reads. The remaining " +
+            (allDetailNames.length - detailNames.length) +
+            " stay unverified.");
+    // Identity evidence first: read each declared Worker's latest deployment and
+    // tags before any optional setting. A small, fixed concurrency keeps a normal
+    // account inside the wall-clock deadline; a bound that is still reached is
+    // recorded as not-read, never as a provider refusal.
+    const detailTargets = detailNames
+        .map((name) => resources.find((item) => item.kind === "worker" && item.name === name))
+        .filter((resource) => Boolean(resource));
+    const identityRequests = detailTargets.flatMap((resource) => {
+        const suffix = "/workers/scripts/" + resource.name;
+        return [
+            {
+                resource,
+                field: "deployments",
+                path: providerDetailPath(account, suffix + "/deployments") + "?per_page=1",
+            },
+            {
+                resource,
+                field: "tags",
+                path: providerDetailPath(account, suffix + "/tags"),
+            },
+        ];
+    });
+    const detail = { requested: 0, read: 0, refused: 0, unread: 0 };
+    const settle = (response) => {
+        if (response === SKIPPED) {
+            detail.unread++;
+            return "unread";
+        }
+        if (!response) {
+            detail.refused++;
+            return "refused";
+        }
+        detail.read++;
+        return "read";
+    };
+    const identityResults = await getMany(identityRequests.map((request) => request.path));
+    detail.requested += identityRequests.length;
+    identityResults.forEach((response, index) => {
+        const request = identityRequests[index];
+        const facts = workerFacts(request.resource);
         if (!facts)
-            continue;
-        const suffix = "/workers/scripts/" + name;
-        const deployments = await get(providerDetailPath(account, suffix + "/deployments") + "?per_page=1");
-        if (deployments)
-            applyWorkerDeployment(resource, deployments.result, new Date(now()).toISOString());
-        const tags = await get(providerDetailPath(account, suffix + "/tags"));
-        if (tags) {
-            applyWorkerTags(resource, tags.result, new Date(now()).toISOString());
+            return;
+        const outcome = settle(response);
+        if (request.field === "deployments") {
+            if (response && response !== SKIPPED && outcome === "read")
+                applyWorkerDeployment(request.resource, response.result, new Date(now()).toISOString());
+            return;
         }
+        if (outcome === "read" && response && response !== SKIPPED)
+            applyWorkerTags(request.resource, response.result, new Date(now()).toISOString());
         else {
-            facts.tagState = "inaccessible";
-            resource.tagState = "inaccessible";
+            const state = outcome === "refused"
+                ? "inaccessible"
+                : outcome === "unread"
+                    ? "unread"
+                    : "unverified";
+            facts.tagState = state;
+            request.resource.tagState = state;
         }
-        if (options.settingsFor?.includes(name)) {
-            const settings = await get(providerDetailPath(account, suffix + "/settings"));
-            if (settings)
-                applyWorkerSettings(resource, settings.result, new Date(now()).toISOString());
-        }
-        if (options.schedulesFor?.includes(name)) {
-            const schedules = await get(providerDetailPath(account, suffix + "/schedules"));
-            if (schedules)
-                applySchedules(resource, schedules.result, new Date(now()).toISOString());
-        }
-    }
+    });
+    const extraRequests = detailTargets.flatMap((resource) => {
+        const suffix = "/workers/scripts/" + resource.name;
+        const requests = [];
+        if (options.settingsFor?.includes(resource.name))
+            requests.push({
+                resource,
+                field: "settings",
+                path: providerDetailPath(account, suffix + "/settings"),
+            });
+        if (options.schedulesFor?.includes(resource.name))
+            requests.push({
+                resource,
+                field: "schedules",
+                path: providerDetailPath(account, suffix + "/schedules"),
+            });
+        return requests;
+    });
+    const extraResults = await getMany(extraRequests.map((request) => request.path));
+    detail.requested += extraRequests.length;
+    extraResults.forEach((response, index) => {
+        const request = extraRequests[index];
+        settle(response);
+        if (!response || response === SKIPPED)
+            return;
+        if (request.field === "settings")
+            applyWorkerSettings(request.resource, response.result, new Date(now()).toISOString());
+        else
+            applySchedules(request.resource, response.result, new Date(now()).toISOString());
+    });
     const kinds = ["worker", "d1", "r2", "kv"];
     const inaccessibleKinds = kinds.filter((kind) => listState.get(kind) === "inaccessible");
+    const unreadKinds = kinds.filter((kind) => listState.get(kind) === "unread");
     const verifiedKinds = kinds.filter((kind) => listState.get(kind) === "verified");
     const uniqueResources = [
         ...new Map(resources.map((resource) => [
@@ -795,18 +898,35 @@ export async function readProviderInventory(options) {
             resource,
         ])).values(),
     ];
-    const state = inaccessibleKinds.length === kinds.length
+    const state = inaccessibleKinds.length === kinds.length ||
+        (verifiedKinds.length === 0 && inaccessibleKinds.length > 0)
         ? "inaccessible"
-        : inaccessibleKinds.length > 0 || workersAtLimit
+        : inaccessibleKinds.length > 0 ||
+            unreadKinds.length > 0 ||
+            workersAtLimit ||
+            detail.unread > 0
             ? "partial"
             : verifiedKinds.length === 0
                 ? "inaccessible"
                 : "verified";
+    if (skippedReads > 0)
+        limitations.add(skippedReads +
+            " allowlisted read(s) were not attempted because the request or overall time bound was reached. Not-read values are unverified, not refused and not absent.");
     if (workersAtLimit && state === "verified")
         limitations.add("The Worker scan is partial because it reached a bound.");
     if (unrelatedResources > 0)
         limitations.add(unrelatedResources +
             " unrelated account resource(s) were observed but excluded from this bounded Composer view. They are not represented in any comparison.");
+    const lists = {};
+    for (const kind of ["worker", "d1", "r2", "kv"]) {
+        const value = listState.get(kind);
+        if (value === "verified")
+            lists[kind] = "read";
+        else if (value === "unread")
+            lists[kind] = "unread";
+        else if (value === "inaccessible")
+            lists[kind] = "refused";
+    }
     return {
         version: PROVIDER_INVENTORY_VERSION,
         readOnly: true,
@@ -819,6 +939,8 @@ export async function readProviderInventory(options) {
         resources: uniqueResources,
         workersAtLimit,
         unrelatedResources,
+        lists,
+        detail,
         limitations: [...limitations].slice(0, 8),
         redactions,
         cost: COST_UNKNOWN,
@@ -849,6 +971,8 @@ function observedValue(resource, field, snapshot) {
             return facts.settingsRead ? facts.cpuMs : null;
         if (field === "deploymentMessage")
             return facts.deploymentRead ? (facts.deploymentMessage ?? "") : null;
+        if (field === "deploymentAnnotation")
+            return facts.deploymentRead ? facts.deploymentMessage : null;
         if (field.startsWith("binding:")) {
             const name = field.slice("binding:".length);
             const binding = facts.bindings.find((item) => item.name === name);
@@ -897,7 +1021,7 @@ function observedText(value) {
         return "Not read";
     return Array.isArray(value) ? value.join(", ") : String(value);
 }
-function sameValue(expected, observed) {
+function sameValue(expected, observed, mode = "equals") {
     if (observed === null)
         return false;
     if (Array.isArray(expected)) {
@@ -907,6 +1031,10 @@ function sameValue(expected, observed) {
         const right = [...observed].sort().join("\u0000");
         return left === right;
     }
+    if (mode === "prefix")
+        return (typeof expected === "string" &&
+            typeof observed === "string" &&
+            observed.startsWith(expected));
     return expected === observed;
 }
 /**
@@ -919,6 +1047,29 @@ export function compareProviderInventory(expected, snapshot, now = Date.now()) {
     const observedByKey = new Map();
     for (const resource of snapshot.resources)
         observedByKey.set(resource.kind + "\u0000" + resource.name, resource);
+    const listKind = (kind) => kind === "worker" || kind === "service" ? "worker" : kind;
+    const listCoverage = (kind) => {
+        const recorded = snapshot.lists?.[listKind(kind)];
+        if (recorded)
+            return recorded;
+        // Snapshots from before list coverage was recorded fall back to their
+        // endpoint outcomes. Anything short of a full verified scan is unread:
+        // absence is only established by an actual successful list read.
+        if (snapshot.state === "inaccessible")
+            return "refused";
+        const fragment = listKind(kind) === "worker"
+            ? "/workers/scripts"
+            : listKind(kind) === "d1"
+                ? "/d1/database"
+                : listKind(kind) === "r2"
+                    ? "/r2/buckets"
+                    : "/storage/kv/namespaces";
+        return snapshot.endpoints.some((endpoint) => endpoint.state === "inaccessible" && endpoint.path.includes(fragment))
+            ? "refused"
+            : snapshot.state === "verified"
+                ? "read"
+                : "unread";
+    };
     for (const item of expected.resources) {
         const observed = item.kind === "service"
             ? snapshot.resources.find((resource) => resource.kind === "worker" && resource.name === item.name)
@@ -928,15 +1079,8 @@ export function compareProviderInventory(expected, snapshot, now = Date.now()) {
                 observedByKey.get(item.kind + "\u0000" + item.name));
         const tags = compareTags(item.tags, observed?.tags ?? null);
         if (!observed) {
-            const listUnavailable = snapshot.state === "inaccessible" ||
-                snapshot.endpoints.some((endpoint) => endpoint.state === "inaccessible" &&
-                    endpoint.path.includes(item.kind === "worker" || item.kind === "service"
-                        ? "/workers/scripts"
-                        : item.kind === "d1"
-                            ? "/d1/database"
-                            : item.kind === "r2"
-                                ? "/r2/buckets"
-                                : "/storage/kv/namespaces"));
+            const coverage = listCoverage(item.kind);
+            const refused = coverage === "refused";
             comparisons.push({
                 kind: item.kind,
                 name: item.name,
@@ -944,10 +1088,16 @@ export function compareProviderInventory(expected, snapshot, now = Date.now()) {
                 expectedSource: item.source,
                 expectedId: item.id,
                 observedId: null,
-                state: listUnavailable ? "inaccessible" : "missing",
-                detail: listUnavailable
-                    ? "The provider list for this resource type could not be read. Presence is unknown, not absent."
-                    : "The declared resource was not present in the verified provider list.",
+                state: refused
+                    ? "inaccessible"
+                    : coverage === "unread"
+                        ? "unverified"
+                        : "missing",
+                detail: refused
+                    ? "The provider list for this resource type was refused or failed. Presence is unknown, not absent."
+                    : coverage === "unread"
+                        ? "The provider list for this resource type was not read because a bound was reached. Presence is unknown, not absent."
+                        : "The declared resource was not present in the verified provider list.",
                 changes: [],
                 tags,
                 cost: COST_UNKNOWN,
@@ -963,7 +1113,7 @@ export function compareProviderInventory(expected, snapshot, now = Date.now()) {
                 unread.push(check.field);
                 continue;
             }
-            if (!sameValue(check.expected, value))
+            if (!sameValue(check.expected, value, check.mode))
                 changes.push({
                     field: check.field,
                     expected: expectedValue(check.expected),
@@ -1009,30 +1159,65 @@ export function compareProviderInventory(expected, snapshot, now = Date.now()) {
             stale,
         });
     }
-    const expectedWorkerNames = new Set(expected.resources
-        .filter((item) => item.kind === "worker" || item.kind === "service")
-        .map((item) => item.name));
-    const earlierCompositions = [];
-    const otherComposerWorkers = [];
+    const undeclared = {
+        total: 0,
+        workers: {
+            earlierCompositions: [],
+            otherComposerWorkers: [],
+        },
+        storage: {
+            d1: [],
+            r2: [],
+            kv: [],
+        },
+        unrelatedResources: snapshot.unrelatedResources,
+    };
+    const declaredObserved = new Set(comparisons
+        .filter((comparison) => comparison.observedId !== null)
+        .map((comparison) => comparison.kind + "\u0000" + comparison.name));
+    const declaredObservedIds = new Set(expected.resources
+        .filter((item) => item.id)
+        .map((item) => item.kind + "\u0000" + item.id));
     for (const resource of snapshot.resources) {
-        if (resource.kind !== "worker")
+        const declared = declaredObserved.has(resource.kind + "\u0000" + resource.name) ||
+            declaredObserved.has("service\u0000" + resource.name) ||
+            declaredObservedIds.has(resource.kind + "\u0000" + resource.id);
+        if (declared)
             continue;
-        if (expectedWorkerNames.has(resource.name))
-            continue;
-        if (/^composer-(?:guestbook|showcase)-[a-f0-9]{16}$/.test(resource.name))
-            earlierCompositions.push(resource.name);
-        else if (resource.name.startsWith("composer-"))
-            otherComposerWorkers.push(resource.name);
+        if (resource.kind === "worker") {
+            if (/^composer-(?:guestbook|showcase)-[a-f0-9]{16}$/.test(resource.name))
+                undeclared.workers.earlierCompositions.push(resource.name);
+            else
+                undeclared.workers.otherComposerWorkers.push(resource.name);
+        }
+        else if (resource.kind === "d1")
+            undeclared.storage.d1.push(resource.name);
+        else if (resource.kind === "r2")
+            undeclared.storage.r2.push(resource.name);
+        else if (resource.kind === "kv")
+            undeclared.storage.kv.push(resource.name);
     }
+    const undeclaredWorkers = undeclared.workers.earlierCompositions.length +
+        undeclared.workers.otherComposerWorkers.length;
+    const undeclaredStorage = undeclared.storage.d1.length +
+        undeclared.storage.r2.length +
+        undeclared.storage.kv.length;
+    undeclared.total = undeclaredWorkers + undeclaredStorage;
     const counts = {
         expected: comparisons.length,
+        declaredObserved: declaredObserved.size,
         observed: snapshot.resources.length,
         match: 0,
         drift: 0,
         missing: 0,
         unverified: 0,
         inaccessible: 0,
-        untracked: earlierCompositions.length + otherComposerWorkers.length,
+        undeclared: undeclared.total,
+        undeclaredWorkers,
+        undeclaredEarlier: undeclared.workers.earlierCompositions.length,
+        undeclaredOther: undeclared.workers.otherComposerWorkers.length,
+        undeclaredStorage,
+        unrelated: snapshot.unrelatedResources,
     };
     for (const comparison of comparisons) {
         if (comparison.state === "match")
@@ -1045,16 +1230,25 @@ export function compareProviderInventory(expected, snapshot, now = Date.now()) {
             counts.unverified++;
         else if (comparison.state === "inaccessible")
             counts.inaccessible++;
-        else
-            counts.untracked++;
     }
+    if (counts.declaredObserved + counts.undeclared !== counts.observed)
+        throw new Error("Provider comparison is not reconciled: " +
+            counts.declaredObserved +
+            " declared observations + " +
+            counts.undeclared +
+            " undeclared does not equal " +
+            counts.observed +
+            " observed resources.");
+    if (counts.match +
+        counts.drift +
+        counts.missing +
+        counts.unverified +
+        counts.inaccessible !==
+        counts.expected)
+        throw new Error("Provider comparison is not reconciled: comparison states do not add up to the declared total.");
     return {
         comparisons,
-        untrackedWorkers: {
-            earlierCompositions,
-            otherComposerWorkers,
-            unrelatedWorkers: snapshot.unrelatedResources,
-        },
+        undeclared,
         counts,
         limitations: snapshot.limitations,
     };
@@ -1063,13 +1257,13 @@ export function compareProviderInventory(expected, snapshot, now = Date.now()) {
 export function providerCountsLine(comparison) {
     const counts = comparison.counts;
     return [
-        `${counts.expected} expected`,
-        `${counts.observed} observed`,
+        `${counts.expected} declared`,
+        `${counts.observed} observed in scope`,
         `${counts.match} match`,
         `${counts.drift} drift`,
         `${counts.missing} missing`,
         `${counts.unverified} unverified`,
         `${counts.inaccessible} inaccessible`,
-        `${counts.untracked} undeclared Worker script(s)`,
+        `${counts.undeclared} not declared (${counts.undeclaredWorkers} Worker script(s), ${counts.undeclaredStorage} storage)`,
     ].join(" · ");
 }

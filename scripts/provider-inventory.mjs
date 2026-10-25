@@ -121,19 +121,36 @@ function summaryMarkdown(check, snapshot) {
       (check.observation?.utc ?? "not observed") +
       (check.observation ? " (" + check.observation.melbourne + ")" : ""),
     "- Account: " + check.account,
-    "- State: " + check.state,
+    "- State: " +
+      check.state +
+      (check.state === "verified"
+        ? " (the bounded GET read completed; not a clean or healthy account)"
+        : ""),
     "- Expected source revision: " +
       (check.expectedRevision ?? "not specified"),
     "- Scope: " + snapshot.scope + " resources only",
     "- Unrelated account resources excluded: " + snapshot.unrelatedResources,
-    "- Expected: " + check.counts.expected,
-    "- Observed: " + check.counts.observed,
+    "- Declared: " + check.counts.expected,
+    "- Declared and observed: " + check.counts.declaredObserved,
+    "- Observed in scope: " + check.counts.observed,
     "- Match: " + check.counts.match,
     "- Drift: " + check.counts.drift,
     "- Missing: " + check.counts.missing,
     "- Unverified: " + check.counts.unverified,
     "- Inaccessible: " + check.counts.inaccessible,
-    "- Undeclared Worker scripts: " + check.counts.untracked,
+    "- Not declared: " +
+      check.counts.undeclared +
+      " (" +
+      check.counts.undeclaredWorkers +
+      " Worker script(s), " +
+      check.counts.undeclaredStorage +
+      " storage)",
+    "- First-party identities verified/unknown/drift: " +
+      check.counts.identityVerified +
+      "/" +
+      check.counts.identityUnknown +
+      "/" +
+      check.counts.identityDrift,
     "- Needs attention: " + check.counts.attention,
     "",
     "## Findings",
@@ -146,7 +163,31 @@ function summaryMarkdown(check, snapshot) {
       finding.detail,
       "",
     );
+  lines.push("## First-party app identity", "");
   lines.push(
+    "| App | Worker | Account | Environment | Status | Evidence | Next action |",
+    "| --- | --- | --- | --- | --- | --- | --- |",
+  );
+  for (const identity of check.identities)
+    lines.push(
+      "| " +
+        identity.app +
+        " | `" +
+        identity.worker +
+        "` | " +
+        check.account +
+        " | " +
+        identity.environment +
+        " | " +
+        identity.status +
+        " | " +
+        identity.statusNote.replace(/\|/g, "\\|") +
+        " | " +
+        identity.nextAction.replace(/\|/g, "\\|") +
+        " |",
+    );
+  lines.push(
+    "",
     "## Expected and observed",
     "",
     "| State | Kind | Resource | Detail |",
@@ -263,7 +304,7 @@ function printPlan() {
       "{account}",
       EXPECTED_ACCOUNT,
     ),
-    "Per-Worker GET /tags, /deployments?per_page=1, /settings and /schedules for up to 12 declared Workers.",
+    "Per-Worker GET /tags, /deployments?per_page=1, /settings and /schedules for up to 16 declared Workers (identity evidence first).",
     "Per-database GET /d1/database/{id} for the two declared databases.",
   ];
   for (const endpoint of endpoints)
@@ -342,14 +383,20 @@ async function main() {
       console.log(
         "Summary: " +
           [
-            check.counts.expected + " expected",
-            check.counts.observed + " observed",
+            check.counts.expected + " declared",
+            check.counts.declaredObserved + " declared and observed",
+            check.counts.observed + " observed in scope",
             check.counts.match + " match",
             check.counts.drift + " drift",
             check.counts.missing + " missing",
             check.counts.unverified + " unverified",
             check.counts.inaccessible + " inaccessible",
-            check.counts.untracked + " undeclared Worker script(s)",
+            check.counts.undeclared +
+              " not declared (" +
+              check.counts.undeclaredWorkers +
+              " Worker script(s), " +
+              check.counts.undeclaredStorage +
+              " storage)",
           ].join(" · "),
       );
       console.log("\n## Expected and observed");

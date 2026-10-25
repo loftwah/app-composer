@@ -12,6 +12,10 @@ import {
   type ExpectedResource,
   type ProviderTag,
 } from "./provider-inventory.mjs";
+import {
+  APP_STORAGE_IDENTITIES,
+  APP_WORKER_IDENTITIES,
+} from "./app-provider-identity.ts";
 
 export const EXPECTED_ACCOUNT = "1003dc1d93af0ebea56b2f1252f89627";
 export const EXPECTED_WORKER = "app-composer";
@@ -69,17 +73,11 @@ export const EXPECTED_KV = [
   },
 ] as const;
 
-/** The documented first-party Worker names. None carries a recorded provider id. */
-export const FIRST_PARTY_WORKERS = [
-  { app: "guestbook", name: "composer-guestbook" },
-  { app: "showcase", name: "composer-showcase" },
-  { app: "hello", name: "composer-hello" },
-  { app: "state", name: "composer-state" },
-  { app: "linkcheck", name: "composer-linkcheck" },
-  { app: "ldraw", name: "composer-ldraw" },
-  { app: "paperwork", name: "composer-paperwork" },
-  { app: "launch-kit", name: "composer-launch-kit" },
-] as const;
+/** The documented first-party Worker names, with their committed evidence. */
+export const FIRST_PARTY_WORKERS = APP_WORKER_IDENTITIES.map((identity) => ({
+  app: identity.app,
+  name: identity.worker,
+})) as { app: string; name: string }[];
 
 const pinnedService = (app: string) =>
   "composer-" + app + "-" + String(lock.id).slice(0, 16);
@@ -307,6 +305,30 @@ export function expectedProviderInventory(
         ],
       }),
     ),
+    ...APP_STORAGE_IDENTITIES.map((storage) =>
+      resource({
+        kind: storage.kind,
+        name: storage.name,
+        id: storage.id,
+        environment: storage.environment,
+        source: storage.repo + "/blob/main/" + storage.manifest,
+        identityRecorded: true,
+        tags: [],
+        note: `Declared by the standalone ${storage.app} app's committed ${storage.manifest}, not by Composer's composition state. The exact provider ID/name is recorded there; this is identity evidence for an app-owned resource, not Composer authority to change it.`,
+        checks: [
+          {
+            field: "id",
+            expected: storage.id,
+            source: storage.repo + "/blob/main/" + storage.manifest,
+          },
+          {
+            field: "name",
+            expected: storage.name,
+            source: storage.repo + "/blob/main/" + storage.manifest,
+          },
+        ],
+      }),
+    ),
     ...(["guestbook", "showcase"] as const).map((app) =>
       resource({
         kind: "service",
@@ -332,28 +354,58 @@ export function expectedProviderInventory(
         ],
       }),
     ),
-    ...FIRST_PARTY_WORKERS.map((worker) =>
+    ...APP_WORKER_IDENTITIES.map((identity) =>
       resource({
         kind: "worker",
-        name: worker.name,
+        name: identity.worker,
         id: null,
-        environment: "production",
-        source: "src/lib/release.json",
-        identityRecorded: false,
+        environment: identity.environment,
+        source:
+          identity.manifest === "wrangler.json"
+            ? identity.repo + "/blob/main/wrangler.json"
+            : identity.repo + "/blob/main/wrangler.jsonc",
+        identityRecorded: true,
         tags: composerTags({
-          app: worker.app,
-          service: worker.name,
-          environment: "production",
+          app: identity.app,
+          service: identity.worker,
+          environment: identity.environment,
           lifecycle: "active",
           owner: "loftwah",
         }),
-        note: "Composer records this documented first-party app name but no provider Worker id or service identity. A matching name is a convention, not a confirmed identity.",
+        note: `Identity evidence: the app's committed ${identity.manifest} declares this Worker name${
+          identity.domain
+            ? `, the documented production host is ${identity.domain}`
+            : ""
+        }${
+          identity.annotationPrefix
+            ? `, and the app's deployment annotation starts with “${identity.annotationPrefix}”`
+            : ""
+        }. Recorded receipt: ${identity.receipt.reference}. The name, tag or a similar description alone is not identity or ownership.`,
         checks: [
           {
             field: "name",
-            expected: worker.name,
-            source: "src/lib/release.json + docs/STATUS.md",
+            expected: identity.worker,
+            source: identity.repo + "/blob/main/" + identity.manifest,
           },
+          ...(identity.domain
+            ? [
+                {
+                  field: "customDomains",
+                  expected: [identity.domain],
+                  source: "Documented production URL",
+                },
+              ]
+            : []),
+          ...(identity.annotationPrefix
+            ? [
+                {
+                  field: "deploymentAnnotation",
+                  expected: identity.annotationPrefix,
+                  source: "App deploy annotation",
+                  mode: "prefix" as const,
+                },
+              ]
+            : []),
         ],
       }),
     ),
@@ -375,6 +427,7 @@ export function expectedProviderInventory(
   return {
     account: EXPECTED_ACCOUNT,
     resources,
+    identities: [...APP_WORKER_IDENTITIES],
     composition: {
       id: String(lock.id),
       annotation: pinnedAnnotation,
@@ -387,9 +440,16 @@ export function expectedProviderInventory(
       })),
     },
     workerHints,
-    databaseHints: Object.fromEntries(
-      EXPECTED_D1.map((database) => [database.id, database.environment]),
-    ),
+    databaseHints: {
+      ...Object.fromEntries(
+        EXPECTED_D1.map((database) => [database.id, database.environment]),
+      ),
+      ...Object.fromEntries(
+        APP_STORAGE_IDENTITIES.filter((storage) => storage.kind === "d1").map(
+          (storage) => [storage.id, storage.environment],
+        ),
+      ),
+    },
     databaseIds: EXPECTED_D1.map((database) => database.id),
     workerNames: [
       EXPECTED_WORKER,
@@ -406,6 +466,8 @@ export function expectedProviderInventory(
       "composition.lock.json",
       "scripts/promotion-boundary.mjs",
       "src/lib/release.json",
+      "src/lib/app-provider-identity.ts",
+      "first-party app wrangler manifests",
     ],
   };
 }

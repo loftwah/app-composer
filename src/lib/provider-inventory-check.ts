@@ -7,13 +7,16 @@ import {
   compareProviderInventory,
   formatCost,
   type ExpectedInventory,
+  type ObservedResource,
   type ProviderComparison,
   type ProviderSnapshot,
   type ResourceComparison,
+  type WorkerFacts,
 } from "./provider-inventory.mjs";
 import type {
   ProviderCheck,
   ProviderFindingView,
+  ProviderIdentityView,
 } from "./provider-inventory-contract.ts";
 
 export interface BuildProviderCheckInput {
@@ -36,6 +39,7 @@ const priority: Record<ProviderFindingView["code"], number> = {
   "provider-unconfigured": 4,
   "provider-partial": 5,
   "identity-unrecorded": 6,
+  "identity-unverified": 6.5,
   "expected-unverified": 7,
   "provider-tags-absent": 8,
   "stale-observation": 9,
@@ -80,10 +84,157 @@ function names(resources: ResourceComparison[], maximum = 4): string {
   );
 }
 
+function identitySignal(
+  facts: WorkerFacts,
+  record: { domain: string | null; annotationPrefix: string | null },
+): {
+  signals: string[];
+  matched: string[];
+  drifted: string[];
+  unread: string[];
+} {
+  const matched: string[] = [];
+  const drifted: string[] = [];
+  const unread: string[] = [];
+  if (record.domain) {
+    if (!facts.domainsRead) unread.push("custom domain");
+    else if (facts.domains.includes(record.domain))
+      matched.push("custom domain " + record.domain);
+    else drifted.push("custom domain");
+  }
+  if (record.annotationPrefix) {
+    if (!facts.deploymentRead) unread.push("deployment annotation");
+    else if (
+      typeof facts.deploymentMessage === "string" &&
+      facts.deploymentMessage.startsWith(record.annotationPrefix)
+    )
+      matched.push("deployment annotation");
+    else if (facts.deploymentMessage === null)
+      unread.push("deployment annotation");
+    else drifted.push("deployment annotation");
+  }
+  return {
+    signals: [...matched, ...drifted, ...unread],
+    matched,
+    drifted,
+    unread,
+  };
+}
+
+/**
+ * Build the recorded first-party identity table. A matching Worker name or tag
+ * is not enough: the status is verified only when a recorded provider signal
+ * (custom domain or the app's own deployment annotation) was read and agreed.
+ */
+export function providerIdentities(
+  expected: ExpectedInventory,
+  snapshot: ProviderSnapshot | null,
+  now: number = Date.now(),
+): ProviderIdentityView[] {
+  return expected.identities.map((record) => {
+    const evidence: ProviderIdentityView["evidence"] = [
+      {
+        kind: "committed-manifest",
+        source: record.repo + "/blob/main/" + record.manifest,
+        value: record.worker,
+      },
+      ...(record.domain
+        ? [
+            {
+              kind: "custom-domain" as const,
+              source: "Documented production URL",
+              value: record.domain,
+            },
+          ]
+        : []),
+      ...(record.annotationPrefix
+        ? [
+            {
+              kind: "deployment-annotation" as const,
+              source: "App deploy annotation",
+              value: record.annotationPrefix,
+            },
+          ]
+        : []),
+      {
+        kind: "release-receipt",
+        source: record.receipt.reference,
+        value: record.receipt.versionId ?? record.receipt.commit,
+      },
+    ];
+    const base = {
+      app: record.app,
+      worker: record.worker,
+      repo: record.repo,
+      environment: record.environment,
+      domain: record.domain,
+      evidence,
+    };
+    const observed = snapshot?.resources.find(
+      (resource): resource is ObservedResource =>
+        resource.kind === "worker" && resource.name === record.worker,
+    );
+    if (!snapshot || !observed) {
+      return {
+        ...base,
+        status: "unknown" as const,
+        statusNote: snapshot
+          ? "The Worker was not observed, or its list was not read. A name is not evidence that it exists."
+          : "No provider request was made, so no identity signal was read.",
+        observed: null,
+        nextAction:
+          "Run the check when the Worker list is readable; do not infer identity from a name, description or tag.",
+      };
+    }
+    const facts = observed.facts as WorkerFacts;
+    const result = identitySignal(facts, record);
+    const stale =
+      (now - Date.parse(observed.observedAt)) / 3600000 > STALE_AFTER_HOURS;
+    const status = result.drifted.length
+      ? ("drift" as const)
+      : result.matched.length
+        ? ("verified" as const)
+        : ("unknown" as const);
+    const note = result.drifted.length
+      ? "The observed " +
+        result.drifted.join(" and ") +
+        " no longer matches the recorded identity evidence. Nothing was changed by this check."
+      : result.matched.length
+        ? "Recorded evidence agrees with the observation: " +
+          result.matched.join(" and ") +
+          "." +
+          (stale
+            ? ` The observation is older than ${STALE_AFTER_HOURS} hours.`
+            : "")
+        : "The recorded identity signal was not read: " +
+          (result.unread.join(" and ") || "no signal is recorded") +
+          ". A matching name or tag alone is not identity.";
+    return {
+      ...base,
+      status,
+      statusNote: note.slice(0, 300),
+      observed: {
+        deploymentId: facts.deploymentId,
+        versionId: facts.versionId,
+        message: facts.deploymentMessage,
+        domains: facts.domains.slice(0, 8),
+        observedAt: observed.observedAt,
+      },
+      nextAction:
+        status === "verified"
+          ? record.nextAction
+          : status === "drift"
+            ? "Investigate the changed route or deployment annotation in Cloudflare and the app's own release record. This check changed nothing."
+            : "Run the check when the recorded custom domain or deployment annotation is readable. A matching name or tag alone is not identity.",
+    };
+  });
+}
+
 function findingsFor(
   expected: ExpectedInventory,
   comparison: ProviderComparison,
   snapshot: ProviderSnapshot,
+  identities: ProviderIdentityView[],
   input: BuildProviderCheckInput,
 ): ProviderFindingView[] {
   const findings: ProviderFindingView[] = [];
@@ -99,23 +250,17 @@ function findingsFor(
     comparison.comparisons.filter((item) => item.state === state);
 
   const earlier = new Set(
-    comparison.untrackedWorkers.earlierCompositions.map((name) =>
+    comparison.undeclared.workers.earlierCompositions.map((name) =>
       name.split("-").at(-1),
     ),
   ).size;
-  const undeclared =
-    comparison.untrackedWorkers.earlierCompositions.length +
-    comparison.untrackedWorkers.otherComposerWorkers.length;
-  if (undeclared > 0)
+  const storage = comparison.undeclared.storage;
+  if (comparison.undeclared.total > 0)
     findings.push({
       code: "untracked-resources",
       severity: "attention",
-      title: `${undeclared} observed Worker script${undeclared === 1 ? "" : "s"} are not in the current composition`,
-      detail: `${comparison.untrackedWorkers.earlierCompositions.length} script(s) come from ${earlier} earlier composition id(s)${
-        comparison.untrackedWorkers.otherComposerWorkers.length
-          ? ` and ${comparison.untrackedWorkers.otherComposerWorkers.length} other composer-* script(s) are undeclared`
-          : ""
-      }. They are observed, not declared by composition.lock.json or wrangler.jsonc. Their retention, rollback role and ownership are unverified. This check does not mark them safe to delete and changes nothing.`,
+      title: `${comparison.undeclared.total} observed resource${comparison.undeclared.total === 1 ? " is" : "s are"} not declared by this composition`,
+      detail: `${comparison.counts.undeclaredWorkers} Worker script(s): ${comparison.undeclared.workers.earlierCompositions.length} from ${earlier} earlier composition id(s) and ${comparison.undeclared.workers.otherComposerWorkers.length} other composer-* script(s). ${comparison.counts.undeclaredStorage} storage resource(s): ${storage.d1.length} D1, ${storage.r2.length} R2 and ${storage.kv.length} KV. They are observed, not declared by composition.lock.json, wrangler.jsonc or a first-party app manifest. Their app/environment ownership, retention and rollback role are unverified. This check does not mark them safe to delete and changes nothing.`,
       action,
     });
 
@@ -171,7 +316,18 @@ function findingsFor(
       code: "identity-unrecorded",
       severity: "unknown",
       title: `${identity.length} first-party Worker${identity.length === 1 ? " has" : "s have"} no recorded provider identity`,
-      detail: `Composer records the documented names for ${names(identity)}, but composition.lock.json and wrangler.jsonc record no provider Worker id or service identity for them. A matching name is a convention, not authority.`,
+      detail: `Composer records the documented names for ${names(identity)}, but no committed manifest, route or receipt records their provider identity. A matching name is a convention, not authority.`,
+      action,
+    });
+  const unknownIdentity = identities.filter(
+    (view) => view.status === "unknown",
+  );
+  if (unknownIdentity.length)
+    findings.push({
+      code: "identity-unverified",
+      severity: "unknown",
+      title: `${unknownIdentity.length} first-party app identit${unknownIdentity.length === 1 ? "y is" : "ies are"} unverified`,
+      detail: `Recorded identity evidence exists for ${unknownIdentity.map((view) => view.worker).join(", ")}, but the custom domain or deployment annotation that would confirm it was not read or did not match. A name or tag alone is not identity or ownership.`,
       action,
     });
   const otherUnverified = unverified.filter(
@@ -316,7 +472,7 @@ export function buildProviderCheck(
     ];
     return {
       ok: true,
-      version: "composer.provider-check/1",
+      version: "composer.provider-check/2",
       readOnly: true,
       source: input.source,
       state: input.state ?? "inaccessible",
@@ -327,16 +483,30 @@ export function buildProviderCheck(
       account: input.expected.account,
       counts: {
         expected: input.expected.resources.length,
+        declaredObserved: 0,
         observed: 0,
         match: 0,
         drift: 0,
         missing: 0,
         unverified: input.expected.resources.length,
         inaccessible: 0,
-        untracked: 0,
+        undeclared: 0,
+        undeclaredWorkers: 0,
+        undeclaredEarlier: 0,
+        undeclaredOther: 0,
+        undeclaredStorage: 0,
+        unrelated: 0,
+        identityVerified: 0,
+        identityUnknown: input.expected.identities.length,
+        identityDrift: 0,
         attention: 1,
       },
       comparisons: unverifiedComparison(input.expected, reason),
+      identities: providerIdentities(
+        input.expected,
+        null,
+        input.now ?? Date.now(),
+      ),
       findings,
       endpoints: [],
       limitations: [
@@ -353,18 +523,29 @@ export function buildProviderCheck(
     input.snapshot,
     input.now ?? Date.now(),
   );
-  const findings = findingsFor(input.expected, comparison, input.snapshot, {
-    ...input,
-    checkedAt,
-    actionHref,
-  });
+  const identities = providerIdentities(
+    input.expected,
+    input.snapshot,
+    input.now ?? Date.now(),
+  );
+  const findings = findingsFor(
+    input.expected,
+    comparison,
+    input.snapshot,
+    identities,
+    {
+      ...input,
+      checkedAt,
+      actionHref,
+    },
+  );
   const limitations = [
     ...input.snapshot.limitations,
     "This check reads per-Worker tags only; account-level Resource Tagging is not written and is not used as authority.",
   ].slice(0, 8);
   return {
     ok: true,
-    version: "composer.provider-check/1",
+    version: "composer.provider-check/2",
     readOnly: true,
     source: input.source,
     state: input.snapshot.state,
@@ -375,15 +556,22 @@ export function buildProviderCheck(
     account: input.snapshot.account,
     counts: {
       ...comparison.counts,
+      identityVerified: identities.filter((view) => view.status === "verified")
+        .length,
+      identityUnknown: identities.filter((view) => view.status === "unknown")
+        .length,
+      identityDrift: identities.filter((view) => view.status === "drift")
+        .length,
       attention: findings.filter((finding) => finding.severity === "attention")
         .length,
     },
     comparisons: comparison.comparisons.slice(0, 32),
+    identities,
     findings,
     endpoints: input.snapshot.endpoints.slice(0, 48).map((endpoint) => ({
       path: endpoint.path,
       method: "GET" as const,
-      state: endpoint.state,
+      state: endpoint.state === "unread" ? "unverified" : endpoint.state,
       status: endpoint.status,
       message: endpoint.message,
     })),

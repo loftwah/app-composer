@@ -65,6 +65,7 @@ export const providerFinding = z
       "provider-tags-absent",
       "stale-observation",
       "identity-unrecorded",
+      "identity-unverified",
       "d1-list-counts-untrusted",
       "domain-service-split",
       "preview-revision-differs",
@@ -97,10 +98,50 @@ export const providerEndpoint = z
   .strict();
 export type ProviderEndpointView = z.infer<typeof providerEndpoint>;
 
+export const providerIdentity = z
+  .object({
+    app: text(40),
+    worker: text(80),
+    repo: text(200),
+    environment: z.enum(["production", "preview", "unverified"]),
+    domain: maybe(120).nullable(),
+    status: z.enum(["verified", "unknown", "drift"]),
+    statusNote: text(300),
+    evidence: z
+      .array(
+        z
+          .object({
+            kind: z.enum([
+              "committed-manifest",
+              "custom-domain",
+              "deployment-annotation",
+              "release-receipt",
+            ]),
+            source: text(200),
+            value: maybe(160).nullable(),
+          })
+          .strict(),
+      )
+      .max(6),
+    observed: z
+      .object({
+        deploymentId: maybe(80).nullable(),
+        versionId: maybe(80).nullable(),
+        message: maybe(200).nullable(),
+        domains: z.array(text(120)).max(8),
+        observedAt: z.iso.datetime(),
+      })
+      .strict()
+      .nullable(),
+    nextAction: text(200),
+  })
+  .strict();
+export type ProviderIdentityView = z.infer<typeof providerIdentity>;
+
 export const providerCheck = z
   .object({
     ok: z.literal(true),
-    version: z.literal("composer.provider-check/1"),
+    version: z.literal("composer.provider-check/2"),
     readOnly: z.literal(true),
     source: z.enum(["live", "local-cli"]),
     state: z.enum(["verified", "partial", "inaccessible", "unconfigured"]),
@@ -115,17 +156,27 @@ export const providerCheck = z
     counts: z
       .object({
         expected: count,
+        declaredObserved: count,
         observed: count,
         match: count,
         drift: count,
         missing: count,
         unverified: count,
         inaccessible: count,
-        untracked: count,
+        undeclared: count,
+        undeclaredWorkers: count,
+        undeclaredEarlier: count,
+        undeclaredOther: count,
+        undeclaredStorage: count,
+        unrelated: count,
+        identityVerified: count,
+        identityUnknown: count,
+        identityDrift: count,
         attention: count,
       })
       .strict(),
     comparisons: z.array(providerComparison).max(32),
+    identities: z.array(providerIdentity).max(8),
     findings: z.array(providerFinding).max(8),
     endpoints: z.array(providerEndpoint).max(48),
     limitations: z.array(text(240)).max(8),
