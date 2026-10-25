@@ -364,13 +364,12 @@ export function PluginTrustPage() {
             checkedAt={report.checkedAt}
           />
           <section className="pt-installation">
-            <h2>Native installation remains unqualified</h2>
+            <h2>Installation on this site remains unqualified</h2>
             <p>
               This Composer build has no registry configuration, sandbox runner
               or LOADER binding. Workers Paid / Dynamic Workers entitlement, an
-              explicitly authorised isolated target and a successful native
-              lifecycle test remain required. This page cannot install, update,
-              enable, disable or uninstall anything.
+              Cloudflare lifecycle qualification remain required. This page
+              cannot install, update, enable, disable or uninstall anything.
             </p>
             <p>
               Use{" "}
@@ -380,6 +379,16 @@ export function PluginTrustPage() {
               </code>{" "}
               in the selected source checkout for the offline configuration
               report. It makes no provider calls.
+            </p>
+            <p>
+              A separate local Node/workerd run installed Publish Check, changed
+              its settings, disabled/re-enabled it, updated it and recovered its
+              settings after reinstall. That proves the local native API
+              lifecycle; it does not qualify this Cloudflare installation.{" "}
+              <a href="https://github.com/loftwah/app-composer/blob/main/docs/evidence/plugin-native-lifecycle-20261025.md">
+                Read the local lifecycle receipt
+              </a>
+              .
             </p>
             <a href="https://docs.emdashcms.com/plugins/installing/">
               EmDash's installation guide

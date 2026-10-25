@@ -1,7 +1,7 @@
 .shopify-catalogue {
   margin-block: 24px 32px;
   padding-block: 24px;
-  border-block: 1px solid var(--or-rule, #777);
+  border-block: 1px solid var(--or-rule, currentColor);
 }
 .shopify-catalogue h2 {
   font-size: 22px;
@@ -35,7 +35,7 @@
 }
 .sc-products > li {
   padding-block: 16px;
-  border-top: 1px solid var(--or-rule, #777);
+  border-top: 1px solid var(--or-rule, currentColor);
   overflow-wrap: anywhere;
 }
 .sc-products > li > div {

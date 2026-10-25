@@ -22,40 +22,59 @@ The secret **name** is present on the Worker. Its value was not read. EmDash
 The validator fails closed for plugin secret settings; unrelated public routes
 continue to work.
 
-## What encrypted data exists
+## What encrypted data exists — corrected storage scope
 
-Read-only D1 queries (no values, no row bodies):
+The original observation inspected `_plugin_storage` and `_plugin_state` only.
+That was insufficient: real installed EmDash 1.3.1 native settings use the
+`options` table under `plugin:{pluginId}:settings:{key}`. `OptionsRepository`
+and `api/handlers/plugin-settings.ts` establish the actual layout. An empty
+collection table does not establish absence of encrypted native settings.
 
-```text
-_plugin_storage: 0 rows
-_plugin_state: 4 rows (composer-members, composer-miniapps, composer-resend,
-               composer-stacks), each data length 0
-```
+A fresh metadata-only production observation on 25 October at approximately
+10:55 UTC completed the scope:
 
-`_plugin_storage` is the EmDash store for plugin collections and settings.
-There are currently **no persisted plugin-secret rows**. `_plugin_state.data`
-is also empty for every installed plugin. This means the malformed key has no
-ciphertext at rest that could be lost by replacing it today.
+| Store | Observed metadata |
+| --- | --- |
+| `options`, names beginning `plugin:` | 0 rows |
+| Native `plugin:%:settings:%` options | 0 rows |
+| Recognised plugin-setting encryption envelopes in plugin options | 0 |
+| `_plugin_storage` (earlier same-run observation) | 0 rows |
+| `_plugin_state` (earlier same-run observation) | 4 rows, 0 nonempty data rows |
 
-This does **not** authorise a rotation automatically: the original key may be
-needed by private operator records, another environment, or a future restore.
+The options query returned counts only and made zero writes. No option names,
+plaintext, ciphertext or key values were returned. The maintained fixed queries
+and conservative summary are in `scripts/plugin-secret-inventory.mjs`; its tests
+cover ordinary native settings, recognised encrypted envelopes, malformed
+values, non-settings plugin options and nonempty legacy/collection stores. Any
+nonempty plugin store requires review, even when no recognised envelope exists.
 
-## Exact owner recovery action
+There is no current plugin ciphertext in these observed stores. This does not
+validate the deployed key, demonstrate decryption, qualify older backups or
+other environments, or grant rotation authority. Recheck **all three stores**
+immediately before any approved write.
 
-1. Check private operator storage for the original key.
-2. If the original value is available and valid, restore it unchanged:
-   `wrangler secret put EMDASH_ENCRYPTION_KEY --name app-composer` and paste the
-   original value over stdin. Do not echo it into shell history or logs.
-3. If no valid original exists, generate a new key with
-   `npx emdash secrets generate`, store it with the database backups, and set it
-   the same way. This is safe **today** only because `_plugin_storage` is empty.
-   Re-check that fact immediately before writing.
-4. Redeploy/restart the Worker so startup validation runs.
-5. Verify: startup logs contain no `EMDASH_ENCRYPTION_KEY is invalid`; one
-   owner-authorised plugin settings page loads; one owned Connections read
-   succeeds. Record the exact Worker version and timestamp.
-6. Keep encrypted settings marked degraded until step 5 is observed. Do not
-   claim the key is fixed from a successful deploy alone.
+## Owner recovery procedure
+
+1. Identify the exact site, environment, source and Worker version; preserve
+   current database/recovery bookmarks and the existing key references.
+2. Check private operator storage for the valid original key. Restoring that
+   original is preferable when it is needed by older backups or other records.
+   Never print or paste the value into chat, a prompt, a command-line argument
+   or a retained diagnostic.
+3. If no valid original exists, obtain explicit owner authority before generating
+   a replacement with official EmDash tooling. Save it with the relevant backups.
+   Recheck the complete metadata inventory immediately before a write. Nonempty
+   stores or uncertain backup keys require a documented restoration/re-encryption
+   decision; do not try keys against production data speculatively.
+4. Stage the approved key through a reviewed, version-aware secret/release path
+   for the exact environment, then use the clean pushed-main release guard.
+   A standalone `wrangler secret put` can immediately deploy and must not bypass
+   that guard. This finding does not introduce a general secret-rotation tool.
+5. Verify startup no longer rejects `EMDASH_ENCRYPTION_KEY`, a real owner-native
+   secret-settings path works, and an owned Connections read succeeds. Record
+   the exact served source/Worker and timestamp. A valid format or deployment
+   alone does not demonstrate encrypted-settings recovery.
+6. Keep encrypted settings marked degraded until those checks pass.
 
 ## What remains unverified
 

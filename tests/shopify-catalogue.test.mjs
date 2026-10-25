@@ -261,6 +261,14 @@ test("anonymous, wrong workspace, cross-origin, disabled environment and GET che
     "METHOD_NOT_ALLOWED",
   );
   assert.equal(f.calls(), 0);
+  assert.equal((await f.route("check", { headers: {} })).ok, false);
+  f.sqlite
+    .prepare(
+      "UPDATE creator_members SET role='viewer' WHERE workspace_id=? AND user_id=?",
+    )
+    .run(f.workspace.id, user.id);
+  assert.equal((await f.route()).ok, false);
+  assert.equal(f.calls(), 0);
 });
 
 test("membership revoked during the provider read cannot expose the returned private catalogue", async (t) => {

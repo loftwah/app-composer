@@ -216,6 +216,15 @@ export async function manageShopifyCatalogue(
     for (const key of url.searchParams.keys())
       if (url.searchParams.getAll(key).length !== 1)
         throw new StackError("INVALID", "Select each catalogue scope once.");
+    if (
+      ctx.request.method === "POST" &&
+      ctx.request.headers.get("Origin") !== origin
+    )
+      throw new StackError(
+        "FORBIDDEN",
+        "Run catalogue checks from Composer administration.",
+        403,
+      );
     const input = inputSchema.parse(ctx.input);
     if (
       (input.action === "status" && ctx.request.method !== "GET") ||

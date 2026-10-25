@@ -135,8 +135,9 @@ if (
       readFileSync(
         new URL(
           "../../package.json",
-          "file://" +
+          pathToFileURL(
             requireEmdash.resolve("@emdash-cms/registry-client/discovery"),
+          ),
         ),
         "utf8",
       ),
