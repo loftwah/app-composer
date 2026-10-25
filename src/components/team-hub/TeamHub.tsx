@@ -6,6 +6,7 @@ import {
   type TeamHubRequest,
   type TeamHubSnapshot,
 } from "../../lib/team-hub-contract";
+import { filterTeamRequests, recoveryChecklist } from "./workspace";
 import "./team-hub.css";
 
 interface Scope {
@@ -83,6 +84,10 @@ export default function TeamHub() {
     [capability, setCapability] = useState("use");
   const [history, setHistory] = useState<History[]>();
   const [connection, setConnection] = useState("");
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [assignedOnly, setAssignedOnly] = useState(false);
+  const titleInput = useRef<HTMLInputElement>(null);
   const pending = useRef(false),
     alive = useRef(true),
     dirty = useRef(false);
@@ -118,6 +123,9 @@ export default function TeamHub() {
       setWorkspace(id);
       setSelected(undefined);
       setHistory(undefined);
+      setQuery("");
+      setStatusFilter("all");
+      setAssignedOnly(false);
     }
     try {
       const all = (await call("scope")) as Scope;
@@ -230,6 +238,30 @@ export default function TeamHub() {
     ),
   );
   const selectedRecord = saved?.requests.find((row) => row.id === selected);
+  const visibleRequests = filterTeamRequests(
+    saved?.requests ?? [],
+    query,
+    statusFilter,
+    assignedOnly ? (saved?.actor.id ?? null) : null,
+  );
+  function newRequest(checklist = false) {
+    if (
+      pending.current ||
+      (dirty.current &&
+        !window.confirm("Discard unsaved entries and start another request?"))
+    )
+      return;
+    setSelected(undefined);
+    setHistory(undefined);
+    setForm(checklist ? recoveryChecklist() : blank());
+    dirty.current = checklist;
+    setNotice(
+      checklist
+        ? "Private recovery checklist started. Replace its prompts and save deliberately; it grants no execution authority."
+        : "New request. Your saved requests are retained.",
+    );
+    titleInput.current?.focus();
+  }
   async function open(id: string) {
     if (
       dirty.current &&
@@ -416,18 +448,67 @@ export default function TeamHub() {
               <div className="th-work">
                 <section id="team-actions">
                   <h2>Today’s actions</h2>
+                  <div className="th-filters">
+                    <label>
+                      Find a request
+                      <input
+                        type="search"
+                        aria-label="Find a request"
+                        value={query}
+                        onChange={(event) => setQuery(event.target.value)}
+                      />
+                    </label>
+                    <label>
+                      Show status
+                      <select
+                        aria-label="Show status"
+                        value={statusFilter}
+                        onChange={(event) =>
+                          setStatusFilter(event.target.value)
+                        }
+                      >
+                        <option value="all">All requests</option>
+                        <option value="active">Open and in progress</option>
+                        <option value="open">Open</option>
+                        <option value="in-progress">In progress</option>
+                        <option value="done">Done</option>
+                      </select>
+                    </label>
+                    <label className="th-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={assignedOnly}
+                        onChange={(event) =>
+                          setAssignedOnly(event.target.checked)
+                        }
+                      />
+                      Assigned to me
+                    </label>
+                  </div>
+                  <p className="th-results" role="status">
+                    {visibleRequests.length} of {saved.requests.length} requests
+                    shown
+                  </p>
                   {!saved.requests.length ? (
                     <p>
                       No actions yet. An editor or owner can add the first
                       request and assign it to an app member.
                     </p>
+                  ) : !visibleRequests.length ? (
+                    <p>
+                      No requests match these filters. Change the search or
+                      status to find saved work.
+                    </p>
                   ) : (
                     <ul className="th-requests">
-                      {saved.requests.map((row) => (
+                      {visibleRequests.map((row) => (
                         <li key={row.id}>
                           <div>
                             <button
                               className="th-open"
+                              aria-current={
+                                selected === row.id ? "true" : undefined
+                              }
                               disabled={busy}
                               onClick={() => void open(row.id)}
                             >
@@ -457,6 +538,16 @@ export default function TeamHub() {
                 </section>
                 <section className="th-editor">
                   <h2>{selected ? "Review request" : "Add a request"}</h2>
+                  {saved.actor.role !== "viewer" && (
+                    <div className="th-start">
+                      <button disabled={busy} onClick={() => newRequest()}>
+                        New request
+                      </button>
+                      <button disabled={busy} onClick={() => newRequest(true)}>
+                        Start recovery checklist
+                      </button>
+                    </div>
+                  )}
                   {saved.actor.role !== "viewer" ? (
                     <form onSubmit={submit}>
                       <fieldset disabled={busy}>
@@ -464,6 +555,7 @@ export default function TeamHub() {
                         <label>
                           Title
                           <input
+                            ref={titleInput}
                             aria-label="Title"
                             required
                             minLength={2}
@@ -551,9 +643,18 @@ export default function TeamHub() {
                     </form>
                   ) : (
                     <p>
-                      You can read requests and private attachments. An editor
-                      or owner makes changes.
+                      You can read requests, private checklists and attachments.
+                      An editor or owner makes changes.
                     </p>
+                  )}
+                  {selectedRecord && saved.actor.role === "viewer" && (
+                    <article
+                      className="th-reading"
+                      aria-label="Selected request"
+                    >
+                      <h3>{selectedRecord.title}</h3>
+                      <p>{selectedRecord.body}</p>
+                    </article>
                   )}
                   {history && (
                     <details open>
@@ -585,6 +686,41 @@ export default function TeamHub() {
                   An invitation does not change Access policy or establish email
                   delivery.
                 </p>
+                {saved.actor.manage && (
+                  <p>
+                    <a
+                      href={
+                        "/_emdash/admin/plugins/composer-stacks/workspaces?workspace=" +
+                        workspace
+                      }
+                    >
+                      Invite or review team membership
+                    </a>
+                  </p>
+                )}
+                <details>
+                  <summary>Help a teammate enter this app</summary>
+                  <ol>
+                    <li>
+                      Confirm that the installation operator has admitted their
+                      sign-in identity. A workspace invitation does not change
+                      that policy.
+                    </li>
+                    <li>
+                      Invite them to this team, then ask them to accept the
+                      invitation in My apps.
+                    </li>
+                    <li>
+                      Grant this app permission below. Their team role
+                      determines whether they can read or edit requests.
+                    </li>
+                  </ol>
+                  <p>
+                    If access is removed, saved requests and earlier decisions
+                    stay with the team. The next request checks their current
+                    permissions.
+                  </p>
+                </details>
                 <ul className="th-people">
                   {people.map((person) => (
                     <li key={person.id}>

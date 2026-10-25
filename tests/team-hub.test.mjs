@@ -7,6 +7,10 @@ import {
   teamHubPageGate,
   teamHubProfile,
 } from "../src/lib/team-hub.ts";
+import {
+  recoveryChecklist,
+  filterTeamRequests,
+} from "../src/components/team-hub/workspace.ts";
 import { teamHubSnapshot } from "../src/lib/team-hub-contract.ts";
 
 const origin = "http://localhost:4444",
@@ -496,4 +500,98 @@ test("connection uses only an explicitly supplied binding and never echoes endpo
   );
   assert.equal(failure.state, "unavailable");
   assert.ok(!JSON.stringify(failure).includes("private-address-secret"));
+});
+
+test("private recovery checklist saves through current request authority and keeps original versions", async (t) => {
+  const f = fixture(t);
+  let state = await enabled(f);
+  state = await share(f, state);
+  const request = recoveryChecklist();
+  const id = crypto.randomUUID();
+  state = await f.call(users.editor, {
+    action: "save",
+    workspace: alpha,
+    expectedRevision: state.revision,
+    id,
+    expectedRequestRevision: 0,
+    request,
+  });
+  assert.equal(state.ok, true, JSON.stringify(state));
+  assert.match(state.requests[0].body, /current access revocations/);
+  const attached = await f.call(users.owner, {
+    action: "attachment",
+    workspace: alpha,
+    id,
+  });
+  assert.equal(attached.attachment.text, request.attachment.text);
+  assert.equal(
+    (await f.call(users.other, { action: "attachment", workspace: alpha, id }))
+      .code,
+    "FORBIDDEN",
+  );
+  const revision = state.revision;
+  state = await f.call(users.editor, {
+    action: "save",
+    workspace: alpha,
+    expectedRevision: revision,
+    id,
+    expectedRequestRevision: 1,
+    request: {
+      ...request,
+      title: "Fictional Alpha recovery",
+      status: "in-progress",
+    },
+  });
+  assert.equal(state.ok, true);
+  const history = await f.call(users.editor, {
+    action: "history",
+    workspace: alpha,
+    id,
+  });
+  assert.equal(history.history.length, 2);
+  assert.equal(history.history[1].request.title, request.title);
+  assert.equal(
+    f.sqlite.prepare("SELECT COUNT(*) AS n FROM team_hub_requests").get().n,
+    1,
+  );
+});
+
+test("request discovery combines words, assignment and status without changing saved records", () => {
+  const requests = [
+    {
+      id: "first",
+      title: "Alpha recovery",
+      body: "Check private media",
+      status: "open",
+      assignee: "editor",
+    },
+    {
+      id: "second",
+      title: "Media review",
+      body: "Alpha data",
+      status: "done",
+      assignee: "viewer",
+    },
+    {
+      id: "third",
+      title: "Bravo recovery",
+      body: "Check records",
+      status: "in-progress",
+      assignee: "editor",
+    },
+  ];
+  const before = JSON.stringify(requests);
+  assert.deepEqual(
+    filterTeamRequests(requests, "  ALPHA   media ", "all", null).map(
+      (row) => row.id,
+    ),
+    ["first", "second"],
+  );
+  assert.deepEqual(
+    filterTeamRequests(requests, "", "active", "editor").map((row) => row.id),
+    ["first", "third"],
+  );
+  assert.deepEqual(filterTeamRequests(requests, "", "done", "editor"), []);
+  assert.deepEqual(filterTeamRequests(requests, "missing", "all", null), []);
+  assert.equal(JSON.stringify(requests), before);
 });

@@ -1,0 +1,65 @@
+{
+  "schema": "composer.team-hub-native/1",
+  "warning": "Fictional local EmDash sessions and virtual passkeys. No production Access, MFA, provider or physical-device proof.",
+  "source": "02f413ba7d09e47b57c423b62e8e3aafb8401659",
+  "sourceDirty": true,
+  "harnessHash": "ab92d3efe626737ef43b28f618d8c84cde6213ffb89181d8739b27583b5a95a6",
+  "checks": {
+    "nativeWorkspaceInvitationAcceptance": true,
+    "legacyMemberSessionUnaffected": true,
+    "role10EditorAndImmutableVersions": true,
+    "privateRunbookSaveFilterAndNewRequest": true,
+    "privateAttachmentRoundTrip": true,
+    "viewerAssignedWork": true,
+    "anonymousHtml403Api401": true,
+    "viewerWriteCrossTeamHtmlApiAndAnonymousDenied": true,
+    "revokedDisabledAndUnaffectedTeam": true
+  },
+  "captures": [
+    "editor-1440-dark.png",
+    "viewer-1440-dark.png",
+    "editor-1440-light.png",
+    "viewer-1440-light.png",
+    "editor-390-dark.png",
+    "viewer-390-dark.png",
+    "editor-390-light.png",
+    "viewer-390-light.png",
+    "revoked-390.png"
+  ],
+  "pageErrors": [],
+  "cleanup": true,
+  "runtimeSourceHashes": {
+    "src/lib/team-hub.ts": "31ebc2f6035e62f125fe499a1a547cbd72b4c52d71c1ea746c3a78f66eb41439",
+    "src/lib/team-hub-contract.ts": "636445f2ab475529bd6d4097cd6761f9d8e13b7e53305970c9feaa4111254b92",
+    "src/components/team-hub/TeamHub.tsx": "07ffdfcbe70682074666249aadaa0e94a2d68499c4906782ea5802e3fcbdfc61",
+    "migrations/0021_team_hub.sql": "ebeb78c25bdb4bab72f70dc9e67ae27f9fafaab0d5841b5059c21c0e03c1338c",
+    "src/lib/member-plugin.ts": "796f5ef006c28c5f1149612c1bd6ad62f145530bf3524a878c2aad086c113e55",
+    "src/middleware.ts": "ae5bcbe275358ef760290c7bf19735be763c31a2e54c98a947a4a615992313ad",
+    "src/lib/admin-brand.ts": "47a7f5e50107499586c536b680b3fbf4968f145132f6a4fd894aee0780a05277",
+    "docs/evidence/admin-journey-20261025/prepare-fixture.mjs": "24f7f5ff310efc5e15393bebd15e465af914a6088c14c04f53e23160764cd218",
+    "scripts/lib/native-fixture-process.mjs": "73eee7dd9b9b8990695e39b914ef3dc2a1dc0b1ab518726648fd1edb2a5a0b04"
+  },
+  "fixtureIntegrationHashes": {
+    "src/lib/member-plugin.ts": "796f5ef006c28c5f1149612c1bd6ad62f145530bf3524a878c2aad086c113e55",
+    "src/middleware.ts": "1b097e67023053b8107218b013a3f3803cb2be3a8244459a632f074b85b2f5e5"
+  },
+  "seams": [
+    "Existing native fixture removes Access and uses local D1/R2, no provider bindings.",
+    "Local origin guards for existing workspace/member acceptance APIs only; issuer/grant identity is unchanged.",
+    "Existing integrated Team Hub routes and document guard validated and preserved; Brand middleware retained.",
+    "Explicit native-local auth profile and preview namespace. Contained APFS dependency clone."
+  ],
+  "admission": {
+    "nativeSessions": true,
+    "virtualPasskeys": true,
+    "physicalPasskeys": false,
+    "productionAccess": false,
+    "insertedIdentityOrSessionRows": false
+  },
+  "success": true,
+  "capacity": {
+    "waitSeconds": 72.08,
+    "result": "initial release quarantined for absent acknowledgement; supported recovery verified no live owned work",
+    "recovered": true
+  }
+}

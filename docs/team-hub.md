@@ -92,3 +92,24 @@ Actual local browser evidence and its explicit seams are recorded in
 [the native receipt](evidence/team-hub-20261025/README.md). Physical passkeys,
 assistive technology, actual phones, provider service bindings, hosted Access
 and production passwordless/MFA acceptance remain unqualified.
+
+## Completion-run request workspace
+
+Requests now have word search, status selection and an assigned-to-me filter,
+with actual saved-result counts and an explicit empty state. New request clears
+only the editor after deliberate unsaved-change confirmation, preserving saved
+work. Viewers can open the selected request in a reading view and inspect its
+history. Owners can follow the existing workspace invitation route; inline help
+separates operator admission, invitation acceptance and the explicit app grant.
+
+The recovery checklist starter prepares an **unsaved** versioned request and
+private `.txt` runbook attachment. It asks for the exact target, owner/reviewer,
+backup/release, approved reversible action, independent checks and preserved
+revocations. Saving uses the unchanged app-scoped authority/CAS path. The
+checklist neither grants authority nor executes an operation and is not claimed
+to be an EmDash article/publishing lifecycle.
+
+[Actual completion-run browser evidence](evidence/team-hub-completion-20261025/README.md)
+records successful save/filter/new-request/attachment and wrong-team/revocation
+journeys using real isolated native actors, plus the corrected host acknowledgement
+seam. Production admission remains closed under the existing requirement above.
