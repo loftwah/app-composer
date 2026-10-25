@@ -1,10 +1,11 @@
+import {isSupportedNode} from '../lib/get-ready/local-checks.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';
 import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,symlinkSync,existsSync,rmSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';
 import {downloadWorkspaceTool,prepareWorkspaceTools,workspaceToolEnvironment} from '../lib/get-ready/workspace-tools.mjs';
 import {execFileSync} from 'node:child_process';
 import {createReadinessSession,runReadinessSession,inspectReadiness,ReadinessFailure,runLocalReadiness} from '../lib/get-ready/index.mjs';
 const active={...process.env,CODEX_THREAD_ID:'fictional-tool-fixture'};
-const supported=process.platform==='darwin'&&process.arch==='arm64'&&process.versions.node.startsWith('22.');
+const supported=process.platform==='darwin'&&process.arch==='arm64'&&isSupportedNode();
 const fixture=()=>{const root=mkdtempSync(join(tmpdir(),'composer-tool-preparation-')),workspace=join(root,'workspace');mkdirSync(workspace);return {root,workspace};};
 
 test('engine tool preparation refuses a nested project before writing into its parent Git workspace',async()=>{

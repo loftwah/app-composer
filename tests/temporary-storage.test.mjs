@@ -1,3 +1,4 @@
+import {isSupportedNode} from '../lib/get-ready/local-checks.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdtempSync,mkdirSync,writeFileSync,rmSync,readdirSync} from 'node:fs';
@@ -5,7 +6,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 
-const supported=process.platform==='darwin'&&process.arch==='arm64'&&process.versions.node.startsWith('22.');
+const supported=process.platform==='darwin'&&process.arch==='arm64'&&isSupportedNode();
 for(const scenario of ['reuse','download-failure','git-failure'])test('temporary tool storage is removed after '+scenario,{skip:!supported},t=>{
  const root=mkdtempSync(join(tmpdir(),'composer-cleanup-test-'));
  t.after(()=>rmSync(root,{recursive:true,force:true}));

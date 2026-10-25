@@ -1,3 +1,4 @@
+import {isSupportedNode} from '../lib/get-ready/local-checks.mjs';
 import test from 'node:test';
 import fs from 'node:fs';
 import {syncBuiltinESMExports} from 'node:module';
@@ -48,7 +49,7 @@ ${duringInstall}
  return {root,workspace,bin,calls,source,inputs,git,configure,env,context,adapter,cleanup:()=>rmSync(root,{recursive:true})};
 }
 
-const supported=process.platform==='darwin'&&process.arch==='arm64'&&process.versions.node.split('.')[0]==='22';
+const supported=process.platform==='darwin'&&process.arch==='arm64'&&isSupportedNode();
 test('owned starter installs only isolated reviewed dependency inputs, preserves ignored owner config and repeats without installation',{skip:!supported},async()=>{
  const f=fixture();try{
   writeFileSync(join(f.workspace,'.git/info/exclude'),'.npmrc\n.pnpmfile.cjs\n');

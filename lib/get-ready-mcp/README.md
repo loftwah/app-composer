@@ -6,7 +6,7 @@ Reviewed 14 October 2026. The optional local stdio transport exposes the same Ge
 
 Download the archive and matching source/checksum manifest from https://composer.loftwah.com/docs#local-get-ready-mcp . Check the archive SHA-256, review `SOURCE.json`, this README and the bundled source. The checksum detects mismatch; it is not an independent signature. This is a release archive, not npm registry publication.
 
-In a separate local integration folder authorised for this purpose, use Node22:
+In a separate local integration folder authorised for this purpose, use Node 22.23.4+ or 24.22.1+:
 
 ```sh
 npm install --ignore-scripts --no-audit --no-fund ./get-ready-mcp.tgz
@@ -37,7 +37,7 @@ The host retains authorised tools and credentials; this is not a sandbox for arb
 
 Default launches expose no setup tool. Only a trusted host already authorised to prepare local tools may add `--allow-workspace-tool-setup` to the server launch. The programmatic scope equivalent is the boolean `allowWorkspaceToolSetup: true`; tool calls cannot enable it. This exposes the separate zero-argument `get_ready_prepare_tools` tool and invokes the existing core `install-workspace-tools` operation.
 
-The supported operation requires active Codex on Apple Silicon macOS, Node22 and Git. Select the actual repository root, or an existing folder outside Git; a nested project is refused before parent-workspace writes. The installer checks usable existing tools first, otherwise downloads only the fixed verified GitHub CLI/pnpm pair into the selected workspace’s `.private/workspace-tools`. It preserves existing/partial copies, authored files and user profiles. It does not install global tools or skills, authenticate, create a repository, change DNS, create cloud resources or deploy.
+The supported operation requires active Codex on Apple Silicon macOS, Node 22.23.4+ or 24.22.1+ and Git. Select the actual repository root, or an existing folder outside Git; a nested project is refused before parent-workspace writes. The installer checks usable existing tools first, otherwise downloads only the fixed verified GitHub CLI/pnpm pair into the selected workspace’s `.private/workspace-tools`. It preserves existing/partial copies, authored files and user profiles. It does not install global tools or skills, authenticate, create a repository, change DNS, create cloud resources or deploy.
 
 The explicit tool response adds a bounded `preparation` result with its operation/state and, on completed preparation, whether files changed and whether tools came from the workspace or existing environment. This sits beside the ordinary readiness report; completed work does not enter that report’s unfinished-operation list. A failed/partial action does not claim that files were unchanged. Preparation alone does not prove GitHub access, Cloudflare access or HTTPS.
 
@@ -47,7 +47,7 @@ To remove this capability, stop the connection and remove the allow flag from th
 
 ## Optional EmDash site guidance
 
-Use this for an exact declared EmDash 1.2.0 project on Node22 in an active Codex workspace. First inspect the selected task’s actual enabled skill catalogue, including plugin skills, and preserve existing guidance. Map applicable namespaced skills to `building-emdash-site`, `emdash-cli` or `creating-plugins`. The host must supply that current inventory and explicitly authorise this local preparation:
+Use this for an exact declared EmDash 1.2.0 project on Node 22.23.4+ or 24.22.1+ in an active Codex workspace. First inspect the selected task’s actual enabled skill catalogue, including plugin skills, and preserve existing guidance. Map applicable namespaced skills to `building-emdash-site`, `emdash-cli` or `creating-plugins`. The host must supply that current inventory and explicitly authorise this local preparation:
 
 ```sh
 /absolute/integration/node_modules/.bin/get-ready-mcp \
@@ -79,7 +79,7 @@ The current connection keeps checking its original workspace. To inspect or prep
 
 `SOURCE.json` hashes every packaged input and records the exact Composer source revision. `lib/get-ready/SOURCE.json` records the same core snapshot as the standalone core archive. Preserve MIT notices. SDK dependency licences are installed with those packages. Core usage and setup boundaries are in `lib/get-ready/README.md`.
 
-If the host cannot start the server, check its Node22 executable, absolute server path, dependency installation and explicit workspace privately. Invalid launch arguments fail without echoing private input. Reconnect to recheck; stale or imported reports grant no authority. Stop the host connection and remove its configuration through that host’s controls to disconnect. Uninstall the package through your integration folder’s package manager if no longer needed; private workspace receipts and cloud resources are not deleted by this package.
+If the host cannot start the server, check its Node 22.23.4+ or 24.22.1+ executable, absolute server path, dependency installation and explicit workspace privately. Invalid launch arguments fail without echoing private input. Reconnect to recheck; stale or imported reports grant no authority. Stop the host connection and remove its configuration through that host’s controls to disconnect. Uninstall the package through your integration folder’s package manager if no longer needed; private workspace receipts and cloud resources are not deleted by this package.
 
 Official sources: https://github.com/modelcontextprotocol/typescript-sdk and https://modelcontextprotocol.io/docs/2026-07-28/develop/build-server .
 
@@ -92,7 +92,7 @@ After acquiring Hello, have the host select that checkout as the workspace on a 
 get-ready-mcp --workspace /absolute/selected/hello --allow-reference-tool-setup
 ```
 
-If GitHub CLI/pnpm were prepared elsewhere, explicitly add `--tools-workspace /absolute/selected/tool-folder`. The tool delegates to the same `install-reference-tools` engine operation as the CLI. It supports clean exact-main maintained Hello or its verified unchanged private owned copy, active Codex on Apple Silicon macOS, Node 22 and pnpm 12.8.1/12.9.1. It freshly reads GitHub source and verifies committed dependency inputs before installing with the frozen lockfile, scripts/hooks disabled, isolated registry configuration and service credentials excluded. It does not execute a project build, install global tools, authenticate, create ownership, change DNS or deploy.
+If GitHub CLI/pnpm were prepared elsewhere, explicitly add `--tools-workspace /absolute/selected/tool-folder`. The tool delegates to the same `install-reference-tools` engine operation as the CLI. It supports clean exact-main maintained Hello or its verified unchanged private owned copy, active Codex on Apple Silicon macOS, Node 22.23.4+ or 24.22.1+ and pnpm 12.8.1/12.9.1. It freshly reads GitHub source and verifies committed dependency inputs before installing with the frozen lockfile, scripts/hooks disabled, isolated registry configuration and service credentials excluded. It does not execute a project build, install global tools, authenticate, create ownership, change DNS or deploy.
 
 The bounded `preparation` result reports completion, whether installation changed files, and verified Wrangler/pnpm versions. Completion is separate from overall readiness: a public clone has no upstream push permission, and missing account/HTTPS proof remains incomplete. A repeat verifies existing tools without reinstalling. Ordinary checks never retry a failed or cancelled installation; partial work remains for agent inspection before a separate explicit retry. Shared exclusivity remains active until the bounded call finishes, even after cancellation, and a cancelled result is not retained as completed evidence.
 
