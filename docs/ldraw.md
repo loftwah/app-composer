@@ -39,10 +39,18 @@ scene protocol.
 
 An explicitly authorised script in the editor's own browser can read its
 revision and request a scene replacement with that expected revision. Human
-edits made in the meantime reject the replacement. This same-browser interface
-is distinct from a remote connection: LDraw supplies no MCP server or Composer
-agent grant. Browser authentication for another app does not grant drawing
-access.
+edits made in the meantime reject the replacement. Browser authentication for
+another app does not grant drawing access.
+
+The newer independent source also supplies a **local stdio MCP adapter**, qualified
+here at `9fec6e795dd3fc68d1fb5a63f72c5e698e4c8fc1`. From that reviewed checkout,
+`pnpm mcp --workspace /absolute/path/drawings` selects an explicitly owned local
+drawing directory; `--read-only` removes mutation. The actual native MCP
+read/edit/stale-write/render/round-trip evidence is in the
+[diagram continuation receipt](evidence/product-completion-20261025/ldraw-receipt.json).
+This is a local tool, not a hosted endpoint or Composer agent grant. It does not
+change the separately pinned hosted editor below, whose deployment remains its
+own release decision.
 
 ## Composer discovery and release identity
 
