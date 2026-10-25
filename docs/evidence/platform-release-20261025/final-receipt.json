@@ -1,0 +1,117 @@
+{
+  "schema": "composer.final-release/1",
+  "recordedAt": "2026-10-25T09:44:38.555133+00:00",
+  "source": "0866bf266382d3ea7d9e48919c819c62c93e76fa",
+  "worker": "e0c800d7-44ee-4c8e-9c36-d151cb33ebb9",
+  "pr": 386,
+  "canonical": "https://github.com/loftwah/app-composer/issues/11#issuecomment-6396062089",
+  "checks": {
+    "tests": 1196,
+    "pass": 1194,
+    "fail": 0,
+    "optionalGuestbookSkips": 2,
+    "typeErrors": 0,
+    "typeWarnings": 0,
+    "auditLintFormatBuild": true,
+    "affectedNode24Pass": 56,
+    "focusedContentProjectRetryPass": 11
+  },
+  "measures": {
+    "auditSeconds": 0.5,
+    "fullChecksSeconds": 87.2,
+    "migrationsSeconds": 1.6,
+    "buildSeconds": 13.2,
+    "uploadSeconds": 17.9,
+    "uploadKiB": 15242.08,
+    "gzipKiB": 3874.92,
+    "billedMoney": "unknown"
+  },
+  "productionContinuity": {
+    "at": "2026-10-25T09:37:13.579Z",
+    "database": "app-composer-emdash",
+    "environment": "production",
+    "readOnly": true,
+    "tables": {
+      "creator_app_grants": {
+        "rows": 1,
+        "sha256": "c79982de21d4913798ad304b7b3079c299bcb1c4013210d5ae6b93d797c27722"
+      },
+      "creator_app_access_audit": {
+        "rows": 2,
+        "sha256": "36da2b5607b65dc50dec714b8e6217d54013b45556cbeb4f2594c45be25ec8a8"
+      }
+    },
+    "unchanged": true
+  },
+  "appearance": {
+    "revision": 5,
+    "publishedVersion": 5,
+    "versionsRetained": 5,
+    "restoredConfigurationMatchesVersion2": true,
+    "verifiedAfterDeployment": true
+  },
+  "live": {
+    "at": "2026-10-25T09:37:44.165Z",
+    "build": {
+      "app": "app-composer",
+      "commit": "0866bf266382d3ea7d9e48919c819c62c93e76fa",
+      "reviewed": "2026-10-13",
+      "contract": 1
+    },
+    "results": [
+      {
+        "path": "/team-hub",
+        "status": 503,
+        "cache": "private, no-store",
+        "privateProfileClosed": true
+      },
+      {
+        "path": "/team-hub/",
+        "status": 503,
+        "cache": "private, no-store",
+        "privateProfileClosed": true
+      },
+      {
+        "path": "/for/wordpress",
+        "status": 200,
+        "cache": "no-store",
+        "privateProfileClosed": false
+      },
+      {
+        "path": "/plugin-trust",
+        "status": 200,
+        "cache": "no-store",
+        "privateProfileClosed": false
+      },
+      {
+        "path": "/incident-replay",
+        "status": 200,
+        "cache": "no-store",
+        "privateProfileClosed": false
+      },
+      {
+        "path": "/diagrams",
+        "status": 200,
+        "cache": "no-store",
+        "privateProfileClosed": false
+      }
+    ]
+  },
+  "cleanup": {
+    "successfulReleaseRootRemoved": true,
+    "failedReleaseRootsRemoved": true,
+    "ownedSourcePreviewStopped": true,
+    "ownedPlaywrightSessionClosed": true,
+    "ownerChromeBrandStudioRetained": true
+  },
+  "failedGates": [
+    "Stale highest-migration assertion corrected and reviewed in PR385 before any mutation.",
+    "One unchanged child source-write failure in final full check; 11 isolated tests and complete unchanged guard retry passed. Underlying cause remains unconfirmed; no timeout or security guard relaxed."
+  ],
+  "limits": [
+    "Team Hub production profile is closed pending real Access/passwordless/mandatory-MFA qualification.",
+    "Immutable identity enforcement remains in compatibility mode.",
+    "Native plugin installation, provider notifications, physical/assistive technology and native browser zoom remain unqualified."
+  ],
+  "documentationOnlyFollowUp": true
+}
