@@ -4,6 +4,8 @@ import {
   adminBrandConfig,
   brandSnapshot,
   approvedMark,
+  compareAdminBrand,
+  adminReadingPresets,
   type AdminBrandConfig,
   type BrandSnapshot,
 } from "../lib/admin-brand-contract";
@@ -57,6 +59,7 @@ export function BrandStudioPage() {
     [notice, setNotice] = useState("");
   const [screen, setScreen] = useState("overview");
   const [reviewed, setReviewed] = useState(false);
+  const [restoreVersion, setRestoreVersion] = useState<number>();
   const alive = useRef(true),
     pending = useRef(false);
   const dirty = !!(
@@ -81,6 +84,7 @@ export function BrandStudioPage() {
         setSaved(next);
         setForm(next.draft);
         setReviewed(false);
+        setRestoreVersion(undefined);
       }
     } catch (error) {
       if (alive.current)
@@ -132,6 +136,7 @@ export function BrandStudioPage() {
         setSaved(next);
         setForm(next.draft);
         setReviewed(false);
+        setRestoreVersion(undefined);
         setNotice(
           action === "save"
             ? "Draft saved. Open an actual admin preview before publishing."
@@ -209,6 +214,13 @@ export function BrandStudioPage() {
   const preview = saved?.revision
     ? `/_emdash/admin/plugins/composer-stacks/${screen}?brandPreview=${saved.revision}`
     : null;
+  const differences =
+    saved && form && saved.published
+      ? compareAdminBrand(saved.published, form)
+      : [];
+  const restore = saved?.history.find(
+    (entry) => entry.version === restoreVersion,
+  );
   return (
     <section className="composer-brand-studio" aria-busy={busy}>
       <header className="bs-header">
@@ -265,6 +277,31 @@ export function BrandStudioPage() {
                 <legend className="bs-visually-hidden">
                   Supported appearance choices
                 </legend>
+                <div
+                  className="bs-presets"
+                  role="group"
+                  aria-label="Reading presets"
+                >
+                  {adminReadingPresets.map((preset) => (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      aria-pressed={
+                        form.density === preset.density &&
+                        form.typeScale === preset.typeScale
+                      }
+                      onClick={() =>
+                        change({
+                          density: preset.density,
+                          typeScale: preset.typeScale,
+                        })
+                      }
+                    >
+                      <strong>{preset.name}</strong>
+                      <span>{preset.description}</span>
+                    </button>
+                  ))}
+                </div>
                 <label>
                   Admin name
                   <input
@@ -372,6 +409,66 @@ export function BrandStudioPage() {
               </p>
             </form>
             <aside className="bs-preview">
+              <h2>Changes to the published admin</h2>
+              <p>
+                {saved.publishedVersion
+                  ? `Published version ${saved.publishedVersion} remains active until you publish or restore.`
+                  : "The native default remains active until your first publication."}
+              </p>
+              {differences.length ? (
+                <dl className="bs-differences">
+                  {differences.map((item) => (
+                    <div key={item.key}>
+                      <dt>{item.label}</dt>
+                      <dd>
+                        <span>{item.before}</span>
+                        <span aria-hidden="true"> → </span>
+                        <strong>{item.after}</strong>
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : (
+                <p className="bs-hint">
+                  {saved.published
+                    ? "Your form matches the published appearance."
+                    : "Save a draft to begin."}
+                </p>
+              )}
+              <details className="bs-palette">
+                <summary>Semantic colours and identity</summary>
+                <p>
+                  The approved palette keeps action, focus and status meanings
+                  consistent in both native themes.
+                </p>
+                <dl>
+                  <div>
+                    <dt>Composer signal</dt>
+                    <dd>
+                      <span className="bs-swatch bs-signal" />
+                      #FC5B05 · charcoal text
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Native action / light focus</dt>
+                    <dd>
+                      <span className="bs-swatch bs-action" />
+                      #C74400 · white text
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Dark links / focus</dt>
+                    <dd>
+                      <span className="bs-swatch bs-signal" />
+                      #FC5B05 · native dark surface
+                    </dd>
+                  </div>
+                </dl>
+                <p>
+                  Status colours remain owned by EmDash. Reading presets
+                  preserve your name, footer and approved mark.
+                </p>
+              </details>
               <h2>Try the saved draft</h2>
               <p>
                 Open the actual native admin with this saved appearance. A
@@ -497,17 +594,60 @@ export function BrandStudioPage() {
                         entry.version !== saved.publishedVersion && (
                           <button
                             disabled={busy || dirty}
-                            onClick={() =>
-                              void mutate("rollback", entry.version)
-                            }
+                            onClick={() => setRestoreVersion(entry.version)}
                           >
-                            Restore version {entry.version}
+                            Review restore of version {entry.version}
                           </button>
                         )}
                     </div>
                   </li>
                 ))}
               </ol>
+            )}
+            {restore && saved.published && (
+              <section
+                className="bs-restore"
+                aria-label="Review appearance restore"
+              >
+                <h3>Restore version {restore.version}</h3>
+                <p>
+                  This publishes a new version for this account and environment.
+                  All earlier versions remain available.
+                </p>
+                <dl className="bs-differences">
+                  {compareAdminBrand(saved.published, restore.config).map(
+                    (item) => (
+                      <div key={item.key}>
+                        <dt>{item.label}</dt>
+                        <dd>
+                          {item.before} → <strong>{item.after}</strong>
+                        </dd>
+                      </div>
+                    ),
+                  )}
+                </dl>
+                {compareAdminBrand(saved.published, restore.config).length ===
+                  0 && (
+                  <p>
+                    The selected version has the same appearance as the current
+                    publication.
+                  </p>
+                )}
+                <div className="bs-actions">
+                  <button
+                    disabled={busy || dirty}
+                    onClick={() => void mutate("rollback", restore.version)}
+                  >
+                    Confirm restore of version {restore.version}
+                  </button>
+                  <button
+                    disabled={busy}
+                    onClick={() => setRestoreVersion(undefined)}
+                  >
+                    Cancel restore
+                  </button>
+                </div>
+              </section>
             )}
             <button
               disabled={busy}

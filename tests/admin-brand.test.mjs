@@ -12,7 +12,22 @@ import {
   adminBrandConfig,
   brandDefaults,
   adminBrandCss,
+  compareAdminBrand,
+  adminReadingPresets,
 } from "../src/lib/admin-brand-contract.ts";
+
+test('reading presets preserve identity and compare only actual appearance changes', () => {
+  const original = brandDefaults({account: 'fictional', app: 'composer', environment: 'preview'});
+  original.siteName = 'Owner customised title';
+  original.footerLabel = 'Owner customised footer';
+  const preset = adminReadingPresets.find((item) => item.id === 'reading');
+  const next = adminBrandConfig.parse({...original, density: preset.density, typeScale: preset.typeScale});
+  assert.deepEqual(compareAdminBrand(original, next), [{key:'typeScale',label:'Text size',before:'standard',after:'large'}]);
+  assert.equal(next.siteName, original.siteName);
+  assert.equal(next.footerLabel, original.footerLabel);
+  assert.deepEqual(next.target, original.target);
+  assert.deepEqual(compareAdminBrand(original, original), []);
+});
 
 function fixture(t) {
   const sqlite = new DatabaseSync(":memory:");
