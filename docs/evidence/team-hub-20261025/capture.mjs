@@ -21,10 +21,20 @@ import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { createServer } from "node:net";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const source = resolve(dirname(fileURLToPath(import.meta.url)), "../../.."),
-  out = dirname(fileURLToPath(import.meta.url));
+  outIndex = process.argv.indexOf("--out"),
+  out = resolve(
+    outIndex < 0
+      ? join(source, "output/team-hub", "native-replay-" + Date.now())
+      : (process.argv[outIndex + 1] ?? ""),
+  );
+assert.ok(
+  outIndex < 0 || process.argv[outIndex + 1],
+  "--out needs a directory",
+);
+mkdirSync(out, { recursive: true });
 const parent = join(tmpdir(), "opencode");
 mkdirSync(parent, { recursive: true });
 const root = mkdtempSync(join(parent, "composer-team-hub-"));
@@ -61,6 +71,14 @@ const receipt = {
     cwd: source,
     encoding: "utf8",
   }).trim(),
+  sourceDirty:
+    execFileSync("git", ["status", "--porcelain"], {
+      cwd: source,
+      encoding: "utf8",
+    }).trim() !== "",
+  harnessHash: createHash("sha256")
+    .update(readFileSync(fileURLToPath(import.meta.url)))
+    .digest("hex"),
   checks: {},
   captures: [],
   pageErrors: [],
@@ -76,17 +94,120 @@ try {
   });
   const origin = "http://localhost:" + port,
     marker = root.split("/").at(-1);
-  const changes = [
-    [
-      "src/lib/member-plugin.ts",
-      'import { definePlugin, pluginResponse } from "emdash";',
-      'import { definePlugin, pluginResponse } from "emdash";\nimport {teamHubPluginReply} from "./team-hub.ts";',
-    ],
-    [
-      "src/lib/member-plugin.ts",
-      "routes: {",
-      'routes: {\nteamHubRead:{methods:["GET"],permission:"content:read",response:"raw",handler:ctx=>teamHubPluginReply(ctx,runtime)},\nteamHubWrite:{methods:["POST"],permission:"content:read",response:"raw",request:{body:"json",maxBytes:24000},handler:ctx=>teamHubPluginReply(ctx,runtime)},',
-    ],
+  const changes = [];
+  // A replay must exercise the integrated interface, not shadow it with a
+  // replacement middleware. Refuse partial or changed integration explicitly.
+  const plugin = readFileSync(join(source, "src/lib/member-plugin.ts"), "utf8");
+  const middleware = readFileSync(join(source, "src/middleware.ts"), "utf8");
+  const hasRoutes = /\bteamHubRead\s*:/.test(plugin);
+  const hasImport =
+    /import\s*\{[^}]*\bteamHubPluginReply\b[^}]*\}\s*from\s*["']\.\/team-hub(?:\.ts)?["']/.test(
+      plugin,
+    );
+  const routeBody = (name) => {
+    const matches = [
+      ...plugin.matchAll(new RegExp("\\b" + name + "\\s*:\\s*\\{", "g")),
+    ];
+    assert.equal(matches.length, 1, "Expected one " + name + " route");
+    const start = matches[0].index + matches[0][0].length;
+    let depth = 1,
+      end = start;
+    while (depth && end < plugin.length) {
+      if (plugin[end] === "{") depth++;
+      if (plugin[end] === "}") depth--;
+      end++;
+    }
+    assert.equal(depth, 0);
+    return plugin.slice(start, end - 1).replace(/\s+/g, "");
+  };
+  if (hasRoutes || hasImport || /\bteamHubWrite\s*:/.test(plugin)) {
+    assert.ok(hasRoutes && hasImport, "Partial Team Hub plugin integration");
+    for (const [name, method] of [
+      ["teamHubRead", "GET"],
+      ["teamHubWrite", "POST"],
+    ]) {
+      const body = routeBody(name);
+      assert.ok(
+        body.includes('methods:["' + method + '"]'),
+        name + " method changed",
+      );
+      assert.ok(
+        body.includes('permission:"content:read"'),
+        name + " permission changed",
+      );
+      assert.ok(
+        body.includes('response:"raw"'),
+        name + " response contract changed",
+      );
+      assert.match(
+        body,
+        /handler:(?:\(ctx\)|ctx)=>teamHubPluginReply\(ctx,runtime\)/,
+      );
+      if (name === "teamHubWrite")
+        assert.ok(body.includes('request:{body:"json",maxBytes:24000}'));
+    }
+  } else {
+    changes.push(
+      [
+        "src/lib/member-plugin.ts",
+        'import { definePlugin, pluginResponse } from "emdash";',
+        'import { definePlugin, pluginResponse } from "emdash";\nimport {teamHubPluginReply} from "./team-hub.ts";',
+      ],
+      [
+        "src/lib/member-plugin.ts",
+        "routes: {",
+        'routes: {\nteamHubRead:{methods:["GET"],permission:"content:read",response:"raw",handler:ctx=>teamHubPluginReply(ctx,runtime)},\nteamHubWrite:{methods:["POST"],permission:"content:read",response:"raw",request:{body:"json",maxBytes:24000},handler:ctx=>teamHubPluginReply(ctx,runtime)},',
+      ],
+    );
+  }
+  const hasGuard = /await\s+teamHubPageGate\(context,\s*runtime\)/.test(
+    middleware,
+  );
+  if (hasGuard || middleware.includes("teamHubPageGate")) {
+    assert.ok(hasGuard, "Partial Team Hub document guard");
+    assert.equal(
+      (middleware.match(/await\s+teamHubPageGate\(/g) ?? []).length,
+      1,
+    );
+    assert.match(middleware, /if\s*\(teamRejection\)\s*return teamRejection;/);
+    assert.ok(
+      middleware.indexOf("await teamHubPageGate") <
+        middleware.indexOf("await next()"),
+    );
+  } else {
+    changes.push([
+      "src/middleware.ts",
+      "export const onRequest",
+      'import {teamHubPageGate} from "./lib/team-hub";\nexport const onRequest',
+    ]);
+    const next = middleware.match(/const response\s*=\s*await next\(\);/);
+    assert.ok(
+      next,
+      "Unsupported pre-Team Hub middleware; review its guard placement",
+    );
+    changes.push([
+      "src/middleware.ts",
+      next[0],
+      "const teamRejection=await teamHubPageGate(context,runtime);if(teamRejection)return teamRejection;\n" +
+        next[0],
+    ]);
+  }
+  const securityHeader = middleware.match(
+    /response\.headers\.set\(["']X-Content-Type-Options["'],\s*["']nosniff["']\);/,
+  );
+  assert.ok(
+    securityHeader,
+    "Native fixture marker needs reviewed security-header anchor",
+  );
+  changes.push([
+    "src/middleware.ts",
+    securityHeader[0],
+    securityHeader[0] +
+      '\nresponse.headers.set("X-Composer-Isolated-Lab",' +
+      JSON.stringify(marker) +
+      ");",
+  ]);
+  changes.push(
     [
       "src/lib/workspace-access.ts",
       'const origin = "https://composer.loftwah.com";',
@@ -109,23 +230,12 @@ try {
         JSON.stringify(origin) +
         ")",
     ],
-  ];
-  const middleware = [
-    "import {defineMiddleware} from 'astro:middleware';",
-    "import {env} from 'cloudflare:workers';",
-    "import {teamHubPageGate} from './lib/team-hub.ts';",
-    "export const onRequest=defineMiddleware(async(context,next)=>{",
-    "const denial=await teamHubPageGate(context,env);const response=denial??await next();",
-    "response.headers.set('X-Composer-Isolated-Lab'," +
-      JSON.stringify(marker) +
-      ");",
-    "return response;});",
-  ].join("\n");
+  );
   const clone = [
-    "const {lstatSync,realpathSync}=await import('node:fs');",
+    "{ const {lstatSync,realpathSync}=await import('node:fs');",
     "if(lstatSync(join(app,'node_modules')).isSymbolicLink()){",
     "const dependencies=realpathSync(join(app,'node_modules'));rmSync(join(app,'node_modules'));",
-    "execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);}",
+    "execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);} }",
   ].join("\n");
   const integration =
     clone +
@@ -139,13 +249,25 @@ try {
             .join(",") +
           ");",
       )
-      .join("\n") +
-    "\nwriteFileSync(join(app,'src/middleware.ts')," +
-    JSON.stringify(middleware) +
-    ");\n";
+      .join("\n");
   let prepared = readFileSync(prep, "utf8"),
     sentinel = 'const port = new URL(origin).port || "80";';
   assert.equal(prepared.split(sentinel).length, 2);
+  // The variant lives in the owned temporary root; keep the preparer's
+  // process-ownership helper resolved to its actual source rather than /tmp.
+  if (
+    prepared.includes('from "../../../scripts/lib/native-fixture-process.mjs"')
+  )
+    prepared = prepared.replace(
+      'from "../../../scripts/lib/native-fixture-process.mjs"',
+      "from " +
+        JSON.stringify(
+          new URL(
+            "../../../scripts/lib/native-fixture-process.mjs",
+            pathToFileURL(prep),
+          ).href,
+        ),
+    );
   prepared = prepared
     .replace(
       'RESOURCE_ENVIRONMENT: "production",',
@@ -165,6 +287,11 @@ try {
       "src/lib/team-hub-contract.ts",
       "src/components/team-hub/TeamHub.tsx",
       "migrations/0021_team_hub.sql",
+      "src/lib/member-plugin.ts",
+      "src/middleware.ts",
+      "src/lib/admin-brand.ts",
+      "docs/evidence/admin-journey-20261025/prepare-fixture.mjs",
+      "scripts/lib/native-fixture-process.mjs",
     ].map((file) => [
       file,
       createHash("sha256")
@@ -172,10 +299,20 @@ try {
         .digest("hex"),
     ]),
   );
+  receipt.fixtureIntegrationHashes = Object.fromEntries(
+    ["src/lib/member-plugin.ts", "src/middleware.ts"].map((file) => [
+      file,
+      createHash("sha256")
+        .update(readFileSync(join(root, "app", file)))
+        .digest("hex"),
+    ]),
+  );
   receipt.seams = [
     "Existing native fixture removes Access and uses local D1/R2, no provider bindings.",
     "Local origin guards for existing workspace/member acceptance APIs only; issuer/grant identity is unchanged.",
-    "Shared member route registration and Team Hub page guard only in copied source.",
+    hasRoutes && hasGuard
+      ? "Existing integrated Team Hub routes and document guard validated and preserved; Brand middleware retained."
+      : "Missing Team Hub registration/guard added only to the old-source fixture copy.",
     "Explicit native-local auth profile and preview namespace. Contained APFS dependency clone.",
   ];
   browser = await chromium.launch({
@@ -529,7 +666,7 @@ try {
       4000,
     );
     await page.screenshot({
-      path: join(source, "output/team-hub/failed.png"),
+      path: join(out, "failed.png"),
       fullPage: true,
     });
   }
@@ -538,6 +675,7 @@ try {
   await browser?.close();
   cleanup();
   receipt.cleanup = !existsSync(root);
+  receipt.output = out;
   writeFileSync(
     join(out, "receipt.json"),
     JSON.stringify(receipt, null, 2) + "\n",
