@@ -189,3 +189,34 @@ test("a pinned service declaration accounts for its real Worker without relabell
   assert.equal(result.resources[0].declaredOwner, "fictional-owner");
   assert.equal(result.resources.filter((r) => !r.declared).length, 1);
 });
+
+test("successful D1/KV/R2 page reads never establish complete storage absence or newness", () => {
+  // The maintained snapshot contract does not retain total_pages or R2 cursors.
+  // A retained resource may be on a later page even while state is verified.
+  for (const kind of ["d1", "kv", "r2"]) {
+    const retained = { ...storage("composer-retained"), kind };
+    const previous = snapshot([retained]);
+    const current = snapshot(
+      Array.from({ length: 50 }, (_, i) => ({
+        ...storage("other-" + i),
+        kind,
+      })),
+      "2026-10-25T02:00:00Z",
+    );
+    const result = providerOperations(expected, current, previous);
+    assert.equal(
+      result.changes.find((row) => row.id === "composer-retained").state,
+      "current-unread",
+    );
+    assert.ok(
+      result.changes
+        .filter((row) => row.id !== "composer-retained")
+        .every((row) => row.state === "baseline-unread"),
+    );
+    assert.ok(
+      result.changes.every(
+        (row) => !["newly-observed", "no-longer-observed"].includes(row.state),
+      ),
+    );
+  }
+});
