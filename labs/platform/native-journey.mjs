@@ -1179,6 +1179,12 @@ export async function nativeJourney({
         readPublic: publicFetch,
         capture: screenshot,
       });
+      await publicState(
+        "creator-rollback-content-media-preserved",
+        200,
+        updatedA.resources[0].configuration.path,
+      );
+      result.creatorLifecycle.mediaSha256 = approvedDigest;
     }
     if (availabilityFixture) {
       const { runLocalAvailabilityExercise } =
