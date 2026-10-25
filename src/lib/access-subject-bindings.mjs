@@ -38,6 +38,8 @@ export function validateSubjectBindingInput(input) {
       throw new Error("Invalid " + name);
     }
   }
+  if (typeof upstreamIssuer !== "string")
+    throw new Error("An exact upstream issuer is required");
   let upstream;
   try {
     upstream = new URL(upstreamIssuer);
@@ -97,7 +99,7 @@ export async function assertAccessSubjectBinding(payload, jwt, runtime) {
   }
   const binding = await runtime.DB.prepare(
     `
-    SELECT b.user_id, b.idp_id, b.upstream_issuer, b.upstream_subject, b.revoked_at, u.email, u.disabled
+    SELECT b.user_id, b.idp_id, b.upstream_issuer, b.upstream_subject, b.reviewed_by, b.revoked_at, u.email, u.disabled
     FROM composer_access_subject_bindings b
     JOIN users u ON u.id = b.user_id
     WHERE b.issuer = ? AND b.subject = ?
@@ -113,6 +115,16 @@ export async function assertAccessSubjectBinding(payload, jwt, runtime) {
   ) {
     throw new Error("Subject binding not accepted");
   }
+  validateSubjectBindingInput({
+    issuer: payload.iss,
+    subject: payload.sub,
+    idpId: binding.idp_id,
+    upstreamIssuer: binding.upstream_issuer,
+    upstreamSubject: binding.upstream_subject,
+    userId: binding.user_id,
+    expectedEmail: binding.email,
+    reviewedBy: binding.reviewed_by,
+  });
   // The installed adapter uses get-identity.email rather than JWT.email. Check
   // that trusted endpoint against the signed claims before it can reach the
   // email-only EmDash lookup. Do not log the JWT, identity or contact address.

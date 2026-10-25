@@ -304,6 +304,18 @@ try {
     await denied({});
   }
   identityOverride = undefined;
+  sqlite.exec(
+    "UPDATE composer_access_subject_bindings SET upstream_subject=''",
+  );
+  identityOverride = {
+    ...baseIdentity,
+    oidc_fields: { iss: upstreamIssuer, sub: "" },
+  };
+  await denied({});
+  sqlite.exec(
+    "UPDATE composer_access_subject_bindings SET upstream_subject='principal-a'",
+  );
+  identityOverride = undefined;
   identityFailure = true;
   await denied({});
   identityFailure = false;
