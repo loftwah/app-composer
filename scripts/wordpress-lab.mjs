@@ -841,8 +841,34 @@ try {
           query: url.search,
         };
       });
-      createContentProject({ model, destination });
       const overlay = join(fixture, "destination");
+      const targetPackage = JSON.parse(
+        readFileSync(join(overlay, "package.json"), "utf8"),
+      );
+      if (
+        targetPackage.dependencies?.emdash !== versions.destination.emdash ||
+        targetPackage.dependencies?.["@emdash-cms/cloudflare"] !==
+          versions.destination.emdash ||
+        targetPackage.dependencies?.astro !== versions.destination.astro ||
+        targetPackage.devDependencies?.wrangler !==
+          versions.destination.wrangler ||
+        targetPackage.packageManager !== "pnpm@" + versions.destination.pnpm
+      )
+        throw Error(
+          "The publisher overlay does not match its reviewed destination toolchain.",
+        );
+      createContentProject({ model, destination });
+      // The generic recipe's empty branding JSON predates its format gate.
+      // Normalize whitespace locally without changing its values or release boundary.
+      const brandingPath = join(destination, "src/launch-kit-branding.json");
+      writeFileSync(
+        brandingPath,
+        JSON.stringify(
+          JSON.parse(readFileSync(brandingPath, "utf8")),
+          null,
+          2,
+        ) + "\n",
+      );
       const authored = {};
       for (const relative of readdirSync(overlay, { recursive: true })) {
         const source = join(overlay, relative);
@@ -863,6 +889,7 @@ try {
           {
             sourceBase: run.sourceBase,
             recipe: "Composer createContentProject",
+            destinationToolchain: versions.destination,
             overlay: authored,
             oldRoutesSHA256: hash(Buffer.from(JSON.stringify(routes))),
             seededDestinationEntries: 0,

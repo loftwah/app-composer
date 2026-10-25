@@ -1,0 +1,48 @@
+{
+  "name": "composer-content-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm source:write && astro dev --host localhost",
+    "source:write": "node scripts/build-source.mjs --write && node scripts/launcher-assets.mjs --write",
+    "check:types": "node scripts/build-source.mjs --check && node scripts/launcher-assets.mjs --check && astro check && tsc --project tsconfig.worker.json --noEmit && tsc --project tsconfig.browser.json --noEmit",
+    "lint": "node scripts/build-source.mjs --lint",
+    "format:check": "prettier --plugin prettier-plugin-astro --check src scripts tests package.json astro.config.mjs \"tsconfig*.json\"",
+    "format": "prettier --plugin prettier-plugin-astro --write src scripts tests package.json astro.config.mjs \"tsconfig*.json\"",
+    "test": "node --test tests/*.test.mjs",
+    "build": "pnpm check:types && astro build",
+    "check": "pnpm check:types && pnpm lint && pnpm format:check && pnpm test",
+    "deploy": "node scripts/deploy.mjs"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "14.4.2",
+    "@astrojs/react": "7.1.1",
+    "@emdash-cms/cloudflare": "1.3.1",
+    "@tailwindcss/vite": "4.3.3",
+    "astro": "7.4.2",
+    "emdash": "1.3.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "tailwindcss": "4.3.3",
+    "@cloudflare/kumo": "2.6.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261024.1",
+    "typescript": "6.0.3",
+    "wrangler": "4.152.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@astrojs/check": "0.9.12",
+    "prettier": "3.9.10",
+    "prettier-plugin-astro": "1.1.1"
+  },
+  "engines": {
+    "node": ">=22.23.4 <23",
+    "pnpm": "12.9.1"
+  },
+  "packageManager": "pnpm@12.9.1",
+  "emdash": {
+    "seed": "seed/seed.json"
+  }
+}
