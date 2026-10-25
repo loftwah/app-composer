@@ -31,6 +31,7 @@ Local EmDash data is separate from production. A fresh checkout does not contain
 | `pnpm format:check` | Check maintained Creator and enquiry files named by the format gate |
 | `pnpm test` | Run the existing behavioural and boundary tests |
 | `pnpm check` | Run the current required quality gates |
+| `pnpm check:fast -- tests/...` | Iterate with the same type/source, lint and format gates plus only the named tests; not the release gate |
 | `pnpm freshness` | Report installed dependencies against the reviewed supported ranges |
 | `pnpm build` | Build and inspect the public artifact |
 | `pnpm source:write` | Explicitly regenerate checked runtime files |
