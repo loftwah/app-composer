@@ -31,8 +31,8 @@ The homepage correction first shipped from PR #383, source
 937px to 411px without removing images or links. Its intrinsic image sizing and
 wrapping flex layout caused the blank space. Representative production
 [before/after pixels and browser evidence](evidence/homepage-20261025/README.md)
-include both themes, keyboard, text reflow and delayed loading. Native browser
-zoom remains unverified.
+include both themes, keyboard, text reflow and delayed loading. That original
+qualification did not include native browser zoom; later coverage belongs to #11.
 
 The independently reviewed platform slice first shipped in PR #384/#385, source
 `b9f743729bfca15088a28fd47919b5be8d660997`, Worker
@@ -77,10 +77,10 @@ Production plugin installation still requires the official registry/runner,
 LOADER and entitlement qualification. A separate actual native Node/workerd
 lifecycle now proves installation through uninstall/reinstall and retained
 settings; it does not qualify Cloudflare's installed production path.
-Provider inventory remains read-only: all 88 undeclared Workers are classified
-with current evidence; four legacy targets retain real dependencies/uncertainty
-and are not safe deletion candidates. Hosted provider reads and measured money
-cost remain unknown.
+Provider inventory remains read-only: two actual bounded provider scans retain
+all 88 undeclared Workers as observed. Four legacy targets retain real
+dependencies/uncertainty and are not safe deletion candidates. Most Worker
+settings, paginated storage completeness and measured money cost remain unknown.
 
 [Team Hub](team-hub.md) has a useful Composer-owned local
 application slice:
@@ -90,11 +90,13 @@ journeys passed. Its production origin stays closed pending verified Access
 coverage for both the document and private APIs, passwordless sign-in and
 mandatory MFA. It is not an independently deployed reference app.
 
-The [WordPress lab refresh](../labs/wordpress/weekender/OBSERVATIONS.md)
-qualifies the same fictional publisher database through EmDash 1.2.0 → 1.3.1
-and a subsequent native edit/publish cycle. Existing media URL, metadata,
-hierarchy, fresh-import and broader migration gates remain explicit. #11 owns
-exact final source, checks, Workers, cleanup and remaining gates for this run.
+The [WordPress lab](../labs/wordpress/weekender/OBSERVATIONS.md) separately
+qualifies the same fictional publisher through EmDash 1.2.0 → 1.3.1 and a fresh
+1.3.1 import. The continuation reconciles featured images, guide links, image
+descriptions and category hierarchy, preserves two native owner edits and
+passes source-off visibility/media/legacy-address checks. Comments, site
+settings, broader plugins, scheduling execution and hosted migration remain
+unqualified. #11 owns exact final source, checks, Workers, cleanup and gates.
 
 ## Agent entry, diagram atlas and analytics truth — 25 October 2026
 
