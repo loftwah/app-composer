@@ -1,0 +1,14 @@
+// TEMPORARY LAB COPY ONLY. Deliberately contains the missing-caption defect.
+import { env } from "cloudflare:workers";
+export const prerender = false;
+export async function GET({ params }: { params: { path?: string } }) {
+  const headers = { "Cache-Control": "no-store", "X-Composer-Incident-Lab": "fictional-local-only" };
+  if (params.path === "health") return Response.json({ health: "ok", depth: "shallow" }, { headers });
+  if (!["page", "data", "control"].includes(params.path ?? "")) return new Response("Not found", { status: 404, headers });
+  const team = params.path === "control" ? "fictional-team-b" : "fictional-team-a";
+  const row = await env.DB.prepare("SELECT caption,revision FROM incident_lab_canary WHERE team=?").bind(team).first();
+  if (params.path === "data") return Response.json({ team, ...row }, { headers });
+  // Intentional drill defect: assumes optional data is always a string.
+  const caption = (row!.caption as string).trim();
+  return new Response(`<!doctype html><html lang="en"><meta charset="utf-8"><title>Fictional local canary</title><h1>${team}</h1><p>${caption}</p><p>Isolated localhost drill; no production service.</p></html>`, { headers: { ...headers, "Content-Type": "text/html; charset=utf-8" } });
+}

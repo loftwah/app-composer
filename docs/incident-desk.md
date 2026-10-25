@@ -55,3 +55,14 @@ tree cloned locally. It removes production Access and all provider bindings in
 that copy, uses native EmDash authentication with a virtual authenticator, and
 cleans up the native dev server and root in `finally`. These seams do not change
 production authentication or prove real MFA.
+
+`node docs/evidence/incident-lab-20261025/run.mjs` adds a temporary canary only to
+that owned fixture. Its [recorded drill](evidence/incident-lab-20261025/README.md)
+measures a real localhost nullable-caption 500, successful shallow health/data
+reads and an unchanged control; retains native send-back, revision, stale
+approval refusal and current approval; then records explicit manual D1
+configuration restoration and three recovery requests matching the baseline.
+The original accepted proposal stays immutable, with recovery observations in
+a separate accepted SITREP. This qualifies that controlled local sequence only.
+The source defect remains, the investigator knew the injected fault, and the
+execution adapter, production recovery and provider notifications remain open.
