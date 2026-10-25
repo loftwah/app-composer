@@ -103,6 +103,10 @@
 .analytics-app-count { text-align: right; min-width: 96px; }
 .analytics-app-count strong { display: block; font: 600 1.25rem/1.2 Space, sans-serif; font-variant-numeric: tabular-nums; }
 .analytics-app-count small { display: block; color: var(--color-muted); font-size: 11px; line-height: 1.35; }
+.analytics-app.is-unavailable .analytics-app-bar { background: transparent; border-color: transparent; }
+.analytics-app.is-unavailable .analytics-app-count strong { color: var(--color-muted); font-size: 1.1rem; }
+.analytics-note { margin: 14px 0 0; color: var(--color-muted); font-size: .88rem; line-height: 1.5; max-width: 78ch; }
+.analytics-note a { color: var(--color-accent); }
 .analytics-chart-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap; margin-bottom: 8px; }
 .analytics-chart-head form { margin: 0; }
 .analytics-chart-head label { font-size: .85rem; color: var(--color-muted); margin: 0; }

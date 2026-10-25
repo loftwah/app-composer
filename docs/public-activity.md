@@ -1,6 +1,6 @@
 # Public analytics and frozen reports
 
-Reviewed 23 October 2026. The public analytics destination is `/activity`, with one app record per supported app at `/activity/<app>`. It uses the existing bounded counters; it does not add visitor identification, a vendor or a private-record feed.
+Reviewed 25 October 2026. The public analytics destination is `/activity`, with one app record per supported app at `/activity/<app>`. It uses the existing bounded counters; it does not add visitor identification, a vendor or a private-record feed.
 
 ## One scope
 
@@ -9,6 +9,14 @@ Reviewed 23 October 2026. The public analytics destination is `/activity`, with 
 The `period`, `surface`, `apps` and `metrics` values are returned together. `apps[].signals` carries the app-owned daily event series (`app_open`, `item_open`, `inspection_completed`), while `apps[].postcards` carries the receipt measure with its own first-observed coverage. A selected surface cannot be silently dropped from one view.
 
 The signal picker changes only the chart. The scope form changes the summary, findings, chart, comparison and report links. The chart and comparison state their route scope explicitly.
+
+## Supported routes and measures
+
+Composed counts can only be recorded by the apps Composer mounts inside its own site: Here / there and Linkarooie. `lib/usage/index.mjs` exports `composedApps` and `connectedOn`, and the Worker builds its mounted-route match from that same list so the public claim cannot drift from the recording route.
+
+An app with no composed route is named as unavailable in the app comparison rather than shown as a measured zero, and its app record explains the limitation and links to the standalone scope. `/reports/new` and `POST /api/reports` refuse a composed story for such an app instead of freezing a false zero. Both public summaries carry an additive `connected` boolean per app, so a JSON consumer can make the same distinction.
+
+An app record offers only the measures that app declares. A URL naming an unsupported measure says so at the chart instead of silently substituting a different series. Findings carry their measure, period and route into the evidence link, so a postcard finding opens the postcard series rather than defaulting to app opens.
 
 ## Findings
 

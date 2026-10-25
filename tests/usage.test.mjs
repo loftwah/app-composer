@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {execFileSync} from 'node:child_process';import {readFileSync} from 'node:fs';
-import {collect,record,summary,incrementSQL,purge} from '../lib/usage/index.mjs';
+import {collect,record,summary,incrementSQL,purge,connectedOn} from '../lib/usage/index.mjs';
 import {health,publish,pageEvent,postcardReceiptEvent} from '../lib/usage/publisher.mjs';
 
 test('ordinary excluded browser requests and their same-origin descendants produce no public measurement', async()=>{
@@ -39,6 +39,16 @@ test('summary ranks opens independently of actions and bounds window, surface an
  await purge(db,new Date('2026-10-14T00:00:00Z'));assert.equal(writes.at(-1).params[0],'2026-09-10');
  await assert.rejects(record(db,'state','vault_opened','standalone'));
 });
+test('a composed scope names apps without a mounted route instead of a measured zero',async()=>{
+ assert.equal(connectedOn('guestbook','composed'),true);assert.equal(connectedOn('showcase','composed'),true);
+ for(const app of ['linkcheck','hello','state']){assert.equal(connectedOn(app,'composed'),false,app);assert.equal(connectedOn(app,'standalone'),true,app);assert.equal(connectedOn(app,'all'),true,app);}
+ const now=new Date('2026-10-14T12:00:00Z');
+ const composed=await summary(db,{days:7,surface:'composed'},now);
+ assert.deepEqual(composed.apps.filter(app=>!app.connected).map(app=>app.app).sort(),['hello','linkcheck','state']);
+ assert.deepEqual(composed.apps.filter(app=>app.connected).map(app=>app.app).sort(),['guestbook','showcase']);
+ const all=await summary(db,{days:7,surface:'all'},now);assert(all.apps.every(app=>app.connected));
+});
+
 test('optional publisher sends only fixed count, drops verification and errors without affecting response',async()=>{
  const sent=[],pending=[],context={waitUntil(p){pending.push(p)}},settings={USAGE_ENDPOINT:'https://counts.test/api/usage/state',USAGE_TOKEN:token};
  const req=new Request('https://app.test/?private=query',{headers:{Cookie:'private',Referer:'https://private.test'}});

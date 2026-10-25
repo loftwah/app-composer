@@ -1,7 +1,7 @@
 import type {D1Database,RateLimit,ExecutionContext,ScheduledController} from '@cloudflare/workers-types';
 import handler, { createScheduledHandler, PluginBridge } from '@emdash-cms/cloudflare/worker';
 import {protectAdministration,type AccessRuntime} from './lib/access-boundary.mjs';
-import {collect,record,purge} from '../lib/usage/index.mjs';
+import {collect,record,purge,composedApps} from '../lib/usage/index.mjs';
 import {health,pageEvent,postcardReceiptEvent} from '../lib/usage/publisher.mjs';
 import {usageSummary} from './lib/usage';
 import {collectResourceAction,resourceActionSummary,purgeResourceActions} from './lib/resource-actions';
@@ -13,6 +13,9 @@ import {mountedBuilderNavigation} from './lib/mounted-builder-navigation';
 import {builderNavigationRedirect} from './lib/builder-context.mjs';
 import {publicPageRedirect} from './lib/public-pages.mjs';
 type Runtime=AccessRuntime & {DB:D1Database;PUBLIC_ORIGIN:string;USAGE_TOKENS?:string;USAGE_LIMIT?:RateLimit;ASSETS?:{fetch(request:Request):Promise<Response>}};
+// The same composed route list scopes the public comparison, so a recorded
+// composed count cannot outlive the route that produced it.
+const mountedAppRoute=new RegExp(`^/(${composedApps.join('|')})(?:/|$)`);
 export { PluginBridge };
 const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runtime:Runtime,context:ExecutionContext)=>{
  const rejection=await protectAdministration(request as unknown as Request,runtime as AccessRuntime);
@@ -33,7 +36,7 @@ const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runti
  const ingest=path.match(/^\/api\/usage\/(hello|guestbook|showcase|linkcheck|state)$/);if(ingest)return collect(request,runtime,ingest[1]);
  if(path==='/api/usage'){if(request.method!=='GET')return new Response(null,{status:405});try{return Response.json(await usageSummary(runtime.DB,new URL(request.url).searchParams,runtime.PUBLIC_ORIGIN),{headers:{'Cache-Control':'public,max-age=60','X-Content-Type-Options':'nosniff'}});}catch{return Response.json({error:'Counts temporarily unavailable.'},{status:503,headers:{'Cache-Control':'no-store'}});}}
  const response=await handler.fetch!(request,runtime,context);
- const app=path.match(/^\/(guestbook|showcase)(?:\/|$)/)?.[1];
+ const app=path.match(mountedAppRoute)?.[1];
  if(app&&request.headers.get('X-Composer-Verification')!=='1'){const event=(app==='guestbook'?postcardReceiptEvent(request,response,'/'+app):null)??pageEvent(request,response,'/'+app);if(event)context.waitUntil((async()=>{if(runtime.USAGE_LIMIT&&(await runtime.USAGE_LIMIT.limit({key:app+':'+event})).success)await record(runtime.DB,app,event,'composed');})().catch(()=>{}));}
  return mountedBuilderNavigation(request,response);
 };

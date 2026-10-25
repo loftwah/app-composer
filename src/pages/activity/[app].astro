@@ -5,10 +5,10 @@ import AnalyticsTrend from "../../components/AnalyticsTrend.astro";
 import { apps } from "../../lib/apps";
 import { env } from "cloudflare:workers";
 import type { D1Database } from "@cloudflare/workers-types";
-import { selection } from "../../../lib/usage/index.mjs";
+import { connectedOn, selection } from "../../../lib/usage/index.mjs";
 import { portfolioSummary } from "../../../lib/usage/portfolio.mjs";
 import build from "../../lib/build.json";
-import { appActions, appLabels, count, dateLabel, signalSelection, type PublicHistory } from "../../lib/activity-view";
+import { appActions, appLabels, appSignalSelection, appSignals, count, signalLabels, type PublicHistory } from "../../lib/activity-view";
 import { reportMetricView } from "../../lib/public-report";
 import { ArrowLeft, ArrowUpRight, Code, Share2 } from "@lucide/astro";
 import "../../styles/analytics.css";
@@ -17,15 +17,9 @@ const id = Astro.params.app ?? "";
 const definition = apps.find((value) => value.id === id);
 if (!definition) Astro.response.status = 404;
 const selected = selection(Astro.url.searchParams);
-const supported: Record<string, string[]> = {
-  guestbook: ["app_opens", "photo_opens", "guest_postcards_received"],
-  linkcheck: ["app_opens", "inspection_completed"],
-  showcase: ["app_opens"],
-  hello: ["app_opens"],
-  state: ["app_opens"],
-};
-const candidate = signalSelection(Astro.url.searchParams.get("metric"));
-const metric = supported[id]?.includes(candidate) ? candidate : "app_opens";
+const { metric, unsupported } = appSignalSelection(id, Astro.url.searchParams.get("metric"));
+const supported = appSignals[id] ?? ["app_opens"];
+const routeConnected = connectedOn(id, selected.surface);
 const runtime = env as unknown as { DB: D1Database };
 let report: PublicHistory | undefined;
 try {
@@ -38,15 +32,11 @@ const ranked = [...(report?.apps ?? [])].sort((a, b) => b.opens - a.opens || a.a
 const maximum = Math.max(1, ...ranked.map((value) => value.opens));
 const where = selected.surface === "standalone" ? "standalone apps" : selected.surface === "composed" ? "inside Composer" : "all connected versions";
 const scopeQuery = `days=${selected.days}&surface=${selected.surface}`;
+const backQuery = `${scopeQuery}&metric=${metric}`;
+const standaloneQuery = `days=${selected.days}&surface=standalone`;
 const from = report?.period.from ?? "";
 const to = report?.period.to ?? "";
 const shareHref = `/reports/new?${scopeQuery}&metric=${metric}&app=${id}`;
-const metricLabels: Record<string, string> = {
-  app_opens: "App opens",
-  photo_opens: "Contribution-page opens",
-  guest_postcards_received: "Guest postcards received",
-  inspection_completed: "Completed inspections",
-};
 ---
 <Base
   title={definition ? `${definition.name} analytics` : "App analytics"}
@@ -60,7 +50,7 @@ const metricLabels: Record<string, string> = {
     </section>
   ) : (
     <>
-      <a href={`/activity?${scopeQuery}`} class="report-back"><ArrowLeft size={18} aria-hidden="true"/> All app analytics</a>
+      <a href={`/activity?${backQuery}`} class="report-back"><ArrowLeft size={18} aria-hidden="true"/> All app analytics</a>
       <header class="analytics-app-hero">
         <img src={definition.thumbnail} width="96" height="96" alt="" />
         <div>
@@ -70,99 +60,134 @@ const metricLabels: Record<string, string> = {
           <div class="analytics-app-links">
             <a href={definition.href}>Open {definition.name} <ArrowUpRight size={16} aria-hidden="true"/></a>
             <a href={definition.source}><Code size={16} aria-hidden="true"/> Source</a>
-            <a href={shareHref}><Share2 size={16} aria-hidden="true"/> Share this app story</a>
+            {routeConnected ? (
+              <a href={shareHref}><Share2 size={16} aria-hidden="true"/> Share this app story</a>
+            ) : (
+              <a href={`/activity/${id}?${standaloneQuery}`}>View standalone activity</a>
+            )}
           </div>
         </div>
-        <div class="analytics-app-count"><strong>{entry ? count(entry.opens) : "—"}</strong><small>{entry?.opens === 1 ? "recorded open" : "recorded opens"} · {where}</small></div>
+        <div class="analytics-app-count">
+          <strong>{routeConnected && entry ? count(entry.opens) : "—"}</strong>
+          <small>{routeConnected ? `${entry?.opens === 1 ? "recorded open" : "recorded opens"} · ${where}` : "No composed route · standalone only"}</small>
+        </div>
       </header>
 
-      <section class="analytics-summary" aria-label={`${definition.name} summary`}>
-        <div><span>Recorded opens</span><strong>{entry ? count(entry.opens) : "—"}</strong><small>Successful home-page requests</small></div>
-        <div><span>{id === "guestbook" ? "Contribution opens" : id === "linkcheck" ? "Completed inspections" : "Supported actions"}</span><strong>{entry ? count(id === "guestbook" ? entry.photoOpens : id === "linkcheck" ? entry.inspections : entry.actions) : "—"}</strong><small>{id === "state" ? "Vault actions stay private" : id === "showcase" || id === "hello" ? "No separate public action is counted" : id === "guestbook" ? "Page opens, not submissions" : "Finished in the app"}</small></div>
-        <div><span>Postcards received</span><strong>{entry?.postcards?.value === null || entry?.postcards === null || !entry?.postcards ? "—" : count(entry.postcards.value)}</strong><small>{entry?.postcards ? "Accepted during this period" : "No receipt measure declared"}</small></div>
-        <div><span>Retained days</span><strong>{view ? `${view.daily.filter((day: { value: number | null }) => day.value !== null).length}/${selected.days}` : "—"}</strong><small>Available UTC days in scope</small></div>
-      </section>
+      {routeConnected ? (
+        <>
+          <section class="analytics-summary" aria-label={`${definition.name} summary`}>
+            <div><span>Recorded opens</span><strong>{entry ? count(entry.opens) : "—"}</strong><small>Successful home-page requests</small></div>
+            <div><span>{id === "guestbook" ? "Contribution opens" : id === "linkcheck" ? "Completed inspections" : "Supported actions"}</span><strong>{entry ? count(id === "guestbook" ? entry.photoOpens : id === "linkcheck" ? entry.inspections : entry.actions) : "—"}</strong><small>{id === "state" ? "Vault actions stay private" : id === "showcase" || id === "hello" ? "No separate public action is counted" : id === "guestbook" ? "Page opens, not submissions" : "Finished in the app"}</small></div>
+            <div><span>Postcards received</span><strong>{entry?.postcards?.value === null || entry?.postcards === null || !entry?.postcards ? "—" : count(entry.postcards.value)}</strong><small>{entry?.postcards ? "Accepted during this period" : "No receipt measure declared"}</small></div>
+            <div><span>Retained days</span><strong>{view ? `${view.daily.filter((day: { value: number | null }) => day.value !== null).length}/${selected.days}` : "—"}</strong><small>Available UTC days in scope</small></div>
+          </section>
 
-      <section class="analytics-section" aria-labelledby="app-chart-title">
-        <div class="analytics-chart-head">
-          <div>
-            <p class="analytics-kicker">Daily record · {where}</p>
-            <h2 id="app-chart-title">{metricLabels[metric] ?? "Recorded signal"}</h2>
-          </div>
-          <div>
-            <form method="get"><BuilderFields/>
-              <input type="hidden" name="days" value={selected.days} />
-              <input type="hidden" name="surface" value={selected.surface} />
-              <label for="app-signal">Recorded signal
-                <select name="metric" id="app-signal">
-                  {supported[id].map((key) => <option value={key} selected={metric === key}>{metricLabels[key]}</option>)}
-                </select>
-              </label>
-              <button type="submit" class="secondary">Show signal</button>
-            </form>
-            <form method="get"><BuilderFields/>
-              <input type="hidden" name="metric" value={metric} />
-              <label for="app-days">Scope
-                <select name="days" id="app-days">
-                  <option value="7" selected={selected.days === 7}>Past 7 UTC days</option>
-                  <option value="30" selected={selected.days === 30}>Past 30 UTC days</option>
-                </select>
-              </label>
-              <label for="app-surface">App route
-                <select name="surface" id="app-surface">
-                  <option value="all" selected={selected.surface === "all"}>All connected versions</option>
-                  <option value="standalone" selected={selected.surface === "standalone"}>Standalone</option>
-                  <option value="composed" selected={selected.surface === "composed"}>Inside Composer</option>
-                </select>
-              </label>
-              <button type="submit" class="secondary">Apply scope</button>
-            </form>
-          </div>
-        </div>
-        <p class="analytics-chart-head"><span>The signal picker changes this chart. The scope forms change this chart, the summary and the app comparison.</span></p>
-        {view ? (
-          <AnalyticsTrend
-            label={view.label}
-            definition={view.definition}
-            unit={view.unit}
-            value={view.value}
-            quality={view.quality}
-            daily={view.daily}
-            from={from}
-            to={to}
-            surface={selected.surface}
-          />
-        ) : (
-          <div class="analytics-empty" role="status">
-            <h2>This app has no daily series in the selected scope.</h2>
-            <p>The query failed or the app is not connected in this environment. This is not a zero count.</p>
-          </div>
-        )}
-      </section>
+          <section class="analytics-section" aria-labelledby="app-chart-title">
+            <div class="analytics-chart-head">
+              <div>
+                <p class="analytics-kicker">Daily record · {where}</p>
+                <h2 id="app-chart-title">{signalLabels[metric]}</h2>
+              </div>
+              <div>
+                <form method="get"><BuilderFields/>
+                  <input type="hidden" name="days" value={selected.days} />
+                  <input type="hidden" name="surface" value={selected.surface} />
+                  <label for="app-signal">Recorded signal
+                    <select name="metric" id="app-signal" aria-describedby={unsupported ? "app-signal-note" : undefined}>
+                      {supported.map((key) => <option value={key} selected={metric === key}>{signalLabels[key]}</option>)}
+                    </select>
+                  </label>
+                  <button type="submit" class="secondary">Show signal</button>
+                </form>
+                <form method="get"><BuilderFields/>
+                  <input type="hidden" name="metric" value={metric} />
+                  <label for="app-days">Scope
+                    <select name="days" id="app-days">
+                      <option value="7" selected={selected.days === 7}>Past 7 UTC days</option>
+                      <option value="30" selected={selected.days === 30}>Past 30 UTC days</option>
+                    </select>
+                  </label>
+                  <label for="app-surface">App route
+                    <select name="surface" id="app-surface">
+                      <option value="all" selected={selected.surface === "all"}>All connected versions</option>
+                      <option value="standalone" selected={selected.surface === "standalone"}>Standalone</option>
+                      <option value="composed" selected={selected.surface === "composed"}>Inside Composer</option>
+                    </select>
+                  </label>
+                  <button type="submit" class="secondary">Apply scope</button>
+                </form>
+              </div>
+            </div>
+            <p class="analytics-chart-head"><span>The signal picker changes this chart. The scope forms change this chart, the summary and the app comparison.</span></p>
+            {unsupported && (
+              <p class="analytics-note" id="app-signal-note">{definition.name} does not declare {signalLabels[unsupported]}. This record shows {signalLabels[metric]} for the same scope instead.</p>
+            )}
+            {view ? (
+              <AnalyticsTrend
+                label={view.label}
+                definition={view.definition}
+                unit={view.unit}
+                value={view.value}
+                quality={view.quality}
+                daily={view.daily}
+                from={from}
+                to={to}
+                surface={selected.surface}
+              />
+            ) : (
+              <div class="analytics-empty" role="status">
+                <h2>This app has no daily series in the selected scope.</h2>
+                <p>The query failed or the app is not connected in this environment. This is not a zero count.</p>
+              </div>
+            )}
+          </section>
+        </>
+      ) : (
+        <section class="analytics-empty" role="status">
+          <h2>No composed route for {definition.name}.</h2>
+          <p>Composer records composed activity only for the apps it mounts inside its own site. {definition.name} publishes as a standalone app, so there is no composed activity to measure in this window. That is an unsupported scope, not a retained zero.</p>
+          <p><a href={`/activity/${id}?${standaloneQuery}`}>View {definition.name} standalone activity</a> · <a href={`/activity?days=${selected.days}&surface=composed`}>Compare the mounted apps</a> · <a href={`/activity/${id}?days=${selected.days}&surface=all`}>See all connected versions</a></p>
+        </section>
+      )}
 
       <section class="analytics-section" aria-labelledby="compare-title">
         <div class="analytics-section-heading">
           <h2 id="compare-title">Compared with the other apps</h2>
-          <p>The same {where} scope and UTC window. Open another app to keep the scope.</p>
+          <p>The same {where} scope and UTC window. Open another app to keep the scope.{selected.surface === "composed" ? " Apps without a composed route are marked unavailable, not counted as zero." : ""}</p>
         </div>
         <ol class="analytics-apps">
-          {ranked.map((value) => (
-            <li class="analytics-app">
-              <img src={apps.find((app) => app.id === value.app)?.thumbnail ?? "/brand/composer-icon-20261022b-96.png"} width="48" height="48" alt="" loading="lazy" />
-              <div>
-                <h3>
-                  {value.app === id ? (
-                    <span>{appLabels[value.app]} · this app</span>
+          {ranked.map((value) => {
+            const connected = connectedOn(value.app, selected.surface);
+            return (
+              <li class:list={{ "analytics-app": true, "is-unavailable": !connected }}>
+                <img src={apps.find((app) => app.id === value.app)?.thumbnail ?? "/brand/composer-icon-20261022b-96.png"} width="48" height="48" alt="" loading="lazy" />
+                <div>
+                  <h3>
+                    {value.app === id ? (
+                      <span>{appLabels[value.app]} · this app</span>
+                    ) : (
+                      <a href={`/activity/${value.app}?${scopeQuery}`}>{appLabels[value.app]} <ArrowUpRight size={16} aria-hidden="true"/></a>
+                    )}
+                  </h3>
+                  <p>{appActions[value.app]}</p>
+                </div>
+                <div class="analytics-app-bar" aria-hidden="true">{connected && <svg viewBox="0 0 100 8" preserveAspectRatio="none"><rect width={(100 * value.opens) / maximum} height="8"/></svg>}</div>
+                <div class="analytics-app-count">
+                  {connected ? (
+                    <>
+                      <strong>{count(value.opens)}</strong>
+                      <small>recorded opens</small>
+                    </>
                   ) : (
-                    <a href={`/activity/${value.app}?${scopeQuery}`}>{appLabels[value.app]} <ArrowUpRight size={16} aria-hidden="true"/></a>
+                    <>
+                      <strong aria-hidden="true">—</strong>
+                      <small>No composed route</small>
+                    </>
                   )}
-                </h3>
-                <p>{appActions[value.app]}</p>
-              </div>
-              <div class="analytics-app-bar" aria-hidden="true"><svg viewBox="0 0 100 8" preserveAspectRatio="none"><rect width={(100 * value.opens) / maximum} height="8"/></svg></div>
-              <div class="analytics-app-count"><strong>{count(value.opens)}</strong><small>recorded opens</small></div>
-            </li>
-          ))}
+                </div>
+              </li>
+            );
+          })}
         </ol>
       </section>
 
@@ -172,9 +197,10 @@ const metricLabels: Record<string, string> = {
         <ul>
           <li>Opens are successful public home-page requests. Reloads and bots can count.</li>
           <li>{id === "guestbook" ? "Contribution opens are page requests, not submissions. Received postcards are pending records after committed acceptance, not approvals or features." : id === "linkcheck" ? "Inspections are counted after the app finishes an inspection, not when the page opens." : id === "state" ? "Carry / forward vault actions remain private and are never counted." : "This app declares no separate public action measure."}</li>
+          {selected.surface === "composed" && <li>Composed counts are recorded only by the apps Composer mounts inside its own site. An app without one is marked unavailable, never reported as zero.</li>}
           <li>Counters stop at 1,000 per app/event/surface per UTC day, expire after 35 days and can miss events during an outage.</li>
         </ul>
-        <p><a href={shareHref}>Freeze this app story</a> · <a href={`/activity?${scopeQuery}`}>All analytics</a> · <a href={`/api/portfolio-analytics?${scopeQuery}`}>Daily data</a></p>
+        <p>{routeConnected ? <a href={shareHref}>Freeze this app story</a> : <a href={`/reports/new?${standaloneQuery}&metric=${metric}&app=${id}`}>Freeze the standalone story</a>} · <a href={`/activity?${backQuery}`}>All analytics</a> · <a href={`/api/portfolio-analytics?${scopeQuery}`}>Daily data</a></p>
       </section>
     </>
   )}

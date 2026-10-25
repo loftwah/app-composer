@@ -99,6 +99,79 @@ test("one surface scope applies to the daily series, app comparison and receipt 
       all.apps.find((app) => app.app === "linkcheck").inspections,
       1,
     );
+    assert.equal(
+      all.apps.find((app) => app.app === "linkcheck").connected,
+      true,
+    );
+    assert.equal(
+      standalone.apps.find((app) => app.app === "linkcheck").connected,
+      true,
+    );
+    assert.equal(
+      composed.apps.find((app) => app.app === "linkcheck").connected,
+      false,
+    );
+    assert.equal(
+      composed.apps.find((app) => app.app === "hello").connected,
+      false,
+    );
+    assert.equal(
+      composed.apps.find((app) => app.app === "state").connected,
+      false,
+    );
+    assert.equal(
+      composed.apps.find((app) => app.app === "guestbook").connected,
+      true,
+    );
+    assert.equal(
+      composed.apps.find((app) => app.app === "showcase").connected,
+      true,
+    );
+  } finally {
+    f.close();
+  }
+});
+
+test("a frozen report refuses an app scope its route does not support", async () => {
+  const f = fixture();
+  try {
+    const now = new Date("2026-10-15T12:00:00Z");
+    const composed = await portfolioSummary(
+      f.db,
+      7,
+      now,
+      "c".repeat(40),
+      "composed",
+    );
+    await assert.rejects(
+      buildReport(
+        composed,
+        { app: "linkcheck", metric: "app_opens", days: 7, surface: "composed" },
+        "c".repeat(40),
+        now,
+      ),
+      /no composed route/,
+    );
+    const standalone = await portfolioSummary(
+      f.db,
+      7,
+      now,
+      "c".repeat(40),
+      "standalone",
+    );
+    const report = await buildReport(
+      standalone,
+      {
+        app: "linkcheck",
+        metric: "inspection_completed",
+        days: 7,
+        surface: "standalone",
+      },
+      "c".repeat(40),
+      now,
+    );
+    assert.equal(report.value, 1);
+    assert.equal(report.period.surface, "standalone");
   } finally {
     f.close();
   }
