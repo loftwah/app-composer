@@ -1,0 +1,1039 @@
+{
+ "api": {
+  "advanced-custom-fields": {
+   "active_installs": 2000000,
+   "last_updated": "2026-09-10 5:30pm GMT",
+   "name": "Advanced Custom Fields (ACF\u00ae)",
+   "num_ratings": 1440,
+   "requires": "6.2",
+   "requires_php": "7.4",
+   "slug": "advanced-custom-fields",
+   "tested": "7.1.3",
+   "version": "6.8.10"
+  },
+  "akismet": {
+   "active_installs": 5000000,
+   "last_updated": "2026-08-18 11:42pm GMT",
+   "name": "Akismet Anti-spam: Spam Protection",
+   "num_ratings": 1187,
+   "requires": "5.8",
+   "requires_php": "7.2",
+   "slug": "akismet",
+   "tested": "7.1.3",
+   "version": "5.7.2"
+  },
+  "all-in-one-seo-pack": {
+   "active_installs": 2000000,
+   "last_updated": "2026-10-22 3:06pm GMT",
+   "name": "All in One SEO \u2013 AI SEO Plugin to Boost SEO Rankings &amp; Traffic (Schema, Local SEO, Sitemap &amp; SEO Insights)",
+   "num_ratings": 5231,
+   "requires": "5.7",
+   "requires_php": "7.4",
+   "slug": "all-in-one-seo-pack",
+   "tested": "7.1.3",
+   "version": "5.0.4"
+  },
+  "all-in-one-wp-migration": {
+   "active_installs": 5000000,
+   "last_updated": "2026-10-07 10:36am GMT",
+   "name": "All-in-One WP Migration and Backup",
+   "num_ratings": 7674,
+   "requires": "3.3",
+   "requires_php": "5.3",
+   "slug": "all-in-one-wp-migration",
+   "tested": "7.1.3",
+   "version": "7.112"
+  },
+  "backuply": {
+   "active_installs": 600000,
+   "last_updated": "2026-10-22 1:19pm GMT",
+   "name": "Backuply &#8211; Backup, Restore, Migrate and Clone",
+   "num_ratings": 135,
+   "requires": "4.7",
+   "requires_php": "5.5",
+   "slug": "backuply",
+   "tested": "7.1.3",
+   "version": "1.6.0"
+  },
+  "beaver-builder-lite-version": {
+   "active_installs": 100000,
+   "last_updated": "2026-10-19 4:43pm GMT",
+   "name": "Beaver Builder Page Builder &#8211; Drag and Drop Website Builder",
+   "num_ratings": 394,
+   "requires": "6.8",
+   "requires_php": "7.4",
+   "slug": "beaver-builder-lite-version",
+   "tested": "7.1.3",
+   "version": "2.11.1.2"
+  },
+  "classic-editor": {
+   "active_installs": 8000000,
+   "last_updated": "2026-05-28 1:51am GMT",
+   "name": "Classic Editor",
+   "num_ratings": 1249,
+   "requires": "4.9",
+   "requires_php": "5.2.4",
+   "slug": "classic-editor",
+   "tested": "7.0.7",
+   "version": "1.7.0"
+  },
+  "contact-form-7": {
+   "active_installs": 10000000,
+   "last_updated": "2026-10-21 8:43am GMT",
+   "name": "Contact Form 7",
+   "num_ratings": 2183,
+   "requires": "7.1",
+   "requires_php": "8.3",
+   "slug": "contact-form-7",
+   "tested": "7.1.3",
+   "version": "6.2.3"
+  },
+  "cookie-law-info": {
+   "active_installs": 1000000,
+   "last_updated": "2026-10-14 5:53am GMT",
+   "name": "CookieYes \u2013 Cookie Banner for Cookie Consent (Easy to setup GDPR/CCPA Compliant Cookie Notice)",
+   "num_ratings": 3235,
+   "requires": "5.0.0",
+   "requires_php": "5.6",
+   "slug": "cookie-law-info",
+   "tested": "7.1.3",
+   "version": "3.5.7"
+  },
+  "duplicator": {
+   "active_installs": 1000000,
+   "last_updated": "2026-10-14 4:53pm GMT",
+   "name": "Duplicator &#8211; Backups &amp; Migration Plugin &#8211; Cloud Backups, Scheduled Backups, &amp; More",
+   "num_ratings": 4940,
+   "requires": "5.3",
+   "requires_php": "7.4",
+   "slug": "duplicator",
+   "tested": "7.1.3",
+   "version": "5.0.6"
+  },
+  "easy-digital-downloads": {
+   "active_installs": 40000,
+   "last_updated": "2026-10-14 10:45pm GMT",
+   "name": "Easy Digital Downloads \u2013 eCommerce Payments and Subscriptions made easy",
+   "num_ratings": 591,
+   "requires": "6.7",
+   "requires_php": "8.0",
+   "slug": "easy-digital-downloads",
+   "tested": "7.0.7",
+   "version": "3.7.2"
+  },
+  "easy-wp-smtp": {
+   "active_installs": 500000,
+   "last_updated": "2026-08-12 9:18am GMT",
+   "name": "Easy WP SMTP \u2013 WordPress SMTP and Email Logs: Gmail SMTP, Office 365, Outlook, Custom SMTP, and more",
+   "num_ratings": 709,
+   "requires": "5.5",
+   "requires_php": "7.4",
+   "slug": "easy-wp-smtp",
+   "tested": "7.1.3",
+   "version": "2.15.1"
+  },
+  "elementor": {
+   "active_installs": 10000000,
+   "last_updated": "2026-10-13 12:48pm GMT",
+   "name": "Elementor Website Builder &#8211; more than just a page builder",
+   "num_ratings": 7320,
+   "requires": "6.8",
+   "requires_php": "7.4",
+   "slug": "elementor",
+   "tested": "7.1.3",
+   "version": "4.3.5"
+  },
+  "fluentform": {
+   "active_installs": 800000,
+   "last_updated": "2026-10-16 1:59pm GMT",
+   "name": "Fluent Forms \u2013 Customizable Contact Forms, Survey, Quiz, &amp; Conversational Form Builder",
+   "num_ratings": 806,
+   "requires": "6.4",
+   "requires_php": "7.4",
+   "slug": "fluentform",
+   "tested": "7.1.3",
+   "version": "6.2.16"
+  },
+  "forminator": {
+   "active_installs": 600000,
+   "last_updated": "2026-10-14 9:42am GMT",
+   "name": "Forminator Forms \u2013 Contact Form, Payment Form &amp; Custom Form Builder",
+   "num_ratings": 2140,
+   "requires": "6.4",
+   "requires_php": "7.4",
+   "slug": "forminator",
+   "tested": "7.1.3",
+   "version": "1.58.2"
+  },
+  "google-analytics-for-wordpress": {
+   "active_installs": 2000000,
+   "last_updated": "2026-09-16 12:53pm GMT",
+   "name": "MonsterInsights &#8211; Google Analytics Dashboard for WordPress (Website Stats Made Easy)",
+   "num_ratings": 3156,
+   "requires": "5.6.0",
+   "requires_php": "7.2",
+   "slug": "google-analytics-for-wordpress",
+   "tested": "7.1.3",
+   "version": "11.3.0"
+  },
+  "google-site-kit": {
+   "active_installs": 5000000,
+   "last_updated": "2026-10-19 10:35pm GMT",
+   "name": "Site Kit by Google &#8211; Analytics, Search Console, AdSense, Speed",
+   "num_ratings": 1012,
+   "requires": "5.2",
+   "requires_php": "7.4",
+   "slug": "google-site-kit",
+   "tested": "7.1.3",
+   "version": "1.190.0"
+  },
+  "kadence-blocks": {
+   "active_installs": 600000,
+   "last_updated": "2026-10-22 7:31pm GMT",
+   "name": "Kadence Blocks \u2014 Page Builder Toolkit for Gutenberg Editor",
+   "num_ratings": 332,
+   "requires": "6.6",
+   "requires_php": "7.4",
+   "slug": "kadence-blocks",
+   "tested": "7.1.3",
+   "version": "3.8.0.2"
+  },
+  "limit-login-attempts-reloaded": {
+   "active_installs": 1000000,
+   "last_updated": "2026-09-23 11:35am GMT",
+   "name": "Limit Login Attempts Security &#8211; Login Security, 2FA, Firewall, Brute Force Prevention",
+   "num_ratings": 1488,
+   "requires": "5.0",
+   "requires_php": false,
+   "slug": "limit-login-attempts-reloaded",
+   "tested": "7.1.3",
+   "version": "3.3.10"
+  },
+  "litespeed-cache": {
+   "active_installs": 7000000,
+   "last_updated": "2026-10-20 6:08pm GMT",
+   "name": "LiteSpeed Cache",
+   "num_ratings": 2777,
+   "requires": "6.0",
+   "requires_php": "7.4",
+   "slug": "litespeed-cache",
+   "tested": "7.1.3",
+   "version": "7.9.2"
+  },
+  "mailchimp-for-wp": {
+   "active_installs": 1000000,
+   "last_updated": "2026-09-16 7:31am GMT",
+   "name": "MC4WP: Mailchimp for WordPress",
+   "num_ratings": 1497,
+   "requires": "5.3",
+   "requires_php": "7.4",
+   "slug": "mailchimp-for-wp",
+   "tested": "7.1.3",
+   "version": "4.14.1"
+  },
+  "members": {
+   "active_installs": 300000,
+   "last_updated": "2026-10-21 6:31pm GMT",
+   "name": "Members &#8211; Membership &amp; User Role Editor Plugin",
+   "num_ratings": 1281,
+   "requires": "6.0",
+   "requires_php": "7.4",
+   "slug": "members",
+   "tested": "7.1.3",
+   "version": "3.2.27"
+  },
+  "newsletter": {
+   "active_installs": 200000,
+   "last_updated": "2026-10-22 6:46pm GMT",
+   "name": "Newsletter &#8211; Send awesome emails from WordPress",
+   "num_ratings": 1204,
+   "requires": "6.1",
+   "requires_php": "7.0",
+   "slug": "newsletter",
+   "tested": "7.1.3",
+   "version": "9.4.9"
+  },
+  "polylang": {
+   "active_installs": 900000,
+   "last_updated": "2026-10-21 3:54pm GMT",
+   "name": "Polylang",
+   "num_ratings": 3002,
+   "requires": "6.8",
+   "requires_php": "7.4",
+   "slug": "polylang",
+   "tested": "7.1.3",
+   "version": "3.9.1"
+  },
+  "really-simple-ssl": {
+   "active_installs": 3000000,
+   "last_updated": "2026-09-15 6:18am GMT",
+   "name": "Really Simple Security &#8211; Simple and Performant Security (formerly Really Simple SSL)",
+   "num_ratings": 8868,
+   "requires": "6.6",
+   "requires_php": "7.4",
+   "slug": "really-simple-ssl",
+   "tested": "7.1.3",
+   "version": "9.8.3"
+  },
+  "redirection": {
+   "active_installs": 2000000,
+   "last_updated": "2026-09-19 1:45pm GMT",
+   "name": "Redirection",
+   "num_ratings": 703,
+   "requires": "6.7",
+   "requires_php": "7.4",
+   "slug": "redirection",
+   "tested": "7.1.3",
+   "version": "5.10.1"
+  },
+  "redis-cache": {
+   "active_installs": 500000,
+   "last_updated": "2026-09-18 6:32pm GMT",
+   "name": "Redis Object Cache",
+   "num_ratings": 179,
+   "requires": "4.6",
+   "requires_php": "7.2",
+   "slug": "redis-cache",
+   "tested": "7.1.3",
+   "version": "3.0.0"
+  },
+  "seo-by-rank-math": {
+   "active_installs": 4000000,
+   "last_updated": "2026-10-06 12:43pm GMT",
+   "name": "Rank Math SEO \u2013 AI SEO Tools to Dominate SEO Rankings",
+   "num_ratings": 7517,
+   "requires": "6.7",
+   "requires_php": "7.4",
+   "slug": "seo-by-rank-math",
+   "tested": "7.1.3",
+   "version": "1.0.280"
+  },
+  "sg-cachepress": {
+   "active_installs": 1000000,
+   "last_updated": "2026-10-20 7:22am GMT",
+   "name": "Speed Optimizer &#8211; The All-In-One Performance-Boosting Plugin",
+   "num_ratings": 641,
+   "requires": "5.5.1",
+   "requires_php": "7.0",
+   "slug": "sg-cachepress",
+   "tested": "7.1.3",
+   "version": "7.8.5"
+  },
+  "siteorigin-panels": {
+   "active_installs": 400000,
+   "last_updated": "2026-10-19 10:18pm GMT",
+   "name": "Page Builder by SiteOrigin",
+   "num_ratings": 1005,
+   "requires": "5.9",
+   "requires_php": "7.0.0",
+   "slug": "siteorigin-panels",
+   "tested": "7.1.3",
+   "version": "2.38.0"
+  },
+  "sucuri-scanner": {
+   "active_installs": 600000,
+   "last_updated": "2026-10-14 3:06pm GMT",
+   "name": "Sucuri Security &#8211; Auditing, Malware Scanner and Security Hardening",
+   "num_ratings": 385,
+   "requires": "6.0",
+   "requires_php": "7.4",
+   "slug": "sucuri-scanner",
+   "tested": "7.1.3",
+   "version": "2.8.1"
+  },
+  "surecart": {
+   "active_installs": 80000,
+   "last_updated": "2026-10-20 7:00pm GMT",
+   "name": "SureCart &#8211; Ecommerce Made Easy For Selling Physical Products, Digital Downloads, Subscriptions, Donations, &amp; Payments",
+   "num_ratings": 288,
+   "requires": "6.8",
+   "requires_php": "7.4",
+   "slug": "surecart",
+   "tested": "7.1.3",
+   "version": "4.10.0"
+  },
+  "translatepress-multilingual": {
+   "active_installs": 400000,
+   "last_updated": "2026-10-13 3:00pm GMT",
+   "name": "TranslatePress &#8211; Translate Multilingual sites with AI Translation",
+   "num_ratings": 1665,
+   "requires": "3.1.0",
+   "requires_php": "7.4",
+   "slug": "translatepress-multilingual",
+   "tested": "7.1.3",
+   "version": "3.3.8"
+  },
+  "ultimate-member": {
+   "active_installs": 200000,
+   "last_updated": "2026-10-23 5:34am GMT",
+   "name": "Ultimate Member \u2013 User Profile, Registration, Login, Member Directory, Content Restriction &amp; Membership Plugin",
+   "num_ratings": 1445,
+   "requires": "6.2",
+   "requires_php": "7.0",
+   "slug": "ultimate-member",
+   "tested": "7.1.3",
+   "version": "2.14.1"
+  },
+  "updraftplus": {
+   "active_installs": 3000000,
+   "last_updated": "2026-10-19 8:57pm GMT",
+   "name": "UpdraftPlus: WP Backup &amp; Migration Plugin",
+   "num_ratings": 8694,
+   "requires": "3.9",
+   "requires_php": false,
+   "slug": "updraftplus",
+   "tested": "7.1.3",
+   "version": "1.26.13"
+  },
+  "w3-total-cache": {
+   "active_installs": 900000,
+   "last_updated": "2026-10-20 8:46pm GMT",
+   "name": "W3 Total Cache",
+   "num_ratings": 5420,
+   "requires": "6.0",
+   "requires_php": "7.4",
+   "slug": "w3-total-cache",
+   "tested": "7.1.3",
+   "version": "2.11.0"
+  },
+  "woocommerce": {
+   "active_installs": 7000000,
+   "last_updated": "2026-10-09 3:35pm GMT",
+   "name": "WooCommerce",
+   "num_ratings": 4827,
+   "requires": "7.0",
+   "requires_php": "7.4",
+   "slug": "woocommerce",
+   "tested": "7.1.3",
+   "version": "11.2.1"
+  },
+  "wordfence": {
+   "active_installs": 5000000,
+   "last_updated": "2026-09-30 3:30pm GMT",
+   "name": "Wordfence Security &#8211; Firewall, Malware Scan, and Login Security",
+   "num_ratings": 5034,
+   "requires": "4.7",
+   "requires_php": "7.0",
+   "slug": "wordfence",
+   "tested": "7.1.3",
+   "version": "9.0.2"
+  },
+  "wordpress-seo": {
+   "active_installs": 10000000,
+   "last_updated": "2026-10-13 5:27am GMT",
+   "name": "Yoast SEO &#8211; Advanced SEO with real-time guidance and built-in AI",
+   "num_ratings": 27821,
+   "requires": "6.9",
+   "requires_php": "7.4",
+   "slug": "wordpress-seo",
+   "tested": "7.1.3",
+   "version": "28.7"
+  },
+  "wp-fastest-cache": {
+   "active_installs": 1000000,
+   "last_updated": "2026-10-10 1:59pm GMT",
+   "name": "WP Fastest Cache &#8211; WordPress Cache Plugin",
+   "num_ratings": 4227,
+   "requires": "5.7",
+   "requires_php": false,
+   "slug": "wp-fastest-cache",
+   "tested": "7.1.3",
+   "version": "1.5.3"
+  },
+  "wp-mail-smtp": {
+   "active_installs": 4000000,
+   "last_updated": "2026-10-20 2:29pm GMT",
+   "name": "WP Mail SMTP by WPForms &#8211; SMTP for Reliable Email Delivery with Gmail, Outlook, Amazon SES, Brevo, Other SMTP &amp; More",
+   "num_ratings": 5206,
+   "requires": "5.5",
+   "requires_php": "7.4",
+   "slug": "wp-mail-smtp",
+   "tested": "7.1.3",
+   "version": "4.10.3"
+  },
+  "wp-optimize": {
+   "active_installs": 1000000,
+   "last_updated": "2026-09-21 1:29pm GMT",
+   "name": "WP-Optimize \u2013 Cache, Compress images, Minify &amp; Clean database to boost page speed &amp; performance",
+   "num_ratings": 2616,
+   "requires": "4.9",
+   "requires_php": "7.2",
+   "slug": "wp-optimize",
+   "tested": "7.1.3",
+   "version": "4.7.0"
+  },
+  "wp-seopress": {
+   "active_installs": 300000,
+   "last_updated": "2026-10-23 7:59am GMT",
+   "name": "SEOPress &#8211; AI SEO Plugin &amp; On-site SEO",
+   "num_ratings": 1266,
+   "requires": "6.5",
+   "requires_php": "7.4",
+   "slug": "wp-seopress",
+   "tested": "7.1.3",
+   "version": "10.3"
+  },
+  "wp-statistics": {
+   "active_installs": 500000,
+   "last_updated": "2026-10-23 7:22am GMT",
+   "name": "WP Statistics \u2013 Simple, privacy-friendly Google Analytics alternative",
+   "num_ratings": 759,
+   "requires": "6.6",
+   "requires_php": "7.4",
+   "slug": "wp-statistics",
+   "tested": "7.1.3",
+   "version": "14.16.18"
+  },
+  "wp-super-cache": {
+   "active_installs": 1000000,
+   "last_updated": "2026-09-30 6:33pm GMT",
+   "name": "WP Super Cache",
+   "num_ratings": 1346,
+   "requires": "6.8",
+   "requires_php": "7.4",
+   "slug": "wp-super-cache",
+   "tested": "7.1.3",
+   "version": "3.1.4"
+  },
+  "wpforms-lite": {
+   "active_installs": 5000000,
+   "last_updated": "2026-10-22 12:32pm GMT",
+   "name": "WPForms &#8211; AI Form Builder for WordPress &#8211; Contact Forms, Payment Forms, Survey Form, Quiz &amp; More",
+   "num_ratings": 14386,
+   "requires": "5.5",
+   "requires_php": "7.2",
+   "slug": "wpforms-lite",
+   "tested": "7.1.3",
+   "version": "2.0.3"
+  },
+  "wpvivid-backuprestore": {
+   "active_installs": 900000,
+   "last_updated": "2026-09-28 12:49am GMT",
+   "name": "WPvivid \u2014 Backup, Migration &amp; Staging",
+   "num_ratings": 1566,
+   "requires": "4.5",
+   "requires_php": "5.6",
+   "slug": "wpvivid-backuprestore",
+   "tested": "7.1.3",
+   "version": "0.9.136"
+  }
+ },
+ "generated_at_utc": "2026-10-25T06:12:00Z",
+ "page_display": {
+  "advanced-custom-fields": {
+   "installs": "2+ million",
+   "php": "7.4 or higher",
+   "tested": "7.1.3",
+   "version": "6.8.10",
+   "wp": "6.2 or higher"
+  },
+  "akismet": {
+   "page_installs": "5+ million",
+   "page_php": "7.2 or higher",
+   "page_tested": "7.1.3",
+   "page_version": "5.7.2",
+   "page_wp": "5.8 or higher"
+  },
+  "all-in-one-seo-pack": {
+   "installs": "2+ million",
+   "php": "7.4 or higher",
+   "tested": "7.1.3",
+   "version": "5.0.4",
+   "wp": "5.7 or higher"
+  },
+  "all-in-one-wp-migration": {
+   "page_installs": "5+ million",
+   "page_php": "5.3 or higher",
+   "page_tested": "7.1.3",
+   "page_version": "7.112",
+   "page_wp": "3.3 or higher"
+  },
+  "classic-editor": {
+   "page_installs": "8+ million",
+   "page_php": "5.2.4 or higher",
+   "page_tested": "7.0.7",
+   "page_version": "1.7.0",
+   "page_wp": "4.9 or higher"
+  },
+  "contact-form-7": {
+   "page_installs": "10+ million",
+   "page_php": "8.3 or higher",
+   "page_tested": "7.1.3",
+   "page_version": "6.2.3",
+   "page_wp": "7.1 or higher"
+  },
+  "cookie-law-info": {
+   "installs": "1+ million",
+   "php": "5.6 or higher",
+   "tested": "7.1.3",
+   "version": "3.5.7",
+   "wp": "5.0.0 or higher"
+  },
+  "elementor": {
+   "page_installs": "10+ million",
+   "page_php": "7.4 or higher",
+   "page_tested": "7.1.3",
+   "page_version": "4.3.5",
+   "page_wp": "6.8 or higher"
+  },
+  "fluentform": {
+   "installs": "800,000+",
+   "php": "7.4 or higher",
+   "tested": "7.1.3",
+   "version": "",
+   "wp": "6.4 or higher"
+  },
+  "forminator": {
+   "installs": "600,000+",
+   "php": "7.4 or higher",
+   "tested": "7.1.3",
+   "version": "1.58.2",
+   "wp": "6.4 or higher"
+  },
+  "google-analytics-for-wordpress": {
+   "installs": "2+ million",
+   "php": "7.2 or higher",
+   "tested": "7.1.3",
+   "version": "11.3.0",
+   "wp": "5.6.0 or higher"
+  },
+  "google-site-kit": {
+   "page_installs": "5+ million",
+   "page_php": "7.4 or higher",
+   "page_tested": "7.1.3",
+   "page_version": "1.190.0",
+   "page_wp": "5.2 or higher"
+  },
+  "litespeed-cache": {
+   "page_installs": "7+ million",
+   "page_php": "7.4 or higher",
+   "page_tested": "7.1.3",
+   "page_version": "7.9.2",
+   "page_wp": "6.0 or higher"
+  },
+  "polylang": {
+   "installs": "900,000+",
+   "php": "7.4 or higher",
+   "tested": "7.1.3",
+   "version": "3.9.1",
+   "wp": "6.8 or higher"
+  },
+  "really-simple-ssl": {
+   "installs": "3+ million",
+   "php": "7.4 or higher",
+   "tested": "7.1.3",
+   "version": "9.8.3",
+   "wp": "6.6 or higher"
+  },
+  "redirection": {
+   "installs": "2+ million",
+   "php": "7.4 or higher",
+   "tested": "7.1.3",
+   "version": "5.10.1",
+   "wp": "6.7 or higher"
+  },
+  "seo-by-rank-math": {
+   "installs": "4+ million",
+   "php": "7.4 or higher",
+   "tested": "7.1.3",
+   "version": "1.0.280",
+   "wp": "6.7 or higher"
+  },
+  "updraftplus": {
+   "installs": "3+ million",
+   "php": null,
+   "tested": "7.1.3",
+   "version": "1.26.13",
+   "wp": "3.9 or higher"
+  },
+  "w3-total-cache": {
+   "installs": "900,000+",
+   "php": "7.4 or higher",
+   "tested": "7.1.3",
+   "version": "2.11.0",
+   "wp": "6.0 or higher"
+  },
+  "woocommerce": {
+   "page_installs": "7+ million",
+   "page_php": "7.4 or higher",
+   "page_tested": "7.1.3",
+   "page_version": "11.2.1",
+   "page_wp": "7.0 or higher"
+  },
+  "wordfence": {
+   "page_installs": "5+ million",
+   "page_php": "7.0 or higher",
+   "page_tested": "7.1.3",
+   "page_version": "9.0.2",
+   "page_wp": "4.7 or higher"
+  },
+  "wordpress-seo": {
+   "page_installs": "10+ million",
+   "page_php": "7.4 or higher",
+   "page_tested": "7.1.3",
+   "page_version": "28.7",
+   "page_wp": "6.9 or higher"
+  },
+  "wp-mail-smtp": {
+   "installs": "4+ million",
+   "php": "7.4 or higher",
+   "tested": "7.1.3",
+   "version": "4.10.3",
+   "wp": "5.5 or higher"
+  },
+  "wp-super-cache": {
+   "installs": "1+ million",
+   "php": "7.4 or higher",
+   "tested": "7.1.3",
+   "version": "3.1.4",
+   "wp": "6.8 or higher"
+  },
+  "wpforms-lite": {
+   "page_installs": "5+ million",
+   "page_php": "7.2 or higher",
+   "page_tested": "7.1.3",
+   "page_version": "2.0.3",
+   "page_wp": "5.5 or higher"
+  }
+ },
+ "plugin_page_pattern": "https://wordpress.org/plugins/<slug>/",
+ "popular_browse_api": "https://api.wordpress.org/plugins/info/1.2/?action=query_plugins&request[browse]=popular&request[per_page]=100",
+ "popular_page": "https://wordpress.org/plugins/browse/popular/",
+ "registry": {
+  "analytics": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "3 permissions",
+   "public_name": "@eisbachcode.de/analytics",
+   "url": "https://plugins.emdashcms.com/plugins/@eisbachcode.de/analytics",
+   "version": "v0.3.2"
+  },
+  "apimail": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "2 permissions",
+   "public_name": "@devbit.me/apimail",
+   "url": "https://plugins.emdashcms.com/plugins/@devbit.me/apimail",
+   "version": "v0.3.1"
+  },
+  "approvals": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "7 permissions",
+   "public_name": "@moorage.dev/approvals",
+   "url": "https://plugins.emdashcms.com/plugins/@moorage.dev/approvals",
+   "version": "v0.2.1"
+  },
+  "commerce_beta": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "5 permissions",
+   "public_name": "@smokyco.bsky.social/dinkus-commerce-beta",
+   "url": "https://plugins.emdashcms.com/plugins/@smokyco.bsky.social/dinkus-commerce-beta",
+   "version": "v0.6.0-beta.1"
+  },
+  "contact_forms_bitdoze": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "2 permissions",
+   "public_name": "@bitdoze.com/emdashhq-contact-forms",
+   "url": "https://plugins.emdashcms.com/plugins/@bitdoze.com/emdashhq-contact-forms",
+   "version": "v1.1.2"
+  },
+  "contact_forms_mason": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "1 permission",
+   "public_name": "@masonjames.com/contact-forms",
+   "url": "https://plugins.emdashcms.com/plugins/@masonjames.com/contact-forms",
+   "version": "v0.2.0"
+  },
+  "dashcommerce_lite": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "2 permissions",
+   "public_name": "@dashcommerce.bsky.social/dashcommerce-lite",
+   "url": "https://plugins.emdashcms.com/plugins/@dashcommerce.bsky.social/dashcommerce-lite",
+   "version": "v0.2.0"
+  },
+  "forms": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "1 permission",
+   "public_name": "@netdollar.dev/forms",
+   "url": "https://plugins.emdashcms.com/plugins/@netdollar.dev/forms",
+   "version": "v0.1.0"
+  },
+  "freeform": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "2 permissions",
+   "public_name": "@solspace.com/freeform",
+   "url": "https://plugins.emdashcms.com/plugins/@solspace.com/freeform",
+   "version": "v0.1.4"
+  },
+  "resend": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "2 permissions",
+   "public_name": "@vcode.sh/resend",
+   "url": "https://plugins.emdashcms.com/plugins/@vcode.sh/resend",
+   "version": "v0.1.0"
+  },
+  "seo_markup": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "5 permissions",
+   "public_name": "@moorage.dev/seo",
+   "url": "https://plugins.emdashcms.com/plugins/@moorage.dev/seo",
+   "version": "v0.1.11"
+  },
+  "seo_suite": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "10 permissions",
+   "public_name": "@nookeshk.bsky.social/seo-suite",
+   "url": "https://plugins.emdashcms.com/plugins/@nookeshk.bsky.social/seo-suite",
+   "version": "v0.2.0"
+  },
+  "site_health": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "6 permissions",
+   "public_name": "@moorage.dev/site-health",
+   "url": "https://plugins.emdashcms.com/plugins/@moorage.dev/site-health",
+   "version": "v0.1.5"
+  },
+  "smtp": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "2 permissions",
+   "public_name": "@masonjames.com/emdash-smtp",
+   "url": "https://plugins.emdashcms.com/plugins/@masonjames.com/emdash-smtp",
+   "version": "v0.4.1"
+  },
+  "stripe": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "5 permissions",
+   "public_name": "@ecommerceave.com/emdash-stripe-checkout",
+   "url": "https://plugins.emdashcms.com/plugins/@ecommerceave.com/emdash-stripe-checkout",
+   "version": "v0.10.3"
+  },
+  "umami": {
+   "github": "https://github.com/emdash-cms/emdash",
+   "license": "MIT",
+   "permissions": "3 permissions",
+   "public_name": "@shane.bsky.shas.am/emdash-umami-analytics",
+   "url": "https://plugins.emdashcms.com/plugins/@shane.bsky.shas.am/emdash-umami-analytics",
+   "version": "v0.1.4"
+  }
+ },
+ "registry_meta": {
+  "apimail": {
+   "desc": "Transactional email through HTTP APIs: Brevo, Mailgun, Mailjet, Maileroo, Postmark, Mailchimp, Resend, SendGrid, MailerSend, Scaleway.",
+   "listed": "Oct 20, 2026",
+   "perm_heads": [
+    "Send a test email",
+    "Logs",
+    "Security",
+    "Mail API",
+    "Repair",
+    "Keep email content in the history",
+    "Activate",
+    "Network requests"
+   ],
+   "permissions": [
+    "Make network requests",
+    "Provide the email transport"
+   ],
+   "source": "https://git.devbit.me/devbit.me/emdash-plugin-apimail"
+  },
+  "approvals": {
+   "desc": "Content approval for EmDash: Publish sends a page for approval; approve and publish in one step, or send it back with a note.",
+   "listed": "Oct 23, 2026",
+   "perm_heads": [
+    "Approvals &gt; Settings",
+    "Save",
+    "Approve and publish"
+   ],
+   "permissions": [
+    "Read content",
+    "Read revision history",
+    "Publish content",
+    "Read content structure",
+    "Block publishing",
+    "Send email",
+    "Read user accounts"
+   ],
+   "source": "https://github.com/moorage-dev/moorage"
+  },
+  "commerce_beta": {
+   "desc": "Manage products, prices and catalog settings in EmDash.",
+   "listed": "Oct 15, 2026",
+   "perm_heads": [],
+   "permissions": [
+    "Read unsaved edits",
+    "Suggest edits",
+    "Read media",
+    "Make network requests",
+    "Send email"
+   ],
+   "source": "https://github.com/dinkuskit/commerce"
+  },
+  "contact_forms_bitdoze": {
+   "desc": "Contact form builder: embed forms on pages, store every submission, send email through the site's provider.",
+   "listed": "Oct 10, 2026",
+   "perm_heads": [
+    "Plugins \u2192 Contact forms \u2192 Submissions",
+    "Settings \u2192 Email",
+    "Keep submissions for (days)"
+   ],
+   "permissions": [
+    "Make network requests",
+    "Send email"
+   ],
+   "source": "https://github.com/bitdoze/emdashhq.com"
+  },
+  "contact_forms_mason": {
+   "desc": "Single-page contact forms with a field builder, submission inbox, CSV export and notification emails.",
+   "listed": "Sep 30, 2026",
+   "perm_heads": [],
+   "permissions": [
+    "Send email"
+   ],
+   "source": null
+  },
+  "dashcommerce_lite": {
+   "desc": "Sell products from your EmDash content: a cart, Stripe Checkout, stock tracking, refunds, tax and shipping, and an orders admin.",
+   "listed": "Oct 24, 2026",
+   "perm_heads": [],
+   "permissions": [
+    "Read content",
+    "Make network requests"
+   ],
+   "source": "https://github.com/emdashCommerce/dashcommerce"
+  },
+  "freeform": {
+   "desc": "Build forms in EmDash with an AI-assisted builder, spam scoring, email notifications, webhooks, and CSV exports.",
+   "listed": "Oct 20, 2026",
+   "perm_heads": [
+    "Do I need an API key?",
+    "How are submissions protected from spam?",
+    "Can I get notified about new submissions?",
+    "How do I export submissions?",
+    "Can AI agents manage my forms?",
+    "Are the rendered forms styled?",
+    "Reporting a vulnerability",
+    "How Freeform protects your site",
+    "Plugins \u2192 Registry",
+    "Freeform",
+    "Freeform \u2192 Settings"
+   ],
+   "permissions": [
+    "Make unrestricted network requests",
+    "Send email"
+   ],
+   "source": "https://github.com/solspace/emdash-freeform"
+  },
+  "resend": {
+   "desc": "Send EmDash magic links, invites, recovery and plugin email through Resend.",
+   "listed": "Oct 12, 2026",
+   "perm_heads": [],
+   "permissions": [
+    "Make network requests",
+    "Provide the email transport"
+   ],
+   "source": "https://github.com/vcode-sh/emdash-resend-email"
+  },
+  "seo_markup": {
+   "desc": "SEO for EmDash: schema markup, JSON-LD structured data, Google preview, SEO checks, noindex, WordPress redirects import. Yoast alternative.",
+   "listed": "Oct 23, 2026",
+   "perm_heads": [],
+   "permissions": [
+    "Read content",
+    "Read content structure",
+    "Read bylines",
+    "Read redirects",
+    "Manage redirects"
+   ],
+   "source": "https://github.com/moorage-dev/moorage"
+  },
+  "seo_suite": {
+   "desc": "Focus-keyphrase analysis, readability, JSON-LD, redirects, and SEO health for EmDash.",
+   "listed": "Sep 29, 2026",
+   "perm_heads": [],
+   "permissions": [
+    "Read content",
+    "Manage content",
+    "Read content structure",
+    "Read unsaved edits",
+    "Suggest edits",
+    "Block publishing",
+    "Read taxonomies",
+    "Read redirects",
+    "Manage redirects",
+    "Read media"
+   ],
+   "source": "https://github.com/nookeshkarri7/emdash-seo-suite-plugin"
+  },
+  "site_health": {
+   "desc": "Site Health for EmDash: a broken link checker for your pages, menus and links to other sites, with email alerts and a setup checklist.",
+   "listed": "Oct 23, 2026",
+   "perm_heads": [],
+   "permissions": [
+    "Read content",
+    "Read content structure",
+    "Read redirects",
+    "Manage redirects",
+    "Make unrestricted network requests",
+    "Send email"
+   ],
+   "source": "https://github.com/moorage-dev/moorage"
+  },
+  "stripe": {
+   "desc": "Accept payments through Stripe Checkout with a simple e-commerce integration for EmDash.",
+   "listed": "Oct 24, 2026",
+   "perm_heads": [],
+   "permissions": [
+    "Read content",
+    "Manage content",
+    "Read content structure",
+    "Read media",
+    "Make network requests"
+   ],
+   "source": "https://github.com/ecommerceave/emdash-stripe-checkout"
+  },
+  "umami": {
+   "desc": "Unofficial Umami plugin, not affiliated with Umami: traffic, top pages, referrers and views per entry in the EmDash admin.",
+   "listed": "Oct 16, 2026",
+   "perm_heads": [
+    "Why does everything show zero?",
+    "Why do my numbers differ from Umami's dashboard?",
+    "Does it work with Umami Cloud?",
+    "My Umami sits behind a sign-in proxy.",
+    "How many requests does it make?",
+    "Can I try it without Umami?",
+    "Who can see the numbers?",
+    "Where do the category tables come from?",
+    "How does read-through work?",
+    "Which languages does it speak?",
+    "What the Umami API key can do",
+    "Network access"
+   ],
+   "permissions": [
+    "Read content",
+    "Read content structure",
+    "Make unrestricted network requests"
+   ],
+   "source": "https://github.com/shanelord01/emdash-umami-analytics"
+  }
+ },
+ "retrieval_window_utc": [
+  "2026-10-25T06:00:44Z",
+  "2026-10-25T06:12:00Z"
+ ],
+ "schema": "app-composer.wordpress-plugin-intel/1",
+ "subject": "GitHub issue #363",
+ "wordpress_org_api": "https://api.wordpress.org/plugins/info/1.2/"
+}
