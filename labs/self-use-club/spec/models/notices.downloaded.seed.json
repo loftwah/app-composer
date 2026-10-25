@@ -1,0 +1,61 @@
+{
+  "version": "1",
+  "meta": {
+    "name": "Club notices — App Composer content model"
+  },
+  "collections": [
+    {
+      "slug": "notices",
+      "label": "Club notices",
+      "routable": false,
+      "supports": [
+        "drafts",
+        "revisions"
+      ],
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Notice heading",
+          "type": "string",
+          "required": true,
+          "validation": {
+            "maxLength": 90
+          }
+        },
+        {
+          "slug": "body",
+          "label": "Notice text",
+          "type": "text",
+          "required": true,
+          "validation": {
+            "maxLength": 900
+          }
+        },
+        {
+          "slug": "notice_date",
+          "label": "Notice date",
+          "type": "string",
+          "required": true,
+          "validation": {
+            "minLength": 10,
+            "maxLength": 10,
+            "pattern": "^(?!0000)(?:[0-9]{4}-(?:(?:01|03|05|07|08|10|12)-(?:0[1-9]|[12][0-9]|3[01])|(?:04|06|09|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:[02468][048]|[13579][26])00)-02-29)$"
+          }
+        },
+        {
+          "slug": "publication",
+          "label": "Publication",
+          "type": "select",
+          "required": true,
+          "defaultValue": "Draft",
+          "validation": {
+            "options": [
+              "Draft",
+              "Published"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

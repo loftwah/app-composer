@@ -2,6 +2,19 @@
 
 Reviewed 25 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Self-use club fixture — 25 October 2026
+
+A fictional Riverton Rowing Club was described through the real production
+`/setup`, `/prompts` and `/init/content` forms at source `8651468`, then
+implemented locally as a Cloudflare Worker with app-owned D1: published events
+and notices, a validated joining enquiry and a private owner review, followed by
+an additive volunteer-capacity request. Both browser journeys ran at 390/1440 in
+both themes with real negative cases; 18 app tests and the local dry-run build
+passed. This is one disclosed self-use recipe, not autonomous app generation or a
+deployment. The account, specification, evidence and limits are in
+[self-use club](self-use-club.md) and
+[the evidence index](evidence/selfuse-club-20261025/README.md).
+
 ## Inbox owner journey — 25 October 2026
 
 The native Inbox now links one actual app-owned brief to a body-free Composer
@@ -26,6 +39,7 @@ real mail was sent, no notification was enabled, no inbound-mail adapter exists
 and this branch is not deployed. Authenticated production interaction, provider
 delivery/reconciliation, scheduling, physical-device and screen-reader
 acceptance remain open. #117/#118/#198/#289/#291 retain those gates.
+
 
 ## Prompts, resources and native operations — 24 October 2026
 

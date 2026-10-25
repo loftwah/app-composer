@@ -119,6 +119,10 @@ export declare function emdashSeed(input: unknown): {
         }[];
     }[];
 };
+export declare function contentModelDownloadNames(input: unknown): {
+    model: string;
+    seed: string;
+};
 export declare function contentModelHandoff(input: unknown): string;
 export declare const starterModel: ContentModel;
 export declare function contentProjectHandoff(input: unknown): string;

@@ -1,0 +1,68 @@
+{
+  "startedAt": {
+    "melbourne": "2026/10/25 10:36",
+    "utc": "2026/10/24 23:36"
+  },
+  "request": "labs/self-use-club/spec/requests/volunteers.md",
+  "steps": [
+    {
+      "step": "owner creates and publishes role",
+      "roleId": "55b27ca1-4ac7-4d55-9634-5e15b2b449a1",
+      "flash": "Published. The public page now shows this record.",
+      "rowText": "Volunteers\n\nCreate a volunteer role\n\nROLE\tDATE\tPLACES\tSTATE\tACTIONS\nWorking bee — pontoon handrail\t2026/11/07\t0 of 2\tPUBLISHED\t\nEdit\nReturn to draft"
+    },
+    {
+      "step": "visitor sees role and places",
+      "hasRole": true,
+      "places": true
+    },
+    {
+      "step": "visitor opens sign-up",
+      "available": true,
+      "form": 1
+    },
+    {
+      "step": "first volunteer signs up",
+      "heading": "You are on the list for Working bee — pontoon handrail.",
+      "remainingLine": "1 of 2 places remain"
+    },
+    {
+      "step": "list shows reduced capacity",
+      "places": true
+    },
+    {
+      "step": "role is full",
+      "full": true,
+      "formPresent": 0
+    },
+    {
+      "step": "third sign-up refused at capacity",
+      "status": 409
+    },
+    {
+      "step": "owner sees confirmed sign-ups",
+      "noor": true,
+      "ben": true,
+      "taken": true
+    },
+    {
+      "step": "owner raises capacity without losing sign-ups",
+      "flash": "Changes saved. The public page reflects them immediately when published.",
+      "signupsStillListed": true,
+      "takenAfter": true
+    },
+    {
+      "step": "public reflects the owner change",
+      "title": "Working bee — pontoon handrail and lunch",
+      "places": true
+    }
+  ],
+  "consoleErrors": [],
+  "expectedRefusalResponses": [
+    "Failed to load resource: the server responded with a status of 409 (Conflict)"
+  ],
+  "completedAt": {
+    "melbourne": "2026/10/25 10:36",
+    "utc": "2026/10/24 23:36"
+  }
+}

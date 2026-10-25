@@ -1,0 +1,88 @@
+{
+  "schema": "app-composer.content-model",
+  "version": 1,
+  "collection": "enquiries",
+  "label": "Join enquiries",
+  "groups": [
+    "The person",
+    "Their question",
+    "Owner review"
+  ],
+  "fields": [
+    {
+      "key": "name",
+      "label": "Name",
+      "type": "string",
+      "required": true,
+      "group": "The person",
+      "validation": {
+        "maxLength": 80
+      }
+    },
+    {
+      "key": "email",
+      "label": "Email",
+      "type": "string",
+      "required": true,
+      "group": "The person",
+      "validation": {
+        "maxLength": 120
+      }
+    },
+    {
+      "key": "phone",
+      "label": "Phone (optional)",
+      "type": "string",
+      "required": false,
+      "group": "The person",
+      "validation": {
+        "maxLength": 40
+      }
+    },
+    {
+      "key": "enquiry_type",
+      "label": "What is this about?",
+      "type": "select",
+      "required": true,
+      "group": "Their question",
+      "choices": [
+        "Joining the club",
+        "An event",
+        "Volunteering",
+        "Something else"
+      ]
+    },
+    {
+      "key": "message",
+      "label": "Message",
+      "type": "text",
+      "required": true,
+      "group": "Their question",
+      "validation": {
+        "maxLength": 1000
+      }
+    },
+    {
+      "key": "review_state",
+      "label": "Review",
+      "type": "select",
+      "required": true,
+      "group": "Owner review",
+      "choices": [
+        "Pending",
+        "Reviewed"
+      ],
+      "defaultValue": "Pending"
+    },
+    {
+      "key": "review_note",
+      "label": "Owner note (private)",
+      "type": "text",
+      "required": false,
+      "group": "Owner review",
+      "validation": {
+        "maxLength": 500
+      }
+    }
+  ]
+}

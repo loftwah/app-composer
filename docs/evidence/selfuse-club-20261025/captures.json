@@ -1,0 +1,447 @@
+{
+  "captured": "2026/10/25 Australia/Melbourne",
+  "renderer": "Chromium via Playwright; local wrangler dev + local D1",
+  "note": "Full-page captures, palette-compressed with pngquant 80-96 after rendering. No pixel resize. Composer captures are production https://composer.loftwah.com at source 86514680720702ce30157671652981e388b77f65.",
+  "files": [
+    {
+      "file": "public/event-twilight-1440-dark.png",
+      "bytes": 43639,
+      "sha256": "6a6b33a0b5fabf749dad085b13c1595a9b8a9b8c5ae7c164a09dbd2df5c690bf",
+      "viewport": "1440",
+      "theme": "dark",
+      "page": "/events/twilight-paddle-and-supper"
+    },
+    {
+      "file": "public/event-twilight-1440-light.png",
+      "bytes": 41554,
+      "sha256": "623ddb41e503fcd3accc66dc046393fa338b3839933c6fcac8676782adc8261e",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/events/twilight-paddle-and-supper"
+    },
+    {
+      "file": "public/event-twilight-390-dark.png",
+      "bytes": 38736,
+      "sha256": "c9424394a918b38add140b333a4710f6298a64e4074a8f6cfb6eca073f4184fe",
+      "viewport": "390",
+      "theme": "dark",
+      "page": "/events/twilight-paddle-and-supper"
+    },
+    {
+      "file": "public/event-twilight-390-light.png",
+      "bytes": 39058,
+      "sha256": "0c63d3fa68063d128b0f85e3291ba4a3943240e2a6e95fcad66228ad9ad07b5f",
+      "viewport": "390",
+      "theme": "light",
+      "page": "/events/twilight-paddle-and-supper"
+    },
+    {
+      "file": "public/events-1440-dark.png",
+      "bytes": 40026,
+      "sha256": "d389758a446b15388a483030e164746a5561619a6001ea96f0c2a9dcd27df547",
+      "viewport": "1440",
+      "theme": "dark",
+      "page": "/events"
+    },
+    {
+      "file": "public/events-1440-light.png",
+      "bytes": 38799,
+      "sha256": "16f6bc845711eee7bfe8bd0f24897ca6868ff3001f1c179833e5eaa9728296fc",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/events"
+    },
+    {
+      "file": "public/events-390-dark.png",
+      "bytes": 37125,
+      "sha256": "90ddb5adbaf18e04a6747264235ec6f123535644e808960d89a2a36c07087a3a",
+      "viewport": "390",
+      "theme": "dark",
+      "page": "/events"
+    },
+    {
+      "file": "public/events-390-light.png",
+      "bytes": 38177,
+      "sha256": "c355410121db30d5cab3b4b56a50d5255a43754a2cdf233498c41fca569c2bd0",
+      "viewport": "390",
+      "theme": "light",
+      "page": "/events"
+    },
+    {
+      "file": "public/home-1440-dark.png",
+      "bytes": 111700,
+      "sha256": "741197110ce75aab046bd7d940fda5e3a477325a174a1330158e907ab68050d0",
+      "viewport": "1440",
+      "theme": "dark",
+      "page": "/"
+    },
+    {
+      "file": "public/home-1440-light.png",
+      "bytes": 112716,
+      "sha256": "2c1d3f338b9f650ea7bb6bd44c90d978a5170f8f90eb0e30bf9a2572f3be17c2",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/"
+    },
+    {
+      "file": "public/home-390-dark.png",
+      "bytes": 98797,
+      "sha256": "a0728e2e6b38c1e6c92288196f2fcb6eb1796afdfd859b79941059328c88a615",
+      "viewport": "390",
+      "theme": "dark",
+      "page": "/"
+    },
+    {
+      "file": "public/home-390-light.png",
+      "bytes": 103453,
+      "sha256": "9c01396837d4ed5677228802068aca319dcf64ae31a274aa0e44481014d2cb5d",
+      "viewport": "390",
+      "theme": "light",
+      "page": "/"
+    },
+    {
+      "file": "public/join-1440-dark.png",
+      "bytes": 48545,
+      "sha256": "f2386dadff03043c34da282f7469e4db36d43bcec84a3d82dce76d858a465364",
+      "viewport": "1440",
+      "theme": "dark",
+      "page": "/join"
+    },
+    {
+      "file": "public/join-1440-light.png",
+      "bytes": 51210,
+      "sha256": "40ce025fd41c161cd35a419d25b266cd0d4f0a89d31969c77289e894057c3c7a",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/join"
+    },
+    {
+      "file": "public/join-390-dark.png",
+      "bytes": 44245,
+      "sha256": "bbf176de53f71db03cf39e632c67fd043708d7c245078876ef19f5a33cc38f5f",
+      "viewport": "390",
+      "theme": "dark",
+      "page": "/join"
+    },
+    {
+      "file": "public/join-390-light.png",
+      "bytes": 44875,
+      "sha256": "dd65f43bbdb05743f01753808b8f5cd2f5cc9cc43de1848c80619825bd934e04",
+      "viewport": "390",
+      "theme": "light",
+      "page": "/join"
+    },
+    {
+      "file": "public/join-error-1440-light.png",
+      "bytes": 57895,
+      "sha256": "6dcd97c837940af0511a1f8b7f423b28292556d4c77350ecefbbbdbab2a97136",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/join (validation refusal, HTTP 422)"
+    },
+    {
+      "file": "public/join-thanks-1440-light.png",
+      "bytes": 25808,
+      "sha256": "fd1d54c8fddd1be10508aed0790991ee89133309773e584c3e2eadb7114aacd4",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/join/thanks"
+    },
+    {
+      "file": "public/notices-1440-dark.png",
+      "bytes": 29647,
+      "sha256": "47ee82690be62cda526a736f545b16210e16ebb7d6138a82b48145db66541fa3",
+      "viewport": "1440",
+      "theme": "dark",
+      "page": "/notices"
+    },
+    {
+      "file": "public/notices-1440-light.png",
+      "bytes": 30361,
+      "sha256": "aa76fd1a9085ea9fb3128c7654223fd910afa26b9ff0c29f3e1ded04f8ee4010",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/notices"
+    },
+    {
+      "file": "public/notices-390-dark.png",
+      "bytes": 28876,
+      "sha256": "fbbabd82ac5341b8e99d0bcdd5e06da0e770b7024ea0376ec7c00771537c1562",
+      "viewport": "390",
+      "theme": "dark",
+      "page": "/notices"
+    },
+    {
+      "file": "public/notices-390-light.png",
+      "bytes": 29160,
+      "sha256": "35955ee6d47f1e312ab007ab91aa9b0e9f48cdf7bd9a0f495d9d15e47cfa63a8",
+      "viewport": "390",
+      "theme": "light",
+      "page": "/notices"
+    },
+    {
+      "file": "public/volunteer-full-1440-light.png",
+      "bytes": 37281,
+      "sha256": "aee76bc34bafb5e9c3132bbea8aff0451fef9190d21dc28972cb0017e7df8823",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/volunteer/55b27ca1-4ac7-4d55-9634-5e15b2b449a1 (full, HTTP 409 on submit)"
+    },
+    {
+      "file": "public/volunteer-list-1440-dark.png",
+      "bytes": 26222,
+      "sha256": "57e554379c0a380ab7c2cce81c5fa04b476e54e6feebed5f81d68c52b0022412",
+      "viewport": "1440",
+      "theme": "dark",
+      "page": "/volunteer"
+    },
+    {
+      "file": "public/volunteer-list-1440-light.png",
+      "bytes": 25700,
+      "sha256": "e24bcb5ee6927cf454e6bb58ad0922a90c6ad6a4616e748b41fb7f00e9f68739",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/volunteer"
+    },
+    {
+      "file": "public/volunteer-list-390-dark.png",
+      "bytes": 24314,
+      "sha256": "32c9dbbf06fb9a1c1fd7ae7002a3ab03c4e6ab32de5759cb896056ea80be464f",
+      "viewport": "390",
+      "theme": "dark",
+      "page": "/volunteer"
+    },
+    {
+      "file": "public/volunteer-list-390-light.png",
+      "bytes": 23636,
+      "sha256": "de2356162f5ddd483589213a90f1555cfee146a7c7a4eec6691e86ebc3e076dd",
+      "viewport": "390",
+      "theme": "light",
+      "page": "/volunteer"
+    },
+    {
+      "file": "public/volunteer-role-1440-dark.png",
+      "bytes": 42992,
+      "sha256": "9689c1cbcdeef7f675fcbada0622d9cb1570f7bf66ac564cc7c9d82f6a048b20",
+      "viewport": "1440",
+      "theme": "dark",
+      "page": "/volunteer/55b27ca1-4ac7-4d55-9634-5e15b2b449a1"
+    },
+    {
+      "file": "public/volunteer-role-1440-light.png",
+      "bytes": 45323,
+      "sha256": "3dcef7e57df6054fcda8a3e8d26c14aa4a70163f606fb8802c2c3e954790b6fe",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/volunteer/55b27ca1-4ac7-4d55-9634-5e15b2b449a1"
+    },
+    {
+      "file": "public/volunteer-role-390-dark.png",
+      "bytes": 36898,
+      "sha256": "265ffaade7eca59afb72b501002140a751ca05c466eb1ea474de4f83d60767d3",
+      "viewport": "390",
+      "theme": "dark",
+      "page": "/volunteer/55b27ca1-4ac7-4d55-9634-5e15b2b449a1"
+    },
+    {
+      "file": "public/volunteer-role-390-light.png",
+      "bytes": 37942,
+      "sha256": "70bb895e572ae049eb5acbb671ed0cf0203934d4806bbd73fa392b912fbec51a",
+      "viewport": "390",
+      "theme": "light",
+      "page": "/volunteer/55b27ca1-4ac7-4d55-9634-5e15b2b449a1"
+    },
+    {
+      "file": "public/volunteer-thanks-1440-light.png",
+      "bytes": 26714,
+      "sha256": "7ac4071ae98d426b2208fcdc7d8578c0312f4139d1108b64cb2166efeb426e02",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/volunteer/55b27ca1-4ac7-4d55-9634-5e15b2b449a1/thanks"
+    },
+    {
+      "file": "admin/dashboard-1440-dark.png",
+      "bytes": 54815,
+      "sha256": "19ad4582922adafe2444b046b5e58316d857ff9c025c70c0b5f76f9125de6644",
+      "viewport": "1440",
+      "theme": "dark",
+      "page": "/admin"
+    },
+    {
+      "file": "admin/dashboard-1440-light.png",
+      "bytes": 54406,
+      "sha256": "a5379318177732085f12188e0f8a49a118784141794c282455a7e6ad7f8c2a89",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/admin"
+    },
+    {
+      "file": "admin/dashboard-390-dark.png",
+      "bytes": 49513,
+      "sha256": "2df7afedf3d809bc89555c4c35d66cfa623323414d648191e88706bdd5c5fadd",
+      "viewport": "390",
+      "theme": "dark",
+      "page": "/admin"
+    },
+    {
+      "file": "admin/dashboard-390-light.png",
+      "bytes": 49422,
+      "sha256": "4f65448edca11b57de81f0c64df3f9eb85c62957231e37a2f4e7e2418fa49f83",
+      "viewport": "390",
+      "theme": "light",
+      "page": "/admin"
+    },
+    {
+      "file": "admin/dashboard-after-1440-light.png",
+      "bytes": 66830,
+      "sha256": "bd015b0fe059cb951860e55125bbf67061b876b17fea55d6a8ecdb57a9b96624",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/admin (enquiry reviewed)"
+    },
+    {
+      "file": "admin/dashboard-before-1440-light.png",
+      "bytes": 62315,
+      "sha256": "050cd7ef2d46bd8f3d812774f59be7c76b440fac6adb6f453f1487c0a0432355",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/admin (pending enquiry)"
+    },
+    {
+      "file": "admin/denied-1440-light.png",
+      "bytes": 29255,
+      "sha256": "c3818d897406cfd2110f25c7aa94b0fa7bb310a8e02d06abfc563e9368ffa67c",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/admin (anonymous, 303 to sign-in)"
+    },
+    {
+      "file": "admin/event-form-1440-dark.png",
+      "bytes": 37201,
+      "sha256": "ba03adc060652c35be7b79dbc7b972294b1de4e2e8bd219f2345b4c6012756a3",
+      "viewport": "1440",
+      "theme": "dark",
+      "page": "/admin/events/new"
+    },
+    {
+      "file": "admin/event-form-1440-light.png",
+      "bytes": 36173,
+      "sha256": "c21c6bbe8e14462f723c3b01fc40578554080cfafcd237121e509dab808ebc20",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/admin/events/new"
+    },
+    {
+      "file": "admin/event-form-390-dark.png",
+      "bytes": 34001,
+      "sha256": "568ff9573067eab354696f4df01e23c1a2c324bc826383d7858fc88a87d6bafe",
+      "viewport": "390",
+      "theme": "dark",
+      "page": "/admin/events/new"
+    },
+    {
+      "file": "admin/event-form-390-light.png",
+      "bytes": 33960,
+      "sha256": "b96a104569ac2bf325e08a26510807b0ea360896524ba2eb9d21ba7e27ce6c91",
+      "viewport": "390",
+      "theme": "light",
+      "page": "/admin/events/new"
+    },
+    {
+      "file": "admin/event-saved-1440-light.png",
+      "bytes": 65509,
+      "sha256": "169984aab7cde02752f249fb79d6f9855099aa1b68ac4880e9962cedb1b4dc43",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/admin (event saved flash)"
+    },
+    {
+      "file": "admin/volunteers-created-1440-light.png",
+      "bytes": 55653,
+      "sha256": "97475390fc022523c569a379be7089f2ef21e7e81c5c224851f2474fe6452d7c",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/admin#volunteers (role created)"
+    },
+    {
+      "file": "admin/volunteers-signups-1440-dark.png",
+      "bytes": 52844,
+      "sha256": "b343998dc6a9e12a2c29acf2659a9550eb776d6c0b8a3f90c6d37dc5e01b52e5",
+      "viewport": "1440",
+      "theme": "dark",
+      "page": "/admin/volunteers/55b27ca1-4ac7-4d55-9634-5e15b2b449a1/edit"
+    },
+    {
+      "file": "admin/volunteers-signups-1440-light.png",
+      "bytes": 50642,
+      "sha256": "8119ca4ebed3b517c7a15d5ad3eacc6427be38bbd0f4c63aeb8d930947b71f09",
+      "viewport": "1440",
+      "theme": "light",
+      "page": "/admin/volunteers/55b27ca1-4ac7-4d55-9634-5e15b2b449a1/edit"
+    },
+    {
+      "file": "admin/volunteers-signups-390-dark.png",
+      "bytes": 47716,
+      "sha256": "40b43a900b1c5e85fbe1e040e1eac76a93afd9631bffeeaba68fc79b7867a079",
+      "viewport": "390",
+      "theme": "dark",
+      "page": "/admin/volunteers/55b27ca1-4ac7-4d55-9634-5e15b2b449a1/edit"
+    },
+    {
+      "file": "admin/volunteers-signups-390-light.png",
+      "bytes": 47262,
+      "sha256": "4fb847945f9195bc16a69f21427ac4b25aa6a944700c1f1f87dd00ec9977eef1",
+      "viewport": "390",
+      "theme": "light",
+      "page": "/admin/volunteers/55b27ca1-4ac7-4d55-9634-5e15b2b449a1/edit"
+    },
+    {
+      "file": "composer/model-enquiries-desktop.png",
+      "bytes": 156198,
+      "sha256": "8c29ff574224256cfc7f785e92c1aba202f440062d0949231053dbca483602fd",
+      "viewport": "composer-1440",
+      "theme": "dark",
+      "page": "https://composer.loftwah.com/init/content"
+    },
+    {
+      "file": "composer/model-events-desktop.png",
+      "bytes": 164520,
+      "sha256": "4d0b97fe96746e66cfc1cde931acf06ac45194204b35d35bf575d5744fed6fca",
+      "viewport": "composer-1440",
+      "theme": "dark",
+      "page": "https://composer.loftwah.com/init/content"
+    },
+    {
+      "file": "composer/model-notices-desktop.png",
+      "bytes": 152898,
+      "sha256": "6ee5f0e5b09e4fab4735344c744241a13a09bd4d394e2fdc724c0928511e6e40",
+      "viewport": "composer-1440",
+      "theme": "dark",
+      "page": "https://composer.loftwah.com/init/content"
+    },
+    {
+      "file": "composer/prompt-build-desktop.png",
+      "bytes": 135874,
+      "sha256": "07f7bc75e6bfd726b068a3fd8c46d30beedf203c4367bd0242bb36a548e105c5",
+      "viewport": "composer-1440",
+      "theme": "dark",
+      "page": "https://composer.loftwah.com/prompts#build"
+    },
+    {
+      "file": "composer/prompt-volunteers-desktop.png",
+      "bytes": 126606,
+      "sha256": "667c8cf362b4aeae7af3df7ef1d3bff4df96de49f115e1bf915573b79cbe544e",
+      "viewport": "composer-1440",
+      "theme": "dark",
+      "page": "https://composer.loftwah.com/prompts#change"
+    },
+    {
+      "file": "composer/setup-form-desktop.png",
+      "bytes": 148022,
+      "sha256": "034baa0a689f223d41062e11032c17f8ed1a5eabb9a3eb183a5fe5f6436180a1",
+      "viewport": "composer-1440",
+      "theme": "dark",
+      "page": "https://composer.loftwah.com/setup"
+    }
+  ]
+}
