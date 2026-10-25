@@ -28,15 +28,15 @@ export const diagramAtlas: readonly AtlasDiagram[] = [
     name: 'agent-approval-boundary',
     assetName: 'agent-approval-boundary-20261025-model',
     imageWidth: 2016, imageHeight: 987,
-    title: 'Local agent → scoped proposal → human review → execution',
-    alt: 'A local agent inspects an authorised workspace and returns a reviewable proposal. A signed-in human accepts, sends back with notes or rejects it. Execution uses the existing release guard and requires the reviewed source, app scope, current approval digest and checks. The agent grant cannot approve, deploy, merge, spend, read secrets or change access.',
+    title: 'Local agent → human review → separate release handoff',
+    alt: 'A local agent inspects an authorised workspace and returns a reviewable proposal. A signed-in human accepts, sends back with notes or rejects it. Proposal review rechecks the submitted source and accepted proposal digest. A manual handoff leads to the existing release guard with clean pushed main, app scope, checks and live verification. The execution adapter is not connected. The agent grant cannot approve, deploy, merge, spend, read secrets or change access.',
     caption: 'Revised through the local LDraw MCP by a Codex session, then curated for readable publication. Approval and execution remain separate actions.',
     usedOn: [{ label: 'Agent entry', href: '/agent' }, { label: 'Architecture', href: '/architecture#ownership' }],
     steps: [
       { title: 'Local agent', detail: 'Uses the owner’s machine, model and selected workspace under a read-only scope.' },
       { title: 'Scoped proposal', detail: 'Records source identity, cited evidence, risk, unknowns and one bounded change.' },
       { title: 'Human review', detail: 'Accept, send back with notes, or reject. Returning work preserves prior findings, links and versions.' },
-      { title: 'Execution boundary', detail: 'The existing release path, exact source and environment, reversible checks and independent verification. No self-approval, stale approval or duplicate execution.' },
+      { title: 'Execution boundary', detail: 'Approval does not execute. The execution adapter is not connected; a separate manual handoff uses the existing clean pushed-main release path, scoped environment, checks and live verification.' },
     ],
   },
   {

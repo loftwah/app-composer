@@ -43,7 +43,12 @@ PNG pixels and curated the authored scenes before publishing: removed duplicate
 preset explanations, enlarged tiny labels, re-centred changed text and used the
 accessible darker orange for text on white. The review diagram names release
 requirements instead of the preset's irrelevant generic storage/Queues example.
-No fake deployed architecture or new brand is published.
+Independent source review caught an overclaim in the original model scene: the
+existing release guard does not consume an accepted agent-proposal digest. The
+corrected scene and text show proposal-review CAS separately from a manual
+handoff to clean pushed-main deployment, and explicitly label the execution
+adapter unconnected. The corrected PNG and all eight page views were rendered
+and reviewed again. No fake deployed architecture or new brand is published.
 
 Versioned editable sources, real PNG and font-embedded SVG are together under
 `public/diagrams/ldraw/*-20261025-model.*`. Retained selected IDs/text reproduce

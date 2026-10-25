@@ -5,7 +5,7 @@ import { discoveryRole } from '../../lib/role-discovery';
 const role = discoveryRole(Astro.params.role);
 if (!role) Astro.response.status = 404;
 ---
-<Base title={role?.title ?? 'Role not found'} description={role?.description ?? 'Choose a role or a useful job to explore App Composer.'} shareImage={role ? `https://composer.loftwah.com${role.share}` : undefined} shareType={role?.share.endsWith(".jpg") ? "image/jpeg" : "image/png"} shareAlt={role ? `${role.title}. ${role.headline} Actual application capture and the approved Composer identity.` : undefined}>
+<Base title={role?.title ?? 'Role not found'} description={role?.description ?? 'Choose a role or a useful job to explore App Composer.'} shareImage={role ? `https://composer.loftwah.com${role.share}` : undefined} shareType={role?.share.endsWith(".jpg") ? "image/jpeg" : "image/png"} shareAlt={role ? `${role.title}. ${role.headline} ${role.share.endsWith(".jpg") ? "Approved Composer identity on the product banner." : "Actual application capture and the approved Composer identity."}` : undefined}>
   {role ? <><header class="role-heading"><h1>{role.title}.</h1><a href="/discover">All roles and jobs</a></header><RoleDiscovery role={role} /></> : <><h1>That role is not here.</h1><p><a href="/discover">Choose a role or a useful job</a> to find a working example.</p></>}
 </Base>
 <style>
