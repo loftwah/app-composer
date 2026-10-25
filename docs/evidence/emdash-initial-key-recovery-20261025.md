@@ -32,7 +32,7 @@ not a symlink, not hard-linked and at most 256 bytes. The JSON accepts exactly
 `EMDASH_ENCRYPTION_KEY` with the canonical native `emdash_enc_v1_` encoding of
 32 bytes. No file path, target or arbitrary binding override is accepted.
 
-Run the existing reviewed release with `pnpm deploy --emdash-key`. Existing
+Run the existing reviewed release with `pnpm run deploy --emdash-key`. Existing
 `--miniapp-secrets` remains compatible, including an explicitly selected combined
 invocation. Both inputs are independently validated; the existing 0600 temporary
 snapshot is removed on success or failure. Neither input source is removed.
