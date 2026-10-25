@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "recipe": "composer.ldraw-discovery/2",
+  "compositor": {
+    "path": "scripts/ldraw-discovery-assets.py",
+    "sha256": "7b0a394970ca341f3bdcae0d16f3414daec4cbb1112d96f22e985c69c1e242e5",
+    "pillow": "11.3.0"
+  },
+  "capture": {
+    "sha256": "010cfbd233b61c5619a5c2d4c19fbd2f5ef82683ba388c15535ec18b1a02c2db",
+    "pixelSha256": "2cae5bc3fa95792244ede857b95b2950cd7729f49b9cf6466ba078f27a11fc4e",
+    "pixelHashDefinition": "SHA-256 of decoded row-major RGBA8 bytes; dimensions recorded separately",
+    "width": 1440,
+    "height": 1000,
+    "format": "PNG",
+    "preservedAs": "ldraw-capture-fa7a2ab6171c-010cfbd2-r2.png",
+    "url": "https://ldraw.loftwah.com/",
+    "capturedAt": "2026-10-25T02:01:23.326Z",
+    "releasedSource": "fa7a2ab6171cf53edc53c01630fbba2d5d4888aa",
+    "qualificationReference": "Composer #11: independent LDraw release fa7a2ab6171cf53edc53c01630fbba2d5d4888aa (manifest 1.1.0) qualified by the LDraw lane; Composer re-checked the live build.json source and recorded the fresh-profile capture in docs/evidence/ldraw-refresh-20261025. No owner approval is claimed."
+  },
+  "identity": {
+    "ldraw": "Plain text wordmark; the 96px discovery tile sets that name in the reviewed font on the canonical Composer orange and is not an invented LDraw logo",
+    "composerMark": {
+      "path": "public/brand/composer-icon-20261022b-512.png",
+      "sha256": "09d6f06331da034db955d96111b2de889086fc787366984ee760aacde2f63ad6",
+      "role": "App Composer return destination only"
+    },
+    "font": {
+      "path": "src/assets/fonts/SpaceGrotesk.ttf.bin",
+      "sha256": "acad6de1fc93436f5c0f1f4137751ef04f1aea3063e7036535970ffcfbd79f72",
+      "family": "Space Grotesk",
+      "license": "src/assets/fonts/OFL-Space-Grotesk.txt"
+    }
+  },
+  "evidenceBoundary": "Supplied capture and release reference are operator inputs. This compositor checks their bytes, preserves the original, and derives only resizes/framing. It performs no browser/source/deployment verification and establishes no owner approval.",
+  "assets": {
+    "ldraw-capture-fa7a2ab6171c-010cfbd2-r2.png": {
+      "sha256": "010cfbd233b61c5619a5c2d4c19fbd2f5ef82683ba388c15535ec18b1a02c2db",
+      "pixelSha256": "2cae5bc3fa95792244ede857b95b2950cd7729f49b9cf6466ba078f27a11fc4e",
+      "width": 1440,
+      "height": 1000,
+      "format": "PNG",
+      "role": "Original supplied live editor capture",
+      "transformation": "None; original PNG bytes preserved exactly"
+    },
+    "ldraw-workspace-fa7a2ab6171c-010cfbd2-r2-960.webp": {
+      "sha256": "1c72dd08ab684f7a3464700889af7769a863a58b4367015f2d95b91f3aba6a6b",
+      "pixelSha256": "22f7f1b5194f5714aafa797f6b04630a25857550312d2627fcca2d206b498c31",
+      "width": 960,
+      "height": 667,
+      "format": "WEBP",
+      "role": "Workspace screenshot preview",
+      "transformation": "Full original viewport, proportional Lanczos resize only; lossless WebP; no crop, overlay or invented UI"
+    },
+    "ldraw-workspace-fa7a2ab6171c-010cfbd2-r2-1440.webp": {
+      "sha256": "325323e80c4c3e9425cb04c21591fdc0c50ed4c42da438c0fd6ad852a22ce72e",
+      "pixelSha256": "2cae5bc3fa95792244ede857b95b2950cd7729f49b9cf6466ba078f27a11fc4e",
+      "width": 1440,
+      "height": 1000,
+      "format": "WEBP",
+      "role": "Workspace screenshot preview",
+      "transformation": "Full original viewport, proportional Lanczos resize only; lossless WebP; no crop, overlay or invented UI"
+    },
+    "ldraw-tile-fa7a2ab6171c-010cfbd2-r2-96.webp": {
+      "sha256": "eeabb3049de7c9f830a9ded2e40a5014fbcd0fdb7c51373115ba45da2b15748f",
+      "pixelSha256": "9604b7e944d9f49a5161c0612d7a3e6e304ec7265cf8fe909062fe1bd8bebe9a",
+      "width": 96,
+      "height": 96,
+      "format": "WEBP",
+      "role": "Composer discovery wordmark tile using LDraw's own name",
+      "transformation": "Flat canonical-orange field with the LDraw name set in the reviewed Space Grotesk face; no symbol, no invented LDraw logo and nothing copied from the workspace capture"
+    },
+    "ldraw-share-fa7a2ab6171c-010cfbd2-r2.png": {
+      "sha256": "15248624ad58922c273d88f402892a5869ccd55b323a827ade892722fe85352c",
+      "pixelSha256": "537a7781e516c271c8b2d5c2d8dcdfd2a658e2edea3a29a1b24c7e076ce829de",
+      "width": 1200,
+      "height": 630,
+      "format": "PNG",
+      "role": "Composed discovery sharing image, not a new product capture",
+      "transformation": {
+        "capture": "ldraw-capture-fa7a2ab6171c-010cfbd2-r2.png",
+        "crop": null,
+        "resizedCaptureRectangle": [
+          390,
+          40,
+          729,
+          506
+        ],
+        "frame": "Flat Composer editorial frame; plain LDraw text title; Composer mark only labels its return destination"
+      }
+    }
+  }
+}

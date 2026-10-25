@@ -1,0 +1,146 @@
+{
+  "schema": "composer.ldraw-live-capture/1",
+  "startedAt": "2026-10-25T02:01:21.084Z",
+  "url": "https://ldraw.loftwah.com/",
+  "expectedSource": "fa7a2ab6171cf53edc53c01630fbba2d5d4888aa",
+  "browser": {
+    "executable": "/Users/deanlofts/Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+    "playwright": "1.64.0-alpha-1790635538000"
+  },
+  "profile": {
+    "path": "<run>/profile-final",
+    "preExistingEntries": 0
+  },
+  "checks": {
+    "document": {
+      "status": 200,
+      "url": "https://ldraw.loftwah.com/"
+    },
+    "freshProfile": {
+      "at": "2026-10-25T02:01:21.447Z",
+      "localStorageKeys": [],
+      "indexedDb": []
+    },
+    "pageEventsAtCapture": [],
+    "theme": {
+      "appearance": "dark",
+      "theme": "dark",
+      "colorScheme": "dark",
+      "background": "rgb(18, 18, 18)",
+      "storedAppearance": "dark",
+      "mediaPrefersDark": true,
+      "themeColor": "#121212"
+    },
+    "scene": {
+      "revision": "b29626e3-90cf-4c5e-a160-fb37a5d64f8f:1",
+      "count": 34,
+      "texts": [
+        "Creator journey",
+        "One owner · independent apps · shared discovery",
+        "App Composer",
+        "Describe · build · deploy · own",
+        "PORTFOLIO APP",
+        "LDraw",
+        "Editable diagrams, local-first",
+        "PORTFOLIO APP",
+        "Paperwork",
+        "Fill, sign and print PDFs",
+        "PORTFOLIO APP",
+        "Linkarooie",
+        "One link for every project",
+        "PORTFOLIO APP",
+        "Approval, deployment and data ownership stay separate.",
+        "Creator",
+        "Composer",
+        "Mini-apps",
+        "Audience"
+      ],
+      "types": [
+        "text",
+        "rectangle",
+        "arrow"
+      ]
+    },
+    "chrome": {
+      "title": "LDraw — draw and explain",
+      "openDialogs": [],
+      "editorRoots": 1,
+      "libraryButton": true,
+      "status": [
+        "Saved on this browser"
+      ],
+      "bodyText": "LDraw powered by Excalidraw Appearance Dark Light System New content Composer Infrastructure Game design Music / FM General Example Portfolio map Creator journey Service architecture Game loop Music release Before / after Insert example Lib"
+    },
+    "library": {
+      "installedFlag": "1"
+    },
+    "pageEventsAtEnd": []
+  },
+  "problems": [],
+  "milestones": [
+    {
+      "atMs": 216,
+      "label": "release identity read"
+    },
+    {
+      "atMs": 257,
+      "label": "goto"
+    },
+    {
+      "atMs": 554,
+      "label": "document loaded"
+    },
+    {
+      "atMs": 617,
+      "label": "editor attached"
+    },
+    {
+      "atMs": 698,
+      "label": "window.ldraw ready"
+    },
+    {
+      "atMs": 2204,
+      "label": "settled"
+    },
+    {
+      "atMs": 2205,
+      "label": "page events read"
+    },
+    {
+      "atMs": 2208,
+      "label": "screenshot"
+    },
+    {
+      "atMs": 2241,
+      "label": "finished"
+    }
+  ],
+  "release": {
+    "buildJson": {
+      "status": 200,
+      "sha256": "b0fb830b3a70dacffbd7abab7368dec924b8dbfb2816b0a06364a23618e58843",
+      "body": {
+        "source": "fa7a2ab6171cf53edc53c01630fbba2d5d4888aa",
+        "sourceTree": "32c3a77f7f17fdfe5bb0d4db2ed12cfda8edcbb8",
+        "workingTreeClean": true,
+        "app": "ldraw",
+        "excalidraw": "0.18.1",
+        "builtAt": "2026-10-25T01:38:59.825Z"
+      }
+    },
+    "manifest": {
+      "status": 200,
+      "bytes": 1462,
+      "sha256": "1a01d019656533e62c919568bc1a911983459563121804f28cad28bc5d1e6e36",
+      "canonicalDigest": "sha256:fd2cdff1bfa84745e0228b0a0ec88340d7cd7b37eb24b93edaeca2e9356a7be4"
+    }
+  },
+  "capture": {
+    "file": "<run>/capture-final/ldraw-live-1440x1000.png",
+    "capturedAt": "2026-10-25T02:01:23.326Z",
+    "url": "https://ldraw.loftwah.com/",
+    "bytes": 94684,
+    "sha256": "010cfbd233b61c5619a5c2d4c19fbd2f5ef82683ba388c15535ec18b1a02c2db"
+  },
+  "finishedAt": "2026-10-25T02:01:23.327Z"
+}
