@@ -330,6 +330,7 @@ if (process.argv[2] !== "--worker") {
         "hooks.content-policy:register",
       ]);
       assert.deepEqual(target.body.publicRoutes, []);
+      assert.deepEqual(target.body.mcpTools, []);
       const id = info.pluginId;
       const consent = {
         ...selected,
