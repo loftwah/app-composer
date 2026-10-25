@@ -2,6 +2,40 @@
 
 Reviewed 25 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Agent entry, diagram atlas and analytics truth — 25 October 2026
+
+Composer `f14fbf48` is live as Worker `df2040a5-483e-444b-8123-bf708f684ae7`.
+The guarded release added three public, working surfaces:
+
+- **`/agent` and `/agent.md`** give an existing local agent one URL, a copyable
+  read-only fit assessment and a supported/unsupported capability table. The
+  homepage, `/prompts#assess` and `/setup` link to it. Three fresh sessions are
+  recorded in [URL-first agent discovery](evaluations/url-first-20261025.md):
+  pre-change no-fit, post-change discovery, and one separately authorised
+  documentation-only adoption with 7/7 tests before and after.
+- **`/diagrams`** publishes three native LDraw scenes with real SVG/PNG:
+  Get Ready → Init → EmDash → lifecycle, the agent proposal/approval boundary,
+  and Cloudflare Production/Preview isolation. The lifecycle and isolation
+  figures are embedded on `/ready` and `/architecture` with alt text, a text
+  equivalent and editable-source downloads. See [the diagram atlas](diagrams.md).
+- **Analytics correctness** from PR #378: unsupported composed scopes are named
+  instead of rendered as zero, a finding carries its measure into the evidence
+  link, and a composed story cannot be frozen for an app with no composed route.
+  Existing report bodies and frozen snapshots are unchanged.
+
+Seven dated research reports (WordPress plugin intelligence, Shopify fit,
+platform buyers, Cloudflare patterns, federated identity, plugin trust and
+registry lifecycle) are committed in
+[the 25 October research index](research/2026-10-25/README.md). None was turned
+into a speculative platform build.
+
+`EMDASH_ENCRYPTION_KEY` remains malformed. A read-only check found no
+`_plugin_storage` rows and zero plugin-state data, so there is currently no
+encrypted plugin secret to lose; the owner recovery action is in
+[the encryption-key note](evidence/emdash-encryption-key-20261025.md). Encrypted
+settings stay degraded until an owner-authorised restore or replacement is
+verified.
+
 ## 25 October release
 
 The guarded Composer release ships the LDraw dark-default refresh and its new
