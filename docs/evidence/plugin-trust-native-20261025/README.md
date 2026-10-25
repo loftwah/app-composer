@@ -4,12 +4,18 @@
 native EmDash 1.3.1 administration and reads its real local D1 plugin-state table.
 It does not render copied markup or intercept API responses. The native receipt
 identifies source `22660f69ecc65f0a18c5c9e91a49deaa5ce37afc` plus its dirty state
-and exact runtime-source hashes, including the small foreground-token correction
+and exact executed-fixture-source hashes, including the small foreground-token correction
 in `plugin-trust-page.css`.
 
 The production profile is **emulated locally** at the receipt's localhost
 origin. Only the request-origin checks in the copied handler are redirected;
-its explicit production-profile metadata remains visible. Production Access
+its explicit production-profile metadata remains visible. `runtimeSourceHashes`
+therefore hashes the **seamed handler**, not the original handler.
+`source-hash-reconciliation.json` records both hashes and proves that applying
+exactly the three declared origin comparisons to the handler at the recorded
+commit reproduces the captured fixture hash. The current original handler still
+matches that recorded commit; the other six captured files match directly.
+Production Access
 is replaced with native EmDash authentication in the copied fixture. Provider
 bindings, routes and cron are absent. No production inventory is read.
 

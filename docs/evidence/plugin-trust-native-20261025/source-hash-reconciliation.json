@@ -1,0 +1,24 @@
+{
+  "sourceCommit": "22660f69ecc65f0a18c5c9e91a49deaa5ce37afc",
+  "file": "src/lib/plugin-trust.ts",
+  "sourceSha256": "e5a2dc9cb68734e7507cc9dfa4aabd7afc201b06b31d4530af0936d7541f69b1",
+  "fixtureSha256": "46908a25c47111be222d8f8ade8eb93b00b66b776763b4dd6d54afb4e0b71e66",
+  "receiptHashKind": "runtimeSourceHashes hashes the executed fixture bytes, after declared local-only seams",
+  "currentSourceMatchesRecordedCommit": true,
+  "reconstructedFixtureMatchesReceipt": true,
+  "exactChanges": [
+    {
+      "before": "runtime.PUBLIC_ORIGIN !== origin",
+      "after": "runtime.PUBLIC_ORIGIN !== \"http://localhost:61782\""
+    },
+    {
+      "before": "url.origin !== origin",
+      "after": "url.origin !== \"http://localhost:61782\""
+    },
+    {
+      "before": "ctx.request.headers.get(\"Origin\") !== origin",
+      "after": "ctx.request.headers.get(\"Origin\") !== \"http://localhost:61782\""
+    }
+  ],
+  "otherRuntimeFiles": "Six other captured file hashes match current root bytes directly; the rating CSS is the reviewed dirty token correction."
+}
