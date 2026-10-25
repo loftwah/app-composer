@@ -6,8 +6,14 @@ import {
   type InventoryResource,
   type ResourceInventorySnapshot,
 } from "../lib/resource-inventory-contract";
+import {
+  providerCheck,
+  PROVIDER_CHECK_MAX_BYTES,
+  type ProviderCheck,
+} from "../lib/provider-inventory-contract";
 import { fictionalResourceInventory } from "../lib/resource-inventory-example";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
+import { ProviderCheckPanel } from "./provider-check-panel";
 import "./resource-inventory-page.css";
 
 const STATUS: Record<InventoryResource["status"], string> = {
@@ -51,6 +57,10 @@ export function ResourceInventory({ search }: { search: string }) {
   const [busy, setBusy] = useState(false);
   const [loadingExample, setLoadingExample] = useState(false);
   const [error, setError] = useState("");
+  const [provider, setProvider] = useState<ProviderCheck>();
+  const [providerImported, setProviderImported] = useState(false);
+  const [providerBusy, setProviderBusy] = useState(false);
+  const [providerError, setProviderError] = useState("");
   const active = useRef(true);
   const pending = useRef(false);
   const selection = useRef<string | undefined>(undefined);
@@ -138,6 +148,75 @@ export function ResourceInventory({ search }: { search: string }) {
     }
   };
 
+  const checkProvider = useCallback(async () => {
+    if (providerBusy) return;
+    setProviderBusy(true);
+    setProviderError("");
+    const epoch = generation.current;
+    try {
+      const params = new URLSearchParams({
+        action: "check",
+        ...(selection.current ? { workspace: selection.current } : {}),
+      });
+      const response = await apiFetch(
+        "/_emdash/api/plugins/composer-stacks/providerRead?" + params,
+        { cache: "no-store", signal: AbortSignal.timeout(30000) },
+      );
+      const raw = await parseApiResponse<unknown>(
+        response,
+        "The Cloudflare check could not be read. Run the local check instead.",
+      );
+      if (raw && typeof raw === "object" && "ok" in raw && raw.ok === false)
+        throw Error(
+          "message" in raw && typeof raw.message === "string"
+            ? raw.message
+            : "The Cloudflare check is unavailable.",
+        );
+      const result = providerCheck.parse(raw);
+      if (!active.current || generation.current !== epoch) return;
+      setProvider(result);
+      setProviderImported(false);
+    } catch (cause) {
+      if (active.current && generation.current === epoch) {
+        setProvider(undefined);
+        setProviderError(
+          cause instanceof Error
+            ? cause.message
+            : "The Cloudflare check is unavailable.",
+        );
+      }
+    } finally {
+      if (active.current && generation.current === epoch)
+        setProviderBusy(false);
+    }
+  }, [providerBusy]);
+
+  const importProvider = useCallback(async (file: File | undefined) => {
+    if (!file) return;
+    setProviderError("");
+    try {
+      if (file.size > PROVIDER_CHECK_MAX_BYTES)
+        throw Error(
+          "That file is larger than the 512 KB import limit. Use the bounded compare output from the local check.",
+        );
+      const text = await file.text();
+      if (text.length > PROVIDER_CHECK_MAX_BYTES)
+        throw Error("That file is larger than the 512 KB import limit.");
+      const result = providerCheck.parse(JSON.parse(text));
+      if (!active.current) return;
+      setProvider(result);
+      setProviderImported(true);
+    } catch (cause) {
+      if (!active.current) return;
+      setProviderError(
+        cause instanceof Error
+          ? "That file is not a bounded Composer Cloudflare check: " +
+              cause.message
+          : "That file is not a bounded Composer Cloudflare check.",
+      );
+    }
+  }, []);
+
   return (
     <div className="composer-resources" aria-busy={busy}>
       <div className="ri-heading">
@@ -221,6 +300,15 @@ export function ResourceInventory({ search }: { search: string }) {
         or billing authority. The Cloudflare dashboard and API remain the
         authority for provider state.
       </p>
+      <ProviderCheckPanel
+        check={provider}
+        busy={providerBusy}
+        error={providerError}
+        imported={providerImported}
+        disabled={invalid.current}
+        onCheck={() => void checkProvider()}
+        onImport={(file) => void importProvider(file)}
+      />
       {snapshot && <ProviderBlock snapshot={snapshot} />}
       {snapshot && <Counts snapshot={snapshot} />}
       {snapshot && snapshot.atLimit && (

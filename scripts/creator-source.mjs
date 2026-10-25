@@ -21,6 +21,7 @@ const sources = [
   "src/lib/miniapp-admin.mts",
   "src/lib/miniapp-share-card.mts",
   "src/lib/stacks-admin.mts",
+  "src/lib/provider-inventory.mts",
 ];
 const outputRoot = resolve(root, "output/creator-source-emission");
 const options = {

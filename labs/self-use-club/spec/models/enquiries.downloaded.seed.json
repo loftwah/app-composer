@@ -1,0 +1,91 @@
+{
+  "version": "1",
+  "meta": {
+    "name": "Join enquiries — App Composer content model"
+  },
+  "collections": [
+    {
+      "slug": "enquiries",
+      "label": "Join enquiries",
+      "routable": false,
+      "supports": [
+        "drafts",
+        "revisions"
+      ],
+      "fields": [
+        {
+          "slug": "name",
+          "label": "Name",
+          "type": "string",
+          "required": true,
+          "validation": {
+            "maxLength": 80
+          }
+        },
+        {
+          "slug": "email",
+          "label": "Email",
+          "type": "string",
+          "required": true,
+          "validation": {
+            "maxLength": 120
+          }
+        },
+        {
+          "slug": "phone",
+          "label": "Phone (optional)",
+          "type": "string",
+          "required": false,
+          "validation": {
+            "maxLength": 40
+          }
+        },
+        {
+          "slug": "enquiry_type",
+          "label": "What is this about?",
+          "type": "select",
+          "required": true,
+          "validation": {
+            "options": [
+              "Joining the club",
+              "An event",
+              "Volunteering",
+              "Something else"
+            ]
+          }
+        },
+        {
+          "slug": "message",
+          "label": "Message",
+          "type": "text",
+          "required": true,
+          "validation": {
+            "maxLength": 1000
+          }
+        },
+        {
+          "slug": "review_state",
+          "label": "Review",
+          "type": "select",
+          "required": true,
+          "defaultValue": "Pending",
+          "validation": {
+            "options": [
+              "Pending",
+              "Reviewed"
+            ]
+          }
+        },
+        {
+          "slug": "review_note",
+          "label": "Owner note (private)",
+          "type": "text",
+          "required": false,
+          "validation": {
+            "maxLength": 500
+          }
+        }
+      ]
+    }
+  ]
+}

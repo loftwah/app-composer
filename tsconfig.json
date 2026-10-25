@@ -8,7 +8,8 @@
     "dist",
     "lib/content-model/site-template",
     "output",
-    "labs/wordpress/weekender/destination"
+    "labs/wordpress/weekender/destination",
+    "labs/self-use-club/app"
   ],
   "compilerOptions": {
     "types": [

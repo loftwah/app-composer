@@ -1,0 +1,161 @@
+{
+  "schema": "app-composer.self-use-spec/1",
+  "captured": "2026-10-25",
+  "composer": {
+    "source": "86514680720702ce30157671652981e388b77f65",
+    "destination": "https://composer.loftwah.com",
+    "verified": "/build.json returned the same commit"
+  },
+  "application": {
+    "name": "Riverton Rowing Club",
+    "kind": "fictional local community club",
+    "stack": "Cloudflare Worker + D1, plain TypeScript/HTML/CSS",
+    "localOnly": true
+  },
+  "journey": [
+    {
+      "route": "/setup",
+      "actions": [
+        "New project",
+        "project and outcome described",
+        "Keep my stack / inspect and adapt",
+        "Download Markdown"
+      ],
+      "output": "project-setup.md"
+    },
+    {
+      "route": "/prompts#build",
+      "actions": [
+        "Build an app",
+        "completed project, goal, audience and details",
+        "Download Markdown"
+      ],
+      "output": "requests/build.md"
+    },
+    {
+      "route": "/init/content",
+      "actions": [
+        "Describe the form or content brief",
+        "Copy field-design request",
+        "Import the agent-returned model JSON",
+        "Download model and EmDash seed"
+      ],
+      "outputs": [
+        "models/*.model.json",
+        "models/*.downloaded.seed.json",
+        "handoffs/*.md"
+      ]
+    },
+    {
+      "route": "/prompts#change",
+      "actions": [
+        "Change an existing app",
+        "completed project, goal and preservation constraints",
+        "Download Markdown"
+      ],
+      "output": "requests/volunteers.md",
+      "when": "after the first acceptance run and before the volunteer implementation"
+    }
+  ],
+  "files": [
+    {
+      "path": "handoffs/enquiries.md",
+      "bytes": 5379,
+      "sha256": "103911a97ce27c2073f3e1568b13bb05bb547d96b9caf630b438791c0766b257"
+    },
+    {
+      "path": "handoffs/events.md",
+      "bytes": 5934,
+      "sha256": "8203fb01325d68aef4ff814fb66eccda52b5dbaddd82a847000bd941c7a729b1"
+    },
+    {
+      "path": "handoffs/notices.md",
+      "bytes": 4115,
+      "sha256": "b3c105fee2880759f0e41d96d3304327b98b4e3fdaa856f9c3e17682c09206a3"
+    },
+    {
+      "path": "models/enquiries.downloaded.seed.json",
+      "bytes": 1991,
+      "sha256": "b8fd59202df35c4814f4566aed909c3f2efb71da1484694ac351a2a12a8202b2"
+    },
+    {
+      "path": "models/enquiries.model.json",
+      "bytes": 1735,
+      "sha256": "106cd223075c3ecea1eba46867faf7cf2c410f309b47b9d9cc87b06b35183767"
+    },
+    {
+      "path": "models/events.downloaded.seed.json",
+      "bytes": 2412,
+      "sha256": "d0de71726a5bf3bd8a01c14cbbb24d942c0ecea2f70d95b67d925ed16b5dbefc"
+    },
+    {
+      "path": "models/events.model.json",
+      "bytes": 1869,
+      "sha256": "c679d7652746020ed92ba9ad6c69c84ed6d83c72dd66fd13d724a7baa4ce10a5"
+    },
+    {
+      "path": "models/notices.downloaded.seed.json",
+      "bytes": 1513,
+      "sha256": "fc55130c58419893804905f8cc99da50f6755cc443cf69f4e4ba571081a9233e"
+    },
+    {
+      "path": "models/notices.model.json",
+      "bytes": 949,
+      "sha256": "860ec9ec9add89197147a2084f437b741b07ccda2e8c4c335c08e17b1f94354c"
+    },
+    {
+      "path": "project-setup.md",
+      "bytes": 6507,
+      "sha256": "005703858a98602d17145d894225dc7a760948ea9c1feaf0dbddcf6a640ec8dd"
+    },
+    {
+      "path": "requests/build.md",
+      "bytes": 2442,
+      "sha256": "3bafe655952149a7899ab5c9c14aa77354ee46416349b2945ef28869fcd2f53f"
+    },
+    {
+      "path": "requests/enquiries.design-request.md",
+      "bytes": 1801,
+      "sha256": "d42f80960311a44e655f1a1290e17db61459c1b8213916c8ed9c2ba9c7dc9671"
+    },
+    {
+      "path": "requests/events.design-request.md",
+      "bytes": 2442,
+      "sha256": "07b31d31443c311bd5536e34517d209994d04b022e635c8ee031eb8ed375ab54"
+    },
+    {
+      "path": "requests/notices.design-request.md",
+      "bytes": 2677,
+      "sha256": "97cc62e317a1db32141abcdcefa8f07978e4b26b2d78b08959119802a4f7daf8"
+    },
+    {
+      "path": "requests/volunteers.downloaded.md",
+      "bytes": 2014,
+      "sha256": "4ad61d65b1007add7ec78a9c4a41fcd2ce8a02fba9ba4004fa4b5ab3a39d419e"
+    },
+    {
+      "path": "requests/volunteers.md",
+      "bytes": 1987,
+      "sha256": "083facdd78bfe38a56125525f2a626cd66be0e95c3d280489ad8ede9d1ffcd19"
+    }
+  ],
+  "generatedOutput": "Composer produced the setup guide, build request, design requests, three validated content models, EmDash seeds and implementation handoffs. The model JSON inside each model was authored by an agent from Composer’s own design request and then imported, validated and exported by Composer; it was not emitted freehand by the public form.",
+  "boundaries": [
+    "No deployment, Cloudflare account, resource, DNS, Access, secret or paid service was used.",
+    "Composer forms do not create a CMS collection or publish content.",
+    "The demo app is implemented by an agent from this bundle, not generated by Composer."
+  ],
+  "secondRequest": {
+    "request": "requests/volunteers.md",
+    "bytes": 1987,
+    "sha256": "083facdd78bfe38a56125525f2a626cd66be0e95c3d280489ad8ede9d1ffcd19",
+    "composerRoute": "/prompts#change",
+    "generatedAt": "2026/10/25 10:20 Australia/Melbourne / 2026/10/24 23:20 UTC",
+    "decision": "The agent implemented the request; the public form contributed the prompt, not the migration, UI or code. The owner-facing capacity control and the additive migration were agent decisions within the stated constraints."
+  },
+  "composerFix": {
+    "path": "lib/content-model/index.mts, src/lib/content-model-client.ts, src/pages/setup.astro; tsconfig.json",
+    "summary": "Two focused journey fixes. (1) Model and seed download names now include the collection slug; the first export produced three files all named app-composer-content-model.json and emdash-content-seed.json, so the browser renamed collisions. (2) The /setup project-path label now says “Let the agent inspect and adapt” instead of the contradictory “Keep my stack” for a new project. The nested fixture is excluded from the host Astro check because it has its own strict Worker tsconfig and checks.",
+    "verifiedBy": "tests/content-model-downloads.test.mjs (3) and tests/project-setup.test.mjs (11)"
+  }
+}

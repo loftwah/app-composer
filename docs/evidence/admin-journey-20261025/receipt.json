@@ -1,0 +1,520 @@
+{
+  "schema": "composer.admin-journey-acceptance/1",
+  "observedAt": "2026-10-24T23:52:11.138Z",
+  "warning": "Locally simulated fixture. EmDash native passkey auth and a fictional local D1. Not production, not Cloudflare Access, not the owner's data.",
+  "origin": "http://localhost:4337",
+  "sourceRevision": "86514680720702ce30157671652981e388b77f65",
+  "sourceDirty": true,
+  "renderedEntry": 200,
+  "fixtureSeams": {
+    "astro.config.mjs :: Cloudflare Access auth removed; EmDash native passkey auth used instead.": {
+      "note": "Cloudflare Access auth removed; EmDash native passkey auth used instead.",
+      "seam": ",auth:access\\(\\{[^}]*\\}\\)"
+    },
+    "astro.config.mjs :: Fixture site origin; WebAuthn relying party must match the local host.": {
+      "note": "Fixture site origin; WebAuthn relying party must match the local host.",
+      "seam": "siteUrl:'https://composer.loftwah.com'"
+    },
+    "src/lib/overview.ts :: Fixture origin guard for the read-only overview; the production guard is unchanged in source.": {
+      "note": "Fixture origin guard for the read-only overview; the production guard is unchanged in source.",
+      "seam": "const origin = \"https://composer.loftwah.com\";"
+    },
+    "wrangler": {
+      "note": "Local D1/R2 only; no routes, cron or provider service bindings.",
+      "vars": {
+        "PUBLIC_ORIGIN": "http://localhost:4337",
+        "RESOURCE_ACCOUNT_ID": "fictional-lane-a-account",
+        "RESOURCE_ENVIRONMENT": "production"
+      }
+    }
+  },
+  "fixture": {
+    "workspaceId": "2422a211-6fa7-4234-bda1-e7fd526782fd",
+    "account": "fictional-lane-a-account",
+    "environments": [
+      "production",
+      "preview"
+    ],
+    "apps": [
+      "guestbook"
+    ],
+    "records": "2 real-shaped workflow failures, 2 held notifications, 1 deliberately malformed platform request inserted and then repaired, 1 synthetic run that must stay excluded. Every value is invented for this run."
+  },
+  "browser": "Chromium 1248 (Playwright headless shell), deviceScaleFactor 1",
+  "pages": {
+    "firstRender": {
+      "heading": "A workflow needs attention",
+      "scope": [
+        "Workspace Fictional owner · owner",
+        "Environmentproductionpreview",
+        "AppAll recorded appsGuestbook"
+      ],
+      "account": "fictional-lane-a-account",
+      "coverage": "Coverage · 4 of 4 sources read"
+    }
+  },
+  "measurements": {
+    "1440-dark": {
+      "documentOverflow": 0,
+      "bodyOverflow": 0,
+      "controls": [
+        {
+          "tag": "SELECT",
+          "text": "productionpreview",
+          "width": 253,
+          "height": 46
+        },
+        {
+          "tag": "SELECT",
+          "text": "All recorded appsGuestbook",
+          "width": 253,
+          "height": 46
+        },
+        {
+          "tag": "A",
+          "text": "Open request",
+          "width": 146.3,
+          "height": 52
+        },
+        {
+          "tag": "SUMMARY",
+          "text": "Evidence behind this problem",
+          "width": 1027,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open workflow run",
+          "width": 158.7,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open Inbox notification",
+          "width": 193.2,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open App resources",
+          "width": 165.1,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open App resources",
+          "width": 165.1,
+          "height": 44
+        },
+        {
+          "tag": "SUMMARY",
+          "text": "Coverage · 4 of 4 sources read",
+          "width": 1072,
+          "height": 44
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck Internal platform",
+          "width": 225.3,
+          "height": 46
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck Workflows",
+          "width": 174.6,
+          "height": 46
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck App resources",
+          "width": 203.2,
+          "height": 46
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck Owner notifications",
+          "width": 243.6,
+          "height": 46
+        }
+      ],
+      "smallestHeight": 44,
+      "pageHeight": 1000,
+      "undersized": []
+    },
+    "1440-light": {
+      "documentOverflow": 0,
+      "bodyOverflow": 0,
+      "controls": [
+        {
+          "tag": "SELECT",
+          "text": "productionpreview",
+          "width": 253,
+          "height": 46
+        },
+        {
+          "tag": "SELECT",
+          "text": "All recorded appsGuestbook",
+          "width": 253,
+          "height": 46
+        },
+        {
+          "tag": "A",
+          "text": "Open request",
+          "width": 146.3,
+          "height": 52
+        },
+        {
+          "tag": "SUMMARY",
+          "text": "Evidence behind this problem",
+          "width": 1027,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open workflow run",
+          "width": 158.7,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open Inbox notification",
+          "width": 193.2,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open App resources",
+          "width": 165.1,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open App resources",
+          "width": 165.1,
+          "height": 44
+        },
+        {
+          "tag": "SUMMARY",
+          "text": "Coverage · 4 of 4 sources read",
+          "width": 1072,
+          "height": 44
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck Internal platform",
+          "width": 225.3,
+          "height": 46
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck Workflows",
+          "width": 174.6,
+          "height": 46
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck App resources",
+          "width": 203.2,
+          "height": 46
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck Owner notifications",
+          "width": 243.6,
+          "height": 46
+        }
+      ],
+      "smallestHeight": 44,
+      "pageHeight": 1000,
+      "undersized": []
+    },
+    "390-dark": {
+      "documentOverflow": 0,
+      "bodyOverflow": 0,
+      "controls": [
+        {
+          "tag": "SELECT",
+          "text": "productionpreview",
+          "width": 310,
+          "height": 46
+        },
+        {
+          "tag": "SELECT",
+          "text": "All recorded appsGuestbook",
+          "width": 310,
+          "height": 46
+        },
+        {
+          "tag": "A",
+          "text": "Open request",
+          "width": 273,
+          "height": 52
+        },
+        {
+          "tag": "SUMMARY",
+          "text": "Evidence behind this problem",
+          "width": 273,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open workflow run",
+          "width": 158.7,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open Inbox notification",
+          "width": 193.2,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open App resources",
+          "width": 165.1,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open App resources",
+          "width": 165.1,
+          "height": 44
+        },
+        {
+          "tag": "SUMMARY",
+          "text": "Coverage · 4 of 4 sources read",
+          "width": 310,
+          "height": 44
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck Internal platform",
+          "width": 225.3,
+          "height": 46
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck Workflows",
+          "width": 174.6,
+          "height": 46
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck App resources",
+          "width": 203.2,
+          "height": 46
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck Owner notifications",
+          "width": 243.6,
+          "height": 46
+        }
+      ],
+      "smallestHeight": 44,
+      "pageHeight": 844,
+      "undersized": []
+    },
+    "390-light": {
+      "documentOverflow": 0,
+      "bodyOverflow": 0,
+      "controls": [
+        {
+          "tag": "SELECT",
+          "text": "productionpreview",
+          "width": 310,
+          "height": 46
+        },
+        {
+          "tag": "SELECT",
+          "text": "All recorded appsGuestbook",
+          "width": 310,
+          "height": 46
+        },
+        {
+          "tag": "A",
+          "text": "Open request",
+          "width": 273,
+          "height": 52
+        },
+        {
+          "tag": "SUMMARY",
+          "text": "Evidence behind this problem",
+          "width": 273,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open workflow run",
+          "width": 158.7,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open Inbox notification",
+          "width": 193.2,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open App resources",
+          "width": 165.1,
+          "height": 44
+        },
+        {
+          "tag": "A",
+          "text": "Open App resources",
+          "width": 165.1,
+          "height": 44
+        },
+        {
+          "tag": "SUMMARY",
+          "text": "Coverage · 4 of 4 sources read",
+          "width": 310,
+          "height": 44
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck Internal platform",
+          "width": 225.3,
+          "height": 46
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck Workflows",
+          "width": 174.6,
+          "height": 46
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck App resources",
+          "width": 203.2,
+          "height": 46
+        },
+        {
+          "tag": "BUTTON",
+          "text": "Recheck Owner notifications",
+          "width": 243.6,
+          "height": 46
+        }
+      ],
+      "smallestHeight": 44,
+      "pageHeight": 844,
+      "undersized": []
+    }
+  },
+  "checks": {
+    "authentication": {
+      "realEndpoint": "/_emdash/api/auth/passkey + /_emdash/api/setup",
+      "emDashUser": "01M5R58FJ420NFH47A4SPN80CE",
+      "role": 50,
+      "productionAccess": false,
+      "virtualAuthenticator": true
+    },
+    "shellOverlay": "",
+    "drilldown": {
+      "href": "/_emdash/admin/plugins/composer-stacks/workflows?workspace=2422a211-6fa7-4234-bda1-e7fd526782fd&environment=production#workflow-run-fixture-workflow-0001",
+      "path": "/_emdash/admin/plugins/composer-stacks/workflows",
+      "workspace": "2422a211-6fa7-4234-bda1-e7fd526782fd",
+      "environment": "production",
+      "hash": "#workflow-run-fixture-workflow-0001"
+    },
+    "anchoredRecord": {
+      "heading": "Workflows",
+      "exact": false,
+      "anchors": 0,
+      "text": "",
+      "body": "Fictional admin journey Dashboard Calendar Content Mini-app catalogue Media Manage Comments Menus Redirects Widgets Sections Categories Tags Bylines Admin Content Types Byline Schema Users Plugins Import Settings Plugins Manage mini-apps Creator stacks Internal platform Workspace access Analytics & "
+    },
+    "anchoredRecordProven": false,
+    "previewScope": {
+      "url": "http://localhost:4337/_emdash/admin/plugins/composer-stacks/overview?workspace=2422a211-6fa7-4234-bda1-e7fd526782fd&environment=preview",
+      "heading": "Recorded against another target",
+      "environment": "preview"
+    },
+    "recheckSuccess": {
+      "notice": "Workflows rechecked. 2 retained problem records, read 2026/10/24 23:52 UTC.",
+      "coverageBefore": "Coverage · 4 of 4 sources read"
+    },
+    "recheckFailure": {
+      "alert": "Internal platform recheck failed. Internal platform could not be rechecked. It remains unavailable, which is not zero. Retry or open its owning screen. The previous result is still shown and was not replaced.\n\nRetry Internal platform",
+      "previousResultStillShown": "A workflow needs attention"
+    },
+    "recheckRecovery": {
+      "notice": "Internal platform rechecked. 1 retained problem record, read 2026/10/24 23:52 UTC.",
+      "heading": "A platform request needs attention",
+      "coverage": "Coverage · 4 of 4 sources read"
+    },
+    "keyboardSelect": {
+      "active": "co-scope-environment",
+      "options": [
+        "production",
+        "preview"
+      ],
+      "url": "http://localhost:4337/_emdash/admin/plugins/composer-stacks/overview?workspace=2422a211-6fa7-4234-bda1-e7fd526782fd&environment=production"
+    },
+    "focus": {
+      "tag": "A",
+      "text": "Open request",
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "oklch(0.51948 0.2324 260)"
+    },
+    "keyboardAnchor": false,
+    "theme": {
+      "theme": "classic",
+      "mode": "dark",
+      "background": "oklch(0.12 0 0)",
+      "foreground": "oklch(0.97 0 0)"
+    }
+  },
+  "captures": [
+    {
+      "file": "drilldown-workflows-1440-dark.png",
+      "bytes": 93221,
+      "sha256": "a13cea159a16b43806f7e96fbed241d47b692c03125d009b984188c57d7a2d5b"
+    },
+    {
+      "file": "recheck-success-1440-dark.png",
+      "bytes": 157271,
+      "sha256": "f5f4ef1cd6982f370810500e4018e46ae7511b63e037601875efacf7fbbe2045"
+    },
+    {
+      "file": "recheck-failure-1440-dark.png",
+      "bytes": 157363,
+      "sha256": "56698bef0c1604e53eee595ee818bfcda9ec6c9259a89838bc81e06eb0838a87"
+    },
+    {
+      "file": "keyboard-focus-1440-dark.png",
+      "bytes": 139182,
+      "sha256": "b2212f5500cbd250b1dcd0fc880039aa5ccc0978b931dc6b9700dbfb6edec52d"
+    },
+    {
+      "file": "overview-1440-dark.png",
+      "bytes": 133048,
+      "sha256": "dec84ecc4bc95a6062a3e0c9327f10a53f14a8941110aaeee2a78fff71cdab04"
+    },
+    {
+      "file": "overview-1440-light.png",
+      "bytes": 149972,
+      "sha256": "7c3726be4f1ef3390d4237f615d8b109bbd65aa8a3925d0d2e63eb6360766e0e"
+    },
+    {
+      "file": "overview-390-dark.png",
+      "bytes": 41982,
+      "sha256": "03df32cb3dc0977e03bbdbb9e559b3effb35011672f8740383e7c895ecaaafa6"
+    },
+    {
+      "file": "overview-390-light.png",
+      "bytes": 48479,
+      "sha256": "8cf6ab663cba6e736ca6eaec074ff6f266746f5cb806f9beb340f48f6d6dbee9"
+    },
+    {
+      "file": "coverage-390-dark.png",
+      "bytes": 41982,
+      "sha256": "03df32cb3dc0977e03bbdbb9e559b3effb35011672f8740383e7c895ecaaafa6"
+    }
+  ],
+  "pageErrors": [],
+  "problems": []
+}

@@ -1,0 +1,24 @@
+{
+  "name": "riverton-rowing-club",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Fictional self-use fixture built from an App Composer exported specification. Local only.",
+  "scripts": {
+    "dev": "wrangler dev --local --port 8787 --var ADMIN_TOKEN:riverton-local-admin-2026",
+    "db:migrate": "wrangler d1 migrations apply riverton-rowing-club --local",
+    "db:seed": "wrangler d1 execute riverton-rowing-club --local --file=seed/local.sql",
+    "check": "tsc --noEmit && node --experimental-strip-types --test tests/*.test.mjs",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "build": "wrangler deploy --dry-run --outdir dist"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261024.1",
+    "typescript": "6.0.3",
+    "wrangler": "4.152.0"
+  },
+  "packageManager": "pnpm@12.8.1",
+  "engines": {
+    "node": ">=22 <23"
+  }
+}

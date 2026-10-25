@@ -1,7 +1,20 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { fixture, user, account, origin } from "./helpers/resource-fixture.mjs";
+import {
+  fixture,
+  saved,
+  instance,
+  user,
+  account,
+  origin,
+} from "./helpers/resource-fixture.mjs";
+import { manageResourceInventory } from "../src/lib/resource-inventory.ts";
+import { resourceInventory } from "../src/lib/resource-inventory-contract.ts";
+import {
+  configurationDigest,
+  effectiveGuestbookConfiguration,
+} from "../src/lib/resource-client.ts";
 import { workspaceForUser } from "../src/lib/stacks.mjs";
 import { manageOverview } from "../src/lib/overview.ts";
 import { overviewSnapshot } from "../src/lib/overview-contract.ts";
@@ -97,8 +110,18 @@ test("overview groups actual retained problems with exact scope links and no pri
   f.notification("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1");
   f.notification("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2", "uncertain");
   const reply = overviewSnapshot.parse(await f.route());
-  assert.equal(reply.items.length, 3);
+  // Three retained platform/workflow/notification problems plus the bare
+  // resource record, which App resources already reports as unknown.
+  assert.equal(reply.items.length, 4);
   assert.equal(reply.sources.find((s) => s.id === "workflows").count, 2);
+  const resourceItem = reply.items.find((item) => item.source === "resources");
+  assert.equal(resourceItem.id, "resources:" + f.resource);
+  assert.equal(resourceItem.app, "guestbook");
+  assert.match(
+    resourceItem.title,
+    /Recorded against another target|No confirmed configuration/,
+  );
+  assert.equal(reply.sources.find((s) => s.id === "resources").count, 1);
   assert.equal(reply.sources.find((s) => s.id === "notifications").count, 2);
   assert.match(
     reply.items.find((i) => i.source === "notifications").href,
@@ -107,11 +130,16 @@ test("overview groups actual retained problems with exact scope links and no pri
         f.workspace.id +
         "&resource=" +
         f.resource +
+        "&item=" +
+        "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1" +
         "#notification-",
     ),
   );
   assert.equal(reply.items.find((i) => i.source === "workflows").count, 2);
-  assert.equal(reply.items[0].firstObserved, "2026-10-24T05:00:00.000Z");
+  assert.equal(
+    reply.items.find((item) => item.source === "platform").firstObserved,
+    "2026-10-24T05:00:00.000Z",
+  );
   assert.doesNotMatch(
     JSON.stringify(reply),
     /Private error|Private workflow|Private provider/,
@@ -186,7 +214,10 @@ test("viewer sees restricted Inbox signals and reads never send or modify rows",
     reply.sources.find((source) => source.id === "notifications").status,
     "restricted",
   );
-  assert.equal(reply.items.length, 0);
+  // Viewers may read resource records; the private Inbox source is the only
+  // restricted one.
+  assert.equal(reply.items.length, 1);
+  assert.equal(reply.items[0].source, "resources");
   assert.deepEqual(
     f.sqlite.prepare("SELECT * FROM creator_enquiry_notification_outbox").all(),
     before,
@@ -250,21 +281,265 @@ test("bounded source window is qualified and malformed selectors or targets are 
   );
 });
 
-test('overview links only to records retained in the owning screen’s visible window', async (t) => {
+test("overview links only to records retained in the owning screen’s visible window", async (t) => {
   const f = await prepared(t);
   for (let index = 0; index < 60; index++) {
-    const suffix = String(index).padStart(12, '0');
+    const suffix = String(index).padStart(12, "0");
     f.workflow(`aaaaaaaa-aaaa-4aaa-8aaa-${suffix}`);
-    if (index >= 10) f.sqlite.prepare("UPDATE creator_workflow_runs SET state='finished' WHERE id=?").run(`aaaaaaaa-aaaa-4aaa-8aaa-${suffix}`);
+    if (index >= 10)
+      f.sqlite
+        .prepare("UPDATE creator_workflow_runs SET state='finished' WHERE id=?")
+        .run(`aaaaaaaa-aaaa-4aaa-8aaa-${suffix}`);
   }
   for (let index = 0; index < 35; index++) {
-    f.notification(`bbbbbbbb-bbbb-4bbb-8bbb-${String(index).padStart(12, '0')}`, index < 30 ? 'accepted' : 'failed');
+    f.notification(
+      `bbbbbbbb-bbbb-4bbb-8bbb-${String(index).padStart(12, "0")}`,
+      index < 30 ? "accepted" : "failed",
+    );
   }
   const reply = overviewSnapshot.parse(await f.route());
   // Workflow history uses created_at DESC,id DESC; notification history uses
   // created_at DESC,id, matching the existing owning screens exactly.
-  assert.equal(reply.sources.find(source => source.id === 'workflows').count, 0);
-  assert.equal(reply.sources.find(source => source.id === 'notifications').count, 0);
-  assert.match(reply.sources.find(source => source.id === 'workflows').note, /latest 50 records shown/);
-  assert.match(reply.sources.find(source => source.id === 'notifications').note, /latest 30 notification records/);
+  assert.equal(
+    reply.sources.find((source) => source.id === "workflows").count,
+    0,
+  );
+  assert.equal(
+    reply.sources.find((source) => source.id === "notifications").count,
+    0,
+  );
+  assert.match(
+    reply.sources.find((source) => source.id === "workflows").note,
+    /latest 50 records shown/,
+  );
+  assert.match(
+    reply.sources.find((source) => source.id === "notifications").note,
+    /latest 30 notification records/,
+  );
+});
+
+test("environment and app selection stay inside the recorded scope", async (t) => {
+  const f = await prepared(t);
+  for (const [id, environment] of [
+    ["fictional-production-resource", "production"],
+    ["fictional-preview-resource", "preview"],
+  ])
+    f.sqlite
+      .prepare(
+        "INSERT INTO creator_app_resources(id,workspace_id,app,account_id,environment,target,state) VALUES(?,?,'guestbook',?,?,'https://guestbook.loftwah.com','ready')",
+      )
+      .run(id, f.workspace.id, account, environment);
+  const production = overviewSnapshot.parse(await f.route());
+  assert.equal(production.target.environment, "production");
+  assert.equal(production.selection.app, null);
+  assert.deepEqual(production.available.environments, ["production", "preview"]);
+  assert.deepEqual(production.available.apps, [
+    { id: "guestbook", resources: 1 },
+  ]);
+  assert.deepEqual(
+    production.available.workspaces.map((row) => row.id),
+    [f.workspace.id],
+  );
+  const preview = overviewSnapshot.parse(
+    await f.route({
+      action: "list",
+      workspace: f.workspace.id,
+      environment: "preview",
+    }),
+  );
+  assert.equal(preview.target.environment, "preview");
+  const appScoped = overviewSnapshot.parse(
+    await f.route({
+      action: "list",
+      workspace: f.workspace.id,
+      app: "guestbook",
+    }),
+  );
+  assert.equal(appScoped.selection.app, "guestbook");
+  // A client cannot invent an environment, app or account.
+  for (const input of [
+    { action: "list", workspace: f.workspace.id, environment: "staging" },
+    { action: "list", workspace: f.workspace.id, app: "paperwork" },
+    { action: "list", workspace: f.workspace.id, account: "foreign" },
+  ]) {
+    const refused = await f.route(input);
+    assert.equal(refused.ok, false);
+    assert.equal(refused.items, undefined);
+  }
+});
+
+test("app focus attributes notification records and keeps workspace records", async (t) => {
+  const f = await prepared(t);
+  f.workflow("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1");
+  f.notification("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1");
+  const reply = overviewSnapshot.parse(
+    await f.route({
+      action: "list",
+      workspace: f.workspace.id,
+      app: "guestbook",
+    }),
+  );
+  assert.equal(reply.selection.app, "guestbook");
+  assert.equal(
+    reply.items.find((item) => item.source === "notifications").app,
+    "guestbook",
+  );
+  assert.equal(
+    reply.items.find((item) => item.source === "workflows").app,
+    null,
+  );
+  assert.equal(
+    reply.items.find((item) => item.source === "resources").app,
+    "guestbook",
+  );
+  assert.equal(reply.items.length, 3);
+});
+
+test("a recheck names the source it actually read", async (t) => {
+  const f = await prepared(t);
+  f.workflow("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1");
+  const reply = overviewSnapshot.parse(
+    await f.route({
+      action: "recheck",
+      source: "workflows",
+      workspace: f.workspace.id,
+    }),
+  );
+  assert.equal(reply.rechecked?.source, "workflows");
+  assert.equal(reply.rechecked?.at, reply.checkedAt);
+  assert.equal(
+    reply.sources.find((source) => source.id === "workflows").count,
+    1,
+  );
+});
+
+test("a recheck that fails stays failed and is never reported as success", async (t) => {
+  const f = await prepared(t);
+  f.workflow("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1");
+  f.sqlite.exec("DROP TABLE creator_enquiry_notification_outbox");
+  const failed = await f.route({
+    action: "recheck",
+    source: "notifications",
+    workspace: f.workspace.id,
+  });
+  assert.equal(failed.ok, false);
+  assert.equal(failed.code, "UNAVAILABLE");
+  assert.equal(failed.source, "notifications");
+  assert.match(failed.message, /remains unavailable, which is not zero/);
+  assert.equal(failed.checkedAt, undefined);
+  assert.equal(failed.items, undefined);
+});
+
+test("a viewer cannot recheck private notification signals", async (t) => {
+  const f = await prepared(t);
+  f.notification("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1");
+  f.sqlite
+    .prepare(
+      "UPDATE creator_members SET role='viewer' WHERE workspace_id=? AND user_id=?",
+    )
+    .run(f.workspace.id, user.id);
+  const denied = await f.route({
+    action: "recheck",
+    source: "notifications",
+    workspace: f.workspace.id,
+  });
+  assert.equal(denied.ok, false);
+  assert.equal(denied.code, "FORBIDDEN");
+  assert.match(denied.message, /owner or editor access/);
+  // The same viewer can still read the sources open to them.
+  const read = overviewSnapshot.parse(
+    await f.route({ action: "list", workspace: f.workspace.id }),
+  );
+  assert.equal(
+    read.sources.find((source) => source.id === "notifications").status,
+    "restricted",
+  );
+});
+
+test("resource drift reaches Needs attention and both screens cannot disagree", async (t) => {
+  const f = await prepared(t);
+  const bound = instance("fictional-instance-0001", "Fictional Trail Notes");
+  const stack = await saved(f, f.workspace.id, "Fictional Trail Notes", [bound]);
+  const values = effectiveGuestbookConfiguration(bound.config);
+  f.sqlite
+    .prepare(
+      "INSERT INTO creator_app_resources(id,workspace_id,app,account_id,environment,target,version,state,configuration_revision,configuration_digest,configuration_source,configuration_json) VALUES(?,?,'guestbook',?,?,?,1,'ready',3,?,?,?)",
+    )
+    .run(
+      "fictional-drift-resource",
+      f.workspace.id,
+      account,
+      "production",
+      origin + "/guestbook",
+      await configurationDigest(values),
+      "b".repeat(40),
+      JSON.stringify(values),
+    );
+  f.sqlite
+    .prepare(
+      "INSERT INTO creator_stack_resource_bindings(stack_id,instance_id,resource_id,mode) VALUES(?,?,?,'own')",
+    )
+    .run(stack.id, bound.id, "fictional-drift-resource");
+  f.sqlite
+    .prepare(
+      "INSERT INTO creator_app_resources(id,workspace_id,app,account_id,environment,target,version,state,configuration_revision,configuration_digest,configuration_source,configuration_json) VALUES(?,?,'guestbook',?,?,?,1,'ready',1,?,?,?)",
+    )
+    .run(
+      "fictional-unbound-resource",
+      f.workspace.id,
+      account,
+      "production",
+      origin + "/guestbook",
+      "f".repeat(64),
+      "a".repeat(40),
+      JSON.stringify({
+        title: "Fictional unused book",
+        intro: "",
+        theme: "midnight",
+        layout: "grid",
+        guestAccess: "closed",
+      }),
+    );
+  const inventory = resourceInventory.parse(
+    await manageResourceInventory(
+      {
+        user,
+        input: { action: "list", workspace: f.workspace.id },
+        request: new Request(
+          origin + "/_emdash/api/plugins/composer-stacks/resourcesRead",
+          { headers: { Origin: origin } },
+        ),
+      },
+      f.runtime,
+    ),
+  );
+  const overview = overviewSnapshot.parse(await f.route());
+  const source = overview.sources.find((entry) => entry.id === "resources");
+  const items = overview.items.filter((item) => item.source === "resources");
+  // One shared read: the overview count is the sum of the four non-green
+  // status counts App resources shows, and the item set is exactly those rows.
+  assert.equal(inventory.counts.attention, 1);
+  assert.equal(inventory.counts.unbound, 1);
+  assert.equal(
+    source.count,
+    inventory.counts.attention +
+      inventory.counts.unknown +
+      inventory.counts.stale +
+      inventory.counts.unbound,
+  );
+  assert.deepEqual(
+    items.map((item) => item.id).sort(),
+    inventory.resources
+      .filter((resource) => resource.status !== "in-step")
+      .map((resource) => "resources:" + resource.id)
+      .sort(),
+  );
+  const drift = items.find(
+    (item) => item.id === "resources:fictional-drift-resource",
+  );
+  assert.match(drift.title, /source changed/i);
+  assert.match(drift.summary, /be79c27d|expects/);
+  assert.equal(drift.app, "guestbook");
+  assert.match(drift.href, /#ri-resource-fictional-drift-resource$/);
+  assert.equal(source.status, "checked");
 });

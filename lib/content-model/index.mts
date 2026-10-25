@@ -550,6 +550,16 @@ export function emdashSeed(input: unknown) {
     ],
   };
 }
+export function contentModelDownloadNames(input: unknown): {
+  model: string;
+  seed: string;
+} {
+  const model = validateContentModel(input);
+  return {
+    model: model.collection + ".app-composer-content-model.json",
+    seed: model.collection + ".emdash-content-seed.json",
+  };
+}
 export function contentModelHandoff(input: unknown): string {
   const model = validateContentModel(input);
   return (

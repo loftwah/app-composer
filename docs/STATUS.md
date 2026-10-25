@@ -2,6 +2,45 @@
 
 Reviewed 25 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Self-use club fixture — 25 October 2026
+
+A fictional Riverton Rowing Club was described through the real production
+`/setup`, `/prompts` and `/init/content` forms at source `8651468`, then
+implemented locally as a Cloudflare Worker with app-owned D1: published events
+and notices, a validated joining enquiry and a private owner review, followed by
+an additive volunteer-capacity request. Both browser journeys ran at 390/1440 in
+both themes with real negative cases; 18 app tests and the local dry-run build
+passed. This is one disclosed self-use recipe, not autonomous app generation or a
+deployment. The account, specification, evidence and limits are in
+[self-use club](self-use-club.md) and
+[the evidence index](evidence/selfuse-club-20261025/README.md).
+
+## Inbox owner journey — 25 October 2026
+
+The native Inbox now links one actual app-owned brief to a body-free Composer
+workflow run and the existing owner-notice outbox. The journey makes the review
+state, workflow state (`queued`, `running`, `finished`, `failed`) and delivery
+state (unconfigured, ready, attempted, accepted, uncertain, failed) visible
+together, with one explicit next action or an explicit “no supported action”.
+Duplicate receipts keep one run and one outbox row; retries reuse the same
+message identity and stop at three; accepted or uncertain notices are refused a
+resend and can only be reconciled locally. The run records its exact
+workspace/resource/account/environment/target and actor, and no recipient
+address, provider key or brief body enters the run metadata. A brief links to
+its receipt only when exactly one pending app-export item matches the same scope
+and submission values; otherwise it stays explicitly `unlinked` with no action. Migration
+`0017_inbox_journey.sql` adds the run and reconciliation columns.
+
+Focused local checks: 16 journey tests, a migration-order guard and the existing
+private-enquiry and notification suites; the rendered 390/1440 dark/light fixture matrix and its
+real measurements are in
+[the inbox journey evidence](evidence/inbox-workflow-20261025/README.md). No
+real mail was sent, no notification was enabled, no inbound-mail adapter exists
+and this branch is not deployed. Authenticated production interaction, provider
+delivery/reconciliation, scheduling, physical-device and screen-reader
+acceptance remain open. #117/#118/#198/#289/#291 retain those gates.
+
+
 ## Prompts, resources and native operations — 24 October 2026
 
 Production source `f0c12ad` ships the [prompt library](/prompts), portable
@@ -112,6 +151,30 @@ fixtures, assertions and results. `/roles` shows the counts beside its packs and
 [Visual evidence](evidence/role-journey-20261025/README.md): 24 captures and 18
 checks at 390/1440 in both themes, with two composition fixes inspected in the
 pixels.
+
+## Agent proposals — 2026/10/25
+
+The local-first proposal channel now persists a scoped agent finding, a human
+decision and a separate handoff. Migration `0016_agent_proposals.sql` adds
+proposal-only grants, deterministic briefings, versioned proposals, review
+records and prepared handoffs. `scripts/agent-proposal.mjs` supports `grant`,
+`brief`, `submit`, `list`, `show`, `review`, `verify`, `revoke` and `handoff`;
+the native **Agent proposals** page lists state, scope, risk, digest, evidence and
+the next action, and records Accept, Request changes or Reject. Accept executes
+nothing; a separate artifact records `execution: not-performed` for the existing
+release flow.
+
+The fictional Trail Notes journey reached v1 → request changes → v2 → accepted
+with an exact digest → verified → prepared handoff, and refused self-approval and
+an `execute` attempt. Fifteen focused tests cover wrong scope, revoked/expired
+grants, stale source, duplicate and interrupted submission, mutated content,
+secret material and native-route access. This is a local SQLite/preview slice:
+connected agent authentication, grant provisioning UI, production D1, real
+Access admission and browser/device acceptance remain #311/#315 gaps. No
+production migration or deployment was performed. See
+[agent proposals](agent-proposals.md) and the
+[bounded transcript](evidence/agent-proposals-20261025/transcript.md).
+
 
 ## Finding the shipped work — 24 October 2026
 

@@ -139,6 +139,8 @@ test('public route and client use one rendered guide, keep details out of URLs a
   assert.doesNotMatch(client, /URLSearchParams|pushState|replaceState|fetch\(|localStorage.clear/);
   assert.match(page, /validateSetupEvaluation\(ledger\)/);
   assert.match(page, /summariseSetupEvaluations/);
+  assert.match(page, /Let the agent inspect and adapt/);
+  assert.doesNotMatch(page, /Keep my stack/);
 });
 
 test('documented human actions are distinct from rescue and dates share one instant', () => {

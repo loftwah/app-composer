@@ -79,6 +79,6 @@ The 25 October role-journey pass re-captured the hub, the QA pack and `/setup` a
 
 ## Boundaries and remaining gates
 
-Proposal only. Nothing here deploys, merges, spends, sends, invites, deletes, rotates a credential or changes access. The accountable human accepts; native EmDash accept/request-changes/reject records and connected-agent authentication remain #311/#315 work. Provider read-only credentials, live Sentry/Wiz/Snyk data and physical-device QA are not claimed.
+Proposal only. Nothing here deploys, merges, spends, sends, invites, deletes, rotates a credential or changes access. The accountable human accepts. The local proposal channel now persists a versioned record, review decision and separate handoff; connected-agent authentication and production execution remain #311/#315 work. See [agent proposals](agent-proposals.md). Provider read-only credentials, live Sentry/Wiz/Snyk data and physical-device QA are not claimed.
 
-The runner is repository-local. Downloaded packs are portable instructions; the refusal checks require the checkout. A future EmDash service page should load the relevant pack, call the same validation, and persist a proposal with actor, target IDs, evidence and expiry.
+The runner is repository-local. Downloaded packs are portable instructions; the refusal checks require the checkout. The proposal CLI reuses the same role-pack definitions for its deterministic briefing, persists the exact digest and records only a human decision.
