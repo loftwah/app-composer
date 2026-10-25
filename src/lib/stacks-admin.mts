@@ -1,5 +1,8 @@
 // MIT. Checked native administration and domain source.
-import { guardPlatformLifecycle } from "./platform-guard.ts";
+import {
+  guardPlatformLifecycle,
+  platformLifecycleMode,
+} from "./platform-guard.ts";
 import type { D1Database } from "@cloudflare/workers-types";
 import {
   StackError,
@@ -129,6 +132,9 @@ export async function manageStacks(ctx: StackAdminContext, runtime: unknown) {
           ok: true,
           workspace,
           stacks: await listStacks(db, workspace.id),
+          lifecycle: await platformLifecycleMode(db, workspace.id).catch(
+            () => undefined,
+          ),
         };
       if (action === "resources") {
         const saved = await readStack(db, workspace.id, command.stack);

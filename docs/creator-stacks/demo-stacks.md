@@ -74,3 +74,13 @@ Locally, against real SQLite and the running site (18 October 2026):
 Not yet verified: publishing either stack on the live instance, which needs the
 invited administrator's Cloudflare Access session in the native editor. Uploading
 this file to production is the next useful action once that session is available.
+
+## Governed workspaces
+
+Creator stacks reads the same stored policy boundary used by the server guard.
+In a governed workspace, instance fields are read only and lifecycle controls
+are replaced with a link to that workspace's Internal platform requests. Content
+moderation and configuration export retain their separate permission checks.
+An unconfirmed operation mode keeps lifecycle controls unavailable. Older
+pre-binding publications can still be opened and exported when policy metadata
+is unavailable; they do not gain edit authority.
