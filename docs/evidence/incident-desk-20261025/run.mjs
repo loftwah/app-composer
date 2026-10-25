@@ -11,6 +11,8 @@ import {
 } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ownedNativeDevPid } from "../../../scripts/lib/native-fixture-process.mjs";
+
 const source = fileURLToPath(new URL("../../../", import.meta.url));
 const output = resolve(
   process.argv[2] ?? join(source, "output/incident-desk-20261025"),
@@ -73,7 +75,7 @@ try {
     throw Error("Incident Desk browser journey failed: " + result.status);
 } finally {
   const app = join(root, "app");
-  if (existsSync(join(app, "package.json"))) {
+  if (ownedNativeDevPid(app)) {
     const logs = spawnSync(
       process.execPath,
       [join(source, "node_modules/astro/bin/astro.mjs"), "dev", "logs"],

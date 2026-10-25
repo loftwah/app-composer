@@ -82,10 +82,10 @@
   border-radius: 4px;
 }
 .pt-red {
-  color: var(--color-kumo-danger, var(--pt-ink));
+  color: var(--text-color-kumo-danger, var(--pt-ink));
 }
 .pt-amber {
-  color: var(--color-kumo-warning, var(--pt-ink));
+  color: var(--text-color-kumo-warning, var(--pt-ink));
 }
 .pt-unknown {
   color: var(--pt-muted);

@@ -34,6 +34,8 @@ import { createServer } from "node:net";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { ownedNativeDevPid } from "../../../scripts/lib/native-fixture-process.mjs";
+
 const here = dirname(fileURLToPath(import.meta.url));
 const arg = (name, fallback) => {
   const index = process.argv.indexOf("--" + name);
@@ -59,7 +61,7 @@ writeFileSync(
 );
 
 if (process.argv.includes("--clean")) {
-  if (existsSync(app))
+  if (ownedNativeDevPid(app))
     spawnSync(
       process.execPath,
       [join(app, "node_modules/astro/bin/astro.mjs"), "dev", "stop"],
@@ -73,7 +75,7 @@ if (process.argv.includes("--clean")) {
 
 if (!existsSync(join(source, "package.json")))
   throw Error("--source must be this checkout.");
-if (existsSync(join(app, "node_modules/astro/bin/astro.mjs")))
+if (ownedNativeDevPid(app))
   spawnSync(
     process.execPath,
     [join(app, "node_modules/astro/bin/astro.mjs"), "dev", "stop"],
@@ -95,6 +97,8 @@ try {
   execFileSync("cp", ["-R", source, app], { stdio: "ignore" });
 }
 rmSync(join(app, ".git"), { recursive: true, force: true });
+// Daemon locks and generated dev state belong to the original checkout.
+rmSync(join(app, ".astro"), { recursive: true, force: true });
 rmSync(join(app, ".wrangler"), { recursive: true, force: true });
 rmSync(join(app, "dist"), { recursive: true, force: true });
 rmSync(join(app, "output"), { recursive: true, force: true });
@@ -139,7 +143,10 @@ patch(
 
 // Optional consumer of the same isolated native-auth fixture. Apply before the
 // dev server starts: EmDash's plugin registry retains its loaded handlers.
-if (process.argv.includes("--incident-desk")) {
+if (
+  process.argv.includes("--incident-desk") ||
+  process.argv.includes("--plugin-trust")
+) {
   // A caller may reuse dependencies by symlink. The Cloudflare Vite runner
   // denies admin stylesheet imports outside its fixture root. Clone the already
   // installed tree with APFS instead of installing anything or widening access.
@@ -150,6 +157,8 @@ if (process.argv.includes("--incident-desk")) {
     seams["local dependency clone"] =
       "APFS clone of the existing installed dependency tree; no install and no outside-root Vite imports.";
   }
+}
+if (process.argv.includes("--incident-desk")) {
   patch(
     "src/lib/agent-proposals.ts",
     'const origin = "https://composer.loftwah.com";',
@@ -180,6 +189,25 @@ if (process.argv.includes("--incident-desk")) {
       "Use the real Incident Desk component in the native admin map.",
     );
   }
+}
+if (process.argv.includes("--plugin-trust")) {
+  for (const field of [
+    "runtime.PUBLIC_ORIGIN",
+    "url.origin",
+    'ctx.request.headers.get("Origin")',
+  ])
+    patch(
+      "src/lib/plugin-trust.ts",
+      field + " !== origin",
+      field + ' !== "' + origin + '"',
+      "Local request-origin seam only; the selected production-profile metadata stays explicit in the receipt.",
+    );
+  patch(
+    "src/middleware.ts",
+    /response\.headers\.set\(["']X-Content-Type-Options["'],\s*["']nosniff["']\);/,
+    `response.headers.set('X-Content-Type-Options','nosniff'); response.headers.set('X-Composer-Isolated-Lab',${JSON.stringify(root.split("/").at(-1))});`,
+    "The existing native actor helper refuses writes without this exact owned-lab header.",
+  );
 }
 
 writeFileSync(

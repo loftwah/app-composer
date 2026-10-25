@@ -1,0 +1,235 @@
+{
+  "version": "composer.plugin-trust-native/1",
+  "source": "22660f69ecc65f0a18c5c9e91a49deaa5ce37afc",
+  "sourceDirty": true,
+  "observedAt": "2026-10-25T08:50:50.246Z",
+  "origin": "http://localhost:61782",
+  "warning": "Fictional local native EmDash auth with virtual passkeys. Production profile emulated through an explicit local request-origin seam; not production, Access, MFA, real installation, provider entitlement or physical-device acceptance.",
+  "seams": {
+    "astro.config.mjs :: Cloudflare Access auth removed; EmDash native passkey auth used instead.": {
+      "note": "Cloudflare Access auth removed; EmDash native passkey auth used instead.",
+      "seam": ",auth:access\\(\\{[^}]*\\}\\)"
+    },
+    "astro.config.mjs :: Fixture site origin; WebAuthn relying party must match the local host.": {
+      "note": "Fixture site origin; WebAuthn relying party must match the local host.",
+      "seam": "siteUrl:'https://composer.loftwah.com'"
+    },
+    "src/lib/overview.ts :: Fixture origin guard for the read-only overview; the production guard is unchanged in source.": {
+      "note": "Fixture origin guard for the read-only overview; the production guard is unchanged in source.",
+      "seam": "const origin = \"https://composer.loftwah.com\";"
+    },
+    "src/lib/plugin-trust.ts :: Local request-origin seam only; the selected production-profile metadata stays explicit in the receipt.": {
+      "note": "Local request-origin seam only; the selected production-profile metadata stays explicit in the receipt.",
+      "seam": "ctx.request.headers.get(\"Origin\") !== origin"
+    },
+    "src/middleware.ts :: The existing native actor helper refuses writes without this exact owned-lab header.": {
+      "note": "The existing native actor helper refuses writes without this exact owned-lab header.",
+      "seam": "response\\.headers\\.set\\([\"']X-Content-Type-Options[\"'],\\s*[\"']nosniff[\"']\\);"
+    },
+    "wrangler": {
+      "note": "Local D1/R2 only; no routes, cron or provider service bindings.",
+      "vars": {
+        "PUBLIC_ORIGIN": "http://localhost:61782",
+        "RESOURCE_ACCOUNT_ID": "fictional-lane-a-account",
+        "RESOURCE_ENVIRONMENT": "production"
+      }
+    }
+  },
+  "runtimeSourceHashes": {
+    "src/lib/plugin-trust.ts": "46908a25c47111be222d8f8ade8eb93b00b66b776763b4dd6d54afb4e0b71e66",
+    "src/lib/plugin-trust-contract.ts": "58e49feaa6e760782d39158c5418c8f937a50bf6e4b67aa41ec290e7cedf917c",
+    "src/data/plugin-trust-20261025.json": "e3a88069df679bc00af92ca4a3a7f3f42a131235566c19a6b7e43ea508198dec",
+    "src/plugins/plugin-trust-page.tsx": "c15723e04fd73224bb55a577845d16b5aad31f02892c14c2375a69017b47ea59",
+    "src/plugins/plugin-trust-page.css": "d7f693f286b61b33a5cafa59bf5f190dbd8e1bee01d1625ae0a995c71fdcfd36",
+    "src/lib/creator-plugin.ts": "08061106a0741a27d5edfbc8dd72c0ec83ae0280082ce2b967155562beff0e31",
+    "src/plugins/stacks-admin.tsx": "e9066512ef803bf154cc2cd1a67784d0d9369147daeb66c0d76c6ac70492f984"
+  },
+  "checks": {
+    "inventory": {
+      "http": 200,
+      "available": true,
+      "atLimit": false,
+      "rows": [
+        {
+          "plugin_id": "composer-members",
+          "version": "1.0.0",
+          "status": "active",
+          "source": "config",
+          "registry_publisher_did": null,
+          "registry_slug": null
+        },
+        {
+          "plugin_id": "composer-miniapps",
+          "version": "1.0.0",
+          "status": "active",
+          "source": "config",
+          "registry_publisher_did": null,
+          "registry_slug": null
+        },
+        {
+          "plugin_id": "composer-resend",
+          "version": "1.0.0",
+          "status": "active",
+          "source": "config",
+          "registry_publisher_did": null,
+          "registry_slug": null
+        },
+        {
+          "plugin_id": "composer-stacks",
+          "version": "1.0.0",
+          "status": "active",
+          "source": "config",
+          "registry_publisher_did": null,
+          "registry_slug": null
+        }
+      ],
+      "coreSchema": [
+        "plugin_id",
+        "version",
+        "status",
+        "installed_at",
+        "activated_at",
+        "deactivated_at",
+        "data",
+        "source",
+        "marketplace_version",
+        "display_name",
+        "description",
+        "registry_publisher_did",
+        "registry_slug",
+        "mcp_tools_enabled",
+        "mcp_tools_consent"
+      ]
+    },
+    "snapshot": {
+      "observedAt": "2026-10-25T06:09:28.960Z",
+      "packages": [
+        {
+          "did": "did:plc:tsp7az5h6qsqjzqsgz37wonx",
+          "slug": "freeform",
+          "version": "0.1.4",
+          "releaseCid": "bafyreidigbuiafcrujs3c6vzlcdripd5fzyon57ujycvu7telfgjq6nl6e"
+        },
+        {
+          "did": "did:plc:wlshattmcjplayfxlgzbhxvk",
+          "slug": "emdash-stripe-checkout",
+          "version": "0.10.3",
+          "releaseCid": "bafyreidqkabnn2a3geylff3qjk7jn4p7kcckxwhiav4eregsp5x2rdubvi"
+        }
+      ],
+      "ratings": [
+        "RED",
+        "AMBER"
+      ]
+    },
+    "app-user": {
+      "role": 10,
+      "status": 403
+    },
+    "creator-a": {
+      "role": 20,
+      "status": 403
+    },
+    "creator-b": {
+      "role": 20,
+      "status": 403
+    },
+    "anonymous": 401,
+    "targetOverride": 400,
+    "mutationDenied": 405,
+    "disabledAdministrator": {
+      "actor": "creator-a",
+      "promotedRole": 50,
+      "before": 200,
+      "after": 401,
+      "ownerControl": 200
+    },
+    "keyboardDisclosure": true,
+    "noInstall": {
+      "before": 4,
+      "after": 4
+    }
+  },
+  "captures": [
+    {
+      "file": "native-1440-dark.png",
+      "sha256": "2a33ff90df65d061e92dfb305a24b3aff172827fb4dd996771d308eb61033755"
+    },
+    {
+      "file": "native-390-dark.png",
+      "sha256": "97d530da39e2643d97dce4f2de25f93aad6d5e799222a344bab8dfb41cd3ae9d"
+    },
+    {
+      "file": "native-1440-light.png",
+      "sha256": "563618b6bfb3755c3fe2ac1825a7189e952b8c51a4f75d86372b28f8d5a6b9ca"
+    },
+    {
+      "file": "native-390-light.png",
+      "sha256": "c963f03e2c0503ecbedf0f042b59b6c370f6f501e670ab96c239a83f3d1c3010"
+    },
+    {
+      "file": "native-inventory-390-light.png",
+      "sha256": "85f684298c7d5ac3cb7f8710b477aa8d4694e127b4b54ee452f6880c597e9fe8"
+    },
+    {
+      "file": "public-390-light.png",
+      "sha256": "bb38c36047bdd0dab619523758b41693c4115adb16e3645246a747a9a717a472"
+    }
+  ],
+  "pageErrors": [],
+  "console": [
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 405 (Method Not Allowed)"
+  ],
+  "nativeAuth": {
+    "nativeSessions": true,
+    "virtualPasskeys": true,
+    "physicalPasskeys": false,
+    "productionAccess": false,
+    "insertedIdentityOrSessionRows": false,
+    "actors": [
+      {
+        "key": "owner",
+        "id": "01M5S42S857DC111PZ453PYMVV",
+        "role": 50,
+        "admission": "native setup, WebAuthn registration and sign-in"
+      },
+      {
+        "key": "creator-a",
+        "id": "01M5S42SR80F1TV3H3MEQXFRJ5",
+        "role": 20,
+        "admission": "native role invitation, WebAuthn registration, logout and sign-in"
+      },
+      {
+        "key": "creator-b",
+        "id": "01M5S42T1BFPZJ81TRK86PR049",
+        "role": 20,
+        "admission": "native role invitation, WebAuthn registration, logout and sign-in"
+      },
+      {
+        "key": "app-user",
+        "id": "01M5S42T9ZD8TQ3B81S0MQ25GA",
+        "role": 10,
+        "admission": "native role invitation, WebAuthn registration, logout and sign-in"
+      }
+    ]
+  },
+  "finalPages": [
+    {
+      "url": "http://localhost:61782/plugin-trust",
+      "text": "Skip to content\nApp Composer\nReview a plugin before it reaches your app.\n\nA plugin can bring a useful feature and new permissions. The Plugin Trust Centre puts the evidence beside the decision in your existing EmDash administration.\n\nOpen Plugin Trust Centre\n\nAdministrator sign-in required. Your installed inventory stays private.\n\nStart with the exact release.\n\nThe first read-only evaluator covers two curated releases observed on 25 October 2026. It records the publisher DID, package slug, version, profile and release CIDs, inspected artifact digest, declared permissions, outbound hosts and EmDash compatibility. You can see why each result needs attention and follow its source.\n\nUnknown stays visible.\n\nPolicy blocked means a release conflicts with the stated local review policy. It does not accuse its publisher of malicious behaviour. Needs review names an authority or evidence gap. Unknown means a required check has not been established; evidence older than 14 days becomes Unknown. No plugin receives an overall secure rating from these checks.\n\nThe current snapshot has no advisory-feed coverage or completed native installation receipt. Publisher policy and a matching artifact digest do not independently verify build provenance.\n\nEmDash owns installation.\n\nThe Trust Centre cannot install or change plugins. EmDash’s native installer verifies publisher records and artifact identity and asks for permission consent. Composer’s registry runner is not enabled: an authorised isolated target, Worker Loader configuration, provider entitlement and a successful lifecycle exercise remain required before a real installation.\n\nBrowse the official registry · Read EmDash’s installation guide\n\nCopy page link\n\nThis is Loftwah’s instance of App Composer. Product and source are shared; the apps, media and owner settings are Loftwah’s.\n\nSource · Platform & service guide · Analytics · Privacy · Release evidence"
+    },
+    {
+      "url": "http://localhost:61782/_emdash/api/auth/mode",
+      "text": "{\"success\":true,\"data\":{\"authMode\":\"passkey\",\"signupEnabled\":false,\"providers\":[]}}"
+    },
+    {
+      "url": "http://localhost:61782/_emdash/api/auth/mode",
+      "text": "{\"success\":true,\"data\":{\"authMode\":\"passkey\",\"signupEnabled\":false,\"providers\":[]}}"
+    },
+    {
+      "url": "http://localhost:61782/_emdash/api/auth/mode",
+      "text": "{\"success\":true,\"data\":{\"authMode\":\"passkey\",\"signupEnabled\":false,\"providers\":[]}}"
+    }
+  ]
+}
