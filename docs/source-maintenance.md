@@ -151,3 +151,17 @@ local contract and applicable native role aliases, including identity exceptions
 Generated content projects already copy this same launcher contract alongside
 their customisable text/action defaults. Run every app's check/build and verify
 the exact independent releases before promoting composition pins.
+
+## Public inspection report URLs
+
+Link Check's public inspection form accepts public HTTPS sites through its own
+URL, DNS and Workers public-egress boundary. Composer's `src/lib/public-inspection-url.mjs`
+is an independent maintained copy of its pure URL syntax policy; the comment pins
+the reviewed Link Check source. This copy makes no network request or DNS claim.
+The report importer keeps its existing bounded, untrusted-data projection and
+places the URL inside the serialized report in the agent prompt.
+
+Review and copy this helper deliberately when changing the URL policy. Each
+repository retains its own tests, commit and guarded deployment. Run
+`node --test tests/inspection-report.test.mjs` for the consumer; an imported report
+does not grant credentials, permission, network access or platform acceptance.
