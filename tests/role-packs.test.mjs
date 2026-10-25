@@ -238,13 +238,14 @@ test('the committed captures are real phone and desktop renders with matching pr
 
 test('roles are linked from the prompt desk, runbooks, role discovery, owner admin and public routes', () => {
   const pages = [
-    ['src/pages/roles.astro', /rolePacks\.map/, /Download all six/, /refus/i],
-    ['src/pages/roles/[id].astro', /Astro\.response\.status = 404/, /renderRolePrompt/, /buildRoleBrief/, /Proposal only/],
+    ['src/pages/roles.astro', /rolePacks\.map/, /Download all six/, /refus/i, /results-20261025\.json/, /evaluation\.totals\.passed/, /hub-proof/],
+    ['src/pages/roles/[id].astro', /Astro\.response\.status = 404/, /renderRolePrompt/, /buildRoleBrief/, /Proposal only/, /pack-index/, /#tests-title/],
     ['src/pages/prompts.astro', /href="\/roles"/, /role packs/i],
     ['src/components/ResourceDesk.astro', /href="\/roles"/],
     ['src/components/RoleDiscovery.astro', /href="\/roles"/, /versioned role pack/i],
     ['src/pages/manage.astro', /href="\/roles"/, /acceptance stays with the accountable human/i],
     ['src/layouts/Base.astro', /href="\/roles">Agent role packs/],
+    ['src/pages/setup.astro', /href="\/roles"/, /otherPaths/, /resume/],
   ];
   for (const [path, ...patterns] of pages) {
     const source = readFileSync(join(root, path), 'utf8');
@@ -255,4 +256,32 @@ test('roles are linked from the prompt desk, runbooks, role discovery, owner adm
   const index = readFileSync(join(root, 'public/roles/v1/INDEX.md'), 'utf8');
   for (const pack of rolePacks) assert.ok(index.includes(`${pack.id}.md`));
   assert.ok(existsSync(join(root, 'docs/role-packs.md')));
+});
+
+test('the role journey evidence is real pixels with a clean receipt, not a rendered promise', () => {
+  const directory = join(root, 'docs/evidence/role-journey-20261025');
+  const receipt = JSON.parse(readFileSync(join(directory, 'receipt.json'), 'utf8'));
+  assert.equal(receipt.problems.length, 0);
+  assert.equal(receipt.captures.length, 24);
+  assert.ok(receipt.checks.length >= 18);
+  const viewports = new Set(receipt.checks.filter((check) => check.page).map((check) => check.viewport));
+  assert.deepEqual([...viewports].sort(), ['desktop', 'phone']);
+  const themes = new Set(receipt.checks.filter((check) => check.page).map((check) => check.theme));
+  assert.deepEqual([...themes].sort(), ['dark', 'light']);
+  for (const check of receipt.checks.filter((entry) => entry.page)) {
+    assert.equal(check.document, 0, `${check.page} ${check.viewport} ${check.theme} document overflow`);
+    assert.equal(check.body, 0, `${check.page} ${check.viewport} ${check.theme} body overflow`);
+    assert.deepEqual(check.offenders, []);
+    assert.deepEqual(check.consoleErrors, []);
+  }
+  for (const capture of receipt.captures) {
+    const bytes = readFileSync(join(directory, 'shots', capture.file));
+    assert.equal(bytes.length, capture.bytes);
+    assert.equal(sha(bytes), capture.sha256);
+    if (capture.file.endsWith('.png')) assert.equal(bytes.subarray(1, 4).toString(), 'PNG');
+    else assert.equal(bytes.subarray(0, 2).toString('hex'), 'ffd8', `${capture.file} is a JPEG`);
+  }
+  const interactions = new Set(receipt.checks.filter((entry) => entry.interaction).map((entry) => entry.interaction));
+  for (const name of ['roles-keyboard-first-row', 'roles-qa-copy-prompt', 'roles-qa-index-jump', 'setup-switch-new-project', 'setup-copy-guide', 'theme-toggle-persists']) assert.ok(interactions.has(name), `missing ${name}`);
+  for (const check of receipt.checks) if (check.failed) assert.fail(`${check.interaction ?? check.page}: ${check.failed}`);
 });

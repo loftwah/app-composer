@@ -1,0 +1,487 @@
+{
+  "schema": "composer.role-journey-evidence/1",
+  "capturedAt": "2026-10-25T00:05:52.366Z",
+  "origin": "http://127.0.0.1:4377",
+  "source": "86514680720702ce30157671652981e388b77f65",
+  "workingTree": [
+    "M docs/STATUS.md",
+    " M docs/role-packs.md",
+    " M labs/setup-evaluation/runs.json",
+    " M package.json",
+    " M src/pages/roles.astro",
+    " M src/pages/roles/[id].astro",
+    " M src/pages/setup.astro",
+    " M tests/role-packs.test.mjs",
+    "?? docs/evaluations/",
+    "?? docs/evidence/role-journey-20261025/",
+    "?? labs/fresh-agent/",
+    "?? scripts/eval-fresh-agent.mjs",
+    "?? scripts/setup-export.mjs",
+    "?? src/lib/fresh-agent.ts",
+    "?? tests/fresh-agent-evaluation.test.mjs"
+  ],
+  "browser": "Chromium 156.0.8078.4",
+  "scope": "Local Astro render of this source. Public pages only; the owner admin is behind Cloudflare Access and was not opened. Browser emulation is not physical-device or screen-reader acceptance.",
+  "captures": [
+    {
+      "page": "roles",
+      "viewport": "desktop",
+      "theme": "dark",
+      "file": "roles-desktop-dark.png",
+      "bytes": 139703,
+      "sha256": "691fa28472b3f37b642c70fbb714b7ec5b338c8ee37ad3f925694d050d1df72f"
+    },
+    {
+      "page": "roles",
+      "viewport": "desktop",
+      "theme": "dark",
+      "file": "roles-desktop-dark-full.jpg",
+      "bytes": 357293,
+      "sha256": "c5d6e6b3afa17b3b68bf41eb89a87988b51524950538585d3389527040bdaa9d"
+    },
+    {
+      "page": "roles-qa",
+      "viewport": "desktop",
+      "theme": "dark",
+      "file": "roles-qa-desktop-dark.png",
+      "bytes": 155147,
+      "sha256": "0e98a19f82aef0ece686b493d9eb508ef8789857ec8675921a99afea17b470ce"
+    },
+    {
+      "page": "roles-qa",
+      "viewport": "desktop",
+      "theme": "dark",
+      "file": "roles-qa-desktop-dark-full.jpg",
+      "bytes": 560495,
+      "sha256": "23e1d7264edfcd008d8cf2fe4854e35f96bf9cc3464672a40a43ceaee8ea5087"
+    },
+    {
+      "page": "setup",
+      "viewport": "desktop",
+      "theme": "dark",
+      "file": "setup-desktop-dark.png",
+      "bytes": 207924,
+      "sha256": "f18b40bc8ec95abf7b4bd55430332ddc936dcf392003595dfca1abf8878a247d"
+    },
+    {
+      "page": "setup",
+      "viewport": "desktop",
+      "theme": "dark",
+      "file": "setup-desktop-dark-full.jpg",
+      "bytes": 318590,
+      "sha256": "1faecd0d589fc4986e3382b1b3495f667e103241eef87c90c64dc86b4468581f"
+    },
+    {
+      "page": "roles",
+      "viewport": "desktop",
+      "theme": "light",
+      "file": "roles-desktop-light.png",
+      "bytes": 140121,
+      "sha256": "3587573f147c6c56bdad49f90691dc6e18cf5a614aa73b68620a9b6e8440a080"
+    },
+    {
+      "page": "roles",
+      "viewport": "desktop",
+      "theme": "light",
+      "file": "roles-desktop-light-full.jpg",
+      "bytes": 354994,
+      "sha256": "328523c62381c485717f5ea5683c60ac17dcd595b62a7d59e312fee3db03f6f4"
+    },
+    {
+      "page": "roles-qa",
+      "viewport": "desktop",
+      "theme": "light",
+      "file": "roles-qa-desktop-light.png",
+      "bytes": 155329,
+      "sha256": "1f22218f2277ab8f273d79b19ca21b00ab21608405ef6235ec0685a5371871c7"
+    },
+    {
+      "page": "roles-qa",
+      "viewport": "desktop",
+      "theme": "light",
+      "file": "roles-qa-desktop-light-full.jpg",
+      "bytes": 552748,
+      "sha256": "0f2cd7d9b6073eb5bc2a62d0bfc3cc968dc2260edc2913961624a2b74acf7fc7"
+    },
+    {
+      "page": "setup",
+      "viewport": "desktop",
+      "theme": "light",
+      "file": "setup-desktop-light.png",
+      "bytes": 209534,
+      "sha256": "63a3630859e5b6074ad1501bb8d2408a47cde5854caaab8b1c4b6dfe4fccf1e9"
+    },
+    {
+      "page": "setup",
+      "viewport": "desktop",
+      "theme": "light",
+      "file": "setup-desktop-light-full.jpg",
+      "bytes": 314472,
+      "sha256": "619f509a38246f45ec7ced54b38fac101257bfe6ae44b0768ec15fdb3d629260"
+    },
+    {
+      "page": "roles",
+      "viewport": "phone",
+      "theme": "dark",
+      "file": "roles-phone-dark.png",
+      "bytes": 65318,
+      "sha256": "6ba1bee64e8ffac9be754afa653ef90d0e1f9fe844323b40b7b8fd0319d6b78e"
+    },
+    {
+      "page": "roles",
+      "viewport": "phone",
+      "theme": "dark",
+      "file": "roles-phone-dark-full.jpg",
+      "bytes": 283388,
+      "sha256": "4f5e56465ebb6a4de18fa4177439ae251ffed81b99b504a50ca016b2b600caa4"
+    },
+    {
+      "page": "roles-qa",
+      "viewport": "phone",
+      "theme": "dark",
+      "file": "roles-qa-phone-dark.png",
+      "bytes": 58110,
+      "sha256": "d0252b18d00f960720f04702a4eedc920e5eb6083d00fc3e4dda73aa77daec42"
+    },
+    {
+      "page": "roles-qa",
+      "viewport": "phone",
+      "theme": "dark",
+      "file": "roles-qa-phone-dark-full.jpg",
+      "bytes": 468518,
+      "sha256": "3a53ad6078698e1ec8c1b9f99ca229e9fc6a48024e3b76fba8454dbf9cd97026"
+    },
+    {
+      "page": "setup",
+      "viewport": "phone",
+      "theme": "dark",
+      "file": "setup-phone-dark.png",
+      "bytes": 57971,
+      "sha256": "d971e7890d035745d904deea4a0621a1a1a1a2fbdefeb2c036a5b8bd534b9c40"
+    },
+    {
+      "page": "setup",
+      "viewport": "phone",
+      "theme": "dark",
+      "file": "setup-phone-dark-full.jpg",
+      "bytes": 242697,
+      "sha256": "80de01b889409dd3489ed4d479fccf72ca8e7356b3dd6a344dc10a01d2afbad2"
+    },
+    {
+      "page": "roles",
+      "viewport": "phone",
+      "theme": "light",
+      "file": "roles-phone-light.png",
+      "bytes": 65416,
+      "sha256": "983607d869e7142589840442abecb20de6d88c596e0cf4b76638af1549400929"
+    },
+    {
+      "page": "roles",
+      "viewport": "phone",
+      "theme": "light",
+      "file": "roles-phone-light-full.jpg",
+      "bytes": 280095,
+      "sha256": "3c1e976133e0875fc49ef84037c9b4bcae33ba1b61699e3dd28035ddc30c7bcd"
+    },
+    {
+      "page": "roles-qa",
+      "viewport": "phone",
+      "theme": "light",
+      "file": "roles-qa-phone-light.png",
+      "bytes": 58395,
+      "sha256": "23bb07e36fff66287bd1327f7d2f5809236b0b1260feb4478610b2ef3ecd4382"
+    },
+    {
+      "page": "roles-qa",
+      "viewport": "phone",
+      "theme": "light",
+      "file": "roles-qa-phone-light-full.jpg",
+      "bytes": 460239,
+      "sha256": "c20a3be97a326fefbb9938504ac52058921508e16faaa21ac77fe0482962bec4"
+    },
+    {
+      "page": "setup",
+      "viewport": "phone",
+      "theme": "light",
+      "file": "setup-phone-light.png",
+      "bytes": 58472,
+      "sha256": "de0e9536d0340755ba0b471837c3106d92d384d092e41c29b552ec37924076cc"
+    },
+    {
+      "page": "setup",
+      "viewport": "phone",
+      "theme": "light",
+      "file": "setup-phone-light-full.jpg",
+      "bytes": 240189,
+      "sha256": "b0532c75c4b792f71a536154b70f59032b0a0109742b00636b434beb559775f3"
+    }
+  ],
+  "checks": [
+    {
+      "page": "roles",
+      "viewport": "desktop",
+      "theme": "dark",
+      "status": 200,
+      "clientWidth": 1440,
+      "document": 0,
+      "body": 0,
+      "height": 3156,
+      "offenders": [],
+      "firstControl": {
+        "tag": "a",
+        "text": "01Service Ownerv1.0.0Service review and "
+      },
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    {
+      "page": "roles-qa",
+      "viewport": "desktop",
+      "theme": "dark",
+      "status": 200,
+      "clientWidth": 1440,
+      "document": 0,
+      "body": 0,
+      "height": 4712,
+      "offenders": [],
+      "firstControl": {
+        "tag": "a",
+        "text": "The job"
+      },
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    {
+      "page": "setup",
+      "viewport": "desktop",
+      "theme": "dark",
+      "status": 200,
+      "clientWidth": 1440,
+      "document": 0,
+      "body": 0,
+      "height": 2271,
+      "offenders": [],
+      "firstControl": {
+        "tag": "a",
+        "text": "Read the template"
+      },
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    {
+      "page": "roles",
+      "viewport": "desktop",
+      "theme": "light",
+      "status": 200,
+      "clientWidth": 1440,
+      "document": 0,
+      "body": 0,
+      "height": 3156,
+      "offenders": [],
+      "firstControl": {
+        "tag": "a",
+        "text": "01Service Ownerv1.0.0Service review and "
+      },
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    {
+      "page": "roles-qa",
+      "viewport": "desktop",
+      "theme": "light",
+      "status": 200,
+      "clientWidth": 1440,
+      "document": 0,
+      "body": 0,
+      "height": 4712,
+      "offenders": [],
+      "firstControl": {
+        "tag": "a",
+        "text": "The job"
+      },
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    {
+      "page": "setup",
+      "viewport": "desktop",
+      "theme": "light",
+      "status": 200,
+      "clientWidth": 1440,
+      "document": 0,
+      "body": 0,
+      "height": 2271,
+      "offenders": [],
+      "firstControl": {
+        "tag": "a",
+        "text": "Read the template"
+      },
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    {
+      "page": "roles",
+      "viewport": "phone",
+      "theme": "dark",
+      "status": 200,
+      "clientWidth": 390,
+      "document": 0,
+      "body": 0,
+      "height": 5045,
+      "offenders": [],
+      "firstControl": {
+        "tag": "a",
+        "text": "01Service Ownerv1.0.0Service review and "
+      },
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    {
+      "page": "roles-qa",
+      "viewport": "phone",
+      "theme": "dark",
+      "status": 200,
+      "clientWidth": 390,
+      "document": 0,
+      "body": 0,
+      "height": 8378,
+      "offenders": [],
+      "firstControl": {
+        "tag": "a",
+        "text": "The job"
+      },
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    {
+      "page": "setup",
+      "viewport": "phone",
+      "theme": "dark",
+      "status": 200,
+      "clientWidth": 390,
+      "document": 0,
+      "body": 0,
+      "height": 4067,
+      "offenders": [],
+      "firstControl": {
+        "tag": "a",
+        "text": "Read the template"
+      },
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    {
+      "page": "roles",
+      "viewport": "phone",
+      "theme": "light",
+      "status": 200,
+      "clientWidth": 390,
+      "document": 0,
+      "body": 0,
+      "height": 5045,
+      "offenders": [],
+      "firstControl": {
+        "tag": "a",
+        "text": "01Service Ownerv1.0.0Service review and "
+      },
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    {
+      "page": "roles-qa",
+      "viewport": "phone",
+      "theme": "light",
+      "status": 200,
+      "clientWidth": 390,
+      "document": 0,
+      "body": 0,
+      "height": 8378,
+      "offenders": [],
+      "firstControl": {
+        "tag": "a",
+        "text": "The job"
+      },
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    {
+      "page": "setup",
+      "viewport": "phone",
+      "theme": "light",
+      "status": 200,
+      "clientWidth": 390,
+      "document": 0,
+      "body": 0,
+      "height": 4067,
+      "offenders": [],
+      "firstControl": {
+        "tag": "a",
+        "text": "Read the template"
+      },
+      "consoleErrors": [],
+      "failedRequests": []
+    },
+    {
+      "interaction": "roles-keyboard-first-row",
+      "status": 200,
+      "trail": [
+        "a:App ComposerLoftwah’s in outline=solid/3px",
+        "summary:More outline=solid/3px",
+        "button:Apps⌘ K outline=solid/3px",
+        "button: outline=solid/2px",
+        "a:Download all six ZIP · M outline=solid/3px",
+        "a:Run a brief on your mach outline=solid/3px",
+        "a:Start from a prompt outline=solid/3px",
+        "a:Read the evaluation outline=solid/3px",
+        "a:Start from a project gui outline=solid/3px",
+        "a:01Service Ownerv1.0.0Ser outline=solid/3px",
+        "a:02Programmerv1.0.0Defect outline=solid/3px",
+        "a:03Architectv1.0.0Depende outline=solid/3px",
+        "a:04DevOps / SREv1.0.0Drif outline=solid/3px",
+        "a:05Securityv1.0.0Boundary outline=solid/3px"
+      ],
+      "reachedRow": true,
+      "failed": null
+    },
+    {
+      "interaction": "roles-qa-copy-prompt",
+      "status": "Prompt copied. Replace the bracketed target before running it.",
+      "copiedChars": 3203,
+      "failed": null
+    },
+    {
+      "interaction": "roles-qa-index-jump",
+      "status": 200,
+      "heading": "Negative tests",
+      "top": 1700,
+      "failed": null
+    },
+    {
+      "interaction": "setup-switch-new-project",
+      "status": "Guide updated and saved in this browser. Review, copy or download it.",
+      "guideChars": 6103,
+      "restoredMatches": true,
+      "failed": null
+    },
+    {
+      "interaction": "setup-copy-guide",
+      "status": "Setup guide copied. Paste it into your coding agent.",
+      "copiedChars": 6103,
+      "failed": null
+    },
+    {
+      "interaction": "theme-toggle-persists",
+      "before": "dark",
+      "after": "light",
+      "stored": "light",
+      "reloaded": "light",
+      "failed": null
+    }
+  ],
+  "problems": [],
+  "summary": {
+    "captures": 24,
+    "checks": 18,
+    "problems": 0
+  }
+}

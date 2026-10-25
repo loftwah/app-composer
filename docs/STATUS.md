@@ -113,7 +113,6 @@ records the commands, captures and remaining gates; #290/#288/#11 retain
 acceptance and release evidence.
 
 ## Agent role packs — 25 October 2026
-
 The [role-pack index](/roles) adds six versioned job contracts: Service Owner,
 Programmer, Architect, DevOps/SRE, Security and QA. Each has inputs, required
 evidence, an output schema, stop/escalation rules, prohibited actions, negative
@@ -133,6 +132,25 @@ archive members inspected. Phone/desktop dark/light captures and provenance are
 in [the role-pack guide](role-packs.md). This is a local/draft-PR slice: native
 EmDash accept/request-changes/reject records, connected-agent authentication
 and any production execution remain #311/#315 gates.
+
+## Fresh-agent evaluation — 25 October 2026
+
+Five independent local agent sessions used the **actual** `/setup` export and two
+downloaded role packs in isolated Git copies. All five finished with no human
+help: a new Python application (7/7 assertions), an existing-project change
+returning the programmer output schema (10/10), an interrupted run resumed from
+its own receipts (11/11), a QA brief refused for targeting production (6/6) and
+an instructed change that preserved every owner file byte-for-byte (8/8). That
+is 42 of 42 assertions across 5 sessions; the run is not cross-client,
+provider-onboarding or longitudinal evidence, and no deployment or Access session
+was involved. [The evaluation](evaluations/fresh-agent-20261025.md) records the
+five isolation failures that preceded it, the corrected resume assertion and the
+`pnpm dev` identity fix; `labs/fresh-agent/` holds the hash-pinned exports,
+fixtures, assertions and results. `/roles` shows the counts beside its packs and
+`/setup` lists the resume observation through the existing validated ledger.
+[Visual evidence](evidence/role-journey-20261025/README.md): 24 captures and 18
+checks at 390/1440 in both themes, with two composition fixes inspected in the
+pixels.
 
 ## Agent proposals — 2026/10/25
 
@@ -156,6 +174,7 @@ Access admission and browser/device acceptance remain #311/#315 gaps. No
 production migration or deployment was performed. See
 [agent proposals](agent-proposals.md) and the
 [bounded transcript](evidence/agent-proposals-20261025/transcript.md).
+
 
 ## Finding the shipped work — 24 October 2026
 

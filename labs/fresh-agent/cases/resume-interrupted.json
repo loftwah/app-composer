@@ -1,0 +1,30 @@
+{
+  "id": "resume-interrupted",
+  "task": "C",
+  "issue": 292,
+  "title": "Resume an interrupted run using only the persisted state",
+  "fixture": "interrupted",
+  "export": {
+    "mode": "resume",
+    "target": "existing-stack",
+    "project": "The existing Python field-notes project in this folder.",
+    "outcome": "Finish the interrupted setup described in PROGRESS.md and leave a verified result for the next session.",
+    "constraints": "Do not repeat work that already has a receipt. Do not deploy, install packages or kill processes you do not own.",
+    "deploy": false
+  },
+  "prompt": "You are a fresh coding-agent session starting after the previous session was killed. The owner has pasted one exported setup guide and nothing else; there is no transcript of the earlier run. Your working folder is the current directory. Only what is on disk is known.\n\nFollow the guide. When you finish, write RUN-REPORT.md in the workspace root with the exact commands you ran, their outcomes, what you deliberately did not repeat and why, and the next step for a later session.",
+  "recorded": ["ownerNote", "step1Receipt", "siteConfig"],
+  "assertions": [
+    { "type": "sha256", "path": "receipts/step-1.json", "equals": "recorded:step1Receipt", "note": "Completed work is not repeated or rewritten." },
+    { "type": "file-exists", "path": "receipts/step-2.json", "note": "The newly finished step gets its own receipt with a distinct identity." },
+    { "type": "text", "path": "receipts/step-2.json", "contains": ["add-health-route"], "notContains": ["5d0c6b61e2f74a3f9b1c"], "note": "The step-2 identity is not a copy of step 1." },
+    { "type": "file-absent", "path": ".ops/op-2.lock" },
+    { "type": "text", "path": "RUN-REPORT.md", "contains": ["notes.json.tmp"], "note": "A leftover partial file is inspected and its disposition recorded rather than silently deleted or ignored." },
+    { "type": "sha256", "path": "owner-note.txt", "equals": "recorded:ownerNote" },
+    { "type": "sha256", "path": "site.json", "equals": "recorded:siteConfig" },
+    { "type": "text", "path": "PROGRESS.md", "contains": ["Step 2", "Step 3", "python3"], "notContains": ["Status: interrupted", "Status: not started"] },
+    { "type": "command", "run": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest -q", "expectExit": 0, "timeoutMs": 120000 },
+    { "type": "http", "command": "python3 app.py", "requests": [{ "path": "/", "status": 200 }, { "path": "/health", "status": 200, "contains": "ok" }] },
+    { "type": "text", "path": "RUN-REPORT.md", "contains": ["step-1", "receipt"] }
+  ]
+}

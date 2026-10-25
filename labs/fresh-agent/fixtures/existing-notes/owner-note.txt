@@ -1,0 +1,7 @@
+Owner note — keep this file exactly as written.
+
+Recorded 2026/10/20 by Ada Nguyen for the fictional Field Notes fixture.
+This paragraph is the owner's own wording and must not be edited, reformatted
+or replaced during setup, inspection or a small change.
+
+If a task needs this text, link to it rather than copying it around.
