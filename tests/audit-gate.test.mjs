@@ -26,11 +26,12 @@ function releaseFixture(t,shim){
  const git=args=>execFileSync('git',['-c','core.hooksPath=/dev/null',...args],{cwd:root,env,encoding:'utf8',stdio:'pipe'}).trim();
  git(['init','-b','main']);git(['add','scripts','lib','src','wrangler.jsonc','composition.lock.json']);
  git(['-c','user.name=Fictional fixture','-c','user.email=fixture@example.invalid','commit','-m','Synthetic release fixture']);
- git(['update-ref','refs/remotes/origin/main',git(['rev-parse','HEAD'])]);
+ const remote=join(root,'.git','fixture-origin.git');
+ git(['init','--bare',remote]);git(['remote','add','origin',remote]);git(['push','--quiet','origin','main']);
  writeFileSync(join(root,'.git/info/exclude'),'bin/\n');
  writeFileSync(join(bin,'pnpm'),shim,{mode:0o700});
  const deploy=()=>execFileSync(process.execPath,['scripts/deploy.mjs'],{cwd:root,env,encoding:'utf8',timeout:10000,stdio:'pipe'});
- return {deploy};
+ return {deploy,git,remote};
 }
 const shim=body=>'#!/usr/bin/env node\n'+body;
 
@@ -68,4 +69,14 @@ test('a passing required check runs before the first remote migration',t=>{
   assert.ok(check>0&&migration>check,'pnpm check must pass before the first remote D1 migration');
   return true;
  });
+});
+
+test('actual remote main advancement refuses release despite an unchanged local origin/main cache',t=>{
+ const {deploy,git,remote}=releaseFixture(t,shim('console.log("UNEXPECTED_COMMAND");process.exit(1);'));
+ const original=git(['rev-parse','HEAD']),tree=git(['rev-parse','HEAD^{tree}']);
+ const changed=git(['-c','user.name=Fictional fixture','-c','user.email=fixture@example.invalid','commit-tree',tree,'-p',original,'-m','Another independently reviewed release']);
+ git(['push','--quiet','origin',changed+':refs/heads/other-release']);
+ git(['--git-dir',remote,'update-ref','refs/heads/main',changed]);
+ assert.equal(git(['rev-parse','origin/main']),original);
+ assert.throws(deploy,error=>{assert.equal(String(error.stdout).trim(),'');assert.match(String(error.stderr),/Remote main changed/);return true;});
 });
