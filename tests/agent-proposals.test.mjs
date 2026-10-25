@@ -827,7 +827,11 @@ test("production scope and missing accountability are refused at grant time", as
 
 test("native admin route scopes reads, refuses viewers and records one owner decision without execution", async (t) => {
   const f = await prepared(t);
-  const v1 = (await f.submit()).view;
+  // The native route reads the real clock, so this submission uses the actual
+  // current time. A fixed NOW would read as a stale local source more than ten
+  // minutes after that fixture instant and fail a route that has not changed.
+  const submittedAt = new Date().toISOString();
+  const v1 = (await f.submit({}, submittedAt)).view;
   f.sqlite
     .prepare(
       "UPDATE creator_agent_grants SET owner_id=?,owner_name=? WHERE id=?",
