@@ -2054,18 +2054,23 @@ interface WorkspaceMemberRow {
 function memberLabel(
   row: WorkspaceMemberRow | null,
   fallback: string | null,
-  who: string,
+  _who: string,
 ): string {
   const name = [row?.display_name, row?.email, fallback]
     .map((value) => (typeof value === "string" ? value.trim() : ""))
     .find((value) => value.length >= 2);
-  if (!name)
-    fail(
-      "INVALID",
-      `${who} needs a display name or email in Workspace access before an agent connection can be authorised.`,
-      400,
-    );
-  return name.slice(0, 80);
+  if (name) return name.slice(0, 80);
+  // Legacy personal workspaces can have member rows without a profile name or
+  // email. Accountability is still the member id; a synthetic role + id suffix
+  // keeps the owner workflow usable without inventing a person or a permission.
+  const role =
+    row?.role === "owner"
+      ? "Owner"
+      : row?.role === "editor"
+        ? "Editor"
+        : "Member";
+  const suffix = (row?.user_id ?? "unknown").slice(-4).toUpperCase();
+  return `${role} ${suffix}`.slice(0, 80);
 }
 
 async function memberRow(db: D1Database, workspace: string, userId: string) {

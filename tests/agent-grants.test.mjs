@@ -200,6 +200,31 @@ const submitThrough = (f, auth, patch = {}) =>
     { now: NOW, source: storedSource },
   );
 
+test("legacy member rows without a display name do not block the owner grant workflow", async (t) => {
+  const f = await ownerWorkspace(t);
+  f.sqlite
+    .prepare(
+      "UPDATE creator_members SET display_name=NULL,email=NULL WHERE workspace_id=?",
+    )
+    .run(f.workspace.id);
+  const noProfileName = { id: user.id, role: user.role, name: null };
+  const snapshot = await f.read(
+    { action: "grants", workspace: f.workspace.id },
+    noProfileName,
+  );
+  assert.equal(snapshot.ok, true);
+  assert.equal(snapshot.workspace.role, "owner");
+  assert.match(
+    snapshot.members.find((row) => row.id === user.id).name,
+    /^Owner /,
+  );
+  const created = await f.write(f.grantRequest(), noProfileName);
+  assert.match(created.grant.owner.name, /^Owner /);
+  assert.match(created.grant.fallback.name, /^Editor /);
+  assert.equal(created.grant.mode, "proposal-only");
+  assert.equal(created.execution, "not-performed");
+});
+
 test("the capability catalogue is proposal-only and names what stays with a human", () => {
   assert.deepEqual(
     agentCapabilityCatalogue.map((item) => item.id),
