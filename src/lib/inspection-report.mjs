@@ -1,4 +1,13 @@
-const hosts = ['composer.loftwah.com','guestbook.loftwah.com','showcase.loftwah.com','ready.loftwah.com','ai.loftwah.com','share.loftwah.com'];
+const hosts = [
+ 'composer.loftwah.com',
+ 'guestbook.loftwah.com',
+ 'showcase.loftwah.com',
+ 'ready.loftwah.com',
+ 'ai.loftwah.com',
+ 'share.loftwah.com',
+ 'bubbles.loftwah.com',
+ 'fm.loftwah.com',
+];
 // A fetched page can contain invisible format characters. They carry no useful
 // report meaning, so they are removed before a finding reaches an owner view or
 // an agent prompt; a payload cannot hide or reorder the text a person reviews.
