@@ -1,0 +1,4 @@
+Owner note — keep this file exactly as written.
+
+Recorded 2026/10/25 by Ada Nguyen for the fictional new-project fixture.
+The folder around this file is the owner's own working area.

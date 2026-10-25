@@ -64,9 +64,13 @@ The shipped checks exercise all six packs against the same bundle and four unsaf
 
 The QA brief is the concrete release example: three of three public-visibility runs failed, so the verdict is blocked even though 12 of 14 journeys passed.
 
+Two packs have also been exercised by fresh local agents with no memory of this repository. The Programmer pack returned all eight output fields for a real small change, including “Not a named defect” for a feature request, no PR because no remote existed, and an unassigned human reviewer. The QA pack refused the committed production-target bundle in 32 seconds, naming the production mutation and the contradictory drift evidence, and asked for an isolated target instead of producing a verdict. Counts, hashes and the remaining gaps are in [the fresh-agent evaluation](../evaluations/fresh-agent-20261025.md); the `/roles` hub derives its proof strip from the same committed results file.
+
 ## Actual captures
 
 Full-page Chromium captures from the local `pnpm dev` render, 1440px and 390px, both themes where it matters. [Capture provenance](images/role-packs-20261024.json) records URLs, viewports, bytes and hashes.
+
+The 25 October role-journey pass re-captured the hub, the QA pack and `/setup` after the proof strip and in-page index landed: [24 captures and 18 checks](evidence/role-journey-20261025/README.md), 1440×1000 and 390×844, both themes, zero overflow and zero console errors beyond favicon requests.
 
 - [Role-pack index, desktop](images/role-packs-20261024-index-desktop.png) · [light](images/role-packs-20261024-index-desktop-light.png)
 - [Role-pack index, phone](images/role-packs-20261024-index-phone.png)

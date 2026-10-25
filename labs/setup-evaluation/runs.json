@@ -266,6 +266,188 @@
       ],
       "humanActions": [],
       "evidence": "https://github.com/loftwah/app-composer/blob/main/labs/setup-evaluation/evidence/2026-10-24-new.md"
+    },
+    {
+      "guideVersion": "app-composer.project-setup/1",
+      "agent": "Fresh OpenCode CLI session (separate process, isolated root)",
+      "model": "opencode-go/deepseek-v4.1-flash via opencode v2.1.4",
+      "environment": "macOS 26 arm64 local; Python 3.9.6 standard library; fictional data only",
+      "tools": [
+        "Git",
+        "Python 3.9.6 standard library",
+        "localhost HTTP",
+        "Playwright Chromium"
+      ],
+      "provisionedAccess": [
+        "Local fixture copy and installed tools only; no provider, account or deployment access"
+      ],
+      "simulated": false,
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/codex/lane-g-evaluation-20261025/docs/evaluations/fresh-agent-20261025.md",
+      "id": "new-python-20261025-laneg-1",
+      "guideHash": "c958f9b381ceda2132825029a3d6b44452352278ef9bf52229d437963fb95398",
+      "path": "new",
+      "fixture": "Fictional absent-site starting folder with one owner marker; project created in the absent site/ subfolder",
+      "sourceCommit": "6ea1f6c0ab1504074f8b3383043533029f2bc084",
+      "startedAt": "2026-10-24T23:27:17.726Z",
+      "finishedAt": "2026-10-24T23:30:18.352Z",
+      "outcome": "completed-after-rescue",
+      "checks": [
+        {
+          "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s site -q",
+          "outcome": "13 tests passed, exit 0."
+        },
+        {
+          "command": "python3 site/app.py; GET / and /health",
+          "outcome": "HTTP 200 for both; /health body ok; local loopback only."
+        },
+        {
+          "command": "Compare owner-note.txt SHA-256 and repository status; stop the owned server",
+          "outcome": "Owner marker byte-identical; only the new site/ folder and the requested run report appeared."
+        }
+      ],
+      "interventions": [
+        "Autonomous recovery: the first unittest discovery invocation failed with ImportError until the run used the documented tests directory; no project file was changed by the harness."
+      ]
+    },
+    {
+      "guideVersion": "app-composer.project-setup/1",
+      "agent": "Fresh OpenCode CLI session (separate process, isolated root)",
+      "model": "opencode-go/deepseek-v4.1-flash via opencode v2.1.4",
+      "environment": "macOS 26 arm64 local; Python 3.9.6 standard library; fictional data only",
+      "tools": [
+        "Git",
+        "Python 3.9.6 standard library",
+        "localhost HTTP",
+        "Playwright Chromium"
+      ],
+      "provisionedAccess": [
+        "Local fixture copy and installed tools only; no provider, account or deployment access"
+      ],
+      "simulated": false,
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/codex/lane-g-evaluation-20261025/docs/evaluations/fresh-agent-20261025.md",
+      "id": "existing-python-20261025-laneg-1",
+      "guideHash": "58a4c95656a0cca5d7a8073072e20f36696498758ae8ad9a6b40ede3c7dc2950",
+      "path": "existing",
+      "fixture": "Fictional existing Python Field Notes with owner configuration, owner marker and an uncommitted unrelated draft",
+      "sourceCommit": "4fc2f1957ed374952ceaa59e9da98bfc9901f105",
+      "startedAt": "2026-10-24T23:30:27.775Z",
+      "finishedAt": "2026-10-24T23:32:10.869Z",
+      "outcome": "completed",
+      "checks": [
+        {
+          "command": "Baseline PYTHONDONTWRITEBYTECODE=1 python3 -m unittest -q",
+          "outcome": "7 tests passed before the change."
+        },
+        {
+          "command": "Baseline GET /about twice",
+          "outcome": "HTTP 404 twice, reproducing the missing route."
+        },
+        {
+          "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest -q after the change",
+          "outcome": "8 tests passed including the new /about test."
+        },
+        {
+          "command": "Live GET /, /health, /about and /note/absent",
+          "outcome": "200, 200, 200 with the owner title, 404."
+        },
+        {
+          "command": "Compare site.json, notes.json, owner-note.txt and scratch/owner-draft.txt SHA-256",
+          "outcome": "All four byte-identical to the prepared copies."
+        }
+      ],
+      "interventions": []
+    },
+    {
+      "guideVersion": "app-composer.project-setup/1",
+      "agent": "Fresh OpenCode CLI session (separate process, isolated root)",
+      "model": "opencode-go/deepseek-v4.1-flash via opencode v2.1.4",
+      "environment": "macOS 26 arm64 local; Python 3.9.6 standard library; fictional data only",
+      "tools": [
+        "Git",
+        "Python 3.9.6 standard library",
+        "localhost HTTP",
+        "Playwright Chromium"
+      ],
+      "provisionedAccess": [
+        "Local fixture copy and installed tools only; no provider, account or deployment access"
+      ],
+      "simulated": false,
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/codex/lane-g-evaluation-20261025/docs/evaluations/fresh-agent-20261025.md",
+      "id": "resume-python-20261025-laneg-1",
+      "guideHash": "71dd00c65af4ebd40ca3e61cf765d1edf284e4e146bdff1e47159b9ecbb9a779",
+      "path": "resume",
+      "fixture": "Fictional interrupted Python Field Notes with a verified step-1 receipt, a stale lock and one genuinely failing health test",
+      "sourceCommit": "c82e219ce94a0d8bd787d07368dab44fa148b557",
+      "startedAt": "2026-10-24T23:32:56.922Z",
+      "finishedAt": "2026-10-24T23:35:14.416Z",
+      "outcome": "completed",
+      "checks": [
+        {
+          "command": "Read PROGRESS.md and inspect running listeners before any change",
+          "outcome": "Stale pid absent; two unrelated http.server listeners left running."
+        },
+        {
+          "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest -q",
+          "outcome": "Baseline failed exactly test_health with 404; after the change 5 tests passed."
+        },
+        {
+          "command": "Live GET /, /note/note-1, /note/note-2, /health, /note/absent",
+          "outcome": "200, 200, 200, 200 with body ok, 404."
+        },
+        {
+          "command": "Compare receipts/step-1.json and the owner marker SHA-256; inspect step-2 receipt",
+          "outcome": "Step 1 unchanged; one new step-2 receipt with a distinct nonce; owner marker byte-identical."
+        },
+        {
+          "command": "Inspect notes.json.tmp and .ops/op-2.lock",
+          "outcome": "Stale lock removed after confirming the pid was absent; the incomplete notes.json.tmp was retained and its disposition recorded rather than deleted."
+        }
+      ],
+      "interventions": []
+    },
+    {
+      "guideVersion": "app-composer.project-setup/1",
+      "agent": "Fresh OpenCode CLI session (separate process, isolated root)",
+      "model": "opencode-go/deepseek-v4.1-flash via opencode v2.1.4",
+      "environment": "macOS 26 arm64 local; Python 3.9.6 standard library; fictional data only",
+      "tools": [
+        "Git",
+        "Python 3.9.6 standard library",
+        "localhost HTTP",
+        "Playwright Chromium"
+      ],
+      "provisionedAccess": [
+        "Local fixture copy and installed tools only; no provider, account or deployment access"
+      ],
+      "simulated": false,
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/codex/lane-g-evaluation-20261025/docs/evaluations/fresh-agent-20261025.md",
+      "id": "existing-python-20261025-laneg-2",
+      "guideHash": "76c7fdd771e3f2cd5a3ac6d251779c7bab7461108bd85f61442c2e86681758ca",
+      "path": "existing",
+      "fixture": "Same fictional Python Field Notes; one instructed heading change with owner configuration, marker and unrelated draft preserved",
+      "sourceCommit": "4a7a8a3214137eb42a481b931fc2ade027744ea3",
+      "startedAt": "2026-10-24T23:37:03.434Z",
+      "finishedAt": "2026-10-24T23:38:14.225Z",
+      "outcome": "completed",
+      "checks": [
+        {
+          "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest -q",
+          "outcome": "7 owner tests passed, including the customisation checks."
+        },
+        {
+          "command": "Live GET / and /note/note-2",
+          "outcome": "200 with the new Trail log heading, owner title and accent intact; note detail 200."
+        },
+        {
+          "command": "Compare site.json, notes.json, owner-note.txt and scratch/owner-draft.txt SHA-256",
+          "outcome": "All four byte-identical; only app.py changed."
+        }
+      ],
+      "interventions": []
     }
   ]
 }

@@ -5,7 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@12.8.1",
   "scripts": {
-    "dev": "node scripts/workbench-source.mjs --check && node scripts/content-source.mjs --check && node scripts/enquiry-assets.mjs --check && node scripts/creator-source.mjs --check && node scripts/package-downloads.mjs && astro dev --host 127.0.0.1",
+    "dev": "node scripts/workbench-source.mjs --check && node scripts/content-source.mjs --check && node scripts/enquiry-assets.mjs --check && node scripts/creator-source.mjs --check && node scripts/identity.mjs && node scripts/package-downloads.mjs && astro dev --host 127.0.0.1",
     "build": "node scripts/workbench-source.mjs --check && node scripts/content-source.mjs --check && node scripts/enquiry-assets.mjs --check && node scripts/creator-source.mjs --check && node scripts/launcher-assets.mjs --check && node scripts/stack-share-assets.mjs --check && node scripts/identity.mjs && node scripts/package-downloads.mjs && astro build && rm -f dist/server/.dev.vars && node scripts/check-publication.mjs",
     "check": "pnpm check:types && pnpm lint && pnpm format:check && pnpm test",
     "test": "node --test --test-concurrency=4 tests/*.test.mjs",

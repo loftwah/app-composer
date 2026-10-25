@@ -1,0 +1,30 @@
+{
+  "id": "existing-change",
+  "task": "B",
+  "issue": 315,
+  "title": "Existing application inspection and a safe change, returning the role-pack output schema",
+  "fixture": "existing-notes",
+  "export": {
+    "mode": "existing",
+    "target": "existing-stack",
+    "project": "The existing Python field-notes project in this folder.",
+    "outcome": "Add a GET /about JSON route that returns the application name, the owner title from site.json and the number of notes, plus a unittest that covers it.",
+    "constraints": "Preserve the existing routes, owner configuration, owner-note.txt and unrelated work.",
+    "deploy": false
+  },
+  "pack": "programmer",
+  "prompt": "You are a fresh coding-agent session. The owner has pasted one exported setup guide and a downloaded role pack, and nothing else. Your working folder is the current directory. The field-notes app is a local isolated copy, not production.\n\nDo the change described in the guide, then return your structured result as `role-output.json` using the Programmer pack's output section exactly: one key per output field named in the pack, each with a short factual value. If a field cannot be filled without a human, say so in that field instead of inventing it. `PR` may state that no remote exists.\n\nAlso write RUN-REPORT.md with the commands you actually ran and their outcomes.",
+  "recorded": ["ownerNote", "siteConfig", "notesData", "scratchDraft"],
+  "assertions": [
+    { "type": "file-exists", "path": "role-output.json" },
+    { "type": "role-fields", "path": "role-output.json", "role": "programmer" },
+    { "type": "sha256", "path": "owner-note.txt", "equals": "recorded:ownerNote" },
+    { "type": "sha256", "path": "site.json", "equals": "recorded:siteConfig" },
+    { "type": "sha256", "path": "notes.json", "equals": "recorded:notesData" },
+    { "type": "sha256", "path": "scratch/owner-draft.txt", "equals": "recorded:scratchDraft" },
+    { "type": "text", "path": "app.py", "contains": ["/about"] },
+    { "type": "command", "run": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest -q", "expectExit": 0, "timeoutMs": 120000 },
+    { "type": "http", "command": "python3 app.py", "requests": [{ "path": "/", "status": 200 }, { "path": "/health", "status": 200 }, { "path": "/about", "status": 200, "contains": "Ada" }, { "path": "/note/absent", "status": 404 }] },
+    { "type": "file-exists", "path": "RUN-REPORT.md" }
+  ]
+}

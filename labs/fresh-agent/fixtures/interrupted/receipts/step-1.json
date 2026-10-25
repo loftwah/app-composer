@@ -1,0 +1,7 @@
+{
+  "operation": "start-local-server",
+  "step": 1,
+  "nonce": "5d0c6b61e2f74a3f9b1c",
+  "outcome": "verified",
+  "note": "Home route answered 200 on an unused localhost port; process stopped after the check."
+}

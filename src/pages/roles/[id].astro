@@ -29,6 +29,16 @@ const description = pack
         <p id="copy-status" class="pack-status" role="status" aria-live="polite"></p>
       </section>
 
+      <nav class="pack-index" aria-label="On this page">
+        <a href="#job-title">The job</a>
+        <a href="#inputs-title">Inputs</a>
+        <a href="#evidence-title">Evidence</a>
+        <a href="#output-title">Returns</a>
+        <a href="#worked-title">Worked example</a>
+        <a href="#tests-title">Negative tests</a>
+        <a href="#prompt-title">Prompt</a>
+      </nav>
+
       <section class="pack-boundaries" aria-label="Boundaries">
         <div>
           <h2>Stops and escalates</h2>
@@ -184,6 +194,10 @@ node scripts/roles.mjs brief \
   .pack-actions > a:not(.button) { min-height: 44px; display: inline-flex; align-items: center; font-size: .88rem; }
   .pack-actions button { min-height: 44px; font-size: .88rem; }
   .pack-status { min-height: 1.4em; margin: 12px 0 0; font-size: .86rem; color: var(--color-accent); }
+  .pack-index { display: flex; flex-wrap: wrap; gap: 2px 22px; padding: 10px 0; border-bottom: 1px solid var(--color-border); }
+  .pack-index a { display: inline-flex; align-items: center; min-height: 44px; font-size: .84rem; color: var(--color-muted); }
+  .pack-index a:hover, .pack-index a:focus-visible { color: var(--color-foreground); }
+  .pack-main section, .pack-worked { scroll-margin-top: 28px; }
   .pack-boundaries { display: grid; grid-template-columns: 1.1fr 1.1fr .9fr; gap: 34px; padding: 34px 0; border-bottom: 1px solid var(--color-border); }
   .pack-boundaries h2 { font-size: 1.02rem; letter-spacing: 0; margin: 0 0 12px; }
   .pack-boundaries ul { padding-left: 19px; margin: 0; font-size: .86rem; line-height: 1.6; color: var(--color-muted); }

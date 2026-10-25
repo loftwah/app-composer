@@ -1,0 +1,27 @@
+{
+  "id": "preserve-customisations",
+  "task": "E",
+  "issue": 292,
+  "title": "Apply an instructed change without overwriting owner customisations",
+  "fixture": "existing-notes",
+  "export": {
+    "mode": "existing",
+    "target": "existing-stack",
+    "project": "The existing Python field-notes project in this folder.",
+    "outcome": "Change the visible page heading from Field notes to Trail log.",
+    "constraints": "Ada's title, accent colour, pinned note, owner-note.txt and the unrelated scratch draft must stay exactly as they are.",
+    "deploy": false
+  },
+  "prompt": "You are a fresh coding-agent session. The owner has pasted one exported setup guide and nothing else. Your working folder is the current directory. Follow the guide for the one instructed change and leave everything else as it is.\n\nWhen you finish, write RUN-REPORT.md in the workspace root with the exact commands you ran, their outcomes and anything you deliberately left untouched.",
+  "recorded": ["ownerNote", "siteConfig", "notesData", "scratchDraft"],
+  "assertions": [
+    { "type": "sha256", "path": "owner-note.txt", "equals": "recorded:ownerNote" },
+    { "type": "sha256", "path": "site.json", "equals": "recorded:siteConfig" },
+    { "type": "sha256", "path": "notes.json", "equals": "recorded:notesData" },
+    { "type": "sha256", "path": "scratch/owner-draft.txt", "equals": "recorded:scratchDraft" },
+    { "type": "text", "path": "app.py", "contains": ["Trail log"], "notContains": ["<h1>Field notes</h1>"] },
+    { "type": "command", "run": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest -q", "expectExit": 0, "timeoutMs": 120000 },
+    { "type": "http", "command": "python3 app.py", "requests": [{ "path": "/", "status": 200, "contains": "Trail log" }, { "path": "/note/note-2", "status": 200 }] },
+    { "type": "file-exists", "path": "RUN-REPORT.md" }
+  ]
+}

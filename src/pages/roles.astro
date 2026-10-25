@@ -2,10 +2,13 @@
 import Base from '../layouts/Base.astro';
 import { rolePacks, rolePackReviewed, rolePackSuite } from '../lib/role-packs';
 import { rolePackExample } from '../lib/role-packs-example';
+import evaluation from '../../labs/fresh-agent/results-20261025.json';
 
 const edition = rolePackSuite.replace('composer.role-packs/', 'edition ');
 const negativeTests = rolePacks.reduce((sum, pack) => sum + pack.negativeTests.length, 0);
 const { workspace, application, service, environment } = rolePackExample;
+const trialCount = evaluation.cases.length;
+const evaluationHref = 'https://github.com/loftwah/app-composer/blob/codex/lane-g-evaluation-20261025/docs/evaluations/fresh-agent-20261025.md';
 ---
 <Base
   title="Agent role packs"
@@ -25,6 +28,13 @@ const { workspace, application, service, environment } = rolePackExample;
         <a href="#run">Run a brief on your machine</a>
         <a href="/prompts">Start from a prompt</a>
       </div>
+      <dl class="hub-proof">
+        <div><dt>Fresh-agent runs</dt><dd>{trialCount}</dd></div>
+        <div><dt>Assertions passed</dt><dd>{evaluation.totals.passed} of {evaluation.totals.total}</dd></div>
+        <div><dt>Human interventions</dt><dd>{evaluation.humanInterventions}</dd></div>
+      </dl>
+      <p class="hub-proof-note">Two packs run end to end and one unsafe bundle refused, on {evaluation.observedDate}. Same-model local runs; not cross-client or provider-onboarding proof.</p>
+      <p class="hub-proof-links"><a href={evaluationHref}>Read the evaluation</a><a href="/setup">Start from a project guide</a></p>
     </section>
 
     <nav class="role-rows" aria-label="Choose a role pack">
@@ -117,6 +127,12 @@ node scripts/roles.mjs brief \
   .hub-actions .button { gap: 2px; flex-direction: column; align-items: flex-start; padding-block: 10px; }
   .hub-actions .button span { font-size: .74rem; font-weight: 500; opacity: .9; }
   .hub-actions > a:not(.button) { min-height: 44px; display: inline-flex; align-items: center; font-size: .9rem; }
+  .hub-proof { display: flex; flex-wrap: wrap; gap: 10px 44px; margin: 26px 0 0; padding-top: 20px; border-top: 1px solid var(--color-border); }
+  .hub-proof dt { color: var(--color-muted); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; }
+  .hub-proof dd { margin: 4px 0 0; font-family: Space, sans-serif; font-size: 1.02rem; font-variant-numeric: tabular-nums; }
+  .hub-proof-note { margin: 14px 0 0; font-size: .8rem; line-height: 1.6; color: var(--color-muted); max-width: 62ch; }
+  .hub-proof-links { display: flex; flex-wrap: wrap; gap: 4px 24px; margin: 4px 0 0; font-size: .84rem; }
+  .hub-proof-links a { display: inline-flex; align-items: center; min-height: 44px; }
   .role-rows { display: block; border-bottom: 1px solid var(--color-border); }
   .role-row { display: grid; grid-template-columns: 46px minmax(130px, .7fr) minmax(0, 1.6fr) minmax(150px, .8fr) 24px; gap: 22px; align-items: start; padding: 22px 8px; border-top: 1px solid var(--color-border); color: var(--color-foreground); }
   .role-row:first-child { border-top: 0; }

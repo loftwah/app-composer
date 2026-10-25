@@ -1,0 +1,4 @@
+operation=add-health-route
+pid=88421
+startedAt=2026-10-25T02:11:40Z
+note=Process ended without clearing this lock. Treat as stale only after checking the port.

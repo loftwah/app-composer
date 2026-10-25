@@ -1,0 +1,91 @@
+{
+  "schema": "composer.fresh-agent-exports/1",
+  "capturedAt": "2026-10-24T22:55:00.808Z",
+  "origin": "http://127.0.0.1:4377",
+  "source": "86514680720702ce30157671652981e388b77f65",
+  "workingTree": [
+    "?? labs/fresh-agent/",
+    "?? scripts/eval-fresh-agent.mjs",
+    "?? scripts/setup-export.mjs"
+  ],
+  "browser": "Chromium 156.0.8078.4 via Playwright unknown",
+  "note": "Captured from the real /setup form and the real role-pack download routes on a local render of this source. Settings are fictional. Nothing was deployed.",
+  "exports": [
+    {
+      "case": "existing-change",
+      "kind": "setup-guide",
+      "file": "guides/existing-change.md",
+      "bytes": 6162,
+      "sha256": "58a4c95656a0cca5d7a8073072e20f36696498758ae8ad9a6b40ede3c7dc2950",
+      "settings": {
+        "mode": "existing",
+        "target": "existing-stack",
+        "deploy": false,
+        "projectChars": 55,
+        "outcomeChars": 150,
+        "constraintsChars": 85
+      }
+    },
+    {
+      "case": "existing-change",
+      "kind": "role-pack",
+      "file": "guides/existing-change-pack.md",
+      "bytes": 9205,
+      "sha256": "0066058c64c1723679c8b1d9aab226b5bcc21e49d17468abf908072f19c45694",
+      "pack": "programmer"
+    },
+    {
+      "case": "new-project",
+      "kind": "setup-guide",
+      "file": "guides/new-project.md",
+      "bytes": 6412,
+      "sha256": "c958f9b381ceda2132825029a3d6b44452352278ef9bf52229d437963fb95398",
+      "settings": {
+        "mode": "new",
+        "target": "existing-stack",
+        "deploy": false,
+        "projectChars": 119,
+        "outcomeChars": 295,
+        "constraintsChars": 124
+      }
+    },
+    {
+      "case": "preserve-customisations",
+      "kind": "setup-guide",
+      "file": "guides/preserve-customisations.md",
+      "bytes": 6107,
+      "sha256": "76c7fdd771e3f2cd5a3ac6d251779c7bab7461108bd85f61442c2e86681758ca",
+      "settings": {
+        "mode": "existing",
+        "target": "existing-stack",
+        "deploy": false,
+        "projectChars": 55,
+        "outcomeChars": 62,
+        "constraintsChars": 118
+      }
+    },
+    {
+      "case": "refuse-production-qa",
+      "kind": "role-pack",
+      "file": "guides/refuse-production-qa-pack.md",
+      "bytes": 8695,
+      "sha256": "df644ea0706c2bb5210699be86f00a922528952a811ee93b94ff098071ba647c",
+      "pack": "qa"
+    },
+    {
+      "case": "resume-interrupted",
+      "kind": "setup-guide",
+      "file": "guides/resume-interrupted.md",
+      "bytes": 5979,
+      "sha256": "71dd00c65af4ebd40ca3e61cf765d1edf284e4e146bdff1e47159b9ecbb9a779",
+      "settings": {
+        "mode": "resume",
+        "target": "existing-stack",
+        "deploy": false,
+        "projectChars": 55,
+        "outcomeChars": 103,
+        "constraintsChars": 112
+      }
+    }
+  ]
+}
