@@ -4,7 +4,15 @@ Reviewed 25 October 2026. This page is the current navigation snapshot; [issue #
 
 ## Product delivery and platform hardening — 25 October 2026
 
-The homepage correction is live from PR #383, source
+Current production is Composer `0866bf266382d3ea7d9e48919c819c62c93e76fa`,
+Worker `e0c800d7-44ee-4c8e-9c36-d151cb33ebb9`, after PR #386. The
+[canonical handoff](https://github.com/loftwah/app-composer/issues/11#issuecomment-6396062089)
+and [final receipt](evidence/platform-release-20261025/final-receipt.json) record
+1,194 passing tests, two optional skips, live source checks, unchanged production
+grant/audit digests and appearance version 5. This status-only follow-up does
+not deploy another Worker.
+
+The homepage correction first shipped from PR #383, source
 `3f4cca7505b788590205c7da3926c4fac6609ab1`, Worker
 `29ac7830-6e3f-47e8-a70c-c9d38c4a4d70`. The tablet proof panel dropped from
 937px to 411px without removing images or links. Its intrinsic image sizing and
@@ -13,7 +21,7 @@ wrapping flex layout caused the blank space. Representative production
 include both themes, keyboard, text reflow and delayed loading. Native browser
 zoom remains unverified.
 
-The independently reviewed platform slice is live from PR #384/#385, source
+The independently reviewed platform slice first shipped in PR #384/#385, source
 `b9f743729bfca15088a28fd47919b5be8d660997`, Worker
 `c5e8bed2-64ac-41f1-9cb1-3eab33ffcd2b`. Its [release and actual production
 browser receipt](evidence/platform-release-20261025/README.md) records the full
@@ -22,10 +30,9 @@ checks, negative paths, timing and retained owner state. It adds:
 - Native **Plugin Trust Centre**, **Brand Studio** and **Incident Desk** pages.
   Trust Centre is read-only, dated and exact-release based; unknown evidence is
   explicit. Brand Studio saves scoped immutable versions, previews the actual
-  native console, publishes a second change and restores a prior appearance. That
-  owner journey passed in production Chrome, retaining all five versions.
-  That exact owner journey also passed in production Chrome, ending at version5
-  with all prior versions retained.
+  native console, publishes a second change and restores a prior appearance.
+  That owner journey passed in production Chrome, ending at version 5 with all
+  prior versions retained.
   Incident Desk preserves structured SITREPs, revised evidence and decisions,
   refusing stale approval. Their actual isolated native browser journeys and
   production release state are linked from #11.
@@ -58,13 +65,18 @@ entitlement and an authorised isolated lifecycle target. No plugin was installed
 Provider inventory remains read-only: all 88 undeclared Workers are classified
 with current evidence; four legacy targets retain real dependencies/uncertainty
 and are not safe deletion candidates. Hosted provider reads and measured money
-cost remain unknown. [Team Hub](team-hub.md) has a useful Composer-owned local application slice:
+cost remain unknown.
+
+[Team Hub](team-hub.md) has a useful Composer-owned local
+application slice:
 private requests, assignment/status, attachments, immutable history and explicit
 app grants. Actual native role-10, viewer, cross-team, revocation and disabled-user
 journeys passed. Its production origin stays closed pending verified Access
 coverage for both the document and private APIs, passwordless sign-in and
-mandatory MFA. It is not an independently deployed reference app. The [WordPress lab refresh](../labs/wordpress/weekender/OBSERVATIONS.md)
-qualifies the same fictional publisher database through EmDash1.2.0→1.3.1
+mandatory MFA. It is not an independently deployed reference app.
+
+The [WordPress lab refresh](../labs/wordpress/weekender/OBSERVATIONS.md)
+qualifies the same fictional publisher database through EmDash 1.2.0 → 1.3.1
 and a subsequent native edit/publish cycle. Existing media URL, metadata,
 hierarchy, fresh-import and broader migration gates remain explicit. #11 owns
 exact final source, checks, Workers, cleanup and remaining gates for this run.
