@@ -3,7 +3,6 @@ import { pluginResponse } from "emdash";
 import {
   teamHubCommand,
   teamHubRequest,
-  teamHubWorkspace,
   type TeamHubRequest,
 } from "./team-hub-contract.ts";
 const issuer = "https://composer.loftwah.com";
