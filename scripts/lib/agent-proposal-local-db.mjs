@@ -14,6 +14,7 @@ const migrations = [
   "0004_stack_publications.sql",
   "0008_workspace_access.sql",
   "0016_agent_proposals.sql",
+  "0018_agent_grant_connections.sql",
 ];
 
 function statement(sqlite, sql, params = []) {

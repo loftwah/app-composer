@@ -166,14 +166,28 @@ release flow.
 
 The fictional Trail Notes journey reached v1 → request changes → v2 → accepted
 with an exact digest → verified → prepared handoff, and refused self-approval and
-an `execute` attempt. Fifteen focused tests cover wrong scope, revoked/expired
-grants, stale source, duplicate and interrupted submission, mutated content,
-secret material and native-route access. This is a local SQLite/preview slice:
-connected agent authentication, grant provisioning UI, production D1, real
-Access admission and browser/device acceptance remain #311/#315 gaps. No
-production migration or deployment was performed. See
-[agent proposals](agent-proposals.md) and the
-[bounded transcript](evidence/agent-proposals-20261025/transcript.md).
+an `execute` attempt. Twenty-seven focused tests cover wrong scope,
+revoked/expired grants, stale source, duplicate and interrupted submission,
+mutated content, secret material, native-route access, connection issue,
+rotation, revocation and the scoped MCP endpoint.
+
+The owner workflow now connects an agent. **Connect an agent** on the native page
+selects an app, environment, role pack, agent and fallback and shows the exact
+permitted capabilities before authorising one expiring, revocable connection.
+Migration `0018_agent_grant_connections.sql` stores only the credential hash and
+prefix. Two interfaces exist: a scoped local MCP endpoint
+(`scripts/agent-proposal-mcp.mjs`, three proposal-only tools) and EmDash MCP tools
+on the `composer-stacks` plugin. The endpoint was driven over the real MCP
+protocol through capabilities → briefing → submission → a refused `agent_review`;
+the native route accepted the exact digest with `execution: not-performed` and no
+handoff row; revocation then made the endpoint refuse to start with
+`GRANT_REVOKED`. A model-driven Codex turn is still blocked by the owner's Codex
+usage limit, so no agent client is claimed beyond the MCP protocol exercise.
+Production D1, a deployed EmDash MCP call, real Access admission and
+browser/device acceptance remain #311/#315 gaps. No production migration or
+deployment was performed. See [agent proposals](agent-proposals.md),
+[connect your agent](agent-connect.md) and the
+[connected transcript](evidence/agent-connect-20261025/transcript.md).
 
 
 ## Finding the shipped work — 24 October 2026

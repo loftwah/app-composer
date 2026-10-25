@@ -17,8 +17,20 @@ export const agentBriefingVersion = "composer.agent-briefing/1";
 export const agentProposalVersion = "composer.agent-proposal/1";
 export const agentHandoffVersion = "composer.agent-handoff/1";
 export const agentProposalSuite = "composer.agent-proposals/1";
+/** The grant/connection surface is versioned separately from the proposal contract. */
+export const agentConnectionSuite = "composer.agent-connection/1";
+/**
+ * Agent grant credentials are deliberately not EmDash tokens. EmDash reads only
+ * `ec_pat_` and `ec_oat_` bearer tokens and rejects every other prefix, so this
+ * value cannot open an EmDash session, an admin route or a plugin route.
+ */
+export const agentConnectionTokenPrefix = "ec_agent_";
 
 const scopedId = z.string().regex(/^[a-z0-9-]{6,64}$/);
+// App ids come from the owner's own application (ldraw, hello, state, …), so
+// they are shorter than record ids. Widening this cannot change an existing
+// digest: the digest covers the exact string, not the validation pattern.
+const agentAppId = z.string().regex(/^[a-z0-9-]{3,64}$/);
 const actorId = z
   .string()
   .trim()
@@ -60,7 +72,7 @@ export const agentHuman = z.object({ id: actorId, name: displayName }).strict();
 export const agentGrantInput = z
   .object({
     workspace: scopedId,
-    app: scopedId,
+    app: agentAppId,
     environment: agentEnvironment,
     rolePack: agentRolePack,
     agent: agentActor,
@@ -118,7 +130,7 @@ export const agentGrantView = z
   .object({
     id: scopedId,
     workspace: scopedId,
-    app: scopedId,
+    app: agentAppId,
     environment: agentGrantEnvironment,
     rolePack: agentRolePack,
     mode: z.literal("proposal-only"),
@@ -132,9 +144,127 @@ export const agentGrantView = z
     revokedBy: displayName.nullable(),
     revision: z.number().int().positive(),
     state: z.enum(["active", "expired", "revoked"]),
+    connection: z
+      .object({
+        issued: z.boolean(),
+        prefix: z.string().min(4).max(32).nullable(),
+        issuedAt: isoTime.nullable(),
+        lastUsedAt: isoTime.nullable(),
+      })
+      .strict(),
   })
   .strict();
 export type AgentGrantView = z.infer<typeof agentGrantView>;
+
+/**
+ * What a grant connection may do, in one fixed catalogue.
+ *
+ * The same list is shown to the owner before they authorise a connection, and
+ * to the agent when it asks for its scope. Anything absent is refused by the
+ * store rather than left to the caller's interpretation.
+ */
+export interface AgentCapability {
+  id: "scope:read" | "briefing:read" | "proposal:submit";
+  label: string;
+  authority: "read" | "propose";
+  detail: string;
+}
+export const agentCapabilityCatalogue: readonly AgentCapability[] =
+  Object.freeze([
+    {
+      id: "scope:read",
+      label: "Read the granted scope",
+      authority: "read",
+      detail:
+        "Workspace, app, environment, account, role pack, agent identity, owner, fallback and expiry for this one grant.",
+    },
+    {
+      id: "briefing:read",
+      label: "Read the scoped briefing",
+      authority: "read",
+      detail:
+        "The role pack's required inputs, permitted evidence for this environment, output schema, stop rules and prohibitions.",
+    },
+    {
+      id: "proposal:submit",
+      label: "Submit a versioned proposal",
+      authority: "propose",
+      detail:
+        "One reviewable record with source identity, cited evidence, risk and a bounded change. It cannot approve, execute or change access.",
+    },
+  ]);
+/** Capabilities that stay with a human and are never in a grant. */
+export const agentReservedActions: readonly string[] = Object.freeze([
+  "Review, accept, request changes on or reject any proposal.",
+  "Prepare a handoff for the release or delivery flow.",
+  "Deploy, publish, merge, run a migration or change a binding.",
+  "Create, rotate or read a Cloudflare, Git or provider credential.",
+  "Change workspace membership, roles or access policy.",
+  "Spend money or authorise a paid commitment.",
+  "Read secrets, private enquiries or another workspace's data.",
+]);
+export const agentCapability = z
+  .object({
+    id: z.enum(["scope:read", "briefing:read", "proposal:submit"]),
+    label: z.string().trim().min(1).max(80),
+    authority: z.enum(["read", "propose"]),
+    detail: z.string().trim().min(1).max(400),
+  })
+  .strict();
+
+/** Agent-facing answer to "what am I allowed to do here?". */
+export const agentGrantScope = z
+  .object({
+    ok: z.literal(true),
+    version: z.literal(agentConnectionSuite),
+    workspace: scopedId,
+    app: agentAppId,
+    environment: agentGrantEnvironment,
+    rolePack: agentRolePack,
+    rolePackVersion: z.string(),
+    agent: agentActor,
+    owner: agentHuman,
+    fallback: agentHuman,
+    grant: scopedId,
+    expiresAt: isoTime,
+    capabilities: z.array(agentCapability).min(1),
+    reserved: z.array(z.string()).min(1),
+    execution: z.literal("not-performed"),
+  })
+  .strict();
+export type AgentGrantScope = z.infer<typeof agentGrantScope>;
+
+/** Returned exactly once, at issue or rotation time. Never stored in the clear. */
+export const agentConnectionSecret = z
+  .object({
+    version: z.literal(agentConnectionSuite),
+    grant: scopedId,
+    workspace: scopedId,
+    token: z
+      .string()
+      .regex(/^ec_agent_[A-Za-z0-9_-]{43}$/)
+      .describe(
+        "Shown once. Present it to the scoped endpoint, never to a model.",
+      ),
+    prefix: z.string().min(8).max(24),
+    issuedAt: isoTime,
+    expiresAt: isoTime,
+    revokedWithGrant: z.literal(true),
+    capabilities: z.array(agentCapability).min(1),
+    launch: z.array(z.string().trim().min(1).max(300)).min(1),
+    execution: z.literal("not-performed"),
+  })
+  .strict();
+export type AgentConnectionSecret = z.infer<typeof agentConnectionSecret>;
+
+/** Credential + scope presented by the scoped endpoint. */
+export const agentConnectionAuth = z
+  .object({
+    workspace: scopedId,
+    grant: scopedId,
+    token: z.string().trim().min(20).max(200),
+  })
+  .strict();
 
 export const agentEvidence = z
   .object({
@@ -245,7 +375,7 @@ export const agentProposalSubmit = z
   .object({
     action: z.literal("submit"),
     workspace: scopedId,
-    app: scopedId,
+    app: agentAppId,
     environment: agentEnvironment,
     rolePack: agentRolePack,
     grant: scopedId,
@@ -297,6 +427,70 @@ export const agentHandoffInput = z
   .strict();
 export type AgentHandoffInput = z.infer<typeof agentHandoffInput>;
 
+/** Agent input carries no scope of its own: the verified grant decides it. */
+export const agentConnectionBriefing = z
+  .object({
+    workspace: scopedId,
+    grant: scopedId,
+    token: z.string().trim().min(20).max(200),
+    briefing: scopedId,
+  })
+  .strict();
+
+export const agentConnectionSubmit = z
+  .object({
+    workspace: scopedId,
+    grant: scopedId,
+    token: z.string().trim().min(20).max(200),
+    briefing: scopedId,
+    proposal: scopedId.optional(),
+    source: agentSourceInput,
+    evidence: z.array(evidenceId).min(1).max(20),
+    risk: agentRisk,
+    change: agentChange,
+  })
+  .strict();
+export type AgentConnectionSubmit = z.infer<typeof agentConnectionSubmit>;
+
+/**
+ * Native, owner-facing connection requests. The owner and fallback are resolved
+ * from workspace membership by the route, never asserted in the request body.
+ */
+export const agentGrantRequest = z
+  .object({
+    action: z.literal("grant"),
+    workspace: scopedId,
+    app: agentAppId,
+    environment: agentGrantEnvironment,
+    rolePack: agentRolePack,
+    agent: agentActor,
+    fallbackId: actorId,
+    expiresInHours: z.number().int().min(1).max(72),
+  })
+  .strict();
+export type AgentGrantRequest = z.infer<typeof agentGrantRequest>;
+
+export const agentGrantRevokeRequest = z
+  .object({
+    action: z.literal("grant-revoke"),
+    workspace: scopedId,
+    grant: scopedId,
+    reason: z.string().trim().min(8).max(400),
+  })
+  .strict();
+export type AgentGrantRevokeRequest = z.infer<typeof agentGrantRevokeRequest>;
+
+export const agentConnectionRotateRequest = z
+  .object({
+    action: z.literal("connection-rotate"),
+    workspace: scopedId,
+    grant: scopedId,
+  })
+  .strict();
+export type AgentConnectionRotateRequest = z.infer<
+  typeof agentConnectionRotateRequest
+>;
+
 export const agentProposalReview = z
   .object({
     id: z.uuid(),
@@ -318,7 +512,7 @@ export const agentHandoffArtifact = z
     proposalVersion: z.number().int().positive(),
     digest: sha256,
     workspace: scopedId,
-    app: scopedId,
+    app: agentAppId,
     environment: agentEnvironment,
     rolePack: agentRolePack,
     source: agentStoredSource,
@@ -350,7 +544,7 @@ export const agentProposalView = z
     state: agentProposalState,
     risk: agentRisk,
     workspace: scopedId,
-    app: scopedId,
+    app: agentAppId,
     environment: agentEnvironment,
     rolePack: agentRolePack,
     rolePackVersion: z.string(),
@@ -412,6 +606,49 @@ export const agentProposalSnapshot = z
   })
   .strict();
 export type AgentProposalSnapshot = z.infer<typeof agentProposalSnapshot>;
+
+export const agentGrantSnapshot = z
+  .object({
+    ok: z.literal(true),
+    version: z.literal(agentConnectionSuite),
+    workspace: z
+      .object({
+        id: scopedId,
+        name: z.string().max(80),
+        role: z.enum(["owner", "editor", "viewer"]),
+      })
+      .strict(),
+    grants: z.array(agentGrantView).max(20),
+    self: actorId,
+    capabilities: z.array(agentCapability).min(1),
+    reserved: z.array(z.string()).min(1),
+    apps: z.array(agentAppId).max(60),
+    members: z
+      .array(
+        z
+          .object({
+            id: actorId,
+            name: displayName,
+            role: z.enum(["owner", "editor"]),
+          })
+          .strict(),
+      )
+      .max(60),
+    execution: z.literal("not-performed"),
+  })
+  .strict();
+export type AgentGrantSnapshot = z.infer<typeof agentGrantSnapshot>;
+
+export const agentConnectionResult = z
+  .object({
+    ok: z.literal(true),
+    version: z.literal(agentConnectionSuite),
+    grant: agentGrantView,
+    connection: agentConnectionSecret,
+    execution: z.literal("not-performed"),
+  })
+  .strict();
+export type AgentConnectionResult = z.infer<typeof agentConnectionResult>;
 
 export const agentVerifyResult = z
   .object({
@@ -498,8 +735,10 @@ const secretPatterns: { label: string; pattern: RegExp }[] = [
   { label: "Slack token", pattern: /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/ },
   {
     label: "private key",
-    pattern:
-      /-----BEGIN (?:[A-Z ]+ )?PRIVATE KEY-----|-----BEGIN OPENSSH PRIVATE KEY-----/,
+    // One alternative covers every header: `[A-Z ]+ ` matches OPENSSH, RSA,
+    // EC and PGP, and the group is optional for a bare key. A second literal
+    // header is redundant here and trips the publication guard.
+    pattern: /-----BEGIN (?:[A-Z ]+ )?PRIVATE KEY-----/,
   },
   {
     label: "labelled secret",

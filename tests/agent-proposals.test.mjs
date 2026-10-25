@@ -68,12 +68,14 @@ const source = {
 async function prepared(t) {
   const f = fixture();
   t.after(() => f.close());
-  f.sqlite.exec(
-    readFileSync(
-      new URL("../migrations/0016_agent_proposals.sql", import.meta.url),
-      "utf8",
-    ),
-  );
+  for (const file of [
+    "0008_workspace_access.sql",
+    "0016_agent_proposals.sql",
+    "0018_agent_grant_connections.sql",
+  ])
+    f.sqlite.exec(
+      readFileSync(new URL("../migrations/" + file, import.meta.url), "utf8"),
+    );
   const workspace = await workspaceForUser(f.db, user);
   const grant = await provisionAgentGrant(
     f.db,
@@ -827,11 +829,14 @@ test("production scope and missing accountability are refused at grant time", as
 
 test("native admin route scopes reads, refuses viewers and records one owner decision without execution", async (t) => {
   const f = await prepared(t);
-  // The native route reads the real clock, so this submission uses the actual
-  // current time. A fixed NOW would read as a stale local source more than ten
-  // minutes after that fixture instant and fail a route that has not changed.
-  const submittedAt = new Date().toISOString();
-  const v1 = (await f.submit({}, submittedAt)).view;
+  // The native route reads the real clock, so this test supplies a freshly
+  // observed source and a grant that is live now. Submitting an old evidence
+  // clock here would make the case pass or fail depending on the time of day.
+  const observedAt = new Date().toISOString();
+  const v1 = (await f.submit({}, observedAt)).view;
+  f.sqlite
+    .prepare("UPDATE creator_agent_grants SET expires_at=? WHERE id=?")
+    .run(new Date(Date.now() + 3_600_000).toISOString(), f.grant.id);
   f.sqlite
     .prepare(
       "UPDATE creator_agent_grants SET owner_id=?,owner_name=? WHERE id=?",

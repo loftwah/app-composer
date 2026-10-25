@@ -55,7 +55,8 @@ test("migration numbers never add a new collision and the inbox journey uses a f
     1,
     "the highest migration prefix must be unique",
   );
-  assert.equal(highest, "0017");
+  assert.equal(highest, "0018");
   assert.ok(files.includes("0017_inbox_journey.sql"));
+  assert.ok(files.includes("0018_agent_grant_connections.sql"));
   assert.ok(!files.includes("0014_inbox_journey.sql"));
 });

@@ -13,7 +13,11 @@ import { manageOverview } from "./overview.ts";
 import { manageOrders } from "./orders.ts";
 import { manageConnections } from "./connections.ts";
 import { manageResourceInventory } from "./resource-inventory.ts";
-import { manageAgentProposals } from "./agent-proposals.ts";
+import {
+  manageAgentProposals,
+  manageAgentTools,
+  agentToolInputs,
+} from "./agent-proposals.ts";
 import { manageProviderInventory } from "./provider-read.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
@@ -56,6 +60,27 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         permission: creatorPermission,
         request: { body: "json", maxBytes: 8000 },
         handler: (ctx) => manageAgentProposals(ctx, runtime),
+      },
+      // EmDash MCP tools for an owner-owned agent connection. Only the three
+      // proposal-only operations are exposed; review and handoff stay on the
+      // browser-session routes above.
+      agentScope: {
+        methods: ["POST"],
+        permission: creatorPermission,
+        request: { body: "json", maxBytes: 8000 },
+        handler: (ctx) => manageAgentTools(ctx, runtime, "scope"),
+      },
+      agentBrief: {
+        methods: ["POST"],
+        permission: creatorPermission,
+        request: { body: "json", maxBytes: 40000 },
+        handler: (ctx) => manageAgentTools(ctx, runtime, "brief"),
+      },
+      agentSubmit: {
+        methods: ["POST"],
+        permission: creatorPermission,
+        request: { body: "json", maxBytes: 120000 },
+        handler: (ctx) => manageAgentTools(ctx, runtime, "submit"),
       },
       connectionsRead: {
         methods: ["GET"],
@@ -181,6 +206,32 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         permission: creatorPermission,
         request: { body: "json", maxBytes: 1000 },
         handler: (ctx) => managePrivateOutcomes(ctx, runtime),
+      },
+    },
+    // Exposed through EmDash's MCP endpoint. An EmDash API token scoped
+    // `mcp:tools:composer-stacks` can call these three tools and nothing else;
+    // direct plugin routes still need the `admin` token scope.
+    mcp: {
+      tools: {
+        agent_scope: {
+          description:
+            "Read the owner-issued, proposal-only agent grant: workspace, app, environment, role pack, agent identity, owner, fallback, expiry and the exact permitted capabilities. No approval, deployment or access change.",
+          route: "agentScope",
+          input: agentToolInputs.scope,
+        },
+        agent_brief: {
+          description:
+            "Store and return the deterministic read-only briefing for an owner-issued grant: role-pack inputs, permitted evidence, output schema, stop rules and prohibitions. Briefing is not approval.",
+          route: "agentBrief",
+          input: agentToolInputs.brief,
+        },
+        agent_submit: {
+          description:
+            "Submit one reviewable proposal version pinned to a repository commit. The proposal appears in the Composer review queue and performs no execution. A human reviews it separately.",
+          route: "agentSubmit",
+          input: agentToolInputs.submit,
+          destructive: false,
+        },
       },
     },
   });

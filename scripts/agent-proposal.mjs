@@ -29,9 +29,11 @@ import {
 } from "./lib/agent-source.mjs";
 import {
   createAgentBriefing,
+  issueAgentGrantConnection,
   listAgentProposals,
   prepareAgentHandoff,
   provisionAgentGrant,
+  readAgentGrantScope,
   revokeAgentGrant,
   reviewAgentProposal,
   showAgentProposal,
@@ -201,6 +203,9 @@ Usage
     --app <id> --environment <id> --environment-kind local|preview --account <id> \\
     --role <pack> --agent-id <id> --agent-name <name> --owner-id <id> --owner-name <name> \\
     --fallback-id <id> --fallback-name <name> --issued-by <name> --expires-at <ISO> --confirm-owner
+    (prints the single agent connection token once; it is stored only as a hash)
+  node scripts/agent-proposal.mjs scope --db <file> --grant <id> [--token <value>] [--json]
+    (agent-facing: permitted capabilities and the actions reserved for humans)
   node scripts/agent-proposal.mjs revoke --db <file> --grant <id> --actor-id <id> --actor-name <name> --reason <text> --confirm-owner
   node scripts/agent-proposal.mjs brief --db <file> --grant <id> --evidence <json> --as-of <ISO> [--out <md>] [--json]
   node scripts/agent-proposal.mjs submit --db <file> --grant <id> --briefing <id> --evidence <ids> \\
@@ -267,11 +272,52 @@ function run(options, local) {
         expiresAt: flag(options, "expires-at", true),
       },
       { now: now(options) },
-    ).then((grant) => {
-      if (options.flags.get("json")) printJson(grant);
+    ).then(async (grant) => {
+      const issued = await issueAgentGrantConnection(
+        db,
+        {
+          workspace,
+          grant: grant.id,
+          actor: {
+            id: flag(options, "owner-id", true),
+            name: flag(options, "owner-name", true),
+          },
+        },
+        { now: now(options) },
+      );
+      if (options.flags.get("json"))
+        printJson({ ...issued.grant, connection: issued.connection });
       else
         process.stdout.write(
-          `Grant ${grant.id} · ${grant.state} · ${grant.mode}\nScope: ${grant.workspace}/${grant.app}/${grant.environment.kind}/${grant.environment.id} · ${grant.rolePack}\nAgent: ${grant.agent.name} (${grant.agent.id})\nOwner: ${grant.owner.name} · fallback ${grant.fallback.name}\nExpires: ${grant.expiresAt}\n`,
+          `Grant ${issued.grant.id} · ${issued.grant.state} · ${issued.grant.mode}\nScope: ${issued.grant.workspace}/${issued.grant.app}/${issued.grant.environment.kind}/${issued.grant.environment.id} · ${issued.grant.rolePack}\nAgent: ${issued.grant.agent.name} (${issued.grant.agent.id})\nOwner: ${issued.grant.owner.name} · fallback ${issued.grant.fallback.name}\nExpires: ${issued.grant.expiresAt}\nConnection ${issued.connection.prefix}… (shown once, revocable with this grant)\nToken: ${issued.connection.token}\nLaunch: ${issued.connection.launch[1]}\nPermitted: ${issued.connection.capabilities.map((item) => item.id).join(", ")}\n`,
+        );
+      return 0;
+    });
+  }
+  if (command === "scope") {
+    const grantId = flag(options, "grant", true);
+    const grant = grantFor(sqlite, grantId);
+    const token = flag(options, "token") ?? process.env.COMPOSER_AGENT_TOKEN;
+    if (!token)
+      throw new Error(
+        "Pass --token or set COMPOSER_AGENT_TOKEN. The credential is shown once when the grant is created.",
+      );
+    return readAgentGrantScope(
+      db,
+      { workspace: grant.workspace_id, grant: grantId, token },
+      { now: now(options) },
+    ).then((scope) => {
+      if (options.flags.get("json")) printJson(scope);
+      else
+        process.stdout.write(
+          [
+            `Grant ${scope.grant} · ${scope.workspace}/${scope.app}/${scope.environment.kind}/${scope.environment.id} · ${scope.rolePack} ${scope.rolePackVersion}`,
+            `Agent: ${scope.agent.name} (${scope.agent.id}) · owner ${scope.owner.name} · fallback ${scope.fallback.name}`,
+            `Expires: ${scope.expiresAt}`,
+            `Permitted: ${scope.capabilities.map((item) => `${item.id} (${item.authority})`).join(", ")}`,
+            `Reserved for humans: ${scope.reserved.join(" ")}`,
+            "Execution: not performed by this connection.",
+          ].join("\n") + "\n",
         );
       return 0;
     });
