@@ -176,7 +176,7 @@ async function grants(db: D1Database, user: string, workspace?: string) {
   return (
     await db
       .prepare(
-        `SELECT g.* FROM creator_app_grants g JOIN creator_members m ON m.workspace_id=g.workspace_id AND m.user_id=g.user_id WHERE g.issuer=? AND g.user_id=? AND g.status='active' ${workspace ? "AND g.workspace_id=?" : ""} ORDER BY g.workspace_id,g.app,g.resource_id,g.action LIMIT 256`,
+        `SELECT g.* FROM creator_app_grants g JOIN creator_members m ON m.workspace_id=g.workspace_id AND m.user_id=g.user_id WHERE g.issuer=? AND g.user_id=? AND g.status='active' AND g.app IN ('showcase','guestbook') ${workspace ? "AND g.workspace_id=?" : ""} ORDER BY g.workspace_id,g.app,g.resource_id,g.action LIMIT 256`,
       )
       .bind(memberIssuer, user, ...(workspace ? [workspace] : []))
       .all<Grant>()
@@ -797,7 +797,7 @@ export async function manageMembers(
       const all = (
         await db
           .prepare(
-            "SELECT * FROM creator_app_grants WHERE issuer=? AND workspace_id=? ORDER BY user_id,app,resource_id,action LIMIT 256",
+            "SELECT * FROM creator_app_grants WHERE issuer=? AND workspace_id=? AND app IN ('showcase','guestbook') ORDER BY user_id,app,resource_id,action LIMIT 256",
           )
           .bind(memberIssuer, workspace)
           .all<Grant>()
@@ -805,7 +805,7 @@ export async function manageMembers(
       const audit = (
         await db
           .prepare(
-            "SELECT actor_id AS actor,member_id AS member,app,resource_id AS resource,action,event,grant_revision AS revision,created_at AS createdAt FROM creator_app_access_audit WHERE issuer=? AND workspace_id=? ORDER BY created_at DESC,rowid DESC LIMIT 100",
+            "SELECT actor_id AS actor,member_id AS member,app,resource_id AS resource,action,event,grant_revision AS revision,created_at AS createdAt FROM creator_app_access_audit WHERE issuer=? AND workspace_id=? AND app IN ('showcase','guestbook') ORDER BY created_at DESC,rowid DESC LIMIT 100",
           )
           .bind(memberIssuer, workspace)
           .all()
