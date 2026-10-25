@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-25T12:49:13.861Z",
+  "results": [
+    {
+      "path": "/team-hub",
+      "status": 503,
+      "cache": "private, no-store",
+      "robots": "noindex, nofollow",
+      "location": null
+    },
+    {
+      "path": "/team-hub/",
+      "status": 503,
+      "cache": "private, no-store",
+      "robots": "noindex, nofollow",
+      "location": null
+    },
+    {
+      "path": "/_emdash/api/plugins/composer-stacks/connectionsEncryptionCheck",
+      "status": 302,
+      "cache": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+      "robots": null,
+      "location": "jolly-cake-2b85.cloudflareaccess.com"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-25T12:46:05.590Z",
+  "database": "app-composer-emdash",
+  "environment": "production",
+  "readOnly": true,
+  "tables": {
+    "creator_app_grants": {
+      "rows": 1,
+      "sha256": "c79982de21d4913798ad304b7b3079c299bcb1c4013210d5ae6b93d797c27722"
+    },
+    "creator_app_access_audit": {
+      "rows": 2,
+      "sha256": "36da2b5607b65dc50dec714b8e6217d54013b45556cbeb4f2594c45be25ec8a8"
+    }
+  },
+  "unchangedFromPreviousRelease": true
+}

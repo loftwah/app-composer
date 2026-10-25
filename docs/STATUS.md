@@ -4,6 +4,19 @@ Reviewed 25 October 2026. This page is the current navigation snapshot; [issue #
 
 ## Product delivery and platform hardening — 25 October 2026
 
+Final acceptance on 25 October UTC (handoff 26 October AEDT) is Composer
+`8847b93f9474f22c3d724e59a3d9e165f8444a76`, Worker
+`c15d8fdd-2b63-4e61-8206-ade44188166c` at 100%, from merged PR #393.
+The [final receipt](evidence/product-completion-20261025/final-receipt.json)
+records 1,264 tests passed, two optional skips and zero failures. The owner-approved
+fresh encryption key now passes actual native encrypted-setting storage/readback/
+cleanup twice in production, plus the scoped owned Guestbook read. This does
+not qualify external email, Shopify or registry installation. Brand appearance
+version 5, all five configurations, grant/audit digests and independent pins are
+unchanged. Fresh native creator and publisher lifecycle examples, public
+demonstrations, reduced-motion correction and paginated-inventory honesty are
+qualified with the exact local/live boundaries in those receipts.
+
 The integration continuation's first production batch is Composer
 `d3e0b67de2b05315351af9ff2c89b70dec75fd56`, Worker
 `34bce397-4bc4-4f9a-b2c3-b8502197dcc3` (PR #389/#390). Its guarded clean-main
@@ -126,11 +139,13 @@ registry lifecycle) are committed in
 [the 25 October research index](research/2026-10-25/README.md). None was turned
 into a speculative platform build.
 
-`EMDASH_ENCRYPTION_KEY` remains malformed. The earlier empty `_plugin_storage`/plugin-state observation did not cover
-native settings in `options` and cannot establish ciphertext absence. The
-corrected metadata-only coverage and owner recovery procedure are in
-[the encryption-key note](evidence/emdash-encryption-key-20261025.md). Encrypted
-settings stay degraded until legitimate owner-authorised recovery is verified.
+The earlier malformed `EMDASH_ENCRYPTION_KEY` finding and incomplete
+`_plugin_storage`/plugin-state observation are historical. Corrected coverage
+also checked native settings in `options`. The owner-approved `8847b93` recovery
+above now verifies actual native encryption and decryption in production;
+[the key note](evidence/emdash-encryption-key-20261025.md) retains both the
+original finding and the superseding acceptance. Metadata counts alone still
+cannot establish encryption health or older-backup recovery.
 
 ## 25 October release
 

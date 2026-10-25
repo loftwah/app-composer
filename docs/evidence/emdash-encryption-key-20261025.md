@@ -1,5 +1,16 @@
 # EmDash encryption-key rejection — read-only finding
 
+**Later recovery:** after explicit owner approval and a fresh three-store empty
+check, the guarded production release `8847b93` / Worker
+`c15d8fdd-2b63-4e61-8206-ade44188166c` initialised a securely retained fresh
+key. The real owner-native Connections page passed encrypted storage, native
+decryption and exact temporary-value cleanup at 12:40:07 and 12:40:44 UTC on
+25 October, including after reload. The owned Guestbook read passed at 12:40:45.
+[Final acceptance](product-completion-20261025/encryption-after-final.json)
+supersedes the degraded status below. The historical investigation and its scope
+correction are retained. Provider credentials and older encrypted backups remain
+separate qualifications; do not repeat initialisation as routine deployment.
+
 Observed 25 October 2026 against Composer `5e012f98` / Worker
 `57c5873f-77a9-4c0c-a413-bd1d1ad4b2b4`. This note records a read-only
 investigation. No key was read, printed, generated, rotated, replaced or

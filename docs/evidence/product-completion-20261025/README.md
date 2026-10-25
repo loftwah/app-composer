@@ -4,6 +4,23 @@ This directory retains bounded receipts and actual captures. The canonical
 release accounting is [issue #11](https://github.com/loftwah/app-composer/issues/11).
 A local trial never establishes production provider, identity or device acceptance.
 
+Final production acceptance is **`8847b93f9474f22c3d724e59a3d9e165f8444a76`**,
+Worker **`c15d8fdd-2b63-4e61-8206-ade44188166c`** at 100%, after merged
+PR #393. [Final receipt](final-receipt.json) records 1,264 passing tests, zero
+failures, two optional skips and the complete guarded release. The actual native
+owner verified encrypted storage twice, including after reload, then the owned
+Guestbook read passed. All temporary plugin settings were removed. The fresh
+key was explicitly approved and is securely retained outside Git; no provider
+credential was replaced.
+
+Current-source public acceptance covers six homepage layouts, two text-reflow
+views and 32 routed phone/desktop/theme views across the publisher, incident,
+diagram, WordPress, Get Ready, Init, content Init and Trust Centre surfaces.
+Four public artifact hashes match source. The actual rendered captures were
+inspected. Physical phones and assistive technology remain unqualified. A late
+additional authenticated phone-width check timed out; the owner closed and
+reopened the bugged tab, and that extra check is not credited.
+
 | Capability | Actual proof | Boundary |
 | --- | --- | --- |
 | Brand Studio presets and restore review (#353) | Fictional native version/publish/second-change/restore journey, 390/1440px themes; production owner unsaved preview and cancel | Production version 5 and all five versions retained; no new appearance published |
@@ -20,8 +37,10 @@ A local trial never establishes production provider, identity or device acceptan
 
 `production-owner-receipt.json` binds actual authenticated native UI observations
 to source `d3e0b67` / Worker `34bce397-4bc4-4f9a-b2c3-b8502197dcc3`.
-The scoped Guestbook read passed against source `5075d7b`; email delivery and
-plugin-secret decryption remain unverified. No secret was changed.
+At that first-batch observation, the scoped Guestbook read passed against source
+`5075d7b`; email delivery and plugin-secret decryption were still unverified and
+no secret had changed. The final approved key recovery and real native decryption
+proof above supersede that encryption status; email delivery stays unverified.
 
 The WordPress browser and HTTP receipts are separate: browser proves rendered
 visibility, themes, images and no retired-source requests; HTTP proves legacy
@@ -41,8 +60,8 @@ later publisher check: 1,056.22s waiting, approximately eight seconds running.
 No other project's reservation was killed or bypassed.
 
 No physical phone, real assistive-technology session, production MFA/Access policy,
-real merchant integration, configured test email delivery or encrypted-settings
-recovery is inferred from these receipts. Original owner worktrees, unpublished
+real merchant integration or configured test email delivery is inferred from
+these receipts. Original owner worktrees, unpublished
 work, independent app sources/pins, production data and configuration are retained.
 
 The public continuation at source `4673a16` passed six homepage layouts, the
