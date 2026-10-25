@@ -1,8 +1,12 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {mkdtempSync,readFileSync,statSync,rmSync,writeFileSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';
-import {assertProductionEnvironment,assertProductionTarget,parseAdminSecrets,snapshotAdminSecrets,compositionServices} from '../scripts/deployment-target.mjs';
+import {assertProductionEnvironment,assertProductionTarget,assertFreshPushedMain,parseAdminSecrets,snapshotAdminSecrets,compositionServices} from '../scripts/deployment-target.mjs';
 const lock={id:'a'.repeat(64),apps:[{id:'guestbook'},{id:'showcase'}]};
 const config={name:'app-composer',account_id:'selected-account',vars:{PUBLIC_ORIGIN:'https://composer.loftwah.com'},services:lock.apps.map(app=>({binding:app.id.toUpperCase(),service:'composer-'+app.id+'-'+lock.id.slice(0,16)}))};
+test('a cached origin/main cannot authorise mutation after the actual remote advances',()=>{
+ const sha='a'.repeat(40);assert.doesNotThrow(()=>assertFreshPushedMain(sha,sha+'\trefs/heads/main\n'));
+ for(const reply of ['',undefined,'b'.repeat(40)+'\trefs/heads/main',sha+'\trefs/heads/preview',sha+'\trefs/heads/main\n'+sha+'\trefs/heads/other'])assert.throws(()=>assertFreshPushedMain(sha,reply));
+});
 test('public self-verification uses the public fetch compatibility flag without connecting preview to production',()=>{
  const selected=JSON.parse(readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8'));
  assert.ok(selected.compatibility_flags.includes('global_fetch_strictly_public'));

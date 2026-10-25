@@ -8,7 +8,7 @@ import {resolve,dirname} from 'node:path';
 import {query} from './records.mjs';
 import {assertReceiptCounterSchema} from '../lib/usage/schema.mjs';
 import {execFileSync} from 'node:child_process';
-import {assertProductionEnvironment,assertProductionTarget,parseAdminSecrets,snapshotAdminSecrets} from './deployment-target.mjs';
+import {assertProductionEnvironment,assertProductionTarget,assertFreshPushedMain,parseAdminSecrets,snapshotAdminSecrets} from './deployment-target.mjs';
 assertProductionEnvironment(process.env);
 const extra=process.argv.slice(2);
 if(extra.some(arg=>arg!=='--miniapp-secrets')||extra.length>1)throw new Error('Unsupported deploy option');
@@ -17,7 +17,7 @@ const validatedSecrets=connecting?parseAdminSecrets(readFileSync('.private/minia
 const run=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
 if(run(['status','--porcelain']))throw new Error('Commit the reviewed source before deploying');
 const sha=run(['rev-parse','HEAD']);
-const guard=()=>{if(run(['branch','--show-current'])!=='main'||run(['rev-parse','HEAD'])!==sha||run(['rev-parse','origin/main'])!==sha||run(['status','--porcelain']))throw new Error('Production requires clean pushed reviewed main.');};
+const guard=()=>{if(run(['branch','--show-current'])!=='main'||run(['rev-parse','HEAD'])!==sha||run(['rev-parse','origin/main'])!==sha||run(['status','--porcelain']))throw new Error('Production requires clean pushed reviewed main.');let remote;try{remote=run(['ls-remote','--exit-code','origin','refs/heads/main']);}catch{throw Error('Current remote main could not be verified. No new remote action was authorised.');}assertFreshPushedMain(sha,remote);};
 guard();
 const cfg=JSON.parse(readFileSync('wrangler.jsonc','utf8'));
 const lock=JSON.parse(readFileSync('composition.lock.json','utf8'));
@@ -28,6 +28,9 @@ await stage('dependency audit',()=>execFileSync('pnpm',['run','audit'],{stdio:'i
 // apply migrations first. This is the only full `pnpm check` invocation in a
 // release; the delivery journey delegates here rather than repeating it.
 await stage('required checks (pnpm check)',()=>execFileSync('pnpm',['check'],{stdio:'inherit'}));
+// Another independent Composer release can advance main while checks run.
+// origin/main is a cache; re-read the provider before migrations and upload.
+guard();
 // The workspace schema ships with the Worker. Applying recorded migrations here is
 // idempotent and prevents a release serving a page whose tables do not exist yet.
 await stage('remote D1 migrations',()=>execFileSync('pnpm',['wrangler','d1','migrations','apply','app-composer-emdash','--remote'],{stdio:'inherit'}));
