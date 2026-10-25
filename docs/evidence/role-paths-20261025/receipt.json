@@ -1,0 +1,194 @@
+[
+  {
+    "role": "wordpress",
+    "width": 390,
+    "theme": "dark",
+    "overflow": false,
+    "heading": "App Composer for WordPress and agency work.",
+    "image": 1440,
+    "steps": [
+      "/guide#platforms",
+      "/init/content",
+      "/plugin-trust",
+      "/discover",
+      "/apps",
+      "/"
+    ]
+  },
+  {
+    "role": "wordpress",
+    "width": 390,
+    "theme": "light",
+    "overflow": false,
+    "heading": "App Composer for WordPress and agency work.",
+    "image": 1440,
+    "steps": [
+      "/guide#platforms",
+      "/init/content",
+      "/plugin-trust",
+      "/discover",
+      "/apps",
+      "/"
+    ]
+  },
+  {
+    "role": "wordpress",
+    "width": 1440,
+    "theme": "dark",
+    "overflow": false,
+    "heading": "App Composer for WordPress and agency work.",
+    "image": 1440,
+    "steps": [
+      "/guide#platforms",
+      "/init/content",
+      "/plugin-trust",
+      "/discover",
+      "/apps",
+      "/"
+    ]
+  },
+  {
+    "role": "wordpress",
+    "width": 1440,
+    "theme": "light",
+    "overflow": false,
+    "heading": "App Composer for WordPress and agency work.",
+    "image": 1440,
+    "steps": [
+      "/guide#platforms",
+      "/init/content",
+      "/plugin-trust",
+      "/discover",
+      "/apps",
+      "/"
+    ]
+  },
+  {
+    "role": "shopify",
+    "width": 390,
+    "theme": "dark",
+    "overflow": false,
+    "heading": "App Composer beside a Shopify store.",
+    "image": 1440,
+    "steps": [
+      "/setup#existing",
+      "/guide#commerce",
+      "/init/content",
+      "/discover",
+      "/apps",
+      "/"
+    ]
+  },
+  {
+    "role": "shopify",
+    "width": 390,
+    "theme": "light",
+    "overflow": false,
+    "heading": "App Composer beside a Shopify store.",
+    "image": 1440,
+    "steps": [
+      "/setup#existing",
+      "/guide#commerce",
+      "/init/content",
+      "/discover",
+      "/apps",
+      "/"
+    ]
+  },
+  {
+    "role": "shopify",
+    "width": 1440,
+    "theme": "dark",
+    "overflow": false,
+    "heading": "App Composer beside a Shopify store.",
+    "image": 1440,
+    "steps": [
+      "/setup#existing",
+      "/guide#commerce",
+      "/init/content",
+      "/discover",
+      "/apps",
+      "/"
+    ]
+  },
+  {
+    "role": "shopify",
+    "width": 1440,
+    "theme": "light",
+    "overflow": false,
+    "heading": "App Composer beside a Shopify store.",
+    "image": 1440,
+    "steps": [
+      "/setup#existing",
+      "/guide#commerce",
+      "/init/content",
+      "/discover",
+      "/apps",
+      "/"
+    ]
+  },
+  {
+    "role": "platform-team",
+    "width": 390,
+    "theme": "dark",
+    "overflow": false,
+    "heading": "App Composer for small Cloudflare teams.",
+    "image": 1600,
+    "steps": [
+      "/platform/demo",
+      "/architecture#dashboard",
+      "/roles",
+      "/discover",
+      "/apps",
+      "/"
+    ]
+  },
+  {
+    "role": "platform-team",
+    "width": 390,
+    "theme": "light",
+    "overflow": false,
+    "heading": "App Composer for small Cloudflare teams.",
+    "image": 1600,
+    "steps": [
+      "/platform/demo",
+      "/architecture#dashboard",
+      "/roles",
+      "/discover",
+      "/apps",
+      "/"
+    ]
+  },
+  {
+    "role": "platform-team",
+    "width": 1440,
+    "theme": "dark",
+    "overflow": false,
+    "heading": "App Composer for small Cloudflare teams.",
+    "image": 1600,
+    "steps": [
+      "/platform/demo",
+      "/architecture#dashboard",
+      "/roles",
+      "/discover",
+      "/apps",
+      "/"
+    ]
+  },
+  {
+    "role": "platform-team",
+    "width": 1440,
+    "theme": "light",
+    "overflow": false,
+    "heading": "App Composer for small Cloudflare teams.",
+    "image": 1600,
+    "steps": [
+      "/platform/demo",
+      "/architecture#dashboard",
+      "/roles",
+      "/discover",
+      "/apps",
+      "/"
+    ]
+  }
+]

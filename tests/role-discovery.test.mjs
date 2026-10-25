@@ -7,7 +7,7 @@ import { discoveryRoles, discoveryJobs, discoveryRole, discoveryRoleIds } from '
 const root = new URL('../', import.meta.url);
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
-test('four role paths point to existing working examples and supported start journeys', () => {
+test('role paths point to existing working examples and supported start journeys', () => {
   assert.deepEqual(discoveryRoles.map((role) => role.id), discoveryRoleIds);
   for (const role of discoveryRoles) {
     assert.equal(discoveryRole(role.id), role);
@@ -48,7 +48,7 @@ test('provider and admission gaps remain explicit before a visitor starts', () =
 test('role share images retain real-capture provenance and exact 1200x630 PNG bytes', () => {
   const provenance = JSON.parse(readFileSync(new URL('public/discovery/provenance-20261024.json', root)));
   assert.equal(provenance.assets.length, 4);
-  for (const role of discoveryRoles) {
+  for (const role of discoveryRoles.filter(role => role.share.startsWith('/discovery/'))) {
     const asset = provenance.assets.find((entry) => entry.role === role.id);
     const png = readFileSync(new URL('public' + role.share, root));
     assert.equal(png.subarray(1, 4).toString(), 'PNG');
@@ -71,4 +71,16 @@ test('role hub preserves shipped tools behind a finite disclosure and uses nativ
   assert.match(component, /<DeviceSupport/);
   assert.match(route, /Astro.response.status = 404/);
   assert.doesNotMatch(component, /setInterval|scroll-snap|addEventListener\(['"]wheel/);
+});
+
+
+test('research-derived paths retain actual alternatives and unsupported provider gates', () => {
+  assert.match(discoveryRole('wordpress').support, /Elementor, ACF, WooCommerce/);
+  assert.match(discoveryRole('shopify').support, /no Shopify adapter/);
+  assert.match(discoveryRole('platform-team').support, /mandatory-MFA enforcement/);
+  for (const id of ['wordpress', 'shopify', 'platform-team']) {
+    const role = discoveryRole(id);
+    assert.ok(role.fit.keep && role.fit.next && role.fit.evidence.href.startsWith('https://github.com/loftwah/app-composer/'));
+    assert.equal(role.share, '/brand/campaign/product-og-20261022b.jpg');
+  }
 });
