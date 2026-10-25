@@ -19,6 +19,11 @@ chose the stack, wrote the schema, code, interface and tests. The full account i
 | `scripts/` | Replayable acceptance journeys |
 | `docs/evidence/selfuse-club-20261025/` | Screenshots, acceptance logs, migration comparison and capture manifest |
 
+## Deployment
+
+Not deployed. The read-only target search, candidate identity and exact operator
+steps are in [DEPLOYMENT.md](DEPLOYMENT.md). No Cloudflare resource was created.
+
 ## Provenance
 
 - Composer source: `86514680720702ce30157671652981e388b77f65`
