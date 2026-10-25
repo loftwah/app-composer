@@ -43,3 +43,11 @@ No physical phone, real assistive-technology session, production MFA/Access poli
 real merchant integration, configured test email delivery or encrypted-settings
 recovery is inferred from these receipts. Original owner worktrees, unpublished
 work, independent app sources/pins, production data and configuration are retained.
+
+The public continuation at source `4673a16` passed six homepage layouts, the
+keyboard CTA path and two text-reflow views, plus twelve migration/incident/diagram
+views (390/1440px, both themes), zero page errors and complete owned-root cleanup.
+The real reduced-motion defect found during capture is fixed: anchor scrolling
+now computes to `auto`. The initial unbounded lazy-image capture assumptions and
+retained failures remain in ignored output; no product check was weakened.
+These are local browser checks, separate from final production verification.
