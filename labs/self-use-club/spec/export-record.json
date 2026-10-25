@@ -1,0 +1,49 @@
+{
+  "startedAt": "2026-10-24T22:50:12.499Z",
+  "source": "https://composer.loftwah.com",
+  "steps": [
+    {
+      "step": "setup",
+      "route": "/setup",
+      "guideBytes": 6507,
+      "downloaded": "project-setup.md"
+    },
+    {
+      "step": "build-prompt",
+      "route": "/prompts#build",
+      "promptBytes": 2442,
+      "downloaded": "build.md"
+    },
+    {
+      "step": "model-events",
+      "route": "/init/content",
+      "designRequestBytes": 2442,
+      "modelBytes": 1869,
+      "handoffBytes": 5934,
+      "modelDownload": "app-composer-content-model.json",
+      "seedDownload": "emdash-content-seed.json",
+      "message": "Model imported locally. Save or download to keep it; no CMS change occurred."
+    },
+    {
+      "step": "model-notices",
+      "route": "/init/content",
+      "designRequestBytes": 2677,
+      "modelBytes": 949,
+      "handoffBytes": 4115,
+      "modelDownload": "app-composer-content-model.json",
+      "seedDownload": "emdash-content-seed.json",
+      "message": "Model imported locally. Save or download to keep it; no CMS change occurred."
+    },
+    {
+      "step": "model-enquiries",
+      "route": "/init/content",
+      "designRequestBytes": 1801,
+      "modelBytes": 1735,
+      "handoffBytes": 5379,
+      "modelDownload": "app-composer-content-model.json",
+      "seedDownload": "emdash-content-seed.json",
+      "message": "Model imported locally. Save or download to keep it; no CMS change occurred."
+    }
+  ],
+  "completedAt": "2026-10-24T22:50:26.591Z"
+}

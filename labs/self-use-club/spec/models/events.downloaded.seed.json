@@ -1,0 +1,98 @@
+{
+  "version": "1",
+  "meta": {
+    "name": "Club events — App Composer content model"
+  },
+  "collections": [
+    {
+      "slug": "events",
+      "label": "Club events",
+      "routable": false,
+      "supports": [
+        "drafts",
+        "revisions"
+      ],
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Event name",
+          "type": "string",
+          "required": true,
+          "validation": {
+            "maxLength": 90
+          }
+        },
+        {
+          "slug": "summary",
+          "label": "One-line summary",
+          "type": "text",
+          "required": true,
+          "validation": {
+            "maxLength": 200
+          }
+        },
+        {
+          "slug": "description",
+          "label": "What happens",
+          "type": "text",
+          "required": true,
+          "validation": {
+            "maxLength": 2000
+          }
+        },
+        {
+          "slug": "event_date",
+          "label": "Event day",
+          "type": "string",
+          "required": true,
+          "validation": {
+            "minLength": 10,
+            "maxLength": 10,
+            "pattern": "^(?!0000)(?:[0-9]{4}-(?:(?:01|03|05|07|08|10|12)-(?:0[1-9]|[12][0-9]|3[01])|(?:04|06|09|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:[02468][048]|[13579][26])00)-02-29)$"
+          }
+        },
+        {
+          "slug": "start_note",
+          "label": "Start time",
+          "type": "string",
+          "required": true,
+          "defaultValue": "7:00 am for a 7:30 am start",
+          "validation": {
+            "maxLength": 60
+          }
+        },
+        {
+          "slug": "location",
+          "label": "Meeting place",
+          "type": "string",
+          "required": true,
+          "validation": {
+            "maxLength": 120
+          }
+        },
+        {
+          "slug": "cost",
+          "label": "Cost or what to bring",
+          "type": "string",
+          "required": false,
+          "validation": {
+            "maxLength": 120
+          }
+        },
+        {
+          "slug": "publication",
+          "label": "Publication",
+          "type": "select",
+          "required": true,
+          "defaultValue": "Draft",
+          "validation": {
+            "options": [
+              "Draft",
+              "Published"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

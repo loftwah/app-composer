@@ -1,0 +1,88 @@
+{
+  "startedAt": {
+    "melbourne": "2026/10/25 10:35",
+    "utc": "2026/10/24 23:35"
+  },
+  "base": "http://localhost:8787",
+  "composerSource": "86514680720702ce30157671652981e388b77f65",
+  "steps": [
+    {
+      "step": "visitor home",
+      "title": "Community rowing on the Riverton River · Riverton Rowing Club",
+      "nextEvent": "Spring row and breakfast",
+      "scrollWidth": 1440,
+      "clientWidth": 1440
+    },
+    {
+      "step": "visitor event detail",
+      "url": "http://localhost:8787/events/spring-row-and-breakfast",
+      "heading": "Spring row and breakfast",
+      "dateShown": "DATE\nSaturday 14 November 2026\n2026/11/14\nSTART\n7:00 am for a 7:30 am start\nMEETING PLACE\nRiverton Boathouse, 4 River Parade\nCOST\nFree for members; $10 for guests\nTIME ZONE\nAustralia/Melbourne calendar date"
+    },
+    {
+      "step": "visitor validation refusal",
+      "status": 422,
+      "errors": [
+        "Please check these details",
+        "Enter your name (at least 2 characters).",
+        "Tell us a little more (at least 10 characters)."
+      ],
+      "emailPreserved": "visitor@example.test",
+      "messagePreserved": "short"
+    },
+    {
+      "step": "visitor enquiry submitted",
+      "url": "http://localhost:8787/join/thanks?ref=49b15e50-33c3-4e53-ab6c-db08bf0744a6",
+      "reference": "RRC-49B15E50",
+      "heading": "Thanks — your enquiry is with the club."
+    },
+    {
+      "step": "anonymous admin page refused",
+      "url": "http://localhost:8787/admin/login?next=%2Fadmin",
+      "signInHeading": "Sign in to the club."
+    },
+    {
+      "step": "anonymous owner write refused",
+      "status": 401,
+      "text": "<!doctype html>\n<html lang=\"en-AU\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, ini"
+    },
+    {
+      "step": "owner sees pending enquiry",
+      "url": "http://localhost:8787/admin",
+      "hasName": true,
+      "hasMessage": true,
+      "hasPending": true
+    },
+    {
+      "step": "owner edits and publishes event",
+      "flash": "Changes saved. The public page reflects them immediately when published.",
+      "title": "Owner overview · Riverton Rowing Club"
+    },
+    {
+      "step": "visitor sees published change",
+      "status": 200,
+      "title": "Twilight paddle and supper — date confirmed",
+      "hasNewTitle": true,
+      "hasNewDate": true,
+      "hasNewDescription": true,
+      "enquiryPrivate": true
+    },
+    {
+      "step": "owner reviews enquiry",
+      "flash": "Enquiry marked reviewed. That records an owner decision; it does not send a reply.",
+      "reviewed": true,
+      "note": true,
+      "pendingStat": "0",
+      "reviewedDisclosureOpen": true
+    }
+  ],
+  "consoleErrors": [],
+  "expectedRefusalResponses": [
+    "Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)",
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+  ],
+  "completedAt": {
+    "melbourne": "2026/10/25 10:36",
+    "utc": "2026/10/24 23:36"
+  }
+}
