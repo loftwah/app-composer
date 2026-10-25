@@ -9,9 +9,11 @@ import {
   handoffProposalCall,
   proposalCall,
   reviewProposalCall,
+  showProposalCall,
 } from "./proposals/api";
 import { workspaceSelection } from "./stacks/workspace-scope";
 import { ConnectAgent } from "./proposals/connect-agent";
+import { IncidentSitrep } from "./incident-sitrep";
 import "./proposals-page.css";
 
 const stateLabels: Record<AgentProposalState, string> = {
@@ -27,11 +29,17 @@ export function ProposalsPage() {
   return <Proposals key={search} search={search} />;
 }
 
-export function Proposals({ search }: { search: string }) {
+export function Proposals({
+  search,
+  incidents = false,
+}: {
+  search: string;
+  incidents?: boolean;
+}) {
   const [snapshot, setSnapshot] = useState<AgentProposalSnapshot>();
   const [selected, setSelected] = useState("");
   const [filter, setFilter] = useState<"all" | AgentProposalState>("all");
-  const [reason, setReason] = useState("");
+  const [reasons, setReasons] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -45,10 +53,16 @@ export function Proposals({ search }: { search: string }) {
   const canAccept = Boolean(snapshot && snapshot.workspace.role === "owner");
   const shown =
     snapshot?.proposals.filter(
-      (view) => filter === "all" || view.state === filter,
+      (view) =>
+        (!incidents || Boolean(view.change.incident)) &&
+        (filter === "all" || view.state === filter),
     ) ?? [];
-  const current =
-    snapshot?.proposals.find((view) => view.id === selected) ?? shown[0];
+  const current = shown.find((view) => view.id === selected) ?? shown[0];
+  const reason = current ? (reasons[current.id] ?? "") : "";
+  function setReason(value: string) {
+    if (current)
+      setReasons((previous) => ({ ...previous, [current.id]: value }));
+  }
 
   async function load(message = "") {
     if (pending.current || invalidScope.current) return false;
@@ -58,8 +72,22 @@ export function Proposals({ search }: { search: string }) {
     setNotice("");
     const epoch = ++generation.current;
     try {
-      const result = await proposalCall("list", selection.current);
+      const result = await proposalCall(
+        incidents ? "incidents" : "list",
+        selection.current,
+      );
       if (!live.current || epoch !== generation.current) return false;
+      const selectedId = result.proposals.some((view) => view.id === selected)
+        ? selected
+        : (result.proposals.find((view) => !incidents || view.change.incident)
+            ?.id ?? "");
+      if (selectedId) {
+        const detail = await showProposalCall(result.workspace.id, selectedId);
+        if (!live.current || epoch !== generation.current) return false;
+        result.proposals = result.proposals.map((view) =>
+          view.id === selectedId ? detail : view,
+        );
+      }
       selection.current = result.workspace.id;
       setSnapshot(result);
       setSelected((previous) =>
@@ -117,6 +145,33 @@ export function Proposals({ search }: { search: string }) {
         : previous,
     );
     setSelected(view.id);
+  }
+
+  async function choose(id: string) {
+    if (!selection.current || pending.current) return;
+    pending.current = true;
+    setBusy(true);
+    setError("");
+    setNotice("");
+    const epoch = ++generation.current;
+    try {
+      const view = await showProposalCall(selection.current, id);
+      if (!live.current || epoch !== generation.current) return;
+      replace(view);
+      setManual("");
+    } catch (cause) {
+      if (live.current && epoch === generation.current)
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "The proposal could not be confirmed. Refresh before reviewing.",
+        );
+    } finally {
+      if (live.current && epoch === generation.current) {
+        pending.current = false;
+        setBusy(false);
+      }
+    }
   }
 
   async function review(decision: "accept" | "request-changes" | "reject") {
@@ -221,7 +276,7 @@ export function Proposals({ search }: { search: string }) {
   return (
     <div className="composer-proposals">
       <div className="ap-heading">
-        <h1>Agent proposals</h1>
+        <h1>{incidents ? "Incident Desk" : "Agent proposals"}</h1>
         <button
           type="button"
           disabled={busy || invalidScope.current}
@@ -241,16 +296,42 @@ export function Proposals({ search }: { search: string }) {
           "Confirming the selected workspace…"
         )}
       </p>
-      <p className="ap-proof">
-        <strong>Proposal-only local slice.</strong> A proposal is a reviewable
-        record, not an approval or a deployment instruction. Accepting stores
-        the exact digest and executes nothing. A separate handoff is prepared
-        for the existing authorised release flow. No hosted agent service,
-        provider credential or production execution is connected.
-      </p>
+      {incidents && (
+        <p>
+          Review the investigation, send it back with instructions or approve
+          its exact proposal. Approval records a decision; recovery and
+          notification delivery need their own evidence.
+        </p>
+      )}
+      {!incidents && (
+        <p className="ap-proof">
+          <strong>Proposal-only local slice.</strong> A proposal is a reviewable
+          record, not an approval or a deployment instruction. Accepting stores
+          the exact digest and executes nothing. A separate handoff is prepared
+          for the existing authorised release flow. No hosted agent service,
+          provider credential or production execution is connected.
+        </p>
+      )}
       <div className="ap-links">
         <a href="/roles">Role packs</a>
-        <a href="/docs/agent-proposals">How proposals work</a>
+        <a
+          href={
+            incidents
+              ? "/incident-replay"
+              : "/_emdash/admin/plugins/composer-stacks/incidents"
+          }
+        >
+          {incidents ? "Open the safe replay" : "Incident Desk"}
+        </a>
+        <a
+          href={
+            incidents
+              ? "https://github.com/loftwah/app-composer/blob/main/docs/incident-desk.md"
+              : "https://github.com/loftwah/app-composer/blob/main/docs/agent-proposals.md"
+          }
+        >
+          How proposals work
+        </a>
         <a href="/_emdash/admin/plugins/composer-stacks/workspaces">
           Workspace access
         </a>
@@ -265,10 +346,12 @@ export function Proposals({ search }: { search: string }) {
       </p>
       {snapshot && (
         <>
-          <ConnectAgent
-            workspace={snapshot.workspace.id}
-            onChanged={() => void load("Saved proposals refreshed.")}
-          />
+          {!incidents && (
+            <ConnectAgent
+              workspace={snapshot.workspace.id}
+              onChanged={() => void load("Saved proposals refreshed.")}
+            />
+          )}
           <div className="ap-controls">
             <label>
               Show
@@ -296,7 +379,9 @@ export function Proposals({ search }: { search: string }) {
                 <p className="ap-empty">
                   {snapshot.proposals.length
                     ? "No proposals match this state. Choose All states."
-                    : "No proposals yet. Generate a briefing and submit one through node scripts/agent-proposal.mjs."}
+                    : incidents
+                      ? "No incident proposals yet. Open the safe replay to inspect the journey, or submit a scoped proposal carrying a situation report from your isolated lab."
+                      : "No proposals yet. Generate a briefing and submit one through node scripts/agent-proposal.mjs."}
                 </p>
               )}
               {shown.map((view) => (
@@ -304,11 +389,9 @@ export function Proposals({ search }: { search: string }) {
                   key={view.id}
                   type="button"
                   className="ap-row"
+                  disabled={busy}
                   aria-pressed={current?.id === view.id}
-                  onClick={() => {
-                    setSelected(view.id);
-                    setManual("");
-                  }}
+                  onClick={() => void choose(view.id)}
                 >
                   <span>
                     <strong>{view.change.summary}</strong>
@@ -335,6 +418,15 @@ export function Proposals({ search }: { search: string }) {
                   <p className="ap-next">
                     <strong>Next action:</strong> {current.nextAction}
                   </p>
+                  <div className="ap-links">
+                    <a href="#proposal-history">Compare versions</a>
+                    {current.state === "submitted" && (
+                      <a href="#proposal-decision">Review proposal</a>
+                    )}
+                  </div>
+                  {current.change.incident && (
+                    <IncidentSitrep incident={current.change.incident} />
+                  )}
                   <dl className="ap-facts">
                     <dt>Scope</dt>
                     <dd>
@@ -438,62 +530,119 @@ export function Proposals({ search }: { search: string }) {
                     <p className="ap-empty">No decision recorded.</p>
                   )}
 
-                  {current.state !== "accepted" &&
-                    current.state !== "rejected" && (
-                      <div className="ap-review">
-                        <h3>Record a decision</h3>
+                  <details
+                    className="ap-history"
+                    id="proposal-history"
+                    key={current.id}
+                  >
+                    <summary>
+                      Preserved investigation and proposal versions (
+                      {current.history.length} of {current.version})
+                    </summary>
+                    <p>
+                      Latest 20 versions. Previous evidence and review reasons
+                      stay attached to their original digest.
+                    </p>
+                    {current.history.map((revision) => (
+                      <details key={revision.version}>
+                        <summary>
+                          Version {revision.version} · {revision.submittedAt}{" "}
+                          UTC
+                          {revision.version === current.version
+                            ? " · current"
+                            : ""}
+                        </summary>
                         <p>
-                          Compare the exact digest above with the proposed
-                          source. Accept records this digest only; it does not
-                          deploy, merge or run anything.
+                          <code>{revision.digest}</code> ·{" "}
+                          {riskLabels[revision.risk]} risk
                         </p>
-                        <label>
-                          Reason
-                          <textarea
-                            value={reason}
-                            rows={4}
-                            disabled={busy || !canWrite}
-                            onChange={(event) => setReason(event.target.value)}
-                            placeholder="Name the evidence you checked and any condition on the decision."
-                          />
-                        </label>
-                        <div className="ap-actions-row">
-                          <button
-                            type="button"
-                            disabled={
-                              busy || !canAccept || reason.trim().length < 8
-                            }
-                            onClick={() => void review("accept")}
-                          >
-                            Accept this digest — no execution
-                          </button>
-                          <button
-                            type="button"
-                            disabled={
-                              busy || !canWrite || reason.trim().length < 8
-                            }
-                            onClick={() => void review("request-changes")}
-                          >
-                            Request changes
-                          </button>
-                          <button
-                            type="button"
-                            disabled={
-                              busy || !canWrite || reason.trim().length < 8
-                            }
-                            onClick={() => void review("reject")}
-                          >
-                            Reject
-                          </button>
-                        </div>
-                        {!canAccept && (
-                          <p className="ap-hint">
-                            Only the workspace owner can accept. Editors can
-                            request changes or reject.
-                          </p>
+                        <p>{revision.change.summary}</p>
+                        {revision.change.incident && (
+                          <IncidentSitrep incident={revision.change.incident} />
                         )}
+                        <ul className="ap-evidence">
+                          {revision.evidence.map((item) => (
+                            <li key={item.id}>
+                              <strong>{item.id}</strong> · {item.summary}
+                              <br />
+                              {item.source} · {item.observedAt}
+                            </li>
+                          ))}
+                        </ul>
+                        <pre className="ap-patch">
+                          {JSON.stringify(
+                            {
+                              source: revision.source,
+                              change: revision.change,
+                            },
+                            null,
+                            2,
+                          )}
+                        </pre>
+                      </details>
+                    ))}
+                  </details>
+
+                  {current.state === "submitted" && (
+                    <div className="ap-review" id="proposal-decision">
+                      <h3>Record a decision</h3>
+                      <p>
+                        Compare the exact digest above with the proposed source.
+                        Accept records this digest only; it does not deploy,
+                        merge or run anything.
+                      </p>
+                      <label>
+                        Reason
+                        <textarea
+                          value={reason}
+                          rows={4}
+                          disabled={busy || !canWrite}
+                          onChange={(event) => setReason(event.target.value)}
+                          placeholder="Name the evidence you checked and any condition on the decision."
+                        />
+                      </label>
+                      <div className="ap-actions-row">
+                        <button
+                          type="button"
+                          disabled={
+                            busy || !canAccept || reason.trim().length < 8
+                          }
+                          onClick={() => void review("accept")}
+                        >
+                          {incidents
+                            ? "Approve this proposal — no execution"
+                            : "Accept this digest — no execution"}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={
+                            busy || !canWrite || reason.trim().length < 8
+                          }
+                          onClick={() => void review("request-changes")}
+                        >
+                          {incidents
+                            ? "Send back with instructions"
+                            : "Request changes"}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={
+                            busy || !canWrite || reason.trim().length < 8
+                          }
+                          onClick={() => void review("reject")}
+                        >
+                          Reject
+                        </button>
                       </div>
-                    )}
+                      {!canAccept && (
+                        <p className="ap-hint">
+                          Only the named accountable owner or fallback can
+                          decide. Acceptance also requires workspace owner
+                          access.
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                   {current.accepted && (
                     <div className="ap-accepted">

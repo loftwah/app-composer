@@ -8,6 +8,7 @@ import { fixture, user, origin } from "./helpers/resource-fixture.mjs";
 import { workspaceForUser } from "../src/lib/stacks.mjs";
 import {
   createAgentBriefing,
+  listAgentProposals,
   manageAgentProposals,
   prepareAgentHandoff,
   provisionAgentGrant,
@@ -18,6 +19,7 @@ import {
   verifyAgentProposal,
 } from "../src/lib/agent-proposals.ts";
 import { inspectSource, checkSource } from "../scripts/lib/agent-source.mjs";
+import { replaySitrep } from "../src/lib/incident-replay.ts";
 
 const NOW = "2026-10-25T01:00:00Z";
 const LATER = "2026-10-25T01:30:00Z";
@@ -167,6 +169,223 @@ const code = (pattern) => (error) => {
   assert.equal(error.code, pattern, error.message);
   return true;
 };
+
+const incidentChange = (patch = {}) => ({
+  ...change,
+  incident: {
+    ...replaySitrep,
+    observations: [
+      {
+        text: "The synthetic missing-caption journey returned 500.",
+        evidence: "ev-01",
+      },
+    ],
+    ...patch,
+  },
+});
+
+test("Incident Desk retains original and revised SITREPs and refuses approval of a stale digest", async (t) => {
+  const f = await prepared(t);
+  const first = (await f.submit({ change: incidentChange() })).view;
+  await f.review(first, "request-changes", {
+    reason:
+      "Keep the request; add an independent missing-caption regression check.",
+  });
+  const extra = {
+    id: "ev-03",
+    kind: "test",
+    source: "fixture://missing-caption-regression",
+    environment: ENVIRONMENT.id,
+    observedAt: LATER,
+    summary: "Added the requested synthetic missing-caption regression check.",
+  };
+  const revisionBriefing = await createAgentBriefing(
+    f.db,
+    {
+      workspace: f.workspace.id,
+      grant: f.grant.id,
+      asOf: LATER,
+      evidence: [...evidence, extra],
+    },
+    { now: LATER },
+  );
+  const revised = (
+    await f.submit(
+      {
+        proposal: first.id,
+        briefing: revisionBriefing.id,
+        evidence: ["ev-01", "ev-02", "ev-03"],
+        change: incidentChange({
+          stepsTaken: [
+            "Added the independent missing-caption regression check.",
+          ],
+        }),
+      },
+      LATER,
+    )
+  ).view;
+  assert.equal(revised.version, 2);
+  assert.equal(revised.briefing.id, revisionBriefing.id);
+  assert.equal(revised.evidence.length, 3);
+  assert.equal(revised.history.length, 2);
+  const listed = await listAgentProposals(
+    f.db,
+    { workspace: f.workspace.id },
+    { now: LATER },
+  );
+  assert.deepEqual(
+    listed[0].history,
+    [],
+    "The bounded list omits full patch histories",
+  );
+  const selected = await showAgentProposal(
+    f.db,
+    { workspace: f.workspace.id, proposal: first.id },
+    { now: LATER },
+  );
+  assert.equal(
+    selected.history.length,
+    2,
+    "The selected scoped show retains full versions",
+  );
+  assert.equal(revised.history[1].digest, first.digest);
+  assert.deepEqual(revised.history[1].change.incident, first.change.incident);
+  assert.deepEqual(revised.history[1].evidence, first.evidence);
+  assert.match(revised.reviews[0].reason, /independent/);
+  await assert.rejects(f.review(first), code("CONFLICT"));
+  const accepted = await f.review(revised, "accept", { at: LATER });
+  assert.equal(accepted.view.accepted.digest, revised.digest);
+  assert.equal(accepted.execution, "not-performed");
+  assert.equal(accepted.view.change.incident.recovery, "unverified");
+  assert.equal(accepted.view.change.incident.notification, "not-sent");
+});
+
+test("Incident Desk rejects invented evidence, future observations and replay recovery claims", async (t) => {
+  const f = await prepared(t);
+  await assert.rejects(
+    f.submit({
+      change: incidentChange({
+        observations: [
+          { text: "An invented result", evidence: "outside-brief" },
+        ],
+      }),
+    }),
+    code("UNPERMITTED_EVIDENCE"),
+  );
+  await assert.rejects(
+    f.submit({ change: incidentChange({ lastSeen: "2027-01-01T00:00:00Z" }) }),
+    code("INVALID"),
+  );
+  await assert.rejects(
+    f.submit({
+      change: incidentChange({ recovery: "verified-in-isolated-lab" }),
+    }),
+    code("INVALID"),
+  );
+  assert.equal(
+    f.sqlite.prepare("SELECT COUNT(*) n FROM creator_agent_proposals").get().n,
+    0,
+  );
+});
+
+test("an incident revision cannot disappear from the desk or switch incident identity", async (t) => {
+  const f = await prepared(t);
+  const first = (await f.submit({ change: incidentChange() })).view;
+  await f.review(first, "request-changes");
+  await assert.rejects(
+    f.submit({ proposal: first.id, change }),
+    code("SCOPE_MISMATCH"),
+  );
+  await assert.rejects(
+    f.submit({
+      proposal: first.id,
+      change: incidentChange({ id: "other-incident" }),
+    }),
+    code("SCOPE_MISMATCH"),
+  );
+  await assert.rejects(
+    f.submit({
+      proposal: first.id,
+      change: incidentChange({ mode: "isolated-lab" }),
+    }),
+    code("SCOPE_MISMATCH"),
+  );
+  assert.equal(
+    f.sqlite
+      .prepare("SELECT COUNT(*) n FROM creator_agent_proposal_versions")
+      .get().n,
+    1,
+  );
+});
+
+test("incident filtering happens before the twenty-row list limit", async (t) => {
+  const f = await prepared(t);
+  const incident = (await f.submit({ change: incidentChange() })).view;
+  for (let index = 0; index < 20; index++)
+    await f.submit(
+      { change: { ...change, summary: `Ordinary proposal ${index}` } },
+      LATER,
+    );
+  const ordinary = await listAgentProposals(
+    f.db,
+    { workspace: f.workspace.id },
+    { now: LATER },
+  );
+  assert.equal(ordinary.length, 20);
+  assert.equal(
+    ordinary.some((view) => view.id === incident.id),
+    false,
+  );
+  const incidents = await listAgentProposals(
+    f.db,
+    { workspace: f.workspace.id, incidents: true },
+    { now: LATER },
+  );
+  assert.deepEqual(
+    incidents.map((view) => view.id),
+    [incident.id],
+  );
+});
+
+test("rejecting an incident closes only the proposal and preserves the investigation", async (t) => {
+  const f = await prepared(t);
+  const first = (await f.submit({ change: incidentChange() })).view;
+  const rejected = await f.review(first, "reject", {
+    reason:
+      "Unsafe proposal; preserve the observation and investigate without rollback.",
+  });
+  assert.equal(rejected.view.state, "rejected");
+  assert.deepEqual(
+    rejected.view.history[0].change.incident,
+    first.change.incident,
+  );
+  assert.equal(rejected.view.change.incident.recovery, "unverified");
+  assert.equal(rejected.view.handoff, null);
+  await assert.rejects(f.review(rejected.view), code("TERMINAL"));
+});
+
+test("native proposal errors retain EmDash's supported error class and HTTP status", async (t) => {
+  const f = await prepared(t);
+  await assert.rejects(
+    manageAgentProposals(
+      {
+        user,
+        input: { action: "list", workspace: "not-my-workspace" },
+        request: new Request(
+          origin +
+            "/_emdash/api/plugins/composer-stacks/proposalsRead?action=list",
+        ),
+      },
+      f.runtime,
+    ),
+    (error) => {
+      assert.equal(error.name, "PluginRouteError");
+      assert.equal(error.code, "FORBIDDEN");
+      assert.equal(error.status, 403);
+      return true;
+    },
+  );
+});
 
 test("briefing is deterministic and carries the role inputs, evidence, output, stops and prohibitions", async (t) => {
   const f = await prepared(t);

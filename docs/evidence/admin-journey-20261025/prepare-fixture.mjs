@@ -24,6 +24,8 @@ import {
   mkdirSync,
   readFileSync,
   readdirSync,
+  realpathSync,
+  lstatSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -47,7 +49,9 @@ if (!arg("root"))
   throw Error("Pass --root with one explicitly owned temporary directory.");
 const guard = join(root, "OWNED.md");
 if (!root.includes("/opencode/") || root.startsWith(source + "/"))
-  throw Error("The fixture root must be an owned directory outside the checkout.");
+  throw Error(
+    "The fixture root must be an owned directory outside the checkout.",
+  );
 mkdirSync(root, { recursive: true });
 writeFileSync(
   guard,
@@ -104,7 +108,9 @@ function patch(file, before, after, note) {
       ? before
       : new RegExp(before.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
   if ((original.match(pattern) ?? []).length !== 1)
-    throw Error("Reviewed seam changed in " + file + "; re-read it before running.");
+    throw Error(
+      "Reviewed seam changed in " + file + "; re-read it before running.",
+    );
   writeFileSync(full, original.replace(pattern, after));
   seams[file + " :: " + note] = {
     note,
@@ -131,6 +137,51 @@ patch(
   "Fixture origin guard for the read-only overview; the production guard is unchanged in source.",
 );
 
+// Optional consumer of the same isolated native-auth fixture. Apply before the
+// dev server starts: EmDash's plugin registry retains its loaded handlers.
+if (process.argv.includes("--incident-desk")) {
+  // A caller may reuse dependencies by symlink. The Cloudflare Vite runner
+  // denies admin stylesheet imports outside its fixture root. Clone the already
+  // installed tree with APFS instead of installing anything or widening access.
+  if (lstatSync(join(app, "node_modules")).isSymbolicLink()) {
+    const dependencies = realpathSync(join(app, "node_modules"));
+    rmSync(join(app, "node_modules"));
+    execFileSync("cp", ["-cR", dependencies, join(app, "node_modules")]);
+    seams["local dependency clone"] =
+      "APFS clone of the existing installed dependency tree; no install and no outside-root Vite imports.";
+  }
+  patch(
+    "src/lib/agent-proposals.ts",
+    'const origin = "https://composer.loftwah.com";',
+    'const origin = "' + origin + '";',
+    "Incident Desk proposal origin guard points only to this local fixture.",
+  );
+  const registered = readFileSync(
+    join(app, "src/lib/creator-plugin.ts"),
+    "utf8",
+  ).includes('path: "/incidents"');
+  if (!registered) {
+    patch(
+      "src/lib/creator-plugin.ts",
+      '{ path: "/proposals", label: "Agent proposals", icon: "robot" },',
+      '{ path: "/proposals", label: "Agent proposals", icon: "robot" },\n{path:"/incidents",label:"Incident Desk",icon:"warning"},',
+      "Register the Incident Desk component in the isolated native plugin.",
+    );
+    patch(
+      "src/plugins/stacks-admin.tsx",
+      'import { ProposalsPage } from "./proposals-page";',
+      'import { ProposalsPage } from "./proposals-page";\nimport { IncidentsPage } from "./incidents-page";',
+      "Import the real Incident Desk component.",
+    );
+    patch(
+      "src/plugins/stacks-admin.tsx",
+      '"/proposals": ProposalsPage,',
+      '"/proposals": ProposalsPage,\n"/incidents": IncidentsPage,',
+      "Use the real Incident Desk component in the native admin map.",
+    );
+  }
+}
+
 writeFileSync(
   join(app, "lab-entry.ts"),
   "// Isolated local fixture only: supported native EmDash auth, the production\n" +
@@ -153,7 +204,10 @@ wrangler.vars = {
   RESOURCE_ACCOUNT_ID: "fictional-lane-a-account",
   RESOURCE_ENVIRONMENT: "production",
 };
-writeFileSync(join(app, "wrangler.jsonc"), JSON.stringify(wrangler, null, 2) + "\n");
+writeFileSync(
+  join(app, "wrangler.jsonc"),
+  JSON.stringify(wrangler, null, 2) + "\n",
+);
 seams.wrangler = {
   note: "Local D1/R2 only; no routes, cron or provider service bindings.",
   vars: wrangler.vars,
@@ -163,9 +217,7 @@ const port = new URL(origin).port || "80";
 const free = await new Promise((yes) => {
   const probe = createServer();
   probe.once("error", () => yes(false));
-  probe.listen(Number(port), "127.0.0.1", () =>
-    probe.close(() => yes(true)),
-  );
+  probe.listen(Number(port), "127.0.0.1", () => probe.close(() => yes(true)));
 });
 if (!free)
   throw Error(
@@ -175,7 +227,14 @@ if (!free)
   );
 const dev = spawn(
   process.execPath,
-  [join(app, "node_modules/astro/bin/astro.mjs"), "dev", "--host", "127.0.0.1", "--port", port],
+  [
+    join(app, "node_modules/astro/bin/astro.mjs"),
+    "dev",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    port,
+  ],
   { cwd: app, stdio: ["ignore", "pipe", "pipe"], env: process.env },
 );
 let devOutput = "";
@@ -214,7 +273,10 @@ const migrate = runner("node_modules/wrangler/bin/wrangler.js", [
   "wrangler.jsonc",
 ]);
 if (migrate.status !== 0)
-  throw Error("Local D1 migrations failed: " + (migrate.stderr || migrate.stdout).slice(-1500));
+  throw Error(
+    "Local D1 migrations failed: " +
+      (migrate.stderr || migrate.stdout).slice(-1500),
+  );
 
 const databases = readdirSync(
   join(app, ".wrangler/state/v3/d1/miniflare-D1DatabaseObject"),
@@ -224,7 +286,9 @@ const databases = readdirSync(
     join(app, ".wrangler/state/v3/d1/miniflare-D1DatabaseObject", file),
   );
 if (databases.length !== 1)
-  throw Error("Expected exactly one local D1 database, found " + databases.length);
+  throw Error(
+    "Expected exactly one local D1 database, found " + databases.length,
+  );
 
 const git = (args) =>
   execFileSync("git", args, { cwd: source, encoding: "utf8" }).trim();
@@ -244,6 +308,9 @@ const fixture = {
     "EmDash native passkey registration and sign-in with a virtual authenticator. Cloudflare Access is absent in this copy; this is never production proof.",
   seams,
 };
-writeFileSync(join(root, "fixture.json"), JSON.stringify(fixture, null, 2) + "\n");
+writeFileSync(
+  join(root, "fixture.json"),
+  JSON.stringify(fixture, null, 2) + "\n",
+);
 dev.unref();
 console.log(JSON.stringify(fixture, null, 2));

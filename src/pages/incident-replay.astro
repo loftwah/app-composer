@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import { IncidentSitrep } from '../plugins/incident-sitrep';
+import { replaySitrep } from '../lib/incident-replay';
+import '../plugins/proposals-page.css';
+---
+<Base title="Incident Desk: inspect a safe replay" description="Follow a fictional investigation through situation report, send-back, revised evidence and an exact proposal decision. This read-only replay performs no external action.">
+  <article class="incident-replay composer-proposals">
+    <h1>Review the investigation.<br />Keep the evidence.</h1>
+    <p class="lede">A safe, read-only replay of Incident Desk. Every service, person and observation below is invented. Opening this page sends no notification, starts no agent and changes no application.</p>
+    <nav class="ap-links" aria-label="Incident replay"><a href="#situation">Read the SITREP</a><a href="#decision">Follow the decision</a><a href="/_emdash/admin/plugins/composer-stacks/incidents">Open private Incident Desk</a></nav>
+    <div id="situation"><IncidentSitrep incident={replaySitrep} /></div>
+    <section id="decision" aria-labelledby="decision-heading">
+      <h2 id="decision-heading">The owner sends it back</h2>
+      <p>“Keep the failing request and the control result. Test a missing caption, check the data read, and show a regression check before asking for approval.”</p>
+      <ol class="replay-timeline">
+        <li><strong>Version 1 · investigation proposed.</strong><p>The exact source, scope, observations, competing hypotheses and proposed work receive one digest.</p></li>
+        <li><strong>Send back · instructions retained.</strong><p>The first investigation remains readable. Its review reason stays attached to version 1; the previous digest cannot approve a revised plan.</p></li>
+        <li><strong>Version 2 · evidence added.</strong><p>A local agent submits its checks through the existing scoped connection. The owner compares both versions and decides on the new digest.</p></li>
+        <li><strong>Approve or reject · work preserved.</strong><p>Approval records the proposal decision. A separate authorised handoff must check the current target and source before execution. Rejection closes that proposal and keeps its evidence.</p></li>
+      </ol>
+      <p>The private page uses the existing proposal store, workspace roles, source checks and review endpoints. A viewer cannot decide; an agent cannot approve itself; stale versions and revoked grants are refused.</p>
+    </section>
+    <section class="replay-limit" aria-labelledby="replay-limit-heading">
+      <h2 id="replay-limit-heading">What remains a separate check</h2>
+      <p>Real failure detection, authorised recovery, configured owner email and PagerDuty each need their own recorded proof. This replay establishes none of those. The local availability lab already exercises a separate visibility failure and recovery; it is not a production responder.</p>
+      <div class="ap-links"><a href="/resources/incident">Open the incident runbook</a><a href="/platform/demo">Watch the existing team application films</a><a href="/agent">Use your existing agent</a></div>
+    </section>
+  </article>
+</Base>
+<style>
+  .incident-replay { --ap-ink:var(--color-foreground); --ap-muted:var(--color-muted); --ap-surface:var(--color-background); max-width:1080px; padding-block:64px; }
+  .incident-replay h1 { font-family:var(--font-display); font-size:clamp(2.4rem,5vw,4.8rem); line-height:1.05; max-width:20ch; }
+  .incident-replay :global(.lede) { font-size:1.2rem; margin-block:24px; }
+  .incident-replay h2 { font-size:1.75rem; }
+  .replay-timeline { padding-left:24px; max-width:74ch; }
+  .replay-timeline li { padding-block:16px; border-bottom:1px solid var(--color-border); }
+  .replay-limit { margin-top:48px; border-top:1px solid var(--color-border); padding-top:32px; }
+</style>

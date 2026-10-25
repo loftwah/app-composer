@@ -17,6 +17,33 @@ import { confirmWorkspace } from "../stacks/workspace-scope";
 
 const base = "/_emdash/api/plugins/composer-stacks/";
 
+export async function showProposalCall(
+  workspace: string,
+  proposal: string,
+): Promise<AgentProposalView> {
+  const response = await apiFetch(
+    base +
+      "proposalsRead?" +
+      new URLSearchParams({ action: "show", workspace, proposal }),
+    { cache: "no-store" },
+  );
+  const value = await parseApiResponse<unknown>(
+    response,
+    "The saved investigation could not be confirmed. Refresh before reviewing.",
+  );
+  const parsed = agentProposalView.safeParse(value);
+  if (!parsed.success)
+    throw Error(
+      "The saved investigation could not be validated. Refresh before reviewing.",
+    );
+  confirmWorkspace(workspace, parsed.data.workspace);
+  if (parsed.data.id !== proposal)
+    throw Error(
+      "The response named another proposal. Refresh before reviewing.",
+    );
+  return parsed.data;
+}
+
 export async function proposalCall(
   action: string,
   workspace?: string,

@@ -80,8 +80,7 @@
   font-weight: 600;
 }
 .composer-proposals a:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  color: var(--ap-link, #c74400);
 }
 .ap-links,
 .ap-actions-row {
@@ -146,6 +145,10 @@
 .ap-list {
   min-width: 0;
   border-top: 1px solid var(--ap-rule);
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 180px);
+  overflow: auto;
 }
 .composer-proposals .ap-row {
   display: flex;
@@ -168,6 +171,10 @@
 }
 .ap-row > span:last-child {
   text-align: right;
+  flex: 0 0 auto;
+}
+.ap-row > span:first-child {
+  flex: 1 1 0;
 }
 .ap-row strong,
 .ap-row b {
@@ -260,6 +267,68 @@
 .ap-hint {
   color: var(--ap-muted);
   font-size: 13px;
+}
+
+.incident-sitrep {
+  margin-block: 24px;
+  padding-block: 20px;
+  border-block: 1px solid var(--ap-rule);
+}
+.incident-sitrep h3 {
+  margin-top: 12px;
+}
+.incident-sitrep h4 {
+  margin: 22px 0 8px;
+  font-size: 16px;
+}
+.incident-sitrep ul,
+.incident-sitrep ol {
+  padding-left: 22px;
+  max-width: 74ch;
+}
+.incident-sitrep li {
+  margin-block: 10px;
+  overflow-wrap: anywhere;
+}
+.incident-sitrep li p {
+  margin: 6px 0;
+}
+.incident-sitrep small {
+  display: block;
+  color: var(--ap-muted);
+}
+.incident-mode {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 13px;
+}
+.incident-mode strong {
+  border: 1px solid currentColor;
+  padding: 3px 8px;
+}
+.incident-mode span {
+  overflow-wrap: anywhere;
+  align-self: center;
+}
+.incident-impact {
+  font-weight: 600;
+}
+.ap-history {
+  border-block: 1px solid var(--ap-rule);
+  margin-block: 24px;
+  padding-block: 14px;
+}
+.ap-history details {
+  border-top: 1px solid var(--ap-rule);
+  padding-block: 14px;
+}
+.ap-history summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: list-item;
+  align-content: center;
+  font-weight: 600;
 }
 .ap-empty {
   padding: 20px 0;
@@ -396,6 +465,7 @@
     gap: 28px;
   }
   .ap-list {
+    position: static;
     max-height: 340px;
     overflow: auto;
     overscroll-behavior: contain;
@@ -429,6 +499,14 @@
     margin-bottom: 10px;
   }
   .ap-row {
+    gap: 12px;
+    flex-direction: column;
+  }
+  .ap-row > span:last-child {
+    text-align: left;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
     gap: 12px;
   }
   .ap-detail-heading {
