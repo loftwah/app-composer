@@ -12,6 +12,10 @@ import { afterNativeWorkflowWrite } from "./workflow-events.ts";
 import { manageOverview } from "./overview.ts";
 import { manageOrders } from "./orders.ts";
 import { manageConnections } from "./connections.ts";
+import {
+  connectionEncryptionReply,
+  encryptionProbeSettings,
+} from "./connection-encryption.ts";
 import { manageShopifyCatalogue } from "./shopify-catalogue.ts";
 import { manageResourceInventory } from "./resource-inventory.ts";
 import {
@@ -32,6 +36,7 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
     id: "composer-stacks",
     version: "1.0.0",
     admin: {
+      settingsSchema: encryptionProbeSettings,
       entry: adminEntry,
       pages: [
         { path: "/stacks", label: "Creator stacks", icon: "stack" },
@@ -107,6 +112,13 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         permission: creatorPermission,
         request: { body: "json", maxBytes: 120000 },
         handler: (ctx) => manageAgentTools(ctx, runtime, "submit"),
+      },
+      connectionsEncryptionCheck: {
+        methods: ["POST"],
+        permission: "plugins:manage",
+        response: "raw",
+        request: { body: "json", maxBytes: 1000 },
+        handler: (ctx) => connectionEncryptionReply(ctx, runtime),
       },
       connectionsRead: {
         methods: ["GET"],

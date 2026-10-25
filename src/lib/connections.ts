@@ -310,6 +310,10 @@ export async function manageConnections(ctx: Context, runtime: Runtime) {
       workspace: { ...workspace, role },
       installation: target,
       metadataReadAt: new Date().toISOString(),
+      encryptionCheckAvailable:
+        user.role === 50 &&
+        role === "owner" &&
+        target.environment === "production",
       connections: [guestbook, mail],
     });
   } catch (cause) {

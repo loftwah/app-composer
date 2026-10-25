@@ -33,13 +33,13 @@ collection table does not establish absence of encrypted native settings.
 A fresh metadata-only production observation on 25 October at approximately
 10:55 UTC completed the scope:
 
-| Store | Observed metadata |
-| --- | --- |
-| `options`, names beginning `plugin:` | 0 rows |
-| Native `plugin:%:settings:%` options | 0 rows |
-| Recognised plugin-setting encryption envelopes in plugin options | 0 |
-| `_plugin_storage` (earlier same-run observation) | 0 rows |
-| `_plugin_state` (earlier same-run observation) | 4 rows, 0 nonempty data rows |
+| Store                                                            | Observed metadata            |
+| ---------------------------------------------------------------- | ---------------------------- |
+| `options`, names beginning `plugin:`                             | 0 rows                       |
+| Native `plugin:%:settings:%` options                             | 0 rows                       |
+| Recognised plugin-setting encryption envelopes in plugin options | 0                            |
+| `_plugin_storage` (earlier same-run observation)                 | 0 rows                       |
+| `_plugin_state` (earlier same-run observation)                   | 4 rows, 0 nonempty data rows |
 
 The options query returned counts only and made zero writes. No option names,
 plaintext, ciphertext or key values were returned. The maintained fixed queries
@@ -88,3 +88,21 @@ immediately before any approved write.
 
 Owning issue: [#291](https://github.com/loftwah/app-composer/issues/291).
 Release index: [#11](https://github.com/loftwah/app-composer/issues/11).
+
+## Later owner-approved initial recovery
+
+After the finding above, the owner explicitly authorised a fresh initial key for
+this fresh installation. The original read-only observation remains historical;
+it does not describe the later authorised work. Before generating a key, the
+fixed three-store queries were rerun through `assertEmptyPluginStoresForFreshKey`
+and again confirmed empty plugin stores. The official installed EmDash 1.3.1
+`emdash secrets generate` output was captured without terminal output. The one
+canonical native key was retained outside Git in owned 0700 operator storage and
+one exclusive 0600 JSON file. No existing data was deleted and no production
+secret was changed by this implementation lane.
+
+The reviewed release option and real native verification procedure are recorded
+in [initial recovery implementation](emdash-initial-key-recovery-20261025.md).
+Deployment and authenticated production verification remain separate acceptance
+steps. An existing Guestbook Connections read proves that owner's existing
+provider connection; it does not prove native encrypted setting decryption.
