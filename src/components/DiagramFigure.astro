@@ -5,19 +5,22 @@ interface Step {
 }
 interface Props {
   name: string;
+  assetName?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   title: string;
   alt: string;
   caption: string;
   steps: Step[];
   usedOn?: { label: string; href: string }[];
 }
-const { name, title, alt, caption, steps, usedOn = [] } = Astro.props;
-const base = `/diagrams/ldraw/${name}`;
+const { name, assetName = name, imageWidth = 1600, imageHeight = 700, title, alt, caption, steps, usedOn = [] } = Astro.props;
+const base = `/diagrams/ldraw/${assetName}`;
 ---
 
-<figure class="ldraw-figure" data-diagram={name}>
+<figure class="ldraw-figure" data-diagram={name} id={`diagram-${name}`}>
   <a class="ldraw-image" href={`${base}.png`}>
-    <img src={`${base}.svg`} width="1600" height="700" alt={alt} loading="lazy" decoding="async" />
+    <img src={`${base}.svg`} width={imageWidth} height={imageHeight} alt={alt} loading="lazy" decoding="async" />
   </a>
   <figcaption>
     <strong>{title}</strong>

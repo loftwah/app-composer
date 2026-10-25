@@ -1,0 +1,33 @@
+{
+  "method": "Dominant full-coverage foreground/border and background pixels of the inspected Policy blocked badge in actual native PNGs; antialiased edge pixels excluded.",
+  "samples": [
+    {
+      "theme": "light",
+      "foreground": [
+        193,
+        0,
+        7
+      ],
+      "background": [
+        251,
+        251,
+        251
+      ],
+      "contrast": 6.204970761438918
+    },
+    {
+      "theme": "dark",
+      "foreground": [
+        255,
+        100,
+        103
+      ],
+      "background": [
+        6,
+        6,
+        6
+      ],
+      "contrast": 7.0152065702643
+    }
+  ]
+}

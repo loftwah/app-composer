@@ -39,3 +39,15 @@ Full checks/build/deploy and exact live source/Worker identity are recorded
 once in #11 after the clean pushed-main deployment. This directory retains
 representative production before/after pixels and a bounded browser receipt.
 No owner settings, records, independent app source or credentials changed.
+
+Post-release slow-loading check: actual production at390/1440px with PNG/WebP/font responses delayed500ms retained hero height within4px before/after decode. Native Chrome zoom automation could not be completed (native input timed out); the200%text/reflow probe remains separately labelled, not a native zoom pass.
+
+## Production comparison
+
+| Before · 900px · dark | After · 900px · dark |
+| --- | --- |
+| ![Original production tablet layout](before-900-dark.png) | ![Released production tablet layout](after-900-dark.png) |
+
+[Desktop before](before-1440-dark.png) · [desktop after](after-1440-dark.png) ·
+[phone after](after-390-light.png). These captures use the original and released
+production sources recorded above, with fonts and images decoded.

@@ -1,6 +1,6 @@
 import { apps } from './apps.ts';
 
-export const discoveryRoleIds = ['creator', 'small-business', 'developer', 'designer'] as const;
+export const discoveryRoleIds = ['creator', 'small-business', 'developer', 'designer', 'wordpress', 'shopify', 'platform-team'] as const;
 export type DiscoveryRoleId = typeof discoveryRoleIds[number];
 export interface DiscoveryRole {
   id: DiscoveryRoleId;
@@ -15,6 +15,7 @@ export interface DiscoveryRole {
   steps: { title: string; description: string; href: string }[];
   support: string;
   share: string;
+  fit?: { keep: string; next: string; evidence: { label: string; href: string } };
 }
 const app = (id: typeof apps[number]['id']) => apps.find((entry) => entry.id === id)!;
 const capture = (id: typeof apps[number]['id']) => {
@@ -87,6 +88,59 @@ export const discoveryRoles: DiscoveryRole[] = [
     support: 'Asset composition runs locally in the browser. Package adoption is an explicit reviewed handoff; it does not publish a client site. Client accounts, membership and production release follow their own project permissions.',
     share: '/discovery/designer-20261024.png',
   },
+
+  {
+    id: 'wordpress', label: 'WordPress / agency', title: 'App Composer for WordPress and agency work',
+    headline: 'Prove one content move before a rebuild.',
+    description: 'Try a portable content model and an owner-editable page. Check the content, media and ordinary editing your client actually needs before choosing a destination.',
+    app: 'guestbook',
+    example: { title: 'The working content and contribution journey', description: 'The build story shows an authored content project and a fictional postcard moving through pending, approval, featuring and source removal.', href: '/building', ...capture('guestbook') },
+    primary: { label: 'Open the build story', href: '/building' },
+    start: { label: 'Try a content model', href: '/init/content' },
+    steps: [
+      { title: 'List the behaviour to preserve', description: 'Record URLs, content types, media, forms, editor tasks and the plugins that supply them. Keep the current site as the reference.', href: '/guide#platforms' },
+      { title: 'Try one representative model', description: 'Use a maintained model and its real form before authorising an isolated import of public or fictional content.', href: '/init/content' },
+      { title: 'Review exact plugin evidence', description: 'Inspect the curated release, permissions and unknowns. Plugin installation needs a separately qualified native target.', href: '/plugin-trust' },
+    ],
+    support: 'The migration lab has a small documented WordPress import; it does not establish Elementor, ACF, WooCommerce or whole-site parity. Keep WordPress when a required plugin, workflow or recovery path has no verified replacement.',
+    fit: { keep: 'Keep the existing site, URLs and client choices until representative editing, media and recovery checks pass.', next: 'Write one acceptance brief for a content type and its existing editor task.', evidence: { label: 'Read the migration observations', href: 'https://github.com/loftwah/app-composer/blob/main/labs/wordpress/weekender/OBSERVATIONS.md' } },
+    share: '/brand/campaign/product-og-20261022b.jpg',
+  },
+  {
+    id: 'shopify', label: 'Shopify developer', title: 'App Composer beside a Shopify store',
+    headline: 'Build the work beside your store.',
+    description: 'Give operators a small content, community or review application with its own source and admin. Keep commerce on the store’s established path.',
+    app: 'showcase',
+    example: { title: 'An independently operated content page', description: 'Linkarooie shows the content/community side: owned links, reviewed source contributions and current publication state. It has no Shopify connection.', href: '/showcase/', ...capture('showcase') },
+    primary: { label: 'Open the content example', href: '/showcase/' },
+    start: { label: 'Assess my existing project', href: '/agent' },
+    steps: [
+      { title: 'Name the operator job', description: 'Describe a useful application that still makes sense without Shopify: editorial content, community curation or a reviewed internal request.', href: '/setup#existing' },
+      { title: 'Keep one checkout owner', description: 'Decide which platform owns checkout, payment and order state before proposing a connection.', href: '/guide#commerce' },
+      { title: 'Try a source-owned content model', description: 'Prove the independent application with fictional data before requesting any commerce account or scope.', href: '/init/content' },
+    ],
+    support: 'Composer has no Shopify adapter, OAuth grant, webhook integration or verified store lifecycle. Native Shopify tooling remains the path for themes, checkout and embedded extensions; the fictional Orders view is not a merchant integration.',
+    fit: { keep: 'Keep Shopify’s checkout, storefront tooling and merchant workflows. Composer is a possible companion for a separate job.', next: 'Ask the agent whether the proposed companion remains useful without a store connection.', evidence: { label: 'Read the dated fit assessment', href: 'https://github.com/loftwah/app-composer/blob/main/docs/research/2026-10-25/357-shopify-fit.md' } },
+    share: '/brand/campaign/product-og-20261022b.jpg',
+  },
+  {
+    id: 'platform-team', label: 'Cloudflare team', title: 'App Composer for small Cloudflare teams',
+    headline: 'Take one internal request through review.',
+    description: 'Make a bounded app request, review the proposed change and keep the source and release evidence with the work. Start with one team and one useful application.',
+    app: 'hello',
+    example: { title: 'A recorded two-team journey', description: 'Fictional teams request an application, review a contribution and update it in the working platform walkthrough.', href: '/platform/demo', image: '/demos/platform-native-25dc7589-b3cd5894/overview-poster.jpg', alt: 'Recorded fictional team request in the App Composer internal platform walkthrough.', captured: '2026-10-23', origin: 'https://composer.loftwah.com/platform/demo' },
+    primary: { label: 'Watch the team journey', href: '/platform/demo' },
+    start: { label: 'Define the request', href: '/setup#existing' },
+    steps: [
+      { title: 'Try the request and review', description: 'Inspect the fictional journey, including which decisions stay with the team owner.', href: '/platform/demo' },
+      { title: 'Keep environment boundaries visible', description: 'Review Production and Preview isolation and the exact current release path.', href: '/architecture#dashboard' },
+      { title: 'Give the agent a bounded role', description: 'Choose the service-owner or DevOps pack for the actual work, with current evidence and explicit stop conditions.', href: '/roles' },
+    ],
+    support: 'Composer demonstrates a small Cloudflare studio. Enterprise identity lifecycle, real mandatory-MFA enforcement, customer recovery and data-residency requirements need their own acceptance. It is not a replacement for an established enterprise platform.',
+    fit: { keep: 'Keep existing deployment tools, identity controls and operational ownership that already work.', next: 'Choose one reversible internal application change and write its expected result and recovery check.', evidence: { label: 'Read the dated team-fit assessment', href: 'https://github.com/loftwah/app-composer/blob/main/docs/research/2026-10-25/359-platform-buyers.md' } },
+    share: '/brand/campaign/product-og-20261022b.jpg',
+  },
+
 ];
 
 export const discoveryJobs = [

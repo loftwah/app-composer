@@ -1,22 +1,22 @@
 # Engineering baseline
 
-Reviewed 25 October 2026 for #175, #316 and #338. Node 22.23.4+ and pinned pnpm remain
-the supported local tools; Cloudflare workerd runs deployed Workers. The Node
-floor follows Astro 7.4, which refuses 22.23.1 and earlier. Composer and the
-plain Worker references select pnpm 12.8.1. The independent content-site recipe
-retains its own Astro 7.3.5, EmDash 1.2.0 and separately exercised pnpm 12.9.1
-lockfile.
+Reviewed 25 October 2026 for #175, #316 and #338. The supported local Node lines
+are 22.23.4+ (22.x) and 24.22.1+ (24.x), with pinned pnpm. The default
+`.node-version` remains 22.23.4; select Node 24 explicitly when wanted.
+Cloudflare workerd runs deployed Workers; changing local Node does not change
+Workers compatibility dates or bindings. Composer and the plain Worker
+references select pnpm 12.8.1. The independent content-site recipe retains its
+own Astro 7.3.5, EmDash 1.2.0 and separately exercised pnpm 12.9.1 lockfile.
 
-Node 24.22.1 LTS was qualified against the same gates on 2026/10/25: a fresh
-frozen-lockfile install, type/Astro check with no errors, and an identical
-production build (1243 files, 150 archive members) all pass. It is still not
-declared. The full suite fails seven Get Ready site-skill tests and skips ten
-owned-tool and temporary-storage tests, because `lib/get-ready` deliberately
-refuses a runtime other than Node 22 for the operations that install and run
-pinned third-party binaries. The declared range therefore stays on the Node 22
-line, and `tests/node-runtime.test.mjs` keeps the five `engines.node`
-declarations and the policy on that one reviewed major. Exact commands, versions
-and the conditions for moving are in [the Node runtime decision](node-runtime.md).
+Node 24 support now includes the actual reviewed GitHub CLI/pnpm archive
+preparation and the exact maintained Hello reference-tool install, with repeat
+reuse. Real qualification exposed a Node 24 reserved-directory copy failure
+and a Hello/Composer Wrangler pin mismatch; both were fixed before widening the
+three Get Ready guards. Runtime-gated owned-tool, workspace-tool and cleanup
+fixtures run on both supported lines rather than skipping. The same reviewed
+range is declared in the root, core and MCP manifests and the existing
+dependency policy; the independent generated-site recipe retains Node 22.
+Exact checks, failed/negative evidence, source identities and remaining limits are in [the Node runtime decision](node-runtime.md).
 
 A local package-manager change would need its own install/check/build/package
 comparison; no Bun comparison was performed.

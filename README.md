@@ -14,7 +14,7 @@ Actual production capture, 18 October 2026, source `1bc90251200f9950203220b8d50e
 
 ## Run locally
 
-Use Node 22.23.4 or newer on the Node 22 line and the declared pnpm 12.8.1. Astro 7.4 refuses older runtimes. Install the pinned dependencies, then start the local site:
+Use Node 22.23.4+ on the Node 22 line or Node 24.22.1+ on the Node 24 line with pnpm 12.8.1. The default pin remains Node 22.23.4; select Node 24 explicitly when wanted. Install the pinned dependencies, then start the local site:
 
 ```sh
 pnpm install --frozen-lockfile

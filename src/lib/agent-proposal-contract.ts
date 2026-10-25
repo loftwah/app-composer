@@ -6,6 +6,7 @@
  * history are excluded so the same content always produces the same digest.
  */
 import { z } from "zod";
+import { incidentSitrep } from "./incident-contract.ts";
 import {
   rolePackIds,
   rolePacks,
@@ -294,6 +295,7 @@ export const agentChange = z.discriminatedUnion("kind", [
       kind: z.literal("diff"),
       summary: shortText,
       patch: longText,
+      incident: incidentSitrep.optional(),
     })
     .strict(),
   z
@@ -319,6 +321,7 @@ export const agentChange = z.discriminatedUnion("kind", [
         )
         .min(1)
         .max(20),
+      incident: incidentSitrep.optional(),
     })
     .strict(),
 ]);
@@ -537,6 +540,18 @@ export const agentProposalState = z.enum([
 ]);
 export type AgentProposalState = z.infer<typeof agentProposalState>;
 
+export const agentProposalRevision = z
+  .object({
+    version: z.number().int().positive(),
+    digest: sha256,
+    source: agentStoredSource,
+    evidence: z.array(agentEvidence).min(1).max(20),
+    change: agentChange,
+    risk: agentRisk,
+    submittedAt: isoTime,
+  })
+  .strict();
+
 export const agentProposalView = z
   .object({
     id: scopedId,
@@ -560,6 +575,7 @@ export const agentProposalView = z
     submittedAt: isoTime,
     updatedAt: isoTime,
     reviews: z.array(agentProposalReview).max(20),
+    history: z.array(agentProposalRevision).max(20).default([]),
     accepted: z
       .object({
         digest: sha256,

@@ -110,6 +110,7 @@ const siteSchema = {
           <p class="home-path-action"><a href="/manage">See the owner side <ArrowRight size={17} aria-hidden="true" /></a><a class="home-path-more" href="/platform">Internal platform</a></p>
         </article>
       </div>
+      <a class="home-audience" href="/discover">Find a path for your work <ArrowRight size={17} aria-hidden="true" /></a>
     </section>
 
     <section class="home-made" aria-labelledby="made-heading">
@@ -400,6 +401,7 @@ const siteSchema = {
     margin: 0 0 1.75rem;
     max-width: 24ch;
   }
+  .home-audience { display:inline-flex; align-items:center; gap:.5rem; min-height:44px; margin-top:1rem; color:var(--color-accent); }
   .home-paths-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));

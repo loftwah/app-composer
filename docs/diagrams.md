@@ -11,6 +11,7 @@ service.
 | --- | --- | --- |
 | `get-ready-lifecycle` | Get Ready → Init → EmDash → application lifecycle | `.excalidraw`, `.svg`, `.png` |
 | `agent-approval-boundary` | Local agent → scoped proposal → human review → separate execution | `.excalidraw`, `.svg`, `.png` |
+| `contribution-boundary` | Scoped member contribution → private API → app-owned data → separate public snapshot | `.excalidraw`, `.svg`, `.png` |
 | `cloudflare-isolation` | Production/Preview Workers, separate resources and fail-closed bindings | `.excalidraw`, `.svg`, `.png` |
 
 Each scene is a native Excalidraw version 2 file. Elements keep stable IDs,
@@ -27,6 +28,13 @@ cd ../app-composer-ldraw  # an independent checkout with built assets
 node scripts/render.mjs /path/to/<name>.excalidraw /path/to/output
 ```
 
+The approval and contribution views were subsequently edited through the real
+local MCP, reviewed and curated, then published under immutable
+`*-20261025-model` filenames. Their exact native IDs, output hashes, model/source
+versions and browser receipt are in
+[the model workflow evidence](evidence/ldraw-model-20261025/README.md). Earlier
+immutable URLs remain available.
+
 The renderer writes a renderer-restored `.excalidraw`, SVG and PNG. The scene,
 SVG and PNG are replaced together; do not edit only the SVG or PNG.
 
@@ -37,6 +45,7 @@ SVG and PNG are replaced together; do not edit only the SVG or PNG.
 - `/ready` embeds the lifecycle diagram.
 - `/architecture` embeds the isolation diagram under **Inside Cloudflare** and
   the approval diagram under **Ownership**.
+- `/building#composition` links to the contribution boundary figure.
 - `/agent` links to the atlas through the shared task navigation.
 
 ## Review boundary

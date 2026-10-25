@@ -1,5 +1,8 @@
 export interface AtlasDiagram {
   name: string;
+  assetName?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   title: string;
   alt: string;
   caption: string;
@@ -23,15 +26,17 @@ export const diagramAtlas: readonly AtlasDiagram[] = [
   },
   {
     name: 'agent-approval-boundary',
-    title: 'Local agent → scoped proposal → human review → execution',
-    alt: 'A local agent inspects an authorised workspace and returns a reviewable proposal. A signed-in human accepts, sends back with notes or rejects it. Execution happens only through the existing release path on the other side of a dashed human-authority boundary. The agent grant cannot approve, deploy, merge, spend, read secrets or change access.',
-    caption: 'The proposal is the handoff. The approval and the execution remain separate, signed actions.',
+    assetName: 'agent-approval-boundary-20261025-model',
+    imageWidth: 2016, imageHeight: 987,
+    title: 'Local agent → human review → separate release handoff',
+    alt: 'A local agent inspects an authorised workspace and returns a reviewable proposal. A signed-in human accepts, sends back with notes or rejects it. Proposal review rechecks the submitted source and accepted proposal digest. A manual handoff leads to the existing release guard with clean pushed main, app scope, checks and live verification. The execution adapter is not connected. The agent grant cannot approve, deploy, merge, spend, read secrets or change access.',
+    caption: 'Revised through the local LDraw MCP by a Codex session, then curated for readable publication. Approval and execution remain separate actions.',
     usedOn: [{ label: 'Agent entry', href: '/agent' }, { label: 'Architecture', href: '/architecture#ownership' }],
     steps: [
       { title: 'Local agent', detail: 'Uses the owner’s machine, model and selected workspace under a read-only scope.' },
       { title: 'Scoped proposal', detail: 'Records source identity, cited evidence, risk, unknowns and one bounded change.' },
       { title: 'Human review', detail: 'Accept, send back with notes, or reject. Returning work preserves prior findings, links and versions.' },
-      { title: 'Execution boundary', detail: 'The existing release path, exact source and environment, reversible checks and independent verification. No self-approval, stale approval or duplicate execution.' },
+      { title: 'Execution boundary', detail: 'Approval does not execute. The execution adapter is not connected; a separate manual handoff uses the existing clean pushed-main release path, scoped environment, checks and live verification.' },
     ],
   },
   {
@@ -45,6 +50,21 @@ export const diagramAtlas: readonly AtlasDiagram[] = [
       { title: 'Preview', detail: 'Selects CLOUDFLARE_ENV at build time, uses distinct preview resources and remains closed without an audience.' },
       { title: 'Separate resources and secrets', detail: 'Preview D1, R2 and KV do not inherit production. Production service bindings are absent rather than substituted.' },
       { title: 'Fail closed', detail: 'When a Preview binding, secret or environment value is missing, the correct result is an explicit failure, not a production fallback.' },
+    ],
+  },
+  {
+    name: 'contribution-boundary',
+    assetName: 'contribution-boundary-20261025-model',
+    imageWidth: 1936, imageHeight: 872,
+    title: 'A pending postcard, an approval and a separate featuring choice',
+    alt: 'Here / there receives a pending postcard. An owner approves it; Linkarooie features it only after an explicit selection. Hiding the source item removes its dependent public card and media. Approval and featuring remain separate actions.',
+    caption: 'A model-driven revision of the maintained journey preset. Composer orange and the documented Linkarooie lime family retain their distinct roles; this explains the implemented publication boundary.',
+    usedOn: [{ label: 'Build story', href: '/building#composition' }],
+    steps: [
+      { title: 'Pending', detail: 'The submission is private until the source owner approves it.' },
+      { title: 'Approved', detail: 'Approval makes the source item eligible; it does not feature it in Linkarooie.' },
+      { title: 'Featured', detail: 'The owner selects the approved source item explicitly in Linkarooie.' },
+      { title: 'Hidden at source', detail: 'Current source visibility removes the dependent public card and media.' },
     ],
   },
 ];

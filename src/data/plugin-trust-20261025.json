@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "policy": "2026-10-25.1",
+  "observedAt": "2026-10-25T06:09:28.960Z",
+  "host": {
+    "emdash": "1.3.1",
+    "cloudflare": "1.3.1",
+    "astro": "7.4.2"
+  },
+  "packages": [
+    {
+      "name": "Freeform",
+      "did": "did:plc:tsp7az5h6qsqjzqsgz37wonx",
+      "slug": "freeform",
+      "handle": "solspace.com",
+      "profileCid": "bafyreic6jwwlv3aw2f52sdjqjotvz2zboavar75b3nsmlgnpoc7bsiapuy",
+      "profileUri": "at://did:plc:tsp7az5h6qsqjzqsgz37wonx/com.emdashcms.experimental.package.profile/freeform",
+      "releaseCid": "bafyreidigbuiafcrujs3c6vzlcdripd5fzyon57ujycvu7telfgjq6nl6e",
+      "releaseUri": "at://did:plc:tsp7az5h6qsqjzqsgz37wonx/com.emdashcms.experimental.package.release/freeform:0.1.4",
+      "version": "0.1.4",
+      "indexedAt": "2026-10-20T14:14:25.959Z",
+      "checksum": "bciqdt6kpvahgsqshjovb4qlplt3t6laiwiyftwd2eomufg6jzltmmha",
+      "requires": ">=1.0.0",
+      "historyComplete": false,
+      "license": "MIT",
+      "repository": "https://github.com/solspace/emdash-freeform",
+      "securityContact": true,
+      "requireProvenance": false,
+      "labels": [
+        {
+          "ver": 1,
+          "src": "did:web:labels.emdashcms.com",
+          "uri": "at://did:plc:tsp7az5h6qsqjzqsgz37wonx/com.emdashcms.experimental.package.release/freeform:0.1.4",
+          "val": "listing-passed",
+          "cts": "2026-10-20T14:14:34.597Z",
+          "cid": "bafyreidigbuiafcrujs3c6vzlcdripd5fzyon57ujycvu7telfgjq6nl6e"
+        }
+      ],
+      "inspection": {
+        "observedAt": "2026-10-25T06:09:28.960Z",
+        "did": "did:plc:tsp7az5h6qsqjzqsgz37wonx",
+        "slug": "freeform",
+        "version": "0.1.4",
+        "releaseCid": "bafyreidigbuiafcrujs3c6vzlcdripd5fzyon57ujycvu7telfgjq6nl6e",
+        "sha256": "39f94fa80e6942474baa1e416f5cf73f2c08b23059d87a2399429bc9cae6c61c",
+        "capabilities": [
+          "network:request:unrestricted",
+          "network:request",
+          "email:send"
+        ],
+        "allowedHosts": []
+      },
+      "refreshFailed": false
+    },
+    {
+      "name": "Stripe Checkout",
+      "did": "did:plc:wlshattmcjplayfxlgzbhxvk",
+      "slug": "emdash-stripe-checkout",
+      "handle": "ecommerceave.com",
+      "profileCid": "bafyreiglff5e3jbttl4mnyse7mpfzci7gkxolccor4y67yaimj2tn643tq",
+      "profileUri": "at://did:plc:wlshattmcjplayfxlgzbhxvk/com.emdashcms.experimental.package.profile/emdash-stripe-checkout",
+      "releaseCid": "bafyreidqkabnn2a3geylff3qjk7jn4p7kcckxwhiav4eregsp5x2rdubvi",
+      "releaseUri": "at://did:plc:wlshattmcjplayfxlgzbhxvk/com.emdashcms.experimental.package.release/emdash-stripe-checkout:0.10.3",
+      "version": "0.10.3",
+      "indexedAt": "2026-10-24T02:09:28.131Z",
+      "checksum": "bciqcqt53g7pw45fgwvfwr36lxhidblxz5f6cbssh36xw6cxxorarany",
+      "requires": null,
+      "historyComplete": true,
+      "license": "MIT",
+      "repository": "https://github.com/ecommerceave/emdash-stripe-checkout",
+      "securityContact": true,
+      "requireProvenance": false,
+      "labels": [
+        {
+          "ver": 1,
+          "src": "did:web:labels.emdashcms.com",
+          "uri": "at://did:plc:wlshattmcjplayfxlgzbhxvk/com.emdashcms.experimental.package.release/emdash-stripe-checkout:0.10.3",
+          "val": "listing-passed",
+          "cts": "2026-10-24T02:11:11.465Z",
+          "cid": "bafyreidqkabnn2a3geylff3qjk7jn4p7kcckxwhiav4eregsp5x2rdubvi"
+        }
+      ],
+      "inspection": {
+        "observedAt": "2026-10-25T06:09:28.960Z",
+        "did": "did:plc:wlshattmcjplayfxlgzbhxvk",
+        "slug": "emdash-stripe-checkout",
+        "version": "0.10.3",
+        "releaseCid": "bafyreidqkabnn2a3geylff3qjk7jn4p7kcckxwhiav4eregsp5x2rdubvi",
+        "sha256": "284fbb37df6e74a6b54b68efcbb9d030aef9e97c20ca47dfaf6f0af774411037",
+        "capabilities": [
+          "content:read",
+          "content:write",
+          "schema:read",
+          "media:read",
+          "network:request"
+        ],
+        "allowedHosts": [
+          "api.stripe.com"
+        ]
+      },
+      "refreshFailed": false
+    }
+  ]
+}

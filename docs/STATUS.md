@@ -2,9 +2,63 @@
 
 Reviewed 25 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Product delivery and platform hardening — 25 October 2026
+
+The homepage correction is live from PR #383, source
+`3f4cca7505b788590205c7da3926c4fac6609ab1`, Worker
+`29ac7830-6e3f-47e8-a70c-c9d38c4a4d70`. The tablet proof panel dropped from
+937px to 411px without removing images or links. Its intrinsic image sizing and
+wrapping flex layout caused the blank space. Representative production
+[before/after pixels and browser evidence](evidence/homepage-20261025/README.md)
+include both themes, keyboard, text reflow and delayed loading. Native browser
+zoom remains unverified.
+
+The next independently reviewed implementation slice adds:
+
+- Native **Plugin Trust Centre**, **Brand Studio** and **Incident Desk** pages.
+  Trust Centre is read-only, dated and exact-release based; unknown evidence is
+  explicit. Brand Studio saves scoped immutable versions, previews the actual
+  native console, publishes a second change and restores a prior appearance.
+  Incident Desk preserves structured SITREPs, revised evidence and decisions,
+  refusing stale approval. Their actual isolated native browser journeys and
+  production release state are linked from #11.
+- Three concise audience paths for WordPress/agency, Shopify-adjacent and small
+  Cloudflare teams, retaining the existing creator/developer/designer paths.
+  Each names working examples, existing alternatives and actual unsupported
+  capabilities. An existing unrelated project's beneficial adoption is
+  [merged in Liferaft PR #2](https://github.com/loftwah/liferaft/pull/2); no
+  migration, dependencies, runtime or mail handling changed.
+- Two editable, model-edited and pixel-reviewed diagrams in the existing atlas,
+  with exact source/render evidence. The independent local MCP defects found by
+  real editing are fixed in
+  [LDraw PR #3](https://github.com/loftwah/app-composer-ldraw/pull/3).
+- Tested optional Node 24.22.1 support for Composer/core/MCP, with Node 22.23.4
+  still the default. Generated independent EmDash site recipes retain their
+  separately qualified Node 22 policy. Hello's independent toolchain release is
+  live from [PR #26](https://github.com/loftwah/app-composer-hello/pull/26).
+
+The installed EmDash 1.3.1 Access/email inheritance defect was reproduced with
+synthetic signed identities and actual installed middleware. The explicit
+subject-binding adapter and operator tool are implemented and negatively tested,
+but production remains in compatibility mode to preserve owner access. The
+[exact enforcement contract](access-subject-binding.md) requires qualified
+immutable upstream identity claims, reviewed bindings and recovery; an Access
+subject alone is insufficient. No production IdP policy or existing grant was
+changed.
+
+Native plugin installation still requires the official registry/runner, LOADER,
+entitlement and an authorised isolated lifecycle target. No plugin was installed.
+Provider inventory remains read-only: all 88 undeclared Workers are classified
+with current evidence; four legacy targets retain real dependencies/uncertainty
+and are not safe deletion candidates. Hosted provider reads and measured money
+cost remain unknown. Team Hub's real passwordless/MFA profile and the WordPress
+migration refresh retain their own evidence and release boundaries. #11 owns
+exact final source, checks, Workers, cleanup and remaining gates for this run.
+
 ## Agent entry, diagram atlas and analytics truth — 25 October 2026
 
-Composer `f14fbf48` is live as Worker `df2040a5-483e-444b-8123-bf708f684ae7`.
+The earlier agent-entry release was Composer `f14fbf48`, Worker
+`df2040a5-483e-444b-8123-bf708f684ae7`; the current receipt is above.
 The guarded release added three public, working surfaces:
 
 - **`/agent` and `/agent.md`** give an existing local agent one URL, a copyable

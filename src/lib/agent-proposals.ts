@@ -1,5 +1,6 @@
 import type { D1Database } from "@cloudflare/workers-types";
 import { z } from "zod";
+import { PluginRouteError } from "emdash";
 import { isCreatorRole } from "./creator-access.ts";
 import { resolveWorkspace, requireCapability, StackError } from "./stacks.mjs";
 import { apps } from "./apps.ts";
@@ -68,7 +69,7 @@ const origin = "https://composer.loftwah.com";
 const readInput = z.discriminatedUnion("action", [
   z
     .object({
-      action: z.literal("list"),
+      action: z.enum(["list", "incidents"]),
       workspace: z
         .string()
         .regex(/^[a-z0-9-]{6,64}$/)
@@ -565,27 +566,37 @@ async function buildView(
   db: D1Database,
   row: ProposalRow,
   now: string,
+  includeHistory = true,
 ): Promise<AgentProposalView> {
-  const [version, grant, reviews, handoff, briefing] = await Promise.all([
-    versionRow(db, row.id, row.current_version),
-    grantRow(db, row.grant_id, row.workspace_id),
-    db
-      .prepare(
-        "SELECT * FROM creator_agent_proposal_reviews WHERE proposal_id=? ORDER BY created_at DESC,id DESC LIMIT 20",
-      )
-      .bind(row.id)
-      .all<ReviewRow>(),
-    db
-      .prepare(
-        "SELECT * FROM creator_agent_proposal_handoffs WHERE proposal_id=? AND version=?",
-      )
-      .bind(row.id, row.current_version)
-      .first<HandoffRow>(),
-    db
-      .prepare("SELECT * FROM creator_agent_briefings WHERE id=?")
-      .bind(row.briefing_id)
-      .first<BriefingRow>(),
-  ]);
+  const [version, grant, reviews, handoff, briefing, history] =
+    await Promise.all([
+      versionRow(db, row.id, row.current_version),
+      grantRow(db, row.grant_id, row.workspace_id),
+      db
+        .prepare(
+          "SELECT * FROM creator_agent_proposal_reviews WHERE proposal_id=? ORDER BY created_at DESC,id DESC LIMIT 20",
+        )
+        .bind(row.id)
+        .all<ReviewRow>(),
+      db
+        .prepare(
+          "SELECT * FROM creator_agent_proposal_handoffs WHERE proposal_id=? AND version=?",
+        )
+        .bind(row.id, row.current_version)
+        .first<HandoffRow>(),
+      db
+        .prepare("SELECT * FROM creator_agent_briefings WHERE id=?")
+        .bind(row.briefing_id)
+        .first<BriefingRow>(),
+      includeHistory
+        ? db
+            .prepare(
+              "SELECT * FROM creator_agent_proposal_versions WHERE proposal_id=? ORDER BY version DESC LIMIT 20",
+            )
+            .bind(row.id)
+            .all<VersionRow>()
+        : Promise.resolve({ results: [] as VersionRow[] }),
+    ]);
   if (!version || !grant || !briefing)
     fail(
       "CORRUPT_RECORD",
@@ -633,6 +644,15 @@ async function buildView(
       actor: { id: review.actor_id, name: review.actor_name },
       reason: review.reason,
       createdAt: review.created_at,
+    })),
+    history: history.results.map((revision) => ({
+      version: revision.version,
+      digest: revision.digest,
+      source: decodeSource(revision),
+      evidence: decodeEvidence(revision),
+      change: decodeChange(revision),
+      risk: agentRisk.parse(revision.risk),
+      submittedAt: revision.submitted_at,
     })),
     accepted:
       row.state === "accepted" &&
@@ -1326,6 +1346,17 @@ export async function submitAgentProposal(
       );
     return item;
   });
+  if (command.change.incident) {
+    const incident = command.change.incident;
+    if (incident.observations.some((item) => !ids.includes(item.evidence)))
+      fail(
+        "UNPERMITTED_EVIDENCE",
+        "Each SITREP observation must cite evidence selected from this briefing.",
+        403,
+      );
+    if (Date.parse(incident.lastSeen) > Date.parse(now))
+      fail("INVALID", "A SITREP cannot claim future observations.");
+  }
   const source = agentStoredSource.parse(options.source);
   if (
     source.kind !== command.source.kind ||
@@ -1416,6 +1447,22 @@ export async function submitAgentProposal(
         "This proposal is closed. Open a new briefing and proposal instead of revising it.",
         409,
       );
+    const previous = await versionRow(db, row.id, row.current_version);
+    const priorIncident = previous
+      ? decodeChange(previous).incident
+      : undefined;
+    if (
+      priorIncident &&
+      (!command.change.incident ||
+        priorIncident.id !== command.change.incident.id ||
+        priorIncident.mode !== command.change.incident.mode ||
+        priorIncident.service !== command.change.incident.service)
+    )
+      fail(
+        "SCOPE_MISMATCH",
+        "An incident revision must retain its incident, service and replay/lab identity.",
+        409,
+      );
     proposalId = row.id;
     version = row.current_version + 1;
   } else {
@@ -1485,11 +1532,13 @@ export async function submitAgentProposal(
           ),
         db
           .prepare(
-            "UPDATE creator_agent_proposals SET current_version=?,digest=?,state='submitted',accepted_digest=NULL,accepted_version=NULL,accepted_by_id=NULL,accepted_by_name=NULL,accepted_at=NULL,updated_at=? WHERE id=? AND workspace_id=? AND current_version=?",
+            "UPDATE creator_agent_proposals SET current_version=?,digest=?,briefing_id=?,briefing_digest=?,state='submitted',accepted_digest=NULL,accepted_version=NULL,accepted_by_id=NULL,accepted_by_name=NULL,accepted_at=NULL,updated_at=? WHERE id=? AND workspace_id=? AND current_version=?",
           )
           .bind(
             version,
             digest,
+            briefing.id,
+            briefing.digest,
             now,
             proposalId,
             command.workspace,
@@ -1539,24 +1588,33 @@ export async function submitAgentProposal(
 
 export async function listAgentProposals(
   db: D1Database,
-  input: { workspace: string; state?: AgentProposalState },
+  input: { workspace: string; state?: AgentProposalState; incidents?: boolean },
   options: AgentStoreOptions = {},
 ): Promise<AgentProposalView[]> {
   const now = options.now ? iso(options.now) : new Date().toISOString();
+  const incidentFilter = input.incidents
+    ? " AND EXISTS (SELECT 1 FROM creator_agent_proposal_versions v WHERE v.proposal_id=creator_agent_proposals.id AND v.version=creator_agent_proposals.current_version AND json_type(v.change_json,'$.incident')='object')"
+    : "";
   const rows = input.state
     ? await db
         .prepare(
-          "SELECT * FROM creator_agent_proposals WHERE workspace_id=? AND state=? ORDER BY updated_at DESC,id DESC LIMIT 20",
+          "SELECT * FROM creator_agent_proposals WHERE workspace_id=? AND state=?" +
+            incidentFilter +
+            " ORDER BY updated_at DESC,id DESC LIMIT 20",
         )
         .bind(input.workspace, input.state)
         .all<ProposalRow>()
     : await db
         .prepare(
-          "SELECT * FROM creator_agent_proposals WHERE workspace_id=? ORDER BY updated_at DESC,id DESC LIMIT 20",
+          "SELECT * FROM creator_agent_proposals WHERE workspace_id=?" +
+            incidentFilter +
+            " ORDER BY updated_at DESC,id DESC LIMIT 20",
         )
         .bind(input.workspace)
         .all<ProposalRow>();
-  return Promise.all(rows.results.map((row) => buildView(db, row, now)));
+  // Listing twenty proposals must not multiply their complete patch histories.
+  // The existing scoped show action loads history for the selected proposal.
+  return Promise.all(rows.results.map((row) => buildView(db, row, now, false)));
 }
 
 export async function showAgentProposal(
@@ -2374,11 +2432,13 @@ export async function manageAgentTools(
     };
   } catch (error) {
     if (error instanceof AgentProposalError)
-      throw new StackError(
+      throw new PluginRouteError(
         error.code,
         error.message,
         error.code === "PRODUCTION_TARGET" ? 403 : 400,
       );
+    if (error instanceof StackError)
+      throw new PluginRouteError(error.code, error.message, error.status);
     throw error;
   }
 }
@@ -2470,7 +2530,11 @@ export async function manageAgentProposals(
       }
       const proposals = await listAgentProposals(
         db,
-        { workspace: workspace.id, state: input.state },
+        {
+          workspace: workspace.id,
+          state: input.state,
+          incidents: input.action === "incidents",
+        },
         { workspaceRole: workspace.role },
       );
       return agentProposalSnapshot.parse({
@@ -2579,11 +2643,13 @@ export async function manageAgentProposals(
     };
   } catch (error) {
     if (error instanceof AgentProposalError)
-      throw new StackError(
+      throw new PluginRouteError(
         error.code,
         error.message,
         error.code === "PRODUCTION_TARGET" ? 403 : 400,
       );
+    if (error instanceof StackError)
+      throw new PluginRouteError(error.code, error.message, error.status);
     throw error;
   }
 }

@@ -1,0 +1,162 @@
+{
+  "version": "composer.incident-desk-native/1",
+  "observedAt": "2026-10-25T08:30:46.323Z",
+  "source": "473b8b9354f511bc38b8b5570af3d2d76c79d617",
+  "sourceDirty": true,
+  "origin": "http://localhost:4367",
+  "seams": {
+    "astro.config.mjs :: Cloudflare Access auth removed; EmDash native passkey auth used instead.": {
+      "note": "Cloudflare Access auth removed; EmDash native passkey auth used instead.",
+      "seam": ",auth:access\\(\\{[^}]*\\}\\)"
+    },
+    "astro.config.mjs :: Fixture site origin; WebAuthn relying party must match the local host.": {
+      "note": "Fixture site origin; WebAuthn relying party must match the local host.",
+      "seam": "siteUrl:'https://composer.loftwah.com'"
+    },
+    "src/lib/overview.ts :: Fixture origin guard for the read-only overview; the production guard is unchanged in source.": {
+      "note": "Fixture origin guard for the read-only overview; the production guard is unchanged in source.",
+      "seam": "const origin = \"https://composer.loftwah.com\";"
+    },
+    "local dependency clone": "APFS clone of the existing installed dependency tree; no install and no outside-root Vite imports.",
+    "src/lib/agent-proposals.ts :: Incident Desk proposal origin guard points only to this local fixture.": {
+      "note": "Incident Desk proposal origin guard points only to this local fixture.",
+      "seam": "const origin = \"https://composer.loftwah.com\";"
+    },
+    "src/lib/creator-plugin.ts :: Register the Incident Desk component in the isolated native plugin.": {
+      "note": "Register the Incident Desk component in the isolated native plugin.",
+      "seam": "{ path: \"/proposals\", label: \"Agent proposals\", icon: \"robot\" },"
+    },
+    "src/plugins/stacks-admin.tsx :: Import the real Incident Desk component.": {
+      "note": "Import the real Incident Desk component.",
+      "seam": "import { ProposalsPage } from \"./proposals-page\";"
+    },
+    "src/plugins/stacks-admin.tsx :: Use the real Incident Desk component in the native admin map.": {
+      "note": "Use the real Incident Desk component in the native admin map.",
+      "seam": "\"/proposals\": ProposalsPage,"
+    },
+    "wrangler": {
+      "note": "Local D1/R2 only; no routes, cron or provider service bindings.",
+      "vars": {
+        "PUBLIC_ORIGIN": "http://localhost:4367",
+        "RESOURCE_ACCOUNT_ID": "fictional-lane-a-account",
+        "RESOURCE_ENVIRONMENT": "production"
+      }
+    }
+  },
+  "warning": "Fictional local D1 and native EmDash authentication with a virtual authenticator. No Access/real MFA, production, external email, PagerDuty, agent execution or recovered service proof.",
+  "screenshots": [
+    {
+      "name": "native-entry-diagnostic.png",
+      "sha256": "07ec21cae6534723f538f933f22008b8884b7fc164fe84327b92c9a0624963dd"
+    },
+    {
+      "name": "submitted-1440-light.png",
+      "sha256": "ba7828715245e4e07eacb98b6114cb5b05334a35c0ece36d246586cd4868712e"
+    },
+    {
+      "name": "keyboard-reason-1440-light.png",
+      "sha256": "5f2e905f78656fe9c6f4bbf10c6fd1a04120ca6aa95dd0a9d700ee2a907d1085"
+    },
+    {
+      "name": "accepted-history-1440-light.png",
+      "sha256": "a22d5610db3d82164601608182a2e372be5ed05953de71d28744bcebd7198cfd"
+    },
+    {
+      "name": "rejected-1440-dark.png",
+      "sha256": "38096819622e0746bfb1665664d6abe10a04af755ae105451f4ff16806943d39"
+    },
+    {
+      "name": "rejected-390-dark.png",
+      "sha256": "502f1d890f3f656e366773ace906e353e4eae669812410c9d7304be12c6be42b"
+    },
+    {
+      "name": "rejected-1440-light.png",
+      "sha256": "a8727ca56d72a9232b7c088bcdfb0596a5a58ca777211cd8d7af3fb0286bb6e5"
+    },
+    {
+      "name": "rejected-390-light.png",
+      "sha256": "57ae74d5f69e3f40dbed72072e052fb63e41d236c0f3b7ce37b4e3b4b8cc4cfc"
+    },
+    {
+      "name": "public-390-dark.png",
+      "sha256": "646430c1087e16e2e12840c4df5dbd172bb6bffdd8ae884e31faf51057b6d4c7"
+    },
+    {
+      "name": "public-390-light.png",
+      "sha256": "d86558dbcd853573be2a3905ad7ffbb0e36453d6d58c919e3cd0fe5e07142b83"
+    },
+    {
+      "name": "native-final.png",
+      "sha256": "d86558dbcd853573be2a3905ad7ffbb0e36453d6d58c919e3cd0fe5e07142b83"
+    }
+  ],
+  "checks": {
+    "firstAccountWelcomeDismissed": true,
+    "keyboardReasonReached": true,
+    "staleApproval": {
+      "success": false,
+      "error": {
+        "code": "CONFLICT",
+        "message": "The proposal changed since it was opened. Refresh before reviewing."
+      }
+    },
+    "preserved": {
+      "state": "accepted",
+      "current_version": 2,
+      "accepted_digest": "cc8a20d160399c229abc08baaee29d32191fcb636e3ee9da09188648d5b625d2",
+      "versions": 2,
+      "reviews": 2
+    },
+    "rejectionPreserved": true,
+    "anonymousDenied": 401,
+    "externalEffects": {
+      "email": 0,
+      "pagerDuty": 0,
+      "deployments": 0,
+      "agentCalls": 0
+    },
+    "nativeAuth": {
+      "role": 50,
+      "virtualAuthenticator": true,
+      "cloudflareAccess": false
+    }
+  },
+  "errors": [
+    "Failed to load resource: the server responded with a status of 409 (Conflict)"
+  ],
+  "nativeEntry": {
+    "status": 200,
+    "url": "http://localhost:4367/_emdash/admin/plugins/composer-stacks/incidents?workspace=04c62890-aa30-45d8-9e04-502d84fe7f2e",
+    "text": "Loading configuration...",
+    "overview": 200
+  },
+  "expectedConflictConsole": [
+    "Failed to load resource: the server responded with a status of 409 (Conflict)"
+  ],
+  "headings": [
+    {
+      "html": "<h2 id=\"app-navigation-title\">Apps and shortcuts</h2>",
+      "hidden": false,
+      "role": null
+    },
+    {
+      "html": "<h1 data-astro-cid-gh2copku=\"\">Review the investigation.<br data-astro-cid-gh2copku=\"\">Keep the evidence.</h1>",
+      "hidden": false,
+      "role": null
+    },
+    {
+      "html": "<h2 id=\"decision-heading\" data-astro-cid-gh2copku=\"\">The owner sends it back</h2>",
+      "hidden": false,
+      "role": null
+    },
+    {
+      "html": "<h2 id=\"replay-limit-heading\" data-astro-cid-gh2copku=\"\">What remains a separate check</h2>",
+      "hidden": false,
+      "role": null
+    }
+  ],
+  "finalPage": {
+    "url": "http://localhost:4367/incident-replay",
+    "text": "Skip to content\nApp Composer\nReview the investigation.\nKeep the evidence.\n\nA safe, read-only replay of Incident Desk. Every service, person and observation below is invented. Opening this page sends no notification, starts no agent and changes no application.\n\nRead the SITREP\nFollow the decision\nOpen private Incident Desk\nSIMULATED REPLAY\nreplay-trail-notes-0001\nSituation report\n\nThe visitor-book page is unavailable in this fictional example; a shallow health check still responds.\n\nService / owner\nFictional Trail Notes · Fictional Team A\nFirst / last seen\n2026-10-25T00:00:00Z / 2026-10-25T00:03:00Z\nReported recovery\nUnverified — incident remains open\nOwner notice\nNot sent\nPagerDuty\nNot connected\nObserved\nThe visitor-book journey returns 500; the health route returns 200.\nEvidence: journey-01\nThe separate Team B control still returns its expected content.\nEvidence: control-01\nHypotheses to test\npossible: The optional caption is used as text before its presence is checked.\n\nNext check: Run the exact request with a missing caption and compare the retained source.\n\npossible: The data service may be unreachable.\n\nNext check: Check the scoped data read independently; do not infer health from a root response.\n\nSteps already taken\nRetained the failing request and the unchanged control result.\nPrepared an investigation proposal; no recovery action has run.\nUnknowns and blockers\nRoot cause and compatible recovery remain unverified.\nNo email or PagerDuty connection has been exercised.\n\nNext update: After the missing-caption reproduction and scoped data check are attached to a new proposal version.\n\nThe owner sends it back\n\n“Keep the failing request and the control result. Test a missing caption, check the data read, and show a regression check before asking for approval.”\n\nVersion 1 · investigation proposed.\n\nThe exact source, scope, observations, competing hypotheses and proposed work receive one digest.\n\nSend back · instructions retained.\n\nThe first investigation remains readable. Its review reason stays attached to version 1; the previous digest cannot approve a revised plan.\n\nVersion 2 · evidence added.\n\nA local agent submits its checks through the existing scoped connection. The owner compares both versions and decides on the new digest.\n\nApprove or reject · work preserved.\n\nApproval records the proposal decision. A separate authorised handoff must check the current target and source before execution. Rejection closes that proposal and keeps its evidence.\n\nThe private page uses the existing proposal store, workspace roles, source checks and review endpoints. A viewer cannot decide; an agent cannot approve itself; stale versions and revoked grants are refused.\n\nWhat remains a separate check\n\nReal failure detection, authorised recovery, configured owner email and PagerDuty each need their own recorded proof. This replay establishes none of those. The local availability lab already exercises a separate visibility failure and recovery; it is not a production responder.\n\nOpen the incident runbook\nWatch the existing team application films\nUse your existing agent\nCopy page link\n\nThis is Loftwah’s instance of App Composer. Product and source are shared; the apps, media and owner settings are Loftwah’s.\n\nSource · Platform & service guide · Analytics · Privacy · Release evidence"
+  }
+}

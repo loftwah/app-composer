@@ -1,0 +1,58 @@
+[
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "agent-approval-boundary",
+    "elements": 27,
+    "download": 200
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "contribution-boundary",
+    "elements": 17,
+    "download": 200
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "agent-approval-boundary",
+    "elements": 27,
+    "download": 200
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "contribution-boundary",
+    "elements": 17,
+    "download": 200
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "name": "agent-approval-boundary",
+    "elements": 27,
+    "download": 200
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "name": "contribution-boundary",
+    "elements": 17,
+    "download": 200
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "name": "agent-approval-boundary",
+    "elements": 27,
+    "download": 200
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "name": "contribution-boundary",
+    "elements": 17,
+    "download": 200
+  }
+]

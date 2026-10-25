@@ -1,130 +1,110 @@
 # Node runtime decision
 
-Reviewed 2026/10/25 (Australia/Melbourne), 2026-10-24T23:10Z. Owner issue
-[#316](https://github.com/loftwah/app-composer/issues/316).
+Reviewed 25 October 2026 for [#316](https://github.com/loftwah/app-composer/issues/316) / #321.
 
-The declared runtime stays on the Node 22 line: `>=22.23.4 <23`. Node 24 is
-**build-qualified but refused by Get Ready**, so it is not declared. The rest of
-this page is the evidence and the exact remaining work.
+Composer supports `>=22.23.4 <23 || >=24.22.1 <25`. The default `.node-version`
+remains 22.23.4, so this adds an explicitly selected Node 24 path without changing
+an existing operator's selected runtime. Odd majors, Node 26, older patch floors
+and prerelease/custom version strings remain outside the exercised local
+execution contract. Independent mini-app policies remain separately owned.
 
-## What was tested
+Node 24.22.1 is an [official LTS security release](https://nodejs.org/en/blog/release/v24.22.1).
+The prior [decision at source 473b8b9](https://github.com/loftwah/app-composer/blob/473b8b9354f511bc38b8b5570af3d2d76c79d617/docs/node-runtime.md)
+correctly kept 24 undeclared while the actual setup operations were unqualified.
+Seven policy refusals were not seven independent package incompatibilities.
 
-Both runtimes came from official `nodejs.org` release tarballs, unpacked into an
-owned temporary root and checksum-verified against the published
-`SHASUMS256.txt`:
+## Real failures found and fixed
 
-| Runtime | Tarball SHA-256 |
-| --- | --- |
-| Node 22.23.4 (the declared floor) | `c9e1dbc748b33ed2d14f42445191ecaf14c56259c7a9a26d0042c49ec2b66428` |
-| Node 24.22.1 LTS "Krypton", released 2026-10-20 | `89c682593d76cd44233fa53b1563264e7de9cbb189cad169135c5b4fadfbc0a7` |
+1. Node 22 allowed `cpSync(source, existingEmptyDirectory, {recursive:true,
+   force:false,errorOnExist:true})`; Node 24.22.1 throws `ERR_FS_CP_EEXIST`.
+   The actual pinned workspace-tool download reproduced this at `candidate/bin`.
+   A minimal identical operation passed on 22.23.4 and failed on 24.22.1. The
+   repair retains exclusive destination reservation and copies each absent
+   child with the same no-overwrite flags. It also covers adopted owned-project
+   `node_modules`; relative package symlinks and owner-file refusal are tested.
+2. Maintained Hello `db0a98c` pinned Wrangler 4.143.1, while Composer's actual
+   verifier requires 4.152.0. Its real reference-tool installation therefore
+   failed after installing on either runtime. Hello's independently reviewed
+   [PR #26](https://github.com/loftwah/app-composer-hello/pull/26) aligns the pair,
+   patches the newly resolved Undici path, regenerates declarations and fixes
+   the existing missing development build identity. It shipped as
+   `47d5d8cfc8961f029c9a663dc22dd194345187c1`, Worker
+   `0bcbcbc0-48f2-469f-b609-7d4d38bc8b37`. Its Node 22 support policy is unchanged.
 
-pnpm 12.8.1 was installed into a separate prefix for each runtime so the
-`packageManager` pin stayed exact and the owner's global Node was untouched.
-Each probe used its own pnpm store, so the install was a fresh resolution from
-the committed lockfile rather than a warm local cache.
+## Qualification
 
-## Result
+The installed mise runtimes 22.23.4 and 24.22.1 were reused; no runtime or global
+package manager was installed. pnpm remains 12.8.1 for Composer.
 
-| Gate | Node 22.23.4 | Node 24.22.1 LTS |
-| --- | --- | --- |
-| `pnpm install --frozen-lockfile` | pass | pass |
-| `pnpm check:types` | 0 errors, 0 warnings, 56 hints (564 files) | 0 errors, 0 warnings, 56 hints (563 files at probe time) |
-| `pnpm test` | 1017 tests, 1017 pass, 0 fail, 0 skipped | 1017 tests, 1000 pass, **7 fail**, **10 skipped** |
-| `pnpm build` | 1243 files, 150 archive members | 1243 files, 150 archive members |
-| `pnpm freshness` | 27 ok, 0 drift | 26 ok, **1 drift** (`node` outside the policy) |
-| `pnpm test:ready` | 106 tests, 106 pass | 106 tests, 99 pass, **7 skipped** |
+The real-operation probe used one owned temporary root and a qualification-only
+copy of the guard before any source engine declaration was changed:
 
-The build output is byte-for-byte the same shape on both runtimes: the same file
-count and the same archive member count. Install, type checking and production
-build are genuinely runtime-independent.
+- On Node 24.22.1, actual fixed/hash-checked GitHub CLI 2.98.0 and pnpm 12.9.1
+  archives install into the isolated workspace; a repeat verifies the same tree
+  without a download.
+- Actual GitHub main was re-read and Hello cloned at exact `47d5d8c`. The real
+  `createLocalAdapter().installReferenceTools()` installs its frozen dependencies
+  and returns Wrangler 4.152.0 / selected pnpm 12.8.1; repeat reports `changed:
+  false`. Hello's complete types/lint/format/26-test check passes on Node 24.
+- The separate Hello slice passes checks/build and actual workerd startup on
+  both runtimes. `/`, `/build.json` and `/healthz` return 200 and retain the
+  configured title. Development identity is labelled `development`; the
+  deployed guard independently verified the exact Git source.
+- All 31 affected site-skill, owned-tool, workspace-tool, reserved-copy and
+  temporary-cleanup tests pass on both Node lines, with zero skips. This includes
+  the ten previously gated cases; negative credential stripping, inactive
+  runtime, source mutation, partial owner tools and cleanup checks remain.
+- Required composition/readiness checks plus runtime-policy checks pass on both
+  lines. Composer/core/MCP manifests, dependency policy and the MCP archive identity guard move
+  together. The shared runtime predicate preserves refusal for unsupported
+  versions rather than replacing a guard with a permissive major check.
 
-## Why Node 24 is not declared
+The pre-review complete `pnpm check` runs pass on both lines: 1,171 tests,
+zero failures/skips, and
+635 files with zero type/Astro errors or warnings. Both production builds pass
+the publication guard with 1,268 files / 150 archive members. The Node 24 frozen
+lockfile install succeeds and freshness reports no drift on either runtime.
+A subsequent review adds before/per-child/after destination inode checks,
+refuses linked or replaced reserved roots without outside writes, and retains
+the independent content-site recipe’s Node 22 declaration. All 36 affected
+checks pass on each runtime after that refinement; the required three
+composition/readiness suites pass all 23 tests. The final integrated release
+gates remain recorded once in #11.
 
-Three guards in `lib/get-ready` deliberately refuse a runtime other than Node 22.
-They are not accidental:
+Actual Composer dev startup on each line serves the homepage and `/guide`; the
+guide derives EmDash 1.3.1 / Astro 7.4.2 from the maintained package manifest.
+Each local server is stopped after its probe. Bounded
+command logs and raw receipts for this run are kept under ignored
+`output/node24-20261025/`; the integrated release source and live Worker receipt
+belong once in #11. Source passes do not establish a customer account, Access
+session, hosted MCP, physical device or provider interoperability.
 
-| Guard | Effect |
-| --- | --- |
-| `lib/get-ready/site-skills.mjs:59` | `prepareSiteSkills` fails with `configuration` unless `process.versions.node` starts with `22.` |
-| `lib/get-ready/local.mjs:327` | `installReferenceTools` refuses a non-22 major |
-| `lib/get-ready/workspace-tools.mjs:23` | workspace tool preparation refuses a non-22 major |
+## Reproduce
 
-Those refusals are the reviewed support envelope for an operation that installs
-and runs pinned third-party binaries, not a version string that went stale. On
-Node 24 they produce:
-
-- **7 failing tests**, all in `tests/readiness-site-skills.test.mjs`. Each one
-  asserts a *successful* preparation, so the runtime refusal surfaces as an
-  unexpected `Readiness check did not pass` (`code: 'configuration'`) from
-  `site-skills.mjs:13`.
-- **10 skipped tests**: four in `tests/readiness-owned-tools.test.mjs`, three in
-  `tests/readiness-workspace-tools.test.mjs` and three in
-  `tests/temporary-storage.test.mjs`, each gated on
-  `process.versions.node.split('.')[0]==='22'` (or `startsWith('22.')`).
-
-`pnpm freshness` reports one drift on Node 24 for the same honest reason: the
-runtime in use is outside the reviewed range. That row is the intended signal,
-not a defect to widen away.
-
-`tests/readiness-site-skills.test.mjs` also keeps a negative test, "unsupported
-declarations, missing inventory, inactive runtime and unknown fields refuse
-before any writes". The refusal is specified behaviour, so weakening the seven
-positive tests to make Node 24 look green would remove the coverage that
-protects it.
-
-## What would change the decision
-
-Node 24 becomes declarable when all of the following are recorded, in one
-reviewed change:
-
-1. The three guards accept the new major, and the ten gated tests run instead of
-   skipping.
-2. `lib/get-ready/workspace-tools.mjs` tool preparation is exercised with its
-   real reviewed archives (GitHub CLI 2.98.0 and pnpm 12.9.1 for macOS arm64) on
-   the new runtime, not only with fixtures.
-3. `lib/get-ready/local.mjs` reference-tool installation is exercised against the
-   exact maintained Hello source on the new runtime.
-4. `config/dependency-policy.json`, `package.json` and the three library
-   manifests move together; `tests/node-runtime.test.mjs` enforces that they do.
-5. This page and `docs/engineering-baseline.md` record the new evidence.
-
-The fixtures alone cannot carry points 2 and 3. They substitute `gh` and `pnpm`
-with local scripts, so a green fixture run proves the code path, not the real
-binaries.
-
-## Current support status
-
-Node 22 is in Maintenance LTS until 2027/04/30, so the declared line is
-supported today and nothing here is urgent. Node 24 is Active LTS and is the
-eventual target; the qualification above is the starting evidence for that move.
-
-## Reproducing the probe
-
-The Composer suite reads two independent checkouts. Two platform tests compare
-the selected Guestbook source against `composition.lock.json` and fail if the
-sibling `../app-composer-guestbook` has drifted, even when every other test
-passes:
+Use existing runtimes, exact lockfiles and the maintained commands:
 
 ```sh
-COMPOSER_DEMO_GUESTBOOK=/absolute/clean/app-composer-guestbook \
-COMPOSER_INCIDENT_GUESTBOOK=/absolute/clean/app-composer-guestbook \
-pnpm test
+pnpm check
+pnpm build
+mise exec node@24.22.1 -- pnpm check
+mise exec node@24.22.1 -- pnpm build
 ```
 
-Point both at a clean checkout of the pinned commit
-(`5075d7be53b43aca288d3707fd06851aca91e8c2` at the time of writing) before
-reading the result. With a drifted sibling checkout, tests 365 and 368 fail on
-either Node runtime; that is an environment mismatch, not a runtime defect.
-
-Then run the gates for the runtime under test:
+`mise` is optional: selecting the same installed Node executable in PATH is
+equivalent. The suite's two independent Guestbook consumers must point at the
+clean commit in `composition.lock.json`, currently
+`5075d7be53b43aca288d3707fd06851aca91e8c2`, not a drifted owner's checkout:
 
 ```sh
-pnpm install --frozen-lockfile
-pnpm check:types && pnpm test && pnpm build
-pnpm freshness
-pnpm test:ready
+COMPOSER_DEMO_GUESTBOOK=/absolute/clean/pinned/guestbook \
+COMPOSER_INCIDENT_GUESTBOOK=/absolute/clean/pinned/guestbook pnpm check
 ```
 
-A probe that only runs install, types and build will always pass on Node 24 and
-will never reveal the refusal. `pnpm test` and `pnpm test:ready` are the gates
-that decide this question.
+Real tool setup remains explicit and scoped. It does not authenticate, deploy,
+change an IdP or create a provider resource. The real-operation probe strips
+service credentials from dependency installation; its temporary homes, archives,
+source checkout and node_modules are removed on success/failure. Existing owner
+checkouts and global runtime selection are preserved. The generated content-site recipe retains EmDash 1.2.0 and its separately
+qualified Node 22 engine range. It has not received an actual generated-site
+Node 24 check/build/browser qualification. Composer/core/MCP Node 24 support
+does not widen that independent recipe or perform a CMS upgrade.

@@ -1,0 +1,12 @@
+{
+  "src/lib/agent-proposals.ts": "a4b3268f454e7141e630ba7a04bfcb213ddf1bb643a789c92161a884fa489df1",
+  "src/lib/agent-proposal-contract.ts": "87b90943c99bcc7920eed6e6af935450f1a6d9d84928a63e1005483d5ab9284c",
+  "src/lib/incident-contract.ts": "63a0b0b5a199a316ca242a07242a7732acb7b3a66b8534d644d446161df99171",
+  "src/lib/incident-replay.ts": "b194fc78d0295dfa2cfbe0a6a61c6f01356e4e678397361ac186be41eac76a7f",
+  "src/plugins/proposals-page.tsx": "1cc3cec4bfae89f8c368a13e98aab453c840aea5c8b460397f8621bfb0de729f",
+  "src/plugins/proposals-page.css": "d0c96d374a2c9297f4acf190da7e1c948775b63ee37a18284d48d100cb83bf36",
+  "src/plugins/proposals/api.ts": "60babfaaa56b36cc6d8a9f4984b3218442539717dc6e35d2ac3d8849a5fca19d",
+  "src/plugins/incident-sitrep.tsx": "cb726aae3e107a7376192a8ec3bec091da25f190763467cb5da4a250ca954cc1",
+  "src/plugins/incidents-page.tsx": "cfc914d0af24c442c278eb35f420f14c6b4db390aecc4e3f659875766fab7e7e",
+  "src/pages/incident-replay.astro": "9182556a4241f67be16c66640ce7cf31703449fd62b2cbc0b184db2e8d254fd8"
+}
