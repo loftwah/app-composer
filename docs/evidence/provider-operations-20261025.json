@@ -1,0 +1,161 @@
+{
+  "version": "composer.provider-operations-evidence/1",
+  "classification": "actual-provider-get-only",
+  "source": "f2422077ea3d98bda4d1d7d1b93cc2510e3fd0bb plus provider operations source under review",
+  "account": "1003dc1d93af0ebea56b2f1252f89627",
+  "baselineAt": "2026-10-25T10:40:01.574Z",
+  "observedAt": "2026-10-25T10:44:42.127Z",
+  "snapshotHashes": [
+    "b624d5b3297cb9df37766e2a08973dd1e5cd7659e3098aa53c98a700df787ba9",
+    "a3b95d2c8d201b6bbfbcd351479139a65b90c10805e546647f3b6f33d570e262"
+  ],
+  "providerRequests": 72,
+  "methods": [
+    "GET"
+  ],
+  "providerWrites": 0,
+  "declaredCounts": {
+    "expected": 21,
+    "declaredObserved": 21,
+    "observed": 109,
+    "match": 21,
+    "drift": 0,
+    "missing": 0,
+    "unverified": 0,
+    "inaccessible": 0,
+    "undeclared": 88,
+    "undeclaredWorkers": 88,
+    "undeclaredEarlier": 84,
+    "undeclaredOther": 4,
+    "undeclaredStorage": 0,
+    "unrelated": 54,
+    "identityVerified": 8,
+    "identityUnknown": 0,
+    "identityDrift": 0,
+    "attention": 1
+  },
+  "unassignedWorkerCount": 88,
+  "coverage": {
+    "workers": 100,
+    "settingsRead": 2,
+    "reverseReferencesComplete": false
+  },
+  "observedDependencies": [
+    {
+      "kind": "worker",
+      "id": "app-composer",
+      "name": "app-composer",
+      "environment": "production",
+      "declared": true,
+      "declaredOwner": "loftwah",
+      "declaration": "wrangler.jsonc",
+      "dependencyCoverage": "read",
+      "dependencies": [
+        {
+          "binding": "DB",
+          "kind": "d1",
+          "id": "1b2b29c8-4109-4a5f-901a-befc91173bc5",
+          "environment": null,
+          "entrypoint": null
+        },
+        {
+          "binding": "GUESTBOOK",
+          "kind": "worker",
+          "id": "composer-guestbook-8428e16f61c25a4d",
+          "environment": "production",
+          "entrypoint": null
+        },
+        {
+          "binding": "GUESTBOOK_MEMBERS",
+          "kind": "worker",
+          "id": "composer-guestbook-8428e16f61c25a4d",
+          "environment": "production",
+          "entrypoint": "GuestbookMemberService"
+        },
+        {
+          "binding": "MEDIA",
+          "kind": "r2",
+          "id": "app-composer-media",
+          "environment": null,
+          "entrypoint": null
+        },
+        {
+          "binding": "SESSION",
+          "kind": "kv",
+          "id": "3a76800194064e498949fd7c251af7e3",
+          "environment": null,
+          "entrypoint": null
+        },
+        {
+          "binding": "SHOWCASE",
+          "kind": "worker",
+          "id": "composer-showcase-8428e16f61c25a4d",
+          "environment": "production",
+          "entrypoint": null
+        }
+      ],
+      "dependents": [],
+      "retirement": "not-authorised",
+      "cost": {
+        "state": "unknown",
+        "note": "Cloudflare's read endpoints used here do not expose a per-resource charge. Cost is unknown, not zero."
+      }
+    },
+    {
+      "kind": "worker",
+      "id": "app-composer-preview",
+      "name": "app-composer-preview",
+      "environment": "preview",
+      "declared": true,
+      "declaredOwner": "loftwah",
+      "declaration": "wrangler.jsonc:env.preview",
+      "dependencyCoverage": "read",
+      "dependencies": [
+        {
+          "binding": "DB",
+          "kind": "d1",
+          "id": "bdbbe1c4-e1ff-43d3-a89d-d7dd76d13c0a",
+          "environment": null,
+          "entrypoint": null
+        },
+        {
+          "binding": "MEDIA",
+          "kind": "r2",
+          "id": "app-composer-media-preview",
+          "environment": null,
+          "entrypoint": null
+        },
+        {
+          "binding": "SESSION",
+          "kind": "kv",
+          "id": "2e7ac1e5417f4425be41d60d99a35de1",
+          "environment": null,
+          "entrypoint": null
+        }
+      ],
+      "dependents": [],
+      "retirement": "not-authorised",
+      "cost": {
+        "state": "unknown",
+        "note": "Cloudflare's read endpoints used here do not expose a per-resource charge. Cost is unknown, not zero."
+      }
+    }
+  ],
+  "temporalChanges": {
+    "changed": 0,
+    "newlyObserved": 0,
+    "noLongerObserved": 0,
+    "dependencyUnverified": 98
+  },
+  "composerWorkerVersion": "e0c800d7-44ee-4c8e-9c36-d151cb33ebb9",
+  "cost": {
+    "state": "unknown",
+    "note": "Cloudflare's read endpoints used here do not expose a per-resource charge. Cost is unknown, not zero."
+  },
+  "limits": [
+    "Dependencies cover only successfully observed service/D1/R2/KV bindings. Queues, Workflows, external clients and unread Worker settings remain unknown.",
+    "A committed owner declaration is accountable scope, not a provider ownership or permission grant. Undeclared resources stay unassigned.",
+    "No resource is safe to retire from this view; reverse references are incomplete. Costs remain unknown."
+  ],
+  "credential": "Existing ambient local operator credential; no key read/print/rotation, hosted token or least-privilege entitlement qualification."
+}

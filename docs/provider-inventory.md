@@ -268,3 +268,23 @@ hosted read.
 
 Snapshots are local operator evidence with the existing credential, not a
 Worker-side read, a new grant or a write.
+
+## Inspect observed dependencies and changes
+
+The existing `compare`/`report` command also writes an `-operations.json` and
+adds an observed-dependency table to its Markdown summary. Declared accountable
+owner and environment come from the committed expectations; undeclared resources
+stay unassigned. Each observed service/D1/R2/KV binding names the Worker and
+binding that references it. Only successfully read settings contribute edges.
+A resource with no observed dependent is never marked safe to retire: other
+Worker settings, external clients, Queues and Workflows may remain unread.
+
+Supply `--previous output/provider-inventory/EARLIER-snapshot.json` with
+`--snapshot output/provider-inventory/CURRENT-snapshot.json` to compare two
+selected observations without any network request. Comparable observed version,
+binding, domain and schedule changes are named. Missing list/settings coverage
+stays unknown; list absence is not a deletion, ownership or retirement grant.
+No temporal comparison is inferred when no previous observation is selected.
+The existing stdout JSON check remains unchanged; the operations result is a
+separate bounded artifact beside it. The command still performs no provider write
+and reports monetary cost as unknown.
