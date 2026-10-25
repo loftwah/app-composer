@@ -196,6 +196,7 @@ const reply = z.object({
   message: z.string().max(1000).optional(),
   workspace: z.object({ id, name: z.string(), role }).optional(),
   stacks: z.array(stack).max(50).optional(),
+  lifecycle: z.enum(["creator", "governed"]).optional(),
   stack: stack.optional(),
   book: resourceBook.optional(),
   media: z
@@ -368,9 +369,19 @@ export function decodeStackReply(action: string, value: unknown) {
                     : false;
   if (action === "resourceContent") valid = data.book;
   if (action === "resourceMedia") valid = data.media;
-  if (["moderateResource", "reconcileResourceContent", "retryResourceContent"].includes(action))
-    valid = data.stack && data.resources &&
-      ["applied", "unchanged", "refused", "unknown"].includes(data.outcome ?? "") &&
+  if (
+    [
+      "moderateResource",
+      "reconcileResourceContent",
+      "retryResourceContent",
+    ].includes(action)
+  )
+    valid =
+      data.stack &&
+      data.resources &&
+      ["applied", "unchanged", "refused", "unknown"].includes(
+        data.outcome ?? "",
+      ) &&
       data.publicationUnchanged;
   if (!valid)
     throw Error(

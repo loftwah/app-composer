@@ -7,7 +7,7 @@ import '../plugins/proposals-page.css';
 <Base title="Incident Desk: inspect a safe replay" description="Follow a fictional investigation through situation report, send-back, revised evidence and an exact proposal decision. This read-only replay performs no external action.">
   <article class="incident-replay composer-proposals">
     <h1>Review the investigation.<br />Keep the evidence.</h1>
-    <p class="lede">A safe, read-only replay of Incident Desk. Every service, person and observation below is invented. Opening this page sends no notification, starts no agent and changes no application.</p>
+    <p class="lede">A safe, read-only replay of a fictional investigation. Follow the review below, then inspect the measured recovery from a separate isolated application. Opening this page sends no notification, starts no agent and changes no application.</p>
     <nav class="ap-links" aria-label="Incident replay"><a href="#situation">Read the SITREP</a><a href="#decision">Follow the decision</a><a href="/_emdash/admin/plugins/composer-stacks/incidents">Open private Incident Desk</a></nav>
     <div id="situation"><IncidentSitrep incident={replaySitrep} /></div>
     <section id="decision" aria-labelledby="decision-heading">
@@ -21,9 +21,23 @@ import '../plugins/proposals-page.css';
       </ol>
       <p>The private page uses the existing proposal store, workspace roles, source checks and review endpoints. A viewer cannot decide; an agent cannot approve itself; stale versions and revoked grants are refused.</p>
     </section>
+    <section class="replay-drill" aria-labelledby="drill-heading">
+      <h2 id="drill-heading">A completed local recovery</h2>
+      <p>The controlled native EmDash run used a predetermined caption fault in a fictional team application. Its page changed from 200 to repeated 500 responses while its data endpoint and the other team stayed healthy.</p>
+      <ol class="replay-timeline">
+        <li><strong>Investigate and revise.</strong><p>The owner returned the first proposal with notes. Version 2 retained the earlier observations and added the caption check. An attempt to approve the old version returned 409.</p></li>
+        <li><strong>Approve, then explicitly execute.</strong><p>Approval left the failing page unchanged. A separate local command checked the exact accepted proposal, source, grant and current caption revision before one fixed repair. Repeating the command returned its retained receipt without another mutation.</p></li>
+        <li><strong>Verify independently.</strong><p>Three HTTP responses returned 200 and matched the healthy page's original hash. The other team's response also matched. A new SITREP retained that recovery evidence.</p></li>
+      </ol>
+      <figure>
+        <img src="/evidence/incident-execution-20261025.png" width="1440" height="1000" loading="lazy" alt="Actual local native Incident Desk showing retained fictional investigation versions and the accepted proposal." />
+        <figcaption>Actual local EmDash interface with fictional data and a virtual passkey. This is separate from production incident, provider and physical-device acceptance.</figcaption>
+      </figure>
+      <div class="ap-links"><a href="https://github.com/loftwah/app-composer/blob/main/docs/incident-execution.md">Inspect and repeat the recovery recipe</a><a href="/diagrams#diagram-agent-approval-boundary">Open the editable recovery diagram</a></div>
+    </section>
     <section class="replay-limit" aria-labelledby="replay-limit-heading">
       <h2 id="replay-limit-heading">What remains a separate check</h2>
-      <p>Real failure detection, authorised recovery, configured owner email and PagerDuty each need their own recorded proof. This replay establishes none of those. The local availability lab already exercises a separate visibility failure and recovery; it is not a production responder.</p>
+      <p>The measured drill qualifies one local repair and its review boundary. Production detection and recovery, configured owner email, PagerDuty, passwordless identity/MFA and physical-device use each need separate acceptance. No production responder is enabled.</p>
       <div class="ap-links"><a href="/resources/incident">Open the incident runbook</a><a href="/platform/demo">Watch the existing team application films</a><a href="/agent">Use your existing agent</a></div>
     </section>
   </article>
@@ -36,4 +50,8 @@ import '../plugins/proposals-page.css';
   .replay-timeline { padding-left:24px; max-width:74ch; }
   .replay-timeline li { padding-block:16px; border-bottom:1px solid var(--color-border); }
   .replay-limit { margin-top:48px; border-top:1px solid var(--color-border); padding-top:32px; }
+  .replay-drill { margin-top:48px; border-top:1px solid var(--color-border); padding-top:32px; }
+  .replay-drill figure { margin:32px 0; }
+  .replay-drill img { width:100%; height:auto; border:1px solid var(--color-border); border-radius:8px; }
+  .replay-drill figcaption { margin-top:12px; font-size:.9rem; color:var(--color-muted); max-width:74ch; }
 </style>

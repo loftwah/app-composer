@@ -542,7 +542,7 @@ test("drift comparison distinguishes match, drift, missing, unverified, stale an
       compareProviderInventory(expected, missing, NOW),
       "app-composer-preview-sessions",
     ).state,
-    "missing",
+    "unverified",
   );
 
   const unverified = structuredClone(snapshot);
@@ -1336,4 +1336,96 @@ test("the declared expectations match wrangler.jsonc, composition.lock.json and 
       identity.worker + " must check a provider identity signal",
     );
   }
+});
+
+test("declared storage absent from a successful page stays unverified while present resources and Worker absence retain their meanings", async () => {
+  const snapshot = await readProviderInventory(readOptions(providerFetch()));
+  for (const kind of ["d1", "r2", "kv"]) {
+    const selected = expected.resources.find(
+      (resource) => resource.kind === kind,
+    );
+    const bounded = structuredClone(snapshot);
+    bounded.resources = bounded.resources.filter(
+      (resource) =>
+        !(
+          resource.kind === kind &&
+          (selected.id
+            ? resource.id === selected.id
+            : resource.name === selected.name)
+        ),
+    );
+    assert.equal(bounded.lists[kind], "read");
+    const row = compareProviderInventory(
+      expected,
+      bounded,
+      NOW,
+    ).comparisons.find(
+      (resource) => resource.kind === kind && resource.name === selected.name,
+    );
+    assert.equal(row.state, "unverified");
+    assert.match(row.detail, /pagination or cursor completeness/);
+    assert.equal(
+      compareProviderInventory(expected, snapshot, NOW).comparisons.find(
+        (resource) => resource.kind === kind && resource.name === selected.name,
+      ).state,
+      "match",
+    );
+  }
+  const bounded = structuredClone(snapshot);
+  bounded.resources = bounded.resources.filter(
+    (resource) => resource.name !== "composer-hello",
+  );
+  assert.equal(
+    compareProviderInventory(expected, bounded, NOW).comparisons.find(
+      (resource) => resource.name === "composer-hello",
+    ).state,
+    "missing",
+  );
+});
+
+test("a real-shaped paginated D1 response with the declared database on an unread second page cannot report it missing", async () => {
+  const request = providerFetch();
+  const selected = expected.resources.find(
+    (resource) => resource.kind === "d1",
+  );
+  const snapshot = await readProviderInventory(
+    readOptions(async (url, init) => {
+      if (new URL(url).pathname.endsWith("/d1/database"))
+        return new Response(
+          JSON.stringify({
+            success: true,
+            result: Array.from({ length: 50 }, (_, index) => ({
+              uuid: "other-database-" + index,
+              name: "unrelated-database-" + index,
+              num_tables: 0,
+            })),
+            result_info: {
+              page: 1,
+              per_page: 50,
+              total_pages: 2,
+              total_count: 51,
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      return request(url, init);
+    }),
+  );
+  assert.equal(snapshot.lists.d1, "read");
+  assert.equal(snapshot.state, "verified");
+  assert.equal(
+    snapshot.resources.some(
+      (resource) => resource.kind === "d1" && resource.id === selected.id,
+    ),
+    false,
+  );
+  const result = compareProviderInventory(
+    expected,
+    snapshot,
+    NOW,
+  ).comparisons.find(
+    (resource) => resource.kind === "d1" && resource.name === selected.name,
+  );
+  assert.equal(result.state, "unverified");
+  assert.match(result.detail, /pagination or cursor completeness/);
 });

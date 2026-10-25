@@ -213,7 +213,7 @@ function summaryMarkdown(check, snapshot, operations) {
     "",
     `Worker settings read: ${operations.dependencyCoverage.settingsRead}/${operations.dependencyCoverage.workers}. Reverse dependency coverage is incomplete. Every retirement remains unauthorised.`,
     "",
-    "| Worker | Declared owner | Environment | Binding | Observed dependency |",
+    "| Worker | Declared owner | Declared environment / observed hint | Binding | Observed dependency |",
     "| --- | --- | --- | --- | --- |",
   );
   const cell = (value) => String(value).replace(/[\r\n|]/g, " ");

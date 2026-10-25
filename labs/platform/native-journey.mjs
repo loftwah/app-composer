@@ -50,6 +50,7 @@ export async function nativeJourney({
   output,
   memberSource,
   availabilityFixture,
+  creatorLifecycle,
 }) {
   const owner = actors.owner.page,
     a = actors["creator-a"].page,
@@ -62,7 +63,7 @@ export async function nativeJourney({
     captureInspectionHoldMs: 2000,
     limits: [],
   };
-  const { screenshot, responsivePage } = nativeCapture({
+  const { screenshot, responsivePage, responsiveAdminPage } = nativeCapture({
     actors,
     output,
     result,
@@ -80,7 +81,8 @@ export async function nativeJourney({
         const address = new URL(path, location.origin);
         if (
           address.origin !== origin ||
-          !address.pathname.startsWith("/guestbook/") ||
+          (!address.pathname.startsWith("/guestbook/") &&
+            !/^\/s\/[a-z0-9-]+$/.test(address.pathname)) ||
           address.pathname !== path
         )
           throw Error("Public proof path escaped the fixed local application.");
@@ -1163,6 +1165,28 @@ export async function nativeJourney({
     result.checks.push(
       "The actual native approved-subset export retained the same synthetic item and PNG digest without changing the selected request, policy, stack or app resource; full backup and restoration remain unqualified.",
     );
+    if (creatorLifecycle) {
+      const { qualifyNativeCreatorLifecycle } =
+        await import("./native-creator-lifecycle.mjs");
+      result.creatorLifecycle = await qualifyNativeCreatorLifecycle({
+        owner: actors.owner,
+        publicPage,
+        origin: lab.origins.composer,
+        workspace: wa,
+        stack: updatedA.stackId,
+        instance: resource.instance,
+        readContent: async () => (await memberList()).result.items,
+        readPublic: publicFetch,
+        capture: screenshot,
+        probeAdmin: responsiveAdminPage,
+      });
+      await publicState(
+        "creator-rollback-content-media-preserved",
+        200,
+        updatedA.resources[0].configuration.path,
+      );
+      result.creatorLifecycle.mediaSha256 = approvedDigest;
+    }
     if (availabilityFixture) {
       const { runLocalAvailabilityExercise } =
         await import("./native-incident.mjs");

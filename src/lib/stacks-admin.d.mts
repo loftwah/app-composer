@@ -37,6 +37,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
     };
     media?: undefined;
     stacks?: undefined;
+    lifecycle?: undefined;
     resources?: undefined;
     availableResources?: undefined;
     stack?: undefined;
@@ -57,6 +58,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
     };
     book?: undefined;
     stacks?: undefined;
+    lifecycle?: undefined;
     resources?: undefined;
     availableResources?: undefined;
     stack?: undefined;
@@ -70,6 +72,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
     ok: boolean;
     workspace: import("./stacks.mjs").Workspace;
     stacks: import("./stacks.mjs").Stack[];
+    lifecycle: "creator" | "governed" | undefined;
     book?: undefined;
     media?: undefined;
     resources?: undefined;
@@ -89,6 +92,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
     book?: undefined;
     media?: undefined;
     stacks?: undefined;
+    lifecycle?: undefined;
     stack?: undefined;
     export?: undefined;
     publications?: undefined;
@@ -103,6 +107,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
     book?: undefined;
     media?: undefined;
     stacks?: undefined;
+    lifecycle?: undefined;
     resources?: undefined;
     availableResources?: undefined;
     export?: undefined;
@@ -139,6 +144,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
     book?: undefined;
     media?: undefined;
     stacks?: undefined;
+    lifecycle?: undefined;
     resources?: undefined;
     availableResources?: undefined;
     publications?: undefined;
@@ -157,6 +163,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
     book?: undefined;
     media?: undefined;
     stacks?: undefined;
+    lifecycle?: undefined;
     resources?: undefined;
     availableResources?: undefined;
     stack?: undefined;
@@ -195,6 +202,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
     book?: undefined;
     media?: undefined;
     stacks?: undefined;
+    lifecycle?: undefined;
     resources?: undefined;
     availableResources?: undefined;
     stack?: undefined;
@@ -224,6 +232,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
     book?: undefined;
     media?: undefined;
     stacks?: undefined;
+    lifecycle?: undefined;
     resources?: undefined;
     availableResources?: undefined;
     export?: undefined;
@@ -247,6 +256,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
     book?: undefined;
     media?: undefined;
     stacks?: undefined;
+    lifecycle?: undefined;
     availableResources?: undefined;
     export?: undefined;
     publications?: undefined;
@@ -284,6 +294,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
     workspace: import("./stacks.mjs").Workspace;
     media?: undefined;
     stacks?: undefined;
+    lifecycle?: undefined;
     availableResources?: undefined;
     export?: undefined;
     publications?: undefined;
@@ -303,6 +314,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
     book?: undefined;
     media?: undefined;
     stacks?: undefined;
+    lifecycle?: undefined;
     resources?: undefined;
     availableResources?: undefined;
     stack?: undefined;

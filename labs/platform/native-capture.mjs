@@ -111,5 +111,35 @@ export function nativeCapture({ actors, output, result, origin }) {
     }
   }
 
-  return { screenshot, responsivePage };
+  async function responsiveAdminPage(primary, observe) {
+    const actor = actorFor(primary),
+      address = new URL(primary.url());
+    assert.ok(
+      actor !== "anonymous" &&
+        actors[actor].page === primary &&
+        sameViewport(primary.viewportSize()),
+    );
+    assert.ok(
+      address.origin === origin &&
+        address.pathname === "/_emdash/admin/plugins/composer-stacks/stacks" &&
+        /^[a-z0-9-]{6,64}$/.test(address.searchParams.get("workspace") ?? "") &&
+        /^[a-z0-9-]{6,64}$/.test(address.searchParams.get("stack") ?? "") &&
+        [...address.searchParams.keys()].length === 2,
+    );
+    const probe = await primary.context().newPage();
+    probes.add(probe);
+    try {
+      await probe.goto(address.href);
+      await probe
+        .getByRole("heading", { name: "Creator stacks", exact: true })
+        .waitFor();
+      await observe(probe);
+    } finally {
+      await probe.close();
+      probes.delete(probe);
+      assert.ok(sameViewport(primary.viewportSize()));
+    }
+  }
+
+  return { screenshot, responsivePage, responsiveAdminPage };
 }

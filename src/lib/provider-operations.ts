@@ -53,6 +53,10 @@ function completeList(
   snapshot: ProviderSnapshot,
   kind: ObservedResource["kind"],
 ) {
+  // Current snapshots record a successful storage page, not pagination or R2
+  // cursor exhaustion. Presence is useful; storage absence/newness stays unknown.
+  // Workers alone have the reader's bounded whole-list completion sentinel.
+  if (kind !== "worker") return false;
   return (
     snapshot.state === "verified" &&
     snapshot.lists[kind as keyof ProviderSnapshot["lists"]] === "read" &&

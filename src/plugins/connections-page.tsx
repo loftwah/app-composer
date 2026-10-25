@@ -3,6 +3,8 @@ import { useLocation } from "@tanstack/react-router";
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
 import {
   connectionSnapshot,
+  encryptionHealthResult,
+  type EncryptionHealthResult,
   type ConnectionSnapshot,
 } from "../lib/connection-contract";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
@@ -21,6 +23,7 @@ export function ConnectionsPage() {
 }
 export function Connections({ search }: { search: string }) {
   const [snapshot, setSnapshot] = useState<ConnectionSnapshot>();
+  const [encryption, setEncryption] = useState<EncryptionHealthResult>();
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const active = useRef(true),
@@ -68,6 +71,52 @@ export function Connections({ search }: { search: string }) {
             : "Connection metadata is unavailable.",
         );
       }
+    } finally {
+      if (active.current && generation.current === epoch) {
+        pending.current = false;
+        setBusy(false);
+      }
+    }
+  }
+  async function verifyEncryption() {
+    if (
+      pending.current ||
+      invalid.current ||
+      !snapshot?.encryptionCheckAvailable ||
+      !selection.current
+    )
+      return;
+    pending.current = true;
+    setBusy(true);
+    setError("");
+    setEncryption(undefined);
+    const epoch = ++generation.current;
+    try {
+      const response = await apiFetch(
+        "/_emdash/api/plugins/composer-stacks/connectionsEncryptionCheck",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ workspace: selection.current }),
+          cache: "no-store",
+        },
+      );
+      if (response.status === 409) {
+        if (active.current && generation.current === epoch)
+          setError(
+            "A previous or independently owned verification value exists. It was preserved; ask the owner operator to inspect it before another check.",
+          );
+        return;
+      }
+      if (!response.ok) throw Error("Native encrypted-storage check refused.");
+      const result = encryptionHealthResult.parse(await response.json());
+      confirmWorkspace(selection.current, result.workspace);
+      if (active.current && generation.current === epoch) setEncryption(result);
+    } catch {
+      if (active.current && generation.current === epoch)
+        setError(
+          "Encrypted storage could not be confirmed. Check current owner administrator access and retry deliberately; provider checks remain unchanged.",
+        );
     } finally {
       if (active.current && generation.current === epoch) {
         pending.current = false;
@@ -147,6 +196,50 @@ export function Connections({ search }: { search: string }) {
         key values, change access, rotate credentials or disconnect a provider.
         Expiry and full provider permissions are unknown.
       </p>
+      {snapshot?.encryptionCheckAvailable && (
+        <section
+          className="cn-connection"
+          aria-labelledby="connection-encryption-title"
+        >
+          <div className="cn-heading">
+            <h2 id="connection-encryption-title">Encrypted settings storage</h2>
+            <strong>
+              {encryption?.state === "verified"
+                ? "Native round trip verified"
+                : "Not verified"}
+            </strong>
+          </div>
+          <p>
+            Check that this installation can encrypt and read a temporary
+            synthetic setting through native EmDash, then clear its unchanged
+            test value. Provider credentials, permissions and delivery are
+            separate checks.
+          </p>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void verifyEncryption()}
+          >
+            Verify encrypted storage
+          </button>
+          {encryption && (
+            <div role={encryption.ok ? "status" : "alert"}>
+              <p>{encryption.message}</p>
+              <p>
+                Checked{" "}
+                <time dateTime={encryption.checkedAt}>
+                  {new Date(encryption.checkedAt).toLocaleString("en-AU", {
+                    timeZone: "UTC",
+                  })}{" "}
+                  UTC
+                </time>{" "}
+                · temporary value{" "}
+                {encryption.cleaned ? "removed" : "cleanup unverified"}.
+              </p>
+            </div>
+          )}
+        </section>
+      )}
       {snapshot?.connections.map((connection) => (
         <section
           className="cn-connection"

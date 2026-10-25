@@ -23,11 +23,13 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
         return { hero: box('.home-hero'), copy: box('.home-hero-copy'), proof: box('.home-proof'), next: box('.home-paths'),
           overflow: document.documentElement.scrollWidth > innerWidth + 1,
           reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
+          scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior,
           imageCount: [...document.querySelectorAll('.home-proof img')].filter(image => image.naturalWidth > 0).length };
       });
       ensure(!geometry.overflow, `Homepage overflows at ${width}/${theme}`);
       ensure(geometry.imageCount === 4, `Missing original proof imagery at ${width}/${theme}`);
       ensure(geometry.reducedMotion, 'Reduced motion preference was lost');
+      ensure(geometry.scrollBehavior === 'auto', 'Reduced motion still animates anchor scrolling');
       // Regression: the full-width 900px proof panel formerly grew to 937px.
       if (width >= 701 && width <= 1000) ensure(geometry.proof.height < 480, 'Tablet proof panel strands the following section');
       if (width > 1000) ensure(Math.abs(geometry.copy.height - geometry.proof.height) < 240, 'Hero columns leave an excessive unused region');

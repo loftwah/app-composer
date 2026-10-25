@@ -100,3 +100,60 @@ test('a viewer membership is read-only and a foreign workspace id is refused', a
     db.cleanup();
   }
 });
+
+test("native list reports creator/governed mode while the same server lifecycle guard still refuses governed writes", async () => {
+  const db = sqliteD1();
+  try {
+    const env = runtime(db),
+      listed = await manageStacks(
+        context(admin, { action: "list" }, { method: "GET", path: "read" }),
+        env,
+      );
+    assert.equal(listed.lifecycle, "creator");
+    await db
+      .prepare(
+        "INSERT INTO creator_platform_profiles(workspace_id,profile_json,updated_by) VALUES(?,?,?)",
+      )
+      .bind(listed.workspace.id, JSON.stringify({ enabled: true }), admin.id)
+      .run();
+    const governed = await manageStacks(
+      context(
+        admin,
+        { action: "list", workspace: listed.workspace.id },
+        { method: "GET", path: "read" },
+      ),
+      env,
+    );
+    assert.equal(governed.lifecycle, "governed");
+    const before = await db
+      .prepare("SELECT COUNT(*) n FROM creator_stacks")
+      .first();
+    for (const action of [
+      "create",
+      "save",
+      "publish",
+      "republish",
+      "applyResources",
+    ]) {
+      const refused = await manageStacks(
+        context(admin, {
+          action,
+          workspace: listed.workspace.id,
+          name: "No bypass",
+          stack: "fictional-stack",
+          expectedRevision: 1,
+          document,
+        }),
+        env,
+      );
+      assert.equal(refused.code, "FORBIDDEN");
+      assert.match(refused.message, /governed application requests/);
+    }
+    assert.deepEqual(
+      await db.prepare("SELECT COUNT(*) n FROM creator_stacks").first(),
+      before,
+    );
+  } finally {
+    db.cleanup();
+  }
+});

@@ -1,0 +1,64 @@
+{
+  "source": "9fec6e795dd3fc68d1fb5a63f72c5e698e4c8fc1",
+  "sourceTree": "c0c966bebc23c9dd68443d3413dd370fd0c66860",
+  "currentMainTree": "c0c966bebc23c9dd68443d3413dd370fd0c66860",
+  "staleRefused": true,
+  "rendered": {
+    "source": {
+      "path": "incident.excalidraw",
+      "revision": "sha256:9f9cb127c309ed99ef9c270a7af897eaff1ba2fae2cf634f1c9b85bbea173e94"
+    },
+    "files": [
+      {
+        "path": "rendered/drawing.excalidraw",
+        "bytes": 23781,
+        "revision": "sha256:7fad1b98ec73ae0924066af2c65191c63f1a07a6f223909abdcd9584fd379403"
+      },
+      {
+        "path": "rendered/drawing.png",
+        "bytes": 266426,
+        "revision": "sha256:2054cce2704c7caeeb6bef880e82813a7648482ad6592779523d68360becd91b"
+      },
+      {
+        "path": "rendered/drawing.svg",
+        "bytes": 47662,
+        "revision": "sha256:9d3b6a87f25f73a818267537b14fa9ccecf6a6ef9a8e14c455ef8d65d2ef9306"
+      }
+    ],
+    "provenance": {
+      "renderer": "@excalidraw/excalidraw@0.18.1",
+      "app": "ldraw",
+      "builtFrom": "9fec6e795dd3fc68d1fb5a63f72c5e698e4c8fc1",
+      "builtWorkingTreeClean": true,
+      "exportPadding": 24,
+      "background": true,
+      "svgEmbedsLocalFont": true,
+      "svgExternalReferences": 0,
+      "durationMs": 921,
+      "temporaryResources": "owned browser profile and download root removed on exit",
+      "humanReview": "not performed by this adapter; inspect PNG/SVG before publishing",
+      "finishedAt": "2026-10-25T10:44:52.467Z"
+    },
+    "scene": {
+      "revision": "sha256:9f9cb127c309ed99ef9c270a7af897eaff1ba2fae2cf634f1c9b85bbea173e94",
+      "valid": true,
+      "elements": 27,
+      "images": 0,
+      "imageIds": [],
+      "byType": {
+        "text": 17,
+        "rectangle": 7,
+        "arrow": 3
+      },
+      "truncated": true,
+      "elementSummaries": []
+    },
+    "next": "Inspect the SVG and PNG, then open the rendered drawing.excalidraw in LDraw before publishing."
+  },
+  "dimensions": {
+    "width": 2016,
+    "height": 987
+  },
+  "success": true,
+  "cleanup": true
+}

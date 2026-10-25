@@ -90,6 +90,7 @@ function WorkspaceStudio({ search }: { search: string }) {
     return data;
   }, []);
   const [workspace, setWorkspace] = useState<Workspace>();
+  const [lifecycle, setLifecycle] = useState<"creator" | "governed">();
   const [stacks, setStacks] = useState<Stack[]>([]);
   const [selected, setSelected] = useState<string>();
   const [draft, setDraft] = useState<Draft>();
@@ -144,7 +145,10 @@ function WorkspaceStudio({ search }: { search: string }) {
   );
   const document = draft?.document;
   const role = workspace?.role;
-  const editable = can(role, "save") && current?.status !== "archived";
+  const lifecycleCan = (action: string) =>
+    lifecycle === "creator" && can(role, action);
+  const contentEditable = can(role, "save") && current?.status !== "archived";
+  const editable = lifecycleCan("save") && current?.status !== "archived";
   const resourcesReady =
     sidecars.stack === selected && sidecars.resources === "ready";
   const hasGuestbook = Boolean(
@@ -178,6 +182,9 @@ function WorkspaceStudio({ search }: { search: string }) {
         return false;
       const checkpoint = session.current.capture();
       const request = ++requestGeneration.current;
+      // Re-confirm operating mode before restoring lifecycle controls. Failed,
+      // stale or malformed reads leave those controls disabled.
+      setLifecycle(undefined);
       const data = await call("list");
       if (
         request !== requestGeneration.current ||
@@ -185,6 +192,7 @@ function WorkspaceStudio({ search }: { search: string }) {
       )
         return false;
       setWorkspace(data.workspace);
+      setLifecycle(data.lifecycle);
       setStacks(data.stacks ?? []);
       const next =
         keepSelection ?? requestedStack.current ?? selected ?? data.stacks?.[0]?.id;
@@ -846,8 +854,20 @@ function WorkspaceStudio({ search }: { search: string }) {
       {workspace && (
       <p className="ca-muted">
           Workspace <strong>{workspace.name}</strong> ·{" "}
-          {ROLE_COPY[workspace.role]}
+          {lifecycle === "governed"
+            ? `${workspace.role} · governed application requests`
+            : ROLE_COPY[workspace.role]}
         </p>
+      )}
+      {workspace && lifecycle === "governed" && (
+        <section className="ca-card-row" aria-label="Governed stack workflow">
+          <h2>Changes use application requests</h2>
+          <p>These stacks are read only here. Request and review application changes in Internal platform so the current recipe, policy and app resource stay together. Saved content moderation and exports keep their own permissions.</p>
+          <a href={`/_emdash/admin/plugins/composer-stacks/platform?workspace=${workspace.id}`}>Open this workspace’s application requests</a>
+        </section>
+      )}
+      {workspace && !initialLoading && lifecycle === undefined && (
+        <p role="status">Workspace operation mode could not be confirmed. Refresh before editing a stack.</p>
       )}
       {initialLoading && (
         <p role="status" className="ca-muted">Loading your workspace and saved stacks…</p>
@@ -911,7 +931,7 @@ function WorkspaceStudio({ search }: { search: string }) {
       )}
       <div className="ca-workspace">
         <div className="ca-main">
-          {can(role, "create") && (
+          {lifecycleCan("create") && (
             <div className="ca-stack-create">
               <label>
                 New stack name
@@ -937,9 +957,11 @@ function WorkspaceStudio({ search }: { search: string }) {
           {!initialLoading && workspace && !document && (
             <p className="ca-muted">
               No stack yet.{" "}
-              {can(role, "create")
-                ? "Name one above to start."
-                : "An owner or editor can create one."}
+              {lifecycle === "governed"
+                ? "Request an application in Internal platform to create its governed stack."
+                : lifecycleCan("create")
+                  ? "Name one above to start."
+                  : "An owner or editor can create one."}
             </p>
           )}
           {document && current && (
@@ -1163,7 +1185,7 @@ function WorkspaceStudio({ search }: { search: string }) {
                           </button>
                         </p>
                       )}
-                      {instance.app === "guestbook" && editable && resourcesReady &&
+                      {instance.app === "guestbook" && contentEditable && resourcesReady &&
                         copiedResource?.configuration &&
                         current?.draft.instances.some(entry => entry.id === instance.id &&
                           JSON.stringify(entry.binding) === JSON.stringify(instance.binding)) && (
@@ -1459,7 +1481,7 @@ function WorkspaceStudio({ search }: { search: string }) {
                   </div>
                 );
               })}
-              {current && editable && managedInstance &&
+              {current && contentEditable && managedInstance &&
                 document.instances.some(instance => instance.id === managedInstance) && (
                   <ResourceContent key={`${current.id}:${managedInstance}`}
                     request={call}
@@ -1540,7 +1562,7 @@ function WorkspaceStudio({ search }: { search: string }) {
                     Save draft
                   </button>
                 )}
-                {can(role, "publish") && (
+                {lifecycleCan("publish") && (
                   <button
                     type="button"
                     disabled={
@@ -1551,7 +1573,7 @@ function WorkspaceStudio({ search }: { search: string }) {
                     Publish
                   </button>
                 )}
-                {current.status === "published" && can(role, "unpublish") && (
+                {current.status === "published" && lifecycleCan("unpublish") && (
                   <button
                     type="button"
                     disabled={busy}
@@ -1565,7 +1587,7 @@ function WorkspaceStudio({ search }: { search: string }) {
                     Unpublish
                   </button>
                 )}
-                {can(role, "duplicate") && (
+                {lifecycleCan("duplicate") && (
                   <button
                     type="button"
                     disabled={busy}
@@ -1585,7 +1607,7 @@ function WorkspaceStudio({ search }: { search: string }) {
                 >
                   Export JSON
                 </button>
-                {can(role, "create") && (
+                {lifecycleCan("create") && (
                   <label className="ca-stack-import">
                     Import a stack file
                     <input
@@ -1600,7 +1622,7 @@ function WorkspaceStudio({ search }: { search: string }) {
                     />
                   </label>
                 )}
-                {can(role, "archive") &&
+                {lifecycleCan("archive") &&
                   (current.status !== "archived" ? (
                     <button
                       type="button"
@@ -1627,7 +1649,7 @@ function WorkspaceStudio({ search }: { search: string }) {
                       Restore
                     </button>
                   ))}
-                {can(role, "delete") && (
+                {lifecycleCan("delete") && (
                   <button
                     type="button"
                     disabled={busy}
@@ -1671,7 +1693,7 @@ function WorkspaceStudio({ search }: { search: string }) {
                             : ""}
                           <small> {publication.publishedAt}</small>
                         </span>
-                        {can(role, "rollback") && (
+                        {lifecycleCan("rollback") && (
                           <span className="ca-actions">
                             <button
                               type="button"

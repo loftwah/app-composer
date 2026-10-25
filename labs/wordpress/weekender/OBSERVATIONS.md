@@ -39,3 +39,63 @@ WordPress, MariaDB and the registered tunnel were stopped. The local source refu
 Bounded ignored evidence is under `output/wordpress-refresh-20261025/`: source inventory/WXR, before/upgraded/final reconciliation and exact equality receipt, actual check/build/install/audit logs, native owner and four source-offline public captures, visibility/media/auth observations and cleanup receipts. Hidden lazy app-dialog images initially stalled an unbounded screenshot wait; the corrected capture waits only for the visible article image with a timeout and uses the native theme control. It does not infer themes from screenshot filenames.
 
 Cleanup removed the one registered temporary root, its private authentication material, owned dev/browser processes, Docker Compose services, network and volumes (`dockerDownSucceeded: true`, `rootRemoved: true`, no failure). The run's unshared CLI image was removed. WordPress/MariaDB image digests were preserved because another stopped lab still has containers using them; those unrelated resources were not changed. The original Protocol 11 and Playwright images remain. No entire temporary project, database or authentication material was copied into evidence.
+
+## Fresh native import and reconciliation — 25 October continuation
+
+This separate trial created an **empty independent destination** with Composer's
+content recipe and the lab's pinned EmDash 1.3.1 overlay. Its source was genuine
+WordPress 7.1.3, PHP 8.3.35 and MariaDB 11.4.8. Native owner setup and the native
+import wizard used a virtual browser passkey, with no development login bypass.
+Eight posts, three pages and three original media files imported. The wizard
+rewrote eight media URLs in four public records; private/pending source statuses
+map to native drafts, and the future record retained its 2032 scheduling value.
+Visibility preservation is qualified; exact status equivalence is not.
+
+The remaining four featured-image references had destination-owned URLs but
+external/empty native IDs. A reviewed plan matched unique SHA-256 media bytes
+and converted these unresolved references to native local IDs through normal
+revision-aware content saves. Two blank image descriptions/captions and the
+Walks → Fieldnotes category parent were restored with the native media/term
+APIs. Media metadata has no atomic revision token: the lab used one writer and
+compared expected values before saving. Only the four already-public records
+were explicitly republished. Two further rich-text edits through the native
+editor preserved the original prose, first owner note, guide links, media,
+configuration and owner/passkey. Each saved edit stayed a draft until the native
+publication confirmation. Final observations contained eight native revisions.
+
+The reusable [read-only reconciliation helper](../../../docs/wordpress-reconciliation.md)
+produces field patches, never credentials, network calls or automatic
+publication. Six focused tests cover retained revision tokens, ambiguous bytes,
+unrelated links, existing local images and owner-selected image metadata. A
+pure replay of the captured initial observations matched the exact four-entry /
+two-media plan already exercised against the native APIs; no stale token was
+subsequently dispatched.
+
+**Source-off acceptance passed.** After stopping the source containers and HTTPS
+tunnel, a fresh unauthenticated Chromium profile checked all eleven original
+addresses: seven public 200s and four nonpublic 404s. Three destination media
+files matched their original bytes; anonymous media inventory returned 401.
+The actual article and both owner notes rendered at 390/1440px in both native
+themes without overflow or any retired-source request. Separate live HTTP
+checks qualified eleven visibility-aware legacy-ID boundaries (301 for public,
+404 for nonpublic), all four original guide downloads, media MIME and byte
+hashes. The actual phone/desktop captures were visually inspected. Destination
+`pnpm check` passed in 17.141s and `pnpm build` in 16.656s.
+
+**Go:** this exact small fictional publisher, with deliberate reconciliation,
+normal native editing/publication and destination-owned media. **No-go without
+further trials:** automatic metadata parity, comments/site-settings migration,
+WordPress plugins/dynamic blocks/commerce, larger publisher acceptance, future
+scheduler execution, hosted cutover, provider restore, physical passkeys and
+physical-device/screen-reader acceptance. The official exporter was installed
+in the fictional source but its comments/settings path was not exercised.
+The earlier 1.2→1.3.1 upgrade evidence remains a separate trial.
+
+Bounded [receipts](../../../docs/evidence/product-completion-20261025/) and the
+[actual source-off article capture](../../../public/evidence/weekender-reader-20261025.png)
+are retained; raw fictional inventories/check logs remain ignored under
+`output/completion-20261025/wordpress/`. The exact target daemon was stopped,
+then the maintained lab cleanup removed its registered containers, network,
+volumes, private migration key, passkey profile and entire temporary root.
+Cleanup recorded `rootRemoved:true`, `dockerDownSucceeded:true` and no failure
+at 11:28:05 UTC. No real publisher, production data or independent app pin changed.

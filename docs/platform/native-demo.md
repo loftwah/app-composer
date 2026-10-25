@@ -146,3 +146,23 @@ New viewport captures require new reviewed framing; old full-page crop coordinat
 must not be reused.
 The earlier released-source capture remains historical evidence; its first
 mechanically playable edit failed pixel review and must not be published.
+
+## Optional creator publication round trip
+
+Add `--creator-lifecycle` to the same maintained `prepare`/`run --admitted`
+selection. After the genuine member application/title-change journey, Team A
+remains governed: its native creator page must explain application requests and
+offer no lifecycle edit controls. Its existing nonempty content, configuration
+and original media bytes remain an independent preservation control.
+
+In the owner's separate ordinary creator workspace, the native UI creates a new
+fictional Guestbook stack, applies its declared title, and publishes. The owner
+edits a label and caption, inspects the unsaved preview, saves and publishes. A
+second caption is saved privately then published. The owner republishes the first
+stored revision through the existing confirmation; the second draft, owner label,
+app configuration, resource identity and both publications must survive. The new
+book is explicitly empty; this is not a claim of nonempty data recovery in that
+book. Both governed and ordinary creator views are inspected at 390 and 1440
+pixels in light and dark mode. The scoped native owner outcomes page opens with
+supported observations retained without invented usage. This isolated fictional
+acceptance extension grants no permission to change production compositions.

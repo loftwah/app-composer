@@ -272,6 +272,16 @@ Standalone publishers are opt-in server code with app-scoped write-only tokens, 
 
 `GET /healthz` returns liveness and the public source revision only; all mini-apps expose it too, under their mount where applicable. `HEAD` is supported and other methods return 405. It does not inspect storage, return environment details, prove an app flow or replace Get Ready. Use exact `/build.json` plus real interactions for release acceptance. `node --test tests/usage.test.mjs` checks collector permissions, byte bounds, actual SQLite cap/pruning, rate refusal, cap suppression, publisher failure and liveness semantics. Official [Workers rate limits](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/) and [background work](https://developers.cloudflare.com/workers/runtime-apis/context/#waituntil) checked 14 October 2026.
 
+Composer's `/build.json` keeps `commit` and `contract: 1`. Its historical
+`reviewed: "2026-10-13"` is the original build-identity contract review,
+explicitly scoped by `reviewedScope: "original-build-identity-contract"`;
+it is not the current release or test-qualification date. `sourceCommittedAt`
+is the exact identified Git commit's committer timestamp, including its recorded
+timezone, read together with that commit. It is neither build time nor proof
+that the source was deployed or tested. The qualified release, browser/provider
+acceptance dates and live Worker identity remain in the corresponding
+[issue #11 release receipt](https://github.com/loftwah/app-composer/issues/11).
+
 Optional local diagnostics: append `?vitals=1`, then open Page performance. The self-hosted standard Web Vitals 6.2.3 bundle (Apache-2.0, licence/provenance included) reports current-load LCP/INP/CLS. No metrics or element attribution are uploaded or persisted. Unsupported measurements remain unavailable. The console shows fixed public source/activity links; no private content. This does not claim a site-wide field pass.
 
 GitHub source-authority checks explicitly select [github.com](https://cli.github.com/manual/gh_api), matching supported Git remotes rather than inherited enterprise-host settings. Reviewed 14 October 2026.

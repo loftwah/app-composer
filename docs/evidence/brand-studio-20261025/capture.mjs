@@ -18,7 +18,12 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const source = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const out = dirname(fileURLToPath(import.meta.url));
+const out = resolve(
+  process.argv[2] ?? join(source, "output/brand-studio-acceptance"),
+);
+if (!out.startsWith(join(source, "output") + "/"))
+  throw Error("Keep bounded evidence under this checkout output/ directory.");
+mkdirSync(out, { recursive: true });
 const parent = join(tmpdir(), "opencode");
 mkdirSync(parent, { recursive: true });
 const root = mkdtempSync(join(parent, "composer-brand-studio-"));
@@ -87,33 +92,7 @@ try {
     });
   });
   const origin = "http://localhost:" + port;
-  const changes = [
-    [
-      "src/lib/creator-plugin.ts",
-      'import { definePlugin } from "emdash";',
-      'import { definePlugin } from "emdash";\nimport { manageAdminBrand,adminBrandStyles } from "./admin-brand.ts";',
-    ],
-    [
-      "src/lib/creator-plugin.ts",
-      "pages: [",
-      'pages: [\n{path:"/brand-studio",label:"Brand Studio",icon:"paint-brush"},',
-    ],
-    [
-      "src/lib/creator-plugin.ts",
-      "routes: {",
-      'routes: {\nbrandRead:{methods:["GET"],permission:"plugins:manage",handler:ctx=>manageAdminBrand(ctx,runtime)},\nbrandWrite:{methods:["POST"],permission:"plugins:manage",request:{body:"json",maxBytes:8000},handler:ctx=>manageAdminBrand(ctx,runtime)},',
-    ],
-    [
-      "src/plugins/stacks-admin.tsx",
-      "import { PlatformPage }",
-      'import { BrandStudioPage } from "./brand-studio-page";\nimport { PlatformPage }',
-    ],
-    [
-      "src/plugins/stacks-admin.tsx",
-      'export const pages: PluginAdminExports["pages"] = {',
-      'export const pages: PluginAdminExports["pages"] = {\n"/brand-studio":BrandStudioPage,',
-    ],
-  ];
+  const changes = [];
   const middleware = `import {defineMiddleware} from 'astro:middleware';
 import {env} from 'cloudflare:workers';
 import {prepareAdminBrand,brandAdminResponse,adminBrandStyles} from './lib/admin-brand.ts';
@@ -122,7 +101,7 @@ if(context.url.pathname==='/_emdash/composer-admin-brand.css')return adminBrandS
 const presentation=await prepareAdminBrand(context,env);
 return brandAdminResponse(await next(),presentation);
 });\n`;
-  const cloneDependencies = `const {lstatSync,realpathSync}=await import('node:fs');
+  const cloneDependencies = `
 if(lstatSync(join(app,'node_modules')).isSymbolicLink()){
 const dependencies=realpathSync(join(app,'node_modules'));
 rmSync(join(app,'node_modules'));
@@ -148,7 +127,10 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
     '\nwriteFileSync(join(app,"src/middleware.ts"),' +
     JSON.stringify(middleware) +
     ");\n";
-  const prepareSource = readFileSync(prep, "utf8");
+  const prepareSource = readFileSync(prep, "utf8").replace(
+    "../../../scripts/lib/native-fixture-process.mjs",
+    join(source, "scripts/lib/native-fixture-process.mjs"),
+  );
   const marker = 'const port = new URL(origin).port || "80";';
   assert.equal(
     prepareSource.split(marker).length,
@@ -167,8 +149,8 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
   );
   const fixture = JSON.parse(readFileSync(join(root, "fixture.json"), "utf8"));
   receipt.integrationSeams = [
-    "Native page/route registration only in fixture copy.",
-    "Existing shared middleware calls prepareAdminBrand before next, brandAdminResponse after next.",
+    "Current source supplies native page and route registrations; no registration patches.",
+    "Fixture-only Brand middleware calls prepareAdminBrand before next and brandAdminResponse after next.",
     "Existing fixture: Access removed; native passkeys, local origin, no provider bindings.",
   ];
   browser = await chromium.launch({
@@ -334,6 +316,15 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
   await page
     .getByLabel("Footer label", { exact: true })
     .fill("Composer operations");
+  await page.getByRole("button", { name: /Room to read/ }).click();
+  assert.equal(
+    await page.getByLabel("Text size", { exact: true }).inputValue(),
+    "large",
+  );
+  assert.equal(
+    await page.getByLabel("Footer label", { exact: true }).inputValue(),
+    "Composer operations",
+  );
   await page.getByLabel("Spacing", { exact: true }).selectOption("compact");
   await page.getByLabel("Text size", { exact: true }).selectOption("large");
   assert.equal(
@@ -391,7 +382,24 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
   );
   receipt.checks.secondChangePreservedFirst = true;
   await page
-    .getByRole("button", { name: "Restore version 2", exact: true })
+    .getByRole("button", { name: "Review restore of version 2", exact: true })
+    .click();
+  assert.equal(
+    (
+      await request(
+        "/_emdash/api/plugins/composer-stacks/brandRead?action=read",
+      )
+    ).publishedVersion,
+    4,
+  );
+  await page
+    .getByRole("button", { name: "Cancel restore", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Review restore of version 2", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Confirm restore of version 2", exact: true })
     .click();
   await page
     .getByText(
@@ -506,7 +514,7 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
       5000,
     );
     await failed.screenshot({
-      path: join(source, "output/brand-studio/failed-native.png"),
+      path: join(out, "failed-native.png"),
       fullPage: true,
     });
   }
@@ -515,6 +523,15 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
   await browser?.close();
   cleanup();
   receipt.cleanup = !existsSync(root);
+  if (receipt.cleanup && process.env.LOFTWAH_VALIDATION_COMPLETION)
+    writeFileSync(
+      process.env.LOFTWAH_VALIDATION_COMPLETION,
+      JSON.stringify({
+        version: 1,
+        generation: process.env.LOFTWAH_VALIDATION_GENERATION,
+        cleanup: "complete",
+      }),
+    );
   writeFileSync(
     join(out, "receipt.json"),
     JSON.stringify(receipt, null, 2) + "\n",

@@ -1628,6 +1628,8 @@ export function compareProviderInventory(
     if (!observed) {
       const coverage = listCoverage(item.kind);
       const refused = coverage === "refused";
+      const storagePaginationUnknown =
+        item.kind !== "worker" && item.kind !== "service";
       comparisons.push({
         kind: item.kind,
         name: item.name,
@@ -1637,14 +1639,16 @@ export function compareProviderInventory(
         observedId: null,
         state: refused
           ? "inaccessible"
-          : coverage === "unread"
+          : coverage === "unread" || storagePaginationUnknown
             ? "unverified"
             : "missing",
         detail: refused
           ? "The provider list for this resource type was refused or failed. Presence is unknown, not absent."
           : coverage === "unread"
             ? "The provider list for this resource type was not read because a bound was reached. Presence is unknown, not absent."
-            : "The declared resource was not present in the verified provider list.",
+            : storagePaginationUnknown
+              ? "A storage list page was read, but pagination or cursor completeness is not recorded. Presence is unknown, not absent."
+              : "The declared resource was not present in the verified provider list.",
         changes: [],
         tags,
         cost: COST_UNKNOWN,

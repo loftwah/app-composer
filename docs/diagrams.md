@@ -10,7 +10,7 @@ service.
 | Scene | Purpose | Committed files |
 | --- | --- | --- |
 | `get-ready-lifecycle` | Get Ready → Init → EmDash → application lifecycle | `.excalidraw`, `.svg`, `.png` |
-| `agent-approval-boundary` | Local agent → scoped proposal → human review → separate execution | `.excalidraw`, `.svg`, `.png` |
+| `agent-approval-boundary` | Local agent → owner review → finite local repair → independent HTTP verification | `.excalidraw`, `.svg`, `.png` |
 | `contribution-boundary` | Scoped member contribution → private API → app-owned data → separate public snapshot | `.excalidraw`, `.svg`, `.png` |
 | `cloudflare-isolation` | Production/Preview Workers, separate resources and fail-closed bindings | `.excalidraw`, `.svg`, `.png` |
 
@@ -34,6 +34,14 @@ local MCP, reviewed and curated, then published under immutable
 versions and browser receipt are in
 [the model workflow evidence](evidence/ldraw-model-20261025/README.md). Earlier
 immutable URLs remain available.
+
+The later `agent-approval-recovery-20261025` scene uses the same real stdio MCP
+and native renderer at LDraw `9fec6e7`, whose complete source tree matches merged
+main `9247b73`. It revises the existing IDs, refuses a stale write and depicts the
+qualified local caption action. Its retained editable scene, SVG/PNG, dimensions,
+source/renderer hashes and cleanup are in the [completion receipt](evidence/product-completion-20261025/ldraw-receipt.json).
+One label initially exceeded its box; the second native revision shortened it
+before publication. Production action authority remains separately gated.
 
 The renderer writes a renderer-restored `.excalidraw`, SVG and PNG. The scene,
 SVG and PNG are replaced together; do not edit only the SVG or PNG.

@@ -9,7 +9,7 @@ export interface DiscoveryRole {
   headline: string;
   description: string;
   app: typeof apps[number]['id'];
-  example: { title: string; description: string; href: string; image: string; alt: string; captured: string; origin: string };
+  example: { title: string; description: string; href: string; image: string; alt: string; captured: string; origin: string; originLabel?: string };
   primary: { label: string; href: string };
   start: { label: string; href: string };
   steps: { title: string; description: string; href: string }[];
@@ -94,8 +94,8 @@ export const discoveryRoles: DiscoveryRole[] = [
     headline: 'Prove one content move before a rebuild.',
     description: 'Try a portable content model and an owner-editable page. Check the content, media and ordinary editing your client actually needs before choosing a destination.',
     app: 'guestbook',
-    example: { title: 'The working content and contribution journey', description: 'The build story shows an authored content project and a fictional postcard moving through pending, approval, featuring and source removal.', href: '/building', ...capture('guestbook') },
-    primary: { label: 'Open the build story', href: '/building' },
+    example: { title: 'An imported publisher, still editable', description: 'The fictional Weekender was imported into native EmDash, reconciled, edited twice and checked with its WordPress source stopped. Inspect its exact results and remaining gates.', href: '/migration-example', image: '/evidence/weekender-reader-20261025.png', alt: 'Actual isolated Macedon Weekender article with an app-owned image, imported text and owner edits.', captured: '2026-10-25', origin: 'https://github.com/loftwah/app-composer/tree/main/labs/wordpress/weekender', originLabel: 'Isolated local WordPress → EmDash lab' },
+    primary: { label: 'Inspect the publisher migration', href: '/migration-example' },
     start: { label: 'Try a content model', href: '/init/content' },
     steps: [
       { title: 'List the behaviour to preserve', description: 'Record URLs, content types, media, forms, editor tasks and the plugins that supply them. Keep the current site as the reference.', href: '/guide#platforms' },

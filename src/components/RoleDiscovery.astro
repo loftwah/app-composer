@@ -24,7 +24,7 @@ const { role, hub = false } = Astro.props;
     </div>
     <figure class="role-example">
       <a href={role.example.href} aria-label={'Open ' + role.example.title}><img src={role.example.image} width="1440" height="1000" alt={role.example.alt} loading="eager" decoding="async" /></a>
-      <figcaption><strong><a href={role.example.href}>{role.example.title}<ArrowUpRight size={15} aria-hidden="true" /></a></strong><p>{role.example.description}</p><small>Actual capture · {role.example.captured} · <a href={role.example.origin}>{new URL(role.example.origin).host}</a></small></figcaption>
+      <figcaption><strong><a href={role.example.href}>{role.example.title}<ArrowUpRight size={15} aria-hidden="true" /></a></strong><p>{role.example.description}</p><small>Actual capture · {role.example.captured} · <a href={role.example.origin}>{role.example.originLabel ?? new URL(role.example.origin).host}</a></small></figcaption>
     </figure>
   </section>
   {role.fit && <section class="role-fit" aria-label="Fit and next action"><h2>Keep what already works.</h2><p>{role.fit.keep}</p><p><strong>Start here:</strong> {role.fit.next}</p><a href={role.fit.evidence.href}>{role.fit.evidence.label}<ArrowUpRight size={15} aria-hidden="true" /></a></section>}

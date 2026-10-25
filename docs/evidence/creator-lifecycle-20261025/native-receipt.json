@@ -1,0 +1,1776 @@
+{
+  "schema": "composer.platform-native/1",
+  "startedAt": "2026-10-25T12:03:21.842Z",
+  "preflight": {
+    "schema": "composer.platform-native-preflight/1",
+    "creatorLifecycle": true,
+    "availabilityFixture": {
+      "enabled": false,
+      "scope": "Owned local visibility fault and deterministic recovery only; vendor/agent/code rollback unavailable"
+    },
+    "composerHead": "b7841c437b1b3f8e0dd76e33113ea5a91f70707c",
+    "fixtureBaseline": "a325a9bfb06a981eb536b807558e197d96efd8cb",
+    "memberContract": {
+      "qualified": true,
+      "source": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+      "required": {
+        "version": 2,
+        "entrypoint": "GuestbookMemberService",
+        "transport": "service-binding",
+        "path": "/__composer/member"
+      },
+      "sourceOverride": false,
+      "nativeExecution": "not-run"
+    },
+    "sources": {
+      "composer": {
+        "head": "b7841c437b1b3f8e0dd76e33113ea5a91f70707c",
+        "checkout": "/Users/deanlofts/gits/app-composer-incident-execution-20261025",
+        "dirty": false
+      },
+      "guestbook": {
+        "head": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+        "checkout": "/tmp/composer-creator-sources.OFaEbR/guestbook",
+        "dirty": false
+      },
+      "showcase": {
+        "head": "f1dd27952ca8548f81fde5c5905346dae4a2b61b",
+        "checkout": "/tmp/composer-creator-sources.OFaEbR/showcase",
+        "dirty": false
+      }
+    },
+    "authoredHashes": {
+      "labs/platform/native-run.mjs": "2ca020909d1bd64d7cc7e6025853ddb0f3577cb5892b196ea11d48ff212c1fa3",
+      "labs/platform/native-auth.mjs": "23cb787f05c363d812ad59f5416683b616a672ccd7d7c174e33a5c321dd76a2c",
+      "labs/platform/native-capture.mjs": "a56e367676bddf5dab997a184376679b2a51d87c675e9386fb0eced442c390f5",
+      "labs/platform/native-journey.mjs": "7771956fb4ab55d46d38240f0614e6052872d13ae6f66287ea43cfa717bac2c5",
+      "docs/platform/native-demo.md": "7a094477534e4a6d688ed0a354e8bfe4ad93db5e8376bce780556d954bb360f2",
+      "labs/platform/native-incident.mjs": "eee3bcc8a70b7f0b791f92c169e957fa671ce8fba466332d5531ca88edc70d0b",
+      "docs/platform/incident-demo.md": "682525e8ff6feedf8ebadf4715af53ab023138a1ccada3806c134f6c0bff77d9",
+      "labs/platform/native-export.mjs": "7e9423f1ec0b041e3afe735822d21b5ab5414e5431c38c55b560a3fc95de09ee",
+      "labs/platform/native-creator-lifecycle.mjs": "99a89d3b4955dcce90ad9670f0ec12681923bbc16356fdd03411dab4e2d62a21",
+      "docs/platform/native-export.md": "efeb30a1a757e1eb15595251870e346dd43197e5b7a96100865378bc4f5f6999"
+    },
+    "lifecycleSha256": "620bac15839d14523b5ea90dd5d8e1e504e942ff42e3d546b2981e59261ab4b7",
+    "derivedLifecycleSha256": "622ee5bca57d90d4d77ff8d72a4482e2f8e0612c5af573272a538f84f1193f8a",
+    "copiedFactoryPatch": {
+      "path": "src/plugins/stacks.ts",
+      "before": "return creatorPlugin(options.adminEntry, env);",
+      "after": "const runtime = { ...env, PLATFORM_PUBLIC_FETCH: (request: Request) => (env as unknown as { PLATFORM_PUBLIC_PAGES: { fetch(request: Request): Promise<Response> } }).PLATFORM_PUBLIC_PAGES.fetch(request) };\n  return creatorPlugin(options.adminEntry, runtime);",
+      "originalSha256": "5e59c9e31e6afa9f1f0935e39d2ab6055e41c155e5596401af61f360332f9bb0",
+      "derivedSha256": "40acd7fd33f630f055daaf5de16f3674705c7cfe8d8ee6729c24022bee200b00"
+    },
+    "copiedMemberFactoryPatch": {
+      "path": "src/plugins/members.ts",
+      "before": "return memberPlugin(\n    env,",
+      "after": "const runtime = { ...env, PLATFORM_PUBLIC_FETCH: (request: Request) => (env as unknown as { PLATFORM_PUBLIC_PAGES: { fetch(request: Request): Promise<Response> } }).PLATFORM_PUBLIC_PAGES.fetch(request) };\n  return memberPlugin(\n    runtime,",
+      "originalSha256": "f932086a913277454097c471d0142182ecc48059f0a89373c022df23c98e3f3c",
+      "derivedSha256": "f77a6f67b1858c1e252ab5163d35b54abecd9e42e3ce5896c3be98d4cae66944"
+    },
+    "copiedAccountPatch": {
+      "before": "invited-local-account",
+      "after": "00000000000000000000000000000001",
+      "scope": "Fictional local account identity, never a provider account or permission receipt"
+    },
+    "authSha256": "23cb787f05c363d812ad59f5416683b616a672ccd7d7c174e33a5c321dd76a2c",
+    "journeySha256": "7771956fb4ab55d46d38240f0614e6052872d13ae6f66287ea43cfa717bac2c5",
+    "playwright": "/Users/deanlofts/.npm/_npx/9833c18b2d85bc59/node_modules/playwright/index.mjs",
+    "video": {
+      "ffprobe": "/opt/homebrew/Cellar/ffmpeg/9.0.2/bin/ffprobe",
+      "perActorByteLimit": 33554432,
+      "continuousCaptureLimitMs": 360000,
+      "actors": 4
+    },
+    "ports": {
+      "8443": "available",
+      "8811": "available",
+      "8812": "available",
+      "8813": "available"
+    },
+    "admission": "Local virtual passkeys. Production Access and physical credentials not exercised.",
+    "verification": "Actual local /s and mounted app handlers through fixed host-configured self service binding; public edge not qualified."
+  },
+  "qualification": "passed",
+  "copiedSource": {
+    "composer": {
+      "checkout": "/Users/deanlofts/gits/app-composer-incident-execution-20261025",
+      "head": "b7841c437b1b3f8e0dd76e33113ea5a91f70707c",
+      "dirty": false,
+      "labHead": "538a05278b018998c011bafc3abd1153888aa596"
+    },
+    "guestbook": {
+      "checkout": "/tmp/composer-creator-sources.OFaEbR/guestbook",
+      "head": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+      "dirty": false
+    },
+    "showcase": {
+      "checkout": "/tmp/composer-creator-sources.OFaEbR/showcase",
+      "head": "f1dd27952ca8548f81fde5c5905346dae4a2b61b",
+      "dirty": false
+    },
+    "factorySha256": "40acd7fd33f630f055daaf5de16f3674705c7cfe8d8ee6729c24022bee200b00",
+    "memberFactorySha256": "f77a6f67b1858c1e252ab5163d35b54abecd9e42e3ce5896c3be98d4cae66944",
+    "authConfigSha256": "92793a5b2468d699344f1a30bbd2a3c0d2b49fe7f7ad554cbfd3cc2e1865d214",
+    "entrySha256": "61fb43a6615efe383f3db63b0645b923c705e2eadc10ad92df8fc2787363e29a",
+    "productTree": "b84272c26ad881923b667c57c38673c1ccba2bbd"
+  },
+  "localConfiguration": {
+    "sha256": "a84ccab2c9ef91d6b6db870e4f2fd7d4d734426b47da884926e20c267c37e024",
+    "main": "./lab-entry.ts",
+    "services": [
+      {
+        "binding": "GUESTBOOK",
+        "service": "composer-invited-guestbook"
+      },
+      {
+        "binding": "GUESTBOOK_MEMBERS",
+        "service": "composer-invited-guestbook",
+        "entrypoint": "GuestbookMemberService"
+      },
+      {
+        "binding": "SHOWCASE",
+        "service": "composer-invited-showcase"
+      },
+      {
+        "binding": "PLATFORM_PUBLIC_PAGES",
+        "service": "composer-invited-composer"
+      }
+    ],
+    "vars": {
+      "PUBLIC_ORIGIN": "https://composer.loftwah.com",
+      "RESOURCE_ACCOUNT_ID": "00000000000000000000000000000001",
+      "RESOURCE_ENVIRONMENT": "local"
+    },
+    "secretValuesRetained": false,
+    "localD1": true,
+    "localR2": true
+  },
+  "authentication": {
+    "identities": [
+      {
+        "key": "owner",
+        "id": "01M5SF4T1VGDPCQEE9BV0HYE34",
+        "role": 50,
+        "admission": "native setup, WebAuthn registration and sign-in"
+      },
+      {
+        "key": "creator-a",
+        "id": "01M5SF4T8A4SC8HJTE847WWHZM",
+        "role": 20,
+        "admission": "native role invitation, WebAuthn registration, logout and sign-in"
+      },
+      {
+        "key": "creator-b",
+        "id": "01M5SF4TEHYNF4C1X36808AM86",
+        "role": 20,
+        "admission": "native role invitation, WebAuthn registration, logout and sign-in"
+      },
+      {
+        "key": "app-user",
+        "id": "01M5SF4TMTE1Y8X44JXA5K1ZKW",
+        "role": 10,
+        "admission": "native role invitation, WebAuthn registration, logout and sign-in"
+      }
+    ],
+    "nativeSessions": true,
+    "virtualPasskeys": true,
+    "physicalPasskeys": false,
+    "productionAccess": false,
+    "insertedIdentityOrSessionRows": false
+  },
+  "journey": {
+    "workspaces": [
+      {
+        "key": "a",
+        "id": "3a88b80e-d3eb-4e95-bb29-98d19bc3a5b0",
+        "name": "Fictional platform Team A",
+        "nativeCreator": "01M5SF4T8A4SC8HJTE847WWHZM",
+        "role": "editor",
+        "policyRevision": 1,
+        "creatorPolicy": {
+          "status": 200,
+          "code": "FORBIDDEN"
+        }
+      },
+      {
+        "key": "b",
+        "id": "f861119d-c9a3-4b78-93ab-2fcdc1c47231",
+        "name": "Fictional platform Team B",
+        "nativeCreator": "01M5SF4TEHYNF4C1X36808AM86",
+        "role": "editor",
+        "policyRevision": 1,
+        "creatorPolicy": {
+          "status": 200,
+          "code": "FORBIDDEN"
+        }
+      }
+    ],
+    "checks": [
+      "Two role20 creators accepted actual editor invitations into distinct owner-created workspaces.",
+      "Ordinary native role10 has no platform authority before explicit editor delegation; native and member routes return HTTP403.",
+      "The actual native approved-subset export retained the same synthetic item and PNG digest without changing the selected request, policy, stack or app resource; full backup and restoration remain unqualified.",
+      "Delegated native role10 self-service retained global role10 and operator denials; exact app grants admitted real canvas synthetic authoring; actual anonymous media followed 404→200→404→200; compatible title update preserved content/media and Team B.",
+      "UI update retained Team A identities and left Team B unchanged; sensitive request refused before app allocation; both actual public app and /s pages read without native session."
+    ],
+    "screenshots": [
+      "ready-creator20-owner.png",
+      "ready-operator-team-a.png",
+      "team-a-workspace.png",
+      "ready-operator-team-b.png",
+      "team-b-workspace.png",
+      "ready-role10-team-a-request.png",
+      "init-role10-team-a-request.png",
+      "team-a-role10-members-complete.png",
+      "team-a-role10-members-complete-responsive-390x844-dark.png",
+      "team-a-role10-members-complete-responsive-390x844-light.png",
+      "team-a-role10-members-complete-responsive-1440x1000-dark.png",
+      "team-a-role10-members-complete-responsive-1440x1000-light.png",
+      "team-b-closed-complete.png",
+      "team-a-role10-contribution-ready-responsive-390x844-dark.png",
+      "team-a-role10-contribution-ready-responsive-390x844-light.png",
+      "team-a-role10-contribution-ready-responsive-1440x1000-dark.png",
+      "team-a-role10-contribution-ready-responsive-1440x1000-light.png",
+      "team-a-role10-postcard-preview.png",
+      "team-a-role10-postcard-submitted.png",
+      "team-a-public-pending-private.png",
+      "team-a-review-approved.png",
+      "team-a-public-approved-public.png",
+      "team-a-review-hidden.png",
+      "team-a-public-hidden-private.png",
+      "team-a-review-reapproved.png",
+      "team-a-public-reapproved-public.png",
+      "team-a-public-updated-content-preserved.png",
+      "team-a-role10-update-content-preserved.png",
+      "creator-governed-read-only-390-light.png",
+      "creator-governed-read-only-390-dark.png",
+      "creator-governed-read-only-1440-light.png",
+      "creator-governed-read-only-1440-dark.png",
+      "creator-owner-unsaved-preview.png",
+      "creator-publication-restored-owner-draft-retained.png",
+      "creator-ordinary-round-trip-390-light.png",
+      "creator-ordinary-round-trip-390-dark.png",
+      "creator-ordinary-round-trip-1440-light.png",
+      "creator-ordinary-round-trip-1440-dark.png",
+      "creator-scoped-owner-outcomes.png",
+      "team-a-public-creator-rollback-content-media-preserved.png",
+      "team-a-public-stack.png",
+      "team-a-public-app.png",
+      "team-b-public-stack.png",
+      "team-b-public-app.png"
+    ],
+    "captureAssets": [
+      {
+        "path": "ready-creator20-owner.png",
+        "sha256": "66970eb254574711776c0f7b9f3e763be0c3c58f8eaffedf0e4ce870fd86c395",
+        "actor": "creator-a",
+        "capturedAt": "2026-10-25T12:04:14.564Z"
+      },
+      {
+        "path": "ready-operator-team-a.png",
+        "sha256": "7698c410e76f2be69a07da8fd27d87bb805e2bc7bce2f1a96d49ae97e4d99577",
+        "actor": "owner",
+        "capturedAt": "2026-10-25T12:04:16.858Z"
+      },
+      {
+        "path": "team-a-workspace.png",
+        "sha256": "9ddc64668332e872b875073763954a4461af2696db3e949c6c01081c5d2b80c5",
+        "actor": "creator-a",
+        "capturedAt": "2026-10-25T12:04:19.454Z"
+      },
+      {
+        "path": "ready-operator-team-b.png",
+        "sha256": "28f55f0e87092167625b4522cdbbbc34303ff5009e9beeae8a3b561a48728537",
+        "actor": "owner",
+        "capturedAt": "2026-10-25T12:04:22.974Z"
+      },
+      {
+        "path": "team-b-workspace.png",
+        "sha256": "be8f8aa760b5e0da0e913edf9f7d96c78fa1f4794cf38f9c7f3136426e432464",
+        "actor": "creator-b",
+        "capturedAt": "2026-10-25T12:04:25.520Z"
+      },
+      {
+        "path": "ready-role10-team-a-request.png",
+        "sha256": "771fb3179c3d6c30029a8048b4820e8c57908ff6006ed23419198a3045770889",
+        "actor": "app-user",
+        "capturedAt": "2026-10-25T12:04:28.080Z"
+      },
+      {
+        "path": "init-role10-team-a-request.png",
+        "sha256": "15fb5cf9fe56bfb97597a837e59e0fddf0b1e195dceab42e08ebfe6e4c56ff58",
+        "actor": "app-user",
+        "capturedAt": "2026-10-25T12:04:30.267Z"
+      },
+      {
+        "path": "team-a-role10-members-complete.png",
+        "sha256": "57781c2519b7cd022c8687b2cd00faddcf93b7223385fb21d70c79ec6b68986b",
+        "actor": "app-user",
+        "capturedAt": "2026-10-25T12:04:33.746Z"
+      },
+      {
+        "path": "team-a-role10-members-complete-responsive-390x844-dark.png",
+        "sha256": "7438be32a207b287046357c910a8e4c8a6f8d031d855f07d56b9e42575667684",
+        "actor": "app-user",
+        "capturedAt": "2026-10-25T12:04:36.022Z"
+      },
+      {
+        "path": "team-a-role10-members-complete-responsive-390x844-light.png",
+        "sha256": "396025e3749006b6d9deb5600528edda58802f3ebe625de758ccf87138d44a15",
+        "actor": "app-user",
+        "capturedAt": "2026-10-25T12:04:38.178Z"
+      },
+      {
+        "path": "team-a-role10-members-complete-responsive-1440x1000-dark.png",
+        "sha256": "0f7692b9520c14ab694a0c0aed5362fbf6612c6777f9598ab0a0f0720151f6c0",
+        "actor": "app-user",
+        "capturedAt": "2026-10-25T12:04:40.337Z"
+      },
+      {
+        "path": "team-a-role10-members-complete-responsive-1440x1000-light.png",
+        "sha256": "f45cca58db6729ef0aa32be9cb593e3d9ce4f3378eca4b18bf31ba8dca79fed6",
+        "actor": "app-user",
+        "capturedAt": "2026-10-25T12:04:42.487Z"
+      },
+      {
+        "path": "team-b-closed-complete.png",
+        "sha256": "cfad626a56a1a22cf0c1196dc442e112703a7dc763d2c91f4ff4e00e634f77ba",
+        "actor": "creator-b",
+        "capturedAt": "2026-10-25T12:04:44.888Z"
+      },
+      {
+        "path": "team-a-role10-contribution-ready-responsive-390x844-dark.png",
+        "sha256": "3a48addfe05982485e20aa6ef454ac4b63b9d9dd418c670155c68e177b823516",
+        "actor": "app-user",
+        "capturedAt": "2026-10-25T12:04:47.663Z"
+      },
+      {
+        "path": "team-a-role10-contribution-ready-responsive-390x844-light.png",
+        "sha256": "9237ed121fce8e1924bad968028030698e2a830da1b1986c37ea36399a7c0624",
+        "actor": "app-user",
+        "capturedAt": "2026-10-25T12:04:49.794Z"
+      },
+      {
+        "path": "team-a-role10-contribution-ready-responsive-1440x1000-dark.png",
+        "sha256": "7f7615b7fdbdabc3c00b0d2aaf71cccf2051ec415574d856be6020573cc954b3",
+        "actor": "app-user",
+        "capturedAt": "2026-10-25T12:04:51.973Z"
+      },
+      {
+        "path": "team-a-role10-contribution-ready-responsive-1440x1000-light.png",
+        "sha256": "708dbf0cc2059979e25569f1a5e4b39153c4249372024c3c34c96bfc93219ee0",
+        "actor": "app-user",
+        "capturedAt": "2026-10-25T12:04:54.123Z"
+      },
+      {
+        "path": "team-a-role10-postcard-preview.png",
+        "sha256": "d890107bd950733c96d4aa6e0e4a874c57957cc7c09b680d151893a6cd10fdcc",
+        "actor": "app-user",
+        "capturedAt": "2026-10-25T12:04:56.558Z"
+      },
+      {
+        "path": "team-a-role10-postcard-submitted.png",
+        "sha256": "f3ffcad052ad5d82807f315ca3f8b2d9809cf1fecf36ef96f404da187d6076f5",
+        "actor": "app-user",
+        "capturedAt": "2026-10-25T12:04:58.824Z"
+      },
+      {
+        "path": "team-a-public-pending-private.png",
+        "sha256": "8770620e257cc19ef49de61a6722d9955a2538521868efeb5119accc270d461d",
+        "actor": "anonymous",
+        "capturedAt": "2026-10-25T12:05:01.167Z"
+      },
+      {
+        "path": "team-a-review-approved.png",
+        "sha256": "ecfbb4321449eff9a83ee4c20308f2ca48b50960d4a6e5ede8f18e3532509b5e",
+        "actor": "creator-a",
+        "capturedAt": "2026-10-25T12:05:03.542Z"
+      },
+      {
+        "path": "team-a-public-approved-public.png",
+        "sha256": "e891ffa17e8a8beb5cb57ddaaffc2216fd1b686b1c33f052b6285864f44c944c",
+        "actor": "anonymous",
+        "capturedAt": "2026-10-25T12:05:05.716Z"
+      },
+      {
+        "path": "team-a-review-hidden.png",
+        "sha256": "3c69afaa4662589fe079ac00a499e394120c5f48661d45cdd4a6cf3695bfd543",
+        "actor": "creator-a",
+        "capturedAt": "2026-10-25T12:05:07.926Z"
+      },
+      {
+        "path": "team-a-public-hidden-private.png",
+        "sha256": "8770620e257cc19ef49de61a6722d9955a2538521868efeb5119accc270d461d",
+        "actor": "anonymous",
+        "capturedAt": "2026-10-25T12:05:10.050Z"
+      },
+      {
+        "path": "team-a-review-reapproved.png",
+        "sha256": "99d39b57b2f76fdb3cb71c78dc7cbbd8185077e6659fab8e83a8fa24fbc3c2e0",
+        "actor": "creator-a",
+        "capturedAt": "2026-10-25T12:05:12.241Z"
+      },
+      {
+        "path": "team-a-public-reapproved-public.png",
+        "sha256": "e891ffa17e8a8beb5cb57ddaaffc2216fd1b686b1c33f052b6285864f44c944c",
+        "actor": "anonymous",
+        "capturedAt": "2026-10-25T12:05:14.418Z"
+      },
+      {
+        "path": "team-a-public-updated-content-preserved.png",
+        "sha256": "249384288fbab2a290853418e71df638c2eb3523b2fd8f332ac1fcad0d6753fa",
+        "actor": "anonymous",
+        "capturedAt": "2026-10-25T12:05:17.314Z"
+      },
+      {
+        "path": "team-a-role10-update-content-preserved.png",
+        "sha256": "5910c82affe649a17362db7849a676ac64bb3c817929d8481af548d71788fa2e",
+        "actor": "app-user",
+        "capturedAt": "2026-10-25T12:05:19.421Z"
+      },
+      {
+        "path": "creator-governed-read-only-390-light.png",
+        "sha256": "b638436f51b07364232e3a717bada853c4212fe8df9ce6d628c76a3cb4b6aedd",
+        "actor": "owner",
+        "capturedAt": "2026-10-25T12:05:22.446Z"
+      },
+      {
+        "path": "creator-governed-read-only-390-dark.png",
+        "sha256": "5f782b18c8d583d01c82c9b33f7a725496eabdf1090124163ccb3cacaaf89ac4",
+        "actor": "owner",
+        "capturedAt": "2026-10-25T12:05:24.630Z"
+      },
+      {
+        "path": "creator-governed-read-only-1440-light.png",
+        "sha256": "6f1efcee93d243cf471d54f97edfcf0128068b044e5354edefac9da4a3cdb8e5",
+        "actor": "owner",
+        "capturedAt": "2026-10-25T12:05:26.830Z"
+      },
+      {
+        "path": "creator-governed-read-only-1440-dark.png",
+        "sha256": "b947df6a4b9171953f1768da100e77c366a234e29282f5a0e403618bd0e88f8b",
+        "actor": "owner",
+        "capturedAt": "2026-10-25T12:05:29.025Z"
+      },
+      {
+        "path": "creator-owner-unsaved-preview.png",
+        "sha256": "fa7503e5b9d01a37df0f400d5bb30ad46d5c7e4294bf03e1c404fe6da8c1683d",
+        "actor": "owner",
+        "capturedAt": "2026-10-25T12:05:31.911Z"
+      },
+      {
+        "path": "creator-publication-restored-owner-draft-retained.png",
+        "sha256": "99d4e1d7e0e44c8421f961d78c0d1b531001ef36234dc3b5ff1eed101a5b6ec3",
+        "actor": "owner",
+        "capturedAt": "2026-10-25T12:05:34.375Z"
+      },
+      {
+        "path": "creator-ordinary-round-trip-390-light.png",
+        "sha256": "f93b14d782e8b4ebd7f0c7c649d1819decc1b30fb56ad7b1270881dc2e981e9e",
+        "actor": "owner",
+        "capturedAt": "2026-10-25T12:05:36.961Z"
+      },
+      {
+        "path": "creator-ordinary-round-trip-390-dark.png",
+        "sha256": "777d0e70e45bfee8892692df8df745e95bf8dd9c3d034504e5f9c6451ed8abf6",
+        "actor": "owner",
+        "capturedAt": "2026-10-25T12:05:39.157Z"
+      },
+      {
+        "path": "creator-ordinary-round-trip-1440-light.png",
+        "sha256": "c867153ea79fecc1542693ad5594d2ea90e6f5454a55900571fd809877e331c4",
+        "actor": "owner",
+        "capturedAt": "2026-10-25T12:05:41.378Z"
+      },
+      {
+        "path": "creator-ordinary-round-trip-1440-dark.png",
+        "sha256": "97a69340ea118cb8b074aae5ddc981ff259732655d8d86e057c9f48956ede991",
+        "actor": "owner",
+        "capturedAt": "2026-10-25T12:05:43.562Z"
+      },
+      {
+        "path": "creator-scoped-owner-outcomes.png",
+        "sha256": "fa46e789f96a59bb415f0a147da58027b55bae5c6f1d6eccfb23518ac7b5851a",
+        "actor": "owner",
+        "capturedAt": "2026-10-25T12:05:45.958Z"
+      },
+      {
+        "path": "team-a-public-creator-rollback-content-media-preserved.png",
+        "sha256": "249384288fbab2a290853418e71df638c2eb3523b2fd8f332ac1fcad0d6753fa",
+        "actor": "anonymous",
+        "capturedAt": "2026-10-25T12:05:48.151Z"
+      },
+      {
+        "path": "team-a-public-stack.png",
+        "sha256": "bed9a74baa7b2cf211bcfab69d39350b0539b24566981ab9bffd0d3f957758bd",
+        "actor": "anonymous",
+        "capturedAt": "2026-10-25T12:05:50.391Z"
+      },
+      {
+        "path": "team-a-public-app.png",
+        "sha256": "249384288fbab2a290853418e71df638c2eb3523b2fd8f332ac1fcad0d6753fa",
+        "actor": "anonymous",
+        "capturedAt": "2026-10-25T12:05:52.537Z"
+      },
+      {
+        "path": "team-b-public-stack.png",
+        "sha256": "231af6f99822ece92f5ec6db557da385dc105b06ba0ca43dd539c59025d52967",
+        "actor": "anonymous",
+        "capturedAt": "2026-10-25T12:05:54.693Z"
+      },
+      {
+        "path": "team-b-public-app.png",
+        "sha256": "68cbc26c7f434a2326d3553944b35afde710f9cf0f7231c42e2d38d3be80f3d5",
+        "actor": "anonymous",
+        "capturedAt": "2026-10-25T12:05:56.821Z"
+      }
+    ],
+    "captureInspectionHoldMs": 2000,
+    "limits": [
+      "Visibility re-approval of retained hidden media is supported and exercised; full data/media restore is unavailable and unqualified.",
+      "Retirement, knowledge recipes and the #215 incident foundation have no qualified product journey in this fixture.",
+      "Local virtual-passkey admission and app-owned synthetic content do not establish production SSO, regional storage or upstream provider permissions."
+    ],
+    "captureCamera": {
+      "primaryViewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "primaryFullPage": false,
+      "responsive": "Full-page probes on separate pages in the same actor context; probes close after inspection.",
+      "timing": "video.startedAt and screenshot.capturedAt are wall-clock provenance, not reliable source clip offsets. Select cuts from decoded video pixels only."
+    },
+    "memberSource": {
+      "revision": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+      "descriptor": {
+        "version": 2,
+        "entrypoint": "GuestbookMemberService",
+        "transport": "service-binding",
+        "path": "/__composer/member"
+      },
+      "sourceOverride": false
+    },
+    "setup": [
+      {
+        "workspace": "c0bc7de2-87d4-4af4-ad08-524b99673ea6",
+        "label": "creator20-owner",
+        "action": "configure",
+        "href": "/_emdash/admin/plugins/composer-stacks/platform?workspace=c0bc7de2-87d4-4af4-ad08-524b99673ea6",
+        "configurationObservationOnly": true
+      },
+      {
+        "workspace": "3a88b80e-d3eb-4e95-bb29-98d19bc3a5b0",
+        "label": "operator-team-a",
+        "action": "configure",
+        "href": "/_emdash/admin/plugins/composer-stacks/platform?workspace=3a88b80e-d3eb-4e95-bb29-98d19bc3a5b0",
+        "configurationObservationOnly": true
+      },
+      {
+        "workspace": "f861119d-c9a3-4b78-93ab-2fcdc1c47231",
+        "label": "operator-team-b",
+        "action": "configure",
+        "href": "/_emdash/admin/plugins/composer-stacks/platform?workspace=f861119d-c9a3-4b78-93ab-2fcdc1c47231",
+        "configurationObservationOnly": true
+      }
+    ],
+    "crossTeamRead": {
+      "status": 200,
+      "code": "FORBIDDEN"
+    },
+    "crossTeamWrite": {
+      "status": 200,
+      "code": "FORBIDDEN"
+    },
+    "ordinaryUser": {
+      "role": 10,
+      "nativeRead": {
+        "status": 403,
+        "code": "FORBIDDEN"
+      },
+      "nativeWrite": {
+        "status": 403,
+        "code": "FORBIDDEN"
+      },
+      "memberRead": {
+        "status": 403,
+        "code": "FORBIDDEN"
+      },
+      "memberWrite": {
+        "status": 403,
+        "code": "FORBIDDEN"
+      },
+      "nativeConfigure": {
+        "status": 403,
+        "code": "FORBIDDEN"
+      },
+      "memberConfigure": {
+        "status": 403,
+        "code": "FORBIDDEN"
+      },
+      "nativeReview": {
+        "status": 403,
+        "code": "FORBIDDEN"
+      },
+      "memberReview": {
+        "status": 403,
+        "code": "FORBIDDEN"
+      }
+    },
+    "delegation": {
+      "workspace": "3a88b80e-d3eb-4e95-bb29-98d19bc3a5b0",
+      "role": "editor",
+      "nativeRole": 10,
+      "invitationAcceptedInUI": true
+    },
+    "crossTeamDelegated": {
+      "status": 403,
+      "code": "FORBIDDEN"
+    },
+    "initial": {
+      "a": {
+        "id": "0b34d3ee-1ab6-481d-bd39-6a97418061c6",
+        "name": "Fictional Team A member visitor book",
+        "status": "complete",
+        "revision": 3,
+        "decision": {
+          "outcome": "allowed",
+          "reasons": [
+            "The current standing policy permits this bounded synthetic guestbook request automatically."
+          ]
+        },
+        "request": {
+          "version": 1,
+          "name": "Fictional Team A member visitor book",
+          "recipe": "guestbook",
+          "environment": "preview",
+          "dataClass": "synthetic",
+          "location": "provider-default",
+          "quota": "small",
+          "contributions": "members"
+        },
+        "plan": {
+          "version": 1,
+          "policyRevision": 1,
+          "source": {
+            "id": "guestbook",
+            "repository": "https://github.com/loftwah/app-composer-guestbook",
+            "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+            "manifestDigest": "sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972"
+          },
+          "target": {
+            "account": "00000000000000000000000000000001",
+            "environment": "local",
+            "url": "https://composer.loftwah.com/guestbook"
+          },
+          "recipe": "guestbook",
+          "recipeVersion": 1,
+          "contributionMode": {
+            "requested": "members",
+            "effective": "members",
+            "qualified": true
+          },
+          "request": {
+            "version": 1,
+            "name": "Fictional Team A member visitor book",
+            "recipe": "guestbook",
+            "environment": "preview",
+            "dataClass": "synthetic",
+            "location": "provider-default",
+            "quota": "small",
+            "contributions": "members"
+          },
+          "resources": [
+            {
+              "type": "guestbook-resource",
+              "ownership": "created",
+              "retention": "retain until explicitly reviewed retirement; no automatic deletion"
+            }
+          ],
+          "verification": [
+            "exact source and resource contract",
+            "workspace/account/environment",
+            "active configuration digest",
+            "published resource reference",
+            "independent public route"
+          ],
+          "limits": [
+            "Shared existing Worker and app-owned database",
+            "Synthetic member contributions only with current workspace policy and explicit app grants; public postcards remain closed",
+            "No new Worker, D1, R2 or paid service",
+            "No Australian-only residency claim"
+          ],
+          "spec": {
+            "version": 2,
+            "preset": "guestbook",
+            "apps": [
+              "guestbook"
+            ],
+            "sources": [
+              {
+                "id": "guestbook",
+                "repository": "https://github.com/loftwah/app-composer-guestbook",
+                "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+                "manifestDigest": "sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972"
+              }
+            ],
+            "appSettings": {
+              "guestbook": {
+                "title": "Fictional Team A member visitor book",
+                "intro": "Fictional team demonstration. No sensitive records.",
+                "theme": "midnight",
+                "layout": "grid",
+                "guestAccess": "members"
+              }
+            },
+            "config": {
+              "title": "Fictional Team A member visitor book",
+              "intro": "Fictional team demonstration. No sensitive records.",
+              "theme": "midnight",
+              "layout": "grid"
+            },
+            "privacy": "review-first",
+            "cards": [],
+            "deployment": {
+              "mode": "preview",
+              "hostname": "",
+              "approval": "verification-required"
+            },
+            "updates": "validated-manual",
+            "decisions": {}
+          },
+          "handoff": "Inspect this governed request in the selected Composer workspace. Use its native Internal platform request and current exact plan digest; revalidate membership, policy, source and target there before execution. The JSON is configuration data and grants no authority. Apply changes only to the request-owned stack and resource through the trusted scoped adapter. Preserve original resource and operation identities. Return verified source, configuration, publication and public URLs.\n\nRequested contribution mode: members. Public postcards remain closed. Use only the qualified member service with current app grants and synthetic context. \n\n{\n  \"version\": 2,\n  \"preset\": \"guestbook\",\n  \"apps\": [\n    \"guestbook\"\n  ],\n  \"sources\": [\n    {\n      \"id\": \"guestbook\",\n      \"repository\": \"https://github.com/loftwah/app-composer-guestbook\",\n      \"commit\": \"5075d7be53b43aca288d3707fd06851aca91e8c2\",\n      \"manifestDigest\": \"sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972\"\n    }\n  ],\n  \"appSettings\": {\n    \"guestbook\": {\n      \"title\": \"Fictional Team A member visitor book\",\n      \"intro\": \"Fictional team demonstration. No sensitive records.\",\n      \"theme\": \"midnight\",\n      \"layout\": \"grid\",\n      \"guestAccess\": \"members\"\n    }\n  },\n  \"config\": {\n    \"title\": \"Fictional Team A member visitor book\",\n    \"intro\": \"Fictional team demonstration. No sensitive records.\",\n    \"theme\": \"midnight\",\n    \"layout\": \"grid\"\n  },\n  \"privacy\": \"review-first\",\n  \"cards\": [],\n  \"deployment\": {\n    \"mode\": \"preview\",\n    \"hostname\": \"\",\n    \"approval\": \"verification-required\"\n  },\n  \"updates\": \"validated-manual\",\n  \"decisions\": {}\n}"
+        },
+        "planDigest": "142a94c19f21382f1f5ea430b8aaa4834fad3d799d3522ce5fc690494ad5d0c6",
+        "stackId": "0b34d3ee-1ab6-481d-bd39-6a97418061c6",
+        "url": "/s/team-0b34d3ee-1ab6-481d-bd39-6a97418061c6",
+        "resources": [
+          {
+            "instance": "0b34d3ee-1ab6-481d-bd39-6a97418061c6",
+            "resource": "0ab04bde-8195-4a1e-8d00-183bd33935a8",
+            "app": "guestbook",
+            "shared": false,
+            "state": "ready",
+            "version": 2,
+            "configuration": {
+              "revision": 1,
+              "digest": "8504cb733332d7991d920aff6dcf6a0fdc156818757dadce1bb492201172ce6e",
+              "source": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+              "values": {
+                "title": "Fictional Team A member visitor book",
+                "intro": "Fictional team demonstration. No sensitive records.",
+                "theme": "midnight",
+                "layout": "grid",
+                "guestAccess": "members"
+              },
+              "path": "/guestbook/r/0ab04bde-8195-4a1e-8d00-183bd33935a8/c/1/"
+            }
+          }
+        ],
+        "reason": null,
+        "updatedAt": "2026-10-25 12:04:32",
+        "actorIsRequester": true,
+        "resumable": false
+      },
+      "b": {
+        "id": "d7fbc1bd-3b1a-4e16-bacd-b356808dee0e",
+        "name": "Fictional Team B closed visitor book",
+        "status": "complete",
+        "revision": 3,
+        "decision": {
+          "outcome": "allowed",
+          "reasons": [
+            "The current standing policy permits this bounded synthetic guestbook request automatically."
+          ]
+        },
+        "request": {
+          "version": 1,
+          "name": "Fictional Team B closed visitor book",
+          "recipe": "guestbook",
+          "environment": "preview",
+          "dataClass": "synthetic",
+          "location": "provider-default",
+          "quota": "small",
+          "contributions": "closed"
+        },
+        "plan": {
+          "version": 1,
+          "policyRevision": 1,
+          "source": {
+            "id": "guestbook",
+            "repository": "https://github.com/loftwah/app-composer-guestbook",
+            "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+            "manifestDigest": "sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972"
+          },
+          "target": {
+            "account": "00000000000000000000000000000001",
+            "environment": "local",
+            "url": "https://composer.loftwah.com/guestbook"
+          },
+          "recipe": "guestbook",
+          "recipeVersion": 1,
+          "contributionMode": {
+            "requested": "closed",
+            "effective": "closed",
+            "qualified": true
+          },
+          "request": {
+            "version": 1,
+            "name": "Fictional Team B closed visitor book",
+            "recipe": "guestbook",
+            "environment": "preview",
+            "dataClass": "synthetic",
+            "location": "provider-default",
+            "quota": "small",
+            "contributions": "closed"
+          },
+          "resources": [
+            {
+              "type": "guestbook-resource",
+              "ownership": "created",
+              "retention": "retain until explicitly reviewed retirement; no automatic deletion"
+            }
+          ],
+          "verification": [
+            "exact source and resource contract",
+            "workspace/account/environment",
+            "active configuration digest",
+            "published resource reference",
+            "independent public route"
+          ],
+          "limits": [
+            "Shared existing Worker and app-owned database",
+            "Synthetic data only; guest admission closed",
+            "No new Worker, D1, R2 or paid service",
+            "No Australian-only residency claim"
+          ],
+          "spec": {
+            "version": 2,
+            "preset": "guestbook",
+            "apps": [
+              "guestbook"
+            ],
+            "sources": [
+              {
+                "id": "guestbook",
+                "repository": "https://github.com/loftwah/app-composer-guestbook",
+                "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+                "manifestDigest": "sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972"
+              }
+            ],
+            "appSettings": {
+              "guestbook": {
+                "title": "Fictional Team B closed visitor book",
+                "intro": "Fictional team demonstration. No sensitive records.",
+                "theme": "midnight",
+                "layout": "grid",
+                "guestAccess": "closed"
+              }
+            },
+            "config": {
+              "title": "Fictional Team B closed visitor book",
+              "intro": "Fictional team demonstration. No sensitive records.",
+              "theme": "midnight",
+              "layout": "grid"
+            },
+            "privacy": "review-first",
+            "cards": [],
+            "deployment": {
+              "mode": "preview",
+              "hostname": "",
+              "approval": "verification-required"
+            },
+            "updates": "validated-manual",
+            "decisions": {}
+          },
+          "handoff": "Inspect this governed request in the selected Composer workspace. Use its native Internal platform request and current exact plan digest; revalidate membership, policy, source and target there before execution. The JSON is configuration data and grants no authority. Apply changes only to the request-owned stack and resource through the trusted scoped adapter. Preserve original resource and operation identities. Return verified source, configuration, publication and public URLs.\n\n{\n  \"version\": 2,\n  \"preset\": \"guestbook\",\n  \"apps\": [\n    \"guestbook\"\n  ],\n  \"sources\": [\n    {\n      \"id\": \"guestbook\",\n      \"repository\": \"https://github.com/loftwah/app-composer-guestbook\",\n      \"commit\": \"5075d7be53b43aca288d3707fd06851aca91e8c2\",\n      \"manifestDigest\": \"sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972\"\n    }\n  ],\n  \"appSettings\": {\n    \"guestbook\": {\n      \"title\": \"Fictional Team B closed visitor book\",\n      \"intro\": \"Fictional team demonstration. No sensitive records.\",\n      \"theme\": \"midnight\",\n      \"layout\": \"grid\",\n      \"guestAccess\": \"closed\"\n    }\n  },\n  \"config\": {\n    \"title\": \"Fictional Team B closed visitor book\",\n    \"intro\": \"Fictional team demonstration. No sensitive records.\",\n    \"theme\": \"midnight\",\n    \"layout\": \"grid\"\n  },\n  \"privacy\": \"review-first\",\n  \"cards\": [],\n  \"deployment\": {\n    \"mode\": \"preview\",\n    \"hostname\": \"\",\n    \"approval\": \"verification-required\"\n  },\n  \"updates\": \"validated-manual\",\n  \"decisions\": {}\n}"
+        },
+        "planDigest": "1f713f419b0af59f43cbbe2696e04dc020af92bf7bded2d1d5fe00e7a55c37a8",
+        "stackId": "d7fbc1bd-3b1a-4e16-bacd-b356808dee0e",
+        "url": "/s/team-d7fbc1bd-3b1a-4e16-bacd-b356808dee0e",
+        "resources": [
+          {
+            "instance": "d7fbc1bd-3b1a-4e16-bacd-b356808dee0e",
+            "resource": "d6188876-86c4-4aa6-80ab-6989c4f2e16d",
+            "app": "guestbook",
+            "shared": false,
+            "state": "ready",
+            "version": 2,
+            "configuration": {
+              "revision": 1,
+              "digest": "16a4c30284c7b48b9446cde29345831345ecf659d28bc1e91a3ec91b0606982f",
+              "source": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+              "values": {
+                "title": "Fictional Team B closed visitor book",
+                "intro": "Fictional team demonstration. No sensitive records.",
+                "theme": "midnight",
+                "layout": "grid",
+                "guestAccess": "closed"
+              },
+              "path": "/guestbook/r/d6188876-86c4-4aa6-80ab-6989c4f2e16d/c/1/"
+            }
+          }
+        ],
+        "reason": null,
+        "updatedAt": "2026-10-25 12:04:33",
+        "actorIsRequester": true,
+        "resumable": false
+      }
+    },
+    "responsiveCaptures": [
+      {
+        "path": "team-a-role10-members-complete-responsive-390x844-dark.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "theme": "dark",
+        "geometry": {
+          "viewportWidth": 390,
+          "pageWidth": 390,
+          "controls": 10,
+          "escaped": [],
+          "reducedMotion": true
+        }
+      },
+      {
+        "path": "team-a-role10-members-complete-responsive-390x844-light.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "theme": "light",
+        "geometry": {
+          "viewportWidth": 390,
+          "pageWidth": 390,
+          "controls": 10,
+          "escaped": [],
+          "reducedMotion": true
+        }
+      },
+      {
+        "path": "team-a-role10-members-complete-responsive-1440x1000-dark.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "theme": "dark",
+        "geometry": {
+          "viewportWidth": 1440,
+          "pageWidth": 1440,
+          "controls": 10,
+          "escaped": [],
+          "reducedMotion": true
+        }
+      },
+      {
+        "path": "team-a-role10-members-complete-responsive-1440x1000-light.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "theme": "light",
+        "geometry": {
+          "viewportWidth": 1440,
+          "pageWidth": 1440,
+          "controls": 10,
+          "escaped": [],
+          "reducedMotion": true
+        }
+      },
+      {
+        "path": "team-a-role10-contribution-ready-responsive-390x844-dark.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "theme": "dark",
+        "geometry": {
+          "viewportWidth": 390,
+          "pageWidth": 390,
+          "controls": 12,
+          "escaped": [],
+          "reducedMotion": true
+        }
+      },
+      {
+        "path": "team-a-role10-contribution-ready-responsive-390x844-light.png",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "theme": "light",
+        "geometry": {
+          "viewportWidth": 390,
+          "pageWidth": 390,
+          "controls": 12,
+          "escaped": [],
+          "reducedMotion": true
+        }
+      },
+      {
+        "path": "team-a-role10-contribution-ready-responsive-1440x1000-dark.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "theme": "dark",
+        "geometry": {
+          "viewportWidth": 1440,
+          "pageWidth": 1440,
+          "controls": 12,
+          "escaped": [],
+          "reducedMotion": true
+        }
+      },
+      {
+        "path": "team-a-role10-contribution-ready-responsive-1440x1000-light.png",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "theme": "light",
+        "geometry": {
+          "viewportWidth": 1440,
+          "pageWidth": 1440,
+          "controls": 12,
+          "escaped": [],
+          "reducedMotion": true
+        }
+      }
+    ],
+    "beforeAppGrant": {
+      "status": 200,
+      "code": "FORBIDDEN"
+    },
+    "contribution": {
+      "actor": "01M5SF4TMTE1Y8X44JXA5K1ZKW",
+      "resource": "0ab04bde-8195-4a1e-8d00-183bd33935a8",
+      "item": "1f8a157352e4d14686a4f92c7140245f4d5bff8b5ea3294ec0bdab357b851616",
+      "operationId": "d8858f1b-7a6e-4069-8e99-f77e31a740c3",
+      "status": "pending",
+      "canvas": "maintained 1200x900 UI",
+      "dataClass": "synthetic"
+    },
+    "crossTeamMember": {
+      "status": 200,
+      "code": "FORBIDDEN"
+    },
+    "contributorModeration": {
+      "status": 200,
+      "code": "FORBIDDEN"
+    },
+    "foreignResource": {
+      "status": 200,
+      "code": "FORBIDDEN"
+    },
+    "crossTeamMedia": {
+      "status": 200,
+      "code": "FORBIDDEN",
+      "existingPrivateMediaExercised": true
+    },
+    "visibility": [
+      {
+        "phase": "pending-private",
+        "item": "1f8a157352e4d14686a4f92c7140245f4d5bff8b5ea3294ec0bdab357b851616",
+        "status": 404,
+        "nativeSession": false
+      },
+      {
+        "phase": "approved-public",
+        "item": "1f8a157352e4d14686a4f92c7140245f4d5bff8b5ea3294ec0bdab357b851616",
+        "status": 200,
+        "nativeSession": false,
+        "sha256": "b2ab07c3ebcf81ed916de51db14f880b177a351bad9f3163042b980aba37f6b9"
+      },
+      {
+        "phase": "hidden-private",
+        "item": "1f8a157352e4d14686a4f92c7140245f4d5bff8b5ea3294ec0bdab357b851616",
+        "status": 404,
+        "nativeSession": false
+      },
+      {
+        "phase": "reapproved-public",
+        "item": "1f8a157352e4d14686a4f92c7140245f4d5bff8b5ea3294ec0bdab357b851616",
+        "status": 200,
+        "nativeSession": false,
+        "sha256": "b2ab07c3ebcf81ed916de51db14f880b177a351bad9f3163042b980aba37f6b9"
+      },
+      {
+        "phase": "updated-content-preserved",
+        "item": "1f8a157352e4d14686a4f92c7140245f4d5bff8b5ea3294ec0bdab357b851616",
+        "status": 200,
+        "nativeSession": false,
+        "sha256": "b2ab07c3ebcf81ed916de51db14f880b177a351bad9f3163042b980aba37f6b9"
+      },
+      {
+        "phase": "creator-rollback-content-media-preserved",
+        "item": "1f8a157352e4d14686a4f92c7140245f4d5bff8b5ea3294ec0bdab357b851616",
+        "status": 200,
+        "nativeSession": false,
+        "sha256": "b2ab07c3ebcf81ed916de51db14f880b177a351bad9f3163042b980aba37f6b9"
+      }
+    ],
+    "publicAdmission": {
+      "state": "closed",
+      "accepts": false,
+      "nativeSession": false
+    },
+    "updated": {
+      "a": {
+        "id": "0b34d3ee-1ab6-481d-bd39-6a97418061c6",
+        "name": "Fictional Team A updated member visitor book",
+        "status": "complete",
+        "revision": 6,
+        "decision": {
+          "outcome": "allowed",
+          "reasons": [
+            "The current standing policy permits this bounded synthetic guestbook request automatically."
+          ]
+        },
+        "request": {
+          "version": 1,
+          "name": "Fictional Team A updated member visitor book",
+          "recipe": "guestbook",
+          "environment": "preview",
+          "dataClass": "synthetic",
+          "location": "provider-default",
+          "quota": "small",
+          "contributions": "members"
+        },
+        "plan": {
+          "version": 1,
+          "policyRevision": 1,
+          "source": {
+            "id": "guestbook",
+            "repository": "https://github.com/loftwah/app-composer-guestbook",
+            "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+            "manifestDigest": "sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972"
+          },
+          "target": {
+            "account": "00000000000000000000000000000001",
+            "environment": "local",
+            "url": "https://composer.loftwah.com/guestbook"
+          },
+          "recipe": "guestbook",
+          "recipeVersion": 1,
+          "contributionMode": {
+            "requested": "members",
+            "effective": "members",
+            "qualified": true
+          },
+          "request": {
+            "version": 1,
+            "name": "Fictional Team A updated member visitor book",
+            "recipe": "guestbook",
+            "environment": "preview",
+            "dataClass": "synthetic",
+            "location": "provider-default",
+            "quota": "small",
+            "contributions": "members"
+          },
+          "resources": [
+            {
+              "type": "guestbook-resource",
+              "ownership": "created",
+              "retention": "retain until explicitly reviewed retirement; no automatic deletion"
+            }
+          ],
+          "verification": [
+            "exact source and resource contract",
+            "workspace/account/environment",
+            "active configuration digest",
+            "published resource reference",
+            "independent public route"
+          ],
+          "limits": [
+            "Shared existing Worker and app-owned database",
+            "Synthetic member contributions only with current workspace policy and explicit app grants; public postcards remain closed",
+            "No new Worker, D1, R2 or paid service",
+            "No Australian-only residency claim"
+          ],
+          "spec": {
+            "version": 2,
+            "preset": "guestbook",
+            "apps": [
+              "guestbook"
+            ],
+            "sources": [
+              {
+                "id": "guestbook",
+                "repository": "https://github.com/loftwah/app-composer-guestbook",
+                "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+                "manifestDigest": "sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972"
+              }
+            ],
+            "appSettings": {
+              "guestbook": {
+                "title": "Fictional Team A updated member visitor book",
+                "intro": "Fictional team demonstration. No sensitive records.",
+                "theme": "midnight",
+                "layout": "grid",
+                "guestAccess": "members"
+              }
+            },
+            "config": {
+              "title": "Fictional Team A updated member visitor book",
+              "intro": "Fictional team demonstration. No sensitive records.",
+              "theme": "midnight",
+              "layout": "grid"
+            },
+            "privacy": "review-first",
+            "cards": [],
+            "deployment": {
+              "mode": "preview",
+              "hostname": "",
+              "approval": "verification-required"
+            },
+            "updates": "validated-manual",
+            "decisions": {}
+          },
+          "handoff": "Inspect this governed request in the selected Composer workspace. Use its native Internal platform request and current exact plan digest; revalidate membership, policy, source and target there before execution. The JSON is configuration data and grants no authority. Apply changes only to the request-owned stack and resource through the trusted scoped adapter. Preserve original resource and operation identities. Return verified source, configuration, publication and public URLs.\n\nRequested contribution mode: members. Public postcards remain closed. Use only the qualified member service with current app grants and synthetic context. \n\n{\n  \"version\": 2,\n  \"preset\": \"guestbook\",\n  \"apps\": [\n    \"guestbook\"\n  ],\n  \"sources\": [\n    {\n      \"id\": \"guestbook\",\n      \"repository\": \"https://github.com/loftwah/app-composer-guestbook\",\n      \"commit\": \"5075d7be53b43aca288d3707fd06851aca91e8c2\",\n      \"manifestDigest\": \"sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972\"\n    }\n  ],\n  \"appSettings\": {\n    \"guestbook\": {\n      \"title\": \"Fictional Team A updated member visitor book\",\n      \"intro\": \"Fictional team demonstration. No sensitive records.\",\n      \"theme\": \"midnight\",\n      \"layout\": \"grid\",\n      \"guestAccess\": \"members\"\n    }\n  },\n  \"config\": {\n    \"title\": \"Fictional Team A updated member visitor book\",\n    \"intro\": \"Fictional team demonstration. No sensitive records.\",\n    \"theme\": \"midnight\",\n    \"layout\": \"grid\"\n  },\n  \"privacy\": \"review-first\",\n  \"cards\": [],\n  \"deployment\": {\n    \"mode\": \"preview\",\n    \"hostname\": \"\",\n    \"approval\": \"verification-required\"\n  },\n  \"updates\": \"validated-manual\",\n  \"decisions\": {}\n}"
+        },
+        "planDigest": "9f3504b0021257180c3f4c0cbc65f180400660455a55a6a5d15eebd424b121df",
+        "stackId": "0b34d3ee-1ab6-481d-bd39-6a97418061c6",
+        "url": "/s/team-0b34d3ee-1ab6-481d-bd39-6a97418061c6",
+        "resources": [
+          {
+            "instance": "0b34d3ee-1ab6-481d-bd39-6a97418061c6",
+            "resource": "0ab04bde-8195-4a1e-8d00-183bd33935a8",
+            "app": "guestbook",
+            "shared": false,
+            "state": "ready",
+            "version": 7,
+            "configuration": {
+              "revision": 6,
+              "digest": "d02e77c270fc5ee7af2ecd3f23994ccd4beb9b2d10ba899f930ba8c593c60c63",
+              "source": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+              "values": {
+                "title": "Fictional Team A updated member visitor book",
+                "intro": "Fictional team demonstration. No sensitive records.",
+                "theme": "midnight",
+                "layout": "grid",
+                "guestAccess": "members"
+              },
+              "path": "/guestbook/r/0ab04bde-8195-4a1e-8d00-183bd33935a8/c/6/"
+            }
+          }
+        ],
+        "reason": null,
+        "updatedAt": "2026-10-25 12:05:16",
+        "actorIsRequester": true,
+        "resumable": false
+      },
+      "bUnchanged": true,
+      "contentPreserved": true,
+      "mediaSha256": "b2ab07c3ebcf81ed916de51db14f880b177a351bad9f3163042b980aba37f6b9"
+    },
+    "approvedExport": {
+      "schema": "composer.native-approved-export/1",
+      "classification": "local-workerd-fixture",
+      "checkedAt": "2026-10-25T12:05:21.656Z",
+      "sources": {
+        "composer": "b7841c437b1b3f8e0dd76e33113ea5a91f70707c",
+        "guestbook": "5075d7be53b43aca288d3707fd06851aca91e8c2"
+      },
+      "selection": {
+        "workspace": "3a88b80e-d3eb-4e95-bb29-98d19bc3a5b0",
+        "request": "0b34d3ee-1ab6-481d-bd39-6a97418061c6",
+        "stack": "0b34d3ee-1ab6-481d-bd39-6a97418061c6",
+        "instance": "0b34d3ee-1ab6-481d-bd39-6a97418061c6",
+        "resource": "0ab04bde-8195-4a1e-8d00-183bd33935a8",
+        "stackRevision": 16,
+        "publishedRevision": 15
+      },
+      "authority": {
+        "nativeRole": 50,
+        "workspaceRole": "owner",
+        "account": "00000000000000000000000000000001",
+        "environment": "local",
+        "target": "https://composer.loftwah.com/guestbook"
+      },
+      "request": {
+        "planDigest": "9f3504b0021257180c3f4c0cbc65f180400660455a55a6a5d15eebd424b121df",
+        "policyRevision": 1
+      },
+      "configuration": {
+        "revision": 6,
+        "digest": "d02e77c270fc5ee7af2ecd3f23994ccd4beb9b2d10ba899f930ba8c593c60c63",
+        "source": "5075d7be53b43aca288d3707fd06851aca91e8c2"
+      },
+      "resourceVersion": 7,
+      "portable": {
+        "format": "guestbook.approved-portable/v1",
+        "contract": 1,
+        "exportedAt": "2026-10-25T12:05:21.608Z",
+        "manifestJSONSha256": "773b2e5ec2b49624045cabd8620eedcd18e5e922ec19bb8e1d3c2e1c92dc11b0",
+        "responseSha256": "d5cb3385483a9d7c35a746240fafa3093837e32128fab4c4b43ee09549546dd8",
+        "responseBytes": 72558,
+        "coverage": {
+          "approvedOriginals": 1,
+          "included": 1,
+          "complete": true,
+          "maximumItems": 8,
+          "privateContent": false,
+          "credentials": false,
+          "restoredCopies": false
+        }
+      },
+      "approvedItem": {
+        "id": "1f8a157352e4d14686a4f92c7140245f4d5bff8b5ea3294ec0bdab357b851616",
+        "revision": 4,
+        "synthetic": true,
+        "media": {
+          "type": "image/png",
+          "bytes": 53187,
+          "width": 1200,
+          "height": 900,
+          "sha256": "b2ab07c3ebcf81ed916de51db14f880b177a351bad9f3163042b980aba37f6b9"
+        }
+      },
+      "exportedItems": [
+        {
+          "id": "1f8a157352e4d14686a4f92c7140245f4d5bff8b5ea3294ec0bdab357b851616",
+          "revision": 4,
+          "synthetic": true,
+          "media": {
+            "type": "image/png",
+            "bytes": 53187,
+            "width": 1200,
+            "height": 900,
+            "sha256": "b2ab07c3ebcf81ed916de51db14f880b177a351bad9f3163042b980aba37f6b9"
+          }
+        }
+      ],
+      "readOnly": {
+        "requestPolicyUnchanged": true,
+        "stackUnchanged": true,
+        "resourceUnchanged": true
+      },
+      "limits": [
+        "Approved original subset only, maximum eight; private content, credentials, restored copies and publication history are excluded. This is not a full backup.",
+        "Export checked at this current source and version; no restore was attempted or qualified. Later control changes advance the source version.",
+        "Local workerd, virtual-passkey and fictional data qualification only; no production or provider portability claim."
+      ]
+    },
+    "creatorLifecycle": {
+      "version": "composer.native-creator-lifecycle/1",
+      "workspace": "8b629546-6275-420b-bc39-f0db6664e480",
+      "stack": "27c72199-5fc8-4054-9bcf-8387126eb3dc",
+      "instance": "26e9f91c-372e-454d-9a52-bd6e88a65a23",
+      "beforeRevision": 10,
+      "beforePublication": 9,
+      "control": {
+        "workspace": "3a88b80e-d3eb-4e95-bb29-98d19bc3a5b0",
+        "stack": "0b34d3ee-1ab6-481d-bd39-6a97418061c6",
+        "instance": "0b34d3ee-1ab6-481d-bd39-6a97418061c6"
+      },
+      "observations": [
+        {
+          "stage": "first-publication",
+          "status": 200,
+          "sha256": "69e1ab110742b8e5181723547eb22bfdc2c6f6772f0cb499a5c22d5820e0a94f"
+        },
+        {
+          "stage": "second-draft-remains-private",
+          "status": 200,
+          "sha256": "69e1ab110742b8e5181723547eb22bfdc2c6f6772f0cb499a5c22d5820e0a94f"
+        },
+        {
+          "stage": "second-publication",
+          "status": 200,
+          "sha256": "d3a943f186d9aaf9988ed6f7ca69c0ef4c542ac9e3125af11004b99a11f4a93b"
+        },
+        {
+          "stage": "prior-publication-restored",
+          "status": 200,
+          "sha256": "69e1ab110742b8e5181723547eb22bfdc2c6f6772f0cb499a5c22d5820e0a94f"
+        }
+      ],
+      "firstPublication": 11,
+      "secondPublication": 13,
+      "restoredPublication": 11,
+      "retainedDraftRevision": 15,
+      "ownerCustomisationPreserved": true,
+      "appConfigurationPreserved": true,
+      "resourceIdentityAndVersionPreserved": true,
+      "ordinaryAppRecordCount": 0,
+      "governedControlDataPreserved": true,
+      "publicationHistoryPreserved": true,
+      "outcomes": {
+        "scope": {
+          "workspace": "8b629546-6275-420b-bc39-f0db6664e480",
+          "stack": "27c72199-5fc8-4054-9bcf-8387126eb3dc",
+          "instance": "26e9f91c-372e-454d-9a52-bd6e88a65a23"
+        },
+        "traffic": "all",
+        "metrics": [
+          {
+            "key": "app_open_action",
+            "value": null,
+            "quality": "unavailable"
+          },
+          {
+            "key": "postcard_approved",
+            "value": null,
+            "quality": "unavailable"
+          },
+          {
+            "key": "postcard_hidden",
+            "value": null,
+            "quality": "unavailable"
+          },
+          {
+            "key": "postcard_deleted",
+            "value": null,
+            "quality": "unavailable"
+          },
+          {
+            "key": "retained_snapshots",
+            "value": 3,
+            "quality": "retained"
+          }
+        ],
+        "limits": {
+          "retentionDays": 35,
+          "dailyCap": 1000,
+          "targetRows": 40,
+          "notes": [
+            "New action aggregates are recorded lower bounds. Recording, rate limits, daily caps and outages can drop events.",
+            "The first retained observation is partial, not a deployment or enablement date. Earlier/expired history is unavailable; later zero means no recorded event.",
+            "Deleting a stack also removes its private outcome rows. Totals can fall when stacks are removed; deleted-stack activity is unavailable.",
+            "Marked verification/release probes and confidently identified robots are excluded. Unmarked bots and demonstrations can count; unclassified is not evidence of customer demand.",
+            "A demonstration setting applies only when a future action is collected. Earlier classification is not rewritten; original publication history has no traffic classification.",
+            "The traffic filter applies only to collected actions. Original publication history has no recorded demonstration classification.",
+            "Publication snapshots describe currently retained records. Their counts can change when stacks/history are removed; they are not a complete publication-action history.",
+            "Comparisons require two covered complete UTC windows; percentages also require a nonzero previous count. No anonymous funnel, unique-person or external-conversion measure is inferred.",
+            "Targets show at most 40 instance/event rows; the selector lists the 50 most recently updated stacks. Workspace totals include all matching retained rows, including older stacks."
+          ]
+        }
+      },
+      "limits": [
+        "Actual native local workerd/EmDash and app-owned fictional data only; no production release or new customer admission.",
+        "The ordinary creator book starts empty; nonempty Team A content/media is a separate unchanged governed control.",
+        "Rollback changes the selected stored publication; the second draft and independent app configuration remain.",
+        "Owner analytics are recorded lower bounds or unavailable observations, not people, revenue or adoption."
+      ],
+      "mediaSha256": "b2ab07c3ebcf81ed916de51db14f880b177a351bad9f3163042b980aba37f6b9"
+    },
+    "policyDenied": {
+      "id": "dff4e63c-984f-41b4-baa1-6e86aa780553",
+      "name": "Fictional sensitive request refused",
+      "status": "denied",
+      "revision": 1,
+      "decision": {
+        "outcome": "denied",
+        "reasons": [
+          "Only fictional synthetic data is permitted in this qualified recipe."
+        ]
+      },
+      "request": {
+        "version": 1,
+        "name": "Fictional sensitive request refused",
+        "recipe": "guestbook",
+        "environment": "preview",
+        "dataClass": "sensitive",
+        "location": "provider-default",
+        "quota": "small",
+        "contributions": "members"
+      },
+      "plan": {
+        "version": 1,
+        "policyRevision": 1,
+        "source": {
+          "id": "guestbook",
+          "repository": "https://github.com/loftwah/app-composer-guestbook",
+          "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+          "manifestDigest": "sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972"
+        },
+        "target": {
+          "account": "00000000000000000000000000000001",
+          "environment": "local",
+          "url": "https://composer.loftwah.com/guestbook"
+        },
+        "recipe": "guestbook",
+        "recipeVersion": 1,
+        "contributionMode": {
+          "requested": "members",
+          "effective": "members",
+          "qualified": true
+        },
+        "request": {
+          "version": 1,
+          "name": "Fictional sensitive request refused",
+          "recipe": "guestbook",
+          "environment": "preview",
+          "dataClass": "sensitive",
+          "location": "provider-default",
+          "quota": "small",
+          "contributions": "members"
+        },
+        "resources": [
+          {
+            "type": "guestbook-resource",
+            "ownership": "created",
+            "retention": "retain until explicitly reviewed retirement; no automatic deletion"
+          }
+        ],
+        "verification": [
+          "exact source and resource contract",
+          "workspace/account/environment",
+          "active configuration digest",
+          "published resource reference",
+          "independent public route"
+        ],
+        "limits": [
+          "Shared existing Worker and app-owned database",
+          "Synthetic member contributions only with current workspace policy and explicit app grants; public postcards remain closed",
+          "No new Worker, D1, R2 or paid service",
+          "No Australian-only residency claim"
+        ],
+        "spec": {
+          "version": 2,
+          "preset": "guestbook",
+          "apps": [
+            "guestbook"
+          ],
+          "sources": [
+            {
+              "id": "guestbook",
+              "repository": "https://github.com/loftwah/app-composer-guestbook",
+              "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+              "manifestDigest": "sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972"
+            }
+          ],
+          "appSettings": {
+            "guestbook": {
+              "title": "Fictional sensitive request refused",
+              "intro": "Fictional team demonstration. No sensitive records.",
+              "theme": "midnight",
+              "layout": "grid",
+              "guestAccess": "members"
+            }
+          },
+          "config": {
+            "title": "Fictional sensitive request refused",
+            "intro": "Fictional team demonstration. No sensitive records.",
+            "theme": "midnight",
+            "layout": "grid"
+          },
+          "privacy": "review-first",
+          "cards": [],
+          "deployment": {
+            "mode": "preview",
+            "hostname": "",
+            "approval": "verification-required"
+          },
+          "updates": "validated-manual",
+          "decisions": {}
+        },
+        "handoff": "Inspect this governed request in the selected Composer workspace. Use its native Internal platform request and current exact plan digest; revalidate membership, policy, source and target there before execution. The JSON is configuration data and grants no authority. Apply changes only to the request-owned stack and resource through the trusted scoped adapter. Preserve original resource and operation identities. Return verified source, configuration, publication and public URLs.\n\nRequested contribution mode: members. Public postcards remain closed. Use only the qualified member service with current app grants and synthetic context. \n\n{\n  \"version\": 2,\n  \"preset\": \"guestbook\",\n  \"apps\": [\n    \"guestbook\"\n  ],\n  \"sources\": [\n    {\n      \"id\": \"guestbook\",\n      \"repository\": \"https://github.com/loftwah/app-composer-guestbook\",\n      \"commit\": \"5075d7be53b43aca288d3707fd06851aca91e8c2\",\n      \"manifestDigest\": \"sha256:7ec9d6adde9ce3b1f01f384250b56a520c84b1350566688dda8c244d2ab47972\"\n    }\n  ],\n  \"appSettings\": {\n    \"guestbook\": {\n      \"title\": \"Fictional sensitive request refused\",\n      \"intro\": \"Fictional team demonstration. No sensitive records.\",\n      \"theme\": \"midnight\",\n      \"layout\": \"grid\",\n      \"guestAccess\": \"members\"\n    }\n  },\n  \"config\": {\n    \"title\": \"Fictional sensitive request refused\",\n    \"intro\": \"Fictional team demonstration. No sensitive records.\",\n    \"theme\": \"midnight\",\n    \"layout\": \"grid\"\n  },\n  \"privacy\": \"review-first\",\n  \"cards\": [],\n  \"deployment\": {\n    \"mode\": \"preview\",\n    \"hostname\": \"\",\n    \"approval\": \"verification-required\"\n  },\n  \"updates\": \"validated-manual\",\n  \"decisions\": {}\n}"
+      },
+      "planDigest": "8fd53e8644844862f3bae57cecfbb8b568e3da4bd940d5e34d311badfa1f30a5",
+      "stackId": null,
+      "url": null,
+      "resources": [],
+      "reason": null,
+      "updatedAt": "2026-10-25 12:05:50",
+      "actorIsRequester": true,
+      "resumable": false
+    },
+    "public": [
+      {
+        "team": "a",
+        "surface": "stack",
+        "path": "/s/team-0b34d3ee-1ab6-481d-bd39-6a97418061c6",
+        "status": 200,
+        "nativeSession": false
+      },
+      {
+        "team": "a",
+        "surface": "app",
+        "path": "/guestbook/r/0ab04bde-8195-4a1e-8d00-183bd33935a8/c/6/",
+        "status": 200,
+        "nativeSession": false
+      },
+      {
+        "team": "b",
+        "surface": "stack",
+        "path": "/s/team-d7fbc1bd-3b1a-4e16-bacd-b356808dee0e",
+        "status": 200,
+        "nativeSession": false
+      },
+      {
+        "team": "b",
+        "surface": "app",
+        "path": "/guestbook/r/d6188876-86c4-4aa6-80ab-6989c4f2e16d/c/1/",
+        "status": 200,
+        "nativeSession": false
+      }
+    ]
+  },
+  "videos": [
+    {
+      "actor": "owner",
+      "path": "native-owner-b7841c43-dPQMEn.webm",
+      "durationSeconds": 107.44,
+      "bytes": 7693992,
+      "sha256": "37aa6459b914a38a57dd491e257125e39880a97eb51b5a992ab1e2b725814136",
+      "startedAt": "2026-10-25T12:04:11.343Z",
+      "continuous": true,
+      "speed": "actual browser recording, no edits or speed changes",
+      "source": {
+        "composer": {
+          "checkout": "/Users/deanlofts/gits/app-composer-incident-execution-20261025",
+          "head": "b7841c437b1b3f8e0dd76e33113ea5a91f70707c",
+          "dirty": false,
+          "labHead": "538a05278b018998c011bafc3abd1153888aa596"
+        },
+        "guestbook": {
+          "checkout": "/tmp/composer-creator-sources.OFaEbR/guestbook",
+          "head": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+          "dirty": false
+        },
+        "showcase": {
+          "checkout": "/tmp/composer-creator-sources.OFaEbR/showcase",
+          "head": "f1dd27952ca8548f81fde5c5905346dae4a2b61b",
+          "dirty": false
+        }
+      },
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "admission": "Fictional accounts and local virtual passkeys; production Access unqualified.",
+      "privateStateExported": false
+    },
+    {
+      "actor": "creator-a",
+      "path": "native-creator-a-b7841c43-dPQMEn.webm",
+      "durationSeconds": 106.32,
+      "bytes": 5307826,
+      "sha256": "d4687d6030cf99ce599815a0ff9e00a0563c3656475054689c54f45e945ffcb8",
+      "startedAt": "2026-10-25T12:04:11.589Z",
+      "continuous": true,
+      "speed": "actual browser recording, no edits or speed changes",
+      "source": {
+        "composer": {
+          "checkout": "/Users/deanlofts/gits/app-composer-incident-execution-20261025",
+          "head": "b7841c437b1b3f8e0dd76e33113ea5a91f70707c",
+          "dirty": false,
+          "labHead": "538a05278b018998c011bafc3abd1153888aa596"
+        },
+        "guestbook": {
+          "checkout": "/tmp/composer-creator-sources.OFaEbR/guestbook",
+          "head": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+          "dirty": false
+        },
+        "showcase": {
+          "checkout": "/tmp/composer-creator-sources.OFaEbR/showcase",
+          "head": "f1dd27952ca8548f81fde5c5905346dae4a2b61b",
+          "dirty": false
+        }
+      },
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "admission": "Fictional accounts and local virtual passkeys; production Access unqualified.",
+      "privateStateExported": false
+    },
+    {
+      "actor": "creator-b",
+      "path": "native-creator-b-b7841c43-dPQMEn.webm",
+      "durationSeconds": 112.04,
+      "bytes": 5680947,
+      "sha256": "db627bd1db3d6c3f6ee8f145a5b5476561c30b82af6a273601a88833bc722a0f",
+      "startedAt": "2026-10-25T12:04:11.788Z",
+      "continuous": true,
+      "speed": "actual browser recording, no edits or speed changes",
+      "source": {
+        "composer": {
+          "checkout": "/Users/deanlofts/gits/app-composer-incident-execution-20261025",
+          "head": "b7841c437b1b3f8e0dd76e33113ea5a91f70707c",
+          "dirty": false,
+          "labHead": "538a05278b018998c011bafc3abd1153888aa596"
+        },
+        "guestbook": {
+          "checkout": "/tmp/composer-creator-sources.OFaEbR/guestbook",
+          "head": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+          "dirty": false
+        },
+        "showcase": {
+          "checkout": "/tmp/composer-creator-sources.OFaEbR/showcase",
+          "head": "f1dd27952ca8548f81fde5c5905346dae4a2b61b",
+          "dirty": false
+        }
+      },
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "admission": "Fictional accounts and local virtual passkeys; production Access unqualified.",
+      "privateStateExported": false
+    },
+    {
+      "actor": "app-user",
+      "path": "native-app-user-b7841c43-dPQMEn.webm",
+      "durationSeconds": 117.64,
+      "bytes": 4521406,
+      "sha256": "d3aa25f5bec067ba81a81e2e90a40d8fa3b3f901f7d0889c37e45a3591af3aa9",
+      "startedAt": "2026-10-25T12:04:11.991Z",
+      "continuous": true,
+      "speed": "actual browser recording, no edits or speed changes",
+      "source": {
+        "composer": {
+          "checkout": "/Users/deanlofts/gits/app-composer-incident-execution-20261025",
+          "head": "b7841c437b1b3f8e0dd76e33113ea5a91f70707c",
+          "dirty": false,
+          "labHead": "538a05278b018998c011bafc3abd1153888aa596"
+        },
+        "guestbook": {
+          "checkout": "/tmp/composer-creator-sources.OFaEbR/guestbook",
+          "head": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+          "dirty": false
+        },
+        "showcase": {
+          "checkout": "/tmp/composer-creator-sources.OFaEbR/showcase",
+          "head": "f1dd27952ca8548f81fde5c5905346dae4a2b61b",
+          "dirty": false
+        }
+      },
+      "streams": [
+        {
+          "codec_name": "vp8",
+          "width": 1440,
+          "height": 1000,
+          "avg_frame_rate": "25/1"
+        }
+      ],
+      "admission": "Fictional accounts and local virtual passkeys; production Access unqualified.",
+      "privateStateExported": false
+    }
+  ],
+  "capture": {
+    "expectedActors": 4,
+    "retainedActors": 4,
+    "status": "complete",
+    "finalIssue221Film": false
+  },
+  "finishedAt": "2026-10-25T12:06:15.802Z",
+  "cleanup": {
+    "browserClosed": true,
+    "ownedRootRemoved": true,
+    "pointerRemoved": true
+  }
+}

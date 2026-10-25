@@ -13,6 +13,7 @@ export const connectionSnapshot = z
       .object({ account: z.string().max(80), environment: z.string().max(40) })
       .strict(),
     metadataReadAt: z.iso.datetime(),
+    encryptionCheckAvailable: z.boolean().optional(),
     connections: z
       .array(
         z
@@ -76,3 +77,19 @@ export const connectionSnapshot = z
   })
   .strict();
 export type ConnectionSnapshot = z.infer<typeof connectionSnapshot>;
+
+export const encryptionHealthResult = z
+  .object({
+    ok: z.boolean(),
+    schema: z.literal("composer.encryption-health/1"),
+    workspace: z.string().regex(/^[a-z0-9-]{6,64}$/),
+    operation: z.uuid(),
+    checkedAt: z.iso.datetime(),
+    state: z.enum(["verified", "unavailable", "conflict", "cleanup-required"]),
+    nativeEncryptedEnvelope: z.boolean(),
+    nativeReadMatched: z.boolean(),
+    cleaned: z.boolean(),
+    message: z.string().max(500),
+  })
+  .strict();
+export type EncryptionHealthResult = z.infer<typeof encryptionHealthResult>;

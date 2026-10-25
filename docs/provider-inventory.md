@@ -288,3 +288,25 @@ No temporal comparison is inferred when no previous observation is selected.
 The existing stdout JSON check remains unchanged; the operations result is a
 separate bounded artifact beside it. The command still performs no provider write
 and reports monetary cost as unknown.
+
+Pagination limit: the current snapshot format records storage list reads, not
+D1/KV page exhaustion or R2 cursor exhaustion. Therefore temporal storage
+absence/newness remains unverified even after a successful page read. A resource
+may be on a later page. Only the Workers reader currently carries its bounded
+whole-list completion sentinel. The dated 109 observed / 88 undeclared Worker
+counts are observed lower bounds, not proof of an exhaustive storage inventory.
+
+Official API references rechecked 25 October 2026:
+[D1 pages](https://developers.cloudflare.com/api/resources/d1/subresources/database/methods/list/),
+[KV pages](https://developers.cloudflare.com/api/resources/kv/subresources/namespaces/methods/list/),
+[R2 cursors](https://developers.cloudflare.com/api/resources/r2/subresources/buckets/methods/list/),
+and [the Worker script list](https://developers.cloudflare.com/api/resources/workers/subresources/scripts/methods/list/).
+The Worker script endpoint currently documents an array and tag filtering rather
+than page parameters; the existing reader deduplicates repeated whole-list
+responses and retains its bound sentinel. The recorded observed counts are
+unchanged by the storage-completeness correction.
+The main expected-versus-observed check follows the same rule: a declared storage
+resource absent from a successful page is **unverified**, rather than missing.
+Actual observed storage rows retain their normal comparison and drift checks;
+refused lists remain inaccessible. Worker comparison and all observed counts
+are unchanged. No additional provider request or credential scope is introduced.
