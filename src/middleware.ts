@@ -1,5 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
 import { env } from "cloudflare:workers";
+import { teamHubPageGate, type TeamHubRuntime } from "./lib/team-hub";
 import {
   prepareAdminBrand,
   brandAdminResponse,
@@ -7,7 +8,7 @@ import {
   type BrandRuntime,
 } from "./lib/admin-brand";
 
-const runtime = env as unknown as BrandRuntime & {
+const runtime = env as unknown as BrandRuntime & TeamHubRuntime & {
   CF_ACCESS_TEAM_DOMAIN?: string;
   CF_ACCESS_AUDIENCE?: string;
   GUESTBOOK?: { fetch(req: Request): Promise<Response> };
@@ -35,6 +36,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
       runtime,
     );
   }
+  const teamRejection = await teamHubPageGate(context, runtime);
+  if (teamRejection) return teamRejection;
   const appearance = await prepareAdminBrand(context, runtime);
   const response = await brandAdminResponse(await next(), appearance);
   response.headers.set("X-Content-Type-Options", "nosniff");
