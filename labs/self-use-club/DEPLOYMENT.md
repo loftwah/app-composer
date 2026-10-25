@@ -126,9 +126,11 @@ target and hostname. Do not use the local fictional owner token.
 
 9. **Record rollback and recovery boundaries.**
 
-   - Code rollback: `wrangler rollback <previous-version-id>` (or deploy the
-     previous version). `0002` is additive, so the pre-volunteer code can run
-     against a database that already has the extra tables.
+   - Code rollback: the first deploy has no earlier Worker version; record its
+     version ID as the baseline. On later changes, `wrangler rollback
+     <previous-version-id>` (or deploying the previous version) restores the
+     earlier code. An additive schema can stay in place, but older code must not
+     require the newer tables.
    - Data recovery: use the pre-deploy export and D1 Time Travel
      (`wrangler d1 time-travel info` / `restore`) within the provider's retention
      window. Do not treat a schema drop as rollback.
