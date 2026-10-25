@@ -1,0 +1,320 @@
+.composer-proposals {
+  --ap-ink: var(--text-color-kumo-default, #242424);
+  --ap-muted: var(--text-color-kumo-subtle, #666);
+  --ap-surface: var(--color-kumo-base, #fff);
+  --ap-rule: color-mix(in srgb, var(--ap-ink) 25%, var(--ap-surface));
+  color: var(--ap-ink);
+  max-width: 1500px;
+  margin: auto;
+  padding: 28px;
+  font:
+    16px/1.55 system-ui,
+    sans-serif;
+}
+.composer-proposals h1 {
+  font-size: 32px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+}
+.composer-proposals h2 {
+  font-size: 23px;
+  line-height: 1.25;
+  margin: 0;
+}
+.composer-proposals h3 {
+  font-size: 18px;
+  margin: 24px 0 12px;
+}
+.composer-proposals p {
+  max-width: 74ch;
+  margin: 12px 0;
+}
+.ap-heading,
+.ap-detail-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.ap-scope {
+  border-bottom: 1px solid var(--ap-rule);
+  padding-bottom: 16px;
+  font-size: 14px;
+}
+.ap-proof {
+  padding: 16px 0;
+}
+.ap-proof strong {
+  display: block;
+  margin-bottom: 6px;
+}
+.composer-proposals button {
+  border: 1px solid var(--ap-rule);
+  border-radius: 6px;
+  min-height: 44px;
+  padding: 9px 14px;
+  font: 600 14px/1.4 system-ui;
+  background: var(--ap-surface);
+  color: var(--ap-ink);
+  cursor: pointer;
+}
+.composer-proposals button:hover {
+  background: color-mix(in srgb, var(--ap-ink) 7%, var(--ap-surface));
+}
+.composer-proposals button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.composer-proposals
+  :is(button, a, input, select, textarea, summary):focus-visible {
+  outline: 2px solid #e77743;
+  outline-offset: 3px;
+}
+.composer-proposals a {
+  color: inherit;
+  text-decoration: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+}
+.composer-proposals a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ap-links,
+.ap-actions-row {
+  display: flex;
+  gap: 10px 22px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+.ap-links {
+  font-size: 14px;
+}
+.ap-status {
+  min-height: 24px;
+  font-size: 14px;
+}
+.ap-error {
+  border: 1px solid var(--ap-rule);
+  padding: 14px;
+}
+.ap-controls {
+  display: flex;
+  gap: 16px 24px;
+  align-items: end;
+  flex-wrap: wrap;
+  padding: 16px 0;
+  border-block: 1px solid var(--ap-rule);
+}
+.ap-controls label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 0;
+  flex: 1 1 220px;
+  max-width: 360px;
+}
+.ap-controls p {
+  font-size: 13px;
+  color: var(--ap-muted);
+  margin: 0;
+}
+.composer-proposals select,
+.composer-proposals textarea {
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--ap-rule);
+  border-radius: 6px;
+  background: var(--ap-surface);
+  color: var(--ap-ink);
+  padding: 10px;
+  font: 16px/1.5 system-ui;
+}
+.ap-workspace {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.4fr);
+  gap: 36px;
+  align-items: start;
+  margin-top: 24px;
+}
+.ap-list {
+  min-width: 0;
+  border-top: 1px solid var(--ap-rule);
+}
+.composer-proposals .ap-row {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid var(--ap-rule);
+  padding: 18px 12px;
+  font-weight: 400;
+}
+.ap-row[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--ap-ink) 8%, var(--ap-surface));
+}
+.ap-row > span {
+  min-width: 0;
+}
+.ap-row > span:last-child {
+  text-align: right;
+}
+.ap-row strong,
+.ap-row b {
+  font-size: 14px;
+}
+.ap-row small {
+  display: block;
+  font-size: 12px;
+  color: var(--ap-muted);
+  margin-top: 6px;
+}
+.ap-detail {
+  border-top: 1px solid var(--ap-rule);
+  padding-top: 20px;
+  min-width: 0;
+}
+.ap-next {
+  margin: 14px 0 20px;
+  padding: 12px;
+  border-left: 3px solid #fc5b05;
+  background: color-mix(in srgb, #fc5b05 8%, var(--ap-surface));
+}
+.ap-facts {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 12px 20px;
+  font-size: 14px;
+  margin: 20px 0;
+}
+.ap-facts dt {
+  color: var(--ap-muted);
+}
+.ap-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.ap-facts code,
+.ap-accepted code,
+.ap-patch {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.ap-patch {
+  max-height: 360px;
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid var(--ap-rule);
+  border-radius: 6px;
+  font:
+    13px/1.5 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  white-space: pre-wrap;
+}
+.ap-evidence,
+.ap-actions,
+.ap-reviews {
+  padding-left: 22px;
+  font-size: 14px;
+}
+.ap-evidence li,
+.ap-actions li,
+.ap-reviews li {
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+.ap-evidence span {
+  overflow-wrap: anywhere;
+}
+.ap-reviews p {
+  margin: 6px 0 0;
+  color: var(--ap-muted);
+  font-size: 13px;
+}
+.ap-review,
+.ap-accepted,
+.ap-handoff {
+  border-top: 1px solid var(--ap-rule);
+  margin-top: 28px;
+  padding-top: 8px;
+}
+.ap-review label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  max-width: 620px;
+}
+.ap-hint {
+  color: var(--ap-muted);
+  font-size: 13px;
+}
+.ap-empty {
+  padding: 20px 0;
+  font-size: 14px;
+  color: var(--ap-muted);
+}
+.ap-manual {
+  display: grid;
+  gap: 8px;
+  margin-top: 24px;
+  font-size: 14px;
+  font-weight: 600;
+}
+@media (max-width: 1000px) {
+  .ap-workspace {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .ap-list {
+    max-height: 340px;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+}
+@media (max-width: 480px) {
+  .composer-proposals {
+    padding: 16px;
+  }
+  .ap-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .ap-controls label {
+    max-width: none;
+  }
+  .ap-actions-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .ap-actions-row button {
+    width: 100%;
+  }
+  .ap-facts {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .ap-facts dd {
+    margin-bottom: 10px;
+  }
+  .ap-row {
+    gap: 12px;
+  }
+  .ap-detail-heading {
+    gap: 8px;
+  }
+}

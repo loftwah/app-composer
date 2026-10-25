@@ -118,13 +118,19 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
         account: runtime.RESOURCE_ACCOUNT_ID,
         environment: runtime.RESOURCE_ENVIRONMENT,
       });
-    const link = (page: string, fragment: string, resource?: string) =>
+    const link = (
+      page: string,
+      fragment: string,
+      resource?: string,
+      item?: string,
+    ) =>
       "/_emdash/admin/plugins/composer-stacks/" +
       page +
       "?" +
       new URLSearchParams({
         workspace: workspace.id,
         ...(resource ? { resource } : {}),
+        ...(item ? { item } : {}),
       }) +
       "#" +
       fragment;
@@ -246,7 +252,7 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
       await collect("notifications", "Owner notifications", async () => {
         const rows = await db
           .prepare(
-            "SELECT n.id,n.resource_id,n.created_at,n.updated_at FROM creator_enquiry_notification_outbox n JOIN creator_app_resources r ON r.id=n.resource_id AND r.workspace_id=n.workspace_id WHERE n.workspace_id=? AND n.account_id=? AND n.environment=? AND n.state IN ('blocked','failed','uncertain','sending') AND r.app='guestbook' AND r.account_id=n.account_id AND r.environment=n.environment AND r.target=n.target AND r.state='ready' AND n.id IN (SELECT id FROM creator_enquiry_notification_outbox WHERE workspace_id=n.workspace_id AND resource_id=n.resource_id ORDER BY created_at DESC,id LIMIT 30) ORDER BY n.updated_at DESC,n.id LIMIT 100",
+            "SELECT n.id,n.event_id,n.resource_id,n.created_at,n.updated_at FROM creator_enquiry_notification_outbox n JOIN creator_app_resources r ON r.id=n.resource_id AND r.workspace_id=n.workspace_id WHERE n.workspace_id=? AND n.account_id=? AND n.environment=? AND n.state IN ('blocked','failed','uncertain','sending') AND r.app='guestbook' AND r.account_id=n.account_id AND r.environment=n.environment AND r.target=n.target AND r.state='ready' AND n.id IN (SELECT id FROM creator_enquiry_notification_outbox WHERE workspace_id=n.workspace_id AND resource_id=n.resource_id ORDER BY created_at DESC,id LIMIT 30) ORDER BY n.updated_at DESC,n.id LIMIT 100",
           )
           .bind(workspace.id, target.account, target.environment)
           .all<BaseRow & { resource_id: string }>();
@@ -263,6 +269,7 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
               "enquiries",
               "notification-" + row.id,
               (row as BaseRow & { resource_id: string }).resource_id,
+              (row as BaseRow & { event_id: string }).event_id,
             ),
           }),
         );

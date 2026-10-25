@@ -686,9 +686,29 @@ function walkStrings(value: unknown, path = '', found: { path: string; label: st
   return found;
 }
 
+// Untrusted values become single-line data before they enter brief structure.
+// A line break in evidence would otherwise forge a new heading, list item or
+// instruction section in a brief an agent is asked to follow. Invisible format
+// characters are removed so a payload cannot hide or reorder reviewed text.
+const invisibleFormat = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f\u200b\u200c\u200e\u200f\u202a-\u202e\u2060-\u2069\ufeff]/g;
+const lineBreaks = /[ \t]*[\r\n\u2028\u2029]+[ \t]*/g;
+
 function clean(value: unknown, limit = 600): string {
   if (typeof value !== 'string') return '';
-  return value.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '').trim().slice(0, limit);
+  return value.replace(invisibleFormat, '').replace(lineBreaks, ' ').trim().slice(0, limit);
+}
+/** A markdown table cell cannot start a new column from bundle text. */
+function cell(value: unknown, limit = 600): string {
+  return clean(value, limit).replace(/\|/g, '\\|');
+}
+/** Mermaid labels and edge labels cannot introduce diagram syntax. */
+function mermaidText(value: unknown, limit = 120): string {
+  return clean(value, limit).replace(/["`{}<>#;|]/g, '').replace(/%%/g, '');
+}
+/** One safe identifier fragment for a generated code-span or file slug. */
+function slug(value: unknown, limit = 40): string {
+  const cleaned = clean(value, limit).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return cleaned || 'unnamed';
 }
 function record(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -710,6 +730,42 @@ function cite(item: RoleBundle['evidence'][number]): string {
 }
 function mermaidId(value: string): string {
   return clean(value, 80).replace(/[^A-Za-z0-9_]/g, '_').replace(/^(\d)/, 'n$1') || 'unknown';
+}
+// A gate state, finding severity or SLO state is a closed vocabulary. An
+// unrecognised value is refused rather than treated as "not failing".
+const gateStates = ['pass', 'fail', 'not-run'];
+const findingSeverities = ['low', 'medium', 'high', 'critical'];
+const sloStates = ['met', 'at-risk', 'breached'];
+const boundedList = (value: unknown, limit: number) => Array.isArray(value) && value.length <= limit;
+
+function checkEnumerations(input: Record<string, unknown>, issues: string[]): void {
+  if (input.gates !== undefined) {
+    if (!boundedList(input.gates, 40)) issues.push('gates must be a bounded array');
+    else (input.gates as unknown[]).forEach((gate, index) => {
+      if (!record(gate) || !text(gate.id) || !text(gate.name)) issues.push(`gates[${index}] needs an id and name`);
+      else if (!gateStates.includes(String(gate.status))) issues.push(`gates[${index}].status must be one of ${gateStates.join(', ')}`);
+    });
+  }
+  const security = record(input.security) ? input.security : null;
+  if (security?.findings !== undefined) {
+    if (!boundedList(security.findings, 60)) issues.push('security.findings must be a bounded array');
+    else (security.findings as unknown[]).forEach((finding, index) => {
+      if (!record(finding) || !text(finding.id) || !text(finding.title)) issues.push(`security.findings[${index}] needs an id and title`);
+      else if (!findingSeverities.includes(String(finding.severity))) issues.push(`security.findings[${index}].severity must be one of ${findingSeverities.join(', ')}`);
+    });
+  }
+  if (input.drift !== undefined) {
+    if (!boundedList(input.drift, 60)) issues.push('drift must be a bounded array');
+    else (input.drift as unknown[]).forEach((item, index) => {
+      if (!record(item) || !text(item.id)) issues.push(`drift[${index}] needs an id`);
+      else if (!findingSeverities.includes(String(item.severity))) issues.push(`drift[${index}].severity must be one of ${findingSeverities.join(', ')}`);
+    });
+  }
+  const signals = record(input.signals) ? input.signals : null;
+  const slo = record(signals?.slo) ? signals!.slo as Record<string, unknown> : null;
+  if (slo && !sloStates.includes(String(slo.status))) issues.push(`signals.slo.status must be one of ${sloStates.join(', ')}`);
+  const defect = record(input.defect) ? input.defect : null;
+  if (defect?.reproduction !== undefined && (!boundedList(defect.reproduction, 30) || !(defect.reproduction as unknown[]).every((step) => typeof step === 'string'))) issues.push('defect.reproduction must be a bounded list of text steps');
 }
 
 function requireBundle(input: unknown): RoleBundle {
@@ -749,6 +805,7 @@ function requireBundle(input: unknown): RoleBundle {
     }
   }
   if (!record(input.change) || !text(input.change.requestedBy)) issues.push('change.requestedBy is required');
+  checkEnumerations(input, issues);
   if (issues.length) throw new RolePackError('bundle-incomplete', `Bundle is incomplete: ${issues.join('; ')}.`, 'Fill the named fields from the selected workspace. Do not invent missing values.');
   return input as unknown as RoleBundle;
 }
@@ -756,7 +813,11 @@ function requireBundle(input: unknown): RoleBundle {
 function assertSafe(input: RoleBundle, pack: RolePack): void {
   const secrets = walkStrings(input);
   if (secrets.length) {
-    throw new RolePackError('secret-like-value', `Secret-like value found at ${secrets.map((item) => item.path + ' (' + item.label + ')').join(', ')}.`, 'Remove the value, rotate it through the owner console, and re-run with a redacted reference.');
+    // Paths are derived from bundle keys. Bound and normalise them so a crafted
+    // key cannot lengthen the refusal or forge extra lines in it.
+    const shown = secrets.slice(0, 4).map((item) => `${clean(item.path, 120)} (${item.label})`).join(', ');
+    const more = secrets.length > 4 ? ` and ${secrets.length - 4} more` : '';
+    throw new RolePackError('secret-like-value', `Secret-like value found at ${shown}${more}.`, 'Remove the value, rotate it through the owner console, and re-run with a redacted reference.');
   }
   const change = input.change;
   if (change?.approvedBy) {
@@ -802,7 +863,7 @@ function assertPackInput(input: RoleBundle, pack: RolePack): void {
 
 function gateRows(gates: RoleBundle['gates']): string {
   if (!gates?.length) return '- No gates recorded. This is not a pass.';
-  return gates.map((gate) => `| ${clean(gate.id, 30)} | ${clean(gate.name, 80)} | ${gate.status} | ${clean(gate.runs ?? '—', 40)} | ${clean(gate.expected ?? '—', 120)} | ${clean(gate.actual ?? '—', 120)} |`).join('\n');
+  return gates.map((gate) => `| ${cell(gate.id, 30)} | ${cell(gate.name, 80)} | ${cell(gate.status, 20)} | ${cell(gate.runs ?? '—', 40)} | ${cell(gate.expected ?? '—', 120)} | ${cell(gate.actual ?? '—', 120)} |`).join('\n');
 }
 
 function packDetail(input: RoleBundle, pack: RolePack): { decision: string; blocked: boolean; body: string; stops: string[] } {
@@ -816,8 +877,8 @@ function packDetail(input: RoleBundle, pack: RolePack): { decision: string; bloc
     const slo = input.signals!.slo!;
     const failedGates = input.gates!.filter((gate) => gate.status !== 'pass');
     if (!fallback) stops.push('No fallback owner is recorded. Escalate to the workspace owner before relying on this review.');
-    if (failedGates.length) stops.push(`Gate${failedGates.length === 1 ? '' : 's'} ${failedGates.map((gate) => gate.id).join(', ')} ${failedGates.length === 1 ? 'is' : 'are'} not passing. Hold the release; the accountable owner decides whether to accept risk.`);
-    if (slo.status !== 'met') stops.push(`SLO is ${slo.status}. Treat the next release as at risk.`);
+    if (failedGates.length) stops.push(`Gate${failedGates.length === 1 ? '' : 's'} ${failedGates.map((gate) => clean(gate.id, 30)).join(', ')} ${failedGates.length === 1 ? 'is' : 'are'} not passing. Hold the release; the accountable owner decides whether to accept risk.`);
+    if (slo.status !== 'met') stops.push(`SLO is ${clean(slo.status, 20)}. Treat the next release as at risk.`);
     blocked = Boolean(failedGates.length || slo.status !== 'met');
     const decision = blocked ? 'hold' : 'proceed';
     const cost = input.signals!.cost;
@@ -833,7 +894,7 @@ function packDetail(input: RoleBundle, pack: RolePack): { decision: string; bloc
 - **What users depend on:** ${clean(input.signals!.impact, 500)}
 - **Affected application:** ${clean(input.application.name, 120)} — ${clean(input.application.purpose, 300)}
 - **Service and environment:** ${clean(input.service.name, 120)} (${clean(input.service.kind, 80)}) · ${clean(input.service.account, 100)} · ${clean(input.environment.kind, 20)}/${clean(input.environment.target, 100)}
-- **Health:** ${clean(slo.observed, 80)} observed against ${clean(slo.target, 80)} over ${clean(slo.window, 80)} (${slo.status}).
+- **Health:** ${clean(slo.observed, 80)} observed against ${clean(slo.target, 80)} over ${clean(slo.window, 80)} (${clean(slo.status, 20)}).
 - **Cost:** ${cost ? `${clean(cost.trend, 80)}${cost.note ? ' — ' + clean(cost.note, 200) : ''}` : 'unavailable; do not estimate.'}
 - **Release candidate:** ${clean(input.application.release, 80)} from ${clean(input.application.source, 140)}${input.release ? ` (${input.release.status})` : ''}.
 
@@ -866,7 +927,7 @@ ${defect.reproduction.map((step, index) => `${index + 1}. ${clean(step, 240)}`).
 
 **Proposed patch**
 1. Add the missing guard at the owning module; keep the change inside the failing path.
-2. Add regression test \`${clean(defect.id, 40).toLowerCase()}-empty-after-trim\` asserting the validation error rather than a 500.
+2. Add regression test \`${slug(defect.id, 40)}-empty-after-trim\` asserting the validation error rather than a 500.
 3. Run the maintained test command and record the before/after result.
 
 **PR:** draft, under the agent’s own repository identity. Reviewer: ${owner}. No merge or deploy in this brief.
@@ -880,8 +941,8 @@ ${defect.reproduction.map((step, index) => `${index + 1}. ${clean(step, 240)}`).
     const label = (id: string) =>
       id === input.application.id ? `${input.application.name} (application)` :
       id === input.service.id ? `${input.service.name} (${input.service.kind})` : id;
-    const edges = input.dependencies.map((edge) => `  ${mermaidId(edge.from)}["${clean(label(edge.from), 70)}"] -->|${clean(edge.kind, 40)}| ${mermaidId(edge.to)}["${clean(label(edge.to), 70)}"]`).join('\n');
-    const optionRows = arch.options.map((option) => `| ${clean(option.id, 20)} | ${clean(option.label, 120)} | ${clean(option.tradeoff, 240)} |`).join('\n');
+    const edges = input.dependencies.map((edge) => `  ${mermaidId(edge.from)}["${mermaidText(label(edge.from), 70)}"] -->|${mermaidText(edge.kind, 40)}| ${mermaidId(edge.to)}["${mermaidText(label(edge.to), 70)}"]`).join('\n');
+    const optionRows = arch.options.map((option) => `| ${cell(option.id, 20)} | ${cell(option.label, 120)} | ${cell(option.tradeoff, 240)} |`).join('\n');
     const chosen = arch.options[0];
     const body = `### Decision record
 
@@ -927,7 +988,7 @@ ${arch.constraints.map((constraint) => `- ${clean(constraint, 220)}`).join('\n')
 
 | Drift | Resource | Desired | Current | Severity |
 | --- | --- | --- | --- | --- |
-${drift.length ? drift.map((item) => `| ${clean(item.id, 30)} | ${clean(item.resource, 100)} | ${clean(item.desired, 140)} | ${clean(item.current, 140)} | ${item.severity} |`).join('\n') : '| — | no drift recorded | — | — | — |'}
+${drift.length ? drift.map((item) => `| ${cell(item.id, 30)} | ${cell(item.resource, 100)} | ${cell(item.desired, 140)} | ${cell(item.current, 140)} | ${cell(item.severity, 20)} |`).join('\n') : '| — | no drift recorded | — | — | — |'}
 
 **Rollout (proposal; requires separate execution authority)**
 ${isolationFault ? '1. BLOCKED: create the isolated Preview resource and update the binding through the owner console.\n2. Re-run the drift check and confirm no production binding remains.\n3. Only then continue with the ordered promotion and verification.' : '1. Confirm the reviewed source and the isolated target.\n2. Execute through the existing guarded release path.\n3. Verify the affected journey and health signal.'}
@@ -955,7 +1016,7 @@ ${input.release?.status === 'blocked' ? '**Release status:** another gate alread
 
 | Finding | Severity | Exposure | Evidence | Remediation |
 | --- | --- | --- | --- | --- |
-${security.findings.length ? security.findings.map((finding) => `| ${clean(finding.id, 30)} ${clean(finding.title, 120)} | ${finding.severity} | ${clean(finding.exposure, 200)} | ${clean(finding.evidence, 120)} | ${clean(finding.remediation, 240)} |`).join('\n') : '| — | no finding recorded | — | — | verify the reviewed paths still hold |'}
+${security.findings.length ? security.findings.map((finding) => `| ${cell(finding.id, 30)} ${cell(finding.title, 120)} | ${cell(finding.severity, 20)} | ${cell(finding.exposure, 200)} | ${cell(finding.evidence, 120)} | ${cell(finding.remediation, 240)} |`).join('\n') : '| — | no finding recorded | — | — | verify the reviewed paths still hold |'}
 
 **Access paths reviewed**
 ${security.accessPaths.map((path) => `- ${clean(path.path, 160)} — ${clean(path.protection, 160)}${path.note ? ' — ' + clean(path.note, 200) : ''}`).join('\n')}
@@ -973,11 +1034,15 @@ ${security.accessPaths.map((path) => `- ${clean(path.path, 160)} — ${clean(pat
   }
 
   const gates = input.gates!;
+  // A recorded state outside the closed vocabulary is never treated as "not
+  // failing"; validation refuses it first, and this is the second guard.
+  const unknownState = gates.filter((gate) => !['pass', 'fail', 'not-run'].includes(gate.status));
   const failed = gates.filter((gate) => gate.status === 'fail');
   const notRun = gates.filter((gate) => gate.status === 'not-run');
-  blocked = failed.length > 0;
-  if (failed.length) stops.push(`Gate ${failed.map((gate) => gate.id).join(', ')} failed. Verdict is blocked; a pass count never overrides it.`);
-  if (notRun.length) stops.push(`Gate ${notRun.map((gate) => gate.id).join(', ')} was not run. Record it as a gap, not a pass.`);
+  blocked = failed.length > 0 || unknownState.length > 0;
+  if (unknownState.length) stops.push(`Gate ${unknownState.map((gate) => clean(gate.id, 30)).join(', ')} has an unrecognised state. Verdict is blocked; an unknown state is never a pass.`);
+  if (failed.length) stops.push(`Gate ${failed.map((gate) => clean(gate.id, 30)).join(', ')} failed. Verdict is blocked; a pass count never overrides it.`);
+  if (notRun.length) stops.push(`Gate ${notRun.map((gate) => clean(gate.id, 30)).join(', ')} was not run. Record it as a gap, not a pass.`);
   const body = `### Test report
 
 **Verdict: ${blocked ? 'BLOCKED' : 'PASS WITH NAMED GAPS'}**

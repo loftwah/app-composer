@@ -44,7 +44,7 @@ export const overviewSnapshot = z
             href: z
               .string()
               .regex(
-                /^\/_emdash\/admin\/plugins\/composer-stacks\/(platform|workflows|enquiries)\?workspace=[a-z0-9-]+(?:&resource=[a-z0-9-]+)?#(?:platform-request|workflow-run|notification)-[a-z0-9-]+$/,
+                /^\/_emdash\/admin\/plugins\/composer-stacks\/(platform|workflows|enquiries)\?workspace=[a-z0-9-]+(?:&resource=[a-z0-9-]+)?(?:&item=[a-z0-9-]+)?#(?:platform-request|workflow-run|notification)-[a-z0-9-]+$/,
               ),
             count: z.number().int().positive().max(100),
             firstObserved: z.iso.datetime(),

@@ -1,4 +1,5 @@
 import { queueEnquiryNotification } from "./enquiry-notifications.ts";
+import { linkEnquiryEvent, recordEnquiryEvent } from "./inbox-journey.ts";
 import { z } from "zod";
 import { enquiryModel } from "../enquiries/enquiry-model.ts";
 import { resourceConnection } from "./resource-client.ts";
@@ -267,6 +268,53 @@ export async function publicEnquiryRequest(
         console.warn(
           "Composer enquiry notification queue was not persisted; inspect the source Inbox and retained receipt.",
         );
+      }
+      try {
+        // A body-free journey record lets the owner see the event and process it
+        // explicitly. It is separate from the confirmed brief and contact-free.
+        await recordEnquiryEvent(
+          runtime.DB!,
+          {
+            workspace: selected.row.workspace_id,
+            resource: selected.scope.resource,
+            account: connection.account,
+            environment: connection.environment,
+            target: connection.target,
+          },
+          receipt.intent,
+        );
+      } catch {
+        // A missing journey record never reverses the app-owned brief. The Inbox
+        // then shows no exact link and offers no delivery action.
+        console.warn(
+          "Composer enquiry journey record was not persisted; the brief stays readable without a linked notice.",
+        );
+      }
+      if (kind === "submit") {
+        // The receipt names the submission intent; the app export names the
+        // retained brief by a different id. Link only one exact scope/values
+        // match, never a guess. This stores no brief content.
+        const submitted = enquirySubmission.parse(body);
+        try {
+          await linkEnquiryEvent(
+            runtime.DB!,
+            connection,
+            {
+              workspace: selected.row.workspace_id,
+              resource: selected.scope.resource,
+              account: connection.account,
+              environment: connection.environment,
+              target: connection.target,
+            },
+            receipt.intent,
+            submitted.values,
+            appScope(selected.scope),
+          );
+        } catch {
+          console.warn(
+            "Composer enquiry journey link was not recorded; the brief stays readable without a linked notice.",
+          );
+        }
       }
     }
     // No private body or app owner authority leaves the server boundary.

@@ -31,6 +31,7 @@ test("Creator author errors and stale output fail without rewriting distribution
       "miniapp-admin",
       "miniapp-share-card",
       "stacks-admin",
+      "provider-inventory",
     ];
     const files = [
       "scripts/creator-source.mjs",

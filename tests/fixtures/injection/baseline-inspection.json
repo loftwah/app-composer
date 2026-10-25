@@ -1,0 +1,13 @@
+{
+  "contract": 1,
+  "kind": "page-inspection",
+  "url": "https://composer.loftwah.com/review",
+  "sourceSha": "1111111111111111111111111111111111111111",
+  "checkedAt": "2026-10-24T09:00:00Z",
+  "title": "Review a share report",
+  "images": [],
+  "findings": [
+    { "status": "pass", "label": "Title", "detail": "The page has one descriptive title." },
+    { "status": "fix", "label": "Description", "detail": "Add a page-specific description." }
+  ]
+}
