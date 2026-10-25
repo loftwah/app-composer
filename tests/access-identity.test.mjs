@@ -24,6 +24,8 @@ test("installed Access integration reproduces inheritance; explicit binding deni
   assert.equal(receipt.retainedMemberships, true);
   assert.equal(receipt.retainedGrants, true);
   assert.equal(receipt.productionEnforcement, "not enabled");
+  assert.match(receipt.postAuthenticationMismatch, /session identity cleared/);
+  assert.match(receipt.ownerRecovery, /primary disabled/);
 });
 
 test("binding operator command is read-only by default and requires exact, explicit reviewed identity", (t) => {
@@ -104,6 +106,52 @@ test("binding operator command is read-only by default and requires exact, expli
   assert.equal(JSON.parse(run(flags)).bound, true);
   assert.equal(JSON.parse(run([])).activeBindings, 1);
   assert.throws(() => run(flags), /Command failed/);
+  const revoke = flags.map((value) =>
+    value === "--bind" ? "--revoke" : value,
+  );
+  assert.throws(() => run([...flags, "--revoke"]), /Command failed/);
+  assert.throws(
+    () =>
+      run(
+        revoke.map((value) =>
+          value === input.upstreamSubject ? "wrong-principal" : value,
+        ),
+      ),
+    /Command failed/,
+  );
+  assert.equal(JSON.parse(run(revoke)).revoked, true);
+  assert.equal(JSON.parse(run([])).activeBindings, 0);
+  assert.throws(
+    () => run(revoke),
+    /Command failed/,
+    "duplicate revocation is explicit",
+  );
+  assert.throws(
+    () => run(flags),
+    /Command failed/,
+    "revoked binding cannot be recycled",
+  );
+  const inspected = new DatabaseSync(path, { readOnly: true });
+  try {
+    assert.equal(
+      inspected
+        .prepare(
+          "SELECT COUNT(*) AS n FROM users WHERE id='fictional-owner' AND email='owner@fictional.invalid' AND disabled=0",
+        )
+        .get().n,
+      1,
+    );
+    assert.equal(
+      inspected
+        .prepare(
+          "SELECT COUNT(*) AS n FROM composer_access_subject_bindings WHERE revoked_at IS NOT NULL",
+        )
+        .get().n,
+      1,
+    );
+  } finally {
+    inspected.close();
+  }
   for (const invalid of [
     { subject: "" },
     { upstreamSubject: "" },

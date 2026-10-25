@@ -99,7 +99,7 @@ export async function assertAccessSubjectBinding(payload, jwt, runtime) {
   }
   const binding = await runtime.DB.prepare(
     `
-    SELECT b.user_id, b.idp_id, b.upstream_issuer, b.upstream_subject, b.reviewed_by, b.revoked_at, u.email, u.disabled
+    SELECT b.user_id, b.idp_id, b.upstream_issuer, b.upstream_subject, b.reviewed_by, b.revoked_at, u.email, u.disabled, u.role
     FROM composer_access_subject_bindings b
     JOIN users u ON u.id = b.user_id
     WHERE b.issuer = ? AND b.subject = ?
@@ -151,4 +151,5 @@ export async function assertAccessSubjectBinding(payload, jwt, runtime) {
   ) {
     throw new Error("Access identity does not match its binding");
   }
+  return { userId: binding.user_id, email: binding.email, role: binding.role };
 }
