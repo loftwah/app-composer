@@ -1,19 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
-import { z } from "zod";
 import {
   deliveryLabels,
   enquiryLabels,
-  inboxJourney,
+  journeyResponse,
+  readJourneyPayload,
   workflowLabels,
   type InboxJourney,
 } from "../lib/inbox-journey-contract";
 import { confirmWorkspace } from "./stacks/workspace-scope";
 import { focusStoredRecord } from "./record-anchor";
-
-const envelope = z
-  .object({ ok: z.boolean(), message: z.string().optional() })
-  .strict();
 
 function instant(value: string): Date | null {
   if (!/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}/.test(value)) return null;
@@ -438,7 +434,7 @@ export function InboxJourneyPanel({
       response,
       "The enquiry journey could not be confirmed. Refresh before another action.",
     );
-    const status = envelope.parse(raw);
+    const status = journeyResponse(raw, writing);
     if (!status.ok)
       throw Error(status.message ?? "The enquiry journey request was refused.");
     return raw;
@@ -458,7 +454,7 @@ export function InboxJourneyPanel({
         item,
       });
       if (!live.current || epoch !== generation.current) return;
-      const next = inboxJourney.parse(raw);
+      const next = readJourneyPayload(raw);
       confirmWorkspace(workspace, next.workspace.id);
       if (next.enquiry.id !== item)
         throw Error("The server returned another brief's journey.");
@@ -505,7 +501,7 @@ export function InboxJourneyPanel({
         item,
       });
       if (!live.current) return;
-      const next = inboxJourney.parse(raw);
+      const next = readJourneyPayload(raw);
       if (next.enquiry.id !== item)
         throw Error("The server returned another brief's journey.");
       setJourney(next);

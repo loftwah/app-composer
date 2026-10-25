@@ -189,3 +189,35 @@ export const enquiryLabels: Record<z.infer<typeof enquiryStates>, string> = {
   reviewed: "Reviewed",
   rejected: "Rejected",
 };
+
+// A read returns the whole journey; a write returns only a status envelope.
+// Validating a read with the write envelope rejected every real journey
+// ("Unrecognized keys: version, workspace, …") and surfaced Zod's JSON to the
+// owner. Keep the two shapes separate and never rethrow a schema dump.
+const envelope = z
+  .object({ ok: z.boolean(), message: z.string().max(400).optional() })
+  .strict();
+
+const unreadable =
+  "The enquiry journey response did not match the supported contract. Refresh before another action.";
+
+/** The supported status of one journey request, read or write. */
+export function journeyResponse(raw: unknown, writing: boolean): { ok: boolean; message?: string } {
+  if (writing) {
+    const parsed = envelope.safeParse(raw);
+    if (!parsed.success) throw new Error(unreadable);
+    return parsed.data;
+  }
+  if (!raw || typeof raw !== "object" || (raw as { ok?: unknown }).ok !== true)
+    throw new Error("The enquiry journey request was refused.");
+  const parsed = inboxJourney.safeParse(raw);
+  if (!parsed.success) throw new Error(unreadable);
+  return { ok: true };
+}
+
+/** The exact journey payload, or one readable failure instead of a schema dump. */
+export function readJourneyPayload(raw: unknown): InboxJourney {
+  const parsed = inboxJourney.safeParse(raw);
+  if (!parsed.success) throw new Error(unreadable);
+  return parsed.data;
+}
