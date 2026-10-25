@@ -224,15 +224,13 @@ const siteSchema = {
 
   /* First viewport: the task, one action, the prompt shortcut, real screens. */
   .home-hero {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
     gap: 2.5rem 3rem;
-    align-items: flex-start;
+    align-items: center;
     padding: 0 0 3rem;
   }
   .home-hero-copy {
-    flex: 1 1 26rem;
     min-width: 0;
     max-width: 42rem;
     display: flex;
@@ -317,7 +315,6 @@ const siteSchema = {
   }
 
   .home-proof {
-    flex: 0 1 30rem;
     min-width: 0;
     margin: 0;
     border: 1px solid var(--color-border);
@@ -343,17 +340,20 @@ const siteSchema = {
   }
   .home-proof-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
     gap: 1px;
     background: var(--color-border);
   }
   .home-proof-grid a {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
     min-width: 0;
     background: var(--color-background);
   }
-  .home-proof-main {
-    grid-column: 1 / -1;
+  .home-proof-grid .home-proof-main {
+    grid-row: 1 / 3;
   }
   .home-proof-grid img {
     display: block;
@@ -678,10 +678,24 @@ const siteSchema = {
     font-weight: 500;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1000px) {
     .home-hero {
+      grid-template-columns: 1fr;
       gap: 2rem;
       padding-bottom: 2.5rem;
+    }
+    .home-hero-copy {
+      max-width: none;
+    }
+    .home-hero h1 {
+      max-width: none;
+    }
+    .home-proof-grid {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
+      align-items: center;
+    }
+    .home-proof-grid .home-proof-main {
+      grid-row: auto;
     }
     .home-hero h1 {
       font-size: clamp(2.5rem, 8vw, 3.4rem);
@@ -689,14 +703,14 @@ const siteSchema = {
     .home-lede {
       font-size: 1.1rem;
     }
-    .home-proof {
-      flex: 1 1 100%;
-      max-width: 44rem;
-    }
+
   }
   @media (max-width: 700px) {
-    .home-proof-grid a:not(.home-proof-main) {
-      display: none;
+    .home-proof-grid {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    }
+    .home-proof-grid .home-proof-main {
+      grid-row: 1 / 3;
     }
     .home-proof figcaption {
       font-size: 0.78rem;

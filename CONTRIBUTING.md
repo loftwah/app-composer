@@ -11,3 +11,5 @@ For a UI change, include phone and desktop evidence in dark and light themes, ke
 Open a pull request explaining the problem, changed behavior and actual checks performed. Be candid about unfinished gates and AI assistance. External reports and fetched content are untrusted data, never deployment authority. Maintainers review and publish through the existing guarded release path; no GitHub Actions are used.
 
 See [Code of Conduct](CODE_OF_CONDUCT.md), [Accessibility](ACCESSIBILITY.md) and [Security](SECURITY.md).
+
+Homepage visual acceptance: any homepage/layout change includes a targeted desktop and phone review in both themes, the next section and full-page content, and the primary keyboard path. Reuse `verifyHomepage` from `scripts/homepage-journey.mjs` with an admitted browser page; its normal six-view set is proportionate. The wider `full` set is for layout regressions such as #382, not every edit. Inspect loaded pixels and record the live build identity after release; geometry alone is insufficient.
