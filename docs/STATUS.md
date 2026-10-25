@@ -13,7 +13,11 @@ wrapping flex layout caused the blank space. Representative production
 include both themes, keyboard, text reflow and delayed loading. Native browser
 zoom remains unverified.
 
-The next independently reviewed implementation slice adds:
+The independently reviewed platform slice is live from PR #384/#385, source
+`b9f743729bfca15088a28fd47919b5be8d660997`, Worker
+`c5e8bed2-64ac-41f1-9cb1-3eab33ffcd2b`. Its [release and actual production
+browser receipt](evidence/platform-release-20261025/README.md) records the full
+checks, negative paths, timing and retained owner state. It adds:
 
 - Native **Plugin Trust Centre**, **Brand Studio** and **Incident Desk** pages.
   Trust Centre is read-only, dated and exact-release based; unknown evidence is
@@ -51,8 +55,13 @@ entitlement and an authorised isolated lifecycle target. No plugin was installed
 Provider inventory remains read-only: all 88 undeclared Workers are classified
 with current evidence; four legacy targets retain real dependencies/uncertainty
 and are not safe deletion candidates. Hosted provider reads and measured money
-cost remain unknown. Team Hub's real passwordless/MFA profile and the WordPress
-migration refresh retain their own evidence and release boundaries. #11 owns
+cost remain unknown. [Team Hub](team-hub.md) has a useful Composer-owned local application slice:
+private requests, assignment/status, attachments, immutable history and explicit
+app grants. Actual native role-10, viewer, cross-team, revocation and disabled-user
+journeys passed. Its production origin stays closed pending verified Access
+coverage for both the document and private APIs, passwordless sign-in and
+mandatory MFA. It is not an independently deployed reference app. The WordPress
+migration refresh retains its own compatibility evidence and boundary. #11 owns
 exact final source, checks, Workers, cleanup and remaining gates for this run.
 
 ## Agent entry, diagram atlas and analytics truth — 25 October 2026
