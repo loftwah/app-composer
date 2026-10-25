@@ -16,10 +16,10 @@ flow.
 
 | Capability                                                     | Local slice                                                             | Connected production                                                           |
 | -------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| Owner issues a scoped grant                                    | Native owner route and page, or `node scripts/agent-proposal.mjs grant` | Owner-only EmDash route implemented; production D1 not exercised                |
-| Deterministic briefing                                         | Yes. Stored in `creator_agent_briefings`, digest over the exact content | Not implemented as a hosted service                                            |
-| Agent submits a proposal                                       | Local CLI, scoped MCP endpoint, or EmDash MCP tools. Repo + commit or local path + content hash | EmDash MCP tools implemented; not driven against a deployed EmDash |
-| Accept / request changes / reject                              | CLI and native EmDash admin page                                        | Native page exists, but production data and Access were not exercised          |
+| Owner issues a scoped grant                                    | Native owner route and page, or `node scripts/agent-proposal.mjs grant` | Owner-only EmDash route deployed with migration `0018`; live receipt in #11      |
+| Deterministic briefing                                         | Yes. Stored in `creator_agent_briefings`, digest over the exact content | Available to the granted local endpoint; no hosted briefing service             |
+| Agent submits a proposal                                       | Local CLI, scoped MCP endpoint, or EmDash MCP tools. Repo + commit or local path + content hash | EmDash MCP tools implemented; driven over MCP locally, not against a deployed EmDash |
+| Accept / request changes / reject                              | CLI and native EmDash admin page                                        | Native page deployed; exact production interaction receipt in #11              |
 | Approval digest                                                | SHA-256 over canonical scope, source, evidence, risk and change         | Same contract                                                                  |
 | Separate handoff artifact                                      | Yes, `prepared` and `not-performed`                                     | The artifact can inform an existing release, but no execution adapter is added |
 | Production proposals                                           | Refused                                                                 | Not supported                                                                  |
@@ -216,8 +216,9 @@ credential (`connection_hash`, `connection_prefix`, `connection_issued_at`,
 `connection_last_used_at`) to `creator_agent_grants`. It changes no EmDash
 session, Access policy, Cloudflare token or Git credential.
 
-Both migrations are forward-only. Local D1/SQLite is sufficient for this slice;
-no production migration is claimed or required.
+Both migrations are forward-only. Migration `0018` is applied by the guarded
+25 October release; local SQLite remains the reproducible fixture for tests and
+the connected-client exercise. Exact production application evidence is in #11.
 
 ## Negative cases
 
@@ -281,12 +282,14 @@ transcript and briefing are committed.
 
 ## Remaining gaps
 
-- Connected agent authentication and a hosted agent runner are not implemented.
-- Grant provisioning and submission are local CLI actions, not EmDash UI.
-- The native review page was type-checked and a static CSS/markup harness using
-  its actual classes passed at 390px with keyboard focus. Production D1, real
-  Access admission, the authenticated native route and screen-reader use were
-  not exercised in this slice.
+- The scoped local MCP endpoint works over the real protocol; a model-driven
+  Codex turn remains blocked by the owner’s usage limit. No other client is
+  claimed.
+- The EmDash MCP tools are declared and tested against the installed package,
+  but were not driven against a deployed EmDash instance.
+- The native page is deployed. The owner workflow was exercised locally; a
+  production grant/revocation and screen-reader interaction still need owner
+  acceptance.
 - Repo + commit without a local checkout is a declared pin, not a proven commit.
 - No execution adapter exists. The handoff must be carried out by a human using
   the existing release or delivery flow.
