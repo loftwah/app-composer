@@ -1,6 +1,6 @@
 # Engineering baseline
 
-Reviewed 25 October 2026 for #175 and #316. Node 22.23.4+ and pinned pnpm remain
+Reviewed 25 October 2026 for #175, #316 and #338. Node 22.23.4+ and pinned pnpm remain
 the supported local tools; Cloudflare workerd runs deployed Workers. The Node
 floor follows Astro 7.4, which refuses 22.23.1 and earlier. Composer and the
 plain Worker references select pnpm 12.8.1. The independent content-site recipe
@@ -68,6 +68,13 @@ Run `pnpm format` then `pnpm source:write` after Creator edits. This is not a
 whole-repository ESLint or formatting claim, and normal checks never rewrite
 source or emitted bytes.
 
+For iteration, `pnpm check:fast -- tests/<area>.test.mjs` runs the same
+type/generated-source, lint and format gates but only the named tests; it prints
+each stage and states that it is not the release gate. The full suite runs test
+files at concurrency 8: measured 95.4s → 77.9s on a 14-core machine over the same
+suite. The suite remains the release breadth; `check:fast` only changes what an
+edit waits for.
+
 Generated projects validate imported model JSON before typed presentation. They
 carry their own source, emitted files, compiler configuration, native editor,
 behavior tests and lockfile. The project-file allowlist and provenance capture
@@ -119,7 +126,7 @@ node scripts/content-source.mjs --check
 pnpm lint
 pnpm format:check
 node scripts/creator-source.mjs --check
-node --test tests/creator-source.test.mjs tests/creator-boundaries.test.mjs tests/stacks-database.test.mjs tests/stacks-instances.test.mjs tests/app-settings.test.mjs
+pnpm check:fast -- tests/creator-source.test.mjs tests/creator-boundaries.test.mjs tests/stacks-database.test.mjs tests/stacks-instances.test.mjs tests/app-settings.test.mjs
 node --test tests/content-model.test.mjs tests/content-project.test.mjs tests/content-calendar.test.mjs tests/content-entry.test.mjs tests/content-filter.test.mjs
 node --test tests/readiness-owned-deploy.test.mjs tests/readiness-maintained-release.test.mjs tests/readiness-package.test.mjs
 ```

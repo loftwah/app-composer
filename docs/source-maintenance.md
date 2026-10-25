@@ -99,10 +99,13 @@ App-specific navigation/header branding, theme storage keys and bootstrap script
 Use focused checks while editing:
 
 ```sh
-node --test tests/public-ui-assets.test.mjs tests/page-share.test.mjs
-node --test tests/miniapp-admin.test.mjs tests/miniapp-*-ui.test.mjs
+pnpm check:fast -- tests/public-ui-assets.test.mjs tests/page-share.test.mjs
+pnpm check:fast -- tests/miniapp-admin.test.mjs tests/miniapp-*-ui.test.mjs
 pnpm check:types
 ```
+
+`check:fast` runs the complete type/generated-source, lint and format gates and
+then only the named tests; it is an iteration command, not the release gate.
 
 For editor changes, exercise app switching, unsaved inputs, refresh/conflict recovery and explicit saves with fictional fixtures. Check the protected live editor after release using an existing authorized administrator session. Source cleanup does not justify mutating owner content. Existing production deployment checks remain the release boundary.
 
