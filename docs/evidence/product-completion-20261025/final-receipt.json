@@ -1,0 +1,179 @@
+{
+  "schema": "composer.product-completion/1",
+  "accountingAt": "2026-10-25T13:02:55.883662+00:00",
+  "source": "8847b93f9474f22c3d724e59a3d9e165f8444a76",
+  "worker": "c15d8fdd-2b63-4e61-8206-ade44188166c",
+  "deploymentPercentage": 100,
+  "environment": "production",
+  "origin": "https://composer.loftwah.com",
+  "repository": "loftwah/app-composer",
+  "mergedPullRequests": [
+    389,
+    390,
+    393
+  ],
+  "independentlyMergedAndPreservedPullRequests": [
+    388,
+    392
+  ],
+  "build": {
+    "app": "app-composer",
+    "commit": "8847b93f9474f22c3d724e59a3d9e165f8444a76",
+    "reviewed": "2026-10-13",
+    "reviewedScope": "original-build-identity-contract",
+    "sourceCommittedAt": "2026-10-25T23:16:22+11:00",
+    "contract": 1
+  },
+  "requiredChecks": {
+    "tests": 1266,
+    "passed": 1264,
+    "failed": 0,
+    "optionalSkipped": 2,
+    "typesErrors": 0,
+    "typesWarnings": 0,
+    "audit": "passed",
+    "lint": "passed",
+    "format": "passed",
+    "build": "passed",
+    "publicationPrivacy": "passed",
+    "anonymousAdministrationBoundary": "passed"
+  },
+  "node24ChangedBoundaries": {
+    "version": "24.22.1",
+    "passed": 19,
+    "defaultChanged": false
+  },
+  "performance": {
+    "requiredChecksSeconds": 107.2,
+    "testsSeconds": 80.414957959,
+    "buildSeconds": 14.2,
+    "secretBearingUploadSeconds": 35.4,
+    "guardedReleaseSeconds": 170,
+    "releaseAdmissionWaitSeconds": 1088.41,
+    "releaseWrapperElapsedSeconds": 1282.99,
+    "publicAdmissionWaitSeconds": 259.84,
+    "physicalDeviceClaims": false,
+    "publicMainAcceptanceWorkloadSeconds": 26.29,
+    "publicEntryAcceptanceWorkloadSeconds": 19.62,
+    "entryAdmissionWaitSeconds": 0.27
+  },
+  "productionAcceptance": {
+    "nativeEncryption": {
+      "verified": true,
+      "method": "Existing authenticated owner Chrome session; actual deployed Connections button; reload and second fresh check",
+      "roundTrips": 2,
+      "checkedAt": [
+        "2026-10-25T12:40:07Z",
+        "2026-10-25T12:40:44Z"
+      ],
+      "nativeEncryptedEnvelope": true,
+      "nativeReadMatched": true,
+      "temporaryValueRemoved": true
+    },
+    "ownedGuestbookRead": {
+      "passed": true,
+      "checkedAt": "2026-10-25T12:40:45Z",
+      "source": "5075d7be53b43aca288d3707fd06851aca91e8c2"
+    },
+    "pluginStoresAfterProbe": {
+      "pluginOptionRows": 0,
+      "pluginSettingsRows": 0,
+      "recognisedEncryptedOptionEnvelopes": 0,
+      "pluginStorageRows": 0,
+      "pluginStateRows": 4,
+      "nonemptyPluginStateRows": 0
+    },
+    "publicRoutedViews": 32,
+    "homepageLayouts": 6,
+    "additionalHomepageTextReflowViews": 2,
+    "publicPageErrors": 0,
+    "sourceMatchedBeforeAndAfterBrowsers": true,
+    "publicAssetDigestsMatchedSource": 4,
+    "appearanceUnchanged": true,
+    "appearance": {
+      "at": "2026-10-25T12:46:06.362Z",
+      "revision": 5,
+      "publishedVersion": 5,
+      "draftSha256": "39af6f77c6547a3889d752966e0b871b63160a1a58f8a006e9258764fbb953bc",
+      "versions": [
+        {
+          "version": 1,
+          "event": "draft",
+          "configSha256": "39af6f77c6547a3889d752966e0b871b63160a1a58f8a006e9258764fbb953bc"
+        },
+        {
+          "version": 2,
+          "event": "publish",
+          "configSha256": "39af6f77c6547a3889d752966e0b871b63160a1a58f8a006e9258764fbb953bc"
+        },
+        {
+          "version": 3,
+          "event": "draft",
+          "configSha256": "a25ec57a62c073d0bd7660046c8d22c4723b432c75f19702376e361ef296a5fb"
+        },
+        {
+          "version": 4,
+          "event": "publish",
+          "configSha256": "a25ec57a62c073d0bd7660046c8d22c4723b432c75f19702376e361ef296a5fb"
+        },
+        {
+          "version": 5,
+          "event": "rollback",
+          "configSha256": "39af6f77c6547a3889d752966e0b871b63160a1a58f8a006e9258764fbb953bc"
+        }
+      ],
+      "restoredV5MatchesV2": true
+    },
+    "grantAndAuditContinuity": {
+      "at": "2026-10-25T12:46:05.590Z",
+      "database": "app-composer-emdash",
+      "environment": "production",
+      "readOnly": true,
+      "tables": {
+        "creator_app_grants": {
+          "rows": 1,
+          "sha256": "c79982de21d4913798ad304b7b3079c299bcb1c4013210d5ae6b93d797c27722"
+        },
+        "creator_app_access_audit": {
+          "rows": 2,
+          "sha256": "36da2b5607b65dc50dec714b8e6217d54013b45556cbeb4f2594c45be25ec8a8"
+        }
+      },
+      "unchangedFromPreviousRelease": true
+    }
+  },
+  "lateOwnerBrowserControl": {
+    "desktopNativeEncryptionChecksCompleted": true,
+    "additional390pxCheckQualified": false,
+    "temporaryViewportResetConfirmed": false,
+    "reason": "Controller timed out during optional responsive check. Owner subsequently closed and reopened the bugged tab; this additional check is not credited as acceptance.",
+    "userHandledBuggedTab": "Owner reported closing and reopening the bugged tab after the controller timeout.",
+    "furtherBrowserMutationAttempted": false
+  },
+  "independentAppPins": {
+    "compositionFileSha256": "f3febc4af1be1771d5e60ca13be6c010d88f70ce6cd16420a5a8693935d3482b",
+    "changed": false,
+    "independentAppDeploymentsByThisRun": []
+  },
+  "cleanup": {
+    "releaseCloneAndSecretSnapshotRemoved": true,
+    "publicBrowserOwnedRootsRemoved": true,
+    "publisherOwnedRootRemoved": true,
+    "creatorRecordedRootsAndPointersAbsent": true,
+    "incidentStoppedProcesses": 1,
+    "incidentSurvivingProcesses": 0,
+    "recoveryRootCleanupAssertedByRunner": true,
+    "recoveryRandomRootPathAvailableForIndependentRecheck": false,
+    "permanentDevelopmentWorktreesAndBoundedEvidenceRetained": true,
+    "approvedEncryptionKeySecurelyRetainedOutsideGit": true
+  },
+  "remainingGates": [
+    "Verified immutable upstream identity claims, explicit binding/recovery authority and actual Access passwordless/MFA coverage for document and APIs",
+    "Official Cloudflare registry/runner/Loader, selected-site/environment and entitlement lifecycle qualification",
+    "Authorised external mail recipient and actual acceptance/delivery/failure/duplicate evidence",
+    "Merchant-authorised Shopify read_products shop/workspace/environment credentials",
+    "Hosted publisher cutover, broader migration metadata/plugins/scheduler and provider-level restore",
+    "Physical phone/tablet and assistive technology; additional authenticated phone-width check not qualified",
+    "Historical intermittent child-write/source-check root cause not reproduced"
+  ]
+}

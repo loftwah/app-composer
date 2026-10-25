@@ -1,0 +1,42 @@
+{
+  "schema": "composer.encryption-recovery-acceptance/1",
+  "at": "2026-10-25T12:46:05.298Z",
+  "source": "8847b93f9474f22c3d724e59a3d9e165f8444a76",
+  "worker": "c15d8fdd-2b63-4e61-8206-ade44188166c",
+  "metadataObservation": {
+    "schema": "composer.plugin-secret-inventory/1",
+    "counts": {
+      "pluginOptionRows": 0,
+      "pluginSettingsRows": 0,
+      "recognisedEncryptedOptionEnvelopes": 0,
+      "pluginStorageRows": 0,
+      "pluginStateRows": 4,
+      "nonemptyPluginStateRows": 0
+    },
+    "storageObservation": "empty-plugin-stores",
+    "encryptionHealth": "unverified",
+    "rotationAuthorised": false,
+    "note": "Metadata only. Nonempty stores require independent review; no plaintext, ciphertext, option names or credentials are returned. Key validity, decryptability and older backups are unverified.",
+    "readOnly": true
+  },
+  "nativeProduction": {
+    "verified": true,
+    "method": "Existing authenticated owner Chrome session; actual deployed Connections button; reload and second fresh check",
+    "roundTrips": 2,
+    "checkedAt": [
+      "2026-10-25T12:40:07Z",
+      "2026-10-25T12:40:44Z"
+    ],
+    "nativeEncryptedEnvelope": true,
+    "nativeReadMatched": true,
+    "temporaryValueRemoved": true
+  },
+  "ownedGuestbookRead": {
+    "passed": true,
+    "checkedAt": "2026-10-25T12:40:45Z",
+    "source": "5075d7be53b43aca288d3707fd06851aca91e8c2"
+  },
+  "providerCredentials": "unverified except the scoped Guestbook read",
+  "olderEncryptedBackups": "unqualified",
+  "futureRotationAuthorised": false
+}

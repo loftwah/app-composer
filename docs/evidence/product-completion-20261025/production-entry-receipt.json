@@ -1,0 +1,344 @@
+{
+  "expected": "8847b93f9474f22c3d724e59a3d9e165f8444a76",
+  "origin": "https://composer.loftwah.com",
+  "startedAt": "2026-10-25T12:54:57.045Z",
+  "views": [
+    {
+      "route": "ready",
+      "width": 390,
+      "theme": "dark",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": [
+        {
+          "src": "/diagrams/ldraw/get-ready-lifecycle.svg",
+          "width": 1088,
+          "height": 678
+        }
+      ]
+    },
+    {
+      "route": "ready",
+      "width": 390,
+      "theme": "light",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": [
+        {
+          "src": "/diagrams/ldraw/get-ready-lifecycle.svg",
+          "width": 1088,
+          "height": 678
+        }
+      ]
+    },
+    {
+      "route": "ready",
+      "width": 1440,
+      "theme": "dark",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": [
+        {
+          "src": "/diagrams/ldraw/get-ready-lifecycle.svg",
+          "width": 1088,
+          "height": 678
+        }
+      ]
+    },
+    {
+      "route": "ready",
+      "width": 1440,
+      "theme": "light",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": [
+        {
+          "src": "/diagrams/ldraw/get-ready-lifecycle.svg",
+          "width": 1088,
+          "height": 678
+        }
+      ]
+    },
+    {
+      "route": "init",
+      "width": 390,
+      "theme": "dark",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": [
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "route": "init",
+      "width": 390,
+      "theme": "light",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": [
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "route": "init",
+      "width": 1440,
+      "theme": "dark",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": [
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "route": "init",
+      "width": 1440,
+      "theme": "light",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": [
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/ringmarket-v5.webp",
+          "width": 1200,
+          "height": 900
+        },
+        {
+          "src": "/brand/demo/lighthouse-v5.webp",
+          "width": 1200,
+          "height": 900
+        }
+      ]
+    },
+    {
+      "route": "init/content",
+      "width": 390,
+      "theme": "dark",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": []
+    },
+    {
+      "route": "init/content",
+      "width": 390,
+      "theme": "light",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": []
+    },
+    {
+      "route": "init/content",
+      "width": 1440,
+      "theme": "dark",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": []
+    },
+    {
+      "route": "init/content",
+      "width": 1440,
+      "theme": "light",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": []
+    },
+    {
+      "route": "plugin-trust",
+      "width": 390,
+      "theme": "dark",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": []
+    },
+    {
+      "route": "plugin-trust",
+      "width": 390,
+      "theme": "light",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": []
+    },
+    {
+      "route": "plugin-trust",
+      "width": 1440,
+      "theme": "dark",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": []
+    },
+    {
+      "route": "plugin-trust",
+      "width": 1440,
+      "theme": "light",
+      "overflow": false,
+      "scrollBehavior": "auto",
+      "images": []
+    }
+  ],
+  "assets": [],
+  "cleanup": true,
+  "before": {
+    "app": "app-composer",
+    "commit": "8847b93f9474f22c3d724e59a3d9e165f8444a76",
+    "reviewed": "2026-10-13",
+    "reviewedScope": "original-build-identity-contract",
+    "sourceCommittedAt": "2026-10-25T23:16:22+11:00",
+    "contract": 1
+  },
+  "after": {
+    "app": "app-composer",
+    "commit": "8847b93f9474f22c3d724e59a3d9e165f8444a76",
+    "reviewed": "2026-10-13",
+    "reviewedScope": "original-build-identity-contract",
+    "sourceCommittedAt": "2026-10-25T23:16:22+11:00",
+    "contract": 1
+  },
+  "pageErrors": [],
+  "success": true,
+  "finishedAt": "2026-10-25T12:55:16.344Z"
+}

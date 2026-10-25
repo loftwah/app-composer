@@ -7,6 +7,16 @@ This source change is based on `d3e0b67de2b05315351af9ff2c89b70dec75fd56` with
 EmDash / Cloudflare adapter 1.3.1, Wrangler 4.152.0 and Node 22.23.4. It does not
 itself establish a production deployment or healthy provider credentials.
 
+**Production continuation:** approved initialisation shipped at `8847b93` /
+Worker `c15d8fdd-2b63-4e61-8206-ade44188166c`. Real native owner checks passed
+at 12:40:07 and, after reload, 12:40:44 UTC on 25 October 2026; both removed
+their exact temporary value. The owned Guestbook read passed at 12:40:45. A
+separate read-only inventory then confirmed zero plugin options/collection rows
+and four empty state rows. [Acceptance receipt](product-completion-20261025/encryption-after-final.json).
+The key is retained privately; existing grants, audit, appearance, provider
+references and independent app pins are unchanged. This qualifies current native
+encryption, not external provider credentials or older backup decryption.
+
 ## Authority and scope
 
 The owner explicitly approved a fresh key for this fresh installation after the
