@@ -383,9 +383,7 @@ test("stylesheet route protects drafts and emits only the finite reviewed gramma
       {
         user: actor,
         request: new Request(
-          f.origin +
-            "/_emdash/api/plugins/composer-stacks/brandStyles" +
-            selected,
+          f.origin + "/_emdash/composer-admin-brand.css" + selected,
         ),
       },
       f.runtime,

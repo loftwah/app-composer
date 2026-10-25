@@ -268,13 +268,15 @@ export function BrandStudioPage() {
                 <label>
                   Admin name
                   <input
+                    aria-label="Admin name"
+                    aria-describedby="bs-admin-name-help"
                     value={form.siteName}
                     required
                     minLength={2}
                     maxLength={60}
                     onChange={(e) => change({ siteName: e.target.value })}
                   />
-                  <small>
+                  <small id="bs-admin-name-help">
                     Shown in the native header, loading screen and tab title.
                   </small>
                 </label>
@@ -291,6 +293,7 @@ export function BrandStudioPage() {
                 <label>
                   Spacing
                   <select
+                    aria-label="Spacing"
                     value={form.density}
                     onChange={(e) =>
                       change({
@@ -309,6 +312,7 @@ export function BrandStudioPage() {
                 <label>
                   Text size
                   <select
+                    aria-label="Text size"
                     value={form.typeScale}
                     onChange={(e) =>
                       change({
@@ -376,6 +380,7 @@ export function BrandStudioPage() {
               <label>
                 Screen
                 <select
+                  aria-label="Screen"
                   value={screen}
                   disabled={busy}
                   onChange={(e) => setScreen(e.target.value)}

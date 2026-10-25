@@ -283,11 +283,18 @@ export async function manageAdminBrand(
   }
 }
 
-/** Raw private route: declare response:'raw' in the existing native plugin. */
+/** Same-origin stylesheet served by authenticated Composer middleware.
+ * A normal <link> cannot supply EmDash private plugin routes' custom header.
+ */
 export async function adminBrandStyles(
   ctx: BrandContext,
   runtime: BrandRuntime,
 ) {
+  if (ctx.request.method !== "GET")
+    return new Response(null, {
+      status: 405,
+      headers: { Allow: "GET", "Cache-Control": "private, no-store" },
+    });
   try {
     const { db, target } = authorised(ctx, runtime, false);
     const url = new URL(ctx.request.url);
@@ -391,7 +398,7 @@ export async function prepareAdminBrand(
     return {
       version: selected,
       preview,
-      stylesheet: `/_emdash/api/plugins/composer-stacks/brandStyles?version=${selected}${preview ? "&preview=1" : ""}`,
+      stylesheet: `/_emdash/composer-admin-brand.css?version=${selected}${preview ? "&preview=1" : ""}`,
     };
   } catch {
     return null;
