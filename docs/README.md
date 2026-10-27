@@ -17,6 +17,7 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 - [Private enquiry inbox](private-enquiries.md): explicitly enabled private brief forms, app-owned retention, exact publication scope and delivery receipts.
 - [Workspace maintenance](workspace-maintenance.md): fresh connection observations and approved contribution/PNG exports, with the actual recovery limits.
 - [Basic profile-settings portability](profile-settings-portability.md): actual supported fields and exclusions.
+- [Free SEO pilot](seo-pilot.md): read-only Composer crawlability, metadata and canonical audit, with explicit live-evidence limitations.
 - [Public analytics and frozen reports](public-activity.md) and [event definitions](analytics-events.md): one scope, app records, shareable snapshots and what the aggregate measures omit.
 - [WordPress publisher lab](../labs/wordpress/weekender/README.md) and [observation ledger](../labs/wordpress/weekender/OBSERVATIONS.md): reproduce the small actual native import and inspect its explicit repairs and remaining cases.
 - [LDraw](ldraw.md): the independent Excalidraw workspace, bounded Composer entry, editable-file/agent handoff and release-bound device support.
