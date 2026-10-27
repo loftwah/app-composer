@@ -79,3 +79,13 @@ test('hard page count bound and oversized HTTP body are reported', async () => {
   const report = await run(huge);
   assert.ok(report.findings.some((x) => x.code === 'page-unreachable'));
 });
+
+test('deliberately public /studio is not mistaken for a private administrative path', async () => {
+  const studio = `${base}/studio`;
+  const html = valid('Studio').replace(`href="${base}/"`, `href="${studio}"`);
+  const f = fixture({ [studio]: { body: html, type: 'text/html' } }, [studio]);
+  const report = await run(f);
+  assert.equal(report.checkedPages, 1);
+  assert.equal(report.findings.length, 0);
+  assert.ok(f.requests.some((r) => r.url === studio));
+});
