@@ -4,7 +4,6 @@
  */
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { publicUrl } from '../src/lib/public-inspection-url.mjs';
 
 export const PILOT_ORIGIN = 'https://composer.loftwah.com';
 const MAX_PAGES = 80;
@@ -35,8 +34,9 @@ function metadata(html) {
 
 function safePage(raw) {
   try {
-    const parsed = publicUrl(raw);
-    if (parsed.origin !== PILOT_ORIGIN || parsed.search || parsed.hash || privatePath.test(parsed.pathname)) return null;
+    if (typeof raw !== 'string' || raw.length > 2048 || /[\\\u0000-\u001f]/.test(raw)) return null;
+    const parsed = new URL(raw);
+    if (parsed.origin !== PILOT_ORIGIN || parsed.username || parsed.password || parsed.search || parsed.hash || /%[a-f0-9]{2}/i.test(parsed.pathname) || privatePath.test(parsed.pathname)) return null;
     return parsed.href;
   } catch { return null; }
 }
