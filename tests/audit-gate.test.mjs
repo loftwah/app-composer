@@ -59,14 +59,15 @@ test('required checks run before remote migrations and stop the deploy when they
  });
 });
 
-test('a passing required check runs before the first remote migration',t=>{
- const {deploy}=releaseFixture(t,shim('console.log("fixture invocation "+process.argv.slice(2).join(" "));process.exit(process.argv[2]==="wrangler"?1:0);'));
+test('a failed production build stops before remote migrations',t=>{
+ const {deploy}=releaseFixture(t,shim('console.log("fixture invocation "+process.argv.slice(2).join(" "));process.exit(process.argv[2]==="build"?1:0);'));
  assert.throws(deploy,error=>{
   const lines=String(error.stdout).trim().split('\n');
   const check=lines.indexOf('fixture invocation check');
-  const migration=lines.findIndex(line=>line.startsWith('fixture invocation wrangler d1 migrations apply'));
+  const build=lines.indexOf('fixture invocation build');
   assert.equal(error.status,1);
-  assert.ok(check>0&&migration>check,'pnpm check must pass before the first remote D1 migration');
+  assert.ok(check>0&&build>check,'pnpm check must pass before the production build');
+  assert.ok(!lines.some(line=>/wrangler/.test(line)),'a failed build cannot apply migrations');
   return true;
  });
 });

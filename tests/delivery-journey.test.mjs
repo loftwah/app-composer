@@ -295,10 +295,7 @@ test('an explicitly authorised release reuses the guarded deploy and independent
     verify: async (...args) => verified.push(args),
   });
   assert.equal(receipt.state, 'passed');
-  assert.deepEqual(calls, [
-    ['pnpm', 'build', 'preview'],
-    ['pnpm', 'deploy', null],
-  ]);
+  assert.deepEqual(calls, [['pnpm', 'deploy', null]]);
   assert.deepEqual(verified, [[source().commit, lock, config.vars.PUBLIC_ORIGIN]]);
   assert.equal(receipt.release.attempted, true);
   assert.equal(receipt.release.performed, true);
@@ -309,7 +306,8 @@ test('an explicitly authorised release reuses the guarded deploy and independent
   assert.equal(receipt.verification.independent, true);
   assert.equal(receipt.approval.flag, '--release');
   assert.equal(receipt.approval.sourceCommit, source().commit);
-  assert.equal(receipt.approval.candidateDigest, receipt.candidate.digest);
+  assert.equal(receipt.candidate, null);
+  assert.equal(receipt.approval.candidateDigest, null);
 });
 
 test('the receipt has a bounded, explicit source, target and release identity', async t => {
@@ -358,7 +356,7 @@ test('a failed release attempt stays ambiguous and is never reported as verified
     },
     verify: async () => assert.fail('a failed deploy must not claim verification'),
   });
-  assert.deepEqual(calls, [['pnpm', 'build'], ['pnpm', 'deploy']]);
+  assert.deepEqual(calls, [['pnpm', 'deploy']]);
   assert.equal(receipt.state, 'failed');
   assert.equal(receipt.release.attempted, true);
   assert.equal(receipt.release.performed, false);
