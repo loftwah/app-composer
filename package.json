@@ -9,7 +9,7 @@
     "build": "node scripts/workbench-source.mjs --check && node scripts/content-source.mjs --check && node scripts/enquiry-assets.mjs --check && node scripts/creator-source.mjs --check && node scripts/launcher-assets.mjs --check && node scripts/stack-share-assets.mjs --check && node scripts/identity.mjs && node scripts/package-downloads.mjs && astro build && rm -f dist/server/.dev.vars && node scripts/check-publication.mjs",
     "check": "pnpm check:types && pnpm lint && pnpm format:check && pnpm test",
     "check:fast": "node scripts/check-fast.mjs",
-    "test": "node --test --test-concurrency=8 tests/*.test.mjs",
+    "test": "node --test --test-concurrency=12 tests/*.test.mjs",
     "deploy": "node scripts/deploy.mjs",
     "delivery": "node scripts/delivery-journey.mjs",
     "ready": "node scripts/ready.mjs",

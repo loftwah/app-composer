@@ -86,30 +86,6 @@ await stage("dependency audit", () =>
 await stage("required checks (pnpm check)", () =>
   execFileSync("pnpm", ["check"], { stdio: "inherit" }),
 );
-// Another independent Composer release can advance main while checks run.
-// origin/main is a cache; re-read the provider before migrations and upload.
-guard();
-// The workspace schema ships with the Worker. Applying recorded migrations here is
-// idempotent and prevents a release serving a page whose tables do not exist yet.
-await stage("remote D1 migrations", () =>
-  execFileSync(
-    "pnpm",
-    [
-      "wrangler",
-      "d1",
-      "migrations",
-      "apply",
-      "app-composer-emdash",
-      "--remote",
-    ],
-    { stdio: "inherit" },
-  ),
-);
-const usageSchema = await query(
-  "SELECT sql FROM sqlite_schema WHERE type='table' AND name='composer_usage'",
-);
-assertReceiptCounterSchema(usageSchema[0]?.results?.[0]?.sql);
-console.log("Release gate passed: receipt counter schema");
 await stage("production build", () =>
   execFileSync("pnpm", ["build"], { stdio: "inherit" }),
 );
@@ -135,6 +111,30 @@ assertProductionTarget(
   JSON.parse(readFileSync(generatedPath, "utf8")),
   lock,
 );
+// Another independent Composer release can advance main while local checks and build run.
+// origin/main is a cache; re-read the provider before migrations and upload.
+guard();
+// The workspace schema ships with the Worker. Applying recorded migrations here is
+// idempotent and prevents a release serving a page whose tables do not exist yet.
+await stage("remote D1 migrations", () =>
+  execFileSync(
+    "pnpm",
+    [
+      "wrangler",
+      "d1",
+      "migrations",
+      "apply",
+      "app-composer-emdash",
+      "--remote",
+    ],
+    { stdio: "inherit" },
+  ),
+);
+const usageSchema = await query(
+  "SELECT sql FROM sqlite_schema WHERE type='table' AND name='composer_usage'",
+);
+assertReceiptCounterSchema(usageSchema[0]?.results?.[0]?.sql);
+console.log("Release gate passed: receipt counter schema");
 guard();
 // This read-only inspection runs after all local checks/builds, directly before
 // the existing code+secret upload. Any current plugin data refuses replacement.

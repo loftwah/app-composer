@@ -407,7 +407,7 @@ export async function runDeliveryJourney({
       await runStep('local-checks', 'Required local checks', 'pnpm', ['check']);
     }
 
-    if (mode === 'candidate' || mode === 'release') {
+    if (mode === 'candidate') {
       await runStep('preview-build', 'Safe preview candidate build', 'pnpm', ['build'], {
         env: previewBuildEnvironment(environment),
       });
@@ -594,7 +594,7 @@ Usage: node scripts/delivery-journey.mjs [--local|--candidate|--release|--verify
 
   --local      Default. Inspect source/target, run pnpm check and refuse to release.
   --candidate  Check, then build and inspect a local preview candidate. No upload.
-  --release    Check clean pushed main, rebuild the preview candidate, run pnpm deploy
+  --release    Check clean pushed main, run pnpm deploy
                and independently verify the live source. Explicit approval only.
   --verify     Re-read the live root and mounted pins from clean pushed main.
   --json       Print only the bounded machine-readable receipt.

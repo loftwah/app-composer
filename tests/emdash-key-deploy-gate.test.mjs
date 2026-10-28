@@ -119,6 +119,9 @@ test("a store populated during local checks refuses the actual key-bearing uploa
   assert.throws(
     () => f.deploy(),
     (error) => {
+      const output = String(error.stdout);
+      assert.ok(output.indexOf("fixture command build") < output.indexOf("fixture command wrangler d1 migrations"));
+      assert.match(output, /fixture command wrangler d1 migrations/);
       assert.match(
         String(error.stderr),
         /must be confirmed empty immediately before upload/,
