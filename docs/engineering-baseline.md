@@ -70,10 +70,15 @@ source or emitted bytes.
 
 For iteration, `pnpm check:fast -- tests/<area>.test.mjs` runs the same
 type/generated-source, lint and format gates but only the named tests; it prints
-each stage and states that it is not the release gate. The full suite runs test
-files at concurrency 8: measured 95.4s → 77.9s on a 14-core machine over the same
-suite. The suite remains the release breadth; `check:fast` only changes what an
-edit waits for.
+each stage and states that it is not the release gate. For the quickest feedback
+while editing, run `node --test tests/<area>.test.mjs` first; it does not check
+generated-source parity, types, lint or formatting. The full suite remains the
+release breadth. On 28 October, sequential runs on the same 14-logical-core host
+and checkout took 84.4s with eight workers and 71.0s with twelve; both passed with
+the same two optional Guestbook skips. A later `pnpm check` with twelve workers
+completed its tests in 69.0s. The default is now twelve. These observations were
+made under shared host load, not a performance guarantee; resource pressure or
+another machine can change the result.
 
 Generated projects validate imported model JSON before typed presentation. They
 carry their own source, emitted files, compiler configuration, native editor,
