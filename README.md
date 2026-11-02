@@ -56,6 +56,12 @@ Local EmDash data is separate from production. A fresh checkout does not contain
 
 Guestbook and Linkarooie also mount at `/guestbook` and `/showcase` through separately pinned Worker services. Guestbook owns provider/upload APIs and source eligibility; Linkarooie consumes those APIs and owns curation. Updating a standalone app does not silently promote its source into Composer. Carry / forward remains fictional-only until its separate security acceptance.
 
+## Built with App Composer
+
+**[Agent Black Box](https://github.com/robertdevore/agent-black-box)** is an open-source agent-execution replay project by [Robert DeVore](https://github.com/robertdevore), who [shared the project and credited App Composer](https://x.com/deviorobert/status/2117347151525134372). Its three independent Cloudflare Worker apps reuse App Composer's manifest and composition validators and promotion guard to import run evidence, inspect a replay, and share an explicitly approved read-only report.
+
+This is a locally runnable third-party implementation with its own adapter, **not** a hosted deployment or an app registered in Composer's native catalogue. [Robert's README](https://github.com/robertdevore/agent-black-box#readme) explains the exact reuse, reproducible checks and current limits.
+
 ## Find the right guide
 
 - [Documentation index](docs/README.md): current guides, source maps and detailed commands.
