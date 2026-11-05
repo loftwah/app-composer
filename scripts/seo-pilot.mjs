@@ -101,7 +101,7 @@ export async function auditComposerSEO({ fetcher = fetch, now = () => new Date()
   }
   if (accepted.length === 0) add('error', base + '/sitemap.xml', 'empty-sitemap', 'No eligible page URLs were declared.');
   let complete = accepted.length > 0 && accepted.length <= maxPages && !rejected;
-  if (!complete) add('warning', base + '/sitemap.xml', 'partial-coverage', `${accepted.length} eligible URLs; only ${maxPages} inspected. This is not a full audit.`);
+  if (accepted.length > maxPages) add('warning', base + '/sitemap.xml', 'partial-coverage', `${accepted.length} eligible URLs; only ${maxPages} inspected. This is not a full audit.`);
   const titles = new Map();
   for (const url of accepted.slice(0, maxPages)) {
     try {
