@@ -1,5 +1,7 @@
 # Documentation
 
+Test references in older guides and evidence may name files retired in November 2026. The current suite is in `tests/`; run `pnpm test` or select an existing file for a focused check.
+
 Start with the [product definition](../PRODUCT.md), [working installation](https://composer.loftwah.com/) or [interactive tutorial](https://composer.loftwah.com/learn). This index separates current instructions from dated delivery observations.
 
 ## Create and operate

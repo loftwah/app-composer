@@ -1052,10 +1052,10 @@ test("native admin route scopes reads, refuses viewers and records one owner dec
   // observed source and a grant that is live now. Submitting an old evidence
   // clock here would make the case pass or fail depending on the time of day.
   const observedAt = new Date().toISOString();
-  const v1 = (await f.submit({}, observedAt)).view;
   f.sqlite
     .prepare("UPDATE creator_agent_grants SET expires_at=? WHERE id=?")
     .run(new Date(Date.now() + 3_600_000).toISOString(), f.grant.id);
+  const v1 = (await f.submit({}, observedAt)).view;
   f.sqlite
     .prepare(
       "UPDATE creator_agent_grants SET owner_id=?,owner_name=? WHERE id=?",

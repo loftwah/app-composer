@@ -14,22 +14,22 @@ test("focused checks require explicit existing test files under tests", () => {
 test("focused checks deduplicate and order the named test files", () => {
   const targets = focusedTargets([
     "--",
-    "tests/page-share.test.mjs",
+    "tests/core.test.mjs",
     "tests/access-boundary.test.mjs",
-    "tests/page-share.test.mjs",
+    "tests/core.test.mjs",
   ]);
-  assert.deepEqual(targets, ["tests/access-boundary.test.mjs", "tests/page-share.test.mjs"]);
+  assert.deepEqual(targets, ["tests/access-boundary.test.mjs", "tests/core.test.mjs"]);
 });
 
 test("focused checks keep the full type/source gate ahead of named tests", () => {
-  const stages = focusedStages(["tests/page-share.test.mjs"]);
+  const stages = focusedStages(["tests/core.test.mjs"]);
   assert.deepEqual(
     stages.map((stage) => [stage.command, stage.args.join(" ")]),
     [
       ["pnpm", "check:types"],
       ["pnpm", "lint"],
       ["pnpm", "format:check"],
-      [process.execPath, "--test tests/page-share.test.mjs"],
+      [process.execPath, "--test --test-concurrency=2 tests/core.test.mjs"],
     ],
   );
   assert.throws(() => focusedStages([]), /No focused test files/);

@@ -14,7 +14,7 @@ export function focusedTargets(args, directory = workspace) {
   const selectedArgs = args[0] === "--" ? args.slice(1) : args;
   if (!selectedArgs.length)
     throw Error(
-      "Name at least one test file, for example: pnpm check:fast -- tests/page-share.test.mjs",
+      "Name at least one test file, for example: pnpm check:fast -- tests/core.test.mjs",
     );
   const tests = resolve(directory, "tests") + sep;
   const selected = new Set();
@@ -41,7 +41,7 @@ export function focusedStages(targets) {
     { name: "types and generated source", command: "pnpm", args: ["check:types"] },
     { name: "semantic lint", command: "pnpm", args: ["lint"] },
     { name: "format", command: "pnpm", args: ["format:check"] },
-    { name: "focused tests", command: process.execPath, args: ["--test", ...targets] },
+    { name: "focused tests", command: process.execPath, args: ["--test", "--test-concurrency=2", ...targets] },
   ];
 }
 
