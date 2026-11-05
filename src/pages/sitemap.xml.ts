@@ -1,16 +1,14 @@
 import {getEmDashCollection} from 'emdash';
-import {sitemapXml} from '../lib/sitemap.mjs';
+import {fetchCatalogueEntries, sitemapXml} from '../lib/sitemap.mjs';
 
 export async function GET() {
-  let entries: unknown[] = [];
   try {
-    const result = await getEmDashCollection('catalogue', {limit: 50});
-    if (!result?.error) entries = result?.entries ?? [];
+    const entries = await fetchCatalogueEntries((filter: Parameters<typeof getEmDashCollection>[1]) => getEmDashCollection('catalogue', filter));
+    return new Response(sitemapXml(entries), {
+      headers: {'Content-Type': 'application/xml', 'Cache-Control': 'public, max-age=300'},
+    });
   } catch {
-    // The catalogue being unavailable must not remove the static public pages
-    // from the sitemap. Missing detail pages stay missing rather than guessed.
+    // A partial result must not masquerade as a complete sitemap.
+    return new Response('Sitemap temporarily unavailable', {status: 503, headers: {'Cache-Control': 'no-store'}});
   }
-  return new Response(sitemapXml(entries), {
-    headers: {'Content-Type': 'application/xml', 'Cache-Control': 'public, max-age=300'},
-  });
 }
