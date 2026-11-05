@@ -1,13 +1,13 @@
 # Oddpull — App Composer headless-first dogfood inputs
 
-**State:** proposed authoring inputs, **not** validated imports, generated code, a deployed app, approved identity, or a Composer source pin. Parent issue [#404](https://github.com/loftwah/app-composer/issues/404).
+**State:** fictional authoring inputs imported and exported through the live Composer editor on 6 November 2026. This is not a generated app, deployed app, approved identity, or Composer source pin. Parent issue [#404](https://github.com/loftwah/app-composer/issues/404).
 
 ## Owner goal
 Build a real independent capsule-collecting mini-app **through App Composer**. Headless domain engine first (CLI + skill; MCP after verifying auth), EmDash content/owner administration next, player GUI and X sharing last. **ODDPULL** is provisional; *A little weird, every time.* Do not treat this as trade mark or domain clearance.
 
 ## Actually dogfood Composer
-1. Using production `/setup` and `/prompts#build`, export a truthful new-independent-app setup and build request.
-2. Open `/init/content`; import each of `models/*.json` individually. Record validation failures, approved corrections, returned export(s) and exact source revision. Composer emits no multi-model bundle.
+1. Production `/setup` and `/prompts#build` produced a local setup guide and build request.
+2. Production `/init/content` imported both models individually and downloaded each model and EmDash seed. The exported models passed the maintained validator and their seeds matched `emdashSeed`. Composer source: `e0cd6426ceb05d7c54bc964de7e0a1c842f91bbb`; no CMS data changed. Composer emits no multi-model bundle.
 3. Review independent-app repository, author the headless service, run real CLI/agent tests; never claim the public forms wrote business logic.
 4. Native EmDash owns collectible editorial fields, art and rights provenance. Game service owns immutable pool snapshots, random draws, receipts, authenticated player identity, inventory and abuse limits in independently managed D1, not CMS.
 5. Use the shipped Programmer/Architect/Security/QA role packs plus `agent/oddpull-skill.md`. An unchecked local SKILL.md does not establish host installation/discovery.
