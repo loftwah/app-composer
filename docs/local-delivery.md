@@ -3,7 +3,7 @@
 This page describes the local-first release path for App Composer. It is one executable journey, not a hosted CI product and not a second deployment engine:
 
 ```
-local checks → safe preview candidate → review → authorised release → independently verified result
+focused checks → optional preview candidate and review → authorised release → independently verified result
 ```
 
 Composer does not use GitHub Actions. A human operator or a local agent can run the same commands. A team may call the outer shell example from its existing runner, but Composer does not install, configure or require one.
@@ -46,14 +46,14 @@ node scripts/delivery-journey.mjs --verify --receipt output/delivery/verify.json
 | Focused iteration | `pnpm check:fast -- tests/<area>.test.mjs` | Same type/source, lint and format gates plus only the named tests. Not a release gate. |
 | Preview candidate | `pnpm check`, then `CLOUDFLARE_ENV=preview pnpm build` | Build-time environment selection. No upload. |
 | Review | read the printed or saved receipt | The candidate digest, source commit, target, bindings and next action are explicit. |
-| Authorised release | `pnpm build` (preview), then `pnpm deploy` | `pnpm deploy` runs the dependency audit and the required `pnpm check` itself, before remote migrations, build and upload. Explicit `--release` only. |
+| Authorised release | `pnpm deploy` | Runs the dependency audit, full `pnpm check` and production build before remote migrations and upload. Explicit `--release` only. |
 | Independent result | `scripts/verify-live.mjs` | Re-reads `/build.json` and every mounted `/APP/build.json` after release, or on its own via `--verify`. |
 
-The release mode rebuilds the preview candidate but delegates the required local checks to `pnpm deploy`, which rechecks clean pushed `main` and then runs `pnpm check` after the dependency audit and before any remote migration, build or upload. Running the same check twice on the same commit would only double the longest step; a preview artefact is still never uploaded by the production command.
+The candidate is a separate stage for preview work; release does not rebuild it or claim its evidence. Run the candidate and relevant isolated integration or browser checks when the change needs them, including changes to preview bindings or behaviour; a local candidate alone does not establish those checks. `pnpm deploy` rechecks clean pushed `main`, runs the dependency audit, full check and production build, validates the generated target and packages, and rechecks remote main before migrations and upload. A preview artefact is never uploaded by the production command.
 
 ### Measured local cost
 
-On a 14-core macOS host with Node 22.23.4 and a warm pnpm store, 25 October 2026: `pnpm check` 103.8s (types/generated source 16.8s, lint 2.2s, format 0.7s, tests 84.3s); `pnpm build` 12.2s; `CLOUDFLARE_ENV=preview pnpm build` 12.0s; `pnpm dev` 8.5s to a ready server; the first uncached page in a browser 6.3s; `pnpm check:fast -- tests/page-share.test.mjs tests/public-ui-assets.test.mjs` 21.9s. A release therefore spends one `pnpm check`, not two, and `pnpm deploy` prints each gate with its duration.
+On a 14-core macOS host with Node 22.23.4 and a warm pnpm store, 25 October 2026: `pnpm check` 103.8s (types/generated source 16.8s, lint 2.2s, format 0.7s, tests 84.3s); `pnpm build` 12.2s; `CLOUDFLARE_ENV=preview pnpm build` 12.0s; `pnpm dev` 8.5s to a ready server; the first uncached page in a browser 6.3s; `pnpm check:fast -- tests/page-share.test.mjs tests/public-ui-assets.test.mjs` 21.9s. These historical measurements predate the separated preview stage; release runs one `pnpm check` and one production build, and `pnpm deploy` prints each gate with its duration.
 
 ## Preview isolation
 
@@ -101,7 +101,7 @@ Every mode emits the same bounded schema. A successful release looks like this i
     "preview": {"worker": "app-composer-preview", "isolated": true, "services": 0}
   },
   "steps": ["local checks or delegated release steps with durations"],
-  "candidate": {"worker": "app-composer-preview", "digest": "sha256:...", "uploaded": false},
+  "candidate": null,
   "release": {"attempted": true, "performed": true, "command": "pnpm deploy", "commit": "<SHA>"},
   "verification": {"performed": true, "independent": true, "origin": "https://composer.loftwah.com"},
   "nextAction": "Record this receipt in #11 ..."
@@ -151,7 +151,7 @@ No production release or live verification was performed from this branch. The d
 
 ## Authorisation and failure
 
-`--release` is the explicit approval. A receipt cannot authorise a release, and an old candidate cannot approve a changed commit. Release rechecks clean pushed `main` and rebuilds the preview candidate before delegating to `scripts/deploy.mjs`. The deploy script then rechecks its own guards before upload.
+`--release` is the explicit approval. A receipt cannot authorise a release, and an old candidate cannot approve a changed commit. Release rechecks clean pushed `main` and delegates to `scripts/deploy.mjs`; use `--candidate` separately when preview evidence is needed. The deploy script then rechecks its own guards before upload.
 
 - Dirty, detached, wrongly branched or unpushed source is refused before any release command runs.
 - An ambient `CLOUDFLARE_ENV` is refused for release; preview selection belongs only to the candidate build.
