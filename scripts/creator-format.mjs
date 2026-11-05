@@ -39,7 +39,6 @@ const files = [
   "scripts/creator-source.mjs",
   "scripts/creator-format.mjs",
   "scripts/app-configuration.mjs",
-  "tests/creator-source.test.mjs",
   "tests/creator-boundaries.test.mjs",
   "tests/configuration-apply.test.mjs",
   "tests/miniapp-boundaries.test.mjs",

@@ -29,9 +29,8 @@ Local EmDash data is separate from production. A fresh checkout does not contain
 | `pnpm check:types` | Check strict source, emitted distributions and Astro |
 | `pnpm lint` | Check semantic and unused-source rules in the maintained content/Creator programs |
 | `pnpm format:check` | Check maintained Creator and enquiry files named by the format gate |
-| `pnpm test` | Run the existing behavioural and boundary tests |
-| `node --test tests/<area>.test.mjs` | Get quick feedback from named tests while editing; not the release gate |
-| `pnpm check` | Run the current required quality gates |
+| `pnpm test` | Run the small retained behavioural and boundary suite (two workers) |
+| `pnpm check` | Run source checks and the retained test suite |
 | `pnpm check:fast -- tests/...` | Iterate with the same type/source, lint and format gates plus only the named tests; not the release gate |
 | `pnpm freshness` | Report installed dependencies against the reviewed supported ranges |
 | `pnpm build` | Build and inspect the public artifact |

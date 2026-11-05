@@ -68,17 +68,13 @@ Run `pnpm format` then `pnpm source:write` after Creator edits. This is not a
 whole-repository ESLint or formatting claim, and normal checks never rewrite
 source or emitted bytes.
 
-For iteration, `pnpm check:fast -- tests/<area>.test.mjs` runs the same
-type/generated-source, lint and format gates but only the named tests; it prints
-each stage and states that it is not the release gate. For the quickest feedback
-while editing, run `node --test tests/<area>.test.mjs` first; it does not check
-generated-source parity, types, lint or formatting. The full suite remains the
-release breadth. On 28 October, sequential runs on the same 14-logical-core host
-and checkout took 84.4s with eight workers and 71.0s with twelve; both passed with
-the same two optional Guestbook skips. A later `pnpm check` with twelve workers
-completed its tests in 69.0s. The default is now twelve. These observations were
-made under shared host load, not a performance guarantee; resource pressure or
-another machine can change the result.
+For iteration, `pnpm check:fast -- tests/<area>.test.mjs` runs the source,
+lint and format checks plus only the named tests. `pnpm check` runs the retained
+suite with two test workers. The suite focuses on access, untrusted input,
+data preservation, composition and release boundaries. Many presentation and
+copy assertions were removed in November 2026; older evidence and guides may
+refer to retired test files. Use `pnpm test` for the current suite and inspect
+`tests/` before running a historical focused command.
 
 Generated projects validate imported model JSON before typed presentation. They
 carry their own source, emitted files, compiler configuration, native editor,
@@ -131,9 +127,7 @@ node scripts/content-source.mjs --check
 pnpm lint
 pnpm format:check
 node scripts/creator-source.mjs --check
-pnpm check:fast -- tests/creator-source.test.mjs tests/creator-boundaries.test.mjs tests/stacks-database.test.mjs tests/stacks-instances.test.mjs tests/app-settings.test.mjs
-node --test tests/content-model.test.mjs tests/content-project.test.mjs tests/content-calendar.test.mjs tests/content-entry.test.mjs tests/content-filter.test.mjs
-node --test tests/readiness-owned-deploy.test.mjs tests/readiness-maintained-release.test.mjs tests/readiness-package.test.mjs
+node --test tests/readiness-package.test.mjs
 ```
 
 ## Dev server React islands

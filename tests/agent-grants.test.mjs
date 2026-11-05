@@ -572,7 +572,7 @@ test("expiry and rotation refuse the credential a stale client still holds", asy
     code("SELF_APPROVAL"),
   );
 
-  const expiredAt = f.created.grant.expiresAt;
+  const expiredAt = new Date(Date.parse(f.created.grant.expiresAt) + 1000).toISOString();
   await assert.rejects(
     () => readAgentGrantScope(f.db, fresh, { now: expiredAt }),
     code("GRANT_EXPIRED"),

@@ -96,13 +96,7 @@ App-specific navigation/header branding, theme storage keys and bootstrap script
 
 ## Verification
 
-Use focused checks while editing:
-
-```sh
-pnpm check:fast -- tests/public-ui-assets.test.mjs tests/page-share.test.mjs
-pnpm check:fast -- tests/miniapp-admin.test.mjs tests/miniapp-*-ui.test.mjs
-pnpm check:types
-```
+Run `pnpm check:types` while editing and inspect the affected sharing and interface surfaces. The former presentation-focused tests were retired.
 
 `check:fast` runs the complete type/generated-source, lint and format gates and
 then only the named tests; it is an iteration command, not the release gate.
@@ -146,7 +140,7 @@ not UI token consumers. Owner configuration and stored themes are not migrated.
 
 The #237 regression occurred because #214 copied the launcher while native
 styles retained hardcoded peach defaults; matching launcher bytes alone was
-insufficient. Independent `tests/composer-palette.test.mjs` now assert both the
+insufficient. The former palette tests asserted both the
 local contract and applicable native role aliases, including identity exceptions.
 Generated content projects already copy this same launcher contract alongside
 their customisable text/action defaults. Run every app's check/build and verify
