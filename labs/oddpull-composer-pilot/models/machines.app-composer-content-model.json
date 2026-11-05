@@ -1,0 +1,66 @@
+{
+  "schema": "app-composer.content-model",
+  "version": 1,
+  "collection": "machines",
+  "label": "Capsule machines",
+  "groups": [
+    "Identity",
+    "Operation"
+  ],
+  "fields": [
+    {
+      "key": "title",
+      "label": "Machine name",
+      "type": "string",
+      "required": true,
+      "group": "Identity",
+      "validation": {
+        "maxLength": 100
+      }
+    },
+    {
+      "key": "description",
+      "label": "Machine description",
+      "type": "text",
+      "required": true,
+      "group": "Identity",
+      "validation": {
+        "maxLength": 1500
+      }
+    },
+    {
+      "key": "pool_key",
+      "label": "Published pool version key",
+      "type": "string",
+      "required": true,
+      "group": "Operation",
+      "validation": {
+        "maxLength": 80
+      }
+    },
+    {
+      "key": "mode",
+      "label": "Operational mode",
+      "type": "select",
+      "required": true,
+      "group": "Operation",
+      "choices": [
+        "Free",
+        "Staff only"
+      ],
+      "defaultValue": "Free"
+    },
+    {
+      "key": "publication",
+      "label": "Publication intent",
+      "type": "select",
+      "required": true,
+      "group": "Operation",
+      "choices": [
+        "Draft",
+        "Published"
+      ],
+      "defaultValue": "Draft"
+    }
+  ]
+}

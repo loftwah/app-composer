@@ -1,0 +1,108 @@
+{
+  "schema": "app-composer.content-model",
+  "version": 1,
+  "collection": "collectibles",
+  "label": "Collectibles",
+  "groups": [
+    "Identity",
+    "Draw configuration",
+    "Publication"
+  ],
+  "fields": [
+    {
+      "key": "title",
+      "label": "Collectible name",
+      "type": "string",
+      "required": true,
+      "group": "Identity",
+      "validation": {
+        "maxLength": 100
+      }
+    },
+    {
+      "key": "description",
+      "label": "Character story",
+      "type": "text",
+      "required": true,
+      "group": "Identity",
+      "validation": {
+        "maxLength": 1500
+      }
+    },
+    {
+      "key": "character_key",
+      "label": "Immutable character key",
+      "type": "string",
+      "required": true,
+      "group": "Identity",
+      "validation": {
+        "maxLength": 80
+      }
+    },
+    {
+      "key": "art_url",
+      "label": "Approved artwork URL",
+      "type": "url",
+      "required": false,
+      "group": "Identity"
+    },
+    {
+      "key": "rights_note",
+      "label": "Artwork and rights provenance",
+      "type": "text",
+      "required": true,
+      "group": "Identity",
+      "validation": {
+        "maxLength": 500
+      }
+    },
+    {
+      "key": "rarity",
+      "label": "Rarity tier",
+      "type": "select",
+      "required": true,
+      "group": "Draw configuration",
+      "choices": [
+        "Common",
+        "Uncommon",
+        "Rare",
+        "Legendary"
+      ],
+      "defaultValue": "Common"
+    },
+    {
+      "key": "weight",
+      "label": "Integer draw weight",
+      "type": "integer",
+      "required": true,
+      "group": "Draw configuration",
+      "validation": {
+        "min": 1,
+        "max": 100000
+      },
+      "defaultValue": 1
+    },
+    {
+      "key": "pool_key",
+      "label": "Pool membership key",
+      "type": "string",
+      "required": true,
+      "group": "Draw configuration",
+      "validation": {
+        "maxLength": 80
+      }
+    },
+    {
+      "key": "publication",
+      "label": "Publication intent",
+      "type": "select",
+      "required": true,
+      "group": "Publication",
+      "choices": [
+        "Draft",
+        "Published"
+      ],
+      "defaultValue": "Draft"
+    }
+  ]
+}
