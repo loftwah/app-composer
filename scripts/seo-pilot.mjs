@@ -93,13 +93,14 @@ export async function auditComposerSEO({ fetcher = fetch, now = () => new Date()
   const locs = [...sitemap.body.matchAll(/<loc\b[^>]*>([\s\S]*?)<\/loc>/gi)].map((m) => clean(m[1]));
   const accepted = [];
   const seen = new Set();
+  let rejected = false;
   for (const loc of locs) {
     const href = safePage(loc);
-    if (!href) { add('warning', base + '/sitemap.xml', 'unsafe-sitemap-entry', 'Sitemap contains a private, external, invalid or query-bearing URL.'); continue; }
+    if (!href) { rejected = true; add('warning', base + '/sitemap.xml', 'unsafe-sitemap-entry', 'Sitemap contains a private, external, invalid or query-bearing URL.'); continue; }
     if (!seen.has(href)) { accepted.push(href); seen.add(href); }
   }
   if (accepted.length === 0) add('error', base + '/sitemap.xml', 'empty-sitemap', 'No eligible page URLs were declared.');
-  const complete = accepted.length <= maxPages;
+  let complete = accepted.length <= maxPages && !rejected;
   if (!complete) add('warning', base + '/sitemap.xml', 'partial-coverage', `${accepted.length} eligible URLs; only ${maxPages} inspected. This is not a full audit.`);
   const titles = new Map();
   for (const url of accepted.slice(0, maxPages)) {
@@ -107,7 +108,7 @@ export async function auditComposerSEO({ fetcher = fetch, now = () => new Date()
       const page = await fetchText(url, fetcher);
       const record = { url, status: page.status, type: page.type };
       pages.push(record);
-      if (page.status !== 200) { add('error', url, 'page-unavailable', `Sitemap page returned HTTP ${page.status}.`); continue; }
+      if (page.status !== 200) { complete = false; add('error', url, 'page-unavailable', `Sitemap page returned HTTP ${page.status}.`); continue; }
       if (!/\btext\/html\b/i.test(page.type)) { record.kind = 'non-html'; continue; }
       record.kind = 'html';
       const m = metadata(page.body);
@@ -126,6 +127,7 @@ export async function auditComposerSEO({ fetcher = fetch, now = () => new Date()
         else titles.set(m.title.toLowerCase(), url);
       }
     } catch (err) {
+      complete = false;
       add('error', url, 'page-unreachable', String(err.message));
       pages.push({ url, status: null, kind: 'unreachable' });
     }

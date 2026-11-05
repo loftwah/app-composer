@@ -47,6 +47,7 @@ test('rejects untrusted sitemap URLs before fetching or following redirects', as
   const f = fixture({}, [base + '/', 'https://evil.com/steal', `${base}/_emdash/admin`, `${base}/?token=secret`, 'http://127.0.0.1/', `${base}.evil.com/`]);
   const report = await run(f);
   assert.equal(report.checkedPages, 1);
+  assert.equal(report.complete, false);
   assert.ok(report.findings.filter((x) => x.code === 'unsafe-sitemap-entry').length >= 5);
   assert.ok(f.requests.every((r) => r.url.startsWith(base + '/')));
   assert.equal(f.requests.length, 3);
@@ -70,6 +71,7 @@ test('fails visibly when sitemap is unavailable or an advertised page redirects'
   assert.equal(report.findings[0].code, 'sitemap-unavailable');
   const redirected = fixture({ [`${base}/`]: { body: '', type: 'text/html', status: 302, headers: { location: 'https://evil.com/' } } });
   const second = await run(redirected);
+  assert.equal(second.complete, false);
   assert.equal(second.findings.find((x) => x.code === 'page-unreachable')?.severity, 'error');
 });
 
