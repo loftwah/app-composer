@@ -153,6 +153,19 @@ const siteSchema = {
       </div>
     </section>
 
+    <section class="home-community" aria-labelledby="community-heading">
+      <div class="home-community-copy">
+        <p class="home-community-kicker">From the community</p>
+        <h2 id="community-heading">Agent Black Box, by Robert DeVore.</h2>
+        <p>Robert used App Composer's real manifest and composition validators and promotion guard to build three independent Worker apps for importing agent-run evidence, replaying it and publishing an approved report.</p>
+        <p class="home-community-limit">Open-source local demo, with a project-specific adapter; not a hosted deployment or native Composer catalogue integration.</p>
+      </div>
+      <div class="home-community-links">
+        <a href="https://github.com/robertdevore/agent-black-box">Explore the source <ArrowRight size={16} aria-hidden="true" /></a>
+        <a href="https://x.com/deviorobert/status/2117347151525134372">Read Robert's announcement <ArrowRight size={16} aria-hidden="true" /></a>
+      </div>
+    </section>
+
     {ownerInstance && (
       <section class="home-instance" aria-labelledby="instance-heading">
         <h2 id="instance-heading">Installed in this instance</h2>
@@ -384,6 +397,52 @@ const siteSchema = {
     font-size: 0.8rem;
     line-height: 1.45;
     color: var(--color-muted);
+  }
+
+  /* Community-built work, distinct from first-party deployed demos. */
+  .home-community {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(12rem, 0.8fr);
+    gap: 1.5rem 2rem;
+    padding: clamp(1.35rem, 3vw, 2rem);
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-accent);
+    border-radius: 8px;
+    background: var(--color-surface);
+  }
+  .home-community-kicker {
+    margin: 0 0 0.55rem;
+    color: var(--color-accent);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .home-community h2 {
+    margin: 0 0 0.7rem;
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+  }
+  .home-community-copy > p:not(.home-community-kicker) {
+    margin: 0 0 0.6rem;
+    line-height: 1.55;
+  }
+  .home-community-copy .home-community-limit {
+    color: var(--color-muted);
+    font-size: 0.88rem;
+  }
+  .home-community-links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.25rem;
+  }
+  .home-community-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    font-weight: 600;
   }
 
   /* Three jobs, one destination each. */
@@ -708,6 +767,9 @@ const siteSchema = {
 
   }
   @media (max-width: 700px) {
+    .home-community {
+      grid-template-columns: 1fr;
+    }
     .home-proof-grid {
       grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
     }
