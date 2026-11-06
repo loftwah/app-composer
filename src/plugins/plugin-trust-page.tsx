@@ -217,17 +217,25 @@ const comparisonLabels = {
   "installed-ahead": "Installed version is newer",
 };
 
-export function PluginInstalledInventory({ report }: { report: Report }) {
+export function PluginInstalledInventory({
+  report,
+  selectedId,
+  onSelect,
+}: {
+  report: Report;
+  selectedId: string;
+  onSelect: (id: string) => void;
+}) {
   return (
     <section className="pt-inventory" aria-labelledby="plugin-inventory-title">
       <div className="pt-package-heading">
-        <h2 id="plugin-inventory-title">This site's installed plugins</h2>
+        <h2 id="plugin-inventory-title">All installed plugins</h2>
         <time dateTime={report.checkedAt}>{utc(report.checkedAt)}</time>
       </div>
       <p>
-        Read from this site's EmDash state. Only a matching registry publisher
-        DID and package slug can be compared. Native plugins retain their own
-        source and release process.
+        Select one plugin to review its comparison above. Only a matching
+        registry publisher DID and package slug can be compared. Native plugins
+        retain their own source and release process.
       </p>
       {!report.inventory.available ? (
         <p role="status">
@@ -242,8 +250,15 @@ export function PluginInstalledInventory({ report }: { report: Report }) {
                 report.snapshot,
                 new Date(report.checkedAt),
               );
+              const current = row.plugin_id === selectedId;
               return (
-                <article key={row.plugin_id} className="pt-installed-row">
+                <article
+                  key={row.plugin_id}
+                  className={
+                    "pt-installed-row" +
+                    (current ? " pt-installed-current" : "")
+                  }
+                >
                   <div>
                     <h3>{row.plugin_id}</h3>
                     <p>
@@ -254,24 +269,17 @@ export function PluginInstalledInventory({ report }: { report: Report }) {
                     </p>
                   </div>
                   <div>
-                    {comparison.candidate && (
+                    {current ? (
                       <p>
-                        Observed registry release:{" "}
-                        <strong>
-                          {comparison.candidate.name}{" "}
-                          {comparison.candidate.version}
-                        </strong>{" "}
-                        · {labels[comparison.candidate.rating]}
+                        <strong>Selected for review above.</strong>
                       </p>
-                    )}
-                    <p>{comparison.action}</p>
-                    {comparison.candidate && (
-                      <p>
-                        <code>
-                          {comparison.candidate.did} /{" "}
-                          {comparison.candidate.slug}
-                        </code>
-                      </p>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => onSelect(row.plugin_id)}
+                      >
+                        Review {row.plugin_id}
+                      </button>
                     )}
                   </div>
                 </article>
@@ -296,6 +304,7 @@ export function PluginTrustPage() {
   const [report, setReport] = useState<Report>();
   const [error, setError] = useState("");
   const [generation, setGeneration] = useState(0);
+  const [selectedId, setSelectedId] = useState("");
   useEffect(() => {
     const controller = new AbortController();
     setError("");
@@ -311,7 +320,18 @@ export function PluginTrustPage() {
           "The private Plugin Trust Centre is unavailable. Sign in as an administrator and try again.",
         );
         const parsed = reportSchema.parse(raw);
-        if (!controller.signal.aborted) setReport(parsed);
+        if (!controller.signal.aborted) {
+          setReport(parsed);
+          const requested = new URLSearchParams(window.location.search).get(
+            "plugin",
+          );
+          setSelectedId(
+            requested &&
+              parsed.inventory.rows.some((row) => row.plugin_id === requested)
+              ? requested
+              : (parsed.inventory.rows[0]?.plugin_id ?? ""),
+          );
+        }
       } catch {
         if (!controller.signal.aborted)
           setError(
@@ -321,6 +341,52 @@ export function PluginTrustPage() {
     })();
     return () => controller.abort();
   }, [generation]);
+  useEffect(() => {
+    function sync() {
+      if (!report) return;
+      const requested = new URLSearchParams(window.location.search).get(
+        "plugin",
+      );
+      setSelectedId(
+        requested &&
+          report.inventory.rows.some((row) => row.plugin_id === requested)
+          ? requested
+          : (report.inventory.rows[0]?.plugin_id ?? ""),
+      );
+    }
+    window.addEventListener("popstate", sync);
+    return () => window.removeEventListener("popstate", sync);
+  }, [report]);
+  const rows = report?.inventory.available ? report.inventory.rows : [];
+  const selected = rows.find((row) => row.plugin_id === selectedId) ?? rows[0];
+  const comparison =
+    selected && report
+      ? compareInstalledPlugin(
+          selected,
+          report.snapshot,
+          new Date(report.checkedAt),
+        )
+      : null;
+  const tone =
+    comparison?.state === "stale" || comparison?.state === "newer-observed"
+      ? " pt-amber"
+      : comparison?.state === "unknown" || comparison?.state === "native"
+        ? " pt-unknown"
+        : "";
+  const owningRepository =
+    selected?.source === "config"
+      ? "https://github.com/loftwah/app-composer"
+      : "/_emdash/admin/plugins-manager";
+  const owningLabel =
+    selected?.source === "config"
+      ? "Review the owning repository"
+      : "Open native EmDash records";
+  function choosePlugin(id: string) {
+    setSelectedId(id);
+    const url = new URL(window.location.href);
+    url.searchParams.set("plugin", id);
+    window.history.pushState(null, "", url);
+  }
   return (
     <section
       className="composer-plugin-trust"
@@ -329,17 +395,11 @@ export function PluginTrustPage() {
       <header>
         <h1 id="plugin-trust-title">Plugin Trust Centre</h1>
         <p>
-          Review what a selected plugin asks to do before deciding whether it
-          belongs in your application.
+          Review an installed plugin, then inspect the dated registry evidence
+          behind a decision.
         </p>
         <p>Composer production · administrator-only · read-only</p>
       </header>
-      <p>
-        <a href="https://plugins.emdashcms.com/">
-          Open the official EmDash registry
-        </a>{" "}
-        · <a href="/plugin-trust">How these checks work</a>
-      </p>
       {!report && !error && (
         <p role="status">Loading this site's inventory and curated evidence…</p>
       )}
@@ -351,9 +411,88 @@ export function PluginTrustPage() {
           </button>
         </div>
       )}
+      {report && selected && comparison && (
+        <section className="pt-next" aria-labelledby="pt-next-title">
+          <p className="pt-kicker">Installed plugin review</p>
+          <div className="pt-package-heading">
+            <h2 id="pt-next-title">{selected.plugin_id}</h2>
+            <strong className={"pt-rating" + tone}>
+              {comparisonLabels[comparison.state]}
+            </strong>
+          </div>
+          <p>
+            <strong>Installed {selected.version}</strong> · {selected.status}
+          </p>
+          <p>{comparison.action}</p>
+          {comparison.candidate && (
+            <p className="pt-identity">
+              Observed registry release:{" "}
+              <strong>
+                {comparison.candidate.name} {comparison.candidate.version}
+              </strong>{" "}
+              · {labels[comparison.candidate.rating]}{" "}
+              <code>
+                {comparison.candidate.did} / {comparison.candidate.slug}
+              </code>
+            </p>
+          )}
+          <div className="pt-actions">
+            <a className="pt-primary" href={owningRepository}>
+              {owningLabel}
+            </a>
+            {comparison.candidate && (
+              <a
+                className="pt-secondary"
+                href={`https://plugins.emdashcms.com/plugins/@${comparison.candidate.did}/${comparison.candidate.slug}`}
+              >
+                View the observed registry release
+              </a>
+            )}
+          </div>
+          {rows.length > 1 && (
+            <label className="pt-select">
+              <span>Review another installed plugin</span>
+              <select
+                value={selected.plugin_id}
+                onChange={(event) => choosePlugin(event.target.value)}
+              >
+                {rows.map((row) => (
+                  <option key={row.plugin_id} value={row.plugin_id}>
+                    {row.plugin_id} · {row.version}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <p className="pt-context">
+            Composer production · administrator-only · read-only · {rows.length}{" "}
+            installed {rows.length === 1 ? "plugin" : "plugins"} · inventory
+            read{" "}
+            <time dateTime={report.checkedAt}>{utc(report.checkedAt)}</time>
+          </p>
+          <details>
+            <summary>What this comparison can and cannot prove</summary>
+            <p>
+              Read from this site's EmDash state. Only a matching registry
+              publisher DID and package slug can be compared. Native plugins
+              retain their own source and release process.
+            </p>
+          </details>
+        </section>
+      )}
       {report && (
         <>
-          <PluginInstalledInventory report={report} />
+          <p className="pt-links">
+            <a href="https://plugins.emdashcms.com/">
+              Open the official EmDash registry
+            </a>
+            <a href="/plugin-trust">How these checks work</a>
+          </p>
+          <PluginInstalledInventory
+            report={report}
+            selectedId={selected?.plugin_id ?? ""}
+            onSelect={choosePlugin}
+          />
           <h2 className="pt-curated-title">Observed registry releases</h2>
           <p>
             These selected releases are dated observations, not a live
