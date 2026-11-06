@@ -12,8 +12,13 @@ identity below are the ones actually deployed, not a plan.
   `3b263d3c-cec3-48d2-8f90-4c969cb9ae44`.
 - State-ownership batch: PR [#414](https://github.com/loftwah/app-composer/pull/414),
   merge `0c1924f6b0c365ed5d04d3d70b39a1a66fa42dd4`, Worker
-  `b9aac397-f743-4212-a6a6-8bea32497c3b`. This batch changes documentation, the
-  lint entrypoint and tests only.
+  `b9aac397-f743-4212-a6a6-8bea32497c3b`. Documentation, lint and tests only.
+- Capability catalogue: PR [#415](https://github.com/loftwah/app-composer/pull/415),
+  merge `9e2e2fcb4d8fba59aa7e556d22edf1801fd5dc13`, Worker
+  `8db8cd14-63c3-4b2c-9d6d-9236ff242e70`.
+- Catalogue rendering polish: PR [#416](https://github.com/loftwah/app-composer/pull/416),
+  merge `9746822be17e47ac4e688e03aaed30991e007391`, Worker
+  `a1934745-6f34-4ea1-97a7-953cea4314ce`.
 - Origin: `https://composer.loftwah.com`
 - Release path: clean pushed `main` → `pnpm deploy` (audit, `pnpm check`, build,
   publication/privacy gates, D1 migrations, upload, live source verification).
@@ -39,7 +44,11 @@ identity below are the ones actually deployed, not a plan.
 | `/brand/stack-share.mjs` | serves the slug/revision binding, not a copied `v2` prefix |
 | `/api/composition.json` | 200, contract 1, 3 sources, 10 releases |
 | `/s/fictional-trail-notes` | 200 |
-| Deployed source (both batches) | `703a8fc5f6e34644ffbdb4119422bb8011e9207e`, then `0c1924f6b0c365ed5d04d3d70b39a1a66fa42dd4` |
+| Deployed source (final) | `9746822be17e47ac4e688e03aaed30991e007391` |
+| `/capabilities.json` | 200, contract 1, 8 apps, 5 verified operations |
+| `/capabilities` | 200 HTML, canonical correct, one `h1`, no horizontal overflow at 390 or 1440 |
+| `/sitemap.xml` | lists `/capabilities` once |
+| `/agent.md` | links the catalogue |
 
 ## Measured async change
 
@@ -48,6 +57,19 @@ now reads its three independent D1 statements together. With a fake D1 adding 40
 read, five samples moved from a 126.5 ms median to 42.2 ms. This is a local Node
 measurement, not a production p95. Overview's two scope reads run together within D1's
 six-connection budget; the four problem-source reads deliberately stay sequential.
+
+## Capability catalogue (first slice of #412)
+
+Composer's verified description of the operations the shipped apps already support:
+`POST /api/inspect` and `/healthz` for Link Check, the invitation and public items reads
+for Here / there, and the published profile read for Linkarooie. Validation rejects
+unknown apps, duplicates, unsafe paths, stray fields, credential-like fields, public
+effects and effect operations without confirmation. Each entry names its real permit and
+verification date; none grants access or executes anything.
+
+This is **not** the full #412 acceptance: app-owned declarations read from each
+`app.manifest.json` and a verified authorised mutation remain open. Screenshots:
+[desktop](capabilities-desktop.png) · [phone](capabilities-phone.png).
 
 ## Not claimed
 
