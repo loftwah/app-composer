@@ -112,7 +112,7 @@ API/page itself returned `200`. See
 | Publication privacy | 22 probes, all expected absent/public outcomes, no findings |
 | Anonymous administration boundary | deploy verifier passed |
 
-## #316 owner check and closure
+## #316 owner check and completion
 
 The executable acceptance items are met:
 
