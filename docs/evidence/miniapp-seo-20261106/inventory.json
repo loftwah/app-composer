@@ -1,0 +1,197 @@
+{
+  "checkedAt": "2026-11-06T11:21:40.517Z",
+  "results": [
+    {
+      "origin": "https://paperwork.loftwah.com",
+      "home": {
+        "status": 200,
+        "type": "text/html",
+        "location": null,
+        "title": "Paperwork — Fill, sign and edit PDFs in your browser",
+        "description": "Fill PDF forms, draw, add your signature and save or print the completed PDF. Your documents and signatures stay in your browser. No account or uploads.",
+        "canonical": "https://paperwork.loftwah.com/",
+        "robots": "index,follow,max-image-preview:large",
+        "ogImage": "https://paperwork.loftwah.com/social/paperwork-20261024.png",
+        "h1": 1
+      },
+      "robots": {
+        "status": 200,
+        "declaresSitemap": true,
+        "disallowsAdmin": false
+      },
+      "sitemap": {
+        "status": 200,
+        "urls": 2,
+        "valid": true
+      }
+    },
+    {
+      "origin": "https://guestbook.loftwah.com",
+      "home": {
+        "status": 200,
+        "type": "text/html; charset=utf-8",
+        "location": null,
+        "title": "Loftwah&#39;s guestbook",
+        "description": "Leave a postcard for Loftwah. Your message stays private until I approve it.",
+        "canonical": "https://guestbook.loftwah.com/",
+        "robots": "",
+        "ogImage": "https://guestbook.loftwah.com/brand/herethere-share-20261018.jpg",
+        "h1": 1
+      },
+      "robots": {
+        "status": 200,
+        "declaresSitemap": false,
+        "disallowsAdmin": false
+      },
+      "sitemap": {
+        "status": 404,
+        "urls": 0,
+        "valid": false
+      }
+    },
+    {
+      "origin": "https://showcase.loftwah.com",
+      "home": {
+        "status": 200,
+        "type": "text/html; charset=utf-8",
+        "location": null,
+        "title": "Loftwah",
+        "description": "Dean Lofts · Australian software builder, DevOps engineer and music producer. I like building things and making them work.",
+        "canonical": "https://showcase.loftwah.com/",
+        "robots": "",
+        "ogImage": "https://showcase.loftwah.com/brand/creators/loftwah-share-v1.jpg",
+        "h1": 1
+      },
+      "robots": {
+        "status": 200,
+        "declaresSitemap": false,
+        "disallowsAdmin": false
+      },
+      "sitemap": {
+        "status": 404,
+        "urls": 0,
+        "valid": false
+      }
+    },
+    {
+      "origin": "https://share.loftwah.com",
+      "home": {
+        "status": 200,
+        "type": "text/html",
+        "location": null,
+        "title": "Link Check · Site identity, SEO and share previews",
+        "description": "Inspect live Open Graph and SEO metadata, verify image dimensions and export a dated report for your agent.",
+        "canonical": "https://share.loftwah.com/",
+        "robots": "",
+        "ogImage": "https://share.loftwah.com/brand/linkcheck-share-20261018.jpg",
+        "h1": 1
+      },
+      "robots": {
+        "status": 200,
+        "declaresSitemap": true,
+        "disallowsAdmin": true
+      },
+      "sitemap": {
+        "status": 200,
+        "urls": 1,
+        "valid": true
+      }
+    },
+    {
+      "origin": "https://ready.loftwah.com",
+      "home": {
+        "status": 200,
+        "type": "text/html;charset=utf-8",
+        "location": null,
+        "title": "Hello from Loftwah. · App Composer",
+        "description": "Made in my App Composer workspace. A tiny app that confirms this environment can build and deploy.",
+        "canonical": "https://ready.loftwah.com/",
+        "robots": "noindex,nofollow",
+        "ogImage": "https://ready.loftwah.com/brand/hello-share-20261018.jpg",
+        "h1": 1
+      },
+      "robots": {
+        "status": 200,
+        "declaresSitemap": false,
+        "disallowsAdmin": false
+      },
+      "sitemap": {
+        "status": 404,
+        "urls": 0,
+        "valid": false
+      }
+    },
+    {
+      "origin": "https://ai.loftwah.com",
+      "home": {
+        "status": 200,
+        "type": "text/html",
+        "location": null,
+        "title": "Carry / forward · Portable assistant memory",
+        "description": "Choose which memories to share. Try a fictional assistant profile and save an encrypted file you can reopen in your browser.",
+        "canonical": "https://ai.loftwah.com/",
+        "robots": "",
+        "ogImage": "https://ai.loftwah.com/brand/carryforward-share-20261018.jpg",
+        "h1": 1
+      },
+      "robots": {
+        "status": 200,
+        "declaresSitemap": true,
+        "disallowsAdmin": false
+      },
+      "sitemap": {
+        "status": 200,
+        "urls": 1,
+        "valid": true
+      }
+    },
+    {
+      "origin": "https://ldraw.loftwah.com",
+      "home": {
+        "status": 200,
+        "type": "text/html",
+        "location": null,
+        "title": "LDraw — editable diagrams in your browser",
+        "description": "Draw diagrams on a real Excalidraw canvas, keep the editable .excalidraw file and export PNG or SVG. Your drawings stay in this browser — no account or uploads.",
+        "canonical": "https://ldraw.loftwah.com/",
+        "robots": "index,follow,max-image-preview:large",
+        "ogImage": "https://ldraw.loftwah.com/og/ldraw-og.png",
+        "h1": 0
+      },
+      "robots": {
+        "status": 200,
+        "declaresSitemap": true,
+        "disallowsAdmin": false
+      },
+      "sitemap": {
+        "status": 200,
+        "urls": 1,
+        "valid": true
+      }
+    },
+    {
+      "origin": "https://composer-launch-kit.loftwah.workers.dev",
+      "home": {
+        "status": 200,
+        "type": "text/html",
+        "location": null,
+        "title": "Launch Kit — artwork into an app identity",
+        "description": "Prepare icons, install artwork and social images in your browser. Inspect the actual files, export a portable package and deliberately bring it into App Composer.",
+        "canonical": "",
+        "robots": "",
+        "ogImage": "https://composer.loftwah.com/launch-kit/example/social-1200x630.png",
+        "h1": 1
+      },
+      "robots": {
+        "status": 200,
+        "declaresSitemap": false,
+        "disallowsAdmin": false
+      },
+      "sitemap": {
+        "status": 404,
+        "urls": 0,
+        "valid": false
+      }
+    }
+  ]
+}
