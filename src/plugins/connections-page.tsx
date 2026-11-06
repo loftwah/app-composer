@@ -143,54 +143,79 @@ export function Connections({ search }: { search: string }) {
       pending.current = false;
     };
   }, []);
+  const lead =
+    snapshot?.connections.find(
+      (connection) => connection.id === "guestbook-owner",
+    ) ?? snapshot?.connections[0];
   return (
     <div className="composer-connections" aria-busy={busy}>
-      <div className="cn-heading">
+      <header className="cn-heading cn-page-heading">
         <div>
           <h1>Connections</h1>
           <p>
-            See which server references are available, what uses them and what
-            was actually checked.
+            Check the supported connection and see what was actually verified.
           </p>
         </div>
         <button
           type="button"
+          className="cn-secondary"
           disabled={busy || invalid.current}
           onClick={() => void load()}
         >
-          Refresh metadata
+          {busy ? "Reading…" : "Refresh metadata"}
         </button>
-      </div>
-      <div className="cn-scope">
-        {snapshot ? (
-          <>
-            Workspace <strong>{snapshot.workspace.name}</strong> ·{" "}
-            {snapshot.workspace.role} ·{" "}
-            <strong>{snapshot.installation.environment}</strong>
-            <details>
-              <summary>Selected account and metadata time</summary>
-              <code>{snapshot.installation.account}</code>
-              <p>
-                Metadata read{" "}
-                {new Date(snapshot.metadataReadAt).toLocaleString("en-AU", {
-                  timeZone: "UTC",
-                })}{" "}
-                UTC. This is not a provider health check.
-              </p>
-            </details>
-          </>
-        ) : (
-          "Confirming the selected workspace…"
-        )}
-      </div>
+      </header>
+      {!snapshot && !error && (
+        <p className="cn-status" role="status">
+          Reading this workspace’s supported connections…
+        </p>
+      )}
       {error && (
         <p className="cn-error" role="alert">
           {error}
         </p>
       )}
-      <p className="cn-status" role="status">
-        {busy ? "Reading this workspace’s supported connection…" : ""}
-      </p>
+      {snapshot && lead && (
+        <section className="cn-next" aria-labelledby="cn-next-title">
+          <p className="cn-kicker">Selected connection</p>
+          <div className="cn-heading">
+            <h2 id="cn-next-title">{lead.name}</h2>
+            <strong>{labels[lead.status]}</strong>
+          </div>
+          <p>{lead.note}</p>
+          <div className="cn-actions">
+            {lead.id === "guestbook-owner" && (
+              <button
+                type="button"
+                className="cn-primary"
+                disabled={busy}
+                onClick={() => void load(true)}
+              >
+                {busy ? "Checking…" : "Check an owned visitor-book read"}
+              </button>
+            )}
+          </div>
+          <p className="cn-meta">
+            Workspace <strong>{snapshot.workspace.name}</strong> ·{" "}
+            {snapshot.workspace.role} ·{" "}
+            <strong>{snapshot.installation.environment}</strong> · Account{" "}
+            <code>{snapshot.installation.account}</code>
+          </p>
+          <details className="cn-context-detail">
+            <summary>Metadata time</summary>
+            <p>
+              Metadata read{" "}
+              {new Date(snapshot.metadataReadAt).toLocaleString("en-AU", {
+                timeZone: "UTC",
+              })}{" "}
+              UTC. This is not a provider health check.
+            </p>
+          </details>
+          <p className="cn-status" role="status">
+            {busy ? "Reading this workspace’s supported connection…" : ""}
+          </p>
+        </section>
+      )}
       <p className="cn-boundary">
         Hosting manages these references. This screen does not accept or reveal
         key values, change access, rotate credentials or disconnect a provider.
@@ -240,106 +265,105 @@ export function Connections({ search }: { search: string }) {
           )}
         </section>
       )}
-      {snapshot?.connections.map((connection) => (
-        <section
-          className="cn-connection"
-          key={connection.id}
-          aria-labelledby={`connection-${connection.id}`}
-        >
-          <div className="cn-heading">
-            <h2 id={`connection-${connection.id}`}>{connection.name}</h2>
-            <strong>{labels[connection.status]}</strong>
-          </div>
-          <p>{connection.note}</p>
-          <dl className="cn-facts">
-            <dt>Server references</dt>
-            <dd>
-              {connection.credentialReferences.map((reference) => (
-                <code key={reference}>{reference}</code>
-              ))}
-            </dd>
-            <dt>Availability</dt>
-            <dd>
-              {connection.bindingAvailable
-                ? "Adapter available"
-                : "Service binding missing"}{" "}
-              ·{" "}
-              {connection.credentialPresent
-                ? "Key reference present"
-                : "Key reference missing"}
-            </dd>
-            <dt>Fixed destination</dt>
-            <dd>
-              <code>{connection.target}</code>
-            </dd>
-            <dt>Verified capability</dt>
-            <dd>
-              {connection.verifiedCapabilities.length
-                ? "Read one owned resource at its exact reviewed source"
-                : "None verified by this view"}
-            </dd>
-            <dt>Last read check</dt>
-            <dd>
-              {connection.checkedAt
-                ? `${new Date(connection.checkedAt).toLocaleString("en-AU", { timeZone: "UTC" })} UTC · ${connection.checkOutcome}`
-                : "Not checked"}
-              {connection.source && (
-                <p>
-                  Matched source <code>{connection.source}</code>
-                </p>
-              )}
-            </dd>
-            <dt>Credential expiry</dt>
-            <dd>Unknown</dd>
-          </dl>
-          {connection.id === "guestbook-owner" && (
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => void load(true)}
+      {snapshot && (
+        <>
+          <h2 className="cn-records-title">Connection detail</h2>
+          <p className="cn-muted">
+            What each reference is, what was checked and what remains unknown.
+          </p>
+          {snapshot.connections.map((connection) => (
+            <section
+              className="cn-connection"
+              key={connection.id}
+              aria-labelledby={`connection-${connection.id}`}
             >
-              Check an owned visitor-book read
-            </button>
-          )}
-          <details>
-            <summary>What uses this connection?</summary>
-            <ul>
-              {connection.declaredUse.map((use) => (
-                <li key={use}>{use}</li>
-              ))}
-            </ul>
-            {!connection.dependencies.available ? (
-              <p>
-                Saved dependencies could not be read. Unavailable is not an
-                empty dependency list.
-              </p>
-            ) : connection.dependencies.items.length ? (
-              <ul>
-                {connection.dependencies.items.map((item, index) => (
-                  <li key={`${item.href}:${index}`}>
-                    <a href={item.href}>{item.label}</a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>
-                No matching saved dependencies were found in the checked
-                records. This does not inventory arbitrary application code.
-              </p>
-            )}
-            {connection.dependencies.atLimit && (
-              <p>
-                Only the first 50 matching dependencies are shown. Inspect the
-                owning screens before changing a connection.
-              </p>
-            )}
-            <p>
-              The current two native workflow recipes use local records and have
-              no external credential dependency.
-            </p>
-          </details>
-        </section>
-      ))}
+              <div className="cn-heading">
+                <h3 id={`connection-${connection.id}`}>{connection.name}</h3>
+                <strong>{labels[connection.status]}</strong>
+              </div>
+              {connection.id !== lead?.id && <p>{connection.note}</p>}
+              <dl className="cn-facts">
+                <dt>Server references</dt>
+                <dd>
+                  {connection.credentialReferences.map((reference) => (
+                    <code key={reference}>{reference}</code>
+                  ))}
+                </dd>
+                <dt>Availability</dt>
+                <dd>
+                  {connection.bindingAvailable
+                    ? "Adapter available"
+                    : "Service binding missing"}{" "}
+                  ·{" "}
+                  {connection.credentialPresent
+                    ? "Key reference present"
+                    : "Key reference missing"}
+                </dd>
+                <dt>Fixed destination</dt>
+                <dd>
+                  <code>{connection.target}</code>
+                </dd>
+                <dt>Verified capability</dt>
+                <dd>
+                  {connection.verifiedCapabilities.length
+                    ? "Read one owned resource at its exact reviewed source"
+                    : "None verified by this view"}
+                </dd>
+                <dt>Last read check</dt>
+                <dd>
+                  {connection.checkedAt
+                    ? `${new Date(connection.checkedAt).toLocaleString("en-AU", { timeZone: "UTC" })} UTC · ${connection.checkOutcome}`
+                    : "Not checked"}
+                  {connection.source && (
+                    <p>
+                      Matched source <code>{connection.source}</code>
+                    </p>
+                  )}
+                </dd>
+                <dt>Credential expiry</dt>
+                <dd>Unknown</dd>
+              </dl>
+              <details>
+                <summary>What uses this connection?</summary>
+                <ul>
+                  {connection.declaredUse.map((use) => (
+                    <li key={use}>{use}</li>
+                  ))}
+                </ul>
+                {!connection.dependencies.available ? (
+                  <p>
+                    Saved dependencies could not be read. Unavailable is not an
+                    empty dependency list.
+                  </p>
+                ) : connection.dependencies.items.length ? (
+                  <ul>
+                    {connection.dependencies.items.map((item, index) => (
+                      <li key={`${item.href}:${index}`}>
+                        <a href={item.href}>{item.label}</a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>
+                    No matching saved dependencies were found in the checked
+                    records. This does not inventory arbitrary application code.
+                  </p>
+                )}
+                {connection.dependencies.atLimit && (
+                  <p>
+                    Only the first 50 matching dependencies are shown. Inspect
+                    the owning screens before changing a connection.
+                  </p>
+                )}
+                <p>
+                  The current two native workflow recipes use local records and
+                  have no external credential dependency.
+                </p>
+              </details>
+            </section>
+          ))}
+        </>
+      )}
       <section className="cn-manage">
         <h2>Set up, replace or disconnect</h2>
         <p>

@@ -3,6 +3,7 @@
   --cn-muted: var(--text-color-kumo-subtle, #666);
   --cn-surface: var(--color-kumo-base, #fff);
   --cn-rule: color-mix(in srgb, var(--cn-ink) 25%, var(--cn-surface));
+  --cn-accent: var(--color-kumo-brand, currentColor);
   color: var(--cn-ink);
   max-width: 1250px;
   margin: auto;
@@ -35,13 +36,68 @@
 .cn-heading > strong {
   font-size: 14px;
 }
-.cn-scope {
-  border-bottom: 1px solid var(--cn-rule);
-  padding-bottom: 16px;
-  font-size: 14px;
+.composer-connections .cn-page-heading {
+  margin-bottom: 20px;
 }
-.cn-scope details {
-  margin-top: 12px;
+.composer-connections .cn-next {
+  margin: 0 0 20px;
+  padding: 20px;
+  border: 1px solid var(--cn-rule);
+  border-left: 4px solid var(--cn-accent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--cn-ink) 3%, var(--cn-surface));
+}
+.composer-connections .cn-kicker {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cn-muted);
+}
+.composer-connections .cn-next h2 {
+  margin: 0;
+}
+.composer-connections .cn-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0 8px;
+}
+.composer-connections .cn-primary {
+  border-width: 2px;
+  border-color: var(--cn-accent);
+  font-weight: 700;
+}
+.composer-connections .cn-meta {
+  font-size: 14px;
+  color: var(--cn-muted);
+  overflow-wrap: anywhere;
+}
+.composer-connections .cn-meta code {
+  color: var(--cn-ink);
+}
+.composer-connections .cn-context-detail {
+  margin-top: 8px;
+}
+.composer-connections .cn-context-detail p {
+  margin-bottom: 0;
+}
+.composer-connections .cn-next .cn-status {
+  margin: 8px 0 0;
+}
+.composer-connections .cn-records-title {
+  margin: 32px 0 0;
+  font-size: 23px;
+}
+.composer-connections .cn-muted {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--cn-muted);
+}
+.composer-connections .cn-connection h3 {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.3;
 }
 .composer-connections button {
   min-height: 44px;
@@ -152,5 +208,14 @@
   }
   .cn-heading {
     gap: 12px;
+  }
+  .composer-connections .cn-next {
+    padding: 16px;
+  }
+  .composer-connections .cn-actions {
+    flex-direction: column;
+  }
+  .composer-connections .cn-actions button {
+    width: 100%;
   }
 }
