@@ -26,8 +26,8 @@ const label = {
         <h2 id={'cap-'+app.id}><a href={app.ui}>{app.name}</a></h2>
         <div>
           <p>{app.operations.length ? `${app.operations.length} documented ${app.operations.length === 1 ? 'operation' : 'operations'}.` : 'No remote operation is published. Use the app interface or its local files.'}</p>
-          <p class="small">Storage: {app.storage === 'browser-local' ? 'this browser only' : app.storage === 'app-owned' ? 'the app owns its records' : 'no stored records'}. Source: <a href={app.repository}>independent GitHub repository</a>.</p>
-          {app.guides.map(guide => <a href={guide.href}>{guide.label}</a>)}
+          <p class="small">{app.status === 'verified' ? 'Verified operation set' : 'Limited claims'} · Storage: {app.storage === 'browser-local' ? 'this browser only' : app.storage === 'app-owned' ? 'the app owns its records' : 'no stored records'}.</p>
+          <p class="small capability-guides">{app.guides.map((guide, index) => <>{index ? ' · ' : ''}<a href={guide.href}>{guide.label}</a></>)}</p>
         </div>
         <div>
           {app.operations.length ? (
@@ -62,4 +62,5 @@ const label = {
   .capability-list { list-style: none; padding: 0; display: grid; gap: 20px; }
   .capability-list li { border-left: 3px solid var(--color-accent); padding-left: 16px; }
   .capability-list p { margin: 6px 0; }
+  .capability-guides a { display: inline; }
 </style>
