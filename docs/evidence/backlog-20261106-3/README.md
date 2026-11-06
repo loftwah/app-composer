@@ -136,6 +136,7 @@ proof. The independent mini-app batches remain #321's separate releases.
   updated in this batch.
 - Owner zip was moved aside only for the clean-release guard and restored:
   `sha256:f542b8318b5f49a4f75639948d28ece6357f957ccac25c6f280209bd0dd2c3ce`.
-- The owned fixture root was removed with `prepare-fixture.mjs --clean`; the
-  release staging root was removed by the deploy wrapper. No owned temporary
-  root remains.
+- The owned fixture app was stopped and removed with
+  `prepare-fixture.mjs --clean`; its remaining owned root (`fixture.json` only) was
+  then removed explicitly. The release staging root was removed by the deploy
+  wrapper. No owned temporary root remains.
