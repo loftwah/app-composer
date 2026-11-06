@@ -1,0 +1,94 @@
+{
+  "source": "1e24b43cee258fee1b74677b5bda3a290867a1f6",
+  "worker": "13ff7fe8-2c60-44ac-9e97-cf99c2361a1a",
+  "origin": "https://composer.loftwah.com",
+  "page": "/_emdash/admin/plugins/composer-stacks/connections",
+  "session": "existing authenticated Cloudflare Access owner session",
+  "observedAt": "2026-11-06T14:16:00Z",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "bodyBackground": "oklch(0.9875 0 0)",
+      "headingTop": 106,
+      "leadTop": 214,
+      "statusTop": 260,
+      "actionTop": 369,
+      "actionBottom": 413,
+      "contextTop": 425,
+      "contextBottom": 448,
+      "boundaryTop": 579,
+      "documentScrollWidth": 1440,
+      "documentClientWidth": 1440
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "dark",
+      "bodyBackground": "oklch(0.12 0 0)",
+      "headingTop": 106,
+      "leadTop": 214,
+      "statusTop": 260,
+      "actionTop": 369,
+      "actionBottom": 413,
+      "contextTop": 425,
+      "contextBottom": 448,
+      "boundaryTop": 579,
+      "documentScrollWidth": 1440,
+      "documentClientWidth": 1440
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "bodyBackground": "oklch(0.9875 0 0)",
+      "headingTop": 106,
+      "leadTop": 296,
+      "statusTop": 380,
+      "actionTop": 532,
+      "actionBottom": 594,
+      "contextTop": 606,
+      "contextBottom": 696,
+      "boundaryTop": 823,
+      "documentScrollWidth": 390,
+      "documentClientWidth": 390,
+      "mainScrollWidth": 390
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "bodyBackground": "oklch(0.12 0 0)",
+      "headingTop": 106,
+      "leadTop": 296,
+      "statusTop": 380,
+      "actionTop": 532,
+      "actionBottom": 594,
+      "contextTop": 606,
+      "contextBottom": 696,
+      "boundaryTop": 823,
+      "documentScrollWidth": 390,
+      "documentClientWidth": 390,
+      "mainScrollWidth": 390
+    }
+  ],
+  "focus": {
+    "sequence": "focus primary, Shift+Tab to Refresh metadata, Tab back to primary",
+    "light": {
+      "outline": "rgb(199, 68, 0) solid 2px",
+      "outlineOffset": "3px"
+    },
+    "dark": {
+      "outline": "rgb(252, 91, 5) solid 2px",
+      "outlineOffset": "3px"
+    }
+  },
+  "checkAction": {
+    "result": "Owned-resource read verified",
+    "outcome": "passed",
+    "matchedSource": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+    "observedAt": "06/11/2026, 2:15:42 pm UTC",
+    "note": "The maintained adapter verified the exact app source, account/environment and authenticated read of one owned resource."
+  }
+}
