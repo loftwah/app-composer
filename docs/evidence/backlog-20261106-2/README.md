@@ -17,8 +17,8 @@ check as deployment evidence.
 
 | Check | Result |
 | --- | --- |
-| `pnpm test` on default Node 22.23.4 | 420 passed, 0 failed, 0 skipped, 66.9 s |
-| `pnpm test` on Node 26.13.0 | 420 passed, 0 failed, 0 skipped, 59.8 s |
+| `pnpm test` on default Node 22.23.4 | 422 passed, 0 failed, 0 skipped, 66.9 s |
+| `pnpm test` on Node 26.13.0 | 422 passed, 0 failed, 0 skipped, 59.8 s |
 | `pnpm check:fast -- tests/owned-resources.test.mjs tests/freshness-policy.test.mjs tests/access-identity.test.mjs tests/core.test.mjs tests/public-pages.test.mjs` | types/source, semantic lint, format and 21 focused tests passed |
 | `pnpm check:fast` behaviour | rejects no/non-test/outside-test paths; runs the same type/source, lint and format gates; reports each stage and stops at the first failure |
 | `pnpm deploy` | runs `pnpm check` and `pnpm build` once on the clean pushed commit before remote mutations |
@@ -106,8 +106,9 @@ Observed in a real browser:
 | Keyboard focus | task link outline `3px solid rgb(252, 91, 5)`, offset 4 px | shared components unchanged |
 | Live routes | `/setup`, `/init`, `/learn` resolve | same |
 
-Screenshots: [1440 dark](guide-1440-dark.png) · [1440 light](guide-1440-light.png) ·
-[390 dark](guide-390-dark.png) · [390 light](guide-390-light.png).
+Local captures: [1440 dark](guide-1440-dark.png) · [1440 light](guide-1440-light.png) ·
+[390 dark](guide-390-dark.png) · [390 light](guide-390-light.png). Deployed captures:
+[1440 dark](guide-live-1440-dark.png) · [390 dark](guide-live-390-dark.png).
 
 This is one scoped slice; the broader #313 EmDash and #297 role-expansion
 acceptance remains open.
@@ -121,7 +122,13 @@ two gates; neither is claimed here.
 
 ## Release identity
 
-Pending the guarded clean pushed-main release in this batch.
+- Source: `136c3c975875579f9589e7f09f7d817d2e3a46b7`
+- Worker version: `5b81dc94-9e2c-4823-be5b-9d79a026e58d`
+- Origin: `https://composer.loftwah.com`
+- Release path: clean pushed `main` → `pnpm deploy`.
+- `pnpm check`: 422 passed, 0 failed, 0 skipped.
+- `pnpm build`: publication guard 1,289 files / 150 archive members.
+- Live gates: exact source, pinned services, sharing output, publication privacy and anonymous administration boundary passed.
 
 ## Cleanup
 

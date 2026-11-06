@@ -91,8 +91,8 @@ retained suite; the default `.node-version` remains 22.23.4.
   synthetic Access scenario implemented only `set` and `delete`. The fixture
   now provides the read method; the same scenario passes on Node 22 and 26.
 - The next run, after extending `isSupportedNode` to the tested 26.13.0 line,
-  passed 420 tests with zero failures and zero skips. Node 22.23.4 passed the
-  same 420 tests. This includes the owned-tool, workspace-tool and
+  passed 422 tests with zero failures and zero skips. Node 22.23.4 passed the
+  same 422 tests. This includes the owned-tool, workspace-tool and
   temporary-cleanup fixtures that the old guard had skipped.
 - No generated content-site recipe claim changed. That independent project
   keeps its EmDash 1.2.0 / Node 22 policy until it has its own browser and
