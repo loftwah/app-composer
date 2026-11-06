@@ -1,0 +1,113 @@
+{
+  "source": "1948902c16ef602d85d6081cc90e4aed04303bab",
+  "worker": "a12b9394-6dcc-40a1-8d4d-c7c89c600893",
+  "origin": "https://composer.loftwah.com",
+  "page": "/_emdash/admin/plugins/composer-stacks/plugin-trust",
+  "session": "existing authenticated Cloudflare Access owner session",
+  "observedAt": "2026-11-06T14:35:00Z",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "light",
+      "bodyBackground": "oklch(0.9875 0 0)",
+      "headingTop": 110,
+      "leadTop": 248,
+      "statusTop": 298,
+      "actionTop": 443,
+      "actionBottom": 497,
+      "selectTop": 513,
+      "contextTop": 597,
+      "inventoryTop": 803,
+      "documentScrollWidth": 1440,
+      "documentClientWidth": 1440,
+      "selectedPlugin": "composer-stacks"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "dark",
+      "bodyBackground": "oklch(0.12 0 0)",
+      "headingTop": 110,
+      "leadTop": 248,
+      "statusTop": 298,
+      "actionTop": 443,
+      "actionBottom": 497,
+      "selectTop": 513,
+      "contextTop": 597,
+      "inventoryTop": 803,
+      "documentScrollWidth": 1440,
+      "documentClientWidth": 1440,
+      "selectedPlugin": "composer-stacks"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "bodyBackground": "oklch(0.9875 0 0)",
+      "headingTop": 102,
+      "leadTop": 312,
+      "statusTop": 396,
+      "actionTop": 618,
+      "actionBottom": 671,
+      "selectTop": 687,
+      "contextTop": 772,
+      "inventoryTop": 1073,
+      "documentScrollWidth": 390,
+      "documentClientWidth": 390,
+      "mainScrollWidth": 390,
+      "selectedPlugin": "composer-stacks"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "bodyBackground": "oklch(0.12 0 0)",
+      "headingTop": 102,
+      "leadTop": 312,
+      "statusTop": 396,
+      "actionTop": 618,
+      "actionBottom": 671,
+      "selectTop": 687,
+      "contextTop": 772,
+      "inventoryTop": 1073,
+      "documentScrollWidth": 390,
+      "documentClientWidth": 390,
+      "mainScrollWidth": 390,
+      "selectedPlugin": "composer-stacks"
+    }
+  ],
+  "focus": {
+    "sequence": "focus primary, Shift+Tab to the previous control, Tab back to primary",
+    "light": {
+      "outline": "rgb(199, 68, 0) solid 2px",
+      "outlineOffset": "3px"
+    },
+    "dark": {
+      "outline": "rgb(252, 91, 5) solid 2px",
+      "outlineOffset": "3px"
+    }
+  },
+  "selection": {
+    "default": "composer-members",
+    "deepLink": "?plugin=composer-stacks",
+    "reloadResult": "composer-stacks",
+    "listSelection": "?plugin=composer-members",
+    "listResult": "composer-members"
+  },
+  "installedInventory": {
+    "plugins": [
+      "composer-members",
+      "composer-miniapps",
+      "composer-resend",
+      "composer-stacks"
+    ],
+    "allReportedStatus": "active",
+    "allReportedSource": "config",
+    "comparison": "Native / build-time"
+  },
+  "primaryAction": {
+    "label": "Review the owning repository",
+    "href": "https://github.com/loftwah/app-composer"
+  }
+}

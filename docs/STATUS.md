@@ -2,10 +2,10 @@
 
 Reviewed 25 October 2026; updated 7 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
-## Needs attention, Stack status and remote freshness — 7 November 2026 (6 November UTC)
+## Needs attention, Connections, Plugin Trust and Stack status — 7 November 2026 (6 November UTC)
 
-Production is Composer `0d031e3a26c286b2ecf3da8de7b2950de296cbff`, Worker
-`09ae01b9-14e6-4058-bec6-e08356f6e802`, from the clean pushed-main release guard.
+Production is Composer `1948902c16ef602d85d6081cc90e4aed04303bab`, Worker
+`a12b9394-6dcc-40a1-8d4d-c7c89c600893`, from the clean pushed-main release guard.
 `/build.json` matches the source. `pnpm check` passed 431 tests with zero skips;
 the publication guard inspected 1,290 files and 150 archive members; live source,
 pinned services, sharing output, publication privacy and the anonymous
@@ -22,11 +22,29 @@ date and exact blockers without installing or updating anything.
 An authenticated production owner session verified settings, Mini-app catalogue
 content, media, Creator stacks, Plugin Trust, Stack status, Brand Studio, Incident
 Desk and the mini-app admin at EmDash 1.4.0, so #316's remaining Access gate is
-closed. The native **Needs attention** journey now opens with the lead problem and
-its action before the scope controls; 390/1440, both themes, keyboard focus and
-no overflow were checked. That is one scoped #313 slice, not the whole epic.
-Evidence: [Stack status and freshness](evidence/backlog-20261106-3/README.md) ·
-[Needs attention task entry](evidence/admin-task-entry-20261107/README.md).
+closed. Three scoped #313 admin journeys now open with their task:
+
+- **Needs attention** leads with the retained problem and its action before the
+  scope controls.
+- **Connections** leads with the selected connection status and the supported
+  owned-resource check; workspace, environment and account stay visible.
+- **Plugin Trust Centre** leads with the selected installed plugin, its
+  native/build-time comparison and the owning-repository review action. The
+  installed list switches the selection and persists it in the URL.
+
+Each was checked at 390/1440 in both themes with keyboard focus and no overflow.
+These are scoped slices, not the whole #313 epic. Evidence:
+[Stack status and freshness](evidence/backlog-20261106-3/README.md) ·
+[Needs attention task entry](evidence/admin-task-entry-20261107/README.md) ·
+[Connections task entry](evidence/connections-task-entry-20261107/README.md) ·
+[Plugin Trust task entry](evidence/plugin-trust-task-entry-20261107/README.md).
+
+#412 advanced by an optional app-owned declaration in the Guestbook manifest
+(`2a9e12e`) and a strict Composer validator. The two declared public reads match
+the existing verified catalogue. Guestbook deployment, Composer composition
+promotion, the authorised mutation proof and the wider capability pattern remain
+open; no postcard, customer data or permission was created.
+Evidence: [app-owned capability declaration](evidence/app-capability-declaration-20261107/README.md).
 Independent mini-app releases remain #321.
 
 ## Product delivery and platform hardening — 25 October 2026
@@ -239,7 +257,6 @@ The source is merged; the linked receipt describes its local browser acceptance.
 delivery/reconciliation, scheduling, physical-device and screen-reader
 acceptance remain open. #117/#118/#198/#289/#291 retain those gates.
 
-
 ## Prompts, resources and native operations — 24 October 2026
 
 Production source `f0c12ad` ships the [prompt library](/prompts), portable
@@ -325,6 +342,7 @@ the commands, captures and remaining gates; #290/#288/#11 retain physical,
 assistive and release evidence.
 
 ## Agent role packs — 25 October 2026
+
 The [role-pack index](/roles) adds six versioned job contracts: Service Owner,
 Programmer, Architect, DevOps/SRE, Security and QA. Each has inputs, required
 evidence, an output schema, stop/escalation rules, prohibited actions, negative
@@ -402,7 +420,6 @@ Access admission and browser/screen-reader acceptance remain #311/#315 gaps.
 See [agent proposals](agent-proposals.md), [connect your agent](agent-connect.md)
 and the [connected transcript](evidence/agent-connect-20261025/transcript.md).
 
-
 ## Cloudflare inventory — 25 October 2026
 
 A read-only observation of account `1003…` at 2026-10-25 02:14 UTC now keeps
@@ -433,7 +450,6 @@ Per-resource cost remains unknown, never zero. See #318/#310/#312.
 ## Finding the shipped work — 24 October 2026
 
 The product front door and [Explore directory](https://composer.loftwah.com/discover) lead with [Launch Kit](https://composer.loftwah.com/launch-kit) and the [team application films](https://composer.loftwah.com/platform/demo), then link directly to invited profiles, analytics and owner workflows. The existing decision planner remains at `/explore`. The shared launcher includes the newer tools and resolves them through each shell’s selected Composer instance. The owning issue is [#273](https://github.com/loftwah/app-composer/issues/273); exact release identities and production checks belong in #11.
-
 
 ## Invited creators — 23 October 2026
 

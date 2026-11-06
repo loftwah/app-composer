@@ -1,6 +1,7 @@
 // Composer's verified, read-only capability catalogue. An entry describes an
 // operation the app already supports; it never grants permission, executes code
-// or carries a credential. App-owned manifest declarations remain #412/#3 work.
+// or carries a credential. Optional app-owned declarations are validated by
+// scripts/validate-app-manifest.mjs and remain additive to this catalogue.
 import { apps } from "./apps.ts";
 
 export const capabilitiesVersion = 1;
