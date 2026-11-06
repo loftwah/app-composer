@@ -1,0 +1,65 @@
+---
+import Base from '../layouts/Base.astro';
+import {appCapabilities, capabilitiesReviewed} from '../lib/app-capabilities';
+
+const total = appCapabilities.reduce((count, app) => count + app.operations.length, 0);
+const label = {
+  public: 'Public read',
+  'guest-invitation': 'Guest invitation',
+  'owner-scope': 'Owner scope',
+  local: 'Local only',
+};
+---
+<Base title="App capabilities for agents" description="The verified operations App Composer's independent mini-apps expose to a user-selected agent, with honest availability and no credential or permission grant.">
+  <article class="capabilities">
+    <p class="eyebrow">Machine-readable, user-authorised</p>
+    <h1>What the apps can actually do.</h1>
+    <p class="lede">{total} verified operations across {appCapabilities.length} independently owned apps. Each row names the real transport, its availability and what it needs. An entry is a description, not a permission: your agent still uses the app's own identity and allowlist.</p>
+    <div class="actions">
+      <a class="button" href="/capabilities.json">Open the JSON catalogue</a>
+      <a class="button secondary" href="/agent.md">Point an agent at Composer</a>
+    </div>
+    <p class="small">Reviewed {capabilitiesReviewed}. App-owned declarations and client execution remain separate work; see the boundary notes below.</p>
+
+    {appCapabilities.map(app => (
+      <section class="route-row" aria-labelledby={'cap-'+app.id}>
+        <h2 id={'cap-'+app.id}><a href={app.ui}>{app.name}</a></h2>
+        <div>
+          <p>{app.operations.length ? `${app.operations.length} documented ${app.operations.length === 1 ? 'operation' : 'operations'}.` : 'No remote operation is published. Use the app interface or its local files.'}</p>
+          <p class="small">Storage: {app.storage === 'browser-local' ? 'this browser only' : app.storage === 'app-owned' ? 'the app owns its records' : 'no stored records'}. Source: <a href={app.repository}>independent GitHub repository</a>.</p>
+          {app.guides.map(guide => <a href={guide.href}>{guide.label}</a>)}
+        </div>
+        <div>
+          {app.operations.length ? (
+            <ul class="capability-list">
+              {app.operations.map(operation => (
+                <li>
+                  <strong>{operation.name}</strong>
+                  <span class="small"> {operation.method} {operation.path} · {label[operation.availability]}</span>
+                  <p>{operation.description}</p>
+                  <p class="small">Needs: {operation.requires.join(', ')}. Verified {operation.verified}.</p>
+                </li>
+              ))}
+            </ul>
+          ) : <span class="small">Interface and local files only</span>}
+        </div>
+      </section>
+    ))}
+
+    <section class="section" aria-labelledby="boundaries">
+      <h2 id="boundaries">What this catalogue cannot do</h2>
+      <ul>
+        <li>It does not grant an agent access, a credential, a token or a reusable guest code.</li>
+        <li>It does not execute an operation, schedule one or approve a change. Effect operations still need their own app-issued permit and confirmation.</li>
+        <li>It does not make an unavailable app available. A limited app says so and keeps its own release boundary.</li>
+        <li>It is not a second app registry. The manifest, composition and release controls remain authoritative.</li>
+      </ul>
+      <p class="small">Related: <a href="/agent">agent fit assessment</a>, <a href="/architecture">trust boundaries</a>, <a href="/release">release practice</a>. App-owned capability declarations are tracked in the repository backlog.</p>
+    </section>
+  </article>
+</Base>
+<style>
+  .capability-list { list-style: none; padding: 0; display: grid; gap: 20px; }
+  .capability-list li { border-left: 3px solid var(--color-accent); padding-left: 16px; }
+  .capability-list p { margin: 6px 0; }
+</style>
