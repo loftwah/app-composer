@@ -1,0 +1,13 @@
+{
+  "read": "readResourceInventory",
+  "latencyPerReadMs": 40,
+  "independentReads": 3,
+  "samplesMs": [
+    41.5,
+    41.6,
+    42.3,
+    42.9,
+    43.1
+  ],
+  "medianMs": 42.3
+}
