@@ -1,0 +1,92 @@
+{
+  "schema": "composer.backlog-continuation/3",
+  "observedAt": "2026-11-06T13:13:05Z",
+  "source": "edfd9faae5437efe92378d67931254f772ea110c",
+  "workerVersion": "250bfcfa-2606-4452-972c-338d600efed3",
+  "origin": "https://composer.loftwah.com",
+  "buildJson": {
+    "app": "app-composer",
+    "commit": "edfd9faae5437efe92378d67931254f772ea110c",
+    "reviewed": "2026-10-13",
+    "reviewedScope": "original-build-identity-contract",
+    "sourceCommittedAt": "2026-11-07T00:03:52+11:00",
+    "contract": 1
+  },
+  "release": {
+    "path": "clean pushed main -> pnpm deploy",
+    "check": { "passed": 431, "failed": 0, "skipped": 0 },
+    "build": { "publicationFiles": 1290, "archiveMembers": 150 },
+    "liveVerification": [
+      "exact live source and pinned services",
+      "sharing output",
+      "publication privacy",
+      "anonymous administration boundary"
+    ]
+  },
+  "focusedTests": {
+    "command": "node --test tests/freshness-policy.test.mjs tests/freshness-remote.test.mjs tests/stack-status.test.mjs",
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0
+  },
+  "freshness": {
+    "local": { "ok": 27, "drift": 0, "unknown": 0, "unresolved": 0 },
+    "remote": {
+      "current": 17,
+      "compatiblePatch": 3,
+      "featureOpportunity": 4,
+      "breakingMajor": 1,
+      "securityUrgent": 0,
+      "unsupported": 0,
+      "unknown": 0,
+      "advisoryLookup": "available"
+    },
+    "breakingMajor": "typescript 7.0.2; reviewed policy remains ^6.0.3 because @astrojs/check peers on ^5 || ^6"
+  },
+  "stackStatus": {
+    "route": "/_emdash/admin/plugins/composer-stacks/stack-status",
+    "api": "/_emdash/api/plugins/composer-stacks/stackStatusRead",
+    "localNativeApiStatus": 200,
+    "localNativeStatus": "attention",
+    "packages": 25,
+    "remoteState": "available",
+    "reviewed": "2026-11-06",
+    "runtime": {
+      "node": { "installed": "22.23.4", "status": "ok" },
+      "pnpm": { "installed": "12.8.1", "status": "ok" }
+    },
+    "blocker": "typescript 7.0.2 is a breaking major outside the reviewed range ^6.0.3; policy note records the @astrojs/check peer limit"
+  },
+  "localNativeAdminProbe": {
+    "evidence": "stack-status-native.json",
+    "capture": "stack-status-native-1440-dark.png",
+    "emDash": "1.4.0",
+    "authentication": "virtual passkey in an isolated fictional fixture; not production Cloudflare Access",
+    "surfaces": {
+      "settings": 200,
+      "media": 200,
+      "creatorStacks": 200,
+      "pluginTrust": 200,
+      "brandStudio": 200,
+      "incidentDesk": 200,
+      "stackStatus": 200
+    },
+    "content": "not exercised because the fictional fixture intentionally has no content collections; production content remains Access-gated"
+  },
+  "live": {
+    "publicRoutes": "all tested routes returned 200",
+    "mountedPins": "Guestbook and Showcase mounted /build.json match composition.lock.json",
+    "standalonePins": "independent Guestbook and Showcase releases are newer than the composition pins, as expected",
+    "access": "admin page and plugin/users/setup APIs redirect 302 to jolly-cake-2b85.cloudflareaccess.com"
+  },
+  "remainingGates": [
+    "authenticated production Cloudflare Access owner interaction for settings, content, media, plugin pages and EmDash MCP/plugin compatibility",
+    "independent mini-app dependency batches remain #321 releases",
+    "#412 owner-authorised capability mutation was not performed"
+  ],
+  "cleanup": {
+    "ownerZipSha256": "f542b8318b5f49a4f75639948d28ece6357f957ccac25c6f280209bd0dd2c3ce",
+    "fixtureRootRemoved": true,
+    "releaseStagingRootRemoved": true
+  }
+}

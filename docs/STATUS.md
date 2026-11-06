@@ -2,6 +2,27 @@
 
 Reviewed 25 October 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Stack status and remote freshness — 7 November 2026 (6 November UTC)
+
+Production is Composer `edfd9faae5437efe92378d67931254f772ea110c`, Worker
+`250bfcfa-2606-4452-972c-338d600efed3`, from the clean pushed-main release guard.
+`/build.json` matches the source. `pnpm check` passed 431 tests with zero skips;
+the publication guard inspected 1,290 files and 150 archive members; live source,
+pinned services, sharing output, publication privacy and the anonymous
+administration boundary passed.
+
+Composer now has an explicit `pnpm freshness:remote` mode and a native EmDash
+**Stack status** page. The default freshness command remains local/offline.
+Remote mode compares locked versions with the official npm registry, classifies
+security/breaking/patch/feature/unsupported results, and keeps malformed,
+unreachable or mismatched responses unknown with the reason. Stack status shows
+installed versus deployed versus latest-tested versions, Node/pnpm policy, review
+date and exact blockers without installing or updating anything. A local native
+fixture exercised the page and Composer plugin pages at EmDash 1.4.0. Exact
+commands, observations and the remaining authenticated-Access gate are in
+[the continuation evidence](evidence/backlog-20261106-3/README.md). #316 stays open
+for the production owner session; independent mini-app releases remain #321.
+
 ## Product delivery and platform hardening — 25 October 2026
 
 Final acceptance on 25 October UTC (handoff 26 October AEDT) is Composer
