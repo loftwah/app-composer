@@ -92,7 +92,10 @@ fictional fixture and a virtual passkey (not production Access):
 | Incident Desk | `200`, h1 `Incident Desk` |
 
 The fixture intentionally has no content collections, so content management was
-not exercised there; production content remains behind Access. See
+not exercised there; production content remains behind Access. Two console
+resource errors (`403`, `400`) were recorded while probing the other plugin
+pages in the empty fixture; they are retained in the JSON, and the Stack status
+API/page itself returned `200`. See
 [`stack-status-native.json`](stack-status-native.json) and the
 [1440 dark capture](stack-status-native-1440-dark.png).
 
