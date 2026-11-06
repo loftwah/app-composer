@@ -194,6 +194,13 @@ export function Overview({ search }: { search: string }) {
   const recheckLabel = (id: SourceId) =>
     snapshot?.sources.find((source) => source.id === id)?.label ??
     id.replace("-", " ");
+  const nextScope =
+    snapshot && scope ? (
+      <p className="co-meta co-next-context">
+        {snapshot.workspace.name} · {snapshot.target.environment} ·{" "}
+        <a href="#co-scope">Change scope</a>
+      </p>
+    ) : null;
 
   return (
     <div className="co-overview" aria-busy={busy}>
@@ -203,56 +210,6 @@ export function Overview({ search }: { search: string }) {
           <p>Problems this scope retained, with the record behind each one.</p>
         </div>
       </header>
-
-      {snapshot && scope && (
-        <section className="co-scope" aria-label="Selected scope">
-          <ScopeField
-            label="Workspace"
-            value={snapshot.workspace.id}
-            disabled={busy}
-            options={snapshot.available.workspaces.map((workspace) => ({
-              value: workspace.id,
-              label: workspace.name + " · " + workspace.role,
-            }))}
-            fallback={snapshot.workspace.name + " · " + snapshot.workspace.role}
-            onChange={(value) => changeScope("workspace", value)}
-          />
-          <ScopeField
-            label="Environment"
-            value={snapshot.target.environment}
-            disabled={busy}
-            options={snapshot.available.environments.map((environment) => ({
-              value: environment,
-              label: environment,
-            }))}
-            fallback={snapshot.target.environment}
-            onChange={(value) => changeScope("environment", value)}
-          />
-          <ScopeField
-            label="App"
-            value={snapshot.selection.app ?? ""}
-            disabled={busy}
-            options={[
-              ...(snapshot.available.apps.length
-                ? [{ value: "", label: "All recorded apps" }]
-                : []),
-              ...snapshot.available.apps.map((app) => ({
-                value: app.id,
-                label: appLabel(app.id),
-              })),
-            ]}
-            fallback={
-              snapshot.available.apps.length
-                ? "All recorded apps"
-                : "No app recorded here"
-            }
-            onChange={(value) => changeScope("app", value)}
-          />
-          <p className="co-scope-account">
-            <span>Account</span> <code>{snapshot.target.account}</code>
-          </p>
-        </section>
-      )}
 
       {!snapshot && !error && (
         <p className="co-status" role="status">
@@ -316,6 +273,7 @@ export function Overview({ search }: { search: string }) {
                   {view.leader.action}
                 </a>
               </div>
+              {nextScope}
               <details className="co-evidence" onKeyDown={dismissOnEscape}>
                 <summary>Evidence behind this problem</summary>
                 <dl>
@@ -378,6 +336,7 @@ export function Overview({ search }: { search: string }) {
                   Open the owning screen
                 </a>
               </div>
+              {nextScope}
             </section>
           ) : (
             <section className="co-next" aria-labelledby="co-next-title">
@@ -407,8 +366,63 @@ export function Overview({ search }: { search: string }) {
                   Open Creator stacks
                 </a>
               </div>
+              {nextScope}
             </section>
           )}
+
+          <section
+            className="co-scope"
+            id="co-scope"
+            aria-label="Selected scope"
+          >
+            <ScopeField
+              label="Workspace"
+              value={snapshot.workspace.id}
+              disabled={busy}
+              options={snapshot.available.workspaces.map((workspace) => ({
+                value: workspace.id,
+                label: workspace.name + " · " + workspace.role,
+              }))}
+              fallback={
+                snapshot.workspace.name + " · " + snapshot.workspace.role
+              }
+              onChange={(value) => changeScope("workspace", value)}
+            />
+            <ScopeField
+              label="Environment"
+              value={snapshot.target.environment}
+              disabled={busy}
+              options={snapshot.available.environments.map((environment) => ({
+                value: environment,
+                label: environment,
+              }))}
+              fallback={snapshot.target.environment}
+              onChange={(value) => changeScope("environment", value)}
+            />
+            <ScopeField
+              label="App"
+              value={snapshot.selection.app ?? ""}
+              disabled={busy}
+              options={[
+                ...(snapshot.available.apps.length
+                  ? [{ value: "", label: "All recorded apps" }]
+                  : []),
+                ...snapshot.available.apps.map((app) => ({
+                  value: app.id,
+                  label: appLabel(app.id),
+                })),
+              ]}
+              fallback={
+                snapshot.available.apps.length
+                  ? "All recorded apps"
+                  : "No app recorded here"
+              }
+              onChange={(value) => changeScope("app", value)}
+            />
+            <p className="co-scope-account">
+              <span>Account</span> <code>{snapshot.target.account}</code>
+            </p>
+          </section>
 
           {view.rest.length > 0 && (
             <section aria-labelledby="co-also">

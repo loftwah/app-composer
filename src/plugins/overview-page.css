@@ -85,6 +85,7 @@
   padding: 14px 0;
   border-top: 1px solid var(--co-line);
   border-bottom: 1px solid var(--co-line);
+  scroll-margin-top: 84px;
 }
 .co-scope-field {
   margin: 0;
@@ -131,6 +132,13 @@
 }
 .co-next h2 {
   margin-top: 0;
+}
+.co-next-context {
+  margin-top: 12px;
+}
+.co-next-context a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .co-actions {
   display: flex;
