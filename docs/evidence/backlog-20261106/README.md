@@ -7,15 +7,21 @@ identity below are the ones actually deployed, not a plan.
 
 ## Release identity
 
-- PR: [#413](https://github.com/loftwah/app-composer/pull/413), merge `703a8fc5f6e34644ffbdb4119422bb8011e9207e`
-- Worker: `3b263d3c-cec3-48d2-8f90-4c969cb9ae44`
+- First batch: PR [#413](https://github.com/loftwah/app-composer/pull/413), merge
+  `703a8fc5f6e34644ffbdb4119422bb8011e9207e`, Worker
+  `3b263d3c-cec3-48d2-8f90-4c969cb9ae44`.
+- State-ownership batch: PR [#414](https://github.com/loftwah/app-composer/pull/414),
+  merge `0c1924f6b0c365ed5d04d3d70b39a1a66fa42dd4`, Worker
+  `b9aac397-f743-4212-a6a6-8bea32497c3b`. This batch changes documentation, the
+  lint entrypoint and tests only.
 - Origin: `https://composer.loftwah.com`
 - Release path: clean pushed `main` → `pnpm deploy` (audit, `pnpm check`, build,
   publication/privacy gates, D1 migrations, upload, live source verification).
 
 ## Checks
 
-- `pnpm check`: 411 tests passed, 0 failed, 0 skipped; 0 type errors.
+- `pnpm check`: 411 passed for the first batch, 412 passed for the second; 0 failed,
+  0 skipped; 0 type errors.
 - `pnpm deploy`: dependency audit, required checks, production build, publication
   guard (1,280 files / 150 archive members), remote migrations, Worker upload,
   live source/pinned services, sharing output, publication privacy and anonymous
@@ -33,7 +39,7 @@ identity below are the ones actually deployed, not a plan.
 | `/brand/stack-share.mjs` | serves the slug/revision binding, not a copied `v2` prefix |
 | `/api/composition.json` | 200, contract 1, 3 sources, 10 releases |
 | `/s/fictional-trail-notes` | 200 |
-| Deployed source | `703a8fc5f6e34644ffbdb4119422bb8011e9207e` |
+| Deployed source (both batches) | `703a8fc5f6e34644ffbdb4119422bb8011e9207e`, then `0c1924f6b0c365ed5d04d3d70b39a1a66fa42dd4` |
 
 ## Measured async change
 
