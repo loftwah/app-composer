@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Local-only qualification: never loads provider credentials, deploys, or sends vendor events.
 import assert from 'node:assert/strict';
-import { mkdtemp, appendFile, readFile, realpath, rm, stat } from 'node:fs/promises';
+import { mkdtemp, appendFile, readFile, realpath, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve, join, dirname } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
@@ -10,6 +10,7 @@ import { createServer } from 'node:http';
 import { once } from 'node:events';
 import { execFileSync } from 'node:child_process';
 import { createIntegrationAdapter } from '../lib/platform/integration-adapter.mjs';
+import { createOwnedRun } from './lib/owned-resources.mjs';
 
 const workspace = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -18,7 +19,8 @@ const modules = args.length ? args[1] : join(workspace, 'node_modules');
 let server;
 let database;
 const report = { schema: 'composer.platform-qualification/1', observedAt: new Date().toISOString(), runtime: { node: process.version, platform: process.platform, arch: process.arch }, dependencies: {}, scope: 'Local fictional adapter/database fixture; no Composer Node/celld service or provider qualification.' };
-const root = await mkdtemp(join(tmpdir(), 'composer-platform-qualification-'));
+const owned = createOwnedRun({ label: 'platform-qualification' }).installSignalHandlers();
+const root = owned.directory(await mkdtemp(join(tmpdir(), 'composer-platform-qualification-')));
 try {
   report.sourceSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: workspace, encoding: 'utf8' }).trim();
   for (const name of ['emdash', '@emdash-cms/cloudflare', '@astrojs/cloudflare', 'astro', 'wrangler', '@astrojs/node']) {
@@ -63,7 +65,7 @@ try {
 
   const receiptFile = join(root, 'received.ndjson');
   const fixtureKey = 'fictional-local-fixture-key-123456';
-  server = createServer(async (request, response) => {
+  server = owned.server(createServer(async (request, response) => {
     try {
       const chunks = [];
       let length = 0;
@@ -76,7 +78,8 @@ try {
       response.writeHead(202, { 'Content-Type': 'application/json' });
       response.end(JSON.stringify({ status: 'success', ...(body.dedup_key ? { dedup_key: body.dedup_key } : { id: 'local-change-receipt' }) }));
     } catch { response.writeHead(400); response.end(); }
-  }).listen(0, '127.0.0.1');
+  }));
+  server.listen(0, '127.0.0.1');
   await once(server, 'listening');
   const origin = `http://127.0.0.1:${server.address().port}`;
   const adapter = createIntegrationAdapter({ allowLoopbackFixture: true, destinations: {
@@ -95,13 +98,15 @@ try {
   report.celld = { candidate: 'v0.6.3', executed: false, status: 'not qualified; no selected celld fleet/object store' };
   report.providers = { EKS: 'not exercised', AKS: 'not exercised', GKE: 'not exercised' };
 } finally {
+  owned.removeSignalHandlers();
   try {
     if (database) await database.destroy();
-    if (server) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
-  } finally {
-    await rm(root, { recursive: true, force: true });
+    await owned.teardown({ reason: report.integration ? 'complete' : 'failure' });
     await assert.rejects(stat(root), { code: 'ENOENT' });
-    report.ownedTemporaryRootRemoved = true;
+    report.ownedTemporaryRootRemoved = owned.report.status === 'clean';
+  } catch (error) {
+    report.ownedCleanup = owned.report;
+    throw error;
   }
 }
 process.stdout.write(JSON.stringify(report, null, 2) + '\n');

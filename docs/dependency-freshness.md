@@ -11,14 +11,14 @@ pnpm freshness --json   # same report for scripts
 ```
 
 ```text
-Dependency freshness (policy reviewed 2026-10-24)
+Dependency freshness (policy reviewed 2026-11-06)
 
-  name                          current       supported      status
-  node                          22.23.4       >=22.23.4 <23  ok
-  pnpm                          12.8.1        12.8.1         ok
-  astro                         7.4.2         ^7.4.2         ok
-  @tanstack/react-router        1.163.2       1.163.2        ok
-  emdash                        1.3.1         ^1.3.1         ok
+  name                          current       supported                              status
+  node                          22.23.4       >=22.23.4 <23 || >=24.22.1 <25 || ...  ok
+  pnpm                          12.8.1        12.8.1                                 ok
+  astro                         7.4.5         ^7.4.5                                  ok
+  @tanstack/react-router        1.163.2       1.163.2                                 ok
+  emdash                        1.4.0         ^1.4.0                                  ok
 
 Summary: 27 ok, 0 drift, 0 unknown, 0 unresolved
 ```
@@ -66,17 +66,17 @@ same exact version and a floating upgrade splits TanStack's React context, and
 `typescript` stays on 6 because `@astrojs/check` peers on `^5 || ^6`.
 
 The `node` row is the runtime you are actually running, so it drifts whenever the
-local Node is not the reviewed one. That is the intended signal. On Node 24 the
-report shows `1 drift` for that row alone; the decision, the evidence and the
-conditions for moving the line are in
-[the Node runtime decision](node-runtime.md).
+local Node is not one of the reviewed lines. That is the intended signal. On
+Node 24 or Node 26 the report stays `ok`; an unsupported line shows `1 drift`
+for that row alone. The decision, the evidence and the conditions for moving the
+line are in [the Node runtime decision](node-runtime.md).
 
 ## Boundaries
 
 - The command is not part of `pnpm check`. A new upstream release should not fail
   an unrelated pull request; the report is a maintenance signal you run on
-  purpose. `tests/freshness.test.mjs` keeps the parser, the exit codes and the
-  committed policy honest.
+  purpose. `tests/freshness-policy.test.mjs` keeps the parser, the exit codes
+  and the committed policy honest.
 - A green report does not mean the stack is current, only that it is still inside
   the reviewed window. It is not a vulnerability scan either; `pnpm audit` covers
   advisories, and the reviewed overrides live in `pnpm-workspace.yaml`.

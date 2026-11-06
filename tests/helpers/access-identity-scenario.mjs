@@ -181,6 +181,9 @@ const nextUser = async (token, guarded = false, path) => {
     request: req,
     locals: { emdash: { db, config: { auth } } },
     session: {
+      get(key) {
+        return sessionValues.get(key);
+      },
       set(key, value) {
         sessionValues.set(key, value);
       },

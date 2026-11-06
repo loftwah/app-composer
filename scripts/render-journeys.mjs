@@ -3,11 +3,11 @@ import {
   writeFileSync,
   mkdtempSync,
   copyFileSync,
-  rmSync,
 } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createOwnedRun } from "./lib/owned-resources.mjs";
 const directory = "public/diagrams",
   dimensions = JSON.parse(
     readFileSync(directory + "/journey-dimensions.json", "utf8"),
@@ -19,7 +19,10 @@ const supported = Object.keys(sources);
 const kinds = process.argv.length > 2 ? process.argv.slice(2) : supported;
 if (kinds.some((kind) => !supported.includes(kind)))
   throw Error("Choose an existing source-owned diagram.");
-const temporary = mkdtempSync(join(tmpdir(), "composer-diagram-font-"));
+const owned = createOwnedRun({ label: "render-journeys" }).installSignalHandlers();
+const temporary = owned.directory(
+  mkdtempSync(join(tmpdir(), "composer-diagram-font-")),
+);
 try {
   const font = join(temporary, "SpaceGrotesk.ttf");
   copyFileSync("src/assets/fonts/SpaceGrotesk.ttf.bin", font);
@@ -93,5 +96,6 @@ try {
     "Rendered selected journeys for phone/desktop and saved dark/light themes.",
   );
 } finally {
-  rmSync(temporary, { recursive: true, force: true });
+  owned.removeSignalHandlers();
+  await owned.teardown({ reason: "complete" });
 }

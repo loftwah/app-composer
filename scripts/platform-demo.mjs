@@ -15,6 +15,7 @@ import { managePlatform } from '../src/lib/platform-admin.ts';
 import { workspaceForUser, publicStack } from '../src/lib/stacks.mjs';
 import { resourceConnection } from '../src/lib/resource-client.ts';
 import { appSettings } from '../src/lib/app-settings.mjs';
+import { createOwnedRun } from './lib/owned-resources.mjs';
 
 const workspace = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const guestbook = process.env.COMPOSER_DEMO_GUESTBOOK ? resolve(process.env.COMPOSER_DEMO_GUESTBOOK) : resolve(workspace, '../app-composer-guestbook');
@@ -97,7 +98,8 @@ export async function runPlatformDemo({ serve = false, onReady } = {}) {
     boundaries: { admission: 'Synthetic trusted-host actors; Access/EmDash login not exercised', guestbook: 'Exact pinned default fetch module over real local HTTP and SQLite; D1/R2 interfaces use local adapters, not workerd', entrypoint: 'Workers entrypoint and named service binding are not exercised by this Node fetch-module lab', composition: 'Actual StackView React SSR in a labelled local wrapper; Astro routing/layout not exercised', provider: 'No external network, provider writes or vendor events' }, checks: {}, http: [] };
   let server, cms, app;
   const previousBuild = globalThis.BUILD_SHA, previousManifest = globalThis.MANIFEST;
-  const root = await mkdtemp(join(tmpdir(), 'composer-platform-demo-'));
+  const owned = createOwnedRun({ label: 'platform-demo' }).installSignalHandlers();
+  const root = owned.directory(await mkdtemp(join(tmpdir(), 'composer-platform-demo-')));
   try {
     cms = sqliteD1(join(root, 'composer.sqlite')); app = sqliteD1(join(root, 'guestbook.sqlite'));
     for (const name of (await readdir(join(workspace, 'migrations'))).filter(name => name.endsWith('.sql')).sort()) cms.sqlite.exec(await readFile(join(workspace, 'migrations', name), 'utf8'));
@@ -140,7 +142,7 @@ export async function runPlatformDemo({ serve = false, onReady } = {}) {
     const stackCSS = (await readFile(join(workspace, 'src/styles/stack-theme.generated.css'), 'utf8')) + '\n' + (await readFile(join(workspace, 'src/styles/stack-view.css'), 'utf8')).replace('@import "./stack-theme.generated.css";', '');
     const env = { DB: app.db, MEDIA: media, ASSETS: { fetch: request => asset(request) }, OWNER_API_TOKEN: token, PUBLIC_ORIGIN: origin, RESOURCE_ACCOUNT_ID: account, RESOURCE_ENVIRONMENT: 'production' };
     let loseActivation = false, lostOperation;
-    server = createServer(async (incoming, outgoing) => {
+    server = owned.server(createServer(async (incoming, outgoing) => {
       try {
         const chunks = []; let size = 0;
         for await (const chunk of incoming) { size += chunk.length; if (size > 1200000) throw Error('Local request exceeds fixture bound.'); chunks.push(chunk); }
@@ -162,7 +164,8 @@ export async function runPlatformDemo({ serve = false, onReady } = {}) {
         outgoing.writeHead(response.status, Object.fromEntries(response.headers));
         outgoing.end(Buffer.from(await response.arrayBuffer()));
       } catch { outgoing.writeHead(500); outgoing.end('Local demo failure.'); }
-    }).listen(0, '127.0.0.1');
+    }));
+    server.listen(0, '127.0.0.1');
     await once(server, 'listening');
     const localOrigin = `http://127.0.0.1:${server.address().port}`;
     const forward = async request => {
@@ -234,8 +237,19 @@ export async function runPlatformDemo({ serve = false, onReady } = {}) {
       await new Promise(resolve => { process.once('SIGINT', resolve); process.once('SIGTERM', resolve); });
     }
   } finally {
-    try { if (server) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); } cms?.sqlite.close(); app?.sqlite.close(); }
-    finally { globalThis.BUILD_SHA = previousBuild; globalThis.MANIFEST = previousManifest; await rm(root, { recursive: true, force: true }); await assert.rejects(stat(root), { code: 'ENOENT' }); report.ownedTemporaryRootRemoved = true; }
+    owned.removeSignalHandlers();
+    try {
+      cms?.sqlite.close();
+      app?.sqlite.close();
+      globalThis.BUILD_SHA = previousBuild;
+      globalThis.MANIFEST = previousManifest;
+      await owned.teardown({ reason: report.checks?.twoTeamCreateAndDuplicateSubmission ? 'complete' : 'failure' });
+      await assert.rejects(stat(root), { code: 'ENOENT' });
+      report.ownedTemporaryRootRemoved = owned.report.status === 'clean';
+    } catch (error) {
+      report.ownedCleanup = owned.report;
+      throw error;
+    }
   }
   return report;
 }

@@ -1,33 +1,33 @@
 {
   "contract": 1,
-  "reviewed": "2026-10-25",
+  "reviewed": "2026-11-06",
   "runtime": {
-    "node": ">=22.23.4 <23 || >=24.22.1 <25",
+    "node": ">=22.23.4 <23 || >=24.22.1 <25 || >=26.13.0 <27",
     "pnpm": "12.8.1"
   },
   "packages": {
     "@astrojs/check": { "supported": "^0.9.12", "reviewed": "0.9.12" },
-    "@astrojs/cloudflare": { "supported": "^14.4.2", "reviewed": "14.4.2" },
+    "@astrojs/cloudflare": { "supported": "^14.4.4", "reviewed": "14.4.4" },
     "@astrojs/react": {
-      "supported": "^7.1.1",
-      "reviewed": "7.1.1",
+      "supported": "^7.1.2",
+      "reviewed": "7.1.2",
       "note": "Astro integration for React; must track the installed Astro major."
     },
     "@cloudflare/workers-types": {
-      "supported": "^5.20261024.1",
-      "reviewed": "5.20261024.1",
+      "supported": "^5.20261104.1",
+      "reviewed": "5.20261104.1",
       "note": "Wrangler 4.152 requires at least 5.20261019.1 as a peer."
     },
     "@emdash-cms/cloudflare": {
-      "supported": "^1.3.1",
-      "reviewed": "1.3.1",
+      "supported": "^1.4.0",
+      "reviewed": "1.4.0",
       "note": "Versioned with EmDash; move both together."
     },
-    "@lucide/astro": { "supported": "^1.61.0", "reviewed": "1.61.0" },
+    "@lucide/astro": { "supported": "^1.69.0", "reviewed": "1.69.0" },
     "@modelcontextprotocol/client": { "supported": "^2.4.0", "reviewed": "2.4.0" },
     "@modelcontextprotocol/server": { "supported": "^2.4.0", "reviewed": "2.4.0" },
     "@resvg/resvg-wasm": { "supported": "^2.6.2", "reviewed": "2.6.2" },
-    "@tailwindcss/vite": { "supported": "^4.3.3", "reviewed": "4.3.3" },
+    "@tailwindcss/vite": { "supported": "^4.3.4", "reviewed": "4.3.4" },
     "@tanstack/react-router": {
       "supported": "1.163.2",
       "reviewed": "1.163.2",
@@ -36,22 +36,22 @@
     "@types/react": { "supported": "^19.3.0", "reviewed": "19.3.0" },
     "@types/react-dom": { "supported": "^19.3.0", "reviewed": "19.3.0" },
     "astro": {
-      "supported": "^7.4.2",
-      "reviewed": "7.4.2",
+      "supported": "^7.4.5",
+      "reviewed": "7.4.5",
       "note": "Astro 7.4 declares node >=22.23.4, which sets the runtime floor."
     },
     "emdash": {
-      "supported": "^1.3.1",
-      "reviewed": "1.3.1",
-      "note": "Move with @emdash-cms/cloudflare. The generated content-site recipe keeps its own 1.2.0 pin."
+      "supported": "^1.4.0",
+      "reviewed": "1.4.0",
+      "note": "Move with @emdash-cms/cloudflare. No 1.4 database migration; caching-header changes are reviewed. The generated content-site recipe keeps its own 1.2.0 pin."
     },
-    "jose": { "supported": "^6.2.13", "reviewed": "6.2.13" },
+    "jose": { "supported": "^6.2.15", "reviewed": "6.2.15" },
     "jsqr": { "supported": "^1.4.0", "reviewed": "1.4.0" },
     "pngjs": { "supported": "^7.0.0", "reviewed": "7.0.0" },
     "prettier": { "supported": "^3.9.10", "reviewed": "3.9.10" },
     "react": { "supported": "^19.3.1", "reviewed": "19.3.1" },
     "react-dom": { "supported": "^19.3.1", "reviewed": "19.3.1" },
-    "tailwindcss": { "supported": "^4.3.3", "reviewed": "4.3.3" },
+    "tailwindcss": { "supported": "^4.3.4", "reviewed": "4.3.4" },
     "typescript": {
       "supported": "^6.0.3",
       "reviewed": "6.0.3",

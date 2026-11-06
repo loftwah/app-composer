@@ -2,7 +2,7 @@
 
 One reusable MIT engine for preparing an environment before an application idea. Reviewed 14 October 2026. This archive installs the same modules used by App Composer. It has no runtime package dependencies, install scripts, Composer database, EmDash or Woodhouse requirement.
 
-The current local adapter verifies active Codex, Git/GitHub CLI/pnpm, the selected GitHub repository's push access, the Cloudflare account and an exact Hello source over HTTPS. Its supported setup operations prepare reviewed tools/source/ownership and a bounded Hello deployment. macOS Apple Silicon and Node 22.23.4+ or 24.22.1+ are the verified path. Other agents can supply the documented engine adapter; this does not certify their local installation. First accounts, registrar migration, broader operating systems and arbitrary application builds remain unfinished.
+The current local adapter verifies active Codex, Git/GitHub CLI/pnpm, the selected GitHub repository's push access, the Cloudflare account and an exact Hello source over HTTPS. Its supported setup operations prepare reviewed tools/source/ownership and a bounded Hello deployment. macOS Apple Silicon and Node 22.23.4+, 24.22.1+ or 26.13.0+ are the verified path. Other agents can supply the documented engine adapter; this does not certify their local installation. First accounts, registrar migration, broader operating systems and arbitrary application builds remain unfinished.
 
 ## Install the reviewed archive
 

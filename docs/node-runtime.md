@@ -1,12 +1,13 @@
 # Node runtime decision
 
-Reviewed 25 October 2026 for [#316](https://github.com/loftwah/app-composer/issues/316) / #321.
+Reviewed 6 November 2026 for [#316](https://github.com/loftwah/app-composer/issues/316) / #321.
 
-Composer supports `>=22.23.4 <23 || >=24.22.1 <25`. The default `.node-version`
-remains 22.23.4, so this adds an explicitly selected Node 24 path without changing
-an existing operator's selected runtime. Odd majors, Node 26, older patch floors
-and prerelease/custom version strings remain outside the exercised local
-execution contract. Independent mini-app policies remain separately owned.
+Composer supports `>=22.23.4 <23 || >=24.22.1 <25 || >=26.13.0 <27`. The default
+`.node-version` remains 22.23.4, so this adds explicitly selected Node 24 and
+Node 26 paths without changing an existing operator's selected runtime. Odd
+majors, older patch floors and prerelease/custom version strings remain outside
+the exercised local execution contract. Independent mini-app policies remain
+separately owned.
 
 Node 24.22.1 is an [official LTS security release](https://nodejs.org/en/blog/release/v24.22.1).
 The prior [decision at source 473b8b9](https://github.com/loftwah/app-composer/blob/473b8b9354f511bc38b8b5570af3d2d76c79d617/docs/node-runtime.md)
@@ -79,6 +80,24 @@ command logs and raw receipts for this run are kept under ignored
 belong once in #11. Source passes do not establish a customer account, Access
 session, hosted MCP, physical device or provider interoperability.
 
+## Node 26 qualification — 6 November 2026
+
+Node 26 entered LTS in the 28 October 2026 release window. The installed
+mise runtime 26.13.0 was tested against the same dependency lockfile and
+retained suite; the default `.node-version` remains 22.23.4.
+
+- `mise exec node@26.13.0 -- pnpm test` first exposed one real fixture gap:
+  EmDash 1.4's external-auth middleware now calls `session.get`, while the
+  synthetic Access scenario implemented only `set` and `delete`. The fixture
+  now provides the read method; the same scenario passes on Node 22 and 26.
+- The next run, after extending `isSupportedNode` to the tested 26.13.0 line,
+  passed 420 tests with zero failures and zero skips. Node 22.23.4 passed the
+  same 420 tests. This includes the owned-tool, workspace-tool and
+  temporary-cleanup fixtures that the old guard had skipped.
+- No generated content-site recipe claim changed. That independent project
+  keeps its EmDash 1.2.0 / Node 22 policy until it has its own browser and
+  build qualification.
+
 ## Reproduce
 
 Use existing runtimes, exact lockfiles and the maintained commands:
@@ -88,6 +107,8 @@ pnpm check
 pnpm build
 mise exec node@24.22.1 -- pnpm check
 mise exec node@24.22.1 -- pnpm build
+mise exec node@26.13.0 -- pnpm check
+mise exec node@26.13.0 -- pnpm build
 ```
 
 `mise` is optional: selecting the same installed Node executable in PATH is
