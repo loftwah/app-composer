@@ -8,6 +8,7 @@ import {
   publicStack,
   StackError,
 } from "./stacks.mjs";
+import { MAX_ATTEMPTS } from "./retry-limit.ts";
 import {
   workflowCommand,
   workflowRecipes,
@@ -150,7 +151,7 @@ function encodeRun(row: RunRow): WorkflowRun {
     result: row.result_json ? JSON.parse(row.result_json) : null,
     message: row.message,
     createdAt: row.created_at,
-    retryable: row.state === "needs-attention" && row.attempts < 3,
+    retryable: row.state === "needs-attention" && row.attempts < MAX_ATTEMPTS,
   };
 }
 async function snapshot(
@@ -627,7 +628,7 @@ export async function manageWorkflows(ctx: Context, runtime: Runtime) {
         !row ||
         row.revision !== command.expectedRevision ||
         row.state !== "needs-attention" ||
-        row.attempts >= 3
+        row.attempts >= MAX_ATTEMPTS
       )
         throw conflict();
       const active = await recipeRow(db, workspace.id, row.recipe);
@@ -655,7 +656,7 @@ export async function manageWorkflows(ctx: Context, runtime: Runtime) {
         : " AND EXISTS(SELECT 1 FROM creator_workflow_recipes WHERE workspace_id=? AND recipe=? AND revision=? AND enabled=1 AND account_id=? AND environment=?)";
       const updated = await db
         .prepare(
-          `UPDATE creator_workflow_runs SET state=?,steps_json=?,result_json=?,message=?,attempts=attempts+1,revision=revision+1,updated_at=CURRENT_TIMESTAMP WHERE id=? AND workspace_id=? AND revision=? AND state='needs-attention' AND attempts<3 AND ${authority}${activeSQL}${source.sql} RETURNING id`,
+          `UPDATE creator_workflow_runs SET state=?,steps_json=?,result_json=?,message=?,attempts=attempts+1,revision=revision+1,updated_at=CURRENT_TIMESTAMP WHERE id=? AND workspace_id=? AND revision=? AND state='needs-attention' AND attempts<${MAX_ATTEMPTS} AND ${authority}${activeSQL}${source.sql} RETURNING id`,
         )
         .bind(
           evaluation.state,

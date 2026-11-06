@@ -1,13 +1,26 @@
 // These are the deliberately indexable Composer pages. Mounted apps and private
 // routes keep their own routing and publication policies.
 export const publicPagePaths = Object.freeze([
-  '/', '/learn', '/ready', '/ready/guide', '/setup', '/prompts', '/agent', '/agent.md', '/resources', '/resources/change', '/resources/incident', '/resources/pipeline', '/resources/hook', '/resources/operating-kit', '/init', '/init/content',
+  '/', '/learn', '/ready', '/ready/guide', '/setup', '/prompts', '/agent', '/agent.md', '/resources', '/resources/change', '/resources/incident', '/resources/pipeline', '/resources/hook', '/resources/operating-kit', '/init', '/init/content', '/init/launch-kit',
   '/roles', '/roles/service-owner', '/roles/programmer', '/roles/architect', '/roles/devops', '/roles/security', '/roles/qa',
   '/diagrams', '/discover', '/for/creator', '/for/small-business', '/for/developer', '/for/designer', '/for/wordpress', '/for/shopify', '/for/platform-team', '/explore', '/demo', '/docs', '/architecture', '/guide',
   '/catalogue', '/apps', '/activity', '/review', '/privacy', '/release',
   '/extension', '/state', '/php2shell', '/studio', '/manage', '/building', '/effect',
   '/launch-kit', '/paperwork', '/init/paperwork', '/platform', '/platform/demo', '/plugin-trust', '/incident-replay', '/migration-example',
 ]);
+
+// The named-edition return handoff is deliberately narrower than the indexable
+// page list. Both inventories live together so adding a public page forces one
+// review, and the builder allowlist cannot silently drift into a dead or private
+// route. `/launch-kit/example/` is a static example, not a public site page.
+export const builderPagePaths = Object.freeze([
+  '/', '/apps', '/docs', '/architecture', '/guide', '/explore', '/review',
+  '/catalogue', '/release', '/privacy', '/extension', '/php2shell',
+  '/ready/guide', '/demo', '/manage', '/studio', '/activity', '/init',
+  '/init/content', '/init/launch-kit', '/ready', '/learn', '/building',
+  '/launch-kit', '/paperwork', '/init/paperwork',
+]);
+export const builderStaticPaths = Object.freeze(['/launch-kit/example/']);
 
 const origin = 'https://composer.loftwah.com';
 const paths = new Set(publicPagePaths);

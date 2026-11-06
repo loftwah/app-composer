@@ -1,5 +1,6 @@
 // Captured from the independently maintained Guestbook enquiry renderer. MIT.
 // Provenance and finite asset-copy hashes: docs/private-enquiries-assets.json.
+import { enquiryLimits } from "../enquiries/enquiry-model.ts";
 const escape = (value: unknown) =>
   String(value ?? "").replace(
     /[&<>"']/g,
@@ -24,12 +25,12 @@ export function enquiryForm(
   <form id="private-enquiry" action="${escape(action)}/submit" method="post" data-source="${escape(source)}" data-target="${escape(target)}" data-receipt="${escape(action)}/receipt" data-publication="${escape(publication)}">
   
   <fieldset><legend>The brief</legend>
-  <label>Project or enquiry name<input name="title" maxlength="120" autocomplete="off" required></label>
-  <label>What should this achieve?<textarea name="goal" maxlength="2000" rows="5" required></textarea></label>
-  <label>Starting point<select name="starting_point"><option>New idea</option><option>Existing site</option></select></label><label data-existing-site hidden>Existing website (optional, HTTPS)<input name="existing_site" type="url" maxlength="240" autocomplete="off" placeholder="https://"></label>
+  <label>Project or enquiry name<input name="title" maxlength="${enquiryLimits.title}" autocomplete="off" required></label>
+  <label>What should this achieve?<textarea name="goal" maxlength="${enquiryLimits.goal}" rows="5" required></textarea></label>
+  <label>Starting point<select name="starting_point"><option>New idea</option><option>Existing site</option></select></label><label data-existing-site hidden>Existing website (optional, HTTPS)<input name="existing_site" type="url" maxlength="${enquiryLimits.existingSite}" autocomplete="off" placeholder="https://"></label>
   </fieldset>
   
-  <fieldset><legend>What is needed</legend><p>Up to 8 deliverables, if useful.</p><div data-deliverables></div>
+  <fieldset><legend>What is needed</legend><p>Up to ${enquiryLimits.deliverables} deliverables, if useful.</p><div data-deliverables></div>
   <button type="button" class="secondary" data-add-deliverable>Add a deliverable</button>
   </fieldset>
   

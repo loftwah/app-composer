@@ -5,6 +5,7 @@ import {
   teamHubRequest,
   type TeamHubRequest,
 } from "./team-hub-contract.ts";
+import { stackStatus } from "./stack-status.ts";
 const issuer = "https://composer.loftwah.com";
 export interface TeamHubRuntime {
   DB?: D1Database;
@@ -742,15 +743,7 @@ export async function teamHubPluginReply(
   runtime: TeamHubRuntime,
 ) {
   const result = await manageTeamHub(ctx, runtime),
-    status = result.ok
-      ? 200
-      : result.code === "FORBIDDEN"
-        ? 403
-        : result.code === "CONFLICT"
-          ? 409
-          : result.code === "UNQUALIFIED" || result.code === "UNAVAILABLE"
-            ? 503
-            : 400;
+    status = result.ok ? 200 : stackStatus(result.code);
   return pluginResponse({
     status,
     headers: {

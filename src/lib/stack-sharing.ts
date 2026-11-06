@@ -65,5 +65,8 @@ export async function stackShareDetails(stack: PublishedStackShare): Promise<Sta
 }
 
 export function isStackImageIdentity(identity: string): boolean {
-  return /^v2-r[1-9][0-9]{0,14}-[a-f0-9]{64}$/.test(identity);
+  // The renderer version lives in one constant; advancing it cannot leave this
+  // validator accepting the superseded identity.
+  const version = STACK_CARD_VERSION.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`^${version}-r[1-9][0-9]{0,14}-[a-f0-9]{64}$`).test(identity);
 }

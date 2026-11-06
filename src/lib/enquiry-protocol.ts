@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { enquiryLimits } from "../enquiries/enquiry-model.ts";
+export { enquiryLimits };
 export const enquiryID = z.string().regex(/^[a-z0-9-]{6,64}$/);
 export const enquirySource = z.string().regex(/^[a-f0-9]{40}$/);
 export const enquiryRevision = z
@@ -38,20 +40,20 @@ export const enquiryScope = z.discriminatedUnion("kind", [
 export type EnquiryScope = z.infer<typeof enquiryScope>;
 export const enquiryValues = z
   .object({
-    title: z.string().min(1).max(120),
-    goal: z.string().min(1).max(2000),
+    title: z.string().min(1).max(enquiryLimits.title),
+    goal: z.string().min(1).max(enquiryLimits.goal),
     starting_point: z.enum(["New idea", "Existing site"]),
-    existing_site: z.string().max(240).optional(),
+    existing_site: z.string().max(enquiryLimits.existingSite).optional(),
     deliverables: z
       .array(
         z
           .object({
-            item: z.string().min(1).max(120),
-            detail: z.string().max(300).optional(),
+            item: z.string().min(1).max(enquiryLimits.item),
+            detail: z.string().max(enquiryLimits.detail).optional(),
           })
           .strict(),
       )
-      .max(8),
+      .max(enquiryLimits.deliverables),
   })
   .strict();
 export const enquirySubmission = z

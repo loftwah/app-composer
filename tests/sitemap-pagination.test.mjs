@@ -22,3 +22,16 @@ test('does not publish a partial result on errors or broken pagination', async (
   await assert.rejects(fetchCatalogueEntries(async () => ({entries: [], hasMore: true})));
   await assert.rejects(fetchCatalogueEntries(async () => ({entries: [], nextCursor: 'same'})));
 });
+
+test('queries published entries only and drops a page when it is unpublished', async () => {
+  const calls = [];
+  const published = await fetchCatalogueEntries(async filter => {
+    calls.push(filter);
+    return {entries: [{id: 'kept'}]};
+  });
+  assert.equal(calls[0].status, 'published');
+  assert.ok(sitemapPaths(published).includes('/catalogue/kept'));
+
+  const unpublished = await fetchCatalogueEntries(async () => ({entries: []}));
+  assert.ok(!sitemapPaths(unpublished).includes('/catalogue/kept'));
+});

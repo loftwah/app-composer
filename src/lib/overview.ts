@@ -139,12 +139,22 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
       });
     // Only scopes this workspace actually records for the configured account
     // are offered. A client-supplied value must match one of them.
-    const spaces = await db
-      .prepare(
-        "SELECT w.id,w.name,m.role FROM creator_members m JOIN creator_workspaces w ON w.id=m.workspace_id WHERE m.user_id=? ORDER BY CASE WHEN w.id=(SELECT workspace_id FROM creator_personal_workspaces WHERE user_id=?) THEN 0 ELSE 1 END,w.created_at,w.id LIMIT 32",
-      )
-      .bind(user.id, user.id)
-      .all<{ id: string; name: string; role: string }>();
+    // The workspace list and recorded environments read the same resolved scope
+    // but not each other. Two connections stay inside D1's concurrent budget.
+    const [spaces, recorded] = await Promise.all([
+      db
+        .prepare(
+          "SELECT w.id,w.name,m.role FROM creator_members m JOIN creator_workspaces w ON w.id=m.workspace_id WHERE m.user_id=? ORDER BY CASE WHEN w.id=(SELECT workspace_id FROM creator_personal_workspaces WHERE user_id=?) THEN 0 ELSE 1 END,w.created_at,w.id LIMIT 32",
+        )
+        .bind(user.id, user.id)
+        .all<{ id: string; name: string; role: string }>(),
+      db
+        .prepare(
+          "SELECT DISTINCT environment FROM creator_app_resources WHERE workspace_id=? AND account_id=? ORDER BY environment LIMIT 8",
+        )
+        .bind(workspace.id, target.account)
+        .all<{ environment: string }>(),
+    ]);
     const workspaces = spaces.results
       .filter(
         (row) =>
@@ -164,12 +174,6 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
         name: workspace.name,
         role: workspace.role,
       });
-    const recorded = await db
-      .prepare(
-        "SELECT DISTINCT environment FROM creator_app_resources WHERE workspace_id=? AND account_id=? ORDER BY environment LIMIT 8",
-      )
-      .bind(workspace.id, target.account)
-      .all<{ environment: string }>();
     const environments = [
       target.environment,
       ...recorded.results

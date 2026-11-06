@@ -33,8 +33,11 @@ function read(element: Element): ShareData | null {
     if (typeof data.title !== 'string' || typeof data.description !== 'string') return null;
     const canonical = `https://composer.loftwah.com/s/${data.slug}`;
     if (data.url !== canonical || typeof data.imagePath !== 'string') return null;
-    const prefix = `/s/${data.slug}/share/v2-r${data.revision}-`;
-    if (!data.imagePath.startsWith(prefix) || !/^[a-f0-9]{64}\.png$/.test(data.imagePath.slice(prefix.length))) return null;
+    // Bind to this slug and revision without copying the renderer version. A
+    // newer card version is accepted once the server publishes it.
+    const prefix = `/s/${data.slug}/share/`;
+    const identity = data.imagePath.slice(prefix.length);
+    if (!data.imagePath.startsWith(prefix) || !new RegExp(`^v[0-9]+-r${data.revision}-[a-f0-9]{64}\\.png$`).test(identity)) return null;
     if (data.imageUrl !== `https://composer.loftwah.com${data.imagePath}`) return null;
     return {slug: data.slug, revision: Number(data.revision), url: canonical, title: data.title, description: data.description, imagePath: data.imagePath, imageUrl: String(data.imageUrl)};
   } catch {

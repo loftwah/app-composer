@@ -1,7 +1,9 @@
 import { z } from "zod";
+import { MAX_ATTEMPTS } from "./retry-limit.ts";
 import {
   enquiryID,
   enquiryIntent,
+  enquiryLimits,
   enquiryScope,
   enquiryValues,
 } from "./enquiry-protocol.ts";
@@ -64,10 +66,10 @@ export const inboxJourney = z
         revision: z.number().int().positive(),
         createdAt: z.string().max(40),
         expiresAt: z.string().max(40),
-        title: z.string().min(1).max(120),
-        goal: z.string().min(1).max(2000),
+        title: z.string().min(1).max(enquiryLimits.title),
+        goal: z.string().min(1).max(enquiryLimits.goal),
         startingPoint: enquiryValues.shape.starting_point,
-        existingSite: z.string().max(240).nullable(),
+        existingSite: z.string().max(enquiryLimits.existingSite).nullable(),
         deliverables: enquiryValues.shape.deliverables,
         provenance: enquiryScope,
       })
@@ -75,8 +77,8 @@ export const inboxJourney = z
     workflow: z
       .object({
         state: journeyStates,
-        attempts: z.number().int().min(0).max(3),
-        maxAttempts: z.literal(3),
+        attempts: z.number().int().min(0).max(MAX_ATTEMPTS),
+        maxAttempts: z.literal(MAX_ATTEMPTS),
         reason: z.string().max(1000),
         revision: revision,
         actor: z
@@ -93,8 +95,8 @@ export const inboxJourney = z
     delivery: z
       .object({
         state: deliveryStates,
-        attempts: z.number().int().min(0).max(3),
-        maxAttempts: z.literal(3),
+        attempts: z.number().int().min(0).max(MAX_ATTEMPTS),
+        maxAttempts: z.literal(MAX_ATTEMPTS),
         reason: z.string().max(1000),
         providerReference: z.string().max(64).nullable(),
         destination: z

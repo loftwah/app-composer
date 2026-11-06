@@ -29,8 +29,12 @@ if (!stack && !unavailable) Astro.response.status = 404;
 if (unavailable) Astro.response.status = 503;
 
 const title = stack ? stack.name : unavailable ? 'Stack temporarily unavailable' : 'Stack not found';
-const sharing = stack ? await stackShareDetails(stack) : null;
-const actionKey = stack ? await publicationActionKey(stack.id,stack.revision) : '';
+// Both values come from the same immutable publication and neither waits on
+// the other. Derive the card identity and the action key together.
+const [sharing, actionKey] = await Promise.all([
+  stack ? stackShareDetails(stack) : null,
+  stack ? publicationActionKey(stack.id, stack.revision) : Promise.resolve(''),
+]);
 const description = sharing?.description ?? 'This App Composer stack address has no published revision.';
 // SEO keeps the clean address. The social image includes the exact publication
 // identity, so draft edits cannot change its pixels or metadata.

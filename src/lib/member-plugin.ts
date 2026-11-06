@@ -2,21 +2,14 @@ import { definePlugin, pluginResponse } from "emdash";
 import { manageMembers, type MemberRuntime } from "./member-access.ts";
 import { manageMemberPlatform } from "./platform-admin.ts";
 import { teamHubPluginReply, type TeamHubRuntime } from "./team-hub.ts";
+import { stackStatus } from "./stack-status.ts";
 
 async function platformReply(
   ctx: Parameters<typeof manageMemberPlatform>[0],
   runtime: MemberRuntime,
 ) {
   const result = await manageMemberPlatform(ctx, runtime);
-  const status = result.ok
-    ? 200
-    : result.code === "FORBIDDEN"
-      ? 403
-      : result.code === "CONFLICT"
-        ? 409
-        : result.code === "UNAVAILABLE"
-          ? 503
-          : 400;
+  const status = result.ok ? 200 : stackStatus(result.code);
   return pluginResponse({
     status,
     headers: {

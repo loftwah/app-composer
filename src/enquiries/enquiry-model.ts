@@ -4,7 +4,17 @@ import {
 } from "./enquiry-model-validator.ts";
 
 export const enquiryModelVersion = 1 as const;
-export const enquiryBodyLimit = 12288;
+// The form markup, browser check, server protocol and stored model all read
+// these values. They must not become four copies that drift apart.
+export const enquiryLimits = Object.freeze({
+  title: 120,
+  goal: 2000,
+  existingSite: 240,
+  deliverables: 8,
+  item: 120,
+  detail: 300,
+  bodyBytes: 12288,
+});
 // One declared model, never a schema supplied by a visitor.
 const model = validateContentModel({
   schema: "app-composer.content-model",
@@ -20,7 +30,7 @@ const model = validateContentModel({
       required: true,
       group: "The brief",
       validation: {
-        maxLength: 120,
+        maxLength: enquiryLimits.title,
       },
     },
     {
@@ -30,7 +40,7 @@ const model = validateContentModel({
       required: true,
       group: "The brief",
       validation: {
-        maxLength: 2000,
+        maxLength: enquiryLimits.goal,
       },
     },
     {
@@ -58,7 +68,7 @@ const model = validateContentModel({
       type: "repeater",
       required: false,
       group: "What is needed",
-      limit: 8,
+      limit: enquiryLimits.deliverables,
       fields: [
         {
           key: "item",
@@ -77,7 +87,10 @@ const model = validateContentModel({
   ],
 });
 
-export const enquiryRowLimits = Object.freeze({ item: 120, detail: 300 });
+export const enquiryRowLimits = Object.freeze({
+  item: enquiryLimits.item,
+  detail: enquiryLimits.detail,
+});
 export function enquiryModel() {
   return validateContentModel(model);
 }
@@ -85,7 +98,7 @@ export function enquiryValues(value: unknown) {
   const clean = validateModelValues(model, value as Record<string, unknown>);
   if (
     typeof clean.existing_site === "string" &&
-    clean.existing_site.length > 240
+    clean.existing_site.length > enquiryLimits.existingSite
   )
     throw Error(
       "Use an HTTPS address within 240 characters after URL normalization.",

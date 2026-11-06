@@ -1,7 +1,7 @@
 import { queueEnquiryNotification } from "./enquiry-notifications.ts";
 import { linkEnquiryEvent, recordEnquiryEvent } from "./inbox-journey.ts";
 import { z } from "zod";
-import { enquiryModel } from "../enquiries/enquiry-model.ts";
+import { enquiryModel, enquiryLimits } from "../enquiries/enquiry-model.ts";
 import { resourceConnection } from "./resource-client.ts";
 import {
   appScope,
@@ -131,7 +131,7 @@ async function boundedBody(request: Request) {
     const { done, value } = await reader.read();
     if (done) break;
     size += value.length;
-    if (size > 12288) {
+    if (size > enquiryLimits.bodyBytes) {
       await reader.cancel();
       throw new StackError(
         "INVALID",

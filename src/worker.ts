@@ -1,7 +1,7 @@
 import type {D1Database,RateLimit,ExecutionContext,ScheduledController} from '@cloudflare/workers-types';
 import handler, { createScheduledHandler, PluginBridge } from '@emdash-cms/cloudflare/worker';
 import {protectAdministration,type AccessRuntime} from './lib/access-boundary.mjs';
-import {collect,record,purge,composedApps} from '../lib/usage/index.mjs';
+import {collect,record,purge,composedApps,events} from '../lib/usage/index.mjs';
 import {health,pageEvent,postcardReceiptEvent} from '../lib/usage/publisher.mjs';
 import {usageSummary} from './lib/usage';
 import {collectResourceAction,resourceActionSummary,purgeResourceActions} from './lib/resource-actions';
@@ -16,6 +16,8 @@ type Runtime=AccessRuntime & {DB:D1Database;PUBLIC_ORIGIN:string;USAGE_TOKENS?:s
 // The same composed route list scopes the public comparison, so a recorded
 // composed count cannot outlive the route that produced it.
 const mountedAppRoute=new RegExp(`^/(${composedApps.join('|')})(?:/|$)`);
+// The publisher event map is the one list of apps that may post counts.
+const usageRoute=new RegExp(`^/api/usage/(${Object.keys(events).join('|')})$`);
 export { PluginBridge };
 const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runtime:Runtime,context:ExecutionContext)=>{
  const rejection=await protectAdministration(request as unknown as Request,runtime as AccessRuntime);
@@ -33,7 +35,7 @@ const guardedFetch:NonNullable<typeof handler.fetch>=async(request:Request,runti
   const surface=['standalone','composed'].includes(params.get('surface')??'')?params.get('surface') as 'standalone'|'composed':'all';
   try{return Response.json(await portfolioSummary(runtime.DB,period,now,build.commit,surface),{headers:{'Cache-Control':'public,max-age=60,s-maxage=300','X-Content-Type-Options':'nosniff'}});}catch{return Response.json({error:'reporting_unavailable'},{status:503,headers:{'Cache-Control':'no-store'}});}
  }
- const ingest=path.match(/^\/api\/usage\/(hello|guestbook|showcase|linkcheck|state)$/);if(ingest)return collect(request,runtime,ingest[1]);
+ const ingest=path.match(usageRoute);if(ingest)return collect(request,runtime,ingest[1]);
  if(path==='/api/usage'){if(request.method!=='GET')return new Response(null,{status:405});try{return Response.json(await usageSummary(runtime.DB,new URL(request.url).searchParams,runtime.PUBLIC_ORIGIN),{headers:{'Cache-Control':'public,max-age=60','X-Content-Type-Options':'nosniff'}});}catch{return Response.json({error:'Counts temporarily unavailable.'},{status:503,headers:{'Cache-Control':'no-store'}});}}
  const response=await handler.fetch!(request,runtime,context);
  const app=path.match(mountedAppRoute)?.[1];
