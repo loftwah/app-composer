@@ -79,8 +79,25 @@
     "standalonePins": "independent Guestbook and Showcase releases are newer than the composition pins, as expected",
     "access": "admin page and plugin/users/setup APIs redirect 302 to jolly-cake-2b85.cloudflareaccess.com"
   },
+  "productionOwnerCheck": {
+    "observedAt": "2026-11-06T13:34:00Z",
+    "source": "0d031e3a26c286b2ecf3da8de7b2950de296cbff",
+    "authentication": "authenticated Cloudflare Access owner session",
+    "surfaces": {
+      "settings": "200 Settings",
+      "content": "200 Mini-app catalogue",
+      "media": "200 Media Library",
+      "creatorStacks": "200 Creator stacks",
+      "stackStatus": "200 Stack status",
+      "pluginTrust": "200 Plugin Trust Centre",
+      "brandStudio": "200 Brand Studio",
+      "incidentDesk": "200 Incident Desk",
+      "miniAppAdmin": "200 Manage your mini-apps"
+    },
+    "note": "Read-only navigation; no owner data or settings were changed."
+  },
   "remainingGates": [
-    "authenticated production Cloudflare Access owner interaction for settings, content, media, plugin pages and EmDash MCP/plugin compatibility",
+    "wider #313 epic: more admin and public journeys, physical-device, assistive and zoom/reflow acceptance",
     "independent mini-app dependency batches remain #321 releases",
     "#412 owner-authorised capability mutation was not performed"
   ],

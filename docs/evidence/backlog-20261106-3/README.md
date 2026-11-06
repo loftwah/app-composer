@@ -112,9 +112,9 @@ API/page itself returned `200`. See
 | Publication privacy | 22 probes, all expected absent/public outcomes, no findings |
 | Anonymous administration boundary | deploy verifier passed |
 
-## #316 gate
+## #316 owner check and closure
 
-#316 is not closed. The executable acceptance items are met:
+The executable acceptance items are met:
 
 - EmDash and its Cloudflare adapter are on the same 1.4.0 release;
 - Node 22.23.4/24.22.1/26.13.0 policy remains reviewed and tested;
@@ -122,12 +122,23 @@ API/page itself returned `200`. See
   versions and fake/unreachable responses without breaking a build;
 - deployed source/version is pinned and Stack status is live.
 
-The remaining gate is an actual **authenticated production Cloudflare Access
-owner session** for settings, content, media, plugin pages and EmDash MCP/plugin
-compatibility. This environment reached the Access login page but had no owner
-credential or session, so that interaction is not claimed. The local native
-passkey fixture proves the plugin pages at 1.4.0 but is explicitly not Access
-proof. The independent mini-app batches remain #321's separate releases.
+The earlier local-only probe was superseded by an **authenticated production
+Cloudflare Access owner session**. At later source `0d031e3`, read-only navigation
+returned `200` for Settings, Mini-app catalogue content, Media, Creator stacks,
+Stack status, Plugin Trust Centre, Brand Studio, Incident Desk and the mini-app
+admin. Stack status rendered the deployed `edfd9fa` build, 25 packages, Node/pnpm
+policy, review date and the TypeScript 7 blocker. No owner data or settings were
+changed. The local passkey fixture remains separately labelled and is not the
+Access evidence.
+
+The independent mini-app batches remain #321's separate releases.
+
+## Next admin slice
+
+The **Needs attention** journey now leads with its next action before the scope
+controls. See [`docs/evidence/admin-task-entry-20261107`](../admin-task-entry-20261107/README.md)
+for the 390/1440, both-theme, keyboard-focus and overflow evidence. This is one
+scoped #313 slice; it does not close the wider epic.
 
 ## Commands and cleanup
 
