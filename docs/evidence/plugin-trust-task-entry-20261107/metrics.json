@@ -93,7 +93,8 @@
     "deepLink": "?plugin=composer-stacks",
     "reloadResult": "composer-stacks",
     "listSelection": "?plugin=composer-members",
-    "listResult": "composer-members"
+    "listResult": "composer-members",
+    "backResult": "composer-members with the plugin query removed"
   },
   "installedInventory": {
     "plugins": [

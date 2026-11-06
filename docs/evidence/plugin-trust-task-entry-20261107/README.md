@@ -69,7 +69,9 @@ Selection was exercised live:
   highlighted row, and wrote `?plugin=composer-stacks`;
 - reloading that URL restored `composer-stacks`;
 - choosing `Review composer-members` from the list changed the lead to
-  `composer-members` and wrote `?plugin=composer-members`.
+  `composer-members` and wrote `?plugin=composer-members`;
+- browser back returned to the unparameterised page and restored
+  `composer-members`.
 
 Captures: [1440 light](overview-1440-light.png) · [1440 dark](overview-1440-dark.png) ·
 [390 light](overview-390-light.png) · [390 dark](overview-390-dark.png). Exact
