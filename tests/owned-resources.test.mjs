@@ -90,22 +90,25 @@ test("owned runs release success, failure, timeout and cancellation without touc
       const result = await runFixture(mode, {
         signalAfterReady: mode === "signal",
       });
-      assert.equal(result.code, expected.code, result.stderr || result.stdout);
-      assert.ok(result.ready, `${mode}: fixture must report its owned resources`);
-      assert.ok(result.report, `${mode}: fixture must leave a bounded report`);
-      assert.equal(result.report.status, "clean", `${mode}: ${result.stderr}`);
-      assert.equal(result.report.reason, expected.reason);
-      assert.deepEqual(result.report.failures, []);
-      assert.ok(
-        result.report.resources.every((resource) => resource.state === "released"),
-        `${mode}: every owned resource must be released`,
-      );
-      assert.equal(existsSync(result.ready.directory), false);
-      await waitFor(() => !alive(result.ready.pid));
-      assert.equal(existsSync(unrelatedRoot), true);
-      assert.equal(readFileSync(unrelatedFile, "utf8"), "another task's live resource\n");
-      assert.equal(alive(unrelated.pid), true);
-      rmSync(result.root, { recursive: true, force: true });
+      try {
+        assert.equal(result.code, expected.code, result.stderr || result.stdout);
+        assert.ok(result.ready, `${mode}: fixture must report its owned resources`);
+        assert.ok(result.report, `${mode}: fixture must leave a bounded report`);
+        assert.equal(result.report.status, "clean", `${mode}: ${result.stderr}`);
+        assert.equal(result.report.reason, expected.reason);
+        assert.deepEqual(result.report.failures, []);
+        assert.ok(
+          result.report.resources.every((resource) => resource.state === "released"),
+          `${mode}: every owned resource must be released`,
+        );
+        assert.equal(existsSync(result.ready.directory), false);
+        await waitFor(() => !alive(result.ready.pid));
+        assert.equal(existsSync(unrelatedRoot), true);
+        assert.equal(readFileSync(unrelatedFile, "utf8"), "another task's live resource\n");
+        assert.equal(alive(unrelated.pid), true);
+      } finally {
+        rmSync(result.root, { recursive: true, force: true });
+      }
     }
   } finally {
     try {

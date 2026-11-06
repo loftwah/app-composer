@@ -12,6 +12,13 @@ check as deployment evidence.
 - [#395](https://github.com/loftwah/app-composer/issues/395) — owned-resource
   registration and bounded teardown now exist in the real run entrypoints and
   are proven for success, failure, timeout and cancellation.
+- [#286](https://github.com/loftwah/app-composer/issues/286) — the homepage
+  prompt action and 27-module prompt library are present and working; existing
+  fresh-agent evaluations remain the execution evidence.
+- [#300](https://github.com/loftwah/app-composer/issues/300) — all five resource
+  groups, maintained prompt reuse, downloads, deep routes and responsive
+  behaviour are live; earlier theme, zoom, keyboard and no-JS checks remain
+  valid.
 
 ## #401 — suite and selector evidence
 
@@ -112,6 +119,18 @@ Local captures: [1440 dark](guide-1440-dark.png) · [1440 light](guide-1440-ligh
 
 This is one scoped slice; the broader #313 EmDash and #297 role-expansion
 acceptance remains open.
+
+## Prompt library and resources (#286 / #300)
+
+Live checks on the deployed release:
+
+| Surface | Observation |
+| --- | --- |
+| Homepage | exact **TLDR just give me the prompts** action at 1440, top 485 px, 82 px high, links `/prompts` |
+| `/prompts` | 27 modules; every module has prerequisites, labelled fields, a preview and an expected result; `#change` selects the right task |
+| `/resources` | five groups, one selected resource, Markdown/ZIP/PDF/diagram/example downloads all present |
+| `/resources/incident` | deep route shows five steps and its download at 390 px |
+| Responsive | no horizontal overflow at 390 or 1440 |
 
 ## #412 — capability pattern
 
