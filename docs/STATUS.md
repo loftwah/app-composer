@@ -257,6 +257,7 @@ The source is merged; the linked receipt describes its local browser acceptance.
 delivery/reconciliation, scheduling, physical-device and screen-reader
 acceptance remain open. #117/#118/#198/#289/#291 retain those gates.
 
+
 ## Prompts, resources and native operations — 24 October 2026
 
 Production source `f0c12ad` ships the [prompt library](/prompts), portable
@@ -342,7 +343,6 @@ the commands, captures and remaining gates; #290/#288/#11 retain physical,
 assistive and release evidence.
 
 ## Agent role packs — 25 October 2026
-
 The [role-pack index](/roles) adds six versioned job contracts: Service Owner,
 Programmer, Architect, DevOps/SRE, Security and QA. Each has inputs, required
 evidence, an output schema, stop/escalation rules, prohibited actions, negative
@@ -420,6 +420,7 @@ Access admission and browser/screen-reader acceptance remain #311/#315 gaps.
 See [agent proposals](agent-proposals.md), [connect your agent](agent-connect.md)
 and the [connected transcript](evidence/agent-connect-20261025/transcript.md).
 
+
 ## Cloudflare inventory — 25 October 2026
 
 A read-only observation of account `1003…` at 2026-10-25 02:14 UTC now keeps
@@ -450,6 +451,7 @@ Per-resource cost remains unknown, never zero. See #318/#310/#312.
 ## Finding the shipped work — 24 October 2026
 
 The product front door and [Explore directory](https://composer.loftwah.com/discover) lead with [Launch Kit](https://composer.loftwah.com/launch-kit) and the [team application films](https://composer.loftwah.com/platform/demo), then link directly to invited profiles, analytics and owner workflows. The existing decision planner remains at `/explore`. The shared launcher includes the newer tools and resolves them through each shell’s selected Composer instance. The owning issue is [#273](https://github.com/loftwah/app-composer/issues/273); exact release identities and production checks belong in #11.
+
 
 ## Invited creators — 23 October 2026
 
