@@ -47,6 +47,8 @@ version with the official npm registry, then writes the dated report to
 sends only public package names and locked versions, plus the same names in the
 anonymous bulk-advisory query. It never sends paths, project data, environment
 values or credentials, and it cannot install, update or deploy anything.
+`--registry`, `--timeout` (100–60000 ms), `--retries` (0–5) and `--write FILE`
+are explicit overrides; a plain-http registry is accepted only on localhost.
 
 The classifier keeps the useful questions separate:
 
