@@ -41,8 +41,11 @@ const makeResources = (run) => {
 
 if (mode === "signal") {
   const run = createOwnedRun({ label: "fixture-signal" });
-  makeResources(run);
+  // Install the handler before publishing readiness. Otherwise the parent can
+  // deliver SIGTERM after seeing the ready file but before Node has a handler,
+  // which makes the child exit by signal instead of writing its bounded report.
   run.installSignalHandlers({ onSignal: writeReport });
+  makeResources(run);
   await new Promise(() => {});
 } else {
   try {
