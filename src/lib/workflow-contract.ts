@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MAX_ATTEMPTS } from "./retry-limit.ts";
 
 export const workflowVersion = "composer.workflow/1";
 const id = z.string().regex(/^[a-z0-9-]{6,64}$/);
@@ -123,7 +124,7 @@ export const workflowRun = z
     synthetic: z.boolean(),
     state: z.enum(["finished", "needs-attention"]),
     revision: revision,
-    attempts: z.number().int().min(1).max(3),
+    attempts: z.number().int().min(1).max(MAX_ATTEMPTS),
     steps: z
       .array(z.enum(["observed", "source-checked", "draft-prepared"]))
       .max(3),

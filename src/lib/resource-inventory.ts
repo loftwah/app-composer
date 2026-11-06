@@ -290,24 +290,29 @@ export async function readResourceInventory(
 ): Promise<ResourceInventoryRead> {
   const { workspace, installedSource, now } = options;
   const target = { account: options.account, environment: options.environment };
-  const rows = await db
-    .prepare(
-      "SELECT id,account_id,environment,target,version,state,configuration_revision,configuration_digest,configuration_source,configuration_json,created_at FROM creator_app_resources WHERE workspace_id=? AND app='guestbook' ORDER BY created_at,id LIMIT ?",
-    )
-    .bind(workspace.id, RESOURCE_LIMIT)
-    .all<ResourceRow>();
-  const bindings = await db
-    .prepare(
-      "SELECT b.resource_id,b.instance_id,b.mode,b.stack_id,s.name AS stack_name,s.slug AS stack_slug,s.status AS stack_status,s.draft_json,s.published_json FROM creator_stack_resource_bindings b JOIN creator_stacks s ON s.id=b.stack_id WHERE s.workspace_id=? ORDER BY b.resource_id,s.name,b.instance_id LIMIT ?",
-    )
-    .bind(workspace.id, BINDING_LIMIT)
-    .all<BindingRow>();
-  const operations = await db
-    .prepare(
-      "SELECT o.id,o.resource_id,o.action,o.state,o.created_at FROM creator_resource_operations o WHERE o.resource_id IN (SELECT id FROM creator_app_resources WHERE workspace_id=?) ORDER BY o.created_at DESC,o.rowid DESC LIMIT ?",
-    )
-    .bind(workspace.id, OPERATION_LIMIT)
-    .all<OperationRow>();
+  // The three reads scope to the same workspace but do not depend on each
+  // other. One bounded round trip is the difference between three sequential
+  // waits and one on the Overview/App resources hot path.
+  const [rows, bindings, operations] = await Promise.all([
+    db
+      .prepare(
+        "SELECT id,account_id,environment,target,version,state,configuration_revision,configuration_digest,configuration_source,configuration_json,created_at FROM creator_app_resources WHERE workspace_id=? AND app='guestbook' ORDER BY created_at,id LIMIT ?",
+      )
+      .bind(workspace.id, RESOURCE_LIMIT)
+      .all<ResourceRow>(),
+    db
+      .prepare(
+        "SELECT b.resource_id,b.instance_id,b.mode,b.stack_id,s.name AS stack_name,s.slug AS stack_slug,s.status AS stack_status,s.draft_json,s.published_json FROM creator_stack_resource_bindings b JOIN creator_stacks s ON s.id=b.stack_id WHERE s.workspace_id=? ORDER BY b.resource_id,s.name,b.instance_id LIMIT ?",
+      )
+      .bind(workspace.id, BINDING_LIMIT)
+      .all<BindingRow>(),
+    db
+      .prepare(
+        "SELECT o.id,o.resource_id,o.action,o.state,o.created_at FROM creator_resource_operations o WHERE o.resource_id IN (SELECT id FROM creator_app_resources WHERE workspace_id=?) ORDER BY o.created_at DESC,o.rowid DESC LIMIT ?",
+      )
+      .bind(workspace.id, OPERATION_LIMIT)
+      .all<OperationRow>(),
+  ]);
 
   const bindingsByResource = new Map<string, BindingRow[]>();
   for (const row of bindings.results) {

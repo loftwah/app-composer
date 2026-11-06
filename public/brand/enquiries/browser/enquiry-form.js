@@ -1,5 +1,5 @@
 // Generated from checked TypeScript; edit src/enquiries. MIT.
-import { enquiryValues } from "../enquiry-model.js";
+import { enquiryLimits, enquiryValues } from "../enquiry-model.js";
 // This form keeps private text in the page. Only an opaque delivery intent is
 // retained in this tab so an interrupted acknowledgement can be checked later.
 (() => {
@@ -161,8 +161,9 @@ import { enquiryValues } from "../enquiry-model.js";
         let clean;
         try {
             clean = enquiryValues(values());
-            if (new TextEncoder().encode(JSON.stringify(clean)).byteLength > 10240)
-                throw Error("Keep the private brief within 10 KB of text.");
+            if (new TextEncoder().encode(JSON.stringify(clean)).byteLength >
+                enquiryLimits.bodyBytes)
+                throw Error(`Keep the private brief within ${Math.floor(enquiryLimits.bodyBytes / 1024)} KB of text.`);
         }
         catch (error) {
             say(error instanceof Error

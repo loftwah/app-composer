@@ -25,6 +25,7 @@ import {
   sendEnquiryNotification,
   type NotificationRuntime,
 } from "./enquiry-notifications.ts";
+import { MAX_ATTEMPTS } from "./retry-limit.ts";
 import {
   deliveryLabels,
   enquiryState,
@@ -36,7 +37,7 @@ import {
 } from "./inbox-journey-contract.ts";
 
 const origin = "https://composer.loftwah.com";
-const maxAttempts = 3;
+const maxAttempts = MAX_ATTEMPTS;
 const runLimit = 500;
 
 export interface JourneyScope {

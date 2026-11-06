@@ -6,6 +6,7 @@ import { enquiryID, enquiryIntent } from "./enquiry-protocol.ts";
 import { resourceConnection } from "./resource-client.ts";
 import type { EnquiryRuntime } from "./private-enquiries.ts";
 import { deliverResend } from "./resend-delivery.mjs";
+import { MAX_ATTEMPTS } from "./retry-limit.ts";
 
 const origin = "https://composer.loftwah.com";
 const states = [
@@ -209,7 +210,7 @@ export async function sendEnquiryNotification(
       403,
     );
   if (["sending", "uncertain", "accepted"].includes(row.state)) return;
-  if (row.attempts >= 3)
+  if (row.attempts >= MAX_ATTEMPTS)
     throw new StackError(
       "CONFLICT",
       "Three attempts were used. Reconcile this notification before any further send.",

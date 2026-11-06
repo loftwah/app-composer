@@ -1,39 +1,14 @@
 // A named editorial entry retains one fixed return destination. It never selects
 // an owner workspace, grants publication permission or changes a shared URL.
+import { builderPagePaths, builderStaticPaths } from "./public-pages.mjs";
+
 export const WOODHOUSE_BUILDER_RETURN =
   "https://woodhouse.loftwah.com/editions/one-more-round/?report=8496128e32ddfd0bddf8da66#build";
 
 export function isBuilderPath(path) {
   return (
-    [
-      "/",
-      "/apps",
-      "/docs",
-      "/architecture",
-      "/guide",
-      "/explore",
-      "/review",
-      "/catalogue",
-      "/release",
-      "/privacy",
-      "/extension",
-      "/php2shell",
-      "/ready/guide",
-      "/demo",
-      "/manage",
-      "/studio", // Public explanation; the /_emdash editor remains excluded.
-      "/activity",
-      "/init",
-      "/init/content",
-      "/init/launch-kit",
-      "/ready",
-      "/learn",
-      "/building",
-      "/launch-kit",
-      "/paperwork",
-      "/init/paperwork",
-      "/launch-kit/example/",
-    ].includes(path) ||
+    builderPagePaths.includes(path) ||
+    builderStaticPaths.includes(path) ||
     /^\/reports\/(?:new|r[a-f0-9]{24})$/.test(path) ||
     /^\/activity\/[a-z-]+$/.test(path) ||
     /^\/s\/[a-z0-9-]{1,60}$/.test(path) ||
