@@ -33,6 +33,7 @@ Local EmDash data is separate from production. A fresh checkout does not contain
 | `pnpm check` | Run source checks and the retained test suite |
 | `pnpm check:fast -- tests/...` | Iterate with the same type/source, lint and format gates plus only the named tests; not the release gate |
 | `pnpm freshness` | Report installed dependencies against the reviewed supported ranges |
+| `pnpm freshness:remote` | Explicitly compare locked versions with the npm registry and refresh the committed Stack status report |
 | `pnpm build` | Build and inspect the public artifact |
 | `pnpm source:write` | Explicitly regenerate checked runtime files |
 | `pnpm deploy` | Guarded clean pushed-main production release and live verification |

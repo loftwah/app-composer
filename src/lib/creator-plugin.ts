@@ -25,6 +25,7 @@ import {
 } from "./agent-proposals.ts";
 import { manageAdminBrand } from "./admin-brand.ts";
 import { managePluginTrust } from "./plugin-trust.ts";
+import { manageStackStatus } from "./stack-status-admin.ts";
 import { manageProviderInventory } from "./provider-read.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
@@ -60,6 +61,7 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
           label: "Plugin Trust Centre",
           icon: "shield-check",
         },
+        { path: "/stack-status", label: "Stack status", icon: "stack" },
         { path: "/brand-studio", label: "Brand Studio", icon: "palette" },
         { path: "/incidents", label: "Incident Desk", icon: "first-aid-kit" },
       ],
@@ -80,6 +82,11 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         methods: ["GET"],
         permission: "plugins:manage",
         handler: (ctx) => managePluginTrust(ctx, runtime),
+      },
+      stackStatusRead: {
+        methods: ["GET"],
+        permission: "plugins:manage",
+        handler: (ctx) => manageStackStatus(ctx),
       },
       proposalsRead: {
         methods: ["GET"],

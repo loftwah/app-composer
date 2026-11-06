@@ -1,28 +1,53 @@
-// Local dependency freshness report.
+// Dependency freshness report.
 //
-// Reads only committed files plus the installed `node_modules` metadata:
-// `package.json`, `pnpm-lock.yaml` and `config/dependency-policy.json`. It
-// makes no network request, starts no child process and reads no environment
-// credential. "Fresh" here means every declared dependency is covered by the
-// reviewed policy and the installed version still sits inside that policy's
-// supported range. It is not a check for the newest available release.
+// The default mode reads only committed files plus the installed `node_modules`
+// metadata: `package.json`, `pnpm-lock.yaml` and
+// `config/dependency-policy.json`. It makes no network request, starts no child
+// process and reads no environment credential. "Fresh" here means every declared
+// dependency is covered by the reviewed policy and the installed version still
+// sits inside that policy's supported range. It is not a check for the newest
+// available release.
 //
-// Exit codes:
+// `--remote` is an explicit opt-in comparison with the official npm registry.
+// It sends only public package names and locked versions, never paths, project
+// data, credentials or environment values. It cannot install, update or deploy
+// anything. A registry failure is reported as unknown and does not fail an
+// ordinary build.
+//
+// Exit codes (local mode):
 //   0  every declared dependency is covered and inside its supported range
 //   1  a covered dependency resolved outside its supported range
 //   2  a declared dependency has no policy entry
 //   3  the policy, lockfile or manifest could not be used
-import { readFileSync } from 'node:fs';
+//
+// Remote mode keeps 0 for ordinary/unknown results and returns 4 only when a
+// registry advisory names a locked version. It never turns an unreachable
+// registry into a failed build.
+import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+export const DEFAULT_REGISTRY = 'https://registry.npmjs.org';
+const DEFAULT_TIMEOUT_MS = 8000;
+const DEFAULT_RETRIES = 2;
+const MAX_TIMEOUT_MS = 60000;
+const MAX_RETRIES = 5;
+const REMOTE_CONCURRENCY = 4;
 
 export class FreshnessInputError extends Error {
   constructor(message) {
     super(message);
     this.name = 'FreshnessInputError';
     this.code = 'input';
+  }
+}
+
+class RegistryRequestError extends Error {
+  constructor(message, { retryable = false } = {}) {
+    super(message);
+    this.name = 'RegistryRequestError';
+    this.retryable = retryable;
   }
 }
 
@@ -260,7 +285,376 @@ export function inspectFreshness({ root = repositoryRoot, policyPath } = {}) {
   };
 }
 
+function validateRegistry(value) {
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new FreshnessInputError(`Registry must be a valid URL: ${value}`);
+  }
+  if (!['http:', 'https:'].includes(url.protocol)) {
+    throw new FreshnessInputError('Registry must use http or https.');
+  }
+  if (url.username || url.password) {
+    throw new FreshnessInputError('Registry URLs must not contain credentials.');
+  }
+  if (url.search || url.hash) {
+    throw new FreshnessInputError('Registry URLs must not contain a query or fragment.');
+  }
+  if (url.protocol === 'http:' && !['localhost', '127.0.0.1', '[::1]', '::1'].includes(url.hostname)) {
+    throw new FreshnessInputError('A plain-http registry is only accepted on this machine.');
+  }
+  return url.toString().replace(/\/$/, '');
+}
+
+function encodePackageName(name) {
+  return name.startsWith('@') ? `@${encodeURIComponent(name.slice(1))}` : encodeURIComponent(name);
+}
+
+const wait = (milliseconds) => new Promise((resolveWait) => setTimeout(resolveWait, milliseconds));
+
+async function requestJson(url, {
+  init = {},
+  fetchImpl,
+  timeoutMs,
+  retries,
+  retryDelayMs,
+  label,
+}) {
+  let lastError = new RegistryRequestError(`${label} could not be read.`);
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetchImpl(url, {
+        ...init,
+        redirect: 'error',
+        signal: controller.signal,
+        headers: {
+          accept: 'application/json',
+          'user-agent': 'app-composer-freshness/1 (read-only registry check)',
+          ...(init.headers ?? {}),
+        },
+      });
+      if (response.status === 429 || response.status >= 500) {
+        throw new RegistryRequestError(`${label} returned HTTP ${response.status}.`, { retryable: true });
+      }
+      if (!response.ok) throw new RegistryRequestError(`${label} returned HTTP ${response.status}.`);
+      try {
+        return await response.json();
+      } catch {
+        throw new RegistryRequestError(`${label} was not valid JSON.`);
+      }
+    } catch (error) {
+      const timedOut = controller.signal.aborted;
+      lastError = timedOut
+        ? new RegistryRequestError(`${label} timed out after ${timeoutMs}ms.`, { retryable: true })
+        : error instanceof RegistryRequestError
+          ? error
+          : new RegistryRequestError(`${label} was unreachable: ${error.message}`, { retryable: true });
+      if (attempt < retries && lastError.retryable) {
+        await wait(retryDelayMs * (attempt + 1));
+        continue;
+      }
+      throw lastError;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  throw lastError;
+}
+
+async function latestRelease(name, options) {
+  try {
+    const payload = await requestJson(
+      `${options.registry}/${encodePackageName(name)}/latest`,
+      { ...options, label: `${name} metadata` },
+    );
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+      return { state: 'unknown', reason: `${name} metadata was not a JSON object.` };
+    }
+    if (payload.name !== name) {
+      return {
+        state: 'unknown',
+        reason: `${name} metadata named ${JSON.stringify(payload.name)} instead.`,
+      };
+    }
+    if (typeof payload.version !== 'string') {
+      return { state: 'unknown', reason: `${name} metadata did not include a version.` };
+    }
+    try {
+      parseVersion(payload.version);
+    } catch {
+      return { state: 'unknown', reason: `${name} metadata returned an unsupported version: ${payload.version}` };
+    }
+    return {
+      state: 'available',
+      version: payload.version,
+      publishedAt: typeof payload.publishedAt === 'string' ? payload.publishedAt : null,
+      deprecated: typeof payload.deprecated === 'string' ? payload.deprecated : null,
+      engines: payload.engines && typeof payload.engines === 'object' ? payload.engines : null,
+    };
+  } catch (error) {
+    return { state: 'unknown', reason: error.message };
+  }
+}
+
+async function latestAdvisories(packages, options) {
+  const query = Object.fromEntries(
+    packages
+      .filter((entry) => entry.current)
+      .map((entry) => [entry.name, [entry.current]]),
+  );
+  if (Object.keys(query).length === 0) {
+    return { state: 'available', advisories: new Map() };
+  }
+  try {
+    const payload = await requestJson(
+      `${options.registry}/-/npm/v1/security/advisories/bulk`,
+      {
+        ...options,
+        label: 'advisory response',
+        init: {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(query),
+        },
+      },
+    );
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+      throw new RegistryRequestError('Advisory response was not a JSON object.');
+    }
+    const advisories = new Map();
+    for (const [name, list] of Object.entries(payload)) {
+      if (!Array.isArray(list)) {
+        throw new RegistryRequestError(`Advisory response for ${name} was not a list.`);
+      }
+      advisories.set(
+        name,
+        list
+          .filter((entry) => entry && typeof entry === 'object')
+          .map((entry) => ({
+            id: typeof entry.id === 'number' || typeof entry.id === 'string' ? entry.id : null,
+            severity: typeof entry.severity === 'string' ? entry.severity.slice(0, 40) : 'unknown',
+            title: typeof entry.title === 'string' ? entry.title.slice(0, 300) : null,
+            url: typeof entry.url === 'string' && /^https:\/\//.test(entry.url) ? entry.url : null,
+            vulnerableVersions:
+              typeof entry.vulnerable_versions === 'string'
+                ? entry.vulnerable_versions.slice(0, 300)
+                : null,
+          })),
+      );
+    }
+    return { state: 'available', advisories };
+  } catch (error) {
+    return { state: 'unknown', reason: error.message, advisories: new Map() };
+  }
+}
+
+async function mapLimit(items, limit, mapper) {
+  const results = new Array(items.length);
+  let next = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (true) {
+      const index = next;
+      next += 1;
+      if (index >= items.length) return;
+      results[index] = await mapper(items[index], index);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
+function remoteAssessment(pkg, release, advisories) {
+  if (!pkg.current) {
+    return { classification: 'unknown', reason: 'No installed or locked version could be read.' };
+  }
+  let current;
+  try {
+    current = parseVersion(pkg.current);
+  } catch {
+    return { classification: 'unknown', reason: `Locked version is not semver: ${pkg.current}` };
+  }
+  const advisory = advisories.get(pkg.name)?.[0] ?? null;
+  if (advisory) {
+    return {
+      classification: 'security-urgent',
+      reason: `Registry advisory ${advisory.id ?? ''} affects ${pkg.current}: ${advisory.title ?? advisory.severity}`,
+      advisory,
+    };
+  }
+  if (!pkg.supported) {
+    return { classification: 'unsupported', reason: 'No reviewed supported range is recorded.' };
+  }
+  let qualified = false;
+  try {
+    qualified = satisfies(pkg.current, pkg.supported);
+  } catch {
+    return { classification: 'unknown', reason: `Reviewed range could not be read: ${pkg.supported}` };
+  }
+  if (!qualified) {
+    return {
+      classification: 'unsupported',
+      reason: `Locked ${pkg.current} is outside the reviewed range ${pkg.supported}.`,
+    };
+  }
+  if (release.state !== 'available') {
+    return { classification: 'unknown', reason: release.reason };
+  }
+  let latest;
+  try {
+    latest = parseVersion(release.version);
+  } catch {
+    return { classification: 'unknown', reason: `Registry returned an unsupported version: ${release.version}` };
+  }
+  const order = compare(latest, current);
+  if (order < 0) {
+    return {
+      classification: 'unknown',
+      reason: `Registry latest ${release.version} is older than the locked ${pkg.current}; check the package identity and dist-tags.`,
+    };
+  }
+  if (order === 0) return { classification: 'current', reason: null };
+  let latestQualified = false;
+  try {
+    latestQualified = satisfies(release.version, pkg.supported);
+  } catch {
+    latestQualified = false;
+  }
+  if (latest.major > current.major) {
+    return {
+      classification: 'breaking-major',
+      reason: `Registry latest ${release.version} is a new major; the reviewed range is ${pkg.supported}.`,
+      latestQualified,
+    };
+  }
+  if (latest.minor > current.minor) {
+    return {
+      classification: 'feature-opportunity',
+      reason: `Registry latest ${release.version} adds a minor release${latestQualified ? ' inside' : ' outside'} the reviewed range ${pkg.supported}.`,
+      latestQualified,
+    };
+  }
+  return {
+    classification: 'compatible-patch',
+    reason: `Registry latest ${release.version} is a patch release${latestQualified ? ' inside' : ' outside'} the reviewed range ${pkg.supported}.`,
+    latestQualified,
+  };
+}
+
+/**
+ * Compare the local report with the official npm registry. Only public package
+ * names and locked versions are sent. Every failure is contained in the report.
+ */
+export async function inspectRemoteFreshness({
+  root = repositoryRoot,
+  policyPath,
+  report,
+  registry = DEFAULT_REGISTRY,
+  fetchImpl = globalThis.fetch,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+  retries = DEFAULT_RETRIES,
+  retryDelayMs = 250,
+  now = () => new Date(),
+} = {}) {
+  if (typeof fetchImpl !== 'function') {
+    throw new FreshnessInputError('A fetch implementation is required for remote checks.');
+  }
+  if (!Number.isInteger(timeoutMs) || timeoutMs < 100 || timeoutMs > MAX_TIMEOUT_MS) {
+    throw new FreshnessInputError(`Timeout must be an integer from 100 to ${MAX_TIMEOUT_MS}ms.`);
+  }
+  if (!Number.isInteger(retries) || retries < 0 || retries > MAX_RETRIES) {
+    throw new FreshnessInputError(`Retries must be an integer from 0 to ${MAX_RETRIES}.`);
+  }
+  const local = report ?? inspectFreshness({ root, policyPath });
+  const checkedAt = now().toISOString();
+  const resolvedRegistry = validateRegistry(registry);
+  const options = {
+    fetchImpl,
+    timeoutMs,
+    retries,
+    retryDelayMs,
+    registry: resolvedRegistry,
+  };
+  const releases = await mapLimit(local.packages, REMOTE_CONCURRENCY, (pkg) =>
+    latestRelease(pkg.name, options),
+  );
+  const advisoryLookup = await latestAdvisories(local.packages, options);
+  const packages = local.packages.map((pkg, index) => {
+    const release = releases[index];
+    const assessment = remoteAssessment(pkg, release, advisoryLookup.advisories);
+    return {
+      ...pkg,
+      latestTested: pkg.reviewed ?? null,
+      remote: {
+        state: release.state,
+        latest: release.state === 'available' ? release.version : null,
+        publishedAt: release.state === 'available' ? release.publishedAt : null,
+        deprecated: release.state === 'available' ? release.deprecated : null,
+        engines: release.state === 'available' ? release.engines : null,
+        classification: assessment.classification,
+        reason: assessment.reason,
+        latestQualified: assessment.latestQualified ?? null,
+        advisory: assessment.advisory ?? null,
+      },
+    };
+  });
+  const counts = {
+    current: 0,
+    compatiblePatch: 0,
+    featureOpportunity: 0,
+    breakingMajor: 0,
+    securityUrgent: 0,
+    unsupported: 0,
+    unknown: 0,
+  };
+  for (const pkg of packages) {
+    switch (pkg.remote.classification) {
+      case 'current': counts.current += 1; break;
+      case 'compatible-patch': counts.compatiblePatch += 1; break;
+      case 'feature-opportunity': counts.featureOpportunity += 1; break;
+      case 'breaking-major': counts.breakingMajor += 1; break;
+      case 'security-urgent': counts.securityUrgent += 1; break;
+      case 'unsupported': counts.unsupported += 1; break;
+      default: counts.unknown += 1; break;
+    }
+  }
+  const runtimeUnsupported = local.runtime.filter((row) => row.status !== 'ok').length;
+  const unknown = counts.unknown + (advisoryLookup.state === 'unknown' ? 1 : 0);
+  const status =
+    counts.securityUrgent > 0
+      ? 'security'
+      : counts.unsupported + runtimeUnsupported > 0 || counts.breakingMajor > 0
+        ? 'attention'
+        : unknown > 0
+          ? 'unknown'
+          : 'ok';
+  return {
+    kind: 'app-composer.dependency-freshness',
+    contract: 1,
+    mode: 'remote',
+    reviewed: local.reviewed,
+    checkedAt,
+    registry: resolvedRegistry,
+    runtime: local.runtime,
+    packages,
+    advisoryLookup: {
+      state: advisoryLookup.state,
+      reason: advisoryLookup.reason ?? null,
+    },
+    summary: {
+      ...local.summary,
+      ...counts,
+      runtimeUnsupported,
+      advisoryUnknown: advisoryLookup.state === 'unknown' ? 1 : 0,
+    },
+    status,
+  };
+}
+
 export function exitCodeFor(report) {
+  if (report.mode === 'remote') return report.summary.securityUrgent > 0 ? 4 : 0;
   if (report.summary.unknown > 0) return 2;
   if (report.summary.drift > 0 || report.summary.unresolved > 0) return 1;
   return 0;
@@ -272,6 +666,44 @@ function pad(value, width) {
 }
 
 export function formatReport(report) {
+  if (report.mode === 'remote') {
+    const rows = [
+      ...report.runtime.map((row) => ({ ...row, kind: 'runtime', latestTested: row.current, latest: null, remote: null })),
+      ...report.packages,
+    ];
+    const nameWidth = Math.max(9, ...rows.map((row) => row.name.length));
+    const currentWidth = Math.max(7, ...rows.map((row) => (row.current ?? '-').length));
+    const supportedWidth = Math.max(9, ...rows.map((row) => (row.supported ?? '-').length));
+    const latestWidth = Math.max(7, ...rows.map((row) => (row.remote?.latest ?? '-').length));
+    const lines = [
+      `Remote dependency freshness (registry ${report.registry}; checked ${report.checkedAt}; policy reviewed ${report.reviewed ?? 'unknown'})`,
+      '',
+      `  ${pad('name', nameWidth)}  ${pad('current', currentWidth)}  ${pad('supported', supportedWidth)}  ${pad('available', latestWidth)}  signal`,
+    ];
+    for (const row of rows) {
+      lines.push(
+        `  ${pad(row.name, nameWidth)}  ${pad(row.current, currentWidth)}  ${pad(row.supported, supportedWidth)}  ${pad(row.remote?.latest, latestWidth)}  ${row.remote?.classification ?? row.status}`,
+      );
+    }
+    const summary = report.summary;
+    lines.push(
+      '',
+      `Summary: ${summary.current} current, ${summary.compatiblePatch} patch, ${summary.featureOpportunity} feature, ${summary.breakingMajor} breaking, ${summary.securityUrgent} security, ${summary.unsupported} unsupported, ${summary.unknown} unknown`,
+    );
+    if (report.advisoryLookup.state === 'unknown') {
+      lines.push(`Advisory coverage unknown: ${report.advisoryLookup.reason}`);
+    }
+    if (summary.securityUrgent > 0) {
+      lines.push('Security advisories affect locked versions. Review and qualify a fix before changing production.');
+    } else if (summary.unsupported > 0 || summary.runtimeUnsupported > 0) {
+      lines.push('A locked dependency or runtime is outside the reviewed policy. Record the blocker or qualify an update.');
+    } else if (summary.breakingMajor > 0) {
+      lines.push('A new major is available. Plan compatibility work separately; do not float the pin.');
+    } else {
+      lines.push('No urgent change is indicated by this registry observation.');
+    }
+    return lines.join('\n');
+  }
   const rows = [
     ...report.runtime.map((row) => ({ ...row, kind: 'runtime' })),
     ...report.packages,
@@ -297,33 +729,73 @@ export function formatReport(report) {
   return lines.join('\n');
 }
 
+function parseInteger(value, label, minimum, maximum) {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < minimum || parsed > maximum) {
+    throw new FreshnessInputError(`${label} must be an integer from ${minimum} to ${maximum}.`);
+  }
+  return parsed;
+}
+
 function parseArguments(argv) {
-  const options = { json: false, root: repositoryRoot, policyPath: null };
+  const options = {
+    json: false,
+    root: repositoryRoot,
+    policyPath: null,
+    remote: false,
+    registry: DEFAULT_REGISTRY,
+    timeoutMs: DEFAULT_TIMEOUT_MS,
+    retries: DEFAULT_RETRIES,
+    writePath: null,
+  };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (argument === '--json') options.json = true;
+    else if (argument === '--remote') options.remote = true;
     else if (argument === '--root') options.root = resolve(argv[(index += 1)] ?? '');
     else if (argument === '--policy') options.policyPath = resolve(argv[(index += 1)] ?? '');
+    else if (argument === '--registry') options.registry = argv[(index += 1)] ?? '';
+    else if (argument === '--timeout') options.timeoutMs = parseInteger(argv[(index += 1)], 'Timeout', 100, MAX_TIMEOUT_MS);
+    else if (argument === '--retries') options.retries = parseInteger(argv[(index += 1)], 'Retries', 0, MAX_RETRIES);
+    else if (argument === '--write') options.writePath = resolve(argv[(index += 1)] ?? '');
     else if (argument === '--help' || argument === '-h') options.help = true;
     else throw new FreshnessInputError(`Unknown argument: ${argument}`);
+  }
+  if (!options.remote && options.registry !== DEFAULT_REGISTRY) {
+    throw new FreshnessInputError('--registry requires --remote.');
+  }
+  if (!options.remote && (options.timeoutMs !== DEFAULT_TIMEOUT_MS || options.retries !== DEFAULT_RETRIES)) {
+    throw new FreshnessInputError('--timeout and --retries require --remote.');
   }
   return options;
 }
 
-export function run(argv = process.argv.slice(2), write = (text) => process.stdout.write(`${text}\n`)) {
+export async function run(argv = process.argv.slice(2), write = (text) => process.stdout.write(`${text}\n`)) {
   const options = parseArguments(argv);
   if (options.help) {
-    write('Usage: node scripts/freshness.mjs [--json] [--root DIR] [--policy FILE]');
+    write(
+      'Usage: node scripts/freshness.mjs [--json] [--root DIR] [--policy FILE] [--write FILE]\n' +
+        '       node scripts/freshness.mjs --remote [--registry URL] [--timeout MS] [--retries N] [--json] [--write FILE]',
+    );
     return 0;
   }
-  const report = inspectFreshness(options);
+  const report = options.remote
+    ? await inspectRemoteFreshness(options)
+    : inspectFreshness(options);
+  if (options.writePath) {
+    try {
+      writeFileSync(options.writePath, `${JSON.stringify(report, null, 2)}\n`);
+    } catch (error) {
+      throw new FreshnessInputError(`The report could not be written: ${error.message}`);
+    }
+  }
   write(options.json ? JSON.stringify(report, null, 2) : formatReport(report));
   return exitCodeFor(report);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
-    process.exitCode = run();
+    process.exitCode = await run();
   } catch (error) {
     process.stderr.write(`${error instanceof FreshnessInputError ? 'Freshness input error' : 'Freshness error'}: ${error.message}\n`);
     process.exitCode = 3;

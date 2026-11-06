@@ -1,0 +1,644 @@
+{
+  "kind": "app-composer.dependency-freshness",
+  "contract": 1,
+  "mode": "remote",
+  "reviewed": "2026-11-06",
+  "checkedAt": "2026-11-06T12:49:01.757Z",
+  "registry": "https://registry.npmjs.org",
+  "runtime": [
+    {
+      "name": "node",
+      "current": "22.23.4",
+      "supported": ">=22.23.4 <23 || >=24.22.1 <25 || >=26.13.0 <27",
+      "status": "ok"
+    },
+    {
+      "name": "pnpm",
+      "current": "12.8.1",
+      "supported": "12.8.1",
+      "status": "ok"
+    }
+  ],
+  "packages": [
+    {
+      "name": "@astrojs/cloudflare",
+      "kind": "dependencies",
+      "declared": "14.4.4",
+      "locked": "14.4.4",
+      "current": "14.4.4",
+      "supported": "^14.4.4",
+      "reviewed": "14.4.4",
+      "note": null,
+      "status": "ok",
+      "latestTested": "14.4.4",
+      "remote": {
+        "state": "available",
+        "latest": "14.4.6",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": null,
+        "classification": "compatible-patch",
+        "reason": "Registry latest 14.4.6 is a patch release inside the reviewed range ^14.4.4.",
+        "latestQualified": true,
+        "advisory": null
+      }
+    },
+    {
+      "name": "@astrojs/react",
+      "kind": "dependencies",
+      "declared": "7.1.2",
+      "locked": "7.1.2",
+      "current": "7.1.2",
+      "supported": "^7.1.2",
+      "reviewed": "7.1.2",
+      "note": "Astro integration for React; must track the installed Astro major.",
+      "status": "ok",
+      "latestTested": "7.1.2",
+      "remote": {
+        "state": "available",
+        "latest": "7.1.4",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": {
+          "node": ">=22.23.4"
+        },
+        "classification": "compatible-patch",
+        "reason": "Registry latest 7.1.4 is a patch release inside the reviewed range ^7.1.2.",
+        "latestQualified": true,
+        "advisory": null
+      }
+    },
+    {
+      "name": "@emdash-cms/cloudflare",
+      "kind": "dependencies",
+      "declared": "1.4.0",
+      "locked": "1.4.0",
+      "current": "1.4.0",
+      "supported": "^1.4.0",
+      "reviewed": "1.4.0",
+      "note": "Versioned with EmDash; move both together.",
+      "status": "ok",
+      "latestTested": "1.4.0",
+      "remote": {
+        "state": "available",
+        "latest": "1.4.0",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": null,
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "@lucide/astro",
+      "kind": "dependencies",
+      "declared": "1.69.0",
+      "locked": "1.69.0",
+      "current": "1.69.0",
+      "supported": "^1.69.0",
+      "reviewed": "1.69.0",
+      "note": null,
+      "status": "ok",
+      "latestTested": "1.69.0",
+      "remote": {
+        "state": "available",
+        "latest": "1.70.0",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": null,
+        "classification": "feature-opportunity",
+        "reason": "Registry latest 1.70.0 adds a minor release inside the reviewed range ^1.69.0.",
+        "latestQualified": true,
+        "advisory": null
+      }
+    },
+    {
+      "name": "@resvg/resvg-wasm",
+      "kind": "dependencies",
+      "declared": "2.6.2",
+      "locked": "2.6.2",
+      "current": "2.6.2",
+      "supported": "^2.6.2",
+      "reviewed": "2.6.2",
+      "note": null,
+      "status": "ok",
+      "latestTested": "2.6.2",
+      "remote": {
+        "state": "available",
+        "latest": "2.6.2",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": {
+          "node": ">= 10"
+        },
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "@tanstack/react-router",
+      "kind": "dependencies",
+      "declared": "1.163.2",
+      "locked": "1.163.2",
+      "current": "1.163.2",
+      "supported": "1.163.2",
+      "reviewed": "1.163.2",
+      "note": "@emdash-cms/admin pins this exact version; a floating upgrade splits TanStack's React context from the host RouterProvider.",
+      "status": "ok",
+      "latestTested": "1.163.2",
+      "remote": {
+        "state": "available",
+        "latest": "1.170.46",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": {
+          "node": ">=20.19"
+        },
+        "classification": "feature-opportunity",
+        "reason": "Registry latest 1.170.46 adds a minor release outside the reviewed range 1.163.2.",
+        "latestQualified": false,
+        "advisory": null
+      }
+    },
+    {
+      "name": "astro",
+      "kind": "dependencies",
+      "declared": "7.4.5",
+      "locked": "7.4.5",
+      "current": "7.4.5",
+      "supported": "^7.4.5",
+      "reviewed": "7.4.5",
+      "note": "Astro 7.4 declares node >=22.23.4, which sets the runtime floor.",
+      "status": "ok",
+      "latestTested": "7.4.5",
+      "remote": {
+        "state": "available",
+        "latest": "7.4.7",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": {
+          "npm": ">=9.6.5",
+          "node": ">=22.23.4",
+          "pnpm": ">=7.1.0"
+        },
+        "classification": "compatible-patch",
+        "reason": "Registry latest 7.4.7 is a patch release inside the reviewed range ^7.4.5.",
+        "latestQualified": true,
+        "advisory": null
+      }
+    },
+    {
+      "name": "emdash",
+      "kind": "dependencies",
+      "declared": "1.4.0",
+      "locked": "1.4.0",
+      "current": "1.4.0",
+      "supported": "^1.4.0",
+      "reviewed": "1.4.0",
+      "note": "Move with @emdash-cms/cloudflare. No 1.4 database migration; caching-header changes are reviewed. The generated content-site recipe keeps its own 1.2.0 pin.",
+      "status": "ok",
+      "latestTested": "1.4.0",
+      "remote": {
+        "state": "available",
+        "latest": "1.4.0",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": {
+          "node": ">=22.16"
+        },
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "jose",
+      "kind": "dependencies",
+      "declared": "6.2.15",
+      "locked": "6.2.15",
+      "current": "6.2.15",
+      "supported": "^6.2.15",
+      "reviewed": "6.2.15",
+      "note": null,
+      "status": "ok",
+      "latestTested": "6.2.15",
+      "remote": {
+        "state": "available",
+        "latest": "6.2.15",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": null,
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "react",
+      "kind": "dependencies",
+      "declared": "19.3.1",
+      "locked": "19.3.1",
+      "current": "19.3.1",
+      "supported": "^19.3.1",
+      "reviewed": "19.3.1",
+      "note": null,
+      "status": "ok",
+      "latestTested": "19.3.1",
+      "remote": {
+        "state": "available",
+        "latest": "19.3.1",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": {
+          "node": ">=0.10.0"
+        },
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "react-dom",
+      "kind": "dependencies",
+      "declared": "19.3.1",
+      "locked": "19.3.1",
+      "current": "19.3.1",
+      "supported": "^19.3.1",
+      "reviewed": "19.3.1",
+      "note": null,
+      "status": "ok",
+      "latestTested": "19.3.1",
+      "remote": {
+        "state": "available",
+        "latest": "19.3.1",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": null,
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "@astrojs/check",
+      "kind": "devDependencies",
+      "declared": "0.9.12",
+      "locked": "0.9.12",
+      "current": "0.9.12",
+      "supported": "^0.9.12",
+      "reviewed": "0.9.12",
+      "note": null,
+      "status": "ok",
+      "latestTested": "0.9.12",
+      "remote": {
+        "state": "available",
+        "latest": "0.9.12",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": null,
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "@cloudflare/workers-types",
+      "kind": "devDependencies",
+      "declared": "5.20261104.1",
+      "locked": "5.20261104.1",
+      "current": "5.20261104.1",
+      "supported": "^5.20261104.1",
+      "reviewed": "5.20261104.1",
+      "note": "Wrangler 4.152 requires at least 5.20261019.1 as a peer.",
+      "status": "ok",
+      "latestTested": "5.20261104.1",
+      "remote": {
+        "state": "available",
+        "latest": "5.20261106.1",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": null,
+        "classification": "feature-opportunity",
+        "reason": "Registry latest 5.20261106.1 adds a minor release inside the reviewed range ^5.20261104.1.",
+        "latestQualified": true,
+        "advisory": null
+      }
+    },
+    {
+      "name": "@modelcontextprotocol/client",
+      "kind": "devDependencies",
+      "declared": "2.4.0",
+      "locked": "2.4.0",
+      "current": "2.4.0",
+      "supported": "^2.4.0",
+      "reviewed": "2.4.0",
+      "note": null,
+      "status": "ok",
+      "latestTested": "2.4.0",
+      "remote": {
+        "state": "available",
+        "latest": "2.4.0",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": {
+          "node": ">=20"
+        },
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "@modelcontextprotocol/server",
+      "kind": "devDependencies",
+      "declared": "2.4.0",
+      "locked": "2.4.0",
+      "current": "2.4.0",
+      "supported": "^2.4.0",
+      "reviewed": "2.4.0",
+      "note": null,
+      "status": "ok",
+      "latestTested": "2.4.0",
+      "remote": {
+        "state": "available",
+        "latest": "2.4.0",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": {
+          "node": ">=20"
+        },
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "@tailwindcss/vite",
+      "kind": "devDependencies",
+      "declared": "4.3.4",
+      "locked": "4.3.4",
+      "current": "4.3.4",
+      "supported": "^4.3.4",
+      "reviewed": "4.3.4",
+      "note": null,
+      "status": "ok",
+      "latestTested": "4.3.4",
+      "remote": {
+        "state": "available",
+        "latest": "4.3.4",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": null,
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "@types/react",
+      "kind": "devDependencies",
+      "declared": "19.3.0",
+      "locked": "19.3.0",
+      "current": "19.3.0",
+      "supported": "^19.3.0",
+      "reviewed": "19.3.0",
+      "note": null,
+      "status": "ok",
+      "latestTested": "19.3.0",
+      "remote": {
+        "state": "available",
+        "latest": "19.3.0",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": null,
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "@types/react-dom",
+      "kind": "devDependencies",
+      "declared": "19.3.0",
+      "locked": "19.3.0",
+      "current": "19.3.0",
+      "supported": "^19.3.0",
+      "reviewed": "19.3.0",
+      "note": null,
+      "status": "ok",
+      "latestTested": "19.3.0",
+      "remote": {
+        "state": "available",
+        "latest": "19.3.0",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": null,
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "jsqr",
+      "kind": "devDependencies",
+      "declared": "1.4.0",
+      "locked": "1.4.0",
+      "current": "1.4.0",
+      "supported": "^1.4.0",
+      "reviewed": "1.4.0",
+      "note": null,
+      "status": "ok",
+      "latestTested": "1.4.0",
+      "remote": {
+        "state": "available",
+        "latest": "1.4.0",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": null,
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "pngjs",
+      "kind": "devDependencies",
+      "declared": "7.0.0",
+      "locked": "7.0.0",
+      "current": "7.0.0",
+      "supported": "^7.0.0",
+      "reviewed": "7.0.0",
+      "note": null,
+      "status": "ok",
+      "latestTested": "7.0.0",
+      "remote": {
+        "state": "available",
+        "latest": "7.0.0",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": {
+          "node": ">=14.19.0"
+        },
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "prettier",
+      "kind": "devDependencies",
+      "declared": "3.9.10",
+      "locked": "3.9.10",
+      "current": "3.9.10",
+      "supported": "^3.9.10",
+      "reviewed": "3.9.10",
+      "note": null,
+      "status": "ok",
+      "latestTested": "3.9.10",
+      "remote": {
+        "state": "available",
+        "latest": "3.9.10",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": {
+          "node": ">=14"
+        },
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "tailwindcss",
+      "kind": "devDependencies",
+      "declared": "4.3.4",
+      "locked": "4.3.4",
+      "current": "4.3.4",
+      "supported": "^4.3.4",
+      "reviewed": "4.3.4",
+      "note": null,
+      "status": "ok",
+      "latestTested": "4.3.4",
+      "remote": {
+        "state": "available",
+        "latest": "4.3.4",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": null,
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    },
+    {
+      "name": "typescript",
+      "kind": "devDependencies",
+      "declared": "6.0.3",
+      "locked": "6.0.3",
+      "current": "6.0.3",
+      "supported": "^6.0.3",
+      "reviewed": "6.0.3",
+      "note": "@astrojs/check peers on ^5 || ^6, so TypeScript 7 is not a drop-in yet.",
+      "status": "ok",
+      "latestTested": "6.0.3",
+      "remote": {
+        "state": "available",
+        "latest": "7.0.2",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": {
+          "node": ">=16.20.0"
+        },
+        "classification": "breaking-major",
+        "reason": "Registry latest 7.0.2 is a new major; the reviewed range is ^6.0.3.",
+        "latestQualified": false,
+        "advisory": null
+      }
+    },
+    {
+      "name": "wrangler",
+      "kind": "devDependencies",
+      "declared": "4.152.0",
+      "locked": "4.152.0",
+      "current": "4.152.0",
+      "supported": "^4.152.0",
+      "reviewed": "4.152.0",
+      "note": "Get Ready runs this exact Wrangler; re-pin lib/get-ready and its fixtures together.",
+      "status": "ok",
+      "latestTested": "4.152.0",
+      "remote": {
+        "state": "available",
+        "latest": "4.158.0",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": {
+          "node": ">=22.0.0"
+        },
+        "classification": "feature-opportunity",
+        "reason": "Registry latest 4.158.0 adds a minor release inside the reviewed range ^4.152.0.",
+        "latestQualified": true,
+        "advisory": null
+      }
+    },
+    {
+      "name": "zod",
+      "kind": "devDependencies",
+      "declared": "4.6.7",
+      "locked": "4.6.7",
+      "current": "4.6.7",
+      "supported": "^4.6.7",
+      "reviewed": "4.6.7",
+      "note": null,
+      "status": "ok",
+      "latestTested": "4.6.7",
+      "remote": {
+        "state": "available",
+        "latest": "4.6.7",
+        "publishedAt": null,
+        "deprecated": null,
+        "engines": null,
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
+        "advisory": null
+      }
+    }
+  ],
+  "advisoryLookup": {
+    "state": "available",
+    "reason": null
+  },
+  "summary": {
+    "ok": 27,
+    "drift": 0,
+    "unknown": 0,
+    "unresolved": 0,
+    "current": 17,
+    "compatiblePatch": 3,
+    "featureOpportunity": 4,
+    "breakingMajor": 1,
+    "securityUrgent": 0,
+    "unsupported": 0,
+    "runtimeUnsupported": 0,
+    "advisoryUnknown": 0
+  },
+  "status": "attention"
+}

@@ -9,6 +9,7 @@ dist/
 *.db
 *.db-*
 src/lib/build.json
+src/lib/stack-status.json
 .playwright-cli/
 .playwright-mcp/
 output/
