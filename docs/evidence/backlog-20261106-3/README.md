@@ -123,13 +123,14 @@ The executable acceptance items are met:
 - deployed source/version is pinned and Stack status is live.
 
 The earlier local-only probe was superseded by an **authenticated production
-Cloudflare Access owner session**. At later source `0d031e3`, read-only navigation
-returned `200` for Settings, Mini-app catalogue content, Media, Creator stacks,
-Stack status, Plugin Trust Centre, Brand Studio, Incident Desk and the mini-app
-admin. Stack status rendered the deployed `edfd9fa` build, 25 packages, Node/pnpm
-policy, review date and the TypeScript 7 blocker. No owner data or settings were
-changed. The local passkey fixture remains separately labelled and is not the
-Access evidence.
+Cloudflare Access owner session**. At source `edfd9fa`, a signed-in owner read
+Settings, Mini-app catalogue content, Media, Creator stacks, Stack status, Plugin
+Trust Centre, Brand Studio, Incident Desk and the mini-app admin. Stack status
+then rendered the deployed `edfd9fa` build, 25 packages, Node/pnpm policy, review
+date and the TypeScript 7 blocker. After the later #313 release, the same surfaces
+were rechecked at `0d031e3`; Stack status renders the deployed `0d031e3` build. No
+owner data or settings were changed. The local passkey fixture remains separately
+labelled and is not the Access evidence.
 
 The independent mini-app batches remain #321's separate releases.
 
