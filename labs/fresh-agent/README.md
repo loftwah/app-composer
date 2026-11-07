@@ -9,6 +9,10 @@ Versioned inputs, asserted outcomes and bounded results for what a new agent can
 | `cases/*.json` | One bounded case: task, fixture, exported settings, prompt wrapper and declarative assertions. |
 | `fixtures/` | Fictional projects an agent may copy but never modify in place. |
 | `results-20261025.json` | Sanitised machine-readable results of the runs recorded in `docs/evaluations/fresh-agent-20261025.md`. |
+| `results-20261108.json` | Sanitised results of the 8 November baseline (three new, three existing, one prepared), recorded in `docs/evaluations/fresh-agent-20261108.md`. |
+
+The recurring owner, command, cadence and budget are in
+[`docs/setup-canary.md`](../../docs/setup-canary.md).
 
 ## Commands
 

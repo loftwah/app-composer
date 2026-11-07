@@ -1,0 +1,89 @@
+{
+  "schema": "composer.fresh-agent-run/1",
+  "case": "new-project",
+  "task": "A",
+  "title": "New application setup from the exported guide only",
+  "issue": 292,
+  "startedAt": "2026-11-07T22:46:38.608Z",
+  "finishedAt": "2026-11-07T22:49:49.714Z",
+  "durationMs": 191105,
+  "agent": "opencode",
+  "agentCommand": "/Users/deanlofts/Library/Application Support/ai.opencode.desktop/cli/2.2.6-arm64/opencode-cli",
+  "agentVersion": "opencode v2.2.6",
+  "model": "opencode-go/deepseek-v4.1-flash",
+  "agentExit": 0,
+  "agentTimedOut": false,
+  "outcome": "passed",
+  "isolation": {
+    "clean": true,
+    "hits": {}
+  },
+  "response": "completed",
+  "humanActions": [],
+  "notes": [
+    "292 repeat on a prepared project: the guide still says site/ is absent, but run new-project-1 already built it; reconcile rather than recreate"
+  ],
+  "fixture": "blank-start",
+  "fixtureCommit": "ef8146539588a786c32965788e1037f6c2ed8b4a",
+  "guideSha256": "c958f9b381ceda2132825029a3d6b44452352278ef9bf52229d437963fb95398",
+  "packSha256": null,
+  "promptSha256": "af578a67ce34bbef83fe77aece1f97e775e3ad9939634bfcf653c8befea3bd8d",
+  "promptBytes": 7043,
+  "tools": {
+    "node": "v22.23.4",
+    "python": "Python 3.9.6",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "codex": "codex-cli 0.145.0",
+    "opencode": "opencode v2.2.6",
+    "platform": "darwin arm64",
+    "os": "macOS local (darwin)"
+  },
+  "assertions": [
+    {
+      "type": "file-exists",
+      "target": "site/app.py",
+      "passed": true,
+      "detail": "present"
+    },
+    {
+      "type": "sha256",
+      "target": "owner-note.txt",
+      "passed": true,
+      "detail": "unchanged"
+    },
+    {
+      "type": "file-exists",
+      "target": "RUN-REPORT.md",
+      "passed": true,
+      "detail": "present"
+    },
+    {
+      "type": "dir-count-min",
+      "target": "site",
+      "passed": true,
+      "detail": "4 entries"
+    },
+    {
+      "type": "command",
+      "target": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s site -q",
+      "passed": true,
+      "detail": "exit 0: Ran 13 tests in 6.590s |  | OK"
+    },
+    {
+      "type": "http",
+      "target": "",
+      "passed": true,
+      "detail": "/ 200; /health 200 contains \"ok\"=true"
+    },
+    {
+      "type": "absent-any",
+      "target": "",
+      "passed": true,
+      "detail": "none present"
+    }
+  ],
+  "passed": 7,
+  "total": 7,
+  "transcript": "agent.log",
+  "transcriptBytes": 19310
+}

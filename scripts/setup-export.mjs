@@ -30,18 +30,29 @@ const origin = option('--origin', 'http://127.0.0.1:4377').replace(/\/$/, '');
 async function loadPlaywright() {
   if (process.env.PLAYWRIGHT_MODULE) return import(process.env.PLAYWRIGHT_MODULE);
   const base = `${process.env.HOME}/.npm/_npx`;
+  const cache = process.env.PLAYWRIGHT_BROWSERS_PATH || `${process.env.HOME}/Library/Caches/ms-playwright`;
   const candidates = [];
   try {
     for (const entry of readdirSync(base)) {
       const path = `${base}/${entry}/node_modules/playwright/index.mjs`;
-      try { candidates.push([statSync(path).mtimeMs, path]); } catch { /* not installed here */ }
+      try { candidates.push([statSync(path).mtimeMs, path, chromiumInstalled(`${base}/${entry}/node_modules/playwright-core`, cache)]); } catch { /* not installed here */ }
     }
   } catch { /* no npx cache */ }
-  candidates.sort((a, b) => b[0] - a[0]);
+  // A cached Playwright whose Chromium revision was never downloaded cannot
+  // capture anything; prefer one that can actually launch.
+  candidates.sort((a, b) => (Number(b[2]) - Number(a[2])) || (b[0] - a[0]));
   for (const [, path] of candidates) {
     try { return await import(path); } catch { /* try the next one */ }
   }
   return import('playwright');
+}
+
+function chromiumInstalled(coreDir, cache) {
+  try {
+    const browsers = JSON.parse(readFileSync(`${coreDir}/browsers.json`, 'utf8')).browsers;
+    const revision = browsers.find((browser) => browser.name === 'chromium')?.revision;
+    return Boolean(revision) && readdirSync(cache).includes(`chromium-${revision}`);
+  } catch { return false; }
 }
 
 function sha256(bytes) {

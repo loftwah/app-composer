@@ -1,0 +1,189 @@
+{
+  "origin": "https://composer.loftwah.com",
+  "browser": "Chromium 156.0.8078.4",
+  "checkedAt": "2026-11-07T22:36:10.501Z",
+  "passed": 36,
+  "total": 36,
+  "results": [
+    {
+      "name": "desktop /setup 200",
+      "ok": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "template.md 200",
+      "ok": true,
+      "detail": "status 200"
+    },
+    {
+      "name": "template version header",
+      "ok": true,
+      "detail": "app-composer.project-setup/1"
+    },
+    {
+      "name": "default preview equals template.md",
+      "ok": true,
+      "detail": "6108 vs 6108 chars"
+    },
+    {
+      "name": "blank guide delegates to inspection",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no unresolved template placeholders",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "preparation versus execution wording",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "controls enabled after load",
+      "ok": true,
+      "detail": "hidden=null"
+    },
+    {
+      "name": "keyboard reaches copy action",
+      "ok": true,
+      "detail": "18 tabs: a > a > a > a > a > summary > button > button > a > a > mode-existing > project > outcome > target > summary > reset > a > copy > download > textarea > a > a > a > a > a > a > a > button"
+    },
+    {
+      "name": "keyboard reaches download action",
+      "ok": true,
+      "detail": "a > a > a > a > a > summary > button > button > a > a > mode-existing > project > outcome > target > summary > reset > a > copy > download > textarea > a > a > a > a > a > a > a > button"
+    },
+    {
+      "name": "keyboard reaches mode, project, outcome, target",
+      "ok": true,
+      "detail": "a > a > a > a > a > summary > button > button > a > a > mode-existing > project > outcome > target > summary > reset > a > copy > download > textarea > a > a > a > a > a > a > a > button"
+    },
+    {
+      "name": "keyboard focus indication present",
+      "ok": true,
+      "detail": "mode-existing:solid 3px, project:solid 3px, outcome:solid 3px, target:solid 3px, reset:solid 3px, copy:solid 3px, download:solid 3px"
+    },
+    {
+      "name": "no application console errors",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "filled preview includes project",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "filled preview mode is existing",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "filled preview keeps constraint",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "filled preview requests no deployment",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "copy equals the preview",
+      "ok": true,
+      "detail": "6041 vs 6041"
+    },
+    {
+      "name": "copy success announced",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "download filename",
+      "ok": true,
+      "detail": "project-setup.md"
+    },
+    {
+      "name": "download equals the preview",
+      "ok": true,
+      "detail": "6041 vs 6041"
+    },
+    {
+      "name": "download status announced",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "edited copy equals edited preview",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "edited download equals edited preview",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "reload restores the same guide",
+      "ok": true,
+      "detail": "6077 chars"
+    },
+    {
+      "name": "reset restores the blank template",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "reset status names the scope",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "long input accepted at field limits",
+      "ok": true,
+      "detail": "10462 chars"
+    },
+    {
+      "name": "long guide copy equals preview",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "copy rejection announces manual fallback",
+      "ok": true,
+      "detail": "Automatic copy was unavailable. The complete guide is selected; use your device’s Copy command."
+    },
+    {
+      "name": "manual fallback selects the whole guide and focuses it",
+      "ok": true,
+      "detail": "{\"start\":0,\"end\":6108,\"length\":6108,\"focused\":true,\"selected\":true}"
+    },
+    {
+      "name": "missing clipboard API uses the same fallback",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "phone /setup renders",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "phone has no horizontal overflow",
+      "ok": true,
+      "detail": "{\"scroll\":390,\"inner\":390}"
+    },
+    {
+      "name": "phone copy action visible and full width",
+      "ok": true,
+      "detail": "{\"hidden\":false,\"width\":342,\"top\":1722}"
+    },
+    {
+      "name": "phone has no console errors",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

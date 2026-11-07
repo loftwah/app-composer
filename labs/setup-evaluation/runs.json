@@ -448,6 +448,445 @@
         }
       ],
       "interventions": []
+    },
+    {
+      "id": "new-project-20261108-1",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "c958f9b381ceda2132825029a3d6b44452352278ef9bf52229d437963fb95398",
+      "path": "new",
+      "fixture": "blank-start, fixture commit ef8146539588",
+      "sourceCommit": "ef8146539588a786c32965788e1037f6c2ed8b4a",
+      "agent": "Fresh OpenCode CLI v2.2.6 session, separate process and owned root",
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "environment": "macOS arm64; Python 3.9.6 standard library; fictional fixtures only; no account or provider access",
+      "tools": [
+        "opencode v2.2.6",
+        "Python 3.9.6",
+        "git 2.50.1",
+        "Node 22.23.4",
+        "host Playwright MCP browser"
+      ],
+      "provisionedAccess": [
+        "none: no Composer account, owner session, provider credential, deployment or paid service"
+      ],
+      "startedAt": "2026-11-07T22:28:42.671Z",
+      "finishedAt": "2026-11-07T22:33:57.812Z",
+      "outcome": "completed",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "file-exists site/app.py",
+          "outcome": "passed: present"
+        },
+        {
+          "command": "sha256 owner-note.txt",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "file-exists RUN-REPORT.md",
+          "outcome": "passed: present"
+        },
+        {
+          "command": "dir-count-min site",
+          "outcome": "passed: 4 entries"
+        },
+        {
+          "command": "command PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s site -q",
+          "outcome": "passed: exit 0: Ran 13 tests in 6.577s |  | OK"
+        },
+        {
+          "command": "http workspace",
+          "outcome": "passed: / 200; /health 200 contains \"ok\"=true"
+        },
+        {
+          "command": "absent-any workspace",
+          "outcome": "passed: none present"
+        }
+      ],
+      "interventions": [],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/docs/evaluations/fresh-agent-20261108.md"
+    },
+    {
+      "id": "new-project-20261108-2",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "c958f9b381ceda2132825029a3d6b44452352278ef9bf52229d437963fb95398",
+      "path": "new",
+      "fixture": "blank-start, fixture commit 0f0f0d14b01c",
+      "sourceCommit": "0f0f0d14b01c76d6c0e6cc085cb61a14899e21bf",
+      "agent": "Fresh OpenCode CLI v2.2.6 session, separate process and owned root",
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "environment": "macOS arm64; Python 3.9.6 standard library; fictional fixtures only; no account or provider access",
+      "tools": [
+        "opencode v2.2.6",
+        "Python 3.9.6",
+        "git 2.50.1",
+        "Node 22.23.4",
+        "host Playwright MCP browser"
+      ],
+      "provisionedAccess": [
+        "none: no Composer account, owner session, provider credential, deployment or paid service"
+      ],
+      "startedAt": "2026-11-07T22:34:24.197Z",
+      "finishedAt": "2026-11-07T22:38:36.488Z",
+      "outcome": "completed",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "file-exists site/app.py",
+          "outcome": "passed: present"
+        },
+        {
+          "command": "sha256 owner-note.txt",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "file-exists RUN-REPORT.md",
+          "outcome": "passed: present"
+        },
+        {
+          "command": "dir-count-min site",
+          "outcome": "passed: 4 entries"
+        },
+        {
+          "command": "command PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s site -q",
+          "outcome": "passed: exit 0: Ran 24 tests in 0.328s |  | OK"
+        },
+        {
+          "command": "http workspace",
+          "outcome": "passed: / 200; /health 200 contains \"ok\"=true"
+        },
+        {
+          "command": "absent-any workspace",
+          "outcome": "passed: none present"
+        }
+      ],
+      "interventions": [],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/docs/evaluations/fresh-agent-20261108.md"
+    },
+    {
+      "id": "new-project-20261108-3",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "c958f9b381ceda2132825029a3d6b44452352278ef9bf52229d437963fb95398",
+      "path": "new",
+      "fixture": "blank-start, fixture commit d1d00d3fcb2f",
+      "sourceCommit": "d1d00d3fcb2f4d93d54a1cdc9a2e79b7e2d1ab50",
+      "agent": "Fresh OpenCode CLI v2.2.6 session, separate process and owned root",
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "environment": "macOS arm64; Python 3.9.6 standard library; fictional fixtures only; no account or provider access",
+      "tools": [
+        "opencode v2.2.6",
+        "Python 3.9.6",
+        "git 2.50.1",
+        "Node 22.23.4",
+        "host browse (real Chrome)"
+      ],
+      "provisionedAccess": [
+        "none: no Composer account, owner session, provider credential, deployment or paid service"
+      ],
+      "startedAt": "2026-11-07T22:38:36.845Z",
+      "finishedAt": "2026-11-07T22:40:55.744Z",
+      "outcome": "completed",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "file-exists site/app.py",
+          "outcome": "passed: present"
+        },
+        {
+          "command": "sha256 owner-note.txt",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "file-exists RUN-REPORT.md",
+          "outcome": "passed: present"
+        },
+        {
+          "command": "dir-count-min site",
+          "outcome": "passed: 3 entries"
+        },
+        {
+          "command": "command PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s site -q",
+          "outcome": "passed: exit 0: Ran 12 tests in 0.162s |  | OK"
+        },
+        {
+          "command": "http workspace",
+          "outcome": "passed: / 200; /health 200 contains \"ok\"=true"
+        },
+        {
+          "command": "absent-any workspace",
+          "outcome": "passed: none present"
+        }
+      ],
+      "interventions": [],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/docs/evaluations/fresh-agent-20261108.md"
+    },
+    {
+      "id": "existing-change-20261108-1",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "58a4c95656a0cca5d7a8073072e20f36696498758ae8ad9a6b40ede3c7dc2950",
+      "path": "existing",
+      "fixture": "existing-notes, fixture commit 24a4a5c7d43b",
+      "sourceCommit": "24a4a5c7d43bff3554def6921187c14b87acd00c",
+      "agent": "Fresh OpenCode CLI v2.2.6 session, separate process and owned root",
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "environment": "macOS arm64; Python 3.9.6 standard library; fictional fixtures only; no account or provider access",
+      "tools": [
+        "opencode v2.2.6",
+        "Python 3.9.6",
+        "git 2.50.1",
+        "Node 22.23.4"
+      ],
+      "provisionedAccess": [
+        "none: no Composer account, owner session, provider credential, deployment or paid service"
+      ],
+      "startedAt": "2026-11-07T22:40:56.083Z",
+      "finishedAt": "2026-11-07T22:42:55.902Z",
+      "outcome": "completed",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "file-exists role-output.json",
+          "outcome": "passed: present"
+        },
+        {
+          "command": "role-fields role-output.json",
+          "outcome": "passed: 8 pack fields present"
+        },
+        {
+          "command": "sha256 owner-note.txt",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "sha256 site.json",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "sha256 notes.json",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "sha256 scratch/owner-draft.txt",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "text app.py",
+          "outcome": "passed: text matched"
+        },
+        {
+          "command": "command PYTHONDONTWRITEBYTECODE=1 python3 -m unittest -q",
+          "outcome": "passed: exit 0: Ran 8 tests in 0.509s |  | OK"
+        },
+        {
+          "command": "http workspace",
+          "outcome": "passed: / 200; /health 200; /about 200 contains \"Ada\"=true; /note/absent 404"
+        },
+        {
+          "command": "file-exists RUN-REPORT.md",
+          "outcome": "passed: present"
+        }
+      ],
+      "interventions": [],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/docs/evaluations/fresh-agent-20261108.md"
+    },
+    {
+      "id": "existing-change-20261108-2",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "58a4c95656a0cca5d7a8073072e20f36696498758ae8ad9a6b40ede3c7dc2950",
+      "path": "existing",
+      "fixture": "existing-notes, fixture commit 153180bdb2c2",
+      "sourceCommit": "153180bdb2c2823d3062215a5eab875de06843e1",
+      "agent": "Fresh OpenCode CLI v2.2.6 session, separate process and owned root",
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "environment": "macOS arm64; Python 3.9.6 standard library; fictional fixtures only; no account or provider access",
+      "tools": [
+        "opencode v2.2.6",
+        "Python 3.9.6",
+        "git 2.50.1",
+        "Node 22.23.4"
+      ],
+      "provisionedAccess": [
+        "none: no Composer account, owner session, provider credential, deployment or paid service"
+      ],
+      "startedAt": "2026-11-07T22:42:56.285Z",
+      "finishedAt": "2026-11-07T22:44:22.537Z",
+      "outcome": "completed",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "file-exists role-output.json",
+          "outcome": "passed: present"
+        },
+        {
+          "command": "role-fields role-output.json",
+          "outcome": "passed: 8 pack fields present"
+        },
+        {
+          "command": "sha256 owner-note.txt",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "sha256 site.json",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "sha256 notes.json",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "sha256 scratch/owner-draft.txt",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "text app.py",
+          "outcome": "passed: text matched"
+        },
+        {
+          "command": "command PYTHONDONTWRITEBYTECODE=1 python3 -m unittest -q",
+          "outcome": "passed: exit 0: Ran 8 tests in 0.509s |  | OK"
+        },
+        {
+          "command": "http workspace",
+          "outcome": "passed: / 200; /health 200; /about 200 contains \"Ada\"=true; /note/absent 404"
+        },
+        {
+          "command": "file-exists RUN-REPORT.md",
+          "outcome": "passed: present"
+        }
+      ],
+      "interventions": [],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/docs/evaluations/fresh-agent-20261108.md"
+    },
+    {
+      "id": "existing-change-20261108-3",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "58a4c95656a0cca5d7a8073072e20f36696498758ae8ad9a6b40ede3c7dc2950",
+      "path": "existing",
+      "fixture": "existing-notes, fixture commit e7bcacb67da6",
+      "sourceCommit": "e7bcacb67da6c4a20b3c96fc6ab4721e002538a3",
+      "agent": "Fresh OpenCode CLI v2.2.6 session, separate process and owned root",
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "environment": "macOS arm64; Python 3.9.6 standard library; fictional fixtures only; no account or provider access",
+      "tools": [
+        "opencode v2.2.6",
+        "Python 3.9.6",
+        "git 2.50.1",
+        "Node 22.23.4"
+      ],
+      "provisionedAccess": [
+        "none: no Composer account, owner session, provider credential, deployment or paid service"
+      ],
+      "startedAt": "2026-11-07T22:44:22.888Z",
+      "finishedAt": "2026-11-07T22:46:09.749Z",
+      "outcome": "completed",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "file-exists role-output.json",
+          "outcome": "passed: present"
+        },
+        {
+          "command": "role-fields role-output.json",
+          "outcome": "passed: 8 pack fields present"
+        },
+        {
+          "command": "sha256 owner-note.txt",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "sha256 site.json",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "sha256 notes.json",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "sha256 scratch/owner-draft.txt",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "text app.py",
+          "outcome": "passed: text matched"
+        },
+        {
+          "command": "command PYTHONDONTWRITEBYTECODE=1 python3 -m unittest -q",
+          "outcome": "passed: exit 0: Ran 8 tests in 0.510s |  | OK"
+        },
+        {
+          "command": "http workspace",
+          "outcome": "passed: / 200; /health 200; /about 200 contains \"Ada\"=true; /note/absent 404"
+        },
+        {
+          "command": "file-exists RUN-REPORT.md",
+          "outcome": "passed: present"
+        }
+      ],
+      "interventions": [],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/docs/evaluations/fresh-agent-20261108.md"
+    },
+    {
+      "id": "prepared-20261108-1",
+      "guideVersion": "app-composer.project-setup/1",
+      "guideHash": "c958f9b381ceda2132825029a3d6b44452352278ef9bf52229d437963fb95398",
+      "path": "prepared",
+      "fixture": "blank-start completed by new-project-2 (fixture commit 0f0f0d14), fixture commit 0f0f0d14b01c",
+      "sourceCommit": "0f0f0d14b01c76d6c0e6cc085cb61a14899e21bf",
+      "agent": "Fresh OpenCode CLI v2.2.6 session, separate process and owned root",
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "environment": "macOS arm64; Python 3.9.6 standard library; fictional fixtures only; no account or provider access",
+      "tools": [
+        "opencode v2.2.6",
+        "Python 3.9.6",
+        "git 2.50.1",
+        "Node 22.23.4",
+        "host Playwright MCP browser"
+      ],
+      "provisionedAccess": [
+        "none: no Composer account, owner session, provider credential, deployment or paid service"
+      ],
+      "startedAt": "2026-11-07T22:50:32.909Z",
+      "finishedAt": "2026-11-07T22:52:47.591Z",
+      "outcome": "completed",
+      "simulated": false,
+      "checks": [
+        {
+          "command": "file-exists site/app.py",
+          "outcome": "passed: present"
+        },
+        {
+          "command": "sha256 owner-note.txt",
+          "outcome": "passed: unchanged"
+        },
+        {
+          "command": "file-exists RUN-REPORT.md",
+          "outcome": "passed: present"
+        },
+        {
+          "command": "dir-count-min site",
+          "outcome": "passed: 4 entries"
+        },
+        {
+          "command": "command PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s site -q",
+          "outcome": "passed: exit 0: Ran 24 tests in 0.337s |  | OK"
+        },
+        {
+          "command": "http workspace",
+          "outcome": "passed: / 200; /health 200 contains \"ok\"=true"
+        },
+        {
+          "command": "absent-any workspace",
+          "outcome": "passed: none present"
+        }
+      ],
+      "interventions": [],
+      "humanActions": [],
+      "evidence": "https://github.com/loftwah/app-composer/blob/main/docs/evaluations/fresh-agent-20261108.md"
     }
   ]
 }

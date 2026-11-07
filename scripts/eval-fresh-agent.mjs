@@ -415,17 +415,20 @@ async function runAgent(entry, root, options) {
   if (options.agent === 'codex') {
     argv = ['exec', '--cd', manifest.workspace, '--skip-git-repo-check', '--sandbox', 'workspace-write', '--ephemeral', '--color', 'never', '-o', resolve(owned, 'last-message.md')];
     if (model) argv.push('--model', model);
-    argv.push('-');
+    // Current Codex expects the prompt as one positional; `-` would also read
+    // stdin, which this runner deliberately does not pipe.
     command = `codex`;
   } else if (options.agent === 'opencode') {
     command = options.bin || process.env.OPENCODE_CLI || 'opencode-cli';
     model = model || 'opencode-go/deepseek-v4.1-flash';
-    argv = ['run', '--standalone', '--auto', '--model', model, '--title', `Fresh agent ${entry.id}`];
+    // One positional message only. Current CLI versions join extra positionals
+    // into the message, so the workspace is selected by cwd and $PWD, not text.
+    argv = ['run', '--standalone', '--archived', '--auto', '--model', model, '--title', `Fresh agent ${entry.id}`];
   } else fail('Only the codex and opencode CLIs are wired for this bounded run.');
   if (!model) model = 'CLI default';
   const startedAt = new Date().toISOString();
   const started = Date.now();
-  const commandArgs = options.agent === 'opencode' ? [...argv, prompt, manifest.workspace] : [...argv, prompt];
+  const commandArgs = [...argv, prompt];
   // The OpenCode CLI resolves its project from $PWD, not from the process cwd.
   // Spawned processes inherit the parent's $PWD, so it must be set explicitly or
   // the agent silently starts in the caller's repository.
