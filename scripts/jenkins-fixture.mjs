@@ -94,15 +94,29 @@ async function availablePort() {
 
 const sleep = ms => new Promise(accept => setTimeout(accept, ms));
 const authorisation = () => `Basic ${Buffer.from(`${user}:${password}`).toString('base64')}`;
+// Jenkins binds a CSRF crumb to the HTTP session, so the crumb request and the
+// state-changing request must share the same JSESSIONID.
+const cookieJar = new Map();
+function rememberCookies(response) {
+  for (const entry of response.headers.getSetCookie?.() ?? []) {
+    const [pair] = entry.split(';');
+    const index = pair.indexOf('=');
+    if (index > 0) cookieJar.set(pair.slice(0, index).trim(), pair.slice(index + 1).trim());
+  }
+}
+const cookieHeader = () =>
+  [...cookieJar].map(([name, value]) => `${name}=${value}`).join('; ');
 
 async function jenkinsFetch(path, {method = 'GET', crumb = null, body = null, contentType = null, timeoutMs = 15000} = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    return await fetch(`http://127.0.0.1:${path.port}${path.suffix}`, {
+    const cookies = cookieHeader();
+    const response = await fetch(`http://127.0.0.1:${path.port}${path.suffix}`, {
       method,
       headers: {
         Authorization: authorisation(),
+        ...(cookies ? {Cookie: cookies} : {}),
         ...(crumb ? {[crumb.field]: crumb.value} : {}),
         ...(contentType ? {'Content-Type': contentType} : {}),
       },
@@ -110,6 +124,8 @@ async function jenkinsFetch(path, {method = 'GET', crumb = null, body = null, co
       signal: controller.signal,
       redirect: 'manual',
     });
+    rememberCookies(response);
+    return response;
   } finally {
     clearTimeout(timer);
   }
