@@ -11,7 +11,7 @@ FROM jenkins/jenkins:lts-jdk21
 
 USER root
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates curl git xz-utils \
+ && apt-get install -y --no-install-recommends ca-certificates curl git python3 xz-utils \
  && rm -rf /var/lib/apt/lists/*
 
 # The fixture repository is mounted from the host under a different uid. This
