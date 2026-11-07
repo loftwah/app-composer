@@ -33,7 +33,15 @@ zero animations, zero transitions and normal scrolling with reduced motion.
 Evidence, exact measurements and the capture residual:
 [job-led discovery](evidence/discovery-jobs-20261107/README.md).
 #297 remains open; this is a scoped slice, not full role/task acceptance.
-#313, #321 and #412 and the Guestbook declaration/promotion gate are unchanged.
+#313 and #321 are unchanged; the Guestbook declaration/promotion gate remains.
+
+#412 also advanced after the release: Showcase commit `131fe014` adds the
+optional app-owned declaration for its existing public profile read. Composer
+validated the exact pushed manifest (`3b18590f…`); the live Showcase manifest
+does not yet serve the declaration and the Composer pin remains `f1dd2795`.
+Showcase release and composition promotion are the remaining gates; no profile
+was edited or published and no mutation was performed.
+Evidence: [Showcase declaration](evidence/app-capability-showcase-20261107/README.md).
 
 ## Creator stacks, Orders and Private enquiries task entries — 7 November 2026
 

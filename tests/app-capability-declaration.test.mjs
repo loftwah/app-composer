@@ -51,6 +51,25 @@ test("validateManifest rejects an invalid declaration", () => {
   );
 });
 
+test("accepts the pushed Showcase app-owned declaration", () => {
+  const manifest = JSON.parse(
+    readFileSync(
+      new URL(
+        "../docs/evidence/app-capability-showcase-20261107/showcase.app.manifest.json",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  );
+  assert.equal(validateManifest(manifest), manifest);
+  assert.equal(manifest.agentCapabilities.operations.length, 1);
+  assert.equal(
+    manifest.agentCapabilities.operations[0].name,
+    "read-public-profile",
+  );
+  assert.equal(manifest.agentCapabilities.operations[0].kind, "read");
+});
+
 test("rejects unknown declaration fields", () => {
   assert.throws(
     () =>

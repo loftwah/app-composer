@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "file": "/Users/deanlofts/gits/app-composer/docs/evidence/app-capability-showcase-20261107/showcase.app.manifest.json",
+  "app": "showcase",
+  "contract": 1,
+  "declarationVersion": 1,
+  "ui": "https://showcase.loftwah.com",
+  "storage": "app-owned",
+  "operations": [
+    {
+      "name": "read-public-profile",
+      "kind": "read",
+      "method": "GET",
+      "path": "/p/:handle/",
+      "availability": "public",
+      "requires": [
+        "none"
+      ],
+      "confirmation": false,
+      "verified": "2026-11-07"
+    }
+  ]
+}

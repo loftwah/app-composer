@@ -1,0 +1,196 @@
+{
+  "contract": 1,
+  "id": "showcase",
+  "name": "Linkarooie",
+  "version": "1.10.0",
+  "repository": "https://github.com/loftwah/app-composer-showcase",
+  "runtime": "cloudflare-worker",
+  "entry": "src/worker.ts",
+  "dataVersion": 1,
+  "routes": [
+    "/showcase"
+  ],
+  "capabilities": [
+    "items:read",
+    "features:write"
+  ],
+  "configuration": {
+    "title": {
+      "type": "string",
+      "default": "Linkarooie",
+      "maxLength": 80
+    },
+    "intro": {
+      "type": "string",
+      "default": "A small collection, chosen with care. Feature a moment from the guestbook or add something of your own.",
+      "maxLength": 240
+    },
+    "theme": {
+      "type": "select",
+      "options": [
+        "daylight",
+        "midnight"
+      ],
+      "default": "daylight"
+    },
+    "layout": {
+      "type": "select",
+      "options": [
+        "grid",
+        "editorial",
+        "compact",
+        "profile"
+      ],
+      "default": "grid"
+    },
+    "handle": {
+      "type": "string",
+      "default": "",
+      "maxLength": 40,
+      "format": "handle"
+    },
+    "website": {
+      "type": "string",
+      "default": "",
+      "maxLength": 2048,
+      "format": "https-url"
+    },
+    "github": {
+      "type": "string",
+      "default": "",
+      "maxLength": 2048,
+      "format": "https-url",
+      "hosts": [
+        "github.com"
+      ]
+    },
+    "linkedin": {
+      "type": "string",
+      "default": "",
+      "maxLength": 2048,
+      "format": "https-url",
+      "hosts": [
+        "linkedin.com",
+        "www.linkedin.com"
+      ]
+    },
+    "x": {
+      "type": "string",
+      "default": "",
+      "maxLength": 2048,
+      "format": "https-url",
+      "hosts": [
+        "x.com",
+        "twitter.com"
+      ]
+    },
+    "avatar": {
+      "type": "string",
+      "default": "",
+      "maxLength": 2048,
+      "format": "https-url"
+    },
+    "banner": {
+      "type": "string",
+      "default": "",
+      "maxLength": 2048,
+      "format": "https-url"
+    },
+    "shareImage": {
+      "type": "string",
+      "default": "",
+      "maxLength": 2048,
+      "format": "https-url"
+    }
+  },
+  "cardPresentation": {
+    "version": 1,
+    "icons": [
+      "link",
+      "book",
+      "code",
+      "music",
+      "video",
+      "game",
+      "heart",
+      "star"
+    ]
+  },
+  "achievementCollection": {
+    "version": 1,
+    "limit": 8,
+    "datePrecisions": [
+      "year",
+      "month",
+      "day"
+    ]
+  },
+  "tagCollection": {
+    "version": 1,
+    "limit": 12,
+    "context": [
+      "description",
+      "citation",
+      "related-work"
+    ]
+  },
+  "profileSettings": {
+    "version": 1,
+    "format": "linkarooie.profile-settings",
+    "maxFileBytes": 32768
+  },
+  "cardCollection": {
+    "version": 1,
+    "limit": 64,
+    "featuredLimit": 8,
+    "groups": [
+      "Music",
+      "Games",
+      "Projects",
+      "Writing",
+      "Connect"
+    ]
+  },
+  "providerSources": {
+    "version": 1,
+    "kinds": [
+      "guestbook.resource"
+    ],
+    "provider": "guestbook",
+    "selection": "explicit-resource-and-activated-configuration",
+    "eligibility": "checked-at-each-render-and-export"
+  },
+  "profileShareCard": {
+    "version": 1,
+    "format": "linkarooie.share-card",
+    "maxReceiptBytes": 16384,
+    "activation": "deployed-immutable-asset"
+  },
+  "memberProfiles": {
+    "version": 1,
+    "ownership": "installation-account",
+    "publication": "explicit-snapshot",
+    "publicPath": "/p/:handle/",
+    "bridge": "/api/member-profiles"
+  },
+  "agentCapabilities": {
+    "version": 1,
+    "ui": "https://showcase.loftwah.com",
+    "storage": "app-owned",
+    "operations": [
+      {
+        "name": "read-public-profile",
+        "description": "Read one explicitly published profile snapshot. Draft profile edits and owner configuration stay private.",
+        "kind": "read",
+        "method": "GET",
+        "path": "/p/:handle/",
+        "availability": "public",
+        "requires": [
+          "none"
+        ],
+        "confirmation": false,
+        "verified": "2026-11-07"
+      }
+    ]
+  }
+}
