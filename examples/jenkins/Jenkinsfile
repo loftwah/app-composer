@@ -49,10 +49,4 @@ pipeline {
       }
     }
   }
-
-  post {
-    always {
-      archiveArtifacts artifacts: 'evidence/candidate.json', allowEmptyArchive: true
-    }
-  }
 }

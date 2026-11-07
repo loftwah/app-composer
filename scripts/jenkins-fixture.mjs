@@ -381,7 +381,7 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
       '--volume',
       `${clone}:/workspace/source:ro`,
       '--env',
-      'JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Djenkins.model.Jenkins.slaveAgentPort=-1',
+      'JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Djenkins.model.Jenkins.slaveAgentPort=-1 -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true',
       '--env',
       'JENKINS_OPTS=--httpPort=8080',
       image,
