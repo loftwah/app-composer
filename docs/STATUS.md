@@ -1,6 +1,34 @@
 # Delivery status
 
-Reviewed 25 October 2026; updated 7 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+Reviewed 25 October 2026; updated 8 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+
+## Real external runner and delivery receipts — 8 November 2026
+
+Production is Composer `43ea8cf5468ab65faad8041b6b60c66ad1fddf71`, Worker
+`d9eab220-0f42-4922-9ca9-4ade773e185d`. A real local Jenkins LTS 2.580.2 job
+(`composer-delivery` #1) checked out a temporary clone of this repository,
+installed the pinned dependencies, ran `pnpm check` (505 passed, 0 failed) and
+`examples/local-delivery-runner.sh --candidate`, and finished `SUCCESS` in 104s.
+The receipt it produced records the same schema, runner run id, source commit,
+candidate and 1294-file artefact digests, checks and no-upload state as a local
+run; nothing was uploaded by the Jenkins run. The container, `JENKINS_HOME`,
+temporary clone and root were removed afterwards.
+
+The delivery receipt now carries `runner` and a deterministic `artefact`
+digest, and the owner-only EmDash **Delivery runs** page records a bounded
+receipt (newest 20) and re-reads `/build.json` in the owner's browser to compare
+a release claim with the live commit. Recording is evidence, never approval.
+Migration `0023_delivery_runs.sql` applied.
+
+The external runner also found a real portability defect: a host with git-lfs
+made every clean workspace undiscoverable as `dirty: null`. The unsafe-config
+guard is now scoped to repository config; `remote.origin.pushurl` is still
+refused from any scope. The authenticated Delivery runs render still needs the
+owner's Access session — the route, policy dispatch and bounded contract are
+proven without it.
+
+Evidence:
+[external-runner-20261108](evidence/external-runner-20261108/README.md).
 
 ## Public sweep and content fix — 8 November 2026
 

@@ -1,0 +1,250 @@
+{
+  "schema": "composer.external-runner-evidence/1",
+  "runner": "jenkins",
+  "hosted": false,
+  "image": {
+    "tag": "composer-jenkins-fixture:d14c9e7f17c0",
+    "id": "sha256:16e17065654887dc7f84c7d948e0a0de64b1bc13353eef6404aee02ce9b9fdf0",
+    "builtInThisRun": false
+  },
+  "jenkins": {
+    "job": "composer-delivery",
+    "build": {
+      "number": 1,
+      "url": "http://localhost:51496/job/composer-delivery/1/",
+      "result": "SUCCESS",
+      "durationMs": 104088
+    }
+  },
+  "source": {
+    "repository": "loftwah/app-composer",
+    "branch": "main",
+    "commit": "43ea8cf5468ab65faad8041b6b60c66ad1fddf71"
+  },
+  "receipt": {
+    "schema": "app-composer.delivery-receipt/1",
+    "mode": "candidate",
+    "state": "passed",
+    "generatedAt": "2026-11-07T19:20:54.130Z",
+    "runner": {
+      "kind": "jenkins",
+      "local": false,
+      "runId": "http://localhost:51496/job/composer-delivery/1/",
+      "runUrl": "http://localhost:51496/job/composer-delivery/1/",
+      "source": "flag"
+    },
+    "source": {
+      "available": true,
+      "repository": null,
+      "branch": "main",
+      "commit": "43ea8cf5468ab65faad8041b6b60c66ad1fddf71",
+      "originCommit": "43ea8cf5468ab65faad8041b6b60c66ad1fddf71",
+      "dirty": false,
+      "pushed": true,
+      "releaseEligible": true
+    },
+    "target": {
+      "worker": "app-composer",
+      "account": "1003dc1d93af0ebea56b2f1252f89627",
+      "environment": "production",
+      "origin": "https://composer.loftwah.com",
+      "compatibilityDate": "2026-10-13",
+      "composition": {
+        "id": "8428e16f61c25a4d524abb691e440b36fe07c92e21c2f3843e43962b197f1e1e",
+        "apps": [
+          {
+            "id": "guestbook",
+            "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+            "dataVersion": 1
+          },
+          {
+            "id": "showcase",
+            "commit": "f1dd27952ca8548f81fde5c5905346dae4a2b61b",
+            "dataVersion": 1
+          }
+        ]
+      },
+      "preview": {
+        "worker": "app-composer-preview",
+        "environment": "preview",
+        "origin": "https://app-composer-preview.loftwah.workers.dev",
+        "d1": [
+          {
+            "binding": "DB",
+            "id": "bdbbe1c4-e1ff-43d3-a89d-d7dd76d13c0a"
+          }
+        ],
+        "r2": [
+          {
+            "binding": "MEDIA",
+            "id": "app-composer-media-preview"
+          }
+        ],
+        "kv": [
+          {
+            "binding": "SESSION",
+            "id": "2e7ac1e5417f4425be41d60d99a35de1"
+          }
+        ],
+        "services": 0,
+        "routes": 0,
+        "crons": 0,
+        "isolated": true
+      }
+    },
+    "steps": [
+      {
+        "id": "local-checks",
+        "label": "Required local checks",
+        "command": "pnpm check",
+        "state": "passed",
+        "durationMs": 55505
+      },
+      {
+        "id": "preview-build",
+        "label": "Safe preview candidate build",
+        "command": "pnpm build",
+        "state": "passed",
+        "durationMs": 16419
+      }
+    ],
+    "artefact": {
+      "path": "dist",
+      "files": 1294,
+      "bytes": 60126620,
+      "digest": "sha256:6d9184af12e7339bdf9b447db29bd6368e695822b7ea6d2d766ec68c8700be84"
+    },
+    "candidate": {
+      "built": true,
+      "uploaded": false,
+      "versionUrlUsed": false,
+      "worker": "app-composer-preview",
+      "origin": "https://app-composer-preview.loftwah.workers.dev",
+      "configPath": "dist/server/wrangler.json",
+      "digest": "sha256:817597283a682565ed843036d4a7959e2b847d6331219d45efda38c383de026a",
+      "artefact": {
+        "path": "dist",
+        "files": 1294,
+        "bytes": 60126620,
+        "digest": "sha256:6d9184af12e7339bdf9b447db29bd6368e695822b7ea6d2d766ec68c8700be84"
+      },
+      "isolation": {
+        "worker": "app-composer-preview",
+        "environment": "preview",
+        "origin": "https://app-composer-preview.loftwah.workers.dev",
+        "d1": [
+          {
+            "binding": "DB",
+            "id": "bdbbe1c4-e1ff-43d3-a89d-d7dd76d13c0a"
+          }
+        ],
+        "r2": [
+          {
+            "binding": "MEDIA",
+            "id": "app-composer-media-preview"
+          }
+        ],
+        "kv": [
+          {
+            "binding": "SESSION",
+            "id": "2e7ac1e5417f4425be41d60d99a35de1"
+          }
+        ],
+        "services": 0,
+        "routes": 0,
+        "crons": 0,
+        "isolated": true
+      },
+      "warning": "The local dist directory now contains the preview candidate. The release step rebuilds production before upload."
+    },
+    "release": {
+      "attempted": false,
+      "performed": false,
+      "command": null,
+      "commit": null,
+      "checks": null
+    },
+    "verification": {
+      "performed": false,
+      "independent": false,
+      "verifier": "scripts/verify-live.mjs",
+      "origin": null
+    },
+    "approval": {
+      "mode": "explicit-flag",
+      "flag": "--candidate",
+      "sourceCommit": null,
+      "candidateDigest": "sha256:817597283a682565ed843036d4a7959e2b847d6331219d45efda38c383de026a"
+    },
+    "review": {
+      "required": true,
+      "action": "Inspect source, target, candidate bindings and check results before the next step."
+    },
+    "nextAction": "Review the candidate receipt, then authorise release: node scripts/delivery-journey.mjs --release --receipt output/delivery/release.json",
+    "limits": [
+      "Local checks and candidate builds do not verify production.",
+      "A Version URL is not an isolated test environment. A deployed preview needs the preview bindings and no production services.",
+      "The release step delegates to the existing clean pushed-main guard in scripts/deploy.mjs.",
+      "This journey does not roll back, approve content, create cloud resources or replace owner authentication."
+    ],
+    "error": null,
+    "finishedAt": "2026-11-07T19:22:06.167Z"
+  },
+  "checks": [
+    {
+      "id": "build-succeeded",
+      "ok": true,
+      "detail": "Jenkins result: SUCCESS"
+    },
+    {
+      "id": "receipt-contract",
+      "ok": true,
+      "detail": "Schema: app-composer.delivery-receipt/1"
+    },
+    {
+      "id": "receipt-passed",
+      "ok": true,
+      "detail": "State: passed"
+    },
+    {
+      "id": "runner-recorded",
+      "ok": true,
+      "detail": "Receipt runner jenkins · run http://localhost:51496/job/composer-delivery/1/"
+    },
+    {
+      "id": "source-commit-matches",
+      "ok": true,
+      "detail": "Receipt 43ea8cf5468ab65faad8041b6b60c66ad1fddf71 · clone 43ea8cf5468ab65faad8041b6b60c66ad1fddf71"
+    },
+    {
+      "id": "checks-ran",
+      "ok": true,
+      "detail": "Local checks: passed"
+    },
+    {
+      "id": "candidate-built",
+      "ok": true,
+      "detail": "Preview build: passed"
+    },
+    {
+      "id": "artefact-identity",
+      "ok": true,
+      "detail": "Candidate sha256:817597283a682565ed843036d4a7959e2b847d6331219d45efda38c383de026a · artefact sha256:6d9184af12e7339bdf9b447db29bd6368e695822b7ea6d2d766ec68c8700be84 (1294 files)"
+    },
+    {
+      "id": "no-upload",
+      "ok": true,
+      "detail": "Candidate only; no release and no live claim"
+    }
+  ],
+  "failedTests": [],
+  "startedAt": "2026-11-07T19:20:04.807Z",
+  "finishedAt": "2026-11-07T19:22:09.866Z",
+  "cleanup": {
+    "containerRemoved": true,
+    "temporaryRootRemoved": true,
+    "teardown": "clean",
+    "teardownFailures": []
+  },
+  "error": null
+}

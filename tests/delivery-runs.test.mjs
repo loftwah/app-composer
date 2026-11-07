@@ -13,7 +13,23 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { DatabaseSync } from "node:sqlite";
 import { manageDeliveryRuns } from "../src/lib/delivery-runs.ts";
+import { creatorPlugin } from "../src/lib/creator-plugin.ts";
 import { runDeliveryJourney } from "../scripts/delivery-journey.mjs";
+
+// Follow the packaged test entry to the unmodified EmDash policy dispatcher.
+const testRuntime = new URL(
+  import.meta.resolve("emdash/internal/plugin-test-runtime"),
+);
+const dispatchExport = readFileSync(testRuntime, "utf8").match(
+  /import \{[^}]*?([A-Za-z]+) as dispatchPluginApiRequest[^}]*?\} from "([^"]+)"/,
+);
+assert.ok(
+  dispatchExport,
+  "Installed EmDash must expose its production plugin dispatcher",
+);
+const dispatchPluginApiRequest = (
+  await import(new URL(dispatchExport[2], testRuntime))
+)[dispatchExport[1]];
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const origin = "https://composer.loftwah.com";
@@ -267,4 +283,60 @@ test("bounded retention keeps only the newest receipts", async (t) => {
   const list = await listed.json();
   assert.equal(list.runs.length, 20);
   assert.ok(list.runs[0].generatedAt > list.runs.at(-1).generatedAt);
+});
+
+test("the EmDash policy dispatcher admits only an administrator to the delivery routes", async (t) => {
+  const { db } = database();
+  const hostRuntime = runtime(db);
+  const receipt = await candidateReceipt(t);
+  const definition = creatorPlugin("fictional-admin-entry", hostRuntime);
+  const host = {
+    getPluginRouteMeta(plugin, path) {
+      if (plugin === "composer-stacks") return definition.routes[path.slice(1)] ?? null;
+      return null;
+    },
+    async handlePluginApiRoute(plugin, method, path, request, user) {
+      const input =
+        method === "GET"
+          ? Object.fromEntries(new URL(request.url).searchParams)
+          : await request.json();
+      const data = await definition.routes[path.slice(1)].handler({ request, input, user });
+      // These handlers answer with a Response; keep its status and body explicit
+      // so the assertion sees exactly what the route produced.
+      return data instanceof Response
+        ? { success: true, data: { status: data.status, body: await data.json() } }
+        : { success: true, data };
+    },
+  };
+  const dispatch = (user, path, input = null) => {
+    const reading = path.endsWith("Read");
+    const request = new Request(
+      origin + "/_emdash/api/plugins/composer-stacks" + path,
+      {
+        method: reading ? "GET" : "POST",
+        headers: { Origin: origin, "X-EmDash-Request": "1" },
+        ...(reading ? {} : { body: JSON.stringify(input) }),
+      },
+    );
+    return dispatchPluginApiRequest({ runtime: host, pluginId: "composer-stacks", path, request, user });
+  };
+  assert.equal((await dispatch(undefined, "/deliveryRead")).status, 401);
+  for (const role of [10, 20, 30, 40]) {
+    assert.equal((await dispatch({ ...admin, role }, "/deliveryRead")).status, 403);
+    assert.equal(
+      (await dispatch({ ...admin, role }, "/deliveryWrite", { action: "record", receipt })).status,
+      403,
+    );
+  }
+  const read = await dispatch({ ...admin, role: 50 }, "/deliveryRead");
+  assert.equal(read.status, 200);
+  const readBody = await read.json();
+  assert.equal(readBody.data.status, 200);
+  assert.deepEqual(readBody.data.body.runs, []);
+  const write = await dispatch({ ...admin, role: 50 }, "/deliveryWrite", { action: "record", receipt });
+  assert.equal(write.status, 200);
+  const written = await write.json();
+  assert.equal(written.data.body.ok, true);
+  assert.equal(written.data.body.created, true);
+  assert.equal(written.data.body.runs.length, 1);
 });
