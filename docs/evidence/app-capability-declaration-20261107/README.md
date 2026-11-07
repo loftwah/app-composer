@@ -103,3 +103,26 @@ node --test tests/member-service.test.mjs
   and no customer data was published.
 - Skills, workflows/triggers, generated catalogue output and the full #412
   acceptance remain open.
+
+## Follow-up review — 7 November 2026
+
+The Composer pin `5075d7be` to Guestbook `2a9e12e` comparison was reviewed. It
+contains five commits and four changed files:
+
+- `c8a7a8c` / `10e4f43` refresh Wrangler and Workers types; `ba3f4d0` /
+  `47cad8d` pin the patched dev-only `undici`. These are the already-released
+  #36/#37 dependency work. Live Guestbook `build.json` reports `47cad8d`, so
+  these commits are already live on the standalone origin.
+- `2a9e12e` changes only `app.manifest.json`, adding the optional
+  `agentCapabilities` declaration (33 lines, no code). It is additive, grants
+  nothing and passes the Composer declaration validator. The manifest also uses
+  the validator-supported `description` field.
+
+No Guestbook release or Composer promotion was performed. The Composer promotion
+boundary promotes both pinned app services from sibling source checkouts and
+requires each app's `.private/OWNER_API_TOKEN` and
+`.private/MEMBER_SERVICE_TOKEN` files. Neither sibling checkout exists, and only
+Composer's `.private/OWNER_API_TOKEN` is present; `MEMBER_SERVICE_TOKEN` is
+absent. Deploying the standalone Guestbook alone would leave the Composer pin
+unmoved, so the step stopped before any mutation. This records the exact
+remaining credential/checkout gate, not a source objection.

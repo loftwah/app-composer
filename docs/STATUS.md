@@ -4,9 +4,9 @@ Reviewed 25 October 2026; updated 7 November 2026. This page is the current navi
 
 ## Needs attention, Connections, Plugin Trust and Stack status — 7 November 2026 (6 November UTC)
 
-Production is Composer `1948902c16ef602d85d6081cc90e4aed04303bab`, Worker
-`a12b9394-6dcc-40a1-8d4d-c7c89c600893`, from the clean pushed-main release guard.
-`/build.json` matches the source. `pnpm check` passed 431 tests with zero skips;
+Production is Composer `8c1e272646485ef3be740a2aa92d6d59286e8744`, Worker
+`a18c4480-4187-4391-aae0-eed75997f273`, from the clean pushed-main release guard.
+`/build.json` matches the source. `pnpm check` passed 447 tests with zero skips;
 the publication guard inspected 1,290 files and 150 archive members; live source,
 pinned services, sharing output, publication privacy and the anonymous
 administration boundary passed.
@@ -22,7 +22,7 @@ date and exact blockers without installing or updating anything.
 An authenticated production owner session verified settings, Mini-app catalogue
 content, media, Creator stacks, Plugin Trust, Stack status, Brand Studio, Incident
 Desk and the mini-app admin at EmDash 1.4.0, so #316's remaining Access gate is
-closed. Three scoped #313 admin journeys now open with their task:
+closed. Four scoped #313 admin journeys now open with their task:
 
 - **Needs attention** leads with the retained problem and its action before the
   scope controls.
@@ -31,13 +31,19 @@ closed. Three scoped #313 admin journeys now open with their task:
 - **Plugin Trust Centre** leads with the selected installed plugin, its
   native/build-time comparison and the owning-repository review action. The
   installed list switches the selection and persists it in the URL.
+- **Workflows** leads with the single most relevant real run or recipe state and
+  its existing action: retry plus Open result, the latest finished result, an
+  enabled recipe's Scan now, or a paused recipe's Save & turn on. Sample runs stay
+  labelled in history. The mode explanation, links, editor and full history
+  follow.
 
 Each was checked at 390/1440 in both themes with keyboard focus and no overflow.
 These are scoped slices, not the whole #313 epic. Evidence:
 [Stack status and freshness](evidence/backlog-20261106-3/README.md) ·
 [Needs attention task entry](evidence/admin-task-entry-20261107/README.md) ·
 [Connections task entry](evidence/connections-task-entry-20261107/README.md) ·
-[Plugin Trust task entry](evidence/plugin-trust-task-entry-20261107/README.md).
+[Plugin Trust task entry](evidence/plugin-trust-task-entry-20261107/README.md) ·
+[Workflows task entry](evidence/workflows-task-entry-20261107/README.md).
 
 #412 advanced by an optional app-owned declaration in the Guestbook manifest
 (`2a9e12e`) and a strict Composer validator. The two declared public reads match

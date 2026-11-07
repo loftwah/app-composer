@@ -1,0 +1,147 @@
+{
+  "source": "8c1e272646485ef3be740a2aa92d6d59286e8744",
+  "workerVersion": "a18c4480-4187-4391-aae0-eed75997f273",
+  "origin": "https://composer.loftwah.com",
+  "releasePath": "clean pushed main -> pnpm deploy",
+  "buildJson": {
+    "commit": "8c1e272646485ef3be740a2aa92d6d59286e8744",
+    "sourceCommittedAt": "2026-11-07T12:19:25+11:00"
+  },
+  "stackStatus": {
+    "deployedSource": "8c1e27264648",
+    "snapshotGenerated": "7 Nov 2026, 1:21 am UTC"
+  },
+  "leadState": {
+    "kind": "paused",
+    "recipe": "A summary after publication",
+    "state": "Paused",
+    "action": "Save & turn on",
+    "workspace": "dean",
+    "role": "owner",
+    "environment": "production"
+  },
+  "checks": {
+    "tests": 447,
+    "passed": 447,
+    "failed": 0,
+    "skipped": 0,
+    "publicationFiles": 1290,
+    "archiveMembers": 150
+  },
+  "measurements": [
+    {
+      "viewport": "1440x1000",
+      "theme": "light",
+      "bodyBackground": "oklch(0.9875 0 0)",
+      "lead": { "top": 241, "bottom": 592 },
+      "title": { "top": 305, "bottom": 333 },
+      "state": { "top": 345, "bottom": 366 },
+      "facts": { "top": 378, "bottom": 399 },
+      "action": { "top": 415, "bottom": 459, "text": "Save & turn on" },
+      "meta": { "top": 537, "bottom": 559 },
+      "mode": { "top": 612, "bottom": 723 },
+      "links": { "top": 739, "bottom": 783 },
+      "recipes": { "top": 799, "bottom": 1318 },
+      "history": { "top": 1338, "bottom": 2541 },
+      "firstViewport": true,
+      "horizontalOverflow": "none (1440/1440)"
+    },
+    {
+      "viewport": "1440x1000",
+      "theme": "dark",
+      "bodyBackground": "oklch(0.12 0 0)",
+      "lead": { "top": 241, "bottom": 592 },
+      "title": { "top": 305, "bottom": 333 },
+      "state": { "top": 345, "bottom": 366 },
+      "facts": { "top": 378, "bottom": 399 },
+      "action": { "top": 415, "bottom": 459, "text": "Save & turn on" },
+      "meta": { "top": 537, "bottom": 559 },
+      "mode": { "top": 612, "bottom": 723 },
+      "links": { "top": 739, "bottom": 783 },
+      "recipes": { "top": 799, "bottom": 1318 },
+      "history": { "top": 1338, "bottom": 2541 },
+      "firstViewport": true,
+      "horizontalOverflow": "none (1440/1440)"
+    },
+    {
+      "viewport": "390x844",
+      "theme": "light",
+      "bodyBackground": "oklch(0.9875 0 0)",
+      "lead": { "top": 330, "bottom": 842 },
+      "title": { "top": 390, "bottom": 447 },
+      "state": { "top": 459, "bottom": 479 },
+      "facts": { "top": 491, "bottom": 538 },
+      "action": { "top": 554, "bottom": 598, "text": "Save & turn on" },
+      "meta": { "top": 726, "bottom": 813 },
+      "mode": { "top": 862, "bottom": 1060 },
+      "links": { "top": 1076, "bottom": 1228 },
+      "recipes": { "top": 1244, "bottom": 2829 },
+      "history": { "top": 2849, "bottom": 4604 },
+      "firstViewport": true,
+      "horizontalOverflow": "none (390/390)"
+    },
+    {
+      "viewport": "390x844",
+      "theme": "dark",
+      "bodyBackground": "oklch(0.12 0 0)",
+      "lead": { "top": 330, "bottom": 842 },
+      "title": { "top": 390, "bottom": 447 },
+      "state": { "top": 459, "bottom": 479 },
+      "facts": { "top": 491, "bottom": 538 },
+      "action": { "top": 554, "bottom": 598, "text": "Save & turn on" },
+      "meta": { "top": 726, "bottom": 813 },
+      "mode": { "top": 862, "bottom": 1060 },
+      "links": { "top": 1076, "bottom": 1228 },
+      "recipes": { "top": 1244, "bottom": 2829 },
+      "history": { "top": 2849, "bottom": 4604 },
+      "firstViewport": true,
+      "horizontalOverflow": "none (390/390)"
+    }
+  ],
+  "focus": [
+    {
+      "viewport": "1440x1000",
+      "theme": "light",
+      "control": "Save & turn on",
+      "path": "Refresh focused, Tab once",
+      "outline": "2px solid rgb(199, 68, 0)",
+      "offset": "3px"
+    },
+    {
+      "viewport": "1440x1000",
+      "theme": "dark",
+      "control": "Save & turn on",
+      "path": "Refresh focused, Tab once",
+      "outline": "2px solid rgb(252, 91, 5)",
+      "offset": "3px"
+    },
+    {
+      "viewport": "390x844",
+      "theme": "light",
+      "control": "Save & turn on",
+      "path": "Refresh focused, Tab once",
+      "outline": "2px solid rgb(199, 68, 0)",
+      "offset": "3px"
+    },
+    {
+      "viewport": "390x844",
+      "theme": "dark",
+      "control": "Save & turn on",
+      "path": "Refresh focused, Tab once",
+      "outline": "2px solid rgb(252, 91, 5)",
+      "offset": "3px"
+    }
+  ],
+  "captures": {
+    "overview-1440-light.png": "d38c6fd6557fad4b6d36e2e4550f537f169059748f718ab920ffa40e25545866",
+    "overview-1440-dark.png": "5f004cbca477a642718252b5a02a5802a851ded6abfba11ac48df73eb94d3990",
+    "overview-390-light.png": "4117895703c574577200a35fd6ed2f9c0a0783d16805890be2d8e8500c5cd930",
+    "overview-390-dark.png": "91a44d18cf139c4bf115dfc3e9314ce0024ed9a77a2cce0daadd281d2279d381"
+  },
+  "console": "One existing Cloudflare Insights beacon blocked by the admin CSP; no admin API request failed.",
+  "remainingGates": [
+    "Screen-reader, physical-device, browser zoom and every-admin-page acceptance remain open.",
+    "No workflow execution, permission, persistence or route changed.",
+    "No guestbook release, composition promotion or #412 mutation was performed in this slice."
+  ]
+}
