@@ -87,6 +87,20 @@ admin surface. Evidence:
 320px/200% zoom and physical screen-reader/device checks remain separate general
 accessibility acceptance.
 
+## Analytics showcase and owner reporting — 7 November 2026
+
+The public `/activity` destination, a public report and the private owner
+outcomes workspace were exercised live. `/activity` showed 507 recorded app home
+opens, 50 recorded app actions and 17 finished Link Check inspections for 1–7
+November UTC, with the scope selector, per-finding evidence/share actions and an
+explicit “recorded requests, not people” definition. The public report
+`/reports/r971f5140bbe0c84c8147a64b` served landscape 1200 × 630, square
+1080 × 1080 and portrait 1080 × 1920 cards with matching OG metadata. The owner
+outcomes page was private to the workspace, showed the selected period before
+detail, exported the displayed scope and kept unsupported observations
+`Unavailable` rather than zero. Evidence:
+[analytics showcase](evidence/analytics-213-20261107/README.md).
+
 ## Job-led discovery — 7 November 2026
 
 Production is Composer `5ee5574b10b3c7b62ede8b3451b382a7fc9180ad`,
