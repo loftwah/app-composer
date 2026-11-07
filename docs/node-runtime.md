@@ -24,7 +24,7 @@ Seven policy refusals were not seven independent package incompatibilities.
    child with the same no-overwrite flags. It also covers adopted owned-project
    `node_modules`; relative package symlinks and owner-file refusal are tested.
 2. Maintained Hello `db0a98c` pinned Wrangler 4.143.1, while Composer's actual
-   verifier requires 4.152.0. Its real reference-tool installation therefore
+   verifier requires 4.158.0. Its real reference-tool installation therefore
    failed after installing on either runtime. Hello's independently reviewed
    [PR #26](https://github.com/loftwah/app-composer-hello/pull/26) aligns the pair,
    patches the newly resolved Undici path, regenerates declarations and fixes
@@ -45,7 +45,7 @@ copy of the guard before any source engine declaration was changed:
   without a download.
 - Actual GitHub main was re-read and Hello cloned at exact `47d5d8c`. The real
   `createLocalAdapter().installReferenceTools()` installs its frozen dependencies
-  and returns Wrangler 4.152.0 / selected pnpm 12.8.1; repeat reports `changed:
+  and returns Wrangler 4.158.0 / selected pnpm 12.8.1; repeat reports `changed:
   false`. Hello's complete types/lint/format/26-test check passes on Node 24.
 - The separate Hello slice passes checks/build and actual workerd startup on
   both runtimes. `/`, `/build.json` and `/healthz` return 200 and retain the
