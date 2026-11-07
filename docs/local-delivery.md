@@ -186,7 +186,12 @@ Paste the receipt JSON or open the file the journey wrote:
 node scripts/delivery-journey.mjs --candidate --receipt output/delivery/candidate.json
 ```
 
-The page is not public and is not linked from the public site.
+The page is not public and is not linked from the public site. A recorded
+production release receipt that failed, or that performed an upload without an
+independent live read, also appears as one administrator-only **Release
+receipts** item in the shared **Needs attention** view. Repeated attempts for
+the same commit and environment become one item; recording the receipt is still
+evidence, not approval.
 
 ## Actual local run
 

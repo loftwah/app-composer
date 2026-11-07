@@ -2,6 +2,39 @@
 
 Reviewed 25 October 2026; updated 8 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Release binding, advisory seam and release health — 8 November 2026
+
+Production is Composer `bcc8eca78c84cd5f2d7b6afad39150d81d51d89a`, Worker
+`9b384c29-dd33-4172-8c9c-2cb79d7ca175`. The real release was bound to its
+candidate receipt (`sha256:16404f69…`) and verified live; the same candidate
+with a different source commit was refused with `candidate-commit-mismatch`
+before any command ran. A release can no longer reuse a candidate from another
+commit, Worker, account, environment, origin, composition or preview. The
+receipt records the bound facts and states that the Cloudflare credential stays
+in the operator environment and is never read or stored by the journey.
+
+The Plugin Trust evaluation now has a bounded, credential-free advisory adapter
+seam, off by default. It records `ADVISORY_SOURCE_NONE` or
+`ADVISORY_SOURCE_UNKNOWN` explicitly, never treats a missing source as clean, and
+raises one deduplicated `ADVISORY_STATE_CHANGED` review item when coverage
+changes. No feed was purchased and no install/update path was added.
+
+A recorded production release receipt that failed or performed an upload without
+an independent live read now appears as one administrator-only **Release
+receipts** item in **Needs attention**, grouped by commit and environment and
+linked to its Delivery runs row. The source is `restricted` for non-admin users
+and never public.
+
+The Jenkins candidate regression was re-run on the prior `main` (`8cef186`):
+`SUCCESS` in 121.6s with the same run ID, source commit, candidate digest,
+1294-file artefact and no-upload contract. Production has 0 recorded delivery
+runs, so the new source currently shows 0 items; recording the release receipt
+is an owner-session action. The authenticated admin render remains an owner
+step.
+
+Evidence:
+[release-path-20261108](evidence/release-path-20261108/README.md).
+
 ## Plugin Trust in the shared attention view — 8 November 2026
 
 Production is Composer `d16db028bc4969d966022c3e07c1d31082e2190c`, Worker
