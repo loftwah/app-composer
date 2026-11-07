@@ -414,16 +414,18 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
     let accepted = false;
     for (const candidate of triggerCandidates) {
       const response = await jenkinsFetch({port, suffix: candidate.suffix, method: candidate.method, crumb});
-      triggerAttempts.push({
+      const attempt = {
         suffix: candidate.suffix,
         method: candidate.method,
         status: response.status,
         allow: response.headers.get('allow'),
-      });
+      };
+      triggerAttempts.push(attempt);
       if ([200, 201, 302].includes(response.status)) {
         accepted = true;
         break;
       }
+      attempt.detail = tail(await response.text(), 200);
     }
     if (!accepted)
       throw new FixtureError(
