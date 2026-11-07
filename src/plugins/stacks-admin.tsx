@@ -43,6 +43,7 @@ import {
   normaliseStack,
   declaredConfig,
 } from "../lib/stacks.mjs";
+import { stacksLead } from "../lib/stacks-lead";
 import { StackView } from "../components/StackView";
 import "./stacks-admin.css";
 
@@ -817,6 +818,62 @@ function WorkspaceStudio({ search }: { search: string }) {
     }
   };
   const shareUrl = current ? `/s/${current.slug}` : "";
+  const lead = stacksLead({
+    ready: Boolean(workspace && lifecycle),
+    lifecycle,
+    role,
+    stack: current
+      ? {
+          name: current.name,
+          slug: current.slug,
+          status: current.status,
+          revision: current.revision,
+          publishedRevision: current.publishedRevision,
+        }
+      : undefined,
+    savedRevision: session.current.revision,
+    dirty,
+    canCreate: lifecycleCan("create"),
+    canSave: lifecycleCan("save"),
+    canPublish: lifecycleCan("publish"),
+  });
+  const leadTitle =
+    lead?.kind === "governed"
+      ? "Changes use application requests"
+      : lead?.kind === "create"
+        ? "Start your first stack"
+        : lead?.kind === "read-only"
+          ? lead.stack
+            ? `${lead.stack.name} · ${lead.reason === "archived" ? "archived" : "read only"}`
+            : lead.reason === "viewer"
+              ? "Read-only workspace"
+              : "No stack you can create"
+          : lead?.kind === "unsaved"
+            ? `Save your edits to ${lead.stack.name}`
+            : lead?.kind === "draft"
+              ? `${lead.stack.name} · draft`
+              : lead?.kind === "published"
+                ? `${lead.stack.name} · published`
+                : "";
+  const leadState =
+    lead?.kind === "governed"
+      ? "Governed"
+      : lead?.kind === "create"
+        ? "No stack yet"
+        : lead?.kind === "read-only"
+          ? lead.reason === "archived"
+            ? "Archived"
+            : "Read-only"
+          : lead?.kind === "unsaved"
+            ? "Unsaved edits"
+            : lead?.kind === "draft"
+              ? lead.stack.publishedRevision
+                ? `Saved draft · public revision ${lead.stack.publishedRevision}`
+                : "Saved draft · not published"
+              : lead?.kind === "published"
+                ? `Public revision ${lead.stack.publishedRevision}`
+                : "";
+
 
   return (
     <section className="composer-admin ca-stacks">
@@ -859,13 +916,6 @@ function WorkspaceStudio({ search }: { search: string }) {
             ? `${workspace.role} · governed application requests`
             : ROLE_COPY[workspace.role]}
         </p>
-      )}
-      {workspace && lifecycle === "governed" && (
-        <section className="ca-card-row" aria-label="Governed stack workflow">
-          <h2>Changes use application requests</h2>
-          <p>These stacks are read only here. Request and review application changes in Internal platform so the current recipe, policy and app resource stay together. Saved content moderation and exports keep their own permissions.</p>
-          <a href={`/_emdash/admin/plugins/composer-stacks/platform?workspace=${workspace.id}`}>Open this workspace’s application requests</a>
-        </section>
       )}
       {workspace && !initialLoading && lifecycle === undefined && (
         <p role="status">Workspace operation mode could not be confirmed. Refresh before editing a stack.</p>
@@ -930,9 +980,154 @@ function WorkspaceStudio({ search }: { search: string }) {
           </div>
         </div>
       )}
+      {lead && (
+        <section className="ca-task-lead" aria-labelledby="ca-task-title">
+          <p className="ca-task-kicker">Next</p>
+          <h2 id="ca-task-title">{leadTitle}</h2>
+          <p className="ca-task-state">{leadState}</p>
+          {lead.kind !== "governed" && lead.kind !== "create" && lead.stack && (
+            <p className="ca-task-facts">
+              <span>
+                Saved revision{" "}
+                <strong>
+                  {lead.kind === "unsaved"
+                    ? lead.savedRevision
+                    : lead.stack.revision}
+                </strong>
+              </span>
+              <span>
+                Public revision{" "}
+                <strong>
+                  {lead.stack.publishedRevision ?? "Not published"}
+                </strong>
+              </span>
+              <span>
+                Status <strong>{lead.stack.status}</strong>
+              </span>
+            </p>
+          )}
+          <div className="ca-actions">
+            {lead.kind === "create" && (
+              <>
+                <label className="ca-task-field">
+                  New stack name
+                  <input
+                    value={newName}
+                    maxLength={80}
+                    onChange={(event) => {
+                      latestNewName.current = event.target.value;
+                      setNewName(event.target.value);
+                    }}
+                    placeholder="Loftwah front page"
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="ca-task-primary"
+                  disabled={busy || !newName.trim()}
+                  onClick={() => void create()}
+                >
+                  Create stack
+                </button>
+              </>
+            )}
+            {lead.kind === "governed" && (
+              <a
+                className="ca-task-primary"
+                href={`/_emdash/admin/plugins/composer-stacks/platform?workspace=${workspace?.id ?? ""}`}
+              >
+                Open this workspace’s application requests
+              </a>
+            )}
+            {lead.kind === "read-only" &&
+              lead.reason === "archived" && (
+                <a href="#ca-stack-actions">Open stack actions</a>
+              )}
+            {lead.kind === "read-only" &&
+              lead.stack &&
+              lead.stack.publishedRevision !== null && (
+                <a
+                  className="ca-task-primary"
+                  href={`/s/${lead.stack.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Open public page
+                </a>
+              )}
+            {lead.kind === "unsaved" && (
+              <button
+                type="button"
+                className="ca-task-primary"
+                disabled={busy || !lead.canSave}
+                onClick={() => void save()}
+              >
+                Save draft
+              </button>
+            )}
+            {lead.kind === "draft" && lead.canPublish && (
+              <button
+                type="button"
+                className="ca-task-primary"
+                disabled={
+                  busy ||
+                  (hasGuestbook && (!resourcesReady || needsReconciliation))
+                }
+                onClick={() => void publish()}
+              >
+                Publish
+              </button>
+            )}
+            {lead.kind === "published" && (
+              <a
+                className="ca-task-primary"
+                href={`/s/${lead.stack.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open public page
+              </a>
+            )}
+          </div>
+          <p className="ca-task-note">
+            {lead.kind === "governed"
+              ? "The existing application request keeps the recipe, policy and app resource together. This page does not change the stack."
+              : lead.kind === "create"
+                ? "Name it to create a private draft at /s/. Nothing is published."
+                : lead.kind === "unsaved"
+                  ? "Your edits stay in this editor until you save. Publishing is not offered before the saved revision."
+                  : lead.kind === "draft"
+                    ? lead.canPublish
+                      ? "Saving does not publish. Publish uses the existing saved-revision check."
+                      : "This role can read the saved draft but cannot publish it."
+                    : lead.kind === "published"
+                      ? "The public page serves the stored publication, not later edits. Unsaved edits stay separate."
+                      : lead.kind === "read-only" &&
+                          lead.reason === "viewer"
+                        ? "Viewer access can open, preview and export. An owner or editor must change or publish this stack."
+                        : lead.kind === "read-only" &&
+                            lead.reason === "archived"
+                          ? "Archived stacks are locked. Restore it from the existing stack actions to edit again."
+                          : "An owner or editor can create a stack in this workspace."}
+          </p>
+          <p className="ca-task-meta">
+            Workspace <strong>{workspace?.name}</strong> · {workspace?.role} ·{" "}
+            {lifecycle === "governed"
+              ? "governed application requests"
+              : "creator workspace"}
+          </p>
+        </section>
+      )}
+      {workspace && lifecycle === "governed" && (
+        <section className="ca-card-row" aria-label="Governed stack workflow">
+          <h2>Changes use application requests</h2>
+          <p>These stacks are read only here. Request and review application changes in Internal platform so the current recipe, policy and app resource stay together. Saved content moderation and exports keep their own permissions.</p>
+          <a href={`/_emdash/admin/plugins/composer-stacks/platform?workspace=${workspace.id}`}>Open this workspace’s application requests</a>
+        </section>
+      )}
       <div className="ca-workspace">
         <div className="ca-main">
-          {lifecycleCan("create") && (
+          {lifecycleCan("create") && lead?.kind !== "create" && (
             <div className="ca-stack-create">
               <label>
                 New stack name
@@ -1553,7 +1748,7 @@ function WorkspaceStudio({ search }: { search: string }) {
                   )}
                 </section>
               )}
-              <div className="ca-stack-actions">
+              <div className="ca-stack-actions" id="ca-stack-actions">
                 {editable && (
                   <button
                     type="button"

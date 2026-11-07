@@ -8,6 +8,7 @@ import {
   type OrderView,
 } from "../lib/order-contract";
 import { ordersCall } from "./orders/api";
+import { ordersLead } from "../lib/orders-lead";
 import { workspaceSelection } from "./stacks/workspace-scope";
 import "./orders-page.css";
 import { ShopifyCataloguePanel } from "./shopify-catalogue-panel";
@@ -76,6 +77,7 @@ export function Orders({ search }: { search: string }) {
               ? view.order.payment === "paid"
               : ["unpaid", "pending"].includes(view.order.payment))),
     ) ?? [];
+  const lead = snapshot ? ordersLead(current) : undefined;
 
   async function run(
     action: string,
@@ -218,11 +220,127 @@ export function Orders({ search }: { search: string }) {
           "Confirming the selected workspace…"
         )}
       </p>
-      {snapshot && (
-        <ShopifyCataloguePanel
-          key={snapshot.workspace.id}
-          workspace={snapshot.workspace.id}
-        />
+      {error && (
+        <p className="or-error" role="alert">
+          {error}
+        </p>
+      )}
+      <p className="or-status" role="status">
+        {busy ? "Checking the saved order and operation…" : notice}
+      </p>
+      {snapshot && lead && (
+        <section className="or-next" aria-labelledby="or-next-title">
+          <p className="or-kicker">Next</p>
+          {lead.kind === "empty" ? (
+            <>
+              <h2 id="or-next-title">No orders yet</h2>
+              <p className="or-lead-state">Ready for a fictional fixture</p>
+              <div className="or-actions">
+                <a className="or-primary" href="#order-create">
+                  Open the fictional order form
+                </a>
+              </div>
+              <p>
+                No record is selected or simulated until you create one. Every
+                order here is fictional fixture proof.
+              </p>
+            </>
+          ) : (
+            <>
+              <h2 id="or-next-title">{lead.view.order.title}</h2>
+              <p className="or-lead-state">
+                {paymentLabels[lead.view.order.payment]} ·{" "}
+                {lead.kind === "reconcile"
+                  ? "Checkout outcome unknown"
+                  : lead.kind === "failed"
+                    ? `Operation ${lead.action.state}`
+                    : lead.kind === "pending"
+                      ? "Waiting for a current-state observation"
+                      : lead.kind === "fulfilment"
+                        ? "Paid · fulfilment draft available"
+                        : "Paid · fixture record"}
+              </p>
+              <p className="or-lead-facts">
+                <span>
+                  Amount{" "}
+                  <strong>
+                    {money(lead.view)} {lead.view.order.currency}
+                  </strong>
+                </span>
+                <span>
+                  Provider <strong>{lead.view.order.provider}</strong>
+                </span>
+                <span>
+                  Fulfilment <strong>{lead.view.order.fulfilment}</strong>
+                </span>
+                <span>
+                  Evidence <strong>Fictional fixture</strong>
+                </span>
+              </p>
+              <div className="or-actions">
+                {lead.kind === "reconcile" && (
+                  <>
+                    <button
+                      type="button"
+                      className="or-primary"
+                      disabled={busy || !canWrite}
+                      onClick={() => void mutate("reconcile-fixture", lead.view)}
+                    >
+                      Reconcile existing fixture action
+                    </button>
+                    <a href="#order-actions">View retained actions</a>
+                  </>
+                )}
+                {lead.kind === "failed" && (
+                  <a className="or-primary" href="#order-actions">
+                    Review retained actions
+                  </a>
+                )}
+                {lead.kind === "pending" && (
+                  <a className="or-primary" href="#order-state">
+                    Inspect payment state
+                  </a>
+                )}
+                {lead.kind === "fulfilment" && (
+                  <button
+                    type="button"
+                    className="or-primary"
+                    disabled={busy || !canWrite}
+                    onClick={() =>
+                      void mutate("prepare-fixture-draft", lead.view)
+                    }
+                  >
+                    Prepare fictional Printful draft
+                  </button>
+                )}
+                {lead.kind === "observation" && (
+                  <a className="or-primary" href="#order-fixture-controls">
+                    Open fixture controls
+                  </a>
+                )}
+              </div>
+              <p>
+                {lead.kind === "reconcile"
+                  ? "The existing fixture checkout is uncertain. Reconcile that action before any repetition; a second checkout is not offered."
+                  : lead.kind === "failed"
+                    ? "The retained fixture operation failed. There is no supported replay; review its actions and use the existing observation control."
+                    : lead.kind === "pending"
+                      ? "No payment is taken here. The retained state changes only through an explicit controlled observation."
+                      : lead.kind === "fulfilment"
+                        ? "Preparation creates a fictional draft only. It does not submit a Printful production order."
+                        : "Use the existing fixture observation control below to record a current payment or refund state."}
+                {!canWrite &&
+                  " This workspace role can read the order but cannot run a fixture action."}
+              </p>
+            </>
+          )}
+          <p className="or-meta">
+            Workspace <strong>{snapshot.workspace.name}</strong> ·{" "}
+            {snapshot.workspace.role} · installation{" "}
+            <strong>{snapshot.installation.environment}</strong> · Account{" "}
+            <code>{snapshot.installation.account}</code>
+          </p>
+        </section>
       )}
       <p className="or-proof">
         <strong>Fictional order lab. These orders are simulated.</strong> These
@@ -237,17 +355,15 @@ export function Orders({ search }: { search: string }) {
           Workspace access
         </a>
       </div>
-      {error && (
-        <p className="or-error" role="alert">
-          {error}
-        </p>
+      {snapshot && (
+        <ShopifyCataloguePanel
+          key={snapshot.workspace.id}
+          workspace={snapshot.workspace.id}
+        />
       )}
-      <p className="or-status" role="status">
-        {busy ? "Checking the saved order and operation…" : notice}
-      </p>
       {snapshot && (
         <>
-          <details className="or-create">
+          <details className="or-create" id="order-create">
             <summary>Try a fictional order</summary>
             <p>
               The fixture product is a reading-club guide, AUD 12.00. Its amount
@@ -386,7 +502,7 @@ export function Orders({ search }: { search: string }) {
                     <strong>{paymentLabels[current.order.payment]}</strong> ·
                     Fictional fixture
                   </p>
-                  <dl className="or-facts">
+                  <dl className="or-facts" id="order-state">
                     <dt>Checkout owner</dt>
                     <dd>
                       {current.order.checkoutOwner === "shopify"
@@ -434,7 +550,7 @@ export function Orders({ search }: { search: string }) {
                       Export order JSON
                     </button>
                   </div>
-                  <details className="or-scenarios">
+                  <details className="or-scenarios" id="order-fixture-controls">
                     <summary>Exercise a fixture state</summary>
                     <p>
                       These commands use deterministic fictional observations.
@@ -515,7 +631,7 @@ export function Orders({ search }: { search: string }) {
                       was cancelled.
                     </p>
                   </details>
-                  <section className="or-history">
+                  <section className="or-history" id="order-actions">
                     <h3>Actions and recovery</h3>
                     {current.actions.map((action) => (
                       <div key={action.id}>

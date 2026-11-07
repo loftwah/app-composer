@@ -418,6 +418,86 @@
 .ce-next[data-kind="review"] {
   --ce-dot: #6b7280;
 }
+.ce-lead {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+  border-left: 4px solid #fc5b05;
+  border-radius: 8px;
+  background: color-mix(in srgb, currentColor 3%, transparent);
+  overflow-wrap: anywhere;
+}
+.ce-lead-kicker {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.78;
+}
+.ce-lead h2 {
+  margin: 0;
+}
+.ce-lead-state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 8px 0 0;
+  font-size: 14px;
+  opacity: 0.86;
+}
+.ce-lead-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 12px 0;
+  font-size: 14px;
+}
+.ce-lead-facts span {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 0;
+}
+.ce-lead-meta {
+  margin: 12px 0 0;
+  font-size: 14px;
+  opacity: 0.82;
+}
+.ce-lead .ce-actions {
+  margin: 14px 0 8px;
+}
+.ce-inbox a.ce-primary,
+.ce-inbox button.ce-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 2px solid #c74400;
+  border-radius: 6px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.ce-inbox a.ce-primary:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+#enquiry-review {
+  scroll-margin-top: 24px;
+}
+@media (max-width: 600px) {
+  .ce-lead {
+    padding: 16px;
+  }
+  .ce-lead .ce-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ce-inbox .ce-lead .ce-primary {
+    width: 100%;
+  }
+}
+
 .ce-journey-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

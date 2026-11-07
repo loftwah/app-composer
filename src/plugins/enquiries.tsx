@@ -15,6 +15,7 @@ import {
   type EnquirySummary,
 } from "../lib/enquiry-protocol";
 import { enquiryLabels, enquiryState } from "../lib/inbox-journey-contract";
+import { enquiriesLead } from "../lib/enquiries-lead";
 import { InboxJourneyPanel } from "./inbox-journey-panel";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
 import { useNavigationGuard } from "./stacks/use-navigation-guard";
@@ -588,6 +589,67 @@ function WorkspaceEnquiries({ search }: { search: string }) {
     const instance = stack.instances.find((row) => row.id === group.instance);
     return `${stack.name} · ${instance?.label ?? "Other instance"}`;
   };
+  const readyBooks =
+    options?.resources
+      .filter((row) => row.state === "ready")
+      .map((row) => ({ id: row.id, label: row.label })) ?? [];
+  const selectedBook = readyBooks.find((row) => row.id === resource);
+  const matchingInbox =
+    inbox &&
+    inbox.resource.id === resource &&
+    inbox.status === status &&
+    inbox.page === page
+      ? inbox
+      : undefined;
+  const pendingCount = summary?.groups.reduce(
+    (total, group) => total + group.pending,
+    0,
+  );
+  const lead = enquiriesLead({
+    ready: Boolean(options),
+    role: options?.workspace.role,
+    workspaceName: options?.workspace.name,
+    environment: matchingInbox?.resource.environment,
+    account: matchingInbox?.resource.account_id,
+    readyBooks,
+    selectedBook,
+    status,
+    inbox: matchingInbox
+      ? {
+          resourceId: matchingInbox.resource.id,
+          status: matchingInbox.status,
+          page: matchingInbox.page,
+          items: matchingInbox.items.map((item) => ({
+            id: item.id,
+            title: item.values.title,
+            status: item.status,
+            createdAt: item.created_at,
+          })),
+        }
+      : undefined,
+    inboxReady: Boolean(matchingInbox),
+    pendingCount,
+    summaryReady: Boolean(summary),
+  });
+  const showPending = () => {
+    setStatus("pending");
+    setSelected("");
+    setPage(1);
+  };
+  const leadTitle =
+    lead.kind === "read-only"
+      ? "Read-only workspace"
+      : lead.kind === "setup"
+        ? "Set up a private inbox"
+        : lead.kind === "brief"
+          ? lead.item.title
+          : lead.kind === "pending-elsewhere"
+            ? `${lead.book.label} has ${lead.count} pending brief${lead.count === 1 ? "" : "s"}`
+            : lead.kind === "no-pending"
+              ? `${lead.book.label} · no pending briefs`
+              : lead.kind === "book"
+                ? lead.book.label
+                : "";
   return (
     <div
       className="ce-inbox"
@@ -654,6 +716,154 @@ function WorkspaceEnquiries({ search }: { search: string }) {
             Retry uses the same operation, scope and revisions, only after a
             successful missing-receipt check. A source or scope change refuses
             replay.
+          </p>
+        </section>
+      )}
+      {options && lead.kind !== "loading" && (
+        <section className="ce-lead" aria-labelledby="ce-lead-title">
+          <p className="ce-lead-kicker">Next</p>
+          <h2 id="ce-lead-title">{leadTitle}</h2>
+          {lead.kind === "brief" ? (
+            <>
+              <p className="ce-lead-state">
+                <span
+                  className="ce-chip"
+                  data-kind="enquiry"
+                  data-state={enquiryState(lead.item.status)}
+                >
+                  {enquiryLabels[enquiryState(lead.item.status)]}
+                </span>
+                <span>{lead.book.label}</span>
+              </p>
+              <p className="ce-lead-facts">
+                <span>
+                  Visitor book <strong>{lead.book.label}</strong>
+                </span>
+                <span>
+                  Latest pending{" "}
+                  <time dateTime={lead.item.createdAt}>
+                    {date(lead.item.createdAt)}
+                  </time>
+                </span>
+              </p>
+              <div className="ce-actions">
+                <a className="ce-primary" href="#enquiry-review">
+                  Open review
+                </a>
+              </div>
+              <p>
+                Reviewing is an explicit owner decision. Nothing is marked
+                reviewed here; the full brief and workflow stay in the existing
+                panel.
+              </p>
+            </>
+          ) : lead.kind === "pending-elsewhere" ? (
+            <>
+              <p className="ce-lead-state">Pending briefs outside this view</p>
+              <p className="ce-lead-facts">
+                <span>
+                  Visitor book <strong>{lead.book.label}</strong>
+                </span>
+                <span>
+                  Pending <strong>{lead.count}</strong>
+                </span>
+              </p>
+              <div className="ce-actions">
+                <button
+                  type="button"
+                  className="ce-primary"
+                  disabled={busy || detailBusy || Boolean(held)}
+                  onClick={showPending}
+                >
+                  Show pending briefs
+                </button>
+              </div>
+              <p>
+                The current filter does not list them. Show pending uses the
+                existing inbox filter and sends nothing.
+              </p>
+            </>
+          ) : lead.kind === "no-pending" ? (
+            <>
+              <p className="ce-lead-state">
+                {lead.summaryKnown
+                  ? "Pending 0"
+                  : "No pending result in this view"}
+              </p>
+              <p className="ce-lead-facts">
+                <span>
+                  Visitor book <strong>{lead.book.label}</strong>
+                </span>
+              </p>
+              <p>
+                Composer does not mark anything reviewed automatically. New
+                briefs appear when the app retains them.
+              </p>
+            </>
+          ) : lead.kind === "setup" ? (
+            <>
+              <p className="ce-lead-state">No ready visitor book</p>
+              <p>
+                Create a Creator stack, add Here / there, then apply its
+                resource before opening a form.
+              </p>
+              <div className="ce-actions">
+                <a
+                  className="ce-primary"
+                  href="/_emdash/admin/plugins/composer-stacks/stacks"
+                >
+                  Open Creator stacks
+                </a>
+              </div>
+            </>
+          ) : lead.kind === "read-only" ? (
+            <>
+              <p className="ce-lead-state">Owner or editor required</p>
+              <p>
+                This workspace grants read-only stack access. Private submitted
+                briefs require an owner or editor membership.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="ce-lead-state">Private inbox</p>
+              <p className="ce-lead-facts">
+                <span>
+                  Visitor book <strong>{lead.book.label}</strong>
+                </span>
+              </p>
+              {status !== "pending" && (
+                <div className="ce-actions">
+                  <button
+                    type="button"
+                    className="ce-primary"
+                    disabled={busy || detailBusy || Boolean(held)}
+                    onClick={showPending}
+                  >
+                    Show pending briefs
+                  </button>
+                </div>
+              )}
+              <p>
+                {status === "pending"
+                  ? "Checking the selected visitor book for its latest pending brief."
+                  : "Choose Pending to open the latest retained brief. The selection below keeps the existing filters and page size."}
+              </p>
+            </>
+          )}
+          <p className="ce-lead-meta">
+            Workspace <strong>{options.workspace.name}</strong> ·{" "}
+            {options.workspace.role} ·{" "}
+            <strong>
+              {matchingInbox?.resource.environment ??
+                (resource ? "Environment loading" : "No visitor book selected")}
+            </strong>
+            {matchingInbox && (
+              <>
+                {" "}
+                · Account <code>{matchingInbox.resource.account_id}</code>
+              </>
+            )}
           </p>
         </section>
       )}
@@ -815,7 +1025,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
                 </button>
               </nav>
             </section>
-            <div className="ce-detail-slot">
+            <div className="ce-detail-slot" id="enquiry-review">
               {selected ? (
                 <InboxJourneyPanel
                   key={selected + ":" + inbox.resource.version}
