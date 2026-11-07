@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-11-07T08:35:00Z",
+  "origin": "https://composer.loftwah.com",
+  "production": "bbe9e2246a853b37904ae22a55350f3d2ad3cf43",
+  "checks": {
+    "/agent": { "status": 200, "copy": "Request copied. Paste it into a fresh agent session in your project folder.", "promptBytes": 3448 },
+    "/agent.md": { "status": 200, "contentType": "text/markdown; charset=utf-8", "bytes": 6037 },
+    "/prompts": { "status": 200, "assessLink": "/agent" },
+    "/setup": { "status": 200 },
+    "/roles": { "status": 200 }
+  },
+  "freshAgentEvidence": {
+    "codex": "Codex CLI 0.145.0 / gpt-5.6-sol, Liferaft partial fit, PR #2 merged, 11 tests",
+    "opencode": "5 sessions, 42/42 assertions, 0 contaminated",
+    "docs": [
+      "docs/evaluations/real-project-adoption-20261025.md",
+      "docs/evaluations/url-first-20261025.md",
+      "docs/evaluations/fresh-agent-20261025.md",
+      "docs/evaluations/existing-projects-20261025.md"
+    ]
+  }
+}

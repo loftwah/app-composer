@@ -101,6 +101,23 @@ detail, exported the displayed scope and kept unsupported observations
 `Unavailable` rather than zero. Evidence:
 [analytics showcase](evidence/analytics-213-20261107/README.md).
 
+## Agent discovery and fit assessment — 7 November 2026
+
+The public `/agent` path returned `200` with the complete 3,448-byte assessment
+request; **Copy the request** produced the expected confirmation in the real
+browser, and `/agent.md` returned the 6,037-byte Markdown download. `/prompts`
+contains the prominent **Should we use App Composer? Assess this project** link,
+with `/setup` and `/roles` available as supporting material. The page tells an
+agent to inspect a project read-only, preserve owner work, separate
+supported/bounded/documented/planned claims, avoid credentials and stop before
+any change without authorisation.
+
+The recorded evidence covers a Codex CLI partial-fit assessment of the unrelated
+Liferaft Electron app and one authorised two-script adoption (11 tests, merged
+as PR #2, no Composer runtime adopted), plus five OpenCode sessions with 42/42
+assertions and zero contaminated runs. Evidence:
+[agent discovery](evidence/agent-discovery-20261107/README.md).
+
 ## Job-led discovery — 7 November 2026
 
 Production is Composer `5ee5574b10b3c7b62ede8b3451b382a7fc9180ad`,
