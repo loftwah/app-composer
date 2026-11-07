@@ -2,6 +2,39 @@
 
 Reviewed 25 October 2026; updated 7 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Job-led discovery — 7 November 2026
+
+Production is Composer `5ee5574b10b3c7b62ede8b3451b382a7fc9180ad`,
+Worker `22777f11-e72b-4520-b99c-e186bf1dd01c`, from the clean pushed-main
+release guard. `/build.json` and Stack status matched the source. `pnpm check`
+passed within `pnpm deploy`; the retained suite was re-run as 457 passed, zero
+failed and zero skipped. The publication guard inspected 1,292 files and 150
+archive members; live source, pinned services, sharing output, publication
+privacy and the anonymous administration boundary passed.
+
+The discovery defect is fixed. `/discover` now presents two finite choosers:
+**Who I am** (seven roles) and **What I need to do** (seven jobs). Each job has
+its own canonical, indexable URL at `/jobs/{profile,enquiries,first-app,branding,
+diagram,pdf,inspect}`. A job page leads with the outcome in plain language, one
+real maintained capture, one working action, then its related role page and
+honest support note. All seven jobs lead to an existing working tool or route;
+none needed an invented demo, API or capability.
+
+Role pages keep their existing content and deep links. Each now carries the
+same two-mode switch and a direct return to `/discover`; old links such as
+`/for/small-business?job=enquiries` return a `308` to `/jobs/enquiries`, while a
+job that does not belong to the role is ignored. `/discover` metadata now names
+all seven roles and all seven jobs rather than four.
+
+Every job and role route was checked live at 390×844 and 1440×1000 in both
+themes with no horizontal overflow and a visible keyboard focus ring. The
+deployed CSS is hash-identical to the reduced-motion-checked build; it reported
+zero animations, zero transitions and normal scrolling with reduced motion.
+Evidence, exact measurements and the capture residual:
+[job-led discovery](evidence/discovery-jobs-20261107/README.md).
+#297 remains open; this is a scoped slice, not full role/task acceptance.
+#313, #321 and #412 and the Guestbook declaration/promotion gate are unchanged.
+
 ## Creator stacks, Orders and Private enquiries task entries — 7 November 2026
 
 Production is Composer `22b220075999d0a0730ebffba63c1b57b9381b79`, Worker

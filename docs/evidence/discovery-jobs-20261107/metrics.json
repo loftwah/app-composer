@@ -1,0 +1,3782 @@
+{
+  "schema": "composer.discovery-jobs-live/1",
+  "origin": "https://composer.loftwah.com",
+  "capturedAt": "2026-11-07T03:55Z",
+  "routes": [
+    {
+      "route": "/discover",
+      "kind": "hub",
+      "slug": "discover",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "App Composer for your next role or job",
+      "h1": "What would you like to make?",
+      "headline": "Start with the job",
+      "action": {
+        "text": "Make my public page Put your work on one page people can use.",
+        "href": "/jobs/profile"
+      },
+      "example": null,
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 112,
+          "w": 294,
+          "h": 69
+        },
+        "modes": {
+          "x": 24,
+          "y": 326,
+          "w": 342,
+          "h": 56
+        },
+        "headline": {
+          "x": 24,
+          "y": 398,
+          "w": 342,
+          "h": 27
+        },
+        "action": {
+          "x": 24,
+          "y": 492,
+          "w": 342,
+          "h": 66
+        },
+        "example": {
+          "x": 24,
+          "y": 1175,
+          "w": 342,
+          "h": 66
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "hub-discover-390-dark.png",
+      "captureFile": "hub-discover-390-dark.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/profile",
+      "kind": "job",
+      "slug": "profile",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "Make a public page for your work · App Composer",
+      "h1": "Make a public page for your work.",
+      "headline": "Put your work on one page people can use.",
+      "action": {
+        "text": "Make my public page",
+        "href": "/init?start=showcase"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkarooie-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 380,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 598,
+          "w": 219,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 769,
+          "w": 342,
+          "h": 214
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "job-profile-390-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/jobs/enquiries",
+      "kind": "job",
+      "slug": "enquiries",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "Collect private enquiries from your website · App Composer",
+      "h1": "Collect private enquiries from your website.",
+      "headline": "Take an enquiry without publishing it.",
+      "action": {
+        "text": "Try a content form",
+        "href": "/init/content"
+      },
+      "example": {
+        "src": "/guides/app-admin-20261022-trail-desktop.png",
+        "naturalWidth": 1000,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 380,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 598,
+          "w": 201,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 769,
+          "w": 342,
+          "h": 214
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "job-enquiries-390-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/jobs/first-app",
+      "kind": "job",
+      "slug": "first-app",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "Build or change an app with an agent · App Composer",
+      "h1": "Build or change an app with an agent.",
+      "headline": "Take an idea to a working app.",
+      "action": {
+        "text": "Set up my project",
+        "href": "/setup#new"
+      },
+      "example": {
+        "src": "/brand/apps/previews/hello-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 380,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 598,
+          "w": 195,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 769,
+          "w": 342,
+          "h": 214
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "job-first-app-390-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/jobs/branding",
+      "kind": "job",
+      "slug": "branding",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "Make branded app icons and share images · App Composer",
+      "h1": "Make branded app icons and share images.",
+      "headline": "Make the icons and images your product needs.",
+      "action": {
+        "text": "Open Launch Kit",
+        "href": "https://composer-launch-kit.loftwah.workers.dev"
+      },
+      "example": {
+        "src": "/brand/apps/previews/launch-kit-20261023-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 380,
+          "w": 342,
+          "h": 111
+        },
+        "action": {
+          "x": 24,
+          "y": 609,
+          "w": 187,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 779,
+          "w": 342,
+          "h": 214
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "job-branding-390-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/jobs/diagram",
+      "kind": "job",
+      "slug": "diagram",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "Draw an editable diagram · App Composer",
+      "h1": "Draw an editable diagram.",
+      "headline": "Draw a diagram you can edit later.",
+      "action": {
+        "text": "Open LDraw",
+        "href": "https://ldraw.loftwah.com/"
+      },
+      "example": {
+        "src": "/brand/apps/ldraw-workspace-fa7a2ab6171c-010cfbd2-r2-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 1000,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 380,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 571,
+          "w": 157,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 742,
+          "w": 342,
+          "h": 214
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "job-diagram-390-dark.png",
+      "captureFile": "job-diagram-390-dark.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/pdf",
+      "kind": "job",
+      "slug": "pdf",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "Fill and sign a PDF without printing it · App Composer",
+      "h1": "Fill and sign a PDF without printing it.",
+      "headline": "Fill, sign and save a PDF in the browser.",
+      "action": {
+        "text": "Try the fictional sample",
+        "href": "https://paperwork.loftwah.com/?sample=garden"
+      },
+      "example": {
+        "src": "/paperwork/editor-20261024-compact.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 1100,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 380,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 571,
+          "w": 235,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 742,
+          "w": 342,
+          "h": 214
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "job-pdf-390-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/jobs/inspect",
+      "kind": "job",
+      "slug": "inspect",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "Check a website before you share it · App Composer",
+      "h1": "Check a website before you share it.",
+      "headline": "Check the link before you share it.",
+      "action": {
+        "text": "Open Link Check",
+        "href": "https://share.loftwah.com"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkcheck-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 380,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 571,
+          "w": 190,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 742,
+          "w": 342,
+          "h": 214
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "job-inspect-390-dark.png",
+      "captureFile": "job-inspect-390-dark.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/for/creator",
+      "kind": "role",
+      "slug": "creator",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "App Composer for creators",
+      "h1": "App Composer for creators.",
+      "headline": "Give your work a place to live.",
+      "action": {
+        "text": "Try the composition",
+        "href": "/demo"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkarooie-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 203,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 726,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 917,
+          "w": 211,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 1124,
+          "w": 342,
+          "h": 207
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "metricsNote": "page was scrolled by focus before measurement; coordinates restored by the 116px page top offset",
+      "capture": "role-creator-390-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/small-business",
+      "kind": "role",
+      "slug": "small-business",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "App Composer for small business owners",
+      "h1": "App Composer for small business owners.",
+      "headline": "Publish the page. Keep up with the work.",
+      "action": {
+        "text": "Open the published example",
+        "href": "/s/fictional-trail-notes"
+      },
+      "example": {
+        "src": "/guides/app-admin-20261022-trail-desktop.png",
+        "naturalWidth": 1000,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 725,
+          "w": 342,
+          "h": 111
+        },
+        "action": {
+          "x": 24,
+          "y": 980,
+          "w": 271,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 1187,
+          "w": 342,
+          "h": 207
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "metricsNote": "page was scrolled by focus before measurement; coordinates restored by the 116px page top offset",
+      "capture": "role-small-business-390-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/developer",
+      "kind": "role",
+      "slug": "developer",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "App Composer for developers and AI builders",
+      "h1": "App Composer for developers and AI builders.",
+      "headline": "Take the next idea all the way to a working app.",
+      "action": {
+        "text": "Open the first-app reference",
+        "href": "https://ready.loftwah.com"
+      },
+      "example": {
+        "src": "/brand/apps/previews/hello-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 83
+        },
+        "modes": {
+          "x": 24,
+          "y": 225,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 749,
+          "w": 342,
+          "h": 111
+        },
+        "action": {
+          "x": 24,
+          "y": 977,
+          "w": 272,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 1184,
+          "w": 342,
+          "h": 207
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "metricsNote": "page was scrolled by focus before measurement; coordinates restored by the 116px page top offset",
+      "capture": "role-developer-390-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/designer",
+      "kind": "role",
+      "slug": "designer",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "App Composer for designers and agencies",
+      "h1": "App Composer for designers and agencies.",
+      "headline": "Make the identity work in the finished product.",
+      "action": {
+        "text": "Open Launch Kit",
+        "href": "https://composer-launch-kit.loftwah.workers.dev"
+      },
+      "example": {
+        "src": "/brand/apps/previews/launch-kit-20261023-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 203,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 726,
+          "w": 342,
+          "h": 111
+        },
+        "action": {
+          "x": 24,
+          "y": 954,
+          "w": 187,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 1161,
+          "w": 342,
+          "h": 207
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "metricsNote": "page was scrolled by focus before measurement; coordinates restored by the 116px page top offset",
+      "capture": "role-designer-390-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/wordpress",
+      "kind": "role",
+      "slug": "wordpress",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "App Composer for WordPress and agency work",
+      "h1": "App Composer for WordPress and agency work.",
+      "headline": "Prove one content move before a rebuild.",
+      "action": {
+        "text": "Inspect the publisher migration",
+        "href": "/migration-example"
+      },
+      "example": {
+        "src": "/evidence/weekender-reader-20261025.png",
+        "naturalWidth": 1440,
+        "naturalHeight": 2245,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 83
+        },
+        "modes": {
+          "x": 24,
+          "y": 226,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 749,
+          "w": 342,
+          "h": 111
+        },
+        "action": {
+          "x": 24,
+          "y": 1004,
+          "w": 290,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 1211,
+          "w": 342,
+          "h": 207
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "metricsNote": "page was scrolled by focus before measurement; coordinates restored by the 116px page top offset",
+      "capture": "role-wordpress-390-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/shopify",
+      "kind": "role",
+      "slug": "shopify",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "App Composer beside a Shopify store",
+      "h1": "App Composer beside a Shopify store.",
+      "headline": "Build the work beside your store.",
+      "action": {
+        "text": "Open the content example",
+        "href": "/showcase/"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkarooie-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 725,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 943,
+          "w": 256,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 1150,
+          "w": 342,
+          "h": 207
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "metricsNote": "page was scrolled by focus before measurement; coordinates restored by the 116px page top offset",
+      "capture": "role-shopify-390-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/platform-team",
+      "kind": "role",
+      "slug": "platform-team",
+      "viewport": 390,
+      "theme": "dark",
+      "title": "App Composer for small Cloudflare teams",
+      "h1": "App Composer for small Cloudflare teams.",
+      "headline": "Take one internal request through review.",
+      "action": {
+        "text": "Watch the team journey",
+        "href": "/platform/demo"
+      },
+      "example": {
+        "src": "/demos/platform-native-25dc7589-b3cd5894/overview-poster.jpg",
+        "naturalWidth": 1600,
+        "naturalHeight": 1200,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 725,
+          "w": 342,
+          "h": 111
+        },
+        "action": {
+          "x": 24,
+          "y": 980,
+          "w": 238,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 1187,
+          "w": 342,
+          "h": 207
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "metricsNote": "page was scrolled by focus before measurement; coordinates restored by the 116px page top offset",
+      "capture": "role-platform-team-390-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/discover",
+      "kind": "hub",
+      "slug": "discover",
+      "viewport": 390,
+      "theme": "light",
+      "title": "App Composer for your next role or job",
+      "h1": "What would you like to make?",
+      "headline": "Start with the job",
+      "action": {
+        "text": "Make my public page Put your work on one page people can use.",
+        "href": "/jobs/profile"
+      },
+      "example": null,
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 112,
+          "w": 294,
+          "h": 69
+        },
+        "modes": {
+          "x": 24,
+          "y": 326,
+          "w": 342,
+          "h": 56
+        },
+        "headline": {
+          "x": 24,
+          "y": 398,
+          "w": 342,
+          "h": 27
+        },
+        "action": {
+          "x": 24,
+          "y": 492,
+          "w": 342,
+          "h": 66
+        },
+        "example": {
+          "x": 24,
+          "y": 1175,
+          "w": 342,
+          "h": 66
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "hub-discover-390-light.png",
+      "captureFile": "hub-discover-390-light.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/profile",
+      "kind": "job",
+      "slug": "profile",
+      "viewport": 390,
+      "theme": "light",
+      "title": "Make a public page for your work · App Composer",
+      "h1": "Make a public page for your work.",
+      "headline": "Put your work on one page people can use.",
+      "action": {
+        "text": "Make my public page",
+        "href": "/init?start=showcase"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkarooie-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 380,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 598,
+          "w": 219,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 769,
+          "w": 342,
+          "h": 214
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "job-profile-390-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/jobs/enquiries",
+      "kind": "job",
+      "slug": "enquiries",
+      "viewport": 390,
+      "theme": "light",
+      "title": "Collect private enquiries from your website · App Composer",
+      "h1": "Collect private enquiries from your website.",
+      "headline": "Take an enquiry without publishing it.",
+      "action": {
+        "text": "Try a content form",
+        "href": "/init/content"
+      },
+      "example": {
+        "src": "/guides/app-admin-20261022-trail-desktop.png",
+        "naturalWidth": 1000,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 380,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 598,
+          "w": 201,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 769,
+          "w": 342,
+          "h": 214
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "job-enquiries-390-light.png",
+      "captureFile": "job-enquiries-390-light.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/first-app",
+      "kind": "job",
+      "slug": "first-app",
+      "viewport": 390,
+      "theme": "light",
+      "title": "Build or change an app with an agent · App Composer",
+      "h1": "Build or change an app with an agent.",
+      "headline": "Take an idea to a working app.",
+      "action": {
+        "text": "Set up my project",
+        "href": "/setup#new"
+      },
+      "example": {
+        "src": "/brand/apps/previews/hello-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 380,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 598,
+          "w": 195,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 769,
+          "w": 342,
+          "h": 214
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "job-first-app-390-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/jobs/branding",
+      "kind": "job",
+      "slug": "branding",
+      "viewport": 390,
+      "theme": "light",
+      "title": "Make branded app icons and share images · App Composer",
+      "h1": "Make branded app icons and share images.",
+      "headline": "Make the icons and images your product needs.",
+      "action": {
+        "text": "Open Launch Kit",
+        "href": "https://composer-launch-kit.loftwah.workers.dev"
+      },
+      "example": {
+        "src": "/brand/apps/previews/launch-kit-20261023-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 380,
+          "w": 342,
+          "h": 111
+        },
+        "action": {
+          "x": 24,
+          "y": 609,
+          "w": 187,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 779,
+          "w": 342,
+          "h": 214
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "job-branding-390-light.png",
+      "captureFile": "job-branding-390-light.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/diagram",
+      "kind": "job",
+      "slug": "diagram",
+      "viewport": 390,
+      "theme": "light",
+      "title": "Draw an editable diagram · App Composer",
+      "h1": "Draw an editable diagram.",
+      "headline": "Draw a diagram you can edit later.",
+      "action": {
+        "text": "Open LDraw",
+        "href": "https://ldraw.loftwah.com/"
+      },
+      "example": {
+        "src": "/brand/apps/ldraw-workspace-fa7a2ab6171c-010cfbd2-r2-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 1000,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 380,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 571,
+          "w": 157,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 742,
+          "w": 342,
+          "h": 214
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "job-diagram-390-light.png",
+      "captureFile": "job-diagram-390-light.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/pdf",
+      "kind": "job",
+      "slug": "pdf",
+      "viewport": 390,
+      "theme": "light",
+      "title": "Fill and sign a PDF without printing it · App Composer",
+      "h1": "Fill and sign a PDF without printing it.",
+      "headline": "Fill, sign and save a PDF in the browser.",
+      "action": {
+        "text": "Try the fictional sample",
+        "href": "https://paperwork.loftwah.com/?sample=garden"
+      },
+      "example": {
+        "src": "/paperwork/editor-20261024-compact.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 1100,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 380,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 571,
+          "w": 235,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 742,
+          "w": 342,
+          "h": 214
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "job-pdf-390-light.png",
+      "captureFile": "job-pdf-390-light.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/inspect",
+      "kind": "job",
+      "slug": "inspect",
+      "viewport": 390,
+      "theme": "light",
+      "title": "Check a website before you share it · App Composer",
+      "h1": "Check a website before you share it.",
+      "headline": "Check the link before you share it.",
+      "action": {
+        "text": "Open Link Check",
+        "href": "https://share.loftwah.com"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkcheck-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 380,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 571,
+          "w": 190,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 742,
+          "w": 342,
+          "h": 214
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "capture": "job-inspect-390-light.png",
+      "captureFile": "job-inspect-390-light.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/for/creator",
+      "kind": "role",
+      "slug": "creator",
+      "viewport": 390,
+      "theme": "light",
+      "title": "App Composer for creators",
+      "h1": "App Composer for creators.",
+      "headline": "Give your work a place to live.",
+      "action": {
+        "text": "Try the composition",
+        "href": "/demo"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkarooie-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 203,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 726,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 917,
+          "w": 211,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 1124,
+          "w": 342,
+          "h": 207
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "metricsNote": "page was scrolled by focus before measurement; coordinates restored by the 116px page top offset",
+      "capture": "role-creator-390-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/small-business",
+      "kind": "role",
+      "slug": "small-business",
+      "viewport": 390,
+      "theme": "light",
+      "title": "App Composer for small business owners",
+      "h1": "App Composer for small business owners.",
+      "headline": "Publish the page. Keep up with the work.",
+      "action": {
+        "text": "Open the published example",
+        "href": "/s/fictional-trail-notes"
+      },
+      "example": {
+        "src": "/guides/app-admin-20261022-trail-desktop.png",
+        "naturalWidth": 1000,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 725,
+          "w": 342,
+          "h": 111
+        },
+        "action": {
+          "x": 24,
+          "y": 980,
+          "w": 271,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 1187,
+          "w": 342,
+          "h": 207
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "metricsNote": "page was scrolled by focus before measurement; coordinates restored by the 116px page top offset",
+      "capture": "role-small-business-390-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/developer",
+      "kind": "role",
+      "slug": "developer",
+      "viewport": 390,
+      "theme": "light",
+      "title": "App Composer for developers and AI builders",
+      "h1": "App Composer for developers and AI builders.",
+      "headline": "Take the next idea all the way to a working app.",
+      "action": {
+        "text": "Open the first-app reference",
+        "href": "https://ready.loftwah.com"
+      },
+      "example": {
+        "src": "/brand/apps/previews/hello-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 83
+        },
+        "modes": {
+          "x": 24,
+          "y": 225,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 749,
+          "w": 342,
+          "h": 111
+        },
+        "action": {
+          "x": 24,
+          "y": 977,
+          "w": 272,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 1184,
+          "w": 342,
+          "h": 207
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "metricsNote": "page was scrolled by focus before measurement; coordinates restored by the 116px page top offset",
+      "capture": "role-developer-390-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/designer",
+      "kind": "role",
+      "slug": "designer",
+      "viewport": 390,
+      "theme": "light",
+      "title": "App Composer for designers and agencies",
+      "h1": "App Composer for designers and agencies.",
+      "headline": "Make the identity work in the finished product.",
+      "action": {
+        "text": "Open Launch Kit",
+        "href": "https://composer-launch-kit.loftwah.workers.dev"
+      },
+      "example": {
+        "src": "/brand/apps/previews/launch-kit-20261023-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 203,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 726,
+          "w": 342,
+          "h": 111
+        },
+        "action": {
+          "x": 24,
+          "y": 954,
+          "w": 187,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 1161,
+          "w": 342,
+          "h": 207
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "metricsNote": "page was scrolled by focus before measurement; coordinates restored by the 116px page top offset",
+      "capture": "role-designer-390-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/wordpress",
+      "kind": "role",
+      "slug": "wordpress",
+      "viewport": 390,
+      "theme": "light",
+      "title": "App Composer for WordPress and agency work",
+      "h1": "App Composer for WordPress and agency work.",
+      "headline": "Prove one content move before a rebuild.",
+      "action": {
+        "text": "Inspect the publisher migration",
+        "href": "/migration-example"
+      },
+      "example": {
+        "src": "/evidence/weekender-reader-20261025.png",
+        "naturalWidth": 1440,
+        "naturalHeight": 2245,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 83
+        },
+        "modes": {
+          "x": 24,
+          "y": 226,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 749,
+          "w": 342,
+          "h": 111
+        },
+        "action": {
+          "x": 24,
+          "y": 1004,
+          "w": 290,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 1211,
+          "w": 342,
+          "h": 207
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "metricsNote": "page was scrolled by focus before measurement; coordinates restored by the 116px page top offset",
+      "capture": "role-wordpress-390-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/shopify",
+      "kind": "role",
+      "slug": "shopify",
+      "viewport": 390,
+      "theme": "light",
+      "title": "App Composer beside a Shopify store",
+      "h1": "App Composer beside a Shopify store.",
+      "headline": "Build the work beside your store.",
+      "action": {
+        "text": "Open the content example",
+        "href": "/showcase/"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkarooie-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 725,
+          "w": 342,
+          "h": 74
+        },
+        "action": {
+          "x": 24,
+          "y": 943,
+          "w": 256,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 1150,
+          "w": 342,
+          "h": 207
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "metricsNote": "page was scrolled by focus before measurement; coordinates restored by the 116px page top offset",
+      "capture": "role-shopify-390-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/platform-team",
+      "kind": "role",
+      "slug": "platform-team",
+      "viewport": 390,
+      "theme": "light",
+      "title": "App Composer for small Cloudflare teams",
+      "h1": "App Composer for small Cloudflare teams.",
+      "headline": "Take one internal request through review.",
+      "action": {
+        "text": "Watch the team journey",
+        "href": "/platform/demo"
+      },
+      "example": {
+        "src": "/demos/platform-native-25dc7589-b3cd5894/overview-poster.jpg",
+        "naturalWidth": 1600,
+        "naturalHeight": 1200,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 48,
+          "y": 116,
+          "w": 284,
+          "h": 55
+        },
+        "modes": {
+          "x": 24,
+          "y": 202,
+          "w": 342,
+          "h": 108
+        },
+        "headline": {
+          "x": 24,
+          "y": 725,
+          "w": 342,
+          "h": 111
+        },
+        "action": {
+          "x": 24,
+          "y": 980,
+          "w": 238,
+          "h": 48
+        },
+        "example": {
+          "x": 24,
+          "y": 1187,
+          "w": 342,
+          "h": 207
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "metricsNote": "page was scrolled by focus before measurement; coordinates restored by the 116px page top offset",
+      "capture": "role-platform-team-390-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/discover",
+      "kind": "hub",
+      "slug": "discover",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "App Composer for your next role or job",
+      "h1": "What would you like to make?",
+      "headline": "Start with the job",
+      "action": {
+        "text": "Make my public page Put your work on one page people can use.",
+        "href": "/jobs/profile"
+      },
+      "example": null,
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 631,
+          "h": 118
+        },
+        "modes": {
+          "x": 80,
+          "y": 323,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 397,
+          "w": 352,
+          "h": 27
+        },
+        "action": {
+          "x": 80,
+          "y": 510,
+          "w": 616,
+          "h": 74
+        },
+        "example": {
+          "x": 744,
+          "y": 510,
+          "w": 616,
+          "h": 74
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "hub-discover-1440-dark.png",
+      "captureFile": "hub-discover-1440-dark.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/profile",
+      "kind": "job",
+      "slug": "profile",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "Make a public page for your work · App Composer",
+      "h1": "Make a public page for your work.",
+      "headline": "Put your work on one page people can use.",
+      "action": {
+        "text": "Make my public page",
+        "href": "/init?start=showcase"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkarooie-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 615,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 382,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 616,
+          "w": 219,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 352,
+          "w": 704,
+          "h": 400
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "job-profile-1440-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/jobs/enquiries",
+      "kind": "job",
+      "slug": "enquiries",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "Collect private enquiries from your website · App Composer",
+      "h1": "Collect private enquiries from your website.",
+      "headline": "Take an enquiry without publishing it.",
+      "action": {
+        "text": "Try a content form",
+        "href": "/init/content"
+      },
+      "example": {
+        "src": "/guides/app-admin-20261022-trail-desktop.png",
+        "naturalWidth": 1000,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 791,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 382,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 616,
+          "w": 201,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 352,
+          "w": 704,
+          "h": 400
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "job-enquiries-1440-dark.png",
+      "captureFile": "job-enquiries-1440-dark.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/first-app",
+      "kind": "job",
+      "slug": "first-app",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "Build or change an app with an agent · App Composer",
+      "h1": "Build or change an app with an agent.",
+      "headline": "Take an idea to a working app.",
+      "action": {
+        "text": "Set up my project",
+        "href": "/setup#new"
+      },
+      "example": {
+        "src": "/brand/apps/previews/hello-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 689,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 382,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 616,
+          "w": 195,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 352,
+          "w": 704,
+          "h": 400
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "job-first-app-1440-dark.png",
+      "captureFile": "job-first-app-1440-dark.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/branding",
+      "kind": "job",
+      "slug": "branding",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "Make branded app icons and share images · App Composer",
+      "h1": "Make branded app icons and share images.",
+      "headline": "Make the icons and images your product needs.",
+      "action": {
+        "text": "Open Launch Kit",
+        "href": "https://composer-launch-kit.loftwah.workers.dev"
+      },
+      "example": {
+        "src": "/brand/apps/previews/launch-kit-20261023-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 785,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 382,
+          "w": 528,
+          "h": 168
+        },
+        "action": {
+          "x": 80,
+          "y": 672,
+          "w": 187,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 352,
+          "w": 704,
+          "h": 400
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "job-branding-1440-dark.png",
+      "captureFile": "job-branding-1440-dark.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/diagram",
+      "kind": "job",
+      "slug": "diagram",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "Draw an editable diagram · App Composer",
+      "h1": "Draw an editable diagram.",
+      "headline": "Draw a diagram you can edit later.",
+      "action": {
+        "text": "Open LDraw",
+        "href": "https://ldraw.loftwah.com/"
+      },
+      "example": {
+        "src": "/brand/apps/ldraw-workspace-fa7a2ab6171c-010cfbd2-r2-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 1000,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 471,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 382,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 616,
+          "w": 157,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 352,
+          "w": 704,
+          "h": 400
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "job-diagram-1440-dark.png",
+      "captureFile": "job-diagram-1440-dark.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/pdf",
+      "kind": "job",
+      "slug": "pdf",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "Fill and sign a PDF without printing it · App Composer",
+      "h1": "Fill and sign a PDF without printing it.",
+      "headline": "Fill, sign and save a PDF in the browser.",
+      "action": {
+        "text": "Try the fictional sample",
+        "href": "https://paperwork.loftwah.com/?sample=garden"
+      },
+      "example": {
+        "src": "/paperwork/editor-20261024-compact.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 1100,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 671,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 382,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 588,
+          "w": 235,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 352,
+          "w": 704,
+          "h": 400
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "job-pdf-1440-dark.png",
+      "captureFile": "job-pdf-1440-dark.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/inspect",
+      "kind": "job",
+      "slug": "inspect",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "Check a website before you share it · App Composer",
+      "h1": "Check a website before you share it.",
+      "headline": "Check the link before you share it.",
+      "action": {
+        "text": "Open Link Check",
+        "href": "https://share.loftwah.com"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkcheck-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 661,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 382,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 616,
+          "w": 190,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 352,
+          "w": 704,
+          "h": 400
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "job-inspect-1440-dark.png",
+      "captureFile": "job-inspect-1440-dark.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/for/creator",
+      "kind": "role",
+      "slug": "creator",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "App Composer for creators",
+      "h1": "App Composer for creators.",
+      "headline": "Give your work a place to live.",
+      "action": {
+        "text": "Try the composition",
+        "href": "/demo"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkarooie-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 500,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 655,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 861,
+          "w": 211,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 591,
+          "w": 704,
+          "h": 330
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "role-creator-1440-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/small-business",
+      "kind": "role",
+      "slug": "small-business",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "App Composer for small business owners",
+      "h1": "App Composer for small business owners.",
+      "headline": "Publish the page. Keep up with the work.",
+      "action": {
+        "text": "Open the published example",
+        "href": "/s/fictional-trail-notes"
+      },
+      "example": {
+        "src": "/guides/app-admin-20261022-trail-desktop.png",
+        "naturalWidth": 1000,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 754,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 651,
+          "w": 568,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 885,
+          "w": 271,
+          "h": 48
+        },
+        "example": {
+          "x": 776,
+          "y": 591,
+          "w": 584,
+          "h": 350
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "role-small-business-1440-dark.png",
+      "captureFile": "role-small-business-1440-dark.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/for/developer",
+      "kind": "role",
+      "slug": "developer",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "App Composer for developers and AI builders",
+      "h1": "App Composer for developers and AI builders.",
+      "headline": "Take the next idea all the way to a working app.",
+      "action": {
+        "text": "Open the first-app reference",
+        "href": "https://ready.loftwah.com"
+      },
+      "example": {
+        "src": "/brand/apps/previews/hello-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 824,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 591,
+          "w": 528,
+          "h": 168
+        },
+        "action": {
+          "x": 80,
+          "y": 881,
+          "w": 272,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 703,
+          "w": 704,
+          "h": 250
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "role-developer-1440-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/designer",
+      "kind": "role",
+      "slug": "designer",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "App Composer for designers and agencies",
+      "h1": "App Composer for designers and agencies.",
+      "headline": "Make the identity work in the finished product.",
+      "action": {
+        "text": "Open Launch Kit",
+        "href": "https://composer-launch-kit.loftwah.workers.dev"
+      },
+      "example": {
+        "src": "/brand/apps/previews/launch-kit-20261023-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 780,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 836,
+          "y": 628,
+          "w": 524,
+          "h": 168
+        },
+        "action": {
+          "x": 836,
+          "y": 918,
+          "w": 187,
+          "h": 48
+        },
+        "example": {
+          "x": 80,
+          "y": 591,
+          "w": 708,
+          "h": 360
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "role-designer-1440-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/wordpress",
+      "kind": "role",
+      "slug": "wordpress",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "App Composer for WordPress and agency work",
+      "h1": "App Composer for WordPress and agency work.",
+      "headline": "Prove one content move before a rebuild.",
+      "action": {
+        "text": "Inspect the publisher migration",
+        "href": "/migration-example"
+      },
+      "example": {
+        "src": "/evidence/weekender-reader-20261025.png",
+        "naturalWidth": 1440,
+        "naturalHeight": 2245,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 864,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 626,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 860,
+          "w": 290,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 591,
+          "w": 704,
+          "h": 300
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "role-wordpress-1440-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/shopify",
+      "kind": "role",
+      "slug": "shopify",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "App Composer beside a Shopify store",
+      "h1": "App Composer beside a Shopify store.",
+      "headline": "Build the work beside your store.",
+      "action": {
+        "text": "Open the content example",
+        "href": "/showcase/"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkarooie-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 695,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 626,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 860,
+          "w": 256,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 591,
+          "w": 704,
+          "h": 300
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "role-shopify-1440-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/platform-team",
+      "kind": "role",
+      "slug": "platform-team",
+      "viewport": 1440,
+      "theme": "dark",
+      "title": "App Composer for small Cloudflare teams",
+      "h1": "App Composer for small Cloudflare teams.",
+      "headline": "Take one internal request through review.",
+      "action": {
+        "text": "Watch the team journey",
+        "href": "/platform/demo"
+      },
+      "example": {
+        "src": "/demos/platform-native-25dc7589-b3cd5894/overview-poster.jpg",
+        "naturalWidth": 1600,
+        "naturalHeight": 1200,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 759,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 598,
+          "w": 528,
+          "h": 168
+        },
+        "action": {
+          "x": 80,
+          "y": 888,
+          "w": 238,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 591,
+          "w": 704,
+          "h": 300
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(23, 24, 27)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "role-platform-team-1440-dark.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/discover",
+      "kind": "hub",
+      "slug": "discover",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "App Composer for your next role or job",
+      "h1": "What would you like to make?",
+      "headline": "Start with the job",
+      "action": {
+        "text": "Make my public page Put your work on one page people can use.",
+        "href": "/jobs/profile"
+      },
+      "example": null,
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 631,
+          "h": 118
+        },
+        "modes": {
+          "x": 80,
+          "y": 323,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 397,
+          "w": 352,
+          "h": 27
+        },
+        "action": {
+          "x": 80,
+          "y": 510,
+          "w": 616,
+          "h": 74
+        },
+        "example": {
+          "x": 744,
+          "y": 510,
+          "w": 616,
+          "h": 74
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "hub-discover-1440-light.png",
+      "captureFile": "hub-discover-1440-light.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/profile",
+      "kind": "job",
+      "slug": "profile",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "Make a public page for your work · App Composer",
+      "h1": "Make a public page for your work.",
+      "headline": "Put your work on one page people can use.",
+      "action": {
+        "text": "Make my public page",
+        "href": "/init?start=showcase"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkarooie-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 615,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 382,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 616,
+          "w": 219,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 352,
+          "w": 704,
+          "h": 400
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "job-profile-1440-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/jobs/enquiries",
+      "kind": "job",
+      "slug": "enquiries",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "Collect private enquiries from your website · App Composer",
+      "h1": "Collect private enquiries from your website.",
+      "headline": "Take an enquiry without publishing it.",
+      "action": {
+        "text": "Try a content form",
+        "href": "/init/content"
+      },
+      "example": {
+        "src": "/guides/app-admin-20261022-trail-desktop.png",
+        "naturalWidth": 1000,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 791,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 382,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 616,
+          "w": 201,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 352,
+          "w": 704,
+          "h": 400
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "job-enquiries-1440-light.png",
+      "captureFile": "job-enquiries-1440-light.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/first-app",
+      "kind": "job",
+      "slug": "first-app",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "Build or change an app with an agent · App Composer",
+      "h1": "Build or change an app with an agent.",
+      "headline": "Take an idea to a working app.",
+      "action": {
+        "text": "Set up my project",
+        "href": "/setup#new"
+      },
+      "example": {
+        "src": "/brand/apps/previews/hello-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 689,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 382,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 616,
+          "w": 195,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 352,
+          "w": 704,
+          "h": 400
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "job-first-app-1440-light.png",
+      "captureFile": "job-first-app-1440-light.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/branding",
+      "kind": "job",
+      "slug": "branding",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "Make branded app icons and share images · App Composer",
+      "h1": "Make branded app icons and share images.",
+      "headline": "Make the icons and images your product needs.",
+      "action": {
+        "text": "Open Launch Kit",
+        "href": "https://composer-launch-kit.loftwah.workers.dev"
+      },
+      "example": {
+        "src": "/brand/apps/previews/launch-kit-20261023-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 785,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 382,
+          "w": 528,
+          "h": 168
+        },
+        "action": {
+          "x": 80,
+          "y": 672,
+          "w": 187,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 352,
+          "w": 704,
+          "h": 400
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "job-branding-1440-light.png",
+      "captureFile": "job-branding-1440-light.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/diagram",
+      "kind": "job",
+      "slug": "diagram",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "Draw an editable diagram · App Composer",
+      "h1": "Draw an editable diagram.",
+      "headline": "Draw a diagram you can edit later.",
+      "action": {
+        "text": "Open LDraw",
+        "href": "https://ldraw.loftwah.com/"
+      },
+      "example": {
+        "src": "/brand/apps/ldraw-workspace-fa7a2ab6171c-010cfbd2-r2-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 1000,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 471,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 382,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 616,
+          "w": 157,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 352,
+          "w": 704,
+          "h": 400
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "job-diagram-1440-light.png",
+      "captureFile": "job-diagram-1440-light.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/jobs/pdf",
+      "kind": "job",
+      "slug": "pdf",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "Fill and sign a PDF without printing it · App Composer",
+      "h1": "Fill and sign a PDF without printing it.",
+      "headline": "Fill, sign and save a PDF in the browser.",
+      "action": {
+        "text": "Try the fictional sample",
+        "href": "https://paperwork.loftwah.com/?sample=garden"
+      },
+      "example": {
+        "src": "/paperwork/editor-20261024-compact.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 1100,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 671,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 382,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 588,
+          "w": 235,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 352,
+          "w": 704,
+          "h": 400
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "job-pdf-1440-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/jobs/inspect",
+      "kind": "job",
+      "slug": "inspect",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "Check a website before you share it · App Composer",
+      "h1": "Check a website before you share it.",
+      "headline": "Check the link before you share it.",
+      "action": {
+        "text": "Open Link Check",
+        "href": "https://share.loftwah.com"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkcheck-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 661,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 382,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 616,
+          "w": 190,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 352,
+          "w": 704,
+          "h": 400
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "job-inspect-1440-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/creator",
+      "kind": "role",
+      "slug": "creator",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "App Composer for creators",
+      "h1": "App Composer for creators.",
+      "headline": "Give your work a place to live.",
+      "action": {
+        "text": "Try the composition",
+        "href": "/demo"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkarooie-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 500,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 655,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 861,
+          "w": 211,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 591,
+          "w": 704,
+          "h": 330
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "role-creator-1440-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/small-business",
+      "kind": "role",
+      "slug": "small-business",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "App Composer for small business owners",
+      "h1": "App Composer for small business owners.",
+      "headline": "Publish the page. Keep up with the work.",
+      "action": {
+        "text": "Open the published example",
+        "href": "/s/fictional-trail-notes"
+      },
+      "example": {
+        "src": "/guides/app-admin-20261022-trail-desktop.png",
+        "naturalWidth": 1000,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 754,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 651,
+          "w": 568,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 885,
+          "w": 271,
+          "h": 48
+        },
+        "example": {
+          "x": 776,
+          "y": 591,
+          "w": 584,
+          "h": 350
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "role-small-business-1440-light.png",
+      "captureFile": "role-small-business-1440-light.png",
+      "captureStatus": "retained-paint-complete"
+    },
+    {
+      "route": "/for/developer",
+      "kind": "role",
+      "slug": "developer",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "App Composer for developers and AI builders",
+      "h1": "App Composer for developers and AI builders.",
+      "headline": "Take the next idea all the way to a working app.",
+      "action": {
+        "text": "Open the first-app reference",
+        "href": "https://ready.loftwah.com"
+      },
+      "example": {
+        "src": "/brand/apps/previews/hello-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 824,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 591,
+          "w": 528,
+          "h": 168
+        },
+        "action": {
+          "x": 80,
+          "y": 881,
+          "w": 272,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 703,
+          "w": 704,
+          "h": 250
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "role-developer-1440-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/designer",
+      "kind": "role",
+      "slug": "designer",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "App Composer for designers and agencies",
+      "h1": "App Composer for designers and agencies.",
+      "headline": "Make the identity work in the finished product.",
+      "action": {
+        "text": "Open Launch Kit",
+        "href": "https://composer-launch-kit.loftwah.workers.dev"
+      },
+      "example": {
+        "src": "/brand/apps/previews/launch-kit-20261023-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 900,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 780,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 836,
+          "y": 628,
+          "w": 524,
+          "h": 168
+        },
+        "action": {
+          "x": 836,
+          "y": 918,
+          "w": 187,
+          "h": 48
+        },
+        "example": {
+          "x": 80,
+          "y": 591,
+          "w": 708,
+          "h": 360
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "role-designer-1440-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/wordpress",
+      "kind": "role",
+      "slug": "wordpress",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "App Composer for WordPress and agency work",
+      "h1": "App Composer for WordPress and agency work.",
+      "headline": "Prove one content move before a rebuild.",
+      "action": {
+        "text": "Inspect the publisher migration",
+        "href": "/migration-example"
+      },
+      "example": {
+        "src": "/evidence/weekender-reader-20261025.png",
+        "naturalWidth": 1440,
+        "naturalHeight": 2245,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 864,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 626,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 860,
+          "w": 290,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 591,
+          "w": 704,
+          "h": 300
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "role-wordpress-1440-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/shopify",
+      "kind": "role",
+      "slug": "shopify",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "App Composer beside a Shopify store",
+      "h1": "App Composer beside a Shopify store.",
+      "headline": "Build the work beside your store.",
+      "action": {
+        "text": "Open the content example",
+        "href": "/showcase/"
+      },
+      "example": {
+        "src": "/brand/apps/previews/linkarooie-20261018-1440.webp",
+        "naturalWidth": 1440,
+        "naturalHeight": 960,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 695,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 626,
+          "w": 528,
+          "h": 112
+        },
+        "action": {
+          "x": 80,
+          "y": 860,
+          "w": 256,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 591,
+          "w": 704,
+          "h": 300
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "role-shopify-1440-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    },
+    {
+      "route": "/for/platform-team",
+      "kind": "role",
+      "slug": "platform-team",
+      "viewport": 1440,
+      "theme": "light",
+      "title": "App Composer for small Cloudflare teams",
+      "h1": "App Composer for small Cloudflare teams.",
+      "headline": "Take one internal request through review.",
+      "action": {
+        "text": "Watch the team journey",
+        "href": "/platform/demo"
+      },
+      "example": {
+        "src": "/demos/platform-native-25dc7589-b3cd5894/overview-poster.jpg",
+        "naturalWidth": 1600,
+        "naturalHeight": 1200,
+        "complete": true
+      },
+      "boxes": {
+        "h1": {
+          "x": 160,
+          "y": 158,
+          "w": 759,
+          "h": 43
+        },
+        "modes": {
+          "x": 80,
+          "y": 246,
+          "w": 1280,
+          "h": 52
+        },
+        "headline": {
+          "x": 80,
+          "y": 598,
+          "w": 528,
+          "h": 168
+        },
+        "action": {
+          "x": 80,
+          "y": 888,
+          "w": 238,
+          "h": 48
+        },
+        "example": {
+          "x": 656,
+          "y": 591,
+          "w": 704,
+          "h": 300
+        }
+      },
+      "focus": {
+        "outline": "rgb(252, 91, 5) solid 3px",
+        "offset": "4px",
+        "color": "rgb(252, 91, 5)"
+      },
+      "bodyBackground": "rgb(250, 249, 247)",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "capture": "role-platform-team-1440-light.png",
+      "captureFile": null,
+      "captureStatus": "not-retained-first-paint-gap"
+    }
+  ],
+  "captureResidual": "The live Playwright extension disconnected after this measurement pass. 23 captures were retained where the example image had painted. The remaining route/theme combinations keep their exact DOM measurements and image natural dimensions, but their viewport PNG was not retained because it caught the example panel before first paint. This is a capture-layer gap, not a page failure."
+}

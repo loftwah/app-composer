@@ -1,0 +1,173 @@
+{
+  "schema": "composer.discovery-jobs-anonymous/1",
+  "origin": "https://composer.loftwah.com",
+  "resolvedIPv4": "104.21.3.44",
+  "checkedAt": "2026-11-07T05:09:04.555984+00:00",
+  "build": {
+    "app": "app-composer",
+    "commit": "5ee5574b10b3c7b62ede8b3451b382a7fc9180ad",
+    "reviewed": "2026-10-13",
+    "reviewedScope": "original-build-identity-contract",
+    "sourceCommittedAt": "2026-11-07T14:50:44+11:00",
+    "contract": 1
+  },
+  "routes": [
+    {
+      "path": "/discover",
+      "status": 200,
+      "title": "App Composer for your next role or job",
+      "canonical": "https://composer.loftwah.com/discover",
+      "robots": null,
+      "bytes": 46567
+    },
+    {
+      "path": "/jobs/profile",
+      "status": 200,
+      "title": "Make a public page for your work \u00b7 App Composer",
+      "canonical": "https://composer.loftwah.com/jobs/profile",
+      "robots": null,
+      "bytes": 35879
+    },
+    {
+      "path": "/jobs/enquiries",
+      "status": 200,
+      "title": "Collect private enquiries from your website \u00b7 App Composer",
+      "canonical": "https://composer.loftwah.com/jobs/enquiries",
+      "robots": null,
+      "bytes": 36010
+    },
+    {
+      "path": "/jobs/first-app",
+      "status": 200,
+      "title": "Build or change an app with an agent \u00b7 App Composer",
+      "canonical": "https://composer.loftwah.com/jobs/first-app",
+      "robots": null,
+      "bytes": 35909
+    },
+    {
+      "path": "/jobs/branding",
+      "status": 200,
+      "title": "Make branded app icons and share images \u00b7 App Composer",
+      "canonical": "https://composer.loftwah.com/jobs/branding",
+      "robots": null,
+      "bytes": 35974
+    },
+    {
+      "path": "/jobs/diagram",
+      "status": 200,
+      "title": "Draw an editable diagram \u00b7 App Composer",
+      "canonical": "https://composer.loftwah.com/jobs/diagram",
+      "robots": null,
+      "bytes": 36136
+    },
+    {
+      "path": "/jobs/pdf",
+      "status": 200,
+      "title": "Fill and sign a PDF without printing it \u00b7 App Composer",
+      "canonical": "https://composer.loftwah.com/jobs/pdf",
+      "robots": null,
+      "bytes": 36075
+    },
+    {
+      "path": "/jobs/inspect",
+      "status": 200,
+      "title": "Check a website before you share it \u00b7 App Composer",
+      "canonical": "https://composer.loftwah.com/jobs/inspect",
+      "robots": null,
+      "bytes": 36087
+    },
+    {
+      "path": "/for/creator",
+      "status": 200,
+      "title": "App Composer for creators",
+      "canonical": "https://composer.loftwah.com/for/creator",
+      "robots": null,
+      "bytes": 40578
+    },
+    {
+      "path": "/for/small-business",
+      "status": 200,
+      "title": "App Composer for small business owners",
+      "canonical": "https://composer.loftwah.com/for/small-business",
+      "robots": null,
+      "bytes": 40924
+    },
+    {
+      "path": "/for/developer",
+      "status": 200,
+      "title": "App Composer for developers and AI builders",
+      "canonical": "https://composer.loftwah.com/for/developer",
+      "robots": null,
+      "bytes": 41330
+    },
+    {
+      "path": "/for/designer",
+      "status": 200,
+      "title": "App Composer for designers and agencies",
+      "canonical": "https://composer.loftwah.com/for/designer",
+      "robots": null,
+      "bytes": 40990
+    },
+    {
+      "path": "/for/wordpress",
+      "status": 200,
+      "title": "App Composer for WordPress and agency work",
+      "canonical": "https://composer.loftwah.com/for/wordpress",
+      "robots": null,
+      "bytes": 42142
+    },
+    {
+      "path": "/for/shopify",
+      "status": 200,
+      "title": "App Composer beside a Shopify store",
+      "canonical": "https://composer.loftwah.com/for/shopify",
+      "robots": null,
+      "bytes": 41965
+    },
+    {
+      "path": "/for/platform-team",
+      "status": 200,
+      "title": "App Composer for small Cloudflare teams",
+      "canonical": "https://composer.loftwah.com/for/platform-team",
+      "robots": null,
+      "bytes": 41948
+    }
+  ],
+  "legacy": {
+    "status": 308,
+    "location": "/jobs/enquiries"
+  },
+  "unknownJob": {
+    "status": 404
+  },
+  "sitemapJobs": [
+    {
+      "path": "/jobs/profile",
+      "present": true
+    },
+    {
+      "path": "/jobs/enquiries",
+      "present": true
+    },
+    {
+      "path": "/jobs/first-app",
+      "present": true
+    },
+    {
+      "path": "/jobs/branding",
+      "present": true
+    },
+    {
+      "path": "/jobs/diagram",
+      "present": true
+    },
+    {
+      "path": "/jobs/pdf",
+      "present": true
+    },
+    {
+      "path": "/jobs/inspect",
+      "present": true
+    }
+  ]
+}

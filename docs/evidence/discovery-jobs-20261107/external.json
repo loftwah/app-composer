@@ -1,0 +1,49 @@
+{
+  "schema": "composer.discovery-jobs-external/1",
+  "checkedAt": "2026-11-07T05:09:18.728639+00:00",
+  "urls": {
+    "https://composer-launch-kit.loftwah.workers.dev": {
+      "status": 200,
+      "contentType": "text/html",
+      "resolvedIPv4": "172.67.139.192"
+    },
+    "https://ldraw.loftwah.com/": {
+      "status": 200,
+      "contentType": "text/html",
+      "resolvedIPv4": "172.67.130.58"
+    },
+    "https://paperwork.loftwah.com/?sample=garden": {
+      "status": 200,
+      "contentType": "text/html",
+      "resolvedIPv4": "104.21.3.44"
+    },
+    "https://share.loftwah.com": {
+      "status": 200,
+      "contentType": "text/html",
+      "resolvedIPv4": "104.21.3.44"
+    },
+    "https://ready.loftwah.com": {
+      "status": 200,
+      "contentType": "text/html;charset=utf-8",
+      "resolvedIPv4": "172.67.130.58"
+    },
+    "https://composer.loftwah.com/showcase/": {
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "resolvedIPv4": "104.21.3.44"
+    },
+    "https://composer.loftwah.com/s/fictional-trail-notes": {
+      "status": 200,
+      "contentType": "text/html",
+      "resolvedIPv4": "104.21.3.44"
+    }
+  },
+  "internalActions": {
+    "/init?start=showcase": 200,
+    "/init/content": 200,
+    "/setup": 200,
+    "/paperwork": 200,
+    "/showcase/": 200,
+    "/s/fictional-trail-notes": 200
+  }
+}
