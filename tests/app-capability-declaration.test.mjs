@@ -18,7 +18,7 @@ test("accepts the Guestbook catalogue as an app-owned declaration", () => {
     validateAgentCapabilitiesDeclaration(declaration, "guestbook"),
     declaration,
   );
-  assert.equal(declaration.operations.length, 2);
+  assert.equal(declaration.operations.length, 3);
 });
 
 test("old manifests without the optional declaration still validate", () => {

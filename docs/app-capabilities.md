@@ -1,7 +1,7 @@
 # App capabilities as code
 
-Published 6 November 2026 at `/capabilities` (human) and `/capabilities.json`
-(machine). First slice of [#412](https://github.com/loftwah/app-composer/issues/412).
+Published 7 November 2026 at `/capabilities` (human) and `/capabilities.json`
+(machine). First delivered slice of [#412](https://github.com/loftwah/app-composer/issues/412).
 
 ## What it is
 
@@ -56,6 +56,17 @@ additive: manifests without it continue to validate.
         "requires": ["none"],
         "confirmation": false,
         "verified": "2026-11-06"
+      },
+      {
+        "name": "submit-postcard",
+        "description": "Submit one short postcard for owner review.",
+        "kind": "effect",
+        "method": "POST",
+        "path": "/r/:resource/api/guest-postcard",
+        "availability": "guest-invitation",
+        "requires": ["guest-invitation-code", "consent"],
+        "confirmation": true,
+        "verified": "2026-11-07"
       }
     ]
   }
@@ -74,9 +85,12 @@ node scripts/validate-app-manifest.mjs ../app-composer-guestbook/app.manifest.js
 ```
 
 The Guestbook repository is the first app-owned declaration
-(`2a9e12e70813d3f2c1c21a49bc330267bbc0a61f`). Its deployment and a later
-Composer composition promotion are separate release gates; the current
-composition pin remains unchanged.
+(`e668c84cf45c8a16ba36015c7bce13c014cf3a38`). Its live manifest now serves the
+same two reads and the bounded `submit-postcard` effect. The effect is not a
+public write: it requires the app-issued guest invitation code and explicit
+consent, and it creates only a pending private item for owner review. The
+Composer composition pin remains a separate promotion gate; the standalone app
+release and the catalogue proof do not silently move it.
 
 ## What it deliberately does not do
 

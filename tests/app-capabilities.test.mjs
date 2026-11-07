@@ -45,6 +45,17 @@ test('an effect must state a permit and confirmation', () => {
   assert.throws(() => validateCapabilities([publicEffect]), /scoped/);
 });
 
+test('the Guestbook effect is a bounded guest-invitation write', () => {
+  const guestbook = appCapabilities.find(app => app.id === 'guestbook');
+  const effect = guestbook.operations.find(operation => operation.name === 'submit-postcard');
+  assert.equal(effect.kind, 'effect');
+  assert.equal(effect.method, 'POST');
+  assert.equal(effect.availability, 'guest-invitation');
+  assert.equal(effect.confirmation, true);
+  assert.deepEqual(effect.requires, ['guest-invitation-code', 'consent']);
+  assert.equal(effect.path, '/r/:resource/api/guest-postcard');
+});
+
 test('unknown apps, unsafe paths and stray fields fail closed', () => {
   const unknown = base();
   unknown.id = 'not-a-shipped-app';

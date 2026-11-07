@@ -5,7 +5,7 @@
 import { apps } from "./apps.ts";
 
 export const capabilitiesVersion = 1;
-export const capabilitiesReviewed = "2026-11-06";
+export const capabilitiesReviewed = "2026-11-07";
 
 export type CapabilityKind = "read" | "effect";
 export type CapabilityAvailability =
@@ -266,6 +266,18 @@ const catalogue: AppCapabilities[] = [
         requires: ["none"],
         confirmation: false,
         verified: "2026-11-06",
+      },
+      {
+        name: "submit-postcard",
+        description:
+          "Submit one short postcard for owner review. Requires the app-issued guest code, explicit consent and a browser-rendered PNG; it cannot publish, moderate or read private records.",
+        kind: "effect",
+        method: "POST",
+        path: "/r/:resource/api/guest-postcard",
+        availability: "guest-invitation",
+        requires: ["guest-invitation-code", "consent"],
+        confirmation: true,
+        verified: "2026-11-07",
       },
     ],
   },
