@@ -21,29 +21,44 @@ The November test-suite reduction was deliberate. Do not restore deleted tests, 
 
 ## Delivery channel — what reached main and production
 
-The project has one Discord channel, configured in the ignored `.env` as
-`WOODHOUSE_DISCORD_CHANNEL`, and used through
-`pnpm delivery:announce --file <announcement.json> [--send]`. It is the owner's
-showcase and running ledger: the place to see what actually reached `main` and
-production, which issues that work belongs to, and what to look for in each
-project.
+The owner's Discord showcase is the running record of delivered project work.
+The integrator alone announces one coherent outcome per meaningful stage, not
+individual worker activity or every commit. Follow the shared
+[showcase contract](https://github.com/loftwah/woodhouse-new/blob/main/docs/DISCORD_SHOWCASE.md)
+tracked in [Woodhouse #171](https://github.com/loftwah/woodhouse-new/issues/171).
 
-- Post one concise entry per coherent batch that reaches `main` or production.
-  Do not post per commit, per checkpoint or for a plan that has not shipped.
-- Every entry names the source commit, the production identity when it changed,
-  the issues touched with their real state (`closed`, `slice`, `status`,
-  `still-open`, `blocked`), the checks that actually ran, the evidence link and
-  the next executable step. `deployed: true` is only for a verified production
-  release.
-- The webhook is a secret. Never commit it, print it, put it in an issue,
-  evidence file, screenshot or payload. `scripts/delivery-channel.mjs` redacts
-  any webhook-shaped URL before sending and refuses to send without
-  `--send`.
-- The channel summarises; it never replaces an issue receipt,
-  `docs/evidence/<batch>/README.md`, `docs/STATUS.md` or issue #11. A green
-  Discord entry is not a verification.
-- Owner actions still required are stated in the entry, with the exact human
-  step. A missing provider, account, device or approval is named, not hidden.
+- Use `MERGED_TO_MAIN` for integrated code, never as a shipped claim.
+  `PRODUCTION_VERIFIED` requires the actual released source/version and a real
+  affected-flow live check. `DOCS_TOOLING_DONE` means non-runtime work is on
+  `main` with its focused check; do not redeploy an unchanged product.
+  Use `BLOCKED` or `RELEASE_FAILED` with the exact reason and next action.
+- Include the project, issue/PR links and real issue state, source/version,
+  what changed, why it matters, where/how to inspect it, verified scope and
+  remaining limits. Include relevant inspected, public-safe screenshots when
+  useful; never secrets, private content or unapproved artwork.
+- Preserve the existing native `pnpm delivery:announce --file <announcement.json> [--send]`
+  command (`scripts/delivery-channel.mjs`). Its release owner must verify main
+  and production claims before sending: `deployed: true` is only for verified
+  production. Put the exact stage in the title/summary. It has no durable
+  deduplication; reconcile earlier attempts before any retry.
+- Choose **one transport per outcome**, never post through both. The canonical
+  Woodhouse docs describe the stricter deduplication/read-back wrapper:
+  `node /path/to/woodhouse-new/scripts/showcase-delivery.mjs /path/to/public-safe-event.json --send`,
+  from this repository using a trusted, verified local checkout. Omit
+  `--send` for a dry run and inspect it first. Never download and execute
+  moving remote code. This guidance does not install a shared deployment hook.
+- `WOODHOUSE_DISCORD_CHANNEL` is a secret webhook URL, not a numeric channel ID
+  (`WOODHOUSE_DISCORD_WEBHOOK_URL` is an optional alias). The native command accepts only
+  `WOODHOUSE_DISCORD_CHANNEL`, from the process environment or ignored `.env`;
+  the alias applies to the shared wrapper. Prefer the actual runtime's shared
+  host environment/private store, never tracked
+  files, payloads, screenshots or logs. Missing configuration/send failure is a
+  notification fault to report, not a reason to block an otherwise safe product
+  release or claim the notification succeeded. Reconcile uncertain sends before
+  retrying; do not duplicate posts.
+- Keep issue #11, `docs/STATUS.md` and existing issue/release evidence authoritative and preserve this project's release,
+  safety and explicit hold boundaries. Do not add GitHub Actions, infrastructure
+  or a second deployment system for announcements.
 
 ## Delivery contract — current owner direction
 
