@@ -1,0 +1,30 @@
+---
+interface Props { mode?: 'role' | 'job' | 'hub' }
+const { mode = 'hub' } = Astro.props;
+---
+<nav class="discovery-modes" aria-label="Choose how to explore">
+  <a href="/discover#roles" aria-current={mode === 'role' ? 'location' : undefined}>
+    <span>Who I am</span>
+    <small>Choose a role</small>
+  </a>
+  <a href="/discover#jobs" aria-current={mode === 'job' ? 'location' : undefined}>
+    <span>What I need to do</span>
+    <small>Choose a job</small>
+  </a>
+  {mode !== 'hub' && <a class="discovery-hub-return" href="/discover">All roles and jobs</a>}
+</nav>
+<style>
+  .discovery-modes { display:flex; flex-wrap:wrap; align-items:stretch; gap:10px; margin-bottom:22px; }
+  .discovery-modes>a { display:flex; flex-direction:column; justify-content:center; min-height:52px; padding:8px 18px; border:1px solid var(--color-border); background:var(--color-surface); color:var(--color-foreground); font-size:.95rem; line-height:1.25; }
+  .discovery-modes>a span { font-weight:600; }
+  .discovery-modes>a small { color:var(--color-muted); font-size:.76rem; font-weight:400; }
+  .discovery-modes>a:hover { border-color:var(--color-accent); }
+  .discovery-modes>a[aria-current] { border-color:var(--color-accent); box-shadow:inset 0 -3px var(--color-brand); }
+  .discovery-modes>a[aria-current] span { color:var(--color-accent); }
+  .discovery-modes .discovery-hub-return { margin-left:auto; flex-direction:row; align-items:center; background:transparent; font-size:.86rem; font-weight:500; }
+  @media(max-width:720px) {
+    .discovery-modes { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+    .discovery-modes>a { min-height:56px; padding:8px 12px; }
+    .discovery-modes .discovery-hub-return { grid-column:1/-1; margin-left:0; min-height:44px; }
+  }
+</style>

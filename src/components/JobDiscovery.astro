@@ -1,0 +1,70 @@
+---
+import { ArrowRight, ArrowUpRight } from '@lucide/astro';
+import { discoveryJobs, discoveryRoles, type DiscoveryJob } from '../lib/role-discovery';
+import DeviceSupport from './DeviceSupport.astro';
+import DiscoveryModes from './DiscoveryModes.astro';
+import { appDeviceSupport } from '../lib/app-device-support';
+interface Props { job: DiscoveryJob }
+const { job } = Astro.props;
+const relatedRoles = job.relatedRoles.map((id) => discoveryRoles.find((role) => role.id === id)!).filter(Boolean);
+const nextJob = discoveryJobs[(discoveryJobs.findIndex((entry) => entry.id === job.id) + 1) % discoveryJobs.length];
+---
+<div class:list={['job-experience', `job-${job.id}`]}>
+  <DiscoveryModes mode="job" />
+  <section class="job-result" aria-labelledby="job-result-heading">
+    <div class="job-story">
+      <p class="job-kicker">The job</p>
+      <h2 id="job-result-heading">{job.headline}</h2>
+      <p class="job-outcome">{job.outcome}</p>
+      <div class="job-actions"><a class="button" href={job.action.href}>{job.action.label}<ArrowRight size={18} aria-hidden="true" /></a></div>
+      <details class="job-context">
+        <summary>Who usually does this, and what it needs</summary>
+        <p>{job.roleNote} Related role {relatedRoles.length === 1 ? 'page' : 'pages'}: {relatedRoles.map((role, index) => <><a href={'/for/' + role.id}>{role.label}</a>{index < relatedRoles.length - 1 ? ' · ' : ''}</>)}.</p>
+        <p>{job.support}</p>
+        <DeviceSupport support={appDeviceSupport(job.app)} compact />
+      </details>
+    </div>
+    <figure class="job-example">
+      <a href={job.example.href} aria-label={'Open ' + job.example.title}><img src={job.example.image} alt={job.example.alt} loading="eager" decoding="async" /></a>
+      <figcaption><strong><a href={job.example.href}>{job.example.title}<ArrowUpRight size={15} aria-hidden="true" /></a></strong><p>{job.example.description}</p><small>Actual capture · {job.example.captured} · <a href={job.example.origin}>{job.example.originLabel ?? new URL(job.example.origin).host}</a></small></figcaption>
+    </figure>
+  </section>
+  <nav class="job-navigation" aria-label="Choose another job">
+    {discoveryJobs.map((entry) => <a href={'/jobs/' + entry.id} aria-current={entry.id === job.id ? 'page' : undefined}>{entry.label}<ArrowRight size={16} aria-hidden="true" /></a>)}
+  </nav>
+  <nav class="job-return" aria-label="Keep exploring">
+    <a href="/discover">All roles and jobs</a>
+    <a href={'/jobs/' + nextJob.id}>Next job: {nextJob.label}<ArrowRight size={16} aria-hidden="true" /></a>
+    <a href="/apps">Browse all apps</a>
+    <a href="/setup">Set up your project</a>
+  </nav>
+</div>
+<style>
+  .job-navigation { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border-block:1px solid var(--color-border); margin-top:32px; }
+  .job-navigation>a { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:17px 16px; min-height:58px; color:var(--color-foreground); font-weight:500; font-size:.91rem; }
+  .job-navigation>a:first-child { padding-left:0; }
+  .job-navigation>a[aria-current] { box-shadow:inset 0 -3px var(--color-brand); color:var(--color-accent); }
+  .job-navigation>a:hover { color:var(--color-accent); }
+  .job-navigation svg { flex-shrink:0; }
+  .job-result { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr); gap:48px; padding-top:32px; align-items:start; }
+  .job-story { min-width:0; }
+  .job-kicker { margin:0 0 10px; font-size:.78rem; letter-spacing:.09em; text-transform:uppercase; color:var(--color-muted); }
+  .job-story h2 { font-size:clamp(2.1rem,3.6vw,3.25rem); line-height:1.08; letter-spacing:-.035em; max-width:17ch; margin:0 0 18px; text-wrap:balance; }
+  .job-outcome { font-size:1.03rem; line-height:1.7; color:var(--color-muted); margin:0 0 20px; max-width:48ch; }
+  .job-actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px 22px; }
+  .job-actions .button { min-height:46px; font-size:.91rem; }
+  .job-context { margin-top:20px; border-top:1px solid var(--color-border); padding-top:12px; }
+  .job-context summary { min-height:44px; display:list-item; cursor:pointer; font-size:.9rem; font-weight:500; padding-block:10px; }
+  .job-context p { font-size:.87rem; line-height:1.7; color:var(--color-muted); overflow-wrap:anywhere; }
+  .job-example { margin:0; min-width:0; background:var(--color-surface); }
+  .job-example>a { display:block; height:400px; overflow:hidden; border:1px solid var(--color-border); background:var(--color-field); }
+  .job-example img { width:100%; height:100%; object-fit:contain; display:block; }
+  figcaption { padding:16px 20px; }
+  figcaption strong>a { display:inline-flex; align-items:center; gap:8px; color:var(--color-foreground); font-size:1.03rem; }
+  figcaption p { font-size:.87rem; line-height:1.6; color:var(--color-muted); margin:8px 0; }
+  figcaption small { display:block; font-size:.73rem; color:var(--color-muted); overflow-wrap:anywhere; }
+  .job-return { display:flex; flex-wrap:wrap; gap:4px 28px; margin-top:28px; border-top:1px solid var(--color-border); padding-top:12px; }
+  .job-return a { display:inline-flex; align-items:center; gap:8px; min-height:44px; font-size:.88rem; }
+  @media(max-width:950px) { .job-navigation { grid-template-columns:repeat(3,minmax(0,1fr)); }.job-result { gap:28px; grid-template-columns:minmax(0,1fr) minmax(0,1fr); }.job-story h2 { font-size:2.3rem; }.job-example>a { height:340px; }.job-navigation>a { padding-inline:10px; font-size:.82rem; } }
+  @media(max-width:720px) { .job-navigation { grid-template-columns:1fr 1fr; margin-top:24px; }.job-navigation>a { min-height:52px; font-size:.88rem; padding:14px 8px; }.job-navigation>a:nth-child(2n+1) { padding-left:0; }.job-navigation>a:nth-child(-n+2) { border-bottom:1px solid var(--color-border); }.job-result { grid-template-columns:1fr; gap:24px; padding-top:24px; }.job-story h2 { font-size:2.15rem; max-width:22ch; }.job-outcome { font-size:.97rem; max-width:65ch; }.job-example>a { height:auto; aspect-ratio:1.6; }.job-return { margin-top:22px; } }
+</style>

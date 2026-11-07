@@ -1,0 +1,15 @@
+---
+import Base from '../../layouts/Base.astro';
+import JobDiscovery from '../../components/JobDiscovery.astro';
+import { discoveryJob, discoveryShareType } from '../../lib/role-discovery';
+const job = discoveryJob(Astro.params.job);
+if (!job) Astro.response.status = 404;
+---
+<Base title={job?.title ?? 'Job not found'} description={job?.description ?? 'Choose a job to explore App Composer.'} noindex={job ? undefined : true} shareImage={job ? `https://composer.loftwah.com${job.share}` : undefined} shareType={job ? discoveryShareType(job.share) : undefined} shareAlt={job?.shareAlt}>
+  {job ? <><header class="job-heading"><h1>{job.title}.</h1></header><JobDiscovery job={job} /></> : <><h1>That job is not here.</h1><p><a href="/discover#jobs">Choose a job</a> to find a working example and one action.</p></>}
+</Base>
+<style>
+  .job-heading { margin-bottom:22px; }
+  .job-heading h1 { font-size:clamp(1.65rem,3vw,2.5rem); max-width:none; margin:0; }
+  @media(max-width:720px) { .job-heading { margin-bottom:14px; }.job-heading h1 { font-size:1.6rem; } }
+</style>

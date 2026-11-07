@@ -3,7 +3,9 @@
 export const publicPagePaths = Object.freeze([
   '/', '/learn', '/ready', '/ready/guide', '/setup', '/prompts', '/agent', '/agent.md', '/resources', '/resources/change', '/resources/incident', '/resources/pipeline', '/resources/hook', '/resources/operating-kit', '/init', '/init/content', '/init/launch-kit',
   '/roles', '/roles/service-owner', '/roles/programmer', '/roles/architect', '/roles/devops', '/roles/security', '/roles/qa',
-  '/diagrams', '/discover', '/for/creator', '/for/small-business', '/for/developer', '/for/designer', '/for/wordpress', '/for/shopify', '/for/platform-team', '/explore', '/demo', '/docs', '/architecture', '/guide',
+  '/diagrams', '/discover', '/for/creator', '/for/small-business', '/for/developer', '/for/designer', '/for/wordpress', '/for/shopify', '/for/platform-team',
+  '/jobs/profile', '/jobs/enquiries', '/jobs/first-app', '/jobs/branding', '/jobs/diagram', '/jobs/pdf', '/jobs/inspect',
+  '/explore', '/demo', '/docs', '/architecture', '/guide',
   '/catalogue', '/apps', '/activity', '/review', '/privacy', '/release', '/capabilities',
   '/extension', '/state', '/php2shell', '/studio', '/manage', '/building', '/effect',
   '/launch-kit', '/paperwork', '/init/paperwork', '/platform', '/platform/demo', '/plugin-trust', '/incident-replay', '/migration-example',

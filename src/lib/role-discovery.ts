@@ -1,4 +1,4 @@
-import { apps } from './apps.ts';
+import { appDetails, apps } from './apps.ts';
 
 export const discoveryRoleIds = ['creator', 'small-business', 'developer', 'designer', 'wordpress', 'shopify', 'platform-team'] as const;
 export type DiscoveryRoleId = typeof discoveryRoleIds[number];
@@ -143,16 +143,173 @@ export const discoveryRoles: DiscoveryRole[] = [
 
 ];
 
-export const discoveryJobs = [
-  { id: 'profile', label: 'Make my public page', role: 'creator', href: '/for/creator?job=profile' },
-  { id: 'enquiries', label: 'Collect private enquiries', role: 'small-business', href: '/for/small-business?job=enquiries' },
-  { id: 'first-app', label: 'Build or change an app', role: 'developer', href: '/for/developer?job=first-app' },
-  { id: 'branding', label: 'Make branded assets', role: 'designer', href: '/for/designer?job=branding' },
-  { id: 'diagram', label: 'Draw an editable diagram', role: null, href: 'https://ldraw.loftwah.com' },
-  { id: 'pdf', label: 'Fill or sign a PDF', role: null, href: 'https://paperwork.loftwah.com' },
-  { id: 'inspect', label: 'Check a website before sharing', role: null, href: 'https://share.loftwah.com' },
-] as const;
+export const discoveryJobIds = ['profile', 'enquiries', 'first-app', 'branding', 'diagram', 'pdf', 'inspect'] as const;
+export type DiscoveryJobId = typeof discoveryJobIds[number];
+export interface DiscoveryJob {
+  id: DiscoveryJobId;
+  label: string;
+  title: string;
+  headline: string;
+  outcome: string;
+  description: string;
+  app: typeof apps[number]['id'];
+  example: DiscoveryRole['example'];
+  action: { label: string; href: string };
+  relatedRoles: DiscoveryRoleId[];
+  roleNote: string;
+  support: string;
+  share: string;
+  shareAlt: string;
+}
+const roleFor = (id: DiscoveryRoleId) => discoveryRoles.find((role) => role.id === id)!;
+const shareType = (href: string) => href.endsWith('.jpg') ? 'image/jpeg' : 'image/png';
+
+export const discoveryJobs: DiscoveryJob[] = [
+  {
+    id: 'profile', label: 'Make my public page',
+    title: 'Make a public page for your work',
+    headline: 'Put your work on one page people can use.',
+    outcome: 'Bring your projects, music and useful links together on a page you can update. Choose what your audience sees and keep the source with the result.',
+    description: 'Build a public profile page with your projects, music and links, then choose what your audience sees. Start with the existing Linkarooie configuration.',
+    app: 'showcase',
+    example: roleFor('creator').example,
+    action: roleFor('creator').start,
+    relatedRoles: ['creator'],
+    roleNote: 'Usually the creator route.',
+    support: roleFor('creator').support,
+    share: roleFor('creator').share,
+    shareAlt: 'App Composer discovery card for creators, using the actual Linkarooie profile capture.',
+  },
+  {
+    id: 'enquiries', label: 'Collect private enquiries',
+    title: 'Collect private enquiries from your website',
+    headline: 'Take an enquiry without publishing it.',
+    outcome: 'Put a short form on a public page, then review what visitors send in a private owner workspace. Keep the public page and the follow-up separate.',
+    description: 'Add a private enquiry form to a published page, review briefs in an owner-only workspace and keep visitor contact details out of public view.',
+    app: 'guestbook',
+    example: roleFor('small-business').example,
+    action: roleFor('small-business').start,
+    relatedRoles: ['small-business'],
+    roleNote: 'Usually the small business route.',
+    support: roleFor('small-business').support,
+    share: roleFor('small-business').share,
+    shareAlt: 'App Composer discovery card for small business, using the actual Fictional Trail Notes capture.',
+  },
+  {
+    id: 'first-app', label: 'Build or change an app',
+    title: 'Build or change an app with an agent',
+    headline: 'Take an idea to a working app.',
+    outcome: 'Describe the app, give your agent a complete brief and check the result at a real HTTPS address. Keep the source and the route back into the work.',
+    description: 'Turn an idea into a working app: choose the project, export a complete brief and verify the deployed result, with the Hello World reference.',
+    app: 'hello',
+    example: roleFor('developer').example,
+    action: roleFor('developer').start,
+    relatedRoles: ['developer'],
+    roleNote: 'Usually the developer / AI builder route.',
+    support: roleFor('developer').support,
+    share: roleFor('developer').share,
+    shareAlt: 'App Composer discovery card for developers, using the actual Hello World capture.',
+  },
+  {
+    id: 'branding', label: 'Make branded assets',
+    title: 'Make branded app icons and share images',
+    headline: 'Make the icons and images your product needs.',
+    outcome: 'Turn artwork you are allowed to use into app icons, PWA assets and social cards. Inspect the actual files before you hand them over.',
+    description: 'Compose app icons, PWA assets and social cards locally, inspect every exported file and prepare a reviewed handoff with Launch Kit.',
+    app: 'launch-kit',
+    example: roleFor('designer').example,
+    action: roleFor('designer').primary,
+    relatedRoles: ['designer'],
+    roleNote: 'Usually the designer / agency route.',
+    support: roleFor('designer').support,
+    share: roleFor('designer').share,
+    shareAlt: 'App Composer discovery card for designers, using the actual Launch Kit capture.',
+  },
+  {
+    id: 'diagram', label: 'Draw an editable diagram',
+    title: 'Draw an editable diagram',
+    headline: 'Draw a diagram you can edit later.',
+    outcome: 'Sketch the system, workflow or idea in a real editor. Keep an editable file for the next change, then export SVG or PNG for the page.',
+    description: 'Draw and save editable diagrams in the browser, start from a named block library and export PNG or SVG with the working LDraw editor.',
+    app: 'ldraw',
+    example: {
+      title: 'LDraw, the working editor',
+      description: 'The actual dark workspace with its named block library and the Creator journey example. Open it, draw and save an editable file.',
+      href: 'https://ldraw.loftwah.com/',
+      ...capture('ldraw'),
+    },
+    action: { label: 'Open LDraw', href: 'https://ldraw.loftwah.com/' },
+    relatedRoles: ['designer', 'developer'],
+    roleNote: 'Useful for designer and developer work.',
+    support: 'Save an editable .excalidraw file before clearing browser data. ' + appDetails.ldraw.connection,
+    share: app('ldraw').share,
+    shareAlt: app('ldraw').shareAlt,
+  },
+  {
+    id: 'pdf', label: 'Fill or sign a PDF',
+    title: 'Fill and sign a PDF without printing it',
+    headline: 'Fill, sign and save a PDF in the browser.',
+    outcome: 'Open an ordinary form, fill its fields, draw or sign and download the completed document. The file stays in your browser.',
+    description: 'Fill native PDF fields, draw, add a signature and save or print the completed document. Paperwork keeps document files in the browser.',
+    app: 'paperwork',
+    example: {
+      title: 'Paperwork, completing a real form',
+      description: 'The deployed editor with the fictional acceptance form, added text, ink, highlight and a transparent demo signature.',
+      href: '/paperwork',
+      image: '/paperwork/editor-20261024-compact.webp',
+      alt: 'Actual deployed Paperwork PDF editor with native fields and added text, ink, highlight and transparent fictional signature.',
+      captured: '2026-10-24',
+      origin: 'https://paperwork.loftwah.com',
+    },
+    action: { label: 'Try the fictional sample', href: 'https://paperwork.loftwah.com/?sample=garden' },
+    relatedRoles: ['small-business', 'designer'],
+    roleNote: 'Useful for small business and client paperwork.',
+    support: 'Documents and signatures stay in the browser, with no account, upload, document analytics or cloud storage. Ordinary PDFs up to 30 MB and 100 pages. Password-protected, XFA and already certificate-signed documents are refused. ' + appDetails.paperwork.connection,
+    share: app('paperwork').share,
+    shareAlt: app('paperwork').shareAlt,
+  },
+  {
+    id: 'inspect', label: 'Check a website before sharing',
+    title: 'Check a website before you share it',
+    headline: 'Check the link before you share it.',
+    outcome: 'Inspect a public page’s icons, share image, metadata and headings. Get a list of findings you can act on before the link goes out.',
+    description: 'Inspect favicons, social images, metadata, headings and image descriptions on a public page, then export the findings with Link Check.',
+    app: 'linkcheck',
+    example: {
+      title: 'Link Check, with a real inspection',
+      description: 'The actual deployed inspection form, its supported discovery checks and the explanation of what it inspects.',
+      href: 'https://share.loftwah.com',
+      ...capture('linkcheck'),
+    },
+    action: { label: 'Open Link Check', href: 'https://share.loftwah.com' },
+    relatedRoles: ['developer', 'designer'],
+    roleNote: 'Useful before a developer or designer release.',
+    support: 'Link Check inspects one public HTTPS page and optional robots.txt or one sitemap; it does not crawl the site. Local and private addresses and credential-bearing URLs are blocked. ' + appDetails.linkcheck.connection,
+    share: app('linkcheck').share,
+    shareAlt: app('linkcheck').shareAlt,
+  },
+];
+
+export const discoveryHubDescription = `Choose by role (${discoveryRoles.map((role) => role.label).join(', ')}) or by job (${discoveryJobs.map((job) => job.label).join(', ')}). Open a working example, then start with the existing tool.`;
 
 export function discoveryRole(id: unknown): DiscoveryRole | undefined {
   return typeof id === 'string' ? discoveryRoles.find((role) => role.id === id) : undefined;
+}
+
+export function discoveryJob(id: unknown): DiscoveryJob | undefined {
+  return typeof id === 'string' ? discoveryJobs.find((job) => job.id === id) : undefined;
+}
+
+export function discoveryJobPath(id: DiscoveryJobId) {
+  return '/jobs/' + id;
+}
+
+export function discoveryJobForRole(roleId: unknown, jobId: unknown): DiscoveryJob | undefined {
+  const role = discoveryRole(roleId);
+  const job = discoveryJob(jobId);
+  return role && job && job.relatedRoles.includes(role.id) ? job : undefined;
+}
+
+export function discoveryShareType(share: string) {
+  return shareType(share);
 }

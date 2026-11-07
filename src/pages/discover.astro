@@ -1,23 +1,51 @@
 ---
 import Base from '../layouts/Base.astro';
 import DiscoverWork from '../components/DiscoverWork.astro';
-import RoleDiscovery from '../components/RoleDiscovery.astro';
-import { discoveryRoles } from '../lib/role-discovery';
+import DiscoveryModes from '../components/DiscoveryModes.astro';
+import { ArrowRight } from '@lucide/astro';
+import { discoveryHubDescription, discoveryJobs, discoveryRoles } from '../lib/role-discovery';
 ---
-<Base title="App Composer for your next job" description="Choose a role or a job, see a working example and start with the right tool. Creator, small business, developer and designer paths.">
-  <header class="discovery-heading"><h1>What would you like to make?</h1><p>Choose your role or the job in front of you. Open a working example, then make it your own.</p></header>
-  <RoleDiscovery role={discoveryRoles[0]} hub />
+<Base title="App Composer for your next role or job" description={discoveryHubDescription}>
+  <header class="discovery-heading"><h1>What would you like to make?</h1><p>Choose the job in front of you, or start with the role you recognise. Every path opens a working example and one action you can take now.</p></header>
+  <DiscoveryModes />
+  <div class="discovery-groups">
+    <section id="jobs" class="discovery-group" aria-labelledby="jobs-heading">
+      <div class="group-heading"><h2 id="jobs-heading">Start with the job</h2><p>Seven jobs with a worked example, an honest support note and one action.</p></div>
+      <nav class="choice-list" aria-label="Choose a job">
+        {discoveryJobs.map((job) => <a href={'/jobs/' + job.id}><span class="choice-copy"><strong>{job.label}</strong><small>{job.headline}</small></span><ArrowRight size={17} aria-hidden="true" /></a>)}
+      </nav>
+    </section>
+    <section id="roles" class="discovery-group" aria-labelledby="roles-heading">
+      <div class="group-heading"><h2 id="roles-heading">Or start with who you are</h2><p>Seven roles, including the WordPress, Shopify and Cloudflare team paths. Role names are starting points, not limits.</p></div>
+      <nav class="choice-list" aria-label="Choose a role">
+        {discoveryRoles.map((role) => <a href={'/for/' + role.id}><span class="choice-copy"><strong>{role.label}</strong><small>{role.headline}</small></span><ArrowRight size={17} aria-hidden="true" /></a>)}
+      </nav>
+    </section>
+  </div>
   <details class="more-tools"><summary>More working tools and walkthroughs</summary><DiscoverWork /></details>
   <p class="discovery-return"><a href="/incident-replay">Try the labelled incident review replay</a><a href="/plugin-trust">Review plugin evidence</a></p>
   <p class="discovery-return"><a href="/apps">All apps</a><a href="/setup">Set up your project</a><a href="/prompts">TLDR just give me the prompts</a></p>
 </Base>
 <style>
-  .discovery-heading { display:flex; justify-content:space-between; gap:40px; align-items:flex-end; margin-bottom:28px; }
+  .discovery-heading { display:flex; justify-content:space-between; gap:40px; align-items:flex-end; margin-bottom:24px; }
   .discovery-heading h1 { font-size:clamp(2rem,4vw,3.4rem); line-height:1.08; max-width:18ch; margin:0; text-wrap:balance; }
-  .discovery-heading p { max-width:42ch; margin:0; font-size:1rem; color:var(--color-muted); }
+  .discovery-heading p { max-width:44ch; margin:0; font-size:1rem; color:var(--color-muted); }
+  .discovery-groups { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px 48px; align-items:start; }
+  .discovery-group { min-width:0; scroll-margin-top:24px; }
+  .group-heading { min-height:112px; }
+  .group-heading h2 { font-size:1.55rem; margin:0 0 8px; }
+  .group-heading p { font-size:.9rem; line-height:1.6; color:var(--color-muted); margin:0; max-width:42ch; }
+  .choice-list { border-top:1px solid var(--color-border); }
+  .choice-list>a { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:74px; padding:12px 4px; border-bottom:1px solid var(--color-border); }
+  .choice-list>a:hover { color:var(--color-accent); }
+  .choice-copy { display:block; min-width:0; }
+  .choice-copy strong { display:block; font-size:.98rem; line-height:1.35; }
+  .choice-copy small { display:block; margin-top:3px; font-size:.82rem; line-height:1.45; color:var(--color-muted); font-weight:400; }
+  .choice-list svg { flex-shrink:0; }
   .more-tools { margin-top:32px; border-top:1px solid var(--color-border); padding-top:16px; }
   .more-tools>summary { min-height:44px; cursor:pointer; font-weight:500; }
   .discovery-return { display:flex; flex-wrap:wrap; gap:8px 28px; margin-top:22px; }
   .discovery-return a { min-height:44px; display:inline-flex; align-items:center; font-size:.9rem; }
-  @media(max-width:720px) { .discovery-heading { display:block; margin-bottom:22px; }.discovery-heading h1 { max-width:22ch; font-size:2rem; }.discovery-heading p { max-width:60ch; margin-top:14px; } }
+  @media(max-width:900px) { .discovery-groups { grid-template-columns:minmax(0,1fr); gap:32px; }.group-heading { min-height:0; margin-bottom:12px; } }
+  @media(max-width:720px) { .discovery-heading { display:block; margin-bottom:18px; }.discovery-heading h1 { max-width:22ch; font-size:2rem; }.discovery-heading p { max-width:60ch; margin-top:12px; }.choice-list>a { min-height:66px; padding-block:10px; }.choice-copy strong { font-size:.94rem; }.choice-copy small { font-size:.8rem; } }
 </style>

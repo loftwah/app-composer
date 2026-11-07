@@ -1,16 +1,17 @@
 ---
 import Base from '../../layouts/Base.astro';
 import RoleDiscovery from '../../components/RoleDiscovery.astro';
-import { discoveryRole } from '../../lib/role-discovery';
+import { discoveryJobForRole, discoveryJobPath, discoveryRole } from '../../lib/role-discovery';
 const role = discoveryRole(Astro.params.role);
+const requestedJob = discoveryJobForRole(Astro.params.role, Astro.url.searchParams.get('job'));
+if (requestedJob) return Astro.redirect(discoveryJobPath(requestedJob.id), 308);
 if (!role) Astro.response.status = 404;
 ---
 <Base title={role?.title ?? 'Role not found'} description={role?.description ?? 'Choose a role or a useful job to explore App Composer.'} shareImage={role ? `https://composer.loftwah.com${role.share}` : undefined} shareType={role?.share.endsWith(".jpg") ? "image/jpeg" : "image/png"} shareAlt={role ? `${role.title}. ${role.headline} ${role.share.endsWith(".jpg") ? "Approved Composer identity on the product banner." : "Actual application capture and the approved Composer identity."}` : undefined}>
-  {role ? <><header class="role-heading"><h1>{role.title}.</h1><a href="/discover">All roles and jobs</a></header><RoleDiscovery role={role} /></> : <><h1>That role is not here.</h1><p><a href="/discover">Choose a role or a useful job</a> to find a working example.</p></>}
+  {role ? <><header class="role-heading"><h1>{role.title}.</h1></header><RoleDiscovery role={role} /></> : <><h1>That role is not here.</h1><p><a href="/discover#roles">Choose a role or a useful job</a> to find a working example.</p></>}
 </Base>
 <style>
-  .role-heading { display:flex; align-items:baseline; justify-content:space-between; gap:24px; margin-bottom:26px; }
+  .role-heading { margin-bottom:22px; }
   .role-heading h1 { font-size:clamp(1.65rem,3vw,2.5rem); max-width:none; margin:0; }
-  .role-heading>a { min-height:44px; display:inline-flex; align-items:center; flex-shrink:0; font-size:.9rem; }
-  @media(max-width:720px) { .role-heading { display:block; margin-bottom:16px; }.role-heading h1 { font-size:1.6rem; }.role-heading>a { margin-top:6px; } }
+  @media(max-width:720px) { .role-heading { margin-bottom:14px; }.role-heading h1 { font-size:1.6rem; } }
 </style>
