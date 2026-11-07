@@ -452,6 +452,13 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
 
     const consoleResponse = await jenkinsFetch({port, suffix: `/job/composer-delivery/${build.number}/consoleText`});
     const consoleLog = consoleResponse.ok ? await consoleResponse.text() : '';
+    mkdirSync(evidenceDirectory, {recursive: true});
+    const consolePath = join(evidenceDirectory, `jenkins-external-runner-${nonce}-console.log`);
+    try {
+      writeFileSync(consolePath, consoleLog.slice(-2_000_000));
+    } catch {
+      /* Evidence remains bounded; the build identity is still reported. */
+    }
     const receiptPath = join(home, 'workspace', 'composer-delivery', 'evidence', 'candidate.json');
     const receipt = readJson(receiptPath);
     const checks = checkJenkinsReceipt(receipt, {build, headCommit});
