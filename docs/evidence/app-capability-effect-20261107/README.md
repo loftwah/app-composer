@@ -15,9 +15,15 @@ owner credential.
 
 | Surface          | Revision                                   | Worker / evidence                              |
 | ---------------- | ------------------------------------------ | ---------------------------------------------- |
-| App Composer     | `75f97727093750782264acd821539cb639d0bc32` | Worker `1c6fe80d-1767-43d2-8e10-58999a74c5b9`  |
+| App Composer     | `bbe9e2246a853b37904ae22a55350f3d2ad3cf43` | Worker `4c2683dd-9916-4864-aa2d-09e3c35cd164`  |
 | Guestbook        | `e668c84cf45c8a16ba36015c7bce13c014cf3a38` | Worker `68cc5da7-83f8-4fc9-90e2-04c5c2d897be`  |
 | Linkarooie       | `131fe0144e1690bd68e95be8330cdcd9059d3b3f` | Worker `583f07ac-3536-4c89-a40c-c882e9141262`  |
+
+The effect first reached Composer production at `75f9772` / Worker `1c6fe80d`.
+The final release `bbe9e22` / Worker `4c2683dd` contains the same catalogue plus
+the reviewed ImgBot asset optimisation from merged PR #417 and the refreshed
+resource package; the proof below was captured on `75f9772` and the effect code
+is unchanged in the final release.
 
 Composer's `/build.json`, Guestbook's `/build.json` and Linkarooie's
 `/build.json` matched those revisions after release. The standalone manifest at

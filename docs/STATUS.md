@@ -4,13 +4,19 @@ Reviewed 25 October 2026; updated 7 November 2026. This page is the current navi
 
 ## App-owned capability effect — 7 November 2026
 
-Production is Composer `75f97727093750782264acd821539cb639d0bc32`,
-Worker `1c6fe80d-1767-43d2-8e10-58999a74c5b9`, from the clean pushed-main
+Production is Composer `bbe9e2246a853b37904ae22a55350f3d2ad3cf43`,
+Worker `4c2683dd-9916-4864-aa2d-09e3c35cd164`, from the clean pushed-main
 release guard. `/build.json` matched the source. The deploy ran 459 tests with
 zero failures after the sandbox's commit-signing configuration was disabled for
 test fixtures, then the production build, remote migrations, live source and
 pinned-service checks, sharing output, publication privacy and the anonymous
 administration boundary.
+
+This release includes the reviewed ImgBot asset optimisation from merged PR
+[#417](https://github.com/loftwah/app-composer/pull/417) (`20b4dd4`), the
+refreshed resource package (`bbe9e22`) and the capability effect first released
+at `75f9772`. The optimised SVGs passed the type check, production build and
+publication guard before the final upload.
 
 [#412](https://github.com/loftwah/app-composer/issues/412)'s first real effect is
 now proven end to end. `/capabilities.json` advertises the Guestbook
