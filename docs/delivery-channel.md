@@ -29,6 +29,23 @@ pnpm delivery:announce --file announcement.json --send    # post
 A dry run prints the exact message and whether a webhook is configured. It never
 opens a connection.
 
+## Stage labels
+
+[AGENTS.md](../AGENTS.md) and the shared
+[Woodhouse showcase contract](https://github.com/loftwah/woodhouse-new/blob/main/docs/DISCORD_SHOWCASE.md)
+own the current stage vocabulary. Put the exact stage in the entry title:
+
+- `MERGED_TO_MAIN` — integrated code, not a shipped claim.
+- `PRODUCTION_VERIFIED` — the released source/version and a real affected-flow
+  live check.
+- `DOCS_TOOLING_DONE` — non-runtime work on `main` with its focused check; do
+  not redeploy an unchanged product.
+- `BLOCKED` / `RELEASE_FAILED` — with the exact reason and next action.
+
+Use one transport per outcome. The native command below is sufficient; never
+post the same outcome through both it and the shared wrapper. The native command
+has no durable deduplication, so reconcile an uncertain send before retrying.
+
 ## Announcement shape
 
 ```json
