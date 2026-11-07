@@ -95,7 +95,7 @@ async function availablePort() {
 const sleep = ms => new Promise(accept => setTimeout(accept, ms));
 const authorisation = () => `Basic ${Buffer.from(`${user}:${password}`).toString('base64')}`;
 
-async function jenkinsFetch(path, {method = 'GET', crumb = null, timeoutMs = 15000} = {}) {
+async function jenkinsFetch(path, {method = 'GET', crumb = null, body = null, contentType = null, timeoutMs = 15000} = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -104,7 +104,9 @@ async function jenkinsFetch(path, {method = 'GET', crumb = null, timeoutMs = 150
       headers: {
         Authorization: authorisation(),
         ...(crumb ? {[crumb.field]: crumb.value} : {}),
+        ...(contentType ? {'Content-Type': contentType} : {}),
       },
+      body,
       signal: controller.signal,
       redirect: 'manual',
     });
@@ -113,47 +115,7 @@ async function jenkinsFetch(path, {method = 'GET', crumb = null, timeoutMs = 150
   }
 }
 
-function writeJenkinsHome(home, port) {
-  mkdirSync(join(home, 'init.groovy.d'), {recursive: true});
-  writeFileSync(
-    join(home, 'init.groovy.d', '00-security.groovy'),
-    `import jenkins.model.Jenkins
-import hudson.security.HudsonPrivateSecurityRealm
-import hudson.security.FullControlOnceLoggedInAuthorizationStrategy
-import jenkins.model.JenkinsLocationConfiguration
-
-def instance = Jenkins.get()
-if (instance.getSecurityRealm() instanceof HudsonPrivateSecurityRealm == false) {
-  def realm = new HudsonPrivateSecurityRealm(false)
-  realm.createAccount('${user}', '${password}')
-  instance.setSecurityRealm(realm)
-  def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
-  strategy.setAllowAnonymousRead(false)
-  instance.setAuthorizationStrategy(strategy)
-  instance.setSlaveAgentPort(-1)
-  JenkinsLocationConfiguration.get().setUrl('http://localhost:${port}/')
-  JenkinsLocationConfiguration.get().save()
-  instance.save()
-  println('Composer fixture: local administrator and location configured')
-}
-`,
-  );
-  writeFileSync(
-    join(home, 'init.groovy.d', '10-job.groovy'),
-    `import jenkins.model.Jenkins
-import java.io.ByteArrayInputStream
-
-def instance = Jenkins.get()
-if (instance.getItem('composer-delivery') == null) {
-  def xml = new File('/var/jenkins_home/composer-delivery.xml').text
-  instance.createProjectFromXML('composer-delivery', new ByteArrayInputStream(xml.getBytes('UTF-8')))
-  println('Composer fixture: composer-delivery job created')
-}
-`,
-  );
-  writeFileSync(
-    join(home, 'composer-delivery.xml'),
-    `<?xml version='1.1' encoding='UTF-8'?>
+const jobXml = `<?xml version='1.1' encoding='UTF-8'?>
 <flow-definition plugin="workflow-job">
   <description>Local Composer external-runner acceptance (#319). Runs the repository delivery wrapper.</description>
   <keepDependencies>false</keepDependencies>
@@ -181,6 +143,31 @@ if (instance.getItem('composer-delivery') == null) {
   <triggers/>
   <disabled>false</disabled>
 </flow-definition>
+`;
+
+function writeJenkinsHome(home, port) {
+  mkdirSync(join(home, 'init.groovy.d'), {recursive: true});
+  writeFileSync(
+    join(home, 'init.groovy.d', '00-security.groovy'),
+    `import jenkins.model.Jenkins
+import hudson.security.HudsonPrivateSecurityRealm
+import hudson.security.FullControlOnceLoggedInAuthorizationStrategy
+import jenkins.model.JenkinsLocationConfiguration
+
+def instance = Jenkins.get()
+if (instance.getSecurityRealm() instanceof HudsonPrivateSecurityRealm == false) {
+  def realm = new HudsonPrivateSecurityRealm(false)
+  realm.createAccount('${user}', '${password}')
+  instance.setSecurityRealm(realm)
+  def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+  strategy.setAllowAnonymousRead(false)
+  instance.setAuthorizationStrategy(strategy)
+  instance.setSlaveAgentPort(-1)
+  JenkinsLocationConfiguration.get().setUrl('http://localhost:${port}/')
+  JenkinsLocationConfiguration.get().save()
+  instance.save()
+  println('Composer fixture: local administrator and location configured')
+}
 `,
   );
 }
@@ -376,20 +363,35 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
 
     await waitForJenkins(port, Math.min(deadline, Date.now() + 600000));
 
-    const jobResponse = await jenkinsFetch({port, suffix: '/job/composer-delivery/api/json?tree=name'});
-    if (!jobResponse.ok) {
-      containerLog = docker(['logs', '--tail', '400', container], {allowFailure: true}).stdout;
-      throw new FixtureError(
-        'job-missing',
-        `The fixture job was not created: HTTP ${jobResponse.status}. ${tail(containerLog, 800)}`,
-      );
-    }
-
     const crumbResponse = await jenkinsFetch({port, suffix: '/crumbIssuer/api/json'});
     if (!crumbResponse.ok)
       throw new FixtureError('crumb-unavailable', `Jenkins did not issue a CSRF crumb: HTTP ${crumbResponse.status}`);
     const issued = await crumbResponse.json();
     const crumb = {field: issued.crumbRequestField, value: issued.crumb};
+
+    const createJob = await jenkinsFetch({
+      port,
+      suffix: '/createItem?name=composer-delivery',
+      method: 'POST',
+      crumb,
+      body: jobXml,
+      contentType: 'application/xml',
+    });
+    if (createJob.status !== 200) {
+      containerLog = docker(['logs', '--tail', '400', container], {allowFailure: true}).stdout;
+      throw new FixtureError(
+        'job-create-failed',
+        `The fixture job could not be created: HTTP ${createJob.status} ${tail(await createJob.text(), 400)}`,
+      );
+    }
+    const jobResponse = await jenkinsFetch({port, suffix: '/job/composer-delivery/api/json?tree=name'});
+    if (!jobResponse.ok) {
+      containerLog = docker(['logs', '--tail', '400', container], {allowFailure: true}).stdout;
+      throw new FixtureError(
+        'job-missing',
+        `The fixture job is absent after creation: HTTP ${jobResponse.status}. ${tail(containerLog, 800)}`,
+      );
+    }
 
     const trigger = await jenkinsFetch({
       port,
