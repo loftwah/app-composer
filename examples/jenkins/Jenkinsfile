@@ -1,0 +1,58 @@
+// Local Jenkins LTS fixture pipeline for issue #319.
+//
+// The job checks out this repository from a local file remote, installs the
+// pinned dependencies, then invokes the same one-shot wrapper a human or an
+// agent runs on their own machine. The wrapper adds no scheduler and no hosted
+// service. Production release still requires the explicit --release flag, a
+// clean pushed main checkout and the guarded deploy.
+pipeline {
+  agent any
+
+  options {
+    timeout(time: 25, unit: 'MINUTES')
+    buildDiscarder(logRotator(numToKeepStr: '5'))
+  }
+
+  environment {
+    COMPOSER_RUN_URL = "${env.BUILD_URL}"
+  }
+
+  stages {
+    stage('Runner identity') {
+      steps {
+        sh '''
+          set -eu
+          node --version
+          pnpm --version
+          git rev-parse HEAD
+          echo "Jenkins build ${BUILD_NUMBER} at ${COMPOSER_RUN_URL}"
+        '''
+      }
+    }
+
+    stage('Install pinned dependencies') {
+      steps {
+        sh 'pnpm install --frozen-lockfile'
+      }
+    }
+
+    stage('Candidate delivery journey') {
+      steps {
+        sh '''
+          set -eu
+          examples/local-delivery-runner.sh --candidate \
+            --runner jenkins \
+            --run-id "$COMPOSER_RUN_URL" \
+            --run-url "$COMPOSER_RUN_URL" \
+            --receipt "$WORKSPACE/evidence/candidate.json"
+        '''
+      }
+    }
+  }
+
+  post {
+    always {
+      archiveArtifacts artifacts: 'evidence/candidate.json', allowEmptyArchive: true
+    }
+  }
+}

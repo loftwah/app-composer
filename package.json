@@ -12,6 +12,7 @@
     "test": "node --test --test-concurrency=2 tests/*.test.mjs",
     "deploy": "node scripts/deploy.mjs",
     "delivery": "node scripts/delivery-journey.mjs",
+  "delivery:jenkins": "node scripts/jenkins-fixture.mjs",
     "ready": "node scripts/ready.mjs",
     "compose": "node scripts/compose.mjs",
     "ui:assets": "node scripts/public-ui-assets.mjs",

@@ -12,9 +12,11 @@ import {
   isReleaseEligible,
   previewBuildEnvironment,
   productionEnvironment,
+  readArtefactIdentity,
   readSourceIdentity,
   receiptSchema,
   runDeliveryJourney,
+  selectRunner,
 } from '../scripts/delivery-journey.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -382,4 +384,123 @@ test('a failed candidate build is reported as failed and never as a candidate', 
   assert.equal(receipt.candidate, null);
   assert.equal(receipt.release.performed, false);
   assert.match(receipt.nextAction, /Nothing was uploaded/);
+});
+
+test('runner identity is recorded explicitly, detected or local, and never grants approval', () => {
+  assert.deepEqual(selectRunner({environment: {}}), {
+    kind: 'local',
+    local: true,
+    runId: null,
+    runUrl: null,
+    source: 'default',
+  });
+  assert.deepEqual(
+    selectRunner({
+      environment: {
+        JENKINS_URL: 'http://localhost:8080/',
+        BUILD_NUMBER: '7',
+        BUILD_URL: 'http://localhost:8080/job/composer-delivery/7/',
+      },
+    }),
+    {
+      kind: 'jenkins',
+      local: false,
+      runId: 'http://localhost:8080/job/composer-delivery/7/',
+      runUrl: 'http://localhost:8080/job/composer-delivery/7/',
+      source: 'environment',
+    },
+  );
+  assert.equal(selectRunner({kind: 'gitlab', runId: 'pipeline-1', environment: {}}).kind, 'gitlab');
+  for (const refused of [
+    {kind: 'teamcity'},
+    {kind: 'local', runId: 'x'},
+    {kind: 'jenkins', runId: 'x'.repeat(301)},
+    {kind: 'jenkins', runId: 'bad\u0000id'},
+    {kind: 'jenkins', runUrl: 'ftp://example.test/run'},
+  ]) {
+    assert.throws(() => selectRunner({...refused, environment: {}}), error => error.code === 'runner-identity' || error.code === 'runner-kind');
+  }
+});
+
+test('an external run records its own run id while staying a candidate', async t => {
+  const workspace = workspaceFixture(t);
+  const receipt = await runDeliveryJourney({
+    workspace,
+    mode: 'candidate',
+    source: source(),
+    environment: {},
+    runner: selectRunner({
+      kind: 'jenkins',
+      runId: 'http://localhost:8080/job/composer-delivery/1/',
+      runUrl: 'http://localhost:8080/job/composer-delivery/1/',
+    }),
+    execute: async () => {},
+    verify: async () => assert.fail('candidate must not verify live'),
+  });
+  assert.equal(receipt.runner.kind, 'jenkins');
+  assert.equal(receipt.runner.local, false);
+  assert.equal(receipt.runner.runId, 'http://localhost:8080/job/composer-delivery/1/');
+  assert.equal(receipt.state, 'passed');
+  assert.equal(receipt.release.performed, false);
+  assert.equal(receipt.verification.performed, false);
+});
+
+test('the default journey records a local runner with no external identity', async t => {
+  const workspace = workspaceFixture(t);
+  const receipt = await runDeliveryJourney({
+    workspace,
+    mode: 'local',
+    source: source(),
+    environment: {},
+    execute: async () => {},
+    verify: async () => assert.fail('local checks must not verify live'),
+  });
+  assert.equal(receipt.runner.kind, 'local');
+  assert.equal(receipt.runner.local, true);
+  assert.equal(receipt.runner.runId, null);
+  assert.equal(receipt.runner.source, 'default');
+});
+
+test('the build artefact identity is deterministic and changes with the output', t => {
+  const workspace = workspaceFixture(t);
+  mkdirSync(join(workspace, 'dist', 'client'), {recursive: true});
+  writeFileSync(join(workspace, 'dist', 'client', 'app.js'), 'console.log(1)\n');
+  const first = readArtefactIdentity(workspace);
+  assert.equal(first.path, 'dist');
+  assert.ok(first.files >= 2);
+  assert.match(first.digest, /^sha256:[a-f0-9]{64}$/);
+  assert.deepEqual(readArtefactIdentity(workspace), first);
+  writeFileSync(join(workspace, 'dist', 'client', 'app.js'), 'console.log(2)\n');
+  const second = readArtefactIdentity(workspace);
+  assert.notEqual(second.digest, first.digest);
+  assert.equal(readArtefactIdentity(workspace, 'missing'), null);
+});
+
+test('candidate and release receipts record the artefact they actually built', async t => {
+  const candidateWorkspace = workspaceFixture(t);
+  const candidate = await runDeliveryJourney({
+    workspace: candidateWorkspace,
+    mode: 'candidate',
+    source: source(),
+    environment: {},
+    execute: async () => {},
+    verify: async () => assert.fail('candidate must not verify live'),
+  });
+  assert.ok(candidate.artefact);
+  assert.deepEqual(candidate.candidate.artefact, candidate.artefact);
+  assert.match(candidate.artefact.digest, /^sha256:[a-f0-9]{64}$/);
+
+  const releaseWorkspace = workspaceFixture(t);
+  const release = await runDeliveryJourney({
+    workspace: releaseWorkspace,
+    mode: 'release',
+    source: source(),
+    environment: {},
+    execute: async () => {},
+    verify: async () => {},
+  });
+  assert.equal(release.state, 'passed');
+  assert.ok(release.artefact);
+  assert.match(release.artefact.digest, /^sha256:[a-f0-9]{64}$/);
+  assert.equal(release.candidate, null);
 });

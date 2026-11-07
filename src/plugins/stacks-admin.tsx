@@ -13,6 +13,7 @@ import { ConnectionsPage } from "./connections-page";
 import { IncidentsPage } from "./incidents-page";
 import { BrandStudioPage } from "./brand-studio-page";
 import { PluginTrustPage } from "./plugin-trust-page";
+import { DeliveryRunsPage } from "./delivery-runs-page";
 import { StackStatusPage } from "./stack-status-page";
 import { ProposalsPage } from "./proposals-page";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
@@ -2054,6 +2055,7 @@ export const pages: PluginAdminExports["pages"] = {
   "/proposals": ProposalsPage,
   "/plugin-trust": PluginTrustPage,
   "/stack-status": StackStatusPage,
+  "/delivery": DeliveryRunsPage,
   "/brand-studio": BrandStudioPage,
   "/incidents": IncidentsPage,
 };

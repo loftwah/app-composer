@@ -6,8 +6,8 @@
 // clean pushed main checkout and the existing guarded deploy script.
 import {execFileSync, spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
-import {dirname, resolve} from 'node:path';
+import {existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync} from 'node:fs';
+import {dirname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {verifyLive} from './verify-live.mjs';
 import {assertProductionTarget} from './deployment-target.mjs';
@@ -27,6 +27,138 @@ const limits = [
 ];
 const previewWarning =
   'The local dist directory now contains the preview candidate. The release step rebuilds production before upload.';
+
+// Runner identity is recorded, never inferred as success. A selected runner is
+// configuration; only the steps and the independent live read are evidence.
+export const runnerKinds = [
+  'local',
+  'jenkins',
+  'gitlab',
+  'buildkite',
+  'azure-pipelines',
+  'circleci',
+  'codebuild',
+  'other',
+];
+const runnerDetectors = [
+  [
+    'jenkins',
+    env => Boolean(env.JENKINS_URL && env.BUILD_NUMBER),
+    env => ({runId: text(env.BUILD_URL) ?? text(env.BUILD_TAG) ?? text(env.BUILD_NUMBER), runUrl: text(env.BUILD_URL)}),
+  ],
+  [
+    'gitlab',
+    env => env.GITLAB_CI === 'true',
+    env => ({runId: text(env.CI_PIPELINE_URL) ?? text(env.CI_PIPELINE_ID), runUrl: text(env.CI_PIPELINE_URL)}),
+  ],
+  [
+    'buildkite',
+    env => env.BUILDKITE === 'true',
+    env => ({runId: text(env.BUILDKITE_BUILD_URL) ?? text(env.BUILDKITE_BUILD_ID), runUrl: text(env.BUILDKITE_BUILD_URL)}),
+  ],
+  [
+    'azure-pipelines',
+    env => String(env.TF_BUILD ?? '').toLowerCase() === 'true',
+    env => {
+      const server = text(env.SYSTEM_TEAMFOUNDATIONSERVERURI)?.replace(/\/$/, '') ?? null;
+      const build = text(env.BUILD_BUILDID);
+      const url = server && build ? `${server}/_build/results?buildId=${build}` : null;
+      return {runId: url ?? build, runUrl: url};
+    },
+  ],
+  [
+    'circleci',
+    env => Boolean(env.CIRCLECI),
+    env => ({runId: text(env.CIRCLE_BUILD_URL) ?? text(env.CIRCLE_WORKFLOW_ID), runUrl: text(env.CIRCLE_BUILD_URL)}),
+  ],
+  [
+    'codebuild',
+    env => Boolean(env.CODEBUILD_BUILD_ID),
+    env => ({runId: text(env.CODEBUILD_BUILD_ID), runUrl: null}),
+  ],
+];
+
+function boundedIdentity(value, limit, label) {
+  const selected = text(value);
+  if (!selected) return null;
+  if (selected.length > limit) throw new DeliveryRefusal('runner-identity', `${label} is longer than ${limit} characters.`);
+  if (/[\u0000-\u001f\u007f]/.test(selected))
+    throw new DeliveryRefusal('runner-identity', `${label} must not contain control characters.`);
+  return selected;
+}
+
+/**
+ * Resolve the runner identity for a receipt. An explicit `--runner` wins; a
+ * well-known CI environment is detected next; otherwise the run is local.
+ * Detection never changes which steps run and never grants approval.
+ */
+export function selectRunner({kind = null, runId = null, runUrl = null, environment = process.env} = {}) {
+  const env = environment ?? {};
+  let selected = text(kind);
+  let selectedRunId = boundedIdentity(runId, 300, 'Run ID');
+  let selectedRunUrl = boundedIdentity(runUrl, 500, 'Run URL');
+  let source = 'flag';
+  if (selected) {
+    if (!runnerKinds.includes(selected))
+      throw new DeliveryRefusal('runner-kind', `Select a supported runner: ${runnerKinds.join(', ')}.`);
+  } else {
+    const detected = runnerDetectors.find(([, matches]) => matches(env));
+    if (detected) {
+      selected = detected[0];
+      const identity = detected[2](env);
+      selectedRunId = selectedRunId ?? boundedIdentity(identity.runId, 300, 'Run ID');
+      selectedRunUrl = selectedRunUrl ?? boundedIdentity(identity.runUrl, 500, 'Run URL');
+      source = 'environment';
+    } else {
+      selected = 'local';
+      source = 'default';
+    }
+  }
+  if (selected === 'local' && (runId || runUrl))
+    throw new DeliveryRefusal(
+      'runner-identity',
+      'A local run has no external run id. Pass --runner with the actual runner instead.',
+    );
+  if (selectedRunUrl && !/^https?:\/\/[^\s]+$/.test(selectedRunUrl))
+    throw new DeliveryRefusal('runner-identity', 'A run URL must be an http or https URL.');
+  return {kind: selected, local: selected === 'local', runId: selectedRunId, runUrl: selectedRunUrl, source};
+}
+
+/**
+ * Deterministic identity of a build output directory. Symlinks are refused so
+ * the digest can never cover a file outside the workspace.
+ */
+export function readArtefactIdentity(workspace = process.cwd(), directory = 'dist') {
+  const root = resolve(workspace, directory);
+  if (!existsSync(root)) return null;
+  const digest = createHash('sha256');
+  let files = 0;
+  let bytes = 0;
+  const walk = folder => {
+    const entries = readdirSync(folder, {withFileTypes: true}).sort((left, right) =>
+      left.name < right.name ? -1 : left.name > right.name ? 1 : 0,
+    );
+    for (const entry of entries) {
+      const path = join(folder, entry.name);
+      const stats = lstatSync(path);
+      if (stats.isSymbolicLink())
+        throw new DeliveryRefusal('artefact-symlink', 'The build output contains a symlink; it cannot be identified safely.');
+      if (stats.isDirectory()) {
+        walk(path);
+        continue;
+      }
+      if (!stats.isFile()) continue;
+      const relative = path.slice(root.length + 1);
+      digest.update(`${relative}\n`);
+      digest.update(createHash('sha256').update(readFileSync(path)).digest('hex'));
+      digest.update('\n');
+      files += 1;
+      bytes += stats.size;
+    }
+  };
+  walk(root);
+  return {path: directory, files, bytes, digest: `sha256:${digest.digest('hex')}`};
+}
 
 export class DeliveryRefusal extends Error {
   constructor(code, message) {
@@ -345,6 +477,7 @@ export async function runDeliveryJourney({
   verify = verifyLive,
   source = null,
   environment = process.env,
+  runner = null,
   now = () => new Date(),
 } = {}) {
   if (!(mode in modeFlags)) throw new DeliveryRefusal('unknown-mode', 'Select local, candidate, release or verify.');
@@ -355,9 +488,11 @@ export async function runDeliveryJourney({
     mode,
     state: 'refused',
     generatedAt: started.toISOString(),
+    runner: {kind: 'local', local: true, runId: null, runUrl: null, source: 'default'},
     source: null,
     target: null,
     steps,
+    artefact: null,
     candidate: null,
     release: {attempted: false, performed: false, command: null, commit: null, checks: null},
     verification: {performed: false, independent: false, verifier: 'scripts/verify-live.mjs', origin: null},
@@ -371,6 +506,7 @@ export async function runDeliveryJourney({
   try {
     const facts = source ?? readSourceIdentity({workspace});
     receipt.source = sourceReceipt(facts);
+    receipt.runner = runner ?? selectRunner({environment});
 
     if (mode === 'candidate') assertCandidateSource(facts);
     if (mode === 'release' || mode === 'verify') assertReleaseSource(facts);
@@ -414,6 +550,7 @@ export async function runDeliveryJourney({
       const generated = readGeneratedConfig(workspace);
       assertPreviewGenerated(generated.config, selectedTarget.config);
       const digest = createHash('sha256').update(generated.bytes).digest('hex');
+      receipt.artefact = readArtefactIdentity(workspace);
       receipt.candidate = {
         built: true,
         uploaded: false,
@@ -422,6 +559,7 @@ export async function runDeliveryJourney({
         origin: generated.config.vars?.PUBLIC_ORIGIN ?? null,
         configPath: 'dist/server/wrangler.json',
         digest: `sha256:${digest}`,
+        artefact: receipt.artefact,
         isolation: receipt.target.preview,
         warning: previewWarning,
       };
@@ -456,6 +594,7 @@ export async function runDeliveryJourney({
         throw error;
       }
       receipt.release = {attempted: true, performed: true, command: 'pnpm deploy', commit: facts.commit, checks: 'pnpm check and pnpm build run inside the guarded deploy'};
+      receipt.artefact = readArtefactIdentity(workspace);
       const verifyStarted = Date.now();
       try {
         await verify(facts.commit, selectedTarget.lock, selectedTarget.identity.origin);
@@ -527,6 +666,11 @@ export function humanSummary(receipt, receiptPath = null) {
   const lines = [];
   lines.push(`App Composer delivery journey — ${receipt.mode}`);
   lines.push(
+    receipt.runner?.local
+      ? 'Runner: local session'
+      : `Runner: ${receipt.runner?.kind}${receipt.runner?.runId ? ` · ${receipt.runner.runId}` : ''}${receipt.runner?.source === 'environment' ? ' (detected)' : ''}`,
+  );
+  lines.push(
     source?.available
       ? `Source: ${source.branch ?? '(detached)'} @ ${source.commit.slice(0, 12)}${source.dirty ? ' (changed files present)' : ''}${source.pushed ? ` (pushed to origin/${source.branch})` : ' (not pushed)'}`
       : 'Source: no Git checkout',
@@ -543,6 +687,8 @@ export function humanSummary(receipt, receiptPath = null) {
     lines.push(`${step.state === 'passed' ? 'PASS' : 'FAIL'} ${step.label}: ${step.command} (${(step.durationMs / 1000).toFixed(1)}s)${step.error ? ` — ${step.error}` : ''}`);
   if (receipt.candidate)
     lines.push(`Candidate: ${receipt.candidate.worker} · ${receipt.candidate.digest} · uploaded: no`);
+  if (receipt.artefact)
+    lines.push(`Artefact: ${receipt.artefact.path} · ${receipt.artefact.files} files · ${receipt.artefact.bytes} bytes · ${receipt.artefact.digest}`);
   if (receipt.verification.performed) lines.push(`Verified: ${receipt.verification.origin} independently via ${receipt.verification.verifier}`);
   lines.push(`State: ${receipt.state}`);
   if (receipt.error) lines.push(`Reason: ${receipt.error.code} — ${receipt.error.message}`);
@@ -555,6 +701,7 @@ function parseArguments(argv) {
   let mode = 'local';
   let receiptPath = null;
   let json = false;
+  const runner = {kind: null, runId: null, runUrl: null};
   const selectedModes = [];
   for (let index = 0; index < argv.length; index++) {
     const argument = argv[index];
@@ -563,25 +710,34 @@ function parseArguments(argv) {
       json = true;
       continue;
     }
-    if (argument === '--receipt') {
+    if (argument === '--receipt' || argument === '--runner' || argument === '--run-id' || argument === '--run-url') {
       const value = argv[++index];
-      if (!value || value.startsWith('--')) throw new DeliveryRefusal('receipt-path', '--receipt needs an explicit file path.');
-      receiptPath = value;
+      if (!value || value.startsWith('--')) throw new DeliveryRefusal(`${argument.slice(2)}-value`, `${argument} needs an explicit value.`);
+      if (argument === '--receipt') receiptPath = value;
+      else if (argument === '--runner') runner.kind = value;
+      else if (argument === '--run-id') runner.runId = value;
+      else runner.runUrl = value;
       continue;
     }
     const found = Object.entries(modeFlags).find(([, flag]) => flag === argument);
-    if (!found) throw new DeliveryRefusal('unknown-option', `Unsupported option ${argument}. Use --local, --candidate, --release, --verify, --json or --receipt PATH.`);
+    if (!found) throw new DeliveryRefusal('unknown-option', `Unsupported option ${argument}. Use --local, --candidate, --release, --verify, --runner, --run-id, --run-url, --json or --receipt PATH.`);
     selectedModes.push(found[0]);
   }
   if (selectedModes.length > 1) throw new DeliveryRefusal('multiple-modes', 'Select one delivery mode.');
   if (selectedModes.length === 1) mode = selectedModes[0];
-  return {mode, receiptPath, json};
+  return {mode, receiptPath, json, runner};
 }
 
 async function main() {
   let parsed;
+  let runner;
   try {
     parsed = parseArguments(process.argv.slice(2));
+    if (parsed.help) {
+      parsed = {help: true};
+    } else {
+      runner = selectRunner(parsed.runner);
+    }
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     process.exitCode = 1;
@@ -590,13 +746,17 @@ async function main() {
   if (parsed.help) {
     process.stdout.write(`App Composer local-first delivery.
 
-Usage: node scripts/delivery-journey.mjs [--local|--candidate|--release|--verify] [--json] [--receipt PATH]
+Usage: node scripts/delivery-journey.mjs [--local|--candidate|--release|--verify] [--runner KIND] [--run-id ID] [--run-url URL] [--json] [--receipt PATH]
 
   --local      Default. Inspect source/target, run pnpm check and refuse to release.
   --candidate  Check, then build and inspect a local preview candidate. No upload.
   --release    Check clean pushed main, run pnpm deploy
                and independently verify the live source. Explicit approval only.
   --verify     Re-read the live root and mounted pins from clean pushed main.
+  --runner     Record the actual runner: ${runnerKinds.join(', ')}. Detected from a known CI
+               environment when omitted. A recorded runner grants no approval.
+  --run-id     The runner's own run identifier, recorded verbatim in the receipt.
+  --run-url    The runner's http(s) run URL, recorded in the receipt. It is never fetched.
   --json       Print only the bounded machine-readable receipt.
   --receipt    Also write the same receipt to an explicit path (for example output/delivery/receipt.json).
 
@@ -604,7 +764,7 @@ No GitHub Actions, recurring process, cloud resource creation or automatic retry
 `);
     return;
   }
-  const receipt = await runDeliveryJourney({mode: parsed.mode});
+  const receipt = await runDeliveryJourney({mode: parsed.mode, runner});
   if (parsed.json) process.stdout.write(`${JSON.stringify(receipt, null, 2)}\n`);
   else process.stdout.write(`${humanSummary(receipt, parsed.receiptPath)}\n`);
   if (parsed.receiptPath) {

@@ -105,6 +105,13 @@ Every mode emits the same bounded schema. A successful release looks like this i
   "schema": "app-composer.delivery-receipt/1",
   "mode": "release",
   "state": "passed",
+  "runner": {
+    "kind": "jenkins",
+    "local": false,
+    "runId": "http://localhost:8080/job/composer-delivery/1/",
+    "runUrl": "http://localhost:8080/job/composer-delivery/1/",
+    "source": "flag"
+  },
   "source": {
     "repository": "loftwah/app-composer",
     "branch": "main",
@@ -123,6 +130,7 @@ Every mode emits the same bounded schema. A successful release looks like this i
     "preview": {"worker": "app-composer-preview", "isolated": true, "services": 0}
   },
   "steps": ["local checks or delegated release steps with durations"],
+  "artefact": {"path": "dist", "files": 1294, "bytes": 60087731, "digest": "sha256:<build digest>"},
   "candidate": null,
   "release": {"attempted": true, "performed": true, "command": "pnpm deploy", "commit": "<SHA>"},
   "verification": {"performed": true, "independent": true, "origin": "https://composer.loftwah.com"},
@@ -130,7 +138,40 @@ Every mode emits the same bounded schema. A successful release looks like this i
 }
 ```
 
-The receipt contains no tokens, private keys or command output. It records the exact source commit, target account, Worker, environment, origin, composition pins and step outcomes. A refusal or failure still produces a receipt with a bounded `error.code` and `error.message`.
+The receipt contains no tokens, private keys or command output. It records the exact source commit, target account, Worker, environment, origin, composition pins, runner identity, build-artefact digest and step outcomes. A refusal or failure still produces a receipt with a bounded `error.code` and `error.message`.
+
+### Runner identity
+
+`--runner`, `--run-id` and `--run-url` record which runner actually executed the
+journey. When they are omitted, a known CI environment is detected
+(`JENKINS_URL`/`BUILD_NUMBER`, `GITLAB_CI`, `BUILDKITE`, `TF_BUILD`,
+`CIRCLECI`, `CODEBUILD_BUILD_ID`) and the run is otherwise `local`. A recorded
+runner is evidence of provenance only: it grants no approval and does not
+change which steps run. `--run-url` is stored, never fetched.
+
+### Artefact identity
+
+`artefact` is a deterministic SHA-256 over the sorted `dist/` file list and
+each file's own digest, with the file count and byte size. A candidate records
+the same object under `candidate.artefact`. Symlinks are refused so a digest
+can never cover a file outside the workspace. Changing any built file changes
+the digest; rebuilding the same source with the same inputs reproduces it.
+
+## Delivery runs in EmDash
+
+The owner-only **Delivery runs** admin page (`/delivery`) records a bounded
+receipt from the local journey or an existing runner and lists the newest 20.
+For a release receipt it re-reads the live `/build.json` in the owner's browser
+and reports whether the live commit matches the recorded release. A recorded
+receipt is never approval, and the page never deploys or changes a target.
+
+Paste the receipt JSON or open the file the journey wrote:
+
+```sh
+node scripts/delivery-journey.mjs --candidate --receipt output/delivery/candidate.json
+```
+
+The page is not public and is not linked from the public site.
 
 ## Actual local run
 
@@ -194,5 +235,32 @@ examples/local-delivery-runner.sh --verify
 ```
 
 The authoritative gate is the `--release` flag inside the journey. An existing Jenkins, GitLab, Buildkite, Azure DevOps, CircleCI or CodeBuild job may call the wrapper instead of reimplementing the commands. That integration is optional and user-owned. Composer does not provision it, and none of these providers is required.
+
+### Qualified local Jenkins fixture
+
+Jenkins is the one external runner exercised against a real job, on the
+operator's machine, with no hosted CI:
+
+- [`examples/jenkins/Dockerfile`](../examples/jenkins/Dockerfile) builds a
+  disposable Jenkins LTS image with Node 22 and the pinned pnpm. Nothing is
+  published and no service is left running.
+- [`examples/jenkins/Jenkinsfile`](../examples/jenkins/Jenkinsfile) checks out
+  the repository, installs the pinned dependencies and runs
+  `examples/local-delivery-runner.sh --candidate --runner jenkins --run-id
+  "$BUILD_URL" --run-url "$BUILD_URL"`.
+- `pnpm delivery:jenkins` (`scripts/jenkins-fixture.mjs`) starts one container
+  against a temporary clone, triggers the job, and compares the Jenkins build
+  URL/number with `runner.runId`, the clone commit with `source.commit`, the
+  candidate configuration digest and build-artefact digest, the recorded
+  check/build steps, and the no-upload flags. It writes bounded evidence under
+  `output/evidence/` and removes the container, `JENKINS_HOME`, the clone and
+  its temporary root afterwards.
+
+The fixture proves the candidate contract only. It does not approve or perform a
+release: a Jenkins run with `--release` would still need clean pushed `main`, the
+guarded deploy and an independent live read.
+
+GitLab, Buildkite, Azure Pipelines, CircleCI and CodeBuild stay templates until
+one is exercised the same way; the repository ships no generator for them.
 
 The same commands are importable for an agent through `runDeliveryJourney()` in `scripts/delivery-journey.mjs`; the CLI is the supported human interface.

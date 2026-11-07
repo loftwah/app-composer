@@ -25,6 +25,7 @@ import {
 } from "./agent-proposals.ts";
 import { manageAdminBrand } from "./admin-brand.ts";
 import { managePluginTrust } from "./plugin-trust.ts";
+import { manageDeliveryRuns } from "./delivery-runs.ts";
 import { manageStackStatus } from "./stack-status-admin.ts";
 import { manageProviderInventory } from "./provider-read.ts";
 
@@ -62,6 +63,7 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
           icon: "shield-check",
         },
         { path: "/stack-status", label: "Stack status", icon: "stack" },
+        { path: "/delivery", label: "Delivery runs", icon: "rocket" },
         { path: "/brand-studio", label: "Brand Studio", icon: "palette" },
         { path: "/incidents", label: "Incident Desk", icon: "first-aid-kit" },
       ],
@@ -93,6 +95,17 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         methods: ["GET"],
         permission: "plugins:manage",
         handler: (ctx) => manageStackStatus(ctx),
+      },
+      deliveryRead: {
+        methods: ["GET"],
+        permission: "plugins:manage",
+        handler: (ctx) => manageDeliveryRuns(ctx, runtime),
+      },
+      deliveryWrite: {
+        methods: ["POST"],
+        permission: "plugins:manage",
+        request: { body: "json", maxBytes: 26000 },
+        handler: (ctx) => manageDeliveryRuns(ctx, runtime),
       },
       proposalsRead: {
         methods: ["GET"],
