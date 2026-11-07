@@ -1,6 +1,8 @@
 import type { IncidentSitrep as Sitrep } from "../lib/incident-contract";
 
-export function IncidentSitrep({ incident }: { incident: Sitrep }) {
+export function IncidentSitrep({ incident, level = 3 }: { incident: Sitrep; level?: 2 | 3 }) {
+  const Heading = `h${level}` as "h2" | "h3";
+  const Subheading = `h${level + 1}` as "h3" | "h4";
   return (
     <section className="incident-sitrep" aria-label="Situation report">
       <div className="incident-mode">
@@ -9,7 +11,7 @@ export function IncidentSitrep({ incident }: { incident: Sitrep }) {
         </strong>
         <span>{incident.id}</span>
       </div>
-      <h3>Situation report</h3>
+      <Heading>Situation report</Heading>
       <p className="incident-impact">{incident.impact}</p>
       <dl className="ap-facts">
         <dt>Service / owner</dt>
@@ -39,7 +41,7 @@ export function IncidentSitrep({ incident }: { incident: Sitrep }) {
         <dt>PagerDuty</dt>
         <dd>Not connected</dd>
       </dl>
-      <h4>Observed</h4>
+      <Subheading>Observed</Subheading>
       <ul>
         {incident.observations.map((item, index) => (
           <li key={index}>
@@ -47,7 +49,7 @@ export function IncidentSitrep({ incident }: { incident: Sitrep }) {
           </li>
         ))}
       </ul>
-      <h4>Hypotheses to test</h4>
+      <Subheading>Hypotheses to test</Subheading>
       <ol>
         {incident.hypotheses.map((item, index) => (
           <li key={index}>
@@ -56,7 +58,7 @@ export function IncidentSitrep({ incident }: { incident: Sitrep }) {
           </li>
         ))}
       </ol>
-      <h4>Steps already taken</h4>
+      <Subheading>Steps already taken</Subheading>
       {incident.stepsTaken.length ? (
         <ul>
           {incident.stepsTaken.map((item, index) => (
@@ -66,7 +68,7 @@ export function IncidentSitrep({ incident }: { incident: Sitrep }) {
       ) : (
         <p>No response action recorded.</p>
       )}
-      <h4>Unknowns and blockers</h4>
+      <Subheading>Unknowns and blockers</Subheading>
       <ul>
         {incident.unknowns.map((item, index) => (
           <li key={index}>{item}</li>
