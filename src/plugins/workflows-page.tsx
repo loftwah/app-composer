@@ -29,10 +29,8 @@ function leadTitle(lead: WorkflowLead) {
 }
 
 function leadState(lead: WorkflowLead) {
-  if (lead.kind === "attention")
-    return "Needs attention" + (lead.run.synthetic ? " · Sample data" : "");
-  if (lead.kind === "finished")
-    return "Finished" + (lead.run.synthetic ? " · Sample data" : "");
+  if (lead.kind === "attention") return "Needs attention";
+  if (lead.kind === "finished") return "Finished";
   if (lead.kind === "waiting") return "Waiting for events";
   return "Paused";
 }

@@ -150,7 +150,7 @@ test("a finished run without a result leads only when its recipe can scan", () =
   assert.equal(scannable.scanAvailable, true);
 });
 
-test("a sample failure appears only when no real run is retained", () => {
+test("sample runs stay in history and never become the page lead", () => {
   const real = run({ id: IDs[1], createdAt: "2026-11-06 21:00:00" });
   const sample = run({
     id: IDs[2],
@@ -167,12 +167,15 @@ test("a sample failure appears only when no real run is retained", () => {
 
   const sampleOnly = workflowLead(
     snapshot({
-      recipes: { "operation-attention": { enabled: false } },
+      recipes: {
+        "release-summary": { enabled: false },
+        "operation-attention": { enabled: false },
+      },
       runs: [sample],
     }),
   );
-  assert.equal(sampleOnly.kind, "attention");
-  assert.equal(sampleOnly.run.synthetic, true);
+  assert.equal(sampleOnly.kind, "paused");
+  assert.equal(sampleOnly.recipe.id, "release-summary");
 });
 
 test("an enabled recipe waiting for events leads when no run is retained", () => {

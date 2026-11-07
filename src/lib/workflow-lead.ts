@@ -27,28 +27,21 @@ export function workflowIsoTime(value: string) {
   return Number.isFinite(time) ? new Date(time).toISOString() : value;
 }
 
-/** Real runs lead over samples; samples appear only when no real run exists. */
-function realRuns(runs: WorkflowRun[]) {
-  const real = runs.filter((run) => !run.synthetic);
-  return real.length ? real : runs;
-}
-
-/** Selects one retained state without inventing a run or an action. Retry is
- * offered only while the retaining recipe is still on; sample retries do not
- * depend on it, matching the existing server contract. */
+/** Real runs lead the page. Sample runs stay labelled in history: they are
+ * deterministic fictional activity, not the workspace's current state. */
 export function workflowLead(snapshot: WorkflowSnapshot): WorkflowLead {
   const recipe = (id: WorkflowKind) =>
     snapshot.recipes.find((value) => value.id === id)!;
-  const runs = [...snapshot.runs].sort(
-    (left, right) =>
-      right.createdAt.localeCompare(left.createdAt) ||
-      right.id.localeCompare(left.id),
-  );
-  const pool = realRuns(runs);
-  const actionable = (run: WorkflowRun) =>
-    run.synthetic || recipe(run.recipe).enabled;
+  const runs = snapshot.runs
+    .filter((run) => !run.synthetic)
+    .sort(
+      (left, right) =>
+        right.createdAt.localeCompare(left.createdAt) ||
+        right.id.localeCompare(left.id),
+    );
+  const actionable = (run: WorkflowRun) => recipe(run.recipe).enabled;
 
-  const attention = pool.find(
+  const attention = runs.find(
     (run) =>
       run.state === "needs-attention" && run.retryable && actionable(run),
   );
@@ -59,7 +52,7 @@ export function workflowLead(snapshot: WorkflowSnapshot): WorkflowLead {
       run: attention,
     };
 
-  const finished = pool.find(
+  const finished = runs.find(
     (run) => run.state === "finished" && Boolean(run.result || actionable(run)),
   );
   if (finished)
