@@ -258,7 +258,7 @@ export function Orders({ search }: { search: string }) {
                       ? "Waiting for a current-state observation"
                       : lead.kind === "fulfilment"
                         ? "Paid · fulfilment draft available"
-                        : "Paid · fixture record"}
+                        : "Current fixture state"}
               </p>
               <p className="or-lead-facts">
                 <span>

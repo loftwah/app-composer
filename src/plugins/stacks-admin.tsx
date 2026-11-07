@@ -880,12 +880,6 @@ function WorkspaceStudio({ search }: { search: string }) {
       <div className="ca-heading">
         <div>
           <h1>Creator stacks</h1>
-          <p>
-            Save a named composition of reviewed mini-apps, configure each
-            instance from the settings its app declares, preview the real page
-            and publish one shareable revision. The apps keep their own records,
-            media and credentials.
-          </p>
         </div>
         {role !== "viewer" && (
           <button
@@ -903,12 +897,6 @@ function WorkspaceStudio({ search }: { search: string }) {
           </button>
         )}
       </div>
-      <p>
-        <a href={`/_emdash/admin/plugins/composer-stacks/workspaces${workspace ? `?workspace=${workspace.id}` : ''}`}
-          aria-disabled={busy} onClick={event => { if (pending.current) event.preventDefault(); }}>
-          Workspace access
-        </a>
-      </p>
       {workspace && (
       <p className="ca-muted">
           Workspace <strong>{workspace.name}</strong> ·{" "}
@@ -1118,6 +1106,23 @@ function WorkspaceStudio({ search }: { search: string }) {
           </p>
         </section>
       )}
+      <p>
+        Save a named composition of reviewed mini-apps, configure each instance
+        from the settings its app declares, preview the real page and publish one
+        shareable revision. The apps keep their own records, media and
+        credentials.
+      </p>
+      <p>
+        <a
+          href={`/_emdash/admin/plugins/composer-stacks/workspaces${workspace ? `?workspace=${workspace.id}` : ""}`}
+          aria-disabled={busy}
+          onClick={(event) => {
+            if (pending.current) event.preventDefault();
+          }}
+        >
+          Workspace access
+        </a>
+      </p>
       {workspace && lifecycle === "governed" && (
         <section className="ca-card-row" aria-label="Governed stack workflow">
           <h2>Changes use application requests</h2>
