@@ -457,7 +457,7 @@ export const rolePacks: readonly RolePack[] = [
       'Route remediation and exceptions to the accountable owner. Verify the fix independently before calling the finding closed.',
     ],
     related: [
-      { label: 'Security policy', href: '/security' },
+      { label: 'Security policy', href: 'https://github.com/loftwah/app-composer/blob/main/SECURITY.md' },
       { label: 'Incident runbook', href: '/resources/incident' },
     ],
   },
