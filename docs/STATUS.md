@@ -2,6 +2,33 @@
 
 Reviewed 25 October 2026; updated 7 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## App-owned capability effect — 7 November 2026
+
+Production is Composer `75f97727093750782264acd821539cb639d0bc32`,
+Worker `1c6fe80d-1767-43d2-8e10-58999a74c5b9`, from the clean pushed-main
+release guard. `/build.json` matched the source. The deploy ran 459 tests with
+zero failures after the sandbox's commit-signing configuration was disabled for
+test fixtures, then the production build, remote migrations, live source and
+pinned-service checks, sharing output, publication privacy and the anonymous
+administration boundary.
+
+[#412](https://github.com/loftwah/app-composer/issues/412)'s first real effect is
+now proven end to end. `/capabilities.json` advertises the Guestbook
+`submit-postcard` effect with its real path, `guest-invitation` availability,
+required guest code and consent, and mandatory confirmation. Guestbook
+`e668c84cf45c8a16ba36015c7bce13c014cf3a38` (Worker `68cc5da7`) and Linkarooie
+`131fe0144e1690bd68e95be8330cdcd9059d3b3f` (Worker `583f07ac`) deploy their
+app-owned declarations. A fresh caller read the live invitation, was refused
+with a wrong code without changing the pending count, then submitted one
+fictional postcard through the app's own API; it is pending, private, absent from
+the public collection and its media path is `404`. No owner credential or
+customer data was used. Evidence:
+[app capability effect](evidence/app-capability-effect-20261107/README.md).
+
+The composition pin remains `5075d7be…` / `f1dd2795…`; promoting the standalone
+app revisions through the composed services is a separate release decision, not
+a hidden claim in this receipt.
+
 ## Job-led discovery — 7 November 2026
 
 Production is Composer `5ee5574b10b3c7b62ede8b3451b382a7fc9180ad`,

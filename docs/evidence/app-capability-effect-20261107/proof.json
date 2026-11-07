@@ -1,0 +1,46 @@
+{
+  "checked": "2026-11-07T07:28:16.258Z",
+  "catalogue": {
+    "url": "https://composer.loftwah.com/capabilities.json",
+    "reviewed": "2026-11-07",
+    "operation": {
+      "name": "submit-postcard",
+      "description": "Submit one short postcard for owner review. Requires the app-issued guest code, explicit consent and a browser-rendered PNG; it cannot publish, moderate or read private records.",
+      "kind": "effect",
+      "method": "POST",
+      "path": "/r/:resource/api/guest-postcard",
+      "availability": "guest-invitation",
+      "requires": [
+        "guest-invitation-code",
+        "consent"
+      ],
+      "confirmation": true,
+      "verified": "2026-11-07"
+    }
+  },
+  "invitation": {
+    "status": 200,
+    "state": "open",
+    "contribute": "https://guestbook.loftwah.com/r/2056b6dd-bd53-4fe0-afeb-d2985cd417c4/c/1/contribute"
+  },
+  "denied": {
+    "status": 403,
+    "error": "That guest code did not fit. Your message is still here.",
+    "pendingBefore": 1,
+    "pendingAfter": 1,
+    "unchanged": true
+  },
+  "accepted": {
+    "status": 201,
+    "id": "926163b2-2f41-40eb-a99d-141075c94e61",
+    "state": "pending",
+    "message": "Your postcard is with the owner. It stays private unless they approve it.",
+    "pendingBefore": 1,
+    "pendingAfter": 2,
+    "increasedByOne": true
+  },
+  "privacy": {
+    "listedPublicly": false,
+    "mediaStatus": 404
+  }
+}
