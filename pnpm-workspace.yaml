@@ -11,9 +11,26 @@ minimumReleaseAgeExclude:
   - '@cloudflare/workerd-windows-64@1.20261013.1'
   - workerd@1.20261013.1
   - '@cloudflare/workers-types@5.20261024.1'
+  - '@cloudflare/workers-types@5.20261107.1'
   - '@modelcontextprotocol/client@2.4.0'
   - '@modelcontextprotocol/core@2.4.0'
   - '@modelcontextprotocol/server@2.4.0'
+  - '@tailwindcss/node@4.3.5'
+  - '@tailwindcss/oxide-android-arm64@4.3.5'
+  - '@tailwindcss/oxide-darwin-arm64@4.3.5'
+  - '@tailwindcss/oxide-darwin-x64@4.3.5'
+  - '@tailwindcss/oxide-freebsd-x64@4.3.5'
+  - '@tailwindcss/oxide-linux-arm-gnueabihf@4.3.5'
+  - '@tailwindcss/oxide-linux-arm64-gnu@4.3.5'
+  - '@tailwindcss/oxide-linux-arm64-musl@4.3.5'
+  - '@tailwindcss/oxide-linux-x64-gnu@4.3.5'
+  - '@tailwindcss/oxide-linux-x64-musl@4.3.5'
+  - '@tailwindcss/oxide-wasm32-wasi@4.3.5'
+  - '@tailwindcss/oxide-win32-arm64-msvc@4.3.5'
+  - '@tailwindcss/oxide-win32-x64-msvc@4.3.5'
+  - '@tailwindcss/oxide@4.3.5'
+  - '@tailwindcss/vite@4.3.5'
+  - tailwindcss@4.3.5
 overrides:
   # Patched build/dev transitive dependencies, reviewed 14 October 2026.
   'undici@>=7.0.0 <7.30.1': 7.30.1
