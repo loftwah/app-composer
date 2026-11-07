@@ -11,7 +11,7 @@
 // JENKINS_HOME directory, the temporary clone and the temporary root. The
 // fixture image is kept as a local build cache and named in the output.
 import {spawnSync} from 'node:child_process';
-import {randomBytes} from 'node:crypto';
+import {createHash, randomBytes} from 'node:crypto';
 import {
   chmodSync,
   existsSync,
@@ -28,8 +28,14 @@ import {fileURLToPath} from 'node:url';
 import {createOwnedRun} from './lib/owned-resources.mjs';
 
 const repo = fileURLToPath(new URL('../', import.meta.url));
-const image = 'composer-jenkins-fixture:lts-node22';
 const dockerfile = join(repo, 'examples', 'jenkins', 'Dockerfile');
+const dockerfileHash = createHash('sha256')
+  .update(readFileSync(dockerfile))
+  .digest('hex')
+  .slice(0, 12);
+// The tag follows the fixture Dockerfile, so a changed fixture never silently
+// reuses a stale image and an unchanged one is reused as a local build cache.
+const image = `composer-jenkins-fixture:${dockerfileHash}`;
 const evidenceSchema = 'composer.external-runner-evidence/1';
 const receiptSchema = 'app-composer.delivery-receipt/1';
 const user = 'composer-fixture';

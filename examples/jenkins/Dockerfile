@@ -34,4 +34,8 @@ RUN set -eux; \
 ARG PNPM_VERSION=12.8.1
 RUN npm install -g "pnpm@${PNPM_VERSION}" && pnpm --version
 
+# The base image bundles no plugins. Install only what this fixture needs: the
+# Pipeline suite and Git, resolved once at image build time.
+RUN jenkins-plugin-cli --plugins workflow-aggregator git
+
 USER jenkins
