@@ -417,7 +417,10 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
     for (let round = 0; round < 6 && !accepted; round += 1) {
       if (round > 0) await sleep(4000);
       for (const candidate of triggerCandidates) {
-        const response = await jenkinsFetch({port, suffix: candidate.suffix, method: candidate.method, crumb});
+        const response = await jenkinsFetch(
+          {port, suffix: candidate.suffix},
+          {method: candidate.method, crumb},
+        );
         const attempt = {
           round: round + 1,
           suffix: candidate.suffix,
