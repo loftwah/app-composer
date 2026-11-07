@@ -2,6 +2,31 @@
 
 Reviewed 25 October 2026; updated 7 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## First-party mini-app dependency refresh — 7 November 2026
+
+The independent-repository lane of [#321](https://github.com/loftwah/app-composer/issues/321)
+updated all nine first-party repositories, each through its own lockfile,
+checks and clean-pushed-main release guard. Wrangler **4.158.0** and Workers
+types **5.20261107.1** now ship in Guestbook, Linkarooie, Hello, Carry /
+forward, Link Check, Launch Kit, Paperwork and LDraw. Link Check also moved
+Effect to **4.1.2**; Launch Kit, Paperwork and LDraw moved Playwright to
+**1.65.0**; Paperwork moved PDF.js **6.5.438** and Vite **8.3.6**; LDraw moved
+Vite **8.3.6** and Model Context Protocol **2.4.0**. The starter template moved
+without a deploy.
+
+Live identities verified after release: Guestbook `1761ce1` /
+`a855b32f`, Linkarooie `a497be9` / `8815d489`, Hello `c8cb770` / `61aece91`,
+Carry / forward `30f106d` / `a4bfa115`, Link Check `cd63cf5` / `62e60482`,
+Launch Kit `7070796` / `10ea9103`, Paperwork `5e5f8c3` / `1a437fac`, LDraw
+`1803e60` / `12dd430d`. LDraw ran its fresh 14-check browser qualification at
+the exact release source.
+
+Held with recorded reasons: TypeScript 7 (major, needs its own toolchain
+batch), React 19 in LDraw (`@excalidraw/excalidraw@0.18.1` is the installed
+editor contract) and Composer's Wrangler 4.152.0 (Get Ready runs that exact
+version). No composition pins, app data, credentials or Access policy changed.
+Evidence: [deps-miniapps-20261107](evidence/deps-miniapps-20261107/README.md).
+
 ## Plugin Trust watch depth — 7 November 2026
 
 Production is Composer `67749e2ccec9158364c25597495c9603f0bdb963`, Worker
