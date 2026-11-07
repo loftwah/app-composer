@@ -421,6 +421,10 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
         allow: response.headers.get('allow'),
       };
       triggerAttempts.push(attempt);
+      if (process.env.COMPOSER_JENKINS_DEBUG === '1')
+        console.error(
+          `trigger ${candidate.method} ${candidate.suffix} -> ${response.status} (allow ${attempt.allow}); crumb ${crumb.field}=${String(crumb.value).slice(0, 8)}…; cookies ${[...cookieJar.keys()].join(',') || 'none'}`,
+        );
       if ([200, 201, 302].includes(response.status)) {
         accepted = true;
         break;
