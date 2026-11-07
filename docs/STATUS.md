@@ -2,6 +2,23 @@
 
 Reviewed 25 October 2026; updated 7 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Diagram atlas provenance — 7 November 2026
+
+Production is Composer `0f95ada10899ce3b9f189d36983031236816f7aa`, Worker
+`04a3866a-5abe-48bf-99d0-7ad7c064407c`. The atlas now ships
+`public/diagrams/ldraw/manifest.json`: owner, licence, renderer identity, review
+date and SHA-256 hashes for every scene's `.excalidraw`, `.svg` and `.png`.
+`pnpm diagrams:check` refuses a changed file or a PNG dimension that disagrees
+with the page, naming the review step. `get-ready-lifecycle` and
+`cloudflare-isolation` now declare their real 2176 × 1355 and 2335 × 1355
+dimensions instead of reserving the 1600 × 700 default, and every figure gained
+a visible 44px **View full-size PNG** action.
+
+Live at 1440 and 390: four figures, no horizontal overflow, one `h1`, alt text
+and four-step text alternatives on each, all actions at least 44px. Light and
+dark render correctly. Evidence:
+[diagram-atlas-provenance-20261107](evidence/diagram-atlas-provenance-20261107/README.md).
+
 ## First-party mini-app dependency refresh — 7 November 2026
 
 The independent-repository lane of [#321](https://github.com/loftwah/app-composer/issues/321)
