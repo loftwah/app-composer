@@ -1,10 +1,13 @@
 # `/setup` surface check — 8 November 2026
 
-Live origin `https://composer.loftwah.com`, production source
-`bcc8eca78c84cd5f2d7b6afad39150d81d51d89a`, Worker
-`9b384c29-dd33-4172-8c9c-2cb79d7ca175`. Local comparison origin
-`http://127.0.0.1:4322`, serving `main` `3819c953ce1b7844137c742d70c8f371e075f2d9`
-with no source difference since the release.
+Live origin `https://composer.loftwah.com`. The check ran before the batch release
+at source `bcc8eca78c84cd5f2d7b6afad39150d81d51d89a` / Worker
+`9b384c29-dd33-4172-8c9c-2cb79d7ca175`, and again after it at source
+`220a7438545644506ffe6f545604f03a4e0a1f4f` / Worker
+`09b67f2d-bca4-4397-ad3f-a871b2f19599`. Both runs returned the same 36 passing
+checks; the committed JSON and screenshots are the post-release run, which shows
+the updated **Tested setups** counts. Local comparison origin
+`http://127.0.0.1:4322` served the same source with no page difference.
 
 `setup-ui-check-live.json` is the raw result of one headless Chromium 156 run
 against the live page: 36 checks, all passing. It records

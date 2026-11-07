@@ -1,8 +1,10 @@
 # Portable setup baseline with fresh agents — 8 November 2026
 
 2026/11/08 in Australia/Melbourne; the seven sessions ran from
-2026-11-07T22:28Z to 2026-11-07T22:52Z (09:28–09:52 AEDT). Source `main`
-`3819c953ce1b7844137c742d70c8f371e075f2d9`; production
+2026-11-07T22:28Z to 2026-11-07T22:52Z (09:28–09:52 AEDT). Source at run time
+`main` `3819c953ce1b7844137c742d70c8f371e075f2d9`; the batch released as
+`220a7438545644506ffe6f545604f03a4e0a1f4f` / Worker
+`09b67f2d-bca4-4397-ad3f-a871b2f19599`, after production had been
 `bcc8eca78c84cd5f2d7b6afad39150d81d51d89a` / Worker
 `9b384c29-dd33-4172-8c9c-2cb79d7ca175`. Guide `app-composer.project-setup/1`.
 Issues: [#292](https://github.com/loftwah/app-composer/issues/292) owns the
@@ -234,7 +236,11 @@ agent runs. 36 of 36 checks passed against
 - the page says preparing and copying works on a phone while execution needs a
   desktop or remote environment.
 
-No defect was found, so no runtime source changed for this check. Raw result:
+No defect was found, so no runtime source changed for this check. The batch's
+only runtime change is the run ledger that feeds **Tested setups**; it released
+as `220a743` / Worker `09b67f2d-bca4-4397-ad3f-a871b2f19599`, `/build.json`
+matches, and the same 36 checks passed after the release with the new counts
+visible. Raw result:
 [`docs/evidence/setup-292-20261108/setup-ui-check-live.json`](../evidence/setup-292-20261108/setup-ui-check-live.json);
 screenshots: [desktop](../evidence/setup-292-20261108/setup-desktop-1440.png),
 [phone](../evidence/setup-292-20261108/setup-phone-390.png).

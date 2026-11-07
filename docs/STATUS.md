@@ -2,6 +2,34 @@
 
 Reviewed 25 October 2026; updated 8 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Portable setup baseline and dated canary — 8 November 2026
+
+Production is Composer `220a7438545644506ffe6f545604f03a4e0a1f4f`, Worker
+`09b67f2d-bca4-4397-ad3f-a871b2f19599`. Seven fresh sessions used the actual
+`/setup` export: three new projects, three existing projects and one repeat on a
+prepared workspace. 58 of 58 assertions ran outside the agents, every counted run
+was isolation-clean, and no human action was needed. One prepared attempt was
+discarded because its copied manifest still named the source workspace; it is
+recorded, not counted.
+
+The exported guides and composed prompt are byte-identical to 25 October, so
+this is a comparable re-run rather than a different test. The live page passed
+36 of 36 checks at 1440/390 and by keyboard, including copy, download,
+`/setup/template.md` equality and the manual fallback. No page defect was found.
+The only runtime change is the run ledger behind **Tested setups**.
+
+The recurring check now has an owner, exact command, weekly and monthly cadence,
+a four-session budget and a regression rule in [setup-canary](setup-canary.md).
+This batch is the first rotation; next due 2026-11-09 (existing project) and
+2026-12-01 (full). No reliability-over-time claim is made.
+
+Remaining limits: one client, model and host; no provider sign-in, deployment,
+Composer Hello, physical-device or screen-reader acceptance. `pnpm check` ran
+541 tests with 0 failures; the release and live publication gates passed.
+
+Evidence: [fresh-agent-20261108](evaluations/fresh-agent-20261108.md),
+[page check](evidence/setup-292-20261108/README.md).
+
 ## Release binding, advisory seam and release health — 8 November 2026
 
 Production is Composer `bcc8eca78c84cd5f2d7b6afad39150d81d51d89a`, Worker
