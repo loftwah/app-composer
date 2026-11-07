@@ -2,6 +2,30 @@
 
 Reviewed 25 October 2026; updated 7 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Local-first delivery profile and dependency refresh — 7 November 2026
+
+Production is Composer `d041f6900f63ef8eed0b1d144c866f922f991c75`, Worker
+`245bba21-3237-42b1-b756-9a6f23f884dc`, from the clean pushed-main release guard.
+`/build.json` matched the source. The guard ran the audit, full check,
+production build, migrations, upload and the live source, pinned-service,
+sharing, privacy and anonymous-administration gates.
+
+Init now carries **one delivery choice** in the portable specification:
+local-first (default) or an existing CI runner, with the five runnable commands,
+the selected runner and the Cloudflare preview caveats in the copy-to-agent
+handoff. Selecting a runner records intent; it is not proof that a runner ran.
+The same release refreshed the Composer dependency stack to Astro `7.4.7`,
+`@astrojs/cloudflare` `14.4.6`, `@astrojs/react` `7.1.4`, `@lucide/astro`
+`1.70.0`, Tailwind `4.3.5` and workers-types `5.20261107.1`, with a clean frozen
+install, `pnpm freshness` 27/27 and a clean audit.
+
+Live `/init` at 1440 × 1000 and 390 × 844 exported the selected profile, showed
+the conditional runner control, had no horizontal overflow and no application
+console error. Evidence:
+[delivery profile](evidence/delivery-profile-20261107/README.md). A real
+external-runner run, the EmDash runner/receipt surface and the failure states
+remain open on [#319](https://github.com/loftwah/app-composer/issues/319).
+
 ## Monorepo source locator — 7 November 2026
 
 A composition source can now pin **repository + exact commit + relative
