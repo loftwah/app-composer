@@ -405,16 +405,30 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
       );
     }
 
-    const trigger = await jenkinsFetch({
-      port,
-      suffix: '/job/composer-delivery/build',
-      method: 'POST',
-      crumb,
-    });
-    if (trigger.status !== 201 && trigger.status !== 200)
+    const triggerCandidates = [
+      {suffix: '/job/composer-delivery/build', method: 'POST'},
+      {suffix: '/job/composer-delivery/build?delay=0sec', method: 'POST'},
+      {suffix: '/job/composer-delivery/build?delay=0sec', method: 'GET'},
+    ];
+    const triggerAttempts = [];
+    let accepted = false;
+    for (const candidate of triggerCandidates) {
+      const response = await jenkinsFetch({port, suffix: candidate.suffix, method: candidate.method, crumb});
+      triggerAttempts.push({
+        suffix: candidate.suffix,
+        method: candidate.method,
+        status: response.status,
+        allow: response.headers.get('allow'),
+      });
+      if ([200, 201, 302].includes(response.status)) {
+        accepted = true;
+        break;
+      }
+    }
+    if (!accepted)
       throw new FixtureError(
         'trigger-failed',
-        `Jenkins did not accept the build trigger: HTTP ${trigger.status} ${tail(await trigger.text(), 300)}`,
+        `Jenkins did not accept the build trigger: ${JSON.stringify(triggerAttempts)}`,
       );
 
     const build = await waitForBuild(port, deadline);
