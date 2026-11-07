@@ -51,6 +51,23 @@ The postcard was deliberately left hidden/private after the proof, so the public
 profile is clean. Evidence:
 [hosted contribution journey](evidence/linkarooie-contribution-20261107/README.md).
 
+## Four role journeys — 7 November 2026
+
+Four first-time role journeys were exercised on production: creator, small
+business, developer/AI builder and designer/agency. Each role page opened its
+real example and then its primary start action: `/demo`, the published Trail
+Notes stack, `ready.loftwah.com` and Launch Kit, followed by
+`/init?start=showcase`, `/init/content`, `/setup#new` and `/demo`.
+
+Every page returned `200` at 1440 × 1000 and 390 × 844; creator was checked in
+dark mode and developer with reduced motion. There was no horizontal overflow
+and no console error. Twelve keyboard Tab stops showed a visible 2–3px focus
+outline and 44px-or-larger targets; the pages expose one `h1`, landmarks, zero
+missing image `alt` values and zero unnamed links. Evidence:
+[four role journeys](evidence/role-journeys-20261107/README.md). Actual
+screen-reader speech and physical-device acceptance remain separate general
+accessibility gates.
+
 ## Job-led discovery — 7 November 2026
 
 Production is Composer `5ee5574b10b3c7b62ede8b3451b382a7fc9180ad`,

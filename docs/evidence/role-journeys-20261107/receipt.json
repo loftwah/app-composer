@@ -1,0 +1,203 @@
+{
+  "checkedAt": "2026-11-07T08:21:28.433Z",
+  "origin": "https://composer.loftwah.com",
+  "journeys": [
+    {
+      "role": "creator",
+      "expectedHeading": "App Composer for creators",
+      "exampleHref": "/demo",
+      "startHref": "/init?start=showcase"
+    },
+    {
+      "role": "small-business",
+      "expectedHeading": "App Composer for small business owners",
+      "exampleHref": "/s/fictional-trail-notes",
+      "startHref": "/init/content"
+    },
+    {
+      "role": "developer",
+      "expectedHeading": "App Composer for developers and AI builders",
+      "exampleHref": "https://ready.loftwah.com",
+      "startHref": "/setup#new"
+    },
+    {
+      "role": "designer",
+      "expectedHeading": "App Composer for designers and agencies",
+      "exampleHref": "https://composer-launch-kit.loftwah.workers.dev",
+      "startHref": "/demo"
+    }
+  ],
+  "results": [
+    {
+      "label": "creator role",
+      "url": "https://composer.loftwah.com/for/creator",
+      "status": 200,
+      "title": "App Composer for creators",
+      "heading": "App Composer for creators.",
+      "textLength": 734,
+      "overflow": false,
+      "bodyWidth": 1440,
+      "viewport": 1440,
+      "screenshot": "creator-role-1440"
+    },
+    {
+      "label": "creator example",
+      "url": "https://composer.loftwah.com/demo",
+      "status": 200,
+      "title": "Make a collection with connected apps · App Composer",
+      "heading": "Two apps. Make the connection.",
+      "textLength": 3929,
+      "overflow": false,
+      "bodyWidth": 1440,
+      "viewport": 1440,
+      "screenshot": "creator-example-1440"
+    },
+    {
+      "label": "creator start",
+      "url": "https://composer.loftwah.com/init?start=showcase",
+      "status": 200,
+      "title": "Init: make it yours · App Composer",
+      "heading": "Give your app some shape.",
+      "textLength": 3676,
+      "overflow": false,
+      "bodyWidth": 1440,
+      "viewport": 1440,
+      "screenshot": "creator-start-1440"
+    },
+    {
+      "label": "small-business role",
+      "url": "https://composer.loftwah.com/for/small-business",
+      "status": 200,
+      "title": "App Composer for small business owners",
+      "heading": "App Composer for small business owners.",
+      "textLength": 798,
+      "overflow": false,
+      "bodyWidth": 1440,
+      "viewport": 1440,
+      "screenshot": "small-business-role-1440"
+    },
+    {
+      "label": "small-business example",
+      "url": "https://composer.loftwah.com/s/fictional-trail-notes",
+      "status": 200,
+      "title": "Fictional Trail Notes · App Composer",
+      "heading": "Fictional Trail Notes",
+      "textLength": 1075,
+      "overflow": false,
+      "bodyWidth": 1440,
+      "viewport": 1440,
+      "screenshot": "small-business-example-1440"
+    },
+    {
+      "label": "small-business start",
+      "url": "https://composer.loftwah.com/init/content",
+      "status": 200,
+      "title": "Init: design your content and forms · App Composer",
+      "heading": "Make the fieldsfit the work.",
+      "textLength": 3298,
+      "overflow": false,
+      "bodyWidth": 1440,
+      "viewport": 1440,
+      "screenshot": "small-business-start-1440"
+    },
+    {
+      "label": "developer role",
+      "url": "https://composer.loftwah.com/for/developer",
+      "status": 200,
+      "title": "App Composer for developers and AI builders",
+      "heading": "App Composer for developers and AI builders.",
+      "textLength": 846,
+      "overflow": false,
+      "bodyWidth": 1440,
+      "viewport": 1440,
+      "screenshot": "developer-role-1440"
+    },
+    {
+      "label": "developer example",
+      "url": "https://ready.loftwah.com/",
+      "status": 200,
+      "title": "Hello from Loftwah. · App Composer",
+      "heading": "Hello from Loftwah.",
+      "textLength": 671,
+      "overflow": false,
+      "bodyWidth": 1440,
+      "viewport": 1440,
+      "screenshot": "developer-example-1440"
+    },
+    {
+      "label": "developer start",
+      "url": "https://composer.loftwah.com/setup#new",
+      "status": 200,
+      "title": "Set up your project · App Composer",
+      "heading": "Set up your project.",
+      "textLength": 3086,
+      "overflow": false,
+      "bodyWidth": 1440,
+      "viewport": 1440,
+      "screenshot": "developer-start-1440"
+    },
+    {
+      "label": "designer role",
+      "url": "https://composer.loftwah.com/for/designer",
+      "status": 200,
+      "title": "App Composer for designers and agencies",
+      "heading": "App Composer for designers and agencies.",
+      "textLength": 809,
+      "overflow": false,
+      "bodyWidth": 1440,
+      "viewport": 1440,
+      "screenshot": "designer-role-1440"
+    },
+    {
+      "label": "designer example",
+      "url": "https://composer-launch-kit.loftwah.workers.dev/",
+      "status": 200,
+      "title": "Launch Kit — artwork into an app identity",
+      "heading": "Give your artwork a place to go.",
+      "textLength": 2477,
+      "overflow": false,
+      "bodyWidth": 1440,
+      "viewport": 1440,
+      "screenshot": "designer-example-1440"
+    },
+    {
+      "label": "designer start",
+      "url": "https://composer.loftwah.com/demo",
+      "status": 200,
+      "title": "Make a collection with connected apps · App Composer",
+      "heading": "Two apps. Make the connection.",
+      "textLength": 3929,
+      "overflow": false,
+      "bodyWidth": 1440,
+      "viewport": 1440,
+      "screenshot": "designer-start-1440"
+    },
+    {
+      "label": "creator role phone dark",
+      "url": "https://composer.loftwah.com/for/creator",
+      "status": 200,
+      "title": "App Composer for creators",
+      "heading": "App Composer for creators.",
+      "textLength": 734,
+      "overflow": false,
+      "bodyWidth": 390,
+      "viewport": 390,
+      "screenshot": "creator-role-390-dark"
+    },
+    {
+      "label": "developer role phone reduced motion",
+      "url": "https://composer.loftwah.com/for/developer",
+      "status": 200,
+      "title": "App Composer for developers and AI builders",
+      "heading": "App Composer for developers and AI builders.",
+      "textLength": 788,
+      "overflow": false,
+      "bodyWidth": 390,
+      "viewport": 390,
+      "screenshot": "developer-role-390-reduced"
+    }
+  ],
+  "consoleErrors": [],
+  "overflow": [],
+  "missingHeadings": []
+}

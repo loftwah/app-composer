@@ -1,0 +1,126 @@
+{
+  "checkedAt": "2026-11-07T08:21:58.006Z",
+  "focus": [
+    {
+      "tag": "A",
+      "text": "Skip to content",
+      "href": "#main",
+      "outlineStyle": "solid",
+      "outlineWidth": "3px",
+      "minHeight": 50
+    },
+    {
+      "tag": "A",
+      "text": "App ComposerLoftwah’s instance",
+      "href": "/",
+      "outlineStyle": "solid",
+      "outlineWidth": "3px",
+      "minHeight": 30
+    },
+    {
+      "tag": "SUMMARY",
+      "text": "More",
+      "href": null,
+      "outlineStyle": "solid",
+      "outlineWidth": "3px",
+      "minHeight": 44
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Apps⌘ K",
+      "href": null,
+      "outlineStyle": "solid",
+      "outlineWidth": "3px",
+      "minHeight": 44
+    },
+    {
+      "tag": "BUTTON",
+      "text": "",
+      "href": null,
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "minHeight": 44
+    },
+    {
+      "tag": "A",
+      "text": "Who I amChoose a role",
+      "href": "/discover#roles",
+      "outlineStyle": "solid",
+      "outlineWidth": "3px",
+      "minHeight": 56
+    },
+    {
+      "tag": "A",
+      "text": "What I need to doChoose a job",
+      "href": "/discover#jobs",
+      "outlineStyle": "solid",
+      "outlineWidth": "3px",
+      "minHeight": 56
+    },
+    {
+      "tag": "A",
+      "text": "Make my public pagePut your work on one page people can use.",
+      "href": "/jobs/profile",
+      "outlineStyle": "solid",
+      "outlineWidth": "3px",
+      "minHeight": 66
+    },
+    {
+      "tag": "A",
+      "text": "Collect private enquiriesTake an enquiry without publishing it.",
+      "href": "/jobs/enquiries",
+      "outlineStyle": "solid",
+      "outlineWidth": "3px",
+      "minHeight": 66
+    },
+    {
+      "tag": "A",
+      "text": "Build or change an appTake an idea to a working app.",
+      "href": "/jobs/first-app",
+      "outlineStyle": "solid",
+      "outlineWidth": "3px",
+      "minHeight": 66
+    },
+    {
+      "tag": "A",
+      "text": "Make branded assetsMake the icons and images your product needs.",
+      "href": "/jobs/branding",
+      "outlineStyle": "solid",
+      "outlineWidth": "3px",
+      "minHeight": 66
+    },
+    {
+      "tag": "A",
+      "text": "Draw an editable diagramDraw a diagram you can edit later.",
+      "href": "/jobs/diagram",
+      "outlineStyle": "solid",
+      "outlineWidth": "3px",
+      "minHeight": 66
+    }
+  ],
+  "discover": {
+    "h1": [
+      "What would you like to make?"
+    ],
+    "landmarks": [
+      "HEADER:",
+      "NAV:Main navigation",
+      "MAIN:",
+      "HEADER:",
+      "NAV:Choose how to explore",
+      "NAV:Choose a job",
+      "NAV:Choose a role",
+      "FOOTER:"
+    ],
+    "imagesWithoutAlt": 0,
+    "linksWithoutName": 0,
+    "roleButtons": []
+  },
+  "role": {
+    "h1Count": 1,
+    "h1": "App Composer for creators.",
+    "imagesWithoutAlt": 0,
+    "linksWithoutName": 0,
+    "mainLinks": 29
+  }
+}
