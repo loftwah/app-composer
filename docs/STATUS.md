@@ -2,6 +2,21 @@
 
 Reviewed 25 October 2026; updated 7 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Public sweep and content fix — 8 November 2026
+
+Production is Composer `fbb0760c736d6286462fdd8512db2d3d25a26678`, Worker
+`64627453-eb84-421c-ae3c-e346ad7ff7b9`. All 70 sitemap pages were opened at
+1440 × 1000 and 390 × 1000: every page returned 200, the document width matched
+the viewport, each had exactly one `h1`, no heading level was skipped, no image
+lacked `alt`, and no application console error remained. The sweep found and
+fixed one real CSP defect on `/launch-kit` (an inline-styled 1200px card image,
+now a scoped 600px rule) and one broken link (`/security` on the Security role,
+now the maintained `SECURITY.md`). A 215-link same-origin crawl found no other
+404. Read-only `pnpm audit` in all nine first-party mini-app repositories
+reported no known vulnerabilities at the current pins.
+
+Evidence: [public-sweep-20261108](evidence/public-sweep-20261108/README.md).
+
 ## Owner-enabled Plugin Trust watch — 8 November 2026
 
 Production is Composer `c3149d90a1db56b6e02d98b9198c2f93d5887ea3`, Worker
