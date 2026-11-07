@@ -408,28 +408,34 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
     const triggerCandidates = [
       {suffix: '/job/composer-delivery/build', method: 'POST'},
       {suffix: '/job/composer-delivery/build?delay=0sec', method: 'POST'},
-      {suffix: '/job/composer-delivery/build?delay=0sec', method: 'GET'},
     ];
     const triggerAttempts = [];
     let accepted = false;
-    for (const candidate of triggerCandidates) {
-      const response = await jenkinsFetch({port, suffix: candidate.suffix, method: candidate.method, crumb});
-      const attempt = {
-        suffix: candidate.suffix,
-        method: candidate.method,
-        status: response.status,
-        allow: response.headers.get('allow'),
-      };
-      triggerAttempts.push(attempt);
-      if (process.env.COMPOSER_JENKINS_DEBUG === '1')
-        console.error(
-          `trigger ${candidate.method} ${candidate.suffix} -> ${response.status} (allow ${attempt.allow}); crumb ${crumb.field}=${String(crumb.value).slice(0, 8)}…; cookies ${[...cookieJar.keys()].join(',') || 'none'}`,
-        );
-      if ([200, 201, 302].includes(response.status)) {
-        accepted = true;
-        break;
+    // Jenkins answers before every startup task finishes; a very early trigger
+    // can be refused. Bounded retries keep the fixture honest without hiding a
+    // persistent failure: every attempt is recorded.
+    for (let round = 0; round < 6 && !accepted; round += 1) {
+      if (round > 0) await sleep(4000);
+      for (const candidate of triggerCandidates) {
+        const response = await jenkinsFetch({port, suffix: candidate.suffix, method: candidate.method, crumb});
+        const attempt = {
+          round: round + 1,
+          suffix: candidate.suffix,
+          method: candidate.method,
+          status: response.status,
+          allow: response.headers.get('allow'),
+        };
+        triggerAttempts.push(attempt);
+        if (process.env.COMPOSER_JENKINS_DEBUG === '1')
+          console.error(
+            `trigger ${candidate.method} ${candidate.suffix} -> ${response.status} (allow ${attempt.allow}); crumb ${crumb.field}=${String(crumb.value).slice(0, 8)}…; cookies ${[...cookieJar.keys()].join(',') || 'none'}`,
+          );
+        if ([200, 201, 302].includes(response.status)) {
+          accepted = true;
+          break;
+        }
+        attempt.detail = tail(await response.text(), 200);
       }
-      attempt.detail = tail(await response.text(), 200);
     }
     if (!accepted)
       throw new FixtureError(
