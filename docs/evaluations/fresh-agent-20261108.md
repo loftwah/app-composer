@@ -36,9 +36,10 @@ Every case received one prompt built from committed inputs:
 3. for the existing-project cases only, the actual `/roles/v1/programmer.md`
    download.
 
-The capture was re-run on 8 November against `main` `3819c95`. Both guide files
-and both role-pack files came back byte-identical to the 25 October capture, and
-the composed prompt is byte-identical too (`sha256:af578a67…`). The only
+The capture was re-run on 8 November against `main` `3819c95`. All four
+setup-guide exports and both role-pack files came back byte-identical to the
+25 October capture, and the new-project prompt is byte-identical too
+(`sha256:af578a67…`; each case's prompt hash is in the ledger). The only
 difference between this batch and the earlier one is the agent CLI version and
 the date, so the two are directly comparable.
 
