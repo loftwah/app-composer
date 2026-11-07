@@ -2,6 +2,24 @@
 
 Reviewed 25 October 2026; updated 7 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Monorepo source locator — 7 November 2026
+
+A composition source can now pin **repository + exact commit + relative
+manifest path**, so a mini-app may live in a host repository subdirectory while
+each app keeps its own identity, routes, data and deployable origin. Separate
+repositories keep the implicit root path; the active Guestbook/Showcase pins and
+the guarded promotion pair are unchanged. `pnpm compose:sources` validates a
+plan and prints a deterministic digest without writing the lock, uploading a
+Worker or executing app source. Path traversal, symlinked manifests, duplicate
+and overlapping identities and route collisions fail closed. Evidence:
+[monorepo source locator](evidence/monorepo-source-locator-20261107/README.md).
+
+This is an authoring slice. Production runtime did not change: Composer stays at
+`bbe9e2246a853b37904ae22a55350f3d2ad3cf43`, Worker
+`4c2683dd-9916-4864-aa2d-09e3c35cd164`. Promotion of an in-repo app, a real
+host repository with two composed subdirectory apps, and rollback evidence
+remain open on [#408](https://github.com/loftwah/app-composer/issues/408).
+
 ## App-owned capability effect — 7 November 2026
 
 Production is Composer `bbe9e2246a853b37904ae22a55350f3d2ad3cf43`,

@@ -38,6 +38,8 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 - [Engineering baseline](engineering-baseline.md): checked source, runtime/tool environments, independent distributions and remaining source gaps.
 - [Local delivery journey](local-delivery.md): local checks, safe preview candidate, explicit release and independent live verification with bounded receipts.
 - [Dependency freshness](dependency-freshness.md): the local-only supported-range report, its exit codes and the reviewed policy file.
+- [Mini-apps inside a host repository](monorepo-composition.md): the opt-in monorepo source locator, its path rules, plan command, workspace discovery and the promotion gate that is still open.
+- [Delivery channel](delivery-channel.md): the Discord announcement shape, the secret boundary and what belongs in the project ledger.
 - [Source and asset maintenance](source-maintenance.md): authored modules, generated output, shared-asset ownership and release boundaries.
 - [Untangle pass, 6 November 2026](untangle-20261106.md): the pinned untangle-codebase audit, implemented single-source fixes and retained decisions.
 - [Async waterfall audit, 6 November 2026](performance-audit-20261106.md): independent hot-path reads, measured before/after and deliberately sequential work.

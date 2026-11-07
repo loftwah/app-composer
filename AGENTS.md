@@ -19,6 +19,32 @@ The November test-suite reduction was deliberate. Do not restore deleted tests, 
 - Preserve all uncommitted, branch-only and worktree-only changes before any cleanup. No deletion or retirement based on the assumption that a draft was already delivered.
 
 
+## Delivery channel — what reached main and production
+
+The project has one Discord channel, configured in the ignored `.env` as
+`WOODHOUSE_DISCORD_CHANNEL`, and used through
+`pnpm delivery:announce --file <announcement.json> [--send]`. It is the owner's
+showcase and running ledger: the place to see what actually reached `main` and
+production, which issues that work belongs to, and what to look for in each
+project.
+
+- Post one concise entry per coherent batch that reaches `main` or production.
+  Do not post per commit, per checkpoint or for a plan that has not shipped.
+- Every entry names the source commit, the production identity when it changed,
+  the issues touched with their real state (`closed`, `slice`, `status`,
+  `still-open`, `blocked`), the checks that actually ran, the evidence link and
+  the next executable step. `deployed: true` is only for a verified production
+  release.
+- The webhook is a secret. Never commit it, print it, put it in an issue,
+  evidence file, screenshot or payload. `scripts/delivery-channel.mjs` redacts
+  any webhook-shaped URL before sending and refuses to send without
+  `--send`.
+- The channel summarises; it never replaces an issue receipt,
+  `docs/evidence/<batch>/README.md`, `docs/STATUS.md` or issue #11. A green
+  Discord entry is not a verification.
+- Owner actions still required are stated in the entry, with the exact human
+  step. A missing provider, account, device or approval is named, not hidden.
+
 ## Delivery contract — current owner direction
 
 This section supersedes older routine checkpoint, approval and blanket testing defaults. Preserve explicit task-specific owner holds, security/privacy, data integrity, credentials, spending and destructive-operation boundaries.

@@ -1,0 +1,32 @@
+{
+  "state": "checked",
+  "id": "f7fafa4e3fc687f85e103b5e61d27624485279497a2a1eeb524cb1230faa5ce7",
+  "sources": [
+    {
+      "id": "guestbook",
+      "repository": "https://github.com/fixture/product",
+      "commit": "fbb488d28259dd4392e011a6a40320f3a3cd5a65",
+      "path": "apps/guestbook",
+      "url": "https://guestbook.example.com",
+      "routes": [
+        "/guestbook"
+      ],
+      "version": "1.0.0",
+      "source": "fixture/product@fbb488d28259#apps/guestbook"
+    },
+    {
+      "id": "showcase",
+      "repository": "https://github.com/fixture/product",
+      "commit": "fbb488d28259dd4392e011a6a40320f3a3cd5a65",
+      "path": "packages/miniapps/showcase",
+      "url": "https://showcase.example.com",
+      "routes": [
+        "/showcase"
+      ],
+      "version": "1.0.0",
+      "source": "fixture/product@fbb488d28259#packages/miniapps/showcase"
+    }
+  ],
+  "lockWritten": false,
+  "deployed": false
+}
