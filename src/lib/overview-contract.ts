@@ -6,6 +6,7 @@ export const overviewSources = [
   "workflows",
   "resources",
   "notifications",
+  "plugin-trust",
 ] as const;
 export const overviewSnapshot = z
   .object({
@@ -73,7 +74,7 @@ export const overviewSnapshot = z
           })
           .strict(),
       )
-      .length(4),
+      .length(5),
     items: z
       .array(
         z
@@ -88,7 +89,7 @@ export const overviewSnapshot = z
             href: z
               .string()
               .regex(
-                /^\/_emdash\/admin\/plugins\/composer-stacks\/(platform|workflows|enquiries|resources)\?workspace=[a-z0-9-]+(?:&resource=[a-z0-9-]+)?(?:&item=[a-z0-9-]+)?#(?:platform-request|workflow-run|notification|ri-resource)-[a-z0-9-]+$/,
+                /^\/_emdash\/admin\/plugins\/composer-stacks\/(?:(?:platform|workflows|enquiries|resources)\?workspace=[a-z0-9-]+(?:&resource=[a-z0-9-]+)?(?:&item=[a-z0-9-]+)?#(?:platform-request|workflow-run|notification|ri-resource)-[a-z0-9-]+|plugin-trust#plugin-trust-(?:review-[a-z0-9-]+|watch))$/,
               ),
             count: z.number().int().positive().max(100),
             firstObserved: z.iso.datetime(),

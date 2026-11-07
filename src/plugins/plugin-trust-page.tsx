@@ -5,6 +5,7 @@ import {
   evaluatePlugin,
   httpsLink,
   pluginTrustSnapshot,
+  reviewAnchor,
   type TrustSnapshot,
   type TrustState,
 } from "../lib/plugin-trust-contract";
@@ -305,6 +306,17 @@ export function PluginWatch({
   const shown = persisted.length ? persisted : reviews;
   const label = (severity: string) =>
     severity === "block" ? "blocking" : "needs review";
+  // The shared Needs attention view links straight to a review row. The row is
+  // rendered after the first read, so scroll to it once it exists.
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash.startsWith("#plugin-trust-")) return;
+    const target = document.getElementById(hash.slice(1));
+    if (!(target instanceof HTMLElement)) return;
+    target.scrollIntoView({ block: "center" });
+    target.setAttribute("tabindex", "-1");
+    target.focus({ preventScroll: true });
+  }, [shown.length, watchState.enabled, watchState.lastRunAt]);
   async function act(
     body: { action: "watch"; enabled: boolean } | { action: "resolve"; key: string },
   ) {
@@ -332,7 +344,7 @@ export function PluginWatch({
     }
   }
   return (
-    <section className="pt-watch">
+    <section className="pt-watch" id="plugin-trust-watch">
       <h2>What changed since the last observation</h2>
       <p className="pt-scope">
         {watch.latestAt ? (
@@ -420,7 +432,11 @@ export function PluginWatch({
           </p>
           <ul className="pt-watch-review">
             {shown.map((item) => (
-              <li key={item.key} data-severity={item.severity}>
+              <li
+                key={item.key}
+                id={"plugin-trust-review-" + reviewAnchor(item.key)}
+                data-severity={item.severity}
+              >
                 <strong>
                   {item.slug} {item.version}
                 </strong>{" "}

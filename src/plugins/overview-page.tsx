@@ -33,6 +33,7 @@ const OWNER: Record<SourceId, string> = {
   workflows: "/_emdash/admin/plugins/composer-stacks/workflows",
   resources: "/_emdash/admin/plugins/composer-stacks/resources",
   notifications: "/_emdash/admin/plugins/composer-stacks/enquiries",
+  "plugin-trust": "/_emdash/admin/plugins/composer-stacks/plugin-trust",
 };
 
 function dismissOnEscape(event: KeyboardEvent<HTMLDetailsElement>) {

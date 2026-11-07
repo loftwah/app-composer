@@ -14,6 +14,7 @@ import {
 } from "./overview-contract.ts";
 import { APP_ID, ENVIRONMENT_ID, WORKSPACE_ID } from "./admin-scope.ts";
 import { readResourceInventory } from "./resource-inventory.ts";
+import { readPluginTrustAttention } from "./plugin-trust-attention.ts";
 import { appSettings } from "./app-settings.mjs";
 const origin = "https://composer.loftwah.com";
 const scope = {
@@ -55,6 +56,7 @@ const LABELS: Record<SourceId, string> = {
   workflows: "Workflows",
   resources: "App resources",
   notifications: "Owner notifications",
+  "plugin-trust": "Plugin Trust",
 };
 function timestamp(input: string) {
   const text = input.includes("T") ? input : input.replace(" ", "T") + "Z";
@@ -213,6 +215,12 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
       throw new StackError(
         "FORBIDDEN",
         "Private Inbox signals require current owner or editor access. Ask the workspace owner.",
+        403,
+      );
+    if (input.action === "recheck" && input.source === "plugin-trust" && user.role !== 50)
+      throw new StackError(
+        "FORBIDDEN",
+        "Plugin Trust review items require a signed-in administrator.",
         403,
       );
     const link = (
@@ -421,6 +429,52 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
           (row) => (row as BaseRow & { app: string }).app,
         );
       });
+    try {
+      const attention = await readPluginTrustAttention(db, {
+        administrator: user.role === 50,
+      });
+      if (attention.status === "checked") {
+        sources.push({
+          id: "plugin-trust",
+          label: LABELS["plugin-trust"],
+          status: "checked",
+          count: attention.items.reduce((total, item) => total + item.count, 0),
+          atLimit: attention.atLimit,
+          note: attention.note,
+        });
+        items.push(
+          ...attention.items.map((item) => ({
+            id: item.id,
+            source: "plugin-trust" as const,
+            app: null,
+            title: item.title,
+            summary: item.summary,
+            action: item.action,
+            href: item.href,
+            count: item.count,
+            firstObserved: item.firstObserved,
+            lastObserved: item.lastObserved,
+          })),
+        );
+      } else
+        sources.push({
+          id: "plugin-trust",
+          label: LABELS["plugin-trust"],
+          status: attention.status,
+          count: null,
+          atLimit: false,
+          note: attention.note,
+        });
+    } catch {
+      sources.push({
+        id: "plugin-trust",
+        label: LABELS["plugin-trust"],
+        status: "unavailable",
+        count: null,
+        atLimit: false,
+        note: "Plugin Trust review items could not be read. Unavailable is not zero; open the Trust Centre or retry.",
+      });
+    }
     const currentRole = await membership(db, workspace.id, user.id);
     requireCapability(currentRole, "read");
     if (currentRole === "viewer" && workspace.role !== "viewer")

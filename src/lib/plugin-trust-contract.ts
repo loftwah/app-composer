@@ -90,6 +90,17 @@ export function httpsLink(value: string | null): string | null {
   }
 }
 
+// Stable, URL-safe anchor for one persisted review item. The shared overview
+// links to this id and the Trust Centre renders it, so a review item lands on
+// the exact row without trusting raw registry text in a fragment.
+export function reviewAnchor(key: string): string {
+  const cleaned = String(key ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return (cleaned || "unknown").slice(0, 96);
+}
+
 // The curated v1 snapshot has simple numeric ranges. Unsupported syntax remains
 // UNKNOWN; this is not a replacement for EmDash's install-time range evaluator.
 export function compatibility(
