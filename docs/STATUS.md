@@ -11,20 +11,21 @@ types **5.20261107.1** now ship in Guestbook, Linkarooie, Hello, Carry /
 forward, Link Check, Launch Kit, Paperwork and LDraw. Link Check also moved
 Effect to **4.1.2**; Launch Kit, Paperwork and LDraw moved Playwright to
 **1.65.0**; Paperwork moved PDF.js **6.5.438** and Vite **8.3.6**; LDraw moved
-Vite **8.3.6** and Model Context Protocol **2.4.0**. The starter template moved
+Vite **8.3.6**, Model Context Protocol **2.4.0** and React/React DOM
+**19.3.1**. The starter template moved
 without a deploy.
 
 Live identities verified after release: Guestbook `1761ce1` /
 `a855b32f`, Linkarooie `a497be9` / `8815d489`, Hello `c8cb770` / `61aece91`,
 Carry / forward `30f106d` / `a4bfa115`, Link Check `cd63cf5` / `62e60482`,
 Launch Kit `7070796` / `10ea9103`, Paperwork `5e5f8c3` / `1a437fac`, LDraw
-`1803e60` / `12dd430d`. LDraw ran its fresh 14-check browser qualification at
-the exact release source.
+`d54ff3f` / `c474c499`. LDraw ran its fresh 14-check browser qualification at
+the exact release source, including the React 19 editor/export/offline paths.
 
 Held with recorded reasons: TypeScript 7 (major, needs its own toolchain
-batch), React 19 in LDraw (`@excalidraw/excalidraw@0.18.1` is the installed
-editor contract) and Composer's Wrangler 4.152.0 (Get Ready runs that exact
-version). No composition pins, app data, credentials or Access policy changed.
+batch) and Composer's Wrangler 4.152.0 (Get Ready runs that exact version).
+React 19 in LDraw moved after `@excalidraw/excalidraw@0.18.1` was confirmed to
+declare React 17–19 in its peer range. No composition pins, app data, credentials or Access policy changed.
 Evidence: [deps-miniapps-20261107](evidence/deps-miniapps-20261107/README.md).
 
 ## Plugin Trust watch depth — 7 November 2026

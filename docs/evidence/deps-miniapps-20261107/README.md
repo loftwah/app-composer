@@ -16,7 +16,7 @@ mini-app keeps its own repository, lockfile, guards and release boundary.
 | Link Check | `cd63cf5` | `62e60482-07c0-4f9c-8b28-dc39c97b3298` | `share.loftwah.com` sha matches | `pnpm check` (103), `pnpm build`, guarded `pnpm deploy` |
 | Launch Kit | `7070796` | `10ea9103-7099-4c09-956f-d4acee1dabcd` | `release.json` sourceSha matches | `pnpm check` (35), `pnpm build`, guarded `pnpm deploy` |
 | Paperwork | `5e5f8c3` | `1a437fac-891d-47f4-9308-09c326707435` | `paperwork.loftwah.com` sha matches | `pnpm check` (41), `pnpm build`, guarded `pnpm deploy` |
-| LDraw | `1803e60` | `12dd430d-cfa8-4ddd-a0cf-be8a5109115e` | `ldraw.loftwah.com` source matches | `pnpm check` (67, 1 skip), `pnpm build`, fresh `pnpm qualify` (14 browser checks), guarded `pnpm deploy` |
+| LDraw | `d54ff3f` | `c474c499-32f2-4af2-a891-5d87c56e8d1f` | `ldraw.loftwah.com` source matches | `pnpm check` (67, 1 skip), `pnpm build`, fresh `pnpm qualify` (14 browser checks), guarded `pnpm deploy` |
 | Ready example (starter) | `aa5037d` | not deployed | template only | `pnpm test` (5) |
 
 ## What changed
@@ -29,7 +29,7 @@ mini-app keeps its own repository, lockfile, guards and release boundary.
   safety cases in its 103-test suite pass.
 - Launch Kit, Paperwork and LDraw: Playwright **1.65.0**.
 - Paperwork: `pdfjs-dist` **6.5.438**, Vite **8.3.6**.
-- LDraw: Vite **8.3.6**, Model Context Protocol client/server **2.4.0**.
+- LDraw: Vite **8.3.6**, Model Context Protocol client/server **2.4.0**, React and React DOM **19.3.1** with matching types.
 - Tailwind, React and TypeScript were already current in these repositories.
 
 ## Deliberate holds
@@ -37,7 +37,6 @@ mini-app keeps its own repository, lockfile, guards and release boundary.
 | Package | Held at | Reason |
 | --- | --- | --- |
 | TypeScript | `6.0.3` | 7.0.2 is a major; the toolchain that consumes it needs its own qualified batch. |
-| React / React DOM / types | `18.3.1` in LDraw | `@excalidraw/excalidraw@0.18.1` is the installed native editor contract. React 19 needs a compatible Excalidraw upgrade and a real editor/render regression run. |
 | Composer Wrangler | `4.152.0` | Get Ready runs that exact Wrangler; re-pinning `lib/get-ready` and its fixtures is a separate Composer change. The mini-apps have no such coupling, so they moved. |
 
 ## Repair made while upgrading
@@ -46,6 +45,16 @@ Launch Kit's profile test pinned the Chromium major (`/^151\./`). Playwright
 1.65 reports `158.0.8127.18`. The assertion now checks an actual four-part
 Chromium version instead of one Playwright release. The test's intent — the
 local renderer really ran — is unchanged.
+
+## React 19 in LDraw
+
+`@excalidraw/excalidraw@0.18.1` declares React 17–19 in its peer range, so the
+earlier React 18 hold was unnecessary. LDraw moved React and React DOM to
+`19.3.1` with matching types. The repository's fresh 14-check browser
+qualification passed at the exact release source: editor insertion, text entry,
+undo/redo, file roundtrip, PNG/SVG export, offline relaunch, concurrent-tab
+refusal, corrupted-draft recovery and the 390px drawing journey. React 19 is now
+the released state, not a candidate.
 
 ## Verified scope and remaining gates
 
