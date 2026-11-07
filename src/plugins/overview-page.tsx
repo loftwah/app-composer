@@ -33,6 +33,7 @@ const OWNER: Record<SourceId, string> = {
   workflows: "/_emdash/admin/plugins/composer-stacks/workflows",
   resources: "/_emdash/admin/plugins/composer-stacks/resources",
   notifications: "/_emdash/admin/plugins/composer-stacks/enquiries",
+  delivery: "/_emdash/admin/plugins/composer-stacks/delivery",
   "plugin-trust": "/_emdash/admin/plugins/composer-stacks/plugin-trust",
 };
 
@@ -503,7 +504,8 @@ export function Overview({ search }: { search: string }) {
             </dl>
             <p className="co-muted">
               Read {adminTime(snapshot.checkedAt)}. This reads supported stored
-              platform, workflow, resource and notification records only. It sends no mail, performs no recovery and checks no
+              platform, workflow, resource, notification and release-receipt
+              records only. It sends no mail, performs no recovery and checks no
               provider health, enquiry count, order, connection expiry or
               backup. Sample workflow runs are excluded.
             </p>

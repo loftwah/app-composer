@@ -104,7 +104,7 @@ export async function readPluginTrustAttention(
   return {
     status: "checked",
     note: bounded(
-      `${items.length} open review item${items.length === 1 ? "" : "s"} and owner enablement evidence. ${enabled} No licensed advisory feed is configured (ADVISORY_SOURCE_NONE), so a missing advisory source is never treated as clean. Review items are deduplicated by publisher, package, code and version; they are administrator-only and never appear on a public page.`,
+      `${items.length} open review item${items.length === 1 ? "" : "s"} and owner enablement evidence. ${enabled} Advisory coverage is explicit: an unconfigured source is ADVISORY_SOURCE_NONE and an unreadable one is ADVISORY_SOURCE_UNKNOWN; neither is ever treated as clean. Review items are deduplicated by publisher, package, code and version; they are administrator-only and never appear on a public page.`,
       500,
     ),
     atLimit: items.length >= 25,

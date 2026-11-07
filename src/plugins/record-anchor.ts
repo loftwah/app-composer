@@ -1,7 +1,11 @@
 /** Focus the requested, server-rendered record after an asynchronous native
  * screen loads. Fragments select a visible record and grant no access. */
 export function focusStoredRecord(
-  prefix: "platform-request-" | "workflow-run-" | "notification-",
+  prefix:
+    | "platform-request-"
+    | "workflow-run-"
+    | "notification-"
+    | "delivery-run-",
 ): boolean {
   let id: string;
   try {

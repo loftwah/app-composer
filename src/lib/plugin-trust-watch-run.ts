@@ -12,6 +12,10 @@ import {
 } from "./plugin-trust-refresh.ts";
 import { reviewItems } from "./plugin-trust-watch.ts";
 import { workerDiscovery } from "./plugin-trust-discovery.ts";
+import {
+  readAdvisory,
+  type AdvisoryAdapter,
+} from "./plugin-trust-advisory.ts";
 
 export const watchId = "default";
 export type WatchState = "never" | "ok" | "partial" | "failed";
@@ -162,11 +166,13 @@ export async function runPluginTrustWatch(
     now = new Date(),
     committed,
     force = false,
+    advisory = null,
   }: {
     discovery: Discovery;
     now?: Date;
     committed: TrustSnapshot;
     force?: boolean;
+    advisory?: AdvisoryAdapter | null;
   },
 ) {
   if (!db) return { state: "unavailable" as const };
@@ -187,6 +193,21 @@ export async function runPluginTrustWatch(
   }
   if (next.packages.some((plugin) => plugin.refreshFailed))
     return fail(db, "partial-observation", now);
+  // Advisory coverage is recorded explicitly for every package. The default is
+  // `none`; an injected adapter that fails becomes `unknown`. Neither is clean.
+  next = pluginTrustSnapshot.parse({
+    ...next,
+    packages: await Promise.all(
+      next.packages.map(async (plugin) => ({
+        ...plugin,
+        advisory: await readAdvisory(
+          advisory,
+          { did: plugin.did, slug: plugin.slug, version: plugin.version },
+          now,
+        ),
+      })),
+    ),
+  });
   const serialized = JSON.stringify(next);
   if (serialized.length > maximumSnapshotBytes)
     return fail(db, "snapshot-too-large", now);
@@ -224,9 +245,15 @@ export async function runScheduledPluginTrustWatch(
   committed: TrustSnapshot,
   now = new Date(),
   discovery: Discovery = workerDiscovery(),
+  advisory: AdvisoryAdapter | null = null,
 ) {
   try {
-    return await runPluginTrustWatch(db, { discovery, now, committed });
+    return await runPluginTrustWatch(db, {
+      discovery,
+      now,
+      committed,
+      advisory,
+    });
   } catch {
     if (db) await fail(db, "observation-failed", now).catch(() => undefined);
     return { state: "failed" as const, error: "observation-failed" };

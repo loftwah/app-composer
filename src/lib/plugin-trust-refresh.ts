@@ -110,6 +110,9 @@ export async function refreshPluginTrust(
           requireProvenance: releasePolicy?.requireProvenance === true,
           labels: release.labels ?? [],
           inspection: sameArtifact ? previous.inspection : null,
+          // Advisory evidence belongs to one exact release. A new artifact
+          // starts with no advisory coverage rather than carrying it forward.
+          advisory: sameArtifact ? previous.advisory : undefined,
           refreshFailed: false,
         }),
       );

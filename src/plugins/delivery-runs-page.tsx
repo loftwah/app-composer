@@ -7,6 +7,7 @@ import {
   type DeliveryRun,
   type DeliveryRunList,
 } from "../lib/delivery-runs-contract";
+import { focusStoredRecord } from "./record-anchor";
 import "./delivery-runs-page.css";
 
 const liveSchemaMessage =
@@ -105,14 +106,18 @@ function RunDetail({
   const checks = run.receipt.steps.filter((step) => step.state === "passed");
   const failures = run.receipt.steps.filter((step) => step.state !== "passed");
   return (
-    <article className="dr-run" aria-labelledby="dr-run-title">
+    <article
+      className="dr-run"
+      id={"delivery-run-" + run.id}
+      aria-labelledby={"dr-run-title-" + run.id}
+    >
       <header>
         <p className="dr-kicker">
           {deliveryLabels[run.mode]} · recorded {stamp(run.recordedAt)} by{" "}
           {run.recordedBy}
         </p>
         <div className="dr-run-heading">
-          <h2 id="dr-run-title">{runnerLabels[run.runner]}</h2>
+          <h2 id={"dr-run-title-" + run.id}>{runnerLabels[run.runner]}</h2>
           <StateChip state={run.state} />
         </div>
         <p className="dr-run-id">
@@ -180,6 +185,14 @@ function RunDetail({
           </dd>
         </div>
         <div>
+          <dt>Candidate binding</dt>
+          <dd>
+            {run.receipt.approval.binding
+              ? `${run.receipt.approval.binding.sourceCommit.slice(0, 12)} · ${run.receipt.approval.binding.target.worker} · ${run.receipt.approval.binding.target.environment} · ${run.receipt.approval.binding.candidateDigest}`
+              : "No candidate receipt was bound; the explicit release flag was the approval"}
+          </dd>
+        </div>
+        <div>
           <dt>Release</dt>
           <dd>
             {run.releasePerformed
@@ -191,6 +204,14 @@ function RunDetail({
             {run.verificationPerformed
               ? `verified via ${run.receipt.verification.verifier}`
               : "no independent live read recorded"}
+          </dd>
+        </div>
+        <div>
+          <dt>Credential</dt>
+          <dd>
+            {run.receipt.credentials?.required
+              ? "Operator environment only; not recorded by the journey"
+              : "No Cloudflare credential used by this mode"}
           </dd>
         </div>
         <div>
@@ -245,6 +266,12 @@ export function DeliveryRunsPage() {
               ? requested
               : (parsed.runs[0]?.id ?? ""),
           );
+          window.requestAnimationFrame(() => {
+            if (!focusStoredRecord("delivery-run-"))
+              window.requestAnimationFrame(() =>
+                focusStoredRecord("delivery-run-"),
+              );
+          });
         }
       } catch {
         if (!controller.signal.aborted)

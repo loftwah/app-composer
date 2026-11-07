@@ -3,13 +3,14 @@
 // and states the cadence plainly. It reads committed evidence only and never
 // installs, updates or executes a plugin.
 import type { CuratedPlugin, TrustSnapshot } from "./plugin-trust-contract.ts";
+import { advisorySignature } from "./plugin-trust-advisory.ts";
 
 export const watchPolicy = {
   automatic: false,
   cadenceHours: 24,
   owner: "Composer owner",
   network: "Two registry reads and up to two artifact downloads per run. No credentials, no model spend.",
-  escalation: "A deduplicated review item is raised only when a release, permission, host, digest, compatibility or listing state changes.",
+  escalation: "A deduplicated review item is raised only when a release, permission, host, digest, compatibility, listing or advisory state changes.",
 } as const;
 
 export type ChangeSeverity = "info" | "review" | "block";
@@ -141,6 +142,35 @@ export function diffObservation(
         severity: "review",
         detail: "The observed source repository changed or became unavailable.",
       });
+    const advisoryBefore = advisorySignature(old);
+    const advisoryAfter = advisorySignature(plugin);
+    if (advisoryBefore !== advisoryAfter) {
+      const worst = plugin.advisory?.findings.find(
+        (finding) =>
+          finding.severity === "critical" || finding.severity === "high",
+      );
+      changes.push({
+        code: "ADVISORY_STATE_CHANGED",
+        severity: worst
+          ? "block"
+          : plugin.advisory?.source === "checked" &&
+              plugin.advisory.findings.length === 0
+            ? "info"
+            : "review",
+        detail:
+          advisoryAfter === "none"
+            ? "Advisory coverage changed to none; this is not a clean result."
+            : advisoryAfter.startsWith("unknown")
+              ? "The advisory source became unavailable; this is not a clean result."
+              : plugin.advisory?.findings.length
+                ? `The advisory source now reports ${plugin.advisory.findings.length} finding${
+                    plugin.advisory.findings.length === 1 ? "" : "s"
+                  } (${plugin.advisory.findings
+                    .map((finding) => finding.id + ": " + finding.severity)
+                    .join(", ")}).`
+                : "The advisory source is now readable and reports no findings for this release; other unknowns may remain.",
+      });
+    }
     const activeBefore = new Map(
       (old.labels ?? []).map((label) => [label.val, label.neg !== true]),
     );

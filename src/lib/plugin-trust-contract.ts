@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+  advisoryOff,
+  advisoryState,
+  advisoryWorstFinding,
+} from "./plugin-trust-advisory.ts";
 
 const text = z.string().min(1).max(300);
 const did = z.string().regex(/^did:(plc|web):[a-zA-Z0-9.:%-]{1,160}$/);
@@ -43,6 +48,9 @@ export const curatedPlugin = z
     // Profile-level registry labels are separate from release labels. They are
     // optional because the earlier curated snapshot predates them.
     profileLabels: z.array(label).max(30).optional(),
+    // Optional so the earlier curated snapshots remain readable. An absent
+    // value is evaluated as ADVISORY_SOURCE_NONE, never as clean.
+    advisory: advisoryState.optional(),
     refreshFailed: z.boolean(),
     inspection: z
       .object({
@@ -354,11 +362,32 @@ export function evaluatePlugin(
     );
   if (!plugin.license)
     add("AMBER", "LICENSE_UNKNOWN", "No licence was observed.");
-  add(
-    "UNKNOWN",
-    "ADVISORY_SOURCE_NONE",
-    "No advisory source has been checked; this evaluation cannot certify the absence of known vulnerabilities.",
-  );
+  const advisory = plugin.advisory ?? advisoryOff;
+  if (advisory.source === "none")
+    add(
+      "UNKNOWN",
+      "ADVISORY_SOURCE_NONE",
+      "No advisory source is configured; this evaluation cannot certify the absence of known vulnerabilities.",
+    );
+  else if (advisory.source === "unknown")
+    add(
+      "UNKNOWN",
+      "ADVISORY_SOURCE_UNKNOWN",
+      "The configured advisory source could not be read; an unavailable source is not a clean result.",
+    );
+  else {
+    const worst = advisoryWorstFinding(advisory);
+    if (worst)
+      add(
+        worst.severity === "critical" || worst.severity === "high"
+          ? "RED"
+          : "AMBER",
+        "ADVISORY_FINDING",
+        `The advisory source reports ${advisory.findings.length} finding${
+          advisory.findings.length === 1 ? "" : "s"
+        } for this release (worst: ${worst.severity} ${worst.id}). Confirm the advisory and the affected range before a decision.`,
+      );
+  }
   add(
     "UNKNOWN",
     "INSTALL_NOT_TESTED",

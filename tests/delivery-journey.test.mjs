@@ -312,6 +312,165 @@ test('an explicitly authorised release reuses the guarded deploy and independent
   assert.equal(receipt.approval.candidateDigest, null);
 });
 
+async function passedCandidate(t, {workspace = null, selectedSource = source()} = {}) {
+  const directory = workspace ?? workspaceFixture(t);
+  const receipt = await runDeliveryJourney({
+    workspace: directory,
+    mode: 'candidate',
+    source: selectedSource,
+    environment: {},
+    execute: async () => {},
+    verify: async () => assert.fail('candidate must not verify live'),
+  });
+  assert.equal(receipt.state, 'passed');
+  return {workspace: directory, receipt};
+}
+
+function writeCandidate(workspace, name, receipt) {
+  const path = join(workspace, name);
+  writeFileSync(path, `${JSON.stringify(receipt, null, 2)}\n`);
+  return path;
+}
+
+test('a release binds one exact passed candidate and records the binding', async t => {
+  const {workspace, receipt: candidate} = await passedCandidate(t);
+  const candidatePath = writeCandidate(workspace, 'candidate.json', candidate);
+  const calls = [];
+  const release = await runDeliveryJourney({
+    workspace,
+    mode: 'release',
+    source: source(),
+    environment: {HOME: '/tmp'},
+    candidateReceipt: candidatePath,
+    execute: async (command, args) => calls.push([command, ...args]),
+    verify: async () => {},
+  });
+  assert.equal(release.state, 'passed');
+  assert.deepEqual(calls, [['pnpm', 'deploy']]);
+  assert.equal(release.approval.sourceCommit, source().commit);
+  assert.equal(release.approval.candidateDigest, candidate.candidate.digest);
+  assert.equal(release.approval.binding.sourceCommit, source().commit);
+  assert.equal(release.approval.binding.candidateDigest, candidate.candidate.digest);
+  assert.equal(release.approval.binding.artefactDigest, candidate.artefact.digest);
+  assert.equal(release.approval.binding.target.worker, config.name);
+  assert.equal(release.approval.binding.target.account, config.account_id);
+  assert.equal(release.approval.binding.target.environment, 'production');
+  assert.equal(release.approval.binding.target.origin, config.vars.PUBLIC_ORIGIN);
+  assert.equal(release.approval.binding.target.composition, lock.id);
+  assert.equal(release.approval.binding.preview.worker, config.env.preview.name);
+  assert.match(release.approval.binding.receiptDigest, /^sha256:[a-f0-9]{64}$/);
+  assert.equal(release.credentials.recorded, false);
+  assert.equal(release.credentials.required, true);
+  assert.equal(release.credentials.source, 'operator-environment');
+});
+
+test('a candidate receipt cannot approve a different commit, target or composition', async t => {
+  const {workspace, receipt: candidate} = await passedCandidate(t);
+  const variants = [
+    [{...candidate, source: {...candidate.source, commit: 'b'.repeat(40)}}, 'candidate-commit-mismatch'],
+    [{...candidate, target: {...candidate.target, account: 'another-account'}}, 'candidate-target-mismatch'],
+    [{...candidate, target: {...candidate.target, environment: 'preview'}}, 'candidate-target-mismatch'],
+    [{...candidate, target: {...candidate.target, origin: 'https://example.invalid'}}, 'candidate-target-mismatch'],
+    [
+      {...candidate, target: {...candidate.target, composition: {...candidate.target.composition, id: 'b'.repeat(64)}}},
+      'candidate-composition-mismatch',
+    ],
+    [{...candidate, candidate: {...candidate.candidate, worker: 'another-preview'}}, 'candidate-preview-mismatch'],
+  ];
+  for (const [variant, code] of variants) {
+    const candidatePath = writeCandidate(workspace, `${code}.json`, variant);
+    let calls = 0;
+    const release = await runDeliveryJourney({
+      workspace,
+      mode: 'release',
+      source: source(),
+      environment: {},
+      candidateReceipt: candidatePath,
+      execute: async () => calls++,
+      verify: async () => calls++,
+    });
+    assert.equal(release.state, 'refused');
+    assert.equal(release.error.code, code);
+    assert.equal(calls, 0, `${code} must not run a command`);
+    assert.equal(release.release.attempted, false);
+    assert.equal(release.release.performed, false);
+    assert.equal(release.approval.binding, null);
+    assert.match(release.nextAction, /No upload occurred/);
+  }
+});
+
+test('an incomplete, failed, uploaded or missing candidate receipt is refused', async t => {
+  const {workspace, receipt: candidate} = await passedCandidate(t);
+  const variants = [
+    [{...candidate, mode: 'release'}, 'candidate-receipt-mode'],
+    [{...candidate, state: 'failed'}, 'candidate-receipt-state'],
+    [{...candidate, candidate: null}, 'candidate-receipt-state'],
+    [{...candidate, candidate: {...candidate.candidate, uploaded: true}}, 'candidate-receipt-uploaded'],
+    [{...candidate, schema: 'app-composer.delivery-receipt/2'}, 'candidate-receipt-invalid'],
+    [{...candidate, source: {...candidate.source, commit: null}}, 'candidate-receipt-invalid'],
+    [{...candidate, target: null}, 'candidate-receipt-invalid'],
+  ];
+  for (const [variant, code] of variants) {
+    const candidatePath = writeCandidate(workspace, `${code}-${Math.random().toString(16).slice(2)}.json`, variant);
+    let calls = 0;
+    const release = await runDeliveryJourney({
+      workspace,
+      mode: 'release',
+      source: source(),
+      environment: {},
+      candidateReceipt: candidatePath,
+      execute: async () => calls++,
+      verify: async () => calls++,
+    });
+    assert.equal(release.state, 'refused');
+    assert.equal(release.error.code, code);
+    assert.equal(calls, 0);
+  }
+  let calls = 0;
+  const missing = await runDeliveryJourney({
+    workspace,
+    mode: 'release',
+    source: source(),
+    environment: {},
+    candidateReceipt: join(workspace, 'missing.json'),
+    execute: async () => calls++,
+    verify: async () => calls++,
+  });
+  assert.equal(missing.state, 'refused');
+  assert.equal(missing.error.code, 'candidate-receipt-missing');
+  assert.equal(calls, 0);
+  await assert.rejects(
+    runDeliveryJourney({
+      workspace,
+      mode: 'candidate',
+      source: source(),
+      environment: {},
+      candidateReceipt: writeCandidate(workspace, 'wrong-mode.json', candidate),
+      execute: async () => {},
+      verify: async () => {},
+    }),
+    error => error.code === 'candidate-receipt-mode',
+  );
+});
+
+test('a release without a candidate receipt records no binding and no credential', async t => {
+  const workspace = workspaceFixture(t);
+  const receipt = await runDeliveryJourney({
+    workspace,
+    mode: 'release',
+    source: source(),
+    environment: {},
+    execute: async () => {},
+    verify: async () => {},
+  });
+  assert.equal(receipt.state, 'passed');
+  assert.equal(receipt.approval.binding, null);
+  assert.equal(receipt.approval.candidateDigest, null);
+  assert.equal(receipt.credentials.recorded, false);
+  assert.equal(receipt.credentials.required, true);
+  assert.match(receipt.limits.join(' '), /never reads, records or forwards a Cloudflare token/);
+});
+
 test('the receipt has a bounded, explicit source, target and release identity', async t => {
   const workspace = workspaceFixture(t);
   const receipt = await runDeliveryJourney({

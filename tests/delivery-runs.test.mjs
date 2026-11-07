@@ -229,6 +229,23 @@ test("a real candidate receipt is recorded once and listed as evidence", async (
   assert.doesNotMatch(serialised, /OWNER_API_TOKEN|EMDASH_ENCRYPTION_KEY|SHOWCASE_OWNER_TOKEN/);
 });
 
+test("a receipt recorded before the approval-binding slice remains readable", async (t) => {
+  const { db } = database();
+  const receipt = await candidateReceipt(t);
+  const legacy = structuredClone(receipt);
+  delete legacy.approval.binding;
+  delete legacy.credentials;
+  const recorded = await manageDeliveryRuns(
+    context({ method: "POST", body: { action: "record", receipt: legacy } }),
+    runtime(db),
+  );
+  const body = await recorded.json();
+  assert.equal(body.ok, true);
+  assert.equal(body.runs.length, 1);
+  assert.equal(body.runs[0].receipt.approval.binding, undefined);
+  assert.equal(body.runs[0].receipt.credentials, undefined);
+});
+
 test("an incomplete or extended receipt is refused without a row", async (t) => {
   const { db, sqlite } = database();
   const receipt = await candidateReceipt(t);

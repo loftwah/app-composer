@@ -15,6 +15,11 @@ import {
 import { APP_ID, ENVIRONMENT_ID, WORKSPACE_ID } from "./admin-scope.ts";
 import { readResourceInventory } from "./resource-inventory.ts";
 import { readPluginTrustAttention } from "./plugin-trust-attention.ts";
+import {
+  releaseAttentionCopy,
+  releaseAttentionKey,
+  type ReleaseAttentionRow,
+} from "./release-attention.ts";
 import { appSettings } from "./app-settings.mjs";
 const origin = "https://composer.loftwah.com";
 const scope = {
@@ -56,6 +61,7 @@ const LABELS: Record<SourceId, string> = {
   workflows: "Workflows",
   resources: "App resources",
   notifications: "Owner notifications",
+  delivery: "Release receipts",
   "plugin-trust": "Plugin Trust",
 };
 function timestamp(input: string) {
@@ -254,13 +260,15 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
           label,
           status: "checked",
           count: n,
-          atLimit: n >= (id === "notifications" ? 100 : 50),
+          atLimit: n >= (id === "notifications" ? 100 : id === "delivery" ? 20 : 50),
           note:
             id === "notifications"
               ? "Only the latest 30 notification records shown per visitor book, up to 100 matching records in total. Older problems may remain. Provider health and the live application are not checked."
               : id === "resources"
                 ? "Composer's own stored resource records for this account, in every recorded environment. It counts the resources App resources shows as needing attention, unknown, stale or unbound. No Cloudflare read, tag change or billing check happens here."
-                : "Only problems among the latest 50 records shown in the owning screen. Older retained problems may remain. Provider health and the live application are not checked.",
+                : id === "delivery"
+                  ? "Only recorded production release receipts that failed or lack an independent live read, newest 20. Recording is evidence, not approval; no Worker version or live source is read here."
+                  : "Only problems among the latest 50 records shown in the owning screen. Older retained problems may remain. Provider health and the live application are not checked.",
         });
         items.push(...found);
       } catch {
@@ -427,6 +435,32 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
             ),
           }),
           (row) => (row as BaseRow & { app: string }).app,
+        );
+      });
+    if (user.role !== 50)
+      sources.push({
+        id: "delivery",
+        label: LABELS.delivery,
+        status: "restricted",
+        count: null,
+        atLimit: false,
+        note: "Recorded release receipts require a signed-in administrator. Restricted is not zero.",
+      });
+    else
+      await collect("delivery", async () => {
+        const rows = await db
+          .prepare(
+            "SELECT id,commit_sha,environment,state,release_performed,verification_performed,generated_at AS created_at,recorded_at AS updated_at FROM composer_delivery_runs WHERE mode='release' AND (state='failed' OR (release_performed=1 AND verification_performed=0)) ORDER BY recorded_at DESC,id DESC LIMIT 20",
+          )
+          .all<BaseRow & ReleaseAttentionRow>();
+        return group(
+          rows.results,
+          "delivery",
+          (row) => releaseAttentionKey(row as BaseRow & ReleaseAttentionRow),
+          (row) => ({
+            ...releaseAttentionCopy(row as BaseRow & ReleaseAttentionRow),
+            href: link("delivery", "delivery-run-" + row.id),
+          }),
         );
       });
     try {

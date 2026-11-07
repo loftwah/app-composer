@@ -166,8 +166,43 @@ export const deliveryReceipt = z
         flag: text(20),
         sourceCommit: commit.nullable(),
         candidateDigest: digest.nullable(),
+        binding: z
+          .object({
+            receiptDigest: digest,
+            sourceCommit: commit,
+            candidateDigest: digest,
+            artefactDigest: digest.nullable(),
+            target: z
+              .object({
+                worker: text(120),
+                account: text(80),
+                environment: text(40),
+                origin: z.url().max(300),
+                composition: z.string().regex(/^[a-f0-9]{64}$/),
+              })
+              .strict(),
+            preview: z
+              .object({
+                worker: text(120),
+                origin: z.url().max(300),
+              })
+              .strict(),
+          })
+          .strict()
+          .nullable()
+          .optional(),
       })
       .strict(),
+    // Optional so a receipt recorded before this slice remains readable.
+    credentials: z
+      .object({
+        recorded: z.literal(false),
+        required: z.boolean(),
+        source: z.enum(["operator-environment"]).nullable(),
+        note: z.string().min(1).max(300),
+      })
+      .strict()
+      .optional(),
     review: z
       .object({
         required: z.boolean(),
@@ -195,6 +230,51 @@ export const deliveryReceipt = z
     if (value.mode === "release" || value.mode === "verify") {
       if (!value.source || value.source.commit === null)
         issue(["source"], "This mode needs an exact source commit.");
+    }
+    if (
+      value.credentials &&
+      value.credentials.required !== (value.mode === "release")
+    )
+      issue(
+        ["credentials", "required"],
+        "Only a release receipt requires the operator credential.",
+      );
+    if (value.mode !== "release" && value.approval.binding)
+      issue(
+        ["approval", "binding"],
+        "Only a release receipt may bind a candidate.",
+      );
+    if (value.approval.binding) {
+      const binding = value.approval.binding;
+      if (binding.sourceCommit !== value.source?.commit)
+        issue(
+          ["approval", "binding", "sourceCommit"],
+          "The bound candidate commit must match the release source commit.",
+        );
+      if (binding.candidateDigest !== value.approval.candidateDigest)
+        issue(
+          ["approval", "binding", "candidateDigest"],
+          "The bound candidate digest must match the approval candidate digest.",
+        );
+      if (
+        binding.target.worker !== value.target?.worker ||
+        binding.target.account !== value.target?.account ||
+        binding.target.environment !== value.target?.environment ||
+        binding.target.origin !== value.target?.origin ||
+        binding.target.composition !== value.target?.composition.id
+      )
+        issue(
+          ["approval", "binding", "target"],
+          "The bound candidate target must match the release target.",
+        );
+      if (
+        binding.preview.worker !== value.target?.preview?.worker ||
+        binding.preview.origin !== value.target?.preview?.origin
+      )
+        issue(
+          ["approval", "binding", "preview"],
+          "The bound candidate preview must match the release preview.",
+        );
     }
     if (value.mode === "release") {
       if (!value.release.attempted)

@@ -134,6 +134,21 @@ Every mode emits the same bounded schema. A successful release looks like this i
   "candidate": null,
   "release": {"attempted": true, "performed": true, "command": "pnpm deploy", "commit": "<SHA>"},
   "verification": {"performed": true, "independent": true, "origin": "https://composer.loftwah.com"},
+  "approval": {
+    "mode": "explicit-flag",
+    "flag": "--release",
+    "sourceCommit": "<SHA>",
+    "candidateDigest": "sha256:<candidate config digest>",
+    "binding": {
+      "receiptDigest": "sha256:<digest of the candidate receipt file>",
+      "sourceCommit": "<SHA>",
+      "candidateDigest": "sha256:<candidate config digest>",
+      "artefactDigest": "sha256:<candidate build digest>",
+      "target": {"worker": "app-composer", "account": "<account ID>", "environment": "production", "origin": "https://composer.loftwah.com", "composition": "<lock digest>"},
+      "preview": {"worker": "app-composer-preview", "origin": "https://preview.example"}
+    }
+  },
+  "credentials": {"recorded": false, "required": true, "source": "operator-environment", "note": "..."},
   "nextAction": "Record this receipt in #11 ..."
 }
 ```
@@ -223,6 +238,25 @@ No production release or live verification was performed from this branch. The d
 - The journey does not roll back, create cloud resources, approve content or replace owner authentication.
 - Local checks and a local candidate do not prove production. Only the independent live result, recorded in #11, can support a release claim.
 
+### Binding a release to a candidate
+
+`--release` may be given one passed candidate receipt:
+
+```sh
+node scripts/delivery-journey.mjs --candidate --receipt output/delivery/candidate.json
+node scripts/delivery-journey.mjs --release --candidate-receipt output/delivery/candidate.json --receipt output/delivery/release.json
+```
+
+The candidate file is read as a bounded regular file, never executed and never fetched. Its schema, mode, passed state, built candidate, no-upload flag, source commit and complete target identity are validated. The release then requires the **same** source commit, Worker, account, environment, origin, composition lock and preview Worker/origin. Any difference refuses the release with a specific code (`candidate-commit-mismatch`, `candidate-target-mismatch`, `candidate-composition-mismatch`, `candidate-preview-mismatch`, `candidate-receipt-state`, …) before `pnpm deploy` runs. The receipt records the candidate receipt digest and the exact bound facts under `approval.binding`.
+
+A release without `--candidate-receipt` still runs under the explicit `--release` flag, but its receipt states `approval.binding: null`. It makes no claim that a candidate was reviewed, and a candidate from another commit or target can never be presented as its approval.
+
+### Credentials and external runners
+
+The release step needs an authorised Cloudflare session or scoped API token in the environment where `pnpm deploy` actually runs. The journey never reads, prints, stores or forwards that credential; it records only `credentials: {recorded: false, required: true, source: "operator-environment"}`.
+
+The local Jenkins fixture runs **candidates only**. It does not inject `CLOUDFLARE_API_TOKEN`, account credentials or `.env` into the container, and this repository does not provision a credential for it. A release from an existing external runner is an owner decision: the owner configures a scoped credential in that runner's own secret store, restricts who can trigger the job, and accepts that the journey will still require clean pushed `main`, the guarded deploy and an independent live read. Nothing in this repository puts a Cloudflare token into the Jenkins container.
+
 ## Optional external runner
 
 [`examples/local-delivery-runner.sh`](../examples/local-delivery-runner.sh) is a plain one-shot POSIX shell wrapper. It runs one journey, writes `output/delivery/<mode>.json`, and exits with the journey status. It starts no daemon and creates no schedule.
@@ -258,7 +292,8 @@ operator's machine, with no hosted CI:
 
 The fixture proves the candidate contract only. It does not approve or perform a
 release: a Jenkins run with `--release` would still need clean pushed `main`, the
-guarded deploy and an independent live read.
+guarded deploy, an independent live read and a credential the owner deliberately
+supplies through that runner's own secret store. The fixture never receives one.
 
 GitLab, Buildkite, Azure Pipelines, CircleCI and CodeBuild stay templates until
 one is exercised the same way; the repository ships no generator for them.

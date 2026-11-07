@@ -23,8 +23,13 @@ const limits = [
   'Local checks and candidate builds do not verify production.',
   'A Version URL is not an isolated test environment. A deployed preview needs the preview bindings and no production services.',
   'The release step delegates to the existing clean pushed-main guard in scripts/deploy.mjs.',
+  'A bound candidate receipt approves one exact source commit, target and composition; it cannot approve a different release.',
+  'Release credentials stay in the operator environment. The journey never reads, records or forwards a Cloudflare token.',
   'This journey does not roll back, approve content, create cloud resources or replace owner authentication.',
 ];
+const maximumCandidateReceiptBytes = 24 * 1024;
+const digestPattern = /^sha256:[a-f0-9]{64}$/;
+const commitPattern = /^[a-f0-9]{40}$/;
 const previewWarning =
   'The local dist directory now contains the preview candidate. The release step rebuilds production before upload.';
 
@@ -166,6 +171,110 @@ export class DeliveryRefusal extends Error {
     this.name = 'DeliveryRefusal';
     this.code = code;
   }
+}
+
+/**
+ * Read one candidate receipt and reduce it to the exact facts a release may be
+ * bound to. The file is bounded and every identity field is validated before
+ * it can influence a release decision. Nothing is executed or fetched.
+ */
+export function readCandidateBinding(workspace, path) {
+  const selected = text(path);
+  if (!selected) return null;
+  const full = resolve(workspace, selected);
+  let bytes;
+  try {
+    const stats = lstatSync(full);
+    if (!stats.isFile() || stats.size < 2 || stats.size > maximumCandidateReceiptBytes)
+      throw Error('not a bounded file');
+    bytes = readFileSync(full);
+  } catch {
+    throw new DeliveryRefusal(
+      'candidate-receipt-missing',
+      'The candidate receipt could not be read as a bounded regular file. Build the candidate again or omit --candidate-receipt.',
+    );
+  }
+  let receipt;
+  try {
+    receipt = JSON.parse(bytes.toString('utf8'));
+  } catch {
+    throw new DeliveryRefusal('candidate-receipt-invalid', 'The candidate receipt is not valid JSON.');
+  }
+  if (!receipt || typeof receipt !== 'object' || Array.isArray(receipt) || receipt.schema !== receiptSchema)
+    throw new DeliveryRefusal('candidate-receipt-invalid', `The candidate receipt does not use ${receiptSchema}.`);
+  if (receipt.mode !== 'candidate')
+    throw new DeliveryRefusal('candidate-receipt-mode', 'Only a candidate receipt can be bound to a release.');
+  if (receipt.state !== 'passed' || !receipt.candidate || receipt.candidate.built !== true)
+    throw new DeliveryRefusal('candidate-receipt-state', 'The candidate receipt did not pass its own checks and build.');
+  if (receipt.candidate.uploaded !== false)
+    throw new DeliveryRefusal('candidate-receipt-uploaded', 'The candidate receipt claims an upload; it is not a local candidate.');
+  if (!digestPattern.test(text(receipt.candidate.digest) ?? ''))
+    throw new DeliveryRefusal('candidate-receipt-invalid', 'The candidate receipt has no valid candidate digest.');
+  if (!receipt.source || !commitPattern.test(text(receipt.source.commit) ?? ''))
+    throw new DeliveryRefusal('candidate-receipt-invalid', 'The candidate receipt has no exact source commit.');
+  const target = receipt.target;
+  if (
+    !target ||
+    !text(target.worker) ||
+    !text(target.account) ||
+    !text(target.environment) ||
+    !text(target.origin) ||
+    !text(target.composition?.id) ||
+    !text(receipt.candidate.worker) ||
+    !text(receipt.candidate.origin)
+  )
+    throw new DeliveryRefusal('candidate-receipt-invalid', 'The candidate receipt has no complete target identity.');
+  return {
+    receiptDigest: `sha256:${createHash('sha256').update(bytes).digest('hex')}`,
+    sourceCommit: receipt.source.commit,
+    candidateDigest: receipt.candidate.digest,
+    artefactDigest: digestPattern.test(text(receipt.candidate.artefact?.digest) ?? '')
+      ? receipt.candidate.artefact.digest
+      : null,
+    target: {
+      worker: target.worker,
+      account: target.account,
+      environment: target.environment,
+      origin: target.origin,
+      composition: target.composition.id,
+    },
+    preview: {worker: receipt.candidate.worker, origin: receipt.candidate.origin},
+  };
+}
+
+/**
+ * A candidate is evidence for one exact release identity. A changed commit,
+ * account, environment, origin, composition or preview Worker refuses the
+ * release before any command runs.
+ */
+export function assertCandidateBinding(binding, source, target) {
+  if (!binding) return;
+  if (binding.sourceCommit !== source.commit)
+    throw new DeliveryRefusal(
+      'candidate-commit-mismatch',
+      `The candidate receipt is for ${binding.sourceCommit.slice(0, 12)}, not the release commit ${source.commit.slice(0, 12)}.`,
+    );
+  const expected = target.identity;
+  if (
+    binding.target.worker !== expected.worker ||
+    binding.target.account !== expected.account ||
+    binding.target.environment !== expected.environment ||
+    binding.target.origin !== expected.origin
+  )
+    throw new DeliveryRefusal(
+      'candidate-target-mismatch',
+      'The candidate receipt was built for a different Worker, account, environment or origin.',
+    );
+  if (binding.target.composition !== expected.composition.id)
+    throw new DeliveryRefusal(
+      'candidate-composition-mismatch',
+      'The candidate receipt was built from a different composition lock.',
+    );
+  if (binding.preview.worker !== expected.preview.worker || binding.preview.origin !== expected.preview.origin)
+    throw new DeliveryRefusal(
+      'candidate-preview-mismatch',
+      'The candidate receipt was built for a different preview Worker or origin.',
+    );
 }
 
 const list = value => (Array.isArray(value) ? value : []);
@@ -478,9 +587,12 @@ export async function runDeliveryJourney({
   source = null,
   environment = process.env,
   runner = null,
+  candidateReceipt = null,
   now = () => new Date(),
 } = {}) {
   if (!(mode in modeFlags)) throw new DeliveryRefusal('unknown-mode', 'Select local, candidate, release or verify.');
+  if (candidateReceipt && mode !== 'release')
+    throw new DeliveryRefusal('candidate-receipt-mode', 'A candidate receipt can only bind a release.');
   const started = now();
   const steps = [];
   const receipt = {
@@ -496,7 +608,22 @@ export async function runDeliveryJourney({
     candidate: null,
     release: {attempted: false, performed: false, command: null, commit: null, checks: null},
     verification: {performed: false, independent: false, verifier: 'scripts/verify-live.mjs', origin: null},
-    approval: {mode: 'explicit-flag', flag: modeFlags[mode], sourceCommit: null, candidateDigest: null},
+    approval: {
+      mode: 'explicit-flag',
+      flag: modeFlags[mode],
+      sourceCommit: null,
+      candidateDigest: null,
+      binding: null,
+    },
+    credentials: {
+      recorded: false,
+      required: mode === 'release',
+      source: mode === 'release' ? 'operator-environment' : null,
+      note:
+        mode === 'release'
+          ? 'The guarded release uses the authorised Cloudflare session in this operator environment. The journey never reads, records or forwards the credential.'
+          : 'This mode uses no Cloudflare credential.',
+    },
     review: {required: mode === 'local' || mode === 'candidate', action: null},
     nextAction: null,
     limits,
@@ -567,7 +694,11 @@ export async function runDeliveryJourney({
     }
 
     if (mode === 'release') {
+      const binding = readCandidateBinding(workspace, candidateReceipt);
+      assertCandidateBinding(binding, facts, selectedTarget);
       receipt.approval.sourceCommit = facts.commit;
+      receipt.approval.binding = binding;
+      if (binding) receipt.approval.candidateDigest = binding.candidateDigest;
       receipt.release.attempted = true;
       receipt.release.command = 'pnpm deploy';
       receipt.release.commit = facts.commit;
@@ -687,6 +818,10 @@ export function humanSummary(receipt, receiptPath = null) {
     lines.push(`${step.state === 'passed' ? 'PASS' : 'FAIL'} ${step.label}: ${step.command} (${(step.durationMs / 1000).toFixed(1)}s)${step.error ? ` — ${step.error}` : ''}`);
   if (receipt.candidate)
     lines.push(`Candidate: ${receipt.candidate.worker} · ${receipt.candidate.digest} · uploaded: no`);
+  if (receipt.approval?.binding)
+    lines.push(
+      `Approval bound: ${receipt.approval.binding.sourceCommit.slice(0, 12)} · ${receipt.approval.binding.target.worker} · ${receipt.approval.binding.target.environment} · ${receipt.approval.binding.candidateDigest}`,
+    );
   if (receipt.artefact)
     lines.push(`Artefact: ${receipt.artefact.path} · ${receipt.artefact.files} files · ${receipt.artefact.bytes} bytes · ${receipt.artefact.digest}`);
   if (receipt.verification.performed) lines.push(`Verified: ${receipt.verification.origin} independently via ${receipt.verification.verifier}`);
@@ -700,6 +835,7 @@ export function humanSummary(receipt, receiptPath = null) {
 function parseArguments(argv) {
   let mode = 'local';
   let receiptPath = null;
+  let candidateReceipt = null;
   let json = false;
   const runner = {kind: null, runId: null, runUrl: null};
   const selectedModes = [];
@@ -710,22 +846,31 @@ function parseArguments(argv) {
       json = true;
       continue;
     }
-    if (argument === '--receipt' || argument === '--runner' || argument === '--run-id' || argument === '--run-url') {
+    if (
+      argument === '--receipt' ||
+      argument === '--candidate-receipt' ||
+      argument === '--runner' ||
+      argument === '--run-id' ||
+      argument === '--run-url'
+    ) {
       const value = argv[++index];
       if (!value || value.startsWith('--')) throw new DeliveryRefusal(`${argument.slice(2)}-value`, `${argument} needs an explicit value.`);
       if (argument === '--receipt') receiptPath = value;
+      else if (argument === '--candidate-receipt') candidateReceipt = value;
       else if (argument === '--runner') runner.kind = value;
       else if (argument === '--run-id') runner.runId = value;
       else runner.runUrl = value;
       continue;
     }
     const found = Object.entries(modeFlags).find(([, flag]) => flag === argument);
-    if (!found) throw new DeliveryRefusal('unknown-option', `Unsupported option ${argument}. Use --local, --candidate, --release, --verify, --runner, --run-id, --run-url, --json or --receipt PATH.`);
+    if (!found) throw new DeliveryRefusal('unknown-option', `Unsupported option ${argument}. Use --local, --candidate, --release, --verify, --runner, --run-id, --run-url, --candidate-receipt PATH, --json or --receipt PATH.`);
     selectedModes.push(found[0]);
   }
   if (selectedModes.length > 1) throw new DeliveryRefusal('multiple-modes', 'Select one delivery mode.');
   if (selectedModes.length === 1) mode = selectedModes[0];
-  return {mode, receiptPath, json, runner};
+  if (candidateReceipt && mode !== 'release')
+    throw new DeliveryRefusal('candidate-receipt-mode', '--candidate-receipt only applies to --release.');
+  return {mode, receiptPath, candidateReceipt, json, runner};
 }
 
 async function main() {
@@ -746,13 +891,16 @@ async function main() {
   if (parsed.help) {
     process.stdout.write(`App Composer local-first delivery.
 
-Usage: node scripts/delivery-journey.mjs [--local|--candidate|--release|--verify] [--runner KIND] [--run-id ID] [--run-url URL] [--json] [--receipt PATH]
+Usage: node scripts/delivery-journey.mjs [--local|--candidate|--release|--verify] [--candidate-receipt PATH] [--runner KIND] [--run-id ID] [--run-url URL] [--json] [--receipt PATH]
 
   --local      Default. Inspect source/target, run pnpm check and refuse to release.
   --candidate  Check, then build and inspect a local preview candidate. No upload.
   --release    Check clean pushed main, run pnpm deploy
                and independently verify the live source. Explicit approval only.
   --verify     Re-read the live root and mounted pins from clean pushed main.
+  --candidate-receipt  Bind this release to one passed candidate receipt. The exact
+               commit, Worker, account, environment, origin and composition must
+               match or the release is refused before any command runs.
   --runner     Record the actual runner: ${runnerKinds.join(', ')}. Detected from a known CI
                environment when omitted. A recorded runner grants no approval.
   --run-id     The runner's own run identifier, recorded verbatim in the receipt.
@@ -760,11 +908,18 @@ Usage: node scripts/delivery-journey.mjs [--local|--candidate|--release|--verify
   --json       Print only the bounded machine-readable receipt.
   --receipt    Also write the same receipt to an explicit path (for example output/delivery/receipt.json).
 
+Release credentials stay in the operator environment. The journey never reads,
+records or forwards a Cloudflare token, and the Jenkins fixture runs candidates only.
+
 No GitHub Actions, recurring process, cloud resource creation or automatic retry is involved.
 `);
     return;
   }
-  const receipt = await runDeliveryJourney({mode: parsed.mode, runner});
+  const receipt = await runDeliveryJourney({
+    mode: parsed.mode,
+    runner,
+    candidateReceipt: parsed.candidateReceipt,
+  });
   if (parsed.json) process.stdout.write(`${JSON.stringify(receipt, null, 2)}\n`);
   else process.stdout.write(`${humanSummary(receipt, parsed.receiptPath)}\n`);
   if (parsed.receiptPath) {

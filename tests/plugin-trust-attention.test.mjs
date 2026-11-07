@@ -190,6 +190,7 @@ test("the shared overview contract accepts Plugin Trust items and refuses foreig
       { id: "workflows", label: "Workflows", status: "checked", count: 0, atLimit: false, note: "ok" },
       { id: "resources", label: "App resources", status: "checked", count: 0, atLimit: false, note: "ok" },
       { id: "notifications", label: "Owner notifications", status: "checked", count: 0, atLimit: false, note: "ok" },
+      { id: "delivery", label: "Release receipts", status: "checked", count: 0, atLimit: false, note: "ok" },
       {
         id: "plugin-trust",
         label: "Plugin Trust",
@@ -241,6 +242,29 @@ test("the shared overview contract accepts Plugin Trust items and refuses foreig
     );
   assert.throws(() =>
     overviewSnapshot.parse({ ...base, sources: base.sources.slice(0, 4) }),
+  );
+  const deliveryItem = {
+    ...base.items[0],
+    id: "delivery:abc",
+    source: "delivery",
+    title: "A production release needs attention",
+    action: "Open Delivery runs",
+    href: "/_emdash/admin/plugins/composer-stacks/delivery?workspace=fictional-workspace#delivery-run-abc123",
+  };
+  assert.equal(
+    overviewSnapshot.parse({ ...base, items: [deliveryItem] }).items[0].source,
+    "delivery",
+  );
+  assert.throws(() =>
+    overviewSnapshot.parse({
+      ...base,
+      items: [
+        {
+          ...deliveryItem,
+          href: "https://example.invalid/delivery#delivery-run-abc123",
+        },
+      ],
+    }),
   );
 });
 

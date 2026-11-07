@@ -16,7 +16,7 @@ Usage: examples/local-delivery-runner.sh [--local|--candidate|--release|--verify
 
   --local      Default. Read-only identity inspection and required local checks.
   --candidate  Check, then build and inspect a local preview candidate. No upload.
-  --release    Explicitly build the candidate, run the guarded deploy and verify live.
+  --release    Explicitly run the guarded deploy and verify the live source.
   --verify     Independently re-read the live root and mounted pins.
 
 A receipt is written to output/delivery/<mode>.json unless --receipt PATH is supplied.
