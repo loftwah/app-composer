@@ -1,0 +1,69 @@
+{
+  "contract": 1,
+  "reviewed": "2026-11-07",
+  "owner": "Loftwah",
+  "licence": "MIT",
+  "renderer": {
+    "app": "LDraw",
+    "engine": "@excalidraw/excalidraw@0.18.1",
+    "origin": "https://ldraw.loftwah.com"
+  },
+  "diagrams": [
+    {
+      "name": "get-ready-lifecycle",
+      "assetName": "get-ready-lifecycle",
+      "status": "shipped",
+      "reviewed": "2026-11-07",
+      "source": "public/diagrams/ldraw/get-ready-lifecycle.excalidraw",
+      "width": 2176,
+      "height": 1355,
+      "sha256": {
+        "excalidraw": "fdca428f510b4c8300c66d39cffa7745c690ff43f46ae3106c667f1b396a8fff",
+        "svg": "d0573927824f4d57a7b8a131cb40bbe5ec726f4d1648d8e2e6e46a93ede137a4",
+        "png": "bd05f42dc1ea938c24ecf1ba2642b9ec99bc87ee1fb8962e30dbe31c842805b6"
+      }
+    },
+    {
+      "name": "agent-approval-boundary",
+      "assetName": "agent-approval-recovery-20261025",
+      "status": "shipped",
+      "reviewed": "2026-11-07",
+      "source": "public/diagrams/ldraw/agent-approval-recovery-20261025.excalidraw",
+      "width": 2016,
+      "height": 987,
+      "sha256": {
+        "excalidraw": "7fad1b98ec73ae0924066af2c65191c63f1a07a6f223909abdcd9584fd379403",
+        "svg": "9d3b6a87f25f73a818267537b14fa9ccecf6a6ef9a8e14c455ef8d65d2ef9306",
+        "png": "2054cce2704c7caeeb6bef880e82813a7648482ad6592779523d68360becd91b"
+      }
+    },
+    {
+      "name": "cloudflare-isolation",
+      "assetName": "cloudflare-isolation",
+      "status": "shipped",
+      "reviewed": "2026-11-07",
+      "source": "public/diagrams/ldraw/cloudflare-isolation.excalidraw",
+      "width": 2335,
+      "height": 1355,
+      "sha256": {
+        "excalidraw": "96b6f4dcf89a8f9702cdccf1c91b50e719b37bad162979572f5a311f1cb1708e",
+        "svg": "efc38408b0c5574a1087e757a78f14d77e1df18b55ed246f5cec799982be4fb6",
+        "png": "3a672bb8c499cd12d110d800e12835831bdd0d3aa047f59c8ca9732e7d9b0e93"
+      }
+    },
+    {
+      "name": "contribution-boundary",
+      "assetName": "contribution-boundary-20261025-model",
+      "status": "shipped",
+      "reviewed": "2026-11-07",
+      "source": "public/diagrams/ldraw/contribution-boundary-20261025-model.excalidraw",
+      "width": 1936,
+      "height": 872,
+      "sha256": {
+        "excalidraw": "7e47a069b6eb58b72d891a72b60a4f640898a322077111d5eeb599958395afd8",
+        "svg": "b904523475336359b5331bd3aeb93435cb3d5dc6657266ed66ee4d689d983cf2",
+        "png": "427431cb3538bc09823f283456b70af1b0c827fe6825ede3b227e8fbe4c4ba8a"
+      }
+    }
+  ]
+}

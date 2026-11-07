@@ -13,6 +13,7 @@ export interface AtlasDiagram {
 export const diagramAtlas: readonly AtlasDiagram[] = [
   {
     name: 'get-ready-lifecycle',
+    imageWidth: 2176, imageHeight: 1355,
     title: 'Get Ready → Init → EmDash → application lifecycle',
     alt: 'Four App Composer stages: Get Ready prepares local tools, source and Cloudflare access; Init produces a validated brief, content model and source pins; EmDash supplies native admin, collections, typed fields and plugin contracts; the application lifecycle covers deploy, observe, update and recover. Owner decisions and evidence stay separate.',
     caption: 'Each stage produces something the next can inspect. Owner authority and release evidence do not move into the happy path.',
@@ -41,6 +42,7 @@ export const diagramAtlas: readonly AtlasDiagram[] = [
   },
   {
     name: 'cloudflare-isolation',
+    imageWidth: 2335, imageHeight: 1355,
     title: 'Production, Preview and resource isolation',
     alt: 'Production has a Worker with exact pushed-main source and release identity, plus production D1, R2 and KV. Preview has a separate Worker selected at build time, distinct preview D1, R2 and KV, and no audience. Production service bindings are absent in Preview. A dashed boundary separates resources and secrets.',
     caption: 'A missing Preview binding fails closed. It does not fall back to production.',
