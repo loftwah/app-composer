@@ -35,6 +35,22 @@ The composition pin remains `5075d7be…` / `f1dd2795…`; promoting the standal
 app revisions through the composed services is a separate release decision, not
 a hidden claim in this receipt.
 
+## Hosted Linkarooie contribution — 7 November 2026
+
+The remaining #196 gate is now proven on the owner's live configured profile:
+**visitor profile → Guestbook contribution → pending private receipt → native
+owner review/approval → explicit Linkarooie feature → source hide/revocation.**
+The owner used the real Access-protected Composer session, not a fixture or
+direct database write. The live Linkarooie page rendered **Leave a note** with
+the real contribution href, the approved postcard was featured through the
+native **Collect from a saved visitor book** control, and hiding it at source
+removed it from Linkarooie and the Guestbook resource collection. Its media and
+detail routes then returned `404`; the contribution action remained live.
+
+The postcard was deliberately left hidden/private after the proof, so the public
+profile is clean. Evidence:
+[hosted contribution journey](evidence/linkarooie-contribution-20261107/README.md).
+
 ## Job-led discovery — 7 November 2026
 
 Production is Composer `5ee5574b10b3c7b62ede8b3451b382a7fc9180ad`,
