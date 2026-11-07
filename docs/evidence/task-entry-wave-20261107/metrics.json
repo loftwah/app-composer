@@ -1,0 +1,76 @@
+{
+  "release": {
+    "source": "22b220075999d0a0730ebffba63c1b57b9381b79",
+    "worker": "2721ef50-a2bf-4108-b319-f64ec95410f7",
+    "origin": "https://composer.loftwah.com",
+    "buildJson": "22b220075999d0a0730ebffba63c1b57b9381b79",
+    "stackStatus": "deployed source 22b220075999",
+    "releasePath": "clean pushed main -> pnpm deploy",
+    "tests": { "passed": 451, "failed": 0, "skipped": 0 },
+    "publicationGuard": { "files": 1290, "archiveMembers": 150 },
+    "capturedAtUtc": "2026-11-07T03:14:00Z"
+  },
+  "pages": {
+    "creatorStacks": {
+      "liveLead": "Fictional Trail Notes · published · public revision 11 · Open public page",
+      "focus": {
+        "from": "Refresh workspace",
+        "tabReached": "Open public page",
+        "lightOutline": "rgb(199, 68, 0) solid 2px; offset 3px",
+        "darkOutline": "rgb(252, 91, 5) solid 2px; offset 3px"
+      },
+      "measurements": [
+        { "viewport": "1440x1000", "theme": "light", "bodyBg": "oklch(0.9875 0 0)", "leadTop": 251, "leadBottom": 565, "titleTop": 297, "actionTop": 407, "actionBottom": 456, "metaTop": 522, "metaBottom": 544, "nextSectionTop": 724, "scrollWidth": 1440, "overflow": false },
+        { "viewport": "1440x1000", "theme": "dark", "bodyBg": "oklch(0.12 0 0)", "leadTop": 251, "leadBottom": 565, "titleTop": 297, "actionTop": 407, "actionBottom": 456, "metaTop": 522, "metaBottom": 544, "nextSectionTop": 724, "scrollWidth": 1440, "overflow": false },
+        { "viewport": "390x844", "theme": "light", "bodyBg": "oklch(0.9875 0 0)", "mainLeft": 0, "leadTop": 341, "leadBottom": 754, "titleTop": 383, "actionTop": 552, "actionBottom": 601, "metaTop": 690, "metaBottom": 737, "nextSectionTop": 988, "scrollWidth": 390, "overflow": false },
+        { "viewport": "390x844", "theme": "dark", "bodyBg": "oklch(0.12 0 0)", "mainLeft": 0, "leadTop": 341, "leadBottom": 754, "titleTop": 383, "actionTop": 552, "actionBottom": 601, "metaTop": 690, "metaBottom": 737, "nextSectionTop": 988, "scrollWidth": 390, "overflow": false }
+      ]
+    },
+    "orders": {
+      "liveLead": "Fictional reading-club guide · Refunded · Current fixture state · Open fixture controls",
+      "focus": {
+        "from": "Refresh",
+        "tabReached": "Open fixture controls",
+        "lightOutline": "rgb(199, 68, 0) solid 2px; offset 3px",
+        "darkOutline": "rgb(252, 91, 5) solid 2px; offset 3px"
+      },
+      "measurements": [
+        { "viewport": "1440x1000", "theme": "dark", "bodyBg": "oklch(0.12 0 0)", "navigation": "collapsed rail", "leadTop": 302, "leadBottom": 638, "titleTop": 365, "actionTop": 476, "actionBottom": 524, "metaTop": 573, "metaBottom": 617, "fictionalLabTop": 660, "scrollWidth": 1440, "overflow": false },
+        { "viewport": "1440x1000", "theme": "light", "bodyBg": "oklch(0.9875 0 0)", "navigation": "expanded", "leadTop": 302, "leadBottom": 638, "titleTop": 365, "actionTop": 476, "actionBottom": 524, "metaTop": 573, "metaBottom": 617, "fictionalLabTop": 660, "scrollWidth": 1440, "overflow": false },
+        { "viewport": "390x844", "theme": "light", "bodyBg": "oklch(0.9875 0 0)", "mainLeft": 0, "leadTop": 400, "leadBottom": 880, "titleTop": 460, "actionTop": 650, "actionBottom": 699, "metaTop": 797, "metaBottom": 863, "fictionalLabTop": 902, "scrollWidth": 390, "overflow": false },
+        { "viewport": "390x844", "theme": "dark", "bodyBg": "oklch(0.12 0 0)", "mainLeft": 0, "leadTop": 400, "leadBottom": 880, "titleTop": 460, "actionTop": 650, "actionBottom": 699, "metaTop": 797, "metaBottom": 863, "fictionalLabTop": 902, "scrollWidth": 390, "overflow": false }
+      ]
+    },
+    "privateEnquiries": {
+      "liveLead": "Here / there · no pending briefs · No pending result in this view",
+      "privateTextExcluded": true,
+      "focus": {
+        "from": "Refresh inbox",
+        "tabReached": "Export private inbox",
+        "lightOutline": "rgb(199, 68, 0) solid 2px; offset 3px",
+        "darkOutline": "rgb(252, 91, 5) solid 2px; offset 3px"
+      },
+      "measurements": [
+        { "viewport": "1440x1000", "theme": "light", "bodyBg": "oklch(0.9875 0 0)", "leadTop": 354, "leadBottom": 589, "titleTop": 399, "actionTop": null, "metaTop": 545, "metaBottom": 568, "controlsTop": 617, "inboxTop": 718, "scrollWidth": 1440, "overflow": false },
+        { "viewport": "1440x1000", "theme": "dark", "bodyBg": "oklch(0.12 0 0)", "leadTop": 354, "leadBottom": 589, "titleTop": 399, "actionTop": null, "metaTop": 545, "metaBottom": 568, "controlsTop": 617, "inboxTop": 718, "scrollWidth": 1440, "overflow": false },
+        { "viewport": "390x844", "theme": "light", "bodyBg": "oklch(0.9875 0 0)", "mainLeft": 0, "leadTop": 435, "leadBottom": 812, "titleTop": 477, "actionTop": null, "metaTop": 707, "metaBottom": 795, "controlsTop": 840, "inboxTop": 1092, "scrollWidth": 390, "overflow": false },
+        { "viewport": "390x844", "theme": "dark", "bodyBg": "oklch(0.12 0 0)", "mainLeft": 0, "leadTop": 435, "leadBottom": 812, "titleTop": 477, "actionTop": null, "metaTop": 707, "metaBottom": 795, "controlsTop": 840, "inboxTop": 1092, "scrollWidth": 390, "overflow": false }
+      ],
+      "liveStateNote": "The first ready visitor book had no pending brief, so the live lead exercised the existing no-pending/setup path. The pending-brief branch and Open review action are covered by the focused selector tests; no private brief was created or marked reviewed."
+    }
+  },
+  "captures": {
+    "stacks-1440-light.png": "13304dfda9445fe53e8ed60827e1674c964232bba8a398c0e8530bb5feb6000e",
+    "stacks-1440-dark.png": "ed525688d0a159db8486a8d05bd4fe63b18ba58381fdff1b62f9f287241400b9",
+    "stacks-390-light.png": "9ec92a16e6ad96c05db12e24c6524b1c24f3d17dc8f64f1e19d5285548426556",
+    "stacks-390-dark.png": "85244d892f5b079894ad048ae2c89b6f575446e3a9f9805dc27a7156a863e92f",
+    "orders-1440-light.png": "e19d1194b1558883b45e9c489297ec66febc7b54eb603912eaf328bf75d8c79c",
+    "orders-1440-dark.png": "37b5272a3178e0b7e24627740d52f8a40590778ee2577ffc2163b8b30c07f1ee",
+    "orders-390-light.png": "a53381bc09958fb2d86d32b6afecece2ac1be95853f05675326d17f3e74bd993",
+    "orders-390-dark.png": "430ab60c334c279c9d7f636275c73a33a94d6812dbe6ccb9c0e9f2a000ca09bb",
+    "enquiries-1440-light.png": "ea7b204b69e755ad74dfaeb73a7b3a8a017bf1dbd35e5381eb7da0f3c0aa1453",
+    "enquiries-1440-dark.png": "d22421ab610036a09ac6c533258d46b585e647317d89fca8c8e218d75f78ca57",
+    "enquiries-390-light.png": "4c54df3cc619be641b62efb22fbf6c41cf0c8d14d348904600bf1bb8e42f6682",
+    "enquiries-390-dark.png": "b2af8eb2e711f58b851ad8deb3ccb2071002f71d7ce38d62dee875815674078a"
+  }
+}

@@ -2,11 +2,44 @@
 
 Reviewed 25 October 2026; updated 7 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Creator stacks, Orders and Private enquiries task entries — 7 November 2026
+
+Production is Composer `22b220075999d0a0730ebffba63c1b57b9381b79`, Worker
+`2721ef50-a2bf-4108-b319-f64ec95410f7`, from the clean pushed-main release
+guard. `/build.json` and Stack status match the source. `pnpm check` passed 451
+tests with zero skips; the publication guard inspected 1,290 files and 150
+archive members; live source, pinned services, sharing output, publication
+privacy and the anonymous administration boundary passed.
+
+Three more scoped #313 admin journeys now open with their current task:
+
+- **Creator stacks** leads with the selected stack state and its existing action:
+  create when none exists, Save draft for unsaved edits, its saved/public
+  revision and Publish for a draft, the public revision and Open public page for
+  a published stack, or the existing application-request/read-only state.
+- **Orders** leads with the selected fictional order: Reconcile for an uncertain
+  checkout, retained-action review for a failed operation, Inspect payment state
+  for pending payment, the existing Printful draft action when supported, or the
+  fixture controls. A failed fulfilment has no supported replay, so no second
+  reconcile action was invented.
+- **Private enquiries** leads with the first ready visitor book and its latest
+  pending brief, its review state and the existing Open review link; otherwise
+  the honest no-pending, setup or read-only state. Brief bodies and visitor
+  contact fields stay out of URLs, notices and evidence.
+
+Each was checked at 390/1440 in both themes with keyboard focus and no
+horizontal overflow. No stack was saved or published, no order was reconciled,
+and no enquiry was opened, reviewed or exported. Live production had no pending
+private brief, so that branch is covered by the focused selector tests. Evidence:
+[admin task-first wave](evidence/task-entry-wave-20261107/README.md).
+#313, #297, #321 and #412 remain open. The Guestbook declaration release and
+Composer promotion remain at the recorded checkout/token gate.
+
 ## Needs attention, Connections, Plugin Trust and Stack status — 7 November 2026 (6 November UTC)
 
-Production is Composer `8c1e272646485ef3be740a2aa92d6d59286e8744`, Worker
+The prior release was Composer `8c1e272646485ef3be740a2aa92d6d59286e8744`, Worker
 `a18c4480-4187-4391-aae0-eed75997f273`, from the clean pushed-main release guard.
-`/build.json` matches the source. `pnpm check` passed 447 tests with zero skips;
+`/build.json` matched the source. `pnpm check` passed 447 tests with zero skips;
 the publication guard inspected 1,290 files and 150 archive members; live source,
 pinned services, sharing output, publication privacy and the anonymous
 administration boundary passed.
