@@ -473,7 +473,10 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
       source: {repository: 'loftwah/app-composer', branch, commit: headCommit},
       receipt: boundedReceipt(receipt),
       checks,
-      consoleTail: tail(consoleLog),
+      failedTests: [...consoleLog.matchAll(/^not ok \d+ - (.+)$/gm)]
+        .map(match => match[1])
+        .slice(0, 60),
+      consoleTail: tail(consoleLog, 12000),
       startedAt,
       finishedAt: new Date().toISOString(),
       cleanup: null,
