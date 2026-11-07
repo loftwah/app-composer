@@ -12,6 +12,9 @@ import {purgePrivateOutcomes} from './lib/private-outcome-events';
 import {mountedBuilderNavigation} from './lib/mounted-builder-navigation';
 import {builderNavigationRedirect} from './lib/builder-context.mjs';
 import {publicPageRedirect} from './lib/public-pages.mjs';
+import {runScheduledPluginTrustWatch} from './lib/plugin-trust-watch-run.ts';
+import {pluginTrustSnapshot} from './lib/plugin-trust-contract.ts';
+import pluginTrustCommitted from './data/plugin-trust-20261107.json' with {type:'json'};
 type Runtime=AccessRuntime & {DB:D1Database;PUBLIC_ORIGIN:string;USAGE_TOKENS?:string;USAGE_LIMIT?:RateLimit;ASSETS?:{fetch(request:Request):Promise<Response>}};
 // The same composed route list scopes the public comparison, so a recorded
 // composed count cannot outlive the route that produced it.
@@ -48,5 +51,6 @@ export default {...handler,fetch:guardedFetch,scheduled:async(controller:Schedul
  if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(purgeResourceActions(runtime.DB,date).catch(()=>{console.error('Resource count retention unavailable');}));
  if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(purge(runtime.DB,date).catch(()=>{console.error('Daily count retention unavailable');}));
  if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(purgePrivateOutcomes(runtime.DB,date).catch(()=>{console.error('Private outcome retention unavailable');}));
+ if(date.getUTCHours()===0&&date.getUTCMinutes()===0)context.waitUntil(runScheduledPluginTrustWatch(runtime.DB,pluginTrustSnapshot.parse(pluginTrustCommitted),date).catch(()=>{console.error('Plugin trust watch unavailable');}));
  return cmsScheduled(controller,runtime,context);
 }};

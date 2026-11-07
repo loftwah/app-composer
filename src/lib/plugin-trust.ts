@@ -11,6 +11,11 @@ import {
   reviewItems,
   watchStatus,
 } from "./plugin-trust-watch.ts";
+import {
+  resolveReview,
+  setWatchEnabled,
+  watchView,
+} from "./plugin-trust-watch-run.ts";
 
 const origin = "https://composer.loftwah.com";
 interface Context {
@@ -49,8 +54,8 @@ export async function managePluginTrust(ctx: Context, runtime: Runtime) {
       "Plugin Trust Centre requires a signed-in administrator.",
       403,
     );
-  if (ctx.request.method !== "GET")
-    return reject("METHOD_NOT_ALLOWED", "This view is read-only.", 405);
+  if (ctx.request.method !== "GET" && ctx.request.method !== "POST")
+    return reject("METHOD_NOT_ALLOWED", "Unsupported request.", 405);
   const url = new URL(ctx.request.url);
   if (
     runtime.PUBLIC_ORIGIN !== origin ||
@@ -64,10 +69,52 @@ export async function managePluginTrust(ctx: Context, runtime: Runtime) {
       "Open this view in the selected Composer production administration.",
       403,
     );
-  if (url.search || (ctx.input && Object.keys(ctx.input as object).length))
+  if (url.search)
     return reject(
       "INVALID",
-      "This read-only view accepts no filters or target overrides.",
+      "This view accepts no filters or target overrides.",
+      400,
+    );
+  if (ctx.request.method === "POST") {
+    if (!runtime.DB)
+      return reject(
+        "UNAVAILABLE",
+        "Watch settings are unavailable in this environment.",
+        503,
+      );
+    const input = ctx.input;
+    if (!input || typeof input !== "object" || Array.isArray(input))
+      return reject("INVALID", "Select one supported action.", 400);
+    const body = input as Record<string, unknown>;
+    const keys = Object.keys(body).sort();
+    if (body.action === "watch") {
+      if (
+        keys.length !== 2 ||
+        !Object.hasOwn(body, "enabled") ||
+        typeof body.enabled !== "boolean"
+      )
+        return reject("INVALID", "Enable or pause the watch explicitly.", 400);
+      await setWatchEnabled(runtime.DB, body.enabled);
+    } else if (body.action === "resolve") {
+      if (
+        keys.length !== 2 ||
+        typeof body.key !== "string" ||
+        !/^plugin-trust:[A-Za-z0-9:._/-]{1,400}$/.test(body.key)
+      )
+        return reject("INVALID", "Select one review item.", 400);
+      const changed = await resolveReview(runtime.DB, body.key);
+      if (!changed)
+        return reject(
+          "NOT_FOUND",
+          "That review item is not open. Reload before retrying.",
+          404,
+        );
+    } else
+      return reject("INVALID", "Select one supported action.", 400);
+  } else if (ctx.input && Object.keys(ctx.input as object).length)
+    return reject(
+      "INVALID",
+      "This view accepts no filters or target overrides.",
       400,
     );
   try {
@@ -105,6 +152,7 @@ export async function managePluginTrust(ctx: Context, runtime: Runtime) {
     } catch {
       /* A failed query is unavailable, never an empty inventory. */
     }
+    const watchState = await watchView(runtime.DB);
     return {
       ok: true,
       site: origin,
@@ -114,9 +162,13 @@ export async function managePluginTrust(ctx: Context, runtime: Runtime) {
       evaluations: snapshot.packages.map((plugin) =>
         evaluatePlugin(plugin, snapshot, checkedAt),
       ),
-      watch: watchStatus([snapshot, previous], checkedAt),
+      watch: {
+        ...watchStatus([snapshot, previous], checkedAt),
+        automatic: watchState.enabled,
+      },
       changes: diffObservation(previous, snapshot),
       reviews: reviewItems(previous, snapshot),
+      watchState,
       inventory,
       installation: {
         state: "unqualified",

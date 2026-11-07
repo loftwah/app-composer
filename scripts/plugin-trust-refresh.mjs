@@ -1,13 +1,11 @@
 // Read-only, bounded discovery. Emits a review candidate; never writes the
 // shipped snapshot, installs code, fetches artifacts or reads private inventory.
+// The refresh mapping is shared with the scheduled Worker.
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import {
-  curatedPlugin,
-  pluginTrustSnapshot,
-} from "../src/lib/plugin-trust-contract.ts";
+import { refreshPluginTrust } from "../src/lib/plugin-trust-refresh.ts";
 
 const aggregator = "https://registry.emdashcms.com";
 export async function registryFetch(input, init, fetcher = fetch) {
@@ -43,83 +41,6 @@ export async function registryFetch(input, init, fetcher = fetch) {
   return new Response(Buffer.concat(chunks), {
     status: response.status,
     headers: response.headers,
-  });
-}
-
-export async function refreshPluginTrust(
-  snapshotInput,
-  discovery,
-  now = new Date(),
-) {
-  const snapshot = pluginTrustSnapshot.parse(snapshotInput);
-  const packages = [];
-  for (const previous of snapshot.packages) {
-    try {
-      const profile = await discovery.getPackage({
-        did: previous.did,
-        slug: previous.slug,
-      });
-      const release = await discovery.getLatestRelease({
-        did: previous.did,
-        package: previous.slug,
-      });
-      if (
-        profile.did !== previous.did ||
-        profile.slug !== previous.slug ||
-        release.did !== previous.did ||
-        release.package !== previous.slug ||
-        !profile.profile ||
-        !release.release
-      )
-        throw Error("Discovery identity unavailable");
-      const record = release.release;
-      const metadata = profile.profile;
-      const sameArtifact =
-        release.cid === previous.releaseCid &&
-        record.artifacts?.package?.checksum === previous.checksum;
-      packages.push(
-        curatedPlugin.parse({
-          ...previous,
-          name: metadata.name ?? previous.slug,
-          handle: profile.handle ?? null,
-          profileCid: profile.cid,
-          profileUri: profile.uri,
-          releaseCid: release.cid,
-          releaseUri: release.uri,
-          version: release.version,
-          indexedAt: release.indexedAt,
-          checksum: record.artifacts?.package?.checksum ?? null,
-          requires: record.requires?.["env:emdash"] ?? null,
-          historyComplete: profile.releaseHistoryComplete === true,
-          license: metadata.license ?? null,
-          repository:
-            metadata.extensions?.[
-              "com.emdashcms.experimental.package.profileExtension"
-            ]?.repository ?? null,
-          securityContact:
-            Array.isArray(metadata.security) &&
-            metadata.security.some((contact) =>
-              Boolean(contact.email || contact.url),
-            ),
-          requireProvenance:
-            metadata.extensions?.[
-              "com.emdashcms.experimental.package.profileExtension"
-            ]?.releasePolicy?.requireProvenance === true,
-          labels: release.labels ?? [],
-          inspection: sameArtifact ? previous.inspection : null,
-          refreshFailed: false,
-        }),
-      );
-    } catch {
-      // Remote errors may echo hostile content. Retain previous evidence with a
-      // failure flag; never forward the raw exception or manufacture a release.
-      packages.push({ ...previous, refreshFailed: true });
-    }
-  }
-  return pluginTrustSnapshot.parse({
-    ...snapshot,
-    observedAt: now.toISOString(),
-    packages,
   });
 }
 

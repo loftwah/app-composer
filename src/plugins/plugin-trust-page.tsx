@@ -62,6 +62,29 @@ const reportSchema = z.object({
       }),
     )
     .max(60),
+  watchState: z.object({
+    available: z.boolean(),
+    enabled: z.boolean(),
+    lastRunAt: z.iso.datetime().nullable(),
+    latestSnapshotAt: z.iso.datetime().nullable(),
+    state: z.enum(["never", "ok", "partial", "failed"]),
+    error: z.string().max(120),
+    reviews: z
+      .array(
+        z.object({
+          key: z.string().max(400),
+          did: z.string().max(200),
+          slug: z.string().max(120),
+          version: z.string().max(80),
+          severity: z.enum(["review", "block"]),
+          code: z.string().max(80),
+          detail: z.string().max(400),
+          firstSeenAt: z.iso.datetime(),
+          lastSeenAt: z.iso.datetime(),
+        }),
+      )
+      .max(60),
+  }),
   inventory: z.object({
     available: z.boolean(),
     atLimit: z.boolean(),
@@ -266,12 +289,48 @@ export function PluginWatch({
   watch,
   changes,
   reviews,
+  watchState,
+  onChanged,
 }: {
   watch: Report["watch"];
   changes: Report["changes"];
   reviews: Report["reviews"];
+  watchState: Report["watchState"];
+  onChanged: () => void;
 }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   const moved = changes.filter((change) => change.state !== "unchanged");
+  const persisted = watchState.reviews;
+  const shown = persisted.length ? persisted : reviews;
+  const label = (severity: string) =>
+    severity === "block" ? "blocking" : "needs review";
+  async function act(
+    body: { action: "watch"; enabled: boolean } | { action: "resolve"; key: string },
+  ) {
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await apiFetch(
+        "/_emdash/api/plugins/composer-stacks/pluginTrustWatch",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          cache: "no-store",
+        },
+      );
+      if (!response.ok) throw Error("The watch change was refused.");
+      onChanged();
+    } catch {
+      setError(
+        "The watch setting was not changed. Reload the current state before retrying; no installation or release action was taken.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <section className="pt-watch">
       <h2>What changed since the last observation</h2>
@@ -291,26 +350,95 @@ export function PluginWatch({
           </>
         ) : null}{" "}
         · {watch.retained} retained observation{watch.retained === 1 ? "" : "s"}
-        {watch.stale ? " · evidence is stale" : ""} · automatic refresh is off
-        · when enabled, every {watch.cadenceHours} hours · owner {watch.owner}.
+        {watch.stale ? " · evidence is stale" : ""} · automatic refresh{" "}
+        {watch.automatic ? "is on" : "is off"} · when enabled, every{" "}
+        {watch.cadenceHours} hours · owner {watch.owner}.
       </p>
-      {reviews.length ? (
+      <div className="pt-watch-controls">
+        <p className="pt-scope">
+          <strong>
+            {watchState.enabled ? "Daily watch is on." : "Daily watch is off."}
+          </strong>{" "}
+          {watchState.lastRunAt ? (
+            <>
+              Last run{" "}
+              <time dateTime={watchState.lastRunAt}>
+                {utc(watchState.lastRunAt)}
+              </time>{" "}
+              · {watchState.state}.
+            </>
+          ) : (
+            "No automatic run yet."
+          )}{" "}
+          {watchState.latestSnapshotAt ? (
+            <>
+              Last successful observation{" "}
+              <time dateTime={watchState.latestSnapshotAt}>
+                {utc(watchState.latestSnapshotAt)}
+              </time>
+              .
+            </>
+          ) : null}{" "}
+          {watchState.error ? (
+            <>
+              Last failure <code>{watchState.error}</code>; the last good
+              observation is unchanged.
+            </>
+          ) : null}
+        </p>
+        <button
+          type="button"
+          className="pt-watch-action"
+          disabled={busy || !watchState.available}
+          onClick={() =>
+            act({ action: "watch", enabled: !watchState.enabled })
+          }
+        >
+          {busy
+            ? "Saving…"
+            : watchState.enabled
+              ? "Pause daily watch"
+              : "Enable daily watch"}
+        </button>
+        <p className="small">
+          One read-only registry observation per day at 00:00 UTC when enabled.
+          It never installs, updates or executes a plugin, and a failure keeps
+          the last good evidence while showing the failure state.
+        </p>
+        {error ? (
+          <p className="pt-watch-error" role="alert">
+            {error}
+          </p>
+        ) : null}
+      </div>
+      {shown.length ? (
         <>
           <p>
-            {reviews.length} review{" "}
-            {reviews.length === 1 ? "item" : "items"} raised by a real change.
-            Repeated daily checks keep the same key until the release changes.
+            {shown.length} review {shown.length === 1 ? "item" : "items"} raised
+            by a real change. Repeated daily checks keep the same key until the
+            release changes.
           </p>
           <ul className="pt-watch-review">
-            {reviews.map((item) => (
+            {shown.map((item) => (
               <li key={item.key} data-severity={item.severity}>
                 <strong>
                   {item.slug} {item.version}
                 </strong>{" "}
-                · {item.severity === "block" ? "blocking" : "needs review"} ·{" "}
-                <code>{item.code}</code>
+                · {label(item.severity)} · <code>{item.code}</code>
                 <br />
                 {item.detail}
+                {persisted.length ? (
+                  <button
+                    type="button"
+                    className="pt-review-action"
+                    disabled={busy}
+                    onClick={() =>
+                      act({ action: "resolve", key: item.key })
+                    }
+                  >
+                    Mark reviewed
+                  </button>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -624,6 +752,8 @@ export function PluginTrustPage() {
             watch={report.watch}
             changes={report.changes}
             reviews={report.reviews}
+            watchState={report.watchState}
+            onChanged={() => setGeneration((value) => value + 1)}
           />
           <PluginInstalledInventory
             report={report}

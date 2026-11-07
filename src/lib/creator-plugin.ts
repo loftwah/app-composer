@@ -83,6 +83,12 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         permission: "plugins:manage",
         handler: (ctx) => managePluginTrust(ctx, runtime),
       },
+      pluginTrustWatch: {
+        methods: ["POST"],
+        permission: "plugins:manage",
+        request: { body: "json", maxBytes: 2000 },
+        handler: (ctx) => managePluginTrust(ctx, runtime),
+      },
       stackStatusRead: {
         methods: ["GET"],
         permission: "plugins:manage",

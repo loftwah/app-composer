@@ -287,3 +287,22 @@
 .pt-watch-review li[data-severity="block"] {
   border-left-color: #c53030;
 }
+
+.pt-watch-controls {
+  display: grid;
+  gap: 10px;
+  margin: 8px 0 16px;
+}
+.pt-watch-action,
+.pt-review-action {
+  justify-self: start;
+}
+.pt-review-action {
+  margin-top: 8px;
+  font-size: 0.85rem;
+}
+.pt-watch-error {
+  border-left: 3px solid #c53030;
+  padding-left: 12px;
+  font-size: 14px;
+}
