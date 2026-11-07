@@ -1,193 +1,311 @@
-# Owner actions — unblock list, 7 November 2026
+# Owner jobs — the plain-English version, 7 November 2026
 
-Everything else is agent work. These seven need a decision, an account, a
-credential, money, a policy change or a human body. Each says exactly what to
-do, how long it takes, what it unlocks, and how to hand it back.
+Seven jobs only you can do. Everything else is my work.
 
-Reply in Discord or an issue with just the item numbers you did, for example:
-`1 yes`, `2 token in .env`, `4 Stripe test key in .env`, `6 phone done`.
-Nothing here is needed to keep the current production release running.
+You do not need any of these to keep the site running. Do them in any order, or
+not at all. If you only do one, do **Job 1**. If you do two, do **Job 1 and
+Job 2**.
 
----
+When you finish one, reply in Discord with the number and a few words, like
+`1 done` or `2 token in .env`. That is all the reporting I need.
 
-## 1. Workers Paid — unlocks plugin installation (#369, #365)
-
-**Why:** EmDash's sandboxed registry installer needs Worker Loader. On
-Cloudflare that means the `LOADER` binding and a `sandboxRunner`, which require
-the Workers Paid plan. Without it, browsing works and install/update returns
-`SANDBOX_NOT_AVAILABLE`. This is the single biggest unblock: it turns Plugin
-Trust from observation into real install/update/disable/uninstall receipts.
-
-**Do:**
-1. Cloudflare dashboard → the account `1003dc1d93af0ebea56b2f1252f89627` →
-   Workers & Pages → Plans → switch to **Workers Paid**.
-2. Reply `1 yes`.
-
-**Then I:** add the `worker_loaders` `LOADER` binding, configure
-`sandboxRunner: sandbox()` in `astro.config.mjs`, keep `PluginBridge`, deploy
-through the guarded path, install one reviewed plugin on production, record
-install → configure → disable → enable → update → uninstall with exact release
-identity, and close the matching #369/#365 acceptance items.
-
-**Cost:** Cloudflare's paid Workers plan, billed by Cloudflare. I will not
-enable anything else or create paid resources.
+**Never paste a password, key or token into Discord, GitHub or a screenshot.**
+Jobs 2, 4 and 5 put secrets in the `.env` file on your Mac, which is ignored by
+git.
 
 ---
 
-## 2. Read-only Cloudflare token — unlocks inventory and cost evidence (#312, #318)
+## Job 1 — Turn on the paid Workers plan (5 minutes, costs money)
 
-**Why:** the inventory and FinOps checks already exist but have no credential.
-The token is read-only; it is never printed or committed.
+**What it is:** Cloudflare has a free plan and a paid plan. The paid one lets
+Composer actually install plugins. Without it, plugin install always says
+"sandbox not available". This is the one that unlocks the most.
 
-**Do:**
-1. Cloudflare dashboard → My Profile → API Tokens → Create Token → Custom token.
-2. Scope it to account `1003dc1d93af0ebea56b2f1252f89627` with **read only**:
-   - Account → Workers Scripts → Read
-   - Account → D1 → Read
-   - Account → R2 → Read
-   - Account → Workers KV Storage → Read
-   - Account → Account Settings → Read
-3. Add it to the ignored `.env` as:
-   `CLOUDFLARE_API_TOKEN_READ=...`
-4. Reply `2 token in .env`.
+**Do this:**
 
-**Then I:** wire that variable as the preferred read credential, run the
-inventory snapshot, reconcile declared vs observed resources, tag/attribution
-review and the drift report, and post the actual findings. No writes.
+1. Open <https://dash.cloudflare.com> and log in.
+2. Look at the top-left. Pick the account **Loftwah** (or the account that owns
+   `composer.loftwah.com`).
+3. In the left sidebar click **Workers & Pages**.
+4. Click the **Plans** tab. If you don't see "Plans", look for an **Upgrade**
+   or **Change plan** button on the Workers overview.
+5. Choose **Workers Paid** and confirm. Cloudflare will show the price before
+   you pay.
 
----
+**Then reply:** `1 done`
 
-## 3. Identity and MFA decision — unlocks private team proof (#257, #351, #354)
-
-**Why:** Access policy, IdP choice and MFA enforcement are owner decisions. I
-must not change your Access policy or enroll authenticators for you.
-
-**Do:**
-1. Decide the admin identity profile: keep **Cloudflare Access** for Composer
-   admin (current, supported) or move to native EmDash sign-in. Recommended:
-   keep Access.
-2. On the Cloudflare account, enable two-factor authentication for your own
-   login (My Profile → Authentication). That is the MFA that protects the
-   admin path.
-3. Decide who may enter the private Team Hub: a short list of email addresses,
-   or an IdP group. Recommended: one IdP group, not individual addresses.
-4. Reply `3 keep Access`, `3 <idp> group <name>`, and which email is the second
-   test member.
-
-**Then I:** wire the invited-member policy, passwordless entry, required MFA
-and scoped team access, and prove public vs private vs admin boundaries with a
-second fictional or real invited account. No Access policy change happens
-without your explicit go-ahead.
-
-**Cost:** free unless your chosen IdP charges.
+**What I do after:** add the plugin sandbox to the app, deploy it, install one
+reviewed plugin on the real site, and record install → turn off → turn on →
+update → remove as proof.
 
 ---
 
-## 4. Commerce test accounts — unlocks orders (#105, #293–296)
+## Job 2 — Make a read-only key for me (5 minutes, free)
 
-**Why:** checkout, verified payment state and fulfilment need provider accounts.
-Test modes cost nothing and take no real money.
+**What it is:** a key that can *look* at your Cloudflare account but cannot
+change anything. It lets me show you what you're running and what it costs.
 
-**Do (test/sandbox only, no live keys):**
-1. Stripe → create account if needed → Test mode → copy the test secret key.
-2. PayPal → Developer dashboard → Sandbox app → client id + secret.
-3. Shopify → create a development store → Admin API access token (read/write
-   orders and products for that store only).
-4. Printful → create account → API token; do not place an order.
-5. Put them in `.env` as `STRIPE_SECRET_KEY` (test), `PAYPAL_CLIENT_ID`,
-   `PAYPAL_CLIENT_SECRET`, `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_ADMIN_TOKEN`,
-   `PRINTFUL_API_TOKEN`.
-6. Reply `4 test keys in .env`. Confirm that no real charge or print order is
-   authorised.
+**Do this:**
 
-**Then I:** build the connector, hosted checkout, verified webhook state, order
-follow-up and the refund/failure states against test mode. A live payment still
-needs a separate explicit yes.
+1. Open <https://dash.cloudflare.com> and log in.
+2. Click your **profile picture** (top right) → **My Profile**.
+3. Click **API Tokens** → **Create Token**.
+4. Scroll down to **Custom token** → **Get started**.
+5. Name it: `App Composer read only`.
+6. Under **Permissions**, add these five rows (click the dropdowns):
 
----
+   | First box | Second box | Third box |
+   | --- | --- | --- |
+   | Account | Workers Scripts | Read |
+   | Account | D1 | Read |
+   | Account | R2 | Read |
+   | Account | Workers KV Storage | Read |
+   | Account | Account Settings | Read |
 
-## 5. Search Console property — unlocks real search data (#397)
+7. Under **Account Resources**, choose **Include** → your account.
+8. Click **Continue to summary** → **Create Token**.
+9. Click **Copy**. The key looks like a long line of letters and numbers.
 
-**Why:** the SEO Workbench must report real queries, clicks and impressions, not
-estimates. That needs a verified property.
+**Now put it in the file.** Open Terminal, paste this one line, replace
+`PASTE_KEY_HERE` with the key, press Return:
 
-**Do:**
-1. Add `composer.loftwah.com` as a **Domain** property in Google Search Console
-   and verify it with the DNS TXT record in Cloudflare DNS.
-2. Create a Google Cloud project, enable the **Search Console API**, create a
-   service account, download its JSON key.
-3. In Search Console → Settings → Users and permissions, add the service
-   account email as a **Full** or **Restricted** user (read is enough).
-4. Save the key outside the repository, for example
-   `~/.config/app-composer/gsc-service-account.json`, and add its path to
-   `.env` as `GSC_SERVICE_ACCOUNT_JSON=...`.
-5. Reply `5 Search Console verified`.
+```sh
+cd ~/gits/app-composer && echo 'CLOUDFLARE_API_TOKEN_READ=PASTE_KEY_HERE' >> .env
+```
 
-**Then I:** wire the read-only property connection, run the first real query
-report with date windows and sampling caveats, and produce the first useful
-opportunity list. No paid SEO API.
+**Then reply:** `2 done`
+
+**What I do after:** run the inventory and show you every resource, what's
+declared, what's drifting and what it costs. Read-only. Nothing changes.
 
 ---
 
-## 6. Physical devices and screen reader — unlocks those gates (#264, #288, #290, #35, #177)
+## Job 3 — Turn on two-factor and tell me who is allowed in (5 minutes, free)
 
-**Why:** I can drive a browser at 390 px but I cannot claim a real phone, a
-stylus, an installed extension or a screen reader.
+**What it is:** two-factor means "password plus a code on your phone". It
+protects the admin area. The second part is just deciding who gets into the
+private team app we're going to build.
 
-**Do — pick any subset you can, each is independent:**
-- **Phone:** open `https://composer.loftwah.com/`, `/init`, `/guestbook`,
-  `/showcase`, and the admin at narrow width. Try one real form and one upload.
-- **Tablet/stylus:** LDraw at `/ldraw` — draw, export, reopen.
-- **Screen reader:** VoiceOver on macOS (Cmd+F5) or NVDA on Windows through
-  `/init` (the form), one role page, and `/plugin-trust`. Note anything that is
-  announced wrongly or is unreachable by keyboard.
-- **Chrome extension (#35):** install
-  `https://composer.loftwah.com/downloads/cloudflare-extension.zip` in real
-  Chrome, open the Cloudflare dashboard, and confirm the embedded Composer
-  surface loads with your owner session.
-- **Link Check mobile menu (#177):** open Link Check on a real phone, use the
-  menu and a zoomed input.
+**Do this:**
 
-Reply with the device/browser and what failed, for example
-`6 iPhone 15 Safari: /init fine, upload button covered by keyboard`.
+1. Open <https://dash.cloudflare.com> → profile picture → **My Profile**.
+2. Click **Authentication** → **Two-Factor Authentication** → **Add**.
+3. Follow the prompts with your phone. Save the backup codes somewhere safe.
 
-**Then I:** fix each observed defect and record the physical acceptance as
-yours, not mine.
+Then answer two questions in your reply:
 
----
+- **Who should be allowed into the private team app?** Give me email addresses,
+  or tell me a group name if you use Google Workspace or Microsoft 365.
+- **Who is the second test person?** A second email I can invite. It can be your
+  own second address.
 
-## 7. Security acceptance and assurance — (#31–34, #256)
+**Then reply:** `3 done. Allowed: you@example.com, mate@example.com. Second: alt@example.com`
 
-**Why:** a security gate cannot be self-certified by the agent that wrote the
-code.
-
-**Do:**
-1. **#31 key custody:** decide where the encrypted state vault key lives —
-   Cloudflare secrets only, or an external KMS/HSM. Recommended: Cloudflare
-   secrets for the pilot, explicit KMS decision before any real private data.
-2. **#31–33:** decide whether real sensitive records are in scope for the
-   pilot. If not, they stay fictional-only and the issues stay open honestly.
-3. **#256 assurance:** provide or commission the control evidence — data
-   location, access control, retention, incident process, backup/restore. An
-   independent reviewer is required for the SOC 2/IRAP-style claims.
-4. Reply `7 secrets-only`, `7 fictional-only`, and who the reviewer is (or
-   `7 no reviewer yet`).
-
-**Then I:** implement the chosen custody path, keep the fictional-only
-boundaries enforced, and keep #34's end-to-end demo with fictional personas
-(that part is agent work, not yours).
+**What I do after:** build the private team app so it requires a real sign-in
+and a real MFA check, invite those people, and prove that someone outside the
+list cannot get in. I will not change your Cloudflare Access rules without
+asking you first.
 
 ---
 
-## What I will do meanwhile
+## Job 4 — Make free test accounts for shops and payments (20 minutes, no real money)
 
-No owner item blocks these, so work continues:
+**What it is:** to build checkout without charging anyone, we use each
+provider's "test mode". Think of it as a pretend shop with pretend money.
 
-- #319 real external-runner proof using a local Jenkins/GitLab-style fixture.
-- #408 in-repo promotion path, a real two-app host repository and rollback
-  evidence.
-- #365 automatic watch scheduling, pause controls, Inbox items and the sanitised
-  public directory.
-- #118 and #311 scoped admin/agent slices.
-- #28/#29/#30 brand, copy and share-kit residuals.
-- #321 independent mini-app dependency batches in each app's own repository.
+Do only the ones you want. Each is independent.
+
+### Stripe (cards)
+
+1. Go to <https://stripe.com> and sign up or log in.
+2. Turn on **Test mode** (toggle, top right). It should say TEST MODE.
+3. Click **Developers** → **API keys**.
+4. Copy the **Secret key**. It starts with `sk_test_`.
+
+### PayPal
+
+1. Go to <https://developer.paypal.com> and log in with your PayPal account.
+2. Click **Apps & Credentials** → **Sandbox**.
+3. Click **Create App**, name it `App Composer test`.
+4. Copy the **Client ID** and **Secret**.
+
+### Shopify
+
+1. Go to <https://www.shopify.com/partners> and log in.
+2. **Stores** → **Add store** → **Development store**. Name it anything.
+3. In that store: **Settings** → **Apps and sales channels** →
+   **Develop apps** → **Create an app**.
+4. **Configure Admin API scopes** → tick read/write for **Orders** and
+   **Products** → **Save**.
+5. **Install app** → **Install** → copy the **Admin API access token** (starts
+   with `shpat_`).
+6. Copy the store address too, something like
+   `your-store.myshopify.com`.
+
+### Printful (printing and shipping)
+
+1. Go to <https://www.printful.com> and sign up.
+2. **Dashboard** → **Settings** → **API** → copy the token.
+3. Do not order anything.
+
+**Now put them in the file.** Open Terminal and paste this block, filling in each
+value. Leave out any provider you skipped.
+
+```sh
+cd ~/gits/app-composer
+cat >> .env <<'EOF'
+STRIPE_SECRET_KEY=sk_test_PASTE
+PAYPAL_CLIENT_ID=PASTE
+PAYPAL_CLIENT_SECRET=PASTE
+SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
+SHOPIFY_ADMIN_TOKEN=shpat_PASTE
+PRINTFUL_API_TOKEN=PASTE
+EOF
+```
+
+**Then reply:** `4 done. Stripe and PayPal only. No real charges allowed.`
+
+**What I do after:** build checkout, confirm the payment actually succeeded
+before showing an order, and test the failure and refund screens. Live payments
+need a separate yes from you later.
+
+---
+
+## Job 5 — Show Google Search Console that you own the site (15 minutes, free)
+
+**What it is:** Google will only give search data to the proven owner of a site.
+This is how we get real search words and clicks instead of guesses.
+
+**Part A — prove you own it**
+
+1. Open <https://search.google.com/search-console> and log in.
+2. Click **Add property** → choose **Domain** (not URL prefix).
+3. Type `composer.loftwah.com` → **Continue**.
+4. Google shows a **TXT record** value. Keep this tab open.
+5. In another tab: <https://dash.cloudflare.com> → your domain
+   `loftwah.com` → **DNS** → **Records** → **Add record**.
+6. Type: **TXT**. Name: `@`. Content: paste the value from Google. Save.
+7. Go back to Google and click **Verify**. It may take a few minutes.
+
+**Part B — make a read-only robot key**
+
+1. Open <https://console.cloud.google.com> and log in with the same Google
+   account.
+2. Top bar → **Select a project** → **New project** → name it
+   `App Composer SEO` → **Create**.
+3. Make sure that project is selected. Go to **APIs & Services** →
+   **Library**. Search for **Google Search Console API** → **Enable**.
+4. Go to **APIs & Services** → **Credentials** → **Create credentials** →
+   **Service account**.
+5. Name it `composer-seo-reader` → **Create and continue** → **Done**.
+6. Click the new service account → **Keys** → **Add key** → **Create new key**
+   → **JSON** → **Create**. A file downloads.
+7. Copy the robot's email address from that page. It looks like
+   `composer-seo-reader@something.iam.gserviceaccount.com`.
+8. Back in Search Console: **Settings** → **Users and permissions** →
+   **Add user** → paste the robot email → permission **Full** → **Add**.
+
+**Now save the file and tell Composer where it is.** In Terminal:
+
+```sh
+mkdir -p "$HOME/.config/app-composer"
+mv "$HOME/Downloads/"*.json "$HOME/.config/app-composer/gsc.json" 2>/dev/null || true
+cd ~/gits/app-composer
+echo "GSC_SERVICE_ACCOUNT_JSON=$HOME/.config/app-composer/gsc.json" >> .env
+```
+
+If the `mv` picked the wrong file, move the right one by hand to
+`~/.config/app-composer/gsc.json`.
+
+**Then reply:** `5 verified`
+
+**What I do after:** connect read-only, pull real queries and pages, and give
+you the first list of pages worth improving. No paid SEO tool.
+
+---
+
+## Job 6 — Use the site like a normal person on real hardware (30 minutes, free)
+
+**What it is:** I can resize a browser window. I cannot honestly say "this works
+on a phone", "a screen reader can use it" or "the extension works in your
+Chrome". You can.
+
+Do any of these you can. Each one is useful on its own.
+
+### Phone
+
+On your phone, open `https://composer.loftwah.com` and try:
+
+- the home page
+- `/init` — fill in a title and pick a theme
+- `/guestbook` — leave a test postcard (it stays private)
+- the admin at `/_emdash/admin/` — does the menu work with your thumb?
+
+Notice: anything cut off, anything too small to tap, anything that jumps when
+the keyboard opens.
+
+### Tablet or stylus (only if you have one)
+
+Open `/ldraw`, draw something, export it, open the export again.
+
+### Screen reader
+
+- **Mac:** press `Cmd + F5`. VoiceOver starts talking. Use `Ctrl + Option + →`
+  to move around.
+- **Windows:** install NVDA (free) and press `Insert`.
+
+Visit `/init`, one role page (for example `/roles`), and `/plugin-trust`.
+Notice: anything it reads wrong, anything it cannot reach.
+
+### Chrome extension
+
+1. Download <https://composer.loftwah.com/downloads/cloudflare-extension.zip>
+2. Unzip it somewhere you'll remember.
+3. In Chrome: `chrome://extensions` → turn on **Developer mode** (top right) →
+   **Load unpacked** → pick the unzipped folder.
+4. Open <https://dash.cloudflare.com> and look for the Composer panel.
+
+### Link Check on a phone
+
+Open Link Check on your phone, open the menu, tap into an input, let the page
+zoom, and try to type.
+
+**Then reply:** one line per thing you tried, for example:
+`6 iPhone Safari: /init fine, upload button hidden by keyboard. VoiceOver: menu button unlabelled.`
+
+**What I do after:** fix exactly what you found and record it as your physical
+check, not my guess.
+
+---
+
+## Job 7 — Three yes/no decisions for the security work (5 minutes, free)
+
+**What it is:** I can build the security features, but I cannot certify my own
+work, and I cannot decide how much risk you want to take with real people's
+data.
+
+Answer these three:
+
+1. **Where should the private data key live?**
+   - **(a)** Cloudflare's own secret store. Easiest. Recommended for now.
+   - **(b)** A separate key service you already pay for. Tell me which one.
+2. **Will real people's private data ever go in, or do we keep using fake data
+   for now?**
+   - Recommended: fake data only until a security review happens.
+3. **Who is the independent reviewer for the audit-style claims?**
+   - A person or company name. If you don't have one, say `no reviewer yet` and
+     we keep those claims off the site.
+
+**Then reply:** `7 a, fake only for now, no reviewer yet`
+
+**What I do after:** build the key handling the way you chose, keep fake data
+enforced, and leave the audit claims off the public site until a real reviewer
+signs off.
+
+---
+
+## That's it
+
+Reply with numbers. I'll do the rest and tell you what it unlocked. If a step
+doesn't match what you see on screen, tell me what you see and I'll adjust the
+instructions.
