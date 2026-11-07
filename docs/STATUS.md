@@ -2,6 +2,24 @@
 
 Reviewed 25 October 2026; updated 8 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Plugin Trust in the shared attention view — 8 November 2026
+
+Production is Composer `d16db028bc4969d966022c3e07c1d31082e2190c`, Worker
+`65243396-3d10-4fdf-bc54-1a47d8f05431`. The persisted Plugin Trust review items,
+the owner watch enablement state and a failed or partial watch run now appear as
+administrator-only items in the existing **Needs attention** view, each linking
+to its exact Trust Centre review row. Non-administrators get a `restricted`
+source and an unreadable table is `unavailable`; neither is ever zero. The
+source note keeps the missing advisory feed (`ADVISORY_SOURCE_NONE`) visible
+rather than clean, and the public `/plugin-trust` page renders no review item or
+watch state.
+
+Production still has the daily watch off (0 review rows, 0 watch rows). Enabling
+it, and the authenticated visual pass over the shared view, remain owner actions.
+
+Evidence:
+[plugin-trust-inbox-20261108](evidence/plugin-trust-inbox-20261108/README.md).
+
 ## Real external runner and delivery receipts — 8 November 2026
 
 Production is Composer `43ea8cf5468ab65faad8041b6b60c66ad1fddf71`, Worker
