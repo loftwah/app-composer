@@ -2,6 +2,18 @@
 
 Reviewed 25 October 2026; updated 7 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Public heading order — 8 November 2026
+
+Production is Composer `1969da32308b8e4bbec39f5cbbe8bcecc97fe0d7`, Worker
+`b13e5a4e-a65e-4703-99ff-ac42483809b1`. A 70-page public audit found one real
+heading-order defect: `/incident-replay` put the SITREP `h3` under the page
+`h1`. The component now takes an explicit level; the public replay starts at
+`h2` and its four subsections at `h3`. The native admin use is unchanged. Live
+390/1440 heading order and width verified. The rest of the audit (title,
+description, canonical, Open Graph, Twitter card, one `h1`, duplicates, links,
+alt) was clean; decorative icons intentionally keep `alt=""`. Evidence:
+[incident-replay-heading-20261108](evidence/incident-replay-heading-20261108/README.md).
+
 ## Get Ready on Wrangler 4.158.0 — 8 November 2026
 
 Production is Composer `4092c2f59c1fd6f03e891dcfadb7b1636de7c15a`, Worker
