@@ -163,6 +163,11 @@ const jobXml = `<?xml version='1.1' encoding='UTF-8'?>
 
 function writeJenkinsHome(home, port) {
   mkdirSync(join(home, 'init.groovy.d'), {recursive: true});
+  // The job is seeded as the same config.xml Jenkins persists, so it loads in
+  // the normal startup phase after the pipeline plugins register their XML
+  // aliases. Creating it from init.groovy.d runs too early.
+  mkdirSync(join(home, 'jobs', 'composer-delivery'), {recursive: true});
+  writeFileSync(join(home, 'jobs', 'composer-delivery', 'config.xml'), jobXml);
   writeFileSync(
     join(home, 'init.groovy.d', '00-security.groovy'),
     `import jenkins.model.Jenkins
@@ -385,27 +390,12 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
     const issued = await crumbResponse.json();
     const crumb = {field: issued.crumbRequestField, value: issued.crumb};
 
-    const createJob = await jenkinsFetch({
-      port,
-      suffix: '/createItem?name=composer-delivery',
-      method: 'POST',
-      crumb,
-      body: jobXml,
-      contentType: 'application/xml',
-    });
-    if (createJob.status !== 200) {
-      containerLog = docker(['logs', '--tail', '400', container], {allowFailure: true}).stdout;
-      throw new FixtureError(
-        'job-create-failed',
-        `The fixture job could not be created: HTTP ${createJob.status} ${tail(await createJob.text(), 400)}`,
-      );
-    }
     const jobResponse = await jenkinsFetch({port, suffix: '/job/composer-delivery/api/json?tree=name'});
     if (!jobResponse.ok) {
       containerLog = docker(['logs', '--tail', '400', container], {allowFailure: true}).stdout;
       throw new FixtureError(
         'job-missing',
-        `The fixture job is absent after creation: HTTP ${jobResponse.status}. ${tail(containerLog, 800)}`,
+        `The fixture job did not load: HTTP ${jobResponse.status}. ${tail(containerLog, 800)}`,
       );
     }
 
