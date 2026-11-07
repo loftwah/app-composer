@@ -68,6 +68,25 @@ missing image `alt` values and zero unnamed links. Evidence:
 screen-reader speech and physical-device acceptance remain separate general
 accessibility gates.
 
+## Admin task-first audit — 7 November 2026
+
+Seventeen live admin pages were exercised in the real Access-protected owner
+session at 1440 × 1000 and 390 × 844. Every page returned `200`, had no
+horizontal overflow, and opened with its current task or the one decision it
+supports before the longer explanation and history: Needs attention, Creator
+stacks, Internal platform, Workspace access, Analytics & outcomes, Workspace
+maintenance, Private enquiries, Workflows, Orders, Connections, App resources,
+Agent proposals, Plugin Trust Centre, Stack status, Brand Studio, Incident Desk
+and Manage mini-apps. The only console message was the expected CSP refusal of
+Cloudflare's injected Insights beacon; no application error or broken action
+was observed.
+
+The hosted visitor-book review/approval/feature/revocation journey used the same
+admin surface. Evidence:
+[admin task-first audit](evidence/admin-task-first-20261107/README.md). The
+320px/200% zoom and physical screen-reader/device checks remain separate general
+accessibility acceptance.
+
 ## Job-led discovery — 7 November 2026
 
 Production is Composer `5ee5574b10b3c7b62ede8b3451b382a7fc9180ad`,
