@@ -115,7 +115,7 @@ async function main() {
     process.stderr.write('Refused: pass --allow-live-read for the fixed GET reads, or --plan to inspect them offline.\n');
     return 2;
   }
-  const observation = await collect({ token: process.env.CLOUDFLARE_API_TOKEN, account });
+  const observation = await collect({ token: process.env.CLOUDFLARE_API_TOKEN_READ ?? process.env.CLOUDFLARE_API_TOKEN, account });
   if (args.has('--view')) {
     const configuration = JSON.parse(readFileSync(resolve(root, 'wrangler.jsonc'), 'utf8').replace(/^\s*\/\/.*$/gm, ''));
     const view = buildAttribution({ mapping: recordedMapping(configuration), observation });

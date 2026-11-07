@@ -47,6 +47,7 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 - [App capabilities as code](app-capabilities.md): the verified operation catalogue at `/capabilities.json`, its strict shape and what it does not grant.
 - [Visual direction](visual-direction.md) and [asset/surface inventory](visual-asset-inventory.md): accepted artwork and deliberate future influences.
 - [Get Ready core](../lib/get-ready/README.md) and [optional local MCP transport](../lib/get-ready-mcp/README.md): independent consumer APIs, installation and host authority.
+- [Owner actions, 7 November 2026](owner-actions-20261107.md): the exact account, credential, policy, device and assurance steps only the owner can complete.
 - [Contribution guide](../CONTRIBUTING.md), [security](../SECURITY.md), [accessibility](../ACCESSIBILITY.md) and [agent entry point](../AGENTS.md).
 
 ## Evidence and history

@@ -303,10 +303,13 @@ function readSnapshot(path) {
 }
 
 function requireToken() {
-  const token = process.env.CLOUDFLARE_API_TOKEN;
+  // A dedicated read-only credential is preferred so a deploy token is never
+  // reused for inventory reads. The value is never printed or saved.
+  const token =
+    process.env.CLOUDFLARE_API_TOKEN_READ ?? process.env.CLOUDFLARE_API_TOKEN;
   if (!token?.trim())
     throw Error(
-      "Set CLOUDFLARE_API_TOKEN to a read-only account credential. The token is never printed or saved.",
+      "Set CLOUDFLARE_API_TOKEN_READ to a read-only account credential. The token is never printed or saved.",
     );
   if (
     process.env.CLOUDFLARE_ACCOUNT_ID &&
