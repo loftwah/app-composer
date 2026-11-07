@@ -1,7 +1,7 @@
 {
   "version": "composer.operating-kit/1",
-  "bytes": 731068,
-  "sha256": "e2833ee68ad8a0abd61d5e584007f6ef7dd4e1cd857f7230110969c3b4eb9e2b",
+  "bytes": 731058,
+  "sha256": "e6177ea030f3228bbdc4f9e793cd6bf45c774354d10f1fa233f208db5e374340",
   "files": [
     {
       "name": "change-og.png",
@@ -20,8 +20,8 @@
     },
     {
       "name": "change-release.svg",
-      "bytes": 1242,
-      "sha256": "06cd0294a4cc65871510c989f74cb26dd095dd7c9a909d7258221b74762d6d23"
+      "bytes": 1241,
+      "sha256": "80c4ce761b5c24789386ae85e6882f31c7007dadf305d8bdf9d07625b3ed846b"
     },
     {
       "name": "change-square-20261024.png",
@@ -140,8 +140,8 @@
     },
     {
       "name": "hook-flow.svg",
-      "bytes": 1232,
-      "sha256": "54d6f1eaf115898ba7e4a45281917b6bfc031f7745577ccd2a50a2af0d228d9e"
+      "bytes": 1231,
+      "sha256": "365eb36746dd6a452a7b226db2191d38cae69e73496ec7a39befeda6cd855741"
     },
     {
       "name": "hook.md",
@@ -165,8 +165,8 @@
     },
     {
       "name": "incident-response.svg",
-      "bytes": 1255,
-      "sha256": "fba735e0684870a747e6b67c5bfda6e49b083455c9498f9045a32804c6f8dc27"
+      "bytes": 1254,
+      "sha256": "863f39a5e8d833dfccbec1f44809b25634249ca0017c0556ecb56ce6caad8a7b"
     },
     {
       "name": "incident-square-20261024.png",
