@@ -15,6 +15,28 @@ Composer does not use GitHub Actions. A human operator or a local agent can run 
 - Git with `origin` configured. Candidate and release steps require the exact commit to be present at `origin/<branch>`; release requires clean pushed `main`.
 - An authorised Cloudflare session only when the release step actually runs. Local checks and candidate builds do not upload anything.
 
+## Choosing a delivery profile in Init
+
+Init carries one user-facing delivery choice with the rest of the portable
+specification:
+
+- **On this machine or with my agent (default).** The owner or their agent runs
+  the local commands below. No hosted CI, no GitHub Actions, no account.
+- **My existing CI runner.** The same repository commands are invoked from an
+  existing Jenkins, GitLab CI, Buildkite or other agent through
+  `examples/local-delivery-runner.sh`. The selection records intent and the
+  prompt names the runner; it does not prove that a runner is configured,
+  reachable or successful. One real recorded run is still required.
+
+Both profiles export the same five runnable commands, and the copy-to-agent
+handoff repeats them with the preview caveats: a Version URL is not a sandbox, a
+deployed preview needs its own preview D1/R2/KV bindings, production service
+bindings, routes and cron triggers must be absent, and Queue producers/consumers
+and Workflows are refused because their preview behaviour is not qualified.
+
+The profile is configuration data. It grants no credential, starts no job and
+does not change which commands the release guard actually runs.
+
 ## Commands
 
 Run from the repository root:

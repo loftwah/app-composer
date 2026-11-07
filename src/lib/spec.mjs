@@ -5,6 +5,17 @@ import {
   validateAppSettings,
 } from "./app-settings.mjs";
 export const specVersion = 2;
+// One user-facing delivery choice. Both profiles run the same repository-owned
+// commands; an existing runner only changes who invokes them.
+export const deliveryProfiles = ["local", "existing-runner"];
+export const deliveryRunners = ["jenkins", "gitlab", "buildkite", "other"];
+export const deliveryCommands = [
+  "pnpm install --frozen-lockfile",
+  "node scripts/delivery-journey.mjs",
+  "node scripts/delivery-journey.mjs --candidate",
+  "node scripts/delivery-journey.mjs --release",
+  "node scripts/delivery-journey.mjs --verify",
+];
 export const presets = {
   composition: {
     apps: ["guestbook", "showcase"],
@@ -132,9 +143,29 @@ export function validateSpec(input) {
       approval:
         mode === "new-domain" ? "purchase-required" : "verification-required",
     },
+    delivery: validateDelivery(input.delivery),
     updates: "validated-manual",
     decisions: validateDecisions(input.decisions ?? {}),
   };
+}
+export function validateDelivery(value) {
+  if (value === undefined) return { profile: "local", runner: "" };
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    throw new Error("Delivery must be an object");
+  for (const key of Object.keys(value))
+    if (!["profile", "runner"].includes(key))
+      throw new Error("Unknown delivery field");
+  if (!deliveryProfiles.includes(value.profile))
+    throw new Error("Choose a supported delivery profile");
+  if (value.profile === "local") {
+    if (value.runner !== undefined && value.runner !== "")
+      throw new Error("A local profile does not name an external runner");
+    return { profile: "local", runner: "" };
+  }
+  const runner = value.runner === undefined ? "" : value.runner;
+  if (!deliveryRunners.includes(runner))
+    throw new Error("Choose a supported existing runner");
+  return { profile: "existing-runner", runner };
 }
 export function validateDecisions(d) {
   if (typeof d !== "object" || d === null || Array.isArray(d))
@@ -153,6 +184,27 @@ export function validateDecisions(d) {
   }
   return result;
 }
+function deliveryHandoff(delivery) {
+  const commands = deliveryCommands.map((command) => "`" + command + "`").join(", ");
+  const runnerLine =
+    delivery.profile === "existing-runner"
+      ? "The owner selected an existing " +
+        (delivery.runner || "third-party") +
+        " runner. Call `examples/local-delivery-runner.sh` from that runner's existing job; do not add GitHub Actions, a hosted Composer CI service or a new orchestrator. A selected runner is configured intent until one real run with its source, checks and result is recorded."
+      : "Use the local-first path from the project root. A human or the selected agent runs the same commands.";
+  return (
+    "Delivery profile: " +
+    delivery.profile +
+    ". " +
+    runnerLine +
+    " Runnable commands: " +
+    commands +
+    ". `--candidate` builds a local preview candidate without uploading; `--release` is the only step that uploads and requires clean pushed main; `--verify` independently re-reads the live source. " +
+    "A Cloudflare Version URL is not a sandbox. A deployed preview must use its own preview D1/R2/KV bindings, must not bind production app services, routes or cron triggers, and Queue producers/consumers and Workflows are refused because their preview behaviour is not qualified. " +
+    "Local green checks, a merged commit or a selected runner are not a production release or a verified journey.\n\n"
+  );
+}
+
 export function handoff(spec) {
   const s = validateSpec(spec);
   return (
@@ -163,6 +215,7 @@ export function handoff(spec) {
     (s.deviceTarget === undefined
       ? ""
       : "Preserve the creator deviceTarget (desktop, mobile or both) as an implementation requirement, not verified support. Keep existing per-activity device declarations and recheck actual viewing, editing and file/export journeys for the exact released source. Missing assessments remain unknown. Discovery stays usable on every device; do not block by viewport or discard work.\n\n") +
+    deliveryHandoff(s.delivery) +
     "Specification (version 2):\n" +
     JSON.stringify(s, null, 2) +
     (s.preset !== "hello"
