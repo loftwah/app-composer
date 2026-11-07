@@ -16,7 +16,7 @@ customer proof was added. The parent epic remains open.
 | Release path | clean pushed `main` → `pnpm deploy` |
 | Live `/build.json` | `5ee5574b10b3c7b62ede8b3451b382a7fc9180ad` |
 | Stack status | deployed source `5ee5574b10b3`, snapshot 7 Nov 2026 03:52 UTC |
-| Retained suite | 457 passed, 0 failed, 0 skipped |
+| Retained suite (release source) | 457 passed, 0 failed, 0 skipped |
 | Publication guard | 1,292 files and 150 archive members inspected |
 
 `pnpm deploy` ran the required `pnpm check` and `pnpm build` once before remote
@@ -24,7 +24,9 @@ mutations. Its live source, pinned services, sharing output, publication privacy
 and anonymous administration boundary gates passed. The full suite was then
 re-run with `GIT_CONFIG_GLOBAL=/dev/null` after the host's SSH commit-signing
 lookup began failing (`No user exists for uid 501`); the 457-pass result above is
-that rerun. No assertion was removed.
+that rerun. No assertion was removed. The later documentation commit adds one
+Showcase declaration fixture test; the focused discovery/declaration files pass
+15/15.
 
 ## What changed
 
