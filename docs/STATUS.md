@@ -2,6 +2,28 @@
 
 Reviewed 25 October 2026; updated 7 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Owner-enabled Plugin Trust watch — 8 November 2026
+
+Production is Composer `c3149d90a1db56b6e02d98b9198c2f93d5887ea3`, Worker
+`2a1bdf8c-435a-4d07-a6d3-dbc14cbaac8b`. The Trust Centre now has an explicit
+**Enable daily watch / Pause daily watch** control (off by default). When
+enabled, the existing cron runs one bounded registry observation at 00:00 UTC,
+keeps the last good snapshot on failure, and writes deduplicated review items
+with first/last seen and a **Mark reviewed** action. The Worker shares the
+refresh mapping with the CLI but uses its own two-GET, redirect-free,
+512 KB-capped adapter. Migration `0022` added only the watch and review tables.
+
+The real adapter was exercised against the live registry: Freeform 1.3.0 and
+Stripe Checkout 0.10.6 returned `ok` with their inspected SHA-256 and
+capability/host evidence retained. 28 focused tests pass, the type check and
+build pass, and the guarded release applied the migration and passed every live
+gate. The owner control was not clicked because the automation browser had no
+Access session; the exact owner step and the remaining shared-Inbox gate are in
+the evidence.
+
+Evidence:
+[plugin-trust-watch-schedule-20261108](evidence/plugin-trust-watch-schedule-20261108/README.md).
+
 ## Public heading order — 8 November 2026
 
 Production is Composer `1969da32308b8e4bbec39f5cbbe8bcecc97fe0d7`, Worker
