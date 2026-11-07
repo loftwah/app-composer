@@ -20,10 +20,9 @@ The first code change was at `2026-11-07T13:55:54+11:00`. The final live check
 finished at `2026-11-07T03:15:47Z`, about 20 minutes end to end. Two deploys
 were needed: the first shipped the three leads, then live 390px inspection moved
 the Creator stacks explanation below its lead and corrected the Orders state
-copy. The second deploy carried only those presentation corrections. The full
-check, build, remote migrations, upload and live gates consumed the longest
-single stage (about 4 minutes); the rest was implementation and live viewport
-inspection.
+copy. The second deploy carried only those presentation corrections. Each full
+check/build/migration/upload/live-gate run consumed about 2–3 minutes; the rest
+was implementation and live viewport inspection.
 
 ## What changed
 
