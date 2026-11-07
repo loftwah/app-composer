@@ -8,6 +8,8 @@ import {
   type WorkflowSnapshot,
   type WorkflowRun,
 } from "../lib/workflow-contract";
+import { workflowLead, workflowIsoTime, type WorkflowLead } from "../lib/workflow-lead";
+import { utcTime } from "../lib/admin-time";
 import { workflowCall } from "./workflows/api";
 import { workspaceSelection } from "./stacks/workspace-scope";
 import "./workflows-page.css";
@@ -17,6 +19,24 @@ export function WorkflowsPage() {
   const search = useLocation({ select: (location) => location.searchStr });
   return <Workflows key={search} search={search} />;
 }
+
+function leadTitle(lead: WorkflowLead) {
+  if (lead.kind === "attention")
+    return lead.run.result?.title ?? "A workflow run needs attention";
+  if (lead.kind === "finished")
+    return lead.run.result?.title ?? lead.recipe.name;
+  return lead.recipe.name;
+}
+
+function leadState(lead: WorkflowLead) {
+  if (lead.kind === "attention")
+    return "Needs attention" + (lead.run.synthetic ? " · Sample data" : "");
+  if (lead.kind === "finished")
+    return "Finished" + (lead.run.synthetic ? " · Sample data" : "");
+  if (lead.kind === "waiting") return "Waiting for events";
+  return "Paused";
+}
+
 export function Workflows({ search }: { search: string }) {
   const [snapshot, setSnapshot] = useState<WorkflowSnapshot>();
   const anchorFocused = useRef(false);
@@ -132,6 +152,15 @@ export function Workflows({ search }: { search: string }) {
     )
       delete sampleOperations.current[key];
   }
+  function scan(recipe: WorkflowKind) {
+    const current = snapshot?.recipes.find((value) => value.id === recipe);
+    if (!current) return;
+    void run(
+      "scan",
+      { recipe, expectedRevision: current.revision },
+      "Scan finished. Current source revisions already in history were not repeated.",
+    );
+  }
   function download(name: string, value: unknown) {
     const url = URL.createObjectURL(
       new Blob([JSON.stringify(value, null, 2) + "\n"], {
@@ -183,6 +212,8 @@ export function Workflows({ search }: { search: string }) {
     }
   }
 
+  const lead = snapshot ? workflowLead(snapshot) : null;
+
   return (
     <div className="composer-workflows" aria-busy={busy}>
       <div className="cw-heading">
@@ -203,37 +234,123 @@ export function Workflows({ search }: { search: string }) {
           Refresh
         </button>
       </div>
-      <div className="cw-scope">
-        {snapshot ? (
-          <>
-            Workspace <strong>{snapshot.workspace.name}</strong> ·{" "}
-            {snapshot.workspace.role} ·{" "}
-            <strong>{snapshot.target.environment}</strong>{" "}
-            <details>
-              <summary>Account and scope</summary>
-              <code>{snapshot.target.account}</code> ·{" "}
-              <code>{snapshot.workspace.id}</code>
-            </details>
-          </>
-        ) : (
-          "Confirming the selected workspace…"
-        )}
-      </div>
-      <div className="cw-links">
-        <a href="/_emdash/admin/plugins/composer-stacks/workspaces">
-          Workspace access
-        </a>
-        <a href="/prompts#workflow">Prepare a workflow prompt</a>
-        <a href="/resources/hook#resource">Hooks and external examples</a>
-      </div>
+      {!snapshot && !error && (
+        <p className="cw-status" role="status">
+          Confirming the selected workspace…
+        </p>
+      )}
       {error && (
         <p className="cw-error" role="alert">
           {error}
         </p>
       )}
-      <p className="cw-status" role="status">
-        {busy ? "Checking the saved recipe and source…" : notice}
-      </p>
+      {snapshot && (
+        <p className="cw-status" role="status">
+          {busy ? "Checking the saved recipe and source…" : notice}
+        </p>
+      )}
+      {snapshot && lead && (
+        <section className="cw-next" aria-labelledby="cw-next-title">
+          <p className="cw-kicker">Next</p>
+          <h2 id="cw-next-title">{leadTitle(lead)}</h2>
+          <p className="cw-lead-state">{leadState(lead)}</p>
+          <p className="cw-lead-facts">
+            <span>
+              Recipe <strong>{lead.recipe.name}</strong>
+            </span>
+            {(lead.kind === "attention" || lead.kind === "finished") && (
+              <>
+                <span>
+                  Event <code>{lead.run.event}</code>
+                </span>
+                <span>
+                  Observed{" "}
+                  <time dateTime={workflowIsoTime(lead.run.createdAt)}>
+                    {utcTime(workflowIsoTime(lead.run.createdAt))}
+                  </time>
+                </span>
+              </>
+            )}
+            <span>
+              State <strong>{leadState(lead)}</strong>
+            </span>
+          </p>
+          <div className="cw-actions">
+            {lead.kind === "attention" && (
+              <button
+                type="button"
+                className="cw-primary"
+                disabled={busy || !canWrite}
+                onClick={() => void runAction(lead.run)}
+              >
+                {lead.run.synthetic
+                  ? "Restore sample & retry"
+                  : "Recheck source & retry"}
+              </button>
+            )}
+            {lead.kind === "attention" && lead.run.result && (
+              <a href={lead.run.result.href}>Open result</a>
+            )}
+            {lead.kind === "finished" && lead.run.result && (
+              <a className="cw-primary" href={lead.run.result.href}>
+                Open result
+              </a>
+            )}
+            {lead.kind === "finished" && lead.scanAvailable && (
+              <button
+                type="button"
+                disabled={busy || !canWrite}
+                onClick={() => scan(lead.recipe.id)}
+              >
+                Scan now
+              </button>
+            )}
+            {lead.kind === "waiting" && (
+              <button
+                type="button"
+                className="cw-primary"
+                disabled={busy || !canWrite}
+                onClick={() => scan(lead.recipe.id)}
+              >
+                Scan now
+              </button>
+            )}
+            {lead.kind === "paused" && (
+              <button
+                type="button"
+                className="cw-primary"
+                disabled={busy || !canWrite}
+                onClick={() => save(lead.recipe.id, true)}
+              >
+                Save & turn on
+              </button>
+            )}
+          </div>
+          <p>
+            {lead.kind === "attention"
+              ? lead.run.message
+              : lead.kind === "finished"
+                ? (lead.run.result?.body ?? lead.run.message)
+                : lead.kind === "waiting"
+                  ? "No retained run in this scope yet. Scan now checks current source records and prepares the next draft."
+                  : !lead.recipe.scopeMatches
+                    ? "This recipe was saved for another account or environment. Save & turn on will save it for this selected target."
+                    : "New scans and real-source retries are stopped for this recipe. Save & turn on to resume supported native events."}
+          </p>
+          <p className="cw-meta">
+            Workspace <strong>{snapshot.workspace.name}</strong> ·{" "}
+            {snapshot.workspace.role} ·{" "}
+            <strong>{snapshot.target.environment}</strong> · Account{" "}
+            <code>{snapshot.target.account}</code>
+          </p>
+          {!canWrite && (
+            <p className="cw-muted">
+              Your {snapshot.workspace.role} role can read this state. A
+              workspace owner or editor must take the action.
+            </p>
+          )}
+        </section>
+      )}
       <p className="cw-mode">
         <strong>Native events with explicit recovery.</strong> Enabled recipes
         prepare drafts after supported native publication or platform writes
@@ -241,6 +358,13 @@ export function Workflows({ search }: { search: string }) {
         records and recovers missed follow-ups. No background schedule, email,
         publication or remediation is created by these recipes.
       </p>
+      <div className="cw-links">
+        <a href="/_emdash/admin/plugins/composer-stacks/workspaces">
+          Workspace access
+        </a>
+        <a href="/prompts#workflow">Prepare a workflow prompt</a>
+        <a href="/resources/hook#resource">Hooks and external examples</a>
+      </div>
       {snapshot && (
         <>
           <section className="cw-recipes" aria-label="Native recipes">
@@ -313,16 +437,7 @@ export function Workflows({ search }: { search: string }) {
                     <button
                       type="button"
                       disabled={busy || !canWrite || !saved.enabled}
-                      onClick={() =>
-                        void run(
-                          "scan",
-                          {
-                            recipe: recipe.id,
-                            expectedRevision: saved.revision,
-                          },
-                          "Scan finished. Current source revisions already in history were not repeated.",
-                        )
-                      }
+                      onClick={() => scan(recipe.id)}
                     >
                       Scan now
                     </button>

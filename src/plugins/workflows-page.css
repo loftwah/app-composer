@@ -3,6 +3,7 @@
   --cw-muted: var(--text-color-kumo-subtle, #666);
   --cw-surface: var(--color-kumo-base, #fff);
   --cw-rule: color-mix(in srgb, var(--cw-ink) 25%, var(--cw-surface));
+  --cw-accent: var(--color-kumo-brand, #e77743);
   color: var(--cw-ink);
   max-width: 1400px;
   margin: auto;
@@ -42,15 +43,6 @@
 .cw-heading > div {
   min-width: 0;
 }
-.cw-scope {
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--cw-rule);
-}
-.cw-scope details {
-  display: inline-block;
-  margin-left: 12px;
-}
-.cw-scope summary,
 .cw-details summary {
   cursor: pointer;
   min-height: 32px;
@@ -89,13 +81,82 @@
   cursor: not-allowed;
 }
 .composer-workflows :is(button, a, input, textarea, summary):focus-visible {
-  outline: 2px solid #e77743;
+  outline: 2px solid var(--cw-accent);
   outline-offset: 3px;
 }
 .cw-mode {
   font-size: 14px;
   color: var(--cw-muted);
   padding-bottom: 24px;
+}
+.cw-next {
+  margin: 0 0 20px;
+  padding: 20px;
+  border: 1px solid var(--cw-rule);
+  border-left: 4px solid var(--cw-accent);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--cw-ink) 3%, var(--cw-surface));
+}
+.cw-kicker {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cw-muted);
+}
+.cw-next h2 {
+  margin: 0;
+}
+.cw-lead-state {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--cw-muted);
+}
+.cw-lead-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 12px 0;
+  font-size: 14px;
+  color: var(--cw-muted);
+}
+.cw-lead-facts > span {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 0;
+}
+.cw-lead-facts :is(strong, time, code) {
+  color: var(--cw-ink);
+  font-weight: 600;
+}
+.cw-lead-facts code {
+  overflow-wrap: anywhere;
+}
+.cw-meta,
+.cw-muted {
+  font-size: 14px;
+  color: var(--cw-muted);
+  overflow-wrap: anywhere;
+}
+.cw-meta code {
+  color: var(--cw-ink);
+}
+.cw-primary {
+  border-width: 2px;
+  border-color: var(--cw-accent);
+  font-weight: 700;
+}
+.composer-workflows a.cw-primary {
+  min-height: 48px;
+  padding: 11px 16px;
+  border: 2px solid var(--cw-accent);
+  border-radius: 6px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.composer-workflows a.cw-primary:hover {
+  background: color-mix(in srgb, var(--cw-ink) 7%, var(--cw-surface));
 }
 .cw-recipes {
   display: grid;
@@ -200,8 +261,7 @@
   gap: 8px 18px;
   padding: 12px 0;
 }
-.cw-details code,
-.cw-scope code {
+.cw-details code {
   overflow-wrap: anywhere;
 }
 .cw-error {
@@ -228,11 +288,18 @@
   .composer-workflows {
     padding: 16px;
   }
+  .cw-next {
+    padding: 16px;
+  }
   .cw-actions {
     gap: 10px;
   }
   .cw-actions button {
     flex-grow: 1;
+  }
+  .cw-actions .cw-primary {
+    flex-grow: 1;
+    justify-content: center;
   }
   .cw-details dl {
     grid-template-columns: 1fr;
