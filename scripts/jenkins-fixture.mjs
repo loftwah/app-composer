@@ -459,7 +459,11 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
     } catch {
       /* Evidence remains bounded; the build identity is still reported. */
     }
-    const receiptPath = join(home, 'workspace', 'composer-delivery', 'evidence', 'candidate.json');
+    const receiptCandidates = [
+      join(home, 'jobs', 'composer-delivery', 'workspace', 'evidence', 'candidate.json'),
+      join(home, 'workspace', 'composer-delivery', 'evidence', 'candidate.json'),
+    ];
+    const receiptPath = receiptCandidates.find(candidate => existsSync(candidate)) ?? receiptCandidates[0];
     const receipt = readJson(receiptPath);
     const checks = checkJenkinsReceipt(receipt, {build, headCommit});
 
