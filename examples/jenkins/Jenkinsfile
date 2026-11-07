@@ -36,6 +36,19 @@ pipeline {
       }
     }
 
+    stage('Select the delivery branch') {
+      steps {
+        sh '''
+          set -eu
+          # Jenkins checks out a detached HEAD. The journey requires a named
+          # branch whose exact commit is at origin/<branch>; this keeps the same
+          # commit and only names the branch the remote already has.
+          git checkout -B main origin/main
+          git rev-parse HEAD origin/main
+        '''
+      }
+    }
+
     stage('Candidate delivery journey') {
       steps {
         sh '''
