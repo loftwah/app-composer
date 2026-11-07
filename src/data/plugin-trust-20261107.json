@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "policy": "2026-10-25.1",
+  "observedAt": "2026-11-07T10:52:48.814Z",
+  "host": {
+    "emdash": "1.4.0",
+    "cloudflare": "1.4.0",
+    "astro": "7.4.7"
+  },
+  "packages": [
+    {
+      "name": "Freeform",
+      "did": "did:plc:tsp7az5h6qsqjzqsgz37wonx",
+      "slug": "freeform",
+      "handle": "solspace.com",
+      "profileCid": "bafyreihxjlubvbggxppcm3wtnkq33cl2ftj4gqgmln3f4jyv7supiqubhq",
+      "profileUri": "at://did:plc:tsp7az5h6qsqjzqsgz37wonx/com.emdashcms.experimental.package.profile/freeform",
+      "releaseCid": "bafyreicdbi22o2ohvx7wsfjyfj36xqz26g5l55m42w3ys2y2yugp44dpoq",
+      "releaseUri": "at://did:plc:tsp7az5h6qsqjzqsgz37wonx/com.emdashcms.experimental.package.release/freeform:1.3.0",
+      "version": "1.3.0",
+      "indexedAt": "2026-11-06T18:34:21.868Z",
+      "checksum": "bciqm4hud6juujykzbiqlb5qk77ntuwu2x7l3peq3q7ss74strmofjqq",
+      "requires": ">=1.0.0",
+      "historyComplete": false,
+      "license": "MIT",
+      "repository": "https://github.com/solspace/emdash-freeform",
+      "securityContact": true,
+      "requireProvenance": false,
+      "profileLabels": [
+        {
+          "ver": 1,
+          "src": "did:web:labels.emdashcms.com",
+          "uri": "at://did:plc:tsp7az5h6qsqjzqsgz37wonx/com.emdashcms.experimental.package.profile/freeform",
+          "val": "listing-passed",
+          "cts": "2026-11-07T10:46:41.359Z",
+          "cid": "bafyreihxjlubvbggxppcm3wtnkq33cl2ftj4gqgmln3f4jyv7supiqubhq"
+        },
+        {
+          "ver": 1,
+          "src": "did:web:labels.emdashcms.com",
+          "uri": "at://did:plc:tsp7az5h6qsqjzqsgz37wonx/com.emdashcms.experimental.package.profile/freeform",
+          "val": "listing-overridden",
+          "cts": "2026-11-07T10:46:41.359Z",
+          "cid": "bafyreihxjlubvbggxppcm3wtnkq33cl2ftj4gqgmln3f4jyv7supiqubhq"
+        },
+        {
+          "ver": 1,
+          "src": "did:web:labels.emdashcms.com",
+          "uri": "at://did:plc:tsp7az5h6qsqjzqsgz37wonx/com.emdashcms.experimental.package.profile/freeform",
+          "val": "listing-review",
+          "cts": "2026-11-07T10:46:41.359Z",
+          "cid": "bafyreihxjlubvbggxppcm3wtnkq33cl2ftj4gqgmln3f4jyv7supiqubhq",
+          "neg": true
+        }
+      ],
+      "labels": [
+        {
+          "ver": 1,
+          "src": "did:web:labels.emdashcms.com",
+          "uri": "at://did:plc:tsp7az5h6qsqjzqsgz37wonx/com.emdashcms.experimental.package.release/freeform:1.3.0",
+          "val": "listing-passed",
+          "cts": "2026-11-06T18:34:35.797Z",
+          "cid": "bafyreicdbi22o2ohvx7wsfjyfj36xqz26g5l55m42w3ys2y2yugp44dpoq"
+        }
+      ],
+      "refreshFailed": false,
+      "inspection": {
+        "observedAt": "2026-11-07T10:52:48.814Z",
+        "did": "did:plc:tsp7az5h6qsqjzqsgz37wonx",
+        "slug": "freeform",
+        "version": "1.3.0",
+        "releaseCid": "bafyreicdbi22o2ohvx7wsfjyfj36xqz26g5l55m42w3ys2y2yugp44dpoq",
+        "sha256": "ce1e83f26944e1590a20b0f60affdb3a5a9abfd7b7921b87e52ff2538b1c54c2",
+        "capabilities": [
+          "network:request:unrestricted",
+          "network:request",
+          "email:send"
+        ],
+        "allowedHosts": []
+      }
+    },
+    {
+      "name": "Stripe Checkout",
+      "did": "did:plc:wlshattmcjplayfxlgzbhxvk",
+      "slug": "emdash-stripe-checkout",
+      "handle": "ecommerceave.com",
+      "profileCid": "bafyreif2pi2njhwkm2cfiggal525jl55f56w5bvkozikszirtpxrelgdnq",
+      "profileUri": "at://did:plc:wlshattmcjplayfxlgzbhxvk/com.emdashcms.experimental.package.profile/emdash-stripe-checkout",
+      "releaseCid": "bafyreih3ze74mzny5spebwsvyp2wlbrjikx5j6lintavmp45koe3c5chvu",
+      "releaseUri": "at://did:plc:wlshattmcjplayfxlgzbhxvk/com.emdashcms.experimental.package.release/emdash-stripe-checkout:0.10.6",
+      "version": "0.10.6",
+      "indexedAt": "2026-10-27T23:58:23.363Z",
+      "checksum": "bciqgkanyl5ewfrix6pu6fiqwu2ar5cevjh5g2bg3mtllpa5hzp74hwi",
+      "requires": null,
+      "historyComplete": true,
+      "license": "MIT",
+      "repository": null,
+      "securityContact": true,
+      "requireProvenance": true,
+      "profileLabels": [
+        {
+          "ver": 1,
+          "src": "did:web:labels.emdashcms.com",
+          "uri": "at://did:plc:wlshattmcjplayfxlgzbhxvk/com.emdashcms.experimental.package.profile/emdash-stripe-checkout",
+          "val": "listing-passed",
+          "cts": "2026-10-27T02:42:51.028Z",
+          "cid": "bafyreif2pi2njhwkm2cfiggal525jl55f56w5bvkozikszirtpxrelgdnq"
+        }
+      ],
+      "labels": [
+        {
+          "ver": 1,
+          "src": "did:web:labels.emdashcms.com",
+          "uri": "at://did:plc:wlshattmcjplayfxlgzbhxvk/com.emdashcms.experimental.package.release/emdash-stripe-checkout:0.10.6",
+          "val": "listing-passed",
+          "cts": "2026-10-28T00:01:06.269Z",
+          "cid": "bafyreih3ze74mzny5spebwsvyp2wlbrjikx5j6lintavmp45koe3c5chvu"
+        }
+      ],
+      "refreshFailed": false,
+      "inspection": {
+        "observedAt": "2026-11-07T10:52:48.814Z",
+        "did": "did:plc:wlshattmcjplayfxlgzbhxvk",
+        "slug": "emdash-stripe-checkout",
+        "version": "0.10.6",
+        "releaseCid": "bafyreih3ze74mzny5spebwsvyp2wlbrjikx5j6lintavmp45koe3c5chvu",
+        "sha256": "6501b85f4962c517f3e9e2a216a6811e889549fa6d04db64d6b783a7cbffc3d9",
+        "capabilities": [
+          "content:read",
+          "content:write",
+          "schema:read",
+          "media:read",
+          "network:request"
+        ],
+        "allowedHosts": [
+          "api.stripe.com"
+        ]
+      }
+    }
+  ]
+}

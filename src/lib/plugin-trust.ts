@@ -1,10 +1,16 @@
 import { PluginRouteError } from "emdash";
 import type { D1Database } from "@cloudflare/workers-types";
-import snapshotData from "../data/plugin-trust-20261025.json" with { type: "json" };
+import snapshotData from "../data/plugin-trust-20261107.json" with { type: "json" };
+import previousSnapshotData from "../data/plugin-trust-20261025.json" with { type: "json" };
 import {
   evaluatePlugin,
   pluginTrustSnapshot,
 } from "./plugin-trust-contract.ts";
+import {
+  diffObservation,
+  reviewItems,
+  watchStatus,
+} from "./plugin-trust-watch.ts";
 
 const origin = "https://composer.loftwah.com";
 interface Context {
@@ -66,6 +72,7 @@ export async function managePluginTrust(ctx: Context, runtime: Runtime) {
     );
   try {
     const snapshot = pluginTrustSnapshot.parse(snapshotData);
+    const previous = pluginTrustSnapshot.parse(previousSnapshotData);
     const checkedAt = new Date();
     let inventory: {
       available: boolean;
@@ -107,6 +114,9 @@ export async function managePluginTrust(ctx: Context, runtime: Runtime) {
       evaluations: snapshot.packages.map((plugin) =>
         evaluatePlugin(plugin, snapshot, checkedAt),
       ),
+      watch: watchStatus([snapshot, previous], checkedAt),
+      changes: diffObservation(previous, snapshot),
+      reviews: reviewItems(previous, snapshot),
       inventory,
       installation: {
         state: "unqualified",

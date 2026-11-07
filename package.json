@@ -46,7 +46,8 @@
     "format": "node scripts/creator-format.mjs --write",
     "init:paperwork": "node scripts/init-paperwork.mjs",
     "compose:sources": "node scripts/compose-sources.mjs",
-    "delivery:announce": "node scripts/delivery-channel.mjs"
+    "delivery:announce": "node scripts/delivery-channel.mjs",
+    "plugin-trust:observe": "node scripts/plugin-trust-observe.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.4.6",

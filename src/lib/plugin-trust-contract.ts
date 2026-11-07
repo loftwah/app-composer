@@ -40,6 +40,9 @@ export const curatedPlugin = z
     securityContact: z.boolean(),
     requireProvenance: z.boolean(),
     labels: z.array(label).max(30),
+    // Profile-level registry labels are separate from release labels. They are
+    // optional because the earlier curated snapshot predates them.
+    profileLabels: z.array(label).max(30).optional(),
     refreshFailed: z.boolean(),
     inspection: z
       .object({
@@ -200,6 +203,30 @@ export function evaluatePlugin(
       "LABEL_REVIEW",
       "The selected release carries an active registry review label.",
     );
+  // Profile labels describe the package listing, not one release. An active
+  // override or withdrawal is a registry action worth an owner review.
+  const profileActive = new Map<string, boolean>();
+  for (const value of (plugin.profileLabels ?? []).toSorted(
+    (a, b) => Date.parse(a.cts) - Date.parse(b.cts),
+  ))
+    profileActive.set(value.val, value.neg !== true);
+  if (
+    [...profileActive].some(
+      ([value, enabled]) =>
+        enabled && /withdrawn|takedown|yank|suspend/.test(value),
+    )
+  )
+    add(
+      "RED",
+      "PROFILE_WITHDRAWN",
+      "The package listing carries an active withdrawal or suspension label. Confirm the authoritative registry record before any decision.",
+    );
+  else if (profileActive.get("listing-overridden"))
+    add(
+      "AMBER",
+      "PROFILE_OVERRIDDEN",
+      "The package listing carries an active registry override. Treat this release as needing an owner review, not as a clean listing.",
+    );
   const digest = checksumDigest(plugin.checksum);
   if (!plugin.checksum)
     add(
@@ -357,6 +384,7 @@ export function evaluatePlugin(
       "DIGEST_",
       "EGRESS_",
       "WRITE_",
+      "PROFILE_",
       "PROVENANCE_",
       "ADVISORY_",
       "CAPABILITIES_",

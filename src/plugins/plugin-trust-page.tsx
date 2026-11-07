@@ -17,6 +17,51 @@ const reportSchema = z.object({
   site: z.literal("https://composer.loftwah.com"),
   environment: z.literal("production"),
   snapshot: pluginTrustSnapshot,
+  watch: z.object({
+    automatic: z.boolean(),
+    cadenceHours: z.number(),
+    owner: z.string().max(80),
+    network: z.string().max(300),
+    escalation: z.string().max(300),
+    retained: z.number().int(),
+    latestAt: z.iso.datetime().nullable(),
+    previousAt: z.iso.datetime().nullable(),
+    stale: z.boolean(),
+  }),
+  changes: z
+    .array(
+      z.object({
+        did: z.string().max(200),
+        slug: z.string().max(120),
+        name: z.string().max(120),
+        state: z.enum(["added", "removed", "changed", "unchanged"]),
+        from: z.string().max(80).nullable(),
+        to: z.string().max(80).nullable(),
+        changes: z
+          .array(
+            z.object({
+              code: z.string().max(80),
+              severity: z.enum(["info", "review", "block"]),
+              detail: z.string().max(400),
+            }),
+          )
+          .max(30),
+      }),
+    )
+    .max(20),
+  reviews: z
+    .array(
+      z.object({
+        key: z.string().max(400),
+        did: z.string().max(200),
+        slug: z.string().max(120),
+        version: z.string().max(80),
+        severity: z.enum(["info", "review", "block"]),
+        code: z.string().max(80),
+        detail: z.string().max(400),
+      }),
+    )
+    .max(60),
   inventory: z.object({
     available: z.boolean(),
     atLimit: z.boolean(),
@@ -216,6 +261,93 @@ const comparisonLabels = {
   "same-version": "Same version number",
   "installed-ahead": "Installed version is newer",
 };
+
+export function PluginWatch({
+  watch,
+  changes,
+  reviews,
+}: {
+  watch: Report["watch"];
+  changes: Report["changes"];
+  reviews: Report["reviews"];
+}) {
+  const moved = changes.filter((change) => change.state !== "unchanged");
+  return (
+    <section className="pt-watch">
+      <h2>What changed since the last observation</h2>
+      <p className="pt-scope">
+        {watch.latestAt ? (
+          <>
+            Observed <time dateTime={watch.latestAt}>{utc(watch.latestAt)}</time>
+          </>
+        ) : (
+          "No observation is available"
+        )}
+        {watch.previousAt ? (
+          <>
+            {" "}
+            · previous{" "}
+            <time dateTime={watch.previousAt}>{utc(watch.previousAt)}</time>
+          </>
+        ) : null}{" "}
+        · {watch.retained} retained observation{watch.retained === 1 ? "" : "s"}
+        {watch.stale ? " · evidence is stale" : ""} · automatic refresh is off
+        · when enabled, every {watch.cadenceHours} hours · owner {watch.owner}.
+      </p>
+      {reviews.length ? (
+        <>
+          <p>
+            {reviews.length} review{" "}
+            {reviews.length === 1 ? "item" : "items"} raised by a real change.
+            Repeated daily checks keep the same key until the release changes.
+          </p>
+          <ul className="pt-watch-review">
+            {reviews.map((item) => (
+              <li key={item.key} data-severity={item.severity}>
+                <strong>
+                  {item.slug} {item.version}
+                </strong>{" "}
+                · {item.severity === "block" ? "blocking" : "needs review"} ·{" "}
+                <code>{item.code}</code>
+                <br />
+                {item.detail}
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <p>No review-worthy change since the previous observation.</p>
+      )}
+      {moved.length ? (
+        <details>
+          <summary>See the observed movement</summary>
+          <ul>
+            {moved.map((change) => (
+              <li key={change.did + change.slug}>
+                <strong>{change.name}</strong> · {change.state}
+                {change.from && change.to && change.from !== change.to
+                  ? ` · ${change.from} → ${change.to}`
+                  : ""}
+                {change.changes.length ? (
+                  <ul>
+                    {change.changes.map((item) => (
+                      <li key={item.code}>
+                        <code>{item.code}</code> · {item.detail}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
+      <p className="pt-scope">
+        {watch.network} {watch.escalation}
+      </p>
+    </section>
+  );
+}
 
 export function PluginInstalledInventory({
   report,
@@ -488,6 +620,11 @@ export function PluginTrustPage() {
             </a>
             <a href="/plugin-trust">How these checks work</a>
           </p>
+          <PluginWatch
+            watch={report.watch}
+            changes={report.changes}
+            reviews={report.reviews}
+          />
           <PluginInstalledInventory
             report={report}
             selectedId={selected?.plugin_id ?? ""}
