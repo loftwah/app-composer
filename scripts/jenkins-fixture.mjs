@@ -316,6 +316,7 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
   const container = `composer-jenkins-fixture-${nonce}`;
   const label = `composer-owned=jenkins-fixture-${nonce}`;
   let containerStarted = false;
+  let containerLog = '';
   let imageBuilt = false;
   let evidence = null;
   let failure = null;
@@ -374,6 +375,15 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
     containerStarted = true;
 
     await waitForJenkins(port, Math.min(deadline, Date.now() + 600000));
+
+    const jobResponse = await jenkinsFetch({port, suffix: '/job/composer-delivery/api/json?tree=name'});
+    if (!jobResponse.ok) {
+      containerLog = docker(['logs', '--tail', '400', container], {allowFailure: true}).stdout;
+      throw new FixtureError(
+        'job-missing',
+        `The fixture job was not created: HTTP ${jobResponse.status}. ${tail(containerLog, 800)}`,
+      );
+    }
 
     const crumbResponse = await jenkinsFetch({port, suffix: '/crumbIssuer/api/json'});
     if (!crumbResponse.ok)
@@ -435,6 +445,8 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
     failure = error instanceof FixtureError ? error : new FixtureError('fixture-failed', error?.message ?? String(error));
   } finally {
     if (containerStarted) {
+      const logs = docker(['logs', '--tail', '400', container], {allowFailure: true});
+      containerLog = `${logs.stdout ?? ''}${logs.stderr ?? ''}`;
       docker(['rm', '--force', container], {allowFailure: true});
     }
     const leaked = containerStarted
@@ -465,6 +477,7 @@ No hosted CI, GitHub Actions, scheduler, new paid service or production upload.
       };
     }
     if (!evidence) evidence = {schema: evidenceSchema, startedAt, finishedAt: new Date().toISOString(), cleanup};
+    evidence.containerLogTail = tail(containerLog, 6000);
     evidence.error = failure ? {code: failure.code, message: failure.message} : null;
     const evidencePath = join(evidenceDirectory, `jenkins-external-runner-${nonce}.json`);
     try {
