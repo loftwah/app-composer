@@ -2,6 +2,33 @@
 
 Reviewed 25 October 2026; updated 7 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Plugin Trust watch depth — 7 November 2026
+
+Production is Composer `67749e2ccec9158364c25597495c9603f0bdb963`, Worker
+`14f25e06-383a-47c0-b932-ebdfbe26d0b9`, from the clean pushed-main release
+guard; `/build.json` matched. The prior release was `d041f69` / `245bba21`.
+
+`pnpm plugin-trust:observe` now performs a bounded, read-only observation:
+registry resolution, artifact download capped at 5 MB, SHA-256 multihash
+verification, and manifest inspection without execution. It refuses the whole
+write on any failure. A real observation on 7 November recorded Freeform
+`1.3.0` and Stripe Checkout `0.10.6`, plus Freeform's active
+`listing-overridden` profile label.
+
+The admin Trust Centre compares the new snapshot with the 25 October one and
+shows six deduplicated review items (release, artifact, profile and source
+changes) with stable keys, newest-first retention, stale handling and an honest
+watch disclosure: automatic refresh is off, the daily cadence applies only when
+enabled, and each run costs two registry reads plus at most two artifact
+downloads with no credentials or model spend. Live in the real owner session at
+1440 × 1000 and 390 × 844 with no overflow and no application console error.
+
+Evidence:
+[plugin trust watch](evidence/plugin-trust-watch-20261107/README.md). Advisory
+feeds, automatic scheduled execution, inbox items, install receipts and
+financial fields remain open on
+[#365](https://github.com/loftwah/app-composer/issues/365).
+
 ## Local-first delivery profile and dependency refresh — 7 November 2026
 
 Production is Composer `d041f6900f63ef8eed0b1d144c866f922f991c75`, Worker
