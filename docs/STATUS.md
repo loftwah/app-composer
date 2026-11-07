@@ -6,7 +6,7 @@ Reviewed 25 October 2026; updated 8 November 2026. This page is the current navi
 
 Production is Composer `bcc8eca78c84cd5f2d7b6afad39150d81d51d89a`, Worker
 `9b384c29-dd33-4172-8c9c-2cb79d7ca175`. The real release was bound to its
-candidate receipt (`sha256:16404f69…`) and verified live; the same candidate
+candidate (`sha256:16404f69…`) and verified live; the same candidate receipt
 with a different source commit was refused with `candidate-commit-mismatch`
 before any command ran. A release can no longer reuse a candidate from another
 commit, Worker, account, environment, origin, composition or preview. The
