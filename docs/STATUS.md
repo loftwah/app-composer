@@ -2,6 +2,22 @@
 
 Reviewed 25 October 2026; updated 7 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Get Ready on Wrangler 4.158.0 — 8 November 2026
+
+Production is Composer `4092c2f59c1fd6f03e891dcfadb7b1636de7c15a`, Worker
+`1a1df1b7-65ec-4997-91a2-80aab6a0e9e4`. The workspace pin, the exact-version Get
+Ready checks, its MCP preparation evidence, the fixtures and the current operator
+docs now use Wrangler **4.158.0**. That release was already exercised by every
+first-party mini-app, and the focused readiness, promotion, freshness and type
+checks passed; the guarded release ran the full 487-test check, build,
+migrations and live gates. The live Get Ready tarball contains no `4.152.0`
+reference. The native Stack status admin page was not re-opened because the
+automation browser had no Access session; the owner step is named in the
+evidence.
+
+Evidence:
+[wrangler-4158-20261108](evidence/wrangler-4158-20261108/README.md).
+
 ## Diagram atlas provenance — 7 November 2026
 
 Production is Composer `0f95ada10899ce3b9f189d36983031236816f7aa`, Worker
@@ -39,10 +55,10 @@ Launch Kit `7070796` / `10ea9103`, Paperwork `5e5f8c3` / `1a437fac`, LDraw
 `d54ff3f` / `c474c499`. LDraw ran its fresh 14-check browser qualification at
 the exact release source, including the React 19 editor/export/offline paths.
 
-Held with recorded reasons: TypeScript 7 (major, needs its own toolchain
-batch) and Composer's Wrangler 4.152.0 (Get Ready runs that exact version).
-React 19 in LDraw moved after `@excalidraw/excalidraw@0.18.1` was confirmed to
-declare React 17–19 in its peer range. No composition pins, app data, credentials or Access policy changed.
+Follow-up: React 19 in LDraw moved after
+`@excalidraw/excalidraw@0.18.1` was confirmed to declare React 17–19 in its peer
+range, and Composer moved to Wrangler 4.158.0 on 8 November. TypeScript 7
+remains held for its own toolchain batch. No composition pins, app data, credentials or Access policy changed.
 Evidence: [deps-miniapps-20261107](evidence/deps-miniapps-20261107/README.md).
 
 ## Plugin Trust watch depth — 7 November 2026

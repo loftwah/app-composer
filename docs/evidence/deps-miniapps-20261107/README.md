@@ -37,7 +37,7 @@ mini-app keeps its own repository, lockfile, guards and release boundary.
 | Package | Held at | Reason |
 | --- | --- | --- |
 | TypeScript | `6.0.3` | 7.0.2 is a major; the toolchain that consumes it needs its own qualified batch. |
-| Composer Wrangler | `4.152.0` | Get Ready runs that exact Wrangler; re-pinning `lib/get-ready` and its fixtures is a separate Composer change. The mini-apps have no such coupling, so they moved. |
+| Composer Wrangler | `4.152.0` | Get Ready runs that exact Wrangler; re-pinning `lib/get-ready` and its fixtures is a separate Composer change. The mini-apps have no such coupling, so they moved. **Follow-up:** Composer moved to 4.158.0 on 8 November — see `docs/evidence/wrangler-4158-20261108`. |
 
 ## Repair made while upgrading
 
