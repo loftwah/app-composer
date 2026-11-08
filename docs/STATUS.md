@@ -2,6 +2,32 @@
 
 Reviewed 25 October 2026; updated 8 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Write-free incident decision rehearsal — 8 November 2026
+
+Production is Composer `0acd7ff185347580e034f417f2ffb7e5fc761ce9`, Worker
+`86a1e589-5442-4b95-aaaa-c46ce0e14b4c`; `/build.json` matches. `/incident-replay`
+now lets a visitor rehearse the existing proposal decision entirely in the
+browser tab: send version 1 back with a required instruction, compare the
+retained first version with a linked version 2, see a stale approval refused,
+then record a simulated approval or rejection. The result states plainly that
+no email, deployment, agent call or recovery occurred, and the notification
+preview is fictional and unsent.
+
+The live journey was checked on production: the short note was refused, the
+send-back retained both versions, stale version 1 was refused, and version 2
+showed **Approved in this rehearsal** with no execution. No action request left
+the page across the whole walkthrough. 1440 dark, 1440 light and 390 dark were
+inspected with no horizontal overflow; keyboard focus shows a 2px outline and
+the outcome heading receives focus. Seven focused tests passed and the guarded
+deploy ran every live gate.
+
+This is the safe rehearsal scenario only. A real EmDash incident, configured
+recipient email, signed-in owner decision, execution and independent recovery
+remain open on #367.
+
+Evidence:
+[incident rehearsal](evidence/incident-rehearsal-20261108/README.md).
+
 ## Saved order exceptions in Needs attention — 8 November 2026
 
 Production is Composer `09c441c68b3d4a987a7f906187ad503326fe6594`, Worker
