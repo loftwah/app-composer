@@ -2,6 +2,60 @@
 
 Reviewed 25 October 2026; updated 8 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Recovery dead ends and retained invariants — 8 November 2026
+
+Production is Composer `6665bb86f334bc62793251efeb5544d6eea7a985`, Worker
+`64032b6a-37a2-4361-88ed-c7172f968a77`; `/build.json` matches. The guarded
+release passed every live gate in 107.5s. Migrations `0024`–`0026` are applied
+remotely; the resource-operation, collection-operation and payment-state
+guards were read back from production D1.
+
+This closes the recovery gaps left by the earlier state-machine pass:
+
+- **Resource recovery.** An unconfirmed app operation can now be abandoned only
+  after the app itself confirms it never recorded that operation. The request
+  and receipt stay readable, the resource returns to `ready` (or `reserved`),
+  and the owner can re-apply deliberately. The operation journal now allows one
+  open operation per resource; later duplicates are retained as `abandoned`
+  during the migration rather than failing the new index. Removing an instance
+  or deleting a stack is refused while its resource has an open operation.
+  Inventory, maintenance and execution now all read the oldest open operation.
+- **Collection journal.** A Linkarooie collection is recorded as `pending`
+  before dispatch and resolved to `applied`, `unchanged`, `refused` or
+  `unknown`. A lost response survives a reload: the exact source reference is
+  restored, the same contribution is not dispatched again, and
+  `collection-check` can resolve it later. Different contributions remain
+  collectable while one reference is open.
+- **Notifications.** A retained notice with a missing workflow record can be
+  relinked idempotently. Recent-run limits exclude receipts older than the
+  30-day brief retention, and sample workflow receipts no longer consume the
+  real 500-run cap. A local access/preference/connection failure before the
+  provider call is now a definite `failed` with a bounded retry, not a
+  permanently blocking `uncertain`.
+- **Proposals.** Closing a proposal (send back or reject) and preparing the
+  handoff for an already accepted digest remain available after the agent grant
+  expires or is revoked; acceptance still requires an active grant. The review
+  controls now use the named owner/fallback identity and the grant state, so the
+  UI no longer offers a decision the server will refuse.
+- **Team Hub.** Manage-only owners can read and write, and a workspace owner can
+  recover management when no enabled app manager remains. Recovery grants
+  contribute and maintain access and records both grants in the audit.
+- **Orders and rollback.** The database rejects any payment state outside the
+  contract vocabulary, the 100-event cap is enforced in the inserting statement
+  as well as its pre-check, and republishing a stored revision verifies that its
+  visitor-book references are still visible and current. A hidden or drifted
+  resource blocks the rollback instead of silently re-exposing it.
+
+`tests/collection-journal.test.mjs` adds the durable collection path. The suite
+is now 598 tests in 82 files. Focused resource, order, journey, proposal, team,
+invitation, import and collection tests passed, followed by `pnpm check` and the
+guarded deploy.
+
+Remaining limit: the authenticated Orders, Inbox, People, Team Hub and proposal
+renders were not re-exercised live because the isolated browser had no
+Cloudflare Access session; an owner session should spot-check them.
+
+
 ## Implicit state-machine corrections — 8 November 2026
 
 Production is Composer `9e0b98f32eaff2c26a34ee8a8135679a33c9c240`, Worker
