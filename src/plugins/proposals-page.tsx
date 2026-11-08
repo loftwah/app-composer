@@ -57,12 +57,25 @@ export function Proposals({
         (filter === "all" || view.state === filter),
     ) ?? [];
   const current = shown.find((view) => view.id === selected) ?? shown[0];
-  const canAccept = Boolean(
+  const namedReviewer = Boolean(
     snapshot &&
-      snapshot.workspace.role === "owner" &&
+      current &&
+      [current.grant.owner.id, current.grant.fallback.id].includes(
+        snapshot.self,
+      ),
+  );
+  const canReview = canWrite && namedReviewer;
+  const canAccept = Boolean(
+    canReview &&
+      snapshot?.workspace.role === "owner" &&
       current?.grant.state === "active",
   );
-  const canHandoff = Boolean(snapshot && snapshot.workspace.role === "owner");
+  const canHandoff = Boolean(
+    snapshot &&
+      current &&
+      snapshot.workspace.role === "owner" &&
+      snapshot.self === current.grant.owner.id,
+  );
   const reason = current ? (reasons[current.id] ?? "") : "";
   function setReason(value: string) {
     if (current)
@@ -186,7 +199,17 @@ export function Proposals({
       return;
     }
     if (decision === "accept" && !canAccept) {
-      setError("Only the workspace owner can accept a proposal.");
+      setError(
+        current.grant.state !== "active"
+          ? "The agent grant is no longer active. Acceptance is closed; send the proposal back or reject it."
+          : "Only the workspace owner named on the grant can accept a proposal.",
+      );
+      return;
+    }
+    if (decision !== "accept" && !canReview) {
+      setError(
+        "Only the named accountable owner or fallback can review this proposal.",
+      );
       return;
     }
     pending.current = true;
@@ -601,7 +624,7 @@ export function Proposals({
                         <textarea
                           value={reason}
                           rows={4}
-                          disabled={busy || !canWrite}
+                          disabled={busy || !canReview}
                           onChange={(event) => setReason(event.target.value)}
                           placeholder="Name the evidence you checked and any condition on the decision."
                         />
@@ -621,7 +644,7 @@ export function Proposals({
                         <button
                           type="button"
                           disabled={
-                            busy || !canWrite || reason.trim().length < 8
+                            busy || !canReview || reason.trim().length < 8
                           }
                           onClick={() => void review("request-changes")}
                         >
@@ -632,7 +655,7 @@ export function Proposals({
                         <button
                           type="button"
                           disabled={
-                            busy || !canWrite || reason.trim().length < 8
+                            busy || !canReview || reason.trim().length < 8
                           }
                           onClick={() => void review("reject")}
                         >
@@ -641,9 +664,11 @@ export function Proposals({
                       </div>
                       {!canAccept && (
                         <p className="ap-hint">
-                          {current.grant.state !== "active"
-                            ? "The agent grant is no longer active. Acceptance is closed, but you can still send this proposal back or reject it."
-                            : "Only the named accountable owner or fallback can decide. Acceptance also requires workspace owner access."}
+                          {!canReview
+                            ? "Only the named accountable owner or fallback can review this proposal."
+                            : current.grant.state !== "active"
+                              ? "The agent grant is no longer active. Acceptance is closed, but you can still send this proposal back or reject it."
+                              : "Acceptance requires workspace owner access."}
                         </p>
                       )}
                     </div>

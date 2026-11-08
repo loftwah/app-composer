@@ -65,6 +65,29 @@ const change = (p, patch = {}) => ({
 const post = (f, p, value) =>
   f.route({ action: "moderateResource", ...p.selection, change: value });
 
+test("republishing verifies the stored visitor-book reference", async () => {
+  const f = fixture();
+  try {
+    const p = await prepared(f);
+    const published = await f.route({ action: "publish", ...p.selection });
+    assert.equal(published.ok, true, published.message);
+    const resource = f.app.resources.get(p.resource);
+    resource.visible = false;
+    const republished = await f.route({
+      action: "republish",
+      workspace: p.space.id,
+      stack: p.stack.id,
+      revision: published.stack.publishedRevision,
+      expectedRevision: published.stack.revision,
+    });
+    assert.equal(republished.ok, false);
+    assert.equal(republished.code, "CONFLICT");
+    assert.match(republished.message, /hidden|configuration/i);
+  } finally {
+    f.close();
+  }
+});
+
 test("an unconfirmed operation is abandoned only after the app confirms no record", async () => {
   const f = fixture();
   const originalSource = appSettings.guestbook.source.commit;

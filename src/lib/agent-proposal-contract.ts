@@ -617,6 +617,7 @@ export const agentProposalSnapshot = z
       })
       .strict(),
     proposals: z.array(agentProposalView).max(20),
+    self: actorId,
     limit: z.literal(20),
     execution: z.literal("not-performed"),
   })

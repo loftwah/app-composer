@@ -10,7 +10,10 @@ import {
   manageInboxJourney,
   recordEnquiryEvent,
 } from "../src/lib/inbox-journey.ts";
-import { queueEnquiryNotification } from "../src/lib/enquiry-notifications.ts";
+import {
+  queueEnquiryNotification,
+  sendEnquiryNotification,
+} from "../src/lib/enquiry-notifications.ts";
 import { journeyResponse } from "../src/lib/inbox-journey-contract.ts";
 
 const source = appSettings.guestbook.source.commit;
@@ -400,6 +403,69 @@ test("a retained notice with a missing workflow record can be relinked explicitl
       .get().n,
     1,
   );
+});
+
+test("a local pre-send check failure is definite and leaves a bounded retry", async (t) => {
+  const f = await prepared(t, { status: "reviewed" });
+  await f.enable();
+  await recordEnquiryEvent(f.db, f.scope, f.item().id);
+  f.link();
+  await process(f);
+  const outbox = f.sqlite
+    .prepare(
+      "SELECT id,attempts FROM creator_enquiry_notification_outbox WHERE workspace_id=?",
+    )
+    .get(f.workspace.id);
+  let providerCalls = 0;
+  const db = {
+    prepare(sql) {
+      const statement = f.db.prepare(sql);
+      if (!sql.includes("SET state='sending'")) return statement;
+      const changePreference = () =>
+        f.sqlite
+          .prepare(
+            "UPDATE creator_enquiry_notification_preferences SET enabled=0,revision=revision+1 WHERE workspace_id=?",
+          )
+          .run(f.workspace.id);
+      const first = statement.first.bind(statement);
+      statement.first = async () => {
+        const claimed = await first();
+        if (claimed) changePreference();
+        return claimed;
+      };
+      const bind = statement.bind.bind(statement);
+      statement.bind = (...args) => {
+        const bound = bind(...args);
+        const boundFirst = bound.first.bind(bound);
+        bound.first = async () => {
+          const claimed = await boundFirst();
+          if (claimed) changePreference();
+          return claimed;
+        };
+        return bound;
+      };
+      return statement;
+    },
+  };
+  await sendEnquiryNotification(
+    db,
+    f.runtime,
+    f.workspace.id,
+    f.resource,
+    outbox.id,
+    async () => {
+      providerCalls++;
+      return accepted();
+    },
+  );
+  assert.equal(providerCalls, 0);
+  const row = f.sqlite
+    .prepare(
+      "SELECT state,reason FROM creator_enquiry_notification_outbox WHERE id=?",
+    )
+    .get(outbox.id);
+  assert.equal(row.state, "failed");
+  assert.match(row.reason, /Nothing was sent/);
 });
 
 test("duplicate events keep one run and one outbox row; processing prepares a ready notice", async (t) => {

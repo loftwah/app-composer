@@ -35,6 +35,7 @@ import {
   listStackResources,
   availableWorkspaceResources,
   resourcePublication,
+  verifyPublishedResourceReferences,
 } from "./stack-resources.ts";
 import {
   readResourceContent,
@@ -378,6 +379,27 @@ export async function manageStacks(ctx: StackAdminContext, runtime: unknown) {
       if (!identifier(command.stack))
         return fail("INVALID", "Choose a valid stack.");
       const revision = Number(command.revision);
+      if (action === "republish") {
+        const publications = await listPublications(
+          db,
+          workspace.id,
+          command.stack,
+        );
+        const release = publications.find(
+          (publication) => publication.revision === revision,
+        );
+        if (!release)
+          return fail(
+            "NOT_FOUND",
+            "That published revision is not in this stack’s history.",
+          );
+        await verifyPublishedResourceReferences(
+          db,
+          workspace.id,
+          release.document,
+          runtime,
+        );
+      }
       const stack =
         action === "republish"
           ? await republishRevision(

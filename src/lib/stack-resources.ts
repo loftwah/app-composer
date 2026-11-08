@@ -662,6 +662,41 @@ export async function manageResourceContent(
   };
 }
 
+// A rollback republishes an immutable snapshot, not the current draft. Verify
+// that every resource reference in that snapshot is still the live, visible
+// configuration before it becomes the public page again.
+export async function verifyPublishedResourceReferences(
+  db: D1Database,
+  workspace: string,
+  document: { instances: Array<{ app: string; resource?: { id: string; configurationRevision: number; digest: string; source: string } }> },
+  runtime?: ResourceRuntime,
+) {
+  const connection = runtime && document.instances.some(instance => instance.app === 'guestbook') ? resourceConnection(runtime, workspace) : null;
+  const verified = new Set<string>();
+  for (const instance of document.instances) {
+    if (instance.app !== 'guestbook' || !instance.resource) continue;
+    const reference = instance.resource;
+    const selected = await db.prepare("SELECT * FROM creator_app_resources WHERE id=? AND workspace_id=? AND app='guestbook'").bind(reference.id, workspace).first<ResourceRow>();
+    if (!selected ||
+        selected.state !== 'ready' ||
+        selected.configuration_revision !== reference.configurationRevision ||
+        selected.configuration_digest !== reference.digest ||
+        selected.configuration_source !== reference.source)
+      throw new StackError('CONFLICT', 'This published revision references a visitor book that is no longer ready or current. Apply its settings again before republishing.', 409);
+    if (connection && !verified.has(selected.id)) {
+      sameTarget(selected, connection);
+      const actual = await connection.status(selected.id);
+      if (!actual.resource.visible ||
+          !actual.configuration ||
+          actual.configuration.revision !== reference.configurationRevision ||
+          actual.configuration.digest !== reference.digest ||
+          actual.configuration.source !== connection.source)
+        throw new StackError('CONFLICT', 'This published revision references a visitor book that is hidden or serving another configuration. Review it before republishing.', 409);
+      verified.add(selected.id);
+    }
+  }
+}
+
 export async function resourcePublication(db: D1Database, workspace: string, stack: string, document: StackDocument, runtime?: ResourceRuntime) {
   const connection = runtime && document.instances.some(instance => instance.app === 'guestbook') ? resourceConnection(runtime, workspace) : null;
   const verified = new Set<string>();

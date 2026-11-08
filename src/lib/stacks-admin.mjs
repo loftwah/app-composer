@@ -4,7 +4,7 @@ import { guardPlatformLifecycle, platformLifecycleMode, } from "./platform-guard
 import { StackError, resolveWorkspace, membership, requireCapability, listStacks, readStack, createStack, saveStack, publishStack, unpublishStack, setArchived, duplicateStack, deleteStack, listPublications, republishRevision, restoreRevisionToDraft, instanceConfiguration, exportStack, importStack, describeImport, } from "./stacks.mjs";
 import { isCreatorRole } from "./creator-access.ts";
 import { activationSummary } from "./stack-activation.mjs";
-import { applyStackResources, reconcileStackResources, reuseStackResource, listStackResources, availableWorkspaceResources, resourcePublication, } from "./stack-resources.ts";
+import { applyStackResources, reconcileStackResources, reuseStackResource, listStackResources, availableWorkspaceResources, resourcePublication, verifyPublishedResourceReferences, } from "./stack-resources.ts";
 import { readResourceContent, readResourceMedia, manageResourceContent, } from "./stack-resources.ts";
 const record = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const database = (value) => record(value) && typeof value.prepare === "function";
@@ -220,6 +220,13 @@ export async function manageStacks(ctx, runtime) {
             if (!identifier(command.stack))
                 return fail("INVALID", "Choose a valid stack.");
             const revision = Number(command.revision);
+            if (action === "republish") {
+                const publications = await listPublications(db, workspace.id, command.stack);
+                const release = publications.find((publication) => publication.revision === revision);
+                if (!release)
+                    return fail("NOT_FOUND", "That published revision is not in this stack’s history.");
+                await verifyPublishedResourceReferences(db, workspace.id, release.document, runtime);
+            }
             const stack = action === "republish"
                 ? await republishRevision(db, workspace.id, command.stack, revision, command.expectedRevision, ctx.user.id)
                 : await restoreRevisionToDraft(db, workspace.id, command.stack, revision, command.expectedRevision, ctx.user.id);

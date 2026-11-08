@@ -250,6 +250,7 @@ export async function sendEnquiryNotification(
     .bind(destination, date(), row.id, row.attempts)
     .first();
   if (!claimed) return;
+  let providerRequested = false;
   try {
     // Recheck access and connection after the durable claim, before the effect.
     await validResource(db, rowScope(row));
@@ -266,6 +267,7 @@ export async function sendEnquiryNotification(
       freshPreference.revision !== preference.revision
     )
       throw Error("Permission or preference changed");
+    providerRequested = true;
     const result = await deliverResend(
       {
         to: mail.recipient,
@@ -300,14 +302,19 @@ export async function sendEnquiryNotification(
     const rejected =
       status !== undefined &&
       [400, 401, 403, 404, 405, 413, 415, 422, 429].includes(status);
+    // A local guard ran before the provider call. Nothing left the server, so
+    // this is a definite failure and a bounded retry is safe.
+    const definite = rejected || !providerRequested;
     await db
       .prepare(
         "UPDATE creator_enquiry_notification_outbox SET state=?,reason=?,updated_at=? WHERE id=? AND state='sending'",
       )
       .bind(
-        rejected ? "failed" : "uncertain",
-        rejected
-          ? "The provider rejected this notification (" +
+        definite ? "failed" : "uncertain",
+        definite
+          ? !providerRequested
+            ? "A local access, preference or connection check changed before the provider request. Nothing was sent; refresh and retry."
+            : "The provider rejected this notification (" +
               status +
               "). The enquiry remains in your Inbox."
           : "The send outcome is uncertain. The enquiry remains in your Inbox; reconcile before retry.",

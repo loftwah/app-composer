@@ -2572,6 +2572,7 @@ export async function manageAgentProposals(
           role: workspace.role,
         },
         proposals,
+        self: user.id,
         limit: 20,
         execution: "not-performed",
       });
