@@ -2,6 +2,48 @@
 
 Reviewed 25 October 2026; updated 8 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Effect usage audit — 8 November 2026
+
+Production is Composer `4a1a15379b15e05c3a8624f8e076545e7ed6bd83`, Worker
+`716f957c-956b-4a9b-90d1-ba67de6d860c`; `/build.json` matches. The linked Link
+Check release is `99c204ab370a37eab90e6a4e0024506afb0f4a32`, Worker
+`84317716-bfef-4896-9853-abc7ddb156e1`.
+
+App Composer itself still has no Effect dependency. Its `/effect` page is a
+recorded demonstration of Link Check’s Effect 4 batch check, and Link Check’s
+own AGENTS contract requires Effect for bounded IO and typed failures. The audit
+found and corrected three gaps in that usage record:
+
+- The recorded trace claimed Effect `4.0.4` while the pinned dependency was
+  `4.1.2`. The generator now reads the installed version, the trace was
+  regenerated, and the demo test asserts the recorded version instead of a
+  literal.
+- `pnpm test:effect` failed on a clean checkout because the generated
+  `src/build.ts` was missing. It now runs the identity generator first, like the
+  full test command.
+- An unexpected exception inside inspection was mapped to a retryable
+  `FetchFailed`, as if the origin might answer differently. Transport
+  rejections and stream failures still become retryable `FetchFailed`; an
+  internal inspection failure is now the non-retryable
+  `UnreadableInspection`, classified as `uncertain` and never retried. Known
+  `InvalidTarget`/DNS refusals keep their typed code.
+
+The other Effect patterns were already appropriate for this app: Schema request
+decoding, `Inspector`/`ReviewedScope` services and Layers for test replacement,
+typed `Data.TaggedError` failures, `timeoutOrElse` with an AbortSignal, bounded
+`Effect.forEach` concurrency, one retry limited to retryable reads, and
+`Effect.runPromise` only at the Worker boundary.
+
+Verification: Link Check `pnpm check` passed 104 tests; App Composer `pnpm check`
+passed 600 tests in 83 files including the new trace-provenance test. Both
+guarded deploys passed. Live `/effect` reports Effect 4.1.2 and Link Check commit
+`99c204a`, the recorded run advances, and 390px has no horizontal overflow.
+
+Remaining limit: the signed-in Orders, Inbox, People, Team Hub and proposal
+renders still need an owner-session spot-check. The isolated browser has no
+Cloudflare Access session and the sign-in handoff timed out.
+
+
 ## Recovery dead ends and retained invariants — 8 November 2026
 
 Production is Composer `6665bb86f334bc62793251efeb5544d6eea7a985`, Worker
