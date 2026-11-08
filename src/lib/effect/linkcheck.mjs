@@ -7,7 +7,7 @@ export const LINKCHECK_REPOSITORY =
 
 // Exact Link Check commit that produced docs/effect/run-trace.json.
 export const LINKCHECK_COMMIT =
-  "9cff98b56bc6e0c6de3d05c1d3094cc76c365358";
+  "99c204ab370a37eab90e6a4e0024506afb0f4a32";
 
 export function linkcheckSource(path) {
   return `${LINKCHECK_REPOSITORY}/blob/${LINKCHECK_COMMIT}/${path}`;
