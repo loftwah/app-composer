@@ -2,6 +2,33 @@
 
 Reviewed 25 October 2026; updated 8 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Saved order exceptions in Needs attention — 8 November 2026
+
+Production is Composer `09c441c68b3d4a987a7f906187ad503326fe6594`, Worker
+`7d0cc1fa-edd7-4526-8f4f-bbd3c981eb0c`; `/build.json` matches. The shared
+**Needs attention** view now has an administrator-only **Orders** source. It
+reads at most 50 saved orders for the exact workspace, account and environment
+and uses the same predicate as the Orders screen: an uncertain checkout, unknown
+or failed operation, unknown or failed fulfilment, or failed/expired/cancelled
+payment. A routine pending checkout is not an exception.
+
+Non-administrators get `restricted`; an inconsistent stored identity makes the
+source `unavailable`, never zero. Each item deep-links to the selected order,
+and the Orders page now honours `?order=` with an anchor. The contract requires
+seven sources and only the exact deep-link shape.
+
+A read-only production D1 query found one order (refunded) with both retained
+actions succeeded, so the source correctly has 0 items. No live exception order
+exists to display; the non-zero branch is proven by a real SQLite integration
+test, not a fabricated production receipt. Nineteen focused tests passed. The
+authenticated admin render remains an owner-session step.
+
+Remaining #118 gaps: connection expiry, a persisted backup/recovery proof and
+a live exception-to-recovery journey.
+
+Evidence:
+[order attention](evidence/order-attention-20261108/README.md).
+
 ## Upstream model intelligence adapter — 8 November 2026
 
 The first executable [#19](https://github.com/loftwah/app-composer/issues/19)
