@@ -75,7 +75,7 @@ The candidate is a separate stage for preview work; release does not rebuild it 
 
 ### Measured local cost
 
-On a 14-core macOS host with Node 22.23.4 and a warm pnpm store, 25 October 2026: `pnpm check` 103.8s (types/generated source 16.8s, lint 2.2s, format 0.7s, tests 84.3s); `pnpm build` 12.2s; `CLOUDFLARE_ENV=preview pnpm build` 12.0s; `pnpm dev` 8.5s to a ready server; the first uncached page in a browser 6.3s; `pnpm check:fast -- tests/page-share.test.mjs tests/public-ui-assets.test.mjs` 21.9s. These historical measurements predate the separated preview stage; release runs one `pnpm check` and one production build, and `pnpm deploy` prints each gate with its duration.
+On a 14-core macOS host with Node 22.23.4 and a warm pnpm store, 8 November 2026: `pnpm test` 30.4s for the same 575 tests that took 90.8s at the former two-worker setting; `pnpm check` 66.3s (types/generated source 25.2s, lint 4.6s, format 1.1s, tests 33.4s); `pnpm check:fast -- tests/check-fast.test.mjs tests/emdash-key-deploy-gate.test.mjs` 38.8s; `pnpm deploy` 139.3s by its own elapsed clock (142.4s wall including startup), covering the full check, production build, remote migrations, upload and live gates. The suite now uses Node's default concurrency (`availableParallelism - 1`), so smaller hosts run fewer files at once. The earlier 25 October measurement was `pnpm check` 103.8s, `pnpm build` 12.2s and `pnpm check:fast` 21.9s with two test workers. Release runs one `pnpm check` and one production build, and `pnpm deploy` prints each gate with its duration plus `Release elapsed`.
 
 ## Preview isolation
 

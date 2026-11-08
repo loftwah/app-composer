@@ -2,6 +2,32 @@
 
 Reviewed 25 October 2026; updated 8 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Measured routine release speed — 8 November 2026
+
+Production is Composer `26b5c8060a7ce1cbc1300b2848118654d4df94b7`, Worker
+`490591d2-4078-46b5-a401-31869ed51017`; `/build.json` matches. The same 575
+tests in 83 files now run at Node's default concurrency instead of two at a
+time: the suite fell from 90.8s to 30.4s, and `pnpm check` from 122.0s to
+66.3s, with no test removed, skipped or changed.
+
+A real guarded deploy on this commit took **139.3s** by the release's own
+elapsed clock (142.4s wall including process startup), covering the full check,
+production build, remote migrations, upload and every live gate.
+With the focused check at 38.8s, the checks-plus-release flow is **2m58s**,
+inside the five-minute target with about two minutes left for preflight, the
+edit and the affected live inspection. The deploy now prints
+`Release elapsed: Ns` and names the slowest stage if it exceeds 300s, so the
+next overrun reports a concrete cause.
+
+This proves the flow, not every future change. A slice that needs more than
+about 75 seconds of implementation is not routine in one window; the
+classification and revised stage budget are in
+[fast-delivery.md](fast-delivery.md). The measurement is on one 14-core host
+with a warm pnpm store, and a cold store or provider slowdown can exceed it.
+
+Evidence:
+[release speed](evidence/release-speed-20261108/README.md).
+
 ## Five-minute routine delivery prompt — 8 November 2026
 
 Production is Composer `896e7b1137425407203831de76666414bbbc34af`, Worker
