@@ -2,6 +2,28 @@
 
 Reviewed 25 October 2026; updated 8 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Five-minute routine delivery prompt — 8 November 2026
+
+Production is Composer `896e7b1137425407203831de76666414bbbc34af`, Worker
+`945a82fb-4ede-41fb-a73f-65c88c36fb9d`; `/build.json` matches. A new
+**Operations** prompt, **Ship a routine change in five minutes**, is live at
+`/prompts#delivery`. It requires one slice per window, a 45-second preflight,
+one focused check, one guarded release, a five-minute stop and an honest overrun
+report. It classifies a new module, migration, provider/auth/spend, multi-page
+UI or more than two files as **not routine**, so they get a separate window
+instead of stretching one delivery.
+
+The supporting contract is [fast-delivery.md](fast-delivery.md): classification,
+stage budget, overrun rule and the gates that always win over the clock. Three
+focused tests keep the prompt's rules from being edited away. Live at 1440 and
+390 with no horizontal overflow; the copy control correctly fell back to manual
+copy when the automation browser denied clipboard access. This delivery itself
+was not routine (new public surface, document and test), and is recorded at
+about 6–7 minutes from first edit to live check.
+
+Evidence:
+[fast delivery prompt](evidence/fast-delivery-prompt-20261108/README.md).
+
 ## Write-free incident decision rehearsal — 8 November 2026
 
 Production is Composer `0acd7ff185347580e034f417f2ffb7e5fc761ce9`, Worker
