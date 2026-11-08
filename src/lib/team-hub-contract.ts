@@ -72,6 +72,13 @@ export const teamHubCommand = z.discriminatedUnion("action", [
     .strict(),
   z
     .object({
+      action: z.literal("recover"),
+      workspace: teamHubWorkspace,
+      expectedRevision: teamHubRevision,
+    })
+    .strict(),
+  z
+    .object({
       action: z.enum(["history", "attachment"]),
       workspace: teamHubWorkspace,
       id: teamHubId,
@@ -92,6 +99,7 @@ export const teamHubSnapshot = z.object({
     role: z.enum(["owner", "editor", "viewer"]),
     manage: z.boolean(),
   }),
+  recoverable: z.boolean(),
   enabled: z.boolean(),
   revision: teamHubRevision,
   requests: z

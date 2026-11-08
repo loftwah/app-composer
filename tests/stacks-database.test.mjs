@@ -352,6 +352,8 @@ test('forward repair preserves draft/archive state and existing history, skippin
     assert.equal((await publicStack(db, first.slug)).name, 'Already recorded publication');
     assert.equal((await publicStack(db, first.slug)).publishedAt, '2026-10-16 12:00:00');
     for (const [name] of entries) assert.equal(await publicStack(db, name.toLowerCase().replaceAll(' ', '-')), null);
+    db.migrate(migration('0006_stack_resources.sql'));
+    db.migrate(migration('0024_resource_operation_recovery.sql'));
     const removed = await deleteStack(db, workspaceId, first.id, first.revision);
     assert.equal(removed.removedPublications, true);
     assert.equal((await db.prepare('SELECT COUNT(*) AS count FROM creator_stack_publications WHERE stack_id=?').bind(first.id).first()).count, 0, 'FK cascade removes only this stack history');

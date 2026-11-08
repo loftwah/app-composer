@@ -201,7 +201,7 @@ export async function manageMaintenance(ctx: Context, runtime: Runtime) {
       );
     const pending = await db
       .prepare(
-        "SELECT id FROM creator_resource_operations WHERE resource_id=? AND state IN ('pending','unknown') LIMIT 1",
+        "SELECT id FROM creator_resource_operations WHERE resource_id=? AND state IN ('pending','unknown') ORDER BY created_at,id LIMIT 1",
       )
       .bind(row.id)
       .first();

@@ -24,7 +24,7 @@ interface ResourceRow {
 interface BindingRow extends ResourceRow { instance_id: string; mode: 'own' | 'shared' }
 interface OperationRow {
   id: string; resource_id: string; action: ResourceCommand['action'];
-  state: 'pending' | 'confirmed' | 'unknown' | 'refused';
+  state: 'pending' | 'confirmed' | 'unknown' | 'refused' | 'abandoned';
   source_revision: string; request_json: string; result_json: string | null;
 }
 export interface ResourceBindingView {
@@ -182,9 +182,15 @@ async function operation(ctx: MutationContext, instance: StackInstance, resource
   } else {
     const command: ResourceCommand = { action, operationId, ...fields };
     pending = { id: command.operationId, resource_id: resource.id, action, state: 'pending', source_revision: connection.source, request_json: JSON.stringify(command), result_json: null };
-    await change(ctx, (condition, values) => [ctx.db.prepare(`INSERT INTO creator_resource_operations(id,resource_id,stack_id,instance_id,action,state,source_revision,request_json)
+    await change(ctx, (condition, values) => [ctx.db.prepare(`INSERT OR IGNORE INTO creator_resource_operations(id,resource_id,stack_id,instance_id,action,state,source_revision,request_json)
       SELECT ?,?,?,?,?,'pending',?,? WHERE ${condition}`)
       .bind(pending!.id, resource.id, ctx.row.id, instance.id, action, connection.source, pending!.request_json, ...values)]);
+    const stored = await ctx.db.prepare("SELECT id FROM creator_resource_operations WHERE id=? AND state='pending'").bind(pending.id).first();
+    if (!stored) {
+      const other = await unfinished(ctx.db, resource.id);
+      if (other) return { outcome: 'unknown', message: 'Another unconfirmed operation is already recorded for this resource. Reconcile or abandon it before starting another change.' };
+      throw conflict();
+    }
   }
   const command = JSON.parse(pending.request_json) as ResourceCommand;
   // Capture only before the first dispatch. A retry must use its original proof;
@@ -498,8 +504,63 @@ export async function manageResourceContent(
   const owner = await ownerContext(db, user, workspace, input, runtime);
   const { ctx, instance, selected, connection } = owner;
   ctx.measureOutcomes = !measurement.suppress;
-  let outcome: RemoteOutcome | { outcome: "unchanged"; message?: string };
-  if (mutation === "reconcile" || mutation === "retry") {
+  let outcome: RemoteOutcome | { outcome: "unchanged" | "abandoned"; message?: string };
+  if (mutation === "abandon") {
+    const pending = await unfinished(db, selected.id);
+    if (!pending)
+      throw new StackError(
+        "CONFLICT",
+        "There is no unconfirmed app operation to abandon.",
+        409,
+      );
+    let confirmed: Awaited<ReturnType<typeof connection.reconcile>>;
+    try {
+      confirmed = await connection.reconcile(
+        selected.id,
+        pending.id,
+        JSON.parse(pending.request_json) as ResourceCommand,
+        pending.source_revision,
+      );
+    } catch {
+      throw new StackError(
+        "UNAVAILABLE",
+        "The app could not confirm whether it recorded this operation. Nothing was abandoned.",
+        503,
+      );
+    }
+    if (confirmed) {
+      await record(ctx, pending, { outcome: "applied", reply: confirmed });
+      outcome = { outcome: "applied", reply: confirmed };
+    } else {
+      // The app explicitly reported no record. Keeping the row avoids a
+      // silent retry and preserves the exact request as recovery evidence.
+      await change(ctx, (condition, values) => [
+        db
+          .prepare(
+            `UPDATE creator_resource_operations SET state='abandoned',result_json=? WHERE id=? AND resource_id=? AND state IN ('pending','unknown') AND ${condition}`,
+          )
+          .bind(
+            JSON.stringify({
+              abandoned:
+                "The app confirmed it did not record this operation.",
+            }),
+            pending.id,
+            selected.id,
+            ...values,
+          ),
+        db
+          .prepare(
+            `UPDATE creator_app_resources SET state=CASE WHEN configuration_revision IS NOT NULL THEN 'ready' ELSE 'reserved' END WHERE id=? AND ${condition}`,
+          )
+          .bind(selected.id, ...values),
+      ]);
+      outcome = {
+        outcome: "abandoned",
+        message:
+          "The app confirmed it did not record this operation. The resource is ready for an explicit re-apply.",
+      };
+    }
+  } else if (mutation === "reconcile" || mutation === "retry") {
     const pending = await unfinished(db, selected.id);
     const retry =
       mutation === "retry" &&

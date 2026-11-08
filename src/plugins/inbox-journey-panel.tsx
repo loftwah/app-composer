@@ -76,7 +76,7 @@ export function JourneyDetail({
 }: {
   journey: InboxJourney;
   busy: boolean;
-  onAction: (kind: "process" | "send" | "reconcile" | "review") => void;
+  onAction: (kind: "process" | "send" | "reconcile" | "relink" | "review") => void;
   onEnquiryAction: (action: "review" | "reject" | "delete") => void;
   onPreference: (enabled: boolean) => void;
   onRefresh: () => void;
@@ -485,7 +485,7 @@ export function InboxJourneyPanel({
     };
   }, [workspace, resource, item]);
 
-  async function act(action: "process" | "send" | "reconcile") {
+  async function act(action: "process" | "send" | "reconcile" | "relink") {
     if (pending.current) return;
     pending.current = true;
     setWorking(true);
@@ -511,7 +511,9 @@ export function InboxJourneyPanel({
           ? "The event was processed. No provider was contacted."
           : action === "send"
             ? "The provider request finished. Check the recorded delivery state."
-            : "The recorded state was re-read. Nothing was sent.",
+            : action === "relink"
+              ? "The exact workflow link was restored. No provider was contacted."
+              : "The recorded state was re-read. Nothing was sent.",
       );
     } catch (cause) {
       if (live.current)

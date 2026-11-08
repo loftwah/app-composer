@@ -758,6 +758,18 @@ export async function createStack(db, workspaceId, name, actor = null) {
         .first();
     return acknowledgedWrite(db, workspaceId, actor, "create", row, "Workspace access changed before this stack was created. Refresh its access.");
 }
+async function unfinishedRemoval(db, stackId, instanceIds) {
+    const filter = instanceIds
+        ? " AND b.instance_id IN (" + instanceIds.map(() => "?").join(",") + ")"
+        : "";
+    const row = await db
+        .prepare(`SELECT 1 AS found FROM creator_stack_resource_bindings b
+       JOIN creator_resource_operations o ON o.resource_id=b.resource_id
+       WHERE b.stack_id=? AND o.state IN ('pending','unknown')${filter} LIMIT 1`)
+        .bind(stackId, ...(instanceIds ?? []))
+        .first();
+    return Boolean(row);
+}
 export async function saveStack(db, workspaceId, stackId, document, expectedRevision, actor = null) {
     const access = writeMembership(workspaceId, actor, "save");
     const current = await readStack(db, workspaceId, stackId);
@@ -765,6 +777,12 @@ export async function saveStack(db, workspaceId, stackId, document, expectedRevi
         throw new StackError("CONFLICT", "Restore this stack before editing it.", 409);
     requireRevision(expectedRevision, current, "This stack changed in another window. Your work is still here; reopen the stack to compare.");
     const next = normaliseStack(document);
+    const previous = normaliseStack(current.draft);
+    const removed = previous.instances
+        .filter((instance) => !next.instances.some((entry) => entry.id === instance.id))
+        .map((instance) => instance.id);
+    if (removed.length && (await unfinishedRemoval(db, stackId, removed)))
+        throw new StackError("CONFLICT", "Reconcile or abandon the unfinished app operation before removing this instance.", 409);
     const payload = JSON.stringify(next);
     const row = await db
         .prepare(`UPDATE creator_stacks SET draft_json = ?, name = ?, revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ?${access.sql} RETURNING *`)
@@ -940,6 +958,8 @@ export async function deleteStack(db, workspaceId, stackId, expectedRevision, ac
     const access = writeMembership(workspaceId, actor, "delete");
     const current = await readStack(db, workspaceId, stackId);
     requireRevision(expectedRevision, current, "This stack changed in another window. Reopen it before deleting.");
+    if (await unfinishedRemoval(db, stackId))
+        throw new StackError("CONFLICT", "Reconcile or abandon the unfinished app operation before deleting this stack.", 409);
     const row = await db
         .prepare(`DELETE FROM creator_stacks WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ?${access.sql} RETURNING *`)
         .bind(stackId, workspaceId, current.revision, current.status, ...access.values)

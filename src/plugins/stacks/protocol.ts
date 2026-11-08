@@ -213,7 +213,7 @@ const reply = z.object({
   resources: z.array(resourceBinding).max(12).optional(),
   availableResources: z.array(resourceBinding).max(100).optional(),
   outcome: z
-    .enum(["applied", "unchanged", "refused", "partial", "unknown"])
+    .enum(["applied", "unchanged", "abandoned", "refused", "partial", "unknown"])
     .optional(),
   completed: z.array(id).max(12).optional(),
   problems: z

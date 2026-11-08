@@ -1135,6 +1135,25 @@ export async function createStack(
   );
 }
 
+async function unfinishedRemoval(
+  db: D1Database,
+  stackId: string,
+  instanceIds?: string[],
+) {
+  const filter = instanceIds
+    ? " AND b.instance_id IN (" + instanceIds.map(() => "?").join(",") + ")"
+    : "";
+  const row = await db
+    .prepare(
+      `SELECT 1 AS found FROM creator_stack_resource_bindings b
+       JOIN creator_resource_operations o ON o.resource_id=b.resource_id
+       WHERE b.stack_id=? AND o.state IN ('pending','unknown')${filter} LIMIT 1`,
+    )
+    .bind(stackId, ...(instanceIds ?? []))
+    .first();
+  return Boolean(row);
+}
+
 export async function saveStack(
   db: D1Database,
   workspaceId: string,
@@ -1157,6 +1176,18 @@ export async function saveStack(
     "This stack changed in another window. Your work is still here; reopen the stack to compare.",
   );
   const next = normaliseStack(document);
+  const previous = normaliseStack(current.draft);
+  const removed = previous.instances
+    .filter(
+      (instance) => !next.instances.some((entry) => entry.id === instance.id),
+    )
+    .map((instance) => instance.id);
+  if (removed.length && (await unfinishedRemoval(db, stackId, removed)))
+    throw new StackError(
+      "CONFLICT",
+      "Reconcile or abandon the unfinished app operation before removing this instance.",
+      409,
+    );
   const payload = JSON.stringify(next);
   const row = await db
     .prepare(
@@ -1587,6 +1618,12 @@ export async function deleteStack(
     current,
     "This stack changed in another window. Reopen it before deleting.",
   );
+  if (await unfinishedRemoval(db, stackId))
+    throw new StackError(
+      "CONFLICT",
+      "Reconcile or abandon the unfinished app operation before deleting this stack.",
+      409,
+    );
   const row = await db
     .prepare(
       `DELETE FROM creator_stacks WHERE id = ? AND workspace_id = ? AND revision = ? AND status = ?${access.sql} RETURNING *`,

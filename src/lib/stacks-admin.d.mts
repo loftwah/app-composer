@@ -265,7 +265,7 @@ export declare function manageStacks(ctx: StackAdminContext, runtime: unknown): 
     imported?: undefined;
     deleted?: undefined;
 } | {
-    outcome: "unknown" | "refused" | "applied" | "unchanged";
+    outcome: "unknown" | "refused" | "applied" | "abandoned" | "unchanged";
     message: string | undefined;
     stack: import("./stacks.mjs").Stack;
     resources: import("./stack-resources.ts").ResourceBindingView[];

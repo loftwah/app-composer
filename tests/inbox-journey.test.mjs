@@ -370,6 +370,38 @@ test("a prepared notice with owner mail unavailable stays unconfigured and offer
   assert.equal(sent.delivery.state, "accepted");
 });
 
+test("a retained notice with a missing workflow record can be relinked explicitly", async (t) => {
+  const f = await prepared(t);
+  await f.enable();
+  await recordEnquiryEvent(f.db, f.scope, f.item().id);
+  f.link();
+  const processed = await process(f);
+  assert.equal(processed.delivery.state, "ready");
+  // Simulate the receipt limit dropping the run while the outbox survived.
+  f.sqlite
+    .prepare(
+      "DELETE FROM creator_enquiry_workflow_runs WHERE workspace_id=?",
+    )
+    .run(f.workspace.id);
+  const read = await f.journey();
+  assert.equal(read.workflow.state, "unlinked");
+  assert.equal(read.delivery.state, "ready");
+  assert.equal(read.next.kind, "relink");
+  const relinked = await f.call(
+    { action: "relink", item: f.item().id },
+    { reading: false },
+  );
+  assert.equal(relinked.ok, true, relinked.message);
+  assert.equal(relinked.workflow.state, "queued");
+  assert.equal(relinked.next.kind, "process");
+  assert.equal(
+    f.sqlite
+      .prepare("SELECT COUNT(*) AS n FROM creator_enquiry_workflow_runs")
+      .get().n,
+    1,
+  );
+});
+
 test("duplicate events keep one run and one outbox row; processing prepares a ready notice", async (t) => {
   const f = await prepared(t);
   await f.enable();

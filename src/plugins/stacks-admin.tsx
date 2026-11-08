@@ -588,6 +588,8 @@ function WorkspaceStudio({ search }: { search: string }) {
               ? "Confirmed the app resource and its current configuration. Your saved draft and stack publication have not changed."
               : "Applied the saved app settings. Publish the stack to share these exact configuration references.",
         unchanged: "The app confirmed no change was needed.",
+        abandoned:
+          "The unfinished operation was abandoned after the app confirmed it had no record. Apply the settings again when ready.",
         refused:
           "The app refused the change. The previous publication is still available. Check the app operation to refresh its confirmed version before retrying.",
         partial: uncertain
@@ -612,7 +614,8 @@ function WorkspaceStudio({ search }: { search: string }) {
   const contentAction: ResourceContentAction = (instance, change, accept) =>
     run(async () => {
       if (!current) throw Error("Open a saved stack first.");
-      const reconciling = change === null || change === "retry";
+      const reconciling =
+        change === null || change === "retry" || change === "abandon";
       if (!reconciling && needsReconciliation)
         throw Error("Check the unfinished app operation before changing visitor book content.");
       let candidate = current;
@@ -629,10 +632,21 @@ function WorkspaceStudio({ search }: { search: string }) {
       const checkpoint = session.current.capture();
       let data: Awaited<ReturnType<typeof call>>;
       try {
-        data = await call(change === "retry" ? "retryResourceContent" : change ? "moderateResource" : "reconcileResourceContent", {
-          stack: current.id, instance, expectedRevision: candidate.revision,
-          ...(!reconciling ? { change } : {}),
-        });
+        data = await call(
+          change === "retry"
+            ? "retryResourceContent"
+            : change === "abandon"
+              ? "abandonResourceOperation"
+              : change
+                ? "moderateResource"
+                : "reconcileResourceContent",
+          {
+            stack: current.id,
+            instance,
+            expectedRevision: candidate.revision,
+            ...(!reconciling ? { change } : {}),
+          },
+        );
         const saved = data.stack;
         if (!saved || saved.id !== checkpoint.stack ||
             JSON.stringify(saved.draft) !== JSON.stringify(candidate.draft) ||
@@ -657,6 +671,7 @@ function WorkspaceStudio({ search }: { search: string }) {
       const note = data.outcome === "applied"
         ? change ? "The app confirmed the visitor book change." : "Confirmed the content operation and current visitor book."
         : data.outcome === "unchanged" ? "The app confirmed no content change was needed."
+        : data.outcome === "abandoned" ? "The app confirmed it did not record the operation. It is retained as abandoned; the resource is ready for an explicit re-apply."
         : data.outcome === "refused" ? "The app refused this change. Refresh the content or check the app operation before trying again."
         : "The content outcome is not confirmed. Check the content operation before changing this book again.";
       return note + (data.message ? " " + data.message : "") +

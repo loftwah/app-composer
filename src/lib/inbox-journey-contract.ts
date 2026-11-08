@@ -32,6 +32,7 @@ export const nextKinds = z.enum([
   "process",
   "send",
   "reconcile",
+  "relink",
   "review",
   "none",
 ]);
@@ -159,6 +160,14 @@ export const journeyCommand = z.discriminatedUnion("action", [
   z
     .object({
       action: z.literal("reconcile"),
+      workspace: enquiryID.optional(),
+      resource: enquiryID,
+      item: enquiryID,
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("relink"),
       workspace: enquiryID.optional(),
       resource: enquiryID,
       item: enquiryID,

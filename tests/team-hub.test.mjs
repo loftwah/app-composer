@@ -556,6 +556,57 @@ test("private recovery checklist saves through current request authority and kee
   );
 });
 
+test("a workspace owner can recover management when no active manager remains", async (t) => {
+  const f = fixture(t);
+  await enabled(f);
+  f.sqlite.prepare("UPDATE users SET disabled=1 WHERE id=?").run(users.owner.id);
+  f.sqlite
+    .prepare("UPDATE creator_members SET role='owner' WHERE workspace_id=? AND user_id=?")
+    .run(alpha, users.viewer.id);
+  const read = await f.call(users.viewer, { action: "read", workspace: alpha });
+  assert.equal(read.ok, true, JSON.stringify(read));
+  assert.equal(read.recoverable, true);
+  const recovered = await f.call(users.viewer, {
+    action: "recover",
+    workspace: alpha,
+    expectedRevision: read.revision,
+  });
+  assert.equal(recovered.ok, true, JSON.stringify(recovered));
+  assert.equal(recovered.actor.manage, true);
+  assert.equal(recovered.recoverable, false);
+  assert.equal(
+    f.sqlite
+      .prepare(
+        "SELECT COUNT(*) AS n FROM creator_app_grants WHERE user_id=? AND app='team-hub' AND status='active'",
+      )
+      .get(users.viewer.id).n,
+    2,
+  );
+});
+
+test("a workspace owner with manage-only access can still read and write", async (t) => {
+  const f = fixture(t);
+  await enabled(f);
+  f.sqlite
+    .prepare(
+      "UPDATE creator_app_grants SET status='revoked',revision=revision+1 WHERE user_id=? AND app='team-hub' AND action='contribute'",
+    )
+    .run(users.owner.id);
+  const read = await f.call(users.owner, { action: "read", workspace: alpha });
+  assert.equal(read.ok, true, JSON.stringify(read));
+  assert.equal(read.actor.manage, true);
+  const saved = await f.call(users.owner, {
+    action: "save",
+    workspace: alpha,
+    expectedRevision: read.revision,
+    id: crypto.randomUUID(),
+    expectedRequestRevision: 0,
+    request: action,
+  });
+  assert.equal(saved.ok, true, JSON.stringify(saved));
+  assert.equal(saved.requests.length, 1);
+});
+
 test("a retained assignment to a former contributor does not block saving or closing", async (t) => {
   const f = fixture(t);
   let state = await enabled(f);

@@ -133,7 +133,7 @@ async function space(db: D1Database, scope: string) {
     .bind(scope)
     .first<Space>();
 }
-const authority = `EXISTS(SELECT 1 FROM creator_members m JOIN users u ON u.id=m.user_id JOIN creator_app_grants g ON g.workspace_id=m.workspace_id AND g.user_id=m.user_id WHERE m.workspace_id=? AND m.user_id=? AND u.disabled=0 AND m.role IN ('owner','editor') AND g.issuer=? AND g.app='team-hub' AND g.resource_id=? AND g.action='contribute' AND g.status='active')`;
+const authority = `EXISTS(SELECT 1 FROM creator_members m JOIN users u ON u.id=m.user_id JOIN creator_app_grants g ON g.workspace_id=m.workspace_id AND g.user_id=m.user_id WHERE m.workspace_id=? AND m.user_id=? AND u.disabled=0 AND m.role IN ('owner','editor') AND g.issuer=? AND g.app='team-hub' AND g.resource_id=? AND (g.action='contribute' OR (g.action='maintain' AND m.role='owner')) AND g.status='active')`;
 const ownerAuthority = `EXISTS(SELECT 1 FROM creator_members m JOIN users u ON u.id=m.user_id JOIN creator_app_grants g ON g.workspace_id=m.workspace_id AND g.user_id=m.user_id WHERE m.workspace_id=? AND m.user_id=? AND u.disabled=0 AND m.role='owner' AND g.issuer=? AND g.app='team-hub' AND g.resource_id=? AND g.action='maintain' AND g.status='active')`;
 function publicRequest(row: RequestRow) {
   const attachment = row.attachment_json
@@ -181,11 +181,19 @@ async function snapshot(
     )
     .bind(scope)
     .all();
+  const activeManager = await db
+    .prepare(
+      "SELECT 1 AS found FROM creator_app_grants g JOIN users u ON u.id=g.user_id WHERE g.issuer=? AND g.workspace_id=? AND g.app='team-hub' AND g.resource_id=? AND g.action='maintain' AND g.status='active' AND u.disabled=0 LIMIT 1",
+    )
+    .bind(issuer, target.workspace, resource(target.environment))
+    .first();
   return {
     ok: true as const,
     version: "composer.team-hub/1",
     target,
     actor: { id: actor.id, name: actor.name, role: actor.role, manage },
+    recoverable:
+      actor.role === "owner" && !manage && !Boolean(activeManager),
     enabled: !!current,
     revision: current?.revision ?? 0,
     requests: requests.results.map(publicRequest),
@@ -254,9 +262,10 @@ export async function manageTeamHub(
     const manage =
       actor.role === "owner" &&
       mine.some((grant) => grant.action === "maintain");
-    const admitted = mine.some((grant) => grant.action === "contribute");
+    const admitted =
+      mine.some((grant) => grant.action === "contribute") || manage;
     if (input.action === "read" && ctx.request.method === "GET") {
-      if (!admitted && !(actor.role === "owner" && !current))
+      if (!admitted && actor.role !== "owner")
         throw new HubError(
           "FORBIDDEN",
           "Your workspace membership is accepted, but this application has not been shared with your account. Ask its owner for Team Hub access.",
@@ -418,6 +427,89 @@ export async function manageTeamHub(
         throw new HubError(
           "CONFLICT",
           "Team access changed before activation. Reload the current team.",
+        );
+      return await snapshot(db, target, actor, true);
+    }
+    if (input.action === "recover") {
+      if (actor.role !== "owner")
+        throw new HubError(
+          "FORBIDDEN",
+          "Only a current team owner can recover app management.",
+        );
+      if (!current)
+        throw new HubError(
+          "INVALID",
+          "Enable Team Hub before recovering its management.",
+        );
+      if (input.expectedRevision !== current.revision)
+        throw new HubError(
+          "CONFLICT",
+          "The team changed in another session. Reload before recovering management.",
+        );
+      const nonce = crypto.randomUUID(),
+        condition =
+          "EXISTS(SELECT 1 FROM team_hub_spaces WHERE scope=? AND operation_id=?)";
+      const statements = [
+        db
+          .prepare(
+            `UPDATE team_hub_spaces SET revision=revision+1,operation_id=? WHERE scope=? AND revision=?
+             AND EXISTS(SELECT 1 FROM creator_members WHERE workspace_id=? AND user_id=? AND role='owner')
+             AND NOT EXISTS(SELECT 1 FROM creator_app_grants g JOIN users u ON u.id=g.user_id WHERE g.issuer=? AND g.workspace_id=? AND g.app='team-hub' AND g.resource_id=? AND g.action='maintain' AND g.status='active' AND u.disabled=0)`,
+          )
+          .bind(
+            nonce,
+            scope,
+            current.revision,
+            workspace,
+            user.id,
+            issuer,
+            workspace,
+            resource(environment),
+          ),
+      ];
+      for (const action of ["contribute", "maintain"]) {
+        statements.push(
+          db
+            .prepare(
+              `INSERT INTO creator_app_grants(id,issuer,workspace_id,user_id,app,resource_id,action,created_by) SELECT ?,?,?,?,'team-hub',?,?,? WHERE ${condition}
+               ON CONFLICT(issuer,workspace_id,user_id,app,resource_id,action) DO UPDATE SET status='active',revision=revision+1,created_by=excluded.created_by,updated_at=CURRENT_TIMESTAMP`,
+            )
+            .bind(
+              crypto.randomUUID(),
+              issuer,
+              workspace,
+              user.id,
+              resource(environment),
+              action,
+              user.id,
+              scope,
+              nonce,
+            ),
+        );
+        statements.push(
+          db
+            .prepare(
+              `INSERT INTO creator_app_access_audit(id,issuer,workspace_id,actor_id,member_id,app,resource_id,action,event,grant_revision) SELECT ?,issuer,workspace_id,?,user_id,app,resource_id,action,'grant',revision FROM creator_app_grants WHERE issuer=? AND workspace_id=? AND user_id=? AND app='team-hub' AND resource_id=? AND action=? AND ${condition}`,
+            )
+            .bind(
+              crypto.randomUUID(),
+              user.id,
+              issuer,
+              workspace,
+              user.id,
+              resource(environment),
+              action,
+              scope,
+              nonce,
+            ),
+        );
+      }
+      await db.batch(statements);
+      current = await space(db, scope);
+      if (current?.operation_id !== nonce)
+        throw new HubError(
+          "CONFLICT",
+          "Team access changed before recovery. Reload the current team.",
         );
       return await snapshot(db, target, actor, true);
     }

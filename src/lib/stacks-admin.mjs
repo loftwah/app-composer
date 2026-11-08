@@ -174,7 +174,8 @@ export async function manageStacks(ctx, runtime) {
         }
         if (action === "moderateResource" ||
             action === "reconcileResourceContent" ||
-            action === "retryResourceContent") {
+            action === "retryResourceContent" ||
+            action === "abandonResourceOperation") {
             requireCapability(workspace.role, "save");
             const selection = {
                 stack: command.stack,
@@ -185,7 +186,9 @@ export async function manageStacks(ctx, runtime) {
                 ? "reconcile"
                 : action === "retryResourceContent"
                     ? "retry"
-                    : command.change;
+                    : action === "abandonResourceOperation"
+                        ? "abandon"
+                        : command.change;
             return {
                 ok: true,
                 workspace,

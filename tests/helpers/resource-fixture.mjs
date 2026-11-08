@@ -227,6 +227,8 @@ export function fixture() {
     "0006_stack_resources.sql",
     "0011_platform_requests.sql",
     "0007_resource_moderation.sql",
+    "0024_resource_operation_recovery.sql",
+    "0026_collection_operations.sql",
   ])
     sqlite.exec(
       readFileSync(

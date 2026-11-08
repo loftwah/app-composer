@@ -381,8 +381,9 @@ async function applyFixture(
     .first<{ n: number }>();
   if ((count?.n ?? 0) >= 100)
     throw new StackError(
-      "UNAVAILABLE",
-      "This fixture reached its 100-event limit. Existing receipts remain readable.",
+      "CONFLICT",
+      "This order already has 100 retained events. No further fixture action can be recorded.",
+      409,
     );
   let next: OrderDocument = order,
     event: unknown = {
@@ -492,7 +493,7 @@ async function applyFixture(
   await db.batch([
     db
       .prepare(
-        `INSERT OR IGNORE INTO creator_order_events(operation,workspace_id,order_id,kind,digest,event_json,outcome) SELECT ?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM creator_orders WHERE id=? AND workspace_id=? AND revision=? AND installation_account=? AND installation_environment=?) AND ${authority}`,
+        `INSERT OR IGNORE INTO creator_order_events(operation,workspace_id,order_id,kind,digest,event_json,outcome) SELECT ?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM creator_orders WHERE id=? AND workspace_id=? AND revision=? AND installation_account=? AND installation_environment=?) AND (SELECT COUNT(*) FROM creator_order_events WHERE order_id=? AND workspace_id=?)<100 AND ${authority}`,
       )
       .bind(
         command.operation,
@@ -509,6 +510,8 @@ async function applyFixture(
         row.revision,
         target.account,
         target.environment,
+        order.id,
+        workspace,
         workspace,
         user.id,
       ),

@@ -1422,6 +1422,44 @@ test("CLI journey records the decision and refuses execute or self-approval", as
   assert.equal(handoff.artifact.digest, v2.digest);
 });
 
+test("an expired grant still allows closure and a human handoff of an accepted digest", async (t) => {
+  const f = await prepared(t);
+  const first = (await f.submit()).view;
+  const accepted = (await f.review(first)).view;
+  assert.equal(accepted.state, "accepted");
+  const later = "2026-10-28T03:00:00Z";
+  const handoff = await prepareAgentHandoff(
+    f.db,
+    {
+      action: "handoff",
+      workspace: f.workspace.id,
+      proposal: accepted.id,
+      environment: ENVIRONMENT.id,
+      actor: OWNER,
+      expectedDigest: accepted.accepted.digest,
+      destination: "existing-release-flow",
+    },
+    {
+      now: later,
+      sourceCheck: {
+        state: "current",
+        detail: "The submitted file matches its content hash.",
+        currentHash: accepted.source.contentHash,
+        checkedAt: later,
+      },
+    },
+  );
+  assert.equal(handoff.artifact.execution, "not-performed");
+  assert.equal(handoff.artifact.digest, accepted.accepted.digest);
+  const second = (
+    await f.submit({
+      change: { ...change, summary: "A separate closure after expiry." },
+    })
+  ).view;
+  const closed = await f.review(second, "reject", { at: later });
+  assert.equal(closed.view.state, "rejected");
+});
+
 test("an older duplicate digest is refused instead of returning the newer version", async (t) => {
   const f = await prepared(t);
   const first = (await f.submit()).view;

@@ -75,6 +75,7 @@ interface PreferenceRow {
 }
 interface OutboxRow {
   id: string;
+  event_id: string;
   state: "queued" | "blocked" | "sending" | "accepted" | "failed" | "uncertain";
   attempts: number;
   reason: string;
@@ -177,7 +178,7 @@ const preferenceFor = (db: D1Database, scope: JourneyScope) =>
 const outboxFor = (db: D1Database, scope: JourneyScope, event: string) =>
   db
     .prepare(
-      "SELECT id,state,attempts,reason,provider_id,destination_digest,reconciled_at,reconciliations,item_id,created_at,updated_at FROM creator_enquiry_notification_outbox WHERE workspace_id=? AND resource_id=? AND event_id=? ORDER BY created_at DESC,id DESC LIMIT 1",
+      "SELECT id,event_id,state,attempts,reason,provider_id,destination_digest,reconciled_at,reconciliations,item_id,created_at,updated_at FROM creator_enquiry_notification_outbox WHERE workspace_id=? AND resource_id=? AND event_id=? ORDER BY created_at DESC,id DESC LIMIT 1",
     )
     .bind(scope.workspace, scope.resource, event)
     .first<OutboxRow>();
@@ -198,7 +199,7 @@ const runForItem = (db: D1Database, scope: JourneyScope, item: string) =>
 const outboxForItem = (db: D1Database, scope: JourneyScope, item: string) =>
   db
     .prepare(
-      "SELECT id,state,attempts,reason,provider_id,destination_digest,reconciled_at,reconciliations,item_id,created_at,updated_at FROM creator_enquiry_notification_outbox WHERE workspace_id=? AND resource_id=? AND item_id=? ORDER BY created_at DESC,id DESC LIMIT 1",
+      "SELECT id,event_id,state,attempts,reason,provider_id,destination_digest,reconciled_at,reconciliations,item_id,created_at,updated_at FROM creator_enquiry_notification_outbox WHERE workspace_id=? AND resource_id=? AND item_id=? ORDER BY created_at DESC,id DESC LIMIT 1",
     )
     .bind(scope.workspace, scope.resource, item)
     .first<OutboxRow>();
@@ -278,7 +279,7 @@ export async function recordEnquiryEvent(
   const now = date();
   await db
     .prepare(
-      "INSERT OR IGNORE INTO creator_enquiry_workflow_runs(id,workspace_id,resource_id,event_id,account_id,environment,target,actor_kind,actor_id,state,stage,attempts,reason,revision,created_at,updated_at) SELECT ?,?,?,?,?,?,?,'system','receipt','queued','observed',0,'',1,?,? WHERE (SELECT COUNT(*) FROM creator_enquiry_workflow_runs WHERE workspace_id=?)<?",
+      "INSERT OR IGNORE INTO creator_enquiry_workflow_runs(id,workspace_id,resource_id,event_id,account_id,environment,target,actor_kind,actor_id,state,stage,attempts,reason,revision,created_at,updated_at) SELECT ?,?,?,?,?,?,?,'system','receipt','queued','observed',0,'',1,?,? WHERE (SELECT COUNT(*) FROM creator_enquiry_workflow_runs WHERE workspace_id=? AND datetime(created_at)>=datetime('now','-30 days'))<?",
     )
     .bind(
       crypto.randomUUID(),
@@ -560,7 +561,16 @@ function nextAction(
       actor: "owner-or-editor",
       enabled: editing,
     };
-  if (workflow.state === "unlinked")
+  if (workflow.state === "unlinked") {
+    if (delivery.state !== "unconfigured")
+      return {
+        kind: "relink",
+        label: "Relink the owner notice",
+        detail:
+          "A retained notice exists but its exact workflow record is missing. Relinking is idempotent and contacts no provider.",
+        actor: "owner-or-editor",
+        enabled: editing,
+      };
     return {
       kind: "none",
       label: "No supported action",
@@ -569,6 +579,7 @@ function nextAction(
       actor: "none",
       enabled: false,
     };
+  }
   if (delivery.state === "failed" && delivery.attempts >= maxAttempts)
     return {
       kind: "none",
@@ -840,7 +851,37 @@ export async function manageInboxJourney(
       environment: connection.environment,
       target: connection.target,
     };
-    if (!reading && input.action === "process") {
+    if (!reading && input.action === "relink") {
+      await guard();
+      const current = await outboxForItem(db, scope, item.id);
+      if (!current)
+        throw new StackError(
+          "NOT_FOUND",
+          "No retained owner notice exists for this brief. Relinking needs the exact notice identity.",
+          404,
+        );
+      await recordEnquiryEvent(db, scope, current.event_id);
+      if (!(await runFor(db, scope, current.event_id)))
+        throw new StackError(
+          "UNAVAILABLE",
+          "The workspace receipt limit prevents a new workflow record. The retained notice and brief are unchanged.",
+          503,
+        );
+      const linked = await linkEnquiryEvent(
+        db,
+        connection,
+        scope,
+        current.event_id,
+        item.values,
+        item.provenance,
+      );
+      if (linked !== "linked")
+        throw new StackError(
+          "CONFLICT",
+          "The app no longer contains exactly one pending brief with this exact content and provenance. Nothing was relinked.",
+          409,
+        );
+    } else if (!reading && input.action === "process") {
       await guard();
       const linked = await runForItem(db, scope, item.id);
       if (!linked)

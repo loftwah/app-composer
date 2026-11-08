@@ -68,6 +68,7 @@ export const collectionItemsReply = z.object({
       }),
     )
     .max(200),
+  unresolved: z.lazy(() => collectionReceipt).optional(),
 });
 export const collectionInvitationState = z
   .object({

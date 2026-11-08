@@ -325,10 +325,9 @@ export async function readResourceInventory(
   for (const row of operations.results) {
     if (row.state === "confirmed" && !confirmed.has(row.resource_id))
       confirmed.set(row.resource_id, row);
-    if (
-      (row.state === "pending" || row.state === "unknown") &&
-      !unfinished.has(row.resource_id)
-    )
+    // The executor reconciles the oldest open operation. Rows arrive newest
+    // first, so keep overwriting to report the same operation everywhere.
+    if (row.state === "pending" || row.state === "unknown")
       unfinished.set(row.resource_id, row);
   }
 

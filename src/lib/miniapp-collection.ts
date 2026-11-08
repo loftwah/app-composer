@@ -107,6 +107,79 @@ async function json(response: Response, limit = 2097152): Promise<unknown> {
     throw Error("Bounded app response exceeded");
   return JSON.parse(value) as unknown;
 }
+interface CollectionJournalRow {
+  id: string;
+  item_id: string;
+  state: "pending" | "applied" | "unchanged" | "refused" | "unknown";
+}
+
+function openCollection(
+  db: D1Database,
+  selection: CollectionSelection,
+  source: CollectionSource,
+  item?: string,
+) {
+  return db
+    .prepare(
+      `SELECT id,item_id,state FROM creator_collection_operations
+       WHERE workspace_id=? AND stack_id=? AND instance_id=? AND resource_id=?
+         AND configuration_revision=? AND state IN ('pending','unknown')${item ? " AND item_id=?" : ""}
+       ORDER BY created_at,id LIMIT 1`,
+    )
+    .bind(
+      selection.workspace,
+      selection.stack,
+      selection.instance,
+      source.resource,
+      source.configuration,
+      ...(item ? [item] : []),
+    )
+    .first<CollectionJournalRow>();
+}
+
+async function beginCollection(
+  db: D1Database,
+  selection: CollectionSelection,
+  source: CollectionSource,
+  item: string,
+) {
+  const id = crypto.randomUUID();
+  await db
+    .prepare(
+      `INSERT OR IGNORE INTO creator_collection_operations
+       (id,workspace_id,stack_id,instance_id,resource_id,configuration_revision,item_id,state)
+       VALUES (?,?,?,?,?,?,?,'pending')`,
+    )
+    .bind(
+      id,
+      selection.workspace,
+      selection.stack,
+      selection.instance,
+      source.resource,
+      source.configuration,
+      item,
+    )
+    .run();
+  const row = await openCollection(db, selection, source, item);
+  if (!row) throw conflict();
+  return { id, state: row.state, existing: row.id !== id };
+}
+
+function finishCollection(
+  db: D1Database,
+  id: string | undefined,
+  state: "applied" | "unchanged" | "refused" | "unknown",
+  cardId?: string,
+) {
+  if (!id) return Promise.resolve();
+  return db
+    .prepare(
+      "UPDATE creator_collection_operations SET state=?,card_id=COALESCE(?,card_id),updated_at=CURRENT_TIMESTAMP WHERE id=?",
+    )
+    .bind(state, cardId ?? null, id)
+    .run();
+}
+
 function showcase(runtime: Runtime, pins: Record<string, string>) {
   const service = runtime.SHOWCASE,
     token = runtime.SHOWCASE_OWNER_TOKEN,
@@ -317,6 +390,7 @@ export async function manageMiniappCollection(
       message: "Workspace storage is disconnected.",
     };
   let dispatched = false;
+  let journalId: string | undefined;
   let receipt:
     { workspace: string; source: CollectionSource; item: string } | undefined;
   try {
@@ -473,6 +547,31 @@ export async function manageMiniappCollection(
         resource: command.resource,
         configuration: command.configuration,
       };
+      if (card)
+        await db
+          .prepare(
+            "UPDATE creator_collection_operations SET state='unchanged',card_id=?,updated_at=CURRENT_TIMESTAMP WHERE workspace_id=? AND resource_id=? AND configuration_revision=? AND item_id=? AND state IN ('pending','unknown')",
+          )
+          .bind(
+            card.id,
+            command.workspace,
+            command.resource,
+            command.configuration,
+            command.item,
+          )
+          .run();
+      else
+        await db
+          .prepare(
+            "UPDATE creator_collection_operations SET updated_at=CURRENT_TIMESTAMP WHERE workspace_id=? AND resource_id=? AND configuration_revision=? AND item_id=? AND state IN ('pending','unknown')",
+          )
+          .bind(
+            command.workspace,
+            command.resource,
+            command.configuration,
+            command.item,
+          )
+          .run();
       return {
         ok: true,
         workspace: command.workspace,
@@ -564,7 +663,17 @@ export async function manageMiniappCollection(
       book.visible && !book.pending
         ? book.items.filter((item) => item.status === "approved")
         : [];
-    if (command.action === "collection-items")
+    if (command.action === "collection-items") {
+      const unresolved = await openCollection(
+        db,
+        {
+          workspace: command.workspace,
+          stack: command.stack,
+          instance: command.instance,
+          expectedRevision: command.expectedRevision,
+        },
+        selected.source,
+      );
       return {
         ok: true,
         selection,
@@ -575,7 +684,21 @@ export async function manageMiniappCollection(
         items: approved
           .slice(0, 200)
           .map(({ id, caption, author }) => ({ id, caption, author })),
+        ...(unresolved
+          ? {
+              unresolved: {
+                ok: true,
+                workspace: command.workspace,
+                source: selected.source,
+                item: unresolved.item_id,
+                outcome: "unknown" as const,
+                message:
+                  "An earlier collection attempt for this contribution is unconfirmed. Check its exact saved source reference before continuing.",
+              },
+            }
+          : {}),
       };
+    }
     if (!approved.some((item) => item.id === command.item))
       throw new StackError(
         "CONFLICT",
@@ -587,6 +710,26 @@ export async function manageMiniappCollection(
       source: selected.source,
       item: command.item,
     };
+    const journal = await beginCollection(
+      db,
+      selection,
+      selected.source,
+      command.item,
+    );
+    if (journal.existing) {
+      // A previous attempt for this exact contribution may have reached the
+      // app. Keep its reference and require an explicit check before repeating.
+      return {
+        ok: true,
+        workspace: command.workspace,
+        source: selected.source,
+        item: command.item,
+        outcome: "unknown",
+        message:
+          "An earlier collection attempt for this exact contribution is unconfirmed. Check its saved source reference before continuing.",
+      };
+    }
+    journalId = journal.id;
     // This is the final local authority check before remote dispatch. An already
     // dispatched app request cannot be cancelled by later membership revocation.
     await selected.guard();
@@ -609,15 +752,23 @@ export async function manageMiniappCollection(
       JSON.stringify(confirmed.data.source) ===
         JSON.stringify(selected.source) &&
       confirmed.data.status === "published"
-    )
+    ) {
+      const card = savedCard.parse(confirmed.data);
+      await finishCollection(
+        db,
+        journalId,
+        confirmed.data.outcome,
+        card.id,
+      );
       return {
         ok: true,
         ...receipt,
         outcome: confirmed.data.outcome,
-        card: savedCard.parse(confirmed.data),
+        card,
         message:
           "The exact source contribution is saved in Linkarooie. Guestbook retains its visibility and media authority.",
       };
+    }
     const refused = z
       .object({ outcome: z.literal("refused"), source: collectionSource })
       .safeParse(value);
@@ -626,7 +777,8 @@ export async function manageMiniappCollection(
       (!response.ok &&
         refused.success &&
         JSON.stringify(refused.data.source) === JSON.stringify(selected.source))
-    )
+    ) {
+      await finishCollection(db, journalId, "refused");
       return {
         ok: true,
         ...receipt,
@@ -634,6 +786,8 @@ export async function manageMiniappCollection(
         message:
           "Linkarooie refused this collection request. Refresh the saved book and its approved contributions before another attempt.",
       };
+    }
+    await finishCollection(db, journalId, "unknown");
     return {
       ok: true,
       ...receipt,
@@ -642,7 +796,8 @@ export async function manageMiniappCollection(
         "This contribution may already be collected. Check its exact saved reference before continuing.",
     };
   } catch (error) {
-    if (dispatched && receipt)
+    if (dispatched && receipt) {
+      await finishCollection(db, journalId, "unknown").catch(() => {});
       return {
         ok: true,
         ...receipt,
@@ -650,6 +805,8 @@ export async function manageMiniappCollection(
         message:
           "The collection response could not be confirmed. Check its exact saved reference before continuing.",
       };
+    }
+    await finishCollection(db, journalId, "refused").catch(() => {});
     return {
       ok: false,
       code: error instanceof StackError ? error.code : "UNAVAILABLE",

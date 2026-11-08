@@ -1679,10 +1679,13 @@ export async function reviewAgentProposal(
       "This proposal targets a different environment.",
       403,
     );
-  const grant = requireActiveGrant(
-    await grantRow(db, row.grant_id, row.workspace_id),
-    now,
-  );
+  const grant = await grantRow(db, row.grant_id, row.workspace_id);
+  if (!grant)
+    fail("GRANT_NOT_FOUND", "This proposal grant does not exist.", 404);
+  // Acceptance still needs live agent authority. Closing a proposal
+  // (request changes or reject) must remain possible after that authority
+  // expires or is withdrawn, otherwise the review queue can never drain.
+  if (command.decision === "accept") requireActiveGrant(grant, now);
   assertGrantScope(grant, {
     workspace: row.workspace_id,
     app: row.app,
@@ -1871,10 +1874,12 @@ export async function prepareAgentHandoff(
       "Accept the exact digest before preparing a handoff.",
       409,
     );
-  const grant = requireActiveGrant(
-    await grantRow(db, row.grant_id, row.workspace_id),
-    now,
-  );
+  const grant = await grantRow(db, row.grant_id, row.workspace_id);
+  if (!grant)
+    fail("GRANT_NOT_FOUND", "This proposal grant does not exist.", 404);
+  // The handoff is a human release action on an already accepted digest. It
+  // remains available after the agent grant expires or is revoked, provided
+  // the named accountable owner is still the caller.
   if (key(command.actor.id) !== key(grant.owner_id))
     fail(
       "REVIEWER_NOT_AUTHORISED",

@@ -136,6 +136,13 @@ export function CollectionSources({
               ? "Choose an approved contribution. Guestbook will recheck public eligibility when collecting."
               : "No approved public contributions in this saved book.",
       );
+      if (result.unresolved) {
+        // A lost collection response survives a reload. Its exact reference is
+        // restored instead of offering the same write again.
+        setReceipt(result.unresolved);
+        setItem(result.unresolved.item);
+        setMessage(result.unresolved.message);
+      }
       try {
         const invite = collectionInvitationReply.parse(
           await request("collection-invitation", { ...result.selection }),

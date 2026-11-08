@@ -370,7 +370,7 @@ async function storeRun(
   const source = currentSource(recipe, event, workspace, evaluation, target);
   const count = await db
     .prepare(
-      "SELECT COUNT(*) AS n FROM creator_workflow_runs WHERE workspace_id=?",
+      "SELECT COUNT(*) AS n FROM creator_workflow_runs WHERE workspace_id=? AND synthetic=0",
     )
     .bind(workspace)
     .first<{ n: number }>();
@@ -385,7 +385,7 @@ async function storeRun(
   const rows = await db
     .prepare(
       `INSERT OR IGNORE INTO creator_workflow_runs (id,workspace_id,recipe,event_id,source_id,source_revision,account_id,environment,recipe_revision,synthetic,state,steps_json,result_json,message)
-    SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,? WHERE ${authority}${active}${source.sql} AND (SELECT COUNT(*) FROM creator_workflow_runs WHERE workspace_id=?)<500 RETURNING id`,
+    SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,? WHERE ${authority}${active}${source.sql} AND (SELECT COUNT(*) FROM creator_workflow_runs WHERE workspace_id=? AND synthetic=0)<500 RETURNING id`,
     )
     .bind(
       crypto.randomUUID(),

@@ -53,10 +53,6 @@ export declare function manageMiniapps(ctx: MiniappContext, runtime: unknown, pi
     configured?: undefined;
     invitation?: undefined;
     outcome?: undefined;
-    title?: undefined;
-    visible?: undefined;
-    pending?: undefined;
-    items?: undefined;
 } | {
     message: string;
     card?: {
@@ -81,10 +77,6 @@ export declare function manageMiniapps(ctx: MiniappContext, runtime: unknown, pi
     linked?: undefined;
     configured?: undefined;
     invitation?: undefined;
-    title?: undefined;
-    visible?: undefined;
-    pending?: undefined;
-    items?: undefined;
 } | {
     ok: boolean;
     selection: {
@@ -119,11 +111,20 @@ export declare function manageMiniapps(ctx: MiniappContext, runtime: unknown, pi
     workspace?: undefined;
     workspaces?: undefined;
     sources?: undefined;
-    title?: undefined;
-    visible?: undefined;
-    pending?: undefined;
-    items?: undefined;
 } | {
+    unresolved?: {
+        ok: boolean;
+        workspace: string;
+        source: {
+            kind: "guestbook.resource";
+            version: 1;
+            resource: string;
+            configuration: number;
+        };
+        item: string;
+        outcome: "unknown";
+        message: string;
+    } | undefined;
     ok: boolean;
     selection: {
         workspace: string;

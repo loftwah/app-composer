@@ -16,7 +16,9 @@ function database() {
       "\n" +
       migration("0004_stack_publications.sql") +
       "\n" +
-      migration("0014_orders.sql"),
+      migration("0014_orders.sql") +
+      "\n" +
+      migration("0025_order_payment_state.sql"),
   });
 }
 
@@ -149,6 +151,73 @@ test("fulfilment cannot be prepared while the checkout outcome is unknown", asyn
           .first()
       ).n,
       0,
+    );
+  } finally {
+    f.db.cleanup();
+  }
+});
+
+test("the database refuses an unknown payment state and caps retained events", async () => {
+  const f = await prepared();
+  try {
+    await assert.rejects(
+      async () =>
+        f.db
+          .prepare(
+            "INSERT INTO creator_orders(id,workspace_id,creation_key,installation_account,installation_environment,provider,provider_account,payment_environment,proof,payment_state,order_json) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+          )
+          .bind(
+            uuid(),
+            workspaceId,
+            "invalid-state",
+            "fixture-account",
+            "production",
+            "stripe",
+            "fixture-stripe",
+            "fixture",
+            "fixture",
+            "not-a-payment-state",
+            "{}",
+          )
+          .run(),
+      /Unsupported payment state/,
+    );
+    const view = await f.create();
+    for (let index = 0; index < 100; index++)
+      await f.db
+        .prepare(
+          "INSERT INTO creator_order_events(operation,workspace_id,order_id,kind,digest,event_json,outcome) VALUES(?,?,?,?,?,?,?)",
+        )
+        .bind(
+          uuid(),
+          workspaceId,
+          view.order.id,
+          "fixture",
+          "digest-" + index,
+          "{}",
+          "applied",
+        )
+        .run();
+    const blocked = await f.call({
+      action: "observe-fixture",
+      workspace: workspaceId,
+      order: view.order.id,
+      operation: uuid(),
+      expectedRevision: view.revision,
+      scenario: "payment-paid",
+    });
+    assert.equal(blocked.ok, false);
+    assert.equal(blocked.code, "CONFLICT", blocked.message);
+    assert.equal(
+      (
+        await f.db
+          .prepare(
+            "SELECT COUNT(*) AS n FROM creator_order_events WHERE order_id=?",
+          )
+          .bind(view.order.id)
+          .first()
+      ).n,
+      100,
     );
   } finally {
     f.db.cleanup();

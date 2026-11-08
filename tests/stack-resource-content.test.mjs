@@ -65,6 +65,64 @@ const change = (p, patch = {}) => ({
 const post = (f, p, value) =>
   f.route({ action: "moderateResource", ...p.selection, change: value });
 
+test("an unconfirmed operation is abandoned only after the app confirms no record", async () => {
+  const f = fixture();
+  const originalSource = appSettings.guestbook.source.commit;
+  try {
+    const p = await prepared(f);
+    let dropped = false;
+    f.runtime.GUESTBOOK = {
+      async fetch(request) {
+        if (request.method === "POST" && !dropped) {
+          dropped = true;
+          throw Error("Transport failed before the app received this command");
+        }
+        return f.app.fetch(request);
+      },
+    };
+    const failed = await post(f, p, change(p));
+    assert.equal(failed.outcome, "unknown");
+    p.selection.expectedRevision = failed.stack.revision;
+    const blocked = await f.route({
+      action: "delete",
+      workspace: p.space.id,
+      stack: p.stack.id,
+      expectedRevision: p.selection.expectedRevision,
+    });
+    assert.equal(blocked.ok, false);
+    assert.equal(blocked.code, "CONFLICT");
+    assert.match(blocked.message, /abandon|unfinished/i);
+    const next = "e".repeat(40);
+    appSettings.guestbook.source.commit = next;
+    f.app.source(next);
+    const abandoned = await f.route({
+      action: "abandonResourceOperation",
+      ...p.selection,
+    });
+    assert.equal(abandoned.outcome, "abandoned", abandoned.message);
+    const row = f.sqlite
+      .prepare("SELECT state FROM creator_resource_operations WHERE resource_id=?")
+      .get(p.resource);
+    assert.equal(row.state, "abandoned");
+    assert.equal(
+      f.sqlite
+        .prepare("SELECT state FROM creator_app_resources WHERE id=?")
+        .get(p.resource).state,
+      "ready",
+    );
+    p.selection.expectedRevision = abandoned.stack.revision;
+    const applied = await post(
+      f,
+      p,
+      change(p, { expectedVersion: 2, itemRevision: 1 }),
+    );
+    assert.equal(applied.outcome, "applied");
+  } finally {
+    appSettings.guestbook.source.commit = originalSource;
+    f.close();
+  }
+});
+
 test("publishing refuses a configuration confirmed against an older app source", async () => {
   const f = fixture();
   const original = appSettings.guestbook.source.commit;

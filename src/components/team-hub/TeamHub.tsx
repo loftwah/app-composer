@@ -208,7 +208,9 @@ export default function TeamHub() {
               ? "Team Hub enabled for your account. Share it explicitly with eligible teammates."
               : action === "grant"
                 ? "App permission granted. Workspace membership and Access admission remain separate."
-                : "App permission revoked. Its next application request is refused.",
+                : action === "recover"
+                  ? "App management recovered for this workspace owner. Share it with eligible teammates explicitly."
+                  : "App permission revoked. Its next application request is refused.",
         );
         if (action === "save") {
           setSelected(undefined);
@@ -426,6 +428,19 @@ export default function TeamHub() {
             and mandatory MFA are not yet qualified; this profile cannot open
             production Team Hub data.
           </p>
+          {saved.enabled && saved.recoverable && (
+            <section>
+              <h2>Recover Team Hub management</h2>
+              <p>
+                No active app manager remains for this team. Recovering grants
+                the current workspace owner app-management and use access, and
+                is recorded in the grant audit.
+              </p>
+              <button disabled={busy} onClick={() => void mutate("recover")}>
+                Recover management for this owner
+              </button>
+            </section>
+          )}
           {!saved.enabled ? (
             <section>
               <h2>Open a private space for this team</h2>

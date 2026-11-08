@@ -50,7 +50,6 @@ export function Proposals({
   const selection = useRef<string | undefined>(undefined);
   const invalidScope = useRef(false);
   const canWrite = Boolean(snapshot && snapshot.workspace.role !== "viewer");
-  const canAccept = Boolean(snapshot && snapshot.workspace.role === "owner");
   const shown =
     snapshot?.proposals.filter(
       (view) =>
@@ -58,6 +57,12 @@ export function Proposals({
         (filter === "all" || view.state === filter),
     ) ?? [];
   const current = shown.find((view) => view.id === selected) ?? shown[0];
+  const canAccept = Boolean(
+    snapshot &&
+      snapshot.workspace.role === "owner" &&
+      current?.grant.state === "active",
+  );
+  const canHandoff = Boolean(snapshot && snapshot.workspace.role === "owner");
   const reason = current ? (reasons[current.id] ?? "") : "";
   function setReason(value: string) {
     if (current)
@@ -636,9 +641,9 @@ export function Proposals({
                       </div>
                       {!canAccept && (
                         <p className="ap-hint">
-                          Only the named accountable owner or fallback can
-                          decide. Acceptance also requires workspace owner
-                          access.
+                          {current.grant.state !== "active"
+                            ? "The agent grant is no longer active. Acceptance is closed, but you can still send this proposal back or reject it."
+                            : "Only the named accountable owner or fallback can decide. Acceptance also requires workspace owner access."}
                         </p>
                       )}
                     </div>
@@ -656,7 +661,7 @@ export function Proposals({
                         {current.accepted.version}. Approval itself performs no
                         execution.
                       </p>
-                      {!current.handoff && canAccept && (
+                      {!current.handoff && canHandoff && (
                         <button
                           type="button"
                           disabled={busy}
@@ -665,7 +670,7 @@ export function Proposals({
                           Prepare handoff for the existing release flow
                         </button>
                       )}
-                      {!canAccept && !current.handoff && (
+                      {!canHandoff && !current.handoff && (
                         <p className="ap-hint">
                           The workspace owner can prepare the separate handoff.
                         </p>

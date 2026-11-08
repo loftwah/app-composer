@@ -5,7 +5,7 @@ import type { ResourceBook, ResourceContentChange } from "./protocol";
 type Reply = Awaited<ReturnType<typeof call>>;
 export type ResourceContentAction = (
   instance: string,
-  change: ResourceContentChange | null | "retry",
+  change: ResourceContentChange | null | "retry" | "abandon",
   accept: (data: Reply) => void,
 ) => Promise<void>;
 
@@ -139,7 +139,7 @@ export function ResourceContent({
     };
   }, [request, stack.id, stack.revision, instance, refresh]);
 
-  const act = (change: ResourceContentChange | null | "retry") =>
+  const act = (change: ResourceContentChange | null | "retry" | "abandon") =>
     onAction(instance, change, (data) => {
       setBook(data.book);
       setPreviews([]);
@@ -245,13 +245,29 @@ export function ResourceContent({
           Check content operation
         </button>
         {(uncertain || book?.pending) && (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void act("retry")}
-          >
-            Check and retry recorded change
-          </button>
+          <>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void act("retry")}
+            >
+              Check and retry recorded change
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                if (
+                  confirm(
+                    "This asks the app whether it recorded the unfinished operation. If it did not, the operation is retained as abandoned and the resource becomes editable again. If it did, the app result is applied instead.",
+                  )
+                )
+                  void act("abandon");
+              }}
+            >
+              Check and abandon if the app has no record
+            </button>
+          </>
         )}
         {book && (
           <a href={book.path} target="_blank" rel="noopener noreferrer">
