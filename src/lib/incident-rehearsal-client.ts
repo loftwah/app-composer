@@ -66,11 +66,22 @@ export function mountIncidentRehearsal(root: Element | null): void {
     const head = element("div", "rehearsal-version-head");
     head.appendChild(element("h3", undefined, `Version ${version.version}`));
     const active = version.version === state.active && state.stage === "review";
+    const decided =
+      version.version === state.active && state.stage !== "review"
+        ? state.stage === "approved"
+          ? "Approved in this rehearsal"
+          : "Rejected in this rehearsal"
+        : null;
     head.appendChild(
       element(
         "span",
         active ? "rehearsal-tag is-active" : "rehearsal-tag",
-        active ? "Active proposal" : version.version === 1 && state.versions.length > 1 ? "Retained · stale for approval" : "Retained",
+        decided ??
+          (active
+            ? "Active proposal"
+            : version.version === 1 && state.versions.length > 1
+              ? "Retained · stale for approval"
+              : "Retained"),
       ),
     );
     card.appendChild(head);

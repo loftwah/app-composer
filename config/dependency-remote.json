@@ -3,7 +3,7 @@
   "contract": 1,
   "mode": "remote",
   "reviewed": "2026-11-07",
-  "checkedAt": "2026-11-07T12:58:43.217Z",
+  "checkedAt": "2026-11-08T01:55:32.520Z",
   "registry": "https://registry.npmjs.org",
   "runtime": [
     {
@@ -323,13 +323,13 @@
       "latestTested": "5.20261107.1",
       "remote": {
         "state": "available",
-        "latest": "5.20261107.1",
+        "latest": "5.20261108.1",
         "publishedAt": null,
         "deprecated": null,
         "engines": null,
-        "classification": "current",
-        "reason": null,
-        "latestQualified": null,
+        "classification": "feature-opportunity",
+        "reason": "Registry latest 5.20261108.1 adds a minor release inside the reviewed range ^5.20261107.1.",
+        "latestQualified": true,
         "advisory": null
       }
     },
@@ -631,9 +631,9 @@
     "drift": 0,
     "unknown": 0,
     "unresolved": 0,
-    "current": 23,
+    "current": 22,
     "compatiblePatch": 0,
-    "featureOpportunity": 1,
+    "featureOpportunity": 2,
     "breakingMajor": 1,
     "securityUrgent": 0,
     "unsupported": 0,
