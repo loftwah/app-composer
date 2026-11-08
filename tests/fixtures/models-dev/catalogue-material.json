@@ -1,0 +1,81 @@
+{
+  "openai": {
+    "id": "openai",
+    "name": "OpenAI",
+    "env": [
+      "OPENAI_API_KEY"
+    ],
+    "npm": "@ai-sdk/openai",
+    "doc": "https://platform.openai.com/docs/models",
+    "models": {
+      "gpt-fixture-large": {
+        "id": "gpt-fixture-large",
+        "name": "GPT Fixture Large (renamed)",
+        "description": "Fictional model used by deterministic adapter tests.",
+        "family": "gpt-fixture",
+        "attachment": true,
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": false,
+        "release_date": "2026-10-01",
+        "last_updated": "2026-10-01",
+        "modalities": {
+          "input": [
+            "text",
+            "image"
+          ],
+          "output": [
+            "text"
+          ]
+        },
+        "open_weights": false,
+        "limit": {
+          "context": 200000,
+          "output": 128000
+        },
+        "cost": {
+          "input": 2.5,
+          "output": 20,
+          "cache_read": 0.25
+        }
+      }
+    }
+  },
+  "fictional-labs": {
+    "id": "fictional-labs",
+    "name": "Fictional Labs",
+    "env": [
+      "FICTIONAL_API_KEY"
+    ],
+    "npm": "@ai-sdk/fictional",
+    "doc": "https://example.invalid/models",
+    "models": {
+      "lab-model-one": {
+        "id": "lab-model-one",
+        "name": "Lab Model One",
+        "description": "Fictional open-weight model.",
+        "family": "lab",
+        "attachment": false,
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "release_date": "2026-08-20",
+        "last_updated": "2026-08-20",
+        "modalities": {
+          "input": [
+            "text"
+          ],
+          "output": [
+            "text"
+          ]
+        },
+        "open_weights": true,
+        "limit": {
+          "context": 64000,
+          "output": 8192
+        }
+      }
+    }
+  }
+}

@@ -36,6 +36,7 @@
     "audit": "pnpm audit --audit-level low",
     "freshness": "node scripts/freshness.mjs",
     "freshness:remote": "node scripts/freshness.mjs --remote --write config/dependency-remote.json",
+    "intelligence:models": "node scripts/models-intelligence.mjs",
     "init:launch-kit": "node scripts/init-launch-kit.mjs",
     "init:site": "node scripts/init-site.mjs",
     "check:publication": "node scripts/check-publication.mjs",

@@ -38,6 +38,7 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 - [Engineering baseline](engineering-baseline.md): checked source, runtime/tool environments, independent distributions and remaining source gaps.
 - [Local delivery journey](local-delivery.md): local checks, safe preview candidate, explicit release and independent live verification with bounded receipts.
 - [Dependency freshness](dependency-freshness.md): the local-only supported-range report, its exit codes and the reviewed policy file.
+- [Upstream model intelligence](models-intelligence.md): the bounded models.dev adapter, its retained last-known-good state, change classification, incident ledger and the scheduler/parity gates that stay open.
 - [Mini-apps inside a host repository](monorepo-composition.md): the opt-in monorepo source locator, its path rules, plan command, workspace discovery and the promotion gate that is still open.
 - [Delivery channel](delivery-channel.md): the Discord announcement shape, the secret boundary and what belongs in the project ledger.
 - [Source and asset maintenance](source-maintenance.md): authored modules, generated output, shared-asset ownership and release boundaries.

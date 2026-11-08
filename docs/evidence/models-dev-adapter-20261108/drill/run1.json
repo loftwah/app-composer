@@ -1,0 +1,49 @@
+{
+  "outcome": "changed",
+  "fetched": true,
+  "detail": "Added 3 model(s); 0 material change(s).",
+  "freshness": {
+    "state": "fresh",
+    "checkedAt": "2026-11-08T02:00:00.000Z",
+    "changedAt": "2026-11-08T02:00:00.000Z",
+    "materialChangedAt": null,
+    "ageHours": -0.6,
+    "retained": true,
+    "note": "The source was checked; the last recorded content change was 2026-11-08T02:00:00.000Z."
+  },
+  "checkedAt": "2026-11-08T02:00:00.000Z",
+  "changedAt": "2026-11-08T02:00:00.000Z",
+  "materialChangedAt": null,
+  "upstream": {
+    "etag": null,
+    "lastModified": null,
+    "contentHash": "e33fdcfbda892af9bc151f1b2ffedb4448dbacc753c5e40c787a356d40b84a9a",
+    "bytes": 2230,
+    "providers": 2,
+    "models": 3
+  },
+  "changes": {
+    "addedProviders": 2,
+    "removedProviders": 0,
+    "addedModels": 3,
+    "removedModels": 0,
+    "material": 0,
+    "cosmetic": 0
+  },
+  "openIncidents": 0,
+  "proposedActions": 0,
+  "backoffUntil": null,
+  "modelCalls": 0,
+  "issuesWritten": 0,
+  "statePath": "$REPO/output/models-dev-intelligence/drill/state.json",
+  "snapshotPath": "$REPO/output/models-dev-intelligence/drill/lkg.json",
+  "summaryPath": "$REPO/output/models-dev-intelligence/drill/summary.json",
+  "limits": {
+    "bytes": 16777216,
+    "attempts": 3
+  },
+  "recipe": {
+    "id": "codex-github-cloudflare-hello-v2",
+    "version": 2
+  }
+}

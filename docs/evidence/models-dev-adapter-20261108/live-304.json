@@ -1,0 +1,42 @@
+{
+  "outcome": "unchanged",
+  "fetched": true,
+  "detail": "Not modified. Checked-at advanced; changed-at and the recipe revision did not.",
+  "freshness": {
+    "state": "fresh",
+    "checkedAt": "2026-11-08T01:22:11.756Z",
+    "changedAt": "2026-11-08T01:22:05.329Z",
+    "materialChangedAt": null,
+    "ageHours": 0,
+    "retained": true,
+    "note": "The source was checked; the last recorded content change was 2026-11-08T01:22:05.329Z."
+  },
+  "checkedAt": "2026-11-08T01:22:11.756Z",
+  "changedAt": "2026-11-08T01:22:05.329Z",
+  "materialChangedAt": null,
+  "upstream": {
+    "etag": "W/\"e28d990aed3645a5372056d4908ba833\"",
+    "lastModified": null,
+    "contentHash": "e28d990aed3645a5372056d4908ba83372ac81a0561afe96ee05942ebd1f8f85",
+    "bytes": 0,
+    "providers": 235,
+    "models": 8946
+  },
+  "changes": null,
+  "openIncidents": 0,
+  "proposedActions": 0,
+  "backoffUntil": null,
+  "modelCalls": 0,
+  "issuesWritten": 0,
+  "statePath": "$REPO/output/models-dev-intelligence/state.json",
+  "snapshotPath": "$REPO/output/models-dev-intelligence/last-known-good.json",
+  "summaryPath": "$REPO/output/models-dev-intelligence/summary.json",
+  "limits": {
+    "bytes": 16777216,
+    "attempts": 3
+  },
+  "recipe": {
+    "id": "codex-github-cloudflare-hello-v2",
+    "version": 2
+  }
+}

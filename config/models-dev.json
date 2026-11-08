@@ -1,0 +1,10 @@
+{
+  "contract": 1,
+  "reviewed": "2026-11-08",
+  "source": {
+    "id": "models.dev",
+    "url": "https://models.dev/api.json"
+  },
+  "selectedProviders": ["openai", "anthropic", "opencode-go", "deepseek"],
+  "note": "Selected providers are the supported coding routes named by #12 and the Codex/GitHub/Cloudflare recipe. Selection is catalogue scope, not a support or readiness claim."
+}

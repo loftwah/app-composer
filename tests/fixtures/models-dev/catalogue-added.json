@@ -1,0 +1,141 @@
+{
+  "openai": {
+    "id": "openai",
+    "name": "OpenAI",
+    "env": [
+      "OPENAI_API_KEY"
+    ],
+    "npm": "@ai-sdk/openai",
+    "doc": "https://platform.openai.com/docs/models",
+    "models": {
+      "gpt-fixture-large": {
+        "id": "gpt-fixture-large",
+        "name": "GPT Fixture Large",
+        "description": "Fictional model used by deterministic adapter tests.",
+        "family": "gpt-fixture",
+        "attachment": true,
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": false,
+        "release_date": "2026-10-01",
+        "last_updated": "2026-10-01",
+        "modalities": {
+          "input": [
+            "text",
+            "image"
+          ],
+          "output": [
+            "text"
+          ]
+        },
+        "open_weights": false,
+        "limit": {
+          "context": 400000,
+          "output": 128000
+        },
+        "cost": {
+          "input": 1.25,
+          "output": 10,
+          "cache_read": 0.125
+        }
+      },
+      "gpt-fixture-mini": {
+        "id": "gpt-fixture-mini",
+        "name": "GPT Fixture mini",
+        "description": "A smaller fictional lane.",
+        "family": "gpt-fixture",
+        "attachment": true,
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "release_date": "2026-06-15",
+        "last_updated": "2026-06-15",
+        "modalities": {
+          "input": [
+            "text"
+          ],
+          "output": [
+            "text"
+          ]
+        },
+        "open_weights": false,
+        "limit": {
+          "context": 128000,
+          "output": 16384
+        },
+        "cost": {
+          "input": 0.25,
+          "output": 2
+        }
+      },
+      "gpt-fixture-nano": {
+        "id": "gpt-fixture-nano",
+        "name": "GPT Fixture nano",
+        "description": "A smaller fictional lane.",
+        "family": "gpt-fixture",
+        "attachment": true,
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "release_date": "2026-11-01",
+        "last_updated": "2026-11-01",
+        "modalities": {
+          "input": [
+            "text"
+          ],
+          "output": [
+            "text"
+          ]
+        },
+        "open_weights": false,
+        "limit": {
+          "context": 128000,
+          "output": 16384
+        },
+        "cost": {
+          "input": 0.1,
+          "output": 0.4
+        }
+      }
+    }
+  },
+  "fictional-labs": {
+    "id": "fictional-labs",
+    "name": "Fictional Labs",
+    "env": [
+      "FICTIONAL_API_KEY"
+    ],
+    "npm": "@ai-sdk/fictional",
+    "doc": "https://example.invalid/models",
+    "models": {
+      "lab-model-one": {
+        "id": "lab-model-one",
+        "name": "Lab Model One",
+        "description": "Fictional open-weight model.",
+        "family": "lab",
+        "attachment": false,
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "release_date": "2026-08-20",
+        "last_updated": "2026-08-20",
+        "modalities": {
+          "input": [
+            "text"
+          ],
+          "output": [
+            "text"
+          ]
+        },
+        "open_weights": true,
+        "limit": {
+          "context": 64000,
+          "output": 8192
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "version": "composer.models-dev-state/1",
+  "source": {
+    "id": "models.dev",
+    "url": "https://models.dev/api.json",
+    "adapter": "models-dev-adapter/1",
+    "schema": "composer.models-dev-snapshot/1"
+  },
+  "recipe": {
+    "id": "codex-github-cloudflare-hello-v2",
+    "version": 2
+  },
+  "lastAttempt": {
+    "at": "2026-11-08T01:22:11.756Z",
+    "outcome": "unchanged",
+    "status": 304,
+    "durationMs": 1336,
+    "bytes": 0,
+    "attempts": 1,
+    "detail": null
+  },
+  "lastSuccess": {
+    "at": "2026-11-08T01:22:11.756Z",
+    "status": 304,
+    "etag": "W/\"e28d990aed3645a5372056d4908ba833\"",
+    "lastModified": null,
+    "contentHash": "e28d990aed3645a5372056d4908ba83372ac81a0561afe96ee05942ebd1f8f85",
+    "bytes": 0,
+    "providers": 235,
+    "models": 8946
+  },
+  "lastChange": {
+    "at": "2026-11-08T01:22:05.329Z",
+    "fromHash": "",
+    "toHash": "e28d990aed3645a5372056d4908ba83372ac81a0561afe96ee05942ebd1f8f85",
+    "addedProviders": [
+      "qihang-ai",
+      "google-vertex",
+      "abliteration-ai",
+      "perplexity-agent",
+      "morph",
+      "baseten",
+      "nova",
+      "poolside",
+      "zenmux",
+      "lynkr",
+      "helicone",
+      "gmicloud",
+      "vultr",
+      "pioneer",
+      "novita-ai",
+      "commandcode",
+      "alibaba-token-plan-cn",
+      "ai21",
+      "melious",
+      "cloudflare-ai-gateway"
+    ],
+    "removedProviders": [],
+    "addedModels": [],
+    "removedModels": [],
+    "material": [],
+    "cosmetic": [],
+    "counts": {
+      "addedProviders": 235,
+      "removedProviders": 0,
+      "addedModels": 8946,
+      "removedModels": 0,
+      "material": 0,
+      "cosmetic": 0
+    }
+  },
+  "lastMaterialChange": null,
+  "upstream": {
+    "etag": "W/\"e28d990aed3645a5372056d4908ba833\"",
+    "lastModified": null,
+    "contentHash": "e28d990aed3645a5372056d4908ba83372ac81a0561afe96ee05942ebd1f8f85",
+    "bytes": 0,
+    "providers": 235,
+    "models": 8946
+  },
+  "outage": null,
+  "incidents": [],
+  "actions": [],
+  "modelCalls": 0,
+  "issuesWritten": 0
+}

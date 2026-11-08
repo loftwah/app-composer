@@ -2,6 +2,35 @@
 
 Reviewed 25 October 2026; updated 8 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Upstream model intelligence adapter — 8 November 2026
+
+The first executable [#19](https://github.com/loftwah/app-composer/issues/19)
+slice is a deterministic, credential-free models.dev adapter. One manual
+invocation performs a bounded conditional read (16 MiB, 20 seconds, at most
+three attempts, no redirect, no credential), validates the whole payload, keeps
+the last known-good catalogue separately, classifies added/cosmetic/material
+changes, and records a deduplicated incident and owner-action ledger. A `304`
+advances checked-at only and writes no incident or action.
+
+Two live reads on 8 November returned HTTP 200 (235 providers, 8,946 models,
+5,970,151 bytes, ETag `W/"e28d99…"`) and then HTTP 304. The second read advanced
+`checkedAt` by 6.4 seconds and left `changedAt` unchanged, with 0 incidents, 0
+actions, 0 model calls and 0 issue writes. A controlled fixture drill proved a
+degraded retained state and recovery through the adapter's own
+`fetch-and-validate` requirement.
+
+No runtime, Worker, migration, scheduler or production claim changed. Production
+stays Composer `220a7438545644506ffe6f545604f03a4e0a1f4f`, Worker
+`09b67f2d-bca4-4397-ad3f-a871b2f19599`. Sixteen focused tests passed with the
+type, lint and format gates.
+
+Remaining #19 gates: no scheduled run has been observed; no material change has
+been published, reverted or written to a live issue; core/Composer parity and a
+live outage/recovery at the selected runtime are still open.
+
+Evidence:
+[models-dev adapter](evidence/models-dev-adapter-20261108/README.md).
+
 ## Portable setup baseline and dated canary — 8 November 2026
 
 Production is Composer `220a7438545644506ffe6f545604f03a4e0a1f4f`, Worker
