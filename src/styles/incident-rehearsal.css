@@ -1,0 +1,185 @@
+.rehearsal-badge {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 20px;
+  padding: 7px 12px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: 0.82rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+.rehearsal-live {
+  display: grid;
+  gap: 20px;
+}
+.rehearsal-status {
+  margin: 0;
+  min-height: 1.5em;
+  font-weight: 600;
+}
+.rehearsal-status:focus-visible,
+.rehearsal-outcome h3:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
+}
+.rehearsal-versions {
+  display: grid;
+  gap: 16px;
+}
+.rehearsal-version {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 74ch;
+  background: var(--color-surface);
+}
+.rehearsal-version-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+}
+.rehearsal-version h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+.rehearsal-tag {
+  font-size: 0.78rem;
+  font-weight: 650;
+  padding: 4px 9px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-muted);
+}
+.rehearsal-tag.is-active {
+  color: var(--color-on-action);
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+.rehearsal-digest {
+  margin: 10px 0;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.82rem;
+  color: var(--color-muted);
+}
+.rehearsal-evidence {
+  margin: 12px 0;
+  padding-left: 20px;
+}
+.rehearsal-evidence li {
+  margin-block: 6px;
+}
+.rehearsal-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+.rehearsal-controls button,
+.rehearsal-reset {
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-foreground);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.rehearsal-controls button:hover,
+.rehearsal-reset:hover {
+  border-color: var(--color-accent);
+  background: var(--color-field);
+  color: var(--color-foreground);
+}
+.rehearsal-controls button:focus-visible,
+.rehearsal-reset:focus-visible,
+.rehearsal-note:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+.rehearsal-controls .rehearsal-primary {
+  background: var(--color-action);
+  color: var(--color-on-action);
+  border-color: var(--color-action);
+}
+.rehearsal-controls .rehearsal-primary:hover {
+  background: var(--color-action-hover);
+  color: var(--color-on-action);
+  border-color: var(--color-action-hover);
+}
+.rehearsal-label {
+  flex-basis: 100%;
+  font-weight: 650;
+}
+.rehearsal-note {
+  flex-basis: 100%;
+  width: 100%;
+  min-height: 96px;
+  padding: 12px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 8px;
+  background: var(--color-field);
+  color: var(--color-foreground);
+  font: inherit;
+  resize: vertical;
+}
+.rehearsal-note-retained {
+  flex-basis: 100%;
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 3px solid var(--color-accent);
+  background: var(--color-surface);
+  max-width: 74ch;
+}
+.rehearsal-outcome {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 74ch;
+  background: var(--color-surface);
+}
+.rehearsal-outcome h3 {
+  margin-top: 0;
+}
+.rehearsal-email {
+  max-width: 74ch;
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+}
+.rehearsal-email summary {
+  cursor: pointer;
+  font-weight: 650;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.rehearsal-email-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-field);
+  font-size: 0.88rem;
+}
+.rehearsal-muted {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+.rehearsal-reset {
+  justify-self: start;
+}
+@media (max-width: 640px) {
+  .rehearsal-version,
+  .rehearsal-outcome {
+    padding: 16px;
+  }
+  .rehearsal-controls button {
+    width: 100%;
+  }
+}

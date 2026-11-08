@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import { IncidentSitrep } from '../plugins/incident-sitrep';
 import { replaySitrep } from '../lib/incident-replay';
 import '../plugins/proposals-page.css';
+import '../styles/incident-rehearsal.css';
 ---
 <Base title="Incident Desk: inspect a safe replay" description="Follow a fictional investigation through situation report, send-back, revised evidence and an exact proposal decision. This read-only replay performs no external action.">
   <article class="incident-replay composer-proposals">
@@ -20,6 +21,13 @@ import '../plugins/proposals-page.css';
         <li><strong>Approve or reject · work preserved.</strong><p>Approval records the proposal decision. A separate authorised handoff must check the current target and source before execution. Rejection closes that proposal and keeps its evidence.</p></li>
       </ol>
       <p>The private page uses the existing proposal store, workspace roles, source checks and review endpoints. A viewer cannot decide; an agent cannot approve itself; stale versions and revoked grants are refused.</p>
+    </section>
+    <section id="rehearsal" class="replay-rehearsal" aria-labelledby="rehearsal-heading">
+      <h2 id="rehearsal-heading">Rehearse the decision</h2>
+      <p>This is a <strong>simulated</strong> review of the same fictional incident. Send it back with instructions, compare both versions, then approve or reject. Every control runs in this browser tab: no request leaves the page, no message is sent and no application is changed. A stale version is refused on purpose.</p>
+      <div data-incident-rehearsal>
+        <p class="rehearsal-muted">The rehearsal needs JavaScript. The written timeline above remains the complete read-only record.</p>
+      </div>
     </section>
     <section class="replay-drill" aria-labelledby="drill-heading">
       <h2 id="drill-heading">A completed local recovery</h2>
@@ -51,7 +59,12 @@ import '../plugins/proposals-page.css';
   .replay-timeline li { padding-block:16px; border-bottom:1px solid var(--color-border); }
   .replay-limit { margin-top:48px; border-top:1px solid var(--color-border); padding-top:32px; }
   .replay-drill { margin-top:48px; border-top:1px solid var(--color-border); padding-top:32px; }
+  .replay-rehearsal { margin-top:48px; border-top:1px solid var(--color-border); padding-top:32px; }
   .replay-drill figure { margin:32px 0; }
   .replay-drill img { width:100%; height:auto; border:1px solid var(--color-border); border-radius:8px; }
   .replay-drill figcaption { margin-top:12px; font-size:.9rem; color:var(--color-muted); max-width:74ch; }
 </style>
+<script>
+  import { mountIncidentRehearsal } from '../lib/incident-rehearsal-client';
+  mountIncidentRehearsal(document.querySelector('[data-incident-rehearsal]'));
+</script>
