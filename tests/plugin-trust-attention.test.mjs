@@ -189,6 +189,7 @@ test("the shared overview contract accepts Plugin Trust items and refuses foreig
       { id: "platform", label: "Internal platform", status: "checked", count: 0, atLimit: false, note: "ok" },
       { id: "workflows", label: "Workflows", status: "checked", count: 0, atLimit: false, note: "ok" },
       { id: "resources", label: "App resources", status: "checked", count: 0, atLimit: false, note: "ok" },
+      { id: "orders", label: "Orders", status: "checked", count: 0, atLimit: false, note: "ok" },
       { id: "notifications", label: "Owner notifications", status: "checked", count: 0, atLimit: false, note: "ok" },
       { id: "delivery", label: "Release receipts", status: "checked", count: 0, atLimit: false, note: "ok" },
       {

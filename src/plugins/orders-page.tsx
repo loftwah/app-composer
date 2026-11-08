@@ -9,6 +9,7 @@ import {
 } from "../lib/order-contract";
 import { ordersCall } from "./orders/api";
 import { ordersLead } from "../lib/orders-lead";
+import { orderNeedsAttention } from "../lib/order-attention";
 import { workspaceSelection } from "./stacks/workspace-scope";
 import "./orders-page.css";
 import { ShopifyCataloguePanel } from "./shopify-catalogue-panel";
@@ -22,6 +23,10 @@ const scenarioLabels: Record<FixtureScenario, string> = {
   "part-refunded": "Half the amount refunded",
   refunded: "Full amount refunded",
 };
+function orderFromSearch(search: string) {
+  const value = new URLSearchParams(search).get("order");
+  return value && /^[a-f0-9-]{36}$/.test(value) ? value : "";
+}
 function money(view: OrderView) {
   try {
     const formatter = new Intl.NumberFormat("en-AU", {
@@ -40,7 +45,7 @@ export function OrdersPage() {
 }
 export function Orders({ search }: { search: string }) {
   const [snapshot, setSnapshot] = useState<OrdersSnapshot>();
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState(() => orderFromSearch(search));
   const [filter, setFilter] = useState("all");
   const [providerFilter, setProviderFilter] = useState("all");
   const [provider, setProvider] = useState<"stripe" | "paypal" | "shopify">(
@@ -68,11 +73,7 @@ export function Orders({ search }: { search: string }) {
         (providerFilter === "all" || view.order.provider === providerFilter) &&
         (filter === "all" ||
           (filter === "attention"
-            ? ["failed", "cancelled", "expired"].includes(view.order.payment) ||
-              view.actions.some(
-                (action) =>
-                  action.state === "unknown" || action.state === "failed",
-              )
+            ? orderNeedsAttention(view)
             : filter === "paid"
               ? view.order.payment === "paid"
               : ["unpaid", "pending"].includes(view.order.payment))),
@@ -104,7 +105,11 @@ export function Orders({ search }: { search: string }) {
         setFilter("all");
         setProviderFilter("all");
       } else
-        setSelected((previous) => previous || result.orders[0]?.order.id || "");
+        setSelected((previous) =>
+          result.orders.some((view) => view.order.id === previous)
+            ? previous
+            : result.orders[0]?.order.id || "",
+        );
       if (message) setNotice(message);
       return true;
     } catch (cause) {
@@ -489,7 +494,11 @@ export function Orders({ search }: { search: string }) {
                 </button>
               ))}
             </section>
-            <section className="or-detail" aria-label="Selected order">
+            <section
+              className="or-detail"
+              aria-label="Selected order"
+              id={current ? "order-" + current.order.id : undefined}
+            >
               {current ? (
                 <>
                   <div className="or-heading">

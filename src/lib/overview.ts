@@ -14,6 +14,7 @@ import {
 } from "./overview-contract.ts";
 import { APP_ID, ENVIRONMENT_ID, WORKSPACE_ID } from "./admin-scope.ts";
 import { readResourceInventory } from "./resource-inventory.ts";
+import { orderAttentionHref, readOrderAttention } from "./order-attention.ts";
 import { readPluginTrustAttention } from "./plugin-trust-attention.ts";
 import {
   releaseAttentionCopy,
@@ -60,6 +61,7 @@ const LABELS: Record<SourceId, string> = {
   platform: "Internal platform",
   workflows: "Workflows",
   resources: "App resources",
+  orders: "Orders",
   notifications: "Owner notifications",
   delivery: "Release receipts",
   "plugin-trust": "Plugin Trust",
@@ -229,6 +231,12 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
         "Plugin Trust review items require a signed-in administrator.",
         403,
       );
+    if (input.action === "recheck" && input.source === "orders" && user.role !== 50)
+      throw new StackError(
+        "FORBIDDEN",
+        "Saved order exceptions require a signed-in administrator.",
+        403,
+      );
     const link = (
       page: string,
       fragment: string,
@@ -268,7 +276,9 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
                 ? "Composer's own stored resource records for this account, in every recorded environment. It counts the resources App resources shows as needing attention, unknown, stale or unbound. No Cloudflare read, tag change or billing check happens here."
                 : id === "delivery"
                   ? "Only recorded production release receipts that failed or lack an independent live read, newest 20. Recording is evidence, not approval; no Worker version or live source is read here."
-                  : "Only problems among the latest 50 records shown in the owning screen. Older retained problems may remain. Provider health and the live application are not checked.",
+                  : id === "orders"
+                    ? "Only saved orders in this workspace and environment with a failed, expired or cancelled payment, or a retained uncertain or failed step, newest 50. No provider is contacted and no payment state is inferred."
+                    : "Only problems among the latest 50 records shown in the owning screen. Older retained problems may remain. Provider health and the live application are not checked.",
         });
         items.push(...found);
       } catch {
@@ -396,6 +406,35 @@ export async function manageOverview(ctx: Context, runtime: Runtime) {
           };
         });
     });
+    if (user.role !== 50)
+      sources.push({
+        id: "orders",
+        label: LABELS.orders,
+        status: "restricted",
+        count: null,
+        atLimit: false,
+        note: "Saved order exceptions require a signed-in administrator. Restricted is not zero.",
+      });
+    else
+      await collect("orders", async () => {
+        const found = await readOrderAttention(db, {
+          workspace: workspace.id,
+          account: target.account,
+          environment: target.environment,
+        });
+        return found.map((item) => ({
+          id: "orders:" + item.id,
+          source: "orders" as const,
+          app: item.app,
+          title: item.title,
+          summary: item.summary,
+          action: item.action,
+          href: orderAttentionHref(workspace.id, item.orderId),
+          count: 1,
+          firstObserved: item.firstObserved,
+          lastObserved: item.lastObserved,
+        }));
+      });
     if (workspace.role === "viewer")
       sources.push({
         id: "notifications",

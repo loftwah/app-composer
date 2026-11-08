@@ -32,6 +32,7 @@ const OWNER: Record<SourceId, string> = {
   platform: "/_emdash/admin/plugins/composer-stacks/platform",
   workflows: "/_emdash/admin/plugins/composer-stacks/workflows",
   resources: "/_emdash/admin/plugins/composer-stacks/resources",
+  orders: "/_emdash/admin/plugins/composer-stacks/orders",
   notifications: "/_emdash/admin/plugins/composer-stacks/enquiries",
   delivery: "/_emdash/admin/plugins/composer-stacks/delivery",
   "plugin-trust": "/_emdash/admin/plugins/composer-stacks/plugin-trust",

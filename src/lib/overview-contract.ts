@@ -5,6 +5,7 @@ export const overviewSources = [
   "platform",
   "workflows",
   "resources",
+  "orders",
   "notifications",
   "delivery",
   "plugin-trust",
@@ -75,7 +76,7 @@ export const overviewSnapshot = z
           })
           .strict(),
       )
-      .length(6),
+      .length(7),
     items: z
       .array(
         z
@@ -90,7 +91,7 @@ export const overviewSnapshot = z
             href: z
               .string()
               .regex(
-                /^\/_emdash\/admin\/plugins\/composer-stacks\/(?:(?:platform|workflows|enquiries|resources)\?workspace=[a-z0-9-]+(?:&resource=[a-z0-9-]+)?(?:&item=[a-z0-9-]+)?#(?:platform-request|workflow-run|notification|ri-resource)-[a-z0-9-]+|delivery\?workspace=[a-z0-9-]+#delivery-run-[a-z0-9-]+|plugin-trust#plugin-trust-(?:review-[a-z0-9-]+|watch))$/,
+                /^\/_emdash\/admin\/plugins\/composer-stacks\/(?:(?:platform|workflows|enquiries|resources)\?workspace=[a-z0-9-]+(?:&resource=[a-z0-9-]+)?(?:&item=[a-z0-9-]+)?#(?:platform-request|workflow-run|notification|ri-resource)-[a-z0-9-]+|orders\?workspace=[a-z0-9-]+&order=[a-f0-9-]{36}#order-[a-f0-9-]{36}|delivery\?workspace=[a-z0-9-]+#delivery-run-[a-z0-9-]+|plugin-trust#plugin-trust-(?:review-[a-z0-9-]+|watch))$/,
               ),
             count: z.number().int().positive().max(100),
             firstObserved: z.iso.datetime(),
