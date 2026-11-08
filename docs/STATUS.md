@@ -2,6 +2,65 @@
 
 Reviewed 25 October 2026; updated 8 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Implicit state-machine corrections — 8 November 2026
+
+Production is Composer `9e0b98f32eaff2c26a34ee8a8135679a33c9c240`, Worker
+`482d01c5-a11d-49de-b4d2-31396028fcdb`; `/build.json` matches. The guarded
+release passed every live gate in 103.5s.
+
+An audit of state carried in status strings, booleans and revisions found
+invalid transitions that the UI could reach, not just cosmetic labels:
+
+- **Inbox journey writes** returned the refreshed journey, but the panel
+  validated every write as a short envelope, so Process, Send and Reconcile
+  reported a contract error after a successful server action. Refusal codes
+  were also rejected. The status check now accepts both shapes and the exact
+  journey payload remains validated separately.
+- **Delivery dead ends:** enabling notifications after a brief finished without
+  a notice can now prepare that notice once, with bounded attempts. A notice
+  blocked by missing mail becomes sendable when mail is configured. A paused
+  preference no longer offers a send the server refuses. An unlinked run never
+  offers a send. Reconciliation stops at the contract's retained limit and its
+  read failure stays inside the readable error envelope.
+- **Resource moderation** wrote its operation outcome into the publishable
+  resource state. A refused content change, or a legal acknowledgement without a
+  configuration, made the applied resource look refused or reserved and blocked
+  publishing. Content and control writes now stay in the operation journal.
+  Publishing also requires the confirmed configuration to match the current app
+  source and digest.
+- **Orders:** a checkout can no longer become uncertain after payment is
+  established, and a fulfilment draft cannot be prepared while the checkout
+  outcome is unknown. Both guards are mirrored in the Orders screen.
+- **Agent proposals:** an old duplicate digest no longer returns a newer,
+  different proposal; it is refused as superseded. A review decision is written
+  only if the reviewed proposal version and digest still match, so a losing
+  concurrent revision cannot leave an unapplied review in the audit history.
+- **Team Hub:** a retained assignment to a member whose contribute grant was
+  revoked no longer blocks saving or closing the request; only a changed
+  assignee must be a current contributor.
+- **Invitations:** an expired invitation can no longer be rewritten as
+  `revoked`; expiry and revocation remain distinct audit states.
+- **UI truth:** draft or archived stacks no longer call a retained revision
+  "public", the resource inventory only counts publication pins on published
+  stacks, the enquiry list refreshes after a confirmed journey write, a failed
+  profile read is distinct from "no profile", a revoked grant remains visible,
+  a dangling visitor-book selection resets, and a reused resource choice clears.
+- Maximum-length stack names receive a distinct slug instead of losing the
+  collision suffix during truncation.
+
+No migration or schema change was required. `tests/order-lifecycle.test.mjs`
+adds the missing payment/refund and fixture-transition coverage; the suite is
+now 587 tests in 81 files. Focused journey, resource, proposal, team, invitation
+and import tests passed, followed by `pnpm check` and the guarded deploy.
+
+Remaining limits: the authenticated Orders, Inbox and People renders were not
+re-exercised live because the isolated browser had no Cloudflare Access session
+and the sign-in handoff timed out. Deeper resource recovery gaps remain open:
+an unconfirmed operation tied to an older app source has no abandon state, stack
+deletion can orphan such an operation, and two stacks can share one resource
+without a database-level single-open-operation constraint.
+
+
 ## Measured routine release speed — 8 November 2026
 
 Production is Composer `26b5c8060a7ce1cbc1300b2848118654d4df94b7`, Worker
