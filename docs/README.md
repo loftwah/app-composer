@@ -37,6 +37,7 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 - [Architecture](../ARCHITECTURE.md), [design](../DESIGN.md) and [interface/content standard](../UNSLOP.md).
 - [Engineering baseline](engineering-baseline.md): checked source, runtime/tool environments, independent distributions and remaining source gaps.
 - [Local delivery journey](local-delivery.md): local checks, safe preview candidate, explicit release and independent live verification with bounded receipts.
+- [Five-minute routine delivery](fast-delivery.md): the classification, stage budget, overrun rule and the copy-ready delivery prompt for one small change per window.
 - [Dependency freshness](dependency-freshness.md): the local-only supported-range report, its exit codes and the reviewed policy file.
 - [Upstream model intelligence](models-intelligence.md): the bounded models.dev adapter, its retained last-known-good state, change classification, incident ledger and the scheduler/parity gates that stay open.
 - [Mini-apps inside a host repository](monorepo-composition.md): the opt-in monorepo source locator, its path rules, plan command, workspace discovery and the promotion gate that is still open.
