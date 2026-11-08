@@ -6,7 +6,7 @@ Reviewed 25 October 2026; updated 8 November 2026. This page is the current navi
 
 Production is Composer `26b5c8060a7ce1cbc1300b2848118654d4df94b7`, Worker
 `490591d2-4078-46b5-a401-31869ed51017`; `/build.json` matches. The same 575
-tests in 83 files now run at Node's default concurrency instead of two at a
+tests in 80 files now run at Node's default concurrency instead of two at a
 time: the suite fell from 90.8s to 30.4s, and `pnpm check` from 122.0s to
 66.3s, with no test removed, skipped or changed.
 

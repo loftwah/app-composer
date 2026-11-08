@@ -11,7 +11,7 @@ the 300-second routine target is exceeded.
 | Clean pushed `main` at start | `df6ab4f` (docs-only after the previous release) |
 | Production source after | `26b5c8060a7ce1cbc1300b2848118654d4df94b7` / Worker `490591d2-4078-46b5-a401-31869ed51017` |
 | Live `/build.json` | `26b5c8060a7ce1cbc1300b2848118654d4df94b7` |
-| Test files / assertions | 83 files, 575 tests, unchanged |
+| Test files / assertions | 80 files, 575 tests, unchanged |
 | Full suite, two workers | 90.8s (measured before the change) |
 | Full suite, default concurrency | 30.4s (three runs: 31.3s, 30.4s, 33.4s inside `pnpm check`) |
 | `pnpm check` before | 122.0s (27.2 types, 3.1 lint, 0.9 format, 90.8 tests) |
