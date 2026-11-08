@@ -41,7 +41,7 @@ export function focusedStages(targets) {
     { name: "types and generated source", command: "pnpm", args: ["check:types"] },
     { name: "semantic lint", command: "pnpm", args: ["lint"] },
     { name: "format", command: "pnpm", args: ["format:check"] },
-    { name: "focused tests", command: process.execPath, args: ["--test", "--test-concurrency=2", ...targets] },
+    { name: "focused tests", command: process.execPath, args: ["--test", ...targets] },
   ];
 }
 

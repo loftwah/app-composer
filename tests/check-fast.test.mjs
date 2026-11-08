@@ -29,7 +29,7 @@ test("focused checks keep the full type/source gate ahead of named tests", () =>
       ["pnpm", "check:types"],
       ["pnpm", "lint"],
       ["pnpm", "format:check"],
-      [process.execPath, "--test --test-concurrency=2 tests/core.test.mjs"],
+      [process.execPath, "--test tests/core.test.mjs"],
     ],
   );
   assert.throws(() => focusedStages([]), /No focused test files/);

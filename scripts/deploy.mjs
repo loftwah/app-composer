@@ -65,14 +65,18 @@ guard();
 const cfg = JSON.parse(readFileSync("wrangler.jsonc", "utf8"));
 const lock = JSON.parse(readFileSync("composition.lock.json", "utf8"));
 assertProductionTarget(cfg, cfg, lock);
+const releaseStarted = Date.now();
+const stageTimings = [];
 const stage = async (name, work) => {
   const started = Date.now();
   const result = await work();
+  const durationMs = Date.now() - started;
+  stageTimings.push({ name, durationMs });
   console.log(
     "Release gate passed: " +
       name +
       " (" +
-      ((Date.now() - started) / 1000).toFixed(1) +
+      (durationMs / 1000).toFixed(1) +
       "s)",
   );
   return result;
@@ -229,3 +233,19 @@ await stage("release record", async () => {
   ]);
 });
 console.log("Verified exact live Composer source " + sha);
+const elapsedMs = Date.now() - releaseStarted;
+console.log("Release elapsed: " + (elapsedMs / 1000).toFixed(1) + "s");
+if (elapsedMs > 300_000) {
+  const slowest = stageTimings.reduce((a, b) =>
+    b.durationMs > a.durationMs ? b : a,
+  );
+  console.log(
+    "Release overrun: " +
+      (elapsedMs / 1000).toFixed(1) +
+      "s against the 300s routine target; slowest stage was " +
+      slowest.name +
+      " (" +
+      (slowest.durationMs / 1000).toFixed(1) +
+      "s).",
+  );
+}
