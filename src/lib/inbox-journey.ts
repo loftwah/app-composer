@@ -314,7 +314,14 @@ export async function processEnquiryEvent(
       "No workflow record exists for this enquiry. Reload the Inbox and prepare the event first.",
       404,
     );
-  if (row.state === "finished") return "finished";
+  if (row.state === "finished") {
+    const existing = await outboxFor(db, scope, event);
+    if (existing) return "finished";
+    // A finished run with no notice happens when notifications were off.
+    // Only an explicit, bounded re-check after they are enabled may create one.
+    const preference = await preferenceFor(db, scope);
+    if (!preference?.enabled || row.attempts >= maxAttempts) return "finished";
+  }
   if (row.state === "failed" && row.attempts >= maxAttempts)
     throw new StackError(
       "CONFLICT",
@@ -446,14 +453,28 @@ function deliveryView(
             ? "The owner mail connection is not enabled or configured, so no notice can be prepared for sending."
             : "No owner notice has been prepared yet. Process the enquiry event first.",
     };
-  if (outbox.state === "blocked" || (outbox.state === "queued" && !mailReady))
+  // Mail can be configured after a send was blocked. The retained notice is
+  // sendable then, and a paused preference is not a sendable state at all.
+  if (outbox.state === "blocked" && mailReady && preference?.enabled) {
+    return {
+      state: "ready",
+      reason:
+        "The owner notice was prepared while mail was unavailable and can now be sent.",
+    };
+  }
+  if (
+    outbox.state === "blocked" ||
+    (outbox.state === "queued" && (!mailReady || !preference?.enabled))
+  )
     return {
       state: "unconfigured",
       reason:
         outbox.state === "blocked"
           ? outbox.reason ||
             "The owner mail connection is not enabled or configured."
-          : "The owner notice is prepared, but owner mail is not enabled or configured. No send is offered.",
+          : !preference?.enabled
+            ? "Owner notifications are paused for this visitor book. The retained notice cannot be sent until they are enabled."
+            : "The owner notice is prepared, but owner mail is not enabled or configured. No send is offered.",
     };
   const state: DeliveryState =
     outbox.state === "queued"
@@ -478,6 +499,7 @@ function deliveryView(
 function nextAction(
   journey: Pick<InboxJourney, "workflow" | "delivery" | "enquiry">,
   role: "owner" | "editor" | "viewer",
+  notificationsEnabled: boolean,
 ): InboxJourney["next"] {
   const editing = role !== "viewer";
   const owner = role === "owner";
@@ -490,6 +512,31 @@ function nextAction(
         "Three processing attempts were used. Review the recorded reason; the brief stays in the Inbox and no provider was contacted.",
       actor: "none",
       enabled: false,
+    };
+  if (workflow.state === "running" && workflow.attempts >= maxAttempts)
+    return {
+      kind: "none",
+      label: "No supported action",
+      detail:
+        "The processing attempt limit was reached before an outcome was recorded. The brief stays in the Inbox; no provider was contacted.",
+      actor: "none",
+      enabled: false,
+    };
+  if (
+    workflow.state === "finished" &&
+    !workflow.outboxId &&
+    delivery.state === "unconfigured" &&
+    notificationsEnabled &&
+    workflow.attempts < maxAttempts &&
+    editing
+  )
+    return {
+      kind: "process",
+      label: "Prepare the owner notice",
+      detail:
+        "Owner notifications are now enabled for this visitor book. Prepare the notice for this existing event; no provider is contacted.",
+      actor: "owner-or-editor",
+      enabled: true,
     };
   if (
     workflow.state === "queued" ||
@@ -513,7 +560,7 @@ function nextAction(
       actor: "owner-or-editor",
       enabled: editing,
     };
-  if (workflow.state === "unlinked" && delivery.state === "unconfigured")
+  if (workflow.state === "unlinked")
     return {
       kind: "none",
       label: "No supported action",
@@ -677,7 +724,7 @@ async function readJourney(
       enabled: Boolean(preference?.enabled),
       revision: preference?.revision ?? 0,
     },
-    next: nextAction(journey, workspace.role),
+    next: nextAction(journey, workspace.role, Boolean(preference?.enabled)),
     timezone: "UTC",
   });
 }
@@ -857,14 +904,14 @@ export async function manageInboxJourney(
           );
         await db
           .prepare(
-            "UPDATE creator_enquiry_notification_outbox SET reconciled_at=?,reconciliations=reconciliations+1,updated_at=? WHERE id=? AND workspace_id=? AND resource_id=? AND state IN ('sending','uncertain')",
+            "UPDATE creator_enquiry_notification_outbox SET reconciled_at=?,reconciliations=MIN(reconciliations+1,100),updated_at=? WHERE id=? AND workspace_id=? AND resource_id=? AND state IN ('sending','uncertain')",
           )
           .bind(date(), date(), current.id, workspace.id, resource.id)
           .run();
       }
     }
     await guard(needed === "owner");
-    return readJourney(
+    return await readJourney(
       db,
       runtime,
       workspace,

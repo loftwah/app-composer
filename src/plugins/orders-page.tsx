@@ -78,7 +78,12 @@ export function Orders({ search }: { search: string }) {
               ? view.order.payment === "paid"
               : ["unpaid", "pending"].includes(view.order.payment))),
     ) ?? [];
-  const lead = snapshot ? ordersLead(current) : undefined;
+  const orderMissing = Boolean(
+    selected && snapshot && snapshot.orders.length > 0 && !current,
+  );
+  const lead = snapshot
+    ? ordersLead(current ?? (orderMissing ? undefined : snapshot.orders[0]))
+    : undefined;
 
   async function run(
     action: string,
@@ -236,7 +241,18 @@ export function Orders({ search }: { search: string }) {
       {snapshot && lead && (
         <section className="or-next" aria-labelledby="or-next-title">
           <p className="or-kicker">Next</p>
-          {lead.kind === "empty" ? (
+          {orderMissing ? (
+            <>
+              <h2 id="or-next-title">Order not found</h2>
+              <p className="or-lead-state">
+                Not in this workspace, account or environment
+              </p>
+              <p>
+                The shared link points at an order this installation cannot
+                read. Choose one of the saved orders in the list instead.
+              </p>
+            </>
+          ) : lead.kind === "empty" ? (
             <>
               <h2 id="or-next-title">No orders yet</h2>
               <p className="or-lead-state">Ready for a fictional fixture</p>
@@ -594,7 +610,9 @@ export function Orders({ search }: { search: string }) {
                         (action) =>
                           action.kind === "create-checkout" &&
                           action.state === "prepared",
-                      ) && (
+                      ) &&
+                        (current.order.payment === "unpaid" ||
+                          current.order.payment === "pending") && (
                         <button
                           type="button"
                           disabled={busy || !canWrite}
@@ -622,7 +640,12 @@ export function Orders({ search }: { search: string }) {
                       )}
                       {current.order.payment === "paid" &&
                         current.order.fulfilmentOwner === "composer-printful" &&
-                        current.order.fulfilment === "not-requested" && (
+                        current.order.fulfilment === "not-requested" &&
+                        !current.actions.some(
+                          (action) =>
+                            action.kind === "create-checkout" &&
+                            action.state === "unknown",
+                        ) && (
                           <button
                             type="button"
                             disabled={busy || !canWrite}

@@ -69,6 +69,24 @@ test('an exported stack round-trips into a new draft and states its exact scope'
   }
 });
 
+test('a maximum-length name still receives a distinct share address', async () => {
+  const db = sqliteD1();
+  try {
+    const space = await workspaceForUser(db, alice);
+    const long = 'a'.repeat(40);
+    const created = await createStack(db, space.id, long);
+    const exported = exportStack(created);
+    const first = await importStack(db, space.id, exported);
+    const second = await importStack(db, space.id, exported);
+    assert.notEqual(first.slug, created.slug);
+    assert.notEqual(second.slug, first.slug);
+    assert.ok(first.slug.length <= 40);
+    assert.ok(second.slug.length <= 40);
+  } finally {
+    db.cleanup();
+  }
+});
+
 test('a tampered or foreign import file is refused before anything is written', async () => {
   const db = sqliteD1();
   try {

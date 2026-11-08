@@ -1421,3 +1421,52 @@ test("CLI journey records the decision and refuses execute or self-approval", as
   assert.equal(handoff.artifact.execution, "not-performed");
   assert.equal(handoff.artifact.digest, v2.digest);
 });
+
+test("an older duplicate digest is refused instead of returning the newer version", async (t) => {
+  const f = await prepared(t);
+  const first = (await f.submit()).view;
+  await f.review(first, "request-changes");
+  const second = (
+    await f.submit(
+      {
+        proposal: first.id,
+        change: { ...change, summary: "A different reviewable change." },
+      },
+      LATER,
+    )
+  ).view;
+  assert.equal(second.version, 2);
+  await assert.rejects(f.submit({}, LATER), code("SUPERSEDED"));
+});
+
+test("a review decision is not retained when the proposal changes before its batch", async (t) => {
+  const f = await prepared(t);
+  const first = (await f.submit()).view;
+  let injected = false;
+  f.beforeBatch(async () => {
+    if (injected) return;
+    injected = true;
+    f.beforeBatch(undefined);
+    await f.submit(
+      {
+        proposal: first.id,
+        change: { ...change, summary: "A revision that arrived first." },
+      },
+      LATER,
+    );
+  });
+  await assert.rejects(f.review(first), code("CONFLICT"));
+  assert.equal(
+    f.sqlite
+      .prepare("SELECT COUNT(*) AS n FROM creator_agent_proposal_reviews")
+      .get().n,
+    0,
+  );
+  assert.equal(
+    f.sqlite
+      .prepare("SELECT state FROM creator_agent_proposals WHERE id=?")
+      .get(first.id).state,
+    "submitted",
+  );
+});
+

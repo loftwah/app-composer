@@ -460,12 +460,13 @@ export async function changeWorkspaceAccess(
       db,
       command.workspace,
       command.expectedRevision,
-      `${ownerGuard} AND EXISTS(SELECT 1 FROM creator_workspace_invitations WHERE id=? AND workspace_id=? AND revision=? AND status='pending')`,
+      `${ownerGuard} AND EXISTS(SELECT 1 FROM creator_workspace_invitations WHERE id=? AND workspace_id=? AND revision=? AND status='pending' AND expires_at>?)`,
       [
         ...ownerValues,
         command.invitation,
         command.workspace,
         command.invitationRevision,
+        now,
       ],
       (condition, values) => [
         db

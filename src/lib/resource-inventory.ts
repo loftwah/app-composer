@@ -342,6 +342,10 @@ export async function readResourceInventory(
     const expected = await expectedConfiguration(row, bound, installedSource);
     const pinned: number[] = [];
     for (const binding of bound) {
+      // A retained publication on a draft or archived stack is history, not a
+      // live public page. Counting it would report configuration drift for a
+      // page that no longer exists.
+      if (binding.stack_status !== "published") continue;
       const published = parseDocument(binding.published_json);
       const instance = published?.instances.find(
         (entry) => entry.id === binding.instance_id,

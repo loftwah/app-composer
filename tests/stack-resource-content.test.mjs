@@ -65,6 +65,49 @@ const change = (p, patch = {}) => ({
 const post = (f, p, value) =>
   f.route({ action: "moderateResource", ...p.selection, change: value });
 
+test("publishing refuses a configuration confirmed against an older app source", async () => {
+  const f = fixture();
+  const original = appSettings.guestbook.source.commit;
+  try {
+    const p = await prepared(f);
+    const next = "e".repeat(40);
+    appSettings.guestbook.source.commit = next;
+    f.app.source(next);
+    const refused = await f.route({ action: "publish", ...p.selection });
+    assert.equal(refused.ok, false);
+    assert.equal(refused.code, "CONFLICT");
+    assert.match(refused.message, /app source|Apply/i);
+  } finally {
+    appSettings.guestbook.source.commit = original;
+    f.close();
+  }
+});
+
+test("a refused content moderation leaves the applied configuration publishable", async () => {
+  const f = fixture();
+  try {
+    const p = await prepared(f);
+    const published = await f.route({ action: "publish", ...p.selection });
+    assert.equal(published.ok, true, published.message);
+    p.selection.expectedRevision = published.stack.revision;
+    const refused = await post(
+      f,
+      p,
+      change(p, { itemRevision: 99, status: "approved" }),
+    );
+    assert.equal(refused.outcome, "refused");
+    const row = f.sqlite
+      .prepare("SELECT state FROM creator_app_resources WHERE id=?")
+      .get(p.resource);
+    assert.equal(row.state, "ready");
+    p.selection.expectedRevision = refused.stack.revision;
+    const again = await f.route({ action: "publish", ...p.selection });
+    assert.equal(again.ok, true, again.message);
+  } finally {
+    f.close();
+  }
+});
+
 test("native content reads and private PNG use only the saved selected binding; viewer and foreign scope are refused", async () => {
   const f = fixture();
   try {

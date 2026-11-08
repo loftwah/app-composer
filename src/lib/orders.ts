@@ -331,6 +331,19 @@ async function applyFixture(
     .bind(row.id, workspace)
     .first<ActionRow>();
   confirmCheckout(order, checkout ? [checkout] : []);
+  // A checkout cannot become uncertain after its payment was already
+  // established, and fulfilment cannot be prepared against an unknown
+  // checkout. Both would write a chronologically impossible state.
+  if (
+    command.action === "timeout-fixture" &&
+    order.payment !== "unpaid" &&
+    order.payment !== "pending"
+  )
+    throw new StackError(
+      "CONFLICT",
+      "Only a checkout that has not concluded can become uncertain. Reconcile or prepare the retained action instead.",
+      409,
+    );
   if (
     order.proof !== "fixture" ||
     order.environment !== "fixture" ||
@@ -405,11 +418,18 @@ async function applyFixture(
     if (command.action === "prepare-fixture-draft") {
       if (
         order.payment !== "paid" ||
-        order.fulfilmentOwner !== "composer-printful"
+        order.fulfilmentOwner !== "composer-printful" ||
+        order.fulfilment !== "not-requested"
       )
         throw new StackError(
           "INVALID",
-          "A Composer fulfilment draft needs a paid fixture and explicit Composer–Printful ownership. Shopify-native fulfilment must not be submitted a second time.",
+          "A Composer fulfilment draft needs a paid fixture, an unstarted fulfilment and explicit Composer–Printful ownership. Shopify-native fulfilment must not be submitted a second time.",
+        );
+      if (checkout?.state === "unknown")
+        throw new StackError(
+          "CONFLICT",
+          "Reconcile the existing checkout before preparing fulfilment. An uncertain checkout may already have charged.",
+          409,
         );
       next = orderDocument.parse({ ...order, fulfilment: "draft" });
       if (!action)

@@ -544,13 +544,14 @@ export function InboxJourneyPanel({
         expectedRevision: journey.notificationPreference.revision,
       });
       if (!live.current) return;
+      pending.current = false;
+      await load();
+      if (!live.current) return;
       setMessage(
         enabled
           ? "New enquiries will be queued for an owner notice. Sending stays separate."
           : "New enquiries will not be queued for an owner notice.",
       );
-      pending.current = false;
-      await load();
     } catch (cause) {
       if (live.current)
         setError(

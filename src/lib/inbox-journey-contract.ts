@@ -192,28 +192,28 @@ export const enquiryLabels: Record<z.infer<typeof enquiryStates>, string> = {
   rejected: "Rejected",
 };
 
-// A read returns the whole journey; a write returns only a status envelope.
-// Validating a read with the write envelope rejected every real journey
-// ("Unrecognized keys: version, workspace, …") and surfaced Zod's JSON to the
-// owner. Keep the two shapes separate and never rethrow a schema dump.
-const envelope = z
-  .object({ ok: z.boolean(), message: z.string().max(400).optional() })
-  .strict();
+// Both a journey read/write and the notification-preference write return an
+// `ok` status. Reads and journey writes also carry the full refreshed journey;
+// status fields are validated here and the journey payload separately.
+const status = z.object({
+  ok: z.boolean(),
+  code: z.string().max(40).optional(),
+  message: z.string().max(400).optional(),
+});
 
 const unreadable =
   "The enquiry journey response did not match the supported contract. Refresh before another action.";
 
 /** The supported status of one journey request, read or write. */
 export function journeyResponse(raw: unknown, writing: boolean): { ok: boolean; message?: string } {
-  if (writing) {
-    const parsed = envelope.safeParse(raw);
-    if (!parsed.success) throw new Error(unreadable);
-    return parsed.data;
-  }
-  if (!raw || typeof raw !== "object" || (raw as { ok?: unknown }).ok !== true)
-    throw new Error("The enquiry journey request was refused.");
-  const parsed = inboxJourney.safeParse(raw);
+  if (!raw || typeof raw !== "object" || Array.isArray(raw))
+    throw new Error(unreadable);
+  const parsed = status.safeParse(raw);
   if (!parsed.success) throw new Error(unreadable);
+  if (!parsed.data.ok)
+    return { ok: false, message: parsed.data.message };
+  if (writing) return { ok: true };
+  if (!inboxJourney.safeParse(raw).success) throw new Error(unreadable);
   return { ok: true };
 }
 

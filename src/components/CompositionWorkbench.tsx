@@ -222,6 +222,7 @@ export default function CompositionWorkbench({
       transfer(() => dispatch(action));
     else dispatch(action);
     if (text) setMessage(text);
+    else if (action.type !== "inspect" && action.type !== "select") setMessage("");
   };
   useEffect(() => {
     try {

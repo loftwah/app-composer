@@ -252,6 +252,12 @@ export function slugify(name) {
         throw new StackError("INVALID", "Choose a name with at least one letter or number.");
     return slug;
 }
+// Reserve the collision suffix before truncating so a maximum-length name can
+// still receive a distinct slug.
+function collisionSlug(slug) {
+    const suffix = "-" + crypto.randomUUID().slice(0, 4);
+    return (slug.slice(0, LIMITS.slug - suffix.length).replace(/-+$/g, "") + suffix);
+}
 // Validate and normalise a whole stack document. Unknown apps, duplicate
 // instance ids, unsupported fields, out-of-range values and undeclared settings
 // are refused before anything is written.
@@ -465,7 +471,7 @@ export async function importStack(db, workspaceId, payload, { name, actor = null
         .prepare("SELECT id FROM creator_stacks WHERE slug = ?")
         .bind(slug)
         .first())
-        slug = (slug + "-" + crypto.randomUUID().slice(0, 4)).slice(0, LIMITS.slug);
+        slug = collisionSlug(slug);
     const document = freshInstanceIdentities({
         ...normaliseStack(payload.document),
         name: chosen,
@@ -901,7 +907,7 @@ export async function duplicateStack(db, workspaceId, stackId, expectedRevision,
         .prepare("SELECT id FROM creator_stacks WHERE slug = ?")
         .bind(slug)
         .first())
-        slug = slug + "-" + crypto.randomUUID().slice(0, 4);
+        slug = collisionSlug(slug);
     const id = crypto.randomUUID();
     // Fresh identities, but the reuse relationships are preserved so a duplicated
     // stack keeps the same shared-versus-independent structure.

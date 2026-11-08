@@ -11,6 +11,7 @@ import {
   recordEnquiryEvent,
 } from "../src/lib/inbox-journey.ts";
 import { queueEnquiryNotification } from "../src/lib/enquiry-notifications.ts";
+import { journeyResponse } from "../src/lib/inbox-journey-contract.ts";
 
 const source = appSettings.guestbook.source.commit;
 const owner = {
@@ -256,6 +257,50 @@ test("new enquiry starts queued with unconfigured delivery and a single next act
   assert.equal(read.timezone, "UTC");
 });
 
+test("a journey write returns the refreshed journey, not a short envelope", async (t) => {
+  const f = await prepared(t);
+  await recordEnquiryEvent(f.db, f.scope, f.item().id);
+  f.link();
+  const written = await process(f);
+  assert.equal(written.ok, true, written.message);
+  // The panel passes every write through the same status check as a read.
+  // Treating the full journey as an envelope rejected a successful process.
+  assert.deepEqual(journeyResponse(written, true), { ok: true });
+  assert.equal(journeyResponse(written, false).ok, true);
+  assert.equal(
+    journeyResponse(
+      { ok: false, code: "CONFLICT", message: "Already accepted." },
+      true,
+    ).message,
+    "Already accepted.",
+  );
+});
+
+test("reconciliation stays readable when its retained counter reaches the contract limit", async (t) => {
+  const f = await prepared(t, { status: "reviewed" });
+  await f.enable();
+  await recordEnquiryEvent(f.db, f.scope, f.item().id);
+  f.link();
+  await process(f);
+  const failed = await send(f, async () => {
+    throw Error("Provider timeout");
+  });
+  assert.equal(failed.ok, true, failed.message);
+  assert.equal(failed.delivery.state, "uncertain");
+  f.sqlite
+    .prepare(
+      "UPDATE creator_enquiry_notification_outbox SET reconciliations=100 WHERE workspace_id=?",
+    )
+    .run(f.workspace.id);
+  const reconciled = await reconcile(f);
+  assert.equal(reconciled.ok, true, reconciled.message);
+  assert.equal(reconciled.delivery.reconciliations, 100);
+  // A later read must not fail the whole journey contract.
+  const read = await f.journey();
+  assert.equal(read.ok, true, read.message);
+  assert.equal(read.delivery.reconciliations, 100);
+});
+
 test("processing with notifications off finishes without a notice, provider or retry loop", async (t) => {
   const f = await prepared(t);
   await recordEnquiryEvent(f.db, f.scope, f.item().id);
@@ -279,6 +324,14 @@ test("processing with notifications off finishes without a notice, provider or r
   assert.equal(duplicate.workflow.attempts, 1);
   assert.equal(duplicate.workflow.revision, processed.workflow.revision);
   assert.equal(duplicate.next.kind, "review");
+  // Enabling notifications later must not leave the finished run with no path.
+  await f.enable();
+  const preparedNotice = await process(f);
+  assert.equal(preparedNotice.ok, true, preparedNotice.message);
+  assert.equal(preparedNotice.workflow.attempts, 2);
+  assert.notEqual(preparedNotice.workflow.outboxId, null);
+  assert.equal(preparedNotice.delivery.state, "ready");
+  assert.equal(preparedNotice.next.kind, "send");
 });
 
 test("a prepared notice with owner mail unavailable stays unconfigured and offers no send", async (t) => {
@@ -308,6 +361,13 @@ test("a prepared notice with owner mail unavailable stays unconfigured and offer
       .get().state,
     "blocked",
   );
+  // Configuring mail later makes the retained notice sendable again.
+  const recovered = await f.journey();
+  assert.equal(recovered.delivery.state, "ready");
+  assert.equal(recovered.next.kind, "send");
+  const sent = await send(f, async () => accepted());
+  assert.equal(sent.ok, true, sent.message);
+  assert.equal(sent.delivery.state, "accepted");
 });
 
 test("duplicate events keep one run and one outbox row; processing prepares a ready notice", async (t) => {
@@ -350,6 +410,16 @@ test("duplicate events keep one run and one outbox row; processing prepares a re
     JSON.stringify(processed),
     new RegExp(recipient.replace(".", "\\.") + "|fictional-key"),
   );
+  // A paused preference cannot leave a primary send action that the server
+  // refuses; the retained notice waits for notifications to be enabled again.
+  f.sqlite
+    .prepare(
+      "UPDATE creator_enquiry_notification_preferences SET enabled=0 WHERE workspace_id=?",
+    )
+    .run(f.workspace.id);
+  const paused = await f.journey();
+  assert.equal(paused.delivery.state, "unconfigured");
+  assert.notEqual(paused.next.kind, "send");
 });
 
 test("attempted to accepted records provider identity once and refuses every later resend", async (t) => {

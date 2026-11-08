@@ -22,6 +22,7 @@ export default function MyApps() {
   const [account, setAccount] = useState<MemberSession>();
   const [selected, setSelected] = useState("");
   const [snapshot, setSnapshot] = useState<Profile>();
+  const [profileUnavailable, setProfileUnavailable] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("Checking your EmDash session…");
@@ -56,7 +57,12 @@ export default function MyApps() {
       ? next.workspaces.find((w) => w.id === id)
       : next.workspaces[0];
     scope.current = workspace?.id ?? "";
+    if (scope.current !== selected) {
+      setSnapshot(undefined);
+      dirty.current = false;
+    }
     setSelected(scope.current);
+    setProfileUnavailable(false);
     if (!workspace) {
       setSnapshot(undefined);
       if (id)
@@ -89,6 +95,7 @@ export default function MyApps() {
           g.action === "create",
       );
     if (!grant) {
+      setProfileUnavailable(false);
       setSnapshot(undefined);
       setStatus(
         next.grants.some(
@@ -102,12 +109,22 @@ export default function MyApps() {
       );
       return;
     }
-    const response = await memberCall("profile", {
-      workspace: workspace.id,
-      operation: "read",
-      expectedActor: actorConstraint(next),
-      ...(grant.resource !== "new-profile" ? { resource: grant.resource } : {}),
-    });
+    setProfileUnavailable(false);
+    let response: Record<string, unknown>;
+    try {
+      response = await memberCall("profile", {
+        workspace: workspace.id,
+        operation: "read",
+        expectedActor: actorConstraint(next),
+        ...(grant.resource !== "new-profile"
+          ? { resource: grant.resource }
+          : {}),
+      });
+    } catch (cause) {
+      if (live.current && mine === generation.current)
+        setProfileUnavailable(true);
+      throw cause;
+    }
     const confirmed = await memberSession();
     if (!live.current || mine !== generation.current) return;
     if (!sameAccount(next, confirmed)) {
@@ -428,13 +445,13 @@ export default function MyApps() {
                   appDrafts.current,
                 )
               ) {
+                event.currentTarget.value = selected;
                 setError(
                   "Finish or check the current profile, application request or contribution before changing workspace. Your entries and operation identities are retained.",
                 );
                 return;
               }
               const id = event.target.value;
-              setSnapshot(undefined);
               void execute(() => load(id, view !== "platform"));
             }}
           >
@@ -491,6 +508,20 @@ export default function MyApps() {
               dirty.current = value;
             }}
           />
+        ) : profileUnavailable && selected ? (
+          <section>
+            <h2>Your profile could not be loaded</h2>
+            <p>
+              The workspace is selected, but its profile read did not confirm.
+              This is not a zero-profile result and no access was changed.
+            </p>
+            <button
+              disabled={busy}
+              onClick={() => void execute(() => load(selected, true))}
+            >
+              Retry the profile read
+            </button>
+          </section>
         ) : (
           selected && (
             <section>

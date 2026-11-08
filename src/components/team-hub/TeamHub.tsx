@@ -589,6 +589,14 @@ export default function TeamHub() {
                             }
                           >
                             <option value="">Unassigned</option>
+                            {form.assignee &&
+                              !appMembers.some(
+                                (person) => person.id === form.assignee,
+                              ) && (
+                                <option value={form.assignee}>
+                                  Former member · retained assignment
+                                </option>
+                              )}
                             {appMembers.map((person) => (
                               <option key={person.id} value={person.id}>
                                 {person.name ?? "Team member"}

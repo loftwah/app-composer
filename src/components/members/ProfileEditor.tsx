@@ -283,7 +283,14 @@ export default function ProfileEditor({
             className="member-preview"
             aria-label="Unsaved profile preview"
           >
-            <p className="member-state">Preview · your edits · not published</p>
+            <p className="member-state">
+              Preview ·{" "}
+              {dirty
+                ? "unsaved edits · not public"
+                : snapshot.visibility === "published"
+                  ? "published profile · public"
+                  : "saved draft · not public"}
+            </p>
             <h2>{config.title}</h2>
             <p>@{config.handle}</p>
             <p>{config.intro}</p>
@@ -452,7 +459,11 @@ export default function ProfileEditor({
             disabled={
               busy || dirty || !canPublish || !snapshot.draft.config.handle
             }
-            onClick={() => void act("publish")}
+            onClick={() =>
+              void act("publish").then((saved) => {
+                if (saved) setPreview(false);
+              })
+            }
           >
             Publish saved profile
           </button>

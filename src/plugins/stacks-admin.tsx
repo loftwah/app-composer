@@ -558,6 +558,18 @@ function WorkspaceStudio({ search }: { search: string }) {
         ]);
       }
       setResources(data.resources ?? []);
+      // The selected resource is now this instance's own binding and is filtered
+      // out of the options. Never retain it as a pending choice.
+      const reusedInstance = fields.instance;
+      if (
+        action === "reuseResource" &&
+        data.outcome === "applied" &&
+        typeof reusedInstance === "string"
+      )
+        setReuseChoices((choices) => ({
+          ...choices,
+          [reusedInstance]: "",
+        }));
       const uncertain =
         data.outcome === "unknown" ||
         data.problems?.some((problem) => problem.outcome === "unknown") ||
@@ -869,7 +881,7 @@ function WorkspaceStudio({ search }: { search: string }) {
             ? "Unsaved edits"
             : lead?.kind === "draft"
               ? lead.stack.publishedRevision
-                ? `Saved draft · public revision ${lead.stack.publishedRevision}`
+                ? `Saved draft · last published revision ${lead.stack.publishedRevision}`
                 : "Saved draft · not published"
               : lead?.kind === "published"
                 ? `Public revision ${lead.stack.publishedRevision}`
@@ -985,7 +997,9 @@ function WorkspaceStudio({ search }: { search: string }) {
                 </strong>
               </span>
               <span>
-                Public revision{" "}
+                {lead.stack.status === "published"
+                  ? "Public revision"
+                  : "Last published revision"}{" "}
                 <strong>
                   {lead.stack.publishedRevision ?? "Not published"}
                 </strong>
@@ -1034,6 +1048,7 @@ function WorkspaceStudio({ search }: { search: string }) {
               )}
             {lead.kind === "read-only" &&
               lead.stack &&
+              lead.stack.status === "published" &&
               lead.stack.publishedRevision !== null && (
                 <a
                   className="ca-task-primary"
@@ -1177,7 +1192,9 @@ function WorkspaceStudio({ search }: { search: string }) {
                     ? `Unsaved edits on top of revision ${session.current.revision}`
                     : `Saved revision ${session.current.revision}`}
                   {current.publishedRevision
-                    ? ` · public revision ${current.publishedRevision}`
+                    ? current.status === "published"
+                      ? ` · public revision ${current.publishedRevision}`
+                      : ` · last published revision ${current.publishedRevision}`
                     : " · not published"}
                 </span>
               </div>
@@ -1890,7 +1907,8 @@ function WorkspaceStudio({ search }: { search: string }) {
                       <li key={publication.revision}>
                         <span>
                           Revision {publication.revision}
-                          {publication.revision === current.publishedRevision
+                          {current.status === "published" &&
+                          publication.revision === current.publishedRevision
                             ? " · public now"
                             : ""}
                           <small> {publication.publishedAt}</small>
@@ -1901,8 +1919,9 @@ function WorkspaceStudio({ search }: { search: string }) {
                               type="button"
                               disabled={
                                 busy ||
-                                publication.revision ===
-                                  current.publishedRevision
+                                (current.status === "published" &&
+                                  publication.revision ===
+                                    current.publishedRevision)
                               }
                               onClick={() =>
                                 void rollback(
@@ -1974,7 +1993,9 @@ function WorkspaceStudio({ search }: { search: string }) {
             <div className="ca-resource-note">
               <h2>Share and ownership</h2>
               <p>
-                Public address:{" "}
+                {current.status === "published"
+                  ? "Public address:"
+                  : "Share address (live only while published):"}{" "}
                 <a href={shareUrl} target="_blank" rel="noopener noreferrer">
                   {shareUrl} ↗
                 </a>

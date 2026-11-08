@@ -1408,6 +1408,17 @@ export async function submitAgentProposal(
         "The duplicate proposal record is incomplete.",
         409,
       );
+    // Versions are historical. Only the proposal's current version may answer
+    // a duplicate digest; an older match means the exact content was already
+    // submitted and later revised. Returning the newer version would silently
+    // alias two different changes.
+    const current = await versionRow(db, row.id, row.current_version);
+    if (!current || current.digest !== digest)
+      fail(
+        "SUPERSEDED",
+        "This exact change was already submitted and has since been revised. Open a new briefing or revise the current proposal.",
+        409,
+      );
     return { view: await buildView(db, row, now), deduplicated: true };
   }
   let proposalId: string;
@@ -1740,10 +1751,10 @@ export async function reviewAgentProposal(
   const reviewId = crypto.randomUUID();
   const accepted = command.decision === "accept";
   try {
-    await db.batch([
+    const results = await db.batch([
       db
         .prepare(
-          "INSERT INTO creator_agent_proposal_reviews (id,proposal_id,version,digest,decision,actor_id,actor_name,reason,created_at) VALUES (?,?,?,?,?,?,?,?,?)",
+          "INSERT INTO creator_agent_proposal_reviews (id,proposal_id,version,digest,decision,actor_id,actor_name,reason,created_at) SELECT ?,?,?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM creator_agent_proposals WHERE id=? AND workspace_id=? AND current_version=? AND digest=?)",
         )
         .bind(
           reviewId,
@@ -1755,6 +1766,10 @@ export async function reviewAgentProposal(
           command.actor.name,
           command.reason,
           now,
+          row.id,
+          row.workspace_id,
+          row.current_version,
+          recomputed,
         ),
       db
         .prepare(
@@ -1781,6 +1796,12 @@ export async function reviewAgentProposal(
             : [now, row.id, row.workspace_id, row.current_version, recomputed]),
         ),
     ]);
+    if (results[1]?.meta && results[1].meta.changes === 0)
+      fail(
+        "CONFLICT",
+        "The proposal changed while it was reviewed. Refresh before retrying.",
+        409,
+      );
   } catch (error) {
     if (error instanceof Error && /UNIQUE|constraint/i.test(error.message))
       fail(

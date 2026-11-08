@@ -181,7 +181,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
     };
   }, []);
   async function run(task: () => Promise<void>) {
-    if (pending.current || detailBusy) return;
+    if (pending.current) return;
     pending.current = true;
     setBusy(true);
     setError("");
@@ -393,12 +393,18 @@ function WorkspaceEnquiries({ search }: { search: string }) {
         .strict()
         .parse(raw);
       checkOperation(reply.result, hold);
-      if (!live.current) return;
       retain(undefined);
+      if (!live.current) return;
       setMessage(
         "The app confirmed this private change. No notification or publication was sent.",
       );
-      await loadInbox();
+      try {
+        await loadInbox();
+      } catch {
+        setError(
+          "The app confirmed this private change, but the inbox could not be refreshed. Refresh it before another change.",
+        );
+      }
       await loadSummary();
     } catch (cause) {
       throw Error(

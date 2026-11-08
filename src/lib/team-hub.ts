@@ -448,8 +448,21 @@ export async function manageTeamHub(
       condition =
         "EXISTS(SELECT 1 FROM team_hub_spaces WHERE scope=? AND operation_id=?)";
     let currentGuard = "",
-      currentArgs: (string | number)[] = [];
+      currentArgs: (string | number)[] = [],
+      save: ReturnType<typeof teamHubRequest.parse> | undefined;
     if (input.action === "save") {
+      save = teamHubRequest.parse(input.request);
+      const existing = await db
+        .prepare(
+          "SELECT revision,assignee_id FROM team_hub_requests WHERE scope=? AND id=?",
+        )
+        .bind(scope, input.id)
+        .first<{ revision: number; assignee_id: string | null }>();
+      if ((existing?.revision ?? 0) !== input.expectedRequestRevision)
+        throw new HubError(
+          "CONFLICT",
+          "That request has changed. Reload its saved version before editing.",
+        );
       currentGuard +=
         " AND COALESCE((SELECT revision FROM team_hub_requests WHERE scope=? AND id=?),0)=?";
       currentArgs.push(scope, input.id, input.expectedRequestRevision);
@@ -458,11 +471,24 @@ export async function manageTeamHub(
           " AND (SELECT COUNT(*) FROM team_hub_requests WHERE scope=?)<40";
         currentArgs.push(scope);
       }
-      if (input.request.assignee) {
+      // A retained assignment to a former member stays valid. Only a new
+      // assignee must be a current contributor; otherwise a revoked grant
+      // makes the request impossible to edit or close.
+      if (save.assignee && save.assignee !== existing?.assignee_id) {
+        await principal(db, workspace, save.assignee);
+        if (
+          !(await grants(db, workspace, save.assignee, environment)).some(
+            (grant) => grant.action === "contribute",
+          )
+        )
+          throw new HubError(
+            "FORBIDDEN",
+            "Assign this action to a current app member.",
+          );
         currentGuard += ` AND EXISTS(SELECT 1 FROM creator_members m JOIN users u ON u.id=m.user_id JOIN creator_app_grants g ON g.workspace_id=m.workspace_id AND g.user_id=m.user_id WHERE m.workspace_id=? AND m.user_id=? AND u.disabled=0 AND g.issuer=? AND g.app='team-hub' AND g.resource_id=? AND g.action='contribute' AND g.status='active')`;
         currentArgs.push(
           workspace,
-          input.request.assignee,
+          save.assignee,
           issuer,
           resource(environment),
         );
@@ -503,7 +529,7 @@ export async function manageTeamHub(
     let requestId: string | null = null,
       memberId: string | null = null;
     if (input.action === "save") {
-      const data = teamHubRequest.parse(input.request);
+      const data = save!;
       if (
         data.attachment &&
         new TextEncoder().encode(data.attachment.text).length > 16000
@@ -511,29 +537,6 @@ export async function manageTeamHub(
         throw new HubError(
           "INVALID",
           "Attach a plain-text file smaller than 16 KB.",
-        );
-      if (data.assignee) {
-        await principal(db, workspace, data.assignee);
-        if (
-          !(await grants(db, workspace, data.assignee, environment)).some(
-            (grant) => grant.action === "contribute",
-          )
-        )
-          throw new HubError(
-            "FORBIDDEN",
-            "Assign this action to a current app member.",
-          );
-      }
-      const existing = await db
-        .prepare(
-          "SELECT revision FROM team_hub_requests WHERE scope=? AND id=?",
-        )
-        .bind(scope, input.id)
-        .first<{ revision: number }>();
-      if ((existing?.revision ?? 0) !== input.expectedRequestRevision)
-        throw new HubError(
-          "CONFLICT",
-          "That request has changed. Reload its saved version before editing.",
         );
       const rev = input.expectedRequestRevision + 1,
         attachment = data.attachment ? JSON.stringify(data.attachment) : null;

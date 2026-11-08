@@ -371,6 +371,49 @@ test("pending invitations are recipient-bound one-time grants within the existin
   }
 });
 
+test("an expired invitation cannot be relabelled as revoked", async () => {
+  const f = fixture();
+  try {
+    const space = await workspaceForUser(f.db, owner);
+    const acceptance = await invite(f, space.id, editor);
+    f.sqlite
+      .prepare(
+        "UPDATE creator_workspace_invitations SET expires_at=? WHERE id=?",
+      )
+      .run(Date.now() - 1000, acceptance.invitation);
+    const opened = await f.route(
+      owner,
+      { action: "open", workspace: space.id },
+      true,
+    );
+    assert.equal(opened.access.invitations[0].status, "expired");
+    await assert.rejects(
+      () =>
+        changeWorkspaceAccess(
+          f.db,
+          owner,
+          {
+            action: "revokeInvitation",
+            workspace: space.id,
+            expectedRevision: opened.access.workspace.revision,
+            invitation: acceptance.invitation,
+            invitationRevision: acceptance.invitationRevision,
+          },
+          Date.now(),
+        ),
+      (error) => error.code === "CONFLICT",
+    );
+    assert.equal(
+      f.sqlite
+        .prepare("SELECT status FROM creator_workspace_invitations WHERE id=?")
+        .get(acceptance.invitation).status,
+      "pending",
+    );
+  } finally {
+    f.close();
+  }
+});
+
 test("expired, revoked and stale invitation snapshots never grant membership or rewrite another grant", async () => {
   const f = fixture();
   try {

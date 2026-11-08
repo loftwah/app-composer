@@ -105,6 +105,17 @@ export default function GuestbookTools({
   const membersOnly = grants.some(
     (g) => g.resource === selected && g.contributions === "members",
   );
+  // A grant change can remove the selected visitor book without remounting this
+  // panel. Fall back to the first current book so the controls never keep a
+  // silently dangling selection.
+  useEffect(() => {
+    if (resources.includes(selected)) return;
+    generation.current++;
+    setSelected(resources[0] ?? "");
+    setList(undefined);
+    setStatus("");
+    setError("");
+  }, [resources.join("|"), selected]);
   useEffect(() => {
     const changed = busy || uncertain || !!message.trim();
     dirtyChanged?.(changed);

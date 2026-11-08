@@ -96,10 +96,7 @@ export default function People() {
         "The signed-in account changed while access was loading. Refresh before managing people.",
       );
     }
-    setData({
-      ...parsed,
-      grants: parsed.grants.filter((g) => g.status !== "revoked"),
-    });
+    setData(parsed);
     setStatus("");
   };
   useEffect(() => {
@@ -430,31 +427,34 @@ export default function People() {
                           : (data.resources.find(
                               (book) => book.id === g.resource,
                             )?.name ?? "Selected visitor book")}
+                        {g.status === "revoked" ? " · revoked" : ""}
                       </p>
                     </div>
-                    <button
-                      disabled={busy}
-                      onClick={() =>
-                        void run(async () => {
-                          await memberCall("revoke", {
-                            expectedActor: actorConstraint(account!),
-                            workspace: selected,
-                            expectedRevision: data.workspace.revision,
-                            member: g.member,
-                            app: g.app,
-                            resource: g.resource,
-                            capability: g.action,
-                            expectedGrantRevision: g.revision,
-                          });
-                          await load();
-                          setStatus(
-                            "Permission revoked. The next protected action is denied. Profile access and app content remain governed by their other permissions.",
-                          );
-                        })
-                      }
-                    >
-                      Revoke {g.action}
-                    </button>
+                    {g.status !== "revoked" && (
+                      <button
+                        disabled={busy}
+                        onClick={() =>
+                          void run(async () => {
+                            await memberCall("revoke", {
+                              expectedActor: actorConstraint(account!),
+                              workspace: selected,
+                              expectedRevision: data.workspace.revision,
+                              member: g.member,
+                              app: g.app,
+                              resource: g.resource,
+                              capability: g.action,
+                              expectedGrantRevision: g.revision,
+                            });
+                            await load();
+                            setStatus(
+                              "Permission revoked. The next protected action is denied. Profile access and app content remain governed by their other permissions.",
+                            );
+                          })
+                        }
+                      >
+                        Revoke {g.action}
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>

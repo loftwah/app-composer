@@ -142,19 +142,29 @@ async function unfinished(db: D1Database, resource: string): Promise<OperationRo
 
 async function record(ctx: MutationContext, operation: OperationRow, outcome: RemoteOutcome) {
   const reply = outcome.reply, configuration = reply?.configuration;
-  const active = ['activate', 'moderate', 'control'].includes(operation.action) && configuration;
-  await change(ctx, (condition, values) => [
-    ctx.db.prepare(`UPDATE creator_resource_operations SET state=?,result_json=? WHERE id=? AND ${condition}`)
-      .bind(outcome.outcome === 'applied' ? 'confirmed' : outcome.outcome, reply ? JSON.stringify(reply) : null, operation.id, ...values),
-    ctx.db.prepare(`UPDATE creator_app_resources SET state=?,version=COALESCE(?,version),
-      configuration_revision=COALESCE(?,configuration_revision),configuration_digest=COALESCE(?,configuration_digest),
-      configuration_source=COALESCE(?,configuration_source),configuration_json=COALESCE(?,configuration_json)
-      WHERE id=? AND version<=COALESCE(?,version) AND ${condition}`)
-      .bind(outcome.outcome === 'applied' ? (active ? 'ready' : 'reserved') : outcome.outcome,
-        reply?.resource.version ?? null, active ? configuration.revision : null, active ? configuration.digest : null,
-        active ? configuration.source : null, active ? JSON.stringify(configuration.values) : null,
-        operation.resource_id, reply?.resource.version ?? null, ...values),
-  ]);
+  const active = configuration ? configuration : null;
+  // Content and control writes do not change the publishable configuration.
+  // Their outcome belongs to the operation journal; writing it into the
+  // resource state made a refused moderation look like a refused
+  // configuration and blocked publishing.
+  const configuring = ['create', 'stage', 'activate'].includes(operation.action);
+  await change(ctx, (condition, values) => {
+    const statements = [
+      ctx.db.prepare(`UPDATE creator_resource_operations SET state=?,result_json=? WHERE id=? AND ${condition}`)
+        .bind(outcome.outcome === 'applied' ? 'confirmed' : outcome.outcome, reply ? JSON.stringify(reply) : null, operation.id, ...values),
+    ];
+    if (configuring) statements.push(
+      ctx.db.prepare(`UPDATE creator_app_resources SET state=?,version=COALESCE(?,version),
+        configuration_revision=COALESCE(?,configuration_revision),configuration_digest=COALESCE(?,configuration_digest),
+        configuration_source=COALESCE(?,configuration_source),configuration_json=COALESCE(?,configuration_json)
+        WHERE id=? AND version<=COALESCE(?,version) AND ${condition}`)
+        .bind(outcome.outcome === 'applied' ? (active ? 'ready' : 'reserved') : outcome.outcome,
+          reply?.resource.version ?? null, active ? active.revision : null, active ? active.digest : null,
+          active ? active.source : null, active ? JSON.stringify(active.values) : null,
+          operation.resource_id, reply?.resource.version ?? null, ...values),
+    );
+    return statements;
+  });
   if (ctx.measureOutcomes !== false && outcome.outcome === 'applied' && operation.action === 'moderate') {
     try { await recordModerationOutcome(ctx.db, ctx.workspace, ctx.row.id, operation.id); }
     catch { /* A reporting outage cannot change the app's confirmed result. */ }
@@ -605,6 +615,13 @@ export async function resourcePublication(db: D1Database, workspace: string, sta
       sameTarget(selected, connection);
       const actual = await connection.status(selected.id);
       if (!actual.resource.visible) throw new StackError('CONFLICT', 'This Guestbook is not currently public. Review its resource controls before publishing.', 409);
+      // A configuration confirmed against an older app source is not proof for
+      // the source now serving the live page. Re-apply before exposing it.
+      if (!actual.configuration ||
+          actual.configuration.source !== connection.source ||
+          actual.configuration.revision !== selected.configuration_revision ||
+          actual.configuration.digest !== selected.configuration_digest)
+        throw new StackError('CONFLICT', 'This Guestbook was confirmed against another app source or settings. Apply its settings again before publishing.', 409);
       verified.add(selected.id);
     }
     const values = effectiveGuestbookConfiguration(JSON.parse(selected.configuration_json) as Record<string, string>);

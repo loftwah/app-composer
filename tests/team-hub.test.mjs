@@ -556,6 +556,38 @@ test("private recovery checklist saves through current request authority and kee
   );
 });
 
+test("a retained assignment to a former contributor does not block saving or closing", async (t) => {
+  const f = fixture(t);
+  let state = await enabled(f);
+  state = await share(f, state);
+  const id = crypto.randomUUID();
+  state = await f.call(users.owner, {
+    action: "save",
+    workspace: alpha,
+    expectedRevision: state.revision,
+    id,
+    expectedRequestRevision: 0,
+    request: { ...action, assignee: users.editor.id },
+  });
+  assert.equal(state.ok, true, JSON.stringify(state));
+  f.sqlite
+    .prepare(
+      "UPDATE creator_app_grants SET status='revoked',revision=revision+1 WHERE user_id=? AND app='team-hub' AND action='contribute'",
+    )
+    .run(users.editor.id);
+  const closed = await f.call(users.owner, {
+    action: "save",
+    workspace: alpha,
+    expectedRevision: state.revision,
+    id,
+    expectedRequestRevision: 1,
+    request: { ...action, assignee: users.editor.id, status: "done" },
+  });
+  assert.equal(closed.ok, true, JSON.stringify(closed));
+  assert.equal(closed.requests[0].status, "done");
+  assert.equal(closed.requests[0].assignee, users.editor.id);
+});
+
 test("request discovery combines words, assignment and status without changing saved records", () => {
   const requests = [
     {
