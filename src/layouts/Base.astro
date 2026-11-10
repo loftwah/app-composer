@@ -9,6 +9,8 @@ import {publicPageCanonical} from "../lib/public-pages.mjs";
 interface Props {
   title: string;
   description: string;
+  /** Full-width product presentation; operational pages keep the shared shell. */
+  homePage?: boolean;
   noindex?: boolean;
   shareImage?: string;
   shareAlt?: string;
@@ -94,7 +96,7 @@ Astro.csp?.insertScriptResource(
     <link rel="stylesheet" href="/brand/page-share.css" />
     <link rel="stylesheet" href="/brand/theme-control.css" />
   </head>
-  <body>
+  <body class:list={{ "home-shell": Astro.props.homePage }}>
     <a class="skip" href="#main">
       Skip to content
     </a>

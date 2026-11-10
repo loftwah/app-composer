@@ -16,6 +16,14 @@ rounded: {native-field: "6px", native-button: "8px"}
 # Design
 Reviewed 22 October 2026. Ordinary creative direction delegated by MP.
 
+## Public front door — owner direction 2026/11/10 (Melbourne AEDT / UTC)
+
+MP selected [0.security](https://0.security/) as the quality reference for Woodhouse and App Composer: a coherent full-width composition, confident readable typography, generous space, purposeful motion and strong product-specific visuals throughout the page. This raises the presentation standard without copying the reference site's identity or changing Composer's approved mark.
+
+The homepage now uses an ink-and-orange assembly studio: native layered sheets show an actual Paperwork capture and an existing fictional Launch Kit export. Large recorded app screens, a keyboard-operated gallery, the connected-postcard experiment and the team walkthrough carry the story beyond the hero. Existing app identities, local Space typography, Get Ready/Init/prompts, native administration and ordinary no-JavaScript navigation remain authoritative. The new `product-home.css` is confined to the homepage and its opt-in shell. Motion is finite and respects reduced-motion preferences.
+
+The reference is a craft benchmark, not a substitute for Composer's identity. Reviewed 11 November 2026 at 1440px and 390px in both themes, with 1024/768/600/320px overflow checks. The gallery uses large app captures without horizontal cropping, the hero keeps its editorial bleed without clipping its labels, the film cover uses a separate control bar, and the closing headline holds two lines on phones. Keyboard tabs (arrows, Home and End), the launcher, theme persistence, skip-link focus, reduced motion, the Woodhouse builder-context strip and the JavaScript-free gallery were exercised. Issue #7 owns the public experience and #11 owns the release evidence; production identity and live-flow results are recorded there after the clean-main release.
+
 ## Approved identity and campaign direction — 22 October 2026
 
 MP approved the orange-and-white merging-block icon as App Composer's canonical identity. The editable vector master is `public/brand/composer-icon-20261022b.svg`; the orange tile, reversed mark and wordmark lockups are derived from it. Use the approved artwork in the header, favicons, Apple touch icon, PWA icons, maskable icon, launcher, extension and generated content sites. Do not restore the rejected assembly-scene crop or the old interlocking-squares mark, and do not reinterpret the mark as a new logo.

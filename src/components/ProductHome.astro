@@ -1,809 +1,685 @@
 ---
-import Base from '../layouts/Base.astro';
-import { ArrowRight, Play } from '@lucide/astro';
-import { apps } from '../lib/apps';
-import instance from '../../config/instance.json';
-// The homepage is the product's front door. Owner configuration adds one instance
-// note and a link to the owner's profile; it never replaces the product identity,
-// explanation or metadata.
+import Base from "../layouts/Base.astro";
+import { ArrowRight, ArrowDown, ArrowUpRight, Play } from "@lucide/astro";
+import { apps } from "../lib/apps";
+import instance from "../../config/instance.json";
+import "../styles/product-home.css";
+
 const ownerInstance = instance.enabled ? instance : null;
 const appById = (id: string) => {
   const app = apps.find((entry) => entry.id === id);
   if (!app) throw new Error(`Unknown app in the homepage: ${id}`);
   return app;
 };
-const paperwork = appById('paperwork');
-const linkCheck = appById('linkcheck');
-const hereThere = appById('guestbook');
-const linkarooie = appById('showcase');
-const launchKit = appById('launch-kit');
-const captured = (date: string) =>
-  new Date(date + 'T00:00:00Z').toLocaleDateString('en-AU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+const paperwork = appById("paperwork");
+const selectedApps = [
+  {
+    app: paperwork,
+    purpose: "Finish the paperwork.",
+    detail:
+      "Fill a PDF, add your signature and save the completed document. Your files stay in your browser.",
+  },
+  {
+    app: appById("ldraw"),
+    purpose: "Give an idea some shape.",
+    detail:
+      "Draw an editable diagram, work from the included examples and export a PNG or SVG.",
+  },
+  {
+    app: appById("launch-kit"),
+    purpose: "Give your work an identity.",
+    detail:
+      "Turn your own artwork into app icons, profile cards and share images. Inspect the files before exporting.",
+  },
+];
+const previewHeights: Record<string, number> = {
+  paperwork: 1100,
+  ldraw: 1000,
+  "launch-kit": 900,
+};
 const siteSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: 'App Composer',
-  url: 'https://composer.loftwah.com/',
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "App Composer",
+  url: "https://composer.loftwah.com/",
 };
 ---
 
 <Base
+  homePage
   title="App Composer — build apps with your agent on Cloudflare"
   description="Bring the app you need. Your agent builds it with you on Cloudflare, and the source, the data and the admin stay yours. Start with Get Ready, shape it in Init or copy a prompt straight to your agent."
 >
-  <script slot="head" type="application/ld+json" set:html={JSON.stringify(siteSchema)} />
-
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify(siteSchema)}
+  />
   <div class="composer-home">
     <section class="home-hero" aria-labelledby="home-heading">
-      <div class="home-hero-copy">
-        <h1 id="home-heading">Make software.<br />Keep it yours.</h1>
-        <p class="home-lede">Bring the app you need. Your agent builds it with you on Cloudflare, and the source, the data and the admin stay yours.</p>
-        <div class="home-hero-actions">
-          <a class="button" href="/ready">Start with Get Ready <ArrowRight size={20} aria-hidden="true" /></a>
+      <div class="hero-rule" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <p class="home-eyebrow hero-eyebrow">
+            <span></span> An open studio for building software
+          </p>
+          <h1 id="home-heading">
+            Make software.
+            <br />
+            <span>Keep it yours.</span>
+          </h1>
+          <p class="hero-lede">
+            Bring the app you wish existed. Build it with your agent. Keep the
+            source, the data and the freedom to change it.
+          </p>
+          <div class="hero-actions">
+            <a class="home-button" href="/ready">
+              Start with Get Ready <ArrowUpRight size={21} aria-hidden="true" />
+            </a>
+            <a class="hero-prompts" href="/prompts">
+              Just give me the prompts{" "}
+              <ArrowRight size={18} aria-hidden="true" />
+            </a>
+          </div>
+          <p class="hero-context">Your agent. Your GitHub. Your Cloudflare.</p>
         </div>
-        <a class="home-quick" href="/prompts">
-          <span class="home-quick-label">TLDR just give me the prompts <ArrowRight size={20} aria-hidden="true" /></span>
-          <span class="home-quick-note">Copy a complete request for your agent. No account, no setup.</span>
-        </a>
-        <a class="home-agent-link" href="/agent"><span>Point your existing agent here</span> <ArrowRight size={16} aria-hidden="true" /></a>
-        <p class="home-look">Looking around needs no account. Building uses your own GitHub source and Cloudflare account, with your agent doing the work.</p>
-      </div>
-
-      <figure class="home-proof">
-        <div class="home-proof-bar">
-          <img src="/brand/composer-mark-reverse-20261022b.svg" width="22" height="22" alt="" />
-          <span>Real apps, running now</span>
-        </div>
-        <div class="home-proof-grid">
-          <a class="home-proof-main" href={paperwork.href}>
+        <div class="studio-scene" aria-hidden="true">
+          <div class="studio-backplane">
+            <img
+              src="/brand/composer-mark-reverse-20261022b.svg"
+              width="84"
+              height="84"
+              alt=""
+            />
+            <span class="backplane-label">
+              THE PIECES
+              <br />
+              ARE YOURS.
+            </span>
+            <div class="backplane-rule"></div>
+          </div>
+          <svg class="studio-connections" viewBox="0 0 800 740" fill="none">
+            <path class="connection-faint" d="M130 140H680V620H80V380H350" />
+            <path class="connection-active" d="M85 275H275V535H610V650" />
+            <circle cx="85" cy="275" r="5" />
+            <circle cx="610" cy="650" r="5" />
+            <path
+              class="connection-tick"
+              d="M65 132H95M80 117V147M665 630H695M680 615V645"
+            />
+          </svg>
+          <div class="studio-sheet studio-output">
+            <div class="sheet-label">
+              <span>Launch Kit</span>
+              <span>Exported profile card</span>
+            </div>
+            <img
+              src="/launch-kit/cards/river-typography.png"
+              width="1200"
+              height="630"
+              alt=""
+              decoding="async"
+              fetchpriority="high"
+            />
+          </div>
+          <div class="studio-sheet studio-app">
+            <div class="sheet-label">
+              <span>Paperwork</span>
+            </div>
             <img
               src={paperwork.preview}
               width="1440"
               height="1100"
-              alt={paperwork.previewAlt}
-              fetchpriority="high"
+              alt=""
               decoding="async"
             />
-            <span><strong>Paperwork</strong> PDF editor</span>
-          </a>
-          <a href={linkCheck.href}>
-            <picture>
-              <source type="image/webp" srcset={`${linkCheck.preview} 960w, ${linkCheck.previewWide} 1440w`} sizes="(max-width: 700px) 90vw, 300px" />
-              <img src={linkCheck.preview} width="960" height="640" alt={linkCheck.previewAlt} loading="lazy" decoding="async" />
-            </picture>
-            <span><strong>Link Check</strong> Site review</span>
-          </a>
-          <a href={hereThere.href}>
-            <picture>
-              <source type="image/webp" srcset={`${hereThere.preview} 960w, ${hereThere.previewWide} 1440w`} sizes="(max-width: 700px) 90vw, 300px" />
-              <img src={hereThere.preview} width="960" height="640" alt={hereThere.previewAlt} loading="lazy" decoding="async" />
-            </picture>
-            <span><strong>Here / there</strong> Visitor book</span>
-          </a>
+          </div>
+          <div class="studio-coordinate">
+            <span>BUILD / CONNECT / OWN</span>
+            <span class="coordinate-line"></span>
+            <span>APP COMPOSER</span>
+          </div>
         </div>
-        <figcaption>
-          Actual screens from the deployed apps, captured {captured(paperwork.previewCaptured)} and {captured(linkCheck.previewCaptured)}. The app illustrations elsewhere are artwork, not screens.
-        </figcaption>
-      </figure>
-    </section>
-
-    <section class="home-paths" aria-labelledby="paths-heading">
-      <h2 id="paths-heading">What are you here to do?</h2>
-      <div class="home-paths-list">
-        <article>
-          <h3>Try a working app</h3>
-          <p>{apps.length} independent apps: a browser PDF editor, a site review, a moderated visitor book and more. Open one without an account.</p>
-          <p class="home-path-action"><a href="/apps">Open the app library <ArrowRight size={17} aria-hidden="true" /></a></p>
-        </article>
-        <article>
-          <h3>Build with your agent</h3>
-          <p>Get Ready checks the tools, source and Cloudflare account. Init turns the idea into a brief your agent implements.</p>
-          <p class="home-path-action"><a href="/ready">Prepare the environment <ArrowRight size={17} aria-hidden="true" /></a><a class="home-path-more" href="/init">Shape it in Init</a></p>
-        </article>
-        <article>
-          <h3>Run it with a team</h3>
-          <p>Approve contributions, read private briefs and see what visitors actually did, without a second dashboard to maintain.</p>
-          <p class="home-path-action"><a href="/manage">See the owner side <ArrowRight size={17} aria-hidden="true" /></a><a class="home-path-more" href="/platform">Internal platform</a></p>
-        </article>
+        <div class="hero-bottom">
+          <a href="#make-something">
+            Explore what you can make <ArrowDown size={18} aria-hidden="true" />
+          </a>
+          <span>Actual app screens and a fictional Launch Kit export.</span>
+        </div>
       </div>
-      <a class="home-audience" href="/discover">Find a path for your work <ArrowRight size={17} aria-hidden="true" /></a>
     </section>
 
-    <section class="home-made" aria-labelledby="made-heading">
-      <div class="home-section-heading">
+    <section
+      class="home-start home-container"
+      id="make-something"
+      aria-labelledby="start-heading"
+    >
+      <div class="section-intro home-reveal">
+        <p class="home-eyebrow">
+          <span class="section-number">01</span> From an idea to something
+          useful
+        </p>
+        <h2 id="start-heading">
+          For the app you
+          <br />
+          wish already existed.
+        </h2>
+        <p class="section-lede">
+          A tool for your team. A home for your work. A small problem worth
+          solving. App Composer gives your agent a practical place to start.
+        </p>
+      </div>
+      <ol class="build-steps">
+        <li class="home-reveal">
+          <span class="step-index" aria-hidden="true">
+            01 /
+          </span>
+          <div>
+            <h3>Get your tools ready.</h3>
+            <p>
+              Check the source, tools and Cloudflare account your agent will
+              use. You can start before you have an app idea.
+            </p>
+            <a class="home-text-link" href="/ready">
+              Open Get Ready <ArrowRight size={18} aria-hidden="true" />
+            </a>
+          </div>
+        </li>
+        <li class="home-reveal">
+          <span class="step-index" aria-hidden="true">
+            02 /
+          </span>
+          <div>
+            <h3>Shape what you need.</h3>
+            <p>
+              Choose a starting point in Init. Turn the useful details into a
+              clear brief for your existing coding agent.
+            </p>
+            <a class="home-text-link" href="/init">
+              Shape an app in Init <ArrowRight size={18} aria-hidden="true" />
+            </a>
+          </div>
+        </li>
+        <li class="home-reveal">
+          <span class="step-index" aria-hidden="true">
+            03 /
+          </span>
+          <div>
+            <h3>Make it your own.</h3>
+            <p>
+              Your agent implements the brief in your repository and account.
+              Keep building on software you can inspect and change.
+            </p>
+            <a class="home-text-link" href="/learn">
+              Follow the build journey{" "}
+              <ArrowRight size={18} aria-hidden="true" />
+            </a>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="home-work" aria-labelledby="work-heading">
+      <div class="home-container">
+        <div class="work-heading home-reveal">
+          <div>
+            <p class="home-eyebrow">
+              <span class="section-number">02</span> Built here. Open now.
+            </p>
+            <h2 id="work-heading">
+              Software you can
+              <br />
+              use right now.
+            </h2>
+          </div>
+          <div class="work-aside">
+            <p>
+              Independent apps with their own source, data and release. Try the
+              finished work, then explore how it is made.
+            </p>
+            <a class="home-text-link" href="/apps">
+              Browse all {apps.length} apps{" "}
+              <ArrowUpRight size={19} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+        <div class="work-gallery" data-home-gallery>
+          <div
+            class="work-tabs"
+            aria-label="Choose an application"
+            data-home-tabs
+          >
+            {selectedApps.map(({ app }, index) => (
+              <a
+                class="work-tab"
+                href={`#work-${app.id}`}
+                id={`work-tab-${app.id}`}
+                data-home-tab
+              >
+                <span class="tab-number">0{index + 1}</span>
+                <span>{app.name}</span>
+                <ArrowUpRight size={18} aria-hidden="true" />
+              </a>
+            ))}
+          </div>
+          {selectedApps.map(({ app, purpose, detail }) => (
+            <div class="work-panel" id={`work-${app.id}`} data-home-panel>
+              <div class="work-panel-caption">
+                <div>
+                  <h3>{purpose}</h3>
+                  <p>{detail}</p>
+                </div>
+                <a class="home-button home-button-quiet" href={app.href}>
+                  Open {app.name} <ArrowUpRight size={19} aria-hidden="true" />
+                </a>
+              </div>
+              <figure class={`work-screen work-screen-${app.id}`}>
+                <a href={app.href} aria-label={`Open ${app.name}`}>
+                  <img
+                    src={app.previewWide}
+                    width="1440"
+                    height={previewHeights[app.id] ?? 960}
+                    alt={app.previewAlt}
+                    loading="lazy"
+                    decoding="async"
+                    data-captured={app.previewCaptured}
+                  />
+                </a>
+                <figcaption>
+                  <span>
+                    Deployed app capture ·{" "}
+                    <time datetime={app.previewCaptured}>
+                      {app.previewCaptured.replaceAll("-", "/")}
+                    </time>
+                  </span>
+                  <a href={app.source}>
+                    Explore the source{" "}
+                    <ArrowUpRight size={14} aria-hidden="true" />
+                  </a>
+                </figcaption>
+              </figure>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="home-composition" aria-labelledby="composition-heading">
+      <div class="home-container composition-layout">
+        <div class="composition-copy home-reveal">
+          <p class="home-eyebrow">
+            <span class="section-number">03</span> Better together
+          </p>
+          <h2 id="composition-heading">
+            Make the pieces
+            <br />
+            work together.
+          </h2>
+          <p>
+            Here / there keeps the photos. Linkarooie makes the collection.
+            Connect them, change a source postcard and see what follows.
+          </p>
+          <a class="home-button home-button-ink" href="/demo">
+            Try the composition studio{" "}
+            <ArrowUpRight size={21} aria-hidden="true" />
+          </a>
+          <span class="composition-note">
+            An interactive experiment with fictional postcards, saved on this
+            device.
+          </span>
+        </div>
+        <figure class="composition-art home-reveal">
+          <svg
+            class="composition-wiring"
+            viewBox="0 0 620 570"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path d="M60 130H460V420H180" />
+            <path d="m194 406-14 14 14 14" />
+            <circle cx="60" cy="130" r="6" />
+          </svg>
+          <div class="postcard postcard-source">
+            <div class="postcard-label">
+              <span>Here / there</span>
+              <span>The source</span>
+            </div>
+            <img
+              src="/brand/demo/ringmarket-v5.webp"
+              width="1200"
+              height="900"
+              alt="Fictional postcard from the demo: an orange market above a ringed planet."
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <div class="postcard postcard-collection">
+            <div class="postcard-label">
+              <span>Linkarooie</span>
+              <span>The collection</span>
+            </div>
+            <img
+              src="/brand/demo/lighthouse-v5.webp"
+              width="1200"
+              height="900"
+              alt="Fictional postcard from the demo: a lighthouse on a small moon."
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <figcaption>Each app keeps its own source and records.</figcaption>
+        </figure>
+      </div>
+      <div class="composition-foot home-container">
+        <span>One connected experience.</span>
+        <a href="/architecture">
+          See how the parts fit <ArrowRight size={19} aria-hidden="true" />
+        </a>
+      </div>
+    </section>
+
+    <section class="home-film home-container" aria-labelledby="film-heading">
+      <div class="film-heading home-reveal">
+        <p class="home-eyebrow">
+          <span class="section-number">04</span> The work behind the interface
+        </p>
+        <h2 id="film-heading">
+          See the whole
+          <br />
+          journey take shape.
+        </h2>
         <div>
-          <h2 id="made-heading">Built here, running now.</h2>
-          <p>Each app keeps its own source, data and release. These are its actual interfaces and exports.</p>
+          <p>
+            A team requests an app. Someone reviews the contribution. The
+            software changes. Follow a recorded walkthrough using fictional
+            teams and working application screens.
+          </p>
+          <a class="home-text-link" href="/manage">
+            Explore the owner side <ArrowRight size={18} aria-hidden="true" />
+          </a>
         </div>
-        <a href="/apps">Browse all {apps.length} apps <ArrowRight size={18} aria-hidden="true" /></a>
       </div>
-      <div class="home-made-list">
-        <article>
-          <a class="home-made-art" href="/launch-kit" aria-label="Open Launch Kit">
-            <img src="/launch-kit/cards/river-typography.png" width="1200" height="630" alt="River, a fictional profile card typeset with Launch Kit." loading="lazy" decoding="async" />
-          </a>
-          <h3><a href="/launch-kit">A profile card from your own artwork</a></h3>
-          <p>Launch Kit also prepares app icons and share images, then exports a package you can check before it ships.</p>
-          <a class="home-made-action" href="/launch-kit">Open Launch Kit <ArrowRight size={16} aria-hidden="true" /></a>
-        </article>
-        <article>
-          <a class="home-made-art" href="/platform/demo">
-            <img src="/demos/platform-native-25dc7589-b3cd5894/overview-poster.jpg" width="1600" height="1200" alt="Recorded native application screens from the fictional two-team walkthrough." loading="lazy" decoding="async" />
-            <span class="home-made-play"><Play size={16} aria-hidden="true" /> Watch</span>
-          </a>
-          <h3><a href="/platform/demo">From a team request to a working app</a></h3>
-          <p>Recorded end to end with fictional teams: request an app, review the contribution and update it.</p>
-          <a class="home-made-action" href="/platform/demo">Watch the team journey <ArrowRight size={16} aria-hidden="true" /></a>
-        </article>
-        <article>
-          <a class="home-made-art" href={linkarooie.href} aria-label="Open Linkarooie">
-            <picture>
-              <source type="image/webp" srcset={`${linkarooie.preview} 960w, ${linkarooie.previewWide} 1440w`} sizes="(max-width: 700px) 90vw, 390px" />
-              <img src={linkarooie.preview} width="960" height="640" alt={linkarooie.previewAlt} loading="lazy" decoding="async" />
-            </picture>
-          </a>
-          <h3><a href={linkarooie.href}>Links and approved photos on one page</a></h3>
-          <p>Linkarooie features photos from Here / there and drops them when the source goes private.</p>
-          <a class="home-made-action" href={linkarooie.href}>Open Linkarooie <ArrowRight size={16} aria-hidden="true" /></a>
-        </article>
-      </div>
-    </section>
-
-    <section class="home-community" aria-labelledby="community-heading">
-      <div class="home-community-copy">
-        <p class="home-community-kicker">From the community</p>
-        <h2 id="community-heading">Agent Black Box, by Robert DeVore.</h2>
-        <p>Robert used App Composer's real manifest and composition validators and promotion guard to build three independent Worker apps for importing agent-run evidence, replaying it and publishing an approved report.</p>
-        <p class="home-community-limit">Open-source local demo, with a project-specific adapter; not a hosted deployment or native Composer catalogue integration.</p>
-      </div>
-      <div class="home-community-links">
-        <a href="https://github.com/robertdevore/agent-black-box">Explore the source <ArrowRight size={16} aria-hidden="true" /></a>
-        <a href="https://x.com/deviorobert/status/2117347151525134372">Read Robert's announcement <ArrowRight size={16} aria-hidden="true" /></a>
-      </div>
-    </section>
-
-    {ownerInstance && (
-      <section class="home-instance" aria-labelledby="instance-heading">
-        <h2 id="instance-heading">Installed in this instance</h2>
-        <p>{ownerInstance.name} — {ownerInstance.description}</p>
-        <a href={ownerInstance.profile}>Open {ownerInstance.owner}’s Linkarooie profile <ArrowRight size={16} aria-hidden="true" /></a>
-      </section>
-    )}
-
-    <section class="home-briefing" aria-labelledby="briefing-heading">
-      <div class="home-briefing-copy">
-        <p class="home-briefing-kicker"><span>Briefing</span> · 22 October 2026</p>
-        <h2 id="briefing-heading">When PHP broke, Australia felt it.</h2>
-        <p>Two critical flaws in the PHP runtime took Australian government sites offline as a precaution. Patching is urgent; the longer lesson is how these systems are built and run.</p>
-        <a class="home-briefing-link" href="/php2shell">Read the Australia briefing <ArrowRight size={18} aria-hidden="true" /></a>
-      </div>
-      <a class="home-briefing-art" href="/php2shell" aria-label="Read the PHP2Shell Australia briefing">
-        <img class="home-briefing-wide" src="/brand/campaign/php2shell-australia-20261022b-1200x630.webp" width="1200" height="630" alt="Flat orange and white PHP2Shell briefing graphic: the App Composer mark, the headline PHP2Shell. Australia felt it., and facts about the critical PHP flaws, Australian service disruption and Cloudflare's early WAF response." decoding="sync" />
-        <img class="home-briefing-square" src="/brand/campaign/php2shell-australia-20261022b-1080x1080.webp" width="1080" height="1080" alt="Flat orange and white PHP2Shell briefing graphic: the App Composer mark, the headline PHP2Shell. Australia felt it., and facts about the critical PHP flaws, Australian service disruption and Cloudflare's early WAF response." loading="lazy" decoding="sync" />
+      <a
+        class="film-cover home-reveal"
+        href="/platform/demo"
+        aria-label="Watch the recorded team application walkthrough"
+      >
+        <img
+          src="/demos/platform-native-25dc7589-b3cd5894/overview-poster.jpg"
+          width="1600"
+          height="1200"
+          alt="Recorded native application screens from the fictional two-team walkthrough."
+          loading="lazy"
+          decoding="async"
+        />
+        <span class="film-play">
+          <span class="play-circle">
+            <Play size={27} fill="currentColor" aria-hidden="true" />
+          </span>
+          <span>
+            Watch the team walkthrough{" "}
+            <ArrowUpRight size={18} aria-hidden="true" />
+          </span>
+        </span>
       </a>
+      <div class="film-foot">
+        <span>Recorded demonstration · fictional team data</span>
+        <a href="/platform">
+          Explore the internal platform{" "}
+          <ArrowRight size={17} aria-hidden="true" />
+        </a>
+      </div>
     </section>
 
-    <section class="home-depth" aria-labelledby="depth-heading">
-      <div class="home-depth-intro">
-        <h2 id="depth-heading">Go deeper when you need it.</h2>
-        <p>App Composer is an agent-operated studio built around EmDash and Cloudflare. The technical detail, the build story and the release evidence live on their own pages.</p>
+    <section
+      class="home-community home-container"
+      aria-labelledby="community-heading"
+    >
+      <div class="community-heading home-reveal">
+        <p class="home-eyebrow">From the community</p>
+        <h2 id="community-heading">
+          The next idea
+          <br />
+          doesn’t have to be ours.
+        </h2>
       </div>
-      <div class="home-depth-links">
+      <article class="community-project home-reveal">
+        <span class="community-mark" aria-hidden="true">
+          ↗
+        </span>
         <div>
-          <h3>Build</h3>
-          <ul>
-            <li><a href="/prompts">Prompt library</a></li>
-            <li><a href="/init">Init</a></li>
-            <li><a href="/setup">Set up your project</a></li>
-            <li><a href="/learn">Learn the workflow</a></li>
-          </ul>
+          <p class="community-byline">Robert DeVore</p>
+          <h3>Agent Black Box</h3>
+          <p>
+            Robert used Composer’s manifest and composition validators to build
+            three independent Worker apps for importing agent-run evidence,
+            replaying it and publishing an approved report.
+          </p>
+          <p class="community-scope">
+            Open-source local demo with a project-specific adapter.
+          </p>
+          <div class="community-links">
+            <a
+              class="home-text-link"
+              href="https://github.com/robertdevore/agent-black-box"
+            >
+              Explore the project <ArrowUpRight size={18} aria-hidden="true" />
+            </a>
+            <a href="https://x.com/deviorobert/status/2117347151525134372">
+              Read Robert’s announcement{" "}
+              <ArrowUpRight size={16} aria-hidden="true" />
+            </a>
+          </div>
         </div>
-        <div>
-          <h3>Understand</h3>
-          <ul>
-            <li><a href="/architecture">How it works</a></li>
-            <li><a href="/guide">Platform &amp; service guide</a></li>
-            <li><a href="/building">Build story</a></li>
-            <li><a href="/diagrams">Diagram atlas</a></li>
-            <li><a href="/release">Release evidence</a></li>
-          </ul>
+      </article>
+    </section>
+
+    <section class="home-next" aria-labelledby="next-heading">
+      <div class="home-container">
+        <p class="home-eyebrow">A useful place to start</p>
+        <div class="next-heading">
+          <h2 id="next-heading">
+            What would
+            <br />
+            you make?
+          </h2>
+          <img
+            src="/brand/composer-icon-20261022b.svg"
+            width="180"
+            height="180"
+            alt=""
+            loading="lazy"
+          />
         </div>
-        <div>
-          <h3>Teams and creators</h3>
-          <ul>
-            <li><a href="/platform">Internal platform</a></li>
-            <li><a href="/studio">Creator stacks</a></li>
-            <li><a href="/activity">Analytics &amp; reports</a></li>
-            <li><a href="/resources">Runbooks &amp; resources</a></li>
-          </ul>
+        <div class="next-actions">
+          <a class="home-button" href="/ready">
+            Let’s build something <ArrowUpRight size={21} aria-hidden="true" />
+          </a>
+          <a class="home-text-link" href="/agent">
+            Point your existing agent here{" "}
+            <ArrowRight size={19} aria-hidden="true" />
+          </a>
         </div>
+        <p class="next-note">
+          Looking around needs no account. Building uses your own source, agent
+          and Cloudflare account.
+        </p>
       </div>
     </section>
+
+    <section
+      class="home-depth home-container"
+      aria-label="Explore App Composer"
+    >
+      <div class="depth-intro">
+        <img
+          src="/brand/composer-icon-tile-20261022b.svg"
+          width="40"
+          height="40"
+          alt=""
+          loading="lazy"
+        />
+        <h2>
+          Go as deep
+          <br />
+          as you need.
+        </h2>
+        <p>The tools, the build story and the details behind the work.</p>
+      </div>
+      <div>
+        <h3>Make something</h3>
+        <ul>
+          <li>
+            <a href="/prompts">Prompt library</a>
+          </li>
+          <li>
+            <a href="/init">Init</a>
+          </li>
+          <li>
+            <a href="/setup">Set up your project</a>
+          </li>
+          <li>
+            <a href="/learn">Learn the workflow</a>
+          </li>
+          <li>
+            <a href="/launch-kit">Launch Kit</a>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3>Explore the work</h3>
+        <ul>
+          <li>
+            <a href="/apps">App library</a>
+          </li>
+          <li>
+            <a href="/discover">Find a path for your work</a>
+          </li>
+          <li>
+            <a href="/studio">Creator stacks</a>
+          </li>
+          <li>
+            <a href="/activity">Analytics &amp; reports</a>
+          </li>
+          <li>
+            <a href="/php2shell">The PHP2Shell Australia briefing</a>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3>Understand it</h3>
+        <ul>
+          <li>
+            <a href="/architecture">How it works</a>
+          </li>
+          <li>
+            <a href="/guide">Platform &amp; service guide</a>
+          </li>
+          <li>
+            <a href="/building">Build story</a>
+          </li>
+          <li>
+            <a href="/diagrams">Diagram atlas</a>
+          </li>
+          <li>
+            <a href="/resources">Runbooks &amp; resources</a>
+          </li>
+          <li>
+            <a href="/release">Release evidence</a>
+          </li>
+        </ul>
+      </div>
+    </section>
+    {ownerInstance && (
+      <div class="home-instance home-container">
+        <p>
+          <strong>{ownerInstance.name}</strong> — {ownerInstance.description}
+        </p>
+        <a href={ownerInstance.profile}>
+          Open {ownerInstance.owner}’s Linkarooie profile{" "}
+          <ArrowUpRight size={17} aria-hidden="true" />
+        </a>
+      </div>
+    )}
   </div>
 </Base>
 
-<style>
-  .composer-home {
-    font-size: 1rem;
-  }
-  .composer-home h1,
-  .composer-home h2,
-  .composer-home h3 {
-    letter-spacing: -0.03em;
-  }
-
-  /* First viewport: the task, one action, the prompt shortcut, real screens. */
-  .home-hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-    gap: 2.5rem 3rem;
-    align-items: center;
-    padding: 0 0 3rem;
-  }
-  .home-hero-copy {
-    min-width: 0;
-    max-width: 42rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .home-hero h1 {
-    font-size: clamp(2.6rem, 4.4vw, 3.9rem);
-    line-height: 1.02;
-    margin: 0 0 1.25rem;
-    max-width: 13ch;
-  }
-  .home-lede {
-    font-size: 1.2rem;
-    line-height: 1.5;
-    color: var(--color-muted);
-    max-width: 38ch;
-    margin: 0 0 1.75rem;
-  }
-  .home-hero-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
-  }
-  .home-hero-actions .button {
-    font-size: 1.05rem;
-    padding: 16px 24px;
-    min-height: 3.5rem;
-  }
-  .home-quick {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    margin: 1.75rem 0 0;
-    padding: 1rem 1.25rem;
-    max-width: 33rem;
-    border-left: 4px solid var(--color-action);
-    border-radius: 0 8px 8px 0;
-    background: var(--color-surface);
-  }
-  .home-quick-label {
-    display: block;
-    font: 600 1.1rem/1.35 Space, system-ui, sans-serif;
-    overflow-wrap: anywhere;
-  }
-  .home-quick-label svg {
-    display: inline-block;
-    margin-left: 0.45rem;
-    vertical-align: -3px;
-    color: var(--color-accent);
-  }
-  .home-quick-note {
-    font-size: 0.92rem;
-    line-height: 1.45;
-    color: var(--color-muted);
-  }
-  .home-quick:hover {
-    background: var(--color-field);
-  }
-  .home-agent-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    min-height: 44px;
-    margin-top: 0.35rem;
-    color: var(--color-accent);
-    font-size: 0.95rem;
-  }
-  .home-agent-link svg {
-    flex: none;
-  }
-  .home-quick:hover .home-quick-label {
-    color: var(--color-accent);
-  }
-  .home-look {
-    margin: 1rem 0 0;
-    font-size: 0.88rem;
-    line-height: 1.5;
-    color: var(--color-muted);
-    max-width: 46ch;
+<script>
+  // Without JavaScript these remain ordinary links and all screens are readable.
+  for (const gallery of document.querySelectorAll<HTMLElement>(
+    "[data-home-gallery]",
+  )) {
+    const tabList = gallery.querySelector<HTMLElement>("[data-home-tabs]");
+    const tabs = Array.from(
+      gallery.querySelectorAll<HTMLAnchorElement>("[data-home-tab]"),
+    );
+    const panels = Array.from(
+      gallery.querySelectorAll<HTMLElement>("[data-home-panel]"),
+    );
+    if (!tabList || tabs.length !== panels.length) continue;
+    tabList.setAttribute("role", "tablist");
+    const select = (index: number, focus = false) => {
+      tabs.forEach((tab, position) => {
+        tab.setAttribute("aria-selected", String(position === index));
+        tab.tabIndex = position === index ? 0 : -1;
+        panels[position].hidden = position !== index;
+      });
+      if (focus) tabs[index].focus();
+    };
+    tabs.forEach((tab, index) => {
+      tab.setAttribute("role", "tab");
+      tab.setAttribute("aria-controls", panels[index].id);
+      panels[index].setAttribute("role", "tabpanel");
+      panels[index].setAttribute("aria-labelledby", tab.id);
+      tab.addEventListener("click", (event) => {
+        event.preventDefault();
+        select(index);
+      });
+      tab.addEventListener("keydown", (event) => {
+        let next = index;
+        if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
+        else if (event.key === "ArrowLeft")
+          next = (index + tabs.length - 1) % tabs.length;
+        else if (event.key === "Home") next = 0;
+        else if (event.key === "End") next = tabs.length - 1;
+        else return;
+        event.preventDefault();
+        select(next, true);
+      });
+    });
+    const anchored = panels.findIndex(
+      (panel) => `#${panel.id}` === window.location.hash,
+    );
+    select(anchored < 0 ? 0 : anchored);
+    gallery.classList.add("is-enhanced");
   }
 
-  .home-proof {
-    min-width: 0;
-    margin: 0;
-    border: 1px solid var(--color-border);
-    border-radius: 10px;
-    overflow: hidden;
-    background: var(--color-surface);
-  }
-  .home-proof-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.55rem 0.9rem;
-    background: var(--color-brand);
-    color: #17181b;
-    font-size: 0.82rem;
-    font-weight: 650;
-    letter-spacing: 0.02em;
-  }
-  .home-proof-bar img {
-    display: block;
-    width: 22px;
-    height: 22px;
-  }
-  .home-proof-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-    gap: 1px;
-    background: var(--color-border);
-  }
-  .home-proof-grid a {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-    min-width: 0;
-    background: var(--color-background);
-  }
-  .home-proof-grid .home-proof-main {
-    grid-row: 1 / 3;
-  }
-  .home-proof-grid img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-  .home-proof-grid a span {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0 0.4rem;
-    padding: 0.5rem 0.7rem;
-    font-size: 0.78rem;
-    line-height: 1.35;
-    color: var(--color-muted);
-  }
-  .home-proof-grid a span strong {
-    color: var(--color-foreground);
-    font-weight: 600;
-  }
-  .home-proof-grid a:hover span strong {
-    color: var(--color-accent);
-  }
-  .home-proof figcaption {
-    padding: 0.65rem 0.9rem;
-    border-top: 1px solid var(--color-border);
-    font-size: 0.8rem;
-    line-height: 1.45;
-    color: var(--color-muted);
-  }
-
-  /* Community-built work, distinct from first-party deployed demos. */
-  .home-community {
-    display: grid;
-    grid-template-columns: minmax(0, 1.6fr) minmax(12rem, 0.8fr);
-    gap: 1.5rem 2rem;
-    padding: clamp(1.35rem, 3vw, 2rem);
-    border: 1px solid var(--color-border);
-    border-left: 4px solid var(--color-accent);
-    border-radius: 8px;
-    background: var(--color-surface);
-  }
-  .home-community-kicker {
-    margin: 0 0 0.55rem;
-    color: var(--color-accent);
-    font-size: 0.76rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .home-community h2 {
-    margin: 0 0 0.7rem;
-    font-size: clamp(1.5rem, 2.8vw, 2rem);
-  }
-  .home-community-copy > p:not(.home-community-kicker) {
-    margin: 0 0 0.6rem;
-    line-height: 1.55;
-  }
-  .home-community-copy .home-community-limit {
-    color: var(--color-muted);
-    font-size: 0.88rem;
-  }
-  .home-community-links {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 0.25rem;
-  }
-  .home-community-links a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    min-height: 44px;
-    font-weight: 600;
-  }
-
-  /* Three jobs, one destination each. */
-  .home-paths,
-  .home-made,
-  .home-briefing,
-  .home-depth {
-    border-top: 1px solid var(--color-border);
-  }
-  .home-paths {
-    padding: 2.5rem 0;
-  }
-  .home-paths h2 {
-    font-size: clamp(1.75rem, 2.8vw, 2.4rem);
-    margin: 0 0 1.75rem;
-    max-width: 24ch;
-  }
-  .home-audience { display:inline-flex; align-items:center; gap:.5rem; min-height:44px; margin-top:1rem; color:var(--color-accent); }
-  .home-paths-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
-    gap: 0 2.5rem;
-  }
-  .home-paths-list article {
-    min-width: 0;
-    border-top: 1px solid var(--color-border);
-    padding: 1rem 0 0.5rem;
-  }
-  .home-paths-list h3 {
-    font-size: 1.25rem;
-    margin: 0 0 0.6rem;
-  }
-  .home-paths-list p {
-    margin: 0 0 0.9rem;
-    font-size: 0.98rem;
-    line-height: 1.55;
-    color: var(--color-muted);
-    max-width: 34ch;
-  }
-  .home-path-action {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.25rem 1.25rem;
-    margin: 0 !important;
-  }
-  .home-path-action a,
-  .home-path-more {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-height: 2.75rem;
-    font-size: 0.95rem;
-    color: var(--color-foreground);
-  }
-  .home-path-action a svg {
-    color: var(--color-accent);
-  }
-  .home-path-more {
-    color: var(--color-muted);
-    font-weight: 500;
-  }
-
-  /* Real output from the shipped apps. */
-  .home-made {
-    padding: 2.5rem 0;
-  }
-  .home-section-heading {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 1rem 2.5rem;
-  }
-  .home-section-heading h2 {
-    font-size: clamp(1.75rem, 2.8vw, 2.4rem);
-    margin: 0 0 0.6rem;
-    max-width: 22ch;
-  }
-  .home-section-heading p {
-    margin: 0;
-    max-width: 52ch;
-    color: var(--color-muted);
-    font-size: 0.98rem;
-  }
-  .home-section-heading > a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-height: 2.75rem;
-    font-size: 0.95rem;
-    white-space: nowrap;
-  }
-  .home-made-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
-    gap: 2rem 2.25rem;
-    margin-top: 2rem;
-  }
-  .home-made-list article {
-    min-width: 0;
-  }
-  .home-made-art {
-    position: relative;
-    display: block;
-    aspect-ratio: 16 / 10;
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    overflow: hidden;
-    background: var(--color-surface);
-  }
-  .home-made-art img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-  .home-made-play {
-    position: absolute;
-    left: 0.75rem;
-    bottom: 0.75rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.3rem 0.6rem;
-    border-radius: 4px;
-    background: #17181b;
-    color: #fff;
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-  .home-made-list h3 {
-    font-size: 1.2rem;
-    line-height: 1.25;
-    margin: 0.9rem 0 0.5rem;
-  }
-  .home-made-list h3 a {
-    color: var(--color-foreground);
-  }
-  .home-made-list h3 a:hover {
-    color: var(--color-accent);
-  }
-  .home-made-list p {
-    margin: 0 0 0.6rem;
-    font-size: 0.95rem;
-    line-height: 1.55;
-    color: var(--color-muted);
-    max-width: 42ch;
-  }
-  .home-made-action {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    min-height: 2.75rem;
-    font-size: 0.9rem;
-  }
-  .home-made-action svg {
-    color: var(--color-accent);
-  }
-
-  .home-instance {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.35rem 1.5rem;
-    padding: 1.5rem 0;
-    border-top: 1px solid var(--color-border);
-  }
-  .home-instance h2 {
-    margin: 0;
-    font-size: 0.95rem;
-    letter-spacing: 0;
-  }
-  .home-instance p {
-    margin: 0;
-    font-size: 0.92rem;
-    color: var(--color-muted);
-    max-width: 52ch;
-  }
-  .home-instance a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    min-height: 2.75rem;
-    font-size: 0.92rem;
-  }
-
-  /* The campaign keeps its own linked section, below the product work. */
-  .home-briefing {
-    display: grid;
-    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
-    gap: 2rem 3rem;
-    align-items: center;
-    padding: 2.5rem 0;
-  }
-  .home-briefing-copy {
-    min-width: 0;
-  }
-  .home-briefing-kicker {
-    margin: 0 0 0.75rem;
-    font-size: 0.75rem;
-    line-height: 1.3;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    font-weight: 600;
-    color: var(--color-muted);
-  }
-  .home-briefing-kicker span {
-    color: var(--color-accent);
-  }
-  .home-briefing h2 {
-    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
-    line-height: 1.05;
-    max-width: 16ch;
-    margin: 0 0 0.75rem;
-  }
-  .home-briefing-copy p {
-    margin: 0 0 1rem;
-    font-size: 0.98rem;
-    line-height: 1.55;
-    color: var(--color-muted);
-    max-width: 46ch;
-  }
-  .home-briefing-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-height: 2.75rem;
-    font-size: 0.95rem;
-  }
-  .home-briefing-art {
-    display: block;
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    background: #fff;
-    overflow: hidden;
-  }
-  .home-briefing-art img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-  .home-briefing-art img.home-briefing-square {
-    display: none;
-  }
-
-  .home-depth {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem 3.5rem;
-    padding: 2.5rem 0 0;
-  }
-  .home-depth-intro {
-    flex: 1 1 21rem;
-    min-width: 0;
-  }
-  .home-depth-intro h2 {
-    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
-    margin: 0 0 0.75rem;
-    max-width: 18ch;
-  }
-  .home-depth-intro p {
-    margin: 0;
-    color: var(--color-muted);
-    font-size: 0.95rem;
-    max-width: 42ch;
-  }
-  .home-depth-links {
-    flex: 2 1 30rem;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
-    gap: 1.5rem 2rem;
-  }
-  .home-depth-links h3 {
-    font: 650 0.78rem/1.4 system-ui, sans-serif;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    margin: 0 0 0.4rem;
-  }
-  .home-depth-links ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .home-depth-links li {
-    margin: 0;
-  }
-  .home-depth-links a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
-    font-size: 0.95rem;
-    font-weight: 500;
-  }
-
-  @media (max-width: 1000px) {
-    .home-hero {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-      padding-bottom: 2.5rem;
-    }
-    .home-hero-copy {
-      max-width: none;
-    }
-    .home-hero h1 {
-      max-width: none;
-    }
-    .home-proof-grid {
-      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
-      align-items: center;
-    }
-    .home-proof-grid .home-proof-main {
-      grid-row: auto;
-    }
-    .home-hero h1 {
-      font-size: clamp(2.5rem, 8vw, 3.4rem);
-    }
-    .home-lede {
-      font-size: 1.1rem;
-    }
-
-  }
-  @media (max-width: 700px) {
-    .home-community {
-      grid-template-columns: 1fr;
-    }
-    .home-proof-grid {
-      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-    }
-    .home-proof-grid .home-proof-main {
-      grid-row: 1 / 3;
-    }
-    .home-proof figcaption {
-      font-size: 0.78rem;
-    }
-    .home-paths-list,
-    .home-made-list {
-      gap: 1.5rem;
-    }
-    .home-paths-list article {
-      padding-bottom: 0;
-    }
-    .home-section-heading > a {
-      white-space: normal;
-    }
-    .home-briefing {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-    }
-    .home-briefing-art img.home-briefing-wide {
-      display: none;
-    }
-    .home-briefing-art img.home-briefing-square {
-      display: block;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .home-quick,
-    .home-quick-label {
-      transition: none;
-    }
-  }
-</style>
+  const motionPreference = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  );
+  if (!motionPreference.matches && "IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.08 },
+    );
+    document
+      .querySelectorAll<HTMLElement>(".home-reveal")
+      .forEach((element) => {
+        element.classList.add("will-reveal");
+        observer.observe(element);
+      });
+    motionPreference.addEventListener("change", (event) => {
+      if (!event.matches) return;
+      observer.disconnect();
+      document
+        .querySelectorAll(".home-reveal")
+        .forEach((element) => element.classList.add("is-visible"));
+    });
+  }
+</script>
