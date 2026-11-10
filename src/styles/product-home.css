@@ -9,19 +9,36 @@
 .home-shell > .skip {
   z-index: 30;
 }
+.home-shell {
+  /* The opening is a theme surface, not a fixed dark slab: dark ink in dark
+     mode, warm paper in light mode. The orange plane and app sheets stay. */
+  --home-hero-bg: #101214;
+  --home-hero-fg: #f4f2ec;
+  --home-hero-muted: #c0c1c2;
+  --home-hero-accent: #ff793b;
+  --home-hero-rule: #ffffff25;
+  --home-hero-line: #a9adad40;
+  --home-hero-tick: #b9bbb77a;
+}
+:root[data-theme="light"] .home-shell {
+  --home-hero-bg: #f2f0e9;
+  --home-hero-fg: #151719;
+  --home-hero-muted: #4b4f54;
+  --home-hero-accent: #c74400;
+  --home-hero-rule: #1517192e;
+  --home-hero-line: #1517192e;
+  --home-hero-tick: #15171945;
+}
 .home-shell > .site-header {
   position: absolute;
   inset: 0 0 auto;
   z-index: 20;
   min-height: 100px;
   border: 0;
-  color: #f4f2ec;
+  color: var(--home-hero-fg);
   padding-inline: max(28px, calc((100% - 1440px) / 2));
-  --color-muted: #c0c1c2;
-  --color-foreground: #f4f2ec;
-  --color-surface: #25272a;
-  --color-field: #1d1f22;
-  --color-border: #47494c;
+  --color-muted: var(--home-hero-muted);
+  --color-foreground: var(--home-hero-fg);
 }
 .home-shell > .site-header .instance-brand-context {
   display: none;
@@ -37,7 +54,7 @@
    the presentation header cover its navigation. */
 .home-shell:has([data-builder-context]) > .site-header {
   position: relative;
-  background: #101214;
+  background: var(--home-hero-bg);
 }
 .home-shell > main > .builder-context {
   margin: 0;
@@ -53,6 +70,8 @@
 .composer-home {
   --home-paper: #f2f0e9;
   --home-ink: #151719;
+  --home-next-bg: var(--color-surface);
+  --home-next-fg: var(--color-foreground);
   --home-rule: color-mix(in srgb, var(--color-foreground) 18%, transparent);
   --home-subtle: color-mix(
     in srgb,
@@ -155,8 +174,8 @@
      The orange plane is a brand surface, never an invented product screen. */
   .home-hero {
     position: relative;
-    background: #101214;
-    color: #f4f2ec;
+    background: var(--home-hero-bg);
+    color: var(--home-hero-fg);
   }
   .hero-rule {
     position: absolute;
@@ -164,7 +183,7 @@
     left: max(28px, calc((100% - 1440px) / 2));
     right: max(28px, calc((100% - 1440px) / 2));
     height: 1px;
-    background: #ffffff25;
+    background: var(--home-hero-rule);
   }
   .hero-inner {
     position: relative;
@@ -185,7 +204,7 @@
   }
   .hero-eyebrow {
     margin-bottom: 32px;
-    color: #d1d0cb;
+    color: var(--home-hero-muted);
     font-weight: 450;
   }
   .hero-eyebrow > span {
@@ -201,12 +220,12 @@
     white-space: nowrap;
   }
   .home-hero h1 > span {
-    color: #ff793b;
+    color: var(--home-hero-accent);
   }
   .hero-lede {
     max-width: 35ch;
     margin-top: 30px;
-    color: #d2d1cd;
+    color: var(--home-hero-muted);
     font-size: clamp(1.05rem, 1.3vw, 1.22rem);
     line-height: 1.6;
   }
@@ -226,10 +245,10 @@
     min-height: 44px;
   }
   .hero-prompts:hover {
-    color: #ff8d55;
+    color: var(--home-hero-accent);
   }
   .hero-context {
-    color: #aeb0b2;
+    color: var(--home-hero-muted);
     font-size: 0.75rem;
     letter-spacing: 0.015em;
     margin-top: 22px;
@@ -239,7 +258,7 @@
     bottom: 30px;
     inset-inline: 0;
     z-index: 3;
-    border-top: 1px solid #ffffff25;
+    border-top: 1px solid var(--home-hero-rule);
     padding-top: 24px;
     display: flex;
     justify-content: space-between;
@@ -255,7 +274,7 @@
     min-height: 36px;
   }
   .hero-bottom > span {
-    color: #aeb0b2;
+    color: var(--home-hero-muted);
     font-size: 0.67rem;
     text-align: right;
   }
@@ -321,7 +340,7 @@
     height: 100%;
   }
   .connection-faint {
-    stroke: #a9adad40;
+    stroke: var(--home-hero-line);
     stroke-width: 1;
   }
   .connection-active {
@@ -332,7 +351,7 @@
     fill: #fc5b05;
   }
   .connection-tick {
-    stroke: #b9bbb77a;
+    stroke: var(--home-hero-tick);
     stroke-width: 1;
   }
   .studio-sheet {
@@ -393,14 +412,14 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    color: #b0b2b4;
+    color: var(--home-hero-muted);
     font-size: 0.57rem;
     letter-spacing: 0.1em;
   }
   .coordinate-line {
     height: 1px;
     flex: 1;
-    background: #777b8055;
+    background: var(--home-hero-line);
   }
 
   .home-start {
@@ -864,8 +883,8 @@
 
   .home-next {
     padding-block: 82px 84px;
-    background: var(--home-paper);
-    color: var(--home-ink);
+    background: var(--home-next-bg);
+    color: var(--home-next-fg);
   }
   .next-heading {
     display: flex;
@@ -892,7 +911,7 @@
   }
   .next-note {
     font-size: 0.78rem;
-    color: #575b5d;
+    color: var(--color-muted);
     margin-top: 23px;
   }
   .home-depth {
@@ -965,6 +984,10 @@
   }
 }
 
+:root[data-theme="light"] .composer-home {
+  --home-next-bg: var(--home-paper);
+  --home-next-fg: var(--home-ink);
+}
 @media (max-width: 1300px) {
   .composer-home .studio-coordinate {
     display: none;
