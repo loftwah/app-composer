@@ -988,6 +988,16 @@
   --home-next-bg: var(--home-paper);
   --home-next-fg: var(--home-ink);
 }
+@media (min-width: 1201px) and (max-width: 1540px) {
+  .composer-home {
+    .home-hero h1 {
+      font-size: clamp(4rem, 6.7vw, 7.1rem);
+    }
+    .studio-scene {
+      right: -190px;
+    }
+  }
+}
 @media (max-width: 1300px) {
   .composer-home .studio-coordinate {
     display: none;
