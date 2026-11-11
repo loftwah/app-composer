@@ -35,7 +35,7 @@ function renderBuildPlan(s:ReturnType<typeof validateSpec>){
   body.append(title,detail);item.append(actor,body);list.append(item);
  }
  const human=humanOnlyActions(s);
- document.querySelector('#build-plan-human')!.textContent='You only need to: '+human.join('; ')+'. Your agent runs everything else and reports what actually reached production.';
+ document.querySelector('#build-plan-human')!.textContent='Only you can '+human.join('; ')+'. Your agent runs everything else and reports what actually reached production.';
 }
 function report(error:unknown){message.textContent=error instanceof Error?error.message:String(error);}
 function row(title='',url=''){const wrap=document.createElement('div');wrap.className='repeat-row';const l1=document.createElement('label');l1.textContent='Card title';const a=document.createElement('input');a.name='card-title';a.maxLength=100;a.required=true;a.value=title;l1.append(a);const l2=document.createElement('label');l2.textContent='HTTPS destination';const b=document.createElement('input');b.name='card-url';b.type='url';b.required=true;b.value=url;l2.append(b);const remove=document.createElement('button');remove.type='button';remove.className='secondary';remove.textContent='Remove';remove.onclick=()=>{wrap.remove();edited();show();previewRecommendation();};wrap.append(l1,l2,remove);document.querySelector('#card-rows')!.append(wrap);}

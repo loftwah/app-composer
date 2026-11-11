@@ -89,7 +89,7 @@ test('the composition handoff carries an ordered build plan an agent can actuall
   'human','human',
  ],'only the two owner credentials need the owner during the build');
  assert.deepEqual(humanOnlyActions(spec).slice(0,2),[
-  'signing in to Cloudflare and authorising the account the apps deploy into',
-  'creating OWNER_API_TOKEN for Here / there',
+  'sign in to Cloudflare and authorise the account the apps deploy into',
+  'create OWNER_API_TOKEN for Here / there',
  ]);
 });

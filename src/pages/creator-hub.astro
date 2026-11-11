@@ -1,0 +1,151 @@
+---
+import Base from '../layouts/Base.astro';
+import { ArrowRight } from '@lucide/astro';
+
+const apps = [
+  {
+    id: 'showcase',
+    name: 'Linkarooie',
+    role: 'The hub',
+    href: 'https://creator-hub.loftwah.com',
+    repository: 'https://github.com/loftwah/creator-hub-showcase',
+    purpose: 'Mara Quinn’s profile, four work links and the approved guest contributions.',
+  },
+  {
+    id: 'guestbook',
+    name: 'Here / there',
+    role: 'The contributions',
+    href: 'https://creator-hub-guestbook.loftwah.com',
+    repository: 'https://github.com/loftwah/creator-hub-guestbook',
+    purpose: 'A guest postcard stays private until Mara approves it. She can hide it again at any time.',
+  },
+];
+
+// Read the live release identity rather than repeating a commit from memory. A
+// failed read is reported as unverified; it never substitutes an older claim.
+const identity = await Promise.all(
+  apps.map(async (app) => {
+    try {
+      const response = await fetch(app.href + '/build.json', {
+        headers: { 'User-Agent': 'Mozilla/5.0 (App Composer case study)' },
+        signal: AbortSignal.timeout(4000),
+      });
+      if (!response.ok) return { id: app.id, revision: null, checked: false };
+      const body = await response.json();
+      return {
+        id: app.id,
+        revision: typeof body.revision === 'string' ? body.revision : null,
+        checked: true,
+      };
+    } catch {
+      return { id: app.id, revision: null, checked: false };
+    }
+  }),
+);
+const revision = Object.fromEntries(identity.map((entry) => [entry.id, entry]));
+const checkedAt = new Date().toLocaleString('en-AU', {
+  timeZone: 'Australia/Melbourne',
+  dateStyle: 'medium',
+  timeStyle: 'short',
+});
+---
+<Base title="Creator Hub: a home for your work, built with your agent" description="A live Creator Hub built through App Composer: two independently owned apps, a real contribution reviewed by its owner, and an exported plan any agent can follow.">
+ <div class="hub-intro">
+  <p class="hub-eyebrow">Reference application · fictional creator</p>
+  <h1>A home for your work.<br/>Two apps you own.</h1>
+  <p class="lede">Mara Quinn asked for a place for her ceramics, somewhere people could leave a note, and a way to decide what appears. Her agent built it from an App Composer specification. Both apps are live, and each keeps its own source, database and release.</p>
+  <div class="actions">
+   <a class="button" href="https://creator-hub.loftwah.com">Open the Creator Hub <ArrowRight size={18} aria-hidden="true"/></a>
+   <a class="button secondary" href="/init?start=composition">Build your own from this starting point</a>
+  </div>
+  <p class="small">Mara Quinn is fictional. The apps run in the operator’s Cloudflare account on the operator’s domain; this is a reference build, not a customer deployment.</p>
+ </div>
+
+ <section class="hub-section" id="brief">
+  <h2>The brief, in the person’s own words.</h2>
+  <blockquote>
+   “Give me a home for my work on my domain. Let people send contributions that I review before publishing. Let me edit the content, choose what appears, and ask my agent to add or change something later.”
+  </blockquote>
+  <p>No framework, hosting or database was chosen in that sentence. The specification turned it into two apps, one shared configuration and a set of decisions about who may see what.</p>
+ </section>
+
+ <section class="hub-section" id="live">
+  <h2>What is live now.</h2>
+  <div class="hub-apps">
+   {apps.map((app) => (
+    <article>
+     <p class="hub-role">{app.role}</p>
+     <h3><a href={app.href}>{app.name}</a></h3>
+     <p>{app.purpose}</p>
+     <p class="small">
+      {revision[app.id].checked
+        ? <>Serving revision <code>{revision[app.id].revision ?? 'unreadable'}</code> when this page was rendered at {checkedAt} (Australia/Melbourne).</>
+        : <>The live release identity could not be read just now. <a href={app.href + '/build.json'}>Check it directly</a> rather than trusting this page.</>}
+     </p>
+     <p class="small"><a href={app.repository}>Independent source</a> · <a href={app.href + '/build.json'}>Release identity</a></p>
+    </article>
+   ))}
+  </div>
+ </section>
+
+ <section class="hub-section" id="journey">
+  <h2>What actually happened.</h2>
+  <ol class="hub-steps">
+   <li><strong>Get Ready.</strong> The agent checked the GitHub and Cloudflare access it already had. Nobody installed anything by hand for this build.</li>
+   <li><strong>Describe and configure.</strong> Init exported a versioned specification for Guestbook + Linkarooie: the title, introduction, appearance, four work links and a review-before-publication rule. The form is the same one at <a href="/init">/init</a>.</li>
+   <li><strong>Create.</strong> Each app was copied at its pinned commit into its own repository, with its own Worker, D1 database and — for Here / there — its own R2 bucket. Nothing was merged into one project.</li>
+   <li><strong>Publish.</strong> Here / there deployed first, because Linkarooie reads approved contributions from it through a service binding. Both answered on their own HTTPS hostnames and reported the revision they were serving.</li>
+   <li><strong>Manage.</strong> A guest opened the postcard form, wrote a note and sent it. It stayed private. The owner approved it, and it became public in Here / there and readable by Linkarooie.</li>
+   <li><strong>Revoke.</strong> The owner hid the same contribution. It disappeared from both public views immediately, then returned when she approved it again.</li>
+  </ol>
+  <p class="small">This record describes the build on 11 November 2026 in the operator’s account. A different person’s build uses their own account, repositories and hostname, and their own owner credentials.</p>
+ </section>
+
+ <section class="hub-section" id="you">
+  <h2>What needed a person.</h2>
+  <p>Four actions were genuinely human: signing in to Cloudflare, creating the owner credential for each app, confirming the hostname, and deciding that a contribution could be published. Everything else — repositories, databases, bindings, configuration, deployment and the checks after it — was agent work.</p>
+  <p>Your agent gets the same plan in the exported handoff: an ordered list, each step labelled <em>agent</em> or <em>human</em>, so neither of you has to guess who is doing what. Init shows it before you copy anything.</p>
+  <div class="actions"><a class="button secondary" href="/init?start=composition">See the plan for this composition</a></div>
+ </section>
+
+ <section class="hub-section" id="own">
+  <h2>What you keep.</h2>
+  <ul class="hub-list">
+   <li><strong>Source.</strong> Two public repositories with their own history, manifests and release scripts. Either app runs without App Composer.</li>
+   <li><strong>Data.</strong> Separate D1 databases and a separate photo bucket. Hiding a contribution is enforced by the app that owns it, not by a copy somewhere else.</li>
+   <li><strong>Configuration.</strong> Title, introduction, theme, links and publication rules belong to the apps. A later source update does not overwrite them.</li>
+   <li><strong>Export.</strong> Here / there exports its approved items and settings through its own owner API. Linkarooie exports its cards and profile settings.</li>
+  </ul>
+  <p class="small">Limits that still apply: code rollback is not data restore, an exported copy of a photo cannot be recalled once downloaded, and both apps here run on the operator’s account and domain rather than a customer’s.</p>
+ </section>
+
+ <section class="hub-section" id="next">
+  <h2>Try the same starting point.</h2>
+  <p>Open Init, choose Guestbook + Linkarooie, and fill in the few details that matter. Copy the handoff to your agent. The specification and the build plan travel together; the agent verifies the environment, builds both apps and reports the addresses it actually reached.</p>
+  <div class="actions">
+   <a class="button" href="/init?start=composition">Configure a Creator Hub</a>
+   <a class="button secondary" href="/ready">Get Ready first</a>
+  </div>
+ </section>
+</Base>
+
+<style>
+ .hub-intro{max-width:900px}
+ .hub-intro h1{font-size:clamp(2.4rem,5vw,4.2rem);max-width:22ch;margin:0 0 20px}
+ .hub-intro .lede{font-size:1.15rem;max-width:68ch}
+ .hub-eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-muted);margin:0 0 14px}
+ .hub-section{padding:36px 0;border-bottom:1px solid var(--color-border)}
+ .hub-section h2{font-size:2rem;max-width:30ch;margin:0 0 20px}
+ .hub-section p,.hub-section li{max-width:72ch}
+ blockquote{margin:0 0 20px;padding:20px 24px;border-left:3px solid var(--color-accent);font-size:1.25rem;line-height:1.5;max-width:64ch}
+ .hub-apps{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:24px}
+ .hub-apps article{border-top:1px solid var(--color-border);padding-top:18px;min-width:0}
+ .hub-apps h3{font-size:1.5rem;margin:6px 0 10px}
+ .hub-apps p{font-size:15px;color:var(--color-muted);margin:0 0 10px}
+ .hub-role{font-size:12px;letter-spacing:.07em;text-transform:uppercase;margin:0}
+ .hub-steps{margin:0;padding-left:22px;display:grid;gap:14px}
+ .hub-steps li{font-size:15.5px;line-height:1.6}
+ .hub-list{margin:0;padding-left:20px;display:grid;gap:10px}
+ .hub-list li{font-size:15.5px;line-height:1.6}
+ @media(max-width:800px){.hub-apps{grid-template-columns:1fr;gap:24px}.hub-section h2{font-size:1.65rem}blockquote{font-size:1.1rem;padding:16px 18px}}
+</style>

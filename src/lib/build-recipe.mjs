@@ -83,7 +83,7 @@ export function buildRecipe(spec) {
     const app = apps[id];
     steps.push({
       actor: "agent",
-      title: `Provision ${app.name}'s own storage`,
+      title: `Provision storage for ${app.name}`,
       detail:
         "In the owner's Cloudflare account, create " +
         app.storage.join(", and ") +
@@ -91,7 +91,7 @@ export function buildRecipe(spec) {
     });
     steps.push({
       actor: "human",
-      title: `Set ${app.name}'s owner credential`,
+      title: `Set the owner credential for ${app.name}`,
       detail: `The owner creates a long random value for ${app.secret} and gives it to the agent only as a Worker secret (\`wrangler secret put ${app.secret}\`). It never belongs in the repository, this specification, a prompt, a screenshot or a log. The agent sets it and confirms the app accepts it without printing it.`,
     });
     if (app.wiring.length)
@@ -139,15 +139,17 @@ export function buildRecipe(spec) {
 export function humanOnlyActions(spec) {
   const actions = orderedIds(spec)
     .filter((id) => Object.hasOwn(apps, id))
-    .map((id) => `creating ${apps[id].secret} for ${apps[id].name}`);
-  actions.unshift("signing in to Cloudflare and authorising the account the apps deploy into");
+    .map((id) => `create ${apps[id].secret} for ${apps[id].name}`);
+  actions.unshift(
+    "sign in to Cloudflare and authorise the account the apps deploy into",
+  );
   if (spec.deployment.mode === "new-domain")
-    actions.push("buying a domain, if they choose to");
+    actions.push("buy a domain, if you choose to");
   if (spec.deployment.mode === "existing-domain")
     actions.push(
-      `confirming they control ${spec.deployment.hostname} and approving the DNS change`,
+      `confirm you control ${spec.deployment.hostname} and approve the DNS change`,
     );
-  actions.push("approving any destructive change");
+  actions.push("approve any destructive change");
   return actions;
 }
 

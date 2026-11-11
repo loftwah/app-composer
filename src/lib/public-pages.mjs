@@ -8,6 +8,7 @@ export const publicPagePaths = Object.freeze([
   '/explore', '/demo', '/docs', '/architecture', '/guide',
   '/catalogue', '/apps', '/activity', '/review', '/privacy', '/release', '/capabilities',
   '/extension', '/state', '/php2shell', '/studio', '/manage', '/building', '/effect',
+  '/creator-hub',
   '/launch-kit', '/paperwork', '/init/paperwork', '/platform', '/platform/demo', '/plugin-trust', '/incident-replay', '/migration-example',
 ]);
 
@@ -20,6 +21,7 @@ export const builderPagePaths = Object.freeze([
   '/catalogue', '/release', '/privacy', '/extension', '/php2shell',
   '/ready/guide', '/demo', '/manage', '/studio', '/activity', '/init',
   '/init/content', '/init/launch-kit', '/ready', '/learn', '/building',
+  '/creator-hub',
   '/launch-kit', '/paperwork', '/init/paperwork',
 ]);
 export const builderStaticPaths = Object.freeze(['/launch-kit/example/']);
