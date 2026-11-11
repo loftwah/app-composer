@@ -4,14 +4,24 @@ Reviewed 25 October 2026; updated 12 November 2026. This page is the current nav
 
 ## Project health pass — 12 November 2026
 
-Production is Composer `585073846481cf33da9556c3117275e726ab7d5f`, Worker
-`33d97082-d833-49bb-9b05-bfa196f28f01`. Creator Hub now reuses a release
+Production is Composer `cd4e30a52797ccd3b7afaad1eff9603f8472840d`, Worker
+`0dc14e06-8476-48a6-8e0a-641051b9a94e`. Init's build plan now verifies the
+owner's deployment targets before storage and secret steps, distinguishes
+upstream pins from the deployed owned commit and names Linkarooie's existing
+Guestbook prerequisite. The guarded release passed 612 tests and its live
+gates in 93.7 seconds. Live Chromium copied the paired handoff at 1440px and
+the Linkarooie-only handoff for an existing GitLab runner at 390px. The change
+took 4 minutes 46 seconds from the first handoff edit to live verification.
+
+Creator Hub now reuses a release
 observation for 60 seconds within a warm Worker isolate and displays when it
 checked each reference app. The live page reported both revisions and both
-matched the apps' public build endpoints. The corrected guarded release passed
-611 tests and every live gate in 86.3 seconds. Total time from the first edit
-to the affected live check was 6 minutes 5 seconds, including a corrective
-release for a redirect mode the Workers runtime refused.
+matched the apps' public build endpoints. Composer
+`585073846481cf33da9556c3117275e726ab7d5f` on Worker
+`33d97082-d833-49bb-9b05-bfa196f28f01` passed 611 tests and the live gates in
+86.3 seconds. Total time from the first cache edit to the affected live check
+was 6 minutes 5 seconds, including a corrective release for a redirect mode
+the Workers runtime refused.
 
 [Maintenance issue #427](https://github.com/loftwah/app-composer/issues/427)
 tracks remaining findings and verification limits.
