@@ -13,7 +13,7 @@ let latest: Observation | undefined;
 async function readRevision(app: App, request: typeof fetch) {
   try {
     const response = await request(new URL("/build.json", reference.apps[app].origin), {
-      redirect: "error",
+      redirect: "manual",
       headers: { "User-Agent": "Mozilla/5.0 (App Composer case study)" },
       signal: AbortSignal.timeout(6000),
     });
@@ -29,7 +29,10 @@ async function readRevision(app: App, request: typeof fetch) {
   }
 }
 
-export async function readCreatorHubRelease(request = fetch, now = Date.now) {
+export async function readCreatorHubRelease(
+  request: typeof fetch = (input, init) => fetch(input, init),
+  now = Date.now,
+) {
   const checkedAt = now();
   if (latest && checkedAt - latest.checkedAt < cacheMs) return latest;
 

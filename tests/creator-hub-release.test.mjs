@@ -9,7 +9,7 @@ test("Creator Hub reuses a timed release observation and refreshes both identiti
   const request = async (url, options) => {
     requests++;
     assert.equal(url.pathname, "/build.json");
-    assert.equal(options.redirect, "error");
+    assert.equal(options.redirect, "manual");
     if (url.hostname === "creator-hub.loftwah.com") {
       return Response.json({ app: "showcase", revision: refresh ? "bad" : "a".repeat(40) });
     }
@@ -34,4 +34,11 @@ test("Creator Hub reuses a timed release observation and refreshes both identiti
     revisions: { showcase: null, guestbook: null },
   });
   assert.equal(requests, 4);
+
+  time += 60_000;
+  const redirect = () => Response.redirect("https://example.com/build.json");
+  assert.deepEqual((await readCreatorHubRelease(redirect, () => time)).revisions, {
+    showcase: null,
+    guestbook: null,
+  });
 });
