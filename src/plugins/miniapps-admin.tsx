@@ -202,6 +202,7 @@ function AppPage() {
                   contributions={contributions}
                   visible={visible}
                   refresh={generation.current}
+                  site={site}
                   act={act}
                 />
               ) : (

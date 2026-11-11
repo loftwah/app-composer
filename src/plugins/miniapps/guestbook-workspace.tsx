@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction, SubmitEvent } from "react";
 import { PhotoPreview } from "./photo-preview";
-import type { AppAction, Item } from "./types";
+import type { AppAction, Item, SiteID } from "./types";
 interface Props {
   busy: boolean;
   upload: (event: SubmitEvent<HTMLFormElement>) => Promise<void>;
@@ -10,6 +10,7 @@ interface Props {
   contributions: Item[];
   visible: number;
   refresh: number;
+  site: SiteID;
   act: AppAction;
 }
 export function GuestbookWorkspace({
@@ -21,6 +22,7 @@ export function GuestbookWorkspace({
   contributions,
   visible,
   refresh,
+  site,
   act,
 }: Props) {
   return (
@@ -75,7 +77,7 @@ export function GuestbookWorkspace({
         <div className="ca-contributions">
           {contributions.slice(0, visible).map((item) => (
             <article key={item.id}>
-              <PhotoPreview item={item} refresh={refresh} />
+              <PhotoPreview item={item} refresh={refresh} site={site} />
               <div>
                 <span className="ca-state">{item.status}</span>
                 <h3>{item.caption}</h3>

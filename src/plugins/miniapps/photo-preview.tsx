@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { call } from "./api";
-import type { Item } from "./types";
+import type { Item, SiteID } from "./types";
 export function PhotoPreview({
   item,
   refresh,
+  site,
 }: {
   item: Item;
   refresh: number;
+  site: SiteID;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [failed, setFailed] = useState(false);
@@ -15,7 +17,12 @@ export function PhotoPreview({
     setFailed(false);
     void (async () => {
       try {
-        const result = await call("guestbook", "preview", { id: item.id });
+        const result = await call(
+          "guestbook",
+          "preview",
+          { id: item.id },
+          site,
+        );
         const bytes = Uint8Array.from(atob(result.png), (char) =>
           char.charCodeAt(0),
         );
@@ -35,7 +42,7 @@ export function PhotoPreview({
     return () => {
       active = false;
     };
-  }, [item.id, item.revision, refresh]);
+  }, [item.id, item.revision, refresh, site]);
   return (
     <>
       {failed && (
