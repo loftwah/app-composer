@@ -51,6 +51,18 @@ function Photo({ item }: { item: DemoItem }) {
     </>
   );
 }
+// Reader-facing names for saved settings. Raw layout values and record IDs stay
+// in the technical explanation, not in the normal history summary.
+const layoutLabel = (layout: Presentation["layout"]) =>
+  layout === "editorial" ? "Large images" : "Gallery grid";
+const stateLabel = (status: string) =>
+  status === "approved"
+    ? "Available to add"
+    : status === "deleted"
+      ? "Deleted at the source"
+      : "Hidden from the collection";
+const postcardName = (items: DemoItem[], id: string | null) =>
+  (id && items.find((item) => item.id === id)?.caption) || "Empty position";
 function Collection({
   state,
   presentation,
@@ -100,7 +112,7 @@ function Collection({
               <span className="bench-slot-empty">
                 {presentation.connected
                   ? `Postcard ${slot + 1}`
-                  : "Apps disconnected"}
+                  : "Apps are disconnected"}
               </span>
             )}
             {place && (
@@ -109,8 +121,9 @@ function Collection({
                 className="bench-place"
                 onClick={() => place(slot)}
                 disabled={!selected}
+                aria-label={`Add postcard to position ${slot + 1}`}
               >
-                Place here<span className="sr-only"> in slot {slot + 1}</span>
+                Add here
               </button>
             )}
           </div>
@@ -125,7 +138,7 @@ function Collection({
         Moon atlas <span>example.com ↗</span>
       </a>
       <p className="bench-footnote">
-        Linkarooie’s own link stays when the apps disconnect.
+        Your own links stay in place when you disconnect the apps.
       </p>
     </div>
   );
@@ -145,7 +158,7 @@ export default function CompositionWorkbench({
   );
   const [ready, setReady] = useState(false),
     [message, setMessage] = useState(
-      "Choose a postcard. Place it in the collection.",
+      "Choose a postcard, then add it to your collection.",
     ),
     [peel, setPeel] = useState(false),
     [layer, setLayer] = useState("content"),
@@ -239,7 +252,7 @@ export default function CompositionWorkbench({
         localStorage.setItem(DEMO_KEY, JSON.stringify(state));
       } catch {
         setMessage(
-          "This browser cannot save the demo. Keep exploring in this tab.",
+          "This browser cannot save your demo changes. You can still try the demo in this tab.",
         );
       }
     }
@@ -415,7 +428,7 @@ export default function CompositionWorkbench({
       );
     } catch {
       setMessage(
-        "The browser could not prepare the handoff. Allow session storage and try again; your Init draft is unchanged.",
+        "We couldn’t carry your settings to the next step. Allow session storage and try again. Your existing setup draft has not changed.",
       );
     }
   }
@@ -460,7 +473,7 @@ export default function CompositionWorkbench({
             slot: Number(target.dataset.benchSlot),
             id: current.id,
           },
-          "Connected. The collection now reads this source record.",
+          "Postcard added. Changes to the original will appear here too.",
         );
         if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
           target.animate(
@@ -473,7 +486,7 @@ export default function CompositionWorkbench({
           );
       } else
         setMessage(
-          "That is not an eligible collection slot. The postcard returned to its source.",
+          "Drop the postcard into a collection space, or choose Add here.",
         );
     }
   }
@@ -487,15 +500,15 @@ export default function CompositionWorkbench({
     >
       <div className="bench-toolbar">
         <p>
-          <strong>Yours to try.</strong> Fictional records · saved only in this
-          browser
+          <strong>Interactive demo</strong> · fictional postcards · changes stay
+          in this browser
         </p>
         <button
           type="button"
           onClick={() => {
             if (
               confirm(
-                "Reset only this fictional workbench? Your saved Init draft stays intact.",
+                "Reset the demo and remove its saved versions from this browser? Your app setup draft will stay unchanged.",
               )
             ) {
               localStorage.removeItem(DEMO_KEY);
@@ -521,11 +534,12 @@ export default function CompositionWorkbench({
               height="44"
             />
             <h2 id="bench-source-title">Here / there</h2>
-            <span>Source app</span>
+            <span>Original postcards</span>
           </div>
           <p className="bench-instruction">
-            Pick up a postcard, or select one and tap{" "}
-            <strong>Place here</strong>.
+            Choose a postcard, then select <strong>Add here</strong> in your
+            collection. You can also drag a postcard into place. Change its
+            caption to see the collection update.
           </p>
           <div className="bench-postcards">
             {state.items.map((record) => (
@@ -588,9 +602,7 @@ export default function CompositionWorkbench({
               >
                 <Photo item={record} />
                 <span className="bench-record-state">
-                  {record.status === "approved"
-                    ? "Approved · public"
-                    : "Hidden · owner inspection"}
+                  {stateLabel(record.status)}
                 </span>
               </button>
             ))}
@@ -609,14 +621,14 @@ export default function CompositionWorkbench({
               height="44"
             />
             <h2 id="bench-destination-title">Linkarooie</h2>
-            <span>Draft view</span>
+            <span>Your draft</span>
           </div>
           <div className="bench-peel-stack">
             <div
               className={`bench-sheet bench-sheet-presentation ${layer === "presentation" ? "bench-sheet-selected" : ""}`}
             >
               <div className="bench-sheet-label" aria-hidden={!peel}>
-                Composer presentation · reference slots
+                Collection layout
               </div>
               <Collection
                 state={state}
@@ -624,7 +636,7 @@ export default function CompositionWorkbench({
                 place={(slot) =>
                   apply(
                     { type: "connect", slot },
-                    "Placed. Caption and visibility follow the source, including future edits.",
+                    "Postcard added. Changes to the original will appear here too.",
                   )
                 }
                 selected={selectedEligible}
@@ -645,10 +657,10 @@ export default function CompositionWorkbench({
                 className="bench-sheet-label"
                 onClick={() => own("configuration")}
               >
-                Instance configuration
+                Page settings
               </button>
               <strong>{state.draft.title || "Our small universe"}</strong>
-              <span>{state.draft.layout} · independently configured title</span>
+              <span>{layoutLabel(state.draft.layout)} · page title</span>
             </div>
             <div
               className={`bench-sheet bench-sheet-content ${layer === "content" ? "bench-sheet-selected" : ""}`}
@@ -659,7 +671,7 @@ export default function CompositionWorkbench({
                 className="bench-sheet-label"
                 onClick={() => own("content")}
               >
-                Guestbook records &amp; media
+                Photos and captions
               </button>
               <div className="bench-sheet-record">
                 <img
@@ -669,11 +681,11 @@ export default function CompositionWorkbench({
                   height="900"
                 />
                 <div>
-                  <code>{item.id}</code>
                   <strong>{item.caption || "Untitled postcard"}</strong>
                   <span>
-                    {item.status} · record revision {item.revision}
+                    {stateLabel(item.status)} · record revision {item.revision}
                   </span>
+                  <code>{item.id}</code>
                 </div>
               </div>
             </div>
@@ -686,7 +698,7 @@ export default function CompositionWorkbench({
                 className="bench-sheet-label"
                 onClick={() => own("source")}
               >
-                Independent application source
+                App source code
               </button>
               {sources.map((source) => (
                 <a
@@ -706,7 +718,7 @@ export default function CompositionWorkbench({
               onClick={() =>
                 apply(
                   { type: "disconnect" },
-                  "Disconnected. The source postcards and Linkarooie’s own link are intact.",
+                  "Apps disconnected. Your original postcards and your own link are still there.",
                 )
               }
               disabled={!state.draft.connected}
@@ -720,20 +732,20 @@ export default function CompositionWorkbench({
                 if (!peel) dispatch({ type: "inspect" });
                 setMessage(
                   peel
-                    ? "Layers reassembled. Your selection and edits are retained."
-                    : "Four owners, one working composition. Select a layer to inspect it.",
+                    ? "Back to your collection. Your changes are still here."
+                    : "See what each part controls: the collection, its settings, the postcards and the app code.",
                 );
               }}
             >
-              {peel ? "Reassemble layers" : "Peel ownership layers"}
+              {peel ? "Close explanation" : "See how it works"}
             </button>
           </div>
         </section>
         <div className="bench-source-editor">
           <div className="bench-editor-heading">
-            <strong>Edit source postcard</strong>
+            <strong>Edit the original postcard</strong>
             <button type="button" onClick={() => own("content")}>
-              Who owns this?
+              Where is this stored?
             </button>
           </div>
           <code>
@@ -750,7 +762,7 @@ export default function CompositionWorkbench({
             />
           </label>
           <label>
-            Fictional image
+            Postcard image
             <select
               value={item.image}
               onChange={(event) =>
@@ -767,14 +779,12 @@ export default function CompositionWorkbench({
               apply(
                 { type: "visibility" },
                 selectedEligible
-                  ? "Hidden at the source. Public representations have withdrawn."
-                  : "Approved again. Select a slot to reconnect this postcard.",
+                  ? "Postcard hidden. It no longer appears in the draft or saved previews."
+                  : "Postcard available again. Choose Add here to put it back in your draft.",
               )
             }
           >
-            {selectedEligible
-              ? "Hide source postcard"
-              : "Restore approved visibility"}
+            {selectedEligible ? "Hide postcard" : "Make postcard available"}
           </button>
         </div>
       </div>
@@ -782,17 +792,17 @@ export default function CompositionWorkbench({
         {message}
       </p>
       {peel && (
-        <section className="bench-ownership" aria-label="Ownership layers">
+        <section className="bench-ownership" aria-label="How the collection fits together">
           <div
             className="bench-layer-tabs"
             role="group"
-            aria-label="Inspect ownership"
+            aria-label="Choose a part to explain"
           >
             {[
-              ["presentation", "Composer presentation"],
-              ["configuration", "Instance configuration"],
-              ["content", "App records & media"],
-              ["source", "Pinned app source"],
+              ["presentation", "Collection layout"],
+              ["configuration", "Page settings"],
+              ["content", "Photos and captions"],
+              ["source", "App source code"],
             ].map(([id, name]) => (
               <button
                 key={id}
@@ -810,11 +820,11 @@ export default function CompositionWorkbench({
           <div className="bench-layer-detail">
             {layer === "presentation" && (
               <>
-                <h3>Composer arranges the connections.</h3>
+                <h3>Arrange the postcards without moving the originals.</h3>
                 <p>
-                  Slots store source item IDs. They do not copy the photo or
-                  caption. Demo revisions save this arrangement and these
-                  settings.
+                  The collection remembers which postcards you selected and
+                  where they appear. Photos and captions stay in Here / there,
+                  so changes to an original appear wherever it is shown.
                 </p>
                 <label>
                   Collection layout
@@ -828,16 +838,16 @@ export default function CompositionWorkbench({
                     }
                   >
                     <option value="grid">Gallery grid</option>
-                    <option value="editorial">Larger editorial images</option>
+                    <option value="editorial">Large images</option>
                   </select>
                 </label>
               </>
             )}
             {layer === "configuration" && (
               <>
-                <h3>The heading is an instance setting.</h3>
+                <h3>Give your collection its own identity.</h3>
                 <label>
-                  Linkarooie title
+                  Collection title
                   <input
                     value={state.draft.title}
                     maxLength={80}
@@ -847,44 +857,49 @@ export default function CompositionWorkbench({
                   />
                 </label>
                 <p>
-                  Changing this supported title leaves Guestbook’s records
-                  untouched.
+                  Change the collection title without changing the postcards in
+                  Here / there.
                 </p>
               </>
             )}
             {layer === "content" && (
               <>
-                <h3>This photograph belongs to Guestbook.</h3>
+                <h3>The original stays in Here / there.</h3>
                 <p>
-                  <code>{item.id}</code> · {item.status} · record revision{" "}
-                  {item.revision}
+                  Here / there holds each postcard’s photo, caption and
+                  visibility. Saved collection versions use the latest
+                  postcard. Restoring an arrangement won’t bring back a hidden
+                  postcard or remove a newer one.
                 </p>
-                <p>{item.caption}</p>
                 <p>
-                  The image and caption are current source data. Presentation
-                  history cannot undo moderation or erase later records.
+                  <strong>{item.caption || "Untitled postcard"}</strong>
+                </p>
+                <p className="bench-record-meta">
+                  {stateLabel(item.status)} · record revision {item.revision} ·{" "}
+                  <code>{item.id}</code>
                 </p>
                 <button
                   type="button"
                   onClick={() =>
                     apply(
                       { type: "later" },
-                      "Later source record added. Preview or restore an older presentation: this record remains.",
+                      "Example postcard added. Restoring an older collection will keep this postcard.",
                     )
                   }
                   disabled={state.items.length === 3}
                 >
-                  Add a later fictional record
+                  Add another example postcard
                 </button>
               </>
             )}
             {layer === "source" && (
               <>
-                <h3>Separate source. Exact revisions.</h3>
+                <h3>Each app has its own code.</h3>
                 <p>
-                  These are the independent applications mounted by this
-                  Composer build. Exploring this local specimen does not write
-                  to them.
+                  Here / there and Linkarooie are maintained in separate
+                  repositories. These links show the exact app versions included
+                  in this App Composer build. Changes in this demo stay in your
+                  browser.
                 </p>
                 {sources.map((source) => (
                   <p key={source.id}>
@@ -909,26 +924,31 @@ export default function CompositionWorkbench({
         aria-labelledby="bench-revisions-title"
       >
         <div className="bench-revision-controls">
-          <h2 id="bench-revisions-title">
-            A draft. A published view. Your history.
-          </h2>
+          <h2 id="bench-revisions-title">Save a version of your collection</h2>
           <p>
-            Publish saves the arrangement on this device. Source records always
-            stay current. This does not deploy to Cloudflare.
+            Save your arrangement, try another, then compare them. Restoring a
+            version brings back its layout, settings and postcard selection.
+            Photos, captions and visibility always follow the latest originals.
           </p>
-          <button
-            className="button"
-            type="button"
-            onClick={() => {
-              apply(
-                { type: "publish" },
-                "Demo revision saved on this device. No cloud deployment occurred.",
-              );
-              setPreview(null);
-            }}
-          >
-            Publish demo revision
-          </button>
+          <div className="bench-save">
+            <button
+              className="button"
+              type="button"
+              onClick={() => {
+                apply(
+                  { type: "publish" },
+                  "Demo version saved in this browser.",
+                );
+                setPreview(null);
+              }}
+            >
+              Save demo version
+            </button>
+            <p className="bench-save-note">
+              Demo versions are saved in this browser. Saving here does not
+              publish a website.
+            </p>
+          </div>
           <div className="bench-timeline">
             {state.revisions.map((saved) => (
               <button
@@ -938,21 +958,21 @@ export default function CompositionWorkbench({
                 onClick={() => {
                   transfer(() => setPreview(saved.id));
                   setMessage(
-                    `Previewing revision ${saved.id}. The draft is unchanged.`,
+                    `Viewing version ${saved.id}. Your draft has not changed.`,
                   );
                 }}
               >
-                <strong>r{saved.id}</strong>
+                <strong>Version {saved.id}</strong>
                 <span>
-                  {saved.presentation.title} · {saved.presentation.layout} ·{" "}
+                  {saved.presentation.title} ·{" "}
+                  {layoutLabel(saved.presentation.layout)} ·{" "}
                   {saved.presentation.slots
-                    .map(
-                      (id, slot) =>
-                        `slot ${slot + 1}: ${id?.replace("demo-", "") ?? "empty"}`,
-                    )
+                    .map((id) => postcardName(state.items, id))
                     .join(" / ")}{" "}
                   ·{" "}
-                  {saved.presentation.connected ? "connected" : "disconnected"}
+                  {saved.presentation.connected
+                    ? "Apps connected"
+                    : "Apps are disconnected"}
                 </span>
               </button>
             ))}
@@ -964,19 +984,19 @@ export default function CompositionWorkbench({
                 onClick={() => {
                   apply(
                     { type: "restore", revision: revision.id },
-                    `Restored presentation r${revision.id} as a new revision. Current source records and visibility are retained.`,
+                    `Version ${revision.id} restored as a new saved version. Postcards keep their latest content and visibility.`,
                   );
                   setPreview(null);
                 }}
               >
-                Restore r{revision.id} as new revision
+                Restore version {revision.id}
               </button>
               {preview !== null && (
                 <button
                   type="button"
                   onClick={() => transfer(() => setPreview(null))}
                 >
-                  Return to latest published
+                  Back to latest saved version
                 </button>
               )}
             </div>
@@ -985,8 +1005,8 @@ export default function CompositionWorkbench({
         <div className="bench-published">
           <h3>
             {revision
-              ? `Published demo · r${revision.id}${preview !== null ? " · preview" : ""}`
-              : "Nothing published yet"}
+              ? `Saved version ${revision.id}${preview !== null ? " · Preview" : ""}`
+              : "No saved versions yet"}
           </h3>
           {revision ? (
             <Collection
@@ -996,32 +1016,30 @@ export default function CompositionWorkbench({
             />
           ) : (
             <p>
-              Your draft is live above. Connect a postcard, then publish your
-              first local revision here.
+              Add a postcard to your draft, then choose{" "}
+              <strong>Save demo version</strong> to see it here.
             </p>
           )}
         </div>
       </section>
       <footer className="bench-finish">
         <div>
-          <h2>Your local result.</h2>
-          <p className="bench-outcome-scope">
-            On this device · current draft · fictional records
-          </p>
+          <h2>Your collection so far</h2>
+          <p className="bench-outcome-scope">Current draft</p>
           <dl
             className="bench-outcomes"
-            aria-label="Current local demonstration result"
+            aria-label="Your collection so far in this demo"
           >
             <div>
-              <dt>Approved postcards</dt>
+              <dt>Available postcards</dt>
               <dd>{outcomes.approvedPostcards}</dd>
             </div>
             <div>
-              <dt>Connected references</dt>
+              <dt>Postcards in your collection</dt>
               <dd>{outcomes.connectedReferences}</dd>
             </div>
             <div>
-              <dt>Saved revisions</dt>
+              <dt>Saved versions</dt>
               <dd>{outcomes.savedRevisions}</dd>
             </div>
           </dl>
@@ -1035,30 +1053,22 @@ export default function CompositionWorkbench({
               "inspect",
               "publish",
             ].every((name) => state.milestones.includes(name))
-              ? "You have connected, changed and inspected your own local composition."
-              : "Try editing, hiding and disconnecting, then publish three arrangements. Your result updates here."}
-          </p>
-          <p className="bench-hosted-proof">
-            A separate hosted demonstration follows one real Open action through
-            its owner report to an explicitly permitted public snapshot.{" "}
-            <a href="/reports/r971f5140bbe0c84c8147a64b">
-              Read the hosted demonstration report
-            </a>{" "}
-            ·{" "}
-            <a href="/manage#analytics-proof">
-              See how the outcome was reconciled
-            </a>
-            .
+              ? "You’ve seen how the apps connect, how changes carry through and how to restore an arrangement."
+              : "Try changing a caption, hiding a postcard or saving another arrangement."}
           </p>
           <p className="bench-footnote">
-            Your local actions do not send public activity events. Up to 24 demo
-            revisions are retained. Init carries supported appearance and
-            configuration. Fictional demo records and sandbox history stay here.
+            This browser keeps your latest 24 demo versions.
           </p>
         </div>
-        <button type="button" className="button" onClick={handoff}>
-          Use this starting point →
-        </button>
+        <div className="bench-handoff">
+          <button type="button" className="button" onClick={handoff}>
+            Use these settings →
+          </button>
+          <p className="bench-handoff-note">
+            Carry your collection title and layout into app setup. Example
+            postcards and saved demo versions stay here.
+          </p>
+        </div>
       </footer>
       {ready && new URLSearchParams(location.search).has("studies") && (
         <details className="bench-studies">

@@ -14,6 +14,7 @@
 .bench-toolbar p {
   margin: 0;
   font-size: 14px;
+  max-width: 62ch;
 }
 .composition-workbench button,
 .composition-workbench select,
@@ -365,7 +366,7 @@
 }
 .bench-timeline button {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   text-align: left;
   gap: 14px;
   border: 0;
@@ -374,11 +375,17 @@
   color: var(--color-foreground);
   padding: 12px 5px;
 }
+.bench-timeline strong {
+  white-space: nowrap;
+  padding-top: 1px;
+}
 .bench-timeline button[aria-pressed="true"] {
   color: var(--bench-orange);
 }
 .bench-timeline span {
   font-size: 12px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .bench-published > h3 {
   font-size: 14px;
@@ -462,7 +469,7 @@
     align-items: flex-start;
   }
   .bench-toolbar p {
-    max-width: 26ch;
+    max-width: 34ch;
   }
   .bench-finish > .button {
     margin-top: 12px;
@@ -829,18 +836,44 @@
   margin: 0;
   color: var(--color-foreground);
 }
-.bench-finish .bench-hosted-proof {
-  font-size: 13px;
+.bench-save {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+.bench-save .button {
+  flex-shrink: 0;
+}
+.bench-save-note {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  max-width: 34ch;
+  margin: 0;
+}
+.bench-record-meta {
+  font-size: 12px;
   line-height: 1.6;
-  max-width: 70ch;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
 }
-.bench-hosted-proof a {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.bench-handoff {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 36ch;
 }
-.bench-hosted-proof a:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 3px;
+.bench-handoff .button {
+  flex-shrink: 0;
+}
+.bench-handoff-note {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 0;
 }
 @media (max-width: 600px) {
   .bench-outcomes {
@@ -852,10 +885,18 @@
   .bench-outcomes dd {
     font-size: 1.4rem;
   }
-}
-
-.bench-hosted-proof a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
+  .bench-toolbar p {
+    max-width: 30ch;
+  }
+  .bench-save {
+    display: block;
+  }
+  .bench-save-note {
+    margin-top: 10px;
+    max-width: 40ch;
+  }
+  .bench-handoff {
+    margin-top: 14px;
+    max-width: none;
+  }
 }
