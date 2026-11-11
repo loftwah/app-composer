@@ -1,6 +1,6 @@
 # Delivery status
 
-Reviewed 25 October 2026; updated 11 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+Reviewed 25 October 2026; updated 12 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
 ## Creator Hub reference build — 11 November 2026
 
@@ -90,6 +90,29 @@ Evidence:
 Still open: the described follow-up app/admin change, source update/refusal and
 recovery, contribution deletion, saved visitor-book collection for the reference
 pair, Fungi/Oyster, the Cloudflare extension and external participant validation.
+
+## Maintenance task catalogue — 12 November 2026
+
+Production is Composer `3292200c9951a979fc08e000790e82a6857d5f76`, Worker
+`adab0620-4a81-45ea-8e88-a1add6048899`; `/build.json` matches. The public prompt
+desk now publishes 18 maintenance tasks alongside the existing jobs: 46 total,
+with a maintained mapping for H0 and all 22 source prompts. The new tasks assess
+and report by default; an optional **Changes already authorised** field records
+the permitted fix scope, and leaving it blank keeps the task read-only.
+
+The normal preview app was exercised at 1440 × 1000 and 390 × 844 in both
+themes. Quick links, fragments, search, required-input feedback, exact
+preview/clipboard/Markdown output, old and new saved drafts, and no-JavaScript
+templates work. Keyboard activation was fixed in `4574984` so the selected task
+heading is visible when focus moves to it. The guarded release passed the full
+608-test check, build, migrations, upload and live gates; the first attempt
+stopped before any remote mutation on a load-related project-write timeout and
+passed on the rerun.
+
+Limits: this is the catalogue slice. It does not select tasks in Get Ready/Init,
+execute an agent, retain run results or enable recurrence. Those remain open in
+#428, with connected execution in #311 and scheduling in #289. Evidence:
+[Maintenance task catalogue](evidence/maintenance-prompts-20261112/README.md).
 
 ## Effect usage audit — 8 November 2026
 
