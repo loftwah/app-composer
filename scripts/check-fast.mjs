@@ -89,7 +89,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       process.exitCode = 1;
     } else
       console.log(
-        "Focused checks passed. This is not the release gate: run `pnpm check` and `pnpm build` before release.",
+        "Focused checks passed. The guarded `pnpm deploy` runs the required full check and production build.",
       );
   } catch (error) {
     console.error(error?.message ?? error);

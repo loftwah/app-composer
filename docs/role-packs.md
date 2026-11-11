@@ -64,7 +64,7 @@ The shipped checks exercise all six packs against the same bundle and four unsaf
 
 The QA brief is the concrete release example: three of three public-visibility runs failed, so the verdict is blocked even though 12 of 14 journeys passed.
 
-Two packs have also been exercised by fresh local agents with no memory of this repository. The Programmer pack returned all eight output fields for a real small change, including “Not a named defect” for a feature request, no PR because no remote existed, and an unassigned human reviewer. The QA pack refused the committed production-target bundle in 32 seconds, naming the production mutation and the contradictory drift evidence, and asked for an isolated target instead of producing a verdict. Counts, hashes and the remaining gaps are in [the fresh-agent evaluation](../evaluations/fresh-agent-20261025.md); the `/roles` hub derives its proof strip from the same committed results file.
+Two packs have also been exercised by fresh local agents with no memory of this repository. The Programmer pack returned all eight output fields for a real small change, including “Not a named defect” for a feature request, no PR because no remote existed, and an unassigned human reviewer. The QA pack refused the committed production-target bundle in 32 seconds, naming the production mutation and the contradictory drift evidence, and asked for an isolated target instead of producing a verdict. Counts, hashes and the remaining gaps are in [the fresh-agent evaluation](evaluations/fresh-agent-20261025.md); the `/roles` hub derives its proof strip from the same committed results file.
 
 ## Actual captures
 

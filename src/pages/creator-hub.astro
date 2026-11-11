@@ -1,63 +1,26 @@
 ---
 import Base from '../layouts/Base.astro';
 import { ArrowRight } from '@lucide/astro';
+import reference from '../../config/creator-hub-reference.json';
+import { readCreatorHubRelease } from '../lib/creator-hub-release';
 
 const apps = [
   {
     id: 'showcase',
     name: 'Linkarooie',
-    href: 'https://creator-hub.loftwah.com',
-    repository: 'https://github.com/loftwah/creator-hub-showcase',
+    ...reference.apps.showcase,
     purpose: 'Mara Quinn’s profile. Four work links and the approved guest contributions she chose to show.',
   },
   {
     id: 'guestbook',
     name: 'Here / there',
-    href: 'https://creator-hub-guestbook.loftwah.com',
-    repository: 'https://github.com/loftwah/creator-hub-guestbook',
+    ...reference.apps.guestbook,
     purpose: 'Where contributions arrive. A guest postcard stays private until Mara approves it, and she can hide it again at any time.',
   },
-];
+] as const;
 
-// Read the live release identity rather than repeating a commit from memory. A
-// failed read is reported as unverified; it never substitutes an older claim.
-// A short module-level memo keeps a warm isolate from making two outbound
-// requests on every view without letting a stale answer outlive a release.
-const memo: {
-  at: number;
-  value: Array<{ id: string; revision: string | null; checked: boolean }> | null;
-} = { at: 0, value: null };
-const memoMs = 60_000;
-
-async function readIdentity() {
-  if (memo.value && Date.now() - memo.at < memoMs) return memo.value;
-  const read = await Promise.all(
-    apps.map(async (app) => {
-      try {
-        const response = await fetch(app.href + '/build.json', {
-          headers: { 'User-Agent': 'Mozilla/5.0 (App Composer case study)' },
-          signal: AbortSignal.timeout(6000),
-        });
-        if (!response.ok) return { id: app.id, revision: null, checked: false };
-        const body = await response.json();
-        return {
-          id: app.id,
-          revision: typeof body.revision === 'string' ? body.revision : null,
-          checked: true,
-        };
-      } catch {
-        return { id: app.id, revision: null, checked: false };
-      }
-    }),
-  );
-  memo.value = read;
-  memo.at = Date.now();
-  return read;
-}
-
-const identity = await readIdentity();
-const revision = Object.fromEntries(identity.map((entry) => [entry.id, entry]));
-const checkedAt = new Date().toLocaleString('en-AU', {
+const release = await readCreatorHubRelease();
+const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
   timeZone: 'Australia/Melbourne',
   dateStyle: 'medium',
   timeStyle: 'short',
@@ -68,7 +31,7 @@ const checkedAt = new Date().toLocaleString('en-AU', {
   <h1>A home for your work.<br/>Two apps you own.</h1>
   <p class="lede">Mara Quinn asked for a place for her ceramics, somewhere people could leave a note, and a way to decide what appears. Her agent built it from an App Composer specification. Both apps are live, and each keeps its own source, database and release.</p>
   <div class="actions">
-   <a class="button" href="https://creator-hub.loftwah.com">Open the Creator Hub <ArrowRight size={18} aria-hidden="true"/></a>
+   <a class="button" href={reference.apps.showcase.origin}>Open the Creator Hub <ArrowRight size={18} aria-hidden="true"/></a>
    <a class="button secondary" href="/init?start=composition">Build your own from this starting point</a>
   </div>
   <p class="small">Mara Quinn is fictional. The apps run in the operator’s Cloudflare account on the operator’s domain; this is a reference build, not a customer deployment.</p>
@@ -90,14 +53,14 @@ const checkedAt = new Date().toLocaleString('en-AU', {
   <div class="hub-apps">
    {apps.map((app) => (
     <article>
-     <h3><a href={app.href}>{app.name}</a></h3>
+     <h3><a href={app.origin}>{app.name}</a></h3>
      <p>{app.purpose}</p>
      <p class="small">
-      {revision[app.id].checked
-        ? <>Serving revision <code>{revision[app.id].revision ?? 'unreadable'}</code> when this page was rendered at {checkedAt} (Australia/Melbourne).</>
-        : <>The live release identity could not be read just now. <a href={app.href + '/build.json'}>Check it directly</a> rather than trusting this page.</>}
+      {release.revisions[app.id]
+        ? <>Release check at {checkedAt} (Australia/Melbourne) returned revision <code>{release.revisions[app.id]}</code>.</>
+        : <>The release check at {checkedAt} (Australia/Melbourne) could not verify the live revision.</>}
      </p>
-     <p class="small"><a href={app.repository}>Independent source</a> · <a href={app.href + '/build.json'}>Release identity</a></p>
+     <p class="small"><a href={app.repository}>Independent source</a> · <a href={app.origin + '/build.json'}>Release identity</a></p>
      <picture class="hub-shot">
       <img
         src={app.id === 'showcase' ? '/creator-hub/profile-20261111.webp' : '/creator-hub/guestbook-20261111.webp'}

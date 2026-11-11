@@ -12,7 +12,7 @@ Reviewed 23 October 2026. These videos show actual browser pages from the public
 
 These are useful local excerpts, not the completed #221 media deliverables. #221 requires a 60–90 second overview and a 5–8 minute technical walkthrough of the complete journey. Native-production request/review/update footage and the actual #215 incident/responder foundation remain necessary. The shorter excerpts are not padded or presented as that complete workflow.
 
-Local checkout links (ignored artifacts, not public publication): [overview excerpt](../../output/platform/media/overview.mp4) and [technical excerpt](../../output/platform/media/technical-walkthrough.mp4).
+Run the capture command below to generate the two ignored local excerpts under `output/platform/media/`.
 
 The capture writes only final media and bounded evidence under ignored `output/platform/media/`:
 
