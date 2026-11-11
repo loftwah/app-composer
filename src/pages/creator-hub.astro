@@ -101,7 +101,7 @@ const checkedAt = new Date().toLocaleString('en-AU', {
       <img
         src={app.id === 'showcase' ? '/creator-hub/profile-20261111.webp' : '/creator-hub/guestbook-20261111.webp'}
         width="1440"
-        height="960"
+        height={app.id === 'showcase' ? 960 : 1500}
         loading="lazy"
         decoding="async"
         alt={app.id === 'showcase'
