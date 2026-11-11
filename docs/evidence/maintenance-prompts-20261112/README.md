@@ -51,8 +51,8 @@ Local preview used the normal `pnpm dev` app; production checks ran against
   `4574984`.
 - `pnpm check:fast -- tests/fast-delivery-prompt.test.mjs` passed during
   implementation. The guarded `pnpm deploy` then ran the required 608-test
-  check, production build, migrations, upload and every live gate once on the
-  merged candidate.
+  check, production build, migrations, upload and every live gate on the merged
+  candidate.
 
 The first guarded attempt stopped before any remote mutation because
 `tests/content-project.test.mjs` timed out its 10-second project-write helper
