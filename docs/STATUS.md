@@ -114,6 +114,35 @@ execute an agent, retain run results or enable recurrence. Those remain open in
 #428, with connected execution in #311 and scheduling in #289. Evidence:
 [Maintenance task catalogue](evidence/maintenance-prompts-20261112/README.md).
 
+## Cloudflare technical review — 12 November 2026
+
+Production is Composer `ca15d9dd5d00787efc577fc295f0d419eef423fe`, Worker
+`f5aaefa0-42cf-44e7-99e9-0f4fbc0a4348`; `/build.json` matches. The guarded
+release passed the dependency audit, 610 tests, production build, migrations,
+upload and every live gate in 87.1s.
+
+The new [Cloudflare cost and operations page](https://composer.loftwah.com/cloudflare)
+publishes Cloudflare’s attributed Baselime precedent, the Creator Hub
+reference’s observed 31-day usage and assumption-labelled growth examples. At
+the observed volume the two reference apps fit inside the Workers Paid included
+allowances; the comparison excludes domains, Access seats, agent usage, labour
+and other account resources. It does not claim an 83% App Composer saving, a
+Cloudflare partnership or zero cost.
+
+The read-only inventory observed 109 in-scope resources: 21 declared and
+matching, 0 drift, 88 undeclared Worker scripts and 0 undeclared storage. The
+preview Worker has distinct D1/R2/KV, no services, no routes and no cron
+triggers; it remains publicly reachable and noindexed. Production administration
+is Access-protected, while the Workers.dev and preview administration paths
+refuse with 403. The separate Hello reference was redeployed to its current
+main (`6411500a…`, Worker `fbf1a226…`), resolving its exact-source gate.
+
+Limits: the authenticated EmDash MCP and admin journeys were not exercised in
+this review; the Get Ready standalone consumer needs an active Codex session and
+the local Codex account is over its usage limit; 88 undeclared Workers remain
+without a retention decision. Evidence:
+[Cloudflare review 20261112](evidence/cloudflare-review-20261112/README.md).
+
 ## Effect usage audit — 8 November 2026
 
 Production is Composer `4a1a15379b15e05c3a8624f8e076545e7ed6bd83`, Worker
