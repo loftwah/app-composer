@@ -106,7 +106,7 @@ export function buildRecipe(spec) {
     steps.push({
       actor: "agent",
       title: `Deploy ${app.name}`,
-      detail: `Remove the reviewed operator's custom domain and account id from that app's Wrangler configuration, set PUBLIC_ORIGIN to the owner's verified hostname, then run the app's own \`pnpm install --frozen-lockfile\`, \`pnpm check\` and \`pnpm deploy\` from its repository root. If the app's release script verifies a fixed hostname, point it at this deployment's own PUBLIC_ORIGIN first; otherwise the release refuses or checks someone else's site. Record the deployed Worker version and the HTTPS address you actually reached.`,
+      detail: `Point that app's Wrangler configuration at the owner's own account and hostname instead of the reviewed operator's, set PUBLIC_ORIGIN to the owner's verified hostname, then run the app's own \`pnpm install --frozen-lockfile\`, \`pnpm check\` and \`pnpm deploy\` from its repository root. If the app's release script verifies a fixed hostname, point it at this deployment's own PUBLIC_ORIGIN first; otherwise the release refuses or checks someone else's site. Record the deployed Worker version and the HTTPS address you actually reached.`,
     });
   }
   steps.push({
