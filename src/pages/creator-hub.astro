@@ -6,18 +6,16 @@ const apps = [
   {
     id: 'showcase',
     name: 'Linkarooie',
-    role: 'The hub',
     href: 'https://creator-hub.loftwah.com',
     repository: 'https://github.com/loftwah/creator-hub-showcase',
-    purpose: 'Mara Quinn’s profile, four work links and the approved guest contributions.',
+    purpose: 'Mara Quinn’s profile. Four work links and the approved guest contributions she chose to show.',
   },
   {
     id: 'guestbook',
     name: 'Here / there',
-    role: 'The contributions',
     href: 'https://creator-hub-guestbook.loftwah.com',
     repository: 'https://github.com/loftwah/creator-hub-guestbook',
-    purpose: 'A guest postcard stays private until Mara approves it. She can hide it again at any time.',
+    purpose: 'Where contributions arrive. A guest postcard stays private until Mara approves it, and she can hide it again at any time.',
   },
 ];
 
@@ -51,7 +49,6 @@ const checkedAt = new Date().toLocaleString('en-AU', {
 ---
 <Base title="Creator Hub: a home for your work, built with your agent" description="A live Creator Hub built through App Composer: two independently owned apps, a real contribution reviewed by its owner, and an exported plan any agent can follow.">
  <div class="hub-intro">
-  <p class="hub-eyebrow">Reference application · fictional creator</p>
   <h1>A home for your work.<br/>Two apps you own.</h1>
   <p class="lede">Mara Quinn asked for a place for her ceramics, somewhere people could leave a note, and a way to decide what appears. Her agent built it from an App Composer specification. Both apps are live, and each keeps its own source, database and release.</p>
   <div class="actions">
@@ -63,9 +60,11 @@ const checkedAt = new Date().toLocaleString('en-AU', {
 
  <section class="hub-section" id="brief">
   <h2>The brief, in the person’s own words.</h2>
-  <blockquote>
-   “Give me a home for my work on my domain. Let people send contributions that I review before publishing. Let me edit the content, choose what appears, and ask my agent to add or change something later.”
-  </blockquote>
+  <figure class="hub-quote">
+   <blockquote>
+    “Give me a home for my work on my domain. Let people send contributions that I review before publishing. Let me edit the content, choose what appears, and ask my agent to add or change something later.”
+   </blockquote>
+  </figure>
   <p>No framework, hosting or database was chosen in that sentence. The specification turned it into two apps, one shared configuration and a set of decisions about who may see what.</p>
  </section>
 
@@ -74,7 +73,6 @@ const checkedAt = new Date().toLocaleString('en-AU', {
   <div class="hub-apps">
    {apps.map((app) => (
     <article>
-     <p class="hub-role">{app.role}</p>
      <h3><a href={app.href}>{app.name}</a></h3>
      <p>{app.purpose}</p>
      <p class="small">
@@ -133,19 +131,18 @@ const checkedAt = new Date().toLocaleString('en-AU', {
  .hub-intro{max-width:900px}
  .hub-intro h1{font-size:clamp(2.4rem,5vw,4.2rem);max-width:22ch;margin:0 0 20px}
  .hub-intro .lede{font-size:1.15rem;max-width:68ch}
- .hub-eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-muted);margin:0 0 14px}
  .hub-section{padding:36px 0;border-bottom:1px solid var(--color-border)}
  .hub-section h2{font-size:2rem;max-width:30ch;margin:0 0 20px}
  .hub-section p,.hub-section li{max-width:72ch}
- blockquote{margin:0 0 20px;padding:20px 24px;border-left:3px solid var(--color-accent);font-size:1.25rem;line-height:1.5;max-width:64ch}
+ .hub-quote{margin:0 0 22px;padding-top:22px;border-top:1px solid var(--color-border);max-width:62ch}
+ .hub-quote blockquote{margin:0;font-size:1.5rem;line-height:1.45;font-weight:500;letter-spacing:-0.015em}
  .hub-apps{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:24px}
  .hub-apps article{border-top:1px solid var(--color-border);padding-top:18px;min-width:0}
  .hub-apps h3{font-size:1.5rem;margin:6px 0 10px}
  .hub-apps p{font-size:15px;color:var(--color-muted);margin:0 0 10px}
- .hub-role{font-size:12px;letter-spacing:.07em;text-transform:uppercase;margin:0}
  .hub-steps{margin:0;padding-left:22px;display:grid;gap:14px}
  .hub-steps li{font-size:15.5px;line-height:1.6}
  .hub-list{margin:0;padding-left:20px;display:grid;gap:10px}
  .hub-list li{font-size:15.5px;line-height:1.6}
- @media(max-width:800px){.hub-apps{grid-template-columns:1fr;gap:24px}.hub-section h2{font-size:1.65rem}blockquote{font-size:1.1rem;padding:16px 18px}}
+ @media(max-width:800px){.hub-apps{grid-template-columns:1fr;gap:24px}.hub-section h2{font-size:1.65rem}.hub-quote blockquote{font-size:1.2rem}}
 </style>

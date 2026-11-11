@@ -31,8 +31,11 @@ function renderBuildPlan(s:ReturnType<typeof validateSpec>){
   const actor=document.createElement('span');actor.className='plan-actor';actor.textContent=step.actor==='human'?'You':'Your agent';
   const body=document.createElement('span');body.className='plan-step';
   const title=document.createElement('strong');title.textContent=step.title;
-  const detail=document.createElement('span');detail.textContent=step.detail;
-  body.append(title,detail);item.append(actor,body);list.append(item);
+  body.append(title);
+  // The agent already has the full detail in the copied handoff. A person only
+  // needs the steps they have to take themselves.
+  if(step.actor==='human'){const detail=document.createElement('span');detail.textContent=step.detail;body.append(detail);}
+  item.append(actor,body);list.append(item);
  }
  const human=humanOnlyActions(s);
  document.querySelector('#build-plan-human')!.textContent='Only you can '+human.join('; ')+'. Your agent runs everything else and reports what actually reached production.';
