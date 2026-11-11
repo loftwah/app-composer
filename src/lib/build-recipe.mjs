@@ -84,6 +84,12 @@ export function buildRecipe(spec) {
         .join("; ") +
       ". Clone each pinned commit into its own directory and push it to a repository the owner controls. Keep each app's own history, manifest and release boundary. If the owner wants one repository, give each app its own subdirectory with its own package file and Wrangler configuration rather than merging their source.",
   });
+  steps.push({
+    actor: "agent",
+    title: "Verify the owner's deployment targets",
+    detail:
+      "Run Get Ready against the owner's selected Cloudflare account before any remote write. Replace the reviewed operator's account, Worker names, routes, storage identifiers and service destinations in each Wrangler configuration with the owner's targets. Leave unresolved bindings unset until their owned resources are verified. Set PUBLIC_ORIGIN to the app's own HTTPS origin and set PROFILE_ORIGIN to the same owned origin where the app declares it. Review the diff before creating resources, applying migrations, writing secrets or deploying.",
+  });
   for (const id of ids) {
     const app = apps[id];
     steps.push({
@@ -92,12 +98,12 @@ export function buildRecipe(spec) {
       detail:
         "In the owner's Cloudflare account, create " +
         app.storage.join(", and ") +
-        ". No app may share another app's database or bucket; that separation is what keeps the two apps independent.",
+        ". Replace the placeholders with the verified IDs or names of the resources created for this app before running any migrations. Keep each app's database and bucket separate.",
     });
     steps.push({
       actor: "human",
       title: `Set the owner credential for ${app.name}`,
-      detail: `The owner creates a long random value for ${app.secret} and gives it to the agent only as a Worker secret (\`wrangler secret put ${app.secret}\`). It never belongs in the repository, this specification, a prompt, a screenshot or a log. The agent sets it and confirms the app accepts it without printing it.`,
+      detail: `The owner creates a long random value for ${app.secret} and sets it only on this app's verified Worker using \`wrangler secret put ${app.secret}\`. Confirm the Worker name and account first. Keep the value out of the repository, this specification, prompts, screenshots and logs. The agent verifies that the app accepts it after deployment.`,
     });
     if (app.wiring.length)
       steps.push({
@@ -111,7 +117,7 @@ export function buildRecipe(spec) {
     steps.push({
       actor: "agent",
       title: `Deploy ${app.name}`,
-      detail: `Point the app's Wrangler configuration at the owner's verified account and HTTPS origin, and set PUBLIC_ORIGIN to that origin. If the release script uses a fixed hostname for source identity or sharing checks, update both checks to use this deployment's own PUBLIC_ORIGIN. Review and push those changes to the owner's main. Record the upstream pin and the new owned commit separately. From the app's repository root run \`pnpm install --frozen-lockfile\` and its guarded \`pnpm deploy\`, which runs the app's checks and build. Record the Worker version and the HTTPS address you actually reached.`,
+      detail: `If the release script uses a fixed hostname for source identity or sharing checks, update both checks to use this deployment's own PUBLIC_ORIGIN. Review and push the target and release changes to the owner's main. Record the upstream pin and the new owned commit separately. From the app's repository root run \`pnpm install --frozen-lockfile\` and its guarded \`pnpm deploy\`, which runs the app's checks and build. Record the Worker version and the HTTPS address you actually reached.`,
     });
   }
   steps.push({

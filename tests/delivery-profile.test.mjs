@@ -85,8 +85,13 @@ test('the composition handoff carries an ordered build plan an agent can actuall
  assert.match(text,/applies settings only to the operator's already verified pair/);
  // Here / there is the provider, so it must be deployed before Linkarooie.
  const steps=buildRecipe(spec);
+ const targets=steps.findIndex(step=>step.title==="Verify the owner's deployment targets");
+ const storage=steps.findIndex(step=>step.title.startsWith('Provision storage'));
+ const secret=steps.findIndex(step=>step.title.startsWith('Set the owner credential'));
  const guestbook=steps.findIndex(step=>step.title==='Deploy Here / there');
  const showcase=steps.findIndex(step=>step.title==='Deploy Linkarooie');
+ assert.ok(targets>=0&&targets<storage&&targets<secret,'owned targets are verified before remote writes');
+ assert.match(steps[targets].detail,/account, Worker names, routes, storage identifiers and service destinations/);
  assert.ok(guestbook>=0&&showcase>guestbook,'provider deploys first');
  assert.deepEqual(steps.map(step=>step.actor).filter(actor=>actor==='human'),[
   'human','human',
