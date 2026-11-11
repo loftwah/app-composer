@@ -11,12 +11,13 @@ const categories = [...new Set(promptModules.map(item => item.category))];
       <div><h1>Get to the doing.</h1><p>Choose a job. Add your details. Copy a complete request for your agent.</p></div>
       <div class="prompt-intro-links"><a href="/agent">Should we use App Composer? Assess this project <span aria-hidden="true">→</span></a><a href="/setup">Need a full project guide? <span aria-hidden="true">→</span></a></div>
     </div>
+    <p class="prompt-role-packs">Looking after an existing app? <a href="#health" data-prompt-link="health">Check for problems →</a> or <a href="#updates" data-prompt-link="updates">review updates →</a>. Choose a task and take the prompt to your agent.</p>
     <p class="prompt-role-packs">Working from a role rather than a task? <a href="/roles">Open the six agent role packs <span aria-hidden="true">→</span></a></p>
     <noscript><p class="no-script">Every template is readable below. Select the text to copy it, replace its bracketed fields, then paste it into your agent. JavaScript adds search, editable previews and copy buttons.</p></noscript>
     <div class="prompt-desk">
       <aside class="prompt-index" aria-label="Choose a prompt">
         <div class="prompt-search" data-enhanced hidden>
-          <label for="prompt-search">Find your job<input id="prompt-search" type="search" placeholder="Try “change”, “inbox” or “publish”" autocomplete="off" /></label>
+          <label for="prompt-search">Find your job<input id="prompt-search" type="search" placeholder="Try “bug”, “updates” or “publish”" autocomplete="off" /></label>
           <p class="prompt-count" id="prompt-count" role="status"></p>
         </div>
         <nav class="prompt-tasks" aria-label="Prompt jobs">
@@ -33,7 +34,7 @@ const categories = [...new Set(promptModules.map(item => item.category))];
         {promptModules.map(item => <article id={item.id} class="prompt-job" data-prompt-job={item.id}>
           <div class="prompt-job-heading"><h2 tabindex="-1">{item.title}</h2><span class="prompt-support">{item.support}</span></div>
           <p class="prompt-description">{item.description}</p>
-          <div class="prompt-prerequisites"><h3>Before you start</h3><ul>{item.prerequisites.map(link => <li><span>{link.when}. </span><a href={link.href}>{link.label} →</a></li>)}</ul><p>Browsing, preparing and copying need no login or paid model call. Publishing uses your project’s own account and release rules.</p></div>
+          <div class="prompt-prerequisites"><h3>Before you start</h3>{item.prerequisites.length > 0 && <ul>{item.prerequisites.map(link => <li><span>{link.when}. </span><a href={link.href}>{link.label} →</a></li>)}</ul>}<p>Browsing, preparing and copying need no login or paid model call. Publishing uses your project’s own account and release rules.</p></div>
           <form data-prompt-fields={item.id} data-enhanced hidden>
             <fieldset><legend>Your details</legend>{item.fields.map(field => <label for={`${item.id}-${field.key}`}><span>{field.label}{field.required ? <strong> — required</strong> : field.key === 'project' ? ' (or let the agent inspect)' : ''}</span><textarea id={`${item.id}-${field.key}`} name={field.key} rows={field.key === 'project' ? 2 : 3} maxlength="8000" placeholder={field.example} aria-required={field.required ? 'true' : undefined} /><small>{field.key === 'project' ? 'Use a safe folder, app or repository reference. Leave blank to inspect the selected workspace.' : field.required ? 'Describe the result in your own words. You can keep technical choices with the agent.' : 'Leave blank to omit this detail from the prompt.'}</small></label>)}</fieldset>
           </form>
