@@ -47,8 +47,49 @@ now names both, and the app repositories should adopt the fixes.
 Limits: the reference runs in the operator's Cloudflare account and domain, so it
 is not customer-owned onboarding. No external non-technical participant has run
 the journey yet, and the video, Fungi/Oyster integration and Cloudflare dashboard
-extension remain open. Migration proof, the EmDash owner session and the
-follow-up described change on this reference are also still open.
+extension remain open. Migration proof and the follow-up described change on this
+reference are also still open; native EmDash administration of this pair is
+recorded below.
+
+## Creator Hub native admin — 12 November 2026
+
+Production is Composer `c100530eed8661ff6874e1cd9b2cd83a53181a49`, Worker
+`f1f4a87d-0d39-4904-9326-c50b5c9c6f79`; `/build.json` matches. This is the next
+flagship #425 slice: the reference build is managed from the native EmDash panel,
+not by calling the apps' owner API by hand.
+
+**Manage mini-apps now has one deployment switch.** **Creator Hub reference**
+targets the two reference Workers through their own service bindings and owner
+tokens, with the reference commits as pins. **Operator pair** keeps the original
+guestbook/showcase connections. The server selects the binding, credential and
+reviewed pin from the validated site, still requires an invited administrator and
+still refuses preview, foreign origins and unverified app sources. Each reference
+app keeps its own repository, Worker, D1 database, Here / there R2 bucket and
+release identity. The reference owner tokens stay in the Worker secret store;
+the browser receives none.
+
+**The native path was exercised end to end.** A fictional guest postcard arrived
+as pending. The owner approved it in the panel, featured it in Linkarooie, and saw
+it public in both apps. Hiding it in the panel removed it from both public pages
+and returned `404` for its item and media routes. The postcard was left hidden so
+the public collection stays clean. The path was repeated on the final released
+source after fixing a preview defect: the first release's image preview asked the
+operator Guestbook for a reference item, so the final release passes the selected
+deployment through and the live panel renders both previews.
+
+The case study at `https://composer.loftwah.com/creator-hub` now states the
+management path actually used, links to the invited panel, and keeps the
+operator-account limit visible. Checked at 1440 × 1000 and 390 × 844 in both
+themes with no horizontal overflow and a visible keyboard focus outline.
+Detector: one pre-existing `side-tab` warning on the operator-only invitation
+card, not introduced here.
+
+Evidence:
+[Creator Hub native admin](evidence/creator-hub-native-admin-20261112/README.md).
+
+Still open: the described follow-up app/admin change, source update/refusal and
+recovery, contribution deletion, saved visitor-book collection for the reference
+pair, Fungi/Oyster, the Cloudflare extension and external participant validation.
 
 ## Effect usage audit — 8 November 2026
 
