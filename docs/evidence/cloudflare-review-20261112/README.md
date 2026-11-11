@@ -200,6 +200,19 @@ and [D1 pricing](https://developers.cloudflare.com/d1/platform/pricing/).
 Cloudflare’s published Baselime case study is
 [here](https://blog.cloudflare.com/80-percent-lower-cloud-cost-how-baselime-moved-from-aws-to-cloudflare/).
 
+## Production captures
+
+Inspected live at 1440 × 1000 and 390 × 844:
+
+- [Desktop, dark theme, full page](cloudflare-desktop-dark.png)
+- [Phone, light theme, full page](cloudflare-phone-light.png)
+
+The captures show the operating-model diagram, the Baselime attribution table,
+the measured Creator Hub usage, the growth assumptions and the limits section.
+The page had one `h1`, four captioned tables, no missing image alt text and no
+horizontal overflow at either width. The only console error was the known
+CSP-blocked Cloudflare Insights beacon.
+
 ## Checks run
 
 | Check | Result |
