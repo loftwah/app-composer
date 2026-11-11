@@ -165,7 +165,7 @@ the intentional event edit and reviewed enquiry survived. Exact rows are in
 ```sh
 # Composer side, from the repository root
 pnpm install --frozen-lockfile --prefer-offline
-node --test tests/content-model-downloads.test.mjs tests/project-setup.test.mjs
+node --test tests/content-model.test.mjs tests/content-project.test.mjs
 pnpm check
 
 # Fresh local app

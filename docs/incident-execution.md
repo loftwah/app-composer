@@ -52,7 +52,7 @@ mutation. A new action needs a new proposal and its own review.
 ## Repeat the proof
 
 ```sh
-node --test tests/incident-execution.test.mjs tests/agent-proposals.test.mjs
+node --test tests/incident-rehearsal.test.mjs tests/agent-proposals.test.mjs
 node docs/evidence/incident-lab-20261025/run.mjs output/incident-execution
 node labs/recovery/run.mjs output/recovery-drill/receipt.json
 ```

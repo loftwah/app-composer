@@ -150,7 +150,7 @@ fictional provider transport. They do not prove:
 
 ```sh
 node --test tests/inbox-journey.test.mjs tests/migration-order.test.mjs
-node --test tests/private-enquiries.test.mjs tests/enquiry-notifications.test.mjs
+node --test tests/private-enquiries.test.mjs tests/resend-delivery.test.mjs
 ```
 
 The rendered acceptance captures and their exact measurements are in

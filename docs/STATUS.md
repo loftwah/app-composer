@@ -2,6 +2,20 @@
 
 Reviewed 25 October 2026; updated 12 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Project health pass — 12 November 2026
+
+Production is Composer `585073846481cf33da9556c3117275e726ab7d5f`, Worker
+`33d97082-d833-49bb-9b05-bfa196f28f01`. Creator Hub now reuses a release
+observation for 60 seconds within a warm Worker isolate and displays when it
+checked each reference app. The live page reported both revisions and both
+matched the apps' public build endpoints. The corrected guarded release passed
+611 tests and every live gate in 86.3 seconds. Total time from the first edit
+to the affected live check was 6 minutes 5 seconds, including a corrective
+release for a redirect mode the Workers runtime refused.
+
+[Maintenance issue #427](https://github.com/loftwah/app-composer/issues/427)
+tracks remaining findings and verification limits.
+
 ## Creator Hub reference build — 11 November 2026
 
 Production is Composer `05e1fae4ac971f2951c87805ae5d51c494eeba77`, Worker

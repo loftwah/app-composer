@@ -48,7 +48,7 @@ The stack is **Fictional Trail Notes** (workspace `dean`), visitor book
    contribution action stayed live and open.
 
 The deliberate end state is **hidden/private**, not publicly featured. The
-screenshots retain the featured state for evidence; the profile is left clean.
+recorded live checks above describe the featured and revoked states.
 This also proves that hiding at source revokes the Linkarooie presentation
 without deleting the app-owned record.
 
@@ -64,10 +64,10 @@ without deleting the app-owned record.
 
 ## Evidence
 
-- `linkarooie-featured-1440.jpg` and `linkarooie-featured-390.png`: live profile
-  with the featured card and contribution action.
-- `linkarooie-revoked-1440.jpg` and `linkarooie-revoked-390.png`: live profile
-  after source hide; card gone, action remains.
+- The files named `linkarooie-featured-1440.jpg` and `linkarooie-revoked-1440.jpg`
+  are byte-identical, as are `linkarooie-featured-390.png` and
+  `linkarooie-revoked-390.png`. They show the same profile viewport at each
+  width. The screenshots provide no visual before/after proof of the card.
 - `stack-content-review-1440.jpg`: native review surface with the pending/approved
   and hidden records, including the app-owned moderation controls.
 

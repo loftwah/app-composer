@@ -106,11 +106,11 @@ the fixture UI or exported records.
 ## Local verification
 
 ```sh
-node --test tests/orders.test.mjs
+node --test tests/order-lifecycle.test.mjs tests/order-attention.test.mjs
 ```
 
-The focused tests exercise the exact native route with FK-enabled in-memory
-SQLite plus deterministic provider fixtures: completion without paid funds,
+The original native-route verification used the exact route with FK-enabled in-memory
+SQLite plus deterministic provider fixtures. It covered completion without paid funds,
 delayed success, stale observations, refunds, exact-scope mismatches, duplicate
 creation/events, changed idempotency payload, uncertainty/reconciliation,
 fulfilment ownership, production-confirm rejection, CSRF, viewer permissions and

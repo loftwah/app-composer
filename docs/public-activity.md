@@ -45,7 +45,6 @@ The preview and endpoint accept only public aggregate scopes. An owner-derived p
 ## Check this slice
 
 ```sh
-node --test tests/public-analytics.test.mjs tests/activity-view.test.mjs tests/portfolio-analytics.test.mjs tests/usage.test.mjs
 pnpm check
 pnpm build
 ```

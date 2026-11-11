@@ -126,16 +126,16 @@ this native implementation.
 
 ```sh
 node scripts/identity.mjs
-node --test tests/workflows.test.mjs tests/workflow-native-events.test.mjs
+node --test tests/workflow-lead.test.mjs
 ```
 
-The tests use FK-enabled local SQLite and fictional app fixtures. Native event
-tests execute the actual creator-plugin declarations through the installed
-EmDash dispatcher: publication/republish, successful platform publication and a
-real fixture operation failure each reach their supported draft automatically.
-They also retain a source after capture failure, recover through Scan, and cover
-late revocation/private-response denial plus revision/target races. They exercise
-the exact native route function, durable samples, unavailable-source recovery,
+The original native event tests used FK-enabled local SQLite and fictional app
+fixtures. They executed the creator-plugin declarations through the installed
+EmDash dispatcher. Publication and republish, successful platform publication,
+and a fixture operation failure each reached the supported draft automatically.
+That verification also covered source retention after capture failure, recovery
+through Scan, late revocation, private-response denial and revision or target
+races. It exercised the native route function, durable samples, unavailable-source recovery,
 publication scope, duplicate events, stale revisions, pause/revocation, unsafe
 imports and current permissions. This is deterministic local contract evidence,
 not a hosted owner session or external provider proof.

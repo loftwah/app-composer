@@ -20,7 +20,7 @@ Python 3, Pillow, ReportLab and Poppler:
 ```sh
 python3 scripts/resources/assets.py
 node scripts/package-resources.mjs
-node --test tests/resources.test.mjs
+node scripts/check-publication.mjs public/resources/v1
 ```
 
 Use the host's existing bundled dependencies where available. The artwork source

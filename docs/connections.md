@@ -97,13 +97,13 @@ local-agent grants and broader secret-manager acceptance remain open in #291.
 ## Verification and cleanup
 
 ```sh
-node --test tests/connections.test.mjs tests/local-secret-precedence.test.mjs
+node --test tests/connection-encryption.test.mjs tests/local-secret-precedence.test.mjs
 ```
 
-The route tests use the existing FK-enabled in-memory SQLite/app-service fixture.
-They exercise actual maintained read requests, canary-secret absence, precise
-scope, no effect, wrong-workspace/viewer denial, late revocation, interrupted and
-failed reads, stale source and unavailable dependency storage. They do not count
-as a real provider or hosted owner session. The loader test registers cleanup for
+The historical route verification used an FK-enabled in-memory SQLite fixture
+with an app service. It exercised read requests, canary-secret absence, scope,
+wrong-workspace and viewer denial, late revocation, interrupted and failed reads,
+stale source and unavailable dependency storage. The retained checks cover
+encryption and local secret precedence. The loader test registers cleanup for
 one owned temporary root immediately, removes it on success/failure and asserts
 its absence. It creates no Worker, account, browser or package installation.
