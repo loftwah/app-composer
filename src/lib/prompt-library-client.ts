@@ -30,7 +30,7 @@ if (root) {
       else link.removeAttribute('aria-current');
     }
     showPreview(id);
-    if (focus) get<HTMLElement>(`[data-prompt-job="${id}"] h2`).focus({ preventScroll: true });
+    if (focus) get<HTMLElement>(`[data-prompt-job="${id}"] h2`).focus();
   }
   function hashId(): string {
     try { const id = decodeURIComponent(location.hash.slice(1)); return promptModule(id)?.id ?? 'setup'; }
