@@ -1,4 +1,5 @@
 import { readyTasks } from './ready-handoff.ts';
+import { maintenancePromptModules } from './maintenance-prompts.ts';
 
 /** Public task content shared by the prompt desk and downloadable resources.
  * These instructions describe work; they never execute it or grant access. */
@@ -155,6 +156,7 @@ Stop at five minutes. Do not add scope to rescue the clock. Report elapsed time,
   module('composer', 'Build Composer with Composer', 'Build & change', 'Use a Composer-authored brief for a real change to Composer itself.',
     'Use the current App Composer authoring workflow to prepare this change to Composer. Capture the actual brief, validated Init/model specification where applicable and generated handoff without overwriting existing drafts. Then implement and verify the change in the Composer repository under its trusted instructions. Identify supplemental agent-authored implementation separately from generated output. Link the authored input to exact resulting source and behaviour. Do not claim autonomous self-development or installed tool capability from a copied prompt or exported file.',
     'An actual authored input → implemented change → verification chain, with limits stated.', { prerequisites: [{ label: 'Open Init', href: '/init', when: 'For the maintained Composer specification and handoff' }], related: 'verify' }),
+  ...maintenancePromptModules,
 ];
 
 export type PromptValues = Record<string, string>;
