@@ -1,6 +1,7 @@
 import type { AchievementCollection } from "../../lib/miniapp-achievements.mjs";
 import type { TagCollection } from "../../lib/miniapp-tag-fields.mjs";
 export type AppID = "guestbook" | "showcase";
+export type SiteID = "operator" | "creator-hub";
 export type Item = {
   id: string;
   caption?: string;
@@ -34,6 +35,8 @@ export type StyleDraft = {
 export type Snapshot = {
   ok: boolean;
   app: AppID;
+  site: SiteID;
+  revision: string;
   message?: string;
   config: Record<string, string> & {
     title: string;

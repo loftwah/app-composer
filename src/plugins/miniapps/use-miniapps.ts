@@ -16,10 +16,24 @@ import {
 } from "../profile-settings-admin";
 import { call } from "./api";
 import { callCollection, type CollectionRequest } from "./collection-api";
-import type { AppID, LinkDraft, StyleDraft, Snapshot, NewLink } from "./types";
+import type {
+  AppID,
+  LinkDraft,
+  SiteID,
+  StyleDraft,
+  Snapshot,
+  NewLink,
+} from "./types";
 import type { ShareCardSnapshot } from "../../lib/miniapp-share-card.mjs";
 export function useMiniapps() {
   const emptyLink: NewLink = { title: "", description: "", url: "" };
+  const [site, setSite] = useState<SiteID>(() => {
+    if (typeof window === "undefined") return "operator";
+    return new URLSearchParams(window.location.search).get("site") ===
+      "creator-hub"
+      ? "creator-hub"
+      : "operator";
+  });
   const [newLink, setNewLink] = useState<NewLink>(emptyLink);
   const linkGeneration = useRef(0);
   const changeNewLink = (value: NewLink) => {
@@ -98,11 +112,37 @@ export function useMiniapps() {
     window.addEventListener("beforeunload", leaving);
     return () => window.removeEventListener("beforeunload", leaving);
   }, [unsaved]);
+  const changeSite = (next: SiteID) => {
+    if (next === site) return;
+    if (unsaved) {
+      setMessage(
+        "Save or discard your current app changes before switching deployments.",
+      );
+      return;
+    }
+    setSite(next);
+    setSnapshots({});
+    setErrors({});
+    setDrafts({});
+    changeNewLink(emptyLink);
+    setLinkDrafts({});
+    setStyleDrafts({});
+    setAchievementDraft(undefined);
+    setTagDraft(undefined);
+    setProfileFileDraft(undefined);
+    setMessage("");
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (next === "creator-hub") url.searchParams.set("site", "creator-hub");
+      else url.searchParams.delete("site");
+      window.history.replaceState({}, "", url);
+    }
+  };
   const reload = useCallback(async () => {
     const version = ++generation.current;
     const results = await Promise.allSettled(
       (["guestbook", "showcase"] as AppID[]).map((app) =>
-        call(app, "snapshot"),
+        call(app, "snapshot", {}, site),
       ),
     );
     const next: Partial<Record<AppID, Snapshot>> = {},
@@ -116,7 +156,7 @@ export function useMiniapps() {
       setSnapshots(next);
       setErrors(failures);
     }
-  }, []);
+  }, [site]);
   useEffect(() => {
     void reload();
   }, [reload]);
@@ -132,7 +172,7 @@ export function useMiniapps() {
     setBusy(true);
     setMessage("Saving…");
     try {
-      await call(app, action, fields);
+      await call(app, action, fields, site);
       setMessage(success);
       await reload();
       return true;
@@ -167,10 +207,15 @@ export function useMiniapps() {
     mutating.current = true;
     setBusy(true);
     try {
-      const result = await call("showcase", "profile-settings", {
-        operation,
-        ...fields,
-      });
+      const result = await call(
+        "showcase",
+        "profile-settings",
+        {
+          operation,
+          ...fields,
+        },
+        site,
+      );
       if (operation === "apply") {
         setDrafts((previous) => {
           const next = { ...previous };
@@ -201,6 +246,10 @@ export function useMiniapps() {
     }
   };
   const collectionRequest: CollectionRequest = async (action, fields) => {
+    if (site !== "operator")
+      throw Error(
+        "Saved visitor-book collection controls remain on the operator pair.",
+      );
     if (mutating.current)
       throw Error("Wait for the current app action to finish.");
     mutating.current = true;
@@ -224,10 +273,15 @@ export function useMiniapps() {
     mutating.current = true;
     setBusy(true);
     try {
-      const result = await call("showcase", "share-card", {
-        operation,
-        ...fields,
-      });
+      const result = await call(
+        "showcase",
+        "share-card",
+        {
+          operation,
+          ...fields,
+        },
+        site,
+      );
       if (operation !== "snapshot") {
         // A retained draft may equal the saved settings after an edit is undone.
         // Retire only that clean draft so its old shareImage cannot undo adoption.
@@ -322,6 +376,8 @@ export function useMiniapps() {
   return {
     newLink,
     changeNewLink,
+    site,
+    changeSite,
     achievementDraft,
     setAchievementDraft,
     tagDraft,

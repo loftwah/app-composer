@@ -1,0 +1,19 @@
+{
+  "reviewed": "2026-11-11",
+  "label": "Creator Hub reference",
+  "note": "Fictional creator content. Both apps run in the operator's Cloudflare account on the operator's domain, with their own repositories, Workers, D1 databases and Here / there R2 bucket.",
+  "apps": {
+    "guestbook": {
+      "repository": "https://github.com/loftwah/creator-hub-guestbook",
+      "commit": "36797b8028682460c33fe092682bfbd63751ec1a",
+      "origin": "https://creator-hub-guestbook.loftwah.com",
+      "worker": "creator-hub-guestbook"
+    },
+    "showcase": {
+      "repository": "https://github.com/loftwah/creator-hub-showcase",
+      "commit": "b7cd3b3e8f19dbbb76d33fb4266053da928cf586",
+      "origin": "https://creator-hub.loftwah.com",
+      "worker": "creator-hub-showcase"
+    }
+  }
+}

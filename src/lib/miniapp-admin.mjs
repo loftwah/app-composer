@@ -65,6 +65,25 @@ async function responseJSON(response, limit) {
 }
 const origin = "https://composer.loftwah.com";
 const appId = (value) => value === "guestbook" || value === "showcase";
+const siteId = (value) => value === undefined || value === "operator" || value === "creator-hub";
+const referenceApp = (value) => record(value) &&
+    typeof value.commit === "string" &&
+    /^[a-f0-9]{40}$/.test(value.commit) &&
+    typeof value.origin === "string" &&
+    (() => {
+        try {
+            const url = new URL(value.origin);
+            return (url.protocol === "https:" &&
+                !url.username &&
+                !url.password &&
+                url.pathname === "/" &&
+                url.search === "" &&
+                url.hash === "");
+        }
+        catch {
+            return false;
+        }
+    })();
 const identifier = (value) => typeof value === "string" && /^[a-zA-Z0-9-]{1,64}$/.test(value);
 const text = (value, max) => typeof value === "string" && value.trim().length > 0 && value.length <= max;
 const fail = (code, message) => ({ ok: false, code, message });
@@ -91,7 +110,7 @@ const linkFields = (value, maxURL = 2048) => {
 };
 // The host authenticates first. This second boundary refuses machine tokens,
 // non-admin users, preview, arbitrary targets and imported execution instructions.
-export async function manageMiniapps(ctx, runtime, pins) {
+export async function manageMiniapps(ctx, runtime, pins, referenceApps) {
     if (!ctx.user || ctx.user.role !== 50)
         return fail("FORBIDDEN", "An invited Composer administrator is required.");
     if (!record(runtime) || runtime.PUBLIC_ORIGIN !== origin)
@@ -126,6 +145,18 @@ export async function manageMiniapps(ctx, runtime, pins) {
     const app = command.app;
     if (!appId(app))
         return fail("INVALID", "Choose Guestbook or Linkarooie.");
+    if (!siteId(command.site))
+        return fail("INVALID", "Choose the operator pair or the Creator Hub reference.");
+    const site = command.site === "creator-hub" ? "creator-hub" : "operator";
+    const reference = site === "creator-hub";
+    const referenceAppPin = reference && referenceApps ? referenceApps[app] : undefined;
+    if (reference &&
+        (!record(referenceApps) ||
+            !referenceApp(referenceApps.guestbook) ||
+            !referenceApp(referenceApps.showcase)))
+        return fail("UNAVAILABLE", "The Creator Hub reference connection is not configured for this deployment.");
+    if (collection && reference)
+        return fail("INVALID", "Saved visitor-book collection controls remain on the operator pair. Manage this reference contribution in Here / there and feature it in Linkarooie.");
     if (collection)
         return manageMiniappCollection({
             ...ctx,
@@ -148,7 +179,7 @@ export async function manageMiniapps(ctx, runtime, pins) {
     else if (action === "profile-settings" &&
         app === "showcase" &&
         appSettings.showcase.profileSettings?.version === 1) {
-        const { app: _ignored, action: _outer, ...values } = command;
+        const { app: _ignored, action: _outer, site: _site, ...values } = command;
         try {
             body = profileSettingsCommand(values);
         }
@@ -160,7 +191,7 @@ export async function manageMiniapps(ctx, runtime, pins) {
     else if (action === "tag" &&
         app === "showcase" &&
         appSettings.showcase.tagCollection?.version === 1) {
-        const { app: _ignored, action: _outer, operation, ...values } = command;
+        const { app: _ignored, action: _outer, site: _site, operation, ...values } = command;
         try {
             body = tagCommand({ action: operation, ...values });
         }
@@ -172,7 +203,7 @@ export async function manageMiniapps(ctx, runtime, pins) {
     else if (action === "achievement" &&
         app === "showcase" &&
         appSettings.showcase.achievementCollection?.version === 1) {
-        const { app: _ignored, action: _outer, operation, ...values } = command;
+        const { app: _ignored, action: _outer, site: _site, operation, ...values } = command;
         try {
             body = achievementCommand({ action: operation, ...values });
         }
@@ -323,13 +354,20 @@ export async function manageMiniapps(ctx, runtime, pins) {
     }
     else
         return fail("INVALID", "Check the fields and choose a supported action.");
-    const service = runtime[app.toUpperCase()], token = runtime[app.toUpperCase() + "_OWNER_TOKEN"];
+    const binding = (reference ? "CREATOR_HUB_" : "") + app.toUpperCase();
+    const service = runtime[binding], token = runtime[binding + "_OWNER_TOKEN"];
     if (!appService(service) ||
         typeof token !== "string" ||
         !token ||
         token.length > 4096)
         return fail("UNAVAILABLE", "This app needs its server-side owner connection. Ask your agent to check it.");
-    const send = (route, init = {}) => service.fetch(new Request(origin + "/" + app + route, {
+    const selectedPins = reference
+        ? {
+            guestbook: referenceApps.guestbook.commit,
+            showcase: referenceApps.showcase.commit,
+        }
+        : pins;
+    const send = (route, init = {}) => service.fetch(new Request((reference ? referenceAppPin.origin : origin) + "/" + app + route, {
         redirect: "manual",
         signal: AbortSignal.timeout(8000),
         ...init,
@@ -341,7 +379,7 @@ export async function manageMiniapps(ctx, runtime, pins) {
         const build = await responseJSON(identity, 16384);
         if (!record(build) ||
             build.app !== app ||
-            build.revision !== pins[app] ||
+            build.revision !== selectedPins[app] ||
             build.dataVersion !== 1)
             return fail("SOURCE", "The connected app differs from the reviewed composition. Ask your agent to check the release.");
         const response = await send(path, {
@@ -461,6 +499,8 @@ export async function manageMiniapps(ctx, runtime, pins) {
             return {
                 ok: true,
                 app,
+                site,
+                revision: selectedPins[app],
                 ...achievements,
                 ...tags,
                 config: result.config,

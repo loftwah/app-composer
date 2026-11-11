@@ -9,11 +9,16 @@ export interface MiniappContext {
     request: Request;
     input: unknown;
 }
+export interface ReferenceApp {
+    commit: string;
+    origin: string;
+}
+export type ReferenceApps = Record<"guestbook" | "showcase", ReferenceApp>;
 export interface NativeAppItem extends Record<string, unknown> {
     id: string;
     status: string;
 }
-export declare function manageMiniapps(ctx: MiniappContext, runtime: unknown, pins: Record<string, string>): Promise<import("./miniapp-profile-settings.mjs").ProfileReview | {
+export declare function manageMiniapps(ctx: MiniappContext, runtime: unknown, pins: Record<string, string>, referenceApps?: ReferenceApps): Promise<import("./miniapp-profile-settings.mjs").ProfileReview | {
     ok: true;
     file: import("./miniapp-profile-settings-fields.mts").ProfileSettingsFile;
 } | {
@@ -191,6 +196,8 @@ export declare function manageMiniapps(ctx: MiniappContext, runtime: unknown, pi
     achievementProblem?: string;
     ok: boolean;
     app: "guestbook" | "showcase";
+    site: string;
+    revision: string;
     png?: undefined;
     id?: undefined;
 } | {

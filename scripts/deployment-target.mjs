@@ -46,6 +46,16 @@ export function compositionServices(lock) {
       entrypoint: "GuestbookMemberService",
     });
   }
+  services.push(
+    {
+      binding: "CREATOR_HUB_GUESTBOOK",
+      service: "creator-hub-guestbook",
+    },
+    {
+      binding: "CREATOR_HUB_SHOWCASE",
+      service: "creator-hub-showcase",
+    },
+  );
   return services;
 }
 export function assertProductionTarget(config, generated, lock) {
@@ -99,15 +109,23 @@ export function parseAdminSecrets(bytes) {
     throw Error("Invalid private mini-app connection file.");
   const keys = Object.keys(secrets).sort();
   const ownerKeys = ["GUESTBOOK_OWNER_TOKEN", "SHOWCASE_OWNER_TOKEN"];
+  const referenceKeys = [
+    "CREATOR_HUB_GUESTBOOK_OWNER_TOKEN",
+    "CREATOR_HUB_SHOWCASE_OWNER_TOKEN",
+  ];
   const memberKeys = [
     ...ownerKeys,
     "GUESTBOOK_MEMBER_TOKEN",
     "COMPOSER_PROFILE_BRIDGE_TOKEN",
-  ].sort();
+  ];
+  const allowed = [
+    ownerKeys,
+    [...ownerKeys, ...referenceKeys],
+    memberKeys,
+    [...memberKeys, ...referenceKeys],
+  ].map((values) => JSON.stringify([...values].sort()));
   if (
-    ![JSON.stringify(ownerKeys), JSON.stringify(memberKeys)].includes(
-      JSON.stringify(keys),
-    ) ||
+    !allowed.includes(JSON.stringify(keys)) ||
     keys.some(
       (key) =>
         typeof secrets[key] !== "string" ||
@@ -117,10 +135,10 @@ export function parseAdminSecrets(bytes) {
     )
   )
     throw Error(
-      "Use only the selected mini-app owner connections and the paired member connections.",
+      "Use the selected mini-app owner connections, the optional Creator Hub reference pair and the paired member connections.",
     );
-  if (keys.length === 4 && new Set(keys.map((key) => secrets[key])).size !== 4)
-    throw Error("Member and owner connections must use separate credentials.");
+  if (keys.length > 2 && new Set(keys.map((key) => secrets[key])).size !== keys.length)
+    throw Error("Mini-app connections must use separate credentials.");
   return JSON.stringify(secrets);
 }
 export function snapshotAdminSecrets(validated, workspace) {

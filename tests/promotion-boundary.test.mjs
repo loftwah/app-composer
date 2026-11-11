@@ -37,7 +37,7 @@ test('promotion compiles both verified snapshots without credentials before sele
  const f=fixture();try{
   promoteComposition(f);const calls=f.calls();assert.deepEqual(calls.map(c=>c.kind),['audit','build','validate','build','validate','secret','upload','secret','upload']);
   for(const c of calls){assert.equal(c.unrelated,false);if(c.kind==='audit'){assert.equal(c.credential,false);continue;}assert.equal(c.nodeControl,false);assert.equal(c.apiOverride,false);assert.equal(c.ciOverride,false);assert.equal(c.dotenvDisabled,true);assert.equal(c.ignoredFiles,false);assert.equal(c.credential,['build','validate'].includes(c.kind)?null:'synthetic-selected-upload');if(c.kind==='upload')assert.equal(c.noBundle,true);if(c.kind==='secret')assert.equal(c.selectedOwner,c.app.includes('guestbook')?'synthetic-owner-guestbook':'synthetic-owner-showcase');}
-  const config=JSON.parse(readFileSync(join(f.workspace,'wrangler.jsonc')));assert.equal(config.services.length,2);
+  const config=JSON.parse(readFileSync(join(f.workspace,'wrangler.jsonc')));assert.equal(config.services.length,4);
  }finally{f.cleanup();}
 });
 
@@ -62,7 +62,7 @@ test('member promotion connects only the reviewed named service and finite separ
   promoteComposition(f);
   assert.deepEqual(f.calls().filter(c=>c.kind==='secret').map(c=>c.selectedOwner),['synthetic-owner-guestbook','synthetic-member-guestbook','synthetic-owner-showcase','synthetic-member-showcase']);
   const connected=JSON.parse(readFileSync(join(f.workspace,'wrangler.jsonc')));
-  assert.equal(connected.services.length,3);
+  assert.equal(connected.services.length,5);
   assert.deepEqual(connected.services[2],{binding:'GUESTBOOK_MEMBERS',service:'composer-guestbook-'+ 'b'.repeat(16),entrypoint:'GuestbookMemberService'});
  }finally{f.cleanup();}
 });

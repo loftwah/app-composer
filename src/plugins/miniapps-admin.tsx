@@ -7,9 +7,25 @@ import { ShowcaseWorkspace } from "./miniapps/showcase-workspace";
 import { useMiniapps } from "./miniapps/use-miniapps";
 import { CollectionSources } from "./miniapps/collection-sources";
 import { ShareCard } from "./miniapps/share-card";
-import type { AppID } from "./miniapps/types";
+import type { AppID, SiteID } from "./miniapps/types";
+import reference from "../../config/creator-hub-reference.json";
 import "./miniapps-admin.css";
 const names = { guestbook: "Here / there", showcase: "Linkarooie" };
+const siteNames: Record<
+  SiteID,
+  { label: string; short: string; note: string }
+> = {
+  "creator-hub": {
+    label: "Creator Hub reference",
+    short: "Fictional creator · operator account",
+    note: "Mara Quinn’s reference pair. Both apps run in the operator’s Cloudflare account and on the operator’s domain; each keeps its own repository, Worker, database and owner credential.",
+  },
+  operator: {
+    label: "Operator pair",
+    short: "guestbook.loftwah.com · showcase.loftwah.com",
+    note: "The original operator-owned pair used for App Composer’s hosted demos.",
+  },
+};
 function AppPage() {
   const {
     achievementDraft,
@@ -24,6 +40,8 @@ function AppPage() {
     styleEdit,
     selected,
     setSelected,
+    site,
+    changeSite,
     visible,
     setVisible,
     showHidden,
@@ -62,6 +80,20 @@ function AppPage() {
           Refresh apps
         </button>
       </div>
+      <nav className="ca-sites" aria-label="Choose the managed deployment">
+        {(["creator-hub", "operator"] as SiteID[]).map((id) => (
+          <button
+            key={id}
+            type="button"
+            disabled={busy}
+            aria-pressed={site === id}
+            onClick={() => changeSite(id)}
+          >
+            {siteNames[id].label} <span>{siteNames[id].short}</span>
+          </button>
+        ))}
+      </nav>
+      <p className="ca-site-note">{siteNames[site].note}</p>
       <nav className="ca-switcher" aria-label="Choose a connected mini-app">
         {(["guestbook", "showcase"] as AppID[]).map((app) => (
           <button
@@ -85,7 +117,7 @@ function AppPage() {
         {message}
       </p>
       <CollectionSources
-        active={selected === "showcase"}
+        active={selected === "showcase" && site === "operator"}
         busy={busy}
         request={collectionRequest}
       />
@@ -107,24 +139,55 @@ function AppPage() {
                 {selected === "guestbook"
                   ? "Own database + private photo bucket"
                   : "Own database + approved Guestbook items"}{" "}
-                · source pinned to the reviewed release
+                · source pinned to <code>{snapshot.revision.slice(0, 7)}</code>
+              </p>
+              <p className="ca-muted">
+                {site === "creator-hub"
+                  ? "Fictional reference content in the operator’s account. Each app keeps its own Worker, storage and owner credential."
+                  : "The original operator pair used for Composer’s hosted demos."}
               </p>
             </div>
             <div className="ca-links">
               <a
-                href={"/" + selected + "/"}
+                href={
+                  site === "creator-hub"
+                    ? reference.apps[selected].origin
+                    : "/" + selected + "/"
+                }
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Open live app ↗
               </a>
               <a
-                href={"https://" + selected + ".loftwah.com"}
+                href={
+                  (site === "creator-hub"
+                    ? reference.apps[selected].origin
+                    : "https://" + selected + ".loftwah.com") + "/build.json"
+                }
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Standalone ↗
+                Release identity ↗
               </a>
+              {site === "creator-hub" && (
+                <a
+                  href={reference.apps[selected].repository}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Independent source ↗
+                </a>
+              )}
+              {site === "operator" && (
+                <a
+                  href={"https://" + selected + ".loftwah.com"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Standalone ↗
+                </a>
+              )}
             </div>
           </div>
           <div className="ca-workspace">
@@ -219,14 +282,35 @@ function AppPage() {
                 )}
               <div className="ca-resource-note">
                 <h2>Where your work lives</h2>
-                <p>
-                  This app owns its records. Composer calls its reviewed
-                  management API; it does not move them into the CMS database.
-                </p>
-                <p>
-                  Private owner credentials stay on the server. This connection
-                  is available to invited Composer administrators.
-                </p>
+                {site === "creator-hub" ? (
+                  <>
+                    <p>
+                      This reference pair runs in the operator’s Cloudflare
+                      account. Here / there and Linkarooie each keep their own
+                      Worker, database
+                      {selected === "guestbook" ? " and photo bucket" : ""} and
+                      owner credential.
+                    </p>
+                    <p>
+                      The panel calls each app’s own management API. It does not
+                      copy the contribution or private media into Composer, and
+                      the app enforces who may see it.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p>
+                      This app owns its records. Composer calls its reviewed
+                      management API; it does not move them into the CMS
+                      database.
+                    </p>
+                    <p>
+                      Private owner credentials stay on the server. This
+                      connection is available to invited Composer
+                      administrators.
+                    </p>
+                  </>
+                )}
                 <a
                   href="/guide#resources"
                   target="_blank"

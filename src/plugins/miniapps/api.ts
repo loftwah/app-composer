@@ -1,16 +1,17 @@
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
-import type { AppID } from "./types";
+import type { AppID, SiteID } from "./types";
 export async function call(
   app: AppID,
   action: string,
   fields: Record<string, unknown> = {},
+  site: SiteID = "operator",
 ) {
   const read =
     action === "snapshot" ||
     action === "preview" ||
     (action === "share-card" && fields.operation === "snapshot") ||
     (action === "profile-settings" && fields.operation === "export");
-  const values = { app, action, ...fields };
+  const values = { app, action, site, ...fields };
   const route =
     "/_emdash/api/plugins/composer-miniapps/" +
     (read

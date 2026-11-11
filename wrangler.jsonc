@@ -52,6 +52,14 @@
       "binding": "GUESTBOOK_MEMBERS",
       "service": "composer-guestbook-8428e16f61c25a4d",
       "entrypoint": "GuestbookMemberService"
+    },
+    {
+      "binding": "CREATOR_HUB_GUESTBOOK",
+      "service": "creator-hub-guestbook"
+    },
+    {
+      "binding": "CREATOR_HUB_SHOWCASE",
+      "service": "creator-hub-showcase"
     }
   ],
   "triggers": {

@@ -21,6 +21,11 @@ export interface MiniappContext {
   request: Request;
   input: unknown;
 }
+export interface ReferenceApp {
+  commit: string;
+  origin: string;
+}
+export type ReferenceApps = Record<"guestbook" | "showcase", ReferenceApp>;
 export interface NativeAppItem extends Record<string, unknown> {
   id: string;
   status: string;
@@ -100,6 +105,28 @@ async function responseJSON(
 const origin = "https://composer.loftwah.com";
 const appId = (value: unknown): value is "guestbook" | "showcase" =>
   value === "guestbook" || value === "showcase";
+const siteId = (value: unknown): value is "operator" | "creator-hub" =>
+  value === undefined || value === "operator" || value === "creator-hub";
+const referenceApp = (value: unknown): value is ReferenceApp =>
+  record(value) &&
+  typeof value.commit === "string" &&
+  /^[a-f0-9]{40}$/.test(value.commit) &&
+  typeof value.origin === "string" &&
+  (() => {
+    try {
+      const url = new URL(value.origin);
+      return (
+        url.protocol === "https:" &&
+        !url.username &&
+        !url.password &&
+        url.pathname === "/" &&
+        url.search === "" &&
+        url.hash === ""
+      );
+    } catch {
+      return false;
+    }
+  })();
 const identifier = (value: unknown): value is string =>
   typeof value === "string" && /^[a-zA-Z0-9-]{1,64}$/.test(value);
 const text = (value: unknown, max: number): value is string =>
@@ -142,6 +169,7 @@ export async function manageMiniapps(
   ctx: MiniappContext,
   runtime: unknown,
   pins: Record<string, string>,
+  referenceApps?: ReferenceApps,
 ) {
   if (!ctx.user || ctx.user.role !== 50)
     return fail("FORBIDDEN", "An invited Composer administrator is required.");
@@ -182,6 +210,30 @@ export async function manageMiniapps(
     return fail("FORBIDDEN", "Refresh Composer administration before saving.");
   const app = command.app;
   if (!appId(app)) return fail("INVALID", "Choose Guestbook or Linkarooie.");
+  if (!siteId(command.site))
+    return fail(
+      "INVALID",
+      "Choose the operator pair or the Creator Hub reference.",
+    );
+  const site = command.site === "creator-hub" ? "creator-hub" : "operator";
+  const reference = site === "creator-hub";
+  const referenceAppPin =
+    reference && referenceApps ? referenceApps[app] : undefined;
+  if (
+    reference &&
+    (!record(referenceApps) ||
+      !referenceApp(referenceApps.guestbook) ||
+      !referenceApp(referenceApps.showcase))
+  )
+    return fail(
+      "UNAVAILABLE",
+      "The Creator Hub reference connection is not configured for this deployment.",
+    );
+  if (collection && reference)
+    return fail(
+      "INVALID",
+      "Saved visitor-book collection controls remain on the operator pair. Manage this reference contribution in Here / there and feature it in Linkarooie.",
+    );
   if (collection)
     return manageMiniappCollection(
       {
@@ -210,7 +262,7 @@ export async function manageMiniapps(
     app === "showcase" &&
     appSettings.showcase.profileSettings?.version === 1
   ) {
-    const { app: _ignored, action: _outer, ...values } = command;
+    const { app: _ignored, action: _outer, site: _site, ...values } = command;
     try {
       body = profileSettingsCommand(values);
     } catch {
@@ -225,7 +277,13 @@ export async function manageMiniapps(
     app === "showcase" &&
     appSettings.showcase.tagCollection?.version === 1
   ) {
-    const { app: _ignored, action: _outer, operation, ...values } = command;
+    const {
+      app: _ignored,
+      action: _outer,
+      site: _site,
+      operation,
+      ...values
+    } = command;
     try {
       body = tagCommand({ action: operation, ...values });
     } catch {
@@ -237,7 +295,13 @@ export async function manageMiniapps(
     app === "showcase" &&
     appSettings.showcase.achievementCollection?.version === 1
   ) {
-    const { app: _ignored, action: _outer, operation, ...values } = command;
+    const {
+      app: _ignored,
+      action: _outer,
+      site: _site,
+      operation,
+      ...values
+    } = command;
     try {
       body = achievementCommand({ action: operation, ...values });
     } catch {
@@ -412,8 +476,9 @@ export async function manageMiniapps(
     body = { ids: command.ids };
   } else
     return fail("INVALID", "Check the fields and choose a supported action.");
-  const service = runtime[app.toUpperCase()],
-    token = runtime[app.toUpperCase() + "_OWNER_TOKEN"];
+  const binding = (reference ? "CREATOR_HUB_" : "") + app.toUpperCase();
+  const service = runtime[binding],
+    token = runtime[binding + "_OWNER_TOKEN"];
   if (
     !appService(service) ||
     typeof token !== "string" ||
@@ -424,13 +489,22 @@ export async function manageMiniapps(
       "UNAVAILABLE",
       "This app needs its server-side owner connection. Ask your agent to check it.",
     );
+  const selectedPins = reference
+    ? {
+        guestbook: referenceApps!.guestbook.commit,
+        showcase: referenceApps!.showcase.commit,
+      }
+    : pins;
   const send = (route: string, init: RequestInit = {}) =>
     service.fetch(
-      new Request(origin + "/" + app + route, {
-        redirect: "manual",
-        signal: AbortSignal.timeout(8000),
-        ...init,
-      }),
+      new Request(
+        (reference ? referenceAppPin!.origin : origin) + "/" + app + route,
+        {
+          redirect: "manual",
+          signal: AbortSignal.timeout(8000),
+          ...init,
+        },
+      ),
     );
   try {
     const identity = await send("/build.json");
@@ -443,7 +517,7 @@ export async function manageMiniapps(
     if (
       !record(build) ||
       build.app !== app ||
-      build.revision !== pins[app] ||
+      build.revision !== selectedPins[app] ||
       build.dataVersion !== 1
     )
       return fail(
@@ -628,6 +702,8 @@ export async function manageMiniapps(
       return {
         ok: true,
         app,
+        site,
+        revision: selectedPins[app],
         ...achievements,
         ...tags,
         config: result.config,

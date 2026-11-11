@@ -72,6 +72,7 @@ const checkedAt = new Date().toLocaleString('en-AU', {
    <a class="button secondary" href="/init?start=composition">Build your own from this starting point</a>
   </div>
   <p class="small">Mara Quinn is fictional. The apps run in the operator’s Cloudflare account on the operator’s domain; this is a reference build, not a customer deployment.</p>
+  <p class="small">Management path used for this reference build: the apps’ own owner APIs. Native EmDash administration is not yet proven for this pair, so this page does not claim a finished beginner-operable admin.</p>
  </div>
 
  <section class="hub-section" id="brief">
@@ -122,8 +123,8 @@ const checkedAt = new Date().toLocaleString('en-AU', {
    <li><strong>Describe and configure.</strong> Init exported a versioned specification for Guestbook + Linkarooie: the title, introduction, appearance, four work links and a review-before-publication rule. The form is the same one at <a href="/init">/init</a>.</li>
    <li><strong>Create.</strong> Each app was copied at its pinned commit into its own repository, with its own Worker, D1 database and — for Here / there — its own R2 bucket. Nothing was merged into one project.</li>
    <li><strong>Publish.</strong> Here / there deployed first, because Linkarooie reads approved contributions from it through a service binding. Both answered on their own HTTPS hostnames and reported the revision they were serving.</li>
-   <li><strong>Manage.</strong> A guest opened the postcard form, wrote a note and sent it. It stayed private. The owner approved it, and it became public in Here / there and readable by Linkarooie.</li>
-   <li><strong>Revoke.</strong> The owner hid the same contribution. It disappeared from both public views immediately, then returned when she approved it again.</li>
+   <li><strong>Manage.</strong> A guest opened the postcard form, wrote a note and sent it. It stayed private. The owner approved it through the apps’ own owner API, and it became public in Here / there and readable by Linkarooie.</li>
+   <li><strong>Revoke.</strong> The owner hid the same contribution through the owner API. It disappeared from both public views immediately, then returned when she approved it again.</li>
   </ol>
   <p class="small">This record describes the build on 11 November 2026 in the operator’s account. A different person’s build uses their own account, repositories and hostname, and their own owner credentials.</p>
  </section>
