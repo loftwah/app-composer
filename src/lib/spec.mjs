@@ -18,10 +18,9 @@ export const deliveryCommands = [
   "node scripts/delivery-journey.mjs --verify",
 ];
 // An independently owned app does not contain App Composer's operator scripts.
-// Its own repository supplies the same three gates: install, check, deploy.
+// The owned app's guarded deploy runs its checks and production build.
 export const independentDeliveryCommands = [
   "pnpm install --frozen-lockfile",
-  "pnpm check",
   "pnpm deploy",
 ];
 export const presets = {
@@ -200,7 +199,11 @@ function deliveryHandoff(delivery, independent) {
     delivery.profile === "existing-runner"
       ? "The owner selected an existing " +
         (delivery.runner || "third-party") +
-        " runner. Call `examples/local-delivery-runner.sh` from that runner's existing job; do not add GitHub Actions, a hosted Composer CI service or a new orchestrator. A selected runner is configured intent until one real run with its source, checks and result is recorded."
+        " runner. " +
+        (independent
+          ? "Run the owned app's guarded commands below from its repository root in the existing job."
+          : "Call `examples/local-delivery-runner.sh` from that runner's existing job.") +
+        " Do not add GitHub Actions, a hosted Composer CI service or a new orchestrator. A selected runner is configured intent until one real run with its source, checks and result is recorded."
       : "Use the local-first path from each app's own repository root. A human or the selected agent runs the same commands.";
   return (
     "Delivery profile: " +

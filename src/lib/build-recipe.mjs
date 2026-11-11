@@ -18,8 +18,6 @@ const apps = {
     secret: "OWNER_API_TOKEN",
     wiring: [],
     verify: [
-      "/build.json returns the pinned commit",
-      "/healthz returns the same revision",
       "/api/items returns only currently approved public items",
     ],
   },
@@ -36,9 +34,7 @@ const apps = {
       "PROVIDER_ORIGIN set to that Worker's verified HTTPS origin, with PROVIDER_ID guestbook and PROVIDER_MOUNT /guestbook",
     ],
     verify: [
-      "/build.json returns the pinned commit",
-      "/healthz returns the same revision",
-      "an approved photo from Here / there appears as a featured item, and revoking it removes it from the public view",
+      "the public profile shows the requested curated links with the intended visibility",
     ],
   },
 };
@@ -66,6 +62,15 @@ export function buildRecipe(spec) {
   const ids = orderedIds(spec).filter((id) => Object.hasOwn(apps, id));
   if (!ids.length) return [];
   const steps = [];
+  const showcaseOnly = ids.includes("showcase") && !ids.includes("guestbook");
+  if (showcaseOnly) {
+    steps.push({
+      actor: "human",
+      title: "Choose an existing Here / there provider",
+      detail:
+        "This Linkarooie revision requires a Here / there service binding even for a profile with only curated links. Confirm which existing provider your agent may connect in the same Cloudflare account. If none is available, choose Guestbook + Linkarooie before provisioning. Keep the operator's provider and credentials out of this deployment.",
+    });
+  }
   steps.push({
     actor: "agent",
     title: "Create the owner's own copy of each app",
@@ -106,7 +111,7 @@ export function buildRecipe(spec) {
     steps.push({
       actor: "agent",
       title: `Deploy ${app.name}`,
-      detail: `Point that app's Wrangler configuration at the owner's own account and hostname instead of the reviewed operator's, set PUBLIC_ORIGIN to the owner's verified hostname, then run the app's own \`pnpm install --frozen-lockfile\`, \`pnpm check\` and \`pnpm deploy\` from its repository root. If the app's release script verifies a fixed hostname, point it at this deployment's own PUBLIC_ORIGIN first; otherwise the release refuses or checks someone else's site. Record the deployed Worker version and the HTTPS address you actually reached.`,
+      detail: `Point the app's Wrangler configuration at the owner's verified account and HTTPS origin, and set PUBLIC_ORIGIN to that origin. If the release script uses a fixed hostname for source identity or sharing checks, update both checks to use this deployment's own PUBLIC_ORIGIN. Review and push those changes to the owner's main. Record the upstream pin and the new owned commit separately. From the app's repository root run \`pnpm install --frozen-lockfile\` and its guarded \`pnpm deploy\`, which runs the app's checks and build. Record the Worker version and the HTTPS address you actually reached.`,
     });
   }
   steps.push({
@@ -122,14 +127,19 @@ export function buildRecipe(spec) {
     actor: "agent",
     title: "Verify the release",
     detail:
+      "For each app, check that /build.json and /healthz report the exact owned commit that was deployed. Retain the upstream pin as source provenance. " +
       ids.map((id) => `For ${apps[id].name}: ${apps[id].verify.join(", ")}`).join(". ") +
-      ". Then load the public pages in a browser and confirm the configuration you applied is what a visitor sees.",
+      "." +
+      (ids.includes("guestbook") && ids.includes("showcase")
+        ? " With an approved fictional contribution, check that Linkarooie can feature it and that hiding it at the source removes it."
+        : "") +
+      " Then load the public pages in a browser and confirm the configuration you applied is what a visitor sees.",
   });
   steps.push({
     actor: "agent",
     title: "Report what actually happened",
     detail:
-      "Return each app's repository, pinned commit, deployed Worker version, verified HTTPS address, the configuration you applied and anything still blocked. A copied prompt, a passing build or an uploaded Worker is not a verified release.",
+      "Return each app's repository, upstream pin, deployed owned commit, Worker version, verified HTTPS address, configuration applied and remaining blockers. Verify the live app before reporting delivery.",
   });
   return steps;
 }
@@ -143,6 +153,8 @@ export function humanOnlyActions(spec) {
   actions.unshift(
     "sign in to Cloudflare and authorise the account the apps deploy into",
   );
+  if (spec.apps.includes("showcase") && !spec.apps.includes("guestbook"))
+    actions.push("confirm the existing Here / there provider Linkarooie may use");
   if (spec.deployment.mode === "new-domain")
     actions.push("buy a domain, if you choose to");
   if (spec.deployment.mode === "existing-domain")

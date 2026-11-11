@@ -56,9 +56,11 @@ test('the agent handoff carries the runnable commands, the runner choice and the
  const external=handoff({...base(),delivery:{profile:'existing-runner',runner:'gitlab'}});
  assert.match(external,/Delivery profile: existing-runner/);
  assert.match(external,/existing gitlab runner/);
- assert.match(external,/examples\/local-delivery-runner\.sh/);
+ assert.match(external,/owned app's guarded commands/);
+ assert.doesNotMatch(external,/examples\/local-delivery-runner\.sh/);
+ assert.doesNotMatch(external,/`pnpm check`/);
  assert.match(external,/configured intent until one real run/);
- assert.match(external,/do not add GitHub Actions/);
+ assert.match(external,/do not add GitHub Actions/i);
  // The operator reference keeps its own supported configuration path.
  const hello=handoff({...base(),version:1,preset:'hello',sources:undefined,config:{title:'Hello',intro:'Ready',theme:'daylight',layout:'grid'}});
  for(const command of deliveryCommands)assert.match(hello,new RegExp(command.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
@@ -77,7 +79,8 @@ test('the composition handoff carries an ordered build plan an agent can actuall
  assert.match(text,/wrangler secret put OWNER_API_TOKEN/);
  assert.match(text,/ITEM_PROVIDER/);
  assert.match(text,/PROVIDER_ORIGIN/);
- assert.match(text,/\/build\.json returns the pinned commit/);
+ assert.match(text,/\/build\.json and \/healthz report the exact owned commit/);
+ assert.match(text,/Retain the upstream pin as source provenance/);
  assert.doesNotMatch(text,/pnpm compose --spec PATH --apply-settings/);
  assert.match(text,/applies settings only to the operator's already verified pair/);
  // Here / there is the provider, so it must be deployed before Linkarooie.
@@ -92,4 +95,16 @@ test('the composition handoff carries an ordered build plan an agent can actuall
   'sign in to Cloudflare and authorise the account the apps deploy into',
   'create OWNER_API_TOKEN for Here / there',
  ]);
+});
+
+test('Linkarooie alone asks for an authorised provider before provisioning',()=>{
+ const spec=explorerSpec({goal:'showcase',target:'preview',appearance:'daylight'});
+ assert.deepEqual(spec.apps,['showcase']);
+ const steps=buildRecipe(spec);
+ assert.equal(steps[0].title,'Choose an existing Here / there provider');
+ assert.equal(steps[0].actor,'human');
+ assert.match(steps[0].detail,/before provisioning/);
+ assert.ok(!steps.some(step=>step.title==='Deploy Here / there'));
+ assert.match(steps.find(step=>step.title==='Verify the release').detail,/requested curated links/);
+ assert.doesNotMatch(steps.find(step=>step.title==='Verify the release').detail,/hiding it at the source/);
 });
