@@ -1,6 +1,54 @@
 # Delivery status
 
-Reviewed 25 October 2026; updated 8 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+Reviewed 25 October 2026; updated 11 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+
+## Creator Hub reference build — 11 November 2026
+
+Production is Composer `05e1fae4ac971f2951c87805ae5d51c494eeba77`, Worker
+`580adf0d-94b8-43c5-8a7e-9f7896257c2f`; `/build.json` matches. This is the first
+flagship #425 delivery: the exported handoff for the flagship composition now
+carries a build plan an agent can actually run, and a fictional Creator Hub was
+built with it.
+
+**The handoff was the blocker.** The composition handoff told a newcomer's agent
+to run App Composer's own `delivery-journey.mjs` commands and the operator-only
+`pnpm compose --apply-settings` adapter. Neither exists in an independently owned
+app, and the handoff named no storage, owner credential or cross-app binding. A
+new owner's agent could not build or publish from it. `src/lib/build-recipe.mjs`
+now supplies an ordered plan from the apps' own repositories: the owner's copy at
+the pinned commit, that app's own D1/R2, its own owner credential, provider
+before consumer, the service binding, only that app's configuration, and a live
+revision check. Init renders the same plan with `You` and `Your agent` labels and
+expands detail only for the steps a person takes.
+
+**The reference build, run through that plan.** Fictional creator Mara Quinn:
+
+- Linkarooie `https://creator-hub.loftwah.com` — source
+  `https://github.com/loftwah/creator-hub-showcase`, revision
+  `b7cd3b3e8f19dbbb76d33fb4266053da928cf586`, its own D1.
+- Here / there `https://creator-hub-guestbook.loftwah.com` — source
+  `https://github.com/loftwah/creator-hub-guestbook`, revision
+  `36797b8028682460c33fe092682bfbd63751ec1a`, its own D1 and R2 bucket.
+- A guest sent a postcard through the public form. It stayed private. The owner
+  approved it, and it became public and readable by Linkarooie through the
+  service binding. Hiding it removed it from both views; approving it again
+  restored it.
+- Case study: `https://composer.loftwah.com/creator-hub`. It reads both live
+  `/build.json` revisions per request with a 60-second memo and reports an
+  unreadable revision rather than an older claim.
+
+**Two upstream gaps found by doing it.** Both apps' release scripts verify a
+fixed operator hostname, so a fork's release checks the operator's site; the
+reference copies read `vars.PUBLIC_ORIGIN` instead. Linkarooie's release script
+also never applied its own D1 migrations, so a fresh database served
+`D1_ERROR: no such table: settings` until they were applied by hand. The recipe
+now names both, and the app repositories should adopt the fixes.
+
+Limits: the reference runs in the operator's Cloudflare account and domain, so it
+is not customer-owned onboarding. No external non-technical participant has run
+the journey yet, and the video, Fungi/Oyster integration and Cloudflare dashboard
+extension remain open. Migration proof, the EmDash owner session and the
+follow-up described change on this reference are also still open.
 
 ## Effect usage audit — 8 November 2026
 

@@ -21,25 +21,41 @@ const apps = [
 
 // Read the live release identity rather than repeating a commit from memory. A
 // failed read is reported as unverified; it never substitutes an older claim.
-const identity = await Promise.all(
-  apps.map(async (app) => {
-    try {
-      const response = await fetch(app.href + '/build.json', {
-        headers: { 'User-Agent': 'Mozilla/5.0 (App Composer case study)' },
-        signal: AbortSignal.timeout(4000),
-      });
-      if (!response.ok) return { id: app.id, revision: null, checked: false };
-      const body = await response.json();
-      return {
-        id: app.id,
-        revision: typeof body.revision === 'string' ? body.revision : null,
-        checked: true,
-      };
-    } catch {
-      return { id: app.id, revision: null, checked: false };
-    }
-  }),
-);
+// A short module-level memo keeps a warm isolate from making two outbound
+// requests on every view without letting a stale answer outlive a release.
+const memo: {
+  at: number;
+  value: Array<{ id: string; revision: string | null; checked: boolean }> | null;
+} = { at: 0, value: null };
+const memoMs = 60_000;
+
+async function readIdentity() {
+  if (memo.value && Date.now() - memo.at < memoMs) return memo.value;
+  const read = await Promise.all(
+    apps.map(async (app) => {
+      try {
+        const response = await fetch(app.href + '/build.json', {
+          headers: { 'User-Agent': 'Mozilla/5.0 (App Composer case study)' },
+          signal: AbortSignal.timeout(6000),
+        });
+        if (!response.ok) return { id: app.id, revision: null, checked: false };
+        const body = await response.json();
+        return {
+          id: app.id,
+          revision: typeof body.revision === 'string' ? body.revision : null,
+          checked: true,
+        };
+      } catch {
+        return { id: app.id, revision: null, checked: false };
+      }
+    }),
+  );
+  memo.value = read;
+  memo.at = Date.now();
+  return read;
+}
+
+const identity = await readIdentity();
 const revision = Object.fromEntries(identity.map((entry) => [entry.id, entry]));
 const checkedAt = new Date().toLocaleString('en-AU', {
   timeZone: 'Australia/Melbourne',
