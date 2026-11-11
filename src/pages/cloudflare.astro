@@ -1,0 +1,576 @@
+---
+import Base from "../layouts/Base.astro";
+import CloudflareOperatingDiagram from "../components/CloudflareOperatingDiagram.astro";
+import { ArrowRight, Database, Globe2 } from "@lucide/astro";
+
+const repository = "https://github.com/loftwah/app-composer";
+const evidence = `${repository}/blob/main/docs/evidence/cloudflare-review-20261112/README.md`;
+const baselime =
+  "https://blog.cloudflare.com/80-percent-lower-cloud-cost-how-baselime-moved-from-aws-to-cloudflare/";
+const workersPricing =
+  "https://developers.cloudflare.com/workers/platform/pricing/";
+const d1Pricing = "https://developers.cloudflare.com/d1/platform/pricing/";
+const accessDocs =
+  "https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/";
+---
+<Base
+  title="Build your app, not your infrastructure"
+  description="A Cloudflare-first operating model for App Composer: the resources the Creator Hub reference actually runs, its measured cost at real volume, the operational work it removes and the limits we do not hide."
+  ogType="article"
+>
+  <div class="cost-intro">
+    <p class="eyebrow">Cloudflare-first, measured</p>
+    <h1>Build your app,<br />not your infrastructure.</h1>
+    <p class="lede">
+      The supported Creator Hub reference runs on two Workers, two D1
+      databases and one R2 bucket. There is no server to patch, no database
+      host to run and no separate CDN to configure. The owner still controls
+      the source, the data and every release decision.
+    </p>
+    <div class="actions">
+      <a class="button" href="/creator-hub">
+        See the live reference <ArrowRight size={18} aria-hidden="true" />
+      </a>
+      <a class="button secondary" href="/ready">Prepare your environment</a>
+    </div>
+    <p class="small">
+      Observed 12 October–12 November 2026 in the operator’s Cloudflare
+      account. This page separates Cloudflare’s published precedent, our
+      measured reference and illustrative growth assumptions. It is not a
+      Cloudflare partnership, endorsement or official integration.
+    </p>
+  </div>
+
+  <nav class="platform-index" aria-label="Cost and operations sections">
+    <a href="#what-runs">What runs</a>
+    <a href="#baselime">The Baselime precedent</a>
+    <a href="#reference">Our measured reference</a>
+    <a href="#growth">What changes with scale</a>
+    <a href="#operations">What you stop operating</a>
+    <a href="#limits">Limits and claims</a>
+  </nav>
+
+  <section class="cost-section" id="what-runs">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">The supported shape</p>
+        <h2>Fewer moving parts, with clear ownership.</h2>
+      </div>
+      <span class="evidence-label">One scenario · measured in production</span>
+    </div>
+    <p class="lede">
+      The Creator Hub reference is two independently owned applications. Here /
+      there receives and moderates contributions; Linkarooie curates the public
+      profile and reads approved items through a service binding. Each app has
+      its own Worker, source repository and database. Only Here / there stores
+      uploaded media.
+    </p>
+    <CloudflareOperatingDiagram />
+    <div class="fact-strip" aria-label="Reference resource counts">
+      <div><strong>2</strong><span>Workers</span></div>
+      <div><strong>2</strong><span>D1 databases</span></div>
+      <div><strong>1</strong><span>R2 bucket</span></div>
+      <div><strong>1</strong><span>service binding</span></div>
+      <div><strong>1</strong><span>daily cron</span></div>
+      <div><strong>2</strong><span>custom hostnames</span></div>
+    </div>
+    <p class="small">
+      There are no Queues, Workflows, Durable Objects or KV namespaces in this
+      pair. The only scheduled work is Here / there’s existing daily
+      maintenance trigger. Both apps are production deployments; the reference
+      is operator-owned, not a customer-owned onboarding proof.
+    </p>
+  </section>
+
+  <section class="cost-section" id="baselime">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Externally sourced precedent</p>
+        <h2>What Cloudflare measured at another company.</h2>
+      </div>
+      <span class="evidence-label">Baselime · Cloudflare estimate</span>
+    </div>
+    <p>
+      Cloudflare’s published Baselime case study describes a much larger
+      observability workload moving from AWS to Cloudflare. The numbers below
+      are Cloudflare’s estimate for a comparable paying customer, not an
+      independently audited saving and not an App Composer result. Baselime was
+      acquired by Cloudflare in 2024.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>Baselime’s reported daily infrastructure estimate (USD)</caption>
+        <thead>
+          <tr><th scope="col">Workload</th><th scope="col">AWS before</th><th scope="col">Cloudflare estimate</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Compute</td><td>$650 Lambda</td><td>$25 Workers</td></tr>
+          <tr><td>CDN</td><td>$140 CloudFront</td><td>$0</td></tr>
+          <tr><td>Streaming and analytics</td><td>$1,150 Kinesis / EC2</td><td>$300 Workers Analytics Engine</td></tr>
+          <tr><td><strong>Total daily</strong></td><td><strong>$1,940</strong></td><td><strong>$325</strong></td></tr>
+          <tr><td><strong>Annualised</strong></td><td><strong>$708,100</strong></td><td><strong>$118,625</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="attribution">
+      Reported difference: roughly <strong>83% lower estimated infrastructure
+      cost</strong>, about <strong>$589,475 per year</strong> in this case.
+      Source:
+      <a href={baselime}>Cloudflare’s Baselime case study</a>, published 31
+      October 2024.
+    </p>
+    <p class="small">
+      Do not read this as “83% cheaper with App Composer”. Baselime’s workload
+      is not a WordPress site, a hobby app or a typical Creator Hub. Its value
+      here is the architectural argument: fewer managed services can remove
+      real operating work. Our own scenario is measured separately below.
+    </p>
+  </section>
+
+  <section class="cost-section" id="reference">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">App Composer’s own observed result</p>
+        <h2>The Creator Hub reference, at real volume.</h2>
+      </div>
+      <span class="evidence-label">12 Oct–12 Nov 2026 · 31 days</span>
+    </div>
+    <p>
+      This is the supported two-app reference at
+      <a href="https://creator-hub.loftwah.com">creator-hub.loftwah.com</a> and
+      <a href="https://creator-hub-guestbook.loftwah.com">creator-hub-guestbook.loftwah.com</a>.
+      The readings come from Cloudflare’s Workers and D1 analytics for the
+      production scripts, plus the live D1 and R2 metadata. The source
+      revisions served during the window were
+      <code>b7cd3b3</code> for Linkarooie and <code>36797b8</code> for Here /
+      there.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>Observed reference usage and the applicable Cloudflare allowance</caption>
+        <thead>
+          <tr><th scope="col">Measure</th><th scope="col">Observed</th><th scope="col">Included on Workers Paid</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Worker requests</td><td>1,660 across both apps</td><td>10,000,000 per month</td></tr>
+          <tr><td>D1 rows read</td><td>2,841</td><td>25,000,000,000 per month</td></tr>
+          <tr><td>D1 rows written</td><td>138</td><td>50,000,000 per month</td></tr>
+          <tr><td>D1 stored data</td><td>249,856 bytes (about 0.25 MB)</td><td>5 GB</td></tr>
+          <tr><td>R2 stored data</td><td>2 objects, about 0.12 MB</td><td>10 GB-month free</td></tr>
+          <tr><td>R2 egress</td><td>Not separately measured</td><td>Free</td></tr>
+          <tr><td>Scheduled invocations</td><td>One daily maintenance trigger</td><td>Billed as Worker requests</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cost-callout">
+      <Database size={24} aria-hidden="true" />
+      <div>
+        <h3>What this cost</h3>
+        <p>
+          At the observed request and storage volumes, the usage attributable
+          to this pair is <strong>$0 above the account’s US$5 monthly Workers
+          Paid minimum</strong>. We do not claim the pair costs $5 in
+          isolation: the account also contains App Composer and other
+          services, and Cloudflare bills the account minimum once.
+        </p>
+      </div>
+    </div>
+    <p class="small">
+      Excluded from this comparison: domain registration and renewal,
+      Cloudflare plans beyond Workers Paid, Cloudflare Access / Zero Trust
+      seats, agent or model usage, developer and maintenance labour, taxes,
+      backups, support and every other resource in the account. A different
+      app, traffic pattern or retention policy can change the result. The
+      source data and commands are in the
+      <a href={evidence}>review evidence</a>.
+    </p>
+  </section>
+
+  <section class="cost-section" id="growth">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Assumption-labelled model</p>
+        <h2>What changes as it grows.</h2>
+      </div>
+      <span class="evidence-label">Workers only · D1/R2 excluded</span>
+    </div>
+    <p>
+      Cloudflare’s current Workers Paid plan includes 10 million requests and
+      30 million CPU milliseconds per month. The rows below use Cloudflare’s
+      own published examples for request and CPU charges. They do not include
+      D1, R2, Access, domains or agent usage, so they are a lower bound rather
+      than a whole-project quote.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <caption>Illustrative Workers charges under the current published price schedule</caption>
+        <thead>
+          <tr><th scope="col">Monthly assumption</th><th scope="col">Requests</th><th scope="col">CPU per request</th><th scope="col">Workers charge</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Observed reference</td><td>1,660</td><td>Not measured</td><td>$0 usage; $5 account minimum</td></tr>
+          <tr><td>Small supported app</td><td>1,000,000</td><td>10 ms</td><td>$0 usage; $5 account minimum</td></tr>
+          <tr><td>Cloudflare’s 15M example</td><td>15,000,000</td><td>7 ms</td><td>$8.00 including the $5 minimum</td></tr>
+          <tr><td>Cloudflare’s 100M example</td><td>100,000,000</td><td>7 ms</td><td>$45.40 including the $5 minimum</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">
+      The 1M row is our assumption, not a measured run. The 15M and 100M rows
+      reproduce Cloudflare’s published pricing examples. At higher volume, add
+      D1 rows and storage, R2 operations and storage, Access seats and any
+      other product you choose. Current sources:
+      <a href={workersPricing}>Workers pricing</a> and
+      <a href={d1Pricing}>D1 pricing</a>, reviewed 12 November 2026.
+    </p>
+  </section>
+
+  <section class="cost-section" id="operations">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">The operating difference</p>
+        <h2>Spend the time on the product.</h2>
+      </div>
+      <span class="evidence-label">Responsibility comparison</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <caption>Who performs each operating job in the two models</caption>
+        <thead>
+          <tr><th scope="col">Job</th><th scope="col">Typical self-managed stack</th><th scope="col">Creator Hub reference</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Runtime</td><td>Provision and patch a VM or container host</td><td>Cloudflare runs the Workers runtime</td></tr>
+          <tr><td>Database</td><td>Run the database server, backups and failover</td><td>D1, with migrations committed to source</td></tr>
+          <tr><td>Media</td><td>Bucket, CDN and credential rotation</td><td>R2 behind a Worker binding, free egress</td></tr>
+          <tr><td>Admin access</td><td>VPN, SSO proxy or IP allowlist</td><td>Cloudflare Access in front of native EmDash</td></tr>
+          <tr><td>Background work</td><td>Queue, worker pool and scheduler host</td><td>One existing Cron Trigger; no queue in this pair</td></tr>
+          <tr><td>Deployment</td><td>Build host, release scripts and rollback procedure</td><td>Guarded repository release with an exact Worker version</td></tr>
+          <tr><td>Observation</td><td>Install and maintain an observability stack</td><td>Workers observability, <code>/healthz</code> and release receipts</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="platform-columns">
+      <div>
+        <h3>What the owner still does</h3>
+        <ul>
+          <li>Owns the GitHub repositories and reviews source changes.</li>
+          <li>Approves contributions before they become public.</li>
+          <li>Holds the Cloudflare account, domain, Access policy and owner credentials.</li>
+          <li>Chooses when to deploy and checks the live result.</li>
+          <li>Decides retention, backups and what data may be exported.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>What Cloudflare operates</h3>
+        <ul>
+          <li>The Workers runtime, D1, R2, KV and the network path.</li>
+          <li>The custom-domain certificate and edge routing.</li>
+          <li>The scheduled trigger’s invocation.</li>
+          <li>Access enforcement at the edge.</li>
+          <li>Usage metering and the published service limits.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="cost-section" id="limits">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Claim discipline</p>
+        <h2>What this page does not claim.</h2>
+      </div>
+      <span class="evidence-label">Known limits stay visible</span>
+    </div>
+    <div class="platform-columns">
+      <div>
+        <h3>Supported and verified</h3>
+        <ul>
+          <li>Two independently owned Workers, two D1 databases and one R2 bucket in production.</li>
+          <li>One service binding, two custom hostnames and one existing daily Cron Trigger.</li>
+          <li>Cloudflare Access in front of native administration; anonymous requests refuse.</li>
+          <li>A guarded production release with exact source and Worker identity.</li>
+          <li>Preview isolation: distinct D1/R2/KV, no services, no routes and no cron triggers.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Unverified or unsupported</h3>
+        <ul>
+          <li>No universal saving, “zero infrastructure cost” or automatically lower bill.</li>
+          <li>No Cloudflare partnership, endorsement or official integration.</li>
+          <li>No customer-owned onboarding, physical-device acceptance or external participant proof.</li>
+          <li>No authenticated agent/MCP journey in this review, and no hosted Get Ready API.</li>
+          <li>No claim that every workload fits Workers, D1 or R2.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="risk-list">
+      <h3>Next three technical risks</h3>
+      <ol>
+        <li>
+          <strong>Preview is a public, stale operator deployment.</strong>
+          It has isolated data and no production services, routes or cron, but it
+          still answers on <code>workers.dev</code>. Refresh or retire it
+          deliberately rather than treating it as a sandbox.
+        </li>
+        <li>
+          <strong>88 undeclared Worker scripts remain in the account.</strong>
+          Their retention, traffic and rollback role are unverified. No deletion
+          is safe from a name or tag alone.
+        </li>
+        <li>
+          <strong>The exact-source gate is conservative.</strong>
+          A docs-only commit on a maintained app makes its live
+          <code>/build.json</code> stale until the app is redeployed. That is
+          safe, but it means readiness can refuse a runtime-identical release.
+        </li>
+      </ol>
+    </div>
+    <p class="small">
+      Technical review pack:
+      <a href={evidence}>Cloudflare review, 12 November 2026</a>. Release
+      history: <a href="/release">verified outcomes</a>. Access model:
+      <a href={accessDocs}>Cloudflare Access documentation</a>. Architecture:
+      <a href="/architecture">how App Composer fits together</a>.
+    </p>
+  </section>
+
+  <div class="cost-close">
+    <Globe2 size={28} aria-hidden="true" />
+    <div>
+      <h2>Start with the result you want.</h2>
+      <p>
+        Get Ready establishes the supported environment before asking for an
+        app idea. The Creator Hub is a real, inspectable example of what comes
+        next.
+      </p>
+    </div>
+    <div class="actions">
+      <a class="button" href="/ready">Open Get Ready</a>
+      <a class="button secondary" href="/creator-hub">Inspect the reference</a>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .cost-intro {
+    max-width: 940px;
+  }
+  .cost-intro h1 {
+    font-size: clamp(2.8rem, 5.8vw, 5.2rem);
+    max-width: 20ch;
+    margin: 14px 0 24px;
+  }
+  .cost-intro .lede {
+    max-width: 68ch;
+    font-size: 1.18rem;
+  }
+  .cost-intro .small {
+    max-width: 76ch;
+  }
+  .platform-index {
+    border-block: 1px solid var(--color-border);
+    padding: 16px 0;
+    gap: 16px 30px;
+    margin: 36px 0;
+  }
+  .platform-index a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .cost-section {
+    padding: 42px 0;
+    border-bottom: 1px solid var(--color-border);
+    scroll-margin-top: 24px;
+  }
+  .cost-section h2 {
+    font-size: clamp(1.9rem, 3.6vw, 2.7rem);
+    max-width: 27ch;
+    margin: 4px 0 18px;
+  }
+  .cost-section > .lede {
+    font-size: 1.08rem;
+    max-width: 72ch;
+  }
+  .section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+  .section-heading .eyebrow {
+    margin: 0 0 6px;
+  }
+  .evidence-label {
+    flex: none;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 12px;
+    color: var(--color-muted);
+    max-width: 28ch;
+    line-height: 1.35;
+  }
+  .fact-strip {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    margin: 26px 0 14px;
+  }
+  .fact-strip div {
+    background: var(--color-surface);
+    padding: 16px 14px;
+  }
+  .fact-strip strong {
+    display: block;
+    font: 600 1.8rem/1 Space, system-ui, sans-serif;
+    color: var(--color-accent);
+  }
+  .fact-strip span {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+  table caption {
+    text-align: left;
+    font-weight: 600;
+    padding: 0 0 12px;
+    color: var(--color-foreground);
+  }
+  table th {
+    font-weight: 600;
+    color: var(--color-foreground);
+  }
+  table td,
+  table th {
+    vertical-align: top;
+  }
+  .attribution {
+    border-left: 4px solid var(--color-accent);
+    background: var(--color-surface);
+    padding: 16px 18px;
+    margin: 20px 0 0;
+    max-width: 80ch;
+    font-size: 15px;
+  }
+  .cost-callout {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-accent);
+    background: var(--color-surface);
+    padding: 22px;
+    margin: 24px 0 16px;
+  }
+  .cost-callout svg {
+    color: var(--color-accent);
+    flex: none;
+    margin-top: 2px;
+  }
+  .cost-callout h3 {
+    margin: 0 0 8px;
+    font-size: 1.3rem;
+  }
+  .cost-callout p {
+    margin: 0;
+    max-width: 74ch;
+  }
+  .platform-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    margin-top: 28px;
+  }
+  .platform-columns h3,
+  .risk-list h3 {
+    font-size: 1.35rem;
+    margin: 0 0 12px;
+  }
+  .platform-columns ul {
+    padding-left: 20px;
+    max-width: 52ch;
+  }
+  .platform-columns li {
+    margin: 10px 0;
+    font-size: 15px;
+  }
+  .risk-list {
+    border-top: 1px solid var(--color-border);
+    margin-top: 30px;
+    padding-top: 26px;
+  }
+  .risk-list ol {
+    max-width: 78ch;
+  }
+  .risk-list li {
+    margin: 14px 0;
+  }
+  .cost-close {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 22px;
+    align-items: center;
+    border-top: 1px solid var(--color-border);
+    padding: 38px 0 0;
+    margin-top: 12px;
+  }
+  .cost-close svg {
+    color: var(--color-accent);
+  }
+  .cost-close h2 {
+    font-size: 1.7rem;
+    margin: 0 0 6px;
+  }
+  .cost-close p {
+    margin: 0;
+    max-width: 58ch;
+    color: var(--color-muted);
+  }
+  .cost-close .actions {
+    margin: 0;
+    justify-content: flex-end;
+  }
+  @media (max-width: 920px) {
+    .fact-strip {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .section-heading {
+      display: block;
+    }
+    .evidence-label {
+      display: inline-block;
+      margin-top: 12px;
+    }
+    .platform-columns {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+    .cost-close {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+    .cost-close .actions {
+      grid-column: 1 / -1;
+      justify-content: flex-start;
+    }
+  }
+  @media (max-width: 560px) {
+    .fact-strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .cost-callout {
+      padding: 18px;
+    }
+    .cost-close {
+      grid-template-columns: 1fr;
+    }
+    .cost-close svg {
+      display: none;
+    }
+  }
+</style>
