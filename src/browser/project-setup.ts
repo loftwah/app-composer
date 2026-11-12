@@ -79,9 +79,12 @@ export function initProjectSetup(): void {
   }
   for (const control of workspace.querySelectorAll<HTMLElement>('[data-setup-controls]')) control.hidden = false;
   // The controls are hidden until this module runs, so a direct #new/#existing
-  // load can scroll before the flow is visible. Re-anchor after revealing it.
+  // load can scroll before the flow is visible. Re-anchor after the browser has
+  // applied the revealed layout and any restored scroll position.
   if (['new', 'existing', 'resume'].includes(modeFromLink)) {
-    document.getElementById(modeFromLink)?.scrollIntoView({ block: 'center' });
+    requestAnimationFrame(() => {
+      document.getElementById(modeFromLink)?.scrollIntoView({ block: 'start', behavior: 'instant' });
+    });
   }
   form.addEventListener('submit', (event) => event.preventDefault());
   form.addEventListener('input', () => {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import traceJson from "../lib/effect/run-trace.json";
 import {
   LINKCHECK_COMMIT,
@@ -128,6 +128,22 @@ function TargetCard({ target }: { target: Target }) {
 
 export default function EffectRunDemo() {
   const [selected, setSelected] = useState(scenarios[0].id);
+  // A direct #effect-run load can scroll before the scenario list has its final
+  // height. Re-anchor after hydration and again once late assets have loaded.
+  useEffect(() => {
+    if (location.hash !== "#effect-run") return;
+    const anchor = () => {
+      if (location.hash === "#effect-run") {
+        document.getElementById("effect-run")?.scrollIntoView({ block: "start", behavior: "instant" });
+      }
+    };
+    const frame = requestAnimationFrame(anchor);
+    window.addEventListener("load", anchor, { once: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("load", anchor);
+    };
+  }, []);
   const [revealed, setRevealed] = useState(0);
   const [copyStatus, setCopyStatus] = useState("");
   const scenario =
