@@ -15,6 +15,7 @@ import {
   validateAppSettingValue,
 } from "./app-settings.mjs";
 import { shareCardCommand, shareCardSnapshot } from "./miniapp-share-card.mjs";
+import { checkPostcardJourney } from "./postcard-journey.ts";
 
 export interface MiniappContext {
   user?: { id?: string; role: number };
@@ -194,6 +195,7 @@ export async function manageMiniapps(
     "feature-resource",
   ].includes(action);
   const reading =
+    action === "postcard-journey" ||
     action === "snapshot" ||
     action === "preview" ||
     (action === "share-card" && command.operation === "snapshot") ||
@@ -229,6 +231,14 @@ export async function manageMiniapps(
       "UNAVAILABLE",
       "The Creator Hub reference connection is not configured for this deployment.",
     );
+  if (action === "postcard-journey") {
+    if (!reference || app !== "guestbook")
+      return fail(
+        "INVALID",
+        "Choose the Creator Hub reference Guestbook for this check.",
+      );
+    return { ok: true, observation: await checkPostcardJourney() };
+  }
   if (collection && reference)
     return fail(
       "INVALID",

@@ -7,6 +7,7 @@ import { tagCommand } from "./miniapp-tags.mjs";
 import { tagCollection } from "./miniapp-tag-fields.mjs";
 import { globalAppSettings as appSettings, validateAppSettingValue, } from "./app-settings.mjs";
 import { shareCardCommand, shareCardSnapshot } from "./miniapp-share-card.mjs";
+import { checkPostcardJourney } from "./postcard-journey.ts";
 const record = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const appService = (value) => record(value) && typeof value.fetch === "function";
 const appItem = (value) => record(value) &&
@@ -130,7 +131,8 @@ export async function manageMiniapps(ctx, runtime, pins, referenceApps) {
         "collection-invitation-set",
         "feature-resource",
     ].includes(action);
-    const reading = action === "snapshot" ||
+    const reading = action === "postcard-journey" ||
+        action === "snapshot" ||
         action === "preview" ||
         (action === "share-card" && command.operation === "snapshot") ||
         (collection &&
@@ -155,6 +157,11 @@ export async function manageMiniapps(ctx, runtime, pins, referenceApps) {
             !referenceApp(referenceApps.guestbook) ||
             !referenceApp(referenceApps.showcase)))
         return fail("UNAVAILABLE", "The Creator Hub reference connection is not configured for this deployment.");
+    if (action === "postcard-journey") {
+        if (!reference || app !== "guestbook")
+            return fail("INVALID", "Choose the Creator Hub reference Guestbook for this check.");
+        return { ok: true, observation: await checkPostcardJourney() };
+    }
     if (collection && reference)
         return fail("INVALID", "Saved visitor-book collection controls remain on the operator pair. Manage this reference contribution in Here / there and feature it in Linkarooie.");
     if (collection)

@@ -7,6 +7,7 @@ import { ShowcaseWorkspace } from "./miniapps/showcase-workspace";
 import { useMiniapps } from "./miniapps/use-miniapps";
 import { CollectionSources } from "./miniapps/collection-sources";
 import { ShareCard } from "./miniapps/share-card";
+import { PostcardJourney } from "./miniapps/postcard-journey";
 import type { AppID, SiteID } from "./miniapps/types";
 import reference from "../../config/creator-hub-reference.json";
 import "./miniapps-admin.css";
@@ -121,6 +122,9 @@ function AppPage() {
         busy={busy}
         request={collectionRequest}
       />
+      {site === "creator-hub" && selected === "guestbook" ? (
+        <PostcardJourney />
+      ) : null}
       {errors[selected] ? (
         <div role="alert">
           <p>{errors[selected]}</p>
