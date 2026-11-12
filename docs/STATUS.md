@@ -15,6 +15,57 @@ and follow-up-change work from the recorded delivery evidence below.
 adoption. This documentation alignment records desired behaviour; it does not
 complete either issue's runtime, newcomer or demonstration acceptance.
 
+## Activity, outcomes and a second Creator Hub change — 12 November 2026
+
+Composer production is `1a93d4b59f7f20aadc5ceed8dec7c58b75958634`, Worker
+`64f160ea-70f6-42d5-91da-55ff40739584`. The first release
+`75d1b923884d07ba66a480b7101961c1c2537dd7` (PR
+[#443](https://github.com/loftwah/app-composer/pull/443)) shipped the public
+chart, native outcomes presentation, Creator Hub follow-up and optional
+maintenance choice; the follow-up `1a93d4b` keeps the inspected day when
+switching outcome signals. Both releases used the clean pushed-main guard.
+
+- `/activity` opens on one chart with 7/30-day and route scope, four signal
+  tabs and a selected UTC day readout. Mouse, tap, the labelled range and
+  previous/next share one cursor; `?day=` is validated and restored across
+  reload, app drilldown and findings. Retained zero, missing history, partial
+  days and capped lower bounds have distinct marks; a route-share finding is
+  suppressed unless all three route reads agree.
+- Live 30-day Activity showed 3,599 recorded opens. An actual 7 November
+  inspection read 105 in place, the same day carried into the Link Check
+  record and the 48-inspection report preview, and the older frozen report with
+  all three images still served. The live receipt signal showed 3 unavailable
+  days, 26 retained zeros and 2 partial days. No capped production day
+  occurred; that state is covered by a fixture and the app-row `+`.
+- Native **Analytics & outcomes** leads with the applied
+  workspace/stack/instance/traffic/period, keeps pending filters and the last
+  successful report visible, and exports the displayed scope with its actual
+  query time. The authenticated Trail postcards check showed 2 opens, 2
+  approvals, 2 hides, deletion unavailable and 1 snapshot. A non-owned
+  workspace read was refused, and the public preview excluded names/IDs and
+  was not published. [#116](https://github.com/loftwah/app-composer/issues/116)
+  remains open for two-stack, duplicate/retry, retention/deletion and
+  conversion acceptance.
+- Creator Hub follow-up: two of four curated links were pinned as featured
+  picks through Linkarooie's existing presentation control at
+  `b7cd3b3e8f19dbbb76d33fb4266053da928cf586`. The approved guest postcard
+  remains public and available. The
+  [case study](https://composer.loftwah.com/creator-hub) now records the
+  before/after and the reversible setting; no app-source release was needed.
+- Init carries an optional maintenance task (health, verify, updates or
+  accessibility), revision and assessment scope through the portable spec,
+  preview and handoff; older specs are unchanged. The Creator Hub repository's
+  own `pnpm check` passed 127 tests as a manual read-only handoff. Connected
+  execution and recurrence remain #311/#289 work.
+- Checks: `pnpm check` 620 tests, Astro 0 errors/0 warnings, public
+  build/publication guard; focused `tests/activity-view.test.mjs` (5) and
+  `tests/maintenance-choice.test.mjs` (3). Live phone 390 px and reduced motion
+  were checked with no horizontal overflow.
+- Remaining gates: no capped production day observed; physical-device and
+  social-unfurl proof unchanged; the native check used the existing Access
+  session. Full evidence is in
+  [docs/evidence/activity-outcomes-20261112](evidence/activity-outcomes-20261112/README.md).
+
 ## Share image maintenance — 12 November 2026
 
 Composer production is `c7d1a9bcfb0571e51f77cb7720678d7996144bdf`, Worker
