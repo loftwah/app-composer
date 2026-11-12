@@ -1,0 +1,25 @@
+---
+import Base from '../../layouts/Base.astro';
+import VisualBoard from '../../components/VisualBoard.astro';
+import { ArrowLeft } from '@lucide/astro';
+import { visualCollections } from '../../lib/visual-collections';
+
+const collection = visualCollections.find(item => item.href === '/collections/' + Astro.params.id);
+if (!collection) return new Response('Collection not found', { status: 404 });
+---
+
+<Base title={collection.title} description={collection.description}>
+  <div class="collection-intro">
+    <a class="collection-back" href="/collections"><ArrowLeft size={16} aria-hidden="true" /> All collections</a>
+    <h1>{collection.title}</h1>
+    <p class="lede">{collection.description}</p>
+  </div>
+  <VisualBoard {collection} />
+</Base>
+
+<style>
+  .collection-intro { padding-bottom: 22px; }
+  .collection-back { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 16px; }
+  .collection-intro h1 { margin: 0 0 12px; font-size: clamp(2.8rem, 6vw, 4.8rem); }
+  .collection-intro p { margin: 0; max-width: 56ch; }
+</style>
