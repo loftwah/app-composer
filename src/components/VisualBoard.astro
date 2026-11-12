@@ -1,46 +1,14 @@
 ---
 import { ArrowUpRight, Bookmark, Play, X } from '@lucide/astro';
-import reference from '../../config/creator-hub-reference.json';
+import type { VisualCollection } from '../lib/visual-collections';
 
-interface Props {
-  card: string;
-  clip: string;
-  poster: string;
-}
-const { card, clip, poster } = Astro.props;
-const pins = [
-  {
-    id: 'film', title: 'From example to your draft', type: 'Film · 22 seconds',
-    image: poster, width: 720, height: 1280, href: '#walkthrough-film', action: 'Transcript and download',
-    description: 'See Mara’s live profile, then watch the same setup open as a draft you can adapt.',
-  },
-  {
-    id: 'cover', title: 'Creator Hub link cover', type: 'Image · 1200 × 630',
-    image: card, width: 1200, height: 630, href: card, action: 'Download link cover', download: true,
-    description: 'The wide cover pairs Composer’s orange mark with the live Linkarooie profile. Use it with the X, LinkedIn or Facebook draft.',
-  },
-  {
-    id: 'profile', title: 'Mara Quinn’s profile', type: 'Live app · Linkarooie',
-    image: '/creator-hub/profile-20261111.webp', width: 1440, height: 960,
-    href: reference.apps.showcase.origin, action: 'Open live profile',
-    description: 'The fictional studio’s public home for selected work, workshop notes and commissions.',
-  },
-  {
-    id: 'postcards', title: 'Postcards for Mara', type: 'Live app · Here / there',
-    image: '/creator-hub/guestbook-phone-20261111.webp', width: 390, height: 844,
-    href: reference.apps.guestbook.origin, action: 'Open live guestbook',
-    description: 'Visitors can explore the guestbook. Contributions are reviewed before they appear publicly.',
-  },
-  {
-    id: 'sample', title: 'Make the setup your own', type: 'Editable example · Init',
-    image: '/creator-hub/draft-review-20261112.webp', width: 684, height: 810,
-    href: '/init?start=creator-hub', action: 'Review the sample draft',
-    description: 'Open the two-app sample in Init. You can keep your existing draft or load the example and adapt it.',
-  },
-];
+interface Props { collection: VisualCollection }
+const { collection } = Astro.props;
+const { pins } = collection;
+
 ---
 
-<section class="creator-board" data-creator-board aria-label="Creator Hub pins">
+<section class="creator-board" data-creator-board data-collection={collection.id} aria-label={collection.title + " pins"}>
   <div class="board-toolbar" data-board-toolbar hidden>
     <div class="board-filters" aria-label="Filter pins" role="group">
       <button type="button" data-pin-filter="all" aria-pressed="true">All pins</button>
@@ -49,13 +17,13 @@ const pins = [
     <p class="small">Saves stay in this browser.</p>
   </div>
   <p class="board-empty" data-board-empty hidden>Nothing saved yet. Open <strong>All pins</strong> and save anything you want to revisit.</p>
-  <div class="pin-columns">
+  <div class:list={["pin-columns", { "three-pins": pins.length === 3 }]}>
     {pins.map((pin) => (
       <article class="board-pin" data-pin={pin.id}>
         <a class="pin-link" href={pin.href} data-open-pin={pin.id}>
-          <span class="pin-art" data-pin-art={pin.id}>
-            <img src={pin.image} width={pin.width} height={pin.height} alt="" decoding="async" />
-            {pin.id === 'film' && <span class="pin-play" aria-hidden="true"><Play size={19} fill="currentColor" /></span>}
+          <span class="pin-art" data-pin-crop={pin.crop}>
+            <img src={pin.image.src} width={pin.image.width} height={pin.image.height} alt="" decoding="async" />
+            {pin.video && <span class="pin-play" aria-hidden="true"><Play size={19} fill="currentColor" /></span>}
           </span>
           <h2>{pin.title}</h2>
           <p>{pin.type}</p>
@@ -75,15 +43,16 @@ const pins = [
     </div>
     {pins.map((pin) => (
       <div class="pin-detail" data-pin-detail={pin.id} data-title={pin.title} hidden>
-        {pin.id === 'film' ? (
-          <video controls playsinline preload="none" width="1080" height="1920" poster={poster} aria-label={pin.title}>
-            <source src={clip} type="video/mp4" />
-            <a href={clip}>Open the video</a>
+        {pin.video ? (
+          <video controls playsinline preload="none" width={pin.video.width} height={pin.video.height} poster={pin.image.src} aria-label={pin.title}>
+            <source src={pin.video.src} type="video/mp4" />
+            <a href={pin.video.src}>Open the video</a>
           </video>
         ) : (
-          <img src={pin.image} width={pin.width} height={pin.height} alt={pin.title} decoding="async" />
+          <img src={pin.image.src} width={pin.image.width} height={pin.image.height} alt={pin.image.alt} decoding="async" />
         )}
         <p>{pin.description}</p>
+        <p class="small pin-source">{pin.source.note} <a href={pin.source.href}>{pin.source.label}</a></p>
         <div class="detail-actions">
           <a class="button" href={pin.href} download={pin.download} data-pin-destination>{pin.action}<ArrowUpRight size={16} aria-hidden="true" /></a>
           <button type="button" class="secondary" data-pin-save={pin.id} aria-label={'Save ' + pin.title} aria-pressed="false"><Bookmark size={16} aria-hidden="true" /> <span data-save-label>Save</span></button>
@@ -97,7 +66,7 @@ const pins = [
 <script>
   const board = document.querySelector<HTMLElement>('[data-creator-board]');
   if (board) {
-    const keyPrefix = 'composer:creator-hub:saved-pin:v1:';
+    const keyPrefix = `composer:${board.dataset.collection}:saved-pin:v1:`;
     const dialog = board.querySelector<HTMLDialogElement>('[data-pin-dialog]')!;
     const title = dialog.querySelector<HTMLElement>('[data-pin-title]')!;
     const tiles = [...board.querySelectorAll<HTMLElement>('[data-pin]')];
@@ -208,15 +177,16 @@ const pins = [
   .board-filters button, .pin-save { min-height: 44px; border-radius: 999px; padding: 8px 14px; font-size: .92rem; background: var(--color-surface); color: var(--color-foreground); border: 1px solid var(--color-control-border); }
   .board-filters button[aria-pressed="true"], .pin-save[aria-pressed="true"] { color: var(--color-on-action); background: var(--color-action); border-color: var(--color-action); }
   .pin-columns { columns: 4; column-gap: clamp(12px, 2vw, 24px); }
+  .three-pins { columns: 3; }
   .board-pin { position: relative; break-inside: avoid; margin-bottom: 22px; }
   .pin-link { display: block; border-radius: 12px; }
   .pin-link h2 { margin: 9px 0 2px; font-size: clamp(1rem, 1.5vw, 1.18rem); line-height: 1.2; }
   .pin-link p { margin: 0; color: var(--color-muted); font-size: .86rem; line-height: 1.35; font-weight: 500; }
   .pin-art { display: block; position: relative; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 14px; overflow: hidden; }
   .pin-art img { display: block; width: 100%; height: auto; }
-  .pin-art[data-pin-art="film"], .pin-art[data-pin-art="postcards"] { aspect-ratio: 4 / 5; }
-  .pin-art[data-pin-art="film"] img, .pin-art[data-pin-art="postcards"] img { height: 100%; object-fit: cover; object-position: top; }
-  .pin-art[data-pin-art="postcards"] img { object-position: bottom; }
+  .pin-art[data-pin-crop] { aspect-ratio: 4 / 5; }
+  .pin-art[data-pin-crop] img { height: 100%; object-fit: cover; object-position: top; }
+  .pin-art[data-pin-crop="bottom"] img { object-position: bottom; }
   .pin-link:hover h2 { color: var(--color-accent); }
   .pin-save { position: absolute; top: 8px; right: 8px; gap: 5px; }
   .pin-play { position: absolute; bottom: 8px; left: 8px; background: var(--color-surface); color: var(--color-foreground); border-radius: 50%; width: 39px; height: 39px; display: grid; place-items: center; }
@@ -228,6 +198,7 @@ const pins = [
   .dialog-bar h2 { margin: 0; font-size: clamp(1.3rem, 3.5vw, 1.85rem); }
   .dialog-bar button { width: 44px; padding: 0; min-height: 44px; border: 1px solid var(--color-control-border); }
   .pin-detail img, .pin-detail video { display: block; width: auto; height: auto; max-width: 100%; max-height: min(54dvh, 480px); border-radius: 10px; margin: 0 auto; }
+  .pin-source a { color: var(--color-accent); }
   .detail-actions { display: flex; flex-wrap: wrap; gap: 10px; }
   .detail-actions button { border: 1px solid var(--color-control-border); }
   .detail-actions button[aria-pressed="true"] { color: var(--color-on-action); background: var(--color-action); }

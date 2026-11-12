@@ -1,0 +1,41 @@
+---
+import Base from '../../layouts/Base.astro';
+import { ArrowUpRight } from '@lucide/astro';
+import { visualCollections } from '../../lib/visual-collections';
+---
+
+<Base title="Collections" description="Explore finished covers, working apps and the pieces behind them in App Composer’s visual collections.">
+  <div class="collection-intro">
+    <h1>Collections</h1>
+    <p class="lede">Finished covers, working apps and the pieces behind them. Open a collection to explore and save its pins.</p>
+  </div>
+  <div class="collection-shelf">
+    {visualCollections.map((collection) => (
+      <a class="collection-entry" href={collection.href}>
+        <img src={collection.lead.src} width={collection.lead.width} height={collection.lead.height} alt={collection.lead.alt} decoding="async" />
+        <div class="entry-text">
+          <h2>{collection.title}<ArrowUpRight size={20} aria-hidden="true" /></h2>
+          <p>{collection.description}</p>
+        </div>
+      </a>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .collection-intro { padding-bottom: 26px; }
+  .collection-intro h1 { margin: 0 0 12px; font-size: clamp(3rem, 7vw, 5.5rem); }
+  .collection-intro p { margin: 0; max-width: 56ch; }
+  .collection-shelf { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 24px 30px; align-items: start; }
+  .collection-entry { display: block; border-radius: 14px; min-width: 0; }
+  .collection-entry:first-child { grid-row: span 2; }
+  .collection-entry img { display: block; width: 100%; height: auto; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 14px; }
+  .entry-text { padding: 12px 0 0; }
+  .entry-text h2 { margin: 0; font-size: clamp(1.55rem, 2.5vw, 2.35rem); display: flex; align-items: center; gap: 10px; max-width: none; }
+  .entry-text p { margin: 5px 0 0; color: var(--color-muted); font-weight: 400; }
+  .collection-entry:hover h2 { color: var(--color-accent); }
+  @media (max-width: 680px) {
+    .collection-shelf { grid-template-columns: minmax(0, 1fr); }
+    .collection-entry:first-child { grid-row: auto; }
+  }
+</style>

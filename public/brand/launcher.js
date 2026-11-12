@@ -79,6 +79,7 @@
     // normally and retain the destination's own authentication boundary.
     const tasks = [
         { name: "Explore App Composer", path: "/discover", description: "Working tools and recent releases", keywords: "new latest shipped features work discover", icon: "stacks" },
+        { name: "Collections", path: "/collections", description: "Browse and save visual pins", keywords: "collection collections board pins gallery design art print covers", icon: "book" },
         { name: "My profile / My apps", path: "/me", description: "Open your invited profile and app tools", keywords: "member account login sign in profile publish", icon: "settings" },
         { name: "Team application films", path: "/platform/demo", description: "Watch the overview and technical walkthrough", keywords: "video demo movie team platform request", icon: "book" },
         { name: "Platform Teams", path: "/platform", description: "Understand team application requests and policies", keywords: "enterprise team permissions request policy", icon: "stacks" },
