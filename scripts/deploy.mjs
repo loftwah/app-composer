@@ -67,6 +67,19 @@ const lock = JSON.parse(readFileSync("composition.lock.json", "utf8"));
 assertProductionTarget(cfg, cfg, lock);
 const releaseStarted = Date.now();
 const stageTimings = [];
+// Reuse the pnpm that launched this script instead of resolving a global shim.
+// The shim can select a different Node line than the selected default, which
+// makes `pnpm check` test the wrong runtime.
+const pnpmCommand = () => {
+  const execpath = process.env.npm_execpath;
+  if (!execpath) return ["pnpm", []];
+  if (/\.(?:c|m)?js$/.test(execpath)) return [process.execPath, [execpath]];
+  return [execpath, []];
+};
+const runPnpm = (args) => {
+  const [file, prefix] = pnpmCommand();
+  return execFileSync(file, [...prefix, ...args], { stdio: "inherit" });
+};
 const stage = async (name, work) => {
   const started = Date.now();
   const result = await work();
@@ -82,17 +95,13 @@ const stage = async (name, work) => {
   return result;
 };
 await stage("dependency audit", () =>
-  execFileSync("pnpm", ["run", "audit"], { stdio: "inherit" }),
+  runPnpm(["run", "audit"]),
 );
 // Required local checks run before any remote mutation, so a failing gate cannot
 // apply migrations first. This is the only full `pnpm check` invocation in a
 // release; the delivery journey delegates here rather than repeating it.
-await stage("required checks (pnpm check)", () =>
-  execFileSync("pnpm", ["check"], { stdio: "inherit" }),
-);
-await stage("production build", () =>
-  execFileSync("pnpm", ["build"], { stdio: "inherit" }),
-);
+await stage("required checks (pnpm check)", () => runPnpm(["check"]));
+await stage("production build", () => runPnpm(["build"]));
 assertReleasePackage(
   JSON.parse(readFileSync("public/downloads/get-ready-core.json", "utf8")),
   readFileSync("public/downloads/get-ready-core.tgz"),
