@@ -1,3 +1,5 @@
+import { validateReferenceEvidence } from "./reference-evidence.mjs";
+
 export const projectDirectionVersion = 1;
 export const maxProjectReferences = 3;
 export const referenceStatuses = ["selected", "exploratory", "rejected"];
@@ -44,7 +46,7 @@ export function validateProjectDirection(value, validText) {
   if (value === undefined) return undefined;
   checkFields(
     value,
-    ["version", "voice", "visual", "references"],
+    ["version", "voice", "visual", "references", "evidence"],
     "Creative direction",
   );
   if (value.version !== projectDirectionVersion)
@@ -56,13 +58,16 @@ export function validateProjectDirection(value, validText) {
   const references = value.references ?? [];
   if (!Array.isArray(references) || references.length > maxProjectReferences)
     throw new Error("Use up to three project references");
+  const validatedReferences = references.map((reference) =>
+    validateReference(reference, validText),
+  );
+  const evidence = validateReferenceEvidence(value.evidence, validatedReferences);
   if (!voice && !visual && !references.length) return undefined;
   return {
     version: projectDirectionVersion,
     ...(voice ? { voice } : {}),
     ...(visual ? { visual } : {}),
-    references: references.map((reference) =>
-      validateReference(reference, validText),
-    ),
+    references: validatedReferences,
+    ...(evidence ? { evidence } : {}),
   };
 }

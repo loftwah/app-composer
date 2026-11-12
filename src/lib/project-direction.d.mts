@@ -10,6 +10,7 @@ export interface ProjectDirection {
   voice?: string;
   visual?: string;
   references: ProjectReference[];
+  evidence?: import("./reference-evidence.mjs").ReferenceEvidence;
 }
 
 export const projectDirectionVersion: 1;

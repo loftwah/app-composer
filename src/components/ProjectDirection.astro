@@ -15,6 +15,31 @@ import { maxProjectReferences } from '../lib/project-direction.mjs';
     <div id="project-reference-rows"></div>
     <button id="add-project-reference" type="button" class="secondary">Add a reference</button>
     <p class="small">Up to {maxProjectReferences} public links or product names. Say what to carry over or avoid.</p>
+    <section class="reference-inspection" aria-labelledby="reference-inspection-heading">
+      <h3 id="reference-inspection-heading">Ask your agent to look</h3>
+      <p class="small">Give your agent the inspection request, then open or paste its report. <a href="/ready?task=browser#agent-start" target="_blank" rel="noopener">Try the browser exercise in a new tab</a> if you’re setting up.</p>
+      <button id="copy-reference-request" type="button" class="secondary" disabled>Copy inspection request</button>
+      <pre id="reference-request-text" tabindex="-1" hidden></pre>
+      <label for="import-reference-evidence">Open your agent’s report</label>
+      <input id="import-reference-evidence" type="file" accept=".json,application/json" disabled />
+      <details id="paste-reference-report">
+        <summary>Paste JSON instead</summary>
+        <label for="reference-report-json">Report JSON</label>
+        <textarea id="reference-report-json" rows="4" maxlength="65536" spellcheck="false"></textarea>
+        <button id="review-reference-json" type="button" class="secondary" disabled>Review pasted report</button>
+      </details>
+      <p id="reference-evidence-status" class="small" role="status">Add a selected or exploratory reference to start.</p>
+      <section id="reference-evidence-review" tabindex="-1" aria-labelledby="reference-evidence-heading" hidden>
+        <h4 id="reference-evidence-heading">Reference observations</h4>
+        <p id="reference-evidence-agent" class="small"></p>
+        <div id="reference-evidence-results"></div>
+        <p id="reference-evidence-review-help" class="small">Check what the agent observed and what it could not assess. Keep only reports you’re happy to share in the spec.</p>
+        <div class="reference-evidence-actions">
+          <button id="use-reference-evidence" type="button">Attach report to draft</button>
+          <button id="dismiss-reference-evidence" type="button" class="secondary">Cancel review</button>
+        </div>
+      </section>
+    </section>
   </details>
   <template id="project-reference-template">
     <fieldset class="project-reference">
@@ -37,4 +62,14 @@ import { maxProjectReferences } from '../lib/project-direction.mjs';
   #project-direction summary { cursor: pointer; font-weight: 600; }
   #project-direction > p { margin-block: .75rem 1rem; }
   #project-reference-rows :global(.project-reference) { margin-block: 1rem; min-inline-size: 0; }
+  .reference-inspection { border-block-start: 1px solid var(--color-border); margin-block-start: 1.5rem; padding-block-start: 1rem; min-inline-size: 0; }
+  .reference-inspection h3, .reference-inspection h4 { margin: 0 0 .5rem; }
+  .reference-inspection label { display: block; margin-block-start: 1rem; }
+  #paste-reference-report { margin-block: .75rem; }
+  .reference-inspection pre { white-space: pre-wrap; overflow-wrap: anywhere; max-block-size: 15rem; overflow: auto; }
+  #reference-evidence-review { border-block-start: 1px solid var(--color-border); padding-block-start: 1rem; overflow-wrap: anywhere; }
+  #reference-evidence-results :global(article) { padding-block: .75rem; border-block-end: 1px solid var(--color-border); }
+  #reference-evidence-results :global(p) { margin-block: .35rem; }
+  #reference-evidence-results :global(ul) { padding-inline-start: 1.3rem; margin-block: .35rem; }
+  .reference-evidence-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
 </style>

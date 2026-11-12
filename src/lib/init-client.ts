@@ -3,8 +3,9 @@ import {renderAppPreview} from './app-preview';
 import {currentAssistance} from './assistance';
 import {presetRecommendation,recommendationSpec,assistedHandoff,initialRecommendation} from './init-recommendations.mjs';
 import {setupPreferenceKey,validateSetupPreferences} from '../../lib/get-ready/preferences.mjs';
-import {validateSpec,presets,specVersion,maintenanceRevision} from './spec.mjs';
-import {maxProjectReferences,projectDirectionVersion,type ProjectDirection,type ProjectReference} from './project-direction.mjs';
+import {validateSpec,validText,presets,specVersion,maintenanceRevision} from './spec.mjs';
+import {maxProjectReferences,projectDirectionVersion,validateProjectDirection,type ProjectDirection,type ProjectReference} from './project-direction.mjs';
+import {bindReferenceEvidence} from './init-reference-evidence';
 import {buildRecipe,humanOnlyActions} from './build-recipe.mjs';
 import {globalAppSettings as appSettings,selectedSources,appConfiguration} from './app-settings.mjs';
 const form=document.querySelector<HTMLFormElement>('#init-form')!;
@@ -20,9 +21,10 @@ const projectVisual = document.querySelector<HTMLTextAreaElement>('#project-visu
 const referenceRows = document.querySelector<HTMLDivElement>('#project-reference-rows')!;
 const referenceTemplate = document.querySelector<HTMLTemplateElement>('#project-reference-template')!;
 const addReference = document.querySelector<HTMLButtonElement>('#add-project-reference')!;
+const referenceEvidence = bindReferenceEvidence(() => { edited(); show(); previewRecommendation(); });
 let savedDraftUnreadable = false;
 let observedSnapshot='',savedSnapshot:string|null=null,revision=0,pendingImport:ReturnType<typeof validateSpec>|null=null;
-function snapshot(){return JSON.stringify({fields:Array.from(form.querySelectorAll<HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement>('input:not([type=file]),textarea,select')).map(control=>[control.name,control.value,'checked' in control?control.checked:null]),decisions});}
+function snapshot(){return JSON.stringify({fields:Array.from(form.querySelectorAll<HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement>('input:not([type=file]),textarea:not(#reference-report-json),select')).map(control=>[control.name,control.value,'checked' in control?control.checked:null]),decisions,referenceEvidence:referenceEvidence.snapshot()});}
 function updateDraftStatus(){draftStatus.textContent=savedDraftUnreadable?'Saved draft could not be loaded':savedSnapshot===null?'New draft · not saved yet':savedSnapshot===snapshot()?'Saved on this device':'Unsaved changes';}
 function dismissImport(){pendingImport=null;importReview.hidden=true;}
 function reviewCandidate(candidate: ReturnType<typeof validateSpec>, status: string) {
@@ -30,7 +32,7 @@ function reviewCandidate(candidate: ReturnType<typeof validateSpec>, status: str
  const names = candidate.apps.map((id: string) => appSettings[id]?.name ?? 'Hello World reference');
  const count = candidate.cards.length;
  document.querySelector('#import-summary')!.textContent =
-  `${candidate.config.title} · ${names.join(' + ')} · ${count} curated ${count === 1 ? 'link' : 'links'}${candidate.projectDirection ? ' · includes creative direction' : ''}${candidate.maintenance ? ` · maintenance: ${candidate.maintenance.task}` : ''}`;
+  `${candidate.config.title} · ${names.join(' + ')} · ${count} curated ${count === 1 ? 'link' : 'links'}${candidate.projectDirection ? ' · includes creative direction' : ''}${candidate.projectDirection?.evidence ? ' · includes a reference report' : ''}${candidate.maintenance ? ` · maintenance: ${candidate.maintenance.task}` : ''}`;
  importReview.hidden = false;
  message.textContent = status;
  importReview.focus();
@@ -71,7 +73,7 @@ function referenceField(row: Element, key: keyof ProjectReference) {
 }
 
 function readProjectDirection() {
- return {
+ const direction = validateProjectDirection({
   version: projectDirectionVersion,
   voice: projectVoice.value,
   visual: projectVisual.value,
@@ -81,7 +83,10 @@ function readProjectDirection() {
    decision: referenceField(row, 'decision').value,
    usage: referenceField(row, 'usage').value,
   })),
- };
+ }, validText);
+ if (!direction) return undefined;
+ const evidence = referenceEvidence.forReferences(direction.references);
+ return evidence ? {...direction, evidence} : direction;
 }
 
 function updateReferenceButton() {
@@ -116,6 +121,7 @@ function fillProjectDirection(direction?: ProjectDirection) {
  referenceRows.replaceChildren();
  direction?.references.forEach(addReferenceRow);
  directionPanel.open = Boolean(direction);
+ referenceEvidence.replace(direction?.evidence, direction?.references ?? []);
  updateReferenceButton();
 }
 
@@ -128,6 +134,7 @@ function renderProjectDirection(direction?: ProjectDirection) {
  const rows: readonly (readonly [string, string | undefined])[] = [
   ['Writing voice', direction.voice],
   ['Visual direction', direction.visual],
+  ['Reference report', direction.evidence ? `Attached · ${direction.evidence.agent.name} · ${direction.evidence.results.length} checked or attempted` : undefined],
   ...direction.references.map(reference => [
    reference.source,
    `${{selected: 'Selected', exploratory: 'Explore first', rejected: 'Leave out'}[reference.status]} · ${reference.decision}${reference.usage ? ` · ${reference.usage}` : ''}`,
@@ -163,7 +170,13 @@ function conditions(){
  const maintenanceLink=document.querySelector<HTMLAnchorElement>('#maintenance-task-link');
  if(maintenanceLink&&maintenance)maintenanceLink.href='/prompts#'+maintenance;
 }
-function show(save=false){try{conditions();const s=read();renderBuildPlan(s);renderAppPreview(s);renderProjectDirection(s.projectDirection);validationMessage.textContent='';document.querySelector('#preview-caption')!.textContent='Layout preview · sample content';for(const id of ['copy','download'])(document.getElementById(id) as HTMLButtonElement).disabled=false;document.querySelector('#preview-title')!.textContent=s.config.title;document.querySelector('#preview-intro')!.textContent=s.config.intro;document.querySelector('#preview-apps')!.textContent=s.apps.map((id:string)=>appSettings[id]?.name??'Hello World reference').join(' + ');const preview=document.querySelector('#preview-settings')!;preview.replaceChildren();for(const id of s.apps.filter((id:string)=>Object.hasOwn(appSettings,id))){const c=appConfiguration(s,id),section=document.createElement('section'),heading=document.createElement('h3'),text=document.createElement('p'),appearance=document.createElement('p');heading.textContent=appSettings[id].name;text.textContent=c.title+(c.intro?' — '+c.intro:'');appearance.className='small';appearance.textContent=c.theme+' · '+c.layout+(s.appSettings[id]?' · separate settings':' · shared settings');section.append(heading,text,appearance);preview.append(section);}const deliveryNote=document.createElement('p');deliveryNote.className='small';deliveryNote.textContent='Delivery · '+(s.delivery.profile==='existing-runner'?'existing runner: '+(s.delivery.runner||'choose one'):'local checks, preview candidate, explicit release');preview.append(deliveryNote);const maintenanceNote=document.createElement('p');maintenanceNote.className='small';maintenanceNote.textContent=s.maintenance?'Maintenance · '+s.maintenance.task+' · '+s.maintenance.scope+' · revision '+s.maintenance.revision:'Maintenance · no task selected';preview.append(maintenanceNote);document.querySelector('#spec')!.textContent=JSON.stringify(s,null,2);document.querySelector('#prompt')!.textContent=assistedHandoff(s,currentAssistance());if(save)saveDraft(s);updateDraftStatus();}catch(e){document.querySelector('#spec')!.textContent='Complete the current fields before exporting.';document.querySelector('#prompt')!.textContent='Complete the current fields before copying a handoff.';for(const id of ['copy','download'])(document.getElementById(id) as HTMLButtonElement).disabled=true;document.querySelector('#preview-caption')!.textContent='Preview paused · last valid draft';validationMessage.textContent=(e instanceof Error?e.message:String(e))+'. The last valid preview stays visible while you finish editing.';updateDraftStatus();}}
+function show(save=false){
+ try {
+  referenceEvidence.update(readProjectDirection()?.references ?? []);
+ } catch {
+  referenceEvidence.update([]);
+ }
+ try{conditions();const s=read();renderBuildPlan(s);renderAppPreview(s);renderProjectDirection(s.projectDirection);validationMessage.textContent='';document.querySelector('#preview-caption')!.textContent='Layout preview · sample content';for(const id of ['copy','download'])(document.getElementById(id) as HTMLButtonElement).disabled=false;document.querySelector('#preview-title')!.textContent=s.config.title;document.querySelector('#preview-intro')!.textContent=s.config.intro;document.querySelector('#preview-apps')!.textContent=s.apps.map((id:string)=>appSettings[id]?.name??'Hello World reference').join(' + ');const preview=document.querySelector('#preview-settings')!;preview.replaceChildren();for(const id of s.apps.filter((id:string)=>Object.hasOwn(appSettings,id))){const c=appConfiguration(s,id),section=document.createElement('section'),heading=document.createElement('h3'),text=document.createElement('p'),appearance=document.createElement('p');heading.textContent=appSettings[id].name;text.textContent=c.title+(c.intro?' — '+c.intro:'');appearance.className='small';appearance.textContent=c.theme+' · '+c.layout+(s.appSettings[id]?' · separate settings':' · shared settings');section.append(heading,text,appearance);preview.append(section);}const deliveryNote=document.createElement('p');deliveryNote.className='small';deliveryNote.textContent='Delivery · '+(s.delivery.profile==='existing-runner'?'existing runner: '+(s.delivery.runner||'choose one'):'local checks, preview candidate, explicit release');preview.append(deliveryNote);const maintenanceNote=document.createElement('p');maintenanceNote.className='small';maintenanceNote.textContent=s.maintenance?'Maintenance · '+s.maintenance.task+' · '+s.maintenance.scope+' · revision '+s.maintenance.revision:'Maintenance · no task selected';preview.append(maintenanceNote);document.querySelector('#spec')!.textContent=JSON.stringify(s,null,2);document.querySelector('#prompt')!.textContent=assistedHandoff(s,currentAssistance());if(save)saveDraft(s);updateDraftStatus();}catch(e){document.querySelector('#spec')!.textContent='Complete the current fields before exporting.';document.querySelector('#prompt')!.textContent='Complete the current fields before copying a handoff.';for(const id of ['copy','download'])(document.getElementById(id) as HTMLButtonElement).disabled=true;document.querySelector('#preview-caption')!.textContent='Preview paused · last valid draft';validationMessage.textContent=(e instanceof Error?e.message:String(e))+'. The last valid preview stays visible while you finish editing.';updateDraftStatus();}}
 
 function fill(input:unknown){const s=validateSpec(input);fillProjectDirection(s.projectDirection);displayedPreset=s.preset;for(const [name,v] of Object.entries({...s.config,preset:s.preset,deviceTarget:s.deviceTarget??'unknown',target:s.deployment.mode,hostname:s.deployment.hostname,deliveryProfile:s.delivery.profile,deliveryRunner:s.delivery.runner||'jenkins',maintenanceTask:s.maintenance?.task??'',maintenanceScope:s.maintenance?.scope??'assess'}))(form.elements.namedItem(name) as HTMLInputElement).value=String(v);document.querySelector('#card-rows')!.replaceChildren();s.cards.forEach((c:any)=>row(c.title,c.url));for(const id of Object.keys(appSettings)){const toggle=form.querySelector<HTMLInputElement>(`[data-separate-settings="${id}"]`)!;toggle.checked=Object.hasOwn(s.appSettings,id);delete toggle.dataset.initialised;const fields=form.querySelector<HTMLFieldSetElement>(`[data-app-fields="${id}"]`)!;for(const control of fields.querySelectorAll<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>('[data-app-field]'))control.value=s.appSettings[id]?.[control.dataset.appField!]??s.config[control.dataset.appField as keyof typeof s.config]??'';if(toggle.checked)toggle.dataset.initialised='true';}decisions=s.decisions;if(decisions.target==='existing-domain'&&s.deployment.mode==='preview')(form.elements.namedItem('target') as HTMLInputElement).value='existing-domain';show();}
 const recommendationRoot=document.querySelector<HTMLElement>('[data-init-recommendation]')!;
@@ -189,7 +202,7 @@ function applyStartingPoint(id:string){
 }
 goal.disabled=false;goal.addEventListener('change',previewRecommendation);useGoal.addEventListener('click',()=>{try{applyStartingPoint(goal.value);}catch(e){report(e);}});
 window.addEventListener('composer:assistance-choice',()=>{try{document.querySelector('#prompt')!.textContent=assistedHandoff(read(),currentAssistance());}catch{}previewRecommendation();});
-form.addEventListener('input',()=>{edited();show();previewRecommendation();});form.addEventListener('change',event=>{if(event.target===importInput)return;edited();previewRecommendation();});
+form.addEventListener('input',event=>{if((event.target as HTMLElement).id==='reference-report-json')return;edited();show();previewRecommendation();});form.addEventListener('change',event=>{if(event.target===importInput)return;edited();previewRecommendation();});
 try{const saved=localStorage.getItem(key);if(saved){savedDraftUnreadable=true;fill(JSON.parse(saved));savedSnapshot=snapshot();savedDraftUnreadable=false;}else{const choice=localStorage.getItem(setupPreferenceKey);if(choice){const preference=validateSetupPreferences(JSON.parse(choice));(form.elements.namedItem('target') as HTMLSelectElement).value=preference.destination;(form.elements.namedItem('hostname') as HTMLInputElement).value=preference.hostname;}}}catch(e){report(e);}
 window.addEventListener('pageshow',()=>{show();previewRecommendation();});
 for(const id of Object.keys(appSettings)){const toggle=form.querySelector<HTMLInputElement>(`[data-separate-settings="${id}"]`)!;toggle.addEventListener('change',()=>{if(toggle.checked&&!toggle.dataset.initialised){for(const control of form.querySelectorAll<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>(`[data-app-fields="${id}"] [data-app-field]`))control.value=(form.elements.namedItem(control.dataset.appField!) as HTMLInputElement|null)?.value??appSettings[id].fields.find(field=>field.key===control.dataset.appField)?.default??'';toggle.dataset.initialised='true';}show();});form.querySelector(`[data-app-defaults="${id}"]`)!.addEventListener('click',()=>{for(const field of appSettings[id].fields)(form.elements.namedItem(id+'-'+field.key) as HTMLInputElement).value=field.default??value(field.key);edited();show();previewRecommendation();});}
@@ -212,7 +225,7 @@ form.addEventListener('submit',e=>{e.preventDefault();show(true);});form.addEven
  const file=importInput.files?.[0];if(!file)return;importInput.value='';
  const selectedRevision=++revision;dismissImport();message.textContent='Reading the selected spec…';
  try{
-  if(file.size>32768)throw new Error('Spec is too large. Use a file under 32 KB.');
+  if(file.size>65536)throw new Error('Spec is too large. Use a file up to 64 KB.');
   const text=await file.text();
   if(selectedRevision!==revision)return;
   reviewCandidate(validateSpec(JSON.parse(text)), 'Spec checked. Review it before replacing your current draft.');

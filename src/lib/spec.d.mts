@@ -1,3 +1,5 @@
+export function validText(value: unknown, max: number, label: string): string;
+
 export interface Spec {
   projectDirection?: import("./project-direction.mjs").ProjectDirection;
   deviceTarget?: import("./device-support.mjs").DeviceTarget;
