@@ -4,7 +4,7 @@ import { ArrowLeft, Copy, Download } from '@lucide/astro';
 
 const story = 'https://composer.loftwah.com/creator-hub';
 const card = '/creator-hub/share-20261112.jpg';
-const clip = '/creator-hub/social-walkthrough-20261112.mp4';
+const clip = '/creator-hub/social-walkthrough-20261112-1080p.mp4';
 const poster = '/creator-hub/social-walkthrough-20261112.webp';
 const sourceLink = (source: string) => story + '?' + new URLSearchParams({
   utm_source: source,
@@ -77,7 +77,7 @@ const channels = [
     <div class="share-layout">
       <section class="clip-panel" aria-labelledby="clip-heading">
         <h2 id="clip-heading">From live example to your draft</h2>
-        <video controls playsinline preload="none" width="720" height="1280" poster={poster} aria-labelledby="clip-heading">
+        <video controls playsinline preload="none" width="1080" height="1920" poster={poster} aria-labelledby="clip-heading">
           <source src={clip} type="video/mp4" />
           <a href={clip}>Open the video</a>
         </video>
