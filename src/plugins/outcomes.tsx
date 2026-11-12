@@ -812,7 +812,7 @@ function WorkspaceOutcomes({ search }: { search: string }) {
             <div className="co-analysis">
               <div>
                 <Timeline
-                  key={`${metric.key}:${report.period.from}`}
+                  key={report.period.from}
                   metric={metric}
                   windowEnd={report.period.to}
                   isToday={report.period.end === "today"}
