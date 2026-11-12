@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   postcardJourney,
   readPostcardObservation,
@@ -10,8 +10,16 @@ export function PostcardJourney() {
   const [result, setResult] = useState<PostcardObservation | null>(null);
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState("");
+  const generation = useRef(0);
+  useEffect(
+    () => () => {
+      generation.current++;
+    },
+    [],
+  );
 
   async function run() {
+    const requestGeneration = ++generation.current;
     setChecking(true);
     setError("");
     setResult(null);
@@ -22,13 +30,15 @@ export function PostcardJourney() {
         {},
         "creator-hub",
       );
-      setResult(readPostcardObservation(response.observation));
+      if (requestGeneration === generation.current)
+        setResult(readPostcardObservation(response.observation));
     } catch {
-      setError(
-        "Composer could not complete the check. Open the public form or try again.",
-      );
+      if (requestGeneration === generation.current)
+        setError(
+          "Composer could not complete the check. Open the public form or try again.",
+        );
     } finally {
-      setChecking(false);
+      if (requestGeneration === generation.current) setChecking(false);
     }
   }
 
