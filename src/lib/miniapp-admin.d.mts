@@ -167,7 +167,13 @@ export declare function manageMiniapps(ctx: MiniappContext, runtime: unknown, pi
     message: string;
 } | {
     ok: boolean;
+    observation: import("./postcard-journey.ts").PostcardObservation;
+    png?: undefined;
+    id?: undefined;
+} | {
+    ok: boolean;
     png: string;
+    observation?: undefined;
     id?: undefined;
 } | {
     version: 1;
@@ -185,6 +191,7 @@ export declare function manageMiniapps(ctx: MiniappContext, runtime: unknown, pi
         approved: import("./miniapp-share-card.mjs").ShareImage | null;
     } | null;
     ok: boolean;
+    observation?: undefined;
     png?: undefined;
     id?: undefined;
 } | {
@@ -198,10 +205,12 @@ export declare function manageMiniapps(ctx: MiniappContext, runtime: unknown, pi
     app: "guestbook" | "showcase";
     site: string;
     revision: string;
+    observation?: undefined;
     png?: undefined;
     id?: undefined;
 } | {
     ok: boolean;
     id: string | null;
+    observation?: undefined;
     png?: undefined;
 }>;

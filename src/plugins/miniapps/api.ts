@@ -7,6 +7,7 @@ export async function call(
   site: SiteID = "operator",
 ) {
   const read =
+    action === "postcard-journey" ||
     action === "snapshot" ||
     action === "preview" ||
     (action === "share-card" && fields.operation === "snapshot") ||
