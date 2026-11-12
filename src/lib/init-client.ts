@@ -125,13 +125,13 @@ function renderProjectDirection(direction?: ProjectDirection) {
  panel.hidden = !direction;
  list.replaceChildren();
  if (!direction) return;
- const rows = [
+ const rows: readonly (readonly [string, string | undefined])[] = [
   ['Writing voice', direction.voice],
   ['Visual direction', direction.visual],
   ...direction.references.map(reference => [
    reference.source,
    `${{selected: 'Selected', exploratory: 'Explore first', rejected: 'Leave out'}[reference.status]} · ${reference.decision}${reference.usage ? ` · ${reference.usage}` : ''}`,
-  ]),
+  ] as const),
  ];
  for (const [label, text] of rows) {
   if (!text) continue;
