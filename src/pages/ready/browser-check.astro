@@ -1,0 +1,106 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Website inspection practice"
+  description="A public practice page for checking what your agent can read, open and see in a browser."
+  noindex
+>
+  <div class="browser-practice">
+    <p><a href="/ready?task=browser#agent-start">Back to the browser check in Get Ready</a></p>
+    <h1>Website inspection practice</h1>
+    <p class="lede">Use this sample to see whether your agent can read a public page, use its controls and describe a screenshot.</p>
+
+    <section id="practice-sample" hidden aria-labelledby="practice-title">
+      <h2 id="practice-title"></h2>
+      <canvas
+        width="420"
+        height="120"
+        role="img"
+        aria-label="Three coloured shapes for the screenshot exercise"
+      ></canvas>
+      <button type="button" class="secondary" aria-expanded="false" aria-controls="practice-hours">
+        Show opening hours
+      </button>
+      <div role="status">
+        <p id="practice-hours" hidden></p>
+      </div>
+    </section>
+    <noscript><p>JavaScript is required to open the sample and try its controls.</p></noscript>
+  </div>
+</Base>
+
+<script>
+const sample = document.querySelector<HTMLElement>('#practice-sample')!;
+const title = sample.querySelector<HTMLElement>('#practice-title')!;
+const toggle = sample.querySelector<HTMLButtonElement>('button')!;
+const hours = sample.querySelector<HTMLElement>('#practice-hours')!;
+const canvas = sample.querySelector<HTMLCanvasElement>('canvas')!;
+const context = canvas.getContext('2d');
+
+title.textContent = 'Harbour Reading Room';
+sample.hidden = false;
+
+toggle.addEventListener('click', () => {
+  const expanded = toggle.getAttribute('aria-expanded') === 'true';
+  toggle.setAttribute('aria-expanded', String(!expanded));
+  toggle.textContent = expanded ? 'Show opening hours' : 'Hide opening hours';
+  hours.hidden = expanded;
+  hours.textContent = expanded ? '' : 'Saturday, 10 am to 2 pm';
+});
+
+if (context) {
+  context.fillStyle = '#f5f1e8';
+  context.fillRect(0, 0, 420, 120);
+
+  context.fillStyle = '#2256a8';
+  context.beginPath();
+  context.arc(90, 60, 28, 0, 2 * Math.PI);
+  context.fill();
+
+  context.fillStyle = '#087149';
+  context.fillRect(182, 32, 56, 56);
+
+  context.fillStyle = '#b93b26';
+  context.beginPath();
+  context.moveTo(330, 29);
+  context.lineTo(361, 89);
+  context.lineTo(299, 89);
+  context.closePath();
+  context.fill();
+}
+</script>
+
+<style>
+  .browser-practice {
+    max-width: 42rem;
+  }
+
+  .browser-practice h1 {
+    font-size: clamp(2.25rem, 6vw, 3.75rem);
+    max-width: none;
+    margin-top: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  #practice-sample {
+    border-top: 1px solid var(--color-border);
+    margin-top: 2.5rem;
+    padding-top: 1.75rem;
+  }
+
+  #practice-title {
+    font-size: 2rem;
+  }
+
+  canvas {
+    display: block;
+    width: min(100%, 26.25rem);
+    height: auto;
+    margin-block: 1rem 1.5rem;
+  }
+
+  #practice-hours {
+    margin-top: 1rem;
+  }
+</style>

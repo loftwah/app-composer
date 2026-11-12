@@ -1,20 +1,22 @@
 ---
-import { readyTasks } from '../lib/ready-handoff';
+import { browserCheckPath, readyTasks } from '../lib/ready-handoff';
 import { Copy } from '@lucide/astro';
 const { preferences=false }=Astro.props;
 const selected=Astro.url.searchParams.get('task');
 const taskId=selected&&Object.hasOwn(readyTasks,selected)?selected as keyof typeof readyTasks:'setup';
 const initial=readyTasks[taskId];
+const browserTask=taskId==='browser';
 ---
 <div data-ready-handoff data-use-setup-preferences={preferences ? "true" : undefined}>
  <label>What should the agent do?
   <select data-ready-task disabled>{Object.entries(readyTasks).map(([id,task])=><option value={id} selected={id===taskId}>{task.label}</option>)}</select>
  </label>
  <p data-ready-help class="small" role="status">{initial.help}</p>
- <button class="button" data-copy-ready disabled><Copy size={18} aria-hidden="true"/>Copy to Codex</button>
+ <p class="small" data-browser-check-link hidden={!browserTask}><a href={browserCheckPath}>Open the practice page</a></p>
+ <button class="button" data-copy-ready disabled><Copy size={18} aria-hidden="true"/><span data-ready-copy-label>{browserTask ? 'Copy browser check' : 'Copy to Codex'}</span></button>
  <p data-ready-message role="status" aria-live="polite" class="message"></p>
  <details><summary>Read or copy the agent handoff</summary><pre data-ready-prompt tabindex="0">{initial.prompt}</pre></details>
- <noscript><p class="small">Open the handoff above, select its text and copy it into Codex. Without JavaScript, it contains the selected request.</p></noscript>
+ <noscript><p class="small">Open the handoff above, select its text and paste it into {browserTask ? 'your agent' : 'Codex'}. Without JavaScript, it contains the selected request.</p></noscript>
 </div>
 <script>
 import {readyTasks} from '../lib/ready-handoff';
@@ -25,16 +27,24 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
  const button=container.querySelector<HTMLButtonElement>('[data-copy-ready]')!;
  const prompt=container.querySelector<HTMLElement>('[data-ready-prompt]')!;
  const message=container.querySelector<HTMLElement>('[data-ready-message]')!;
+ const help=container.querySelector<HTMLElement>('[data-ready-help]')!;
+ const copyLabel=container.querySelector<HTMLElement>('[data-ready-copy-label]')!;
+ const browserCheckLink=container.querySelector<HTMLElement>('[data-browser-check-link]')!;
  const update=()=>{
   const task=readyTasks[selector.value as keyof typeof readyTasks]??readyTasks.setup;
-  let text=task.prompt+assistanceHandoff(currentAssistance());button.disabled=false;
-  if(container.dataset.useSetupPreferences){
+  const browserTask=task===readyTasks.browser;
+  let text=task.prompt;
+  button.disabled=false;
+  help.textContent=task.help;
+  copyLabel.textContent=browserTask?'Copy browser check':'Copy to Codex';
+  browserCheckLink.hidden=!browserTask;
+  if(!browserTask)text+=assistanceHandoff(currentAssistance());
+  if(!browserTask&&container.dataset.useSetupPreferences){
    const form=document.querySelector<HTMLFormElement>('[data-setup-preferences]');
    try{if(form)text+=setupPreferenceHandoff({version:1,destination:(form.elements.namedItem('destination') as RadioNodeList).value,hostname:(form.elements.namedItem('setup-hostname') as HTMLInputElement).value});}
    catch(error){button.disabled=true;message.textContent=error instanceof Error?error.message:'Choose a supported address.';prompt.textContent='Complete your address choice before copying the setup request.';return;}
   }
   prompt.textContent=text;
-  container.querySelector('[data-ready-help]')!.textContent=task.help;
   message.textContent='';
  };
  // Reconcile browser-restored form state before enabling copy.
@@ -49,7 +59,7 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
   const task=selector.value;const text=prompt.textContent!;
   try{
    await navigator.clipboard.writeText(text);
-   if(selector.value===task)message.textContent='Copied. Paste this into Codex in your chosen project.';
+   if(selector.value===task)message.textContent=task==='browser'?'Copied. Paste this into the agent you want to check.':'Copied. Paste this into Codex in your chosen project.';
   }catch{
    if(selector.value===task){message.textContent='Clipboard access failed. Open the handoff below, select its text and copy it.';container.querySelector('details')!.open=true;}
   }
