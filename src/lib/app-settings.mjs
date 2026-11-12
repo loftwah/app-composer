@@ -1,6 +1,7 @@
 // Generated from checked TypeScript; edit the corresponding .mts source. MIT.
 // Reviewed composition contracts supply controls; external settings are data.
 import composition from "../../composition.lock.json" with { type: "json" };
+import linkarooieStandalone from "../../config/linkarooie-standalone.json" with { type: "json" };
 const labels = {
     guestAccess: "Guest contributions",
     title: "Title",
@@ -119,12 +120,20 @@ export const globalAppSettings = Object.freeze(Object.fromEntries(models.map(([i
         },
 ])));
 export function selectedSources(ids) {
+    if (ids.length === 1 && ids[0] === "showcase")
+        return [{ ...linkarooieStandalone }];
     return ids
         .filter((id) => Object.hasOwn(appSettings, id))
         .map((id) => ({ ...appSettings[id].source }));
 }
 export function validateSources(input, ids) {
-    const expected = selectedSources(ids);
+    const legacyLinkarooie = appSettings.showcase.source;
+    const legacy = ids.length === 1 &&
+        ids[0] === "showcase" &&
+        Array.isArray(input) &&
+        object(input[0]) &&
+        input[0].commit === legacyLinkarooie.commit;
+    const expected = legacy ? [{ ...legacyLinkarooie }] : selectedSources(ids);
     if (!Array.isArray(input) ||
         input.length !== expected.length ||
         input.some((source, index) => !object(source) ||

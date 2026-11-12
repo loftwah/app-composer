@@ -5,6 +5,7 @@
 // it is the ordered work an authorised agent must actually perform, written for
 // someone who does not know what a D1 database or a service binding is.
 export const recipeReviewed = "2026-11-11";
+import linkarooieStandalone from "../../config/linkarooie-standalone.json" with { type: "json" };
 
 const apps = {
   guestbook: {
@@ -56,14 +57,20 @@ function source(spec, id) {
   return spec.sources.find((entry) => entry.id === id);
 }
 
+function linkOnly(spec) {
+  return spec.apps.length === 1 && spec.apps[0] === "showcase" &&
+    source(spec, "showcase")?.commit === linkarooieStandalone.commit;
+}
+
 // One ordered, app-specific plan. Returns an empty list for the Hello reference,
 // which has its own supported configuration path in the handoff.
 export function buildRecipe(spec) {
   const ids = orderedIds(spec).filter((id) => Object.hasOwn(apps, id));
   if (!ids.length) return [];
   const steps = [];
+  const standalone = linkOnly(spec);
   const showcaseOnly = ids.includes("showcase") && !ids.includes("guestbook");
-  if (showcaseOnly) {
+  if (showcaseOnly && !standalone) {
     steps.push({
       actor: "human",
       title: "Choose an existing Here / there provider",
@@ -88,7 +95,8 @@ export function buildRecipe(spec) {
     actor: "agent",
     title: "Verify the owner's deployment targets",
     detail:
-      "Run Get Ready against the owner's selected Cloudflare account before any remote write. Replace the reviewed operator's account, Worker names, routes, storage identifiers and service destinations in each Wrangler configuration with the owner's targets. Leave unresolved bindings unset until their owned resources are verified. Set PUBLIC_ORIGIN to the app's own HTTPS origin and set PROFILE_ORIGIN to the same owned origin where the app declares it. Review the diff before creating resources, applying migrations, writing secrets or deploying.",
+      "Run Get Ready against the owner's selected Cloudflare account before any remote write. Replace the reviewed operator's account, Worker names, routes, storage identifiers and service destinations in each Wrangler configuration with the owner's targets. Leave unresolved bindings unset until their owned resources are verified. Set PUBLIC_ORIGIN to the app's own HTTPS origin and set PROFILE_ORIGIN to the same owned origin where the app declares it. Review the diff before creating resources, applying migrations, writing secrets or deploying." +
+      (standalone ? " For a link-only profile, remove the ITEM_PROVIDER binding and PROVIDER_* variables." : ""),
   });
   for (const id of ids) {
     const app = apps[id];
@@ -105,7 +113,7 @@ export function buildRecipe(spec) {
       title: `Set the owner credential for ${app.name}`,
       detail: `The owner creates a long random value for ${app.secret} and sets it only on this app's verified Worker using \`wrangler secret put ${app.secret}\`. Confirm the Worker name and account first. Keep the value out of the repository, this specification, prompts, screenshots and logs. The agent verifies that the app accepts it after deployment.`,
     });
-    if (app.wiring.length)
+    if (app.wiring.length && !standalone)
       steps.push({
         actor: "agent",
         title: `Connect ${app.name} to the provider`,
@@ -159,7 +167,7 @@ export function humanOnlyActions(spec) {
   actions.unshift(
     "sign in to Cloudflare and authorise the account the apps deploy into",
   );
-  if (spec.apps.includes("showcase") && !spec.apps.includes("guestbook"))
+  if (spec.apps.includes("showcase") && !spec.apps.includes("guestbook") && !linkOnly(spec))
     actions.push("confirm the existing Here / there provider Linkarooie may use");
   if (spec.deployment.mode === "new-domain")
     actions.push("buy a domain, if you choose to");

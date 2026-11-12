@@ -102,14 +102,15 @@ test('the composition handoff carries an ordered build plan an agent can actuall
  ]);
 });
 
-test('Linkarooie alone asks for an authorised provider before provisioning',()=>{
+test('new Linkarooie-only handoffs omit Guestbook and older pins keep their requirement',()=>{
  const spec=explorerSpec({goal:'showcase',target:'preview',appearance:'daylight'});
  assert.deepEqual(spec.apps,['showcase']);
  const steps=buildRecipe(spec);
- assert.equal(steps[0].title,'Choose an existing Here / there provider');
- assert.equal(steps[0].actor,'human');
- assert.match(steps[0].detail,/before provisioning/);
+ assert.match(steps.find(step=>step.title==="Verify the owner's deployment targets").detail,/remove the ITEM_PROVIDER binding/);
+ assert.ok(!steps.some(step=>step.title.includes('provider')));
  assert.ok(!steps.some(step=>step.title==='Deploy Here / there'));
  assert.match(steps.find(step=>step.title==='Verify the release').detail,/requested curated links/);
  assert.doesNotMatch(steps.find(step=>step.title==='Verify the release').detail,/hiding it at the source/);
+ const legacy=validateSpec({...spec,sources:selectedSources(['guestbook','showcase']).slice(1)});
+ assert.equal(buildRecipe(legacy)[0].title,'Choose an existing Here / there provider');
 });
