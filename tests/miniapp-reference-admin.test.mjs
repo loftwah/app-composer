@@ -8,7 +8,7 @@ const origin = "https://composer.loftwah.com";
 const operatorRevision = "a".repeat(40);
 const referenceRevision = {
   guestbook: "36797b8028682460c33fe092682bfbd63751ec1a",
-  showcase: "b7cd3b3e8f19dbbb76d33fb4266053da928cf586",
+  showcase: "acca7da3bfac4ebc28fca67a35ac373b23747409",
 };
 const referenceApps = JSON.parse(
   readFileSync(
