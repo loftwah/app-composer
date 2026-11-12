@@ -36,7 +36,8 @@ switching outcome signals. Both releases used the clean pushed-main guard.
   record and the 48-inspection report preview, and the older frozen report with
   all three images still served. The live receipt signal showed 3 unavailable
   days, 26 retained zeros and 2 partial days. No capped production day
-  occurred; that state is covered by a fixture and the app-row `+`.
+  occurred; the data contract is covered by a fixture and the app-row `+`, but
+  the chart’s capped marker was not observed on a live day.
 - Native **Analytics & outcomes** leads with the applied
   workspace/stack/instance/traffic/period, keeps pending filters and the last
   successful report visible, and exports the displayed scope with its actual
