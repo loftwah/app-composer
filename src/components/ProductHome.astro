@@ -60,9 +60,6 @@ const siteSchema = {
       <div class="hero-rule" aria-hidden="true"></div>
       <div class="hero-inner">
         <div class="hero-copy">
-          <p class="home-eyebrow hero-eyebrow">
-            <span></span> An open studio for building software
-          </p>
           <h1 id="home-heading">
             Make software.
             <br />
@@ -87,68 +84,63 @@ const siteSchema = {
             </a>
           </p>
         </div>
-        <div class="studio-scene" aria-hidden="true">
-          <div class="studio-backplane">
-            <img
-              src="/brand/composer-mark-reverse-20261022b.svg"
-              width="84"
-              height="84"
-              alt=""
-            />
-            <span class="backplane-label">
-              THE PIECES
-              <br />
-              ARE YOURS.
-            </span>
-            <div class="backplane-rule"></div>
-          </div>
-          <svg class="studio-connections" viewBox="0 0 800 740" fill="none">
-            <path class="connection-faint" d="M130 140H680V620H80V380H350" />
-            <path class="connection-active" d="M85 275H275V535H610V650" />
-            <circle cx="85" cy="275" r="5" />
-            <circle cx="610" cy="650" r="5" />
-            <path
-              class="connection-tick"
-              d="M65 132H95M80 117V147M665 630H695M680 615V645"
-            />
-          </svg>
-          <div class="studio-sheet studio-output">
-            <div class="sheet-label">
-              <span>Launch Kit</span>
-              <span>Exported profile card</span>
+        <div class="studio-scene" data-studio-scene aria-hidden="true">
+          <div class="studio-assembly">
+            <div class="studio-plate">
+              <img
+                src="/brand/composer-mark-reverse-20261022b.svg"
+                width="84"
+                height="84"
+                alt=""
+              />
+              <div class="studio-slot"></div>
             </div>
-            <img
-              src="/launch-kit/cards/river-typography.png"
-              width="1200"
-              height="630"
-              alt=""
-              decoding="async"
-              fetchpriority="high"
-            />
-          </div>
-          <div class="studio-sheet studio-app">
-            <div class="sheet-label">
-              <span>Paperwork</span>
+            <svg
+              class="studio-routing"
+              viewBox="0 0 600 540"
+              preserveAspectRatio="none"
+              fill="none"
+            >
+              <path class="studio-guides" d="M38 126V42H122M480 498H562V416" />
+              <path
+                class="studio-route"
+                d="M483 240H546V396H410"
+                pathLength="100"
+              />
+              <path
+                class="studio-signal"
+                d="M483 240H546V396H410"
+                pathLength="100"
+              />
+              <circle cx="546" cy="396" r="4" />
+            </svg>
+            <div class="studio-sheet studio-output">
+              <div class="studio-label">Launch Kit <span>Profile card</span></div>
+              <img
+                src="/launch-kit/cards/river-typography.png"
+                width="1200"
+                height="630"
+                alt=""
+                decoding="async"
+              />
             </div>
-            <img
-              src={paperwork.preview}
-              width="1440"
-              height="1100"
-              alt=""
-              decoding="async"
-            />
-          </div>
-          <div class="studio-coordinate">
-            <span>BUILD / CONNECT / OWN</span>
-            <span class="coordinate-line"></span>
-            <span>APP COMPOSER</span>
+            <div class="studio-sheet studio-app">
+              <div class="studio-label">Paperwork <span>PDF editor</span></div>
+              <img
+                src={paperwork.preview}
+                width="1440"
+                height="1100"
+                alt=""
+                decoding="async"
+              />
+            </div>
           </div>
         </div>
         <div class="hero-bottom">
           <a href="#make-something">
             Explore what you can make <ArrowDown size={18} aria-hidden="true" />
           </a>
-          <span>Actual app screens and a fictional Launch Kit export.</span>
+          <span>The Paperwork editor and a fictional Launch Kit export.</span>
         </div>
       </div>
     </section>
@@ -616,6 +608,25 @@ const siteSchema = {
 </Base>
 
 <script>
+  const scene = document.querySelector<HTMLElement>("[data-studio-scene]");
+  const motion = matchMedia(
+    "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)",
+  );
+
+  scene?.addEventListener("pointermove", (event) => {
+    if (!motion.matches || event.pointerType !== "mouse") return;
+
+    const { left, top, width, height } = scene.getBoundingClientRect();
+    const x = (event.clientX - left) / width - 0.5;
+    const y = (event.clientY - top) / height - 0.5;
+    scene.style.setProperty("--studio-pitch", `${-y * 9}deg`);
+    scene.style.setProperty("--studio-yaw", `${x * 12}deg`);
+  });
+  scene?.addEventListener("pointerleave", () => {
+    scene.style.removeProperty("--studio-pitch");
+    scene.style.removeProperty("--studio-yaw");
+  });
+
   // Without JavaScript these remain ordinary links and all screens are readable.
   for (const gallery of document.querySelectorAll<HTMLElement>(
     "[data-home-gallery]",
