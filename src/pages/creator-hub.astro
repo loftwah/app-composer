@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { ArrowRight } from '@lucide/astro';
+import { ArrowRight, ArrowUpRight, Printer } from '@lucide/astro';
 import reference from '../../config/creator-hub-reference.json';
 import { readCreatorHubRelease } from '../lib/creator-hub-release';
 
@@ -33,16 +33,31 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
  shareType="image/jpeg"
  shareAlt="App Composer Creator Hub: two live apps, one home for your work. The card shows Mara Quinn’s reference profile."
 >
- <div class="hub-intro">
-  <h1>A home for your work.<br/>Two apps you own.</h1>
-  <p class="lede">Mara Quinn asked for a place for her ceramics, somewhere people could leave a note, and a way to decide what appears. Her agent built it from an App Composer specification. Both apps are live, and each keeps its own source, database and release.</p>
-  <div class="actions">
-   <a class="button" href={reference.apps.showcase.origin}>Open the Creator Hub <ArrowRight size={18} aria-hidden="true"/></a>
-   <a class="button secondary" href="/init?start=composition">Build your own from this starting point</a>
+ <div class="hub-case">
+ <section class="hub-intro" aria-labelledby="hub-title">
+  <div>
+   <h1 id="hub-title">A home for your work.<br/><span>Two apps you own.</span></h1>
+   <p class="lede">A portfolio for Mara Quinn’s ceramics and a guestbook where visitors can leave postcards for her to review. Her agent built both from one App Composer brief.</p>
+   <div class="actions">
+    <a class="button" href={reference.apps.showcase.origin}>Open the Creator Hub <ArrowUpRight size={18} aria-hidden="true"/></a>
+    <a class="button secondary" href="/init?start=composition">Configure your own <ArrowRight size={18} aria-hidden="true"/></a>
+   </div>
   </div>
-  <p class="small">Mara Quinn is fictional. The apps run in the operator’s Cloudflare account on the operator’s domain; this is a reference build, not a customer deployment.</p>
-  <p class="small">Management path used for this reference build: App Composer’s native EmDash panel, with the Creator Hub reference selected. The owner approved, featured and hid the new postcard there. The panel calls each app’s own management API with separate server-side owner credentials; it does not copy the contribution into Composer.</p>
- </div>
+  <figure class="hub-figure">
+   <div class="hub-captures">
+    <img class="hub-profile" src="/creator-hub/profile-20261111.webp" width="1440" height="960" alt="Mara Quinn’s live Linkarooie portfolio with her ceramic work links." fetchpriority="high"/>
+    <img class="hub-guestbook" src="/creator-hub/guestbook-phone-20261111.webp" width="390" height="844" alt="Her live Here / there guestbook invites visitors to leave a postcard for review." decoding="async"/>
+   </div>
+   <figcaption>Linkarooie portfolio and Here / there guestbook, captured 11 November 2026. Mara is fictional. Both apps run in the operator’s Cloudflare account.</figcaption>
+  </figure>
+ </section>
+
+ <nav class="hub-nav" aria-label="In this case study">
+  <a href="#brief">The brief</a>
+  <a href="#live">Live apps</a>
+  <a href="#journey">How it was built</a>
+  <button type="button" data-print-creator-hub hidden><Printer size={16} aria-hidden="true"/> Print case study</button>
+ </nav>
 
  <section class="hub-section" id="brief">
   <h2>The brief, in the person’s own words.</h2>
@@ -51,7 +66,7 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
     “Give me a home for my work on my domain. Let people send contributions that I review before publishing. Let me edit the content, choose what appears, and ask my agent to add or change something later.”
    </blockquote>
   </figure>
-  <p>No framework, hosting or database was chosen in that sentence. The specification turned it into two apps, one shared configuration and a set of decisions about who may see what.</p>
+   <p>The specification turned that request into two apps with independent source, data and releases. Each app keeps the part of the configuration it uses.</p>
  </section>
 
  <section class="hub-section" id="live">
@@ -59,7 +74,7 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
   <div class="hub-apps">
    {apps.map((app) => (
     <article>
-     <h3><a href={app.origin}>{app.name}</a></h3>
+     <h3><a href={app.origin}>{app.name} <ArrowUpRight size={18} aria-hidden="true"/></a></h3>
      <p>{app.purpose}</p>
      <p class="small">
       {release.revisions[app.id]
@@ -67,19 +82,7 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
         : <>The release check at {checkedAt} (Australia/Melbourne) could not verify the live revision.</>}
      </p>
      <p class="small"><a href={app.repository}>Independent source</a> · <a href={app.origin + '/build.json'}>Release identity</a></p>
-     <picture class="hub-shot">
-      <img
-        src={app.id === 'showcase' ? '/creator-hub/profile-20261111.webp' : '/creator-hub/guestbook-20261111.webp'}
-        width="1440"
-        height={app.id === 'showcase' ? 960 : 1500}
-        loading="lazy"
-        decoding="async"
-        alt={app.id === 'showcase'
-          ? 'The deployed Linkarooie profile for Mara Quinn with four work links and the guest contribution section.'
-          : 'The deployed Here / there guestbook showing the approved postcard from Jules.'}
-      />
-     </picture>
-     <p class="small">Deployed screen captured 11 November 2026.</p>
+     {app.id === 'guestbook' && <p class="small"><a href="/creator-hub/guestbook-20261111.webp">See the approved postcard in the guestbook capture</a></p>}
     </article>
    ))}
   </div>
@@ -92,7 +95,7 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
    <li><strong>Describe and configure.</strong> Init exported a versioned specification for Guestbook + Linkarooie: the title, introduction, appearance, four work links and a review-before-publication rule. The form is the same one at <a href="/init">/init</a>.</li>
    <li><strong>Create.</strong> Each app was copied at its pinned commit into its own repository, with its own Worker, D1 database and — for Here / there — its own R2 bucket. Nothing was merged into one project.</li>
    <li><strong>Publish.</strong> Here / there deployed first, because Linkarooie reads approved contributions from it through a service binding. Both answered on their own HTTPS hostnames and reported the revision they were serving.</li>
-   <li><strong>Manage.</strong> A guest opened the postcard form, wrote a note and sent it. It stayed private. The owner approved it in the native EmDash panel and featured it in Linkarooie; it became public in both apps.</li>
+   <li><strong>Manage.</strong> A guest sent a postcard that stayed private until the owner approved it in the native EmDash panel. The owner then featured it in Linkarooie. The panel calls each app’s own management API with a separate server-side credential.</li>
    <li><strong>Revoke.</strong> The owner hid the same contribution in the panel. It disappeared from both public views immediately, the guestbook item and media returned <code>404</code>, and the card remained unavailable until a later approval.</li>
   </ol>
   <p class="small">This record describes the build on 11 November 2026 in the operator’s account. A different person’s build uses their own account, repositories and hostname, and their own owner credentials.</p>
@@ -125,12 +128,69 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
    <a class="button secondary" href="/ready">Get Ready first</a>
   </div>
  </section>
+ <p class="hub-print-source">App Composer · https://composer.loftwah.com/creator-hub</p>
+ </div>
 </Base>
 
+<script>
+ const printButton = document.querySelector<HTMLButtonElement>('[data-print-creator-hub]');
+ if (printButton) {
+  printButton.hidden = false;
+  printButton.addEventListener('click', () => window.print());
+ }
+</script>
+
 <style>
- .hub-intro{max-width:900px}
- .hub-intro h1{font-size:clamp(2.4rem,5vw,4.2rem);max-width:22ch;margin:0 0 20px}
- .hub-intro .lede{font-size:1.15rem;max-width:68ch}
+ .hub-intro{
+  display:grid;
+  grid-template-columns:minmax(0, .94fr) minmax(0, 1.06fr);
+  align-items:center;
+  gap:clamp(24px, 4vw, 64px);
+  padding:clamp(6px, 3vw, 42px) 0 clamp(26px, 4vw, 56px);
+ }
+ .hub-intro h1{
+  font-size:clamp(2.35rem, 4.15vw, 3.9rem);
+  letter-spacing:-.04em;
+  max-width:20ch;
+  margin:0 0 20px;
+  text-wrap:balance;
+ }
+ .hub-intro h1 span{color:var(--color-accent)}
+ .hub-intro .lede{font-size:clamp(1rem, 1.45vw, 1.2rem);max-width:47ch;margin:0}
+ .hub-intro .actions{gap:10px;margin:24px 0 0}
+ .hub-intro .button{padding-inline:16px}
+ .hub-figure{margin:0}
+ .hub-captures{
+  position:relative;
+  display:flex;
+  align-items:flex-start;
+  overflow:hidden;
+  border-radius:12px;
+  padding:8% 0 7% 6%;
+  background:var(--color-selected);
+ }
+ .hub-captures img{display:block;height:auto;border-radius:8px}
+ .hub-profile{width:75%;border:1px solid var(--color-control-border)}
+ .hub-guestbook{
+  position:relative;
+  width:25%;
+  margin:2% 0 0 -12%;
+  border:1px solid var(--color-control-border);
+ }
+ .hub-figure figcaption{font-size:.875rem;line-height:1.5;color:var(--color-muted);margin-top:10px}
+ .hub-nav{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:0 clamp(12px, 3vw, 36px);
+  border-block:1px solid var(--color-border);
+  padding:6px 0;
+  font-size:.875rem;
+ }
+ .hub-nav a,.hub-nav button{display:inline-flex;align-items:center;min-height:44px}
+ .hub-nav button{margin-inline-start:auto;padding:0 10px;background:transparent;color:var(--color-foreground);font-size:inherit}
+ .hub-nav button:hover{background:var(--color-surface)}
+ .hub-nav button[hidden],.hub-print-source{display:none}
  .hub-section{padding:36px 0;border-bottom:1px solid var(--color-border)}
  .hub-section h2{font-size:2rem;max-width:30ch;margin:0 0 20px}
  .hub-section p,.hub-section li{max-width:72ch}
@@ -139,12 +199,37 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
  .hub-apps{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:24px}
  .hub-apps article{border-top:1px solid var(--color-border);padding-top:18px;min-width:0}
  .hub-apps h3{font-size:1.5rem;margin:6px 0 10px}
+ .hub-apps h3 a{display:inline-flex;align-items:center;gap:8px;min-height:44px}
  .hub-apps p{font-size:15px;color:var(--color-muted);margin:0 0 10px}
- .hub-shot{margin:16px 0 8px;display:block;border:1px solid var(--color-border);border-radius:10px;overflow:hidden;background:var(--color-surface)}
- .hub-shot img{display:block;width:100%;height:auto}
+ .hub-apps code{overflow-wrap:anywhere}
  .hub-steps{margin:0;padding-left:22px;display:grid;gap:14px}
  .hub-steps li{font-size:15.5px;line-height:1.6}
  .hub-list{margin:0;padding-left:20px;display:grid;gap:10px}
  .hub-list li{font-size:15.5px;line-height:1.6}
- @media(max-width:800px){.hub-apps{grid-template-columns:1fr;gap:24px}.hub-section h2{font-size:1.65rem}.hub-quote blockquote{font-size:1.2rem}}
+ @media(max-width:800px){
+  .hub-intro,.hub-apps{grid-template-columns:1fr;gap:24px}
+  .hub-figure{max-width:580px}
+  .hub-section h2{font-size:1.65rem}
+  .hub-quote blockquote{font-size:1.2rem}
+ }
+ @media(max-width:470px){
+  .hub-intro .actions{margin-top:18px}
+  .hub-nav button{margin-inline-start:0;padding-inline:0}
+ }
+ @media print{
+  :global(body:has(.hub-case)){background:#fff;color:#111}
+  :global(body:has(.hub-case) > :is(header,footer,.skip)),
+  :global(body:has(.hub-case) main > :not(.hub-case)),
+  .hub-nav,.hub-intro .actions,.hub-section .actions{display:none!important}
+  :global(body:has(.hub-case) main){max-width:none;padding:0}
+  .hub-case{--color-muted:#333;--color-accent:#111;--color-border:#aaa;font-size:10pt}
+  .hub-intro{grid-template-columns:1fr 1fr;gap:16pt;padding:0 0 10pt;break-inside:avoid}
+  .hub-intro h1{font-size:24pt;margin-bottom:8pt}
+  .hub-intro .lede,.hub-section li,.hub-apps p{font-size:10pt}
+  .hub-figure figcaption{font-size:8pt}
+  .hub-section{padding:10pt 0}
+  .hub-section h2{font-size:16pt;margin-bottom:8pt;break-after:avoid}
+  .hub-section li,.hub-apps article{break-inside:avoid}
+  .hub-print-source{display:block;font-size:9pt}
+ }
 </style>
