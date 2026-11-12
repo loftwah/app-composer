@@ -158,7 +158,7 @@ const yFor = (day: ActivityDay) =>
                   class="trend-bar"
                 />
               )}
-              {partial && (
+              {partial && day.value !== null && (
                 <line
                   x1={x + step * 0.24}
                   x2={x + step * 0.76}
