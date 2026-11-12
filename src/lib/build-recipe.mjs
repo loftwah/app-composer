@@ -59,7 +59,7 @@ function source(spec, id) {
 
 function linkOnly(spec) {
   return spec.apps.length === 1 && spec.apps[0] === "showcase" &&
-    source(spec, "showcase")?.commit === linkarooieStandalone.commit;
+    [linkarooieStandalone.source.commit, linkarooieStandalone.previousCommit].includes(source(spec, "showcase")?.commit);
 }
 
 // One ordered, app-specific plan. Returns an empty list for the Hello reference,
@@ -70,6 +70,13 @@ export function buildRecipe(spec) {
   const steps = [];
   const standalone = linkOnly(spec);
   const showcaseOnly = ids.includes("showcase") && !ids.includes("guestbook");
+  if (standalone && source(spec, "showcase")?.commit === linkarooieStandalone.previousCommit) {
+    return [{
+      actor: "human",
+      title: "Refresh the Linkarooie source pin",
+      detail: "Open this specification in Init and export it again before provisioning. The current export keeps your settings and includes the link-only studio fix.",
+    }];
+  }
   if (showcaseOnly && !standalone) {
     steps.push({
       actor: "human",

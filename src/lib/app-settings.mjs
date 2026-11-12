@@ -121,19 +121,27 @@ export const globalAppSettings = Object.freeze(Object.fromEntries(models.map(([i
 ])));
 export function selectedSources(ids) {
     if (ids.length === 1 && ids[0] === "showcase")
-        return [{ ...linkarooieStandalone }];
+        return [{ ...linkarooieStandalone.source }];
     return ids
         .filter((id) => Object.hasOwn(appSettings, id))
         .map((id) => ({ ...appSettings[id].source }));
 }
 export function validateSources(input, ids) {
-    const legacyLinkarooie = appSettings.showcase.source;
-    const legacy = ids.length === 1 &&
+    let expected = selectedSources(ids);
+    if (ids.length === 1 &&
         ids[0] === "showcase" &&
         Array.isArray(input) &&
-        object(input[0]) &&
-        input[0].commit === legacyLinkarooie.commit;
-    const expected = legacy ? [{ ...legacyLinkarooie }] : selectedSources(ids);
+        object(input[0])) {
+        const legacy = [
+            appSettings.showcase.source,
+            {
+                ...linkarooieStandalone.source,
+                commit: linkarooieStandalone.previousCommit,
+            },
+        ].find((source) => source.commit === input[0].commit);
+        if (legacy)
+            expected = [{ ...legacy }];
+    }
     if (!Array.isArray(input) ||
         input.length !== expected.length ||
         input.some((source, index) => !object(source) ||

@@ -113,4 +113,6 @@ test('new Linkarooie-only handoffs omit Guestbook and older pins keep their requ
  assert.doesNotMatch(steps.find(step=>step.title==='Verify the release').detail,/hiding it at the source/);
  const legacy=validateSpec({...spec,sources:selectedSources(['guestbook','showcase']).slice(1)});
  assert.equal(buildRecipe(legacy)[0].title,'Choose an existing Here / there provider');
+ const superseded=validateSpec({...spec,sources:spec.sources.map(source=>({...source,commit:'4301083349492130aa8c9c548963c49c09bd2c14'}))});
+ assert.deepEqual(buildRecipe(superseded).map(step=>step.title),['Refresh the Linkarooie source pin']);
 });
