@@ -299,7 +299,7 @@
     display: block;
     width: 11cqi;
     height: auto;
-    margin: 5cqi;
+    margin: 3.5cqi 4cqi;
   }
   .studio-slot {
     position: absolute;
@@ -318,18 +318,26 @@
   }
   .studio-route {
     stroke: var(--home-hero-accent);
-    stroke-opacity: 0.65;
+    stroke-opacity: 0.55;
     stroke-width: 1.5;
   }
-  .studio-routing circle {
+  .studio-terminal {
     fill: var(--home-hero-accent);
+  }
+  .studio-terminal-ring {
+    stroke: var(--home-hero-accent);
+    stroke-width: 1.5;
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
   }
   .studio-signal {
     fill: none;
     stroke: var(--home-hero-accent);
-    stroke-width: 3;
-    stroke-dasharray: 14 100;
-    stroke-dashoffset: 14;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-dasharray: 19 100;
+    stroke-dashoffset: 21;
     opacity: 0;
   }
   .studio-sheet {
@@ -358,13 +366,13 @@
   }
   .studio-output {
     width: 61%;
-    top: 17%;
-    right: 7%;
+    top: 14%;
+    right: 8%;
     transform: translateZ(3.5cqi) rotate(-8deg);
   }
   .studio-app {
-    width: 68%;
-    bottom: 10%;
+    width: 65%;
+    bottom: 8%;
     left: 7%;
     transform: translateZ(7cqi) rotate(-8deg);
   }
@@ -965,8 +973,11 @@
       animation: composer-seat-sheet 820ms 100ms cubic-bezier(0.2, 0.75, 0.2, 1)
         backwards;
     }
-    .studio-signal {
-      animation: composer-route-signal 1s 0.65s ease-out;
+    .is-connected .studio-signal {
+      animation: composer-route-signal 780ms 480ms linear;
+    }
+    .is-connected .studio-terminal-ring {
+      animation: composer-terminal-pulse 520ms 1140ms ease-out;
     }
     .home-reveal.will-reveal {
       opacity: 0;
@@ -997,13 +1008,23 @@
   }
 }
 @keyframes composer-route-signal {
-  15%,
-  75% {
+  8%,
+  90% {
     opacity: 1;
   }
   to {
     opacity: 0;
     stroke-dashoffset: -100;
+  }
+}
+@keyframes composer-terminal-pulse {
+  from {
+    opacity: 0.9;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.7);
   }
 }
 @media (max-width: 820px) {
