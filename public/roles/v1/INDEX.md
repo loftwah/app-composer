@@ -9,7 +9,7 @@ fictional example. A pack is expertise and a job template, not an access grant.
 
 ## Packs
 
-- [Service Owner: Service review and change decision](service-owner.md) — v1.0.0
+- [Service Owner: Service review and change decision](service-owner.md) — v1.1.0
 - [Programmer: Defect investigation and patch proposal](programmer.md) — v1.0.0
 - [Architect: Dependency decision record](architect.md) — v1.0.0
 - [DevOps / SRE: Drift, rollout and rollback review](devops.md) — v1.0.0

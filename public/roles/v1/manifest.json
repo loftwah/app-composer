@@ -1,12 +1,12 @@
 {
   "version": "composer.role-packs/1",
   "reviewed": "2026-10-24",
-  "bytes": 42954,
-  "sha256": "514c93520261c3b05e44404ceb9b80c3375e32b35ce3e46fe72729db4631fe43",
+  "bytes": 43321,
+  "sha256": "84bdcd0d1a98cd12e7cb6ab69f5a36e6e3522a796222ac4118f22f97c52b9b96",
   "packs": [
     {
       "id": "service-owner",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "title": "Service review and change decision"
     },
     {
@@ -74,7 +74,7 @@
     {
       "name": "INDEX.md",
       "bytes": 1796,
-      "sha256": "7db0898e622b64a166ab7162eab5e4e293993a61dbdda089824c489bea99f492"
+      "sha256": "7153dc8641b2e96adc751b4ea99c0fb7374193e80a4a1ef2fa854003097bf68f"
     },
     {
       "name": "LICENSE",
@@ -113,8 +113,8 @@
     },
     {
       "name": "prompts/service-owner.txt",
-      "bytes": 3314,
-      "sha256": "4bdf6b6aad203b666e17db78d61217ec7fe6db67df3dee1a7a56ccf55741df87"
+      "bytes": 3622,
+      "sha256": "5e1160ed8f600fb0932d7c9b3ae48d2f48e42b625af439940eb133b59feaec1b"
     },
     {
       "name": "qa.md",
@@ -128,8 +128,8 @@
     },
     {
       "name": "service-owner.md",
-      "bytes": 9129,
-      "sha256": "1572fcaadc688ca5ca26ee0ef80759782fa205283acefbe1644115838e707d0c"
+      "bytes": 9875,
+      "sha256": "e91f40d16b542c0d43de77e16a1743af030d702d666548c09a942a8e37e6d644"
     }
   ]
 }
