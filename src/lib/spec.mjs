@@ -23,6 +23,36 @@ export const independentDeliveryCommands = [
   "pnpm install --frozen-lockfile",
   "pnpm deploy",
 ];
+// Optional maintenance choices. IDs match the public prompt library, so the
+// saved task keeps its exact instructions and can be rendered by any consumer.
+// Assessment is the default: saving a choice never grants edit or release scope.
+export const maintenanceTasks = {
+  health: "Check my app for problems",
+  verify: "Check that my changes are live",
+  updates: "Check for dependency updates",
+  accessibility: "Make my app easier to use",
+};
+export const maintenanceScopes = ["assess", "prepare"];
+export const maintenanceRevision = 1;
+export function validateMaintenance(value) {
+  if (value === undefined) return undefined;
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    throw new Error("Maintenance choice must be an object");
+  if (
+    Object.keys(value).some(
+      (key) => !["task", "scope", "revision"].includes(key),
+    )
+  )
+    throw new Error("Unknown maintenance field");
+  if (!Object.hasOwn(maintenanceTasks, value.task))
+    throw new Error("Choose a supported maintenance task");
+  const scope = value.scope ?? "assess";
+  if (!maintenanceScopes.includes(scope))
+    throw new Error("Choose assessment or prepared fixes");
+  if (value.revision !== undefined && value.revision !== maintenanceRevision)
+    throw new Error("That maintenance task revision is no longer current");
+  return { task: value.task, scope, revision: maintenanceRevision };
+}
 export const presets = {
   composition: {
     apps: ["guestbook", "showcase"],
@@ -141,6 +171,9 @@ export function validateSpec(input) {
     ...(input.deviceTarget === undefined
       ? {}
       : { deviceTarget: validateDeviceTarget(input.deviceTarget) }),
+    ...(input.maintenance === undefined
+      ? {}
+      : { maintenance: validateMaintenance(input.maintenance) }),
     config: { title, intro, theme: config.theme, layout },
     privacy: "review-first",
     cards: cleanCards,
@@ -232,6 +265,21 @@ export function handoff(spec) {
     (s.deviceTarget === undefined
       ? ""
       : "Preserve the creator deviceTarget (desktop, mobile or both) as an implementation requirement, not verified support. Keep existing per-activity device declarations and recheck actual viewing, editing and file/export journeys for the exact released source. Missing assessments remain unknown. Discovery stays usable on every device; do not block by viewport or discard work.\n\n") +
+    (s.maintenance === undefined
+      ? ""
+      : "Optional maintenance task selected by the creator: " +
+        maintenanceTasks[s.maintenance.task] +
+        " (task `" +
+        s.maintenance.task +
+        "`, revision " +
+        s.maintenance.revision +
+        ", scope " +
+        (s.maintenance.scope === "assess"
+          ? "assess and report only"
+          : "prepare fixes for review") +
+        "). Read its current instructions at https://composer.loftwah.com/prompts#" +
+        s.maintenance.task +
+        " and use the saved task ID and revision. A saved choice is not an execution, a run receipt or permission to edit or deploy. Run it only with the creator's chosen agent under the project's actual authority.\n\n") +
     deliveryHandoff(s.delivery, independent) +
     "Specification (version 2):\n" +
     JSON.stringify(s, null, 2) +

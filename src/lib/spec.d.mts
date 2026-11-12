@@ -1,5 +1,10 @@
 export interface Spec {
   deviceTarget?: import("./device-support.mjs").DeviceTarget;
+  maintenance?: {
+    task: "health" | "verify" | "updates" | "accessibility";
+    scope: "assess" | "prepare";
+    revision: 1;
+  };
   version: 2;
   preset: string;
   apps: string[];
@@ -41,6 +46,15 @@ export function visibleQuestions(answers: Record<string, string>): Question[];
 export function explorerSpec(answers: Record<string, string>): Spec;
 
 export const specVersion: 2;
+export const maintenanceRevision: 1;
+export const maintenanceTasks: Record<
+  "health" | "verify" | "updates" | "accessibility",
+  string
+>;
+export const maintenanceScopes: ("assess" | "prepare")[];
+export function validateMaintenance(
+  value: unknown,
+): Spec["maintenance"];
 export const deliveryProfiles: ("local" | "existing-runner")[];
 export const deliveryRunners: ("jenkins" | "gitlab" | "buildkite" | "other")[];
 export const deliveryCommands: string[];

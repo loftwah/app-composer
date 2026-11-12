@@ -109,7 +109,6 @@
   outline-offset: 3px;
 }
 .co-muted,
-.co-period span,
 .co-timeline figcaption span {
   color: var(--co-muted);
 }
@@ -117,12 +116,61 @@
   border: 1px solid currentColor;
   padding: 14px;
 }
-.co-period {
-  margin-top: 26px;
+.co-applied {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px 32px;
+  flex-wrap: wrap;
+  margin: 18px 0 6px;
+  padding: 18px 20px;
+  border: 1px solid var(--co-line);
+  border-left: 3px solid var(--co-accent);
 }
-.co-period span {
-  font-size: 16px;
+.co-applied.is-pending {
+  border-left-width: 6px;
+}
+.co-applied-kicker {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--co-muted);
+}
+.co-applied h2 {
+  margin: 4px 0 8px;
+  font-size: clamp(24px, 3vw, 32px);
+}
+.co-applied h2 span {
+  font-size: 15px;
   font-weight: 400;
+  color: var(--co-muted);
+}
+.co-applied-scope {
+  margin: 0 0 6px;
+  max-width: 72ch;
+}
+.co-applied-meta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--co-muted);
+  max-width: 72ch;
+}
+.co-applied-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+  min-width: 210px;
+}
+.co-pending {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--co-accent);
+  background: color-mix(in srgb, var(--co-accent) 10%, transparent);
+  font-size: 13px;
+  font-weight: 600;
+  max-width: 72ch;
 }
 .co-signals {
   display: flex;
@@ -187,8 +235,27 @@
 .co-bar {
   fill: var(--co-accent);
 }
+.co-day {
+  cursor: pointer;
+}
+.co-day-hit {
+  fill: transparent;
+}
+.co-day-selected .co-day-hit {
+  fill: var(--co-line);
+  opacity: 0.45;
+}
 .co-day-selected .co-bar {
   fill: var(--co-ink);
+}
+.co-day:hover .co-bar {
+  fill: var(--co-ink);
+}
+.co-partial {
+  stroke: var(--co-ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+  opacity: 0.6;
 }
 .co-gap {
   stroke: var(--co-muted);
@@ -197,20 +264,56 @@
 .co-zero {
   fill: var(--co-muted);
 }
-.co-inspector {
-  grid-template-columns: auto minmax(70px, 1fr) auto;
+.co-day-readout {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) auto minmax(150px, 1fr);
+  gap: 6px 18px;
   align-items: center;
-  gap: 16px;
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border: 1px solid var(--co-line);
+  border-left: 3px solid var(--co-accent);
+}
+.co-day-readout > span:first-child {
+  font-size: 13px;
+  color: var(--co-muted);
+}
+.co-day-readout strong {
+  font-size: clamp(24px, 4vw, 34px);
+  font-variant-numeric: tabular-nums;
+}
+.co-day-readout > span:last-child {
+  text-align: right;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--co-muted);
+}
+.co-day-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.co-day-controls button {
+  width: 42px;
+  min-height: 42px;
+  padding: 0;
+  font-size: 20px;
+}
+.co-inspector {
+  flex: 1 1 220px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-size: 14px;
 }
 .co-inspector input {
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 120px;
   accent-color: var(--co-accent);
-}
-.co-inspector output {
-  min-width: 135px;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
 }
 .co-definition h3:first-child {
   margin-top: 0;
@@ -312,12 +415,19 @@
     min-width: 0;
     padding: 14px;
   }
-  .co-inspector {
+  .co-applied {
+    padding: 16px;
+  }
+  .co-applied-actions {
+    min-width: 0;
+    width: 100%;
+  }
+  .co-day-readout {
     grid-template-columns: 1fr auto;
   }
-  .co-inspector input {
-    grid-column: 1/-1;
-    grid-row: 2;
+  .co-day-readout > span:last-child {
+    grid-column: 1 / -1;
+    text-align: left;
   }
   .co-definition {
     border-top: 1px solid var(--co-line);
@@ -339,6 +449,17 @@
   margin-block: 24px;
   padding-block: 20px;
   border-block: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+}
+.co-public-story summary {
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 600;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.co-public-story[open] summary {
+  margin-bottom: 8px;
 }
 .co-public-story p {
   max-width: 72ch;

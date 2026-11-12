@@ -52,7 +52,7 @@ export interface FrozenReport {
   unit: string;
   quality: string;
   period: { from: string; to: string; days: number; surface: string };
-  daily: { date: string; value: number | null }[];
+  daily: { date: string; value: number | null; capped?: boolean }[];
   coverage: { startedAt: string; quality: string; limitations: string[] };
   sourceRevision: string;
 }
@@ -159,27 +159,29 @@ const surfaceLabel = (surface: string) =>
       : "all connected versions";
 
 function dailyWindow(
-  daily: { date: string; value: number }[] | undefined,
+  daily: { date: string; value: number; capped?: boolean }[] | undefined,
   period: { from: string; to: string },
   nullBefore: boolean,
 ) {
-  const observed = new Map((daily ?? []).map((day) => [day.date, day.value]));
+  const observed = new Map((daily ?? []).map((day) => [day.date, day]));
   const first = daily?.[0]?.date;
   const unavailable = !daily || daily.length === 0;
-  const points: { date: string; value: number | null }[] = [];
+  const points: { date: string; value: number | null; capped?: boolean }[] = [];
   for (
     const cursor = new Date(period.from + "T00:00:00Z");
     cursor <= new Date(period.to + "T00:00:00Z");
     cursor.setUTCDate(cursor.getUTCDate() + 1)
   ) {
     const date = cursor.toISOString().slice(0, 10);
+    const entry = observed.get(date);
     points.push({
       date,
       value: unavailable
         ? null
         : nullBefore && first && date < first
           ? null
-          : (observed.get(date) ?? (first && date < first ? null : 0)),
+          : (entry?.value ?? (first && date < first ? null : 0)),
+      capped: entry?.capped === true,
     });
   }
   return points;
@@ -420,6 +422,10 @@ export function parseFrozenReport(raw: unknown): FrozenReport | undefined {
         !(
           (day as Record<string, unknown>).value === null ||
           integer((day as Record<string, unknown>).value)
+        ) ||
+        !(
+          (day as Record<string, unknown>).capped === undefined ||
+          typeof (day as Record<string, unknown>).capped === "boolean"
         ),
     ) ||
     !coverage ||
