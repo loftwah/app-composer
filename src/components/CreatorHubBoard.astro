@@ -97,7 +97,7 @@ const pins = [
 <script>
   const board = document.querySelector<HTMLElement>('[data-creator-board]');
   if (board) {
-    const key = 'composer:creator-hub:saved-pins:v1';
+    const keyPrefix = 'composer:creator-hub:saved-pin:v1:';
     const dialog = board.querySelector<HTMLDialogElement>('[data-pin-dialog]')!;
     const title = dialog.querySelector<HTMLElement>('[data-pin-title]')!;
     const tiles = [...board.querySelectorAll<HTMLElement>('[data-pin]')];
@@ -114,10 +114,7 @@ const pins = [
     let followingAnchor = false;
 
     try {
-      const stored: unknown = JSON.parse(localStorage.getItem(key) ?? '[]');
-      if (Array.isArray(stored)) {
-        for (const id of stored) if (typeof id === 'string' && knownIds.has(id)) saved.add(id);
-      }
+      for (const id of knownIds) if (localStorage.getItem(keyPrefix + id) === 'saved') saved.add(id);
     } catch { /* The board still works for this visit. */ }
 
     function renderPins() {
@@ -145,7 +142,8 @@ const pins = [
         if (!wasSaved) saved.add(id);
         let announcement = wasSaved ? 'Removed from Saved.' : 'Saved in this browser.';
         try {
-          localStorage.setItem(key, JSON.stringify([...saved]));
+          if (wasSaved) localStorage.removeItem(keyPrefix + id);
+          else localStorage.setItem(keyPrefix + id, 'saved');
         } catch {
           announcement = wasSaved ? 'Removed for this visit.' : 'Saved for this visit.';
         }
@@ -180,6 +178,22 @@ const pins = [
         if (opener?.closest('[hidden]')) filters[1]?.focus();
         else opener?.focus({ preventScroll: true });
       }
+    });
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === null) {
+        saved.clear();
+      } else if (event.key.startsWith(keyPrefix)) {
+        const id = event.key.slice(keyPrefix.length);
+        if (!knownIds.has(id)) return;
+        if (event.newValue === 'saved') saved.add(id);
+        else saved.delete(id);
+      } else {
+        return;
+      }
+      const focusedTile = document.activeElement?.closest('[data-pin]');
+      renderPins();
+      if (focusedTile?.hasAttribute('hidden')) filters[1]?.focus();
     });
 
     board.querySelector<HTMLElement>('[data-board-toolbar]')!.hidden = false;
