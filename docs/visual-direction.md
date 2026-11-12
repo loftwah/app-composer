@@ -80,3 +80,24 @@ The optical app identities are derived from each existing drawing's specific act
 The five exact built-in image-generation prompts and public artwork references are in `.artwork/identity-prompts-20261018.json`; source master hashes and finite optical sizes are in `.artwork/identity-exports-20261018.json`. `export-optical-icons.mjs` exports only ignored review output. The selected files are then copied to explicitly chosen owning app checkouts and the shared-maintenance source. The new family is agent-selected within MP's direction; do not call all five new icons MP-approved.
 
 Superseded 22 October 2026: the Composer gripper/assembly crop is historical and must not be used as the product identity. MP's flat orange-and-white merging-block mark is the approved canonical App Composer mark. The five mini-app identities remain independent and are not part of this replacement.
+
+## GPT Image 2.6 in the existing artwork workflow
+
+The [Creator Hub study manifest](../.artwork/creator-hub-image-2.6.json) uses the
+existing fal-backed local artwork command. Flare makes one compressed WebP for
+fast composition review. Sunburst makes one high-quality PNG for detailed review
+and finishing. The provider documents both the
+[Flare request fields](https://fal.ai/models/openai/gpt-image-2.6/flare/text-to-image/api)
+and the [Sunburst request fields](https://fal.ai/models/openai/gpt-image-2.6/sunburst/text-to-image/api).
+
+```sh
+node scripts/generate-app-art.mjs --jobs .artwork/creator-hub-image-2.6.json --dry-run
+```
+
+For an authorised provider run, select one study with
+`--only creator-hub-study-flare` or `--only creator-hub-study-sunburst` and put
+its output under ignored `output/` with `--out`. A live run requires the
+configured fal credential and uses billable provider capacity. Keep the result
+and request receipt together for review before publishing any derivative.
+The Creator Hub share card uses the deployed profile capture and approved mark
+in [its authoring template](../.artwork/og/creator-hub-20261112.html).

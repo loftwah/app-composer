@@ -1,4 +1,53 @@
 ---
-Astro.response.status=404;
+import { ArrowRight } from "@lucide/astro";
+import Base from "../layouts/Base.astro";
+
+Astro.response.status = 404;
 ---
-<html lang="en"><head><title>Page not found · App Composer</title></head><body><h1>Page not found</h1><a href="/">Return to App Composer</a></body></html>
+<Base
+  title="Page not found"
+  description="Find your way back to App Composer, get your tools ready or explore a working app."
+  canonical={new URL("/", Astro.site ?? Astro.url).href}
+  noindex
+>
+  <section class="missing-page" aria-labelledby="missing-title">
+    <p class="missing-code" aria-hidden="true">404</p>
+    <h1 id="missing-title">This page couldn’t be found.</h1>
+    <p class="lede">
+      The address may have changed. Return home, pick up with Get Ready or
+      explore a live example.
+    </p>
+    <div class="actions">
+      <a class="button" href="/">
+        App Composer home <ArrowRight size={18} aria-hidden="true" />
+      </a>
+      <a class="button secondary" href="/ready">Open Get Ready</a>
+      <a class="button secondary" href="/creator-hub">See the Creator Hub</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .missing-page {
+    max-width: 48rem;
+    padding-block: clamp(3rem, 9vw, 7rem);
+  }
+  .missing-code {
+    margin: 0 0 0.3em;
+    color: var(--color-accent);
+    font-family: Space, sans-serif;
+    font-size: clamp(3rem, 9vw, 6rem);
+    font-weight: 700;
+    line-height: 1;
+  }
+  .missing-page h1 {
+    max-width: 22ch;
+  }
+  .missing-page .actions {
+    gap: 0.65rem;
+    margin-top: 1.5rem;
+  }
+  .missing-page .button {
+    min-height: 44px;
+  }
+</style>

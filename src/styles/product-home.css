@@ -253,6 +253,16 @@
     letter-spacing: 0.015em;
     margin-top: 22px;
   }
+  .hero-context a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 8px;
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.23em;
+  }
+
   .hero-bottom {
     position: absolute;
     bottom: 30px;
