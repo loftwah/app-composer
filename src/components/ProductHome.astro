@@ -12,6 +12,7 @@ const appById = (id: string) => {
   return app;
 };
 const paperwork = appById("paperwork");
+const studioRoute = "M515 268H551V389Q551 400 540 400H520";
 const selectedApps = [
   {
     app: paperwork,
@@ -102,17 +103,10 @@ const siteSchema = {
               fill="none"
             >
               <path class="studio-guides" d="M38 126V42H122M480 498H562V416" />
-              <path
-                class="studio-route"
-                d="M483 240H546V396H410"
-                pathLength="100"
-              />
-              <path
-                class="studio-signal"
-                d="M483 240H546V396H410"
-                pathLength="100"
-              />
-              <circle cx="546" cy="396" r="4" />
+              <path class="studio-route" d={studioRoute} pathLength="100" />
+              <path class="studio-signal" d={studioRoute} pathLength="100" />
+              <circle class="studio-terminal-ring" cx="520" cy="400" r="9" />
+              <circle class="studio-terminal" cx="520" cy="400" r="4" />
             </svg>
             <div class="studio-sheet studio-output">
               <div class="studio-label">Launch Kit <span>Profile card</span></div>
@@ -612,6 +606,24 @@ const siteSchema = {
   const motion = matchMedia(
     "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)",
   );
+
+  const terminal = scene?.querySelector(".studio-terminal");
+  if (
+    scene &&
+    terminal &&
+    "IntersectionObserver" in window &&
+    !matchMedia("(prefers-reduced-motion: reduce)").matches
+  ) {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        scene.classList.add("is-connected");
+        observer.disconnect();
+      },
+      { rootMargin: "0px 0px -24px" },
+    );
+    observer.observe(terminal);
+  }
 
   scene?.addEventListener("pointermove", (event) => {
     if (!motion.matches || event.pointerType !== "mouse") return;
