@@ -1,4 +1,5 @@
 export interface Spec {
+  projectDirection?: import("./project-direction.mjs").ProjectDirection;
   deviceTarget?: import("./device-support.mjs").DeviceTarget;
   maintenance?: {
     task: "health" | "verify" | "updates" | "accessibility";
