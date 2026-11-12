@@ -1011,14 +1011,36 @@
   --home-next-bg: var(--home-paper);
   --home-next-fg: var(--home-ink);
 }
-@media (min-width: 1201px) and (max-width: 1540px) {
+@media (width > 1200px) {
   .composer-home {
+    .hero-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.16fr) minmax(0, 1fr);
+      column-gap: clamp(32px, 3vw, 48px);
+    }
+    .hero-copy {
+      width: auto;
+      container-type: inline-size;
+    }
     .home-hero h1 {
-      font-size: clamp(4rem, 6.7vw, 7.1rem);
+      font-size: clamp(4rem, 15cqi, 7.8rem);
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
+    /* The sheets can bleed beyond the right edge of the grid. Their entrance
+       starts inside the art column, clear of the headline. */
     .studio-scene {
-      right: -190px;
+      position: relative;
+      align-self: start;
+      width: calc(100% + clamp(72px, 9vw, 145px));
+      height: clamp(500px, 43vw, 660px);
+      top: auto;
+      right: auto;
+      margin-top: -52px;
     }
+  }
+  .home-shell:has([data-builder-context]) .studio-scene {
+    margin-top: 0;
   }
 }
 @media (max-width: 1300px) {
@@ -1082,10 +1104,6 @@
   .composer-home {
     .hero-inner {
       min-height: 940px;
-    }
-    .studio-scene {
-      right: -110px;
-      top: 145px;
     }
   }
 }
