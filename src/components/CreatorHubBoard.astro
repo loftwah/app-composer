@@ -1,0 +1,224 @@
+---
+import { ArrowUpRight, Bookmark, Play, X } from '@lucide/astro';
+import reference from '../../config/creator-hub-reference.json';
+
+interface Props {
+  card: string;
+  clip: string;
+  poster: string;
+}
+const { card, clip, poster } = Astro.props;
+const pins = [
+  {
+    id: 'film', title: 'From example to your draft', type: 'Film · 22 seconds',
+    image: poster, width: 720, height: 1280, href: '#walkthrough-film', action: 'Transcript and download',
+    description: 'See Mara’s live profile, then watch the same setup open as a draft you can adapt.',
+  },
+  {
+    id: 'cover', title: 'Creator Hub link cover', type: 'Image · 1200 × 630',
+    image: card, width: 1200, height: 630, href: card, action: 'Download link cover', download: true,
+    description: 'The wide cover pairs Composer’s orange mark with the live Linkarooie profile. Use it with the X, LinkedIn or Facebook draft.',
+  },
+  {
+    id: 'profile', title: 'Mara Quinn’s profile', type: 'Live app · Linkarooie',
+    image: '/creator-hub/profile-20261111.webp', width: 1440, height: 960,
+    href: reference.apps.showcase.origin, action: 'Open live profile',
+    description: 'The fictional studio’s public home for selected work, workshop notes and commissions.',
+  },
+  {
+    id: 'postcards', title: 'Postcards for Mara', type: 'Live app · Here / there',
+    image: '/creator-hub/guestbook-phone-20261111.webp', width: 390, height: 844,
+    href: reference.apps.guestbook.origin, action: 'Open live guestbook',
+    description: 'Visitors can explore the guestbook. Contributions are reviewed before they appear publicly.',
+  },
+  {
+    id: 'sample', title: 'Make the setup your own', type: 'Editable example · Init',
+    image: '/creator-hub/draft-review-20261112.webp', width: 684, height: 810,
+    href: '/init?start=creator-hub', action: 'Review the sample draft',
+    description: 'Open the two-app sample in Init. You can keep your existing draft or load the example and adapt it.',
+  },
+];
+---
+
+<section class="creator-board" data-creator-board aria-label="Creator Hub pins">
+  <div class="board-toolbar" data-board-toolbar hidden>
+    <div class="board-filters" aria-label="Filter pins" role="group">
+      <button type="button" data-pin-filter="all" aria-pressed="true">All pins</button>
+      <button type="button" data-pin-filter="saved" aria-pressed="false"><Bookmark size={16} aria-hidden="true" /> Saved</button>
+    </div>
+    <p class="small">Saves stay in this browser.</p>
+  </div>
+  <p class="board-empty" data-board-empty hidden>Nothing saved yet. Open <strong>All pins</strong> and save anything you want to revisit.</p>
+  <div class="pin-columns">
+    {pins.map((pin) => (
+      <article class="board-pin" data-pin={pin.id}>
+        <a class="pin-link" href={pin.href} data-open-pin={pin.id}>
+          <span class="pin-art" data-pin-art={pin.id}>
+            <img src={pin.image} width={pin.width} height={pin.height} alt="" decoding="async" />
+            {pin.id === 'film' && <span class="pin-play" aria-hidden="true"><Play size={19} fill="currentColor" /></span>}
+          </span>
+          <h2>{pin.title}</h2>
+          <p>{pin.type}</p>
+        </a>
+        <button class="pin-save" type="button" data-pin-save={pin.id} aria-label={'Save ' + pin.title} aria-pressed="false" hidden>
+          <Bookmark size={16} aria-hidden="true" /> <span data-save-label>Save</span>
+        </button>
+      </article>
+    ))}
+  </div>
+  <p class="board-status small" data-board-status role="status"></p>
+
+  <dialog class="pin-dialog" data-pin-dialog aria-labelledby="pin-dialog-title">
+    <div class="dialog-bar">
+      <h2 id="pin-dialog-title" data-pin-title></h2>
+      <form method="dialog"><button type="submit" class="secondary" aria-label="Close pin" autofocus><X size={21} aria-hidden="true" /></button></form>
+    </div>
+    {pins.map((pin) => (
+      <div class="pin-detail" data-pin-detail={pin.id} data-title={pin.title} hidden>
+        {pin.id === 'film' ? (
+          <video controls playsinline preload="none" width="1080" height="1920" poster={poster} aria-label={pin.title}>
+            <source src={clip} type="video/mp4" />
+            <a href={clip}>Open the video</a>
+          </video>
+        ) : (
+          <img src={pin.image} width={pin.width} height={pin.height} alt={pin.title} decoding="async" />
+        )}
+        <p>{pin.description}</p>
+        <div class="detail-actions">
+          <a class="button" href={pin.href} download={pin.download} data-pin-destination>{pin.action}<ArrowUpRight size={16} aria-hidden="true" /></a>
+          <button type="button" class="secondary" data-pin-save={pin.id} aria-label={'Save ' + pin.title} aria-pressed="false"><Bookmark size={16} aria-hidden="true" /> <span data-save-label>Save</span></button>
+        </div>
+      </div>
+    ))}
+    <p class="small" data-dialog-status role="status"></p>
+  </dialog>
+</section>
+
+<script>
+  const board = document.querySelector<HTMLElement>('[data-creator-board]');
+  if (board) {
+    const key = 'composer:creator-hub:saved-pins:v1';
+    const dialog = board.querySelector<HTMLDialogElement>('[data-pin-dialog]')!;
+    const title = dialog.querySelector<HTMLElement>('[data-pin-title]')!;
+    const tiles = [...board.querySelectorAll<HTMLElement>('[data-pin]')];
+    const details = [...dialog.querySelectorAll<HTMLElement>('[data-pin-detail]')];
+    const filters = [...board.querySelectorAll<HTMLButtonElement>('[data-pin-filter]')];
+    const saves = [...board.querySelectorAll<HTMLButtonElement>('[data-pin-save]')];
+    const knownIds = new Set(tiles.map(tile => tile.dataset.pin!));
+    const saved = new Set<string>();
+    const status = board.querySelector<HTMLElement>('[data-board-status]')!;
+    const dialogStatus = dialog.querySelector<HTMLElement>('[data-dialog-status]')!;
+    const empty = board.querySelector<HTMLElement>('[data-board-empty]')!;
+    let filter = 'all';
+    let opener: HTMLAnchorElement | undefined;
+    let followingAnchor = false;
+
+    try {
+      const stored: unknown = JSON.parse(localStorage.getItem(key) ?? '[]');
+      if (Array.isArray(stored)) {
+        for (const id of stored) if (typeof id === 'string' && knownIds.has(id)) saved.add(id);
+      }
+    } catch { /* The board still works for this visit. */ }
+
+    function renderPins() {
+      for (const tile of tiles) tile.hidden = filter === 'saved' && !saved.has(tile.dataset.pin!);
+      for (const button of filters) button.setAttribute('aria-pressed', String(button.dataset.pinFilter === filter));
+      for (const button of saves) {
+        const isSaved = saved.has(button.dataset.pinSave!);
+        button.setAttribute('aria-pressed', String(isSaved));
+        button.querySelector('[data-save-label]')!.textContent = isSaved ? 'Saved' : 'Save';
+      }
+      empty.hidden = filter !== 'saved' || saved.size > 0;
+    }
+
+    for (const button of filters) button.addEventListener('click', () => {
+      filter = button.dataset.pinFilter!;
+      status.textContent = '';
+      renderPins();
+    });
+
+    for (const button of saves) {
+      button.hidden = false;
+      button.addEventListener('click', () => {
+        const id = button.dataset.pinSave!;
+        const wasSaved = saved.delete(id);
+        if (!wasSaved) saved.add(id);
+        let announcement = wasSaved ? 'Removed from Saved.' : 'Saved in this browser.';
+        try {
+          localStorage.setItem(key, JSON.stringify([...saved]));
+        } catch {
+          announcement = wasSaved ? 'Removed for this visit.' : 'Saved for this visit.';
+        }
+        renderPins();
+        if (button.closest('[data-pin]')?.hasAttribute('hidden')) filters[1]?.focus();
+        (dialog.open ? dialogStatus : status).textContent = announcement;
+      });
+    }
+
+    for (const link of board.querySelectorAll<HTMLAnchorElement>('[data-open-pin]')) {
+      link.addEventListener('click', (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || typeof dialog.showModal !== 'function') return;
+        const detail = details.find(item => item.dataset.pinDetail === link.dataset.openPin);
+        if (!detail) return;
+        event.preventDefault();
+        for (const item of details) item.hidden = item !== detail;
+        title.textContent = detail.dataset.title ?? '';
+        dialogStatus.textContent = '';
+        opener = link;
+        followingAnchor = false;
+        dialog.showModal();
+      });
+    }
+
+    dialog.querySelector<HTMLAnchorElement>('[href="#walkthrough-film"]')?.addEventListener('click', () => {
+      followingAnchor = true;
+      dialog.close();
+    });
+    dialog.addEventListener('close', () => {
+      dialog.querySelector('video')?.pause();
+      if (!followingAnchor) {
+        if (opener?.closest('[hidden]')) filters[1]?.focus();
+        else opener?.focus({ preventScroll: true });
+      }
+    });
+
+    board.querySelector<HTMLElement>('[data-board-toolbar]')!.hidden = false;
+    renderPins();
+  }
+</script>
+
+<style>
+  .board-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 18px; padding: 12px 0 18px; border-top: 1px solid var(--color-border); }
+  .board-toolbar p { margin: 0; }
+  .board-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+  .board-filters button, .pin-save { min-height: 44px; border-radius: 999px; padding: 8px 14px; font-size: .92rem; background: var(--color-surface); color: var(--color-foreground); border: 1px solid var(--color-control-border); }
+  .board-filters button[aria-pressed="true"], .pin-save[aria-pressed="true"] { color: var(--color-on-action); background: var(--color-action); border-color: var(--color-action); }
+  .pin-columns { columns: 4; column-gap: clamp(12px, 2vw, 24px); }
+  .board-pin { position: relative; break-inside: avoid; margin-bottom: 22px; }
+  .pin-link { display: block; border-radius: 12px; }
+  .pin-link h2 { margin: 9px 0 2px; font-size: clamp(1rem, 1.5vw, 1.18rem); line-height: 1.2; }
+  .pin-link p { margin: 0; color: var(--color-muted); font-size: .86rem; line-height: 1.35; font-weight: 500; }
+  .pin-art { display: block; position: relative; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 14px; overflow: hidden; }
+  .pin-art img { display: block; width: 100%; height: auto; }
+  .pin-art[data-pin-art="film"], .pin-art[data-pin-art="postcards"] { aspect-ratio: 4 / 5; }
+  .pin-art[data-pin-art="film"] img, .pin-art[data-pin-art="postcards"] img { height: 100%; object-fit: cover; object-position: top; }
+  .pin-art[data-pin-art="postcards"] img { object-position: bottom; }
+  .pin-link:hover h2 { color: var(--color-accent); }
+  .pin-save { position: absolute; top: 8px; right: 8px; gap: 5px; }
+  .pin-play { position: absolute; bottom: 8px; left: 8px; background: var(--color-surface); color: var(--color-foreground); border-radius: 50%; width: 39px; height: 39px; display: grid; place-items: center; }
+  .board-status:empty { margin: 0; }
+  .board-empty { padding: 20px 0; }
+  .pin-dialog { width: min(610px, calc(100% - 32px)); max-height: calc(100dvh - 32px); padding: clamp(14px, 4vw, 24px); background: var(--color-background); color: var(--color-foreground); border: 1px solid var(--color-control-border); border-radius: 16px; }
+  .pin-dialog::backdrop { background: rgb(0 0 0 / 72%); }
+  .dialog-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  .dialog-bar h2 { margin: 0; font-size: clamp(1.3rem, 3.5vw, 1.85rem); }
+  .dialog-bar button { width: 44px; padding: 0; min-height: 44px; border: 1px solid var(--color-control-border); }
+  .pin-detail img, .pin-detail video { display: block; width: auto; height: auto; max-width: 100%; max-height: min(54dvh, 480px); border-radius: 10px; margin: 0 auto; }
+  .detail-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .detail-actions button { border: 1px solid var(--color-control-border); }
+  .detail-actions button[aria-pressed="true"] { color: var(--color-on-action); background: var(--color-action); }
+  [data-dialog-status]:empty { margin: 0; }
+  [hidden] { display: none !important; }
+  @media (max-width: 1020px) { .pin-columns { columns: 3; } }
+  @media (max-width: 660px) { .pin-columns { columns: 2; } .pin-save { top: 5px; right: 5px; padding-inline: 9px; } }
+</style>
