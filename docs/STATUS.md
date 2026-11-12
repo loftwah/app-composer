@@ -2,6 +2,24 @@
 
 Reviewed 25 October 2026; updated 12 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Link-only profiles and Cloudflare cleanup — 12 November 2026
+
+Composer production is `1483fa662591dff132ab7c3753a5c4e0c88d8b9a`, Worker
+`1da6df9a-79a5-4045-b6fa-b52a1927b039`. New Linkarooie-only Init exports
+pin the standalone release `e6780997b96f8b9f2411abc66abbbdd590dd5940`.
+An owner can publish curated links without a Guestbook binding. Existing
+paired deployments still use their reviewed composition pins.
+
+Plugin Trust, Shopify catalogue, hosted Cloudflare inventory and strict
+Access binding now use Worker-compatible redirect handling and refuse
+redirected responses. Workerd exercised both response cases for all four.
+Composer's guarded release passed 612 tests and its live checks.
+
+Cloudflare confirmed 66 obsolete composition Worker deletions. The account
+went from 120 to 54 Workers and the stale preview URL now returns 404.
+[The operations receipt](https://github.com/loftwah/app-composer/issues/318#issuecomment-6810454349)
+records dependency checks and the retained rollback pair.
+
 ## Project health pass — 12 November 2026
 
 Production is Composer `cd4e30a52797ccd3b7afaad1eff9603f8472840d`, Worker
