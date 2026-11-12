@@ -13,7 +13,7 @@ import ReadyPlatform from '../components/ReadyPlatform';
 import DiagramFigure from '../components/DiagramFigure.astro';
 import { diagramByName } from '../lib/diagram-atlas';
 import build from '../lib/build.json';
-import { ArrowRight, BookOpen, Bot, GitBranch, Cloud, Globe, ShieldCheck } from '@lucide/astro';
+import { ArrowRight, Bot, GitBranch, Cloud, Globe, ShieldCheck } from '@lucide/astro';
 const stages=[{icon:Bot,title:'Agent & tools',detail:'A working folder and the tools to build.'},{icon:GitBranch,title:'Your GitHub source',detail:'A private starter you own and can update.'},{icon:Cloud,title:'Your Cloudflare account',detail:'The intended account and deployment access.'},{icon:Globe,title:'A live HTTPS app',detail:'The exact source, deployed and verified.'}];
 const profiles = Astro.url.searchParams.getAll('profile');
 const platformSelected = profiles.length === 1 && profiles[0] === 'platform';
@@ -23,6 +23,8 @@ const workspace = workspaces.length === 1 && /^[a-z0-9-]{6,64}$/.test(workspaces
 const nativePlatform = '/_emdash/admin/plugins/composer-stacks/platform' + (workspace ? '?' + new URLSearchParams({workspace}) : '');
 const platformSelf = '/ready?' + new URLSearchParams({profile:'platform', ...(workspace ? {workspace} : {})});
 const source = appSettings.guestbook.source;
+const browserTask = Astro.url.searchParams.get('task') === 'browser';
+const firstAgentGuide = `/ready/guide?start=agent${browserTask ? '&task=browser' : ''}#first-agent`;
 ---
 <Base title={platformSelected ? 'Get Ready: prepare your internal platform' : 'Get Ready: your first working environment'} description={platformSelected ? 'Prepare the operator prerequisites, inspect your authorised workspace and current adapter, then let teams request supported synthetic preview applications.' : 'Start before you have an app idea. Let your agent prepare tools, GitHub and Cloudflare, then verify your first HTTPS app. Save your address choice and resume progress.'}>
  <div class="workspace-heading">
@@ -30,7 +32,14 @@ const source = appSettings.guestbook.source;
    <h1>{platformSelected ? 'Prepare your internal platform.' : <>Get ready.<br/>Then make something.</>}</h1>
    <p class="lede">{platformSelected ? 'Prepare the workspace and standing rules once, then give teams an approved way to request applications. Start with the current installation; no application idea is needed here.' : 'A working environment comes first. Your agent handles setup, builds your first Hello app and checks that it works online. You handle sign-in and choices that need your say.'}</p>
   </div>
-  <a class:list={['button', {secondary: !platformSelected}]} href={platformSelected ? '#platform-check-heading' : '/ready/guide'}>{platformSelected ? <ArrowRight size={18} aria-hidden="true"/> : <BookOpen size={18} aria-hidden="true"/>}{platformSelected ? 'Open team setup' : 'Step-by-step help'}</a>
+  {platformSelected ? (
+   <a class="button" href="#platform-check-heading"><ArrowRight size={18} aria-hidden="true"/>Open team setup</a>
+  ) : (
+   <div class="agent-entry">
+    <a class="button" href={firstAgentGuide}>Set up my first agent <ArrowRight size={18} aria-hidden="true"/></a>
+    <a href="#agent-start">{browserTask ? 'I have an agent. Show the browser check' : 'I already have an agent'}</a>
+   </div>
+  )}
  </div>
  <nav class="build-paths" aria-label="Choose your application path">
   <a href="/ready" aria-current={!platformSelected ? 'page' : undefined}><strong>My app</strong><span>Prepare your environment and start building.</span></a>
@@ -65,7 +74,7 @@ const source = appSettings.guestbook.source;
  <nav class="journey-nav" aria-label="Your application journey"><a href="/ready" aria-current="step"><span>1</span>Get Ready</a><a href="/init"><span>2</span>Configure</a><a href="/demo"><span>3</span>See composition</a><a href="/docs"><span>4</span>Own & update</a></nav>
  <div class="ready-workspace">
   <div class="ready-main"><ReadyPreferences/>
-   <section id="agent-start" class="agent-request"><h2>Give your agent the next move.</h2><p>Choose a task below. For app setup, paste the request into Codex in your chosen folder and bring back its progress report. You can also <a href="/ready?task=browser#agent-start">check whether your agent can inspect websites</a>.</p><p><a href="/setup">Set up a new or existing project with one portable guide</a> · <a href="/resources">Get the operating kit</a></p><ReadyHandoff preferences/>
+   <section id="agent-start" class="agent-request"><h2>Give your agent the next move.</h2><p>Choose a task below. For app setup, paste the request into Codex in your chosen folder and bring back its progress report. You can also <a href="/ready?task=browser#agent-start">check whether your agent can inspect websites</a>.</p><p><a href="/ready/guide">Follow the step-by-step setup</a> · <a href="/setup">Set up a new or existing project with one portable guide</a> · <a href="/resources">Get the operating kit</a></p><ReadyHandoff preferences/>
    <details data-assistance-detail><summary>Which agents and machines work today?</summary><p>The verified setup path uses Codex on an Apple Silicon Mac, with Node 22 and Git available. It can prepare missing GitHub CLI, pnpm and local Wrangler. First-account creation, global Git/Node installation and other runtimes still need additional support.</p><p>Another authorised agent can use the reusable library or the optional local MCP for checks. That does not certify its installation or grant setup permissions. <a href="/docs#local-get-ready-mcp">Integration details</a>.</p><p class="small">Reference recipe <code>{recipe.id}</code>. Reviewed tools: Wrangler <code>{pkg.devDependencies.wrangler}</code>, EmDash <code>{pkg.dependencies.emdash}</code>. Your agent checks the actual selected workspace; these are supported versions, not a claim about your computer.</p></details><p data-assistance-guided class="small">Get Ready handles the environment before your idea. A saved address is a preference; your agent still checks account access, current source and HTTPS. You can pause after preparing the first app.</p></section>
   </div>
   <aside class="ready-evidence"><ReadyProgress/><div class="owner-boundary"><ShieldCheck size={20} aria-hidden="true"/><p>No account connection happens on this website. Credentials stay with your authorised agent and provider. Your report is read on this device.</p></div></aside>
@@ -82,6 +91,15 @@ const source = appSettings.guestbook.source;
  </>)}
 </Base>
 <style>
+ .agent-entry {
+  display:grid;
+  justify-items:start;
+  gap:.75rem;
+  flex-shrink:0;
+ }
+ @media(max-width:950px) {
+  .agent-entry {margin-top:1.5rem}
+ }
  .platform-preparation {
   max-width:1000px
  }
