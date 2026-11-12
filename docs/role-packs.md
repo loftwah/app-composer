@@ -40,6 +40,41 @@ Exit codes: `0` brief emitted and unblocked, `2` input refused with a human acti
 
 The records are fictional. Do not replace them with real private records; adapt the schema to the selected workspace and redact before use.
 
+## Service Owner reliability advice
+
+Service Owner pack 1.1 reads the existing `composer.role-evidence/1` bundle.
+The SLO vocabulary is `met`, `at-risk`, `breached` and `unknown`. A measured
+state needs the target, result, window, capture time and a matching `slo`
+evidence item from the selected environment. Missing or stale observations
+appear as unknown, with the next observation to obtain. A recommendation to
+proceed also needs a fresh `journey` observation from the selected environment.
+
+For a proposed repair, add optional `change.serviceReview` data:
+
+```json
+{
+  "revision": 1,
+  "purpose": "reliability-repair",
+  "service": "svc-trail-notes-web",
+  "journey": "Visitors can read approved postcards",
+  "risk": "low",
+  "evidence": "ev-03",
+  "policy": {
+    "evidence": "ev-policy",
+    "permits": ["reliability-repair"]
+  }
+}
+```
+
+The purpose can also be `security-fix`, `routine` or `feature`. Use `low` or
+`high` risk and set `ownerHold: true` when an owner hold applies. Evidence IDs
+refer to entries in the same bundle. Use a `journey` item for the change and a
+`release-policy` item for the owner-supplied applicable policy. For repair
+advice during a measured reliability problem, the journey, policy and gate
+evidence must be current in the selected environment. A repair recommendation
+leaves the measured health state visible. Failed or unrun gates, a recorded
+hold and failed Preview isolation take precedence.
+
 ## Refusal rules
 
 Before a brief is rendered, the runner checks:
@@ -47,9 +82,9 @@ Before a brief is rendered, the runner checks:
 1. Bundle version, required ownership, application, service, environment and evidence shape.
 2. Secret-like values (`Bearer`, API keys, private keys, labelled secrets) — refused, with a rotation and redaction action.
 3. Self-approval — an agent requester with any approver, or the same actor on both sides, is refused. Approval must be a separate human.
-4. Stale evidence against a per-pack limit (24–168 hours).
+4. Stale evidence against a per-pack limit (24–168 hours). Service Owner evaluates stale SLO, journey and release-policy evidence in the review.
 5. Production targets for Programmer and QA work; cross-environment evidence for Programmer.
-6. Pack-specific input: defect and reproduction, gates, dependency edges and options, drift list, access paths and findings, impact/SLO/gates.
+6. Pack-specific input: defect and reproduction, gates, dependency edges and options, drift list, access paths and findings, impact and gates.
 
 Blocking findings (failed gate, high security finding, preview production binding) still produce a brief, marked blocked, and exit `3`. The brief never becomes an approval.
 

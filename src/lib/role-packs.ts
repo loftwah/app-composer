@@ -60,6 +60,24 @@ export interface RolePack {
   related: { label: string; href: string }[];
 }
 
+const sloStates = ['met', 'at-risk', 'breached', 'unknown'] as const;
+const repairPurposes = ['reliability-repair', 'security-fix'] as const;
+const changePurposes = ['feature', 'routine', ...repairPurposes] as const;
+const changeRisks = ['low', 'high'] as const;
+type SloState = (typeof sloStates)[number];
+type RepairPurpose = (typeof repairPurposes)[number];
+
+interface ServiceReviewContext {
+  revision: 1;
+  purpose: (typeof changePurposes)[number];
+  service: string;
+  journey: string;
+  risk: (typeof changeRisks)[number];
+  evidence: string;
+  policy?: { evidence: string; permits: RepairPurpose[] };
+  ownerHold?: boolean;
+}
+
 const proposalBoundary =
   'Proposal and review only. This pack prepares a versioned brief or draft; it does not approve its own action, deploy, merge, spend, invite, delete or change access.';
 
@@ -69,7 +87,7 @@ export const rolePacks: readonly RolePack[] = [
     number: '01',
     label: 'Service Owner',
     title: 'Service review and change decision',
-    version: '1.0.0',
+    version: '1.1.0',
     purpose:
       'Give an accountable owner a short, evidence-backed view of what users depend on, what is healthy and whether the next release should proceed.',
     job:
@@ -78,10 +96,11 @@ export const rolePacks: readonly RolePack[] = [
       { key: 'workspace', label: 'Workspace and accountable owner', required: true, note: 'Owner, fallback and how escalation reaches them. No org chart is invented.' },
       { key: 'application', label: 'Application, source and release', required: true, note: 'Exact source pin, release id and the user purpose.' },
       { key: 'service', label: 'Service, provider account and environment', required: true, note: 'The operated component and the selected environment, not a guessed tag.' },
-      { key: 'slo', label: 'SLO target and observation window', required: true, note: 'Observed value, window and capture time. Unavailable is not zero.' },
+      { key: 'slo', label: 'SLO target and observation window', required: false, note: `Observed value, window and capture time. Status: ${sloStates.join(', ')}.` },
       { key: 'impact', label: 'Affected user journey and impact', required: true, note: 'What a visitor or owner cannot do, in plain language.' },
       { key: 'cost', label: 'Cost trend', required: false, note: 'Mark unavailable rather than estimating a provider bill.' },
       { key: 'gates', label: 'Release gates', required: true, note: 'Named checks with pass, fail or not-run status.' },
+      { key: 'serviceReview', label: 'Proposed change and release policy', required: false, note: 'Purpose, affected journey and service, risk, evidence and the applicable policy. Required to recommend a repair during a reliability problem.' },
     ],
     evidence: [
       'Current ownership record with primary owner, fallback and last checked time.',
@@ -102,8 +121,8 @@ export const rolePacks: readonly RolePack[] = [
     ],
     stops: [
       'No accountable owner or fallback in the ownership record: stop and ask the workspace owner to assign one.',
-      'SLO or journey evidence older than 24 hours: stop and refresh it before recommending release.',
-      'A named release gate failed or was not run: recommend hold; the owner decides whether to accept the risk.',
+      'Missing or stale SLO evidence: mark health unknown and name the observation to refresh.',
+      'A named release gate failed or was not run, or a release hold applies: recommend hold until the existing requirement is satisfied.',
       'Impact crosses another service with no owner recorded: escalate; do not guess the dependency owner.',
     ],
     prohibited: [
@@ -115,7 +134,7 @@ export const rolePacks: readonly RolePack[] = [
     ],
     negativeTests: [
       { id: 'owner-missing', input: 'Bundle with no accountable owner or fallback.', expected: 'Refuse the brief and name the workspace owner who must assign responsibility.' },
-      { id: 'stale-health', input: 'SLO and journey evidence older than 24 hours.', expected: 'Refuse the decision and name the evidence to refresh.' },
+      { id: 'stale-health', input: 'SLO evidence older than 24 hours.', expected: 'Mark health unknown and name the evidence to refresh.' },
       { id: 'failed-gate', input: 'Release candidate with one failed gate.', expected: 'Produce a hold recommendation; never a pass.' },
       { id: 'self-approval', input: 'Agent requests and approves the same release.', expected: 'Refuse before rendering; approval needs a separate human.' },
     ],
@@ -125,10 +144,10 @@ export const rolePacks: readonly RolePack[] = [
       evidence:
         'Five items: ownership, SLO, journey, gate results and cost. The SLO observed 99.4% against a 99.5% target over seven days; the public-visibility gate failed 3 of 3 runs.',
       finding:
-        'The owner can read the impact in one line: approved postcards are not visible to visitors. The failing gate is release-blocking, and one stale cost observation is labelled unavailable rather than estimated.',
+        'Approved postcards are not visible to visitors. The public-visibility gate failed, physical-device input was not run, and resource drift shows a production binding in Preview.',
       decision:
-        'Hold. The accountable owner is Ada Nguyen; fallback is Sam Okafor. The next two actions are to fix the public-visibility gate and refresh the cost observation.',
-      measured: '5 evidence items cited, 1 stale item labelled, 1 failed gate, 0 approvals issued.',
+        'Hold. The accountable owner is Ada Nguyen; fallback is Sam Okafor. Correct the Preview binding, then resolve and rerun the affected gates.',
+      measured: '7 evidence items cited, 1 failed gate, 1 unrun gate, 0 approvals issued.',
       remainingGate:
         'Re-run the public-visibility gate after the fix. This review does not establish production health or owner acceptance.',
     },
@@ -136,7 +155,9 @@ export const rolePacks: readonly RolePack[] = [
       'Restate the selected workspace, application, service, environment, source and release before judging health.',
       'Name what users depend on and the exact affected journey. Separate observed impact from inferred impact.',
       'Compare the SLO observation with its target and window. Treat unavailable, stale and cross-environment values as unknowns.',
-      'Read every release gate. A failed or unrun gate is a risk the accountable human owns, not an agent decision.',
+      'Read every release gate and owner hold. These apply even to urgent security fixes and reliability repairs.',
+      'During a measured breach or at-risk period, defer unrelated high-risk changes. Recommend a scoped repair only with fresh evidence, passing mandatory gates and a cited policy that permits it.',
+      'When reliability or policy evidence is missing, say what must be verified and who can decide.',
       'Write the shortest review that supports one decision. Name the owner and fallback, and list only actions that can actually be taken.',
     ],
     related: [
@@ -602,7 +623,7 @@ export interface RoleBundle {
   evidence: { id: string; kind: string; source: string; environment: string; observedAt: string; summary: string }[];
   signals?: {
     impact?: string;
-    slo?: { target: string; observed: string; window: string; status: 'met' | 'breached' | 'unknown'; capturedAt?: string };
+    slo?: { target?: string; observed?: string; window?: string; status: SloState; capturedAt?: string };
     cost?: { trend: string; note?: string; capturedAt?: string };
   };
   defect?: {
@@ -629,6 +650,7 @@ export interface RoleBundle {
     approvedByKind?: 'human' | 'agent' | null;
     scope?: string;
     target?: string;
+    serviceReview?: ServiceReviewContext;
   };
   release?: { id: string; status: 'candidate' | 'blocked' | 'ready'; notes?: string };
 }
@@ -735,7 +757,6 @@ function mermaidId(value: string): string {
 // unrecognised value is refused rather than treated as "not failing".
 const gateStates = ['pass', 'fail', 'not-run'];
 const findingSeverities = ['low', 'medium', 'high', 'critical'];
-const sloStates = ['met', 'at-risk', 'breached'];
 const boundedList = (value: unknown, limit: number) => Array.isArray(value) && value.length <= limit;
 
 function checkEnumerations(input: Record<string, unknown>, issues: string[]): void {
@@ -762,8 +783,28 @@ function checkEnumerations(input: Record<string, unknown>, issues: string[]): vo
     });
   }
   const signals = record(input.signals) ? input.signals : null;
-  const slo = record(signals?.slo) ? signals!.slo as Record<string, unknown> : null;
-  if (slo && !sloStates.includes(String(slo.status))) issues.push(`signals.slo.status must be one of ${sloStates.join(', ')}`);
+  const slo = signals?.slo;
+  if (slo !== undefined && (!record(slo) || !sloStates.some((state) => state === slo.status))) {
+    issues.push(`signals.slo.status must be one of ${sloStates.join(', ')}`);
+  }
+  const change = record(input.change) ? input.change : null;
+  const context = change?.serviceReview;
+  if (context !== undefined) {
+    if (!record(context) || context.revision !== 1
+      || !changePurposes.some((purpose) => purpose === context.purpose)
+      || !changeRisks.some((risk) => risk === context.risk)
+      || !text(context.service) || !text(context.journey) || !text(context.evidence)
+      || (context.ownerHold !== undefined && typeof context.ownerHold !== 'boolean')) {
+      issues.push('change.serviceReview needs revision 1, a supported purpose and risk, service, journey and evidence');
+    } else if (context.policy !== undefined) {
+      const policy = context.policy;
+      if (!record(policy) || !text(policy.evidence)
+        || !Array.isArray(policy.permits) || policy.permits.length > repairPurposes.length
+        || !policy.permits.every((entry) => repairPurposes.some((purpose) => purpose === entry))) {
+        issues.push('change.serviceReview.policy needs an evidence id and permitted repair purposes');
+      }
+    }
+  }
   const defect = record(input.defect) ? input.defect : null;
   if (defect?.reproduction !== undefined && (!boundedList(defect.reproduction, 30) || !(defect.reproduction as unknown[]).every((step) => typeof step === 'string'))) issues.push('defect.reproduction must be a bounded list of text steps');
 }
@@ -829,7 +870,11 @@ function assertSafe(input: RoleBundle, pack: RolePack): void {
     }
   }
   const asOf = input.asOf;
-  const stale = input.evidence.filter((item) => ageHours(item.observedAt, asOf) > evidenceHours[pack.id]);
+  const stale = input.evidence.filter((item) => {
+    // Service Owner assesses stale health and change evidence as part of its advice.
+    if (pack.id === 'service-owner' && (item.kind === 'slo' || item.kind === 'journey' || item.kind === 'release-policy')) return false;
+    return ageHours(item.observedAt, asOf) > evidenceHours[pack.id];
+  });
   if (stale.length) {
     throw new RolePackError('stale-evidence', `${stale.length} evidence item(s) exceed the ${evidenceHours[pack.id]}h limit for ${pack.id}: ${stale.map((item) => item.id).join(', ')}.`, 'Refresh the named evidence and re-run. Do not decide from stale telemetry.');
   }
@@ -857,13 +902,76 @@ function assertPackInput(input: RoleBundle, pack: RolePack): void {
     throw new RolePackError('missing-access', 'Security brief needs access paths and a findings list.', 'Add the observed access paths and findings; empty findings still require the reviewed paths.');
   }
   if (pack.id === 'service-owner') {
-    if (!input.signals?.slo || !input.signals.impact || !input.gates?.length) throw new RolePackError('missing-service-evidence', 'Service owner brief needs impact, SLO and release gates.', 'Add signals.impact, signals.slo and the named gate results.');
+    if (!text(input.signals?.impact) || !input.gates?.length) throw new RolePackError('missing-service-evidence', 'Service owner brief needs user impact and release gates.', 'Add signals.impact and the named gate results.');
   }
 }
 
 function gateRows(gates: RoleBundle['gates']): string {
   if (!gates?.length) return '- No gates recorded. This is not a pass.';
   return gates.map((gate) => `| ${cell(gate.id, 30)} | ${cell(gate.name, 80)} | ${cell(gate.status, 20)} | ${cell(gate.runs ?? '—', 40)} | ${cell(gate.expected ?? '—', 120)} | ${cell(gate.actual ?? '—', 120)} |`).join('\n');
+}
+
+function isCurrentServiceEvidence(input: RoleBundle, item: RoleBundle['evidence'][number]): boolean {
+  const hours = ageHours(item.observedAt, input.asOf);
+  return item.environment === input.environment.id && hours >= 0 && hours <= evidenceHours['service-owner'];
+}
+
+function serviceHealth(input: RoleBundle): { status: SloState; detail: string } {
+  const unknown = (reason: string) => ({ status: 'unknown' as const, detail: `unknown — ${reason}` });
+  const slo = input.signals?.slo;
+  if (!slo || slo.status === 'unknown') return unknown('No SLO observation is available. Capture the affected journey in the selected environment.');
+  const capturedAt = iso(slo.capturedAt);
+  if (!capturedAt || !text(slo.target) || !text(slo.observed) || !text(slo.window)) {
+    return unknown('Add the measured value, target, observation window and capture time.');
+  }
+  const age = ageHours(capturedAt, input.asOf);
+  if (age < 0) return unknown('The capture time is later than the review time.');
+  if (age > evidenceHours['service-owner']) return unknown('The SLO capture is older than 24 hours. Refresh the observation.');
+  const evidence = input.evidence.find((item) =>
+    item.kind === 'slo' && iso(item.observedAt) === capturedAt && isCurrentServiceEvidence(input, item));
+  if (!evidence) return unknown('Cite the SLO observation from the selected environment with the matching capture time.');
+  return {
+    status: slo.status,
+    detail: `${clean(slo.status, 20)} — ${clean(slo.observed, 80)} observed against ${clean(slo.target, 80)} over ${clean(slo.window, 80)}. Captured ${capturedAt} (${clean(evidence.id, 40)}).`,
+  };
+}
+
+function serviceRecommendation(
+  input: RoleBundle,
+  status: SloState,
+  hasHold: boolean,
+  hasFallback: boolean,
+): { decision: 'hold' | 'escalate' | 'proceed'; reason: string } {
+  const context = input.change?.serviceReview;
+  if (hasHold) return { decision: 'hold', reason: 'Resolve the recorded release blockers.' };
+  if (!hasFallback) return { decision: 'escalate', reason: 'Record a fallback owner before relying on this review.' };
+  if (status === 'unknown') return { decision: 'escalate', reason: 'Refresh the SLO evidence described under Health.' };
+
+  if (context && context.service !== input.service.id) {
+    return { decision: 'escalate', reason: 'Confirm that the change targets the service named in this review.' };
+  }
+  const journey = input.evidence.find((item) =>
+    item.kind === 'journey' && (!context || item.id === context.evidence) && isCurrentServiceEvidence(input, item));
+  if (!journey) return { decision: 'escalate', reason: 'Cite fresh journey evidence from the selected environment.' };
+  const unverifiedGate = input.gates?.find((gate) => !input.evidence.some((item) =>
+    item.id === gate.evidence && isCurrentServiceEvidence(input, item)));
+  if (unverifiedGate) return { decision: 'escalate', reason: `Cite fresh evidence for gate ${clean(unverifiedGate.id, 30)} in the selected environment.` };
+  if (status === 'met') return { decision: 'proceed', reason: 'The SLO is met and the recorded release gates passed.' };
+
+  const repair = repairPurposes.find((purpose) => purpose === context?.purpose);
+  if (repair && context) {
+    const policy = context.policy;
+    const policyEvidence = input.evidence.find((item) =>
+      item.id === policy?.evidence && item.kind === 'release-policy' && isCurrentServiceEvidence(input, item));
+    if (!policyEvidence) return { decision: 'escalate', reason: 'Ask the owner to cite the applicable release policy for this repair.' };
+    if (!policy?.permits.includes(repair)) return { decision: 'hold', reason: 'The cited policy does not permit this repair during the current reliability problem.' };
+    return { decision: 'proceed', reason: `Recommend the scoped repair under cited policy ${clean(policyEvidence.id, 40)} with all listed gates passed. Health is still ${status}.` };
+  }
+
+  if (context?.purpose === 'feature' && context.risk === 'high') {
+    return { decision: 'hold', reason: `Defer this high-risk feature while the SLO is ${status}.` };
+  }
+  return { decision: 'escalate', reason: `The SLO is ${status}. Confirm change purpose, risk and applicable policy with the decision owner.` };
 }
 
 function packDetail(input: RoleBundle, pack: RolePack): { decision: string; blocked: boolean; body: string; stops: string[] } {
@@ -874,27 +982,33 @@ function packDetail(input: RoleBundle, pack: RolePack): { decision: string; bloc
   let blocked = false;
 
   if (pack.id === 'service-owner') {
-    const slo = input.signals!.slo!;
+    const health = serviceHealth(input);
     const failedGates = input.gates!.filter((gate) => gate.status !== 'pass');
-    if (!fallback) stops.push('No fallback owner is recorded. Escalate to the workspace owner before relying on this review.');
-    if (failedGates.length) stops.push(`Gate${failedGates.length === 1 ? '' : 's'} ${failedGates.map((gate) => clean(gate.id, 30)).join(', ')} ${failedGates.length === 1 ? 'is' : 'are'} not passing. Hold the release; the accountable owner decides whether to accept risk.`);
-    if (slo.status !== 'met') stops.push(`SLO is ${clean(slo.status, 20)}. Treat the next release as at risk.`);
-    blocked = Boolean(failedGates.length || slo.status !== 'met');
-    const decision = blocked ? 'hold' : 'proceed';
+    const context = input.change?.serviceReview;
+    if (failedGates.length) stops.push(`Gate${failedGates.length === 1 ? '' : 's'} ${failedGates.map((gate) => clean(gate.id, 30)).join(', ')} ${failedGates.length === 1 ? 'is' : 'are'} not passing.`);
+    if (input.release?.status === 'blocked') stops.push('The release record marks this candidate as blocked.');
+    if (context?.ownerHold) stops.push('An owner hold applies to this change.');
+    if (input.environment.kind === 'preview' && (input.environment.isolatedResources === false || input.drift?.some((item) => item.productionBindingInPreview === true))) {
+      stops.push('Preview resource isolation is not satisfied.');
+    }
+    const { decision, reason } = serviceRecommendation(input, health.status, stops.length > 0, Boolean(fallback));
+    blocked = decision !== 'proceed';
+    if (blocked && !stops.length) stops.push(reason);
     const cost = input.signals!.cost;
     const priorities = [
       ...failedGates.slice(0, 2).map((gate) => `Resolve ${clean(gate.id, 30)}: ${clean(gate.name, 100)}. Owner: ${owner}.`),
       cost && /stale|unavailable/i.test(cost.note ?? '') ? `Refresh the cost observation. Owner: ${workspaceOwner}.` : `Confirm the next change route with ${owner}.`,
     ];
-    if (!failedGates.length) priorities.unshift('Keep the current health and release evidence fresh before the next promotion.');
+    if (!blocked) priorities.unshift(`Record the scoped release decision. Owner: ${workspaceOwner}.`);
     const body = `### Service review
 
-**Decision: ${decision.toUpperCase()}**${blocked ? ' — at least one gate or SLO condition is not met.' : ' — with the evidence listed below.'}
+**Decision: ${decision.toUpperCase()}** — ${reason}
 
 - **What users depend on:** ${clean(input.signals!.impact, 500)}
 - **Affected application:** ${clean(input.application.name, 120)} — ${clean(input.application.purpose, 300)}
 - **Service and environment:** ${clean(input.service.name, 120)} (${clean(input.service.kind, 80)}) · ${clean(input.service.account, 100)} · ${clean(input.environment.kind, 20)}/${clean(input.environment.target, 100)}
-- **Health:** ${clean(slo.observed, 80)} observed against ${clean(slo.target, 80)} over ${clean(slo.window, 80)} (${clean(slo.status, 20)}).
+- **Health:** ${health.detail}
+- **Proposed change:** ${context ? `${context.purpose} · ${context.risk} risk · ${clean(context.journey, 160)} (${clean(context.service, 80)}; evidence ${clean(context.evidence, 40)})` : 'Purpose and risk were not supplied.'}
 - **Cost:** ${cost ? `${clean(cost.trend, 80)}${cost.note ? ' — ' + clean(cost.note, 200) : ''}` : 'unavailable; do not estimate.'}
 - **Release candidate:** ${clean(input.application.release, 80)} from ${clean(input.application.source, 140)}${input.release ? ` (${input.release.status})` : ''}.
 
