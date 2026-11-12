@@ -6,6 +6,17 @@ Deliver the requested useful product outcome. Testing, review and release eviden
 
 The November test-suite reduction was deliberate. Do not restore deleted tests, recreate the old suite, or treat their absence as a defect merely because they once existed. Investigate and fix a specific current failure or risk when relevant; respect the owner’s chosen scope and protect security, privacy and data integrity.
 
+## Product direction and reference routing
+
+For product planning, agent handoffs or creative decisions, read
+[the creation and operation contract](PRODUCT.md#reference-led-creation-and-operation),
+then load only relevant project references. Use
+[visual direction](docs/visual-direction.md) for artwork and identity work.
+[#1](https://github.com/loftwah/app-composer/issues/1) owns product alignment,
+[#426](https://github.com/loftwah/app-composer/issues/426) workflow integration and
+[#425](https://github.com/loftwah/app-composer/issues/425) flagship proof.
+Apply the existing proportionate review, authority and delivery rules below.
+
 ## Routine change-to-production service target — current owner direction
 
 **Default target: 3 minutes; maximum normal target: 5 minutes from the first relevant code change to verified production.** This is the expected end-to-end delivery time for routine, low-risk, independently releasable changes, **not** five minutes each for tests, review, merge, build and deploy. The integrating agent owns the whole elapsed interval and cannot reset the clock by creating a PR, changing workers, handing off, rebasing or splitting a change. Measure elapsed time honestly; do not promise an actual release deadline that external systems cannot guarantee.

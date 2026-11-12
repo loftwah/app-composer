@@ -32,6 +32,62 @@ Initial repository contained README and MIT licence only. GitHub issues 1–36 a
 ## Product Principles
 Agent executes and verifies; MP supplies human capabilities. Configuration is data, not authority. Explorer never executes. Source updates cannot override customisations or revive deleted data. Unsupported paths remain explicit.
 
+## Reference-led creation and operation
+
+Reviewed 2026/11/12 AEDT (Australia/Melbourne, UTC+11) / 2026/11/12 UTC.
+
+App Composer supports an ongoing collaboration: describe a useful application,
+inspect the proposed behaviour and appearance, build it, operate it and return to
+improve the same owned application. Help a newcomer obtain and connect a
+supported agent as part of Get Ready; an existing development setup is not assumed.
+
+Each project keeps its own curated references alongside its intent and
+implementation guidance. Record what a reference contributes, its source and
+applicable usage terms, and whether it is selected, exploratory or rejected.
+Retrieve a relevant subset for the task. Keep private collections in their
+established private locations and public guidance appropriate to its audience.
+Asset Hunter is retired; its reference-curation idea continues per project.
+Existing approved identities and app-specific creative direction remain
+authoritative.
+
+For substantial new work, a stronger suitable model turns intent, references and
+behaviour requirements into an actionable GitHub issue with acceptance outcomes.
+Use a visualisation, prototype or preview to make consequential product choices
+inspectable before committing to the implementation direction. The human supplies
+meaningful judgement; routine technical decisions and already authorised work
+continue without repeated approval.
+
+An economical capable model normally implements the bounded issue. A stronger
+review pass examines the actual changes, checks relevant behaviour and resolves
+concrete defects against the intended result. Choose models and handoffs by
+demonstrated capability, task risk and available capacity; escalate when
+implementation uncertainty warrants it. Small routine fixes keep the existing
+proportionate review and delivery path without an extra model cycle. Retain useful
+decisions and truthful evidence in the existing issue and release records.
+
+Use the person's existing supported agent and account through browser, app, API,
+CLI or MCP integrations. State which account and entitlement performs the work.
+A chat subscription is not evidence of API entitlement; an unavailable
+integration remains explicit. Show incremental cost before requesting the
+corresponding commitment, and never silently substitute hosted inference or
+require token resale.
+
+Keep ordinary user actions discoverable in the browser, native EmDash
+administration and familiar applications or channels such as Discord, Slack or
+RSS where appropriate. Technical detail remains available when useful. Roles,
+teams, app resources and enterprise connections extend the existing scoped
+contracts. The optional third-party Chrome extension brings the same experience
+into Cloudflare Dashboard. Independent mini-apps retain their source, data,
+identity and release ownership.
+
+Keep App Composer MIT and open source, with useful ownership and continued
+operation independent of a Composer licence callback. Product value and
+Cloudflare/Workers adoption are demonstrated by people creating, managing and
+improving working applications.
+[#425](https://github.com/loftwah/app-composer/issues/425) owns the flagship proof
+and [#11](https://github.com/loftwah/app-composer/issues/11) its release evidence;
+existing implementation issues retain their scopes.
+
 ## Accessibility & Inclusion
 Meaningful HTML, keyboard operation, visible focus, reduced motion, mobile and desktop layouts.
 

@@ -2,6 +2,19 @@
 
 Reviewed 25 October 2026; updated 12 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Current creation direction
+
+Reviewed 2026/11/12 AEDT (Australia/Melbourne, UTC+11) / 2026/11/12 UTC.
+
+[PRODUCT.md](../PRODUCT.md#reference-led-creation-and-operation) now records the
+standing reference-curation, inspectable-preview, model-handoff and supported
+BYO-agent direction. [#425](https://github.com/loftwah/app-composer/issues/425)
+remains the next coherent flagship outcome; continue its existing Creator Hub
+and follow-up-change work from the recorded delivery evidence below.
+[#426](https://github.com/loftwah/app-composer/issues/426) owns observed workflow
+adoption. This documentation alignment records desired behaviour; it does not
+complete either issue's runtime, newcomer or demonstration acceptance.
+
 ## Share image maintenance — 12 November 2026
 
 Composer production is `c7d1a9bcfb0571e51f77cb7720678d7996144bdf`, Worker
