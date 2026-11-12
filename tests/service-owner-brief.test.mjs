@@ -93,6 +93,11 @@ test('Service Owner recommends an evidenced repair under policy while health sta
   denied.change.serviceReview.policy.permits = ['reliability-repair'];
   assert.equal(brief(denied).meta.decision, 'hold');
 
+  const missingHealthyGate = candidate('met');
+  delete missingHealthyGate.gates[0].evidence;
+  assert.equal(brief(missingHealthyGate).meta.decision, 'escalate');
+  assert.match(brief(missingHealthyGate).markdown, /Cite fresh evidence for gate G1/);
+
   const lowRisk = candidate('at-risk');
   lowRisk.change.serviceReview.risk = 'low';
   assert.equal(brief(lowRisk).meta.decision, 'escalate');

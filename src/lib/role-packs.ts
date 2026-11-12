@@ -953,6 +953,9 @@ function serviceRecommendation(
   const journey = input.evidence.find((item) =>
     item.kind === 'journey' && (!context || item.id === context.evidence) && isCurrentServiceEvidence(input, item));
   if (!journey) return { decision: 'escalate', reason: 'Cite fresh journey evidence from the selected environment.' };
+  const unverifiedGate = input.gates?.find((gate) => !input.evidence.some((item) =>
+    item.id === gate.evidence && isCurrentServiceEvidence(input, item)));
+  if (unverifiedGate) return { decision: 'escalate', reason: `Cite fresh evidence for gate ${clean(unverifiedGate.id, 30)} in the selected environment.` };
   if (status === 'met') return { decision: 'proceed', reason: 'The SLO is met and the recorded release gates passed.' };
 
   const repair = repairPurposes.find((purpose) => purpose === context?.purpose);
@@ -962,9 +965,6 @@ function serviceRecommendation(
       item.id === policy?.evidence && item.kind === 'release-policy' && isCurrentServiceEvidence(input, item));
     if (!policyEvidence) return { decision: 'escalate', reason: 'Ask the owner to cite the applicable release policy for this repair.' };
     if (!policy?.permits.includes(repair)) return { decision: 'hold', reason: 'The cited policy does not permit this repair during the current reliability problem.' };
-    const unverifiedGate = input.gates?.find((gate) => !input.evidence.some((item) =>
-      item.id === gate.evidence && isCurrentServiceEvidence(input, item)));
-    if (unverifiedGate) return { decision: 'escalate', reason: `Cite fresh evidence for gate ${clean(unverifiedGate.id, 30)} in the selected environment.` };
     return { decision: 'proceed', reason: `Recommend the scoped repair under cited policy ${clean(policyEvidence.id, 40)} with all listed gates passed. Health is still ${status}.` };
   }
 
