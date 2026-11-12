@@ -1,0 +1,31 @@
+{
+  "jobs": [
+    {
+      "id": "creator-hub-study-flare",
+      "endpoint": "openai/gpt-image-2.6/flare/text-to-image",
+      "note": "Fast composition study for private review.",
+      "input": {
+        "prompt": "Editorial still life for a fictional ceramics maker's web studio. One hand placing a handwritten but illegible postcard beside a small unglazed ceramic bowl, strong silhouette, warm ivory paper backdrop, charcoal ink and a single flat signal-orange accent. A tight crop, with an empty area on the left for a separate layout. No logos, typography, UI or lettering.",
+        "image_size": "landscape_4_3",
+        "quality": "medium",
+        "reasoning_effort": "low",
+        "num_images": 1,
+        "output_format": "webp",
+        "output_compression": 86
+      }
+    },
+    {
+      "id": "creator-hub-study-sunburst",
+      "endpoint": "openai/gpt-image-2.6/sunburst/text-to-image",
+      "note": "Detailed composition study for private review.",
+      "input": {
+        "prompt": "Editorial still life for a fictional ceramics maker's web studio. One hand placing a handwritten but illegible postcard beside a small unglazed ceramic bowl, strong silhouette, warm ivory paper backdrop, charcoal ink and a single flat signal-orange accent. A tight crop, with an empty area on the left for a separate layout. No logos, typography, UI or lettering.",
+        "image_size": "landscape_4_3",
+        "quality": "high",
+        "reasoning_effort": "medium",
+        "num_images": 1,
+        "output_format": "png"
+      }
+    }
+  ]
+}
