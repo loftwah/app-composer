@@ -19,6 +19,7 @@ const apps = [
   },
 ] as const;
 
+const startingPoint = "/init?start=creator-hub";
 const release = await readCreatorHubRelease();
 const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
   timeZone: 'Australia/Melbourne',
@@ -38,10 +39,9 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
   <p class="lede">Mara Quinn asked for a place for her ceramics, somewhere people could leave a note, and a way to decide what appears. Her agent built it from an App Composer specification. Both apps are live, and each keeps its own source, database and release.</p>
   <div class="actions">
    <a class="button" href={reference.apps.showcase.origin}>Open the Creator Hub <ArrowRight size={18} aria-hidden="true"/></a>
-   <a class="button secondary" href="/init?start=composition">Build your own from this starting point</a>
+   <a class="button secondary" href={startingPoint}>Try this setup</a>
   </div>
   <p class="small">Mara Quinn is fictional. The apps run in the operator’s Cloudflare account on the operator’s domain; this is a reference build, not a customer deployment.</p>
-  <p class="small">Management path used for this reference build: App Composer’s native EmDash panel, with the Creator Hub reference selected. The owner approved, featured and hid the new postcard there. The panel calls each app’s own management API with separate server-side owner credentials; it does not copy the contribution into Composer.</p>
  </div>
 
  <section class="hub-section" id="brief">
@@ -103,7 +103,6 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
   <p>Four actions were genuinely human: signing in to Cloudflare, creating the owner credential for each app, confirming the hostname, and deciding that a contribution could be published. Everything else — repositories, databases, bindings, configuration, deployment and the checks after it — was agent work.</p>
   <p>Your agent gets the same plan in the exported handoff: an ordered list, each step labelled <em>agent</em> or <em>human</em>, so neither of you has to guess who is doing what. Init shows it before you copy anything.</p>
   <p class="small"><a href="/_emdash/admin/plugins/composer-miniapps/apps?site=creator-hub">Open Manage mini-apps with the Creator Hub reference selected</a>. This is the invited-administrator panel and requires a Cloudflare Access sign-in.</p>
-  <div class="actions"><a class="button secondary" href="/init?start=composition">See the plan for this composition</a></div>
  </section>
 
  <section class="hub-section" id="own">
@@ -119,9 +118,9 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
 
  <section class="hub-section" id="next">
   <h2>Try the same starting point.</h2>
-  <p>Open Init, choose Guestbook + Linkarooie, and fill in the few details that matter. Copy the handoff to your agent. The specification and the build plan travel together; the agent verifies the environment, builds both apps and reports the addresses it actually reached.</p>
+  <p>Try a sample draft with both apps selected. Replace the sample title and introduction with your own, add your links, then copy the build plan to your agent. Composer asks before replacing anything you have open and saves only when you choose Save draft.</p>
   <div class="actions">
-   <a class="button" href="/init?start=composition">Configure a Creator Hub</a>
+   <a class="button" href={startingPoint}>Try this setup</a>
    <a class="button secondary" href="/ready">Get Ready first</a>
   </div>
  </section>
