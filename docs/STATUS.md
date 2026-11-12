@@ -2,6 +2,17 @@
 
 Reviewed 25 October 2026; updated 12 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Share image maintenance — 12 November 2026
+
+Composer production is `c7d1a9bcfb0571e51f77cb7720678d7996144bdf`, Worker
+`ebb957d9-945a-4c6d-9bd1-b5fb593c056f`. Four published pages now declare
+smaller JPEG share images at new URLs. The four responses total 27,083
+fewer bytes with identical decoded pixels. The original URLs still serve
+their original bytes. The final guard passed 612 tests and live checks.
+The [maintenance campaign](https://github.com/loftwah/app-composer/issues/427)
+records the delivery and the acceptance retained by the creator and workflow
+owners.
+
 ## Link-only profiles and Cloudflare cleanup — 12 November 2026
 
 Composer production is `1483fa662591dff132ab7c3753a5c4e0c88d8b9a`, Worker
