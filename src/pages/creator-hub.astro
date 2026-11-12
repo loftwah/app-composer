@@ -121,6 +121,10 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
    <p><strong>Before:</strong> no featured picks; all four links appeared under Other links. <strong>After:</strong> Salt-glaze dinner set and Workshop notes: ash glazes are featured as picks 01 and 02; Autumn show, Castlemaine and Commissions remain in the collection. The approved guestbook postcard was not edited, hidden or deleted — it still returns <code>200</code> at its Here / there item and media URLs and is still offered by the app’s provider source.</p>
    <p>The change is a saved presentation setting, so it is reversible without a release: unpin the two cards in the owner studio and the previous view returns. That is the practical difference between an app-owned setting and a code change.</p>
    <p class="small">Verified against <code>b7cd3b3e8f19dbbb76d33fb4266053da928cf586</code> at <a href="https://creator-hub.loftwah.com/">creator-hub.loftwah.com</a>. The featured pins are stored by Linkarooie, not by App Composer.</p>
+
+   <h3>From featured work to the guestbook</h3>
+   <p>A visitor can now choose <strong>Guestbook postcards</strong> beside the profile’s Featured and Other links. The link opens this Creator Hub’s own guestbook, where visitors use the guest code and Mara reviews notes before publication.</p>
+   <p>This follow-up changed the profile’s source and kept its featured picks. <a href={reference.apps.showcase.origin}>Try it on the live profile</a> or <a href={reference.apps.showcase.repository + '/commit/' + reference.apps.showcase.commit}>inspect the profile release</a>.</p>
   </section>
 
  <section class="hub-section" id="you">

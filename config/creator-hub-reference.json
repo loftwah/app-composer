@@ -11,7 +11,7 @@
     },
     "showcase": {
       "repository": "https://github.com/loftwah/creator-hub-showcase",
-      "commit": "b7cd3b3e8f19dbbb76d33fb4266053da928cf586",
+      "commit": "acca7da3bfac4ebc28fca67a35ac373b23747409",
       "origin": "https://creator-hub.loftwah.com",
       "worker": "creator-hub-showcase"
     }
