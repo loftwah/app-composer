@@ -4,6 +4,8 @@ Build a stack of independent apps, configure its instances, then preview and pub
 
 [Open App Composer](https://composer.loftwah.com/) · [Explore the working tools](https://composer.loftwah.com/discover) · [Your app, your admin](https://composer.loftwah.com/manage) · [Follow the tutorial](https://composer.loftwah.com/learn) · [Read the build story](https://composer.loftwah.com/building)
 
+Follow the [Creator Hub walkthrough](https://composer.loftwah.com/creator-hub) to see a working profile and moderated guestbook, then open the sample draft and adapt it to your own project.
+
 Start with [Launch Kit](https://composer.loftwah.com/launch-kit) to make a profile card or app icons, [watch the team application films](https://composer.loftwah.com/platform/demo), or [inspect recorded analytics](https://composer.loftwah.com/activity). Invited members open [My profile / My apps](https://composer.loftwah.com/me).
 
 Try the published fictional examples: [Trail Notes](https://composer.loftwah.com/s/fictional-trail-notes) and [Launch Board](https://composer.loftwah.com/s/fictional-launch-board). They have independent visitor books; Trail Notes also labels an intentional shared view. They were created through the native editor. These demonstrations establish neither new-user admission nor customer adoption.

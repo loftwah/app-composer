@@ -17,6 +17,17 @@ let observedSnapshot='',savedSnapshot:string|null=null,revision=0,pendingImport:
 function snapshot(){return JSON.stringify({fields:Array.from(form.querySelectorAll<HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement>('input:not([type=file]),textarea,select')).map(control=>[control.name,control.value,'checked' in control?control.checked:null]),decisions});}
 function updateDraftStatus(){draftStatus.textContent=savedSnapshot===null?'New draft · not saved yet':savedSnapshot===snapshot()?'Saved on this device':'Unsaved changes';}
 function dismissImport(){pendingImport=null;importReview.hidden=true;}
+function reviewCandidate(candidate: ReturnType<typeof validateSpec>, status: string) {
+ pendingImport = candidate;
+ const names = candidate.apps.map((id: string) => appSettings[id]?.name ?? 'Hello World reference');
+ const count = candidate.cards.length;
+ document.querySelector('#import-summary')!.textContent =
+  `${candidate.config.title} · ${names.join(' + ')} · ${count} curated ${count === 1 ? 'link' : 'links'}`;
+ importReview.hidden = false;
+ message.textContent = status;
+ importReview.focus();
+}
+
 function edited(){const current=snapshot();if(current===observedSnapshot)return;observedSnapshot=current;revision++;dismissImport();message.textContent='';updateDraftStatus();}
 function saveDraft(spec:ReturnType<typeof validateSpec>){
  try{localStorage.setItem(key,JSON.stringify(spec));savedSnapshot=snapshot();revision++;dismissImport();updateDraftStatus();message.textContent='Draft saved on this device. Nothing was deployed.';}
@@ -103,32 +114,43 @@ form.addEventListener('submit',e=>{e.preventDefault();show(true);});form.addEven
   if(file.size>32768)throw new Error('Spec is too large. Use a file under 32 KB.');
   const text=await file.text();
   if(selectedRevision!==revision)return;
-  const spec=validateSpec(JSON.parse(text));pendingImport=spec;
-  document.querySelector('#import-summary')!.textContent=spec.config.title+' · '+spec.apps.map((id:string)=>appSettings[id]?.name??'Hello World reference').join(' + ')+' · '+spec.cards.length+' curated '+(spec.cards.length===1?'link':'links');
-  importReview.hidden=false;message.textContent='Spec checked. Review it before replacing your current draft.';importReview.focus();
+  reviewCandidate(validateSpec(JSON.parse(text)), 'Spec checked. Review it before replacing your current draft.');
  }catch(e){if(selectedRevision===revision)report(e);}
 });
 document.querySelector('#replace-import')!.addEventListener('click',()=>{
  if(!pendingImport)return;
- const candidate=pendingImport;revision++;dismissImport();fill(candidate);goal.value=value('preset');edited();show();previewRecommendation();message.textContent='Imported into the form. Choose Save draft to keep it on this device.';(form.elements.namedItem('title') as HTMLInputElement).focus();
+ const candidate=pendingImport;revision++;dismissImport();fill(candidate);goal.value=value('preset');edited();show();previewRecommendation();message.textContent='Draft loaded into the form. Choose Save draft to keep it on this device.';(form.elements.namedItem('title') as HTMLInputElement).focus();
 });
-document.querySelector('#cancel-import')!.addEventListener('click',()=>{revision++;dismissImport();message.textContent='Import cancelled. Your current and saved drafts are unchanged.';importInput.focus();});
+document.querySelector('#cancel-import')!.addEventListener('click',()=>{revision++;dismissImport();message.textContent='Kept your current draft.';importInput.focus();});
 show();
 observedSnapshot=snapshot();
 // A demo link selects the recommendation only. Saved work changes after Use.
 goal.value=initialRecommendation(location.search,value('preset'));
 previewRecommendation();
 
-// A workbench handoff is a separately staged candidate, never an Init save.
-if(new URLSearchParams(location.search).get('start')==='workbench'){
+// A linked starting point is a candidate. Only Save draft writes to storage.
+const starts = new URLSearchParams(location.search).getAll('start');
+const start = starts.length === 1 ? starts[0] : undefined;
+if (start === 'creator-hub') {
+ const candidate = validateSpec({
+  version: specVersion,
+  preset: 'composition',
+  sources: selectedSources(presets.composition.apps),
+  config: {
+   title: 'Mara Quinn Studio',
+   intro: 'Ceramics, work in progress and notes from the people who stop by.',
+   theme: 'daylight',
+   layout: 'editorial',
+  },
+  privacy: 'review-first',
+  deployment: {mode: 'preview'},
+ });
+ reviewCandidate(candidate, 'Creator Hub sample ready to review.');
+} else if (start === 'workbench') {
  try{
   const raw=sessionStorage.getItem(HANDOFF_KEY);
   if(raw){
-   const candidate=validateSpec(JSON.parse(raw));pendingImport=candidate;
-   document.querySelector('#import-summary')!.textContent=candidate.config.title+' · Guestbook + Linkarooie · supported configuration only';
-   importReview.hidden=false;
-   message.textContent='Workbench starting point ready. Review it before replacing the form. Your saved draft is unchanged.';
-   importReview.focus();
+   reviewCandidate(validateSpec(JSON.parse(raw)), 'Workbench starting point ready to review.');
    sessionStorage.removeItem(HANDOFF_KEY);
   }
  }catch{message.textContent='The workbench starting point could not be validated. Your current and saved drafts are unchanged.';}
