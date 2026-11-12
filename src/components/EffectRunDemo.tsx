@@ -194,7 +194,7 @@ export default function EffectRunDemo() {
         </p>
       </div>
 
-      <section className="effect-run" aria-labelledby="effect-run-title">
+      <section id="effect-run" className="effect-run" aria-labelledby="effect-run-title">
         <div className="effect-run-head">
           <div>
             <p className="effect-kicker">Recorded run · synthetic</p>

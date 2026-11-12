@@ -16,19 +16,43 @@ test("the committed freshness policy covers every declared dependency", () => {
   assert.equal(report.summary.drift, 0);
   assert.equal(report.summary.unknown, 0);
   assert.equal(report.summary.unresolved, 0);
-  assert.equal(
-    report.summary.ok,
-    report.packages.length + report.runtime.length,
-  );
+  assert.equal(report.summary.ok, report.packages.length + report.runtime.filter((row) => row.status === "ok").length);
   assert.equal(exitCodeFor(report), 0);
   assert.match(formatReport(report), /Summary: \d+ ok, 0 drift, 0 unknown, 0 unresolved/);
 });
 
-test("the supported Node line includes the tested 26.13.0 floor only", () => {
-  const range = ">=22.23.4 <23 || >=24.22.1 <25 || >=26.13.0 <27";
-  for (const version of ["22.23.4", "22.99.0", "24.22.1", "26.13.0", "26.99.0"])
+test("a declared pnpm pin is never reported as the installed executable", () => {
+  const unobserved = inspectFreshness({ root, nodeVersion: "26.13.1", pnpmVersion: null });
+  const pnpm = unobserved.runtime.find((row) => row.name === "pnpm");
+  assert.equal(pnpm.default, "12.19.0");
+  assert.equal(pnpm.installed, null);
+  assert.equal(pnpm.observed, false);
+  assert.equal(pnpm.status, "unobserved");
+  assert.equal(unobserved.summary.unobserved, 1);
+  assert.equal(exitCodeFor(unobserved), 0);
+  assert.match(formatReport(unobserved), /pnpm +12\.19\.0 +12\.19\.0 +unobserved/);
+
+  const falseGreen = inspectFreshness({ root, nodeVersion: "26.13.1", pnpmVersion: "12.8.1" });
+  assert.equal(falseGreen.runtime.find((row) => row.name === "pnpm").status, "drift");
+  assert.equal(falseGreen.summary.drift, 1);
+  assert.equal(exitCodeFor(falseGreen), 1);
+});
+
+test("the selected Node default and the observed process stay distinct", () => {
+  const report = inspectFreshness({ root, nodeVersion: "22.23.4", pnpmVersion: "12.19.0" });
+  const node = report.runtime.find((row) => row.name === "node");
+  assert.equal(node.default, "26.13.1");
+  assert.equal(node.installed, "22.23.4");
+  assert.equal(node.status, "drift");
+  assert.deepEqual(node.tested, ["22.23.5", "24.22.3", "26.13.1"]);
+  assert.equal(exitCodeFor(report), 1);
+});
+
+test("the supported Node line includes the tested security-patched floors only", () => {
+  const range = ">=22.23.5 <23 || >=24.22.3 <25 || >=26.13.1 <27";
+  for (const version of ["22.23.5", "22.99.0", "24.22.3", "26.13.1", "26.99.0"])
     assert.equal(satisfies(version, range), true, version);
-  for (const version of ["22.23.3", "23.0.0", "24.22.0", "25.0.0", "26.12.0", "27.0.0"])
+  for (const version of ["22.23.4", "23.0.0", "24.22.2", "25.0.0", "26.13.0", "27.0.0"])
     assert.equal(satisfies(version, range), false, version);
 });
 

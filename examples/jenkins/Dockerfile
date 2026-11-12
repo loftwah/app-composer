@@ -6,7 +6,7 @@
 # scheduled daemon, a deployment hook or a GitHub Actions replacement.
 #
 # Build (the fixture script does this automatically when the tag is absent):
-#   docker build -f examples/jenkins/Dockerfile -t composer-jenkins-fixture:lts-node22 examples/jenkins
+#   docker build -f examples/jenkins/Dockerfile -t composer-jenkins-fixture:lts-node26 examples/jenkins
 FROM jenkins/jenkins:lts-jdk21
 
 USER root
@@ -18,7 +18,7 @@ RUN apt-get update \
 # image is disposable and never touches a real repository.
 RUN git config --system --add safe.directory '*'
 
-ARG NODE_VERSION=22.23.4
+ARG NODE_VERSION=26.13.1
 RUN set -eux; \
     arch="$(uname -m)"; \
     case "$arch" in \
@@ -31,7 +31,7 @@ RUN set -eux; \
     rm /tmp/node.tar.xz; \
     node --version; npm --version
 
-ARG PNPM_VERSION=12.8.1
+ARG PNPM_VERSION=12.19.0
 RUN npm install -g "pnpm@${PNPM_VERSION}" && pnpm --version
 
 # The base image bundles no plugins. Install only what this fixture needs: the

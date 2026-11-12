@@ -12,8 +12,27 @@ const localReport = {
   contract: 1,
   reviewed: "2026-11-06",
   runtime: [
-    { name: "node", current: "22.23.4", supported: ">=22.23.4 <23", status: "ok" },
-    { name: "pnpm", current: "12.8.1", supported: "12.8.1", status: "ok" },
+    {
+      name: "node",
+      declared: ">=22.23.5 <23",
+      default: "22.23.5",
+      installed: "22.23.5",
+      observed: true,
+      supported: ">=22.23.5 <23",
+      tested: ["22.23.5"],
+      status: "ok",
+    },
+    {
+      name: "pnpm",
+      declared: "12.19.0",
+      default: "12.19.0",
+      installed: "12.19.0",
+      observed: true,
+      locked: "12.19.0",
+      supported: "12.19.0",
+      tested: ["12.19.0"],
+      status: "ok",
+    },
   ],
   packages: [
     {
@@ -50,7 +69,7 @@ const localReport = {
       status: "ok",
     },
   ],
-  summary: { ok: 5, drift: 0, unknown: 0, unresolved: 0 },
+  summary: { ok: 5, drift: 0, unknown: 0, unresolved: 0, unobserved: 0 },
   status: "ok",
 };
 
@@ -71,9 +90,26 @@ async function startRegistry(handler) {
   };
 }
 
-function packageHandler(versions, { advisories = {}, requests = [] } = {}) {
+const nodeIndex = [
+  { version: "v26.13.1", date: "2026-11-10", lts: "Lithium", security: true },
+  { version: "v24.22.3", date: "2026-11-10", lts: "Krypton", security: true },
+  { version: "v22.23.5", date: "2026-11-11", lts: "Jod", security: true },
+  { version: "v27.0.0-alpha.0.1.0", date: "2026-11-12", lts: false, security: false },
+];
+
+function packageHandler(versions, { advisories = {}, requests = [], distTags = { latest: "12.19.0", "next-12": "12.20.0" } } = {}) {
   return (request, response, body) => {
     requests.push({ url: request.url, method: request.method, headers: request.headers, body });
+    if (request.url === "/dist/index.json") {
+      response.writeHead(200, { "content-type": "application/json" });
+      response.end(JSON.stringify(nodeIndex));
+      return;
+    }
+    if (request.url === "/-/package/pnpm/dist-tags") {
+      response.writeHead(200, { "content-type": "application/json" });
+      response.end(JSON.stringify(distTags));
+      return;
+    }
     if (request.url === "/-/npm/v1/security/advisories/bulk") {
       response.writeHead(200, { "content-type": "application/json" });
       response.end(JSON.stringify(advisories));
@@ -125,6 +161,7 @@ test("--remote reports compatible, feature, breaking and advisory signals", asyn
   const report = await inspectRemoteFreshness({
     report: localReport,
     registry: registry.url,
+    nodeIndexUrl: `${registry.url}/dist/index.json`,
     retries: 0,
   });
   assert.equal(report.mode, "remote");
@@ -148,7 +185,7 @@ test("--remote reports compatible, feature, breaking and advisory signals", asyn
   );
   assert.equal(exitCodeFor(report), 4);
   assert.match(formatReport(report), /1 security/);
-  assert.equal(requests.filter((entry) => entry.method === "GET").length, 3);
+  assert.equal(requests.filter((entry) => entry.method === "GET" && entry.url.endsWith("/latest")).length, 3);
   assert.equal(requests.filter((entry) => entry.method === "POST").length, 1);
   const advisory = requests.find((entry) => entry.method === "POST");
   assert.deepEqual(JSON.parse(advisory.body), {
@@ -174,6 +211,7 @@ test("malformed registry responses become unknown without throwing", async (t) =
   const report = await inspectRemoteFreshness({
     report: localReport,
     registry: registry.url,
+    nodeIndexUrl: `${registry.url}/dist/index.json`,
     retries: 0,
   });
   assert.equal(report.status, "unknown");
@@ -191,6 +229,7 @@ test("an unreachable registry becomes unknown with a bounded reason", async () =
   const report = await inspectRemoteFreshness({
     report: localReport,
     registry: registry.url,
+    nodeIndexUrl: `${registry.url}/dist/index.json`,
     retries: 0,
     timeoutMs: 200,
   });
@@ -212,6 +251,7 @@ test("unexpected versions and older dist-tags never invent latest", async (t) =>
   const report = await inspectRemoteFreshness({
     report: localReport,
     registry: registry.url,
+    nodeIndexUrl: `${registry.url}/dist/index.json`,
     retries: 0,
   });
   assert.equal(report.status, "unknown");
@@ -226,12 +266,22 @@ test("unexpected versions and older dist-tags never invent latest", async (t) =>
 test("a transient registry error is retried within the fixed bound", async (t) => {
   let attempts = 0;
   const registry = await startRegistry((request, response) => {
+    if (request.url === "/dist/index.json") {
+      response.writeHead(200, { "content-type": "application/json" });
+      response.end(JSON.stringify(nodeIndex));
+      return;
+    }
+    if (request.url === "/-/package/pnpm/dist-tags") {
+      response.writeHead(200, { "content-type": "application/json" });
+      response.end(JSON.stringify({ latest: "12.19.0", "next-12": "12.20.0" }));
+      return;
+    }
     if (request.url === "/-/npm/v1/security/advisories/bulk") {
       response.writeHead(200, { "content-type": "application/json" });
       response.end("{}");
       return;
     }
-    attempts += 1;
+    if (request.url === "/alpha/latest") attempts += 1;
     if (attempts === 1) {
       response.writeHead(503, { "content-type": "text/plain" });
       response.end("try again");
@@ -245,6 +295,7 @@ test("a transient registry error is retried within the fixed bound", async (t) =
   const report = await inspectRemoteFreshness({
     report: { ...localReport, packages: [localReport.packages[0]] },
     registry: registry.url,
+    nodeIndexUrl: `${registry.url}/dist/index.json`,
     retries: 1,
     retryDelayMs: 1,
   });

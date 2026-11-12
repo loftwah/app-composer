@@ -2,38 +2,68 @@
   "kind": "app-composer.dependency-freshness",
   "contract": 1,
   "mode": "remote",
-  "reviewed": "2026-11-07",
-  "checkedAt": "2026-11-08T01:55:32.520Z",
+  "reviewed": "2026-11-13",
+  "checkedAt": "2026-11-12T15:17:30.024Z",
   "registry": "https://registry.npmjs.org",
   "runtime": [
     {
       "name": "node",
-      "current": "22.23.4",
-      "supported": ">=22.23.4 <23 || >=24.22.1 <25 || >=26.13.0 <27",
-      "status": "ok"
+      "declared": ">=22.23.5 <23 || >=24.22.3 <25 || >=26.13.1 <27",
+      "default": "26.13.1",
+      "installed": "26.13.1",
+      "observed": true,
+      "supported": ">=22.23.5 <23 || >=24.22.3 <25 || >=26.13.1 <27",
+      "tested": [
+        "22.23.5",
+        "24.22.3",
+        "26.13.1"
+      ],
+      "status": "ok",
+      "remote": {
+        "state": "available",
+        "latest": "26.13.1",
+        "checkedAt": "2026-11-12T15:17:31.995Z",
+        "security": true,
+        "classification": "current",
+        "reason": null
+      }
     },
     {
       "name": "pnpm",
-      "current": "12.8.1",
-      "supported": "12.8.1",
-      "status": "ok"
+      "declared": "12.19.0",
+      "default": "12.19.0",
+      "installed": "12.19.0",
+      "observed": true,
+      "locked": null,
+      "supported": "12.19.0",
+      "tested": [
+        "12.19.0"
+      ],
+      "status": "ok",
+      "remote": {
+        "state": "available",
+        "latest": "12.18.0",
+        "checkedAt": "2026-11-12T15:17:32.000Z",
+        "classification": "current",
+        "reason": "12.19.0 is newer than the npm latest tag 12.18.0; it is a published stable release, not a floating tag."
+      }
     }
   ],
   "packages": [
     {
       "name": "@astrojs/cloudflare",
       "kind": "dependencies",
-      "declared": "14.4.6",
-      "locked": "14.4.6",
-      "current": "14.4.6",
-      "supported": "^14.4.6",
-      "reviewed": "14.4.6",
+      "declared": "14.4.7",
+      "locked": "14.4.7",
+      "current": "14.4.7",
+      "supported": "^14.4.7",
+      "reviewed": "14.4.7",
       "note": null,
       "status": "ok",
-      "latestTested": "14.4.6",
+      "latestTested": "14.4.7",
       "remote": {
         "state": "available",
-        "latest": "14.4.6",
+        "latest": "14.4.7",
         "publishedAt": null,
         "deprecated": null,
         "engines": null,
@@ -46,17 +76,17 @@
     {
       "name": "@astrojs/react",
       "kind": "dependencies",
-      "declared": "7.1.4",
-      "locked": "7.1.4",
-      "current": "7.1.4",
-      "supported": "^7.1.4",
-      "reviewed": "7.1.4",
+      "declared": "7.1.8",
+      "locked": "7.1.8",
+      "current": "7.1.8",
+      "supported": "^7.1.8",
+      "reviewed": "7.1.8",
       "note": "Astro integration for React; must track the installed Astro major.",
       "status": "ok",
-      "latestTested": "7.1.4",
+      "latestTested": "7.1.8",
       "remote": {
         "state": "available",
-        "latest": "7.1.4",
+        "latest": "7.1.8",
         "publishedAt": null,
         "deprecated": null,
         "engines": {
@@ -81,30 +111,30 @@
       "latestTested": "1.4.0",
       "remote": {
         "state": "available",
-        "latest": "1.4.0",
+        "latest": "1.5.0",
         "publishedAt": null,
         "deprecated": null,
         "engines": null,
-        "classification": "current",
-        "reason": null,
-        "latestQualified": null,
+        "classification": "feature-opportunity",
+        "reason": "Registry latest 1.5.0 adds a minor release inside the reviewed range ^1.4.0.",
+        "latestQualified": true,
         "advisory": null
       }
     },
     {
       "name": "@lucide/astro",
       "kind": "dependencies",
-      "declared": "1.70.0",
-      "locked": "1.70.0",
-      "current": "1.70.0",
-      "supported": "^1.70.0",
-      "reviewed": "1.70.0",
+      "declared": "1.72.0",
+      "locked": "1.72.0",
+      "current": "1.72.0",
+      "supported": "^1.72.0",
+      "reviewed": "1.72.0",
       "note": null,
       "status": "ok",
-      "latestTested": "1.70.0",
+      "latestTested": "1.72.0",
       "remote": {
         "state": "available",
-        "latest": "1.70.0",
+        "latest": "1.72.0",
         "publishedAt": null,
         "deprecated": null,
         "engines": null,
@@ -167,17 +197,17 @@
     {
       "name": "astro",
       "kind": "dependencies",
-      "declared": "7.4.7",
-      "locked": "7.4.7",
-      "current": "7.4.7",
-      "supported": "^7.4.7",
-      "reviewed": "7.4.7",
+      "declared": "7.4.11",
+      "locked": "7.4.11",
+      "current": "7.4.11",
+      "supported": "^7.4.11",
+      "reviewed": "7.4.11",
       "note": "Astro 7.4 declares node >=22.23.4, which sets the runtime floor.",
       "status": "ok",
-      "latestTested": "7.4.7",
+      "latestTested": "7.4.11",
       "remote": {
         "state": "available",
-        "latest": "7.4.7",
+        "latest": "7.4.11",
         "publishedAt": null,
         "deprecated": null,
         "engines": {
@@ -199,37 +229,37 @@
       "current": "1.4.0",
       "supported": "^1.4.0",
       "reviewed": "1.4.0",
-      "note": "Move with @emdash-cms/cloudflare. No 1.4 database migration; caching-header changes are reviewed. The generated content-site recipe keeps its own 1.2.0 pin.",
+      "note": "1.5.0 is published. The paired move needs native catalogue/admin, migration and rollback qualification before production; 1.4.0 remains qualified.",
       "status": "ok",
       "latestTested": "1.4.0",
       "remote": {
         "state": "available",
-        "latest": "1.4.0",
+        "latest": "1.5.0",
         "publishedAt": null,
         "deprecated": null,
         "engines": {
           "node": ">=22.16"
         },
-        "classification": "current",
-        "reason": null,
-        "latestQualified": null,
+        "classification": "feature-opportunity",
+        "reason": "Registry latest 1.5.0 adds a minor release inside the reviewed range ^1.4.0.",
+        "latestQualified": true,
         "advisory": null
       }
     },
     {
       "name": "jose",
       "kind": "dependencies",
-      "declared": "6.2.15",
-      "locked": "6.2.15",
-      "current": "6.2.15",
-      "supported": "^6.2.15",
-      "reviewed": "6.2.15",
+      "declared": "6.2.17",
+      "locked": "6.2.17",
+      "current": "6.2.17",
+      "supported": "^6.2.17",
+      "reviewed": "6.2.17",
       "note": null,
       "status": "ok",
-      "latestTested": "6.2.15",
+      "latestTested": "6.2.17",
       "remote": {
         "state": "available",
-        "latest": "6.2.15",
+        "latest": "6.2.17",
         "publishedAt": null,
         "deprecated": null,
         "engines": null,
@@ -313,23 +343,23 @@
     {
       "name": "@cloudflare/workers-types",
       "kind": "devDependencies",
-      "declared": "5.20261107.1",
-      "locked": "5.20261107.1",
-      "current": "5.20261107.1",
-      "supported": "^5.20261107.1",
-      "reviewed": "5.20261107.1",
-      "note": "Wrangler 4.152 requires at least 5.20261019.1 as a peer.",
+      "declared": "5.20261112.1",
+      "locked": "5.20261112.1",
+      "current": "5.20261112.1",
+      "supported": "^5.20261112.1",
+      "reviewed": "5.20261112.1",
+      "note": "Wrangler 4.158 requires at least 5.20261019.1 as a peer.",
       "status": "ok",
-      "latestTested": "5.20261107.1",
+      "latestTested": "5.20261112.1",
       "remote": {
         "state": "available",
-        "latest": "5.20261108.1",
+        "latest": "5.20261112.1",
         "publishedAt": null,
         "deprecated": null,
         "engines": null,
-        "classification": "feature-opportunity",
-        "reason": "Registry latest 5.20261108.1 adds a minor release inside the reviewed range ^5.20261107.1.",
-        "latestQualified": true,
+        "classification": "current",
+        "reason": null,
+        "latestQualified": null,
         "advisory": null
       }
     },
@@ -503,17 +533,17 @@
     {
       "name": "prettier",
       "kind": "devDependencies",
-      "declared": "3.9.10",
-      "locked": "3.9.10",
-      "current": "3.9.10",
-      "supported": "^3.9.10",
-      "reviewed": "3.9.10",
+      "declared": "3.10.1",
+      "locked": "3.10.1",
+      "current": "3.10.1",
+      "supported": "^3.10.1",
+      "reviewed": "3.10.1",
       "note": null,
       "status": "ok",
-      "latestTested": "3.9.10",
+      "latestTested": "3.10.1",
       "remote": {
         "state": "available",
-        "latest": "3.9.10",
+        "latest": "3.10.1",
         "publishedAt": null,
         "deprecated": null,
         "engines": {
@@ -556,7 +586,7 @@
       "current": "6.0.3",
       "supported": "^6.0.3",
       "reviewed": "6.0.3",
-      "note": "@astrojs/check peers on ^5 || ^6, so TypeScript 7 is not a drop-in yet.",
+      "note": "7.0.2 is published, but @astrojs/check peers on ^5 || ^6, so TypeScript 7 is not a drop-in for this toolchain.",
       "status": "ok",
       "latestTested": "6.0.3",
       "remote": {
@@ -581,20 +611,20 @@
       "current": "4.158.0",
       "supported": "^4.158.0",
       "reviewed": "4.158.0",
-      "note": "Get Ready runs this exact Wrangler; re-pin lib/get-ready and its fixtures together.",
+      "note": "Retained at 4.158.0: Get Ready and the maintained Hello reference pin this exact Wrangler (lib/get-ready/local.mjs and local-checks.mjs). 4.161.0 is published; moving it needs a paired Get Ready archive and Hello qualification first.",
       "status": "ok",
       "latestTested": "4.158.0",
       "remote": {
         "state": "available",
-        "latest": "4.158.0",
+        "latest": "4.161.0",
         "publishedAt": null,
         "deprecated": null,
         "engines": {
-          "node": ">=22.0.0"
+          "node": ">=22.12.0"
         },
-        "classification": "current",
-        "reason": null,
-        "latestQualified": null,
+        "classification": "feature-opportunity",
+        "reason": "Registry latest 4.161.0 adds a minor release inside the reviewed range ^4.158.0.",
+        "latestQualified": true,
         "advisory": null
       }
     },
@@ -622,6 +652,53 @@
       }
     }
   ],
+  "upstream": {
+    "node": {
+      "state": "available",
+      "checkedAt": "2026-11-12T15:17:31.995Z",
+      "source": "https://nodejs.org/dist/index.json",
+      "latest": {
+        "version": "26.13.1",
+        "lts": "Lithium",
+        "date": "2026-11-10",
+        "security": true
+      },
+      "latestLts": {
+        "version": "26.13.1",
+        "lts": "Lithium",
+        "date": "2026-11-10",
+        "security": true
+      },
+      "byMajor": {
+        "22": {
+          "version": "22.23.5",
+          "lts": "Jod",
+          "date": "2026-11-11",
+          "security": true
+        },
+        "24": {
+          "version": "24.22.3",
+          "lts": "Krypton",
+          "date": "2026-11-10",
+          "security": true
+        },
+        "26": {
+          "version": "26.13.1",
+          "lts": "Lithium",
+          "date": "2026-11-10",
+          "security": true
+        }
+      }
+    },
+    "pnpm": {
+      "state": "available",
+      "checkedAt": "2026-11-12T15:17:32.000Z",
+      "latest": "12.18.0",
+      "next": "12.20.0",
+      "selected": "12.19.0",
+      "relationship": "ahead-of-latest-tag"
+    }
+  },
   "advisoryLookup": {
     "state": "available",
     "reason": null
@@ -631,13 +708,15 @@
     "drift": 0,
     "unknown": 0,
     "unresolved": 0,
-    "current": 22,
+    "unobserved": 0,
+    "current": 20,
     "compatiblePatch": 0,
-    "featureOpportunity": 2,
+    "featureOpportunity": 4,
     "breakingMajor": 1,
     "securityUrgent": 0,
     "unsupported": 0,
     "runtimeUnsupported": 0,
+    "upstreamUnknown": 0,
     "advisoryUnknown": 0
   },
   "status": "attention"

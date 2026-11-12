@@ -7,8 +7,12 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  defaultNodeVersion,
+  lockfileManagerVersion,
   parseVersion,
+  pnpmFromUserAgent,
   readLockfileImporter,
+  runtimeStatus,
   satisfies,
 } from '../freshness.mjs';
 
@@ -141,28 +145,78 @@ export function buildStackStatus({
   policy,
   manifest,
   importer,
+  lockfile = '',
   installed,
+  nodeVersion = process.versions.node,
+  pnpmVersion = pnpmFromUserAgent(),
+  nodeDefault = null,
   remoteReport = null,
   remoteIssue = null,
   build,
   now = new Date(),
 }) {
   const remote = remoteState(remoteReport, now, remoteIssue);
+  const declaredPnpm = /^pnpm@(.+)$/.exec(manifest.packageManager ?? '')?.[1] ?? null;
+  const upstreamFor = (name) => {
+    const entry = remoteReport?.upstream?.[name];
+    if (!entry) {
+      return {
+        state: 'unknown',
+        latest: null,
+        checkedAt: null,
+        classification: 'unknown',
+        reason: 'No committed registry report is available.',
+      };
+    }
+    return {
+      state: entry.state === 'available' ? 'available' : 'unknown',
+      latest:
+        name === 'node'
+          ? entry.latestLts?.version ?? null
+          : typeof entry.latest === 'string'
+            ? entry.latest
+            : null,
+      checkedAt: typeof entry.checkedAt === 'string' ? entry.checkedAt : null,
+      classification: remote.state === 'available' ? 'available' : 'unknown',
+      reason: typeof entry.reason === 'string' ? entry.reason : null,
+    };
+  };
   const runtime = [
     {
       name: 'node',
-      installed: process.versions.node,
+      declared: manifest.engines?.node ?? null,
+      default: nodeDefault ?? policy.runtime?.nodeDefault ?? null,
+      installed: nodeVersion,
+      observed: Boolean(nodeVersion),
+      locked: null,
       policy: policy.runtime?.node ?? null,
-      status: statusFor(process.versions.node, policy.runtime?.node),
+      tested: Array.isArray(policy.runtime?.nodeTested) ? policy.runtime.nodeTested : [],
+      status: runtimeStatus({
+        declared: manifest.engines?.node ?? null,
+        selectedDefault: nodeDefault ?? policy.runtime?.nodeDefault ?? null,
+        installed: nodeVersion,
+        supported: policy.runtime?.node,
+      }),
+      upstream: upstreamFor('node'),
     },
     {
       name: 'pnpm',
-      installed: /^pnpm@(.+)$/.exec(manifest.packageManager ?? '')?.[1] ?? null,
+      declared: declaredPnpm,
+      default: declaredPnpm,
+      installed: pnpmVersion,
+      observed: Boolean(pnpmVersion),
+      locked: lockfileManagerVersion(lockfile),
       policy: policy.runtime?.pnpm ?? null,
-      status: statusFor(
-        /^pnpm@(.+)$/.exec(manifest.packageManager ?? '')?.[1] ?? null,
-        policy.runtime?.pnpm,
-      ),
+      tested: Array.isArray(policy.runtime?.pnpmTested) ? policy.runtime.pnpmTested : [],
+      status: declaredPnpm
+        ? runtimeStatus({
+            declared: declaredPnpm,
+            selectedDefault: declaredPnpm,
+            installed: pnpmVersion,
+            supported: policy.runtime?.pnpm,
+          })
+        : 'unresolved',
+      upstream: upstreamFor('pnpm'),
     },
   ].filter((row) => row.policy);
   const packages = Object.entries({
@@ -202,7 +256,7 @@ export function buildStackStatus({
   });
   const blockers = [];
   for (const row of runtime) {
-    if (row.status !== 'ok') {
+    if (['drift', 'unresolved', 'unknown'].includes(row.status)) {
       blockers.push({
         kind: 'runtime',
         name: row.name,
@@ -375,7 +429,9 @@ export function buildStackStatusFromRepository({
     policy,
     manifest,
     importer,
+    lockfile,
     installed,
+    nodeDefault: defaultNodeVersion(root),
     remoteReport,
     remoteIssue,
     build,

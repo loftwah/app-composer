@@ -22,12 +22,13 @@ const statusLabels = {
   unknown: "Unknown",
 } as const;
 
-const packageStatusLabels = {
+const packageStatusLabels: Record<string, string> = {
   ok: "Qualified",
   drift: "Outside policy",
   unknown: "No policy",
   unresolved: "Unresolved",
-} as const;
+  unobserved: "Unobserved",
+};
 
 const signalLabels: Record<string, string> = {
   current: "Current",
@@ -245,13 +246,17 @@ export function StackStatusPage() {
             <div className="ss-table-wrap">
               <table>
                 <caption>
-                  Installed or declared runtime against the reviewed policy.
+                  Declared and default versions, the observed executable, and
+                  the reviewed policy. “Unobserved” means the actual executable
+                  did not identify itself; the pin is not presented as installed.
                 </caption>
                 <thead>
                   <tr>
                     <th scope="col">Runtime</th>
-                    <th scope="col">Installed / declared</th>
-                    <th scope="col">Reviewed policy</th>
+                    <th scope="col">Declared / default</th>
+                    <th scope="col">Observed</th>
+                    <th scope="col">Reviewed policy / tested</th>
+                    <th scope="col">Upstream target</th>
                     <th scope="col">Status</th>
                   </tr>
                 </thead>
@@ -259,9 +264,43 @@ export function StackStatusPage() {
                   {snapshot.runtime.map((row) => (
                     <tr key={row.name}>
                       <th scope="row">{row.name}</th>
-                      <td>{row.installed ?? "Unknown"}</td>
+                      <td>
+                        {row.declared ?? "Not declared"}
+                        {row.default && row.default !== row.declared ? (
+                          <>
+                            <br />
+                            <small>default {row.default}</small>
+                          </>
+                        ) : null}
+                        {row.locked ? (
+                          <>
+                            <br />
+                            <small>lockfile {row.locked}</small>
+                          </>
+                        ) : null}
+                      </td>
+                      <td>
+                        {row.observed ? row.installed : "Unobserved"}
+                      </td>
                       <td>
                         <code>{row.policy}</code>
+                        {row.tested.length > 0 ? (
+                          <>
+                            <br />
+                            <small>tested {row.tested.join(", ")}</small>
+                          </>
+                        ) : null}
+                      </td>
+                      <td>
+                        {row.upstream.state === "available"
+                          ? row.upstream.latest ?? "Not compared"
+                          : "Unknown"}
+                        {row.upstream.checkedAt ? (
+                          <>
+                            <br />
+                            <small>checked {utc(row.upstream.checkedAt)}</small>
+                          </>
+                        ) : null}
                       </td>
                       <td>
                         <span className={warningClass(row.status)}>

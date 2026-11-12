@@ -1,8 +1,41 @@
 # Node runtime decision
 
+## Current default — 13 November 2026
+
+Updated for [#321](https://github.com/loftwah/app-composer/issues/321) / #175.
+The default `.node-version` is **Node 26.13.1** (Active LTS, 10 November 2026
+security release). The supported floor is now the security-patched patch on
+each retained LTS line:
+
+```
+>=22.23.5 <23 || >=24.22.3 <25 || >=26.13.1 <27
+```
+
+Node 22.23.5, 24.22.3 and 26.13.1 are the official 10–11 November 2026
+security releases. The prior floors (22.23.4, 24.22.1, 26.13.0) remain
+compatible majors but are no longer the recommended security floor; the shared
+runtime predicate, root/core/MCP manifests, dependency policy, fixtures,
+launch documentation and Jenkins fixture move together. Node 27 is still a
+prerelease alpha and is not a default.
+
+pnpm is **12.19.0** at the root. It is the newest stable release with the
+offline-install credential-redaction fix, published 10 November 2026. The npm
+`latest` dist-tag still reads 12.18.0 and `next-12` reads 12.20.0, so the exact
+version is pinned rather than floated. The separately downloaded workspace tool
+pair in Get Ready remains pnpm 12.9.1 with GitHub CLI 2.98.0: it is a bounded,
+hash-verified archive whose replacement needs its own qualification. The
+generated content-site recipe keeps its independent lockfile and declaration.
+
+Cloudflare workerd runs the deployed Worker; this local toolchain change does
+not alter compatibility dates, bindings or cloud topology.
+
+The sections below record the earlier 25 October and 6 November qualifications.
+Their version numbers and "default remains 22.23.4" statements are historical
+observations, not the current default.
+
 Reviewed 6 November 2026 for [#316](https://github.com/loftwah/app-composer/issues/316) / #321.
 
-Composer supports `>=22.23.4 <23 || >=24.22.1 <25 || >=26.13.0 <27`. The default
+Composer supported `>=22.23.4 <23 || >=24.22.1 <25 || >=26.13.0 <27`. The default
 `.node-version` remains 22.23.4, so this adds explicitly selected Node 24 and
 Node 26 paths without changing an existing operator's selected runtime. Odd
 majors, older patch floors and prerelease/custom version strings remain outside
@@ -105,10 +138,10 @@ Use existing runtimes, exact lockfiles and the maintained commands:
 ```sh
 pnpm check
 pnpm build
-mise exec node@24.22.1 -- pnpm check
-mise exec node@24.22.1 -- pnpm build
-mise exec node@26.13.0 -- pnpm check
-mise exec node@26.13.0 -- pnpm build
+mise exec node@24.22.3 -- pnpm check
+mise exec node@24.22.3 -- pnpm build
+mise exec node@26.13.1 -- pnpm check
+mise exec node@26.13.1 -- pnpm build
 ```
 
 `mise` is optional: selecting the same installed Node executable in PATH is

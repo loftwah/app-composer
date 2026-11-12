@@ -188,7 +188,7 @@ const contribution = dims['building-contribution'] as { desktop: { width: number
 
       <section id="run">
         <h2>Run the same thing locally</h2>
-        <p>The demonstration uses the actual app source and Wrangler's local Workers runtime. It does not need a Cloudflare account, an Access session, a paid service or a hosted deployment. It needs Node 22, the declared pnpm version, the pinned dependencies, a native Wrangler install, and a host browser for the captures.</p>
+        <p>The demonstration uses the actual app source and Wrangler's local Workers runtime. It does not need a Cloudflare account, an Access session, a paid service or a hosted deployment. It needs a supported Node line (22, 24 or 26), the declared pnpm version, the pinned dependencies, a native Wrangler install, and a host browser for the captures.</p>
         <p><strong>Docker was not used for this run.</strong> The supported local path is Wrangler's <code>workerd</code> with local D1 and R2 emulation; a container would still download a platform-specific runtime and would still need a host browser for screenshots. That boundary is stated rather than hidden. Docker support for this walkthrough remains unexercised work.</p>
         <ol class="build-steps">
           <li><strong>Start two disposable Workers.</strong> <code>labs/building/start-local.sh</code> copies the two app repositories to one owned temporary root, prepares local migrations, writes fictional local configuration and starts Guestbook on 8788 and Linkarooie on 8787. It leaves the working repositories and their owner state untouched.</li>

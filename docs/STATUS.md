@@ -1,6 +1,15 @@
 # Delivery status
 
-Reviewed 25 October 2026; updated 12 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+Reviewed 25 October 2026; updated 13 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+
+## Current release pointer
+
+The live [build.json](https://composer.loftwah.com/build.json) and the latest
+[#11](https://github.com/loftwah/app-composer/issues/11) receipt are the
+authoritative source and Worker-version record. This page does not maintain a
+second “latest” value: read those two. The dated sections below are historical
+release notes. A “production is …” sentence inside one describes that entry's
+release, not the current production commit.
 
 ## Current creation direction
 
@@ -17,8 +26,10 @@ complete either issue's runtime, newcomer or demonstration acceptance.
 
 ## Activity, outcomes and a second Creator Hub change — 12 November 2026
 
-Composer production is `1a93d4b59f7f20aadc5ceed8dec7c58b75958634`, Worker
-`64f160ea-70f6-42d5-91da-55ff40739584`. The first release
+The 12 November release was Composer
+`1a93d4b59f7f20aadc5ceed8dec7c58b75958634`, Worker
+`64f160ea-70f6-42d5-91da-55ff40739584`. It is retained here as dated release
+evidence, not as the current pointer. The first release
 `75d1b923884d07ba66a480b7101961c1c2537dd7` (PR
 [#443](https://github.com/loftwah/app-composer/pull/443)) shipped the public
 chart, native outcomes presentation, Creator Hub follow-up and optional

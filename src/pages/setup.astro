@@ -25,7 +25,7 @@ const otherPaths = evaluation.filter((entry) => !corePaths.includes(entry) && en
     <form class="setup-details" data-setup-controls hidden>
       <fieldset>
         <legend>Where are you starting?</legend>
-        {Object.entries(setupModes).map(([id, mode]) => <label class="setup-choice"><input type="radio" name="mode" value={id} checked={id === defaultSetupDetails.mode} /><span><strong>{mode.label}</strong><small>{mode.detail}</small></span></label>)}
+        {Object.entries(setupModes).map(([id, mode]) => <label class="setup-choice" id={id}><input type="radio" name="mode" value={id} checked={id === defaultSetupDetails.mode} /><span><strong>{mode.label}</strong><small>{mode.detail}</small></span></label>)}
       </fieldset>
       <label for="setup-project">Project or repository <span>Optional</span></label>
       <input id="setup-project" name="project" type="text" maxlength="600" autocomplete="off" placeholder="A repository address or the folder your agent can use" />
@@ -86,7 +86,7 @@ const otherPaths = evaluation.filter((entry) => !corePaths.includes(entry) && en
   .setup-details[hidden], [hidden] { display:none !important; }
   fieldset { border:0; margin:0 0 24px; padding:0; min-width:0; }
   legend { font-weight:600; padding:0; margin-bottom:12px; }
-  .setup-choice { display:flex; align-items:flex-start; gap:12px; padding:13px 0; border-bottom:1px solid var(--color-border); cursor:pointer; }
+  .setup-choice { display:flex; align-items:flex-start; gap:12px; padding:13px 0; border-bottom:1px solid var(--color-border); cursor:pointer; scroll-margin-top:24px; }
   .setup-choice input { flex-shrink:0; width:19px; height:19px; margin-top:3px; accent-color:var(--color-brand); }
   .setup-choice strong, .setup-choice small { display:block; }
   .setup-choice small { margin-top:3px; color:var(--color-muted); font-size:.87rem; line-height:1.5; }

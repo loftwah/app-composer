@@ -1,12 +1,13 @@
 # Engineering baseline
 
-Reviewed 6 November 2026 for #175, #316 and #338. The supported local Node lines
-are 22.23.4+ (22.x), 24.22.1+ (24.x) and 26.13.0+ (26.x), with pinned pnpm. The
-default `.node-version` remains 22.23.4; select Node 24 or Node 26 explicitly
-when wanted.
+Reviewed 13 November 2026 for #175, #316 and #321. The supported local Node
+lines are 22.23.5+ (22.x), 24.22.3+ (24.x) and 26.13.1+ (26.x), with pinned
+pnpm 12.19.0. `.node-version` selects Node 26.13.1 by default. These floors are
+the 10–11 November 2026 security patches, not merely the previous compatibility
+minimum.
 Cloudflare workerd runs deployed Workers; changing local Node does not change
 Workers compatibility dates or bindings. Composer and the plain Worker
-references select pnpm 12.8.1. The independent content-site recipe retains its
+references select pnpm 12.19.0. The independent content-site recipe retains its
 own Astro 7.3.5, EmDash 1.2.0 and separately exercised pnpm 12.9.1 lockfile.
 
 Node 24 support now includes the actual reviewed GitHub CLI/pnpm archive
@@ -72,8 +73,9 @@ whole-repository ESLint or formatting claim, and normal checks never rewrite
 source or emitted bytes.
 
 For iteration, `pnpm check:fast -- tests/<area>.test.mjs` runs the source,
-lint and format checks plus only the named tests. `pnpm check` runs the retained
-suite with two test workers. The suite focuses on access, untrusted input,
+lint and format checks plus only the named tests. `pnpm test` runs the retained
+suite through `node --test` with its default CPU-derived concurrency; the root
+script passes no worker or concurrency flag. The suite focuses on access, untrusted input,
 data preservation, composition and release boundaries. Many presentation and
 copy assertions were removed in November 2026; older evidence and guides may
 refer to retired test files. Use `pnpm test` for the current suite and inspect

@@ -16,8 +16,8 @@ function policy(packages, runtime = {}) {
     contract: 1,
     reviewed: "2026-11-06",
     runtime: {
-      node: ">=22.23.4 <23 || >=24.22.1 <25 || >=26.13.0 <27",
-      pnpm: "12.8.1",
+      node: ">=22.23.5 <23 || >=24.22.3 <25 || >=26.13.1 <27",
+      pnpm: "12.19.0",
       ...runtime,
     },
     packages,
@@ -26,7 +26,7 @@ function policy(packages, runtime = {}) {
 
 function manifest(dependencies) {
   return {
-    packageManager: "pnpm@12.8.1",
+    packageManager: "pnpm@12.19.0",
     dependencies,
     devDependencies: {},
   };
@@ -65,6 +65,9 @@ test("installed, deployed and latest tested stay distinct without patch/minor wa
       ["alpha", "1.2.1"],
       ["beta", "2.0.0"],
     ]),
+    nodeVersion: "26.13.1",
+    pnpmVersion: "12.19.0",
+    nodeDefault: "26.13.1",
     remoteReport: registryReport([
       {
         name: "alpha",
@@ -237,4 +240,38 @@ test("a stale registry report is unknown and never presents its old latest value
   assert.equal(snapshot.remote.state, "stale");
   assert.equal(snapshot.packages[0].remote.latest, null);
   assert.equal(snapshot.status, "unknown");
+});
+
+test("an unobserved pnpm executable is shown as unobserved, never as the declared pin", () => {
+  const snapshot = buildStackStatus({
+    policy: policy({ alpha: { supported: "^1.2.0", reviewed: "1.2.0" } }),
+    manifest: manifest({ alpha: "^1.2.0" }),
+    importer: importer({ alpha: "1.2.0" }),
+    installed: new Map([["alpha", "1.2.0"]]),
+    nodeVersion: "26.13.1",
+    nodeDefault: "26.13.1",
+    pnpmVersion: null,
+    remoteReport: registryReport([
+      {
+        name: "alpha",
+        remote: {
+          state: "available",
+          latest: "1.2.0",
+          classification: "current",
+          reason: null,
+          latestQualified: true,
+          advisory: null,
+        },
+      },
+    ]),
+    build,
+    now,
+  });
+  const pnpm = snapshot.runtime.find((row) => row.name === "pnpm");
+  assert.equal(pnpm.declared, "12.19.0");
+  assert.equal(pnpm.installed, null);
+  assert.equal(pnpm.observed, false);
+  assert.equal(pnpm.status, "unobserved");
+  assert.equal(snapshot.blockers.length, 0);
+  assert.equal(snapshot.status, "ok");
 });

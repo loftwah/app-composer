@@ -51,7 +51,7 @@ export const discoveryRoles: DiscoveryRole[] = [
     steps: [
       { title: 'Describe the page and form', description: 'Try the maintained content models and their generated form.', href: '/init/content' },
       { title: 'See the owner journey', description: 'Review how app-owned briefs reach the protected Inbox.', href: '/manage#journey' },
-      { title: 'Prepare your project', description: 'Give your agent one portable setup guide for your existing stack.', href: '/setup#existing' },
+      { title: 'Prepare your project', description: 'Give your agent one portable setup guide for your existing stack.', href: '/setup?mode=existing' },
     ],
     support: 'The example is fictional. Private enquiries are a bounded no-contact brief workflow; the owner must enable a form for its publication. Email notifications, replies and delivery are not yet supported. This walkthrough does not submit a lead or create a customer account.',
     share: '/discovery/small-business-20261024.png',
@@ -63,13 +63,13 @@ export const discoveryRoles: DiscoveryRole[] = [
     app: 'hello',
     example: { title: 'Hello World, running independently', description: 'Open the maintained HTTPS starter, inspect its source, then use Get Ready for your own authorised environment.', href: 'https://ready.loftwah.com', ...capture('hello') },
     primary: { label: 'Open the first-app reference', href: 'https://ready.loftwah.com' },
-    start: { label: 'Set up my project', href: '/setup#new' },
+    start: { label: 'Set up my project', href: '/setup?mode=new' },
     steps: [
       { title: 'Inspect and prepare', description: 'New project, existing project or resume: copy one complete guide.', href: '/setup' },
       { title: 'Make the brief concrete', description: 'Preview a supported configuration and export its exact specification.', href: '/init' },
       { title: 'Build, check and keep going', description: 'Use maintained prompts for a change, recovery or publication.', href: '/prompts' },
     ],
-    support: 'The Hello recipe targets Codex on an Apple Silicon Mac with Node 22 and existing authorised accounts. Other stacks have an inspect-and-adapt guide. Opening the reference does not prepare your machine or prove a fresh customer deployment.',
+    support: 'The Hello recipe targets Codex on an Apple Silicon Mac with Node 22, 24 or 26 and existing authorised accounts. Other stacks have an inspect-and-adapt guide. Opening the reference does not prepare your machine or prove a fresh customer deployment.',
     share: '/discovery/developer-20261024.png',
   },
   {
@@ -115,7 +115,7 @@ export const discoveryRoles: DiscoveryRole[] = [
     primary: { label: 'Open the content example', href: '/showcase/' },
     start: { label: 'Assess my existing project', href: '/agent' },
     steps: [
-      { title: 'Name the operator job', description: 'Describe a useful application that still makes sense without Shopify: editorial content, community curation or a reviewed internal request.', href: '/setup#existing' },
+      { title: 'Name the operator job', description: 'Describe a useful application that still makes sense without Shopify: editorial content, community curation or a reviewed internal request.', href: '/setup?mode=existing' },
       { title: 'Keep one checkout owner', description: 'Decide which platform owns checkout, payment and order state before proposing a connection.', href: '/guide#commerce' },
       { title: 'Try a source-owned content model', description: 'Prove the independent application with fictional data before requesting any commerce account or scope.', href: '/init/content' },
     ],
@@ -130,7 +130,7 @@ export const discoveryRoles: DiscoveryRole[] = [
     app: 'hello',
     example: { title: 'A recorded two-team journey', description: 'Fictional teams request an application, review a contribution and update it in the working platform walkthrough.', href: '/platform/demo', image: '/demos/platform-native-25dc7589-b3cd5894/overview-poster.jpg', alt: 'Recorded fictional team request in the App Composer internal platform walkthrough.', captured: '2026-10-23', origin: 'https://composer.loftwah.com/platform/demo' },
     primary: { label: 'Watch the team journey', href: '/platform/demo' },
-    start: { label: 'Define the request', href: '/setup#existing' },
+    start: { label: 'Define the request', href: '/setup?mode=existing' },
     steps: [
       { title: 'Try the request and review', description: 'Inspect the fictional journey, including which decisions stay with the team owner.', href: '/platform/demo' },
       { title: 'Keep environment boundaries visible', description: 'Review Production and Preview isolation and the exact current release path.', href: '/architecture#dashboard' },

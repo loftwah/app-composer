@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@12.8.1",
+  "packageManager": "pnpm@12.19.0",
   "scripts": {
     "dev": "node scripts/workbench-source.mjs --check && node scripts/content-source.mjs --check && node scripts/enquiry-assets.mjs --check && node scripts/creator-source.mjs --check && node scripts/identity.mjs && node scripts/stack-status.mjs && node scripts/package-downloads.mjs && astro dev --host 127.0.0.1",
     "build": "node scripts/workbench-source.mjs --check && node scripts/content-source.mjs --check && node scripts/enquiry-assets.mjs --check && node scripts/creator-source.mjs --check && node scripts/launcher-assets.mjs --check && node scripts/stack-share-assets.mjs --check && node scripts/identity.mjs && node scripts/stack-status.mjs && node scripts/package-downloads.mjs && astro build && rm -f dist/server/.dev.vars && node scripts/check-publication.mjs",
@@ -12,7 +12,7 @@
     "test": "node --test tests/*.test.mjs",
     "deploy": "node scripts/deploy.mjs",
     "delivery": "node scripts/delivery-journey.mjs",
-  "delivery:jenkins": "node scripts/jenkins-fixture.mjs",
+    "delivery:jenkins": "node scripts/jenkins-fixture.mjs",
     "ready": "node scripts/ready.mjs",
     "compose": "node scripts/compose.mjs",
     "ui:assets": "node scripts/public-ui-assets.mjs",
@@ -54,21 +54,21 @@
     "diagrams:check": "node scripts/diagram-manifest.mjs"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "14.4.6",
-    "@astrojs/react": "7.1.4",
+    "@astrojs/cloudflare": "14.4.7",
+    "@astrojs/react": "7.1.8",
     "@emdash-cms/cloudflare": "1.4.0",
-    "@lucide/astro": "1.70.0",
+    "@lucide/astro": "1.72.0",
     "@resvg/resvg-wasm": "2.6.2",
     "@tanstack/react-router": "1.163.2",
-    "astro": "7.4.7",
+    "astro": "7.4.11",
     "emdash": "1.4.0",
-    "jose": "6.2.15",
+    "jose": "6.2.17",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
-    "@cloudflare/workers-types": "5.20261107.1",
+    "@cloudflare/workers-types": "5.20261112.1",
     "@modelcontextprotocol/client": "2.4.0",
     "@modelcontextprotocol/server": "2.4.0",
     "@tailwindcss/vite": "4.3.5",
@@ -76,13 +76,13 @@
     "@types/react-dom": "19.3.0",
     "jsqr": "1.4.0",
     "pngjs": "7.0.0",
-    "prettier": "3.9.10",
+    "prettier": "3.10.1",
     "tailwindcss": "4.3.5",
     "typescript": "6.0.3",
     "wrangler": "4.158.0",
     "zod": "4.6.7"
   },
   "engines": {
-    "node": ">=22.23.4 <23 || >=24.22.1 <25 || >=26.13.0 <27"
+    "node": ">=22.23.5 <23 || >=24.22.3 <25 || >=26.13.1 <27"
   }
 }

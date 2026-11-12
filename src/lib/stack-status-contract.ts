@@ -48,12 +48,33 @@ const packageRow = z
     remote: remotePackage,
   })
   .strict();
+const runtimeStatus = z.enum([
+  "ok",
+  "drift",
+  "unknown",
+  "unresolved",
+  "unobserved",
+]);
 const runtimeRow = z
   .object({
     name: z.enum(["node", "pnpm"]),
+    declared: version.nullable(),
+    default: version.nullable(),
     installed: version.nullable(),
+    observed: z.boolean(),
+    locked: version.nullable(),
     policy: z.string().min(1).max(300),
-    status,
+    tested: z.array(version).max(12),
+    status: runtimeStatus,
+    upstream: z
+      .object({
+        state: z.enum(["available", "unknown"]),
+        latest: version.nullable(),
+        checkedAt: timestamp.nullable(),
+        classification: z.string().max(40),
+        reason: z.string().max(600).nullable(),
+      })
+      .strict(),
   })
   .strict();
 const blocker = z

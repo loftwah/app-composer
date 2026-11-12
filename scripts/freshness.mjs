@@ -211,12 +211,78 @@ function installedVersion(root, name) {
   }
 }
 
+/**
+ * The pnpm CLI that invoked this process records itself in
+ * `npm_config_user_agent`. Reading it observes the actual executable without a
+ * child process or network request; running the script directly under node
+ * leaves the executable unobserved instead of copying the manifest pin.
+ */
+export function pnpmFromUserAgent(value = process.env.npm_config_user_agent) {
+  const match = /(?:^|\s)pnpm\/(\d+\.\d+\.\d+)/.exec(value ?? '');
+  return match ? match[1] : null;
+}
+
+/** Read the repository's selected Node default, if the file is a plain version. */
+export function defaultNodeVersion(root = repositoryRoot) {
+  try {
+    const value = readFileSync(join(root, '.node-version'), 'utf8').trim();
+    parseVersion(value);
+    return value;
+  } catch {
+    return null;
+  }
+}
+
+/** Read the reproducible pnpm toolchain pin from `packageManagerDependencies`. */
+export function lockfileManagerVersion(lockfile, name = 'pnpm') {
+  const lines = lockfile.split('\n');
+  const start = lines.indexOf('packageManagerDependencies:');
+  if (start === -1) return null;
+  for (let index = start + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (/^[A-Za-z]/.test(line)) break;
+    const entry = /^  (\S.*):$/.exec(line);
+    if (entry && unquote(entry[1]) === name) {
+      for (let cursor = index + 1; cursor < lines.length; cursor += 1) {
+        const version = /^    version: (.*)$/.exec(lines[cursor]);
+        if (version) return unquote(version[1]).split('(')[0];
+        if (/^  \S/.test(lines[cursor])) break;
+      }
+    }
+  }
+  return null;
+}
+
 function classify(current, supported) {
   if (!current) return 'unresolved';
   return satisfies(current, supported) ? 'ok' : 'drift';
 }
 
-export function inspectFreshness({ root = repositoryRoot, policyPath } = {}) {
+/**
+ * Runtime rows never borrow a declared value as an observation. Drift is raised
+ * for an actually observed executable, the selected default, or the declared
+ * compatibility range; an unknown executable stays visible as `unobserved`.
+ */
+export function runtimeStatus({ declared, selectedDefault, installed, supported }) {
+  if (!supported) return 'unknown';
+  try {
+    if (installed && !satisfies(installed, supported)) return 'drift';
+    if (selectedDefault && !satisfies(selectedDefault, supported)) return 'drift';
+    const candidate = installed ?? selectedDefault;
+    if (declared && candidate && !satisfies(candidate, declared)) return 'drift';
+  } catch {
+    return 'unknown';
+  }
+  if (!installed) return 'unobserved';
+  return 'ok';
+}
+
+export function inspectFreshness({
+  root = repositoryRoot,
+  policyPath,
+  nodeVersion = process.versions.node,
+  pnpmVersion = pnpmFromUserAgent(),
+} = {}) {
   const manifest = readJson(join(root, 'package.json'), 'package.json');
   let lockfile;
   try {
@@ -259,19 +325,50 @@ export function inspectFreshness({ root = repositoryRoot, policyPath } = {}) {
   const runtime = [];
   const nodePolicy = policy.runtime?.node;
   if (nodePolicy) {
-    const current = process.versions.node;
-    runtime.push({ name: 'node', current, supported: nodePolicy, status: classify(current, nodePolicy) });
+    const selectedDefault = policy.runtime?.nodeDefault ?? defaultNodeVersion(root);
+    runtime.push({
+      name: 'node',
+      declared: manifest.engines?.node ?? null,
+      default: selectedDefault,
+      installed: nodeVersion,
+      observed: true,
+      supported: nodePolicy,
+      tested: Array.isArray(policy.runtime?.nodeTested) ? policy.runtime.nodeTested : [],
+      status: runtimeStatus({
+        declared: manifest.engines?.node ?? null,
+        selectedDefault,
+        installed: nodeVersion,
+        supported: nodePolicy,
+      }),
+    });
   }
   const pnpmPolicy = policy.runtime?.pnpm;
   if (pnpmPolicy) {
     const declaredManager = /^pnpm@(.+)$/.exec(manifest.packageManager ?? '')?.[1] ?? null;
-    const current = declaredManager;
-    runtime.push({ name: 'pnpm', current, supported: pnpmPolicy, status: current ? classify(current, pnpmPolicy) : 'unresolved' });
+    runtime.push({
+      name: 'pnpm',
+      declared: declaredManager,
+      default: declaredManager,
+      installed: pnpmVersion,
+      observed: Boolean(pnpmVersion),
+      locked: lockfileManagerVersion(lockfile),
+      supported: pnpmPolicy,
+      tested: Array.isArray(policy.runtime?.pnpmTested) ? policy.runtime.pnpmTested : [],
+      status: declaredManager
+        ? runtimeStatus({
+            declared: declaredManager,
+            selectedDefault: declaredManager,
+            installed: pnpmVersion,
+            supported: pnpmPolicy,
+          })
+        : 'unresolved',
+    });
   }
 
   const drift = [...packages, ...runtime].filter((row) => row.status === 'drift').length;
   const unknown = packages.filter((row) => row.status === 'unknown').length;
   const unresolved = [...packages, ...runtime].filter((row) => row.status === 'unresolved').length;
+  const unobserved = runtime.filter((row) => row.status === 'unobserved').length;
   const ok = [...packages, ...runtime].filter((row) => row.status === 'ok').length;
 
   return {
@@ -280,7 +377,7 @@ export function inspectFreshness({ root = repositoryRoot, policyPath } = {}) {
     reviewed: policy.reviewed ?? null,
     runtime,
     packages,
-    summary: { ok, drift, unknown, unresolved },
+    summary: { ok, drift, unknown, unresolved, unobserved },
     status: unknown > 0 ? 'unknown' : drift > 0 || unresolved > 0 ? 'drift' : 'ok',
   };
 }
@@ -466,8 +563,145 @@ async function mapLimit(items, limit, mapper) {
   return results;
 }
 
-function remoteAssessment(pkg, release, advisories) {
-  if (!pkg.current) {
+const NODE_DIST_INDEX = 'https://nodejs.org/dist/index.json';
+
+/**
+ * Read the official Node release index in the explicit remote path only. The
+ * newest Active LTS is a target to review, not an automatically qualified
+ * version; prereleases are excluded.
+ */
+export async function inspectNodeUpstream({
+  fetchImpl = globalThis.fetch,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+  retries = DEFAULT_RETRIES,
+  retryDelayMs = 250,
+  now = () => new Date(),
+  indexUrl = NODE_DIST_INDEX,
+} = {}) {
+  const checkedAt = now().toISOString();
+  try {
+    const list = await requestJson(indexUrl, {
+      fetchImpl,
+      timeoutMs,
+      retries,
+      retryDelayMs,
+      label: 'Node release index',
+    });
+    if (!Array.isArray(list)) {
+      return { state: 'unknown', checkedAt, source: indexUrl, reason: 'The Node release index was not a list.' };
+    }
+    const releases = [];
+    for (const entry of list) {
+      if (!entry || typeof entry.version !== 'string' || entry.version.includes('-')) continue;
+      try {
+        const parsed = parseVersion(entry.version);
+        releases.push({
+          version: entry.version.replace(/^v/, ''),
+          ...parsed,
+          lts: typeof entry.lts === 'string' ? entry.lts : null,
+          date: typeof entry.date === 'string' ? entry.date : null,
+          security: entry.security === true,
+        });
+      } catch {
+        // Ignore an unusable row rather than guessing.
+      }
+    }
+    if (releases.length === 0) {
+      return { state: 'unknown', checkedAt, source: indexUrl, reason: 'The Node release index had no usable release.' };
+    }
+    const newest = (rows) => rows.reduce((best, row) => (compare(row, best) > 0 ? row : best));
+    const latest = newest(releases);
+    const latestLts = newest(releases.filter((row) => row.lts));
+    const byMajor = {};
+    for (const major of [22, 24, 26]) {
+      const rows = releases.filter((row) => row.major === major);
+      if (rows.length > 0) {
+        const row = newest(rows);
+        byMajor[major] = { version: row.version, lts: row.lts, date: row.date, security: row.security };
+      }
+    }
+    return {
+      state: 'available',
+      checkedAt,
+      source: indexUrl,
+      latest: { version: latest.version, lts: latest.lts, date: latest.date, security: latest.security },
+      latestLts: { version: latestLts.version, lts: latestLts.lts, date: latestLts.date, security: latestLts.security },
+      byMajor,
+    };
+  } catch (error) {
+    return { state: 'unknown', checkedAt, source: indexUrl, reason: error.message };
+  }
+}
+
+/** Read the official pnpm dist-tags and relate them to the selected executable. */
+export async function inspectPnpmUpstream({
+  registry = DEFAULT_REGISTRY,
+  selected = null,
+  fetchImpl = globalThis.fetch,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+  retries = DEFAULT_RETRIES,
+  retryDelayMs = 250,
+  now = () => new Date(),
+} = {}) {
+  const checkedAt = now().toISOString();
+  try {
+    const tags = await requestJson(`${validateRegistry(registry)}/-/package/pnpm/dist-tags`, {
+      fetchImpl,
+      timeoutMs,
+      retries,
+      retryDelayMs,
+      label: 'pnpm dist-tags',
+    });
+    if (!tags || typeof tags !== 'object' || Array.isArray(tags)) {
+      return { state: 'unknown', checkedAt, reason: 'The pnpm dist-tags response was not an object.' };
+    }
+    const latest = typeof tags.latest === 'string' ? tags.latest : null;
+    const next = typeof tags['next-12'] === 'string' ? tags['next-12'] : null;
+    let relationship = 'uncompared';
+    if (selected && latest) {
+      try {
+        const order = compare(parseVersion(selected), parseVersion(latest));
+        relationship = order === 0 ? 'latest-tag' : order > 0 ? 'ahead-of-latest-tag' : 'behind-latest-tag';
+      } catch {
+        relationship = 'uncompared';
+      }
+    }
+    return { state: 'available', checkedAt, latest, next, selected, relationship };
+  } catch (error) {
+    return { state: 'unknown', checkedAt, reason: error.message };
+  }
+}
+
+function classifyRuntime(observed, target) {
+  const current = parseVersion(observed);
+  const latest = parseVersion(target);
+  const order = compare(latest, current);
+  if (order === 0) return { classification: 'current', reason: null };
+  if (order < 0) {
+    return {
+      classification: 'current',
+      reason: `Observed ${observed} is ahead of the official target ${target}; the policy controls the selected version.`,
+    };
+  }
+  if (latest.major > current.major) {
+    return {
+      classification: 'breaking-major',
+      reason: `The official target ${target} is a newer major; a runtime move needs its own qualification.`,
+    };
+  }
+  if (latest.minor > current.minor) {
+    return {
+      classification: 'feature-opportunity',
+      reason: `The official target ${target} is a newer minor; review it before changing the default.`,
+    };
+  }
+  return {
+    classification: 'compatible-patch',
+    reason: `The official target ${target} is a newer patch than ${observed}.`,
+  };
+}
+
+function remoteAssessment(pkg, release, advisories) {  if (!pkg.current) {
     return { classification: 'unknown', reason: 'No installed or locked version could be read.' };
   }
   let current;
@@ -552,6 +786,7 @@ export async function inspectRemoteFreshness({
   policyPath,
   report,
   registry = DEFAULT_REGISTRY,
+  nodeIndexUrl = NODE_DIST_INDEX,
   fetchImpl = globalThis.fetch,
   timeoutMs = DEFAULT_TIMEOUT_MS,
   retries = DEFAULT_RETRIES,
@@ -581,6 +816,70 @@ export async function inspectRemoteFreshness({
     latestRelease(pkg.name, options),
   );
   const advisoryLookup = await latestAdvisories(local.packages, options);
+  const [nodeUpstream, pnpmUpstream] = await Promise.all([
+    inspectNodeUpstream({ fetchImpl, timeoutMs, retries, retryDelayMs, now, indexUrl: nodeIndexUrl }),
+    inspectPnpmUpstream({
+      registry: resolvedRegistry,
+      selected: local.runtime.find((row) => row.name === 'pnpm')?.default ?? null,
+      fetchImpl,
+      timeoutMs,
+      retries,
+      retryDelayMs,
+      now,
+    }),
+  ]);
+  const runtime = local.runtime.map((row) => {
+    const observed = row.installed ?? row.default ?? null;
+    if (row.name === 'node' && nodeUpstream.state === 'available' && observed) {
+      const major = Number(observed.split('.')[0]);
+      const target = nodeUpstream.byMajor[major] ?? nodeUpstream.latestLts;
+      const assessment = classifyRuntime(observed, target.version);
+      return {
+        ...row,
+        remote: {
+          state: 'available',
+          latest: target.version,
+          checkedAt: nodeUpstream.checkedAt,
+          security: target.security,
+          classification: assessment.classification,
+          reason: assessment.reason,
+        },
+      };
+    }
+    if (row.name === 'pnpm' && pnpmUpstream.state === 'available') {
+      return {
+        ...row,
+        remote: {
+          state: 'available',
+          latest: pnpmUpstream.latest,
+          checkedAt: pnpmUpstream.checkedAt,
+          classification:
+            pnpmUpstream.relationship === 'ahead-of-latest-tag'
+              ? 'current'
+              : pnpmUpstream.relationship === 'latest-tag'
+                ? 'current'
+                : 'unknown',
+          reason:
+            pnpmUpstream.relationship === 'ahead-of-latest-tag'
+              ? `${pnpmUpstream.selected} is newer than the npm latest tag ${pnpmUpstream.latest}; it is a published stable release, not a floating tag.`
+              : pnpmUpstream.relationship === 'behind-latest-tag'
+                ? `${pnpmUpstream.selected} is behind the npm latest tag ${pnpmUpstream.latest}.`
+                : null,
+        },
+      };
+    }
+    return {
+      ...row,
+      remote: {
+        state: 'unknown',
+        latest: null,
+        checkedAt: null,
+        classification: 'unknown',
+        reason:
+          row.name === 'node' ? nodeUpstream.reason ?? 'No official Node release target was read.' : pnpmUpstream.reason ?? 'No official pnpm metadata was read.',
+      },
+    };
+  });
   const packages = local.packages.map((pkg, index) => {
     const release = releases[index];
     const assessment = remoteAssessment(pkg, release, advisoryLookup.advisories);
@@ -620,8 +919,13 @@ export async function inspectRemoteFreshness({
       default: counts.unknown += 1; break;
     }
   }
-  const runtimeUnsupported = local.runtime.filter((row) => row.status !== 'ok').length;
-  const unknown = counts.unknown + (advisoryLookup.state === 'unknown' ? 1 : 0);
+  const runtimeUnsupported = runtime.filter((row) =>
+    ['drift', 'unresolved', 'unknown'].includes(row.status),
+  ).length;
+  const upstreamUnknown =
+    (nodeUpstream.state === 'unknown' ? 1 : 0) + (pnpmUpstream.state === 'unknown' ? 1 : 0);
+  const unknown =
+    counts.unknown + (advisoryLookup.state === 'unknown' ? 1 : 0) + upstreamUnknown;
   const status =
     counts.securityUrgent > 0
       ? 'security'
@@ -637,8 +941,9 @@ export async function inspectRemoteFreshness({
     reviewed: local.reviewed,
     checkedAt,
     registry: resolvedRegistry,
-    runtime: local.runtime,
+    runtime,
     packages,
+    upstream: { node: nodeUpstream, pnpm: pnpmUpstream },
     advisoryLookup: {
       state: advisoryLookup.state,
       reason: advisoryLookup.reason ?? null,
@@ -647,6 +952,7 @@ export async function inspectRemoteFreshness({
       ...local.summary,
       ...counts,
       runtimeUnsupported,
+      upstreamUnknown,
       advisoryUnknown: advisoryLookup.state === 'unknown' ? 1 : 0,
     },
     status,
@@ -666,30 +972,75 @@ function pad(value, width) {
 }
 
 export function formatReport(report) {
+  const rows = [
+    ...report.runtime.map((row) => ({
+      name: row.name,
+      declared: row.declared ?? '-',
+      selectedDefault: row.default ?? '-',
+      installed: row.installed ?? 'unobserved',
+      supported: row.supported ?? '-',
+      status: row.status,
+      remote: row.remote ?? null,
+    })),
+    ...report.packages.map((row) => ({
+      name: row.name,
+      declared: row.declared ?? '-',
+      selectedDefault: '-',
+      installed: row.current ?? 'unresolved',
+      supported: row.supported ?? '-',
+      status: row.status,
+      remote: row.remote ?? null,
+    })),
+  ];
+  const nameWidth = Math.max(9, ...rows.map((row) => row.name.length));
+  const declaredWidth = Math.max(8, ...rows.map((row) => String(row.declared).length));
+  const defaultWidth = Math.max(7, ...rows.map((row) => String(row.selectedDefault).length));
+  const currentWidth = Math.max(9, ...rows.map((row) => String(row.installed).length));
+  const supportedWidth = Math.max(9, ...rows.map((row) => String(row.supported).length));
+  const latestWidth = Math.max(7, ...rows.map((row) => String(row.remote?.latest ?? '-').length));
+  const head = [
+    `  ${pad('name', nameWidth)}  ${pad('declared', declaredWidth)}  ${pad('default', defaultWidth)}  ${pad('installed', currentWidth)}  ${pad('supported', supportedWidth)}`,
+  ];
+  if (report.mode === 'remote') head[0] += `  ${pad('upstream', latestWidth)}  signal`;
+  else head[0] += '  status';
+  const lines = report.mode === 'remote'
+    ? [
+        `Remote dependency freshness (registry ${report.registry}; checked ${report.checkedAt}; policy reviewed ${report.reviewed ?? 'unknown'})`,
+        '',
+        head[0],
+      ]
+    : [
+        `Dependency freshness${report.reviewed ? ` (policy reviewed ${report.reviewed})` : ''}`,
+        '',
+        head[0],
+      ];
+  for (const row of rows) {
+    let line = `  ${pad(row.name, nameWidth)}  ${pad(row.declared, declaredWidth)}  ${pad(row.selectedDefault, defaultWidth)}  ${pad(row.installed, currentWidth)}  ${pad(row.supported, supportedWidth)}`;
+    if (report.mode === 'remote') line += `  ${pad(row.remote?.latest, latestWidth)}  ${row.remote?.classification ?? row.status}`;
+    else line += `  ${row.status}`;
+    lines.push(line);
+  }
   if (report.mode === 'remote') {
-    const rows = [
-      ...report.runtime.map((row) => ({ ...row, kind: 'runtime', latestTested: row.current, latest: null, remote: null })),
-      ...report.packages,
-    ];
-    const nameWidth = Math.max(9, ...rows.map((row) => row.name.length));
-    const currentWidth = Math.max(7, ...rows.map((row) => (row.current ?? '-').length));
-    const supportedWidth = Math.max(9, ...rows.map((row) => (row.supported ?? '-').length));
-    const latestWidth = Math.max(7, ...rows.map((row) => (row.remote?.latest ?? '-').length));
-    const lines = [
-      `Remote dependency freshness (registry ${report.registry}; checked ${report.checkedAt}; policy reviewed ${report.reviewed ?? 'unknown'})`,
-      '',
-      `  ${pad('name', nameWidth)}  ${pad('current', currentWidth)}  ${pad('supported', supportedWidth)}  ${pad('available', latestWidth)}  signal`,
-    ];
-    for (const row of rows) {
-      lines.push(
-        `  ${pad(row.name, nameWidth)}  ${pad(row.current, currentWidth)}  ${pad(row.supported, supportedWidth)}  ${pad(row.remote?.latest, latestWidth)}  ${row.remote?.classification ?? row.status}`,
-      );
-    }
     const summary = report.summary;
     lines.push(
       '',
       `Summary: ${summary.current} current, ${summary.compatiblePatch} patch, ${summary.featureOpportunity} feature, ${summary.breakingMajor} breaking, ${summary.securityUrgent} security, ${summary.unsupported} unsupported, ${summary.unknown} unknown`,
     );
+    const upstream = report.upstream ?? {};
+    if (upstream.node?.state === 'available') {
+      lines.push(
+        `Node target: ${upstream.node.latestLts.version} is the newest Active LTS (${upstream.node.latestLts.lts}), released ${upstream.node.latestLts.date}${upstream.node.latestLts.security ? ' as a security release' : ''}. This is an upstream target, not an automatically qualified version.`,
+      );
+    } else {
+      lines.push(`Node target unknown: ${upstream.node?.reason ?? 'no lookup was performed'}`);
+    }
+    if (upstream.pnpm?.state === 'available') {
+      lines.push(
+        `pnpm release channel: npm latest is ${upstream.pnpm.latest ?? 'unknown'}${upstream.pnpm.next ? `, next-12 is ${upstream.pnpm.next}` : ''}; the selected ${upstream.pnpm.selected ?? 'version'} is ${upstream.pnpm.relationship.replaceAll('-', ' ')}.`,
+      );
+    } else {
+      lines.push(`pnpm release channel unknown: ${upstream.pnpm?.reason ?? 'no lookup was performed'}`);
+    }
     if (report.advisoryLookup.state === 'unknown') {
       lines.push(`Advisory coverage unknown: ${report.advisoryLookup.reason}`);
     }
@@ -704,25 +1055,9 @@ export function formatReport(report) {
     }
     return lines.join('\n');
   }
-  const rows = [
-    ...report.runtime.map((row) => ({ ...row, kind: 'runtime' })),
-    ...report.packages,
-  ];
-  const nameWidth = Math.max(9, ...rows.map((row) => row.name.length));
-  const currentWidth = Math.max(7, ...rows.map((row) => (row.current ?? '-').length));
-  const supportedWidth = Math.max(9, ...rows.map((row) => (row.supported ?? '-').length));
-  const lines = [
-    `Dependency freshness${report.reviewed ? ` (policy reviewed ${report.reviewed})` : ''}`,
-    '',
-    `  ${pad('name', nameWidth)}  ${pad('current', currentWidth)}  ${pad('supported', supportedWidth)}  status`,
-  ];
-  for (const row of rows) {
-    lines.push(
-      `  ${pad(row.name, nameWidth)}  ${pad(row.current, currentWidth)}  ${pad(row.supported, supportedWidth)}  ${row.status}`,
-    );
-  }
-  const { ok, drift, unknown, unresolved } = report.summary;
-  lines.push('', `Summary: ${ok} ok, ${drift} drift, ${unknown} unknown, ${unresolved} unresolved`);
+  const { ok, drift, unknown, unresolved, unobserved = 0 } = report.summary;
+  lines.push('', `Summary: ${ok} ok, ${drift} drift, ${unknown} unknown, ${unresolved} unresolved, ${unobserved} unobserved`);
+  lines.push('unobserved means the actual executable did not identify itself; the declared/default pin is shown but not claimed as installed.');
   if (unknown > 0) lines.push('Add the missing dependencies to config/dependency-policy.json after reviewing them.');
   if (drift > 0) lines.push('Review every drifted version against its release notes before moving the policy.');
   if (unresolved > 0) lines.push('A version could not be resolved; run pnpm install so node_modules matches the lockfile.');

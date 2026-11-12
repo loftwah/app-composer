@@ -16,7 +16,7 @@ Actual production capture, 18 October 2026, source `1bc90251200f9950203220b8d50e
 
 ## Run locally
 
-Use Node 22.23.4+ on the Node 22 line, Node 24.22.1+ on the Node 24 line or Node 26.13.0+ on the Node 26 line with pnpm 12.8.1. The default pin remains Node 22.23.4; select Node 24 or Node 26 explicitly when wanted. Install the pinned dependencies, then start the local site:
+Use Node 26.13.1 with pnpm 12.19.0. The security-patched compatibility floors are Node 22.23.5+, 24.22.3+ or 26.13.1+ on their respective LTS lines; `.node-version` selects 26.13.1 by default. Install the pinned dependencies, then start the local site:
 
 ```sh
 pnpm install --frozen-lockfile

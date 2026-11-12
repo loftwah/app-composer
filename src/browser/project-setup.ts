@@ -68,7 +68,7 @@ export function initProjectSetup(): void {
       }
     }
   } catch { announce('The saved guide could not be restored. The template is ready; copy or download before leaving.'); }
-  const modeFromLink = location.hash.slice(1);
+  const modeFromLink = new URLSearchParams(location.search).get('mode') ?? location.hash.slice(1);
   if (['new', 'existing', 'resume'].includes(modeFromLink) && modeFromLink !== readForm().mode) {
     fillForm({ ...readForm(), mode: modeFromLink });
     if (!edited) regenerate();
@@ -78,6 +78,11 @@ export function initProjectSetup(): void {
     }
   }
   for (const control of workspace.querySelectorAll<HTMLElement>('[data-setup-controls]')) control.hidden = false;
+  // The controls are hidden until this module runs, so a direct #new/#existing
+  // load can scroll before the flow is visible. Re-anchor after revealing it.
+  if (['new', 'existing', 'resume'].includes(modeFromLink)) {
+    document.getElementById(modeFromLink)?.scrollIntoView({ block: 'center' });
+  }
   form.addEventListener('submit', (event) => event.preventDefault());
   form.addEventListener('input', () => {
     copyGeneration += 1;
