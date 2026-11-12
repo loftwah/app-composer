@@ -49,7 +49,7 @@ async function xrpc(
     url.searchParams.set(key, value);
   const response = await fetcher(url, {
     method: "GET",
-    redirect: "error",
+    redirect: "manual",
     headers: { Accept: "application/json" },
     signal: AbortSignal.timeout(timeoutMs),
   });

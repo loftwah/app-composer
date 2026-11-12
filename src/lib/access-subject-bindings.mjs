@@ -132,7 +132,7 @@ export async function assertAccessSubjectBinding(payload, jwt, runtime) {
     "https://" + runtime.CF_ACCESS_TEAM_DOMAIN + "/cdn-cgi/access/get-identity",
     {
       headers: { Cookie: "CF_Authorization=" + jwt },
-      redirect: "error",
+      redirect: "manual",
       signal: AbortSignal.timeout(5000),
     },
   );

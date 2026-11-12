@@ -42,7 +42,7 @@ test("only the two fixed aggregator GET queries are issued", async () => {
     assert.equal(new URL(call.url).origin, "https://registry.emdashcms.com");
     assert.equal(new URL(call.url).pathname.startsWith("/xrpc/com.emdashcms.experimental.aggregator."), true);
     assert.equal(call.init.method, "GET");
-    assert.equal(call.init.redirect, "error");
+    assert.equal(call.init.redirect, "manual");
     assert.ok(call.init.signal);
   }
   assert.equal(new URL(calls[0].url).searchParams.get("slug"), "freeform");
@@ -83,4 +83,8 @@ test("malformed JSON and non-object responses are refused", async () => {
 test("a non-ok response is refused", async () => {
   const discovery = workerDiscovery(async () => new Response("no", { status: 503 }));
   await assert.rejects(discovery.getLatestRelease({ did, package: "freeform" }));
+  const redirected = workerDiscovery(async () =>
+    Response.redirect("https://example.com/registry"),
+  );
+  await assert.rejects(redirected.getLatestRelease({ did, package: "freeform" }));
 });

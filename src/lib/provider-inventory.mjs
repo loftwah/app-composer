@@ -247,7 +247,7 @@ export async function readProviderJson(request, url, token, timeoutMs, method = 
         throw new ProviderBoundaryError("No provider read credential is available.");
     const response = await request(url, {
         method: "GET",
-        redirect: "error",
+        redirect: "manual",
         headers: {
             Authorization: "Bearer " + token.trim(),
             "Content-Type": "application/json",
@@ -255,6 +255,8 @@ export async function readProviderJson(request, url, token, timeoutMs, method = 
         },
         signal: AbortSignal.timeout(timeoutMs),
     });
+    if (response.status >= 300 && response.status < 400)
+        throw new ProviderRefusal(response.status, "Provider redirect refused.");
     const text = await response.text();
     if (text.length > MAX_RESPONSE_BYTES)
         throw new ProviderBoundaryError("Provider response exceeded the read limit.");

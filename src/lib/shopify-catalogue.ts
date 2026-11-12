@@ -96,7 +96,7 @@ export async function readShopifyCatalogue(
       `https://${selected}/admin/api/${shopifyApiVersion}/graphql.json`,
       {
         method: "POST",
-        redirect: "error",
+        redirect: "manual",
         signal: AbortSignal.timeout(10000),
         headers: {
           "Content-Type": "application/json",
