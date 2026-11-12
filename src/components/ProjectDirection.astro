@@ -1,0 +1,40 @@
+---
+import { maxProjectReferences } from '../lib/project-direction.mjs';
+---
+<fieldset>
+  <legend>Creative direction</legend>
+  <details id="project-direction">
+    <summary>Keep your voice and references with this draft</summary>
+    <p class="small">These fields travel in the downloaded spec and copied handoff. Use guidance you’re happy to share with your agent and keep private links and credentials in their original location.</p>
+    <label>Writing voice
+      <textarea id="project-voice" rows="2" maxlength="320" placeholder="Plain, warm captions. Keep the artist’s own spelling and names."></textarea>
+    </label>
+    <label>Visual direction
+      <textarea id="project-visual" rows="2" maxlength="320" placeholder="Keep the studio mark. Use large photographs with quiet captions."></textarea>
+    </label>
+    <div id="project-reference-rows"></div>
+    <button id="add-project-reference" type="button" class="secondary">Add a reference</button>
+    <p class="small">Up to {maxProjectReferences} public links or product names. Say what to carry over or avoid.</p>
+  </details>
+  <template id="project-reference-template">
+    <fieldset class="project-reference">
+      <legend>Reference</legend>
+      <label>Public link or product name<input data-reference="source" maxlength="360"/></label>
+      <label>Use for this app
+        <select data-reference="status">
+          <option value="selected">Selected</option>
+          <option value="exploratory">Explore first</option>
+          <option value="rejected">Leave out</option>
+        </select>
+      </label>
+      <label>What to carry over or avoid<textarea data-reference="decision" rows="2" maxlength="240"></textarea></label>
+      <label>Usage notes <span class="small">(optional)</span><input data-reference="usage" maxlength="120" placeholder="Layout inspiration only"/></label>
+      <button type="button" class="secondary" data-remove-reference>Remove reference</button>
+    </fieldset>
+  </template>
+</fieldset>
+<style>
+  #project-direction summary { cursor: pointer; font-weight: 600; }
+  #project-direction > p { margin-block: .75rem 1rem; }
+  #project-reference-rows :global(.project-reference) { margin-block: 1rem; min-inline-size: 0; }
+</style>

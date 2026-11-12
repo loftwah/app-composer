@@ -4,6 +4,7 @@ import {currentAssistance} from './assistance';
 import {presetRecommendation,recommendationSpec,assistedHandoff,initialRecommendation} from './init-recommendations.mjs';
 import {setupPreferenceKey,validateSetupPreferences} from '../../lib/get-ready/preferences.mjs';
 import {validateSpec,presets,specVersion,maintenanceRevision} from './spec.mjs';
+import {maxProjectReferences,projectDirectionVersion,type ProjectDirection,type ProjectReference} from './project-direction.mjs';
 import {buildRecipe,humanOnlyActions} from './build-recipe.mjs';
 import {globalAppSettings as appSettings,selectedSources,appConfiguration} from './app-settings.mjs';
 const form=document.querySelector<HTMLFormElement>('#init-form')!;
@@ -13,16 +14,23 @@ const draftStatus=document.querySelector<HTMLElement>('#draft-status')!;
 const validationMessage=document.querySelector<HTMLElement>('#validation-message')!;
 const importReview=document.querySelector<HTMLElement>('#import-review')!;
 const importInput=document.querySelector<HTMLInputElement>('#import')!;
+const directionPanel = document.querySelector<HTMLDetailsElement>('#project-direction')!;
+const projectVoice = document.querySelector<HTMLTextAreaElement>('#project-voice')!;
+const projectVisual = document.querySelector<HTMLTextAreaElement>('#project-visual')!;
+const referenceRows = document.querySelector<HTMLDivElement>('#project-reference-rows')!;
+const referenceTemplate = document.querySelector<HTMLTemplateElement>('#project-reference-template')!;
+const addReference = document.querySelector<HTMLButtonElement>('#add-project-reference')!;
+let savedDraftUnreadable = false;
 let observedSnapshot='',savedSnapshot:string|null=null,revision=0,pendingImport:ReturnType<typeof validateSpec>|null=null;
 function snapshot(){return JSON.stringify({fields:Array.from(form.querySelectorAll<HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement>('input:not([type=file]),textarea,select')).map(control=>[control.name,control.value,'checked' in control?control.checked:null]),decisions});}
-function updateDraftStatus(){draftStatus.textContent=savedSnapshot===null?'New draft · not saved yet':savedSnapshot===snapshot()?'Saved on this device':'Unsaved changes';}
+function updateDraftStatus(){draftStatus.textContent=savedDraftUnreadable?'Saved draft could not be loaded':savedSnapshot===null?'New draft · not saved yet':savedSnapshot===snapshot()?'Saved on this device':'Unsaved changes';}
 function dismissImport(){pendingImport=null;importReview.hidden=true;}
 function reviewCandidate(candidate: ReturnType<typeof validateSpec>, status: string) {
  pendingImport = candidate;
  const names = candidate.apps.map((id: string) => appSettings[id]?.name ?? 'Hello World reference');
  const count = candidate.cards.length;
  document.querySelector('#import-summary')!.textContent =
-  `${candidate.config.title} · ${names.join(' + ')} · ${count} curated ${count === 1 ? 'link' : 'links'}${candidate.maintenance ? ` · maintenance: ${candidate.maintenance.task}` : ''}`;
+  `${candidate.config.title} · ${names.join(' + ')} · ${count} curated ${count === 1 ? 'link' : 'links'}${candidate.projectDirection ? ' · includes creative direction' : ''}${candidate.maintenance ? ` · maintenance: ${candidate.maintenance.task}` : ''}`;
  importReview.hidden = false;
  message.textContent = status;
  importReview.focus();
@@ -30,6 +38,10 @@ function reviewCandidate(candidate: ReturnType<typeof validateSpec>, status: str
 
 function edited(){const current=snapshot();if(current===observedSnapshot)return;observedSnapshot=current;revision++;dismissImport();message.textContent='';updateDraftStatus();}
 function saveDraft(spec:ReturnType<typeof validateSpec>){
+ if (savedDraftUnreadable) {
+  message.textContent = 'Your original draft is still saved. Download the current edits first, or choose Start a fresh draft to explicitly discard the unreadable draft.';
+  return;
+ }
  try{localStorage.setItem(key,JSON.stringify(spec));savedSnapshot=snapshot();revision++;dismissImport();updateDraftStatus();message.textContent='Draft saved on this device. Nothing was deployed.';}
  catch{message.textContent='This browser could not save your draft. Your edits are still here; download the spec to keep a copy.';}
 }
@@ -54,7 +66,84 @@ function renderBuildPlan(s:ReturnType<typeof validateSpec>){
 function report(error:unknown){message.textContent=error instanceof Error?error.message:String(error);}
 function row(title='',url=''){const wrap=document.createElement('div');wrap.className='repeat-row';const l1=document.createElement('label');l1.textContent='Card title';const a=document.createElement('input');a.name='card-title';a.maxLength=100;a.required=true;a.value=title;l1.append(a);const l2=document.createElement('label');l2.textContent='HTTPS destination';const b=document.createElement('input');b.name='card-url';b.type='url';b.required=true;b.value=url;l2.append(b);const remove=document.createElement('button');remove.type='button';remove.className='secondary';remove.textContent='Remove';remove.onclick=()=>{wrap.remove();edited();show();previewRecommendation();};wrap.append(l1,l2,remove);document.querySelector('#card-rows')!.append(wrap);}
 function value(name:string){return (form.elements.namedItem(name) as HTMLInputElement).value;}
-function read(preset=value('preset')){const selected=presets[preset].apps;const separate:Record<string,Record<string,string>>={};for(const id of selected){const toggle=form.querySelector<HTMLInputElement>(`[data-separate-settings="${id}"]`);if(toggle?.checked)separate[id]=Object.fromEntries(Array.from(form.querySelectorAll<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>(`[data-app-fields="${id}"] [data-app-field]`)).map(control=>[control.dataset.appField!,control.value]));}const cards=Array.from(document.querySelectorAll('.repeat-row')).map(el=>({title:el.querySelector<HTMLInputElement>('[name=card-title]')!.value,url:el.querySelector<HTMLInputElement>('[name=card-url]')!.value}));return validateSpec({version:specVersion,sources:selectedSources(selected),appSettings:separate,deviceTarget:value('deviceTarget'),preset,config:{title:value('title'),intro:value('intro'),theme:value('theme'),layout:value('layout')},privacy:'review-first',deployment:{mode:value('target'),hostname:value('hostname')},delivery:{profile:value('deliveryProfile'),runner:value('deliveryProfile')==='existing-runner'?value('deliveryRunner'):''},maintenance:value('maintenanceTask')?{task:value('maintenanceTask'),scope:value('maintenanceScope')||'assess',revision:maintenanceRevision}:undefined,cards,decisions});}
+function referenceField(row: Element, key: keyof ProjectReference) {
+ return row.querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(`[data-reference="${key}"]`)!;
+}
+
+function readProjectDirection() {
+ return {
+  version: projectDirectionVersion,
+  voice: projectVoice.value,
+  visual: projectVisual.value,
+  references: Array.from(referenceRows.children, row => ({
+   source: referenceField(row, 'source').value,
+   status: referenceField(row, 'status').value,
+   decision: referenceField(row, 'decision').value,
+   usage: referenceField(row, 'usage').value,
+  })),
+ };
+}
+
+function updateReferenceButton() {
+ addReference.disabled = referenceRows.childElementCount >= maxProjectReferences;
+}
+
+function addReferenceRow(reference?: ProjectReference) {
+ const row = referenceTemplate.content.firstElementChild!.cloneNode(true) as HTMLFieldSetElement;
+ if (reference) {
+  referenceField(row, 'source').value = reference.source;
+  referenceField(row, 'status').value = reference.status;
+  referenceField(row, 'decision').value = reference.decision;
+  referenceField(row, 'usage').value = reference.usage ?? '';
+ }
+ row.querySelector('[data-remove-reference]')!.addEventListener('click', () => {
+  const adjacent = row.nextElementSibling ?? row.previousElementSibling;
+  row.remove();
+  updateReferenceButton();
+  (adjacent ? referenceField(adjacent, 'source') : addReference).focus();
+  edited();
+  show();
+  previewRecommendation();
+ });
+ referenceRows.append(row);
+ updateReferenceButton();
+ return row;
+}
+
+function fillProjectDirection(direction?: ProjectDirection) {
+ projectVoice.value = direction?.voice ?? '';
+ projectVisual.value = direction?.visual ?? '';
+ referenceRows.replaceChildren();
+ direction?.references.forEach(addReferenceRow);
+ directionPanel.open = Boolean(direction);
+ updateReferenceButton();
+}
+
+function renderProjectDirection(direction?: ProjectDirection) {
+ const panel = document.querySelector<HTMLElement>('#project-direction-preview')!;
+ const list = document.querySelector('#project-direction-summary')!;
+ panel.hidden = !direction;
+ list.replaceChildren();
+ if (!direction) return;
+ const rows = [
+  ['Writing voice', direction.voice],
+  ['Visual direction', direction.visual],
+  ...direction.references.map(reference => [
+   reference.source,
+   `${{selected: 'Selected', exploratory: 'Explore first', rejected: 'Leave out'}[reference.status]} · ${reference.decision}${reference.usage ? ` · ${reference.usage}` : ''}`,
+  ]),
+ ];
+ for (const [label, text] of rows) {
+  if (!text) continue;
+  const term = document.createElement('dt');
+  term.textContent = label;
+  const detail = document.createElement('dd');
+  detail.textContent = text;
+  list.append(term, detail);
+ }
+}
+
+function read(preset=value('preset')){const selected=presets[preset].apps;const separate:Record<string,Record<string,string>>={};for(const id of selected){const toggle=form.querySelector<HTMLInputElement>(`[data-separate-settings="${id}"]`);if(toggle?.checked)separate[id]=Object.fromEntries(Array.from(form.querySelectorAll<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>(`[data-app-fields="${id}"] [data-app-field]`)).map(control=>[control.dataset.appField!,control.value]));}const cards=Array.from(document.querySelectorAll('.repeat-row')).map(el=>({title:el.querySelector<HTMLInputElement>('[name=card-title]')!.value,url:el.querySelector<HTMLInputElement>('[name=card-url]')!.value}));return validateSpec({version:specVersion,sources:selectedSources(selected),appSettings:separate,projectDirection:readProjectDirection(),deviceTarget:value('deviceTarget'),preset,config:{title:value('title'),intro:value('intro'),theme:value('theme'),layout:value('layout')},privacy:'review-first',deployment:{mode:value('target'),hostname:value('hostname')},delivery:{profile:value('deliveryProfile'),runner:value('deliveryProfile')==='existing-runner'?value('deliveryRunner'):''},maintenance:value('maintenanceTask')?{task:value('maintenanceTask'),scope:value('maintenanceScope')||'assess',revision:maintenanceRevision}:undefined,cards,decisions});}
 function conditions(){
  const p=value('preset');const selected=presets[p].apps;document.querySelector<HTMLElement>('#app-settings')!.hidden=p==='hello';for(const id of Object.keys(appSettings)){const group=form.querySelector<HTMLElement>(`[data-app-settings="${id}"]`)!;const toggle=form.querySelector<HTMLInputElement>(`[data-separate-settings="${id}"]`)!;const fields=form.querySelector<HTMLFieldSetElement>(`[data-app-fields="${id}"]`)!;group.hidden=!selected.includes(id);toggle.disabled=group.hidden;fields.hidden=group.hidden||!toggle.checked;fields.disabled=fields.hidden;}const hasCards=['composition','showcase'].includes(p),hasHostname=value('target')==='existing-domain';
  document.querySelector<HTMLElement>('#layout-label')!.hidden=p==='hello';
@@ -74,9 +163,9 @@ function conditions(){
  const maintenanceLink=document.querySelector<HTMLAnchorElement>('#maintenance-task-link');
  if(maintenanceLink&&maintenance)maintenanceLink.href='/prompts#'+maintenance;
 }
-function show(save=false){try{conditions();const s=read();renderBuildPlan(s);renderAppPreview(s);validationMessage.textContent='';document.querySelector('#preview-caption')!.textContent='Layout preview · sample content';for(const id of ['copy','download'])(document.getElementById(id) as HTMLButtonElement).disabled=false;document.querySelector('#preview-title')!.textContent=s.config.title;document.querySelector('#preview-intro')!.textContent=s.config.intro;document.querySelector('#preview-apps')!.textContent=s.apps.map((id:string)=>appSettings[id]?.name??'Hello World reference').join(' + ');const preview=document.querySelector('#preview-settings')!;preview.replaceChildren();for(const id of s.apps.filter((id:string)=>Object.hasOwn(appSettings,id))){const c=appConfiguration(s,id),section=document.createElement('section'),heading=document.createElement('h3'),text=document.createElement('p'),appearance=document.createElement('p');heading.textContent=appSettings[id].name;text.textContent=c.title+(c.intro?' — '+c.intro:'');appearance.className='small';appearance.textContent=c.theme+' · '+c.layout+(s.appSettings[id]?' · separate settings':' · shared settings');section.append(heading,text,appearance);preview.append(section);}const deliveryNote=document.createElement('p');deliveryNote.className='small';deliveryNote.textContent='Delivery · '+(s.delivery.profile==='existing-runner'?'existing runner: '+(s.delivery.runner||'choose one'):'local checks, preview candidate, explicit release');preview.append(deliveryNote);const maintenanceNote=document.createElement('p');maintenanceNote.className='small';maintenanceNote.textContent=s.maintenance?'Maintenance · '+s.maintenance.task+' · '+s.maintenance.scope+' · revision '+s.maintenance.revision:'Maintenance · no task selected';preview.append(maintenanceNote);document.querySelector('#spec')!.textContent=JSON.stringify(s,null,2);document.querySelector('#prompt')!.textContent=assistedHandoff(s,currentAssistance());if(save)saveDraft(s);updateDraftStatus();}catch(e){document.querySelector('#spec')!.textContent='Complete the current fields before exporting.';document.querySelector('#prompt')!.textContent='Complete the current fields before copying a handoff.';for(const id of ['copy','download'])(document.getElementById(id) as HTMLButtonElement).disabled=true;document.querySelector('#preview-caption')!.textContent='Preview paused · last valid draft';validationMessage.textContent=(e instanceof Error?e.message:String(e))+'. The last valid preview stays visible while you finish editing.';updateDraftStatus();}}
+function show(save=false){try{conditions();const s=read();renderBuildPlan(s);renderAppPreview(s);renderProjectDirection(s.projectDirection);validationMessage.textContent='';document.querySelector('#preview-caption')!.textContent='Layout preview · sample content';for(const id of ['copy','download'])(document.getElementById(id) as HTMLButtonElement).disabled=false;document.querySelector('#preview-title')!.textContent=s.config.title;document.querySelector('#preview-intro')!.textContent=s.config.intro;document.querySelector('#preview-apps')!.textContent=s.apps.map((id:string)=>appSettings[id]?.name??'Hello World reference').join(' + ');const preview=document.querySelector('#preview-settings')!;preview.replaceChildren();for(const id of s.apps.filter((id:string)=>Object.hasOwn(appSettings,id))){const c=appConfiguration(s,id),section=document.createElement('section'),heading=document.createElement('h3'),text=document.createElement('p'),appearance=document.createElement('p');heading.textContent=appSettings[id].name;text.textContent=c.title+(c.intro?' — '+c.intro:'');appearance.className='small';appearance.textContent=c.theme+' · '+c.layout+(s.appSettings[id]?' · separate settings':' · shared settings');section.append(heading,text,appearance);preview.append(section);}const deliveryNote=document.createElement('p');deliveryNote.className='small';deliveryNote.textContent='Delivery · '+(s.delivery.profile==='existing-runner'?'existing runner: '+(s.delivery.runner||'choose one'):'local checks, preview candidate, explicit release');preview.append(deliveryNote);const maintenanceNote=document.createElement('p');maintenanceNote.className='small';maintenanceNote.textContent=s.maintenance?'Maintenance · '+s.maintenance.task+' · '+s.maintenance.scope+' · revision '+s.maintenance.revision:'Maintenance · no task selected';preview.append(maintenanceNote);document.querySelector('#spec')!.textContent=JSON.stringify(s,null,2);document.querySelector('#prompt')!.textContent=assistedHandoff(s,currentAssistance());if(save)saveDraft(s);updateDraftStatus();}catch(e){document.querySelector('#spec')!.textContent='Complete the current fields before exporting.';document.querySelector('#prompt')!.textContent='Complete the current fields before copying a handoff.';for(const id of ['copy','download'])(document.getElementById(id) as HTMLButtonElement).disabled=true;document.querySelector('#preview-caption')!.textContent='Preview paused · last valid draft';validationMessage.textContent=(e instanceof Error?e.message:String(e))+'. The last valid preview stays visible while you finish editing.';updateDraftStatus();}}
 
-function fill(input:any){const s=validateSpec(input);displayedPreset=s.preset;for(const [name,v] of Object.entries({...s.config,preset:s.preset,deviceTarget:s.deviceTarget??'unknown',target:s.deployment.mode,hostname:s.deployment.hostname,deliveryProfile:s.delivery.profile,deliveryRunner:s.delivery.runner||'jenkins',maintenanceTask:s.maintenance?.task??'',maintenanceScope:s.maintenance?.scope??'assess'}))(form.elements.namedItem(name) as HTMLInputElement).value=String(v);document.querySelector('#card-rows')!.replaceChildren();s.cards.forEach((c:any)=>row(c.title,c.url));for(const id of Object.keys(appSettings)){const toggle=form.querySelector<HTMLInputElement>(`[data-separate-settings="${id}"]`)!;toggle.checked=Object.hasOwn(s.appSettings,id);delete toggle.dataset.initialised;const fields=form.querySelector<HTMLFieldSetElement>(`[data-app-fields="${id}"]`)!;for(const control of fields.querySelectorAll<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>('[data-app-field]'))control.value=s.appSettings[id]?.[control.dataset.appField!]??s.config[control.dataset.appField as keyof typeof s.config]??'';if(toggle.checked)toggle.dataset.initialised='true';}decisions=s.decisions;if(decisions.target==='existing-domain'&&s.deployment.mode==='preview')(form.elements.namedItem('target') as HTMLInputElement).value='existing-domain';show();}
+function fill(input:unknown){const s=validateSpec(input);fillProjectDirection(s.projectDirection);displayedPreset=s.preset;for(const [name,v] of Object.entries({...s.config,preset:s.preset,deviceTarget:s.deviceTarget??'unknown',target:s.deployment.mode,hostname:s.deployment.hostname,deliveryProfile:s.delivery.profile,deliveryRunner:s.delivery.runner||'jenkins',maintenanceTask:s.maintenance?.task??'',maintenanceScope:s.maintenance?.scope??'assess'}))(form.elements.namedItem(name) as HTMLInputElement).value=String(v);document.querySelector('#card-rows')!.replaceChildren();s.cards.forEach((c:any)=>row(c.title,c.url));for(const id of Object.keys(appSettings)){const toggle=form.querySelector<HTMLInputElement>(`[data-separate-settings="${id}"]`)!;toggle.checked=Object.hasOwn(s.appSettings,id);delete toggle.dataset.initialised;const fields=form.querySelector<HTMLFieldSetElement>(`[data-app-fields="${id}"]`)!;for(const control of fields.querySelectorAll<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>('[data-app-field]'))control.value=s.appSettings[id]?.[control.dataset.appField!]??s.config[control.dataset.appField as keyof typeof s.config]??'';if(toggle.checked)toggle.dataset.initialised='true';}decisions=s.decisions;if(decisions.target==='existing-domain'&&s.deployment.mode==='preview')(form.elements.namedItem('target') as HTMLInputElement).value='existing-domain';show();}
 const recommendationRoot=document.querySelector<HTMLElement>('[data-init-recommendation]')!;
 const goal=recommendationRoot.querySelector<HTMLSelectElement>('[data-recommendation-goal]')!;
 const useGoal=recommendationRoot.querySelector<HTMLButtonElement>('[data-recommendation-use]')!;
@@ -101,16 +190,23 @@ function applyStartingPoint(id:string){
 goal.disabled=false;goal.addEventListener('change',previewRecommendation);useGoal.addEventListener('click',()=>{try{applyStartingPoint(goal.value);}catch(e){report(e);}});
 window.addEventListener('composer:assistance-choice',()=>{try{document.querySelector('#prompt')!.textContent=assistedHandoff(read(),currentAssistance());}catch{}previewRecommendation();});
 form.addEventListener('input',()=>{edited();show();previewRecommendation();});form.addEventListener('change',event=>{if(event.target===importInput)return;edited();previewRecommendation();});
-try{const saved=localStorage.getItem(key);if(saved){fill(JSON.parse(saved));savedSnapshot=snapshot();}else{const choice=localStorage.getItem(setupPreferenceKey);if(choice){const preference=validateSetupPreferences(JSON.parse(choice));(form.elements.namedItem('target') as HTMLSelectElement).value=preference.destination;(form.elements.namedItem('hostname') as HTMLInputElement).value=preference.hostname;}}}catch(e){report(e);}
+try{const saved=localStorage.getItem(key);if(saved){savedDraftUnreadable=true;fill(JSON.parse(saved));savedSnapshot=snapshot();savedDraftUnreadable=false;}else{const choice=localStorage.getItem(setupPreferenceKey);if(choice){const preference=validateSetupPreferences(JSON.parse(choice));(form.elements.namedItem('target') as HTMLSelectElement).value=preference.destination;(form.elements.namedItem('hostname') as HTMLInputElement).value=preference.hostname;}}}catch(e){report(e);}
 window.addEventListener('pageshow',()=>{show();previewRecommendation();});
 for(const id of Object.keys(appSettings)){const toggle=form.querySelector<HTMLInputElement>(`[data-separate-settings="${id}"]`)!;toggle.addEventListener('change',()=>{if(toggle.checked&&!toggle.dataset.initialised){for(const control of form.querySelectorAll<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>(`[data-app-fields="${id}"] [data-app-field]`))control.value=(form.elements.namedItem(control.dataset.appField!) as HTMLInputElement|null)?.value??appSettings[id].fields.find(field=>field.key===control.dataset.appField)?.default??'';toggle.dataset.initialised='true';}show();});form.querySelector(`[data-app-defaults="${id}"]`)!.addEventListener('click',()=>{for(const field of appSettings[id].fields)(form.elements.namedItem(id+'-'+field.key) as HTMLInputElement).value=field.default??value(field.key);edited();show();previewRecommendation();});}
+addReference.addEventListener('click', () => {
+ const row = addReferenceRow();
+ referenceField(row, 'source').focus();
+ edited();
+ show();
+ previewRecommendation();
+});
 form.addEventListener('submit',e=>{e.preventDefault();show(true);});form.addEventListener('change',()=>show());form.querySelector('[name=preset]')!.addEventListener('change',()=>{const next=value('preset');(form.elements.namedItem('preset') as HTMLSelectElement).value=displayedPreset;try{applyStartingPoint(next);}catch(e){report(e);}});document.querySelector('#add-card')!.addEventListener('click',()=>{if(document.querySelectorAll('.repeat-row').length<8){row();edited();show();previewRecommendation();}else report('Eight cards is the supported limit.');});document.querySelector('#reset')!.addEventListener('click',()=>{
  if(!confirm('Discard the current and saved draft on this device?'))return;
  try{localStorage.removeItem(key);}catch{report(new Error('This browser could not remove the saved draft. Your current edits are preserved.'));return;}
- revision++;dismissImport();form.reset();for(const toggle of form.querySelectorAll<HTMLInputElement>('[data-separate-settings]'))delete toggle.dataset.initialised;decisions={};savedSnapshot=null;document.querySelector('#card-rows')!.replaceChildren();displayedPreset=value('preset');goal.value=displayedPreset;edited();show();previewRecommendation();
+ revision++;dismissImport();savedDraftUnreadable=false;form.reset();fillProjectDirection();for(const toggle of form.querySelectorAll<HTMLInputElement>('[data-separate-settings]'))delete toggle.dataset.initialised;decisions={};savedSnapshot=null;document.querySelector('#card-rows')!.replaceChildren();displayedPreset=value('preset');goal.value=displayedPreset;edited();show();previewRecommendation();
 });document.querySelector('#copy')!.addEventListener('click',async()=>{
  let text:string;try{text=assistedHandoff(read(),currentAssistance());}catch(e){report(e);return;}
- try{await navigator.clipboard.writeText(text);message.textContent='Handoff copied. Paste it into Codex in your authorised project.';}
+ try{await navigator.clipboard.writeText(text);message.textContent='Handoff copied. Paste it into your coding agent in the authorised project.';}
  catch{const prompt=document.querySelector<HTMLElement>('#prompt')!;prompt.textContent=text;prompt.closest('details')!.open=true;prompt.focus();const range=document.createRange();range.selectNodeContents(prompt);const selection=window.getSelection();selection?.removeAllRanges();selection?.addRange(range);message.textContent='Clipboard access failed. The handoff is selected below; copy it using your browser.';}
 });document.querySelector('#download')!.addEventListener('click',()=>{try{const url=URL.createObjectURL(new Blob([JSON.stringify(read(),null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='app-composer-spec.json';a.click();URL.revokeObjectURL(url);}catch(e){report(e);}});importInput.addEventListener('change',async()=>{
  const file=importInput.files?.[0];if(!file)return;importInput.value='';
@@ -148,6 +244,25 @@ if (start === 'creator-hub') {
    layout: 'editorial',
   },
   privacy: 'review-first',
+  projectDirection: {
+   version: projectDirectionVersion,
+   voice: 'Write as a working ceramicist. Use plain, warm captions and concrete details about materials.',
+   visual: 'Lead with finished work, then show studio notes and approved postcards. Keep photos large and typography quiet.',
+   references: [
+    {
+     source: 'https://creator-hub.loftwah.com/',
+     decision: 'Lead with featured links to the artist’s work and keep postcards in a separate section.',
+     status: 'selected',
+     usage: 'Use the layout as a reference. Supply your own photos and writing.',
+    },
+    {
+     source: 'https://creator-hub-guestbook.loftwah.com/contribute',
+     decision: 'Keep the contribution form short and retain owner review before publication.',
+     status: 'selected',
+     usage: 'Use as a workflow example.',
+    },
+   ],
+  },
   deployment: {mode: 'preview'},
  });
  reviewCandidate(candidate, 'Creator Hub sample ready to review.');
