@@ -445,7 +445,10 @@ async function runAgent(entry, root, options) {
   const childEnv = options.agent === 'opencode' ? { PWD: manifest.workspace, CODEX_UNSAFE_ALLOW_NO_SANDBOX: '0' } : { CODEX_UNSAFE_ALLOW_NO_SANDBOX: '0' };
   const result = await runProcess(command, commandArgs, { cwd: manifest.workspace, timeoutMs, env: childEnv });
   const rawLog = `# agent: ${options.agent} (${command})\n# model: ${model}\n# cwd: ${manifest.workspace}\n# argv: ${argv.join(' ')}\n\n## stdout\n${result.stdout}\n\n## stderr\n${result.stderr}\n`;
-  const isolation = isolationReportFor(rawLog);
+  // Codex prints the supplied prompt after a user marker. Scan agent output
+  // without counting references already present in that exact input block.
+  const promptEcho = '\nuser\n' + prompt + '\ncodex\n';
+  const isolation = isolationReportFor(rawLog.replace(promptEcho, '\nuser\n[provided prompt]\n\ncodex\n'));
   const log = redact(rawLog);
   writeFileSync(resolve(owned, 'agent.log'), log);
   if (result.stdout.trim()) writeFileSync(resolve(owned, 'last-message.md'), redact(result.stdout));
