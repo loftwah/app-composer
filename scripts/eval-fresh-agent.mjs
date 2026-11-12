@@ -37,7 +37,7 @@ const fileHash = (path) => sha256(readFileSync(path));
 const isDirectory = (path) => { try { return statSync(path).isDirectory(); } catch { return false; } };
 
 function argsOf(argv) {
-  const options = { command: 'plan', case: '', root: '', agent: '', bin: '', model: process.env.FRESH_AGENT_MODEL ?? '', timeout: '900', receipts: '', note: [], cleanup: false };
+  const options = { command: 'plan', case: '', root: '', agent: '', bin: '', model: process.env.FRESH_AGENT_MODEL ?? '', reasoning: '', timeout: '900', receipts: '', note: [], cleanup: false };
   const rest = [...argv];
   if (rest[0] && !rest[0].startsWith('-')) options.command = rest.shift();
   while (rest.length) {
@@ -47,11 +47,20 @@ function argsOf(argv) {
     else if (arg === '--agent') options.agent = rest.shift() ?? '';
     else if (arg === '--bin') options.bin = rest.shift() ?? '';
     else if (arg === '--model') options.model = rest.shift() ?? '';
+    else if (arg === '--reasoning') {
+      options.reasoning = rest.shift();
+      if (!['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra'].includes(options.reasoning)) {
+        fail('Pass a supported reasoning effort after --reasoning.');
+      }
+    }
     else if (arg === '--timeout') options.timeout = rest.shift() ?? '900';
     else if (arg === '--receipts') options.receipts = rest.shift() ?? '';
     else if (arg === '--note') options.note.push(rest.shift() ?? '');
     else if (arg === '--cleanup') options.cleanup = true;
     else fail(`Unknown argument: ${arg}`);
+  }
+  if (options.reasoning && (options.command !== 'run' || options.agent !== 'codex')) {
+    fail('--reasoning requires run --agent codex.');
   }
   return options;
 }
@@ -386,9 +395,9 @@ async function verifyCase(entry, root) {
   return { passed, response, results };
 }
 
-function classify(entry, verification, isolation) {
+function classify(entry, verification, isolation, completed) {
   return classifyFreshAgentRun({
-    passed: verification.passed,
+    passed: completed && verification.passed,
     expectsDecision: entry.assertions.some((assertion) => assertion.path === 'decision.json'),
     isolation,
   });
@@ -415,9 +424,10 @@ async function runAgent(entry, root, options) {
   if (options.agent === 'codex') {
     argv = ['exec', '--cd', manifest.workspace, '--skip-git-repo-check', '--sandbox', 'workspace-write', '--ephemeral', '--color', 'never', '-o', resolve(owned, 'last-message.md')];
     if (model) argv.push('--model', model);
+    if (options.reasoning) argv.push('-c', `model_reasoning_effort="${options.reasoning}"`);
     // Current Codex expects the prompt as one positional; `-` would also read
     // stdin, which this runner deliberately does not pipe.
-    command = `codex`;
+    command = options.bin || 'codex';
   } else if (options.agent === 'opencode') {
     command = options.bin || process.env.OPENCODE_CLI || 'opencode-cli';
     model = model || 'opencode-go/deepseek-v4.1-flash';
@@ -435,7 +445,10 @@ async function runAgent(entry, root, options) {
   const childEnv = options.agent === 'opencode' ? { PWD: manifest.workspace, CODEX_UNSAFE_ALLOW_NO_SANDBOX: '0' } : { CODEX_UNSAFE_ALLOW_NO_SANDBOX: '0' };
   const result = await runProcess(command, commandArgs, { cwd: manifest.workspace, timeoutMs, env: childEnv });
   const rawLog = `# agent: ${options.agent} (${command})\n# model: ${model}\n# cwd: ${manifest.workspace}\n# argv: ${argv.join(' ')}\n\n## stdout\n${result.stdout}\n\n## stderr\n${result.stderr}\n`;
-  const isolation = isolationReportFor(rawLog);
+  // Codex prints the supplied prompt after a user marker. Scan agent output
+  // without counting references already present in that exact input block.
+  const promptEcho = '\nuser\n' + prompt + '\ncodex\n';
+  const isolation = isolationReportFor(rawLog.replace(promptEcho, '\nuser\n[provided prompt]\n\ncodex\n'));
   const log = redact(rawLog);
   writeFileSync(resolve(owned, 'agent.log'), log);
   if (result.stdout.trim()) writeFileSync(resolve(owned, 'last-message.md'), redact(result.stdout));
@@ -453,9 +466,10 @@ async function runAgent(entry, root, options) {
     agentCommand: command,
     agentVersion: versionOf(command),
     model,
+    ...(options.reasoning ? { requestedReasoningEffort: options.reasoning } : {}),
     agentExit: result.code,
     agentTimedOut: result.timedOut,
-    outcome: classify(entry, verification, isolation),
+    outcome: classify(entry, verification, isolation, result.code === 0 && !result.timedOut),
     isolation,
     response: verification.response,
     humanActions: [],
@@ -528,7 +542,8 @@ function summarise(receiptsDir) {
   const rows = summariseFreshAgentReceipts(files.map((name) => JSON.parse(readFileSync(resolve(receiptsDir, name), 'utf8'))));
   const lines = ['| Case | Task | Outcome | Passed | Duration | Agent |', '| --- | --- | --- | --- | --- | --- |'];
   for (const row of rows) {
-    lines.push(`| ${row.case} | ${row.task} | ${row.outcome}${row.isolation.clean ? '' : ' (contaminated)'} | ${row.passed}/${row.total} | ${Math.round(row.durationMs / 1000)}s | ${row.agent} ${row.model} |`);
+    const effort = row.requestedReasoningEffort ? ` (${row.requestedReasoningEffort} requested)` : '';
+    lines.push(`| ${row.case} | ${row.task} | ${row.outcome}${row.isolation.clean ? '' : ' (contaminated)'} | ${row.passed}/${row.total} | ${Math.round(row.durationMs / 1000)}s | ${row.agent} ${row.model}${effort} |`);
   }
   return lines.join('\n');
 }
@@ -570,7 +585,7 @@ async function main() {
       rmSync(resolve(options.root), { recursive: true, force: true });
       console.log(`Removed the owned root ${resolve(options.root)}.`);
     }
-    return receipt.passed ? 0 : 1;
+    return ['passed', 'refused-as-expected'].includes(receipt.outcome) ? 0 : 1;
   }
   if (options.command === 'reverify') {
     // Re-run the declared assertions against the same untouched workspace, e.g.
@@ -587,14 +602,17 @@ async function main() {
     receipt.passed = verification.results.filter((result) => result.passed).length;
     receipt.total = verification.results.length;
     receipt.response = verification.response;
-    receipt.outcome = classify(entry, verification, receipt.isolation ?? { clean: false, hits: { unknown: 1 } });
+    receipt.outcome = classify(
+      entry, verification, receipt.isolation ?? { clean: false, hits: { unknown: 1 } },
+      receipt.agentExit === 0 && !receipt.agentTimedOut,
+    );
     receipt.reverifiedAt = new Date().toISOString();
     receipt.notes = [...(receipt.notes ?? []), ...options.note];
     receipt.assertionSet = readFileSync(resolve(casesDir, `${entry.id}.json`), 'utf8').length;
     writeFileSync(receiptPath, JSON.stringify(receipt, null, 2) + '\n');
     for (const result of verification.results) console.log(`${result.passed ? 'ok  ' : 'FAIL'} ${result.type} ${result.target}: ${result.detail}`);
     console.log(`\n${receipt.case}: ${receipt.outcome} (${receipt.passed}/${receipt.total}) against the recorded workspace; agent run unchanged.`);
-    return verification.passed ? 0 : 1;
+    return ['passed', 'refused-as-expected'].includes(receipt.outcome) ? 0 : 1;
   }
   if (options.command === 'summarise') {
     console.log(summarise(resolve(options.receipts)));
