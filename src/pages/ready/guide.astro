@@ -24,7 +24,7 @@ const firstAgent = Astro.url.searchParams.get('start') === 'agent';
    </ol>
    <p class="note">The automated Cloudflare setup has been verified on an Apple Silicon Mac with Git and Node.js 22 available. Other systems need a separate check. The browser exercise uses your chosen agent’s available tools and needs no Cloudflare account.</p>
    <div class="actions">
-    {Astro.url.searchParams.get('task') === 'browser' ? (
+    {Astro.url.searchParams.get('next') === 'browser' ? (
      <><a href="/ready?task=browser#agent-start" class="button">Try the browser check <ArrowRight size={18} aria-hidden="true"/></a><a href="/ready#agent-start">Continue to app setup</a></>
     ) : (
      <><a href="/ready#agent-start" class="button">Continue to app setup <ArrowRight size={18} aria-hidden="true"/></a><a href="/ready?task=browser#agent-start">Try the browser check</a></>

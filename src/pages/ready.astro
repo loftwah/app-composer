@@ -24,7 +24,7 @@ const nativePlatform = '/_emdash/admin/plugins/composer-stacks/platform' + (work
 const platformSelf = '/ready?' + new URLSearchParams({profile:'platform', ...(workspace ? {workspace} : {})});
 const source = appSettings.guestbook.source;
 const browserTask = Astro.url.searchParams.get('task') === 'browser';
-const firstAgentGuide = `/ready/guide?start=agent${browserTask ? '&task=browser' : ''}#first-agent`;
+const firstAgentGuide = `/ready/guide?start=agent${browserTask ? '&next=browser' : ''}#first-agent`;
 ---
 <Base title={platformSelected ? 'Get Ready: prepare your internal platform' : 'Get Ready: your first working environment'} description={platformSelected ? 'Prepare the operator prerequisites, inspect your authorised workspace and current adapter, then let teams request supported synthetic preview applications.' : 'Start before you have an app idea. Let your agent prepare tools, GitHub and Cloudflare, then verify your first HTTPS app. Save your address choice and resume progress.'}>
  <div class="workspace-heading">
@@ -94,9 +94,10 @@ const firstAgentGuide = `/ready/guide?start=agent${browserTask ? '&task=browser'
  .agent-entry {
   display:grid;
   justify-items:start;
-  gap:.75rem;
+  gap:.25rem;
   flex-shrink:0;
  }
+ .agent-entry > a:last-child {display:flex;align-items:center;min-block-size:44px}
  @media(max-width:950px) {
   .agent-entry {margin-top:1.5rem}
  }
