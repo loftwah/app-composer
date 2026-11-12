@@ -167,3 +167,25 @@ const shareAlt =
     .effect-details-links { gap: 4px 20px; }
   }
 </style>
+<script>
+  // The demo hydrates only when visible, so a cold #effect-run link needs its
+  // own anchor. Re-anchor while late images settle, then yield to the reader.
+  if (location.hash === '#effect-run') {
+    let active = true;
+    const anchor = () => {
+      if (!active || location.hash !== '#effect-run') return;
+      const section = document.getElementById('effect-run');
+      if (!section) return;
+      const { top } = section.getBoundingClientRect();
+      if (top >= 0 && top < window.innerHeight * 0.6) return;
+      section.scrollIntoView({ block: 'start', behavior: 'instant' });
+    };
+    anchor();
+    requestAnimationFrame(anchor);
+    window.addEventListener('load', anchor, { once: true });
+    window.setTimeout(anchor, 350);
+    const observer = new ResizeObserver(anchor);
+    observer.observe(document.body);
+    window.setTimeout(() => { active = false; observer.disconnect(); }, 3000);
+  }
+</script>

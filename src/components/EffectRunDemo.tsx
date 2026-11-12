@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import traceJson from "../lib/effect/run-trace.json";
 import {
   LINKCHECK_COMMIT,
@@ -128,36 +128,6 @@ function TargetCard({ target }: { target: Target }) {
 
 export default function EffectRunDemo() {
   const [selected, setSelected] = useState(scenarios[0].id);
-  // A direct #effect-run load can scroll before the scenario list has its final
-  // height. Re-anchor while the page settles, but stop once the section is
-  // already visible near the top so a reader's own scroll wins.
-  useEffect(() => {
-    if (location.hash !== "#effect-run") return;
-    let active = true;
-    const anchor = () => {
-      if (!active || location.hash !== "#effect-run") return;
-      const section = document.getElementById("effect-run");
-      if (!section) return;
-      const { top } = section.getBoundingClientRect();
-      if (top >= 0 && top < window.innerHeight * 0.6) return;
-      section.scrollIntoView({ block: "start", behavior: "instant" });
-    };
-    anchor();
-    const frame = requestAnimationFrame(anchor);
-    window.addEventListener("load", anchor, { once: true });
-    const settle = window.setTimeout(anchor, 350);
-    const observer = new ResizeObserver(anchor);
-    observer.observe(document.body);
-    const stop = window.setTimeout(() => observer.disconnect(), 3000);
-    return () => {
-      active = false;
-      cancelAnimationFrame(frame);
-      window.clearTimeout(settle);
-      window.clearTimeout(stop);
-      observer.disconnect();
-      window.removeEventListener("load", anchor);
-    };
-  }, []);
   const [revealed, setRevealed] = useState(0);
   const [copyStatus, setCopyStatus] = useState("");
   const scenario =
