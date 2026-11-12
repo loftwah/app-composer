@@ -13,10 +13,10 @@ const firstAgent = Astro.url.searchParams.get('start') === 'agent';
  <div class="step-number" aria-hidden="true">1</div>
  <div>
   <h2><Laptop size={24} aria-hidden="true"/>Open your coding agent.</h2>
-  <p>A coding agent can read and change files in the folder you choose and run checks for you. You tell it what you want and handle sign-in and decisions about access or spending.</p>
   <p>If you already have Codex open, choose your project folder. An empty folder is fine.</p>
   <details id="first-agent" open={firstAgent}>
    <summary>Set up your first agent</summary>
+   <p>A coding agent can read and change files in the folder you choose and run checks for you. You tell it what you want and handle sign-in and decisions about access or spending.</p>
    <ol>
     <li>On a computer, follow <a href="https://learn.chatgpt.com/docs/quickstart#setup">OpenAI’s desktop setup instructions</a> to download the ChatGPT app for your system.</li>
     <li>Open the app and sign in to your <a href="https://chatgpt.com/">ChatGPT account</a>. If Codex is unavailable, check <a href="https://learn.chatgpt.com/docs/pricing">access and usage for your plan</a> before paying for anything.</li>
