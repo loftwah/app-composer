@@ -1011,38 +1011,6 @@
   --home-next-bg: var(--home-paper);
   --home-next-fg: var(--home-ink);
 }
-@media (width > 1200px) {
-  .composer-home {
-    .hero-inner {
-      display: grid;
-      grid-template-columns: minmax(0, 1.16fr) minmax(0, 1fr);
-      column-gap: clamp(32px, 3vw, 48px);
-    }
-    .hero-copy {
-      width: auto;
-      container-type: inline-size;
-    }
-    .home-hero h1 {
-      font-size: clamp(4rem, 15cqi, 7.8rem);
-      white-space: normal;
-      overflow-wrap: anywhere;
-    }
-    /* The sheets can bleed beyond the right edge of the grid. Their entrance
-       starts inside the art column, clear of the headline. */
-    .studio-scene {
-      position: relative;
-      align-self: start;
-      width: calc(100% + clamp(72px, 9vw, 145px));
-      height: clamp(500px, 43vw, 660px);
-      top: auto;
-      right: auto;
-      margin-top: -52px;
-    }
-  }
-  .home-shell:has([data-builder-context]) .studio-scene {
-    margin-top: 0;
-  }
-}
 @media (max-width: 1300px) {
   .composer-home .studio-coordinate {
     display: none;
@@ -1117,22 +1085,9 @@
       min-height: 820px;
       padding-top: 190px;
     }
-    .hero-copy {
-      width: 66%;
-    }
-    .home-hero h1 {
-      font-size: clamp(4rem, 7.2vw, 6.8rem);
-    }
     .hero-lede {
       max-width: 31ch;
       font-size: 1.05rem;
-    }
-    .studio-scene {
-      width: 770px;
-      right: -235px;
-      top: 105px;
-      transform: scale(0.92);
-      transform-origin: right top;
     }
     .studio-output {
       left: 16%;
@@ -1174,6 +1129,38 @@
     }
   }
 }
+@media (width > 900px) {
+  .composer-home {
+    .hero-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.16fr) minmax(0, 1fr);
+      column-gap: clamp(32px, 3vw, 48px);
+    }
+    .hero-copy {
+      width: auto;
+      container-type: inline-size;
+    }
+    .home-hero h1 {
+      font-size: clamp(4rem, 15cqi, 7.8rem);
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+    /* The sheets can bleed beyond the right edge of the grid. Their entrance
+       starts inside the art column, clear of the headline. */
+    .studio-scene {
+      position: relative;
+      align-self: start;
+      width: calc(100% + clamp(72px, 9vw, 145px));
+      height: clamp(500px, 43vw, 660px);
+      top: auto;
+      right: auto;
+      margin-top: -52px;
+    }
+  }
+  .home-shell:has([data-builder-context]) .studio-scene {
+    margin-top: 0;
+  }
+}
 @media (max-width: 900px) {
   .composer-home {
     .home-container,
@@ -1202,9 +1189,11 @@
       margin-top: 12px;
     }
     .studio-scene {
+      width: 770px;
       right: -290px;
       top: 155px;
       transform: scale(0.72);
+      transform-origin: right top;
     }
     .hero-bottom > span {
       max-width: 28ch;
@@ -1347,6 +1336,35 @@
     }
   }
 }
+@media (max-width: 660px) {
+  .composer-home {
+    .hero-inner {
+      min-height: 0;
+      padding-bottom: 0;
+    }
+    .hero-copy {
+      width: 100%;
+    }
+    .home-hero h1 {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+    .studio-scene {
+      position: relative;
+      width: calc(100% + 25px);
+      height: 390px;
+      right: auto;
+      top: auto;
+      margin: 32px 0 0 -5px;
+      transform: none;
+    }
+    .hero-bottom {
+      position: relative;
+      inset: auto;
+      margin-top: 18px;
+    }
+  }
+}
 @media (max-width: 600px) {
   .home-shell > .site-header {
     min-height: 84px;
@@ -1369,13 +1387,7 @@
       inset-inline: 20px;
     }
     .hero-inner {
-      min-height: 0;
       padding-top: 134px;
-      padding-bottom: 0;
-    }
-    .hero-copy {
-      width: 100%;
-      pointer-events: auto;
     }
     .hero-eyebrow {
       font-size: 0.66rem;
@@ -1408,15 +1420,6 @@
     .hero-context {
       font-size: 0.68rem;
       margin-top: 7px;
-    }
-    .studio-scene {
-      position: relative;
-      width: calc(100% + 25px);
-      height: 390px;
-      right: auto;
-      top: auto;
-      margin: 32px 0 0 -5px;
-      transform: none;
     }
     .studio-backplane {
       width: 59%;
@@ -1463,9 +1466,6 @@
       right: 5%;
     }
     .hero-bottom {
-      position: relative;
-      inset: auto;
-      margin-top: 18px;
       padding-block: 18px 25px;
       align-items: flex-start;
       flex-direction: column;
