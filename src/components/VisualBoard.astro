@@ -39,7 +39,7 @@ const { pins } = collection;
   <dialog class="pin-dialog" data-pin-dialog aria-labelledby="pin-dialog-title">
     <div class="dialog-bar">
       <h2 id="pin-dialog-title" data-pin-title></h2>
-      <form method="dialog"><button type="submit" class="secondary" aria-label="Close pin" autofocus><X size={21} aria-hidden="true" /></button></form>
+      <button type="button" class="secondary" data-close-pin aria-label="Close pin" autofocus><X size={21} aria-hidden="true" /></button>
     </div>
     {pins.map((pin) => (
       <div class="pin-detail" data-pin-detail={pin.id} data-title={pin.title} hidden>
@@ -80,7 +80,6 @@ const { pins } = collection;
     const empty = board.querySelector<HTMLElement>('[data-board-empty]')!;
     let filter = 'all';
     let opener: HTMLAnchorElement | undefined;
-    let followingAnchor = false;
 
     try {
       for (const id of knownIds) if (localStorage.getItem(keyPrefix + id) === 'saved') saved.add(id);
@@ -132,22 +131,26 @@ const { pins } = collection;
         title.textContent = detail.dataset.title ?? '';
         dialogStatus.textContent = '';
         opener = link;
-        followingAnchor = false;
         dialog.showModal();
       });
     }
 
-    dialog.querySelector<HTMLAnchorElement>('[href="#walkthrough-film"]')?.addEventListener('click', () => {
-      followingAnchor = true;
-      dialog.close();
-    });
-    dialog.addEventListener('close', () => {
+    function closePin(followingAnchor = false) {
       dialog.querySelector('video')?.pause();
-      if (!followingAnchor) {
-        if (opener?.closest('[hidden]')) filters[1]?.focus();
-        else opener?.focus({ preventScroll: true });
-      }
+      dialog.close();
+      if (followingAnchor) return;
+      if (opener?.closest('[hidden]')) filters[1]?.focus();
+      else opener?.focus({ preventScroll: true });
+    }
+
+    dialog.querySelector<HTMLButtonElement>('[data-close-pin]')!.addEventListener('click', () => closePin());
+    dialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      closePin();
     });
+    for (const anchor of dialog.querySelectorAll<HTMLAnchorElement>('[data-pin-destination][href^="#"]')) {
+      anchor.addEventListener('click', () => closePin(true));
+    }
 
     window.addEventListener('storage', (event) => {
       if (event.key === null) {
