@@ -27,7 +27,38 @@ const quality = {
   bounded: "Recorded lower bound",
   retained: "Retained records, not an action log",
 };
-function Timeline({ metric }: { metric: OutcomeMetric }) {
+const fullDayLabel = (day: string) =>
+  new Date(day + "T00:00:00Z").toLocaleDateString("en-AU", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+type DayPoint = { date: string; value: number | null };
+const dayStateText = (
+  point: DayPoint,
+  firstObserved: string | null,
+  windowEnd: string,
+  isToday: boolean,
+  retained: boolean,
+) => {
+  if (point.value === null) return "History unavailable";
+  if (retained) return point.value === 0 ? "No retained snapshot" : "Retained snapshots";
+  if (firstObserved && point.date === firstObserved) return "First retained day · partial";
+  if (isToday && point.date === windowEnd) return "Today, UTC · partial";
+  if (point.value === 0) return "Retained zero · no event recorded";
+  return "Recorded lower bound";
+};
+function Timeline({
+  metric,
+  windowEnd,
+  isToday,
+}: {
+  metric: OutcomeMetric;
+  windowEnd: string;
+  isToday: boolean;
+}) {
   const [day, setDay] = useState(metric.daily.length - 1);
   const figure = useRef<HTMLElement>(null);
   const [width, setWidth] = useState(700);
@@ -45,15 +76,30 @@ function Timeline({ metric }: { metric: OutcomeMetric }) {
     point = metric.daily[index];
   const maximum = Math.max(1, ...metric.daily.map((value) => value.value ?? 0));
   const step = (width - 80) / metric.daily.length;
+  const retained = metric.key === "retained_snapshots";
+  const state = dayStateText(
+    point,
+    metric.firstObserved,
+    windowEnd,
+    isToday,
+    retained,
+  );
+  const inspect = (value: number) =>
+    setDay(Math.max(0, Math.min(metric.daily.length - 1, value)));
   return (
     <figure className="co-timeline" ref={figure}>
       <figcaption>
         {metric.label} <span>· daily, UTC</span>
       </figcaption>
+      <div className="co-day-readout" role="status" aria-live="polite">
+        <span>{fullDayLabel(point.date)} · UTC</span>
+        <strong>{quantity(point.value)}</strong>
+        <span>{state}</span>
+      </div>
       <svg
         viewBox={`0 0 ${width} 250`}
         role="img"
-        aria-label={`${metric.label}: ${quantity(metric.value)}. Daily values are available in the table below.`}
+        aria-label={`${metric.label}: ${quantity(metric.value)}. Selected ${point.date}: ${quantity(point.value)}. Daily values are available in the table below.`}
       >
         <line className="co-axis" x1="52" y1="210" x2={width - 20} y2="210" />
         <line className="co-grid" x1="52" y1="34" x2={width - 20} y2="34" />
@@ -66,38 +112,81 @@ function Timeline({ metric }: { metric: OutcomeMetric }) {
         <text className="co-axis-label" x="42" y="213" textAnchor="end">
           0
         </text>
-        {metric.daily.map((value, i) => (
-          <g
-            key={value.date}
-            className={i === index ? "co-day co-day-selected" : "co-day"}
-          >
-            {value.value === null ? (
-              <path
-                className="co-gap"
-                d={`M${58 + i * step} 200l${Math.max(3, step - 9)} -7`}
-              />
-            ) : value.value === 0 ? (
-              <circle
-                className="co-zero"
-                cx={56 + i * step + step / 2}
-                cy="210"
-                r="2.5"
-              />
-            ) : (
+        {metric.daily.map((value, i) => {
+          const selectedColumn = i === index;
+          return (
+            <g
+              key={value.date}
+              className={[
+                "co-day",
+                selectedColumn ? "co-day-selected" : "",
+                value.value === null ? "co-day-missing" : "",
+                value.value === 0 ? "co-day-zero" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              onClick={() => inspect(i)}
+            >
               <rect
-                className="co-bar"
-                x={56 + i * step}
-                y={210 - (value.value / maximum) * 176}
-                width={Math.max(3, step - 7)}
-                height={(value.value / maximum) * 176}
-                rx="2"
+                className="co-day-hit"
+                x={52 + i * step}
+                y="24"
+                width={Math.max(2, step)}
+                height="196"
               />
-            )}
-            <title>
-              {value.date}: {quantity(value.value)}
-            </title>
-          </g>
-        ))}
+              {value.value === null ? (
+                <path
+                  className="co-gap"
+                  d={`M${58 + i * step} 200l${Math.max(3, step - 9)} -7`}
+                />
+              ) : value.value === 0 ? (
+                <circle
+                  className="co-zero"
+                  cx={56 + i * step + step / 2}
+                  cy="210"
+                  r="2.5"
+                />
+              ) : (
+                <rect
+                  className="co-bar"
+                  x={56 + i * step}
+                  y={210 - (value.value / maximum) * 176}
+                  width={Math.max(3, step - 7)}
+                  height={(value.value / maximum) * 176}
+                  rx="2"
+                />
+              )}
+              {(metric.firstObserved === value.date ||
+                (isToday && value.date === windowEnd)) && (
+                <line
+                  className="co-partial"
+                  x1={58 + i * step}
+                  x2={58 + i * step + Math.max(3, step - 9)}
+                  y1={
+                    value.value === null
+                      ? 222
+                      : 210 - (value.value / maximum) * 176 - 5
+                  }
+                  y2={
+                    value.value === null
+                      ? 222
+                      : 210 - (value.value / maximum) * 176 - 5
+                  }
+                />
+              )}
+              <title>
+                {value.date}: {quantity(value.value)} ·{" "}
+                {dayStateText(
+                  value,
+                  metric.firstObserved,
+                  windowEnd,
+                  isToday,
+                  retained,
+                )}
+              </title>
+            </g>
+          );
+        })}
         <text className="co-axis-label" x="56" y="239">
           {dayLabel(metric.daily[0].date)}
         </text>
@@ -105,24 +194,41 @@ function Timeline({ metric }: { metric: OutcomeMetric }) {
           {dayLabel(metric.daily.at(-1)!.date)}
         </text>
       </svg>
-      <label className="co-inspector">
-        Inspect a day{" "}
-        <input
-          type="range"
-          aria-label="Inspect a day"
-          min="0"
-          max={metric.daily.length - 1}
-          value={index}
-          onChange={(event) => setDay(Number(event.target.value))}
-          aria-valuetext={`${point.date}: ${quantity(point.value)}`}
-        />
-        <output aria-live="polite">
-          {dayLabel(point.date)}: <strong>{quantity(point.value)}</strong>
-        </output>
-      </label>
+      <div className="co-day-controls">
+        <button
+          type="button"
+          aria-label="Inspect the previous UTC day"
+          disabled={index === 0}
+          onClick={() => inspect(index - 1)}
+        >
+          ‹
+        </button>
+        <label className="co-inspector">
+          Inspect a day{" "}
+          <input
+            type="range"
+            aria-label="Inspect a day"
+            min="0"
+            max={metric.daily.length - 1}
+            value={index}
+            onChange={(event) => inspect(Number(event.target.value))}
+            aria-valuetext={`${fullDayLabel(point.date)}: ${quantity(point.value)}. ${state}.`}
+          />
+        </label>
+        <button
+          type="button"
+          aria-label="Inspect the next UTC day"
+          disabled={index === metric.daily.length - 1}
+          onClick={() => inspect(index + 1)}
+        >
+          ›
+        </button>
+      </div>
       <p className="co-muted">
-        A slash is unavailable history. A dot on zero means no event was
-        recorded that day. The first observation and today are partial.
+        Tap or click a column, or use the range and arrow keys. A slash is
+        unavailable history; a dot on the baseline is a retained zero. A dashed
+        cap marks the first observed day and today as partial. Counts stop at
+        the per-day cap stated under Evidence and limits.
       </p>
     </figure>
   );
@@ -304,7 +410,7 @@ function WorkspaceOutcomes({ search }: { search: string }) {
       anchor.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       setMessage(
-        "Aggregate export downloaded for the displayed scope. Its query ran at the export timestamp.",
+        `Aggregate export downloaded for the displayed scope. The export query ran at ${new Date(raw.export.generatedAt).toLocaleString("en-AU", { timeZone: "UTC" })} UTC${changedFilters ? ". Pending filters were not applied" : ""}.`,
       );
     } catch (cause) {
       if (live.current)
@@ -378,6 +484,20 @@ function WorkspaceOutcomes({ search }: { search: string }) {
     metric = report?.metrics.find((value) => value.key === metricKey);
   const stacks = snapshot?.reply.options.stacks ?? [],
     instances = snapshot?.reply.options.instances ?? [];
+  const appliedStack = report?.scope.stack
+    ? (stacks.find((value) => value.id === report.scope.stack)?.name ??
+      report.scope.stack)
+    : "All workspace stacks";
+  const appliedInstance = report?.scope.instance
+    ? (instances.find((value) => value.id === report.scope.instance)?.label ??
+      report.scope.instance)
+    : "All instances";
+  const trafficText =
+    report?.traffic === "demo"
+      ? "declared demonstrations"
+      : report?.traffic === "all"
+        ? "both traffic classifications"
+        : "unclassified traffic";
   return (
     <section className="composer-outcomes" aria-busy={busy}>
       <header className="co-heading">
@@ -430,19 +550,70 @@ function WorkspaceOutcomes({ search }: { search: string }) {
             ? "Loading…"
             : uncertain
               ? "Check saved classification"
-              : "Refresh displayed scope"}
+              : "Refresh applied scope"}
         </button>
       </div>
+      {report && (
+        <section
+          className={changedFilters ? "co-applied is-pending" : "co-applied"}
+          aria-labelledby="co-applied-title"
+        >
+          <div>
+            <p className="co-applied-kicker">Applied scope</p>
+            <h2 id="co-applied-title">
+              {dayLabel(report.period.from)}–{dayLabel(report.period.to)}{" "}
+              <span>UTC</span>
+            </h2>
+            <p className="co-applied-scope">
+              <strong>{snapshot!.reply.workspace.name}</strong> · {appliedStack}{" "}
+              / {appliedInstance} · {trafficText} ·{" "}
+              {report.period.end === "today"
+                ? "today is partial"
+                : "complete UTC days"}
+            </p>
+            <p className="co-applied-meta">
+              Last successful report{" "}
+              {new Date(report.generatedAt).toLocaleString("en-AU", {
+                timeZone: "UTC",
+              })}{" "}
+              UTC. Export re-runs this same scope and records its own query
+              time.
+            </p>
+            {changedFilters && (
+              <p className="co-pending" role="status">
+                Filters have changed but are not applied. The report, export and
+                public preview below still use this scope.
+              </p>
+            )}
+          </div>
+          <div className="co-applied-actions">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void download()}
+            >
+              Export displayed scope
+            </button>
+            {changedFilters && (
+              <button
+                type="button"
+                className="secondary"
+                disabled={busy}
+                onClick={() => void load(filters)}
+              >
+                Apply pending filters
+              </button>
+            )}
+          </div>
+        </section>
+      )}
       {snapshot?.reply.workspace.role === "owner" &&
         report?.scope.stack &&
         report.scope.instance && (
-          <section
-            className="co-public-story"
-            aria-labelledby="co-public-story-title"
-          >
-            <h2 id="co-public-story-title">
+          <details className="co-public-story">
+            <summary id="co-public-story-title">
               Share a permitted Open-action aggregate
-            </h2>
+            </summary>
             <p>
               Preview the exact counts, dates and traffic classification.
               Publication excludes workspace names, instance labels, record
@@ -512,7 +683,7 @@ function WorkspaceOutcomes({ search }: { search: string }) {
                 <a href={publicUrl}>Open the frozen public report</a>
               </p>
             )}
-          </section>
+          </details>
         )}
       <details
         className="co-filter-drawer"
@@ -619,39 +790,6 @@ function WorkspaceOutcomes({ search }: { search: string }) {
       {message && <p role="status">{message}</p>}
       {report && (
         <>
-          <div className="co-period">
-            <h2>
-              {dayLabel(report.period.from)}–{dayLabel(report.period.to)}{" "}
-              <span>UTC</span>
-            </h2>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => void download()}
-            >
-              Export displayed scope
-            </button>
-          </div>
-          <p className="co-muted">
-            {report.scope.stack
-              ? (stacks.find((value) => value.id === report.scope.stack)
-                  ?.name ?? report.scope.stack)
-              : "All workspace stacks"}
-            {report.scope.instance
-              ? ` / ${instances.find((value) => value.id === report.scope.instance)?.label ?? report.scope.instance}`
-              : " / all instances"}{" "}
-            ·{" "}
-            {report.traffic === "demo"
-              ? "declared demonstrations"
-              : report.traffic === "all"
-                ? "both traffic classifications"
-                : "unclassified traffic"}
-            . Updated{" "}
-            {new Date(report.generatedAt).toLocaleString("en-AU", {
-              timeZone: "UTC",
-            })}{" "}
-            UTC.{changedFilters && " Filters above have not been applied."}
-          </p>
           <div
             className="co-signals"
             role="group"
@@ -676,6 +814,8 @@ function WorkspaceOutcomes({ search }: { search: string }) {
                 <Timeline
                   key={`${metric.key}:${report.period.from}`}
                   metric={metric}
+                  windowEnd={report.period.to}
+                  isToday={report.period.end === "today"}
                 />
                 <details className="co-table">
                   <summary>Daily values as a table</summary>

@@ -9,7 +9,7 @@ const apps = [
     id: 'showcase',
     name: 'Linkarooie',
     ...reference.apps.showcase,
-    purpose: 'Mara Quinn’s profile. Four work links and the approved guest contributions she chose to show.',
+    purpose: 'Mara Quinn’s profile. Four work links, two now pinned as featured picks. Approved guest contributions stay in Here / there until she features them here.',
   },
   {
     id: 'guestbook',
@@ -98,6 +98,30 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
   </ol>
   <p class="small">This record describes the build on 11 November 2026 in the operator’s account. A different person’s build uses their own account, repositories and hostname, and their own owner credentials.</p>
  </section>
+
+  <section class="hub-section" id="follow-up">
+   <h2>A second change, made the same way.</h2>
+   <figure class="hub-quote">
+    <blockquote>
+     “Give my curated links more prominence while keeping my approved postcards available.”
+    </blockquote>
+   </figure>
+   <p>On 12 November 2026 Mara asked for a follow-up on the same fictional app. The agent used Linkarooie’s existing presentation control — not a new build or a forked page — to pin two of her four curated links as featured picks. The live profile now opens with a numbered <strong>Featured</strong> section, while the full collection stays under <strong>Other links</strong>.</p>
+   <figure class="hub-shot">
+    <img
+     src="/creator-hub/profile-20261112.webp"
+     width="1440"
+     height="1535"
+     loading="lazy"
+     decoding="async"
+     alt="The live Mara Quinn profile after the follow-up: a Featured section with two numbered picks, followed by the same four links under Other links."
+    />
+    <figcaption class="small">Live profile after the change, captured 12 November 2026. Same source, same four links, same account.</figcaption>
+   </figure>
+   <p><strong>Before:</strong> no featured picks; all four links appeared under Other links. <strong>After:</strong> Salt-glaze dinner set and Workshop notes: ash glazes are featured as picks 01 and 02; Autumn show, Castlemaine and Commissions remain in the collection. The approved guestbook postcard was not edited, hidden or deleted — it still returns <code>200</code> at its Here / there item and media URLs and is still offered by the app’s provider source.</p>
+   <p>The change is a saved presentation setting, so it is reversible without a release: unpin the two cards in the owner studio and the previous view returns. That is the practical difference between an app-owned setting and a code change.</p>
+   <p class="small">Verified against <code>b7cd3b3e8f19dbbb76d33fb4266053da928cf586</code> at <a href="https://creator-hub.loftwah.com/">creator-hub.loftwah.com</a>. The featured pins are stored by Linkarooie, not by App Composer.</p>
+  </section>
 
  <section class="hub-section" id="you">
   <h2>What needed a person.</h2>
