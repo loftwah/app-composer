@@ -86,6 +86,7 @@ const siteSchema = {
           </p>
         </div>
         <div class="studio-scene" data-studio-scene aria-hidden="true">
+          <span class="studio-visibility-anchor"></span>
           <div class="studio-assembly">
             <div class="studio-plate">
               <img
@@ -607,10 +608,10 @@ const siteSchema = {
     "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)",
   );
 
-  const terminal = scene?.querySelector(".studio-terminal");
+  const anchor = scene?.querySelector(".studio-visibility-anchor");
   if (
     scene &&
-    terminal &&
+    anchor &&
     "IntersectionObserver" in window &&
     !matchMedia("(prefers-reduced-motion: reduce)").matches
   ) {
@@ -622,7 +623,7 @@ const siteSchema = {
       },
       { rootMargin: "0px 0px -24px" },
     );
-    observer.observe(terminal);
+    observer.observe(anchor);
   }
 
   scene?.addEventListener("pointermove", (event) => {

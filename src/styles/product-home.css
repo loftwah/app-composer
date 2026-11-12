@@ -278,6 +278,14 @@
     /* Contain projected edges and shadows within the art column. */
     overflow: clip;
   }
+  .studio-visibility-anchor {
+    /* WebKit can misreport the projected SVG terminal's intersection. */
+    position: absolute;
+    inset: 75% 9% auto auto;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
   .studio-assembly {
     position: absolute;
     inset: 0;
