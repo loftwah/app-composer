@@ -45,6 +45,27 @@ process per run, and records the assertions itself. Copy the receipts that will
 be committed into `labs/fresh-agent/results-<date>.json`, write the dated
 record, then remove the exact owned root. Raw transcripts stay ignored.
 
+## Compare reasoning effort on the same task
+
+Use two fresh fixture roots and the same signed-in Codex CLI. The existing
+`existing-change` case checks an actual HTTP response, the project's tests,
+the agent's structured report and the original bytes of four owner files.
+
+```sh
+node scripts/eval-fresh-agent.mjs run --case existing-change --root "$BASE/medium" \
+  --agent codex --model gpt-6.1-sol --reasoning medium
+node scripts/eval-fresh-agent.mjs run --case existing-change --root "$BASE/high" \
+  --agent codex --model gpt-6.1-sol --reasoning high
+```
+
+Add `--bin /absolute/path/to/codex` to both commands to use a specific installed
+CLI. Each receipt records the executable version, requested model and requested
+effort. Check the session header for effective settings and record any account
+or client rejection before comparing results. Compare assertions passed,
+elapsed time and human intervention. If both efforts pass, use a more demanding
+fixture with a concrete invariant before drawing a conclusion about capability.
+Keep the two receipts and clean up the owned roots as above.
+
 ## Cadence and rotation
 
 | Check | When | Sessions |

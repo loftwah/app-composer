@@ -39,6 +39,7 @@ export interface FreshAgentReceiptSummary {
   durationMs: number;
   agent: string;
   model: string;
+  requestedReasoningEffort?: string;
   isolation: IsolationReport;
 }
 
@@ -51,6 +52,7 @@ export interface FreshAgentReceiptLike {
   durationMs: number;
   agent: string;
   model: string;
+  requestedReasoningEffort?: string;
   isolation?: IsolationReport;
 }
 
@@ -66,6 +68,7 @@ export function summariseFreshAgentReceipts(receipts: readonly FreshAgentReceipt
       durationMs: receipt.durationMs,
       agent: receipt.agent,
       model: receipt.model,
+      ...(receipt.requestedReasoningEffort ? { requestedReasoningEffort: receipt.requestedReasoningEffort } : {}),
       isolation: receipt.isolation ?? { clean: false, hits: { unknown: 1 } },
     }))
     .sort((a, b) => a.case.localeCompare(b.case));
