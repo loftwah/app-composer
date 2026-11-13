@@ -1,7 +1,13 @@
-import {presets,questions,validateSpec,pruneAnswers,handoff} from './spec.mjs';
+import {presets,questions,validateSpec,pruneAnswers,handoff,defaultMediaStudio} from './spec.mjs';
 import {selectedSources} from './app-settings.mjs';
 import {assistanceHandoff} from '../../lib/get-ready/preferences.mjs';
-const limits={composition:'Photos require an invitation and owner review. Customer deployment still needs an authorised agent and a verified target.',guestbook:'Contributions remain private until approved. New customer storage and deployment need agent implementation and verification.',showcase:'Cards are curated HTTPS links or eligible photos. This does not automatically collect content or provision a customer deployment.',hello:'The supported reference changes title, introduction and theme. Broader code changes require a separate reviewed implementation.'};
+const limits={
+  composition:'Photos require an invitation and owner review. Customer deployment still needs an authorised agent and a verified target.',
+  guestbook:'Contributions remain private until approved. New customer storage and deployment need agent implementation and verification.',
+  showcase:'Cards are curated HTTPS links or eligible photos. This does not automatically collect content or provision a customer deployment.',
+  'media-studio':'Uploads and the library work without a model account. Image generation uses the studio’s configured Cloudflare Workers AI allowance; video needs its own funded fal.ai key. Neither is provisioned by saving this draft.',
+  hello:'The supported reference changes title, introduction and theme. Broader code changes require a separate reviewed implementation.'
+};
 export function initialRecommendation(search, current) {
  const requested = new URLSearchParams(search).getAll('start');
  return requested.length === 1 && Object.hasOwn(presets, requested[0]) ? requested[0] : current;
@@ -13,6 +19,7 @@ export function presetRecommendation(id){
 export function recommendationSpec(input,id){
  const current=validateSpec(input),recommendation=presetRecommendation(id),before=presets[current.preset],after=presets[id];
  const decisions={...pruneAnswers({...current.decisions,goal:id}),...(Object.hasOwn(current.decisions,'owner-priority')?{'owner-priority':current.decisions['owner-priority']}:{})};
- return validateSpec({...current,preset:id,sources:recommendation.sources,appSettings:Object.fromEntries(Object.entries(current.appSettings).filter(([app])=>recommendation.apps.includes(app))),config:{...current.config,title:current.config.title===before.title?after.title:current.config.title,intro:current.config.intro===before.intro?after.intro:current.config.intro},decisions});
+ const {mediaStudio:currentMedia,...rest}=current;
+ return validateSpec({...rest,preset:id,sources:recommendation.sources,appSettings:Object.fromEntries(Object.entries(current.appSettings).filter(([app])=>recommendation.apps.includes(app))),config:{...current.config,title:current.config.title===before.title?after.title:current.config.title,intro:current.config.intro===before.intro?after.intro:current.config.intro},decisions,...(id==='media-studio'?{mediaStudio:currentMedia?{...currentMedia,projectName:current.config.title===before.title?after.title:current.config.title}:{...defaultMediaStudio({title:current.config.title===before.title?after.title:current.config.title})}}:{})});
 }
 export function assistedHandoff(spec,preference){return handoff(spec)+assistanceHandoff(preference);}

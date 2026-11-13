@@ -38,6 +38,27 @@ const apps = {
       "the public profile shows the requested curated links with the intended visibility",
     ],
   },
+  "media-studio": {
+    name: "Media Studio",
+    order: 1,
+    role: "owner",
+    storage: [
+      "a D1 database bound as DB, with migrations/0001.sql applied from the pinned source",
+      "an R2 bucket bound as MEDIA for uploads, generated outputs and retained recoveries",
+    ],
+    secrets: ["OWNER_PASSPHRASE", "SESSION_SECRET"],
+    optionalSecrets: ["FAL_KEY"],
+    wiring: [
+      "a Workers AI binding named AI on the owner's Cloudflare account for stills",
+      "the every-minute cron trigger declared in the app's own Wrangler configuration so asynchronous video jobs finish after the browser closes",
+    ],
+    verify: [
+      "/healthz and /build.json report the exact owned commit that was deployed",
+      "an uploaded image survives a reload and downloads with matching bytes",
+      "one real still generation and one reference-guided variation are saved in the library",
+      "a deliberately published page loads, and withdrawing it stops new visits",
+    ],
+  },
 };
 
 const configurationContract = {
@@ -45,6 +66,8 @@ const configurationContract = {
     "title, introduction, theme, layout and guestAccess through its own configuration contract",
   showcase:
     "profile fields and the curated cards through its own configuration contract",
+  "media-studio":
+    "project name, creative direction, visibility and the saved media defaults through its own owner studio; never its passphrase, session secret or provider key",
 };
 
 function orderedIds(spec) {
@@ -113,14 +136,21 @@ export function buildRecipe(spec) {
       detail:
         "In the owner's Cloudflare account, create " +
         app.storage.join(", and ") +
+        (app.wiring?.length ? ", then add " + app.wiring.join(", and ") : "") +
         ". Replace the placeholders with the verified IDs or names of the resources created for this app before running any migrations. Keep each app's database and bucket separate.",
     });
+    const secrets = app.secrets ?? [app.secret];
+    const commands = secrets.map((name) => `\`wrangler secret put ${name}\``).join(", ");
     steps.push({
       actor: "human",
       title: `Set the owner credential for ${app.name}`,
-      detail: `The owner creates a long random value for ${app.secret} and sets it only on this app's verified Worker using \`wrangler secret put ${app.secret}\`. Confirm the Worker name and account first. Keep the value out of the repository, this specification, prompts, screenshots and logs. The agent verifies that the app accepts it after deployment.`,
+      detail: `The owner creates long random values for ${secrets.join(" and ")} and sets them only on this app's verified Worker using ${commands}. Confirm the Worker name and account first. Keep the values out of the repository, this specification, prompts, screenshots and logs. The agent verifies that the app accepts them after deployment.${
+        app.optionalSecrets?.length
+          ? ` Optional provider access: ${app.optionalSecrets.join(", ")} is only needed for the capability it enables. Setting it is the owner's funded-provider decision; the studio must keep its other functions working without it.`
+          : ""
+      }`,
     });
-    if (app.wiring.length && !standalone)
+    if (app.wiring.length && !standalone && id !== "media-studio")
       steps.push({
         actor: "agent",
         title: `Connect ${app.name} to the provider`,
@@ -170,7 +200,7 @@ export function buildRecipe(spec) {
 export function humanOnlyActions(spec) {
   const actions = orderedIds(spec)
     .filter((id) => Object.hasOwn(apps, id))
-    .map((id) => `create ${apps[id].secret} for ${apps[id].name}`);
+    .map((id) => `create ${(apps[id].secrets ?? [apps[id].secret]).join(" and ")} for ${apps[id].name}`);
   actions.unshift(
     "sign in to Cloudflare and authorise the account the apps deploy into",
   );

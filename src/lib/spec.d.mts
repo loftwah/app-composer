@@ -8,6 +8,15 @@ export interface Spec {
     scope: "assess" | "prepare";
     revision: 1;
   };
+  mediaStudio?: {
+    version: 1;
+    focus: "image" | "video" | "both";
+    imageModel: "studio-print" | "studio-film" | "studio-draft" | "studio-quick";
+    videoModel: "hailuo-standard" | "kling-standard";
+    aspect: "portrait" | "square" | "landscape" | "wide";
+    durationSeconds: number;
+    projectName: string;
+  };
   version: 2;
   preset: string;
   apps: string[];
@@ -49,6 +58,13 @@ export function visibleQuestions(answers: Record<string, string>): Question[];
 export function explorerSpec(answers: Record<string, string>): Spec;
 
 export const specVersion: 2;
+export const mediaStudioRevision: 1;
+export const mediaImageModels: string[];
+export const mediaVideoModels: string[];
+export const mediaAspects: string[];
+export const mediaDurations: number[];
+export function defaultMediaStudio(config?: { title?: string }): NonNullable<Spec["mediaStudio"]>;
+export function validateMediaStudio(value: unknown): Spec["mediaStudio"];
 export const maintenanceRevision: 1;
 export const maintenanceTasks: Record<
   "health" | "verify" | "updates" | "accessibility",

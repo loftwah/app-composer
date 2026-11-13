@@ -1,6 +1,7 @@
 // Reviewed composition contracts supply controls; external settings are data.
 import composition from "../../composition.lock.json" with { type: "json" };
 import linkarooieStandalone from "../../config/linkarooie-standalone.json" with { type: "json" };
+import mediaStudioStandalone from "../../config/media-studio-standalone.json" with { type: "json" };
 
 interface FieldBase {
   key: string;
@@ -201,6 +202,8 @@ export const globalAppSettings: Readonly<Record<string, AppSettingsModel>> =
 export function selectedSources(ids: string[]): AppSource[] {
   if (ids.length === 1 && ids[0] === "showcase")
     return [{ ...linkarooieStandalone.source }];
+  if (ids.length === 1 && ids[0] === "media-studio")
+    return [{ ...mediaStudioStandalone.source }];
   return ids
     .filter((id) => Object.hasOwn(appSettings, id))
     .map((id) => ({ ...appSettings[id].source }));
