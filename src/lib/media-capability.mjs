@@ -10,6 +10,7 @@ export const mediaCapabilityPurpose =
   "Generate stills, reference variations and short image-to-video clips through an authorised Oyster installation, keep the owned result and import it into the app's media library.";
 
 export const mediaActions = [
+  "status",
   "enable",
   "disable",
   "refresh",
