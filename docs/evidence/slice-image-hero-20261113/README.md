@@ -2,11 +2,10 @@
 
 2026/11/13 AEDT (Australia/Melbourne, UTC+11) / 2026/11/13 UTC.
 
-Status: reviewed in a real browser at 1440, 390 and 320 px in both themes. The
-release section below records the deployment once the clean pushed-main
-`pnpm deploy` path has run; the live source, Worker version and affected-flow
-check also belong in [#7](https://github.com/loftwah/app-composer/issues/7) and
-the [#11 release index](https://github.com/loftwah/app-composer/issues/11).
+Status: released and verified in production. The live source, Worker version and
+affected-flow check are recorded below and in
+[#7](https://github.com/loftwah/app-composer/issues/7) and the
+[#11 release index](https://github.com/loftwah/app-composer/issues/11).
 
 ## What changed
 
@@ -70,3 +69,25 @@ unchanged by this work.
 No formal critique score or owner visual approval is claimed. Remaining limit:
 the live check confirms the deployed composition and interaction; it is not a
 substitute for MP's taste judgement on the treatment.
+
+## Release — 2026/11/13 AEDT / UTC
+
+- Integrated as the squash commit `c8ffb5e5029ea291adeedad79127580cae244f93`
+  (PR #458) on top of `f9302e4`.
+- Released from clean pushed `main` with `pnpm deploy`, which owned the integrated
+  checks and build. Release elapsed **105.4 s**.
+- Worker `app-composer` version **`a851f328-c9b9-4b5d-bf4c-96906a1d0b9e`**,
+  origin <https://composer.loftwah.com> (custom domain on the production Worker).
+- Release gates reported: Worker upload, `Verified exact live Composer source
+  c8ffb5e5029ea291adeedad79127580cae244f93`, live sharing output, live publication
+  privacy (no findings), anonymous administration boundary, release record.
+- Live check in Chromium on the real origin at 1440×900, 390×844 and 320×720 in
+  both themes: 20 strip rects render, both app screenshots load
+  (`complete` with real `naturalWidth`), `scrollWidth === clientWidth` at every
+  width, headline/actions unaffected.
+- Screenshots (public-safe): `shots/home-1440-dark.webp`,
+  `shots/home-1440-light.webp`, `shots/home-390-dark.webp`,
+  `shots/home-390-light.webp`, `shots/home-320-dark.webp`.
+
+This follow-up evidence commit is documentation only; the deployed runtime
+remains `c8ffb5e`, so no second deployment is required for it.
