@@ -2527,3 +2527,11 @@
     display: none;
   }
 }
+
+@media (max-width: 900px) {
+  :root[data-theme="light"] .composer-home .studio-vignette {
+    background:
+      linear-gradient(0deg, var(--home-hero-bg) 0%, transparent 20%),
+      linear-gradient(180deg, var(--home-hero-bg) 0%, transparent 12%);
+  }
+}
