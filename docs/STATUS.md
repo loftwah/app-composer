@@ -24,6 +24,47 @@ and follow-up-change work from the recorded delivery evidence below.
 adoption. This documentation alignment records desired behaviour; it does not
 complete either issue's runtime, newcomer or demonstration acceptance.
 
+## Media Studio — 13 November 2026
+
+Composer now offers **Media Studio — make and organise images and video** in the
+real Init journey. The studio is an independent MIT application with its own
+source, D1 metadata, R2 media, provider keys and release boundary.
+
+- **Selection and ownership.** Init selects the studio, saves a versioned media
+  configuration, pins `composer-media-studio` at
+  `b6c2444e205184d6e3e866a940ccfdbafbe8e13a` with manifest digest
+  `sha256:e9e63d…ee8c`, and exports a handoff that tells the chosen agent to
+  create an owner-controlled copy. Existing app specifications still validate.
+- **Live studio.** `https://media.loftwah.com`, Worker
+  `295828c7-6203-4254-be2c-0f75656dee52`, released from that exact commit. The
+  library, uploads, search, download, deletion, references, export and public
+  pages work without a model account.
+- **Real image generation.** Workers AI produced and saved a 1024 × 1280
+  paper-cut editorial still, a 1280 × 720 cinematic still and a
+  reference-guided 1024 × 1024 variation. The variation kept the palette, ink
+  quality and subject type; the UI says it does not promise identical pixels.
+- **Real video.** fal.ai produced a 5.875 s 768 × 960 Hailuo clip (589,717 bytes)
+  and a 5.04 s 1288 × 1608 Kling clip (13,450,699 bytes). Both MP4s were copied
+  into the studio's R2 and play from the public pages.
+- **Finishing and Showcase.** Launch Kit consumed the editorial still and
+  rendered a 1200 × 630 profile card. Linkarooie/Showcase lists **The wheel, in
+  motion**, linking to https://media.loftwah.com/p/LpATM63K8aXYVmL4. The still
+  page is https://media.loftwah.com/p/JYCl_dWcb2yqya6h.
+- **Checks.** Studio: 15 focused tests for spec validation, byte parsing,
+  idempotent admission, one budget authority, save retry without regeneration,
+  tombstones, unknown outcomes and the fal request/status/download contract.
+  Composer: 6 new media-studio spec tests plus the existing suite; 390 px phone
+  layout has no horizontal overflow and all tabs remain reachable.
+- **Recorded journey.** A 64 s captioned walkthrough covers Init → spec → studio
+  library → create → history → real video → Showcase. Release evidence and the
+  recording link are in [#457](https://github.com/loftwah/app-composer/issues/457)
+  and [#11](https://github.com/loftwah/app-composer/issues/11).
+- **Remaining boundaries.** Oyster/Prints interoperability remains
+  [#422](https://github.com/loftwah/app-composer/issues/422); masks, outpainting,
+  video editing and native audio are later expansion. The studio is single-owner;
+  no multi-tenant signup is added. Physical-device and social-cache proof remain
+  separate from the browser checks.
+
 ## Activity, outcomes and a second Creator Hub change — 12 November 2026
 
 The 12 November release was Composer
