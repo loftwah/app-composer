@@ -35,12 +35,14 @@ links stay available. The earlier sliced-artwork opening and the
 `codex/studio-hero-motion-20261113` blockout are superseded.
 
 - **Live source.** Production `https://composer.loftwah.com/` serves Composer
-  `d1220b547f5a7c5541655bfc97e494ae50fa094c`, Worker
-  `5d6d84ac-b7ec-4ca8-9642-5f921ac82165`, from clean pushed `main`. The first
-  release `5ad7a67` / Worker `b63031de-7015-4cc9-a382-abe184213f99` was followed
-  by PR [#464](https://github.com/loftwah/app-composer/pull/464), which fixed the
-  light-phone vignette after live inspection. The hero implementation landed in
-  PR [#463](https://github.com/loftwah/app-composer/pull/463).
+  `c103e895bc4493cc41b6743361209ff4cc9ebd77`, Worker
+  `a119ad81-a24d-4770-bf37-18238579fe57`, from clean pushed `main`. The hero
+  implementation landed in PR [#463](https://github.com/loftwah/app-composer/pull/463);
+  the light-phone vignette fix was [#464](https://github.com/loftwah/app-composer/pull/464),
+  the draw action-label fix [#466](https://github.com/loftwah/app-composer/pull/466),
+  and the Media Studio tutorial build unblock was
+  [#467](https://github.com/loftwah/app-composer/pull/467). The first verified
+  hero release was `d1220b5` / Worker `5d6d84ac-b7ec-4ca8-9642-5f921ac82165`.
 - **Checks.** `pnpm check` passed 644 tests (including four focused studio-state
   tests), Astro type checking, lint and format; `pnpm build` and the publication
   guard passed. Live checks covered the three interactions, repeated stamps,
@@ -48,9 +50,9 @@ links stay available. The earlier sliced-artwork opening and the
   phone at 390, no horizontal overflow, and the static poster/panel fallback.
   Module and WebGL failure, pause, reduced motion, keyboard paths and offscreen
   stop/resume were exercised in the source preview.
-- **Release cost.** The coherent release command took 96.8s; full check ~24s and
-  build ~5s. This is a large visual/runtime change rather than a routine
-  three-minute edit.
+- **Release cost.** The final release command took 95.2s; the full check and
+  build are part of that command. This is a large visual/runtime change rather
+  than a routine three-minute edit, with follow-up fixes after live inspection.
 - **Remaining limits.** Physical iOS/Android acceptance and measured phone frame
   rate remain separate gates. WebGL2 is required for the live world; the
   transparent poster and three-station static panel are the supported fallback.
