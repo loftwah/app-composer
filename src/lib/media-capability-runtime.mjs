@@ -373,13 +373,13 @@ async function openOutput(env, printId, path, maxBytes = 16 * 1024 * 1024) {
   let offset = 0;
   let done = false;
   for (let round = 0; round < 40 && !done; round += 1) {
-    // Four reads per sandbox call: imports are not a session storm, and each
-    // read is one 128 KiB slice of the same retained output.
+    // One 128 KiB slice per sandbox call: a large result is a sequence of
+    // bounded reads, not a session storm the host has to rate-limit.
     const code = [
       "const parts = [];",
       "let offset = " + offset + ";",
       "let done = false;",
-      "for (let index = 0; index < 4; index += 1) {",
+      "for (let index = 0; index < 1; index += 1) {",
       "  const part = await env.PRINTS.openOutput({ printId: " +
         JSON.stringify(printId) +
         ", byteOffset: offset, byteLength: 131072 });",
@@ -409,6 +409,7 @@ async function openOutput(env, printId, path, maxBytes = 16 * 1024 * 1024) {
     if (offset > maxBytes)
       fail("OUTPUT_TOO_LARGE", "The result is larger than this import allows", 413);
     done = page.done === true;
+    if (!done) await new Promise((settle) => setTimeout(settle, 200));
   }
   const total = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
   const merged = new Uint8Array(total);
