@@ -32,11 +32,13 @@ source, D1 metadata, R2 media, provider keys and release boundary.
 
 - **Selection and ownership.** Init selects the studio, saves a versioned media
   configuration, pins `composer-media-studio` at
-  `b6c2444e205184d6e3e866a940ccfdbafbe8e13a` with manifest digest
+  `c6ee157451a5f28f3ae36e58e2bb17be3ef63fa3` with manifest digest
   `sha256:e9e63d…ee8c`, and exports a handoff that tells the chosen agent to
   create an owner-controlled copy. Existing app specifications still validate.
 - **Live studio.** `https://media.loftwah.com`, Worker
-  `295828c7-6203-4254-be2c-0f75656dee52`, released from that exact commit. The
+  `57750c8a-d1e3-470d-a5cb-9c3781c7c9b4`, released from that exact commit; Composer source
+  `afce1a5a96651db7088b63fb0a1c59ede7d6a4da`, Worker
+  `c76c653c-63d8-47af-8313-b8a3061f93f4`. The
   library, uploads, search, download, deletion, references, export and public
   pages work without a model account.
 - **Real image generation.** Workers AI produced and saved a 1024 × 1280
