@@ -1,5 +1,5 @@
 ---
-import Base from '../layouts/Base.astro';
+import Base from '../../layouts/Base.astro';
 const chapters = [
   ['before', 'Before you start'],
   ['brief', 'Write the brief'],
@@ -78,7 +78,7 @@ printf '%s' "$(cat .oyster-owner)" | npx wrangler secret put OYSTER_OWNER_KEY</c
       <p><strong>Deploy with <code>--minify</code>.</strong> The unminified standalone bundle exceeded the Worker startup CPU limit (<code>10021</code>) on this account; the minified bundle passed. It was still close enough that one retry failed and the next passed — treat it as a tight budget, not a guarantee.</p>
       <p><strong>Legacy billing blocks the Images binding.</strong> The host’s reference fitter calls <code>env.IMAGES</code>, which returned <code>IMAGES_TRANSFORM_ERROR 9432: … not available using legacy billing</code>. On this account that means reference-conditioned generation is refused by the host, and the model catalogue marks references unavailable. Enable Cloudflare Images or migrate billing to use it; the studio’s own referenced variation runs on Workers AI and was used instead.</p>
     </div>
-    <aside class="tut-check"><h3>Checkpoint</h3><pre><code>curl -s https://oyster-media.&lt;subdomain&gt;.workers.dev/login -o /dev/null -w '%{http_code}\n'   # 200
+    <aside class="tut-check"><h3>Checkpoint</h3><pre><code>curl -s https://oyster-media.&lt;subdomain&gt;.workers.dev/login -o /dev/null -w '%&#123;http_code&#125;\n'   # 200
 curl -s -H "Authorization: Bearer $(cat .oyster-owner)" \
   https://oyster-media.&lt;subdomain&gt;.workers.dev/api/installations</code></pre><p>You should have a host and an empty installation list. Do not install the starter set.</p></aside>
   </section>
