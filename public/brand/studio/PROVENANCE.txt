@@ -1,0 +1,15 @@
+App Composer "The studio that prints itself" homepage posters
+Generated 13 November 2026 from the authored WebGL scene in src/scripts/studio/.
+
+Files:
+  studio-poster-desktop-dark-20261113.webp   1600x1000 alpha
+  studio-poster-desktop-light-20261113.webp  1600x1000 alpha
+  studio-poster-mobile-dark-20261113.webp     780x840 alpha
+  studio-poster-mobile-light-20261113.webp    780x840 alpha
+
+These are captures of the page's own rendered scene and depth-contour pass.
+They contain no concept-art pixels, stock imagery, screenshots or remote assets.
+The transparent area is supplied by the theme's CSS backdrop. They are fallback
+and loading assets, not evidence that the live 3D experience ran.
+
+Direction and implementation notes: docs/studio-hero.md

@@ -109,6 +109,11 @@
       "supported": "^4.3.5",
       "reviewed": "4.3.5"
     },
+    "three": {
+      "supported": "0.187.0",
+      "reviewed": "0.187.0",
+      "note": "Homepage hero renderer pinned to the verified 0.187.0 release. Uses the mature WebGLRenderer; this is not a WebGPU support claim."
+    },
     "typescript": {
       "supported": "^6.0.3",
       "reviewed": "6.0.3",
