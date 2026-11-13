@@ -29,7 +29,7 @@ const firstAgentGuide = `/ready/guide?start=agent${browserTask ? '&next=browser'
 <Base title={platformSelected ? 'Get Ready: prepare your internal platform' : 'Get Ready: your first working environment'} description={platformSelected ? 'Prepare the operator prerequisites, inspect your authorised workspace and current adapter, then let teams request supported synthetic preview applications.' : 'Start before you have an app idea. Let your agent prepare tools, GitHub and Cloudflare, then verify your first HTTPS app. Save your address choice and resume progress.'}>
  <div class="workspace-heading">
   <div>
-   <h1>{platformSelected ? 'Prepare your internal platform.' : <>Get ready.<br/>Then make something.</>}</h1>
+   <h1>{platformSelected ? 'Prepare your internal platform.' : <>Get ready.<br/>{' '}Then make something.</>}</h1>
    <p class="lede">{platformSelected ? 'Prepare the workspace and standing rules once, then give teams an approved way to request applications. Start with the current installation; no application idea is needed here.' : 'A working environment comes first. Your agent handles setup, builds your first Hello app and checks that it works online. You handle sign-in and choices that need your say.'}</p>
   </div>
   {platformSelected ? (
