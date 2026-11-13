@@ -182,3 +182,29 @@ The rebuilt front door keeps one primary action (Get Ready) and one prominent sh
 Init now opens on the task: the goal chooser moved from 784px (1440) and 1,316px (390) to 394px and 624px, the lede dropped from five lines to two, and the apply action stays beside the chooser rather than below a 914px preview column. The readiness report, alternative entry points and help level follow as quieter setup, then the draft toolbar and the handoff panel.
 
 Local verification only: `pnpm check`, `pnpm build`, and a Playwright pass over 390/768/1440 in both themes, 200% root text, keyboard order and reduced motion. Captures and the exact before/after measurements are in `docs/evidence/homepage-20261024/`. Live production, physical devices, screen readers and native EmDash administration (closed locally without trusted Access) remain separate gates.
+
+## Three-tool hero with preserved depth — 13 November 2026
+
+The owner selected Paperwork, LDraw and analytics, asked for a direct explanation
+of App Composer, and explicitly asked to keep and enhance the existing hero's
+visual energy. The new local candidate is based on the merged Slice release,
+including its equal capsule geometry, dark/light plate contrast and deployment
+preflight fixes. It does not reinstate the original tapered-strip draft.
+
+`HeroShowcase.astro` keeps the sliced orange/white plate and the existing native
+CSS perspective. The new studio illustration becomes three independently raised
+art panels: Paperwork's existing orange press, an editable drawing board and a
+magnifier inspecting a chart. Each panel shows the corresponding third of the
+same image. Staggered unfolding introduces the assembly once; selecting a tool
+brings its panel forward, and fine-pointer movement retains the bounded tilt.
+There is no perpetual animation or implied data transfer between these tools.
+Keyboard and reduced-motion visitors can still select every spotlight; without
+JavaScript, ordinary links and all explanations remain available.
+
+The homepage now explains that Composer is a studio for building and running
+apps with a coding agent on Cloudflare. The first action remains Get Ready.
+Paperwork is browser-local, LDraw keeps its independent drawings and analytics
+reports supported requests rather than people. Artwork is editorial and still a
+review candidate. The earlier flat local candidate is preserved, not presented
+as the owner-selected final treatment. See the existing hero evidence record for
+checks and the explicit local preview/publication limits.

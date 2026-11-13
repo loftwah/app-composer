@@ -1,0 +1,222 @@
+---
+import { ArrowUpRight } from '@lucide/astro';
+import { apps } from '../lib/apps';
+import SlicedImage from './SlicedImage.astro';
+
+const spotlights = [
+  {
+    id: 'paperwork',
+    name: 'Paperwork',
+    type: 'PDF app',
+    title: 'Finish the PDF.',
+    description: 'Fill forms, add text or a signature, then save or print the finished document. Your files stay in your browser.',
+    action: 'Open Paperwork',
+    href: apps.find((app) => app.id === 'paperwork')!.href,
+  },
+  {
+    id: 'ldraw',
+    name: 'LDraw',
+    type: 'Drawing app',
+    title: 'Give your idea a shape.',
+    description: 'Draw an editable diagram, start from an example and export a PNG or SVG. Keep the drawing file so you can change it later.',
+    action: 'Open LDraw',
+    href: apps.find((app) => app.id === 'ldraw')!.href,
+  },
+  {
+    id: 'analytics',
+    name: 'Analytics',
+    type: 'Composer reporting',
+    title: 'See what happened.',
+    description: 'Inspect recorded app activity by day, explore supported actions and share a report. Counts are recorded requests, not people.',
+    action: 'Explore analytics',
+    href: '/activity',
+  },
+];
+---
+
+<section class="hero-showcase" data-hero-showcase aria-label="Explore App Composer">
+  <div class="showcase-kicker">
+    <img src="/brand/composer-icon-20261022b.svg" width="22" height="22" alt="" />
+    <span>The App Composer studio</span>
+    <span class="showcase-index">01–03</span>
+  </div>
+  <div class="studio-scene showcase-scene" data-hero-scene aria-hidden="true">
+    <span class="studio-visibility-anchor"></span>
+    <div class="studio-assembly">
+      <div class="studio-plate">
+        <SlicedImage id="composer-studio-spotlights" class="studio-slice-image" src="/brand/composer-icon-tile-20261022b.svg" />
+      </div>
+      <svg class="showcase-registration" viewBox="0 0 600 540" fill="none">
+        <path d="M25 120V35H110M490 505H575V420" />
+        <circle cx="555" cy="60" r="8" />
+      </svg>
+      {spotlights.map((spotlight, index) => (
+        <div class:list={['showcase-art-slice', `art-${spotlight.id}`, { 'is-spotlit': index === 0 }]} data-hero-art={spotlight.id}>
+          <div class="art-slice-label"><span>0{index + 1}</span><strong>{spotlight.name}</strong></div>
+          <div class="art-slice-window">
+            <img src="/brand/demo/composer-studio-hero-20261113.webp" width="1536" height="1024" alt="" fetchpriority={index === 0 ? 'high' : 'auto'} decoding="async" />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+  <p class="showcase-art-caption">An illustrated studio. Pick a tool to bring it forward.</p>
+  <div class="showcase-choices" data-hero-choices aria-label="Choose a product spotlight">
+    {spotlights.map((spotlight, index) => (
+      <a id={`hero-choice-${spotlight.id}`} href={`#hero-panel-${spotlight.id}`} data-hero-choice={spotlight.id}>
+        <span class="choice-number" aria-hidden="true">0{index + 1}</span>
+        <span><strong>{spotlight.name}</strong><span class="choice-type">{spotlight.type}</span></span>
+      </a>
+    ))}
+  </div>
+  <div class="showcase-details">
+    {spotlights.map((spotlight) => (
+      <section id={`hero-panel-${spotlight.id}`} data-hero-panel={spotlight.id} aria-labelledby={`hero-title-${spotlight.id}`}>
+        <h2 id={`hero-title-${spotlight.id}`}>{spotlight.title}</h2>
+        <p>{spotlight.description}</p>
+        <a class="showcase-action" href={spotlight.href}>{spotlight.action}<ArrowUpRight size={17} aria-hidden="true" /></a>
+      </section>
+    ))}
+  </div>
+  <p class="showcase-note">Two independent apps. Analytics built into Composer.</p>
+</section>
+
+<script>
+  const hero = document.querySelector<HTMLElement>('[data-hero-showcase]');
+  if (hero) {
+    const list = hero.querySelector<HTMLElement>('[data-hero-choices]')!;
+    const choices = [...hero.querySelectorAll<HTMLAnchorElement>('[data-hero-choice]')];
+    const panels = [...hero.querySelectorAll<HTMLElement>('[data-hero-panel]')];
+    const artwork = [...hero.querySelectorAll<HTMLElement>('[data-hero-art]')];
+    list.setAttribute('role', 'tablist');
+    choices.forEach((choice) => {
+      choice.setAttribute('role', 'tab');
+      choice.setAttribute('aria-controls', `hero-panel-${choice.dataset.heroChoice}`);
+    });
+    panels.forEach((panel) => {
+      panel.setAttribute('role', 'tabpanel');
+      panel.setAttribute('aria-labelledby', `hero-choice-${panel.dataset.heroPanel}`);
+      panel.tabIndex = 0;
+    });
+    const select = (id: string, moveFocus = false) => {
+      choices.forEach((choice) => {
+        const active = choice.dataset.heroChoice === id;
+        choice.setAttribute('aria-selected', String(active));
+        choice.tabIndex = active ? 0 : -1;
+        if (active && moveFocus) choice.focus();
+      });
+      panels.forEach((panel) => { panel.hidden = panel.dataset.heroPanel !== id; });
+      artwork.forEach((art) => art.classList.toggle('is-spotlit', art.dataset.heroArt === id));
+    };
+    choices.forEach((choice, index) => {
+      choice.addEventListener('click', (event) => {
+        event.preventDefault();
+        select(choice.dataset.heroChoice!);
+      });
+      choice.addEventListener('keydown', (event) => {
+        let next: number;
+        switch (event.key) {
+          case 'ArrowRight': next = (index + 1) % choices.length; break;
+          case 'ArrowLeft': next = (index + choices.length - 1) % choices.length; break;
+          case 'Home': next = 0; break;
+          case 'End': next = choices.length - 1; break;
+          case ' ': event.preventDefault(); select(choice.dataset.heroChoice!); return;
+          default: return;
+        }
+        event.preventDefault();
+        select(choices[next].dataset.heroChoice!, true);
+      });
+    });
+    const scene = hero.querySelector<HTMLElement>('[data-hero-scene]')!;
+    const motion = matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const resetTilt = () => {
+      scene.style.removeProperty('--studio-pitch');
+      scene.style.removeProperty('--studio-yaw');
+    };
+    scene.addEventListener('pointermove', (event) => {
+      if (!motion.matches || event.pointerType !== 'mouse') return;
+      const { left, top, width, height } = scene.getBoundingClientRect();
+      if (!width || !height) return;
+      const x = Math.max(-.5, Math.min(.5, (event.clientX - left) / width - .5));
+      const y = Math.max(-.5, Math.min(.5, (event.clientY - top) / height - .5));
+      scene.style.setProperty('--studio-pitch', `${-y * 9}deg`);
+      scene.style.setProperty('--studio-yaw', `${x * 12}deg`);
+    });
+    scene.addEventListener('pointerleave', resetTilt);
+    scene.addEventListener('pointercancel', resetTilt);
+    motion.addEventListener('change', resetTilt);
+    if ('IntersectionObserver' in window && !reducedMotion.matches) {
+      const observer = new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) return;
+        scene.classList.add('has-arrived');
+        observer.disconnect();
+      }, { rootMargin: '0px 0px -24px' });
+      observer.observe(scene.querySelector('.studio-visibility-anchor')!);
+    }
+    // A direct anchor still opens the requested spotlight after enhancement.
+    const requested = choices.find((choice) => choice.hash === window.location.hash);
+    select(requested?.dataset.heroChoice ?? choices[0].dataset.heroChoice!);
+  }
+</script>
+
+<style>
+  .hero-showcase { min-width: 0; align-self: start; }
+  .showcase-kicker { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; color: var(--home-hero-fg); font-size: .72rem; font-weight: 550; letter-spacing: .02em; }
+  .showcase-kicker img { flex: none; }
+  .showcase-index { margin-left: auto; color: var(--home-hero-muted); font-variant-numeric: tabular-nums; }
+  .showcase-scene { isolation: isolate; }
+  .showcase-registration { position: absolute; inset: 0; width: 100%; height: 100%; stroke: var(--home-hero-line); transform: translateZ(1cqi); }
+  .showcase-registration circle { stroke: var(--home-hero-accent); }
+  .showcase-art-slice { position: absolute; width: 28%; top: 18%; background: #191b1e; outline: 1px solid #777a7e; box-shadow: 0 1.2cqi 3.2cqi #0005; transform: translateZ(3cqi) rotate(var(--art-rotation)); transform-origin: 50% 70%; }
+  .art-paperwork { left: 5%; --art-rotation: -10deg; --art-travel: -4cqi 3cqi -5cqi; }
+  .art-ldraw { left: 36%; top: 13%; --art-rotation: 2deg; --art-travel: 0 -5cqi -4cqi; }
+  .art-analytics { left: 67%; top: 22%; --art-rotation: 9deg; --art-travel: 5cqi 3cqi -3cqi; }
+  .showcase-art-slice.is-spotlit { transform: translateZ(8cqi) rotate(calc(var(--art-rotation) * .25)); outline-color: #ff9c65; box-shadow: 0 2cqi 5cqi #0008; }
+  .art-slice-label { display: flex; align-items: baseline; gap: .7em; padding: .85em .75em; color: #f1eee7; font-size: clamp(.5rem, 1.7cqi, .7rem); }
+  .art-slice-label span { color: #ff793b; font-size: .8em; }
+  .art-slice-label strong { font-weight: 550; }
+  .art-slice-window { overflow: hidden; aspect-ratio: 1 / 2; }
+  .art-slice-window img { display: block; width: 300%; max-width: none; height: auto; }
+  .art-ldraw img { transform: translateX(-33.333333%); }
+  .art-analytics img { transform: translateX(-66.666667%); }
+  .showcase-art-caption { margin-top: 2px; color: var(--home-hero-muted); font-size: .6rem; line-height: 1.5; }
+  .showcase-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--home-hero-line); }
+  .showcase-choices > a { display: flex; gap: 9px; align-items: baseline; padding: 17px 7px 15px; min-height: 66px; color: var(--home-hero-muted); border-bottom: 3px solid transparent; }
+  .showcase-choices > a:hover, .showcase-choices > a[aria-selected="true"] { color: var(--home-hero-fg); border-bottom-color: var(--home-hero-accent); }
+  .choice-number { color: var(--home-hero-accent); font-size: .61rem; font-variant-numeric: tabular-nums; }
+  .showcase-choices strong { font-size: clamp(.75rem, 1vw, .93rem); font-weight: 600; }
+  .choice-type { display: block; margin-top: 4px; font-size: .61rem; line-height: 1.35; color: var(--home-hero-muted); }
+  .showcase-details { min-height: 187px; }
+  .showcase-details section { padding-top: 22px; scroll-margin-top: 20px; }
+  .showcase-details section[hidden] { display: none; }
+  .showcase-details h2 { font-size: clamp(1.35rem, 2.1vw, 1.85rem); font-weight: 500; line-height: 1.1; letter-spacing: -.035em; }
+  .showcase-details p { margin-top: 11px; font-size: .84rem; line-height: 1.55; max-width: 57ch; color: var(--home-hero-muted); }
+  .showcase-action { display: inline-flex; gap: 8px; align-items: center; min-height: 44px; margin-top: 6px; font-size: .8rem; color: var(--home-hero-fg); font-weight: 600; }
+  .hero-showcase :is(a, [role="tabpanel"]):focus-visible { outline: 2px solid var(--home-hero-accent); outline-offset: 4px; }
+  .showcase-note { border-top: 1px solid var(--home-hero-rule); padding-top: 11px; font-size: .63rem; line-height: 1.5; color: var(--home-hero-muted); }
+  @media (prefers-reduced-motion: no-preference) {
+    .showcase-art-slice { transition: transform 420ms cubic-bezier(.2,.75,.2,1), box-shadow 420ms ease, outline-color 200ms ease; }
+    .has-arrived .showcase-art-slice { animation: studio-unfold 850ms cubic-bezier(.2,.75,.2,1) backwards; }
+    .has-arrived .art-ldraw { animation-delay: 90ms; }
+    .has-arrived .art-analytics { animation-delay: 180ms; }
+    .has-arrived .showcase-registration circle { animation: studio-register 700ms 850ms ease-out both; transform-box: fill-box; transform-origin: center; }
+    @keyframes studio-unfold { from { translate: var(--art-travel); opacity: .4; } to { translate: 0 0 0; opacity: 1; } }
+    @keyframes studio-register { from { opacity: .8; scale: .5; } to { opacity: .25; scale: 1.8; } }
+    .showcase-details [role="tabpanel"]:not([hidden]) { animation: spotlight-in 200ms ease-out; }
+    @keyframes spotlight-in { from { opacity: .6; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  }
+  @media (max-width: 1000px) and (min-width: 821px) {
+    .choice-number { display: none; }
+    .showcase-details { min-height: 214px; }
+  }
+  @media (max-width: 820px) { .hero-showcase { margin-top: 36px; } }
+  @media (max-width: 480px) {
+    .showcase-kicker { font-size: .65rem; }
+    .showcase-choices > a { padding: 14px 3px 11px; gap: 5px; }
+    .choice-type { font-size: .56rem; }
+    .showcase-details { min-height: 205px; }
+    .showcase-details p { font-size: .81rem; }
+  }
+  @media (max-width: 360px) { .choice-number { display: none; } }
+</style>

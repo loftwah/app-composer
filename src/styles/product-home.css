@@ -195,6 +195,8 @@
   .hero-copy {
     min-width: 0;
     container-type: inline-size;
+    align-self: start;
+    padding-top: 36px;
   }
   .home-hero h1 {
     max-width: none;
@@ -1053,6 +1055,9 @@
     .hero-inner {
       width: min(100% - 48px, 600px);
       grid-template-columns: minmax(0, 1fr);
+    }
+    .hero-copy {
+      padding-top: 0;
     }
     .studio-scene {
       margin-top: 12px;

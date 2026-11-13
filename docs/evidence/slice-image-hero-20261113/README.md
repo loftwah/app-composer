@@ -91,3 +91,46 @@ substitute for MP's taste judgement on the treatment.
 
 This follow-up evidence commit is documentation only; the deployed runtime
 remains `c8ffb5e`, so no second deployment is required for it.
+
+## Subsequent three-tool motion candidate — local, not released
+
+The owner's later direction highlights Paperwork, LDraw and analytics, explains
+App Composer, and preserves/enhances the existing hero's visual motion. This
+candidate starts from `05ae65a27ff5dbb2135d507f4878a1bf2c366bcf`, preserving the
+merged equal-strip treatment and its light-theme plate. PR #458 is already merged;
+it is not an open publication target for this follow-on work.
+
+The live homepage was inspected in the cloud browser. Its sliced plate, exploded
+screens and perspective were visible; moving the pointer changed the assembly's
+computed 3D transform. The revised local `HeroShowcase.astro` retains that CSS
+perspective and bounded pointer tilt, adds staggered finite unfolding, and raises
+the selected tool's illustrated panel. Three views use one image request and
+show separate thirds of the studio artwork. The supporting registration pulse
+is decorative, not a suggestion that private PDFs flow into analytics.
+
+The hero keeps truthful app descriptions, real catalogue destinations and native
+public analytics. Tabs support arrows, Home/End/Space, repeated selection and
+roving focus. Pointer motion ignores touch, clamps its range, resets on leave or
+cancel and responds to changed motion preferences. Reduced-motion/no-JavaScript
+visitors keep the complete resting artwork. The first-action copy stays top-aligned
+rather than being pushed down by the taller showcase.
+
+Checks on the current candidate: five focused controller/motion tests pass;
+`pnpm check:types` reports 671 files, zero errors, zero warnings and 79 existing
+hints; production build/publication guard passes (1,329 files, 150 archive
+members); `git diff --check` passes. Runtime: Node 26.13.1, pnpm 12.19.0.
+
+Local browser preview remains blocked. Normal `pnpm dev` exits before readiness;
+the documented foreground mode, after status confirmed no running server, exposes
+`uv_interface_addresses` from Cloudflare Vite's `getPorts`/`os.networkInterfaces`.
+No policy or network restriction was bypassed. The live inspection above is not
+verification of the new candidate's pixels. A local agent must inspect the final
+layout, all three selected states, keyboard focus and both themes at desktop and
+phone widths before integration/deployment. Actual Impeccable is unavailable in
+this executor; no new Impeccable run is claimed.
+
+The earlier push was denied before execution and was not retried against the now
+merged PR. The owner's later approval named the existing draft PR; the target's
+merged state requires resolving the new publication destination. No production
+deployment has been attempted for this revision. Preserve the existing release
+record above and add the eventual new source/Worker identity only after release.

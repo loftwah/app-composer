@@ -1,6 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
-import SlicedImage from "./SlicedImage.astro";
+import HeroShowcase from "./HeroShowcase.astro";
 import { ArrowRight, ArrowDown, ArrowUpRight, Play } from "@lucide/astro";
 import { apps } from "../lib/apps";
 import instance from "../../config/instance.json";
@@ -13,7 +13,6 @@ const appById = (id: string) => {
   return app;
 };
 const paperwork = appById("paperwork");
-const studioRoute = "M515 268H551V389Q551 400 540 400H520";
 const selectedApps = [
   {
     app: paperwork,
@@ -50,7 +49,7 @@ const siteSchema = {
 <Base
   homePage
   title="App Composer — build apps with your agent on Cloudflare"
-  description="Bring the app you need. Your agent builds it with you on Cloudflare, and the source, the data and the admin stay yours. Start with Get Ready, shape it in Init or copy a prompt straight to your agent."
+  description="App Composer is a studio for building and running apps with your coding agent on Cloudflare. Try Paperwork, LDraw and app analytics, then shape software whose source and data stay yours."
 >
   <script
     slot="head"
@@ -68,8 +67,9 @@ const siteSchema = {
             <span>Keep it yours.</span>
           </h1>
           <p class="hero-lede">
-            Bring the app you wish existed. Build it with your agent. Keep the
-            source, the data and the freedom to change it.
+            App Composer is a studio for building and running apps with your
+            coding agent on Cloudflare. Start with working tools, shape your
+            own app, and keep control of its source and data.
           </p>
           <div class="hero-actions">
             <a class="home-button" href="/ready">
@@ -86,55 +86,12 @@ const siteSchema = {
             </a>
           </p>
         </div>
-        <div class="studio-scene" data-studio-scene aria-hidden="true">
-          <span class="studio-visibility-anchor"></span>
-          <div class="studio-assembly">
-            <div class="studio-plate">
-              <SlicedImage
-                id="composer-hero-art"
-                class="studio-slice-image"
-                src="/brand/composer-icon-tile-20261022b.svg"
-              />
-            </div>
-            <svg
-              class="studio-routing"
-              viewBox="0 0 600 540"
-              preserveAspectRatio="none"
-              fill="none"
-            >
-              <path class="studio-guides" d="M38 126V42H122M480 498H562V416" />
-              <path class="studio-route" d={studioRoute} pathLength="100" />
-              <path class="studio-signal" d={studioRoute} pathLength="100" />
-              <circle class="studio-terminal-ring" cx="520" cy="400" r="9" />
-              <circle class="studio-terminal" cx="520" cy="400" r="4" />
-            </svg>
-            <div class="studio-sheet studio-output">
-              <div class="studio-label">Launch Kit <span>Profile card</span></div>
-              <img
-                src="/launch-kit/cards/river-typography.png"
-                width="1200"
-                height="630"
-                alt=""
-                decoding="async"
-              />
-            </div>
-            <div class="studio-sheet studio-app">
-              <div class="studio-label">Paperwork <span>PDF editor</span></div>
-              <img
-                src={paperwork.preview}
-                width="1440"
-                height="1100"
-                alt=""
-                decoding="async"
-              />
-            </div>
-          </div>
-        </div>
+        <HeroShowcase />
         <div class="hero-bottom">
           <a href="#make-something">
             Explore what you can make <ArrowDown size={18} aria-hidden="true" />
           </a>
-          <span>The Paperwork editor and a fictional Launch Kit export.</span>
+          <span>Paperwork. LDraw. Analytics built into Composer.</span>
         </div>
       </div>
     </section>
@@ -602,43 +559,6 @@ const siteSchema = {
 </Base>
 
 <script>
-  const scene = document.querySelector<HTMLElement>("[data-studio-scene]");
-  const motion = matchMedia(
-    "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)",
-  );
-
-  const anchor = scene?.querySelector(".studio-visibility-anchor");
-  if (
-    scene &&
-    anchor &&
-    "IntersectionObserver" in window &&
-    !matchMedia("(prefers-reduced-motion: reduce)").matches
-  ) {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-        scene.classList.add("is-connected");
-        observer.disconnect();
-      },
-      { rootMargin: "0px 0px -24px" },
-    );
-    observer.observe(anchor);
-  }
-
-  scene?.addEventListener("pointermove", (event) => {
-    if (!motion.matches || event.pointerType !== "mouse") return;
-
-    const { left, top, width, height } = scene.getBoundingClientRect();
-    const x = (event.clientX - left) / width - 0.5;
-    const y = (event.clientY - top) / height - 0.5;
-    scene.style.setProperty("--studio-pitch", `${-y * 9}deg`);
-    scene.style.setProperty("--studio-yaw", `${x * 12}deg`);
-  });
-  scene?.addEventListener("pointerleave", () => {
-    scene.style.removeProperty("--studio-pitch");
-    scene.style.removeProperty("--studio-yaw");
-  });
-
   // Without JavaScript these remain ordinary links and all screens are readable.
   for (const gallery of document.querySelectorAll<HTMLElement>(
     "[data-home-gallery]",

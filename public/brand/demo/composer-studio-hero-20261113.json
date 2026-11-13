@@ -1,0 +1,28 @@
+{
+  "status": "review-candidate-not-owner-approved",
+  "created": "2026-11-13",
+  "purpose": "App Composer hero: Paperwork, LDraw and native analytics as three independent product spotlights",
+  "method": "Built-in image generation; same-size WebP export with sharp quality 88",
+  "dimensions": [
+    1536,
+    1024
+  ],
+  "sha256": "4cf2f1e6f0f0e5fd5ed8a380e3daf9206f0388036eb2e7aca999bfa41773ef4d",
+  "references": [
+    {
+      "path": "/paperwork/press-20261024.webp",
+      "role": "Existing owner-selected orange print-press identity; reference input to image generation"
+    },
+    {
+      "url": "https://woodhouse.loftwah.com/share/",
+      "role": "Owner-selected artwork craft reference: specific action, confident ink forms and tactile finish"
+    }
+  ],
+  "constraints": [
+    "Editorial illustration, not an application screenshot or current analytics data",
+    "No transfer of PDF or drawing contents into analytics is depicted or implemented",
+    "Paperwork remains browser-local; LDraw retains its own drawing files and origin",
+    "Exact approved Composer mark is rendered separately in HTML",
+    "Candidate artwork and local implementation do not establish owner approval or release"
+  ]
+}
