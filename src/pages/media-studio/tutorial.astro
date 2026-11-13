@@ -43,7 +43,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <dl class="facts">
       <div><dt>You need</dt><dd>A Cloudflare account on Workers Paid, a supported agent, and a funded fal.ai key for video, sound and rendering.</dd></div>
       <div><dt>You do not need</dt><dd>Docker, Wrangler, manual migrations or a database seed. The agent performs the technical work.</dd></div>
-      <div><dt>Cost</dt><dd>Hosting plus per-request inference. This run used US$0.2035 of inference for sound, two assemblies and a portrait cut.</dd></div>
+      <div><dt>Cost</dt><dd>Hosting plus per-request inference. This run recorded US$0.2035: US$0.1435 of sound requests and US$0.06 of estimated renders for two assemblies and a portrait cut. None of it is invoice-confirmed.</dd></div>
       <div><dt>Time</dt><dd>An evening for a first build including account setup and the first render; minutes for later changes.</dd></div>
     </dl>
     <nav class="jump" aria-label="Chapters">
@@ -280,7 +280,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <h2>The cut is the product</h2>
     <div class="cols">
       <div>
-        <p>Open <strong>Assemble</strong>. Add two to six saved takes in order, choose one bed, and save the storyboard. Rendering is one bounded provider composition; the result is copied into your own storage. A 9:16 cut composes the same takes portrait-first.</p>
+        <p>Open <strong>Assemble</strong>. Add two to six saved takes in order, choose one bed, and save the storyboard. Rendering is one bounded provider composition; the result is copied into your own storage. The portrait cut composes the same takes portrait-first — it currently produces a 4:5 frame and overrides your shot order, so treat a true 9:16 export as unfinished.</p>
         <p>Publication is a separate, deliberate act. Four controls do four different things:</p>
         <ul>
           <li><strong>Publish / unpublish</strong> — a public page exists or is withdrawn. Withdrawal stops new visits; it cannot recall a download already taken.</li>
@@ -294,7 +294,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
         <p>An assembled MP4 with its dimensions, real duration and take count; a public page that loads signed out; private routes that still return 401.</p>
         <h3>Recover</h3>
         <p><strong>A render that ends in "result unavailable":</strong> reconcile the job. It re-reads the same provider result; it does not dispatch a new one.</p>
-        <p><strong>A 9:16 cut refused:</strong> the storyboard has no portrait take. Add one, or accept the wide cut.</p>
+        <p><strong>The portrait cut refused:</strong> the storyboard has no portrait take. Add one, or accept the wide cut.</p>
       </aside>
     </div>
     <figure class="figure">
@@ -385,7 +385,7 @@ curl -s -o /dev/null -w '%&#123;http_code&#125;\n' https://your-studio.example/a
       <div><dt>Release refused: working tree is not clean</dt><dd>Commit or stash your changes. The guard exists so the live revision matches a reviewable commit.</dd></div>
       <div><dt>Migration fails on a foreign key</dt><dd>The parent table is referenced. Rebuild the parent, then the children, then drop the old parent; copy rows and restore self-references in a second pass.</dd></div>
       <div><dt>Handoff rejected as expired</dt><dd>Seconds versus milliseconds. Normalise the unit; do not lengthen the token to hide it.</dd></div>
-      <div><dt>Render job stuck at "result unavailable"</dt><dd>Reconcile. It re-reads the same provider result. If the provider's own detail names an invalid input, fix the request shape — that is how the single-input 9:16 attempt was found.</dd></div>
+      <div><dt>Render job stuck at "result unavailable"</dt><dd>Reconcile. It re-reads the same provider result. If the provider's own detail names an invalid input, fix the request shape — that is how the single-input portrait-cut attempt was found.</dd></div>
       <div><dt>Images binding error 9432 on the Oyster route</dt><dd>Legacy billing on that account. It blocks the host's reference fitter, not the studio's own reference variation. Enable Cloudflare Images or migrate billing, and label which route produced which result.</dd></div>
       <div><dt>Video refused: AI Gateway could not fund this request</dt><dd>Nothing was charged. Add credit and retry the same request id.</dd></div>
       <div><dt>Blank media card after publishing</dt><dd>Check the asset revision and its publications. Withdrawal revokes the page; hiding only removes the card.</dd></div>

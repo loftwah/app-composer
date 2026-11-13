@@ -36,7 +36,8 @@ services: Workers AI for stills, fal.ai for video, sound and bounded renders.
 
 What is actually in it: projects and saved takes, four still routes, two
 image-to-video routes, generated music and narration saved as real audio assets,
-storyboards that render one bounded assembled export, a portrait-first 9:16 cut,
+storyboards that render one bounded assembled export, a portrait-first cut (4:5,
+not 9:16, and it overrides your chosen shot order),
 and deliberate public pages. Not a mock-up — the article links the deployed app,
 the published 17-second cut and the source.
 
@@ -56,10 +57,11 @@ Building an open-source AI media studio with App Composer
 A build log from a real deployment: how a portable brief becomes an independent
 Cloudflare application, how one durable job engine keeps paid requests honest,
 why renders need signed single-asset links, and what broke when we tried to make
-a 9:16 cut from a single assembled master.
+a portrait cut from a single assembled master.
 
-Includes the actual specification, the assembly dispatch excerpt, a measured
-cost ledger (US$0.2035 of inference in this run), and the change made after the
+Includes the actual specification, the assembly dispatch excerpt, a request-level
+cost ledger (US$0.2035 in this run: US$0.1435 of sound requests plus US$0.06 of
+estimated renders, none of it invoice-confirmed), and the change made after the
 first release. Fictional sample content; no vendor affiliation claimed.
 
 https://composer.loftwah.com/media-studio

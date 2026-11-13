@@ -1,6 +1,6 @@
 # Building an open-source AI media studio with App Composer
 
-Canonical: <https://composer.loftwah.com/media-studio> · Tutorial: <https://composer.loftwah.com/media-studio/tutorial> · Published 14 November 2026 (Australia/Melbourne).
+Canonical: <https://composer.loftwah.com/media-studio> · Tutorial: <https://composer.loftwah.com/media-studio/tutorial> · Published 2026/11/14, Australia/Melbourne (AEDT, UTC+11).
 
 *Syndication draft. If you republish this, keep the canonical link, the attribution and the date.*
 
@@ -14,7 +14,7 @@ This is what it does, how it is put together, what it cost, and the change I mad
 
 ## What actually works
 
-The deployed studio has a project library with real uploads, four Workers AI still routes (Lucid Origin, Phoenix, SDXL Lightning, and a FLUX.2 Klein reference variation), two fal.ai image-to-video routes (Hailuo 2.3 Standard, Kling 2.5 Turbo Pro), two sound routes (Studio Score instrumental beds of 10–30 seconds, Studio Voice narration), a storyboard that renders a bounded assembly of two to six takes plus one bed, a portrait-first 9:16 cut of the same material, and deliberate publication with separate withdrawal.
+The deployed studio has a project library with real uploads, four Workers AI still routes (Lucid Origin, Phoenix, SDXL Lightning, and a FLUX.2 Klein reference variation), two fal.ai image-to-video routes (Hailuo 2.3 Standard, Kling 2.5 Turbo Pro), two sound routes (Studio Score instrumental beds of 10–30 seconds, Studio Voice narration), a storyboard that renders a bounded assembly of two to six takes plus one bed, a portrait-first cut of the same material (4:5, not 9:16, and it overrides your chosen shot order), and deliberate publication with separate withdrawal.
 
 Sound is a first-class asset, not a soundtrack bolted onto a video. The studio reads the real duration, sample rate and channel count from the bytes, records provenance and cost, and draws the waveform from the decoded audio.
 
@@ -85,7 +85,7 @@ The Assemble tab could not see saved storyboards: the server returned them and t
 
 The change shipped as one release: sound length of 10 to 30 seconds with a scaled estimate; "Edit shots" loading the existing storyboard and saving in place rather than duplicating it; a note when a cut has changed since its last render; and the loader fix. Two smaller fixes came from the same pass: assembled exports no longer appear in the shot picker, and published media is briefly cacheable so withdrawal stops resolving promptly.
 
-The first real 9:16 request found a third defect. The portrait cut was built as a merge of a single assembled master; the provider needs at least two inputs and the job surfaced its own 422 detail. The fix was structural: compose the same takes with portrait sources first, because the frame follows the first keyframe. The failed request remains in the project's history.
+The first portrait-cut request found a third defect. The portrait cut was built as a merge of a single assembled master; the provider needs at least two inputs and the job surfaced its own 422 detail. The fix was structural: compose the same takes with portrait sources first, because the frame follows the first keyframe. The failed request remains in the project's history. The fix is not finished: the output frame is 4:5 and the portrait-first ordering overrides the shot order you selected, so a true 9:16 export is still open work and the 9:16 label is wrong until then.
 
 Before and after is measurable: the same storyboard now renders a 17.02-second master next to the earlier 30.00-second version, both in the library, neither regenerated.
 
@@ -103,9 +103,9 @@ Each advertised route was checked in four steps: official documentation and sche
 | Assembly | fal.ai ffmpeg compose | Live |
 | Masked edit | No qualified vendor edit route yet | Not built |
 
-This run used US$0.2035 of inference: two Studio Score beds (US$0.015 and US$0.0085), two Studio Voice narrations (US$0.06 each), two assemblies and a portrait cut (US$0.02 estimated each). Across both studio projects since the studio existed, observed inference is US$1.50. Hosting is separate and shared: Workers Paid, R2 storage, no charge while idle. ACE Music is excluded from this delivery entirely.
+This run recorded US$0.2035 at request level: two Studio Score beds (US$0.015 and US$0.0085), two Studio Voice narrations (US$0.06 each), and two assemblies plus a portrait cut at US$0.02 estimated each — so US$0.1435 of sound requests and US$0.06 of estimates. None of these figures is invoice-confirmed. Recorded request-level usage across both studio projects is US$1.50. Hosting is separate and shared: Workers Paid and R2 storage still cost money when nothing is rendering, so there is no zero-cost idle state. ACE Music is excluded from this delivery entirely.
 
-Also not claimed: by-ear audio review (checks were loudness and duration analysis plus transcript reading), a physical-device matrix, social unfurl caching, or a full restore drill.
+Also not claimed: a true 9:16 export (the portrait derivative is 4:5 and re-orders the takes), by-ear audio review (checks were loudness and duration analysis plus transcript reading), a physical-device matrix, social unfurl caching, or a full restore drill.
 
 ## Repeat it
 

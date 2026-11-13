@@ -28,7 +28,7 @@ const capabilities = [
   ['Video', 'Hailuo 2.3 Standard and Kling 2.5 Turbo Pro, image-to-video, 5–10 seconds', 'Live'],
   ['Sound', 'Studio Score instrumental beds of 10–30 seconds; Studio Voice narration from your own script', 'Live'],
   ['Assembly', '2–6 saved takes plus one bed, one bounded ffmpeg composition up to 60 seconds', 'Live'],
-  ['9:16 cut', 'The same takes and bed composed portrait-first for a vertical frame', 'Live'],
+  ['Vertical cut', 'The same takes composed portrait-first for a vertical frame; the frame it produces is 4:5, not 9:16, and it overrides your chosen shot order', 'Partial'],
   ['Library', 'Projects, search, filters, viewer, rename, download, delete, export', 'Live'],
   ['Publication', 'Deliberate public pages with separate withdrawal', 'Live'],
   ['Masked edit, outpaint, upscale', 'Needs a qualified vendor edit route and a real mask tool', 'Not built'],
@@ -42,7 +42,7 @@ const costs = [
   ['Studio Voice, 40 s', 'fal.ai `fal-ai/elevenlabs/tts/eleven-v3`', 'US$0.06', 'Overview narration'],
   ['Studio Voice, 33 s', 'same route', 'US$0.06', 'Second narration'],
   ['Assembly, two renders', 'fal.ai `fal-ai/ffmpeg-api/compose`', 'US$0.04 est.', '30 s and 17 s masters kept'],
-  ['9:16 cut', 'same compose route, portrait first', 'US$0.02 est.', 'Vertical derivative'],
+  ['Vertical cut', 'same compose route, portrait first', 'US$0.02 est.', '4:5 derivative, not 9:16'],
 ];
 ---
 <Base
@@ -85,7 +85,7 @@ const costs = [
         <a class="button secondary" href="https://media.loftwah.com/p/Na9FNUB_VhzZ7zA9">Open the assembled example</a>
         <a class="quiet-link" href="#use">See what you can make</a>
       </div>
-      <p class="meta">14 November 2026 · Australia/Melbourne (13 November UTC) · App Composer + an independent MIT studio</p>
+      <p class="meta">2026/11/14 · Australia/Melbourne (AEDT, UTC+11) · App Composer + an independent MIT studio</p>
     </div>
     <figure class="art-hero-figure">
       <img src={hero} width="1600" height="1000" alt="The Media Studio library for the Paper & Light project: an assembled 17-second cut, two sound assets drawn as waveforms, and three saved takes." loading="eager" />
@@ -109,7 +109,7 @@ const costs = [
     <p>That is the composition App Composer is for. One catalogue and a set of separate apps, each with its own source, data and release. Media Studio is one of those apps: an MIT-licensed Cloudflare Worker with its own D1 database, its own R2 bucket and its own deployment. It keeps working if I stop using Composer. It keeps working if a model provider changes its catalogue, because the catalogue lives in my code.</p>
     <figure class="figure narrow">
       <img src={catalogue} width="1536" height="1024" alt="App Composer illustration: a catalogue hall in the centre with separate rooms for Guestbook and Showcase, each with its own data." loading="lazy" />
-      <figcaption>The catalogue-with-separate-apps model, drawn for App Composer's playbook on 13 November 2026. Media Studio joins that model as its own room, with its own storage and release. Illustration: App Composer playbook.</figcaption>
+      <figcaption>The catalogue-with-separate-apps model, drawn for App Composer's playbook on 2026/11/13. Media Studio joins that model as its own room, with its own storage and release. Illustration: App Composer playbook.</figcaption>
     </figure>
     <p>There are honest trade-offs. A hosted studio is faster to start and has editors, masks and collaboration that this does not. You are the operator: you hold the Cloudflare account, the vendor keys and the release. A broken deploy is yours to fix, or your agent's. And the quality of the output is still the quality of the model you chose — owning the workspace does not make a better picture.</p>
     <p>What ownership buys is different: a stable place where the work accumulates, a bill you can read per request, and the ability to change the tool rather than request it.</p>
@@ -120,7 +120,7 @@ const costs = [
     <p>The studio is not a mock-up with a generate button. It has a project library, real uploads, four still routes, one reference-variation route, two image-to-video routes, two sound routes, a storyboard that renders a bounded assembly, a portrait cut of the same material, and deliberate publication. Everything below was exercised on the deployed application, not described in a plan.</p>
     <div class="table-wrap">
       <table>
-        <caption>Delivered capabilities and their real state on 14 November 2026 (AEST).</caption>
+        <caption>Delivered capabilities and their real state on 2026/11/14, Australia/Melbourne (AEDT, UTC+11).</caption>
         <thead><tr><th scope="col">Capability</th><th scope="col">What it is</th><th scope="col">State</th></tr></thead>
         <tbody>
           {capabilities.map(([name, detail, state]) => (
@@ -177,7 +177,7 @@ url.searchParams.set("p", projectId);
 url.searchParams.set("e", String(expires));
 url.searchParams.set("s", signature);`}</code></pre>
     <p>That link lists nothing, grants no session, carries no provider key, and expires on its own. The interface says so before a render starts, because sending your clips to a renderer is a real disclosure even when the link is narrow.</p>
-    <p>The assembled frame follows the first keyframe. That single detail is why the 9:16 cut is built by ordering portrait takes first rather than by asking a merge endpoint to re-frame one file — a path that looked reasonable and failed on the first real request, which the next section does not hide.</p>
+    <p>The assembled frame follows the first keyframe. That single detail is why the portrait cut is built by ordering portrait takes first rather than by asking a merge endpoint to re-frame one file — a path that looked reasonable and failed on the first real request, which the next section does not hide. It is also the defect: sorting by orientation overrides the shot order you chose, so the narrative changes to suit the frame. The frame it produces is 4:5, not 9:16.</p>
   </section>
 
   <section id="use" class="prose">
@@ -252,7 +252,7 @@ url.searchParams.set("s", signature);`}</code></pre>
       <li><strong>The loader fix:</strong> saved compositions survive the trip from the API to the tab.</li>
     </ul>
     <p>Two smaller fixes came from the same evidence pass: assembled exports no longer appear in the shot picker (so a cut is never built from another cut), and published media is briefly cacheable rather than cached for a day, so withdrawing a page stops resolving promptly.</p>
-    <p>The first real 9:16 request found a third defect the plan had hidden. The social cut was built as a merge of a single assembled master; the provider needs at least two inputs, and the job surfaced its own 422 detail. The fix was structural: compose the same takes with portrait sources first, because the frame follows the first keyframe. The failed request is still visible in the project's history, which is the honest record of how that path was learned.</p>
+    <p>The first portrait-cut request found a third defect the plan had hidden. The social cut was built as a merge of a single assembled master; the provider needs at least two inputs, and the job surfaced its own 422 detail. The fix was structural: compose the same takes with portrait sources first, because the frame follows the first keyframe. The failed request is still visible in the project's history, which is the honest record of how that path was learned. The fix is not finished: it produces a 4:5 frame and it re-orders the takes, so a true 9:16 export that keeps the selected order is still open work. The 9:16 label is wrong until then.</p>
     <p>Before/after is measurable: the same storyboard now renders a 17.02-second master with a 16.79-second picture, next to the earlier 30.00-second version, both in the library, both downloadable, neither regenerated.</p>
   </section>
 
@@ -293,7 +293,7 @@ url.searchParams.set("s", signature);`}</code></pre>
     <p>Each advertised route was checked in four steps: the official documentation and schema, the actual account's access, a bounded request through the studio's real server adapter, and the released interface reading the retained output. The gaps are named, not smoothed over.</p>
     <div class="table-wrap">
       <table>
-        <caption>Qualification on 13–14 November 2026. "Live" means a real request through the studio and a saved result.</caption>
+        <caption>Qualification on 2026/11/13–2026/11/14, Australia/Melbourne (AEDT, UTC+11). "Live" means a real request through the studio and a saved result.</caption>
         <thead><tr><th scope="col">Route</th><th scope="col">Provider and model</th><th scope="col">State</th></tr></thead>
         <tbody>
           <tr><th scope="row">Stills</th><td>Workers AI Lucid Origin, Phoenix, SDXL Lightning, FLUX.2 Klein</td><td>Live</td></tr>
@@ -310,19 +310,20 @@ url.searchParams.set("s", signature);`}</code></pre>
     <h3>What it cost</h3>
     <div class="table-wrap">
       <table>
-        <caption>Observed inference in this run. Estimates are marked; the vendor invoice remains authoritative.</caption>
+        <caption>Request-level spend for this run. Rows marked <code>est.</code> are planning estimates; none of these figures is invoice-confirmed, and the vendor invoice remains authoritative.</caption>
         <thead><tr><th scope="col">Object</th><th scope="col">Route</th><th scope="col">Cost</th><th scope="col">Outcome</th></tr></thead>
         <tbody>
           {costs.map(([name, route, cost, result]) => (
             <tr><th scope="row">{name}</th><td><code>{route}</code></td><td>{cost}</td><td>{result}</td></tr>
           ))}
         </tbody>
-        <tfoot><tr><th scope="row">This run</th><td>sound, assembly and the portrait cut</td><td>US$0.2035</td><td>plus hosting</td></tr></tfoot>
+        <tfoot><tr><th scope="row">This run</th><td>sound, assembly and the portrait cut</td><td>US$0.2035</td><td>US$0.1435 sound + US$0.06 estimated renders</td></tr></tfoot>
       </table>
     </div>
-    <p>Hosting is separate and shared: the studio runs on the same Workers Paid account as the rest of the estate, with R2 storage for originals and exports, and no charge while idle. Inference across both studio projects since the studio existed is US$1.50, of which US$1.22 is the Paper &amp; Light project shown here. That is not a monthly price: it is what these specific requests cost.</p>
+    <p>Hosting is separate and shared: the studio runs on the same Workers Paid account as the rest of the estate, with R2 storage for originals and exports. Idle runtime does not bill per request, but the shared paid account and the stored bytes cost money whether or not anyone is rendering — there is no zero-cost idle state. Recorded request-level usage across both studio projects is US$1.50, of which US$1.22 is the Paper &amp; Light project shown here. That is not a monthly price: it is what these specific requests cost.</p>
     <h3>What is not claimed</h3>
     <ul>
+      <li>No true 9:16 export. The portrait derivative is 4:5 and it sorts portrait takes ahead of the rest, which changes the order you selected. Both are open defects, not settings.</li>
       <li>No masked inpainting, outpainting, background removal or upscaling. Those need a qualified vendor edit route and a real mask tool; until then the interface does not offer them.</li>
       <li>No voice cloning, no training on anyone's likeness, no rights workflow for either.</li>
       <li>No member roles on the independent studio. It is one owner session; the wider Composer grant model is a separate, unfinished piece.</li>

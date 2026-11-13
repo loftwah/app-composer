@@ -33,9 +33,10 @@ Every request shows an estimate and requires confirmation.
 **Storyboards and assembly:** two to six saved takes (≤10.5 s each, ≤60 s total)
 plus one saved bed. Rendering is one `fal-ai/ffmpeg-api/compose` call over
 30-minute signed single-asset links; the result is copied into the studio's R2.
-Editing a storyboard updates it in place and keeps earlier renders. A 9:16 cut
-composes the same takes portrait-first and refuses clearly when none is
-portrait.
+Editing a storyboard updates it in place and keeps earlier renders. The portrait
+cut composes the same takes portrait-first and refuses clearly when none is
+portrait. It is **not** a 9:16 export: the delivered frame is 4:5, and the
+orientation sort overrides the selected shot order. Both are open defects.
 
 ## Provider truth
 
