@@ -1,0 +1,75 @@
+1
+00:00:00,300 --> 00:00:03,700
+Media Studio: a fictional record release, made and published with real software.
+
+2
+00:00:04,300 --> 00:00:08,700
+Setup starts with Node 24 or newer, Docker and a Workers Paid account; the official trial proves the host locally.
+
+3
+00:00:09,300 --> 00:00:13,700
+Deploy the standalone Oyster host with --minify. The unminified bundle exceeded the worker startup limit on this account.
+
+4
+00:00:14,300 --> 00:00:18,700
+Do not install all seven starter apps. Pack the pinned Prints commit and install only that release, plus the desktop.
+
+5
+00:00:19,300 --> 00:00:23,700
+In Composer, enable Images and video. It checks the host catalogue without generating or buying anything.
+
+6
+00:00:24,300 --> 00:00:48,233
+The article leads with the actual sleeve and a release table you can inspect object by object.
+
+7
+00:00:48,833 --> 00:00:56,700
+The host runs Oyster with Prints installed — the desktop is optional, the native controls are the product.
+
+8
+00:00:57,300 --> 00:01:10,700
+The studio opens with the existing owner sign-in; the library and publishing controls are native to the studio.
+
+9
+00:01:11,300 --> 00:01:14,700
+Creating a still shows the model, the reference and the estimate before anything is sent.
+
+10
+00:01:15,300 --> 00:01:25,500
+The request records its intent first, so a lost reply never becomes a silent charge.
+
+11
+00:01:26,100 --> 00:01:29,500
+Each saved result keeps its prompt, model, settings and provenance. Prompts stay private.
+
+12
+00:01:30,100 --> 00:01:39,167
+The asset view offers download, publication and the separate show-or-hide placement control.
+
+13
+00:01:39,767 --> 00:01:51,167
+Signed out, the published clip plays from owned storage with no owner passphrase.
+
+14
+00:01:51,767 --> 00:01:56,167
+Pausing stops new work; the Computer sleeps after fifteen idle minutes; reopening reads the saved bytes without regenerating.
+
+15
+00:01:56,767 --> 00:02:00,167
+Public downloads are deliberate derivatives; generated masters and receipts stay in the private project.
+
+16
+00:02:00,767 --> 00:02:08,833
+Every public download carries the fictional-release note and a stable address.
+
+17
+00:02:09,433 --> 00:02:16,267
+The tutorial records the real path, including the billing gate and the startup limit.
+
+18
+00:02:16,867 --> 00:02:23,267
+The same article at 390 pixels, with no horizontal overflow.
+
+19
+00:02:23,867 --> 00:02:27,267
+Made in the studio we built. The application is the lasting product.

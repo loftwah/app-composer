@@ -1,0 +1,21 @@
+Media Studio — full walkthrough (148s)
+
+[00:00] Media Studio: a fictional record release, made and published with real software.
+[00:04] Setup starts with Node 24 or newer, Docker and a Workers Paid account; the official trial proves the host locally.
+[00:09] Deploy the standalone Oyster host with --minify. The unminified bundle exceeded the worker startup limit on this account.
+[00:14] Do not install all seven starter apps. Pack the pinned Prints commit and install only that release, plus the desktop.
+[00:19] In Composer, enable Images and video. It checks the host catalogue without generating or buying anything.
+[00:24] The article leads with the actual sleeve and a release table you can inspect object by object.
+[00:48] The host runs Oyster with Prints installed — the desktop is optional, the native controls are the product.
+[00:57] The studio opens with the existing owner sign-in; the library and publishing controls are native to the studio.
+[01:11] Creating a still shows the model, the reference and the estimate before anything is sent.
+[01:15] The request records its intent first, so a lost reply never becomes a silent charge.
+[01:26] Each saved result keeps its prompt, model, settings and provenance. Prompts stay private.
+[01:30] The asset view offers download, publication and the separate show-or-hide placement control.
+[01:39] Signed out, the published clip plays from owned storage with no owner passphrase.
+[01:51] Pausing stops new work; the Computer sleeps after fifteen idle minutes; reopening reads the saved bytes without regenerating.
+[01:56] Public downloads are deliberate derivatives; generated masters and receipts stay in the private project.
+[02:00] Every public download carries the fictional-release note and a stable address.
+[02:09] The tutorial records the real path, including the billing gate and the startup limit.
+[02:16] The same article at 390 pixels, with no horizontal overflow.
+[02:23] Made in the studio we built. The application is the lasting product.
