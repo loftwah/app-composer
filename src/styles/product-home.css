@@ -168,8 +168,8 @@
     background: #303236;
   }
 
-  /* A native composition of actual app pixels and an existing exported card.
-     The orange plane is a brand surface, never an invented product screen. */
+  /* Slice-inspired brand artwork sits behind actual app pixels and an existing
+     exported card. The screenshots remain whole and readable. */
   .home-hero {
     position: relative;
     background: var(--home-hero-bg);
@@ -303,24 +303,22 @@
   }
   .studio-plate {
     position: absolute;
-    inset: 8% 19% 16% 16%;
-    background: #fc5b05;
-    border: 1px solid #ff9c65;
+    inset: 6% 5% 8% 4%;
+    /* The strips need a finite ground so the picture reads as one object and
+       the gaps look cut rather than missing. On the dark hero this is all but
+       the page colour; the light theme overrides it below with the brand's
+       deep orange, which gives the white mark contrast on paper. */
+    background: #0b0d10;
+    border: 1px solid #ffffff1f;
     box-shadow:
-      0.8cqi 1.4cqi 0 #a03406,
-      2cqi 4cqi 6cqi #0004;
+      0 1.2cqi 3.2cqi #00000059,
+      0 3cqi 6cqi #00000033;
     transform: rotate(-8deg);
   }
-  .studio-plate > img {
+  .studio-slice-image {
     display: block;
-    width: 11cqi;
-    height: auto;
-    margin: 3.5cqi 4cqi;
-  }
-  .studio-slot {
-    position: absolute;
-    inset: 29% 8% 8%;
-    border: 1px solid #17181b66;
+    width: 100%;
+    height: 100%;
   }
   .studio-routing {
     position: absolute;
@@ -976,6 +974,13 @@
 :root[data-theme="light"] .composer-home {
   --home-next-bg: var(--home-paper);
   --home-next-fg: var(--home-ink);
+}
+/* The sliced artwork's gaps are the plate showing through. On paper, the
+   page colour would erase the white mark, so the plate keeps the brand's
+   deep orange and the strips stay one object. */
+:root[data-theme="light"] .composer-home .studio-plate {
+  background: #a03406;
+  border-color: #00000033;
 }
 @media (prefers-reduced-motion: no-preference) {
   .composer-home {

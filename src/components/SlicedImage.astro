@@ -1,0 +1,55 @@
+---
+/**
+ * A decorative image seen through rounded vertical strips, inspired by Slice.
+ * One image keeps the original coordinates continuous across every strip.
+ * Pass a unique id when placing more than one instance on the same page.
+ */
+interface Props {
+  id: string;
+  src: string;
+  class?: string;
+}
+
+const { id, src, class: className } = Astro.props;
+const clipId = `${id}-strips`;
+// Twenty equal strips, as the reference shows: the same picture runs through
+// every aperture, so the ends and gaps must not change from edge to centre.
+// A small margin keeps the rounded ends visible against the plate behind.
+const STRIP_COUNT = 20;
+const STRIP_WIDTH = 23;
+const STRIP_GAP = 7;
+const STRIP_MARGIN = 22;
+const strips = Array.from({ length: STRIP_COUNT }, (_, index) => ({
+  x: (600 - (STRIP_COUNT * STRIP_WIDTH + (STRIP_COUNT - 1) * STRIP_GAP)) / 2 +
+    index * (STRIP_WIDTH + STRIP_GAP),
+  y: STRIP_MARGIN,
+  width: STRIP_WIDTH,
+  height: 540 - STRIP_MARGIN * 2
+}));
+---
+
+<svg
+  class={className}
+  viewBox="0 0 600 540"
+  width="600"
+  height="540"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <clipPath id={clipId}>
+      {strips.map(({ x, y, width, height }) => (
+        <rect x={x} y={y} width={width} height={height} rx={width / 2} />
+      ))}
+    </clipPath>
+  </defs>
+  <image
+    href={src}
+    x="0"
+    y="-30"
+    width="600"
+    height="600"
+    preserveAspectRatio="xMidYMid meet"
+    clip-path={`url(#${clipId})`}
+  />
+</svg>
