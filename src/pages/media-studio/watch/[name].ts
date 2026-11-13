@@ -7,7 +7,7 @@ type StoredObject = {
   httpEtag: string;
   writeHttpMetadata(headers: Headers): void;
 };
-type Bucket = { get(key: string, options?: { range?: { offset: number; length: number } }): Promise<StoredObject | null> };
+type Bucket = { get(key: string, options?: { range?: { offset: number; length: number } }): Promise<StoredObject | null>; head(key: string): Promise<{ size: number } | null> };
 
 const files: Record<string, { type: string; key: string }> = {
   "overview.mp4": { type: "video/mp4", key: "media-studio/films/overview.mp4" },
@@ -44,10 +44,12 @@ export const GET: APIRoute = async ({ params, request }) => {
     const start = match[1] ? Number(match[1]) : 0;
     const end = match[2] ? Number(match[2]) : undefined;
     const length = end === undefined ? undefined : Math.max(1, end - start + 1);
+    const head = await bucket.head(file.key);
+    const total = head?.size ?? 0;
     object = await bucket.get(file.key, length === undefined ? undefined : { range: { offset: start, length } });
-    if (object) {
+    if (object && total > 0) {
       status = 206;
-      contentRange = `bytes ${start}-${end ?? start + object.size - 1}/*`;
+      contentRange = `bytes ${start}-${start + object.size - 1}/${total}`;
     }
   } else {
     object = await bucket.get(file.key);
@@ -61,6 +63,8 @@ export const GET: APIRoute = async ({ params, request }) => {
   headers.set("Content-Length", String(object.size));
   if (contentRange) headers.set("Content-Range", contentRange);
   object.writeHttpMetadata(headers);
+  // The bucket object's own metadata may be generic; the route owns the type.
+  headers.set("Content-Type", file.type);
   headers.set("etag", object.httpEtag);
   return new Response(object.body, { status, headers });
 };
