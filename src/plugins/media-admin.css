@@ -1,0 +1,223 @@
+.composer-media {
+  --cm-ink: var(--text-color-kumo-default, #241f1a);
+  --cm-muted: var(--text-color-kumo-subtle, #6b635a);
+  --cm-surface: var(--color-kumo-base, #fdfaf5);
+  --cm-rule: color-mix(in srgb, var(--cm-ink) 20%, var(--cm-surface));
+  --cm-tint: color-mix(in srgb, var(--cm-ink) 5%, var(--cm-surface));
+  --cm-accent: #8a3d20;
+  color: var(--cm-ink);
+  max-width: 980px;
+  margin: auto;
+  padding: 28px;
+  font:
+    16px/1.6 system-ui,
+    sans-serif;
+}
+.composer-media h1 {
+  font:
+    600 34px/1.15 Georgia,
+    "Times New Roman",
+    serif;
+  margin: 0 0 10px;
+}
+.composer-media h2 {
+  font:
+    600 22px/1.25 Georgia,
+    "Times New Roman",
+    serif;
+  margin: 34px 0 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cm-rule);
+}
+.composer-media p {
+  max-width: 78ch;
+  margin: 10px 0;
+}
+.composer-media .cm-kicker {
+  font:
+    600 11px/1.4 ui-monospace,
+    monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cm-accent);
+  margin: 0 0 6px;
+}
+.composer-media .cm-lede {
+  font-size: 17px;
+  color: var(--cm-muted);
+}
+.composer-media .cm-state {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--cm-rule);
+  background: var(--cm-tint);
+}
+.composer-media .cm-state.is-on {
+  border-color: #2f6b45;
+  color: #1f4a30;
+  background: #eaf3ec;
+}
+.composer-media .cm-state.is-off {
+  color: var(--cm-muted);
+}
+.composer-media .cm-state span {
+  font-weight: 400;
+  font-size: 13px;
+}
+.composer-media .cm-message {
+  border-left: 3px solid var(--cm-accent);
+  padding: 8px 12px;
+  background: var(--cm-tint);
+}
+.composer-media .cm-warn {
+  border: 1px solid #b4762a;
+  background: #fdf3e3;
+  padding: 10px 12px;
+  border-radius: 6px;
+}
+.composer-media .cm-small {
+  font-size: 13px;
+  color: var(--cm-muted);
+  display: block;
+}
+.composer-media .cm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0;
+}
+.composer-media button {
+  font: inherit;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--cm-ink);
+  background: var(--cm-ink);
+  color: var(--cm-surface);
+  cursor: pointer;
+}
+.composer-media button.secondary {
+  background: transparent;
+  color: var(--cm-ink);
+}
+.composer-media button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.composer-media :is(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid var(--cm-accent);
+  outline-offset: 3px;
+}
+.composer-media .cm-form {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--cm-rule);
+  border-radius: 8px;
+  padding: 18px;
+  background: var(--cm-surface);
+}
+.composer-media .cm-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+.composer-media label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 14px;
+}
+.composer-media .cm-wide {
+  grid-column: 1 / -1;
+}
+.composer-media :is(input, select, textarea) {
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--cm-rule);
+  border-radius: 6px;
+  background: var(--cm-surface);
+  color: var(--cm-ink);
+  width: 100%;
+}
+.composer-media textarea {
+  resize: vertical;
+}
+.composer-media .cm-confirm {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  font-weight: 500;
+}
+.composer-media .cm-confirm input {
+  width: auto;
+}
+.composer-media .cm-estimate {
+  font-size: 15px;
+}
+.composer-media .cm-jobs {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.composer-media .cm-jobs li {
+  border: 1px solid var(--cm-rule);
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: var(--cm-surface);
+}
+.composer-media .cm-job-head {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.composer-media .cm-badge {
+  font:
+    600 11px/1.6 ui-monospace,
+    monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--cm-rule);
+  background: var(--cm-tint);
+}
+.composer-media .cm-badge.is-completed {
+  border-color: #2f6b45;
+  color: #1f4a30;
+}
+.composer-media .cm-badge.is-refused,
+.composer-media .cm-badge.is-failed {
+  border-color: #9b2c1f;
+  color: #7a2318;
+}
+.composer-media .cm-prompt {
+  font:
+    15px/1.55 Georgia,
+    serif;
+  margin: 8px 0;
+}
+.composer-media pre {
+  background: var(--cm-tint);
+  border: 1px solid var(--cm-rule);
+  border-radius: 6px;
+  padding: 12px;
+  overflow-x: auto;
+  font-size: 12.5px;
+}
+.composer-media code {
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+@media (prefers-reduced-motion: reduce) {
+  .composer-media * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

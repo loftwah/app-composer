@@ -1624,3 +1624,906 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   The studio that prints itself — homepage hero, 13 November 2026.
+   The scene is a real authored WebGL world. This CSS owns the illustrated
+   backdrop, the readable copy surface and a physical-looking control desk.
+   It never turns the workshop into a card carousel.
+   --------------------------------------------------------------------------- */
+
+.composer-home .studio-hero {
+  --studio-deck-bg: #0a181e;
+  --studio-deck-fg: #f4e8d0;
+  --studio-deck-muted: #aebbb7;
+  --studio-deck-rule: #ffffff26;
+  --studio-deck-orange: #ff6a1b;
+  position: relative;
+  min-height: max(760px, 100svh);
+  overflow: clip;
+  background: var(--home-hero-bg);
+  color: var(--home-hero-fg);
+}
+.composer-home .studio-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+.composer-home .studio-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(115% 90% at 68% 4%, #183b43 0%, #0d232b 48%, #08161c 100%);
+}
+:root[data-theme="light"] .composer-home .studio-backdrop {
+  background:
+    radial-gradient(115% 92% at 68% 2%, #fff9ed 0%, #f0e3cd 48%, #e2cfb2 100%);
+}
+.composer-home .studio-stage::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: "";
+  background-image: radial-gradient(circle, #f5e3c433 1px, transparent 1.15px);
+  background-size: 22px 22px;
+  opacity: 0.58;
+  mask-image: linear-gradient(180deg, #000 0%, #000 54%, transparent 92%);
+  pointer-events: none;
+}
+:root[data-theme="light"] .composer-home .studio-stage::before {
+  background-image: radial-gradient(circle, #5b4a3729 1px, transparent 1.15px);
+  opacity: 0.5;
+}
+.composer-home .studio-poster,
+.composer-home .studio-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.composer-home .studio-poster {
+  z-index: 1;
+  display: block;
+  transition: opacity 0.5s ease;
+}
+.composer-home .studio-poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 60% 48%;
+}
+.composer-home .studio-poster-light {
+  display: none;
+}
+:root[data-theme="light"] .composer-home .studio-poster-dark {
+  display: none;
+}
+:root[data-theme="light"] .composer-home .studio-poster-light {
+  display: block;
+}
+.composer-home .studio-canvas {
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.85s ease;
+}
+.composer-home .studio-stage.is-ready .studio-canvas {
+  opacity: 1;
+}
+.composer-home .studio-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background:
+    linear-gradient(90deg, var(--home-hero-bg) 0%, color-mix(in srgb, var(--home-hero-bg) 86%, transparent) 27%, transparent 51%),
+    linear-gradient(0deg, var(--home-hero-bg) 0%, transparent 28%),
+    linear-gradient(180deg, var(--home-hero-bg) 0%, transparent 20%);
+  pointer-events: none;
+}
+:root[data-theme="light"] .composer-home .studio-vignette {
+  background:
+    linear-gradient(90deg, var(--home-hero-bg) 0%, color-mix(in srgb, var(--home-hero-bg) 82%, transparent) 24%, transparent 48%),
+    linear-gradient(0deg, var(--home-hero-bg) 0%, transparent 26%),
+    linear-gradient(180deg, var(--home-hero-bg) 0%, transparent 19%);
+}
+.composer-home .studio-scene-meta {
+  position: absolute;
+  z-index: 4;
+  top: 118px;
+  right: max(28px, calc((100% - 1440px) / 2));
+  display: grid;
+  justify-items: end;
+  gap: 7px;
+  color: var(--home-hero-muted);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+.composer-home .studio-status-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.composer-home .studio-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--home-hero-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--home-hero-accent) 18%, transparent);
+}
+.composer-home .studio-status-line [data-tone="warn"] {
+  color: var(--home-hero-accent);
+}
+.composer-home .studio-scene-label {
+  margin: 0;
+  color: var(--home-hero-fg);
+  font-family: Space, ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.09em;
+}
+.composer-home .studio-scene-caption {
+  position: absolute;
+  z-index: 4;
+  top: 166px;
+  right: max(28px, calc((100% - 1440px) / 2));
+  max-width: 30ch;
+  margin: 0;
+  color: var(--home-hero-muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.composer-home .studio-copy {
+  position: absolute;
+  z-index: 5;
+  top: clamp(148px, 18.5vh, 206px);
+  left: max(28px, calc((100% - 1440px) / 2));
+  width: min(520px, 36vw);
+  container-type: inline-size;
+}
+.composer-home .studio-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 22px;
+  color: var(--home-hero-fg);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.13em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+.composer-home .studio-kicker-mark {
+  display: inline-grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border: 1px solid var(--home-hero-rule);
+  color: var(--home-hero-accent);
+  font-size: 0.8rem;
+}
+.composer-home .studio-copy h1 {
+  max-width: none;
+  margin: 0;
+  font-size: clamp(3.1rem, 4.75vw, 4.9rem);
+  line-height: 0.94;
+  letter-spacing: -0.062em;
+  overflow-wrap: normal;
+}
+.composer-home .studio-copy h1 span {
+  display: inline-block;
+  color: var(--home-hero-accent);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.075em;
+}
+.composer-home .studio-lede {
+  max-width: 38ch;
+  margin: 25px 0 0;
+  color: var(--home-hero-muted);
+  font-size: clamp(1rem, 1.13vw, 1.14rem);
+  line-height: 1.62;
+}
+.composer-home .studio-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 30px;
+}
+.composer-home .studio-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.composer-home .studio-text-link:hover {
+  color: var(--home-hero-accent);
+}
+.composer-home .studio-context-line {
+  max-width: 40ch;
+  margin: 17px 0 0;
+  color: var(--home-hero-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.015em;
+  line-height: 1.55;
+}
+
+.composer-home .studio-deck {
+  position: absolute;
+  z-index: 7;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.composer-home .studio-console,
+.composer-home .studio-static {
+  color: var(--studio-deck-fg);
+  background:
+    linear-gradient(180deg, #ffffff0a 0%, transparent 30%),
+    var(--studio-deck-bg);
+  border-top: 1px solid var(--studio-deck-rule);
+  box-shadow: 0 -20px 50px #0000002e;
+}
+.composer-home .studio-console {
+  display: grid;
+  gap: 12px;
+  padding: 17px max(28px, calc((100% - 1440px) / 2)) 19px;
+}
+.composer-home .studio-console-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+}
+.composer-home .studio-stations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.composer-home .studio-station {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  border: 1px solid transparent;
+  padding: 8px 13px;
+  background: transparent;
+  color: var(--studio-deck-fg);
+  font: 600 0.78rem/1.2 Space, ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+}
+.composer-home .studio-station:hover {
+  border-color: var(--studio-deck-rule);
+}
+.composer-home .studio-station[data-active="true"] {
+  border-color: var(--studio-deck-fg);
+  background: var(--studio-deck-fg);
+  color: var(--studio-deck-bg);
+}
+.composer-home .studio-station-number {
+  color: var(--studio-deck-orange);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+}
+.composer-home .studio-station[data-active="true"] .studio-station-number {
+  color: #b74100;
+}
+.composer-home .studio-pause {
+  display: inline-flex;
+  align-items: center;
+  gap: 15px;
+  min-height: 40px;
+  border: 0;
+  border-bottom: 1px solid var(--studio-deck-rule);
+  padding: 6px 1px;
+  background: transparent;
+  color: var(--studio-deck-muted);
+  font: 500 0.72rem/1.2 Space, ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+}
+.composer-home .studio-pause:hover:not(:disabled) {
+  color: var(--studio-deck-fg);
+  border-bottom-color: var(--studio-deck-fg);
+}
+.composer-home .studio-pause:disabled {
+  opacity: 0.72;
+  cursor: default;
+}
+.composer-home .studio-pause-glyph {
+  color: var(--studio-deck-orange);
+  font-size: 0.7rem;
+}
+.composer-home .studio-instruction {
+  margin: 0;
+  color: var(--studio-deck-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+.composer-home .studio-console-controls {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(210px, 230px);
+  align-items: end;
+  gap: 16px 32px;
+}
+.composer-home .studio-slider {
+  display: grid;
+  gap: 6px;
+}
+.composer-home .studio-slider label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  color: var(--studio-deck-fg);
+  font: 600 0.72rem/1.2 Space, ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.02em;
+}
+.composer-home .studio-slider output {
+  color: var(--studio-deck-orange);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+.composer-home .studio-slider input[type="range"] {
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  accent-color: var(--studio-deck-orange);
+  cursor: ew-resize;
+  background: transparent;
+  --studio-value: 34%;
+}
+.composer-home .studio-slider input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--studio-deck-orange) 0 var(--studio-value),
+    #ffffff2b var(--studio-value) 100%
+  );
+}
+.composer-home .studio-slider input[type="range"]::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  border: 2px solid var(--studio-deck-bg);
+  border-radius: 50%;
+  background: var(--studio-deck-orange);
+  box-shadow: 0 0 0 1px var(--studio-deck-orange);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.composer-home .studio-slider input[type="range"]::-moz-range-track {
+  height: 4px;
+  background: #ffffff2b;
+}
+.composer-home .studio-slider input[type="range"]::-moz-range-progress {
+  height: 4px;
+  background: var(--studio-deck-orange);
+}
+.composer-home .studio-slider input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--studio-deck-bg);
+  border-radius: 50%;
+  background: var(--studio-deck-orange);
+}
+.composer-home .studio-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 48px;
+  border: 1px solid #ffb184;
+  padding: 11px 15px;
+  background: var(--studio-deck-orange);
+  color: #17181b;
+  font: 650 0.8rem/1.3 Space, ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+}
+.composer-home .studio-action:hover {
+  background: #ff8747;
+}
+.composer-home .studio-console-foot {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 28px;
+  border-top: 1px solid var(--studio-deck-rule);
+  padding-top: 11px;
+}
+.composer-home .studio-readout {
+  max-width: 80ch;
+  margin: 0;
+  color: var(--studio-deck-fg);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+.composer-home .studio-context {
+  max-width: 92ch;
+  margin: 3px 0 0;
+  color: var(--studio-deck-muted);
+  font-size: 0.65rem;
+  line-height: 1.45;
+}
+.composer-home .studio-app-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px 15px;
+  flex: none;
+  font-size: 0.67rem;
+  line-height: 1.4;
+}
+.composer-home .studio-app-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  border-bottom: 1px solid #ffffff47;
+  color: var(--studio-deck-muted);
+  text-decoration: none;
+}
+.composer-home .studio-app-links a:hover {
+  color: var(--studio-deck-fg);
+  border-bottom-color: var(--studio-deck-fg);
+}
+.composer-home .studio-app-links .studio-product-link {
+  border: 1px solid #ffffff40;
+  padding: 5px 8px;
+  color: var(--studio-deck-fg);
+}
+.composer-home .studio-app-links .studio-product-link:hover {
+  border-color: var(--studio-deck-fg);
+}
+
+.composer-home .studio-static {
+  display: grid;
+  gap: 12px;
+  padding: 17px max(28px, calc((100% - 1440px) / 2)) 20px;
+}
+.composer-home .studio-static-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: var(--studio-deck-muted);
+  font: 600 0.66rem/1.3 Space, ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.composer-home .studio-static-head p {
+  margin: 0;
+  color: var(--studio-deck-fg);
+}
+.composer-home .studio-static ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--studio-deck-rule);
+}
+.composer-home .studio-static li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 13px;
+  padding: 12px 20px 12px 0;
+}
+.composer-home .studio-static li + li {
+  border-left: 1px solid var(--studio-deck-rule);
+  padding-left: 20px;
+}
+.composer-home .studio-static-number {
+  color: var(--studio-deck-orange);
+  font: 600 0.66rem/1.4 Space, ui-sans-serif, system-ui, sans-serif;
+}
+.composer-home .studio-static h2 {
+  margin: 0 0 4px;
+  color: var(--studio-deck-fg);
+  font-size: 0.95rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.composer-home .studio-static p {
+  margin: 0;
+  color: var(--studio-deck-muted);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+.composer-home .studio-static li > a {
+  grid-column: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  min-height: 28px;
+  margin-top: 5px;
+  border-bottom: 1px solid #ffffff47;
+  color: var(--studio-deck-fg);
+  font-size: 0.68rem;
+  text-decoration: none;
+}
+.composer-home .studio-static-note {
+  color: var(--studio-deck-muted);
+  font-size: 0.62rem;
+}
+.composer-home .studio-scroll {
+  position: absolute;
+  z-index: 6;
+  right: max(28px, calc((100% - 1440px) / 2));
+  bottom: 278px;
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 34px;
+  color: var(--home-hero-muted);
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+}
+.composer-home .studio-scroll:hover {
+  color: var(--home-hero-fg);
+}
+.composer-home .studio-hero :focus-visible {
+  outline: 2px solid var(--studio-deck-orange);
+  outline-offset: 3px;
+}
+.composer-home .studio-copy a:focus-visible,
+.composer-home .studio-scroll:focus-visible {
+  outline-color: var(--home-hero-accent);
+}
+
+@media (min-width: 901px) {
+  .composer-home .studio-scene-caption {
+    display: none;
+  }
+  .composer-home .studio-scroll {
+    display: none;
+  }
+}
+@media (min-width: 901px) and (max-height: 880px) {
+  .composer-home .studio-scroll {
+    display: none;
+  }
+}
+
+@media (max-width: 1180px) {
+  .composer-home .studio-copy {
+    width: min(430px, 38vw);
+  }
+  .composer-home .studio-copy h1 {
+    font-size: clamp(2.8rem, 4.9vw, 4.1rem);
+  }
+  .composer-home .studio-console-controls {
+    grid-template-columns: minmax(220px, 1fr) 190px;
+  }
+}
+
+@media (max-width: 900px) {
+  .composer-home .studio-poster img {
+    object-position: 50% 50%;
+  }
+  .composer-home .studio-hero {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+  }
+  .composer-home .studio-copy {
+    position: relative;
+    top: auto;
+    left: auto;
+    z-index: 5;
+    width: auto;
+    margin: 0 20px;
+    padding-top: 105px;
+    transform: none;
+  }
+  .composer-home .studio-copy h1 {
+    font-size: clamp(3.1rem, 8.2vw, 4.4rem);
+  }
+  .composer-home .studio-lede {
+    max-width: 34ch;
+    font-size: 1rem;
+  }
+  .composer-home .studio-stage {
+    position: relative;
+    inset: auto;
+    order: 2;
+    height: clamp(410px, 56svh, 540px);
+    margin-top: 21px;
+    border-top: 1px solid var(--home-hero-rule);
+    border-bottom: 1px solid var(--home-hero-rule);
+  }
+  .composer-home .studio-vignette {
+    background:
+      linear-gradient(0deg, var(--home-hero-bg) 0%, transparent 20%),
+      linear-gradient(180deg, var(--home-hero-bg) 0%, transparent 12%);
+  }
+  .composer-home .studio-scene-meta {
+    top: 16px;
+    right: 20px;
+  }
+  .composer-home .studio-scene-caption {
+    top: auto;
+    right: 20px;
+    bottom: 16px;
+  }
+  .composer-home .studio-deck {
+    position: relative;
+    inset: auto;
+    order: 3;
+  }
+  .composer-home .studio-console,
+  .composer-home .studio-static {
+    padding-inline: 20px;
+    box-shadow: none;
+  }
+  .composer-home .studio-console {
+    gap: 13px;
+    padding-block: 16px 22px;
+  }
+  .composer-home .studio-console-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .composer-home .studio-pause {
+    order: 2;
+  }
+  .composer-home .studio-console-controls {
+    grid-template-columns: 1fr;
+    gap: 13px;
+  }
+  .composer-home .studio-action {
+    min-height: 48px;
+  }
+  .composer-home .studio-console-foot {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .composer-home .studio-app-links {
+    justify-content: flex-start;
+  }
+  .composer-home .studio-static ul {
+    grid-template-columns: 1fr;
+  }
+  .composer-home .studio-static li {
+    padding: 12px 0;
+  }
+  .composer-home .studio-static li + li {
+    border-top: 1px solid var(--studio-deck-rule);
+    border-left: 0;
+    padding-left: 0;
+  }
+  .composer-home .studio-scroll {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    order: 4;
+    justify-content: space-between;
+    width: 100%;
+    margin: 0;
+    padding: 14px 20px;
+    border-top: 1px solid var(--home-hero-rule);
+    background: var(--home-hero-bg);
+    color: var(--home-hero-fg);
+  }
+  .composer-home .studio-stage::before {
+    opacity: 0.38;
+  }
+}
+
+@media (max-width: 600px) {
+  .composer-home .studio-copy {
+    margin-inline: 20px;
+    padding-top: 98px;
+  }
+  .composer-home .studio-eyebrow {
+    margin-bottom: 19px;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+  }
+  .composer-home .studio-copy h1 {
+    font-size: clamp(2.72rem, 12.4vw, 3.6rem);
+    line-height: 0.96;
+  }
+  .composer-home .studio-lede {
+    margin-top: 21px;
+    font-size: 0.96rem;
+    line-height: 1.62;
+  }
+  .composer-home .studio-actions {
+    margin-top: 24px;
+    gap: 2px 20px;
+  }
+  .composer-home .studio-actions .home-button {
+    width: 100%;
+  }
+  .composer-home .studio-context-line {
+    margin-top: 12px;
+    font-size: 0.65rem;
+  }
+  .composer-home .studio-stage {
+    height: clamp(360px, 50svh, 470px);
+    margin-top: 18px;
+  }
+  .composer-home .studio-scene-meta {
+    top: 12px;
+    right: 16px;
+    font-size: 0.55rem;
+  }
+  .composer-home .studio-scene-label {
+    font-size: 0.58rem;
+  }
+  .composer-home .studio-scene-caption {
+    right: 16px;
+    bottom: 12px;
+    max-width: 24ch;
+    font-size: 0.58rem;
+  }
+  .composer-home .studio-console,
+  .composer-home .studio-static {
+    padding-inline: 16px;
+  }
+  .composer-home .studio-stations {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+  }
+  .composer-home .studio-station {
+    justify-content: center;
+    padding-inline: 5px;
+    font-size: 0.68rem;
+  }
+  .composer-home .studio-station-number {
+    font-size: 0.58rem;
+  }
+  .composer-home .studio-pause {
+    align-self: flex-end;
+  }
+  .composer-home .studio-readout {
+    font-size: 0.72rem;
+  }
+  .composer-home .studio-context {
+    font-size: 0.62rem;
+  }
+  .composer-home .studio-app-links {
+    gap: 4px 13px;
+    font-size: 0.63rem;
+  }
+  .composer-home .studio-app-links .studio-product-link {
+    flex-basis: 100%;
+    justify-content: center;
+    margin-top: 3px;
+    min-height: 38px;
+  }
+  .composer-home .studio-scroll {
+    padding: 13px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .composer-home .studio-canvas,
+  .composer-home .studio-poster {
+    transition: none;
+  }
+}
+
+.composer-home .studio-poster[hidden],
+.composer-home .studio-console[hidden],
+.composer-home .studio-static[hidden] {
+  display: none !important;
+}
+
+@media (min-width: 901px) and (max-height: 880px) {
+  .composer-home .studio-copy {
+    top: 128px;
+  }
+  .composer-home .studio-eyebrow {
+    margin-bottom: 16px;
+  }
+  .composer-home .studio-copy h1 {
+    font-size: clamp(2.7rem, 4.2vw, 3.9rem);
+  }
+  .composer-home .studio-lede {
+    margin-top: 17px;
+    font-size: 0.98rem;
+    line-height: 1.55;
+  }
+  .composer-home .studio-actions {
+    margin-top: 20px;
+  }
+  .composer-home .studio-context-line {
+    margin-top: 10px;
+  }
+  .composer-home .studio-console {
+    gap: 7px;
+    padding-top: 12px;
+    padding-bottom: 13px;
+  }
+  .composer-home .studio-scene-caption {
+    top: 146px;
+  }
+}
+
+.composer-home .studio-scene-meta .studio-hint {
+  margin: 2px 0 0;
+  color: color-mix(in srgb, var(--home-hero-muted) 76%, transparent);
+  font-size: 0.55rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+.composer-home .studio-vignette::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background-image: radial-gradient(circle, #fff 0.55px, transparent 0.8px);
+  background-size: 3.2px 3.2px;
+  opacity: 0.055;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+@media (max-width: 900px) {
+  .composer-home .studio-hint {
+    display: none;
+  }
+}
+
+:root[data-theme="light"] .composer-home .studio-station {
+  color: var(--studio-deck-fg);
+}
+:root[data-theme="light"] .composer-home .studio-station[data-active="true"] {
+  color: var(--studio-deck-bg);
+}
+:root[data-theme="light"] .composer-home .studio-pause {
+  color: var(--studio-deck-muted);
+}
+.composer-home .studio-scene-meta {
+  padding: 8px 10px;
+  background: color-mix(in srgb, var(--home-hero-bg) 72%, transparent);
+  border: 1px solid var(--home-hero-rule);
+  backdrop-filter: blur(5px);
+}
+.composer-home .studio-scene-meta .studio-hint {
+  color: var(--home-hero-muted);
+}
+
+@media (max-width: 900px) {
+  .composer-home .studio-scene-meta {
+    top: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--home-hero-fg) 20%, transparent);
+    background: color-mix(in srgb, var(--home-hero-bg) 78%, transparent);
+    backdrop-filter: blur(6px);
+  }
+  .composer-home .studio-scene-meta .studio-status-line {
+    font-size: 0.52rem;
+    letter-spacing: 0.08em;
+  }
+  .composer-home .studio-scene-meta .studio-scene-label {
+    font-size: 0.55rem;
+  }
+  .composer-home .studio-scene-meta .studio-hint {
+    display: none;
+  }
+}
