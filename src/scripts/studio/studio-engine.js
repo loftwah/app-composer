@@ -340,9 +340,13 @@ export function createStudioEngine({
   }
 
   function updateCamera(dt, motion) {
-    const target = presetFor().target;
-    desiredTarget.set(...target);
-    desiredPosition.set(...presetFor().position);
+    const preset = presetFor();
+    if (camera.fov !== preset.fov) {
+      camera.fov = preset.fov;
+      camera.updateProjectionMatrix();
+    }
+    desiredTarget.set(...preset.target);
+    desiredPosition.set(...preset.position);
     if (state.layout === "desktop" && stage.clientWidth < 1320) desiredPosition.z += 0.7;
     if (state.layout === "phone") {
       desiredPosition.multiplyScalar(1.06);
