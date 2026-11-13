@@ -43,14 +43,14 @@ const apps = {
     order: 1,
     role: "owner",
     storage: [
-      "a D1 database bound as DB, with migrations/0001.sql applied from the pinned source",
-      "an R2 bucket bound as MEDIA for uploads, generated outputs and retained recoveries",
+      "a D1 database bound as DB, with every migration in the pinned source applied in order",
+      "an R2 bucket bound as MEDIA for uploads, generated stills, clips, sound, assembled exports and retained recoveries",
     ],
     secrets: ["OWNER_PASSPHRASE", "SESSION_SECRET"],
     optionalSecrets: ["FAL_KEY"],
     wiring: [
       "a Workers AI binding named AI on the owner's Cloudflare account for stills",
-      "the every-minute cron trigger declared in the app's own Wrangler configuration so asynchronous video jobs finish after the browser closes",
+      "the every-minute cron trigger declared in the app's own Wrangler configuration so asynchronous video, sound and render jobs finish after the browser closes",
     ],
     deployNote:
       "Set app.manifest.json repository to the repository the owner controls and PUBLIC_ORIGIN, the Worker name, route, account and storage identifiers to the owner's targets. The guarded deploy verifies that the manifest matches the git origin and reads the live origin from Wrangler.",
@@ -58,6 +58,7 @@ const apps = {
       "/healthz and /build.json report the exact owned commit that was deployed",
       "an uploaded image survives a reload and downloads with matching bytes",
       "one real still generation and one reference-guided variation are saved in the library",
+      "one saved sound asset plays with its recorded duration, and a storyboard of saved clips renders one assembled export",
       "a deliberately published page loads, and withdrawing it stops new visits",
     ],
   },
@@ -69,7 +70,7 @@ const configurationContract = {
   showcase:
     "profile fields and the curated cards through its own configuration contract",
   "media-studio":
-    "project name, creative direction, visibility and the saved media defaults through its own owner studio; never its passphrase, session secret or provider key",
+    "project name, creative direction, visibility and the saved still, video and sound defaults through its own owner studio; never its passphrase, session secret or provider key",
 };
 
 function orderedIds(spec) {

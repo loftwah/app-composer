@@ -9,10 +9,12 @@ export interface Spec {
     revision: 1;
   };
   mediaStudio?: {
-    version: 1;
-    focus: "image" | "video" | "both";
+    version: 2;
+    focus: "image" | "video" | "sound" | "both";
     imageModel: "studio-print" | "studio-film" | "studio-draft" | "studio-quick";
     videoModel: "hailuo-standard" | "kling-standard";
+    audioModel: "studio-score" | "studio-voice";
+    audioSeconds: 10 | 15 | 20 | 25 | 30;
     aspect: "portrait" | "square" | "landscape" | "wide";
     durationSeconds: number;
     projectName: string;

@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "preset": "media-studio",
+  "apps": [
+    "media-studio"
+  ],
+  "sources": [
+    {
+      "id": "media-studio",
+      "repository": "https://github.com/loftwah/composer-media-studio",
+      "commit": "77f3fc4bc2819446e2cfc6d6e1e335287233fff3",
+      "manifestDigest": "sha256:f71eb2c5b84dc73127fb064b70936b321fc1bd6e2c536c9e1f038b371369a37b"
+    }
+  ],
+  "appSettings": {},
+  "mediaStudio": {
+    "version": 2,
+    "focus": "both",
+    "imageModel": "studio-print",
+    "videoModel": "hailuo-standard",
+    "audioModel": "studio-score",
+    "audioSeconds": 15,
+    "aspect": "portrait",
+    "durationSeconds": 6,
+    "projectName": "Paper & Light"
+  },
+  "deviceTarget": "both",
+  "config": {
+    "title": "Paper & Light",
+    "intro": "Images, short films and sound with a warm, editorial eye — made and kept in my own studio.",
+    "theme": "daylight",
+    "layout": "grid"
+  },
+  "privacy": "review-first",
+  "cards": [],
+  "deployment": {
+    "mode": "preview",
+    "hostname": "",
+    "approval": "verification-required"
+  },
+  "delivery": {
+    "profile": "local",
+    "runner": ""
+  },
+  "updates": "validated-manual",
+  "decisions": {}
+}

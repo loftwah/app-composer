@@ -1,0 +1,21 @@
+[00:04] App Composer starts with a sentence, not a repository.
+
+[00:07] I described the studio I wanted: images, video and sound, with projects I could save and return to.
+
+[00:14] Get Ready checked the machine and the accounts.
+
+[00:17] Init turned that description into a specification I could read, save, and hand to my agent.
+
+[00:23] The agent built this studio on Cloudflare, with its own database, its own storage and its own release, and opened it from the Composer menu.
+
+[00:32] Then I made things in it: a still, a clip, a music bed, a storyboard.
+
+[00:37] And when I wanted a change, the same agent changed the same application, and every project was still there.
+
+[00:45] In the studio, sound is a saved asset, not a soundtrack bolted on afterwards.
+
+[00:50] I can choose a bed that fits the cut, order the takes, and render one bounded export.
+
+[00:56] Then I changed the studio itself: a new length control, and a storyboard I can edit in place.
+
+[01:03] Same application, same projects, and the first cut still in the library.

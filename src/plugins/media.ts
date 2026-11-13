@@ -72,7 +72,9 @@ async function bridgeToken(secret: string) {
   const claim = {
     aud: "media-studio",
     sub: "owner",
-    exp: Math.floor(Date.now() / 1000) + 120,
+    // The studio compares against milliseconds. Mint in the same unit so a
+    // correct handoff is never rejected as expired.
+    exp: Date.now() + 120_000,
   };
   const payload = base64url(JSON.stringify(claim));
   const key = await crypto.subtle.importKey(

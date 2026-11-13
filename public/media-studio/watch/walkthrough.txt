@@ -1,0 +1,23 @@
+[00:04] Chapter 1 · The brief: describe the studio, save the specification, hand it to your agent.
+
+[00:07] The Media Studio section carries the name, still and video models, frames and the sound defaults.
+
+[00:16] Chapter 2 · The library your agent deployed, opened from App Composer.
+
+[00:19] Takes, stills and sound live in the studio's own D1 and R2, not in Composer.
+
+[00:27] Chapter 3 · Make sound: pick a model, write the direction, choose a length.
+
+[00:30] The estimate appears before the request. The finished bed is saved as an audio asset with its real duration.
+
+[00:42] Chapter 4 · Assemble: order saved takes, add one bed, render one bounded export.
+
+[00:45] The assembled master plays here; the composition stays editable for the next render.
+
+[00:55] Chapter 5 · Publish: a deliberate public page, signed out.
+
+[00:58] Private assets still require the owner session. Withdrawing the page stops new visits.
+
+[01:07] Chapter 6 · Change the studio: edit the storyboard in place and swap the bed.
+
+[01:10] Saving marks the cut as changed; rendering again keeps the earlier result in the same composition.

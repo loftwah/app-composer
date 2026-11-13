@@ -92,9 +92,13 @@ export const mediaImageModels = [
   "studio-quick",
 ];
 export const mediaVideoModels = ["hailuo-standard", "kling-standard"];
+export const mediaAudioModels = ["studio-score", "studio-voice"];
 export const mediaAspects = ["portrait", "square", "landscape", "wide"];
 export const mediaDurations = [5, 6, 10];
-export const mediaStudioRevision = 1;
+export const mediaAudioSeconds = [10, 15, 20, 25, 30];
+// Revision 2 adds sound defaults. A revision 1 draft stays valid: its sound
+// fields are filled in rather than rejected.
+export const mediaStudioRevision = 2;
 
 export function defaultMediaStudio(config) {
   return {
@@ -102,6 +106,8 @@ export function defaultMediaStudio(config) {
     focus: "both",
     imageModel: "studio-print",
     videoModel: "hailuo-standard",
+    audioModel: "studio-score",
+    audioSeconds: 15,
     aspect: "portrait",
     durationSeconds: 6,
     projectName: config?.title ?? "",
@@ -117,15 +123,18 @@ export function validateMediaStudio(value) {
     "focus",
     "imageModel",
     "videoModel",
+    "audioModel",
+    "audioSeconds",
     "aspect",
     "durationSeconds",
     "projectName",
   ];
   if (Object.keys(value).some((key) => !keys.includes(key)))
     throw new Error("Unknown Media Studio setting");
-  if (value.version !== mediaStudioRevision)
+  const legacy = value.version === 1;
+  if (!legacy && value.version !== mediaStudioRevision)
     throw new Error("That Media Studio setting version is no longer current");
-  if (!["image", "video", "both"].includes(value.focus))
+  if (!["image", "video", "sound", "both"].includes(value.focus))
     throw new Error("Choose what this studio should make");
   if (!mediaImageModels.includes(value.imageModel))
     throw new Error("Choose a supported studio still model");
@@ -139,12 +148,20 @@ export function validateMediaStudio(value) {
     );
   if (!mediaAspects.includes(value.aspect))
     throw new Error("Choose a supported still frame");
+  const audioModel = legacy ? "studio-score" : value.audioModel;
+  if (!mediaAudioModels.includes(audioModel))
+    throw new Error("Choose a supported studio sound model");
+  const audioSeconds = legacy ? 15 : value.audioSeconds;
+  if (!mediaAudioSeconds.includes(audioSeconds))
+    throw new Error("Choose a sound length the studio offers");
   const projectName = validText(value.projectName ?? "", 80, "Studio project name");
   return {
     version: mediaStudioRevision,
     focus: value.focus,
     imageModel: value.imageModel,
     videoModel: value.videoModel,
+    audioModel,
+    audioSeconds,
     aspect: value.aspect,
     durationSeconds: value.durationSeconds,
     projectName,

@@ -32,10 +32,12 @@ test("Media Studio is a real preset with a pinned independent source", () => {
   assert.equal(spec.preset, "media-studio");
   assert.deepEqual(spec.sources, [mediaStudioSource.source]);
   assert.deepEqual(spec.mediaStudio, {
-    version: 1,
+    version: 2,
     focus: "both",
     imageModel: "studio-print",
     videoModel: "hailuo-standard",
+    audioModel: "studio-score",
+    audioSeconds: 15,
     aspect: "portrait",
     durationSeconds: 6,
     projectName: "Paper & Light",
@@ -58,13 +60,17 @@ test("media defaults round trip through export and import unchanged", () => {
   }));
   assert.equal(spec.mediaStudio.videoModel, "kling-standard");
   assert.equal(spec.mediaStudio.durationSeconds, 10);
+  // A revision 1 draft keeps its choices and gains the current sound defaults.
+  assert.equal(spec.mediaStudio.version, 2);
+  assert.equal(spec.mediaStudio.audioModel, "studio-score");
+  assert.equal(spec.mediaStudio.audioSeconds, 15);
   const roundTrip = validateSpec(JSON.parse(JSON.stringify(spec)));
   assert.deepEqual(roundTrip, spec);
 });
 
 test("unsupported or mismatched media settings fail closed", () => {
   for (const patch of [
-    { version: 2 },
+    { version: 9 },
     { imageModel: "higgsfield-soul" },
     { videoModel: "text-to-video" },
     { aspect: "ultrawide" },

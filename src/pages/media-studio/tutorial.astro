@@ -1,223 +1,396 @@
 ---
 import Base from '../../layouts/Base.astro';
+const hero = '/media-studio/studio-library-20261114.jpg';
+const init = '/media-studio/init-media-20261114.jpg';
+const sound = '/media-studio/studio-sound-20261114.jpg';
+const storyboard = '/media-studio/studio-storyboard-20261114.jpg';
+const audioAsset = '/media-studio/studio-audio-20261114.jpg';
+const publicPage = '/media-studio/studio-public-20261114.jpg';
+
 const chapters = [
-  ['before', 'Before you start'],
-  ['brief', 'Write the brief'],
-  ['deploy', 'Prepare the host'],
-  ['install', 'Install Prints, not seven apps'],
-  ['switch', 'Turn the capability on'],
-  ['make', 'Make the artwork'],
-  ['publish', 'Publish deliberately'],
-  ['return', 'Pause, sleep, resume'],
-  ['trouble', 'Troubleshooting'],
+  ['target', 'Understand the target app'],
+  ['accounts', 'Accounts and the supported agent'],
+  ['ready', 'Get Ready'],
+  ['init', 'Choose Media Studio in Init'],
+  ['handoff', 'Save and hand off the brief'],
+  ['build', 'The agent builds and deploys'],
+  ['enter', 'Enter through Composer'],
+  ['make', 'Create and edit video and sound'],
+  ['publish', 'Assemble, export and publish'],
+  ['return', 'Return and change it'],
+  ['technical', 'Technical reference'],
 ];
+
+const promptBrief = 'Build me a media studio for images, video and sound using my providers, with projects I can save and return to. Give it its own Cloudflare account resources, its own storage and its own release, and open it from my App Composer menu.';
+
+const promptSound = 'A slow instrumental bed for a short studio film: warm analog pad, tape hiss, a patient four-note motif, brushed low percussion, no vocals, clean ending.';
+
+const promptAgent = 'Use the saved Media Studio specification and the pinned source in this handoff. Create my own copy, apply every migration in order, set the secrets yourself without printing them, deploy, and read back the live revision. Then walk me through the one account step only I can do.';
 ---
 <Base
-  title="Media Studio tutorial — from brief to published release artwork"
-  description="A repeatable, illustrated tutorial for the App Composer Media Studio path: brief, Oyster host, selective Prints install, native capability, real generation, publication and returning without regenerating."
-  shareImage="https://composer.loftwah.com/media-studio/tidal-ledger-og.png"
-  shareAlt="Tidal Ledger sleeve and the words Media Studio tutorial."
+  title="Build and run your own media studio with App Composer"
+  description="A repeatable, illustrated tutorial: brief, Get Ready, Init, agent handoff, deployment, native access, real media work, assembly, publication and changing the same studio afterwards."
+  shareImage="https://composer.loftwah.com/media-studio/media-studio-og-20261114.jpg"
+  shareAlt="The Media Studio library with an assembled cut and generated sound."
   ogType="article"
+  canonical="https://composer.loftwah.com/media-studio/tutorial"
 >
 <article class="tut">
   <header class="tut-head">
-    <p class="tut-kicker">Media Studio · tutorial</p>
-    <h1>From an empty studio to published release artwork.</h1>
-    <p class="tut-deck">This is the path actually used for <a href="/media-studio">Tidal Ledger</a>: a portable brief, an Oyster host, a selective Prints install, a native capability switch, real stills and motion, publication, and a project you can reopen without paying twice.</p>
-    <p class="tut-small">Time: about 90 minutes for the first run, most of it waiting for a deployment. Cost: hosting plus cents of inference. Every command below was run on this Mac; where an account action is required it is marked.</p>
-    <nav class="tut-jump" aria-label="Chapters">
-      {chapters.map(([id, label], index) => <a href={'#' + id}>{String(index + 1).padStart(2, '0')} {label}</a>)}
+    <p class="kicker">Media Studio · tutorial</p>
+    <h1>Build and run your own media studio with App Composer</h1>
+    <p class="deck">The same recipe as the <a href="/media-studio">build article</a>, chapter by chapter. Each chapter says what you do, what your agent or the product does, what you should see, and how to recover if it goes wrong.</p>
+    <dl class="facts">
+      <div><dt>You need</dt><dd>A Cloudflare account on Workers Paid, a supported agent, and a funded fal.ai key for video, sound and rendering.</dd></div>
+      <div><dt>You do not need</dt><dd>Docker, Wrangler, manual migrations or a database seed. The agent performs the technical work.</dd></div>
+      <div><dt>Cost</dt><dd>Hosting plus per-request inference. This run used US$0.2035 of inference for sound, two assemblies and a portrait cut.</dd></div>
+      <div><dt>Time</dt><dd>An evening for a first build including account setup and the first render; minutes for later changes.</dd></div>
+    </dl>
+    <nav class="jump" aria-label="Chapters">
+      {chapters.map(([id, label], index) => (
+        <a href={`#${id}`}>{String(index + 1).padStart(2, '0')} {label}</a>
+      ))}
     </nav>
+    <p class="small">The walkthrough film follows these chapters. Timestamps below refer to <a href="#film">the recording</a>.</p>
   </header>
 
-  <section id="before" class="tut-step">
-    <p class="tut-kicker">01</p>
-    <h2>Before you start</h2>
-    <div class="tut-grid">
+  <section id="target" class="step">
+    <p class="kicker">01 · Understand the target app</p>
+    <h2>What you are actually building</h2>
+    <div class="cols">
       <div>
-        <ul>
-          <li><strong>Node 24+ and Git</strong> for the local trial. Node 26.13.1 was used here; the trial’s desktop builder pinned Node 24.20.0.</li>
-          <li><strong>Docker</strong> for the Computer image, only when deploying.</li>
-          <li><strong>A Cloudflare account on Workers Paid</strong> with Containers. AI Gateway credits are needed for video models.</li>
-          <li><strong>An extreme amount of patience</strong> for the first container build. It took about twenty minutes.</li>
-        </ul>
-        <p class="tut-small">The Mac prepares, deploys and records. Models run in the provider account; the Computer is a Linux container in Cloudflare, not your laptop.</p>
+        <p>A media studio that belongs to you: an MIT-licensed Cloudflare Worker with its own D1 database for projects, assets, jobs, budgets and compositions, its own R2 bucket for originals and assembled exports, and its own release. It is not a Composer feature inside Composer's database.</p>
+        <p>Composer is the front door and the brief. The studio is the building. Models are hired services: Cloudflare Workers AI for stills, fal.ai for video, sound and bounded renders.</p>
+        <p>What you own at the end: the source, the data, the media, the publication pages and the ability to change any of it.</p>
       </div>
-      <aside class="tut-check">
+      <aside class="check">
         <h3>Checkpoint</h3>
-        <pre><code>node --version   # v24.x or newer
-docker info      # a running daemon
-npx wrangler whoami</code></pre>
-        <p>If any of these fail, fix it before spending anything.</p>
+        <p>You can say where your projects will live (your Cloudflare account), where the media will live (your R2 bucket) and which vendor is paid for each kind of request. If any answer is "Composer", stop and read the specification again.</p>
       </aside>
     </div>
   </section>
 
-  <section id="brief" class="tut-step">
-    <p class="tut-kicker">02</p>
-    <h2>Write the brief in Composer</h2>
-    <p>Open <a href="/init?start=media-studio">Init → Media Studio</a>. Name the studio, choose the creative direction and defaults, then save. The saved specification carries the app, the source pin and the media settings; no credentials go into it.</p>
-    <pre><code>pnpm dlx @loftwah/get-ready-mcp   # optional: inspect readiness locally
-node scripts/media-studio-agent.mjs status</code></pre>
-    <p>The brief for this campaign asked for a studio for a record release: keep references together, make cover variations, animate the chosen cover, prepare artwork for the artist’s page, and let the owner return later and change the studio without losing the project.</p>
-    <aside class="tut-check"><h3>Checkpoint</h3><p>Export the specification, re-import it, and confirm the media defaults survive unchanged. If they do not, stop: the portable brief is the contract everything else uses.</p></aside>
-  </section>
-
-  <section id="deploy" class="tut-step">
-    <p class="tut-kicker">03</p>
-    <h2>Prepare the Oyster host</h2>
-    <p>Win the local trial first, then deploy the whole standalone host. The smaller workers-only host is not a proven drop-in for Computer + media.</p>
-    <pre><code>npx @fungi.computer/oyster@0.25.0 try --no-open
-# in the created project:
-npx wrangler r2 bucket create oyster-releases
-npx wrangler deploy --minify \
-  --var OYSTER_ORIGIN:https://oyster-media.&lt;subdomain&gt;.workers.dev
-printf '%s' "$(cat .oyster-owner)" | npx wrangler secret put OYSTER_OWNER_KEY</code></pre>
-    <div class="tut-note">
-      <h3>Two real findings from this run</h3>
-      <p><strong>Deploy with <code>--minify</code>.</strong> The unminified standalone bundle exceeded the Worker startup CPU limit (<code>10021</code>) on this account; the minified bundle passed. It was still close enough that one retry failed and the next passed — treat it as a tight budget, not a guarantee.</p>
-      <p><strong>Legacy billing blocks the Images binding.</strong> The host’s reference fitter calls <code>env.IMAGES</code>, which returned <code>IMAGES_TRANSFORM_ERROR 9432: … not available using legacy billing</code>. On this account that means reference-conditioned generation is refused by the host, and the model catalogue marks references unavailable. Enable Cloudflare Images or migrate billing to use it; the studio’s own referenced variation runs on Workers AI and was used instead.</p>
-    </div>
-    <aside class="tut-check"><h3>Checkpoint</h3><pre><code>curl -s https://oyster-media.&lt;subdomain&gt;.workers.dev/login -o /dev/null -w '%&#123;http_code&#125;\n'   # 200
-curl -s -H "Authorization: Bearer $(cat .oyster-owner)" \
-  https://oyster-media.&lt;subdomain&gt;.workers.dev/api/installations</code></pre><p>You should have a host and an empty installation list. Do not install the starter set.</p></aside>
-  </section>
-
-  <section id="install" class="tut-step">
-    <p class="tut-kicker">04</p>
-    <h2>Install Prints — not seven apps</h2>
-    <p><code>install-apps</code> installs the whole starter set. The supported alternative is to pack one exact commit and install that release.</p>
-    <pre><code>git clone https://github.com/fungi-computer/prints prints
-cd prints &amp;&amp; git checkout 0e09aae1bf472ca777d86767225307fa8db74fcc
-node releases/pack.mjs prints app_prints out/prints-release
-node releases/install.mjs out/prints-release prints \
-  https://oyster-media.&lt;subdomain&gt;.workers.dev</code></pre>
-    <p>Repeat with Tourtois <code>548286dc419f…</code> if you want the desktop. The release response records the release id, artifact digest and build-recipe digest — keep them with the project.</p>
-    <aside class="tut-check"><h3>Checkpoint</h3><p><code>/api/installations</code> lists <code>prints</code> and (optionally) <code>tourtois</code> only. The desktop shows Prints, not a wall of starters.</p></aside>
-  </section>
-
-  <section id="switch" class="tut-step">
-    <p class="tut-kicker">05</p>
-    <h2>Turn the capability on in EmDash</h2>
-    <p>In Composer’s admin, open <strong>Images &amp; video</strong>. It starts Off. The deployment holds the host address and owner key as Worker secrets; nothing about them reaches the browser.</p>
-    <ol>
-      <li><strong>Enable.</strong> The server checks the host and reads its live catalogue. No credit is bought, no container started, nothing generated.</li>
-      <li><strong>Generate.</strong> Choose a model from the catalogue, write the prompt, pick dimensions or clip settings, and read the estimate before confirming.</li>
-      <li><strong>Import.</strong> A completed result is copied into the app’s own storage, with its hash, bytes and model recorded.</li>
-    </ol>
-    <p>The same handlers are exposed to an authorised agent:</p>
-    <pre><code>node scripts/media-studio-agent.mjs status
-node scripts/media-studio-agent.mjs generate --kind image \
-  --model @cf/leonardo/lucid-origin --prompt "…" --width 1120 --height 1120
-node scripts/media-studio-agent.mjs import --id job_…</code></pre>
-    <aside class="tut-check"><h3>Checkpoint</h3><p>Turn the capability off and try to generate. The server must refuse with “Images &amp; video is off”, and existing jobs must remain readable. Turn it back on; nothing should have been deleted.</p></aside>
-  </section>
-
-  <section id="make" class="tut-step">
-    <p class="tut-kicker">06</p>
-    <h2>Make the artwork</h2>
-    <div class="tut-grid">
+  <section id="accounts" class="step">
+    <p class="kicker">02 · Accounts and the supported agent</p>
+    <h2>The parts only you can do</h2>
+    <div class="cols">
       <div>
-        <ol>
-          <li><strong>Reference.</strong> Put the reference board and any source stills in the project. A reference is not a result; label it.</li>
-          <li><strong>Plates.</strong> Generate two or three candidate plates with the same art direction. Record model, prompt, size and cost for each.</li>
-          <li><strong>Select.</strong> Pick the plate that leaves room for typography, not the busiest one.</li>
-          <li><strong>Compose.</strong> Set the type deliberately. Generated masters stay clean; the sleeve is a recorded derivative of plate + type.</li>
-          <li><strong>Animate.</strong> Upload the composed still and animate it. Ask for light and material, not a new scene.</li>
-        </ol>
-      </div>
-      <aside class="tut-check">
-        <h3>What it cost here</h3>
+        <p>Agents should not create accounts, accept terms or spend money on your behalf. You do these once:</p>
         <ul>
-          <li>Premium still, 1120²: US$0.066</li>
-          <li>Balanced still, 1120²: US$0.055</li>
-          <li>Cheap draft, 1024²: US$0.001</li>
-          <li>6 s image-to-video: US$0.28</li>
-          <li>4 s async video, gateway model: US$0.16</li>
+          <li>Create or sign in to your Cloudflare account and confirm Workers Paid with Containers if you intend to use the Oyster route. The independent studio itself needs Workers Paid and Workers AI.</li>
+          <li>Create a fal.ai account and add credit. Video, sound and assembly all bill there.</li>
+          <li>Start a supported agent (for example a coding agent with terminal access) in an empty project directory and connect it to Composer's Get Ready.</li>
         </ul>
-        <p class="tut-small">Observed, not a price list. Every request shows its own estimate first.</p>
+        <p>Then say this to your agent:</p>
+        <pre><code>{promptAgent}</code></pre>
+        <p>The consent boundary is simple: you approve account creation, sign-in and spend. The agent handles repositories, configuration, migrations, tests and deployment. It must never print a secret; it writes secrets directly to the provider.</p>
+      </div>
+      <aside class="check">
+        <h3>Checkpoint</h3>
+        <p>You can see a funded fal.ai balance and your Cloudflare account has Workers AI available. No key has been pasted into chat, a prompt, a screenshot or a repository.</p>
+        <h3>Recover</h3>
+        <p><strong>No fal key yet?</strong> Everything except video, sound and rendering still works: uploads, the library, stills on Workers AI, export and publication. Add the key when you are ready.</p>
       </aside>
     </div>
-    <p class="tut-small">A failed save is not a failed generation. The studio keeps the exact bytes and a retry of the same request saves them without a second inference. Retrying with a <em>new</em> request id is a new paid request — do not do that to “fix” a save.</p>
   </section>
 
-  <section id="publish" class="tut-step">
-    <p class="tut-kicker">07</p>
-    <h2>Publish deliberately</h2>
-    <p>Publishing creates a public page with a title, description and media. Prompts, filenames, other projects and receipts stay private.</p>
-    <ul>
-      <li><strong>Publish / unpublish</strong> — the page is available or withdrawn. Withdrawal stops new visits; downloads already taken cannot be recalled.</li>
-      <li><strong>Show / hide</strong> — a gallery or Showcase card is a placement. Hiding removes discovery; it does not make the direct link private.</li>
-      <li><strong>Make private / delete</strong> — a separate destructive action. It tombstones the asset and its publications; a late provider completion cannot resurrect it.</li>
+  <section id="ready" class="step">
+    <p class="kicker">03 · Get Ready</p>
+    <h2>Check the machine before building</h2>
+    <div class="cols">
+      <div>
+        <p><a href="/init">Init</a> includes Get Ready. It checks the local runtime, the package manager, the repository tools and the accounts your agent will use. It reports what is missing rather than pretending a tool exists.</p>
+        <p>Read the result. If it says a runtime is unsupported, fix that first: a release gate that runs on the wrong Node line fails in confusing ways later.</p>
+        <p class="small">Get Ready is not a subscription and it provisions nothing in your cloud account.</p>
+      </div>
+      <aside class="check">
+        <h3>What you should see</h3>
+        <p>A readiness report with each check named and a clear pass or fail. No green tick means no green tick.</p>
+        <h3>Recover</h3>
+        <p>A failing local check is a local fix, not a product bug: install the supported runtime line, re-run Get Ready, and only then continue.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="init" class="step">
+    <p class="kicker">04 · Choose Media Studio in Init</p>
+    <h2>The brief</h2>
+    <div class="cols">
+      <div>
+        <p>Open <a href="/init?start=media-studio">Init → Media Studio</a>, then choose what the studio should make, the still and video models, the default frame and clip length, and the sound model and bed length. Name the project. None of this buys anything.</p>
+        <p>Write the intent in your own words. The sentence used for this build:</p>
+        <pre><code>{promptBrief}</code></pre>
+        <p>The saved specification is portable and validated. Revision 2 carries the sound defaults; revision 1 drafts still load.</p>
+      </div>
+      <aside class="check">
+        <h3>What you should see</h3>
+        <p>The Media Studio fieldset with default values, a live preview, and a "Portable specification" panel that updates as you change your choices.</p>
+        <h3>Recover</h3>
+        <p>If a value is rejected, the form tells you which field and why. Fix it there: the specification fails closed rather than shipping an unsupported model id.</p>
+      </aside>
+    </div>
+    <figure class="figure">
+      <img src={init} width="1600" height="1000" alt="The Media Studio section of the Init form with name, focus, still and video models, default frame, clip length, sound model and sound length." loading="lazy" />
+      <figcaption>Init's Media Studio section after this release. The sound fields are part of revision 2 of the specification.</figcaption>
+    </figure>
+  </section>
+
+  <section id="handoff" class="step">
+    <p class="kicker">05 · Save and hand off the brief</p>
+    <h2>Make the contract portable</h2>
+    <div class="cols">
+      <div>
+        <p>Save the draft, download the specification, and copy the agent handoff. The handoff pins the studio repository and commit, names the storage and secret bindings, states the build plan and separates the human-only actions from the technical ones.</p>
+        <p>Keep the draft. Exporting does not publish anything, and importing a different specification later does not overwrite your saved draft until you choose to save it.</p>
+      </div>
+      <aside class="check">
+        <h3>What you should see</h3>
+        <p>A JSON file you can re-import with identical values, and a handoff that names an exact forty-character commit — not "latest".</p>
+        <h3>Recover</h3>
+        <p>If the handoff shows a placeholder commit, the source pin is wrong. Stop; a moving target cannot be reproduced.</p>
+      </aside>
+    </div>
+    <p class="small">The <a href="/media-studio/media-studio-brief-20261114.json" download>example brief</a> from this run is available as a starting point.</p>
+  </section>
+
+  <section id="build" class="step">
+    <p class="kicker">06 · The agent builds and deploys</p>
+    <h2>Owner-controlled work</h2>
+    <div class="cols">
+      <div>
+        <p>Your agent creates your copy of the studio, applies every migration in order, sets the secrets, deploys and reads back the live revision. On this run the release script refused a dirty tree, checked the pinned source, ran the focused tests, deployed, then compared <code>/healthz</code> to the commit it had shipped.</p>
+        <p>Two things to watch, because they are where real builds fail:</p>
+        <ul>
+          <li><strong>Migrations are ordered and data-preserving.</strong> The audio release rebuilds two tables to widen a constraint; it copies every row and restores parent links in a second pass, because the production database enforces foreign keys.</li>
+          <li><strong>The handoff expiry must match units.</strong> Composer mints a short-lived token; the studio compares milliseconds. A mismatch rejects a correct handoff as expired. Both sides now normalise.</li>
+        </ul>
+      </div>
+      <aside class="check">
+        <h3>What you should see</h3>
+        <p><code>/healthz</code> returning your exact commit, and the studio's login page offering the Composer route rather than only a passphrase.</p>
+        <h3>Recover</h3>
+        <p><strong>Deploy refused:</strong> read the refusal — dirty tree, wrong branch, unpushed commit, or a manifest that does not match the repository you are deploying from. Fix that, not the checks.</p>
+        <p><strong>Foreign key error in a migration:</strong> do not delete data to get past it. Rebuild the parent first, then the children, then drop the old parent.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="enter" class="step">
+    <p class="kicker">07 · Enter through Composer</p>
+    <h2>No second password</h2>
+    <div class="cols">
+      <div>
+        <p>Open the studio from the Composer menu. Composer's existing EmDash session mints a short-lived handoff and the studio exchanges it for its own owner session. The browser holds neither the studio passphrase nor any provider key.</p>
+        <p>Signing in is not the same as being granted a resource: the studio's private APIs check the owner session on the server. A signed-out request to a private route returns 401, not a hidden menu item.</p>
+        <p>Standalone use still exists behind the owner passphrase, because the studio is an ordinary independent app. It is simply not the way you arrive from Composer.</p>
+      </div>
+      <aside class="check">
+        <h3>What you should see</h3>
+        <p>The studio's own header with the App Composer attribution, your projects, and a monthly allowance strip in the studio's currency, not Composer's.</p>
+        <h3>Recover</h3>
+        <p><strong>"This Composer handoff is not valid or has expired":</strong> reopen it from the menu rather than reusing an old URL; handoffs are deliberately short-lived.</p>
+      </aside>
+    </div>
+    <figure class="figure">
+      <img src={hero} width="1600" height="1000" alt="The studio library with an assembled cut, two waveform sound cards and three takes." loading="lazy" />
+      <figcaption>The library, opened from Composer: one assembled cut, two generated sound assets and the takes they came from.</figcaption>
+    </figure>
+  </section>
+
+  <section id="make" class="step">
+    <p class="kicker">08 · Create and edit video and sound</p>
+    <h2>Make one real thing at a time</h2>
+    <div class="cols">
+      <div>
+        <p>Upload something first. An image, a clip and a piece of sound all land in the same project with real dimensions, duration and hashes. Then, in <strong>Create</strong>:</p>
+        <ol>
+          <li>Pick a still model and a frame. Read the estimate before you confirm.</li>
+          <li>To animate, choose a saved still and one motion instruction. Video is asynchronous: you can close the browser.</li>
+          <li>For sound, choose <strong>Make sound</strong>, pick Studio Score or Studio Voice, write the direction and choose a length.</li>
+        </ol>
+        <pre><code>{promptSound}</code></pre>
+        <p>The finished sound is saved as audio, not attached to a video: duration, sample rate, channels and provenance are recorded, and the waveform is drawn from the decoded file.</p>
+      </div>
+      <aside class="check">
+        <h3>What you should see</h3>
+        <p>A job in History, then a saved asset. For sound, a playable card with a waveform and its real duration.</p>
+        <h3>Recover</h3>
+        <p><strong>"This route needs a fal.ai key":</strong> the key is missing on the studio, not in your shell. Add it to the deployment's secrets.</p>
+        <p><strong>Provider refuses for funding:</strong> nothing was charged. Add credit on the studio's own provider account and retry the same request.</p>
+        <p><strong>Save failed after the provider finished:</strong> use "Retry saving". It writes the retained bytes and does not generate again. Never mint a new request id to fix a save.</p>
+      </aside>
+    </div>
+    <figure class="figure">
+      <img src={sound} width="1440" height="900" alt="Create tab with Make sound selected, Studio Score, a written direction, a 17-second length and an estimate." loading="lazy" />
+      <figcaption>One estimated request, with the length chosen to fit the cut.</figcaption>
+    </figure>
+    <figure class="figure">
+      <img src={audioAsset} width="1440" height="900" alt="A saved narration asset with waveform, player, duration, sample rate, channels and hash." loading="lazy" />
+      <figcaption>Saved narration: real waveform, real metadata, publishable on its own page.</figcaption>
+    </figure>
+  </section>
+
+  <section id="publish" class="step">
+    <p class="kicker">09 · Assemble, export and publish</p>
+    <h2>The cut is the product</h2>
+    <div class="cols">
+      <div>
+        <p>Open <strong>Assemble</strong>. Add two to six saved takes in order, choose one bed, and save the storyboard. Rendering is one bounded provider composition; the result is copied into your own storage. A 9:16 cut composes the same takes portrait-first.</p>
+        <p>Publication is a separate, deliberate act. Four controls do four different things:</p>
+        <ul>
+          <li><strong>Publish / unpublish</strong> — a public page exists or is withdrawn. Withdrawal stops new visits; it cannot recall a download already taken.</li>
+          <li><strong>Show / hide</strong> — a card placement. Hiding removes discovery without making the direct link private.</li>
+          <li><strong>Make private</strong> — the media stops being available on public pages; the originals stay in your library.</li>
+          <li><strong>Delete</strong> — destructive and separate. It removes the bytes and tombstones the publications that used them.</li>
+        </ul>
+      </div>
+      <aside class="check">
+        <h3>What you should see</h3>
+        <p>An assembled MP4 with its dimensions, real duration and take count; a public page that loads signed out; private routes that still return 401.</p>
+        <h3>Recover</h3>
+        <p><strong>A render that ends in "result unavailable":</strong> reconcile the job. It re-reads the same provider result; it does not dispatch a new one.</p>
+        <p><strong>A 9:16 cut refused:</strong> the storyboard has no portrait take. Add one, or accept the wide cut.</p>
+      </aside>
+    </div>
+    <figure class="figure">
+      <img src={storyboard} width="1440" height="900" alt="The Assemble tab with a saved storyboard, render controls and the assembled result." loading="lazy" />
+      <figcaption>The storyboard and its render, in the same project that holds the takes.</figcaption>
+    </figure>
+    <figure class="figure">
+      <img src={publicPage} width="1440" height="900" alt="A public Media Studio page with the assembled cut, description, player and download." loading="lazy" />
+      <figcaption>A published page, signed out. The example is live at <a href="https://media.loftwah.com/p/Na9FNUB_VhzZ7zA9">media.loftwah.com</a>.</figcaption>
+    </figure>
+  </section>
+
+  <section id="return" class="step">
+    <p class="kicker">10 · Return and change it</p>
+    <h2>The part that makes it yours</h2>
+    <div class="cols">
+      <div>
+        <p>Come back with a real annoyance, not a rename. In this run it was two: the Assemble tab could not see saved storyboards, and the audio bed was always thirty seconds. The agent changed the same application, the release shipped, and the projects stayed put.</p>
+        <p>After that release: choose a bed length of 10 to 30 seconds, edit a storyboard in place, and see when a cut has changed since its last render. Earlier renders stay attached.</p>
+        <p>Then verify the claim rather than trusting it: reopen the project, play the earlier cut, play the new one, and compare durations. Reopening reads stored bytes; it does not generate again.</p>
+      </div>
+      <aside class="check">
+        <h3>What you should see</h3>
+        <p>Two renders in one composition, 30.00 s and 17.02 s, both downloadable, with the takes unchanged.</p>
+        <h3>Recover</h3>
+        <p><strong>The change did not appear:</strong> check the live revision against the commit. A green build is not a deployment.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="film" class="step">
+    <p class="kicker">Recording</p>
+    <h2>Watch the walkthrough</h2>
+    <p>The chaptered recording follows this tutorial. Captions are available in the player, and the transcript lists the chapters.</p>
+    <video controls preload="none" poster="/media-studio/watch/walkthrough-poster.jpg" width="1440" height="900">
+      <source src="/media-studio/watch/walkthrough.mp4" type="video/mp4" />
+      <track kind="captions" src="/media-studio/watch/walkthrough.vtt" srclang="en" label="English captions" default />
+      <a href="/media-studio/watch/walkthrough.mp4">Download the walkthrough</a>
+    </video>
+    <ul class="timestamps">
+      <li><strong>00:04</strong> Chapter 1 — the brief</li>
+      <li><strong>00:16</strong> Chapter 2 — the library</li>
+      <li><strong>00:27</strong> Chapter 3 — make sound</li>
+      <li><strong>00:42</strong> Chapter 4 — assemble</li>
+      <li><strong>00:55</strong> Chapter 5 — publish</li>
+      <li><strong>01:07</strong> Chapter 6 — change the studio</li>
     </ul>
-    <aside class="tut-check"><h3>Checkpoint</h3><p>Open the published URL signed out. Then hide the card and reload the public page: the page still resolves, the card is gone. Then withdraw and confirm the URL no longer serves the work, including after a warm reload.</p></aside>
-    <p class="tut-small">Serve public media from your own storage with a stable address and cache headers. A signed-out visitor should never hit an owner sign-in page on the way to published work.</p>
+    <p class="small">The recording is of the deployed studio and Composer, cut to length. The overview film is on the <a href="/media-studio#use">build article</a>.</p>
   </section>
 
-  <section id="return" class="tut-step">
-    <p class="tut-kicker">08</p>
-    <h2>Pause, sleep, resume</h2>
-    <p>Three operations that look similar and are not:</p>
-    <table class="tut-table">
-      <thead><tr><th scope="col">Operation</th><th scope="col">What it does</th><th scope="col">What it keeps</th></tr></thead>
-      <tbody>
-        <tr><th scope="row">Pause new work</th><td>Denies new admission from the panel, API and agent route. Let in-flight work settle and reconcile.</td><td>Every saved job, import and publication; the host keeps its own access.</td></tr>
-        <tr><th scope="row">Sleep</th><td>The Computer idles out after 15 minutes with Keep awake off. No Start/Stop button is exposed upstream.</td><td>The durable workspace, Prints state and retained media.</td></tr>
-        <tr><th scope="row">Delete</th><td>Destructive and separate. Not part of pausing.</td><td>Nothing — do not “pause” by deleting.</td></tr>
-      </tbody>
-    </table>
-    <p>To resume, reopen the project. A saved file is read, not regenerated. Compare hashes before and after: the bytes and the receipt should be identical, and no new inference dispatch should appear.</p>
-    <aside class="tut-check"><h3>Checkpoint</h3><pre><code>shasum -a 256 published-cover.jpg
-# pause, wait for sleep, reopen the project
-shasum -a 256 published-cover.jpg   # identical</code></pre></aside>
-  </section>
-
-  <section id="trouble" class="tut-step">
-    <p class="tut-kicker">09</p>
-    <h2>Troubleshooting</h2>
-    <dl class="tut-faults">
-      <div><dt>“Node 24 or newer” on the Oyster CLI</dt><dd>Your shell is on an older default. Pin the project: <code>printf '[tools]\nnode = "24.20.0"\n' &gt; .mise.toml</code>. Tourtois’ publisher requires exactly 24.20.0; the host wants 24+.</dd></div>
-      <div><dt>Deploy fails with <code>10021 Script startup exceeded CPU time limit</code></dt><dd>Use <code>--minify</code>. If it still fails, retry once — this account sat right at the boundary. Do not remove bindings to “fix” startup.</dd></div>
-      <div><dt><code>IMAGES_TRANSFORM_ERROR 9432</code></dt><dd>Legacy billing. Reference-conditioned generation is refused by the host. Enable Cloudflare Images / migrate billing, or use a provider route that does not need the Images binding, and label the difference.</dd></div>
-      <div><dt>Video refused: “Cloudflare AI Gateway couldn’t fund this request”</dt><dd>Buy AI Gateway credits. Nothing is charged when it refuses. Confirm the credit appears before retrying with the same request id.</dd></div>
-      <div><dt>429 from the host during a multi-chunk read</dt><dd>Do not open a new session per chunk. Initialise once and reuse the session for bounded reads; back off on 429. The final read may legitimately return an empty slice with <code>truncated:false</code>.</dd></div>
-      <div><dt>Save failed after the provider finished</dt><dd>Retry the save for the same request id. Never mint a new id; that is a new paid generation.</dd></div>
-      <div><dt>Empty media card after publishing</dt><dd>Check the asset revision and the controlled placements. Withdrawal revokes the page; hiding only removes the card.</dd></div>
+  <section id="technical" class="step">
+    <p class="kicker">Technical reference · for operators</p>
+    <h2>Exact commands and checks</h2>
+    <p class="small">This section is for the person or agent operating the deployment. You do not need it to use the studio, and it is not the beginner path.</p>
+    <h3>Deploy the studio from its own repository</h3>
+    <pre><code>git clone https://github.com/loftwah/composer-media-studio
+cd composer-media-studio
+pnpm install
+npx wrangler d1 create media-studio
+npx wrangler r2 bucket create media-studio
+# set database_id and the bucket in wrangler.jsonc, then:
+pnpm migrate:remote
+printf '%s' "$OWNER_PASSPHRASE" | npx wrangler secret put OWNER_PASSPHRASE
+printf '%s' "$SESSION_SECRET" | npx wrangler secret put SESSION_SECRET
+printf '%s' "$FAL_KEY" | npx wrangler secret put FAL_KEY
+pnpm run deploy -- --migrate</code></pre>
+    <p>Requires Node 22.23.5+, 24.22.3+ or 26.13.1+ on the 22/24/26 lines. <code>pnpm run deploy</code> refuses a dirty tree, a branch other than <code>main</code>, or an unpushed commit, runs the focused tests once, deploys, and fails unless the live <code>/healthz</code> revision equals the shipped commit. Expected output ends with <code>released &lt;sha&gt;</code> and <code>live: https://…/healthz</code>.</p>
+    <h3>Check a live studio without the browser</h3>
+    <pre><code>curl -s https://your-studio.example/healthz
+# &#123;"ok":true,"revision":"&lt;40-char sha&gt;","bridge":true,...&#125;
+curl -s -o /dev/null -w '%&#123;http_code&#125;\n' https://your-studio.example/api/state
+# 401 signed out: private routes are enforced on the server</code></pre>
+    <h3>What the routes do</h3>
+    <ul>
+      <li><code>POST /api/projects/:id/generations</code> — one paid request, one client request id.</li>
+      <li><code>POST /api/projects/:id/compositions</code> — save an ordered manifest of takes and a bed.</li>
+      <li><code>POST /api/projects/:id/compositions/:cid/render</code> — one bounded render job; <code>studio-assembly</code> or <code>studio-social</code>.</li>
+      <li><code>GET /render-input/:assetId?p&amp;e&amp;s</code> — signed, thirty-minute, single-asset read for a render job only.</li>
+      <li><code>GET /api/projects/:id/export</code> — project, prompts, lineage and costs without secrets.</li>
+    </ul>
+    <h3>Troubleshooting</h3>
+    <dl class="faults">
+      <div><dt>Release refused: working tree is not clean</dt><dd>Commit or stash your changes. The guard exists so the live revision matches a reviewable commit.</dd></div>
+      <div><dt>Migration fails on a foreign key</dt><dd>The parent table is referenced. Rebuild the parent, then the children, then drop the old parent; copy rows and restore self-references in a second pass.</dd></div>
+      <div><dt>Handoff rejected as expired</dt><dd>Seconds versus milliseconds. Normalise the unit; do not lengthen the token to hide it.</dd></div>
+      <div><dt>Render job stuck at "result unavailable"</dt><dd>Reconcile. It re-reads the same provider result. If the provider's own detail names an invalid input, fix the request shape — that is how the single-input 9:16 attempt was found.</dd></div>
+      <div><dt>Images binding error 9432 on the Oyster route</dt><dd>Legacy billing on that account. It blocks the host's reference fitter, not the studio's own reference variation. Enable Cloudflare Images or migrate billing, and label which route produced which result.</dd></div>
+      <div><dt>Video refused: AI Gateway could not fund this request</dt><dd>Nothing was charged. Add credit and retry the same request id.</dd></div>
+      <div><dt>Blank media card after publishing</dt><dd>Check the asset revision and its publications. Withdrawal revokes the page; hiding only removes the card.</dd></div>
     </dl>
   </section>
 
-  <section class="tut-end">
-    <h2>Repeat it</h2>
-    <p>The example is deliberately editable: the brief round-trips through JSON, the project exports with its assets, and the published pages can be withdrawn without deleting the library. Load the example and replace it only when you accept the replacement — your draft stays until you do.</p>
-    <p><a class="button" href="/init?start=media-studio">Start a studio</a> <a class="button secondary" href="/media-studio">Back to the campaign</a> <a href="/media-studio/watch/walkthrough.txt">Read the walkthrough transcript</a></p>
+  <section class="end">
+    <h2>Start</h2>
+    <p>You have the brief, the recipe and the evidence. The next action is one click and one conversation with your agent.</p>
+    <div class="row">
+      <a class="button" href="/init?start=media-studio">Build your studio</a>
+      <a class="button secondary" href="/media-studio">Read the build article</a>
+      <a class="quiet-link" href="/media-studio/media-studio-brief-20261114.json" download>Download the example brief</a>
+    </div>
   </section>
 </article>
+
 <style>
-  .tut{max-width:980px;margin:0 auto;padding:24px 24px 72px}
-  .tut-kicker{font:600 11px/1.4 ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--accent,#ff5a1f);margin:0 0 10px}
-  .tut h1{font:600 clamp(2.4rem,4.6vw,3.8rem)/1.03 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.04em;margin:0 0 18px}
-  .tut h2{font:600 clamp(1.6rem,2.6vw,2.2rem)/1.12 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 14px}
-  .tut h3{font:600 1.05rem/1.3 "Space Grotesk",system-ui,sans-serif;margin:0 0 8px}
-  .tut-deck{font-size:1.12rem;line-height:1.6;max-width:62ch;color:var(--muted,#b9b2a8)}
-  .tut-small{font-size:.85rem;color:var(--muted,#b9b2a8);max-width:76ch}
-  .tut-jump{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 8px}
-  .tut-jump a{font:600 .72rem/1.3 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line,rgba(255,255,255,.22));padding:10px 12px;min-height:40px;display:inline-flex;align-items:center}
-  .tut-step{margin-top:56px;padding-top:30px;border-top:1px solid var(--line,rgba(255,255,255,.16))}
-  .tut-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:start}
-  .tut-check{border:1px solid var(--line,rgba(255,255,255,.2));padding:18px;background:color-mix(in srgb,var(--fg,#f4efe6) 4%,transparent)}
-  .tut-check ul{padding-left:18px;margin:8px 0}
-  .tut-note{border-left:3px solid var(--accent,#ff5a1f);padding:6px 18px;margin:20px 0;background:color-mix(in srgb,var(--accent,#ff5a1f) 6%,transparent)}
-  .tut pre{background:rgba(0,0,0,.28);border:1px solid var(--line,rgba(255,255,255,.16));padding:14px;overflow-x:auto;font-size:.82rem;line-height:1.6}
-  .tut code{font-size:.86em;overflow-wrap:anywhere}
-  .tut-table{width:100%;border-collapse:collapse;font-size:.9rem;margin:18px 0}
-  .tut-table th,.tut-table td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line,rgba(255,255,255,.14));vertical-align:top}
-  .tut-table thead th{font:600 .66rem/1.4 ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted,#b9b2a8)}
-  .tut-faults{display:grid;gap:18px;margin:18px 0}
-  .tut-faults div{border-top:1px solid var(--line,rgba(255,255,255,.14));padding-top:12px}
-  .tut-faults dt{font-weight:600;margin-bottom:6px}
-  .tut-faults dd{margin:0;line-height:1.6;font-size:.94rem}
-  .tut-end{margin-top:64px;padding-top:30px;border-top:1px solid var(--line,rgba(255,255,255,.16))}
-  .tut :is(a,button,summary):focus-visible{outline:2px solid var(--accent,#ff5a1f);outline-offset:3px}
-  @media (max-width:820px){.tut-grid{grid-template-columns:1fr;gap:24px}}
+  .tut{max-width:980px;margin:0 auto;padding:24px 24px 96px}
+  .kicker{font:600 11px/1.4 ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--accent,#ff5a1f);margin:0 0 10px}
+  .tut h1{font:600 clamp(2.2rem,4.4vw,3.6rem)/1.04 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.035em;margin:0 0 16px}
+  .tut h2{font:600 clamp(1.5rem,2.4vw,2rem)/1.12 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 14px}
+  .tut h3{font:600 1.02rem/1.3 "Space Grotesk",system-ui,sans-serif;margin:0 0 8px}
+  .deck{font-size:1.1rem;line-height:1.6;color:var(--muted,#b9b2a8);max-width:64ch}
+  .facts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0;border-top:1px solid var(--line,rgba(255,255,255,.16));border-bottom:1px solid var(--line,rgba(255,255,255,.16));padding:18px 0}
+  .facts dt{font:600 .66rem/1.4 ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted,#b9b2a8)}
+  .facts dd{margin:6px 0 0;font-size:.92rem;line-height:1.55}
+  .jump{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 6px}
+  .jump a{font:600 .72rem/1.3 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line,rgba(255,255,255,.22));padding:10px 12px;min-height:40px;display:inline-flex;align-items:center}
+  .step{margin-top:52px;padding-top:30px;border-top:1px solid var(--line,rgba(255,255,255,.16))}
+  .cols{display:grid;grid-template-columns:1.12fr .88fr;gap:36px;align-items:start}
+  .tut p,.tut li{font-size:1rem;line-height:1.65}
+  .tut ul,.tut ol{padding-left:20px;margin:0 0 16px}
+  .tut li{margin-bottom:8px}
+  .check{border:1px solid var(--line,rgba(255,255,255,.2));padding:18px;background:color-mix(in srgb,var(--fg,#f4efe6) 4%,transparent)}
+  .check h3{margin-top:0}
+  .check h3 + p{margin-top:0}
+  .check h3 ~ h3{margin-top:16px;padding-top:14px;border-top:1px solid var(--line,rgba(255,255,255,.16))}
+  .check p{font-size:.92rem}
+  pre{background:rgba(0,0,0,.26);border:1px solid var(--line,rgba(255,255,255,.16));padding:14px;overflow-x:auto;font-size:.8rem;line-height:1.6;margin:14px 0 18px}
+  code{font-size:.88em;overflow-wrap:anywhere}
+  .figure{margin:24px 0 8px}
+  .figure img{display:block;width:100%;height:auto;border:1px solid var(--line,rgba(255,255,255,.16))}
+  figcaption{font-size:.78rem;line-height:1.55;color:var(--muted,#b9b2a8);margin-top:10px}
+  .tut video{display:block;width:100%;height:auto;background:#000;border:1px solid var(--line,rgba(255,255,255,.16));margin:18px 0 14px}
+  .timestamps{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;font-size:.9rem}
+  .timestamps strong{font-family:ui-monospace,monospace;color:var(--accent,#ff5a1f)}
+  .faults{display:grid;gap:16px;margin:16px 0}
+  .faults div{border-top:1px solid var(--line,rgba(255,255,255,.14));padding-top:12px}
+  .faults dt{font-weight:600;margin-bottom:4px}
+  .faults dd{margin:0;font-size:.94rem}
+  .end{margin-top:60px;padding-top:30px;border-top:1px solid var(--line,rgba(255,255,255,.16))}
+  .row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:18px}
+  .small{font-size:.85rem;color:var(--muted,#b9b2a8)}
+  .tut :is(a,button,summary,video):focus-visible{outline:2px solid var(--accent,#ff5a1f);outline-offset:3px}
+  @media (max-width:820px){.cols,.facts,.timestamps{grid-template-columns:1fr;gap:20px}}
 </style>
 </Base>

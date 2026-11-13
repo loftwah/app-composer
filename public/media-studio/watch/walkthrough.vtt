@@ -1,0 +1,37 @@
+WEBVTT
+
+00:00:04.000 --> 00:00:07.000
+Chapter 1 · The brief: describe the studio, save the specification, hand it to your agent.
+
+00:00:07.000 --> 00:00:16.000
+The Media Studio section carries the name, still and video models, frames and the sound defaults.
+
+00:00:16.000 --> 00:00:19.000
+Chapter 2 · The library your agent deployed, opened from App Composer.
+
+00:00:19.000 --> 00:00:27.000
+Takes, stills and sound live in the studio's own D1 and R2, not in Composer.
+
+00:00:27.000 --> 00:00:30.000
+Chapter 3 · Make sound: pick a model, write the direction, choose a length.
+
+00:00:30.000 --> 00:00:42.000
+The estimate appears before the request. The finished bed is saved as an audio asset with its real duration.
+
+00:00:42.000 --> 00:00:45.000
+Chapter 4 · Assemble: order saved takes, add one bed, render one bounded export.
+
+00:00:45.000 --> 00:00:55.000
+The assembled master plays here; the composition stays editable for the next render.
+
+00:00:55.000 --> 00:00:58.000
+Chapter 5 · Publish: a deliberate public page, signed out.
+
+00:00:58.000 --> 00:01:07.000
+Private assets still require the owner session. Withdrawing the page stops new visits.
+
+00:01:07.000 --> 00:01:10.000
+Chapter 6 · Change the studio: edit the storyboard in place and swap the bed.
+
+00:01:10.000 --> 00:01:20.000
+Saving marks the cut as changed; rendering again keeps the earlier result in the same composition.
