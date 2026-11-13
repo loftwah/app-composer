@@ -1,0 +1,39 @@
+{
+  "capturedAt": "2026-11-13T04:38:05.000Z",
+  "records": [
+    {
+      "id": "composer",
+      "url": "https://composer.loftwah.com/",
+      "width": 1440,
+      "height": 960,
+      "source": "ca1604d8ed9340370ee45087619276160138471c",
+      "file": "docs/images/composer-20261113-desktop.png",
+      "requestOverrides": false,
+      "verificationHeader": false,
+      "title": "App Composer — build apps with your agent on Cloudflare",
+      "heading": "Make software. Keep it yours.",
+      "theme": "dark",
+      "overflow": false,
+      "sha256": "6d7843f49c4225cde06e892a163bbba5fa7dc3fa54f8a35c9e3fbb6d43abdbc3",
+      "bytes": 173972
+    },
+    {
+      "id": "composer",
+      "url": "https://composer.loftwah.com/",
+      "width": 390,
+      "height": 844,
+      "source": "ca1604d8ed9340370ee45087619276160138471c",
+      "file": "docs/images/composer-20261113-phone.png",
+      "requestOverrides": false,
+      "verificationHeader": false,
+      "title": "App Composer — build apps with your agent on Cloudflare",
+      "heading": "Make software. Keep it yours.",
+      "theme": "dark",
+      "overflow": false,
+      "sha256": "77fbbd71dcc8bef2031fb32f60514d789d769362d696d8aa7126e2f85ea24ace",
+      "bytes": 79454
+    }
+  ],
+  "method": "Playwright Chromium viewport capture of the live production origin, dark theme, images loaded before capture.",
+  "cleanup": true
+}

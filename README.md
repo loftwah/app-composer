@@ -10,9 +10,9 @@ Start with [Launch Kit](https://composer.loftwah.com/launch-kit) to make a profi
 
 Try the published fictional examples: [Trail Notes](https://composer.loftwah.com/s/fictional-trail-notes) and [Launch Board](https://composer.loftwah.com/s/fictional-launch-board). They have independent visitor books; Trail Notes also labels an intentional shared view. They were created through the native editor. These demonstrations establish neither new-user admission nor customer adoption.
 
-![App Composer public homepage](docs/images/composer-20261018-desktop.png)
+![App Composer public homepage](docs/images/composer-20261113-desktop.png)
 
-Actual production capture, 18 October 2026, source `1bc90251200f9950203220b8d50ee3f4bab54ade`. [Phone view](docs/images/composer-20261018-phone.png) · [Capture provenance](docs/images/capture-20261018.json).
+Actual production capture, 13 November 2026, source `ca1604d8ed9340370ee45087619276160138471c`. [Phone view](docs/images/composer-20261113-phone.png) · [Capture provenance](docs/images/capture-20261113.json).
 
 ## Run locally
 
