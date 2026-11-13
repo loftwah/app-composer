@@ -1,0 +1,494 @@
+---
+import Base from '../layouts/Base.astro';
+const cover = '/media-studio/tidal-ledger-cover.jpg';
+const motion = '/media-studio/tidal-ledger-cover-motion.mp4';
+const still = '/media-studio/plate-contour.jpg';
+const letterpress = '/media-studio/plate-letterpress.jpg';
+const rope = '/media-studio/plate-rope.jpg';
+const og = '/media-studio/tidal-ledger-og.png';
+const screens = {
+  library: '/media-studio/studio-library-desktop.png',
+  publish: '/media-studio/studio-publish-desktop.png',
+  create: '/media-studio/studio-create-desktop.png',
+  phone: '/media-studio/studio-library-phone.png',
+};
+const facts = [
+  ['Release', 'Tidal Ledger · 12" LP · seven tracks'],
+  ['Label', 'Saltmarsh Records · SLT–014 · fictional'],
+  ['Out', '12 March 2027 · fictional'],
+  ['Made with', 'App Composer · Oyster 0.25.0 · Prints 0.10.29 · Darkroom 0.5.12'],
+];
+const table = [
+  {
+    id: 'reference',
+    label: 'Reference',
+    kind: 'Original reference board',
+    src: '/media-studio/reference-board.png',
+    alt: 'The original Saltmarsh art-direction board: bone paper, oxide ink, ochre and sea-green swatches, a circular label and the catalogue number.',
+    decision: 'Paper first. Oxide and bone, one hairline contour, a catalogue strip set like a tide table. Drawn and rendered locally so the reference is ours, not a borrowed sleeve.',
+    meta: '1024 × 1024 PNG · authored in HTML/CSS · not a model output',
+    download: '/media-studio/reference-board.png',
+    chapter: '#references',
+  },
+  {
+    id: 'cover',
+    label: 'Cover',
+    kind: 'Selected sleeve',
+    src: cover,
+    alt: 'Tidal Ledger front cover: a bone paper panel with the title in a tall serif beside an oxide-ink coastal survey.',
+    decision: 'The contour plate carried the whole story, so the type moved to a clean paper panel instead of fighting the drawing. Times-set display, mono catalogue block, a two-line note that names the room and the coast.',
+    meta: '1600 × 1600 JPEG · art from Prints · type composed deterministically',
+    download: cover,
+    chapter: '#plate',
+  },
+  {
+    id: 'motion',
+    label: 'Moving cover',
+    kind: 'Image-to-video',
+    src: '/media-studio/cover-motion-poster.jpg',
+    video: motion,
+    alt: 'Poster frame of the moving cover: raking light across the printed sleeve.',
+    decision: 'One slow parallax push, raking light, paper fibres moving. No new typography, no morphing, no invented band. The motion is a property of the object, not a new artwork.',
+    meta: '5.875 s · 768 × 768 MP4 · Hailuo 2.3 Standard · US$0.28',
+    download: motion,
+    chapter: '#motion',
+  },
+  {
+    id: 'published',
+    label: 'Published',
+    kind: 'Public page',
+    src: '/media-studio/tidal-ledger-og.png',
+    alt: 'The 1200 × 630 release share card with the title, artist and contour art.',
+    decision: 'Publication is a deliberate act with its own controls: the studio page is public, the gallery card is a separate placement, and withdrawal stops new visits without pretending to recall downloads.',
+    meta: '1200 × 630 OG card · public page · withdrawal verified',
+    download: '/media-studio/tidal-ledger-og.png',
+    chapter: '#publishing',
+  },
+];
+const costs = [
+  ['Contour plate', 'Lucid Origin 1120²', 'US$0.066', 'Chosen cover art'],
+  ['Letterpress plate', 'Phoenix 1.0 1120²', 'US$0.055', 'Back-cover detail'],
+  ['Rope plate', 'Lucid Origin 1120²', 'US$0.066', 'Section art'],
+  ['Smoke test', 'FLUX.1 schnell 1024²', 'US$0.001', 'Path check'],
+  ['Failed plate', 'FLUX.2 klein 9b 1120²', 'US$0.015', 'Retained artifact failure'],
+  ['Moving cover', 'Hailuo 2.3 Standard 6 s', 'US$0.280', 'Selected motion'],
+  ['Tide loop', 'Seedance 2.0 Mini 4 s', 'US$0.160', 'Oyster video path proof'],
+];
+const spend = costs.reduce((sum, row) => sum + Number(row[2].replace('US$', '')), 0).toFixed(3);
+---
+<Base
+  title="Media Studio — we built the studio, then made the release artwork"
+  description="A fictional record-release campaign made with App Composer, Oyster and Fungi: reference board, cover plates, a moving cover, deliberate publication and a studio you can return to."
+  shareImage="https://composer.loftwah.com/media-studio/tidal-ledger-og.png"
+  shareAlt="Tidal Ledger: a bone-paper sleeve with an oxide-ink coastal survey, beside the words Made in Media Studio."
+  shareWidth={1200}
+  shareHeight={630}
+  ogType="article"
+>
+<article class="ms">
+  <header class="ms-hero">
+    <div class="ms-hero-copy">
+      <p class="ms-kicker">Media Studio · use case</p>
+      <h1>We built the studio.<br />Then made the release artwork.</h1>
+      <p class="ms-deck">A record-release campaign made with App Composer, Oyster and Fungi: from the first reference to a moving cover, published artwork and a studio we can return to.</p>
+      <div class="ms-actions">
+        <a class="button" href="#release-table">Examine the release</a>
+        <a class="button secondary" href="/media-studio/tutorial">Build it yourself</a>
+        <a href="#films">Watch the films</a>
+      </div>
+      <p class="ms-small">Fictional release. No real artist, label or song is represented. The artwork was generated through the studio described here; the application is the lasting product.</p>
+    </div>
+    <figure class="ms-hero-art">
+      <img src={cover} width="1600" height="1600" alt="Tidal Ledger front cover" />
+      <figcaption>SLT–014 · sleeve, 1600 × 1600 · art from Prints, type set deliberately</figcaption>
+    </figure>
+  </header>
+
+  <dl class="ms-facts">
+    {facts.map(([term, value]) => <div><dt>{term}</dt><dd>{value}</dd></div>)}
+  </dl>
+
+  <section id="release-table" class="ms-table" aria-labelledby="table-heading">
+    <div class="ms-section-head">
+      <p class="ms-kicker">01 / The finished work</p>
+      <h2 id="table-heading">A release table, not a gallery.</h2>
+      <p>Select an object and inspect it the way you would a physical proof: the reference, the selected sleeve, the motion and the published card. Each carries its own provenance and a public-safe download.</p>
+    </div>
+    <div class="ms-tabs" role="tablist" aria-label="Campaign objects">
+      {table.map((item, index) => (
+        <button role="tab" id={'tab-' + item.id} aria-controls={'panel-' + item.id} aria-selected={index === 0 ? 'true' : 'false'} tabindex={index === 0 ? '0' : '-1'} data-release-tab={item.id}>{item.label}</button>
+      ))}
+    </div>
+    {table.map((item, index) => (
+      <section class="ms-panel" role="tabpanel" id={'panel-' + item.id} aria-labelledby={'tab-' + item.id} hidden={index !== 0} tabindex="0" data-release-panel={item.id}>
+        <figure class="ms-panel-art">
+          {item.video
+            ? <video controls preload="metadata" poster={item.src} width="768" height="768"><source src={item.video} type="video/mp4" />Your browser cannot play this clip. <a href={item.download}>Download the MP4</a>.</video>
+            : <img src={item.src} width="1200" height="1200" alt={item.alt} loading={index === 0 ? 'eager' : 'lazy'} />}
+          <figcaption>{item.meta}</figcaption>
+        </figure>
+        <div class="ms-panel-copy">
+          <p class="ms-kicker">{item.kind}</p>
+          <h3>{item.label}</h3>
+          <p class="ms-decision">{item.decision}</p>
+          <p class="ms-actions"><a class="button secondary" href={item.download} download>Download</a> <a href={item.chapter}>Read this decision</a></p>
+        </div>
+      </section>
+    ))}
+    <noscript><style>{`.ms-panel[hidden]{display:grid!important} .ms-tabs{display:none}`}</style></noscript>
+  </section>
+
+  <section id="campaign" class="ms-section">
+    <div class="ms-section-head">
+      <p class="ms-kicker">02 / The campaign</p>
+      <h2>One sleeve, a back cover, a poster and a share card.</h2>
+      <p>The brief asked for a studio for a record release: keep the visual references together, make cover variations, animate the chosen cover and prepare artwork for the artist’s page. The whole campaign lives in one project.</p>
+    </div>
+    <div class="ms-objects">
+      <figure><img src="/media-studio/tidal-ledger-back.jpg" width="1600" height="1600" alt="Back cover with the seven-track tide table, credits and label mark" loading="lazy" /><figcaption>Back cover · tracklist as a tide table</figcaption></figure>
+      <figure><img src="/media-studio/tidal-ledger-poster.jpg" width="1240" height="1754" alt="A2 poster with the contour art, title and a fictional release stamp" loading="lazy" /><figcaption>Poster · A2 proportion, 1240 × 1754</figcaption></figure>
+      <figure class="ms-objects-og"><img src={og} width="1200" height="630" alt="The release share card" loading="lazy" /><figcaption>Share card · 1200 × 630, used for this page</figcaption></figure>
+    </div>
+    <p class="ms-small">The generated masters are clean art plates. Every crop, type composition, poster and share card is a deliberate derivative recorded with its source. Nothing here is a screenshot of a mock-up: the sleeve is the actual file.</p>
+  </section>
+
+  <section id="references" class="ms-section ms-two">
+    <div>
+      <p class="ms-kicker">03 / The brief and references</p>
+      <h2>References first, results later.</h2>
+      <p>The campaign began as a portable Composer brief and a reference board, not a prompt. The board fixed the palette (bone, oxide, ochre, sea-green, ink), the paper weight, the two-pass ink behaviour and the catalogue strip.</p>
+      <p>The board is original artwork rendered locally. It is deliberately kept separate from generated results: on the release table it is labelled <em>reference</em>, and its hash is recorded in the project manifest.</p>
+      <ul class="ms-list">
+        <li><strong>Paper:</strong> 320 gsm cotton, visible tooth, deckled edge.</li>
+        <li><strong>Ink:</strong> oxide-red and ochre, two passes, slight misregistration.</li>
+        <li><strong>Type:</strong> a tall Times-set display, mono catalogue numbers, no decorative script.</li>
+        <li><strong>Rule:</strong> if it could be a poster for any band, it is not specific enough.</li>
+      </ul>
+    </div>
+    <figure class="ms-figure">
+      <img src="/media-studio/reference-board.png" width="1024" height="1024" alt="Original art-direction board for the fictional Saltmarsh release" loading="lazy" />
+      <figcaption>The reference board, authored and rendered locally · original</figcaption>
+    </figure>
+  </section>
+
+  <section id="plate" class="ms-section">
+    <div class="ms-section-head">
+      <p class="ms-kicker">04 / Making the plates</p>
+      <h2>Three plates, one direction.</h2>
+      <p>Each plate was generated through the delivered path — Composer’s Media capability calling the authorised Oyster installation’s Prints app — with the model, prompt, settings and cost recorded before the image was saved.</p>
+    </div>
+    <div class="ms-plates">
+      <figure>
+        <img src={still} width="1120" height="1120" alt="Contour survey printed in oxide ink on bone paper" loading="lazy" />
+        <figcaption><strong>Contour</strong> · Lucid Origin · 1120² · US$0.066<br /><span>The chosen cover art. A coastline survey with a compass rosette and generous margins, so type has somewhere to live.</span></figcaption>
+      </figure>
+      <figure>
+        <img src={letterpress} width="1120" height="1120" alt="Macro of a letterpress contour pressed into cotton paper" loading="lazy" />
+        <figcaption><strong>Letterpress</strong> · Phoenix 1.0 · 1120² · US$0.055<br /><span>Made for the back cover and the process chapters. Raking light, a brass roller, ink sitting in the fibre.</span></figcaption>
+      </figure>
+      <figure>
+        <img src={rope} width="1120" height="1120" alt="Coiled rope on a hand-drawn tide chart" loading="lazy" />
+        <figcaption><strong>Rope &amp; chart</strong> · Lucid Origin · 1120² · US$0.066<br /><span>The one still made through the authorised agent surface, then imported into the app’s own storage.</span></figcaption>
+      </figure>
+    </div>
+    <div class="ms-callout">
+      <h3>What failed, and what it cost</h3>
+      <p>One FLUX.2 Klein plate returned <code>HOST_FAILURE · stage: artifact</code> after the provider finished but the studio could not retain the bytes. The same request id was retried — the durable operation answered “still in progress”, then completed from the retained result. No second inference was dispatched for that identity.</p>
+    </div>
+  </section>
+
+  <section id="motion" class="ms-section ms-two ms-motion">
+    <figure class="ms-figure">
+      <video controls preload="metadata" poster="/media-studio/cover-motion-poster.jpg" width="768" height="768">
+        <source src={motion} type="video/mp4" />
+        <a href={motion}>Download the moving cover (MP4)</a>
+      </video>
+      <figcaption>Moving cover · 5.875 s · 768 × 768 · Hailuo 2.3 Standard · US$0.28</figcaption>
+    </figure>
+    <div>
+      <p class="ms-kicker">05 / The moving cover</p>
+      <h2>Motion that belongs to the object.</h2>
+      <p>The chosen sleeve was uploaded to the studio, then animated from that still. The prompt asked for raking light, lifting paper fibres and a faint parallax between the type and the map — no new text, no morphing, no invented band.</p>
+      <p>The clip is copied into owned storage; the provider URL is never the result. A poster frame is retained so the motion has a still representation in feeds and in this article.</p>
+      <p class="ms-small">A second clip — a four-second tide loop — was made through the Oyster/Prints asynchronous video path to prove that route end to end. It is included in the downloads rather than used as the campaign’s hero motion.</p>
+    </div>
+  </section>
+
+  <section id="studio" class="ms-section">
+    <div class="ms-section-head">
+      <p class="ms-kicker">06 / The studio</p>
+      <h2>Native controls, an independent owner.</h2>
+      <p>Media Studio is an independent Cloudflare application with its own database, bucket, release and provider keys. App Composer carries the brief, the capability switch, the job record and the agent route. Oyster hosts the Prints app and the Computer that stores the originals.</p>
+    </div>
+    <div class="ms-shots">
+      <figure><img src={screens.library} width="1440" height="900" alt="The Media Studio library for the Saltmarsh project, with a generated clip and two cover uploads" loading="lazy" /><figcaption>The library, opened from Composer with the existing owner sign-in.</figcaption></figure>
+      <figure><img src={screens.publish} width="1440" height="900" alt="The publish tab listing public pages with open, hide and withdraw controls" loading="lazy" /><figcaption>Publication and placement are separate: hide a card, or withdraw the page.</figcaption></figure>
+      <figure><img src={screens.create} width="1440" height="900" alt="The create tab with model, reference and estimate before a paid request" loading="lazy" /><figcaption>Every paid request shows its model, reference and estimate before it is sent.</figcaption></figure>
+      <figure class="ms-shot-phone"><img src={screens.phone} width="390" height="844" alt="The studio library on a 390-pixel phone" loading="lazy" /><figcaption>The same project on a 390 px phone.</figcaption></figure>
+    </div>
+
+    <div class="ms-diagram" role="img" aria-label="Diagram: Composer menu and EmDash controls call the Composer media capability, which calls the Oyster host running Prints, which stores originals on the Computer and returns the result to owned storage.">
+      <div class="ms-node"><strong>App Composer</strong><span>menu · brief · capability switch · job record · agent route</span></div>
+      <div class="ms-link">signed owner session</div>
+      <div class="ms-node"><strong>Media Studio</strong><span>library · create · publish · owned R2 + D1</span></div>
+      <div class="ms-link">authorised installation</div>
+      <div class="ms-node"><strong>Oyster + Prints</strong><span>models · generation · Computer workspace</span></div>
+    </div>
+
+    <div class="ms-lifecycle">
+      <h3>The switch is real</h3>
+      <ol>
+        <li><strong>Off.</strong> New requests are refused by the server, the panel and the agent route. Existing jobs and media stay.</li>
+        <li><strong>Enable.</strong> Checks the host and reads its live model catalogue. Nothing is generated, started or bought.</li>
+        <li><strong>On.</strong> The same validated handler serves the browser and the agent; each request records its intent first.</li>
+        <li><strong>Disable.</strong> New work is denied again; the saved project, imports and the independent host are untouched.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="resume" class="ms-section ms-two">
+    <div>
+      <p class="ms-kicker">07 / Pause, sleep, resume</p>
+      <h2>Return without paying twice.</h2>
+      <p>Three different operations, kept different on purpose. <strong>Pause new work</strong> is a switch in Composer. <strong>Sleep</strong> is the Computer going idle after fifteen minutes with Keep awake off. <strong>Delete</strong> is a separate destructive action and was not used.</p>
+      <p>The saved image and clip were hashed, then the studio was left idle. The Computer went to sleep. Reopening the project read the same bytes from durable storage — the rendered result is reused, never regenerated for a prettier recording.</p>
+      <p class="ms-small">A browser tab closing does not stop a durable job. A completed file is a file: reopening it is a read, not an inference.</p>
+    </div>
+    <div class="ms-ledger">
+      <h3>Measured spend</h3>
+      <table>
+        <caption>Inference recorded by the studio and the host. Hosting is billed separately.</caption>
+        <thead><tr><th scope="col">Object</th><th scope="col">Model</th><th scope="col">Cost</th><th scope="col">Outcome</th></tr></thead>
+        <tbody>
+          {costs.map(([name, model, cost, result]) => <tr><th scope="row">{name}</th><td>{model}</td><td>{cost}</td><td>{result}</td></tr>)}
+        </tbody>
+        <tfoot><tr><th scope="row">Total inference</th><td></td><td>US${spend}</td><td>plus the shared Workers base and Computer sleep</td></tr></tfoot>
+      </table>
+    </div>
+  </section>
+
+  <section id="publishing" class="ms-section">
+    <div class="ms-section-head">
+      <p class="ms-kicker">08 / Publishing and ownership</p>
+      <h2>Public on purpose, private by default.</h2>
+      <p>The project is private. A published page exposes the title, description and media only — prompts, filenames and other projects stay private. Withdrawal stops new visits and cannot recall a download already taken, so the studio says exactly that.</p>
+    </div>
+    <div class="ms-controls">
+      <div><h3>Publish / unpublish</h3><p>A deliberately selected result gets a public page. Unpublishing withdraws that page and every controlled placement of the same asset.</p></div>
+      <div><h3>Show / hide</h3><p>A gallery or Showcase card is a placement. Hiding it removes discovery without pretending the direct link became private.</p></div>
+      <div><h3>Delete</h3><p>Separate and destructive. Deletion tombstones the asset and its publications; a late provider completion cannot resurrect it.</p></div>
+    </div>
+    <p class="ms-small">Public media is served from the app’s own storage with a stable address. Signed-out visitors see the article, films and published pieces; private routes require the owner session and are enforced on the server, not by hiding a menu item.</p>
+  </section>
+
+  <section id="evaluation" class="ms-section">
+    <div class="ms-section-head">
+      <p class="ms-kicker">09 / Evaluation</p>
+      <h2>One to two months, then decide.</h2>
+      <p>This is the evaluation plan, not a subscription claim. Light personal use was estimated at US$10–30 per month before starting; inference so far has been under US$1 for the whole campaign.</p>
+    </div>
+    <div class="ms-eval">
+      <div><h3>Hosting, separately</h3><p>Workers Paid base (shared with existing projects), Computer activity while awake (standard-4, one instance, sleeps after 15 idle minutes), R2 storage for originals, and no charge while idle.</p></div>
+      <div><h3>Inference, separately</h3><p>Workers AI stills bill in fractions of a cent; AI Gateway video bills per second. Every request shows an estimate first and records the observed cost.</p></div>
+      <div><h3>Useful beyond this campaign</h3><p>Release artwork, editorial stills, product shots with a reference, moving posters, and a reusable project the owner can reopen and change without rebuilding the studio.</p></div>
+    </div>
+    <p class="ms-small">The Mac was used to prepare, deploy and record. The studio itself runs in the authorised Cloudflare account; models do not run on the Mac and the generation does not run on the CPU container.</p>
+  </section>
+
+  <section id="films" class="ms-section">
+    <div class="ms-section-head">
+      <p class="ms-kicker">10 / Films</p>
+      <h2>The journey, recorded.</h2>
+      <p>Both films use the same project and the same real outputs. Cuts and time compression are labelled; captions and transcripts are available, and the 64-second native tour remains historical proof of the earlier studio.</p>
+    </div>
+    <div class="ms-films">
+      <div>
+        <h3>Overview · 90 seconds</h3>
+        <video controls preload="none" poster="/media-studio/films/overview-poster.jpg" width="1440" height="810">
+          <source src="/media-studio/films/overview.mp4" type="video/mp4" />
+          <track kind="captions" src="/media-studio/films/overview.vtt" srclang="en" label="English captions" default />
+          <a href="/media-studio/films/overview.mp4">Download the overview</a>
+        </video>
+        <p class="ms-small"><a href="/media-studio/films/overview.txt">Read the transcript</a></p>
+      </div>
+      <div>
+        <h3>Full walkthrough · chaptered</h3>
+        <video controls preload="none" poster="/media-studio/films/walkthrough-poster.jpg" width="1440" height="810">
+          <source src="/media-studio/films/walkthrough.mp4" type="video/mp4" />
+          <track kind="captions" src="/media-studio/films/walkthrough.vtt" srclang="en" label="English captions" default />
+          <a href="/media-studio/films/walkthrough.mp4">Download the walkthrough</a>
+        </video>
+        <p class="ms-small"><a href="/media-studio/films/walkthrough.txt">Read the transcript and chapter list</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="downloads" class="ms-section">
+    <div class="ms-section-head">
+      <p class="ms-kicker">11 / Take the work</p>
+      <h2>Public-safe downloads.</h2>
+      <p>Full-size campaign files with the fictional-release note intact. Prompts, private references and provider receipts stay in the private project export.</p>
+    </div>
+    <ul class="ms-downloads">
+      <li><a href={cover} download>Front cover · 1600 × 1600 JPEG</a><span>Art from Prints, type composed deliberately</span></li>
+      <li><a href="/media-studio/tidal-ledger-back.jpg" download>Back cover · 1600 × 1600 JPEG</a><span>Tracklist, credits, label mark</span></li>
+      <li><a href="/media-studio/tidal-ledger-poster.jpg" download>Poster · 1240 × 1754 JPEG</a><span>A2 proportion</span></li>
+      <li><a href={og} download>Share card · 1200 × 630 PNG</a><span>The OG image used by this page</span></li>
+      <li><a href={still} download>Contour plate · 1120 × 1120 JPEG</a><span>Generated master</span></li>
+      <li><a href={letterpress} download>Letterpress plate · 1120 × 1120 JPEG</a><span>Generated master</span></li>
+      <li><a href={rope} download>Rope plate · 1120 × 1120 JPEG</a><span>Generated through the agent surface</span></li>
+      <li><a href={motion} download>Moving cover · MP4</a><span>5.875 s, 768 × 768</span></li>
+      <li><a href="/media-studio/tidal-ledger-tide-loop.mp4" download>Tide loop · MP4</a><span>Oyster/Prints async video proof</span></li>
+      <li><a href="/media-studio/reference-board.png" download>Reference board · PNG</a><span>Original reference, not a model output</span></li>
+    </ul>
+  </section>
+
+  <section class="ms-section ms-credits">
+    <h2>What this proves — and what it doesn’t.</h2>
+    <div class="ms-two">
+      <div>
+        <h3>Proved here</h3>
+        <ul class="ms-list">
+          <li>A real image, a real reference variation and a real asynchronous clip through owned providers.</li>
+          <li>The same saved work read through the native panel, the agent route and the upstream MCP surface.</li>
+          <li>Off → enable → generate → disable/new-work denial → re-enable with media retained.</li>
+          <li>Publication, placement and withdrawal kept as separate operations with server-side enforcement.</li>
+          <li>Saved bytes hashed and reused after the Computer slept.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Not claimed</h3>
+        <ul class="ms-list">
+          <li>A complete portable Oyster restore. Resources were kept intact; a restored installation was not qualified.</li>
+          <li>Every upstream model or a fixed monthly price. Costs are observed, not a plan.</li>
+          <li>Physical-device or social-platform unfurl acceptance.</li>
+          <li>Reference-guided generation through Oyster on this account: the Images binding is blocked by legacy billing, so the variation was made through the studio’s own funded route and labelled as such.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="ms-small">Oyster, Prints and Darkroom are Levi’s MIT-licensed Fungi projects. The studio keeps their attribution and licence notices. App Composer keeps its own identity; the release is fiction.</p>
+  </section>
+
+  <nav class="ms-next" aria-label="Next">
+    <a class="button" href="/media-studio/tutorial">Repeat it: the illustrated tutorial</a>
+    <a class="button secondary" href="/init?start=media-studio">Start a studio of your own</a>
+  </nav>
+</article>
+<script is:inline>
+  const tabs = Array.from(document.querySelectorAll('[data-release-tab]'));
+  const panels = Array.from(document.querySelectorAll('[data-release-panel]'));
+  const select = (id) => {
+    for (const tab of tabs) {
+      const on = tab.dataset.releaseTab === id;
+      tab.setAttribute('aria-selected', on ? 'true' : 'false');
+      tab.tabIndex = on ? 0 : -1;
+    }
+    for (const panel of panels) panel.hidden = panel.dataset.releasePanel !== id;
+  };
+  for (const tab of tabs) {
+    tab.addEventListener('click', () => select(tab.dataset.releaseTab));
+    tab.addEventListener('keydown', (event) => {
+      const index = tabs.indexOf(tab);
+      if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+        event.preventDefault();
+        const next = tabs[(index + (event.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+        next.focus();
+        select(next.dataset.releaseTab);
+      }
+      if (event.key === 'Home' || event.key === 'End') {
+        event.preventDefault();
+        const edge = event.key === 'Home' ? tabs[0] : tabs[tabs.length - 1];
+        edge.focus();
+        select(edge.dataset.releaseTab);
+      }
+    });
+  }
+</script>
+<style>
+  .ms{max-width:1180px;margin:0 auto;padding:24px 24px 72px}
+  .ms-hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:24px 0 40px}
+  .ms-kicker{font:600 11px/1.4 ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--accent,#ff5a1f);margin:0 0 12px}
+  .ms h1{font:600 clamp(2.6rem,5.4vw,4.6rem)/1.02 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.04em;margin:0 0 20px}
+  .ms h2{font:600 clamp(1.7rem,3vw,2.5rem)/1.1 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 14px}
+  .ms h3{font:600 1.15rem/1.3 "Space Grotesk",system-ui,sans-serif;margin:0 0 8px}
+  .ms-deck{font-size:1.18rem;line-height:1.55;color:var(--muted,#b9b2a8);max-width:52ch}
+  .ms-actions{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:24px 0 12px}
+  .ms-small{font-size:.86rem;color:var(--muted,#b9b2a8);max-width:78ch}
+  .ms-hero-art{margin:0}
+  .ms-hero-art img{display:block;width:100%;height:auto;border:1px solid var(--line,rgba(255,255,255,.16));box-shadow:0 40px 80px -50px rgba(0,0,0,.8)}
+  .ms-hero-art figcaption,.ms-figure figcaption,.ms-plates figcaption,.ms-shots figcaption,.ms-objects figcaption{font-size:.78rem;color:var(--muted,#b9b2a8);margin-top:10px;line-height:1.5}
+  .ms-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;border-top:1px solid var(--line,rgba(255,255,255,.16));border-bottom:1px solid var(--line,rgba(255,255,255,.16));padding:20px 0;margin:0 0 22px}
+  .ms-facts dt{font:600 10px/1.4 ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--muted,#b9b2a8)}
+  .ms-facts dd{margin:6px 0 0;font-size:.95rem;line-height:1.45}
+  .ms-section,.ms-table{margin-top:56px;padding-top:32px;border-top:1px solid var(--line,rgba(255,255,255,.16))}
+  .ms-section-head{max-width:76ch}
+  .ms-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 18px}
+  .ms-tabs button{font:600 .8rem/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;padding:12px 16px;border-radius:2px;border:1px solid var(--line,rgba(255,255,255,.25));background:transparent;color:inherit;cursor:pointer;min-height:44px}
+  .ms-tabs button[aria-selected="true"]{background:var(--fg,#f4efe6);color:var(--bg,#151210);border-color:var(--fg,#f4efe6)}
+  .ms-panel{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center;padding:18px 0}
+  .ms-panel-art{margin:0}
+  .ms-panel-art img,.ms-panel-art video{display:block;width:100%;height:auto;border:1px solid var(--line,rgba(255,255,255,.16));background:#0d0b09}
+  .ms-panel-copy .ms-decision{font-size:1.05rem;line-height:1.6;max-width:46ch}
+  .ms-objects{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:24px}
+  .ms-objects figure{margin:0}
+  .ms-objects img{display:block;width:100%;height:auto;border:1px solid var(--line,rgba(255,255,255,.16))}
+  .ms-objects-og{grid-column:1 / -1}
+  .ms-two{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:start}
+  .ms-figure{margin:0}
+  .ms-figure img,.ms-figure video{display:block;width:100%;height:auto;border:1px solid var(--line,rgba(255,255,255,.16))}
+  .ms-list{padding-left:20px;line-height:1.6}
+  .ms-list li{margin-bottom:10px}
+  .ms-plates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:24px}
+  .ms-plates figure{margin:0}
+  .ms-plates img{display:block;width:100%;height:auto;border:1px solid var(--line,rgba(255,255,255,.16))}
+  .ms-plates figcaption{font-size:.82rem;line-height:1.55;color:var(--muted,#b9b2a8)}
+  .ms-plates figcaption span{display:block;margin-top:6px}
+  .ms-callout{border-left:3px solid var(--accent,#ff5a1f);padding:14px 20px;background:color-mix(in srgb,var(--accent,#ff5a1f) 7%,transparent);margin-top:28px}
+  .ms-motion{align-items:center}
+  .ms-shots{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin:26px 0}
+  .ms-shots figure{margin:0}
+  .ms-shots img{display:block;width:100%;height:auto;border:1px solid var(--line,rgba(255,255,255,.16))}
+  .ms-shot-phone img{max-width:280px}
+  .ms-diagram{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:12px;align-items:center;border:1px solid var(--line,rgba(255,255,255,.16));padding:22px;margin:26px 0}
+  .ms-node{padding:14px;border:1px solid var(--line,rgba(255,255,255,.2))}
+  .ms-node strong{display:block;margin-bottom:6px}
+  .ms-node span{font-size:.78rem;color:var(--muted,#b9b2a8);line-height:1.45}
+  .ms-link{font:600 .62rem/1.4 ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted,#b9b2a8);text-align:center;max-width:12ch}
+  .ms-lifecycle{margin-top:26px}
+  .ms-lifecycle ol{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;padding-left:0;list-style:none;counter-reset:step}
+  .ms-lifecycle li{counter-increment:step;border-top:2px solid var(--line,rgba(255,255,255,.2));padding-top:12px;font-size:.92rem;line-height:1.5}
+  .ms-lifecycle li::before{content:counter(step,decimal-leading-zero);display:block;font:600 .7rem/1 ui-monospace,monospace;letter-spacing:.14em;color:var(--accent,#ff5a1f);margin-bottom:8px}
+  .ms-ledger table{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:14px}
+  .ms-ledger caption{text-align:left;font-size:.8rem;color:var(--muted,#b9b2a8);padding-bottom:10px}
+  .ms-ledger th,.ms-ledger td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line,rgba(255,255,255,.14));vertical-align:top}
+  .ms-ledger thead th{font:600 .66rem/1.4 ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted,#b9b2a8)}
+  .ms-ledger tfoot th,.ms-ledger tfoot td{border-bottom:0;border-top:2px solid var(--line,rgba(255,255,255,.3));font-weight:600}
+  .ms-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:24px 0}
+  .ms-controls div{border-top:2px solid var(--line,rgba(255,255,255,.2));padding-top:12px}
+  .ms-eval{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:22px 0}
+  .ms-films{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:24px}
+  .ms-films video{display:block;width:100%;height:auto;background:#000;border:1px solid var(--line,rgba(255,255,255,.16))}
+  .ms-downloads{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:2px 28px;margin:22px 0}
+  .ms-downloads li{display:flex;flex-direction:column;gap:4px;padding:12px 0;border-bottom:1px solid var(--line,rgba(255,255,255,.14))}
+  .ms-downloads a{font-weight:600}
+  .ms-downloads span{font-size:.8rem;color:var(--muted,#b9b2a8)}
+  .ms-credits .ms-two{margin-top:18px}
+  .ms-next{display:flex;flex-wrap:wrap;gap:16px;margin-top:48px;padding-top:28px;border-top:1px solid var(--line,rgba(255,255,255,.16))}
+  .ms :is(a,button,video):focus-visible{outline:2px solid var(--accent,#ff5a1f);outline-offset:3px}
+  @media (max-width:900px){
+    .ms-hero,.ms-panel,.ms-two,.ms-plates,.ms-objects,.ms-shots,.ms-films,.ms-plates{grid-template-columns:1fr}
+    .ms-facts{grid-template-columns:1fr 1fr}
+    .ms-diagram{grid-template-columns:1fr;gap:10px}
+    .ms-link{max-width:none}
+    .ms-lifecycle ol,.ms-controls,.ms-eval{grid-template-columns:1fr 1fr}
+    .ms-downloads{grid-template-columns:1fr}
+  }
+  @media (max-width:560px){
+    .ms{padding:16px 16px 56px}
+    .ms-facts{grid-template-columns:1fr}
+    .ms-lifecycle ol,.ms-controls,.ms-eval{grid-template-columns:1fr}
+    .ms-shot-phone img{max-width:100%}
+  }
+  @media (prefers-reduced-motion:reduce){.ms *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+</Base>

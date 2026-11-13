@@ -1,0 +1,223 @@
+---
+import Base from '../layouts/Base.astro';
+const chapters = [
+  ['before', 'Before you start'],
+  ['brief', 'Write the brief'],
+  ['deploy', 'Prepare the host'],
+  ['install', 'Install Prints, not seven apps'],
+  ['switch', 'Turn the capability on'],
+  ['make', 'Make the artwork'],
+  ['publish', 'Publish deliberately'],
+  ['return', 'Pause, sleep, resume'],
+  ['trouble', 'Troubleshooting'],
+];
+---
+<Base
+  title="Media Studio tutorial — from brief to published release artwork"
+  description="A repeatable, illustrated tutorial for the App Composer Media Studio path: brief, Oyster host, selective Prints install, native capability, real generation, publication and returning without regenerating."
+  shareImage="https://composer.loftwah.com/media-studio/tidal-ledger-og.png"
+  shareAlt="Tidal Ledger sleeve and the words Media Studio tutorial."
+  ogType="article"
+>
+<article class="tut">
+  <header class="tut-head">
+    <p class="tut-kicker">Media Studio · tutorial</p>
+    <h1>From an empty studio to published release artwork.</h1>
+    <p class="tut-deck">This is the path actually used for <a href="/media-studio">Tidal Ledger</a>: a portable brief, an Oyster host, a selective Prints install, a native capability switch, real stills and motion, publication, and a project you can reopen without paying twice.</p>
+    <p class="tut-small">Time: about 90 minutes for the first run, most of it waiting for a deployment. Cost: hosting plus cents of inference. Every command below was run on this Mac; where an account action is required it is marked.</p>
+    <nav class="tut-jump" aria-label="Chapters">
+      {chapters.map(([id, label], index) => <a href={'#' + id}>{String(index + 1).padStart(2, '0')} {label}</a>)}
+    </nav>
+  </header>
+
+  <section id="before" class="tut-step">
+    <p class="tut-kicker">01</p>
+    <h2>Before you start</h2>
+    <div class="tut-grid">
+      <div>
+        <ul>
+          <li><strong>Node 24+ and Git</strong> for the local trial. Node 26.13.1 was used here; the trial’s desktop builder pinned Node 24.20.0.</li>
+          <li><strong>Docker</strong> for the Computer image, only when deploying.</li>
+          <li><strong>A Cloudflare account on Workers Paid</strong> with Containers. AI Gateway credits are needed for video models.</li>
+          <li><strong>An extreme amount of patience</strong> for the first container build. It took about twenty minutes.</li>
+        </ul>
+        <p class="tut-small">The Mac prepares, deploys and records. Models run in the provider account; the Computer is a Linux container in Cloudflare, not your laptop.</p>
+      </div>
+      <aside class="tut-check">
+        <h3>Checkpoint</h3>
+        <pre><code>node --version   # v24.x or newer
+docker info      # a running daemon
+npx wrangler whoami</code></pre>
+        <p>If any of these fail, fix it before spending anything.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="brief" class="tut-step">
+    <p class="tut-kicker">02</p>
+    <h2>Write the brief in Composer</h2>
+    <p>Open <a href="/init?start=media-studio">Init → Media Studio</a>. Name the studio, choose the creative direction and defaults, then save. The saved specification carries the app, the source pin and the media settings; no credentials go into it.</p>
+    <pre><code>pnpm dlx @loftwah/get-ready-mcp   # optional: inspect readiness locally
+node scripts/media-studio-agent.mjs status</code></pre>
+    <p>The brief for this campaign asked for a studio for a record release: keep references together, make cover variations, animate the chosen cover, prepare artwork for the artist’s page, and let the owner return later and change the studio without losing the project.</p>
+    <aside class="tut-check"><h3>Checkpoint</h3><p>Export the specification, re-import it, and confirm the media defaults survive unchanged. If they do not, stop: the portable brief is the contract everything else uses.</p></aside>
+  </section>
+
+  <section id="deploy" class="tut-step">
+    <p class="tut-kicker">03</p>
+    <h2>Prepare the Oyster host</h2>
+    <p>Win the local trial first, then deploy the whole standalone host. The smaller workers-only host is not a proven drop-in for Computer + media.</p>
+    <pre><code>npx @fungi.computer/oyster@0.25.0 try --no-open
+# in the created project:
+npx wrangler r2 bucket create oyster-releases
+npx wrangler deploy --minify \
+  --var OYSTER_ORIGIN:https://oyster-media.&lt;subdomain&gt;.workers.dev
+printf '%s' "$(cat .oyster-owner)" | npx wrangler secret put OYSTER_OWNER_KEY</code></pre>
+    <div class="tut-note">
+      <h3>Two real findings from this run</h3>
+      <p><strong>Deploy with <code>--minify</code>.</strong> The unminified standalone bundle exceeded the Worker startup CPU limit (<code>10021</code>) on this account; the minified bundle passed. It was still close enough that one retry failed and the next passed — treat it as a tight budget, not a guarantee.</p>
+      <p><strong>Legacy billing blocks the Images binding.</strong> The host’s reference fitter calls <code>env.IMAGES</code>, which returned <code>IMAGES_TRANSFORM_ERROR 9432: … not available using legacy billing</code>. On this account that means reference-conditioned generation is refused by the host, and the model catalogue marks references unavailable. Enable Cloudflare Images or migrate billing to use it; the studio’s own referenced variation runs on Workers AI and was used instead.</p>
+    </div>
+    <aside class="tut-check"><h3>Checkpoint</h3><pre><code>curl -s https://oyster-media.&lt;subdomain&gt;.workers.dev/login -o /dev/null -w '%{http_code}\n'   # 200
+curl -s -H "Authorization: Bearer $(cat .oyster-owner)" \
+  https://oyster-media.&lt;subdomain&gt;.workers.dev/api/installations</code></pre><p>You should have a host and an empty installation list. Do not install the starter set.</p></aside>
+  </section>
+
+  <section id="install" class="tut-step">
+    <p class="tut-kicker">04</p>
+    <h2>Install Prints — not seven apps</h2>
+    <p><code>install-apps</code> installs the whole starter set. The supported alternative is to pack one exact commit and install that release.</p>
+    <pre><code>git clone https://github.com/fungi-computer/prints prints
+cd prints &amp;&amp; git checkout 0e09aae1bf472ca777d86767225307fa8db74fcc
+node releases/pack.mjs prints app_prints out/prints-release
+node releases/install.mjs out/prints-release prints \
+  https://oyster-media.&lt;subdomain&gt;.workers.dev</code></pre>
+    <p>Repeat with Tourtois <code>548286dc419f…</code> if you want the desktop. The release response records the release id, artifact digest and build-recipe digest — keep them with the project.</p>
+    <aside class="tut-check"><h3>Checkpoint</h3><p><code>/api/installations</code> lists <code>prints</code> and (optionally) <code>tourtois</code> only. The desktop shows Prints, not a wall of starters.</p></aside>
+  </section>
+
+  <section id="switch" class="tut-step">
+    <p class="tut-kicker">05</p>
+    <h2>Turn the capability on in EmDash</h2>
+    <p>In Composer’s admin, open <strong>Images &amp; video</strong>. It starts Off. The deployment holds the host address and owner key as Worker secrets; nothing about them reaches the browser.</p>
+    <ol>
+      <li><strong>Enable.</strong> The server checks the host and reads its live catalogue. No credit is bought, no container started, nothing generated.</li>
+      <li><strong>Generate.</strong> Choose a model from the catalogue, write the prompt, pick dimensions or clip settings, and read the estimate before confirming.</li>
+      <li><strong>Import.</strong> A completed result is copied into the app’s own storage, with its hash, bytes and model recorded.</li>
+    </ol>
+    <p>The same handlers are exposed to an authorised agent:</p>
+    <pre><code>node scripts/media-studio-agent.mjs status
+node scripts/media-studio-agent.mjs generate --kind image \
+  --model @cf/leonardo/lucid-origin --prompt "…" --width 1120 --height 1120
+node scripts/media-studio-agent.mjs import --id job_…</code></pre>
+    <aside class="tut-check"><h3>Checkpoint</h3><p>Turn the capability off and try to generate. The server must refuse with “Images &amp; video is off”, and existing jobs must remain readable. Turn it back on; nothing should have been deleted.</p></aside>
+  </section>
+
+  <section id="make" class="tut-step">
+    <p class="tut-kicker">06</p>
+    <h2>Make the artwork</h2>
+    <div class="tut-grid">
+      <div>
+        <ol>
+          <li><strong>Reference.</strong> Put the reference board and any source stills in the project. A reference is not a result; label it.</li>
+          <li><strong>Plates.</strong> Generate two or three candidate plates with the same art direction. Record model, prompt, size and cost for each.</li>
+          <li><strong>Select.</strong> Pick the plate that leaves room for typography, not the busiest one.</li>
+          <li><strong>Compose.</strong> Set the type deliberately. Generated masters stay clean; the sleeve is a recorded derivative of plate + type.</li>
+          <li><strong>Animate.</strong> Upload the composed still and animate it. Ask for light and material, not a new scene.</li>
+        </ol>
+      </div>
+      <aside class="tut-check">
+        <h3>What it cost here</h3>
+        <ul>
+          <li>Premium still, 1120²: US$0.066</li>
+          <li>Balanced still, 1120²: US$0.055</li>
+          <li>Cheap draft, 1024²: US$0.001</li>
+          <li>6 s image-to-video: US$0.28</li>
+          <li>4 s async video, gateway model: US$0.16</li>
+        </ul>
+        <p class="tut-small">Observed, not a price list. Every request shows its own estimate first.</p>
+      </aside>
+    </div>
+    <p class="tut-small">A failed save is not a failed generation. The studio keeps the exact bytes and a retry of the same request saves them without a second inference. Retrying with a <em>new</em> request id is a new paid request — do not do that to “fix” a save.</p>
+  </section>
+
+  <section id="publish" class="tut-step">
+    <p class="tut-kicker">07</p>
+    <h2>Publish deliberately</h2>
+    <p>Publishing creates a public page with a title, description and media. Prompts, filenames, other projects and receipts stay private.</p>
+    <ul>
+      <li><strong>Publish / unpublish</strong> — the page is available or withdrawn. Withdrawal stops new visits; downloads already taken cannot be recalled.</li>
+      <li><strong>Show / hide</strong> — a gallery or Showcase card is a placement. Hiding removes discovery; it does not make the direct link private.</li>
+      <li><strong>Make private / delete</strong> — a separate destructive action. It tombstones the asset and its publications; a late provider completion cannot resurrect it.</li>
+    </ul>
+    <aside class="tut-check"><h3>Checkpoint</h3><p>Open the published URL signed out. Then hide the card and reload the public page: the page still resolves, the card is gone. Then withdraw and confirm the URL no longer serves the work, including after a warm reload.</p></aside>
+    <p class="tut-small">Serve public media from your own storage with a stable address and cache headers. A signed-out visitor should never hit an owner sign-in page on the way to published work.</p>
+  </section>
+
+  <section id="return" class="tut-step">
+    <p class="tut-kicker">08</p>
+    <h2>Pause, sleep, resume</h2>
+    <p>Three operations that look similar and are not:</p>
+    <table class="tut-table">
+      <thead><tr><th scope="col">Operation</th><th scope="col">What it does</th><th scope="col">What it keeps</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Pause new work</th><td>Denies new admission from the panel, API and agent route. Let in-flight work settle and reconcile.</td><td>Every saved job, import and publication; the host keeps its own access.</td></tr>
+        <tr><th scope="row">Sleep</th><td>The Computer idles out after 15 minutes with Keep awake off. No Start/Stop button is exposed upstream.</td><td>The durable workspace, Prints state and retained media.</td></tr>
+        <tr><th scope="row">Delete</th><td>Destructive and separate. Not part of pausing.</td><td>Nothing — do not “pause” by deleting.</td></tr>
+      </tbody>
+    </table>
+    <p>To resume, reopen the project. A saved file is read, not regenerated. Compare hashes before and after: the bytes and the receipt should be identical, and no new inference dispatch should appear.</p>
+    <aside class="tut-check"><h3>Checkpoint</h3><pre><code>shasum -a 256 published-cover.jpg
+# pause, wait for sleep, reopen the project
+shasum -a 256 published-cover.jpg   # identical</code></pre></aside>
+  </section>
+
+  <section id="trouble" class="tut-step">
+    <p class="tut-kicker">09</p>
+    <h2>Troubleshooting</h2>
+    <dl class="tut-faults">
+      <div><dt>“Node 24 or newer” on the Oyster CLI</dt><dd>Your shell is on an older default. Pin the project: <code>printf '[tools]\nnode = "24.20.0"\n' &gt; .mise.toml</code>. Tourtois’ publisher requires exactly 24.20.0; the host wants 24+.</dd></div>
+      <div><dt>Deploy fails with <code>10021 Script startup exceeded CPU time limit</code></dt><dd>Use <code>--minify</code>. If it still fails, retry once — this account sat right at the boundary. Do not remove bindings to “fix” startup.</dd></div>
+      <div><dt><code>IMAGES_TRANSFORM_ERROR 9432</code></dt><dd>Legacy billing. Reference-conditioned generation is refused by the host. Enable Cloudflare Images / migrate billing, or use a provider route that does not need the Images binding, and label the difference.</dd></div>
+      <div><dt>Video refused: “Cloudflare AI Gateway couldn’t fund this request”</dt><dd>Buy AI Gateway credits. Nothing is charged when it refuses. Confirm the credit appears before retrying with the same request id.</dd></div>
+      <div><dt>429 from the host during a multi-chunk read</dt><dd>Do not open a new session per chunk. Initialise once and reuse the session for bounded reads; back off on 429. The final read may legitimately return an empty slice with <code>truncated:false</code>.</dd></div>
+      <div><dt>Save failed after the provider finished</dt><dd>Retry the save for the same request id. Never mint a new id; that is a new paid generation.</dd></div>
+      <div><dt>Empty media card after publishing</dt><dd>Check the asset revision and the controlled placements. Withdrawal revokes the page; hiding only removes the card.</dd></div>
+    </dl>
+  </section>
+
+  <section class="tut-end">
+    <h2>Repeat it</h2>
+    <p>The example is deliberately editable: the brief round-trips through JSON, the project exports with its assets, and the published pages can be withdrawn without deleting the library. Load the example and replace it only when you accept the replacement — your draft stays until you do.</p>
+    <p><a class="button" href="/init?start=media-studio">Start a studio</a> <a class="button secondary" href="/media-studio">Back to the campaign</a> <a href="/media-studio/films/walkthrough.txt">Read the walkthrough transcript</a></p>
+  </section>
+</article>
+<style>
+  .tut{max-width:980px;margin:0 auto;padding:24px 24px 72px}
+  .tut-kicker{font:600 11px/1.4 ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--accent,#ff5a1f);margin:0 0 10px}
+  .tut h1{font:600 clamp(2.4rem,4.6vw,3.8rem)/1.03 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.04em;margin:0 0 18px}
+  .tut h2{font:600 clamp(1.6rem,2.6vw,2.2rem)/1.12 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 14px}
+  .tut h3{font:600 1.05rem/1.3 "Space Grotesk",system-ui,sans-serif;margin:0 0 8px}
+  .tut-deck{font-size:1.12rem;line-height:1.6;max-width:62ch;color:var(--muted,#b9b2a8)}
+  .tut-small{font-size:.85rem;color:var(--muted,#b9b2a8);max-width:76ch}
+  .tut-jump{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 8px}
+  .tut-jump a{font:600 .72rem/1.3 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line,rgba(255,255,255,.22));padding:10px 12px;min-height:40px;display:inline-flex;align-items:center}
+  .tut-step{margin-top:56px;padding-top:30px;border-top:1px solid var(--line,rgba(255,255,255,.16))}
+  .tut-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:start}
+  .tut-check{border:1px solid var(--line,rgba(255,255,255,.2));padding:18px;background:color-mix(in srgb,var(--fg,#f4efe6) 4%,transparent)}
+  .tut-check ul{padding-left:18px;margin:8px 0}
+  .tut-note{border-left:3px solid var(--accent,#ff5a1f);padding:6px 18px;margin:20px 0;background:color-mix(in srgb,var(--accent,#ff5a1f) 6%,transparent)}
+  .tut pre{background:rgba(0,0,0,.28);border:1px solid var(--line,rgba(255,255,255,.16));padding:14px;overflow-x:auto;font-size:.82rem;line-height:1.6}
+  .tut code{font-size:.86em;overflow-wrap:anywhere}
+  .tut-table{width:100%;border-collapse:collapse;font-size:.9rem;margin:18px 0}
+  .tut-table th,.tut-table td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line,rgba(255,255,255,.14));vertical-align:top}
+  .tut-table thead th{font:600 .66rem/1.4 ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted,#b9b2a8)}
+  .tut-faults{display:grid;gap:18px;margin:18px 0}
+  .tut-faults div{border-top:1px solid var(--line,rgba(255,255,255,.14));padding-top:12px}
+  .tut-faults dt{font-weight:600;margin-bottom:6px}
+  .tut-faults dd{margin:0;line-height:1.6;font-size:.94rem}
+  .tut-end{margin-top:64px;padding-top:30px;border-top:1px solid var(--line,rgba(255,255,255,.16))}
+  .tut :is(a,button,summary):focus-visible{outline:2px solid var(--accent,#ff5a1f);outline-offset:3px}
+  @media (max-width:820px){.tut-grid{grid-template-columns:1fr;gap:24px}}
+</style>
+</Base>

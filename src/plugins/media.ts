@@ -64,6 +64,56 @@ export async function writeMedia(ctx: Context) {
   return guarded(() => runAction(env, action, body, by));
 }
 
+function base64url(value: string) {
+  return btoa(value).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+}
+
+async function bridgeToken(secret: string) {
+  const claim = {
+    aud: "media-studio",
+    sub: "owner",
+    exp: Math.floor(Date.now() / 1000) + 120,
+  };
+  const payload = base64url(JSON.stringify(claim));
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
+  const hex = Array.from(new Uint8Array(signature))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+  return payload + "." + hex;
+}
+
+/** An owner-only handoff: this route sits behind the existing EmDash session
+ * and Cloudflare Access, then redirects into the studio's own origin. */
+export async function studioHandoff(ctx: Context) {
+  actor(ctx);
+  const runtime = env as unknown as {
+    MEDIA_STUDIO_BRIDGE_SECRET?: string;
+    MEDIA_STUDIO_ORIGIN?: string;
+  };
+  const secret = runtime.MEDIA_STUDIO_BRIDGE_SECRET;
+  const origin = runtime.MEDIA_STUDIO_ORIGIN;
+  if (!secret || !origin)
+    throw new PluginRouteError(
+      "SETUP_REQUIRED",
+      "The studio handoff is not configured on this deployment.",
+      503,
+    );
+  const token = await bridgeToken(secret);
+  const target = new URL("/bridge", origin);
+  target.searchParams.set("token", token);
+  return new Response(null, {
+    status: 302,
+    headers: { Location: target.href, "Cache-Control": "no-store" },
+  });
+}
+
 export function createPlugin(options: { adminEntry: string }) {
   return definePlugin({
     id: "composer-media",
@@ -77,6 +127,11 @@ export function createPlugin(options: { adminEntry: string }) {
         methods: ["GET"],
         permission: "plugins:manage",
         handler: readMedia,
+      },
+      studio: {
+        methods: ["GET"],
+        permission: "plugins:manage",
+        handler: studioHandoff,
       },
       write: {
         methods: ["POST"],

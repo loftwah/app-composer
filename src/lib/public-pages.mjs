@@ -10,6 +10,7 @@ export const publicPagePaths = Object.freeze([
   '/extension', '/state', '/php2shell', '/studio', '/manage', '/building', '/effect',
   '/creator-hub', '/creator-hub/share', '/collections', '/collections/signal-and-type', '/collections/print-shop', '/cloudflare',
   '/launch-kit', '/paperwork', '/init/paperwork', '/platform', '/platform/demo', '/plugin-trust', '/incident-replay', '/migration-example',
+  '/media-studio', '/media-studio/tutorial',
 ]);
 
 // The named-edition return handoff is deliberately narrower than the indexable

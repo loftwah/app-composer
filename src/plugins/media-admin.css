@@ -90,6 +90,8 @@
   gap: 10px;
   margin: 14px 0;
 }
+.composer-media .cm-open{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:6px;background:var(--cm-ink);color:var(--cm-surface);font-weight:600;text-decoration:none}
+.composer-media .cm-open:hover{color:var(--cm-surface);opacity:.9}
 .composer-media button {
   font: inherit;
   font-weight: 600;

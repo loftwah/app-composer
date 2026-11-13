@@ -6,6 +6,7 @@
 // screenshot. Screenshots are never generated; the capture date travels with
 // the file so staleness is visible.
 export const apps = [
+  {id:'media-studio',name:'Media Studio',category:'Creative',description:'Make and keep images and video: references, real generations, saved projects and deliberate public pages.',image:'/media-studio/tidal-ledger-cover.jpg',thumbnail:'/media-studio/tidal-ledger-cover.jpg',share:'/media-studio/tidal-ledger-og.png',shareType:'image/png',shareAlt:'Tidal Ledger, a fictional release campaign made in Media Studio.',preview:'/media-studio/studio-library-desktop.png',previewWide:'/media-studio/studio-library-desktop.png',previewCaptured:'2026-11-14',previewAlt:'The actual Media Studio library for the Saltmarsh project with the generated clip and cover uploads.',href:'/media-studio',standalone:'https://media.loftwah.com',source:'https://github.com/loftwah/composer-media-studio'},
   // Supported entry URLs stay aligned with the committed launcher copies.
   // Paperwork moves its browser pages to paperwork.loftwah.com before opening a document;
   // product, discovery and Init use the public address directly.

@@ -220,6 +220,11 @@ export function MediaPage() {
           Oyster installation. The studio owns its files; this app keeps the job record and a
           copy of anything you deliberately import.
         </p>
+        <p className="cm-actions">
+          <a className="cm-open" href="/_emdash/api/plugins/composer-media/studio" target="_blank" rel="noopener">
+            Open Media Studio
+          </a>
+        </p>
         <p className={"cm-state " + (status.enabled ? "is-on" : "is-off")} role="status">
           {status.enabled ? "On" : "Off"}
           <span>
