@@ -28,45 +28,22 @@ function notFound() {
 
 /** Range-capable film delivery from the app's own bucket, so HTML video can
  * seek. Static assets answered the whole file and browsers could not seek. */
-export const GET: APIRoute = async ({ params, request }) => {
+export const GET: APIRoute = async ({ params }) => {
   const name = String(params.name ?? "");
   const file = files[name];
   if (!file) return notFound();
   const bucket = (env as unknown as { MEDIA?: Bucket }).MEDIA;
   if (!bucket) return new Response("Media storage is unavailable", { status: 503 });
-  const range = request.headers.get("range");
-  let object: StoredObject | null = null;
-  let status = 200;
-  let contentRange: string | null = null;
-  if (range) {
-    const match = /^bytes=(\d*)-(\d*)$/.exec(range.trim());
-    if (!match) return new Response("Unsupported range", { status: 416 });
-    const start = match[1] ? Number(match[1]) : 0;
-    const end = match[2] ? Number(match[2]) : undefined;
-    const length = end === undefined ? undefined : Math.max(1, end - start + 1);
-    const head = await bucket.head(file.key);
-    const total = head?.size ?? 0;
-    object = await bucket.get(file.key, length === undefined ? undefined : { range: { offset: start, length } });
-    if (object && total > 0) {
-      status = 206;
-      contentRange = `bytes ${start}-${start + object.size - 1}/${total}`;
-    }
-  } else {
-    object = await bucket.get(file.key);
-  }
+  const object = await bucket.get(file.key);
   if (!object) return notFound();
   const headers = new Headers();
   headers.set("Content-Type", file.type);
   headers.set("Cache-Control", file.type.startsWith("video/") ? "public, max-age=86400" : "public, max-age=3600");
-  headers.set("Accept-Ranges", "bytes");
-  headers.set("X-Content-Type-Options", "nosniff");
   headers.set("Content-Length", String(object.size));
-  if (contentRange) headers.set("Content-Range", contentRange);
-  object.writeHttpMetadata(headers);
-  // The bucket object's own metadata may be generic; the route owns the type.
-  headers.set("Content-Type", file.type);
+  headers.set("Accept-Ranges", "none");
+  headers.set("X-Content-Type-Options", "nosniff");
   headers.set("etag", object.httpEtag);
-  return new Response(object.body, { status, headers });
+  return new Response(object.body, { status: 200, headers });
 };
 
 export const HEAD: APIRoute = async (context) => {
