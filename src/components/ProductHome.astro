@@ -1,5 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
+import SlicedImage from "./SlicedImage.astro";
 import { ArrowRight, ArrowDown, ArrowUpRight, Play } from "@lucide/astro";
 import { apps } from "../lib/apps";
 import instance from "../../config/instance.json";
@@ -89,13 +90,11 @@ const siteSchema = {
           <span class="studio-visibility-anchor"></span>
           <div class="studio-assembly">
             <div class="studio-plate">
-              <img
-                src="/brand/composer-mark-reverse-20261022b.svg"
-                width="84"
-                height="84"
-                alt=""
+              <SlicedImage
+                id="composer-hero-art"
+                class="studio-slice-image"
+                src="/brand/composer-icon-tile-20261022b.svg"
               />
-              <div class="studio-slot"></div>
             </div>
             <svg
               class="studio-routing"

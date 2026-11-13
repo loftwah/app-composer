@@ -168,8 +168,8 @@
     background: #303236;
   }
 
-  /* A native composition of actual app pixels and an existing exported card.
-     The orange plane is a brand surface, never an invented product screen. */
+  /* Slice-inspired brand artwork sits behind actual app pixels and an existing
+     exported card. The screenshots remain whole and readable. */
   .home-hero {
     position: relative;
     background: var(--home-hero-bg);
@@ -303,24 +303,13 @@
   }
   .studio-plate {
     position: absolute;
-    inset: 8% 19% 16% 16%;
-    background: #fc5b05;
-    border: 1px solid #ff9c65;
-    box-shadow:
-      0.8cqi 1.4cqi 0 #a03406,
-      2cqi 4cqi 6cqi #0004;
+    inset: 1% 0 1%;
     transform: rotate(-8deg);
   }
-  .studio-plate > img {
+  .studio-slice-image {
     display: block;
-    width: 11cqi;
-    height: auto;
-    margin: 3.5cqi 4cqi;
-  }
-  .studio-slot {
-    position: absolute;
-    inset: 29% 8% 8%;
-    border: 1px solid #17181b66;
+    width: 100%;
+    height: 100%;
   }
   .studio-routing {
     position: absolute;

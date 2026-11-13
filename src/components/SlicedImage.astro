@@ -1,0 +1,46 @@
+---
+/**
+ * A decorative image seen through rounded vertical strips, inspired by Slice.
+ * One image keeps the original coordinates continuous across every strip.
+ * Pass a unique id when placing more than one instance on the same page.
+ */
+interface Props {
+  id: string;
+  src: string;
+  class?: string;
+}
+
+const { id, src, class: className } = Astro.props;
+const clipId = `${id}-strips`;
+const strips = Array.from({ length: 20 }, (_, index) => {
+  const edge = Math.abs(index - 9.5) / 9.5;
+  const inset = Math.round(24 + 64 * edge * edge);
+  return { x: index * 30 + 3, y: inset, height: 540 - inset * 2 };
+});
+---
+
+<svg
+  class={className}
+  viewBox="0 0 600 540"
+  width="600"
+  height="540"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <clipPath id={clipId}>
+      {strips.map(({ x, y, height }) => (
+        <rect x={x} y={y} width="24" height={height} rx="12" />
+      ))}
+    </clipPath>
+  </defs>
+  <image
+    href={src}
+    x="0"
+    y="-30"
+    width="600"
+    height="600"
+    preserveAspectRatio="xMidYMid meet"
+    clip-path={`url(#${clipId})`}
+  />
+</svg>

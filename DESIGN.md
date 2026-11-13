@@ -26,6 +26,27 @@ Theme correction, 11 November 2026: the opening and closing panels previously st
 
 The reference is a craft benchmark, not a substitute for Composer's identity. Reviewed 11 November 2026 at 1440px and 390px in both themes, with 1024/768/600/320px overflow checks. The gallery uses large app captures without horizontal cropping, the hero keeps its editorial bleed without clipping its labels, the film cover uses a separate control bar, and the closing headline holds two lines on phones. The hero uses a bounded, aspect-ratio scene in its own grid column. At 820px and below, it follows the copy in the same grid. The approved orange plate, Paperwork capture and fictional Launch Kit card form an exploded assembly with a one-shot connection pulse when the artwork enters view and gentle pointer tilt. CSS perspective and transforms move the art inside its own frame. Reduced-motion visitors see the resting composition. Keyboard tabs (arrows, Home and End), the launcher, theme persistence, skip-link focus, reduced motion, the Woodhouse builder-context strip and the JavaScript-free gallery were exercised. Issue #7 owns the public experience and #11 owns the release evidence; production identity and live-flow results are recorded there after the clean-main release.
 
+## Slice image treatment — 2026/11/13 AEDT (Australia/Melbourne, UTC+11) / 2026/11/13 UTC
+
+The owner selected [Slice](https://slice-image.dev/) by Luna as a hero reference.
+Use its continuous-image-through-rounded-strips treatment as original frontend
+geometry, with first-party assets. `SlicedImage.astro` renders one approved image
+through twenty rounded SVG strips; it needs neither an image-processing service
+nor a client-side library. Each instance receives its own clip-path ID.
+
+The public homepage applies it to the approved orange-and-white Composer tile,
+behind the existing Paperwork capture and fictional Launch Kit export. The larger
+strip composition replaces the solid orange backing plate. Product screenshots,
+labels, headline and actions remain whole. This is a decorative crop of the
+approved image, not a replacement logo; the header and identity assets retain
+their supplied geometry. The existing finite arrival and pointer movement remain
+optional, and reduced-motion or JavaScript-free browsing shows the resting image.
+The artwork keeps its reserved dimensions and responsive hero column.
+
+Reference boundary: Slice supplied the visual technique. Its demo image, source,
+export controls and hosting are not included. Do not fragment dense interface text
+or adopt the treatment across every product merely for consistency.
+
 ## Approved identity and campaign direction — 22 October 2026
 
 MP approved the orange-and-white merging-block icon as App Composer's canonical identity. The editable vector master is `public/brand/composer-icon-20261022b.svg`; the orange tile, reversed mark and wordmark lockups are derived from it. Use the approved artwork in the header, favicons, Apple touch icon, PWA icons, maskable icon, launcher, extension and generated content sites. Do not restore the rejected assembly-scene crop or the old interlocking-squares mark, and do not reinterpret the mark as a new logo.
