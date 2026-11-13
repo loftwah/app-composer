@@ -25,6 +25,29 @@ Exact checks, failed/negative evidence, source identities and remaining limits a
 A local package-manager change would need its own install/check/build/package
 comparison; no Bun comparison was performed.
 
+## Delivery budget
+
+Measured on this host on 13 November 2026 for the routine release path:
+
+| Stage | Observed |
+| --- | --- |
+| `check:types` (source checks + Astro check, 668 files) | 21s |
+| `lint` + `format:check` | 3s |
+| Retained behavioural suite | 30s |
+| Full `pnpm check` | 46s |
+| `pnpm build` (artifact + publication guard) | 11s |
+| Worker upload | 20–83s |
+| Post-upload source/sharing/privacy/archive gates | ~20s |
+
+A single routine change therefore spends about 90–140s in the release gate,
+leaving the rest of the 3–5 minute budget for the edit and one affected-route
+check. Use `pnpm check:fast -- tests/<area>.test.mjs` while iterating, run the
+full gate once through `pnpm deploy`, and verify only the changed journey.
+Repeated full checks, worktrees and unrelated fixes are separate work, not
+extra release ceremony. `scripts/deploy.mjs` fails in under a second when the
+launcher selected an unsupported Node line, instead of spending 46s in checks
+before reporting it.
+
 ## Checked source and independent distributions
 
 The content model, calendar rules and generated-site application helpers are

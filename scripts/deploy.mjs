@@ -8,6 +8,7 @@ import { resolve, dirname } from "node:path";
 import { query } from "./records.mjs";
 import { assertReceiptCounterSchema } from "../lib/usage/schema.mjs";
 import { execFileSync } from "node:child_process";
+import { isSupportedNode } from "../lib/get-ready/local-checks.mjs";
 import {
   assertProductionEnvironment,
   assertProductionTarget,
@@ -40,6 +41,24 @@ const validatedSecrets = combineDeploymentSecrets(
   validatedEmdashSecrets,
 );
 const run = (args) => execFileSync("git", args, { encoding: "utf8" }).trim();
+// Fail before the 46-second check suite when the launcher selected the wrong
+// Node line. This was the most common release delay: a global shim ran the
+// gate under an older Node even though .node-version named a supported one.
+function assertSelectedRuntime() {
+  if (!isSupportedNode(process.versions.node)) {
+    const manifest = JSON.parse(readFileSync("package.json", "utf8"));
+    throw new Error(
+      `Node ${process.versions.node} is outside the release toolchain ${manifest.engines.node}. Select the .node-version default (or .mise.toml) before rebuilding; no remote action was taken.`,
+    );
+  }
+  const pnpm = /(?:^|\s)pnpm\/(\d+\.\d+\.\d+)/.exec(
+    process.env.npm_config_user_agent ?? "",
+  )?.[1];
+  console.log(
+    `Release runtime: Node ${process.versions.node}${pnpm ? `, pnpm ${pnpm}` : ""}`,
+  );
+}
+assertSelectedRuntime();
 if (run(["status", "--porcelain"]))
   throw new Error("Commit the reviewed source before deploying");
 const sha = run(["rev-parse", "HEAD"]);
