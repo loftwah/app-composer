@@ -75,9 +75,13 @@ if (stage && canvas && consolePanel && staticPanel) {
     }
     if (value) value.textContent = `${snapshot.target}%`;
     if (rangeLabel) rangeLabel.textContent = station.sliderLabel;
-    if (actionLabel) actionLabel.textContent = actionTaken.has(snapshot.station)
-      ? station.actionActive
-      : station.actionIdle;
+    if (actionLabel) {
+      const active =
+        snapshot.station === "draw"
+          ? snapshot.target > 80
+          : actionTaken.has(snapshot.station);
+      actionLabel.textContent = active ? station.actionActive : station.actionIdle;
+    }
     if (instruction) instruction.textContent = station.instruction;
     if (readout) readout.textContent = readoutFor(snapshot);
     if (context) context.textContent = station.context;
