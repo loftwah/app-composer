@@ -169,13 +169,13 @@ const costs = [
     <h3>Bounded rendering</h3>
     <p>Assembly is not "run ffmpeg on whatever the user selected". A composition takes two to six saved clips, each at most 10.5 seconds, 60 seconds in total, plus one saved audio bed. The render is one provider composition, and the result is copied into the studio's own bucket. The same durable job engine drives it, so a closed browser does not lose the render and a failed read does not silently re-render.</p>
     <p>The provider needs to read the participating files, and the studio's media endpoints require the owner session. Rather than making a project public, the server signs one asset for one project with an expiry:</p>
-    <pre><code>// src/lib/render-links.mjs — one asset, one project, thirty minutes
+    <pre><code>{`// src/lib/render-links.mjs — one asset, one project, thirty minutes
 const payload = \`\${assetId}.\${projectId}.\${expires}\`;
 const signature = await hmac(env.SESSION_SECRET, payload);
 const url = new URL(\`/render-input/\${assetId}\`, origin);
 url.searchParams.set("p", projectId);
 url.searchParams.set("e", String(expires));
-url.searchParams.set("s", signature);</code></pre>
+url.searchParams.set("s", signature);`}</code></pre>
     <p>That link lists nothing, grants no session, carries no provider key, and expires on its own. The interface says so before a render starts, because sending your clips to a renderer is a real disclosure even when the link is narrow.</p>
     <p>The assembled frame follows the first keyframe. That single detail is why the 9:16 cut is built by ordering portrait takes first rather than by asking a merge endpoint to re-frame one file — a path that looked reasonable and failed on the first real request, which the next section does not hide.</p>
   </section>
