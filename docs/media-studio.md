@@ -1,8 +1,8 @@
 # Media Studio
 
 Implemented for [#457](https://github.com/loftwah/app-composer/issues/457). An
-independent, MIT image-and-video studio that people select and configure through
-Composer, then own and operate as its own application.
+independent, MIT image, video and sound studio that people select and configure
+through Composer, then own and operate as its own application.
 
 - Source: https://github.com/loftwah/composer-media-studio
 - Live: https://media.loftwah.com
@@ -11,22 +11,31 @@ Composer, then own and operate as its own application.
 
 ## What a person gets
 
-**From Composer:** Init → *Make and organise images and video* → name, creative
-direction, visibility, still/video defaults → saved specification → portable
-export → the chosen agent's handoff. The handoff pins the studio repository and
+**From Composer:** Init → *Media Studio* → name, creative direction, visibility,
+still/video/sound defaults and bed length → saved specification (revision 2;
+revision 1 drafts still validate) → portable export → the chosen agent's
+handoff. The handoff pins the studio repository and
 commit and tells the agent to create an owner-controlled copy with its own D1
 database, R2 bucket, Workers AI binding, secrets, cron and release.
 
-**In the studio:** real uploads (JPEG/PNG/WebP to 32 MB, MP4/WebM to 64 MB),
-project collections, search and filters, an accessible viewer, rename, download,
-delete, creative references, project export and deliberate public pages. These
-work with no model account.
+**In the studio:** real uploads (JPEG/PNG/WebP and WAV/MP3/M4A to 32 MB,
+MP4/WebM to 64 MB), project collections, search and filters, an accessible
+viewer, rename, download, delete, creative references, storyboards, project
+export and deliberate public pages. These work with no model account.
 
-**Generation:** one real still route and one real reference-guided variation
-route on the studio's own Cloudflare Workers AI account, plus one asynchronous
-image-to-video route through the studio's own fal.ai key. Five original recipes
-start the work; every control states whether it maps to a provider field or a
-prompt instruction. Every request shows an estimate and requires confirmation.
+**Generation:** four still routes and one reference-guided variation on the
+studio's own Cloudflare Workers AI account; two image-to-video routes, two sound
+routes (Studio Score 10–30 s, Studio Voice) and one bounded assembly route
+through the studio's own fal.ai key. Five original recipes start the work; every
+control states whether it maps to a provider field or a prompt instruction.
+Every request shows an estimate and requires confirmation.
+
+**Storyboards and assembly:** two to six saved takes (≤10.5 s each, ≤60 s total)
+plus one saved bed. Rendering is one `fal-ai/ffmpeg-api/compose` call over
+30-minute signed single-asset links; the result is copied into the studio's R2.
+Editing a storyboard updates it in place and keeps earlier renders. A 9:16 cut
+composes the same takes portrait-first and refuses clearly when none is
+portrait.
 
 ## Provider truth
 

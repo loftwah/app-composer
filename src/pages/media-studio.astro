@@ -41,7 +41,7 @@ const costs = [
   ['Studio Score, 17 s', 'same route, shorter request', 'US$0.0085', 'Bed that fits the cut'],
   ['Studio Voice, 40 s', 'fal.ai `fal-ai/elevenlabs/tts/eleven-v3`', 'US$0.06', 'Overview narration'],
   ['Studio Voice, 33 s', 'same route', 'US$0.06', 'Second narration'],
-  ['Assembly, 17 s', 'fal.ai `fal-ai/ffmpeg-api/compose`', 'US$0.02 est.', 'Two renders kept'],
+  ['Assembly, two renders', 'fal.ai `fal-ai/ffmpeg-api/compose`', 'US$0.04 est.', '30 s and 17 s masters kept'],
   ['9:16 cut', 'same compose route, portrait first', 'US$0.02 est.', 'Vertical derivative'],
 ];
 ---
@@ -140,7 +140,7 @@ const costs = [
     <p>It starts in Composer, not in a terminal. <a href="/init?start=media-studio">Init → Media Studio</a> asks what the studio should make, which still and video models to start with, the default frame and clip length, and — after this release — the sound model and bed length. Nothing is provisioned by saving the draft. No credit is bought. No model is called.</p>
     <figure class="figure">
       <img src={init} width="1600" height="1000" alt="The Init form's Media Studio section: project name, what the studio should make, still and video model, default frame and clip length, and the saving note." loading="lazy" />
-      <figcaption>The Media Studio section of Init. The saved draft carries defaults, never credentials. The sound fields shown here were added in the change described below; this capture is from the deployed page after that release.</figcaption>
+      <figcaption>The Media Studio section of Init on the live page: what the studio should make, the still and video models, and the sound model and bed length added in this release. A saved draft carries defaults, never credentials.</figcaption>
     </figure>
     <p>The draft becomes a portable specification. The media part is small on purpose — it is a set of validated creative defaults, not a provisioning script:</p>
     <pre><code>{`"mediaStudio": {
