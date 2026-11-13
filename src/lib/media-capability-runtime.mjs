@@ -182,7 +182,14 @@ export async function statusSnapshot(env) {
 
 export async function enableCapability(env, input, by) {
   const current = await readStatus(env);
-  const host = input?.host ? normaliseHost(input.host) : current.host;
+  const configured = hostConfig(env).origin;
+  const host = input?.host
+    ? normaliseHost(input.host)
+    : current.host
+      ? current.host
+      : configured
+        ? normaliseHost(configured)
+        : "";
   if (!host) fail("INVALID_HOST", "Enter the authorised Oyster host address");
   const { origin } = hostConfig(env);
   if (origin && normaliseHost(origin) !== host)
