@@ -2,7 +2,7 @@
   "source": {
     "id": "media-studio",
     "repository": "https://github.com/loftwah/composer-media-studio",
-    "commit": "b6c2444e205184d6e3e866a940ccfdbafbe8e13a",
+    "commit": "c6ee157451a5f28f3ae36e58e2bb17be3ef63fa3",
     "manifestDigest": "sha256:e9e63d4075df1de06cad194af43ab5e2efb75b093779d06ec030e4519458ee8c"
   }
 }

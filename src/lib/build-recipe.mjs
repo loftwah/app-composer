@@ -52,6 +52,8 @@ const apps = {
       "a Workers AI binding named AI on the owner's Cloudflare account for stills",
       "the every-minute cron trigger declared in the app's own Wrangler configuration so asynchronous video jobs finish after the browser closes",
     ],
+    deployNote:
+      "Set app.manifest.json repository to the repository the owner controls and PUBLIC_ORIGIN, the Worker name, route, account and storage identifiers to the owner's targets. The guarded deploy verifies that the manifest matches the git origin and reads the live origin from Wrangler.",
     verify: [
       "/healthz and /build.json report the exact owned commit that was deployed",
       "an uploaded image survives a reload and downloads with matching bytes",
@@ -162,7 +164,7 @@ export function buildRecipe(spec) {
     steps.push({
       actor: "agent",
       title: `Deploy ${app.name}`,
-      detail: `If the release script uses a fixed hostname for source identity or sharing checks, update both checks to use this deployment's own PUBLIC_ORIGIN. Review and push the target and release changes to the owner's main. Record the upstream pin and the new owned commit separately. From the app's repository root run \`pnpm install --frozen-lockfile\` and its guarded \`pnpm deploy\`, which runs the app's checks and build. Record the Worker version and the HTTPS address you actually reached.`,
+      detail: `If the release script uses a fixed hostname for source identity or sharing checks, update both checks to use this deployment's own PUBLIC_ORIGIN. Review and push the target and release changes to the owner's main. Record the upstream pin and the new owned commit separately. From the app's repository root run \`pnpm install --frozen-lockfile\` and its guarded \`pnpm deploy\`, which runs the app's checks and build. Record the Worker version and the HTTPS address you actually reached.${app.deployNote ? " " + app.deployNote : ""}`,
     });
   }
   steps.push({
