@@ -1,8 +1,8 @@
 ---
 import Base from "../layouts/Base.astro";
+import SlicedImage from "./SlicedImage.astro";
 import { ArrowRight, ArrowDown, ArrowUpRight, Play } from "@lucide/astro";
 import { apps } from "../lib/apps";
-import { studioStations } from "../scripts/studio/studio-data.js";
 import instance from "../../config/instance.json";
 import "../styles/product-home.css";
 
@@ -13,6 +13,7 @@ const appById = (id: string) => {
   return app;
 };
 const paperwork = appById("paperwork");
+const studioRoute = "M515 268H551V389Q551 400 540 400H520";
 const selectedApps = [
   {
     app: paperwork,
@@ -44,7 +45,6 @@ const siteSchema = {
   name: "App Composer",
   url: "https://composer.loftwah.com/",
 };
-const defaultStation = studioStations[0];
 ---
 
 <Base
@@ -58,210 +58,85 @@ const defaultStation = studioStations[0];
     set:html={JSON.stringify(siteSchema)}
   />
   <div class="composer-home">
-    <section class="studio-hero" aria-labelledby="home-heading">
-      <div class="studio-stage" data-studio-stage data-state="poster">
-        <div class="studio-backdrop" aria-hidden="true"></div>
-        <picture class="studio-poster studio-poster-dark" data-studio-poster>
-          <source
-            media="(max-width: 900px)"
-            srcset="/brand/studio/studio-poster-mobile-dark-20261113.webp"
-          />
-          <img
-            src="/brand/studio/studio-poster-desktop-dark-20261113.webp"
-            width="1600"
-            height="1000"
-            alt="A midnight-blue illustrated workshop: an orange Paperwork press stamps a cream form, a pencil drawing rises into a paper staircase, and a separate brass evidence lens hangs above the floor."
-            fetchpriority="high"
-            decoding="async"
-          />
-        </picture>
-        <picture class="studio-poster studio-poster-light" data-studio-poster>
-          <source
-            media="(max-width: 900px)"
-            srcset="/brand/studio/studio-poster-mobile-light-20261113.webp"
-          />
-          <img
-            src="/brand/studio/studio-poster-desktop-light-20261113.webp"
-            width="1600"
-            height="1000"
-            alt="A warm, daylight-lit illustrated workshop: an orange Paperwork press stamps a cream form, a pencil drawing rises into a paper staircase, and a separate brass evidence lens hangs above the floor."
-            loading="lazy"
-            decoding="async"
-          />
-        </picture>
-        <canvas
-          class="studio-canvas"
-          data-studio-canvas
-          aria-hidden="true"
-        ></canvas>
-        <div class="studio-vignette" aria-hidden="true"></div>
-        <div class="studio-scene-meta">
-          <p class="studio-status-line">
-            <span class="studio-live-dot" aria-hidden="true"></span>
-            <span data-studio-status>Illustrated workshop</span>
+    <section class="home-hero" aria-labelledby="home-heading">
+      <div class="hero-rule" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <h1 id="home-heading">
+            Make software.
+            <br />{' '}
+            <span>Keep it yours.</span>
+          </h1>
+          <p class="hero-lede">
+            Bring the app you wish existed. Build it with your agent. Keep the
+            source, the data and the freedom to change it.
           </p>
-          <p class="studio-scene-label" data-studio-scene-label>
-            {defaultStation.sceneLabel}
-          </p>
-          <p class="studio-hint">Drag to look · keys 1–3 · P pause</p>
-        </div>
-        <p class="studio-scene-caption" data-studio-caption>
-          {defaultStation.caption}
-        </p>
-      </div>
-
-      <div class="studio-copy">
-        <p class="studio-eyebrow">
-          <span class="studio-kicker-mark" aria-hidden="true">✳</span>
-          The studio that prints itself
-        </p>
-        <h1 id="home-heading">
-          Make something
-          <br />
-          <span>worth keeping.</span>
-        </h1>
-        <p class="studio-lede">
-          App Composer is a studio for building and running apps with your
-          coding agent on Cloudflare. Keep control of the source and the data.
-        </p>
-        <div class="studio-actions">
-          <a class="home-button" href="/ready">
-            Start with Get Ready <ArrowUpRight size={21} aria-hidden="true" />
-          </a>
-          <a class="studio-text-link" href="/apps">
-            Explore the apps <ArrowRight size={18} aria-hidden="true" />
-          </a>
-        </div>
-        <p class="studio-context-line">
-          Two independent apps and Composer reporting in one fictional workshop.
-        </p>
-      </div>
-
-      <div class="studio-deck">
-        <div class="studio-console" data-studio-console hidden>
-          <div class="studio-console-head">
-            <div
-              class="studio-stations"
-              role="group"
-              aria-label="Choose a workshop station"
-            >
-              {studioStations.map((station, index) => (
-                <button
-                  class="studio-station"
-                  type="button"
-                  data-station={station.id}
-                  aria-pressed={index === 0 ? "true" : "false"}
-                  tabindex={index === 0 ? 0 : -1}
-                >
-                  <span class="studio-station-number">{station.number}</span>
-                  <span>{station.name}</span>
-                </button>
-              ))}
-            </div>
-            <button
-              class="studio-pause"
-              type="button"
-              id="studio-pause"
-              data-studio-pause
-              aria-pressed="false"
-            >
-              <span data-studio-pause-label>Pause motion</span>
-              <span aria-hidden="true" class="studio-pause-glyph">Ⅱ</span>
-            </button>
+          <div class="hero-actions">
+            <a class="home-button" href="/ready">
+              Start with Get Ready <ArrowUpRight size={21} aria-hidden="true" />
+            </a>
+            <a class="hero-prompts" href="/prompts">
+              Just give me the prompts{" "}
+              <ArrowRight size={18} aria-hidden="true" />
+            </a>
           </div>
-          <p class="studio-instruction" data-studio-instruction>
-            {defaultStation.instruction}
+          <p class="hero-context">
+            <a href="/creator-hub">
+              See the live Creator Hub <ArrowRight size={16} aria-hidden="true" />
+            </a>
           </p>
-          <div class="studio-console-controls">
-            <div class="studio-slider">
-              <label for="studio-range">
-                <span data-studio-range-label>{defaultStation.sliderLabel}</span>
-                <output id="studio-value" data-studio-value
-                  >{defaultStation.initialProgress}%</output
-                >
-              </label>
-              <input
-                id="studio-range"
-                data-studio-range
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                value={defaultStation.initialProgress}
-                aria-describedby="studio-range-help"
+        </div>
+        <div class="studio-scene" data-studio-scene aria-hidden="true">
+          <span class="studio-visibility-anchor"></span>
+          <div class="studio-assembly">
+            <div class="studio-plate">
+              <SlicedImage
+                id="composer-hero-art"
+                class="studio-slice-image"
+                src="/brand/composer-icon-tile-20261022b.svg"
               />
             </div>
-            <button class="studio-action" type="button" id="studio-action" data-studio-action>
-              <span data-studio-action-label>{defaultStation.actionIdle}</span>
-              <span aria-hidden="true">↓</span>
-            </button>
-          </div>
-          <div class="studio-console-foot">
-            <div>
-              <p class="studio-readout" data-studio-readout>
-                {defaultStation.readout}
-              </p>
-              <p class="studio-context" data-studio-context>
-                {defaultStation.context}
-              </p>
+            <svg
+              class="studio-routing"
+              viewBox="0 0 600 540"
+              preserveAspectRatio="none"
+              fill="none"
+            >
+              <path class="studio-guides" d="M38 126V42H122M480 498H562V416" />
+              <path class="studio-route" d={studioRoute} pathLength="100" />
+              <path class="studio-signal" d={studioRoute} pathLength="100" />
+              <circle class="studio-terminal-ring" cx="520" cy="400" r="9" />
+              <circle class="studio-terminal" cx="520" cy="400" r="4" />
+            </svg>
+            <div class="studio-sheet studio-output">
+              <div class="studio-label">Launch Kit <span>Profile card</span></div>
+              <img
+                src="/launch-kit/cards/river-typography.png"
+                width="1200"
+                height="630"
+                alt=""
+                decoding="async"
+              />
             </div>
-            <nav class="studio-app-links" aria-label="Open the real applications">
-              <a href="/paperwork">Paperwork</a>
-              <a href="/ldraw">LDraw</a>
-              <a href="/activity">Analytics</a>
-              <a class="studio-product-link" data-studio-link href={defaultStation.href}>
-                {defaultStation.linkLabel} <ArrowUpRight size={14} aria-hidden="true" />
-              </a>
-            </nav>
+            <div class="studio-sheet studio-app">
+              <div class="studio-label">Paperwork <span>PDF editor</span></div>
+              <img
+                src={paperwork.preview}
+                width="1440"
+                height="1100"
+                alt=""
+                decoding="async"
+              />
+            </div>
           </div>
-          <p id="studio-range-help" class="sr-only">
-            Use the arrow keys to change the active station's paper feed, drawing
-            lift or lens focus. Press 1, 2 or 3 to move between stations and P to
-            pause ambient motion.
-          </p>
         </div>
-
-        <div class="studio-static" data-studio-static>
-          <div class="studio-static-head">
-            <p>Three jobs, one workshop</p>
-            <span>The illustrated view</span>
-          </div>
-          <ul>
-            {studioStations.map((station) => (
-              <li>
-                <span class="studio-static-number">{station.number}</span>
-                <div>
-                  <h2>{station.name}</h2>
-                  <p>{station.context}</p>
-                </div>
-                <a href={station.href}>
-                  {station.linkLabel} <ArrowUpRight size={15} aria-hidden="true" />
-                </a>
-              </li>
-            ))}
-          </ul>
-          <p class="studio-static-note" data-studio-static-note>
-            The live workshop adds camera movement and three tactile controls.
-            Every link and action above works without it.
-          </p>
+        <div class="hero-bottom">
+          <a href="#make-something">
+            Explore what you can make <ArrowDown size={18} aria-hidden="true" />
+          </a>
+          <span>The Paperwork editor and a fictional Launch Kit export.</span>
         </div>
       </div>
-
-      <a class="studio-scroll" href="#make-something">
-        Scroll to what you can make <ArrowDown size={17} aria-hidden="true" />
-      </a>
-      <p class="sr-only">
-        An interactive illustrated workshop. The Paperwork press stamps a
-        fictional form. LDraw lifts a pencil drawing into paper architecture.
-        A separate evidence lens explores supported, recorded Composer
-        analytics. The three stations are independent: documents and drawings do
-        not feed analytics.
-      </p>
-      <p
-        class="sr-only"
-        aria-live="polite"
-        data-studio-announcement
-      ></p>
     </section>
 
     <section
@@ -727,54 +602,42 @@ const defaultStation = studioStations[0];
 </Base>
 
 <script>
-  // The workshop is a separately loaded visual enhancement. The poster, product
-  // copy and every app link are already in the HTML, so no JavaScript is needed
-  // to understand or use the page.
-  const studioStage = document.querySelector<HTMLElement>("[data-studio-stage]");
-  const studioCanvas = studioStage?.querySelector("canvas");
-  const studioConsole = document.querySelector<HTMLElement>("[data-studio-console]");
-  const studioStatic = document.querySelector<HTMLElement>("[data-studio-static]");
-  const studioStatus = document.querySelector<HTMLElement>("[data-studio-status]");
+  const scene = document.querySelector<HTMLElement>("[data-studio-scene]");
+  const motion = matchMedia(
+    "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)",
+  );
 
-  const showStaticWorkshop = (message: string) => {
-    if (!studioStage) return;
-    studioStage.dataset.state = "static";
-    studioStage.classList.remove("is-ready");
-    studioStage
-      .querySelectorAll<HTMLElement>("[data-studio-poster]")
-      .forEach((poster) => {
-        poster.hidden = false;
-      });
-    if (studioConsole) studioConsole.hidden = true;
-    if (studioStatic) studioStatic.hidden = false;
-    if (studioStatus) {
-      studioStatus.textContent = "Illustrated workshop · static";
-      studioStatus.dataset.tone = "warn";
-    }
-    const note = document.querySelector<HTMLElement>(
-      "[data-studio-static-note]",
+  const anchor = scene?.querySelector(".studio-visibility-anchor");
+  if (
+    scene &&
+    anchor &&
+    "IntersectionObserver" in window &&
+    !matchMedia("(prefers-reduced-motion: reduce)").matches
+  ) {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        scene.classList.add("is-connected");
+        observer.disconnect();
+      },
+      { rootMargin: "0px 0px -24px" },
     );
-    if (note) note.textContent = message;
-  };
-
-  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } })
-    .connection?.saveData;
-  if (studioStage && studioCanvas) {
-    if (saveData) {
-      showStaticWorkshop("Illustrated workshop · Save-Data");
-    } else {
-      const startStudio = () =>
-        import("../scripts/studio/studio-hero.js").catch((error) => {
-          console.warn("Studio module unavailable:", error?.message ?? error);
-          showStaticWorkshop("Illustrated workshop · live view unavailable");
-        });
-      if ("requestIdleCallback" in window) {
-        window.requestIdleCallback(startStudio, { timeout: 900 });
-      } else {
-        globalThis.setTimeout(startStudio, 220);
-      }
-    }
+    observer.observe(anchor);
   }
+
+  scene?.addEventListener("pointermove", (event) => {
+    if (!motion.matches || event.pointerType !== "mouse") return;
+
+    const { left, top, width, height } = scene.getBoundingClientRect();
+    const x = (event.clientX - left) / width - 0.5;
+    const y = (event.clientY - top) / height - 0.5;
+    scene.style.setProperty("--studio-pitch", `${-y * 9}deg`);
+    scene.style.setProperty("--studio-yaw", `${x * 12}deg`);
+  });
+  scene?.addEventListener("pointerleave", () => {
+    scene.style.removeProperty("--studio-pitch");
+    scene.style.removeProperty("--studio-yaw");
+  });
 
   // Without JavaScript these remain ordinary links and all screens are readable.
   for (const gallery of document.querySelectorAll<HTMLElement>(

@@ -26,38 +26,6 @@ Theme correction, 11 November 2026: the opening and closing panels previously st
 
 The reference is a craft benchmark, not a substitute for Composer's identity. Reviewed 11 November 2026 at 1440px and 390px in both themes, with 1024/768/600/320px overflow checks. The gallery uses large app captures without horizontal cropping, the hero keeps its editorial bleed without clipping its labels, the film cover uses a separate control bar, and the closing headline holds two lines on phones. The hero uses a bounded, aspect-ratio scene in its own grid column. At 820px and below, it follows the copy in the same grid. The approved orange plate, Paperwork capture and fictional Launch Kit card form an exploded assembly with a one-shot connection pulse when the artwork enters view and gentle pointer tilt. CSS perspective and transforms move the art inside its own frame. Reduced-motion visitors see the resting composition. Keyboard tabs (arrows, Home and End), the launcher, theme persistence, skip-link focus, reduced motion, the Woodhouse builder-context strip and the JavaScript-free gallery were exercised. Issue #7 owns the public experience and #11 owns the release evidence; production identity and live-flow results are recorded there after the clean-main release.
 
-## The studio that prints itself — 13 November 2026
-
-MP asked for the homepage hero to become an ambitious, explorable browser
-experience, using the supplied concept and Three.js blockout as a starting point
-rather than finished art. The result is one authored 3D workshop: a Paperwork
-press stamps a fictional form and slides it out, an LDraw pencil line rises into
-paper architecture, and a separate evidence lens makes Composer analytics
-explorable. The camera moves through the same room; this is not a carousel of
-screenshots or floating panels. The earlier sliced-artwork hero and the
-`codex/studio-hero-motion-20261113` blockout are superseded by this direction.
-
-The approved orange-and-white Composer mark, Space typography, ink/paper
-palette, ordinary Paperwork/LDraw/analytics links and the Get Ready action remain.
-The world uses Three.js 0.187.0's mature WebGL2 renderer, authored geometry,
-canvas-generated print textures and a depth-contour finishing pass; no universal
-WebGPU support or measured frame rate is claimed. Dark and light themes re-light
-the same workshop and swap the floor; the copy and poster remain live HTML.
-
-The opening is never required to reach an app. A transparent poster of the same
-scene, a server-rendered three-station static panel, ordinary links and the same
-Get Ready action cover no-JavaScript, Save-Data, module and GPU failures. The
-live console supports native buttons, a range input, keyboard shortcuts (`1`–`3`,
-`P`, Escape) and a labelled pause. Reduced motion uses static states and disables
-ambient motion and camera easing. Rendering stops offscreen or hidden; DPR and
-draw rate are capped; phone quality can step down and disable cast shadows while
-contact shadows remain. Fictional form/drawing state is explicit. Analytics is a
-separate instrument and PDFs, signatures or drawings never feed it; no invented
-live counts are shown.
-
-Details, poster provenance and the checked width/theme/interaction set live in
-[studio-hero.md](studio-hero.md).
-
 ## Slice image treatment — 2026/11/13 AEDT (Australia/Melbourne, UTC+11) / 2026/11/13 UTC
 
 The owner selected [Slice](https://slice-image.dev/) by Luna as a hero reference.
