@@ -52,9 +52,9 @@ export function hostConfig(env) {
   };
 }
 
-/** One MCP session per call: initialize, then tools/call. The host keeps no
- * client state that this plugin needs between requests. */
-export async function oysterExecute(env, code, { timeoutMs = 180_000, fetcher } = {}) {
+/** One MCP session: initialize once, then any number of bounded calls. A new
+ * session per chunk trips the host's session rate limit, so imports reuse one. */
+export async function openSession(env, { timeoutMs = 180_000, fetcher } = {}) {
   const { origin, key } = hostConfig(env);
   if (!origin || !key)
     fail(
@@ -70,24 +70,33 @@ export async function oysterExecute(env, code, { timeoutMs = 180_000, fetcher } 
     "mcp-protocol-version": "2025-11-25",
   };
   const signal = AbortSignal.timeout(timeoutMs);
-  const init = await call(origin + "/mcp", {
-    method: "POST",
-    headers,
-    signal,
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: 1,
-      method: "initialize",
-      params: {
-        protocolVersion: "2025-11-25",
-        capabilities: {},
-        clientInfo: { name: "composer-media", version: "1.0.0" },
-      },
-    }),
-  });
-  if (!init.ok) fail("HOST_UNAVAILABLE", "The Oyster host refused the connection (" + init.status + ")", 502);
-  const session = init.headers.get("mcp-session-id");
-  readJsonRpcReply(await init.text(), 1);
+  let session = null;
+  for (let attempt = 0; ; attempt += 1) {
+    const init = await call(origin + "/mcp", {
+      method: "POST",
+      headers,
+      signal,
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "initialize",
+        params: {
+          protocolVersion: "2025-11-25",
+          capabilities: {},
+          clientInfo: { name: "composer-media", version: "1.0.0" },
+        },
+      }),
+    });
+    if ((init.status === 429 || init.status >= 500) && attempt < 4) {
+      await new Promise((done) => setTimeout(done, 1000 * 2 ** attempt));
+      continue;
+    }
+    if (!init.ok)
+      fail("HOST_UNAVAILABLE", "The Oyster host refused the connection (" + init.status + ")", 502);
+    session = init.headers.get("mcp-session-id");
+    readJsonRpcReply(await init.text(), 1);
+    break;
+  }
   const callHeaders = session ? { ...headers, "mcp-session-id": session } : headers;
   await call(origin + "/mcp", {
     method: "POST",
@@ -95,27 +104,40 @@ export async function oysterExecute(env, code, { timeoutMs = 180_000, fetcher } 
     signal,
     body: JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" }),
   }).catch(() => {});
-  let response;
-  for (let attempt = 0; ; attempt += 1) {
-    response = await call(origin + "/mcp", {
-      method: "POST",
-      headers: callHeaders,
-      signal,
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 2,
-        method: "tools/call",
-        params: { name: "execute", arguments: { code } },
-      }),
-    });
-    if (response.status !== 429 && response.status < 500) break;
-    if (attempt >= 4) break;
-    await new Promise((done) => setTimeout(done, 1000 * 2 ** attempt));
-  }
-  const text = await response.text();
-  if (!response.ok) fail("HOST_UNAVAILABLE", "The Oyster host returned " + response.status, 502);
-  const result = readJsonRpcReply(text, 2);
-  return readExecuteReply(result);
+  let nextId = 2;
+  return {
+    async execute(code) {
+      const id = nextId;
+      nextId += 1;
+      let response;
+      for (let attempt = 0; ; attempt += 1) {
+        response = await call(origin + "/mcp", {
+          method: "POST",
+          headers: callHeaders,
+          signal,
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id,
+            method: "tools/call",
+            params: { name: "execute", arguments: { code } },
+          }),
+        });
+        if (response.status !== 429 && response.status < 500) break;
+        if (attempt >= 4) break;
+        await new Promise((done) => setTimeout(done, 1000 * 2 ** attempt));
+      }
+      const text = await response.text();
+      if (!response.ok)
+        fail("HOST_UNAVAILABLE", "The Oyster host returned " + response.status, 502);
+      return readExecuteReply(readJsonRpcReply(text, id));
+    },
+  };
+}
+
+/** One bounded call on its own session. */
+export async function oysterExecute(env, code, options) {
+  const session = await openSession(env, options);
+  return session.execute(code);
 }
 
 async function readModels(env) {
@@ -372,6 +394,7 @@ async function openOutput(env, printId, path, maxBytes = 16 * 1024 * 1024) {
   const chunks = [];
   let offset = 0;
   let done = false;
+  const session = await openSession(env);
   for (let round = 0; round < 40 && !done; round += 1) {
     // One 128 KiB slice per sandbox call: a large result is a sequence of
     // bounded reads, not a session storm the host has to rate-limit.
@@ -391,7 +414,7 @@ async function openOutput(env, printId, path, maxBytes = 16 * 1024 * 1024) {
       "}",
       "return { parts, done };",
     ].join("\n");
-    const reply = await oysterExecute(env, code);
+    const reply = await session.execute(code);
     const refusal = readRefusal(reply.payload);
     if (refusal) fail("OUTPUT_REFUSED", refusal.message, 502);
     const page = reply.payload;
@@ -409,7 +432,6 @@ async function openOutput(env, printId, path, maxBytes = 16 * 1024 * 1024) {
     if (offset > maxBytes)
       fail("OUTPUT_TOO_LARGE", "The result is larger than this import allows", 413);
     done = page.done === true;
-    if (!done) await new Promise((settle) => setTimeout(settle, 200));
   }
   const total = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
   const merged = new Uint8Array(total);
