@@ -24,6 +24,40 @@ and follow-up-change work from the recorded delivery evidence below.
 adoption. This documentation alignment records desired behaviour; it does not
 complete either issue's runtime, newcomer or demonstration acceptance.
 
+## The studio that prints itself — 13 November 2026
+
+The homepage hero is now one continuous illustrated workshop. A Paperwork press
+stamps a fictional form and slides it onto an output tray; an LDraw pencil line
+lifts into paper architecture; a separate evidence lens makes Composer analytics
+explorable. The camera moves through the same room, the Composer mark and Get
+Ready action remain live HTML, and the ordinary Paperwork, LDraw and analytics
+links stay available. The earlier sliced-artwork opening and the
+`codex/studio-hero-motion-20261113` blockout are superseded.
+
+- **Live source.** Production `https://composer.loftwah.com/` serves Composer
+  `d1220b547f5a7c5541655bfc97e494ae50fa094c`, Worker
+  `5d6d84ac-b7ec-4ca8-9642-5f921ac82165`, from clean pushed `main`. The first
+  release `5ad7a67` / Worker `b63031de-7015-4cc9-a382-abe184213f99` was followed
+  by PR [#464](https://github.com/loftwah/app-composer/pull/464), which fixed the
+  light-phone vignette after live inspection. The hero implementation landed in
+  PR [#463](https://github.com/loftwah/app-composer/pull/463).
+- **Checks.** `pnpm check` passed 644 tests (including four focused studio-state
+  tests), Astro type checking, lint and format; `pnpm build` and the publication
+  guard passed. Live checks covered the three interactions, repeated stamps,
+  draw raise/flatten, lens ring cycling, theme switching, desktop at 1440 and
+  phone at 390, no horizontal overflow, and the static poster/panel fallback.
+  Module and WebGL failure, pause, reduced motion, keyboard paths and offscreen
+  stop/resume were exercised in the source preview.
+- **Release cost.** The coherent release command took 96.8s; full check ~24s and
+  build ~5s. This is a large visual/runtime change rather than a routine
+  three-minute edit.
+- **Remaining limits.** Physical iOS/Android acceptance and measured phone frame
+  rate remain separate gates. WebGL2 is required for the live world; the
+  transparent poster and three-station static panel are the supported fallback.
+  The scene is fictional: PDFs, signatures and drawings never feed analytics and
+  no invented live counts are shown. See
+  [studio-hero.md](studio-hero.md) for the implementation and provenance.
+
 ## Media Studio — 13 November 2026
 
 Composer now offers **Media Studio — make and organise images and video** in the
