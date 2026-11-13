@@ -407,7 +407,7 @@ async function openOutput(env, printId, path, maxBytes = 16 * 1024 * 1024) {
         JSON.stringify(printId) +
         ", byteOffset: offset, byteLength: 131072 });",
       "  if (part && part.error) return part;",
-      "  const size = atob(part.content).length;",
+      "  const size = String(part.content || '').length ? atob(part.content).length : 0;",
       "  parts.push({ offset, size, content: part.content });",
       "  offset += size;",
       "  if (part.truncated !== true) { done = true; break; }",
@@ -421,8 +421,9 @@ async function openOutput(env, printId, path, maxBytes = 16 * 1024 * 1024) {
     if (!page || !Array.isArray(page.parts) || !page.parts.length)
       fail("OUTPUT_UNREADABLE", "The host returned no output bytes", 502);
     for (const part of page.parts) {
-      if (typeof part.content !== "string" || !part.content)
-        fail("OUTPUT_UNREADABLE", "The host returned empty output bytes", 502);
+      if (typeof part.content !== "string")
+        fail("OUTPUT_UNREADABLE", "The host returned unreadable output bytes", 502);
+      if (!part.content) continue;
       const binary = atob(part.content);
       const bytes = new Uint8Array(binary.length);
       for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
