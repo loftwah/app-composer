@@ -36,7 +36,8 @@ prompt instruction. Every request shows an estimate and requires confirmation.
 | Cinematic still | Workers AI `@cf/leonardo/phoenix-1.0` | Verified live |
 | Photographic draft | Workers AI `@cf/bytedance/stable-diffusion-xl-lightning` | Verified live |
 | Reference variation | Workers AI `@cf/black-forest-labs/flux-2-klein-4b` | Verified live |
-| Image-to-video | fal.ai Hailuo 2.3 Standard / Kling 2.5 Turbo Pro | Adapter tested; live call blocked on the fal account balance at delivery |
+| Image-to-video | fal.ai Hailuo 2.3 Standard | Verified live: 5.875 s, 768 × 960, 589,717 bytes, saved in studio R2 |
+| Image-to-video | fal.ai Kling 2.5 Turbo Pro | Verified live: 5.04 s, 1288 × 1608, 13,450,699 bytes, saved in studio R2 |
 
 Model identifiers are server-owned and revalidated on every request. The studio
 does not advertise Higgsfield's reference count, duration or resolution claims.
@@ -87,17 +88,22 @@ repository.
 - Composer: focused media-studio spec tests (source pin, defaults round trip,
   fail-closed settings, old-spec compatibility, recommendation switching,
   handoff/build plan) plus the existing suite.
-- Live still and reference-variation generations were saved into owned storage
-  and are visible at https://media.loftwah.com.
-- Published page: https://media.loftwah.com/p/JYCl_dWcb2yqya6h
+- Live still, reference-variation and image-to-video generations were saved into
+  owned storage and are visible at https://media.loftwah.com.
+- Published pages: https://media.loftwah.com/p/JYCl_dWcb2yqya6h (still) and
+  https://media.loftwah.com/p/LpATM63K8aXYVmL4 (video with poster).
+- Launch Kit consumed the studio still and produced a 1200 × 630 profile card.
+- Showcase lists **The wheel, in motion** as a published card linking to the
+  studio page.
 
 Exact commits, Worker versions, screenshots and remaining gates are recorded in
 [#457](https://github.com/loftwah/app-composer/issues/457) and [#11](https://github.com/loftwah/app-composer/issues/11).
 
 ## Remaining gates
 
-- A real image-to-video clip requires the studio's fal account to hold credit.
-  The adapter and UI are built; this gate is funding, not missing code.
+- Both asynchronous image-to-video routes were verified (Hailuo 2.3 Standard and
+  Kling 2.5 Turbo Pro). A provider balance is still required for any paid
+  generation; the studio reports a funding refusal honestly.
 - Optional Oyster/Prints interoperability remains [#422](https://github.com/loftwah/app-composer/issues/422),
   not a prerequisite for this native studio.
 - Physical-device capture and social unfurl caches remain separate from the
