@@ -95,17 +95,23 @@ export async function oysterExecute(env, code, { timeoutMs = 180_000, fetcher } 
     signal,
     body: JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" }),
   }).catch(() => {});
-  const response = await call(origin + "/mcp", {
-    method: "POST",
-    headers: callHeaders,
-    signal,
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: 2,
-      method: "tools/call",
-      params: { name: "execute", arguments: { code } },
-    }),
-  });
+  let response;
+  for (let attempt = 0; ; attempt += 1) {
+    response = await call(origin + "/mcp", {
+      method: "POST",
+      headers: callHeaders,
+      signal,
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 2,
+        method: "tools/call",
+        params: { name: "execute", arguments: { code } },
+      }),
+    });
+    if (response.status !== 429 && response.status < 500) break;
+    if (attempt >= 4) break;
+    await new Promise((done) => setTimeout(done, 1000 * 2 ** attempt));
+  }
   const text = await response.text();
   if (!response.ok) fail("HOST_UNAVAILABLE", "The Oyster host returned " + response.status, 502);
   const result = readJsonRpcReply(text, 2);
@@ -365,26 +371,44 @@ export async function reconcileJob(env, id) {
 async function openOutput(env, printId, path, maxBytes = 16 * 1024 * 1024) {
   const chunks = [];
   let offset = 0;
-  for (let attempt = 0; attempt < 200; attempt += 1) {
-    const code =
-      "return await env.PRINTS.openOutput(" +
-      JSON.stringify({ printId, byteOffset: offset, byteLength: 128 * 1024 }) +
-      ");";
+  let done = false;
+  for (let round = 0; round < 40 && !done; round += 1) {
+    // Four reads per sandbox call: imports are not a session storm, and each
+    // read is one 128 KiB slice of the same retained output.
+    const code = [
+      "const parts = [];",
+      "let offset = " + offset + ";",
+      "let done = false;",
+      "for (let index = 0; index < 4; index += 1) {",
+      "  const part = await env.PRINTS.openOutput({ printId: " +
+        JSON.stringify(printId) +
+        ", byteOffset: offset, byteLength: 131072 });",
+      "  if (part && part.error) return part;",
+      "  const size = atob(part.content).length;",
+      "  parts.push({ offset, size, content: part.content });",
+      "  offset += size;",
+      "  if (part.truncated !== true) { done = true; break; }",
+      "}",
+      "return { parts, done };",
+    ].join("\n");
     const reply = await oysterExecute(env, code);
     const refusal = readRefusal(reply.payload);
     if (refusal) fail("OUTPUT_REFUSED", refusal.message, 502);
-    const record = reply.payload;
-    if (!record || typeof record !== "object")
+    const page = reply.payload;
+    if (!page || !Array.isArray(page.parts) || !page.parts.length)
       fail("OUTPUT_UNREADABLE", "The host returned no output bytes", 502);
-    const content = typeof record.content === "string" ? record.content : "";
-    if (!content) fail("OUTPUT_UNREADABLE", "The host returned empty output bytes", 502);
-    const binary = atob(content);
-    const bytes = new Uint8Array(binary.length);
-    for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
-    chunks.push(bytes);
-    offset += bytes.length;
-    if (offset > maxBytes) fail("OUTPUT_TOO_LARGE", "The result is larger than this import allows", 413);
-    if (!record.truncated) break;
+    for (const part of page.parts) {
+      if (typeof part.content !== "string" || !part.content)
+        fail("OUTPUT_UNREADABLE", "The host returned empty output bytes", 502);
+      const binary = atob(part.content);
+      const bytes = new Uint8Array(binary.length);
+      for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+      chunks.push(bytes);
+      offset = Number(part.offset) + bytes.length;
+    }
+    if (offset > maxBytes)
+      fail("OUTPUT_TOO_LARGE", "The result is larger than this import allows", 413);
+    done = page.done === true;
   }
   const total = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
   const merged = new Uint8Array(total);
