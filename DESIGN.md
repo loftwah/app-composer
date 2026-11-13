@@ -35,17 +35,21 @@ through twenty rounded SVG strips; it needs neither an image-processing service
 nor a client-side library. Each instance receives its own clip-path ID.
 
 The public homepage applies it to the approved orange-and-white Composer tile,
-behind the existing Paperwork capture and fictional Launch Kit export. The larger
-strip composition replaces the solid orange backing plate. Product screenshots,
-labels, headline and actions remain whole. This is a decorative crop of the
-approved image, not a replacement logo; the header and identity assets retain
-their supplied geometry. The existing finite arrival and pointer movement remain
-optional, and reduced-motion or JavaScript-free browsing shows the resting image.
-The artwork keeps its reserved dimensions and responsive hero column.
+behind the existing Paperwork capture and fictional Launch Kit export. Twenty
+equal strips, each with a fully rounded end, sit on a bounded plate: near-ink on
+the dark hero and the brand's deep orange (`#a03406`) on paper, so the gaps read
+as cut seams and the white mark keeps its contrast in both themes. Product
+screenshots, labels, headline and actions remain whole. This is a decorative crop
+of the approved image, not a replacement logo; the header and identity assets
+retain their supplied geometry. The existing finite arrival and pointer movement
+remain optional, and reduced-motion or JavaScript-free browsing shows the resting
+image. The artwork keeps its reserved dimensions and responsive hero column.
 
 Reference boundary: Slice supplied the visual technique. Its demo image, source,
 export controls and hosting are not included. Do not fragment dense interface text
-or adopt the treatment across every product merely for consistency.
+or adopt the treatment across every product merely for consistency. The reviewed
+composition is recorded at 1440, 390 and 320 px in both themes; it has no
+horizontal overflow and the screenshots are unchanged behind the strips.
 
 ## Approved identity and campaign direction — 22 October 2026
 
