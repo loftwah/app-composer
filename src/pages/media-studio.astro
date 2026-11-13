@@ -352,7 +352,10 @@ url.searchParams.set("s", signature);`}</code></pre>
 </article>
 
 <style>
-  .art{max-width:1180px;margin:0 auto;padding:24px 24px 96px}
+  /* The article's short token names fell through to dark-theme fallbacks, which
+     left captions and hairlines nearly invisible in light mode. Bind them to the
+     real theme tokens so both themes read the same way. */
+  .art{--accent:var(--color-accent,#ff5a1f);--muted:var(--color-muted,#b9b2a8);--line:var(--color-border,rgba(255,255,255,.16));max-width:1180px;margin:0 auto;padding:24px 24px 96px}
   .kicker{font:600 11px/1.4 ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--accent,#ff5a1f);margin:0 0 12px}
   .art-hero{display:block;padding:16px 0 34px;border-bottom:0;align-items:initial;justify-content:initial;gap:0}
   .art-hero-copy{max-width:74ch}
@@ -376,10 +379,19 @@ url.searchParams.set("s", signature);`}</code></pre>
   .prose p{margin:0 0 18px}
   .prose ul,.prose ol{padding-left:22px;margin:0 0 20px}
   .prose li{margin-bottom:8px}
-  .figure{margin:28px 0 32px;width:min(1040px,100vw - 48px);max-width:none;margin-left:50%;transform:translateX(-50%)}
-  .figure.narrow{max-width:760px;margin-left:auto;margin-right:auto}
-  .figure.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:none}
-  .figure.pair img{height:100%;object-fit:cover}
+  /* Wide captures break out of the measure and centre on the article. The
+     breakout is opt-out below: a leftover transform on a variant that sets its
+     own margins shifts the whole figure half its width sideways. */
+  .figure{margin:28px 0 32px;width:min(1040px,calc(100vw - 48px));max-width:none;margin-left:50%;transform:translateX(-50%)}
+  .figure.narrow{width:auto;max-width:760px;margin-left:auto;margin-right:auto;transform:none}
+  .figure.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px 22px;max-width:none}
+  /* Both captures keep their real aspect ratio, so they stay readable and the
+     same region is comparable. Cropping them into one shared height hides the
+     very evidence the before/after is showing; the captions share a baseline
+     instead. */
+  .figure.pair>div{display:flex;flex-direction:column}
+  .figure.pair img{height:auto;object-fit:contain}
+  .figure.pair figcaption{margin-top:auto;padding-top:10px}
   .table-wrap{overflow-x:auto;margin:24px 0 30px}
   table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:560px}
   caption{text-align:left;font-size:.78rem;color:var(--muted,#b9b2a8);padding-bottom:10px}
