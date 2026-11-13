@@ -40,7 +40,7 @@ export const GET: APIRoute = async ({ params }) => {
   headers.set("Content-Type", file.type);
   headers.set("Cache-Control", file.type.startsWith("video/") ? "public, max-age=86400" : "public, max-age=3600");
   headers.set("Content-Length", String(object.size));
-  headers.set("Accept-Ranges", "none");
+  headers.set("Accept-Ranges", "bytes");
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("etag", object.httpEtag);
   return new Response(object.body, { status: 200, headers });
