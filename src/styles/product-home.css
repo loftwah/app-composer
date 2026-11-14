@@ -1780,7 +1780,7 @@
   grid-area: 1 / 1;
   align-self: start;
   z-index: 5;
-  margin: clamp(148px, 18.5svh, 206px) 0 48px max(28px, calc((100% - 1440px) / 2));
+  margin: clamp(126px, 15svh, 172px) 0 28px max(28px, calc((100% - 1440px) / 2));
   width: min(520px, 36vw);
   container-type: inline-size;
 }
@@ -1852,6 +1852,39 @@
   font-size: 0.7rem;
   letter-spacing: 0.015em;
   line-height: 1.55;
+}
+
+.composer-home .studio-proof-print {
+  display: grid;
+  grid-template-columns: 104px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 19px;
+  padding: 5px 12px 5px 5px;
+  border: 1px solid var(--home-hero-rule);
+  background: var(--home-hero-bg);
+  color: var(--home-hero-fg);
+}
+.composer-home .studio-proof-print img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.composer-home .studio-proof-label {
+  display: grid;
+  gap: 3px;
+  font-size: 0.77rem;
+  line-height: 1.35;
+}
+.composer-home .studio-proof-label > span {
+  color: var(--home-hero-muted);
+  font-size: 0.7rem;
+}
+.composer-home .studio-proof-print > svg,
+.composer-home .studio-proof-print:hover strong {
+  color: var(--home-hero-accent);
 }
 
 .composer-home .studio-deck {
