@@ -297,7 +297,9 @@ export default function People() {
             <p>
               A profile starts with Create. Add Maintain, Publish and Export
               separately to make those actions available when it is created.
-              Guestbook permissions apply to one existing visitor book.
+              Guestbook permissions apply to one existing visitor book. Media
+              Studio read, edit, generate, publish and admin are separate; the
+              studio re-checks the current grant before a privileged action.
             </p>
             <form onSubmit={addGrant} className="member-form">
               <label>
@@ -325,15 +327,24 @@ export default function People() {
                     onChange={(e) => {
                       setApp(e.target.value);
                       setResource(
-                        e.target.value === "showcase" ? "new-profile" : "",
+                        e.target.value === "showcase"
+                          ? "new-profile"
+                          : e.target.value === "media-studio"
+                            ? "studio-installation"
+                            : "",
                       );
                       setCapability(
-                        e.target.value === "showcase" ? "create" : "contribute",
+                        e.target.value === "showcase"
+                          ? "create"
+                          : e.target.value === "media-studio"
+                            ? "read"
+                            : "contribute",
                       );
                     }}
                   >
                     <option value="showcase">Linkarooie profile</option>
                     <option value="guestbook">Here / there Guestbook</option>
+                    <option value="media-studio">Media Studio installation</option>
                   </select>
                 </label>
                 <label>
@@ -345,7 +356,9 @@ export default function People() {
                   >
                     {(app === "showcase"
                       ? ["create", "maintain", "publish", "export"]
-                      : ["contribute", "moderate"]
+                      : app === "media-studio"
+                        ? ["read", "edit", "generate", "publish", "admin"]
+                        : ["contribute", "moderate"]
                     ).map((c) => (
                       <option key={c} value={c}>
                         {c[0]!.toUpperCase() + c.slice(1)}
@@ -357,7 +370,9 @@ export default function People() {
               <label>
                 {app === "showcase"
                   ? "Profile resource (new-profile before creation)"
-                  : "Existing visitor-book resource"}
+                  : app === "media-studio"
+                    ? "Studio installation"
+                    : "Existing visitor-book resource"}
                 <select
                   required
                   value={resource}
@@ -365,7 +380,11 @@ export default function People() {
                   onChange={(e) => setResource(e.target.value)}
                 >
                   <option value="">Choose a resource</option>
-                  {app === "showcase" ? (
+                  {app === "media-studio" ? (
+                    <option value="studio-installation">
+                      This workspace's Media Studio installation
+                    </option>
+                  ) : app === "showcase" ? (
                     <>
                       <option value="new-profile">
                         Their personal profile · before creation
@@ -416,7 +435,11 @@ export default function People() {
                       <strong>
                         {data.members.find((m) => m.id === g.member)?.name ??
                           "Member"}{" "}
-                        · {g.app === "showcase" ? "Linkarooie" : "Guestbook"}
+                        · {g.app === "showcase"
+                          ? "Linkarooie"
+                          : g.app === "media-studio"
+                            ? "Media Studio"
+                            : "Guestbook"}
                       </strong>
                       <p>
                         {g.action} ·{" "}
@@ -424,9 +447,11 @@ export default function People() {
                           ? g.resource === "new-profile"
                             ? "Personal profile before creation"
                             : "Their personal profile"
-                          : (data.resources.find(
-                              (book) => book.id === g.resource,
-                            )?.name ?? "Selected visitor book")}
+                          : g.app === "media-studio"
+                            ? "Studio installation"
+                            : (data.resources.find(
+                                (book) => book.id === g.resource,
+                              )?.name ?? "Selected visitor book")}
                         {g.status === "revoked" ? " · revoked" : ""}
                       </p>
                     </div>

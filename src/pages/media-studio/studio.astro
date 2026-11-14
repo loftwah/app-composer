@@ -1,0 +1,194 @@
+---
+import Base from "../../layouts/Base.astro";
+import type { D1Database } from "@cloudflare/workers-types";
+import { env } from "cloudflare:workers";
+import { studioAccess } from "../../lib/member-access";
+
+export const prerender = false;
+
+const runtime = env as unknown as {
+  DB?: D1Database;
+  MEDIA_STUDIO_BRIDGE_SECRET?: string;
+  MEDIA_STUDIO_ORIGIN?: string;
+};
+const user = Astro.locals.user;
+const project = Astro.url.searchParams.get("project");
+
+function base64url(value: string) {
+  return btoa(value).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+}
+
+async function bridgeToken(secret: string, claim: Record<string, unknown>) {
+  const payload = base64url(JSON.stringify(claim));
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(payload),
+  );
+  const hex = Array.from(new Uint8Array(signature))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+  return payload + "." + hex;
+}
+
+let state: "signed-out" | "no-workspace" | "denied" | "unconfigured" | "open" =
+  "signed-out";
+let workspaceName = "";
+let actions: string[] = [];
+
+if (user && runtime.DB) {
+  const workspace = await runtime.DB.prepare(
+    `SELECT w.id,w.name,m.role FROM creator_members m
+     JOIN creator_workspaces w ON w.id=m.workspace_id
+     WHERE m.user_id=?
+     ORDER BY CASE WHEN m.role='owner' THEN 0 ELSE 1 END, w.created_at, w.id
+     LIMIT 1`,
+  )
+    .bind(user.id)
+    .first<{ id: string; name: string; role: string }>();
+  if (!workspace) state = "no-workspace";
+  else {
+    const access = await studioAccess(
+      runtime.DB,
+      { id: user.id, email: user.email ?? "", name: user.name ?? null, role: 20 },
+      workspace.id,
+    );
+    workspaceName = workspace.name;
+    actions = access.actions;
+    if (!actions.includes("read")) state = "denied";
+    else if (!runtime.MEDIA_STUDIO_BRIDGE_SECRET || !runtime.MEDIA_STUDIO_ORIGIN) {
+      state = "unconfigured";
+    } else {
+      const token = await bridgeToken(runtime.MEDIA_STUDIO_BRIDGE_SECRET, {
+        aud: "media-studio",
+        iss: "https://composer.loftwah.com",
+        sub: user.id,
+        actorName: user.name ?? user.email ?? "Composer member",
+        workspace: workspace.id,
+        workspaceName: workspace.name,
+        project: project && /^[a-z0-9_]{4,64}$/.test(project) ? project : null,
+        actions,
+        revision: access.revision,
+        exp: Date.now() + 120_000,
+        jti: crypto.randomUUID(),
+      });
+      const target = new URL("/bridge", runtime.MEDIA_STUDIO_ORIGIN);
+      target.searchParams.set("token", token);
+      return Astro.redirect(target.href, 302);
+    }
+  }
+}
+---
+
+<Base
+  title="Open your Media Studio"
+  description="Open the Media Studio installation attached to your App Composer workspace, or read how it was built."
+  noindex={true}
+  canonical="https://composer.loftwah.com/media-studio/studio"
+>
+  <main class="studio-entry" id="main">
+    <p class="kicker">App Composer · Media Studio</p>
+    <h1>Your studio, on its own Cloudflare account.</h1>
+    <p class="lede">
+      Media Studio keeps its own source, projects, media and releases. App Composer supplies the
+      installation entry, the current actor and the selected workspace permissions; the studio
+      still runs after Composer is detached.
+    </p>
+
+    <div class="entry-actions">
+      <a class="button" href="/media-studio">Read the story</a>
+      <a class="button secondary" href="/init?start=media-studio">Build your studio</a>
+      {state === "signed-out" && (
+        <a class="button" href="/_emdash/admin/login?redirect=/media-studio/studio">Sign in to open yours</a>
+      )}
+    </div>
+
+    {state === "signed-out" && (
+      <section class="entry-card" aria-labelledby="entry-signed-out">
+        <h2 id="entry-signed-out">Public reading needs no account</h2>
+        <p>
+          The article, tutorial, films and published pieces are public. Opening the private work
+          surface needs the existing Composer sign-in and a workspace with Media Studio access.
+        </p>
+        <p class="small">
+          <a href="/media-studio">Read the build article</a> ·
+          <a href="/media-studio/tutorial">Follow the tutorial</a> ·
+          <a href="/discover">See what else is supported</a>
+        </p>
+      </section>
+    )}
+
+    {state === "no-workspace" && (
+      <section class="entry-card" aria-labelledby="entry-no-workspace">
+        <h2 id="entry-no-workspace">No workspace yet</h2>
+        <p>
+          You are signed in, but this account is not in a Composer workspace. Join or create one
+          first; a workspace owner can then grant Media Studio access.
+        </p>
+        <a class="button secondary" href="/me">Open My apps</a>
+      </section>
+    )}
+
+    {state === "denied" && (
+      <section class="entry-card" aria-labelledby="entry-denied">
+        <h2 id="entry-denied">No Media Studio permission in {workspaceName}</h2>
+        <p>
+          Being signed in is not the same as being granted the studio. Ask the workspace owner to
+          grant the exact actions you need in <a href="/people">People &amp; access</a>. Read,
+          edit, generate, publish and admin are separate.
+        </p>
+        <p class="small">
+          Your public options stay available: <a href="/media-studio">the story</a>,
+          <a href="/media-studio/tutorial">the tutorial</a>, and
+          <a href="/init?start=media-studio">building your own</a>.
+        </p>
+      </section>
+    )}
+
+    {state === "unconfigured" && (
+      <section class="entry-card" aria-labelledby="entry-unconfigured">
+        <h2 id="entry-unconfigured">This installation is not connected yet</h2>
+        <p>
+          The workspace grants are present, but this Composer deployment has no
+          <code>MEDIA_STUDIO_ORIGIN</code> or <code>MEDIA_STUDIO_BRIDGE_SECRET</code>. The studio
+          itself can still be opened directly in standalone mode.
+        </p>
+        <p class="small">
+          Operator detail: set both values in the Composer environment, then reopen this page.
+          No password or provider key belongs in the browser.
+        </p>
+      </section>
+    )}
+
+    <section class="entry-boundary" aria-labelledby="entry-boundary">
+      <h2 id="entry-boundary">What carries across</h2>
+      <ul>
+        <li><strong>Current actor and workspace.</strong> The handoff names the signed-in account and one workspace.</li>
+        <li><strong>Only current actions.</strong> Read, edit, generate, publish and admin are separate grants. A privileged action re-checks them on the server.</li>
+        <li><strong>No shared cookies or provider keys.</strong> The studio keeps its own session and its own provider credentials.</li>
+        <li><strong>Independent ownership.</strong> Projects, media, D1 and R2 remain in the studio's Cloudflare account and can be used standalone.</li>
+      </ul>
+    </section>
+  </main>
+
+  <style>
+    .studio-entry { max-width: 900px; margin: 0 auto; padding: 48px 24px 96px; }
+    .kicker { font: 600 11px/1.4 ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; color: var(--color-accent); margin: 0 0 14px; }
+    .studio-entry h1 { font: 600 clamp(2.4rem, 5vw, 4rem)/1.02 "Space Grotesk", system-ui, sans-serif; letter-spacing: -.04em; max-width: 18ch; margin: 0 0 18px; }
+    .lede { font-size: 1.15rem; line-height: 1.6; color: var(--color-muted); max-width: 65ch; }
+    .entry-actions { display: flex; flex-wrap: wrap; gap: 14px; margin: 28px 0 34px; }
+    .entry-card, .entry-boundary { border-top: 1px solid var(--color-border); padding: 24px 0; max-width: 70ch; }
+    .entry-card h2, .entry-boundary h2 { font: 600 1.4rem/1.2 "Space Grotesk", system-ui, sans-serif; margin: 0 0 12px; }
+    .entry-card p, .entry-boundary li { line-height: 1.65; }
+    .entry-boundary ul { padding-left: 22px; }
+    .entry-boundary li { margin-bottom: 10px; }
+    :focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+  </style>
+</Base>

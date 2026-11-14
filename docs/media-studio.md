@@ -23,20 +23,31 @@ MP4/WebM to 64 MB), project collections, search and filters, an accessible
 viewer, rename, download, delete, creative references, storyboards, project
 export and deliberate public pages. These work with no model account.
 
-**Generation:** four still routes and one reference-guided variation on the
-studio's own Cloudflare Workers AI account; two image-to-video routes, two sound
-routes (Studio Score 10–30 s, Studio Voice) and one bounded assembly route
-through the studio's own fal.ai key. Five original recipes start the work; every
-control states whether it maps to a provider field or a prompt instruction.
-Every request shows an estimate and requires confirmation.
+**Generation and edits:** four still routes and one reference-guided variation
+on the studio's own Cloudflare Workers AI account; masked fill and 25% outpaint
+through FLUX.1 Fill; BiRefNet background removal and 2× Clarity upscale; two
+image-to-video routes; Studio Score (10–30 s), Studio Voice and Studio Effect;
+a browser mix with trim/gain/fades; and one bounded assembly route through the
+studio's own fal.ai key. Every request shows an estimate and requires
+confirmation. Originals, masks and results stay as separate assets with hashes
+and parent links.
 
 **Storyboards and assembly:** two to six saved takes (≤10.5 s each, ≤60 s total)
-plus one saved bed. Rendering is one `fal-ai/ffmpeg-api/compose` call over
-30-minute signed single-asset links; the result is copied into the studio's R2.
-Editing a storyboard updates it in place and keeps earlier renders. The portrait
-cut composes the same takes portrait-first and refuses clearly when none is
-portrait. It is **not** a 9:16 export: the delivered frame is 4:5, and the
-orientation sort overrides the selected shot order. Both are open defects.
+plus up to four saved music/voice/effect tracks. A browser mix with trim, gain
+and fades becomes a new WAV; the source tracks stay in the manifest. Rendering
+is one `fal-ai/ffmpeg-api/compose` call over 30-minute signed single-asset
+links; the result is copied into the studio's R2. Editing a storyboard updates
+it in place and keeps earlier renders. The 9:16 path keeps the selected order:
+a deterministic 1080×1920 slate, one generated 720×1280 vertical slate video
+retained and reused, then a compose of the selected takes and sound.
+
+**Current provider block:** new fal `ffmpeg-api/compose` jobs are accepted and
+reported complete, but their result route returns 403 for the payload that
+worked earlier. The in-product assembly and 9:16 controls are coded and
+unit-tested but cannot produce a new master today. The article's 9:16
+derivative was finished deterministically with local ffmpeg from the same saved
+takes, sound and slate: 720×1280, SAR 1:1, DAR 9:16, 17.79 s. Published media,
+downloads and render inputs support byte ranges.
 
 ## Provider truth
 
@@ -48,6 +59,11 @@ orientation sort overrides the selected shot order. Both are open defects.
 | Reference variation | Workers AI `@cf/black-forest-labs/flux-2-klein-4b` | Verified live |
 | Image-to-video | fal.ai Hailuo 2.3 Standard | Verified live: 5.875 s, 768 × 960, 589,717 bytes, saved in studio R2 |
 | Image-to-video | fal.ai Kling 2.5 Turbo Pro | Verified live: 5.04 s, 1288 × 1608, 13,450,699 bytes, saved in studio R2 |
+| Masked fill | fal.ai `fal-ai/flux-pro/v1/fill` | Verified live: 1280×704 variant, original + mask retained |
+| Background removal | fal.ai `fal-ai/birefnet/v2` | Verified live: 1024×1024 transparent PNG |
+| Upscale | fal.ai `fal-ai/clarity-upscaler` | Verified live: 2048×2048 PNG |
+| Sound effect | fal.ai `fal-ai/elevenlabs/sound-effects/v2` | Verified live: 5.04 s, 44.1 kHz stereo |
+| Assembly / in-product 9:16 | fal.ai `fal-ai/ffmpeg-api/compose` | Blocked: new jobs return 403 at the result route; earlier masters retained |
 
 Model identifiers are server-owned and revalidated on every request. The studio
 does not advertise Higgsfield's reference count, duration or resolution claims.

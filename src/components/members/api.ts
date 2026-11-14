@@ -10,7 +10,7 @@ const workspace = z.object({
 export const grant = z.object({
   id: z.string().max(128),
   workspace: z.string().max(64),
-  app: z.enum(["showcase", "guestbook"]),
+  app: z.enum(["showcase", "guestbook", "media-studio"]),
   resource: z.string().max(128),
   action: z.enum([
     "create",
@@ -19,6 +19,10 @@ export const grant = z.object({
     "export",
     "contribute",
     "moderate",
+    "read",
+    "edit",
+    "generate",
+    "admin",
   ]),
   revision: z.number().int().positive(),
   status: z.enum(["active", "revoked"]).optional(),

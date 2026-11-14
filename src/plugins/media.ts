@@ -1,3 +1,4 @@
+import type { D1Database } from "@cloudflare/workers-types";
 import { env } from "cloudflare:workers";
 import { definePlugin, PluginRouteError } from "emdash";
 import {
@@ -5,6 +6,7 @@ import {
   mediaActions,
 } from "../lib/media-capability.mjs";
 import { runAction, statusSnapshot } from "../lib/media-capability-runtime.mjs";
+import { studioAccess } from "../lib/member-access.ts";
 
 type Context = {
   user?: { id: string; role: number };
@@ -68,14 +70,7 @@ function base64url(value: string) {
   return btoa(value).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
 }
 
-async function bridgeToken(secret: string) {
-  const claim = {
-    aud: "media-studio",
-    sub: "owner",
-    // The studio compares against milliseconds. Mint in the same unit so a
-    // correct handoff is never rejected as expired.
-    exp: Date.now() + 120_000,
-  };
+async function bridgeToken(secret: string, claim: Record<string, unknown>) {
   const payload = base64url(JSON.stringify(claim));
   const key = await crypto.subtle.importKey(
     "raw",
@@ -91,23 +86,58 @@ async function bridgeToken(secret: string) {
   return payload + "." + hex;
 }
 
-/** An owner-only handoff: this route sits behind the existing EmDash session
- * and Cloudflare Access, then redirects into the studio's own origin. */
+/** An authorised handoff from the current EmDash administrator.
+ *
+ * The claim names the actor, workspace, selected project and current action
+ * set. It is deliberately not a generic owner cookie: the studio re-checks
+ * these grants with Composer before every privileged dispatch. */
 export async function studioHandoff(ctx: Context) {
-  actor(ctx);
+  const by = actor(ctx);
   const runtime = env as unknown as {
+    DB?: D1Database;
     MEDIA_STUDIO_BRIDGE_SECRET?: string;
     MEDIA_STUDIO_ORIGIN?: string;
   };
   const secret = runtime.MEDIA_STUDIO_BRIDGE_SECRET;
   const origin = runtime.MEDIA_STUDIO_ORIGIN;
-  if (!secret || !origin)
+  if (!secret || !origin || !runtime.DB)
     throw new PluginRouteError(
       "SETUP_REQUIRED",
       "The studio handoff is not configured on this deployment.",
       503,
     );
-  const token = await bridgeToken(secret);
+  const workspace = await runtime.DB.prepare(
+    `SELECT w.id,w.name FROM creator_members m JOIN creator_workspaces w ON w.id=m.workspace_id
+     WHERE m.user_id=? ORDER BY CASE WHEN m.role='owner' THEN 0 ELSE 1 END, w.created_at, w.id LIMIT 1`,
+  )
+    .bind(by)
+    .first<{ id: string; name: string }>();
+  if (!workspace)
+    throw new PluginRouteError("FORBIDDEN", "This account has no Composer workspace.", 403);
+  const access = await studioAccess(
+    runtime.DB,
+    { id: by, email: "", name: ctx.user?.id ?? null, role: 50 },
+    workspace.id,
+  );
+  if (!access.actions.includes("read"))
+    throw new PluginRouteError(
+      "FORBIDDEN",
+      "This account does not have current Media Studio access.",
+      403,
+    );
+  const token = await bridgeToken(secret, {
+    aud: "media-studio",
+    iss: "https://composer.loftwah.com",
+    sub: by,
+    actorName: ctx.user?.id ?? "Composer admin",
+    workspace: workspace.id,
+    workspaceName: workspace.name,
+    project: null,
+    actions: access.actions,
+    revision: access.revision,
+    exp: Date.now() + 120_000,
+    jti: crypto.randomUUID(),
+  });
   const target = new URL("/bridge", origin);
   target.searchParams.set("token", token);
   return new Response(null, {

@@ -91,8 +91,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
           <li>Create a fal.ai account and add credit. Video, sound and assembly all bill there.</li>
           <li>Start a supported agent (for example a coding agent with terminal access) in an empty project directory and connect it to Composer's Get Ready.</li>
         </ul>
-        <p>Then say this to your agent:</p>
-        <pre><code>{promptAgent}</code></pre>
+        <p>Ask the agent to check the environment first; do not hand it the build brief yet:</p>
+        <pre><code>Check this machine and my connected accounts with App Composer's Get Ready. Do not create or deploy anything yet. Tell me what is missing, then wait while I handle sign-in or billing.</code></pre>
+        <p>The saved brief and pinned source arrive in chapter 05, after you have chosen them in Init. Sending them before they exist is the ordering mistake this tutorial previously made.</p>
         <p>The consent boundary is simple: you approve account creation, sign-in and spend. The agent handles repositories, configuration, migrations, tests and deployment. It must never print a secret; it writes secrets directly to the provider.</p>
       </div>
       <aside class="check">
@@ -166,6 +167,8 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <div class="cols">
       <div>
         <p>Save the draft, download the specification, and copy the agent handoff. The handoff pins the studio repository and commit, names the storage and secret bindings, states the build plan and separates the human-only actions from the technical ones.</p>
+        <p>Now give the saved brief to the supported agent:</p>
+        <pre><code>{promptAgent}</code></pre>
         <p>Keep the draft. Exporting does not publish anything, and importing a different specification later does not overwrite your saved draft until you choose to save it.</p>
       </div>
       <aside class="check">
@@ -215,8 +218,8 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <h2>No second password</h2>
     <div class="cols">
       <div>
-        <p>Open the studio from the Composer menu. Composer's existing EmDash session mints a short-lived handoff and the studio exchanges it for its own owner session. The browser holds neither the studio passphrase nor any provider key.</p>
-        <p>Signing in is not the same as being granted a resource: the studio's private APIs check the owner session on the server. A signed-out request to a private route returns 401, not a hidden menu item.</p>
+        <p>Open the studio from the Composer menu or the <a href="/media-studio/studio">Open your studio</a> entry. Composer's existing EmDash session mints a short-lived handoff naming the current actor, workspace, selected project and only the granted actions. The studio exchanges it for its own short-lived, project-scoped session. The browser holds neither the studio passphrase nor any provider key.</p>
+        <p>Signing in is not the same as being granted a resource. Read, edit, generate, publish and admin are separate. The studio re-checks the current Composer grant on the server before a privileged action, so revoking a member stops the next dispatch even if their tab is still open. A signed-out request to a private route returns 401; a signed-in account without the grant gets a clear denied page, not a hidden menu item.</p>
         <p>Standalone use still exists behind the owner passphrase, because the studio is an ordinary independent app. It is simply not the way you arrive from Composer.</p>
       </div>
       <aside class="check">
@@ -245,8 +248,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
         <p>Upload something first. An image, a clip and a piece of sound all land in the same project with real dimensions, duration and hashes. Then, in <strong>Create</strong>:</p>
         <ol>
           <li>Pick a still model and a frame. Read the estimate before you confirm.</li>
+          <li>For a real edit, choose <strong>Masked fill</strong>, paint the area to change, save the mask, then send the fill. <strong>Remove background</strong> and <strong>Upscale ×2</strong> are separate variants; the original stays.</li>
           <li>To animate, choose a saved still and one motion instruction. Video is asynchronous: you can close the browser.</li>
-          <li>For sound, choose <strong>Make sound</strong>, pick Studio Score or Studio Voice, write the direction and choose a length.</li>
+          <li>For sound, choose <strong>Make sound</strong>, pick Studio Score, Studio Voice or Studio Effect, write the direction and choose a length.</li>
         </ol>
         <pre><code>{promptSound}</code></pre>
         <p>The finished sound is saved as audio, not attached to a video: duration, sample rate, channels and provenance are recorded, and the waveform is drawn from the decoded file.</p>
@@ -280,7 +284,8 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <h2>The cut is the product</h2>
     <div class="cols">
       <div>
-        <p>Open <strong>Assemble</strong>. Add two to six saved takes in order, choose one bed, and save the storyboard. Rendering is one bounded provider composition; the result is copied into your own storage. The portrait cut composes the same takes portrait-first — it currently produces a 4:5 frame and overrides your shot order, so treat a true 9:16 export as unfinished.</p>
+        <p>Open <strong>Assemble</strong>. Add two to six saved takes in order, add up to four saved music, narration or effect tracks, set trim, gain and fades, and mix the soundtrack. The browser renders the mix deterministically to a new WAV; the separate tracks stay as lineage. Save the storyboard; a render copies the manifest into the job and keeps earlier renders attached.</p>
+        <p>The 9:16 control opens with a deterministic 1080×1920 slate, generates a 720×1280 vertical slate video once, retains it, then composes the selected takes in their chosen order after it. The current fal account refuses the result of new compose jobs with 403, so the button cannot produce a new master today. The article's 9:16 derivative was finished with local ffmpeg from the same saved takes and sound; do not call the blocked button fixed.</p>
         <p>Publication is a separate, deliberate act. Four controls do four different things:</p>
         <ul>
           <li><strong>Publish / unpublish</strong> — a public page exists or is withdrawn. Withdrawal stops new visits; it cannot recall a download already taken.</li>
@@ -293,8 +298,8 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
         <h3>What you should see</h3>
         <p>An assembled MP4 with its dimensions, real duration and take count; a public page that loads signed out; private routes that still return 401.</p>
         <h3>Recover</h3>
-        <p><strong>A render that ends in "result unavailable":</strong> reconcile the job. It re-reads the same provider result; it does not dispatch a new one.</p>
-        <p><strong>The portrait cut refused:</strong> the storyboard has no portrait take. Add one, or accept the wide cut.</p>
+        <p><strong>A render that ends in "result unavailable":</strong> reconcile the job. It re-reads the same provider result; it does not dispatch a new one. If the provider returns 403, stop and record the external block; do not create a new request id.</p>
+        <p><strong>The 9:16 control refuses:</strong> the storyboard has no saved slate image, or the saved slate video is missing. The studio will not stretch a 4:5 master.</p>
       </aside>
     </div>
     <figure class="figure">
