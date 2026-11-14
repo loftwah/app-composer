@@ -223,10 +223,10 @@ export function ResourceInventory({ search }: { search: string }) {
         <div>
           <h1>App resources</h1>
           <p>
-            Every app resource Composer recorded for this workspace, the saved
-            stack that uses it, the settings Composer expects and the last
-            app-confirmed operation. Read-only, and separate from the public
-            Resources library.
+            See the app resources Composer has recorded for this workspace,
+            which saved stacks use them, and their last confirmed settings and
+            actions. This read-only screen is separate from the public Resources
+            library.
           </p>
         </div>
         <button
@@ -271,13 +271,14 @@ export function ResourceInventory({ search }: { search: string }) {
                 </dd>
               </dl>
               <p className="ri-muted">
-                The service binding and owner key are{" "}
+                The app service connection and owner key reference are{" "}
                 {snapshot.installation.bindingAvailable ? "present" : "missing"}{" "}
                 and{" "}
                 {snapshot.installation.credentialPresent
                   ? "present"
                   : "missing"}{" "}
-                by reference only. This screen makes no app request.
+                respectively. Their presence does not verify that they work.
+                This inventory makes no app request.
               </p>
             </details>
           </>
@@ -294,11 +295,11 @@ export function ResourceInventory({ search }: { search: string }) {
         {busy ? "Reading this workspace’s recorded resources…" : ""}
       </p>
       <p className="ri-boundary">
-        This view never creates, changes, tags or retires a Cloudflare resource,
-        and it sends no app request. Provider tags are shown as unverified
-        unless a verified snapshot was recorded; tags are not ownership, access
-        or billing authority. The Cloudflare dashboard and API remain the
-        authority for provider state.
+        The saved inventory does not create, change, tag or retire Cloudflare
+        resources, and it sends no app request. Provider tags remain unverified
+        unless a verified snapshot was recorded. Tags do not establish
+        ownership, access or billing. Check the Cloudflare dashboard or API for
+        provider state.
       </p>
       <ProviderCheckPanel
         check={provider}
@@ -314,17 +315,16 @@ export function ResourceInventory({ search }: { search: string }) {
       {snapshot && snapshot.atLimit && (
         <p className="ri-muted" role="note">
           Showing the {snapshot.resources.length} most recently recorded
-          resources. Older records stay in Creator stacks; this screen is
-          bounded on purpose.
+          resources. Older records remain in Creator stacks.
         </p>
       )}
       {snapshot && snapshot.resources.length === 0 && (
         <section className="ri-empty" aria-labelledby="ri-empty-title">
           <h2 id="ri-empty-title">No app resources recorded yet</h2>
           <p>
-            A resource appears here after you apply an owned Guestbook instance
-            in Creator stacks. Nothing has been created, and this page is not
-            showing provider inventory it has not read.
+            A resource appears here after you apply an owned Guestbook in
+            Creator stacks. This list contains only Composer records; the
+            Cloudflare check is separate.
           </p>
           <a
             href={
@@ -348,9 +348,9 @@ export function ResourceInventory({ search }: { search: string }) {
           <div>
             <h2 id="ri-example-title">Fictional walkthrough</h2>
             <p>
-              A deterministic local example for the drift, unknown, stale and
-              unbound states. It is not this workspace and it is not a
-              Cloudflare read.
+              Explore an example of mismatched, unknown, old and unbound
+              records. The data is fictional; it is not from this workspace or
+              Cloudflare.
             </p>
           </div>
           <label className="ri-check">
@@ -532,7 +532,7 @@ export function ResourceCard({
           ))}
         </ul>
       )}
-      <h3>Current and expected configuration</h3>
+      <h3>Confirmed and saved settings</h3>
       {resource.expected.basis === "saved-draft" && resource.expected.values ? (
         resource.differences.length > 0 ? (
           <div
@@ -669,8 +669,8 @@ export function ResourceCard({
         </ul>
       )}
       <p className="ri-muted">
-        This card states Composer’s records and the settings it would expect. It
-        does not read the Cloudflare account, app content or billing.
+        This card compares Composer’s saved records and expected settings. It
+        does not read your Cloudflare account, app content or billing.
       </p>
     </section>
   );
