@@ -18,7 +18,7 @@ const nextJob = discoveryJobs[(discoveryJobs.findIndex((entry) => entry.id === j
       <p class="job-outcome">{job.outcome}</p>
       <div class="job-actions"><a class="button" href={job.action.href}>{job.action.label}<ArrowRight size={18} aria-hidden="true" /></a></div>
       <details class="job-context">
-        <summary>Who usually does this, and what it needs</summary>
+        <summary>Who this is for and what you need</summary>
         <p>{job.roleNote} Related role {relatedRoles.length === 1 ? 'page' : 'pages'}: {relatedRoles.map((role, index) => <><a href={'/for/' + role.id}>{role.label}</a>{index < relatedRoles.length - 1 ? ' · ' : ''}</>)}.</p>
         <p>{job.support}</p>
         <DeviceSupport support={appDeviceSupport(job.app)} compact />

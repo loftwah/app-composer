@@ -42,7 +42,7 @@ export const discoveryRoles: DiscoveryRole[] = [
   },
   {
     id: 'small-business', label: 'Small business', title: 'App Composer for small business owners',
-    headline: 'Publish the page. Keep up with the work.',
+    headline: 'Publish a page and manage enquiries.',
     description: 'Start with a useful public page and decide which enquiries belong in your private owner workspace. Keep the content and the follow-up together.',
     app: 'guestbook',
     example: { title: 'A published site you can open', description: 'Fictional Trail Notes is a published stack made in the native editor. The owner walkthrough explains the separately protected enquiry Inbox.', href: '/s/fictional-trail-notes', image: '/guides/app-admin-20261022-trail-desktop.png', alt: 'Actual published Fictional Trail Notes stack with its saved Here / there instances and Open actions.', captured: '2026-10-22', origin: 'https://composer.loftwah.com/s/fictional-trail-notes' },
@@ -58,7 +58,7 @@ export const discoveryRoles: DiscoveryRole[] = [
   },
   {
     id: 'developer', label: 'Developer / AI builder', title: 'App Composer for developers and AI builders',
-    headline: 'Take the next idea all the way to a working app.',
+    headline: 'Take your idea to a working app.',
     description: 'Inspect the project, give your agent a complete brief and verify the result. Keep the source, your existing stack and the route back into the work.',
     app: 'hello',
     example: { title: 'Hello World, running independently', description: 'Open the maintained HTTPS starter, inspect its source, then use Get Ready for your own authorised environment.', href: 'https://ready.loftwah.com', ...capture('hello') },
@@ -183,7 +183,7 @@ export const discoveryJobs: DiscoveryJob[] = [
   {
     id: 'enquiries', label: 'Collect private enquiries',
     title: 'Collect private enquiries from your website',
-    headline: 'Take an enquiry without publishing it.',
+    headline: 'Collect enquiries privately.',
     outcome: 'Put a short form on a public page, then review what visitors send in a private owner workspace. Keep the public page and the follow-up separate.',
     description: 'Add a private enquiry form to a published page, review briefs in an owner-only workspace and keep visitor contact details out of public view.',
     app: 'guestbook',
@@ -228,7 +228,7 @@ export const discoveryJobs: DiscoveryJob[] = [
   {
     id: 'diagram', label: 'Draw an editable diagram',
     title: 'Draw an editable diagram',
-    headline: 'Draw a diagram you can edit later.',
+    headline: 'Draw an editable diagram.',
     outcome: 'Sketch the system, workflow or idea in a real editor. Keep an editable file for the next change, then export SVG or PNG for the page.',
     description: 'Draw and save editable diagrams in the browser, start from a named block library and export PNG or SVG with the working LDraw editor.',
     app: 'ldraw',
@@ -271,7 +271,7 @@ export const discoveryJobs: DiscoveryJob[] = [
   {
     id: 'inspect', label: 'Check a website before sharing',
     title: 'Check a website before you share it',
-    headline: 'Check the link before you share it.',
+    headline: 'Inspect a link before sharing it.',
     outcome: 'Inspect a public page’s icons, share image, metadata and headings. Get a list of findings you can act on before the link goes out.',
     description: 'Inspect favicons, social images, metadata, headings and image descriptions on a public page, then export the findings with Link Check.',
     app: 'linkcheck',

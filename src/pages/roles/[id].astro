@@ -45,7 +45,7 @@ const description = pack
           <ul>{pack.stops.map((stop) => <li>{stop}</li>)}</ul>
         </div>
         <div>
-          <h2>Never does</h2>
+          <h2>Actions to avoid</h2>
           <ul>{pack.prohibited.map((item) => <li>{item}</li>)}</ul>
         </div>
         <div class="pack-owner">
@@ -81,7 +81,7 @@ const description = pack
           </section>
 
           <section aria-labelledby="output-title">
-            <h2 id="output-title">Returns this</h2>
+            <h2 id="output-title">What it returns</h2>
             <dl class="pack-output">{pack.output.map((field) => <div><dt>{field.name}</dt><dd>{field.detail}</dd></div>)}</dl>
           </section>
 
