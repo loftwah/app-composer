@@ -149,7 +149,7 @@ export async function manageConnections(ctx: Context, runtime: Runtime) {
       checkOutcome: "not-checked",
       source: null,
       expiresAt: null,
-      note: "Reference availability is metadata, not a verified credential or grant. Check an owned resource to prove only the supported read capability.",
+      note: "A key reference alone does not show whether it is valid or what it can access. Check an owned visitor book to verify the supported read.",
       dependencies: appDependencies,
     };
     if (!guestbook.bindingAvailable || !guestbook.credentialPresent)
@@ -246,7 +246,7 @@ export async function manageConnections(ctx: Context, runtime: Runtime) {
           guestbook.verifiedCapabilities = ["read-owned-resource"];
           guestbook.source = appSettings.guestbook.source.commit;
           guestbook.note =
-            "The maintained adapter verified the exact app source, account/environment and authenticated read of one owned resource. Writes, other resources, provider grants and credential expiry were not verified.";
+            "The check verified the app source, account and environment, then read one owned resource. It did not verify writes, other resources, provider permissions or key expiry.";
         } catch {
           guestbook.checkOutcome = statuses.some(
             (code) => code === 401 || code === 403,
@@ -266,12 +266,12 @@ export async function manageConnections(ctx: Context, runtime: Runtime) {
               : "unknown";
           guestbook.note =
             guestbook.checkOutcome === "denied"
-              ? "The app denied a required read. Credential validity remains unverified; review its scope. No write was attempted."
+              ? "The app denied the read. Check the key’s permissions; its validity is still unverified. No write was attempted."
               : guestbook.checkOutcome === "rate-limited"
-                ? "The app rate-limited the read. Its credential is not verified; wait before another deliberate check."
+                ? "The app asked us to slow down. The key is not verified; wait before checking again."
                 : guestbook.checkOutcome === "unavailable"
-                  ? "The app read was unavailable or interrupted. Credential validity remains unknown; no automatic retry was made."
-                  : "The app source, account, environment or resource response did not match the maintained contract. Review the connection before using it.";
+                  ? "The read was unavailable or interrupted. We do not know whether the key is valid, and no automatic retry was made."
+                  : "The app source, account, environment or resource response did not match what this connection expects. Review the connection before using it.";
         }
       }
     }
@@ -299,7 +299,7 @@ export async function manageConnections(ctx: Context, runtime: Runtime) {
       checkOutcome: "not-checked",
       source: null,
       expiresAt: null,
-      note: "Only key-reference presence is shown. Sender/recipient policy, provider account, granted permissions, acceptance and delivery are not checked. This page never sends a test message. Use the scoped Inbox to inspect its actual configuration and outcomes.",
+      note: "This shows only whether a key reference is present. It does not check sender or recipient settings, the provider account, permissions or email delivery. This page never sends a test message. Open the Inbox to inspect its settings and results.",
       dependencies: mailDependencies,
     };
     const role = await membership(db, workspace.id, user.id);

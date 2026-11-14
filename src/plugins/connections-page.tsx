@@ -11,9 +11,9 @@ import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
 import "./connections-page.css";
 
 const labels = {
-  "not-configured": "Reference missing",
+  "not-configured": "Setup incomplete",
   "metadata-only": "Not verified",
-  "read-verified": "Owned-resource read verified",
+  "read-verified": "One visitor book read verified",
   "needs-attention": "Needs attention",
   unknown: "Check outcome unknown",
 };
@@ -153,7 +153,7 @@ export function Connections({ search }: { search: string }) {
         <div>
           <h1>Connections</h1>
           <p>
-            Check the supported connection and see what was actually verified.
+            See which connections are set up and check the supported visitor-book read.
           </p>
         </div>
         <button
@@ -162,12 +162,12 @@ export function Connections({ search }: { search: string }) {
           disabled={busy || invalid.current}
           onClick={() => void load()}
         >
-          {busy ? "Reading…" : "Refresh metadata"}
+          {busy ? "Reading…" : "Refresh details"}
         </button>
       </header>
       {!snapshot && !error && (
         <p className="cn-status" role="status">
-          Reading this workspace’s supported connections…
+          Loading this workspace’s connections…
         </p>
       )}
       {error && (
@@ -191,7 +191,7 @@ export function Connections({ search }: { search: string }) {
                 disabled={busy}
                 onClick={() => void load(true)}
               >
-                {busy ? "Checking…" : "Check an owned visitor-book read"}
+                {busy ? "Checking…" : "Check visitor book access"}
               </button>
             )}
           </div>
@@ -202,13 +202,13 @@ export function Connections({ search }: { search: string }) {
             <code>{snapshot.installation.account}</code>
           </p>
           <details className="cn-context-detail">
-            <summary>Metadata time</summary>
+            <summary>When were these details read?</summary>
             <p>
-              Metadata read{" "}
+              Details read{" "}
               {new Date(snapshot.metadataReadAt).toLocaleString("en-AU", {
                 timeZone: "UTC",
               })}{" "}
-              UTC. This is not a provider health check.
+              UTC. This does not check the provider’s health.
             </p>
           </details>
           <p className="cn-status" role="status">
@@ -217,9 +217,9 @@ export function Connections({ search }: { search: string }) {
         </section>
       )}
       <p className="cn-boundary">
-        Hosting manages these references. This screen does not accept or reveal
-        key values, change access, rotate credentials or disconnect a provider.
-        Expiry and full provider permissions are unknown.
+        Your hosting setup manages these connections. This screen cannot show or
+        change keys, change access, rotate credentials or disconnect a provider.
+        It does not know when a key expires or all the permissions it has.
       </p>
       {snapshot?.encryptionCheckAvailable && (
         <section
@@ -230,15 +230,14 @@ export function Connections({ search }: { search: string }) {
             <h2 id="connection-encryption-title">Encrypted settings storage</h2>
             <strong>
               {encryption?.state === "verified"
-                ? "Native round trip verified"
+                ? "Test setting saved and read"
                 : "Not verified"}
             </strong>
           </div>
           <p>
-            Check that this installation can encrypt and read a temporary
-            synthetic setting through native EmDash, then clear its unchanged
-            test value. Provider credentials, permissions and delivery are
-            separate checks.
+            This checks whether EmDash can encrypt and read a temporary test
+            setting. It then removes the test value if it has not changed. It
+            does not check provider credentials, permissions or delivery.
           </p>
           <button
             type="button"
@@ -269,7 +268,7 @@ export function Connections({ search }: { search: string }) {
         <>
           <h2 className="cn-records-title">Connection detail</h2>
           <p className="cn-muted">
-            What each reference is, what was checked and what remains unknown.
+            See what is set up, what was checked and what is still unknown.
           </p>
           {snapshot.connections.map((connection) => (
             <section
@@ -306,7 +305,7 @@ export function Connections({ search }: { search: string }) {
                 <dt>Verified capability</dt>
                 <dd>
                   {connection.verifiedCapabilities.length
-                    ? "Read one owned resource at its exact reviewed source"
+                    ? "Read one owned resource from the reviewed app source"
                     : "None verified by this view"}
                 </dd>
                 <dt>Last read check</dt>
@@ -332,8 +331,8 @@ export function Connections({ search }: { search: string }) {
                 </ul>
                 {!connection.dependencies.available ? (
                   <p>
-                    Saved dependencies could not be read. Unavailable is not an
-                    empty dependency list.
+                    We could not read the saved dependencies, so we cannot say what
+                    uses this connection yet.
                   </p>
                 ) : connection.dependencies.items.length ? (
                   <ul>
@@ -367,11 +366,11 @@ export function Connections({ search }: { search: string }) {
       <section className="cn-manage">
         <h2>Set up, replace or disconnect</h2>
         <p>
-          Use this project’s hosting-managed secret and service bindings through
-          its existing guarded release path. Review dependencies first, validate
-          the replacement against the intended account/environment, then check
-          the consumer again. Removing a Composer reference and revoking a
-          provider credential are separate operations.
+          Use the project’s guarded release process to change its hosting secrets
+          or service connections. First review what uses the connection. Check
+          any replacement against the intended account and environment, then
+          check the app that uses it. Removing a reference from Composer does
+          not revoke a key with its provider.
         </p>
         <p>
           Cloudflare secret put/delete commands can immediately deploy a Worker.
