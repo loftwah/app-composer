@@ -8,8 +8,8 @@ release index remains [#11](https://github.com/loftwah/app-composer/issues/11).
 
 | Item | Value |
 | --- | --- |
-| Composer source | `b32a57810243fba604b0af017aac0b603ef805d8` at the first check; final runtime commit recorded in #11 |
-| Composer Worker | `ad4bef19-e03c-4ee8-901f-b26617ad68cb` (first scoped deploy), then `b32a578` release |
+| Composer source | `7910308ea8f98655dbeb1f88a7536c6dc0db3419` |
+| Composer Worker | `ad4bef19-e03c-4ee8-901f-b26617ad68cb` (first scoped deploy); final source verified at `7910308` |
 | Studio source | `4511cfe1ba54d27f88458f23521629fb3f6c855b` |
 | Studio Worker | `28839448-a713-4c3d-8898-9aba590005c3` |
 | Article | https://composer.loftwah.com/media-studio |

@@ -24,6 +24,53 @@ and follow-up-change work from the recorded delivery evidence below.
 adoption. This documentation alignment records desired behaviour; it does not
 complete either issue's runtime, newcomer or demonstration acceptance.
 
+## Media Studio scoped entry and brand self-use — 14 November 2026
+
+Composer is live at `7910308ea8f98655dbeb1f88a7536c6dc0db3419`; the independent
+studio is live at `4511cfe1ba54d27f88458f23521629fb3f6c855b`
+(Worker `28839448-a713-4c3d-8898-9aba590005c3`). Worker-version receipts stay in
+[#11](https://github.com/loftwah/app-composer/issues/11); the public-safe
+integration evidence is in
+[docs/evidence/media-studio-integration-20261114](evidence/media-studio-integration-20261114/README.md).
+
+- **Scoped entry.** `/media-studio/studio` uses the existing EmDash session,
+  names the current actor and workspace, and hands off only current
+  read/edit/generate/publish/admin grants. The studio re-checks the grant with
+  Composer before a privileged dispatch; the handoff jti is single-use; a
+  project-scoped session is denied on another project. Guest, owner, replay,
+  wrong-project, ungranted, grant-removal and actor-switch paths are recorded,
+  with live non-owner sessions still unavailable in this environment.
+- **One native entry, three actions.** The article, tutorial and entry separate
+  *Read the story*, *Build your studio* and *Open your studio*. The launcher and
+  header link to all three; the public article remains the discovery surface.
+- **Real edits and mix.** FLUX.1 Fill masked fill/outpaint, BiRefNet cutout,
+  Clarity upscale and Studio Effect are live. A three-track Studio Score +
+  Studio Voice + Studio Effect mix was produced in the browser, saved as a
+  16.792 s 44.1 kHz WAV and attached to a storyboard.
+- **True 9:16 derivative.** A 720×1280, SAR 1:1, DAR 9:16, 17.79 s cut with
+  44.1 kHz stereo audio is live at
+  [the 9:16 page](https://media.loftwah.com/p/5KqkS8ZEC-mj_yjm). It was finished
+  deterministically with local ffmpeg from the same saved takes, sound and
+  slate; the in-product compose button is not claimed live.
+- **Brand self-use.** The studio project “App Composer — studio launch artwork”
+  produced the original still, a reviewed masked fill, the motion, the share
+  card, the square/portrait stills and the 9:16 motion used by the article and
+  catalogue. The article carries the lineage table, hashes and the sentence
+  “We used the studio we built to produce the App Composer artwork and motion
+  used on this page.”
+- **Media delivery.** Published media, downloads and signed render inputs
+  answer byte ranges (206 + `Content-Range`); withdrawal stops page, media,
+  download, poster and `/s/` alias with 404.
+- **Provider block.** New fal `ffmpeg-api/compose` jobs are accepted and report
+  completed, but the result route returns 403 for the payload that worked
+  earlier. In-product assembly and 9:16 are coded and unit-tested but blocked;
+  earlier masters stay available. This is recorded in the article, tutorial and
+  limits rather than hidden.
+- **Open gates.** No by-ear review of the complete films or mix, no
+  fresh-instance build replay or complete build/use/software-change film, no
+  physical-device matrix, and no per-project grant rows in People & access.
+  Those are not claimed as complete.
+
 ## The studio that prints itself — 13 November 2026
 
 The homepage hero is now one continuous illustrated workshop. A Paperwork press
