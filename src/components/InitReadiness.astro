@@ -17,7 +17,7 @@ function update(){
   box.querySelector('[data-init-ready-label]')!.textContent=inspection.ready?'Your saved report has four current checks.':'Your setup still needs attention.';
   box.querySelector('[data-init-ready-detail]')!.textContent=inspection.ready?'Continue with your app settings. Your agent rechecks the actual account, source and target before it deploys.':count+' of 4 saved checks are current. You can keep exploring here; return to Get Ready for the next action.';
   const boundaries=report.checks.filter(check=>inspection.capabilities[check.id]&&check.verifiedAt).map(check=>Date.parse(check.verifiedAt!)+3600000);if(report.expiresAt&&Date.parse(report.expiresAt)>Date.now())boundaries.push(Date.parse(report.expiresAt));const next=Math.min(...boundaries);if(Number.isFinite(next))timer=setTimeout(update,Math.max(1,next-Date.now()+1));
- }catch{box.querySelector('[data-init-ready-label]')!.textContent='Your saved report could not be read.';box.querySelector('[data-init-ready-detail]')!.textContent='The file is preserved. Replace it in Get Ready; you can continue exploring settings here.';}
+ }catch{box.querySelector('[data-init-ready-label]')!.textContent='Your saved report could not be read.';box.querySelector('[data-init-ready-detail]')!.textContent='Your saved report has not been changed. Open a current report in Get Ready; you can keep exploring settings here.';}
 }
 update();window.addEventListener('pageshow',update);window.addEventListener('storage',update);window.addEventListener(readyReportEvent,update);
 </script>

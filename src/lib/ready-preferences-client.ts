@@ -15,7 +15,7 @@ function change(){
  try{publish(read());message.textContent='Unsaved address choice. Save it to carry it into Init.';}catch(error){publish(null);message.textContent=error instanceof Error?error.message:'Enter a supported hostname.';}
 }
 try{const saved=localStorage.getItem(setupPreferenceKey);if(draft()){restoreDraft();change();}else if(saved){const selected=validateSetupPreferences(JSON.parse(saved));(form.elements.namedItem('destination') as RadioNodeList).value=selected.destination;hostname.value=selected.hostname;change();message.textContent='Saved address choice restored on this device.';}}
-catch{message.textContent='The saved address choice could not be restored. It has been left untouched; save a new choice to replace it.';}
+catch{message.textContent='Your saved address choice could not be restored and has not been changed. Save a new choice to replace it.';}
 form.addEventListener('input',()=>change());form.addEventListener('change',()=>change());
 window.addEventListener('pageshow',()=>{restoreDraft();change();});
 form.addEventListener('submit',event=>{event.preventDefault();try{const selected=read();if(selected.destination==='existing-domain')hostname.value=selected.hostname;change();localStorage.setItem(setupPreferenceKey,JSON.stringify(selected));publish(selected);message.textContent='Address choice saved on this device. Your agent still verifies the destination.';}catch(error){message.textContent=error instanceof Error?error.message:'Could not save. This browser may block local storage.';}});

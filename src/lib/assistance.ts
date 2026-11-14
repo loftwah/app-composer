@@ -1,7 +1,7 @@
 import {assistancePreferenceKey,defaultAssistancePreference,assistanceLevels,validateAssistancePreference,type AssistancePreference} from '../../lib/get-ready/preferences.mjs';
 const eventName='composer:assistance-choice';
 let selected:AssistancePreference={...defaultAssistancePreference},notice='';
-try{const saved=localStorage.getItem(assistancePreferenceKey);if(saved){if(saved.length>256)throw Error();selected=validateAssistancePreference(JSON.parse(saved));}}catch{notice='A saved help preference could not be read. It has been left untouched.';}
+try{const saved=localStorage.getItem(assistancePreferenceKey);if(saved){if(saved.length>256)throw Error();selected=validateAssistancePreference(JSON.parse(saved));}}catch{notice='Your saved help preference could not be read and has not been changed.';}
 const urlLevel=new URL(location.href).searchParams.get('assistance');if(urlLevel){try{selected=validateAssistancePreference({version:1,level:urlLevel});}catch{notice='The link’s help preference was ignored. Existing choices are preserved.';}}
 export function currentAssistance(){return {...selected};}
 function destinations(){for(const a of document.querySelectorAll<HTMLAnchorElement>('a[href]')){if(a.getAttribute('href')?.startsWith('#'))continue;let url:URL;try{url=new URL(a.href);}catch{continue;}if(url.origin!==location.origin||!['/ready','/ready/guide','/init','/init/content','/explore','/learn'].includes(url.pathname))continue;url.searchParams.set('assistance',selected.level);a.href=url.pathname+url.search+url.hash;}}

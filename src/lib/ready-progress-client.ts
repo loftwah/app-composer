@@ -43,7 +43,7 @@ function refresh(){
   operations.hidden=false;operations.append(node('h3','Unfinished setup'));
   for(const operation of report.operations){
    const status=operation.state==='prepared'?'prepared for review':operation.recovery==='human-authentication'?'sign-in needed':operation.recovery==='human-permission'?'permission needs review':'needs agent inspection';
-   operations.append(node('p',`${progressOperationLabels[operation.id]}: ${status}. No retry is automatic.`,'small'));
+   operations.append(node('p',`${progressOperationLabels[operation.id]}: ${status}. This operation will not retry automatically.`,'small'));
    if(operation.state!=='prepared'){operations.append(node('p',progressStep(operation,false),'small'));const help=helpLink(operation);if(help)operations.append(help);}
   }
  }
@@ -61,8 +61,8 @@ fileInput.addEventListener('change',async()=>{
  }catch(error){if(attempt!==generation)return;message.textContent=(error instanceof SyntaxError?'This is not a JSON progress report. Ask your agent for the redacted export.':error instanceof Error?error.message:'The report could not be read.')+(report?' Your previous report is still shown.':'');}
 });
 container.querySelector('[data-clear-progress]')!.addEventListener('click',()=>{generation++;report=null;remember.checked=false;fileInput.value='';announceReadyReport(null);refresh();try{localStorage.removeItem(savedReportKey);message.textContent='Report cleared from this page and device.';}catch{message.textContent='Report cleared from this page. Browser storage could not be changed; an older saved report may return on another visit. Check this browser’s storage settings.';}});
-remember.addEventListener('change',()=>{try{if(remember.checked&&report){localStorage.setItem(savedReportKey,JSON.stringify(report));message.textContent='Redacted report remembered on this device. It still expires and grants no permissions.';}else{localStorage.removeItem(savedReportKey);message.textContent=remember.checked?'Your next report will be remembered on this device.':'Saved report removed; the open report stays on this page.';}}catch{remember.checked=false;message.textContent='The browser could not change its saved report. Check storage permissions; this page still works without remembering it.';}});
-try{const saved=savedReadyReport();if(saved){report=saved;remember.checked=true;refresh();message.textContent='Redacted report restored from this device. Its freshness is rechecked.';}}catch{message.textContent='The saved report could not be read. It is preserved; open a current redacted export to replace it.';}
+remember.addEventListener('change',()=>{try{if(remember.checked&&report){localStorage.setItem(savedReportKey,JSON.stringify(report));message.textContent='Redacted report saved on this device. It still expires and grants no permissions.';}else{localStorage.removeItem(savedReportKey);message.textContent=remember.checked?'Your next report will be remembered on this device.':'Saved report removed; the open report stays on this page.';}}catch{remember.checked=false;message.textContent='The browser could not change its saved report. Check storage permissions; this page still works without remembering it.';}});
+try{const saved=savedReadyReport();if(saved){report=saved;remember.checked=true;refresh();message.textContent='Redacted report restored from this device. Its freshness is rechecked.';}}catch{message.textContent='The saved report could not be read and has not been changed. Open a current redacted export to replace it.';}
 remember.disabled=false;
 window.addEventListener('pageshow',()=>{if(report)refresh();});
 
