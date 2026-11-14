@@ -16,7 +16,7 @@ import { ShopifyCataloguePanel } from "./shopify-catalogue-panel";
 
 const scenarioLabels: Record<FixtureScenario, string> = {
   "checkout-unpaid": "Completed checkout · payment pending",
-  "payment-paid": "Current payment is paid",
+  "payment-paid": "Payment received",
   "payment-failed": "Payment failed",
   cancelled: "Checkout cancelled",
   expired: "Checkout expired",
@@ -122,7 +122,7 @@ export function Orders({ search }: { search: string }) {
         setError(
           cause instanceof Error
             ? cause.message
-            : "The order could not be confirmed. Refresh its persisted history.",
+            : "The order could not be confirmed. Refresh its saved history.",
         );
       return false;
     } finally {
@@ -166,7 +166,7 @@ export function Orders({ search }: { search: string }) {
       await run(
         action,
         { ...fields, operation: operations.current[key] },
-        "The fictional operation was saved. No provider was contacted and no financial or production action occurred.",
+        "The fictional action was saved. No provider was contacted, and no payment or production order was made.",
       )
     )
       delete operations.current[key];
@@ -176,7 +176,7 @@ export function Orders({ search }: { search: string }) {
     try {
       await navigator.clipboard.writeText(text);
       setNotice(
-        "Fictional order summary copied. Its evidence scope is included.",
+        "Fictional order summary copied. It says that no financial transaction took place.",
       );
       setManual("");
     } catch {
@@ -203,7 +203,7 @@ export function Orders({ search }: { search: string }) {
       <div className="or-heading">
         <div>
           <h1>Orders</h1>
-          <p>Inspect payment, fulfilment and the next safe action.</p>
+          <p>Explore payment and fulfilment states using fictional orders.</p>
         </div>
         <button
           type="button"
@@ -255,15 +255,15 @@ export function Orders({ search }: { search: string }) {
           ) : lead.kind === "empty" ? (
             <>
               <h2 id="or-next-title">No orders yet</h2>
-              <p className="or-lead-state">Ready for a fictional fixture</p>
+              <p className="or-lead-state">Ready to try a fictional order</p>
               <div className="or-actions">
                 <a className="or-primary" href="#order-create">
                   Open the fictional order form
                 </a>
               </div>
               <p>
-                No record is selected or simulated until you create one. Every
-                order here is fictional fixture proof.
+                Create an example to explore its payment and fulfilment states.
+                Every order here is fictional.
               </p>
             </>
           ) : (
@@ -276,10 +276,10 @@ export function Orders({ search }: { search: string }) {
                   : lead.kind === "failed"
                     ? `Operation ${lead.action.state}`
                     : lead.kind === "pending"
-                      ? "Waiting for a current-state observation"
+                      ? "Waiting for a test payment update"
                       : lead.kind === "fulfilment"
                         ? "Paid · fulfilment draft available"
-                        : "Current fixture state"}
+                        : "Current test state"}
               </p>
               <p className="or-lead-facts">
                 <span>
@@ -305,9 +305,11 @@ export function Orders({ search }: { search: string }) {
                       type="button"
                       className="or-primary"
                       disabled={busy || !canWrite}
-                      onClick={() => void mutate("reconcile-fixture", lead.view)}
+                      onClick={() =>
+                        void mutate("reconcile-fixture", lead.view)
+                      }
                     >
-                      Reconcile existing fixture action
+                      Resolve simulated checkout
                     </button>
                     <a href="#order-actions">View retained actions</a>
                   </>
@@ -342,14 +344,14 @@ export function Orders({ search }: { search: string }) {
               </div>
               <p>
                 {lead.kind === "reconcile"
-                  ? "The existing fixture checkout is uncertain. Reconcile that action before any repetition; a second checkout is not offered."
+                  ? "The simulated checkout timed out. Resolve that existing action before continuing; a second checkout is not offered."
                   : lead.kind === "failed"
-                    ? "The retained fixture operation failed. There is no supported replay; review its actions and use the existing observation control."
+                    ? "The simulated action failed. It cannot be replayed; review its history and use the test state control."
                     : lead.kind === "pending"
-                      ? "No payment is taken here. The retained state changes only through an explicit controlled observation."
+                      ? "No payment is taken here. Choose a test scenario to change the saved state."
                       : lead.kind === "fulfilment"
                         ? "Preparation creates a fictional draft only. It does not submit a Printful production order."
-                        : "Use the existing fixture observation control below to record a current payment or refund state."}
+                        : "Choose a test scenario below to record a payment or refund state."}
                 {!canWrite &&
                   " This workspace role can read the order but cannot run a fixture action."}
               </p>
@@ -364,10 +366,9 @@ export function Orders({ search }: { search: string }) {
         </section>
       )}
       <p className="or-proof">
-        <strong>Fictional order lab. These orders are simulated.</strong> These
-        records exercise the shared order and recovery contract. They are
-        fixture proof, with no hosted provider checkout, webhook verification or
-        financial transaction.
+        <strong>Fictional order lab. These orders are simulated.</strong> Use
+        them to explore order and recovery states. There is no provider
+        checkout, webhook verification or financial transaction here.
       </p>
       <div className="or-links">
         <a href="/prompts#stripe">Prepare Stripe sandbox setup</a>
@@ -387,9 +388,9 @@ export function Orders({ search }: { search: string }) {
           <details className="or-create" id="order-create">
             <summary>Try a fictional order</summary>
             <p>
-              The fixture product is a reading-club guide, AUD 12.00. Its amount
-              is server-owned. A fixture does not grant payment or fulfilment
-              authority.
+              The example is a reading-club guide priced at AUD 12.00. The
+              server sets the amount. Creating an example does not grant
+              permission to take payments or fulfil orders.
             </p>
             <div className="or-controls">
               <label>
@@ -576,11 +577,11 @@ export function Orders({ search }: { search: string }) {
                     </button>
                   </div>
                   <details className="or-scenarios" id="order-fixture-controls">
-                    <summary>Exercise a fixture state</summary>
+                    <summary>Try a test state</summary>
                     <p>
-                      These commands use deterministic fictional observations.
-                      They do not call {current.order.provider}, verify a real
-                      signature or establish sandbox acceptance.
+                      These controls use fictional test data. They do not
+                      contact {current.order.provider}, verify a real signature
+                      or confirm that a sandbox connection works.
                     </p>
                     <label>
                       Observed scenario
@@ -604,7 +605,7 @@ export function Orders({ search }: { search: string }) {
                         disabled={busy || !canWrite}
                         onClick={() => void mutate("observe-fixture", current)}
                       >
-                        Apply fictional observation
+                        Apply test state
                       </button>
                       {current.actions.some(
                         (action) =>
@@ -613,16 +614,16 @@ export function Orders({ search }: { search: string }) {
                       ) &&
                         (current.order.payment === "unpaid" ||
                           current.order.payment === "pending") && (
-                        <button
-                          type="button"
-                          disabled={busy || !canWrite}
-                          onClick={() =>
-                            void mutate("timeout-fixture", current)
-                          }
-                        >
-                          Simulate checkout timeout
-                        </button>
-                      )}
+                          <button
+                            type="button"
+                            disabled={busy || !canWrite}
+                            onClick={() =>
+                              void mutate("timeout-fixture", current)
+                            }
+                          >
+                            Simulate checkout timeout
+                          </button>
+                        )}
                       {current.actions.some(
                         (action) =>
                           action.kind === "create-checkout" &&
@@ -635,7 +636,7 @@ export function Orders({ search }: { search: string }) {
                             void mutate("reconcile-fixture", current)
                           }
                         >
-                          Reconcile existing fixture action
+                          Resolve simulated checkout
                         </button>
                       )}
                       {current.order.payment === "paid" &&
@@ -677,8 +678,8 @@ export function Orders({ search }: { search: string }) {
                           {action.state === "prepared"
                             ? "Prepared fixture identity; no external checkout has been created."
                             : action.state === "unknown"
-                              ? "Completion is uncertain. Reconcile the existing action; do not create another."
-                              : "The fictional action was reconciled or its draft persisted. No vendor request was sent."}
+                              ? "The simulated result is unknown. Resolve the existing action instead of creating another."
+                              : "The simulated action was resolved or its draft saved. No vendor request was sent."}
                         </p>
                       </div>
                     ))}
