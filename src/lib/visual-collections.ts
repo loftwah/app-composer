@@ -102,21 +102,21 @@ const nightSignal = {
 const signalAndType: VisualCollection = {
   id: 'signal-and-type',
   title: 'Signal & Type',
-  description: 'Three covers with very different voices. Open a recipe and make it your own.',
+  description: 'Three cover examples to explore and adapt in Launch Kit.',
   href: '/collections/signal-and-type',
   lead: nightSignal,
   pins: [
     {
       id: 'night-signal', title: 'Night Signal', type: 'Illustrated cover',
       image: nightSignal, href: launchKit + '/profile.html?example=night-signal-artwork', action: 'Open editable cover',
-      description: 'A moth caught in the glow of a late-night radio. The dark illustration carries the mood while the cream type keeps the name clear.',
+      description: 'A moth and radio sit beside cream lettering in a dark illustration.',
       source: { href: '/launch-kit/cards/night-signal-artwork.png', label: 'Original PNG', note: 'Fictional Launch Kit example. Generated background with type composed locally.' },
     },
     {
       id: 'river', title: 'River', type: 'Type-only cover',
       image: { src: '/launch-kit/cards/river-typography.png', width: 1200, height: 630, alt: 'The River cover built from type and flat colour.' },
       href: launchKit + '/profile.html?example=river-typography', action: 'Open editable cover',
-      description: 'A short introduction and a deliberately small palette give the name room to hold the composition.',
+      description: 'A name and short introduction sit against a simple colour palette.',
       source: { href: '/launch-kit/cards/river-typography.png', label: 'Original PNG', note: 'Fictional Launch Kit typography recipe.' },
     },
     {
@@ -143,7 +143,7 @@ const printShop: VisualCollection = {
     {
       id: 'press', title: 'The Paperwork press', type: 'Original illustration',
       image: printShopPress, href: '/paperwork', action: 'See the Paperwork story',
-      description: 'One machine does the two jobs the editor puts together: write on a page and mark it finished. The orange press gives Paperwork its print-shop identity.',
+      description: 'The orange press illustrates Paperwork’s print-shop identity: writing on a page and marking it finished.',
       source: { href: '/paperwork/press-20261024.webp', label: 'Original illustration', note: 'Published Paperwork artwork from the owner-selected print-shop direction.' },
     },
     {
