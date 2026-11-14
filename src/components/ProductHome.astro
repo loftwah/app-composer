@@ -50,7 +50,7 @@ const defaultStation = studioStations[0];
 <Base
   homePage
   title="App Composer — build apps with your agent on Cloudflare"
-  description="Bring the app you need. Your agent builds it with you on Cloudflare, and the source, the data and the admin stay yours. Start with Get Ready, shape it in Init or copy a prompt straight to your agent."
+  description="App Composer helps you prepare your tools, build or connect apps with your AI agent on Cloudflare, and keep improving software you own."
 >
   <script
     slot="head"
@@ -58,7 +58,99 @@ const defaultStation = studioStations[0];
     set:html={JSON.stringify(siteSchema)}
   />
   <div class="composer-home">
-    <section class="studio-hero" aria-labelledby="home-heading">
+    <section class="home-opening" aria-labelledby="home-heading">
+      <div class="home-opening-inner">
+        <div class="home-opening-main">
+          <h1 id="home-heading">Build an app<br /><span>you own.</span></h1>
+          <p>App Composer helps you prepare your tools, work with your chosen AI agent to build or connect an app on Cloudflare, and keep improving it. Your source and data stay yours.</p>
+          <div class="home-opening-actions">
+            <a class="home-button" href="/ready">Get started <ArrowUpRight size={21} aria-hidden="true" /></a>
+            <a class="studio-text-link" href="#make-something">See how it works <ArrowDown size={18} aria-hidden="true" /></a>
+          </div>
+          <p class="home-opening-note">New to AI agents? Start by preparing your tools and Cloudflare account.</p>
+        </div>
+        <div class="home-opening-path" aria-label="Your path with App Composer">
+          <p>From idea to your own app</p>
+          <ol>
+            <li><span>01</span><div><strong>Prepare</strong><p>Check the tools and agent you need.</p></div></li>
+            <li><span>02</span><div><strong>Build or connect</strong><p>Turn your idea into a brief for your agent.</p></div></li>
+            <li><span>03</span><div><strong>Keep making it yours</strong><p>Run, manage and change your app in your account.</p></div></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="home-start home-container"
+      id="make-something"
+      aria-labelledby="start-heading"
+    >
+      <div class="section-intro">
+        <p class="home-eyebrow">
+          <span class="section-number">01</span> From an idea to something
+          useful
+        </p>
+        <h2 id="start-heading">
+          For the app you
+          <br />
+          wish already existed.
+        </h2>
+        <p class="section-lede">
+          A tool for your team. A home for your work. A small problem worth
+          solving. App Composer gives your agent a practical place to start.
+        </p>
+      </div>
+      <ol class="build-steps">
+        <li>
+          <span class="step-index" aria-hidden="true">
+            01 /
+          </span>
+          <div>
+            <h3>Get your tools ready.</h3>
+            <p>
+              Check the source, tools and Cloudflare account your agent will
+              use. You can start before you have an app idea.
+            </p>
+            <a class="home-text-link" href="/ready">
+              Open Get Ready <ArrowRight size={18} aria-hidden="true" />
+            </a>
+          </div>
+        </li>
+        <li>
+          <span class="step-index" aria-hidden="true">
+            02 /
+          </span>
+          <div>
+            <h3>Shape what you need.</h3>
+            <p>
+              Choose a starting point in Init. Turn the useful details into a
+              clear brief for your existing coding agent.
+            </p>
+            <a class="home-text-link" href="/init">
+              Shape an app in Init <ArrowRight size={18} aria-hidden="true" />
+            </a>
+          </div>
+        </li>
+        <li>
+          <span class="step-index" aria-hidden="true">
+            03 /
+          </span>
+          <div>
+            <h3>Make it your own.</h3>
+            <p>
+              Your agent implements the brief in your repository and account.
+              Keep building on software you can inspect and change.
+            </p>
+            <a class="home-text-link" href="/learn">
+              Follow the build journey{" "}
+              <ArrowRight size={18} aria-hidden="true" />
+            </a>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="studio-hero" aria-labelledby="workshop-heading">
       <div class="studio-stage" data-studio-stage data-state="poster">
         <div class="studio-backdrop" aria-hidden="true"></div>
         <picture class="studio-poster studio-poster-dark" data-studio-poster>
@@ -111,30 +203,10 @@ const defaultStation = studioStations[0];
       </div>
 
       <div class="studio-copy">
-        <p class="studio-eyebrow">
-          <span class="studio-kicker-mark" aria-hidden="true">✳</span>
-          The studio that prints itself
-        </p>
-        <h1 id="home-heading">
-          Make something
-          <br />
-          <span>worth keeping.</span>
-        </h1>
-        <p class="studio-lede">
-          App Composer is a studio for building and running apps with your
-          coding agent on Cloudflare. Keep control of the source and the data.
-        </p>
-        <div class="studio-actions">
-          <a class="home-button" href="/ready">
-            Start with Get Ready <ArrowUpRight size={21} aria-hidden="true" />
-          </a>
-          <a class="studio-text-link" href="/apps">
-            Explore the apps <ArrowRight size={18} aria-hidden="true" />
-          </a>
-        </div>
-        <p class="studio-context-line">
-          Two independent apps and Composer reporting in one fictional workshop.
-        </p>
+        <p class="studio-eyebrow"><span class="studio-kicker-mark" aria-hidden="true">✳</span> An illustrated demo</p>
+        <h2 id="workshop-heading">Explore a<br /><span>fictional workshop.</span></h2>
+        <p class="studio-lede">Try a playful view of Paperwork, LDraw and Composer reporting. The workshop is an illustration; the real apps are linked below.</p>
+        <div class="studio-actions"><a class="home-button" href="/apps">Explore the real apps <ArrowUpRight size={21} aria-hidden="true" /></a></div>
         <a class="studio-proof-print" href="/media-studio#made">
           <img
             src="/brand/studio/media-studio-print-20261114.webp"
@@ -245,8 +317,8 @@ const defaultStation = studioStations[0];
         </div>
       </div>
 
-      <a class="studio-scroll" href="#make-something">
-        Scroll to what you can make <ArrowDown size={17} aria-hidden="true" />
+      <a class="studio-scroll" href="#work-heading">
+        See software you can use <ArrowDown size={17} aria-hidden="true" />
       </a>
       <p class="sr-only">
         An interactive illustrated workshop. The Paperwork press stamps a
@@ -262,75 +334,7 @@ const defaultStation = studioStations[0];
       ></p>
     </section>
 
-    <section
-      class="home-start home-container"
-      id="make-something"
-      aria-labelledby="start-heading"
-    >
-      <div class="section-intro">
-        <p class="home-eyebrow">
-          <span class="section-number">01</span> From an idea to something
-          useful
-        </p>
-        <h2 id="start-heading">
-          For the app you
-          <br />
-          wish already existed.
-        </h2>
-        <p class="section-lede">
-          A tool for your team. A home for your work. A small problem worth
-          solving. App Composer gives your agent a practical place to start.
-        </p>
-      </div>
-      <ol class="build-steps">
-        <li>
-          <span class="step-index" aria-hidden="true">
-            01 /
-          </span>
-          <div>
-            <h3>Get your tools ready.</h3>
-            <p>
-              Check the source, tools and Cloudflare account your agent will
-              use. You can start before you have an app idea.
-            </p>
-            <a class="home-text-link" href="/ready">
-              Open Get Ready <ArrowRight size={18} aria-hidden="true" />
-            </a>
-          </div>
-        </li>
-        <li>
-          <span class="step-index" aria-hidden="true">
-            02 /
-          </span>
-          <div>
-            <h3>Shape what you need.</h3>
-            <p>
-              Choose a starting point in Init. Turn the useful details into a
-              clear brief for your existing coding agent.
-            </p>
-            <a class="home-text-link" href="/init">
-              Shape an app in Init <ArrowRight size={18} aria-hidden="true" />
-            </a>
-          </div>
-        </li>
-        <li>
-          <span class="step-index" aria-hidden="true">
-            03 /
-          </span>
-          <div>
-            <h3>Make it your own.</h3>
-            <p>
-              Your agent implements the brief in your repository and account.
-              Keep building on software you can inspect and change.
-            </p>
-            <a class="home-text-link" href="/learn">
-              Follow the build journey{" "}
-              <ArrowRight size={18} aria-hidden="true" />
-            </a>
-          </div>
-        </li>
-      </ol>
-    </section>
+
 
     <section class="home-work" aria-labelledby="work-heading">
       <div class="home-container">
