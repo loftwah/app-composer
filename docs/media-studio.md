@@ -6,7 +6,7 @@ through Composer, then own and operate as its own application.
 
 - Source: https://github.com/loftwah/composer-media-studio
 - Live: https://media.loftwah.com
-- Composer source pin: `config/media-studio-standalone.json`
+- Composer Init and the downloadable Paper & Light brief pin [Studio `fec91ba`](https://github.com/loftwah/composer-media-studio/tree/fec91ba3e25e8349f8d891a22f676980686fce76). The manifest digest is unchanged from the scoped-entry release.
 - Reuse decision: [studio Darkroom assessment](https://github.com/loftwah/composer-media-studio/blob/main/docs/darkroom-assessment.md)
 
 ## What a person gets
