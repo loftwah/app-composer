@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mediaStudioQuickStart, validateQuickStart } from '../src/lib/tutorial-quick-start.mjs';
+import { firstAppQuickStart, mediaStudioQuickStart, validateQuickStart } from '../src/lib/tutorial-quick-start.mjs';
 
 test('Media Studio prompts cover distinct journeys and preserve ownership boundaries', () => {
   assert.deepEqual(mediaStudioQuickStart.prompts.map(p => p.id), ['build', 'add', 'explain', 'make']);
@@ -11,8 +11,8 @@ test('Media Studio prompts cover distinct journeys and preserve ownership bounda
   }
   assert.match(mediaStudioQuickStart.prompts[0].text, /provider 403/);
   assert.match(mediaStudioQuickStart.prompts[1].text, /without overwriting/i);
-  assert.throws(() => validateQuickStart({title:'x',summary:'x',prompts:[{id:'x',label:'x',text:''}]}));
-  assert.throws(() => validateQuickStart({title:'x',summary:'x',prompts:[{id:'x',label:'x',text:'x'},{id:'x',label:'y',text:'y'}]}));
+  assert.throws(() => validateQuickStart({title:'x',summary:'x',links:[{label:'guide',href:'/ready'}],prompts:[{id:'x',label:'x',text:''}]}));
+  assert.throws(() => validateQuickStart({title:'x',summary:'x',links:[{label:'guide',href:'/ready'}],prompts:[{id:'x',label:'x',text:'x'},{id:'x',label:'y',text:'y'}]}));
 });
 
 test('creative prompt describes a real source-to-clip path without granting reuse or spend', () => {
@@ -32,4 +32,23 @@ test('build prompt names installation settings and current caption limits', () =
   assert.match(text, /manually timed caption cues/i);
   assert.match(text, /do not automatically transcribe or burn captions/i);
   assert.match(text, /separate opt-in and rights confirmation/i);
+});
+
+
+test('first-app quick start uses its own sources and distinguishes read-only inspection', () => {
+  assert.deepEqual(firstAppQuickStart.prompts.map(p => p.id), ['build', 'existing', 'explain']);
+  assert.ok(firstAppQuickStart.links.some(link => link.href === '/ready'));
+  assert.ok(!firstAppQuickStart.links.some(link => link.href.includes('media-studio')));
+  assert.match(firstAppQuickStart.prompts[0].text, /own GitHub and Cloudflare accounts/i);
+  assert.match(firstAppQuickStart.prompts[0].text, /preview or exported spec is not a deployment/i);
+  assert.match(firstAppQuickStart.prompts[1].text, /inspection read-only/i);
+  assert.match(firstAppQuickStart.prompts[2].text, /Do not change files, accounts or cloud resources/i);
+});
+
+test('quick-start links reject unsafe schemes and protocol-relative destinations', () => {
+  const valid = {title:'x',summary:'x',prompts:[{id:'x',label:'x',text:'x'}]};
+  for (const href of ['javascript:alert(1)', '//example.com', 'https://user:pass@example.com']) {
+    assert.throws(() => validateQuickStart({...valid, links:[{label:'test',href}]}), /safe, labelled links/);
+  }
+  assert.doesNotThrow(() => validateQuickStart({...valid,links:[{label:'guide',href:'/ready'}]}));
 });

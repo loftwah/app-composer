@@ -5,7 +5,7 @@ const guide = validateQuickStart(Astro.props.guide as TutorialQuickStart);
 <section class="quick-start" aria-labelledby="quick-start-title" data-tutorial-quick-start>
   <h2 id="quick-start-title">{guide.title}</h2>
   <p>{guide.summary}</p>
-  <p class="quick-links"><a href="/media-studio">See the build and evidence</a> · <a href="https://github.com/loftwah/composer-media-studio">Studio source</a> · <a href="https://media.loftwah.com/portfolio">Explore Share artwork</a></p>
+  <p class="quick-links">{guide.links.map((link, index) => <>{index > 0 && ' · '}<a href={link.href}>{link.label}</a></>)}</p>
   <div class="prompt-list">
     {guide.prompts.map((prompt) => <details class="prompt-item">
       <summary>{prompt.label}</summary>
