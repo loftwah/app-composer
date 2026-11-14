@@ -87,11 +87,11 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
  </section>
 
  <section class="hub-section" id="journey">
-  <h2>What actually happened.</h2>
+  <h2>How the apps were built</h2>
   <ol class="hub-steps">
    <li><strong>Get Ready.</strong> The agent checked the GitHub and Cloudflare access it already had. Nobody installed anything by hand for this build.</li>
    <li><strong>Describe and configure.</strong> Init exported a versioned specification for Guestbook + Linkarooie: the title, introduction, appearance, four work links and a review-before-publication rule. The form is the same one at <a href="/init">/init</a>.</li>
-   <li><strong>Create.</strong> Each app was copied at its pinned commit into its own repository, with its own Worker, D1 database and — for Here / there — its own R2 bucket. Nothing was merged into one project.</li>
+   <li><strong>Create.</strong> Each app was copied at its pinned commit into its own repository, with its own Worker and D1 database. Here / there also has its own R2 bucket. Nothing was merged into one project.</li>
    <li><strong>Publish.</strong> Here / there deployed first, because Linkarooie reads approved contributions from it through a service binding. Both answered on their own HTTPS hostnames and reported the revision they were serving.</li>
    <li><strong>Manage.</strong> A guest opened the postcard form, wrote a note and sent it. It stayed private. The owner approved it in the native EmDash panel and featured it in Linkarooie; it became public in both apps.</li>
    <li><strong>Revoke.</strong> The owner hid the same contribution in the panel. It disappeared from both public views immediately, the guestbook item and media returned <code>404</code>, and the card remained unavailable until a later approval.</li>
@@ -106,7 +106,7 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
      “Give my curated links more prominence while keeping my approved postcards available.”
     </blockquote>
    </figure>
-   <p>On 12 November 2026 Mara asked for a follow-up on the same fictional app. The agent used Linkarooie’s existing presentation control — not a new build or a forked page — to pin two of her four curated links as featured picks. The live profile now opens with a numbered <strong>Featured</strong> section, while the full collection stays under <strong>Other links</strong>.</p>
+   <p>On 12 November 2026 Mara asked for a follow-up on the same fictional app. The agent used Linkarooie’s existing presentation control to pin two of her four curated links as featured picks, without a new build or a forked page. The live profile now opens with a numbered <strong>Featured</strong> section, while the full collection stays under <strong>Other links</strong>.</p>
    <figure class="hub-shot">
     <img
      src="/creator-hub/profile-20261112.webp"
@@ -118,8 +118,8 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
     />
     <figcaption class="small">Live profile after the change, captured 12 November 2026. Same source, same four links, same account.</figcaption>
    </figure>
-   <p><strong>Before:</strong> no featured picks; all four links appeared under Other links. <strong>After:</strong> Salt-glaze dinner set and Workshop notes: ash glazes are featured as picks 01 and 02; Autumn show, Castlemaine and Commissions remain in the collection. The approved guestbook postcard was not edited, hidden or deleted — it still returns <code>200</code> at its Here / there item and media URLs and is still offered by the app’s provider source.</p>
-   <p>The change is a saved presentation setting, so it is reversible without a release: unpin the two cards in the owner studio and the previous view returns. That is the practical difference between an app-owned setting and a code change.</p>
+   <p><strong>Before:</strong> no featured picks; all four links appeared under Other links. <strong>After:</strong> Salt-glaze dinner set and Workshop notes: ash glazes are featured as picks 01 and 02; Autumn show, Castlemaine and Commissions remain in the collection. The approved guestbook postcard was not edited, hidden or deleted. It still returns <code>200</code> at its Here / there item and media URLs and is still offered by the app’s provider source.</p>
+   <p>The change is a saved presentation setting, so it is reversible without a release: unpin the two cards in the owner studio and the previous view returns.</p>
    <p class="small">Verified against <code>b7cd3b3e8f19dbbb76d33fb4266053da928cf586</code> at <a href="https://creator-hub.loftwah.com/">creator-hub.loftwah.com</a>. The featured pins are stored by Linkarooie, not by App Composer.</p>
 
    <h3>From featured work to the guestbook</h3>
@@ -129,7 +129,7 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
 
  <section class="hub-section" id="you">
   <h2>What needed a person.</h2>
-  <p>Four actions were genuinely human: signing in to Cloudflare, creating the owner credential for each app, confirming the hostname, and deciding that a contribution could be published. Everything else — repositories, databases, bindings, configuration, deployment and the checks after it — was agent work.</p>
+  <p>A person signed in to Cloudflare, created the owner credential for each app, confirmed the hostname and decided that a contribution could be published. The agent handled repositories, databases, bindings, configuration, deployment and the checks after it.</p>
   <p>Your agent gets the same plan in the exported handoff: an ordered list, each step labelled <em>agent</em> or <em>human</em>, so neither of you has to guess who is doing what. Init shows it before you copy anything.</p>
   <p class="small"><a href="/_emdash/admin/plugins/composer-miniapps/apps?site=creator-hub">Open Manage mini-apps with the Creator Hub reference selected</a>. This is the invited-administrator panel and requires a Cloudflare Access sign-in.</p>
  </section>
