@@ -1,0 +1,367 @@
+---
+import Base from "../../layouts/Base.astro";
+
+const groups = [
+  {
+    id: "plan",
+    title: "Plan the shot",
+    lessons: [
+      {
+        title: "Plan a five-second scene",
+        outcome: "Give one moment room to read.",
+        steps:
+          "Choose one subject, one action and one change in the frame. Start from a still you have permission to use. In Create, select the still, choose an image-to-video model and a five-second duration; review the estimate before submitting.",
+        prompt:
+          "A quiet five-second scene: the subject notices a small change, turns towards it, and the camera holds long enough to see the reaction. Preserve the original character and setting.",
+        example: "Fighter · Across the Ring in motion",
+        href: "https://media.loftwah.com/p/QXaKw_fL9cZenKCg",
+        source:
+          "Share original Across the Ring; Studio H3 image-to-video result, 5.2 seconds.",
+      },
+      {
+        title: "Choose the camera",
+        outcome: "Make the audience look at the important thing.",
+        steps:
+          "Describe the starting frame and one camera movement. A locked frame gives small acting room; a slow move adds discovery. Treat camera language as direction in the prompt, not a guaranteed physical camera control.",
+        prompt:
+          "Begin on a medium shot of the subject. Move the viewpoint slowly closer while the subject stays legible; avoid a fast pan or a sudden cut.",
+        example: "Paperwork · A PDF stays here",
+        href: "https://media.loftwah.com/p/1qjHzSyIrIAQ4Zuk",
+        source:
+          "Share build-note-app-composer-paper-bench; Studio H3 result, 5.2 seconds.",
+      },
+      {
+        title: "Direct light and colour",
+        outcome: "Keep the subject distinct from its surroundings.",
+        steps:
+          "Name a light source and its effect before listing colours. Compare the result at phone size. If the character disappears into the background, revise the next take rather than assuming the model has a lighting slider.",
+        prompt:
+          "Warm window light moves across the subject; keep the background quieter and the main silhouette clear. Retain the original palette and materials.",
+        example: "Hello World · Small beginning",
+        href: "https://media.loftwah.com/p/VQDLALCKpgZoylDr",
+        source: "Share original new-116; Studio H3 result, 5.2 seconds.",
+      },
+      {
+        title: "Use a reference with permission",
+        outcome: "Keep the source and its credit alongside the new work.",
+        steps:
+          "Open Share artwork and read the source and reuse information. In your project library, import an eligible original and confirm permission. The source is an input to the model, not a promise that every detail survives.",
+        prompt:
+          "Use the selected reference for the subject and setting. Keep the recognisable silhouette, materials and palette; animate only a small, readable action.",
+        example: "Launch Kit · Studio motion",
+        href: "https://media.loftwah.com/p/5ycQgw8F4AhOj_oB",
+        source: "Share original new-119; Studio H3 result, 5.2 seconds.",
+      },
+    ],
+  },
+  {
+    id: "make",
+    title: "Make and refine",
+    lessons: [
+      {
+        title: "Keep a character consistent",
+        outcome: "Carry a recognisable subject between separate takes.",
+        steps:
+          "Keep the same owned reference and write down the few visual traits that matter: silhouette, clothing, colours and distinguishing marks. Review every take side by side; a prompt can request consistency but does not lock an identity.",
+        prompt:
+          "Keep the same subject, silhouette, clothing and colour palette as the reference. Change only the action: a small turn and a glance towards the light.",
+        example: "Fighter · Across the Ring in motion",
+        href: "https://media.loftwah.com/p/QXaKw_fL9cZenKCg",
+        source:
+          "One animated take, not proof of a locked character across scenes.",
+      },
+      {
+        title: "Change one failed take",
+        outcome: "Preserve the original while trying a specific improvement.",
+        steps:
+          "Name what failed—motion, framing or a detail—then make one deliberate change in a new request. Keep both takes. For a still, a masked fill changes a selected region; it does not edit the video itself.",
+        prompt:
+          "Keep the scene and subject unchanged. Make the movement slower and keep the face visible throughout the shot.",
+        example: "Before the Bell · Fighter still variation",
+        href: "https://media.loftwah.com/p/yFSN93LOFy1ja4j0",
+        source:
+          "Published FLUX.2 Klein variation from a credited Fighter original; this is a still, not a video edit.",
+      },
+      {
+        title: "Choose a vertical frame",
+        outcome: "Compose for a phone without calling 4:5 a 9:16 export.",
+        steps:
+          "Keep faces and essential action inside the intended crop. A 768 × 960 image is 4:5; a genuine 9:16 file has a width-to-height ratio of 9:16. Check the actual exported dimensions and watch the full result.",
+        prompt:
+          "Compose a vertical scene with the subject centred and breathing room above and below. Keep essential action away from the edges.",
+        example: "Paperwork · portrait motion",
+        href: "https://media.loftwah.com/p/1qjHzSyIrIAQ4Zuk",
+        source:
+          "This 768 × 960 Studio result is 4:5, not 9:16. Check dimensions before calling a version vertical 9:16.",
+      },
+      {
+        title: "Remix footage responsibly",
+        outcome: "Know what you can use before making a cut.",
+        steps:
+          "Start with footage and audio you own or are allowed to adapt and publish. Keep originals, check music and participant permissions, and mark fictional or generated scenes as such. Studio’s image-to-video tool animates a still; it is not a general video restyler.",
+        prompt:
+          "Describe the intended edit and its source rights: which original, what to keep, what to change, and where the finished piece may be shared.",
+        example: "Watch the illustrated Studio walkthrough",
+        href: "/media-studio/tutorial#film",
+        source:
+          "The narrated walkthrough uses Studio screen images and captions; it does not prove an interactive session.",
+      },
+    ],
+  },
+  {
+    id: "finish",
+    title: "Sound, edit and share",
+    lessons: [
+      {
+        title: "Make a song clip",
+        outcome:
+          "Plan pictures around an owned song without losing the original.",
+        steps:
+          "Pick the song section and mark its start, end and beat changes. Use the free local audio trimmer for a WAV, or upload an authorised track to your project. Plan saved shots against the section, then use Assemble to order takes and mix audio. A new provider render is a separate estimated action.",
+        prompt:
+          "For this song excerpt, plan three shots: an opening image, one change on the strongest beat, and a quiet ending. Keep cuts aligned to the supplied timing; do not invent lyrics.",
+        example: "Open the local audio trimmer",
+        href: "https://media.loftwah.com/tools/audio-trim",
+        source:
+          "Files stay on the device during trimming; up to 16 MB and three minutes in the current tool.",
+      },
+      {
+        title: "Plan a 15-second spoken spot",
+        outcome: "Give a short voiceover a beginning, turn and invitation.",
+        steps:
+          "Write a short script and read it aloud with a timer. Make or upload narration, plan three five-second shots and save them. Mix narration and any licensed music with trim, gain and fades. Studio can save a storyboard; the previously tested assembly provider returned a permission error, so verify the current render status before promising an export.",
+        prompt:
+          "Write a warm, plain-language 15-second introduction to [project]. One sentence says what it does, one shows a specific benefit, and one invites the viewer to try it. No invented claims.",
+        example: "Studio overview and transcript",
+        href: "/media-studio#use",
+        source:
+          "The overview uses Studio screens and generated narration; it is not a completed 15-second promo or proof of live interactions.",
+      },
+      {
+        title: "Caption a lyric or line",
+        outcome: "Keep words readable and correctly timed.",
+        steps:
+          "Use lyrics or speech you have rights to. Check the exact words, break them into short phrases and time them against the audio. Current Studio does not provide a word-level lyric editor; use a suitable caption editor and check the exported result before publication.",
+        prompt:
+          "Break the supplied authorised words into short readable caption lines. Preserve every word and mark uncertain timings for a human to review.",
+        example: "Watch captions on the Studio walkthrough",
+        href: "/media-studio/tutorial#film",
+        source:
+          "The illustrated walkthrough has selectable English captions and a transcript.",
+      },
+      {
+        title: "Save and publish deliberately",
+        outcome: "Share one chosen result while keeping the rest private.",
+        steps:
+          "Review the actual image, video or sound, title and description. Use Publish on that asset only. The public page exposes the selected media and entered details; withdrawing it stops new visits but cannot recall downloads. Check permissions before publishing.",
+        prompt:
+          "Write a short, accurate description of this selected work. Say whether it is an illustration or a recording, credit its source and avoid claims the result cannot support.",
+        example: "Published Fighter motion",
+        href: "https://media.loftwah.com/p/QXaKw_fL9cZenKCg",
+        source:
+          "A deliberately published image-to-video illustration, not recorded gameplay.",
+      },
+    ],
+  },
+];
+---
+<Base title="Direct a scene in Media Studio" description="Practical lessons for directing shots, choosing references, planning sound and sharing an owned creative project.">
+<article class="director-guide">
+  <header class="director-intro">
+    <a href="/media-studio">← Media Studio build story</a>
+    <h1>Make the next shot count.</h1>
+    <p class="lede">A practical field guide to directing images, motion and sound. Start with a job, borrow a direction, and adapt it to work you own.</p>
+    <div class="actions"><a class="button" href="#plan">Choose a lesson</a><a class="button secondary" href="/media-studio/studio">Open your Studio</a></div>
+    <p>Reading and copying are free. Opening Studio does not generate anything. Sign-in and project access may be required; this guide does not prefill a draft.</p>
+  </header>
+  <section class="director-proof" aria-labelledby="proof-title">
+    <div><h2 id="proof-title">See the workflow</h2><p>This narrated walkthrough uses Studio screen images to explain the brief, library, sound and a saved cut. It is an illustrated guide, not a recording of each live interaction. Captions and a transcript are available.</p><p><a href="/media-studio/watch/walkthrough.txt">Read the transcript</a> · <a href="/media-studio/tutorial">Build your own Studio</a></p></div>
+    <video controls preload="none" poster="/media-studio/watch/walkthrough-poster.jpg" width="1440" height="900"><source src="/media-studio/watch/walkthrough.mp4" type="video/mp4"/><track kind="captions" src="/media-studio/watch/walkthrough.vtt" srclang="en" label="English captions" default/><a href="/media-studio/watch/walkthrough.mp4">Download the walkthrough</a></video>
+  </section>
+  <nav class="director-nav" aria-label="Field guide topics"><a href="#plan">Plan the shot</a><a href="#make">Make and refine</a><a href="#finish">Sound, edit and share</a><a href="#words">Creative vocabulary</a></nav>
+  <div class="director-search" hidden data-search-wrap><label for="lesson-search">Find a lesson</label><input id="lesson-search" type="search" placeholder="Try camera, music or sharing"/><span data-search-status role="status" aria-live="polite"></span></div>
+  <p class="director-cost">The text below is creative direction, not a model parameter. Choose the actual model, reference and duration in Studio. One five-second H3 request in the cited examples was estimated at US$0.24 on 14 November 2026; prices and availability can change. One recorded 30-second Studio Score bed was US$0.015 and one Studio Voice request was US$0.06; those are historical estimates, not current quotes. Review the current estimate for each request. Estimates are not invoices.</p>
+  {groups.map(group => <section id={group.id} class="director-section"><h2>{group.title}</h2><div class="director-lessons">{group.lessons.map((lesson, i) => <article class="director-lesson"><h3>{lesson.title}</h3><p class="director-outcome">{lesson.outcome}</p><p>{lesson.steps}</p><details><summary>Direction to adapt</summary><p class="director-prompt" id={`${group.id}-prompt-${i}`}>{lesson.prompt}</p><button class="secondary" type="button" data-copy-target={`${group.id}-prompt-${i}`}>Copy direction</button><span class="copy-status" role="status" aria-live="polite"></span></details><p class="director-example"><a href={lesson.href}>{lesson.example} →</a><br/><span>{lesson.source}</span></p></article>)}</div></section>)}
+  <section id="words" class="director-section"><h2>Words you will meet</h2><dl class="director-words"><div><dt>Scene / shot / take</dt><dd>A scene is a moment in a place; a shot is one continuous view; a take is one attempt at that shot.</dd></div><div><dt>Reference / prompt / parameter</dt><dd>A reference is source media; a prompt describes intent; a parameter is an actual model control such as duration. Prompted motion is a request, not a guaranteed setting.</dd></div><div><dt>Timeline / clip / stem</dt><dd>A timeline orders sound and picture in time. A clip is a piece of media. A stem is a separate part of a mix, such as narration or music.</dd></div><div><dt>Slate / render / master</dt><dd>A slate is an opening card. A render produces a new media file from a saved edit. A master is the selected finished version retained for reuse.</dd></div><div><dt>Variant / private / public</dt><dd>A variant is a separate result derived from a source. Private project work stays restricted; deliberate publication exposes the chosen media and its entered details. Do not assume an unlisted link is private.</dd></div></dl></section>
+  <p><a href="/media-studio/tutorial">Continue with the full Studio tutorial →</a></p>
+</article>
+<script>
+  const searchWrap = document.querySelector<HTMLElement>('[data-search-wrap]');
+  const search = document.querySelector<HTMLInputElement>('#lesson-search');
+  const searchStatus = document.querySelector<HTMLElement>('[data-search-status]');
+  const lessons = [...document.querySelectorAll<HTMLElement>('.director-lesson')];
+  if (searchWrap && search && searchStatus) {
+    searchWrap.hidden = false;
+    search.addEventListener('input', () => {
+      const term = search.value.trim().toLocaleLowerCase();
+      let count = 0;
+      for (const lesson of lessons) {
+        const match = !term || (lesson.textContent ?? '').toLocaleLowerCase().includes(term);
+        lesson.hidden = !match;
+        if (match) count++;
+      }
+      for (const group of document.querySelectorAll<HTMLElement>('.director-section')) {
+        if (group.querySelector('.director-lessons')) group.hidden = !group.querySelector('.director-lesson:not([hidden])');
+      }
+      searchStatus.textContent = term ? `${count} ${count === 1 ? 'lesson' : 'lessons'} found.` : '';
+    });
+  }
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy-target]')) {
+    button.addEventListener('click', async () => {
+      const text = document.getElementById(button.dataset.copyTarget ?? '')?.textContent?.trim();
+      const status = button.nextElementSibling;
+      if (!text || !status) return;
+      try { await navigator.clipboard.writeText(text); status.textContent = 'Copied.'; }
+      catch { status.textContent = 'Copy unavailable. Select the direction text and copy it.'; }
+    });
+  }
+</script>
+<style>
+.director-search:not([hidden]) {
+  display: grid;
+  gap: 8px;
+  max-width: 34rem;
+  margin-top: 28px;
+}
+.director-search label {
+  font-weight: 650;
+}
+.director-search input {
+  font: inherit;
+  padding: 12px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 8px;
+  background: var(--color-field);
+  color: var(--color-foreground);
+}
+.director-search span {
+  color: var(--color-muted);
+}
+.director-guide {
+  max-width: 1120px;
+  margin: auto;
+}
+.director-intro {
+  max-width: 900px;
+  padding: 24px 0 56px;
+}
+.director-intro h1 {
+  max-width: 14ch;
+}
+.director-intro > p:last-child {
+  color: var(--color-muted);
+  max-width: 68ch;
+}
+.director-proof {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 36px;
+  align-items: start;
+  border-top: 1px solid var(--color-border);
+  padding: 40px 0;
+}
+.director-proof h2 {
+  font-size: 2rem;
+}
+.director-proof video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+.director-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  border-block: 1px solid var(--color-border);
+  padding: 20px 0;
+}
+.director-nav a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.director-cost {
+  color: var(--color-muted);
+  margin: 28px 0 0;
+  max-width: 78ch;
+}
+.director-section {
+  padding: 64px 0 16px;
+  scroll-margin-top: 24px;
+}
+.director-lessons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 48px;
+}
+.director-lesson {
+  border-top: 1px solid var(--color-border);
+  padding: 24px 0 32px;
+  min-width: 0;
+}
+.director-lesson h3 {
+  margin: 0 0 8px;
+}
+.director-lesson p {
+  margin: 0 0 16px;
+}
+.director-outcome {
+  font-weight: 650;
+}
+.director-lesson details {
+  margin: 20px 0;
+}
+.director-lesson summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 8px 0;
+  font-weight: 650;
+}
+.director-prompt {
+  padding: 12px 0;
+  white-space: pre-wrap;
+}
+.copy-status {
+  display: inline-block;
+  margin-left: 12px;
+  color: var(--color-muted);
+}
+.director-example {
+  font-size: 0.95rem;
+}
+.director-example span {
+  color: var(--color-muted);
+}
+.director-words {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 48px;
+}
+.director-words div {
+  border-top: 1px solid var(--color-border);
+  padding: 16px 0;
+}
+.director-words dt {
+  font-weight: 700;
+}
+.director-words dd {
+  margin: 8px 0 0;
+  color: var(--color-muted);
+}
+@media (max-width: 720px) {
+  .director-proof,
+  .director-lessons,
+  .director-words {
+    grid-template-columns: 1fr;
+  }
+  .director-section {
+    padding-top: 48px;
+  }
+  .director-intro {
+    padding-bottom: 32px;
+  }
+}
+</style>
+
+</Base>

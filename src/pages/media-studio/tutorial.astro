@@ -49,12 +49,13 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
       <div><dt>Time</dt><dd>An evening for a first build including account setup and the first render; minutes for later changes.</dd></div>
     </dl>
     <TutorialQuickStart guide={mediaStudioQuickStart} />
+    <p><a href="/media-studio/direct">Direct scenes, sound and finished pieces with the creative field guide →</a></p>
     <nav class="jump" aria-label="Chapters">
       {chapters.map(([id, label], index) => (
         <a href={`#${id}`}>{String(index + 1).padStart(2, '0')} {label}</a>
       ))}
     </nav>
-    <p class="small">The walkthrough film follows these chapters. Timestamps below refer to <a href="#film">the recording</a>.</p>
+    <p class="small">The walkthrough film follows these chapters. Timestamps below refer to <a href="#film">the illustrated film</a>.</p>
   </header>
 
   <section id="target" class="step">
@@ -351,9 +352,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
   </section>
 
   <section id="film" class="step">
-    <p class="kicker">Recording</p>
+    <p class="kicker">Illustrated walkthrough</p>
     <h2>Watch the walkthrough</h2>
-    <p>The chaptered recording follows this tutorial. Captions are available in the player, and the transcript lists the chapters.</p>
+    <p>The chaptered film uses Studio and Composer screen images and title cards to explain this tutorial. It does not by itself establish a live interaction or provider request. Captions are available in the player, and the transcript lists the chapters.</p>
     <video controls preload="none" poster="/media-studio/watch/walkthrough-poster.jpg" width="1440" height="900">
       <source src="/media-studio/watch/walkthrough.mp4" type="video/mp4" />
       <track kind="captions" src="/media-studio/watch/walkthrough.vtt" srclang="en" label="English captions" default />
@@ -367,7 +368,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
       <li><strong>00:55</strong> Chapter 5 — publish</li>
       <li><strong>01:07</strong> Chapter 6 — change the studio</li>
     </ul>
-    <p class="small">The recording is of the deployed studio and Composer, cut to length. The overview film is on the <a href="/media-studio#use">build article</a>.</p>
+    <p class="small">The film is an edited guide using Studio and Composer screen images. The overview film is on the <a href="/media-studio#use">build article</a>.</p>
   </section>
 
   <section id="technical" class="step">
