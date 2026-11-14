@@ -57,7 +57,7 @@ input,textarea,select,.theme-toggle,.button.secondary,button.secondary{border-co
 @media(max-width:650px){.journey-stages{grid-template-columns:1fr;gap:0}.journey-stages article:last-child{grid-column:auto}}
 
 /* Text links remain visible without underlines, including utility and hover states. */
-a:not(.button):hover{color:var(--color-accent-hover)}main p a:not(.button),main li a:not(.button),footer a{color:var(--color-accent)}
+a:not(.button):not(.home-button):hover{color:var(--color-accent-hover)}main p a:not(.button),main li a:not(.button),footer a{color:var(--color-accent)}
 
 
 /* Shell rules stay on the shell; semantic headers inside content keep document flow. */
