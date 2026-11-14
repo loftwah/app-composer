@@ -1,13 +1,20 @@
-// Only the two authored, reviewed public MP4s use this transport. Access checks
+// Only the explicitly listed, reviewed public MP4s use this transport. Access checks
 // run in the Worker before this helper; ordinary static/admin routing is intact.
 import { demoFilms, reviewedDemoFilms } from "./platform-demo.ts";
 
 const origin = "https://composer.loftwah.com";
-const films = new Map(
+const films = new Map<string, { href: string; bytes: number; sha256: string }>(
   reviewedDemoFilms(demoFilms).flatMap((film) =>
     film.status === "ready" ? [[film.video.href, film.video] as const] : [],
   ),
 );
+// The public Pippa demo is a committed, reviewed asset; changing its bytes
+// requires updating its size and digest so cached ranges cannot mix versions.
+films.set("/media-studio/demos/pippa-clip-workflow-20261115.mp4", {
+  href: "/media-studio/demos/pippa-clip-workflow-20261115.mp4",
+  bytes: 597299,
+  sha256: "12f4e3331a61d404ddfeaace4f525d3446926daee549836d50b01289a325f390",
+});
 interface Assets {
   fetch(request: Request): Promise<Response>;
 }
@@ -122,7 +129,7 @@ export async function publicFilmAsset(
   storage: FilmCaches = globalThis.caches,
   execution?: FilmExecution,
 ): Promise<Response | null> {
-  const film = films.get(new URL(request.url).pathname as `/${string}`);
+  const film = films.get(new URL(request.url).pathname);
   if (!film) return null;
   if (!["GET", "HEAD"].includes(request.method))
     return new Response(null, { status: 405, headers: { Allow: "GET, HEAD" } });
