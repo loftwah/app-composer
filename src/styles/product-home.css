@@ -2177,6 +2177,11 @@
     top: auto;
     left: auto;
     z-index: 5;
+    /* The hero switches to a column below 900px. Inline-size containment plus
+       align-self:start collapsed the copy to 0px, so every line broke to one
+       word. Stretch to the phone column and drop the query container here. */
+    align-self: stretch;
+    container-type: normal;
     width: auto;
     margin: 0 20px;
     padding-top: 105px;

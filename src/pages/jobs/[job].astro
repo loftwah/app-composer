@@ -9,7 +9,7 @@ if (!job) Astro.response.status = 404;
   {job ? <><header class="job-heading"><h1>{job.title}.</h1></header><JobDiscovery job={job} /></> : <><h1>That job is not here.</h1><p><a href="/discover#jobs">Choose a job</a> to find a working example and one action.</p></>}
 </Base>
 <style>
-  .job-heading { margin-bottom:22px; }
+  .job-heading { display:block; margin-bottom:22px; padding:0 0 18px; border-bottom:1px solid var(--color-border); }
   .job-heading h1 { font-size:clamp(1.65rem,3vw,2.5rem); max-width:none; margin:0; }
   @media(max-width:720px) { .job-heading { margin-bottom:14px; }.job-heading h1 { font-size:1.6rem; } }
 </style>

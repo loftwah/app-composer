@@ -412,6 +412,11 @@ curl -s -o /dev/null -w '%&#123;http_code&#125;\n' https://your-studio.example/a
   /* Same token aliasing as the article: light mode needs real borders and a
      readable muted colour, not the dark-theme fallbacks. */
   .tut{--accent:var(--color-accent,#ff5a1f);--muted:var(--color-muted,#b9b2a8);--line:var(--color-border,rgba(255,255,255,.16));max-width:980px;margin:0 auto;padding:24px 24px 96px}
+  /* The tutorial's semantic header is a document heading, not the site shell.
+     Shell layout lives on .site-header; this keeps the kicker, title, deck,
+     facts and chapter links in one readable column. */
+  .tut-head{display:block;padding:0 0 10px;border:0;min-height:0}
+  .tut-head h1{max-width:none}
   .kicker{font:600 11px/1.4 ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--accent,#ff5a1f);margin:0 0 10px}
   .tut h1{font:600 clamp(2.2rem,4.4vw,3.6rem)/1.04 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.035em;margin:0 0 16px}
   .tut h2{font:600 clamp(1.5rem,2.4vw,2rem)/1.12 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 14px}

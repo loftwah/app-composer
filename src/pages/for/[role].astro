@@ -11,7 +11,7 @@ if (!role) Astro.response.status = 404;
   {role ? <><header class="role-heading"><h1>{role.title}.</h1></header><RoleDiscovery role={role} /></> : <><h1>That role is not here.</h1><p><a href="/discover#roles">Choose a role or a useful job</a> to find a working example.</p></>}
 </Base>
 <style>
-  .role-heading { margin-bottom:22px; }
+  .role-heading { display:block; margin-bottom:22px; padding:0 0 18px; border-bottom:1px solid var(--color-border); }
   .role-heading h1 { font-size:clamp(1.65rem,3vw,2.5rem); max-width:none; margin:0; }
   @media(max-width:720px) { .role-heading { margin-bottom:14px; }.role-heading h1 { font-size:1.6rem; } }
 </style>
