@@ -26,7 +26,7 @@ complete either issue's runtime, newcomer or demonstration acceptance.
 
 ## Media Studio scoped entry and brand self-use — 14 November 2026
 
-Composer is live at `af1abe9f4ab5494bae2bd24892a838ece04677ab`; the independent
+Composer is live at `9edc81e647fe83767e289a2517ae0ac6490020da`; the independent
 studio is live at `4511cfe1ba54d27f88458f23521629fb3f6c855b`
 (Worker `28839448-a713-4c3d-8898-9aba590005c3`). Worker-version receipts stay in
 [#11](https://github.com/loftwah/app-composer/issues/11); the public-safe

@@ -8,7 +8,7 @@ release index remains [#11](https://github.com/loftwah/app-composer/issues/11).
 
 | Item | Value |
 | --- | --- |
-| Composer source | `af1abe9f4ab5494bae2bd24892a838ece04677ab` |
+| Composer source | `9edc81e647fe83767e289a2517ae0ac6490020da` |
 | Composer Worker | `ad4bef19-e03c-4ee8-901f-b26617ad68cb` (first scoped deploy); final source verified at `7910308` |
 | Studio source | `4511cfe1ba54d27f88458f23521629fb3f6c855b` |
 | Studio Worker | `28839448-a713-4c3d-8898-9aba590005c3` |
