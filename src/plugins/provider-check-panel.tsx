@@ -67,9 +67,9 @@ export function ProviderCheckPanel({
         <div>
           <h2 id="ri-cloud-title">Cloudflare check</h2>
           <p>
-            Compare Composer’s declared resources with a live, read-only
-            Cloudflare observation. Every provider request is a GET. Nothing is
-            created, changed, tagged, deployed or deleted.
+            Compare Composer’s expected resources with a read-only Cloudflare
+            check. Every provider request is a GET. Nothing is created, changed,
+            tagged, deployed or deleted.
           </p>
         </div>
         <strong className="ri-cloud-badge">
@@ -95,14 +95,14 @@ export function ProviderCheckPanel({
         </label>
       </div>
       <p className="ri-muted" id="ri-cloud-import-help">
-        The check does not run on page load and there is no polling. If this
-        deployment has no read-only Cloudflare credential, run{" "}
+        The check runs only when you request it. If this deployment has no
+        read-only Cloudflare credential, run{" "}
         <code>node scripts/provider-inventory.mjs compare</code> locally and
-        import the bounded compare JSON. An imported file is displayed only; it
-        is not saved and grants no authority.
+        import the compare JSON. The file is displayed only; it is not saved and
+        grants no authority.
       </p>
       <p className="ri-status" role="status">
-        {busy ? "Reading the allowlisted Cloudflare endpoints…" : ""}
+        {busy ? "Reading the permitted Cloudflare endpoints…" : ""}
       </p>
       {error && (
         <p className="ri-error" role="alert">
@@ -185,26 +185,29 @@ export function ProviderCheckPanel({
               <dd>{check.counts.attention}</dd>
             </div>
           </dl>
-          <p className="ri-muted ri-cloud-arithmetic">
-            Declared {check.counts.expected} = {check.counts.match} match +{" "}
-            {check.counts.drift} differ + {check.counts.missing} missing +{" "}
-            {check.counts.unverified} unverified + {check.counts.inaccessible}{" "}
-            inaccessible. Observed {check.counts.observed} ={" "}
-            {check.counts.declaredObserved} declared + {check.counts.undeclared}{" "}
-            not declared ({check.counts.undeclaredWorkers} Worker scripts:{" "}
-            {check.counts.undeclaredEarlier} from earlier pinned compositions
-            and {check.counts.undeclaredOther} other composer-* scripts;{" "}
-            {check.counts.undeclaredStorage} storage). A declared resource that
-            is missing was not observed, so the two sums are separate. “Needs
-            attention” counts findings, not resources.
-          </p>
+          <details className="ri-cloud-other">
+            <summary>How the counts are calculated</summary>
+            <p className="ri-muted ri-cloud-arithmetic">
+              Declared {check.counts.expected} = {check.counts.match} match +{" "}
+              {check.counts.drift} differ + {check.counts.missing} missing +{" "}
+              {check.counts.unverified} unverified + {check.counts.inaccessible}{" "}
+              inaccessible. Observed {check.counts.observed} ={" "}
+              {check.counts.declaredObserved} declared +{" "}
+              {check.counts.undeclared} not declared (
+              {check.counts.undeclaredWorkers} Worker scripts:{" "}
+              {check.counts.undeclaredEarlier} from earlier pinned compositions
+              and {check.counts.undeclaredOther} other composer-* scripts;{" "}
+              {check.counts.undeclaredStorage} storage). A declared resource
+              that is missing was not observed, so the two sums are separate.
+              “Needs attention” counts findings, not resources.
+            </p>
+          </details>
           <p className="ri-muted">
-            This live check is a separate observation from the workspace{" "}
-            <strong>Needs attention</strong> queue, which shows only stored
-            Composer records. Composer’s stored app-source drift compares a
-            saved stack with the last app-confirmed build; it is not this
-            provider comparison, and neither is provider health. Nothing here is
-            saved when the page reloads.
+            This check is separate from the workspace{" "}
+            <strong>Needs attention</strong> queue, which shows saved Composer
+            records. The queue’s app-source comparison uses a saved stack and
+            the last app-confirmed build. Neither comparison checks provider
+            health. This result is not saved when the page reloads.
           </p>
           <details className="ri-cloud-other">
             <summary>What these categories mean</summary>
@@ -363,16 +366,13 @@ export function ProviderCheckPanel({
             </section>
           ) : (
             <p className="ri-muted">
-              No provider finding needs attention in this observation. An
-              unverified field still stays unverified.
+              This check found no item marked as needing attention. Fields that
+              were not verified remain unknown.
             </p>
           )}
           {others.length > 0 && (
             <details className="ri-cloud-other">
-              <summary>
-                Other observations ({others.length}) · not a clean bill of
-                health
-              </summary>
+              <summary>Other observations ({others.length})</summary>
               <ul className="ri-findings">
                 {others.map((finding) => (
                   <li
@@ -395,7 +395,7 @@ export function ProviderCheckPanel({
             <table>
               <caption>
                 {check.comparisons.length} declared or first-party resource(s) ·
-                cost is unknown for every row, never zero
+                cost is unknown for every row
               </caption>
               <thead>
                 <tr>
