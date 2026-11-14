@@ -1,6 +1,9 @@
 ---
 import Base from "../../layouts/Base.astro";
 
+// These public examples are hosted by the first-party Studio.
+Astro.csp?.insertDirective("media-src 'self' https://media.loftwah.com");
+
 const groups = [
   {
     id: "plan",
@@ -178,6 +181,20 @@ const groups = [
     <div><h2 id="proof-title">See the workflow</h2><p>This narrated walkthrough uses Studio screen images to explain the brief, library, sound and a saved cut. It is an illustrated guide, not a recording of each live interaction. Captions and a transcript are available.</p><p><a href="/media-studio/watch/walkthrough.txt">Read the transcript</a> · <a href="/media-studio/tutorial">Build your own Studio</a></p></div>
     <video controls preload="none" poster="/media-studio/watch/walkthrough-poster.jpg" width="1440" height="900"><source src="/media-studio/watch/walkthrough.mp4" type="video/mp4"/><track kind="captions" src="/media-studio/watch/walkthrough.vtt" srclang="en" label="English captions" default/><a href="/media-studio/watch/walkthrough.mp4">Download the walkthrough</a></video>
   </section>
+  <section class="director-screening" aria-labelledby="screening-title">
+    <h2 id="screening-title">Watch the creative choices</h2>
+    <p>These are published Studio outputs. Play each example, then use the source link to inspect its provenance.</p>
+    <div class="director-films">
+      <figure>
+        <video controls playsinline preload="none" poster="/media-studio/direct/ldraw.webp" aria-label="Play Move the mountain, an LDraw motion study"><source src="https://media.loftwah.com/p/hvhyL90Wm1EXbrAE/media" type="video/mp4"/><a href="https://media.loftwah.com/p/hvhyL90Wm1EXbrAE">Watch Move the mountain in Studio</a></video>
+        <figcaption><h3>One action, one shot</h3><p>A six-second LDraw motion study animates a hand lifting a mountain from an owned reference. Watch how the central action stays readable.</p><a href="https://media.loftwah.com/p/hvhyL90Wm1EXbrAE">View the Studio source and provenance →</a></figcaption>
+      </figure>
+      <figure>
+        <video controls playsinline preload="none" poster="/media-studio/direct/paper.webp" aria-label="Play Paper and Light studio cut, with sound"><source src="https://media.loftwah.com/p/Na9FNUB_VhzZ7zA9/media" type="video/mp4"/><a href="https://media.loftwah.com/p/Na9FNUB_VhzZ7zA9">Watch Paper &amp; Light in Studio</a></video>
+        <figcaption><h3>Build a cut with sound</h3><p>This 17-second Paper &amp; Light cut combines three saved generated takes with a Studio Score music bed. Listen for how the sound carries the change of scene.</p><a href="https://media.loftwah.com/p/Na9FNUB_VhzZ7zA9">View the Studio source and provenance →</a></figcaption>
+      </figure>
+    </div>
+  </section>
   <nav class="director-nav" aria-label="Field guide topics"><a href="#plan">Plan the shot</a><a href="#make">Make and refine</a><a href="#finish">Sound, edit and share</a><a href="#words">Creative vocabulary</a></nav>
   <div class="director-search" hidden data-search-wrap><label for="lesson-search">Find a lesson</label><input id="lesson-search" type="search" placeholder="Try camera, music or sharing"/><span data-search-status role="status" aria-live="polite"></span></div>
   <p class="director-cost">The text below is creative direction, not a model parameter. Choose the actual model, reference and duration in Studio. One five-second H3 request in the cited examples was estimated at US$0.24 on 14 November 2026; prices and availability can change. One recorded 30-second Studio Score bed was US$0.015 and one Studio Voice request was US$0.06; those are historical estimates, not current quotes. Review the current estimate for each request. Estimates are not invoices.</p>
@@ -270,6 +287,27 @@ const groups = [
   border-radius: 8px;
   background: var(--color-surface);
 }
+.director-screening {
+  border-top: 1px solid var(--color-border);
+  padding: 40px 0;
+}
+.director-screening > p { max-width: 65ch; }
+.director-films {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+}
+.director-films figure { margin: 0; min-width: 0; }
+.director-films video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+.director-films h3 { margin: 16px 0 8px; }
+.director-films p { margin: 0 0 12px; }
 .director-nav {
   display: flex;
   flex-wrap: wrap;
@@ -351,6 +389,7 @@ const groups = [
 }
 @media (max-width: 720px) {
   .director-proof,
+  .director-films,
   .director-lessons,
   .director-words {
     grid-template-columns: 1fr;
