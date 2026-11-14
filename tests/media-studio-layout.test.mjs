@@ -30,13 +30,27 @@ const declarations = (css, selector) => {
 
 const compact = (value) => value.replace(/\s+/g, "");
 
-test("article figures and lead image follow the reading column", () => {
+test("article hero contains its artwork and retains a readable article column", () => {
   const css = styleBlock("media-studio.astro");
-  for (const selector of [".art-hero-copy", ".art-hero-figure", ".contents", ".prose"]) {
+  for (const selector of [".art-hero-copy", ".contents", ".prose"]) {
     assert.match(declarations(css, selector), /max-width:74ch/, `${selector} should share the reading measure`);
   }
   assert.match(declarations(css, ".art-hero"), /grid-template-columns:minmax\(0,1fr\)minmax\(0,1fr\)/);
   assert.match(declarations(css, ".art-hero-figure"), /width:100%/);
+  assert.match(declarations(css, ".art-hero-figure"), /min-width:0/);
+  const heroPair = declarations(css, ".hero-art-pair");
+  assert.match(heroPair, /display:grid/);
+  assert.match(heroPair, /grid-template-columns:1fr1fr/);
+  assert.match(declarations(css, ".hero-art-pair figure"), /min-width:0/);
+  const heroImage = declarations(css, ".art-hero-figure img,.figure img");
+  assert.match(heroImage, /width:100%/);
+  assert.match(heroImage, /height:auto/);
+  assert.doesNotMatch(heroImage, /object-fit:cover|height:100%/);
+  const page = readPage("media-studio.astro");
+  assert.match(page, /fighter-across-the-ring-20261114\.webp/);
+  assert.match(page, /fighter-before-the-bell-20261114\.webp/);
+  assert.match(page, /Original · Woodhouse/);
+  assert.match(page, /Variation · Media Studio/);
   assert.match(css, /@media\s*\(max-width:\s*900px\)\s*\{[\s\S]*?\.art-hero\{grid-template-columns:minmax\(0,1fr\)/);
   const figure = declarations(css, ".figure");
   assert.match(figure, /width:100%/);
