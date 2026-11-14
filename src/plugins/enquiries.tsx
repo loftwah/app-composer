@@ -719,9 +719,9 @@ function WorkspaceEnquiries({ search }: { search: string }) {
             Retry the same change
           </button>
           <p>
-            You can retry only after a check finds no receipt. The retry uses the
-            same saved operation, target and revisions. It will be refused if
-            the source or target has changed.
+            You can retry only after a check finds no receipt. The retry uses
+            the same saved operation, target and revisions. It will be refused
+            if the source or target has changed.
           </p>
         </section>
       )}
@@ -1071,7 +1071,8 @@ function WorkspaceEnquiries({ search }: { search: string }) {
           <p>
             Saved briefs for this visitor book, grouped by the published page or
             standalone form that received them. Reviewed means someone marked
-            the brief reviewed; it does not mean a sale, reply or contact occurred.
+            the brief reviewed; it does not mean a sale, reply or contact
+            occurred.
           </p>
           {summaryError ? (
             <p className="ce-alert" role="alert">
@@ -1089,8 +1090,8 @@ function WorkspaceEnquiries({ search }: { search: string }) {
                   <table>
                     <caption>
                       {summary.total} retained brief
-                      {summary.total === 1 ? "" : "s"} · brief text expires after 30
-                      days
+                      {summary.total === 1 ? "" : "s"} · brief text expires
+                      after 30 days
                     </caption>
                     <thead>
                       <tr>
@@ -1163,8 +1164,8 @@ function WorkspaceEnquiries({ search }: { search: string }) {
               <p>
                 Forms start closed. A Composer form belongs to one published
                 version of a page. Publishing a new version does not open its
-                form automatically. The standalone visitor-book form has its
-                own setting.
+                form automatically. The standalone visitor-book form has its own
+                setting.
               </p>
             </div>
             <label>
