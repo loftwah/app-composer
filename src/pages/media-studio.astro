@@ -162,7 +162,7 @@ const costs = [
 
   <section id="brief" class="prose">
     <h2>From a sentence to a specification</h2>
-    <p>Start in <a href="/init?start=media-studio">Init → Media Studio</a>. Choose what you want to make, the starting models, frame and clip length. This release also added sound model and bed-length defaults. Saving the draft does not provision services, buy credit or call a model.</p>
+    <p>Start in <a href="/init?start=media-studio">Init → Media Studio</a> and select <strong>Use this starting point</strong> to apply the preview to your draft. Then choose what you want to make, the starting models, frame and clip length. This release also added sound model and bed-length defaults. Saving the draft does not provision services, buy credit or call a model.</p>
     <figure class="figure">
       <img src={init} width="1600" height="1000" alt="The Init form's Media Studio section: project name, what the studio should make, still and video model, default frame and clip length, and the saving note." loading="lazy" />
       <a href={init} aria-label="Open full-size Init form screenshot">Open full-size image</a>
@@ -471,7 +471,7 @@ url.searchParams.set("s", signature);`}</code></pre>
     <h2>Repeat it</h2>
     <p>You need a Cloudflare account on Workers Paid and a supported agent. Fal.ai generation and provider rendering also need a funded fal.ai key. Creating those accounts, signing in and approving spend are yours; the agent does the technical work. You do not need Docker, Wrangler or a database seed to start.</p>
     <ol>
-      <li><a href="/init?start=media-studio">Build your studio</a>: choose Media Studio, name it, pick defaults, save the draft.</li>
+      <li><a href="/init?start=media-studio">Build your studio</a>: select <strong>Use this starting point</strong>, name your project, choose defaults and save the draft.</li>
       <li>Export the specification and copy the agent handoff. Check the pinned source and the human-only actions.</li>
       <li>Let your agent create your copy, apply the migrations, add the secrets and deploy. It should read back the live revision.</li>
       <li>Open the studio from the Composer menu. The entry names your workspace and selected project; read, edit, generate, publish and admin are separate grants. Upload something, make a still, apply a real mask, generate a bed or effect, mix the soundtrack, build a storyboard, publish one piece.</li>

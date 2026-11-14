@@ -5,7 +5,7 @@ const limits={
   composition:'Photos require an invitation and owner review. Customer deployment still needs an authorised agent and a verified target.',
   guestbook:'Contributions remain private until approved. New customer storage and deployment need agent implementation and verification.',
   showcase:'Cards are curated HTTPS links or eligible photos. This does not automatically collect content or provision a customer deployment.',
-  'media-studio':'Uploads, the library, storyboards and public pages work without a model account. Stills use the studio’s configured Cloudflare Workers AI allowance; video, sound and a bounded render need its own funded fal.ai key. None of it is provisioned by saving this draft.',
+  'media-studio':'Uploads, the library, storyboards and public pages work without a model account. Stills use the studio’s configured Cloudflare Workers AI allowance; fal-backed video, sound and provider renders need its own funded fal.ai key. Compatible browsers can also render saved storyboards on-device. None of it is provisioned by saving this draft.',
   hello:'The supported reference changes title, introduction and theme. Broader code changes require a separate reviewed implementation.'
 };
 export function initialRecommendation(search, current) {
