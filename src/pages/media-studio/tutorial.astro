@@ -60,7 +60,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
 
   <section id="target" class="step">
     <p class="kicker">01 · Understand the target app</p>
-    <h2>What you are actually building</h2>
+    <h2>What you are building</h2>
     <dl class="roles">
       <div><dt>What you do</dt><dd>Decide what the studio is for and where its data will live.</dd></div>
       <div><dt>What the agent or product does</dt><dd>Composer holds the brief; the studio app owns the projects and media.</dd></div>
@@ -162,7 +162,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
 
   <section id="handoff" class="step">
     <p class="kicker">05 · Save and hand off the brief</p>
-    <h2>Make the contract portable</h2>
+    <h2>Save the brief for your agent</h2>
     <dl class="roles">
       <div><dt>What you do</dt><dd>Save the draft, export the spec, copy the agent handoff.</dd></div>
       <div><dt>What the agent or product does</dt><dd>Pins the source commit and lists the bindings, build plan and human-only actions.</dd></div>
@@ -187,7 +187,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
 
   <section id="build" class="step">
     <p class="kicker">06 · The agent builds and deploys</p>
-    <h2>Owner-controlled work</h2>
+    <h2>Build and deploy the studio</h2>
     <dl class="roles">
       <div><dt>What you do</dt><dd>Approve the one account step only you can do.</dd></div>
       <div><dt>What the agent or product does</dt><dd>Creates your copy, applies migrations in order, sets secrets, deploys and reads back the revision.</dd></div>
@@ -242,7 +242,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
 
   <section id="make" class="step">
     <p class="kicker">08 · Create and edit video and sound</p>
-    <h2>Make one real thing at a time</h2>
+    <h2>Make your first asset</h2>
     <dl class="roles">
       <div><dt>What you do</dt><dd>Pick a model, write the direction, confirm the estimate.</dd></div>
       <div><dt>What the agent or product does</dt><dd>Sends the request and saves the result with its source and estimated cost.</dd></div>
@@ -250,7 +250,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     </dl>
     <div class="cols">
       <div>
-        <p>Upload something first. An image, a clip and a piece of sound all land in the same project with real dimensions, duration and hashes. Then, in <strong>Create</strong>:</p>
+        <p>Start by uploading an image, clip or sound file. The studio records the dimensions or duration and a hash with each file. Then open <strong>Create</strong>:</p>
         <ol>
           <li>Pick a still model and a frame. Read the estimate before you confirm.</li>
           <li>For a real edit, choose <strong>Masked fill</strong>, paint the area to change, save the mask, then send the fill. <strong>Remove background</strong> and <strong>Upscale ×2</strong> are separate variants; the original stays.</li>
@@ -275,7 +275,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     </figure>
     <figure class="figure">
       <img src={audioAsset} width="1440" height="900" alt="A saved narration asset with waveform, player, duration, sample rate, channels and hash." loading="lazy" />
-      <figcaption>Saved narration: real waveform, real metadata, publishable on its own page.</figcaption>
+      <figcaption>Saved narration with its waveform and file details. You can publish it on its own page.</figcaption>
     </figure>
   </section>
 
@@ -328,9 +328,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     </dl>
     <div class="cols">
       <div>
-        <p>Come back with a real annoyance, not a rename. In this run it was two: the Assemble tab could not see saved storyboards, and the audio bed was always thirty seconds. The agent changed the same application, the release shipped, and the projects stayed put.</p>
+        <p>In this build, the Assemble tab could not see saved storyboards, and audio beds were always thirty seconds long. The agent fixed both in the same application; the projects stayed in place.</p>
         <p>After that release: choose a bed length of 10 to 30 seconds, edit a storyboard in place, and see when a cut has changed since its last render. Earlier renders stay attached.</p>
-        <p>Then verify the claim rather than trusting it: reopen the project, play the earlier cut, play the new one, and compare durations. Reopening reads stored bytes; it does not generate again.</p>
+        <p>To check the change, reopen the project, play the earlier cut and the new one, and compare their durations. Reopening reads the saved files without generating again.</p>
       </div>
       <aside class="check">
         <h3>What you should see</h3>
@@ -417,7 +417,7 @@ curl -s -o /dev/null -w '%&#123;http_code&#125;\n' https://your-studio.example/a
 
   <section class="end">
     <h2>Start</h2>
-    <p>You have the brief, the recipe and the evidence. The next action is one click and one conversation with your agent.</p>
+    <p>Start with the example brief or choose your own settings in Init, then share the handoff with your agent.</p>
     <div class="row">
       <a class="button" href="/init?start=media-studio">Build your studio</a>
       <a class="button secondary" href="/media-studio">Read the build article</a>

@@ -151,9 +151,9 @@ const costs = [
       </table>
     </div>
     <p>The phrase "open-source Higgsfield-style studio" describes the kind of workspace, not feature parity. Higgsfield's models, camera controls, casting and node graph are proprietary and are not reproduced here. This studio calls vendor models; it does not train or host foundation models, and the providers used here charge for inference.</p>
-    <h3>Reused, not reinvented</h3>
-    <p>The studio reuses App Composer's Get Ready, Init specification, saved brief, agent handoff and native EmDash session. This release also reuses the existing workspace/member authority: Media Studio joins Showcase and Guestbook as a granted app, with read, edit, generate, publish and admin separated. The handoff names the current actor and workspace; the studio re-checks the current grant with Composer before a privileged dispatch. It reuses Levi's MIT Fungi work where it fits: Oyster hosts a Prints installation for the earlier Composer capability run, and Darkroom's job-engine semantics informed the studio's own engine. The studio does <em>not</em> vendor Darkroom: its published catalogue only admits Fungi-gateway video models and Oyster-shaped references, which cannot serve an independent Cloudflare studio without a second job authority. That assessment is checked into the studio repository, with the reasons.</p>
-    <p>What I implemented in the studio itself: the audio asset kind with real format parsing; the storyboard manifest and bounded render; signed render-input links with byte ranges; masked fill, cutout and upscale as variant assets; the browser mix; the 9:16 slate and order-preserving derivative; scoped Composer sessions; the edit-in-place composition flow; the waveform rendering; and the fixes described later.</p>
+    <h3>What the studio reuses</h3>
+    <p>Get Ready checks the machine, Init saves the brief, and the agent handoff names the source and build steps. The studio also uses Composer's EmDash session and workspace permissions, with separate grants to read, edit, generate, publish and administer. Before a privileged request, it checks the current grant with Composer again. Levi's MIT Fungi projects informed parts of the build: Oyster hosted Prints for an earlier Composer capability run, and Darkroom's job engine informed the studio's engine. The studio does not include Darkroom itself. Its published catalogue accepts Fungi-gateway video models and Oyster-shaped references, which would need a second job authority for an independent Cloudflare studio. The studio repository records that assessment and its reasons.</p>
+    <p>For this studio, I built audio parsing and waveforms, storyboards and bounded renders, signed links for render inputs, image variants, browser mixing and scoped Composer sessions. I also added editing for saved compositions and made the 9:16 derivative described below.</p>
   </section>
 
   <section id="brief" class="prose">
@@ -184,7 +184,7 @@ const costs = [
     <h2>How the agent builds it</h2>
     <p>Get Ready checks the local toolchain and the accounts the agent will need. Init's handoff pins the studio repository and an exact commit, then names the owner-controlled resources: a D1 database bound as <code>DB</code>, an R2 bucket bound as <code>MEDIA</code>, a Workers AI binding named <code>AI</code>, the owner passphrase and session secret, and an optional fal.ai key. The agent creates the owner's copy, applies the migrations in order, deploys, and reads back the live source identity.</p>
     <p>The studio's release script refuses to run from a dirty tree, from a branch that is not <code>main</code>, or from a commit that is not pushed. It runs the focused tests once, deploys, then fetches <code>/healthz</code> and fails the release unless the live revision equals the commit it just shipped. That is the difference between "deployed" and "I think it deployed".</p>
-    <p>Two engineering decisions shaped the build more than any other.</p>
+    <p>Two parts of the build needed particular care: paid requests and access to files during a render.</p>
     <h3>Keeping track of requests</h3>
     <p>Before a paid image, video, sound or assembly request is sent, the studio records the job and reserves its estimated cost. It checks concurrent requests against the same budget. If saving a finished result fails, the retained file can be saved again without making another generation request. When the provider outcome is unknown, the reservation stays in place until the job is reconciled; the studio does not automatically resubmit it.</p>
     <h3>How a provider render gets its files</h3>
@@ -204,7 +204,7 @@ url.searchParams.set("s", signature);`}</code></pre>
   <section id="use" class="prose">
     <h2>Making something real</h2>
     <p>The studio opens from the Composer menu with the existing EmDash sign-in. There is no second password in the normal path, and the browser never holds the studio's owner passphrase or the provider keys. The entry names the current actor, one workspace and the selected project; read, edit, generate, publish and admin are separate grants. Standalone sign-in still exists, because the studio is a normal independent app; it is just not the way you arrive from Composer.</p>
-    <h3>A mask, not a prompt pretending to be one</h3>
+    <h3>Editing with a mask</h3>
     <p>Masked editing came later, using FLUX.1 Fill on fal. Pick a still, paint the area to change and describe what belongs there. The studio saves the source and a same-size, white-on-black mask separately, then saves the fill as a linked variant with its own hash. The original stays in the library.</p>
     <p>Outpainting uses the same tool deliberately: the studio builds a 25% larger canvas, centres the original, and masks the new border. Background removal is BiRefNet returning a transparent PNG; upscaling is Clarity at 2×. All three were exercised on the deployed studio, and all three save the result beside the source rather than over it.</p>
     <p>One implementation detail was not obvious: the provider's image fetcher refused the studio's signed HTTPS links, even though they were public and worked in a browser. The fix was to send the exact bytes as a data URI. That is also why the fill job now stores the source and mask hashes on the generation row: the provider never needs a durable public copy of either.</p>
@@ -232,7 +232,7 @@ url.searchParams.set("s", signature);`}</code></pre>
       <img src={audioAsset} width="1440" height="900" alt="An audio asset page: the waveform, a player, the duration, sample rate and channel count, the SHA-256 and downloads." loading="lazy" />
       <figcaption>The saved narration has a waveform, audio metadata, hash and download. It can be published or used in a storyboard.</figcaption>
     </figure>
-    <p>Publication is deliberate and separate from visibility. A published page exposes the title, description and media. Prompts, other projects and filenames stay private, and the private APIs still return 401 to a signed-out visitor. Withdrawing the page stops new visits; it cannot recall a download somebody already took, and the studio says that rather than implying otherwise.</p>
+    <p>A published page shows its title, description and media. Prompts, other projects and filenames stay private, and private APIs return 401 to a signed-out visitor. Withdrawing a page stops new visits, though it cannot recall a file someone has already downloaded.</p>
     <figure class="figure">
       <img src={publicPage} width="1440" height="900" alt="The public page for the assembled cut: title, description, video player, dimensions and a download link." loading="lazy" />
       <figcaption>The published master, signed out: <a href="https://media.loftwah.com/p/Na9FNUB_VhzZ7zA9">media.loftwah.com/p/Na9FNUB_VhzZ7zA9</a>.</figcaption>
@@ -329,7 +329,7 @@ url.searchParams.set("s", signature);`}</code></pre>
 
   <section id="change" class="prose">
     <h2>Changing the application</h2>
-    <p>A studio you cannot change is just another subscription with extra steps. So after the first release I made a change to the same application, with the same projects and media still in place. Two things were wrong in ways a screenshot would not reveal.</p>
+    <p>After the first release, I fixed two problems in the same application. The existing projects and media stayed in place.</p>
     <p><strong>The Assemble tab could not see saved storyboards.</strong> The server returned them; the client loader dropped the field. The tab said "No storyboard saved yet" while a storyboard with a rendered master existed — exactly the kind of defect that only appears when you look at the real page.</p>
     <p><strong>The audio length was fixed at thirty seconds.</strong> You could generate a bed, but not one that fit a seventeen-second cut. The container ended up thirty seconds long with a mostly silent tail.</p>
     <figure class="figure pair">
@@ -353,7 +353,7 @@ url.searchParams.set("s", signature);`}</code></pre>
     <p>The portrait output also needed correcting. The 9:16 label was wrong: the file was 4:5, and the portrait-first sort changed the edit to suit the frame. The label was removed first. The replacement composes a deliberate 1080×1920 slate, generates one 720×1280 vertical slate video with Wan 2.5, retains it as a reusable asset, then composes the selected takes in their chosen order after it with the saved sound. The job engine treats that as one generation row with two bounded provider stages, so the budget, retained bytes and tombstone rules are the same as every other render.</p>
     <p>The provider then changed underneath the fix. New `ffmpeg-api` compose jobs submit and report completed, but their result route returns 403 — "Access denied: You do not have permission to use this endpoint" — for the exact payload that worked earlier; the normal assembly path is blocked the same way. I also tested fal's documented direct call and a scheduled dispatch; neither completed reliably inside the studio's runtime, so the queue path stays. The studio now accepts fal's signed webhook delivery, which saves the master when execution succeeds and records the model's own error when it does not. I did not call the button fixed. The 9:16 derivative on this page was finished deterministically with local ffmpeg from the same saved takes, sound and slate: 720×1280, SAR 1:1, DAR 9:16, 17.79 seconds. The in-product path stays coded and unit-tested, and the article records the external permission block rather than hiding it in a limitations list.</p>
     <p>Before/after is measurable: the same storyboard still has the 17.02-second and 30.00-second masters in the library, both downloadable, neither regenerated. The failed 4:5 job and the failed provider compose jobs remain in history as the honest record of what was learned.</p>
-    <p>The same release added the masked fill, cutout, upscale, Studio Effect, browser mix and the scoped Composer grants. Those are not a rewrite of the studio; they are the capabilities the earlier page said were missing.</p>
+    <p>The same release added masked fill, cutout, upscale, Studio Effect, browser mixing and scoped Composer grants.</p>
   </section>
 
   <section id="architecture" class="prose">
@@ -391,7 +391,7 @@ url.searchParams.set("s", signature);`}</code></pre>
 
   <section id="evidence" class="prose">
     <h2>Evidence, costs and limits</h2>
-    <p>Each advertised route was checked in four steps: the official documentation and schema, the actual account's access, a bounded request through the studio's real server adapter, and the released interface reading the retained output. The gaps are named, not smoothed over.</p>
+    <p>For the routes marked live below, we checked provider documentation and account access, sent a bounded request through the studio, and opened the saved output in the released interface. The table also records the routes that did not work.</p>
     <div class="table-wrap">
       <table>
         <caption>Results recorded on 13–14 November 2026, Melbourne time. "Live" means a real request through the studio produced a saved result.</caption>
