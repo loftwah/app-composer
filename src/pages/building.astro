@@ -79,7 +79,7 @@ const contribution = dims['building-contribution'] as { desktop: { width: number
       </section>
 
       <section id="product">
-        <h2>What App Composer is, and what it is not</h2>
+        <h2>The apps and the agent</h2>
         <p>App Composer is a place to compose independent apps into one public result. Each app keeps its own source repository, records, media, owner API and release. Composer keeps the workspace, the saved stack, the publication revision and the reviewed connection between them. It is not a second content store, and it does not make every app share one database.</p>
         <div class="build-roles">
           <article><h3>App Composer</h3><p>Astro pages for the public product, EmDash for native administration, D1 and R2 for Composer's own workspace and publication records, and a small bridge for declared app actions.</p></article>
@@ -87,13 +87,13 @@ const contribution = dims['building-contribution'] as { desktop: { width: number
           <article><h3>Linkarooie</h3><p>Another independent Worker. It owns the profile, authored links, curation and which approved source items are featured. It asks Guestbook for current eligibility on every render.</p></article>
           <article><h3>The agent</h3><p>A coding agent works in the selected repositories: it reads the brief, prepares the environment, changes source, runs checks and follows the release path. Account access, spending and consequential permissions stay human decisions.</p></article>
         </div>
-        <h3>The development history, briefly and accurately</h3>
+        <h3>How the work developed</h3>
         <p>The first commit is 11 October 2026. The working foundation landed on 13 October: the public site, independent composition, Init, the decision explorer, guarded Access administration and a first readiness handoff. The following days added the readiness core, a verified Hello update, the app library and launcher, the composed collection, workspace roles, private outcomes, the enquiry inbox, the owner experience and the approved orange identity. This article describes a change made on 22 October; it is not a retrospective claim that the whole product appeared in one session.</p>
         <p><strong>Where the self-build claim is real:</strong> Composer's own Init produced the portable specification used to configure the local Linkarooie instance below. This article is itself an Astro page in the Composer repository, built and released through Composer's own checks and guarded deployment. We are not claiming that Composer autonomously wrote its own source, chose its own architecture or deployed without an agent and an owner.</p>
       </section>
 
       <section id="brief">
-        <h2>The brief was a question, not a feature list</h2>
+        <h2>The starting brief</h2>
         <blockquote>Why would I want Guestbook entries on Linkarooie? Isn't Guestbook how other people write or comment on my Linkarooie?</blockquote>
         <p>The relationship was real but hard to discover. Linkarooie could feature an approved Guestbook moment, yet the profile did not explain where notes come from, who reviews them, or why a featured card is not the same thing as a submission. The easiest wrong answer was a comment box inside Linkarooie. That would duplicate Guestbook's intake, moderation, retention and revocation, and it would create a second place where private visitor text could leak.</p>
         <p>The accepted brief separated three states in plain language:</p>
@@ -237,7 +237,7 @@ labs/building/stop-local.sh`}</code></pre>
           </figure>
         </div>
 
-        <h3>3. Revocation and closed states are visible, not implied</h3>
+        <h3>3. Revocation and closed states</h3>
         <div class="build-plates build-plates--two">
           <figure>
             <img src="/guides/building/revoked-profile-desktop.webp" width="1200" height="833" alt="Linkarooie profile after the source note was hidden, with the featured postcard gone and no stale media." loading="lazy" />
@@ -267,7 +267,7 @@ labs/building/stop-local.sh`}</code></pre>
       </section>
 
       <section id="composition">
-        <h2>Why this is composition, not a merged app</h2>
+        <h2>How the two apps work together</h2>
         <p><a href="/diagrams#diagram-contribution-boundary">Open the editable LDraw contribution diagram</a> to revise the pending, approval, featuring and source-removal explanation.</p>
         <figure class="build-figure">
           <picture class="diagram-dark">
