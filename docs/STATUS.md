@@ -62,10 +62,15 @@ integration evidence is in
   answer byte ranges (206 + `Content-Range`); withdrawal stops page, media,
   download, poster and `/s/` alias with 404.
 - **Provider block.** New fal `ffmpeg-api/compose` jobs are accepted and report
-  completed, but the result route returns 403 for the payload that worked
-  earlier. In-product assembly and 9:16 are coded and unit-tested but blocked;
-  earlier masters stay available. This is recorded in the article, tutorial and
-  limits rather than hidden.
+  completed, but the result route returns 403 with "Access denied: You do not
+  have permission to use this endpoint" for the payload that worked earlier. In-
+  product assembly and 9:16 are coded and unit-tested but blocked; earlier
+  masters stay available. The studio now classifies this as
+  `provider_permission`, keeps the saved request id and offers Reconcile, which
+  re-reads the same result without a second paid job. fal's documented direct
+  call and a scheduled dispatch were tried and did not complete reliably inside
+  the studio runtime, so the queue remains. Recorded in the article, tutorial
+  and limits rather than hidden.
 - **Open gates.** No by-ear review of the complete films or mix, no
   fresh-instance build replay or complete build/use/software-change film, no
   physical-device matrix, and no per-project grant rows in People & access.

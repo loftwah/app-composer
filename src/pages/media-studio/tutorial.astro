@@ -286,7 +286,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <div class="cols">
       <div>
         <p>Open <strong>Assemble</strong>. Add two to six saved takes in order, add up to four saved music, narration or effect tracks, set trim, gain and fades, and mix the soundtrack. The browser renders the mix deterministically to a new WAV; the separate tracks stay as lineage. Save the storyboard; a render copies the manifest into the job and keeps earlier renders attached.</p>
-        <p>The 9:16 control opens with a deterministic 1080×1920 slate, generates a 720×1280 vertical slate video once, retains it, then composes the selected takes in their chosen order after it. The current fal account refuses the result of new compose jobs with 403, so the button cannot produce a new master today. The article's 9:16 derivative was finished with local ffmpeg from the same saved takes and sound; do not call the blocked button fixed.</p>
+        <p>The 9:16 control opens with a deterministic 1080×1920 slate, generates a 720×1280 vertical slate video once, retains it, then composes the selected takes in their chosen order after it. The current fal account refuses the result of new compose jobs with 403 — `Access denied: You do not have permission to use this endpoint`. The studio records that as a permission block, keeps the saved request and offers Reconcile, so the same completed result can be read after the provider permission is fixed without paying for another render. Until then the button cannot produce a new master. The article's 9:16 derivative was finished with local ffmpeg from the same saved takes and sound; do not call the blocked button fixed.</p>
         <p>Publication is a separate, deliberate act. Four controls do four different things:</p>
         <ul>
           <li><strong>Publish / unpublish</strong> — a public page exists or is withdrawn. Withdrawal stops new visits; it cannot recall a download already taken.</li>
@@ -299,7 +299,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
         <h3>What you should see</h3>
         <p>An assembled MP4 with its dimensions, real duration and take count; a public page that loads signed out; private routes that still return 401.</p>
         <h3>Recover</h3>
-        <p><strong>A render that ends in "result unavailable":</strong> reconcile the job. It re-reads the same provider result; it does not dispatch a new one. If the provider returns 403, stop and record the external block; do not create a new request id.</p>
+        <p><strong>A render that ends in "result unavailable":</strong> reconcile the job. It re-reads the same provider result; it does not dispatch a new one. If the provider returns 403 with a permission detail, stop and record the external block: fix the provider key or endpoint permission, then use Reconcile. Do not create a new request id.</p>
         <p><strong>The 9:16 control refuses:</strong> the storyboard has no saved slate image, or the saved slate video is missing. The studio will not stretch a 4:5 master.</p>
       </aside>
     </div>

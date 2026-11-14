@@ -42,7 +42,8 @@ a deterministic 1080×1920 slate, one generated 720×1280 vertical slate video
 retained and reused, then a compose of the selected takes and sound.
 
 **Current provider block:** new fal `ffmpeg-api/compose` jobs are accepted and
-reported complete, but their result route returns 403 for the payload that
+reported complete, but their result route returns 403 ("Access denied: You
+do not have permission to use this endpoint") for the payload that
 worked earlier. The in-product assembly and 9:16 controls are coded and
 unit-tested but cannot produce a new master today. The article's 9:16
 derivative was finished deterministically with local ffmpeg from the same saved
