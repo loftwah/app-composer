@@ -132,8 +132,8 @@ export function Workflows({ search }: { search: string }) {
         enabled,
       },
       enabled
-        ? "Recipe turned on for supported native write events. Use Scan now to recover existing or missed records."
-        : "Recipe saved and paused. New scans and real-source retries are stopped.",
+        ? "Recipe turned on. It can prepare drafts for supported events. Use Scan now to check existing records or catch missed events."
+        : "Recipe saved and paused. New scans and retries of real records are stopped.",
     );
   }
   async function sample(recipe: WorkflowKind, fail: boolean) {
@@ -156,7 +156,7 @@ export function Workflows({ search }: { search: string }) {
     void run(
       "scan",
       { recipe, expectedRevision: current.revision },
-      "Scan finished. Current source revisions already in history were not repeated.",
+      "Scan finished. Records already in the history were not repeated for the same revision.",
     );
   }
   function download(name: string, value: unknown) {
@@ -177,7 +177,7 @@ export function Workflows({ search }: { search: string }) {
     try {
       await navigator.clipboard.writeText(text);
       setNotice(
-        "Draft copied. Review its actual source and support limits before sharing.",
+        "Draft copied. Check the source and its limits before sharing.",
       );
       setManual("");
     } catch {
@@ -199,13 +199,13 @@ export function Workflows({ search }: { search: string }) {
         [imported.recipe]: imported.name,
       }));
       setNotice(
-        "Recipe name and supported identity imported into the editor. Save paused to review it, then explicitly turn it on. Imports grant no access and contain no credentials.",
+        "Recipe name and type loaded into the editor. Save it paused to review it, then turn it on when ready. The import grants no access and contains no credentials.",
       );
       setError("");
     } catch {
       if (alive.current)
         setError(
-          "This recipe is malformed or unsupported. Use a version 1 Composer recipe with its matching trigger/action and no secret values. Existing recipes are unchanged.",
+          "This file could not be imported. Use a version 1 Composer recipe with matching trigger and action, and no secrets. Existing recipes are unchanged.",
         );
     }
   }
@@ -218,8 +218,8 @@ export function Workflows({ search }: { search: string }) {
         <div>
           <h1>Workflows</h1>
           <p>
-            Small useful recipes. A visible result and a safe way to deal with
-            problems.
+            Prepare a summary after a publication, or an item to help you
+            review a failed platform request.
           </p>
         </div>
         <button
@@ -330,10 +330,10 @@ export function Workflows({ search }: { search: string }) {
               : lead.kind === "finished"
                 ? (lead.run.result?.body ?? lead.run.message)
                 : lead.kind === "waiting"
-                  ? "No retained run in this scope yet. Scan now checks current source records and prepares the next draft."
+                  ? "No run is saved here yet. Scan now checks current records and prepares a draft when it finds a match."
                   : !lead.recipe.scopeMatches
-                    ? "This recipe was saved for another account or environment. Save & turn on will save it for this selected target."
-                    : "New scans and real-source retries are stopped for this recipe. Save & turn on to resume supported native events."}
+                    ? "This recipe belongs to another account or environment. Save & turn on will save it for the account and environment selected here."
+                    : "This recipe is paused: it will not scan or retry real records. Save & turn on to resume handling supported events."}
           </p>
           <p className="cw-meta">
             Workspace <strong>{snapshot.workspace.name}</strong> ·{" "}
@@ -350,11 +350,10 @@ export function Workflows({ search }: { search: string }) {
         </section>
       )}
       <p className="cw-mode">
-        <strong>Native events with explicit recovery.</strong> Enabled recipes
-        prepare drafts after supported native publication or platform writes
-        confirm their saved result. Scan now checks up to 20 current source
-        records and recovers missed follow-ups. No background schedule, email,
-        publication or remediation is created by these recipes.
+        When a supported publication or platform change is saved, an enabled
+        recipe can prepare a draft. Scan now checks up to 20 current records
+        for missed follow-ups. These recipes do not schedule background work,
+        send email, publish a post or fix a failed request.
       </p>
       <div className="cw-links">
         <a href="/_emdash/admin/plugins/composer-stacks/workspaces">
@@ -498,9 +497,9 @@ export function Workflows({ search }: { search: string }) {
               </label>
             </div>
             <p>
-              Latest 50 receipts, with a limit of 500 retained per workspace.
+              The latest 50 runs appear here; each workspace can retain up to 500 real runs.
               Each source revision has one result. Sample runs are labelled and
-              never count as live activity.
+              do not count as live activity.
             </p>
             {!snapshot.runs.length && (
               <p className="cw-empty">
@@ -620,7 +619,7 @@ export function Workflows({ search }: { search: string }) {
     await run(
       "retry",
       { run: item.id, expectedRevision: item.revision },
-      "The persisted source was checked again. Finished steps were not submitted to any external provider.",
+      "The saved source was checked again. Completed steps were not sent to an external provider.",
     );
   }
 }

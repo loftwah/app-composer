@@ -20,9 +20,9 @@ export const workflowRecipes = [
     name: "A failed task needs attention",
     when: "An internal platform request needs attention",
     condition:
-      "The request still belongs to this workspace and is still failing",
+      "The request still belongs to this workspace and needs attention",
     action: "Prepare one actionable attention item",
-    help: "Group each request revision into one result with its existing recovery destination. No automatic remediation or email is performed.",
+    help: "Prepare one item for each request revision, with a link to the existing recovery action. It does not send email or fix the request automatically.",
   },
 ];
 export const workflowExport = z
