@@ -158,9 +158,9 @@ test('current and historical Studio briefs retain their exact reviewed source pi
   const restored = validateSpec(historical);
   assert.deepEqual(restored.sources, historical.sources);
   assert.deepEqual(validateSpec(JSON.parse(JSON.stringify(restored))).sources, historical.sources);
-  const previous = {...historical, sources:[mediaStudioSource.legacySources[1]]};
-  assert.deepEqual(validateSpec(JSON.parse(JSON.stringify(previous))).sources, previous.sources);
   for (const oldSource of mediaStudioSource.legacySources) {
+    const previous = {...historical, sources:[oldSource]};
+    assert.deepEqual(validateSpec(JSON.parse(JSON.stringify(previous))).sources, previous.sources);
     for (const patch of [{manifestDigest:'sha256:'+'b'.repeat(64)}, {repository:'https://example.com/other'}, {id:'wrong'}]) {
       assert.throws(() => validateSpec({...historical, sources:[{...oldSource,...patch}]}), /contracts have changed/);
     }

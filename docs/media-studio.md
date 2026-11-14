@@ -6,7 +6,7 @@ through Composer, then own and operate as its own application.
 
 - Source: https://github.com/loftwah/composer-media-studio
 - Live: https://media.loftwah.com
-- New Composer Init briefs pin [Studio `b8821b3`](https://github.com/loftwah/composer-media-studio/tree/b8821b32513756f79998e4f5c85dd041a9b52079), verified live on 15 November 2026. Briefs pinned to `fec91ba` or `75cf69c` remain importable, including the original downloadable Paper & Light brief; their exact source and manifest digest are retained.
+- New Composer Init briefs pin [Studio `eb39262`](https://github.com/loftwah/composer-media-studio/tree/eb3926225d355a14e2cd0b288dfe19ceef3718d2), verified live on 15 November 2026. Briefs pinned to `fec91ba`, `75cf69c` or `b8821b3` remain importable, including the original downloadable Paper & Light brief; their exact source and manifest digest are retained.
 - Reuse decision: [studio Darkroom assessment](https://github.com/loftwah/composer-media-studio/blob/main/docs/darkroom-assessment.md)
 
 ## What a person gets
