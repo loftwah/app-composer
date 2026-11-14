@@ -8,7 +8,7 @@ release index remains [#11](https://github.com/loftwah/app-composer/issues/11).
 
 | Item | Value |
 | --- | --- |
-| Composer source | `7910308ea8f98655dbeb1f88a7536c6dc0db3419` |
+| Composer source | `af1abe9f4ab5494bae2bd24892a838ece04677ab` |
 | Composer Worker | `ad4bef19-e03c-4ee8-901f-b26617ad68cb` (first scoped deploy); final source verified at `7910308` |
 | Studio source | `4511cfe1ba54d27f88458f23521629fb3f6c855b` |
 | Studio Worker | `28839448-a713-4c3d-8898-9aba590005c3` |
@@ -48,7 +48,7 @@ claim that the code path is untested.
 - Effect: `gen_457ce7e092eb462c80499ae8e97d2f43` saved a 5.04 s, 44.1 kHz stereo MP3; US$0.008.
 - Browser mix: the “Paper & Light — three-track mix proof” storyboard mixed Studio Score + Studio Voice + Studio Effect to `asset_aec3b8759f6146c8be6fc33e75ac0887`, 16.792 s, 44.1 kHz stereo, 2,962,156 bytes, and saved the composition with `mixed bed · 3 source tracks`.
 - The 9:16 cut `asset_387d3faf5d684729b2e52a12b94de8e8` is 720×1280, SAR 1:1, DAR 9:16, 17.791667 s video, AAC 44.1 kHz stereo, SHA-256 `58f2c4b4d206045d655a5b590c85fe835b9f0b73a9ce06155a67a44cbe5ef1e1`.
-- Range: `GET /p/5KqkS8ZEC-mj_yjm/media` with `Range: bytes=0-1023` returns 206, `content-range: bytes 0-1023/2739864`.
+- Range: `GET /p/5KqkS8ZEC-mj_yjm/media` with `Range: bytes=0-1023` returns 206, `content-range: bytes 0-1023/2739864`. The Composer-hosted films at `/media-studio/watch/overview.mp4`, `walkthrough.mp4` and `brand-916-motion.mp4` also return 206 with `Content-Range` and `Accept-Ranges: bytes`; the two recorded films played to 68.4 s and 84.1 s, seeked, reloaded and exposed one caption track.
 - Withdrawal: after `DELETE /api/publications/pub_744bf698e23f4feeb91a6f751d20e1a7`, the page, media, download, poster and `/s/` alias all return 404.
 - The public article’s 1200×630 share card and the 720×1280 motion are live at the URLs above. The motion was re-rendered with a usable Studio Effect bed (−16.5 LUFS integrated, −5.2 dBFS true peak); the first quiet mix is retained and its publication withdrawn.
 - The article loaded at 320, 390, 768, 1280, 1440, 1728 and 2560 px with no horizontal overflow. The `.figure.narrow` column matched the prose column at 1280–2560; the before/after pair rendered 1280×720 and 1280×704 at their true ratios.
