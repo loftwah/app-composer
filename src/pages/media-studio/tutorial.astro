@@ -104,7 +104,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
         <h3>Checkpoint</h3>
         <p>You can see a funded fal.ai balance and your Cloudflare account has Workers AI available. No key has been pasted into chat, a prompt, a screenshot or a repository.</p>
         <h3>Recover</h3>
-        <p><strong>No fal key yet?</strong> Everything except video, sound and rendering still works: uploads, the library, stills on Workers AI, export and publication. Add the key when you are ready.</p>
+        <p><strong>No fal key yet?</strong> Uploads, the library, Workers AI stills, export and publication remain available. Fal-backed fills, cutout, upscale, video, sound and assembly need the studio’s own configured key; availability and funding are checked separately.</p>
       </aside>
     </div>
   </section>
@@ -265,7 +265,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
         <p>A job in History, then a saved asset. For sound, a playable card with a waveform and its real duration.</p>
         <h3>Recover</h3>
         <p><strong>"This route needs a fal.ai key":</strong> the key is missing on the studio, not in your shell. Add it to the deployment's secrets.</p>
-        <p><strong>Provider refuses for funding:</strong> nothing was charged. Add credit on the studio's own provider account and retry the same request.</p>
+        <p><strong>Provider refuses for funding:</strong> check the saved job and the provider’s actual status before acting. If the outcome is unknown, keep its reservation and reconcile it; do not submit another paid request. A definitive funding refusal and any later new request still require the owner’s approval.</p>
         <p><strong>Save failed after the provider finished:</strong> use "Retry saving". It writes the retained bytes and does not generate again. Never mint a new request id to fix a save.</p>
       </aside>
     </div>
@@ -409,7 +409,7 @@ curl -s -o /dev/null -w '%&#123;http_code&#125;\n' https://your-studio.example/a
       <div><dt>Handoff rejected as expired</dt><dd>Seconds versus milliseconds. Normalise the unit; do not lengthen the token to hide it.</dd></div>
       <div><dt>Render job stuck at "result unavailable"</dt><dd>Reconcile. It re-reads the same provider result. If the provider's own detail names an invalid input, fix the request shape — that is how the single-input portrait-cut attempt was found.</dd></div>
       <div><dt>Images binding error 9432 on the Oyster route</dt><dd>Legacy billing on that account. It blocks the host's reference fitter, not the studio's own reference variation. Enable Cloudflare Images or migrate billing, and label which route produced which result.</dd></div>
-      <div><dt>Video refused: AI Gateway could not fund this request</dt><dd>Nothing was charged. Add credit and retry the same request id.</dd></div>
+      <div><dt>Video refused: AI Gateway could not fund this request</dt><dd>Check the saved job and provider status. An unknown outcome keeps its reservation; reconcile it without another paid submission. Do not assume billing or retry an ambiguous job.</dd></div>
       <div><dt>Blank media card after publishing</dt><dd>Check the asset revision and its publications. Withdrawal revokes the page; hiding only removes the card.</dd></div>
     </dl>
   </section>
