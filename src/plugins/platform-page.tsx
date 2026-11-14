@@ -12,7 +12,7 @@ import {
   type PlatformSnapshot,
 } from "./platform/protocol";
 import "./platform-page.css";
-import { focusStoredRecord } from './record-anchor';
+import { focusStoredRecord } from "./record-anchor";
 
 const defaults: PlatformProfileInput = {
   enabled: false,
@@ -69,7 +69,8 @@ export function PlatformWorkspace({ search }: { search: string }) {
   const [snapshot, setSnapshot] = useState<PlatformSnapshot>();
   const anchorFocused = useRef(false);
   useEffect(() => {
-    if (snapshot && !anchorFocused.current) anchorFocused.current = focusStoredRecord('platform-request-');
+    if (snapshot && !anchorFocused.current)
+      anchorFocused.current = focusStoredRecord("platform-request-");
   }, [snapshot]);
   const [profile, setProfile] = useState<PlatformProfileInput>({ ...defaults });
   const [profileBase, setProfileBase] = useState<PlatformProfileInput>({
@@ -327,8 +328,8 @@ export function PlatformWorkspace({ search }: { search: string }) {
           <p>{error}</p>
           {uncertain && (
             <p>
-              The outcome may have changed on the server. Refresh before another
-              write. Your entries and submission identity are retained.
+              The server may have saved this change. Refresh before trying
+              another action. Your entries and submission identity are kept.
             </p>
           )}
         </div>
@@ -353,15 +354,15 @@ export function PlatformWorkspace({ search }: { search: string }) {
           >
             <h2 id="platform-scope">The supported path</h2>
             <p>
-              A synthetic preview visitor book, isolated by an app-owned
-              resource in the existing Guestbook runtime. This path does not
-              create a separate Worker or database for each application.
+              This path creates a fictional preview visitor book in the existing
+              Guestbook runtime, with its own app resource. It does not create a
+              separate Worker or database for each application.
             </p>
             <p>
               {snapshot.runner.message}{" "}
               {snapshot.runner.available
-                ? "Configuration is present; this is not a connectivity or permission check."
-                : "Execution is unavailable; requests retain their state."}
+                ? "Configuration is present. Connectivity and permissions have not been checked."
+                : "The service cannot run requests right now. Saved requests keep their current state."}
             </p>
           </section>
           <div className="ca-platform-workbench">
@@ -559,8 +560,9 @@ export function PlatformWorkspace({ search }: { search: string }) {
                   )}
                 </div>
                 <p className="ca-platform-help">
-                  Allowed requests proceed automatically through the trusted
-                  adapter. A specification or profile never changes your role.
+                  Requests allowed by policy proceed automatically through the
+                  existing adapter. Submitting a request or saving policy does
+                  not change your role.
                 </p>
               </form>
             </section>
@@ -747,13 +749,13 @@ export function PlatformWorkspace({ search }: { search: string }) {
           >
             <h2 id="platform-requests-heading">Requests & services</h2>
             <p>
-              Recipes describe what can be requested. Only a completed, verified
-              request represents an available service.
+              A recipe describes what you can request. A service is available
+              only after its request completes and is verified.
             </p>
             {snapshot.requests.length === 0 && (
               <p>
-                No requests in this workspace yet. Name a synthetic preview
-                application above to evaluate its plan.
+                No requests in this workspace yet. Name a fictional preview
+                application above to see its plan.
               </p>
             )}
             <ol className="ca-platform-request-list">
@@ -791,7 +793,7 @@ export function PlatformWorkspace({ search }: { search: string }) {
                         ? "reconcile"
                         : "run",
                       { id: entry.id, expectedRevision: entry.revision },
-                      "Operation reconciled. Check its current verification result below.",
+                      "Request checked. Review its current status and verification result below.",
                     )
                   }
                   onRevise={() => startRevision(entry)}
@@ -823,13 +825,14 @@ export function PlatformWorkspace({ search }: { search: string }) {
             </label>
           )}
           <footer className="ca-platform-footer">
-            <h2>Access stays in its own domain.</h2>
+            <h2>How access works</h2>
             <p>
-              Enterprise identity admits people; EmDash controls administration;
-              Composer checks workspace membership and policy; delivery identity
-              controls deployment; runtime bindings control capabilities; each
-              application controls its visitors. An application user does not
-              become a platform operator.
+              Enterprise identity controls sign-in, and EmDash controls
+              administration. Composer checks workspace membership and policy.
+              Deployment uses a separate delivery identity, runtime bindings
+              determine capabilities, and each application controls its own
+              visitors. Using an application does not make someone a platform
+              operator.
             </p>
             <div className="ca-platform-actions">
               <a href={studioLink("stacks")}>Open Creator stacks</a>
