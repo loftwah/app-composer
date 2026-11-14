@@ -35,7 +35,9 @@ test("article figures and lead image follow the reading column", () => {
   for (const selector of [".art-hero-copy", ".art-hero-figure", ".contents", ".prose"]) {
     assert.match(declarations(css, selector), /max-width:74ch/, `${selector} should share the reading measure`);
   }
-  assert.match(declarations(css, ".art-hero-figure"), /margin:30pxauto0/);
+  assert.match(declarations(css, ".art-hero"), /grid-template-columns:minmax\(0,1fr\)minmax\(0,1fr\)/);
+  assert.match(declarations(css, ".art-hero-figure"), /width:100%/);
+  assert.match(css, /@media\s*\(max-width:\s*900px\)\s*\{[\s\S]*?\.art-hero\{grid-template-columns:minmax\(0,1fr\)/);
   const figure = declarations(css, ".figure");
   assert.match(figure, /width:100%/);
   assert.doesNotMatch(figure, /translateX|margin-left:50%/);
