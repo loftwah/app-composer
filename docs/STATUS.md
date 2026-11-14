@@ -61,9 +61,12 @@ integration evidence is in
 - **Media delivery.** Published media, downloads and signed render inputs
   answer byte ranges (206 + `Content-Range`); withdrawal stops page, media,
   download, poster and `/s/` alias with 404.
-- **Provider block.** New fal `ffmpeg-api/compose` jobs are accepted and report
-  completed, but the result route returns 403 with "Access denied: You do not
-  have permission to use this endpoint" for the payload that worked earlier. In-
+- **Provider block.** New fal `ffmpeg-api/compose` jobs are accepted, then the
+  model ends with "Unexpected status code: 403" before fetching any signed
+  input; the result route also returns 403 with "Access denied: You do not have
+  permission to use this endpoint". A verified fal webhook receiver now records
+  the model's own error and will save the master when the provider allows
+  execution. In-
   product assembly and 9:16 are coded and unit-tested but blocked; earlier
   masters stay available. The studio now classifies this as
   `provider_permission`, keeps the saved request id and offers Reconcile, which

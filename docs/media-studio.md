@@ -41,10 +41,11 @@ it in place and keeps earlier renders. The 9:16 path keeps the selected order:
 a deterministic 1080×1920 slate, one generated 720×1280 vertical slate video
 retained and reused, then a compose of the selected takes and sound.
 
-**Current provider block:** new fal `ffmpeg-api/compose` jobs are accepted and
-reported complete, but their result route returns 403 ("Access denied: You
-do not have permission to use this endpoint") for the payload that
-worked earlier. The in-product assembly and 9:16 controls are coded and
+**Current provider block:** new fal `ffmpeg-api/compose` jobs are accepted,
+then the model ends with "Unexpected status code: 403" and the result route
+returns 403 ("Access denied: You do not have permission to use this
+endpoint"). A verified webhook receiver now records the model's own error and
+will save the master when execution succeeds. The in-product assembly and 9:16 controls are coded and
 unit-tested but cannot produce a new master today. The article's 9:16
 derivative was finished deterministically with local ffmpeg from the same saved
 takes, sound and slate: 720×1280, SAR 1:1, DAR 9:16, 17.79 s. Published media,
