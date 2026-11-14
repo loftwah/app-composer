@@ -17,24 +17,23 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
         await page.locator('#theme-toggle').click();
       }
       await page.evaluate(() => document.fonts.ready);
-      await page.locator('.home-proof img').evaluateAll(images => Promise.all(images.map(image => image.decode())));
+      await page.locator('.studio-poster img').evaluateAll(images => Promise.all(images.map(image => image.decode())));
       const geometry = await page.evaluate(() => {
         const box = selector => document.querySelector(selector).getBoundingClientRect().toJSON();
-        return { hero: box('.home-hero'), copy: box('.home-hero-copy'), proof: box('.home-proof'), next: box('.home-paths'),
+        return { hero: box('.studio-hero'), copy: box('.studio-copy'), stage: box('.studio-stage'), deck: box('.studio-deck'), next: box('#make-something'),
           overflow: document.documentElement.scrollWidth > innerWidth + 1,
           reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
           scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior,
-          imageCount: [...document.querySelectorAll('.home-proof img')].filter(image => image.naturalWidth > 0).length };
+          imageCount: [...document.querySelectorAll('.studio-poster img')].filter(image => image.naturalWidth > 0).length };
       });
       ensure(!geometry.overflow, `Homepage overflows at ${width}/${theme}`);
-      ensure(geometry.imageCount === 4, `Missing original proof imagery at ${width}/${theme}`);
+      ensure(geometry.imageCount === 2, `Missing workshop posters at ${width}/${theme}`);
       ensure(geometry.reducedMotion, 'Reduced motion preference was lost');
       ensure(geometry.scrollBehavior === 'auto', 'Reduced motion still animates anchor scrolling');
-      // Regression: the full-width 900px proof panel formerly grew to 937px.
-      if (width >= 701 && width <= 1000) ensure(geometry.proof.height < 480, 'Tablet proof panel strands the following section');
-      if (width > 1000) ensure(Math.abs(geometry.copy.height - geometry.proof.height) < 240, 'Hero columns leave an excessive unused region');
+      ensure(geometry.copy.bottom <= geometry.deck.top + 1, 'Workshop desk covers headline, actions or context');
+      if (width <= 900) ensure(geometry.stage.bottom <= geometry.deck.top + 1, 'Workshop stage overlaps the desk');
       ensure(geometry.next.top - geometry.hero.bottom <= 2, 'Unexplained gap after the hero');
-      for (const href of ['/ready', '/prompts', '/agent']) ensure(await page.locator(`.home-hero a[href="${href}"]`).isVisible(), `${href} is not visible`);
+      for (const href of ['/ready', '/apps']) ensure(await page.locator(`.studio-copy a[href="${href}"]`).isVisible(), `${href} is not visible`);
       const name = `${width}-${theme}`;
       if (capture) {
         // Scroll through lazy content before a full-page capture; the browser
@@ -58,15 +57,15 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
   await page.keyboard.press('Tab');
   ensure(await page.locator('.skip').evaluate(element => element === document.activeElement), 'Skip link is not the first keyboard target');
   await page.keyboard.press('Enter');
-  for (const href of ['/ready', '/prompts', '/agent']) {
+  for (const href of ['/ready', '/apps']) {
     await page.keyboard.press('Tab');
     const focused = await page.evaluate(() => ({ href: document.activeElement.getAttribute('href'), outline: getComputedStyle(document.activeElement).outlineStyle }));
     ensure(focused.href === href && focused.outline !== 'none', `Keyboard path or focus missing for ${href}`);
     receipt.keyboard.push(focused);
   }
   await page.keyboard.press('Enter');
-  await page.waitForURL('**/agent');
-  ensure(await page.locator('h1').isVisible(), 'Agent entry failed to open by keyboard');
+  await page.waitForURL('**/apps');
+  ensure(await page.locator('h1').isVisible(), 'App library failed to open by keyboard');
   // Browser viewport at 720px covers the reflow width of a 1440px window at
   // 200%; separately double root text to catch fixed-size text containers.
   for (const theme of ['dark', 'light']) {

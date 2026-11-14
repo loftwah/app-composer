@@ -47,18 +47,30 @@ the same workshop and swap the floor; the copy and poster remain live HTML.
 The opening is never required to reach an app. A transparent poster of the same
 scene, a server-rendered three-station static panel, ordinary links and the same
 Get Ready action cover no-JavaScript, Save-Data, module and GPU failures. The
-live console supports native buttons, a range input, keyboard shortcuts (`1`–`3`,
+live console supports native buttons, keyboard shortcuts (`1`–`3`,
 `P`, Escape) and a labelled pause. Reduced motion uses static states and disables
-ambient motion and camera easing. Rendering stops offscreen or hidden; DPR and
-draw rate are capped; phone quality can step down and disable cast shadows while
-contact shadows remain. Fictional form/drawing state is explicit. Analytics is a
+ambient motion and camera easing. Rendering stops offscreen or hidden; pixel
+ratio is bounded and frames follow the display refresh. Sustained slow frames
+can lower resolution while keeping the lighting consistent. Fictional form/drawing state is explicit. Analytics is a
 separate instrument and PDFs, signatures or drawings never feed it; no invented
 live counts are shown.
 
 Details, poster provenance and the checked width/theme/interaction set live in
 [studio-hero.md](studio-hero.md).
 
-## Slice image treatment — 2026/11/13 AEDT (Australia/Melbourne, UTC+11) / 2026/11/13 UTC
+Motion correction, 2026/11/14 AEDT (Australia/Melbourne, UTC+11) / 2026/11/14 UTC:
+the camera opens settled and only travels when a station is selected. Stamping
+uses the press and paper response without a zoom. Page content stays visible
+and stationary while scrolling. A complete first frame precedes the short
+poster handover, and the responsive copy and desk keep their natural space.
+Button actions replace sliders; pause and reduced motion render one complete
+static state and then sleep. The implementation PR owns current validation and
+the remaining production gate; previous release receipts are historical.
+
+## Superseded slice image treatment — 2026/11/13 AEDT (Australia/Melbourne, UTC+11) / 2026/11/13 UTC
+
+The following records the earlier hero's provenance. The workshop above is the
+current implementation and motion direction.
 
 The owner selected [Slice](https://slice-image.dev/) by Luna as a hero reference.
 Use its continuous-image-through-rounded-strips treatment as original frontend
