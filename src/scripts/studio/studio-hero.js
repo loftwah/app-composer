@@ -15,9 +15,8 @@ const context = document.querySelector("[data-studio-context]");
 const productLink = document.querySelector("[data-studio-link]");
 const sceneLabel = document.querySelector("[data-studio-scene-label]");
 const caption = document.querySelector("[data-studio-caption]");
-const range = document.querySelector("[data-studio-range]");
-const rangeLabel = document.querySelector("[data-studio-range-label]");
-const value = document.querySelector("[data-studio-value]");
+const feed = document.querySelector("[data-studio-feed]");
+const feedLabel = document.querySelector("[data-studio-feed-label]");
 const action = document.querySelector("[data-studio-action]");
 const actionLabel = document.querySelector("[data-studio-action-label]");
 const pause = document.querySelector("[data-studio-pause]");
@@ -30,7 +29,7 @@ if (stage && canvas && consolePanel && staticPanel) {
   let actionTaken = new Set();
   let userPaused = false;
   let lastStation = null;
-  let ready = false;
+  let failed = false;
 
   const announce = (message) => {
     if (!announcement) return;
@@ -51,6 +50,9 @@ if (stage && canvas && consolePanel && staticPanel) {
       if (snapshot.target > 80) {
         return "The drawing stands as paper architecture. Its lines are still editable.";
       }
+      if (snapshot.target < 10) {
+        return "The drawing lies flat on the table. Raise it to give the lines a third dimension.";
+      }
       return station.readout;
     }
     const ring = snapshot.ring ?? station.rings[0];
@@ -65,16 +67,14 @@ if (stage && canvas && consolePanel && staticPanel) {
       button.dataset.active = String(selected);
       button.tabIndex = selected ? 0 : -1;
     });
-    if (range) {
-      range.value = String(snapshot.target);
-      range.style.setProperty("--studio-value", `${snapshot.target}%`);
-      range.setAttribute(
-        "aria-valuetext",
-        `${station.sliderLabel}, ${snapshot.target} percent`,
-      );
+    if (feed) {
+      if (snapshot.station !== "press" && document.activeElement === feed) {
+        stationButtons.find((button) => button.dataset.station === snapshot.station)?.focus();
+      }
+      feed.hidden = snapshot.station !== "press";
+      feed.setAttribute("aria-pressed", String(snapshot.target > 80));
     }
-    if (value) value.textContent = `${snapshot.target}%`;
-    if (rangeLabel) rangeLabel.textContent = station.sliderLabel;
+    if (feedLabel) feedLabel.textContent = snapshot.target > 80 ? "Reset the sheet" : "Feed the sheet";
     if (actionLabel) {
       const active =
         snapshot.station === "draw"
@@ -139,7 +139,10 @@ if (stage && canvas && consolePanel && staticPanel) {
   };
 
   const fail = (message) => {
-    ready = false;
+    // Construction reports its error before returning null; announce that
+    // single failure once even when both paths reach this fallback.
+    if (failed) return;
+    failed = true;
     stage.dataset.state = "static";
     stage.classList.remove("is-ready");
     posters.forEach((poster) => {
@@ -150,7 +153,7 @@ if (stage && canvas && consolePanel && staticPanel) {
     setStatus("Illustrated workshop · static", "warn");
     const note = document.querySelector("[data-studio-static-note]");
     if (note) note.textContent = message;
-    announce(`${message} The poster and app links remain available.`);
+    announce(message);
   };
 
   const start = async () => {
@@ -161,17 +164,15 @@ if (stage && canvas && consolePanel && staticPanel) {
         canvas,
         stage,
         onReady: () => {
-          ready = true;
           stage.dataset.state = "live";
           stage.classList.add("is-ready");
-          posters.forEach((poster) => {
-            poster.hidden = true;
-          });
+          // Readiness follows the first painted frame. Keep the poster beneath
+          // the brief canvas fade so loading never reveals an empty backdrop.
           consolePanel.hidden = false;
           staticPanel.hidden = true;
           setStatus("Live 3D workshop", "live");
           announce(
-            "Interactive workshop ready. Use the station buttons, the slider and the action button. Press P to pause motion.",
+            "Interactive workshop ready. Choose a station and use its buttons. Press P to pause motion.",
           );
         },
         onState: updateUi,
@@ -221,11 +222,11 @@ if (stage && canvas && consolePanel && staticPanel) {
     });
   });
 
-  range?.addEventListener("input", () => {
+  feed?.addEventListener("click", () => {
     if (!engine) return;
-    engine.setProgress(range.value, {
-      snap: !ready || pause?.getAttribute("aria-pressed") === "true",
-    });
+    const reset = feed.getAttribute("aria-pressed") === "true";
+    engine.setProgress(reset ? copyFor("press").initialProgress : 100);
+    announce(reset ? "The sheet returned to the feed position." : "The sheet moved through the press.");
   });
 
   action?.addEventListener("click", () => {
@@ -291,18 +292,13 @@ if (stage && canvas && consolePanel && staticPanel) {
     }
   });
 
-  // Start after the poster and copy have been painted. Save-Data visitors keep
-  // the strong static composition rather than receiving a heavy WebGL download.
+  // ProductHome already defers the module until after first paint. Do not add
+  // a second idle delay before the first frame.
   const connection = navigator.connection;
   const saveData = connection?.saveData === true;
   if (saveData) {
     fail("Save-Data is on. The illustrated poster and app links remain available.");
   } else {
-    const begin = () => start();
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(begin, { timeout: 900 });
-    } else {
-      window.setTimeout(begin, 220);
-    }
+    start();
   }
 }
