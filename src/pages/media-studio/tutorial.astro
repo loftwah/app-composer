@@ -66,15 +66,14 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <p class="kicker">01 · Understand the target app</p>
     <h2>What you are building</h2>
     <dl class="roles">
-      <div><dt>What you do</dt><dd>Decide what the studio is for and where its data will live.</dd></div>
-      <div><dt>What the agent or product does</dt><dd>Composer holds the brief; the studio app owns the projects and media.</dd></div>
-      <div><dt>What you should see</dt><dd>A clear answer about ownership before any account work.</dd></div>
+      <div><dt>You</dt><dd>Decide what the studio is for and where its data will live.</dd></div>
+      <div><dt>Your agent or the studio</dt><dd>Composer holds the brief; the studio app owns the projects and media.</dd></div>
+      <div><dt>Look for</dt><dd>A clear answer about ownership before any account work.</dd></div>
     </dl>
     <div class="cols">
       <div>
-        <p>You are building an independent media studio on Cloudflare. Its D1 database holds your projects and job records; its R2 bucket holds your media. The studio has its own source and release, separate from Composer.</p>
-        <p>Composer helps you prepare the brief and open the studio. The studio uses external services for generation: this build uses Cloudflare Workers AI for stills and fal.ai for video, sound and provider renders.</p>
-        <p>You keep the source, data, media and publication pages, and can change the application yourself.</p>
+        <p>Your studio will have its own source, storage and release on Cloudflare. Your projects, job records and media stay with that app, and you can change it as your needs change.</p>
+        <p>Composer helps you prepare the brief and open the studio. This build uses Cloudflare Workers AI for stills and fal.ai for video, sound and provider renders. You keep the source, data, media and publication pages.</p>
       </div>
       <aside class="check">
         <h3>Checkpoint</h3>
@@ -87,9 +86,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <p class="kicker">02 · Accounts and the supported agent</p>
     <h2>The parts only you can do</h2>
     <dl class="roles">
-      <div><dt>What you do</dt><dd>Create or sign in to Cloudflare, fund fal.ai, start your agent.</dd></div>
-      <div><dt>What the agent or product does</dt><dd>The agent prepares the technical environment; it never creates accounts or spends for you.</dd></div>
-      <div><dt>What you should see</dt><dd>A funded provider balance and an agent that can run commands.</dd></div>
+      <div><dt>You</dt><dd>Create or sign in to Cloudflare, fund fal.ai, start your agent.</dd></div>
+      <div><dt>Your agent or the studio</dt><dd>The agent prepares the technical environment; it never creates accounts or spends for you.</dd></div>
+      <div><dt>Look for</dt><dd>A funded provider balance and an agent that can run commands.</dd></div>
     </dl>
     <div class="cols">
       <div>
@@ -117,9 +116,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <p class="kicker">03 · Get Ready</p>
     <h2>Check the machine before building</h2>
     <dl class="roles">
-      <div><dt>What you do</dt><dd>Run Get Ready and read the report.</dd></div>
-      <div><dt>What the agent or product does</dt><dd>Checks the runtime, package manager, repository tools and accounts.</dd></div>
-      <div><dt>What you should see</dt><dd>Every check named, with a real pass or fail.</dd></div>
+      <div><dt>You</dt><dd>Run Get Ready and read the report.</dd></div>
+      <div><dt>Your agent or the studio</dt><dd>Checks the runtime, package manager, repository tools and accounts.</dd></div>
+      <div><dt>Look for</dt><dd>Every check named, with a real pass or fail.</dd></div>
     </dl>
     <div class="cols">
       <div>
@@ -140,9 +139,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <p class="kicker">04 · Choose Media Studio in Init</p>
     <h2>The brief</h2>
     <dl class="roles">
-      <div><dt>What you do</dt><dd>Choose Media Studio, set the defaults, write the brief.</dd></div>
-      <div><dt>What the agent or product does</dt><dd>Validates the draft and builds a portable specification.</dd></div>
-      <div><dt>What you should see</dt><dd>A live preview and a spec panel that updates with your choices.</dd></div>
+      <div><dt>You</dt><dd>Choose Media Studio, set the defaults, write the brief.</dd></div>
+      <div><dt>Your agent or the studio</dt><dd>Validates the draft and builds a portable specification.</dd></div>
+      <div><dt>Look for</dt><dd>A live preview and a spec panel that updates with your choices.</dd></div>
     </dl>
     <div class="cols">
       <div>
@@ -169,9 +168,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <p class="kicker">05 · Save and hand off the brief</p>
     <h2>Save the brief for your agent</h2>
     <dl class="roles">
-      <div><dt>What you do</dt><dd>Save the draft, export the spec, copy the agent handoff.</dd></div>
-      <div><dt>What the agent or product does</dt><dd>Pins the source commit and lists the bindings, build plan and human-only actions.</dd></div>
-      <div><dt>What you should see</dt><dd>A JSON file that round-trips, and a handoff naming an exact commit.</dd></div>
+      <div><dt>You</dt><dd>Save the draft, export the spec, copy the agent handoff.</dd></div>
+      <div><dt>Your agent or the studio</dt><dd>Pins the source commit and lists the bindings, build plan and human-only actions.</dd></div>
+      <div><dt>Look for</dt><dd>A JSON file that round-trips, and a handoff naming an exact commit.</dd></div>
     </dl>
     <div class="cols">
       <div>
@@ -194,9 +193,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <p class="kicker">06 · The agent builds and deploys</p>
     <h2>Build and deploy the studio</h2>
     <dl class="roles">
-      <div><dt>What you do</dt><dd>Approve the one account step only you can do.</dd></div>
-      <div><dt>What the agent or product does</dt><dd>Creates your copy, applies migrations in order, sets secrets, deploys and reads back the revision.</dd></div>
-      <div><dt>What you should see</dt><dd>A live /healthz that returns the commit your agent shipped.</dd></div>
+      <div><dt>You</dt><dd>Approve the one account step only you can do.</dd></div>
+      <div><dt>Your agent or the studio</dt><dd>Creates your copy, applies migrations in order, sets secrets, deploys and reads back the revision.</dd></div>
+      <div><dt>Look for</dt><dd>A live /healthz that returns the commit your agent shipped.</dd></div>
     </dl>
     <div class="cols">
       <div>
@@ -223,9 +222,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <p class="kicker">07 · Enter through Composer</p>
     <h2>No second password</h2>
     <dl class="roles">
-      <div><dt>What you do</dt><dd>Open the studio from the Composer menu.</dd></div>
-      <div><dt>What the agent or product does</dt><dd>Exchanges the EmDash session for a short-lived studio handoff.</dd></div>
-      <div><dt>What you should see</dt><dd>Your projects, and private routes that return 401 signed out.</dd></div>
+      <div><dt>You</dt><dd>Open the studio from the Composer menu.</dd></div>
+      <div><dt>Your agent or the studio</dt><dd>Exchanges the EmDash session for a short-lived studio handoff.</dd></div>
+      <div><dt>Look for</dt><dd>Your projects, and private routes that return 401 signed out.</dd></div>
     </dl>
     <div class="cols">
       <div>
@@ -252,9 +251,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <p class="kicker">08 · Create and edit video and sound</p>
     <h2>Make your first asset</h2>
     <dl class="roles">
-      <div><dt>What you do</dt><dd>Pick a model, write the direction, confirm the estimate.</dd></div>
-      <div><dt>What the agent or product does</dt><dd>Sends the request and saves the result with its source and estimated cost.</dd></div>
-      <div><dt>What you should see</dt><dd>A saved still, clip or sound file. Audio shows a waveform and its duration.</dd></div>
+      <div><dt>You</dt><dd>Pick a model, write the direction, confirm the estimate.</dd></div>
+      <div><dt>Your agent or the studio</dt><dd>Sends the request and saves the result with its source and estimated cost.</dd></div>
+      <div><dt>Look for</dt><dd>A saved still, clip or sound file. Audio shows a waveform and its duration.</dd></div>
     </dl>
     <div class="cols">
       <div>
@@ -293,9 +292,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <p class="kicker">09 · Assemble, export and publish</p>
     <h2>Assemble and share your cut</h2>
     <dl class="roles">
-      <div><dt>What you do</dt><dd>Order the takes, add the bed, render, then publish deliberately.</dd></div>
-      <div><dt>What the agent or product does</dt><dd>For a provider render, creates short-lived file links and saves a successful result to your bucket.</dd></div>
-      <div><dt>What you should see</dt><dd>An assembled MP4 with real duration and take count; a public page that loads signed out.</dd></div>
+      <div><dt>You</dt><dd>Order the takes, add the bed, render, then publish deliberately.</dd></div>
+      <div><dt>Your agent or the studio</dt><dd>For a provider render, creates short-lived file links and saves a successful result to your bucket.</dd></div>
+      <div><dt>Look for</dt><dd>An assembled MP4 with real duration and take count; a public page that loads signed out.</dd></div>
     </dl>
     <div class="cols">
       <div>
@@ -334,9 +333,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <p class="kicker">10 · Return and change it</p>
     <h2>Make a change and check it</h2>
     <dl class="roles">
-      <div><dt>What you do</dt><dd>Ask for a change you actually want.</dd></div>
-      <div><dt>What the agent or product does</dt><dd>The same agent changes the same application and releases it.</dd></div>
-      <div><dt>What you should see</dt><dd>The new behaviour, with earlier projects, cuts and renders still there.</dd></div>
+      <div><dt>You</dt><dd>Ask for a change you actually want.</dd></div>
+      <div><dt>Your agent or the studio</dt><dd>The same agent changes the same application and releases it.</dd></div>
+      <div><dt>Look for</dt><dd>The new behaviour, with earlier projects, cuts and renders still there.</dd></div>
     </dl>
     <div class="cols">
       <div>
@@ -429,7 +428,7 @@ curl -s -o /dev/null -w '%&#123;http_code&#125;\n' https://your-studio.example/a
 
   <section class="end">
     <h2>Start</h2>
-    <p>Start with the example brief or choose your own settings in Init, then share the handoff with your agent.</p>
+    <p>Choose your settings in Init, or download the example brief and make it your own. Your agent can take it from there.</p>
     <div class="row">
       <a class="button" href="/init?start=media-studio">Build your studio</a>
       <a class="button secondary" href="/media-studio">Read the build article</a>

@@ -137,7 +137,9 @@ const costs = [
   <section id="what" class="prose">
     <h2>What actually works</h2>
     <p>The initial release had a project library, uploads, stills and reference variations, masked edits, background removal, upscaling, two image-to-video models, sound, a browser mix, storyboards, scoped Composer access and deliberate publication. The 9:16 example was finished locally from the saved takes. Since then, the studio has added MiniMax H3 and a separate on-device storyboard renderer. The table records what was exercised in the original build, including the provider route that was blocked.</p>
-    <div class="table-wrap">
+    <details class="production-details">
+      <summary>See what this build could do</summary>
+      <div class="table-wrap">
       <table>
         <caption>Delivered capabilities and their real state on 2026/11/14, Australia/Melbourne (AEDT, UTC+11).</caption>
         <thead><tr><th scope="col">Capability</th><th scope="col">What it is</th><th scope="col">State</th></tr></thead>
@@ -147,7 +149,8 @@ const costs = [
           ))}
         </tbody>
       </table>
-    </div>
+      </div>
+    </details>
     <p>The phrase "open-source Higgsfield-style studio" describes the kind of workspace, not feature parity. Higgsfield's models, camera controls, casting and node graph are proprietary and are not reproduced here. This studio calls vendor models; it does not train or host foundation models, and the providers used here charge for inference.</p>
     <h3>What the studio reuses</h3>
     <p>Get Ready checks the machine, Init saves the brief, and the agent handoff names the source and build steps. The studio also uses Composer's EmDash session and workspace permissions, with separate grants to read, edit, generate, publish and administer. Before a privileged request, it checks the current grant with Composer again. Levi's MIT Fungi projects informed parts of the build: Oyster hosted Prints for an earlier Composer capability run, and Darkroom's job engine informed the studio's engine. The studio does not include Darkroom itself. Its published catalogue accepts Fungi-gateway video models and Oyster-shaped references, which would need a second job authority for an independent Cloudflare studio. The studio repository records that assessment and its reasons.</p>
@@ -202,7 +205,7 @@ url.searchParams.set("s", signature);`}</code></pre>
 
   <section id="use" class="prose">
     <h2>Making something real</h2>
-    <p>The studio opens from the Composer menu with the existing EmDash sign-in. There is no second password in the normal path, and the browser never holds the studio's owner passphrase or the provider keys. The entry names the current actor, one workspace and the selected project; read, edit, generate, publish and admin are separate grants. Standalone sign-in still exists, because the studio is a normal independent app; it is just not the way you arrive from Composer.</p>
+    <p>I opened the studio from the Composer menu and started making. The normal route uses my existing sign-in, while the independent studio also has its own sign-in. Access to reading, editing, generating, publishing and administration is granted separately; provider keys and the studio passphrase stay off the browser.</p>
     <h3>Editing with a mask</h3>
     <p>Masked editing came later, using FLUX.1 Fill on fal. Pick a still, paint the area to change and describe what belongs there. The studio saves the source and a same-size, white-on-black mask separately, then saves the fill as a linked variant with its own hash. The original stays in the library.</p>
     <p>Outpainting uses the same tool deliberately: the studio builds a 25% larger canvas, centres the original, and masks the new border. Background removal is BiRefNet returning a transparent PNG; upscaling is Clarity at 2×. All three were exercised on the deployed studio, and all three save the result beside the source rather than over it.</p>
@@ -219,7 +222,7 @@ url.searchParams.set("s", signature);`}</code></pre>
     <h3>Putting the takes in order</h3>
     <p>A storyboard keeps your saved takes in order with their soundtrack. You can see the running length and the estimated cost before a provider render. The saved storyboard stays editable, and each render keeps the version it used.</p>
     <h3>Mixing the soundtrack</h3>
-    <p>Music, narration and effects are separate saved assets. A composition can take up to four of them, with a role, start offset, trim in/out, gain and fades. The browser decodes the saved bytes and renders the mix deterministically with the Web Audio API, then uploads the result as a new WAV. The separate tracks and their settings stay in the manifest, so the mix can be rebuilt; the render uses the saved WAV and never claims the compose endpoint applied gain it does not support.</p>
+    <p>Music, narration and effects stay separate, so you can change the mix without losing a take. Choose up to four tracks, set their timing, trim, volume and fades, then save a new WAV. The browser makes the mix; the saved tracks and settings remain available if you want to rebuild it. The provider render uses that WAV rather than applying unsupported gain settings itself.</p>
     <p>Studio also has a separate on-device renderer for saved storyboards. It can make an MP4 with a saved mixed soundtrack in a compatible browser; the original clip audio is muted. This does not fix the provider’s blocked 9:16 compose route described below.</p>
     <h3>The 9:16 cut, after the bug</h3>
     <p>The previous release called a 768×960 file 9:16. It was 4:5, and the portrait-first sort changed the edit to suit the frame. Both were defects, and the claim was withdrawn. The replacement has two parts. The studio composes a deliberate 1080×1920 slate, generates one 720×1280 vertical slate video with Wan 2.5, and keeps those bytes so later renders reuse them. The selected takes then follow in the order chosen, composed into the slate's frame with the saved sound. No shot is re-sorted, stretched or silently regenerated.</p>
@@ -267,7 +270,8 @@ url.searchParams.set("s", signature);`}</code></pre>
   <section id="made" class="prose">
     <h2>Made in the studio shown here</h2>
     <p>We used the studio we built to produce the App Composer artwork and motion used on this page.</p>
-    <p>The project is <strong>App Composer — studio launch artwork</strong>, kept in the same deployed studio as the earlier work. The brief asked for an editorial illustration about owning a studio: tactile paper, warm ink, a controlled orange signal route and room for exact type. The first still came from Workers AI Lucid Origin at 1280×720. The selected refinement was a real masked fill: a white ellipse in the empty upper-right panel, a prompt for a paper signal ring, and FLUX.1 Fill returning a 1280×704 variant while the original, the mask and the result stayed separate. The motion is Hailuo 2.3 animating that selected edit; the sound bed is a separate Studio Effect. The type, mark, crops and 9:16 frame were added in a separate finishing step for this piece.</p>
+    <p>For the launch artwork, I wanted a tactile paper studio with warm ink and an orange signal running through it. We made the first still with Workers AI, then painted a mask over the empty panel and asked FLUX.1 Fill to add the ring. The original, mask and edited image are all still in the project.</p>
+    <p>Hailuo 2.3 brought the selected image to life, and Studio Effect supplied a sound bed. We added the type, mark, crops and vertical frame in a separate finishing step.</p>
     <figure class="figure">
       <img src={brandShare} width="1200" height="630" alt="Share card: a paper-cut studio desk with a film strip, waveform, camera and orange ring, titled Build your own media studio with the App Composer mark." loading="lazy" />
       <figcaption>The 1200×630 share card used by this article and the catalogue. The illustration is the selected masked edit; the title, rule, URL and mark were added during finishing.</figcaption>
@@ -407,7 +411,9 @@ url.searchParams.set("s", signature);`}</code></pre>
   <section id="evidence" class="prose">
     <h2>Evidence, costs and limits</h2>
     <p>For the routes marked live below, we checked provider documentation and account access, sent a bounded request through the studio, and opened the saved output in the released interface. The table also records the routes that did not work.</p>
-    <div class="table-wrap">
+    <details class="production-details">
+      <summary>See the provider results</summary>
+      <div class="table-wrap">
       <table>
         <caption>Results recorded on 13–14 November 2026, Melbourne time. "Live" means a real request through the studio produced a saved result.</caption>
         <thead><tr><th scope="col">Route</th><th scope="col">Provider and model</th><th scope="col">State</th></tr></thead>
@@ -425,10 +431,13 @@ url.searchParams.set("s", signature);`}</code></pre>
           <tr><th scope="row">Scoped access</th><td>Composer session, workspace grant, project-scoped studio session, server re-check</td><td>Live on this release</td></tr>
         </tbody>
       </table>
-    </div>
+      </div>
+    </details>
     <p>Direct ElevenLabs access is the one provider gap: the studio uses ElevenLabs' models through fal's hosted endpoint, billed by fal, and says so. ACE Music is excluded from this delivery entirely — no adapter, no key, no promise. The ffmpeg compose result block is an external permission change on the selected fal account; it is not a claim that the application or its stored work disappeared.</p>
     <h3>What we estimated spending</h3>
-    <div class="table-wrap">
+    <details class="production-details">
+      <summary>See the individual requests</summary>
+      <div class="table-wrap">
       <table>
         <caption>Selected requests from the two projects in this build. These are recorded estimates and request amounts, not verified charges. Check the provider invoice for the amount actually billed.</caption>
         <thead><tr><th scope="col">Object</th><th scope="col">Route</th><th scope="col">Recorded amount</th><th scope="col">Outcome</th></tr></thead>
@@ -439,7 +448,8 @@ url.searchParams.set("s", signature);`}</code></pre>
         </tbody>
         <tfoot><tr><th scope="row">Historical two-project snapshot</th><td>recorded during this build</td><td>About US$1.66</td><td>About US$1.30 for Paper &amp; Light and US$0.36 for the brand project; not invoice-confirmed</td></tr></tfoot>
       </table>
-    </div>
+      </div>
+    </details>
     <p>Hosting and storage are separate from generation charges. This studio shares a Workers Paid account with other projects and stores its files in R2, so the account and stored files can cost money even when no one is making media. During this build, a snapshot of two projects recorded <strong>about US$1.66</strong>: about US$1.30 for Paper &amp; Light and US$0.36 for the brand project. A separate 720p Wan slate test added <strong>US$0.50</strong>; a rejected 1080p attempt and smaller LTX tests added roughly US$1.08. These are historical request figures, not a monthly price or today's total, and none has been confirmed against an invoice. The saved narration runs for 23.25 seconds; an earlier version of this article incorrectly said 33 seconds.</p>
     <h3>What is not claimed</h3>
     <ul>
