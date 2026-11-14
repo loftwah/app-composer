@@ -15,6 +15,11 @@ films.set("/media-studio/demos/pippa-clip-workflow-20261115.mp4", {
   bytes: 597299,
   sha256: "12f4e3331a61d404ddfeaace4f525d3446926daee549836d50b01289a325f390",
 });
+films.set("/media-studio/demos/fighter-after-hours-20261115.mp4", {
+  href: "/media-studio/demos/fighter-after-hours-20261115.mp4",
+  bytes: 6102511,
+  sha256: "4776ea2edf943be87137ae29f75e21a75054d6a02c52b734fc509d838bd895b0",
+});
 interface Assets {
   fetch(request: Request): Promise<Response>;
 }
