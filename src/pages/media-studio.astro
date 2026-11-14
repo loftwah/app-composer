@@ -246,6 +246,16 @@ url.searchParams.set("s", signature);`}</code></pre>
       <a href={publicPage} aria-label="Open full-size public page screenshot">Open full-size image</a>
       <figcaption>The published master, signed out: <a href="https://media.loftwah.com/p/Na9FNUB_VhzZ7zA9">media.loftwah.com/p/Na9FNUB_VhzZ7zA9</a>.</figcaption>
     </figure>
+    <h3>Make a clip from Pippa</h3>
+    <p>We took a Pippa animation made in Media Studio, trimmed it to four seconds and made a poster from the finished clip. You can try the same <a href="https://media.loftwah.com/tools/video-clip">free clip and frame tool</a> with your own video.</p>
+    <figure class="figure pippa-demo">
+      <video controls playsinline preload="none" poster="/media-studio/demos/pippa-clip-workflow-poster-20261115.jpg" width="1280" height="900">
+        <source src="/media-studio/demos/pippa-clip-workflow-20261115.mp4" type="video/mp4" />
+        <track kind="captions" src="/media-studio/demos/pippa-clip-workflow-20261115.vtt" srclang="en" label="English captions" default />
+        <a href="/media-studio/demos/pippa-clip-workflow-20261115.mp4">Download the Pippa demo</a>
+      </video>
+      <figcaption>A silent, edited browser recording of the live tool, followed by the exported clip. File selection was automated and waits were cut. <a href="https://media.loftwah.com/p/9UX85ricWNKOeA96">Original animation and credit</a>: Woodhouse artwork, GPT Image 2.6 via Fal, animated with MiniMax H3 Max Turbo. Pippa is an illustration. <a href="/media-studio/demos/pippa-clip-workflow-20261115.mp4" download>Download the demo</a>.</figcaption>
+    </figure>
     <h3>Watching it happen</h3>
     <div class="films">
       <div>
@@ -553,6 +563,7 @@ url.searchParams.set("s", signature);`}</code></pre>
   .figure.narrow{width:auto;max-width:760px;margin-left:auto;margin-right:auto;transform:none}
   .figure.portrait{width:min(100%,360px);margin:28px auto 32px;transform:none}
   .figure.portrait video{display:block;width:100%;height:auto;background:#000}
+  .pippa-demo video{display:block;width:100%;height:auto;background:#000}
   .figure.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px 22px;max-width:none}
   /* Both captures keep their real aspect ratio, so they stay readable and the
      same region is comparable. Cropping them into one shared height hides the
