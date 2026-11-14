@@ -72,7 +72,11 @@ export function GuestbookWorkspace({
         Include hidden and rejected contributions
       </label>
       {contributions.length === 0 ? (
-        <p>No contributions yet. Add a photo to start the collection.</p>
+        <p>
+          {showHidden
+            ? "No contributions yet. Add a photo to start the collection."
+            : "No contributions in this view. Add a photo, or include hidden and rejected contributions."}
+        </p>
       ) : (
         <div className="ca-contributions">
           {contributions.slice(0, visible).map((item) => (
@@ -91,7 +95,7 @@ export function GuestbookWorkspace({
                           "guestbook",
                           "moderate",
                           { id: item.id, status: "approved" },
-                          "Photo approved. It is now public and eligible for Linkarooie.",
+                          "Photo approved. It can appear publicly and is eligible for Linkarooie.",
                         )
                       }
                     >
@@ -106,7 +110,7 @@ export function GuestbookWorkspace({
                           "showcase",
                           "feature",
                           { item: item.id },
-                          "Photo featured in Linkarooie. Open the live collection to see it.",
+                          "Photo marked as featured in Linkarooie. Open the live collection to check it.",
                         )
                       }
                     >
