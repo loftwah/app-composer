@@ -43,9 +43,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <h1>Build and run your own media studio with App Composer</h1>
     <p class="deck">The same recipe as the <a href="/media-studio">build article</a>, chapter by chapter. Each chapter says what you do, what your agent or the product does, what you should see, and how to recover if it goes wrong.</p>
     <dl class="facts">
-      <div><dt>You need</dt><dd>A Cloudflare account on Workers Paid, a supported agent, and a funded fal.ai key for video, sound and rendering.</dd></div>
+      <div><dt>You need</dt><dd>A Cloudflare account on Workers Paid and a supported agent. Fal.ai generation and provider rendering also need a funded fal.ai key.</dd></div>
       <div><dt>You do not need</dt><dd>Docker, Wrangler, manual migrations or a database seed. The agent performs the technical work.</dd></div>
-      <div><dt>Cost</dt><dd>Hosting plus per-request inference. The earlier Paper & Light run recorded US$0.2035. The two-project snapshot from this build recorded US$1.6647, plus US$0.50 for a separately qualified 720p slate and roughly US$1.08 of rejected qualification attempts. None of it is invoice-confirmed.</dd></div>
+      <div><dt>Cost</dt><dd>Hosting, storage and paid generation are separate costs. The two-project snapshot recorded US$1.6647; separate tests added US$0.50 and roughly US$1.08. An earlier Paper &amp; Light run recorded US$0.2035. These are historical figures, not current prices or an invoice-confirmed bill.</dd></div>
       <div><dt>Time</dt><dd>An evening for a first build including account setup and the first render; minutes for later changes.</dd></div>
     </dl>
     <TutorialQuickStart guide={mediaStudioQuickStart} />
@@ -68,8 +68,8 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <h2>What you are actually building</h2>
     <div class="cols">
       <div>
-        <p>A media studio that belongs to you: an MIT-licensed Cloudflare Worker with its own D1 database for projects, assets, jobs, budgets and compositions, its own R2 bucket for originals and assembled exports, and its own release. It is not a Composer feature inside Composer's database.</p>
-        <p>Composer is the front door and the brief. The studio is the building. Models are hired services: Cloudflare Workers AI for stills, fal.ai for video, sound and bounded renders.</p>
+        <p>You are building an independent media studio on Cloudflare. Its D1 database holds your projects and job records; its R2 bucket holds your media. The studio has its own source and release, separate from Composer.</p>
+        <p>Composer helps you prepare the brief and open the studio. The studio uses external services for generation: this build uses Cloudflare Workers AI for stills and fal.ai for video, sound and provider renders.</p>
         <p>What you own at the end: the source, the data, the media, the publication pages and the ability to change any of it.</p>
       </div>
       <aside class="check">
@@ -98,7 +98,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
         <p>Ask the agent to check the environment first; do not hand it the build brief yet:</p>
         <pre><code>Check this machine and my connected accounts with App Composer's Get Ready. Do not create or deploy anything yet. Tell me what is missing, then wait while I handle sign-in or billing.</code></pre>
         <p>The saved brief and pinned source arrive in chapter 05, after you have chosen them in Init. Sending them before they exist is the ordering mistake this tutorial previously made.</p>
-        <p>The consent boundary is simple: you approve account creation, sign-in and spend. The agent handles repositories, configuration, migrations, tests and deployment. It must never print a secret; it writes secrets directly to the provider.</p>
+        <p>You handle account creation, sign-in and spending decisions. Your agent can prepare the repository, configure the app, run migrations and deploy it. Keep secrets out of chat, screenshots and source files; enter them through the provider’s secret storage.</p>
       </div>
       <aside class="check">
         <h3>Checkpoint</h3>
@@ -120,14 +120,14 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <div class="cols">
       <div>
         <p><a href="/init">Init</a> includes Get Ready. It checks the local runtime, the package manager, the repository tools and the accounts your agent will use. It reports what is missing rather than pretending a tool exists.</p>
-        <p>Read the result. If it says a runtime is unsupported, fix that first: a release gate that runs on the wrong Node line fails in confusing ways later.</p>
+        <p>Read the result before continuing. If your Node version is unsupported, install a supported version and run the check again.</p>
         <p class="small">Get Ready is not a subscription and it provisions nothing in your cloud account.</p>
       </div>
       <aside class="check">
         <h3>What you should see</h3>
-        <p>A readiness report with each check named and a clear pass or fail. No green tick means no green tick.</p>
+        <p>A readiness report showing which checks passed and what still needs attention.</p>
         <h3>Recover</h3>
-        <p>A failing local check is a local fix, not a product bug: install the supported runtime line, re-run Get Ready, and only then continue.</p>
+        <p>If the Node version check fails, install a supported version and run Get Ready again.</p>
       </aside>
     </div>
   </section>
@@ -222,7 +222,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <h2>No second password</h2>
     <div class="cols">
       <div>
-        <p>Open the studio from the Composer menu or the <a href="/media-studio/studio">Open your studio</a> entry. Composer's existing EmDash session mints a short-lived handoff naming the current actor, workspace, selected project and only the granted actions. The studio exchanges it for its own short-lived, project-scoped session. The browser holds neither the studio passphrase nor any provider key.</p>
+        <p>Open the studio from the Composer menu or <a href="/media-studio/studio">Open your studio</a>. Composer passes your workspace, selected project and permitted actions to the studio through a short-lived handoff. The studio creates its own project-scoped session; your browser does not receive the studio owner passphrase or provider keys.</p>
         <p><strong>Email and passkeys:</strong> our selected sign-in improvement uses Cloudflare Access's native email codes and passkeys. Account binding and the live login rollout are still being completed; use this installation's existing sign-in method until the new options are enabled. The <a href="https://github.com/loftwah/app-composer/blob/main/docs/cloudflare-access-oyster.md">integration brief</a> explains setup and recovery. No Pocket ID server or Tailscale installation is required.</p>
         <p>Signing in is not the same as being granted a resource. Read, edit, generate, publish and admin are separate. The studio re-checks the current Composer grant on the server before a privileged action, so revoking a member stops the next dispatch even if their tab is still open. A signed-out request to a private route returns 401; a signed-in account without the grant gets a clear denied page, not a hidden menu item.</p>
         <p>Standalone use still exists behind the owner passphrase, because the studio is an ordinary independent app. It is simply not the way you arrive from Composer.</p>
@@ -243,8 +243,8 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
   <section id="make" class="step">
     <dl class="roles">
       <div><dt>What you do</dt><dd>Pick a model, write the direction, confirm the estimate.</dd></div>
-      <div><dt>What the agent or product does</dt><dd>Sends one durable request, then saves the owned result with provenance and cost.</dd></div>
-      <div><dt>What you should see</dt><dd>A saved still, clip or audio asset — sound with a real waveform and duration.</dd></div>
+      <div><dt>What the agent or product does</dt><dd>Sends the request and saves the result with its source and recorded cost.</dd></div>
+      <div><dt>What you should see</dt><dd>A saved still, clip or sound file. Audio shows a waveform and its duration.</dd></div>
     </dl>
     <p class="kicker">08 · Create and edit video and sound</p>
     <h2>Make one real thing at a time</h2>
@@ -282,15 +282,16 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
   <section id="publish" class="step">
     <dl class="roles">
       <div><dt>What you do</dt><dd>Order the takes, add the bed, render, then publish deliberately.</dd></div>
-      <div><dt>What the agent or product does</dt><dd>Signs short-lived read links, composes one bounded export, copies it into your bucket.</dd></div>
+      <div><dt>What the agent or product does</dt><dd>For a provider render, creates short-lived file links and saves a successful result to your bucket.</dd></div>
       <div><dt>What you should see</dt><dd>An assembled MP4 with real duration and take count; a public page that loads signed out.</dd></div>
     </dl>
     <p class="kicker">09 · Assemble, export and publish</p>
     <h2>The cut is the product</h2>
     <div class="cols">
       <div>
-        <p>Open <strong>Assemble</strong>. Add two to six saved takes in order, add up to four saved music, narration or effect tracks, set trim, gain and fades, and mix the soundtrack. The browser renders the mix deterministically to a new WAV; the separate tracks stay as lineage. Save the storyboard; a render copies the manifest into the job and keeps earlier renders attached.</p>
-        <p>The 9:16 control opens with a deterministic 1080×1920 slate, generates a 720×1280 vertical slate video once, retains it, then composes the selected takes in their chosen order after it. The current fal account's `ffmpeg-api` access is refused. The studio now accepts fal's signed webhook, and that delivery showed the model ending with `Unexpected status code: 403` before it fetches any signed input, so this is account entitlement rather than a bad link or a funding problem. The studio records the permission block, keeps the saved request and offers Reconcile; once the provider allows execution, the webhook saves the master without a second request. Until then the button cannot produce a new master. The article's 9:16 derivative was finished with local ffmpeg from the same saved takes and sound; do not call the blocked button fixed.</p>
+        <p>Open <strong>Assemble</strong>. Add two to six saved takes in order, add up to four saved music, narration or effect tracks, set trim, gain and fades, and mix the soundtrack. The browser makes a new WAV mix and keeps the separate tracks and their settings. Save the storyboard to keep editing it later; earlier renders stay attached.</p>
+        <p>The 9:16 option was designed to make a vertical opening and place your selected takes after it in order. During this build, fal.ai refused the compose request with a 403 permission error before reading the files. The studio kept the job and offers <strong>Reconcile</strong>, which checks that same request without sending another paid job. The 9:16 example in the article was finished locally from the saved takes and sound; it was not made with the blocked provider control.</p>
+        <p>There is also a separate on-device MP4 renderer for saved storyboards in compatible browsers. It uses the saved mixed soundtrack and mutes the original clip audio. It does not repair the provider’s 9:16 compose route.</p>
         <p>Publication is a separate, deliberate act. Four controls do four different things:</p>
         <ul>
           <li><strong>Publish / unpublish</strong> — a public page exists or is withdrawn. Withdrawal stops new visits; it cannot recall a download already taken.</li>

@@ -59,7 +59,7 @@ const costs = [
   ['Cutout and upscale', 'BiRefNet + Clarity Upscaler', 'US$0.022 est.', 'Two saved variants of the selected edit'],
   ['Studio Effect, 5 s', 'fal.ai `fal-ai/elevenlabs/sound-effects/v2`', 'US$0.008', 'Sound bed for the motion cut'],
   ['Brand motion, 5.875 s', 'fal.ai Hailuo 2.3 Standard', 'US$0.28', 'Generated promotional motion'],
-  ['9:16 slate video, 5 s', 'fal.ai Wan 2.5 720p, direct qualification', 'US$0.50', 'Saved and reused as the vertical opening'],
+  ['9:16 slate video, 5 s', 'fal.ai Wan 2.5 720p, direct test', 'US$0.50', 'Saved and reused as the vertical opening'],
   ['9:16 deterministic finish', 'local ffmpeg, no new inference', 'US$0', '720×1280, 17.79 s, SAR 1:1, DAR 9:16'],
 ];
 ---
@@ -125,15 +125,15 @@ const costs = [
 
   <section id="why" class="prose">
     <h2>Why own the studio</h2>
-    <p>Renting a creative tool is easy until the work matters. Your prompts live in someone else's database. Your references sit behind an account you do not control. The day the vendor changes a model, raises a price or closes a plan, the thing you learned to use changes underneath you. And when you want a small change — a different export shape, a field the form does not have — you wait.</p>
-    <p>The alternative is not "build your own model". Nobody here is training one. The alternative is to own the <em>workspace</em>: the projects, the saved takes, the references, the audio, the compositions, the public pages, and the code that arranges them. The models stay vendor services, chosen per job and paid per request. The studio around them is yours.</p>
+    <p>A hosted creative tool can be a good way to get started. But if its prices, models or plans change, moving your projects elsewhere can be difficult. I wanted to keep my work and be able to change the tool as my needs changed.</p>
+    <p>This studio does not train its own models. It gives you a workspace for your projects, references, saved takes, sound and public pages. You own the application and its stored work; the models are services you choose and pay for separately.</p>
     <p>That is the composition App Composer is for. One catalogue and a set of separate apps, each with its own source, data and release. Media Studio is one of those apps: an MIT-licensed Cloudflare Worker with its own D1 database, its own R2 bucket and its own deployment. It keeps working if I stop using Composer. The application, its stored projects and its media stay yours even when a vendor endpoint changes; the vendor's inference availability is a separate dependency, and this build hit that boundary for real.</p>
     <figure class="figure narrow">
       <img src={catalogue} width="1536" height="1024" alt="App Composer illustration: a catalogue hall in the centre with separate rooms for Guestbook and Showcase, each with its own data." loading="lazy" />
       <figcaption>The catalogue-with-separate-apps model, drawn for App Composer's playbook on 2026/11/13. Media Studio joins that model as its own room, with its own storage and release. Illustration: App Composer playbook.</figcaption>
     </figure>
-    <p>There are honest trade-offs. A hosted studio is faster to start and has editors, masks and collaboration that this does not. You are the operator: you hold the Cloudflare account, the vendor keys and the release. A broken deploy is yours to fix, or your agent's. And the quality of the output is still the quality of the model you chose — owning the workspace does not make a better picture.</p>
-    <p>What ownership buys is different: a stable place where the work accumulates, a bill you can read per request, and the ability to change the tool rather than request it.</p>
+    <p>There are trade-offs. A hosted service may be quicker to set up and offer editing or collaboration features this studio does not have. With your own studio, you manage the Cloudflare account, provider keys and releases, with help from your agent. The quality of generated work still depends on the model and your direction.</p>
+    <p>In return, you have a place to keep your work, review estimated costs for individual requests and change the software yourself. Check your provider invoice for the actual charge.</p>
   </section>
 
   <section id="what" class="prose">
@@ -185,9 +185,9 @@ const costs = [
     <p>Get Ready checks the local toolchain and the accounts the agent will need. Init's handoff pins the studio repository and an exact commit, then names the owner-controlled resources: a D1 database bound as <code>DB</code>, an R2 bucket bound as <code>MEDIA</code>, a Workers AI binding named <code>AI</code>, the owner passphrase and session secret, and an optional fal.ai key. The agent creates the owner's copy, applies the migrations in order, deploys, and reads back the live source identity.</p>
     <p>The studio's release script refuses to run from a dirty tree, from a branch that is not <code>main</code>, or from a commit that is not pushed. It runs the focused tests once, deploys, then fetches <code>/healthz</code> and fails the release unless the live revision equals the commit it just shipped. That is the difference between "deployed" and "I think it deployed".</p>
     <p>Two engineering decisions shaped the build more than any other.</p>
-    <h3>One job authority</h3>
-    <p>Every paid request — still, clip, sound, assembly — becomes one row before anything is sent. A client request id can only create one job. An atomic SQL statement is the only budget authority, so two simultaneous requests cannot oversubscribe the month. Provider bytes are retained in R2 before the library record exists, so a failed save is retried without a second inference call. An ambiguous provider outcome keeps its reservation and is never resubmitted automatically.</p>
-    <h3>Bounded rendering</h3>
+    <h3>Keeping track of requests</h3>
+    <p>Before a paid image, video, sound or assembly request is sent, the studio records the job and reserves its estimated cost. It checks concurrent requests against the same budget. If saving a finished result fails, the retained file can be saved again without making another generation request. When the provider outcome is unknown, the reservation stays in place until the job is reconciled; the studio does not automatically resubmit it.</p>
+    <h3>How a provider render gets its files</h3>
     <p>Assembly is not "run ffmpeg on whatever the user selected". A composition takes two to six saved clips, each at most 10.5 seconds, 60 seconds in total, plus one saved audio bed. The render is one provider composition, and the result is copied into the studio's own bucket. The same durable job engine drives it, so a closed browser does not lose the render and a failed read does not silently re-render.</p>
     <p>The provider needs to read the participating files, and the studio's media endpoints require a current session. Rather than making a project public, the server signs one asset for one project with an expiry:</p>
     <pre><code>{`// src/lib/render-links.mjs — one asset, one project, thirty minutes
@@ -208,21 +208,22 @@ url.searchParams.set("s", signature);`}</code></pre>
     <p>The first version said masked editing was not built. It is built now, through FLUX.1 Fill on fal. Pick a still, paint the area to change, write what belongs there, and the studio uploads the source and a same-size mask as separate assets. The original stays; the fill is saved as a variant with its own hash and a parent link. The mask is real white-on-black pixels, not a sentence asking a model to “keep the rest the same”.</p>
     <p>Outpainting uses the same tool deliberately: the studio builds a 25% larger canvas, centres the original, and masks the new border. Background removal is BiRefNet returning a transparent PNG; upscaling is Clarity at 2×. All three were exercised on the deployed studio, and all three save the result beside the source rather than over it.</p>
     <p>One implementation detail was not obvious: the provider's image fetcher refused the studio's signed HTTPS links, even though they were public and worked in a browser. The fix was to send the exact bytes as a data URI. That is also why the fill job now stores the source and mask hashes on the generation row: the provider never needs a durable public copy of either.</p>
-    <h3>Sound as an asset, not a soundtrack</h3>
-    <p>Sound is the part most "AI video" tools skip. Here it is a first-class saved asset: WAV, MP3 or M4A uploads, or two generated routes — Studio Score for an instrumental bed of 10 to 30 seconds, Studio Voice for narration from your own script. The studio reads the real duration, sample rate and channel count from the bytes, records provenance and cost, and draws the waveform from the decoded audio rather than an illustration of one.</p>
+    <h3>Making and saving sound</h3>
+    <p>You can upload WAV, MP3 or M4A audio, or generate an instrumental bed with Studio Score and narration from your own script with Studio Voice. The studio saves each sound separately, records its duration, sample rate, channels, source and cost, and draws the waveform from the audio file.</p>
     <figure class="figure">
       <img src={sound} width="1440" height="900" alt="The Create tab with Make sound selected: Studio Score, a written direction, a 17-second length, and an estimate before the request." loading="lazy" />
       <figcaption>One paid request, estimated first. The length control arrived with the change below, so a bed can fit the cut instead of being padded afterwards.</figcaption>
     </figure>
     <p><a href="/media-studio/direct">Learn to direct a shot, plan sound and share a result in the creative field guide →</a></p>
     <p>That matters for the edit. A 30-second bed under a 17-second cut produces a container with thirteen seconds of black and music — technically playable, visibly wrong. Choosing a 17-second bed produced a 17.02-second master with a 16.79-second picture: three takes, one bed, no tail.</p>
-    <h3>The storyboard is the edit</h3>
-    <p>A storyboard is an ordered manifest of saved takes plus the soundtrack. The interface shows the running duration, refuses a cut under two takes or over sixty seconds, and estimates the render before it is sent. Saved compositions stay editable; a render copies the manifest into the job, so editing the storyboard later never rewrites what an earlier render used.</p>
-    <h3>The mix is a real mix</h3>
+    <h3>Putting the takes in order</h3>
+    <p>A storyboard keeps your saved takes in order with their soundtrack. You can see the running length and the estimated cost before a provider render. The saved storyboard stays editable, and each render keeps the version it used.</p>
+    <h3>Mixing the soundtrack</h3>
     <p>Music, narration and effects are separate saved assets. A composition can take up to four of them, with a role, start offset, trim in/out, gain and fades. The browser decodes the saved bytes and renders the mix deterministically with the Web Audio API, then uploads the result as a new WAV. The separate tracks and their settings stay in the manifest, so the mix can be rebuilt; the render uses the saved WAV and never claims the compose endpoint applied gain it does not support.</p>
+    <p>Studio also has a separate on-device renderer for saved storyboards. It can make an MP4 with a saved mixed soundtrack in a compatible browser; the original clip audio is muted. This does not fix the provider’s blocked 9:16 compose route described below.</p>
     <h3>The 9:16 cut, after the bug</h3>
     <p>The previous release called a 768×960 file 9:16. It was 4:5, and the portrait-first sort changed the edit to suit the frame. Both were defects, and the claim was withdrawn. The replacement has two parts. The studio composes a deliberate 1080×1920 slate, generates one 720×1280 vertical slate video with Wan 2.5, and keeps those bytes so later renders reuse them. The selected takes then follow in the order chosen, composed into the slate's frame with the saved sound. No shot is re-sorted, stretched or silently regenerated.</p>
-    <p>The current fal account cannot read the result of a new `ffmpeg-api` compose job: the submit is accepted, the status says completed, and the result route returns 403 with `&#123;"detail":"Access denied: You do not have permission to use this endpoint"&#125;` for the exact payload that worked earlier. A verified fal webhook now delivers the finished payload to the studio, and that delivery showed the deeper failure: the model itself ends with "Unexpected status code: 403" before any signed input request reaches the studio, so the account's `ffmpeg-api` access — not just result retrieval — is refused. That is a provider permission decision, not a funding problem and not a layout fix. The studio now records it as `provider_permission`, keeps the provider request id and offers Reconcile, which re-reads the same result without submitting another paid job. The in-product path is coded and unit-tested, but I am not calling the button live while the provider refuses the result. The derivative on this page was therefore finished deterministically with local ffmpeg from the same saved takes, saved sound and slate; the command and hashes are recorded in the studio. It is 720×1280, SAR 1:1, DAR 9:16, 17.79 seconds, with 44.1 kHz stereo audio. The earlier 4:5 file remains as evidence of the bug, not as the 9:16 proof.</p>
+    <p>During this build, fal accepted new <code>ffmpeg-api</code> compose requests but returned a 403 permission error before reading the files. The studio keeps the request and offers <strong>Reconcile</strong> to check its result without submitting another paid job. A signed provider webhook confirmed the underlying model error. The 9:16 example on this page was instead finished locally with ffmpeg using the saved takes, sound and slate. It is 720×1280, 17.79 seconds, with 44.1 kHz stereo audio; the command and hashes are kept in the studio. The earlier 4:5 file remains in the project too.</p>
     <figure class="figure">
       <img src={storyboard} width="1440" height="900" alt="The Assemble tab showing a saved storyboard with three shots and an audio bed, a render button, and the assembled result below." loading="lazy" />
       <figcaption>The composition and its renders in one place. The edit controls and the results are the same application, the same project, the same stored media.</figcaption>
@@ -263,10 +264,10 @@ url.searchParams.set("s", signature);`}</code></pre>
   <section id="made" class="prose">
     <h2>Made in the studio shown here</h2>
     <p>We used the studio we built to produce the App Composer artwork and motion used on this page.</p>
-    <p>That sentence is a chain, not a caption. The project is <strong>App Composer — studio launch artwork</strong>, kept in the same deployed studio as the earlier work. The brief asked for an editorial illustration about owning a studio: tactile paper, warm ink, a controlled orange signal route and room for exact type. The first still came from Workers AI Lucid Origin at 1280×720. The selected refinement was a real masked fill: a white ellipse in the empty upper-right panel, a prompt for a paper signal ring, and FLUX.1 Fill returning a 1280×704 variant while the original, the mask and the result stayed separate. The motion is Hailuo 2.3 animating that selected edit; the sound bed is a separate Studio Effect. The type, mark, crops and the 9:16 frame were then finished deterministically, because generated lettering and a generated logo would be the wrong tool.</p>
+    <p>That sentence is a chain, not a caption. The project is <strong>App Composer — studio launch artwork</strong>, kept in the same deployed studio as the earlier work. The brief asked for an editorial illustration about owning a studio: tactile paper, warm ink, a controlled orange signal route and room for exact type. The first still came from Workers AI Lucid Origin at 1280×720. The selected refinement was a real masked fill: a white ellipse in the empty upper-right panel, a prompt for a paper signal ring, and FLUX.1 Fill returning a 1280×704 variant while the original, the mask and the result stayed separate. The motion is Hailuo 2.3 animating that selected edit; the sound bed is a separate Studio Effect. The type, mark, crops and 9:16 frame were added in a separate finishing step for this piece.</p>
     <figure class="figure">
       <img src={brandShare} width="1200" height="630" alt="Share card: a paper-cut studio desk with a film strip, waveform, camera and orange ring, titled Build your own media studio with the App Composer mark." loading="lazy" />
-      <figcaption>The 1200×630 share card used by this article and the catalogue. The illustration is the selected masked edit; the title, rule, URL and mark are exact deterministic finishing, not model lettering.</figcaption>
+      <figcaption>The 1200×630 share card used by this article and the catalogue. The illustration is the selected masked edit; the title, rule, URL and mark were added during finishing.</figcaption>
     </figure>
     <div class="table-wrap">
       <table>
@@ -282,7 +283,7 @@ url.searchParams.set("s", signature);`}</code></pre>
           <tr><th scope="row">Derivatives</th><td>Deterministic Pillow/ffmpeg finishing: 1200×630, 1080×1080, 1080×1350, 720×1280</td><td><code>ba20457c953e…</code> · <code>111c9cbc1e79…</code> · <code>3aaf19084a2d…</code> · <code>afca9b476e8b…</code></td></tr>
           <tr><th scope="row">Publication</th><td>Deliberate Studio pages plus this article’s OG/share card</td><td><a href="https://media.loftwah.com/p/jWri1dDSfWbZ8HXD">9:16 motion</a> · <a href="https://media.loftwah.com/p/B_HA5PV6YMmHDA7N">share card</a></td></tr>
         </tbody>
-        <tfoot><tr><th scope="row">This project</th><td>Studio-recorded requests</td><td>US$0.363 + US$0.50 for the separately qualified 720p slate</td></tr></tfoot>
+        <tfoot><tr><th scope="row">This project</th><td>Historical studio requests</td><td>US$0.363 + US$0.50 for the separate 720p slate test</td></tr></tfoot>
       </table>
     </div>
     <figure class="figure pair">
@@ -389,7 +390,7 @@ url.searchParams.set("s", signature);`}</code></pre>
     <p>Each advertised route was checked in four steps: the official documentation and schema, the actual account's access, a bounded request through the studio's real server adapter, and the released interface reading the retained output. The gaps are named, not smoothed over.</p>
     <div class="table-wrap">
       <table>
-        <caption>Qualification on 2026/11/13–2026/11/14, Australia/Melbourne (AEDT, UTC+11). "Live" means a real request through the studio and a saved result.</caption>
+        <caption>Results recorded on 13–14 November 2026, Melbourne time. "Live" means a real request through the studio produced a saved result.</caption>
         <thead><tr><th scope="col">Route</th><th scope="col">Provider and model</th><th scope="col">State</th></tr></thead>
         <tbody>
           <tr><th scope="row">Stills</th><td>Workers AI Lucid Origin, Phoenix, SDXL Lightning, FLUX.2 Klein</td><td>Live</td></tr>
@@ -410,20 +411,20 @@ url.searchParams.set("s", signature);`}</code></pre>
     <h3>What it cost</h3>
     <div class="table-wrap">
       <table>
-        <caption>Selected request-level objects from both studio projects. Rows marked <code>est.</code> are planning estimates. None of these figures is invoice-confirmed; the vendor invoice remains authoritative, and the full ledger stays in the studio.</caption>
+        <caption>Selected requests from the two projects in this build. Rows marked <code>est.</code> are estimates. These figures have not been checked against an invoice; the provider invoice is authoritative.</caption>
         <thead><tr><th scope="col">Object</th><th scope="col">Route</th><th scope="col">Cost</th><th scope="col">Outcome</th></tr></thead>
         <tbody>
           {costs.map(([name, route, cost, result]) => (
             <tr><th scope="row">{name}</th><td><code>{route}</code></td><td>{cost}</td><td>{result}</td></tr>
           ))}
         </tbody>
-        <tfoot><tr><th scope="row">Recorded in the studio</th><td>both projects, all saved jobs</td><td>US$1.6647</td><td>US$1.3017 Paper &amp; Light + US$0.363 brand project; none invoice-confirmed</td></tr></tfoot>
+        <tfoot><tr><th scope="row">Historical two-project snapshot</th><td>recorded during this build</td><td>US$1.6647</td><td>US$1.3017 Paper &amp; Light + US$0.363 brand project; not invoice-confirmed</td></tr></tfoot>
       </table>
     </div>
-    <p>Hosting is separate and shared: the studio runs on the same Workers Paid account as the rest of the estate, with R2 storage for originals and exports. Idle runtime does not bill per request, but the shared paid account and the stored bytes cost money whether or not anyone is rendering — there is no zero-cost idle state. The studio's own ledger records <strong>US$1.6647</strong> across the two projects: US$1.3017 in Paper &amp; Light and US$0.363 in the brand project. A further <strong>US$0.50</strong> qualified the 720p Wan slate video outside the studio budget; the rejected 1080p Wan attempt and the smaller LTX tests added roughly US$1.08 of qualification overhead. That is not a monthly price: it is what these specific requests cost. The saved narration asset is 23.25 seconds; earlier copy said 33 seconds, which was wrong, and the table now uses the asset record.</p>
+    <p>Hosting and storage are separate from generation charges. This studio shares a Workers Paid account with other projects and stores its files in R2, so the account and stored files can cost money even when no one is making media. During this build, a snapshot of two projects recorded <strong>US$1.6647</strong>: US$1.3017 for Paper &amp; Light and US$0.363 for the brand project. A separate 720p Wan slate test added <strong>US$0.50</strong>; a rejected 1080p attempt and smaller LTX tests added roughly US$1.08. These are historical request figures, not a monthly price or today's total, and none has been confirmed against an invoice. The saved narration runs for 23.25 seconds; an earlier version of this article incorrectly said 33 seconds.</p>
     <h3>What is not claimed</h3>
     <ul>
-      <li><strong>In-product compose is blocked.</strong> New fal ffmpeg compose jobs are accepted and reported complete, but the result route returns 403. The assembly and 9:16 controls stay coded; the 9:16 derivative here was finished deterministically with local ffmpeg, not by the blocked button.</li>
+      <li><strong>Fal compose returned a permission error.</strong> During this build, new fal ffmpeg compose jobs were accepted but the result route returned 403. The 9:16 derivative shown here was finished with local ffmpeg. A separate on-device storyboard renderer is now available in compatible browsers.</li>
       <li><strong>Grants are workspace/installation level.</strong> The handoff binds one selected project and the studio enforces that scope, but People &amp; access does not yet offer a separate grant row per studio project. A wrong-project session is denied; per-project grants remain next work.</li>
       <li><strong>No voice cloning</strong>, no training on anyone's likeness, no rights workflow for either.</li>
       <li><strong>No full non-linear editor, no 4K, no 30-second single inference, no guarantee of identity across takes.</strong> The composition is a bounded manifest with a 60-second ceiling.</li>
@@ -436,7 +437,7 @@ url.searchParams.set("s", signature);`}</code></pre>
 
   <section id="repeat" class="prose">
     <h2>Repeat it</h2>
-    <p>You need a Cloudflare account on Workers Paid, a supported agent, and — for video, sound and rendering — a funded fal.ai key. Creating those accounts, signing in and approving spend are yours; the agent does the technical work. You do not need Docker, Wrangler or a database seed to start.</p>
+    <p>You need a Cloudflare account on Workers Paid and a supported agent. Fal.ai generation and provider rendering also need a funded fal.ai key. Creating those accounts, signing in and approving spend are yours; the agent does the technical work. You do not need Docker, Wrangler or a database seed to start.</p>
     <ol>
       <li><a href="/init?start=media-studio">Build your studio</a>: choose Media Studio, name it, pick defaults, save the draft.</li>
       <li>Export the specification and copy the agent handoff. Check the pinned source and the human-only actions.</li>
