@@ -231,7 +231,7 @@ const signals = signalKeys
         <p class="signal-coverage">
           {signal.available
             ? `${signal.available} of ${days} requested UTC days have retained counts.`
-            : "This window has no recorded history for this signal."}{" "}
+            : "No history is recorded for this signal in the selected window."}{" "}
           {signal.missing > 0 &&
             `${signal.missing} ${signal.missing === 1 ? "day is" : "days are"} unavailable.`}{" "}
           A retained zero means no event was recorded; publishers and recording

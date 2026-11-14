@@ -198,7 +198,7 @@ const scopeNote = history
 
       <section class="analytics-section" aria-labelledby="apps-title">
         <div class="analytics-section-heading">
-          <h2 id="apps-title">The app comparison</h2>
+          <h2 id="apps-title">Compare apps</h2>
           <p>Opens and supported actions by app, in the same {where} scope and UTC window. {selected.surface === "composed" ? "Only apps Composer mounts inside its own site have a composed route; the rest are marked as unavailable, not counted as zero." : "A composed route is another address for the same app, not another audience."}</p>
         </div>
         {report ? (
@@ -240,7 +240,7 @@ const scopeNote = history
       <section class="analytics-section" aria-labelledby="findings-title">
         <div class="analytics-section-heading">
           <h2 id="findings-title">What stands out</h2>
-          <p>Each finding names the app and measure behind it. Select one to inspect its exact scope and UTC day, or freeze it as a shareable report.</p>
+          <p>Each finding names its app and measure. Select one to inspect its scope and UTC day, or save it as a shareable report.</p>
         </div>
         {findings.length ? (
           <ol class="analytics-findings">
@@ -265,14 +265,14 @@ const scopeNote = history
           </ol>
         ) : (
           <div class="analytics-empty">
-            <h2>No finding clears the evidence bar yet.</h2>
+            <h2>No findings meet the evidence threshold yet</h2>
             <p>The scope has no recorded opens or completed actions. That is not a claim that nobody visited; counters are optional and bounded.</p>
           </div>
         )}
       </section>
 
       <section class="analytics-method" aria-labelledby="method-title">
-        <h2 id="method-title">How an event becomes this page.</h2>
+        <h2 id="method-title">How activity is counted</h2>
         <p>A successful public request or a completed action can add one to an app's daily total. The original record stays with the app. No visitor identity, enquiry text, entered URL, search or vault content enters these counters.</p>
         <ol>
           <li><strong>Scope before claim.</strong> The route filter applies to the daily series and the app comparison. An app without the selected route is marked unavailable, not counted as zero. Counts are for the selected UTC window; today is partial.</li>
@@ -296,7 +296,7 @@ const scopeNote = history
   ) : (
     <section class="analytics-empty" role="status">
       <h2>Daily history is unavailable.</h2>
-      <p>The reporting query could not complete. This is not a zero count. Try this page again later; the apps remain available.</p>
+      <p>The reporting query could not complete, so the count is unavailable. Try again later; the apps remain available.</p>
       <a href="/apps">Browse the apps</a>
     </section>
   )}
