@@ -229,15 +229,12 @@ export function validateSources(input: unknown, ids: string[]): AppSource[] {
     ids.length === 1 &&
     ids[0] === "media-studio" &&
     Array.isArray(input) &&
-    object(input[0]) &&
-    input[0].commit === mediaStudioStandalone.previousCommit
+    object(input[0])
   ) {
-    expected = [
-      {
-        ...mediaStudioStandalone.source,
-        commit: mediaStudioStandalone.previousCommit,
-      },
-    ];
+    const legacy = mediaStudioStandalone.legacySources.find(
+      (source) => source.commit === input[0].commit,
+    );
+    if (legacy) expected = [{ ...legacy }];
   }
   if (
     !Array.isArray(input) ||

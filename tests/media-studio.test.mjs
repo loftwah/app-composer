@@ -154,10 +154,17 @@ test("the handoff and build plan carry the owned studio work without secrets", (
 test('current and historical Studio briefs retain their exact reviewed source pins', async () => {
   const { readFile } = await import('node:fs/promises');
   const historical = JSON.parse(await readFile(new URL('../public/media-studio/media-studio-brief-20261114.json', import.meta.url), 'utf8'));
-  assert.equal(historical.sources[0].commit, mediaStudioSource.previousCommit);
+  assert.equal(historical.sources[0].commit, mediaStudioSource.legacySources[0].commit);
   const restored = validateSpec(historical);
   assert.deepEqual(restored.sources, historical.sources);
   assert.deepEqual(validateSpec(JSON.parse(JSON.stringify(restored))).sources, historical.sources);
+  const previous = {...historical, sources:[mediaStudioSource.legacySources[1]]};
+  assert.deepEqual(validateSpec(JSON.parse(JSON.stringify(previous))).sources, previous.sources);
+  for (const oldSource of mediaStudioSource.legacySources) {
+    for (const patch of [{manifestDigest:'sha256:'+'b'.repeat(64)}, {repository:'https://example.com/other'}, {id:'wrong'}]) {
+      assert.throws(() => validateSpec({...historical, sources:[{...oldSource,...patch}]}), /contracts have changed/);
+    }
+  }
   const current = validateSpec(mediaSpec());
   assert.equal(current.sources[0].commit, mediaStudioSource.source.commit);
   assert.deepEqual(validateSpec(JSON.parse(JSON.stringify(current))).sources, current.sources);
