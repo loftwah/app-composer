@@ -22,11 +22,6 @@ try {
   // An unconnected installation still offers the build story and setup below.
 }
 
-// Visitors should see the public work immediately; signed-in members keep the
-// workspace-specific handoff below. An unconnected instance keeps this page.
-if (!user && publicStudioUrl)
-  return new Response(null, { status: 302, headers: { Location: publicStudioUrl, "Cache-Control": "private, no-store" } });
-
 function base64url(value: string) {
   return btoa(value).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
 }
@@ -98,6 +93,9 @@ if (user && runtime.DB) {
     }
   }
 }
+
+// The entry can contain workspace-specific access information.
+Astro.response.headers.set("Cache-Control", "private, no-store");
 ---
 
 <Base
@@ -112,11 +110,11 @@ if (user && runtime.DB) {
 
     {state === "signed-out" && (
       <section class="entry-card" aria-labelledby="entry-signed-out">
-        <h2 id="entry-signed-out">Explore Media Studio</h2>
-        <p>See what Media Studio can make and how to set up your own.</p>
+        <h2 id="entry-signed-out">Open your studio</h2>
+        <p>Sign in with App Composer to open your workspace. You can also explore published work without signing in.</p>
         <div class="entry-actions">
-          <a class="button" href="/media-studio">Read the Media Studio story</a>
-          <a class="button secondary" href="/_emdash/admin/login?redirect=/media-studio/studio">Sign in to your studio</a>
+          <a class="button" href="/_emdash/admin/login?redirect=/media-studio/studio">Sign in with App Composer</a>
+          {publicStudioUrl && <a class="button secondary" href={publicStudioUrl}>Explore Media Studio</a>}
         </div>
       </section>
     )}
