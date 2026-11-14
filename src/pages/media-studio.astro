@@ -105,11 +105,13 @@ const costs = [
       </div>
       <p class="meta">14 November 2026 · App Composer + Media Studio</p>
     </div>
-    <figure class="art-hero-figure">
-      <img src={hero} width="1600" height="1000" alt="The Media Studio library for the Paper & Light project: an assembled 17-second cut, two sound assets drawn as waveforms, and three saved takes." loading="eager" />
-      <a href={hero} aria-label="Open full-size studio library screenshot">Open full-size image</a>
-      <figcaption>The working studio, after the change described below: an assembled cut, generated sound with real waveforms, and the takes they came from.</figcaption>
-    </figure>
+    <div class="art-hero-figure" aria-label="From original artwork to Studio variation">
+      <div class="hero-art-pair">
+        <figure><a href="https://media.loftwah.com/portfolio?asset=poster-study-fighter"><img src="/media-studio/fighter-across-the-ring-20261114.webp" width="544" height="680" alt="Across the Ring: a colourful Woodhouse Fighter poster" loading="eager" /></a><figcaption>Original · Woodhouse</figcaption></figure>
+        <figure><a href="https://media.loftwah.com/p/yFSN93LOFy1ja4j0"><img src="/media-studio/fighter-before-the-bell-20261114.webp" width="680" height="680" alt="Before the Bell: a Viking, a boxer and the Grim Reaper in a ring" loading="eager" /></a><figcaption>Variation · Media Studio</figcaption></figure>
+      </div>
+      <p class="hero-art-note">One original. A new direction. <a href="#from-share">See how it was made →</a></p>
+    </div>
   </header>
 
   <nav class="contents" aria-labelledby="studio-contents-heading">
@@ -137,6 +139,7 @@ const costs = [
   <section id="what" class="prose">
     <h2>What actually works</h2>
     <p>The initial release had a project library, uploads, stills and reference variations, masked edits, background removal, upscaling, two image-to-video models, sound, a browser mix, storyboards, scoped Composer access and deliberate publication. The 9:16 example was finished locally from the saved takes. Since then, the studio has added MiniMax H3 and a separate on-device storyboard renderer. The table records what was exercised in the original build, including the provider route that was blocked.</p>
+    <figure class="figure"><img src={hero} width="1600" height="1000" alt="The Media Studio library for the Paper & Light project, with an assembled cut, sound and saved takes." loading="lazy" /><a href={hero} aria-label="Open full-size studio library screenshot">Open full-size image</a><figcaption>The working studio, with its assembled cut, sound and source takes.</figcaption></figure>
     <details class="production-details">
       <summary>See what this build could do</summary>
       <div class="table-wrap">
@@ -497,7 +500,7 @@ url.searchParams.set("s", signature);`}</code></pre>
   .row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:22px 0 0}
   .row.end{margin-top:36px;padding-top:24px;border-top:1px solid var(--line,rgba(255,255,255,.16))}
   .quiet-link{font-weight:600;font-size:.92rem}
-  .art-hero-figure{min-width:0;width:100%;max-width:74ch;margin:0;padding:clamp(12px,1.6vw,20px);border-left:4px solid var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+  .art-hero-figure{min-width:0;width:100%;margin:0;padding:clamp(16px,2vw,28px);background:#6b1d72;color:#fff4de}.hero-art-pair{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.5vw,20px);align-items:end}.hero-art-pair figure{margin:0;min-width:0}.hero-art-pair figcaption{color:#fff4de;font-weight:600}.hero-art-note{margin:18px 0 0;font-size:.9rem;font-weight:600;line-height:1.5}.art .hero-art-note a{color:#fff4de;text-decoration:underline;text-underline-offset:3px}
   .art-hero-figure img,.figure img{display:block;width:100%;height:auto;border:1px solid var(--line,rgba(255,255,255,.16));box-shadow:0 32px 70px -52px rgba(0,0,0,.7)}
   figcaption{font-size:.78rem;line-height:1.55;color:var(--muted,#b9b2a8);margin-top:10px}
   .contents {
@@ -589,6 +592,8 @@ url.searchParams.set("s", signature);`}</code></pre>
   }
   @media (max-width:560px){
     .art{padding:16px 16px 64px}
+    .art h1{font-size:2.15rem}
+    .art-hero .deck{font-size:1.03rem;line-height:1.5}
     .row{gap:10px}
     .contents ul { grid-template-columns: minmax(0, 1fr); }
     .contents a { min-height: 44px; }
