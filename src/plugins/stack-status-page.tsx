@@ -75,9 +75,7 @@ function RemoteSignal({ remote }: { remote: StackRemotePackage }) {
   ) : (
     <span>{label}</span>
   );
-  return (
-    <span className={warningClass(remote.classification)}>{detail}</span>
-  );
+  return <span className={warningClass(remote.classification)}>{detail}</span>;
 }
 
 function PackageRow({ row }: { row: StackPackageRow }) {
@@ -88,12 +86,12 @@ function PackageRow({ row }: { row: StackPackageRow }) {
         <small>{row.declared}</small>
         {row.note && <small>{row.note}</small>}
       </th>
-      <td>{row.installed ?? "Not installed"}</td>
+      <td>{row.installed ?? "Not observed"}</td>
       <td>{row.deployed ?? "Unknown"}</td>
       <td>{row.latestTested ?? "Not recorded"}</td>
       <td>
         {row.remote.state === "available"
-          ? row.remote.latest ?? "Unknown"
+          ? (row.remote.latest ?? "Unknown")
           : "Unknown"}
       </td>
       <td>
@@ -146,14 +144,14 @@ export function StackStatusPage() {
       <header>
         <h1 id="stack-status-title">Stack status</h1>
         <p>
-          What this build installs, what the deployed Worker serves, and what
-          the reviewed policy has actually tested. Updates are not installed
-          here.
+          Compare the versions recorded for this build with the reviewed
+          versions and the latest available registry report. This page does not
+          install updates.
         </p>
         <p>Composer production · administrator-only · read-only</p>
       </header>
       {!report && !error && (
-        <p role="status">Loading the generated stack snapshot…</p>
+        <p role="status">Loading the saved version report…</p>
       )}
       {error && (
         <div role="alert" className="ss-error">
@@ -169,8 +167,8 @@ export function StackStatusPage() {
             <strong>{statusLabels[snapshot.status]}</strong>
             <p>
               {snapshot.blockers.length
-                ? `${snapshot.blockers.length} item(s) need a decision.`
-                : "No security, unsupported or breaking-major item is recorded."}
+                ? `${snapshot.blockers.length} item(s) need review.`
+                : "No security, unsupported or breaking-major issue is recorded in this report."}
             </p>
           </div>
           <dl className="ss-facts">
@@ -199,8 +197,10 @@ export function StackStatusPage() {
                 {snapshot.remote.state === "available" ? (
                   <>
                     Checked {utc(snapshot.remote.checkedAt)} ·{" "}
-                    {snapshot.remote.ageDays ?? 0} day(s) old ·{" "}
-                    <code>{snapshot.remote.registry}</code>
+                    {snapshot.remote.ageDays === null
+                      ? "report age unknown"
+                      : `${snapshot.remote.ageDays} day(s) old`}{" "}
+                    · <code>{snapshot.remote.registry}</code>
                   </>
                 ) : (
                   <span className="ss-attention">
@@ -218,12 +218,15 @@ export function StackStatusPage() {
             </div>
           </dl>
           {snapshot.blockers.length > 0 && (
-            <section className="ss-blockers" aria-labelledby="ss-blockers-title">
+            <section
+              className="ss-blockers"
+              aria-labelledby="ss-blockers-title"
+            >
               <h2 id="ss-blockers-title">What needs attention</h2>
               <p>
-                These are the only conditions raised as blockers. A newer patch
-                or minor release is shown in the table without becoming a
-                warning.
+                This report treats these conditions as blockers. Newer patch and
+                minor releases appear in the table without being marked as
+                warnings.
               </p>
               <ul>
                 {snapshot.blockers.map((blocker, index) => (
@@ -248,7 +251,8 @@ export function StackStatusPage() {
                 <caption>
                   Declared and default versions, the observed executable, and
                   the reviewed policy. “Unobserved” means the actual executable
-                  did not identify itself; the pin is not presented as installed.
+                  did not identify itself; the pin is not presented as
+                  installed.
                 </caption>
                 <thead>
                   <tr>
@@ -279,9 +283,7 @@ export function StackStatusPage() {
                           </>
                         ) : null}
                       </td>
-                      <td>
-                        {row.observed ? row.installed : "Unobserved"}
-                      </td>
+                      <td>{row.observed ? row.installed : "Unobserved"}</td>
                       <td>
                         <code>{row.policy}</code>
                         {row.tested.length > 0 ? (
@@ -293,7 +295,7 @@ export function StackStatusPage() {
                       </td>
                       <td>
                         {row.upstream.state === "available"
-                          ? row.upstream.latest ?? "Not compared"
+                          ? (row.upstream.latest ?? "Not compared")
                           : "Unknown"}
                         {row.upstream.checkedAt ? (
                           <>
@@ -352,8 +354,9 @@ export function StackStatusPage() {
           <section className="ss-boundary" aria-labelledby="ss-boundary-title">
             <h2 id="ss-boundary-title">What this page does not do</h2>
             <p>
-              It does not install, update, deploy, change a pin or call the
-              registry. The registry report is a separate opt-in local command:
+              This page does not install, update or deploy packages, change a
+              pin, or contact the registry. To update the registry report, run
+              this separate command locally:
             </p>
             <pre>
               node scripts/freshness.mjs --remote --write
