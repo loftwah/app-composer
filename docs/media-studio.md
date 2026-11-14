@@ -98,6 +98,21 @@ existing import path; finishing stays in Launch Kit. A deliberately published
 page is a normal HTTPS card destination for Linkarooie/Showcase, so the same
 asset can appear in a composed app without copying private metadata.
 
+## Sign-in and access
+
+Composer already opens the studio through a short-lived, scoped handoff, without
+asking the person for the standalone owner passphrase. The selected next sign-in
+profile uses Cloudflare Access's native email codes and passkeys. Its explicit
+account binding and real login demonstration remain delivery work; it is not
+enabled by this documentation update.
+
+The [Cloudflare integration brief](cloudflare-access-oyster.md) explains the user
+journey, prerequisites, Composer/Studio/EmDash/Oyster responsibilities, existing
+automation keys and the optional private-backend path. It needs no Pocket ID
+server. Tailscale compatibility is considered, with no tailnet setup required.
+The brief also records the current private-read revocation limit and the small
+set of checks needed for the change, using the existing release process.
+
 ## Ownership
 
 The studio owns its D1 metadata, R2 bytes, Worker release and provider keys. It
@@ -134,3 +149,4 @@ Exact commits, Worker versions, screenshots and remaining gates are recorded in
   not a prerequisite for this native studio.
 - Physical-device capture and social unfurl caches remain separate from the
   browser checks.
+

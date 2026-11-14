@@ -219,6 +219,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <div class="cols">
       <div>
         <p>Open the studio from the Composer menu or the <a href="/media-studio/studio">Open your studio</a> entry. Composer's existing EmDash session mints a short-lived handoff naming the current actor, workspace, selected project and only the granted actions. The studio exchanges it for its own short-lived, project-scoped session. The browser holds neither the studio passphrase nor any provider key.</p>
+        <p><strong>Email and passkeys:</strong> our selected sign-in improvement uses Cloudflare Access's native email codes and passkeys. Account binding and the live login rollout are still being completed; use this installation's existing sign-in method until the new options are enabled. The <a href="https://github.com/loftwah/app-composer/blob/main/docs/cloudflare-access-oyster.md">integration brief</a> explains setup and recovery. No Pocket ID server or Tailscale installation is required.</p>
         <p>Signing in is not the same as being granted a resource. Read, edit, generate, publish and admin are separate. The studio re-checks the current Composer grant on the server before a privileged action, so revoking a member stops the next dispatch even if their tab is still open. A signed-out request to a private route returns 401; a signed-in account without the grant gets a clear denied page, not a hidden menu item.</p>
         <p>Standalone use still exists behind the owner passphrase, because the studio is an ordinary independent app. It is simply not the way you arrive from Composer.</p>
       </div>
@@ -359,6 +360,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <p class="kicker">Technical reference · for operators</p>
     <h2>Exact commands and checks</h2>
     <p class="small">This section is for the person or agent operating the deployment. You do not need it to use the studio, and it is not the beginner path.</p>
+    <p>For sign-in, read the <a href="https://github.com/loftwah/app-composer/blob/main/docs/cloudflare-access-oyster.md">Cloudflare Access integration guide</a>: it covers account binding, human and agent credentials, public/private routes, the proposed Oyster adapter and optional private-backend connectivity. It distinguishes existing behaviour from the remaining rollout and uses the current release process.</p>
     <h3>Deploy the studio from its own repository</h3>
     <pre><code>git clone https://github.com/loftwah/composer-media-studio
 cd composer-media-studio
@@ -454,3 +456,4 @@ curl -s -o /dev/null -w '%&#123;http_code&#125;\n' https://your-studio.example/a
   @media (max-width:820px){.cols,.facts,.timestamps,.roles{grid-template-columns:1fr;gap:18px}}
 </style>
 </Base>
+

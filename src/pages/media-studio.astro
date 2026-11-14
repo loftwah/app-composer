@@ -336,6 +336,7 @@ url.searchParams.set("s", signature);`}</code></pre>
   <section id="architecture" class="prose">
     <h2>How it fits together</h2>
     <p>One diagram, no invented services. Composer is the creation and management surface; the studio is an independent application; Cloudflare runs both; the model vendors are called by the studio, with the studio's own keys.</p>
+    <p>The selected sign-in improvement uses Cloudflare Access's email codes and passkeys, while agents keep their application keys. It needs no extra identity server. The existing Composer-to-studio handoff already avoids a second password; the account binding and live email/passkey rollout are still being completed. Our <a href="https://github.com/loftwah/app-composer/blob/main/docs/cloudflare-access-oyster.md">Cloudflare integration brief</a> explains the experience, prerequisites, Oyster contribution and optional Tailscale connection.</p>
     <div class="diagram" role="img" aria-label="Diagram: App Composer Init writes a specification and hands it to a supported agent. The agent deploys the Media Studio Worker with its own D1 database and R2 bucket. Composer's member grants name the current actor, workspace, selected project and read/edit/generate/publish/admin actions; a short-lived signed handoff opens the studio, which re-checks the current grant before a privileged dispatch. The studio calls Cloudflare Workers AI for stills and fal.ai for edits, video, sound and bounded renders, and serves public pages with byte ranges from its own origin.">
       <div class="node">
         <strong>App Composer</strong>
@@ -515,3 +516,4 @@ url.searchParams.set("s", signature);`}</code></pre>
   @media (prefers-reduced-motion:reduce){.art *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
 </Base>
+
