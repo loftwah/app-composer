@@ -350,15 +350,25 @@ url.searchParams.set("s", signature);`}</code></pre>
       <li><strong>The loader fix:</strong> saved compositions survive the trip from the API to the tab.</li>
     </ul>
     <p>Three smaller fixes came from the same evidence pass: assembled exports no longer appear in the shot picker (so a cut is never built from another cut), published media is briefly cacheable rather than cached for a day, and every published file, download and signed render input now answers byte-range requests with a real 206 and `Content-Range`, so a player can seek without downloading the whole file.</p>
-    <p>The portrait output also needed correcting. The 9:16 label was wrong: the file was 4:5, and the portrait-first sort changed the edit to suit the frame. The label was removed first. The replacement composes a deliberate 1080×1920 slate, generates one 720×1280 vertical slate video with Wan 2.5, retains it as a reusable asset, then composes the selected takes in their chosen order after it with the saved sound. The job engine treats that as one generation row with two bounded provider stages, so the budget, retained bytes and tombstone rules are the same as every other render.</p>
-    <p>The provider then changed underneath the fix. New `ffmpeg-api` compose jobs submit and report completed, but their result route returns 403 — "Access denied: You do not have permission to use this endpoint" — for the exact payload that worked earlier; the normal assembly path is blocked the same way. I also tested fal's documented direct call and a scheduled dispatch; neither completed reliably inside the studio's runtime, so the queue path stays. The studio now accepts fal's signed webhook delivery, which saves the master when execution succeeds and records the model's own error when it does not. I did not call the button fixed. The 9:16 derivative on this page was finished deterministically with local ffmpeg from the same saved takes, sound and slate: 720×1280, SAR 1:1, DAR 9:16, 17.79 seconds. The in-product path stays coded and unit-tested, and the article records the external permission block rather than hiding it in a limitations list.</p>
+    <p>The portrait output needed correcting too. The file labelled 9:16 was actually 4:5, and the studio had changed the shot order to fit the frame. We removed the label and designed a replacement that keeps the chosen order and sound.
+    </p>
+    <details class="production-details">
+      <summary>How the portrait render was designed</summary>
+      <p>The studio composes a 1080×1920 slate and generates one 720×1280 vertical slate video with Wan 2.5. It keeps that video for reuse, then places the selected takes after it in order with the saved sound. The job engine records one generation with two bounded provider stages, using the same budget, retained-byte and tombstone rules as other renders.</p>
+    </details>
+    <p>During the build, fal accepted new `ffmpeg-api` compose jobs but returned a 403 when the studio tried to retrieve their results. The same problem blocked normal assembly. The 9:16 film on this page was therefore finished locally with ffmpeg from the saved takes, sound and slate. It is 720×1280 and 17.79 seconds long.
+    </p>
+    <details class="production-details">
+      <summary>Provider error and render details</summary>
+      <p>The result route returned "Access denied: You do not have permission to use this endpoint" for a payload that had worked earlier. Fal's documented direct call and a scheduled dispatch were also tested; neither completed reliably inside the studio runtime, so the queue path remained. The studio accepts fal's signed webhook, saving a master when execution succeeds and recording the model error when it fails. The in-product portrait path was coded and unit-tested, but this provider block prevented us from calling it fixed. The local derivative has SAR 1:1 and DAR 9:16.</p>
+    </details>
     <p>Before/after is measurable: the same storyboard still has the 17.02-second and 30.00-second masters in the library, both downloadable, neither regenerated. The failed 4:5 job and the failed provider compose jobs remain in history as the honest record of what was learned.</p>
     <p>The same release added masked fill, cutout, upscale, Studio Effect, browser mixing and scoped Composer grants.</p>
   </section>
 
   <section id="architecture" class="prose">
     <h2>How it fits together</h2>
-    <p>Composer is the creation and management surface; the studio is an independent application; Cloudflare runs both; the model vendors are called by the studio, with the studio's own keys.</p>
+    <p>Composer helps you create and manage the app. Media Studio runs separately on Cloudflare and calls model providers using its own keys.</p>
     <p>The selected sign-in improvement uses Cloudflare Access's email codes and passkeys, while agents keep their application keys. It needs no extra identity server. The existing Composer-to-studio handoff already avoids a second password; the account binding and live email/passkey rollout are still being completed. Our <a href="https://github.com/loftwah/app-composer/blob/main/docs/cloudflare-access-oyster.md">Cloudflare integration brief</a> explains the experience, prerequisites, Oyster contribution and optional Tailscale connection.</p>
     <div class="diagram" role="img" aria-label="Diagram: App Composer Init writes a specification and hands it to a supported agent. The agent deploys the Media Studio Worker with its own D1 database and R2 bucket. Composer's member grants name the current actor, workspace, selected project and read/edit/generate/publish/admin actions; a short-lived signed handoff opens the studio, which re-checks the current grant before a privileged dispatch. The studio calls Cloudflare Workers AI for stills and fal.ai for edits, video, sound and bounded renders, and serves public pages with byte ranges from its own origin.">
       <div class="node">
@@ -386,7 +396,7 @@ url.searchParams.set("s", signature);`}</code></pre>
       </div>
     </div>
     <p>The data flow for one assembly: a storyboard row stores the ordered take ids and the bed. The render job copies that manifest, signs a read link per participating asset, calls one compose request, then copies the resulting MP4 and its metadata into R2 and D1. Reopening the project reads those bytes; it does not call a model. The public page reads the same asset through a publication record, and withdrawal revokes that record.</p>
-    <p>Composer's native "Images &amp; video" capability is a separate route for Composer's own applications: it calls an authorised Oyster installation's Prints app and records the job in Composer. Media Studio's routes are its own. Keeping them separate is deliberate — two job authorities for one studio would be worse than one honest boundary.</p>
+    <p>Composer's native "Images &amp; video" capability calls Prints on an authorised Oyster installation and records the job in Composer. Media Studio uses its own routes and job records.</p>
   </section>
 
   <section id="evidence" class="prose">

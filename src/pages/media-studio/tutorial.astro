@@ -196,11 +196,13 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <div class="cols">
       <div>
         <p>Your agent creates your copy of the studio, applies every migration in order, sets the secrets, deploys and reads back the live revision. On this run the release script refused a dirty tree, checked the pinned source, ran the focused tests, deployed, then compared <code>/healthz</code> to the commit it had shipped.</p>
-        <p>Two details caused problems during this build:</p>
+        <p>The build hit two technical problems. The details are here if your agent needs them:</p>
+        <details class="check"><summary>Migration and sign-in details</summary>
         <ul>
           <li><strong>Migrations are ordered and data-preserving.</strong> The audio release rebuilds two tables to widen a constraint; it copies every row and restores parent links in a second pass, because the production database enforces foreign keys.</li>
           <li><strong>The handoff expiry must match units.</strong> Composer mints a short-lived token; the studio compares milliseconds. A mismatch rejects a correct handoff as expired. Both sides now normalise.</li>
         </ul>
+        </details>
       </div>
       <aside class="check">
         <h3>What you should see</h3>
@@ -292,12 +294,12 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
         <p>Open <strong>Assemble</strong>. Add two to six saved takes in order, add up to four saved music, narration or effect tracks, set trim, gain and fades, and mix the soundtrack. The browser makes a new WAV mix and keeps the separate tracks and their settings. Save the storyboard to keep editing it later; earlier renders stay attached.</p>
         <p>The 9:16 option was designed to make a vertical opening and place your selected takes after it in order. During this build, fal.ai refused the compose request with a 403 permission error before reading the files. The studio kept the job and offers <strong>Reconcile</strong>, which checks that same request without sending another paid job. The 9:16 example in the article was finished locally from the saved takes and sound; it was not made with the blocked provider control.</p>
         <p>There is also a separate on-device MP4 renderer for saved storyboards in compatible browsers. It uses the saved mixed soundtrack and mutes the original clip audio. It does not repair the provider’s 9:16 compose route.</p>
-        <p>Publication is a separate, deliberate act. Four controls do four different things:</p>
+        <p>When you are ready to share, check which action you need:</p>
         <ul>
-          <li><strong>Publish / unpublish</strong> — a public page exists or is withdrawn. Withdrawal stops new visits; it cannot recall a download already taken.</li>
-          <li><strong>Show / hide</strong> — a card placement. Hiding removes discovery without making the direct link private.</li>
-          <li><strong>Make private</strong> — the media stops being available on public pages; the originals stay in your library.</li>
-          <li><strong>Delete</strong> — destructive and separate. It removes the bytes and tombstones the publications that used them.</li>
+          <li><strong>Publish / unpublish:</strong> create or withdraw a public page. Withdrawal stops new visits, but cannot recall a file someone already downloaded.</li>
+          <li><strong>Show / hide:</strong> add or remove the card from discovery. Hiding it does not make the direct link private.</li>
+          <li><strong>Make private:</strong> remove the media from public pages while keeping the originals in your library.</li>
+          <li><strong>Delete:</strong> remove the file bytes and mark the publications that used them as deleted.</li>
         </ul>
       </div>
       <aside class="check">
