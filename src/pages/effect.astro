@@ -34,7 +34,7 @@ const shareAlt =
   <div class="effect-head">
     <p class="effect-head-kicker">Link Check · recorded run · {trace.engine.effect}</p>
     <h1>See a safe release check run.</h1>
-    <p class="lede">Before sharing a page, Link Check reads it. This page replays five runs recorded from the batch check it actually uses: what is refused before any request, what a stalled origin does to the other pages, and what the operator can act on afterwards.</p>
+    <p class="lede">Before sharing a page, Link Check reads it. These five recorded batch-check runs show what is refused before a request, how a stalled origin affects other pages and what the operator can act on.</p>
     <p class="small">Every number comes from executing Link Check’s code with scripted origins. The page makes no network request and is not a live inspection.</p>
   </div>
 
@@ -67,7 +67,7 @@ const shareAlt =
   </details>
 
   <section class="effect-next" aria-labelledby="effect-next-title">
-    <h2 id="effect-next-title">Optional by design.</h2>
+    <h2 id="effect-next-title">Using Effect in one workflow</h2>
     <p>App Composer’s own pages are Astro and TypeScript. This one imports a JSON trace at build time and has no Effect dependency. Link Check opts in where typed failures, interruption and bounded concurrency earn it; another app can start with plain TypeScript and add Effect for one workflow later.</p>
     <p class="effect-next-links"><a href="https://share.loftwah.com/">Open Link Check</a> · <a href="/apps">The independent apps</a> · <a href="/architecture">How the platform fits together</a> · <a href={`https://github.com/loftwah/app-composer-linkcheck/commit/${LINKCHECK_COMMIT}`}>Link Check commit {LINKCHECK_COMMIT.slice(0, 7)}</a></p>
   </section>

@@ -7,8 +7,8 @@ import '../styles/incident-rehearsal.css';
 ---
 <Base title="Incident Desk: inspect a safe replay" description="Follow a fictional investigation through situation report, send-back, revised evidence and an exact proposal decision. This read-only replay performs no external action.">
   <article class="incident-replay composer-proposals">
-    <h1>Review the investigation.<br />{' '}Keep the evidence.</h1>
-    <p class="lede">A safe, read-only replay of a fictional investigation. Follow the review below, then inspect the measured recovery from a separate isolated application. Opening this page sends no notification, starts no agent and changes no application.</p>
+    <h1>Review a fictional investigation</h1>
+    <p class="lede">Follow a read-only replay of a fictional investigation, then inspect the measured recovery from a separate isolated application. Opening this page sends no notification, starts no agent and changes no application.</p>
     <nav class="ap-links" aria-label="Incident replay"><a href="#situation">Read the SITREP</a><a href="#decision">Follow the decision</a><a href="#rehearsal">Rehearse it</a><a href="/_emdash/admin/plugins/composer-stacks/incidents">Open private Incident Desk</a></nav>
     <div id="situation"><IncidentSitrep incident={replaySitrep} level={2} /></div>
     <section id="decision" aria-labelledby="decision-heading">
@@ -44,7 +44,7 @@ import '../styles/incident-rehearsal.css';
       <div class="ap-links"><a href="https://github.com/loftwah/app-composer/blob/main/docs/incident-execution.md">Inspect and repeat the recovery recipe</a><a href="/diagrams#diagram-agent-approval-boundary">Open the editable recovery diagram</a></div>
     </section>
     <section class="replay-limit" aria-labelledby="replay-limit-heading">
-      <h2 id="replay-limit-heading">What remains a separate check</h2>
+      <h2 id="replay-limit-heading">What still needs checking</h2>
       <p>The measured drill qualifies one local repair and its review boundary. Production detection and recovery, configured owner email, PagerDuty, passwordless identity/MFA and physical-device use each need separate acceptance. No production responder is enabled.</p>
       <div class="ap-links"><a href="/resources/incident">Open the incident runbook</a><a href="/platform/demo">Watch the existing team application films</a><a href="/agent">Use your existing agent</a></div>
     </section>

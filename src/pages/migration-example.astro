@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 ---
 <Base title="A WordPress publisher, migrated and edited" description="Inspect the fictional Macedon Weekender migration: native EmDash import, owned media, preserved URLs, editable stories and source-off checks.">
   <article class="migration-example">
-    <h1>Move a publisher.<br />{' '}Keep editing its stories.</h1>
+    <h1>Move a publisher and keep editing</h1>
     <p class="lede">Macedon Weekender is a fictional magazine used to test an ordinary publishing job: import from WordPress, repair the details, edit a story and keep publishing after the source is turned off.</p>
     <div class="example-actions"><a class="button" href="/init/content">Try an editable content model</a><a href="https://github.com/loftwah/app-composer/tree/main/labs/wordpress/weekender">Inspect and run the publisher recipe</a></div>
     <figure>
@@ -11,7 +11,7 @@ import Base from '../layouts/Base.astro';
       <figcaption>Actual local browser capture, 25 October 2026. Fictional content, EmDash 1.3.1. The imported photograph's caption identifies its source; it is not a photograph of Macedon.</figcaption>
     </figure>
     <section aria-labelledby="work-heading">
-      <h2 id="work-heading">The complete small publishing job</h2>
+      <h2 id="work-heading">The publishing workflow</h2>
       <ol>
         <li><strong>Import into an empty app.</strong> Composer's content recipe created an independent application. The native EmDash wizard imported eight posts, three pages and three original media files from genuine WordPress 7.1.3.</li>
         <li><strong>Reconcile before cutover.</strong> The wizard rewrote eight media URLs. Exact media-byte matches guided the conversion of featured-image references, restored alt text/captions and the category parent. Native saves and explicit publication kept the four nonpublic stories private or scheduled.</li>
@@ -20,7 +20,7 @@ import Base from '../layouts/Base.astro';
       </ol>
     </section>
     <section aria-labelledby="decision-heading">
-      <h2 id="decision-heading">A migration decision you can inspect</h2>
+      <h2 id="decision-heading">What this migration established</h2>
       <div class="table-scroll"><table><thead><tr><th scope="col">Requirement</th><th scope="col">This example establishes</th></tr></thead><tbody>
         <tr><th scope="row">Content and editing</th><td>Original text and bylines; native revisions, explicit publication and nonpublic visibility. WordPress private and pending stories become native drafts.</td></tr>
         <tr><th scope="row">Media and links</th><td>Destination-owned files with matching bytes, working guide links and reviewed image descriptions.</td></tr>
