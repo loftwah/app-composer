@@ -308,10 +308,10 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
       </div>
       <aside class="check">
         <h3>What you should see</h3>
-        <p>An assembled MP4 with its dimensions, real duration and take count; a public page that loads signed out; private routes that still return 401.</p>
+        <p>An assembled MP4 with its dimensions, duration and take count; a public page that opens while signed out; private projects that remain accessible only to authorised people.</p>
         <h3>Recover</h3>
         <p><strong>A render that ends in "result unavailable":</strong> reconcile the job. It re-reads the same provider result; it does not dispatch a new one. If the provider returns 403 with a permission detail, stop and record the external block: fix the provider key or endpoint permission, then use Reconcile. Do not create a new request id.</p>
-        <p><strong>The 9:16 control refuses:</strong> the storyboard has no saved slate image, or the saved slate video is missing. The studio will not stretch a 4:5 master.</p>
+        <p><strong>The provider’s 9:16 render asks for a slate:</strong> use Make 9:16 cut to create the required saved slate image first. If a slate video already exists, the studio reuses it; otherwise it creates one. The separate on-device renderer has its own framing controls.</p>
       </aside>
     </div>
     <figure class="figure">
