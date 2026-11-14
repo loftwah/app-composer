@@ -1,0 +1,49 @@
+---
+import { validateQuickStart, type TutorialQuickStart } from '../lib/tutorial-quick-start.mjs';
+const guide = validateQuickStart(Astro.props.guide as TutorialQuickStart);
+---
+<section class="quick-start" aria-labelledby="quick-start-title" data-tutorial-quick-start>
+  <h2 id="quick-start-title">{guide.title}</h2>
+  <p>{guide.summary}</p>
+  <p class="quick-links"><a href="/media-studio">See the build and evidence</a> · <a href="https://github.com/loftwah/composer-media-studio">Studio source</a> · <a href="https://media.loftwah.com/portfolio">Explore Share artwork</a></p>
+  <div class="prompt-list">
+    {guide.prompts.map((prompt) => <details class="prompt-item">
+      <summary>{prompt.label}</summary>
+      <pre tabindex="0" data-prompt>{prompt.text}</pre>
+      <button class="button secondary" type="button" data-copy-prompt disabled>Copy prompt</button>
+      <span class="copy-status" role="status" aria-live="polite"></span>
+    </details>)}
+  </div>
+  <p class="quick-hint">Open a prompt to read it first. If copying is unavailable, select its text and copy it manually.</p>
+</section>
+<script>
+  for (const item of document.querySelectorAll<HTMLDetailsElement>('[data-tutorial-quick-start] .prompt-item')) {
+    const button = item.querySelector<HTMLButtonElement>('[data-copy-prompt]');
+    const prompt = item.querySelector<HTMLElement>('[data-prompt]');
+    const status = item.querySelector<HTMLElement>('.copy-status');
+    if (!button || !prompt || !status) continue;
+    button.disabled = false;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(prompt.textContent ?? '');
+        status.textContent = 'Copied. Paste it into your agent.';
+      } catch {
+        status.textContent = 'Copy failed. Select the prompt above and copy it manually.';
+        prompt.focus();
+      }
+    });
+  }
+</script>
+<style>
+  .quick-start { margin: 32px 0; padding: 24px 0; border-block: 1px solid var(--color-border); }
+  .quick-start h2 { margin: 0 0 10px; }
+  .quick-start p { max-width: 72ch; }
+  .quick-links, .quick-hint { color: var(--color-muted); font-size: .9rem; }
+  .prompt-list { border-top: 1px solid var(--color-border); }
+  .prompt-item { margin: 0; border-bottom: 1px solid var(--color-border); padding: 0 0 12px; }
+  .prompt-item summary { min-height: 48px; padding: 12px 0; cursor: pointer; font-weight: 650; }
+  .prompt-item pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 24rem; overflow: auto; padding: 16px; background: var(--color-surface); color: var(--color-foreground); border: 1px solid var(--color-border); font: .875rem/1.6 ui-monospace, monospace; }
+  .copy-status { display: inline-block; margin: 0 0 0 12px; color: var(--color-foreground); }
+  .prompt-item :is(summary, button, pre):focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
+  @media (max-width: 600px) { .copy-status { display: block; margin: 8px 0 0; } }
+</style>
