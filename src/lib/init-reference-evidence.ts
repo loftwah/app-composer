@@ -85,7 +85,7 @@ export function bindReferenceEvidence(onEdit: () => void) {
       : saved
         ? 'Your reference choices changed. Restore them to recover the report, or ask for a new one.'
         : copy.disabled
-          ? 'Add a selected or exploratory reference to start.'
+          ? 'Add a public reference, choose Selected or Explore first, and say what to carry over or avoid.'
           : 'The request covers the current public references and asks for observations and gaps.';
     renderReport();
   }
