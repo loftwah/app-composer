@@ -6,7 +6,7 @@ Tutorial: https://composer.loftwah.com/media-studio/tutorial
 Open your studio: https://composer.loftwah.com/media-studio/studio
 Example assembled master: https://media.loftwah.com/p/Na9FNUB_VhzZ7zA9
 True 9:16 cut: https://media.loftwah.com/p/5KqkS8ZEC-mj_yjm
-Brand 9:16 motion: https://media.loftwah.com/p/X9b5nsfqX03CVJMf
+Brand 9:16 motion: https://media.loftwah.com/p/jWri1dDSfWbZ8HXD
 Brand share card: https://media.loftwah.com/p/B_HA5PV6YMmHDA7N
 Source (MIT): https://github.com/loftwah/composer-media-studio
 App Composer: https://composer.loftwah.com

@@ -103,8 +103,8 @@ The project is **App Composer — studio launch artwork**, kept in the same depl
 | Selected edit | fal.ai `fal-ai/flux-pro/v1/fill`, same-size mask, data-URI inputs | `0b2a33581a21…` · 1280×704 · US$0.05 est. |
 | Motion | fal.ai Hailuo 2.3 Standard, 5.875 s | `4397ccfbd639…` · 1396×768 · US$0.28 |
 | Sound bed | fal.ai ElevenLabs sound effects v2, 5.04 s | `f8d78e30d18a…` · 44.1 kHz stereo · US$0.008 |
-| Derivatives | Pillow/ffmpeg: 1200×630, 1080×1080, 1080×1350, 720×1280 | `ba20457c953e…`, `111c9cbc1e79…`, `3aaf19084a2d…`, `eebb132445f5…` |
-| Publication | Deliberate Studio pages plus the article’s OG/share card | <https://media.loftwah.com/p/X9b5nsfqX03CVJMf> · <https://media.loftwah.com/p/B_HA5PV6YMmHDA7N> |
+| Derivatives | Pillow/ffmpeg: 1200×630, 1080×1080, 1080×1350, 720×1280 | `ba20457c953e…`, `111c9cbc1e79…`, `3aaf19084a2d…`, `afca9b476e8b…` |
+| Publication | Deliberate Studio pages plus the article’s OG/share card | <https://media.loftwah.com/p/jWri1dDSfWbZ8HXD> · <https://media.loftwah.com/p/B_HA5PV6YMmHDA7N> |
 
 The 9:16 motion is 720×1280, 5.875 s, SAR 1:1, DAR 9:16. It is generated promotional artwork, not a product screen recording. The title, mark and frame are deterministic overlays; the label says so in the file.
 
@@ -176,7 +176,7 @@ Full-quality assets:
 - Tutorial: <https://composer.loftwah.com/media-studio/tutorial>
 - Open your studio: <https://composer.loftwah.com/media-studio/studio>
 - True 9:16 cut: <https://media.loftwah.com/p/5KqkS8ZEC-mj_yjm>
-- Brand 9:16 motion: <https://media.loftwah.com/p/X9b5nsfqX03CVJMf>
+- Brand 9:16 motion: <https://media.loftwah.com/p/jWri1dDSfWbZ8HXD>
 - Brand share card: <https://media.loftwah.com/p/B_HA5PV6YMmHDA7N>
 - Source: <https://github.com/loftwah/composer-media-studio> (MIT) · <https://github.com/loftwah/app-composer>
 

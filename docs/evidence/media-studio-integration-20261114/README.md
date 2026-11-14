@@ -16,7 +16,7 @@ release index remains [#11](https://github.com/loftwah/app-composer/issues/11).
 | Tutorial | https://composer.loftwah.com/media-studio/tutorial |
 | Entry | https://composer.loftwah.com/media-studio/studio |
 | True 9:16 cut | https://media.loftwah.com/p/5KqkS8ZEC-mj_yjm |
-| Brand 9:16 motion | https://media.loftwah.com/p/X9b5nsfqX03CVJMf |
+| Brand 9:16 motion | https://media.loftwah.com/p/jWri1dDSfWbZ8HXD |
 | Brand share card | https://media.loftwah.com/p/B_HA5PV6YMmHDA7N |
 
 ## Access checks
@@ -50,7 +50,7 @@ claim that the code path is untested.
 - The 9:16 cut `asset_387d3faf5d684729b2e52a12b94de8e8` is 720×1280, SAR 1:1, DAR 9:16, 17.791667 s video, AAC 44.1 kHz stereo, SHA-256 `58f2c4b4d206045d655a5b590c85fe835b9f0b73a9ce06155a67a44cbe5ef1e1`.
 - Range: `GET /p/5KqkS8ZEC-mj_yjm/media` with `Range: bytes=0-1023` returns 206, `content-range: bytes 0-1023/2739864`.
 - Withdrawal: after `DELETE /api/publications/pub_744bf698e23f4feeb91a6f751d20e1a7`, the page, media, download, poster and `/s/` alias all return 404.
-- The public article’s 1200×630 share card and the 720×1280 motion are live at the URLs above.
+- The public article’s 1200×630 share card and the 720×1280 motion are live at the URLs above. The motion was re-rendered with a usable Studio Effect bed (−16.5 LUFS integrated, −5.2 dBFS true peak); the first quiet mix is retained and its publication withdrawn.
 - The article loaded at 320, 390, 768, 1280, 1440, 1728 and 2560 px with no horizontal overflow. The `.figure.narrow` column matched the prose column at 1280–2560; the before/after pair rendered 1280×720 and 1280×704 at their true ratios.
 - Both themes resolved their real tokens (`#afb3bb`/`#464a52` in dark, `#5c616a`/`#b9bec5` in light); reduced motion removed the article animation.
 - The Studio Create tab at 390 and 1440 px had no horizontal overflow, exposed the three edit buttons, and loaded a 819×1024 mask canvas from a 1080×1350 source.
