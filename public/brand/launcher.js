@@ -107,7 +107,7 @@
     for (const entry of dialog.querySelectorAll("[data-destination]")) {
         const link = entry.querySelector("a");
         const name = (link?.querySelector("span:not(.task-icon)")?.firstChild?.textContent ?? link?.firstChild?.textContent ?? "").trim();
-        if (name === "App Composer")
+        if (name === "App Composer" || entry.hasAttribute("data-local-launcher-group"))
             continue;
         if (!apps.some(app => app.name === name) || retainedApps.has(name))
             entry.remove();
@@ -162,7 +162,7 @@
             continue;
         }
         const app = apps.find(item => item.name === name);
-        entry.dataset.launcherGroup = app ? "apps" : "studio";
+        entry.dataset.launcherGroup = app || entry.dataset.localLauncherGroup === "apps" ? "apps" : "studio";
         if (app) {
             entry.dataset.keywords = app.keywords;
             // Guestbook/Linkarooie retain their authored mounted destinations. The
