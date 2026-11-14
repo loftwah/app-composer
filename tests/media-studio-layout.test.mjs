@@ -4,13 +4,8 @@ import fs from "node:fs";
 
 import { fileURLToPath } from "node:url";
 
-// The Media Studio article and tutorial are the two long-form pages where wide
-// captures break out of the prose measure. Both defects this file guards were
-// only visible on wide desktop viewports: a leftover `translateX(-50%)` pushed
-// the narrow figure half its own width to the left, and a shared `height:100%`
-// with `object-fit:cover` cropped the before/after pair to a different zoom.
-// The pages also used private token names that never resolved, so captions and
-// hairlines fell back to dark-theme values and disappeared in light mode.
+// These source-level contracts complement rendered desktop and phone checks.
+// They protect the reading-column alignment, uncropped comparisons and theme tokens.
 
 const readPage = (name) =>
   fs.readFileSync(
@@ -35,21 +30,18 @@ const declarations = (css, selector) => {
 
 const compact = (value) => value.replace(/\s+/g, "");
 
-test("the wide article capture keeps its breakout and the narrow variant opts out of it", () => {
+test("article figures and lead image follow the reading column", () => {
   const css = styleBlock("media-studio.astro");
-  const wide = declarations(css, ".figure");
-  assert.match(wide, /width:min\(1040px,calc\(100vw-48px\)\)/);
-  assert.match(wide, /margin-left:50%/);
-  assert.match(wide, /transform:translateX\(-50%\)/);
-
-  // Without the reset the transform shifts a centred narrow figure by half its
-  // width, which hung it off the left edge of the page.
-  const narrow = declarations(css, ".figure.narrow");
-  assert.match(narrow, /transform:none/);
-  assert.match(narrow, /margin-left:auto/);
-  assert.match(narrow, /margin-right:auto/);
-  assert.match(narrow, /max-width:760px/);
-  assert.doesNotMatch(narrow, /translateX/);
+  for (const selector of [".art-hero-copy", ".art-hero-figure", ".contents", ".prose"]) {
+    assert.match(declarations(css, selector), /max-width:74ch/, `${selector} should share the reading measure`);
+  }
+  assert.match(declarations(css, ".art-hero-figure"), /margin:30pxauto0/);
+  const figure = declarations(css, ".figure");
+  assert.match(figure, /width:100%/);
+  assert.doesNotMatch(figure, /translateX|margin-left:50%/);
+  const films = declarations(css, ".films");
+  assert.match(films, /width:100%/);
+  assert.doesNotMatch(films, /translateX|margin-left:50%/);
 });
 
 test("the before/after pair keeps both real aspect ratios and a shared caption baseline", () => {
@@ -89,28 +81,22 @@ test("article and tutorial bind their short token names to real theme tokens", (
   }
 });
 
-test("the article keeps its figures inside the viewport at MacBook Pro widths", () => {
-  // A cheap source-level guard for the arithmetic, not a replacement for the
-  // rendered check: at >=1101px the breakout is capped by the viewport and at
-  // or below the breakpoint every figure falls back to the full prose width.
+test("the portrait video and caption stay centred and fit phone widths", () => {
+  const page = readPage("media-studio.astro");
   const css = styleBlock("media-studio.astro");
-  const wide = declarations(css, ".figure");
-  const cap = wide.match(/width:min\((\d+)px,calc\(100vw-(\d+)px\)\)/);
-  assert.ok(cap, "wide figure must cap against the viewport");
-  const [, fixed, gutter] = cap.map(Number);
-  assert.ok(fixed > 0 && gutter >= 0);
-  for (const viewport of [1101, 1280, 1440, 1512, 1728, 2560]) {
-    assert.ok(
-      Math.min(fixed, viewport - gutter) <= viewport,
-      `figure overflows at ${viewport}px`,
-    );
+  assert.match(page, /<figure class="figure portrait">\s*<video[^>]*width="720" height="1280"/);
+  const portrait = declarations(css, ".figure.portrait");
+  assert.match(portrait, /width:min\(100%,360px\)/);
+  assert.match(portrait, /margin:28pxauto32px/);
+  assert.match(portrait, /transform:none/);
+  const video = declarations(css, ".figure.portrait video");
+  assert.match(video, /display:block/);
+  assert.match(video, /width:100%/);
+  assert.match(video, /height:auto/);
+  assert.match(declarations(css, ".art"), /max-width:1180px/);
+  assert.match(declarations(css, ".art"), /padding:24px24px96px/);
+  assert.match(css, /@media\s*\(max-width:\s*560px\)\s*\{[\s\S]*?\.art\{padding:16px 16px 64px\}/);
+  for (const available of [288, 310, 358, 746, 1100]) {
+    assert.ok(Math.min(available, 360) <= available, `portrait overflows ${available}px`);
   }
-  const breakpoint = css.match(
-    /@media\s*\(max-width:\s*(\d+)px\)\s*\{[\s\S]*?\.figure\{[^}]*width:100%/,
-  );
-  assert.ok(
-    breakpoint,
-    "the narrow-viewport reset must collapse figures to the prose width",
-  );
-  assert.equal(Number(breakpoint[1]), 1100);
 });
