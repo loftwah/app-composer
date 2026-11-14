@@ -36,6 +36,7 @@ ${request}
 - https://composer.loftwah.com/resources — change, incident, pipeline and hook runbooks
 - https://composer.loftwah.com/ready — local tools, source and Cloudflare readiness
 - https://composer.loftwah.com/architecture — product shape and trust boundaries
+- https://composer.loftwah.com/launcher — the maintained launcher interaction recipe with a runnable density study
 
 ## Boundaries
 

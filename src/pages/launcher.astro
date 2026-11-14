@@ -1,0 +1,437 @@
+---
+import Base from '../layouts/Base.astro';
+import AppLauncher from '../components/AppLauncher.astro';
+import { ArrowRight } from '@lucide/astro';
+
+const recipe =
+  'https://github.com/loftwah/app-composer/blob/main/docs/source-maintenance.md#launcher-interaction-recipe';
+const controller =
+  'https://github.com/loftwah/app-composer/blob/main/src/browser/launcher.ts';
+---
+
+<Base
+  title="Launcher interaction recipe"
+  description="Run the maintained App Composer launcher, compare a compact presentation, and read the contract for reusing its search, keyboard, focus and page-position behaviour."
+  canonical="https://composer.loftwah.com/launcher"
+  launcher={false}
+>
+  <article class="launcher-page">
+    <header class="launcher-heading">
+      <p class="eyebrow">Interaction recipe</p>
+      <h1>Reuse the launcher, not a copy of it.</h1>
+      <p class="lede">
+        This page runs Composer’s maintained Apps menu. Change its density, open
+        it, and the search, keyboard, focus and page-position behaviour stay the
+        same because they still come from the one controller.
+      </p>
+      <p class="launcher-links">
+        <a href={recipe}>Read the recipe</a>
+        <a href={controller}>Inspect the controller</a>
+        <a href="/agent">Point your agent here</a>
+      </p>
+    </header>
+
+    <section class="launcher-study" aria-labelledby="study-heading">
+      <div class="study-head">
+        <div>
+          <h2 id="study-heading">The runnable study</h2>
+          <p>
+            The trigger below mounts the same <code>AppLauncher</code> component
+            as the site header. This page omits the shell instance because the
+            controller binds one dialog by ID.
+          </p>
+        </div>
+        <AppLauncher />
+      </div>
+      <fieldset class="density">
+        <legend>Presentation</legend>
+        <label class="density-option">
+          <input
+            type="radio"
+            name="launcher-density"
+            value="comfortable"
+            checked
+          />
+          <span>
+            <strong>Current</strong>
+            <small>The shipped 68px rows and 40px artwork.</small>
+          </span>
+        </label>
+        <label class="density-option">
+          <input type="radio" name="launcher-density" value="compact" />
+          <span>
+            <strong>Compact study</strong>
+            <small
+              >56px rows on wide screens, 32px artwork and a tighter
+              description clamp. Search, labels, focus and keys are
+              unchanged.</small
+            >
+          </span>
+        </label>
+      </fieldset>
+      <p class="study-status" role="status" aria-live="polite" data-density-status>
+        Current presentation selected.
+      </p>
+      <noscript>
+        <p class="small">
+          The menu needs JavaScript. Every destination remains available from
+          <a href="/apps">All apps</a>.
+        </p>
+      </noscript>
+    </section>
+
+    <div class="launcher-contract">
+      <section aria-labelledby="same-heading">
+        <h2 id="same-heading">What stays identical</h2>
+        <ul>
+          <li>
+            Search across labels, descriptions and reviewed aliases, with a live
+            destination count and a no-results state.
+          </li>
+          <li>
+            Arrow keys, Home, End and Enter; typing after an arrow returns to
+            search.
+          </li>
+          <li>
+            Escape closes even with a query, and focus returns to the control
+            that opened the menu.
+          </li>
+          <li>
+            Body lock and page-position restoration; only the destination list
+            scrolls.
+          </li>
+          <li>
+            One controller, one classic deferred <code>launcher.js</code>, no
+            second search or focus implementation.
+          </li>
+        </ul>
+      </section>
+      <section aria-labelledby="change-heading">
+        <h2 id="change-heading">What the study changes</h2>
+        <ul>
+          <li>Row height, artwork size and section spacing only.</li>
+          <li>
+            Descriptions clamp to one line on wide screens and two on narrow
+            ones; the full text stays in the row for search and screen readers.
+          </li>
+          <li>
+            The close button and footer keep their shipped 44px targets; the
+            search field stays above 44px and the focus outline is unchanged.
+          </li>
+          <li>No change to destinations, access, persistence or app assets.</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="launcher-steps" aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Try the behaviour that must survive</h2>
+      <ol>
+        <li>
+          Open the menu and type <strong>photo</strong>. Here / there should
+          remain; the count updates.
+        </li>
+        <li>
+          Press <kbd>↓</kbd> then <kbd>↑</kbd>; press <kbd>End</kbd> and
+          <kbd>Home</kbd>. The active row moves and stays visible.
+        </li>
+        <li>
+          With text still in search, press <kbd>Esc</kbd>. The menu closes and
+          focus returns to the trigger.
+        </li>
+        <li>
+          Scroll until the position check below is at the top of the viewport,
+          open the menu, then close it. The page should return to the same
+          offset.
+        </li>
+        <li>Switch to Compact and repeat. Only the density should differ.</li>
+      </ol>
+      <p class="small">
+        These are browser checks on this page. Physical-device IME, iOS zoom and
+        screen-reader acceptance remain the boundaries recorded in the recipe.
+      </p>
+    </section>
+
+    <section class="position-check" aria-labelledby="position-heading">
+      <h2 id="position-heading">Position check</h2>
+      <p>
+        Put this line at the top of the viewport, open the menu, close it, and
+        compare.
+      </p>
+      <p class="position-readout">
+        Page position after the menu closes:
+        <output data-scroll-position>0 px</output>
+      </p>
+    </section>
+
+    <section class="launcher-boundary" aria-labelledby="boundary-heading">
+      <h2 id="boundary-heading">What this recipe is not</h2>
+      <p>
+        An interface recipe, not a new app operation or permission. The
+        destinations are the ordinary public catalogue; the study reads no owner
+        data, calls no model and stores nothing. Each independent app still
+        commits its own launcher assets and releases them through its own path.
+        Adopting the beta UI SDK is deferred: the current controller already
+        supplies the proven behaviour, while an adapter would add bundle and
+        maintenance cost without replacing app-owned navigation. Revisit that
+        decision if a custom interaction grows beyond this controller.
+      </p>
+      <p>
+        <a class="launcher-recipe-link" href={recipe}>
+          Read the contract and the worked refinement
+          <ArrowRight size={18} aria-hidden="true" />
+        </a>
+      </p>
+    </section>
+  </article>
+</Base>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('#app-navigation');
+  const densityInputs = Array.from(
+    document.querySelectorAll<HTMLInputElement>(
+      'input[name="launcher-density"]',
+    ),
+  );
+  const densityStatus = document.querySelector<HTMLElement>(
+    '[data-density-status]',
+  );
+
+  function applyDensity(announce = true) {
+    const compact = densityInputs.some(
+      (input) => input.checked && input.value === 'compact',
+    );
+    if (compact) dialog?.setAttribute('data-density', 'compact');
+    else dialog?.removeAttribute('data-density');
+    if (densityStatus && announce)
+      densityStatus.textContent = compact
+        ? 'Compact presentation selected. Search, keys, focus and Escape are unchanged.'
+        : 'Current presentation selected.';
+  }
+
+  for (const input of densityInputs)
+    input.addEventListener('change', () => applyDensity());
+  applyDensity(false);
+
+  const position = document.querySelector<HTMLElement>(
+    '[data-scroll-position]',
+  );
+  function readPosition() {
+    if (position) position.textContent = `${Math.round(window.scrollY)} px`;
+  }
+  window.addEventListener('scroll', readPosition, { passive: true });
+  readPosition();
+</script>
+
+<style>
+  .launcher-page {
+    max-width: 1000px;
+  }
+  .launcher-heading {
+    max-width: 780px;
+  }
+  .launcher-heading h1 {
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    max-width: 18ch;
+    margin-top: 12px;
+  }
+  .launcher-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    margin: 0 0 40px;
+  }
+  .launcher-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .launcher-study {
+    margin: 0 0 48px;
+    padding: 26px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-surface);
+  }
+  .study-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 28px;
+  }
+  .study-head > div {
+    max-width: 52ch;
+  }
+  .study-head h2 {
+    margin: 0 0 10px;
+    font-size: 1.6rem;
+  }
+  .study-head p {
+    margin: 0;
+    color: var(--color-muted);
+  }
+  .density {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 26px 0 0;
+    padding: 0;
+    border: 0;
+  }
+  .density legend {
+    margin-bottom: 10px;
+    padding: 0;
+    font-weight: 600;
+  }
+  .density-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0;
+    padding: 14px;
+    border: 1px solid var(--color-control-border);
+    border-radius: 8px;
+    background: var(--color-field);
+    cursor: pointer;
+  }
+  .density-option:has(input:checked) {
+    border-color: var(--color-accent);
+    background: var(--color-selected);
+  }
+  .density-option input {
+    width: 20px;
+    min-width: 20px;
+    margin: 2px 0 0;
+  }
+  .density-option strong,
+  .density-option small {
+    display: block;
+  }
+  .density-option small {
+    margin-top: 2px;
+    color: var(--color-muted);
+    line-height: 1.45;
+  }
+  .study-status {
+    margin: 14px 0 0;
+    font-size: 0.9rem;
+    color: var(--color-success);
+  }
+  .launcher-contract {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding-top: 36px;
+    border-top: 1px solid var(--color-border);
+  }
+  .launcher-contract h2,
+  .launcher-steps h2,
+  .position-check h2,
+  .launcher-boundary h2 {
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+  }
+  .launcher-contract ul,
+  .launcher-steps ol {
+    padding-left: 20px;
+  }
+  .launcher-contract li,
+  .launcher-steps li {
+    margin: 10px 0;
+  }
+  .launcher-steps {
+    margin-top: 40px;
+    padding-top: 36px;
+    border-top: 1px solid var(--color-border);
+  }
+  kbd {
+    padding: 1px 5px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font: 12px/1.4 system-ui, sans-serif;
+  }
+  .position-check {
+    min-height: 70vh;
+    margin-top: 40px;
+    padding-top: 36px;
+    border-top: 1px solid var(--color-border);
+  }
+  .position-readout {
+    font-variant-numeric: tabular-nums;
+  }
+  .launcher-boundary {
+    padding-top: 36px;
+    border-top: 1px solid var(--color-border);
+  }
+  .launcher-recipe-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+  }
+  @media (max-width: 760px) {
+    .launcher-study {
+      padding: 18px;
+    }
+    .launcher-contract,
+    .density {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .launcher-contract {
+      gap: 32px;
+    }
+  }
+</style>
+
+<style is:global>
+  #app-navigation[data-density="compact"] label {
+    margin-top: 14px;
+  }
+  #app-navigation[data-density="compact"] input {
+    min-height: 46px;
+  }
+  #app-navigation[data-density="compact"] [role="status"] {
+    margin-top: 8px;
+  }
+  #app-navigation[data-density="compact"] .launcher-section {
+    padding: 10px 10px 4px;
+  }
+  #app-navigation[data-density="compact"] li a {
+    grid-template-columns: 32px minmax(0, 1fr) 18px;
+    gap: 10px;
+    min-height: 56px;
+    padding: 6px 10px;
+    font-size: 15px;
+  }
+  #app-navigation[data-density="compact"] li a > img,
+  #app-navigation[data-density="compact"] li a > .task-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+  }
+  #app-navigation[data-density="compact"] li a > .task-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  #app-navigation[data-density="compact"] small {
+    display: -webkit-box;
+    margin-top: 1px;
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 1.3;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  #app-navigation[data-density="compact"] .launcher-footer {
+    min-height: 44px;
+    margin-top: 6px;
+  }
+  @media (max-width: 520px) {
+    #app-navigation[data-density="compact"] li a {
+      min-height: 58px;
+    }
+    #app-navigation[data-density="compact"] small {
+      -webkit-line-clamp: 2;
+    }
+  }
+</style>

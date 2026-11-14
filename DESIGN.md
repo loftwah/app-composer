@@ -226,3 +226,21 @@ The rebuilt front door keeps one primary action (Get Ready) and one prominent sh
 Init now opens on the task: the goal chooser moved from 784px (1440) and 1,316px (390) to 394px and 624px, the lede dropped from five lines to two, and the apply action stays beside the chooser rather than below a 914px preview column. The readiness report, alternative entry points and help level follow as quieter setup, then the draft toolbar and the handoff panel.
 
 Local verification only: `pnpm check`, `pnpm build`, and a Playwright pass over 390/768/1440 in both themes, 200% root text, keyboard order and reduced motion. Captures and the exact before/after measurements are in `docs/evidence/homepage-20261024/`. Live production, physical devices, screen readers and native EmDash administration (closed locally without trusted Access) remain separate gates.
+
+## Reusing an interaction — 14 November 2026
+
+The Apps launcher is the first documented interaction recipe. Its presentation
+can change without rebuilding search, keyboard movement, focus return, Escape or
+page-position restoration, because those behaviours stay in the maintained
+`src/browser/launcher.ts` controller and its single classic-deferred
+`launcher.js`. The [recipe](docs/source-maintenance.md#launcher-interaction-recipe)
+records the source, rendering contract, state and keyboard ownership, empty
+states, fixture and verification.
+
+`/launcher` is the runnable study: the same `AppLauncher` component, two
+presentation densities, and no second controller or dialog. It is a design and
+prototype reference, not a new app operation, permission or component platform.
+Adopting a beta UI SDK remains deferred until a custom interaction needs more
+than this controller; the study itself adds no dependency. Keep the study's
+density CSS local to the study, preserve the shipped 44px controls and focus
+outline, and do not treat browser checks as physical-device acceptance.

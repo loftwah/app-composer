@@ -20,6 +20,8 @@ interface Props {
   shareHeight?: number;
   /** Clean canonical for a page whose address is not just its path. */
   canonical?: string;
+  /** The launcher study mounts its own instance; the controller binds by ID. */
+  launcher?: boolean;
 }
 const {
   title,
@@ -154,7 +156,7 @@ Astro.csp?.insertScriptResource(
         </details>
       </nav>
       <div class="header-utilities">
-        <AppLauncher />
+        {Astro.props.launcher !== false && <AppLauncher />}
         <button
           type="button"
           class="theme-control secondary theme-toggle shrink-0"

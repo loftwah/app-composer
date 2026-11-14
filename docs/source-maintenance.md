@@ -92,6 +92,96 @@ Touch/click opening focuses Close without opening the keyboard. Cmd/Ctrl+K opens
 
 For each update: edit maintained TS/CSS, emit the controller, explicitly check/write all seven checkout paths, review each diff, check/build each independent app, and verify both mounted routes after their exact source-pin promotion. The maintenance check type-checks the controller before comparing all selected copies and refuses stale generated source. A new launcher copy is allowed only through explicit write; existing sharing/theme files and linked paths retain their safety checks.
 
+### Launcher interaction recipe
+
+Use this recipe when a design, prototype or agent handoff needs the Apps menu.
+It reuses one maintained behaviour controller; presentation stays local to the
+shell. It is not a component platform, and it adds no app operation, permission,
+record or model call.
+
+| Part | Location |
+| --- | --- |
+| Behaviour source | `src/browser/launcher.ts` |
+| Shipped distribution | `public/brand/launcher.js`, emitted by `node scripts/launcher-assets.mjs --write` and loaded as a classic deferred script |
+| Base presentation | `public/brand/launcher.css` |
+| Composer markup | `src/components/AppLauncher.astro` |
+| Runnable study | `/launcher`, authored at `src/pages/launcher.astro` |
+| Contract check | `node scripts/launcher-assets.mjs --check` and `node --test tests/launcher-recipe.test.mjs` |
+
+The rendering contract is the markup contract above. A shell may change row
+density, spacing, artwork and section copy in its own CSS. It must not add a
+second search, focus trap, shortcut listener or dialog controller. The
+controller binds `#app-navigation` and the first `[data-open-apps]` in the
+document, so mount one launcher per page. Composer's `/launcher` study omits the
+shell launcher for that reason and mounts `AppLauncher` once in its study panel.
+
+Inputs, state and actions:
+
+- The search field is the only text input. It filters visible rows and reports a
+  live count or a no-results message.
+- State is open/closed, visible rows, the active row, the saved page position and
+  the body lock. None of it is saved to storage or sent anywhere.
+- Actions are ordinary destination links. Activation navigates and search only
+  filters; neither publishes, approves, persists, spends or grants access.
+- App data, owner configuration, theme choice and authorisation remain outside
+  this recipe. A destination's own sign-in and permissions still apply.
+
+Focus and keyboard ownership:
+
+- The native `<dialog>` owns modal isolation and the top layer.
+- The controller owns initial focus, Escape, arrows, Home, End, Enter, Tab
+  wrapping, type-after-arrow, the Cmd/Ctrl+K shortcut, focus return and page
+  position restoration.
+- The shell owns the trigger's label, the marked current page and the
+  destinations. It does not duplicate any of the controller's listeners.
+- Presentation CSS must keep a visible focus outline and must not hide or resize
+  the focusable controls below their usable size.
+
+Empty and unavailable states:
+
+- No matches keeps the menu open, states the result and hides the list rather
+  than showing stale rows.
+- A missing image keeps its alignment space and is hidden; the row remains
+  usable.
+- A destination that is not currently available should be omitted. Do not render
+  a fake disabled row or imply access.
+- Without JavaScript the launcher is an enhancement: ordinary navigation and
+  `/apps` remain the fallback. The study states this on the page.
+
+The study is deterministic: it uses the maintained catalogue and ordinary public
+routes, reads no owner data, calls no model and stores nothing. Run the normal
+local server (`pnpm dev`) and open `/launcher`; the page offers the shipped
+presentation and a compact study presentation. Only row density, artwork size and
+the description clamp change; search, labels, keys, focus, Escape, body lock and
+page-position restoration still come from the same controller.
+
+Worked refinement, 14 November 2026:
+
+1. Started from the shipped `AppLauncher`, `launcher.css` and one deferred
+   `launcher.js`; the study did not copy the controller or author a second dialog.
+2. The first compact pass reduced rows and artwork and clamped every description
+   to one line. At 390px that truncated 5 of the 32 descriptions, so the
+   refinement kept one line on wide screens and allowed two at 520px and below.
+   All 32 fit at two lines, with rows between 58 and 70px; at 1440px every
+   description fits one line. At 1440×900 the same 600×700 dialog showed seven
+   complete destination rows in compact, against five in the shipped
+   presentation.
+3. The refined study keeps the close and footer 44px controls, a search field
+   above 44px and the shipped focus outline. Browser checks at 1440×900 and
+   390×844 exercised search, no results, arrow/Home/End movement, typing after an
+   arrow, Enter, Escape with a query, focus return and the same scroll offset
+   after close in both presentations. This is browser evidence only;
+   physical-device IME, iOS zoom and screen-reader acceptance remain open and are
+   not implied.
+
+UI SDK decision: defer adoption. The maintained controller and its single
+classic-deferred distribution already provide the proven behaviour without an
+adapter, bundle or runtime dependency, and the study is a presentation change,
+not a component migration. Adopting the beta UI SDK would need an exact version,
+a compatible adapter, a measured benefit and a rollback path; none is justified
+by this slice. Revisit that decision if a custom interaction grows beyond this
+controller or needs cross-framework composition.
+
 App-specific navigation/header branding, theme storage keys and bootstrap scripts remain separate. New content-site projects are also independent launcher consumers. Their finite copier captures the checked controller source, emission script/config, local distribution/styles, Space font/OFL, Composer return identity and all eight mini-app thumbnails in `composer-project.json`. Their header uses absolute external app destinations and an explicit Composer home. The same controller supplies the task list and keyboard behaviour; no Composer runtime asset fetch is introduced. `pnpm check:types` in each generated project verifies its own checked launcher and output. Existing owner projects are never silently updated.
 
 ## Verification
