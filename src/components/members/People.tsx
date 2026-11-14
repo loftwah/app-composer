@@ -182,8 +182,7 @@ export default function People() {
         <div>
           <h1>People & access</h1>
           <p>
-            Invite a friend into a workspace, then choose the exact tools they
-            may use.
+            Invite someone to a workspace, then choose the tools they may use.
           </p>
         </div>
         <a href="/me">My profile / My apps</a>
@@ -369,17 +368,17 @@ export default function People() {
               </div>
               <label>
                 {app === "showcase"
-                  ? "Profile resource (new-profile before creation)"
+                  ? "Profile"
                   : app === "media-studio"
                     ? "Studio installation"
-                    : "Existing visitor-book resource"}
+                    : "Visitor book"}
                 <select
                   required
                   value={resource}
                   disabled={busy}
                   onChange={(e) => setResource(e.target.value)}
                 >
-                  <option value="">Choose a resource</option>
+                  <option value="">Choose an app resource</option>
                   {app === "media-studio" ? (
                     <option value="studio-installation">
                       This workspace's Media Studio installation
@@ -424,8 +423,8 @@ export default function People() {
             <h2>Current permissions</h2>
             {data.grants.length === 0 ? (
               <p>
-                No app actions have been granted. Choose a person and an action
-                above.
+                No app actions have been granted yet. Choose a person and an
+                action above.
               </p>
             ) : (
               <ul className="member-rows">

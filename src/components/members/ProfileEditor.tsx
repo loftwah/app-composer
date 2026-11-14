@@ -449,7 +449,7 @@ export default function ProfileEditor({
           {dirty
             ? "You have unsaved edits. Save or discard them before publishing the saved profile."
             : snapshot.hasUnpublishedChanges
-              ? "Your saved profile has changes that visitors have not seen yet."
+              ? "Your saved profile has changes that are not public yet."
               : "The saved profile is ready to review."}{" "}
           A selected share card needs its asset release before it can be
           activated here.
@@ -513,9 +513,8 @@ export default function ProfileEditor({
         <details>
           <summary>Export profile configuration</summary>
           <p>
-            This export contains saved profile configuration and collection
-            references. It is not a complete media backup or a tested
-            restoration.
+            This export contains saved profile settings and collection references.
+            It does not include a complete media backup or a tested restore.
           </p>
           <button
             disabled={busy}

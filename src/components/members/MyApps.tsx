@@ -76,7 +76,7 @@ export default function MyApps() {
     }
     if (!readProfile) {
       setSnapshot(undefined);
-      setStatus("Workspace access loaded. Choose an available action below.");
+      setStatus("Workspace access is ready. Choose an action below.");
       return;
     }
     const grant =
@@ -151,7 +151,7 @@ export default function MyApps() {
       dirty.current
         ? "Saved profile refreshed. Your unsaved edits are retained for comparison."
         : result?.profile === null
-          ? "Your profile permission is ready. Create your profile when you are ready to choose its public identity."
+          ? "You can create your profile and choose its public identity when you are ready."
           : "Your saved profile is open.",
     );
   };
@@ -512,14 +512,14 @@ export default function MyApps() {
           <section>
             <h2>Your profile could not be loaded</h2>
             <p>
-              The workspace is selected, but its profile read did not confirm.
-              This is not a zero-profile result and no access was changed.
+              We could not confirm whether this workspace has a profile. Your
+              access has not changed.
             </p>
             <button
               disabled={busy}
               onClick={() => void execute(() => load(selected, true))}
             >
-              Retry the profile read
+              Try loading the profile again
             </button>
           </section>
         ) : (

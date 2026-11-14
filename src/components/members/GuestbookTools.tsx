@@ -264,8 +264,8 @@ export default function GuestbookTools({
             {membersOnly
               ? "Use fictional messages and aliases only in this synthetic team service. Public postcard admission stays closed. "
               : ""}
-            Your message is drawn on this device. It goes to this visitor book’s
-            pending queue for a separately authorised moderator.
+            Your message is drawn on this device, then sent to this visitor book’s
+            pending queue for an authorised moderator to review.
           </p>
           <form
             className="member-form"
@@ -356,8 +356,8 @@ export default function GuestbookTools({
             {uncertain && (
               <div>
                 <p>
-                  The submission result has not been confirmed. Your message and
-                  original operation identity are retained.
+                  We could not confirm the submission. Your message and its original
+                  operation identity are still here.
                 </p>
                 {attempt.current ? (
                   <>
@@ -450,7 +450,7 @@ export default function GuestbookTools({
             not grant profile ownership, exports or moderation of another book.
           </p>
           <button disabled={busy} onClick={() => void run(reload)}>
-            Load contributions to review
+            Load contributions
           </button>
           {list && (
             <ul className="member-rows">
