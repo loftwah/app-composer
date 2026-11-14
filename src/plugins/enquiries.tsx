@@ -244,7 +244,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
         setHeld(parsed.data);
         setResource(parsed.data.resource);
         setMessage(
-          "An earlier private operation is uncertain. Check its receipt before another change.",
+          "An earlier private change may have happened. Check its receipt before making another change.",
         );
       }
     } catch {
@@ -486,14 +486,14 @@ function WorkspaceEnquiries({ search }: { search: string }) {
     if (!reply.receipt.recorded) {
       setCheckedAbsent(true);
       setMessage(
-        "No receipt is currently available. This does not prove rollback. The operation stays retained; nothing was resubmitted.",
+        "No receipt is available yet. The change may still have happened. Its details are kept in this tab; nothing was sent again.",
       );
       return;
     }
     checkOperation(reply.receipt.result, hold);
     if (!live.current) return;
     retain(undefined);
-    setMessage("The exact app operation is confirmed. No retry was sent.");
+    setMessage("The app confirmed the saved change. Nothing was sent again.");
     await loadInbox(hold.resource);
     await loadSummary(hold.resource);
   }
@@ -519,7 +519,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
     if (!live.current) return;
     retain(undefined);
     setMessage(
-      "The exact retained operation is confirmed. No new operation identity was allocated.",
+      "The app confirmed the retry of the same saved change. No new operation was created.",
     );
     await loadInbox(hold.resource);
     await loadSummary(hold.resource);
@@ -675,8 +675,8 @@ function WorkspaceEnquiries({ search }: { search: string }) {
           reply is sent.
         </p>
         <p>
-          Each retained brief now links to its owner-notice workflow and
-          delivery state. Processing is explicit; reviewing a brief sends
+          Open a saved brief to see its owner-notice and delivery status.
+          Preparing a notice is a separate action; reviewing a brief sends
           nothing.
         </p>
       </header>
@@ -705,23 +705,23 @@ function WorkspaceEnquiries({ search }: { search: string }) {
         >
           <h2>Check an uncertain change</h2>
           <p>
-            The app may already have committed this operation. Its identity is
-            retained in this tab without any submitted brief.
+            The app may already have made this change. Its details are kept in
+            this tab, without the submitted brief text.
           </p>
           <code>{String(held.command.operation)}</code>
           <button disabled={busy} onClick={() => void run(reconcile)}>
-            Check exact operation receipt
+            Check the change receipt
           </button>
           <button
             disabled={busy || !checkedAbsent}
             onClick={() => void run(retryExact)}
           >
-            Retry exact retained change
+            Retry the same change
           </button>
           <p>
-            Retry uses the same operation, scope and revisions, only after a
-            successful missing-receipt check. A source or scope change refuses
-            replay.
+            You can retry only after a check finds no receipt. The retry uses the
+            same saved operation, target and revisions. It will be refused if
+            the source or target has changed.
           </p>
         </section>
       )}
@@ -974,10 +974,10 @@ function WorkspaceEnquiries({ search }: { search: string }) {
                 </button>
               </div>
               <p className="ce-muted">
-                Bodies expire after 30 days; minimal delivery and operation
-                receipts remain for 35 days. Deleted briefs are cleared
-                immediately. Choose a brief to read it and see its workflow and
-                delivery state.
+                Brief text expires after 30 days. Minimal delivery and operation
+                receipts remain for 35 days. Deleting a brief clears its text
+                immediately. Choose a brief to read it and see its notice and
+                delivery status.
               </p>
               {inbox.items.length === 0 ? (
                 <p className="ce-empty">No retained briefs on this page.</p>
@@ -1069,10 +1069,9 @@ function WorkspaceEnquiries({ search }: { search: string }) {
         <section className="ce-summary" aria-labelledby="ce-summary-title">
           <h2 id="ce-summary-title">Enquiries by page</h2>
           <p>
-            Counts of retained briefs for this visitor book, grouped by the
-            published page or standalone scope that delivered them. Reviewed
-            means an owner marked the brief; it is not a sale, contact or
-            conversion.
+            Saved briefs for this visitor book, grouped by the published page or
+            standalone form that received them. Reviewed means someone marked
+            the brief reviewed; it does not mean a sale, reply or contact occurred.
           </p>
           {summaryError ? (
             <p className="ce-alert" role="alert">
@@ -1090,7 +1089,7 @@ function WorkspaceEnquiries({ search }: { search: string }) {
                   <table>
                     <caption>
                       {summary.total} retained brief
-                      {summary.total === 1 ? "" : "s"} · bodies expire after 30
+                      {summary.total === 1 ? "" : "s"} · brief text expires after 30
                       days
                     </caption>
                     <thead>
@@ -1162,13 +1161,14 @@ function WorkspaceEnquiries({ search }: { search: string }) {
             <div>
               <h2>Open a private form</h2>
               <p>
-                Forms start closed. A Composer form belongs to one immutable
-                publication; publishing a new revision does not open it
-                automatically. The standalone resource form has its own setting.
+                Forms start closed. A Composer form belongs to one published
+                version of a page. Publishing a new version does not open its
+                form automatically. The standalone visitor-book form has its
+                own setting.
               </p>
             </div>
             <label>
-              Form scope
+              Choose a form
               <select
                 value={publication}
                 disabled={busy || Boolean(held) || !canConfigure}
