@@ -244,3 +244,7 @@ Adopting a beta UI SDK remains deferred until a custom interaction needs more
 than this controller; the study itself adds no dependency. Keep the study's
 density CSS local to the study, preserve the shipped 44px controls and focus
 outline, and do not treat browser checks as physical-device acceptance.
+
+## First impression correction — 14 November 2026
+
+The landing page leads with App Composer's real outcome: prepare tools, work with a chosen AI agent to build or connect an app on Cloudflare, and keep operating software the user owns. The three-step explanation precedes the interactive workshop, which is explicitly a fictional illustration with links to real apps. Get Ready is presented as the preparation step, not the product name. This direction addresses the reported hierarchy problem in #495; independent newcomer comprehension testing remains outstanding.
