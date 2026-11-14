@@ -44,7 +44,7 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 - [Upstream model intelligence](models-intelligence.md): the bounded models.dev adapter, its retained last-known-good state, change classification, incident ledger and the scheduler/parity gates that stay open.
 - [Mini-apps inside a host repository](monorepo-composition.md): the opt-in monorepo source locator, its path rules, plan command, workspace discovery and the promotion gate that is still open.
 - [Delivery channel](delivery-channel.md): the Discord announcement shape, the secret boundary and what belongs in the project ledger.
-- [Source and asset maintenance](source-maintenance.md): authored modules, generated output, shared-asset ownership and release boundaries.
+- [Source and asset maintenance](source-maintenance.md): authored modules, generated output, shared-asset ownership and release boundaries. Its [launcher interaction recipe](source-maintenance.md#launcher-interaction-recipe) is the first reusable interaction pattern, with the runnable [/launcher](https://composer.loftwah.com/launcher) study.
 - [Untangle pass, 6 November 2026](untangle-20261106.md): the pinned untangle-codebase audit, implemented single-source fixes and retained decisions.
 - [Async waterfall audit, 6 November 2026](performance-audit-20261106.md): independent hot-path reads, measured before/after and deliberately sequential work.
 - [React state ownership](react-state-ownership.md): the local-versus-server decision table, review ledger and the narrow lint guard.
