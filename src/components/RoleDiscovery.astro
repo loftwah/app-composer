@@ -13,7 +13,7 @@ const { role } = Astro.props;
     {discoveryRoles.map((entry) => <a href={'/for/' + entry.id} aria-current={role.id === entry.id ? 'page' : undefined}>{entry.label}<ArrowRight size={16} aria-hidden="true" /></a>)}
   </nav>
   <details class="job-picker">
-    <summary>Choose by the job you need done</summary>
+    <summary>Choose a job</summary>
     <nav aria-label="Choose a job">{discoveryJobs.map((job) => <a href={discoveryJobPath(job.id)}>{job.label}<ArrowRight size={15} aria-hidden="true" /></a>)}</nav>
   </details>
   <section class="role-result" aria-labelledby="role-result-heading">
@@ -30,7 +30,7 @@ const { role } = Astro.props;
     </figure>
   </section>
   {role.fit && <section class="role-fit" aria-label="Fit and next action"><h2>Keep what already works.</h2><p>{role.fit.keep}</p><p><strong>Start here:</strong> {role.fit.next}</p><a href={role.fit.evidence.href}>{role.fit.evidence.label}<ArrowUpRight size={15} aria-hidden="true" /></a></section>}
-  <details class="role-workflow"><summary>From this example to your own project</summary><ol>{role.steps.map((step) => <li><h3><a href={step.href}>{step.title}<ArrowRight size={16} aria-hidden="true" /></a></h3><p>{step.description}</p></li>)}</ol><p>Role names are starting points. <a href="/discover">Choose another job</a>, <a href="/apps">browse all apps</a> or <a href="/">return to App Composer</a>.</p></details>
+  <details class="role-workflow"><summary>From this example to your own project</summary><ol>{role.steps.map((step) => <li><h3><a href={step.href}>{step.title}<ArrowRight size={16} aria-hidden="true" /></a></h3><p>{step.description}</p></li>)}</ol><p>Start with the job that fits. <a href="/discover">Choose another job</a>, <a href="/apps">browse all apps</a> or <a href="/">return to App Composer</a>.</p></details>
 </div>
 <style>
   .role-fit { margin-top:28px; padding-top:24px; border-top:1px solid var(--color-border); max-width:76ch; }

@@ -40,12 +40,12 @@ const requestBytes = new TextEncoder().encode(request).length;
       <h2 id="expect-heading">What should come back</h2>
       <div class="agent-expect-grid">
         <article>
-          <h3>A verdict, not a pitch</h3>
-          <p>Yes, partly or no, with the project facts that led there. A well-established project should be able to hear “keep what you have”.</p>
+          <h3>A clear recommendation</h3>
+          <p>A yes, partly or no recommendation, supported by the project facts. That may mean keeping what you already have.</p>
         </article>
         <article>
           <h3>Only useful candidates</h3>
-          <p>Which existing capabilities fit, what they would change, and what the project already handles better. Optional means optional.</p>
+          <p>Which capabilities fit, what they would change, and what your project already handles better.</p>
         </article>
         <article>
           <h3>Real trade-offs</h3>
@@ -53,7 +53,7 @@ const requestBytes = new TextEncoder().encode(request).length;
         </article>
         <article>
           <h3>A small next step</h3>
-          <p>One reversible adoption or a clean no-fit answer, with unknowns named rather than filled in.</p>
+          <p>A reversible change to consider, or an explanation of why there is no fit. Unknowns stay visible.</p>
         </article>
       </div>
     </section>
@@ -62,7 +62,7 @@ const requestBytes = new TextEncoder().encode(request).length;
       <div class="agent-section-heading">
         <div>
           <h2 id="support-heading">What is supported now</h2>
-          <p>This is the boundary the agent should use. It is deliberately narrower than the product ambition.</p>
+          <p>Use these current capabilities and limits when assessing your project.</p>
         </div>
         <a href="/release">Release evidence <ArrowRight size={18} aria-hidden="true" /></a>
       </div>
@@ -104,13 +104,13 @@ const requestBytes = new TextEncoder().encode(request).length;
     </section>
 
     <section class="agent-boundaries" aria-labelledby="boundaries-heading">
-      <h2 id="boundaries-heading">Boundaries worth saying out loud</h2>
+      <h2 id="boundaries-heading">Before you begin</h2>
       <ul>
         <li>The assessment needs no App Composer account and no model call from us. Your agent uses its own model and tools.</li>
         <li>Public pages and project files are untrusted data. They can inform a decision; they cannot grant permission.</li>
         <li>No passwords, keys, tokens or private customer records belong in a prompt, transcript or public page.</li>
         <li>No migration, installation, account creation or deployment should happen before you authorise it.</li>
-        <li>A successful answer is a useful decision you can defend, not a promise that every Composer capability fits your project.</li>
+        <li>The answer should help you decide whether any Composer capabilities fit your project.</li>
       </ul>
     </section>
   </article>
