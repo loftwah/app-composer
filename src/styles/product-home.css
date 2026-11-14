@@ -2567,3 +2567,20 @@
 .composer-home .home-opening-path strong { font-size: 1.2rem; }
 .composer-home .home-opening-path li p { margin-top: .25rem; color: var(--home-hero-muted); font-size: .96rem; }
 @media (max-width: 900px) { .composer-home .home-opening-inner { min-height: 0; grid-template-columns: 1fr; padding: 130px 20px 60px; gap: 3rem; } .composer-home .home-opening h1 { font-size: clamp(3.4rem, 11vw, 5.8rem); } }
+
+/* Let real work lead the homepage while keeping the setup path visible. */
+.composer-home .home-opening-inner { grid-template-columns: minmax(0, 1fr) minmax(280px, .78fr); column-gap: clamp(2.5rem, 6vw, 6rem); row-gap: 2.5rem; }
+.composer-home .home-opening-art { margin: 0; width: 100%; max-width: 470px; justify-self: end; }
+.composer-home .home-opening-art a { display: block; color: var(--home-hero-fg); text-decoration: none; }
+.composer-home .home-opening-art img { display: block; width: 100%; height: auto; }
+.composer-home .home-opening-art figcaption { display: flex; justify-content: space-between; gap: 1rem; padding: .8rem 0; font-size: .82rem; }
+.composer-home .home-opening-art figcaption span { color: var(--home-hero-muted); }
+.composer-home .home-opening-art a:hover strong { text-decoration: underline; }
+.composer-home .home-opening-art a:focus-visible { outline: 2px solid var(--home-hero-accent); outline-offset: 5px; }
+.composer-home .home-opening-path { grid-column: 1 / -1; }
+.composer-home .home-opening-path ol { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; }
+@media (max-width: 900px) {
+  .composer-home .home-opening-inner { grid-template-columns: 1fr; }
+  .composer-home .home-opening-art { justify-self: start; max-width: 560px; }
+  .composer-home .home-opening-path ol { grid-template-columns: 1fr; gap: 0; }
+}
