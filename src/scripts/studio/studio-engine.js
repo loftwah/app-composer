@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { createStudioWorld } from "./studio-model.js";
+import { createStudioFrameLoop } from "./studio-motion.js";
 import {
   clamp,
   defaultStationId,
@@ -15,11 +16,6 @@ const CAMERAS = {
       position: [0.0, 8.0, 21.2],
       target: [-2.65, 2.35, 0.95],
       fov: 38,
-    },
-    pressDetail: {
-      position: [-1.6, 8.4, 12.2],
-      target: [-2.5, 1.0, 2.5],
-      fov: 36,
     },
     draw: {
       position: [0.2, 6.4, 14.6],
@@ -38,11 +34,6 @@ const CAMERAS = {
       target: [-0.2, 3.0, 0.8],
       fov: 40,
     },
-    pressDetail: {
-      position: [-0.2, 7.9, 13.2],
-      target: [-2.2, 1.1, 2.2],
-      fov: 38,
-    },
     draw: {
       position: [1.1, 6.6, 16.0],
       target: [0.9, 2.4, 0.6],
@@ -58,11 +49,6 @@ const CAMERAS = {
     press: {
       position: [-1.3, 5.6, 13.0],
       target: [-2.3, 2.2, 2.0],
-      fov: 46,
-    },
-    pressDetail: {
-      position: [-2.2, 6.9, 10.9],
-      target: [-2.4, 1.35, 2.3],
       fov: 46,
     },
     draw: {
@@ -109,9 +95,8 @@ export function createStudioEngine({
     ringIndex: 0,
     paused: false,
     reduced: reducedQuery.matches,
-    layout: "desktop",
+    layout: layoutForWidth(stage.clientWidth),
     theme: readTheme(),
-    detailUntil: -1,
   };
 
   let renderer;
@@ -238,22 +223,23 @@ export function createStudioEngine({
 
   let alive = true;
   let visible = true;
-  let raf = 0;
-  let lastFrame = 0;
   let elapsed = 0;
-  let intro = 1;
   let stampAt = -Infinity;
   let stampCount = 0;
   let stampPending = false;
   let cameraSettled = false;
-  let lastPaint = 0;
   let qualitySamples = 0;
   let qualityTime = 0;
   let qualityReduced = false;
+  const size = { width: 0, height: 0, pixelRatio: 0 };
 
   const look = new THREE.Vector3();
   const desiredPosition = new THREE.Vector3();
   const desiredTarget = new THREE.Vector3();
+  const cameraOffset = new THREE.Vector3();
+  const finalPosition = new THREE.Vector3();
+  const verticalAxis = new THREE.Vector3(0, 1, 0);
+  const horizontalAxis = new THREE.Vector3(1, 0, 0);
   const orbit = { yaw: 0, pitch: 0, targetYaw: 0, targetPitch: 0, hoverYaw: 0, hoverPitch: 0 };
   let dragging = false;
   let dragPointer = null;
@@ -261,6 +247,16 @@ export function createStudioEngine({
 
   const motionEnabled = () =>
     !state.paused && !state.reduced && visible && !document.hidden;
+
+  const frameLoop = createStudioFrameLoop({
+    render: frame,
+    canRender: () => alive && visible && !document.hidden,
+    onReady,
+    onError: (error) => {
+      alive = false;
+      onLost(error);
+    },
+  });
 
   const snapshot = () => ({
     station: state.station,
@@ -287,9 +283,7 @@ export function createStudioEngine({
 
   function presetFor() {
     const group = CAMERAS[state.layout] ?? CAMERAS.desktop;
-    const detail =
-      state.station === "press" && elapsed < state.detailUntil && !state.reduced;
-    return (detail ? group.pressDetail : group[state.station]) ?? group.press;
+    return group[state.station] ?? group.press;
   }
 
   function setCameraTargets() {
@@ -317,26 +311,30 @@ export function createStudioEngine({
     const width = Math.max(1, stage.clientWidth);
     const height = Math.max(1, stage.clientHeight);
     const nextLayout = layoutForWidth(width);
-    if (nextLayout !== state.layout) {
-      state.layout = nextLayout;
-      setCameraTargets();
-    }
     const pixelRatio = qualityReduced
       ? 1
       : Math.min(devicePixelRatio || 1, nextLayout === "phone" ? 1.5 : 1.75);
-    renderer.setPixelRatio(pixelRatio);
+    if (
+      width === size.width &&
+      height === size.height &&
+      pixelRatio === size.pixelRatio
+    ) return;
+    const framingChanged = width !== size.width || nextLayout !== state.layout;
+    state.layout = nextLayout;
+    if (pixelRatio !== size.pixelRatio) renderer.setPixelRatio(pixelRatio);
     renderer.setSize(width, height, false);
-    renderer.shadowMap.enabled = !(qualityReduced && nextLayout === "phone");
+    size.width = width;
+    size.height = height;
+    size.pixelRatio = pixelRatio;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     resizePost();
-    setCameraTargets();
+    if (framingChanged) setCameraTargets();
     requestRender();
   }
 
   function requestRender() {
-    if (raf || !alive || !visible || document.hidden) return;
-    raf = requestAnimationFrame(frame);
+    frameLoop.request();
   }
 
   function updateCamera(dt, motion) {
@@ -353,24 +351,15 @@ export function createStudioEngine({
       desiredPosition.y += 0.35;
     }
 
-    // An establishing dolly introduces the world once. It is skipped entirely
-    // for paused/reduced-motion visitors and cancelled by direct interaction.
-    const introWeight = motion ? intro * intro * 0.22 : 0;
-    if (introWeight > 0.001) {
-      const centre = desiredTarget;
-      desiredPosition.lerp(centre, -introWeight);
-      desiredPosition.y += introWeight * 10;
-    }
-
-    orbit.yaw = damp(orbit.yaw, orbit.targetYaw, 6, dt);
-    orbit.pitch = damp(orbit.pitch, orbit.targetPitch, 6, dt);
-    const offset = desiredPosition.clone().sub(desiredTarget);
-    offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), orbit.yaw + orbit.hoverYaw);
-    offset.applyAxisAngle(new THREE.Vector3(1, 0, 0), orbit.pitch + orbit.hoverPitch);
-    const finalPosition = desiredTarget.clone().add(offset);
-    const speed = state.reduced || state.paused ? 30 : 4.2;
-    camera.position.lerp(finalPosition, 1 - Math.exp(-speed * dt));
-    look.lerp(desiredTarget, 1 - Math.exp(-speed * dt));
+    orbit.yaw = motion ? damp(orbit.yaw, orbit.targetYaw, 8, dt) : orbit.targetYaw;
+    orbit.pitch = motion ? damp(orbit.pitch, orbit.targetPitch, 8, dt) : orbit.targetPitch;
+    cameraOffset.copy(desiredPosition).sub(desiredTarget);
+    cameraOffset.applyAxisAngle(verticalAxis, orbit.yaw + orbit.hoverYaw);
+    cameraOffset.applyAxisAngle(horizontalAxis, orbit.pitch + orbit.hoverPitch);
+    finalPosition.copy(desiredTarget).add(cameraOffset);
+    const blend = motion ? 1 - Math.exp(-8 * dt) : 1;
+    camera.position.lerp(finalPosition, blend);
+    look.lerp(desiredTarget, blend);
     camera.lookAt(look);
     const distance =
       camera.position.distanceTo(finalPosition) + look.distanceTo(desiredTarget);
@@ -380,7 +369,6 @@ export function createStudioEngine({
       look.copy(desiredTarget);
       camera.lookAt(look);
     }
-    if (motion) intro = Math.max(0, intro - dt / 2.9);
   }
 
   function syncProgress(motion, dt) {
@@ -403,25 +391,16 @@ export function createStudioEngine({
     if (motion) world.spawnOffcuts(7);
   }
 
-  function frame(timestamp) {
-    raf = 0;
-    if (!alive || !visible || document.hidden) return;
-    const now = timestamp / 1000;
-    const targetInterval = state.layout === "phone" ? 1 / 48 : 1 / 60;
-    if (lastPaint && now - lastPaint < targetInterval - 0.003) {
-      requestRender();
-      return;
-    }
-    lastPaint = now;
-    const dt = lastFrame ? Math.min(0.05, now - lastFrame) : 1 / 60;
-    lastFrame = now;
+  function frame(dt) {
     const motion = motionEnabled();
     if (motion) elapsed += dt;
 
     // Measure real frames rather than promising a frame rate. A single step
     // down in resolution protects battery and interaction on slower phones.
-    qualitySamples += 1;
-    qualityTime += dt;
+    if (motion && dt > 0) {
+      qualitySamples += 1;
+      qualityTime += dt;
+    }
     if (!qualityReduced && qualitySamples >= 90) {
       const average = qualityTime / qualitySamples;
       if (average > 1 / 42 && renderer.getPixelRatio() > 1.02) {
@@ -436,7 +415,6 @@ export function createStudioEngine({
     const pressProgress = state.progress.press;
     const drawProgress = state.progress.draw;
     const lensProgress = state.progress.lens;
-    const current = state.progress[state.station] ?? 0;
 
     applyPendingStamp(motion);
     world.updatePress({
@@ -457,23 +435,14 @@ export function createStudioEngine({
     world.updateAmbient(elapsed, motion);
     updateCamera(dt, motion);
 
-    try {
-      renderer.setRenderTarget(post.target);
-      renderer.render(scene, camera);
-      renderer.setRenderTarget(null);
-      renderer.render(post.scene, post.camera);
-    } catch (error) {
-      alive = false;
-      onLost(error);
-      return;
-    }
+    renderer.setRenderTarget(post.target);
+    renderer.render(scene, camera);
+    renderer.setRenderTarget(null);
+    renderer.render(post.scene, post.camera);
 
-    const stillMoving =
-      motion ||
-      !cameraSettled ||
-      Math.abs(current - state.target[state.station]) > 0.0005 ||
-      intro > 0.001;
-    if (stillMoving) requestRender();
+    // Paused/reduced controls apply their complete static state in this frame.
+    // Only an active scene needs another frame; readiness follows this render.
+    return motion;
   }
 
   function setStation(id, { snap = false, announce = true } = {}) {
@@ -484,14 +453,12 @@ export function createStudioEngine({
       return;
     }
     state.station = id;
-    state.detailUntil = -1;
     setCameraTargets();
     if (snap || state.reduced || state.paused) {
       state.progress[id] = state.target[id];
       camera.position.copy(desiredPosition);
       look.copy(desiredTarget);
     }
-    intro = 0;
     orbit.targetYaw = 0;
     orbit.targetPitch = 0;
     cameraSettled = false;
@@ -511,11 +478,11 @@ export function createStudioEngine({
   function action() {
     const id = state.station;
     if (id === "press") {
-      if (!state.reduced) state.detailUntil = elapsed + 3.2;
       stampAt = elapsed;
       stampPending = true;
       if (state.reduced || state.paused) {
         stampPending = false;
+        stampAt = -Infinity;
         stampCount += 1;
         world.applyStamp(stampCount - 1);
       }
@@ -530,19 +497,21 @@ export function createStudioEngine({
       state.ringIndex = (state.ringIndex + 1) % 3;
       emit("action", { action: "lens" });
     }
-    intro = 0;
     requestRender();
   }
 
   function setPaused(paused) {
     state.paused = Boolean(paused);
-    lastFrame = 0;
+    if (state.paused) stampAt = -Infinity;
+    frameLoop.suspend();
     emit("pause");
     requestRender();
   }
 
   function setReduced(reduced) {
     state.reduced = Boolean(reduced);
+    if (state.reduced) stampAt = -Infinity;
+    frameLoop.suspend();
     emit("motion");
     requestRender();
   }
@@ -565,9 +534,11 @@ export function createStudioEngine({
       lastPointer = { x: event.clientX, y: event.clientY };
       orbit.targetYaw = clamp(orbit.targetYaw + dx * 0.0022, -0.28, 0.28);
       orbit.targetPitch = clamp(orbit.targetPitch + dy * 0.0016, -0.14, 0.14);
-    } else if (!state.reduced) {
+    } else if (!state.reduced && !state.paused) {
       orbit.hoverYaw = clamp(x * 0.1, -0.08, 0.08);
       orbit.hoverPitch = clamp(y * 0.05, -0.04, 0.04);
+    } else {
+      return;
     }
     cameraSettled = false;
     requestRender();
@@ -601,9 +572,9 @@ export function createStudioEngine({
     (entries) => {
       visible = entries[0]?.isIntersecting ?? true;
       if (!visible) {
-        cancelAnimationFrame(raf);
-        raf = 0;
-        lastFrame = 0;
+        frameLoop.suspend();
+        qualitySamples = 0;
+        qualityTime = 0;
       } else {
         requestRender();
       }
@@ -617,9 +588,9 @@ export function createStudioEngine({
 
   const onVisibility = () => {
     if (document.hidden) {
-      cancelAnimationFrame(raf);
-      raf = 0;
-      lastFrame = 0;
+      frameLoop.suspend();
+      qualitySamples = 0;
+      qualityTime = 0;
     } else {
       requestRender();
     }
@@ -634,8 +605,7 @@ export function createStudioEngine({
 
   const onContextLost = (event) => {
     event.preventDefault();
-    cancelAnimationFrame(raf);
-    raf = 0;
+    frameLoop.suspend();
     alive = false;
     onLost(new Error("The GPU context was lost."));
   };
@@ -670,13 +640,11 @@ export function createStudioEngine({
   });
   resize();
   emit("init");
-  onReady();
   requestRender();
 
   function dispose({ preserveContext = false } = {}) {
     alive = false;
-    cancelAnimationFrame(raf);
-    raf = 0;
+    frameLoop.dispose();
     observer.disconnect();
     resizeObserver.disconnect();
     document.removeEventListener("visibilitychange", onVisibility);
@@ -701,17 +669,15 @@ export function createStudioEngine({
   window.addEventListener(
     "pagehide",
     (event) => {
-      cancelAnimationFrame(raf);
-      raf = 0;
+      frameLoop.suspend();
       if (event.persisted) return;
       dispose();
     },
-    { once: true },
   );
 
   window.addEventListener("pageshow", (event) => {
     if (!event.persisted || !alive) return;
-    lastFrame = 0;
+    frameLoop.suspend();
     cameraSettled = false;
     requestRender();
   });

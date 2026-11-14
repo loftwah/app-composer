@@ -1564,7 +1564,7 @@ export function createStudioWorld({ mobile = false, theme = "dark" } = {}) {
       [0.2, index, 0.1],
     );
     fleck.castShadow = false;
-    flecks.push({ mesh: fleck, phase: index * 1.4 });
+    flecks.push({ mesh: fleck, baseY: fleck.position.y, phase: index * 1.4 });
   }
   ambient.flecks = flecks;
 
@@ -1679,12 +1679,9 @@ export function createStudioWorld({ mobile = false, theme = "dark" } = {}) {
       });
     }
     const targetTilt = [-0.16, 0, 0.16][ringIndex];
-    lensHead.rotation.z = THREE.MathUtils.damp(
-      lensHead.rotation.z,
-      targetTilt * 0.35,
-      4,
-      motion ? dt : 1,
-    );
+    lensHead.rotation.z = motion
+      ? THREE.MathUtils.damp(lensHead.rotation.z, targetTilt * 0.35, 4, dt)
+      : targetTilt * 0.35;
     focusCollar.rotation.z = progress * 1.7;
     ambient.orrery.scale.setScalar(0.84 + progress * 0.3);
     ambient.orrery.position.z = 0.12 + progress * 0.12;
@@ -1721,7 +1718,7 @@ export function createStudioWorld({ mobile = false, theme = "dark" } = {}) {
     ambient.ram.position.y = 1.4 - down * 0.44;
     ambient.ram.position.x = shake;
     ambient.lever.rotation.z = 0.05 + down * 0.62;
-    ambient.handwheel.rotation.x = (ambient.handwheel.rotation.x + (motion ? 0.05 : 0)) % (Math.PI * 2);
+    ambient.handwheel.rotation.x = (ambient.handwheel.rotation.x + (motion ? 3 * dt : 0)) % (Math.PI * 2);
     ambient.needle.rotation.z = -1.1 + down * 2.0;
     if (ambient.pageGroup) {
       let slide = 0;
@@ -1771,8 +1768,8 @@ export function createStudioWorld({ mobile = false, theme = "dark" } = {}) {
       sheet.rotation.z = Math.sin(time * 0.4 + (sheet.userData.phase ?? 0)) * 0.018;
     });
     ambient.hangingSheet.rotation.z = Math.sin(time * 0.35) * 0.012;
-    ambient.flecks.forEach(({ mesh: fleck, phase }) => {
-      fleck.position.y += Math.sin(time * 0.5 + phase) * 0.0007;
+    ambient.flecks.forEach(({ mesh: fleck, baseY, phase }) => {
+      fleck.position.y = baseY + (Math.cos(phase) - Math.cos(time * 0.5 + phase)) * 0.084;
       fleck.rotation.z = 0.1 + Math.sin(time * 0.3 + phase) * 0.14;
       fleck.rotation.y = 0.2 + time * 0.03 + phase;
     });
