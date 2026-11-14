@@ -81,18 +81,20 @@
 .site-menu-panel {
   position: absolute;
   z-index: 8;
-  top: calc(100% + 12px);
+  top: calc(100% + 8px);
   right: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 24px;
-  width: 384px;
+  gap: 8px 12px;
+  width: 352px;
   max-width: calc(100vw - 32px);
-  padding: 20px;
+  max-height: calc(100dvh - 88px);
+  padding: 12px;
   border: 1px solid var(--color-border);
   border-radius: 12px;
   background: var(--color-field);
-  overflow-x: hidden;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .site-menu-group {
@@ -100,21 +102,48 @@
 }
 
 .site-menu-heading {
-  margin: 0 8px 8px;
+  margin: 4px 8px 2px;
   color: var(--color-muted);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 650;
 }
 
 .site-menu-panel a {
   display: flex;
   align-items: center;
-  min-height: 44px;
-  padding: 8px;
+  min-height: 40px;
+  padding: 6px 8px;
   border-radius: 4px;
   font-size: 14px;
   font-weight: 500;
   overflow-wrap: anywhere;
+}
+
+.site-menu-quick,
+.site-menu-resources {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+}
+
+.site-menu-quick {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 4px;
+}
+
+.site-menu-resources {
+  border-top: 1px solid var(--color-border);
+  padding-top: 4px;
+}
+
+.site-menu-resources a {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.site-menu-panel a:focus-visible {
+  outline-offset: -2px;
 }
 
 .site-menu-panel a:hover,
@@ -193,11 +222,7 @@
     right: 16px;
     left: 16px;
     width: auto;
-    max-height: calc(100dvh - 88px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    gap: 16px;
-    padding: 16px;
+    max-width: none;
   }
 
   .site-menu-panel .compact-only {
@@ -228,7 +253,7 @@
   }
 
   .site-menu-panel {
-    gap: 8px;
-    padding: 12px;
+    column-gap: 4px;
+    padding: 8px;
   }
 }
