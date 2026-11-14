@@ -68,6 +68,19 @@ const storage = {
   },
 };
 
+test("the static video is routed through its range handler", async () => {
+  const config = await readFile(
+    new URL("../wrangler.jsonc", import.meta.url),
+    "utf8",
+  );
+  const routes = config.match(/"run_worker_first"\s*:\s*\[([^\]]*)\]/s)?.[1];
+  assert.ok(routes, "worker-first asset routes must be present");
+  assert.ok(
+    routes.includes(`"${path}"`),
+    "Pippa must reach the Worker range handler",
+  );
+});
+
 test("the allowlisted Pippa film metadata matches its committed bytes", () => {
   assert.equal(bytes.length, 597299);
   assert.equal(createHash("sha256").update(bytes).digest("hex"), digest);
