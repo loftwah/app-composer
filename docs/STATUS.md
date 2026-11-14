@@ -41,8 +41,8 @@ integration evidence is in
   wrong-project, ungranted, grant-removal and actor-switch paths are recorded,
   with live non-owner sessions still unavailable in this environment.
 - **One native entry, three actions.** The article, tutorial and entry separate
-  *Read the story*, *Build your studio* and *Open your studio*. The launcher and
-  header link to all three; the public article remains the discovery surface.
+  reading, setup and private access. The launcher and header each link to the
+  same studio entry; the build story and tutorial remain reachable from it.
 - **Real edits and mix.** FLUX.1 Fill masked fill/outpaint, BiRefNet cutout,
   Clarity upscale and Studio Effect are live. A three-track Studio Score +
   Studio Voice + Studio Effect mix was produced in the browser, saved as a

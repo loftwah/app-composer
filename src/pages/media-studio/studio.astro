@@ -94,34 +94,14 @@ if (user && runtime.DB) {
   canonical="https://composer.loftwah.com/media-studio/studio"
 >
   <main class="studio-entry" id="main">
-    <p class="kicker">App Composer · Media Studio</p>
-    <h1>Your studio, on its own Cloudflare account.</h1>
-    <p class="lede">
-      Media Studio keeps its own source, projects, media and releases. App Composer supplies the
-      installation entry, the current actor and the selected workspace permissions; the studio
-      still runs after Composer is detached.
-    </p>
-
-    <div class="entry-actions">
-      <a class="button" href="/media-studio">Read the story</a>
-      <a class="button secondary" href="/init?start=media-studio">Build your studio</a>
-      {state === "signed-out" && (
-        <a class="button" href="/_emdash/admin/login?redirect=/media-studio/studio">Sign in to open yours</a>
-      )}
-    </div>
+    <h1>Media Studio</h1>
+    <p class="lede">Make images, video and sound. Keep your projects and takes together.</p>
 
     {state === "signed-out" && (
       <section class="entry-card" aria-labelledby="entry-signed-out">
-        <h2 id="entry-signed-out">Public reading needs no account</h2>
-        <p>
-          The article, tutorial, films and published pieces are public. Opening the private work
-          surface needs the existing Composer sign-in and a workspace with Media Studio access.
-        </p>
-        <p class="small">
-          <a href="/media-studio">Read the build article</a> ·
-          <a href="/media-studio/tutorial">Follow the tutorial</a> ·
-          <a href="/discover">See what else is supported</a>
-        </p>
+        <h2 id="entry-signed-out">Open your studio</h2>
+        <p>Sign in with App Composer to open the studio connected to your workspace.</p>
+        <a class="button" href="/_emdash/admin/login?redirect=/media-studio/studio">Sign in to App Composer</a>
       </section>
     )}
 
@@ -139,56 +119,40 @@ if (user && runtime.DB) {
     {state === "denied" && (
       <section class="entry-card" aria-labelledby="entry-denied">
         <h2 id="entry-denied">No Media Studio permission in {workspaceName}</h2>
-        <p>
-          Being signed in is not the same as being granted the studio. Ask the workspace owner to
-          grant the exact actions you need in <a href="/people">People &amp; access</a>. Read,
-          edit, generate, publish and admin are separate.
-        </p>
-        <p class="small">
-          Your public options stay available: <a href="/media-studio">the story</a>,
-          <a href="/media-studio/tutorial">the tutorial</a>, and
-          <a href="/init?start=media-studio">building your own</a>.
-        </p>
+        <p>Ask the owner of {workspaceName} to give you Media Studio access.</p>
+        <a class="button secondary" href="/me">Open My apps</a>
       </section>
     )}
 
     {state === "unconfigured" && (
       <section class="entry-card" aria-labelledby="entry-unconfigured">
-        <h2 id="entry-unconfigured">This installation is not connected yet</h2>
-        <p>
-          The workspace grants are present, but this Composer deployment has no
-          <code>MEDIA_STUDIO_ORIGIN</code> or <code>MEDIA_STUDIO_BRIDGE_SECRET</code>. The studio
-          itself can still be opened directly in standalone mode.
-        </p>
-        <p class="small">
-          Operator detail: set both values in the Composer environment, then reopen this page.
-          No password or provider key belongs in the browser.
-        </p>
+        <h2 id="entry-unconfigured">Your studio isn’t connected</h2>
+        <p>Ask your workspace owner to connect its Media Studio installation, then reopen this page.</p>
+        <a class="button secondary" href="/me">Open My apps</a>
       </section>
     )}
 
-    <section class="entry-boundary" aria-labelledby="entry-boundary">
-      <h2 id="entry-boundary">What carries across</h2>
-      <ul>
-        <li><strong>Current actor and workspace.</strong> The handoff names the signed-in account and one workspace.</li>
-        <li><strong>Only current actions.</strong> Read, edit, generate, publish and admin are separate grants. A privileged action re-checks them on the server.</li>
-        <li><strong>No shared cookies or provider keys.</strong> The studio keeps its own session and its own provider credentials.</li>
-        <li><strong>Independent ownership.</strong> Projects, media, D1 and R2 remain in the studio's Cloudflare account and can be used standalone.</li>
-      </ul>
+    <section class="entry-card" aria-labelledby="entry-start">
+      <h2 id="entry-start">Start a new studio</h2>
+      <p>Pick your project name and creative defaults in Init. You’ll get a setup brief for your own Cloudflare app.</p>
+      <a class="button secondary" href="/init?start=media-studio">Set up a studio</a>
     </section>
+
+    <nav class="entry-links" aria-label="Media Studio guides">
+      <a href="/media-studio">Read the build story</a>
+      <a href="/media-studio/tutorial">Follow the tutorial</a>
+    </nav>
   </main>
 
   <style>
     .studio-entry { max-width: 900px; margin: 0 auto; padding: 48px 24px 96px; }
-    .kicker { font: 600 11px/1.4 ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; color: var(--color-accent); margin: 0 0 14px; }
     .studio-entry h1 { font: 600 clamp(2.4rem, 5vw, 4rem)/1.02 "Space Grotesk", system-ui, sans-serif; letter-spacing: -.04em; max-width: 18ch; margin: 0 0 18px; }
     .lede { font-size: 1.15rem; line-height: 1.6; color: var(--color-muted); max-width: 65ch; }
-    .entry-actions { display: flex; flex-wrap: wrap; gap: 14px; margin: 28px 0 34px; }
-    .entry-card, .entry-boundary { border-top: 1px solid var(--color-border); padding: 24px 0; max-width: 70ch; }
-    .entry-card h2, .entry-boundary h2 { font: 600 1.4rem/1.2 "Space Grotesk", system-ui, sans-serif; margin: 0 0 12px; }
-    .entry-card p, .entry-boundary li { line-height: 1.65; }
-    .entry-boundary ul { padding-left: 22px; }
-    .entry-boundary li { margin-bottom: 10px; }
+    .entry-card { border-top: 1px solid var(--color-border); padding: 24px 0; max-width: 65ch; }
+    .entry-card h2 { font: 600 1.4rem/1.2 "Space Grotesk", system-ui, sans-serif; margin: 0 0 8px; }
+    .entry-card p { line-height: 1.6; margin: 0 0 16px; }
+    .entry-links { display: flex; flex-wrap: wrap; gap: 8px 24px; border-top: 1px solid var(--color-border); padding-top: 16px; max-width: 65ch; }
+    .entry-links a { font-weight: 600; }
     :focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
   </style>
 </Base>
