@@ -52,7 +52,7 @@ async function call(action: string, fields: Record<string, unknown> = {}) {
   try {
     return await parseApiResponse<unknown>(
       response,
-      "Your team result could not be confirmed. Keep your entries and reload before retrying.",
+      "We couldn’t confirm the result. Keep your entries and reload before trying again.",
     );
   } catch (error) {
     if (response.status === 401 || response.status === 403)
@@ -113,7 +113,7 @@ export default function TeamHub() {
       setError(
         error instanceof Error
           ? error.message
-          : "This team result could not be confirmed.",
+          : "We couldn’t confirm the result.",
       );
   };
   async function load(id = workspace) {
