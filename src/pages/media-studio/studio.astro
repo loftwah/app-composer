@@ -13,6 +13,19 @@ const runtime = env as unknown as {
 };
 const user = Astro.locals.user;
 const project = Astro.url.searchParams.get("project");
+let publicStudioUrl: string | null = null;
+try {
+  const studioOrigin = new URL(runtime.MEDIA_STUDIO_ORIGIN ?? "");
+  if (studioOrigin.protocol === "https:" && !studioOrigin.username && !studioOrigin.password)
+    publicStudioUrl = new URL("/", studioOrigin).href;
+} catch {
+  // An unconnected installation still offers the build story and setup below.
+}
+
+// Visitors should see the public work immediately; signed-in members keep the
+// workspace-specific handoff below. An unconnected instance keeps this page.
+if (!user && publicStudioUrl)
+  return new Response(null, { status: 302, headers: { Location: publicStudioUrl, "Cache-Control": "private, no-store" } });
 
 function base64url(value: string) {
   return btoa(value).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
@@ -99,9 +112,12 @@ if (user && runtime.DB) {
 
     {state === "signed-out" && (
       <section class="entry-card" aria-labelledby="entry-signed-out">
-        <h2 id="entry-signed-out">Open your studio</h2>
-        <p>Sign in with App Composer to open the studio connected to your workspace.</p>
-        <a class="button" href="/_emdash/admin/login?redirect=/media-studio/studio">Sign in to App Composer</a>
+        <h2 id="entry-signed-out">Explore Media Studio</h2>
+        <p>See what Media Studio can make and how to set up your own.</p>
+        <div class="entry-actions">
+          <a class="button" href="/media-studio">Read the Media Studio story</a>
+          <a class="button secondary" href="/_emdash/admin/login?redirect=/media-studio/studio">Sign in to your studio</a>
+        </div>
       </section>
     )}
 
@@ -151,6 +167,7 @@ if (user && runtime.DB) {
     .entry-card { border-top: 1px solid var(--color-border); padding: 24px 0; max-width: 65ch; }
     .entry-card h2 { font: 600 1.4rem/1.2 "Space Grotesk", system-ui, sans-serif; margin: 0 0 8px; }
     .entry-card p { line-height: 1.6; margin: 0 0 16px; }
+    .entry-actions { display: flex; flex-wrap: wrap; gap: 12px; }
     .entry-links { display: flex; flex-wrap: wrap; gap: 8px 24px; border-top: 1px solid var(--color-border); padding-top: 16px; max-width: 65ch; }
     .entry-links a { font-weight: 600; }
     :focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
