@@ -8,10 +8,11 @@ import {
   type DeliveryRunList,
 } from "../lib/delivery-runs-contract";
 import { focusStoredRecord } from "./record-anchor";
+import { unconfirmedReleaseCopy } from "../lib/delivery-copy";
 import "./delivery-runs-page.css";
 
 const liveSchemaMessage =
-  "The live source could not be re-read from this page. That does not contradict or confirm the receipt.";
+  "The live source could not be checked from this page. The receipt’s release claim remains unconfirmed by this check.";
 
 function instant(value: string): Date | null {
   const normalised = value.endsWith("Z") ? value : `${value}Z`;
@@ -59,8 +60,7 @@ function LiveComparison({
   if (!run.releasePerformed)
     return (
       <p className="dr-live" data-state="none">
-        This receipt makes no release claim. Nothing was uploaded, so there is
-        no production result to compare.
+        {unconfirmedReleaseCopy(run.receipt.release.attempted)}
       </p>
     );
   if (liveError)
@@ -126,13 +126,15 @@ function RunDetail({
               {run.runId ?? run.runUrl}
             </a>
           ) : (
-            (run.runId ?? (run.runner === "local" ? "Local session" : "No run id recorded"))
+            (run.runId ??
+            (run.runner === "local" ? "Local session" : "No run id recorded"))
           )}
         </p>
       </header>
       {run.state !== "passed" && run.receipt.error && (
         <p className="dr-error" role="alert">
-          <strong>{run.receipt.error.code}</strong> — {run.receipt.error.message}
+          <strong>{run.receipt.error.code}</strong> —{" "}
+          {run.receipt.error.message}
         </p>
       )}
       <dl className="dr-facts">
@@ -146,8 +148,8 @@ function RunDetail({
         <div>
           <dt>Target</dt>
           <dd>
-            {run.worker ?? "No Worker"} · {run.environment ?? "no environment"} ·{" "}
-            {run.origin ?? "no origin"}
+            {run.worker ?? "No Worker"} · {run.environment ?? "no environment"}{" "}
+            · {run.origin ?? "no origin"}
           </dd>
         </div>
         <div>
@@ -179,9 +181,7 @@ function RunDetail({
             {run.artefactDigest
               ? `${run.artefactDigest} · ${run.artefactFiles ?? 0} files`
               : "No build artefact was recorded"}
-            {run.candidateDigest
-              ? ` · candidate ${run.candidateDigest}`
-              : ""}
+            {run.candidateDigest ? ` · candidate ${run.candidateDigest}` : ""}
           </dd>
         </div>
         <div>
@@ -189,7 +189,7 @@ function RunDetail({
           <dd>
             {run.receipt.approval.binding
               ? `${run.receipt.approval.binding.sourceCommit.slice(0, 12)} · ${run.receipt.approval.binding.target.worker} · ${run.receipt.approval.binding.target.environment} · ${run.receipt.approval.binding.candidateDigest}`
-              : "No candidate receipt was bound; the explicit release flag was the approval"}
+              : "No candidate receipt was bound"}
           </dd>
         </div>
         <div>
@@ -220,9 +220,11 @@ function RunDetail({
         </div>
       </dl>
       <LiveComparison run={run} liveCommit={liveCommit} liveError={liveError} />
-      <p className="dr-next">{run.receipt.nextAction ?? "No next action recorded."}</p>
+      <p className="dr-next">
+        {run.receipt.nextAction ?? "No next action recorded."}
+      </p>
       <details className="dr-bounded">
-        <summary>Inspect the bounded receipt</summary>
+        <summary>View receipt details</summary>
         <pre>{JSON.stringify(run.receipt, null, 2)}</pre>
       </details>
     </article>
@@ -295,7 +297,10 @@ export function DeliveryRunsPage() {
         });
         if (!response.ok) throw new Error("unavailable");
         const body = (await response.json()) as { commit?: unknown };
-        if (typeof body.commit !== "string" || !/^[a-f0-9]{40}$/.test(body.commit))
+        if (
+          typeof body.commit !== "string" ||
+          !/^[a-f0-9]{40}$/.test(body.commit)
+        )
           throw new Error("unavailable");
         if (!controller.signal.aborted) setLiveCommit(body.commit);
       } catch {
@@ -320,7 +325,9 @@ export function DeliveryRunsPage() {
 
   async function record() {
     if (!importText.trim()) {
-      setImportState("Paste or open the receipt file written by the delivery journey first.");
+      setImportState(
+        "Paste or open the receipt file written by the delivery journey first.",
+      );
       return;
     }
     let receipt: unknown;
@@ -351,8 +358,8 @@ export function DeliveryRunsPage() {
       setGeneration((value) => value + 1);
       setImportState(
         parsed.created === false
-          ? "That exact receipt was already recorded. The existing row was kept."
-          : "Receipt recorded. Recording is evidence only; it is not release approval or a live verification.",
+          ? "This receipt was already recorded. The existing record was kept."
+          : "Receipt recorded. It does not approve a release or verify what is live.",
       );
     } catch {
       setImportState(
@@ -367,7 +374,9 @@ export function DeliveryRunsPage() {
     if (!file) return;
     try {
       setImportText(await file.text());
-      setImportState("Receipt loaded from the selected file. Review it, then record it.");
+      setImportState(
+        "Receipt loaded from the selected file. Review it, then record it.",
+      );
     } catch {
       setImportState("That file could not be read. Nothing was recorded.");
     }
@@ -378,13 +387,18 @@ export function DeliveryRunsPage() {
       <header>
         <h1 id="delivery-title">Delivery runs</h1>
         <p>
-          Record what a local session or an existing runner actually ran, then
-          compare a release claim with the live source.
+          Record the checks and releases from a local session or existing
+          runner. You can compare a recorded release with the live source.
         </p>
-        <p>Composer production · administrator-only · evidence, not approval</p>
+        <p>
+          Composer production · administrators only · records do not approve
+          releases
+        </p>
       </header>
 
-      {!report && !error && <p role="status">Loading recorded delivery runs…</p>}
+      {!report && !error && (
+        <p role="status">Loading recorded delivery runs…</p>
+      )}
       {error && (
         <div role="alert" className="dr-alert">
           <p>{error}</p>
@@ -410,8 +424,8 @@ export function DeliveryRunsPage() {
           <h2 id="dr-empty-title">No delivery run recorded yet</h2>
           <p>
             Run the journey on your machine or through your existing runner,
-            then record its printed receipt here. The receipt is bounded and
-            contains no tokens or command output.
+            then record its printed receipt here. The receipt contains no tokens
+            or command output.
           </p>
           <pre>
             node scripts/delivery-journey.mjs --candidate --receipt
@@ -482,7 +496,9 @@ export function DeliveryRunsPage() {
                   <span className="dr-item-runner">
                     {runnerLabels[run.runner]}
                   </span>
-                  <span className="dr-item-mode">{deliveryLabels[run.mode]}</span>
+                  <span className="dr-item-mode">
+                    {deliveryLabels[run.mode]}
+                  </span>
                   <StateChip state={run.state} />
                   <span className="dr-item-commit">
                     {run.commit ? run.commit.slice(0, 12) : "no commit"} ·{" "}
