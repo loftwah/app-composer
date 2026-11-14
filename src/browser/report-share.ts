@@ -34,7 +34,7 @@ if (payloadElement && statusNode) {
     nativeButton?.addEventListener("click", async () => {
       try {
         await navigator.share({ title: payload.title, text: payload.text, url: payload.url });
-        show("Shared. The report and its frozen values remain at this address.");
+        show("Share request handed to your device. The report and its frozen values remain at this address.");
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError")
           show("Share cancelled. The report is still here.");

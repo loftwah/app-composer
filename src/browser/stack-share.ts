@@ -129,7 +129,7 @@ for (const element of document.querySelectorAll<HTMLElement>('[data-stack-share]
     qrButton.hidden = false;
     qrButton.addEventListener('click', () => void use(async () => {
       save(await stackQrBlob(data.url), `${data.slug}-qr-code.png`);
-      report('Saved the QR code for the published address.');
+      report('QR code download requested for the published address.');
     }));
   }
   if (copyButton) {
@@ -157,7 +157,7 @@ for (const element of document.querySelectorAll<HTMLElement>('[data-stack-share]
         // Start the share sheet in the user gesture; the browser can always
         // share the publication URL, including when it cannot attach files.
         await navigator.share({title: data.title, text: data.description, url: currentAddress});
-        report('Shared the published stack link.');
+        report('Share request handed to your device for the published stack link.');
       } catch (error) {
         report(error instanceof DOMException && error.name === 'AbortError'
           ? 'Sharing cancelled.'
