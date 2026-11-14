@@ -41,12 +41,12 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
   <header class="tut-head">
     <p class="kicker">Media Studio · tutorial</p>
     <h1>Build and run your own media studio with App Composer</h1>
-    <p class="deck">The same recipe as the <a href="/media-studio">build article</a>, chapter by chapter. Each chapter says what you do, what your agent or the product does, what you should see, and how to recover if it goes wrong.</p>
+    <p class="deck">Follow the <a href="/media-studio">build article</a> step by step. Each chapter explains your part, your agent's part and what to check if something goes wrong.</p>
     <dl class="facts">
       <div><dt>You need</dt><dd>A Cloudflare account on Workers Paid and a supported agent. Fal.ai generation and provider rendering also need a funded fal.ai key.</dd></div>
       <div><dt>You do not need</dt><dd>Docker, Wrangler, manual migrations or a database seed. The agent performs the technical work.</dd></div>
       <div><dt>Cost</dt><dd>Hosting, storage and paid generation are separate costs. The two-project snapshot recorded US$1.6647; separate tests added US$0.50 and roughly US$1.08. An earlier Paper &amp; Light run recorded US$0.2035. These are historical figures, not current prices or an invoice-confirmed bill.</dd></div>
-      <div><dt>Time</dt><dd>An evening for a first build including account setup and the first render; minutes for later changes.</dd></div>
+      <div><dt>Time</dt><dd>Allow an evening for your first build, including account setup and a first render. Later changes may take minutes.</dd></div>
     </dl>
     <TutorialQuickStart guide={mediaStudioQuickStart} />
     <p><a href="/media-studio/direct">Direct scenes, sound and finished pieces with the creative field guide →</a></p>
@@ -59,45 +59,45 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
   </header>
 
   <section id="target" class="step">
+    <p class="kicker">01 · Understand the target app</p>
+    <h2>What you are actually building</h2>
     <dl class="roles">
       <div><dt>What you do</dt><dd>Decide what the studio is for and where its data will live.</dd></div>
       <div><dt>What the agent or product does</dt><dd>Composer holds the brief; the studio app owns the projects and media.</dd></div>
       <div><dt>What you should see</dt><dd>A clear answer about ownership before any account work.</dd></div>
     </dl>
-    <p class="kicker">01 · Understand the target app</p>
-    <h2>What you are actually building</h2>
     <div class="cols">
       <div>
         <p>You are building an independent media studio on Cloudflare. Its D1 database holds your projects and job records; its R2 bucket holds your media. The studio has its own source and release, separate from Composer.</p>
         <p>Composer helps you prepare the brief and open the studio. The studio uses external services for generation: this build uses Cloudflare Workers AI for stills and fal.ai for video, sound and provider renders.</p>
-        <p>What you own at the end: the source, the data, the media, the publication pages and the ability to change any of it.</p>
+        <p>You keep the source, data, media and publication pages, and can change the application yourself.</p>
       </div>
       <aside class="check">
         <h3>Checkpoint</h3>
-        <p>You can say where your projects will live (your Cloudflare account), where the media will live (your R2 bucket) and which vendor is paid for each kind of request. If any answer is "Composer", stop and read the specification again.</p>
+        <p>Check where the projects and media will live, and which provider charges for each request. In this build, projects live in the owner's Cloudflare account and media in its R2 bucket.</p>
       </aside>
     </div>
   </section>
 
   <section id="accounts" class="step">
+    <p class="kicker">02 · Accounts and the supported agent</p>
+    <h2>The parts only you can do</h2>
     <dl class="roles">
       <div><dt>What you do</dt><dd>Create or sign in to Cloudflare, fund fal.ai, start your agent.</dd></div>
       <div><dt>What the agent or product does</dt><dd>The agent prepares the technical environment; it never creates accounts or spends for you.</dd></div>
       <div><dt>What you should see</dt><dd>A funded provider balance and an agent that can run commands.</dd></div>
     </dl>
-    <p class="kicker">02 · Accounts and the supported agent</p>
-    <h2>The parts only you can do</h2>
     <div class="cols">
       <div>
-        <p>Agents should not create accounts, accept terms or spend money on your behalf. You do these once:</p>
+        <p>You control account creation, terms and spending. Start by:</p>
         <ul>
           <li>Create or sign in to your Cloudflare account and confirm Workers Paid with Containers if you intend to use the Oyster route. The independent studio itself needs Workers Paid and Workers AI.</li>
-          <li>Create a fal.ai account and add credit. Video, sound and assembly all bill there.</li>
+          <li>Create a fal.ai account and add credit. Fal-backed video, sound and provider assembly bill there.</li>
           <li>Start a supported agent (for example a coding agent with terminal access) in an empty project directory and connect it to Composer's Get Ready.</li>
         </ul>
         <p>Ask the agent to check the environment first; do not hand it the build brief yet:</p>
         <pre><code>Check this machine and my connected accounts with App Composer's Get Ready. Do not create or deploy anything yet. Tell me what is missing, then wait while I handle sign-in or billing.</code></pre>
-        <p>The saved brief and pinned source arrive in chapter 05, after you have chosen them in Init. Sending them before they exist is the ordering mistake this tutorial previously made.</p>
+        <p>You'll choose the brief and pinned source in Init, then hand them to your agent in chapter 05.</p>
         <p>You handle account creation, sign-in and spending decisions. Your agent can prepare the repository, configure the app, run migrations and deploy it. Keep secrets out of chat, screenshots and source files; enter them through the provider’s secret storage.</p>
       </div>
       <aside class="check">
@@ -110,18 +110,18 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
   </section>
 
   <section id="ready" class="step">
+    <p class="kicker">03 · Get Ready</p>
+    <h2>Check the machine before building</h2>
     <dl class="roles">
       <div><dt>What you do</dt><dd>Run Get Ready and read the report.</dd></div>
       <div><dt>What the agent or product does</dt><dd>Checks the runtime, package manager, repository tools and accounts.</dd></div>
       <div><dt>What you should see</dt><dd>Every check named, with a real pass or fail.</dd></div>
     </dl>
-    <p class="kicker">03 · Get Ready</p>
-    <h2>Check the machine before building</h2>
     <div class="cols">
       <div>
-        <p><a href="/init">Init</a> includes Get Ready. It checks the local runtime, the package manager, the repository tools and the accounts your agent will use. It reports what is missing rather than pretending a tool exists.</p>
+        <p><a href="/init">Init</a> includes Get Ready. It checks the local runtime, package manager, repository tools and accounts your agent needs, then reports anything missing.</p>
         <p>Read the result before continuing. If your Node version is unsupported, install a supported version and run the check again.</p>
-        <p class="small">Get Ready is not a subscription and it provisions nothing in your cloud account.</p>
+        <p class="small">Get Ready does not create resources in your cloud account or require a subscription.</p>
       </div>
       <aside class="check">
         <h3>What you should see</h3>
@@ -133,25 +133,25 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
   </section>
 
   <section id="init" class="step">
+    <p class="kicker">04 · Choose Media Studio in Init</p>
+    <h2>The brief</h2>
     <dl class="roles">
       <div><dt>What you do</dt><dd>Choose Media Studio, set the defaults, write the brief.</dd></div>
       <div><dt>What the agent or product does</dt><dd>Validates the draft and builds a portable specification.</dd></div>
       <div><dt>What you should see</dt><dd>A live preview and a spec panel that updates with your choices.</dd></div>
     </dl>
-    <p class="kicker">04 · Choose Media Studio in Init</p>
-    <h2>The brief</h2>
     <div class="cols">
       <div>
         <p>Open <a href="/init?start=media-studio">Init → Media Studio</a>, then choose what the studio should make, the still and video models, the default frame and clip length, and the sound model and bed length. Name the project. None of this buys anything.</p>
         <p>Write the intent in your own words. The sentence used for this build:</p>
         <pre><code>{promptBrief}</code></pre>
-        <p>The saved specification is portable and validated. Revision 2 carries the sound defaults; revision 1 drafts still load.</p>
+        <p>The exported specification carries your choices. Revision 2 includes sound defaults, and revision 1 drafts still load.</p>
       </div>
       <aside class="check">
         <h3>What you should see</h3>
         <p>The Media Studio fieldset with default values, a live preview, and a "Portable specification" panel that updates as you change your choices.</p>
         <h3>Recover</h3>
-        <p>If a value is rejected, the form tells you which field and why. Fix it there: the specification fails closed rather than shipping an unsupported model id.</p>
+        <p>If the form rejects a value, it identifies the field. Correct it before exporting; unsupported model IDs are not accepted.</p>
       </aside>
     </div>
     <figure class="figure">
@@ -161,13 +161,13 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
   </section>
 
   <section id="handoff" class="step">
+    <p class="kicker">05 · Save and hand off the brief</p>
+    <h2>Make the contract portable</h2>
     <dl class="roles">
       <div><dt>What you do</dt><dd>Save the draft, export the spec, copy the agent handoff.</dd></div>
       <div><dt>What the agent or product does</dt><dd>Pins the source commit and lists the bindings, build plan and human-only actions.</dd></div>
       <div><dt>What you should see</dt><dd>A JSON file that round-trips, and a handoff naming an exact commit.</dd></div>
     </dl>
-    <p class="kicker">05 · Save and hand off the brief</p>
-    <h2>Make the contract portable</h2>
     <div class="cols">
       <div>
         <p>Save the draft, download the specification, and copy the agent handoff. The handoff pins the studio repository and commit, names the storage and secret bindings, states the build plan and separates the human-only actions from the technical ones.</p>
@@ -186,17 +186,17 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
   </section>
 
   <section id="build" class="step">
+    <p class="kicker">06 · The agent builds and deploys</p>
+    <h2>Owner-controlled work</h2>
     <dl class="roles">
       <div><dt>What you do</dt><dd>Approve the one account step only you can do.</dd></div>
       <div><dt>What the agent or product does</dt><dd>Creates your copy, applies migrations in order, sets secrets, deploys and reads back the revision.</dd></div>
       <div><dt>What you should see</dt><dd>A live /healthz that returns the commit your agent shipped.</dd></div>
     </dl>
-    <p class="kicker">06 · The agent builds and deploys</p>
-    <h2>Owner-controlled work</h2>
     <div class="cols">
       <div>
         <p>Your agent creates your copy of the studio, applies every migration in order, sets the secrets, deploys and reads back the live revision. On this run the release script refused a dirty tree, checked the pinned source, ran the focused tests, deployed, then compared <code>/healthz</code> to the commit it had shipped.</p>
-        <p>Two things to watch, because they are where real builds fail:</p>
+        <p>Two details caused problems during this build:</p>
         <ul>
           <li><strong>Migrations are ordered and data-preserving.</strong> The audio release rebuilds two tables to widen a constraint; it copies every row and restores parent links in a second pass, because the production database enforces foreign keys.</li>
           <li><strong>The handoff expiry must match units.</strong> Composer mints a short-lived token; the studio compares milliseconds. A mismatch rejects a correct handoff as expired. Both sides now normalise.</li>
@@ -206,26 +206,26 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
         <h3>What you should see</h3>
         <p><code>/healthz</code> returning your exact commit, and the studio's login page offering the Composer route rather than only a passphrase.</p>
         <h3>Recover</h3>
-        <p><strong>Deploy refused:</strong> read the refusal — dirty tree, wrong branch, unpushed commit, or a manifest that does not match the repository you are deploying from. Fix that, not the checks.</p>
+        <p><strong>Deploy refused:</strong> read the message. It may identify a dirty tree, wrong branch, unpushed commit or a manifest that does not match the repository. Fix the reported problem and retry.</p>
         <p><strong>Foreign key error in a migration:</strong> do not delete data to get past it. Rebuild the parent first, then the children, then drop the old parent.</p>
       </aside>
     </div>
   </section>
 
   <section id="enter" class="step">
+    <p class="kicker">07 · Enter through Composer</p>
+    <h2>No second password</h2>
     <dl class="roles">
       <div><dt>What you do</dt><dd>Open the studio from the Composer menu.</dd></div>
       <div><dt>What the agent or product does</dt><dd>Exchanges the EmDash session for a short-lived studio handoff.</dd></div>
       <div><dt>What you should see</dt><dd>Your projects, and private routes that return 401 signed out.</dd></div>
     </dl>
-    <p class="kicker">07 · Enter through Composer</p>
-    <h2>No second password</h2>
     <div class="cols">
       <div>
         <p>Open the studio from the Composer menu or <a href="/media-studio/studio">Open your studio</a>. Composer passes your workspace, selected project and permitted actions to the studio through a short-lived handoff. The studio creates its own project-scoped session; your browser does not receive the studio owner passphrase or provider keys.</p>
         <p><strong>Email and passkeys:</strong> our selected sign-in improvement uses Cloudflare Access's native email codes and passkeys. Account binding and the live login rollout are still being completed; use this installation's existing sign-in method until the new options are enabled. The <a href="https://github.com/loftwah/app-composer/blob/main/docs/cloudflare-access-oyster.md">integration brief</a> explains setup and recovery. No Pocket ID server or Tailscale installation is required.</p>
         <p>Signing in is not the same as being granted a resource. Read, edit, generate, publish and admin are separate. The studio re-checks the current Composer grant on the server before a privileged action, so revoking a member stops the next dispatch even if their tab is still open. A signed-out request to a private route returns 401; a signed-in account without the grant gets a clear denied page, not a hidden menu item.</p>
-        <p>Standalone use still exists behind the owner passphrase, because the studio is an ordinary independent app. It is simply not the way you arrive from Composer.</p>
+        <p>You can also use the independent studio directly with its owner passphrase. The Composer route does not need that second sign-in.</p>
       </div>
       <aside class="check">
         <h3>What you should see</h3>
@@ -241,13 +241,13 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
   </section>
 
   <section id="make" class="step">
+    <p class="kicker">08 · Create and edit video and sound</p>
+    <h2>Make one real thing at a time</h2>
     <dl class="roles">
       <div><dt>What you do</dt><dd>Pick a model, write the direction, confirm the estimate.</dd></div>
       <div><dt>What the agent or product does</dt><dd>Sends the request and saves the result with its source and estimated cost.</dd></div>
       <div><dt>What you should see</dt><dd>A saved still, clip or sound file. Audio shows a waveform and its duration.</dd></div>
     </dl>
-    <p class="kicker">08 · Create and edit video and sound</p>
-    <h2>Make one real thing at a time</h2>
     <div class="cols">
       <div>
         <p>Upload something first. An image, a clip and a piece of sound all land in the same project with real dimensions, duration and hashes. Then, in <strong>Create</strong>:</p>
@@ -258,7 +258,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
           <li>For sound, choose <strong>Make sound</strong>, pick Studio Score, Studio Voice or Studio Effect, write the direction and choose a length.</li>
         </ol>
         <pre><code>{promptSound}</code></pre>
-        <p>The finished sound is saved as audio, not attached to a video: duration, sample rate, channels and provenance are recorded, and the waveform is drawn from the decoded file.</p>
+        <p>The sound is saved as its own asset. Its duration, sample rate, channels and source are recorded, and its waveform comes from the decoded file.</p>
       </div>
       <aside class="check">
         <h3>What you should see</h3>
@@ -280,13 +280,13 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
   </section>
 
   <section id="publish" class="step">
+    <p class="kicker">09 · Assemble, export and publish</p>
+    <h2>Assemble and share your cut</h2>
     <dl class="roles">
       <div><dt>What you do</dt><dd>Order the takes, add the bed, render, then publish deliberately.</dd></div>
       <div><dt>What the agent or product does</dt><dd>For a provider render, creates short-lived file links and saves a successful result to your bucket.</dd></div>
       <div><dt>What you should see</dt><dd>An assembled MP4 with real duration and take count; a public page that loads signed out.</dd></div>
     </dl>
-    <p class="kicker">09 · Assemble, export and publish</p>
-    <h2>The cut is the product</h2>
     <div class="cols">
       <div>
         <p>Open <strong>Assemble</strong>. Add two to six saved takes in order, add up to four saved music, narration or effect tracks, set trim, gain and fades, and mix the soundtrack. The browser makes a new WAV mix and keeps the separate tracks and their settings. Save the storyboard to keep editing it later; earlier renders stay attached.</p>
@@ -319,13 +319,13 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
   </section>
 
   <section id="return" class="step">
+    <p class="kicker">10 · Return and change it</p>
+    <h2>Make a change and check it</h2>
     <dl class="roles">
       <div><dt>What you do</dt><dd>Ask for a change you actually want.</dd></div>
       <div><dt>What the agent or product does</dt><dd>The same agent changes the same application and releases it.</dd></div>
       <div><dt>What you should see</dt><dd>The new behaviour, with earlier projects, cuts and renders still there.</dd></div>
     </dl>
-    <p class="kicker">10 · Return and change it</p>
-    <h2>The part that makes it yours</h2>
     <div class="cols">
       <div>
         <p>Come back with a real annoyance, not a rename. In this run it was two: the Assemble tab could not see saved storyboards, and the audio bed was always thirty seconds. The agent changed the same application, the release shipped, and the projects stayed put.</p>
@@ -355,7 +355,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
   <section id="film" class="step">
     <p class="kicker">Illustrated walkthrough</p>
     <h2>Watch the walkthrough</h2>
-    <p>The chaptered film uses Studio and Composer screen images and title cards to explain this tutorial. It does not by itself establish a live interaction or provider request. Captions are available in the player, and the transcript lists the chapters.</p>
+    <p>The chaptered film explains the tutorial with Studio and Composer screenshots and title cards. It is an illustrated guide, not a recording of every live interaction or provider request. The player has captions and the transcript lists the chapters.</p>
     <video controls preload="none" poster="/media-studio/watch/walkthrough-poster.jpg" width="1440" height="900">
       <source src="/media-studio/watch/walkthrough.mp4" type="video/mp4" />
       <track kind="captions" src="/media-studio/watch/walkthrough.vtt" srclang="en" label="English captions" default />
@@ -447,7 +447,7 @@ curl -s -o /dev/null -w '%&#123;http_code&#125;\n' https://your-studio.example/a
   .jump a{font:600 .72rem/1.3 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line,rgba(255,255,255,.22));padding:10px 12px;min-height:40px;display:inline-flex;align-items:center}
   .step{margin-top:52px;padding-top:30px;border-top:1px solid var(--line,rgba(255,255,255,.16))}
   .cols{display:grid;grid-template-columns:1.12fr .88fr;gap:36px;align-items:start}
-  .roles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 22px;border-top:1px solid var(--line,rgba(255,255,255,.16));border-bottom:1px solid var(--line,rgba(255,255,255,.16));padding:14px 0}
+  .roles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0 24px;border-top:1px solid var(--line,rgba(255,255,255,.16));border-bottom:1px solid var(--line,rgba(255,255,255,.16));padding:14px 0}
   .roles dt{font:600 .62rem/1.4 ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--accent,#ff5a1f);margin-bottom:5px}
   .roles dd{margin:0;font-size:.86rem;line-height:1.5;color:var(--muted,#b9b2a8)}
   .tut p,.tut li{font-size:1rem;line-height:1.65}
