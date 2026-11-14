@@ -269,7 +269,9 @@ url.searchParams.set("s", signature);`}</code></pre>
       <img src={brandShare} width="1200" height="630" alt="Share card: a paper-cut studio desk with a film strip, waveform, camera and orange ring, titled Build your own media studio with the App Composer mark." loading="lazy" />
       <figcaption>The 1200×630 share card used by this article and the catalogue. The illustration is the selected masked edit; the title, rule, URL and mark were added during finishing.</figcaption>
     </figure>
-    <div class="table-wrap">
+    <details class="production-details">
+      <summary>See how this artwork was made</summary>
+      <div class="table-wrap">
       <table>
         <caption>Estimated request amounts and the real chain for this page, 2026/11/14 Australia/Melbourne (AEDT, UTC+11). Hashes are SHA-256 of the retained bytes; the studio holds the full records.</caption>
         <thead><tr><th scope="col">Step</th><th scope="col">Route and setting</th><th scope="col">Retained result</th></tr></thead>
@@ -285,7 +287,8 @@ url.searchParams.set("s", signature);`}</code></pre>
         </tbody>
         <tfoot><tr><th scope="row">This project</th><td>Historical studio requests</td><td>US$0.363 + US$0.50 for the separate 720p slate test</td></tr></tfoot>
       </table>
-    </div>
+      </div>
+    </details>
     <figure class="figure pair">
       <div>
         <img src={brandMask} width="1280" height="720" alt="The mask: a white ellipse on black over the empty upper-right panel, with the rest of the illustration preserved." loading="lazy" />
@@ -301,7 +304,8 @@ url.searchParams.set("s", signature);`}</code></pre>
         <source src="/media-studio/watch/brand-916-motion.mp4" type="video/mp4" />
         <a href={brandMotion}>Download the 9:16 motion</a>
       </video>
-      <figcaption>720×1280, 5.875 s, SAR 1:1, DAR 9:16, −16.5 LUFS integrated with a −5.2 dBFS true peak. The motion is generated promotional artwork, not a product screen recording. The title, mark and frame are deterministic overlays; the label says so in the file. The first, quieter audio mix is retained in the project and superseded by this version.</figcaption>
+      <figcaption>We animated the finished artwork and added a sound bed, title and mark. This short film is promotional artwork; the walkthrough above shows the Studio interface.</figcaption>
+      <details class="production-details"><summary>Film details</summary><p>720×1280, 5.875 seconds, 9:16; −16.5 LUFS integrated, −5.2 dBFS true peak. The title, mark and frame were added during finishing. The earlier, quieter mix is retained in the project.</p></details>
     </figure>
     <p class="small">Full-quality originals and derivatives: <a href={brandStill}>original still</a>, <a href={brandEdit}>selected edit</a>, <a href={brandMask}>mask</a>, <a href="/media-studio/brand/brand-motion-master-20261114.mp4">generated motion master</a>, <a href={brandShare}>share card</a>, <a href={brandSquare}>square</a>, <a href={brandPortrait}>portrait</a>, <a href={brandMotion}>9:16 motion</a>. The studio also keeps the job records, provider request IDs, model settings and lineage; the public files do not carry prompts or credentials.</p>
     <p>The artwork illustrates this article; the product captures show the application itself. The studio did not generate its screenshots, and a model used in another project is not evidence that the same endpoint works here.</p>
@@ -524,6 +528,9 @@ url.searchParams.set("s", signature);`}</code></pre>
   .figure.pair>div{display:flex;flex-direction:column}
   .figure.pair img{height:auto;object-fit:contain}
   .figure.pair figcaption{margin-top:auto;padding-top:10px}
+  .production-details{margin:24px 0;color:var(--color-muted)}
+  .production-details summary{cursor:pointer;color:var(--color-foreground);font-weight:600}
+  .production-details p{margin-top:12px}
   .table-wrap{overflow-x:auto;margin:24px 0 30px}
   table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:560px}
   caption{text-align:left;font-size:.78rem;color:var(--muted,#b9b2a8);padding-bottom:10px}
