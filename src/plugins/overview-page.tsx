@@ -20,6 +20,7 @@ import {
   attentionView,
   beginRecheck,
   settleRecheck,
+  sourceRecheckResult,
   type RecheckState,
   type SourceId,
 } from "../lib/overview-attention";
@@ -66,8 +67,7 @@ export function Overview({ search }: { search: string }) {
     pending.current = true;
     setBusy(true);
     setError("");
-    if (source)
-      setRecheck(beginRecheck(source, new Date().toISOString()));
+    if (source) setRecheck(beginRecheck(source, new Date().toISOString()));
     try {
       const params = new URLSearchParams({
         action: source ? "recheck" : "list",
@@ -112,17 +112,11 @@ export function Overview({ search }: { search: string }) {
         const checked = next.sources.find((entry) => entry.id === source);
         setRecheck(
           settleRecheck(beginRecheck(source, next.checkedAt), {
-            ok: true,
+            ...sourceRecheckResult(
+              checked,
+              utcTime(next.rechecked?.at ?? next.checkedAt),
+            ),
             at: next.rechecked?.at ?? next.checkedAt,
-            message:
-              (checked?.label ?? source) +
-              " rechecked. " +
-              (checked?.count ?? 0) +
-              " retained problem record" +
-              ((checked?.count ?? 0) === 1 ? "" : "s") +
-              ", read " +
-              utcTime(next.rechecked?.at ?? next.checkedAt) +
-              ".",
           }),
         );
       }
@@ -165,7 +159,10 @@ export function Overview({ search }: { search: string }) {
     // The parent remounts this component when the URL search changes.
   }, []);
 
-  function changeScope(key: "workspace" | "environment" | "app", value: string) {
+  function changeScope(
+    key: "workspace" | "environment" | "app",
+    value: string,
+  ) {
     if (!snapshot) return;
     const current: ConfirmedScope = {
       workspace: snapshot.workspace.id,
@@ -210,13 +207,16 @@ export function Overview({ search }: { search: string }) {
       <header className="co-heading">
         <div>
           <h1>Needs attention</h1>
-          <p>Problems this scope retained, with the record behind each one.</p>
+          <p>
+            See saved problems for your workspace and open the record behind
+            each one.
+          </p>
         </div>
       </header>
 
       {!snapshot && !error && (
         <p className="co-status" role="status">
-          Reading this scope’s retained records…
+          Checking saved records…
         </p>
       )}
       {error && (
@@ -235,8 +235,8 @@ export function Overview({ search }: { search: string }) {
         <div className="co-error" role="alert">
           <p>
             <strong>{recheckLabel(recheck.source)} recheck failed.</strong>{" "}
-            {recheck.message} The previous result is still shown and was not
-            replaced.
+            {recheck.message} Check the source again or open its screen for
+            details.
           </p>
           <button
             type="button"
@@ -263,9 +263,7 @@ export function Overview({ search }: { search: string }) {
               <p className="co-meta">
                 {view.leader.count} retained{" "}
                 {view.leader.count === 1 ? "record" : "records"} ·{" "}
-                {view.leader.app
-                  ? appLabel(view.leader.app)
-                  : "Workspace-wide"}{" "}
+                {view.leader.app ? appLabel(view.leader.app) : "Workspace-wide"}{" "}
                 · latest {utcTime(view.leader.lastObserved)}
               </p>
               <div className="co-actions">
@@ -314,9 +312,9 @@ export function Overview({ search }: { search: string }) {
               <p className="co-kicker">Next</p>
               <h2 id="co-next-title">{blockedLabel} could not be read</h2>
               <p>
-                No retained problem is shown from the sources that answered.
-                Unavailable is not zero: retry this read or open its owning
-                screen.
+                The sources that answered reported no saved problems. This
+                source could not be read, so its result is unknown. Try again or
+                open its screen.
               </p>
               <div className="co-actions">
                 <button
@@ -336,7 +334,7 @@ export function Overview({ search }: { search: string }) {
                     scope,
                   )}
                 >
-                  Open the owning screen
+                  Open its screen
                 </a>
               </div>
               {nextScope}
@@ -344,10 +342,13 @@ export function Overview({ search }: { search: string }) {
           ) : (
             <section className="co-next" aria-labelledby="co-next-title">
               <p className="co-kicker">Next</p>
-              <h2 id="co-next-title">No retained problem in this scope</h2>
+              <h2 id="co-next-title">
+                No saved problems in the checked sources
+              </h2>
               <p>
                 {checkedCount} of {snapshot.sources.length} sources answered.
-                Check again before treating this as a clean bill of health.
+                This covers saved records only and does not confirm that your
+                services are healthy.
               </p>
               <div className="co-actions">
                 <button
@@ -504,18 +505,19 @@ export function Overview({ search }: { search: string }) {
               ))}
             </dl>
             <p className="co-muted">
-              Read {adminTime(snapshot.checkedAt)}. This reads supported stored
-              platform, workflow, resource, notification and release-receipt
-              records only. It sends no mail, performs no recovery and checks no
-              provider health, enquiry count, order, connection expiry or
-              backup. Sample workflow runs are excluded.
+              Read {adminTime(snapshot.checkedAt)}. This checks supported saved
+              platform, workflow, resource, order, notification, release and
+              plugin-trust records. It does not contact providers, send mail or
+              perform recovery. It does not check provider health, current
+              payment status with a provider, enquiry totals, connection expiry
+              or backups. Sample workflow runs are excluded.
             </p>
           </details>
 
           {snapshot.selection.app && (
             <p className="co-muted">
-              App focus narrows the order, not the evidence: workspace-wide
-              records stay visible.{" "}
+              The selected app is shown first. Workspace-wide records stay
+              visible.{" "}
               <button
                 type="button"
                 className="co-link"

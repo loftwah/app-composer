@@ -89,3 +89,20 @@ export function settleRecheck(
     at: outcome.at,
   };
 }
+
+/** Only an actually checked source with a count can report a successful read. */
+export function sourceRecheckResult(
+  source: AttentionSource | undefined,
+  time: string,
+) {
+  if (!source || source.status !== "checked" || source.count === null) {
+    return {
+      ok: false,
+      message: source?.note || "This source could not be read.",
+    };
+  }
+  return {
+    ok: true,
+    message: `${source.label} rechecked. ${source.count} retained problem record${source.count === 1 ? "" : "s"}, read ${time}.`,
+  };
+}
