@@ -9,7 +9,7 @@ import {apps,appDetails} from '../../lib/apps';
 const {entry,error}=await getEmDashEntry('catalogue',Astro.params.slug!);
 if(error)Astro.response.status=503;
 else if(!entry)Astro.response.status=404;
-const title=error?'Mini-app temporarily unavailable':entry?entry.data.title:'Mini-app not found';
+const title=error?'Catalogue entry temporarily unavailable':entry?entry.data.title:'Catalogue entry not found';
 const description=error?'The published catalogue entry could not be loaded. The shipped app library remains available and unaffected.':entry?.data.description??'This catalogue address has no published mini-app contract.';
 // The published contract decides the title and route; the shipped library supplies
 // this app's own artwork, share card and a real screenshot when it already runs here.
@@ -21,18 +21,18 @@ const reviewed=entry?reviewLabel(entry.data.reviewed):null;
 {error ? (
  <>
   <a href="/catalogue">All mini-apps</a>
-  <h1>This mini-app is temporarily unavailable.</h1>
-  <p class="lede">EmDash could not load this published contract. The address is unchanged; nothing has been substituted in its place.</p>
+  <h1>This catalogue entry is temporarily unavailable.</h1>
+  <p class="lede">We couldn’t load this published catalogue entry. You can try the same address again.</p>
   <div class="actions"><a class="button" href={'/catalogue/'+Astro.params.slug}>Try this page again</a><a class="button secondary" href="/apps">Browse the shipped app library</a></div>
   <p class="small">The apps themselves are separate deployments and are unaffected by this catalogue outage.</p>
  </>
 ) : !entry ? (
  <>
   <a href="/catalogue">All mini-apps</a>
-  <h1>No mini-app exists at this address.</h1>
-  <p class="lede">The published catalogue has no contract for <code>{Astro.params.slug}</code>. It may have been renamed, or the link may be incomplete.</p>
+  <h1>No catalogue entry exists at this address.</h1>
+  <p class="lede">The catalogue has no published entry for <code>{Astro.params.slug}</code>. It may have been renamed, or the link may be incomplete.</p>
   <div class="actions"><a class="button" href="/catalogue">See every published mini-app</a><a class="button secondary" href="/apps">Browse the shipped app library</a></div>
-  <p class="small">The shipped library lists apps from this deployment’s own source, whether or not a catalogue contract has been published.</p>
+  <p class="small">The app library lists apps from this deployment’s source, including those without a published catalogue entry.</p>
  </>
 ) : (
  <>

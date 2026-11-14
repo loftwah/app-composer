@@ -6,17 +6,17 @@ import { ArrowRight } from '@lucide/astro';
 import { discoveryHubDescription, discoveryJobs, discoveryRoles } from '../lib/role-discovery';
 ---
 <Base title="App Composer for your next role or job" description={discoveryHubDescription}>
-  <header class="discovery-heading"><h1>What would you like to make?</h1><p>Choose the job in front of you, or start with the role you recognise. Every path opens a working example and one action you can take now.</p></header>
+  <header class="discovery-heading"><h1>What would you like to make?</h1><p>Choose a job or a role to find a working example and something you can try.</p></header>
   <DiscoveryModes />
   <div class="discovery-groups">
     <section id="jobs" class="discovery-group" aria-labelledby="jobs-heading">
-      <div class="group-heading"><h2 id="jobs-heading">Start with the job</h2><p>Seven jobs with a worked example, an honest support note and one action.</p></div>
+      <div class="group-heading"><h2 id="jobs-heading">Start with the job</h2><p>Each job has an example, a support note and an action you can take.</p></div>
       <nav class="choice-list" aria-label="Choose a job">
         {discoveryJobs.map((job) => <a href={'/jobs/' + job.id}><span class="choice-copy"><strong>{job.label}</strong><small>{job.headline}</small></span><ArrowRight size={17} aria-hidden="true" /></a>)}
       </nav>
     </section>
     <section id="roles" class="discovery-group" aria-labelledby="roles-heading">
-      <div class="group-heading"><h2 id="roles-heading">Or start with who you are</h2><p>Seven roles, including the WordPress, Shopify and Cloudflare team paths. Role names are starting points, not limits.</p></div>
+      <div class="group-heading"><h2 id="roles-heading">Or start with who you are</h2><p>Explore paths for seven roles, including WordPress, Shopify and Cloudflare teams. Choose whichever fits your work.</p></div>
       <nav class="choice-list" aria-label="Choose a role">
         {discoveryRoles.map((role) => <a href={'/for/' + role.id}><span class="choice-copy"><strong>{role.label}</strong><small>{role.headline}</small></span><ArrowRight size={17} aria-hidden="true" /></a>)}
       </nav>
