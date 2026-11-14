@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 import {
   manageMembers,
   memberIssuer as origin,
+  studioAccess,
 } from "../src/lib/member-access.ts";
 import { memberPlugin } from "../src/lib/member-plugin.ts";
 import { manageWorkspaceAccess } from "../src/lib/workspace-access.ts";
@@ -51,6 +52,7 @@ function fixture() {
     "0006_stack_resources.sql",
     "0008_workspace_access.sql",
     "0010_member_app_grants.sql",
+    "0028_media_studio_grants.sql",
   ])
     sqlite.exec(
       readFileSync(
@@ -829,6 +831,43 @@ test("actual dispatcher rejects a stale expected actor before create, grant, inv
     assert.equal(success.ok, true, JSON.stringify(success));
     assert.equal(success.actor.subject, a.id);
     assert.equal(appCalls, 1);
+  } finally {
+    f.close();
+  }
+});
+
+test("Media Studio grants expose only the current actions and revoke cleanly", async () => {
+  const f = fixture();
+  try {
+    f.add(a);
+    assert.deepEqual((await studioAccess(f.db, a, workspace)).actions, []);
+    assert.deepEqual((await studioAccess(f.db, owner, workspace)).actions, [
+      "read",
+      "edit",
+      "generate",
+      "publish",
+      "admin",
+    ]);
+    const read = await f.grant(a, "media-studio", "studio-installation", "read");
+    assert.equal(read.ok, true);
+    assert.deepEqual((await studioAccess(f.db, a, workspace)).actions, ["read"]);
+    await f.grant(a, "media-studio", "studio-installation", "generate");
+    assert.deepEqual((await studioAccess(f.db, a, workspace)).actions, [
+      "generate",
+      "read",
+    ]);
+    await f.revoke(a, "media-studio", "studio-installation", "generate");
+    assert.deepEqual((await studioAccess(f.db, a, workspace)).actions, ["read"]);
+    const wrong = await f.call(owner, {
+      action: "grant",
+      workspace,
+      expectedRevision: f.revision(),
+      member: a.id,
+      app: "media-studio",
+      resource: "another-project",
+      capability: "read",
+    });
+    assert.equal(wrong.code, "INVALID");
   } finally {
     f.close();
   }
