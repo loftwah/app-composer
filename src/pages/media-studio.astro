@@ -49,15 +49,15 @@ const capabilities = [
 ];
 
 const costs = [
-  ['Studio Score, 30 s', 'fal.ai `fal-ai/stable-audio`', 'US$0.015', 'Audio bed, saved'],
-  ['Studio Score, 17 s', 'same route, shorter request', 'US$0.0085', 'Bed that fits the cut'],
+  ['Studio Score, 30 s', 'fal.ai `fal-ai/stable-audio`', '1.5 US cents', 'Audio bed, saved'],
+  ['Studio Score, 17 s', 'same route, shorter request', '0.85 US cents', 'Bed that fits the cut'],
   ['Studio Voice, 40 s', 'fal.ai `fal-ai/elevenlabs/tts/eleven-v3`', 'US$0.06', 'Overview narration'],
   ['Studio Voice, 23.25 s', 'same route', 'US$0.06', 'Narration asset, measured from the saved file'],
   ['Assembly, two earlier renders', 'fal.ai `fal-ai/ffmpeg-api/compose`', 'US$0.04 est.', '30 s and 17 s masters kept; the route now refuses new jobs'],
-  ['Brand still, 1280×720', 'Workers AI `@cf/leonardo/lucid-origin`', 'US$0.025', 'Original editorial illustration'],
+  ['Brand still, 1280×720', 'Workers AI `@cf/leonardo/lucid-origin`', '2.5 US cents', 'Original editorial illustration'],
   ['Masked fill, 1280×704', 'fal.ai `fal-ai/flux-pro/v1/fill`', 'US$0.05 est.', 'Signal ring; original, mask and result kept'],
-  ['Cutout and upscale', 'BiRefNet + Clarity Upscaler', 'US$0.022 est.', 'Two saved variants of the selected edit'],
-  ['Studio Effect, 5 s', 'fal.ai `fal-ai/elevenlabs/sound-effects/v2`', 'US$0.008', 'Sound bed for the motion cut'],
+  ['Cutout and upscale', 'BiRefNet + Clarity Upscaler', '2.2 US cents est.', 'Two saved variants of the selected edit'],
+  ['Studio Effect, 5 s', 'fal.ai `fal-ai/elevenlabs/sound-effects/v2`', '0.8 US cents', 'Sound bed for the motion cut'],
   ['Brand motion, 5.875 s', 'fal.ai Hailuo 2.3 Standard', 'US$0.28', 'Generated promotional motion'],
   ['9:16 slate video, 5 s', 'fal.ai Wan 2.5 720p, direct test', 'US$0.50', 'Saved and reused as the vertical opening'],
   ['9:16 deterministic finish', 'local ffmpeg, no new inference', 'US$0', '720×1280, 17.79 s, SAR 1:1, DAR 9:16'],
@@ -98,15 +98,12 @@ const costs = [
     <div class="art-hero-copy">
       <p class="kicker">Build log · Media Studio</p>
       <h1>Building an open-source AI media studio with App Composer</h1>
-      <p class="deck">I described a studio I wanted to own. Get Ready checked the machine, Init wrote a specification I could read, and my agent built and deployed it as its own Cloudflare application. This is what it does, how it is put together, what we estimated spending, and how the studio then made the artwork and vertical motion on this page.</p>
+      <p class="deck">I wanted a place to make images, video and sound, and keep the work in an app I own. So I described it in App Composer and built Media Studio with an agent. Here’s what we made with it, how it came together and what it cost to try.</p>
       <div class="row">
-        <a class="button" href="/media-studio/studio">Open your studio</a>
-        <a class="button secondary" href="/init?start=media-studio">Build your studio</a>
-        <a class="quiet-link" href="#from-share">See the Fighter artwork</a>
-        <a class="quiet-link" href="#why">Read the story</a>
-        <a class="quiet-link" href="https://media.loftwah.com/p/Na9FNUB_VhzZ7zA9">Open the assembled example</a>
+        <a class="button" href="https://media.loftwah.com/gallery">Explore the gallery</a>
+        <a class="button secondary" href="/init?start=media-studio">Build your own studio</a>
       </div>
-      <p class="meta">2026/11/14 · Australia/Melbourne (AEDT, UTC+11) · App Composer + an independent MIT studio</p>
+      <p class="meta">14 November 2026 · App Composer + Media Studio</p>
     </div>
     <figure class="art-hero-figure">
       <img src={hero} width="1600" height="1000" alt="The Media Studio library for the Paper & Light project: an assembled 17-second cut, two sound assets drawn as waveforms, and three saved takes." loading="eager" />
@@ -283,15 +280,15 @@ url.searchParams.set("s", signature);`}</code></pre>
         <thead><tr><th scope="col">Step</th><th scope="col">Route and setting</th><th scope="col">Retained result</th></tr></thead>
         <tbody>
           <tr><th scope="row">Brief</th><td>Studio project “App Composer — studio launch artwork”</td><td>Private project with creative direction and references</td></tr>
-          <tr><th scope="row">Original still</th><td>Workers AI <code>@cf/leonardo/lucid-origin</code>, wide 1280×720</td><td><code>d88505518eec…</code> · US$0.025</td></tr>
+          <tr><th scope="row">Original still</th><td>Workers AI <code>@cf/leonardo/lucid-origin</code>, wide 1280×720</td><td><code>d88505518eec…</code> · 2.5 US cents</td></tr>
           <tr><th scope="row">Mask</th><td>White ellipse, 1280×720, saved as its own asset</td><td><code>6cbd0e338458…</code></td></tr>
           <tr><th scope="row">Selected edit</th><td>fal.ai <code>fal-ai/flux-pro/v1/fill</code>, same-size mask, data-URI inputs</td><td><code>0b2a33581a21…</code> · 1280×704 · US$0.05 est.</td></tr>
           <tr><th scope="row">Motion</th><td>fal.ai Hailuo 2.3 Standard, image-to-video, 5.875 s</td><td><code>4397ccfbd639…</code> · 1396×768 · US$0.28</td></tr>
-          <tr><th scope="row">Sound bed</th><td>fal.ai ElevenLabs sound effects v2, 5.04 s</td><td><code>f8d78e30d18a…</code> · 44.1 kHz stereo · US$0.008</td></tr>
+          <tr><th scope="row">Sound bed</th><td>fal.ai ElevenLabs sound effects v2, 5.04 s</td><td><code>f8d78e30d18a…</code> · 44.1 kHz stereo · 0.8 US cents</td></tr>
           <tr><th scope="row">Derivatives</th><td>Deterministic Pillow/ffmpeg finishing: 1200×630, 1080×1080, 1080×1350, 720×1280</td><td><code>ba20457c953e…</code> · <code>111c9cbc1e79…</code> · <code>3aaf19084a2d…</code> · <code>afca9b476e8b…</code></td></tr>
           <tr><th scope="row">Publication</th><td>Deliberate Studio pages plus this article’s OG/share card</td><td><a href="https://media.loftwah.com/p/jWri1dDSfWbZ8HXD">9:16 motion</a> · <a href="https://media.loftwah.com/p/B_HA5PV6YMmHDA7N">share card</a></td></tr>
         </tbody>
-        <tfoot><tr><th scope="row">This project</th><td>Historical studio requests</td><td>US$0.363 + US$0.50 for the separate 720p slate test</td></tr></tfoot>
+        <tfoot><tr><th scope="row">This project</th><td>Historical studio requests</td><td>About US$0.36, plus US$0.50 for the separate 720p slate test</td></tr></tfoot>
       </table>
       </div>
     </details>
@@ -440,10 +437,10 @@ url.searchParams.set("s", signature);`}</code></pre>
             <tr><th scope="row">{name}</th><td><code>{route}</code></td><td>{cost}</td><td>{result}</td></tr>
           ))}
         </tbody>
-        <tfoot><tr><th scope="row">Historical two-project snapshot</th><td>recorded during this build</td><td>US$1.6647</td><td>US$1.3017 Paper &amp; Light + US$0.363 brand project; not invoice-confirmed</td></tr></tfoot>
+        <tfoot><tr><th scope="row">Historical two-project snapshot</th><td>recorded during this build</td><td>About US$1.66</td><td>About US$1.30 for Paper &amp; Light and US$0.36 for the brand project; not invoice-confirmed</td></tr></tfoot>
       </table>
     </div>
-    <p>Hosting and storage are separate from generation charges. This studio shares a Workers Paid account with other projects and stores its files in R2, so the account and stored files can cost money even when no one is making media. During this build, a snapshot of two projects recorded <strong>US$1.6647</strong>: US$1.3017 for Paper &amp; Light and US$0.363 for the brand project. A separate 720p Wan slate test added <strong>US$0.50</strong>; a rejected 1080p attempt and smaller LTX tests added roughly US$1.08. These are historical request figures, not a monthly price or today's total, and none has been confirmed against an invoice. The saved narration runs for 23.25 seconds; an earlier version of this article incorrectly said 33 seconds.</p>
+    <p>Hosting and storage are separate from generation charges. This studio shares a Workers Paid account with other projects and stores its files in R2, so the account and stored files can cost money even when no one is making media. During this build, a snapshot of two projects recorded <strong>about US$1.66</strong>: about US$1.30 for Paper &amp; Light and US$0.36 for the brand project. A separate 720p Wan slate test added <strong>US$0.50</strong>; a rejected 1080p attempt and smaller LTX tests added roughly US$1.08. These are historical request figures, not a monthly price or today's total, and none has been confirmed against an invoice. The saved narration runs for 23.25 seconds; an earlier version of this article incorrectly said 33 seconds.</p>
     <h3>What is not claimed</h3>
     <ul>
       <li><strong>Fal compose returned a permission error.</strong> During this build, new fal ffmpeg compose jobs were accepted but the result route returned 403. The 9:16 derivative shown here was finished with local ffmpeg. A separate on-device storyboard renderer is now available in compatible browsers.</li>
