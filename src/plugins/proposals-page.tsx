@@ -59,22 +59,20 @@ export function Proposals({
   const current = shown.find((view) => view.id === selected) ?? shown[0];
   const namedReviewer = Boolean(
     snapshot &&
-      current &&
-      [current.grant.owner.id, current.grant.fallback.id].includes(
-        snapshot.self,
-      ),
+    current &&
+    [current.grant.owner.id, current.grant.fallback.id].includes(snapshot.self),
   );
   const canReview = canWrite && namedReviewer;
   const canAccept = Boolean(
     canReview &&
-      snapshot?.workspace.role === "owner" &&
-      current?.grant.state === "active",
+    snapshot?.workspace.role === "owner" &&
+    current?.grant.state === "active",
   );
   const canHandoff = Boolean(
     snapshot &&
-      current &&
-      snapshot.workspace.role === "owner" &&
-      snapshot.self === current.grant.owner.id,
+    current &&
+    snapshot.workspace.role === "owner" &&
+    snapshot.self === current.grant.owner.id,
   );
   const reason = current ? (reasons[current.id] ?? "") : "";
   function setReason(value: string) {
@@ -231,10 +229,10 @@ export function Proposals({
       setReason("");
       setNotice(
         decision === "accept"
-          ? "Accepted the exact digest. Approval itself executes nothing. Prepare a separate handoff only when the authorised flow is ready."
+          ? "This version was accepted. Acceptance does not run or deploy anything. Prepare a separate handoff when the authorised release flow is ready."
           : decision === "reject"
             ? "Rejected. The proposer must start a new briefing and proposal."
-            : "Changes requested. The next version must answer this reason and will receive a new digest.",
+            : "Changes requested. The next version must address your reason and will have a new digest.",
       );
     } catch (cause) {
       if (live.current && epoch === generation.current)
@@ -276,7 +274,7 @@ export function Proposals({
         setError(
           cause instanceof Error
             ? cause.message
-            : "The handoff could not be confirmed. Refresh the accepted digest.",
+            : "The handoff could not be confirmed. Refresh and check the accepted version.",
         );
     } finally {
       if (live.current && epoch === generation.current) {
@@ -333,11 +331,11 @@ export function Proposals({
       )}
       {!incidents && (
         <p className="ap-proof">
-          <strong>Proposal-only local slice.</strong> A proposal is a reviewable
-          record, not an approval or a deployment instruction. Accepting stores
-          the exact digest and executes nothing. A separate handoff is prepared
-          for the existing authorised release flow. No hosted agent service,
-          provider credential or production execution is connected.
+          Review proposals for local and isolated Preview environments here.
+          Accepting one records the exact version and digest; it does not run or
+          deploy anything. An authorised owner can prepare a separate handoff
+          for the existing release flow. This screen has no hosted agent
+          service, provider credential or production execution.
         </p>
       )}
       <div className="ap-links">
@@ -568,8 +566,9 @@ export function Proposals({
                       {current.history.length} of {current.version})
                     </summary>
                     <p>
-                      Latest 20 versions. Previous evidence and review reasons
-                      stay attached to their original digest.
+                      The latest 20 versions are shown. Earlier evidence and
+                      review reasons stay attached to the digest they were
+                      recorded for.
                     </p>
                     {current.history.map((revision) => (
                       <details key={revision.version}>
@@ -615,9 +614,9 @@ export function Proposals({
                     <div className="ap-review" id="proposal-decision">
                       <h3>Record a decision</h3>
                       <p>
-                        Compare the exact digest above with the proposed source.
-                        Accept records this digest only; it does not deploy,
-                        merge or run anything.
+                        Compare the digest above with the proposed source.
+                        Accepting records this exact version; it does not
+                        deploy, merge or run anything.
                       </p>
                       <label>
                         Reason
@@ -697,7 +696,8 @@ export function Proposals({
                       )}
                       {!canHandoff && !current.handoff && (
                         <p className="ap-hint">
-                          The workspace owner can prepare the separate handoff.
+                          The named grant owner, with workspace owner access,
+                          can prepare the separate handoff.
                         </p>
                       )}
                       {current.source.kind === "local-path" &&

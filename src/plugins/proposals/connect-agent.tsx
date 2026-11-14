@@ -237,12 +237,12 @@ export function ConnectAgent({
         {snapshot && <strong>{snapshot.grants.length} connection(s)</strong>}
       </div>
       <p>
-        Authorise one expiring, revocable connection for a named agent. It can
-        read the scope and briefing and submit a proposal. It cannot approve,
-        prepare a handoff, deploy, spend, read secrets or change access — those
-        stay with a signed-in human. Your EmDash session, Cloudflare Access,
-        Cloudflare credentials and Git credentials are separate and are never
-        copied into an agent connection.
+        Give a named agent a connection that expires and can be revoked. The
+        agent can read its scope and briefing, then submit a proposal. It cannot
+        approve a proposal, prepare a handoff, deploy, spend, read secrets or
+        change access. Those actions remain with a signed-in human. Your EmDash
+        session, Cloudflare Access, Cloudflare credentials and Git credentials
+        stay separate from the agent connection.
       </p>
       {snapshot && (
         <div className="ap-capabilities">
@@ -435,8 +435,9 @@ export function ConnectAgent({
         </div>
       ) : (
         <p className="ap-hint">
-          Only the workspace owner can authorise or rotate an agent connection.
-          Editors can revoke one and review proposals.
+          Only a workspace owner can authorise or rotate a connection. The named
+          owner or fallback can revoke it and review proposals, subject to their
+          workspace access.
         </p>
       )}
 
@@ -483,8 +484,8 @@ export function ConnectAgent({
           <h3>Connections</h3>
           {!snapshot.grants.length && (
             <p className="ap-empty">
-              No agent connection yet. Authorise one above, then launch the
-              scoped local endpoint or use the EmDash MCP tools.
+              No agent connection yet. An owner can authorise one above, then
+              launch the scoped local endpoint or use the EmDash MCP tools.
             </p>
           )}
           {canRevoke && snapshot.grants.length > 0 && (
