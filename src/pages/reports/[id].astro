@@ -40,7 +40,7 @@ const payload = report ? JSON.stringify({ url: reportUrl(report.id), title: repo
   {!report ? (
     <section class="report-unavailable" role="status">
       <h1>{unavailable ? "This report is temporarily unavailable." : "No frozen report exists at this address."}</h1>
-      <p>{unavailable ? "The stored report could not be read. This is not a zero count. Try again later." : "The address may be incomplete, or the report was never created."}</p>
+      <p>{unavailable ? "The stored report could not be read, so its count is unavailable. Try again later." : "The address may be incomplete, or the report was never created."}</p>
       <p><a href="/activity">Explore current app activity</a></p>
     </section>
   ) : (
@@ -107,7 +107,7 @@ const payload = report ? JSON.stringify({ url: reportUrl(report.id), title: repo
       <section class="frozen-report-downloads" aria-labelledby="report-downloads-title">
         <div class="frozen-report-section-heading">
           <h2 id="report-downloads-title">Take the story with you</h2>
-          <p>Deliberate reflows of the same frozen values.</p>
+          <p>Download different formats of the same frozen values.</p>
         </div>
         <div class="report-format-grid">
           {Object.entries(reportFormats).map(([format, value]) => (

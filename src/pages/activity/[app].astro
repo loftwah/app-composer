@@ -183,7 +183,7 @@ const appHref = (app: string) => {
               {!views.length && (
                 <div class="analytics-empty" role="status">
                   <h2>This app has no daily series in the selected scope.</h2>
-                  <p>The query failed or the app is not connected in this environment. This is not a zero count.</p>
+                  <p>The query failed or the app is not connected in this environment, so the count is unavailable.</p>
                 </div>
               )}
             </section>
@@ -237,7 +237,7 @@ const appHref = (app: string) => {
             </section>
 
             <section class="analytics-method" aria-labelledby="app-method-title">
-              <h2 id="app-method-title">What this app record can tell you.</h2>
+              <h2 id="app-method-title">About this app’s activity</h2>
               <p>This page uses the same bounded public aggregate as the rest of analytics. It can show recorded demand for the app's public home page and, where the app declares one, a supported completed action. It cannot show who visited, which private record they opened, or whether an action became a customer outcome.</p>
               <ul>
                 <li>Opens are successful public home-page requests. Reloads and bots can count.</li>

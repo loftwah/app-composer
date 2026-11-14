@@ -50,8 +50,8 @@ const maximum = report ? Math.max(1, ...report.daily.map((day) => day.value ?? 0
   <div class="report-preview-heading">
     <a href="/activity" class="report-back"><ArrowLeft size={18} aria-hidden="true"/> Back to analytics</a>
     <p class="report-kicker">Analytics · preview</p>
-    <h1>Preview the story before it is frozen.</h1>
-    <p class="lede">This page reads the same bounded public aggregate as the selected finding. Nothing is published or stored until you create the frozen report.</p>
+    <h1>Preview your report</h1>
+    <p class="lede">This preview uses the same bounded public aggregate as the selected finding. Nothing is published or stored until you create the frozen report.</p>
   </div>
   {error ? (
     <section class="report-unavailable" role="alert">
@@ -114,7 +114,7 @@ const maximum = report ? Math.max(1, ...report.daily.map((day) => day.value ?? 0
             <div><dt>Values</dt><dd>{reportValueLabel(report)} {report.unit}. Daily values and coverage are retained exactly.</dd></div>
             <div><dt>Source</dt><dd><code>{report.sourceRevision}</code></dd></div>
           </dl>
-          <p class="small">The stored snapshot contains only this aggregate story. It does not contain visitor identities, enquiry text, private workspace records, stack names or credentials. The report landing page and its landscape, square and portrait images are created from the stored values.</p>
+          <p class="small">The stored snapshot contains this aggregate only. It excludes visitor identities, enquiry text, private workspace records, stack names and credentials. The report landing page and its landscape, square and portrait images are created from the stored values.</p>
         </section>
       </>
     )

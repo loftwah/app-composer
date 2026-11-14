@@ -85,7 +85,7 @@ const channels = [
     <VisualBoard collection={creatorHubCollection} />
     <div class="share-layout">
       <section class="clip-panel" id="walkthrough-film" tabindex="-1" aria-labelledby="clip-heading">
-        <h2 id="clip-heading">From live example to your draft</h2>
+        <h2 id="clip-heading">From the live example to your draft</h2>
         <video controls playsinline preload="none" width="1080" height="1920" poster={poster} aria-labelledby="clip-heading">
           <source src={clip} type="video/mp4" />
           <a href={clip}>Open the video</a>
@@ -131,7 +131,7 @@ const channels = [
                 ? <a class="button secondary" href={card} download>Download link image</a>
                 : <button class="secondary" type="button" data-copy="link" data-link={channel.link} hidden>Copy walkthrough link</button>}
             </div>
-            {!channel.linkPost && <p class="small">Use the video above. Add the walkthrough link where your account supports links.</p>}
+            {!channel.linkPost && <p class="small">Use the video above and add the walkthrough link where your account supports links.</p>}
           </section>
         ))}
         <p class="copy-status small" role="status" data-copy-status></p>
