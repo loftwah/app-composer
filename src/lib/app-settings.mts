@@ -226,6 +226,20 @@ export function validateSources(input: unknown, ids: string[]): AppSource[] {
     if (legacy) expected = [{ ...legacy }];
   }
   if (
+    ids.length === 1 &&
+    ids[0] === "media-studio" &&
+    Array.isArray(input) &&
+    object(input[0]) &&
+    input[0].commit === mediaStudioStandalone.previousCommit
+  ) {
+    expected = [
+      {
+        ...mediaStudioStandalone.source,
+        commit: mediaStudioStandalone.previousCommit,
+      },
+    ];
+  }
+  if (
     !Array.isArray(input) ||
     input.length !== expected.length ||
     input.some(

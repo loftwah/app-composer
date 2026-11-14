@@ -150,3 +150,18 @@ test("the handoff and build plan carry the owned studio work without secrets", (
   assert.match(humanOnlyActions(spec).join(" "), /OWNER_PASSPHRASE and SESSION_SECRET for Media Studio/);
   assert.match(humanOnlyActions(spec).join(" "), /sign in to Cloudflare/);
 });
+
+test('current and historical Studio briefs retain their exact reviewed source pins', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const historical = JSON.parse(await readFile(new URL('../public/media-studio/media-studio-brief-20261114.json', import.meta.url), 'utf8'));
+  assert.equal(historical.sources[0].commit, mediaStudioSource.previousCommit);
+  const restored = validateSpec(historical);
+  assert.deepEqual(restored.sources, historical.sources);
+  assert.deepEqual(validateSpec(JSON.parse(JSON.stringify(restored))).sources, historical.sources);
+  const current = validateSpec(mediaSpec());
+  assert.equal(current.sources[0].commit, mediaStudioSource.source.commit);
+  assert.deepEqual(validateSpec(JSON.parse(JSON.stringify(current))).sources, current.sources);
+  for (const patch of [{commit:'a'.repeat(40)}, {manifestDigest:'sha256:'+'b'.repeat(64)}, {repository:'https://example.com/other'}]) {
+    assert.throws(() => validateSpec({...historical, sources:[{...historical.sources[0], ...patch}]}), /contracts have changed/);
+  }
+});

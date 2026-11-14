@@ -145,6 +145,18 @@ export function validateSources(input, ids) {
         if (legacy)
             expected = [{ ...legacy }];
     }
+    if (ids.length === 1 &&
+        ids[0] === "media-studio" &&
+        Array.isArray(input) &&
+        object(input[0]) &&
+        input[0].commit === mediaStudioStandalone.previousCommit) {
+        expected = [
+            {
+                ...mediaStudioStandalone.source,
+                commit: mediaStudioStandalone.previousCommit,
+            },
+        ];
+    }
     if (!Array.isArray(input) ||
         input.length !== expected.length ||
         input.some((source, index) => !object(source) ||
