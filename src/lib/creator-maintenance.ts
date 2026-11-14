@@ -139,7 +139,7 @@ export async function manageMaintenance(ctx: Context, runtime: Runtime) {
     if (!candidate || candidate.app !== "guestbook")
       throw new StackError(
         "INVALID",
-        "Choose a saved Guestbook instance. Other apps have no owned-resource maintenance contract here.",
+        "Choose a saved Guestbook. This maintenance screen does not support other apps.",
       );
     const row = await db
       .prepare(
@@ -151,7 +151,7 @@ export async function manageMaintenance(ctx: Context, runtime: Runtime) {
     if (!row)
       throw new StackError(
         "UNAVAILABLE",
-        "This saved instance has no app-owned resource yet. Apply its saved configuration from Creator stacks.",
+        "This saved Guestbook has no app resource yet. Apply its saved settings from Creator stacks.",
       );
     const draftJSON = JSON.stringify(stack.draft);
     const guard = async () => {
@@ -263,10 +263,10 @@ export async function manageMaintenance(ctx: Context, runtime: Runtime) {
         checkedAt: new Date().toISOString(),
         outcome: pending ? "pending" : matched ? "matched" : "stale",
         message: pending
-          ? "An app operation is unresolved. Use Check app operation in Creator stacks before another change."
+          ? "An app change has not been confirmed. Use Check app operation in Creator stacks before making another change."
           : matched
-            ? "The connected app source, runtime scope and saved resource configuration matched at this check."
-            : "The app resource differs from the saved confirmation. Reconcile it in Creator stacks; this check changes nothing.",
+            ? "The connected app source, account, environment and saved settings matched when checked."
+            : "The app resource differs from the saved confirmation. Check the app operation in Creator stacks; this check changes nothing.",
         expected,
         actual: {
           account: actual.resource.account,
@@ -294,7 +294,7 @@ export async function manageMaintenance(ctx: Context, runtime: Runtime) {
         checkedAt: new Date().toISOString(),
         outcome: pending ? "pending" : "unavailable",
         message:
-          "The current app source, resource or runtime scope could not be verified. No deployment or recovery health is inferred.",
+          "The app source, resource or account and environment could not be verified. This does not confirm deployment or recovery health.",
         expected,
         actual: null,
         portabilitySupported: false,

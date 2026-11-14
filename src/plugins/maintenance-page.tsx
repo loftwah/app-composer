@@ -18,7 +18,7 @@ const labels = {
   matched: "Matched at check",
   stale: "Saved confirmation differs",
   unavailable: "Not verified",
-  pending: "App operation unresolved",
+  pending: "App change needs checking",
 };
 const fiveMinutes = 300000;
 export function Maintenance({ search }: { search: string }) {
@@ -157,11 +157,11 @@ export function Maintenance({ search }: { search: string }) {
     <section className="composer-admin ca-maintenance">
       <header>
         <p className="ca-kicker">Workspace maintenance</p>
-        <h1>Keep an approved Guestbook copy.</h1>
+        <h1>Save an approved Guestbook copy</h1>
         <p>
-          Choose a saved Guestbook, check its connection, then prepare approved
-          contributions and PNGs. Your saved draft and public page stay as they
-          are.
+          Choose a saved Guestbook and check its connection. You can then
+          prepare a file with approved contributions and PNGs. This will not
+          change your saved draft or public page.
         </p>
       </header>
       <p role="status" aria-live="polite">
@@ -183,7 +183,7 @@ export function Maintenance({ search }: { search: string }) {
           disabled={busy || invalidScope}
           onClick={() => void run("list")}
         >
-          Refresh saved selections
+          Refresh saved apps
         </button>
         {workspace && (
           <a
@@ -254,9 +254,9 @@ export function Maintenance({ search }: { search: string }) {
       {instance && (
         <p>
           {instance.app !== "guestbook" ? (
-            "This app has no owned-resource maintenance or content portability contract here."
+            "This export is available for Guestbook only."
           ) : !instance.resource ? (
-            "No app-owned resource has been applied for this saved instance."
+            "This saved Guestbook has not had its app resource applied yet."
           ) : (
             <>
               {instance.label} ·{" "}
@@ -266,7 +266,7 @@ export function Maintenance({ search }: { search: string }) {
               ·{" "}
               {check
                 ? stale
-                  ? "Check expired"
+                  ? "Check is out of date"
                   : labels[check.outcome]
                 : instance.state === "ready"
                   ? "Applied · not checked here"
@@ -291,7 +291,8 @@ export function Maintenance({ search }: { search: string }) {
             <time dateTime={check.checkedAt}>
               {new Date(check.checkedAt).toLocaleString()}
             </time>
-            . This is an observation, not a continuing health guarantee.
+            . This records what matched at that time; it does not guarantee the
+            connection is still working.
           </p>
           {stale && (
             <p>
@@ -300,7 +301,7 @@ export function Maintenance({ search }: { search: string }) {
             </p>
           )}
           <details className="ca-disclosure ca-maintenance-identity">
-            <summary>Exact connection identity and check coverage</summary>
+            <summary>Connection details and what was checked</summary>
             <p>
               Saved resource <code>{check.resource}</code>
             </p>
@@ -396,15 +397,18 @@ export function Maintenance({ search }: { search: string }) {
             <dl className="ca-maintenance-coverage">
               <div>
                 <dt>Worker deployment ID</dt>
-                <dd>Unavailable through this app contract</dd>
+                <dd>Not available from this app</dd>
               </div>
               <div>
                 <dt>Media coverage</dt>
-                <dd>Not checked by this connection observation</dd>
+                <dd>Not checked by this connection check</dd>
               </div>
               <div>
                 <dt>Metrics and costs</dt>
-                <dd>Unavailable here; no budget or capacity guarantee</dd>
+                <dd>
+                  Not available here; this check does not guarantee budget or
+                  capacity
+                </dd>
               </div>
             </dl>
           </details>
@@ -414,18 +418,18 @@ export function Maintenance({ search }: { search: string }) {
         className="ca-maintenance-portable"
         aria-label="Approved content portability"
       >
-        <h2>Prepare your file.</h2>
+        <h2>Prepare your file</h2>
         <p>
-          Prepare the active Guestbook configuration and up to eight original
-          approved contributions with verified PNGs. The file states what is
-          included; private items, global owner photos, other apps and
+          The file can include the active Guestbook settings and up to eight
+          original approved contributions with verified PNGs. It lists what is
+          included. Private items, global owner photos, other apps and
           credentials are excluded.
         </p>
         <p>
-          Restoration requires the live original source and fresh private
-          identities. Source revocations remain authoritative. This is not
-          complete backup or offline disaster recovery; code rollback does not
-          restore app data or media.
+          To restore this file, the original source must still be live and new
+          private identities are required. Revocations at the source still
+          apply. This is not a complete backup or an offline recovery file.
+          Rolling back code does not restore app data or media.
         </p>
         {workspace?.role === "viewer" && (
           <p>
@@ -436,7 +440,7 @@ export function Maintenance({ search }: { search: string }) {
         )}
         {check && !check.portabilitySupported && (
           <p>
-            The current pinned app has not confirmed support for this
+            The saved app version has not confirmed support for this
             approved-content export.
           </p>
         )}
@@ -461,8 +465,8 @@ export function Maintenance({ search }: { search: string }) {
               {file.coverage.included} of {file.coverage.approvedOriginals}{" "}
               eligible original approved contributions included.{" "}
               {file.coverage.complete
-                ? "Complete for this bounded original-approved selection."
-                : "Partial coverage: some contributions or media are not included."}
+                ? "All eligible original approved contributions in this selection are included."
+                : "Some contributions or media are not included."}
             </p>
             <p>
               Exported{" "}
