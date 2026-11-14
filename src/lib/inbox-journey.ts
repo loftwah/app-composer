@@ -606,9 +606,9 @@ function nextAction(
   if (delivery.state === "attempted" || delivery.state === "uncertain")
     return {
       kind: "reconcile",
-      label: "Reconcile delivery",
+      label: "Check saved delivery status",
       detail:
-        "The provider may already have received this message. Reconcile the recorded state; Composer does not resend it and will not mark it accepted without a provider identity.",
+        "The provider may already have received this message. This checks the saved status without contacting the provider or sending again. It cannot resolve an unknown outcome.",
       actor: "owner",
       enabled: owner,
     };

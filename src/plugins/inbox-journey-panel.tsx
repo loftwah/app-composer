@@ -120,11 +120,11 @@ export function JourneyDetail({
             </div>
           )}
           <div>
-            <dt>Delivery scope</dt>
+            <dt>Where it came from</dt>
             <dd>{scope}</dd>
           </div>
           <div>
-            <dt>Bodies expire</dt>
+            <dt>Brief text expires</dt>
             <dd>{bothZones(enquiry.expiresAt)}</dd>
           </div>
         </dl>
@@ -159,7 +159,7 @@ export function JourneyDetail({
             onClick={() => {
               if (
                 window.confirm(
-                  "Delete this private brief now? Its submitted text will be cleared; the bounded receipt remains until expiry.",
+                  "Delete this private brief now? The submitted text will be cleared immediately. The operation receipt remains until it expires.",
                 )
               )
                 onEnquiryAction("delete");
@@ -169,9 +169,10 @@ export function JourneyDetail({
           </button>
         </div>
         <p className="ce-muted">
-          Private delivery consent recorded {shortDate(enquiry.createdAt)}. No
-          publication or contact permission. Reviewed is an owner decision; it
-          is not a reply, sale or contact and it does not send the owner notice.
+          The visitor agreed to private delivery on {shortDate(enquiry.createdAt)}.
+          This does not grant permission to publish or contact them. Marking the
+          brief reviewed records a decision; it does not send a notice, reply,
+          make a sale or contact the visitor.
         </p>
       </header>
 
@@ -225,8 +226,8 @@ export function JourneyDetail({
         )}
         {!primary && (
           <p className="ce-muted">
-            This is an explicit stop, not a hidden retry. The brief remains in
-            the app-owned Inbox.
+            No further action is available here. The brief remains in the
+            app-owned Inbox, and no retry will run automatically.
           </p>
         )}
       </section>
@@ -319,7 +320,7 @@ export function JourneyDetail({
             </div>
             {delivery.reconciledAt && (
               <div>
-                <dt>Last reconciliation</dt>
+                <dt>Last status check</dt>
                 <dd>{bothZones(delivery.reconciledAt)}</dd>
               </div>
             )}
@@ -331,11 +332,11 @@ export function JourneyDetail({
           </p>
           {delivery.providerReference && (
             <details className="ce-details">
-              <summary>Provider message identity</summary>
+              <summary>Provider message ID</summary>
               <code>{delivery.providerReference}</code>
               <p>
-                Acceptance is not delivery to a recipient server, reading or a
-                human confirmation.
+                Provider acceptance does not confirm delivery to the recipient’s
+                server, that the message was read, or a human response.
               </p>
             </details>
           )}
@@ -345,7 +346,7 @@ export function JourneyDetail({
             <p className="ce-muted">
               {delivery.state === "accepted"
                 ? "No resend is offered. A second send could deliver a duplicate."
-                : "A resend is not offered until this outcome can be reconciled. Reconciliation never sends."}
+                : "A resend is unavailable while the outcome is uncertain. Checking the saved status will not contact the provider or send the message again."}
             </p>
           )}
           <div className="ce-actions">
@@ -513,14 +514,14 @@ export function InboxJourneyPanel({
             ? "The provider request finished. Check the recorded delivery state."
             : action === "relink"
               ? "The exact workflow link was restored. No provider was contacted."
-              : "The recorded state was re-read. Nothing was sent.",
+              : "The saved status was checked. The provider was not contacted and nothing was sent.",
       );
     } catch (cause) {
       if (live.current)
         setError(
           cause instanceof Error
             ? cause.message
-            : "The action could not be confirmed. Refresh its exact state.",
+            : "The action could not be confirmed. Refresh to check the saved status.",
         );
     } finally {
       pending.current = false;

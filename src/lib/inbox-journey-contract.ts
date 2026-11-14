@@ -211,7 +211,7 @@ const status = z.object({
 });
 
 const unreadable =
-  "The enquiry journey response did not match the supported contract. Refresh before another action.";
+  "The enquiry details could not be read. Refresh before another action.";
 
 /** The supported status of one journey request, read or write. */
 export function journeyResponse(raw: unknown, writing: boolean): { ok: boolean; message?: string } {
