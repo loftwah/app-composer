@@ -114,13 +114,13 @@ const costs = [
     </figure>
   </header>
 
-  <nav class="contents" aria-label="Contents">
-    <p class="kicker">Contents</p>
-    <ol>
-      {contents.map(([id, label], index) => (
-        <li><a href={`#${id}`}>{String(index + 1).padStart(2, '0')} · {label}</a></li>
+  <nav class="contents" aria-labelledby="studio-contents-heading">
+    <h2 id="studio-contents-heading">Contents</h2>
+    <ul role="list">
+      {contents.map(([id, label]) => (
+        <li><a href={`#${id}`}>{label}</a></li>
       ))}
-    </ol>
+    </ul>
   </nav>
 
   <section id="why" class="prose">
@@ -469,9 +469,38 @@ url.searchParams.set("s", signature);`}</code></pre>
   .art-hero-figure{margin:30px 0 0}
   .art-hero-figure img,.figure img{display:block;width:100%;height:auto;border:1px solid var(--line,rgba(255,255,255,.16));box-shadow:0 32px 70px -52px rgba(0,0,0,.7)}
   figcaption{font-size:.78rem;line-height:1.55;color:var(--muted,#b9b2a8);margin-top:10px}
-  .contents{border-top:1px solid var(--line,rgba(255,255,255,.16));border-bottom:1px solid var(--line,rgba(255,255,255,.16));padding:18px 0;margin-bottom:8px}
-  .contents ol{list-style:none;display:flex;flex-wrap:wrap;gap:8px 22px;padding:0;margin:0}
-  .contents a{font:600 .8rem/1.4 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase}
+  .contents {
+    display: block;
+    max-width: 74ch;
+    margin: 0 auto;
+    padding: 16px 0;
+    border-block: 1px solid var(--line);
+    font-size: inherit;
+  }
+  .contents h2 {
+    margin: 0 0 8px;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+  .contents ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 24px;
+    max-width: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .contents li { margin: 0; }
+  .contents a {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    padding-block: 6px;
+    font: 600 .9375rem/1.4 system-ui, sans-serif;
+    overflow-wrap: anywhere;
+  }
+  .contents a:hover { color: var(--color-accent-hover, var(--accent)); }
   .prose{max-width:74ch;margin:0 auto;padding-top:44px}
   .prose h2{font:600 clamp(1.6rem,2.6vw,2.3rem)/1.1 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 16px}
   .prose h3{font:600 1.16rem/1.35 "Space Grotesk",system-ui,sans-serif;margin:34px 0 10px}
@@ -528,7 +557,8 @@ url.searchParams.set("s", signature);`}</code></pre>
   @media (max-width:560px){
     .art{padding:16px 16px 64px}
     .row{gap:10px}
-    .contents a{font-size:.72rem}
+    .contents ul { grid-template-columns: minmax(0, 1fr); }
+    .contents a { min-height: 44px; }
   }
   @media (prefers-reduced-motion:reduce){.art *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style>
