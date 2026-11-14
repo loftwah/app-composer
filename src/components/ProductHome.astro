@@ -770,10 +770,25 @@ const defaultStation = studioStations[0];
           console.warn("Studio module unavailable:", error?.message ?? error);
           showStaticWorkshop("Illustrated workshop · live view unavailable");
         });
-      if ("requestIdleCallback" in window) {
-        window.requestIdleCallback(startStudio, { timeout: 900 });
+      const scheduleStudio = () => {
+        if ("requestIdleCallback" in window) {
+          window.requestIdleCallback(startStudio, { timeout: 350 });
+        } else {
+          globalThis.setTimeout(startStudio, 0);
+        }
+      };
+      // The workshop now sits below the product introduction. Preload it as
+      // the visitor approaches, instead of creating a WebGL scene offscreen
+      // during the landing page's first render. The poster stays visible.
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver((entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          observer.disconnect();
+          scheduleStudio();
+        }, { rootMargin: "700px 0px" });
+        observer.observe(studioStage);
       } else {
-        globalThis.setTimeout(startStudio, 220);
+        scheduleStudio();
       }
     }
   }
