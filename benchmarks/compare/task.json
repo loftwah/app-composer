@@ -1,0 +1,20 @@
+{
+  "schema": "benchmark-task/v1",
+  "id": "launch-page",
+  "version": 1,
+  "title": "Build a one-page project home",
+  "category": "build",
+  "capability": "A coding agent turns a written brief into files that meet it",
+  "brief": "You are building a one-page project home for a small independent release.\n\nProduce exactly three files in the current directory. Do not create anything else.\n\n1. app.json\n   {\n     \"title\": string,\n     \"tagline\": string,\n     \"theme\": \"light\" or \"dark\",\n     \"links\": [ { \"label\": string, \"url\": string } ],\n     \"sections\": [\"about\", \"guestbook\"]\n   }\n   Use this title: \"Night Shift Radio\". Use this tagline: \"Two hours of quiet, made on a kitchen table.\"\n   Use exactly these three links, in this order, with these labels:\n     \"Latest release\" -> https://example.com/release\n     \"Behind the scenes\" -> https://example.com/notes\n     \"Get the newsletter\" -> https://example.com/subscribe\n\n2. app.css\n   All styling lives here. The page itself must contain no inline style attributes and no <style> blocks.\n\n3. index.html\n   One complete page linking app.css. It must show the title and the tagline, list all three links with their exact labels, and give the about and guestbook sections a heading each.\n\nHard constraints, checked by a script:\n- No <script> elements and no on* event handler attributes.\n- No inline style attributes and no <style> blocks. The page is served under a Content-Security-Policy that blocks them.\n- No requests to other origins. The only https URLs allowed are the three link targets above.\n- One <h1> only. The page declares a language. Include the viewport meta tag.\n- Every link has visible text.\n\nWrite the files, check them against the brief yourself, then stop.",
+  "assertions": [
+    { "id": "files-present", "name": "The three required files exist" },
+    { "id": "manifest-schema", "name": "app.json is a valid manifest with the required shape" },
+    { "id": "manifest-content", "name": "The manifest carries the given title, tagline and three links in order" },
+    { "id": "page-shows-brief", "name": "index.html shows the title, tagline and all three labels" },
+    { "id": "stylesheet-linked", "name": "index.html links app.css and app.css declares styling" },
+    { "id": "csp-compatible", "name": "No script, no inline style attributes and no style blocks" },
+    { "id": "no-external", "name": "No requests to other origins" },
+    { "id": "document-basics", "name": "One h1, a declared language, a viewport meta and no empty links" },
+    { "id": "sections-present", "name": "The about and guestbook sections each have a heading" }
+  ]
+}

@@ -1,0 +1,823 @@
+{
+  "schema": "benchmark-compare/v1",
+  "task": {
+    "id": "launch-page",
+    "version": 1,
+    "title": "Build a one-page project home",
+    "category": "build",
+    "capability": "A coding agent turns a written brief into files that meet it",
+    "briefSha256": "sha256:c9609d7d70cd24c71598004998750ec68d334a6dd6ec39312677b20772b6f49d",
+    "assertions": [
+      {
+        "id": "files-present",
+        "name": "The three required files exist"
+      },
+      {
+        "id": "manifest-schema",
+        "name": "app.json is a valid manifest with the required shape"
+      },
+      {
+        "id": "manifest-content",
+        "name": "The manifest carries the given title, tagline and three links in order"
+      },
+      {
+        "id": "page-shows-brief",
+        "name": "index.html shows the title, tagline and all three labels"
+      },
+      {
+        "id": "stylesheet-linked",
+        "name": "index.html links app.css and app.css declares styling"
+      },
+      {
+        "id": "csp-compatible",
+        "name": "No script, no inline style attributes and no style blocks"
+      },
+      {
+        "id": "no-external",
+        "name": "No requests to other origins"
+      },
+      {
+        "id": "document-basics",
+        "name": "One h1, a declared language, a viewport meta and no empty links"
+      },
+      {
+        "id": "sections-present",
+        "name": "The about and guestbook sections each have a heading"
+      }
+    ]
+  },
+  "generatedAt": "2026-11-15T08:42:03.193Z",
+  "node": "v26.13.1",
+  "platform": "darwin arm64",
+  "configurations": [
+    {
+      "id": "gpt-5.6-sol",
+      "label": "GPT-5.6 Sol · Codex CLI",
+      "model": "gpt-5.6-sol",
+      "resolvedModel": "gpt-5.6-sol",
+      "harness": "codex-cli",
+      "harnessVersion": "0.145.0",
+      "settings": {
+        "reasoningEffort": "low",
+        "approval": "never",
+        "sandbox": "danger-full-access, isolated temporary directory",
+        "auth": "operator's ChatGPT plan"
+      },
+      "runnerKind": "codex",
+      "trials": [
+        {
+          "id": "gpt-5.6-sol-t1",
+          "index": 1,
+          "status": "pass",
+          "startedAt": "2026-11-15T08:35:39.509Z",
+          "durationMs": 45567,
+          "checks": [
+            {
+              "id": "files-present",
+              "name": "The three required files exist",
+              "status": "pass",
+              "detail": "index.html, app.css and app.json all present, and nothing else."
+            },
+            {
+              "id": "manifest-schema",
+              "name": "app.json is a valid manifest with the required shape",
+              "status": "pass",
+              "detail": "3 links, theme dark, sections about and guestbook."
+            },
+            {
+              "id": "manifest-content",
+              "name": "The manifest carries the given title, tagline and three links in order",
+              "status": "pass",
+              "detail": "Title, tagline and all three links match the brief exactly, in order."
+            },
+            {
+              "id": "page-shows-brief",
+              "name": "index.html shows the title, tagline and all three labels",
+              "status": "pass",
+              "detail": "Title, tagline and all three labels appear in the rendered markup."
+            },
+            {
+              "id": "stylesheet-linked",
+              "name": "index.html links app.css and app.css declares styling",
+              "status": "pass",
+              "detail": "app.css is linked and declares 16 rule blocks."
+            },
+            {
+              "id": "csp-compatible",
+              "name": "No script, no inline style attributes and no style blocks",
+              "status": "pass",
+              "detail": "No scripts, style blocks, inline style attributes or inline handlers."
+            },
+            {
+              "id": "no-external",
+              "name": "No requests to other origins",
+              "status": "pass",
+              "detail": "Every reference stays on the three brief destinations or a relative path."
+            },
+            {
+              "id": "document-basics",
+              "name": "One h1, a declared language, a viewport meta and no empty links",
+              "status": "pass",
+              "detail": "One h1, a declared language, a viewport meta, a title and no empty links."
+            },
+            {
+              "id": "sections-present",
+              "name": "The about and guestbook sections each have a heading",
+              "status": "pass",
+              "detail": "Both the about and guestbook sections are identifiable in the markup."
+            }
+          ],
+          "failed": [],
+          "artifacts": {
+            "index.html": "sha256:405e1f201c59a5b37c0df719febe73a63b0f48c0915c9e270eeb932c15f33c43",
+            "app.css": "sha256:0a50894b9813e102d61266f26b503e66303b55ecee24da2e3253bb703d6f7b96",
+            "app.json": "sha256:02f501b1a6dbf0355b876125e09eb7cb31f69203f62c773c3ac29f642c10e45c"
+          },
+          "previewUrl": "/benchmarks/trials/gpt-5-6-sol/t1/index.html",
+          "usage": {
+            "inputTokens": 89468,
+            "outputTokens": 2058,
+            "cachedInputTokens": 78720
+          },
+          "cost": {
+            "estimateMicro": null,
+            "providerChargedMicro": null,
+            "chargeSource": "not reported",
+            "basis": "No recorded rate card. The CLI reports tokens, not an invoice, so no provider charge is recorded."
+          }
+        },
+        {
+          "id": "gpt-5.6-sol-t2",
+          "index": 2,
+          "status": "pass",
+          "startedAt": "2026-11-15T08:36:25.083Z",
+          "durationMs": 51415,
+          "checks": [
+            {
+              "id": "files-present",
+              "name": "The three required files exist",
+              "status": "pass",
+              "detail": "index.html, app.css and app.json all present, and nothing else."
+            },
+            {
+              "id": "manifest-schema",
+              "name": "app.json is a valid manifest with the required shape",
+              "status": "pass",
+              "detail": "3 links, theme dark, sections about and guestbook."
+            },
+            {
+              "id": "manifest-content",
+              "name": "The manifest carries the given title, tagline and three links in order",
+              "status": "pass",
+              "detail": "Title, tagline and all three links match the brief exactly, in order."
+            },
+            {
+              "id": "page-shows-brief",
+              "name": "index.html shows the title, tagline and all three labels",
+              "status": "pass",
+              "detail": "Title, tagline and all three labels appear in the rendered markup."
+            },
+            {
+              "id": "stylesheet-linked",
+              "name": "index.html links app.css and app.css declares styling",
+              "status": "pass",
+              "detail": "app.css is linked and declares 18 rule blocks."
+            },
+            {
+              "id": "csp-compatible",
+              "name": "No script, no inline style attributes and no style blocks",
+              "status": "pass",
+              "detail": "No scripts, style blocks, inline style attributes or inline handlers."
+            },
+            {
+              "id": "no-external",
+              "name": "No requests to other origins",
+              "status": "pass",
+              "detail": "Every reference stays on the three brief destinations or a relative path."
+            },
+            {
+              "id": "document-basics",
+              "name": "One h1, a declared language, a viewport meta and no empty links",
+              "status": "pass",
+              "detail": "One h1, a declared language, a viewport meta, a title and no empty links."
+            },
+            {
+              "id": "sections-present",
+              "name": "The about and guestbook sections each have a heading",
+              "status": "pass",
+              "detail": "Both the about and guestbook sections are identifiable in the markup."
+            }
+          ],
+          "failed": [],
+          "artifacts": {
+            "index.html": "sha256:69daaa02086ea9fe04c773539edeea8a642a61a001aec1add3f6053e2bb645d3",
+            "app.css": "sha256:7058d5aa65a54f2c8c870a3c3998cad68facf5ec36e69c03241af7d4f4c626c7",
+            "app.json": "sha256:02f501b1a6dbf0355b876125e09eb7cb31f69203f62c773c3ac29f642c10e45c"
+          },
+          "previewUrl": "/benchmarks/trials/gpt-5-6-sol/t2/index.html",
+          "usage": {
+            "inputTokens": 88683,
+            "outputTokens": 2518,
+            "cachedInputTokens": 78336
+          },
+          "cost": {
+            "estimateMicro": null,
+            "providerChargedMicro": null,
+            "chargeSource": "not reported",
+            "basis": "No recorded rate card. The CLI reports tokens, not an invoice, so no provider charge is recorded."
+          }
+        },
+        {
+          "id": "gpt-5.6-sol-t3",
+          "index": 3,
+          "status": "pass",
+          "startedAt": "2026-11-15T08:37:16.504Z",
+          "durationMs": 52902,
+          "checks": [
+            {
+              "id": "files-present",
+              "name": "The three required files exist",
+              "status": "pass",
+              "detail": "index.html, app.css and app.json all present, and nothing else."
+            },
+            {
+              "id": "manifest-schema",
+              "name": "app.json is a valid manifest with the required shape",
+              "status": "pass",
+              "detail": "3 links, theme dark, sections about and guestbook."
+            },
+            {
+              "id": "manifest-content",
+              "name": "The manifest carries the given title, tagline and three links in order",
+              "status": "pass",
+              "detail": "Title, tagline and all three links match the brief exactly, in order."
+            },
+            {
+              "id": "page-shows-brief",
+              "name": "index.html shows the title, tagline and all three labels",
+              "status": "pass",
+              "detail": "Title, tagline and all three labels appear in the rendered markup."
+            },
+            {
+              "id": "stylesheet-linked",
+              "name": "index.html links app.css and app.css declares styling",
+              "status": "pass",
+              "detail": "app.css is linked and declares 17 rule blocks."
+            },
+            {
+              "id": "csp-compatible",
+              "name": "No script, no inline style attributes and no style blocks",
+              "status": "pass",
+              "detail": "No scripts, style blocks, inline style attributes or inline handlers."
+            },
+            {
+              "id": "no-external",
+              "name": "No requests to other origins",
+              "status": "pass",
+              "detail": "Every reference stays on the three brief destinations or a relative path."
+            },
+            {
+              "id": "document-basics",
+              "name": "One h1, a declared language, a viewport meta and no empty links",
+              "status": "pass",
+              "detail": "One h1, a declared language, a viewport meta, a title and no empty links."
+            },
+            {
+              "id": "sections-present",
+              "name": "The about and guestbook sections each have a heading",
+              "status": "pass",
+              "detail": "Both the about and guestbook sections are identifiable in the markup."
+            }
+          ],
+          "failed": [],
+          "artifacts": {
+            "index.html": "sha256:2e58fbfaab1ccda213e5248d85acecffb370bf6c03985d0b78e25dbba4389847",
+            "app.css": "sha256:00fdaa3688bcfa01d1bcd8d30076f941f498e032191bad0ffa68b970dda036b5",
+            "app.json": "sha256:02f501b1a6dbf0355b876125e09eb7cb31f69203f62c773c3ac29f642c10e45c"
+          },
+          "previewUrl": "/benchmarks/trials/gpt-5-6-sol/t3/index.html",
+          "usage": {
+            "inputTokens": 88531,
+            "outputTokens": 2420,
+            "cachedInputTokens": 78208
+          },
+          "cost": {
+            "estimateMicro": null,
+            "providerChargedMicro": null,
+            "chargeSource": "not reported",
+            "basis": "No recorded rate card. The CLI reports tokens, not an invoice, so no provider charge is recorded."
+          }
+        }
+      ]
+    },
+    {
+      "id": "gpt-5.6-terra",
+      "label": "GPT-5.6 Terra · Codex CLI",
+      "model": "gpt-5.6-terra",
+      "resolvedModel": "gpt-5.6-terra",
+      "harness": "codex-cli",
+      "harnessVersion": "0.145.0",
+      "settings": {
+        "reasoningEffort": "low",
+        "approval": "never",
+        "sandbox": "danger-full-access, isolated temporary directory",
+        "auth": "operator's ChatGPT plan"
+      },
+      "runnerKind": "codex",
+      "trials": [
+        {
+          "id": "gpt-5.6-terra-t1",
+          "index": 1,
+          "status": "pass",
+          "startedAt": "2026-11-15T08:38:09.408Z",
+          "durationMs": 78531,
+          "checks": [
+            {
+              "id": "files-present",
+              "name": "The three required files exist",
+              "status": "pass",
+              "detail": "index.html, app.css and app.json all present, and nothing else."
+            },
+            {
+              "id": "manifest-schema",
+              "name": "app.json is a valid manifest with the required shape",
+              "status": "pass",
+              "detail": "3 links, theme dark, sections about and guestbook."
+            },
+            {
+              "id": "manifest-content",
+              "name": "The manifest carries the given title, tagline and three links in order",
+              "status": "pass",
+              "detail": "Title, tagline and all three links match the brief exactly, in order."
+            },
+            {
+              "id": "page-shows-brief",
+              "name": "index.html shows the title, tagline and all three labels",
+              "status": "pass",
+              "detail": "Title, tagline and all three labels appear in the rendered markup."
+            },
+            {
+              "id": "stylesheet-linked",
+              "name": "index.html links app.css and app.css declares styling",
+              "status": "pass",
+              "detail": "app.css is linked and declares 14 rule blocks."
+            },
+            {
+              "id": "csp-compatible",
+              "name": "No script, no inline style attributes and no style blocks",
+              "status": "pass",
+              "detail": "No scripts, style blocks, inline style attributes or inline handlers."
+            },
+            {
+              "id": "no-external",
+              "name": "No requests to other origins",
+              "status": "pass",
+              "detail": "Every reference stays on the three brief destinations or a relative path."
+            },
+            {
+              "id": "document-basics",
+              "name": "One h1, a declared language, a viewport meta and no empty links",
+              "status": "pass",
+              "detail": "One h1, a declared language, a viewport meta, a title and no empty links."
+            },
+            {
+              "id": "sections-present",
+              "name": "The about and guestbook sections each have a heading",
+              "status": "pass",
+              "detail": "Both the about and guestbook sections are identifiable in the markup."
+            }
+          ],
+          "failed": [],
+          "artifacts": {
+            "index.html": "sha256:9a10c48594ab3dbe94c332b4bb6a5a268753cc559d1e6544ea81411dc38cedf6",
+            "app.css": "sha256:6fed7102887554aa0a66442fada7217e065ef26dc88fa3c62559d0bb41a8659c",
+            "app.json": "sha256:02f501b1a6dbf0355b876125e09eb7cb31f69203f62c773c3ac29f642c10e45c"
+          },
+          "previewUrl": "/benchmarks/trials/gpt-5-6-terra/t1/index.html",
+          "usage": {
+            "inputTokens": 137579,
+            "outputTokens": 2742,
+            "cachedInputTokens": 121344
+          },
+          "cost": {
+            "estimateMicro": null,
+            "providerChargedMicro": null,
+            "chargeSource": "not reported",
+            "basis": "No recorded rate card. The CLI reports tokens, not an invoice, so no provider charge is recorded."
+          }
+        },
+        {
+          "id": "gpt-5.6-terra-t2",
+          "index": 2,
+          "status": "pass",
+          "startedAt": "2026-11-15T08:39:27.942Z",
+          "durationMs": 84116,
+          "checks": [
+            {
+              "id": "files-present",
+              "name": "The three required files exist",
+              "status": "pass",
+              "detail": "index.html, app.css and app.json all present, and nothing else."
+            },
+            {
+              "id": "manifest-schema",
+              "name": "app.json is a valid manifest with the required shape",
+              "status": "pass",
+              "detail": "3 links, theme dark, sections about and guestbook."
+            },
+            {
+              "id": "manifest-content",
+              "name": "The manifest carries the given title, tagline and three links in order",
+              "status": "pass",
+              "detail": "Title, tagline and all three links match the brief exactly, in order."
+            },
+            {
+              "id": "page-shows-brief",
+              "name": "index.html shows the title, tagline and all three labels",
+              "status": "pass",
+              "detail": "Title, tagline and all three labels appear in the rendered markup."
+            },
+            {
+              "id": "stylesheet-linked",
+              "name": "index.html links app.css and app.css declares styling",
+              "status": "pass",
+              "detail": "app.css is linked and declares 16 rule blocks."
+            },
+            {
+              "id": "csp-compatible",
+              "name": "No script, no inline style attributes and no style blocks",
+              "status": "pass",
+              "detail": "No scripts, style blocks, inline style attributes or inline handlers."
+            },
+            {
+              "id": "no-external",
+              "name": "No requests to other origins",
+              "status": "pass",
+              "detail": "Every reference stays on the three brief destinations or a relative path."
+            },
+            {
+              "id": "document-basics",
+              "name": "One h1, a declared language, a viewport meta and no empty links",
+              "status": "pass",
+              "detail": "One h1, a declared language, a viewport meta, a title and no empty links."
+            },
+            {
+              "id": "sections-present",
+              "name": "The about and guestbook sections each have a heading",
+              "status": "pass",
+              "detail": "Both the about and guestbook sections are identifiable in the markup."
+            }
+          ],
+          "failed": [],
+          "artifacts": {
+            "index.html": "sha256:819f9d321e8f82ca5e2ddb55745e9cc7c85595cb408fdeecd2d0489107dca3c9",
+            "app.css": "sha256:2c6c9022a39df35bde8594a90750362df73356b83c94c385864674c01aace6fe",
+            "app.json": "sha256:7b53c99ddfc54e45779510404b6cd8d00d7a761b99c7e0f70f8220f7dab98501"
+          },
+          "previewUrl": "/benchmarks/trials/gpt-5-6-terra/t2/index.html",
+          "usage": {
+            "inputTokens": 137930,
+            "outputTokens": 2965,
+            "cachedInputTokens": 121344
+          },
+          "cost": {
+            "estimateMicro": null,
+            "providerChargedMicro": null,
+            "chargeSource": "not reported",
+            "basis": "No recorded rate card. The CLI reports tokens, not an invoice, so no provider charge is recorded."
+          }
+        },
+        {
+          "id": "gpt-5.6-terra-t3",
+          "index": 3,
+          "status": "pass",
+          "startedAt": "2026-11-15T08:40:52.062Z",
+          "durationMs": 71121,
+          "checks": [
+            {
+              "id": "files-present",
+              "name": "The three required files exist",
+              "status": "pass",
+              "detail": "index.html, app.css and app.json all present, and nothing else."
+            },
+            {
+              "id": "manifest-schema",
+              "name": "app.json is a valid manifest with the required shape",
+              "status": "pass",
+              "detail": "3 links, theme dark, sections about and guestbook."
+            },
+            {
+              "id": "manifest-content",
+              "name": "The manifest carries the given title, tagline and three links in order",
+              "status": "pass",
+              "detail": "Title, tagline and all three links match the brief exactly, in order."
+            },
+            {
+              "id": "page-shows-brief",
+              "name": "index.html shows the title, tagline and all three labels",
+              "status": "pass",
+              "detail": "Title, tagline and all three labels appear in the rendered markup."
+            },
+            {
+              "id": "stylesheet-linked",
+              "name": "index.html links app.css and app.css declares styling",
+              "status": "pass",
+              "detail": "app.css is linked and declares 15 rule blocks."
+            },
+            {
+              "id": "csp-compatible",
+              "name": "No script, no inline style attributes and no style blocks",
+              "status": "pass",
+              "detail": "No scripts, style blocks, inline style attributes or inline handlers."
+            },
+            {
+              "id": "no-external",
+              "name": "No requests to other origins",
+              "status": "pass",
+              "detail": "Every reference stays on the three brief destinations or a relative path."
+            },
+            {
+              "id": "document-basics",
+              "name": "One h1, a declared language, a viewport meta and no empty links",
+              "status": "pass",
+              "detail": "One h1, a declared language, a viewport meta, a title and no empty links."
+            },
+            {
+              "id": "sections-present",
+              "name": "The about and guestbook sections each have a heading",
+              "status": "pass",
+              "detail": "Both the about and guestbook sections are identifiable in the markup."
+            }
+          ],
+          "failed": [],
+          "artifacts": {
+            "index.html": "sha256:a047d0f595bca3076f52e9c41dc3915325f2bbbd243adb2217dcc355220bccf4",
+            "app.css": "sha256:fd51cce91622694b31fbb9460aac130b980915ff8f7089d4f5177492dec66227",
+            "app.json": "sha256:02f501b1a6dbf0355b876125e09eb7cb31f69203f62c773c3ac29f642c10e45c"
+          },
+          "previewUrl": "/benchmarks/trials/gpt-5-6-terra/t3/index.html",
+          "usage": {
+            "inputTokens": 91527,
+            "outputTokens": 2576,
+            "cachedInputTokens": 75776
+          },
+          "cost": {
+            "estimateMicro": null,
+            "providerChargedMicro": null,
+            "chargeSource": "not reported",
+            "basis": "No recorded rate card. The CLI reports tokens, not an invoice, so no provider charge is recorded."
+          }
+        }
+      ]
+    },
+    {
+      "id": "opencode-deepseek",
+      "label": "DeepSeek V4.1 Flash · OpenCode agent",
+      "model": "deepseek-v4.1-flash",
+      "resolvedModel": "deepseek-v4.1-flash via opencode-go",
+      "harness": "opencode agent",
+      "harnessVersion": "host agent runtime",
+      "settings": {
+        "reasoningEffort": "provider default",
+        "approval": "never",
+        "sandbox": "one isolated directory per trial, no repository access",
+        "auth": "operator's OpenCode session"
+      },
+      "runnerKind": "ingest",
+      "trials": [
+        {
+          "id": "opencode-deepseek-t1",
+          "index": 1,
+          "status": "pass",
+          "startedAt": "2026-11-15T08:42:03.187Z",
+          "durationMs": null,
+          "checks": [
+            {
+              "id": "files-present",
+              "name": "The three required files exist",
+              "status": "pass",
+              "detail": "index.html, app.css and app.json all present, and nothing else."
+            },
+            {
+              "id": "manifest-schema",
+              "name": "app.json is a valid manifest with the required shape",
+              "status": "pass",
+              "detail": "3 links, theme dark, sections about and guestbook."
+            },
+            {
+              "id": "manifest-content",
+              "name": "The manifest carries the given title, tagline and three links in order",
+              "status": "pass",
+              "detail": "Title, tagline and all three links match the brief exactly, in order."
+            },
+            {
+              "id": "page-shows-brief",
+              "name": "index.html shows the title, tagline and all three labels",
+              "status": "pass",
+              "detail": "Title, tagline and all three labels appear in the rendered markup."
+            },
+            {
+              "id": "stylesheet-linked",
+              "name": "index.html links app.css and app.css declares styling",
+              "status": "pass",
+              "detail": "app.css is linked and declares 31 rule blocks."
+            },
+            {
+              "id": "csp-compatible",
+              "name": "No script, no inline style attributes and no style blocks",
+              "status": "pass",
+              "detail": "No scripts, style blocks, inline style attributes or inline handlers."
+            },
+            {
+              "id": "no-external",
+              "name": "No requests to other origins",
+              "status": "pass",
+              "detail": "Every reference stays on the three brief destinations or a relative path."
+            },
+            {
+              "id": "document-basics",
+              "name": "One h1, a declared language, a viewport meta and no empty links",
+              "status": "pass",
+              "detail": "One h1, a declared language, a viewport meta, a title and no empty links."
+            },
+            {
+              "id": "sections-present",
+              "name": "The about and guestbook sections each have a heading",
+              "status": "pass",
+              "detail": "Both the about and guestbook sections are identifiable in the markup."
+            }
+          ],
+          "failed": [],
+          "artifacts": {
+            "index.html": "sha256:550321a2a32d04290638bbc7366a45d8c1828dde585f675d12f551aa7c1e5a9b",
+            "app.css": "sha256:114eaa3b1ef946140791e2423e0ac83e179a1872edcf4d4c365f3c55ea52f84f",
+            "app.json": "sha256:7b53c99ddfc54e45779510404b6cd8d00d7a761b99c7e0f70f8220f7dab98501"
+          },
+          "previewUrl": "/benchmarks/trials/opencode-deepseek/t1/index.html",
+          "usage": null,
+          "cost": {
+            "estimateMicro": null,
+            "providerChargedMicro": null,
+            "chargeSource": "not reported",
+            "basis": "Ingested output. No usage was reported by the producing harness."
+          }
+        },
+        {
+          "id": "opencode-deepseek-t2",
+          "index": 2,
+          "status": "pass",
+          "startedAt": "2026-11-15T08:42:03.189Z",
+          "durationMs": null,
+          "checks": [
+            {
+              "id": "files-present",
+              "name": "The three required files exist",
+              "status": "pass",
+              "detail": "index.html, app.css and app.json all present, and nothing else."
+            },
+            {
+              "id": "manifest-schema",
+              "name": "app.json is a valid manifest with the required shape",
+              "status": "pass",
+              "detail": "3 links, theme dark, sections about and guestbook."
+            },
+            {
+              "id": "manifest-content",
+              "name": "The manifest carries the given title, tagline and three links in order",
+              "status": "pass",
+              "detail": "Title, tagline and all three links match the brief exactly, in order."
+            },
+            {
+              "id": "page-shows-brief",
+              "name": "index.html shows the title, tagline and all three labels",
+              "status": "pass",
+              "detail": "Title, tagline and all three labels appear in the rendered markup."
+            },
+            {
+              "id": "stylesheet-linked",
+              "name": "index.html links app.css and app.css declares styling",
+              "status": "pass",
+              "detail": "app.css is linked and declares 36 rule blocks."
+            },
+            {
+              "id": "csp-compatible",
+              "name": "No script, no inline style attributes and no style blocks",
+              "status": "pass",
+              "detail": "No scripts, style blocks, inline style attributes or inline handlers."
+            },
+            {
+              "id": "no-external",
+              "name": "No requests to other origins",
+              "status": "pass",
+              "detail": "Every reference stays on the three brief destinations or a relative path."
+            },
+            {
+              "id": "document-basics",
+              "name": "One h1, a declared language, a viewport meta and no empty links",
+              "status": "pass",
+              "detail": "One h1, a declared language, a viewport meta, a title and no empty links."
+            },
+            {
+              "id": "sections-present",
+              "name": "The about and guestbook sections each have a heading",
+              "status": "pass",
+              "detail": "Both the about and guestbook sections are identifiable in the markup."
+            }
+          ],
+          "failed": [],
+          "artifacts": {
+            "index.html": "sha256:b1829405757d1e986a4575331afbf6450597b5d15a3be7d6c01819da3813a63f",
+            "app.css": "sha256:1b1cac16e6083fcca9a573ac81058c5f7eda89104c3f43e7838868fbde293253",
+            "app.json": "sha256:02f501b1a6dbf0355b876125e09eb7cb31f69203f62c773c3ac29f642c10e45c"
+          },
+          "previewUrl": "/benchmarks/trials/opencode-deepseek/t2/index.html",
+          "usage": null,
+          "cost": {
+            "estimateMicro": null,
+            "providerChargedMicro": null,
+            "chargeSource": "not reported",
+            "basis": "Ingested output. No usage was reported by the producing harness."
+          }
+        },
+        {
+          "id": "opencode-deepseek-t3",
+          "index": 3,
+          "status": "pass",
+          "startedAt": "2026-11-15T08:42:03.191Z",
+          "durationMs": null,
+          "checks": [
+            {
+              "id": "files-present",
+              "name": "The three required files exist",
+              "status": "pass",
+              "detail": "index.html, app.css and app.json all present, and nothing else."
+            },
+            {
+              "id": "manifest-schema",
+              "name": "app.json is a valid manifest with the required shape",
+              "status": "pass",
+              "detail": "3 links, theme dark, sections about and guestbook."
+            },
+            {
+              "id": "manifest-content",
+              "name": "The manifest carries the given title, tagline and three links in order",
+              "status": "pass",
+              "detail": "Title, tagline and all three links match the brief exactly, in order."
+            },
+            {
+              "id": "page-shows-brief",
+              "name": "index.html shows the title, tagline and all three labels",
+              "status": "pass",
+              "detail": "Title, tagline and all three labels appear in the rendered markup."
+            },
+            {
+              "id": "stylesheet-linked",
+              "name": "index.html links app.css and app.css declares styling",
+              "status": "pass",
+              "detail": "app.css is linked and declares 26 rule blocks."
+            },
+            {
+              "id": "csp-compatible",
+              "name": "No script, no inline style attributes and no style blocks",
+              "status": "pass",
+              "detail": "No scripts, style blocks, inline style attributes or inline handlers."
+            },
+            {
+              "id": "no-external",
+              "name": "No requests to other origins",
+              "status": "pass",
+              "detail": "Every reference stays on the three brief destinations or a relative path."
+            },
+            {
+              "id": "document-basics",
+              "name": "One h1, a declared language, a viewport meta and no empty links",
+              "status": "pass",
+              "detail": "One h1, a declared language, a viewport meta, a title and no empty links."
+            },
+            {
+              "id": "sections-present",
+              "name": "The about and guestbook sections each have a heading",
+              "status": "pass",
+              "detail": "Both the about and guestbook sections are identifiable in the markup."
+            }
+          ],
+          "failed": [],
+          "artifacts": {
+            "index.html": "sha256:0a14bba29271ac4edf21b96a75d351806672c469194b8296a4e2ca7c089dac00",
+            "app.css": "sha256:7cbeff57b7d8cfb73e19f43b68080b48b9694d786734d3629fff6efe9f34beba",
+            "app.json": "sha256:02f501b1a6dbf0355b876125e09eb7cb31f69203f62c773c3ac29f642c10e45c"
+          },
+          "previewUrl": "/benchmarks/trials/opencode-deepseek/t3/index.html",
+          "usage": null,
+          "cost": {
+            "estimateMicro": null,
+            "providerChargedMicro": null,
+            "chargeSource": "not reported",
+            "basis": "Ingested output. No usage was reported by the producing harness."
+          }
+        }
+      ]
+    }
+  ],
+  "sourceVersion": "1c97c3d6e3405443775ef54917250e83a68d400b"
+}

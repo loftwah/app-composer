@@ -1,0 +1,99 @@
+:root {
+  color-scheme: dark;
+  --paper: #11110f;
+  --ink: #f3f0e8;
+  --muted: #b9b4a8;
+  --line: #444038;
+  --accent: #e5a74b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.6;
+}
+
+main {
+  width: min(100% - 2.5rem, 44rem);
+  margin: 0 auto;
+  padding: 5rem 0 4rem;
+}
+
+header {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 2.5rem;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0.75rem;
+  font-size: clamp(2.75rem, 9vw, 5.5rem);
+  font-weight: 400;
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+}
+
+h2 {
+  margin-bottom: 0.65rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.tagline {
+  max-width: 28rem;
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 1.25rem;
+}
+
+nav {
+  padding: 2rem 0;
+}
+
+nav ul {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: var(--ink);
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover,
+a:focus-visible {
+  color: var(--accent);
+}
+
+section {
+  border-top: 1px solid var(--line);
+  padding: 2rem 0;
+}
+
+section p {
+  max-width: 38rem;
+  margin-bottom: 0;
+}
+
+.guestbook-note {
+  color: var(--muted);
+  font-style: italic;
+}

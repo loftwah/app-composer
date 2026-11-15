@@ -1,0 +1,100 @@
+{
+  "schema": "benchmark-configurations/v1",
+  "note": "Every configuration is a tested system, not a model name. model × harness × prompt × skills × tools × fixture. Settings are matched across the codex entries so the difference between them is the model alone.",
+  "sharedSettings": {
+    "prompt": "The frozen task brief in task.json, passed unchanged as the only instruction.",
+    "skills": "none invoked",
+    "tools": "the harness's default file tools",
+    "approval": "never",
+    "sandbox": "one isolated temporary directory per trial",
+    "timeoutMs": 240000,
+    "trials": 3
+  },
+  "configurations": [
+    {
+      "id": "gpt-5.6-sol",
+      "label": "GPT-5.6 Sol · Codex CLI",
+      "model": "gpt-5.6-sol",
+      "resolvedModel": "gpt-5.6-sol",
+      "harness": "codex-cli",
+      "harnessVersion": "0.145.0",
+      "settings": {
+        "reasoningEffort": "low",
+        "approval": "never",
+        "sandbox": "danger-full-access, isolated temporary directory",
+        "auth": "operator's ChatGPT plan"
+      },
+      "rateCard": null,
+      "runner": {
+        "kind": "codex",
+        "command": "codex",
+        "args": [
+          "exec",
+          "--skip-git-repo-check",
+          "-C",
+          ".",
+          "-m",
+          "gpt-5.6-sol",
+          "-c",
+          "model_reasoning_effort=low",
+          "--json"
+        ],
+        "previewHost": ""
+      },
+      "trials": 3
+    },
+    {
+      "id": "gpt-5.6-terra",
+      "label": "GPT-5.6 Terra · Codex CLI",
+      "model": "gpt-5.6-terra",
+      "resolvedModel": "gpt-5.6-terra",
+      "harness": "codex-cli",
+      "harnessVersion": "0.145.0",
+      "settings": {
+        "reasoningEffort": "low",
+        "approval": "never",
+        "sandbox": "danger-full-access, isolated temporary directory",
+        "auth": "operator's ChatGPT plan"
+      },
+      "rateCard": null,
+      "runner": {
+        "kind": "codex",
+        "command": "codex",
+        "args": [
+          "exec",
+          "--skip-git-repo-check",
+          "-C",
+          ".",
+          "-m",
+          "gpt-5.6-terra",
+          "-c",
+          "model_reasoning_effort=low",
+          "--json"
+        ],
+        "previewHost": ""
+      },
+      "trials": 3
+    },
+    {
+      "id": "opencode-deepseek",
+      "label": "DeepSeek V4.1 Flash · OpenCode agent",
+      "model": "deepseek-v4.1-flash",
+      "resolvedModel": "deepseek-v4.1-flash via opencode-go",
+      "harness": "opencode agent",
+      "harnessVersion": "host agent runtime",
+      "settings": {
+        "reasoningEffort": "provider default",
+        "approval": "never",
+        "sandbox": "one isolated directory per trial, no repository access",
+        "auth": "operator's OpenCode session"
+      },
+      "rateCard": null,
+      "runner": {
+        "kind": "ingest",
+        "ingestRoot": "",
+        "previewHost": ""
+      },
+      "trials": 3
+    }
+  ]
+}

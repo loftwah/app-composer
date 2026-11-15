@@ -1,0 +1,111 @@
+:root {
+  color-scheme: dark;
+  font-family: Georgia, "Times New Roman", serif;
+  background: #171512;
+  color: #eee8dc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: radial-gradient(circle at 50% 0%, #302a22 0, #171512 42rem);
+}
+
+main {
+  width: min(90%, 52rem);
+  margin: 0 auto;
+  padding: 8rem 0 5rem;
+}
+
+header {
+  padding-bottom: 4rem;
+  border-bottom: 1px solid #5e5548;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  max-width: 8ch;
+  margin-bottom: 1.25rem;
+  font-size: clamp(3.5rem, 11vw, 7.5rem);
+  font-weight: 400;
+  line-height: 0.88;
+  letter-spacing: -0.055em;
+}
+
+.tagline {
+  max-width: 30rem;
+  margin-bottom: 2.5rem;
+  color: #c8bba8;
+  font-size: clamp(1.15rem, 3vw, 1.5rem);
+  line-height: 1.45;
+}
+
+nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  display: inline-block;
+  padding: 0.7rem 1rem;
+  border: 1px solid #766b5b;
+  border-radius: 999px;
+  color: #f4c978;
+  text-decoration: none;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+a:hover,
+a:focus-visible {
+  background: #f4c978;
+  color: #171512;
+  outline: none;
+}
+
+section {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) 2fr;
+  gap: 2rem;
+  padding: 3rem 0;
+  border-bottom: 1px solid #3d3831;
+}
+
+h2 {
+  color: #f4c978;
+  font-size: 0.8rem;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+section p {
+  margin-bottom: 0;
+  color: #d8d0c4;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 38rem) {
+  main {
+    padding-top: 5rem;
+  }
+
+  section {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}

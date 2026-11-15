@@ -1,0 +1,11 @@
+{
+  "title": "Night Shift Radio",
+  "tagline": "Two hours of quiet, made on a kitchen table.",
+  "theme": "dark",
+  "links": [
+    { "label": "Latest release", "url": "https://example.com/release" },
+    { "label": "Behind the scenes", "url": "https://example.com/notes" },
+    { "label": "Get the newsletter", "url": "https://example.com/subscribe" }
+  ],
+  "sections": ["about", "guestbook"]
+}
