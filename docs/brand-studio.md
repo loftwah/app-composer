@@ -123,3 +123,45 @@ unsafe-import refusal, keyboard and reflow journey. The maintained replay is
 ignored `output/brand-studio-acceptance/` and never overwrite the historical
 production evidence. Production identity and owner-state continuity are recorded
 separately in #11.
+
+## Workshop press skin — 15 November 2026
+
+Brand Studio offers one optional skin beside the reading presets. **Composer
+default** is the unchanged approved identity; **Workshop press** sets the
+Composer panels into a pressed plate with a heavier rule, a squarer control edge
+and a plate tint mixed from the host text colour, so both native themes stay
+legible. The skin changes only presentation: labels, order, actions, permissions
+and native icons are untouched.
+
+Two optional fields extend the existing versioned record, not a second store:
+
+- `skin`: `composer` (default) or `workshop-press`.
+- `skinPressure`: integer 1–4, the finite edge weight shown as Quiet, Set, Firm,
+  Pressed.
+
+Both are optional inside `composer.admin-brand/1` and are validated by
+`normaliseAdminBrandConfig()`. Every version saved before this slice has neither
+field, takes the Composer defaults on read, and remains previewable, restorable
+and exportable. Publication comparison reports the skin, and reports edge
+pressure only while the press skin is actually in play. `adminBrandCss()` emits
+the skin as a finite token-and-edge layer with no interpolated user text.
+
+Press feedback is separate from the shared appearance record. Sound and haptics
+are off by default, stored per device under
+`composer:brand-studio:sensory:v1`, and never published to other administrators.
+Only the labelled **Press the plate** specimen control can play them: a short Web
+Audio tick on the gesture, plus one `navigator.vibrate` pulse when the browser
+reports support. There is no autoplay, no typing sound and no document-level
+listener. Unsupported browsers show a disabled control with the reason.
+Reduced motion keeps the direct visual pressed edge and drops the settle tick
+and the vibration. The skin itself adds no animation.
+
+Verification for this slice: `node --test tests/admin-brand-skin.test.mjs`
+(normalisation of a retained pre-skin row, bound rejection, CSS bounds, device
+preference parsing, reduced-motion cue plan) and the maintained native replay,
+which now also checks keyboard-only skin choice and range, the saved preview's
+`--composer-skin-press` value, save → reload → the skin still selected, restore
+to the default skin, and 390px plus doubled root text without horizontal
+scrolling. Physical vibration, iPhone Safari, screen-reader speech and
+production remain unverified; see
+[the reference note](tactile-skin-20261115.md).

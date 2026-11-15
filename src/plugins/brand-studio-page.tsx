@@ -2,17 +2,36 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
 import {
   adminBrandConfig,
+  adminBrandSkins,
   brandSnapshot,
   approvedMark,
   compareAdminBrand,
   adminReadingPresets,
+  skinPressureNames,
   type AdminBrandConfig,
   type BrandSnapshot,
 } from "../lib/admin-brand-contract";
+import {
+  hapticsAvailable,
+  playSkinCue,
+  readSensoryPreference,
+  sensoryOff,
+  skinCuePlan,
+  soundAvailable,
+  writeSensoryPreference,
+  type SkinSensoryPreference,
+} from "../lib/brand-skin-feedback";
 import { useNavigationGuard } from "./stacks/use-navigation-guard";
 import "./brand-studio-page.css";
 
 const BASE = "/_emdash/api/plugins/composer-stacks/";
+function deviceStorage(): Storage | undefined {
+  try {
+    return window.localStorage;
+  } catch {
+    return undefined;
+  }
+}
 const SCREENS = [
   ["overview", "Needs attention"],
   ["enquiries", "Inbox"],
@@ -60,6 +79,10 @@ export function BrandStudioPage() {
   const [screen, setScreen] = useState("overview");
   const [reviewed, setReviewed] = useState(false);
   const [restoreVersion, setRestoreVersion] = useState<number>();
+  const [sensory, setSensory] = useState<SkinSensoryPreference>(sensoryOff);
+  const [support, setSupport] = useState({ sound: false, haptics: false });
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [cueNote, setCueNote] = useState("");
   const alive = useRef(true),
     pending = useRef(false);
   const dirty = !!(
@@ -103,6 +126,44 @@ export function BrandStudioPage() {
       alive.current = false;
     };
   }, []);
+  useEffect(() => {
+    const sound = soundAvailable(window),
+      haptics = hapticsAvailable(navigator);
+    const stored = readSensoryPreference(deviceStorage());
+    setSupport({ sound, haptics });
+    setSensory({
+      sound: stored.sound && sound,
+      haptics: stored.haptics && haptics,
+    });
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)"),
+      follow = () => setReducedMotion(query.matches);
+    follow();
+    query.addEventListener("change", follow);
+    return () => query.removeEventListener("change", follow);
+  }, []);
+  function chooseSensory(patch: Partial<SkinSensoryPreference>) {
+    const next = { ...sensory, ...patch };
+    setSensory(next);
+    writeSensoryPreference(deviceStorage(), next);
+  }
+  function pressPlate() {
+    if (!sensory.sound && !sensory.haptics) {
+      setCueNote(
+        "Press feedback is off. The plate still shows its pressed edge.",
+      );
+      return;
+    }
+    const result = playSkinCue(window, skinCuePlan(reducedMotion), sensory),
+      played = [
+        result.sound ? "a short tick" : "",
+        result.haptics ? "a haptic tap" : "",
+      ].filter(Boolean);
+    setCueNote(
+      played.length
+        ? `Press feedback played ${played.join(" and ")}. Nothing else changed.`
+        : "This browser did not play or vibrate the press cue. The pressed edge still shows the state.",
+    );
+  }
   const change = (patch: Partial<AdminBrandConfig>) => {
     if (!busy && form) {
       setForm({ ...form, ...patch });
@@ -302,6 +363,135 @@ export function BrandStudioPage() {
                     </button>
                   ))}
                 </div>
+                <fieldset className="bs-skin">
+                  <legend>Skin</legend>
+                  <p className="bs-hint">
+                    An optional tactile treatment for this admin. The Composer
+                    default keeps the approved identity and spacing you chose
+                    above. Both skins keep every native control and label.
+                  </p>
+                  <div
+                    className="bs-skin-choices"
+                    role="group"
+                    aria-label="Admin skin"
+                  >
+                    {adminBrandSkins.map((option) => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        aria-pressed={form.skin === option.id}
+                        onClick={() => change({ skin: option.id })}
+                      >
+                        <strong>{option.name}</strong>
+                        <span>{option.description}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <label>
+                    Edge pressure
+                    <input
+                      type="range"
+                      aria-label="Edge pressure"
+                      aria-describedby="bs-pressure-help"
+                      aria-valuetext={`${skinPressureNames[form.skinPressure - 1]} — ${form.skinPressure} of 4`}
+                      min={1}
+                      max={4}
+                      step={1}
+                      value={form.skinPressure}
+                      onChange={(e) =>
+                        change({ skinPressure: Number(e.target.value) })
+                      }
+                    />
+                    <span className="bs-readout" aria-hidden="true">
+                      {skinPressureNames[form.skinPressure - 1]} ·{" "}
+                      {form.skinPressure} of 4
+                    </span>
+                    <small id="bs-pressure-help">
+                      Sets how heavy the panel edge, field border and focus ring
+                      are. Saved with this appearance.{" "}
+                      {form.skin === "workshop-press"
+                        ? "Applied to the Workshop press skin."
+                        : "Not applied while Composer default is selected."}
+                    </small>
+                  </label>
+                  <div
+                    className="bs-specimen"
+                    data-skin={form.skin}
+                    data-pressure={form.skinPressure}
+                  >
+                    <p className="bs-specimen-label">
+                      <strong>Local specimen</strong>
+                      <span>
+                        A sample of the chosen skin in this form. It is not a
+                        saved preview; open the admin previews for that.
+                      </span>
+                    </p>
+                    <div className="bs-specimen-row">
+                      <span className="bs-specimen-field" aria-hidden="true">
+                        Field edge
+                      </span>
+                      <button type="button" onClick={pressPlate}>
+                        Press the plate
+                      </button>
+                    </div>
+                  </div>
+                  <div className="bs-sensory">
+                    <h3>Press feedback</h3>
+                    <p className="bs-hint" id="bs-sensory-help">
+                      Both are off until you turn them on, are stored on this
+                      device only, and never reach anyone else using this admin.
+                      The plate is the only control that plays them.
+                    </p>
+                    <label className="bs-check">
+                      <input
+                        type="checkbox"
+                        checked={sensory.sound}
+                        disabled={!support.sound}
+                        aria-describedby="bs-sensory-help"
+                        onChange={(e) =>
+                          chooseSensory({ sound: e.target.checked })
+                        }
+                      />
+                      <span>
+                        Sound cue on this device
+                        <small>
+                          {support.sound
+                            ? "One short tick after you press the plate. No typing sounds, no autoplay."
+                            : "This browser does not expose Web Audio, so sound stays off."}
+                        </small>
+                      </span>
+                    </label>
+                    <label className="bs-check">
+                      <input
+                        type="checkbox"
+                        checked={sensory.haptics}
+                        disabled={!support.haptics}
+                        aria-describedby="bs-sensory-help"
+                        onChange={(e) =>
+                          chooseSensory({ haptics: e.target.checked })
+                        }
+                      />
+                      <span>
+                        Haptic tap on supported devices
+                        <small>
+                          {support.haptics
+                            ? "One brief vibration after you press the plate. The device may ignore it."
+                            : "This browser does not report vibration support, which is usual on iPhones and desktops, so haptics stay off."}
+                        </small>
+                      </span>
+                    </label>
+                    <p className="bs-hint">
+                      Reduced motion is {reducedMotion ? "on" : "off"} in this
+                      browser.{" "}
+                      {reducedMotion
+                        ? "The plate keeps its direct visual press and skips the settle tick and the haptic tap."
+                        : "No part of this skin animates; feedback only confirms a press you made."}
+                    </p>
+                    <p role="status" className="bs-cue-status">
+                      {cueNote}
+                    </p>
+                  </div>
+                </fieldset>
                 <label>
                   Admin name
                   <input
@@ -576,6 +766,9 @@ export function BrandStudioPage() {
                       <p>
                         {entry.config.siteName} · {entry.config.density} spacing
                         · {entry.config.typeScale} text
+                        {entry.config.skin === "workshop-press"
+                          ? ` · Workshop press, ${skinPressureNames[entry.config.skinPressure - 1].toLowerCase()} edge`
+                          : ""}
                         {entry.version === saved.publishedVersion
                           ? " · current appearance"
                           : ""}

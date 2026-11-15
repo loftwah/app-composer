@@ -331,6 +331,46 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
     await page.getByRole("textbox", { name: /^Admin name/ }).inputValue(),
     "App Composer Studio",
   );
+  // The skin is a real saved setting: keyboard-only choice, range, and a
+  // device-local press cue that starts off.
+  const pressSkin = page.getByRole("button", { name: /^Workshop press/ });
+  await page.getByRole("button", { name: /^Composer default/ }).focus();
+  await page.keyboard.press("Tab");
+  assert.equal(
+    await page.evaluate(() => document.activeElement?.textContent ?? ""),
+    await pressSkin.evaluate((node) => node.textContent ?? ""),
+  );
+  await page.keyboard.press("Enter");
+  assert.equal(await pressSkin.getAttribute("aria-pressed"), "true");
+  const pressure = page.getByLabel("Edge pressure", { exact: true });
+  await pressure.focus();
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  assert.equal(await pressure.inputValue(), "4");
+  receipt.checks.skinKeyboardRange = true;
+  const soundToggle = page.getByRole("checkbox", {
+    name: /Sound cue on this device/,
+  });
+  assert.equal(await soundToggle.isChecked(), false);
+  const hapticsToggle = page.getByRole("checkbox", {
+    name: /Haptic tap on supported devices/,
+  });
+  assert.equal(await hapticsToggle.isChecked(), false);
+  const hapticsSupported = !(await hapticsToggle.isDisabled());
+  await soundToggle.check();
+  await page
+    .getByRole("button", { name: "Press the plate", exact: true })
+    .click();
+  await page
+    .getByRole("status")
+    .filter({ hasText: "Press feedback played a short tick." })
+    .waitFor();
+  receipt.checks.skinSensory = {
+    soundOffByDefault: true,
+    hapticsOffByDefault: true,
+    hapticsSupportedInThisBrowser: hapticsSupported,
+    physicalVibrationNotTested: true,
+  };
   await page.getByRole("button", { name: "Save draft", exact: true }).click();
   await page
     .getByText("Draft saved. Open an actual admin preview before publishing.", {
@@ -349,12 +389,21 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
     ),
     "18px",
   );
+  assert.equal(
+    await phone.evaluate(() =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--composer-skin-press")
+        .trim(),
+    ),
+    "4px",
+  );
+  receipt.checks.skinInSavedNativePreview = true;
   await phone.locator(".co-next h2").waitFor();
   await phone.screenshot({
-    path: join(out, "second-draft-native-phone.png"),
+    path: join(out, "second-draft-native-phone-skin.png"),
     fullPage: true,
   });
-  receipt.captures.push("second-draft-native-phone.png");
+  receipt.captures.push("second-draft-native-phone-skin.png");
   await phone.close();
   await page
     .getByLabel("I reviewed the saved draft on the screens I need.", {
@@ -380,7 +429,37 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
     snapshot.history.find((row) => row.version === 2).config,
     first,
   );
+  assert.equal(snapshot.published.skin, "workshop-press");
+  assert.equal(snapshot.published.skinPressure, 4);
   receipt.checks.secondChangePreservedFirst = true;
+  await page.goto(origin + overview, { waitUntil: "networkidle" });
+  await page.locator(".co-next h2").waitFor();
+  assert.equal(
+    await page.locator('link[data-composer-brand-version="4"]').count(),
+    1,
+  );
+  assert.equal(
+    await page.evaluate(() =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--composer-skin-press")
+        .trim(),
+    ),
+    "4px",
+  );
+  receipt.checks.skinPublishedToNativeAdmin = true;
+  await page.goto(origin + studio, { waitUntil: "networkidle" });
+  await page.getByRole("textbox", { name: /^Admin name/ }).waitFor();
+  assert.equal(
+    await page
+      .getByRole("button", { name: /^Workshop press/ })
+      .getAttribute("aria-pressed"),
+    "true",
+  );
+  assert.equal(
+    await page.getByLabel("Edge pressure", { exact: true }).inputValue(),
+    "4",
+  );
+  receipt.checks.skinSurvivedReopen = true;
   await page
     .getByRole("button", { name: "Review restore of version 2", exact: true })
     .click();
@@ -412,8 +491,10 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
   );
   assert.equal(snapshot.publishedVersion, 5);
   assert.deepEqual(snapshot.published, first);
+  assert.equal(snapshot.published.skin, "composer");
   assert.equal(snapshot.history.length, 5);
   receipt.checks.rollbackPreservedHistory = true;
+  receipt.checks.skinRestoreToDefault = true;
   await page.getByLabel("Import configuration", { exact: true }).setInputFiles({
     name: "unsafe-brand.json",
     mimeType: "application/json",
@@ -466,6 +547,15 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
       );
       await capture(`after-native-${width}-${theme}.png`);
     }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.evaluate(() => localStorage.setItem("emdash-theme", "light"));
+  await page.goto(origin + studio, { waitUntil: "networkidle" });
+  await page.getByRole("textbox", { name: /^Admin name/ }).waitFor();
+  await page
+    .getByRole("checkbox", { name: /Sound cue on this device/ })
+    .uncheck();
+  await page.locator(".bs-skin").scrollIntoViewIfNeeded();
+  await capture("studio-skin-panel-1440-light.png");
   await page.goto(origin + studio, { waitUntil: "networkidle" });
   await page.getByRole("textbox", { name: /^Admin name/ }).waitFor();
   await page.getByRole("textbox", { name: /^Admin name/ }).focus();
@@ -475,6 +565,39 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
     "INPUT",
   );
   receipt.checks.keyboardForm = true;
+  // The saved skin version is previewed at phone width with doubled root text;
+  // the added edges must not create horizontal scrolling.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => localStorage.setItem("emdash-theme", "light"));
+  await page.goto(
+    origin + "/_emdash/admin/plugins/composer-stacks/overview?brandPreview=4",
+    { waitUntil: "networkidle" },
+  );
+  await page.locator(".co-next h2").waitFor();
+  assert.equal(
+    await page.evaluate(() =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--composer-skin-press")
+        .trim(),
+    ),
+    "4px",
+  );
+  assert.ok(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  );
+  await capture("skin-390-light.png");
+  await page.evaluate(() => (document.documentElement.style.fontSize = "32px"));
+  assert.ok(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  );
+  receipt.checks.skinPhoneAndDoubleTextReflow = true;
+  await capture("skin-390-light-double-root-text.png");
+  await page.goto(origin + studio, { waitUntil: "networkidle" });
+  await page.getByRole("textbox", { name: /^Admin name/ }).waitFor();
   await page
     .getByRole("heading", { name: "Saved versions", exact: true })
     .scrollIntoViewIfNeeded();
@@ -493,6 +616,7 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
     event: row.event,
     siteName: row.config.siteName,
     footerLabel: row.config.footerLabel,
+    skin: row.config.skin,
   }));
   receipt.pageErrors = errors;
   assert.deepEqual(errors, []);
