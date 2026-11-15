@@ -72,6 +72,10 @@ The evening run kept the same owner session and added the following. Read the
 | Media Studio | `2640e67b7224f9c3a2ada1b77e364769ac4039b5` | `e560dc4b-4c97-4ccd-a098-f4e2b89fa098` | [build.json](https://media.loftwah.com/build.json) |
 | App Composer | `f26c94030e039c54c49d009d860b5b396736821f` | `8fa56e05-d986-43b5-8b51-45cb37c9a6f2` | [build.json](https://composer.loftwah.com/build.json) |
 
+Final content-only Composer release after the receipts: `3540bf95bbd968954f210700109dd1b0d88d7744`
+(Worker `e1452737-753a-442a-8a8e-02ad2909a2ec`), correcting the tutorial's
+caption/spec text. Model and spec behaviour are unchanged.
+
 | Issue / item | Outcome | Evidence and remaining work |
 | --- | --- | --- |
 | Studio model retirement (new [#156](https://github.com/loftwah/composer-media-studio/issues/156)) | **Delivered; close proposed** | SDXL Lightning was withdrawn before its 20 November cutoff. Studio Draft uses FLUX.2 Klein 9B; saved jobs keep the exact SDXL attribution. A live Studio request saved `gen_4515ab469ca948dfbe5587bbf142c8ac` at 1024 × 1280 on the real adapter. The manifest has zero alerts. The close is waiting in the GitHub panel for owner approval. |

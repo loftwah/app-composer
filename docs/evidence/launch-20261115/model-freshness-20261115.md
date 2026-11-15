@@ -11,6 +11,11 @@ provider route is healthy.
 | Media Studio | `2640e67b7224f9c3a2ada1b77e364769ac4039b5` | `e560dc4b-4c97-4ccd-a098-f4e2b89fa098` | `https://media.loftwah.com/build.json` |
 | App Composer | `f26c94030e039c54c49d009d860b5b396736821f` | `8fa56e05-d986-43b5-8b51-45cb37c9a6f2` | `https://composer.loftwah.com/build.json` |
 
+A later content-only release `3540bf95bbd968954f210700109dd1b0d88d7744`
+(Worker `e1452737-753a-442a-8a8e-02ad2909a2ec`) corrected the tutorial prompt's
+caption and spec-revision text. The model/spec behaviour above is unchanged;
+`build.json` is now the final pointer.
+
 Studio releases in this slice: `3c121fb` (replacement, manifest, refresh),
 `3c2ef85` (sound-effects v3), `e4081fc` (fal search id), `3c2606e` (Composer
 selection), `820dbb8`/`2640e67` (#148 workbench completion).

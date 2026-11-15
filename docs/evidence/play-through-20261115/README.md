@@ -10,6 +10,10 @@ Composer session.
 `2640e67b7224f9c3a2ada1b77e364769ac4039b5` (Worker
 `e560dc4b-4c97-4ccd-a098-f4e2b89fa098`).
 
+A later content-only Composer release `3540bf9` (Worker `e1452737`) corrected
+the tutorial's caption and spec-revision text; the routes below and the model
+behaviour are unchanged.
+
 ## 1. Start from a brief
 
 1. Open <https://composer.loftwah.com/init?start=media-studio>.
