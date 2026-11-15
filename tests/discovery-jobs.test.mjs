@@ -84,3 +84,10 @@ test("the hub names every role and job", () => {
   assert.equal(discoveryRoles.length, 10);
   assert.equal(discoveryJobs.length, 10);
 });
+
+test('the discovery hub states the actual role count instead of a stale number', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const page = await readFile(new URL('../src/pages/discover.astro', import.meta.url), 'utf8');
+  assert.match(page, /Explore paths for \{discoveryRoles\.length\} roles/);
+  assert.doesNotMatch(page, /Explore paths for (?:\d+|seven|eight|nine|ten) roles/);
+});

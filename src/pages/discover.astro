@@ -16,7 +16,7 @@ import { discoveryHubDescription, discoveryJobs, discoveryRoles } from '../lib/r
       </nav>
     </section>
     <section id="roles" class="discovery-group" aria-labelledby="roles-heading">
-      <div class="group-heading"><h2 id="roles-heading">Or start with who you are</h2><p>Explore paths for seven roles, including WordPress, Shopify and Cloudflare teams. Choose whichever fits your work.</p></div>
+      <div class="group-heading"><h2 id="roles-heading">Or start with who you are</h2><p>Explore paths for {discoveryRoles.length} roles, including WordPress, Shopify and Cloudflare teams. Choose whichever fits your work.</p></div>
       <nav class="choice-list" aria-label="Choose a role">
         {discoveryRoles.map((role) => <a href={'/for/' + role.id}><span class="choice-copy"><strong>{role.label}</strong><small>{role.headline}</small></span><ArrowRight size={17} aria-hidden="true" /></a>)}
       </nav>
