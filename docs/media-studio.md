@@ -147,6 +147,83 @@ server. Tailscale compatibility is considered, with no tailnet setup required.
 The brief also records the current private-read revocation limit and the small
 set of checks needed for the change, using the existing release process.
 
+## Workspace-scoped media authority (#599)
+
+Composer's optional Oyster/Prints capability is offered per creator workspace,
+not per deployment. The workspace is derived server-side from the signed-in
+account and its membership; a workspace id in a request body is only a selector
+and is refused when the account is not a member. Nothing in the request supplies
+the actor, the workspace or the permission.
+
+| Surface | Authority | Allowed actions |
+| --- | --- | --- |
+| Native EmDash panel | Current workspace membership plus the workspace's `media-studio` grants (`studio-installation`), rechecked on every call | `status`, `generate`, `reconcile`, `import`, and — for a workspace owner who is also the deployment owner — `enable`, `disable`, `refresh`, `adopt`, `grant-agent`, `revoke-agent` |
+| Agent (`POST /api/media-agent`) | Owner-issued agent grant: one workspace, an explicit permission subset, an expiry and a revocation | `status`, `generate`, `reconcile`, `import` only |
+
+Permissions use the existing Media Studio vocabulary: `read` (status and job
+lists), `generate` (dispatch and reopen, which can spend), `edit` (import into
+the owned library) and `admin` (connection and grant administration). A member
+without the needed permission is refused before any provider call. A workspace
+owner receives the full set; everyone else needs an active grant row. Setup,
+disable, credential references and agent grants are owner-admin only and are
+unreachable from the agent route.
+
+### Stored scope and receipts
+
+Migration `0029_media_workspace_authority.sql` adds
+`media_workspace_connections` (one connection per workspace, storing a
+credential *reference* and the verified catalogue), `media_workspace_jobs`
+(one canonical job table), `media_agent_grants` (SHA-256 of the token only) and
+`media_scope_events` (owner receipts that name the owning record). The legacy
+`media_capability` row and `media_jobs` rows are retained unchanged.
+
+- A connection stores `OYSTER` or `OYSTER_CONNECTION_<NAME>`; the matching
+  `_ORIGIN` / `_OWNER_KEY` values stay in Worker secrets. A stored row can never
+  select an unrelated secret, and the credential's origin must equal the
+  connection's host.
+- A job id is derived from the workspace and the provider request id, so ids do
+  not collide across workspaces. The provider request id stays globally unique:
+  the same idempotency key replayed in the same workspace returns the recorded
+  job without a second provider call, and replayed from another workspace fails
+  closed without confirming that a row exists.
+- An unknown or timed-out dispatch is recorded as `unknown`. It is never retried
+  automatically; only the explicit `reconcile` call re-reads that provider
+  identity.
+- `disable` is this workspace's revocation: new dispatch and retained-result
+  reads stop, and every job, imported file and receipt is kept. It never deletes
+  media or changes the independent installation.
+- Imported files are written once per job to `media-studio/<jobId>.<ext>` in the
+  app's own R2 and are served from `/media-studio/asset/<name>`. That URL is
+  public-by-URL, as before: withdrawing or deleting an owned file stays a
+  separate explicit operation. The capability never returns another workspace's
+  key, and an artifact can only be imported from a job row in the caller's scope.
+
+### Legacy rows and the bounded credential transition
+
+A pre-#599 row stores no workspace, account or environment, and the old handlers
+ran with deployment-wide authority. **No automatic backfill guesses a
+workspace:** every legacy job is copied once into owner custody
+(`workspace_id = 'custody:owner'`, `scope = 'custody'`, `adopted_from =
+'legacy:0027'`). Custody is visible only to the deployment owner, is never mixed
+into a workspace list, and is read-only. The only provable ownership path is the
+owner's explicit `adopt` action, which records the previous scope, the actor and
+the time on the job and in `media_scope_events`; it makes no provider call.
+
+The legacy deployment credential is transitional and bounded:
+
+- `OYSTER_ORIGIN` / `OYSTER_OWNER_KEY` may back **one** workspace at a time, and
+  only through an explicit owner `enable`. A second workspace is refused with
+  `LEGACY_SCOPE_TAKEN` until it has its own
+  `OYSTER_CONNECTION_<NAME>_ORIGIN` / `_OWNER_KEY` secrets and connection.
+- The deployment-wide `MEDIA_AGENT_TOKEN` no longer admits workspace media
+  calls. It is refused with `AGENT_SCOPE_REQUIRED`; the owner issues a
+  workspace grant in the panel, replaces the agent's token with
+  `MEDIA_AGENT_GRANT_TOKEN`, and the old secret can then be removed.
+
+The panel does not yet offer a workspace switcher, a custody/adopt view or grant
+buttons; those are presentation work over the same server actions. Enforcement,
+storage and receipts are complete without them.
+
 ## Ownership
 
 The studio owns its D1 metadata, R2 bytes, Worker release and provider keys. It

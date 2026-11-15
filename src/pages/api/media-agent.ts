@@ -2,9 +2,13 @@ import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
 import {
   MediaContractError,
-  mediaActions,
+  mediaAgentActions,
+  mediaAgentPermissions,
 } from "../../lib/media-capability.mjs";
-import { runAction } from "../../lib/media-capability-runtime.mjs";
+import {
+  resolveAgentScope,
+  runAction,
+} from "../../lib/media-capability-runtime.mjs";
 
 const json = (value: unknown, status = 200) =>
   Response.json(value, {
@@ -24,22 +28,32 @@ function sameSecret(a: string, b: string) {
 }
 
 /** The authorised agent surface for the same media handlers the native panel
- * uses. A bearer token admits the call; the browser session is never involved. */
+ * uses. A bearer token is only a lookup: the workspace, permissions, revision
+ * and expiry all come from the owner-issued grant row, never from this request.
+ *
+ * The pre-#599 deployment-wide `MEDIA_AGENT_TOKEN` no longer grants workspace
+ * media access. It is refused explicitly so an old automation cannot keep
+ * deployment-wide reach; the owner issues a workspace grant and replaces it. */
 export const POST: APIRoute = async ({ request }) => {
   const origin = new URL(request.url).origin;
   const suppliedOrigin = request.headers.get("Origin");
   if (suppliedOrigin && suppliedOrigin !== origin)
     return json({ error: "Unsupported origin." }, 403);
-  const expected = (env as unknown as { MEDIA_AGENT_TOKEN?: string }).MEDIA_AGENT_TOKEN;
-  if (!expected)
-    return json(
-      { error: "The agent token is not configured on this deployment." },
-      503,
-    );
+  const runtime = env as unknown as Record<string, unknown>;
+  const legacy = runtime.MEDIA_AGENT_TOKEN;
   const header = request.headers.get("Authorization") ?? "";
   const token = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
-  if (!token || !sameSecret(token, expected))
-    return json({ error: "That agent token is not admitted." }, 401);
+  if (!token) return json({ error: "That agent token is not admitted." }, 401);
+  if (typeof legacy === "string" && legacy && sameSecret(token, legacy))
+    return json(
+      {
+        ok: false,
+        code: "AGENT_SCOPE_REQUIRED",
+        error:
+          "The deployment-wide media agent token no longer grants workspace media access. Issue a workspace-scoped agent grant in Images & video, then use that token.",
+      },
+      403,
+    );
 
   let body: Record<string, unknown>;
   try {
@@ -48,16 +62,30 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: "Send a JSON body." }, 400);
   }
   const action = body.action;
-  if (typeof action !== "string" || !mediaActions.includes(action as never))
-    return json({ error: "Choose a supported media action." }, 400);
-  try {
-    const result = await runAction(
-      env as unknown as Record<string, unknown>,
-      action,
-      body,
-      "agent:" + (request.headers.get("X-Agent-Name") ?? "authorised-agent").slice(0, 60),
+  if (typeof action !== "string" || !mediaAgentActions.includes(action as never))
+    return json(
+      {
+        ok: false,
+        code: "UNSUPPORTED_ACTION",
+        error:
+          "An agent may read status, generate, reconcile or import. Connection, credential and grant administration stay with the owner.",
+      },
+      403,
     );
-    return json({ ok: true, data: result });
+  const selector =
+    typeof body.workspace === "string"
+      ? body.workspace
+      : request.headers.get("X-Composer-Workspace");
+  try {
+    const scope = await resolveAgentScope(runtime, {
+      token,
+      workspace: selector ?? null,
+    });
+    const result = await runAction(runtime, action, scope, body);
+    return json({
+      ok: true,
+      data: { ...(result as Record<string, unknown>), permissions: mediaAgentPermissions },
+    });
   } catch (error) {
     if (error instanceof MediaContractError)
       return json({ ok: false, error: error.message, code: error.code }, error.status);

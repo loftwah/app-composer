@@ -9,6 +9,8 @@ export const mediaCapabilityName = "Images & video";
 export const mediaCapabilityPurpose =
   "Generate stills, reference variations and short image-to-video clips through an authorised Oyster installation, keep the owned result and import it into the app's media library.";
 
+/** The full contract. Administration is a subset only the native owner route
+ * may reach; the agent route is restricted to `mediaAgentActions`. */
 export const mediaActions = [
   "status",
   "enable",
@@ -17,7 +19,41 @@ export const mediaActions = [
   "generate",
   "reconcile",
   "import",
+  "custody",
+  "adopt",
+  "grant-agent",
+  "revoke-agent",
 ];
+
+/** Integration setup, disable and credential/agent administration. These stay
+ * owner-admin only and are never reachable through the agent route. */
+export const mediaAdminActions = [
+  "enable",
+  "disable",
+  "refresh",
+  "adopt",
+  "grant-agent",
+  "revoke-agent",
+];
+
+/** What an admitted agent may ask for. The workspace still comes from the
+ * server-side grant, never from the request body. */
+export const mediaAgentActions = ["status", "generate", "reconcile", "import"];
+
+/** The permissions an owner may put in an agent grant. Deliberately excludes
+ * administration and publication: an agent can read and, when explicitly
+ * granted, spend on generation. */
+export const mediaAgentPermissions = ["read", "generate", "edit"];
+
+/** Owner custody for media rows whose workspace cannot be proven. It is not a
+ * workspace: the colon fails the workspace id pattern, so it can never be
+ * supplied as one. */
+export const mediaCustodyScope = "custody:owner";
+
+/** A connection names Worker-secret *references*, never secret values. The
+ * optional suffix lets one deployment hold independent Oyster connections for
+ * separate workspaces. */
+export const mediaCredentialRefs = /^OYSTER(?:_CONNECTION_[A-Z0-9_]{2,40})?$/;
 
 export const mediaKinds = ["image", "video"];
 
@@ -83,6 +119,40 @@ export function newRequestId(random = Math.random) {
     id += alphabet[Math.floor(bounded * alphabet.length)];
   }
   return "media_request_" + id;
+}
+
+export const requestIdPattern = /^media_request_[a-z0-9]{21}$/;
+
+/** A caller may supply the idempotency identity so a transport retry cannot
+ * buy a second generation. A malformed id fails closed; it is never replaced
+ * silently with a fresh one. */
+export function readRequestId(value, random = Math.random) {
+  if (value === undefined || value === null || value === "") return newRequestId(random);
+  if (typeof value !== "string" || !requestIdPattern.test(value))
+    fail(
+      "INVALID_REQUEST_ID",
+      "The idempotency key must be a media request id, for example media_request_ followed by 21 letters or digits",
+    );
+  return value;
+}
+
+/** A credential reference, never a credential. */
+export function readCredentialRef(value) {
+  if (typeof value !== "string" || !mediaCredentialRefs.test(value.trim()))
+    fail(
+      "INVALID_CREDENTIAL_REF",
+      "Name the Worker secret that holds the Oyster credentials: OYSTER, or OYSTER_CONNECTION_<NAME> for a separate workspace connection",
+    );
+  return value.trim();
+}
+
+/** A workspace id, or the reserved custody scope. Custody is never a workspace
+ * and never accepted as one. */
+export function readWorkspaceScope(value) {
+  if (value === mediaCustodyScope) return mediaCustodyScope;
+  if (typeof value !== "string" || !/^[a-z0-9-]{6,64}$/.test(value))
+    fail("INVALID_WORKSPACE", "Choose a valid workspace.");
+  return value;
 }
 
 export function readPrompt(value) {
@@ -207,7 +277,7 @@ export function readGeneration(input, catalogue) {
     );
   /** @type {GenerationRequest} */
   const request = {
-    requestId: newRequestId(),
+    requestId: readRequestId(body.requestId),
     kind,
     model: model.id,
     prompt,
@@ -380,6 +450,30 @@ export function readStatusRow(row) {
   };
 }
 
+/** The wire shape of one workspace connection. A credential reference is not a
+ * credential: the matching `_ORIGIN` / `_OWNER_KEY` values never leave Worker
+ * secrets, D1 or a response body. */
+export function connectionView(row) {
+  const status = readStatusRow(row);
+  return {
+    ...status,
+    id: typeof row?.connection_id === "string" ? row.connection_id : null,
+    workspaceId: typeof row?.workspace_id === "string" ? row.workspace_id : null,
+    label: typeof row?.label === "string" ? row.label : "",
+    credentialRef: typeof row?.credential_ref === "string" ? row.credential_ref : "",
+    credentialScope:
+      row?.credential_scope === "deployment-legacy" ? "deployment-legacy" : "workspace",
+    revision: Number.isInteger(row?.revision) ? row.revision : 1,
+  };
+}
+
+/** A connection may be used only while the workspace owner has it switched on.
+ * `disable` is the workspace's revocation: it stops new work and retained-result
+ * reads without deleting jobs, imports or the independent host. */
+export function connectionEligible(connection) {
+  return Boolean(connection && connection.enabled);
+}
+
 export function jobView(row) {
   let settings = {};
   try {
@@ -391,6 +485,9 @@ export function jobView(row) {
   } catch {}
   return {
     id: row.id,
+    workspaceId: typeof row.workspace_id === "string" ? row.workspace_id : null,
+    scope: row.scope === "custody" ? "custody" : "workspace",
+    connectionId: typeof row.connection_id === "string" ? row.connection_id : null,
     requestId: row.request_id,
     kind: row.kind,
     state: row.state,
@@ -404,6 +501,7 @@ export function jobView(row) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     createdBy: row.created_by,
+    adoptedFrom: typeof row.adopted_from === "string" ? row.adopted_from : null,
     imported: row.imported_key
       ? {
           key: row.imported_key,
@@ -418,7 +516,15 @@ export function jobView(row) {
 /** What the panel says about a disabled capability. Retention is the default;
  * deleting owned media is always a separate, explicit operation. */
 export const disableNote =
-  "New requests stop here and in the agent route. Existing jobs, imported media and the Oyster host keep their data. The host is independently reachable and keeps its own access; this switch does not delete either side.";
+  "New requests stop for this workspace only. Existing jobs, imported media and the Oyster host keep their data. The host is independently reachable and keeps its own access; this switch does not delete either side.";
 
 export const enableNote =
-  "Enabling stores the host address and checks its live model catalogue. It does not buy credit, start a container or generate anything. A generation spends the host owner's provider balance and is shown with its estimate before you send it.";
+  "Enabling stores this workspace's host address and checks its live model catalogue. It does not buy credit, start a container or generate anything. A generation spends the host owner's provider balance and is shown with its estimate before you send it.";
+
+/** Legacy rows kept in owner custody. Nothing is guessed or discarded. */
+export const custodyNote =
+  "These jobs predate workspace scoping, so no workspace owns them. They are retained unchanged under owner custody. Reopen one only by adopting it into a workspace you own, which records the previous scope, you and the time. Adoption never calls the provider.";
+
+/** The bounded owner-only transition for the pre-#599 credential path. */
+export const agentNote =
+  "A workspace token admits one workspace and only the actions its owner granted. The deployment-wide media agent token no longer grants workspace media access: issue a workspace grant, then replace the agent's token. Only a hash is stored and the token is shown once.";

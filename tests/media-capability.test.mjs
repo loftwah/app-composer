@@ -2,19 +2,24 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   MediaContractError,
+  connectionView,
   disableNote,
   formatCost,
   generateImageCode,
   generateVideoCode,
   jobView,
+  mediaCustodyScope,
   newRequestId,
   normaliseHost,
   readCatalogue,
+  readCredentialRef,
   readExecuteReply,
   readGeneration,
   readJsonRpcReply,
   readRefusal,
+  readRequestId,
   readStatusRow,
+  readWorkspaceScope,
 } from "../src/lib/media-capability.mjs";
 
 const rawCatalogue = {
@@ -249,4 +254,85 @@ test("disabling never claims to delete or revoke the independent host", () => {
   assert.match(disableNote, /Existing jobs, imported media/);
   assert.match(disableNote, /independently reachable/);
   assert.match(disableNote, /does not delete/);
+});
+
+test("a supplied idempotency key is validated, never silently replaced", () => {
+  const fixed = readRequestId("media_request_abcdefghijklmnopqrstu");
+  assert.equal(fixed, "media_request_abcdefghijklmnopqrstu");
+  assert.match(readRequestId(undefined), /^media_request_[a-z0-9]{21}$/);
+  for (const bad of [
+    "media_request_short",
+    "media_request_ABCDEFGHIJKLMNOPQRSTU",
+    "job_abcdefghijklmnopqrstu",
+    42,
+  ]) {
+    assert.throws(() => readRequestId(bad), MediaContractError);
+  }
+  // The generation contract keeps the caller's key so a transport retry cannot
+  // buy a second generation.
+  const request = readGeneration(
+    {
+      kind: "image",
+      model: "studio-still",
+      prompt: "replayed intent",
+      requestId: "media_request_abcdefghijklmnopqrstu",
+    },
+    catalogue,
+  );
+  assert.equal(request.requestId, "media_request_abcdefghijklmnopqrstu");
+  assert.throws(
+    () =>
+      readGeneration(
+        { kind: "image", model: "studio-still", prompt: "x y z", requestId: "nope" },
+        catalogue,
+      ),
+    MediaContractError,
+  );
+});
+
+test("a connection names a Worker secret reference, never a secret", () => {
+  assert.equal(readCredentialRef("OYSTER"), "OYSTER");
+  assert.equal(readCredentialRef("OYSTER_CONNECTION_ATELIER"), "OYSTER_CONNECTION_ATELIER");
+  for (const bad of [
+    "MEDIA_STUDIO_BRIDGE_SECRET",
+    "OYSTER_OWNER_KEY",
+    "OYSTER_CONNECTION_",
+    "oySTER",
+    "",
+    7,
+  ]) {
+    assert.throws(() => readCredentialRef(bad), MediaContractError);
+  }
+});
+
+test("owner custody can never be selected as a workspace", () => {
+  assert.equal(readWorkspaceScope("ws-atelier-0001"), "ws-atelier-0001");
+  assert.equal(readWorkspaceScope(mediaCustodyScope), mediaCustodyScope);
+  assert.throws(() => readWorkspaceScope("Owner Custody"), MediaContractError);
+  assert.throws(() => readWorkspaceScope("ws"), MediaContractError);
+});
+
+test("a connection view reports state without credential material", () => {
+  const view = connectionView({
+    workspace_id: "ws-atelier-0001",
+    connection_id: "connection_abcdef",
+    label: "Atelier",
+    host: "https://oyster.example.workers.dev",
+    installation: "prints",
+    credential_ref: "OYSTER_CONNECTION_ATELIER",
+    credential_scope: "workspace",
+    status: "active",
+    enabled: 1,
+    models_json: JSON.stringify(catalogue),
+    revision: 3,
+    updated_at: "2026-11-15T00:00:00.000Z",
+    updated_by: "fictional-owner-a",
+  });
+  assert.equal(view.id, "connection_abcdef");
+  assert.equal(view.enabled, true);
+  assert.equal(view.revision, 3);
+  assert.equal(view.credentialScope, "workspace");
+  assert.equal(view.catalogue.models.length, 2);
+  assert.equal(JSON.stringify(view).includes("fictional-owner-key"), false);
+  assert.equal(connectionView({ enabled: 0 }).enabled, false);
 });

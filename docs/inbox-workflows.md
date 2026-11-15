@@ -132,6 +132,80 @@ address.
 - The Inbox read still uses the existing app-owned export. There is no
   parallel enquiry store.
 
+## Reply-job contract (#598) — accepted, not implemented
+
+This section is a contract and a gap list, not a delivered capability. The
+existing no-contact form (`contacts: false`, consent "review, no publication or
+messages") stays as it is and must never offer a reply. A reply requires a
+newer versioned form with explicit consent to send a reply to the submitted
+address; until that version exists and is served, no reply action may appear.
+
+### One receipt, one job
+
+- The accepted source is one Guestbook receipt plus its retained brief item in
+  the same scope (`workspace`, `resource`, `account`, `environment`, `target`).
+  A receipt that cannot be matched to exactly one item creates no job — the
+  existing `unlinked` state stays and no reply action is offered.
+- `creator_enquiry_workflow_runs` gains a reply job through a new table rather
+  than a second enquiry store: `creator_enquiry_reply_jobs`, keyed
+  `UNIQUE(workspace_id, resource_id, item_id, account_id, environment)`. The
+  accepted receipt's `item_id` is the idempotency key, so a duplicate hook, a
+  concurrent submit or a replayed request cannot create a second job.
+- The reply job stores no enquiry body and no recipient address. It stores the
+  scope, the `item_id`, the owning run/outbox ids, the reply revision, the
+  consent version, the sender connection reference, the actor and timestamps.
+  The brief and the address remain in Guestbook; the job reads them on demand
+  through the existing export under current membership.
+- One job is one conversation. A later enquiry is a new job; a job never carries
+  two recipients.
+
+### Approval binds the exact revision
+
+- The job has `draft` → `awaiting-approval` → `approved` → `sending` →
+  `accepted` | `failed` | `uncertain`, plus `declined` and `cancelled` before
+  dispatch, and `invalidated`.
+- `approve` binds, in one write: the reply revision and its content digest, the
+  verified sender connection id *and* its revision, the consented recipient
+  digest, the consent version, the approving owner and the expiry. It performs
+  no provider call.
+- Any of these voids the approval before dispatch and moves the job to
+  `invalidated` with a specific reason: the draft is edited (revision or digest
+  changes), the sender connection changes or is disabled, the owner's permission
+  is revoked, membership is removed, the consent version/expiry no longer
+  applies, or the source item is deleted. The invalidated approval cannot be
+  replayed; the owner approves the current revision again.
+- Only the workspace owner dispatches, and only through the canonical mail path
+  with one stable message identity per job, reusing the existing outbox
+  idempotency. An editor may read and prepare; the agent may propose only.
+- A timeout or identity-less reply is `uncertain`, never `accepted`, and never
+  resent automatically. Reconciliation re-reads the recorded attempt and does
+  not contact the provider.
+
+### Failing gaps (why this is not shipped here)
+
+1. **No consenting form version.** `enquiry-protocol.ts` fixes `contacts:false`
+   and `enquirySubmission` has no reply/recipient consent. A new versioned
+   contract, resource configuration and form must ship before any job can
+   legitimately exist. This is a Guestbook-owned change.
+2. **No reply adapter.** The journey has no sender connection record, no reply
+   body ownership and no way to address a consented recipient without copying
+   private data into Composer D1. The sender connection contract (#291) and the
+   message-identity/outbox reuse need a reviewed design first.
+3. **No reply job storage or routes.** There is no table, action, timeline or
+   receipt for a reply, so approval cannot currently bind a revision or a
+   connection. A migration and native routes are required.
+4. **No revocation hook.** Revoking a connection or a grant does not yet
+   invalidate a pending approval, because approvals do not exist. The existing
+   studio/media grant recheck is the model to reuse.
+5. **No live recipient proof.** The acceptance needs one controlled, authorised
+   recipient and one actual send. That requires an owner-provided connection and
+   consent that this change must not invent.
+
+Delivering items 1–4 without 5 is the right next slice: it proves replay, stale
+approval and revoked access locally, and records the live-send boundary
+precisely. None of it should be represented as a working reply journey before
+the live send is observed.
+
 ## What is proven and what is not
 
 Deterministic local tests and the rendered fixture prove the state transitions,

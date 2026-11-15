@@ -2,19 +2,23 @@
 // Authorised agent operations for the Media capability. The browser panel and
 // this CLI reach the same handlers, the same validation and the same job rows.
 //
-//   MEDIA_AGENT_TOKEN=… node scripts/media-studio-agent.mjs status
+//   MEDIA_AGENT_GRANT_TOKEN=… node scripts/media-studio-agent.mjs status
 //   … generate --kind image --model <id> --prompt "…" [--reference /path]
 //   … generate --kind video --model <id> --prompt "…" --seconds 5 --resolution 720p
 //   … reconcile --id job_…
 //   … import --id job_…
-//   … disable | enable | refresh
+//
+// The token is a workspace-scoped agent grant issued by the owner in Images &
+// video. It is stored as a hash in D1, shown once, revocable and expiring. The
+// deployment-wide MEDIA_AGENT_TOKEN no longer grants workspace media access,
+// and connection/credential administration stays in the owner panel.
 //
 // The token is read from the process environment and is never printed.
 const base = (process.env.APP_COMPOSER_AGENT_URL || "https://composer.loftwah.com").replace(/\/$/, "");
-const token = process.env.MEDIA_AGENT_TOKEN;
+const token = process.env.MEDIA_AGENT_GRANT_TOKEN || process.env.MEDIA_AGENT_TOKEN;
 if (!token) {
   console.error(
-    "Set MEDIA_AGENT_TOKEN in this process environment. It is the deployment secret, not the OWNER key.",
+    "Set MEDIA_AGENT_GRANT_TOKEN to the workspace-scoped grant token from Images & video. It is shown once when the owner issues it.",
   );
   process.exit(2);
 }
@@ -33,12 +37,11 @@ for (let index = 0; index < rest.length; index += 1) {
   }
 }
 
+const workspace = flags.workspace ? { workspace: String(flags.workspace) } : {};
 const actions = {
-  status: { action: "status" },
-  enable: { action: "enable" },
-  disable: { action: "disable" },
-  refresh: { action: "refresh" },
+  status: { action: "status", ...workspace },
   generate: {
+    ...workspace,
     action: "generate",
     kind: flags.kind || "image",
     model: flags.model,
@@ -49,8 +52,8 @@ const actions = {
     ...(flags.resolution ? { resolution: String(flags.resolution) } : {}),
     ...(flags.reference ? { referencePath: String(flags.reference) } : {}),
   },
-  reconcile: { action: "reconcile", id: flags.id },
-  import: { action: "import", id: flags.id },
+  reconcile: { action: "reconcile", ...workspace, id: flags.id },
+  import: { action: "import", ...workspace, id: flags.id },
 };
 
 const body = actions[command];
