@@ -4,11 +4,12 @@ Reviewed 25 October 2026; updated 16 November 2026. This page is the current nav
 
 ## Measured delivery and role pathways — 16 November 2026
 
-Composer `ecd1164b19bd6a29f45a7459e97cd44da3753d3f` (Worker
-`ef8669b4-52f7-49be-97f5-35f23c2e29f4`), Studio
-`6cdca29165f792ec5f8b305c720c7bb20fb6d496` (Worker
-`c0a873d1-68cc-4451-807e-b12a01aff62f`). Live `/build.json` was read back for
-both exact sources.
+Composer `9be55b90a153bfaa8764a68e2acfa713cd9fdea3` (Worker
+`2f6daeec-da37-4472-8ff5-cec205d6e15e`), Studio
+`4a14ca3e09071edb862b3cc0bd9ec1cc004a2cca` (Worker
+`1932f786-d34b-47b3-ba43-37fa91768dec`). Live `/build.json` was read back for
+both exact sources. The detailed rolling-batch record is
+[here](evidence/2026-11-16-rolling-batch/README.md).
 
 - **Every guarded release now leaves a timing receipt (#624, Studio #160).**
   One monotonic run ID covers the required check through exact live identity.
@@ -31,6 +32,21 @@ both exact sources.
   Settings were opened at 1440×900 and 390×844: no horizontal overflow in any
   pane. Physical-keyboard and recorded-journey evidence remain the explicit
   #148 gates.
+- **Task-first launcher (#625, closed).** 41 destinations (37 public, 4
+  invitation/owner), three anonymous task groups and a session-derived Recent
+  projects return path. Fresh anonymous “Create a site” took two selections;
+  the owner reopened the exact native Trail Notes editor from the launcher at
+  1440 and 390. Ctrl/Cmd+K, Escape, focus return and 320/390/768/1440 were
+  checked.
+- **Private review rooms (Studio #159 slice).** A version-pinned link accepts
+  point or timecoded feedback and explicit approval; the creator inbox groups
+  by exact version and compares two versions. Live image and film rooms were
+  used, then revoked; both page and media returned 410. Reviewer-side
+  comparison and recorded journeys remain open.
+- **Documentation gates (#609 slice).** 55/55 live internal links resolved;
+  Escape after ArrowDown and the no-JS former-section index were fixed. The
+  five-person first-visit test and a second independent agent remain human or
+  independent gates.
 
 ## Workspace-scoped media, docs copy, appearance skins and the Studio Director — 16 November 2026
 
