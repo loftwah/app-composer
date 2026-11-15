@@ -61,6 +61,30 @@ If a slice needs more than about 75 seconds of implementation, it is not
 routine in this window even when the file count is small. Classify it and give
 it its own window instead of stretching the release's checks.
 
+## Measured receipt and automatic breach issue
+
+`pnpm deploy` now carries one run ID and one monotonic clock from before the
+first required check to exact live source identity. It writes a redacted
+`release-timing/v1` receipt under ignored `.release/timing/` and prints the
+total, target and limit. **Exactly 300,000 ms is a breach**; only durations
+strictly below 300,000 ms pass.
+
+A breach still finishes the safe upload and live check. It then creates or
+updates one open GitHub issue labelled `delivery-sla`, fingerprinted by
+repository, release path and slowest stage. Later matching breaches comment on
+the same issue; a different bottleneck opens a separate one. If GitHub is
+unavailable the redacted event stays in `.release/timing/pending/` and is
+retried on the next release. A stale running receipt is reported by:
+
+```sh
+pnpm release:watchdog --check-stuck
+pnpm release:watchdog --retry-pending
+```
+
+A passing release adds measured recovery evidence to a known breach issue but
+never closes it automatically. Receipts contain no credentials, signed URLs,
+private media or raw provider output.
+
 ## Overrun rule
 
 At five minutes, stop adding scope and finish the current stage. Report:

@@ -1,5 +1,9 @@
 import { assertReleasePackage } from "./package-get-ready.mjs";
 import { assertMcpReleasePackage } from "./package-get-ready-mcp.mjs";
+import {
+  createGitHubAdapter,
+  createReleaseRun,
+} from "../lib/delivery/release-timing.mjs";
 import { verifyLive } from "./verify-live.mjs";
 import { verifySharing } from "./verify-sharing.mjs";
 import { auditPublication } from "./audit-publication.mjs";
@@ -84,8 +88,25 @@ guard();
 const cfg = JSON.parse(readFileSync("wrangler.jsonc", "utf8"));
 const lock = JSON.parse(readFileSync("composition.lock.json", "utf8"));
 assertProductionTarget(cfg, cfg, lock);
-const releaseStarted = Date.now();
-const stageTimings = [];
+let github = null;
+try {
+  github = createGitHubAdapter({ repo: "loftwah/app-composer" });
+} catch (error) {
+  console.error(
+    "Delivery SLA alert reporting is unavailable; a redacted pending event will be queued. " +
+      error.message,
+  );
+}
+const releaseRun = createReleaseRun({
+  repo: "loftwah/app-composer",
+  project: "app-composer",
+  sha,
+  releasePath: "scripts/deploy.mjs",
+  kind: "worker-production",
+  receiptDir: ".release/timing",
+  github,
+});
+await releaseRun.flushPending();
 // Reuse the pnpm that launched this script instead of resolving a global shim.
 // The shim can select a different Node line than the selected default, which
 // makes `pnpm check` test the wrong runtime.
@@ -100,10 +121,9 @@ const runPnpm = (args) => {
   return execFileSync(file, [...prefix, ...args], { stdio: "inherit" });
 };
 const stage = async (name, work) => {
-  const started = Date.now();
-  const result = await work();
-  const durationMs = Date.now() - started;
-  stageTimings.push({ name, durationMs });
+  const started = performance.now();
+  const result = await releaseRun.stage(name, work);
+  const durationMs = performance.now() - started;
   console.log(
     "Release gate passed: " +
       name +
@@ -113,6 +133,7 @@ const stage = async (name, work) => {
   );
   return result;
 };
+try {
 await stage("dependency audit", () =>
   runPnpm(["run", "audit"]),
 );
@@ -261,19 +282,38 @@ await stage("release record", async () => {
   ]);
 });
 console.log("Verified exact live Composer source " + sha);
-const elapsedMs = Date.now() - releaseStarted;
-console.log("Release elapsed: " + (elapsedMs / 1000).toFixed(1) + "s");
-if (elapsedMs > 300_000) {
-  const slowest = stageTimings.reduce((a, b) =>
+const receipt = await releaseRun.finish({
+  status: "passed",
+  target: "https://composer.loftwah.com",
+  liveRevision: sha,
+});
+console.log(
+  "Release " +
+    receipt.status +
+    ": " +
+    (receipt.totalMs / 1000).toFixed(1) +
+    "s (target " +
+    (receipt.targetMs / 1000).toFixed(0) +
+    "s, limit " +
+    (receipt.limitMs / 1000).toFixed(0) +
+    "s)",
+);
+if (receipt.status === "over-budget") {
+  const slowest = receipt.stages.reduce((a, b) =>
     b.durationMs > a.durationMs ? b : a,
   );
   console.log(
-    "Release overrun: " +
-      (elapsedMs / 1000).toFixed(1) +
-      "s against the 300s routine target; slowest stage was " +
+    "Delivery SLA breach recorded; slowest stage was " +
       slowest.name +
       " (" +
       (slowest.durationMs / 1000).toFixed(1) +
-      "s).",
+      "s). Alert state: " +
+      receipt.alert.state +
+      (receipt.alert.issue ? " issue #" + receipt.alert.issue : "") +
+      ".",
   );
+}
+} catch (error) {
+  await releaseRun.fail(error);
+  throw error;
 }
