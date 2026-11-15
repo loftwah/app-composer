@@ -50,6 +50,7 @@ const apps = {
     optionalSecrets: ["FAL_KEY"],
     wiring: [
       "a Workers AI binding named AI on the owner's Cloudflare account for stills",
+      "any Darkroom bindings declared in the pinned Wrangler configuration: IMAGES, MEDIA_OPERATION with its Durable Object migration, and APP_ARTIFACTS pointing to the same private bucket as MEDIA",
       "the every-minute cron trigger declared in the app's own Wrangler configuration so asynchronous video, sound and render jobs finish after the browser closes",
     ],
     deployNote:

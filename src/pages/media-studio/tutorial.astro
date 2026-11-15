@@ -98,7 +98,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
       <div>
         <p>Start with your Cloudflare account and an agent that can run commands. You control account creation, terms and spending.</p>
         <ul>
-          <li>Create or sign in to your Cloudflare account and confirm Workers Paid with Containers if you intend to use the Oyster route. The independent studio itself needs Workers Paid and Workers AI.</li>
+          <li>Create or sign in to your Cloudflare account and confirm Workers Paid with Containers if you intend to use the Oyster route. The independent studio needs Workers Paid and Workers AI. Its Darkroom reference fitting also needs the Images binding on an account with current Images billing.</li>
           <li>For fal-backed video, sound, image edits or provider assembly, create a fal.ai account and add credit. Those requests are billed there.</li>
           <li>Start a supported agent (for example a coding agent with terminal access) in an empty project directory and connect it to Composer's Get Ready.</li>
         </ul>
@@ -463,7 +463,7 @@ curl -s -o /dev/null -w '%&#123;http_code&#125;\n' https://your-studio.example/a
       <div><dt>Migration fails on a foreign key</dt><dd>The parent table is referenced. Rebuild the parent, then the children, then drop the old parent; copy rows and restore self-references in a second pass.</dd></div>
       <div><dt>Handoff rejected as expired</dt><dd>Seconds versus milliseconds. Normalise the unit; do not lengthen the token to hide it.</dd></div>
       <div><dt>Render job stuck at "result unavailable"</dt><dd>Reconcile. It re-reads the same provider result. If the provider's own detail names an invalid input, fix the request shape — that is how the single-input portrait-cut attempt was found.</dd></div>
-      <div><dt>Images binding error 9432 on the Oyster route</dt><dd>Legacy billing on that account. It blocks the host's reference fitter, not the studio's own reference variation. Enable Cloudflare Images or migrate billing, and label which route produced which result.</dd></div>
+      <div><dt>Cloudflare Images binding error 9432</dt><dd>Read the error message. The request may be invalid, or the account running the reference fitter may still use legacy Image Resizing billing. Confirm the selected account and its Images entitlement before changing the plan.</dd></div>
       <div><dt>Video refused: AI Gateway could not fund this request</dt><dd>Check the saved job and provider status. An unknown outcome keeps its reservation; reconcile it without another paid submission. Do not assume billing or retry an ambiguous job.</dd></div>
       <div><dt>Blank media card after publishing</dt><dd>Check the asset revision and its publications. Withdrawal revokes the page; hiding only removes the card.</dd></div>
     </dl>
