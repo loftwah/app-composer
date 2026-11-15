@@ -1,0 +1,83 @@
+{
+  "format": "media-studio-showcase.provenance/v1",
+  "recordedAt": "2026-11-15",
+  "project": "Build an owned Media Studio",
+  "pieces": [
+    {
+      "id": "public-showcase",
+      "file": "media-studio-showcase-1080p.mp4",
+      "frame": "1920x1080",
+      "durationSeconds": 82.0,
+      "fps": 30,
+      "codec": "H.264 High + AAC 48 kHz stereo",
+      "loudness": "-16.0 LUFS integrated",
+      "captionsBurnedIn": true,
+      "editableSource": "media-studio-showcase-video/src/Showcase.tsx"
+    },
+    {
+      "id": "vertical-teaser",
+      "file": "media-studio-teaser-1080x1920.mp4",
+      "frame": "1080x1920",
+      "durationSeconds": 30.0,
+      "fps": 30,
+      "codec": "H.264 High + AAC 48 kHz stereo",
+      "loudness": "-16.4 LUFS integrated",
+      "captionsBurnedIn": true,
+      "editableSource": "media-studio-showcase-video/src/Teaser.tsx"
+    }
+  ],
+  "sources": [
+    {
+      "role": "Product screen recording",
+      "origin": "https://composer.loftwah.com/ready",
+      "captured": "2026-11-15, signed out, 1728x850 browser viewport",
+      "evidence": "capture/cmp-ready.webm"
+    },
+    {
+      "role": "Product screen recording",
+      "origin": "https://composer.loftwah.com/init?start=media-studio",
+      "captured": "2026-11-15, recommended starting point applied, Media Studio draft",
+      "evidence": "capture/cmp-init.webm"
+    },
+    {
+      "role": "Product screen recording",
+      "origin": "https://media.loftwah.com/studio#/p/prj_7c1d9830a5fc495ea85204206d4e1c55/assemble",
+      "captured": "2026-11-15, owner session opened from App Composer",
+      "evidence": "capture/studio-library-cut.webm"
+    },
+    {
+      "role": "Saved storyboard card and specification excerpt",
+      "origin": "Live Studio composition cmp_song_plan_f767c7cfc49143f8b54aadf02b376595_3 and live Init draft",
+      "note": "The specification and handoff panels are typeset from the exact text captured on the page; the surrounding product motion is the recording."
+    },
+    {
+      "role": "Published result",
+      "origin": "https://media.loftwah.com/p/EVaGOC_peleSRSHQ",
+      "credit": "LoftwahFM · Low Tide in motion. Original artwork: Woodhouse, GPT Image 2.6 via Fal. Animated in Media Studio with MiniMax H3 Max Turbo."
+    },
+    {
+      "role": "Music bed",
+      "origin": "Audio of the studio's published walkthrough film (media-studio/films/walkthrough.mp4), normalised to -16 LUFS",
+      "note": "Not the After Hours master and not the song used in the private film."
+    },
+    {
+      "role": "Display type",
+      "origin": "@fontsource/space-grotesk 5.2.6, OFL-1.1",
+      "note": "App Composer's approved display face."
+    },
+    {
+      "role": "Mark",
+      "origin": "public/brand/composer-icon-20261022b.svg from loftwah/app-composer",
+      "note": "Approved Composer identity, unmodified."
+    }
+  ],
+  "excluded": [
+    "The After Hours song, its takes, its masters and its portrait derivative stay in the private studio and are not part of either public piece.",
+    "No generated artwork illustrates a product action; every demonstrated click and outcome is a recording of the live product."
+  ],
+  "limits": [
+    "The Studio in-browser renderer re-emitted the pre-replacement take after the storyboard moved to revision 4; the current film master was assembled deterministically from the same saved takes and mixed bed.",
+    "The films were inspected at 390 px and 1728 px widths; a physical-device and full browser matrix was not run.",
+    "By-ear listening review of the private film mix is outstanding; the public pieces were level-checked with EBU R128 only."
+  ]
+}
