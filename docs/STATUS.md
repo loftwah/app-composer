@@ -2,6 +2,61 @@
 
 Reviewed 25 October 2026; updated 15 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Studio workbench, matched comparisons and an exact-take review — 15 November 2026
+
+The owner-only Studio is now comfortable on a real MacBook viewport, and its
+model comparison is a review surface rather than a model-name table.
+
+- **Assemble workbench.** Media Studio `0de910b` replaced the half-empty promo
+  form with a scene rail, active-scene editor, brief fields and script panel.
+  The production owner view at 1728×851 CSS pixels (DPR 2) shows the brief,
+  scene navigation and active scene without horizontal overflow. 1440, 1512,
+  1280, 1024, 768, 390 and 320 widths were checked in a browser, with light and
+  dark themes. A saved brief reloads its latest revision instead of opening an
+  empty form. [Studio #148](https://github.com/loftwah/composer-media-studio/issues/148)
+  retains the broader conflict/read-only/zoom acceptance items.
+- **Matched comparisons.** In the owner's **LoftwahFM · Creative studies**
+  project, two five-second motion takes used the same approved still, prompt,
+  aspect and duration: **MiniMax H3 Max Turbo** (`$0.24` allocation) and
+  **Kling 2.5 Turbo Pro** (`$0.35`). Both are saved and playable; the provider
+  charge is still **not reported** for either. A separate matched still pair
+  used **Studio Film** (`$0.02`) and **Studio Print** (`$0.03`) on one square
+  brief. The page grouped each pair by brief fingerprint and left the older
+  six-second Hailuo take in **Saved, but not comparable**.
+- **Review that changed the product.** The Kling clip replaced the approved
+  paper desk with an unrelated mountaineer scene. The comparison did not show
+  the source still, so a reviewer could not see that. `3b30b54` now shows the
+  source still beside every take; `550878d` lets the private pick update the
+  visible verdict instead of leaving “no pick” on screen. The recorded review
+  rejects Kling for reference loss and picks H3, with reason and timestamp
+  bound to the exact generation.
+- **Project-scoped comparison.** A bridged session without a project claim
+  showed “No project yet” even after opening a project. `5d48bcf` makes
+  `/compare?project=…` select the opened studio, keeps the project across job
+  tabs, and updates the header link when a project opens.
+- **Still and video evidence.** The existing local render
+  `asset_53e0b83b…` (33.04 s, 640×360, SHA-256
+  `9c6120d6f236a378c680d9cb41cb4f51e84b9e2d2aad38784ed253e08c5d71f1`)
+  plays with its mixed soundtrack and its private receipt binds storyboard
+  revision 4, six source hashes and the exact soundtrack hash. The new H3 clip
+  (`asset_4ee04be7…`, SHA-256 `c01e4a8f…`) serves HEAD and byte-range requests
+  and plays in the live viewer.
+- **Benchmarks Studio.** Composer `d2c65ec` binds each review to one recorded
+  run and exports the private review as JSON. The zero-spend suite run recorded
+  13/13 checks across blueprint round-trip, live `/demo` and sandbox save/reopen
+  (`benchmarks/results/latest.json`, source `d2c65ec`).
+- **Media Studio blueprint.** Composer `4e474d2` publishes
+  [`/blueprints/media-studio.json`](https://composer.loftwah.com/blueprints/media-studio.json)
+  with the standalone Studio pinned at `13103c975f5469923448eb75b1abcec6e233c185`.
+  It stays **Reference**: no independent owner has replayed that build.
+- **Live identities.** Studio `13103c975f5469923448eb75b1abcec6e233c185`,
+  Worker `6fe20afa-6863-4db2-86da-a0eaed5f24f3`, verified at
+  [build.json](https://media.loftwah.com/build.json). Composer
+  `4e474d2aa110621f6028f9df683f7c366621d398`, Worker
+  `b0153865-a542-4ec2-ab7a-3fb492525099`. The Studio pair consumed `$0.64` in
+  Studio allocations; the project now shows `$2.835` spent of its `$5.00`
+  monthly allowance. Neither figure is a provider invoice.
+
 ## Model comparison — 15 November 2026
 
 Two surfaces now answer "which model should do this job?" from recorded work instead of an opinion.
@@ -23,6 +78,9 @@ Two surfaces now answer "which model should do this job?" from recorded work ins
   every consumer migrated; migration `0017` renamed the column and added a
   separate `provider_charged_micro` that stays null until a provider reports a
   charge.
+
+These are the first releases of each surface. The section above records the
+current source, the project-scoped comparison and the exact-take review binding.
 
 ## Current release pointer
 
