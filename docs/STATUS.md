@@ -40,7 +40,9 @@ model comparison is a review surface rather than a model-name table.
   plays with its mixed soundtrack and its private receipt binds storyboard
   revision 4, six source hashes and the exact soundtrack hash. The new H3 clip
   (`asset_4ee04be7…`, SHA-256 `c01e4a8f…`) serves HEAD and byte-range requests
-  and plays in the live viewer.
+  and plays in the live viewer. Revision 4 reopens with six 5.5 s shots and the
+  saved bed; a typed scene proposal previewed before/after direction and
+  applied to a draft only, and a reload restored the saved revision.
 - **Benchmarks Studio.** Composer `d2c65ec` binds each review to one recorded
   run and exports the private review as JSON. The zero-spend suite run recorded
   13/13 checks across blueprint round-trip, live `/demo` and sandbox save/reopen
