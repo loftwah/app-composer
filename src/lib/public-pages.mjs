@@ -3,8 +3,8 @@
 export const publicPagePaths = Object.freeze([
   '/', '/learn', '/ready', '/ready/guide', '/setup', '/prompts', '/agent', '/agent.md', '/resources', '/resources/change', '/resources/incident', '/resources/pipeline', '/resources/hook', '/resources/operating-kit', '/init', '/init/content', '/init/launch-kit',
   '/roles', '/roles/service-owner', '/roles/programmer', '/roles/architect', '/roles/devops', '/roles/security', '/roles/qa',
-  '/diagrams', '/discover', '/for/creator', '/for/small-business', '/for/developer', '/for/designer', '/for/wordpress', '/for/shopify', '/for/platform-team',
-  '/jobs/profile', '/jobs/enquiries', '/jobs/first-app', '/jobs/branding', '/jobs/diagram', '/jobs/pdf', '/jobs/inspect',
+  '/diagrams', '/discover', '/for/creator', '/for/small-business', '/for/developer', '/for/designer', '/for/wordpress', '/for/shopify', '/for/platform-team', '/for/media-producer', '/for/marketer', '/for/app-operator',
+  '/jobs/profile', '/jobs/enquiries', '/jobs/first-app', '/jobs/branding', '/jobs/diagram', '/jobs/pdf', '/jobs/inspect', '/jobs/produce', '/jobs/publish', '/jobs/operate',
   '/explore', '/demo', '/demo/connected-apps', '/benchmarks', '/blueprints', '/docs', '/docs/how-it-works', '/architecture', '/guide',
   '/catalogue', '/apps', '/activity', '/review', '/privacy', '/release', '/capabilities',
   '/extension', '/state', '/php2shell', '/studio', '/manage', '/building', '/effect',
