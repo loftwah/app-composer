@@ -36,7 +36,7 @@ const contents = [
 ];
 
 const capabilities = [
-  ['Stills', 'Four Workers AI routes: Lucid Origin, Phoenix, SDXL Lightning and a FLUX.2 Klein reference variation', 'Live'],
+  ['Stills', 'Four Workers AI still routes — Studio Print, Studio Film, Studio Draft · FLUX.2 Klein 9B and Studio Quick — plus a FLUX.2 Klein 4B reference variation', 'Live'],
   ['Masked edits', 'Studio Fill: a real painted mask or a 25% extended frame through FLUX.1 Fill. The original, mask and result are separate assets with their own hashes.', 'Live'],
   ['Cutout and upscale', 'BiRefNet background removal (transparent PNG) and Clarity 2× upscale, saved as variants of the selected still', 'Live'],
   ['Video', 'Hailuo 2.3 Standard and Kling 2.5 Turbo Pro, image-to-video, 5–10 seconds', 'Live'],
@@ -87,14 +87,14 @@ const costs = [
       description:
         'How App Composer and a supported agent build, connect, deploy and keep improving an independently owned image, video and sound studio on Cloudflare.',
       datePublished: '2026-11-14',
-      dateModified: '2026-11-14',
+      dateModified: '2026-11-16',
       author: { '@type': 'Person', name: 'Dean Lofts' },
       publisher: { '@type': 'Organization', name: 'App Composer' },
       mainEntityOfPage: 'https://composer.loftwah.com/media-studio',
     })}
   />
   <meta slot="head" property="article:published_time" content="2026-11-14" />
-  <meta slot="head" property="article:modified_time" content="2026-11-14" />
+  <meta slot="head" property="article:modified_time" content="2026-11-16" />
 
 <article class="art">
   <header class="art-hero">
@@ -159,6 +159,7 @@ const costs = [
   <section id="what" class="prose">
     <h2>What actually works</h2>
     <p>The initial release had a project library, uploads, stills and reference variations, masked edits, background removal, upscaling, two image-to-video models, sound, a browser mix, storyboards, scoped Composer access and deliberate publication. The 9:16 example was finished locally from the saved takes. Since then, the studio has added MiniMax H3 and a separate on-device storyboard renderer. The table records what was exercised in the original build, including the provider route that was blocked.</p>
+    <p>One still model changed after that table’s date. Studio Draft was SDXL Lightning in the original build and is now FLUX.2 Klein 9B: SDXL Lightning was retired on 15 November 2026, before Cloudflare’s 20 November cutoff. Saved jobs keep their exact SDXL attribution, and a revision 1 or 2 brief that chose it opens with a visible recovery notice.</p>
     <figure class="figure"><img src={hero} width="1600" height="1000" alt="The Media Studio library for the Paper & Light project, with an assembled cut, sound and saved takes." loading="lazy" /><a href={hero} aria-label="Open full-size studio library screenshot">Open full-size image</a><figcaption>The working studio, with its assembled cut, sound and source takes.</figcaption></figure>
     <details class="production-details">
       <summary>See what this build could do</summary>
@@ -192,7 +193,7 @@ const costs = [
     </figure>
     <p>The draft becomes a portable specification. Its media section holds validated defaults; it does not provision services:</p>
     <pre><code>{`"mediaStudio": {
-  "version": 2,
+  "version": 3,
   "focus": "both",
   "imageModel": "studio-print",
   "videoModel": "hailuo-standard",
@@ -202,7 +203,7 @@ const costs = [
   "durationSeconds": 6,
   "projectName": "Paper & Light"
 }`}</code></pre>
-    <p>Revision 2 added the sound defaults. A revision 1 draft still validates: its sound fields are filled in rather than rejected, so an older saved brief does not break. The studio rechecks every value on its own server; the spec never enables a provider or promises a model the studio has not qualified.</p>
+    <p>Revision 3 is current and adds the retired Studio Draft migration: a draft that chose SDXL Lightning loads as FLUX.2 Klein 9B with a visible recovery notice. Revision 2 added the sound defaults, and revision 1 drafts still validate: their sound fields are filled in rather than rejected, so an older saved brief does not break. The studio rechecks every value on its own server; the spec never enables a provider or promises a model the studio has not qualified.</p>
     <p>You can export the spec and import the same choices later. "Copy agent handoff" gives your agent the pinned source, storage and secret names, and build plan. It also identifies the steps you handle: accounts, sign-in and spending approval. The handoff describes the work; the deployment showed it had been done.</p>
     <p><a class="inline-cta" href="/media-studio/tutorial#init">Follow this step in the tutorial →</a></p>
   </section>
@@ -215,7 +216,7 @@ const costs = [
     <h3>Keeping track of requests</h3>
     <p>Before a paid image, video, sound or assembly request is sent, the studio records the job and reserves its estimated cost. It checks concurrent requests against the same budget. If saving a finished result fails, the retained file can be saved again without making another generation request. When the provider outcome is unknown, the reservation stays in place until the job is reconciled; the studio does not automatically resubmit it.</p>
     <h3>How a provider render gets its files</h3>
-    <p>At the time of this build, a composition took two to six saved clips, each up to 10.5 seconds, with a 60-second total and one saved audio bed. The current per-clip limit is 16 seconds. A provider render sends one composition and copies a successful result to the studio's bucket. The job stays recorded if you close the browser, and a failed result read does not silently start another render.</p>
+    <p>At the time of this build, a composition took two to six saved clips, each up to 10.5 seconds, with a 60-second total and one saved audio bed. A provider render sends one composition and copies a successful result to the studio's bucket. The job stays recorded if you close the browser, and a failed result read does not silently start another render.</p>
     <p>The provider needs to read the participating files, and the studio's media endpoints require a current session. Rather than making a project public, the server signs one asset for one project with an expiry:</p>
     <pre><code>{`// src/lib/render-links.mjs — one asset, one project, thirty minutes
 const payload = \`\${assetId}.\${projectId}.\${expires}\`;
@@ -310,6 +311,9 @@ url.searchParams.set("s", signature);`}</code></pre>
     </div>
     <p class="small">Both films are narrated, edited guides using Studio and Composer screen images and title cards. They explain the workflow; they do not by themselves prove each live interaction or provider request. The assembled result they show can be opened on the public page.</p>
     <h3>The current private film</h3>
+    <!-- TODO(parallel Studio lane): the new song-led film is being produced in the Studio lane. When its master,
+         public release identity and captions exist, replace this paragraph with that real artefact and add it to
+         the showcase. Do not describe or embed a film before its master and release identity exist. -->
     <p><em>After Hours — The Room Wakes</em> is the project in progress in the owner's studio. It is a 33-second, six-scene cut built from six Hailuo 2.3 takes, one per saved scene, with a mixed 33-second soundtrack and a 1280 × 720 master. One chosen scene was re-generated, the storyboard moved to revision 4 and the earlier master was kept alongside the replaced take. A 720 × 1280 portrait derivative carries the same mix. The song, the masters and the project stay private: nothing from that film is published here or in the showcase above.</p>
   </section>
 
@@ -465,7 +469,7 @@ url.searchParams.set("s", signature);`}</code></pre>
         <caption>Results recorded on 13–14 November 2026, Melbourne time. "Live" means a real request through the studio produced a saved result.</caption>
         <thead><tr><th scope="col">Route</th><th scope="col">Provider and model</th><th scope="col">State</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Stills</th><td>Workers AI Lucid Origin, Phoenix, SDXL Lightning, FLUX.2 Klein</td><td>Live</td></tr>
+          <tr><th scope="row">Stills</th><td>Workers AI Lucid Origin, Phoenix, FLUX.2 Klein (9B and 4B). The original build's SDXL Lightning route was retired on 15 November 2026; saved jobs keep that attribution.</td><td>Live; SDXL Lightning retired</td></tr>
           <tr><th scope="row">Masked fill and outpaint</th><td>fal.ai FLUX.1 Fill, same-size mask, data-URI inputs</td><td>Live</td></tr>
           <tr><th scope="row">Cutout and upscale</th><td>fal.ai BiRefNet v2 and Clarity Upscaler</td><td>Live</td></tr>
           <tr><th scope="row">Video</th><td>fal.ai Hailuo 2.3 Standard, Kling 2.5 Turbo Pro</td><td>Live</td></tr>

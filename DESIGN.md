@@ -243,6 +243,17 @@ same profile. That example sits before the fictional workshop, which remains
 clearly labelled and links to the real apps. The opening artwork is finished
 Media Studio work, not a substitute for the product explanation.
 
+Re-verified against the five visitor observations in
+[#495](https://github.com/loftwah/app-composer/issues/495) on 16 November 2026.
+At 390 and 1440 px the first viewport holds the product name, the owned-app
+outcome, one primary action, the two secondary routes and the Get Ready
+explanation; the interactive workshop begins 4,087 px (phone) and 2,715 px
+(desktop) into the page, after the explanation and the real Creator Hub example.
+The artwork credit now reads “Made in Media Studio, built with App Composer” so
+the proof names its parent product instead of introducing a second unexplained
+name. Independent cold-visitor comprehension remains the open acceptance item in
+#495/#425; this note records only the source and local re-verification.
+
 ## Brand Studio tactile skin option — 15 November 2026
 
 Brand Studio's appearance form gains one optional skin beside its reading

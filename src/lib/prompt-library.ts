@@ -176,13 +176,17 @@ export function renderPrompt(id: string, values: PromptValues = {}, options: { t
   const missing: string[] = [];
   const context = item.fields.flatMap(field => {
     const value = safeValue(Object.hasOwn(values, field.key) ? values[field.key] : '');
-    if (options.template) return field.required || field.key === 'project' ? [`${field.label}: [${field.key.toUpperCase()}]`] : [];
+    if (options.template) return field.key === 'project'
+      ? [`${field.label}: [${field.key.toUpperCase()}] — if I was not given a project, inspect the folder you are working in, name it, and confirm it before any change.`]
+      : field.required ? [`${field.label}: [${field.key.toUpperCase()}]`] : [];
     if (value) return [field.key === 'checks' ? `${field.label}:\n\`\`\`sh\n${value}\n\`\`\`` : `${field.label}:\n${value}`];
     if (field.required) { missing.push(field.key); return [`${field.label}: [NEEDED: ${field.label}]`]; }
     if (field.key === 'project') return ['Your project: inspect the currently selected authorised project folder; confirm the intended project before any external change.'];
     return [];
   });
-  return { text: [item.task, ...context, ...(['setup', 'check', 'resume'].includes(id) ? [] : [common])].join('\n\n'), missing };
+  const body = [item.task, ...context, ...(['setup', 'check', 'resume'].includes(id) ? [] : [common])];
+  if (options.template) body.push('Bracketed fields are placeholders. Resolve the ones you can from the project and say what you used; ask me for the rest before you start, and never invent a value.');
+  return { text: body.join('\n\n'), missing };
 }
 
 /** Strictly scoped local draft data. No values are ever encoded in a link. */

@@ -66,6 +66,32 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <p class="small">The walkthrough film follows these chapters. Timestamps below refer to <a href="#film">the illustrated film</a>.</p>
   </header>
 
+  <section id="path" class="step">
+    <p class="kicker">The path</p>
+    <h2>Every stage, and where it happens</h2>
+    <p>Each row names the control you use and the result that tells you it worked. The chapters below follow the same order, with a recovery case for each stage.</p>
+    <div class="table-wrap">
+      <table>
+        <caption>The reproducible path from a brief to a changed, published studio.</caption>
+        <thead><tr><th scope="col">Stage</th><th scope="col">Where</th><th scope="col">What proves it</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">1 · Brief</th><td><a href="/init?start=media-studio">Init → Media Studio</a> → <strong>Use this starting point</strong>, then the fields and <strong>Save draft</strong></td><td>A saved specification at revision 3. Saving or exporting provisions nothing.</td></tr>
+          <tr><th scope="row">2 · Handoff</th><td><strong>Copy agent handoff</strong></td><td>A pinned forty-character commit, the D1, R2 and Workers AI bindings, and the human-only steps.</td></tr>
+          <tr><th scope="row">3 · Build</th><td>Your agent, in your own project and Cloudflare account</td><td><code>/healthz</code> returns the exact commit that was deployed.</td></tr>
+          <tr><th scope="row">4 · Enter</th><td>The Composer menu, or <a href="/media-studio/studio">Open your studio</a></td><td>Your projects load; a signed-out private route returns 401.</td></tr>
+          <tr><th scope="row">5 · Source assets</th><td>Library → upload, or <strong>Import from Woodhouse Share</strong> with an asset ID</td><td>The file, its dimensions or duration and a hash. An import keeps its source credit.</td></tr>
+          <tr><th scope="row">6 · Edit</th><td>Create → a saved still → <strong>Masked fill</strong>, <strong>Remove background</strong> or <strong>Upscale ×2</strong></td><td>A new variant beside the original. The source, mask and result keep separate hashes.</td></tr>
+          <tr><th scope="row">7 · Direct</th><td>A scene from the <a href="/media-studio/direct">creative field guide</a>, then the scene fields in your project</td><td>A changed take that keeps the approved subject and setting, saved as a new revision with the earlier one intact.</td></tr>
+          <tr><th scope="row">8 · Review the model</th><td>History → a comparison, with the source still shown beside each take</td><td>A visible pick and the source still together, so you can attribute a scene change to the model rather than the prompt.</td></tr>
+          <tr><th scope="row">9 · Render</th><td>Assemble → two to six takes, up to four tracks, mix, then render</td><td>A saved MP4 with real dimensions, duration and take count. <strong>Reconcile</strong> re-reads the same provider result.</td></tr>
+          <tr><th scope="row">10 · Publish</th><td>A saved asset → <strong>Publish page</strong></td><td>The page opens signed out. Show/hide, make private and delete stay separate actions.</td></tr>
+          <tr><th scope="row">11 · Return</th><td>Ask the same agent for one change to the same app</td><td>The new behaviour, the earlier renders still attached, and a live revision that matches the commit.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">Two current limits: the provider compose route refuses new jobs with 403, and the conversational Producer, named characters and MCP parity are not shipped. The <a href="https://github.com/loftwah/app-composer/blob/main/docs/evidence/launch-20261115/model-freshness-20261115.md">model freshness record</a> holds the checks behind the current still and video choices, including the retired SDXL Lightning route.</p>
+  </section>
+
   <section id="target" class="step">
     <p class="kicker">01 · Understand the target app</p>
     <h2>What you are building</h2>
@@ -150,9 +176,10 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <div class="cols">
       <div>
         <p>Open <a href="/init?start=media-studio">Init → Media Studio</a>. The recommendation is a preview until you select <strong>Use this starting point</strong>; then choose what the studio should make, the still and video models, the default frame and clip length, and the sound model and bed length. Name the project. None of this buys anything.</p>
+        <p>Today’s still choices are Studio Print, Studio Film, Studio Draft · FLUX.2 Klein 9B and Studio Quick, plus a FLUX.2 Klein reference variation. SDXL Lightning was retired on 15 November 2026 and is not offered for new work.</p>
         <p>Write the intent in your own words. The sentence used for this build:</p>
         <pre><code>{promptBrief}</code></pre>
-        <p>The exported specification carries your choices. Revision 2 includes sound defaults, and revision 1 drafts still load.</p>
+        <p>The exported specification carries your choices. Revision 3 is current: it maps the retired Studio Draft choice to FLUX.2 Klein 9B with a visible recovery notice. Revision 2 added the sound defaults, and revision 1 drafts still load.</p>
       </div>
       <aside class="check">
         <h3>What you should see</h3>
@@ -164,7 +191,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     <figure class="figure">
       <img src={init} width="1600" height="1000" alt="The Media Studio section of the Init form with name, focus, still and video models, default frame, clip length, sound model and sound length." loading="lazy" />
       <a href={init} aria-label="Open full-size Init form screenshot">Open full-size image</a>
-      <figcaption>Init's Media Studio section on the live page. The sound fields are part of revision 3 of the specification; revision 1 and 2 drafts still load.</figcaption>
+      <figcaption>Init's Media Studio section on the live page. Revision 3 is current; revision 1 and 2 drafts still load, and a retired Studio Draft choice is mapped to FLUX.2 Klein 9B.</figcaption>
     </figure>
   </section>
 
@@ -409,6 +436,9 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
   <section id="film" class="step">
     <p class="kicker">Illustrated walkthrough</p>
     <h2>Watch the walkthrough</h2>
+    <!-- TODO(parallel Studio lane): the Studio lane is producing a new film. Replace this illustrated walkthrough
+         with the recorded walkthrough only when its master, captions, poster and release identity exist. Until then
+         this section describes the existing film exactly and does not claim to show the new one. -->
     <p>This illustrated film uses Studio and Composer screenshots from the original build. In today’s Init, select <strong>Use this starting point</strong> before filling out the Media Studio fields. The film does not record every live interaction or provider request. The player has captions and the transcript lists the chapters.</p>
     <video controls preload="none" poster="/media-studio/watch/walkthrough-poster.jpg" width="1440" height="900">
       <source src="/media-studio/watch/walkthrough.mp4" type="video/mp4" />
@@ -536,6 +566,20 @@ curl -s -o /dev/null -w '%&#123;http_code&#125;\n' https://your-studio.example/a
   .row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:18px}
   .small{font-size:.85rem;color:var(--muted,#b9b2a8)}
   .tut :is(a,button,summary,video):focus-visible{outline:2px solid var(--accent,#ff5a1f);outline-offset:3px}
+  #path caption{text-align:left;font-size:.8rem;color:var(--muted,#b9b2a8);padding:0 0 12px}
+  @media (max-width:640px){
+    /* The path table stacks on phones: each stage keeps its own heading and the
+       two column labels travel with their cells. */
+    #path table,#path tbody,#path tr,#path th,#path td{display:block;width:100%}
+    #path caption{display:block;width:auto;max-width:none}
+    #path thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+    #path tbody tr{padding:16px 0;border-top:1px solid var(--line,rgba(255,255,255,.16))}
+    #path th[scope="row"]{margin:0 0 4px;font-size:1rem}
+    #path td{padding:2px 0;border:0}
+    #path td::before{display:block;margin:10px 0 2px;font:600 .6rem/1.4 ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--accent,#ff5a1f)}
+    #path td:nth-of-type(1)::before{content:"Where"}
+    #path td:nth-of-type(2)::before{content:"What proves it"}
+  }
   @media (max-width:820px){.tutorial-intro{grid-template-columns:minmax(0,1fr)}.tutorial-intro-art{width:min(100%,380px)}.cols,.facts,.timestamps,.roles{grid-template-columns:1fr;gap:18px}}
 </style>
 </Base>

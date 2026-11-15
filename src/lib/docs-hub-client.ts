@@ -1,11 +1,26 @@
 import { docsSearchCount, legacyDocsAnchors, searchDocs } from './docs-hub';
+import { copyPromptText, docsCopyMessages } from './docs-copy';
 
 /**
  * /docs interactivity: local filtering over the maintained task index and copy
  * buttons that read the server-rendered canonical prompt. No model call, no
  * network request and no execution authority.
+ *
+ * Copy is progressive enhancement. The page always renders the full prompt in
+ * a native disclosure, so a blocked clipboard, an insecure context or no
+ * JavaScript at all leaves a selectable copy behind. Every outcome is written
+ * to a visible, announced status line; nothing fails silently.
  */
-const legacyHash = decodeURIComponent(location.hash.slice(1));
+
+const legacyHash = (() => {
+  try {
+    return decodeURIComponent(location.hash.slice(1));
+  } catch {
+    // A malformed hash (for example a lone "%") must not break the page's
+    // search or copy controls.
+    return '';
+  }
+})();
 if (legacyHash && (legacyDocsAnchors as readonly string[]).includes(legacyHash)) {
   location.replace(`/docs/how-it-works#${legacyHash}`);
 }
@@ -56,13 +71,60 @@ if (root) {
     const details = root!.querySelector<HTMLDetailsElement>(`[data-docs-details="${id}"]`);
     if (details) details.open = true;
     const prompt = root!.querySelector<HTMLElement>(`[data-docs-prompt="${id}"]`);
-    prompt?.focus();
     if (!prompt) return;
+    prompt.focus();
     const range = document.createRange();
     range.selectNodeContents(prompt);
     const selection = window.getSelection();
     selection?.removeAllRanges();
     selection?.addRange(range);
+  }
+
+  /** One message per control, cleared so a repeated attempt is announced again. */
+  const statusTimers = new WeakMap<HTMLElement, number>();
+
+  /** Clear a previous message so the next outcome is announced again. */
+  function setStatus(status: HTMLElement, message: string, clearAfter: number, state: 'copied' | 'failed' | 'empty') {
+    const previous = statusTimers.get(status);
+    if (previous) window.clearTimeout(previous);
+    status.textContent = message;
+    status.dataset.copyState = state;
+    statusTimers.set(status, window.setTimeout(() => {
+      // The manual fallback stays open and selected, so clearing the message
+      // loses no instruction; it only keeps a stale "Copied" from lingering.
+      status.textContent = '';
+      delete status.dataset.copyState;
+    }, clearAfter));
+  }
+
+  async function copyPrompt(id: string, button: HTMLButtonElement) {
+    const prompt = root!.querySelector<HTMLElement>(`[data-docs-prompt="${id}"]`);
+    const status = root!.querySelector<HTMLElement>(`[data-docs-status="${id}"]`);
+    if (!prompt || !status) return;
+    const text = prompt.textContent ?? '';
+    const original = button.textContent ?? 'Copy prompt template';
+    const outcome = await copyPromptText(text, navigator.clipboard?.writeText?.bind(navigator.clipboard));
+
+    if (outcome === 'manual') {
+      setStatus(status, docsCopyMessages.manual, 12000, 'failed');
+      button.dataset.copyState = 'failed';
+      // Let the polite status update start before focus moves into the
+      // disclosure, so the message is not cut off by the focus change.
+      window.setTimeout(() => selectPrompt(id), 60);
+      window.setTimeout(() => { delete button.dataset.copyState; }, 12000);
+      return;
+    }
+    if (outcome === 'empty') {
+      setStatus(status, docsCopyMessages.empty, 12000, 'empty');
+      return;
+    }
+    setStatus(status, docsCopyMessages.copied, 6000, 'copied');
+    button.textContent = 'Copied';
+    button.dataset.copyState = 'copied';
+    window.setTimeout(() => {
+      button.textContent = original;
+      delete button.dataset.copyState;
+    }, 6000);
   }
 
   input?.addEventListener('input', filter);
@@ -114,19 +176,9 @@ if (root) {
   });
 
   for (const button of root.querySelectorAll<HTMLButtonElement>('[data-docs-copy]')) {
-    button.addEventListener('click', async () => {
+    button.addEventListener('click', () => {
       const id = button.dataset.docsCopy;
-      if (!id) return;
-      const prompt = root.querySelector<HTMLElement>(`[data-docs-prompt="${id}"]`);
-      const status = root.querySelector<HTMLElement>(`[data-docs-status="${id}"]`);
-      if (!prompt || !status) return;
-      try {
-        await navigator.clipboard.writeText(prompt.textContent ?? '');
-        status.textContent = 'Prompt template copied. Paste it into your chosen agent, then answer or replace the bracketed details.';
-      } catch {
-        status.textContent = 'This browser could not copy. The full prompt is selected below; copy it with your keyboard.';
-        selectPrompt(id);
-      }
+      if (id) void copyPrompt(id, button);
     });
   }
 
