@@ -2584,3 +2584,95 @@
   .composer-home .home-opening-art { justify-self: start; max-width: 560px; }
   .composer-home .home-opening-path ol { grid-template-columns: 1fr; gap: 0; }
 }
+
+/* The opening names the product before it describes the journey. */
+.composer-home .home-opening-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1.35rem;
+  color: var(--home-hero-accent);
+  font:
+    600 0.78rem/1 Space,
+    sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.composer-home .home-opening-eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+}
+
+/* One inspectable app and the later change its owner asked for, before the
+   fictional workshop. */
+.composer-home .home-proof {
+  padding-block: clamp(5rem, 8vw, 7rem);
+  border-top: 1px solid var(--home-rule);
+}
+.composer-home .proof-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  align-items: center;
+  gap: clamp(2.5rem, 7vw, 7rem);
+}
+.composer-home .proof-copy .home-eyebrow {
+  margin-bottom: 1.5rem;
+  color: var(--color-muted);
+}
+.composer-home .proof-copy h2 {
+  font-size: clamp(2.7rem, 4.8vw, 4.6rem);
+}
+.composer-home .proof-copy > p {
+  max-width: 48ch;
+  margin-top: 1.5rem;
+  color: var(--color-muted);
+  font-size: 1.02rem;
+  line-height: 1.65;
+}
+.composer-home .proof-copy .proof-facts {
+  color: var(--color-foreground);
+  font-weight: 600;
+}
+.composer-home .proof-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.75rem;
+  margin-top: 1.75rem;
+}
+.composer-home .proof-copy .proof-note {
+  margin-top: 1.25rem;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+.composer-home .proof-shot {
+  margin: 0;
+  min-width: 0;
+}
+.composer-home .proof-shot img {
+  display: block;
+  width: 100%;
+  height: min(34rem, 62vh);
+  object-fit: cover;
+  object-position: top;
+  border: 1px solid var(--home-rule);
+  background: var(--color-surface);
+}
+.composer-home .proof-shot figcaption {
+  margin-top: 0.7rem;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+@media (max-width: 900px) {
+  .composer-home .proof-layout {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .composer-home .proof-shot img {
+    height: auto;
+    max-height: 30rem;
+  }
+}

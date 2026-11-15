@@ -61,13 +61,14 @@ const defaultStation = studioStations[0];
     <section class="home-opening" aria-labelledby="home-heading">
       <div class="home-opening-inner">
         <div class="home-opening-main">
+          <p class="home-opening-eyebrow">App Composer</p>
           <h1 id="home-heading">Build an app<br /><span>you own.</span></h1>
-          <p>App Composer helps you prepare your tools, work with your chosen AI agent to build or connect an app on Cloudflare, and keep improving it. Your source and data stay yours.</p>
+          <p>App Composer helps you work with your chosen AI agent to build or connect an app on Cloudflare, then keep changing it. Your source and data stay yours.</p>
           <div class="home-opening-actions">
-            <a class="home-button" href="/ready">Get started <ArrowUpRight size={21} aria-hidden="true" /></a>
-            <a class="studio-text-link" href="#make-something">See how it works <ArrowDown size={18} aria-hidden="true" /></a>
+            <a class="home-button" href="/learn">Build your first app <ArrowUpRight size={21} aria-hidden="true" /></a>
+            <a class="studio-text-link" href="#example">See a real example <ArrowDown size={18} aria-hidden="true" /></a>
           </div>
-          <p class="home-opening-note">New to AI agents? Start by preparing your tools and Cloudflare account.</p>
+          <p class="home-opening-note">Get Ready is the setup step. It checks your agent, tools and Cloudflare account; then Init turns your idea into a brief for the agent.</p>
         </div>
         <figure class="home-opening-art">
           <a href="/media-studio#from-share">
@@ -112,10 +113,11 @@ const defaultStation = studioStations[0];
             01 /
           </span>
           <div>
-            <h3>Get your tools ready.</h3>
+            <h3>Prepare your tools.</h3>
             <p>
-              Check the source, tools and Cloudflare account your agent will
-              use. You can start before you have an app idea.
+              Get Ready is the setup step. It checks the source, tools and
+              Cloudflare account your agent will use, then proves a small
+              starter works. You can start before you have an app idea.
             </p>
             <a class="home-text-link" href="/ready">
               Open Get Ready <ArrowRight size={18} aria-hidden="true" />
@@ -154,6 +156,54 @@ const defaultStation = studioStations[0];
           </div>
         </li>
       </ol>
+    </section>
+
+    <section class="home-proof" id="example" aria-labelledby="example-heading">
+      <div class="home-container proof-layout">
+        <div class="proof-copy">
+          <p class="home-eyebrow">A real app · a later change</p>
+          <h2 id="example-heading">Built once.<br />Changed later.</h2>
+          <p>
+            Mara’s Creator Hub is two live apps: a Linkarooie profile and a
+            Here / there guestbook. Her agent built both from one Init brief.
+            When she wanted two links featured, she asked again. The agent
+            changed the existing profile instead of starting a new build.
+          </p>
+          <p class="proof-facts">
+            Same source. Same four links. The approved guestbook postcard
+            stayed in place.
+          </p>
+          <div class="proof-actions">
+            <a class="home-button home-button-quiet" href="/creator-hub">
+              Open the Creator Hub
+              <ArrowUpRight size={19} aria-hidden="true" />
+            </a>
+            <a class="home-text-link" href="/creator-hub#follow-up">
+              See how the change was made
+              <ArrowRight size={18} aria-hidden="true" />
+            </a>
+          </div>
+          <p class="proof-note">
+            Reference build with a fictional owner, live in the operator’s
+            Cloudflare account. Your own app uses your account, source and
+            domain.
+          </p>
+        </div>
+        <figure class="proof-shot">
+          <img
+            src="/creator-hub/profile-20261112.webp"
+            width="1440"
+            height="1535"
+            alt="The live Mara Quinn Linkarooie profile after a second change: a Featured section with two numbered picks above the same four links."
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption>
+            After the second change: two featured picks and the original four
+            links. Captured 12 November 2026.
+          </figcaption>
+        </figure>
+      </div>
     </section>
 
     <section class="studio-hero" aria-labelledby="workshop-heading">

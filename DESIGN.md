@@ -248,3 +248,13 @@ outline, and do not treat browser checks as physical-device acceptance.
 ## First impression correction — 14 November 2026
 
 The landing page leads with App Composer's real outcome: prepare tools, work with a chosen AI agent to build or connect an app on Cloudflare, and keep operating software the user owns. The three-step explanation precedes the interactive workshop, which is explicitly a fictional illustration with links to real apps. Get Ready is presented as the preparation step, not the product name. This direction addresses the reported hierarchy problem in #495; independent newcomer comprehension testing remains outstanding.
+
+## First-app entry and the later change — 15 November 2026
+
+The opening now names App Composer, leads with “Build your first app” into the
+plain-language Learn journey, and keeps Get Ready described as the setup step.
+The secondary action jumps to one inspectable Creator Hub example: two live
+apps, the source and data they keep, and the second change Mara asked for on the
+same profile. That example sits before the fictional workshop, which remains
+clearly labelled and links to the real apps. The opening artwork is finished
+Media Studio work, not a substitute for the product explanation.
