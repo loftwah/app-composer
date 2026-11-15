@@ -10,6 +10,13 @@ import {
 } from '../../lib/benchmark-compare.mjs';
 const source = typeof compare.sourceVersion === 'string' ? compare.sourceVersion : null;
 const short = source ? source.slice(0, 7) : 'unrecorded';
+// A review belongs to one recorded run, not to a reusable trial label. If the
+// same configuration is run again, its new take must be reviewed on its own.
+const runKey = [
+  source ?? 'unrecorded',
+  String(compare.task?.briefSha256 ?? 'no-brief').slice(7, 17),
+  String(compare.generatedAt ?? 'no-date'),
+].join('|');
 const task = compare.task ?? {};
 const configurations: any[] = Array.isArray(compare.configurations) ? compare.configurations : [];
 
@@ -94,7 +101,15 @@ const initial = firstTwo.map((configuration, index) => slotDefault(configuration
     {!verdict.comparable && <p class="small">This is a single configuration's result, not a comparison.</p>}
   </section>
 
-  <dl class="cmp-meta">
+  <dl
+    class="cmp-meta"
+    data-run-meta
+    data-source={source ?? ''}
+    data-brief={task.briefSha256 ?? ''}
+    data-generated={compare.generatedAt ?? ''}
+    data-task={task.id ?? ''}
+    data-task-version={String(task.version ?? '')}
+  >
     <div><dt>Task</dt><dd>{task.title ?? 'unknown'} <span class="small">v{task.version ?? '?'}</span></dd></div>
     <div><dt>Brief hash</dt><dd><code>{(task.briefSha256 ?? 'unknown').slice(0, 22)}…</code></dd></div>
     <div><dt>Assertions</dt><dd>{(task.assertions ?? []).length} deterministic</dd></div>
@@ -208,9 +223,13 @@ const initial = firstTwo.map((configuration, index) => slotDefault(configuration
   <section class="cmp-section" aria-labelledby="trials-title">
     <h2 id="trials-title">Every trial, and which one you would use</h2>
     <p class="small" data-vote-tally>No take picked yet. Choose the one you would actually use.</p>
+    <div class="cmp-review-actions">
+      <button type="button" class="secondary" data-review-export>Copy this review as JSON</button>
+      <p class="small" data-review-status role="status">Your review stays in this browser until you copy it.</p>
+    </div>
     <div class="cmp-trial-grid">
       {trials.map((trial) => (
-        <article class="cmp-trial" data-trial={trial.id} data-configuration={trial.configurationId}>
+        <article class="cmp-trial" data-trial={trial.id} data-configuration={trial.configurationId} data-run={runKey} data-model={trial.model} data-harness={trial.harness} data-status={trial.status} data-duration={trial.durationMs ?? ''}>
           <header>
             <div>
               <h3>{trial.configurationLabel}</h3>
@@ -370,6 +389,10 @@ const initial = firstTwo.map((configuration, index) => slotDefault(configuration
   .cmp-vote-field-time{flex:0 1 90px}
   .cmp-vote-field input{font:inherit;font-size:13px;padding:8px 10px;min-height:40px;border-radius:8px;border:1px solid var(--color-border);background:transparent;color:inherit}
   .cmp-vote-note{flex-basis:100%;margin:0;color:var(--color-muted)}
+  .cmp-review-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:10px 0 16px}
+  .cmp-review-actions p{margin:0}
+  .cmp-review-actions button{font:inherit;font-size:13px;padding:10px 14px;min-height:44px;border-radius:8px;border:1px solid var(--color-border);background:transparent;color:inherit;cursor:pointer}
+  .cmp-review-actions button:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
   .cmp-routes{padding-left:18px;font-size:14px;line-height:1.9}
   .cmp-limits{max-width:70ch;line-height:1.8}
   .cmp-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
