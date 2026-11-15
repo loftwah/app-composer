@@ -76,6 +76,7 @@ type Custody = {
 type Status = {
   enabled: boolean;
   host: string;
+  hostSource?: "workspace" | "deployment" | "";
   installation: string;
   configured: boolean;
   agentConfigured: boolean;
