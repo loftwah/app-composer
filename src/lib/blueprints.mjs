@@ -100,7 +100,7 @@ export const blueprints = [
       },
       {
         label: "Pinned source",
-        url: "https://github.com/loftwah/composer-media-studio/tree/c150e8e7a82d790e65517efd76bd574865eab8fe",
+        url: "https://github.com/loftwah/composer-media-studio/tree/2640e67b7224f9c3a2ada1b77e364769ac4039b5",
         observed: "Exact MIT source revision for the studio in this catalogue.",
       },
     ],
