@@ -12,6 +12,7 @@ src/lib/build.json
 src/lib/stack-status.json
 .playwright-cli/
 .playwright-mcp/
+.release/
 output/
 public/downloads/get-ready-core.tgz
 public/downloads/get-ready-core.json
