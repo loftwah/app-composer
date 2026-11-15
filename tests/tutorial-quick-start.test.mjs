@@ -30,7 +30,8 @@ test('build prompt names installation settings and current caption limits', () =
   const text = mediaStudioQuickStart.prompts.find(p => p.id === 'build').text;
   for (const name of ['PUBLIC_ORIGIN', 'MONTHLY_ALLOWANCE_MICRO', 'WOODHOUSE_SHARE', 'COMPOSER_ORIGIN', 'FAL_KEY']) assert.ok(text.includes(name), name);
   assert.match(text, /manually timed caption cues/i);
-  assert.match(text, /do not automatically transcribe or burn captions/i);
+  assert.match(text, /matching saved storyboard can burn those saved captions into a local MP4/i);
+  assert.match(text, /no automatic transcription/i);
   assert.match(text, /separate opt-in and rights confirmation/i);
 });
 
