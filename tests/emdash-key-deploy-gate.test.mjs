@@ -76,7 +76,7 @@ function fixture(t, nonempty = false) {
   git(["push", "--quiet", "origin", "main"]);
   writeFileSync(
     join(root, ".git/info/exclude"),
-    "bin/\n.private/\npublic/\n.wrangler/\ndist/\nupload-keys.json\n",
+    "bin/\n.private/\n.release/\npublic/\n.wrangler/\ndist/\nupload-keys.json\n",
   );
   mkdirSync(join(root, ".private"), { mode: 0o700 });
   writeFileSync(
