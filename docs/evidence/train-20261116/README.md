@@ -10,6 +10,7 @@ owner browser (Composer workspace `dean`), not reconstructed from source.
 | Media Studio | `2548f3c4c2104fc7422c9d5ed513fd29aa8d6549` | `2f548d23-fd67-4efb-94ca-d2e2d930e3c1` | 34.7 s |
 | Media Studio | `4a2f981dce69` | `95b5ccbc-f09d-49f6-8a55-02c1203ef49e` | 23.2 s |
 | App Composer | `4eb753d489f272ceb1350d3e717099812b9ecdcf` | `475e875a-77c7-4314-b80c-1b0702babdad` | 95.2 s |
+| App Composer (copy correction) | `477d2fbdabb8a781b2e35f32c131cf73992201e6` | see receipt | 87.0 s |
 
 Every release used the repository's own clean pushed-main guard. No new release
 gate, service or credential was added.
