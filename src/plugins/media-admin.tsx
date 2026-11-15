@@ -518,14 +518,17 @@ export function MediaPage() {
         <p>
           The same handlers are available to an authorised agent at{" "}
           <code>POST /api/media-agent</code> with <code>Authorization: Bearer</code> and{" "}
-          <code>{"{action:\"status\" | \"generate\" | \"reconcile\" | \"import\"}"}</code>. The agent
-          token is <strong>{status.agentConfigured ? "configured" : "not configured"}</strong>; it is
-          never rendered here and never enters the browser.
+          <code>{"{action:\"status\" | \"generate\" | \"reconcile\" | \"import\"}"}</code>. This
+          workspace has{" "}
+          <strong>{status.agentConfigured ? "an active agent grant" : "no agent grant"}</strong>;
+          the token is shown once when issued and is never rendered here or sent to the browser.
+          Connection, credential and grant administration stay in this owner panel.
         </p>
-        <pre>{`node scripts/media-studio-agent.mjs status\nnode scripts/media-studio-agent.mjs generate --kind image --model @cf/leonardo/lucid-origin --prompt "…"\nnode scripts/media-studio-agent.mjs reconcile --id job_…\nnode scripts/media-studio-agent.mjs import --id job_…`}</pre>
+        <pre>{`MEDIA_AGENT_GRANT_TOKEN=… node scripts/media-studio-agent.mjs status\nMEDIA_AGENT_GRANT_TOKEN=… node scripts/media-studio-agent.mjs generate --kind image --model @cf/leonardo/lucid-origin --prompt "…"\nMEDIA_AGENT_GRANT_TOKEN=… node scripts/media-studio-agent.mjs reconcile --id job_…\nMEDIA_AGENT_GRANT_TOKEN=… node scripts/media-studio-agent.mjs import --id job_…`}</pre>
         <p className="cm-small">
-          Browser and agent operations share validation, permission, request identity and the
-          audit row. Disabling stops both.
+          Browser and agent operations share validation, workspace scope, permission, request
+          identity and the audit row. A revoked or expired grant stops the next call, and turning
+          the capability off for this workspace stops both surfaces.
         </p>
       </section>
     </main>

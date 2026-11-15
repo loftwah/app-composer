@@ -5,11 +5,15 @@ import {
   MediaContractError,
   mediaActions,
 } from "../lib/media-capability.mjs";
-import { runAction, statusSnapshot } from "../lib/media-capability-runtime.mjs";
+import {
+  resolveSessionScope,
+  runAction,
+  statusSnapshot,
+} from "../lib/media-capability-runtime.mjs";
 import { studioAccess } from "../lib/member-access.ts";
 
 type Context = {
-  user?: { id: string; role: number };
+  user?: { id: string; role: number; name?: string | null };
   request: Request;
   input: unknown;
 };
@@ -21,7 +25,7 @@ function actor(ctx: Context) {
       "Images & video requires a signed-in administrator.",
       403,
     );
-  return ctx.user.id;
+  return ctx.user;
 }
 
 async function guarded(work: () => Promise<unknown>) {
@@ -39,31 +43,57 @@ async function guarded(work: () => Promise<unknown>) {
   }
 }
 
+/** A workspace id from the request is only a selector; the server checks
+ * membership and refuses a workspace that is not the caller's. */
+function workspaceSelector(value: unknown): string | null {
+  if (value === undefined || value === null || value === "") return null;
+  if (typeof value !== "string")
+    throw new PluginRouteError("INVALID", "Choose a valid workspace.", 400);
+  return value;
+}
+
 export async function readMedia(ctx: Context) {
-  actor(ctx);
+  const user = actor(ctx);
   if (ctx.request.method !== "GET")
     throw new PluginRouteError("METHOD_NOT_ALLOWED", "This view is read-only.", 405);
   const url = new URL(ctx.request.url);
   const job = url.searchParams.get("job");
   if (job && !/^job_[a-z0-9]{21}$/.test(job))
     throw new PluginRouteError("INVALID", "That job reference is not valid.", 400);
-  return guarded(async () => ({
-    status: await statusSnapshot(env),
-    job: job
-      ? (await statusSnapshot(env)).jobs.find((entry: { id: string }) => entry.id === job) ?? null
-      : null,
-  }));
+  return guarded(async () => {
+    // Authority is derived here, server-side, from the signed-in account and
+    // the selected workspace. The query string only selects a workspace the
+    // account already belongs to.
+    const scope = await resolveSessionScope(env as unknown as Record<string, unknown>, {
+      user: { id: user.id, role: user.role, name: user.name ?? null },
+      workspace: workspaceSelector(url.searchParams.get("workspace")),
+    });
+    const status = await statusSnapshot(env as unknown as Record<string, unknown>, scope);
+    return {
+      status,
+      job: job
+        ? status.jobs.find((entry: { id: string }) => entry.id === job) ?? null
+        : null,
+    };
+  });
 }
 
 export async function writeMedia(ctx: Context) {
-  const by = actor(ctx);
+  const user = actor(ctx);
   if (ctx.request.method !== "POST")
     throw new PluginRouteError("METHOD_NOT_ALLOWED", "Use a POST request.", 405);
   const body = (ctx.input ?? {}) as Record<string, unknown>;
   const action = body.action;
   if (typeof action !== "string" || !mediaActions.includes(action as never))
     throw new PluginRouteError("INVALID_ACTION", "Choose a supported media action.", 400);
-  return guarded(() => runAction(env, action, body, by));
+  return guarded(async () => {
+    const runtime = env as unknown as Record<string, unknown>;
+    const scope = await resolveSessionScope(runtime, {
+      user: { id: user.id, role: user.role, name: user.name ?? null },
+      workspace: workspaceSelector(body.workspace),
+    });
+    return runAction(runtime, action, scope, body);
+  });
 }
 
 function base64url(value: string) {
@@ -92,7 +122,7 @@ async function bridgeToken(secret: string, claim: Record<string, unknown>) {
  * set. It is deliberately not a generic owner cookie: the studio re-checks
  * these grants with Composer before every privileged dispatch. */
 export async function studioHandoff(ctx: Context) {
-  const by = actor(ctx);
+  const by = actor(ctx).id;
   const runtime = env as unknown as {
     DB?: D1Database;
     MEDIA_STUDIO_BRIDGE_SECRET?: string;
