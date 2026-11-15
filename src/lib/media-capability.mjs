@@ -502,6 +502,8 @@ export function jobView(row) {
     updatedAt: row.updated_at,
     createdBy: row.created_by,
     adoptedFrom: typeof row.adopted_from === "string" ? row.adopted_from : null,
+    adoptedAt: typeof row.adopted_at === "string" ? row.adopted_at : null,
+    adoptedBy: typeof row.adopted_by === "string" ? row.adopted_by : null,
     imported: row.imported_key
       ? {
           key: row.imported_key,

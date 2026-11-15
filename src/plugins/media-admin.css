@@ -205,6 +205,19 @@
     serif;
   margin: 8px 0;
 }
+.composer-media .cm-custody li {
+  border-left: 3px solid var(--cm-accent);
+}
+.composer-media .cm-adopt-confirm {
+  border: 1px solid var(--cm-rule);
+  border-radius: 6px;
+  background: var(--cm-tint);
+  padding: 10px 12px;
+}
+.composer-media .cm-adopt-confirm p {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
 .composer-media pre {
   background: var(--cm-tint);
   border: 1px solid var(--cm-rule);

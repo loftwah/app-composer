@@ -42,8 +42,6 @@ import {
   readJsonRpcReply,
   readReferencePath,
   readRefusal,
-  readRequestId,
-  readStatusRow,
   readWorkspaceScope,
 } from "./media-capability.mjs";
 import { StackError, membership, resolveWorkspace } from "./stacks.mjs";
@@ -57,7 +55,7 @@ const mediaResourceId = "studio-installation";
 const connectionColumns =
   "workspace_id, connection_id, label, host, installation, credential_ref, credential_scope, enabled, models_json, revision, updated_at, updated_by";
 const jobColumns =
-  "id, workspace_id, scope, connection_id, connection_revision, request_id, kind, state, prompt, model, settings_json, reference_path, cost_milliunits, output_json, error_code, created_at, updated_at, imported_key, imported_sha256, imported_bytes, imported_format, created_by, adopted_from";
+  "id, workspace_id, scope, connection_id, connection_revision, request_id, kind, state, prompt, model, settings_json, reference_path, cost_milliunits, output_json, error_code, created_at, updated_at, imported_key, imported_sha256, imported_bytes, imported_format, created_by, adopted_from, adopted_at, adopted_by";
 const jobLimit = 12;
 const custodyLimit = 24;
 const agentGrantColumns =
@@ -593,6 +591,7 @@ export async function statusSnapshot(env, scope) {
       id: scope.actorId,
       role: scope.role,
       admin: Boolean(scope.admin),
+      platformAdmin: Boolean(scope.platformAdmin),
     },
     actions: scope.actions,
     enabled: connectionEligible(connection),
@@ -1057,40 +1056,62 @@ export async function custodySnapshot(env, scope) {
   };
 }
 
+/** The panel must act on the row it actually showed. `updated_at` is the only
+ * mutable identity a custody row has, so it is the compare-and-swap token. */
+function readExpectedUpdatedAt(value) {
+  if (typeof value !== "string" || value.length < 10 || value.length > 40)
+    fail(
+      "INVALID_EXPECTED",
+      "Reload the panel before adopting: the job's current revision is required.",
+    );
+  return value;
+}
+
 /** The only provable ownership path for a legacy row: the deployment owner
  * declares it, and the previous scope, actor and time stay on the record. No
- * provider call is made. */
-export async function adoptJob(env, scope, id) {
+ * provider call is made, and the move is a compare-and-swap on the row the
+ * caller was looking at. */
+export async function adoptJob(env, scope, id, expectedUpdatedAt) {
   requireAdmin(scope, "adopt");
   if (typeof id !== "string" || !/^job_[a-z0-9]{21}$/.test(id))
     fail("JOB_NOT_FOUND", "That generation is not in owner custody", 404);
-  const row = await requireDb(env)
+  const db = requireDb(env);
+  const row = await db
     .prepare("SELECT " + jobColumns + " FROM media_workspace_jobs WHERE id=? AND scope='custody'")
     .bind(id)
     .first();
   if (!row) fail("JOB_NOT_FOUND", "That generation is not in owner custody", 404);
+  const expected = readExpectedUpdatedAt(expectedUpdatedAt);
   const stamp = now();
-  const result = await requireDb(env)
+  const result = await db
     .prepare(
-      "UPDATE media_workspace_jobs SET workspace_id=?, scope='workspace', adopted_from=?, adopted_at=?, adopted_by=?, updated_at=? WHERE id=? AND scope='custody'",
+      "UPDATE media_workspace_jobs SET workspace_id=?, scope='workspace', adopted_from=?, adopted_at=?, adopted_by=?, updated_at=? WHERE id=? AND scope='custody' AND updated_at=?",
     )
-    .bind(
-      scope.workspaceId,
-      row.workspace_id,
-      stamp,
-      scope.actorId,
-      stamp,
-      row.id,
-    )
+    .bind(scope.workspaceId, row.workspace_id, stamp, scope.actorId, stamp, row.id, expected)
     .run();
-  if (Number(result?.meta?.changes ?? 0) !== 1)
-    fail("CONFLICT", "That job changed while it was being adopted. Reopen it.", 409);
+  if (Number(result?.meta?.changes ?? 0) !== 1) {
+    const current = await db
+      .prepare("SELECT scope FROM media_workspace_jobs WHERE id=?")
+      .bind(row.id)
+      .first();
+    if (!current || current.scope !== "custody")
+      fail("JOB_NOT_FOUND", "That generation is not in owner custody", 404);
+    fail(
+      "CONFLICT",
+      "That job changed while you were looking at it. Reopen the panel and try again.",
+      409,
+    );
+  }
   await recordEvent(env, scope, "adopt-custody", row.id, {
     from: row.workspace_id,
     requestId: row.request_id,
     imported: Boolean(row.imported_key),
   });
-  return { job: jobView(await readJob(env, scope, row.id)), adoptedFrom: row.workspace_id };
+  return {
+    job: jobView(await readJob(env, scope, row.id)),
+    adoptedFrom: row.workspace_id,
+    adoptedAt: stamp,
+  };
 }
 
 /* ---------------------------------------------------------- agent grants */
@@ -1221,7 +1242,7 @@ export async function runAction(env, action, scope, input = {}) {
     case "custody":
       return custodySnapshot(env, scope);
     case "adopt":
-      return adoptJob(env, scope, String(input?.id ?? ""));
+      return adoptJob(env, scope, String(input?.id ?? ""), input?.expectedUpdatedAt);
     case "grant-agent":
       return grantAgent(env, scope, input);
     case "revoke-agent":

@@ -30,6 +30,11 @@ type Model = {
 type Job = {
   id: string;
   requestId: string;
+  workspaceId?: string | null;
+  scope?: "workspace" | "custody";
+  adoptedFrom?: string | null;
+  adoptedAt?: string | null;
+  adoptedBy?: string | null;
   kind: Kind;
   state: string;
   prompt: string;
@@ -54,17 +59,33 @@ type Job = {
   imported: null | { key: string; sha256: string | null; bytes: number | null; format: string | null };
 };
 
+/** Jobs held for the deployment owner because no workspace is provable. */
+type Custody = {
+  scope: string;
+  note: string;
+  jobs: Job[];
+  legacyCapability: null | {
+    enabled: boolean;
+    host: string;
+    installation: string;
+    updatedAt: string | null;
+    updatedBy: string | null;
+  };
+};
+
 type Status = {
   enabled: boolean;
   host: string;
   installation: string;
   configured: boolean;
   agentConfigured: boolean;
+  actor?: { kind: string; id: string; role: string; admin: boolean; platformAdmin?: boolean };
+  workspace?: { id: string; name: string | null };
   catalogue: { models: Model[]; checkedAt: string } | null;
   checkedAt: string | null;
   updatedAt: string | null;
   jobs: Job[];
-  notes: { enable: string; disable: string };
+  notes: { enable: string; disable: string; custody?: string };
 };
 
 const stateLabel: Record<string, string> = {
@@ -81,6 +102,12 @@ function cost(milliunits: number) {
   if (milliunits === 0) return "US$0";
   const dollars = milliunits / 100_000;
   return "US$" + dollars.toFixed(dollars < 0.1 ? 3 : 2);
+}
+
+/** A short, single-line excerpt; the full prompt stays in the record. */
+function excerpt(value: string, limit = 220) {
+  const text = String(value ?? "").replace(/\s+/g, " ").trim();
+  return text.length > limit ? text.slice(0, limit - 1) + "…" : text;
 }
 
 async function request(body?: Record<string, unknown>) {
@@ -105,6 +132,9 @@ export function MediaPage() {
   // one after an action or a slow reload.
   const generation = useRef(0);
   const [status, setStatus] = useState<Status | null>(null);
+  const [custody, setCustody] = useState<Custody | null>(null);
+  const [custodyError, setCustodyError] = useState("");
+  const [confirmAdopt, setConfirmAdopt] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState("");
   const [kind, setKind] = useState<Kind>("image");
@@ -128,7 +158,14 @@ export function MediaPage() {
     try {
       const reply = await request();
       if (generation.current !== current) return;
-      apply((reply.data as { status: Status }).status);
+      const payload = reply.data as {
+        status: Status;
+        custody?: Custody | null;
+        custodyError?: string | null;
+      };
+      apply(payload.status);
+      setCustody(payload.custody ?? null);
+      setCustodyError(payload.custodyError ?? "");
     } catch (error) {
       if (generation.current !== current) return;
       setMessage(error instanceof Error ? error.message : "The panel could not load.");
@@ -200,6 +237,39 @@ export function MediaPage() {
     setConfirmed(false);
   };
 
+  /** Move one custody row into this workspace through the audited server path.
+   * The row's `updatedAt` is the compare-and-swap identity, so a row that
+   * changed since it was rendered is refused instead of moved blindly. */
+  const adopt = async (job: Job) => {
+    setBusy("adopt-" + job.id);
+    setMessage("");
+    try {
+      const reply = await request({
+        action: "adopt",
+        id: job.id,
+        expectedUpdatedAt: job.updatedAt,
+      });
+      const data = reply.data as { adoptedFrom?: string };
+      setConfirmAdopt("");
+      await load();
+      setMessage(
+        "Adopted from " +
+          (data.adoptedFrom ?? "owner custody") +
+          " into this workspace. The prompt, model, result and any imported copy are unchanged, and nothing was sent to the provider.",
+      );
+    } catch (error) {
+      setConfirmAdopt("");
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Adoption did not complete. Reopen the panel and try again.",
+      );
+      await load();
+    } finally {
+      setBusy("");
+    }
+  };
+
   if (!status)
     return (
       <main className="composer-media">
@@ -213,7 +283,10 @@ export function MediaPage() {
   return (
     <main className="composer-media">
       <header>
-        <p className="cm-kicker">App Composer · optional capability</p>
+        <p className="cm-kicker">
+          App Composer · optional capability
+          {status.workspace?.name ? " · " + status.workspace.name : ""}
+        </p>
         <h1>Images &amp; video</h1>
         <p className="cm-lede">
           Stills, reference variations and short image-to-video clips through the authorised
@@ -511,6 +584,93 @@ export function MediaPage() {
           Continuing a job reuses its one request identity: a retried save never buys a second
           generation. Turning the capability off keeps every row and file.
         </p>
+      </section>
+
+      <section aria-labelledby="custody">
+        <h2 id="custody">Owner custody</h2>
+        {!status.actor?.platformAdmin ? (
+          <p className="cm-small">
+            Only the deployment owner can see or adopt jobs held in owner custody.
+          </p>
+        ) : custodyError ? (
+          <p className="cm-warn" role="status">
+            {custodyError}
+          </p>
+        ) : !custody ? (
+          <p className="cm-small">Owner custody could not be read. Reload the panel.</p>
+        ) : !custody.jobs.length ? (
+          <p className="cm-small">
+            No pre-workspace jobs are waiting in custody. {status.notes.custody ?? ""}
+          </p>
+        ) : (
+          <>
+            <p className="cm-small">
+              {custody.jobs.length === 1
+                ? "1 job is"
+                : custody.jobs.length + " jobs are"}{" "}
+              held for you because their workspace cannot be proven. {custody.note}
+            </p>
+            <ul className="cm-jobs cm-custody">
+              {custody.jobs.map((job) => (
+                <li key={job.id}>
+                  <div className="cm-job-head">
+                    <strong>{job.kind === "video" ? "Clip" : "Still"}</strong>
+                    <span className={"cm-badge is-" + job.state}>
+                      {stateLabel[job.state] ?? job.state}
+                    </span>
+                    <span className="cm-small">{new Date(job.createdAt).toLocaleString()}</span>
+                  </div>
+                  <p className="cm-prompt">{excerpt(job.prompt)}</p>
+                  <p className="cm-small">
+                    {job.model} · held in <code>{custody.scope}</code> ·{" "}
+                    {job.imported ? "an imported copy is kept" : "no imported copy"}
+                  </p>
+                  {confirmAdopt === job.id ? (
+                    <div className="cm-adopt-confirm" role="group" aria-label="Confirm adoption">
+                      <p>
+                        Move this job from <code>{custody.scope}</code> into{" "}
+                        {status.workspace?.name ?? "this workspace"}; its prompt, model, result and
+                        imported copy stay exactly as they are. No provider call is made and
+                        nothing is charged.
+                      </p>
+                      <div className="cm-actions">
+                        <button
+                          type="button"
+                          disabled={busy !== ""}
+                          onClick={() => void adopt(job)}
+                        >
+                          {busy === "adopt-" + job.id ? "Adopting…" : "Confirm adopt"}
+                        </button>
+                        <button
+                          type="button"
+                          className="secondary"
+                          disabled={busy !== ""}
+                          onClick={() => setConfirmAdopt("")}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="cm-actions">
+                      <button
+                        type="button"
+                        className="secondary"
+                        disabled={busy !== ""}
+                        onClick={() => {
+                          setConfirmAdopt(job.id);
+                          setMessage("");
+                        }}
+                      >
+                        Adopt into this workspace
+                      </button>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </section>
 
       <section aria-labelledby="agent">

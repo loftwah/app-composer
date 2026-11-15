@@ -220,9 +220,14 @@ The legacy deployment credential is transitional and bounded:
   workspace grant in the panel, replaces the agent's token with
   `MEDIA_AGENT_GRANT_TOKEN`, and the old secret can then be removed.
 
-The panel does not yet offer a workspace switcher, a custody/adopt view or grant
-buttons; those are presentation work over the same server actions. Enforcement,
-storage and receipts are complete without them.
+The panel shows an **Owner custody** section to the deployment owner whenever
+pre-workspace jobs exist. It lists the retained count, the custody note, and each
+job's date, kind, model, prompt excerpt, state and whether an imported copy is
+kept. **Adopt into this workspace** asks for confirmation, names the previous
+scope, states that no provider call is made, and sends the row's own
+`updatedAt` as the compare-and-swap identity. A row that changed since it was
+rendered is refused and the list reloads. A workspace switcher and grant
+buttons remain presentation work over the same server actions.
 
 ## Ownership
 

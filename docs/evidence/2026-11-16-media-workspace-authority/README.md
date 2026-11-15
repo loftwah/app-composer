@@ -21,7 +21,9 @@ made.**
 | `src/lib/media-capability-runtime.mjs` | Server-derived scope, per-workspace handlers, dispatch/status/reconcile/import rechecks, agent grants, custody and adoption |
 | `src/plugins/media.ts` | Native panel resolves the session scope before every read/write |
 | `src/pages/api/media-agent.ts` | Agent route admits only a workspace grant and the four allowed actions |
-| `src/plugins/media-admin.tsx` | Agent copy reflects workspace grants and owner-only administration |
+| `src/plugins/media-admin.tsx` | Owner custody section, confirmed adopt action, agent copy |
+| `src/plugins/media-admin.css` | Custody and confirmation styling |
+| `src/plugins/media.ts` | Read payload carries the owner custody snapshot and its error state |
 | `scripts/media-studio-agent.mjs` | Uses `MEDIA_AGENT_GRANT_TOKEN`; no administrative commands |
 | `docs/media-studio.md` | Authority matrix, storage, custody and the bounded credential transition |
 | `docs/inbox-workflows.md` | #598 reply-job contract and failing-gap list |
@@ -114,6 +116,8 @@ deployment-wide credential once `atelier` holds it.
 | Agent revocation / expiry | Both refuse the next call; a resolved scope still rechecks | Yes |
 | Custody read | Owner only; never in a workspace list | Yes |
 | Adoption | Explicit, audited, invisible to the other workspace, not repeatable | Yes |
+| Custody panel | Count, retention note, date/kind/model/prompt excerpt/state/imported per job; empty and error states | Yes, data path; rendered section in the admin panel |
+| Stale adopt | `updatedAt` compare-and-swap refused with `CONFLICT`, row unchanged | Yes |
 | Grant parity with the native studio | Same action set for owner/editor/viewer | Yes |
 
 Negative cases are covered by the same test file: cross-workspace read and
@@ -124,7 +128,7 @@ across scopes, stale scope after revocation, and unknown/timeout not retried.
 
 ```sh
 node --test tests/media-capability.test.mjs tests/media-workspace-authority.test.mjs
-# 25 tests, 25 pass
+# 26 tests, 26 pass (14 pure + 12 authority)
 
 node --test tests/media-capability.test.mjs tests/media-workspace-authority.test.mjs \
   tests/migration-order.test.mjs tests/media-studio.test.mjs tests/member-access.test.mjs
@@ -137,14 +141,63 @@ npx astro check
 
 pnpm check
 # exit 0: astro check 0 errors (733 files), lint and format pass,
-# 764 tests, 764 pass, 0 fail.
+# 765 tests, 765 pass, 0 fail.
 ```
+
+## Owner custody in the panel
+
+The admin panel reads the custody snapshot beside the workspace status. It is a
+separate read with its own gate, so a custody failure is reported next to the
+workspace panel instead of hiding it.
+
+- The **Owner custody** section renders only when the session is the deployment
+  owner (`actor.platformAdmin`). Any other session sees an explicit refusal
+  line; the panel route itself already refuses a non-owner, and the runtime
+  refuses `custody` and `adopt` for an editor or an agent.
+- It shows the count, the `custodyNote` retention note, and each job's created
+  date, kind, model, 220-character prompt excerpt, state and whether an imported
+  copy is kept. The list is read-only apart from adopt.
+- **Adopt into this workspace** is a two-step confirmation. It names the
+  previous scope (`custody:owner`), states that no provider call is made and
+  nothing is charged, then sends the row's own `updatedAt` as the
+  compare-and-swap identity. The server refuses a row that changed since it was
+  rendered (`CONFLICT`) and the panel reloads. After success the panel reloads:
+  the row leaves custody and appears under Project jobs.
+- Empty (`No pre-workspace jobs are waiting in custody`), custody error, and
+  non-owner states are explicit.
+- Custody rows are never merged into the workspace job list.
+
+## Live check for the pre-existing 13 November job
+
+After the normal release, as the deployment owner:
+
+1. Open **Features → Images & video**. Under **Project jobs** the pre-existing
+   13 November job must **not** appear. A separate **Owner custody** section
+   must appear with **1 job**, the custody retention note, and that job's exact
+   created date (13 November), kind, model, prompt excerpt, state and whether an
+   imported copy is kept (the retained `media_jobs` row is the reference).
+2. Click **Adopt into this workspace**. The confirmation must name
+   `custody:owner`, say the prompt/model/result/imported copy are unchanged, and
+   say no provider call is made and nothing is charged. Cancel once and confirm
+   both the job and the count are unchanged.
+3. Confirm. The panel must reload, Owner custody must show
+   `No pre-workspace jobs are waiting in custody`, and the same job id with the
+   same created date, prompt, state and imported copy must now appear under
+   **Project jobs** for the current workspace. Its Continue/Import affordances
+   become available again; no provider call is made by the adoption itself.
+4. Re-open the panel: the job stays in Project jobs, custody stays empty, and a
+   second adoption is not offered. A stale confirmation (open the panel twice,
+   adopt in the first tab, confirm in the second) must be refused with the
+   reload message rather than moving the row twice.
 
 ## Known boundaries
 
-- The panel has no workspace switcher, custody/adopt view or grant buttons yet.
-  Those are presentation work over the same server actions; enforcement and
-  receipts do not depend on them.
+- The panel has no workspace switcher or grant buttons yet. Owner custody and
+  the confirmed adopt action are rendered; enforcement and receipts do not
+  depend on presentation.
+- The custody section is read-only apart from adopt, and it is rendered only
+  when the session is the deployment owner (`actor.platformAdmin`). The panel
+  route already refuses a non-owner.
 - Imported files remain public-by-URL at `/media-studio/asset/<name>`, as
   before. The capability never returns another workspace's key and can only
   import from a job row in the caller's scope; withdrawal and deletion stay
