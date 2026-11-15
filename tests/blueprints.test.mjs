@@ -94,7 +94,7 @@ test("the media studio blueprint reads the standalone pin and validates", () => 
   const sources = blueprintSources(entry);
   assert.equal(sources.length, 1);
   assert.equal(sources[0].id, "media-studio");
-  assert.equal(sources[0].commit, "2640e67b7224f9c3a2ada1b77e364769ac4039b5");
+  assert.equal(sources[0].commit, "e8b3778cd5d800378f42985afda80820fcb7ef57");
   assert.equal(sources[0].url, "https://media.loftwah.com");
   const spec = blueprintSpec(entry);
   assert.equal(spec.preset, "media-studio");

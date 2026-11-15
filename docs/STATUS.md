@@ -1,6 +1,41 @@
 # Delivery status
 
-Reviewed 25 October 2026; updated 15 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+Reviewed 25 October 2026; updated 16 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+
+## Workspace-scoped media, docs copy, appearance skins and the Studio Director — 16 November 2026
+
+Composer `0978dc47ebb61b7b739352a2f9feb8c6c6be8e4f`, Studio
+`e8b3778cd5d800378f42985afda80820fcb7ef57` (Worker
+`1a7a58a3-a91c-4665-91d0-d3df12467e77`). Receipts, live observations and the
+remaining gates are in
+[batch evidence](evidence/2026-11-16-batch-release/README.md).
+
+- **Media authority is now per workspace (#599).** Settings, connections, jobs,
+  receipts, imports and agent calls are scoped server-side and rechecked before
+  dispatch. Pre-scoping jobs carry no provable owner, so they moved into owner
+  custody rather than being guessed into a workspace; the owner's real 13
+  November job is visible there with an audited adopt action. The owner enabled
+  the capability for their workspace against the existing deployment credential.
+- **Documentation copy works and says what happened (#609).** Each control has
+  its own accessible name, a visible and announced outcome, and a selectable
+  fallback when the clipboard is unavailable or denied. A fresh agent given only
+  the copied text inspected read-only, reported its limits and changed nothing.
+- **Retired SDXL claims corrected.** The story, evidence row and tutorial name
+  today's still routes and keep saved-job attribution, with the retirement dated.
+- **A second appearance skin (#621/#622).** Contact sheet joins Workshop press
+  through a portable compiled contract, with `/appearance` as a second consumer
+  and a split compare in Brand Studio. The full save → publish → restore lifecycle
+  was exercised on the live admin and the published appearance was returned to its
+  previous version.
+- **The Studio Director is real (#15).** On the owner's plan, one request produced
+  a typed scene-direction proposal, reviewed before/after, applied to the draft
+  and saved as revision 5 with every take, reference, caption and timing
+  unchanged. The same revision and takes were read back through a scoped MCP
+  grant, which was then revoked.
+- **A new captioned film exists but is not in the production studio (#14).**
+  33.77 s, six shots, four burned captions, mixed bed from the production song.
+  It was built in a local fixture seeded from the production asset, decoded and
+  verified; saving it to the production project and by-ear sign-off are open.
 
 ## Studio workbench, matched comparisons and an exact-take review — 15 November 2026
 

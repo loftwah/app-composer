@@ -174,7 +174,7 @@ test("the handoff and build plan carry the owned studio work without secrets", (
 });
 
 test('current and historical Studio briefs retain their exact reviewed source pins', async () => {
-  assert.equal(mediaStudioSource.source.commit, '2640e67b7224f9c3a2ada1b77e364769ac4039b5');
+  assert.equal(mediaStudioSource.source.commit, 'e8b3778cd5d800378f42985afda80820fcb7ef57');
   assert.ok(mediaStudioSource.legacySources.some(source => source.commit === '8e465d309028f233c653b58d6e960f8d2de3d411'));
   assert.ok(mediaStudioSource.legacySources.some(source => source.commit === 'c9ae60019bdcdd103530fdab33a0632cd0d93fe8'));
   assert.ok(mediaStudioSource.legacySources.some(source => source.commit === '341a0feae8d552a1ae1abdbab5902d74764edee5'));
