@@ -1,0 +1,37 @@
+{
+  "schema": "release-timing/v1",
+  "version": 1,
+  "repo": "loftwah/app-composer",
+  "project": "app-composer",
+  "sha": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "runId": "3c4d5e6f-7a8b-4c9d-8e1f-2a3b4c5d6e7f",
+  "kind": "worker-production",
+  "releasePath": "scripts/deploy.mjs",
+  "targetMs": 180000,
+  "limitMs": 300000,
+  "startedAt": "2026-11-15T15:00:00.000Z",
+  "endedAt": "2026-11-15T15:01:37.000Z",
+  "totalMs": 97000,
+  "unmeasuredMs": 0,
+  "stages": [
+    {
+      "name": "required checks (pnpm check)",
+      "durationMs": 50000
+    },
+    {
+      "name": "production build",
+      "durationMs": 47000
+    }
+  ],
+  "status": "incomplete",
+  "failure": null,
+  "notes": {
+    "coverage": "measured from before the first required final qualification to the last completed stage"
+  },
+  "alert": {
+    "state": "none",
+    "issue": null,
+    "fingerprint": null
+  },
+  "coverage": "measured from before the first required final qualification to the last completed stage"
+}

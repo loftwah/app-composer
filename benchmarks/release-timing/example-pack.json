@@ -1,0 +1,81 @@
+{
+  "schema": "release-timing-pack/v1",
+  "note": "Portable public-safe example. Deploy targets are omitted; keep them in the private receipt. Copy the shape, not this sample's measurements.",
+  "receipts": [
+    {
+      "schema": "release-timing/v1",
+      "version": 1,
+      "repo": "loftwah/app-composer",
+      "project": "app-composer",
+      "sha": "3ee6996cbf0b4de16d168575c1ea64427b60139d",
+      "runId": "6b1f3c2a-9d4e-4f80-8a1b-2c3d4e5f6a70",
+      "kind": "worker-production",
+      "releasePath": "scripts/deploy.mjs",
+      "targetMs": 180000,
+      "limitMs": 300000,
+      "startedAt": "2026-11-15T12:00:00.000Z",
+      "endedAt": "2026-11-15T12:01:32.500Z",
+      "totalMs": 92500,
+      "unmeasuredMs": 6200,
+      "stages": [
+        { "name": "dependency audit", "durationMs": 500 },
+        { "name": "required checks (pnpm check)", "durationMs": 50000 },
+        { "name": "production build", "durationMs": 13500 },
+        { "name": "remote D1 migrations", "durationMs": 1200 },
+        { "name": "Worker upload", "durationMs": 18000 },
+        { "name": "live source and pinned services", "durationMs": 700 },
+        { "name": "live sharing output", "durationMs": 200 },
+        { "name": "live publication privacy", "durationMs": 1600 },
+        { "name": "anonymous administration boundary", "durationMs": 100 },
+        { "name": "release record", "durationMs": 500 }
+      ],
+      "status": "passed",
+      "failure": null,
+      "notes": {
+        "liveRevision": "3ee6996cbf0b4de16d168575c1ea64427b60139d",
+        "coverage": "measured from before the first required final qualification to exact live identity"
+      },
+      "alert": {
+        "state": "none",
+        "issue": null,
+        "fingerprint": null
+      },
+      "coverage": "measured from before the first required final qualification to exact live identity"
+    },
+    {
+      "schema": "release-timing/v1",
+      "version": 1,
+      "repo": "loftwah/composer-media-studio",
+      "project": "composer-media-studio",
+      "sha": "4a14ca3e09071edb862b3cc0bd9ec1cc004a2cca",
+      "runId": "761e3d8a-4265-46e4-9b1f-593b61207a68",
+      "kind": "worker-production",
+      "releasePath": "scripts/deploy.mjs",
+      "targetMs": 180000,
+      "limitMs": 300000,
+      "startedAt": "2026-11-15T14:50:14.446Z",
+      "endedAt": "2026-11-15T14:50:41.481Z",
+      "totalMs": 27035,
+      "unmeasuredMs": 3,
+      "stages": [
+        { "name": "required checks (pnpm check)", "durationMs": 4593 },
+        { "name": "frontend production build", "durationMs": 410 },
+        { "name": "remote D1 migrations", "durationMs": 1532 },
+        { "name": "Worker upload", "durationMs": 20084 },
+        { "name": "live exact source identity", "durationMs": 413 }
+      ],
+      "status": "passed",
+      "failure": null,
+      "notes": {
+        "liveRevision": "4a14ca3e09071edb862b3cc0bd9ec1cc004a2cca",
+        "coverage": "measured from before the first required final qualification to exact live identity"
+      },
+      "alert": {
+        "state": "none",
+        "issue": null,
+        "fingerprint": null
+      },
+      "coverage": "measured from before the first required final qualification to exact live identity"
+    }
+  ]
+}

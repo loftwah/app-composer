@@ -1,0 +1,47 @@
+{
+  "schema": "release-timing/v1",
+  "version": 1,
+  "repo": "loftwah/app-composer",
+  "project": "app-composer",
+  "sha": "cccccccccccccccccccccccccccccccccccccccc",
+  "runId": "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+  "kind": "worker-production",
+  "releasePath": "scripts/deploy.mjs",
+  "targetMs": 180000,
+  "limitMs": 300000,
+  "startedAt": "2026-11-15T13:00:00.000Z",
+  "endedAt": "2026-11-15T13:05:12.400Z",
+  "totalMs": 312400,
+  "unmeasuredMs": 0,
+  "stages": [
+    {
+      "name": "required checks (pnpm check)",
+      "durationMs": 56000
+    },
+    {
+      "name": "production build",
+      "durationMs": 14000
+    },
+    {
+      "name": "Worker upload",
+      "durationMs": 232000
+    },
+    {
+      "name": "live source and pinned services",
+      "durationMs": 10400
+    }
+  ],
+  "status": "over-budget",
+  "failure": null,
+  "notes": {
+    "deployTarget": "https://composer.loftwah.com",
+    "liveRevision": "cccccccccccccccccccccccccccccccccccccccc",
+    "coverage": "measured from before the first required final qualification to exact live identity"
+  },
+  "alert": {
+    "state": "pending",
+    "issue": null,
+    "fingerprint": null
+  },
+  "coverage": "measured from before the first required final qualification to exact live identity"
+}

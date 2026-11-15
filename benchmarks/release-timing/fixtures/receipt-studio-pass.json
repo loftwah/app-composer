@@ -1,0 +1,51 @@
+{
+  "schema": "release-timing/v1",
+  "version": 1,
+  "repo": "loftwah/composer-media-studio",
+  "project": "composer-media-studio",
+  "sha": "4a14ca3e09071edb862b3cc0bd9ec1cc004a2cca",
+  "runId": "761e3d8a-4265-46e4-9b1f-593b61207a68",
+  "kind": "worker-production",
+  "releasePath": "scripts/deploy.mjs",
+  "targetMs": 180000,
+  "limitMs": 300000,
+  "startedAt": "2026-11-15T14:50:14.446Z",
+  "endedAt": "2026-11-15T14:50:41.481Z",
+  "totalMs": 27035,
+  "unmeasuredMs": 3,
+  "stages": [
+    {
+      "name": "required checks (pnpm check)",
+      "durationMs": 4593
+    },
+    {
+      "name": "frontend production build",
+      "durationMs": 410
+    },
+    {
+      "name": "remote D1 migrations",
+      "durationMs": 1532
+    },
+    {
+      "name": "Worker upload",
+      "durationMs": 20084
+    },
+    {
+      "name": "live exact source identity",
+      "durationMs": 413
+    }
+  ],
+  "status": "passed",
+  "failure": null,
+  "notes": {
+    "deployTarget": "https://media.loftwah.com",
+    "liveRevision": "4a14ca3e09071edb862b3cc0bd9ec1cc004a2cca",
+    "coverage": "measured from before the first required final qualification to exact live identity"
+  },
+  "alert": {
+    "state": "none",
+    "issue": null,
+    "fingerprint": null
+  },
+  "coverage": "measured from before the first required final qualification to exact live identity"
+}

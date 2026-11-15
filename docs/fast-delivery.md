@@ -83,7 +83,9 @@ pnpm release:watchdog --retry-pending
 
 A passing release adds measured recovery evidence to a known breach issue but
 never closes it automatically. Receipts contain no credentials, signed URLs,
-private media or raw provider output.
+private media or raw provider output. Benchmarks Studio can validate and compare
+a directory of these receipts without executing them: see
+[the release timing ingest](../benchmarks/release-timing/README.md).
 
 ## Overrun rule
 
