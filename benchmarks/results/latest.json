@@ -1,6 +1,6 @@
 {
-  "source": "cd3cf913e8ca2c4712582b88b0f7bcfce14359c8",
-  "generatedAt": "2026-11-15T07:56:09.615Z",
+  "source": "d2c65ec9ad45c2912e3a091d544d2cc5a1d3c6aa",
+  "generatedAt": "2026-11-15T09:40:06.472Z",
   "node": "v26.13.1",
   "platform": "darwin arm64",
   "totals": {
@@ -14,7 +14,7 @@
       "id": "blueprint-roundtrip",
       "name": "Blueprint export and re-import",
       "status": "pass",
-      "durationMs": 1,
+      "durationMs": 2,
       "checks": [
         {
           "id": "export-succeeds",
@@ -46,19 +46,19 @@
       "id": "live-demo",
       "name": "Live /demo sandbox",
       "status": "pass",
-      "durationMs": 210,
+      "durationMs": 1243,
       "checks": [
         {
           "id": "demo-home",
           "name": "GET /demo",
           "status": "pass",
-          "detail": "HTTP 200, 47032 bytes, 130ms; marker present: “Build something people can use”."
+          "detail": "HTTP 200, 47032 bytes, 1182ms; marker present: “Build something people can use”."
         },
         {
           "id": "demo-connected-apps",
           "name": "GET /demo/connected-apps",
           "status": "pass",
-          "detail": "HTTP 200, 52981 bytes, 80ms; marker present: “A guestbook and a showcase”."
+          "detail": "HTTP 200, 52981 bytes, 61ms; marker present: “A guestbook and a showcase”."
         }
       ]
     },
@@ -66,7 +66,7 @@
       "id": "sandbox-save-reopen",
       "name": "Public sandbox: save, reopen and moderation",
       "status": "pass",
-      "durationMs": 1,
+      "durationMs": 3,
       "checks": [
         {
           "id": "edit-survives-reopen",
