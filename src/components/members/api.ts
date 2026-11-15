@@ -82,7 +82,7 @@ export async function memberCall(
       "Sign in with EmDash, then refresh your access. Your authentication system must admit you before workspace invitations can be accepted.",
     );
   });
-  if (response.status === 403)
+  if (response.status === 403 && reading && action === "session")
     throw Object.assign(
       Error("Sign in with EmDash to open your profile and app tools."),
       { status: 403 },
