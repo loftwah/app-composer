@@ -19,7 +19,22 @@ test('the launcher study mounts the maintained controller once', () => {
   assert.match(component, /<script is:inline src="\/brand\/launcher\.js" defer><\/script>/);
   assert.doesNotMatch(component, /type="module" src="\/brand\/launcher\.js"/);
   assert.match(controller, /querySelector<HTMLDialogElement>\("#app-navigation"\)/);
+  // One registry: the shell does not author destination rows, and the controller
+  // keeps its data and pure ranking functions in explicit testable blocks.
+  assert.doesNotMatch(component, /data-destination/);
+  assert.match(controller, /\/\* launcher-registry:start \*\//);
+  assert.match(controller, /\/\* launcher-logic:start \*\//);
+  assert.match(component, /data-viewer=\{member \? 'member' : 'public'\}/);
+  assert.match(component, /data-launcher-recents=\{member \? '\/api\/launcher\/recents' : undefined\}/);
 });
+
+test('the launcher recipe names the server-derived recents and focused checks', () => {
+  const recipe = read('docs/source-maintenance.md');
+  for (const source of ['src/lib/launcher-recents.ts', 'src/pages/api/launcher/recents.ts'])
+    assert.match(recipe, new RegExp(escape(source)));
+  assert.match(recipe, /node --test tests\/launcher-destinations\.test\.mjs tests\/launcher-recents\.test\.mjs/);
+});
+
 
 test('the launcher recipe stays linked from the agent, design and docs entry points', () => {
   assert.match(read('src/lib/public-pages.mjs'), /'\/launcher'/);

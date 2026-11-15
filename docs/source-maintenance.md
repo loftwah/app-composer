@@ -105,8 +105,11 @@ record or model call.
 | Shipped distribution | `public/brand/launcher.js`, emitted by `node scripts/launcher-assets.mjs --write` and loaded as a classic deferred script |
 | Base presentation | `public/brand/launcher.css` |
 | Composer markup | `src/components/AppLauncher.astro` |
+| Signed-in recents selection | `src/lib/launcher-recents.ts` |
+| Session-derived recents endpoint | `src/pages/api/launcher/recents.ts` |
 | Runnable study | `/launcher`, authored at `src/pages/launcher.astro` |
 | Contract check | `node scripts/launcher-assets.mjs --check` and `node --test tests/launcher-recipe.test.mjs` |
+| Focused behaviour checks | `node --test tests/launcher-destinations.test.mjs tests/launcher-recents.test.mjs` |
 
 The rendering contract is the markup contract above. A shell may change row
 density, spacing, artwork and section copy in its own CSS. It must not add a
@@ -114,13 +117,43 @@ second search, focus trap, shortcut listener or dialog controller. The
 controller binds `#app-navigation` and the first `[data-open-apps]` in the
 document, so mount one launcher per page. Composer's `/launcher` study omits the
 shell launcher for that reason and mounts `AppLauncher` once in its study panel.
+A shell may retain its own destinations with `data-local-launcher-group="apps"`
+(kept under Apps), `"local"` (a visible "This app" group) or `"studio"`/`"more"`
+(advanced, collapsed and searchable).
+
+The controller is also the one destination registry. Composer's shell does not
+author a second list; `src/lib/apps.ts` remains the public app library and the
+registry names the catalogue id it mirrors so the focused test can reconcile
+both. Every destination carries a readable task name, a plain-language outcome,
+an audience (`public` or `invitation`) and one of five groups. Anonymous first
+views show the three task groups (`Make something`, `Continue exploring`,
+`Use a tool`), then the remaining apps and a collapsed `More shortcuts` group.
+Invitation-only routes are omitted entirely for anonymous visitors and marked
+`Invitation required.` or `Owner access required.` for signed-in accounts. A
+route that is not working is removed, not rendered as a fake disabled row. The controller's `scoreText`
+ranks a name match above an alias above descriptive copy, and search flattens
+the menu into one ranked result list.
+
+Signed-in recents are read from `GET /api/launcher/recents`, which reads the
+resolved EmDash session and the account's current workspace membership. It
+accepts no query parameter, returns no drafts, configuration or provider data,
+and sets `Cache-Control: no-store`. The launcher shows one eligible Composer
+project, its real state (`Draft` or `Published`, update date), a `Continue
+editing` or `Finish this project` link to the exact native editor, an optional
+immutable published page and an `All projects` return path. An empty or failed
+read says so and still links to the projects list; it never invents progress.
+Independent apps do not call this endpoint and default to the public audience.
+A real owner session, workspace membership and tenant boundary remain live
+checks; the browser contract helper mocks only the response shape.
 
 Inputs, state and actions:
 
 - The search field is the only text input. It filters visible rows and reports a
   live count or a no-results message.
-- State is open/closed, visible rows, the active row, the saved page position and
-  the body lock. None of it is saved to storage or sent anywhere.
+- State is open/closed, visible rows, the active row, the expanded advanced
+  group, the saved page position and the body lock. None of the project state is
+  saved to storage or sent anywhere; the recents request is a same-origin,
+  read-only `GET`.
 - Actions are ordinary destination links. Activation navigates and search only
   filters; neither publishes, approves, persists, spends or grants access.
 - App data, owner configuration, theme choice and authorisation remain outside
@@ -132,6 +165,9 @@ Focus and keyboard ownership:
 - The controller owns initial focus, Escape, arrows, Home, End, Enter, Tab
   wrapping, type-after-arrow, the Cmd/Ctrl+K shortcut, focus return and page
   position restoration.
+- Cmd/Ctrl+K is not taken from a form field, editor, another open dialog or a
+  handler that already consumed the key. Inside the launcher it still focuses
+  search.
 - The shell owns the trigger's label, the marked current page and the
   destinations. It does not duplicate any of the controller's listeners.
 - Presentation CSS must keep a visible focus outline and must not hide or resize
@@ -145,6 +181,8 @@ Empty and unavailable states:
   usable.
 - A destination that is not currently available should be omitted. Do not render
   a fake disabled row or imply access.
+- A stale project row is skipped by the server selector; an unavailable recents
+  response keeps the rest of the menu usable and links to the projects list.
 - Without JavaScript the launcher is an enhancement: ordinary navigation and
   `/apps` remain the fallback. The study states this on the page.
 

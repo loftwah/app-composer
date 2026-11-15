@@ -30,7 +30,7 @@ export async function verifyLauncher(page, url, { width = 390, height = 600, the
   ensure(['auto', 'scroll'].includes(scrolled.listOverflow), 'destinations do not own scrolling');
   const search = dialog.locator('input[type=search]');
   await search.fill('nothing-matches-xyz');
-  ensure(await dialog.locator('[role=status]').textContent() === 'No matches. Try an app or task name.', 'empty search recovery missing');
+  ensure(await dialog.locator('[role=status]').textContent() === 'No matches. Try a task like “create site” or “check a link”.', 'empty search recovery missing');
   ensure(await dialog.locator('[data-destination]:visible').count() === 0, 'empty search left a destination visible');
   await search.fill('');
   ensure(await dialog.locator('[data-destination]:visible').count() > 0, 'clear did not restore destinations');
@@ -77,10 +77,24 @@ export async function verifyLinkCheckReturn(page, url, destination = 'https://re
   return { destination: new URL(destination).href, destinationRendered: true, backDraftPreserved: true, closeReopen: true };
 }
 
-// Verify the shared navigation frame and ordinary keyboard navigation. Real
-// destination navigation is checked separately so this helper never submits data.
-export async function verifyCommandMenu(page, url) {
+// Verify the shared navigation frame, task groups and ordinary keyboard
+// navigation. Real destination navigation is checked separately so this helper
+// never submits data. `forceAnonymous` marks the shell as a signed-out viewer
+// even when the harness has a local session.
+export async function verifyCommandMenu(page, url, { forceAnonymous = false } = {}) {
   const ensure = (value, message) => { if (!value) throw Error(`${url}: ${message}`); };
+  if (forceAnonymous) {
+    await page.addInitScript(() => {
+      const apply = () => {
+        const dialog = document.querySelector('#app-navigation');
+        if (!dialog) return;
+        dialog.dataset.viewer = 'public';
+        delete dialog.dataset.launcherRecents;
+      };
+      new MutationObserver(apply).observe(document, { childList: true, subtree: true });
+      apply();
+    });
+  }
   await page.goto(url, { waitUntil: 'domcontentloaded' });
   const loadedUrl = page.url();
   const trigger = page.locator('[data-open-apps]');
@@ -94,42 +108,122 @@ export async function verifyCommandMenu(page, url) {
   await brand.locator('img').evaluate(image => image.decode());
   ensure(await brand.getAttribute('aria-label') === 'App Composer home', 'Composer branding/link missing');
   ensure(await brand.locator('img').evaluate(image => image.complete && image.naturalWidth === 96), 'Composer artwork is not decoded');
-  const order = await dialog.locator('[data-launcher-group=apps] a > span:not(.task-icon)').evaluateAll(nodes => nodes.map(node => node.firstChild.textContent));
-  const expectedApps = ['Linkarooie', 'Here / there', 'Link Check', 'Hello World', 'Carry / forward', 'Launch Kit', 'Paperwork', 'LDraw'];
-  ensure(JSON.stringify(order) === JSON.stringify(expectedApps), 'the Apps section must contain every mini-app once, in the same order');
-  const studioNames = await dialog.locator('[data-launcher-group=studio] a > span:not(.task-icon)').evaluateAll(nodes => nodes.map(node => node.firstChild.textContent));
-  ensure(!studioNames.some(name => expectedApps.includes(name)), 'a mini-app was left under Studio shortcuts');
-  for (const [name, href] of [['Launch Kit', 'https://composer-launch-kit.loftwah.workers.dev/'], ['Paperwork', 'https://composer-paperwork.loftwah.workers.dev/'], ['LDraw', 'https://ldraw.loftwah.com/']]) {
-    const app = dialog.locator('[data-launcher-group=apps] a').filter({ hasText: name });
-    ensure(await app.getAttribute('href') === href, `${name} does not open its standalone app`);
-    await search.fill(name);
-    ensure(await dialog.locator('[data-destination]:visible').count() === 1 && await dialog.locator('[data-launcher-group=apps]:visible').count() === 1, `${name} search must return one app result`);
+  const headings = await dialog.locator('.launcher-section h3').evaluateAll(nodes => nodes.map(node => node.textContent));
+  for (const heading of ['Make something', 'Continue exploring', 'Use a tool', 'Apps']) ensure(headings.includes(heading), `missing ${heading} task group`);
+  const expectedApps = ['media-studio', 'ldraw', 'guestbook', 'showcase', 'hello', 'state', 'launch-kit', 'paperwork', 'linkcheck'];
+  for (const catalogue of expectedApps) {
+    const count = await dialog.locator(`[data-catalogue="${catalogue}"]`).count();
+    ensure(count === 1, `${catalogue} must appear exactly once in the task-first inventory`);
+  }
+  for (const [catalogue, href] of [['launch-kit', 'https://composer-launch-kit.loftwah.workers.dev/'], ['paperwork', 'https://composer-paperwork.loftwah.workers.dev/'], ['ldraw', 'https://ldraw.loftwah.com/'], ['linkcheck', 'https://share.loftwah.com/']]) {
+    const app = dialog.locator(`[data-catalogue="${catalogue}"] a`);
+    ensure(await app.getAttribute('href') === href, `${catalogue} does not open its working app`);
+  }
+  if (forceAnonymous) {
+    const privateRows = await dialog.locator('[data-destination] a').evaluateAll(nodes => nodes.filter(node => /My profile|\/_emdash\/|People & access|Your creator stacks|Manage mini-apps/.test(node.textContent + ' ' + node.getAttribute('href'))).length);
+    ensure(privateRows === 0, 'anonymous launcher exposed an invitation destination');
+    ensure(await dialog.locator('[data-recent-kind]').count() === 0, 'anonymous launcher requested recent projects');
   }
   await search.fill('Hello World');
   for (const composition of [{isComposing: true, keyCode: 13}, {isComposing: false, keyCode: 229}]) {
     await search.evaluate((input, shape) => input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', bubbles: true, cancelable: true, ...shape})), composition);
     ensure(await dialog.isVisible() && page.url() === loadedUrl, 'IME confirmation activated a destination');
   }
-  await search.fill('website icons');
+  await search.fill('social preview');
   ensure(await dialog.locator('[data-destination]:visible').count() === 1, 'task aliases did not match');
-  ensure((await dialog.locator('[data-destination]:visible').textContent()).includes('Link Check'), 'task alias chose the wrong app');
+  ensure((await dialog.locator('[data-destination]:visible').textContent()).includes('Check a page before sharing'), 'task alias chose the wrong app');
+  await search.fill('postcard');
+  ensure((await dialog.locator('[data-destination]:visible').textContent()).includes('Here / there'), 'postcard search chose wrong app');
   await search.fill('');
+  ensure(await dialog.locator('.launcher-more details').evaluate(element => !element.open), 'More shortcuts must start collapsed');
+  await search.fill('diagram');
+  ensure((await dialog.locator('[data-destination]:visible').first().textContent()).includes('Diagram atlas'), 'advanced search did not rank the route first');
+  await search.fill('');
+  ensure(await dialog.locator('.launcher-more details').evaluate(element => !element.open), 'clearing search must restore the collapsed group');
   await page.keyboard.press('ArrowDown');
   ensure(await dialog.locator('[data-active=true]').evaluate(entry => entry.contains(document.activeElement)), 'arrow selection is not focusable');
-  ensure((await dialog.locator('[data-active=true]').textContent()).includes('Linkarooie'), 'first arrow selected wrong result');
+  ensure((await dialog.locator('[data-active=true]').textContent()).includes('Create a site'), 'first arrow selected wrong result');
   await page.keyboard.press('ArrowDown');
-  ensure((await dialog.locator('[data-active=true]').textContent()).includes('Here / there'), 'second arrow did not move');
+  ensure((await dialog.locator('[data-active=true]').textContent()).includes('Shape your content'), 'second arrow did not move');
   await page.keyboard.press('End');
   await page.keyboard.press('ArrowDown');
-  ensure((await dialog.locator('[data-active=true]').textContent()).includes('Linkarooie'), 'result navigation did not wrap');
+  ensure((await dialog.locator('[data-active=true]').textContent()).includes('Create a site'), 'result navigation did not wrap');
   await page.keyboard.type('postcard');
   ensure(await search.inputValue() === 'postcard', 'typing after arrows lost search characters');
   ensure(await dialog.locator('[data-destination]:visible').count() === 1, 'typed task search did not filter');
-  ensure((await dialog.locator('[data-destination]:visible').textContent()).includes('Here / there'), 'postcard search chose wrong app');
+  ensure((await dialog.locator('[data-destination]:visible').textContent()).includes('Here / there'), 'typed search chose wrong app');
   const shortcutHint = await trigger.locator('kbd').textContent();
   ensure(['⌘ K', 'Ctrl K'].includes(shortcutHint), 'platform keyboard hint missing');
   await page.keyboard.press('Escape');
   await page.waitForFunction(() => !document.querySelector('#app-navigation').open && document.activeElement === document.querySelector('[data-open-apps]'));
   ensure(await trigger.evaluate(button => button === document.activeElement), 'shortcut close lost prior focus');
-  return { url, brandedHome: await brand.getAttribute('href'), allApps: await dialog.locator('.launcher-all').getAttribute('href'), orderedApps: order, aliasSearch: true, arrowSelection: true, wrap: true, typingAfterSelection: true, focusReturn: true };
+  return { url, brandedHome: await brand.getAttribute('href'), allApps: await dialog.locator('.launcher-all').getAttribute('href'), taskGroups: headings, aliases: true, arrowSelection: true, wrap: true, typingAfterSelection: true, focusReturn: true };
+}
+
+// The launcher must not take Cmd/Ctrl+K from a form field or another modal.
+// Call this on a page with an ordinary input outside the launcher.
+export async function verifyShortcutBoundary(page, url) {
+  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  const field = page.locator('main input:not([type=search]), main textarea').first();
+  if (!await field.count()) return { url, skipped: 'no page field' };
+  await field.focus();
+  await page.keyboard.press('Control+k');
+  if (await page.locator('#app-navigation').isVisible()) throw Error(`${url}: the launcher took Ctrl+K from a form field`);
+  if (!await field.evaluate(element => element === document.activeElement)) throw Error(`${url}: Ctrl+K moved focus out of the form field`);
+  return { url, formShortcutPreserved: true };
+}
+
+// A contract check for the signed-in recents panel. The endpoint is mocked
+// because this harness has no owner session; the real session, database and
+// tenant boundary are covered by node --test and remain a live-owner check.
+export async function verifyRecentsContract(page, url, { unavailable = false } = {}) {
+  const ensure = (value, message) => { if (!value) throw Error(`${url}: ${message}`); };
+  await page.route('**/api/launcher/recents', route => route.fulfill(unavailable
+    ? { status: 503, contentType: 'application/json', body: JSON.stringify({ ok: false, error: 'Recent projects are unavailable.' }) }
+    : { status: 200, contentType: 'application/json', body: JSON.stringify({
+        ok: true,
+        workspace: { name: 'Paper and Light', allHref: '/_emdash/admin/plugins/composer-stacks/stacks?workspace=ws-paper-01' },
+        project: {
+          name: 'Paper & Light',
+          state: 'published',
+          action: 'Continue editing',
+          updatedAt: '2026-11-16T02:00:00.000Z',
+          href: '/_emdash/admin/plugins/composer-stacks/stacks?workspace=ws-paper-01&stack=stack-paper-1',
+          publishedHref: '/s/paper-and-light',
+        },
+      }) }));
+  await page.addInitScript(() => {
+    const apply = () => {
+      const dialog = document.querySelector('#app-navigation');
+      if (!dialog) return;
+      dialog.dataset.viewer = 'member';
+      dialog.dataset.launcherRecents = '/api/launcher/recents';
+    };
+    new MutationObserver(apply).observe(document, { childList: true, subtree: true });
+    apply();
+  });
+  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  await page.locator('[data-open-apps]').click();
+  const dialog = page.locator('#app-navigation');
+  await dialog.waitFor({ state: 'visible' });
+  if (unavailable) {
+    await dialog.locator('[data-recent-kind="all"]').waitFor();
+    ensure((await dialog.textContent()).includes('Recent projects are unavailable.'), 'an unavailable endpoint must say so');
+    ensure(await dialog.locator('[data-recent-kind="project"]').count() === 0, 'a failed request must not invent a project');
+  } else {
+    await dialog.locator('[data-recent-kind="project"]').waitFor();
+    const project = dialog.locator('[data-recent-kind="project"] a');
+    const href = await project.getAttribute('href');
+    ensure(href.includes('workspace=ws-paper-01') && href.includes('stack=stack-paper-1'), 'recent project link lost its confirmed workspace/stack');
+    ensure(!/token|email|user=/.test(href), 'recent project link carries private context');
+    ensure((await project.textContent()).includes('Continue editing Paper & Light'), 'recent project action is not readable');
+    ensure((await dialog.locator('[data-recent-kind="published"] a').getAttribute('href')).endsWith('/s/paper-and-light'), 'published page link is missing');
+    ensure((await dialog.locator('[data-recent-kind="all"] a').getAttribute('href')).includes('workspace=ws-paper-01'), 'all-projects link is missing');
+    await page.locator('#app-navigation input[type=search]').focus();
+    await page.keyboard.press('ArrowDown');
+    ensure((await dialog.locator('[data-active=true]').textContent()).includes('Continue editing Paper & Light'), 'recents must lead the keyboard order');
+  }
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => !document.querySelector('#app-navigation').open);
+  return { url, recents: unavailable ? 'unavailable' : 'ready', projectContext: true, mockedEndpoint: true };
 }
