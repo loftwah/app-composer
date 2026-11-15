@@ -3,6 +3,7 @@
 // qualification can opt into the fuller set of widths once.
 export async function verifyHomepage(page, origin, { capture, full = false } = {}) {
   const ensure = (value, message) => { if (!value) throw new Error(message); };
+  const entryLinks = ['/learn', '#example', '/demo'];
   const receipt = { url: new URL('/', origin).href, views: [], keyboard: [], limits: [
     'Chromium viewport and text reflow checks do not establish physical device, native browser zoom or screen reader acceptance.',
     'Screenshots require visual review; geometric checks alone cannot establish a finished composition.',
@@ -20,7 +21,7 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
       await page.locator('.studio-poster img').evaluateAll(images => Promise.all(images.map(image => image.decode())));
       const geometry = await page.evaluate(() => {
         const box = selector => document.querySelector(selector).getBoundingClientRect().toJSON();
-        return { hero: box('.studio-hero'), copy: box('.studio-copy'), stage: box('.studio-stage'), deck: box('.studio-deck'), next: box('#make-something'),
+        return { opening: box('.home-opening'), workshop: box('.studio-hero'), copy: box('.studio-copy'), stage: box('.studio-stage'), deck: box('.studio-deck'), next: box('#make-something'),
           overflow: document.documentElement.scrollWidth > innerWidth + 1,
           reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
           scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior,
@@ -32,8 +33,12 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
       ensure(geometry.scrollBehavior === 'auto', 'Reduced motion still animates anchor scrolling');
       ensure(geometry.copy.bottom <= geometry.deck.top + 1, 'Workshop desk covers headline, actions or context');
       if (width <= 900) ensure(geometry.stage.bottom <= geometry.deck.top + 1, 'Workshop stage overlaps the desk');
-      ensure(geometry.next.top - geometry.hero.bottom <= 2, 'Unexplained gap after the hero');
-      for (const href of ['/ready', '/apps']) ensure(await page.locator(`.studio-copy a[href="${href}"]`).isVisible(), `${href} is not visible`);
+      ensure(geometry.copy.top >= geometry.workshop.top - 1, 'Workshop copy is outside its section');
+      ensure(Math.abs(geometry.next.top - geometry.opening.bottom) <= 2, 'Opening and next section do not meet');
+      for (const href of entryLinks) {
+        ensure(await page.locator(`.home-opening-actions a[href="${href}"]`).isVisible(), `${href} is not visible in the opening`);
+      }
+      ensure(await page.locator('.studio-copy a[href="/apps"]').isVisible(), 'Workshop apps link is missing');
       const name = `${width}-${theme}`;
       if (capture) {
         // Scroll through lazy content before a full-page capture; the browser
@@ -57,15 +62,15 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
   await page.keyboard.press('Tab');
   ensure(await page.locator('.skip').evaluate(element => element === document.activeElement), 'Skip link is not the first keyboard target');
   await page.keyboard.press('Enter');
-  for (const href of ['/ready', '/apps']) {
+  for (const href of entryLinks) {
     await page.keyboard.press('Tab');
     const focused = await page.evaluate(() => ({ href: document.activeElement.getAttribute('href'), outline: getComputedStyle(document.activeElement).outlineStyle }));
     ensure(focused.href === href && focused.outline !== 'none', `Keyboard path or focus missing for ${href}`);
     receipt.keyboard.push(focused);
   }
   await page.keyboard.press('Enter');
-  await page.waitForURL('**/apps');
-  ensure(await page.locator('h1').isVisible(), 'App library failed to open by keyboard');
+  await page.waitForURL('**/demo');
+  ensure(await page.locator('h1').isVisible(), 'Sandbox failed to open by keyboard');
   // Browser viewport at 720px covers the reflow width of a 1440px window at
   // 200%; separately double root text to catch fixed-size text containers.
   for (const theme of ['dark', 'light']) {
