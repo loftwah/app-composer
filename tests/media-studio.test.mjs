@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { validateSpec, handoff, specVersion, presets, defaultMediaStudio } from "../src/lib/spec.mjs";
+import { validateSpec, handoff, specVersion, presets, defaultMediaStudio, mediaStudioRecovery } from "../src/lib/spec.mjs";
 import { selectedSources } from "../src/lib/app-settings.mjs";
 import { buildRecipe, humanOnlyActions, recipeText } from "../src/lib/build-recipe.mjs";
 import { presetRecommendation, recommendationSpec } from "../src/lib/init-recommendations.mjs";
@@ -32,7 +32,7 @@ test("Media Studio is a real preset with a pinned independent source", () => {
   assert.equal(spec.preset, "media-studio");
   assert.deepEqual(spec.sources, [mediaStudioSource.source]);
   assert.deepEqual(spec.mediaStudio, {
-    version: 2,
+    version: 3,
     focus: "both",
     imageModel: "studio-print",
     videoModel: "hailuo-standard",
@@ -61,11 +61,29 @@ test("media defaults round trip through export and import unchanged", () => {
   assert.equal(spec.mediaStudio.videoModel, "kling-standard");
   assert.equal(spec.mediaStudio.durationSeconds, 10);
   // A revision 1 draft keeps its choices and gains the current sound defaults.
-  assert.equal(spec.mediaStudio.version, 2);
+  assert.equal(spec.mediaStudio.version, 3);
   assert.equal(spec.mediaStudio.audioModel, "studio-score");
   assert.equal(spec.mediaStudio.audioSeconds, 15);
   const roundTrip = validateSpec(JSON.parse(JSON.stringify(spec)));
   assert.deepEqual(roundTrip, spec);
+});
+
+test("a retired Studio Draft selection loads as FLUX.2 Klein 9B with a recovery notice", () => {
+  const older = {
+    version: 1,
+    focus: "image",
+    imageModel: "studio-draft",
+    videoModel: "hailuo-standard",
+    aspect: "portrait",
+    durationSeconds: 6,
+    projectName: "Product plates",
+  };
+  const spec = validateSpec(mediaSpec({ mediaStudio: older }));
+  assert.equal(spec.mediaStudio.imageModel, "studio-craft");
+  assert.equal(spec.mediaStudio.version, 3);
+  assert.match(mediaStudioRecovery(older), /FLUX\.2 Klein 9B/);
+  assert.match(mediaStudioRecovery(older), /save the draft/i);
+  assert.equal(mediaStudioRecovery(spec.mediaStudio), "");
 });
 
 test("unsupported or mismatched media settings fail closed", () => {
@@ -156,7 +174,7 @@ test("the handoff and build plan carry the owned studio work without secrets", (
 });
 
 test('current and historical Studio briefs retain their exact reviewed source pins', async () => {
-  assert.equal(mediaStudioSource.source.commit, '13103c975f5469923448eb75b1abcec6e233c185');
+  assert.equal(mediaStudioSource.source.commit, 'c150e8e7a82d790e65517efd76bd574865eab8fe');
   assert.ok(mediaStudioSource.legacySources.some(source => source.commit === '8e465d309028f233c653b58d6e960f8d2de3d411'));
   assert.ok(mediaStudioSource.legacySources.some(source => source.commit === 'c9ae60019bdcdd103530fdab33a0632cd0d93fe8'));
   assert.ok(mediaStudioSource.legacySources.some(source => source.commit === '341a0feae8d552a1ae1abdbab5902d74764edee5'));

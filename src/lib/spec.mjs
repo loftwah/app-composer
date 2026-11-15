@@ -6,6 +6,7 @@ import {
 } from "./app-settings.mjs";
 import { recipeText } from "./build-recipe.mjs";
 import { validateProjectDirection } from "./project-direction.mjs";
+import mediaCapabilities from "../../config/media-studio-capabilities.json" with { type: "json" };
 export const specVersion = 2;
 // One user-facing delivery choice. Both profiles run the same repository-owned
 // commands; an existing runner only changes who invokes them.
@@ -85,20 +86,43 @@ export const presets = {
 // Versioned, validated creative defaults for the independent Media Studio.
 // The studio rechecks every value on its own server; this spec never enables a
 // provider, buys credit or promises a model the studio has not qualified.
-export const mediaImageModels = [
-  "studio-print",
-  "studio-film",
-  "studio-draft",
-  "studio-quick",
-];
-export const mediaVideoModels = ["hailuo-standard", "kling-standard"];
-export const mediaAudioModels = ["studio-score", "studio-voice"];
-export const mediaAspects = ["portrait", "square", "landscape", "wide"];
-export const mediaDurations = [5, 6, 10];
+//
+// The choices come from the committed Studio capability snapshot. Refresh it
+// with `node scripts/studio-capabilities.mjs --write` after a reviewed Studio
+// release; never edit a model list here.
+const capabilityModels = mediaCapabilities.models;
+const retiredMediaModels = new Map(mediaCapabilities.retired.map((model) => [model.id, model]));
+
+export const mediaImageModels = capabilityModels
+  .filter((model) => model.kind === "image" && !model.edit && !model.references)
+  .map((model) => model.id);
+export const mediaVideoModels = capabilityModels
+  .filter((model) => model.kind === "video" && !model.render)
+  .map((model) => model.id);
+export const mediaAudioModels = capabilityModels
+  .filter((model) => model.kind === "audio")
+  .map((model) => model.id);
+export const mediaAspects = [...mediaCapabilities.frames];
+export const mediaVideoDurations = Object.fromEntries(
+  capabilityModels
+    .filter((model) => model.kind === "video" && !model.render && Array.isArray(model.durations))
+    .map((model) => [model.id, model.durations]),
+);
+export const mediaDurations = [
+  ...new Set(Object.values(mediaVideoDurations).flat()),
+].sort((left, right) => left - right);
 export const mediaAudioSeconds = [10, 15, 20, 25, 30];
-// Revision 2 adds sound defaults. A revision 1 draft stays valid: its sound
-// fields are filled in rather than rejected.
-export const mediaStudioRevision = 2;
+// Revision 2 adds sound defaults. Revision 3 adds the retired Studio Draft
+// migration and reads the current choices from the Studio capability snapshot.
+export const mediaStudioRevision = 3;
+
+export function mediaStudioRecovery(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return "";
+  const retired = retiredMediaModels.get(value.imageModel);
+  if (!retired) return "";
+  const replacement = capabilityModels.find((model) => model.id === retired.replacement);
+  return `This draft chose ${retired.label}. ${retired.reason} It was loaded as ${replacement?.label ?? retired.replacement}; save the draft to keep the replacement.`;
+}
 
 export function defaultMediaStudio(config) {
   return {
@@ -131,17 +155,19 @@ export function validateMediaStudio(value) {
   ];
   if (Object.keys(value).some((key) => !keys.includes(key)))
     throw new Error("Unknown Media Studio setting");
-  const legacy = value.version === 1;
+  const legacy = value.version === 1 || value.version === 2;
   if (!legacy && value.version !== mediaStudioRevision)
     throw new Error("That Media Studio setting version is no longer current");
   if (!["image", "video", "sound", "both"].includes(value.focus))
     throw new Error("Choose what this studio should make");
-  if (!mediaImageModels.includes(value.imageModel))
+  const imageModel = legacy
+    ? retiredMediaModels.get(value.imageModel)?.replacement ?? value.imageModel
+    : value.imageModel;
+  if (!mediaImageModels.includes(imageModel))
     throw new Error("Choose a supported studio still model");
   if (!mediaVideoModels.includes(value.videoModel))
     throw new Error("Choose a supported studio video model");
-  const durations =
-    value.videoModel === "kling-standard" ? [5, 10] : [6, 10];
+  const durations = mediaVideoDurations[value.videoModel] ?? [];
   if (!durations.includes(value.durationSeconds))
     throw new Error(
       "Choose a clip length the selected video model supports",
@@ -158,7 +184,7 @@ export function validateMediaStudio(value) {
   return {
     version: mediaStudioRevision,
     focus: value.focus,
-    imageModel: value.imageModel,
+    imageModel,
     videoModel: value.videoModel,
     audioModel,
     audioSeconds,

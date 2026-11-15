@@ -9,9 +9,9 @@ export interface Spec {
     revision: 1;
   };
   mediaStudio?: {
-    version: 2;
+    version: 3;
     focus: "image" | "video" | "sound" | "both";
-    imageModel: "studio-print" | "studio-film" | "studio-draft" | "studio-quick";
+    imageModel: "studio-print" | "studio-film" | "studio-craft" | "studio-quick";
     videoModel: "hailuo-standard" | "kling-standard";
     audioModel: "studio-score" | "studio-voice";
     audioSeconds: 10 | 15 | 20 | 25 | 30;
@@ -60,11 +60,15 @@ export function visibleQuestions(answers: Record<string, string>): Question[];
 export function explorerSpec(answers: Record<string, string>): Spec;
 
 export const specVersion: 2;
-export const mediaStudioRevision: 1;
+export const mediaStudioRevision: 3;
 export const mediaImageModels: string[];
 export const mediaVideoModels: string[];
+export const mediaAudioModels: string[];
 export const mediaAspects: string[];
+export const mediaVideoDurations: Record<string, number[]>;
 export const mediaDurations: number[];
+export const mediaAudioSeconds: number[];
+export function mediaStudioRecovery(value: unknown): string;
 export function defaultMediaStudio(config?: { title?: string }): NonNullable<Spec["mediaStudio"]>;
 export function validateMediaStudio(value: unknown): Spec["mediaStudio"];
 export const maintenanceRevision: 1;

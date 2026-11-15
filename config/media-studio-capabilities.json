@@ -1,0 +1,157 @@
+{
+  "contract": "media-studio-capabilities",
+  "version": 1,
+  "source": "https://media.loftwah.com/capabilities.json",
+  "checkedAt": "2026-11-15T11:30:00.000Z",
+  "lastGoodAt": "2026-11-15T11:30:00.000Z",
+  "frames": [
+    "square",
+    "portrait",
+    "landscape",
+    "wide"
+  ],
+  "models": [
+    {
+      "id": "studio-print",
+      "label": "Studio Print",
+      "kind": "image",
+      "endpoint": "@cf/leonardo/lucid-origin",
+      "aspects": [
+        "square",
+        "portrait",
+        "landscape",
+        "wide"
+      ],
+      "durations": null,
+      "references": 0,
+      "audio": null,
+      "costMicro": 25000,
+      "costBasis": "Cloudflare Workers AI estimate for one Lucid Origin still; not an invoice."
+    },
+    {
+      "id": "studio-film",
+      "label": "Studio Film",
+      "kind": "image",
+      "endpoint": "@cf/leonardo/phoenix-1.0",
+      "aspects": [
+        "square",
+        "portrait",
+        "landscape",
+        "wide"
+      ],
+      "durations": null,
+      "references": 0,
+      "audio": null,
+      "costMicro": 20000,
+      "costBasis": "Cloudflare Workers AI estimate for one Phoenix still; not an invoice."
+    },
+    {
+      "id": "studio-craft",
+      "label": "Studio Draft · FLUX.2 Klein 9B",
+      "kind": "image",
+      "endpoint": "@cf/black-forest-labs/flux-2-klein-9b",
+      "aspects": [
+        "square",
+        "portrait",
+        "landscape",
+        "wide"
+      ],
+      "durations": null,
+      "references": 0,
+      "audio": null,
+      "costMicro": 16000,
+      "costBasis": "Cloudflare Workers AI list price: US$0.015 for the first output megapixel plus US$0.002 per extra megapixel. A 1024 × 1280 still is 1.25 MP, so this estimate rounds up to US$0.016. Not an invoice."
+    },
+    {
+      "id": "studio-quick",
+      "label": "Studio Quick",
+      "kind": "image",
+      "endpoint": "@cf/black-forest-labs/flux-1-schnell",
+      "aspects": [
+        "square"
+      ],
+      "durations": null,
+      "references": 0,
+      "audio": null,
+      "costMicro": 700,
+      "costBasis": "Cloudflare Workers AI estimate for one schnell still; not an invoice."
+    },
+    {
+      "id": "hailuo-standard",
+      "label": "Hailuo 2.3 Standard",
+      "kind": "video",
+      "endpoint": "fal-ai/minimax/hailuo-2.3/standard/image-to-video",
+      "aspects": [
+        "from-image"
+      ],
+      "durations": [
+        6,
+        10
+      ],
+      "references": 1,
+      "audio": null,
+      "costMicro": 280000,
+      "costBasis": "fal.ai lists US$0.28 for six seconds and US$0.56 for ten; checked 14 November 2026. Provider billing may change."
+    },
+    {
+      "id": "kling-standard",
+      "label": "Kling 2.5 Turbo Pro",
+      "kind": "video",
+      "endpoint": "fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
+      "aspects": [
+        "from-image"
+      ],
+      "durations": [
+        5,
+        10
+      ],
+      "references": 1,
+      "audio": null,
+      "costMicro": 350000,
+      "costBasis": "fal.ai review estimate for a five second clip; check current fal pricing before relying on it."
+    },
+    {
+      "id": "studio-score",
+      "label": "Studio Score",
+      "kind": "audio",
+      "endpoint": "fal-ai/stable-audio",
+      "aspects": [],
+      "durations": null,
+      "references": 0,
+      "audio": {
+        "mode": "music",
+        "minSeconds": 10,
+        "maxSeconds": 30
+      },
+      "costMicro": 15000,
+      "costBasis": "fal.ai estimate per second of Stable Audio, shown against the length you choose; confirm current fal pricing before relying on it."
+    },
+    {
+      "id": "studio-voice",
+      "label": "Studio Voice",
+      "kind": "audio",
+      "endpoint": "fal-ai/elevenlabs/tts/eleven-v3",
+      "aspects": [],
+      "durations": null,
+      "references": 0,
+      "audio": {
+        "mode": "speech",
+        "maxChars": 1200
+      },
+      "costMicro": 60000,
+      "costBasis": "fal.ai estimate for one short ElevenLabs narration; the fal invoice, not this figure, is authoritative."
+    }
+  ],
+  "retired": [
+    {
+      "id": "studio-draft",
+      "label": "Studio Draft · SDXL Lightning (retired)",
+      "kind": "image",
+      "endpoint": "@cf/bytedance/stable-diffusion-xl-lightning",
+      "provider": "Cloudflare Workers AI",
+      "retiredAt": "2026-11-20",
+      "replacement": "studio-craft",
+      "reason": "Cloudflare's planned deprecation date for SDXL Lightning is 20 November 2026. New work uses Studio Draft · FLUX.2 Klein 9B; saved results keep this attribution."
+    }
+  ]
+}

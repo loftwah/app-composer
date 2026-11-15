@@ -43,9 +43,10 @@ owns composition and the beginner's end-to-end proof under
 ## What a person gets
 
 **From Composer:** Init → *Media Studio* → name, creative direction, visibility,
-still/video/sound defaults and bed length → saved specification (revision 2;
-revision 1 drafts still validate) → portable export → the chosen agent's
-handoff. The handoff pins the studio repository and
+still/video/sound defaults and bed length → saved specification (revision 3;
+revision 1 and 2 drafts still validate; a retired Studio Draft choice is mapped
+to FLUX.2 Klein 9B with a visible recovery notice) → portable export → the
+chosen agent's handoff. The handoff pins the studio repository and
 commit and tells the agent to create an owner-controlled copy with its own D1
 database, R2 bucket, Workers AI binding, secrets, cron and release.
 
@@ -88,7 +89,7 @@ downloads and render inputs support byte ranges.
 | --- | --- | --- |
 | Editorial still | Workers AI `@cf/leonardo/lucid-origin` | Verified live |
 | Cinematic still | Workers AI `@cf/leonardo/phoenix-1.0` | Verified live |
-| Photographic draft | Workers AI `@cf/bytedance/stable-diffusion-xl-lightning` | Verified live |
+| Photographic draft | Workers AI `@cf/black-forest-labs/flux-2-klein-9b` | Verified live at 1024 × 1280 on 15 November 2026; replaces the retiring SDXL Lightning draft |
 | Reference variation | Workers AI `@cf/black-forest-labs/flux-2-klein-4b` | Verified live |
 | Image-to-video | fal.ai Hailuo 2.3 Standard | Verified live: 5.875 s, 768 × 960, 589,717 bytes, saved in studio R2 |
 | Image-to-video | fal.ai Kling 2.5 Turbo Pro | Verified live: 5.04 s, 1288 × 1608, 13,450,699 bytes, saved in studio R2 |
