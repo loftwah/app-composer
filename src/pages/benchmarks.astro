@@ -70,6 +70,13 @@ const icon: Record<string, typeof CheckCircle2> = {pass: CheckCircle2, fail: XCi
   </ul>
  </section>
 
+ <section class="bench-section" aria-labelledby="release-timing-title">
+  <h2 id="release-timing-title">Release timing receipts</h2>
+  <p>The guarded release writes a redacted <code>release-timing/v1</code> receipt. Benchmarks Studio can validate and compare those receipts without executing them: one row per repository and release path, with the total, slowest stage, three-minute target, strict 300-second limit, status and measured coverage.</p>
+  <pre>node benchmarks/release-timing/report.mjs --dir .release/timing</pre>
+  <p>Receipts stay in each repository's ignored <code>.release/timing/</code> directory, so this page does not publish them. The portable pack format, refusal rules and Composer/Studio fixtures are in <a href="https://github.com/loftwah/app-composer/blob/main/benchmarks/release-timing/README.md">the ingest README</a>. That is the known gap: the comparison is a local report today, and this page links to it rather than pretending a private receipt is public evidence.</p>
+ </section>
+
  <section class="bench-section" aria-labelledby="run-title">
   <h2 id="run-title">Run it yourself</h2>
   <p>From a checkout of this repository:</p>
