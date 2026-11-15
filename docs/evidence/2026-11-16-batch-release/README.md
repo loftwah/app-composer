@@ -10,7 +10,7 @@ owner. This record states what is proven, where, and what remains.
 
 | Surface | Source | Worker version | Live |
 | --- | --- | --- | --- |
-| App Composer | `0978dc47ebb61b7b739352a2f9feb8c6c6be8e4f` | see `/build.json` | [build.json](https://composer.loftwah.com/build.json) |
+| App Composer | `2afd53b861aaf5ea6332a4212b11634315f08825` | see `/build.json` | [build.json](https://composer.loftwah.com/build.json) |
 | Media Studio | `e8b3778cd5d800378f42985afda80820fcb7ef57` | `1a7a58a3-a91c-4665-91d0-d3df12467e77` | [build.json](https://media.loftwah.com/build.json) |
 
 Both releases used the existing guarded clean-pushed-main paths. Composer
@@ -49,7 +49,7 @@ follow-up fixes. Studio merged `codex/studio-batch-148-14-15`.
 - The panel reports `Off · oyster-media.loftwah.workers.dev · deployment
   credential` before enabling — it previously claimed no host was configured even
   though the deployment credential could serve this workspace. That wording is
-  fixed in `0978dc4`.
+  fixed in the same release.
 - The owner then enabled the capability against the existing deployment
   credential (one workspace, `deployment-legacy` scope). Catalogue check
   16 November 12:32 AM, 13 models. Toggling off and on updates in place.
