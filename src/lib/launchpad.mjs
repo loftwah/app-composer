@@ -132,23 +132,6 @@ export const palettes = {
     },
   },
 };
-/** @typedef {keyof typeof palettes} AccentName */
-
-/** @param {Project} project */
-export function paletteVars(project) {
-  const tone = palettes[project.accent][project.theme];
-  return {
-    "--lp-bg": tone.bg,
-    "--lp-surface": tone.surface,
-    "--lp-ink": tone.ink,
-    "--lp-muted": tone.muted,
-    "--lp-border": tone.border,
-    "--lp-accent": tone.accent,
-    "--lp-on-accent": tone.onAccent,
-    colorScheme: project.theme,
-  };
-}
-
 /** @returns {Launchpad} */
 export function initialLaunchpad() {
   return {
