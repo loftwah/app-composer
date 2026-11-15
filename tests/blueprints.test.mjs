@@ -87,3 +87,21 @@ test("an unsupported app, preset or extra field is refused", () => {
 test("an unknown blueprint id resolves to nothing instead of a fake record", () => {
   assert.equal(blueprint("does-not-exist"), undefined);
 });
+
+test("the media studio blueprint reads the standalone pin and validates", () => {
+  const entry = blueprint("media-studio");
+  assert.ok(entry, "media-studio exists");
+  const sources = blueprintSources(entry);
+  assert.equal(sources.length, 1);
+  assert.equal(sources[0].id, "media-studio");
+  assert.equal(sources[0].commit, "8e465d309028f233c653b58d6e960f8d2de3d411");
+  assert.equal(sources[0].url, "https://media.loftwah.com");
+  const spec = blueprintSpec(entry);
+  assert.equal(spec.preset, "media-studio");
+  assert.deepEqual(spec.apps, ["media-studio"]);
+  assert.equal(spec.sources.length, 1);
+  assert.equal(spec.sources[0].commit, sources[0].commit);
+  const readiness = blueprintReadiness(entry);
+  assert.equal(readiness.state, "reference");
+  assert.match(readiness.reason, /independent owner/i);
+});

@@ -3,8 +3,19 @@
 // permission or deploys anything. Source pins are read from the active
 // composition lock so a blueprint cannot drift from the apps actually mounted.
 import lock from "../../composition.lock.json" with { type: "json" };
+import mediaStudio from "../../config/media-studio-standalone.json" with { type: "json" };
 import { selectedSources } from "./app-settings.mjs";
 import { presets, validateSpec } from "./spec.mjs";
+
+// Independently mounted apps keep their pins in their own configuration. A
+// blueprint reads that pin instead of copying a second version of the source.
+const standaloneApps = {
+  "media-studio": {
+    name: "Media Studio",
+    url: "https://media.loftwah.com",
+    ...mediaStudio.source,
+  },
+};
 
 export const blueprintsVersion = 1;
 export const blueprintStates = ["reference", "evidence-pending", "ready"];
@@ -59,6 +70,46 @@ export const blueprints = [
       "This blueprint is a brief. Opening it in Init prepares settings; it does not deploy.",
       "No independent owner has rebuilt this blueprint on their own Cloudflare account yet, so it stays a reference rather than a proven repeatable build.",
       "The preview-only Media Studio gallery in the /demo sandbox is not part of this blueprint.",
+    ],
+  },
+  {
+    id: "media-studio",
+    version: 1,
+    name: "Media Studio",
+    summary:
+      "An independent image, video and sound studio with its own database, media bucket, jobs and public pages. Upload and organise work, make stills or clips with a funded provider, plan and render a short cut, then publish deliberately.",
+    state: "reference",
+    preset: "media-studio",
+    apps: ["media-studio"],
+    requires: [
+      "An owner-controlled Cloudflare Worker, D1 database and R2 bucket, deployed from your own copy of the source.",
+      "Cloudflare Workers AI for the image models; optional fal.ai funding for video, voice, music and provider rendering.",
+      "A Composer workspace grant or the studio's own owner passphrase. There is no public signup.",
+      "Every paid request shows its estimate and reserves against the project allowance before dispatch.",
+    ],
+    evidence: [
+      {
+        label: "Live studio",
+        url: "https://media.loftwah.com",
+        observed: "The public gallery and published pages open without an account; the working studio is owner-only.",
+      },
+      {
+        label: "Build story and limits",
+        url: "https://composer.loftwah.com/media-studio",
+        observed: "Records the real provider results, the editing path and the features that are not claimed.",
+      },
+      {
+        label: "Pinned source",
+        url: "https://github.com/loftwah/composer-media-studio/tree/8e465d309028f233c653b58d6e960f8d2de3d411",
+        observed: "Exact MIT source revision for the studio in this catalogue.",
+      },
+    ],
+    limits: [
+      "This blueprint is a brief. Opening it in Init prepares settings; it does not deploy or fund a provider.",
+      "The studio is single-owner by design. It is not a multi-tenant signup product.",
+      "Provider availability, prices and output quality remain the owner's account decision; estimates are not invoices.",
+      "Local MP4 rendering depends on the browser's codecs and memory. It is not a promise of device parity.",
+      "No independent owner has replayed this build on their own account yet, so it stays a reference rather than a proven repeatable build.",
     ],
   },
 ];
@@ -140,14 +191,20 @@ export function blueprintSources(entry) {
   const pinned = lock.apps;
   return entry.apps.map((/** @type {string} */ id) => {
     const app = pinned.find((/** @type {any} */ candidate) => candidate.id === id);
-    if (!app) throw new Error(`Blueprint app is not mounted: ${id}`);
+    const standalone = standaloneApps[id];
+    const source = app
+      ? {
+          id,
+          name: app.manifest.name,
+          repository: app.repository,
+          commit: app.commit,
+          url: app.url,
+        }
+      : standalone;
+    if (!source) throw new Error(`Blueprint app is not mounted: ${id}`);
     return {
-      id,
-      name: app.manifest.name,
-      repository: app.repository,
-      commit: app.commit,
-      short: String(app.commit).slice(0, 10),
-      url: app.url,
+      ...source,
+      short: String(source.commit).slice(0, 10),
     };
   });
 }
