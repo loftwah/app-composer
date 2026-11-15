@@ -157,6 +157,24 @@ test('internal documentation links point at the stable reference route', () => {
   assert.deepEqual(stale, [], 'legacy /docs# links move to /docs/how-it-works#');
 });
 
+test('the copied assessment prompt is self-sufficient for a fresh agent', () => {
+  const task = docsTaskPaths.find(item => item.id === 'existing-project');
+  assert.ok(task, 'the existing-project task exists');
+  const text = renderPrompt(task.promptId, {}, { template: true }).text;
+  // What a receiving agent needs with no prior conversation: a scope boundary,
+  // a resolution rule for the placeholder, a result shape and a stop condition.
+  assert.match(text, /Inspect the selected project read-only/);
+  assert.match(text, /Do not install packages, migrate the stack/);
+  assert.match(text, /Bracketed fields are placeholders/);
+  assert.match(text, /inspect the folder you are working in/);
+  assert.match(text, /Return a short recommendation of yes, partly or no/);
+  assert.match(text, /Ask only questions a person must answer/);
+  assert.match(text, /Stop before any change and wait for explicit owner authorisation/);
+  assert.doesNotMatch(text, /(?:sk|pk|rk)_[A-Za-z0-9]{10,}/, 'no credential-shaped strings');
+  assert.doesNotMatch(text, /undefined|null/, 'no missing interpolation');
+  assert.ok(text.length > 1500 && text.length < 8000, `the copied text stays complete but bounded (${text.length} chars)`);
+});
+
 test('the reference prose is preserved rather than summarised away', () => {
   assert.match(reference, /Portable assistant context/);
   assert.match(reference, /Turn a field model into a local EmDash site/);
@@ -164,4 +182,35 @@ test('the reference prose is preserved rather than summarised away', () => {
   assert.match(reference, /Code rollback restores an executable only/);
   assert.match(reference, /optional local Get Ready MCP adapter/);
   assert.ok(reference.length > 25000, 'the complete reference content is retained');
+});
+
+test('copy reports success, denial and an unusable prompt instead of failing silently', async () => {
+  const { copyPromptText, docsCopyMessages } = await import('../src/lib/docs-copy.ts');
+  assert.equal(await copyPromptText('A prompt', async () => undefined), 'copied');
+  assert.equal(
+    await copyPromptText('A prompt', async () => { throw new Error('NotAllowedError'); }),
+    'manual',
+    'a denied permission or unfocused document opens the selectable fallback',
+  );
+  assert.equal(await copyPromptText('A prompt', undefined), 'manual', 'no Clipboard API means the fallback');
+  assert.equal(await copyPromptText('A prompt', null), 'manual');
+  assert.equal(await copyPromptText('  \n\n ', async () => undefined), 'empty', 'empty text is reported, not copied');
+  assert.match(docsCopyMessages.copied, /^Copied\./);
+  assert.match(docsCopyMessages.manual, /^Copy failed/);
+  assert.match(docsCopyMessages.manual, /selected below/);
+  assert.match(docsCopyMessages.empty, /prompt library/);
+});
+
+test('every copy control is named for its own task and announces its own outcome', () => {
+  const client = readFileSync(new URL('../src/lib/docs-hub-client.ts', import.meta.url), 'utf8');
+  assert.match(hub, /aria-label=\{`Copy prompt template: \$\{task\.question\}`\}/, 'the accessible name names the task');
+  assert.equal(new Set(docsTaskPaths.map(task => task.question)).size, docsTaskPaths.length, 'each name is distinct');
+  assert.match(hub, /role="status" aria-live="polite" aria-atomic="true" data-docs-status=/, 'each control has a live status');
+  assert.match(hub, /role="region" aria-label=\{`Prompt template for: \$\{task\.question\}`\}/, 'the selectable prompt is a labelled region');
+  assert.match(hub, /<details class="docs-prompt-preview" data-docs-details=/, 'the full text is always available to select');
+  assert.match(client, /copyPromptText\(text, navigator\.clipboard\?\.writeText/, 'the real clipboard result decides the outcome');
+  assert.match(client, /setStatus\(status, docsCopyMessages\.copied/, 'success is written to the control status');
+  assert.match(client, /setStatus\(status, docsCopyMessages\.manual/, 'failure is written to the control status');
+  assert.match(client, /selectPrompt\(id\)/, 'failure opens and selects the fallback text');
+  assert.match(client, /status\.textContent = ''/, 'the status clears so a retry is announced');
 });

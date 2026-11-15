@@ -1,7 +1,7 @@
 {
   "version": "composer.operating-kit/1",
-  "bytes": 731058,
-  "sha256": "e6177ea030f3228bbdc4f9e793cd6bf45c774354d10f1fa233f208db5e374340",
+  "bytes": 731686,
+  "sha256": "ecc803eee159fa39a8ceaf92db8fb78f13edc2f12c34727f8412843989d6fcb1",
   "files": [
     {
       "name": "change-og.png",
@@ -30,8 +30,8 @@
     },
     {
       "name": "change.md",
-      "bytes": 3552,
-      "sha256": "a5f4f032f2b413e8705facf4c87c53dd58a49f9e7fb8118aba91eeea1d327a9b"
+      "bytes": 3833,
+      "sha256": "04f4835fb95d82d2d7f33bbd95af9fd717726bca0c5bf82586865e0613002cc2"
     },
     {
       "name": "composer-mark.png",
@@ -145,8 +145,8 @@
     },
     {
       "name": "hook.md",
-      "bytes": 3794,
-      "sha256": "f5817d7b79d77b37a509faa94a31e34a51b43106788d68d96d28bc3299e840e4"
+      "bytes": 4075,
+      "sha256": "89fb76c7fe8c25f6cf7847d7869b32b206287945cc097a1f871c00dee9bbd94b"
     },
     {
       "name": "incident-og.png",
@@ -175,8 +175,8 @@
     },
     {
       "name": "incident.md",
-      "bytes": 3846,
-      "sha256": "6dd7fb7e70f00a04e5a5bd9bf4ab10f7edf762b00fad9460af9a93f160f396c6"
+      "bytes": 4127,
+      "sha256": "6d1d07ea5b404bf6dd293bac6399d08deecb0b3596f541c8f02afb1d4801d34b"
     },
     {
       "name": "INDEX.md",
@@ -205,13 +205,13 @@
     },
     {
       "name": "operating-kit.md",
-      "bytes": 3868,
-      "sha256": "e43b4e23f6d55a0a86aa14c46b6f27c66dd0b990e0dab53be0c54c4e04f17418"
+      "bytes": 4149,
+      "sha256": "af97eb5463cc9cd09c3ff8a5f35b9b9495738c3b88d5cf9a6cb52ff445b32960"
     },
     {
       "name": "pipeline.md",
-      "bytes": 3615,
-      "sha256": "0c340016fd257de29ad299aa045cfdb0dd90c3fde8109bd97a3a61803880c6d4"
+      "bytes": 3896,
+      "sha256": "639294064c2d2040e1affdf9b2bad599b96ef2e02e1ebed5412a0b2c5622812b"
     },
     {
       "name": "resources-og.png",

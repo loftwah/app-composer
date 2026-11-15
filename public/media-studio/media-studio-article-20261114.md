@@ -2,6 +2,11 @@
 
 Canonical: <https://composer.loftwah.com/media-studio> · Tutorial: <https://composer.loftwah.com/media-studio/tutorial> · Published 2026/11/14, Australia/Melbourne (AEDT, UTC+11).
 
+> **Snapshot of the 14 November article.** One still route changed after publication:
+> SDXL Lightning was retired on 15 November 2026 and Studio Draft is now FLUX.2 Klein 9B.
+> Saved historical jobs keep their exact SDXL attribution. Every other capability and
+> limit below is the state recorded on 14 November; check the live article for current status.
+
 *Syndication draft. If you republish this, keep the canonical link, the attribution and the date.*
 
 ---

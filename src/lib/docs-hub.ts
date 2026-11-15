@@ -268,6 +268,7 @@ export const docsGuideLinks: readonly DocsGuideLink[] = [
   { id: 'release', label: 'Release evidence', href: '/release', summary: 'Verified release identity and its exact remaining boundaries.', terms: ['release', 'evidence', 'verification', 'deploy', 'production', 'status'] },
   { id: 'commerce', label: 'Commerce assessment prompts', href: '/prompts#stripe', summary: 'Stripe, PayPal, Shopify and Printful assessments. Development or sandbox only; no production charge is authorised.', terms: ['stripe', 'paypal', 'shopify', 'printful', 'commerce', 'checkout', 'payments', 'store'] },
   { id: 'how-it-works', label: 'Technical reference', href: '/docs/how-it-works', summary: 'The complete former /docs reference, including MCP, contracts, updates and content projects.', terms: ['reference', 'technical', 'docs', 'mcp', 'contract', 'rollback', 'all'] },
+  { id: 'operate', label: 'Commands, files and recovery', href: '#operate', summary: 'Local commands, maintained file paths, failure recovery, and what browsing here can and cannot change.', terms: ['command', 'commands', 'terminal', 'pnpm', 'install', 'build', 'deploy', 'release', 'file', 'files', 'path', 'recovery', 'troubleshoot', 'error', 'copy failed', 'clipboard', 'no javascript'] },
 ];
 
 export interface DocsUnavailable {
