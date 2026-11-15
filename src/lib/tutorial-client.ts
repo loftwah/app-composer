@@ -130,12 +130,13 @@ for (const button of root.querySelectorAll<HTMLButtonElement>('[data-copy-prompt
   if (outcome === 'copied') {message.textContent = 'Copied. Paste into your agent in the selected project.'; return;}
   if (outcome === 'empty') {message.textContent = 'The request text did not load. Reload the page and try again.'; return;}
   message.textContent = 'Copy failed. The request text is selected; use your keyboard shortcut or your device’s copy menu.';
+  // Focus first: Firefox clears a selection that is made and then focused.
+  prompt.focus({preventScroll: true});
   const range = document.createRange();
   range.selectNodeContents(prompt);
   const selection = window.getSelection();
   selection?.removeAllRanges();
   selection?.addRange(range);
-  prompt.focus({preventScroll: true});
  });
 }
 const clear = root.querySelector<HTMLButtonElement>('[data-clear-progress]')!;

@@ -87,11 +87,15 @@ const copyLabels: Record<TutorialPromptKind, string> = {
       if (outcome === 'copied') return;
 
       if (outcome === 'manual') {
+        // Focus before selecting: Firefox collapses a selection that is made
+        // and then focused, which loses the manual-copy fallback text.
+        prompt.focus({ preventScroll: true });
         const range = document.createRange();
         range.selectNodeContents(prompt);
         const selection = window.getSelection();
         selection?.removeAllRanges();
         selection?.addRange(range);
+        return;
       }
       prompt.focus({ preventScroll: true });
     });
