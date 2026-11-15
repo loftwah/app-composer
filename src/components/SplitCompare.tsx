@@ -1,4 +1,4 @@
-import { useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import "../styles/split-compare.css";
 
 interface Props {
@@ -31,6 +31,12 @@ export function SplitCompare({
   const [position, setPosition] = useState(clamp(initial));
   const frame = useRef<HTMLDivElement>(null);
   const helpId = useId();
+  // The split point is a CSS custom property rather than a style attribute.
+  // Composer's production CSP refuses inline styles, and the stylesheet already
+  // defaults --split to 50%, so the server-rendered markup needs no attribute.
+  useEffect(() => {
+    frame.current?.style.setProperty("--split", `${position}%`);
+  }, [position]);
   function moveTo(clientX: number) {
     const box = frame.current?.getBoundingClientRect();
     if (!box || box.width === 0) return;
@@ -52,7 +58,6 @@ export function SplitCompare({
           if (event.pointerType === "mouse" && event.buttons !== 1) return;
           if (event.buttons === 1) moveTo(event.clientX);
         }}
-        style={{ ["--split" as string]: `${position}%` }}
       >
         <div className="split-compare-pane" aria-hidden="true">
           {after}
