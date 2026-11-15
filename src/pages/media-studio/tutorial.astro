@@ -19,6 +19,10 @@ const chapters = [
   ['enter', 'Enter through Composer'],
   ['make', 'Create and edit video and sound'],
   ['publish', 'Assemble, export and publish'],
+  ['review', 'Review a cut privately'],
+  ['revise', 'Revise and prepare to share'],
+  ['recover', 'Recover the editable project'],
+  ['models', 'Choose a model for the next job'],
   ['return', 'Return and change it'],
   ['pippa-demo', 'Make a clip and poster'],
   ['audio-trim-demo', 'Trim a song'],
@@ -56,6 +60,16 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
       <div><dt>Cost</dt><dd>Hosting, storage and paid generation are separate costs. The two-project snapshot recorded about US$1.66; separate tests added US$0.50 and roughly US$1.08. An earlier Paper &amp; Light run recorded about US$0.20. These are historical figures, not current prices or an invoice-confirmed bill.</dd></div>
       <div><dt>Time</dt><dd>Allow an evening for your first build, including account setup and a first render. Later changes may take minutes.</dd></div>
     </dl>
+    <section class="play-now" aria-labelledby="play-now-title">
+      <h2 id="play-now-title">Play this now</h2>
+      <p>Four working stops from the same studio, in the order the chapters use them. Every link opens without a Composer account except the studio itself.</p>
+      <ol>
+        <li><a href="https://media.loftwah.com/gallery">The public gallery</a> — the catalogue these chapters produce, with real previews.</li>
+        <li><a href="https://media.loftwah.com/p/oCE3jwInl-G55yXf">The approved second cut</a> — Cut 2 of the Pippa portrait, published after a private review.</li>
+        <li><a href="https://media.loftwah.com/compare">Compare models</a> — the chooser, built from saved takes. <a href="#models">How to read it →</a></li>
+        <li><a href="https://composer.loftwah.com/s/fictional-trail-notes">A published Composer stack</a> — the same “change, save, reopen, publish” loop on the app side.</li>
+      </ol>
+    </section>
     <TutorialQuickStart guide={mediaStudioQuickStart} />
     <p><a href="/media-studio/direct">Direct scenes, sound and finished pieces with the creative field guide →</a></p>
     <nav class="jump" aria-label="Chapters">
@@ -85,7 +99,10 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
           <tr><th scope="row">8 · Review the model</th><td>History → a comparison, with the source still shown beside each take</td><td>A visible pick and the source still together, so you can attribute a scene change to the model rather than the prompt.</td></tr>
           <tr><th scope="row">9 · Render</th><td>Assemble → two to six takes, up to four tracks, mix, then render</td><td>A saved MP4 with real dimensions, duration and take count. <strong>Reconcile</strong> re-reads the same provider result.</td></tr>
           <tr><th scope="row">10 · Publish</th><td>A saved asset → <strong>Publish page</strong></td><td>The page opens signed out. Show/hide, make private and delete stay separate actions.</td></tr>
-          <tr><th scope="row">11 · Return</th><td>Ask the same agent for one change to the same app</td><td>The new behaviour, the earlier renders still attached, and a live revision that matches the commit.</td></tr>
+          <tr><th scope="row">11 · Review</th><td>Review → <strong>Create a private review link</strong> for one exact saved cut</td><td>The reviewer plays that version, leaves timecoded notes and records a decision pinned to its SHA-256. Approval is feedback, not publish permission.</td></tr>
+          <tr><th scope="row">12 · Revise and prepare</th><td>Make the second cut, import it, review that version, then publish that exact asset</td><td>A new asset with its own hash and its own decision; the earlier cut and its room are unchanged.</td></tr>
+          <tr><th scope="row">13 · Recover</th><td><code>studio-project.mjs export</code>, <code>inspect</code>, then <code>import</code> into a separate target</td><td>The sealed bundle opens with the project, assets, plans and captions. A Composer bridge session cannot run it; it needs the standalone owner passphrase.</td></tr>
+          <tr><th scope="row">14 · Return</th><td>Ask the same agent for one change to the same app</td><td>The new behaviour, the earlier renders still attached, and a live revision that matches the commit.</td></tr>
         </tbody>
       </table>
     </div>
@@ -360,8 +377,103 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
     </figure>
   </section>
 
+  <section id="review" class="step">
+    <p class="kicker">11 · Review a cut privately</p>
+    <h2>Show one exact cut, not the whole studio</h2>
+    <dl class="roles">
+      <div><dt>You</dt><dd>Choose the saved cut, label the version and send one private link.</dd></div>
+      <div><dt>The reviewer</dt><dd>Plays that version, leaves timecoded notes and records a decision.</dd></div>
+      <div><dt>Look for</dt><dd>Comments attached to the SHA-256 of that cut, and a decision that names the version.</dd></div>
+    </dl>
+    <div class="cols">
+      <div>
+        <p>Open <strong>Review</strong> in your studio. Choose one saved image or film, give the version a label such as <em>Cut 1 · 9:16 · 4.2s</em>, choose how long the link lives, and select <strong>Create private review link</strong>. The room pins the bytes it was created from; it does not export the media or open the rest of your library.</p>
+        <p>The reviewer sees a player, a name field and a comment box. Pausing and choosing <strong>Use current time</strong> attaches that moment to the note, so “the ear leaves frame” carries 0:01.2 instead of a paragraph. They finish with <strong>Request changes</strong> or <strong>Approve this version</strong>. Their decision belongs to that saved version only.</p>
+        <p>Approval is feedback, not permission. It does not publish, schedule, spend or delete anything, and a new cut never inherits an earlier approval. You publish the exact asset you intend to share.</p>
+      </div>
+      <aside class="check">
+        <h3>What you should see</h3>
+        <p>Feedback grouped under one hash, a visible decision, and an owner inbox that shows unresolved notes first. The reviewer's text is treated as data, never as an instruction to the studio.</p>
+        <h3>Recover</h3>
+        <p><strong>The link expired:</strong> create a new room from the same saved asset. The old room's comments stay on that version, and the new link starts a fresh decision. <strong>Wrong cut:</strong> revoke the room; the media and your library are untouched.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="revise" class="step">
+    <p class="kicker">12 · Revise and prepare to share</p>
+    <h2>Make the second cut, then publish that exact version</h2>
+    <dl class="roles">
+      <div><dt>You</dt><dd>Apply the note, import the new cut, review it and publish it.</dd></div>
+      <div><dt>The studio</dt><dd>Keeps the first cut, its room and its decision; the new cut gets its own hash.</dd></div>
+      <div><dt>Look for</dt><dd>Two saved cuts side by side, an approved second version, and a public page that plays it.</dd></div>
+    </dl>
+    <div class="cols">
+      <div>
+        <p>Use the note rather than starting over. In the <a href="https://media.loftwah.com/tools/video-clip">clip and frame tool</a>, pull the start point in by the amount the reviewer named, keep the 9:16 crop, and make a new MP4. The tool works on your device; only an explicit <strong>Import to Studio</strong> uploads the finished file, and it becomes a new private library asset.</p>
+        <p>Create a second review room for that new asset, send the same link style to the same reviewer, and let them approve <em>that</em> version. Then use <strong>Publish page</strong> on the approved asset. Title and description are the only public words; prompts, other projects and private filenames stay private.</p>
+        <p>The owner's copy of this walkthrough made two real cuts from an approved Pippa still: Cut 1 at 4.2 s drew a note about the crop at 0:01.2 and a change request; Cut 2 at 4.0 s was approved and published at <a href="https://media.loftwah.com/p/oCE3jwInl-G55yXf">media.loftwah.com/p/oCE3jwInl-G55yXf</a>. The first cut and its review stayed exactly as they were.</p>
+      </div>
+      <aside class="check">
+        <h3>What you should see</h3>
+        <p>The second cut listed as its own asset with its own hash, an approval recorded against it, and a public page whose player and download work while signed out.</p>
+        <h3>Faster for visitors</h3>
+        <p>Publishing captures a small gallery preview in your browser. Existing pages get one from <strong>Publish → Make public previews faster</strong>, which fills gaps only. On 16 November the public gallery's first page served 27,390,952 bytes of originals for 15 works; the same 15 works with previews serve 743,858 bytes, 97.3% less, and films show a real poster frame instead of a “Watch” placeholder. Withdrawing a page stops its preview being served.</p>
+        <h3>Recover</h3>
+        <p><strong>Published the wrong cut:</strong> withdraw that publication. The original asset and every other publication stay. <strong>A preview did not appear:</strong> run the backfill again; it is idempotent and never changes the page's media.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="recover" class="step">
+    <p class="kicker">13 · Recover the editable project</p>
+    <h2>Keep a copy that can be opened somewhere else</h2>
+    <dl class="roles">
+      <div><dt>You</dt><dd>Run one export with the studio's standalone owner passphrase.</dd></div>
+      <div><dt>The bundle</dt><dd>Project, assets and bytes, plans, captions, compositions and publications, with a hash for every file.</dd></div>
+      <div><dt>Look for</dt><dd>A manifest that inspects cleanly and an import that verifies every hash before writing.</dd></div>
+    </dl>
+    <div class="cols">
+      <div>
+        <p>A Composer bridge session is deliberately not enough for a full export. Sign in to the studio as the standalone owner and run the maintained CLI from the studio's own repository:</p>
+        <pre><code>STUDIO_PASSPHRASE='…' node scripts/studio-project.mjs export \
+  --studio https://media.loftwah.com --project prj_… \
+  --out pippa-project.studio.zip
+node scripts/studio-project.mjs inspect --in pippa-project.studio.zip
+node scripts/studio-project.mjs import --in pippa-project.studio.zip \
+  --studio https://restore.example --confirm</code></pre>
+        <p>Import rewrites identifiers and verifies each blob's SHA-256 before one D1 batch commits it. A second import of the same bundle reports <code>already_imported</code> instead of duplicating it. Publications restore withdrawn or unlisted with new slugs, so an old public URL is never silently claimed by a restored copy.</p>
+        <p>The bundle carries the editable work: plans, captions, directions, takes and their sources. Review rooms, reviewer decisions and render receipts are not in it; those belong to the installation that recorded them. Restore to a genuinely fresh D1 and R2 target is still <a href="https://github.com/loftwah/composer-media-studio/issues/157">Studio #157</a> work; export and inspection are the validated part today.</p>
+      </div>
+      <aside class="check">
+        <h3>What you should see</h3>
+        <p>A single sealed file whose manifest lists every record and asset, a stream hash, and an inspection that names any missing bytes before you rely on it.</p>
+        <h3>Recover</h3>
+        <p><strong>“Standalone owner session required”:</strong> you are signed in through Composer. Use the studio's own owner sign-in for the export, then return to the Composer bridge for ordinary work. <strong>A partial bundle:</strong> stop; fix the missing asset at the source and export again. Do not import a bundle that fails inspection.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="models" class="step">
+    <p class="kicker">Choose a model</p>
+    <h2>Pick for the job you are about to do</h2>
+    <div class="cols">
+      <div>
+        <p><a href="https://media.loftwah.com/compare">Compare models</a> opens on the job that already has saved takes in your studio, not the first job in a list. It is built only from work you kept: opening it never calls a provider or spends money. Blind review hides model names and costs until you pick a take, so the first judgement is about the result.</p>
+        <p>Every take shows its brief, source still, size, length and output hash. The three money fields stay separate: the estimate, the studio's allocation, and the provider's own charge, which reads “not reported” unless the provider actually said. Takes made from a different brief are listed as <strong>saved, but not comparable</strong> rather than ranked.</p>
+        <p>Use the tab counts to see where evidence exists, and copy the review as JSON when a decision needs to be recorded outside the browser.</p>
+      </div>
+      <aside class="check">
+        <h3>What you should see</h3>
+        <p>The job with a real pair opens first; a shared <code>?job=</code> link stays on its job; a job with one eligible model says so instead of inventing a winner.</p>
+        <h3>Recover</h3>
+        <p><strong>Nothing to compare:</strong> that job has no saved takes in this studio yet. Make one, then return. A comparison is evidence, not a leaderboard.</p>
+      </aside>
+    </div>
+  </section>
+
   <section id="return" class="step">
-    <p class="kicker">10 · Return and change it</p>
+    <p class="kicker">14 · Return and change it</p>
     <h2>Make a change and check it</h2>
     <dl class="roles">
       <div><dt>You</dt><dd>Ask for a change you actually want.</dd></div>
@@ -533,6 +645,11 @@ curl -s -o /dev/null -w '%&#123;http_code&#125;\n' https://your-studio.example/a
   .facts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0;border-top:1px solid var(--line,rgba(255,255,255,.16));border-bottom:1px solid var(--line,rgba(255,255,255,.16));padding:18px 0}
   .facts dt{font:600 .66rem/1.4 ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted,#b9b2a8)}
   .facts dd{margin:6px 0 0;font-size:.92rem;line-height:1.55}
+  .play-now{margin:26px 0;border:1px solid var(--line,rgba(255,255,255,.22));padding:18px 20px}
+  .play-now h2{margin:0 0 6px}
+  .play-now p{margin:0 0 10px;font-size:.92rem;color:var(--muted,#b9b2a8)}
+  .play-now ol{margin:0}
+  .play-now li{font-size:.96rem}
   .jump{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 6px}
   .jump a{font:600 .72rem/1.3 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line,rgba(255,255,255,.22));padding:10px 12px;min-height:40px;display:inline-flex;align-items:center}
   .step{margin-top:52px;padding-top:30px;border-top:1px solid var(--line,rgba(255,255,255,.16))}

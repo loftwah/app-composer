@@ -105,6 +105,7 @@ function WorkspaceStudio({ search }: { search: string }) {
   const [conflict, setConflict] = useState<{
     message: string;
     stack?: string;
+    kind?: "revision" | "app-source";
   }>();
   const [publications, setPublications] = useState<StackPublication[]>([]);
   const [activation, setActivation] = useState<ActivationEntry[]>([]);
@@ -258,7 +259,19 @@ function WorkspaceStudio({ search }: { search: string }) {
       setMessage(note);
     } catch (cause: any) {
       if (cause?.code === "CONFLICT") {
-        setConflict({ message: cause.message, stack: selected });
+        // A conflict can mean two different things. Only one of them is another
+        // window: the other is an app record last confirmed against different
+        // settings, which the owner clears by applying them again. Naming the
+        // wrong cause sent a returning owner looking for a window that never
+        // existed.
+        const appSource = /confirmed against another app source or settings/i.test(
+          String(cause.message ?? ""),
+        );
+        setConflict({
+          message: cause.message,
+          stack: selected,
+          kind: appSource ? "app-source" : "revision",
+        });
       } else {
         setError(
           cause?.message ||
@@ -949,43 +962,63 @@ function WorkspaceStudio({ search }: { search: string }) {
       )}
       {conflict && conflict.stack === selected && (
         <div role="alert" className="ca-stack-conflict">
-          <h2>Another window changed this stack</h2>
+          <h2>
+            {conflict.kind === "app-source"
+              ? "Apply this app's settings before publishing"
+              : "Another window changed this stack"}
+          </h2>
           <p>{conflict.message}</p>
           <p className="ca-muted">
-            Your unsaved edits are still in this editor. Reload the saved
-            version to compare, or save yours on top of the newer revision.
+            {conflict.kind === "app-source"
+              ? "Your saved draft is current. Publishing waits until the shared app record is confirmed against these settings again. Applying them creates a new saved revision; nothing is published until you choose Publish."
+              : "Your unsaved edits are still in this editor. Reload the saved version to compare, or save yours on top of the newer revision."}
           </p>
           <div className="ca-actions">
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() =>
-                void run(async () =>
-                  (await load(selected, { force: true }))
-                    ? "Reloaded the saved revision. Your unsaved edits were replaced."
-                    : "Your newer edits remain open.",
-                )
-              }
-            >
-              Reload the saved version
-            </button>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() =>
-                void run(async () => {
-                  const latest = await call("open", { stack: selected });
-                  if (!latest.stack || latest.stack.id !== selected)
-                    throw Error("The saved revision was not confirmed.");
-                  session.current.revision = latest.stack.revision;
+            {conflict.kind === "app-source" ? (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => {
                   setConflict(undefined);
-                  const stack = await writeDraft();
-                  return `Saved your version as revision ${stack.revision}.`;
-                })
-              }
-            >
-              Save mine on top
-            </button>
+                  void resourceAction("applyResources");
+                }}
+              >
+                Apply app settings
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() =>
+                    void run(async () =>
+                      (await load(selected, { force: true }))
+                        ? "Reloaded the saved revision. Your unsaved edits were replaced."
+                        : "Your newer edits remain open.",
+                    )
+                  }
+                >
+                  Reload the saved version
+                </button>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() =>
+                    void run(async () => {
+                      const latest = await call("open", { stack: selected });
+                      if (!latest.stack || latest.stack.id !== selected)
+                        throw Error("The saved revision was not confirmed.");
+                      session.current.revision = latest.stack.revision;
+                      setConflict(undefined);
+                      const stack = await writeDraft();
+                      return `Saved your version as revision ${stack.revision}.`;
+                    })
+                  }
+                >
+                  Save mine on top
+                </button>
+              </>
+            )}
             <button
               type="button"
               disabled={busy}
