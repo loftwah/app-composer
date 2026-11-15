@@ -1,6 +1,6 @@
 {
-  "source": "6c9f5ef6573ffac9169bb5ede3eaa047c3a7874b",
-  "generatedAt": "2026-11-15T07:52:55.402Z",
+  "source": "cd3cf913e8ca2c4712582b88b0f7bcfce14359c8",
+  "generatedAt": "2026-11-15T07:56:09.615Z",
   "node": "v26.13.1",
   "platform": "darwin arm64",
   "totals": {
@@ -14,7 +14,7 @@
       "id": "blueprint-roundtrip",
       "name": "Blueprint export and re-import",
       "status": "pass",
-      "durationMs": 2,
+      "durationMs": 1,
       "checks": [
         {
           "id": "export-succeeds",
@@ -46,19 +46,19 @@
       "id": "live-demo",
       "name": "Live /demo sandbox",
       "status": "pass",
-      "durationMs": 182,
+      "durationMs": 210,
       "checks": [
         {
           "id": "demo-home",
           "name": "GET /demo",
           "status": "pass",
-          "detail": "HTTP 200, 47107 bytes, 123ms; marker present: “Build something people can use”."
+          "detail": "HTTP 200, 47032 bytes, 130ms; marker present: “Build something people can use”."
         },
         {
           "id": "demo-connected-apps",
           "name": "GET /demo/connected-apps",
           "status": "pass",
-          "detail": "HTTP 200, 52981 bytes, 59ms; marker present: “A guestbook and a showcase”."
+          "detail": "HTTP 200, 52981 bytes, 80ms; marker present: “A guestbook and a showcase”."
         }
       ]
     },

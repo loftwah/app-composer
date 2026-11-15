@@ -1,0 +1,111 @@
+---
+import Base from '../layouts/Base.astro';
+import results from '../../benchmarks/results/latest.json';
+import { ArrowRight, CheckCircle2, CircleSlash, XCircle } from '@lucide/astro';
+const source = typeof results.source === 'string' ? results.source : 'unknown';
+const short = source === 'unknown' ? 'unknown' : source.slice(0, 7);
+const totals = results.totals ?? {pass: 0, fail: 0, blocked: 0};
+const suites = results.suites ?? [];
+const checks = suites.flatMap(suite => suite.checks ?? []);
+const icon: Record<string, typeof CheckCircle2> = {pass: CheckCircle2, fail: XCircle, blocked: CircleSlash};
+---
+<Base title="Benchmarks Studio" description="The reproducible checks behind the App Composer sandbox: what passed, what failed, and what was blocked on the machine that ran them.">
+ <div class="bench-heading">
+  <p class="eyebrow">Benchmarks Studio · first slice</p>
+  <h1>Show the run, not the promise.</h1>
+  <p class="lede">These are the checks that keep the public sandbox honest: a change really saves and reopens, a broken save is caught, approval reaches the public view, and the exported blueprint carries what you chose. The file behind this page is a real run, not a template.</p>
+ </div>
+
+ <dl class="bench-meta">
+  <div><dt>Source</dt><dd>{source === 'unknown' ? 'unknown' : <a href={`https://github.com/loftwah/app-composer/commit/${source}`}><code>{short}</code></a>}</dd></div>
+  <div><dt>Run at</dt><dd>{results.generatedAt ?? 'unknown'}</dd></div>
+  <div><dt>Runtime</dt><dd>{results.node ?? 'unknown'} · {results.platform ?? 'unknown'}</dd></div>
+  <div><dt>Suites</dt><dd>{suites.length}</dd></div>
+  <div><dt>Recorded source</dt><dd>The commit this run was produced from. <code>pnpm bench --write</code> refreshes it; a later commit that does not change the sandbox leaves the result valid.</dd></div>
+ </dl>
+
+ <section class="bench-totals" aria-label="Result totals">
+  <div class="bench-total bench-pass"><strong>{totals.pass ?? 0}</strong><span>passed</span></div>
+  <div class="bench-total bench-fail"><strong>{totals.fail ?? 0}</strong><span>failed</span></div>
+  <div class="bench-total bench-blocked"><strong>{totals.blocked ?? 0}</strong><span>blocked</span></div>
+ </section>
+
+ <section class="bench-section" aria-labelledby="suites-title">
+  <h2 id="suites-title">Suites</h2>
+  {suites.map((suite) => {
+   const Status = icon[suite.status] ?? CircleSlash;
+   return (
+    <article class="bench-suite">
+     <header>
+      <div>
+       <h3>{suite.name}</h3>
+       <p class="small"><code>{suite.id}</code> · {suite.durationMs ?? 0}ms</p>
+      </div>
+      <span class={`bench-status bench-status-${suite.status}`}><Status size={16} aria-hidden="true"/>{suite.status}</span>
+     </header>
+     <ul class="bench-checks">
+      {(suite.checks ?? []).map((check) => (
+       <li class={`bench-check bench-check-${check.status}`}>
+        <div>
+         <strong>{check.name}</strong>
+         <p>{check.detail}</p>
+        </div>
+        <span class={`bench-status bench-status-${check.status}`}>{check.status}</span>
+       </li>
+      ))}
+     </ul>
+    </article>
+   );
+  })}
+ </section>
+
+ <section class="bench-section" aria-labelledby="limits-title">
+  <h2 id="limits-title">What this run does not prove</h2>
+  <ul>
+   <li>One machine, one run. There is no repeat count or variance claim yet, and no promise about other machines.</li>
+   <li>No model or coding-agent comparison. That comparison needs the same brief and checks across configurations, and it has not run.</li>
+   <li>Live checks are HTTP-level: they confirm the page responds and contains the expected text. They do not sign in, deploy or moderate anything.</li>
+   <li>No paid provider was called. Nothing here spends money or proves a provider integration.</li>
+   <li>{checks.filter(c => c.status === 'blocked').length} blocked {checks.filter(c => c.status === 'blocked').length === 1 ? 'check' : 'checks'} stay counted as blocked rather than passing by default.</li>
+  </ul>
+ </section>
+
+ <section class="bench-section" aria-labelledby="run-title">
+  <h2 id="run-title">Run it yourself</h2>
+  <p>From a checkout of this repository:</p>
+  <pre>pnpm bench</pre>
+  <p>The runner prints the same JSON. Add <code>--write</code> to replace the results file this page reads. It exits non-zero only when a check fails; blocked checks are reported and counted.</p>
+  <div class="actions"><a class="button" href="/demo">Open the sandbox these checks protect <ArrowRight size={18} aria-hidden="true"/></a><a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow Benchmarks Studio</a></div>
+ </section>
+</Base>
+<style>
+ .bench-heading{max-width:820px}
+ .bench-heading h1{font-size:clamp(2.6rem,5vw,4.4rem);max-width:16ch;margin:10px 0 20px}
+ .bench-heading .lede{max-width:58ch}
+ .bench-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin:32px 0;padding:20px;background:var(--color-surface);border-radius:10px}
+ .bench-meta dt{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--color-muted)}
+ .bench-meta dd{margin:4px 0 0;font-size:14px;overflow-wrap:anywhere}
+ .bench-totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:8px 0 40px}
+ .bench-total{padding:18px;border:1px solid var(--color-border);border-radius:10px}
+ .bench-total strong{display:block;font:500 2.4rem/1 Space,system-ui,sans-serif}
+ .bench-total span{display:block;margin-top:6px;font-size:13px;color:var(--color-muted)}
+ .bench-pass strong{color:var(--color-success)}
+ .bench-fail strong{color:#ff8a6a}
+ .bench-blocked strong{color:var(--color-accent)}
+ .bench-section{border-top:1px solid var(--color-border);padding-top:28px;margin-top:40px}
+ .bench-section h2{font-size:clamp(1.6rem,3vw,2.2rem);max-width:22ch}
+ .bench-suite{border:1px solid var(--color-border);border-radius:10px;padding:18px;margin:18px 0}
+ .bench-suite header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+ .bench-suite h3{margin:0;font-size:1.2rem;max-width:none}
+ .bench-suite header p{margin:6px 0 0}
+ .bench-checks{list-style:none;padding:0;margin:16px 0 0}
+ .bench-checks li{display:flex;gap:16px;justify-content:space-between;align-items:flex-start;padding:12px 0;border-top:1px solid var(--color-border);margin:0}
+ .bench-checks strong{display:block;font-size:14px}
+ .bench-checks p{margin:4px 0 0;font-size:13px;color:var(--color-muted);max-width:60ch}
+ .bench-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;padding:5px 10px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+ .bench-status-pass{color:var(--color-success)}
+ .bench-status-fail{color:#ff8a6a}
+ .bench-status-blocked{color:var(--color-accent)}
+ .bench-error{margin:12px 0 0;padding:10px 12px;border-left:3px solid #ff8a6a;background:var(--color-surface);font-size:13px}
+ @media(max-width:700px){.bench-totals{grid-template-columns:1fr}.bench-suite{padding:14px}.bench-checks li{display:block}.bench-checks .bench-status{margin-top:8px}}
+</style>
