@@ -47,7 +47,17 @@ test('first-app quick start uses its own sources and distinguishes read-only ins
 });
 
 test('quick-start links reject unsafe schemes and protocol-relative destinations', () => {
-  const valid = {title:'x',summary:'x',prompts:[{id:'x',label:'x',text:'x'}]};
+  const valid = {
+    title: 'x',
+    summary: 'x',
+    outcome: { built: 'x', does: 'x', needs: ['x'], result: 'x' },
+    prompts: [{
+      id: 'x',
+      kind: 'reproduce',
+      label: 'x',
+      text: 'Use my own accounts and credentials. Build the result, verify it with evidence, and ask me before permissions or spending. '.repeat(6).trim(),
+    }],
+  };
   for (const href of ['javascript:alert(1)', '//example.com', 'https://user:pass@example.com']) {
     assert.throws(() => validateQuickStart({...valid, links:[{label:'test',href}]}), /safe, labelled links/);
   }

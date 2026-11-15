@@ -1,5 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
+import TutorialQuickStart from '../components/TutorialQuickStart.astro';
+import { buildingQuickStart } from '../lib/tutorial-quick-start.mjs';
 import dims from '../../public/diagrams/journey-dimensions.json';
 
 const title = 'Building App Composer, and building with it.';
@@ -42,6 +44,7 @@ const contribution = dims['building-contribution'] as { desktop: { width: number
       <h1>Building App Composer, <br />{' '}and building with it.</h1>
       <p class="build-lede">A real brief, a local Worker run, and one guestbook note that earns its place. This is how App Composer is put together, and how two independent apps learned to agree about a contribution without merging their data.</p>
       <nav class="build-jump" aria-label="In this walkthrough">
+        <a href="#quick-start-title">Quick start</a>
         <a href="#result">The result</a>
         <a href="#product">The product</a>
         <a href="#brief">The brief</a>
@@ -52,6 +55,8 @@ const contribution = dims['building-contribution'] as { desktop: { width: number
         <a href="#limits">Limits</a>
       </nav>
     </header>
+
+    <TutorialQuickStart guide={buildingQuickStart} />
 
     <figure class="build-hero">
       <picture>

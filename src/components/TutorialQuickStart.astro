@@ -1,49 +1,285 @@
 ---
-import { validateQuickStart, type TutorialQuickStart } from '../lib/tutorial-quick-start.mjs';
+import { validateQuickStart, type TutorialPromptKind, type TutorialQuickStart } from '../lib/tutorial-quick-start.mjs';
 const guide = validateQuickStart(Astro.props.guide as TutorialQuickStart);
+const kindLabels: Record<TutorialPromptKind, string> = {
+  reproduce: 'Reproduce this project',
+  add: 'Add to my existing app',
+  explain: 'Understand how it works',
+  next: 'Take the next step',
+};
+const copyLabels: Record<TutorialPromptKind, string> = {
+  reproduce: 'Copy build prompt',
+  add: 'Copy add prompt',
+  explain: 'Copy explanation prompt',
+  next: 'Copy next-step prompt',
+};
 ---
 <section class="quick-start" aria-labelledby="quick-start-title" data-tutorial-quick-start>
+  <p class="quick-start-kicker">Quick start / TL;DR</p>
   <h2 id="quick-start-title">{guide.title}</h2>
-  <p>{guide.summary}</p>
+  <p class="quick-start-summary">{guide.summary}</p>
+  <dl class="quick-start-facts">
+    <div><dt>What you build</dt><dd>{guide.outcome.built}</dd></div>
+    <div><dt>What it does</dt><dd>{guide.outcome.does}</dd></div>
+    <div><dt>What you need</dt><dd><ul>{guide.outcome.needs.map((need) => <li>{need}</li>)}</ul></dd></div>
+    <div><dt>Working result</dt><dd>{guide.outcome.result}</dd></div>
+  </dl>
   <p class="quick-links">{guide.links.map((link, index) => <>{index > 0 && ' · '}<a href={link.href}>{link.label}</a></>)}</p>
   <div class="prompt-list">
-    {guide.prompts.map((prompt) => <details class="prompt-item">
-      <summary>{prompt.label}</summary>
-      <pre tabindex="0" data-prompt>{prompt.text}</pre>
-      <button class="button secondary" type="button" data-copy-prompt disabled>Copy prompt</button>
-      <span class="copy-status" role="status" aria-live="polite"></span>
-    </details>)}
+    {guide.prompts.map((prompt) => (
+      <details class="prompt-item" data-prompt-item data-prompt-kind={prompt.kind}>
+        <summary>
+          <span class="prompt-kind">{kindLabels[prompt.kind]}</span>
+          <span class="prompt-label">{prompt.label}</span>
+        </summary>
+        <div class="prompt-body">
+          <div class="prompt-text" role="region" aria-label={`Full prompt: ${prompt.label}`}>
+            <pre tabindex="0" data-prompt>{prompt.text}</pre>
+          </div>
+          <div class="prompt-actions">
+            <button
+              class="button secondary"
+              type="button"
+              data-copy-prompt
+              aria-label={`${copyLabels[prompt.kind]}: ${prompt.label}`}
+              disabled
+            >{copyLabels[prompt.kind]}</button>
+            <p class="copy-status" role="status" aria-live="polite" aria-atomic="true" data-copy-status></p>
+          </div>
+          <p class="copy-fallback" data-copy-fallback hidden>Use your keyboard shortcut or your device’s copy menu to copy the selection.</p>
+        </div>
+      </details>
+    ))}
   </div>
-  <p class="quick-hint">Open a prompt to read it first. If copying is unavailable, select its text and copy it manually.</p>
+  <p class="quick-hint">Open a prompt to read it before copying. The copied text is exactly the text in the panel. If the copy button is unavailable, select the text and copy it manually.</p>
 </section>
 <script>
-  for (const item of document.querySelectorAll<HTMLDetailsElement>('[data-tutorial-quick-start] .prompt-item')) {
+  import { copyTutorialPrompt, tutorialCopyMessages } from '../lib/tutorial-copy';
+
+  for (const item of document.querySelectorAll<HTMLElement>('[data-tutorial-quick-start] [data-prompt-item]')) {
     const button = item.querySelector<HTMLButtonElement>('[data-copy-prompt]');
     const prompt = item.querySelector<HTMLElement>('[data-prompt]');
-    const status = item.querySelector<HTMLElement>('.copy-status');
-    if (!button || !prompt || !status) continue;
+    const status = item.querySelector<HTMLElement>('[data-copy-status]');
+    const fallback = item.querySelector<HTMLElement>('[data-copy-fallback]');
+    if (!button || !prompt || !status || !fallback) continue;
+
+    const clearSelection = () => {
+      status.textContent = '';
+      status.removeAttribute('data-state');
+      fallback.hidden = true;
+      const selection = window.getSelection();
+      if (selection && prompt.contains(selection.anchorNode)) selection.removeAllRanges();
+    };
+
     button.disabled = false;
+    item.addEventListener('toggle', () => {
+      if (item instanceof HTMLDetailsElement && !item.open) clearSelection();
+    });
     button.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(prompt.textContent ?? '');
-        status.textContent = 'Copied. Paste it into your agent.';
-      } catch {
-        status.textContent = 'Copy failed. Select the prompt above and copy it manually.';
-        prompt.focus();
+      const clipboard = navigator.clipboard;
+      const outcome = await copyTutorialPrompt(
+        prompt.textContent ?? '',
+        clipboard ? (value) => clipboard.writeText(value) : undefined,
+      );
+      status.textContent = tutorialCopyMessages[outcome];
+      status.dataset.state = outcome;
+      fallback.hidden = outcome !== 'manual';
+      if (outcome === 'copied') return;
+
+      if (outcome === 'manual') {
+        const range = document.createRange();
+        range.selectNodeContents(prompt);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
       }
+      prompt.focus({ preventScroll: true });
     });
   }
 </script>
 <style>
-  .quick-start { margin: 32px 0; padding: 24px 0; border-block: 1px solid var(--color-border); }
-  .quick-start h2 { margin: 0 0 10px; }
-  .quick-start p { max-width: 72ch; }
-  .quick-links, .quick-hint { color: var(--color-muted); font-size: .9rem; }
-  .prompt-list { border-top: 1px solid var(--color-border); }
-  .prompt-item { margin: 0; border-bottom: 1px solid var(--color-border); padding: 0 0 12px; }
-  .prompt-item summary { min-height: 48px; padding: 12px 0; cursor: pointer; font-weight: 650; }
-  .prompt-item pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 24rem; overflow: auto; padding: 16px; background: var(--color-surface); color: var(--color-foreground); border: 1px solid var(--color-border); font: .875rem/1.6 ui-monospace, monospace; }
-  .copy-status { display: inline-block; margin: 0 0 0 12px; color: var(--color-foreground); }
-  .prompt-item :is(summary, button, pre):focus-visible { outline: 3px solid var(--color-focus); outline-offset: 3px; }
-  @media (max-width: 600px) { .copy-status { display: block; margin: 8px 0 0; } }
+  .quick-start {
+    margin: 32px 0;
+    padding: 24px 26px;
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-accent);
+    border-radius: 8px;
+    background: var(--color-surface);
+  }
+  .quick-start-kicker {
+    margin: 0 0 6px;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .quick-start h2 {
+    margin: 0 0 10px;
+    max-width: none;
+    font-size: clamp(1.4rem, 2.6vw, 1.85rem);
+  }
+  .quick-start-summary {
+    margin: 0 0 20px;
+    max-width: 72ch;
+    font-size: 1.02rem;
+    line-height: 1.6;
+  }
+  .quick-start-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 28px;
+    margin: 0 0 16px;
+  }
+  .quick-start-facts > div {
+    min-width: 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
+  }
+  .quick-start-facts dt {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .quick-start-facts dd {
+    margin: 5px 0 0;
+    font-size: .95rem;
+    line-height: 1.6;
+  }
+  .quick-start-facts ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    max-width: none;
+  }
+  .quick-start-facts li {
+    margin: 2px 0;
+    padding: 0;
+  }
+  .quick-links {
+    margin: 0 0 18px;
+    font-size: .92rem;
+    line-height: 1.7;
+    color: var(--color-muted);
+  }
+  .quick-links a {
+    display: inline-block;
+    min-height: 32px;
+    padding-block: 4px;
+    color: var(--color-accent);
+  }
+  .prompt-list {
+    border-top: 1px solid var(--color-border);
+  }
+  .prompt-item {
+    margin: 0;
+    border-bottom: 1px solid var(--color-border);
+    padding: 0;
+  }
+  .prompt-item summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+    min-height: 48px;
+    padding: 12px 0;
+  }
+  .prompt-kind {
+    flex: none;
+    padding: 2px 9px;
+    border: 1px solid var(--color-control-border);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .prompt-label {
+    font-weight: 600;
+  }
+  .prompt-body {
+    padding: 0 0 16px;
+  }
+  .prompt-item pre {
+    margin: 0;
+    max-height: 30rem;
+    overflow: auto;
+    padding: 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font: .875rem/1.6 ui-monospace, SFMono-Regular, Consolas, monospace;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .prompt-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    margin-top: 12px;
+  }
+  .prompt-actions .button {
+    min-height: 48px;
+    padding: 10px 18px;
+    font-size: .92rem;
+  }
+  .copy-status {
+    margin: 0;
+    max-width: 52ch;
+    font-size: .88rem;
+    line-height: 1.5;
+  }
+  .copy-status:empty {
+    display: none;
+  }
+  .copy-status[data-state="copied"] {
+    color: var(--color-success);
+  }
+  .copy-status[data-state="manual"],
+  .copy-status[data-state="empty"] {
+    color: var(--color-foreground);
+    font-weight: 600;
+  }
+  .copy-fallback {
+    margin: 10px 0 0;
+    max-width: 62ch;
+    font-size: .88rem;
+    line-height: 1.55;
+    color: var(--color-muted);
+  }
+  .quick-hint {
+    margin: 16px 0 0;
+    max-width: 72ch;
+    font-size: .86rem;
+    line-height: 1.6;
+    color: var(--color-muted);
+  }
+  .prompt-item :is(summary, button, pre):focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+  @media (max-width: 720px) {
+    .quick-start {
+      padding: 20px 18px;
+      margin: 24px 0;
+    }
+    .quick-start-facts {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .quick-links a {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+    .prompt-item pre {
+      max-height: 24rem;
+      font-size: .84rem;
+    }
+  }
 </style>
