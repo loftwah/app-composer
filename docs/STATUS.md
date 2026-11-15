@@ -2,6 +2,40 @@
 
 Reviewed 25 October 2026; updated 16 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Product delivery train — 16 November 2026
+
+Composer `01c1446e897ad901118f08d7efb71a7999251be1` on Worker
+`c29db361-de0a-46b1-ae9d-2b5673358efd`; Media Studio `eb5e76afe2d0` on Worker
+`a664896a-3714-44fd-98eb-bfb73c604c19`. Live `/build.json` matches both exact
+sources. The detailed record is
+[here](evidence/2026-11-16-train/README.md).
+
+- **Studio #159 closed.** Reviewer-side comparison of two pinned versions,
+  two time-anchored notes, changes requested, a new cut saved to the same
+  project, approved for that version only, and revocation that returns 410 for
+  page and media while other rooms remain available.
+- **Studio #148 closed.** The recorded Assemble loop saved revisions 1→3,
+  survived reload, copied the combined script and prepared a Studio Voice draft
+  with “No request was sent.”
+- **Composer #485 closed.** The current opening is balanced; stations,
+  keyboard arrow navigation, pause/reduced motion, both themes and forced WebGL
+  fallback were verified live.
+- **Composer #490 closed.** The Media Studio tutorial TL;DR is copyable and
+  byte-identical; two fresh-agent replays drove the prompt from NEEDS-WORK to
+  ACTIONABLE, including the real `e8b3778` migration range (0001–0017).
+- **Composer #489 remains open** only for Safari clipboard and screen-reader
+  speech. All seven code-owned tutorials now share the quick start; live
+  `/building` copy was byte-identical at 3,427 characters.
+- **Studio #12** now revalidates published media with 304, defers offscreen
+  gallery cards, and puts `fetchpriority` only on the hero/detail; repeat
+  gallery visits fell from 27.4 MB to ~5 KB. The thumbnail pipeline remains.
+- **Studio #601** `/compare` now lists accessible studios instead of
+  dead-ending, and starts in blind review with model names/costs and the
+  verdict hidden until a pick.
+- **Studio #20** signed-in import was exercised end to end (201, new private
+  asset, source untouched); physical iOS/Safari and the mixer/Launch Kit
+  regression remain open.
+
 ## Measured delivery and role pathways — 16 November 2026
 
 Composer `5cffcc4e46a15bb72a7e2a018580fb6af662abf5` on Worker
