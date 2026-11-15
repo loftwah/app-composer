@@ -183,19 +183,13 @@ Also committed: [learn quick start](public/quickstart-learn-1440.png),
 [workshop light 1440](public/workshop-light-1440.png) and the
 [docs hub](public/docs-1440.png).
 
-## Private evidence retained
+## Retention
 
-The review-room and workbench recordings contain private project media and
-reviewer notes. They stay under ignored `output/train-20261116/` and are not
-published:
+The review-room and workbench recordings contained private project media and
+reviewer notes. They were used to verify the receipts and then removed after
+verification; no private footage is retained in this repository or in the
+ignored output. Only the public-page captures above remain.
 
-- `walkthrough/` — review-room screenshots, desktop and 390 recordings, hashes,
-  decisions and the 410 withdrawal table.
-- `workbench/` — Assemble revisions 1–3, script/Voice handoff, 1440/390
-  recordings.
-- `studio-tools/` — local-tool fixtures, decoded outputs and zero-upload traces.
-- `audit/` — the full cold-visitor report (public screenshots are copied above).
-
-[MANIFEST.json](MANIFEST.json) records every private artifact’s path, byte size
-and SHA-256 without exposing its content. That makes the retained footage
-verifiable without publishing it.
+The issue receipts in #159, #148, #485 and #490 remain the authoritative
+evidence for the private walkthroughs. No private media, reviewer notes, tokens
+or URLs are published.
