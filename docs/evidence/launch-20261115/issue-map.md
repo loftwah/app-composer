@@ -78,7 +78,7 @@ caption/spec text. Model and spec behaviour are unchanged.
 
 | Issue / item | Outcome | Evidence and remaining work |
 | --- | --- | --- |
-| Studio model retirement (new [#156](https://github.com/loftwah/composer-media-studio/issues/156)) | **Delivered; close proposed** | SDXL Lightning was withdrawn before its 20 November cutoff. Studio Draft uses FLUX.2 Klein 9B; saved jobs keep the exact SDXL attribution. A live Studio request saved `gen_4515ab469ca948dfbe5587bbf142c8ac` at 1024 × 1280 on the real adapter. The manifest has zero alerts. The close is waiting in the GitHub panel for owner approval. |
+| Studio model retirement (new [#156](https://github.com/loftwah/composer-media-studio/issues/156)) | **Delivered and closed** | SDXL Lightning was withdrawn before its 20 November cutoff. Studio Draft uses FLUX.2 Klein 9B; saved jobs keep the exact SDXL attribution. A live Studio request saved `gen_4515ab469ca948dfbe5587bbf142c8ac` at 1024 × 1280 on the real adapter. The manifest has zero alerts. |
 | Studio [#148](https://github.com/loftwah/composer-media-studio/issues/148) Assemble workbench | **Advanced; stays open** | `2640e67` adds read-only treatment, conflict recovery (keep draft on latest revision, load saved, retry, keep as new brief), focus restoration and extreme-width grid fixes. Live 1728/864/432/390/320 widths have no horizontal overflow and keep the rail, stage and save bar. Remaining: six long scenes, real mobile software keyboard, reduced motion, user-journey recording and owner acceptance. |
 | Studio [#14](https://github.com/loftwah/composer-media-studio/issues/14) Music video | **Advanced; stays open** | The existing project's plan revision 6 was mixed to a saved WAV and rendered locally with **burned-in captions**: 640 × 360, 16.8 s, 2.6 MB, asset `asset_a8ee90d0730f4276a9d2808c73d0ee99`. The private receipt binds revision 6, three source hashes, the mixed soundtrack, caption look and output hash. Audio decoded during playback. The older 33 s film is unchanged. Remaining: full new song path, ≥4 scenes, reroll/alternative take proof. |
 | Studio [#15](https://github.com/loftwah/composer-media-studio/issues/15) Director | **Advanced; stays open** | A typed scene proposal changed only scene 1 of plan revision 5, previewed before/after, applied to the draft, saved as **revision 6**, and survived reload. Revision 5 and all takes/captions remain. The full conversational Producer, named character, MCP parity and refusal/approval states remain open. |
@@ -91,11 +91,12 @@ caption/spec text. Model and spec behaviour are unchanged.
 
 Remaining owner decisions:
 
-1. Approve or skip the proposed Studio #156 close in the GitHub panel.
-2. Sign into the Composer EmDash admin through Cloudflare Access to inspect the
+1. Sign into the Composer EmDash admin through Cloudflare Access to inspect the
    Workshop press skin live.
-3. Provide a controlled recipient/sender authority before any real reply or
+2. Provide a controlled recipient/sender authority before any real reply or
    social send.
-4. Provide an independent newcomer/account if the Creator Hub proof should leave
+3. Provide an independent newcomer/account if the Creator Hub proof should leave
    **Reference**.
+4. Link provider invoices if exact charge reconciliation is wanted; the Studio
+   records remain allocated estimates, not invoices.
 
