@@ -1,0 +1,4 @@
+#!/bin/sh
+# Rejects a fabricated author or co-author identity before the commit exists.
+# History is never rewritten; this only checks the commit being made.
+exec node "$(git rev-parse --show-toplevel)/scripts/commit-identity.mjs" --message "$1"
