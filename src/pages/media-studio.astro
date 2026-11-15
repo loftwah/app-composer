@@ -1,5 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
+import TutorialQuickStart from '../components/TutorialQuickStart.astro';
+import { mediaStudioQuickStart } from '../lib/tutorial-quick-start.mjs';
 const hero = '/media-studio/studio-library-20261114.jpg';
 const sound = '/media-studio/studio-sound-20261114.jpg';
 const storyboard = '/media-studio/studio-storyboard-20261114.jpg';
@@ -20,6 +22,7 @@ const brandMotion = '/media-studio/brand/brand-916-motion-20261114.mp4';
 const brandMotionPoster = '/media-studio/brand/brand-916-poster-20261114.png';
 
 const contents = [
+  ['quick-start-title', 'Quick start and prompts'],
   ['why', 'Why own the studio'],
   ['what', 'What actually works'],
   ['brief', 'From a sentence to a specification'],
@@ -100,10 +103,10 @@ const costs = [
       <h1>Building an open-source AI media studio with App Composer</h1>
       <p class="deck">I wanted a place to make images, video and sound, and keep the work in an app I own. So I described it in App Composer and built Media Studio with an agent. Here’s what we made with it, how it came together and what it cost to try. <a href="/media-studio/tutorial">Follow the tutorial</a> to build your own.</p>
       <div class="row">
-        <a class="button" href="https://media.loftwah.com/gallery">Explore the gallery</a>
+        <a class="button" href="#watch">Watch the 82-second build</a>
         <a class="button secondary" href="/init?start=media-studio">Build your own studio</a>
       </div>
-      <p class="meta">14 November 2026 · App Composer + Media Studio</p>
+      <p class="meta">14 November 2026 · App Composer + Media Studio · <a href="https://media.loftwah.com/gallery">Explore the gallery</a></p>
     </div>
     <div class="art-hero-figure" aria-label="From original artwork to Studio variation">
       <div class="hero-art-pair">
@@ -114,6 +117,19 @@ const costs = [
     </div>
   </header>
 
+  <section id="watch" class="showcase" aria-labelledby="showcase-heading">
+    <h2 id="showcase-heading">Build an owned Media Studio</h2>
+    <figure class="figure showcase-film">
+      <video controls playsinline preload="none" poster="/media-studio/watch/media-studio-showcase-poster.jpg" width="1920" height="1080" aria-label="Build an owned Media Studio: the 82-second showcase">
+        <source src="/media-studio/watch/media-studio-showcase.mp4" type="video/mp4" />
+        <track kind="captions" src="/media-studio/watch/media-studio-showcase.vtt" srclang="en" label="English captions" default />
+        <a href="/media-studio/watch/media-studio-showcase.mp4">Download the 82-second showcase</a>
+      </video>
+      <figcaption>82 seconds, 1920 × 1080. Recordings of Get Ready, Init and the saved handoff, the deployed studio and its library, the six-scene storyboard and the published gallery page. Captions are burned in and supplied as WebVTT. <a href="/media-studio/watch/media-studio-showcase.mp4" download>Download</a> · <a href="/media-studio/watch/media-studio-showcase.srt">SRT</a> · <a href="/media-studio/watch/media-studio-showcase.txt">Transcript</a></figcaption>
+    </figure>
+    <p class="small">Also a <a href="/media-studio/watch/media-studio-teaser.mp4">30-second vertical teaser (1080 × 1920)</a> cut from the same verified footage, with its own <a href="/media-studio/watch/media-studio-teaser.vtt">captions</a>. Both edit from recordings made in the live Composer and Studio surfaces on 15 November 2026; the music bed is the studio's own published walkthrough bed, not the After Hours master.</p>
+  </section>
+
   <nav class="contents" aria-labelledby="studio-contents-heading">
     <h2 id="studio-contents-heading">Contents</h2>
     <ul role="list">
@@ -122,6 +138,10 @@ const costs = [
       ))}
     </ul>
   </nav>
+
+  <div class="prose quick-start-guide">
+    <TutorialQuickStart guide={mediaStudioQuickStart} />
+  </div>
 
   <section id="why" class="prose">
     <h2>Why own the studio</h2>
@@ -268,15 +288,6 @@ url.searchParams.set("s", signature);`}</code></pre>
       <figcaption><a href="https://woodhouse.loftwah.com/share/fighter/loftwah-fighter-multi-match-15s-1080p.mp4">Original Fighter gameplay</a>; music: <a href="https://fm.loftwah.com/media/refined/After%20Hours.mp3">After Hours by LoftwahFM</a>, made with Suno. We shortened the music outside Studio first, then used Studio to trim the audio, clip the video and mix them. <a href="/media-studio/demos/fighter-after-hours-20261115.mp4" download>Download the clip</a>.</figcaption>
     </figure>
     <h3>Watching it happen</h3>
-    <figure class="figure showcase-film">
-      <video controls playsinline preload="none" poster="/media-studio/watch/media-studio-showcase-poster.jpg" width="1920" height="1080" aria-label="Build an owned Media Studio: the 82-second showcase">
-        <source src="/media-studio/watch/media-studio-showcase.mp4" type="video/mp4" />
-        <track kind="captions" src="/media-studio/watch/media-studio-showcase.vtt" srclang="en" label="English captions" default />
-        <a href="/media-studio/watch/media-studio-showcase.mp4">Download the 82-second showcase</a>
-      </video>
-      <figcaption>Build an owned Media Studio — 82 seconds, 1920 × 1080. Real recordings of Get Ready, Init and the saved handoff, the deployed studio and its library, the six-scene storyboard and the published gallery page. Captions are burned in and supplied as WebVTT. <a href="/media-studio/watch/media-studio-showcase.mp4" download>Download</a> · <a href="/media-studio/watch/media-studio-showcase.srt">SRT</a> · <a href="/media-studio/watch/media-studio-showcase.txt">Transcript</a></figcaption>
-    </figure>
-    <p class="small">Also a <a href="/media-studio/watch/media-studio-teaser.mp4">30-second vertical teaser (1080 × 1920)</a> cut from the same verified footage, with its own <a href="/media-studio/watch/media-studio-teaser.vtt">captions</a>. Both edit from recordings made in the live Composer and Studio surfaces on 15 November 2026; the music bed is the studio's own published walkthrough bed, not the After Hours master.</p>
     <div class="films">
       <div>
         <h4>Overview · 1 min 8 s</h4>
@@ -618,6 +629,12 @@ url.searchParams.set("s", signature);`}</code></pre>
   .node .leaves span{border-top:1px solid var(--line,rgba(255,255,255,.16));padding-top:8px;font-family:ui-monospace,monospace;font-size:.72rem;letter-spacing:.02em}
   .arrow{font:600 .64rem/1.4 ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted,#b9b2a8);padding-left:16px;position:relative}
   .arrow::before{content:"↓";position:absolute;left:0;top:-2px;color:var(--accent,#ff5a1f)}
+  .showcase{max-width:1040px;margin:0 auto 42px;scroll-margin-top:24px}
+  .showcase h2{font:600 clamp(1.6rem,2.6vw,2.3rem)/1.1 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 16px}
+  .showcase-film{margin:0 0 12px}
+  .showcase-film video{display:block;width:100%;height:auto;background:#000}
+  .showcase figcaption,.showcase>.small{max-width:74ch}
+  .quick-start-guide{padding-top:0}
   .films{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;width:100%;margin:22px 0 14px}
   .films video{display:block;width:100%;height:auto;background:#000;border:1px solid var(--line,rgba(255,255,255,.16))}
   .small{font-size:.85rem;color:var(--muted,#b9b2a8)}
