@@ -198,3 +198,18 @@ test('the inventory document names every covered and excluded tutorial', () => {
   assert.match(doc, /\/media-studio/);
   assert.match(doc, /CMS-owned/);
 });
+
+test('the building prompt carries the pinned revisions, runtime and each app’s real bindings', () => {
+  const prompt = buildingQuickStart.prompts.find((entry) => entry.id === 'reproduce');
+  assert.ok(prompt);
+  assert.match(prompt.text, /Node 22 exactly/);
+  assert.match(prompt.text, /pnpm 12\.8\.1/);
+  assert.match(prompt.text, /019ce0d117f9f89e472a5c7642d51d85301f7fcd/);
+  assert.match(prompt.text, /20ef9a50c19c7a3419dc06fdae020c6a677ed5cf/);
+  assert.match(prompt.text, /ITEM_PROVIDER/);
+  assert.match(prompt.text, /Linkarooie has D1/);
+  assert.match(prompt.text, /not its own R2 bucket/);
+  assert.match(prompt.text, /capture-journey\.mjs/);
+  assert.doesNotMatch(prompt.text, /22, 24 or 26/);
+  assert.doesNotMatch(prompt.text, /D1 and R2 bindings/);
+});
