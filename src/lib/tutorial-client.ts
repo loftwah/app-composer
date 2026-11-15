@@ -1,3 +1,4 @@
+import {copyTutorialPrompt} from './tutorial-copy';
 import {readTutorialProgress, tutorialKey} from './tutorial-progress.mjs';
 
 const root = document.querySelector<HTMLElement>('[data-tutorial]')!;
@@ -114,12 +115,27 @@ for (const input of root.querySelectorAll<HTMLInputElement>('[data-answer]')) {
 }
 for (const button of root.querySelectorAll<HTMLButtonElement>('[data-copy-prompt]')) {
  button.hidden = false;
+ const id = button.dataset.copyPrompt!;
+ const message = root.querySelector<HTMLElement>(`[data-copy-status="${id}"]`)!;
+ const prompt = root.querySelector<HTMLElement>(`[data-agent-prompt="${id}"]`)!;
+ // Focusable for the denied-clipboard fallback only; it adds no tab stop.
+ prompt.tabIndex = -1;
  button.addEventListener('click', async () => {
-  const id = button.dataset.copyPrompt!;
-  const message = root.querySelector<HTMLElement>(`[data-copy-status="${id}"]`)!;
-  const prompt = root.querySelector<HTMLElement>(`[data-agent-prompt="${id}"]`)!;
-  try {await navigator.clipboard.writeText(prompt.textContent!); message.textContent = 'Copied. Paste into your agent in the selected project.';}
-  catch {message.textContent = 'Clipboard access is unavailable. Select the request text above and copy it manually.';}
+  const clipboard = navigator.clipboard;
+  const outcome = await copyTutorialPrompt(
+   prompt.textContent ?? '',
+   typeof clipboard?.writeText === 'function' ? (value: string) => clipboard.writeText(value) : undefined,
+  );
+  message.dataset.state = outcome;
+  if (outcome === 'copied') {message.textContent = 'Copied. Paste into your agent in the selected project.'; return;}
+  if (outcome === 'empty') {message.textContent = 'The request text did not load. Reload the page and try again.'; return;}
+  message.textContent = 'Copy failed. The request text is selected; use your keyboard shortcut or your device’s copy menu.';
+  const range = document.createRange();
+  range.selectNodeContents(prompt);
+  const selection = window.getSelection();
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+  prompt.focus({preventScroll: true});
  });
 }
 const clear = root.querySelector<HTMLButtonElement>('[data-clear-progress]')!;
