@@ -41,6 +41,16 @@ test("readiness is a catalogue claim, not a build proof", () => {
   assert.equal(readiness.sources.length, 2);
 });
 
+test("mounted sources and public links cannot promote replay readiness", () => {
+  const reference = blueprint("creator-hub");
+  for (const state of ["evidence-pending", "ready"]) {
+    const readiness = blueprintReadiness({ ...reference, state });
+    assert.equal(readiness.state, "evidence-pending");
+    assert.equal(readiness.sources.length, 2);
+    assert.match(readiness.reason, /independent owner/i);
+  }
+});
+
 test("the specification validates and matches the blueprint apps", () => {
   const entry = blueprint("creator-hub");
   const spec = blueprintSpec(entry);
