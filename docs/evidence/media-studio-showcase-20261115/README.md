@@ -21,9 +21,10 @@ real `206`, `Accept-Ranges: bytes` and a `Content-Range`. The first attempt put 
 the films to owned storage. Captions ship as burned-in lower thirds plus WebVTT, SRT and a
 plain-text transcript for each piece.
 
-Editable source, pinned dependencies, render commands and the provenance manifest live in
-`/Users/deanlofts/gits/media-studio-showcase-video` (Remotion 4.0.506, `@remotion/media`,
-`@remotion/fonts`; `npm run render:showcase`, `npm run render:teaser`).
+Editable source is public at https://github.com/loftwah/media-studio-showcase-video with
+pinned Remotion 4.0.506 dependencies, both compositions, the caption exporter and the
+provenance manifest. `npm run render:showcase` and `npm run render:teaser` reproduce both
+renders; `node scripts/captions.mjs` regenerates the SRT/WebVTT/transcript set.
 
 ## What the footage actually is
 
