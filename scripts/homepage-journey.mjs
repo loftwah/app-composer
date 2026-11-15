@@ -72,7 +72,7 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
     receipt.keyboard.push(focused);
   }
   await page.keyboard.press('Enter');
-  await page.waitForURL('**/demo');
+  await page.waitForURL(url => url.pathname === '/demo');
   ensure(await page.locator('h1').isVisible(), 'Sandbox failed to open by keyboard');
   // Browser viewport at 720px covers the reflow width of a 1440px window at
   // 200%; separately double root text to catch fixed-size text containers.
