@@ -33,7 +33,12 @@ const totalLinks = docsReferenceSections.length + docsGuideLinks.length;
         </div>
       </div>
       <p class="docs-empty" data-docs-empty hidden>No match. <a href="/prompts">The prompt library</a> lists every job, and <a href="/ready">Get Ready</a> starts with the environment.</p>
-      <noscript><p class="note">Search needs JavaScript. Everything below is plain HTML: six task paths, the full prompt templates, the commands and recovery notes, and the technical reference. Open “Preview the full prompt” to read or select a prompt.</p></noscript>
+      <noscript>
+        <p class="note">Search needs JavaScript. Everything below is plain HTML: six task paths, the full prompt templates, the commands and recovery notes, and the technical reference. Open “Preview the full prompt” to read or select a prompt.</p>
+        <p class="note">Following an older link to one of this page’s former sections? Every section is preserved in <a href="/docs/how-it-works">How App Composer works</a>:{' '}
+          {docsReferenceSections.map((section, index) => <span>{index ? ' · ' : ''}<a href={`/docs/how-it-works#${section.id}`}>{section.title}</a></span>)}
+        </p>
+      </noscript>
 
       <nav class="docs-index" aria-label="Six task paths" data-docs-group>
         <p class="docs-index-heading">Six starting points</p>
@@ -83,7 +88,7 @@ const totalLinks = docsReferenceSections.length + docsGuideLinks.length;
               <button type="button" data-docs-copy={task.id} data-docs-enhanced aria-label={`Copy prompt template: ${task.question}`} aria-describedby={`${task.anchor}-copy-note ${task.anchor}-status`} hidden>Copy prompt template</button>
               <a class="docs-path-open" href={`/prompts#${task.promptId}`}>Open the prompt and add your details<span aria-hidden="true"> →</span></a>
             </div>
-            <p class="docs-path-copy-note" id={`${task.anchor}-copy-note`}>Copies the same canonical text as the prompt library into your chosen agent. Bracketed details are for your agent to inspect, or you can fill them in first. Copying runs nothing.</p>
+            <p class="docs-path-copy-note" id={`${task.anchor}-copy-note`}>Copies the canonical prompt template. The prompt library’s <strong>Copy template</strong> action produces this same text; its completed prompt includes any details you add there. Bracketed details are for your agent to inspect, or you can fill them in first. Copying runs nothing.</p>
             <p class="docs-path-status" role="status" aria-live="polite" aria-atomic="true" data-docs-status={task.id}></p>
 
             <details class="docs-prompt-preview" data-docs-details={task.id}>
