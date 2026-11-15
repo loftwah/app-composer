@@ -273,3 +273,32 @@ off by default, are stored per device, and never ride along with the published
 appearance. The reference worked from (SPEC-01's scoped skin and gesture-bound
 earcons) and the mechanisms deliberately left out are recorded in
 [tactile skin reference](docs/tactile-skin-20261115.md).
+
+## Portable skin contract and the second consumer — 15 November 2026
+
+The skin layer is one finite contract with two shipped recipes and two
+consumers. **Workshop press** sets panels into a measured plate; **Contact
+sheet** rules them with a printed top line, squares the fields and moves focus
+inside the control. Both choose from the same measured treatments in
+`src/lib/appearance-skin-catalogue.ts`; neither can carry text, colour, an image, a font,
+animation or an action change, and Composer default still emits no layer.
+
+The signed-in EmDash administration and the public `/appearance` reference share
+the compiler but not their storage: the admin reads the saved
+`composer.admin-brand/1` version, while the reference keeps one choice on the
+device. `/appearance` exists to make the contract inspectable and to prove the
+mechanism portable; it is not a theme editor and never publishes.
+
+Brand Studio compares the published version with the saved draft through a
+split wipe. Both panes are the actual compiled layers for those saved versions.
+The only control is a native range with a spoken position and an explicit
+caption; the visual divider is hidden from assistive technology. Nothing
+animates, so reduced motion has no separate path. The mechanism is an original
+reimplementation of the reviewed accessible compare pattern; its source and
+licence decision are recorded in
+[the design harvest note](docs/design-harvest-20261115.md).
+
+The owner-facing rule is unchanged: a skin earns its place by keeping every
+control, label, role and action usable and readable in both themes. The full
+recipe and verification contract is
+[the appearance skin contract](docs/appearance-skin-contract.md).

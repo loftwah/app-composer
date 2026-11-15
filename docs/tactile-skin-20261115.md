@@ -78,3 +78,32 @@ before this change normalises to it.
   save/reopen coverage.
 - `docs/evidence/brand-studio-20261025/capture.mjs` — replay including the skin,
   keyboard range, phone and doubled-text reflow.
+
+## Second recipe and second consumer — 16 November 2026
+
+The contract is now portable in more than name:
+
+- **Contact sheet** is a second original recipe. It uses the same measured
+  choices but prints a top rule on each panel, squares the fields and puts the
+  focus outline inside the control. It shares no colour, font or artwork with
+  the reference.
+- The compiler moved to `src/lib/appearance-skin-catalogue.ts`. The administration's
+  versioned stylesheet and the public `/appearance` reference call the same
+  function with different scopes and token roots. The public sheet is generated
+  from the recipes and checked for staleness.
+- The shared `SkinSpecimen` keeps the field, action and checkbox identical in
+  both consumers. `/appearance` stores its choice under
+  `composer:appearance-lab:v1`, never the admin record, and clearly says it
+  cannot publish.
+- Brand Studio compares the published version with the saved draft through an
+  accessible split wipe. The panes are the compiled layers for those exact
+  versions; the native range is the only control and the comparison is
+  read-only. The mechanism and licence decision are in
+  [the design harvest note](design-harvest-20261115.md).
+
+The off, on and unsupported sensory paths are now proved by unit tests with a
+fake audio context and vibration API, and by a browser run that removes both.
+No physical device was used, so vibration strength remains unverified.
+
+The written recipe contract a fresh agent needs is
+[the appearance skin contract](appearance-skin-contract.md).

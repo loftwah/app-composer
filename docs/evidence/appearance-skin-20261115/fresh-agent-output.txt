@@ -1,0 +1,13 @@
+{
+  "schema": "composer.appearance-skin/1",
+  "id": "pressed-folio",
+  "name": "Pressed folio",
+  "description": "Inset panels and ridged actions give forms a compact folio feel.",
+  "plate": "inset",
+  "edge": "inline",
+  "radius": "soft",
+  "field": "underline",
+  "action": "ridge",
+  "focus": "inset",
+  "pressure": "both"
+}

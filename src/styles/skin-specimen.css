@@ -1,0 +1,125 @@
+/* A reviewed sample of a Composer skin. Host typography and colour stay
+   inherited; only the measured skin tokens change. */
+.skin-specimen {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 16px;
+  color: inherit;
+  background: transparent;
+}
+.skin-specimen-label {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.skin-specimen-label span {
+  color: var(--text-color-kumo-subtle, inherit);
+  opacity: 0.85;
+}
+.skin-specimen-panel {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--color-kumo-line, currentColor);
+  border-radius: 8px;
+}
+.skin-specimen-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  font-size: 0.9rem;
+  font-weight: 550;
+}
+.skin-specimen-field-label {
+  line-height: 1.4;
+}
+.skin-specimen input[type="text"],
+.skin-specimen-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--color-kumo-line, currentColor);
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+.skin-specimen-input {
+  display: flex;
+  align-items: center;
+}
+.skin-specimen-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+.skin-specimen button,
+.skin-specimen-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 14px;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--color-kumo-line, currentColor);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.skin-specimen button:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.skin-specimen button:active {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.skin-specimen-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 0.9rem;
+}
+.skin-specimen-check input {
+  width: 20px;
+  height: 20px;
+  accent-color: #c74400;
+}
+.skin-specimen-status {
+  min-height: 1.45em;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-color-kumo-subtle, inherit);
+  overflow-wrap: anywhere;
+}
+.skin-specimen :focus-visible {
+  outline: 2px solid var(--color-kumo-focus, #c74400);
+  outline-offset: 3px;
+}
+@media (max-width: 480px) {
+  .skin-specimen {
+    padding: 12px;
+  }
+  .skin-specimen-panel {
+    padding: 12px;
+  }
+}
+.skin-specimen-static {
+  pointer-events: none;
+  user-select: none;
+}
+.skin-specimen-compact {
+  padding: 12px;
+}
+.skin-specimen-compact .skin-specimen-panel {
+  padding: 14px;
+}

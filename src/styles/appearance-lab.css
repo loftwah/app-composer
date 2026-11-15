@@ -1,0 +1,189 @@
+/* Public appearance reference. Host tokens keep both native themes legible;
+   the skin layer changes only measured edges. */
+.appearance-lab {
+  display: grid;
+  gap: 32px;
+  margin-top: 32px;
+}
+.appearance-lab-controls {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+  border: 1px solid var(--color-border, currentColor);
+  border-radius: 10px;
+  background: var(--color-surface, transparent);
+}
+.appearance-lab-controls fieldset {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.appearance-lab-controls legend,
+.appearance-lab-pressure {
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+.appearance-lab-choices {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+.appearance-lab-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 44px;
+  padding: 12px;
+  border: 1px solid var(--color-border, currentColor);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.appearance-lab-choice:has(input:checked) {
+  border-color: var(--color-accent, #c74400);
+  outline: 1px solid var(--color-accent, #c74400);
+}
+.appearance-lab-choice input {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--color-accent, #c74400);
+  flex-shrink: 0;
+}
+.appearance-lab-choice span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.appearance-lab-choice strong {
+  font-size: 0.95rem;
+}
+.appearance-lab-choice small {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--color-muted, inherit);
+}
+.appearance-lab-pressure {
+  display: grid;
+  gap: 8px;
+}
+.appearance-lab-pressure input {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--color-accent, #c74400);
+}
+.appearance-lab-pressure span {
+  color: var(--color-muted, inherit);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.appearance-lab-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border, currentColor);
+}
+.appearance-lab-actions button {
+  min-height: 44px;
+  padding: 8px 14px;
+}
+.appearance-lab-status {
+  flex: 1 1 240px;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-muted, inherit);
+}
+.appearance-lab-sample,
+.appearance-lab-sensory,
+.appearance-lab-compare {
+  display: grid;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border, currentColor);
+}
+.appearance-lab h3 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+.appearance-lab-sample > p,
+.appearance-lab-sensory > p {
+  max-width: 70ch;
+  margin: 0;
+  color: var(--color-muted, inherit);
+  font-size: 0.95rem;
+}
+.appearance-lab-sample .skin-specimen {
+  padding-inline: 0;
+}
+.appearance-lab-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  padding: 8px 0;
+  max-width: 70ch;
+}
+.appearance-lab-check input {
+  width: 20px;
+  height: 20px;
+  margin-top: 3px;
+  accent-color: var(--color-accent, #c74400);
+  flex-shrink: 0;
+}
+.appearance-lab-check input:disabled {
+  opacity: 0.5;
+}
+.appearance-lab-check span {
+  display: grid;
+  gap: 4px;
+  font-size: 0.95rem;
+}
+.appearance-lab-check small {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--color-muted, inherit);
+}
+.appearance-lab-hint {
+  max-width: 70ch;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-muted, inherit);
+}
+.appearance-lab :focus-visible {
+  outline: 3px solid var(--color-focus, #e77743);
+  outline-offset: 3px;
+}
+@media (min-width: 960px) {
+  .appearance-lab {
+    grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+    align-items: start;
+  }
+  .appearance-lab-controls {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .appearance-lab-sample {
+    grid-column: 2;
+    grid-row: 1;
+    padding-top: 0;
+    border-top: 0;
+  }
+  .appearance-lab-sensory,
+  .appearance-lab-compare {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 600px) {
+  .appearance-lab-controls {
+    padding: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .appearance-lab * {
+    scroll-behavior: auto;
+  }
+}

@@ -1,20 +1,70 @@
 {
-  "source": "d2c65ec9ad45c2912e3a091d544d2cc5a1d3c6aa",
-  "generatedAt": "2026-11-15T09:40:06.472Z",
+  "source": "951b31384a6abb85f947fbc46c87a3ee95363c63",
+  "generatedAt": "2026-11-15T13:30:04.758Z",
   "node": "v26.13.1",
   "platform": "darwin arm64",
   "totals": {
-    "pass": 13,
+    "pass": 20,
     "fail": 0,
     "blocked": 0,
-    "checks": 13
+    "checks": 20
   },
   "suites": [
+    {
+      "id": "appearance-skin",
+      "name": "Portable appearance-skin contract",
+      "status": "pass",
+      "durationMs": 4,
+      "checks": [
+        {
+          "id": "contract-discoverable",
+          "name": "The contract is written and linked for agents",
+          "status": "pass",
+          "detail": "The recipe, pressure and storage rules are documented and linked from agent and design guidance."
+        },
+        {
+          "id": "recipes-compile",
+          "name": "Every shipped recipe compiles at 1–4",
+          "status": "pass",
+          "detail": "Two distinct recipes compile to bounded CSS with no URL, import, HTML or animation."
+        },
+        {
+          "id": "default-silent",
+          "name": "Composer default emits no layer",
+          "status": "pass",
+          "detail": "The default stays byte-identical across pressure values; an old record cannot gain a layer."
+        },
+        {
+          "id": "one-compiler-two-consumers",
+          "name": "Admin and public scope share one grammar",
+          "status": "pass",
+          "detail": "The admin and the public reference carry the same compiled declarations under different roots."
+        },
+        {
+          "id": "preview-sheet-current",
+          "name": "The committed preview sheet matches the recipes",
+          "status": "pass",
+          "detail": "8778 bytes, eight skin/pressure blocks, generated from the same compiler."
+        },
+        {
+          "id": "sensory-paths",
+          "name": "Press feedback stays off, plays on request and degrades honestly",
+          "status": "pass",
+          "detail": "Off makes no sound or vibration; on plays two ticks and one 12ms pulse; reduced motion drops the settle and pulse; unsupported reports false."
+        },
+        {
+          "id": "fresh-agent-recipe",
+          "name": "A fresh context produced a valid recipe from the contract",
+          "status": "pass",
+          "detail": "Codex 0.145.0 / gpt-5.6-sol produced pressed-folio from the written contract; the receipt states the isolation limits."
+        }
+      ]
+    },
     {
       "id": "blueprint-roundtrip",
       "name": "Blueprint export and re-import",
       "status": "pass",
-      "durationMs": 2,
+      "durationMs": 1,
       "checks": [
         {
           "id": "export-succeeds",
@@ -46,19 +96,19 @@
       "id": "live-demo",
       "name": "Live /demo sandbox",
       "status": "pass",
-      "durationMs": 1243,
+      "durationMs": 190,
       "checks": [
         {
           "id": "demo-home",
           "name": "GET /demo",
           "status": "pass",
-          "detail": "HTTP 200, 47032 bytes, 1182ms; marker present: “Build something people can use”."
+          "detail": "HTTP 200, 47045 bytes, 133ms; marker present: “Build something people can use”."
         },
         {
           "id": "demo-connected-apps",
           "name": "GET /demo/connected-apps",
           "status": "pass",
-          "detail": "HTTP 200, 52981 bytes, 61ms; marker present: “A guestbook and a showcase”."
+          "detail": "HTTP 200, 52994 bytes, 57ms; marker present: “A guestbook and a showcase”."
         }
       ]
     },
@@ -66,7 +116,7 @@
       "id": "sandbox-save-reopen",
       "name": "Public sandbox: save, reopen and moderation",
       "status": "pass",
-      "durationMs": 3,
+      "durationMs": 1,
       "checks": [
         {
           "id": "edit-survives-reopen",

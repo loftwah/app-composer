@@ -1,0 +1,108 @@
+{
+  "schema": "composer.brand-studio-acceptance/1",
+  "warning": "Fictional local native EmDash/D1; virtual passkey. No production Access, MFA, provider or physical-device acceptance.",
+  "source": "951b31384a6abb85f947fbc46c87a3ee95363c63",
+  "sourceDirty": true,
+  "runtimeSourceHashes": {
+    "src/lib/admin-brand.ts": "762e28dc810c9567621ba842da23ca6e0a41f3dcaff52b755f55b4158a366568",
+    "src/lib/admin-brand-contract.ts": "64f83bf9df57da8ca9ece1ffa0ce5245f8d87e18958af1a87e773585bf137c7c",
+    "src/lib/appearance-skin.ts": "8cebf7649cd40ebcf4c1b31f3e00f9c5b721bcd3760fd36e1f657c9c0b87db46",
+    "src/lib/appearance-skin-catalogue.ts": "51a4643d86eee51b555863493cf12f091550867970c8d528f5555b7e00904c9d",
+    "src/lib/brand-skin-feedback.ts": "28081a25fc39c1b6da213e4696867996ae93f122f716565c531e64a10eec025d",
+    "src/components/SkinSpecimen.tsx": "02ca739a17a965af9cd383b95cb79917a5fb3076bbdfe70bb03f2c529ca57913",
+    "src/components/SplitCompare.tsx": "8c7d3538f7eb810eecb6ea9544128b0ea142e8796c4e56b575403ddf344c113b",
+    "src/styles/appearance-skins.generated.css": "a0cd2c1081e8dd854641c69160bad902635ce046a713eb8909ca4943aee3b276",
+    "src/styles/skin-specimen.css": "be5f4fb1a4df4bcbbfe753ef8be6336f7d100d14ef1c57374d71e7230c8b85c5",
+    "src/styles/split-compare.css": "35bfe788b38b00259d70685d486be1a579bad2d5bfe44b71a05a05a37bd31534",
+    "src/plugins/brand-studio-page.tsx": "6261cc4f206fd6ba3bd8d64c0b326a7cafcfebd9facbde7a06e6300919923fb5",
+    "src/plugins/brand-studio-page.css": "e021f1cbe30f9794bb7a32497c9d373b5c5606cc976ee7d1b31efe0803072db3",
+    "migrations/0020_admin_brand_studio.sql": "5c94fd8a5ad1490a3717e890447e4b48e1c06ae6b726cf3fb7382840ddb0f125"
+  },
+  "captures": [
+    "before-native-1440-dark.png",
+    "second-draft-native-phone-skin.png",
+    "studio-compare-1440-dark.png",
+    "studio-1440-dark.png",
+    "after-native-1440-dark.png",
+    "studio-1440-light.png",
+    "after-native-1440-light.png",
+    "studio-390-dark.png",
+    "after-native-390-dark.png",
+    "studio-390-light.png",
+    "after-native-390-light.png",
+    "studio-skin-panel-1440-light.png",
+    "skin-390-light.png",
+    "skin-390-light-double-root-text.png",
+    "history-390-light.png",
+    "studio-390-light-double-root-text.png"
+  ],
+  "checks": {
+    "actualNativePreview": true,
+    "anonymousStylesDenied": true,
+    "skinKeyboardRange": true,
+    "secondSkinKeyboardChoice": true,
+    "skinSensory": {
+      "soundOffByDefault": true,
+      "hapticsOffByDefault": true,
+      "hapticsSupportedInThisBrowser": true,
+      "physicalVibrationNotTested": true
+    },
+    "skinInSavedNativePreview": true,
+    "secondChangePreservedFirst": true,
+    "skinPublishedToNativeAdmin": true,
+    "skinSurvivedReopen": true,
+    "savedDraftCompare": true,
+    "rollbackPreservedHistory": true,
+    "skinRestoreToDefault": true,
+    "unsafeImportRetainedForm": true,
+    "keyboardForm": true,
+    "skinPhoneAndDoubleTextReflow": true,
+    "doubleRootTextReflow": true,
+    "nativePerRequestConfig": true,
+    "persistedVersions": [
+      {
+        "version": 5,
+        "event": "rollback",
+        "siteName": "App Composer Studio",
+        "footerLabel": "Built with App Composer",
+        "skin": "composer"
+      },
+      {
+        "version": 4,
+        "event": "publish",
+        "siteName": "App Composer Studio",
+        "footerLabel": "Composer operations",
+        "skin": "workshop-press"
+      },
+      {
+        "version": 3,
+        "event": "draft",
+        "siteName": "App Composer Studio",
+        "footerLabel": "Composer operations",
+        "skin": "workshop-press"
+      },
+      {
+        "version": 2,
+        "event": "publish",
+        "siteName": "App Composer Studio",
+        "footerLabel": "Built with App Composer",
+        "skin": "composer"
+      },
+      {
+        "version": 1,
+        "event": "draft",
+        "siteName": "App Composer Studio",
+        "footerLabel": "Built with App Composer",
+        "skin": "composer"
+      }
+    ]
+  },
+  "cleanup": true,
+  "integrationSeams": [
+    "Current source supplies native page and route registrations; no registration patches.",
+    "Fixture-only Brand middleware calls prepareAdminBrand before next and brandAdminResponse after next.",
+    "Existing fixture: Access removed; native passkeys, local origin, no provider bindings."
+  ],
+  "pageErrors": [],
+  "success": true
+}

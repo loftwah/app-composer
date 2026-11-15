@@ -30,10 +30,11 @@ export function serialiseSensoryPreference(
 }
 export function readSensoryPreference(
   storage: Pick<Storage, "getItem"> | undefined,
+  key = sensoryStorageKey,
 ): SkinSensoryPreference {
   if (!storage) return { ...sensoryOff };
   try {
-    const raw = storage.getItem(sensoryStorageKey);
+    const raw = storage.getItem(key);
     return parseSensoryPreference(raw === null ? null : JSON.parse(raw));
   } catch {
     return { ...sensoryOff };
@@ -42,10 +43,11 @@ export function readSensoryPreference(
 export function writeSensoryPreference(
   storage: Pick<Storage, "setItem"> | undefined,
   preference: SkinSensoryPreference,
+  key = sensoryStorageKey,
 ) {
   if (!storage) return;
   try {
-    storage.setItem(sensoryStorageKey, serialiseSensoryPreference(preference));
+    storage.setItem(key, serialiseSensoryPreference(preference));
   } catch {
     // A blocked or full store keeps the choice for this page only.
   }

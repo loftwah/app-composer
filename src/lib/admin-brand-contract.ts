@@ -1,4 +1,14 @@
 import { z } from "zod";
+import {
+  appearanceSkinChoices,
+  appearanceSkinCss,
+  appearanceSkinName,
+  skinDefaults,
+  skinIds,
+  skinPressureNames,
+  skinRecipe,
+  type SkinId,
+} from "./appearance-skin.ts";
 
 const label = z
   .string()
@@ -13,25 +23,14 @@ export const brandTarget = z
     environment: z.enum(["production", "preview"]),
   })
   .strict();
-export const brandSkins = ["composer", "workshop-press"] as const;
-export type BrandSkin = (typeof brandSkins)[number];
-export const adminBrandSkins = [
-  {
-    id: "composer",
-    name: "Composer default",
-    description: "Warm surfaces, orange actions, quiet rules",
-  },
-  {
-    id: "workshop-press",
-    name: "Workshop press",
-    description: "A set-back panel plate, heavier rules and a firmer press",
-  },
-] as const;
+export const brandSkins = skinIds;
+export type BrandSkin = SkinId;
+export const adminBrandSkins = appearanceSkinChoices;
 export function brandSkinName(skin: BrandSkin): string {
-  return adminBrandSkins.find((item) => item.id === skin)!.name;
+  return appearanceSkinName(skin);
 }
 /** Edge pressure 1–4. Finite labels keep the saved value readable. */
-export const skinPressureNames = ["Quiet", "Set", "Firm", "Pressed"] as const;
+export { skinPressureNames };
 export const adminBrandConfig = z
   .object({
     schema: z.literal("composer.admin-brand/1"),
@@ -61,8 +60,8 @@ export const brandDefaults = (target: BrandTarget): AdminBrandConfig => ({
   palette: "composer-orange",
   density: "comfortable",
   typeScale: "standard",
-  skin: "composer",
-  skinPressure: 2,
+  skin: skinDefaults.skin,
+  skinPressure: skinDefaults.skinPressure,
 });
 /** One validation path for both new input and stored version rows. Missing
  * skin fields from earlier composer.admin-brand/1 records take the current
@@ -148,7 +147,7 @@ export function compareAdminBrand(
       key: "skinPressure",
       label: "Edge pressure",
       format: pressure,
-      used: (c: AdminBrandConfig) => c.skin === "workshop-press",
+      used: (c: AdminBrandConfig) => c.skin !== "composer",
     },
   ];
   return fields
@@ -202,18 +201,10 @@ ${brandSkinCss(config)}.composer-brand-preview{padding:12px;font:16px system-ui;
 `;
 }
 
-/** Workshop press is a token-and-edge layer over the same native controls.
- * It never renames, hides or reorders an action, and adds no motion. */
-const pressWidths = ["1px", "2px", "3px", "4px"] as const;
+/** Workshop press and Contact sheet are token-and-edge layers over the same
+ * native controls. Neither renames, hides or reorders an action, and neither
+ * adds motion. The default skin emits no layer at all. */
 export function brandSkinCss(config: AdminBrandConfig): string {
-  if (config.skin !== "workshop-press") return "";
-  const press = pressWidths[config.skinPressure - 1];
-  return `html[data-theme]{--composer-skin-press:${press};--composer-skin-rule:color-mix(in srgb,currentColor 18%,transparent);--composer-skin-plate:color-mix(in srgb,currentColor 4%,transparent)}
-#admin-root{border-inline:var(--composer-skin-press) solid var(--composer-skin-rule)}
-#admin-root :is(.co-overview,.composer-workflows,.composer-connections,.ce-inbox,.ca-stacks){background:var(--composer-skin-plate);box-shadow:inset 0 0 0 1px var(--composer-skin-rule)}
-#admin-root :is(input,textarea,select){border-width:var(--composer-skin-press);border-radius:2px;box-shadow:inset 0 1px 0 var(--composer-skin-rule)}
-#admin-root button{border-radius:2px;box-shadow:0 1px 0 var(--composer-skin-rule)}
-#admin-root button:active{box-shadow:inset 0 1px 0 var(--composer-skin-rule)}
-#admin-root :focus-visible{outline-width:var(--composer-skin-press)}
-`;
+  const recipe = skinRecipe(config.skin);
+  return recipe ? appearanceSkinCss(recipe, config.skinPressure) : "";
 }

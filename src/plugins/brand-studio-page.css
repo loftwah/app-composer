@@ -116,6 +116,9 @@
   font-size: 0.85rem;
   line-height: 1.45;
 }
+.bs-skin-choices > :last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
 .composer-brand-studio .bs-skin-choices button[aria-pressed="true"] {
   border-color: var(--color-kumo-focus, #c74400);
   outline: 1px solid var(--color-kumo-focus, #c74400);
@@ -129,72 +132,20 @@
   padding: 0;
   accent-color: #c74400;
 }
-.bs-specimen {
-  --bs-press: 2px;
-  --bs-plate: color-mix(in srgb, currentColor 5%, transparent);
+.bs-compare {
   display: grid;
   gap: 12px;
-  padding: 16px;
-  margin: 4px 0 20px;
+  margin: 20px 0;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--color-kumo-line, currentColor);
   min-width: 0;
-  border: var(--bs-press) solid
-    color-mix(in srgb, currentColor 25%, transparent);
-  border-radius: 8px;
-  background: var(--bs-plate);
 }
-.bs-specimen[data-skin="composer"] {
-  --bs-press: 1px;
-  --bs-plate: transparent;
-}
-.bs-specimen[data-skin="workshop-press"] {
-  border-radius: 2px;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 18%, transparent);
-}
-.bs-specimen[data-skin="workshop-press"][data-pressure="1"] {
-  --bs-press: 1px;
-}
-.bs-specimen[data-skin="workshop-press"][data-pressure="2"] {
-  --bs-press: 2px;
-}
-.bs-specimen[data-skin="workshop-press"][data-pressure="3"] {
-  --bs-press: 3px;
-}
-.bs-specimen[data-skin="workshop-press"][data-pressure="4"] {
-  --bs-press: 4px;
-}
-.bs-specimen-label {
-  display: grid;
-  gap: 4px;
+.bs-compare h3 {
+  font-size: 1rem;
   margin: 0;
-  font-size: 0.9rem;
 }
-.bs-specimen-label span {
-  color: var(--text-color-kumo-subtle, inherit);
-}
-.bs-specimen-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-}
-.bs-specimen-field {
-  padding: 10px 12px;
-  border: 1px solid var(--color-kumo-line, currentColor);
-  border-radius: 6px;
-  color: var(--text-color-kumo-subtle, inherit);
-  overflow-wrap: anywhere;
-}
-.bs-specimen[data-skin="workshop-press"] .bs-specimen-field {
-  border-width: var(--bs-press);
-  border-radius: 2px;
-  box-shadow: inset 0 1px 0 color-mix(in srgb, currentColor 18%, transparent);
-}
-.bs-specimen[data-skin="workshop-press"] button {
-  border-radius: 2px;
-  box-shadow: 0 1px 0 color-mix(in srgb, currentColor 22%, transparent);
-}
-.bs-specimen button:active {
-  box-shadow: inset 0 1px 0 color-mix(in srgb, currentColor 22%, transparent);
+.bs-compare :focus-visible {
+  outline-color: #c74400;
 }
 .bs-sensory {
   border-top: 1px solid var(--color-kumo-line, currentColor);
@@ -437,12 +388,6 @@
   }
   .composer-brand-studio .bs-skin {
     padding: 14px;
-  }
-  .bs-specimen {
-    padding: 14px;
-  }
-  .bs-specimen-row > * {
-    flex: 1 1 100%;
   }
   .bs-workspace {
     grid-template-columns: 1fr;

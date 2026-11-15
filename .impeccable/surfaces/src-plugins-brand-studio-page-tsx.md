@@ -40,3 +40,11 @@ control so far: a finite saved token/edge layer over the same native controls,
 with an optional device-local press cue. It is not a theme engine. Sensory
 feedback stays off by default, on the specimen control only, and never enters the
 published record. See docs/tactile-skin-20261115.md before extending it.
+
+Second skin and compare (15 November 2026): Contact sheet is the second recipe
+over the same finite compiler. The form's local sample and the published-versus-
+saved-draft wipe share one sample component. Keep the compare panes
+presentational, the native range as the only control, and the text summary in
+place; the wipe must never edit, save or publish. The public `/appearance`
+reference consumes the same compiler with separate storage. Read
+docs/appearance-skin-contract.md before adding a third recipe.

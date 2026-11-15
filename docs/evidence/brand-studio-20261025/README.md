@@ -96,3 +96,18 @@ No actor identifier, session, token or credential is included. UI screenshots
 were inspected inline in the task; private overview records were not published
 as repository screenshots. Existing Access sign-in is not new subject-binding
 or MFA qualification. No IdP, role or grant was changed.
+
+## Second skin, compare wipe and a portable browser replay — 16 November 2026
+
+The replay now covers the Contact sheet skin, keyboard-only choice of both
+skins, and the read-only published-versus-saved-draft compare slider. It also
+lets this Playwright build resolve its own installed Chromium instead of a
+machine-specific headless-shell revision; the previous pin failed after a
+routine browser update and was not a product defect.
+
+Checks added: `secondSkinKeyboardChoice` and `savedDraftCompare`. The new
+captures are `studio-compare-1440-dark.png` and `studio-skin-panel-1440-light.png`.
+The full 16-capture run passed on the local native EmDash fixture with a virtual
+passkey. Production Access, a physical device and owner acceptance remain
+unverified. The wider skin evidence and the public second consumer are recorded
+in [the appearance-skin evidence](../appearance-skin-20261115/README.md).

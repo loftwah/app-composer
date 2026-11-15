@@ -1,0 +1,101 @@
+/* Accessible before/after wipe. The native range input is the only control;
+   the painted divider is a visual copy of its value. */
+.split-compare {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.split-compare-frame {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-border, color-mix(in srgb, currentColor 24%, transparent));
+  border-radius: 10px;
+  background: var(--color-field, transparent);
+  isolation: isolate;
+}
+.split-compare-pane {
+  min-width: 0;
+  overflow: hidden;
+}
+.split-compare-pane:not(.split-compare-before) {
+  position: relative;
+}
+.split-compare-before {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 calc(100% - var(--split, 50%)) 0 0);
+}
+.split-compare-divider {
+  position: absolute;
+  inset-block: 0;
+  left: var(--split, 50%);
+  width: 2px;
+  margin-inline-start: -1px;
+  background: currentColor;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.split-compare-grip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 36px;
+  height: 36px;
+  translate: -50% -50%;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  background: var(--color-field, #fff);
+  opacity: 0.92;
+}
+.split-compare-grip::before,
+.split-compare-grip::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-block-start: 2px solid currentColor;
+  border-inline-start: 2px solid currentColor;
+}
+.split-compare-grip::before {
+  left: 8px;
+  translate: 0 -50%;
+  rotate: -45deg;
+}
+.split-compare-grip::after {
+  right: 8px;
+  translate: 0 -50%;
+  rotate: 135deg;
+}
+.split-compare-range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+.split-compare-frame:has(.split-compare-range:focus-visible) {
+  outline: 3px solid var(--color-focus, #e77743);
+  outline-offset: 3px;
+}
+.split-compare-caption {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-muted, inherit);
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .split-compare-frame {
+    min-height: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .split-compare * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
