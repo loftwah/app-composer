@@ -13,23 +13,29 @@
 const VOTE_KEY = "composer:benchmark-vote:v1";
 const STYLE_FALLBACK = "preview-unavailable";
 
-/** @typedef {{trial: string, configuration: string, choice: boolean, reason: string, at: string, note?: string}} Vote */
+type Vote = {
+  trial: string;
+  configuration: string;
+  choice: boolean;
+  reason: string;
+  at: string;
+};
 
 /** @returns {Record<string, Vote>} */
-function readVotes() {
+function readVotes(): Record<string, Vote> {
   try {
     const raw = window.localStorage.getItem(VOTE_KEY);
     if (!raw) return {};
-    const parsed = JSON.parse(raw);
+    const parsed: unknown = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object") return {};
-    return parsed;
+    return parsed as Record<string, Vote>;
   } catch {
     return {};
   }
 }
 
 /** @param {Record<string, Vote>} votes */
-function writeVotes(votes) {
+function writeVotes(votes: Record<string, Vote>) {
   try {
     window.localStorage.setItem(VOTE_KEY, JSON.stringify(votes));
   } catch {
@@ -38,7 +44,7 @@ function writeVotes(votes) {
 }
 
 /** Strip anything that could execute or leave the sandbox. */
-function sanitise(html) {
+function sanitise(html: string) {
   return String(html)
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "")
@@ -56,7 +62,7 @@ function sanitise(html) {
  * renders it inside the card.
  * @param {string} html
  */
-function bodyOf(html) {
+function bodyOf(html: string): string {
   const match = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
   if (match) return match[1];
   return html
@@ -69,11 +75,11 @@ function bodyOf(html) {
 /**
  * @param {HTMLElement} host
  */
-async function mountPreview(host) {
+async function mountPreview(host: HTMLElement) {
   const htmlUrl = host.dataset.html;
   const cssUrl = host.dataset.css;
   if (!htmlUrl) return;
-  const status = host.querySelector("[data-preview-status]");
+  const status = host.querySelector<HTMLElement>("[data-preview-status]");
   try {
     const [htmlResponse, cssResponse] = await Promise.all([
       fetch(htmlUrl, { credentials: "omit" }),
@@ -82,7 +88,7 @@ async function mountPreview(host) {
     if (!htmlResponse.ok) throw new Error(`The recorded page returned ${htmlResponse.status}.`);
     const html = await htmlResponse.text();
     const css = cssResponse && cssResponse.ok ? await cssResponse.text() : "";
-    const root = host.querySelector("[data-preview-canvas]");
+    const root = host.querySelector<HTMLElement>("[data-preview-canvas]");
     if (!root) throw new Error("No preview canvas.");
     root.textContent = "";
     // A shadow root keeps the produced page's selectors and colours inside the
@@ -110,21 +116,21 @@ async function mountPreview(host) {
 /** Paint the saved vote state into every trial card. */
 function paintVotes() {
   const votes = readVotes();
-  for (const card of document.querySelectorAll("[data-trial]")) {
+  for (const card of document.querySelectorAll<HTMLElement>("[data-trial]")) {
     const trial = card.getAttribute("data-trial") ?? "";
     const vote = votes[trial];
-    const badge = card.querySelector("[data-vote-badge]");
-    const button = card.querySelector("[data-vote-button]");
-    const note = card.querySelector("[data-vote-note]");
-    const reason = card.querySelector("[data-vote-reason]");
-    const stamp = card.querySelector("[data-vote-at]");
+    const badge = card.querySelector<HTMLElement>("[data-vote-badge]");
+    const button = card.querySelector<HTMLElement>("[data-vote-button]");
+    const note = card.querySelector<HTMLElement>("[data-vote-note]");
+    const reason = card.querySelector<HTMLInputElement>("[data-vote-reason]");
+    const stamp = card.querySelector<HTMLInputElement>("[data-vote-at]");
     if (badge) badge.hidden = !vote?.choice;
     if (button) button.setAttribute("aria-pressed", vote?.choice ? "true" : "false");
     if (reason && document.activeElement !== reason) reason.value = vote?.reason ?? "";
     if (stamp && document.activeElement !== stamp) stamp.value = vote?.at ?? "";
     if (note) note.hidden = !(vote?.reason || vote?.at);
   }
-  const tally = document.querySelector("[data-vote-tally]");
+  const tally = document.querySelector<HTMLElement>("[data-vote-tally]");
   if (tally) {
     const chosen = Object.values(votes).filter((vote) => vote?.choice).length;
     tally.textContent =
@@ -135,15 +141,16 @@ function paintVotes() {
 }
 
 /** @param {HTMLElement} card */
-function wireTrial(card) {
+function wireTrial(card: HTMLElement) {
   const trial = card.getAttribute("data-trial") ?? "";
-  const button = card.querySelector("[data-vote-button]");
-  const reason = card.querySelector("[data-vote-reason]");
-  const stamp = card.querySelector("[data-vote-at]");
+  const button = card.querySelector<HTMLElement>("[data-vote-button]");
+  const reason = card.querySelector<HTMLInputElement>("[data-vote-reason]");
+  const stamp = card.querySelector<HTMLInputElement>("[data-vote-at]");
 
   button?.addEventListener("click", () => {
     const votes = readVotes();
     const chosen = !votes[trial]?.choice;
+
     // One pick per job: choosing a take clears the other picks in this comparison.
     for (const key of Object.keys(votes)) {
       if (votes[key]) votes[key] = { ...votes[key], choice: false };
@@ -177,11 +184,11 @@ function wireTrial(card) {
 
 /** The "compare the two" control: swap which trial is enlarged. */
 function wireSwitcher() {
-  for (const control of document.querySelectorAll("[data-compare-select]")) {
+  for (const control of document.querySelectorAll<HTMLSelectElement>("[data-compare-select]")) {
     control.addEventListener("change", () => {
       const target = control.getAttribute("data-compare-select") ?? "";
-      const value = control instanceof HTMLSelectElement ? control.value : "";
-      for (const panel of document.querySelectorAll(`[data-compare-panel="${target}"]`)) {
+      const value = control.value;
+      for (const panel of document.querySelectorAll<HTMLElement>(`[data-compare-panel="${target}"]`)) {
         panel.hidden = panel.getAttribute("data-compare-trial") !== value;
       }
     });
@@ -189,8 +196,8 @@ function wireSwitcher() {
 }
 
 function main() {
-  for (const host of document.querySelectorAll("[data-trial-preview]")) void mountPreview(host);
-  for (const card of document.querySelectorAll("[data-trial]")) wireTrial(card);
+  for (const host of document.querySelectorAll<HTMLElement>("[data-trial-preview]")) void mountPreview(host);
+  for (const card of document.querySelectorAll<HTMLElement>("[data-trial]")) wireTrial(card);
   wireSwitcher();
   paintVotes();
 }

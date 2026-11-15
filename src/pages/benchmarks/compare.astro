@@ -11,7 +11,28 @@ import {
 const source = typeof compare.sourceVersion === 'string' ? compare.sourceVersion : null;
 const short = source ? source.slice(0, 7) : 'unrecorded';
 const task = compare.task ?? {};
-const configurations = Array.isArray(compare.configurations) ? compare.configurations : [];
+const configurations: any[] = Array.isArray(compare.configurations) ? compare.configurations : [];
+
+type Check = { id: string; name: string; status: string; detail: string };
+type Trial = {
+  id: string;
+  index: number;
+  status: string;
+  durationMs: number | null;
+  checks: Check[];
+  failed?: string[];
+  artifacts?: Record<string, string>;
+  previewUrl: string;
+  note?: string;
+  usage?: { inputTokens: number | null; outputTokens: number | null } | null;
+  cost: { estimateMicro: number | null; providerChargedMicro: number | null; basis?: string };
+  configurationId: string;
+  configurationLabel: string;
+  model: string;
+  harness: string;
+};
+type Row = { id: string; label: string; configuration: any; summary: ReturnType<typeof summariseConfiguration> };
+
 const summaries = configurations.map((configuration) => ({
   configuration,
   summary: summariseConfiguration(configuration),
@@ -31,8 +52,8 @@ const assertionOwners = {
 const failureRoutes = routeFailures(configurations, Object.fromEntries(
   Object.entries(assertionOwners).map(([id, owner]) => [id, `#${owner.issue} ${owner.label}`]),
 ));
-const trials = configurations.flatMap((configuration) =>
-  (configuration.trials ?? []).map((trial) => ({
+const trials: Trial[] = configurations.flatMap((configuration: any) =>
+  (configuration.trials ?? []).map((trial: any) => ({
     ...trial,
     configurationId: configuration.id,
     configurationLabel: configuration.label ?? configuration.id,
@@ -40,11 +61,12 @@ const trials = configurations.flatMap((configuration) =>
     harness: configuration.harness ?? 'unknown',
   })),
 );
-const readable = (value) => (value === null || value === undefined ? 'unknown' : `${Math.round(Number(value) / 100) / 10}s`);
-const slugFor = (value) => String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-const slotDefault = (configuration, index) => {
+const readable = (value: number | null | undefined) =>
+  value === null || value === undefined ? 'unknown' : `${Math.round(Number(value) / 100) / 10}s`;
+const slugFor = (value: string) => String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const slotDefault = (configuration: any, index: number) => {
   const list = configuration.trials ?? [];
-  const preferred = list.find((trial) => trial.status === 'pass') ?? list[0];
+  const preferred = list.find((trial: any) => trial.status === 'pass') ?? list[0];
   return preferred ? `${configuration.id}::${preferred.id}` : `${configuration.id}::t${index + 1}`;
 };
 const firstTwo = configurations.slice(0, 2);
@@ -140,9 +162,9 @@ const initial = firstTwo.map((configuration, index) => slotDefault(configuration
         <label class="cmp-slot">
           <span>{index === 0 ? 'Left' : 'Right'}</span>
           <select data-compare-select={index === 0 ? 'left' : 'right'}>
-            {configurations.map((configuration) => (
+            {configurations.map((configuration: any) => (
               <optgroup label={configuration.label ?? configuration.id}>
-                {(configuration.trials ?? []).map((trial) => (
+                {(configuration.trials ?? []).map((trial: any) => (
                   <option value={`${configuration.id}::${trial.id}`} selected={value === `${configuration.id}::${trial.id}`}>
                     {(configuration.label ?? configuration.id).split(' · ')[0]} · trial {trial.index} · {trial.status}
                   </option>
@@ -215,7 +237,7 @@ const initial = firstTwo.map((configuration, index) => slotDefault(configuration
             <details class="cmp-artifacts">
               <summary>File hashes</summary>
               <ul>
-                {Object.entries(trial.artifacts).map(([name, hash]) => (
+                {Object.entries(trial.artifacts ?? {}).map(([name, hash]: [string, string]) => (
                   <li><code>{name}</code> <span class="small">{String(hash).slice(0, 26)}…</span></li>
                 ))}
               </ul>
