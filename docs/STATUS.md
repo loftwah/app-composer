@@ -4,11 +4,10 @@ Reviewed 25 October 2026; updated 16 November 2026. This page is the current nav
 
 ## Measured delivery and role pathways — 16 November 2026
 
-Composer `9be55b90a153bfaa8764a68e2acfa713cd9fdea3` (Worker
-`2f6daeec-da37-4472-8ff5-cec205d6e15e`), Studio
-`4a14ca3e09071edb862b3cc0bd9ec1cc004a2cca` (Worker
-`1932f786-d34b-47b3-ba43-37fa91768dec`). Live `/build.json` was read back for
-both exact sources. The detailed rolling-batch record is
+Composer `5cffcc4e46a15bb72a7e2a018580fb6af662abf5` (latest guarded
+release 127.5s), Studio `fd534964f9051381786fd130ec4995f599429888` (latest
+guarded release 25.2s). Live `/build.json` was read back for both exact
+sources. The detailed rolling-batch record is
 [here](evidence/2026-11-16-rolling-batch/README.md).
 
 - **Every guarded release now leaves a timing receipt (#624, Studio #160).**
@@ -47,6 +46,18 @@ both exact sources. The detailed rolling-batch record is
   Escape after ArrowDown and the no-JS former-section index were fixed. The
   five-person first-visit test and a second independent agent remain human or
   independent gates.
+- **Storage health and duplicate reuse (Studio #158, closed).** The owner
+  Library shows bytes by kind, protected/published, missing, duplicates and
+  unknown provenance; an asset shows its precise saved uses; duplicate uploads
+  can reuse the existing original without a new object. On the real LoftwahFM
+  project the report found 167.9 MB across 30 files, one 4-copy WAV duplicate
+  group keeping 16.7 MB extra, and two unknown legacy rows. No reclamation or
+  deletion is shipped; that remains a separate approved follow-up.
+- **Release-timing benchmark ingest (#601 slice).** `/benchmarks` links a
+  deterministic local report that validates `release-timing/v1` receipts,
+  groups Composer and Studio runs and refuses forged/private data. The Composer
+  and Studio fixtures differ genuinely (92.5s vs 27.0s); no model, cost claim
+  or winner is added.
 
 ## Workspace-scoped media, docs copy, appearance skins and the Studio Director — 16 November 2026
 
