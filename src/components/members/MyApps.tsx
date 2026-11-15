@@ -18,6 +18,15 @@ import {
 } from "./selection";
 import "./members.css";
 
+function isSignedOut(error: unknown) {
+  return Boolean(
+    error &&
+      typeof error === "object" &&
+      "status" in error &&
+      (error as { status?: number }).status === 403,
+  );
+}
+
 export default function MyApps() {
   const [account, setAccount] = useState<MemberSession>();
   const [selected, setSelected] = useState("");
@@ -161,12 +170,20 @@ export default function MyApps() {
       const initial = memberPageSelection(location.search);
       setView(initial.view);
       void load(initial.workspace ?? "", initial.view !== "platform").catch(
-        (e) =>
+        (e) => {
+          if (isSignedOut(e)) {
+            setError("");
+            setStatus(
+              "Sign in with EmDash to open your profile and app tools.",
+            );
+            return;
+          }
           setError(
             e instanceof Error
               ? e.message
               : "Sign in with EmDash to open your apps.",
-          ),
+          );
+        },
       );
     } catch (cause) {
       setError(
