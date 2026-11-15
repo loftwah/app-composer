@@ -128,3 +128,24 @@ gallery numbers and the honest gate on recovery. Evidence:
   repository's existing check/build/privacy gates once (95.2 s total).
 - Live: `/p/oCE3jwInl-G55yXf` page/media/thumb/range; gallery bytes; both
   tutorial widths; `/s/fictional-trail-notes` labels; `/compare` landing job.
+
+## Checkpoint 3 — the postcard actions say what they do
+
+Fresh-visitor check in a browser profile with no owner session.
+
+| App | Source | Worker |
+| --- | --- | --- |
+| Linkarooie reference (`creator-hub-showcase`) | `3d343e6cb424b1927f4a4485006f52b6f2913b89` | `358beafb-ef07-4373-9fff-ccc3f34ea0d3` |
+| Here / there reference (`creator-hub-guestbook`) | unchanged | unchanged |
+
+The profile jump link **Guestbook postcards** is now **Leave a postcard**, with a
+separate **See approved postcards** link. Both point at the same moderated
+guestbook: `…/contribute` and the collection at the guestbook origin. The
+guestbook app already used “Leave a postcard” for its own action, so only the
+profile wording and the missing read path changed.
+
+Checked signed out: the profile renders both links with those exact
+destinations; the collection shows its approved item and a “Know the guest
+code? Leave a postcard” path; `/contribute` shows **Leave a postcard.** with the
+guest-code field and a **Send for approval** button. Approval and hiding are
+unchanged.
