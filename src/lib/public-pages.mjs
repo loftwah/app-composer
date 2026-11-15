@@ -5,7 +5,7 @@ export const publicPagePaths = Object.freeze([
   '/roles', '/roles/service-owner', '/roles/programmer', '/roles/architect', '/roles/devops', '/roles/security', '/roles/qa',
   '/diagrams', '/discover', '/for/creator', '/for/small-business', '/for/developer', '/for/designer', '/for/wordpress', '/for/shopify', '/for/platform-team',
   '/jobs/profile', '/jobs/enquiries', '/jobs/first-app', '/jobs/branding', '/jobs/diagram', '/jobs/pdf', '/jobs/inspect',
-  '/explore', '/demo', '/docs', '/architecture', '/guide',
+  '/explore', '/demo', '/demo/connected-apps', '/docs', '/architecture', '/guide',
   '/catalogue', '/apps', '/activity', '/review', '/privacy', '/release', '/capabilities',
   '/extension', '/state', '/php2shell', '/studio', '/manage', '/building', '/effect',
   '/creator-hub', '/creator-hub/share', '/collections', '/collections/signal-and-type', '/collections/print-shop', '/cloudflare',
@@ -20,7 +20,7 @@ export const publicPagePaths = Object.freeze([
 export const builderPagePaths = Object.freeze([
   '/', '/apps', '/docs', '/architecture', '/guide', '/explore', '/review',
   '/catalogue', '/release', '/privacy', '/extension', '/php2shell',
-  '/ready/guide', '/demo', '/manage', '/studio', '/activity', '/init',
+  '/ready/guide', '/demo', '/demo/connected-apps', '/manage', '/studio', '/activity', '/init',
   '/init/content', '/init/launch-kit', '/ready', '/learn', '/building',
   '/creator-hub',
   '/launch-kit', '/paperwork', '/init/paperwork',

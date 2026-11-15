@@ -1,0 +1,73 @@
+---
+import Base from '../../layouts/Base.astro';
+import CompositionWorkbench from '../../components/CompositionWorkbench';
+import {mountedApps} from '../../lib/composition';
+import { ArrowRight, Image, PanelsTopLeft, GitBranch, ExternalLink } from '@lucide/astro';
+---
+<Base title="Two apps. One collection." description="Try a photo guestbook and showcase working together. Edit a postcard, save a demo version and take your settings into your own App Composer project.">
+ <div class="composition-heading">
+  <h1>A guestbook and a showcase, connected</h1>
+  <p class="lede">Here / there and Linkarooie are independent apps. The guestbook collects photos; Linkarooie displays selected photos alongside your links. Try the connection below: add a postcard, edit its caption and see the collection update.</p>
+ </div>
+ <nav class="composition-route" aria-label="Choose your next step">
+  <a class="composition-route-primary" href="#composition-workbench"><strong>Try the demo <ArrowRight size={18} aria-hidden="true"/></strong><span>Add a postcard and see how changes carry through.</span></a>
+  <a href="#live-apps"><strong>Explore the live apps <ArrowRight size={18} aria-hidden="true"/></strong><span>Open the published guestbook and showcase.</span></a>
+  <a href="/init?start=composition"><strong>Create your own <ArrowRight size={18} aria-hidden="true"/></strong><span>Choose your settings and prepare a brief for your AI agent.</span></a>
+ </nav>
+ <section id="composition-workbench" aria-label="Interactive demo" class="composition-workbench">
+  <CompositionWorkbench sources={mountedApps.filter(app=>['guestbook','showcase'].includes(app.id))} client:visible />
+ </section>
+ <noscript><p>The interactive demo needs JavaScript. You can still <a href="/guestbook/">explore the guestbook</a>, <a href="/showcase/">open the showcase</a> or <a href="/init?start=composition">start your own app setup</a>.</p></noscript>
+ <section id="live-apps" aria-labelledby="live-apps-title">
+  <h2 class="composition-live-title" id="live-apps-title">Explore the live apps</h2>
+  <p>Open the published versions of Here / there and Linkarooie to see the same idea in use. You can browse without an account. Adding or managing content requires authorised access.</p>
+  <section class="composition-flow" aria-labelledby="flow-title">
+   <h2 id="flow-title">From a shared photo to your collection</h2>
+   <ol>
+    <li><strong>Contribute</strong><span>An invited contributor adds a photo and message to Here / there.</span></li>
+    <li><strong>Review</strong><span>The owner decides what to make public.</span></li>
+    <li><strong>Feature</strong><span>An approved photo is added to the Linkarooie collection.</span></li>
+    <li><strong>Explore</strong><span>Open the photo to visit its original contribution.</span></li>
+   </ol>
+   <p class="small">If the owner hides or deletes the original, it is removed from both public views when they next load. Copies someone has already downloaded cannot be recalled.</p>
+  </section>
+  <div class="composition-pair">
+   <section aria-labelledby="guestbook-title">
+    <a class="composition-preview" href="/guestbook/" aria-label="Open Here / there guestbook"><img src="/brand/demo/ringmarket-v5.webp" alt="Fictional demo postcard: a market strung between asteroids above a ringed planet" width="1200" height="900" loading="lazy"/></a>
+    <h2 id="guestbook-title"><Image size={24} aria-hidden="true"/>Here / there</h2>
+    <p>Collect photos and messages in a guestbook. Review each contribution and choose what to share.</p>
+    <div class="app-links"><a class="button secondary" href="/guestbook/">Open guestbook <ArrowRight size={18} aria-hidden="true"/></a><a href="https://guestbook.loftwah.com">Open standalone app <ExternalLink size={16} aria-hidden="true"/></a><a href="https://github.com/loftwah/app-composer-guestbook">View source code <GitBranch size={16} aria-hidden="true"/></a></div>
+   </section>
+   <section aria-labelledby="showcase-title">
+    <a class="composition-preview" href="/showcase/" aria-label="Open Linkarooie showcase"><img src="/brand/demo/lighthouse-v5.webp" alt="Fictional demo postcard: a lighthouse keeper climbing a tower on a slow moon at night" width="1200" height="900" loading="lazy"/></a>
+    <h2 id="showcase-title"><PanelsTopLeft size={24} aria-hidden="true"/>Linkarooie</h2>
+    <p>Bring your links and approved photos together on one page. Each featured photo links back to its original contribution and follows its visibility.</p>
+    <div class="app-links"><a class="button secondary" href="/showcase/">Open showcase <ArrowRight size={18} aria-hidden="true"/></a><a href="https://showcase.loftwah.com">Open standalone app <ExternalLink size={16} aria-hidden="true"/></a><a href="https://github.com/loftwah/app-composer-showcase">View source code <GitBranch size={16} aria-hidden="true"/></a></div>
+   </section>
+  </div>
+ </section>
+ <details class="composition-details"><summary>How the apps stay independent</summary><p>Here / there and Linkarooie each have their own code, settings and storage. App Composer brings selected versions together. Linkarooie requests the photos Here / there currently allows it to show.</p><p>You’re browsing Loftwah’s published apps. Contributions stay private until approved, and managing content requires authorised access.</p><a href="/release">View release and recovery checks</a></details>
+ <details class="composition-details"><summary>See a recorded activity example</summary><p>A separate hosted example shows how an “Open” action appears in an activity report. The report uses activity from that example; your actions in this browser demo are separate.</p><a href="/reports/r971f5140bbe0c84c8147a64b">View the example report</a> · <a href="/manage#analytics-proof">How the activity was checked</a></details>
+ <section class="composition-next">
+  <h2>Make your own version</h2>
+  <p>Start with a club guestbook, an event gallery or a collection of your work. Choose your app names, appearance and links. App Composer prepares a project brief for your AI coding agent to build and deploy on Cloudflare.</p>
+  <div class="actions"><a class="button" href="/init?start=composition">Create your own <ArrowRight size={18} aria-hidden="true"/></a><a href="/building#brief">See the build walkthrough</a></div>
+  <p class="small">The brief prepares your project; your agent handles the build and deployment.</p>
+  <p class="small">Need icons and sharing images? <a href="/launch-kit">Launch Kit</a> helps you prepare them from your own artwork.</p>
+ </section>
+</Base>
+<style>
+ .composition-route{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;border-block:1px solid var(--color-border);padding:20px 0;margin:30px 0}
+ .composition-route a{display:block;padding:8px 0;min-width:0}
+ .composition-route strong{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:1rem;font-weight:600;color:var(--color-accent)}
+ .composition-route svg{flex-shrink:0}
+ .composition-route span{display:block;font-size:.9rem;line-height:1.5;font-weight:400;color:var(--color-muted);margin-top:6px;max-width:34ch}
+ .composition-route .composition-route-primary{background:var(--color-action);border-radius:8px;padding:16px 18px}
+ .composition-route .composition-route-primary strong,.composition-route .composition-route-primary span{color:var(--color-on-action)}
+ .composition-route .composition-route-primary:hover{background:var(--color-action-hover)}
+ .composition-route .composition-route-primary:active{background:var(--color-action-pressed)}
+ .composition-workbench{scroll-margin-top:24px}
+ .composition-next{border-top:1px solid var(--color-border);padding-top:40px;margin-top:32px}
+ .composition-next h2{font-size:clamp(1.8rem,3vw,2.8rem);max-width:25ch}
+ @media(max-width:700px){.composition-route{grid-template-columns:1fr;gap:8px;padding:8px 0;margin:20px 0}.composition-route a{display:block;min-height:44px;padding:10px 0}.composition-route .composition-route-primary{padding:14px 16px}.composition-route strong{font-size:.95rem}.composition-route span{font-size:.85rem;margin-top:4px;max-width:38ch}.composition-next{padding-top:28px}}
+</style>
