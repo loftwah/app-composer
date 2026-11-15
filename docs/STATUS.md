@@ -32,10 +32,11 @@ remaining gates are in
   and saved as revision 5 with every take, reference, caption and timing
   unchanged. The same revision and takes were read back through a scoped MCP
   grant, which was then revoked.
-- **A new captioned film exists but is not in the production studio (#14).**
-  33.77 s, six shots, four burned captions, mixed bed from the production song.
-  It was built in a local fixture seeded from the production asset, decoded and
-  verified; saving it to the production project and by-ear sign-off are open.
+- **A new film is saved in the production studio (#14).** The Director's plan
+  revision 5 was rendered locally — six shots, 33.0 s, mixed bed from the real
+  After Hours master, no provider charge. Saved asset
+  `asset_78f2ecb3…`, SHA-256 `fb5d5bc0…`; decoded in-browser at 48 kHz stereo,
+  33.04 s, RMS −21.5 dB. By-ear sign-off is still MP's.
 
 ## Studio workbench, matched comparisons and an exact-take review — 15 November 2026
 

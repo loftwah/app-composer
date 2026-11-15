@@ -173,23 +173,30 @@ media, publish or spend.
 - `#150` publishes the eight-project motion-stack review. No library is
   installed and no motion scene/editor/export exists yet.
 
-## Media Studio — #14 new captioned film
+## Media Studio — #14 new film, saved in the production studio
 
-Built in a local Studio fixture seeded from the production song asset; no paid
-generation and no production write. **Not yet saved to the production studio.**
+- Saved from the Director's **plan revision 5** through the Studio's own local
+  renderer, on the owner's LoftwahFM project. No provider call, no generation
+  charge.
+- Storyboard `cmp_song_plan_f767c7cfc49143f8b54aadf02b376595_5`, six shots,
+  33.0 s, mixed bed from the real After Hours master.
+- Saved asset `asset_78f2ecb3c9d547a8a08ff6efc639b279` — **5,490,517 bytes,
+  640×360, 33,041 ms, SHA-256 `fb5d5bc07ff5c2b6bfbe9a096f0527082179ff06ee43d260427cbb4e5c2eb5d4`**,
+  `video/mp4`, range requests supported.
+- **Independent decode of the saved bytes in the browser**: 48 kHz stereo,
+  33.04 s, RMS −21.5 dB, peak −5.0 dB, 99.89% non-zero samples — audio present,
+  non-silent, unclipped.
+- Played in the live viewer unmuted at 0.6: `readyState 4`, duration 33.04 s,
+  playback advanced to 2.44 s.
+- The earlier independent decode of the captioned master (`master-v4.mp4`,
+  SHA-256 `0aadb31b…`, 33.78 s, mean −19.0 dB) and the 16.8 s caption-burned
+  render remain as separate caption proof. This new film carries no burned
+  captions because the After Hours plan has no saved cues; inventing lyric text
+  over an original song would misrepresent it.
+- Scene 4 of the plan still uses `asset_ad1a6388…`, the take that replaced
+  `asset_cbb55ec2…` at revision 4; both takes remain saved.
 
-- New 33.77 s film, six shots, four captions, deliberately chosen left
-  lower-third look, studio-mixed bed (gain −2 dB, 500/1200 ms fades).
-- Source song SHA-256 `b3da7feff1528019939031a4dc542827b8faf9032b78f586f772e008ec8a7a42`
-  matches the production After Hours asset; mix WAV `04ecfb95…`.
-- Masters `master-v1.mp4` SHA-256 `9babb650…` and `master-v4.mp4` SHA-256
-  `0aadb31b…` (5,413,034 bytes).
-- Independent decode of `master-v4.mp4`: H.264 640×360 + AAC 44.1 kHz stereo,
-  33.78 s; mean −19.0 dB, peak −7.3 dB (non-silent, unclipped).
-- Scene 4's take was replaced on revision 3 → 4; the original take is retained
-  and the other five scene frames are byte-identical. Caption text is visibly
-  burned at 13 s ("One lamp, one line of light.") and absent at 6.5 s.
-- Nobody has listened to the mix. By-ear acceptance is MP's.
+**Remaining:** nobody has listened to the film. By-ear acceptance is MP's.
 
 ## Checks run
 
@@ -206,8 +213,8 @@ generation and no production write. **Not yet saved to the production studio.**
 
 ## Remaining gates
 
-1. MP's by-ear sign-off on the new film, and an explicit decision to save it in
-   the production studio.
+1. MP's by-ear sign-off on the new film (it is now saved in the production
+   studio).
 2. Adopt (or deliberately retain) the pre-workspace 13 November media job that
    sits in owner custody.
 3. A GPU runner, if any #151 candidate should ever move past qualification.
