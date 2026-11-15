@@ -210,6 +210,9 @@ test('the building prompt carries the pinned revisions, runtime and each app’s
   assert.match(prompt.text, /Linkarooie has D1/);
   assert.match(prompt.text, /not its own R2 bucket/);
   assert.match(prompt.text, /capture-journey\.mjs/);
+  assert.match(prompt.text, /RESOURCE_ACCOUNT_ID/);
+  assert.match(prompt.text, /PROVIDER_MOUNT/);
+  assert.match(prompt.text, /Keep the sibling checkouts pristine/);
   assert.doesNotMatch(prompt.text, /22, 24 or 26/);
   assert.doesNotMatch(prompt.text, /D1 and R2 bindings/);
 });
