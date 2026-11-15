@@ -164,20 +164,38 @@ Launch Kit/generation regression, and a one-line mute-checkbox CSS fix.
   opens the paired write form; the label/destination mismatch is a product
   decision, not changed here.
 
-## Evidence retained
+## Public evidence
 
-- `output/train-20261116/walkthrough/` — review-room screenshots, desktop and
-  390 recordings, hashes, states and the withdrawal table. Private.
-- `output/train-20261116/workbench/` — Assemble revisions 1–3, script/Voice
-  handoff, 1440/390 recordings. Private.
-- `output/train-20261116/workshop/` — light 1440, dark 390 and forced-WebGL-
-  fallback 1440 captures.
-- `output/train-20261116/quickstarts/` — 1440/390 captures of the live tutorial
-  quick starts.
-- `output/train-20261116/audit/` — cold-visitor report, screenshots and internal
-  link status.
-- `output/train-20261116/studio-tools/` — local-tool report, fixtures, decoded
-  outputs and network traces.
+These captures are from public pages only. They are committed here so the
+result can be inspected without a private folder on one machine.
 
-Private media, reviewer notes and recordings stay under ignored `output/` and
-are not published.
+| | |
+| --- | --- |
+| ![Cold homepage at 1440](public/home-1440-cold.png) | ![Building quick start at 1440](public/quickstart-building-1440.png) |
+| Cold `composer.loftwah.com` at 1440, after the balanced-opening fix. | `/building` Quick start with the inspectable, copyable prompt. |
+| ![Building quick start at 390](public/quickstart-building-390.png) | ![Workshop at 390 in dark theme](public/workshop-dark-390.png) |
+| The same quick start at 390, no horizontal overflow. | The demoted illustrated workshop at 390 in the dark theme. |
+| ![Forced WebGL fallback at 1440](public/workshop-webgl-fallback-1440.png) | ![Discover roles at 1440](public/discover-1440.png) |
+| Forced WebGL failure: static poster remains, console hidden, app links intact. | `/discover` now says ten roles, matching the ten cards. |
+
+Also committed: [learn quick start](public/quickstart-learn-1440.png),
+[Creator Hub quick start](public/quickstart-creator-hub-1440.png),
+[workshop light 1440](public/workshop-light-1440.png) and the
+[docs hub](public/docs-1440.png).
+
+## Private evidence retained
+
+The review-room and workbench recordings contain private project media and
+reviewer notes. They stay under ignored `output/train-20261116/` and are not
+published:
+
+- `walkthrough/` — review-room screenshots, desktop and 390 recordings, hashes,
+  decisions and the 410 withdrawal table.
+- `workbench/` — Assemble revisions 1–3, script/Voice handoff, 1440/390
+  recordings.
+- `studio-tools/` — local-tool fixtures, decoded outputs and zero-upload traces.
+- `audit/` — the full cold-visitor report (public screenshots are copied above).
+
+[MANIFEST.json](MANIFEST.json) records every private artifact’s path, byte size
+and SHA-256 without exposing its content. That makes the retained footage
+verifiable without publishing it.
