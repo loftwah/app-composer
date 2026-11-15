@@ -53,6 +53,7 @@ const apps = {
       "any Darkroom bindings declared in the pinned Wrangler configuration: IMAGES, MEDIA_OPERATION with its Durable Object migration, and APP_ARTIFACTS pointing to the same private bucket as MEDIA",
       "the every-minute cron trigger declared in the app's own Wrangler configuration so asynchronous video, sound and render jobs finish after the browser closes",
     ],
+    deployCommand: "pnpm run deploy",
     deployNote:
       "Set app.manifest.json repository to the repository the owner controls and PUBLIC_ORIGIN, the Worker name, route, account and storage identifiers to the owner's targets. The guarded deploy verifies that the manifest matches the git origin and reads the live origin from Wrangler.",
     verify: [
@@ -166,7 +167,7 @@ export function buildRecipe(spec) {
     steps.push({
       actor: "agent",
       title: `Deploy ${app.name}`,
-      detail: `If the release script uses a fixed hostname for source identity or sharing checks, update both checks to use this deployment's own PUBLIC_ORIGIN. Review and push the target and release changes to the owner's main. Record the upstream pin and the new owned commit separately. From the app's repository root run \`pnpm install --frozen-lockfile\` and its guarded \`pnpm deploy\`, which runs the app's checks and build. Record the Worker version and the HTTPS address you actually reached.${app.deployNote ? " " + app.deployNote : ""}`,
+      detail: `If the release script uses a fixed hostname for source identity or sharing checks, update both checks to use this deployment's own PUBLIC_ORIGIN. Review and push the target and release changes to the owner's main. Record the upstream pin and the new owned commit separately. From the app's repository root run \`pnpm install --frozen-lockfile\` and its guarded \`${app.deployCommand ?? "pnpm deploy"}\`, which runs the app's checks and build. Record the Worker version and the HTTPS address you actually reached.${app.deployNote ? " " + app.deployNote : ""}`,
     });
   }
   steps.push({

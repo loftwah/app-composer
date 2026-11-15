@@ -180,6 +180,6 @@ Full-quality assets:
 - Brand share card: <https://media.loftwah.com/p/B_HA5PV6YMmHDA7N>
 - Source: <https://github.com/loftwah/composer-media-studio> (MIT) · <https://github.com/loftwah/app-composer>
 
-**15 November update.** Media Studio uses Levi’s Darkroom for Studio Print, Film, Quick and Detail on the studio owner’s Workers AI account. Cloudflare Images fits Detail references. The studio checks Darkroom originals for private metadata before publication. You can recover a retained still without another paid request. The studio owns access, the budget and the results in its R2 bucket. [Read the Darkroom integration assessment](https://github.com/loftwah/composer-media-studio/blob/341a0feae8d552a1ae1abdbab5902d74764edee5/docs/darkroom-assessment.md).
+**15 November update.** Media Studio uses Levi’s Darkroom for Studio Print, Film, Quick and Detail on the studio owner’s Workers AI account. Cloudflare Images fits Detail references that need resizing or format conversion. The studio checks Darkroom originals for private metadata before publication. You can recover a retained still without another paid request. The studio owns access, the budget and the results in its R2 bucket. [Read the Darkroom integration assessment](https://github.com/loftwah/composer-media-studio/blob/341a0feae8d552a1ae1abdbab5902d74764edee5/docs/darkroom-assessment.md).
 
 Oyster, Prints and Darkroom are Levi's MIT-licensed Fungi projects. ACE Music is excluded from this delivery entirely.
