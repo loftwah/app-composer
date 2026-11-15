@@ -2,6 +2,41 @@
 
 Reviewed 25 October 2026; updated 16 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Shareable films, honest provenance and a replayable journey — 16 November 2026
+
+Composer `8d5d0c50390cdd64df48b3040758f6398087fb0e`; Media Studio
+`f2f29696d8be2424cee5f64b89bdcb0bb43de037`. Both `/build.json` files match the
+released sources, and both releases used the existing guarded clean-pushed-main
+path. The step-by-step replay is
+[REPLAY.md](evidence/2026-11-16-train/REPLAY.md).
+
+- **Studio #12 closed.** The derivative pipeline is live: 16 gallery previews
+  total **792,638 bytes** against **121,622,092 bytes** of the originals they
+  replace (153×), with `If-None-Match` returning 304 and no body. WebKit 26,
+  Firefox 142 and Chrome 157 played a real film, kept the gallery filter through
+  open and return, showed a 2px keyboard focus ring, and produced no animation
+  under `prefers-reduced-motion`.
+- **Composer #478 closed.** `scripts/commit-identity.mjs` refuses an invented
+  `users.noreply.github.com` address and a lane-name identity before the commit
+  exists, warns on placeholders and passes the owner, the shared worker address
+  and the numeric noreply form. Six focused tests; published history untouched.
+- **Published films keep a share image.** A film with no chosen poster now uses
+  its stored preview for `og:image`, `twitter:image` and the video poster. Live:
+  `og:image` is a 411 × 720 WebP, 48,780 bytes, HTTP 200, with
+  `twitter:card: summary_large_image`. A chosen poster still wins.
+- **Studio #157 round trip proven** on two separate local D1/R2 installations:
+  5/5 media hashes matched through restore and restart, 43/43 relationships
+  held, a publication that was live at export arrived private, 13/13 malformed
+  bundles were refused, and a real crash-window cleanup defect was found and
+  fixed. A genuinely separate Cloudflare account and the preview UX remain.
+- **Composer #489 copy fallback fixed.** The lesson requests on `/learn` now
+  select and focus on denial; Firefox collapsed the selection when it was made
+  before focus, so focus now happens first. Verified live in Firefox 142 and
+  WebKit 26 at 341/341 characters, plus a real 341-character clipboard copy in
+  Chrome. Safari itself, screen-reader speech and a physical phone remain.
+- **The story starts where a visitor can.** `/media-studio#free-tools` lists the
+  three browser-local tools and the public gallery before any prerequisite.
+
 ## Product delivery train — 16 November 2026
 
 Composer `01c1446e897ad901118f08d7efb71a7999251be1` on Worker
@@ -27,8 +62,9 @@ sources. The detailed record is
   speech. All seven code-owned tutorials now share the quick start; live
   `/building` copy was byte-identical at 3,427 characters.
 - **Studio #12** now revalidates published media with 304, defers offscreen
-  gallery cards, and puts `fetchpriority` only on the hero/detail; repeat
-  gallery visits fell from 27.4 MB to ~5 KB. The thumbnail pipeline remains.
+  gallery cards, and puts `fetchpriority` only on the hero/detail. The
+  derivative pipeline has since shipped and the issue is closed; see the entry
+  above.
 - **Studio #601** `/compare` now lists accessible studios instead of
   dead-ending, and starts in blind review with model names/costs and the
   verdict hidden until a pick.
