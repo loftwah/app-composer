@@ -29,7 +29,7 @@ export function validateManifest(value, { write = false } = {}) {
   if (value.contract !== "media-studio-capabilities")
     throw new Error("The manifest contract is not media-studio-capabilities");
   if (value.version !== 1) throw new Error("Only manifest version 1 is supported");
-  if (value.source !== sourceUrl)
+  if (value.source !== undefined && value.source !== sourceUrl)
     throw new Error(`The manifest source must stay ${sourceUrl}`);
   if (!Array.isArray(value.models) || !value.models.length)
     throw new Error("The manifest has no models");
@@ -75,6 +75,7 @@ export function validateManifest(value, { write = false } = {}) {
   if (value.lastGoodAt && !Number.isFinite(Date.parse(value.lastGoodAt)))
     throw new Error("lastGoodAt must be an ISO timestamp when present");
 
+  value.source = sourceUrl;
   if (write) {
     const temporary = `${configPath}.${process.pid}.tmp`;
     writeFileSync(temporary, JSON.stringify(value, null, 2) + "\n");
@@ -102,6 +103,7 @@ const write = process.argv.includes("--write");
 let value;
 try {
   value = write ? await fetchManifest() : JSON.parse(readFileSync(configPath, "utf8"));
+  if (write) value.models = value.models.filter((model) => model.composer === true);
   const summary = validateManifest(value, { write });
   console.log(JSON.stringify({ mode: write ? "write" : "check", source: sourceUrl, ...summary, modelCalls: 0 }, null, 2));
 } catch (error) {
