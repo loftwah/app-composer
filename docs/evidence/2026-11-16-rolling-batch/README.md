@@ -9,8 +9,8 @@ sources, the evidence gathered and the work that remains open.
 
 | Surface | Source | Worker version | Live identity |
 | --- | --- | --- | --- |
-| App Composer | `9be55b90a153bfaa8764a68e2acfa713cd9fdea3` | `2f6daeec-da37-4472-8ff5-cec205d6e15e` | [build.json](https://composer.loftwah.com/build.json) |
-| Media Studio | `4a14ca3e09071edb862b3cc0bd9ec1cc004a2cca` | `1932f786-d34b-47b3-ba43-37fa91768dec` | [build.json](https://media.loftwah.com/build.json) |
+| App Composer | `5cffcc4e46a15bb72a7e2a018580fb6af662abf5` | latest guarded release 127.5s | [build.json](https://composer.loftwah.com/build.json) |
+| Media Studio | `fd534964f9051381786fd130ec4995f599429888` | latest guarded release 25.2s | [build.json](https://media.loftwah.com/build.json) |
 
 Both used the existing guarded clean-pushed-main paths. Studio applied
 `0018_portable_project_imports.sql` and then `0019_review_rooms.sql`; Composer
@@ -119,10 +119,41 @@ ran the documented test once, made no changes and stopped for authorisation.
 Still open: the five-person first-visit test, a second vendor/CLI and
 new-project path, native zoom and a physical screen reader.
 
+### 7. Storage health and duplicate reuse — Studio #158 (closed)
+
+Read-only owner report: bytes by image/video/audio, originals vs derivatives,
+protected/published, missing objects, exact duplicate groups and unknown
+provenance, plus JSON download. The asset viewer lists precise saved uses; the
+upload path can reuse an exact same-project original by SHA-256 + size + MIME
+without creating a new row or R2 object.
+
+Evidence: the real LoftwahFM project reports **167.9 MB / 30 files**, 2
+published, **1 exact duplicate group of 4 WAV copies keeping 16.7 MB extra**,
+and 2 legacy rows with `r2 key outside project` marked unknown, not unused.
+Preflight and reuse returned `readOnly:true`, `writes:0`; a different SHA
+returned no duplicate. Storyboard/song-plan/local-render/publication uses had
+deep links. 8 focused tests and 375 total tests pass; 390/1440 no overflow.
+
+Deliberately not shipped: destructive reclamation, orphan purge or automatic
+deletion. `unused` means no saved reference found in the scanned project, not
+safe to delete.
+
+### 8. Release-timing benchmark ingest — Composer #601 (slice)
+
+`/benchmarks` links a deterministic local report for `release-timing/v1`
+receipts. It reuses the canonical validator, rejects forged/private data,
+groups by repository and release path, and reports total, slowest stage,
+target/limit, status and measured coverage. Public-safe fixtures differ
+genuinely: 92.5s Composer vs 27.0s Studio. 34 focused tests pass.
+
+Still open: the broader reproducible benchmark programme and a rendered receipt
+view; the page links the local report and states that gap.
+
 ## Closed in this batch
 
 - Composer #626 — Producer, Marketer and App Operator pathways.
 - Composer #625 — task-first, project-aware launcher.
+- Studio #158 — read-only storage health, used-by graph and duplicate-upload reuse.
 
 ## Remaining owner decisions / gates
 
@@ -135,4 +166,4 @@ new-project path, native zoom and a physical screen reader.
 - #624/#160: a genuine natural breach-to-fix loop and remaining portfolio
   rollout.
 - #609: human first-visit test and a second independent agent.
-- #158 and #601: first slices are running on separate branches.
+- #601: broader reproducible benchmark programme; the receipt-ingest slice is live.
