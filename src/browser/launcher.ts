@@ -92,7 +92,7 @@
     { name: "Runbooks & resources", path: "/resources", description: "Take the operating kit and working examples", keywords: "resources runbooks incident pipeline hooks cheatsheet download kit", icon: "book" },
     { name: "Follow-along tutorial", path: "/learn", description: "Learn by making something", keywords: "help learn start tutorial", icon: "book" },
     { name: "Content and form builder", path: "/init/content", description: "Design your own content model", keywords: "build fields form cms collection", icon: "settings" },
-    { name: "Get Ready library and CLI", path: "/docs#standalone-get-ready", description: "Use the standalone tools", keywords: "package command terminal mcp", icon: "terminal" },
+    { name: "Get Ready library and CLI", path: "/docs/how-it-works#standalone-get-ready", description: "Use the standalone tools", keywords: "package command terminal mcp", icon: "terminal" },
     { name: "The whole platform", path: "/architecture", description: "See how the pieces connect", keywords: "architecture system", icon: "stacks" },
     { name: "CMS, cloud, commerce and email guide", path: "/guide", description: "Choose the services your app needs", keywords: "cloudflare emdash shop mail", icon: "book" },
     { name: "Manage mini-apps", path: "/_emdash/admin/plugins/composer-miniapps/apps", description: "Open the invited owner studio", keywords: "admin edit moderation approve profile", icon: "settings" },
