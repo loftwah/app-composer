@@ -8,6 +8,7 @@ import {
   assertReceipt,
   classifyDuration,
   createReleaseRun,
+  createGitHubAdapter,
   findStuckRuns,
   isWithinLimit,
   redact,
@@ -284,4 +285,17 @@ test("one fingerprint identifies one repo, release path and bottleneck", () => {
   assert.equal(stableFingerprint(base), stableFingerprint({ ...base }));
   assert.notEqual(stableFingerprint(base), stableFingerprint({ ...base, bottleneck: "checks" }));
   assert.notEqual(stableFingerprint(base), stableFingerprint({ ...base, repo: "loftwah/other" }));
+});
+
+test("the GitHub adapter allows a bounded multi-megabyte issue list", async () => {
+  let options = null;
+  const github = createGitHubAdapter({
+    repo: "loftwah/example",
+    exec: (_command, _args, received) => {
+      options = received;
+      return "[]";
+    },
+  });
+  await github.findOpen("fingerprint");
+  assert.ok(options.maxBuffer >= 32 * 1024 * 1024);
 });
