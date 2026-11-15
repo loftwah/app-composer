@@ -7,10 +7,10 @@ sources, the evidence gathered and the work that remains open.
 
 ## Release identities
 
-| Surface | Source | Worker version | Live identity |
-| --- | --- | --- | --- |
-| App Composer | `5cffcc4e46a15bb72a7e2a018580fb6af662abf5` | latest guarded release 127.5s | [build.json](https://composer.loftwah.com/build.json) |
-| Media Studio | `fd534964f9051381786fd130ec4995f599429888` | latest guarded release 25.2s | [build.json](https://media.loftwah.com/build.json) |
+| Surface | Source | Worker version | Release time | Live identity |
+| --- | --- | --- | --- | --- |
+| App Composer | `5cffcc4e46a15bb72a7e2a018580fb6af662abf5` | `5025be41-5e21-4427-a7ca-0c97af8f1d5c` | 127.5s | [build.json](https://composer.loftwah.com/build.json) |
+| Media Studio | `fd534964f9051381786fd130ec4995f599429888` | `9c824986-fd55-4275-8390-e89c101c748e` | 25.2s | [build.json](https://media.loftwah.com/build.json) |
 
 Both used the existing guarded clean-pushed-main paths. Studio applied
 `0018_portable_project_imports.sql` and then `0019_review_rooms.sql`; Composer
