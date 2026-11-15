@@ -1,0 +1,107 @@
+---
+import Base from '../layouts/Base.astro';
+import {
+  blueprintReadiness,
+  blueprints,
+  blueprintSpec,
+  blueprintsVersion,
+} from '../lib/blueprints.mjs';
+import { ArrowRight, Download, ExternalLink, GitBranch } from '@lucide/astro';
+const entries = blueprints.map(entry => {
+  const readiness = blueprintReadiness(entry);
+  const spec = blueprintSpec(entry);
+  return {entry, readiness, spec};
+});
+type Source = {id: string; name: string; repository: string; commit: string; short: string; url: string};
+const labels: Record<string, string> = {reference: 'Reference', ready: 'Ready to build', 'evidence-pending': 'Evidence pending'};
+---
+<Base title="Blueprints" description="Versioned, portable starting points taken from real App Composer projects, with their locked apps, prerequisites and evidence.">
+ <div class="bp-heading">
+  <p class="eyebrow">Blueprint catalogue · v{blueprintsVersion}</p>
+  <h1>Starting points you can hand to an agent.</h1>
+  <p class="lede">Each blueprint names the apps it needs, the source revision each one is locked to, what it assumes about your environment, and the evidence behind it. Open one in Init to shape the settings, or download the specification and give it to your agent.</p>
+ </div>
+
+ <p class="bp-note">A blueprint is a brief, not a build. "Ready to build" is a catalogue claim about pinned apps and evidence links; it is not proof that your own build will work, and it never deploys anything.</p>
+
+ {entries.map(({entry, readiness, spec}) => (
+  <article class="bp-card" aria-labelledby={`bp-${entry.id}`}>
+   <header>
+    <div>
+     <p class="bp-kicker">Blueprint {entry.version} · {entry.apps.join(' + ')}</p>
+     <h2 id={`bp-${entry.id}`}>{entry.name}</h2>
+    </div>
+    <span class={`bp-state bp-state-${readiness.state}`}>{labels[readiness.state] ?? readiness.state}</span>
+   </header>
+   <p>{entry.summary}</p>
+   <div class="bp-grid">
+    <section aria-label="Locked source">
+     <h3><GitBranch size={16} aria-hidden="true"/> Locked source</h3>
+     <ul class="bp-sources">
+      {readiness.sources.map((source: Source) => (
+       <li>
+        <a href={`${source.repository}/tree/${source.commit}`}>{source.name}</a>
+        <code>{source.short}</code>
+       </li>
+      ))}
+     </ul>
+     <p class="small">{readiness.reason}</p>
+    </section>
+    <section aria-label="What it assumes">
+     <h3>What it assumes</h3>
+     <ul>{entry.requires.map(item => <li>{item}</li>)}</ul>
+    </section>
+    <section aria-label="Evidence">
+     <h3><ExternalLink size={16} aria-hidden="true"/> Evidence</h3>
+     <ul class="bp-evidence">
+      {entry.evidence.map(item => (
+       <li>
+        <a href={item.url}>{item.label}</a>
+        <span>{item.observed}</span>
+       </li>
+      ))}
+     </ul>
+    </section>
+    <section aria-label="Limits">
+     <h3>Limits</h3>
+     <ul>{entry.limits.map(item => <li>{item}</li>)}</ul>
+    </section>
+   </div>
+   <div class="bp-actions">
+    <a class="button" href={`/init?start=${entry.preset}`}>Open this preset in Init <ArrowRight size={18} aria-hidden="true"/></a>
+    <a class="button secondary" href={`/blueprints/${entry.id}.json`}><Download size={18} aria-hidden="true"/> Download specification</a>
+   </div>
+   <details class="bp-spec">
+    <summary>What the specification carries</summary>
+    <p class="small">Preset <code>{spec.preset}</code>, title “{spec.config.title}”, theme {spec.config.theme}, layout {spec.config.layout}, review-first privacy, preview deployment, and {spec.cards.length} cards. Everything else — your name, hosting and agent — stays yours.</p>
+   </details>
+  </article>
+ ))}
+</Base>
+<style>
+ .bp-heading{max-width:860px}
+ .bp-heading h1{font-size:clamp(2.5rem,5.2vw,4.4rem);max-width:18ch;margin:10px 0 20px}
+ .bp-heading .lede{max-width:58ch}
+ .bp-note{margin:30px 0 40px;padding:16px 18px;border-left:3px solid var(--color-accent);background:var(--color-surface);font-size:14px;max-width:80ch}
+ .bp-card{border-top:1px solid var(--color-border);padding:32px 0 40px}
+ .bp-card header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;flex-wrap:wrap}
+ .bp-kicker{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--color-muted);margin:0}
+ .bp-card h2{font-size:clamp(1.8rem,3.4vw,2.6rem);margin:8px 0 0;max-width:none}
+ .bp-state{font-size:12px;letter-spacing:.05em;text-transform:uppercase;padding:6px 10px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+ .bp-state-reference{color:var(--color-accent)}
+ .bp-state-ready{color:var(--color-success)}
+ .bp-state-evidence-pending{color:#ff8a6a}
+ .bp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 40px;margin:24px 0 0}
+ .bp-grid h3{display:flex;align-items:center;gap:8px;font-size:1rem;margin:0 0 10px}
+ .bp-grid ul{padding-left:20px;margin:0;font-size:14px;line-height:1.55}
+ .bp-grid li{margin:6px 0}
+ .bp-sources{list-style:none;padding:0!important}
+ .bp-sources li{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin:0 0 8px}
+ .bp-sources a{font-size:14px}
+ .bp-evidence{list-style:none;padding:0!important}
+ .bp-evidence a{display:block;font-size:14px}
+ .bp-evidence span{display:block;font-size:13px;color:var(--color-muted);margin-top:3px}
+ .bp-actions{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 0}
+ .bp-spec{border-top:1px solid var(--color-border);margin-top:24px;padding-top:8px}
+ @media(max-width:800px){.bp-grid{grid-template-columns:1fr}.bp-actions .button{width:100%}}
+</style>
