@@ -11,7 +11,7 @@ import {
   legacyDocsAnchors,
   searchDocs,
 } from '../src/lib/docs-hub.ts';
-import { promptModule, renderPrompt } from '../src/lib/prompt-library.ts';
+import { promptModule, promptModules, renderPrompt } from '../src/lib/prompt-library.ts';
 import { publicPagePaths } from '../src/lib/public-pages.mjs';
 
 const hub = readFileSync(new URL('../src/pages/docs.astro', import.meta.url), 'utf8');
@@ -61,6 +61,49 @@ test('in-page next steps resolve to another task anchor', () => {
   for (const task of docsTaskPaths) {
     if (task.next.href.startsWith('#')) assert.ok(anchors.has(task.next.href), `${task.id} next step ${task.next.href} must exist`);
   }
+});
+
+test('every task, reference, guide and unavailable result deep-links to a real route and anchor', () => {
+  const routes = new Set(publicPagePaths);
+  const promptIds = new Set(promptModules.map(item => item.id));
+  const sectionIds = new Set(docsReferenceSections.map(item => item.id));
+  const hubAnchors = new Set([...hub.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]));
+  const taskAnchors = new Set(docsTaskPaths.map(task => task.anchor));
+  const knownAnchors = new Map([
+    ['/prompts', promptIds],
+    ['/docs/how-it-works', sectionIds],
+  ]);
+
+  function assertHref(href, context) {
+    if (href.startsWith('#')) {
+      const id = href.slice(1);
+      assert.ok(hubAnchors.has(id) || taskAnchors.has(id), `${context}: ${href} must exist on /docs`);
+      return;
+    }
+    const [path, hash] = href.split('#');
+    assert.ok(path.startsWith('/'), `${context}: ${href} must be a site route`);
+    assert.ok(routes.has(path), `${context}: ${path} is not a maintained public page`);
+    if (!hash) return;
+    assert.ok(knownAnchors.has(path), `${context}: ${href} uses an anchor on an unindexed route`);
+    assert.ok(knownAnchors.get(path).has(hash), `${context}: ${href} does not exist in ${path}`);
+  }
+
+  for (const task of docsTaskPaths) {
+    assertHref(task.guide.href, `${task.id} guide`);
+    assertHref(task.next.href, `${task.id} next step`);
+    for (const link of task.also ?? []) assertHref(link.href, `${task.id} related link`);
+  }
+  for (const guide of docsGuideLinks) assertHref(guide.href, `${guide.id} guide`);
+  for (const item of docsUnavailable) assertHref(item.closest.href, `${item.id} closest route`);
+  assert.ok(promptIds.has('stripe'), 'the commerce guide anchor is a real prompt');
+});
+
+test('the no-JavaScript page keeps every former section reachable', () => {
+  const blocks = [...hub.matchAll(/<noscript>([\s\S]*?)<\/noscript>/g)].map(match => match[1]);
+  const fallback = blocks.find(block => block.includes('docsReferenceSections.map'));
+  assert.ok(fallback, 'a no-JavaScript fallback lists the former anchors');
+  assert.match(fallback, /How App Composer works/);
+  assert.match(fallback, /\/docs\/how-it-works#\$\{section\.id\}/, 'the fallback is generated from the maintained index');
 });
 
 test('the technical reference keeps every maintained section and legacy anchor', () => {
@@ -139,6 +182,7 @@ test('the hub renders the required first viewport and reuses the prompt renderer
   assert.match(hub, /href="\/prompts">Get a prompt for my agent/);
   assert.match(hub, /data-docs-search/);
   assert.match(hub, /href="\/docs\/how-it-works"/);
+  assert.match(hub, /Copy template<\/strong> action produces this same text/, 'the copy note distinguishes the template from a completed prompt');
   for (const task of docsTaskPaths) {
     assert.ok(task.id.length > 2, `${task.id} is a real task id`);
   }
@@ -199,6 +243,14 @@ test('copy reports success, denial and an unusable prompt instead of failing sil
   assert.match(docsCopyMessages.manual, /^Copy failed/);
   assert.match(docsCopyMessages.manual, /selected below/);
   assert.match(docsCopyMessages.empty, /prompt library/);
+});
+
+test('Escape restores the full hub after ArrowDown moved focus to a result', () => {
+  const client = readFileSync(new URL('../src/lib/docs-hub-client.ts', import.meta.url), 'utf8');
+  assert.match(client, /root\.addEventListener\('keydown', event => \{/, 'the hub handles Escape outside the search field');
+  assert.match(client, /event\.key !== 'Escape' \|\| !input\?\.value/);
+  assert.match(client, /input\.value = '';\n    filter\(\);\n    input\.focus\(\);/, 'clearing also returns focus to the field');
+  assert.match(client, /target === input/, 'the search field keeps its own Escape behaviour');
 });
 
 test('every copy control is named for its own task and announces its own outcome', () => {

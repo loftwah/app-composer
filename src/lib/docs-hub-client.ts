@@ -128,6 +128,18 @@ if (root) {
   }
 
   input?.addEventListener('input', filter);
+  // Escape clears a filtered page from anywhere in the hub, including a result
+  // link reached with ArrowDown. The input's own handler keeps the field
+  // focused; this one restores the full page and returns focus there.
+  root.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || !input?.value) return;
+    const target = event.target;
+    if (target instanceof HTMLElement && (target === input || target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return;
+    input.value = '';
+    filter();
+    input.focus();
+    event.preventDefault();
+  });
   input?.addEventListener('keydown', event => {
     if (event.key === 'Escape' && input.value) {
       input.value = '';
