@@ -153,8 +153,8 @@ export function blueprintSources(entry) {
 }
 
 /**
- * A blueprint is only "ready" when every app is mounted and every evidence
- * address resolves to https. This is a catalogue-level claim, not a build proof.
+ * Catalogue links and source pins describe a reference. Replay readiness
+ * needs separate evidence tied to the exact sources and an independent owner.
  * @param {any} entry
  */
 export function blueprintReadiness(entry) {
@@ -168,7 +168,11 @@ export function blueprintReadiness(entry) {
         sources,
         reason: "No independent owner has replayed this build yet.",
       };
-    return { state: "ready", sources, reason: "All apps are mounted at exact revisions." };
+    return {
+      state: "evidence-pending",
+      sources,
+      reason: "Readiness requires a verified replay by an independent owner.",
+    };
   } catch (error) {
     return {
       state: "evidence-pending",

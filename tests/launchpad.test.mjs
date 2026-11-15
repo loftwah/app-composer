@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { selectedSources } from "../src/lib/app-settings.mjs";
 import {
   agentPrompt,
   initialLaunchpad,
@@ -121,6 +122,21 @@ test("an invalid blueprint is refused instead of applied", () => {
     () => specToLaunchpad({ version: 2, preset: "composition" }, initialLaunchpad()),
     /title/i,
   );
+});
+
+test("a valid Init blueprint for another app does not replace the sandbox", () => {
+  const state = initialLaunchpad();
+  const { spec } = launchpadSpec(state);
+  for (const preset of ["hello", "media-studio"]) {
+    const otherApp = {
+      ...spec,
+      preset,
+      sources: selectedSources([preset]),
+      appSettings: {},
+      cards: [],
+    };
+    assert.throws(() => specToLaunchpad(otherApp, state), /open it in Init/i);
+  }
 });
 
 test("an empty selection exports nothing and says why", () => {

@@ -428,6 +428,9 @@ export function launchpadSpec(state) {
  */
 export function specToLaunchpad(input, current) {
   const spec = validateSpec(input);
+  if (!["composition", "showcase", "guestbook"].includes(spec.preset)) {
+    throw new Error(`The sandbox cannot preview the ${spec.preset} blueprint. Open it in Init.`);
+  }
   const apps = /** @type {string[]} */ (spec.apps);
   const next = structuredClone(current);
   next.project.name = spec.config.title;
