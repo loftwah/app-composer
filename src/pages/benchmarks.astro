@@ -63,7 +63,7 @@ const icon: Record<string, typeof CheckCircle2> = {pass: CheckCircle2, fail: XCi
   <h2 id="limits-title">What this run does not prove</h2>
   <ul>
    <li>One machine, one run. There is no repeat count or variance claim yet, and no promise about other machines.</li>
-   <li>No model or coding-agent comparison. That comparison needs the same brief and checks across configurations, and it has not run.</li>
+   <li>This run is the sandbox checks only. The <a href="/benchmarks/compare">comparison track</a> is separate: one frozen brief, three agent configurations and three trials each.</li>
    <li>Live checks are HTTP-level: they confirm the page responds and contains the expected text. They do not sign in, deploy or moderate anything.</li>
    <li>No paid provider was called. Nothing here spends money or proves a provider integration.</li>
    <li>{checks.filter(c => c.status === 'blocked').length} blocked {checks.filter(c => c.status === 'blocked').length === 1 ? 'check' : 'checks'} stay counted as blocked rather than passing by default.</li>
