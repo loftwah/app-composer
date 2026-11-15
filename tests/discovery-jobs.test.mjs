@@ -52,7 +52,7 @@ test('each job names real related roles and an existing app', () => {
     assert.ok(job.relatedRoles.length > 0, `${job.id} needs related role context`);
     for (const roleId of job.relatedRoles) assert.ok(roleIds.has(roleId), `${job.id} names an unknown role`);
     assert.ok(job.roleNote.length > 8, `${job.id} needs role context`);
-    assert.ok(['paperwork', 'launch-kit', 'ldraw', 'linkcheck', 'guestbook', 'showcase', 'hello'].includes(job.app));
+    assert.ok(['paperwork', 'launch-kit', 'ldraw', 'linkcheck', 'guestbook', 'showcase', 'hello', 'media-studio'].includes(job.app));
   }
 });
 
@@ -78,9 +78,9 @@ test('legacy role job links resolve to the canonical job route, never a role-onl
   assert.equal(discoveryJobForRole('creator', 'not-a-job'), undefined);
 });
 
-test('the hub names all seven roles and all seven jobs', () => {
+test("the hub names every role and job", () => {
   for (const role of discoveryRoles) assert.ok(discoveryHubDescription.includes(role.label), `hub metadata must name ${role.label}`);
   for (const job of discoveryJobs) assert.ok(discoveryHubDescription.includes(job.label), `hub metadata must name ${job.label}`);
-  assert.equal(discoveryRoles.length, 7);
-  assert.equal(discoveryJobs.length, 7);
+  assert.equal(discoveryRoles.length, 10);
+  assert.equal(discoveryJobs.length, 10);
 });
