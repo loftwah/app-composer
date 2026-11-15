@@ -150,3 +150,20 @@ destinations; the collection shows its approved item and a “Know the guest
 code? Leave a postcard” path; `/contribute` shows **Leave a postcard.** with the
 guest-code field and a **Send for approval** button. Approval and hiding are
 unchanged.
+
+## Checkpoint 4 — an approved publication records its review
+
+Studio `c7729e5fab7afe75ef8daba7aad877611b8b698a`, Worker
+`4d162ae3-2810-4c8f-a0f7-40aa90bd009f`, migration `0021`, released in 25.5 s.
+
+Publishing a saved version now records the latest approved review room and the
+exact SHA-256 it pinned. Live check: re-publishing Cut 2 created
+`pub_b5da17a4…`, whose project view reported
+`{roomId: rev_d166eec9…, decision: approved, assetSha256: 6a6f246f…}`. That
+temporary page was withdrawn (`404`); the original
+`/p/oCE3jwInl-G55yXf` still returns `200`.
+
+It is provenance, not permission. Publishing remains a separate action, an
+unapproved asset publishes as before, and a new saved revision does not inherit
+an earlier approval. Tests cover the approved case, an unresolved room and a
+changed hash. Studio `pnpm check` 394/394.
