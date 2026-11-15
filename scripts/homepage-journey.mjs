@@ -13,22 +13,25 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
   for (const theme of ['dark', 'light']) {
     for (const width of widths) {
       await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
-      await page.goto(new URL('/?analytics=off&qa=1', origin).href, { waitUntil: 'networkidle' });
+      await page.goto(new URL('/?analytics=off&qa=1', origin).href, { waitUntil: 'domcontentloaded' });
       if (await page.locator('html').getAttribute('data-theme') !== theme) {
         await page.locator('#theme-toggle').click();
       }
       await page.evaluate(() => document.fonts.ready);
-      await page.locator('.studio-poster img').evaluateAll(images => Promise.all(images.map(image => image.decode())));
+      await page.locator('.studio-stage').scrollIntoViewIfNeeded();
+      const poster = await page.locator(`.studio-poster-${theme} img`).evaluate(async image => {
+        await image.decode();
+        return image.naturalWidth;
+      });
       const geometry = await page.evaluate(() => {
         const box = selector => document.querySelector(selector).getBoundingClientRect().toJSON();
         return { opening: box('.home-opening'), workshop: box('.studio-hero'), copy: box('.studio-copy'), stage: box('.studio-stage'), deck: box('.studio-deck'), next: box('#make-something'),
           overflow: document.documentElement.scrollWidth > innerWidth + 1,
           reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
-          scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior,
-          imageCount: [...document.querySelectorAll('.studio-poster img')].filter(image => image.naturalWidth > 0).length };
+          scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior };
       });
       ensure(!geometry.overflow, `Homepage overflows at ${width}/${theme}`);
-      ensure(geometry.imageCount === 2, `Missing workshop posters at ${width}/${theme}`);
+      ensure(poster > 0, `Missing workshop poster at ${width}/${theme}`);
       ensure(geometry.reducedMotion, 'Reduced motion preference was lost');
       ensure(geometry.scrollBehavior === 'auto', 'Reduced motion still animates anchor scrolling');
       ensure(geometry.copy.bottom <= geometry.deck.top + 1, 'Workshop desk covers headline, actions or context');
@@ -50,7 +53,7 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
           }
           scrollTo(0, 0);
         });
-        await page.locator('main img').evaluateAll(images => Promise.all(images.filter(image => getComputedStyle(image).display !== 'none').map(image => image.decode())));
+        await page.locator('main img').evaluateAll(images => Promise.all(images.filter(image => image.getClientRects().length).map(image => image.decode())));
         await capture(page, name, { fullPage: true });
       }
       receipt.views.push({ width, theme, ...geometry });
