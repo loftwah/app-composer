@@ -8,6 +8,7 @@ import {
   adminBrandCss,
   approvedMark,
   approvedFavicon,
+  normaliseAdminBrandConfig,
   type AdminBrandConfig,
   type BrandTarget,
   type BrandSnapshot,
@@ -83,7 +84,7 @@ function matches(config: AdminBrandConfig, target: BrandTarget) {
   return config;
 }
 const parsedConfig = (text: string, target: BrandTarget) =>
-  matches(adminBrandConfig.parse(JSON.parse(text)), target);
+  matches(normaliseAdminBrandConfig(JSON.parse(text)), target);
 async function state(db: D1Database, target: BrandTarget) {
   return db
     .prepare("SELECT * FROM composer_admin_brands WHERE scope=?")

@@ -34,3 +34,9 @@ Local actual-native acceptance and limitations are recorded under
 docs/evidence/brand-studio-20261025/. Production, physical and broad visual
 propagation remain separate. Keep the form and recovery paths useful before
 adding additional appearance controls.
+
+The Workshop press skin (15 November 2026) is the one additional appearance
+control so far: a finite saved token/edge layer over the same native controls,
+with an optional device-local press cue. It is not a theme engine. Sensory
+feedback stays off by default, on the specimen control only, and never enters the
+published record. See docs/tactile-skin-20261115.md before extending it.

@@ -242,3 +242,23 @@ apps, the source and data they keep, and the second change Mara asked for on the
 same profile. That example sits before the fictional workshop, which remains
 clearly labelled and links to the real apps. The opening artwork is finished
 Media Studio work, not a substitute for the product explanation.
+
+## Brand Studio tactile skin option — 15 November 2026
+
+Brand Studio's appearance form gains one optional skin beside its reading
+presets. **Workshop press** is Composer's own press-and-plate world: panels sit
+inside a set-back rule, fields and buttons square their corners, and an edge
+weight of 1–4 sets how heavy that rule reads. It is a saved appearance setting,
+not a second theme engine: the approved mark, orange palette, native EmDash
+controls, labels and order are unchanged, and the default skin is what every
+existing version still renders.
+
+The option is deliberately quiet. Edge pressure, not colour, is the variable, so
+the skin cannot drift from the approved palette; both native themes derive their
+plate tint from the host text colour. There is no animation, so reduced motion
+loses nothing, and the pressed edge is an instantaneous visual state rather than
+a transition. Optional sound and haptics live on the specimen control only, are
+off by default, are stored per device, and never ride along with the published
+appearance. The reference worked from (SPEC-01's scoped skin and gesture-bound
+earcons) and the mechanisms deliberately left out are recorded in
+[tactile skin reference](docs/tactile-skin-20261115.md).
