@@ -82,6 +82,11 @@ export async function memberCall(
       "Sign in with EmDash, then refresh your access. Your authentication system must admit you before workspace invitations can be accepted.",
     );
   });
+  if (response.status === 403)
+    throw Object.assign(
+      Error("Sign in with EmDash to open your profile and app tools."),
+      { status: 403 },
+    );
   const value = await parseApiResponse<unknown>(
     response,
     "This action could not be confirmed. Your edits are retained; refresh access before retrying.",
