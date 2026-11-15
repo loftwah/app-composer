@@ -528,3 +528,18 @@
     scroll-behavior: auto;
   }
 }
+
+/* Palette values are static per theme and accent so the live preview needs no
+   inline style attribute, which the page's Content Security Policy blocks. */
+.lp-app[data-lp-theme="daylight"][data-lp-accent="ember"]{--lp-bg:#fbf7f2;--lp-surface:#fff;--lp-ink:#1c1a17;--lp-muted:#5e574e;--lp-border:#ded5c8;--lp-accent:#c2470a;--lp-on-accent:#fffaf5;color-scheme:light}
+.lp-app[data-lp-theme="midnight"][data-lp-accent="ember"]{--lp-bg:#191512;--lp-surface:#241e19;--lp-ink:#f7efe7;--lp-muted:#bda997;--lp-border:#453a31;--lp-accent:#fc8a4d;--lp-on-accent:#231409;color-scheme:dark}
+.lp-app[data-lp-theme="daylight"][data-lp-accent="sea"]{--lp-bg:#f4f9fb;--lp-surface:#fff;--lp-ink:#111d24;--lp-muted:#4d606b;--lp-border:#cadde5;--lp-accent:#1c6274;--lp-on-accent:#f6fcfd;color-scheme:light}
+.lp-app[data-lp-theme="midnight"][data-lp-accent="sea"]{--lp-bg:#0d181d;--lp-surface:#152730;--lp-ink:#eaf5f9;--lp-muted:#9db7c2;--lp-border:#2c4551;--lp-accent:#63cbe4;--lp-on-accent:#08222a;color-scheme:dark}
+.lp-app[data-lp-theme="daylight"][data-lp-accent="moss"]{--lp-bg:#f6f9f3;--lp-surface:#fff;--lp-ink:#182015;--lp-muted:#55614b;--lp-border:#d6e2cc;--lp-accent:#3f6b31;--lp-on-accent:#f9fdf6;color-scheme:light}
+.lp-app[data-lp-theme="midnight"][data-lp-accent="moss"]{--lp-bg:#131a12;--lp-surface:#1d2a1b;--lp-ink:#f0f7ec;--lp-muted:#aabfa1;--lp-border:#33472e;--lp-accent:#a2da77;--lp-on-accent:#152612;color-scheme:dark}
+.lp-app[data-lp-theme="daylight"][data-lp-accent="clay"]{--lp-bg:#fbf5f1;--lp-surface:#fff;--lp-ink:#221910;--lp-muted:#665648;--lp-border:#e5d3c4;--lp-accent:#94451c;--lp-on-accent:#fff8f3;color-scheme:light}
+.lp-app[data-lp-theme="midnight"][data-lp-accent="clay"]{--lp-bg:#1b1512;--lp-surface:#291f1a;--lp-ink:#f9efe7;--lp-muted:#c4a894;--lp-border:#49382d;--lp-accent:#eaa877;--lp-on-accent:#2a1509;color-scheme:dark}
+.lp-swatch-ember span{background:#fc5b05}
+.lp-swatch-sea span{background:#3aa6c4}
+.lp-swatch-moss span{background:#7fbb56}
+.lp-swatch-clay span{background:#c9803f}

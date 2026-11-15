@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
-import type { CSSProperties } from "react";
 import { builderHref } from "../lib/builder-context.mjs";
 import {
   HANDOFF_KEY,
@@ -10,7 +9,6 @@ import {
   initialLaunchpad as rawInitial,
   launchpadSpec as rawSpec,
   layouts as rawLayouts,
-  paletteVars as rawPaletteVars,
   palettes as rawPalettes,
   readLaunchpad as rawRead,
   specToLaunchpad as rawApply,
@@ -75,7 +73,6 @@ const specToLaunchpad = rawApply as unknown as (
   current: Launchpad,
 ) => Report & { state: Launchpad };
 const agentPrompt = rawPrompt as unknown as (s: Launchpad) => string;
-const paletteVars = rawPaletteVars as unknown as (p: Project) => Record<string, string>;
 const palettes = rawPalettes as unknown as Record<
   Accent,
   { name: string; daylight: { accent: string }; midnight: { accent: string } }
@@ -112,8 +109,9 @@ function Preview({ state }: { state: Launchpad }) {
   const { project, blocks, links } = state;
   return (
     <div
-      className={`lp-app lp-app-${project.theme}`}
-      style={paletteVars(project) as unknown as CSSProperties}
+      className="lp-app"
+      data-lp-theme={project.theme}
+      data-lp-accent={project.accent}
       data-preview="launchpad"
     >
       <div className="lp-bar">
@@ -376,12 +374,8 @@ export default function LaunchpadSandbox() {
                   role="radio"
                   aria-checked={state.project.accent === accent}
                   aria-label={palettes[accent].name}
-                  className={`lp-swatch ${state.project.accent === accent ? "is-on" : ""}`}
-                  style={
-                    {
-                      "--swatch": palettes[accent][state.project.theme].accent,
-                    } as unknown as CSSProperties
-                  }
+                  className={`lp-swatch lp-swatch-${accent} ${state.project.accent === accent ? "is-on" : ""}`}
+                  data-lp-theme={state.project.theme}
                   onClick={() => dispatch({ type: "accent", value: accent })}
                 >
                   <span aria-hidden="true" />
