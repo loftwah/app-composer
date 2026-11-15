@@ -69,6 +69,14 @@ const receipt = {
     [
       "src/lib/admin-brand.ts",
       "src/lib/admin-brand-contract.ts",
+      "src/lib/appearance-skin.ts",
+      "src/lib/appearance-skin-catalogue.ts",
+      "src/lib/brand-skin-feedback.ts",
+      "src/components/SkinSpecimen.tsx",
+      "src/components/SplitCompare.tsx",
+      "src/styles/appearance-skins.generated.css",
+      "src/styles/skin-specimen.css",
+      "src/styles/split-compare.css",
       "src/plugins/brand-studio-page.tsx",
       "src/plugins/brand-studio-page.css",
       "migrations/0020_admin_brand_studio.sql",
@@ -153,11 +161,10 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
     "Fixture-only Brand middleware calls prepareAdminBrand before next and brandAdminResponse after next.",
     "Existing fixture: Access removed; native passkeys, local origin, no provider bindings.",
   ];
-  browser = await chromium.launch({
-    headless: true,
-    executablePath:
-      "/Users/deanlofts/Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell",
-  });
+  // Let this Playwright build resolve its own installed Chromium. Pinning a
+  // machine-specific headless-shell revision made the replay fail after a
+  // routine browser update, which proves nothing about the product.
+  browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
     colorScheme: "dark",
@@ -334,6 +341,7 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
   // The skin is a real saved setting: keyboard-only choice, range, and a
   // device-local press cue that starts off.
   const pressSkin = page.getByRole("button", { name: /^Workshop press/ });
+  const sheetSkin = page.getByRole("button", { name: /^Contact sheet/ });
   await page.getByRole("button", { name: /^Composer default/ }).focus();
   await page.keyboard.press("Tab");
   assert.equal(
@@ -342,12 +350,19 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
   );
   await page.keyboard.press("Enter");
   assert.equal(await pressSkin.getAttribute("aria-pressed"), "true");
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Space");
+  assert.equal(await sheetSkin.getAttribute("aria-pressed"), "true");
+  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Enter");
+  assert.equal(await pressSkin.getAttribute("aria-pressed"), "true");
   const pressure = page.getByLabel("Edge pressure", { exact: true });
   await pressure.focus();
   await page.keyboard.press("ArrowRight");
   await page.keyboard.press("ArrowRight");
   assert.equal(await pressure.inputValue(), "4");
   receipt.checks.skinKeyboardRange = true;
+  receipt.checks.secondSkinKeyboardChoice = true;
   const soundToggle = page.getByRole("checkbox", {
     name: /Sound cue on this device/,
   });
@@ -359,7 +374,7 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
   const hapticsSupported = !(await hapticsToggle.isDisabled());
   await soundToggle.check();
   await page
-    .getByRole("button", { name: "Press the plate", exact: true })
+    .getByRole("button", { name: "Press the sample", exact: true })
     .click();
   await page
     .getByRole("status")
@@ -460,6 +475,21 @@ execFileSync('cp',['-cR',dependencies,join(app,'node_modules')]);
     "4",
   );
   receipt.checks.skinSurvivedReopen = true;
+  const compare = page.getByRole("slider", {
+    name: "Compare the published appearance with the saved draft",
+  });
+  await compare.scrollIntoViewIfNeeded();
+  assert.equal(await compare.inputValue(), "50");
+  await compare.focus();
+  await page.keyboard.press("ArrowRight");
+  assert.equal(await compare.inputValue(), "51");
+  assert.match(
+    await compare.getAttribute("aria-valuetext"),
+    /51% Published version 4 visible/,
+  );
+  await page.locator(".bs-compare").scrollIntoViewIfNeeded();
+  await capture("studio-compare-1440-dark.png");
+  receipt.checks.savedDraftCompare = true;
   await page
     .getByRole("button", { name: "Review restore of version 2", exact: true })
     .click();

@@ -1,0 +1,45 @@
+{
+  "schema": "composer.fresh-agent-skin/1",
+  "recordedAt": "2026-11-15T13:00:00Z",
+  "purpose": "Prove a fresh agent can produce one valid skin recipe from docs/appearance-skin-contract.md alone.",
+  "agent": {
+    "harness": "codex exec",
+    "version": "codex-cli 0.145.0",
+    "model": "gpt-5.6-sol",
+    "sandbox": "read-only",
+    "ephemeral": true,
+    "workingDirectory": "one owned temporary directory containing only CONTRACT.md",
+    "prompt": "You are a fresh agent evaluating a design contract. The only file you may read is CONTRACT.md in this working directory; do not read any other file, repository, skill, or network resource. Read it, then produce one NEW valid skin recipe that Composer does not ship. Invent an id, name and one-sentence description. Reply with only the JSON object, no prose and no code fence."
+  },
+  "isolation": {
+    "cleanClaim": "partial",
+    "whatHeld": "The working directory contained only the contract. The prompt forbade other files, repositories, skills and the network, and no repository path was provided.",
+    "whatIsNotProven": "The Codex CLI still loads its own host skills and configuration outside the working directory. No transcript-level isolation report was produced, so this is a fresh working context, not a hermetic sandbox."
+  },
+  "input": {
+    "path": "docs/appearance-skin-contract.md",
+    "sha256": "d8222fe86ee2abe2b5d11fa7ac954ff6b3dc2aaf411952b0a8513412231489f6"
+  },
+  "output": {
+    "path": "docs/evidence/appearance-skin-20261115/fresh-agent-output.txt",
+    "sha256": "aa7470fad71087e4e34c1e69895beefd96617658cc2812bb63b790dd304e535e",
+    "recipeId": "pressed-folio"
+  },
+  "validation": {
+    "validator": "normaliseAppearanceSkin from src/lib/appearance-skin.ts",
+    "result": "valid",
+    "shipped": false,
+    "compiledAtPressure": 2,
+    "checks": [
+      "schema composer.appearance-skin/1",
+      "unique id pressed-folio",
+      "all ten measured choices supplied",
+      "compiled to bounded CSS with no URL, import or animation"
+    ]
+  },
+  "limits": [
+    "The produced recipe was validated, not adopted into the shipped skin list.",
+    "No owner approval or design acceptance is implied.",
+    "One model, one run, no repeat count."
+  ]
+}

@@ -149,7 +149,7 @@ the skin as a finite token-and-edge layer with no interpolated user text.
 Press feedback is separate from the shared appearance record. Sound and haptics
 are off by default, stored per device under
 `composer:brand-studio:sensory:v1`, and never published to other administrators.
-Only the labelled **Press the plate** specimen control can play them: a short Web
+Only the labelled **Press the sample** specimen control can play them: a short Web
 Audio tick on the gesture, plus one `navigator.vibrate` pulse when the browser
 reports support. There is no autoplay, no typing sound and no document-level
 listener. Unsupported browsers show a disabled control with the reason.
@@ -165,3 +165,31 @@ to the default skin, and 390px plus doubled root text without horizontal
 scrolling. Physical vibration, iPhone Safari, screen-reader speech and
 production remain unverified; see
 [the reference note](tactile-skin-20261115.md).
+
+## A portable skin contract and a second consumer — 15 November 2026
+
+The skin layer is now one contract with two shipped recipes, not one hard-coded
+surface. **Contact sheet** joins **Workshop press**: printed top rules, square
+fields and an inset focus ring instead of the press plate. Both compile through
+the same function in `src/lib/appearance-skin-catalogue.ts`, and the default still emits no
+layer.
+
+The public [`/appearance`](/appearance) reference consumes the same compiler
+with its own tokens and its own device-local choice. It is a reference surface,
+not a second theme editor: it cannot save or publish an appearance, and its
+storage keys are separate from Brand Studio's. A shared sample component keeps
+the field, action and checkbox identical in both consumers.
+
+Brand Studio also compares the **published version** with the **saved draft**
+using an accessible split wipe. The two panes are the real generated skin
+layers; the native range is the only control, it announces its position, and the
+comparison never edits or publishes either version. This mechanism is an
+original reimplementation of the reviewed accessible compare-slider pattern in
+[the design harvest note](design-harvest-20261115.md).
+
+The written recipe contract — every field, allowed value, compile target and
+verification command — is
+[the appearance skin contract](appearance-skin-contract.md). A fresh Codex
+context produced a valid new recipe from that page alone; the output and its
+limits are in
+[the evidence receipt](evidence/appearance-skin-20261115/README.md).

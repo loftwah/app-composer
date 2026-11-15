@@ -3,6 +3,7 @@ import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
 import {
   adminBrandConfig,
   adminBrandSkins,
+  brandSkinName,
   brandSnapshot,
   approvedMark,
   compareAdminBrand,
@@ -22,6 +23,9 @@ import {
   type SkinSensoryPreference,
 } from "../lib/brand-skin-feedback";
 import { useNavigationGuard } from "./stacks/use-navigation-guard";
+import { SkinSpecimen } from "../components/SkinSpecimen";
+import { SplitCompare } from "../components/SplitCompare";
+import "../styles/appearance-skins.generated.css";
 import "./brand-studio-page.css";
 
 const BASE = "/_emdash/api/plugins/composer-stacks/";
@@ -279,6 +283,10 @@ export function BrandStudioPage() {
     saved && form && saved.published
       ? compareAdminBrand(saved.published, form)
       : [];
+  const savedDifferences =
+    saved && saved.published
+      ? compareAdminBrand(saved.published, saved.draft)
+      : [];
   const restore = saved?.history.find(
     (entry) => entry.version === restoreVersion,
   );
@@ -368,7 +376,11 @@ export function BrandStudioPage() {
                   <p className="bs-hint">
                     An optional tactile treatment for this admin. The Composer
                     default keeps the approved identity and spacing you chose
-                    above. Both skins keep every native control and label.
+                    above. Every skin keeps the native controls and labels.{" "}
+                    <a href="/appearance" target="_blank" rel="noopener">
+                      Open the public skin reference
+                    </a>
+                    .
                   </p>
                   <div
                     className="bs-skin-choices"
@@ -409,38 +421,25 @@ export function BrandStudioPage() {
                     <small id="bs-pressure-help">
                       Sets how heavy the panel edge, field border and focus ring
                       are. Saved with this appearance.{" "}
-                      {form.skin === "workshop-press"
-                        ? "Applied to the Workshop press skin."
-                        : "Not applied while Composer default is selected."}
+                      {form.skin === "composer"
+                        ? "Not applied while Composer default is selected."
+                        : `Applied to the ${brandSkinName(form.skin)} skin.`}
                     </small>
                   </label>
-                  <div
-                    className="bs-specimen"
-                    data-skin={form.skin}
-                    data-pressure={form.skinPressure}
-                  >
-                    <p className="bs-specimen-label">
-                      <strong>Local specimen</strong>
-                      <span>
-                        A sample of the chosen skin in this form. It is not a
-                        saved preview; open the admin previews for that.
-                      </span>
-                    </p>
-                    <div className="bs-specimen-row">
-                      <span className="bs-specimen-field" aria-hidden="true">
-                        Field edge
-                      </span>
-                      <button type="button" onClick={pressPlate}>
-                        Press the plate
-                      </button>
-                    </div>
-                  </div>
+                  <SkinSpecimen
+                    skin={form.skin}
+                    pressure={form.skinPressure}
+                    label="Local specimen"
+                    note="A sample of the chosen skin in this form. It is not a saved preview; open the admin previews for that."
+                    status={cueNote}
+                    onPress={pressPlate}
+                  />
                   <div className="bs-sensory">
                     <h3>Press feedback</h3>
                     <p className="bs-hint" id="bs-sensory-help">
                       Both are off until you turn them on, are stored on this
                       device only, and never reach anyone else using this admin.
-                      The plate is the only control that plays them.
+                      The sample action is the only control that plays them.
                     </p>
                     <label className="bs-check">
                       <input
@@ -456,7 +455,7 @@ export function BrandStudioPage() {
                         Sound cue on this device
                         <small>
                           {support.sound
-                            ? "One short tick after you press the plate. No typing sounds, no autoplay."
+                            ? "One short tick after you press the sample. No typing sounds, no autoplay."
                             : "This browser does not expose Web Audio, so sound stays off."}
                         </small>
                       </span>
@@ -475,7 +474,7 @@ export function BrandStudioPage() {
                         Haptic tap on supported devices
                         <small>
                           {support.haptics
-                            ? "One brief vibration after you press the plate. The device may ignore it."
+                            ? "One brief vibration after you press the sample. The device may ignore it."
                             : "This browser does not report vibration support, which is usual on iPhones and desktops, so haptics stay off."}
                         </small>
                       </span>
@@ -484,11 +483,8 @@ export function BrandStudioPage() {
                       Reduced motion is {reducedMotion ? "on" : "off"} in this
                       browser.{" "}
                       {reducedMotion
-                        ? "The plate keeps its direct visual press and skips the settle tick and the haptic tap."
+                        ? "The sample keeps its direct visual press and skips the settle tick and the haptic tap."
                         : "No part of this skin animates; feedback only confirms a press you made."}
-                    </p>
-                    <p role="status" className="bs-cue-status">
-                      {cueNote}
                     </p>
                   </div>
                 </fieldset>
@@ -624,6 +620,52 @@ export function BrandStudioPage() {
                     ? "Your form matches the published appearance."
                     : "Save a draft to begin."}
                 </p>
+              )}
+              {saved.published && (
+                <section className="bs-compare" aria-labelledby="bs-compare-title">
+                  <h3 id="bs-compare-title">Published and saved draft</h3>
+                  <p className="bs-hint">
+                    Two saved versions drawn with the same skin layer the admin
+                    uses. The divider only changes what you can see; it never
+                    edits, saves or publishes either version.
+                  </p>
+                  <SplitCompare
+                    label="Compare the published appearance with the saved draft"
+                    beforeLabel={`Published version ${saved.publishedVersion}`}
+                    afterLabel={`Saved draft version ${saved.revision}`}
+                    before={
+                      <SkinSpecimen
+                        presentational
+                        compact
+                        skin={saved.published.skin}
+                        pressure={saved.published.skinPressure}
+                        label={`Published version ${saved.publishedVersion}`}
+                        note={`${brandSkinName(saved.published.skin)}, ${
+                          skinPressureNames[saved.published.skinPressure - 1]
+                        } edge`}
+                      />
+                    }
+                    after={
+                      <SkinSpecimen
+                        presentational
+                        compact
+                        skin={saved.draft.skin}
+                        pressure={saved.draft.skinPressure}
+                        label={`Saved draft version ${saved.revision}`}
+                        note={`${brandSkinName(saved.draft.skin)}, ${
+                          skinPressureNames[saved.draft.skinPressure - 1]
+                        } edge`}
+                      />
+                    }
+                  />
+                  <p className="bs-hint">
+                    {savedDifferences.length
+                      ? `${savedDifferences.length} saved ${
+                          savedDifferences.length === 1 ? "field differs" : "fields differ"
+                        } from the published appearance.`
+                      : "The saved draft matches the published appearance."}
+                  </p>
+                </section>
               )}
               <details className="bs-palette">
                 <summary>Semantic colours and identity</summary>
@@ -766,8 +808,8 @@ export function BrandStudioPage() {
                       <p>
                         {entry.config.siteName} · {entry.config.density} spacing
                         · {entry.config.typeScale} text
-                        {entry.config.skin === "workshop-press"
-                          ? ` · Workshop press, ${skinPressureNames[entry.config.skinPressure - 1].toLowerCase()} edge`
+                        {entry.config.skin !== "composer"
+                          ? ` · ${brandSkinName(entry.config.skin)}, ${skinPressureNames[entry.config.skinPressure - 1].toLowerCase()} edge`
                           : ""}
                         {entry.version === saved.publishedVersion
                           ? " · current appearance"

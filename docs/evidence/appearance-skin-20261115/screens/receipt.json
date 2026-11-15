@@ -1,0 +1,33 @@
+{
+  "schema": "composer.appearance-lab-acceptance/1",
+  "source": "working tree",
+  "url": "http://127.0.0.1:4326/appearance",
+  "browser": "Chromium via Playwright",
+  "warning": "Headless Chromium only. No physical phone, no screen reader, no production deployment and no owner acceptance.",
+  "checks": {
+    "phoneAndDesktop": "390/1440/1728, dark and light, both skins, no horizontal overflow",
+    "keyboardAndReopen": "arrow keys change skin, End sets pressure 4 with spoken value text, focus outline visible, choice reopens, reset clears it",
+    "compareSlider": "native range is the only control; ArrowLeft moves it; aria-valuetext names both panes",
+    "offPath": "both preferences start unchecked; pressing reports that feedback is off",
+    "onPath": "sound and haptics enable deliberately; one press played two oscillator starts and one 12ms vibration pattern",
+    "reducedMotion": "with prefers-reduced-motion the same press played one tick and no vibration",
+    "unsupportedPath": "Web Audio and navigator.vibrate removed; both preferences disabled with the reason, press still works"
+  },
+  "captures": [
+    "appearance-390-dark-workshop.png",
+    "appearance-390-dark-contact-sheet.png",
+    "appearance-390-light-workshop.png",
+    "appearance-390-light-contact-sheet.png",
+    "appearance-1440-dark-workshop.png",
+    "appearance-1440-dark-contact-sheet.png",
+    "appearance-1440-light-workshop.png",
+    "appearance-1440-light-contact-sheet.png",
+    "appearance-1728-dark-workshop.png",
+    "appearance-1728-dark-contact-sheet.png",
+    "appearance-1728-light-workshop.png",
+    "appearance-1728-light-contact-sheet.png",
+    "appearance-compare-1440-light.png",
+    "appearance-reduced-motion-900-dark.png",
+    "appearance-unsupported-900-light.png"
+  ]
+}
