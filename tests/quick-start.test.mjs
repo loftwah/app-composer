@@ -216,3 +216,17 @@ test('the building prompt carries the pinned revisions, runtime and each app’s
   assert.doesNotMatch(prompt.text, /22, 24 or 26/);
   assert.doesNotMatch(prompt.text, /D1 and R2 bindings/);
 });
+
+test('the Media Studio build prompt names the real runtime, resources and source pin', () => {
+  const prompt = mediaStudioQuickStart.prompts.find((entry) => entry.id === 'build');
+  assert.ok(prompt);
+  assert.match(prompt.text, /22\.23\.5/);
+  assert.match(prompt.text, /pnpm 12\.19\.0/);
+  assert.match(prompt.text, /Workers Paid/);
+  assert.match(prompt.text, /error 9432/);
+  assert.match(prompt.text, /RENDER_ORIGIN/);
+  assert.match(prompt.text, /0001–0019/);
+  assert.match(prompt.text, /pnpm run deploy -- --migrate/);
+  assert.match(prompt.text, /e8b3778cd5d800378f42985afda80820fcb7ef57/);
+  assert.match(prompt.text, /Have me enter OWNER_PASSPHRASE directly/);
+});
