@@ -4,10 +4,11 @@ Reviewed 25 October 2026; updated 16 November 2026. This page is the current nav
 
 ## Measured delivery and role pathways — 16 November 2026
 
-Composer `5cffcc4e46a15bb72a7e2a018580fb6af662abf5` (latest guarded
-release 127.5s), Studio `fd534964f9051381786fd130ec4995f599429888` (latest
-guarded release 25.2s). Live `/build.json` was read back for both exact
-sources. The detailed rolling-batch record is
+Composer `5cffcc4e46a15bb72a7e2a018580fb6af662abf5` on Worker
+`5025be41-5e21-4427-a7ca-0c97af8f1d5c` (guarded release 127.5s), Studio
+`fd534964f9051381786fd130ec4995f599429888` on Worker
+`9c824986-fd55-4275-8390-e89c101c748e` (guarded release 25.2s). Live
+`/build.json` was read back for both exact sources. The detailed rolling-batch record is
 [here](evidence/2026-11-16-rolling-batch/README.md).
 
 - **Every guarded release now leaves a timing receipt (#624, Studio #160).**
