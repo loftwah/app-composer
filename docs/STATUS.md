@@ -10,12 +10,15 @@ released sources, and both releases used the existing guarded clean-pushed-main
 path. The step-by-step replay is
 [REPLAY.md](evidence/2026-11-16-train/REPLAY.md).
 
-- **Studio #12 closed.** The derivative pipeline is live: 16 gallery previews
-  total **792,638 bytes** against **121,622,092 bytes** of the originals they
-  replace (153×), with `If-None-Match` returning 304 and no body. WebKit 26,
-  Firefox 142 and Chrome 157 played a real film, kept the gallery filter through
-  open and return, showed a 2px keyboard focus ring, and produced no animation
-  under `prefers-reduced-motion`.
+- **Studio #12 reopened and corrected.** The public gallery half is verified:
+  16 previews total **792,638 bytes** against **121,622,092 bytes** of originals
+  (153×), `If-None-Match` returns 304, and WebKit 26, Firefox 142 and Chrome 157
+  played a real film, kept the gallery filter, showed a 2px focus ring and
+  produced no animation under reduced motion. A second measured pass found the
+  issue's other named surfaces still failing — `/portfolio` 30,169,968 bytes for
+  21 cards, a chosen 2,288,009-byte poster at 14,948 ms throttled LCP, and the
+  owner `/studio` library at 19,809,267 bytes — so the issue is open with those
+  three defects named. The first closure comment is retained, not edited.
 - **Composer #478 closed.** `scripts/commit-identity.mjs` refuses an invented
   `users.noreply.github.com` address and a lane-name identity before the commit
   exists, warns on placeholders and passes the owner, the shared worker address
