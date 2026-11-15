@@ -29,6 +29,8 @@ ${request}
 ## Public starting points
 
 - https://composer.loftwah.com/ — the product and its public links
+- https://composer.loftwah.com/docs — task-first documentation: six starting points with canonical prompts
+- https://composer.loftwah.com/docs/how-it-works — the complete technical reference
 - https://composer.loftwah.com/setup — one complete project setup guide
 - https://composer.loftwah.com/prompts — maintained jobs, prerequisites and copyable requests
 - https://composer.loftwah.com/capabilities — verified app operations as a machine-readable catalogue
