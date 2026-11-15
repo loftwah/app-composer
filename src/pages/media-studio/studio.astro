@@ -51,17 +51,33 @@ let state: "signed-out" | "no-workspace" | "denied" | "unconfigured" | "open" =
 let workspaceName = "";
 let actions: string[] = [];
 
+// A workspace in the link is a selector, never an elevation: it must be one of
+// the signed-in account's current memberships. Without one, the owner-first
+// default stays what a single-workspace creator sees today.
+const requestedWorkspace = Astro.url.searchParams.get("workspace");
+const workspaceSelectorValid =
+  requestedWorkspace === null || /^[a-z0-9-]{6,64}$/.test(requestedWorkspace);
+
 if (user && runtime.DB) {
-  const workspace = await runtime.DB.prepare(
-    `SELECT w.id,w.name,m.role FROM creator_members m
-     JOIN creator_workspaces w ON w.id=m.workspace_id
-     WHERE m.user_id=?
+  const select = `SELECT w.id,w.name,m.role FROM creator_members m
+     JOIN creator_workspaces w ON w.id=m.workspace_id`;
+  const workspace = !workspaceSelectorValid
+    ? null
+    : requestedWorkspace
+      ? await runtime.DB.prepare(`${select} WHERE m.user_id=? AND w.id=? LIMIT 1`)
+          .bind(user.id, requestedWorkspace)
+          .first<{ id: string; name: string; role: string }>()
+      : await runtime.DB.prepare(
+          `${select} WHERE m.user_id=?
      ORDER BY CASE WHEN m.role='owner' THEN 0 ELSE 1 END, w.created_at, w.id
      LIMIT 1`,
-  )
-    .bind(user.id)
-    .first<{ id: string; name: string; role: string }>();
-  if (!workspace) state = "no-workspace";
+        )
+          .bind(user.id)
+          .first<{ id: string; name: string; role: string }>();
+  if (requestedWorkspace !== null && !workspace) {
+    state = "denied";
+    workspaceName = "that workspace";
+  } else if (!workspace) state = "no-workspace";
   else {
     const access = await studioAccess(
       runtime.DB,
@@ -132,8 +148,12 @@ Astro.response.headers.set("Cache-Control", "private, no-store");
 
     {state === "denied" && (
       <section class="entry-card" aria-labelledby="entry-denied">
-        <h2 id="entry-denied">No Media Studio permission in {workspaceName}</h2>
-        <p>Ask the owner of {workspaceName} to give you Media Studio access.</p>
+        <h2 id="entry-denied">No Media Studio access here</h2>
+        <p>
+          {workspaceName === "that workspace"
+            ? "That workspace link is not one of your current memberships. Open the studio from a workspace you belong to."
+            : `Ask the owner of ${workspaceName} to give you Media Studio access.`}
+        </p>
         <a class="button secondary" href="/me">Open My apps</a>
       </section>
     )}
