@@ -1,0 +1,116 @@
+{
+  "source": "6c9f5ef6573ffac9169bb5ede3eaa047c3a7874b",
+  "generatedAt": "2026-11-15T07:52:55.402Z",
+  "node": "v26.13.1",
+  "platform": "darwin arm64",
+  "totals": {
+    "pass": 13,
+    "fail": 0,
+    "blocked": 0,
+    "checks": 13
+  },
+  "suites": [
+    {
+      "id": "blueprint-roundtrip",
+      "name": "Blueprint export and re-import",
+      "status": "pass",
+      "durationMs": 2,
+      "checks": [
+        {
+          "id": "export-succeeds",
+          "name": "The sandbox exports a validated blueprint",
+          "status": "pass",
+          "detail": "Exported version 2 preset “composition” with 3 links."
+        },
+        {
+          "id": "fields-survive",
+          "name": "Re-importing carries the supported fields",
+          "status": "pass",
+          "detail": "Name, introduction, theme, layout, both enabled blocks and 3 links survived export → JSON → re-import."
+        },
+        {
+          "id": "preview-only-reported",
+          "name": "Preview-only gallery and accent are reported as not carried",
+          "status": "pass",
+          "detail": "Gallery and accent are named as not carried; re-import turned the gallery off and kept each sandbox's own accent (clay, ember)."
+        },
+        {
+          "id": "invalid-refused",
+          "name": "An invalid blueprint is refused",
+          "status": "pass",
+          "detail": "Four invalid blueprints (bad preset, bad theme, no review-first privacy, no version) were refused and the sandbox was left untouched."
+        }
+      ]
+    },
+    {
+      "id": "live-demo",
+      "name": "Live /demo sandbox",
+      "status": "pass",
+      "durationMs": 182,
+      "checks": [
+        {
+          "id": "demo-home",
+          "name": "GET /demo",
+          "status": "pass",
+          "detail": "HTTP 200, 47107 bytes, 123ms; marker present: “Build something people can use”."
+        },
+        {
+          "id": "demo-connected-apps",
+          "name": "GET /demo/connected-apps",
+          "status": "pass",
+          "detail": "HTTP 200, 52981 bytes, 59ms; marker present: “A guestbook and a showcase”."
+        }
+      ]
+    },
+    {
+      "id": "sandbox-save-reopen",
+      "name": "Public sandbox: save, reopen and moderation",
+      "status": "pass",
+      "durationMs": 1,
+      "checks": [
+        {
+          "id": "edit-survives-reopen",
+          "name": "An edit survives JSON save and reopen exactly",
+          "status": "pass",
+          "detail": "7 edits (name, tagline, theme, accent, layout, block, link) reopened byte-identically after JSON.stringify/parse."
+        },
+        {
+          "id": "fake-save-detected",
+          "name": "A save that keeps the initial state is detected as different",
+          "status": "pass",
+          "detail": "The untouched save still reads “The wheel, in motion”, not the edited “Ring market”."
+        },
+        {
+          "id": "tampered-save-rejected",
+          "name": "A tampered save is rejected and reported as recovered",
+          "status": "pass",
+          "detail": "A save with no contributions and a save with version 2 were both refused; each recovered to the initial sandbox instead of half-applying."
+        },
+        {
+          "id": "approve-makes-public",
+          "name": "Approving a pending note makes it public",
+          "status": "pass",
+          "detail": "The pending note left the queue and appeared in the public list (2 public, 0 pending)."
+        },
+        {
+          "id": "hide-removes-publicly",
+          "name": "Hiding an approved note removes it from the public view",
+          "status": "pass",
+          "detail": "note-1 is hidden from the public list and still present in the owner's list."
+        },
+        {
+          "id": "restore-keeps-moderation",
+          "name": "Restoring an older version does not republish a hidden note",
+          "status": "pass",
+          "detail": "Version 1 restored the saved name while note-1 stayed hidden and note-2 stayed pending; appearance and moderation travel separately."
+        },
+        {
+          "id": "export-still-reads-restored-state",
+          "name": "A restored sandbox still exports a valid blueprint",
+          "status": "pass",
+          "detail": "Export after restore produced preset “composition” with 2 links."
+        }
+      ]
+    }
+  ]
+}
