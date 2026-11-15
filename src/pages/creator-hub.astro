@@ -1,5 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
+import TutorialQuickStart from '../components/TutorialQuickStart.astro';
+import { creatorHubQuickStart } from '../lib/tutorial-quick-start.mjs';
 import { ArrowRight } from '@lucide/astro';
 import reference from '../../config/creator-hub-reference.json';
 import { readCreatorHubRelease } from '../lib/creator-hub-release';
@@ -44,6 +46,8 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
   </div>
   <p class="small">Mara Quinn is fictional. The apps run in the operator’s Cloudflare account on the operator’s domain; this is a reference build, not a customer deployment.</p>
  </div>
+
+ <TutorialQuickStart guide={creatorHubQuickStart} />
 
  <section class="hub-section" id="brief">
   <h2>The brief, in the person’s own words.</h2>

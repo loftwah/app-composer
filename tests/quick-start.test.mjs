@@ -1,0 +1,200 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
+import {
+  buildingQuickStart,
+  creatorHubQuickStart,
+  firstAppQuickStart,
+  launchKitQuickStart,
+  mediaStudioQuickStart,
+  paperworkQuickStart,
+  tutorialPromptKinds,
+} from '../src/lib/tutorial-quick-start.mjs';
+import {
+  copyTutorialPrompt,
+  tutorialCopyMessages,
+} from '../src/lib/tutorial-copy.ts';
+
+const pageUrl = (path) => new URL(`../${path}`, import.meta.url);
+
+// The maintained inventory. A page with a substantial, reproducible tutorial
+// belongs here; the shared component reads the same guide object in the test.
+const inventory = [
+  {
+    page: 'src/pages/learn.astro',
+    guide: 'firstAppQuickStart',
+    data: firstAppQuickStart,
+    body: '<div class="learn-layout"',
+    tokens: ['learn', 'Get Ready', 'Hello'],
+  },
+  {
+    page: 'src/pages/media-studio.astro',
+    guide: 'mediaStudioQuickStart',
+    data: mediaStudioQuickStart,
+    body: '<section id="why"',
+    tokens: ['composer-media-studio', 'Studio'],
+  },
+  {
+    page: 'src/pages/media-studio/tutorial.astro',
+    guide: 'mediaStudioQuickStart',
+    data: mediaStudioQuickStart,
+    body: '<section id="path"',
+    tokens: ['composer-media-studio', 'Studio'],
+  },
+  {
+    page: 'src/pages/building.astro',
+    guide: 'buildingQuickStart',
+    data: buildingQuickStart,
+    body: '<div class="build-body"',
+    tokens: ['/building', 'Linkarooie', 'Guestbook'],
+  },
+  {
+    page: 'src/pages/creator-hub.astro',
+    guide: 'creatorHubQuickStart',
+    data: creatorHubQuickStart,
+    body: '<section class="hub-section" id="brief"',
+    tokens: ['creator-hub', 'Linkarooie', 'guestbook'],
+  },
+  {
+    page: 'src/pages/paperwork.astro',
+    guide: 'paperworkQuickStart',
+    data: paperworkQuickStart,
+    body: '<figure><a href={editor}',
+    tokens: ['paperwork', 'XFA', '30 MB'],
+  },
+  {
+    page: 'src/pages/launch-kit.astro',
+    guide: 'launchKitQuickStart',
+    data: launchKitQuickStart,
+    body: '<section id="choose-output"',
+    tokens: ['launch-kit', 'river-typography', 'manifest'],
+  },
+];
+
+// Routes that look like tutorials but are evidence, admin-only or a general
+// reference. The inventory document records the same reasons.
+const excluded = [
+  'src/pages/platform/demo.astro',
+  'src/pages/studio.astro',
+  'src/pages/guide.astro',
+];
+
+test('every applicable tutorial renders the one shared quick start above its long body', () => {
+  const component = readFileSync(
+    new URL('../src/components/TutorialQuickStart.astro', import.meta.url),
+    'utf8',
+  );
+  for (const entry of inventory) {
+    const page = readFileSync(pageUrl(entry.page), 'utf8');
+    const componentAt = page.indexOf(`<TutorialQuickStart guide={${entry.guide}} />`);
+    assert.ok(componentAt >= 0, `${entry.page} must render ${entry.guide} through the shared component`);
+    assert.equal(page.split('<TutorialQuickStart').length - 1, 1, `${entry.page} renders one quick start`);
+    assert.match(page, /import TutorialQuickStart from '[^']*components\/TutorialQuickStart\.astro'/, `${entry.page} imports the shared component`);
+    assert.match(page, new RegExp(`import \\{[^}]*\\b${entry.guide}\\b[^}]*\\} from '[^']*tutorial-quick-start\\.mjs'`), `${entry.page} imports its guide data`);
+    const headingAt = page.indexOf('<h1');
+    const bodyAt = page.indexOf(entry.body);
+    assert.ok(headingAt >= 0 && headingAt < componentAt, `${entry.page} keeps the main heading first`);
+    assert.ok(bodyAt > componentAt, `${entry.page} keeps the quick start above its long body`);
+    assert.ok(component.length > 0);
+  }
+  for (const page of excluded) {
+    assert.ok(existsSync(pageUrl(page)), `${page} still exists; update the inventory if the route moved`);
+  }
+});
+
+test('every guide states the built result, behaviour, named needs and working result', () => {
+  for (const { page, data } of inventory) {
+    assert.ok(data.summary.length >= 120, `${page} summary explains the outcome`);
+    assert.ok(data.outcome.built.length >= 60, `${page} names what gets built`);
+    assert.ok(data.outcome.does.length >= 60, `${page} names what it does`);
+    assert.ok(data.outcome.result.length >= 60, `${page} names the working result`);
+    assert.ok(data.outcome.needs.length >= 2 && data.outcome.needs.length <= 8, `${page} lists real prerequisites`);
+    for (const need of data.outcome.needs) {
+      assert.ok(need.length >= 3 && need.length <= 120, `${page} need stays a short name: ${need}`);
+      assert.doesNotMatch(need, /[=]|:\/\//, `${page} need is a name, never a value or link: ${need}`);
+    }
+    assert.ok(data.links.length >= 2, `${page} links a real demo, source or maintained route`);
+    assert.ok(data.links.some((link) => link.href.startsWith('https://')), `${page} links published evidence or source`);
+    assert.ok(data.links.some((link) => link.href.startsWith('/')), `${page} links a maintained Composer route`);
+  }
+});
+
+test('prompts distinguish reproduction, existing-app work and explanation without duplicating text', () => {
+  const texts = new Set();
+  const seenGuides = new Set();
+  for (const { page, guide, data, tokens } of inventory) {
+    if (seenGuides.has(guide)) continue;
+    seenGuides.add(guide);
+    assert.equal(new Set(data.prompts.map((prompt) => prompt.id)).size, data.prompts.length, `${page} prompt ids are unique`);
+    assert.equal(new Set(data.prompts.map((prompt) => prompt.label)).size, data.prompts.length, `${page} prompt labels are unique`);
+    assert.ok(data.prompts.some((prompt) => prompt.kind === 'reproduce'), `${page} offers a reproduction prompt`);
+    for (const prompt of data.prompts) {
+      assert.ok(tutorialPromptKinds.includes(prompt.kind), `${page} ${prompt.id} uses a supported kind`);
+      assert.ok(prompt.text.length >= 500, `${page} ${prompt.id} is complete enough to stand alone`);
+      assert.ok(prompt.text.length <= 8000, `${page} ${prompt.id} stays copyable rather than sprawling`);
+      assert.equal(prompt.text, prompt.text.trim(), `${page} ${prompt.id} has no outer whitespace, so copy matches the panel`);
+      assert.doesNotMatch(prompt.text, /\{\{[^}]*\}\}|<(?:your|insert)[^>]*>|\[(?:your|insert|todo)\b|\b(?:TODO|TBD|FIXME|XXX)\b/i, `${page} ${prompt.id} has no placeholder`);
+      assert.match(prompt.text, /verif|evidence|confirm|prove/i, `${page} ${prompt.id} says how to verify the result`);
+      assert.match(prompt.text, /my own|own accounts|example owner|credentials|secrets/i, `${page} ${prompt.id} keeps ownership boundaries`);
+      assert.match(prompt.text, /do not|ask me|approval|permission|sign[- ]in/i, `${page} ${prompt.id} stops for human authority`);
+      const matched = tokens.filter((token) => prompt.text.toLowerCase().includes(token.toLowerCase()));
+      assert.ok(matched.length >= 1, `${page} ${prompt.id} names this tutorial or its subject`);
+      assert.doesNotMatch(prompt.text, /\b(?:sk|pk|rk)_[A-Za-z0-9]{10,}\b/, `${page} ${prompt.id} contains no credential-shaped value`);
+      assert.doesNotMatch(prompt.text, /\b(?:FAL_KEY|SESSION_SECRET|OWNER_PASSPHRASE|BRIDGE_SECRET)\s*=\s*\S+/, `${page} ${prompt.id} names secrets without values`);
+      const normalised = prompt.text.replace(/\s+/g, ' ').trim();
+      assert.ok(!texts.has(normalised), `${page} ${prompt.id} repeats another tutorial prompt`);
+      texts.add(normalised);
+    }
+    const guideMatches = tokens.filter((token) => data.prompts.some((prompt) => prompt.text.toLowerCase().includes(token.toLowerCase())));
+    assert.ok(guideMatches.length >= 2, `${page} prompts stay specific to ${tokens.join(', ')}`);
+  }
+  assert.ok(inventory.some(({ data }) => data.prompts.some((prompt) => prompt.kind === 'add')), 'existing-app work is a distinct prompt');
+  assert.ok(inventory.some(({ data }) => data.prompts.some((prompt) => prompt.kind === 'explain' || prompt.kind === 'next')), 'a read-only or next-step prompt is available');
+});
+
+test('the component renders the same guide text it copies and provides an accessible fallback', () => {
+  const component = readFileSync(
+    new URL('../src/components/TutorialQuickStart.astro', import.meta.url),
+    'utf8',
+  );
+  assert.match(component, /<pre[^>]*data-prompt[^>]*>\{prompt\.text\}<\/pre>/, 'the visible panel is the prompt text');
+  assert.match(component, /prompt\.textContent/, 'copy reads the visible panel rather than a second source');
+  assert.match(component, /copyTutorialPrompt\(/, 'copy uses the tested outcome helper');
+  assert.match(component, /role="status" aria-live="polite" aria-atomic="true"/, 'the result is announced');
+  assert.match(component, /data-copy-fallback hidden/, 'the manual fallback starts hidden');
+  assert.match(component, /selectNodeContents\(prompt\)/, 'a failed copy selects the panel');
+  assert.match(component, /prompt\.focus\(\{ preventScroll: true \}\)/, 'a failed copy moves focus to the readable prompt');
+  assert.match(component, /button\.disabled = false/, 'copy is enabled only when the client code runs');
+  assert.match(component, /disabled\s*\n?\s*>/, 'the server-rendered copy button is disabled without JavaScript');
+  assert.match(component, /Copy build prompt/, 'the reproduction action is named');
+  assert.match(component, /aria-label=\{`\$\{copyLabels\[prompt\.kind\]\}: \$\{prompt\.label\}`\}/, 'each copy control names its own prompt');
+  assert.match(component, /<details class="prompt-item"/, 'the full prompt uses a native disclosure');
+  assert.match(component, /<summary>/, 'the disclosure has a native summary');
+  assert.match(component, /min-height: 48px/, 'touch targets stay at least 48px high');
+  assert.doesNotMatch(component, /position:\s*sticky/i, 'the quick start never collides with sticky navigation');
+  assert.match(component, /guide\.outcome\.built/, 'the TL;DR renders what gets built');
+  assert.match(component, /guide\.outcome\.needs\.map/, 'the TL;DR renders the named prerequisites');
+  assert.match(component, /guide\.outcome\.result/, 'the TL;DR renders the expected result');
+});
+
+test('copy decisions preserve the exact visible text and report denial or an empty panel', async () => {
+  const text = 'Goal\nBuild the result.\n\nVerify it.';
+  let written = '';
+  assert.equal(await copyTutorialPrompt(text, async (value) => { written = value; }), 'copied');
+  assert.equal(written, text, 'the clipboard receives the exact visible text, including blank lines');
+  assert.equal(await copyTutorialPrompt(text, async () => { throw new Error('NotAllowedError'); }), 'manual');
+  assert.equal(await copyTutorialPrompt(text, undefined), 'manual');
+  assert.equal(await copyTutorialPrompt(text, null), 'manual');
+  assert.equal(await copyTutorialPrompt('  \n\n ', async () => undefined), 'empty');
+  assert.match(tutorialCopyMessages.copied, /same/);
+  assert.match(tutorialCopyMessages.manual, /selected/);
+  assert.match(tutorialCopyMessages.empty, /reload/);
+});
+
+test('the inventory document names every covered and excluded tutorial', () => {
+  const doc = readFileSync(new URL('../docs/tutorial-quick-starts.md', import.meta.url), 'utf8');
+  for (const { page } of inventory) assert.ok(doc.includes(page), `inventory document lists ${page}`);
+  for (const page of excluded) assert.ok(doc.includes(page), `inventory document explains ${page}`);
+  assert.match(doc, /\/media-studio/);
+  assert.match(doc, /CMS-owned/);
+});

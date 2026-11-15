@@ -1,5 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
+import TutorialQuickStart from '../components/TutorialQuickStart.astro';
+import { launchKitQuickStart } from '../lib/tutorial-quick-start.mjs';
 const editor = 'https://composer-launch-kit.loftwah.workers.dev';
 const examples = [
   {file:'river-typography',title:'Let the words lead.',name:'River · typography',description:'Choose a name, a short introduction and colours. You don’t need an image.'},
@@ -17,6 +19,7 @@ const examples = [
   <section class="kit-examples" aria-label="Finished profile card examples">
     {examples.map((example)=><figure><a href={'/launch-kit/cards/'+example.file+'.png'}><img src={'/launch-kit/cards/'+example.file+'.png'} width="1200" height="630" alt={example.name+' — fictional finished profile card'} loading="eager"/></a><figcaption><h2>{example.title}</h2><p>{example.description}</p><a href={editor+'/profile.html?example='+example.file}>Try this fictional example ↗</a></figcaption></figure>)}
   </section>
+  <TutorialQuickStart guide={launchKitQuickStart} />
   <section id="choose-output" class="kit-outputs">
     <h2>Start with what you need.</h2>
     <dl>
