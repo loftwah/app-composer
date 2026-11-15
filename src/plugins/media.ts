@@ -6,6 +6,7 @@ import {
   mediaActions,
 } from "../lib/media-capability.mjs";
 import {
+  custodySnapshot,
   resolveSessionScope,
   runAction,
   statusSnapshot,
@@ -69,11 +70,23 @@ export async function readMedia(ctx: Context) {
       workspace: workspaceSelector(url.searchParams.get("workspace")),
     });
     const status = await statusSnapshot(env as unknown as Record<string, unknown>, scope);
+    // Owner custody is a separate read with its own gate. A failure there must
+    // not hide the workspace panel, so it is reported beside it.
+    let custody: Awaited<ReturnType<typeof custodySnapshot>> | null = null;
+    let custodyError: string | null = null;
+    try {
+      custody = await custodySnapshot(env as unknown as Record<string, unknown>, scope);
+    } catch (error) {
+      if (!(error instanceof MediaContractError)) throw error;
+      custodyError = error.message;
+    }
     return {
       status,
       job: job
         ? status.jobs.find((entry: { id: string }) => entry.id === job) ?? null
         : null,
+      custody,
+      custodyError,
     };
   });
 }

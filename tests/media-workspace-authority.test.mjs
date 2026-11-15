@@ -298,7 +298,7 @@ test("the migration is additive, idempotent and keeps every legacy row in owner 
 
 test("two workspaces hold distinct connections and cannot read each other's state", async (t) => {
   const { env } = deployment();
-  const double = useProvider(t, providerDouble());
+  useProvider(t, providerDouble());
   const scopeA = await resolveSessionScope(env, { user: ownerA });
   const scopeB = await resolveSessionScope(env, { user: ownerB });
   assert.equal(scopeA.workspaceId, atelier);
@@ -603,6 +603,7 @@ test("legacy jobs stay in owner custody until the owner adopts one explicitly", 
 
   const adopted = await runAction(env, "adopt", galleryOwner, {
     id: legacyOne,
+    expectedUpdatedAt: custody.jobs[0].updatedAt,
   });
   assert.equal(adopted.job.workspaceId, gallery);
   assert.equal(adopted.job.adoptedFrom, mediaCustodyScope);
@@ -619,7 +620,12 @@ test("legacy jobs stay in owner custody until the owner adopts one explicitly", 
   assert.equal((await runAction(env, "custody", owner, {})).jobs.length, 0);
   assert.equal((await runAction(env, "status", owner, {})).jobs.length, 0);
   assert.equal((await runAction(env, "status", galleryOwner, {})).jobs.length, 1);
-  const again = await errorOf(runAction(env, "adopt", galleryOwner, { id: legacyOne }));
+  const again = await errorOf(
+    runAction(env, "adopt", galleryOwner, {
+      id: legacyOne,
+      expectedUpdatedAt: custody.jobs[0].updatedAt,
+    }),
+  );
   assert.equal(again.code, "JOB_NOT_FOUND");
   assert.equal(double.calls.length, 0);
 });
@@ -757,4 +763,142 @@ test("the runtime's media permissions mirror the native Media Studio grants", as
       [...native.actions].sort(),
     );
   }
+});
+
+test("owner custody is owner-only and adopts move exactly one row with a receipt", async (t) => {
+  // The panel's data path: the same handlers, the same custody note.
+  const { sqlite, env } = deployment({
+    legacy: {
+      enabled: true,
+      host: "https://oyster.example.workers.dev",
+      jobs: [{ id: legacyOne, requestId: requestIdFor("legacyone") }],
+    },
+  });
+  const double = useProvider(t, providerDouble());
+  const owner = await resolveSessionScope(env, { user: ownerA });
+  const editor = await resolveSessionScope(env, { user: editorA });
+  const agent = {
+    kind: "agent",
+    actorId: "agent:grant_fixture0001",
+    workspaceId: atelier,
+    role: "agent",
+    actions: ["read", "generate", "edit"],
+    platformAdmin: false,
+    admin: false,
+  };
+
+  // The workspace snapshot never mixes in custody rows.
+  const workspace = await runAction(env, "status", owner, {});
+  assert.equal(workspace.jobs.length, 0);
+  assert.equal(workspace.actor.platformAdmin, true);
+  assert.equal(JSON.stringify(workspace).includes(legacyOne), false);
+  assert.equal(JSON.stringify(workspace).includes(mediaCustodyScope), false);
+
+  // A non-owner is refused with an explicit reason.
+  const editorCustody = await errorOf(runAction(env, "custody", editor, {}));
+  assert.equal(editorCustody.code, "FORBIDDEN");
+  assert.match(editorCustody.message, /deployment owner/);
+  const editorAdopt = await errorOf(
+    runAction(env, "adopt", editor, {
+      id: legacyOne,
+      expectedUpdatedAt: "2026-11-01T00:00:00.000Z",
+    }),
+  );
+  assert.equal(editorAdopt.code, "FORBIDDEN");
+
+  // An agent can reach neither action.
+  const agentCustody = await errorOf(runAction(env, "custody", agent, {}));
+  assert.equal(agentCustody.code, "FORBIDDEN");
+  const agentAdopt = await errorOf(
+    runAction(env, "adopt", agent, {
+      id: legacyOne,
+      expectedUpdatedAt: "2026-11-01T00:00:00.000Z",
+    }),
+  );
+  assert.equal(agentAdopt.code, "FORBIDDEN");
+
+  const custody = await runAction(env, "custody", owner, {});
+  assert.equal(custody.scope, mediaCustodyScope);
+  assert.equal(custody.jobs.length, 1);
+  const target = custody.jobs[0];
+  assert.equal(target.scope, "custody");
+  assert.equal(target.adoptedFrom, "legacy:0027");
+  assert.equal(typeof target.prompt, "string");
+  assert.equal(target.imported, null);
+  assert.equal(custody.legacyCapability.host, "https://oyster.example.workers.dev");
+
+  // A stale identity changes nothing.
+  const stale = await errorOf(
+    runAction(env, "adopt", owner, {
+      id: legacyOne,
+      expectedUpdatedAt: "2020-01-01T00:00:00.000Z",
+    }),
+  );
+  assert.equal(stale.code, "CONFLICT");
+  assert.equal(
+    sqlite.prepare("SELECT scope FROM media_workspace_jobs WHERE id=?").get(legacyOne).scope,
+    "custody",
+  );
+
+  // The confirmed adopt moves exactly this row and records the receipt.
+  const adopted = await runAction(env, "adopt", owner, {
+    id: legacyOne,
+    expectedUpdatedAt: target.updatedAt,
+  });
+  assert.equal(adopted.adoptedFrom, mediaCustodyScope);
+  assert.equal(adopted.job.scope, "workspace");
+  assert.equal(adopted.job.workspaceId, atelier);
+  assert.equal(adopted.job.adoptedFrom, mediaCustodyScope);
+  assert.equal(typeof adopted.job.adoptedAt, "string");
+  assert.equal(adopted.job.adoptedBy, ownerA.id);
+  const row = sqlite
+    .prepare(
+      "SELECT workspace_id, scope, adopted_from, adopted_at, adopted_by FROM media_workspace_jobs WHERE id=?",
+    )
+    .get(legacyOne);
+  assert.deepEqual(
+    { ...row },
+    {
+      workspace_id: atelier,
+      scope: "workspace",
+      adopted_from: mediaCustodyScope,
+      adopted_at: adopted.job.adoptedAt,
+      adopted_by: ownerA.id,
+    },
+  );
+  const events = sqlite
+    .prepare(
+      "SELECT workspace_id, actor_id, actor_kind, event, subject, detail_json FROM media_scope_events WHERE event='adopt-custody'",
+    )
+    .all();
+  assert.equal(events.length, 1, "one adoption writes one receipt");
+  assert.deepEqual({ ...events[0] }, {
+    workspace_id: atelier,
+    actor_id: ownerA.id,
+    actor_kind: "human",
+    event: "adopt-custody",
+    subject: legacyOne,
+    detail_json: JSON.stringify({
+      from: mediaCustodyScope,
+      requestId: requestIdFor("legacyone"),
+      imported: false,
+    }),
+  });
+  assert.equal(
+    sqlite.prepare("SELECT count(*) n FROM media_workspace_jobs WHERE scope='custody'").get().n,
+    0,
+  );
+
+  // A second adopt of the same id is refused, and the workspace list now has it.
+  const again = await errorOf(
+    runAction(env, "adopt", owner, {
+      id: legacyOne,
+      expectedUpdatedAt: adopted.job.updatedAt,
+    }),
+  );
+  assert.equal(again.code, "JOB_NOT_FOUND");
+  assert.equal((await runAction(env, "status", owner, {})).jobs[0].id, legacyOne);
+
+  // Adoption is a local provenance move: no provider call, no catalogue read.
+  assert.equal(double.calls.length, 0);
 });
