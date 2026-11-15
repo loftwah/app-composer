@@ -59,9 +59,9 @@ const apps = {
     verify: [
       "/healthz and /build.json report the exact owned commit that was deployed",
       "an uploaded image survives a reload and downloads with matching bytes",
-      "one real still generation and one reference-guided variation are saved in the library",
-      "one saved sound asset plays with its recorded duration, and a storyboard of saved clips renders one assembled export",
-      "a deliberately published page loads, and withdrawing it stops new visits",
+      "any approved still or reference-guided variation is saved and reopens in the library",
+      "when compatible owned clips and sound are available, a saved storyboard reopens and exports using those takes",
+      "when a public example is authorised, its page loads and withdrawing the link leaves the private original intact",
     ],
   },
 };
@@ -179,6 +179,28 @@ export function buildRecipe(spec) {
         .join(". ") +
       ". Send each app only its own values. Do not post the same shared payload to both apps, and do not overwrite collections, published items or owner settings the specification does not name.",
   });
+  if (ids.includes("media-studio")) {
+    steps.push(
+      {
+        actor: "agent",
+        title: "Brief your first Media Studio pack",
+        detail:
+          'Use the named project and its saved creative defaults. Start with an approved mark and one real project reference the owner can use. Adapt this brief: “Show [actual feature or scene] to [audience] so they can [action]. Use [verified reference] to preserve [specific details]. Propose two distinct treatments for [placements]. Cite sources, credits and use rights. Label illustration, staged capture or live capture.” Use a signed-in private project and approved uploads to start, even without a generation provider.',
+      },
+      {
+        actor: "agent",
+        title: "Make and review a private first pack",
+        detail:
+          'Adapt the Studio recipe prompt: “Use [approved reference]. Keep [identity and factual details] intact. Change [one deliberate creative choice]. Compose for [placement].” Prepare frames separately for their intended placements. Check the mark, copy, crop and readability at full size and about 300 px. Keep exact originals and signed provenance, plus separate derivatives and a record of the selected and rejected treatments. Keep private prompts out of public assets and public metadata.',
+      },
+      {
+        actor: "agent",
+        title: "Recover a run or share the reviewed pack",
+        detail:
+          "Apply saved model preferences only where the pinned Studio supports the requested input and control. Show the provider, estimated cost and required reference fit before a paid run. A configured key or available balance is not approval to spend. Use uploads and saved takes when generation is unavailable. If an approved run times out, recover the existing result by operation ID before considering a new dispatch. Public sharing is a separate explicit action. If authorised, publish only the selected derivatives and public-safe credits, verify the live link, and use a disposable approved example to check withdrawal preserves the private original.",
+      },
+    );
+  }
   steps.push({
     actor: "agent",
     title: "Verify the release",

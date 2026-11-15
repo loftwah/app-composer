@@ -10,6 +10,36 @@ through Composer, then own and operate as its own application.
 - Reuse decision: [studio Darkroom assessment](https://github.com/loftwah/composer-media-studio/blob/341a0feae8d552a1ae1abdbab5902d74764edee5/docs/darkroom-assessment.md)
 - Media Studio uses Levi’s Darkroom for Studio Print, Film, Quick and Detail on the studio owner’s Workers AI account. Cloudflare Images fits Detail references that need resizing or format conversion. The studio checks Darkroom originals for private metadata before publication. You can recover a retained still without another paid request.
 
+## First pack and reusable workflows
+
+Every Media Studio build plan and agent handoff includes the first pack. The
+brief and variation prompts adapt to the creator's own product and references.
+Start in the private library. Keep the original, provenance and reviewed
+exports separate. The owner decides on paid runs and public sharing. The
+[Woodhouse Share production playbook](https://github.com/loftwah/woodhouse-new/blob/main/docs/creative/november-share-campaign.md)
+supplies the composition, attribution and small-size review standard.
+
+Use [ComfyUI's template setup](https://docs.comfy.org/interface/features/template)
+and [typed subgraphs](https://docs.comfy.org/interface/features/subgraph) as
+references for creative recipes. Use [n8n's reusable workflows](https://docs.n8n.io/build/flow-logic/break-workflows-into-smaller-parts.md)
+and [failure handling](https://docs.n8n.io/build/flow-logic/handle-errors-gracefully.md)
+as references for operating them. The owner can take the guided path with the
+app's own controls, account and assets. Compare by completed jobs.
+
+| Job | Available today | Next block to prove |
+| --- | --- | --- |
+| Start from a good example | Init first-pack brief and five editable Studio recipes | Start from an approved example, choose permitted references and preview missing inputs and provider availability before a run |
+| Create and refine | Reference variation, masks, outpaint, cutout and upscale | Combine typed transforms into a saved recipe and compare revisions against one retained master |
+| Turn a scene into a finished clip | Saved takes, sound, storyboard and bounded render | Swap one take, reuse the remaining inputs and export landscape and portrait from the same project |
+| Run and resume work | Studio result recovery and native EmDash [workflows](workflows.md) with scoped receipts | Reopen a multi-step recipe after an interruption and recover the paid step once using its existing operation ID |
+| Hand finished work to publishing | Deliberate Studio publication and withdrawal; EmDash draft follow-ups | Review one rights-checked pack across Studio, Share and socials, then publish only the approved destinations with a receipt per destination |
+
+[Studio #4](https://github.com/loftwah/composer-media-studio/issues/4) owns
+creative execution. [Composer #289](https://github.com/loftwah/app-composer/issues/289)
+owns workflow operations. [Composer #476](https://github.com/loftwah/app-composer/issues/476)
+owns composition and the beginner's end-to-end proof under
+[Composer #590](https://github.com/loftwah/app-composer/issues/590).
+
 ## What a person gets
 
 **From Composer:** Init → *Media Studio* → name, creative direction, visibility,

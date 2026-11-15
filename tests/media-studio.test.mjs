@@ -139,7 +139,10 @@ test("the handoff and build plan carry the owned studio work without secrets", (
   const text = handoff(spec);
   assert.match(text, /Media Studio is an independently owned application/);
   assert.match(text, new RegExp(mediaStudioSource.source.commit));
-  assert.match(text, /one genuine image-to-video clip/);
+  assert.match(text, /Brief your first Media Studio pack/);
+  assert.match(text, /Keep exact originals and signed provenance/);
+  assert.match(text, /recover the existing result by operation ID/);
+  assert.match(text, /A configured key or available balance is not approval to spend/);
   assert.match(text, /OWNER_PASSPHRASE and SESSION_SECRET/);
   assert.match(text, /FAL_KEY/);
   assert.match(text, /guarded `pnpm run deploy`/);
