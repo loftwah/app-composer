@@ -81,26 +81,31 @@ async function mountPreview(host: HTMLElement) {
   if (!htmlUrl) return;
   const status = host.querySelector<HTMLElement>("[data-preview-status]");
   try {
-    const [htmlResponse, cssResponse] = await Promise.all([
-      fetch(htmlUrl, { credentials: "omit" }),
-      cssUrl ? fetch(cssUrl, { credentials: "omit" }) : Promise.resolve(null),
-    ]);
-    if (!htmlResponse.ok) throw new Error(`The recorded page returned ${htmlResponse.status}.`);
-    const html = await htmlResponse.text();
-    const css = cssResponse && cssResponse.ok ? await cssResponse.text() : "";
+    const response = await fetch(htmlUrl, { credentials: "omit" });
+    if (!response.ok) throw new Error(`The recorded page returned ${response.status}.`);
+    const html = await response.text();
     const root = host.querySelector<HTMLElement>("[data-preview-canvas]");
     if (!root) throw new Error("No preview canvas.");
     root.textContent = "";
     // A shadow root keeps the produced page's selectors and colours inside the
-    // card, so two previews can sit next to each other without colliding.
+    // card, so two previews sit beside each other without colliding.
+    //
+    // Styling arrives as a same-origin <link> inside the shadow root rather than
+    // an inline <style>: the site's policy has no style-src, so an inline style
+    // element would be blocked and the preview would render unstyled — exactly the
+    // defect that shipped once already and was caught by a live check.
     const mounted = document.createElement("div");
     mounted.className = "preview-host";
     const shadow = mounted.attachShadow({ mode: "open" });
-    const style = document.createElement("style");
-    style.textContent = `${css}\n:host{all:initial;display:block;color:inherit;background:#fff;font-family:system-ui,sans-serif}\n:host body,:host .page{margin:0}`;
+    if (cssUrl) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = cssUrl;
+      shadow.append(link);
+    }
     const body = document.createElement("div");
     body.innerHTML = sanitise(bodyOf(html));
-    shadow.append(style, body);
+    shadow.append(body);
     root.append(mounted);
     if (status) status.hidden = true;
     root.dataset.ready = "true";
