@@ -296,6 +296,24 @@ test("the migration is additive, idempotent and keeps every legacy row in owner 
   assert.equal(double.calls.length, 0, "migration makes no provider call");
 });
 
+test("a workspace without its own connection reports the deployment credential", async (t) => {
+  const { env } = deployment();
+  useProvider(t, providerDouble());
+  const scope = await resolveSessionScope(env, { user: ownerA });
+  const before = await runAction(env, "status", scope);
+  assert.equal(before.enabled, false);
+  // The panel must not claim no host exists while the deployment credential can
+  // still serve this workspace with one explicit enable.
+  assert.equal(before.host, "https://oyster.example.workers.dev");
+  assert.equal(before.hostSource, "deployment");
+  const enabled = await runAction(env, "enable", scope, {
+    host: "https://oyster.example.workers.dev",
+    credentialRef: "OYSTER",
+  });
+  assert.equal(enabled.host, "https://oyster.example.workers.dev");
+  assert.equal(enabled.hostSource, "workspace");
+});
+
 test("two workspaces hold distinct connections and cannot read each other's state", async (t) => {
   const { env } = deployment();
   useProvider(t, providerDouble());

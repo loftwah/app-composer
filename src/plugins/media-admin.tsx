@@ -302,9 +302,16 @@ export function MediaPage() {
           {status.enabled ? "On" : "Off"}
           <span>
             {status.host ? " · " + status.host.replace("https://", "") : " · no host configured"}
+            {status.hostSource === "deployment" ? " · deployment credential" : ""}
             {status.catalogue ? " · " + status.catalogue.models.length + " models" : ""}
           </span>
         </p>
+        {status.hostSource === "deployment" && !status.enabled ? (
+          <p className="cm-note">
+            This host comes from the deployment credential. Enabling binds it to this
+            workspace once, and every other workspace needs its own connection.
+          </p>
+        ) : null}
       </header>
 
       {message ? (

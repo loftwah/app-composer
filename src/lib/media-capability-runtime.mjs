@@ -595,7 +595,11 @@ export async function statusSnapshot(env, scope) {
     },
     actions: scope.actions,
     enabled: connectionEligible(connection),
-    host: connection?.host ?? "",
+    // A workspace without its own connection can still be enabled against the
+    // deployment credential, so report that host instead of claiming none is
+    // configured. `hostSource` keeps the difference explicit for the panel.
+    host: connection?.host || config.origin || "",
+    hostSource: connection?.host ? "workspace" : config.origin ? "deployment" : "",
     installation: connection?.installation ?? "prints",
     catalogue: connection?.catalogue ?? null,
     checkedAt: connection?.catalogue?.checkedAt ?? null,
