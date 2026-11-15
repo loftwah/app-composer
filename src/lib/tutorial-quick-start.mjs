@@ -124,28 +124,32 @@ Build my own copy of the Guestbook + Linkarooie composition described at https:/
 
 Prerequisites
 - My own GitHub account and my own Cloudflare account, with Workers, D1 and R2 available.
-- Node 22, 24 or 26, the pnpm version declared by each repository, and a native Wrangler install for the local run.
-- A host browser and Playwright only if I ask for the screenshot journey; neither is bundled here.
+- Node 22 exactly and pnpm 12.8.1, as pinned by both repositories, with a native Wrangler install available through them. Do not substitute a different Node line.
+- Both source repositories checked out at the reviewed revisions with dependencies installed, in sibling folders: '../app-composer-guestbook' at '019ce0d117f9f89e472a5c7642d51d85301f7fcd' and '../app-composer-showcase' at '20ef9a50c19c7a3419dc06fdae020c6a677ed5cf'. The local scripts copy these siblings; they do not clone them for you.
+- A host Playwright package and Chrome for the capture report. The contract can start without them, but the article's captured journey cannot: 'capture-journey.mjs' needs 'PLAYWRIGHT_MODULE' and a browser.
 - The current README, Wrangler configuration and release instructions in both repositories. Read the binding and secret names there; do not invent them.
 
 Greenfield behaviour
-Create two new, separately owned repositories and deployments from the reviewed Guestbook and Linkarooie sources. Keep their databases, media buckets, domains and releases separate. Start with fictional records only.
+Create two new, separately owned copies of the reviewed Guestbook and Linkarooie sources, in sibling folders, then deploy them as two independent Workers. Keep their databases, media, domains and releases separate. Start with fictional records only.
+
+For the local run, use the exact lab path: 'labs/building/start-local.sh', then 'RESOURCE_ID=build199-trail-8 INIT_SPEC=public/downloads/building-199-init-spec.json node labs/building/seed-local.mjs', then 'RESOURCE_ID=build199-trail-8 PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs node labs/building/capture-journey.mjs', then 'labs/building/stop-local.sh'. The scripts use Guestbook on 'https://localhost:8788' and Linkarooie on 'https://localhost:8787', create one owned '$TMPDIR/composer-build-199.*' root, and remove that root on stop. Do not sweep other Wrangler state.
 
 Build requirements
 1. Follow the documented local path in https://github.com/loftwah/app-composer/tree/main/labs/building: start-local.sh, seed-local.mjs with the committed Init specification, capture-journey.mjs, then stop-local.sh. Use one owned temporary root and remove it afterwards.
 2. Keep the versioned invitation endpoint GET /r/:resource/api/invitation. It reads the current active configuration, lets paused win over open, treats a closed postcard setting as closed, and treats a full queue as full. It returns no guest code, owner token, media or submission text.
 3. Keep Linkarooie's exact source reference and its checks for provider, resource, field set, limits and contribution paths. A redirect, foreign origin or partial response is unavailable.
 4. Keep owner controls that link, replace or stop an invitation for an exact saved stack instance. Refusing to enable a hidden or pending book is part of the contract.
-5. Do not add photo upload to the profile, a comment thread, replies or notifications. Those are outside this composition.
+5. Keep Linkarooie's 'ITEM_PROVIDER' service binding to the Guestbook Worker. Linkarooie has D1 ('DB') and static assets ('ASSETS'), not its own R2 bucket; only the Guestbook owns R2 for postcard media. Do not invent an R2 binding for Linkarooie.
+6. Do not add photo upload to the profile, a comment thread, replies or notifications. Those are outside this composition.
 
 Verification
 Run each app's own test suite and keep contract tests for malformed responses, a foreign origin, changed limits, a hidden book and the open, paused, closed and full states. Run the local journey and check that a pending note is absent from the profile, approval makes it public at the source, featuring is a separate choice, hiding removes the card and returns 404 for the item and media, and every closed state renders no send action. Keep the capture report.
 
 Release and live acceptance
-Deploy only after I approve the hostnames and accounts. Configure each app's documented D1 and R2 bindings and secrets in my own account. Verify each deployed Worker's build identity, then repeat the journey on the live hostnames and record the exact revisions you observed. The article proves the local contract, not a hosted deployment of this feature; state that limit rather than implying it shipped.
+Deploy only after I approve the hostnames and accounts. Because the reviewed 'wrangler.jsonc' files hardcode the example account and hostnames, commit the required changes to 'account_id', routes, D1 IDs and the 'ITEM_PROVIDER' service before deploying; the repository deploy guard refuses a dirty tree or unpushed 'main'. Configure the Guestbook's D1 and R2 and Linkarooie's D1, assets and service binding in my own account. Verify each deployed Worker's build identity, then repeat the journey on the live hostnames and record the exact revisions you observed. A hosted guest journey needs a guest code I create and share; the local capture uses fictional data and does not. The article proves the local contract, not a hosted deployment of this feature; state that limit rather than implying it shipped.
 
 Stop for me
-Ask me to sign in to GitHub or Cloudflare, approve hostnames, create owner credentials, share a guest code or spend money. Keep the local run separate from any deployment. ${ownResources}` },
+Ask me to sign in to GitHub or Cloudflare, approve hostnames, create owner credentials, share a guest code for a hosted journey or spend money. Keep the local run separate from any deployment. ${ownResources}` },
     { id: 'add', kind: 'add', label: 'Add the contract to my existing apps', text: `Goal
 Add the reviewed source-to-showcase contribution contract from https://composer.loftwah.com/building to two apps I already own: a Guestbook-role app that collects and moderates contributions, and a Linkarooie-role app that curates and displays them.
 
