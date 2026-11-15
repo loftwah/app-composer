@@ -1,0 +1,14 @@
+# Build an owned Media Studio · 82s showcase
+
+Generated from the burned-in caption track. Times are the on-screen cue windows.
+
+1. [00:00:01.000] App Composer starts with a sentence. Your agent builds an app you own.
+2. [00:00:08.600] Get Ready checks the machine and the account before anything is built.
+3. [00:00:20.600] Init turns the idea into a specification you can read, save and change.
+4. [00:00:30.000] The handoff is a real document your agent can follow.
+5. [00:00:38.600] The studio is built on your account, with its own database and storage.
+6. [00:00:45.400] Every still, clip and song is saved in the app you own.
+7. [00:00:52.600] Six scenes from one song, each with a reference and a take.
+8. [00:01:00.400] A 33-second cut, mixed and rendered, kept in the library.
+9. [00:01:08.600] Publishing is deliberate: signed out, credited, reversible.
+10. [00:01:15.600] Build your own media studio at composer.loftwah.com.
