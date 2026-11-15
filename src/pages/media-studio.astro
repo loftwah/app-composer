@@ -358,11 +358,11 @@ url.searchParams.set("s", signature);`}</code></pre>
     <h2>From Woodhouse Share to Fighter</h2>
     <p>Across the Ring began as a Woodhouse poster based on the Fighter tutorial storyboard. We imported the original through the deployed Media Studio, kept the credit alongside it and used Studio Detail to make a square study with a new viewpoint and lighting. The Studio saved the source and the result as separate files.</p>
     <div class="figure pair">
-      <figure style="margin:0">
+      <figure>
         <img src="/media-studio/fighter-across-the-ring-20261114.webp" width="544" height="680" alt="Across the Ring, the original portrait-format Woodhouse Fighter poster" loading="lazy" />
         <figcaption>Source · <a href="https://media.loftwah.com/portfolio?asset=poster-study-fighter">Across the Ring</a>, made with Codex ImageGen.</figcaption>
       </figure>
-      <figure style="margin:0">
+      <figure>
         <img src="/media-studio/fighter-before-the-bell-20261114.webp" width="680" height="680" alt="A Viking and the Grim Reaper stand in a dark ring under a warm overhead light" loading="lazy" />
         <figcaption>Studio variation · <a href="https://media.loftwah.com/p/yFSN93LOFy1ja4j0">Before the Bell</a>, made with FLUX.2 Klein.</figcaption>
       </figure>
@@ -588,6 +588,7 @@ url.searchParams.set("s", signature);`}</code></pre>
   .figure.portrait video{display:block;width:100%;height:auto;background:#000}
   .pippa-demo video{display:block;width:100%;height:auto;background:#000}
   .figure.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px 22px;max-width:none}
+  .figure.pair>figure{min-width:0;margin:0}
   /* Both captures keep their real aspect ratio, so they stay readable and the
      same region is comparable. Cropping them into one shared height hides the
      very evidence the before/after is showing; the captions share a baseline
