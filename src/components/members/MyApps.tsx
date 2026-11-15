@@ -19,6 +19,8 @@ import {
 import "./members.css";
 
 function isSignedOut(error: unknown) {
+  if (error instanceof Error && /Sign in with EmDash/i.test(error.message))
+    return true;
   return Boolean(
     error &&
       typeof error === "object" &&
