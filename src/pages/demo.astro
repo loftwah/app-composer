@@ -1,73 +1,65 @@
 ---
 import Base from '../layouts/Base.astro';
-import CompositionWorkbench from '../components/CompositionWorkbench';
-import {mountedApps} from '../lib/composition';
-import { ArrowRight, Image, PanelsTopLeft, GitBranch, ExternalLink } from '@lucide/astro';
+import LaunchpadSandbox from '../components/LaunchpadSandbox';
+import { ArrowRight, ExternalLink, GitBranch, Layers, ShieldCheck } from '@lucide/astro';
 ---
-<Base title="Two apps. One collection." description="Try a photo guestbook and showcase working together. Edit a postcard, save a demo version and take your settings into your own App Composer project.">
- <div class="composition-heading">
-  <h1>A guestbook and a showcase, connected</h1>
-  <p class="lede">Here / there and Linkarooie are independent apps. The guestbook collects photos; Linkarooie displays selected photos alongside your links. Try the connection below: add a postcard, edit its caption and see the collection update.</p>
+<Base title="Build something people can use" description="Shape a real app from reusable parts in the browser, then take the same validated blueprint to your own coding agent and your own Cloudflare account.">
+ <div class="demo-heading">
+  <p class="eyebrow">Try it now · no account</p>
+  <h1>Build something people can use. Keep it yours.</h1>
+  <p class="lede">Shape a real app from reusable parts, then hand the same settings to your own coding agent. The preview updates as you work. Nothing is deployed until you and your agent choose to deploy it.</p>
+  <div class="actions">
+   <a class="button" href="#lp-preview">Start changing this app <ArrowRight size={18} aria-hidden="true"/></a>
+   <a class="button secondary" href="/creator-hub">See the published example</a>
+  </div>
  </div>
- <nav class="composition-route" aria-label="Choose your next step">
-  <a class="composition-route-primary" href="#composition-workbench"><strong>Try the demo <ArrowRight size={18} aria-hidden="true"/></strong><span>Add a postcard and see how changes carry through.</span></a>
-  <a href="#live-apps"><strong>Explore the live apps <ArrowRight size={18} aria-hidden="true"/></strong><span>Open the published guestbook and showcase.</span></a>
-  <a href="/init?start=composition"><strong>Create your own <ArrowRight size={18} aria-hidden="true"/></strong><span>Choose your settings and prepare a brief for your AI agent.</span></a>
- </nav>
- <section id="composition-workbench" aria-label="Interactive demo" class="composition-workbench">
-  <CompositionWorkbench sources={mountedApps.filter(app=>['guestbook','showcase'].includes(app.id))} client:visible />
+
+ <LaunchpadSandbox client:visible />
+
+ <noscript><p>The interactive preview needs JavaScript. You can still <a href="/creator-hub">open the published Creator Hub</a>, <a href="/demo/connected-apps">read the connected-apps walkthrough</a> or <a href="/init">start a project brief</a>.</p></noscript>
+
+ <section class="demo-section" aria-labelledby="after-title">
+  <h2 id="after-title">What happens after the preview</h2>
+  <ol class="demo-steps">
+   <li><strong>You keep the brief.</strong> The download is the same versioned specification Init uses: name, introduction, theme, layout, links and which apps you chose.</li>
+   <li><strong>Your agent does the build.</strong> It works in your GitHub and Cloudflare accounts, from your own copy of the source. You approve spending, new accounts and domains.</li>
+   <li><strong>Review before public.</strong> A contribution stays private until the owner approves it. Hiding one removes it from every public view that reads the source.</li>
+   <li><strong>Change it again later.</strong> A later change keeps your content, saved versions and owner data. The Creator Hub shows a real follow-up release on the same address.</li>
+  </ol>
+  <p class="demo-note"><ShieldCheck size={16} aria-hidden="true"/> The sandbox stores its state in this browser only. It never writes to a production database, a hosted resource or another owner's collection.</p>
  </section>
- <noscript><p>The interactive demo needs JavaScript. You can still <a href="/guestbook/">explore the guestbook</a>, <a href="/showcase/">open the showcase</a> or <a href="/init?start=composition">start your own app setup</a>.</p></noscript>
- <section id="live-apps" aria-labelledby="live-apps-title">
-  <h2 class="composition-live-title" id="live-apps-title">Explore the live apps</h2>
-  <p>Open the published versions of Here / there and Linkarooie to see the same idea in use. You can browse without an account. Adding or managing content requires authorised access.</p>
-  <section class="composition-flow" aria-labelledby="flow-title">
-   <h2 id="flow-title">From a shared photo to your collection</h2>
-   <ol>
-    <li><strong>Contribute</strong><span>An invited contributor adds a photo and message to Here / there.</span></li>
-    <li><strong>Review</strong><span>The owner decides what to make public.</span></li>
-    <li><strong>Feature</strong><span>An approved photo is added to the Linkarooie collection.</span></li>
-    <li><strong>Explore</strong><span>Open the photo to visit its original contribution.</span></li>
-   </ol>
-   <p class="small">If the owner hides or deletes the original, it is removed from both public views when they next load. Copies someone has already downloaded cannot be recalled.</p>
-  </section>
-  <div class="composition-pair">
-   <section aria-labelledby="guestbook-title">
-    <a class="composition-preview" href="/guestbook/" aria-label="Open Here / there guestbook"><img src="/brand/demo/ringmarket-v5.webp" alt="Fictional demo postcard: a market strung between asteroids above a ringed planet" width="1200" height="900" loading="lazy"/></a>
-    <h2 id="guestbook-title"><Image size={24} aria-hidden="true"/>Here / there</h2>
-    <p>Collect photos and messages in a guestbook. Review each contribution and choose what to share.</p>
-    <div class="app-links"><a class="button secondary" href="/guestbook/">Open guestbook <ArrowRight size={18} aria-hidden="true"/></a><a href="https://guestbook.loftwah.com">Open standalone app <ExternalLink size={16} aria-hidden="true"/></a><a href="https://github.com/loftwah/app-composer-guestbook">View source code <GitBranch size={16} aria-hidden="true"/></a></div>
-   </section>
-   <section aria-labelledby="showcase-title">
-    <a class="composition-preview" href="/showcase/" aria-label="Open Linkarooie showcase"><img src="/brand/demo/lighthouse-v5.webp" alt="Fictional demo postcard: a lighthouse keeper climbing a tower on a slow moon at night" width="1200" height="900" loading="lazy"/></a>
-    <h2 id="showcase-title"><PanelsTopLeft size={24} aria-hidden="true"/>Linkarooie</h2>
-    <p>Bring your links and approved photos together on one page. Each featured photo links back to its original contribution and follows its visibility.</p>
-    <div class="app-links"><a class="button secondary" href="/showcase/">Open showcase <ArrowRight size={18} aria-hidden="true"/></a><a href="https://showcase.loftwah.com">Open standalone app <ExternalLink size={16} aria-hidden="true"/></a><a href="https://github.com/loftwah/app-composer-showcase">View source code <GitBranch size={16} aria-hidden="true"/></a></div>
-   </section>
+
+ <section class="demo-section" aria-labelledby="real-title">
+  <h2 id="real-title">The real version of this</h2>
+  <div class="demo-links">
+   <a href="/creator-hub"><Layers size={20} aria-hidden="true"/><strong>Creator Hub</strong><span>A home for your work, built with an agent and changed after release.</span></a>
+   <a href="/demo/connected-apps"><GitBranch size={20} aria-hidden="true"/><strong>Two apps, one collection</strong><span>The photo guestbook and Linkarooie, with the ownership peel and revisions.</span></a>
+   <a href="https://creator-hub-guestbook.loftwah.com"><ExternalLink size={20} aria-hidden="true"/><strong>Live guestbook</strong><span>Submit a fictional note and see the moderation path on a real deployment.</span></a>
   </div>
  </section>
- <details class="composition-details"><summary>How the apps stay independent</summary><p>Here / there and Linkarooie each have their own code, settings and storage. App Composer brings selected versions together. Linkarooie requests the photos Here / there currently allows it to show.</p><p>You’re browsing Loftwah’s published apps. Contributions stay private until approved, and managing content requires authorised access.</p><a href="/release">View release and recovery checks</a></details>
- <details class="composition-details"><summary>See a recorded activity example</summary><p>A separate hosted example shows how an “Open” action appears in an activity report. The report uses activity from that example; your actions in this browser demo are separate.</p><a href="/reports/r971f5140bbe0c84c8147a64b">View the example report</a> · <a href="/manage#analytics-proof">How the activity was checked</a></details>
- <section class="composition-next">
-  <h2>Make your own version</h2>
-  <p>Start with a club guestbook, an event gallery or a collection of your work. Choose your app names, appearance and links. App Composer prepares a project brief for your AI coding agent to build and deploy on Cloudflare.</p>
-  <div class="actions"><a class="button" href="/init?start=composition">Create your own <ArrowRight size={18} aria-hidden="true"/></a><a href="/building#brief">See the build walkthrough</a></div>
-  <p class="small">The brief prepares your project; your agent handles the build and deployment.</p>
-  <p class="small">Need icons and sharing images? <a href="/launch-kit">Launch Kit</a> helps you prepare them from your own artwork.</p>
+
+ <section class="demo-section" aria-labelledby="next-title">
+  <h2 id="next-title">Start your own</h2>
+  <p>Choose your app, name it and prepare the brief. <a href="/init">Open Init</a> when you are ready for a real build, or <a href="/ready">get your environment ready first</a>. The build and deployment belong to your agent; <a href="/release">the release page</a> records what has actually been verified.</p>
  </section>
 </Base>
 <style>
- .composition-route{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;border-block:1px solid var(--color-border);padding:20px 0;margin:30px 0}
- .composition-route a{display:block;padding:8px 0;min-width:0}
- .composition-route strong{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:1rem;font-weight:600;color:var(--color-accent)}
- .composition-route svg{flex-shrink:0}
- .composition-route span{display:block;font-size:.9rem;line-height:1.5;font-weight:400;color:var(--color-muted);margin-top:6px;max-width:34ch}
- .composition-route .composition-route-primary{background:var(--color-action);border-radius:8px;padding:16px 18px}
- .composition-route .composition-route-primary strong,.composition-route .composition-route-primary span{color:var(--color-on-action)}
- .composition-route .composition-route-primary:hover{background:var(--color-action-hover)}
- .composition-route .composition-route-primary:active{background:var(--color-action-pressed)}
- .composition-workbench{scroll-margin-top:24px}
- .composition-next{border-top:1px solid var(--color-border);padding-top:40px;margin-top:32px}
- .composition-next h2{font-size:clamp(1.8rem,3vw,2.8rem);max-width:25ch}
- @media(max-width:700px){.composition-route{grid-template-columns:1fr;gap:8px;padding:8px 0;margin:20px 0}.composition-route a{display:block;min-height:44px;padding:10px 0}.composition-route .composition-route-primary{padding:14px 16px}.composition-route strong{font-size:.95rem}.composition-route span{font-size:.85rem;margin-top:4px;max-width:38ch}.composition-next{padding-top:28px}}
+ .demo-heading{max-width:900px;margin-bottom:36px}
+ .demo-heading h1{font-size:clamp(2.6rem,5.4vw,4.6rem);max-width:19ch;text-wrap:balance;margin:10px 0 20px}
+ .demo-heading .lede{max-width:56ch}
+ .demo-section{border-top:1px solid var(--color-border);margin-top:56px;padding-top:32px}
+ .demo-section h2{font-size:clamp(1.7rem,3vw,2.4rem);max-width:24ch}
+ .demo-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 44px;max-width:none;padding-left:22px;margin:24px 0 0}
+ .demo-steps li{margin:0;padding:16px 0;border-top:1px solid var(--color-border)}
+ .demo-steps strong{display:block;margin-bottom:6px}
+ .demo-steps li{color:var(--color-muted)}
+ .demo-note{display:flex;gap:10px;align-items:flex-start;margin-top:24px;font-size:14px;color:var(--color-muted);max-width:70ch}
+ .demo-note svg{flex:none;margin-top:3px;color:var(--color-accent)}
+ .demo-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:24px}
+ .demo-links a{display:block;padding:20px;border:1px solid var(--color-border);border-radius:10px;background:var(--color-surface);text-decoration:none}
+ .demo-links a:hover{border-color:var(--color-accent)}
+ .demo-links svg{color:var(--color-accent)}
+ .demo-links strong{display:block;margin:12px 0 6px;font-size:1.05rem}
+ .demo-links span{display:block;font-size:14px;line-height:1.5;color:var(--color-muted)}
+ @media(max-width:900px){.demo-links{grid-template-columns:1fr}.demo-steps{grid-template-columns:1fr}.demo-section{margin-top:40px;padding-top:26px}}
 </style>
