@@ -84,6 +84,40 @@ Two surfaces now answer "which model should do this job?" from recorded work ins
 These are the first releases of each surface. The section above records the
 current source, the project-scoped comparison and the exact-take review binding.
 
+## Model retirement, Studio completion and task-first docs — 15 November 2026
+
+The live [build.json](https://composer.loftwah.com/build.json) and the latest
+[#11](https://github.com/loftwah/app-composer/issues/11) receipt remain the
+authoritative source and Worker-version record. This section records the
+evening release only.
+
+- **Studio Draft replacement.** SDXL Lightning was withdrawn before Cloudflare's
+  20 November 2026 planned deprecation. Studio Draft now uses FLUX.2 Klein 9B
+  through the existing Darkroom multipart adapter. Saved SDXL jobs keep their
+  exact model and endpoint; imported Composer briefs map to the replacement
+  with a visible recovery notice. A live Studio request saved a 1024 × 1280
+  result on the real adapter. Studio `2640e67`, Composer `f26c940`.
+- **Capability freshness.** `https://media.loftwah.com/capabilities.json`
+  publishes the versioned enabled/retired model catalogue, frames, costs,
+  adapters and stable alerts. The existing cron runs a daily read-only check
+  against public Cloudflare model pages, fal model search and models.dev. It
+  does not call inference, spend or change a default.
+- **Studio workbench.** The #148 slice adds read-only treatment, conflict
+  recovery and focus restoration. Live 1728/864/432/390/320 widths have no
+  horizontal document overflow and keep the rail, stage and save bar.
+- **Studio finishing.** A real plan revision was mixed to a saved WAV and
+  rendered locally with burned-in captions. The private receipt binds the plan
+  revision, source hashes, mixed soundtrack and output hash.
+- **Docs.** `/docs` is now a task-first hub; the technical reference is at
+  `/docs/how-it-works` with legacy anchors preserved.
+- **Brand Studio skin.** The opt-in Workshop press skin saves and reopens
+  through the existing appearance record, starts silent, and keeps the default
+  Composer identity. Live admin inspection needs the owner's Cloudflare Access
+  sign-in.
+
+Evidence: [model receipt](evidence/launch-20261115/model-freshness-20261115.md)
+and [private play-through](evidence/play-through-20261115/README.md).
+
 ## Current release pointer
 
 The live [build.json](https://composer.loftwah.com/build.json) and the latest

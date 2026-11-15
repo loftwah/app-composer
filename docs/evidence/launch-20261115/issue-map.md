@@ -60,3 +60,38 @@ Remaining:
   music-video path were not exercised in this run.
 - Independent newcomer, physical iOS and social-channel posting still need
   their own participants, devices and approvals.
+
+## Follow-up delivery — 15 November 2026, evening
+
+The evening run kept the same owner session and added the following. Read the
+[model freshness receipt](model-freshness-20261115.md) and the
+[private play-through](../play-through-20261115/README.md) for exact evidence.
+
+| Surface | Source | Worker | Live |
+| --- | --- | --- | --- |
+| Media Studio | `2640e67b7224f9c3a2ada1b77e364769ac4039b5` | `e560dc4b-4c97-4ccd-a098-f4e2b89fa098` | [build.json](https://media.loftwah.com/build.json) |
+| App Composer | `f26c94030e039c54c49d009d860b5b396736821f` | `8fa56e05-d986-43b5-8b51-45cb37c9a6f2` | [build.json](https://composer.loftwah.com/build.json) |
+
+| Issue / item | Outcome | Evidence and remaining work |
+| --- | --- | --- |
+| Studio model retirement (new [#156](https://github.com/loftwah/composer-media-studio/issues/156)) | **Delivered; close proposed** | SDXL Lightning was withdrawn before its 20 November cutoff. Studio Draft uses FLUX.2 Klein 9B; saved jobs keep the exact SDXL attribution. A live Studio request saved `gen_4515ab469ca948dfbe5587bbf142c8ac` at 1024 × 1280 on the real adapter. The manifest has zero alerts. The close is waiting in the GitHub panel for owner approval. |
+| Studio [#148](https://github.com/loftwah/composer-media-studio/issues/148) Assemble workbench | **Advanced; stays open** | `2640e67` adds read-only treatment, conflict recovery (keep draft on latest revision, load saved, retry, keep as new brief), focus restoration and extreme-width grid fixes. Live 1728/864/432/390/320 widths have no horizontal overflow and keep the rail, stage and save bar. Remaining: six long scenes, real mobile software keyboard, reduced motion, user-journey recording and owner acceptance. |
+| Studio [#14](https://github.com/loftwah/composer-media-studio/issues/14) Music video | **Advanced; stays open** | The existing project's plan revision 6 was mixed to a saved WAV and rendered locally with **burned-in captions**: 640 × 360, 16.8 s, 2.6 MB, asset `asset_a8ee90d0730f4276a9d2808c73d0ee99`. The private receipt binds revision 6, three source hashes, the mixed soundtrack, caption look and output hash. Audio decoded during playback. The older 33 s film is unchanged. Remaining: full new song path, ≥4 scenes, reroll/alternative take proof. |
+| Studio [#15](https://github.com/loftwah/composer-media-studio/issues/15) Director | **Advanced; stays open** | A typed scene proposal changed only scene 1 of plan revision 5, previewed before/after, applied to the draft, saved as **revision 6**, and survived reload. Revision 5 and all takes/captions remain. The full conversational Producer, named character, MCP parity and refusal/approval states remain open. |
+| Composer [#457](https://github.com/loftwah/app-composer/issues/457) / [#499](https://github.com/loftwah/app-composer/issues/499) / [#590](https://github.com/loftwah/app-composer/issues/590) Studio epics | **Advanced indirectly** | Composer Init now consumes the Studio capability snapshot and migrates retired selections. Studio pin moved to `2640e67`. Wider ownership and evolver acceptance unchanged. |
+| Composer [#609](https://github.com/loftwah/app-composer/issues/609) Docs UX | **Advanced; stays open** | Live `/docs` now opens with “What do you want to make or do?”, six task paths, local search and canonical copy actions. The 17-section technical reference moved to `/docs/how-it-works` with legacy anchors preserved. Remaining: five-person test, fresh-agent copied-output proof, wider tutorial migration. |
+| Composer [#621](https://github.com/loftwah/app-composer/issues/621) Design LEGO | **Advanced; stays open** | Live Composer includes the merged **Workshop press** Brand Studio skin: opt-in, saved/reopened through the existing record, default branding unchanged, silent until enabled, keyboard/reduced-motion paths tested locally. The admin route needs the owner's Cloudflare Access sign-in, so live skin inspection remains. |
+| Composer [#600](https://github.com/loftwah/app-composer/issues/600) Blueprints | **Advanced; stays open** | Media Studio blueprint still **Reference**, now pinned to `2640e67`. No independent replay this run. |
+| Composer [#601](https://github.com/loftwah/app-composer/issues/601) Benchmarks | **Not this run** | The capability refresh and live model receipt are reusable evidence, but no new benchmark run was executed. |
+| Composer [#599](https://github.com/loftwah/app-composer/issues/599), [#598](https://github.com/loftwah/app-composer/issues/598), [#604](https://github.com/loftwah/app-composer/issues/604), [#613](https://github.com/loftwah/app-composer/issues/613), [#596](https://github.com/loftwah/app-composer/issues/596), [#602](https://github.com/loftwah/app-composer/issues/602), [#617](https://github.com/loftwah/app-composer/issues/617) | **Not this run** | Workspace, enquiry, social, analytics, widget, identity and second-consumer proofs need their own bounded slices. Existing receipts remain valid. |
+
+Remaining owner decisions:
+
+1. Approve or skip the proposed Studio #156 close in the GitHub panel.
+2. Sign into the Composer EmDash admin through Cloudflare Access to inspect the
+   Workshop press skin live.
+3. Provide a controlled recipient/sender authority before any real reply or
+   social send.
+4. Provide an independent newcomer/account if the Creator Hub proof should leave
+   **Reference**.
+
