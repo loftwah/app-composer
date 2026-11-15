@@ -20,6 +20,18 @@ const files: Record<string, { type: string; key: string }> = {
   "walkthrough.txt": { type: "text/plain; charset=utf-8", key: "media-studio/films/walkthrough.txt" },
   "overview-poster.jpg": { type: "image/jpeg", key: "media-studio/films/overview-poster.jpg" },
   "walkthrough-poster.jpg": { type: "image/jpeg", key: "media-studio/films/walkthrough-poster.jpg" },
+  // The 15 November showcase and teaser are Remotion edits served from R2 so
+  // playback keeps byte ranges and an immutable cache like the two guides.
+  "media-studio-showcase.mp4": { type: "video/mp4", key: "media-studio/films/media-studio-showcase-1080p.mp4" },
+  "media-studio-showcase.vtt": { type: "text/vtt; charset=utf-8", key: "media-studio/films/media-studio-showcase.vtt" },
+  "media-studio-showcase.srt": { type: "text/plain; charset=utf-8", key: "media-studio/films/media-studio-showcase.srt" },
+  "media-studio-showcase.txt": { type: "text/plain; charset=utf-8", key: "media-studio/films/media-studio-showcase.txt" },
+  "media-studio-showcase-poster.jpg": { type: "image/jpeg", key: "media-studio/films/showcase-poster.jpg" },
+  "media-studio-teaser.mp4": { type: "video/mp4", key: "media-studio/films/media-studio-teaser-1080x1920.mp4" },
+  "media-studio-teaser.vtt": { type: "text/vtt; charset=utf-8", key: "media-studio/films/media-studio-teaser.vtt" },
+  "media-studio-teaser.srt": { type: "text/plain; charset=utf-8", key: "media-studio/films/media-studio-teaser.srt" },
+  "media-studio-teaser.txt": { type: "text/plain; charset=utf-8", key: "media-studio/films/media-studio-teaser.txt" },
+  "media-studio-teaser-poster.jpg": { type: "image/jpeg", key: "media-studio/films/teaser-poster.jpg" },
   "brand-916-motion.mp4": {
     type: "video/mp4",
     key: "media-studio/brand/brand-916-motion-20261114.mp4",

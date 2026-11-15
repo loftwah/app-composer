@@ -1,9 +1,0 @@
-# Build an owned Media Studio · 30s vertical teaser
-
-Generated from the burned-in caption track. Times are the on-screen cue windows.
-
-1. [00:00:00.800] Build an owned Media Studio.
-2. [00:00:04.600] Describe it. Init writes the specification.
-3. [00:00:11.400] Your agent builds it on your Cloudflare account.
-4. [00:00:18.200] Six scenes, real takes, one saved cut.
-5. [00:00:24.200] composer.loftwah.com
