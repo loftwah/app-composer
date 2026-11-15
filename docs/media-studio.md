@@ -6,9 +6,9 @@ through Composer, then own and operate as its own application.
 
 - Source: https://github.com/loftwah/composer-media-studio
 - Live: https://media.loftwah.com
-- New Composer Init briefs pin [Studio `341a0fe`](https://github.com/loftwah/composer-media-studio/tree/341a0feae8d552a1ae1abdbab5902d74764edee5), verified live on 15 November 2026. Briefs pinned to `c3bcaff`, `1717dff`, `577e659`, `466b8f9`, `ac2012a`, `b0712b7`, `c3c80fc`, `c91184f`, `e2f4e83`, `52193c9`, `e911e99`, `53b473a`, `fec91ba`, `75cf69c`, `b8821b3`, `eb39262`, `27b75dc` or `2d456a5` remain importable, including the original downloadable Paper & Light brief; their exact source and manifest digest are retained.
+- New Composer Init briefs pin [Studio `a4f0e97`](https://github.com/loftwah/composer-media-studio/tree/a4f0e97c07c45cfd46291086d92b597b62f72468), verified live on 15 November 2026. Briefs pinned to `341a0fe`, `c3bcaff`, `1717dff`, `577e659`, `466b8f9`, `ac2012a`, `b0712b7`, `c3c80fc`, `c91184f`, `e2f4e83`, `52193c9`, `e911e99`, `53b473a`, `fec91ba`, `75cf69c`, `b8821b3`, `eb39262`, `27b75dc` or `2d456a5` remain importable, including the original downloadable Paper & Light brief; their exact source and manifest digest are retained.
 - Reuse decision: [studio Darkroom assessment](https://github.com/loftwah/composer-media-studio/blob/341a0feae8d552a1ae1abdbab5902d74764edee5/docs/darkroom-assessment.md)
-- Media Studio uses Levi’s Darkroom for Studio Print, Film, Quick and Detail on the studio owner’s Workers AI account. Cloudflare Images fits Detail references. The studio checks Darkroom originals for private metadata before publication. You can recover a retained still without another paid request.
+- Media Studio uses Levi’s Darkroom for Studio Print, Film, Quick and Detail on the studio owner’s Workers AI account. Cloudflare Images fits Detail references that need resizing or format conversion. The studio checks Darkroom originals for private metadata before publication. You can recover a retained still without another paid request.
 
 ## What a person gets
 

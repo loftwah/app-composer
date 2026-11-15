@@ -142,6 +142,7 @@ test("the handoff and build plan carry the owned studio work without secrets", (
   assert.match(text, /one genuine image-to-video clip/);
   assert.match(text, /OWNER_PASSPHRASE and SESSION_SECRET/);
   assert.match(text, /FAL_KEY/);
+  assert.match(text, /guarded `pnpm run deploy`/);
   assert.doesNotMatch(text, /rS\/pXeTzaR/);
   const recipe = buildRecipe(spec);
   assert.ok(recipe.length > 3);
@@ -152,7 +153,8 @@ test("the handoff and build plan carry the owned studio work without secrets", (
 });
 
 test('current and historical Studio briefs retain their exact reviewed source pins', async () => {
-  assert.equal(mediaStudioSource.source.commit, '341a0feae8d552a1ae1abdbab5902d74764edee5');
+  assert.equal(mediaStudioSource.source.commit, 'a4f0e97c07c45cfd46291086d92b597b62f72468');
+  assert.ok(mediaStudioSource.legacySources.some(source => source.commit === '341a0feae8d552a1ae1abdbab5902d74764edee5'));
   assert.ok(mediaStudioSource.legacySources.some(source => source.commit === 'c3bcaff0cfbd0ab6f87f8064ed008bd38ee0fcce'));
   assert.ok(mediaStudioSource.legacySources.some(source => source.commit === '1717dffef5119e97dcd3464dd57fcd6a88ecd270'));
   assert.ok(mediaStudioSource.legacySources.some(source => source.commit === '577e659aa88bb376becd3a630bdb99887697ae23'));
