@@ -1,6 +1,28 @@
 # Delivery status
 
-Reviewed 25 October 2026; updated 13 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+Reviewed 25 October 2026; updated 15 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
+
+## Model comparison — 15 November 2026
+
+Two surfaces now answer "which model should do this job?" from recorded work instead of an opinion.
+
+- **Composer** — [Benchmarks Studio comparison](https://composer.loftwah.com/benchmarks/compare), source
+  `8cb8776`, Worker `558674cd-9029-4c4f-8f38-9cd27e80d855`. One frozen brief
+  (`benchmarks/compare/task.json` v1), three agent configurations, three clean
+  trials each, nine deterministic assertions judged from the produced bytes. The
+  verdict was *same reliability, different speed*: GPT-5.6 Sol median 51s against
+  GPT-5.6 Terra 79s, all nine takes usable, the OpenCode/DeepSeek configuration
+  excluded from the speed claim because its harness reported no duration.
+  Every trial's page is published under `/benchmarks/trials/` and mounted live in
+  a shadow root, so the comparison opens the real work. No cost is claimed: there
+  is no rate card, so both money fields are `unknown`.
+- **Studio** — [the model chooser](https://media.loftwah.com/compare), source
+  `c1861db`, Worker `049f8017-95a3-4da4-828f-39d5739590ed`. Owner-only. Jobs come
+  from the served model registry, takes come from saved generations, and opening
+  it cannot spend money. `costObservedMicro` became `costAllocatedMicro` with
+  every consumer migrated; migration `0017` renamed the column and added a
+  separate `provider_charged_micro` that stays null until a provider reports a
+  charge.
 
 ## Current release pointer
 
