@@ -2,6 +2,36 @@
 
 Reviewed 25 October 2026; updated 16 November 2026. This page is the current navigation snapshot; [issue #11](https://github.com/loftwah/app-composer/issues/11) owns exact release receipts and later changes. [Historical observations](history/status-through-20261018.md) retain the earlier record without treating superseded candidates as current.
 
+## Measured delivery and role pathways — 16 November 2026
+
+Composer `ecd1164b19bd6a29f45a7459e97cd44da3753d3f` (Worker
+`ef8669b4-52f7-49be-97f5-35f23c2e29f4`), Studio
+`6cdca29165f792ec5f8b305c720c7bb20fb6d496` (Worker
+`c0a873d1-68cc-4451-807e-b12a01aff62f`). Live `/build.json` was read back for
+both exact sources.
+
+- **Every guarded release now leaves a timing receipt (#624, Studio #160).**
+  One monotonic run ID covers the required check through exact live identity.
+  Composer's real release passed in **92.5s**; Studio's in **25.5s**. Exactly
+  300,000ms is a breach. A breach creates or updates one deduplicated
+  `delivery-sla` GitHub issue for the slowest stage, queues a redacted retry
+  when GitHub is unavailable, and never turns a correct deployment into a
+  false failure. A controlled real GitHub write created, found and reconciled
+  issue #630; it found a 1MB `gh` output-buffer defect that is now fixed and
+  tested. The genuine breach → fix → compliant loop and the remaining
+  portfolio rollout are still open.
+- **Producer, Marketer and App Operator are first-class pathways (#626).**
+  Six new role/job routes use only live destinations: the published Paper &
+  Light film and free local audio trim; the Media Studio share kit with Link
+  Check; and the Trail Notes owner workspace with public activity and release
+  evidence. Each states the free, paid and access boundary. All six returned
+  200 at 1440 and 390 with no horizontal overflow, are in the sitemap, and have
+  their own share metadata. The fresh-user timed journey remains part of #623.
+- **Studio sibling panes.** Library, Create, Assemble, History, Publish and
+  Settings were opened at 1440×900 and 390×844: no horizontal overflow in any
+  pane. Physical-keyboard and recorded-journey evidence remain the explicit
+  #148 gates.
+
 ## Workspace-scoped media, docs copy, appearance skins and the Studio Director — 16 November 2026
 
 Composer `0978dc47ebb61b7b739352a2f9feb8c6c6be8e4f`, Studio
