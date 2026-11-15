@@ -18,7 +18,7 @@ if(error)Astro.response.status=503;
  </>
 ) : (
  <>
-  <h1>Choose your mini-apps.</h1><p class="lede">Collect photos, review contributions and curate a showcase. Each app has its own source and deployment.</p>{entries.map(entry=><section class="route-row"><h2><a href={'/catalogue/'+entry.id}>{entry.data.title}</a></h2><div><p>{entry.data.description}</p><p class="small">{reviewed.get(entry.id)?'Reviewed '+reviewed.get(entry.id):'Review date not recorded'}</p><a href={entry.data.source}>Independent GitHub source</a></div><div><DeviceSupport support={appDeviceSupport(entry.data.slug ?? entry.id)} compact/><a class="button" href={entry.data.href}>Open app</a></div></section>)}<p class="small">Published entries: {entries.length}.</p><a href="/init">Configure a supported preset</a>
+  <h1>Choose your mini-apps.</h1><p class="lede">Collect photos, review contributions and curate a showcase. Each app has its own source and deployment.</p>{entries.map(entry=><section class="route-row"><h2><a href={'/catalogue/'+entry.id}>{entry.data.title}</a></h2><div><p>{entry.data.description}</p><p class="small">{reviewed.get(entry.id)?'Reviewed '+reviewed.get(entry.id):'Review date not recorded'}</p><a href={entry.data.source}>Independent GitHub source</a></div><div><DeviceSupport support={appDeviceSupport(entry.data.slug ?? entry.id)} compact/><a class="button" href={entry.data.href}>Open app</a></div></section>)}<p class="small">Published entries: {entries.length}.</p><a href="/init">Configure a supported preset</a> · <a href="/blueprints">Take a versioned blueprint</a>
  </>
 )}
 </Base>
