@@ -1,0 +1,220 @@
+---
+import Base from "../../layouts/Base.astro";
+import { env } from "cloudflare:workers";
+import type { D1Database } from "@cloudflare/workers-types";
+import build from "../../lib/build.json";
+import { apps } from "../../lib/apps";
+import {
+  INSIGHT_ID,
+  insightCardPath,
+  insightCardUrl,
+  insightStatusFor,
+  type RecordedOpensInsight,
+} from "../../lib/activity-insight";
+import { count } from "../../lib/activity-view";
+import { insightFromParams } from "../../lib/insight-source";
+import { ArrowLeft, ArrowUpRight, Download, Share2 } from "@lucide/astro";
+import "../../styles/reports.css";
+import "../../styles/analytics.css";
+
+const runtime = env as unknown as { DB?: D1Database };
+const requested = Astro.params.insight ?? "";
+const result =
+  requested === INSIGHT_ID
+    ? await insightFromParams(runtime.DB, Astro.url.searchParams, {
+        revision: build.commit,
+      })
+    : ({
+        status: "invalid",
+        reason: "No public insight exists at this address.",
+      } as const);
+const insight: RecordedOpensInsight | undefined =
+  result.status === "ok" ? result.insight : undefined;
+if (result.status !== "ok")
+  Astro.response.status = insightStatusFor(result.status);
+const canonical = insight?.canonical;
+const card = insight ? insightCardUrl(insight.window) : undefined;
+const cardHref = insight ? insightCardPath(insight.window) : undefined;
+const payload = insight
+  ? JSON.stringify({
+      url: insight.canonical,
+      title: insight.headline,
+      text: insight.caption,
+      image: card,
+    }).replaceAll("<", "\\u003c")
+  : "";
+const statusCopy: Record<string, { title: string; body: string }> = {
+  invalid: {
+    title: "No public insight exists at this address.",
+    body: "The address is incomplete or names a window Composer does not publish. A shared insight always uses 1–30 complete UTC days and a supported route scope.",
+  },
+  withdrawn: {
+    title: "This insight is no longer published.",
+    body: "An app in its population left Composer’s public catalogue, or public analytics was turned off. Composer withholds the ranking instead of showing the earlier numbers.",
+  },
+  empty: {
+    title: "This insight has no recorded opens to publish.",
+    body: "The window retains no recorded app opens, or too little history for a leader. It is not shown as zero.",
+  },
+  unavailable: {
+    title: "This insight is temporarily unavailable.",
+    body: "The counter read did not complete, so Composer withholds the numbers and the card. Try again later.",
+  },
+};
+const failure =
+  result.status === "ok" ? undefined : statusCopy[result.status];
+const leaderApp = insight
+  ? apps.find((app) => app.id === insight.leader.app)
+  : undefined;
+const activityHref = insight
+  ? `/activity?days=${insight.window.days}&surface=${insight.window.surface}`
+  : "/activity";
+const dataHref = insight
+  ? `/api/portfolio-analytics?from=${insight.window.from}&to=${insight.window.to}&surface=${insight.window.surface}`
+  : "/api/portfolio-analytics";
+const readAt = insight
+  ? new Date(insight.readAt).toLocaleString("en-AU", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "UTC",
+    })
+  : "";
+---
+<Base
+  title={insight ? insight.headline : failure!.title}
+  description={insight
+    ? `${insight.valueLabel} ${insight.unit}. ${insight.windowLabel}, ${insight.window.days} complete UTC days, ${insight.surfaceLabel}. Recorded requests, not people.`
+    : failure!.body}
+  shareImage={card}
+  shareAlt={insight
+    ? `App Composer public insight card: ${insight.headline}. ${insight.windowLabel}. ${insight.valueLabel} recorded app opens.`
+    : undefined}
+  shareWidth={1200}
+  shareHeight={630}
+  shareType="image/png"
+  canonical={canonical}
+  ogType="article"
+  noindex={!insight}
+>
+  <a href={activityHref} class="report-back"><ArrowLeft size={18} aria-hidden="true"/> Explore app activity</a>
+  {insight ? (
+    <article class="insight-page" data-insight-share>
+      <header class="insight-page-hero">
+        <p class="analytics-kicker">Public insight · recorded app opens</p>
+        <h1>{insight.headline}</h1>
+        <p class="insight-page-value"><strong>{insight.valueLabel}</strong> <span>{insight.unit}</span></p>
+        <p class="insight-page-window">{insight.windowLabel} · {insight.window.days} complete UTC {insight.window.days === 1 ? "day" : "days"} · {insight.surfaceLabel}</p>
+        <p class="insight-page-freshness">Source read {readAt} UTC · revision <code>{insight.sourceRevision.slice(0, 8)}</code> · today’s partial UTC day is excluded</p>
+        <p class="insight-page-population">{insight.population}</p>
+        <div class="insight-page-actions">
+          {leaderApp && <a class="button" href={leaderApp.href}>Open {leaderApp.name} <ArrowUpRight size={18} aria-hidden="true"/></a>}
+          <a class="button secondary" href={cardHref} download={`composer-insight-${insight.window.from}-to-${insight.window.to}.png`}><Download size={18} aria-hidden="true"/> Download the 1200 × 630 card</a>
+          <button type="button" class="secondary" data-insight-native hidden><Share2 size={18} aria-hidden="true"/> Share this insight</button>
+          <button type="button" class="secondary" data-insight-copy="link" hidden>Copy the link</button>
+        </div>
+        <p role="status" aria-live="polite" data-insight-status></p>
+        <noscript><p class="small">Copy buttons need JavaScript. Select the caption or address below and copy it manually; the card download and the app link still work.</p></noscript>
+      </header>
+
+      <section class="analytics-section" aria-labelledby="insight-ranking-title">
+        <div class="analytics-section-heading">
+          <h2 id="insight-ranking-title">The window leaderboard</h2>
+          <p>Same metric, population, route scope and UTC window for every app. Ranked by recorded opens, then by name. A plus sign marks a lower bound because that app reached a daily counter ceiling.</p>
+        </div>
+        <div class="table-wrap" tabindex="0" role="group" aria-label="Window leaderboard table, scrollable sideways on a phone">
+          <table class="insight-table">
+            <caption>Recorded app opens, {insight.windowLabel}, {insight.surfaceLabel}</caption>
+            <thead>
+              <tr>
+                <th scope="col">Rank</th>
+                <th scope="col">Public app</th>
+                <th scope="col">Recorded opens</th>
+                <th scope="col">Share of window (rounded)</th>
+                <th scope="col">Coverage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {insight.entries.map((entry, index) => {
+                const entryApp = apps.find((app) => app.id === entry.app);
+                return (
+                  <tr>
+                    <td>{String(index + 1).padStart(2, "0")}</td>
+                    <th scope="row">
+                      {entryApp ? <a href={entryApp.href}>{entry.label} <ArrowUpRight size={15} aria-hidden="true"/></a> : entry.label}
+                    </th>
+                    <td>{count(entry.opens)}{entry.limited ? "+" : ""}</td>
+                    <td>{entry.shareLabel}</td>
+                    <td>{entry.limited ? "Lower bound · daily cap reached" : "Bounded recording"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot>
+              <tr>
+                <th scope="row" colspan="2">Window total</th>
+                <td>{insight.valueLabel}</td>
+                <td>100%</td>
+                <td>{insight.lowerBound ? "Lower bound" : "Complete UTC days"}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <p class="analytics-note">The chart and summary on <a href={activityHref}>/activity</a> include today’s partial UTC day and can therefore differ by one day. This insight uses complete days only so a shared total does not move while today is still being recorded.</p>
+      </section>
+
+      <section class="analytics-section" aria-labelledby="insight-copy-title">
+        <div class="analytics-section-heading">
+          <h2 id="insight-copy-title">Share this insight</h2>
+          <p>The card, caption and address carry the exact metric, window and route scope. The address re-reads the source and withholds itself when the population or data is unavailable.</p>
+        </div>
+        <figure class="insight-preview">
+          <a href={cardHref} aria-label="Open the 1200 by 630 insight card">
+            <img src={cardHref} width="1200" height="630" alt={`App Composer public insight card: ${insight.headline}. ${insight.windowLabel}, ${insight.surfaceLabel}. ${insight.valueLabel} recorded app opens.`} loading="lazy"/>
+          </a>
+          <figcaption>1200 × 630 PNG, rendered on the server from this window’s recorded counters. <a href={cardHref} download={`composer-insight-${insight.window.from}-to-${insight.window.to}.png`}>Download</a></figcaption>
+        </figure>
+        <label class="insight-copy-field">Caption
+          <textarea readonly rows="4" data-insight-caption>{insight.caption}</textarea>
+        </label>
+        <div class="insight-copy-actions">
+          <button type="button" data-insight-copy="caption" hidden>Copy the caption</button>
+          <button type="button" data-insight-copy="link" hidden>Copy the address</button>
+        </div>
+        <noscript><p class="small">Copy buttons need JavaScript. Select the caption or address above and copy it manually; the card download and the app link still work.</p></noscript>
+        <label class="insight-copy-field">Public address
+          <input readonly value={insight.canonical} data-insight-url/>
+        </label>
+      </section>
+
+      <section class="analytics-method" aria-labelledby="insight-method-title">
+        <h2 id="insight-method-title">What this insight means</h2>
+        <p>{insight.definition}</p>
+        <p>{insight.population} The population is read from Composer’s public app catalogue, not from the address. If an app leaves that catalogue, this insight withdraws.</p>
+        <ul>{insight.exclusions.map((limitation) => <li>{limitation}</li>)}</ul>
+        <dl class="insight-source">
+          <div><dt>Window</dt><dd>{insight.windowLabel} · {insight.window.days} complete UTC days</dd></div>
+          <div><dt>Route scope</dt><dd>{insight.surfaceLabel}</dd></div>
+          <div><dt>Source read</dt><dd>{readAt} UTC</dd></div>
+          <div><dt>Source revision</dt><dd><code>{insight.sourceRevision}</code></dd></div>
+          <div><dt>Aggregate</dt><dd><a href={dataHref}>Daily data and definitions <ArrowUpRight size={15} aria-hidden="true"/></a></dd></div>
+        </dl>
+        <p class="small">No visitor identity, session, enquiry text, private workspace record, stack name or raw event is published. A recorded request is not a person, a contribution open is not a submission, and a received postcard is not an approval. <a href="/privacy">Privacy</a></p>
+        <p><a href={activityHref}>Explore the current activity</a> · <a href="/activity">All app analytics</a></p>
+      </section>
+      <script type="application/json" data-insight-payload set:html={payload}/>
+      <script>
+        import "../../browser/insight-share";
+      </script>
+    </article>
+  ) : (
+    <section class="analytics-empty insight-failure" role="status">
+      <h1>{failure!.title}</h1>
+      <p>{failure!.body}</p>
+      {result.status !== "ok" && <p class="small">{result.reason}</p>}
+      <p><a href="/activity">Explore current app activity</a></p>
+    </section>
+  )}
+</Base>
