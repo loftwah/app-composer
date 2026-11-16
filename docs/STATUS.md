@@ -398,6 +398,27 @@ links stay available. The earlier sliced-artwork opening and the
   no invented live counts are shown. See
   [studio-hero.md](studio-hero.md) for the implementation and provenance.
 
+## Social publishing — 17 November 2026
+
+Two posts went live on `@loftwah.com`.
+
+- A real portfolio post — the Foilbury/Pippa still, animated in Media Studio —
+  was published through the owner's signed-in browser, with the page poster as
+  the image, its own alt text and a link facet to
+  https://media.loftwah.com/p/9UX85ricWNKOeA96. This route is assisted, not
+  integrated: https://bsky.app/profile/loftwah.com/post/3n2goytaw322y
+- The Share calendar then published an exact approved post through the encrypted
+  Bluesky connection, with a delivery receipt and native permalink:
+  https://bsky.app/profile/loftwah.com/post/art2vwvg2vr75
+- The first integrated attempt failed at the provider. Composer used a
+  32-character digest as the record key; Bluesky requires a 13-character TID.
+  Fixed in `95a067f`, with the stale-calendar-clock fix in `301e149`.
+- Remaining: an approval cannot yet bind an arbitrary approved project image and
+  its alt text (only the generated stack card), and the customer connection
+  invitation, Instagram, the Facebook Page and LinkedIn are still owner/provider
+  work. Evidence:
+  [first posts](evidence/social-owner-activation/20261117-first-posts.md).
+
 ## Media Studio — 13 November 2026
 
 Composer now offers **Media Studio — make and organise images and video** in the
