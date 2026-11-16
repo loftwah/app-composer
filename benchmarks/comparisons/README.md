@@ -68,7 +68,11 @@ tables agree.
 
 - Not a quality ranking. A saved job means an output was stored, not that it was
   good.
-- Not a human preference. No blind comparison of outputs has been recorded yet.
+- Not a human preference for these routes. The aggregate table never becomes one.
+  A separate matched-still pair lives in `benchmarks/media/`; if it has a
+  recorded vote, `/benchmarks/comparisons` says so and links to it. That vote is
+  one unauthenticated label's preference between two saved clips, not a ranking
+  of the routes in this table.
 - Not an invoice, a provider-wide benchmark or a failure-latency measurement.
 - Not a usage report. The table records no token or credit usage for these media
   jobs, so none is claimed.

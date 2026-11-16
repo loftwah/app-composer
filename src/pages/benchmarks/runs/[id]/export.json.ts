@@ -5,13 +5,20 @@ import {
   buildRunEvidence,
   exportFilename,
   getRunRecord,
+  isMediaRecord,
   listVotes,
 } from "../../../../lib/benchmark-runs.ts";
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ params }) => {
+export const GET: APIRoute = async ({ params, request }) => {
   const found = getRunRecord(params.id);
+  if (found && isMediaRecord(found.record)) {
+    return Response.redirect(
+      new URL(`/benchmarks/media/runs/${encodeURIComponent(found.id)}/export.json`, request.url),
+      302,
+    );
+  }
   if (!found)
     return Response.json({ ok: false, error: "That run is not recorded." }, { status: 404 });
   const runtime = env as unknown as { DB?: D1Database };

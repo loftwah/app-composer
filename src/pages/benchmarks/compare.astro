@@ -4,11 +4,14 @@ import {
   blindView,
   DEFAULT_REVIEWER_LABEL,
   getRunRecord,
+  isMediaRecord,
   renderBlindPairGrid,
 } from '../../lib/benchmark-runs.ts';
 
 const requested = Astro.url.searchParams.get('run');
 const found = getRunRecord(requested ?? undefined);
+if (found && isMediaRecord(found.record))
+  return Astro.redirect(`/benchmarks/media?run=${encodeURIComponent(found.id)}`);
 if (requested && !found) Astro.response.status = 404;
 if (!found) Astro.response.status = 404;
 const view = found ? blindView(found.record) : null;
