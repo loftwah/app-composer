@@ -602,12 +602,14 @@ export async function manageCommandCentre(
     );
 
   try {
-    const report = await readCommandCentre({
+    // Return the plain report object, not a raw Response. EmDash wraps plain
+    // plugin route results as `{ success: true, data: report }`; returning a
+    // Response would serialize it as an empty `data: {}` for the admin page.
+    return await readCommandCentre({
       repository: requested,
       token: readToken(runtime.GITHUB_TOKEN),
       fetch: fetcher,
     });
-    return Response.json(report);
   } catch {
     return reject(
       "UNAVAILABLE",
