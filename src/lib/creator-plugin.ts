@@ -28,6 +28,7 @@ import { managePluginTrust } from "./plugin-trust.ts";
 import { manageDeliveryRuns } from "./delivery-runs.ts";
 import { manageStackStatus } from "./stack-status-admin.ts";
 import { manageProviderInventory } from "./provider-read.ts";
+import { manageShareCalendar } from "./share-calendar-admin.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
 
@@ -65,6 +66,11 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         { path: "/stack-status", label: "Stack status", icon: "stack" },
         { path: "/delivery", label: "Delivery runs", icon: "rocket" },
         { path: "/brand-studio", label: "Brand Studio", icon: "palette" },
+        {
+          path: "/share-calendar",
+          label: "Share calendar",
+          icon: "calendar",
+        },
         { path: "/incidents", label: "Incident Desk", icon: "first-aid-kit" },
       ],
     },
@@ -106,6 +112,17 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         permission: "plugins:manage",
         request: { body: "json", maxBytes: 26000 },
         handler: (ctx) => manageDeliveryRuns(ctx, runtime),
+      },
+      shareCalendarRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageShareCalendar(ctx, runtime),
+      },
+      shareCalendarWrite: {
+        methods: ["POST"],
+        permission: creatorPermission,
+        request: { body: "json", maxBytes: 8000 },
+        handler: (ctx) => manageShareCalendar(ctx, runtime),
       },
       proposalsRead: {
         methods: ["GET"],
