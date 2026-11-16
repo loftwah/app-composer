@@ -132,7 +132,8 @@ export function checkInventory(doc, options = {}) {
   if (snapshot?.projectCount !== projects.length) fail("snapshot.projectCount must equal the project list length");
 
   if (!Array.isArray(doc?.connected)) fail("connected must be a list");
-  for (const entry of doc?.connected ?? []) {
+  const connectedEntries = Array.isArray(doc?.connected) ? doc.connected : [];
+  for (const entry of connectedEntries) {
     const where = `connected ${entry?.id}`;
     if (!["guestbook", "showcase", "media-studio"].includes(entry?.id)) fail(`${where}: unsupported connected app`);
     checkRecord(entry?.live, `${where}: live`, 200, fail);
@@ -145,7 +146,8 @@ export function checkInventory(doc, options = {}) {
   if ((doc?.connected ?? []).length !== 3) fail("connected must list guestbook, showcase and media-studio");
 
   if (!Array.isArray(doc?.surfaces) || doc.surfaces.length !== 1) fail("surfaces must hold Woodhouse");
-  for (const entry of doc?.surfaces ?? []) {
+  const surfaceEntries = Array.isArray(doc?.surfaces) ? doc.surfaces : [];
+  for (const entry of surfaceEntries) {
     checkRecord(entry?.live, "surface woodhouse: live", 200, fail);
     checkRepository(entry?.repository, "surface woodhouse", fail);
     checkDeployedSource(entry?.deployedSource, "surface woodhouse", fail);
@@ -154,7 +156,9 @@ export function checkInventory(doc, options = {}) {
   const lockApps = new Map((lock.apps ?? []).map((app) => [app.id, app]));
   const declaredPins = new Set();
   const anchors = new Set();
-  for (const blueprint of doc?.blueprints ?? []) {
+  if (!Array.isArray(doc?.blueprints)) fail("blueprints must be a list");
+  const blueprintEntries = Array.isArray(doc?.blueprints) ? doc.blueprints : [];
+  for (const blueprint of blueprintEntries) {
     const where = `blueprint ${blueprint?.id}`;
     if (!STATES.has(blueprint?.state)) fail(`${where}: unsupported state`);
     if (typeof blueprint?.replayed !== "boolean") fail(`${where}: replayed must be a boolean`);
