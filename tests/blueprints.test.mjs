@@ -110,4 +110,18 @@ test("the media studio blueprint reads the standalone pin and validates", () => 
     pinned.url.endsWith(`/tree/${sources[0].commit}`),
     "the evidence link carries the same revision as the active source pin",
   );
+  const replay = entry.evidence.find((item) => item.label === "Pinned build replay");
+  assert.ok(replay, "the pinned build replay is linked from the catalogue");
+  assert.ok(
+    replay.url.endsWith("/docs/evidence/pin-replay-20261116/README.md"),
+    "the replay evidence points at the dated record",
+  );
+  assert.ok(
+    entry.limits.some(
+      (limit) =>
+        /pinned commit itself was rebuilt/.test(limit) &&
+        /independent-owner replay are still not proven/.test(limit),
+    ),
+    "the limits keep the provider and independent-owner boundary",
+  );
 });
