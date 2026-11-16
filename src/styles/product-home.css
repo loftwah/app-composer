@@ -2326,3 +2326,18 @@
     max-height: 30rem;
   }
 }
+/* The presentation header gives the wordmark less room than the shared shell
+   at 320px. Step the mark down so it cannot touch the menu control. */
+@media (max-width: 359px) {
+  .home-shell > .site-header {
+    padding-inline: 12px;
+  }
+  .home-shell > .site-header .brand {
+    font-size: 15px;
+    gap: 4px;
+  }
+  .home-shell > .site-header .brand > img {
+    width: 24px;
+    height: 24px;
+  }
+}
