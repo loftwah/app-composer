@@ -111,7 +111,12 @@ export const blueprints = [
       {
         label: "Runnable pinned recipe",
         url: "https://github.com/loftwah/app-composer/blob/main/docs/portfolio/blueprints.md#media-studio",
-        observed: "Exact pins, prerequisites and commands, with the replay status recorded as not replayed. The 16 November 2026 fresh-install deploy and restore are recorded separately in the recipe.",
+        observed: "Exact pins, prerequisites and commands. The recipe's storage, deploy and paid provider steps remain unreplayed by an independent owner; the pinned build itself was replayed separately on 16 November 2026.",
+      },
+      {
+        label: "Pinned build replay",
+        url: "https://github.com/loftwah/app-composer/blob/main/docs/evidence/pin-replay-20261116/README.md",
+        observed: "A clean clone of the pinned commit installed with a frozen lockfile, passed its own test suite and completed the production build on 16 November 2026.",
       },
     ],
     limits: [
@@ -119,7 +124,7 @@ export const blueprints = [
       "The studio is single-owner by design. It is not a multi-tenant signup product.",
       "Provider availability, prices and output quality remain the owner's account decision; estimates are not invoices.",
       "Local MP4 rendering depends on the browser's codecs and memory. It is not a promise of device parity.",
-      "A fresh installation of this source was deployed, migrated and restored on 16 November 2026. Building from the pinned commit with provider-funded generation is still not replayed, and no independent owner has run the recipe, so it stays a reference rather than a proven repeatable build.",
+      "A fresh installation of this source was deployed, migrated and restored on 16 November 2026, and the pinned commit itself was rebuilt from a clean clone the same day (docs/evidence/pin-replay-20261116/README.md). Provider-funded generation and independent-owner replay are still not proven, so it stays a reference rather than a proven repeatable build.",
     ],
   },
 ];
