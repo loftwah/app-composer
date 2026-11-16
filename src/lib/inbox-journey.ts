@@ -27,6 +27,15 @@ import {
 } from "./enquiry-notifications.ts";
 import { MAX_ATTEMPTS } from "./retry-limit.ts";
 import {
+  approveReply,
+  declineReply,
+  ensureReplyJob,
+  exportReply,
+  replyJourney,
+  saveReplyDraft,
+} from "./enquiry-reply.ts";
+import type { ManualExport } from "./enquiry-reply-contract.ts";
+import {
   deliveryLabels,
   enquiryState,
   inboxJourney,
@@ -262,6 +271,16 @@ export async function linkEnquiryEvent(
       )
       .bind(matches[0].id, scope.workspace, scope.resource, event),
   ]);
+  // The reply job is prepared from the same exact match. It stores no body and
+  // no address. A failure here never reverses the link; the explicit draft path
+  // can still create the one job for this item.
+  try {
+    await ensureReplyJob(db, scope, matches[0]);
+  } catch {
+    console.warn(
+      "Composer reply job was not prepared; the explicit draft path can create it later.",
+    );
+  }
   return "linked";
 }
 
@@ -656,6 +675,7 @@ async function readJourney(
   item: EnquiryItem,
   connection: ReturnType<typeof resourceConnection>,
   resourceVersion: number,
+  manualExport?: ManualExport,
 ): Promise<InboxJourney> {
   const scope = {
     workspace: workspace.id,
@@ -731,6 +751,8 @@ async function readJourney(
     },
     resourceVersion,
     ...journey,
+    reply: await replyJourney(db, scope, item, workspace.role),
+    ...(manualExport ? { manualExport } : {}),
     notificationPreference: {
       enabled: Boolean(preference?.enabled),
       revision: preference?.revision ?? 0,
@@ -792,11 +814,19 @@ export async function manageInboxJourney(
       user = ctx.user;
     const workspace = await resolveWorkspace(db, user, input.workspace ?? null);
     requireCapability(workspace.role, "save");
-    const needed = reading || input.action === "process" ? "save" : "owner";
-    if (needed === "owner" && workspace.role !== "owner")
+    const ownerAction =
+      !reading &&
+      [
+        "send",
+        "reconcile",
+        "replyApprove",
+        "replyExport",
+        "replyDecline",
+      ].includes(input.action);
+    if (ownerAction && workspace.role !== "owner")
       return fail(
         "FORBIDDEN",
-        "Only the workspace owner can send or reconcile owner notices.",
+        "Only the workspace owner can send, reconcile, approve or export.",
       );
     const connection = resourceConnection(runtime, workspace.id),
       resource = await selectedResource(
@@ -811,7 +841,7 @@ export async function manageInboxJourney(
       if (owner && role !== "owner")
         throw new StackError(
           "FORBIDDEN",
-          "Only the workspace owner can send or reconcile owner notices.",
+          "Only the workspace owner can send, reconcile, approve or export.",
           403,
         );
       await selectedResource(db, workspace.id, resource.id, connection);
@@ -819,7 +849,7 @@ export async function manageInboxJourney(
     const remote = await connection.enquiry(resource.id, "export");
     appFailure(remote);
     // Access and exact resource are rechecked after the remote wait.
-    await guard(needed === "owner");
+    await guard(ownerAction);
     const reply = enquiryExport.parse(remote.body);
     checkResource(reply.resource, resource, connection);
     if (reply.source !== connection.source)
@@ -851,6 +881,7 @@ export async function manageInboxJourney(
       environment: connection.environment,
       target: connection.target,
     };
+    let manualExport: ManualExport | undefined;
     if (!reading && input.action === "relink") {
       await guard();
       const current = await outboxForItem(db, scope, item.id);
@@ -894,6 +925,20 @@ export async function manageInboxJourney(
         kind: "member",
         id: user.id,
       });
+    } else if (!reading && input.action === "replyDraft") {
+      await guard();
+      await saveReplyDraft(db, scope, item, input, { id: user.id });
+    } else if (!reading && input.action === "replyApprove") {
+      await guard(true);
+      await approveReply(db, scope, item, input, { id: user.id });
+    } else if (!reading && input.action === "replyExport") {
+      await guard(true);
+      manualExport = (
+        await exportReply(db, scope, item, input, { id: user.id })
+      ).exported;
+    } else if (!reading && input.action === "replyDecline") {
+      await guard(true);
+      await declineReply(db, scope, item, input, { id: user.id });
     } else if (!reading) {
       const current = await outboxForItem(db, scope, item.id);
       if (!current)
@@ -951,7 +996,7 @@ export async function manageInboxJourney(
           .run();
       }
     }
-    await guard(needed === "owner");
+    await guard(ownerAction);
     return await readJourney(
       db,
       runtime,
@@ -959,6 +1004,7 @@ export async function manageInboxJourney(
       item,
       connection,
       reply.resource.version,
+      manualExport,
     );
   } catch (error) {
     if (error instanceof z.ZodError)

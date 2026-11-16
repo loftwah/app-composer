@@ -268,7 +268,7 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
       journeyWrite: {
         methods: ["POST"],
         permission: creatorPermission,
-        request: { body: "json", maxBytes: 4000 },
+        request: { body: "json", maxBytes: 16000 },
         handler: (ctx) => manageInboxJourney(ctx, runtime),
       },
       outcomesRead: {

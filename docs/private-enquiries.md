@@ -1,6 +1,6 @@
 # Private enquiries (#117)
 
-Guestbook owns the private record store, retention, consent, receipt and moderation API. Composer owns no copy of submitted records. Its role20 native Inbox brokers supported app APIs only after current workspace owner/editor membership and exact app account/environment/target/source checks. Only the workspace owner can enable a form. This is the bounded no-contact enquiry slice; audience automation and replies remain unavailable. The default-off manual owner-notification preparation slice is described below.
+Guestbook owns the private record store, retention, consent, receipt and moderation API. Composer owns no copy of submitted records. Its role20 native Inbox brokers supported app APIs only after current workspace owner/editor membership and exact app account/environment/target/source checks. Only the workspace owner can enable a form. This is the bounded no-contact enquiry slice; audience automation remains unavailable. The current no-contact form still offers no reply. A separate versioned reply contract accepts a consented v2 export and ships draft, exact owner approval, manual export receipt and safe replay; it installs no provider send and is not reachable from the live no-contact form. The default-off manual owner-notification preparation slice is described below.
 
 The fixed `briefs/v1` model is captured from Guestbook with provenance in `private-enquiries-assets.json`. It asks for a project name, goal, starting point, optional conditional HTTPS website and up to eight deliverables. It collects no contact fields, account, upload or notification permission. Consent authorises private workspace delivery only. The public renderer and browser validation are local maintained copies; `scripts/enquiry-assets.mjs` checks the four strict browser outputs without fetching or importing another repository.
 
@@ -22,9 +22,9 @@ Bodies become inaccessible after 30 days and deletion clears them immediately. G
 
 ## Release and qualification
 
-Guestbook migration `0004_private_enquiries.sql` follows the unchanged reviewed `0003_portability_lineage.sql`. The original enquiry slice added no Composer migration; the later notification preparation slice adds migration 0013. App and Composer must be reviewed/released independently and the exact source promoted through the existing service/pin path before native support is claimed. Preview remains isolated through `CLOUDFLARE_ENV=preview`; local proof uses only fictional records.
+Guestbook migration `0004_private_enquiries.sql` follows the unchanged reviewed `0003_portability_lineage.sql`. The original enquiry slice added no Composer migration; the later notification preparation slice adds migration 0013, the journey slice adds 0017 and the reply draft/manual-export slice adds 0030. App and Composer must be reviewed/released independently and the exact source promoted through the existing service/pin path before native support is claimed. Preview remains isolated through `CLOUDFLARE_ENV=preview`; local proof uses only fictional records.
 
-Focused Composer checks: `node --test tests/private-enquiries.test.mjs tests/stack-resource-content.test.mjs`. The former combines FK-enabled Composer SQLite with an explicitly limited HTTP contract double; actual app workerd and native browser evidence is recorded separately in ignored `output/private-enquiries/`. Build/type/source gates do not establish production Access, human acceptance, physical-device or demand proof.
+Focused Composer checks: `node --test tests/private-enquiries.test.mjs tests/stack-resource-content.test.mjs` and `node --test tests/enquiry-reply.test.mjs tests/inbox-journey.test.mjs`. The former combines FK-enabled Composer SQLite with an explicitly limited HTTP contract double; actual app workerd and native browser evidence is recorded separately in ignored `output/private-enquiries/`. Build/type/source gates do not establish production Access, human acceptance, physical-device or demand proof.
 
 ## Owner notification preparation — 24 October 2026
 
@@ -99,10 +99,14 @@ response bodies, sender/recipient addresses and brief text are not stored in the
 run/outbox metadata; the Inbox shows a 12-character destination fingerprint.
 
 `0017_inbox_journey.sql` adds the run table and reconciliation columns on top of
-the existing 0013 outbox. The full state model, reliability rules and remaining
-gates are in [the inbox workflow guide](inbox-workflows.md). Deterministic tests
-and the local rendered captures are in
-[`tests/inbox-journey.test.mjs`](../tests/inbox-journey.test.mjs) and
-[`docs/evidence/inbox-workflow-20261025/`](evidence/inbox-workflow-20261025/README.md).
-No real mail, inbound mail, scheduler, production deployment or authenticated
-click-through of this new build is claimed.
+the existing 0013 outbox; `0030_enquiry_reply_jobs.sql` adds the separate reply
+job and timeline. The full state model, reliability rules and remaining gates
+are in [the inbox workflow guide](inbox-workflows.md). Deterministic tests and
+the local rendered captures are in
+[`tests/inbox-journey.test.mjs`](../tests/inbox-journey.test.mjs),
+[`tests/enquiry-reply.test.mjs`](../tests/enquiry-reply.test.mjs),
+[`docs/evidence/inbox-workflow-20261025/`](evidence/inbox-workflow-20261025/README.md)
+and
+[`docs/evidence/enquiry-reply-20261116/`](evidence/enquiry-reply-20261116/README.md).
+No real mail, inbound mail, scheduler, production deployment, live v2 form or
+authenticated click-through of this new build is claimed.

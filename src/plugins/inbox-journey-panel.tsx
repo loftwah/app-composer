@@ -5,8 +5,12 @@ import {
   enquiryLabels,
   journeyResponse,
   readJourneyPayload,
+  replyLabels,
+  replySubject,
   workflowLabels,
   type InboxJourney,
+  type ManualExport,
+  type ReplyView,
 } from "../lib/inbox-journey-contract";
 import { confirmWorkspace } from "./stacks/workspace-scope";
 import { focusStoredRecord } from "./record-anchor";
@@ -55,7 +59,7 @@ function StateChip({
   state,
   label,
 }: {
-  kind: "enquiry" | "workflow" | "delivery";
+  kind: "enquiry" | "workflow" | "delivery" | "reply";
   state: string;
   label: string;
 }) {
@@ -66,6 +70,489 @@ function StateChip({
   );
 }
 
+type ReplyWrite =
+  | {
+      action: "replyDraft";
+      expectedRevision: number;
+      body: string;
+      generator: "owner" | "agent";
+      generatorId?: string;
+    }
+  | {
+      action: "replyApprove";
+      expectedRevision: number;
+      expectedDigest: string;
+    }
+  | {
+      action: "replyExport";
+      expectedApproval: string;
+      expectedDigest: string;
+    }
+  | {
+      action: "replyDecline";
+      expectedRevision: number;
+    };
+
+function downloadText(filename: string, text: string) {
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+function ManualExportPanel({ exported }: { exported: ManualExport }) {
+  const [notice, setNotice] = useState("");
+  const copy = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setNotice(label + " copied.");
+    } catch {
+      setNotice(
+        "Copy was refused. Select the text below and copy it manually.",
+      );
+    }
+  };
+  return (
+    <section
+      className="ce-reply-receipt"
+      aria-labelledby="ce-reply-receipt-title"
+    >
+      <div className="ce-stage-head">
+        <h4 id="ce-reply-receipt-title">Manual export receipt</h4>
+        <StateChip kind="reply" state="exported" label="Exported, not sent" />
+      </div>
+      <p>
+        Composer did not send this reply. Copy the approved text and send it
+        from your own mail client to the consented recipient, or keep the
+        receipt as the record of this handoff.
+      </p>
+      <dl className="ce-facts compact">
+        <div>
+          <dt>Recipient</dt>
+          <dd>
+            {exported.recipient ??
+              "Consent is no longer current. Do not send this reply; approve a current draft first."}
+          </dd>
+        </div>
+        <div>
+          <dt>Subject</dt>
+          <dd>{exported.subject}</dd>
+        </div>
+        <div>
+          <dt>Approved</dt>
+          <dd>{bothZones(exported.approvedAt)}</dd>
+        </div>
+        <div>
+          <dt>Exported</dt>
+          <dd>{bothZones(exported.exportedAt)}</dd>
+        </div>
+        <div>
+          <dt>Receipt</dt>
+          <dd>
+            <code className="ce-fingerprint">{exported.id}</code>
+          </dd>
+        </div>
+      </dl>
+      <pre className="ce-reply-exact" aria-label="Approved reply text">
+        {exported.body}
+      </pre>
+      <div className="ce-actions">
+        <button
+          type="button"
+          onClick={() =>
+            void copy(exported.subject + "\n\n" + exported.body, "Reply text")
+          }
+        >
+          Copy reply
+        </button>
+        <button
+          type="button"
+          onClick={() => void copy(exported.receipt, "Receipt")}
+        >
+          Copy receipt
+        </button>
+        <button
+          type="button"
+          className="ce-quiet"
+          onClick={() =>
+            downloadText(
+              "reply-" + exported.id.slice(0, 8) + "-receipt.txt",
+              exported.receipt,
+            )
+          }
+        >
+          Download receipt
+        </button>
+      </div>
+      {notice && (
+        <p role="status" className="ce-muted">
+          {notice}
+        </p>
+      )}
+      <details className="ce-details">
+        <summary>Full receipt record</summary>
+        <pre className="ce-reply-exact">{exported.receipt}</pre>
+      </details>
+    </section>
+  );
+}
+
+function ReplyDetail({
+  reply,
+  exported,
+  subject,
+  busy,
+  owner,
+  editing,
+  onDraft,
+  onApprove,
+  onExport,
+  onDecline,
+}: {
+  reply: ReplyView;
+  exported?: ManualExport;
+  subject: string;
+  busy: boolean;
+  owner: boolean;
+  editing: boolean;
+  onDraft: (
+    body: string,
+    generator: "owner" | "agent",
+    generatorId: string | undefined,
+  ) => void;
+  onApprove: (revision: number, digest: string) => void;
+  onExport: (approval: string, digest: string) => void;
+  onDecline: (revision: number) => void;
+}) {
+  const [body, setBody] = useState(reply.draft?.body ?? "");
+  const [generator, setGenerator] = useState<"owner" | "agent">(
+    reply.draft?.generator ?? "owner",
+  );
+  const [generatorId, setGeneratorId] = useState(
+    reply.draft?.generatorId ?? "",
+  );
+  const [confirmed, setConfirmed] = useState(false);
+  const revision = reply.draft?.revision ?? 0;
+  useEffect(() => {
+    setBody(reply.draft?.body ?? "");
+    setGenerator(reply.draft?.generator ?? "owner");
+    setGeneratorId(reply.draft?.generatorId ?? "");
+    setConfirmed(false);
+  }, [reply.state, revision, reply.draft?.digest]);
+  const locked =
+    busy || reply.state === "exported" || reply.state === "declined";
+  const unsaved = reply.draft
+    ? body !== reply.draft.body ||
+      generator !== reply.draft.generator ||
+      generatorId !== (reply.draft.generatorId ?? "")
+    : body.trim().length > 0;
+  const canSave =
+    editing &&
+    !locked &&
+    body.trim().length > 0 &&
+    body.length <= 4000 &&
+    (generator === "owner" || generatorId.trim().length > 0) &&
+    unsaved;
+  const canApprove =
+    owner &&
+    !busy &&
+    (reply.state === "draft" ||
+      (reply.state === "invalidated" && reply.next.kind === "approve")) &&
+    Boolean(reply.draft) &&
+    !unsaved &&
+    confirmed;
+  const canExport = owner && !busy && reply.state === "approved";
+  const canDecline =
+    owner &&
+    !busy &&
+    ["draft", "approved", "invalidated"].includes(reply.state);
+  const source = reply.source
+    ? `brief revision ${reply.source.itemRevision} · ${reply.source.digest.slice(0, 12)}`
+    : "not saved yet";
+  return (
+    <section className="ce-reply" aria-labelledby="ce-reply-title">
+      <div className="ce-stage-head">
+        <h3 id="ce-reply-title">Visitor reply</h3>
+        <StateChip
+          kind="reply"
+          state={reply.state}
+          label={replyLabels[reply.state]}
+        />
+      </div>
+      <p>{reply.reason}</p>
+      {reply.consent && (
+        <dl className="ce-facts compact">
+          <div>
+            <dt>Reply consent</dt>
+            <dd>
+              Version {reply.consent.version} · consented{" "}
+              {bothZones(reply.consent.consentedAt)}
+            </dd>
+          </div>
+          <div>
+            <dt>Consent expires</dt>
+            <dd>{bothZones(reply.consent.expiresAt)}</dd>
+          </div>
+          <div>
+            <dt>Recipient</dt>
+            <dd>
+              Consented address{" "}
+              <code className="ce-fingerprint">
+                {reply.consent.recipientFingerprint}
+              </code>
+            </dd>
+          </div>
+        </dl>
+      )}
+      {reply.eligible && (
+        <>
+          <label className="ce-reply-field">
+            <span>Reply draft</span>
+            <textarea
+              value={body}
+              maxLength={4000}
+              rows={8}
+              disabled={locked || !editing}
+              onChange={(event) => {
+                setBody(event.target.value);
+                setConfirmed(false);
+              }}
+            />
+          </label>
+          <p className="ce-muted">
+            {body.length} of 4000 characters. Plain text only; no HTML is
+            rendered or sent. Saved drafts are bound to {source}.
+          </p>
+          <div className="ce-reply-source">
+            <label>
+              <span>Draft source</span>
+              <select
+                value={generator}
+                disabled={locked || !editing}
+                onChange={(event) => {
+                  setGenerator(event.target.value as "owner" | "agent");
+                  setConfirmed(false);
+                }}
+              >
+                <option value="owner">Owner or editor (manual)</option>
+                <option value="agent">Existing agent proposal</option>
+              </select>
+            </label>
+            {generator === "agent" && (
+              <label>
+                <span>Agent identity</span>
+                <input
+                  type="text"
+                  value={generatorId}
+                  maxLength={80}
+                  disabled={locked || !editing}
+                  placeholder="e.g. workspace-agent/inbox-reply"
+                  onChange={(event) => {
+                    setGeneratorId(event.target.value);
+                    setConfirmed(false);
+                  }}
+                />
+              </label>
+            )}
+          </div>
+          <div className="ce-actions">
+            <button
+              type="button"
+              disabled={!canSave}
+              onClick={() =>
+                onDraft(
+                  body,
+                  generator,
+                  generator === "agent" ? generatorId.trim() : undefined,
+                )
+              }
+            >
+              {reply.draft ? "Save draft revision" : "Save reply draft"}
+            </button>
+            {reply.draft && reply.state === "draft" && (
+              <span className="ce-muted">
+                Saved revision {reply.draft.revision} ·{" "}
+                {reply.draft.digest.slice(0, 12)}
+              </span>
+            )}
+          </div>
+          {unsaved && reply.draft && (
+            <p className="ce-muted">
+              Unsaved changes are not part of the approved text. Save them to
+              create a new revision, which requires approval again.
+            </p>
+          )}
+        </>
+      )}
+      {reply.draft && (
+        <div className="ce-reply-approval">
+          <h4>
+            {reply.state === "exported"
+              ? "Exported approved text"
+              : reply.state === "approved"
+                ? "Approved text"
+                : "Exact text for approval"}
+          </h4>
+          <p className="ce-muted">
+            Manual subject: <strong>{subject}</strong>
+          </p>
+          <pre className="ce-reply-exact" aria-label="Saved reply text">
+            {reply.draft.body}
+          </pre>
+          <p className="ce-muted">
+            Draft revision {reply.draft.revision} · SHA-256{" "}
+            <code className="ce-fingerprint">
+              {reply.draft.digest.slice(0, 12)}
+            </code>{" "}
+            · source {source}
+          </p>
+          {(reply.state === "draft" ||
+            (reply.state === "invalidated" &&
+              reply.next.kind === "approve")) && (
+            <>
+              <label className="ce-reply-confirm">
+                <input
+                  type="checkbox"
+                  checked={confirmed}
+                  disabled={busy || !owner || unsaved}
+                  onChange={(event) => setConfirmed(event.target.checked)}
+                />
+                <span>
+                  I have read this exact text and approve this revision. I
+                  understand Composer records a manual export and does not send
+                  email.
+                </span>
+              </label>
+              <div className="ce-actions">
+                <button
+                  type="button"
+                  disabled={!canApprove}
+                  onClick={() => {
+                    if (reply.draft)
+                      onApprove(reply.draft.revision, reply.draft.digest);
+                  }}
+                >
+                  Approve this exact reply
+                </button>
+                {!owner && (
+                  <span className="ce-muted">
+                    Only the workspace owner can approve or export a reply.
+                  </span>
+                )}
+              </div>
+            </>
+          )}
+          {reply.state === "approved" && reply.approval && (
+            <>
+              <p className="ce-reply-warning">
+                Approved by a workspace owner on{" "}
+                {bothZones(reply.approval.approvedAt)}. This approval is valid
+                until {bothZones(reply.approval.expiresAt)} and binds this exact
+                text, brief revision, consent and recipient. No email has been
+                sent.
+              </p>
+              <div className="ce-actions">
+                <button
+                  type="button"
+                  disabled={!canExport}
+                  onClick={() => {
+                    if (reply.approval)
+                      onExport(reply.approval.id, reply.draft?.digest ?? "");
+                  }}
+                >
+                  Export approved reply for manual sending
+                </button>
+              </div>
+              <p className="ce-muted">
+                Exporting records a manual handoff and a receipt. Composer does
+                not contact a provider and cannot claim the reply was sent.
+              </p>
+            </>
+          )}
+          {reply.state === "exported" && reply.receipt && (
+            <>
+              <p className="ce-reply-warning">
+                Exported for manual sending on{" "}
+                {bothZones(reply.receipt.exportedAt)}. Composer did not send
+                this reply. The exact approved text is shown above; the receipt
+                is retained with this brief.
+              </p>
+              {owner && !exported && reply.approval && (
+                <div className="ce-actions">
+                  <button
+                    type="button"
+                    className="ce-quiet"
+                    disabled={busy}
+                    onClick={() =>
+                      onExport(
+                        reply.approval?.id ?? reply.receipt?.id ?? "",
+                        reply.draft?.digest ?? "",
+                      )
+                    }
+                  >
+                    Show manual export receipt
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+          {canDecline && (
+            <div className="ce-actions">
+              <button
+                type="button"
+                className="ce-quiet"
+                disabled={busy}
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "Decline this reply? No message will be exported and the draft stays in the record.",
+                    )
+                  )
+                    onDecline(reply.draft?.revision ?? revision);
+                }}
+              >
+                Decline this reply
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+      {exported && <ManualExportPanel exported={exported} />}
+      {reply.timeline.length > 0 && (
+        <div className="ce-reply-history">
+          <h4>Reply timeline</h4>
+          <ol className="ce-reply-timeline">
+            {reply.timeline.map((event, index) => (
+              <li key={index} data-kind={event.kind}>
+                <strong>{event.kind}</strong>
+                <span>{bothZones(event.at)}</span>
+                <small>
+                  Revision {event.draftRevision}
+                  {event.digest ? " · " + event.digest : ""} ·{" "}
+                  {event.actorId.slice(0, 8)}
+                </small>
+                {event.reason && <p>{event.reason}</p>}
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+      {!reply.eligible && !reply.draft && (
+        <p className="ce-muted">
+          No reply action is offered for this brief. The no-contact enquiry
+          still supports review, rejection, deletion, export and the separate
+          owner notice.
+        </p>
+      )}
+    </section>
+  );
+}
+
 export function JourneyDetail({
   journey,
   busy,
@@ -73,13 +560,17 @@ export function JourneyDetail({
   onEnquiryAction,
   onPreference,
   onRefresh,
+  onReply,
 }: {
   journey: InboxJourney;
   busy: boolean;
-  onAction: (kind: "process" | "send" | "reconcile" | "relink" | "review") => void;
+  onAction: (
+    kind: "process" | "send" | "reconcile" | "relink" | "review",
+  ) => void;
   onEnquiryAction: (action: "review" | "reject" | "delete") => void;
   onPreference: (enabled: boolean) => void;
   onRefresh: () => void;
+  onReply: (payload: ReplyWrite) => void;
 }) {
   const { enquiry, workflow, delivery, next, notificationPreference } = journey;
   const owner = journey.workspace.role === "owner";
@@ -169,10 +660,11 @@ export function JourneyDetail({
           </button>
         </div>
         <p className="ce-muted">
-          The visitor agreed to private delivery on {shortDate(enquiry.createdAt)}.
-          This does not grant permission to publish or contact them. Marking the
-          brief reviewed records a decision; it does not send a notice, reply,
-          make a sale or contact the visitor.
+          The visitor agreed to private delivery on{" "}
+          {shortDate(enquiry.createdAt)}. This does not grant permission to
+          publish or contact them. Marking the brief reviewed records a
+          decision; it does not send a notice, reply, make a sale or contact the
+          visitor.
         </p>
       </header>
 
@@ -231,6 +723,41 @@ export function JourneyDetail({
           </p>
         )}
       </section>
+
+      <ReplyDetail
+        reply={journey.reply}
+        exported={journey.manualExport}
+        subject={replySubject(enquiry.title)}
+        busy={busy}
+        owner={owner}
+        editing={editing}
+        onDraft={(body, generator, generatorId) =>
+          onReply({
+            action: "replyDraft",
+            expectedRevision: journey.reply.draft?.revision ?? 0,
+            body,
+            generator,
+            ...(generatorId ? { generatorId } : {}),
+          })
+        }
+        onApprove={(revision, digest) =>
+          onReply({
+            action: "replyApprove",
+            expectedRevision: revision,
+            expectedDigest: digest,
+          })
+        }
+        onExport={(approval, digest) =>
+          onReply({
+            action: "replyExport",
+            expectedApproval: approval,
+            expectedDigest: digest,
+          })
+        }
+        onDecline={(revision) =>
+          onReply({ action: "replyDecline", expectedRevision: revision })
+        }
+      />
 
       <div className="ce-journey-grid">
         <section className="ce-stage" aria-labelledby="ce-workflow-title">
@@ -532,6 +1059,51 @@ export function InboxJourneyPanel({
       }
     }
   }
+  async function reply(payload: ReplyWrite) {
+    if (pending.current) return;
+    pending.current = true;
+    setWorking(true);
+    onBusyChange(true);
+    setError("");
+    setMessage("");
+    try {
+      const raw = await request("journeyWrite", true, {
+        workspace,
+        resource,
+        item,
+        ...payload,
+      });
+      if (!live.current) return;
+      const next = readJourneyPayload(raw);
+      if (next.enquiry.id !== item)
+        throw Error("The server returned another brief's journey.");
+      setJourney(next);
+      setMessage(
+        payload.action === "replyDraft"
+          ? "The reply draft was saved. Nothing was sent."
+          : payload.action === "replyApprove"
+            ? "The exact reply revision was approved. No email was sent."
+            : payload.action === "replyExport"
+              ? next.manualExport?.idempotent
+                ? "The existing manual export receipt was loaded. No second handoff was recorded."
+                : "The manual export receipt was recorded. Composer did not send this reply."
+              : "The reply was declined. Nothing was sent.",
+      );
+    } catch (cause) {
+      if (live.current)
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "The reply action could not be confirmed. Refresh to check the saved state.",
+        );
+    } finally {
+      pending.current = false;
+      if (live.current) {
+        setWorking(false);
+        onBusyChange(false);
+      }
+    }
+  }
   async function preference(enabled: boolean) {
     if (!journey || pending.current) return;
     pending.current = true;
@@ -613,6 +1185,7 @@ export function InboxJourneyPanel({
           onEnquiryAction={(action) => void enquire(action)}
           onPreference={(enabled) => void preference(enabled)}
           onRefresh={() => void load()}
+          onReply={(payload) => void reply(payload)}
         />
       )}
     </section>

@@ -7,6 +7,16 @@ import {
   enquiryScope,
   enquiryValues,
 } from "./enquiry-protocol.ts";
+import {
+  manualExport,
+  replyCommand,
+  replyView,
+} from "./enquiry-reply-contract.ts";
+
+export type { ReplyView } from "./enquiry-reply-contract.ts";
+export { replyLabels } from "./enquiry-reply-contract.ts";
+export { replySubject } from "./enquiry-reply-contract.ts";
+export type { ManualExport } from "./enquiry-reply-contract.ts";
 
 export const inboxJourneyVersion = "composer.inbox-journey/1";
 
@@ -123,6 +133,10 @@ export const inboxJourney = z
         revision: revision,
       })
       .strict(),
+    reply: replyView,
+    // Present only on the explicit manual-export response. It contains the
+    // app-owned recipient once for the owner to copy; it is never persisted.
+    manualExport: manualExport.optional(),
     next: z
       .object({
         kind: nextKinds,
@@ -140,39 +154,42 @@ export type JourneyState = z.infer<typeof journeyStates>;
 export type DeliveryState = z.infer<typeof deliveryStates>;
 export type NextKind = z.infer<typeof nextKinds>;
 
-export const journeyCommand = z.discriminatedUnion("action", [
-  z
-    .object({
-      action: z.literal("process"),
-      workspace: enquiryID.optional(),
-      resource: enquiryID,
-      item: enquiryID,
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("send"),
-      workspace: enquiryID.optional(),
-      resource: enquiryID,
-      item: enquiryID,
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("reconcile"),
-      workspace: enquiryID.optional(),
-      resource: enquiryID,
-      item: enquiryID,
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("relink"),
-      workspace: enquiryID.optional(),
-      resource: enquiryID,
-      item: enquiryID,
-    })
-    .strict(),
+export const journeyCommand = z.union([
+  z.discriminatedUnion("action", [
+    z
+      .object({
+        action: z.literal("process"),
+        workspace: enquiryID.optional(),
+        resource: enquiryID,
+        item: enquiryID,
+      })
+      .strict(),
+    z
+      .object({
+        action: z.literal("send"),
+        workspace: enquiryID.optional(),
+        resource: enquiryID,
+        item: enquiryID,
+      })
+      .strict(),
+    z
+      .object({
+        action: z.literal("reconcile"),
+        workspace: enquiryID.optional(),
+        resource: enquiryID,
+        item: enquiryID,
+      })
+      .strict(),
+    z
+      .object({
+        action: z.literal("relink"),
+        workspace: enquiryID.optional(),
+        resource: enquiryID,
+        item: enquiryID,
+      })
+      .strict(),
+  ]),
+  replyCommand,
 ]);
 export type JourneyCommand = z.infer<typeof journeyCommand>;
 
@@ -214,13 +231,15 @@ const unreadable =
   "The enquiry details could not be read. Refresh before another action.";
 
 /** The supported status of one journey request, read or write. */
-export function journeyResponse(raw: unknown, writing: boolean): { ok: boolean; message?: string } {
+export function journeyResponse(
+  raw: unknown,
+  writing: boolean,
+): { ok: boolean; message?: string } {
   if (!raw || typeof raw !== "object" || Array.isArray(raw))
     throw new Error(unreadable);
   const parsed = status.safeParse(raw);
   if (!parsed.success) throw new Error(unreadable);
-  if (!parsed.data.ok)
-    return { ok: false, message: parsed.data.message };
+  if (!parsed.data.ok) return { ok: false, message: parsed.data.message };
   if (writing) return { ok: true };
   if (!inboxJourney.safeParse(raw).success) throw new Error(unreadable);
   return { ok: true };
