@@ -18,6 +18,7 @@ import { CommandCentrePage } from "./command-centre-page";
 import { StackStatusPage } from "./stack-status-page";
 import { ProposalsPage } from "./proposals-page";
 import { ShareCalendarPage } from "./share-calendar-page";
+import { ShareConnectionsPage } from "./share-connections-page";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
 import {
   observeResourceRevision,
@@ -2139,4 +2140,5 @@ export const pages: PluginAdminExports["pages"] = {
   "/brand-studio": BrandStudioPage,
   "/incidents": IncidentsPage,
   "/share-calendar": ShareCalendarPage,
+  "/share-connections": ShareConnectionsPage,
 };
