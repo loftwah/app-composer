@@ -150,8 +150,16 @@ function failure(
 
 // The configured handle is public configuration, not a credential. An invalid
 // value is treated as unconfigured here; the page shows the explicit
-// needs-account state rather than guessing a profile.
-export function configuredBlueskyHandle(runtime: unknown): string | null {
+// needs-account state rather than guessing a profile. An explicit stored value
+// wins over the runtime fallback so the owner can change it from administration
+// without a deployment; an invalid stored value stays invalid rather than
+// silently reverting to a different account.
+export function configuredBlueskyHandle(
+  runtime: unknown,
+  storedHandle?: unknown,
+): string | null {
+  if (storedHandle !== undefined && storedHandle !== null)
+    return normalizeBlueskyHandle(storedHandle);
   if (!runtime || typeof runtime !== "object") return null;
   const value = (runtime as Record<string, unknown>)[BLUESKY_HANDLE_SETTING];
   return normalizeBlueskyHandle(value);
