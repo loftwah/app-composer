@@ -241,6 +241,15 @@ export const shareCalendarReadInput = z.union([
       assetId: catalogueAssetId,
     })
     .strict(),
+  // The picker query. It is only a bounded search string: the server builds the
+  // fixed catalogue search URL and returns public, unconfirmed items.
+  z
+    .object({
+      action: z.literal("catalogueSearch"),
+      workspace: workspaceId.optional(),
+      q: z.string().trim().min(1).max(100),
+    })
+    .strict(),
   z
     .object({ action: z.literal("list"), workspace: workspaceId.optional() })
     .strict(),

@@ -1,8 +1,9 @@
 // Narrow Woodhouse Share catalogue reuse for one Bluesky draft (#477/#604).
-// The browser only ever supplies a strict asset ID. Composer builds the one
-// fixed catalogue URL, refuses redirects, accepts only a public image
+// Composer builds catalogue URLs from a search term or a strict asset ID.
+// It refuses redirects, accepts only a public image
 // rendition from that same origin, and binds the exact bytes it fetched. No
 // user-supplied image URL is ever accepted and no credential is used here.
+import { z } from "zod";
 import {
   catalogueAssetSchema,
   catalogueIdentity,
@@ -21,6 +22,10 @@ export const SHARE_CATALOGUE_ID_MAX = 128;
 export const SHARE_CATALOGUE_REVISION_MAX = 200;
 export const SHARE_CATALOGUE_ALT_MAX = 2_000;
 export const SHARE_CATALOGUE_CREDIT_MAX = 300;
+export const SHARE_CATALOGUE_QUERY_MAX = 100;
+const SHARE_CATALOGUE_SEARCH_LIMIT = 8;
+const SHARE_CATALOGUE_TITLE_MAX = 160;
+const SHARE_CATALOGUE_PROJECT_MAX = 128;
 
 // Only a bare, lowercase, hyphenated slug. No dots, slashes, percent escapes,
 // query or fragment can reach the fixed URL, and ".." cannot form a path step.
@@ -271,6 +276,96 @@ export async function resolveShareCatalogueAsset(
     );
   } finally {
     if (timer) clearTimeout(timer);
+  }
+}
+
+export interface CatalogueSearchItem {
+  assetId: string;
+  title: string;
+  project: string;
+}
+
+export type CatalogueSearchResult =
+  | { ok: true; items: CatalogueSearchItem[] }
+  | { ok: false; code: string; message: string };
+
+export const catalogueSearchReplySchema = z
+  .object({
+    ok: z.literal(true),
+    action: z.literal("catalogueSearch"),
+    items: z
+      .array(
+        z
+          .object({
+            assetId: z.string().regex(SHARE_CATALOGUE_ID_PATTERN),
+            title: z.string().min(1).max(SHARE_CATALOGUE_TITLE_MAX),
+            project: z.string().max(SHARE_CATALOGUE_PROJECT_MAX),
+          })
+          .strict(),
+      )
+      .max(SHARE_CATALOGUE_SEARCH_LIMIT),
+  })
+  .strict();
+
+// Search results only identify candidates. Selection still goes through the
+// exact rendition and provenance checks in resolveShareCatalogueAsset.
+export async function searchShareCatalogueAssets(
+  query: string,
+  options: CatalogueFetchOptions = {},
+): Promise<CatalogueSearchResult> {
+  const q = query.trim();
+  if (!q || q.length > SHARE_CATALOGUE_QUERY_MAX)
+    return {
+      ok: false,
+      code: "INVALID",
+      message: "Enter up to 100 characters to search the catalogue.",
+    };
+
+  const endpoint = new URL(SHARE_CATALOGUE_API_BASE);
+  endpoint.searchParams.set("q", q);
+  endpoint.searchParams.set("limit", String(SHARE_CATALOGUE_SEARCH_LIMIT));
+  const signal = AbortSignal.timeout(
+    Math.min(30_000, Math.max(10, options.timeoutMs ?? 8_000)),
+  );
+  const unavailable = {
+    ok: false,
+    code: "UNAVAILABLE",
+    message:
+      "Woodhouse Share could not be searched. Try again or enter an asset ID.",
+  } as const;
+  try {
+    const response = await (options.fetch ?? globalThis.fetch)(endpoint.href, {
+      headers: { Accept: "application/json" },
+      redirect: "manual",
+      signal,
+    });
+    if (
+      !response.ok ||
+      Number(response.headers.get("content-length")) >
+        SHARE_CATALOGUE_JSON_MAX_BYTES
+    ) {
+      await response.body?.cancel().catch(() => {});
+      return unavailable;
+    }
+    const envelope = catalogueObject(await readBoundedJson(response, signal));
+    if (envelope?.version !== 1 || !Array.isArray(envelope.assets))
+      return unavailable;
+
+    const items = new Map<string, CatalogueSearchItem>();
+    for (const raw of envelope.assets.slice(0, SHARE_CATALOGUE_SEARCH_LIMIT)) {
+      const asset = catalogueObject(raw);
+      if (asset?.visibility !== "public" || asset.reuse !== "unconfirmed")
+        continue;
+      const assetId = normalizeShareAssetId(asset.id);
+      const title = boundedString(asset.title, SHARE_CATALOGUE_TITLE_MAX);
+      const project = boundedString(asset.project, SHARE_CATALOGUE_PROJECT_MAX);
+      if (assetId && title && project && !items.has(assetId)) {
+        items.set(assetId, { assetId, title, project });
+      }
+    }
+    return { ok: true, items: [...items.values()] };
+  } catch {
+    return unavailable;
   }
 }
 

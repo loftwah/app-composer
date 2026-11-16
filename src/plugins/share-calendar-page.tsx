@@ -30,9 +30,12 @@ import {
   type ShareChannel,
 } from "../lib/share-calendar";
 import {
+  catalogueSearchReplySchema,
   SHARE_CATALOGUE_ID_MAX,
   SHARE_CATALOGUE_ID_PATTERN,
   SHARE_CATALOGUE_ORIGIN,
+  SHARE_CATALOGUE_QUERY_MAX,
+  type CatalogueSearchItem,
 } from "../lib/share-catalogue-asset";
 import {
   approvalPackageForItem,
@@ -172,6 +175,34 @@ async function cataloguePreviewCall(
       ),
     );
   return parsed.data;
+}
+
+// The picker sends only a bounded search term. Choosing a result runs the same
+// cataloguePreviewCall above, so the exact rendition, alt and credit are still
+// confirmed by the existing preview before anything can be saved.
+async function catalogueSearchCall(
+  q: string,
+  workspace?: string,
+): Promise<CatalogueSearchItem[]> {
+  const params = new URLSearchParams({ action: "catalogueSearch", q });
+  if (workspace) params.set("workspace", workspace);
+  const response = await apiFetch(
+    base + "shareCalendarRead?" + params.toString(),
+    { cache: "no-store" },
+  );
+  const raw = await parseApiResponse<unknown>(
+    response,
+    "The Woodhouse Share catalogue could not be searched. No artwork was selected.",
+  );
+  const parsed = catalogueSearchReplySchema.safeParse(raw);
+  if (!parsed.success)
+    throw Error(
+      errorMessage(
+        raw,
+        "The catalogue search response could not be validated. No artwork was selected.",
+      ),
+    );
+  return parsed.data.items;
 }
 
 function displayDate(value: string | null) {
@@ -977,6 +1008,9 @@ function ShareCalendar({ search }: { search: string }) {
   const [assetId, setAssetId] = useState("");
   const [cataloguePreview, setCataloguePreview] = useState<CataloguePreview>();
   const [catalogueChecking, setCatalogueChecking] = useState(false);
+  const [assetQuery, setAssetQuery] = useState("");
+  const [assetResults, setAssetResults] = useState<CatalogueSearchItem[]>();
+  const [assetSearching, setAssetSearching] = useState(false);
   const [rightsConfirmed, setRightsConfirmed] = useState(false);
   const [channel, setChannel] = useState<ShareChannel>("instagram");
   const [destination, setDestination] = useState("");
@@ -1091,8 +1125,8 @@ function ShareCalendar({ search }: { search: string }) {
     }
   }
 
-  async function previewCatalogue() {
-    const id = assetId.trim();
+  async function previewCatalogue(idValue: string = assetId) {
+    const id = idValue.trim();
     if (!SHARE_CATALOGUE_ID_PATTERN.test(id)) {
       setError(
         "Use a single lowercase Woodhouse Share asset ID made of letters, digits and hyphens.",
@@ -1121,6 +1155,42 @@ function ShareCalendar({ search }: { search: string }) {
     } finally {
       if (alive.current) setCatalogueChecking(false);
     }
+  }
+
+  async function searchCatalogue() {
+    const q = assetQuery.trim();
+    if (!q || assetSearching || catalogueChecking || !canWrite || !isOwner)
+      return;
+    const workspace = selection.current;
+    setAssetSearching(true);
+    setAssetResults(undefined);
+    setError("");
+    setNotice("");
+    try {
+      const items = await catalogueSearchCall(q, workspace);
+      if (alive.current && selection.current === workspace) {
+        setAssetResults(items);
+      }
+    } catch (cause) {
+      if (alive.current && selection.current === workspace) {
+        setError(
+          errorMessage(
+            cause,
+            "Woodhouse Share could not be searched. Try again or enter an asset ID.",
+          ),
+        );
+      }
+    } finally {
+      if (alive.current) setAssetSearching(false);
+    }
+  }
+
+  function chooseCatalogueResult(item: CatalogueSearchItem) {
+    if (catalogueChecking) return;
+    setAssetId(item.assetId);
+    setCataloguePreview(undefined);
+    setRightsConfirmed(false);
+    void previewCatalogue(item.assetId);
   }
 
   function addVariant() {
@@ -1974,6 +2044,85 @@ function ShareCalendar({ search }: { search: string }) {
               </div>
               {catalogueMode ? (
                 <div className="sc-catalogue">
+                  <div className="sc-catalogue-search">
+                    <label className="sc-field">
+                      Search Woodhouse Share
+                      <input
+                        value={assetQuery}
+                        onChange={(event) => {
+                          setAssetQuery(event.target.value);
+                          setAssetResults(undefined);
+                        }}
+                        onKeyDown={(event) => {
+                          if (
+                            event.key === "Enter" &&
+                            !event.nativeEvent.isComposing
+                          ) {
+                            event.preventDefault();
+                            void searchCatalogue();
+                          }
+                        }}
+                        maxLength={SHARE_CATALOGUE_QUERY_MAX}
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck={false}
+                        placeholder="Artwork or project name"
+                        readOnly={assetSearching}
+                        disabled={
+                          Boolean(editing) || busy || !canWrite || !isOwner
+                        }
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => void searchCatalogue()}
+                      aria-disabled={assetSearching || catalogueChecking}
+                      disabled={
+                        Boolean(editing) ||
+                        busy ||
+                        !canWrite ||
+                        !isOwner ||
+                        !assetQuery.trim()
+                      }
+                    >
+                      {assetSearching ? "Searching…" : "Search catalogue"}
+                    </button>
+                    <p className="sc-hint" role="status">
+                      {assetSearching
+                        ? "Searching Woodhouse Share…"
+                        : assetResults?.length
+                          ? `${assetResults.length} results. Choose artwork to preview.`
+                          : assetResults
+                            ? "No matching artwork. Try a different search."
+                            : ""}
+                    </p>
+                    {!!assetResults?.length && (
+                      <ul
+                        className="sc-catalogue-results"
+                        aria-label="Woodhouse Share search results"
+                      >
+                        {assetResults.map((item) => (
+                          <li key={item.assetId}>
+                            <button
+                              type="button"
+                              aria-pressed={assetId.trim() === item.assetId}
+                              aria-disabled={catalogueChecking}
+                              disabled={
+                                Boolean(editing) ||
+                                busy ||
+                                !canWrite ||
+                                !isOwner
+                              }
+                              onClick={() => chooseCatalogueResult(item)}
+                            >
+                              <strong>{item.title}</strong>
+                              <span className="sc-hint">{item.project}</span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                   <label className="sc-field">
                     Woodhouse Share asset ID
                     <input
@@ -2018,13 +2167,10 @@ function ShareCalendar({ search }: { search: string }) {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Find asset IDs in Woodhouse Share
+                      Browse Woodhouse Share
                     </a>
                   </div>
-                  <p className="sc-hint">
-                    Use the ID from Woodhouse Share to preview the exact public
-                    image and its project details.
-                  </p>
+
                   {!isOwner && (
                     <p className="sc-hint">
                       Only a workspace owner can prepare a Woodhouse Share

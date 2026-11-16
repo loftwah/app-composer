@@ -74,6 +74,7 @@ import {
   cataloguePreviewHash,
   resolveShareCatalogueAsset,
   sameCatalogueAsset,
+  searchShareCatalogueAssets,
   sha256Bytes,
 } from "./share-catalogue-asset.ts";
 
@@ -631,6 +632,23 @@ export async function manageShareCalendar(
           ok: true as const,
           asset,
           assetHash: await cataloguePreviewHash(asset),
+        };
+      }
+      if (parsedRead.data.action === "catalogueSearch") {
+        if (workspace.role !== "owner")
+          return fail(
+            "FORBIDDEN",
+            "The workspace owner can search Woodhouse Share artwork.",
+          );
+        const found = await searchShareCatalogueAssets(parsedRead.data.q, {
+          fetch: runtime.fetch,
+          timeoutMs: runtime.blueskyTimeoutMs,
+        });
+        if (!found.ok) return fail(found.code, found.message);
+        return {
+          ok: true as const,
+          action: "catalogueSearch",
+          items: found.items,
         };
       }
       if (parsedRead.data.action === "blueskyIdentity") {
