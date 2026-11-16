@@ -1,8 +1,9 @@
 // Share calendar contract, validation and calendar export (#604).
 // This module is shared by the native administration page and Node tests. It
-// deliberately stops at a local handoff: an item can be drafted, scheduled or
-// marked as copied/downloaded/exported by the owner. No route here posts to a
-// social network or stores a provider identifier or credential.
+// stops at local preparation: an item can be drafted, scheduled or marked as
+// copied/downloaded/exported by the owner. The separate Bluesky delivery
+// module records a provider receipt only after an explicit send of an exact
+// approval; this contract stores no credential or token.
 import { z } from "zod";
 import { isBlueskyDid, normalizeBlueskyHandle } from "./bluesky-account.ts";
 
@@ -43,7 +44,7 @@ export const SHARE_STATES = [
   {
     id: "scheduled",
     label: "Scheduled",
-    note: "A date is recorded here. Composer will not post it.",
+    note: "A date is recorded here. Composer will not post it automatically.",
   },
   {
     id: "shared",
@@ -249,6 +250,23 @@ export const shareCalendarCommand = z.discriminatedUnion("action", [
     .strict(),
   z
     .object({
+      action: z.literal("blueskySend"),
+      workspace: workspaceId.optional(),
+      item: itemId,
+      expectedRevision: revision,
+      expectedApprovalRevision: revision,
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("blueskyReconcile"),
+      workspace: workspaceId.optional(),
+      item: itemId,
+      expectedApprovalRevision: revision,
+    })
+    .strict(),
+  z
+    .object({
       action: z.literal("shared"),
       workspace: workspaceId.optional(),
       item: itemId,
@@ -328,7 +346,15 @@ export interface ShareCalendarSnapshot {
   sources: ShareCalendarSource[];
   items: ShareCalendarItem[];
   approvals: BlueskyApprovalRecord[];
-  bluesky: { configuredHandle: string | null };
+  deliveries: BlueskyDeliveryRecord[];
+  bluesky: {
+    configuredHandle: string | null;
+    connection: {
+      state: "configured" | "not_configured";
+      handle: string | null;
+      note: string;
+    };
+  };
   now: string;
   changed: string | null;
 }
@@ -464,6 +490,94 @@ export interface BlueskyApprovalRecord {
   revocationReason: string;
 }
 
+// Durable delivery states for the Bluesky send path (#604). `approved` means a
+// delivery row exists but no worker has claimed it. `sending` is a short
+// lease. `unknown` means a request may have reached the provider; it is only
+// resolved by reading the deterministic record key, never by a blind retry.
+export const BLUESKY_DELIVERY_STATES = [
+  "approved",
+  "sending",
+  "published",
+  "failed",
+  "unknown",
+  "cancelled",
+  "needs_auth",
+] as const;
+
+export type BlueskyDeliveryState = (typeof BLUESKY_DELIVERY_STATES)[number];
+
+export const BLUESKY_DELIVERY_LABELS: Record<BlueskyDeliveryState, string> = {
+  approved: "Not sent",
+  sending: "Sending",
+  published: "Published",
+  failed: "Failed",
+  unknown: "Unknown",
+  cancelled: "Cancelled",
+  needs_auth: "Needs authorisation",
+};
+
+// Public-safe delivery receipt. There is deliberately no token, password,
+// refresh credential or raw provider body field in this contract.
+export interface BlueskyDeliveryRecord {
+  itemId: string;
+  approvalRevision: number;
+  state: BlueskyDeliveryState;
+  attempt: number;
+  accountHandle: string;
+  accountDid: string;
+  rkey: string;
+  providerUri: string | null;
+  providerCid: string | null;
+  permalink: string | null;
+  errorCode: string;
+  errorMessage: string;
+  claimedAt: string | null;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const blueskyDeliveryRecordSchema = z
+  .object({
+    itemId,
+    approvalRevision: revision,
+    state: z.enum(BLUESKY_DELIVERY_STATES),
+    attempt: z.number().int().min(0).max(10),
+    accountHandle: z
+      .string()
+      .refine(
+        (value) => normalizeBlueskyHandle(value) === value,
+        "Choose a real public handle.",
+      ),
+    accountDid: z.string().refine(isBlueskyDid, "Choose a real public DID."),
+    rkey: z.string().regex(/^[a-zA-Z0-9._:~-]{1,512}$/),
+    providerUri: z.string().max(1024).nullable(),
+    providerCid: z.string().max(256).nullable(),
+    permalink: z.string().url().max(1024).nullable(),
+    errorCode: z.string().max(80),
+    errorMessage: z.string().max(280),
+    claimedAt: isoInstant.nullable(),
+    publishedAt: isoInstant.nullable(),
+    createdAt: isoInstant,
+    updatedAt: isoInstant,
+  })
+  .strict()
+  .superRefine((value, ctx) => {
+    if (
+      value.state === "published" &&
+      (!value.providerUri || !value.providerCid || !value.permalink)
+    )
+      ctx.addIssue({
+        code: "custom",
+        message: "A published delivery needs its provider URI, CID and link.",
+      });
+    if (value.providerUri && !value.providerUri.startsWith("at://"))
+      ctx.addIssue({
+        code: "custom",
+        message: "A provider URI must be an AT URI.",
+      });
+  });
+
 export const shareCalendarSnapshot = z
   .object({
     ok: z.literal(true),
@@ -477,9 +591,17 @@ export const shareCalendarSnapshot = z
     sources: z.array(shareCalendarSourceSchema).max(50),
     items: z.array(shareCalendarItemSchema).max(200),
     approvals: z.array(blueskyApprovalRecordSchema).max(200),
+    deliveries: z.array(blueskyDeliveryRecordSchema).max(200),
     bluesky: z
       .object({
         configuredHandle: z.string().min(3).max(253).nullable(),
+        connection: z
+          .object({
+            state: z.enum(["configured", "not_configured"]),
+            handle: z.string().min(3).max(253).nullable(),
+            note: z.string().min(1).max(500),
+          })
+          .strict(),
       })
       .strict(),
     now: isoInstant,
@@ -890,7 +1012,7 @@ export function buildShareCalendarIcs(
       item.caption,
       "Exact destination: " + (destination || "not recorded"),
       item.link ? "Link: " + item.link : "",
-      "Prepared in App Composer. You copy, download or export this item and share it yourself. Composer does not post to a social network.",
+      "Prepared in App Composer. You copy, download or export this item and share it yourself, unless an explicit Bluesky send is recorded. Composer never posts automatically.",
     ]
       .filter(Boolean)
       .join("\n\n");

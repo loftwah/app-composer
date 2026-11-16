@@ -16,6 +16,7 @@ import {
 } from "./share-calendar.ts";
 import {
   BLUESKY_PUBLISHING_STATEMENT,
+  normalizeBlueskyHandle,
   type BlueskyIdentityResult,
 } from "./bluesky-account.ts";
 
@@ -33,7 +34,7 @@ export const BLUESKY_PACKAGE_SCHEMA = "composer.bluesky-approval-package/v1";
 export const BLUESKY_TIME_ZONE = "Australia/Melbourne";
 
 export const BLUESKY_SEND_UNAVAILABLE_STATEMENT =
-  "No Bluesky publishing connection is authorised in this build. Approval records consent only; it does not send. Nothing was sent and nothing was posted.";
+  "No Bluesky publishing connection is configured in Composer. Copy the approval package and post it yourself. Nothing was sent.";
 
 export type BlueskyApprovalState =
   | "draft"
@@ -230,6 +231,13 @@ export type BlueskyPublishingConnection =
   | { state: "absent"; reason: string }
   | { state: "revoked"; reason: string; revokedAt: string }
   | {
+      // The native encrypted secret is present. This is configuration status,
+      // not proof that the credential works; the send path verifies a session.
+      state: "configured";
+      handle: string;
+      did: string | null;
+    }
+  | {
       state: "authorised";
       did: string;
       scope: string;
@@ -243,9 +251,9 @@ export interface BlueskyReceipt {
 }
 
 export interface BlueskySendOutcome {
-  ok: false;
-  available: false;
-  code: "needs_owner" | "not_approved" | "account_mismatch";
+  ok: boolean;
+  available: boolean;
+  code: "ready" | "needs_owner" | "not_approved" | "account_mismatch";
   message: string;
 }
 
@@ -658,12 +666,12 @@ export function blueskySendOutcome(input: {
       message:
         "The Bluesky connection was revoked. The owner must reconnect a real authorised account. Nothing was sent.",
     };
-  if (input.connection.state !== "authorised")
+  if (input.connection.state !== "authorised" && input.connection.state !== "configured")
     return {
       ok: false,
       available: false,
       code: "needs_owner",
-      message: `${BLUESKY_SEND_UNAVAILABLE_STATEMENT} Owner action: connect an authorised Bluesky account outside Composer.`,
+      message: `${BLUESKY_SEND_UNAVAILABLE_STATEMENT} Owner action: configure the encrypted Bluesky app password in Composer plugin settings.`,
     };
   if (input.state !== "approved")
     return {
@@ -672,20 +680,35 @@ export function blueskySendOutcome(input: {
       code: "not_approved",
       message: "The exact revision is not approved. Nothing was sent.",
     };
-  if (!input.account || input.account.did !== input.connection.did)
+  if (!input.account)
     return {
       ok: false,
       available: false,
       code: "account_mismatch",
       message:
-        "The authorised account does not match the approved public DID. Nothing was sent.",
+        "The configured account does not match the approved public DID. Nothing was sent.",
+    };
+  if (
+    (input.connection.state === "authorised" &&
+      input.account.did !== input.connection.did) ||
+    (input.connection.state === "configured" &&
+      ((input.connection.did && input.account.did !== input.connection.did) ||
+        normalizeBlueskyHandle(input.connection.handle) !==
+          input.account.handle))
+  )
+    return {
+      ok: false,
+      available: false,
+      code: "account_mismatch",
+      message:
+        "The configured account does not match the approved public DID. Nothing was sent.",
     };
   return {
-    ok: false,
-    available: false,
-    code: "needs_owner",
+    ok: true,
+    available: true,
+    code: "ready",
     message:
-      "This build has no send adapter for Bluesky. The owner must publish manually or connect an implementation outside this approval package. Nothing was sent.",
+      "Ready to send this exact approved revision from the configured connection. Nothing is sent until the owner confirms the bound handle, text, media and intended time.",
   };
 }
 
@@ -807,10 +830,21 @@ export function blueskyApprovalStatus(
       reasons.push("time_passed");
     for (const code of problems)
       if (!reasons.includes(code)) reasons.push(code);
-    const blocked = reasons.some((reason) => blockerCodes.has(reason));
+    // An exact approval is valid until it expires. Once its intended time has
+    // passed, `time_passed` is the expected send window and must not turn the
+    // approval into "blocked"; expiry still ends the window and the route
+    // rechecks both bounds. Every other reason keeps its existing meaning.
+    const withinApprovalWindow = Boolean(
+      approval.state === "approved" &&
+      input.now.getTime() < Date.parse(approval.expiresAt),
+    );
+    const effectiveReasons = withinApprovalWindow
+      ? reasons.filter((reason) => reason !== "time_passed")
+      : reasons;
+    const blocked = effectiveReasons.some((reason) => blockerCodes.has(reason));
     const state: BlueskyApprovalState = blocked
       ? "blocked"
-      : reasons.length
+      : effectiveReasons.length
         ? "awaiting_approval"
         : "approved";
     return statusOf(

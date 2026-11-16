@@ -56,6 +56,7 @@ const schema = [
   "0031_share_calendar.sql",
   "0032_share_calendar_packages.sql",
   "0034_share_approvals.sql",
+  "0035_bluesky_deliveries.sql",
 ]
   .map(migration)
   .join("\n");
@@ -399,6 +400,44 @@ test("expiry, cancellation, revocation and an unknown receipt each invalidate ho
   assert.match(unknown.send.message, /unknown/i);
 });
 
+test("an unexpired approval stays sendable after its intended time", async () => {
+  const item = contentItem({ scheduledAt: "2026-11-16T01:00:00.000Z" });
+  const content = await createBlueskyContent(item, trailNotes, now);
+  assert.deepEqual(content.problems, []);
+  const approval = await createBlueskyApproval(content, account(), { now });
+  const sendAt = new Date("2026-11-16T01:05:00.000Z");
+  const sendContent = await createBlueskyContent(item, trailNotes, sendAt);
+  assert.ok(
+    sendContent.problems.some((problem) => problem.code === "time_passed"),
+    "the content itself reports the passed intended time",
+  );
+  const status = blueskyApprovalStatus({
+    content: sendContent,
+    account: account(),
+    approval,
+    connection: {
+      state: "configured",
+      handle,
+      did,
+    },
+    now: sendAt,
+  });
+  assert.ok(status.reasons.includes("time_passed"));
+  assert.equal(status.state, "approved");
+  assert.equal(status.send.ok, true);
+  assert.equal(status.send.code, "ready");
+
+  const expired = blueskyApprovalStatus({
+    content: sendContent,
+    account: account(),
+    approval,
+    now: new Date("2026-11-16T04:00:00.000Z"),
+  });
+  assert.ok(expired.reasons.includes("approval_expired"));
+  assert.notEqual(expired.state, "approved");
+  assert.equal(expired.send.ok, false);
+});
+
 test("re-approval advances the approval revision and past times are blocked", async () => {
   const { content, approval } = await approvedContent();
   const again = await createBlueskyApproval(content, account(), {
@@ -606,7 +645,7 @@ test("public identity resolution reports success, absence and every failure stat
   assert.equal(unsafeAvatar.avatar, null);
 });
 
-test("only a public handle setting is read and no credential is stored", () => {
+test("the identity module reads only the public handle; credentials stay in the encrypted setting", () => {
   assert.equal(configuredBlueskyHandle({}), null);
   assert.equal(
     configuredBlueskyHandle({
@@ -629,11 +668,14 @@ test("only a public handle setting is read and no credential is stored", () => {
   );
   assert.equal(normalizeBlueskyHandle("owner.bsky.social:secret"), null);
   assert.equal(normalizeBlueskyHandle("owner.bsky.social/path"), null);
-  assert.match(BLUESKY_CREDENTIAL_STATEMENT, /stores none/);
+  assert.match(
+    BLUESKY_CREDENTIAL_STATEMENT,
+    /never asks|encrypted plugin setting/i,
+  );
   assert.doesNotMatch(BLUESKY_CREDENTIAL_STATEMENT, /paste it here/i);
 });
 
-test("a send path always stops at needs_owner without a real authorised adapter", async () => {
+test("a send path is ready only with an exact approval and a configured connection", async () => {
   const { content, approval } = await approvedContent();
   const status = blueskyApprovalStatus({
     content,
@@ -686,9 +728,19 @@ test("a send path always stops at needs_owner without a real authorised adapter"
       authorisedAt: now.toISOString(),
     },
   });
-  assert.equal(nominal.ok, false);
-  assert.equal(nominal.code, "needs_owner");
-  assert.match(nominal.message, /no send adapter/i);
+  assert.equal(nominal.ok, true);
+  assert.equal(nominal.available, true);
+  assert.equal(nominal.code, "ready");
+  assert.match(nominal.message, /Nothing is sent until the owner confirms/i);
+  assert.equal(
+    shareCalendarCommand.safeParse({
+      action: "blueskySend",
+      item: itemId,
+      expectedRevision: 1,
+      expectedApprovalRevision: 1,
+    }).success,
+    true,
+  );
   assert.equal(
     shareCalendarCommand.safeParse({
       action: "blueskySend",
@@ -696,6 +748,14 @@ test("a send path always stops at needs_owner without a real authorised adapter"
       expectedRevision: 1,
     }).success,
     false,
+  );
+  assert.equal(
+    shareCalendarCommand.safeParse({
+      action: "blueskyReconcile",
+      item: itemId,
+      expectedApprovalRevision: 1,
+    }).success,
+    true,
   );
 });
 

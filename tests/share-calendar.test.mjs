@@ -39,6 +39,7 @@ const schema = [
   "0031_share_calendar.sql",
   "0032_share_calendar_packages.sql",
   "0034_share_approvals.sql",
+  "0035_bluesky_deliveries.sql",
 ]
   .map(migration)
   .join("\n");
@@ -293,7 +294,7 @@ test("the .ics export is valid VCALENDAR with CRLF, folding and escaped TEXT", (
   const description = unescapeText(parsed.properties.get("DESCRIPTION"));
   assert.ok(description.startsWith(caption), "caption survives escaping");
   assert.match(description, /Link: https:\/\/composer\.loftwah\.com/);
-  assert.match(description, /Composer does not post to a social network\./);
+  assert.match(description, /Composer never posts automatically\./);
   assert.equal(
     parsed.properties.get("URL"),
     "https://composer.loftwah.com/s/calendar-example?utm_source=calendar",
@@ -851,6 +852,7 @@ test("the additive migration keeps a legacy caption as the default destination",
       .run();
     db.migrate(migration("0032_share_calendar_packages.sql"));
     db.migrate(migration("0034_share_approvals.sql"));
+    db.migrate(migration("0035_bluesky_deliveries.sql"));
     const listed = await read(db, owner);
     assert.equal(listed.ok, true);
     assert.equal(listed.items.length, 1);
@@ -1012,7 +1014,7 @@ test("the approval package uses the exact persisted values and is deterministic"
     assert.equal(pkg.destinations[1].withinLimit, true);
     assert.equal(pkg.posting.statement, SHARE_PACKAGE_POSTING_STATEMENT);
     assert.match(pkg.posting.statement, /does not post/i);
-    assert.match(pkg.posting.statement, /You perform this share yourself/);
+    assert.match(pkg.posting.statement, /you perform this share yourself/i);
     assert.equal(pkg.provenance.preparedAt, persisted.updatedAt);
     assert.equal(pkg.provenance.itemRevision, persisted.revision);
     assert.equal(pkg.provenance.sourceRevision, persisted.publication);
@@ -1042,12 +1044,12 @@ test("the approval package uses the exact persisted values and is deterministic"
     assert.ok(markdown.includes(caption));
     assert.ok(markdown.includes(variantCaption));
     assert.match(markdown, /# Approval package/);
-    assert.match(markdown, /You perform this share yourself/);
+    assert.match(markdown, /you perform this share yourself/i);
     const plain = sharePackagePlainText(pkg);
     assert.ok(plain.includes(caption));
     assert.ok(plain.includes(variantCaption));
     assert.ok(plain.includes("Exact destination: Acme company page"));
-    assert.ok(plain.includes("App Composer does not post"));
+    assert.ok(plain.includes("This approval package does not post"));
     assert.equal(
       sharePackageFilename(persisted, "json"),
       `approval-${persisted.stackSlug}-r${persisted.publication}-${persisted.id.slice(0, 8)}-rev${persisted.revision}.json`,
@@ -1243,7 +1245,7 @@ test("the .ics round-trips one event per scheduled item with CRLF, folding and U
     ),
     "the caption and destination round-trip exactly",
   );
-  assert.match(description, /Composer does not post to a social network\./);
+  assert.match(description, /Composer never posts automatically\./);
 
   const second = byUid.get(secondId + "@composer.loftwah.com");
   assert.ok(second);

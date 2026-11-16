@@ -30,6 +30,7 @@ import { manageCommandCentre } from "./command-centre.ts";
 import { manageStackStatus } from "./stack-status-admin.ts";
 import { manageProviderInventory } from "./provider-read.ts";
 import { manageShareCalendar } from "./share-calendar-admin.ts";
+import { blueskyPublisherSettings } from "./bluesky-publisher.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
 
@@ -40,7 +41,10 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
     id: "composer-stacks",
     version: "1.0.0",
     admin: {
-      settingsSchema: encryptionProbeSettings,
+      settingsSchema: {
+        ...encryptionProbeSettings,
+        ...blueskyPublisherSettings,
+      },
       entry: adminEntry,
       pages: [
         { path: "/stacks", label: "Creator stacks", icon: "stack" },
