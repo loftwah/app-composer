@@ -355,6 +355,152 @@
   font-size: 0.86rem;
   color: var(--sc-muted);
 }
+.sc-variants {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  margin: 4px 0 0;
+  padding: 14px;
+  border: 1px solid var(--sc-line);
+  border-radius: 6px;
+}
+.sc-variants legend {
+  padding: 0 6px;
+  font-weight: 700;
+}
+.sc-variant {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px dashed var(--sc-line);
+  border-radius: 6px;
+}
+.sc-variant-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+}
+.sc-variant-head .sc-field {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+.composer-share-calendar .sc-variant-remove {
+  min-height: 44px;
+  color: var(--sc-danger);
+  border-color: color-mix(in srgb, var(--sc-danger) 55%, transparent);
+}
+.sc-add-variant {
+  justify-self: start;
+}
+.sc-count-over {
+  color: var(--sc-danger);
+  font-weight: 700;
+}
+.sc-destination-line {
+  margin: -2px 0 8px !important;
+}
+.sc-package {
+  min-width: 0;
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--sc-accent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--sc-accent) 5%, transparent);
+}
+.sc-package-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sc-package-head h3 {
+  margin: 0 0 4px;
+}
+.sc-package-state {
+  padding: 3px 9px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--sc-accent);
+  white-space: nowrap;
+}
+.sc-package-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 18px;
+  margin: 14px 0;
+}
+.sc-package-facts > div {
+  min-width: 0;
+}
+.sc-package-facts dt {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--sc-muted);
+}
+.sc-package-facts dd {
+  margin: 2px 0 0;
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+.sc-package-facts a {
+  color: inherit;
+  overflow-wrap: anywhere;
+}
+.sc-package-image {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  margin: 0 0 14px;
+  border: 1px solid var(--sc-line);
+  border-radius: 5px;
+}
+.sc-package-destination {
+  min-width: 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--sc-line);
+}
+.sc-package-destination h4 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 4px;
+  font-size: 0.98rem;
+}
+.sc-package-exact {
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--sc-muted);
+}
+.sc-package-caption {
+  max-width: none !important;
+  margin: 6px 0 !important;
+  padding: 10px 12px;
+  border-left: 3px solid var(--sc-accent);
+  background: var(--sc-surface);
+  font-size: 0.94rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.sc-package-alt {
+  font-size: 0.82rem;
+  color: var(--sc-muted);
+}
+.sc-package-posting {
+  padding-top: 12px;
+  border-top: 1px solid var(--sc-line);
+  font-weight: 600;
+}
 @media (max-width: 960px) {
   .sc-layout {
     grid-template-columns: minmax(0, 1fr);
@@ -388,5 +534,18 @@
   }
   .sc-calendar-heading > button {
     width: 100%;
+  }
+  .sc-variant-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sc-variant-head .sc-field {
+    flex: none;
+  }
+  .sc-package-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sc-package-image {
+    max-width: 100%;
   }
 }

@@ -3,18 +3,35 @@ import { useLocation } from "@tanstack/react-router";
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
 import {
   buildShareCalendarIcs,
+  calendarExportItems,
   calendarFilename,
+  captionProblem,
+  captionUsage,
   isSafeShareLink,
+  primaryCaptionProblem,
   scheduleLabels,
   shareCalendarSnapshot,
+  SHARE_CAPTION_LOCAL_CHARACTERS,
   SHARE_CHANNELS,
   SHARE_CHANNEL_LABELS,
+  SHARE_CHANNEL_LIMITS,
+  SHARE_DESTINATION_MAX,
   SHARE_STATES,
   SHARE_STATE_LABELS,
+  SHARE_VARIANT_MAX,
   type ShareCalendarItem,
   type ShareCalendarSnapshot,
+  type ShareCalendarVariant,
   type ShareChannel,
 } from "../lib/share-calendar";
+import {
+  approvalPackageForItem,
+  sharePackageFilename,
+  sharePackageJson,
+  sharePackageMarkdown,
+  sharePackagePlainText,
+  type ShareApprovalPackage,
+} from "../lib/share-package";
 import { confirmWorkspace, workspaceSelection } from "./stacks/workspace-scope";
 import "./share-calendar-page.css";
 
@@ -97,6 +114,10 @@ function captionAndLink(item: ShareCalendarItem) {
   return item.caption + (item.link ? "\n\n" + item.link : "");
 }
 
+function requestByteLength(value: unknown) {
+  return new TextEncoder().encode(JSON.stringify(value)).length;
+}
+
 async function copyText(value: string) {
   try {
     await navigator.clipboard.writeText(value);
@@ -115,6 +136,137 @@ async function copyText(value: string) {
   }
 }
 
+function ApprovalPackageView({
+  id,
+  value,
+  busy,
+  onCopy,
+  onDownload,
+}: {
+  id: string;
+  value: ShareApprovalPackage;
+  busy: boolean;
+  onCopy: () => void;
+  onDownload: (format: "json" | "md") => void;
+}) {
+  return (
+    <section
+      id={id}
+      className="sc-package"
+      aria-label={`Approval package for item revision ${value.item.revision}`}
+    >
+      <div className="sc-package-head">
+        <div>
+          <h3>Approval package</h3>
+          <p className="sc-hint">
+            Exact saved values for one reviewer. Copying or downloading this
+            package does not change the item state.
+          </p>
+        </div>
+        <span className="sc-package-state">{value.item.stateLabel}</span>
+      </div>
+      <dl className="sc-package-facts">
+        <div>
+          <dt>Source</dt>
+          <dd>
+            {value.source.name} · revision {value.source.publication} ·{" "}
+            {value.source.current ? "current" : "no longer current"}
+          </dd>
+        </div>
+        <div>
+          <dt>Schedule</dt>
+          <dd>{value.schedule.label}</dd>
+        </div>
+        <div>
+          <dt>Link</dt>
+          <dd>{value.link ?? "not recorded"}</dd>
+        </div>
+        <div>
+          <dt>Share image</dt>
+          <dd>
+            {value.shareImage.status === "available" ? (
+              <>
+                <a
+                  href={value.shareImage.url ?? value.shareImage.path ?? ""}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {value.shareImage.path}
+                </a>
+                {value.shareImage.alt ? (
+                  <span className="sc-package-alt">
+                    {" "}
+                    · {value.shareImage.alt}
+                  </span>
+                ) : null}
+              </>
+            ) : (
+              "Not available. Refresh the source from its current published revision before sharing."
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt>Provenance</dt>
+          <dd>
+            {value.provenance.statement} Item updated{" "}
+            {value.provenance.preparedAt}; item revision{" "}
+            {value.provenance.itemRevision}; source revision{" "}
+            {value.provenance.sourceRevision}.
+          </dd>
+        </div>
+      </dl>
+      {value.shareImage.status === "available" && value.shareImage.path ? (
+        <img
+          className="sc-package-image"
+          src={value.shareImage.path}
+          alt={value.shareImage.alt ?? ""}
+          width="1200"
+          height="630"
+          loading="lazy"
+        />
+      ) : null}
+      {value.destinations.map((destination) => (
+        <div className="sc-package-destination" key={destination.channel}>
+          <h4>
+            {destination.channelLabel}
+            <span className="sc-package-exact">
+              {destination.exactDestinationLabel}
+            </span>
+          </h4>
+          <p className="sc-hint">
+            {destination.primary
+              ? "Main caption · also the .ics description"
+              : "Additional channel draft"}{" "}
+            · {destination.count} / {destination.limit} {destination.unit}
+            {destination.withinLimit ? "" : " · over the limit"}
+          </p>
+          <p className="sc-package-caption">{destination.caption}</p>
+          <p className="sc-hint">
+            Destination limit {destination.platformLimit} {destination.unit}.{" "}
+            {destination.behaviour}
+          </p>
+        </div>
+      ))}
+      <p className="sc-package-posting">{value.posting.statement}</p>
+      <div className="sc-actions">
+        <button type="button" onClick={onCopy} disabled={busy}>
+          Copy package
+        </button>
+        <button
+          type="button"
+          onClick={() => onDownload("json")}
+          disabled={busy}
+        >
+          Download JSON
+        </button>
+        <button type="button" onClick={() => onDownload("md")} disabled={busy}>
+          Download Markdown
+        </button>
+      </div>
+    </section>
+  );
+}
+
 export function ShareCalendarPage() {
   const search = useLocation({ select: (location) => location.searchStr });
   return <ShareCalendar key={search} search={search} />;
@@ -128,10 +280,13 @@ function ShareCalendar({ search }: { search: string }) {
   const [notice, setNotice] = useState("");
   const [sourceId, setSourceId] = useState("");
   const [channel, setChannel] = useState<ShareChannel>("instagram");
+  const [destination, setDestination] = useState("");
   const [caption, setCaption] = useState("");
+  const [variants, setVariants] = useState<ShareCalendarVariant[]>([]);
   const [link, setLink] = useState("");
   const [scheduledLocal, setScheduledLocal] = useState("");
   const [editing, setEditing] = useState<ShareCalendarItem>();
+  const [packageFor, setPackageFor] = useState("");
   const alive = useRef(true);
   const pending = useRef(false);
   const selection = useRef<string | undefined>(undefined);
@@ -141,11 +296,7 @@ function ShareCalendar({ search }: { search: string }) {
   const source = sources.find((entry) => entry.id === sourceId);
   const canWrite = Boolean(snapshot && snapshot.workspace.role !== "viewer");
   const scheduled = useMemo(
-    () =>
-      (snapshot?.items ?? []).filter(
-        (item) =>
-          item.state === "scheduled" && item.sourceCurrent && item.scheduledAt,
-      ),
+    () => calendarExportItems(snapshot?.items ?? []),
     [snapshot],
   );
 
@@ -154,15 +305,38 @@ function ShareCalendar({ search }: { search: string }) {
     const next = sources.find((entry) => entry.id === id);
     if (current) {
       setChannel(current.channel);
+      setDestination(current.destination);
       setCaption(current.caption);
+      setVariants(
+        current.variants.map((variant) => ({
+          channel: variant.channel,
+          destination: variant.destination,
+          caption: variant.caption,
+        })),
+      );
       setLink(current.link);
       setScheduledLocal(localInput(current.scheduledAt));
       return;
     }
     setChannel("instagram");
+    setDestination("");
     setCaption(next?.description ?? "");
+    setVariants([]);
     setLink(next?.url ?? "");
     setScheduledLocal("");
+  }
+
+  function addVariant() {
+    const next = SHARE_CHANNELS.find(
+      (entry) =>
+        entry.id !== channel &&
+        !variants.some((variant) => variant.channel === entry.id),
+    );
+    if (!next) return;
+    setVariants((current) => [
+      ...current,
+      { channel: next.id, destination: "", caption: "" },
+    ]);
   }
 
   async function load() {
@@ -210,22 +384,28 @@ function ShareCalendar({ search }: { search: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  async function perform(action: string, fields: Record<string, unknown>) {
+    const result = await calendarCall(action, selection.current, fields);
+    if (!alive.current)
+      throw Error("This page closed before the change could be confirmed.");
+    setSnapshot(result);
+    return result;
+  }
+
   async function mutate(
     action: string,
     fields: Record<string, unknown>,
     message: string,
-  ) {
-    if (pending.current || invalidScope.current) return false;
+  ): Promise<ShareCalendarSnapshot | null> {
+    if (pending.current || invalidScope.current) return null;
     pending.current = true;
     setBusy(true);
     setError("");
     setNotice("");
     try {
-      const result = await calendarCall(action, selection.current, fields);
-      if (!alive.current) return false;
-      setSnapshot(result);
+      const result = await perform(action, fields);
       setNotice(message);
-      return true;
+      return result;
     } catch (cause) {
       if (alive.current)
         setError(
@@ -233,7 +413,7 @@ function ShareCalendar({ search }: { search: string }) {
             ? cause.message
             : "The change could not be confirmed. Refresh before retrying.",
         );
-      return false;
+      return null;
     } finally {
       if (alive.current) {
         pending.current = false;
@@ -244,9 +424,11 @@ function ShareCalendar({ search }: { search: string }) {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!snapshot) return;
-    if (!caption.trim()) {
-      setError("Write a caption before saving this share.");
+    if (!snapshot || pending.current || invalidScope.current) return;
+    const mainCaption = caption.trim();
+    const mainProblem = primaryCaptionProblem(channel, mainCaption);
+    if (mainProblem) {
+      setError(mainProblem);
       return;
     }
     if (link.trim() && !isSafeShareLink(link.trim())) {
@@ -254,6 +436,25 @@ function ShareCalendar({ search }: { search: string }) {
         "Use a real http or https link, without a username or password.",
       );
       return;
+    }
+    const seen = new Set<ShareChannel>([channel]);
+    for (const [index, variant] of variants.entries()) {
+      if (seen.has(variant.channel)) {
+        setError(
+          "Choose each channel once. The main caption already covers " +
+            SHARE_CHANNEL_LABELS[channel] +
+            ".",
+        );
+        return;
+      }
+      seen.add(variant.channel);
+      const problem = captionProblem(variant.channel, variant.caption);
+      if (problem) {
+        setError(
+          `${SHARE_CHANNEL_LABELS[variant.channel]} draft ${index + 1}: ${problem}`,
+        );
+        return;
+      }
     }
     let scheduledAt: string | null = null;
     if (scheduledLocal) {
@@ -264,9 +465,15 @@ function ShareCalendar({ search }: { search: string }) {
       }
       scheduledAt = time.toISOString();
     }
+    const desired = variants.map((variant) => ({
+      channel: variant.channel,
+      destination: variant.destination.trim(),
+      caption: variant.caption.trim(),
+    }));
     const fields = {
       channel,
-      caption: caption.trim(),
+      destination: destination.trim(),
+      caption: mainCaption,
       link: link.trim(),
       scheduledAt,
     };
@@ -275,27 +482,147 @@ function ShareCalendar({ search }: { search: string }) {
     const message = detail
       ? `${verb} for ${detail.melbourne} · ${detail.utc}. Composer will not post it.`
       : `${verb}. Nothing is on the calendar and nothing was posted.`;
-    const saved = editing
-      ? await mutate(
-          "save",
-          {
-            item: editing.id,
-            expectedRevision: editing.revision,
-            ...fields,
-          },
-          message,
+
+    const primaryPayload = editing
+      ? {
+          action: "save",
+          workspace: selection.current,
+          item: editing.id,
+          expectedRevision: editing.revision,
+          ...fields,
+        }
+      : {
+          action: "create",
+          workspace: selection.current,
+          stack: sourceId,
+          ...fields,
+        };
+    if (requestByteLength(primaryPayload) > 7900) {
+      setError(
+        `This save is ${requestByteLength(primaryPayload)} bytes. Composer can send at most 7,900 bytes in one request; shorten the caption or link.`,
+      );
+      return;
+    }
+    for (const draft of desired) {
+      const variantPayload = {
+        action: "variant",
+        workspace: selection.current,
+        item: editing?.id ?? "00000000-0000-4000-8000-000000000000",
+        expectedRevision: 1,
+        ...draft,
+      };
+      if (requestByteLength(variantPayload) > 7900) {
+        setError(
+          `The ${SHARE_CHANNEL_LABELS[draft.channel]} draft is ${requestByteLength(variantPayload)} bytes. Composer can send at most 7,900 bytes in one request; shorten that caption.`,
+        );
+        return;
+      }
+    }
+
+    pending.current = true;
+    setBusy(true);
+    setError("");
+    setNotice("");
+    let current: ShareCalendarSnapshot | null = null;
+    let itemId: string | null = editing?.id ?? null;
+    try {
+      current = await perform(
+        editing ? "save" : "create",
+        editing
+          ? {
+              item: editing.id,
+              expectedRevision: editing.revision,
+              ...fields,
+            }
+          : { stack: sourceId, ...fields },
+      );
+      itemId = current.changed;
+      if (!itemId)
+        throw Error(
+          "The saved item could not be identified. Refresh before adding channel drafts.",
+        );
+      const first = current.items.find((entry) => entry.id === itemId);
+      if (!first)
+        throw Error(
+          "The saved item is not in the refreshed calendar. Refresh before retrying.",
+        );
+      const changes: Array<{
+        channel: ShareChannel;
+        destination: string;
+        caption: string | null;
+      }> = [];
+      for (const persisted of first.variants) {
+        if (!desired.some((entry) => entry.channel === persisted.channel))
+          changes.push({
+            channel: persisted.channel,
+            destination: persisted.destination,
+            caption: null,
+          });
+      }
+      for (const draft of desired) {
+        const persisted = first.variants.find(
+          (entry) => entry.channel === draft.channel,
+        );
+        if (
+          !persisted ||
+          persisted.caption !== draft.caption ||
+          persisted.destination !== draft.destination
         )
-      : await mutate("create", { stack: sourceId, ...fields }, message);
-    if (saved) {
+          changes.push({
+            channel: draft.channel,
+            destination: draft.destination,
+            caption: draft.caption,
+          });
+      }
+      for (const change of changes) {
+        const latest = current.items.find((entry) => entry.id === itemId);
+        if (!latest)
+          throw Error(
+            "The item disappeared while its channel drafts were saving. Refresh before retrying.",
+          );
+        current = await perform("variant", {
+          item: itemId,
+          expectedRevision: latest.revision,
+          channel: change.channel,
+          destination: change.destination,
+          caption: change.caption,
+        });
+      }
+      const saved = current.items.find((entry) => entry.id === itemId);
+      const extra = saved?.variants.length ?? 0;
+      setNotice(
+        `${message} ${
+          extra ? `Saved ${extra} channel draft${extra === 1 ? "" : "s"}. ` : ""
+        }The approval package does not post.`,
+      );
       setEditing(undefined);
-      const next = snapshot.sources[0];
+      setPackageFor("");
+      const next = current.sources[0];
       if (next) {
         setSourceId(next.id);
         setChannel("instagram");
+        setDestination("");
         setCaption(next.description);
+        setVariants([]);
         setLink(next.url);
       }
       setScheduledLocal("");
+    } catch (cause) {
+      if (current && itemId) {
+        const saved = current.items.find((entry) => entry.id === itemId);
+        if (saved) setEditing(saved);
+      }
+      if (alive.current)
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "The change could not be confirmed. Refresh before retrying.",
+        );
+    } finally {
+      if (alive.current) {
+        pending.current = false;
+        setBusy(false);
+      }
     }
   }
 
@@ -339,21 +666,10 @@ function ShareCalendar({ search }: { search: string }) {
       return;
     }
     try {
-      const ics = buildShareCalendarIcs(
-        scheduled.map((item) => ({
-          id: item.id,
-          revision: item.revision,
-          channel: item.channel,
-          caption: item.caption,
-          link: item.link,
-          scheduledAt: item.scheduledAt!,
-          stackName: item.stackName,
-        })),
-        {
-          now: new Date(),
-          calendarName: "Share calendar · " + snapshot.workspace.name,
-        },
-      );
+      const ics = buildShareCalendarIcs(scheduled, {
+        now: new Date(),
+        calendarName: "Share calendar · " + snapshot.workspace.name,
+      });
       const url = URL.createObjectURL(
         new Blob([ics], { type: "text/calendar;charset=utf-8" }),
       );
@@ -376,6 +692,57 @@ function ShareCalendar({ search }: { search: string }) {
     }
   }
 
+  function downloadPackage(item: ShareCalendarItem, format: "json" | "md") {
+    if (!snapshot) return;
+    try {
+      const value = approvalPackageForItem(snapshot, item);
+      const text =
+        format === "json"
+          ? sharePackageJson(value)
+          : sharePackageMarkdown(value);
+      const url = URL.createObjectURL(
+        new Blob([text], {
+          type:
+            format === "json"
+              ? "application/json;charset=utf-8"
+              : "text/markdown;charset=utf-8",
+        }),
+      );
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = sharePackageFilename(item, format);
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
+      setNotice(
+        `Downloaded the ${format === "json" ? "JSON" : "Markdown"} approval package for revision ${item.revision}. The item state is unchanged and Composer did not post it.`,
+      );
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "The approval package could not be prepared. Refresh before retrying.",
+      );
+    }
+  }
+
+  async function copyPackage(item: ShareCalendarItem) {
+    if (!snapshot) return;
+    const copied = await copyText(
+      sharePackagePlainText(approvalPackageForItem(snapshot, item)),
+    );
+    if (!copied) {
+      setError(
+        "The browser did not allow a copy. Open the package and select the text yourself.",
+      );
+      return;
+    }
+    setNotice(
+      "Approval package copied as plain text. The item state is unchanged and nothing was posted.",
+    );
+  }
+
   const preview = scheduledLocal
     ? (() => {
         const time = new Date(scheduledLocal);
@@ -383,6 +750,8 @@ function ShareCalendar({ search }: { search: string }) {
         return scheduleLabels(time.toISOString());
       })()
     : null;
+
+  const primaryUsage = captionUsage(channel, caption, true);
 
   return (
     <section className="composer-share-calendar">
@@ -500,7 +869,13 @@ function ShareCalendar({ search }: { search: string }) {
                   }
                 >
                   {SHARE_CHANNELS.map((entry) => (
-                    <option key={entry.id} value={entry.id}>
+                    <option
+                      key={entry.id}
+                      value={entry.id}
+                      disabled={variants.some(
+                        (variant) => variant.channel === entry.id,
+                      )}
+                    >
                       {entry.label}
                     </option>
                   ))}
@@ -508,19 +883,187 @@ function ShareCalendar({ search }: { search: string }) {
               </label>
               <p className="sc-hint sc-channel-note">
                 {SHARE_CHANNELS.find((entry) => entry.id === channel)?.note}
+                {variants.some((variant) => variant.channel === channel)
+                  ? " Remove the channel draft below before moving the main destination here."
+                  : ""}
               </p>
               <label className="sc-field">
-                Caption
+                Exact destination (optional)
+                <input
+                  value={destination}
+                  onChange={(event) => setDestination(event.target.value)}
+                  maxLength={SHARE_DESTINATION_MAX}
+                  placeholder="e.g. MP personal LinkedIn profile or Acme company page"
+                  disabled={busy || !canWrite}
+                />
+              </label>
+              <p className="sc-hint">
+                Name the account, Page or profile a reviewer should use. Leave
+                it empty and the package says “not recorded” rather than
+                guessing.
+              </p>
+              <label className="sc-field">
+                Main caption for {SHARE_CHANNEL_LABELS[channel]}
                 <textarea
                   value={caption}
                   onChange={(event) => setCaption(event.target.value)}
-                  maxLength={2200}
+                  maxLength={SHARE_CAPTION_LOCAL_CHARACTERS}
                   rows={6}
                   disabled={busy || !canWrite}
+                  aria-describedby="sc-main-caption-count"
+                  aria-invalid={!primaryUsage.withinLimit}
                   required
                 />
               </label>
-              <p className="sc-count">{caption.length} / 2200 characters</p>
+              <p
+                id="sc-main-caption-count"
+                className={`sc-count${primaryUsage.withinLimit ? "" : " sc-count-over"}`}
+              >
+                {primaryUsage.count} / {primaryUsage.limit} {primaryUsage.unit}{" "}
+                · main caption
+              </p>
+              <p className="sc-hint">
+                {primaryUsage.behaviour}
+                {primaryUsage.platformLimit > primaryUsage.limit
+                  ? ` The destination accepts ${primaryUsage.platformLimit} ${primaryUsage.unit}; this main caption keeps the ${primaryUsage.limit}-${primaryUsage.unit.replace(/s$/, "")} Composer limit.`
+                  : ""}
+              </p>
+              <fieldset className="sc-variants">
+                <legend>Channel drafts</legend>
+                <p className="sc-hint">
+                  One exact caption per additional destination. The main caption
+                  above is the {SHARE_CHANNEL_LABELS[channel]} destination; each
+                  draft below is saved separately and appears in the approval
+                  package.
+                </p>
+                {variants.map((variant, index) => {
+                  const usage = captionUsage(variant.channel, variant.caption);
+                  const available = SHARE_CHANNELS.filter(
+                    (entry) =>
+                      entry.id !== channel &&
+                      !variants.some(
+                        (other, otherIndex) =>
+                          otherIndex !== index && other.channel === entry.id,
+                      ),
+                  );
+                  return (
+                    <div className="sc-variant" key={index}>
+                      <div className="sc-variant-head">
+                        <label className="sc-field">
+                          Channel
+                          <select
+                            value={variant.channel}
+                            disabled={busy || !canWrite}
+                            onChange={(event) => {
+                              const nextChannel = event.target
+                                .value as ShareChannel;
+                              setVariants((current) =>
+                                current.map((entry, entryIndex) =>
+                                  entryIndex === index
+                                    ? { ...entry, channel: nextChannel }
+                                    : entry,
+                                ),
+                              );
+                            }}
+                          >
+                            {available.map((entry) => (
+                              <option key={entry.id} value={entry.id}>
+                                {entry.label}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <button
+                          type="button"
+                          className="sc-variant-remove"
+                          disabled={busy || !canWrite}
+                          onClick={() =>
+                            setVariants((current) =>
+                              current.filter(
+                                (_, entryIndex) => entryIndex !== index,
+                              ),
+                            )
+                          }
+                        >
+                          Remove draft
+                        </button>
+                      </div>
+                      <label className="sc-field">
+                        Exact destination (optional)
+                        <input
+                          value={variant.destination}
+                          onChange={(event) =>
+                            setVariants((current) =>
+                              current.map((entry, entryIndex) =>
+                                entryIndex === index
+                                  ? {
+                                      ...entry,
+                                      destination: event.target.value,
+                                    }
+                                  : entry,
+                              ),
+                            )
+                          }
+                          maxLength={SHARE_DESTINATION_MAX}
+                          placeholder="e.g. Acme company Page"
+                          disabled={busy || !canWrite}
+                        />
+                      </label>
+                      <label className="sc-field">
+                        Caption for {SHARE_CHANNEL_LABELS[variant.channel]}
+                        <textarea
+                          value={variant.caption}
+                          onChange={(event) =>
+                            setVariants((current) =>
+                              current.map((entry, entryIndex) =>
+                                entryIndex === index
+                                  ? { ...entry, caption: event.target.value }
+                                  : entry,
+                              ),
+                            )
+                          }
+                          rows={4}
+                          disabled={busy || !canWrite}
+                          aria-describedby={`sc-variant-count-${index}`}
+                          aria-invalid={!usage.withinLimit}
+                          required
+                        />
+                      </label>
+                      <p
+                        id={`sc-variant-count-${index}`}
+                        className={`sc-count${usage.withinLimit ? "" : " sc-count-over"}`}
+                      >
+                        {usage.count} / {usage.limit} {usage.unit}
+                      </p>
+                      <p className="sc-hint">{usage.behaviour}</p>
+                    </div>
+                  );
+                })}
+                <button
+                  type="button"
+                  className="sc-add-variant"
+                  onClick={addVariant}
+                  disabled={
+                    busy ||
+                    !canWrite ||
+                    variants.length >= SHARE_VARIANT_MAX ||
+                    !SHARE_CHANNELS.some(
+                      (entry) =>
+                        entry.id !== channel &&
+                        !variants.some(
+                          (variant) => variant.channel === entry.id,
+                        ),
+                    )
+                  }
+                >
+                  Add channel draft
+                </button>
+                <p className="sc-hint">
+                  Additional drafts are saved one at a time after the main
+                  caption. The page reports a partial save instead of claiming
+                  all of them were written.
+                </p>
+              </fieldset>
               <label className="sc-field">
                 Link
                 <input
@@ -642,6 +1185,19 @@ function ShareCalendar({ search }: { search: string }) {
                       {!item.sourceCurrent &&
                         " · source changed or no longer public"}
                     </p>
+                    <p className="sc-hint sc-destination-line">
+                      Exact destination: {item.destination || "not recorded"}.
+                      {item.variants.length
+                        ? " Additional drafts: " +
+                          item.variants
+                            .map(
+                              (variant) =>
+                                SHARE_CHANNEL_LABELS[variant.channel],
+                            )
+                            .join(", ") +
+                          "."
+                        : ""}
+                    </p>
                     <p className={`sc-caption sc-caption-${item.state}`}>
                       {item.caption}
                     </p>
@@ -681,10 +1237,25 @@ function ShareCalendar({ search }: { search: string }) {
                     <div className="sc-actions">
                       <button
                         type="button"
+                        aria-expanded={packageFor === item.id}
+                        aria-controls={`sc-package-${item.id}`}
+                        disabled={busy}
+                        onClick={() =>
+                          setPackageFor((current) =>
+                            current === item.id ? "" : item.id,
+                          )
+                        }
+                      >
+                        {packageFor === item.id
+                          ? "Hide approval package"
+                          : "Prepare approval package"}
+                      </button>
+                      <button
+                        type="button"
                         disabled={busy || !item.sourceCurrent}
                         onClick={() => void copyItem(item)}
                       >
-                        Copy caption + link
+                        Copy main caption + link
                       </button>
                       {item.sourceCurrent && (
                         <a
@@ -782,6 +1353,15 @@ function ShareCalendar({ search }: { search: string }) {
                         </button>
                       )}
                     </div>
+                    {packageFor === item.id && (
+                      <ApprovalPackageView
+                        id={`sc-package-${item.id}`}
+                        value={approvalPackageForItem(snapshot, item)}
+                        busy={busy}
+                        onCopy={() => void copyPackage(item)}
+                        onDownload={(format) => downloadPackage(item, format)}
+                      />
+                    )}
                   </li>
                 );
               })}

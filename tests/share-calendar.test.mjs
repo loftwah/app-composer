@@ -10,12 +10,26 @@ import {
 } from "../src/lib/stacks.mjs";
 import {
   buildShareCalendarIcs,
+  calendarExportItems,
   canonicalInstant,
+  captionProblem,
+  captionUsage,
   isSafeShareLink,
+  localTimeLabel,
+  primaryCaptionProblem,
   SHARE_CHANNELS,
   SHARE_STATES,
   shareCalendarCommand,
 } from "../src/lib/share-calendar.ts";
+import {
+  approvalPackageForItem,
+  sharePackageFilename,
+  sharePackageJson,
+  sharePackageMarkdown,
+  sharePackagePlainText,
+  SHARE_PACKAGE_NOT_RECORDED,
+  SHARE_PACKAGE_POSTING_STATEMENT,
+} from "../src/lib/share-package.ts";
 import { manageShareCalendar } from "../src/lib/share-calendar-admin.ts";
 
 const origin = "https://composer.loftwah.com";
@@ -23,6 +37,7 @@ const schema = [
   "0003_stacks.sql",
   "0004_stack_publications.sql",
   "0031_share_calendar.sql",
+  "0032_share_calendar_packages.sql",
 ]
   .map(migration)
   .join("\n");
@@ -108,40 +123,137 @@ function unescapeText(value) {
   return output;
 }
 
-function parseIcs(source) {
+function valueColon(line) {
+  let quoted = false;
+  for (let index = 0; index < line.length; index += 1) {
+    if (line[index] === '"') quoted = !quoted;
+    else if (line[index] === ":" && !quoted) return index;
+  }
+  return -1;
+}
+
+// Unpack RFC 5545 the way a client does: check CRLF, unfold before parsing,
+// then unescape TEXT. A physical line is also decoded as strict UTF-8, which
+// fails if a fold split a multi-byte character.
+function parseCalendar(source) {
   assert.ok(source.endsWith("\r\n"), "the calendar ends with CRLF");
   assert.ok(!/(?<!\r)\n/.test(source), "every newline is CRLF");
-  const physical = source.split("\r\n").filter(Boolean);
-  for (const line of physical)
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder("utf-8", { fatal: true });
+  const physical = source.slice(0, -2).split("\r\n");
+  for (const line of physical) {
+    assert.ok(line.length > 0, "no empty physical lines");
     assert.ok(
-      new TextEncoder().encode(line).length <= 75,
+      encoder.encode(line).length <= 75,
       "physical line is at most 75 octets: " + line.slice(0, 20),
     );
-  const unfolded = [];
+    assert.doesNotThrow(
+      () => decoder.decode(encoder.encode(line)),
+      "a physical line is complete UTF-8: " + line.slice(0, 20),
+    );
+  }
+  const logical = [];
   for (const line of physical) {
-    if (line.startsWith(" ")) unfolded[unfolded.length - 1] += line.slice(1);
-    else unfolded.push(line);
+    if (line.startsWith(" ")) {
+      assert.ok(logical.length > 0, "a continuation follows a line");
+      logical[logical.length - 1] += line.slice(1);
+    } else {
+      logical.push(line);
+    }
   }
-  assert.equal(unfolded[0], "BEGIN:VCALENDAR");
-  assert.equal(unfolded.at(-1), "END:VCALENDAR");
-  assert.equal(
-    unfolded.filter((line) => line === "BEGIN:VEVENT").length,
-    1,
-    "one event",
-  );
-  assert.equal(
-    unfolded.filter((line) => line === "END:VEVENT").length,
-    1,
-    "one event close",
-  );
+  const root = { name: "ROOT", properties: [], components: [] };
+  const stack = [root];
+  for (const line of logical) {
+    const colon = valueColon(line);
+    assert.ok(colon > 0, "a content line has a value colon: " + line);
+    const head = line.slice(0, colon);
+    const value = line.slice(colon + 1);
+    const [rawName, ...params] = head.split(";");
+    const name = rawName.toUpperCase();
+    if (name === "BEGIN") {
+      const component = { name: value, properties: [], components: [] };
+      stack[stack.length - 1].components.push(component);
+      stack.push(component);
+      continue;
+    }
+    if (name === "END") {
+      assert.equal(stack.pop().name, value, "END matches BEGIN");
+      continue;
+    }
+    assert.ok(stack.length > 1, "a property belongs to a component");
+    stack[stack.length - 1].properties.push({ name, params, value });
+  }
+  assert.equal(stack.length, 1, "every component closes");
+  assert.equal(root.components.length, 1, "one top-level calendar");
+  const calendar = root.components[0];
+  assert.equal(calendar.name, "VCALENDAR");
+  return {
+    calendar,
+    events: calendar.components.filter(
+      (component) => component.name === "VEVENT",
+    ),
+  };
+}
+
+function eventProperty(event, name) {
+  const matches = event.properties.filter((property) => property.name === name);
+  assert.equal(matches.length, 1, name + " appears once per event");
+  return matches[0];
+}
+
+// Compatibility view for the single-event assertions above.
+function parseIcs(source) {
+  const parsed = parseCalendar(source);
+  assert.equal(parsed.events.length, 1, "one event");
   const properties = new Map();
-  for (const line of unfolded.slice(1, -1)) {
-    const colon = line.indexOf(":");
-    if (colon < 1) continue;
-    const name = line.slice(0, colon).split(";")[0];
-    properties.set(name, line.slice(colon + 1));
-  }
-  return { physical, unfolded, properties };
+  for (const property of [
+    ...parsed.calendar.properties,
+    ...parsed.events[0].properties,
+  ])
+    properties.set(property.name, property.value);
+  return {
+    physical: source.slice(0, -2).split("\r\n"),
+    unfolded: [],
+    properties,
+  };
+}
+
+function icsInstant(value) {
+  const match = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/.exec(value);
+  assert.ok(match, "UTC DATE-TIME: " + value);
+  return new Date(
+    Date.UTC(
+      Number(match[1]),
+      Number(match[2]) - 1,
+      Number(match[3]),
+      Number(match[4]),
+      Number(match[5]),
+      Number(match[6]),
+    ),
+  ).toISOString();
+}
+
+function calendarItem(overrides) {
+  return {
+    id: "11111111-2222-4333-8444-555555555555",
+    stack: "fictional-calendar-stack",
+    stackName: "Calendar example",
+    stackSlug: "calendar-example",
+    publication: 1,
+    sourceCurrent: true,
+    channel: "instagram",
+    destination: "",
+    caption: "A caption",
+    variants: [],
+    link: "",
+    scheduledAt: null,
+    state: "draft",
+    sharedAt: null,
+    revision: 1,
+    createdAt: "2026-11-01T00:00:00.000Z",
+    updatedAt: "2026-11-01T00:00:00.000Z",
+    ...overrides,
+  };
 }
 
 test("the .ics export is valid VCALENDAR with CRLF, folding and escaped TEXT", () => {
@@ -490,4 +602,706 @@ test("scheduled, shared and stale source states are recorded honestly", async ()
   } finally {
     db.cleanup();
   }
+});
+
+test("channel limits use real character and grapheme counts", () => {
+  assert.equal(captionUsage("instagram", "a".repeat(2200)).withinLimit, true);
+  assert.equal(captionUsage("instagram", "a".repeat(2201)).withinLimit, false);
+  assert.equal(captionUsage("linkedin", "a".repeat(3000)).withinLimit, true);
+  assert.equal(captionUsage("linkedin", "a".repeat(3001)).withinLimit, false);
+  assert.match(captionUsage("linkedin", "").behaviour, /truncat/i);
+  const astronaut = "🧑‍🚀";
+  assert.equal(
+    Array.from(astronaut).length,
+    3,
+    "the emoji is three code points",
+  );
+  assert.equal(
+    captionUsage("bluesky", astronaut.repeat(300)).count,
+    300,
+    "Bluesky counts 300 graphemes, not 900 code points",
+  );
+  assert.equal(
+    captionUsage("bluesky", astronaut.repeat(300)).withinLimit,
+    true,
+  );
+  assert.equal(
+    captionUsage("bluesky", astronaut.repeat(301)).withinLimit,
+    false,
+  );
+  assert.equal(
+    primaryCaptionProblem("facebook", "a".repeat(2201)),
+    "The main caption is limited to 2200 characters; this caption has 2201.",
+  );
+  assert.match(captionProblem("instagram", "a".repeat(2201)), /2200/);
+  assert.equal(captionProblem("instagram", "a".repeat(2200)), null);
+  assert.match(
+    captionProblem("instagram", "🚀".repeat(1800)),
+    /UTF-8 bytes/,
+    "a caption under the channel limit still has to fit one save request",
+  );
+  const command = {
+    action: "variant",
+    item: "9f1c0d9e-7f34-4e27-9d67-2a3f3f0b1c22",
+    expectedRevision: 1,
+    channel: "bluesky",
+    destination: "MP profile",
+    caption: "a".repeat(300),
+  };
+  assert.equal(shareCalendarCommand.safeParse(command).success, true);
+  assert.equal(
+    shareCalendarCommand.safeParse({ ...command, caption: null }).success,
+    true,
+  );
+  assert.equal(
+    shareCalendarCommand.safeParse({ ...command, channel: "threads" }).success,
+    false,
+  );
+  assert.equal(
+    shareCalendarCommand.safeParse({
+      ...command,
+      destination: "x".repeat(121),
+    }).success,
+    false,
+  );
+});
+
+test("per-channel drafts persist, replace and delete exact text", async () => {
+  const db = sqliteD1({ schema });
+  try {
+    const { stack } = await seeded(db, owner, "Channel drafts");
+    const created = await write(db, owner, {
+      action: "create",
+      stack: stack.id,
+      channel: "instagram",
+      destination: "MP personal Instagram",
+      caption: "Main caption\nwith a second line",
+      link: origin + "/s/" + stack.slug,
+      scheduledAt: "2026-11-20T09:30:00.000Z",
+    });
+    assert.equal(created.ok, true);
+    const id = created.changed;
+    assert.ok(id);
+    let item = created.items.find((entry) => entry.id === id);
+    assert.ok(item);
+    assert.equal(item.destination, "MP personal Instagram");
+    assert.deepEqual(item.variants, []);
+    assert.equal(item.state, "scheduled");
+
+    const longCaption =
+      "Review this exact draft:\n\n````\nconst x = 1;\n````\n\nNo post is sent.";
+    const linkedin = await write(db, owner, {
+      action: "variant",
+      item: id,
+      expectedRevision: item.revision,
+      channel: "linkedin",
+      destination: "Acme company page",
+      caption: "L".repeat(3000),
+    });
+    assert.equal(linkedin.ok, true);
+    item = linkedin.items.find((entry) => entry.id === id);
+    assert.ok(item);
+    assert.equal(item.variants.length, 1);
+    assert.equal(item.variants[0].channel, "linkedin");
+    assert.equal(item.variants[0].destination, "Acme company page");
+    assert.equal(item.variants[0].caption, "L".repeat(3000));
+    assert.equal(item.variants[0].caption.length, 3000);
+    assert.equal(linkedin.changed, id);
+
+    const astronaut = "🧑‍🚀";
+    const bluesky = await write(db, owner, {
+      action: "variant",
+      item: id,
+      expectedRevision: item.revision,
+      channel: "bluesky",
+      destination: "",
+      caption: astronaut.repeat(300),
+    });
+    assert.equal(bluesky.ok, true);
+    item = bluesky.items.find((entry) => entry.id === id);
+    assert.ok(item);
+    assert.equal(item.variants.length, 2);
+    assert.equal(
+      item.variants.find((variant) => variant.channel === "bluesky").caption,
+      astronaut.repeat(300),
+    );
+
+    const tooLong = await write(db, owner, {
+      action: "variant",
+      item: id,
+      expectedRevision: item.revision,
+      channel: "linkedin",
+      destination: "Acme company page",
+      caption: "L".repeat(3001),
+    });
+    assert.equal(tooLong.code, "INVALID");
+    assert.match(tooLong.message, /3000/);
+
+    const tooManyGraphemes = await write(db, owner, {
+      action: "variant",
+      item: id,
+      expectedRevision: item.revision,
+      channel: "bluesky",
+      destination: "",
+      caption: astronaut.repeat(301),
+    });
+    assert.equal(tooManyGraphemes.code, "INVALID");
+    assert.match(tooManyGraphemes.message, /300 graphemes/);
+
+    const tooManyBytes = await write(db, owner, {
+      action: "variant",
+      item: id,
+      expectedRevision: item.revision,
+      channel: "facebook",
+      destination: "",
+      caption: "🚀".repeat(1800),
+    });
+    assert.equal(tooManyBytes.code, "INVALID");
+    assert.match(tooManyBytes.message, /UTF-8 bytes/);
+
+    const duplicateMain = await write(db, owner, {
+      action: "variant",
+      item: id,
+      expectedRevision: item.revision,
+      channel: "instagram",
+      destination: "",
+      caption: "The main caption already occupies this channel.",
+    });
+    assert.equal(duplicateMain.code, "INVALID");
+    assert.match(duplicateMain.message, /main caption/i);
+
+    const replaced = await write(db, owner, {
+      action: "variant",
+      item: id,
+      expectedRevision: item.revision,
+      channel: "linkedin",
+      destination: "Acme company page",
+      caption: longCaption,
+    });
+    assert.equal(replaced.ok, true);
+    item = replaced.items.find((entry) => entry.id === id);
+    assert.ok(item);
+    assert.equal(item.variants.length, 2, "an upsert does not duplicate a row");
+    assert.equal(
+      item.variants.find((variant) => variant.channel === "linkedin").caption,
+      longCaption,
+    );
+
+    const removed = await write(db, owner, {
+      action: "variant",
+      item: id,
+      expectedRevision: item.revision,
+      channel: "bluesky",
+      caption: null,
+    });
+    assert.equal(removed.ok, true);
+    item = removed.items.find((entry) => entry.id === id);
+    assert.ok(item);
+    assert.equal(item.variants.length, 1);
+    assert.equal(item.variants[0].channel, "linkedin");
+
+    const listed = await read(db, owner);
+    const persisted = listed.items.find((entry) => entry.id === id);
+    assert.ok(persisted);
+    assert.equal(persisted.destination, "MP personal Instagram");
+    assert.equal(persisted.variants[0].caption, longCaption);
+    assert.equal(persisted.variants[0].destination, "Acme company page");
+    assert.equal(persisted.state, "scheduled");
+  } finally {
+    db.cleanup();
+  }
+});
+
+test("the additive migration keeps a legacy caption as the default destination", async () => {
+  const legacySchema = [
+    "0003_stacks.sql",
+    "0004_stack_publications.sql",
+    "0031_share_calendar.sql",
+  ]
+    .map(migration)
+    .join("\n");
+  const db = sqliteD1({ schema: legacySchema });
+  try {
+    const { workspace, stack } = await seeded(db, owner, "Legacy calendar");
+    const id = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+    const at = "2026-11-02T01:02:03.000Z";
+    await db
+      .prepare(
+        `INSERT INTO creator_share_calendar_items
+         (id,workspace_id,stack_id,stack_revision,channel,caption,link,scheduled_at,state,shared_at,created_by,updated_by,revision,created_at,updated_at)
+         VALUES (?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?)`,
+      )
+      .bind(
+        id,
+        workspace.id,
+        stack.id,
+        stack.revision,
+        "linkedin",
+        "Legacy caption; with comma",
+        origin + "/s/" + stack.slug,
+        "2026-11-20T09:30:00.000Z",
+        "scheduled",
+        owner.id,
+        owner.id,
+        4,
+        at,
+        at,
+      )
+      .run();
+    db.migrate(migration("0032_share_calendar_packages.sql"));
+    const listed = await read(db, owner);
+    assert.equal(listed.ok, true);
+    assert.equal(listed.items.length, 1);
+    const item = listed.items[0];
+    assert.equal(item.id, id, "the existing id is preserved");
+    assert.equal(item.caption, "Legacy caption; with comma");
+    assert.equal(item.revision, 4);
+    assert.equal(item.destination, "", "an old row has no guessed destination");
+    assert.deepEqual(item.variants, []);
+    const frozen = JSON.stringify(item);
+    const pkg = approvalPackageForItem(listed, item);
+    assert.equal(
+      JSON.stringify(item),
+      frozen,
+      "building a package changes no saved value",
+    );
+    assert.equal(pkg.destinations.length, 1);
+    assert.equal(pkg.destinations[0].caption, "Legacy caption; with comma");
+    assert.equal(pkg.destinations[0].exactDestination, null);
+    assert.equal(
+      pkg.destinations[0].exactDestinationLabel,
+      SHARE_PACKAGE_NOT_RECORDED,
+    );
+    assert.equal(
+      (
+        await db
+          .prepare("SELECT COUNT(*) AS count FROM creator_share_calendar_items")
+          .first()
+      ).count,
+      1,
+    );
+  } finally {
+    db.cleanup();
+  }
+});
+
+test("the main save stays compatible and keeps channel drafts", async () => {
+  const db = sqliteD1({ schema });
+  try {
+    const { stack } = await seeded(db, owner, "Compatible save");
+    const created = await write(db, owner, {
+      action: "create",
+      stack: stack.id,
+      channel: "linkedin",
+      destination: "MP personal LinkedIn",
+      caption: "First main caption",
+      link: origin + "/s/" + stack.slug,
+    });
+    let item = created.items.find((entry) => entry.id === created.changed);
+    assert.ok(item);
+    const added = await write(db, owner, {
+      action: "variant",
+      item: item.id,
+      expectedRevision: item.revision,
+      channel: "bluesky",
+      destination: "MP Bluesky",
+      caption: "A Bluesky draft",
+    });
+    item = added.items.find((entry) => entry.id === created.changed);
+    assert.ok(item);
+    const saved = await write(db, owner, {
+      action: "save",
+      item: item.id,
+      expectedRevision: item.revision,
+      channel: "linkedin",
+      caption: "Second main caption",
+      link: origin + "/s/" + stack.slug,
+    });
+    assert.equal(
+      saved.ok,
+      true,
+      "an old client without destination still saves",
+    );
+    item = saved.items.find((entry) => entry.id === created.changed);
+    assert.ok(item);
+    assert.equal(item.destination, "MP personal LinkedIn");
+    assert.equal(item.caption, "Second main caption");
+    assert.equal(item.variants.length, 1);
+    assert.equal(item.variants[0].caption, "A Bluesky draft");
+    assert.equal(item.destination, "MP personal LinkedIn");
+  } finally {
+    db.cleanup();
+  }
+});
+
+test("the approval package uses the exact persisted values and is deterministic", async () => {
+  const db = sqliteD1({ schema });
+  try {
+    const { stack } = await seeded(db, owner, "Package example");
+    const caption =
+      "Main caption with a newline\nand an emoji 🧑‍🚀, a semicolon; and a backslash \\.";
+    const created = await write(db, owner, {
+      action: "create",
+      stack: stack.id,
+      channel: "instagram",
+      destination: "MP personal Instagram",
+      caption,
+      link: origin + "/s/" + stack.slug + "?utm_source=package",
+      scheduledAt: "2026-11-20T09:30:00.000Z",
+    });
+    let item = created.items.find((entry) => entry.id === created.changed);
+    assert.ok(item);
+    const variantCaption =
+      "Review this exact draft:\n\n````\nconst x = 1;\n````\n\nNo post is sent.";
+    const added = await write(db, owner, {
+      action: "variant",
+      item: item.id,
+      expectedRevision: item.revision,
+      channel: "linkedin",
+      destination: "Acme company page",
+      caption: variantCaption,
+    });
+    assert.equal(added.ok, true);
+    const listed = await read(db, owner);
+    const persisted = listed.items.find(
+      (entry) => entry.id === created.changed,
+    );
+    assert.ok(persisted);
+    const pkg = approvalPackageForItem(listed, persisted);
+
+    assert.equal(pkg.schema, "composer.share-approval-package/v1");
+    assert.equal(pkg.item.id, persisted.id);
+    assert.equal(pkg.item.revision, persisted.revision);
+    assert.equal(pkg.item.state, "scheduled");
+    assert.equal(pkg.workspace.name, listed.workspace.name);
+    assert.equal(pkg.source.stackId, persisted.stack);
+    assert.equal(pkg.source.name, persisted.stackName);
+    assert.equal(pkg.source.slug, persisted.stackSlug);
+    assert.equal(pkg.source.publication, persisted.publication);
+    assert.equal(pkg.source.url, listed.sources[0].url);
+    assert.equal(pkg.source.current, true);
+    assert.equal(pkg.schedule.scheduledAt, persisted.scheduledAt);
+    assert.equal(pkg.schedule.local, localTimeLabel(persisted.scheduledAt));
+    assert.equal(
+      pkg.schedule.utc,
+      localTimeLabel(persisted.scheduledAt, "UTC"),
+    );
+    assert.equal(pkg.link, persisted.link);
+    assert.equal(pkg.shareImage.path, listed.sources[0].imagePath);
+    assert.equal(
+      pkg.shareImage.url,
+      new URL(listed.sources[0].imagePath, listed.sources[0].url).href,
+    );
+    assert.equal(
+      pkg.shareImage.downloadName,
+      `${persisted.stackSlug}-r${persisted.publication}-share-card.png`,
+    );
+    assert.equal(pkg.destinations.length, 2);
+    assert.equal(pkg.destinations[0].channel, "instagram");
+    assert.equal(pkg.destinations[0].primary, true);
+    assert.equal(pkg.destinations[0].caption, persisted.caption);
+    assert.equal(pkg.destinations[0].exactDestination, "MP personal Instagram");
+    assert.equal(pkg.destinations[1].channel, "linkedin");
+    assert.equal(pkg.destinations[1].primary, false);
+    assert.equal(pkg.destinations[1].caption, variantCaption);
+    assert.equal(pkg.destinations[1].exactDestination, "Acme company page");
+    assert.equal(pkg.destinations[1].count, variantCaption.length);
+    assert.equal(pkg.destinations[1].limit, 3000);
+    assert.equal(pkg.destinations[1].withinLimit, true);
+    assert.equal(pkg.posting.statement, SHARE_PACKAGE_POSTING_STATEMENT);
+    assert.match(pkg.posting.statement, /does not post/i);
+    assert.match(pkg.posting.statement, /You perform this share yourself/);
+    assert.equal(pkg.provenance.preparedAt, persisted.updatedAt);
+    assert.equal(pkg.provenance.itemRevision, persisted.revision);
+    assert.equal(pkg.provenance.sourceRevision, persisted.publication);
+
+    const firstJson = sharePackageJson(pkg);
+    await new Promise((resolve) => setTimeout(resolve, 25));
+    const second = approvalPackageForItem(listed, persisted);
+    const secondJson = sharePackageJson(second);
+    assert.equal(firstJson, secondJson, "the same saved item exports twice");
+    assert.equal(
+      sharePackageMarkdown(pkg),
+      sharePackageMarkdown(second),
+      "Markdown is deterministic too",
+    );
+    const decoded = JSON.parse(firstJson);
+    assert.equal(decoded.destinations[0].caption, caption);
+    assert.equal(decoded.destinations[1].caption, variantCaption);
+    assert.equal(decoded.destinations[1].exactDestination, "Acme company page");
+    assert.equal(decoded.shareImage.path, listed.sources[0].imagePath);
+    assert.equal(
+      decoded.provenance.preparedAt,
+      persisted.updatedAt,
+      "the package has no export clock",
+    );
+
+    const markdown = sharePackageMarkdown(pkg);
+    assert.ok(markdown.includes(caption));
+    assert.ok(markdown.includes(variantCaption));
+    assert.match(markdown, /# Approval package/);
+    assert.match(markdown, /You perform this share yourself/);
+    const plain = sharePackagePlainText(pkg);
+    assert.ok(plain.includes(caption));
+    assert.ok(plain.includes(variantCaption));
+    assert.ok(plain.includes("Exact destination: Acme company page"));
+    assert.ok(plain.includes("App Composer does not post"));
+    assert.equal(
+      sharePackageFilename(persisted, "json"),
+      `approval-${persisted.stackSlug}-r${persisted.publication}-${persisted.id.slice(0, 8)}-rev${persisted.revision}.json`,
+    );
+    assert.equal(sharePackageFilename(persisted, "md").endsWith(".md"), true);
+    assert.equal(
+      JSON.stringify(persisted),
+      JSON.stringify(listed.items.find((entry) => entry.id === persisted.id)),
+      "reading and packaging do not change the persisted item",
+    );
+  } finally {
+    db.cleanup();
+  }
+});
+
+test("an unknown exact destination is reported as not recorded, never guessed", async () => {
+  const db = sqliteD1({ schema });
+  try {
+    const { workspace, stack } = await seeded(db, owner, "Unknown destination");
+    const created = await write(db, owner, {
+      action: "create",
+      stack: stack.id,
+      channel: "bluesky",
+      caption: "A Bluesky draft without a recorded account",
+      link: "",
+    });
+    const item = created.items.find((entry) => entry.id === created.changed);
+    assert.ok(item);
+    let listed = await read(db, owner);
+    let pkg = approvalPackageForItem(
+      listed,
+      listed.items.find((entry) => entry.id === item.id),
+    );
+    assert.equal(pkg.item.state, "draft");
+    assert.equal(pkg.schedule.scheduledAt, null);
+    assert.equal(pkg.schedule.label, "Not scheduled");
+    assert.equal(pkg.schedule.local, null);
+    assert.equal(pkg.destinations[0].exactDestination, null);
+    assert.equal(
+      pkg.destinations[0].exactDestinationLabel,
+      SHARE_PACKAGE_NOT_RECORDED,
+    );
+    assert.equal(pkg.link, null);
+    assert.ok(sharePackageJson(pkg).includes(SHARE_PACKAGE_NOT_RECORDED));
+    assert.ok(
+      sharePackagePlainText(pkg).includes("Exact destination: not recorded"),
+    );
+    assert.ok(sharePackageMarkdown(pkg).includes("Bluesky · not recorded"));
+
+    await unpublishStack(db, workspace.id, stack.id, stack.revision);
+    listed = await read(db, owner);
+    const stale = listed.items.find((entry) => entry.id === item.id);
+    assert.ok(stale);
+    assert.equal(stale.sourceCurrent, false);
+    pkg = approvalPackageForItem(listed, stale);
+    assert.equal(pkg.source.current, false);
+    assert.equal(pkg.source.url, null);
+    assert.equal(pkg.shareImage.path, null);
+    assert.equal(pkg.shareImage.status, "not available");
+    assert.equal(pkg.item.state, "draft", "the package changes no state");
+    assert.equal(stale.state, "draft");
+  } finally {
+    db.cleanup();
+  }
+});
+
+test("the .ics round-trips one event per scheduled item with CRLF, folding and UTC", () => {
+  const firstId = "aaaaaaaa-1111-4111-8111-111111111111";
+  const secondId = "bbbbbbbb-2222-4222-8222-222222222222";
+  const draftId = "cccccccc-3333-4333-8333-333333333333";
+  const sharedId = "dddddddd-4444-4444-8444-444444444444";
+  const staleId = "eeeeeeee-5555-4555-8555-555555555555";
+  const caption =
+    "Line one\nLine two; commas, a backslash \\ and a long sentence that needs folding across physical lines. " +
+    "Emoji keep their bytes together: 🧑‍🚀🚀 and more words to force another fold.";
+  const emojiCaption = "🚀".repeat(80);
+  const link =
+    "https://composer.loftwah.com/s/calendar-example?utm_source=calendar";
+  const items = [
+    calendarItem({
+      id: firstId,
+      channel: "instagram",
+      destination: "MP personal Instagram",
+      caption,
+      link,
+      scheduledAt: "2026-11-20T23:30:00.000Z",
+      state: "scheduled",
+      revision: 3,
+    }),
+    calendarItem({
+      id: secondId,
+      stackName: "Second; stack, with commas",
+      stackSlug: "second-stack",
+      publication: 7,
+      channel: "bluesky",
+      destination: "",
+      caption: emojiCaption,
+      link: "",
+      scheduledAt: "2026-11-21T10:15:00.000Z",
+      state: "scheduled",
+      revision: 2,
+    }),
+    calendarItem({
+      id: draftId,
+      caption: "A draft must never become an event",
+      state: "draft",
+    }),
+    calendarItem({
+      id: sharedId,
+      caption: "A locally shared item must not reappear",
+      state: "shared",
+      scheduledAt: "2026-11-22T00:00:00.000Z",
+      sharedAt: "2026-11-16T00:00:00.000Z",
+    }),
+    calendarItem({
+      id: staleId,
+      caption: "A stale source must not be exported",
+      state: "scheduled",
+      scheduledAt: "2026-11-23T00:00:00.000Z",
+      sourceCurrent: false,
+    }),
+  ];
+  const icsItems = calendarExportItems(items);
+  assert.deepEqual(
+    icsItems.map((item) => item.id),
+    [firstId, secondId],
+    "only current scheduled items are exported",
+  );
+  const ics = buildShareCalendarIcs(icsItems, {
+    now: new Date("2026-11-16T05:00:00.000Z"),
+    calendarName: "Share calendar · Fictional workspace",
+  });
+  const parsed = parseCalendar(ics);
+  assert.equal(parsed.events.length, 2, "one VEVENT per scheduled item");
+  assert.equal(
+    parsed.calendar.properties.find((property) => property.name === "VERSION")
+      .value,
+    "2.0",
+  );
+  assert.ok(
+    parsed.calendar.properties.some(
+      (property) =>
+        property.name === "PRODID" && /App Composer/.test(property.value),
+    ),
+  );
+  assert.equal(
+    parsed.calendar.properties.find((property) => property.name === "CALSCALE")
+      .value,
+    "GREGORIAN",
+  );
+  assert.equal(
+    parsed.calendar.properties.find((property) => property.name === "METHOD")
+      .value,
+    "PUBLISH",
+  );
+  assert.ok(!ics.includes(draftId));
+  assert.ok(!ics.includes(sharedId));
+  assert.ok(!ics.includes(staleId));
+
+  const byUid = new Map(
+    parsed.events.map((event) => [eventProperty(event, "UID").value, event]),
+  );
+  const first = byUid.get(firstId + "@composer.loftwah.com");
+  assert.ok(first);
+  assert.equal(eventProperty(first, "DTSTAMP").value, "20261116T050000Z");
+  assert.equal(eventProperty(first, "DTSTART").value, "20261120T233000Z");
+  assert.equal(
+    icsInstant(eventProperty(first, "DTSTART").value),
+    "2026-11-20T23:30:00.000Z",
+  );
+  assert.equal(
+    eventProperty(first, "DTEND").value,
+    "20261121T000000Z",
+    "the UTC end crosses midnight correctly",
+  );
+  assert.equal(
+    icsInstant(eventProperty(first, "DTEND").value),
+    "2026-11-21T00:00:00.000Z",
+  );
+  assert.equal(
+    unescapeText(eventProperty(first, "SUMMARY").value),
+    "Instagram · Calendar example",
+  );
+  assert.equal(eventProperty(first, "CATEGORIES").value, "Instagram");
+  assert.equal(eventProperty(first, "URL").value, link);
+  assert.equal(eventProperty(first, "SEQUENCE").value, "2");
+  assert.equal(eventProperty(first, "STATUS").value, "CONFIRMED");
+  assert.equal(eventProperty(first, "TRANSP").value, "TRANSPARENT");
+  const description = unescapeText(eventProperty(first, "DESCRIPTION").value);
+  assert.ok(
+    description.startsWith(
+      caption + "\n\nExact destination: MP personal Instagram\n\nLink: " + link,
+    ),
+    "the caption and destination round-trip exactly",
+  );
+  assert.match(description, /Composer does not post to a social network\./);
+
+  const second = byUid.get(secondId + "@composer.loftwah.com");
+  assert.ok(second);
+  assert.equal(eventProperty(second, "DTSTART").value, "20261121T101500Z");
+  assert.equal(
+    unescapeText(eventProperty(second, "SUMMARY").value),
+    "Bluesky · Second; stack, with commas",
+  );
+  const secondDescription = unescapeText(
+    eventProperty(second, "DESCRIPTION").value,
+  );
+  assert.ok(
+    secondDescription.startsWith(
+      emojiCaption + "\n\nExact destination: not recorded",
+    ),
+    "an unknown destination says not recorded and the emoji survive folding",
+  );
+  assert.equal(
+    second.properties.some((property) => property.name === "URL"),
+    false,
+    "an item without a link has no URL property",
+  );
+
+  const hugeRevision = buildShareCalendarIcs(
+    [{ ...icsItems[0], revision: Number.MAX_SAFE_INTEGER }],
+    { now: new Date("2026-11-16T05:00:00.000Z") },
+  );
+  assert.equal(
+    eventProperty(parseCalendar(hugeRevision).events[0], "SEQUENCE").value,
+    "2147483647",
+    "SEQUENCE stays inside the signed 32-bit range",
+  );
+});
+
+test("the .ics builder refuses a link that could inject calendar properties", () => {
+  const item = {
+    id: "aaaaaaaa-1111-4111-8111-111111111111",
+    revision: 1,
+    channel: "instagram",
+    destination: "",
+    caption: "A real caption",
+    link: "https://example.com/post",
+    scheduledAt: "2026-11-20T09:30:00.000Z",
+    stackName: "Calendar example",
+  };
+  const now = new Date("2026-11-16T05:00:00.000Z");
+  assert.throws(
+    () =>
+      buildShareCalendarIcs(
+        [{ ...item, link: "https://example.com/post\r\nBEGIN:VEVENT" }],
+        { now },
+      ),
+    /unsafe link/i,
+  );
+  assert.throws(
+    () =>
+      buildShareCalendarIcs(
+        [{ ...item, link: "https://user:secret@example.com/post" }],
+        { now },
+      ),
+    /unsafe link/i,
+  );
 });
