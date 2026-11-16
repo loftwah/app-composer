@@ -63,7 +63,7 @@ const icon: Record<string, typeof CheckCircle2> = {pass: CheckCircle2, fail: XCi
   <h2 id="limits-title">What this run does not prove</h2>
   <ul>
    <li>One machine, one run. There is no repeat count or variance claim yet, and no promise about other machines.</li>
-   <li>This run is the sandbox checks only. The <a href="/benchmarks/compare">comparison track</a> is separate: one frozen brief, three agent configurations and three trials each.</li>
+   <li>This run is the sandbox checks only. The <a href="/benchmarks/compare">comparison track</a> is separate: one frozen brief, three agent configurations and three trials each. The <a href="/benchmarks/comparisons">Studio job receipts</a> are a third record: real media jobs, not agent builds.</li>
    <li>Live checks are HTTP-level: they confirm the page responds and contains the expected text. They do not sign in, deploy or moderate anything.</li>
    <li>No paid provider was called. Nothing here spends money or proves a provider integration.</li>
    <li>{checks.filter(c => c.status === 'blocked').length} blocked {checks.filter(c => c.status === 'blocked').length === 1 ? 'check' : 'checks'} stay counted as blocked rather than passing by default.</li>
@@ -82,7 +82,7 @@ const icon: Record<string, typeof CheckCircle2> = {pass: CheckCircle2, fail: XCi
   <p>From a checkout of this repository:</p>
   <pre>pnpm bench</pre>
   <p>The runner prints the same JSON. Add <code>--write</code> to replace the results file this page reads. It exits non-zero only when a check fails; blocked checks are reported and counted.</p>
-  <div class="actions"><a class="button" href="/demo">Open the sandbox these checks protect <ArrowRight size={18} aria-hidden="true"/></a><a class="button secondary" href="/benchmarks/compare">Compare models and agents <ArrowRight size={18} aria-hidden="true"/></a><a class="button secondary" href="/benchmarks/inventory">Check what is current <ArrowRight size={18} aria-hidden="true"/></a><a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow Benchmarks Studio</a></div>
+  <div class="actions"><a class="button" href="/demo">Open the sandbox these checks protect <ArrowRight size={18} aria-hidden="true"/></a><a class="button secondary" href="/benchmarks/compare">Compare models and agents <ArrowRight size={18} aria-hidden="true"/></a><a class="button secondary" href="/benchmarks/comparisons">Read the Studio job receipts <ArrowRight size={18} aria-hidden="true"/></a><a class="button secondary" href="/benchmarks/inventory">Check what is current <ArrowRight size={18} aria-hidden="true"/></a><a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow Benchmarks Studio</a></div>
  </section>
 </Base>
 <style>

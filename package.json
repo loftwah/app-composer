@@ -17,6 +17,7 @@
     "bench": "node benchmarks/runner.mjs --write",
     "bench:release-timing": "node benchmarks/release-timing/report.mjs",
     "inventory:check": "node scripts/model-inventory.mjs",
+    "jobs:check": "node scripts/studio-job-evidence.mjs --check",
     "deploy": "node scripts/deploy.mjs",
     "delivery": "node scripts/delivery-journey.mjs",
     "delivery:jenkins": "node scripts/jenkins-fixture.mjs",

@@ -1,0 +1,465 @@
+{
+  "schema": "composer/studio-job-evidence/1",
+  "inventory": "studio-media",
+  "id": "studio-job-receipts",
+  "title": "Studio job receipts",
+  "question": "What did the Media Studio production job table actually record per model and kind: saved, failed, unknown, saved-job latency and the cost estimate that was written on the row?",
+  "checkedAt": "2026-11-16T05:55:21Z",
+  "staleAfterDays": 2,
+  "source": {
+    "kind": "cloudflare-d1-read-only",
+    "database": "media-studio",
+    "databaseId": "c3451e4b-48b7-44cd-bf0e-7d953f763df2",
+    "environment": "remote production",
+    "access": "Read-only SQL through wrangler. No write, deployment, media fetch or private field in the output.",
+    "schemaCommand": "npx wrangler d1 execute media-studio --remote --command \"PRAGMA table_info(generations)\" --json",
+    "command": "npx wrangler d1 execute media-studio --remote --command \"<sql>\" --json",
+    "sql": "WITH live AS (\n  SELECT model, kind, status, created_at, cost_estimate_micro, provider_charged_micro,\n         CASE\n           WHEN status = 'saved' AND completed_at IS NOT NULL THEN completed_at\n           WHEN status = 'cancelled' AND cancelled_at IS NOT NULL THEN cancelled_at\n           ELSE NULL\n         END AS terminal_at\n  FROM generations\n  WHERE deleted_at IS NULL\n), saved AS (\n  SELECT model, kind, terminal_at - created_at AS elapsed_ms,\n         ROW_NUMBER() OVER (PARTITION BY model, kind ORDER BY terminal_at - created_at) AS rn,\n         COUNT(*) OVER (PARTITION BY model, kind) AS n\n  FROM live\n  WHERE status = 'saved' AND terminal_at IS NOT NULL\n), costs AS (\n  SELECT model, kind, cost_estimate_micro,\n         ROW_NUMBER() OVER (PARTITION BY model, kind ORDER BY cost_estimate_micro) AS rn,\n         COUNT(*) OVER (PARTITION BY model, kind) AS n\n  FROM live\n)\nSELECT l.model, l.kind,\n  COUNT(*) AS jobs,\n  SUM(l.status = 'saved') AS saved,\n  SUM(l.status = 'failed') AS failed,\n  SUM(l.status = 'unknown') AS unknown,\n  SUM(l.status = 'cancelled') AS cancelled,\n  MIN(l.created_at) AS first_created_ms,\n  MAX(l.created_at) AS last_created_ms,\n  SUM(l.terminal_at IS NULL) AS without_terminal,\n  (SELECT (MAX(CASE WHEN s.rn = (s.n + 1) / 2 THEN s.elapsed_ms END) + MAX(CASE WHEN s.rn = (s.n + 2) / 2 THEN s.elapsed_ms END)) / 2.0\n     FROM saved s WHERE s.model = l.model AND s.kind = l.kind) AS saved_median_ms,\n  (SELECT MAX(CASE WHEN s.rn = (9 * s.n + 9) / 10 THEN s.elapsed_ms END)\n     FROM saved s WHERE s.model = l.model AND s.kind = l.kind) AS saved_p90_ms,\n  SUM(l.cost_estimate_micro) AS cost_estimate_sum_micro,\n  (SELECT (MAX(CASE WHEN c.rn = (c.n + 1) / 2 THEN c.cost_estimate_micro END) + MAX(CASE WHEN c.rn = (c.n + 2) / 2 THEN c.cost_estimate_micro END)) / 2.0\n     FROM costs c WHERE c.model = l.model AND c.kind = l.kind) AS cost_median_micro,\n  SUM(l.provider_charged_micro IS NOT NULL) AS provider_charge_rows\nFROM live l\nGROUP BY l.model, l.kind\nORDER BY jobs DESC, l.model",
+    "examplesCommand": "npx wrangler d1 execute media-studio --remote --command \"<examplesSql>\" --json",
+    "examplesSql": "WITH picked AS (\n  SELECT kind, model,\n         json_extract(request_json, '$.aspect') AS aspect,\n         json_extract(request_json, '$.durationSeconds') AS duration_seconds,\n         json_extract(request_json, '$.aspectRatio') AS aspect_ratio,\n         json_extract(request_json, '$.outputWidth') AS output_width,\n         json_extract(request_json, '$.outputHeight') AS output_height,\n         ROW_NUMBER() OVER (PARTITION BY kind ORDER BY created_at DESC) AS rn\n  FROM generations\n  WHERE deleted_at IS NULL AND status = 'saved'\n)\nSELECT kind, model, aspect, duration_seconds, aspect_ratio, output_width, output_height\nFROM picked\nWHERE rn = 1\nORDER BY kind",
+    "readAt": "2026-11-16T05:55:21Z",
+    "examplesReadAt": "2026-11-16T05:55:00Z",
+    "window": {
+      "firstCreatedAt": "2026-11-13T06:12:24.041Z",
+      "lastCreatedAt": "2026-11-15T12:11:25.099Z"
+    }
+  },
+  "scope": {
+    "rows": 86,
+    "deletedRowsExcluded": 1,
+    "deletedReason": "One row has its media erased (deleted_at set). It is excluded from every count and is not described here."
+  },
+  "timing": {
+    "saved": "completed_at - created_at, both recorded on the row.",
+    "failedOrUnknown": "Not measured. The generations table records no completed_at or failed_at on these rows, and updated_at is not a terminal timestamp, so no failure latency is inferred.",
+    "cancelled": "No cancelled row exists in this window.",
+    "clock": "Wall-clock elapsed milliseconds, including queue and provider time. It is not compute time and not time to first view."
+  },
+  "cost": {
+    "field": "cost_estimate_micro",
+    "label": "estimate recorded by Studio, not an invoice",
+    "unit": "micro-US dollars; 1,000,000 = US$1",
+    "providerChargeRows": 0,
+    "note": "No row in this window records provider_charged_micro, so no charge or invoice is claimed."
+  },
+  "usage": {
+    "recorded": false,
+    "note": "The generations table records no token or credit usage for these media jobs, so this page claims none."
+  },
+  "totals": {
+    "jobs": 86,
+    "saved": 66,
+    "failed": 13,
+    "unknown": 7,
+    "cancelled": 0,
+    "costEstimateMicroSum": 12863702,
+    "providerChargeRows": 0
+  },
+  "groups": [
+    {
+      "model": "h3-max-turbo",
+      "kind": "video",
+      "inventoryEntry": "h3-max-turbo",
+      "jobs": 23,
+      "saved": 23,
+      "failed": 0,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 0,
+      "savedLatencyMs": {
+        "samples": 23,
+        "median": 19428,
+        "p90": 25959
+      },
+      "costEstimateMicro": {
+        "samples": 23,
+        "sum": 5520000,
+        "median": 240000
+      },
+      "providerChargeRows": 0
+    },
+    {
+      "model": "hailuo-standard",
+      "kind": "video",
+      "inventoryEntry": "hailuo-standard",
+      "jobs": 17,
+      "saved": 13,
+      "failed": 0,
+      "unknown": 4,
+      "cancelled": 0,
+      "withoutTerminal": 4,
+      "savedLatencyMs": {
+        "samples": 13,
+        "median": 121099,
+        "p90": 159159
+      },
+      "costEstimateMicro": {
+        "samples": 17,
+        "sum": 4760002,
+        "median": 280000
+      },
+      "providerChargeRows": 0
+    },
+    {
+      "model": "studio-assembly",
+      "kind": "video",
+      "inventoryEntry": "studio-assembly",
+      "jobs": 9,
+      "saved": 2,
+      "failed": 4,
+      "unknown": 3,
+      "cancelled": 0,
+      "withoutTerminal": 7,
+      "savedLatencyMs": {
+        "samples": 2,
+        "median": 33027,
+        "p90": 41492
+      },
+      "costEstimateMicro": {
+        "samples": 9,
+        "sum": 180000,
+        "median": 20000
+      },
+      "providerChargeRows": 0
+    },
+    {
+      "model": "studio-detail",
+      "kind": "image",
+      "inventoryEntry": "studio-detail",
+      "jobs": 9,
+      "saved": 4,
+      "failed": 5,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 5,
+      "savedLatencyMs": {
+        "samples": 4,
+        "median": 7654.5,
+        "p90": 11365
+      },
+      "costEstimateMicro": {
+        "samples": 9,
+        "sum": 54000,
+        "median": 6000
+      },
+      "providerChargeRows": 0
+    },
+    {
+      "model": "studio-print",
+      "kind": "image",
+      "inventoryEntry": "studio-print",
+      "jobs": 5,
+      "saved": 5,
+      "failed": 0,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 0,
+      "savedLatencyMs": {
+        "samples": 5,
+        "median": 6610,
+        "p90": 11602
+      },
+      "costEstimateMicro": {
+        "samples": 5,
+        "sum": 125000,
+        "median": 25000
+      },
+      "providerChargeRows": 0
+    },
+    {
+      "model": "studio-social",
+      "kind": "video",
+      "inventoryEntry": "studio-social",
+      "jobs": 4,
+      "saved": 1,
+      "failed": 3,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 3,
+      "savedLatencyMs": {
+        "samples": 1,
+        "median": 28726,
+        "p90": 28726
+      },
+      "costEstimateMicro": {
+        "samples": 4,
+        "sum": 120000,
+        "median": 30000
+      },
+      "providerChargeRows": 0
+    },
+    {
+      "model": "studio-effect",
+      "kind": "audio",
+      "inventoryEntry": "studio-effect",
+      "jobs": 3,
+      "saved": 3,
+      "failed": 0,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 0,
+      "savedLatencyMs": {
+        "samples": 3,
+        "median": 14347,
+        "p90": 54160
+      },
+      "costEstimateMicro": {
+        "samples": 3,
+        "sum": 24000,
+        "median": 8000
+      },
+      "providerChargeRows": 0
+    },
+    {
+      "model": "studio-fill",
+      "kind": "image",
+      "inventoryEntry": "studio-fill",
+      "jobs": 3,
+      "saved": 2,
+      "failed": 1,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 1,
+      "savedLatencyMs": {
+        "samples": 2,
+        "median": 25819.5,
+        "p90": 25979
+      },
+      "costEstimateMicro": {
+        "samples": 3,
+        "sum": 150000,
+        "median": 50000
+      },
+      "providerChargeRows": 0
+    },
+    {
+      "model": "kling-standard",
+      "kind": "video",
+      "inventoryEntry": "kling-standard",
+      "jobs": 2,
+      "saved": 2,
+      "failed": 0,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 0,
+      "savedLatencyMs": {
+        "samples": 2,
+        "median": 154103,
+        "p90": 167025
+      },
+      "costEstimateMicro": {
+        "samples": 2,
+        "sum": 700000,
+        "median": 350000
+      },
+      "providerChargeRows": 0
+    },
+    {
+      "model": "studio-film",
+      "kind": "image",
+      "inventoryEntry": "studio-film",
+      "jobs": 2,
+      "saved": 2,
+      "failed": 0,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 0,
+      "savedLatencyMs": {
+        "samples": 2,
+        "median": 5146,
+        "p90": 5494
+      },
+      "costEstimateMicro": {
+        "samples": 2,
+        "sum": 40000,
+        "median": 20000
+      },
+      "providerChargeRows": 0
+    },
+    {
+      "model": "studio-score",
+      "kind": "audio",
+      "inventoryEntry": "studio-score",
+      "jobs": 2,
+      "saved": 2,
+      "failed": 0,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 0,
+      "savedLatencyMs": {
+        "samples": 2,
+        "median": 89558,
+        "p90": 148749
+      },
+      "costEstimateMicro": {
+        "samples": 2,
+        "sum": 23500,
+        "median": 11750
+      },
+      "providerChargeRows": 0
+    },
+    {
+      "model": "studio-voice",
+      "kind": "audio",
+      "inventoryEntry": "studio-voice",
+      "jobs": 2,
+      "saved": 2,
+      "failed": 0,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 0,
+      "savedLatencyMs": {
+        "samples": 2,
+        "median": 43436.5,
+        "p90": 63234
+      },
+      "costEstimateMicro": {
+        "samples": 2,
+        "sum": 120000,
+        "median": 60000
+      },
+      "providerChargeRows": 0
+    },
+    {
+      "model": "kling-o1-restyle",
+      "kind": "video",
+      "inventoryEntry": null,
+      "jobs": 1,
+      "saved": 1,
+      "failed": 0,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 0,
+      "savedLatencyMs": {
+        "samples": 1,
+        "median": 313839,
+        "p90": 313839
+      },
+      "costEstimateMicro": {
+        "samples": 1,
+        "sum": 1008000,
+        "median": 1008000
+      },
+      "inventoryNote": "The 16 November studio-media inventory does not list this Studio-only footage-edit route. The production table still records a saved job for it, and this page does not invent an inventory row.",
+      "providerChargeRows": 0
+    },
+    {
+      "model": "studio-craft",
+      "kind": "image",
+      "inventoryEntry": "studio-craft",
+      "jobs": 1,
+      "saved": 1,
+      "failed": 0,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 0,
+      "savedLatencyMs": {
+        "samples": 1,
+        "median": 4145,
+        "p90": 4145
+      },
+      "costEstimateMicro": {
+        "samples": 1,
+        "sum": 16000,
+        "median": 16000
+      },
+      "providerChargeRows": 0
+    },
+    {
+      "model": "studio-cutout",
+      "kind": "image",
+      "inventoryEntry": "studio-cutout",
+      "jobs": 1,
+      "saved": 1,
+      "failed": 0,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 0,
+      "savedLatencyMs": {
+        "samples": 1,
+        "median": 17748,
+        "p90": 17748
+      },
+      "costEstimateMicro": {
+        "samples": 1,
+        "sum": 2000,
+        "median": 2000
+      },
+      "providerChargeRows": 0
+    },
+    {
+      "model": "studio-draft",
+      "kind": "image",
+      "inventoryEntry": "studio-draft-retired",
+      "jobs": 1,
+      "saved": 1,
+      "failed": 0,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 0,
+      "savedLatencyMs": {
+        "samples": 1,
+        "median": 5019,
+        "p90": 5019
+      },
+      "costEstimateMicro": {
+        "samples": 1,
+        "sum": 1200,
+        "median": 1200
+      },
+      "inventoryNote": "The job row stores the key studio-draft; the inventory lists the same route as studio-draft-retired because new work must not select it.",
+      "providerChargeRows": 0
+    },
+    {
+      "model": "studio-upscale",
+      "kind": "image",
+      "inventoryEntry": "studio-upscale",
+      "jobs": 1,
+      "saved": 1,
+      "failed": 0,
+      "unknown": 0,
+      "cancelled": 0,
+      "withoutTerminal": 0,
+      "savedLatencyMs": {
+        "samples": 1,
+        "median": 86777,
+        "p90": 86777
+      },
+      "costEstimateMicro": {
+        "samples": 1,
+        "sum": 20000,
+        "median": 20000
+      },
+      "providerChargeRows": 0
+    }
+  ],
+  "examplesNote": "The newest saved job of each kind in the same window. Only the settings listed on the row are shown; a setting the row did not record is omitted, not filled in.",
+  "examples": [
+    {
+      "model": "studio-effect",
+      "kind": "audio",
+      "durationSeconds": 5
+    },
+    {
+      "model": "studio-craft",
+      "kind": "image",
+      "aspect": "portrait"
+    },
+    {
+      "model": "kling-standard",
+      "kind": "video",
+      "aspect": "from-image",
+      "durationSeconds": 5
+    }
+  ],
+  "limits": [
+    "This is reliability and latency evidence, not a quality ranking. A saved job proves an output was stored; it does not prove the output was good.",
+    "No blind human preference between these outputs has been recorded yet, so no model is called better on this page.",
+    "The window is 86 jobs over two days on one Studio account and one Cloudflare account. It is not a provider-wide benchmark.",
+    "Failed and unknown rows have no terminal timestamp, so their latency is unmeasured rather than inferred from the last edit.",
+    "Every cost is the estimate recorded on the job row. No provider charge is recorded on any row, so none of these numbers is an invoice.",
+    "Most rows record an aspect and, for video, a duration; pixel dimensions are recorded on one failed job only, so resolution is not compared.",
+    "Some routes have a single saved job. A percentage over one job describes that job, not a stable rate.",
+    "The Studio model key is the recipe route, not the provider endpoint. The studio-media inventory owns the endpoint mapping."
+  ]
+}
