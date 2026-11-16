@@ -9,11 +9,13 @@ import {
   captionUsage,
   cataloguePreviewReplySchema,
   isSafeShareLink,
+  itemApprovalAndDelivery,
   melbourneLocalInput,
   melbourneLocalInstant,
   primaryCaptionProblem,
   scheduleLabels,
   shareCalendarSnapshot,
+  shareListFilterForItem,
   SHARE_CAPTION_LOCAL_CHARACTERS,
   SHARE_CHANNELS,
   SHARE_CHANNEL_LABELS,
@@ -28,6 +30,7 @@ import {
   type ShareCalendarSource,
   type ShareCalendarVariant,
   type ShareChannel,
+  type ShareListFilter,
 } from "../lib/share-calendar";
 import {
   catalogueSearchReplySchema,
@@ -1027,6 +1030,21 @@ function ShareCalendar({ search }: { search: string }) {
   const [blueskyChecking, setBlueskyChecking] = useState(false);
   const [blueskySending, setBlueskySending] = useState(false);
   const [blueskyNow, setBlueskyNow] = useState(() => new Date());
+  const [listFilter, setListFilter] = useState<ShareListFilter>("all");
+  // The same approval/delivery resolution as the item card drives both the
+  // counts and the visible list. This filter is read-only and keeps item order.
+  const classified = (snapshot?.items ?? []).map((item) => ({
+    item,
+    filter: snapshot ? shareListFilterForItem(snapshot, item) : null,
+  }));
+  const visibleItems = classified
+    .filter(({ filter }) => listFilter === "all" || filter === listFilter)
+    .map(({ item }) => item);
+  const listCounts = {
+    all: classified.length,
+    published: classified.filter(({ filter }) => filter === "published").length,
+    attention: classified.filter(({ filter }) => filter === "attention").length,
+  };
   const alive = useRef(true);
   const pending = useRef(false);
   const selection = useRef<string | undefined>(undefined);
@@ -2644,6 +2662,28 @@ function ShareCalendar({ search }: { search: string }) {
                   shared locally
                 </p>
               </div>
+              <div
+                className="sc-list-filter"
+                role="group"
+                aria-label="Filter calendar items"
+              >
+                {(
+                  [
+                    ["all", "All"],
+                    ["published", "Published"],
+                    ["attention", "Needs attention"],
+                  ] as const
+                ).map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={listFilter === value}
+                    onClick={() => setListFilter(value)}
+                  >
+                    {label} ({listCounts[value]})
+                  </button>
+                ))}
+              </div>
               <button
                 type="button"
                 onClick={downloadCalendar}
@@ -2662,23 +2702,25 @@ function ShareCalendar({ search }: { search: string }) {
                 </p>
               </div>
             )}
+            {Boolean(snapshot.items.length) && !visibleItems.length && (
+              <div className="sc-empty sc-empty-list">
+                <h3>No items in this view</h3>
+                <p>
+                  {listFilter === "published"
+                    ? "No published posts in this workspace yet."
+                    : "No items need attention."}
+                </p>
+              </div>
+            )}
             <ol className="sc-items">
-              {snapshot.items.map((item) => {
+              {visibleItems.map((item) => {
                 const labels = item.scheduledAt
                   ? scheduleLabels(item.scheduledAt)
                   : null;
-                const approval =
-                  snapshot.approvals.find(
-                    (entry) => entry.itemId === item.id,
-                  ) ?? null;
-                const delivery =
-                  (approval &&
-                    snapshot.deliveries.find(
-                      (entry) =>
-                        entry.itemId === item.id &&
-                        entry.approvalRevision === approval.approvalRevision,
-                    )) ||
-                  null;
+                const { approval, delivery } = itemApprovalAndDelivery(
+                  snapshot,
+                  item,
+                );
                 const portfolio = item.catalogue;
                 const stackId = item.stack;
                 const stackSource = stackId

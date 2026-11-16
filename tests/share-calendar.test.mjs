@@ -20,6 +20,7 @@ import {
   SHARE_CHANNELS,
   SHARE_STATES,
   shareCalendarCommand,
+  shareListFilterForItem,
 } from "../src/lib/share-calendar.ts";
 import {
   approvalPackageForItem,
@@ -46,6 +47,63 @@ const schema = [
   .join("\n");
 const owner = { id: "fictional-calendar-owner", role: 20 };
 const other = { id: "fictional-calendar-other", role: 20 };
+
+test("share calendar list filter classifies only genuine published deliveries and attention", () => {
+  const item = (over = {}) => ({
+    id: "fictional-item",
+    sourceCurrent: true,
+    state: "scheduled",
+    ...over,
+  });
+  const snapshot = (states) => ({
+    approvals: [{ itemId: "fictional-item", approvalRevision: 2 }],
+    deliveries: states.map((state, index) => ({
+      itemId: "fictional-item",
+      approvalRevision: index === 0 ? 2 : 3,
+      state,
+    })),
+  });
+  const classify = (states, over) =>
+    shareListFilterForItem(snapshot(states), item(over));
+
+  assert.equal(classify([], {}), null, "a scheduled item has no receipt");
+  assert.equal(
+    classify([], { state: "shared" }),
+    null,
+    "a local export is never published",
+  );
+  assert.equal(classify(["published"]), "published");
+  assert.equal(
+    classify(["published", "published"]),
+    "published",
+    "the displayed approval revision is authoritative",
+  );
+  assert.equal(classify(["unknown"]), "attention");
+  assert.equal(classify(["failed"]), "attention");
+  assert.equal(classify(["needs_auth"]), "attention");
+  assert.equal(classify(["sending"]), null);
+  assert.equal(classify(["approved"]), null);
+  assert.equal(classify(["cancelled"]), null);
+  assert.equal(
+    classify([], { sourceCurrent: false }),
+    "attention",
+    "a stale source without a published receipt needs attention",
+  );
+  assert.equal(classify(["failed"], { sourceCurrent: false }), "attention");
+  assert.equal(
+    classify(["published"], { sourceCurrent: false }),
+    "published",
+    "a published receipt clears a stale source",
+  );
+  assert.equal(
+    shareListFilterForItem(
+      { approvals: [], deliveries: [] },
+      item({ sourceCurrent: false }),
+    ),
+    "attention",
+    "a stale item without an approval needs attention",
+  );
+});
 
 function sample(name, description = "A published stack for the calendar.") {
   return {

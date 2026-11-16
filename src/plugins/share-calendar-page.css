@@ -764,12 +764,14 @@
 
 /* Source switch and Woodhouse Share artwork draft (#477/#604). A portfolio
    row uses one exact previewed rendition; no user-supplied image URL. */
-.sc-source-switch {
+.sc-source-switch,
+.sc-list-filter {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
-.sc-source-switch button[aria-pressed="true"] {
+.sc-source-switch button[aria-pressed="true"],
+.sc-list-filter button[aria-pressed="true"] {
   border-color: var(--sc-accent);
   background: color-mix(in srgb, var(--sc-accent) 12%, transparent);
   font-weight: 700;
@@ -855,7 +857,8 @@
   margin: 0 0 10px;
 }
 @media (max-width: 620px) {
-  .sc-source-switch button {
+  .sc-source-switch button,
+  .sc-list-filter button {
     flex: 1 1 100%;
   }
   .sc-catalogue-preview img,
