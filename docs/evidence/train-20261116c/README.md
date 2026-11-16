@@ -101,6 +101,11 @@ Live `guestbook.loftwah.com` and `showcase.loftwah.com`:
 5. The standalone guestbook kept two approved public items and its contribution
    route; the showcase stayed at **200** with its authored cards and no
    dependency on the hidden source.
+6. The native Linkarooie surface saved a manual reorder: the public collection
+   changed from `LoftwahFM, Loftwah the Beatsmiff` to `Loftwah the Beatsmiff,
+   LoftwahFM`, then the original order was restored and read back. Manual cards,
+   reorder and the composed feature/revoke path therefore work without the
+   guestbook copied into Linkarooie.
 
 A form-driven live change then renamed the standalone guestbook to
 **Loftwah's train field notes** and switched it to Daylight. The live title and
