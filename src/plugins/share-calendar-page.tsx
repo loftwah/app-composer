@@ -7,6 +7,7 @@ import {
   calendarFilename,
   captionProblem,
   captionUsage,
+  cataloguePreviewReplySchema,
   isSafeShareLink,
   melbourneLocalInput,
   melbourneLocalInstant,
@@ -21,12 +22,18 @@ import {
   SHARE_STATES,
   SHARE_STATE_LABELS,
   SHARE_VARIANT_MAX,
+  type CatalogueResolvedAsset,
   type ShareCalendarItem,
   type ShareCalendarSnapshot,
   type ShareCalendarSource,
   type ShareCalendarVariant,
   type ShareChannel,
 } from "../lib/share-calendar";
+import {
+  SHARE_CATALOGUE_ID_MAX,
+  SHARE_CATALOGUE_ID_PATTERN,
+  SHARE_CATALOGUE_ORIGIN,
+} from "../lib/share-catalogue-asset";
 import {
   approvalPackageForItem,
   sharePackageFilename,
@@ -45,6 +52,7 @@ import {
   blueskyUsage,
   createBlueskyContent,
   hasBlueskyDraft,
+  portfolioBlueskyText,
   type BlueskyApprovalRecord,
   type BlueskyPublishingConnection,
   type SharePackageBluesky,
@@ -132,6 +140,38 @@ async function identityCall(
       ),
     );
   return parsed.data.result;
+}
+
+type CataloguePreview = {
+  asset: CatalogueResolvedAsset;
+  assetHash: string;
+};
+
+// The browser supplies only a strict asset ID. The server builds the fixed
+// Woodhouse Share URL and returns the exact rendition digest it resolved.
+async function cataloguePreviewCall(
+  assetId: string,
+  workspace?: string,
+): Promise<CataloguePreview> {
+  const params = new URLSearchParams({ action: "cataloguePreview", assetId });
+  if (workspace) params.set("workspace", workspace);
+  const response = await apiFetch(
+    base + "shareCalendarRead?" + params.toString(),
+    { cache: "no-store" },
+  );
+  const raw = await parseApiResponse<unknown>(
+    response,
+    "The Woodhouse Share artwork could not be read. No artwork was selected.",
+  );
+  const parsed = cataloguePreviewReplySchema.safeParse(raw);
+  if (!parsed.success)
+    throw Error(
+      errorMessage(
+        raw,
+        "The artwork preview could not be validated. No artwork was selected.",
+      ),
+    );
+  return parsed.data;
 }
 
 function displayDate(value: string | null) {
@@ -931,6 +971,11 @@ function ShareCalendar({ search }: { search: string }) {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [sourceId, setSourceId] = useState("");
+  const [sourceKind, setSourceKind] = useState<"stack" | "catalogue">("stack");
+  const [assetId, setAssetId] = useState("");
+  const [cataloguePreview, setCataloguePreview] = useState<CataloguePreview>();
+  const [catalogueChecking, setCatalogueChecking] = useState(false);
+  const [rightsConfirmed, setRightsConfirmed] = useState(false);
   const [channel, setChannel] = useState<ShareChannel>("instagram");
   const [destination, setDestination] = useState("");
   const [caption, setCaption] = useState("");
@@ -977,6 +1022,18 @@ function ShareCalendar({ search }: { search: string }) {
   const sources = snapshot?.sources ?? [];
   const source = sources.find((entry) => entry.id === sourceId);
   const canWrite = Boolean(snapshot && snapshot.workspace.role !== "viewer");
+  const isOwner = snapshot?.workspace.role === "owner";
+  const catalogueMode = sourceKind === "catalogue";
+  const previewAsset =
+    editing?.catalogue ??
+    (cataloguePreview?.asset.assetId === assetId.trim()
+      ? cataloguePreview.asset
+      : undefined);
+  const blueskyAccount = (
+    snapshot?.bluesky.connection.handle ??
+    snapshot?.bluesky.configuredHandle ??
+    blueskyHandle
+  ).trim();
   const scheduled = useMemo(
     () => calendarExportItems(snapshot?.items ?? []),
     [snapshot],
@@ -984,6 +1041,7 @@ function ShareCalendar({ search }: { search: string }) {
 
   function fillFromSource(id: string, current?: ShareCalendarItem) {
     setSourceId(id);
+    setSourceKind("stack");
     const next = sources.find((entry) => entry.id === id);
     if (current) {
       setChannel(current.channel);
@@ -1006,6 +1064,60 @@ function ShareCalendar({ search }: { search: string }) {
     setVariants([]);
     setLink(next?.url ?? "");
     setScheduledLocal("");
+  }
+
+  function changeSourceKind(kind: "stack" | "catalogue") {
+    if (editing) return;
+    setSourceKind(kind);
+    setCataloguePreview(undefined);
+    setRightsConfirmed(false);
+    setVariants([]);
+    if (kind === "catalogue") {
+      setChannel("bluesky");
+      setDestination("");
+      setLink("");
+      return;
+    }
+    setChannel("instagram");
+    setDestination("");
+    const next = sources.find((entry) => entry.id === sourceId) ?? sources[0];
+    if (next) {
+      setSourceId(next.id);
+      setLink(next.url);
+      if (!caption.trim()) setCaption(next.description);
+    }
+  }
+
+  async function previewCatalogue() {
+    const id = assetId.trim();
+    if (!SHARE_CATALOGUE_ID_PATTERN.test(id)) {
+      setError(
+        "Use a single lowercase Woodhouse Share asset ID made of letters, digits and hyphens.",
+      );
+      return;
+    }
+    if (catalogueChecking) return;
+    setCatalogueChecking(true);
+    setError("");
+    setNotice("");
+    try {
+      const reply = await cataloguePreviewCall(id, selection.current);
+      if (!alive.current) return;
+      setCataloguePreview(reply);
+      setRightsConfirmed(false);
+      setNotice(
+        `Read ${reply.asset.title} from Woodhouse Share. Review the exact rendition, alt and credit before saving.`,
+      );
+    } catch (cause) {
+      if (alive.current)
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "The Woodhouse Share artwork could not be read. No artwork was selected.",
+        );
+    } finally {
+      if (alive.current) setCatalogueChecking(false);
+    }
   }
 
   function addVariant() {
@@ -1034,9 +1146,13 @@ function ShareCalendar({ search }: { search: string }) {
         return result.bluesky.configuredHandle ?? approval?.accountHandle ?? "";
       });
       if (!editing && !sourceId && result.sources[0]) {
+        setSourceKind("stack");
         setSourceId(result.sources[0].id);
         setCaption(result.sources[0].description);
         setLink(result.sources[0].url);
+      } else if (!editing && !sourceId && result.workspace.role === "owner") {
+        setSourceKind("catalogue");
+        setChannel("bluesky");
       }
     } catch (cause) {
       if (alive.current)
@@ -1198,9 +1314,7 @@ function ShareCalendar({ search }: { search: string }) {
       return {
         state: "configured",
         handle:
-          snapshot.bluesky.connection.handle ??
-          approval?.accountHandle ??
-          "",
+          snapshot.bluesky.connection.handle ?? approval?.accountHandle ?? "",
         did: approval?.accountDid ?? null,
       };
     return {
@@ -1323,6 +1437,107 @@ function ShareCalendar({ search }: { search: string }) {
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (!snapshot || pending.current || invalidScope.current) return;
+    if (catalogueMode) {
+      if (!isOwner) {
+        setError(
+          "Only a workspace owner can prepare a Woodhouse Share artwork draft.",
+        );
+        return;
+      }
+      if (!previewAsset || (!editing && !cataloguePreview)) {
+        setError("Preview the exact Woodhouse Share artwork before saving.");
+        return;
+      }
+      if (!editing && !rightsConfirmed) {
+        setError(
+          "Confirm the artwork rights and credit before saving this Bluesky draft.",
+        );
+        return;
+      }
+      const text = caption.trim();
+      if (!text) {
+        setError("Write a caption before saving this share.");
+        return;
+      }
+      const body = portfolioBlueskyText(text, previewAsset);
+      const usage = blueskyUsage(body);
+      if (!usage.withinLimit) {
+        setError(
+          `This exact post is ${usage.count} / ${usage.limit} graphemes and ${usage.bytes} / ${usage.byteLimit} UTF-8 bytes. Shorten the caption; the artwork credit and project link are always included.`,
+        );
+        return;
+      }
+      let scheduledAt: string | null = null;
+      if (scheduledLocal) {
+        const time = melbourneLocalInstant(scheduledLocal);
+        if (!time) {
+          setError(
+            "Choose a real Australia/Melbourne date and time, or leave the date empty. A daylight-saving gap is not a valid local time.",
+          );
+          return;
+        }
+        scheduledAt = time;
+      }
+      if (editing?.catalogue) {
+        const saved = await mutate(
+          "save",
+          {
+            item: editing.id,
+            expectedRevision: editing.revision,
+            channel: "bluesky",
+            caption: text,
+            link: editing.catalogue.projectUrl,
+            scheduledAt,
+          },
+          "Artwork draft updated. Approve the new revision before sending.",
+        );
+        if (saved) {
+          setEditing(undefined);
+          setAssetId("");
+          setCaption("");
+          setScheduledLocal("");
+        }
+        return;
+      }
+      if (!cataloguePreview) return;
+      const payload = {
+        action: "catalogueCreate",
+        workspace: selection.current,
+        assetId: previewAsset.assetId,
+        assetHash: cataloguePreview.assetHash,
+        rightsConfirmed: true as const,
+        caption: text,
+        scheduledAt,
+      };
+      if (requestByteLength(payload) > 7900) {
+        setError(
+          `This save is ${requestByteLength(payload)} bytes. Composer can send at most 7,900 bytes in one request; shorten the caption.`,
+        );
+        return;
+      }
+      const detail = scheduledAt ? scheduleLabels(scheduledAt) : null;
+      const saved = await mutate(
+        "catalogueCreate",
+        {
+          assetId: previewAsset.assetId,
+          assetHash: cataloguePreview.assetHash,
+          rightsConfirmed: true,
+          caption: text,
+          scheduledAt,
+        },
+        detail
+          ? `Scheduled ${previewAsset.title} for ${detail.melbourne} · ${detail.utc}. Composer will not post it automatically.`
+          : `Saved ${previewAsset.title} as a Bluesky draft. Nothing is on the calendar and nothing was posted.`,
+      );
+      if (saved) {
+        setAssetId("");
+        setCataloguePreview(undefined);
+        setRightsConfirmed(false);
+        setCaption("");
+        setScheduledLocal("");
+      }
+      return;
+    }
     const mainCaption = caption.trim();
     const mainProblem = primaryCaptionProblem(channel, mainCaption);
     if (mainProblem) {
@@ -1664,6 +1879,12 @@ function ShareCalendar({ search }: { search: string }) {
     : null;
 
   const primaryUsage = captionUsage(channel, caption, true);
+  const catalogueBody =
+    catalogueMode && previewAsset
+      ? portfolioBlueskyText(caption, previewAsset)
+      : "";
+  const catalogueUsage = previewAsset ? blueskyUsage(catalogueBody) : null;
+  const catalogueCaptionOnly = blueskyUsage(caption.trim());
 
   return (
     <section className="composer-share-calendar">
@@ -1679,10 +1900,11 @@ function ShareCalendar({ search }: { search: string }) {
         )}
       </div>
       <p className="sc-lede">
-        Prepare a caption and a date for a published stack. The calendar records
-        local preparation and handoff. Bluesky is the only channel with an
-        optional send path, and it runs only after an explicit confirmation of
-        one exact approval; nothing posts automatically.
+        Prepare a caption and a date for a published stack, or for a workspace
+        owner, one exact Woodhouse Share artwork. The calendar records local
+        preparation and handoff. Bluesky is the only channel with an optional
+        send path, and it runs only after an explicit confirmation of one exact
+        approval; nothing posts automatically.
       </p>
       <p className="sc-boundary">
         Times show Australia/Melbourne and UTC. The .ics export uses UTC, so a
@@ -1699,7 +1921,7 @@ function ShareCalendar({ search }: { search: string }) {
       {loading && (
         <p role="status">Loading published stacks and saved shares…</p>
       )}
-      {snapshot && !sources.length && !loading && (
+      {snapshot && !sources.length && !loading && !isOwner && (
         <div className="sc-empty">
           <h2>No published stack has a share card yet</h2>
           <p>
@@ -1715,108 +1937,279 @@ function ShareCalendar({ search }: { search: string }) {
           </a>
         </div>
       )}
-      {snapshot && sources.length > 0 && (
+      {snapshot && (sources.length > 0 || isOwner) && (
         <div className="sc-layout">
           <div className="sc-prepare" id="sc-prepare">
             <h2>{editing ? "Edit share" : "Prepare a share"}</h2>
             <p className="sc-hint">
               {editing
                 ? "Editing content clears a previous local-share receipt; save and record it again when you hand it off."
-                : "Choosing a published stack fills the caption and link from its current publication. Edit them before scheduling."}
+                : "A published stack fills the caption and link from its current publication. A Woodhouse Share asset uses its exact rendition, alt, credit and project link."}
             </p>
             <form onSubmit={submit} className="sc-form">
-              <label className="sc-field">
-                Published source
-                <select
-                  value={sourceId}
+              <div
+                className="sc-source-switch"
+                role="group"
+                aria-label="Draft source"
+              >
+                <button
+                  type="button"
+                  aria-pressed={!catalogueMode}
                   disabled={Boolean(editing) || busy || !canWrite}
-                  onChange={(event) => fillFromSource(event.target.value)}
-                  required
+                  onClick={() => changeSourceKind("stack")}
                 >
-                  {sources.map((entry) => (
-                    <option key={entry.id} value={entry.id}>
-                      {entry.name} · revision {entry.publication}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {source && (
-                <div className="sc-source">
-                  <img
-                    src={source.imagePath}
-                    alt={source.imageAlt}
-                    width="1200"
-                    height="630"
-                    loading="lazy"
-                  />
-                  <div>
-                    <p>
-                      <strong>Published revision {source.publication}</strong>
-                      {source.publishedAt
-                        ? " · " + displayDate(source.publishedAt)
-                        : ""}
-                    </p>
-                    <p className="sc-hint">
-                      {source.apps.length
-                        ? "Visible apps: " + source.apps.join(", ") + "."
-                        : "This publication has no visible apps."}
-                    </p>
+                  Published stack
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={catalogueMode}
+                  disabled={Boolean(editing) || busy || !canWrite || !isOwner}
+                  onClick={() => changeSourceKind("catalogue")}
+                >
+                  Woodhouse Share artwork
+                </button>
+              </div>
+              {catalogueMode ? (
+                <div className="sc-catalogue">
+                  <label className="sc-field">
+                    Woodhouse Share asset ID
+                    <input
+                      value={assetId}
+                      onChange={(event) => {
+                        setAssetId(event.target.value);
+                        setCataloguePreview(undefined);
+                        setRightsConfirmed(false);
+                      }}
+                      maxLength={SHARE_CATALOGUE_ID_MAX}
+                      pattern="[a-z0-9][a-z0-9-]*"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      placeholder="portfolio-asset-id"
+                      disabled={
+                        Boolean(editing) || busy || !canWrite || !isOwner
+                      }
+                      required
+                    />
+                  </label>
+                  <div className="sc-actions">
+                    <button
+                      type="button"
+                      onClick={() => void previewCatalogue()}
+                      disabled={
+                        Boolean(editing) ||
+                        busy ||
+                        catalogueChecking ||
+                        !canWrite ||
+                        !isOwner ||
+                        !SHARE_CATALOGUE_ID_PATTERN.test(assetId.trim())
+                      }
+                    >
+                      {catalogueChecking
+                        ? "Reading artwork…"
+                        : "Preview artwork"}
+                    </button>
                     <a
                       className="sc-text-link"
-                      href={source.url}
+                      href={SHARE_CATALOGUE_ORIGIN + "/share/"}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Open the published page
+                      Find asset IDs in Woodhouse Share
                     </a>
                   </div>
+                  <p className="sc-hint">
+                    Copy the asset ID from Woodhouse Share. Composer builds the
+                    one fixed public URL; it accepts no image URL, follows no
+                    redirect, and stores the exact rendition digest.
+                  </p>
+                  {!isOwner && (
+                    <p className="sc-hint">
+                      Only a workspace owner can prepare a Woodhouse Share
+                      artwork draft.
+                    </p>
+                  )}
+                  {previewAsset && (
+                    <div className="sc-catalogue-preview">
+                      <img
+                        src={previewAsset.renditionUrl}
+                        alt={previewAsset.alt}
+                        loading="lazy"
+                      />
+                      <div>
+                        <p>
+                          <strong>{previewAsset.title}</strong>
+                        </p>
+                        <p className="sc-hint">Alt: {previewAsset.alt}</p>
+                        <p className="sc-hint">Credit: {previewAsset.credit}</p>
+                        <p className="sc-hint">
+                          <a
+                            className="sc-text-link"
+                            href={previewAsset.projectUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Project page
+                          </a>{" "}
+                          ·{" "}
+                          <a
+                            className="sc-text-link"
+                            href={previewAsset.sourceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Original source
+                          </a>
+                        </p>
+                        <p className="sc-hint">
+                          Rendition {previewAsset.assetRevision} ·{" "}
+                          {previewAsset.mimeType} · {previewAsset.byteLength}{" "}
+                          bytes · SHA-256{" "}
+                          <code>{previewAsset.bytesSha256.slice(0, 16)}…</code>
+                        </p>
+                      </div>
+                      {!editing && (
+                        <label className="sc-rights">
+                          <input
+                            type="checkbox"
+                            checked={rightsConfirmed}
+                            disabled={busy || !canWrite || !isOwner}
+                            onChange={(event) =>
+                              setRightsConfirmed(event.target.checked)
+                            }
+                          />
+                          {`I have the right to reuse this exact rendition in this post, and I will keep the credit “${previewAsset.credit}”.`}
+                        </label>
+                      )}
+                    </div>
+                  )}
+                  {cataloguePreview && !previewAsset && (
+                    <p className="sc-stale">
+                      The asset ID changed. Preview the exact artwork again
+                      before saving.
+                    </p>
+                  )}
                 </div>
+              ) : (
+                <>
+                  <label className="sc-field">
+                    Published source
+                    <select
+                      value={sourceId}
+                      disabled={Boolean(editing) || busy || !canWrite}
+                      onChange={(event) => fillFromSource(event.target.value)}
+                      required
+                    >
+                      {sources.map((entry) => (
+                        <option key={entry.id} value={entry.id}>
+                          {entry.name} · revision {entry.publication}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  {source && (
+                    <div className="sc-source">
+                      <img
+                        src={source.imagePath}
+                        alt={source.imageAlt}
+                        width="1200"
+                        height="630"
+                        loading="lazy"
+                      />
+                      <div>
+                        <p>
+                          <strong>
+                            Published revision {source.publication}
+                          </strong>
+                          {source.publishedAt
+                            ? " · " + displayDate(source.publishedAt)
+                            : ""}
+                        </p>
+                        <p className="sc-hint">
+                          {source.apps.length
+                            ? "Visible apps: " + source.apps.join(", ") + "."
+                            : "This publication has no visible apps."}
+                        </p>
+                        <a
+                          className="sc-text-link"
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Open the published page
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                  <label className="sc-field">
+                    Channel label
+                    <select
+                      value={channel}
+                      disabled={busy || !canWrite}
+                      onChange={(event) =>
+                        setChannel(event.target.value as ShareChannel)
+                      }
+                    >
+                      {SHARE_CHANNELS.map((entry) => (
+                        <option
+                          key={entry.id}
+                          value={entry.id}
+                          disabled={variants.some(
+                            (variant) => variant.channel === entry.id,
+                          )}
+                        >
+                          {entry.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <p className="sc-hint sc-channel-note">
+                    {SHARE_CHANNELS.find((entry) => entry.id === channel)?.note}
+                    {variants.some((variant) => variant.channel === channel)
+                      ? " Remove the channel draft below before moving the main destination here."
+                      : ""}
+                  </p>
+                  <label className="sc-field">
+                    Exact destination (optional)
+                    <input
+                      value={destination}
+                      onChange={(event) => setDestination(event.target.value)}
+                      maxLength={SHARE_DESTINATION_MAX}
+                      placeholder="e.g. MP personal LinkedIn profile or Acme company page"
+                      disabled={busy || !canWrite}
+                    />
+                  </label>
+                  <p className="sc-hint">
+                    Name the account, Page or profile a reviewer should use.
+                    Leave it empty and the package says “not recorded” rather
+                    than guessing.
+                  </p>
+                </>
+              )}
+              {catalogueMode && (
+                <>
+                  <div className="sc-field">
+                    Bluesky account
+                    <input
+                      value={
+                        blueskyAccount ? "@" + blueskyAccount : "Not configured"
+                      }
+                      readOnly
+                      disabled
+                    />
+                  </div>
+                  <p className="sc-hint">
+                    Portfolio drafts are always one fixed Bluesky post. The
+                    server records the exact destination; the approval panel
+                    below still requires the owner to confirm the handle, text,
+                    media and time.
+                  </p>
+                </>
               )}
               <label className="sc-field">
-                Channel label
-                <select
-                  value={channel}
-                  disabled={busy || !canWrite}
-                  onChange={(event) =>
-                    setChannel(event.target.value as ShareChannel)
-                  }
-                >
-                  {SHARE_CHANNELS.map((entry) => (
-                    <option
-                      key={entry.id}
-                      value={entry.id}
-                      disabled={variants.some(
-                        (variant) => variant.channel === entry.id,
-                      )}
-                    >
-                      {entry.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <p className="sc-hint sc-channel-note">
-                {SHARE_CHANNELS.find((entry) => entry.id === channel)?.note}
-                {variants.some((variant) => variant.channel === channel)
-                  ? " Remove the channel draft below before moving the main destination here."
-                  : ""}
-              </p>
-              <label className="sc-field">
-                Exact destination (optional)
-                <input
-                  value={destination}
-                  onChange={(event) => setDestination(event.target.value)}
-                  maxLength={SHARE_DESTINATION_MAX}
-                  placeholder="e.g. MP personal LinkedIn profile or Acme company page"
-                  disabled={busy || !canWrite}
-                />
-              </label>
-              <p className="sc-hint">
-                Name the account, Page or profile a reviewer should use. Leave
-                it empty and the package says “not recorded” rather than
-                guessing.
-              </p>
-              <label className="sc-field">
-                Main caption for {SHARE_CHANNEL_LABELS[channel]}
+                {catalogueMode
+                  ? "Caption for Bluesky"
+                  : `Main caption for ${SHARE_CHANNEL_LABELS[channel]}`}
                 <textarea
                   value={caption}
                   onChange={(event) => setCaption(event.target.value)}
@@ -1824,24 +2217,61 @@ function ShareCalendar({ search }: { search: string }) {
                   rows={6}
                   disabled={busy || !canWrite}
                   aria-describedby="sc-main-caption-count"
-                  aria-invalid={!primaryUsage.withinLimit}
+                  aria-invalid={
+                    catalogueMode
+                      ? Boolean(catalogueUsage && !catalogueUsage.withinLimit)
+                      : !primaryUsage.withinLimit
+                  }
                   required
                 />
               </label>
-              <p
-                id="sc-main-caption-count"
-                className={`sc-count${primaryUsage.withinLimit ? "" : " sc-count-over"}`}
+              {catalogueMode ? (
+                <>
+                  {catalogueUsage && (
+                    <p className="sc-caption-preview">{catalogueBody}</p>
+                  )}
+                  <p
+                    id="sc-main-caption-count"
+                    className={`sc-count${
+                      catalogueUsage && !catalogueUsage.withinLimit
+                        ? " sc-count-over"
+                        : ""
+                    }`}
+                  >
+                    {catalogueUsage
+                      ? `${catalogueUsage.count} / ${catalogueUsage.limit} graphemes · ${catalogueUsage.bytes} / ${catalogueUsage.byteLimit} UTF-8 bytes · exact Bluesky post`
+                      : `${catalogueCaptionOnly.count} / ${catalogueCaptionOnly.limit} graphemes · ${catalogueCaptionOnly.bytes} / ${catalogueCaptionOnly.byteLimit} bytes · caption only`}
+                  </p>
+                  <p className="sc-hint">
+                    The server trims the caption and normalises line breaks,
+                    then posts it with “Artwork by{" "}
+                    {previewAsset?.credit ?? "the recorded credit"}” and the
+                    artwork project link. Preview the artwork to count the exact
+                    post, including that credit.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p
+                    id="sc-main-caption-count"
+                    className={`sc-count${primaryUsage.withinLimit ? "" : " sc-count-over"}`}
+                  >
+                    {primaryUsage.count} / {primaryUsage.limit}{" "}
+                    {primaryUsage.unit} · main caption
+                  </p>
+                  <p className="sc-hint">
+                    {primaryUsage.behaviour}
+                    {primaryUsage.platformLimit > primaryUsage.limit
+                      ? ` The destination accepts ${primaryUsage.platformLimit} ${primaryUsage.unit}; this main caption keeps the ${primaryUsage.limit}-${primaryUsage.unit.replace(/s$/, "")} Composer limit.`
+                      : ""}
+                  </p>
+                </>
+              )}
+              <fieldset
+                className="sc-variants"
+                hidden={catalogueMode}
+                disabled={catalogueMode}
               >
-                {primaryUsage.count} / {primaryUsage.limit} {primaryUsage.unit}{" "}
-                · main caption
-              </p>
-              <p className="sc-hint">
-                {primaryUsage.behaviour}
-                {primaryUsage.platformLimit > primaryUsage.limit
-                  ? ` The destination accepts ${primaryUsage.platformLimit} ${primaryUsage.unit}; this main caption keeps the ${primaryUsage.limit}-${primaryUsage.unit.replace(/s$/, "")} Composer limit.`
-                  : ""}
-              </p>
-              <fieldset className="sc-variants">
                 <legend>Channel drafts</legend>
                 <p className="sc-hint">
                   One exact caption per additional destination. The main caption
@@ -1977,17 +2407,19 @@ function ShareCalendar({ search }: { search: string }) {
                   all of them were written.
                 </p>
               </fieldset>
-              <label className="sc-field">
-                Link
-                <input
-                  type="url"
-                  value={link}
-                  onChange={(event) => setLink(event.target.value)}
-                  maxLength={2048}
-                  placeholder="https://composer.loftwah.com/s/your-stack"
-                  disabled={busy || !canWrite}
-                />
-              </label>
+              {!catalogueMode && (
+                <label className="sc-field">
+                  Link
+                  <input
+                    type="url"
+                    value={link}
+                    onChange={(event) => setLink(event.target.value)}
+                    maxLength={2048}
+                    placeholder="https://composer.loftwah.com/s/your-stack"
+                    disabled={busy || !canWrite}
+                  />
+                </label>
+              )}
               <label className="sc-field">
                 Date and time (Australia/Melbourne, leave empty for a draft)
                 <input
@@ -2006,7 +2438,15 @@ function ShareCalendar({ search }: { search: string }) {
                 <button
                   type="submit"
                   className="sc-primary"
-                  disabled={busy || !canWrite || !sourceId}
+                  disabled={
+                    busy ||
+                    !canWrite ||
+                    (catalogueMode
+                      ? !isOwner ||
+                        !previewAsset ||
+                        (!editing && !rightsConfirmed)
+                      : !sourceId)
+                  }
                 >
                   {scheduledLocal
                     ? editing
@@ -2023,7 +2463,14 @@ function ShareCalendar({ search }: { search: string }) {
                     onClick={() => {
                       setEditing(undefined);
                       const next = sources[0];
-                      if (next) fillFromSource(next.id);
+                      if (next) {
+                        setSourceKind("stack");
+                        fillFromSource(next.id);
+                      } else {
+                        setAssetId("");
+                        setCaption("");
+                        setScheduledLocal("");
+                      }
                     }}
                   >
                     Cancel edit
@@ -2086,6 +2533,11 @@ function ShareCalendar({ search }: { search: string }) {
                         entry.approvalRevision === approval.approvalRevision,
                     )) ||
                   null;
+                const portfolio = item.catalogue;
+                const stackId = item.stack;
+                const stackSource = stackId
+                  ? sources.find((entry) => entry.id === stackId)
+                  : undefined;
                 return (
                   <li
                     key={item.id}
@@ -2105,10 +2557,16 @@ function ShareCalendar({ search }: { search: string }) {
                       )}
                     </div>
                     <p className="sc-source-line">
-                      <strong>{item.stackName}</strong> · published revision{" "}
-                      {item.publication}
+                      <strong>{item.stackName}</strong>
+                      {portfolio
+                        ? ` · Woodhouse Share artwork · ${portfolio.assetId}@${portfolio.assetRevision}`
+                        : item.publication !== null
+                          ? ` · published revision ${item.publication}`
+                          : ""}
                       {!item.sourceCurrent &&
-                        " · source changed or no longer public"}
+                        (portfolio
+                          ? " · artwork changed or unavailable"
+                          : " · source changed or no longer public")}
                     </p>
                     <p className="sc-hint sc-destination-line">
                       Exact destination: {item.destination || "not recorded"}.
@@ -2123,6 +2581,26 @@ function ShareCalendar({ search }: { search: string }) {
                           "."
                         : ""}
                     </p>
+                    {portfolio && (
+                      <div className="sc-item-art">
+                        <img
+                          src={portfolio.renditionUrl}
+                          alt={portfolio.alt}
+                          loading="lazy"
+                        />
+                        <p className="sc-hint">
+                          Alt: {portfolio.alt} · credit: {portfolio.credit} ·{" "}
+                          <a
+                            className="sc-text-link"
+                            href={portfolio.projectUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            project page
+                          </a>
+                        </p>
+                      </div>
+                    )}
                     <p className={`sc-caption sc-caption-${item.state}`}>
                       {item.caption}
                     </p>
@@ -2155,9 +2633,9 @@ function ShareCalendar({ search }: { search: string }) {
                     )}
                     {!item.sourceCurrent && (
                       <p className="sc-stale">
-                        This item points at a publication that has changed or is
-                        no longer public. Refresh it from the current
-                        publication before copying, downloading or exporting.
+                        {portfolio
+                          ? "This artwork is no longer current in Woodhouse Share. Its saved descriptor is kept for history; prepare a new draft from the current asset before sharing."
+                          : "This item points at a publication that has changed or is no longer public. Refresh it from the current publication before copying, downloading or exporting."}
                       </p>
                     )}
                     <div className="sc-actions">
@@ -2172,34 +2650,38 @@ function ShareCalendar({ search }: { search: string }) {
                           ? "Hide approval package"
                           : "Prepare approval package"}
                       </button>
-                      <button
-                        type="button"
-                        disabled={busy || !item.sourceCurrent}
-                        onClick={() => void copyItem(item)}
-                      >
-                        Copy main caption + link
-                      </button>
-                      {item.sourceCurrent && (
-                        <a
-                          className="sc-download"
-                          href={
-                            sources.find((entry) => entry.id === item.stack)
-                              ?.imagePath ?? ""
-                          }
-                          download={`${item.stackSlug}-r${item.publication}-share-card.png`}
-                          aria-disabled={!canWrite || busy}
-                          onClick={(event) => {
-                            if (!canWrite || busy) {
-                              event.preventDefault();
-                              return;
-                            }
-                            void shared(item, "Share image download started.");
-                          }}
+                      {!portfolio && (
+                        <button
+                          type="button"
+                          disabled={busy || !item.sourceCurrent}
+                          onClick={() => void copyItem(item)}
                         >
-                          Download share image
-                        </a>
+                          Copy main caption + link
+                        </button>
                       )}
-                      {!item.sourceCurrent && canWrite && (
+                      {!portfolio &&
+                        item.sourceCurrent &&
+                        stackSource?.imagePath && (
+                          <a
+                            className="sc-download"
+                            href={stackSource.imagePath}
+                            download={`${item.stackSlug ?? "share"}-r${item.publication ?? 1}-share-card.png`}
+                            aria-disabled={!canWrite || busy}
+                            onClick={(event) => {
+                              if (!canWrite || busy) {
+                                event.preventDefault();
+                                return;
+                              }
+                              void shared(
+                                item,
+                                "Share image download started.",
+                              );
+                            }}
+                          >
+                            Download share image
+                          </a>
+                        )}
+                      {!portfolio && !item.sourceCurrent && canWrite && (
                         <button
                           type="button"
                           disabled={busy}
@@ -2217,7 +2699,7 @@ function ShareCalendar({ search }: { search: string }) {
                           Refresh source
                         </button>
                       )}
-                      {item.state === "shared" && canWrite && (
+                      {!portfolio && item.state === "shared" && canWrite && (
                         <button
                           type="button"
                           disabled={busy}
@@ -2235,21 +2717,35 @@ function ShareCalendar({ search }: { search: string }) {
                           Reopen
                         </button>
                       )}
-                      {canWrite && item.sourceCurrent && (
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() => {
-                            setEditing(item);
-                            fillFromSource(item.stack, item);
-                            document
-                              .getElementById("sc-prepare")
-                              ?.scrollIntoView({ block: "start" });
-                          }}
-                        >
-                          Edit
-                        </button>
-                      )}
+                      {canWrite &&
+                        item.sourceCurrent &&
+                        (portfolio ? isOwner : stackId) && (
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() => {
+                              setEditing(item);
+                              if (portfolio) {
+                                setSourceKind("catalogue");
+                                setAssetId(portfolio.assetId);
+                                setCataloguePreview(undefined);
+                                setRightsConfirmed(false);
+                                setCaption(item.caption);
+                                setScheduledLocal(
+                                  melbourneLocalInput(item.scheduledAt),
+                                );
+                              } else if (stackId) {
+                                setSourceKind("stack");
+                                fillFromSource(stackId, item);
+                              }
+                              document
+                                .getElementById("sc-prepare")
+                                ?.scrollIntoView({ block: "start" });
+                            }}
+                          >
+                            Edit
+                          </button>
+                        )}
                       {canWrite && (
                         <button
                           type="button"
@@ -2258,7 +2754,7 @@ function ShareCalendar({ search }: { search: string }) {
                           onClick={() => {
                             if (
                               window.confirm(
-                                "Delete this share item? The published stack and its share card are untouched.",
+                                "Delete this calendar item and its local approval history?",
                               )
                             )
                               void mutate(
@@ -2290,11 +2786,13 @@ function ShareCalendar({ search }: { search: string }) {
                       <BlueskyPanel
                         item={item}
                         source={
-                          sources.find(
-                            (entry) =>
-                              entry.id === item.stack &&
-                              entry.publication === item.publication,
-                          ) ?? null
+                          (stackId &&
+                            sources.find(
+                              (entry) =>
+                                entry.id === stackId &&
+                                entry.publication === item.publication,
+                            )) ||
+                          null
                         }
                         approval={approval}
                         identity={blueskyIdentity}
@@ -2317,8 +2815,7 @@ function ShareCalendar({ search }: { search: string }) {
                           if (approval) void sendBluesky(item, approval);
                         }}
                         onReconcile={() => {
-                          if (approval)
-                            void reconcileBluesky(item, approval);
+                          if (approval) void reconcileBluesky(item, approval);
                         }}
                         onCopyPackage={() => void copyPackage(item)}
                         sending={blueskySending}

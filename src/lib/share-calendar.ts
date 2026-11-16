@@ -178,7 +178,69 @@ export const shareCalendarInstant = z
     }
   });
 
+const catalogueAssetId = z.string().regex(/^[a-z0-9][a-z0-9-]{0,127}$/);
+const catalogueDigest = z.string().regex(/^[a-f0-9]{64}$/);
+
+export const catalogueAssetSchema = z
+  .object({
+    assetId: catalogueAssetId,
+    title: z.string().min(1).max(160),
+    assetRevision: z.string().min(1).max(200),
+    renditionUrl: z.string().max(2048).refine(isSafeShareLink),
+    mimeType: z.enum(["image/jpeg", "image/png", "image/webp"]),
+    byteLength: z.number().int().min(1).max(1_000_000),
+    bytesSha256: catalogueDigest,
+    alt: z.string().min(1).max(2000),
+    credit: z.string().min(1).max(300),
+    projectUrl: z.string().max(2048).refine(isSafeShareLink),
+    sourceUrl: z.string().max(2048).refine(isSafeShareLink),
+  })
+  .strict();
+
+export const catalogueSelectionSchema = catalogueAssetSchema.extend({
+  rightsConfirmedBy: z.string().min(1).max(256),
+  rightsConfirmedAt: isoInstant,
+});
+
+export type CatalogueResolvedAsset = z.infer<typeof catalogueAssetSchema>;
+export type CatalogueAssetDescriptor = z.infer<typeof catalogueSelectionSchema>;
+
+// The live identity of an asset. These are the fields a recheck must compare
+// against the stored descriptor before approval or send.
+export function catalogueIdentity(
+  asset: CatalogueResolvedAsset,
+): Array<string | number> {
+  return [
+    asset.assetId,
+    asset.title,
+    asset.assetRevision,
+    asset.renditionUrl,
+    asset.mimeType,
+    asset.byteLength,
+    asset.bytesSha256,
+    asset.alt,
+    asset.credit,
+    asset.projectUrl,
+    asset.sourceUrl,
+  ];
+}
+
+export const cataloguePreviewReplySchema = z
+  .object({
+    ok: z.literal(true),
+    asset: catalogueAssetSchema,
+    assetHash: catalogueDigest,
+  })
+  .strict();
+
 export const shareCalendarReadInput = z.union([
+  z
+    .object({
+      action: z.literal("cataloguePreview"),
+      workspace: workspaceId.optional(),
+      assetId: catalogueAssetId,
+    })
+    .strict(),
   z
     .object({ action: z.literal("list"), workspace: workspaceId.optional() })
     .strict(),
@@ -194,6 +256,17 @@ export const shareCalendarReadInput = z.union([
 ]);
 
 export const shareCalendarCommand = z.discriminatedUnion("action", [
+  z
+    .object({
+      action: z.literal("catalogueCreate"),
+      workspace: workspaceId.optional(),
+      assetId: catalogueAssetId,
+      assetHash: catalogueDigest,
+      rightsConfirmed: z.literal(true),
+      caption: shareCalendarCaption,
+      scheduledAt: shareCalendarInstant.nullable().optional(),
+    })
+    .strict(),
   z
     .object({
       action: z.literal("create"),
@@ -322,10 +395,11 @@ export interface ShareCalendarVariant {
 
 export interface ShareCalendarItem {
   id: string;
-  stack: string;
+  stack: string | null;
   stackName: string;
-  stackSlug: string;
-  publication: number;
+  stackSlug: string | null;
+  publication: number | null;
+  catalogue?: CatalogueAssetDescriptor;
   sourceCurrent: boolean;
   channel: ShareChannel;
   destination: string;
@@ -387,10 +461,14 @@ export const shareCalendarVariantSchema = z
 export const shareCalendarItemSchema = z
   .object({
     id: itemId,
-    stack: stackId,
+    stack: stackId.nullable(),
     stackName: z.string().min(1).max(160),
-    stackSlug: z.string().regex(/^[a-z0-9-]{1,60}$/),
-    publication: revision,
+    stackSlug: z
+      .string()
+      .regex(/^[a-z0-9-]{1,60}$/)
+      .nullable(),
+    publication: revision.nullable(),
+    catalogue: catalogueSelectionSchema.optional(),
     sourceCurrent: z.boolean(),
     channel: shareCalendarChannel,
     destination: z.string().max(SHARE_DESTINATION_MAX),
@@ -406,6 +484,19 @@ export const shareCalendarItemSchema = z
   })
   .strict()
   .superRefine((value, ctx) => {
+    const stackFields = [value.stack, value.stackSlug, value.publication];
+    const complete = value.catalogue
+      ? stackFields.every((field) => field === null) &&
+        value.channel === "bluesky" &&
+        value.variants.length === 0 &&
+        value.link === value.catalogue.projectUrl
+      : stackFields.every((field) => field !== null);
+    if (!complete)
+      ctx.addIssue({
+        code: "custom",
+        path: ["stack"],
+        message: "The share source is incomplete.",
+      });
     // A persisted row has one exact caption per channel. The main caption is
     // the default destination, so an extra draft may not duplicate it.
     const seen = new Set<string>([value.channel]);

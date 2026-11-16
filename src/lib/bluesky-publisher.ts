@@ -812,20 +812,23 @@ export async function createBlueskyPost(
   if (embed) record.embed = embed;
   if (input.embed === "images" && input.link) {
     const link = input.link;
-    const suffix = `\n\n${link}`;
+    const suffix = `\n${link}`;
     if (!isSafeShareLink(link) || !input.text.endsWith(suffix))
       return failure(
         "invalid_link",
         "The approved image post must end with its canonical link.",
       );
     const encoder = new TextEncoder();
-    record.facets = [{
-      index: {
-        byteStart: encoder.encode(input.text.slice(0, -link.length)).byteLength,
-        byteEnd: encoder.encode(input.text).byteLength,
+    record.facets = [
+      {
+        index: {
+          byteStart: encoder.encode(input.text.slice(0, -link.length))
+            .byteLength,
+          byteEnd: encoder.encode(input.text).byteLength,
+        },
+        features: [{ $type: "app.bsky.richtext.facet#link", uri: link }],
       },
-      features: [{ $type: "app.bsky.richtext.facet#link", uri: link }],
-    }];
+    ];
   }
   const service = serviceOrigin(options.service);
   if (!service)
@@ -1015,7 +1018,8 @@ export const BLUESKY_TID_LENGTH = 13;
 function tidFromDigest(digest: string): string {
   let value = 0n;
   for (let index = 0; index < 16; index += 2)
-    value = (value << 8n) | BigInt(parseInt(digest.slice(index, index + 2), 16));
+    value =
+      (value << 8n) | BigInt(parseInt(digest.slice(index, index + 2), 16));
   value &= (1n << 63n) - 1n;
   let key = "";
   for (let index = 0; index < BLUESKY_TID_LENGTH; index += 1) {
@@ -1151,7 +1155,11 @@ export async function fetchBlueskyImage(
       readBoundedBytes(response, BLUESKY_IMAGE_MAX_BYTES, controller.signal),
       timedOut,
     ]);
-    if (!bytes || !bytes.byteLength || bytes.byteLength > BLUESKY_IMAGE_MAX_BYTES)
+    if (
+      !bytes ||
+      !bytes.byteLength ||
+      bytes.byteLength > BLUESKY_IMAGE_MAX_BYTES
+    )
       return failure(
         "invalid_media",
         `The share card must be between 1 byte and ${BLUESKY_IMAGE_MAX_BYTES} bytes. Nothing was sent.`,

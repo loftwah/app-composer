@@ -3,7 +3,12 @@
 // fixed catalogue URL, refuses redirects, accepts only a public image
 // rendition from that same origin, and binds the exact bytes it fetched. No
 // user-supplied image URL is ever accepted and no credential is used here.
-import { isSafeShareLink } from "./share-calendar.ts";
+import {
+  catalogueAssetSchema,
+  catalogueIdentity,
+  isSafeShareLink,
+  type CatalogueResolvedAsset,
+} from "./share-calendar.ts";
 import {
   fetchBlueskyImage,
   type BlueskyFetchOptions,
@@ -38,27 +43,6 @@ export function shareAssetApiUrl(assetId: string): string | null {
   return id ? `${SHARE_CATALOGUE_API_BASE}/${id}` : null;
 }
 
-export interface CatalogueResolvedAsset {
-  assetId: string;
-  assetRevision: string;
-  renditionUrl: string;
-  mimeType: "image/jpeg" | "image/png" | "image/webp";
-  byteLength: number;
-  bytesSha256: string;
-  alt: string;
-  credit: string;
-  projectUrl: string;
-  sourceUrl: string;
-}
-
-// The stable descriptor persisted per item. Rights confirmation and the item
-// revision are server-owned: they are never taken from a catalogue response.
-export interface CatalogueAssetDescriptor extends CatalogueResolvedAsset {
-  rightsConfirmedBy: string;
-  rightsConfirmedAt: string;
-  itemRevision: number;
-}
-
 export type CatalogueResolveResult =
   | { ok: true; asset: CatalogueResolvedAsset }
   | { ok: false; code: string; message: string };
@@ -69,7 +53,7 @@ const failed = (code: string, message: string): CatalogueResolveResult => ({
   message,
 });
 
-async function sha256Bytes(bytes: Uint8Array): Promise<string> {
+export async function sha256Bytes(bytes: Uint8Array): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new Uint8Array(bytes));
   return Array.from(new Uint8Array(digest), (byte) =>
     byte.toString(16).padStart(2, "0"),
@@ -149,13 +133,16 @@ function parseAsset(payload: unknown, assetId: string) {
     asset?.id !== assetId ||
     asset.visibility !== "public" ||
     asset.reuse !== "unconfirmed"
-  ) return null;
+  )
+    return null;
+  const title = boundedString(asset.title, 160);
   const alt = boundedString(asset.alt, SHARE_CATALOGUE_ALT_MAX);
   const credit = boundedString(asset.credit, SHARE_CATALOGUE_CREDIT_MAX);
   const projectUrl = boundedString(asset.projectUrl, 2048);
   const sourceUrl = boundedString(asset.sourceUrl, 2048);
   const renditionUrl = boundedString(asset.previewUrl, 2048);
   if (
+    !title ||
     !alt ||
     !credit ||
     !projectUrl ||
@@ -164,7 +151,8 @@ function parseAsset(payload: unknown, assetId: string) {
     !isSafeShareLink(sourceUrl) ||
     !renditionUrl ||
     !isSafeShareLink(renditionUrl)
-  ) return null;
+  )
+    return null;
   const preview = new URL(renditionUrl);
   if (
     preview.origin !== SHARE_CATALOGUE_ORIGIN ||
@@ -172,10 +160,12 @@ function parseAsset(payload: unknown, assetId: string) {
     !/\.(?:jpe?g|png|webp)$/i.test(preview.pathname) ||
     preview.search ||
     preview.hash
-  ) return null;
+  )
+    return null;
   const original = catalogueObject(asset.original);
   return {
     assetId,
+    title,
     renditionUrl,
     alt,
     credit,
@@ -204,7 +194,10 @@ export async function resolveShareCatalogueAsset(
     );
   const doFetch = options.fetch ?? globalThis.fetch;
   if (typeof doFetch !== "function")
-    return failed("unavailable", "Composer has no network transport for the catalogue.");
+    return failed(
+      "unavailable",
+      "Composer has no network transport for the catalogue.",
+    );
   const timeoutMs = Math.min(30_000, Math.max(10, options.timeoutMs ?? 8_000));
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -236,7 +229,10 @@ export async function resolveShareCatalogueAsset(
       );
     const declared = Number(response.headers.get("content-length") ?? "");
     if (Number.isFinite(declared) && declared > SHARE_CATALOGUE_JSON_MAX_BYTES)
-      return failed("catalogue_invalid", "The catalogue response is too large.");
+      return failed(
+        "catalogue_invalid",
+        "The catalogue response is too large.",
+      );
     const payload = await Promise.race([
       readBoundedJson(response, controller.signal),
       timedOut,
@@ -265,7 +261,7 @@ export async function resolveShareCatalogueAsset(
       bytesSha256,
       mimeType: imageResult.image.mimeType,
     };
-    return { ok: true, asset: exact };
+    return { ok: true, asset: catalogueAssetSchema.parse(exact) };
   } catch (error) {
     return failed(
       "unavailable",
@@ -278,51 +274,18 @@ export async function resolveShareCatalogueAsset(
   }
 }
 
-// The live identity of an asset. These are the fields a recheck must compare
-// against the stored descriptor before approval or send.
-export function catalogueIdentity(
-  asset: CatalogueResolvedAsset,
-): Array<string | number> {
-  return [
-    asset.assetId,
-    asset.assetRevision,
-    asset.renditionUrl,
-    asset.mimeType,
-    asset.byteLength,
-    asset.bytesSha256,
-    asset.alt,
-    asset.credit,
-    asset.projectUrl,
-    asset.sourceUrl,
-  ];
-}
-
 export function sameCatalogueAsset(
   a: CatalogueResolvedAsset,
   b: CatalogueResolvedAsset,
 ): boolean {
   return (
-    JSON.stringify(catalogueIdentity(a)) === JSON.stringify(catalogueIdentity(b))
+    JSON.stringify(catalogueIdentity(a)) ===
+    JSON.stringify(catalogueIdentity(b))
   );
 }
 
-// Consent covers the exact live identity plus the owner's rights confirmation
-// and the item revision the selection was made against.
-export async function catalogueConsentHash(
-  descriptor: CatalogueAssetDescriptor,
-): Promise<string> {
-  const digest = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(
-      JSON.stringify([
-        ...catalogueIdentity(descriptor),
-        descriptor.rightsConfirmedBy,
-        descriptor.rightsConfirmedAt,
-        descriptor.itemRevision,
-      ]),
-    ),
+export function cataloguePreviewHash(asset: CatalogueResolvedAsset) {
+  return sha256Bytes(
+    new TextEncoder().encode(JSON.stringify(catalogueIdentity(asset))),
   );
-  return Array.from(new Uint8Array(digest), (byte) =>
-    byte.toString(16).padStart(2, "0"),
-  ).join("");
 }

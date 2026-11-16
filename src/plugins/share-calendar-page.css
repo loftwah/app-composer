@@ -761,3 +761,76 @@
     flex-direction: column;
   }
 }
+
+/* Source switch and Woodhouse Share artwork draft (#477/#604). A portfolio
+   row uses one exact previewed rendition; no user-supplied image URL. */
+.sc-source-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sc-source-switch button[aria-pressed="true"] {
+  border-color: var(--sc-accent);
+  background: color-mix(in srgb, var(--sc-accent) 12%, transparent);
+  font-weight: 700;
+}
+.sc-catalogue {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.sc-catalogue-preview {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--sc-line);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--sc-ink) 3%, transparent);
+}
+.sc-catalogue-preview img,
+.sc-item-art img {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  border: 1px solid var(--sc-line);
+  border-radius: 4px;
+}
+.sc-catalogue-preview p {
+  margin: 0 0 4px;
+}
+.sc-rights {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+}
+.composer-share-calendar .sc-rights input {
+  width: auto;
+  min-height: 0;
+  margin-top: 3px;
+  flex: none;
+}
+.sc-caption-preview {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 10px 12px;
+  border-left: 3px solid var(--sc-accent);
+  background: var(--sc-surface);
+  font-size: 0.94rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.sc-item-art {
+  margin: 0 0 10px;
+}
+@media (max-width: 620px) {
+  .sc-source-switch button {
+    flex: 1 1 100%;
+  }
+  .sc-catalogue-preview img,
+  .sc-item-art img {
+    max-width: 100%;
+  }
+}

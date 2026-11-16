@@ -12,6 +12,7 @@ const id = "workshop-image";
 const endpoint = `${SHARE_CATALOGUE_API_BASE}/${id}`;
 const asset = {
   id,
+  title: "Workshop image",
   visibility: "public",
   reuse: "unconfirmed",
   previewUrl: `${SHARE_CATALOGUE_ORIGIN}/campaign/workshop-preview.jpg`,
@@ -42,8 +43,17 @@ test("resolve pins the selected rendition bytes and the public provenance", asyn
   assert.equal(result.asset.sourceUrl, asset.sourceUrl);
   assert.equal(result.asset.projectUrl, asset.projectUrl);
   assert.deepEqual(requests, [endpoint, asset.previewUrl]);
-  assert.equal(sameCatalogueAsset(result.asset, { ...result.asset, credit: "Other" }), false);
-  assert.equal(sameCatalogueAsset(result.asset, { ...result.asset, sourceUrl: asset.previewUrl }), false);
+  assert.equal(
+    sameCatalogueAsset(result.asset, { ...result.asset, credit: "Other" }),
+    false,
+  );
+  assert.equal(
+    sameCatalogueAsset(result.asset, {
+      ...result.asset,
+      sourceUrl: asset.previewUrl,
+    }),
+    false,
+  );
 });
 
 test("unpublished, substituted and off-origin previews are refused before image fetch", async () => {
