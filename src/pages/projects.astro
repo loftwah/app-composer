@@ -41,6 +41,15 @@ const day = (value: string | null | undefined) => {
     <a href="/media-studio">Read the build story <ArrowRight size={16} aria-hidden="true"/></a>
     <a href="https://media.loftwah.com/tools/images">Try Image Tools <ArrowRight size={16} aria-hidden="true"/></a>
    </div>
+   <details class="flagship-receipt">
+    <summary>From the Composer brief to a Studio release</summary>
+    <ol>
+     <li><strong>Brief.</strong> <a href="/media-studio/media-studio-brief-20261114.json" download>Download the Paper &amp; Light specification</a>, a 14 November export from Composer Init pinned to <a href="https://github.com/loftwah/composer-media-studio/commit/fec91ba3e25e8349f8d891a22f676980686fce76">Studio source fec91ba</a>.</li>
+     <li><strong>First release.</strong> Studio went live from <a href="https://github.com/loftwah/composer-media-studio/commit/c6ee157451a5f28f3ae36e58e2bb17be3ef63fa3">Studio source c6ee157</a> on 13 November 2026. Composer Init pinned that revision. <a href="https://media.loftwah.com/build.json">Check the revision live now</a>.</li>
+     <li><strong>Follow-up.</strong> <a href="https://github.com/loftwah/composer-media-studio/pull/186">Studio #186</a> added CSS palette export to the same app. We used <a href="https://woodhouse.loftwah.com/campaign/20261113-build-notes/foilbury-foil-bench-preview.jpg">Foilbury artwork from Woodhouse Share</a> and verified that the CSS and GIMP downloads contained the same eight colours.</li>
+    </ol>
+    <p>This is the operator’s build. <a href="/creator-hub#follow-up">See the Creator Hub build and its follow-up</a>.</p>
+   </details>
   </div>
  </section>
 
@@ -122,6 +131,10 @@ const day = (value: string | null | undefined) => {
  .family-feature .eyebrow{margin:0 0 8px}
  .family-feature p{max-width:65ch}
  .family-feature div:nth-child(2)>p,.family-feature .family-actions{margin:0}
+ .flagship-receipt{margin-top:18px;max-width:65ch;color:var(--color-muted)}
+ .flagship-receipt summary{cursor:pointer;color:var(--color-foreground)}
+ .flagship-receipt ol{padding-inline-start:1.4rem}
+ .flagship-receipt li + li{margin-top:8px}
  .tier-group{padding-block:42px 15px}
  .tier-heading p{max-width:65ch;color:var(--color-muted)}
  .project-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;list-style:none;margin:22px 0 0;padding:0;max-width:none}
