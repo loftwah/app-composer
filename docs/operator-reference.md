@@ -200,6 +200,8 @@ Production uses `pnpm deploy`: clean pushed main, type/risk checks, production b
 
 The optional unpacked Chrome extension has explicit-click activeTab injection, Get Ready/Init handoffs and local decision exploration. No Cloudflare dashboard credential scraping, native-product/partnership claim or public build API. Installed dashboard acceptance and Web Store publishing are distinct.
 
+Bluesky in the Share calendar (#604) is optional and separate from the owner's LinkedIn fallback. Set the public `SHARE_BLUESKY_HANDLE` variable (for example `name.bsky.social`) to prefill the handle field; it is public configuration, not a secret. The Composer server checks `public.api.bsky.app` with a short timeout and shows the resolved DID, handle and avatar separately from **Publishing authorised: No**. Never configure or paste a Bluesky password, app password, recovery code or OAuth token. An exact approval binds the account DID, saved draft revision, text and media descriptor hashes, canonical link and intended Australia/Melbourne/UTC instant; editing any bound value, an expired approval or a revoked connection invalidates it. Re-approval writes a new approval revision. There is no Bluesky send adapter in this build: the page and package return `needs_owner` and state that nothing was sent. LinkedIn remains the manual fallback.
+
 ## Boundaries and evidence
 
 Read `ARCHITECTURE.md`, `composition.lock.json`, `docs/STATUS.md` and GitHub #11. Public browsing and configuration drafts need no account. Upload/moderation/curation require invited owner access. Demo artwork and vault personas are original/synthetic, never real private records. Current manifest support is the authored first pair; wider registrars/providers, automated update policies, arbitrary builds and real-data vault import are not advertised as shipped.
@@ -331,7 +333,6 @@ The independent MIT implementation is in `lib/content-model`. It supports text, 
 
 Calendar dates store a day as `YYYY-MM-DD` (years 0001–9999). The same Gregorian rule validates defaults, preview values and native EmDash string fields, including century leap years. The generated site bundles a native date picker and renders a semantic date with a written month, without timezone conversion. Cleared optional dates stay null. The portable seed uses its host’s string control with the same validation and no widget dependency. Repeating-row dates and automatic scheduling are not supported. Existing saved models without dates remain unchanged.
 
-
 Models have an exact formatted-export byte cap of 64 KiB, shared with imports and saved-draft restore. Only explicitly saved model structure persists in local storage; valid edits also survive Back in their browser-history entry. Sample entries are not persisted. Review the target’s existing schema and data before applying a downloaded seed; the public editor never modifies a CMS, creates a cloud resource or publishes content. General customer implementation/deployment acceptance remains open under #3/#21.
 
 ### Installable Get Ready release archive
@@ -362,13 +363,11 @@ For the authorised production operator connection only, the clean-pushed-main de
 
 The [working admin screenshots](https://composer.loftwah.com/guide#admin-screenshots) are unedited production captures with public [source/pin provenance](../public/guides/miniapps-admin-20261014.provenance.json). Native image moderation/featuring/revocation, link draft/publication/reorder/hide and settings paths were exercised with disposable generated fixtures; existing records/configuration were preserved. An expired owner sign-in failed closed and recovered through the existing Cloudflare login. Physical devices and broader customer acceptance remain separate.
 
-
 ### Create an independent EmDash content project
 
 In [the content builder](https://composer.loftwah.com/init/content), open “Create a new EmDash site from these fields” and copy the new-project request. The agent uses `pnpm init:site --model MODEL.json --destination /absolute/parent/new-site` to create an absent project from the validated model. The Node API is `createContentProject({model,destination})` in `lib/content-model/project.mjs`. It copies a reviewed template, complete native CMS seed, standalone model logic, lockfile, theme, favicon/font notices and source hashes. Model values remain JSON, never executable source. Existing/partial projects and linked parents are preserved. No dependency installation, account connection, cloud mutation or deployment is performed.
 
 The reviewed local path is Node 22.23.4+, pnpm12.9.1, Astro7.3.5, EmDash1.2.0 and Cloudflare’s local D1/R2 simulation. The agent installs the frozen lockfile with lifecycle scripts disabled, builds and opens the printed localhost URL. The native owner setup/editor and published-only page run independently of Composer/Woodhouse. Authenticated owner acceptance remains separate from local build/query evidence. Customer cloud deployment, public submission forms and enquiry handling remain separate work; `pnpm deploy` refuses the local placeholders. See [the project template README](../lib/content-model/site-template/README.md) and [public instructions](https://composer.loftwah.com/docs#content-project). Focused checks: `node --test tests/content-project.test.mjs`.
-
 
 ### Project package metadata — reviewed 15 October 2026
 

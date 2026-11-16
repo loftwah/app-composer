@@ -4,6 +4,7 @@
 // marked as copied/downloaded/exported by the owner. No route here posts to a
 // social network or stores a provider identifier or credential.
 import { z } from "zod";
+import { isBlueskyDid, normalizeBlueskyHandle } from "./bluesky-account.ts";
 
 export const SHARE_CHANNELS = [
   {
@@ -176,9 +177,20 @@ export const shareCalendarInstant = z
     }
   });
 
-export const shareCalendarReadInput = z
-  .object({ action: z.literal("list"), workspace: workspaceId.optional() })
-  .strict();
+export const shareCalendarReadInput = z.union([
+  z
+    .object({ action: z.literal("list"), workspace: workspaceId.optional() })
+    .strict(),
+  z
+    .object({
+      action: z.literal("blueskyIdentity"),
+      workspace: workspaceId.optional(),
+      // A public Bluesky handle is at most 253 characters. The resolver
+      // performs the real syntax check; this only bounds the request.
+      handle: z.string().trim().max(253).optional(),
+    })
+    .strict(),
+]);
 
 export const shareCalendarCommand = z.discriminatedUnion("action", [
   z
@@ -215,6 +227,24 @@ export const shareCalendarCommand = z.discriminatedUnion("action", [
       channel: shareCalendarChannel,
       destination: shareCalendarDestination.optional(),
       caption: shareCalendarVariantCaption.nullable(),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("blueskyApprove"),
+      workspace: workspaceId.optional(),
+      item: itemId,
+      expectedRevision: revision,
+      handle: z.string().trim().min(1).max(253),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("blueskyCancel"),
+      workspace: workspaceId.optional(),
+      item: itemId,
+      expectedApprovalRevision: revision,
+      reason: z.string().trim().max(280).optional(),
     })
     .strict(),
   z
@@ -297,6 +327,8 @@ export interface ShareCalendarSnapshot {
   workspace: { id: string; name: string; role: "owner" | "editor" | "viewer" };
   sources: ShareCalendarSource[];
   items: ShareCalendarItem[];
+  approvals: BlueskyApprovalRecord[];
+  bluesky: { configuredHandle: string | null };
   now: string;
   changed: string | null;
 }
@@ -362,6 +394,76 @@ export const shareCalendarItemSchema = z
     });
   });
 
+const approvalHash = z.string().regex(/^[a-f0-9]{64}$/);
+
+// An approval record is public data plus hashes. There is deliberately no
+// credential field, and this schema is the shared snapshot contract.
+export const blueskyApprovalRecordSchema = z
+  .object({
+    itemId,
+    channel: z.literal("bluesky"),
+    state: z.enum(["approved", "cancelled", "revoked"]),
+    accountHandle: z
+      .string()
+      .refine(
+        (value) => normalizeBlueskyHandle(value) === value,
+        "Choose a real public handle.",
+      ),
+    accountDid: z.string().refine(isBlueskyDid, "Choose a real public DID."),
+    draftRevision: revision,
+    approvalRevision: revision,
+    textHash: approvalHash,
+    mediaHash: approvalHash,
+    mediaRevision: z.string().min(1).max(2048),
+    link: z.string().min(1).max(2048).refine(isSafeShareLink),
+    scheduledAt: isoInstant,
+    bindingHash: approvalHash,
+    approvedAt: isoInstant,
+    expiresAt: isoInstant,
+    cancelledAt: isoInstant.nullable(),
+    revokedAt: isoInstant.nullable(),
+    revocationReason: z.string().max(280),
+  })
+  .strict()
+  .superRefine((value, ctx) => {
+    if (value.state === "approved" && (value.cancelledAt || value.revokedAt))
+      ctx.addIssue({
+        code: "custom",
+        message: "An approved record has no cancellation or revocation.",
+      });
+    if (value.state === "cancelled" && !value.cancelledAt)
+      ctx.addIssue({
+        code: "custom",
+        message: "A cancelled record needs its cancellation time.",
+      });
+    if (value.state === "revoked" && !value.revokedAt)
+      ctx.addIssue({
+        code: "custom",
+        message: "A revoked record needs its revocation time.",
+      });
+  });
+
+export interface BlueskyApprovalRecord {
+  itemId: string;
+  channel: "bluesky";
+  state: "approved" | "cancelled" | "revoked";
+  accountHandle: string;
+  accountDid: string;
+  draftRevision: number;
+  approvalRevision: number;
+  textHash: string;
+  mediaHash: string;
+  mediaRevision: string;
+  link: string;
+  scheduledAt: string;
+  bindingHash: string;
+  approvedAt: string;
+  expiresAt: string;
+  cancelledAt: string | null;
+  revokedAt: string | null;
+  revocationReason: string;
+}
+
 export const shareCalendarSnapshot = z
   .object({
     ok: z.literal(true),
@@ -374,6 +476,12 @@ export const shareCalendarSnapshot = z
       .strict(),
     sources: z.array(shareCalendarSourceSchema).max(50),
     items: z.array(shareCalendarItemSchema).max(200),
+    approvals: z.array(blueskyApprovalRecordSchema).max(200),
+    bluesky: z
+      .object({
+        configuredHandle: z.string().min(3).max(253).nullable(),
+      })
+      .strict(),
     now: isoInstant,
     changed: itemId.nullable(),
   })
@@ -605,6 +713,68 @@ export function localTimeLabel(
   const part = (type: string) =>
     parts.find((entry) => entry.type === type)?.value ?? "";
   return `${part("year")}/${part("month")}/${part("day")} ${part("hour")}:${part("minute")} ${part("timeZoneName")}`;
+}
+
+// A datetime-local input has no timezone. The owner's calendar is kept in
+// Australia/Melbourne, so the entered wall clock is converted explicitly rather
+// than silently using the browser's zone. A spring-forward gap returns null; an
+// autumn-back overlap resolves to the first valid Melbourne instant.
+function zoneOffsetMinutes(time: number, timeZone: string): number {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    timeZoneName: "longOffset",
+  }).formatToParts(new Date(time));
+  const name =
+    parts.find((entry) => entry.type === "timeZoneName")?.value ?? "GMT";
+  const match = /^GMT([+-])(\d{1,2})(?::(\d{2}))?$/.exec(name);
+  if (!match) return 0;
+  const sign = match[1] === "-" ? -1 : 1;
+  return sign * (Number(match[2]) * 60 + Number(match[3] ?? 0));
+}
+
+function zonedParts(
+  time: number,
+  timeZone: string,
+): { date: string; time: string } {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date(time));
+  const part = (type: string) =>
+    parts.find((entry) => entry.type === type)?.value ?? "";
+  return {
+    date: `${part("year")}-${part("month")}-${part("day")}`,
+    time: `${part("hour")}:${part("minute")}`,
+  };
+}
+
+export function melbourneLocalInstant(value: string): string | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value);
+  if (!match) return null;
+  const [, year, month, day, hour, minute] = match.map(Number);
+  const wall = Date.UTC(year, month - 1, day, hour, minute);
+  if (!Number.isFinite(wall)) return null;
+  const first = wall - zoneOffsetMinutes(wall, "Australia/Melbourne") * 60_000;
+  const second =
+    wall - zoneOffsetMinutes(first, "Australia/Melbourne") * 60_000;
+  const candidate = new Date(second);
+  const parts = zonedParts(second, "Australia/Melbourne");
+  if (parts.date !== value.slice(0, 10) || parts.time !== value.slice(11, 16))
+    return null;
+  return candidate.toISOString();
+}
+
+export function melbourneLocalInput(value: string | null): string {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const parts = zonedParts(date.getTime(), "Australia/Melbourne");
+  return `${parts.date}T${parts.time}`;
 }
 
 export function scheduleLabels(value: string | null): {

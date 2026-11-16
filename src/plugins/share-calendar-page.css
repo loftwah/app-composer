@@ -549,3 +549,157 @@
     max-width: 100%;
   }
 }
+
+/* Bluesky destination and exact approval panel (#604). The panel is additive:
+   LinkedIn remains an ordinary channel in the list above. */
+.sc-bluesky {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid var(--sc-line);
+  border-left: 4px solid #0a7ea4;
+  border-radius: 8px;
+  background: var(--sc-surface);
+}
+.sc-bluesky-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.sc-bluesky-head h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+.sc-bluesky-state {
+  padding: 3px 9px;
+  border: 1px solid var(--sc-line);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  color: var(--sc-muted);
+}
+.sc-bluesky-account {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sc-line);
+}
+.sc-bluesky-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+}
+.sc-bluesky-identity img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.sc-bluesky-identity p {
+  margin: 2px 0;
+}
+.sc-bluesky-did,
+.sc-bluesky-binding {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  color: var(--sc-muted);
+  overflow-wrap: anywhere;
+}
+.sc-bluesky-failure {
+  color: var(--sc-danger);
+  font-weight: 550;
+}
+.sc-credential-note {
+  border-left: 3px solid var(--sc-line);
+  padding-left: 10px;
+}
+.sc-bluesky-preview {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+.sc-bluesky-text {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 12px;
+  border: 1px solid var(--sc-line);
+  border-radius: 10px;
+  background: var(--sc-surface);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.sc-bluesky-media img {
+  display: block;
+  width: 100%;
+  max-width: 620px;
+  height: auto;
+  border: 1px solid var(--sc-line);
+  border-radius: 8px;
+}
+.sc-bluesky-time {
+  font-size: 0.9rem;
+}
+.sc-bluesky-recheck {
+  justify-self: start;
+}
+.sc-bluesky-problems,
+.sc-bluesky-reasons {
+  margin: 6px 0;
+  padding-left: 20px;
+  font-size: 0.9rem;
+}
+.sc-bluesky-problems li,
+.sc-bluesky-reasons li {
+  margin: 3px 0;
+}
+.sc-bluesky-approval {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--sc-line);
+  border-radius: 8px;
+}
+.sc-bluesky-approval-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.sc-bluesky-approval-head h4 {
+  margin: 0;
+}
+.sc-bluesky-approval.sc-approval-approved {
+  border-color: var(--sc-green);
+}
+.sc-bluesky-approval.sc-approval-blocked,
+.sc-bluesky-approval.sc-approval-unknown {
+  border-color: var(--sc-danger);
+}
+.sc-bluesky-send {
+  margin: 0 !important;
+  font-size: 0.9rem;
+  color: var(--sc-muted);
+}
+.sc-notch {
+  padding: 2px 8px;
+  border: 1px solid var(--sc-line);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  color: var(--sc-muted);
+}
+.sc-package-bluesky {
+  border-top: 1px solid var(--sc-line);
+  padding-top: 12px;
+}
+@media (max-width: 620px) {
+  .sc-bluesky-head {
+    flex-direction: column;
+  }
+  .sc-bluesky-identity {
+    flex-direction: column;
+  }
+}
