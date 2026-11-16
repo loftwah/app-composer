@@ -18,6 +18,10 @@ export interface DocsTaskPath {
   question: string;
   /** One line for the compact picker. */
   short: string;
+  /** The prerequisite summary a card can show without opening the detail. */
+  needs: string;
+  /** The short, literal label on the card's one-click route. */
+  cardAction: string;
   /** What the visitor ends up with. */
   outcome: string;
   prerequisites: string[];
@@ -41,6 +45,8 @@ export const docsTaskPaths: readonly DocsTaskPath[] = [
     anchor: 'path-new',
     question: 'I’m new to AI agents',
     short: 'Get an agent and a working first environment, with or without an app idea.',
+    needs: 'An agent, GitHub and Cloudflare accounts, and a folder it may use. No app idea needed.',
+    cardAction: 'Get Ready',
     outcome:
       'A checked setup and one HTTPS page you can open, made by the agent you chose.',
     prerequisites: [
@@ -70,6 +76,8 @@ export const docsTaskPaths: readonly DocsTaskPath[] = [
     anchor: 'path-idea',
     question: 'I have an idea for an app or site',
     short: 'Describe the app, validate what it needs and hand your agent a specification.',
+    needs: 'An agent, a project folder it may change, and the job your app should do.',
+    cardAction: 'Open Init',
     outcome:
       'A validated app specification and a prompt your agent can use to build one complete journey in your own project.',
     prerequisites: [
@@ -99,6 +107,8 @@ export const docsTaskPaths: readonly DocsTaskPath[] = [
     anchor: 'path-existing',
     question: 'I already have a project',
     short: 'Have your agent inspect the real repository and recommend what is worth adopting.',
+    needs: 'An agent and read-only access to the repository or folder you already run.',
+    cardAction: 'Assess my project',
     outcome:
       'A read-only assessment of your actual project: what fits, what should stay, what would change, what it needs and the smallest reversible first step.',
     prerequisites: [
@@ -128,6 +138,8 @@ export const docsTaskPaths: readonly DocsTaskPath[] = [
     anchor: 'path-add',
     question: 'Add something useful to an app',
     short: 'Editable content, a form, media or a real connection between two apps.',
+    needs: 'A running app your agent can change, plus the account that capability actually needs.',
+    cardAction: 'Open content builder',
     outcome:
       'One working capability in an app you already run, using that app’s own data and release rules instead of a second framework.',
     prerequisites: [
@@ -144,7 +156,10 @@ export const docsTaskPaths: readonly DocsTaskPath[] = [
       note: 'Author typed fields, groups and bounded repeaters, then export a native EmDash seed. Applying the model needs an authorised agent.',
     },
     next: { label: 'Publish and share what you added', href: '#path-publish' },
-    also: [{ label: 'Adding editable content instead? Use the content prompt', href: '/prompts#content' }],
+    also: [
+      { label: 'Need images, video or sound? Open Media Studio', href: '/media-studio' },
+      { label: 'Adding editable content instead? Use the content prompt', href: '/prompts#content' },
+    ],
     limit:
       'Composer has no Instagram posting, no customer login and no one-click plugin marketplace. The closest supported routes are listed under “Not available yet”.',
     terms: [
@@ -159,6 +174,8 @@ export const docsTaskPaths: readonly DocsTaskPath[] = [
     anchor: 'path-publish',
     question: 'Publish and share my app',
     short: 'Put the working result somewhere real, verify it and give people a useful link.',
+    needs: 'A working app, the release path its project uses, and permission to deploy.',
+    cardAction: 'Open Launch Kit',
     outcome:
       'A published result you checked at its real address, plus share images and a caption made from a demonstrated feature rather than a mock-up.',
     prerequisites: [
@@ -188,6 +205,8 @@ export const docsTaskPaths: readonly DocsTaskPath[] = [
     anchor: 'path-improve',
     question: 'Improve, operate or fix an app',
     short: 'Check health, update dependencies, recover data or investigate a failure.',
+    needs: 'The app source, access to the failing environment, and logs if you have them.',
+    cardAction: 'Open runbooks',
     outcome:
       'A supported finding or fix with evidence, the exact environment it applies to, and the remaining gates instead of a guess.',
     prerequisites: [
@@ -261,6 +280,7 @@ export const docsGuideLinks: readonly DocsGuideLink[] = [
   { id: 'resources', label: 'Runbooks and resources', href: '/resources', summary: 'Change, incident, pipeline and hook runbooks with downloadable Markdown.', terms: ['runbook', 'resources', 'incident', 'pipeline', 'hook', 'change', 'download'] },
   { id: 'init', label: 'Init app builder', href: '/init', summary: 'Describe an app, validate a specification and export the agent handoff.', terms: ['init', 'spec', 'specification', 'build', 'app', 'preset', 'handoff'] },
   { id: 'content-builder', label: 'Content and form builder', href: '/init/content', summary: 'Typed fields, groups and repeaters with a native EmDash seed.', terms: ['content', 'fields', 'form', 'repeater', 'cms', 'model', 'emdash'] },
+  { id: 'media-studio', label: 'Media Studio', href: '/media-studio', summary: 'The independently owned studio for images, video and sound, with its live support and limits.', terms: ['media', 'media studio', 'image', 'photo', 'video', 'audio', 'music', 'character', 'creative'] },
   { id: 'launch-kit', label: 'Launch Kit', href: '/launch-kit', summary: 'Package share images and captions from a demonstrated feature.', terms: ['share', 'canvas', 'image', 'caption', 'social', 'launch'] },
   { id: 'guide', label: 'Platform and service guide', href: '/guide', summary: 'CMS, cloud, commerce, email, domains and operational ownership.', terms: ['platform', 'cms', 'cloud', 'commerce', 'email', 'ownership', 'wordpress'] },
   { id: 'architecture', label: 'Architecture explainers', href: '/architecture', summary: 'Visual architecture and trust boundaries.', terms: ['architecture', 'diagram', 'system', 'boundaries', 'product shape'] },

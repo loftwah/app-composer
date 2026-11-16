@@ -6,103 +6,134 @@ import { promptModule, renderPrompt } from '../lib/prompt-library';
 const tasks = docsTaskPaths.map(task => {
   const prompt = promptModule(task.promptId);
   if (!prompt) throw new Error(`Documentation task ${task.id} points at an unknown prompt: ${task.promptId}`);
-  return { ...task, prompt, template: renderPrompt(task.promptId, {}, { template: true }).text };
+  return {
+    ...task,
+    detailId: `detail-${task.id}`,
+    prompt,
+    template: renderPrompt(task.promptId, {}, { template: true }).text,
+  };
 });
 const totalLinks = docsReferenceSections.length + docsGuideLinks.length;
 ---
 <Base title="Documentation: what do you want to make or do?" description="Choose a task, copy a maintained prompt for your own agent, and read the technical reference. Public, free to prepare, no model call.">
   <div class="docs-hub" data-docs-hub>
     <section class="docs-hero" aria-labelledby="docs-title">
-      <p class="eyebrow">Documentation</p>
-      <h1 id="docs-title">What do you want to make or do?</h1>
-      <p class="lede">Use the agent you choose. Composer helps it work in your authorised environment, and the app, source and data stay yours.</p>
-      <div class="docs-hero-actions">
-        <a class="button" href="/prompts">Get a prompt for my agent</a>
-      </div>
-
-      <div class="docs-search" role="search" aria-label="Find a task or reference" data-docs-search data-docs-enhanced hidden>
-        <label for="docs-search">Find your task</label>
-        <div class="docs-search-row">
-          <input id="docs-search" type="search" data-docs-query autocomplete="off" spellcheck="false" placeholder="Try “make a site”, “publish” or “fix a broken app”" />
-          <button type="button" class="secondary" data-docs-clear hidden>Clear</button>
-        </div>
-        <p class="docs-search-count" role="status" aria-live="polite" data-docs-count></p>
-        <div class="docs-chips">
-          <span>Try</span>
-          {['make a site', 'publish', 'fix a broken app', 'new to agents', 'add a form', 'MCP'].map(example => <button type="button" data-docs-example={example}>{example}</button>)}
+      <div class="docs-hero-main">
+        <p class="eyebrow">Documentation</p>
+        <h1 id="docs-title">What do you want to make or do?</h1>
+        <p class="lede">Use the agent you choose. Composer helps it work in your authorised environment, and the app, source and data stay yours.</p>
+        <div class="docs-hero-actions">
+          <a class="button" href="/prompts">Get a prompt for my agent</a>
+          <a class="docs-hero-link" href="/docs/how-it-works">How it works</a>
+          <a class="docs-hero-link" href="/demo/connected-apps">See a real example</a>
         </div>
       </div>
-      <p class="docs-empty" data-docs-empty hidden>No match. <a href="/prompts">The prompt library</a> lists every job, and <a href="/ready">Get Ready</a> starts with the environment.</p>
-      <noscript>
-        <p class="note">Search needs JavaScript. Everything below is plain HTML: six task paths, the full prompt templates, the commands and recovery notes, and the technical reference. Open “Preview the full prompt” to read or select a prompt.</p>
-        <p class="note">Following an older link to one of this page’s former sections? Every section is preserved in <a href="/docs/how-it-works">How App Composer works</a>:{' '}
-          {docsReferenceSections.map((section, index) => <span>{index ? ' · ' : ''}<a href={`/docs/how-it-works#${section.id}`}>{section.title}</a></span>)}
-        </p>
-      </noscript>
 
-      <nav class="docs-index" aria-label="Six task paths" data-docs-group>
-        <p class="docs-index-heading">Six starting points</p>
-        <ol>
-          {tasks.map((task, index) => (
-            <li data-docs-index={task.id}>
-              <a href={`#${task.anchor}`}><span class="docs-index-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><span>{task.question}</span></a>
-            </li>
-          ))}
-        </ol>
-      </nav>
-
-      <ol class="docs-flow" aria-label="How the work happens">
-        <li><strong>Choose a job</strong>Start from your own words, not a product name.</li>
-        <li><strong>Copy a prompt</strong>Use the maintained text, or add your details in the prompt library first.</li>
-        <li><strong>Your agent works</strong>It inspects and changes only your authorised project and accounts.</li>
-        <li><strong>Verify the result</strong>Check the real journey, not just a green build.</li>
-        <li><strong>Come back</strong>Improve or operate the same app when it needs work.</li>
-      </ol>
+      <div class="docs-hero-picker">
+        <div class="docs-search" role="search" aria-label="Find a task or reference" data-docs-search data-docs-enhanced hidden>
+          <label for="docs-search">Find your task</label>
+          <div class="docs-search-row">
+            <input id="docs-search" type="search" data-docs-query autocomplete="off" spellcheck="false" placeholder="Try “make a site”" />
+            <button type="button" class="secondary" data-docs-clear hidden>Clear</button>
+          </div>
+          <p class="docs-search-count" role="status" aria-live="polite" data-docs-count></p>
+          <div class="docs-chips">
+            <span>Try</span>
+            {['make a site', 'publish', 'fix a broken app', 'new to agents', 'add a form'].map(example => <button type="button" data-docs-example={example}>{example}</button>)}
+          </div>
+          <p class="docs-search-note">No account. No model call. Copying a prompt runs nothing.</p>
+        </div>
+        <p class="docs-empty" data-docs-empty hidden>No match. <a href="/prompts">The prompt library</a> lists every job, and <a href="/ready">Get Ready</a> starts with the environment.</p>
+      </div>
     </section>
+
+    <noscript>
+      <p class="note">Search needs JavaScript. Everything below is plain HTML: six task cards, the full prompt templates, the commands and recovery notes, and the technical reference. Open “Prerequisites, current limit and the full prompt” on any card to read or select a prompt.</p>
+      <p class="note">Following an older link to one of this page’s former sections? Every section is preserved in <a href="/docs/how-it-works">How App Composer works</a>:{' '}
+        {docsReferenceSections.map((section, index) => <span>{index ? ' · ' : ''}<a href={`/docs/how-it-works#${section.id}`}>{section.title}</a></span>)}
+      </p>
+    </noscript>
 
     <section class="docs-tasks" id="tasks" data-docs-group aria-labelledby="docs-tasks-heading">
       <div class="docs-section-head">
         <h2 id="docs-tasks-heading">Six ways to start</h2>
-        <p>Each path shows what you get, what you need, the canonical prompt and the next maintained page. Copying a prompt runs nothing.</p>
+        <p>Choose the outcome closest to today’s job. Each card opens the maintained page for that job, and the copy button puts the same canonical prompt the prompt library renders on your clipboard.</p>
+      </div>
+
+      <ol class="docs-cards">
+        {tasks.map((task, index) => (
+          <li class="docs-card" id={task.anchor} data-docs-task={task.id} data-docs-index={task.id}>
+            <article aria-labelledby={`${task.anchor}-title`}>
+              <div class="docs-card-meta">
+                <span class="docs-card-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                <span class="docs-badge">{task.prompt.support}</span>
+              </div>
+              <h3 id={`${task.anchor}-title`}>{task.question}</h3>
+              <p class="docs-card-outcome">{task.outcome}</p>
+              <p class="docs-card-needs"><strong>You need</strong> {task.needs}</p>
+              <div class="docs-card-actions">
+                <button type="button" data-docs-copy={task.id} data-docs-enhanced aria-label={`Copy prompt template: ${task.question}`} aria-describedby={`${task.anchor}-status`} hidden>Copy prompt</button>
+                <a class="docs-card-route" href={task.guide.href}>{task.cardAction}<span aria-hidden="true"> →</span></a>
+              </div>
+              <p class="docs-card-status" role="status" aria-live="polite" aria-atomic="true" id={`${task.anchor}-status`} data-docs-status={task.id}></p>
+              {task.also?.slice(0, 1).map(link => <p class="docs-card-also"><a href={link.href}>{link.label}<span aria-hidden="true"> →</span></a></p>)}
+              <p class="docs-card-more"><a href={`#${task.detailId}`}>Prerequisites, current limit and the full prompt<span aria-hidden="true"> ↓</span></a></p>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="docs-handoff" aria-labelledby="docs-flow-title">
+      <div class="docs-handoff-head">
+        <h2 id="docs-flow-title">What happens after you choose</h2>
+        <p>The same five steps for every task. A copied prompt is a request, not authority: your agent still follows the project’s own instructions, permissions and release path.</p>
+      </div>
+      <ol class="docs-flow">
+        <li><span class="docs-flow-index" aria-hidden="true">1</span><div><strong>Choose a job</strong><p>Start with your own words.</p></div></li>
+        <li><span class="docs-flow-index" aria-hidden="true">2</span><div><strong>Copy a prompt</strong><p>Use the maintained text.</p></div></li>
+        <li><span class="docs-flow-index" aria-hidden="true">3</span><div><strong>Your agent works</strong><p>In your authorised project only.</p></div></li>
+        <li><span class="docs-flow-index" aria-hidden="true">4</span><div><strong>Verify the result</strong><p>Test the real journey.</p></div></li>
+        <li><span class="docs-flow-index" aria-hidden="true">5</span><div><strong>Return to improve</strong><p>Operate the same app later.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="docs-task-details" aria-labelledby="docs-details-heading">
+      <div class="docs-section-head">
+        <h2 id="docs-details-heading">Every task in full</h2>
+        <p>Open one task for its prerequisites, the canonical prompt and the limit that is real today. The full prompt is selectable here without JavaScript. Copying from a card above is the quickest route.</p>
       </div>
 
       {tasks.map((task, index) => (
-        <article class="docs-path" id={task.anchor} data-docs-task={task.id} aria-labelledby={`${task.anchor}-title`}>
-          <header class="docs-path-head">
-            <p class="docs-path-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</p>
-            <h3 id={`${task.anchor}-title`}>{task.question}</h3>
-            <p class="docs-path-short">{task.short}</p>
-          </header>
-          <div class="docs-path-body">
-            <p class="docs-path-outcome"><strong>You get.</strong> {task.outcome}</p>
+        <details class="docs-task-detail" id={task.detailId} data-docs-details={task.id}>
+          <summary>
+            <span class="docs-summary-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+            <span class="docs-summary-title">{task.question}</span>
+            <span class="docs-summary-hint">Prerequisites, prompt and current limit</span>
+          </summary>
+          <div class="docs-task-body">
+            <p class="docs-task-outcome"><strong>You get.</strong> {task.outcome}</p>
 
-            <h4>Before you start</h4>
-            <ul class="docs-path-prereqs">
+            <h3>Before you start</h3>
+            <ul>
               {task.prerequisites.map(item => <li>{item}</li>)}
             </ul>
 
-            <p class="docs-path-promptnote"><strong>Your agent will:</strong> {task.promptNote}</p>
-            <p class="docs-path-promoteline"><span class="docs-badge">{task.prompt.support}</span><span>Canonical prompt: {task.prompt.title}</span></p>
+            <h3>What this asks your agent to do</h3>
+            <p>{task.promptNote}</p>
+            <p class="docs-task-promoteline"><span class="docs-badge">{task.prompt.support}</span><span>Canonical prompt: {task.prompt.title}</span></p>
 
-            <div class="docs-path-actions">
-              <button type="button" data-docs-copy={task.id} data-docs-enhanced aria-label={`Copy prompt template: ${task.question}`} aria-describedby={`${task.anchor}-copy-note ${task.anchor}-status`} hidden>Copy prompt template</button>
-              <a class="docs-path-open" href={`/prompts#${task.promptId}`}>Open the prompt and add your details<span aria-hidden="true"> →</span></a>
-            </div>
-            <p class="docs-path-copy-note" id={`${task.anchor}-copy-note`}>Copies the canonical prompt template. The prompt library’s <strong>Copy template</strong> action produces this same text; its completed prompt includes any details you add there. Bracketed details are for your agent to inspect, or you can fill them in first. Copying runs nothing.</p>
-            <p class="docs-path-status" role="status" aria-live="polite" aria-atomic="true" data-docs-status={task.id}></p>
+            {task.also?.map(link => <p class="docs-task-also">Also for this task: <a href={link.href}>{link.label}<span aria-hidden="true"> →</span></a></p>)}
+            <p class="docs-task-route">Supporting page: <a href={task.guide.href}>{task.guide.label}<span aria-hidden="true"> →</span></a> <span>{task.guide.note}</span></p>
+            <p class="docs-task-route">Next step: <a href={task.next.href}>{task.next.label}<span aria-hidden="true"> →</span></a></p>
+            <p class="docs-task-limit"><strong>Current limit.</strong> {task.limit}</p>
 
-            <details class="docs-prompt-preview" data-docs-details={task.id}>
-              <summary>Preview the full prompt</summary>
-              <pre class="docs-prompt-text" tabindex="0" role="region" aria-label={`Prompt template for: ${task.question}`} data-docs-prompt={task.id}>{task.template}</pre>
-              <p class="note">Select the text and use your device’s Copy command if the copy button is unavailable. This always works, with or without JavaScript. This is a template, not a completed project-specific prompt.</p>
-            </details>
-
-            {task.also?.map(link => <p class="docs-path-also">Also for this task: <a href={link.href}>{link.label}<span aria-hidden="true"> →</span></a></p>)}
-            <p class="docs-path-guide">Supporting guide: <a href={task.guide.href}>{task.guide.label}<span aria-hidden="true"> →</span></a> <span>{task.guide.note}</span></p>
-            <p class="docs-path-next">Next step: <a href={task.next.href}>{task.next.label}<span aria-hidden="true"> →</span></a></p>
-            <p class="docs-path-limit"><strong>Current limit.</strong> {task.limit}</p>
+            <h3>Full prompt</h3>
+            <p class="note">This is the canonical template. The prompt library’s <strong>Copy template</strong> action produces the same text; its completed prompt includes any details you add there. Bracketed fields are for your agent to inspect, or you can fill them in first. <a href={`/prompts#${task.promptId}`}>Open the prompt and add your details<span aria-hidden="true"> →</span></a></p>
+            <pre class="docs-prompt-text" tabindex="0" role="region" aria-label={`Prompt template for: ${task.question}`} data-docs-prompt={task.id}>{task.template}</pre>
+            <p class="note">Prefer to copy by hand? Select the text above and use your device’s Copy command. This always works, with or without JavaScript.</p>
           </div>
-        </article>
+        </details>
       ))}
     </section>
 
@@ -131,7 +162,6 @@ const totalLinks = docsReferenceSections.length + docsGuideLinks.length;
           </ul>
         </div>
       </div>
-      <p class="docs-operate-rule">A copied prompt is a request, not authority. Your agent still follows the project’s own instructions, permissions and release path, and asks you for anything only a person can decide.</p>
 
       <details class="docs-operate-detail">
         <summary>Exact commands, file paths and failure recovery</summary>
@@ -155,7 +185,7 @@ pnpm build
 pnpm deploy`}</code></pre>
           <h3>Where the words live</h3>
           <dl class="docs-files">
-            <div><dt><code>src/pages/docs.astro</code></dt><dd>This hub: the six tasks, the commands and the reference index.</dd></div>
+            <div><dt><code>src/pages/docs.astro</code></dt><dd>This hub: the six task cards, the full prompts, the commands and the reference index.</dd></div>
             <div><dt><code>src/lib/docs-hub.ts</code></dt><dd>Task records, task terms and the local, deterministic search. No model call.</dd></div>
             <div><dt><code>src/lib/docs-hub-client.ts</code></dt><dd>Search filtering, the copy action and its manual fallback.</dd></div>
             <div><dt><code>src/lib/prompt-library.ts</code></dt><dd>The canonical prompt text. This page renders these modules and never forks their prose.</dd></div>
@@ -165,8 +195,8 @@ pnpm deploy`}</code></pre>
           </dl>
           <h3>When something fails</h3>
           <dl class="docs-faults">
-            <div><dt>The copy button does nothing</dt><dd>The browser refused clipboard access. The full prompt opens and is selected below the task; copy it with Cmd/Ctrl+C or your device’s copy menu. The status line says which happened.</dd></div>
-            <div><dt>Search is missing</dt><dd>JavaScript is off or blocked. The six tasks, prompts, commands and reference are still readable HTML; open any “Preview the full prompt” disclosure.</dd></div>
+            <div><dt>The copy button does nothing</dt><dd>The browser refused clipboard access. The full prompt opens and is selected below that task’s card; copy it with Cmd/Ctrl+C or your device’s copy menu. The status line says which happened.</dd></div>
+            <div><dt>Search is missing</dt><dd>JavaScript is off or blocked. The six task cards, prompts, commands and reference are still readable HTML; open any task on this page to select its full prompt.</dd></div>
             <div><dt>An old anchor link from the former documentation page</dt><dd>It forwards to the matching section of <a href="/docs/how-it-works">/docs/how-it-works</a>. Every former anchor is preserved.</dd></div>
             <div><dt>The Node version is unsupported</dt><dd>Install a supported floor (22.23.5+, 24.22.3+ or 26.13.1+) and rerun. <code>.node-version</code> selects the reviewed default.</dd></div>
             <div><dt>The release is refused</dt><dd>The guard needs a clean, pushed <code>main</code>. Commit and push first; do not bypass it to reach production.</dd></div>
@@ -182,22 +212,22 @@ pnpm deploy`}</code></pre>
         <p>The exact behaviour behind each task. The complete former <code>/docs</code> article is preserved at <a href="/docs/how-it-works">How App Composer works</a>, including MCP, app contracts, updates and content projects.</p>
       </div>
       <div class="docs-reference-columns">
-        <div data-docs-group>
-          <h3>How it works</h3>
+        <details class="docs-reference-group" data-docs-auto-open>
+          <summary>Reference sections <span>{docsReferenceSections.length}</span></summary>
           <ul>
             {docsReferenceSections.map(section => (
               <li data-docs-section={section.id}><a href={`/docs/how-it-works#${section.id}`}>{section.title}</a><p>{section.summary}</p></li>
             ))}
           </ul>
-        </div>
-        <div data-docs-group>
-          <h3>Guides and tools</h3>
+        </details>
+        <details class="docs-reference-group" data-docs-auto-open>
+          <summary>Guides and tools <span>{docsGuideLinks.length}</span></summary>
           <ul>
             {docsGuideLinks.map(link => (
               <li data-docs-guide={link.id}><a href={link.href}>{link.label}</a><p>{link.summary}</p></li>
             ))}
           </ul>
-        </div>
+        </details>
       </div>
     </section>
 
@@ -206,18 +236,21 @@ pnpm deploy`}</code></pre>
         <h2 id="docs-unavailable-heading">Not available yet</h2>
         <p>These requests come up often. They are named here so an empty search never turns into a made-up feature.</p>
       </div>
-      <ul>
-        {docsUnavailable.map(item => (
-          <li data-docs-unavailable={item.id}>
-            <h3>{item.request}</h3>
-            <p>{item.explanation}</p>
-            <p>Closest working route: <a href={item.closest.href}>{item.closest.label}<span aria-hidden="true"> →</span></a></p>
-          </li>
-        ))}
-      </ul>
+      <details class="docs-unavailable-group" data-docs-auto-open>
+        <summary>Six requests and the closest working route</summary>
+        <ul>
+          {docsUnavailable.map(item => (
+            <li data-docs-unavailable={item.id}>
+              <h3>{item.request}</h3>
+              <p>{item.explanation}</p>
+              <p>Closest working route: <a href={item.closest.href}>{item.closest.label}<span aria-hidden="true"> →</span></a></p>
+            </li>
+          ))}
+        </ul>
+      </details>
     </section>
 
-    <p class="docs-reviewed">Reviewed 16 November 2026. Task prompts are rendered from the maintained prompt library, so this page cannot drift from <a href="/prompts">the prompt library</a>. {totalLinks} reference and guide links are indexed by the local search above; nothing is sent anywhere.</p>
+    <p class="docs-reviewed">Reviewed 16 November 2026. Task prompts are rendered from the maintained prompt library, so this page cannot drift from <a href="/prompts">the prompt library</a>. {totalLinks} reference and guide links are indexed by the local search on this page.</p>
   </div>
 </Base>
 
@@ -227,114 +260,157 @@ pnpm deploy`}</code></pre>
 
 <style>
   .docs-hub { min-width: 0; }
-  .eyebrow { font-size: 13px; letter-spacing: .09em; text-transform: uppercase; color: var(--color-muted); margin: 0; }
-  .docs-hero { padding-bottom: 8px; }
-  .docs-hero h1 { font-size: clamp(2.4rem, 5vw, 3.9rem); max-width: 26ch; margin: 10px 0 20px; line-height: 1.04; }
-  .docs-hero .lede { max-width: 58ch; }
-  .docs-hero-actions { display: flex; align-items: center; gap: 12px 24px; flex-wrap: wrap; margin: 22px 0 24px; }
-    .docs-search { max-width: 760px; margin: 0 0 28px; padding: 20px; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-surface); }
-  .docs-search label { margin: 0; font-size: .95rem; font-weight: 650; }
+  .docs-hub p { max-width: 68ch; }
+  .docs-hub code { font-size: 1em; }
+  .docs-hub .eyebrow { font-size: .875rem; }
+
+  .docs-hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 48px; align-items: start; padding-bottom: 8px; }
+  .docs-hero-main, .docs-hero-picker { min-width: 0; }
+  .docs-hero h1 { max-width: 20ch; margin: 12px 0 18px; font-size: clamp(2.4rem, 4.6vw, 3.6rem); line-height: 1.04; }
+  .docs-hero .lede { max-width: 54ch; margin: 0 0 20px; }
+  .docs-hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; margin: 0; }
+  .docs-hero-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-accent); text-underline-offset: .18em; }
+  .docs-hero-link:hover { text-decoration: underline; }
+
+  .docs-search { margin: 0; padding: 20px; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-surface); }
+  .docs-search label { margin: 0; font-size: 1rem; font-weight: 650; }
   .docs-search-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
   .docs-search-row input { margin-top: 0; }
   .docs-search-row button { flex: none; }
-  .docs-search-count { min-height: 1.4em; margin: 10px 0 0; font-size: .85rem; color: var(--color-muted); }
-  .docs-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; font-size: .82rem; color: var(--color-muted); }
-  .docs-chips button { min-height: 44px; padding: 6px 12px; border: 1px solid var(--color-control-border); background: transparent; color: var(--color-foreground); font: inherit; }
+  .docs-search-count { min-height: 1.5em; margin: 10px 0 0; font-size: .875rem; color: var(--color-muted); }
+  .docs-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; font-size: .875rem; color: var(--color-muted); }
+  .docs-chips button { min-height: 44px; padding: 4px 10px; border: 1px solid var(--color-control-border); background: transparent; color: var(--color-foreground); font: 500 .875rem/1.3 system-ui, sans-serif; }
   .docs-chips button:hover { background: var(--color-selected); }
-  .docs-index { display: block; margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--color-border); }
-  .docs-index-heading { max-width: none; margin: 0 0 12px; font: 650 .85rem/1.4 system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--color-muted); }
-  .docs-index ol { display: grid; grid-template-columns: 1fr 1fr; gap: 0 40px; max-width: none; margin: 0; padding: 0; list-style: none; }
-  .docs-index a { display: flex; align-items: baseline; gap: 14px; min-height: 44px; padding: 8px 0; border-bottom: 1px solid var(--color-border); font-weight: 600; color: var(--color-foreground); }
-  .docs-index a:hover { color: var(--color-accent); }
-  .docs-index-number { flex: none; font: 500 .8rem/1 system-ui, sans-serif; letter-spacing: .08em; color: var(--color-accent); }
-  .docs-flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; max-width: none; margin: 32px 0 0; padding: 24px 0 0; border-top: 1px solid var(--color-border); list-style: none; }
-  .docs-flow li { margin: 0; font-size: .88rem; line-height: 1.5; color: var(--color-muted); }
-  .docs-flow strong { display: block; margin-bottom: 4px; color: var(--color-foreground); font: 600 .98rem/1.3 system-ui, sans-serif; }
-  .docs-tasks { margin-top: 56px; }
-  .docs-section-head { max-width: 78ch; }
-  .docs-section-head h2 { max-width: 22ch; }
-  .docs-section-head p { margin: 0 0 8px; color: var(--color-muted); }
-  .docs-path { display: grid; grid-template-columns: minmax(0, 240px) minmax(0, 1fr); gap: 36px; padding: 36px 0; border-top: 1px solid var(--color-border); scroll-margin-top: 24px; }
-  .docs-path-number { margin: 0; font: 500 .8rem/1 system-ui, sans-serif; letter-spacing: .1em; color: var(--color-accent); }
-  .docs-path h3 { max-width: 18ch; margin: 8px 0 10px; font-size: clamp(1.65rem, 2.6vw, 2.25rem); }
-  .docs-path-short { margin: 0; font-size: .92rem; color: var(--color-muted); }
-  .docs-path-body { min-width: 0; }
-  .docs-path-outcome { margin: 0; font-size: 1.05rem; }
-  .docs-path h4 { margin: 24px 0 8px; font: 650 .8rem/1.4 system-ui, sans-serif; letter-spacing: .07em; text-transform: uppercase; color: var(--color-muted); }
-  .docs-path-prereqs { max-width: none; margin: 0; padding-left: 20px; font-size: .95rem; }
-  .docs-path-prereqs li { margin: 6px 0; }
-  .docs-path-promptnote { margin: 24px 0 0; padding: 16px 18px; border-left: 3px solid var(--color-accent); background: var(--color-surface); font-size: .95rem; }
-  .docs-path-promoteline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 16px 0 0; font-size: .85rem; color: var(--color-muted); }
-  .docs-badge { display: inline-block; padding: 6px 8px; border: 1px solid var(--color-control-border); border-radius: 4px; font: 600 .72rem/1 system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--color-foreground); }
-  .docs-path-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 18px; }
-  .docs-path-open { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-accent); }
-  .docs-path-copy-note { max-width: 62ch; margin: 10px 0 0; font-size: .82rem; color: var(--color-muted); }
-  .docs-path-status { margin: 10px 0 0; font-size: .9rem; color: var(--color-accent); }
-  .docs-path-status[data-copy-state="copied"] { color: var(--color-success); }
-  .docs-path-status[data-copy-state="failed"] { padding-left: 10px; border-left: 3px solid var(--color-accent); color: var(--color-foreground); }
-  .docs-path-status:empty { display: none; }
-  .docs-path-actions button[data-copy-state="failed"] { border-color: var(--color-accent); }
-  .docs-path-actions button[data-copy-state="copied"] { border-color: var(--color-success); }
-  .docs-prompt-preview { margin: 18px 0 0; padding: 8px 0; border-block: 1px solid var(--color-border); }
-  .docs-prompt-preview summary { font-size: .9rem; }
-  .docs-prompt-text { max-height: 320px; margin: 8px 0 0; font: .82rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; }
-  .docs-path-also { margin: 20px 0 0; font-size: .92rem; color: var(--color-muted); }
-  .docs-path-also a { color: var(--color-accent); }
-  .docs-path-guide { margin: 12px 0 0; font-size: .92rem; }
-  .docs-path-guide a, .docs-path-next a { color: var(--color-accent); }
-  .docs-path-guide span { color: var(--color-muted); }
-  .docs-path-next { margin: 10px 0 0; font-size: .92rem; }
-  .docs-path-limit { margin: 20px 0 0; padding-top: 14px; border-top: 1px solid var(--color-border); font-size: .85rem; color: var(--color-muted); }
-  .docs-path-limit strong { color: var(--color-foreground); }
+  .docs-search-note { margin: 10px 0 0; font-size: .875rem; line-height: 1.5; color: var(--color-muted); }
+
+  .docs-handoff { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 28px 48px; margin-top: 48px; padding: 28px 0; border-block: 1px solid var(--color-border); }
+  .docs-handoff-head h2 { max-width: 20ch; margin: 0 0 8px; font-size: 1.35rem; }
+  .docs-handoff-head p { margin: 0; font-size: .9375rem; line-height: 1.55; color: var(--color-muted); }
+  .docs-flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; max-width: none; margin: 0; padding: 0; list-style: none; }
+  .docs-flow li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; margin: 0; }
+  .docs-flow-index { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border: 1px solid var(--color-control-border); border-radius: 50%; font: 600 .875rem/1 system-ui, sans-serif; color: var(--color-accent); }
+  .docs-flow strong { display: block; font: 600 .9375rem/1.3 Space, system-ui, sans-serif; }
+  .docs-flow p { margin: 2px 0 0; font-size: .875rem; line-height: 1.45; color: var(--color-muted); }
+
+  .docs-tasks { margin-top: 48px; }
+  .docs-section-head { max-width: 78ch; margin-bottom: 8px; }
+  .docs-section-head h2 { max-width: 24ch; margin-bottom: 12px; font-size: clamp(1.75rem, 2.6vw, 2.5rem); }
+  .docs-section-head p { margin: 0; color: var(--color-muted); }
+
+  .docs-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 22px; max-width: none; margin: 28px 0 0; padding: 0; list-style: none; align-items: stretch; }
+  .docs-cards > li { display: flex; min-width: 0; margin: 0; }
+  .docs-card { display: flex; width: 100%; }
+  .docs-card > article { display: flex; flex-direction: column; width: 100%; padding: 24px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface); }
+  .docs-card > article:focus-within { border-color: var(--color-accent); }
+  .docs-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .docs-card-number { font: 600 .875rem/1 system-ui, sans-serif; letter-spacing: .12em; color: var(--color-accent); }
+  .docs-badge { display: inline-block; padding: 5px 8px; border: 1px solid var(--color-control-border); border-radius: 999px; font: 600 .875rem/1.2 system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: var(--color-foreground); white-space: nowrap; }
+  .docs-card h3 { max-width: 24ch; margin: 14px 0 10px; font-size: 1.4rem; }
+  .docs-card-outcome { margin: 0; font-size: .9375rem; line-height: 1.55; }
+  .docs-card-needs { margin: 12px 0 0; font-size: .875rem; line-height: 1.5; color: var(--color-muted); }
+  .docs-card-needs strong { color: var(--color-foreground); }
+  .docs-card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: auto; padding-top: 18px; }
+  .docs-card-actions .button, .docs-card-actions button { min-height: 44px; padding: 10px 16px; font-size: 1rem; }
+  .docs-card-route { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 16px; border: 1px solid var(--color-control-border); border-radius: 6px; background: transparent; color: var(--color-foreground); font: 600 1rem/1.5 system-ui, sans-serif; }
+  .docs-card-route:hover { background: var(--color-selected); }
+  .docs-hub:not([data-enhanced]) .docs-card-route { border-color: var(--color-action); background: var(--color-action); color: var(--color-on-action); }
+  .docs-card-status { margin: 10px 0 0; font-size: .875rem; line-height: 1.5; color: var(--color-accent); }
+  .docs-card-status[data-copy-state="copied"] { color: var(--color-success); }
+  .docs-card-status[data-copy-state="failed"] { padding-left: 10px; border-left: 3px solid var(--color-accent); color: var(--color-foreground); }
+  .docs-card-status:empty { display: none; }
+  .docs-card-actions button[data-copy-state="failed"] { border: 1px solid var(--color-accent); }
+  .docs-card-actions button[data-copy-state="copied"] { border: 1px solid var(--color-success); }
+  .docs-card-also { margin: 10px 0 0; font-size: .875rem; line-height: 1.45; }
+  .docs-card-also a { display: inline-flex; align-items: center; min-height: 32px; color: var(--color-accent); }
+  .docs-card-more { margin: 14px 0 0; font-size: .875rem; }
+  .docs-card-more a { display: inline-flex; align-items: center; min-height: 32px; color: var(--color-accent); }
+
+  .docs-task-details { margin-top: 56px; padding-top: 40px; border-top: 1px solid var(--color-border); }
+  .docs-task-detail { margin: 0; border-bottom: 1px solid var(--color-border); }
+  .docs-task-detail summary { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 16px; align-items: baseline; padding: 18px 0; }
+  .docs-task-detail summary::marker { color: var(--color-accent); }
+  .docs-summary-number { color: var(--color-accent); font: 600 .875rem/1.2 system-ui, sans-serif; letter-spacing: .1em; }
+  .docs-summary-title { font: 600 1.1rem/1.35 Space, system-ui, sans-serif; }
+  .docs-summary-hint { grid-column: 2; font-size: .875rem; font-weight: 400; color: var(--color-muted); }
+  .docs-task-body { padding: 0 0 30px; }
+  .docs-task-body h3 { margin: 24px 0 8px; font: 650 .875rem/1.4 system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--color-muted); }
+  .docs-task-outcome { margin: 0; font-size: 1.05rem; }
+  .docs-task-body ul { max-width: 72ch; margin: 8px 0 0; padding-left: 20px; font-size: .9375rem; }
+  .docs-task-body li { margin: 6px 0; }
+  .docs-task-body p { font-size: .9375rem; }
+  .docs-task-promoteline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 14px 0 0; color: var(--color-muted); }
+  .docs-task-also, .docs-task-route { margin: 14px 0 0; }
+  .docs-task-also a, .docs-task-route a { color: var(--color-accent); }
+  .docs-task-route span { color: var(--color-muted); }
+  .docs-task-limit { margin: 20px 0 0; padding: 14px 16px; border-left: 3px solid var(--color-accent); background: var(--color-surface); }
+  .docs-task-limit strong { color: var(--color-foreground); }
+  .docs-prompt-text { max-height: none; margin: 10px 0 0; padding: 20px; overflow: visible; font: 400 .875rem/1.65 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .docs-task-body .note { margin: 12px 0 0; font-size: .875rem; }
+
   .docs-operate { margin-top: 56px; padding-top: 40px; border-top: 1px solid var(--color-border); }
   .docs-operate-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 32px 48px; margin-top: 24px; }
   .docs-operate-pair h3 { margin: 0 0 8px; font-size: 1.15rem; }
-  .docs-operate-pair ul { max-width: 52ch; margin: 0; padding-left: 20px; font-size: .92rem; }
+  .docs-operate-pair ul { max-width: 52ch; margin: 0; padding-left: 20px; font-size: .9375rem; }
   .docs-operate-pair li { margin: 8px 0; }
   .docs-operate-pair li:first-child { margin-top: 0; }
-  .docs-operate-rule { margin: 24px 0 0; padding: 16px 18px; border-left: 3px solid var(--color-accent); background: var(--color-surface); font-size: .92rem; }
-  .docs-operate-detail { margin-top: 26px; border-block: 1px solid var(--color-border); padding: 8px 0; }
-  .docs-operate-detail summary { font-size: .95rem; }
+  .docs-operate-detail { margin-top: 26px; padding: 8px 0; border-block: 1px solid var(--color-border); }
+  .docs-operate-detail summary { font-size: .9375rem; }
   .docs-operate-body { padding: 0 0 12px; }
-  .docs-operate-body h3 { margin: 26px 0 10px; font: 650 .8rem/1.4 system-ui, sans-serif; letter-spacing: .07em; text-transform: uppercase; color: var(--color-muted); }
+  .docs-operate-body h3 { margin: 26px 0 10px; font: 650 .875rem/1.4 system-ui, sans-serif; letter-spacing: .07em; text-transform: uppercase; color: var(--color-muted); }
   .docs-operate-body h3:first-child { margin-top: 12px; }
-  .docs-operate-body p { font-size: .92rem; }
-  .docs-operate-body pre { max-height: 360px; margin: 12px 0 0; }
+  .docs-operate-body p { font-size: .9375rem; }
+  .docs-operate-body pre { max-height: 360px; margin: 12px 0 0; font-size: .875rem; }
   .docs-files, .docs-faults { display: grid; gap: 0; max-width: 72ch; margin: 0; }
   .docs-files div, .docs-faults div { padding: 12px 0; border-top: 1px solid var(--color-border); }
-  .docs-files dt, .docs-faults dt { margin: 0 0 4px; font: 600 .86rem/1.5 system-ui, sans-serif; }
-  .docs-files dd, .docs-faults dd { margin: 0; font-size: .88rem; color: var(--color-muted); }
+  .docs-files dt, .docs-faults dt { margin: 0 0 4px; font: 600 .9375rem/1.5 system-ui, sans-serif; }
+  .docs-files dd, .docs-faults dd { margin: 0; font-size: .9375rem; color: var(--color-muted); }
   .docs-files dd code { color: var(--color-foreground); }
-  .docs-reference { margin-top: 64px; }
-  .docs-reference-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 28px; }
-  .docs-reference h3 { margin: 0 0 10px; font-size: 1.25rem; }
-  .docs-reference ul { max-width: none; margin: 0; padding: 0; list-style: none; }
-  .docs-reference li { margin: 0; padding: 10px 0; border-bottom: 1px solid var(--color-border); }
-  .docs-reference li a { display: inline-flex; align-items: center; min-height: 32px; color: var(--color-accent); }
-  .docs-reference li p { max-width: 48ch; margin: 2px 0 0; font-size: .82rem; color: var(--color-muted); }
-  .docs-empty { margin: 0 0 8px; padding: 16px 18px; border: 1px solid var(--color-border); border-left: 3px solid var(--color-accent); border-radius: 6px; }
-  .docs-unavailable { margin-top: 56px; }
-  .docs-unavailable ul { max-width: none; margin: 24px 0 0; padding: 0; list-style: none; }
+
+  .docs-reference { margin-top: 56px; padding-top: 40px; border-top: 1px solid var(--color-border); }
+  .docs-reference-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 32px 48px; margin-top: 20px; }
+  .docs-reference-group { margin: 0; border-block: 1px solid var(--color-border); }
+  .docs-reference-group summary { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 14px 0; font-size: 1.1rem; }
+  .docs-reference-group summary span { font: 600 .875rem/1.4 system-ui, sans-serif; color: var(--color-accent); }
+  .docs-reference-group ul { max-width: none; margin: 0 0 16px; padding: 0; list-style: none; }
+  .docs-reference-group li { margin: 0; padding: 10px 0; border-top: 1px solid var(--color-border); }
+  .docs-reference-group li a { display: inline-flex; align-items: center; min-height: 32px; color: var(--color-accent); }
+  .docs-reference-group li p { max-width: 48ch; margin: 2px 0 0; font-size: .875rem; line-height: 1.45; color: var(--color-muted); }
+  .docs-empty { margin: 16px 0 0; padding: 16px 18px; border: 1px solid var(--color-border); border-left: 3px solid var(--color-accent); border-radius: 6px; }
+
+  .docs-unavailable { margin-top: 56px; padding-top: 40px; border-top: 1px solid var(--color-border); }
+  .docs-unavailable-group { margin: 0; border-block: 1px solid var(--color-border); }
+  .docs-unavailable-group summary { padding: 14px 0; font-size: 1.1rem; }
+  .docs-unavailable ul { max-width: none; margin: 0 0 18px; padding: 0; list-style: none; }
   .docs-unavailable li { padding: 20px 0; border-top: 1px solid var(--color-border); }
   .docs-unavailable h3 { margin: 0 0 6px; font: 600 1.05rem/1.4 system-ui, sans-serif; letter-spacing: 0; }
-  .docs-unavailable li p { margin: 6px 0 0; font-size: .9rem; }
+  .docs-unavailable li p { margin: 6px 0 0; font-size: .9375rem; }
   .docs-unavailable li p:last-child { color: var(--color-muted); }
   .docs-unavailable a { color: var(--color-accent); }
-  .docs-reviewed { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--color-border); font-size: .85rem; color: var(--color-muted); }
+
+  .docs-reviewed { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--color-border); font-size: .875rem; color: var(--color-muted); }
+
+  @media (max-width: 1000px) {
+    .docs-hero { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+    .docs-handoff { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  }
   @media (max-width: 900px) {
-    .docs-path { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 28px 0; }
-    .docs-index ol { grid-template-columns: 1fr; }
-    .docs-flow { grid-template-columns: 1fr 1fr; gap: 14px 24px; }
-    .docs-reference-columns { grid-template-columns: 1fr; gap: 28px; }
+    .docs-reference-columns { grid-template-columns: 1fr; gap: 24px; }
     .docs-operate-pair { grid-template-columns: 1fr; gap: 24px; }
   }
   @media (max-width: 560px) {
     .docs-search { padding: 16px; }
-    .docs-chips { display: none; }
     .docs-search-row { flex-wrap: wrap; }
     .docs-search-row button { width: 100%; }
-    .docs-flow { grid-template-columns: 1fr; }
-    .docs-path-actions button { width: 100%; }
-    .docs-path h3 { max-width: none; }
+    .docs-chips { display: none; }
+    .docs-cards { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .docs-card > article { padding: 20px; }
+    .docs-card h3 { max-width: none; font-size: 1.3rem; }
+    .docs-card-actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+    .docs-card-actions button, .docs-card-route { width: 100%; padding: 8px 10px; }
+    .docs-task-detail summary { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+    .docs-summary-number, .docs-summary-hint { display: none; }
+    .docs-prompt-text { padding: 16px; }
+    .docs-hero-actions { gap: 8px 18px; }
+    .docs-handoff { margin-top: 40px; padding: 22px 0; }
   }
 </style>

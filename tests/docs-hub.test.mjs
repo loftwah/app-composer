@@ -33,6 +33,8 @@ test('six plain-language task paths carry an outcome, prerequisites, action, gui
     assert.match(task.anchor, /^path-[a-z-]+$/, `${task.id} needs a stable anchor`);
     assert.ok(task.question.endsWith('?') || /^(I|Add|Publish|Improve)/.test(task.question), `${task.id} question reads like a task`);
     assert.ok(task.outcome.length > 40, `${task.id} outcome must explain the result`);
+    assert.ok(task.needs.length > 20, `${task.id} card needs a real prerequisite summary`);
+    assert.ok(task.cardAction.length >= 6 && task.cardAction.length <= 24, `${task.id} card action fits on one line`);
     assert.ok(task.prerequisites.length >= 2, `${task.id} needs real prerequisites`);
     assert.ok(task.prerequisites.every(item => item.length > 20), `${task.id} prerequisites must be specific`);
     assert.ok(task.promptNote.length > 60, `${task.id} must explain the prompt before copying`);
@@ -182,16 +184,45 @@ test('the hub renders the required first viewport and reuses the prompt renderer
   assert.match(hub, /href="\/prompts">Get a prompt for my agent/);
   assert.match(hub, /data-docs-search/);
   assert.match(hub, /href="\/docs\/how-it-works"/);
-  assert.match(hub, /Copy template<\/strong> action produces this same text/, 'the copy note distinguishes the template from a completed prompt');
+  assert.match(hub, /Copy template<\/strong> action produces the same text/, 'the copy note distinguishes the template from a completed prompt');
   for (const task of docsTaskPaths) {
     assert.ok(task.id.length > 2, `${task.id} is a real task id`);
   }
   assert.match(hub, /data-docs-task=\{task\.id\}/, 'every task is server-rendered');
   assert.match(hub, /data-docs-copy=\{task\.id\}/, 'every task has a copy action');
+  assert.match(hub, /class="docs-card-route" href=\{task\.guide\.href\}/, 'every card routes to its maintained page in one click');
   assert.match(hub, /href=\{`\/prompts#\$\{task\.promptId\}`\}/, 'every task opens its canonical prompt');
   assert.match(hub, /renderPrompt\(task\.promptId, \{\}, \{ template: true \}\)/);
   assert.doesNotMatch(hub, /Inspect the actual project and its trusted instructions first\./, 'prompt prose is not forked into the page');
   assert.match(hub, /import '\.\.\/lib\/docs-hub-client'/, 'the local search stays the only client behaviour');
+});
+
+test('the task hub routes in one click and keeps the full detail behind a disclosure', () => {
+  const markup = hub.split('<style>')[0];
+  assert.match(markup, /<ol class="docs-cards">/, 'the six tasks are a scannable card grid');
+  assert.equal(docsTaskPaths.length, 6, 'the grid is generated for all six tasks');
+  assert.match(markup, /<article aria-labelledby=\{`\$\{task\.anchor\}-title`\}>/, 'each grid item is a labelled card');
+  assert.match(markup, /<details class="docs-task-detail" id=\{task\.detailId\} data-docs-details=\{task\.id\}>/);
+  assert.match(markup, /href=\{`#\$\{task\.detailId\}`\}/, 'each card deep-links to its own detail');
+  assert.doesNotMatch(markup, /class="docs-path"/, 'the old always-open task dossiers are gone');
+  assert.doesNotMatch(markup, /class="docs-index"/, 'the duplicate six-link index is gone');
+  assert.equal([...markup.matchAll(/copying a prompt runs nothing/gi)].length, 1, 'the clipboard boundary is stated once');
+  for (const task of docsTaskPaths) {
+    assert.ok(task.guide.href.startsWith('/'), `${task.id} routes to a site page, not a fragment`);
+    assert.ok(publicPagePaths.includes(task.guide.href), `${task.id} card target ${task.guide.href} is a maintained page`);
+  }
+  assert.match(markup, /<details class="docs-reference-group" data-docs-auto-open>/);
+  assert.match(markup, /<details class="docs-unavailable-group" data-docs-auto-open>/);
+});
+
+test('no hub text is smaller than 14px', () => {
+  const styles = hub.split('<style>')[1];
+  const declared = [
+    ...[...styles.matchAll(/font-size:\s*([\d.]+)rem/g)].map(match => Number(match[1])),
+    ...[...styles.matchAll(/font:\s*(?:[^;{}]*?)([\d.]+)rem\//g)].map(match => Number(match[1])),
+  ];
+  assert.ok(declared.length > 20, 'the size audit saw the hub styles');
+  for (const size of declared) assert.ok(size >= 0.875, `${size}rem is smaller than 14px`);
 });
 
 test('internal documentation links point at the stable reference route', () => {
@@ -253,13 +284,24 @@ test('Escape restores the full hub after ArrowDown moved focus to a result', () 
   assert.match(client, /target === input/, 'the search field keeps its own Escape behaviour');
 });
 
+test('a task deep link opens its disclosure, and a search opens a collapsed index', () => {
+  const client = readFileSync(new URL('../src/lib/docs-hub-client.ts', import.meta.url), 'utf8');
+  assert.match(client, /a\[href\^="#detail-"\]/, 'detail links are handled');
+  assert.match(client, /target\.open = true/, 'the target disclosure opens before focus moves');
+  assert.match(client, /window\.setTimeout\(\(\) => target\.querySelector\('summary'\)\?\.focus\(\{ preventScroll: true \}\), 0\)/, 'focus moves to the opened summary after the fragment navigation, without losing the reader’s place');
+  assert.match(client, /addEventListener\('hashchange', openDetailFromHash\)/, 'reload and Back/Forward open the same detail');
+  assert.match(client, /\[data-docs-auto-open\]/, 'collapsed reference indexes are indexed by search');
+  assert.match(client, /details\.open = Boolean\(input\.value\.trim\(\)/, 'a matching search result is visible, not hidden in a closed disclosure');
+});
+
 test('every copy control is named for its own task and announces its own outcome', () => {
   const client = readFileSync(new URL('../src/lib/docs-hub-client.ts', import.meta.url), 'utf8');
   assert.match(hub, /aria-label=\{`Copy prompt template: \$\{task\.question\}`\}/, 'the accessible name names the task');
   assert.equal(new Set(docsTaskPaths.map(task => task.question)).size, docsTaskPaths.length, 'each name is distinct');
-  assert.match(hub, /role="status" aria-live="polite" aria-atomic="true" data-docs-status=/, 'each control has a live status');
+  assert.match(hub, /role="status" aria-live="polite" aria-atomic="true"[^>]*data-docs-status=/, 'each control has a live status');
+  assert.match(hub, /aria-describedby=\{`\$\{task\.anchor\}-status`\}/, 'the control points at its own status');
   assert.match(hub, /role="region" aria-label=\{`Prompt template for: \$\{task\.question\}`\}/, 'the selectable prompt is a labelled region');
-  assert.match(hub, /<details class="docs-prompt-preview" data-docs-details=/, 'the full text is always available to select');
+  assert.match(hub, /<details class="docs-task-detail" id=\{task\.detailId\} data-docs-details=\{task\.id\}>/, 'the full text is always available to select');
   assert.match(client, /copyPromptText\(text, navigator\.clipboard\?\.writeText/, 'the real clipboard result decides the outcome');
   assert.match(client, /setStatus\(status, docsCopyMessages\.copied/, 'success is written to the control status');
   assert.match(client, /setStatus\(status, docsCopyMessages\.manual/, 'failure is written to the control status');
