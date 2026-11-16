@@ -23,6 +23,17 @@ const ID = /^[a-z0-9-]+$/;
 const LIFECYCLES = new Set(["active", "paused", "retired"]);
 const STATES = new Set(["reference", "evidence-pending", "ready"]);
 
+// The integration tier is a provenance claim, not a roadmap. A project only
+// reaches a stronger tier when the inventory carries the record that backs it.
+export const RELATIONSHIP_TIERS = Object.freeze([
+  "built-with-composer",
+  "connected-managed",
+  "blueprint-rebuildable",
+  "showcased",
+  "legacy",
+]);
+const RELATIONSHIP_KEYS = new Set(["tier", "evidence", "canonicalUrl"]);
+
 function https(value) {
   try {
     return new URL(value).protocol === "https:";
@@ -103,6 +114,7 @@ export function checkInventory(doc, options = {}) {
   if (!Array.isArray(doc?.projects)) fail("projects must be a list");
   const projects = Array.isArray(doc?.projects) ? doc.projects : [];
   const ids = new Set();
+  const canonicalUrls = new Map();
   for (const [position, entry] of projects.entries()) {
     const where = `project ${entry?.id ?? `#${position + 1}`}`;
     if (!ID.test(entry?.id ?? "")) fail(`${where}: id must be lowercase letters, digits or dashes`);
@@ -113,6 +125,8 @@ export function checkInventory(doc, options = {}) {
     if (!LIFECYCLES.has(entry?.lifecycle)) fail(`${where}: lifecycle must be active, paused or retired`);
     if (!date(entry?.reviewed)) fail(`${where}: reviewed must be a date`);
     if (entry?.dossier !== `https://woodhouse.loftwah.com/projects/${entry?.id}/`) fail(`${where}: dossier must be the canonical Woodhouse URL`);
+
+    checkRelationship(entry, where, fail, canonicalUrls);
 
     checkRecord(entry?.statusRecord, `${where}: statusRecord`, 200, fail);
     if (entry?.live) checkRecord(entry.live, `${where}: live`, 200, fail);
@@ -207,6 +221,34 @@ export function checkInventory(doc, options = {}) {
   for (const anchor of anchors) if (!section(recipe, anchor)) fail(`recipe section #${anchor} is missing`);
 
   return problems;
+}
+
+function checkRelationship(entry, where, fail, canonicalUrls) {
+  const relationship = entry?.relationship;
+  if (!relationship || typeof relationship !== "object" || Array.isArray(relationship))
+    return fail(`${where}: relationship is required`);
+  for (const key of Object.keys(relationship))
+    if (!RELATIONSHIP_KEYS.has(key)) fail(`${where}: relationship has an unsupported field: ${key}`);
+  if (!RELATIONSHIP_TIERS.includes(relationship.tier))
+    fail(`${where}: relationship tier must be one of ${RELATIONSHIP_TIERS.join(", ")}`);
+  if (!text(relationship.evidence)) fail(`${where}: relationship evidence is required`);
+  if (!Object.hasOwn(relationship, "canonicalUrl"))
+    return fail(`${where}: relationship canonicalUrl must be an https URL or null`);
+
+  const canonical = relationship.canonicalUrl;
+  if (canonical === null) {
+    if (entry.live) fail(`${where}: an unknown canonical URL contradicts the recorded live entry point`);
+    return;
+  }
+  if (!https(canonical)) return fail(`${where}: relationship canonicalUrl must be an https URL or null`);
+  if (!entry.live) return fail(`${where}: a canonical URL requires a recorded live entry point`);
+  if (!text(entry.live.finalUrl) || new URL(canonical).href !== new URL(entry.live.finalUrl).href)
+    fail(`${where}: canonical URL must match the recorded live finalUrl`);
+
+  const key = new URL(canonical).href.replace(/\/$/, "");
+  const alreadyRecorded = canonicalUrls.get(key);
+  if (alreadyRecorded) fail(`${where}: duplicate canonical URL, already recorded for ${alreadyRecorded}`);
+  else canonicalUrls.set(key, entry.id);
 }
 
 function checkRecord(record, where, expectedStatus, fail) {

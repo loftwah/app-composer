@@ -6,7 +6,7 @@
   "packageManager": "pnpm@12.19.0",
   "scripts": {
     "dev": "node scripts/workbench-source.mjs --check && node scripts/content-source.mjs --check && node scripts/enquiry-assets.mjs --check && node scripts/creator-source.mjs --check && node scripts/identity.mjs && node scripts/stack-status.mjs && node scripts/package-downloads.mjs && astro dev --host 127.0.0.1",
-    "build": "node scripts/workbench-source.mjs --check && node scripts/content-source.mjs --check && node scripts/enquiry-assets.mjs --check && node scripts/creator-source.mjs --check && node scripts/studio-capabilities.mjs --check && node scripts/launcher-assets.mjs --check && node scripts/stack-share-assets.mjs --check && node scripts/identity.mjs && node scripts/stack-status.mjs && node scripts/package-downloads.mjs && node scripts/appearance-skins.mjs --check && astro build && rm -f dist/server/.dev.vars && node scripts/check-publication.mjs",
+    "build": "node scripts/workbench-source.mjs --check && node scripts/content-source.mjs --check && node scripts/portfolio-inventory.mjs --check && node scripts/enquiry-assets.mjs --check && node scripts/creator-source.mjs --check && node scripts/studio-capabilities.mjs --check && node scripts/launcher-assets.mjs --check && node scripts/stack-share-assets.mjs --check && node scripts/identity.mjs && node scripts/stack-status.mjs && node scripts/package-downloads.mjs && node scripts/appearance-skins.mjs --check && astro build && rm -f dist/server/.dev.vars && node scripts/check-publication.mjs",
     "check": "pnpm identity:check && pnpm check:types && pnpm lint && pnpm format:check && pnpm test",
     "identity:check": "node scripts/commit-identity.mjs --check-config",
     "identity:install": "node scripts/commit-identity.mjs --install",
@@ -25,7 +25,7 @@
     "compose": "node scripts/compose.mjs",
     "ui:assets": "node scripts/public-ui-assets.mjs",
     "compose:promote": "node scripts/promote.mjs",
-    "check:types": "node scripts/workbench-source.mjs --check && node scripts/content-source.mjs --check && node scripts/enquiry-assets.mjs --check && node scripts/creator-source.mjs --check && node scripts/studio-capabilities.mjs --check && node scripts/launcher-assets.mjs --check && node scripts/stack-share-assets.mjs --check && node scripts/identity.mjs && node scripts/stack-status.mjs && node scripts/package-downloads.mjs && node scripts/appearance-skins.mjs --check && astro check",
+    "check:types": "node scripts/workbench-source.mjs --check && node scripts/content-source.mjs --check && node scripts/portfolio-inventory.mjs --check && node scripts/enquiry-assets.mjs --check && node scripts/creator-source.mjs --check && node scripts/studio-capabilities.mjs --check && node scripts/launcher-assets.mjs --check && node scripts/stack-share-assets.mjs --check && node scripts/identity.mjs && node scripts/stack-status.mjs && node scripts/package-downloads.mjs && node scripts/appearance-skins.mjs --check && astro check",
     "test:core": "node --test tests/core.test.mjs",
     "test:provider": "node --test tests/provider-inventory.test.mjs",
     "test:ready": "node --test tests/readiness-state.test.mjs tests/readiness-report.test.mjs tests/readiness-recovery.test.mjs tests/readiness-target.test.mjs tests/readiness-engine.test.mjs tests/readiness-tools.test.mjs tests/readiness-storage.test.mjs tests/readiness-package.test.mjs tests/readiness-owned-tools.test.mjs",

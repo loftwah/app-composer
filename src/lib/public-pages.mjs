@@ -5,7 +5,7 @@ export const publicPagePaths = Object.freeze([
   '/roles', '/roles/service-owner', '/roles/programmer', '/roles/architect', '/roles/devops', '/roles/security', '/roles/qa',
   '/diagrams', '/discover', '/for/creator', '/for/small-business', '/for/developer', '/for/designer', '/for/wordpress', '/for/shopify', '/for/platform-team', '/for/media-producer', '/for/marketer', '/for/app-operator',
   '/jobs/profile', '/jobs/enquiries', '/jobs/first-app', '/jobs/branding', '/jobs/diagram', '/jobs/pdf', '/jobs/inspect', '/jobs/produce', '/jobs/publish', '/jobs/operate',
-  '/explore', '/demo', '/demo/connected-apps', '/benchmarks', '/blueprints', '/docs', '/docs/how-it-works', '/architecture', '/guide',
+  '/explore', '/demo', '/demo/connected-apps', '/benchmarks', '/blueprints', '/projects', '/docs', '/docs/how-it-works', '/architecture', '/guide',
   '/catalogue', '/apps', '/activity', '/review', '/privacy', '/release', '/capabilities',
   '/extension', '/state', '/php2shell', '/studio', '/manage', '/building', '/effect',
   '/creator-hub', '/creator-hub/share', '/collections', '/collections/signal-and-type', '/collections/print-shop', '/cloudflare',
