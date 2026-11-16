@@ -133,7 +133,9 @@ const requestBytes = new TextEncoder().encode(request).length;
 </script>
 
 <style>
-  .agent-entry { max-width: 1060px; }
+  /* The entry column is the page, so it takes the shell's centre rather than
+     hugging the left edge and leaving a 220px dead column at 1440. */
+  .agent-entry { max-width: 1060px; margin-inline: auto; }
   .agent-heading { max-width: 820px; margin-bottom: 40px; }
   .agent-heading h1 { max-width: 16ch; font-size: clamp(2.9rem, 6vw, 5rem); }
   .agent-heading .lede { max-width: 62ch; }

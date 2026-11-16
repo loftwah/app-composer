@@ -302,6 +302,15 @@ function age(checkedAt: string | null) {
   .inv-pinned ul{list-style:none;padding:0;margin:0}
   .inv-pinned li{padding:10px 0;border-top:1px solid var(--color-border);font-size:13px}
   .small{font-size:13px;color:var(--color-muted)}
+  /* A record row is a card, not a paragraph. The shared 72ch list measure left
+     every card in the left 57% of the shell while this page's own count row and
+     two-column blocks use the full width. Two records fit above 1080. */
+  @media(min-width:1080px){
+    .inv-rows{max-width:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .inv-row{margin:0}
+    .inv-change-list{max-width:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .inv-change-list li{margin:0}
+  }
   @media(max-width:760px){
     .inv-row{padding:14px}
     .inv-row-detail div{grid-template-columns:1fr;gap:2px}
