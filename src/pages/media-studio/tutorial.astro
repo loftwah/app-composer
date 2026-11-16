@@ -474,11 +474,11 @@ node scripts/studio-project.mjs import --in pippa-project.studio.zip \
     <p>The studio also exposes a scoped MCP server at <code>/mcp</code>. Add that URL to a compatible agent, sign in, choose <strong>one</strong> project and grant only the scopes you need. Read access includes saved plans, prompts and exports; edit, generate and publish are separate. The agent gets the same project and revision the browser shows, not a parallel copy.</p>
     <pre><code># OpenCode V2: request edits explicitly before signing in.
 # opencode.jsonc
-"media-studio": {
+"media-studio": &#123;
   "type": "remote",
   "url": "https://your-studio.example/mcp",
-  "oauth": { "scope": "studio.read studio.edit" }
-}
+  "oauth": &#123; "scope": "studio.read studio.edit" &#125;
+&#125;
 
 opencode mcp logout media-studio
 opencode mcp auth media-studio</code></pre>
