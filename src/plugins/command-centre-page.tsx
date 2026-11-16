@@ -12,6 +12,27 @@ import "./command-centre-page.css";
 
 const base = "/_emdash/api/plugins/composer-stacks/commandCentreRead";
 
+// The page uses EmDash's apiFetch and parseApiResponse so the request carries
+// `X-EmDash-Request: 1` and the `{ success, data }` envelope is unwrapped before
+// the contract validates the report.
+export async function loadCommandCentre(
+  repo: string,
+  signal: AbortSignal,
+): Promise<CommandCentreReport> {
+  const response = await apiFetch(
+    base + (repo ? "?repo=" + encodeURIComponent(repo) : ""),
+    { cache: "no-store", signal },
+  );
+  const raw = await parseApiResponse<unknown>(
+    response,
+    "The command centre is unavailable. Sign in as a creator and try again.",
+  );
+  const parsed = commandCentreReport.safeParse(raw);
+  if (!parsed.success)
+    throw new Error("The command centre returned an unexpected shape.");
+  return parsed.data;
+}
+
 function stamp(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "an unreadable time";
@@ -409,17 +430,8 @@ function CommandCentre({ search }: { search: string }) {
     setError("");
     void (async () => {
       try {
-        const response = await apiFetch(
-          base + (repo ? "?repo=" + encodeURIComponent(repo) : ""),
-          { cache: "no-store", signal: controller.signal },
-        );
-        const raw = await parseApiResponse<unknown>(
-          response,
-          "The command centre is unavailable. Sign in as a creator and try again.",
-        );
-        const parsed = commandCentreReport.safeParse(raw);
-        if (!parsed.success) throw new Error("invalid");
-        if (!controller.signal.aborted) setReport(parsed.data);
+        const next = await loadCommandCentre(repo, controller.signal);
+        if (!controller.signal.aborted) setReport(next);
       } catch {
         if (!controller.signal.aborted)
           setError(

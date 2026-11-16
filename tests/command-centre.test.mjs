@@ -531,8 +531,7 @@ test("the route rejects non-creators, writes and target overrides", async () => 
 
 test("the route reads a real allowlisted selection and never returns the token", async () => {
   clearCommandCentreCache();
-  const fixture = fixtureFetch(baseResponses());
-  const response = await manageCommandCentre(
+  const body = await manageCommandCentre(
     {
       user: { id: "fictional-owner", role: 50 },
       input: { repo: "loftwah/liferaft" },
@@ -555,7 +554,11 @@ test("the route reads a real allowlisted selection and never returns the token",
       return handler(parsed, init);
     },
   );
-  const body = await response.json();
+  assert.equal(
+    body instanceof Response,
+    false,
+    "the route must return a plain report for EmDash to wrap as data",
+  );
   commandCentreReport.parse(body);
   assert.equal(body.selected, "loftwah/liferaft");
   assert.equal(body.repo.issues.count.value, 6);
@@ -608,6 +611,41 @@ async function loadBoard(t) {
 function renderBoard(board, report) {
   return renderToStaticMarkup(React.createElement(board, { report }));
 }
+
+test("the page request sends X-EmDash-Request and unwraps the data envelope", async (t) => {
+  clearCommandCentreCache();
+  const { report } = await readNormal();
+  const { loadCommandCentre } = await loadBoard(t);
+  const realFetch = globalThis.fetch;
+  const seen = [];
+  globalThis.fetch = async (url, init) => {
+    seen.push({ url: String(url), headers: new Headers(init?.headers) });
+    return Response.json({ success: true, data: report });
+  };
+  try {
+    const loaded = await loadCommandCentre(
+      repository,
+      new AbortController().signal,
+    );
+    assert.equal(seen.length, 1);
+    assert.equal(
+      seen[0].url,
+      "/_emdash/api/plugins/composer-stacks/commandCentreRead?repo=loftwah%2Fapp-composer",
+    );
+    assert.equal(seen[0].headers.get("X-EmDash-Request"), "1");
+    assert.equal(loaded.selected, repository);
+    assert.equal(loaded.repo.issues.count.value, 6);
+
+    // The production defect returned `{ success: true, data: {} }`. The page
+    // must reject that empty payload instead of rendering an empty report.
+    globalThis.fetch = async () => Response.json({ success: true, data: {} });
+    await assert.rejects(
+      loadCommandCentre(repository, new AbortController().signal),
+    );
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
 
 test("the board renders real counts, release, commit and an empty state", async (t) => {
   clearCommandCentreCache();
