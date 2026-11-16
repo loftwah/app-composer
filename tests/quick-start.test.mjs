@@ -212,12 +212,36 @@ test('the building prompt carries the pinned revisions, runtime and each app’s
   assert.match(prompt.text, /capture-journey\.mjs/);
   assert.match(prompt.text, /RESOURCE_ACCOUNT_ID/);
   assert.match(prompt.text, /PROVIDER_MOUNT/);
-  assert.match(prompt.text, /Keep the sibling checkouts pristine/);
+  assert.match(prompt.text, /'Pristine' means leaving them at those revisions without edits or commits/);
   assert.doesNotMatch(prompt.text, /22, 24 or 26/);
   assert.doesNotMatch(prompt.text, /D1 and R2 bindings/);
   assert.match(buildingQuickStart.outcome.needs.join(' '), /Node 22 and pnpm 12\.8\.1/);
+  assert.match(buildingQuickStart.outcome.needs.join(' '), /GitHub and Cloudflare only for your own copies or a deployment/);
   assert.doesNotMatch(buildingQuickStart.outcome.needs.join(' '), /22, 24 or 26/);
   assert.doesNotMatch(readFileSync(pageUrl('src/pages/building.astro'), 'utf8'), /supported Node line \(22, 24 or 26\)/);
+});
+
+test('a newcomer can create the building lab prerequisites from the copied prompt', () => {
+  // A fresh agent with the copied prompt alone stopped because the prompt said
+  // the lab copies the sibling checkouts but never told it to make them.
+  const prompt = buildingQuickStart.prompts.find((entry) => entry.id === 'reproduce');
+  assert.ok(prompt);
+  assert.match(prompt.text, /local run needs no GitHub or Cloudflare account/);
+  assert.match(prompt.text, /git clone https:\/\/github\.com\/loftwah\/app-composer \./);
+  assert.match(prompt.text, /git clone https:\/\/github\.com\/loftwah\/app-composer-guestbook \.\.\/app-composer-guestbook/);
+  assert.match(prompt.text, /git clone https:\/\/github\.com\/loftwah\/app-composer-showcase \.\.\/app-composer-showcase/);
+  assert.match(prompt.text, /git -C \.\.\/app-composer-guestbook checkout 019ce0d117f9f89e472a5c7642d51d85301f7fcd/);
+  assert.match(prompt.text, /git -C \.\.\/app-composer-showcase checkout 20ef9a50c19c7a3419dc06fdae020c6a677ed5cf/);
+  assert.match(prompt.text, /pnpm install --frozen-lockfile/);
+  assert.match(prompt.text, /creating the checkouts is the first step/);
+  assert.match(prompt.text, /npm install playwright/);
+  assert.match(prompt.text, /node_modules\/playwright\/index\.mjs/);
+  const page = readFileSync(pageUrl('src/pages/building.astro'), 'utf8');
+  assert.match(page, /git clone https:\/\/github\.com\/loftwah\/app-composer-guestbook/);
+  assert.match(page, /npm install playwright/);
+  const labReadme = readFileSync(pageUrl('labs/building/README.md'), 'utf8');
+  assert.match(labReadme, /git clone https:\/\/github\.com\/loftwah\/app-composer-guestbook/);
+  assert.match(labReadme, /npm install playwright/);
 });
 
 test('the Creator Hub prompt names its exact revisions, runtime and real owner path', () => {

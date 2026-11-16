@@ -108,7 +108,7 @@ export const buildingQuickStart = validateQuickStart({
   outcome: {
     built: 'Two independent Cloudflare Workers: Here / there for private postcards and owner review, Linkarooie for the public profile and a separate featuring choice, joined by a versioned invitation contract.',
     does: 'Keeps a submission private until the source owner approves it, offers a send action only while the source is open, and removes the card and media when the source hides the item.',
-    needs: ['GitHub', 'Cloudflare account with Workers, D1 and R2', 'Node 22 and pnpm 12.8.1 with a native Wrangler install', 'A host browser only for the screenshot capture'],
+    needs: ['Node 22 and pnpm 12.8.1 with a native Wrangler install', 'Both public app repositories at the pinned revisions', 'The Playwright package and Chrome for the capture', 'GitHub and Cloudflare only for your own copies or a deployment'],
     result: 'The five public states behave as described: pending stays private, approval publishes at source, featuring is a separate choice, hiding returns 404, and closed, paused or full never shows a dead form.',
   },
   links: [
@@ -123,10 +123,11 @@ export const buildingQuickStart = validateQuickStart({
 Build my own copy of the Guestbook + Linkarooie composition described at https://composer.loftwah.com/building, using the two pinned source revisions linked from that page. The result is two independent Cloudflare Workers, not one merged application.
 
 Prerequisites
-- My own GitHub account and my own Cloudflare account, with Workers, D1 and R2 available.
+- A local checkout of this App Composer repository; the lab lives in 'labs/building'. If this folder is empty, clone the public repository into it first: 'git clone https://github.com/loftwah/app-composer .'
+- The local run needs no GitHub or Cloudflare account. Your own GitHub account and your own Cloudflare account with Workers, D1 and R2 are needed only for your owned copies and any deployment.
 - Node 22 exactly and pnpm 12.8.1, as pinned by both repositories, with a native Wrangler install available through them. Do not substitute a different Node line.
-- Both source repositories checked out at the reviewed revisions with dependencies installed, in sibling folders: '../app-composer-guestbook' at '019ce0d117f9f89e472a5c7642d51d85301f7fcd' and '../app-composer-showcase' at '20ef9a50c19c7a3419dc06fdae020c6a677ed5cf'. The local scripts copy these siblings; they do not clone them for you. Keep the sibling checkouts pristine at the pinned revisions and create your owned copies in separate folders: the lab measures the siblings' 'git rev-parse HEAD', so replacing them with your own HEAD changes what the capture report records.
-- A host Playwright package and Chrome for the capture report. The contract can start without them, but the article's captured journey cannot: 'capture-journey.mjs' needs 'PLAYWRIGHT_MODULE' and a browser.
+- Both public app repositories cloned by you at the reviewed revisions into sibling folders of the App Composer checkout, with dependencies installed. The local scripts copy these siblings; they do not clone them, so creating the checkouts is the first step: 'git clone https://github.com/loftwah/app-composer-guestbook ../app-composer-guestbook' then 'git -C ../app-composer-guestbook checkout 019ce0d117f9f89e472a5c7642d51d85301f7fcd'; 'git clone https://github.com/loftwah/app-composer-showcase ../app-composer-showcase' then 'git -C ../app-composer-showcase checkout 20ef9a50c19c7a3419dc06fdae020c6a677ed5cf'. Run 'pnpm install --frozen-lockfile' in each checkout. 'Pristine' means leaving them at those revisions without edits or commits: the lab measures their 'git rev-parse HEAD' and copies them into its owned temporary root.
+- A host Playwright package and Chrome for the capture report. Install the Playwright package somewhere you own (for example 'npm install playwright' in an empty scratch folder) and set 'PLAYWRIGHT_MODULE' to its 'node_modules/playwright/index.mjs'; the capture launches your installed Chrome by default. Starting and seeding the local Workers do not need Playwright.
 - The current README, Wrangler configuration and release instructions in both repositories. Read the binding and secret names there; do not invent them.
 
 Greenfield behaviour
