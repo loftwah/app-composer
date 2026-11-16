@@ -111,7 +111,7 @@ export const blueprints = [
       {
         label: "Runnable pinned recipe",
         url: "https://github.com/loftwah/app-composer/blob/main/docs/portfolio/blueprints.md#media-studio",
-        observed: "Exact pins, prerequisites and commands, with the replay status recorded as not replayed.",
+        observed: "Exact pins, prerequisites and commands, with the replay status recorded as not replayed. The 16 November 2026 fresh-install deploy and restore are recorded separately in the recipe.",
       },
     ],
     limits: [
@@ -119,7 +119,7 @@ export const blueprints = [
       "The studio is single-owner by design. It is not a multi-tenant signup product.",
       "Provider availability, prices and output quality remain the owner's account decision; estimates are not invoices.",
       "Local MP4 rendering depends on the browser's codecs and memory. It is not a promise of device parity.",
-      "No independent owner has replayed this build on their own account yet, so it stays a reference rather than a proven repeatable build.",
+      "A fresh installation of this source was deployed, migrated and restored on 16 November 2026. Building from the pinned commit with provider-funded generation is still not replayed, and no independent owner has run the recipe, so it stays a reference rather than a proven repeatable build.",
     ],
   },
 ];

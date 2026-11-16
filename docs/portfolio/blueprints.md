@@ -277,6 +277,16 @@ neither value is rewritten here.
 this repository did not run the storage creation, provider calls or deploy. The
 pinned README and deployment notes are the source of the commands.
 
+**What was replayed on 16 November 2026 — the fresh-install half only.** A
+separate Worker with its own new D1 database and its own new R2 bucket was
+created from this repository's source at `5241e41`, migrated, deployed and
+signed in as owner; a real project exported from the production studio was then
+restored into it and every media byte was hashed back. That proves fresh
+resource creation, migration, deploy and restore. It does **not** prove a build
+from the pinned commit, provider-funded generation, or the deliberate publish
+step on a new account. Evidence:
+`composer-media-studio/docs/evidence/2026-11-16-hosted-fresh-restore/`.
+
 - The Studio is single-owner. It is not a multi-tenant signup product.
 - Provider availability, prices and output quality are your account decision.
   The estimate shown before a request is not an invoice.

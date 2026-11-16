@@ -449,8 +449,8 @@ export const questions = [
       ],
       [
         "showcase",
-        "Curate a collection",
-        "Manually authored cards; photo collection is unnecessary.",
+        "Curate a collection of links",
+        "Manually authored cards: each is a title and an HTTPS destination. If you need your own editable records, use the content model step instead.",
       ],
       [
         "media-studio",
