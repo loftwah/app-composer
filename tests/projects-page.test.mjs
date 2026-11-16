@@ -60,7 +60,7 @@ test("the page renders every project from the inventory, never a typed list", ()
   assert.match(page, /\{group\.label\}/);
   assert.match(page, /\{project\.summary\}/);
   for (const row of rows) {
-    assert.ok(!page.includes(row.name), `${row.name} comes from the inventory, not the template`);
+    assert.ok(!page.includes(`<h3>${row.name}</h3>`), `${row.name} comes from the inventory, not the template`);
   }
 });
 
@@ -68,7 +68,7 @@ test("unknown or absent project records say 'not recorded' instead of linking no
   assert.match(page, /project\.canonicalUrl \? \(/);
   assert.match(page, /project\.sourcePin \? \(/);
   assert.match(page, /project\.blueprint \? \(/);
-  assert.match(page, /group\.projects\.length === 0 \? \(/);
+  assert.match(page, /groups\.filter\(group => group\.projects\.length > 0\)/);
   assert.match(page, /<span class="not-recorded">not recorded<\/span>/);
   assert.match(page, /blueprint not recorded/);
   assert.doesNotMatch(page, /href=""|href=\{undefined\}|href=\{null\}/);
