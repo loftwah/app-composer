@@ -14,6 +14,7 @@ import { IncidentsPage } from "./incidents-page";
 import { BrandStudioPage } from "./brand-studio-page";
 import { PluginTrustPage } from "./plugin-trust-page";
 import { DeliveryRunsPage } from "./delivery-runs-page";
+import { CommandCentrePage } from "./command-centre-page";
 import { StackStatusPage } from "./stack-status-page";
 import { ProposalsPage } from "./proposals-page";
 import { ShareCalendarPage } from "./share-calendar-page";
@@ -2134,6 +2135,7 @@ export const pages: PluginAdminExports["pages"] = {
   "/plugin-trust": PluginTrustPage,
   "/stack-status": StackStatusPage,
   "/delivery": DeliveryRunsPage,
+  "/command-centre": CommandCentrePage,
   "/brand-studio": BrandStudioPage,
   "/incidents": IncidentsPage,
   "/share-calendar": ShareCalendarPage,

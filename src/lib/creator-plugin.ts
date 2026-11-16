@@ -26,6 +26,7 @@ import {
 import { manageAdminBrand } from "./admin-brand.ts";
 import { managePluginTrust } from "./plugin-trust.ts";
 import { manageDeliveryRuns } from "./delivery-runs.ts";
+import { manageCommandCentre } from "./command-centre.ts";
 import { manageStackStatus } from "./stack-status-admin.ts";
 import { manageProviderInventory } from "./provider-read.ts";
 import { manageShareCalendar } from "./share-calendar-admin.ts";
@@ -65,6 +66,11 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         },
         { path: "/stack-status", label: "Stack status", icon: "stack" },
         { path: "/delivery", label: "Delivery runs", icon: "rocket" },
+        {
+          path: "/command-centre",
+          label: "Command centre",
+          icon: "chart",
+        },
         { path: "/brand-studio", label: "Brand Studio", icon: "palette" },
         {
           path: "/share-calendar",
@@ -112,6 +118,11 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         permission: "plugins:manage",
         request: { body: "json", maxBytes: 26000 },
         handler: (ctx) => manageDeliveryRuns(ctx, runtime),
+      },
+      commandCentreRead: {
+        methods: ["GET"],
+        permission: creatorPermission,
+        handler: (ctx) => manageCommandCentre(ctx, runtime),
       },
       shareCalendarRead: {
         methods: ["GET"],
