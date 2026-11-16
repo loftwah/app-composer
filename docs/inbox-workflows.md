@@ -132,87 +132,150 @@ address.
 - The Inbox read still uses the existing app-owned export. There is no
   parallel enquiry store.
 
-## Reply-job contract (#598) — accepted, not implemented
+## Reply job — one draft, one exact approval, one manual export (#598)
 
-This section is a contract and a gap list, not a delivered capability. The
-existing no-contact form (`contacts: false`, consent "review, no publication or
-messages") stays as it is and must never offer a reply. A reply requires a
-newer versioned form with explicit consent to send a reply to the submitted
-address; until that version exists and is served, no reply action may appear.
+This slice ships the draft, approval, receipt and safe-replay path. It does not
+send email. The only dispatch is an explicit manual export that records a
+receipt saying Composer did not send the reply. The current no-contact form
+(`contacts: false`, v1 export) stays exactly as it is and offers no reply.
 
-### One receipt, one job
+### Consent comes only from the versioned form
 
-- The accepted source is one Guestbook receipt plus its retained brief item in
-  the same scope (`workspace`, `resource`, `account`, `environment`, `target`).
-  A receipt that cannot be matched to exactly one item creates no job — the
-  existing `unlinked` state stays and no reply action is offered.
-- `creator_enquiry_workflow_runs` gains a reply job through a new table rather
-  than a second enquiry store: `creator_enquiry_reply_jobs`, keyed
-  `UNIQUE(workspace_id, resource_id, item_id, account_id, environment)`. The
-  accepted receipt's `item_id` is the idempotency key, so a duplicate hook, a
-  concurrent submit or a replayed request cannot create a second job.
-- The reply job stores no enquiry body and no recipient address. It stores the
-  scope, the `item_id`, the owning run/outbox ids, the reply revision, the
-  consent version, the sender connection reference, the actor and timestamps.
-  The brief and the address remain in Guestbook; the job reads them on demand
-  through the existing export under current membership.
-- One job is one conversation. A later enquiry is a new job; a job never carries
-  two recipients.
+Reply eligibility requires a `guestbook.private-enquiries/v2` export item with a
+`reply` object: version `2`, the consented and expiry timestamps, and the
+app-owned recipient. A v1 item has no such object, so no reply job, draft,
+approval or export action is available. An item that carries reply consent under
+a v1 format is rejected by `enquiryExport`.
+
+The pinned Guestbook source does not serve this v2 export yet, so production
+still shows no reply action. The deterministic fixture in
+`tests/enquiry-reply.test.mjs` exercises the exact contract. Shipping the
+Guestbook-owned consented form and receipt remains a separate release boundary.
+
+### One job per exact brief
+
+`0030_enquiry_reply_jobs.sql` adds one Composer-owned job row keyed by
+`UNIQUE(workspace_id, resource_id, item_id, account_id, environment)`. An
+accepted receipt that links to exactly one consented item prepares the job with
+no draft. A duplicate link, replayed request or concurrent submit cannot create a
+second row. If that best-effort preparation fails, the explicit draft path
+creates the same one row. Guestbook still owns the brief, consent and recipient.
+Composer stores no enquiry body, no recipient address (only its SHA-256 digest)
+and no provider identity.
+
+The job records the exact brief revision and a source digest over the item's
+values, provenance, producer source and private-delivery consent. The draft also
+records its generator (`owner` or `agent`) and an optional agent identity. The
+provenance label is recorded, not a claim that an agent runtime was invoked.
+
+### States and supported action
+
+| Stored / displayed | Meaning | Supported next action |
+| --- | --- | --- |
+| `draft` | A saved draft revision; no approval | Owner approves the exact text |
+| `approved` | Approval bound to the draft digest, brief revision, consent and recipient | Owner exports manually |
+| `exported` | A manual handoff and receipt exist; Composer sent nothing | None; the receipt is retained |
+| `invalidated` | The approval no longer matches the current text, brief, consent, recipient or expiry | Owner approves the current draft again |
+| `declined` | The owner declined before export | None |
+
+`replyJourney` also returns `unavailable` when the form has no reply consent, the
+consent expired, or the brief was rejected. That is a display state, not a new
+stored job state. An editor may read and save drafts; only the workspace owner
+may approve, export or decline. A viewer cannot read the journey at all.
 
 ### Approval binds the exact revision
 
-- The job has `draft` → `awaiting-approval` → `approved` → `sending` →
-  `accepted` | `failed` | `uncertain`, plus `declined` and `cancelled` before
-  dispatch, and `invalidated`.
-- `approve` binds, in one write: the reply revision and its content digest, the
-  verified sender connection id *and* its revision, the consented recipient
-  digest, the consent version, the approving owner and the expiry. It performs
-  no provider call.
-- Any of these voids the approval before dispatch and moves the job to
-  `invalidated` with a specific reason: the draft is edited (revision or digest
-  changes), the sender connection changes or is disabled, the owner's permission
-  is revoked, membership is removed, the consent version/expiry no longer
-  applies, or the source item is deleted. The invalidated approval cannot be
-  replayed; the owner approves the current revision again.
-- Only the workspace owner dispatches, and only through the canonical mail path
-  with one stable message identity per job, reusing the existing outbox
-  idempotency. An editor may read and prepare; the agent may propose only.
-- A timeout or identity-less reply is `uncertain`, never `accepted`, and never
-  resent automatically. Reconciliation re-reads the recorded attempt and does
-  not contact the provider.
+`replyApprove` requires the current draft revision and digest. In one write it
+records:
 
-### Failing gaps (why this is not shipped here)
+- the draft revision and SHA-256 of the exact body;
+- the brief revision and source digest;
+- the repository scope (workspace, resource, account, environment, target);
+- the approving owner;
+- the consent version, consented-at, expiry and recipient digest;
+- an approval UUID, its timestamp and a 24-hour expiry;
+- a composite SHA-256 over all of those values.
 
-1. **No consenting form version.** `enquiry-protocol.ts` fixes `contacts:false`
-   and `enquirySubmission` has no reply/recipient consent. A new versioned
-   contract, resource configuration and form must ship before any job can
-   legitimately exist. This is a Guestbook-owned change.
-2. **No reply adapter.** The journey has no sender connection record, no reply
-   body ownership and no way to address a consented recipient without copying
-   private data into Composer D1. The sender connection contract (#291) and the
-   message-identity/outbox reuse need a reviewed design first.
-3. **No reply job storage or routes.** There is no table, action, timeline or
-   receipt for a reply, so approval cannot currently bind a revision or a
-   connection. A migration and native routes are required.
-4. **No revocation hook.** Revoking a connection or a grant does not yet
-   invalidate a pending approval, because approvals do not exist. The existing
-   studio/media grant recheck is the model to reuse.
-5. **No live recipient proof.** The acceptance needs one controlled, authorised
-   recipient and one actual send. That requires an owner-provided connection and
-   consent that this change must not invent.
+The approval performs no provider call. Repeating the same approval returns the
+existing approval and records no second event. The manual subject is derived
+from the current brief title and strips control characters; it is shown with the
+exact text before approval and is never stored as a copy of the brief. A changed
+body, brief revision, recipient, consent record, approval expiry or owner
+permission voids it. The export path rechecks each binding, moves the job to
+`invalidated` with a specific reason and refuses to export. A changed consented
+address therefore needs a new draft revision (which records the current recipient
+digest) and a new owner approval; the previous approval cannot be replayed. The
+owner must approve the current text again.
 
-Delivering items 1–4 without 5 is the right next slice: it proves replay, stale
-approval and revoked access locally, and records the live-send boundary
-precisely. None of it should be represented as a working reply journey before
-the live send is observed.
+### Manual export, receipt and replay
+
+`replyExport` is the only dispatch. It rechecks the approval, exact body digest,
+brief revision, consent and recipient digest after the remote export read, then
+performs one conditional `approved → exported` update. It never reads a mail
+credential, never calls Resend or another provider and never creates a `sent`
+claim. The response includes the app-owned recipient once for copying, the
+derived plain-text subject, the exact body and a receipt record with the approval
+and export timestamps, both digests, the exact scope and `Sent by Composer: no`.
+Composer does not persist the recipient address.
+
+`creator_enquiry_reply_events` appends the draft, approval, export, invalidation
+and decline timeline. A partial unique index allows exactly one `exported` event
+per approval. Replaying the same export returns the original receipt and records
+no second handoff; an already-exported job refuses a different approval. The
+Inbox can reload the retained receipt later through that same idempotent path,
+which shows the recipient again without creating a second handoff. A failure
+before the conditional update leaves no receipt and can be retried after the
+named cause is resolved. A failure after an uncertain response is read back from
+the stored state, never resent.
+
+### What is not proven
+
+- A real send through the canonical owner mail path, provider acceptance,
+  delivery, bounce, suppression or reading.
+- The Guestbook-owned v2 consented form, its private receipt and production
+  source promotion.
+- A real agent runtime producing the draft or authenticating a separate agent
+  identity; the contract accepts and labels an agent proposal but does not host
+  or authenticate the agent.
+- Authenticated production click-through, physical-device or screen-reader
+  acceptance of the new reply panel.
+- Any claim that “Reviewed”, an approval or a manual export is a sent reply.
+- Per-item deletion or retention reconciliation. If Guestbook removes a brief,
+  Composer can no longer read it and the reply job/receipt becomes unreachable,
+  but the retained reply text does not expire automatically. Deleting the app
+  resource cascades the Composer rows. A bounded per-job retention or deletion
+  reconciliation is a later gate; this slice does not silently purge owner work.
+
+### Verification
+
+```sh
+node --test tests/enquiry-reply.test.mjs tests/inbox-journey.test.mjs
+node --test tests/private-enquiries.test.mjs tests/migration-order.test.mjs
+```
+
+The reply tests prove: an accepted link creates one empty job and a replay
+creates none; a v1 brief offers no reply; the production item schema rejects
+missing, oversized and unknown fields; HTML stays inert and the subject cannot
+carry a header newline; an agent draft is bound to the brief revision; the same
+approval and export replay into one effect; one changed character refuses export
+and requires a new approval; an expired consent, changed recipient, changed
+brief revision, expired approval, revoked owner access and changed app
+connection are refused; and a manual receipt contains the exact approved body
+with `Sent by Composer: no`.
+
+The rendered draft, approved and exported component states and their public-safe
+receipt are in
+[`docs/evidence/enquiry-reply-20261116/`](evidence/enquiry-reply-20261116/README.md).
 
 ## What is proven and what is not
 
-Deterministic local tests and the rendered fixture prove the state transitions,
-idempotency, scope refusal, error text, reconciliation and bounded retry with a
-fictional provider transport. They do not prove:
+Deterministic local tests and the rendered fixtures prove the state transitions,
+idempotency, scope refusal, error text, reconciliation and bounded retry for the
+owner notice, plus the separate reply draft, exact approval, manual export
+receipt and safe replay with a fictional transport. They do not prove:
 
 - real Resend delivery, provider callbacks, bounce/suppression or reading;
+- a live v2 consented form or any reply send through the canonical mail path;
 - inbound mail or replies (no incoming-mail adapter exists);
 - an authenticated production click-through of this new build;
 - a scheduler or automatic event processing;

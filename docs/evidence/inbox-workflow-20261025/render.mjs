@@ -107,6 +107,7 @@ async function build(scenario) {
   for (const file of [
     "0013_enquiry_notifications.sql",
     "0017_inbox_journey.sql",
+    "0030_enquiry_reply_jobs.sql",
   ])
     f.sqlite.exec(readFileSync(join(root, "migrations", file), "utf8"));
   const workspace = await workspaceForUser(f.db, owner);
@@ -511,6 +512,7 @@ function page(scenario, model, briefs) {
       onEnquiryAction() {},
       onPreference() {},
       onRefresh() {},
+      onReply() {},
     }),
   );
   const rows = briefs

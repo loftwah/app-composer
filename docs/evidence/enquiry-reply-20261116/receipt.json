@@ -1,0 +1,68 @@
+{
+  "format": "composer.enquiry-reply-evidence/1",
+  "source": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+  "scope": {
+    "workspace": "881f798c-8419-4e50-8ee4-cc4e1d2a62f0",
+    "resource": "fictional-reply-resource",
+    "account": "1003dc1d93af0ebea56b2f1252f89627",
+    "environment": "production",
+    "target": "https://composer.loftwah.com/guestbook"
+  },
+  "brief": {
+    "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+    "revision": 1,
+    "consentVersion": 2,
+    "recipientFingerprint": "b4fc5fb69efd"
+  },
+  "job": {
+    "id": "489fddc7-44e1-432d-85bf-70f89782a62b",
+    "state": "exported",
+    "draftRevision": 1,
+    "draftDigest": "22c7dd043c3e6c13143029244281d87a62372ee7332ff21b84209a1d2f2d7199",
+    "approvalId": "5fb07d64-3d5b-4e0b-97bc-dc3805fe7c18",
+    "approvalDigest": "70103026889bc390355d8c003c26c687a2621b30164c6e7e6d124b18f861aeb3",
+    "approvedBy": "fictional-reply-owner",
+    "approvedAt": "2026-11-16T03:16:14.847Z",
+    "approvalExpiresAt": "2026-11-17T03:16:14.847Z",
+    "exportedAt": "2026-11-16T03:16:14.850Z"
+  },
+  "events": [
+    {
+      "kind": "draft",
+      "at": "2026-11-16T03:16:14.844Z",
+      "actorId": "fictional-reply-owner",
+      "draftRevision": 1,
+      "approvalId": null
+    },
+    {
+      "kind": "approved",
+      "at": "2026-11-16T03:16:14.847Z",
+      "actorId": "fictional-reply-owner",
+      "draftRevision": 1,
+      "approvalId": "5fb07d64-3d5b-4e0b-97bc-dc3805fe7c18"
+    },
+    {
+      "kind": "exported",
+      "at": "2026-11-16T03:16:14.850Z",
+      "actorId": "fictional-reply-owner",
+      "draftRevision": 1,
+      "approvalId": "5fb07d64-3d5b-4e0b-97bc-dc3805fe7c18"
+    }
+  ],
+  "manualExport": {
+    "method": "manual-export",
+    "sent": false,
+    "idempotent": false,
+    "subject": "Re: A fictional reading-club page",
+    "receiptIncludesExactBody": true,
+    "receiptIncludesNotSent": true
+  },
+  "renderedStates": [
+    "initial",
+    "draft",
+    "approved",
+    "expired",
+    "exported"
+  ],
+  "generatedAt": "2026-11-16T03:16:14.915Z"
+}

@@ -64,6 +64,20 @@ export const enquirySubmission = z
     consent: z.literal(true),
   })
   .strict();
+// A reply is offered only by the versioned consented form export (v2). The
+// current no-contact form is v1 and has no `reply` object, so it can never
+// create a reply job. The recipient stays app-owned; Composer keeps a digest.
+export const enquiryReplyConsent = z
+  .object({
+    version: z.literal(2),
+    consented_at: z.string().min(1).max(40),
+    expires_at: z.string().min(1).max(40),
+    recipient: z
+      .string()
+      .max(254)
+      .regex(/^[^\s<>@,]+@[^\s<>@,]+\.[^\s<>@,]+$/),
+  })
+  .strict();
 const resource = z.object({
   id: enquiryID,
   workspace_id: enquiryID,
@@ -84,6 +98,7 @@ export const enquiryItem = z
     values: enquiryValues,
     consent_version: z.literal(1),
     consent_at: z.string().max(40),
+    reply: enquiryReplyConsent.optional(),
     status: z.enum(["pending", "reviewed", "rejected"]),
     revision: enquiryPositive,
     created_at: z.string().max(40),
@@ -116,7 +131,10 @@ export const enquiryInbox = z
 export const enquiryExport = z
   .object({
     contract: z.literal(1),
-    format: z.literal("guestbook.private-enquiries/v1"),
+    format: z.enum([
+      "guestbook.private-enquiries/v1",
+      "guestbook.private-enquiries/v2",
+    ]),
     source: enquirySource,
     resource,
     retentionDays: z.literal(30),
@@ -132,7 +150,18 @@ export const enquiryExport = z
       .strict(),
     scope: z.literal("current-resource-only"),
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    if (
+      value.format !== "guestbook.private-enquiries/v2" &&
+      value.items.some((item) => item.reply)
+    )
+      context.addIssue({
+        code: "custom",
+        message:
+          "Reply consent belongs to the versioned consented export, not the no-contact form.",
+      });
+  });
 const enquiryCount = z.number().int().min(0).max(200);
 export const enquirySummary = z
   .object({

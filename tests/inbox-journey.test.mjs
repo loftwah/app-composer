@@ -73,6 +73,7 @@ async function prepared(t, options = {}) {
   for (const file of [
     "0013_enquiry_notifications.sql",
     "0017_inbox_journey.sql",
+    "0030_enquiry_reply_jobs.sql",
   ])
     f.sqlite.exec(
       readFileSync(new URL("../migrations/" + file, import.meta.url), "utf8"),
