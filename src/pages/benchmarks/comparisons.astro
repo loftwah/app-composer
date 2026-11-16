@@ -167,6 +167,7 @@ const exampleRows = (jobs.examples ?? []).map((example: any) => ({
           ? 'No row in this window records a provider charge, so no invoice-derived cost is claimed.'
           : `${providerCharges} rows record a provider charge; the other rows do not, so no invoice total is claimed.`}</li>
         <li>Measure failure latency. Failed and unknown rows have no terminal timestamp, so they are counted, not timed.</li>
+        <li>Report token or credit usage. {jobs.usage?.note ?? 'These media rows record none, so this page claims none.'}</li>
         <li>Describe the provider, the account or the wider internet. It describes one Studio account in one short window.</li>
       </ul>
     </article>

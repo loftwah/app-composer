@@ -42,6 +42,10 @@
     "providerChargeRows": 0,
     "note": "No row in this window records provider_charged_micro, so no charge or invoice is claimed."
   },
+  "usage": {
+    "recorded": false,
+    "note": "The generations table records no token or credit usage for these media jobs, so this page claims none."
+  },
   "totals": {
     "jobs": 86,
     "saved": 66,

@@ -70,4 +70,6 @@ tables agree.
   good.
 - Not a human preference. No blind comparison of outputs has been recorded yet.
 - Not an invoice, a provider-wide benchmark or a failure-latency measurement.
+- Not a usage report. The table records no token or credit usage for these media
+  jobs, so none is claimed.
 - Not permission. Reading aggregates grants nothing and executes nothing.

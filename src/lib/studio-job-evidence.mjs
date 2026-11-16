@@ -46,6 +46,7 @@ const TOP_KEYS = new Set([
   "scope",
   "timing",
   "cost",
+  "usage",
   "totals",
   "groups",
   "examplesNote",
@@ -70,6 +71,7 @@ const SOURCE_KEYS = new Set([
 const SCOPE_KEYS = new Set(["rows", "deletedRowsExcluded", "deletedReason"]);
 const TIMING_KEYS = new Set(["saved", "failedOrUnknown", "cancelled", "clock"]);
 const COST_KEYS = new Set(["field", "label", "unit", "providerChargeRows", "note"]);
+const USAGE_KEYS = new Set(["recorded", "note"]);
 const TOTALS_KEYS = new Set([
   "jobs",
   "saved",
@@ -225,6 +227,12 @@ export function validateJobEvidence(file, options = {}) {
   if (cost.label !== COST_ESTIMATE_LABEL) add("cost-label", `cost.label must be exactly "${COST_ESTIMATE_LABEL}"`);
   if (!nonEmpty(cost.unit, 5)) add("cost-unit", "cost.unit must explain the micro-dollar unit");
   if (!nonEmpty(cost.note, 20)) add("cost-note", "cost.note must say what is not claimed");
+
+  const usage = file.usage ?? {};
+  for (const key of unknownKeys(usage, USAGE_KEYS)) add("usage-field", `usage.${key} is not part of this contract`);
+  if (usage.recorded !== false)
+    add("usage-unsupported", "these media rows record no token or credit usage, so usage.recorded must be false");
+  if (!nonEmpty(usage.note, 20)) add("usage-note", "usage.note must say why no usage figure is claimed");
 
   const totals = file.totals ?? {};
   for (const key of unknownKeys(totals, TOTALS_KEYS)) add("totals-field", `totals.${key} is not part of this contract`);
@@ -384,6 +392,7 @@ export function summariseJobEvidence(file, options = {}) {
     scope: file?.scope ?? null,
     timing: file?.timing ?? null,
     cost: file?.cost ?? null,
+    usage: file?.usage ?? null,
     totals: {
       ...totals,
       savedRate: Number.isInteger(totals.jobs) && totals.jobs > 0 ? totals.saved / totals.jobs : null,

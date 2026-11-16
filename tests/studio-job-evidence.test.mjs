@@ -181,6 +181,13 @@ test('a cost estimate labelled as anything but an estimate is refused', () => {
   assert.ok(codes(file).includes('cost-label'));
 });
 
+test('a usage figure this table cannot support is refused', () => {
+  assert.equal(committed.usage.recorded, false);
+  const file = clone();
+  file.usage.recorded = true;
+  assert.ok(codes(file).includes('usage-unsupported'));
+});
+
 test('an undated example setting or an unreadable limit is refused', () => {
   const file = clone();
   file.examples[0].durationSeconds = -5;
