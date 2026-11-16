@@ -1,403 +1,236 @@
 ---
 import Base from '../../layouts/Base.astro';
-import compare from '../../../benchmarks/results/compare.json';
-import taskDetail from '../../../benchmarks/compare/task.json';
 import {
-  money,
-  routeFailures,
-  summariseConfiguration,
-  verdictFor,
-} from '../../lib/benchmark-compare.mjs';
-const source = typeof compare.sourceVersion === 'string' ? compare.sourceVersion : null;
+  blindView,
+  DEFAULT_REVIEWER_LABEL,
+  getRunRecord,
+  renderBlindPairGrid,
+} from '../../lib/benchmark-runs.ts';
+
+const requested = Astro.url.searchParams.get('run');
+const found = getRunRecord(requested ?? undefined);
+if (requested && !found) Astro.response.status = 404;
+if (!found) Astro.response.status = 404;
+const view = found ? blindView(found.record) : null;
+const grid = view ? renderBlindPairGrid(view) : '';
+const task = found?.record.task ?? {};
+const source = typeof found?.record.sourceVersion === 'string' ? found.record.sourceVersion : null;
 const short = source ? source.slice(0, 7) : 'unrecorded';
-// A review belongs to one recorded run, not to a reusable trial label. If the
-// same configuration is run again, its new take must be reviewed on its own.
-const runKey = [
-  source ?? 'unrecorded',
-  String(compare.task?.briefSha256 ?? 'no-brief').slice(7, 17),
-  String(compare.generatedAt ?? 'no-date'),
-].join('|');
-const task = compare.task ?? {};
-const configurations: any[] = Array.isArray(compare.configurations) ? compare.configurations : [];
-
-type Check = { id: string; name: string; status: string; detail: string };
-type Trial = {
-  id: string;
-  index: number;
-  status: string;
-  durationMs: number | null;
-  checks: Check[];
-  failed?: string[];
-  artifacts?: Record<string, string>;
-  previewUrl: string;
-  note?: string;
-  usage?: { inputTokens: number | null; outputTokens: number | null } | null;
-  cost: { estimateMicro: number | null; providerChargedMicro: number | null; basis?: string };
-  configurationId: string;
-  configurationLabel: string;
-  model: string;
-  harness: string;
-};
-type Row = { id: string; label: string; configuration: any; summary: ReturnType<typeof summariseConfiguration> };
-
-const summaries = configurations.map((configuration) => ({
-  configuration,
-  summary: summariseConfiguration(configuration),
-}));
-const verdict = verdictFor(configurations);
-const assertionOwners = {
-  'files-present': { issue: 601, label: 'Benchmarks Studio' },
-  'manifest-schema': { issue: 601, label: 'Benchmarks Studio' },
-  'manifest-content': { issue: 601, label: 'Benchmarks Studio' },
-  'page-shows-brief': { issue: 601, label: 'Benchmarks Studio' },
-  'stylesheet-linked': { issue: 601, label: 'Benchmarks Studio' },
-  'csp-compatible': { issue: 605, label: 'Cross-app layout and policy' },
-  'no-external': { issue: 601, label: 'Benchmarks Studio' },
-  'document-basics': { issue: 605, label: 'Cross-app layout and policy' },
-  'sections-present': { issue: 601, label: 'Benchmarks Studio' },
-};
-const failureRoutes = routeFailures(configurations, Object.fromEntries(
-  Object.entries(assertionOwners).map(([id, owner]) => [id, `#${owner.issue} ${owner.label}`]),
-));
-const trials: Trial[] = configurations.flatMap((configuration: any) =>
-  (configuration.trials ?? []).map((trial: any) => ({
-    ...trial,
-    configurationId: configuration.id,
-    configurationLabel: configuration.label ?? configuration.id,
-    model: configuration.model ?? 'unknown',
-    harness: configuration.harness ?? 'unknown',
-  })),
-);
-const readable = (value: number | null | undefined) =>
-  value === null || value === undefined ? 'unknown' : `${Math.round(Number(value) / 100) / 10}s`;
-const slugFor = (value: string) => String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-const slotDefault = (configuration: any, index: number) => {
-  const list = configuration.trials ?? [];
-  const preferred = list.find((trial: any) => trial.status === 'pass') ?? list[0];
-  return preferred ? `${configuration.id}::${preferred.id}` : `${configuration.id}::t${index + 1}`;
-};
-const firstTwo = configurations.slice(0, 2);
-const initial = firstTwo.map((configuration, index) => slotDefault(configuration, index));
+const recordedAt = view?.recordedAt
+  ? `${view.recordedAt.slice(0, 16).replace('T', ' ')} UTC`
+  : 'unknown';
 ---
 
 <Base
-  title="Benchmarks Studio · compare models and agents"
-  description="One frozen brief, several agent configurations, three clean trials each. Every take judged from the files it produced, with the real page open beside it."
+  title="Benchmarks Studio · blind comparison"
+  description="One frozen brief, nine recorded takes, nine pairs. The configuration and model labels stay hidden until you record a choice on the server; revealing without choosing is recorded as unblinded."
 >
-  <div class="cmp-heading">
-    <p class="eyebrow">Benchmarks Studio · comparison</p>
-    <h1>Which model should build it?</h1>
-    <p class="lede">
-      The same frozen brief, passed unchanged to each configuration, three times. Nothing here trusts a model's own
-      report of success: every take is judged from the files it wrote, and each one is open below so you can look at it
-      yourself and say which you would use.
-    </p>
-  </div>
-
-  <section class="cmp-verdict" aria-labelledby="verdict-title">
-    <p class="eyebrow">Verdict for this job</p>
-    <h2 id="verdict-title">{verdict.headline}</h2>
-    <p>{verdict.detail}</p>
-    {!verdict.comparable && <p class="small">This is a single configuration's result, not a comparison.</p>}
-  </section>
-
-  <dl
-    class="cmp-meta"
-    data-run-meta
-    data-source={source ?? ''}
-    data-brief={task.briefSha256 ?? ''}
-    data-generated={compare.generatedAt ?? ''}
-    data-task={task.id ?? ''}
-    data-task-version={String(task.version ?? '')}
-  >
-    <div><dt>Task</dt><dd>{task.title ?? 'unknown'} <span class="small">v{task.version ?? '?'}</span></dd></div>
-    <div><dt>Brief hash</dt><dd><code>{(task.briefSha256 ?? 'unknown').slice(0, 22)}…</code></dd></div>
-    <div><dt>Assertions</dt><dd>{(task.assertions ?? []).length} deterministic</dd></div>
-    <div><dt>Recorded</dt><dd>{compare.generatedAt ?? 'unknown'}</dd></div>
-    <div>
-      <dt>Source</dt>
-      <dd>
-        {source
-          ? <a href={`https://github.com/loftwah/app-composer/commit/${source}`}><code>{short}</code></a>
-          : <span>unrecorded</span>}
-      </dd>
-    </div>
-  </dl>
-
-  <section class="cmp-section" aria-labelledby="brief-title">
-    <h2 id="brief-title">The frozen brief</h2>
-    <p class="small">
-      This is the whole instruction. It does not change between configurations or trials, and a run that changes it
-      is not a comparison.
-    </p>
-    <details class="cmp-brief">
-      <summary>Read the brief and the nine assertions</summary>
-      <pre>{taskDetail.brief}</pre>
-      <ul>
-        {(task.assertions ?? []).map((assertion) => (
-          <li><strong>{assertion.name}</strong> <code class="small">{assertion.id}</code></li>
-        ))}
-      </ul>
-    </details>
-  </section>
-
-  <section class="cmp-section" aria-labelledby="configs-title">
-    <h2 id="configs-title">What ran</h2>
-    <div class="cmp-configs">
-      {summaries.map(({ configuration, summary }) => (
-        <article class="cmp-config" data-configuration={configuration.id}>
-          <header>
-            <h3>{configuration.label ?? configuration.id}</h3>
-            <p class="small">{configuration.harness ?? 'unknown'} · {configuration.resolvedModel ?? configuration.model ?? 'unknown'}</p>
-          </header>
-          <ul class="cmp-config-facts">
-            <li><span>Usable takes</span><strong>{summary.usable} of {summary.trials}</strong></li>
-            <li><span>Median time</span><strong>{readable(summary.medianDurationMs)}</strong></li>
-            <li><span>Time per usable take</span><strong>{summary.usable === 0 ? 'unknown' : readable(summary.medianDurationMs)}</strong></li>
-            <li><span>Estimate per usable take</span><strong>{money(summary.costPerUsableTakeMicro)}</strong></li>
-            <li><span>Provider charge</span><strong>{summary.reportedCostMicro === null ? 'not reported' : money(summary.reportedCostMicro)}</strong></li>
-          </ul>
-          {summary.failures.length > 0
-            ? <p class="small cmp-config-fail">Failed: {summary.failures.join(', ')}</p>
-            : <p class="small cmp-config-ok">Every assertion held on every recorded trial.</p>}
-        </article>
-      ))}
-    </div>
-  </section>
-
-  <section class="cmp-section" aria-labelledby="side-title">
-    <h2 id="side-title">Look at two takes side by side</h2>
-    <p class="small">
-      These are the pages the configurations actually wrote, mounted live from the recorded files. Their styles are
-      isolated, their scripts were stripped, and the site's policy still blocks frames — so what you see is the real
-      markup, not a screenshot.
-    </p>
-    <div class="cmp-slots">
-      {initial.map((value, index) => (
-        <label class="cmp-slot">
-          <span>{index === 0 ? 'Left' : 'Right'}</span>
-          <select data-compare-select={index === 0 ? 'left' : 'right'}>
-            {configurations.map((configuration: any) => (
-              <optgroup label={configuration.label ?? configuration.id}>
-                {(configuration.trials ?? []).map((trial: any) => (
-                  <option value={`${configuration.id}::${trial.id}`} selected={value === `${configuration.id}::${trial.id}`}>
-                    {(configuration.label ?? configuration.id).split(' · ')[0]} · trial {trial.index} · {trial.status}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </label>
-      ))}
-    </div>
-    <div class="cmp-side">
-      {['left', 'right'].map((slot, index) => (
-        <div class="cmp-side-col">
-          {trials.map((trial) => {
-            const key = `${trial.configurationId}::${trial.id}`;
-            return (
-              <figure
-                class="cmp-panel"
-                data-compare-panel={slot}
-                data-compare-trial={key}
-                hidden={key !== initial[index]}
-              >
-                <div class="cmp-browser" data-trial-preview data-html={trial.previewUrl} data-css={trial.previewUrl.replace(/index\.html$/, "app.css")}>
-                  <div class="cmp-browser-bar"><span></span><span></span><span></span><code>{slugFor(trial.configurationId)}/t{trial.index}</code></div>
-                  <p class="cmp-preview-status small" data-preview-status>Loading the recorded page…</p>
-                  <div class="cmp-preview" data-preview-canvas></div>
-                </div>
-                <figcaption>
-                  <strong>{trial.configurationLabel}</strong>
-                  <span class="small">trial {trial.index} · {trial.status} · {readable(trial.durationMs)}</span>
-                  <a href={trial.previewUrl} target="_blank" rel="noreferrer noopener">Open this page on its own</a>
-                </figcaption>
-              </figure>
-            );
-          })}
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <section class="cmp-section" aria-labelledby="trials-title">
-    <h2 id="trials-title">Every trial, and which one you would use</h2>
-    <p class="small" data-vote-tally>No take picked yet. Choose the one you would actually use.</p>
-    <div class="cmp-review-actions">
-      <button type="button" class="secondary" data-review-export>Copy this review as JSON</button>
-      <p class="small" data-review-status role="status">Your review stays in this browser until you copy it.</p>
-    </div>
-    <div class="cmp-trial-grid">
-      {trials.map((trial) => (
-        <article class="cmp-trial" data-trial={trial.id} data-configuration={trial.configurationId} data-run={runKey} data-model={trial.model} data-harness={trial.harness} data-status={trial.status} data-duration={trial.durationMs ?? ''}>
-          <header>
-            <div>
-              <h3>{trial.configurationLabel}</h3>
-              <p class="small">trial {trial.index} · {trial.model} · {trial.harness}</p>
-            </div>
-            <span class={`cmp-status cmp-status-${trial.status}`}>{trial.status}</span>
-          </header>
-          <ul class="cmp-checks">
-            {(trial.checks ?? []).map((check) => (
-              <li class={check.status === 'pass' ? 'is-pass' : 'is-fail'}>
-                <span aria-hidden="true">{check.status === 'pass' ? '✓' : '✕'}</span>
-                <div><strong>{check.name}</strong><p>{check.detail}</p></div>
-              </li>
-            ))}
-          </ul>
-          <dl class="cmp-trial-facts">
-            <div><dt>Time</dt><dd>{readable(trial.durationMs)}</dd></div>
-            <div><dt>Estimate</dt><dd>{money(trial.cost?.estimateMicro)}</dd></div>
-            <div><dt>Provider charge</dt><dd>{Number.isFinite(Number(trial.cost?.providerChargedMicro)) ? money(trial.cost.providerChargedMicro) : 'not reported'}</dd></div>
-            <div><dt>Tokens</dt><dd>{trial.usage ? `${trial.usage.inputTokens ?? '?'} in / ${trial.usage.outputTokens ?? '?'} out` : 'not reported'}</dd></div>
+  {!found || !view
+    ? (
+      <section class="cmp-missing" role="status">
+        <p class="eyebrow">Benchmarks Studio · comparison</p>
+        <h1>That run is not recorded here.</h1>
+        <p>The comparison is opened from a committed run record. The address may be incomplete, or the run was never committed.</p>
+        <p><a class="button" href="/benchmarks/compare">Open the current blind comparison</a></p>
+        <p><a href="/benchmarks">See the sandbox checks</a> · <a href="/benchmarks/comparisons">Read the Studio job receipts</a></p>
+      </section>
+    )
+    : (
+      <>
+        <div class="cmp-heading" data-blind-review data-run={view.runId} data-task={String(task.id ?? '')}>
+          <p class="eyebrow">Benchmarks Studio · blind comparison</p>
+          <h1>Judge the work before you know who made it.</h1>
+          <p class="lede">
+            One frozen brief, passed unchanged to every recorded configuration, three times each. The labels, model ids
+            and judge results stay hidden until you record a choice. The choice is written to the server record, not to
+            this browser, so it survives a reload and survives this device.
+          </p>
+          <dl class="cmp-meta">
+            <div><dt>Task</dt><dd>{String(task.title ?? 'unknown')} <span class="small">v{String(task.version ?? '?')}</span></dd></div>
+            <div><dt>Brief hash</dt><dd><code>{String(task.briefSha256 ?? 'unknown').slice(0, 22)}…</code></dd></div>
+            <div><dt>Recorded</dt><dd>{recordedAt}</dd></div>
+            <div><dt>Source</dt><dd>
+              {source
+                ? <code>{short}</code>
+                : <span>unrecorded</span>}
+              <span class="small"> · link on the run record</span>
+            </dd></div>
+            <div><dt>Sample</dt><dd>{view.sample.configurations} configurations · {view.sample.trials} takes · {view.sample.pairs} pairs</dd></div>
           </dl>
-          {trial.note && <p class="cmp-note small">{trial.note}</p>}
-          {Object.keys(trial.artifacts ?? {}).length > 0 && (
-            <details class="cmp-artifacts">
-              <summary>File hashes</summary>
-              <ul>
-                {Object.entries(trial.artifacts ?? {}).map(([name, hash]: [string, string]) => (
-                  <li><code>{name}</code> <span class="small">{String(hash).slice(0, 26)}…</span></li>
-                ))}
-              </ul>
-            </details>
-          )}
-          <div class="cmp-vote">
-            <button type="button" data-vote-button aria-pressed="false">I would use this take</button>
-            <span class="cmp-vote-badge" data-vote-badge hidden>Your pick</span>
-            <label class="cmp-vote-field">
-              <span class="small">Why, or where it breaks</span>
-              <input type="text" data-vote-reason maxlength="240" placeholder="Short reason" autocomplete="off" />
-            </label>
-            <label class="cmp-vote-field cmp-vote-field-time">
-              <span class="small">Timestamp</span>
-              <input type="text" data-vote-at maxlength="32" placeholder="0:12" autocomplete="off" />
-            </label>
-            <p class="small cmp-vote-note" data-vote-note hidden>Saved on this device only. Nothing is published.</p>
+          <p class="cmp-claim">
+            A preference recorded here is one unauthenticated label's judgement of these recorded takes. It is not a
+            model leaderboard, a provider invoice, a deployment claim or proof of the owner's judgement.
+          </p>
+        </div>
+
+        <section class="cmp-section" aria-labelledby="how-title">
+          <h2 id="how-title">How the blind reveal works</h2>
+          <ol class="cmp-steps">
+            <li>Open both takes in a pair. The previews are the committed pages, mounted from an opaque route.</li>
+            <li>Choose <strong>A is better</strong>, <strong>B is better</strong>, <strong>Tie</strong> or <strong>Can't tell</strong>. The server resolves the pair and stores the vote.</li>
+            <li>The response reveals the two configuration labels and the judge's deterministic results. Reloading the page restores the revealed state from the server.</li>
+            <li>If you need to see the labels before choosing, use <strong>Reveal without choosing</strong>. That is recorded as unblinded and is never counted as a blind preference.</li>
+          </ol>
+          <div class="cmp-reviewer">
+            <label for="reviewer-label">Reviewer label</label>
+            <input id="reviewer-label" data-reviewer type="text" value={DEFAULT_REVIEWER_LABEL} maxlength="32" autocomplete="off" />
+            <p class="small">A self-declared label, not a sign-in. It is the only identity stored; no email, account id or commenter data is written.</p>
           </div>
-        </article>
-      ))}
-    </div>
-  </section>
+          <p class="cmp-unauthenticated" role="note">
+            <strong>Votes are unauthenticated.</strong> Choices are stored server-side, but this page does not sign anyone
+            in. Anyone can submit under any reviewer label. A vote count is not proof of who voted, and a label called
+            “owner” is not the owner's verified judgement.
+          </p>
+          <p class="small cmp-vote-availability" data-vote-availability role="status" aria-live="polite">
+            The authoritative record is server-side but unauthenticated. Checking the record…
+          </p>
+          <p class="small cmp-vote-summary" data-vote-summary>0 of {view.sample.pairs} pairs recorded on the server. Votes are unauthenticated.</p>
+          <p class="small" data-run-link hidden></p>
+        </section>
 
-  <section class="cmp-section" aria-labelledby="failures-title">
-    <h2 id="failures-title">Where the failures belong</h2>
-    {failureRoutes.length === 0
-      ? <p>No assertion failed in this run, so there is no correction to route. A clean run is recorded as clean and not as a product claim.</p>
-      : (
-        <ul class="cmp-routes">
-          {failureRoutes.map((route) => (
-            <li><code>{route.assertion}</code> → {route.owner ?? 'no owner recorded yet'}</li>
-          ))}
-        </ul>
-      )}
-  </section>
+        <section class="cmp-section" aria-labelledby="pairs-title">
+          <h2 id="pairs-title">Nine pairs, labels hidden</h2>
+          <p class="small">
+            Pair order and the A/B side are derived from the run, not from configuration order, so the layout does not
+            encode the answer. Preview addresses name only the run, the pair and the side; the server maps them back to
+            the committed trial files.
+          </p>
+          <noscript>
+            <p class="cmp-warning">Voting needs JavaScript. The previews still open through their opaque addresses, but the labels stay hidden without a recorded choice.</p>
+          </noscript>
+          <Fragment set:html={grid} />
+        </section>
 
-  <section class="cmp-section" aria-labelledby="limits-title">
-    <h2 id="limits-title">What this comparison does not prove</h2>
-    <ul class="cmp-limits">
-      <li>
-        The Codex entries share one harness. Two model IDs ran, but the harness dimension is untested — a different
-        agent runtime is recorded as its own configuration instead.
-      </li>
-      <li>
-        No rate card is loaded, so the estimate and the provider charge both read as unknown. The CLI reports tokens,
-        not an invoice. A number would have been a guess.
-      </li>
-      <li>One job. A model that writes a good landing page has not been shown to fix a build, migrate data or deploy.</li>
-      <li>Three trials per configuration bounds variance, it does not eliminate it. Nine runs is not a benchmark suite.</li>
-      <li>The recorded pages are static files. Opening one proves the agent produced working markup; it does not prove anything was deployed.</li>
-    </ul>
-    <div class="cmp-actions">
-      <a class="button" href="/benchmarks">See the sandbox checks</a>
-      <a class="button secondary" href="/benchmarks/comparisons">Read the Studio job receipts</a>
-      <a class="button secondary" href="/benchmarks/inventory">Check what is current</a>
-      <a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow Benchmarks Studio</a>
-    </div>
-  </section>
+        <section class="cmp-section" aria-labelledby="limits-title">
+          <h2 id="limits-title">What this comparison does not prove</h2>
+          <ul class="cmp-limits">
+            <li>
+              A reviewer's pick is a preference between two takes, not a quality ranking. The judge records whether a take
+              met the brief; it cannot tell you which page you would actually use. The vote itself is unauthenticated and
+              is not evidence of who cast it.
+            </li>
+            <li>
+              Some configurations share one harness. More than one model id ran, but the harness dimension is untested —
+              a different agent runtime is recorded as its own configuration instead. This page does not name either
+              before a choice is recorded.
+            </li>
+            <li>
+              No rate card is loaded, so the estimate and the provider charge both read as unknown. The CLI reports tokens,
+              not an invoice. A number would have been a guess.
+            </li>
+            <li>One job. A model that writes a good landing page has not been shown to fix a build, migrate data or deploy.</li>
+            <li>Three trials per configuration bounds variance; it does not eliminate it. Nine takes is not a benchmark suite.</li>
+            <li>
+              The recorded pages are static files. Opening one proves the agent produced working markup; it does not prove
+              anything was deployed.
+            </li>
+            <li>
+              The reviewer label is self-declared and this endpoint does not authenticate a person. The record is honest
+              about what it stores; it cannot prove who cast the vote.
+            </li>
+          </ul>
+          <div class="cmp-actions">
+            <a class="button" href="/benchmarks">See the sandbox checks</a>
+            <a class="button secondary" href="/benchmarks/comparisons">Read the Studio job receipts</a>
+            <a class="button secondary" href="/benchmarks/suites">Open the provider-free suite packs</a>
+            <a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow Benchmarks Studio</a>
+          </div>
+        </section>
+      </>
+    )}
 </Base>
 
 <script>
   import '../../browser/benchmark-compare.ts';
 </script>
 
-<style>
+<style is:global>
+  .cmp-missing{max-width:62ch;margin:40px 0}
+  .cmp-missing h1{font-size:clamp(2rem,4vw,3rem);max-width:22ch;margin:10px 0 18px}
   .cmp-heading{max-width:860px}
-  .cmp-heading h1{font-size:clamp(2.6rem,5vw,4.4rem);max-width:15ch;margin:10px 0 20px}
+  .cmp-heading h1{font-size:clamp(2.6rem,5vw,4.4rem);max-width:15ch;margin:10px 0 20px;text-wrap:balance}
   .cmp-heading .lede{max-width:62ch}
-  .cmp-verdict{margin:32px 0 0;padding:26px;border-radius:12px;background:var(--color-surface);border-left:4px solid var(--color-accent)}
-  .cmp-verdict h2{font-size:clamp(1.5rem,3vw,2.1rem);margin:6px 0 12px;max-width:30ch}
-  .cmp-verdict p{margin:0;max-width:66ch}
-  .cmp-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:28px 0 0;padding:20px;background:var(--color-surface);border-radius:10px}
+  .cmp-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin:28px 0 0;padding:20px;background:var(--color-surface);border-radius:10px}
   .cmp-meta dt{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--color-muted)}
   .cmp-meta dd{margin:4px 0 0;font-size:14px;overflow-wrap:anywhere}
+  .cmp-claim{margin:20px 0 0;padding:12px 0 0;border-top:1px solid var(--color-border);font-size:14px;color:var(--color-muted);max-width:72ch}
   .cmp-section{border-top:1px solid var(--color-border);padding-top:28px;margin-top:44px}
   .cmp-section h2{font-size:clamp(1.6rem,3vw,2.2rem);max-width:26ch}
-  .cmp-brief{margin-top:14px;border:1px solid var(--color-border);border-radius:10px;padding:16px}
-  .cmp-brief summary{cursor:pointer;font-weight:500}
-  .cmp-brief pre{margin:16px 0;padding:16px;background:var(--color-surface);border-radius:8px;white-space:pre-wrap;font-size:13px;line-height:1.6;max-height:340px;overflow:auto}
-  .cmp-brief ul{margin:0;padding-left:18px;font-size:13px;line-height:1.8}
-  .cmp-configs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:18px}
-  .cmp-config{border:1px solid var(--color-border);border-radius:10px;padding:18px}
-  .cmp-config h3{margin:0;font-size:1.05rem;max-width:none}
-  .cmp-config-facts{list-style:none;padding:0;margin:14px 0 0}
-  .cmp-config-facts li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid var(--color-border);font-size:13px}
-  .cmp-config-facts span{color:var(--color-muted)}
-  .cmp-config-facts strong{font-weight:500;text-align:right}
-  .cmp-config-ok{color:var(--color-success);margin:12px 0 0}
-  .cmp-config-fail{color:#ff8a6a;margin:12px 0 0}
-  .cmp-slots{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
-  .cmp-slot{display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--color-muted)}
-  .cmp-slot select{font:inherit;font-size:13px;letter-spacing:0;text-transform:none;color:inherit;background:var(--color-surface);border:1px solid var(--color-border);border-radius:8px;padding:10px}
-  .cmp-side{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-  .cmp-panel{margin:0}
-  .cmp-panel[hidden]{display:none}
+  .cmp-steps{max-width:74ch;padding-left:22px;line-height:1.7}
+  .cmp-steps li{margin:10px 0;color:var(--color-muted)}
+  .cmp-steps strong{color:var(--color-foreground)}
+  .cmp-reviewer{display:grid;grid-template-columns:auto minmax(0,220px);gap:8px 12px;align-items:center;margin:20px 0 8px;max-width:520px}
+  .cmp-reviewer label{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--color-muted)}
+  .cmp-reviewer input{font:inherit;font-size:14px;padding:9px 11px;min-height:42px;border-radius:8px;border:1px solid var(--color-border);background:var(--color-surface);color:inherit;min-width:0}
+  .cmp-reviewer .small{grid-column:1/-1;margin:0;color:var(--color-muted)}
+  .cmp-unauthenticated{margin:14px 0 0;padding:12px 14px;border-left:3px solid var(--color-accent);background:var(--color-surface);font-size:13.5px;line-height:1.6;max-width:74ch;color:var(--color-muted)}
+  .cmp-unauthenticated strong{color:var(--color-foreground)}
+  .cmp-vote-availability,.cmp-vote-summary{margin:6px 0 0;color:var(--color-muted)}
+  .cmp-vote-availability[data-state='unavailable']{color:#ff8a6a}
+  .cmp-warning{padding:12px 14px;border-left:3px solid var(--color-accent);background:var(--color-surface);max-width:70ch}
+  .cmp-pair-grid{display:grid;gap:22px;margin-top:18px}
+  .cmp-pair{border:1px solid var(--color-border);border-radius:12px;padding:18px;min-width:0}
+  .cmp-pair-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+  .cmp-pair-head h3{margin:0;font-size:1.1rem;max-width:none}
+  .cmp-pair-head p{margin:4px 0 0;color:var(--color-muted)}
+  .cmp-pair-count{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);white-space:nowrap;padding-top:4px}
+  .cmp-pair-sides{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:14px}
+  .cmp-pair-side{margin:0;min-width:0}
   .cmp-browser{border:1px solid var(--color-border);border-radius:10px;overflow:hidden;background:var(--color-surface)}
   .cmp-browser-bar{display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid var(--color-border)}
-  .cmp-browser-bar span{width:8px;height:8px;border-radius:50%;background:var(--color-border)}
+  .cmp-browser-bar span{width:8px;height:8px;border-radius:50%;background:var(--color-border);flex:0 0 auto}
   .cmp-browser-bar code{margin-left:8px;font-size:11px;color:var(--color-muted)}
-  .cmp-preview{position:relative;height:420px;overflow:auto;background:#fff;contain:paint}
+  .cmp-preview{position:relative;height:360px;overflow:auto;background:#fff;contain:paint}
   .cmp-preview-status{margin:0;padding:10px 12px}
   .cmp-preview[data-ready='true'] + .cmp-preview-status{display:none}
-  .cmp-panel figcaption{display:flex;flex-direction:column;gap:4px;margin-top:10px;font-size:13px}
-  .cmp-trial-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:18px}
-  .cmp-trial{border:1px solid var(--color-border);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:12px}
-  .cmp-trial header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-  .cmp-trial h3{margin:0;font-size:1rem;max-width:none}
-  .cmp-status{font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
-  .cmp-status-pass{color:var(--color-success)}
-  .cmp-status-fail{color:#ff8a6a}
-  .cmp-status-blocked{color:var(--color-accent)}
-  .cmp-checks{list-style:none;padding:0;margin:0;font-size:13px}
-  .cmp-checks li{display:grid;grid-template-columns:14px 1fr;gap:8px;padding:7px 0;border-top:1px solid var(--color-border)}
-  .cmp-checks li span{font-weight:600}
-  .cmp-checks .is-pass span{color:var(--color-success)}
-  .cmp-checks .is-fail span{color:#ff8a6a}
-  .cmp-checks strong{font-weight:500;display:block}
-  .cmp-checks p{margin:2px 0 0;color:var(--color-muted);font-size:12px}
-  .cmp-trial-facts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0;font-size:12px}
-  .cmp-trial-facts dt{color:var(--color-muted)}
-  .cmp-trial-facts dd{margin:2px 0 0;font-weight:500}
-  .cmp-note{padding:8px 10px;border-left:3px solid #ff8a6a;background:var(--color-surface)}
-  .cmp-artifacts summary{cursor:pointer;font-size:12px;color:var(--color-muted)}
-  .cmp-artifacts ul{list-style:none;padding:0;margin:8px 0 0;font-size:12px}
-  .cmp-artifacts li{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
-  .cmp-vote{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:auto;padding-top:12px;border-top:1px solid var(--color-border)}
-  .cmp-vote button{font:inherit;font-size:13px;padding:10px 14px;min-height:44px;border-radius:8px;border:1px solid var(--color-border);background:transparent;color:inherit;cursor:pointer}
-  .cmp-vote button[aria-pressed='true']{border-color:var(--color-accent);background:color-mix(in srgb,var(--color-accent) 14%,transparent)}
-  .cmp-vote button:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
-  .cmp-vote-badge{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-accent)}
-  .cmp-vote-field{display:flex;flex-direction:column;gap:4px;flex:1 1 140px}
-  .cmp-vote-field-time{flex:0 1 90px}
-  .cmp-vote-field input{font:inherit;font-size:13px;padding:8px 10px;min-height:40px;border-radius:8px;border:1px solid var(--color-border);background:transparent;color:inherit}
-  .cmp-vote-note{flex-basis:100%;margin:0;color:var(--color-muted)}
-  .cmp-review-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:10px 0 16px}
-  .cmp-review-actions p{margin:0}
-  .cmp-review-actions button{font:inherit;font-size:13px;padding:10px 14px;min-height:44px;border-radius:8px;border:1px solid var(--color-border);background:transparent;color:inherit;cursor:pointer}
-  .cmp-review-actions button:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
-  .cmp-routes{padding-left:18px;font-size:14px;line-height:1.9}
+  .cmp-pair-side figcaption{display:flex;flex-direction:column;gap:4px;margin-top:10px;font-size:13px;min-width:0}
+  .cmp-pair-side figcaption .small{color:var(--color-muted)}
+  .cmp-choice{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .cmp-choice button{font:inherit;font-size:13px;padding:10px 14px;min-height:44px;border-radius:8px;border:1px solid var(--color-border);background:transparent;color:inherit;cursor:pointer;white-space:normal;text-align:left}
+  .cmp-choice button.secondary{color:var(--color-muted)}
+  .cmp-choice button[aria-pressed='true']{border-color:var(--color-accent);background:color-mix(in srgb,var(--color-accent) 14%,transparent);color:var(--color-foreground)}
+  .cmp-choice button:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+  .cmp-choice button:disabled{opacity:.55;cursor:wait}
+  .cmp-pair-reason{display:flex;flex-direction:column;gap:4px;margin-top:12px;max-width:520px}
+  .cmp-pair-reason span{color:var(--color-muted)}
+  .cmp-pair-reason input{font:inherit;font-size:13px;padding:8px 10px;min-height:42px;border-radius:8px;border:1px solid var(--color-border);background:transparent;color:inherit;min-width:0}
+  .cmp-pair-status{margin:8px 0 0;min-height:1.5em;color:var(--color-muted)}
+  .cmp-pair-reveal{margin-top:14px;padding-top:14px;border-top:1px solid var(--color-border)}
+  .cmp-pair-reveal[hidden]{display:none}
+  .cmp-reveal-head{max-width:74ch}
+  .cmp-reveal-head p{margin:0 0 4px}
+  .cmp-reveal-verdict{font-size:1.05rem;font-weight:500}
+  .cmp-reveal-meta,.cmp-reveal-reason{color:var(--color-muted)}
+  .cmp-reveal-sides{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:14px}
+  .cmp-reveal-side{border:1px solid var(--color-border);border-radius:10px;padding:14px;min-width:0}
+  .cmp-reveal-side h4{margin:0;font-size:1rem;overflow-wrap:anywhere}
+  .cmp-reveal-facts{display:grid;gap:6px;margin:12px 0;font-size:13px}
+  .cmp-reveal-facts div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px}
+  .cmp-reveal-facts dt{color:var(--color-muted);font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding-top:2px}
+  .cmp-reveal-facts dd{margin:0;overflow-wrap:anywhere}
+  .cmp-reveal-failed{margin:0 0 8px;color:#ff8a6a;font-size:13px;overflow-wrap:anywhere}
+  .cmp-reveal-checks summary{cursor:pointer;color:var(--color-muted)}
+  .cmp-reveal-check-list{list-style:none;padding:0;margin:8px 0 0;font-size:12px}
+  .cmp-reveal-check-list li{display:grid;grid-template-columns:14px minmax(0,1fr);gap:8px;padding:6px 0;border-top:1px solid var(--color-border)}
+  .cmp-reveal-check-list li span{font-weight:600}
+  .cmp-reveal-check-list .is-pass span{color:var(--color-success)}
+  .cmp-reveal-check-list .is-fail span{color:#ff8a6a}
+  .cmp-reveal-check-list p{margin:2px 0 0;color:var(--color-muted);font-size:11px}
   .cmp-limits{max-width:70ch;line-height:1.8}
+  .cmp-limits li{margin:10px 0}
   .cmp-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
-  @media(max-width:880px){.cmp-side{grid-template-columns:1fr}.cmp-slots{grid-template-columns:1fr}.cmp-preview{height:340px}}
-  @media(prefers-reduced-motion:reduce){.cmp-preview{scroll-behavior:auto}}
+  @media(max-width:880px){
+    .cmp-pair-sides,.cmp-reveal-sides{grid-template-columns:1fr}
+    .cmp-preview{height:320px}
+  }
+  @media(max-width:600px){
+    .cmp-pair{padding:14px}
+    .cmp-pair-head{display:block}
+    .cmp-pair-count{display:none}
+    .cmp-meta{grid-template-columns:1fr 1fr;padding:16px;gap:14px}
+    .cmp-reviewer{grid-template-columns:1fr;max-width:none}
+    .cmp-choice button{flex:1 1 100%}
+    .cmp-preview{height:300px}
+    .cmp-reveal-facts div{grid-template-columns:1fr;gap:2px}
+  }
 </style>

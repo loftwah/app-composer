@@ -1,0 +1,32 @@
+{
+  "schema": "benchmark-suite/v1",
+  "id": "FLOW-01",
+  "name": "Sandbox flow: save, reopen and export a blueprint",
+  "description": "A provider-free pack over the public sandbox's deterministic store, moderation and blueprint checks. It proves the same edits survive a save and reopen, a tampered save is refused, a hidden note stays hidden after restore, and a restored sandbox still exports a valid blueprint.",
+  "kind": "deterministic",
+  "providerFree": true,
+  "requirements": {
+    "network": false,
+    "credentials": [],
+    "spendMicro": 0
+  },
+  "checks": [
+    { "module": "sandbox-save-reopen", "id": "edit-survives-reopen" },
+    { "module": "sandbox-save-reopen", "id": "tampered-save-rejected" },
+    { "module": "sandbox-save-reopen", "id": "restore-keeps-moderation" },
+    { "module": "sandbox-save-reopen", "id": "export-still-reads-restored-state" },
+    { "module": "blueprint-roundtrip", "id": "export-succeeds" },
+    { "module": "blueprint-roundtrip", "id": "fields-survive" }
+  ],
+  "evidence": {
+    "status": "recorded",
+    "file": "benchmarks/results/latest.json",
+    "source": "951b31384a6abb85f947fbc46c87a3ee95363c63",
+    "recordedAt": "2026-11-15T13:30:04.758Z"
+  },
+  "limits": [
+    "The pack runs only the deterministic checks named here. It does not measure model quality, latency or cost.",
+    "A pass means these in-repo helpers held on the committed source; it is not a provider, deployment or browser check.",
+    "The evidence is a dated run. A later source revision can make the result stale, and the page says so rather than assuming it still holds."
+  ]
+}
