@@ -1,4 +1,4 @@
-// Read-only GitHub command centre (#658).
+// Read-only command centre source adapter (#658).
 //
 // This module performs one bounded read per allowlisted public repository and
 // caches it in the current Worker instance. A credentialed read uses a 55-second
@@ -7,6 +7,11 @@
 // creates an issue, never starts a deployment and never turns an unconfirmed
 // section into a zero. A partial failure is returned per section so the page can
 // say "unknown" with a reason instead of implying an empty queue.
+//
+// Reads per repository: metadata, open pull requests, labels, releases, open
+// issues and closed issues run in parallel (six), then one commit read when the
+// repository metadata is confirmed, plus at most four blocked-label counts.
+// That is eleven bounded requests at the maximum, never an unbounded query.
 import { PluginRouteError } from "emdash";
 import { isCreatorRole } from "./creator-access.ts";
 import {
@@ -14,31 +19,36 @@ import {
   commandCentreCacheSeconds,
   commandCentreLabelLimit,
   commandCentrePublicCacheSeconds,
+  commandCentreReleaseLimit,
   commandCentreReport,
   commandCentreSchema,
   githubCommitList,
   githubIssueList,
   githubLabelList,
   githubPullList,
-  githubRelease,
+  githubReleaseList,
   githubRepository,
   mapCommit,
+  mapForecastIssue,
+  mapHistorySection,
+  mapPlanSection,
   mapRecentIssues,
+  mapRecentReleases,
   mapRelease,
   openIssueCount,
   pullRequestCountFromPage,
   utcClock,
   type CommandCentreBlockedSection,
   type CommandCentreCommitSection,
-  type CommandCentreReleaseSection,
   type CommandCentreRepo,
   type CommandCentreReport,
   type CommandCentreUnknownSection,
 } from "./command-centre-contract.ts";
+import { deriveForecast } from "./command-centre-forecast.ts";
 
 const api = "https://api.github.com";
 const userAgent =
-  "AppComposer-CommandCentre/1.0 (+https://composer.loftwah.com)";
+  "AppComposer-CommandCentre/2.0 (+https://composer.loftwah.com)";
 const requestTimeoutMs = 8_000;
 const maximumRepositories = 10;
 
@@ -56,13 +66,16 @@ export const commandCentreRepositories = [
   { repository: "loftwah/liferaft", label: "Liferaft" },
 ] as const;
 
+const source = { id: "github", label: "GitHub" } as const;
+
 const limits = [
-  "Read-only public GitHub state. This view never writes, approves, deploys or creates an issue.",
-  "Counts come from GitHub's open-item count and one page of open items; no second page is read.",
+  "Read-only public source state. This view never writes, approves, deploys or creates an issue.",
+  "Counts come from the source's own open total and one page of items; at most 11 bounded responses are read, never a second page.",
   "A section that could not be confirmed stays unknown and is never shown as zero or an empty list.",
-  "No forecast, agent proposal or planned work is shown here as accepted work.",
-  "A read is cached for 55 seconds with a GitHub credential, or 12 minutes without one, so the public quota survives normal page loads.",
-  "Without a GITHUB_TOKEN binding, GitHub allows 60 public requests per hour; one repository read asks for up to 10 responses.",
+  "Closed issues come from one page of 100. A closure is not evidence of a live deployment.",
+  "Forecasts are derived from confirmed closure dates and the current backlog; they are not commitments or SLAs.",
+  "Plan relationships come only from explicit issue-body references and URLs; native sub-issue fields and pull-request state are not read.",
+  "A read is cached for 55 seconds with a credential, or 12 minutes without one, so the public quota survives normal page loads.",
   "Only a signed-in Composer creator can open this view.",
 ];
 
@@ -249,6 +262,15 @@ function readToken(value: unknown): string | null {
   return token.length >= 8 && token.length <= 500 ? token : null;
 }
 
+function githubLinks(repository: string) {
+  const base = `https://github.com/${repository}`;
+  return {
+    issues: `${base}/issues`,
+    pullRequests: `${base}/pulls`,
+    newIssue: `${base}/issues/new/choose`,
+  };
+}
+
 async function readBlockedLabelCount(
   fetcher: typeof fetch,
   repository: string,
@@ -286,34 +308,53 @@ async function readRepository(
   const checkedAt = new Date(now).toISOString();
   const rate: RateLimit = { limit: null, remaining: null, resetAt: null };
 
-  const [metadataResult, pullResult, labelResult, releaseResult, recentResult] =
-    await Promise.all([
-      githubGet(fetcher, `/repos/${repository}`, token, rate),
-      githubGet(
-        fetcher,
-        `/repos/${repository}/pulls?state=open&per_page=1`,
-        token,
-        rate,
-      ),
-      githubGet(
-        fetcher,
-        `/repos/${repository}/labels?per_page=100`,
-        token,
-        rate,
-      ),
-      githubGet(fetcher, `/repos/${repository}/releases/latest`, token, rate),
-      githubGet(
-        fetcher,
-        `/repos/${repository}/issues?state=open&sort=updated&direction=desc&per_page=100`,
-        token,
-        rate,
-      ),
-    ]);
+  const [
+    metadataResult,
+    pullResult,
+    labelResult,
+    releaseResult,
+    recentResult,
+    closedResult,
+  ] = await Promise.all([
+    githubGet(fetcher, `/repos/${repository}`, token, rate),
+    githubGet(
+      fetcher,
+      `/repos/${repository}/pulls?state=open&per_page=1`,
+      token,
+      rate,
+    ),
+    githubGet(
+      fetcher,
+      `/repos/${repository}/labels?per_page=100`,
+      token,
+      rate,
+    ),
+    githubGet(
+      fetcher,
+      `/repos/${repository}/releases?per_page=${commandCentreReleaseLimit}`,
+      token,
+      rate,
+    ),
+    githubGet(
+      fetcher,
+      `/repos/${repository}/issues?state=open&sort=updated&direction=desc&per_page=100`,
+      token,
+      rate,
+    ),
+    githubGet(
+      fetcher,
+      `/repos/${repository}/issues?state=closed&sort=updated&direction=desc&per_page=100`,
+      token,
+      rate,
+    ),
+  ]);
 
   const metadata = parseGithub(githubRepository, metadataResult);
   const pulls = parseGithub(githubPullList, pullResult);
   const labels = parseGithub(githubLabelList, labelResult);
+  const releases = parseGithub(githubReleaseList, releaseResult);
   const recent = parseGithub(githubIssueList, recentResult);
+  const closed = parseGithub(githubIssueList, closedResult);
 
   const url = metadata.ok
     ? metadata.data.html_url
@@ -362,6 +403,39 @@ async function readRepository(
     ? { state: "ok", ...mapRecentIssues(recent.data) }
     : unknown(recent.reason);
 
+  const openIssueItems = recent.ok
+    ? recent.data.filter((issue) => !issue.pull_request)
+    : null;
+  const openSampleComplete =
+    issueCount.state === "ok" && openIssueItems !== null
+      ? issueCount.value === openIssueItems.length
+      : false;
+
+  const plan: CommandCentreRepo["plan"] = recent.ok
+    ? mapPlanSection(recent.data, repository, openSampleComplete)
+    : unknown(recent.reason);
+
+  const history: CommandCentreRepo["history"] = closed.ok
+    ? mapHistorySection(
+        closed.data,
+        !(closedResult.ok && closedResult.link !== null),
+      )
+    : unknown(closed.reason);
+
+  const releasesSection: CommandCentreRepo["releases"] = releases.ok
+    ? { state: "ok", items: mapRecentReleases(releases.data, repository) }
+    : unknown(releases.reason);
+
+  let release: CommandCentreRepo["release"];
+  if (!releases.ok) release = unknown(releases.reason);
+  else {
+    const latest = releases.data.find((entry) => entry.draft !== true);
+    release = {
+      state: "ok",
+      latest: latest ? mapRelease(latest) : null,
+    };
+  }
+
   let blocked: CommandCentreRepo["blocked"];
   if (!labels.ok) blocked = unknown(labels.reason);
   else {
@@ -401,26 +475,6 @@ async function readRepository(
     }
   }
 
-  let release: CommandCentreRepo["release"];
-  if (!releaseResult.ok) {
-    // `/releases/latest` uses 404 for "no published release". That reading is
-    // only trustworthy when the repository itself was confirmed: a 404 can also
-    // mean the repository is unavailable, so an unconfirmed repository keeps
-    // the release unknown rather than claiming a known absence.
-    release =
-      releaseResult.status === 404 && metadata.ok
-        ? ({ state: "ok", latest: null } satisfies CommandCentreReleaseSection)
-        : unknown(releaseResult.reason);
-  } else {
-    const parsed = parseGithub(githubRelease, releaseResult);
-    release = parsed.ok
-      ? ({
-          state: "ok",
-          latest: mapRelease(parsed.data),
-        } satisfies CommandCentreReleaseSection)
-      : unknown(parsed.reason);
-  }
-
   let commit: CommandCentreRepo["commit"];
   if (!metadata.ok) commit = unknown(metadata.reason);
   else {
@@ -441,6 +495,35 @@ async function readRepository(
       : unknown(parsed.reason);
   }
 
+  const closedPageComplete = closed.ok
+    ? !(closedResult.ok && closedResult.link !== null)
+    : null;
+  const forecast = deriveForecast({
+    observedAt: checkedAt,
+    open:
+      issueCount.state === "ok"
+        ? {
+            count: issueCount.value,
+            sampled: openIssueItems?.length ?? null,
+            complete:
+              openIssueItems === null ? null : openSampleComplete,
+          }
+        : null,
+    openItems: openIssueItems
+      ? openIssueItems.map(mapForecastIssue)
+      : null,
+    closedItems: closed.ok
+      ? closed.data
+          .filter((issue) => !issue.pull_request)
+          .map(mapForecastIssue)
+      : null,
+    closedPageComplete,
+    oldestUpdatedAt:
+      closed.ok && closed.data.length
+        ? (closed.data[closed.data.length - 1]?.updated_at ?? null)
+        : null,
+  });
+
   const complete =
     metadata.ok &&
     issueCount.state === "ok" &&
@@ -448,11 +531,15 @@ async function readRepository(
     pullRequests.state === "ok" &&
     blocked.state === "ok" &&
     release.state === "ok" &&
-    commit.state === "ok";
+    releasesSection.state === "ok" &&
+    commit.state === "ok" &&
+    plan.state === "ok" &&
+    history.state === "ok";
 
   const repo: CommandCentreRepo = {
     repository,
     url,
+    links: githubLinks(repository),
     checkedAt,
     archived: metadata.ok ? metadata.data.archived : null,
     defaultBranch: metadata.ok ? metadata.data.default_branch : null,
@@ -460,7 +547,11 @@ async function readRepository(
     pullRequests,
     blocked,
     release,
+    releases: releasesSection,
     commit,
+    plan,
+    history,
+    forecast,
     complete,
   };
   return { repo, rateLimit: rate };
@@ -492,6 +583,7 @@ export async function readCommandCentre(
   const base = {
     ok: true as const,
     schema: commandCentreSchema,
+    source,
     selected: repository,
     repositories: commandCentreRepositories.map((entry) => ({
       repository: entry.repository,
@@ -613,7 +705,7 @@ export async function manageCommandCentre(
   } catch {
     return reject(
       "UNAVAILABLE",
-      "The command centre could not confirm a valid GitHub reading. Nothing is shown as complete.",
+      "The command centre could not confirm a valid source reading. Nothing is shown as complete.",
       503,
     );
   }
