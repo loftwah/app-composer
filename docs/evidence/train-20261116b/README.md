@@ -12,6 +12,7 @@ owning issues.
 | `308cf7e0c6a1` | 107.4 s | `/projects` project family with integration tiers (#600); read-only GitHub command centre (#658) |
 | `102e724d2917` | 106.8 s | Share approval packages and per-channel drafts (#604); pinned-replay evidence (#600/#457) |
 | `4e0f28a3d488` | 107.6 s | Blind, durable benchmark review and provider-free suite packs (#601); command-centre live read fixed (#658) |
+| `7e268e9e6bd3` | 99.5 s | Cross-surface layout contract and three measured fixes (#605) |
 
 Studio releases for the same session are recorded in
 [the Studio evidence note](https://github.com/loftwah/composer-media-studio/blob/main/docs/evidence/2026-11-16-train-director-gallery/README.md).
@@ -125,6 +126,21 @@ Evidence: `command-centre-1440.png`, `command-centre-390.png`.
 5. **Benchmarks** → blind pair → choice → reveal → reload → run record.
 
 Evidence: `trail-notes-public-1440.png`, `share-package-1440.png`.
+
+## Layout contract (#605)
+
+Measured, then fixed three real defects: `/projects` released from the global
+72ch prose cap (725.6 → 1,280 px, dead right column gone), `/learn`'s reading
+column at 768 (396 → 720 px) and 900 (528 → 820 px), and a 320 px header
+collision (−10 px overlap → +27 px clearance). The 40-page census found zero
+document overflow and zero clipped controls before the fixes.
+
+`tests/layout-contract.test.mjs` audits all primary public pages and every admin
+plugin CSS, and is proven to fail on a deliberately broken fixture (6 findings)
+and pass with the responsive resets (0). 14/14 new; 995/995 full suite.
+
+Live re-check: `/projects` list 1,280 px at 1440; `/learn` at 768 no overflow;
+home at 320 with `scrollWidth === 320`.
 
 ## Links and states
 
