@@ -21,7 +21,11 @@
 //   rule. Images are bounded by type and size before upload.
 // - Provider response bodies are parsed for the exact fields below and never
 //   persisted or echoed. Errors are fixed, sanitised messages.
-import { isBlueskyDid, normalizeBlueskyHandle } from "./bluesky-account.ts";
+import {
+  BLUESKY_HANDLE_SETTING,
+  isBlueskyDid,
+  normalizeBlueskyHandle,
+} from "./bluesky-account.ts";
 import { isSafeShareLink } from "./share-calendar.ts";
 import { blueskyUsage, sha256Text } from "./share-approval.ts";
 import type { SettingField } from "emdash";
@@ -33,10 +37,17 @@ export const BLUESKY_APP_PASSWORD_SETTING = "SHARE_BLUESKY_APP_PASSWORD";
 
 // The only Bluesky credential Composer accepts. It is declared as a native
 // encrypted `secret` so it uses EmDash's existing plugin settings store; there
-// is no second credential table. The public handle stays in the existing
-// non-secret `SHARE_BLUESKY_HANDLE` runtime value.
+// is no second credential table. The public handle is a non-secret setting that
+// overrides the `SHARE_BLUESKY_HANDLE` runtime value when the owner saves it
+// from Share connections.
 export const blueskyPublisherSettings: Record<string, SettingField> =
   Object.freeze({
+    [BLUESKY_HANDLE_SETTING]: Object.freeze({
+      type: "string",
+      label: "Bluesky public handle",
+      description:
+        "Optional public configuration, not a secret. The exact handle Composer may publish to, for example name.bsky.social. Share connections saves this setting and falls back to the server variable when it is empty.",
+    }),
     [BLUESKY_APP_PASSWORD_SETTING]: Object.freeze({
       type: "secret",
       label: "Bluesky app password",
@@ -223,7 +234,9 @@ function boundedToken(value: unknown): string | null {
   return /[\u0000-\u0020\u007f]/.test(value) ? null : value;
 }
 
-function appPassword(value: unknown): string | null {
+// Shared with the owner connection routes: the same trimmed bounds are checked
+// before any provider call, so an unusable value is never stored or sent.
+export function normalizeBlueskyAppPassword(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const password = value.trim();
   if (
@@ -423,7 +436,7 @@ export async function createBlueskySession(
   options: BlueskyFetchOptions = {},
 ): Promise<BlueskySessionResult> {
   const handle = normalizeBlueskyHandle(input.identifier);
-  const password = appPassword(input.password);
+  const password = normalizeBlueskyAppPassword(input.password);
   if (!handle)
     return failure(
       "invalid_input",

@@ -29,6 +29,7 @@ import {
 } from "./share-calendar.ts";
 import {
   BLUESKY_CREDENTIAL_STATEMENT,
+  BLUESKY_HANDLE_SETTING,
   configuredBlueskyHandle,
   normalizeBlueskyHandle,
   resolveBlueskyIdentity,
@@ -46,6 +47,7 @@ import {
   createBlueskyPost,
   createBlueskySession,
   fetchBlueskyImage,
+  normalizeBlueskyAppPassword,
   normalizeBlueskyService,
   readBlueskyPost,
   refreshBlueskySession,
@@ -178,19 +180,30 @@ async function readBlueskyAppPassword(
   try {
     const stored =
       await ctx.settings?.getVersioned<string>(BLUESKY_APP_PASSWORD_SETTING);
-    const value = stored?.value;
-    if (typeof value !== "string") return null;
-    const password = value.trim();
-    if (
-      password.length < 8 ||
-      password.length > 512 ||
-      /[\u0000-\u0020\u007f]/.test(password)
-    )
-      return null;
-    return password;
+    return normalizeBlueskyAppPassword(stored?.value);
   } catch {
     return null;
   }
+}
+
+// The owner can save the public handle from Share connections. A stored value
+// wins over the runtime fallback so administration needs no deployment; an
+// unreadable setting keeps the existing fallback rather than blocking the
+// calendar, and an invalid stored value stays unconfigured.
+async function readConfiguredBlueskyHandle(
+  ctx: Context,
+  runtime: ShareCalendarRuntime,
+): Promise<string | null> {
+  try {
+    const stored =
+      await ctx.settings?.getVersioned<string>(BLUESKY_HANDLE_SETTING);
+    const value = stored?.value;
+    if (typeof value === "string" && value.trim())
+      return configuredBlueskyHandle(runtime, value);
+  } catch {
+    /* Fall through to the runtime value. */
+  }
+  return configuredBlueskyHandle(runtime);
 }
 
 function connectionSummary(
@@ -497,7 +510,6 @@ export async function manageShareCalendar(
     return fail("FORBIDDEN", "A signed-in Composer creator is required.");
   if (runtime.PUBLIC_ORIGIN !== origin || !database(runtime.DB))
     return unavailable();
-  const configuredHandle = configuredBlueskyHandle(runtime);
   const nowDate = requestDate(runtime);
   const reading = ctx.request.method === "GET";
   if (
@@ -509,9 +521,11 @@ export async function manageShareCalendar(
         ctx.request.headers.get("X-EmDash-Request") !== "1"))
   )
     return fail("FORBIDDEN", "Open this action from Composer administration.");
-  // Read the encrypted secret only after the request boundary has passed. It
-  // is used for presence in the view and for one explicit send; it is never
-  // returned, stored in a receipt or included in an error.
+  // Read the stored public handle and the encrypted secret only after the
+  // request boundary has passed. The secret is used for presence in the view
+  // and for one explicit send; it is never returned, stored in a receipt or
+  // included in an error.
+  const configuredHandle = await readConfiguredBlueskyHandle(ctx, runtime);
   const appPassword = await readBlueskyAppPassword(ctx);
   const connection = connectionSummary(configuredHandle, Boolean(appPassword));
   const view = (

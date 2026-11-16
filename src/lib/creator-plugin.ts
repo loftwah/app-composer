@@ -30,6 +30,7 @@ import { manageCommandCentre } from "./command-centre.ts";
 import { manageStackStatus } from "./stack-status-admin.ts";
 import { manageProviderInventory } from "./provider-read.ts";
 import { manageShareCalendar } from "./share-calendar-admin.ts";
+import { manageShareConnections } from "./share-connections-admin.ts";
 import { blueskyPublisherSettings } from "./bluesky-publisher.ts";
 
 type Runtime = Parameters<typeof manageWorkspaceAccess>[1];
@@ -80,6 +81,11 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
           path: "/share-calendar",
           label: "Share calendar",
           icon: "calendar",
+        },
+        {
+          path: "/share-connections",
+          label: "Share connections",
+          icon: "plugs",
         },
         { path: "/incidents", label: "Incident Desk", icon: "first-aid-kit" },
       ],
@@ -138,6 +144,17 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         permission: creatorPermission,
         request: { body: "json", maxBytes: 8000 },
         handler: (ctx) => manageShareCalendar(ctx, runtime),
+      },
+      shareConnectionsRead: {
+        methods: ["GET"],
+        permission: "plugins:manage",
+        handler: (ctx) => manageShareConnections(ctx, runtime),
+      },
+      shareConnectionsWrite: {
+        methods: ["POST"],
+        permission: "plugins:manage",
+        request: { body: "json", maxBytes: 4000 },
+        handler: (ctx) => manageShareConnections(ctx, runtime),
       },
       proposalsRead: {
         methods: ["GET"],
