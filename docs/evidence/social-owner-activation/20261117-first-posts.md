@@ -66,6 +66,13 @@ which passes the generic record-key syntax but is not a Bluesky TID.
 - Live identity after both releases: Composer
   `301e149bc5b0172ee59fbfb08298efc2a61be56e`.
 
+## Recovery and duplicate checks exercised in the owner calendar
+
+- **Duplicate prevention:** after the published receipt, the item shows the AT URI, CID and native link, and no Send control is rendered. A second send of the same approval is not offered.
+- **Edit and re-approval:** the intended time was moved from 09:30 to 01:28 AEDT. That invalidated the old approval; the panel required a fresh exact approval (revision 2) before sending.
+- **Cancel:** a temporary Bluesky item was scheduled, approved (revision 1, binding `d741c723…`) and then cancelled. The panel returned to the pre-approval state with Send disabled. The temporary item was then deleted; the calendar returned to its two scheduled items.
+- **Retry after a provider rejection:** the failed approval was not retried blindly. A new approval revision produced a new deterministic record key, and that attempt published.
+
 ## What is still missing
 
 - The Bluesky attachment is the generated stack share card. An owner cannot yet
