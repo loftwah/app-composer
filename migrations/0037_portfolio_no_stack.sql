@@ -165,7 +165,7 @@ FROM creator_share_deliveries;
 -- Prove exact bidirectional equivalence of every prior column for each table
 -- before dropping anything. The CHECK turns any mismatch into a hard failure,
 -- so a partial or lossy copy can never reach the DROP statements below.
-CREATE TEMP TABLE _0037_copy_guard (result TEXT NOT NULL CHECK(result = ''));
+CREATE TABLE _0037_copy_guard (result TEXT NOT NULL CHECK(result = ''));
 INSERT INTO _0037_copy_guard (result)
 SELECT CASE WHEN
     EXISTS (
