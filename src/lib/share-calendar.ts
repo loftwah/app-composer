@@ -709,6 +709,51 @@ export const shareCalendarSnapshot = z
   })
   .strict();
 
+// Read-only resolution shared by the item card and the calendar list filter.
+// A published receipt must match the approval revision the card displays;
+// local exports and scheduled/draft items are never provider deliveries.
+export function itemApprovalAndDelivery(
+  snapshot: ShareCalendarSnapshot,
+  item: ShareCalendarItem,
+): {
+  approval: BlueskyApprovalRecord | null;
+  delivery: BlueskyDeliveryRecord | null;
+} {
+  const approval =
+    snapshot.approvals.find((entry) => entry.itemId === item.id) ?? null;
+  const delivery =
+    (approval &&
+      snapshot.deliveries.find(
+        (entry) =>
+          entry.itemId === item.id &&
+          entry.approvalRevision === approval.approvalRevision,
+      )) ||
+    null;
+  return { approval, delivery };
+}
+
+export type ShareListFilter = "all" | "published" | "attention";
+
+// "published" is only a genuine persisted provider receipt for the displayed
+// approval revision. "attention" is an exact delivery that is unknown, failed
+// or needs authorisation, or a stale source with no published receipt. A
+// locally exported, scheduled or draft item has no delivery and stays in "all".
+export function shareListFilterForItem(
+  snapshot: ShareCalendarSnapshot,
+  item: ShareCalendarItem,
+): Exclude<ShareListFilter, "all"> | null {
+  const { delivery } = itemApprovalAndDelivery(snapshot, item);
+  if (delivery?.state === "published") return "published";
+  if (
+    delivery?.state === "unknown" ||
+    delivery?.state === "failed" ||
+    delivery?.state === "needs_auth" ||
+    !item.sourceCurrent
+  )
+    return "attention";
+  return null;
+}
+
 export interface ShareCalendarIcsItem {
   id: string;
   revision: number;
