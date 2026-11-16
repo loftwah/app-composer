@@ -9,7 +9,8 @@ The November test-suite reduction was deliberate. Do not restore deleted tests, 
 ## Product direction and reference routing
 
 For product planning, agent handoffs or creative decisions, read
-[the creation and operation contract](PRODUCT.md#reference-led-creation-and-operation),
+[the AI-era creation workshop doctrine](PRODUCT.md#the-ai-era-one-click-creation-workshop)
+and [the creation and operation contract](PRODUCT.md#reference-led-creation-and-operation),
 then load only relevant project references. Use
 [visual direction](docs/visual-direction.md) for artwork and identity work.
 [#1](https://github.com/loftwah/app-composer/issues/1) owns product alignment,
