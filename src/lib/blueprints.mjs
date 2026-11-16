@@ -65,6 +65,11 @@ export const blueprints = [
         url: "https://github.com/loftwah/app-composer/blob/main/composition.lock.json",
         observed: "Exact source revision for each mounted app.",
       },
+      {
+        label: "Runnable pinned recipe",
+        url: "https://github.com/loftwah/app-composer/blob/main/docs/portfolio/blueprints.md#creator-hub",
+        observed: "Exact pins, prerequisites and commands, with the replay status recorded as not replayed.",
+      },
     ],
     limits: [
       "This blueprint is a brief. Opening it in Init prepares settings; it does not deploy.",
@@ -102,6 +107,11 @@ export const blueprints = [
         label: "Pinned source",
         url: "https://github.com/loftwah/composer-media-studio/tree/e8b3778cd5d800378f42985afda80820fcb7ef57",
         observed: "Exact MIT source revision for the studio in this catalogue.",
+      },
+      {
+        label: "Runnable pinned recipe",
+        url: "https://github.com/loftwah/app-composer/blob/main/docs/portfolio/blueprints.md#media-studio",
+        observed: "Exact pins, prerequisites and commands, with the replay status recorded as not replayed.",
       },
     ],
     limits: [

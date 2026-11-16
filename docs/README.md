@@ -59,4 +59,4 @@ Start with the [product definition](../PRODUCT.md), [working installation](https
 
 [Current status](STATUS.md) identifies the shipped baseline and active gates. [Issue #11](https://github.com/loftwah/app-composer/issues/11) is the canonical release-evidence index; owning issues retain their acceptance criteria. [Earlier status observations](history/status-through-20261018.md) preserve prior receipts, superseded candidates and dated constraints. [The 6 November backlog review](backlog-20261106.md) groups the remaining open issues by the input that actually unblocks them. Source checks, local/browser proofs, actual production interaction and physical/external acceptance remain distinct.
 
-
+[The Woodhouse portfolio inventory, 16 November 2026](portfolio/woodhouse-inventory-20261116.md) reconciles all twelve CMS project records to a dated snapshot, records a real live request and published build identity for each where one exists, and names the private/unknown boundaries. Its [runnable pinned blueprints](portfolio/blueprints.md) carry the exact Creator Hub and Media Studio pins and recipes; both are labelled as not replayed by an independent owner.

@@ -1,0 +1,703 @@
+{
+  "schema": "composer.portfolio-inventory/1",
+  "asOf": "2026-11-16",
+  "title": "Woodhouse portfolio inventory",
+  "method": {
+    "summary": "Reconcile the public Woodhouse project records to a dated operator-reviewed snapshot, then independently request every live entry point, read only build identities the apps publish themselves, and check public repository heads. Private repository contents, HEADs and commit history are not published.",
+    "snapshot": {
+      "url": "https://woodhouse.loftwah.com/agents/facts.json",
+      "request": "GET https://woodhouse.loftwah.com/agents/facts.json (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))",
+      "retrievedAt": "2026-11-16T02:31:30.035Z",
+      "status": 200,
+      "recordType": "operator-reviewed public snapshot",
+      "reviewed": "2026-11-12",
+      "currentAsOf": "2026-11-12",
+      "portfolioReviewed": "2026-11-12",
+      "projectCount": 12,
+      "activeProjectCount": 9,
+      "pausedOrRetiredProjectCount": 3,
+      "projectIds": [
+        "bubbles",
+        "fighter",
+        "shoalshot",
+        "protocol-11",
+        "max",
+        "pirates",
+        "loftwahfm",
+        "social-club",
+        "asset-hunter",
+        "app-composer",
+        "foilbury",
+        "liferaft"
+      ],
+      "sha256": "3def2d2eca4a696428638277072234da044156be0abc36fc0af743b9ab8344de",
+      "bytes": 61942,
+      "repositoryPolicy": "Private repository contents are not published or connected to this endpoint. A project whose repository is public is summarised from that repository and its published site."
+    },
+    "index": {
+      "url": "https://woodhouse.loftwah.com/llms.txt",
+      "request": "GET https://woodhouse.loftwah.com/llms.txt (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))",
+      "retrievedAt": "2026-11-16T02:31:30.314Z",
+      "status": 200,
+      "sha256": "4915cccfae7d3c7fe26c1ede977580df22e0e83f597a9d3742db6b4d5db1967d",
+      "bytes": 18426
+    },
+    "liveRequests": "Each entry point was requested with GET, redirects followed, User-Agent AppComposer-Inventory/1.0 (+https://composer.loftwah.com), timeout 25s. Status, final URL and document title were recorded. A non-2xx response is not counted as a live entry point.",
+    "repositoryChecks": "Public repository heads were read with `git ls-remote https://github.com/loftwah/<repo>.git HEAD`; private repositories are marked private and no head is recorded.",
+    "identityChecks": "Deployed source identity is recorded only where the running app publishes it (`/build.json`, `/healthz` or a build meta tag). No deployment was inferred from a repository head.",
+    "boundaries": [
+      "No credential, token, cookie, private issue/PR body, private repository name or private commit history is recorded.",
+      "A blueprint pin is a declared brief revision, not a claim about what production currently runs.",
+      "Unknown values stay unknown with the observation that made them unknown; no old value is copied forward."
+    ]
+  },
+  "projects": [
+    {
+      "id": "bubbles",
+      "name": "Bubbles",
+      "dossier": "https://woodhouse.loftwah.com/projects/bubbles/",
+      "discipline": "Game systems · deterministic play",
+      "lifecycle": "active",
+      "state": "Replay-checked competition, rebuilt presentation.",
+      "reviewed": "2026-10-19",
+      "summary": "Bubbles is an arcade bubble shooter you play in the browser or on your phone: line up a shot, match three or more and clear the board. It’s for anyone who wants a quick round that feels good on a small screen.",
+      "current": "Fewest Shots is live as a second competitive mode: one board, no shot limit, cleared in as few shots as possible. Submitted runs are replayed on the server to derive the result, so a record cannot come from a browser's unverified claim, and a genuine long clear stays eligible. The same work corrected an advertised 30-shot objective that did not match the real scoring. The live build also carries the promoted Bubblecap mascot and reworked presentation from the same window.",
+      "nextProof": "Watch whether the new mode produces repeat attempts and honest records from players beyond factory testing, and finish the held product work. Physical-phone and final visual acceptance remain separate observations.",
+      "proofBoundary": "The deployed game build contains Fewest Shots and the replay verifier is reviewed source; this record did not complete a fresh human playthrough. A working competition mode is not a player community, an audience or evidence of demand, and record persistence depends on the game's own service.",
+      "statusRecord": {
+        "url": "https://woodhouse.loftwah.com/statuses/bubbles-2026-10-19/",
+        "status": 200,
+        "title": "Bubbles · Replay-checked competition, rebuilt presentation. · 19 October 2026 — WOODHOUSE",
+        "observedAt": "2026-11-16T02:31:56.038Z",
+        "request": "GET https://woodhouse.loftwah.com/statuses/bubbles-2026-10-19/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "private",
+        "published": false,
+        "reason": "Private repository. Its name, contents and commit history are not published here."
+      },
+      "deployedSource": {
+        "value": null,
+        "reason": "The live page ships a static build marker (`<meta name=\"x-bubbles-build\" content=\"bubbles-build-marker\">`) but no commit revision.",
+        "observedAt": "2026-11-16T02:31:31.986Z"
+      },
+      "live": {
+        "url": "https://bubbles.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://bubbles.loftwah.com/",
+        "title": "Bubbles",
+        "contentType": "text/html",
+        "observedAt": "2026-11-16T02:31:31.986Z",
+        "request": "GET https://bubbles.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      }
+    },
+    {
+      "id": "fighter",
+      "name": "Fighter",
+      "dossier": "https://woodhouse.loftwah.com/projects/fighter/",
+      "discipline": "Game systems · authored journeys",
+      "lifecycle": "active",
+      "state": "Fight activity and optional browser returns are live",
+      "reviewed": "2026-10-16",
+      "summary": "Fighter is a collectible squad battler you play in the browser: collect characters, build a squad, then commit moves on a shared real-time Charge Strip. It’s for players who like turn-based combat with authored characters, story and several modes to work through.",
+      "current": "Fighter’s source-owned aggregate report now separates fight starts, terminal results and observed active gameplay from tab visits. A deliberate same-tab Quick Fight replay has its own definition. Settings offers returning-browser recognition as a separate choice, off by default; the reviewed release includes immediate revocation when persistent storage fails. Custom UTC windows and collection boundaries are visible in Woodhouse.",
+      "nextProof": "Use comparable post-collection history to see whether players finish fights and deliberately launch another. Keep improving whole-game presentation and observe physical phone play, audio balance and native sharing.",
+      "proofBoundary": "Exact production and scoped browser receipts were reviewed; Woodhouse did not repeat a game playthrough. Opted-in browsers are not people or cohort retention. Earlier unmarked QA history remains visible but is excluded from clean growth/record comparisons. Independently releasable game variants remain proposed.",
+      "statusRecord": {
+        "url": "https://woodhouse.loftwah.com/statuses/fighter-2026-10-16/",
+        "status": 200,
+        "title": "Fighter · Fight activity and optional browser returns are live · 16 October 2026 — WOODHOUSE",
+        "observedAt": "2026-11-16T02:31:56.072Z",
+        "request": "GET https://woodhouse.loftwah.com/statuses/fighter-2026-10-16/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "private",
+        "published": false,
+        "reason": "Private repository. Its name, contents and commit history are not published here."
+      },
+      "deployedSource": {
+        "value": "81f5350e1796046046e22c450ac9f6d23bf84a5c",
+        "evidence": "`<meta name=\"loftwah-fighter-build\">` on the live page. The revision resolves in the project repository (checked during this run); private history is not published.",
+        "observedAt": "2026-11-16T02:31:32.104Z"
+      },
+      "live": {
+        "url": "https://fighter.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://fighter.loftwah.com/",
+        "title": "LOFTWAH FIGHTER · Pick Your Fight",
+        "contentType": "text/html",
+        "observedAt": "2026-11-16T02:31:32.104Z",
+        "request": "GET https://fighter.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      }
+    },
+    {
+      "id": "shoalshot",
+      "name": "SHOALSHOT",
+      "dossier": "https://woodhouse.loftwah.com/projects/shoalshot/",
+      "discipline": "Game systems · mobile-first presentation",
+      "lifecycle": "active",
+      "state": "Card artwork in, save repair shipped, release acceptance open.",
+      "reviewed": "2026-10-19",
+      "summary": "SHOALSHOT is a fishing game for phones and desktop: read the water, place your shot and land the catch. It’s for anyone who wants a calm, quick session, and it is designed phone-first.",
+      "current": "Ten non-species achievement cards now carry original front artwork, joined by earned-card receipts and an ordered reveal after a catch. Two new authored encounter patterns and launcher-specific fire signatures landed in the same window. The multi-tab save-revert repair has shipped; the remaining task is the project's final acceptance reconciliation, not the fix.",
+      "nextProof": "Qualify and verify the combined release at an exact source, then observe phone play, sound and long-session behaviour. Whether earning a card leads to playing for another is a player question.",
+      "proofBoundary": "Reviewed source and repository records. The live game was serving an earlier verified release when this was written, so the card fronts are not yet a verified production claim; physical acceptance and a real audience remain separate.",
+      "statusRecord": {
+        "url": "https://woodhouse.loftwah.com/statuses/shoalshot-2026-10-19/",
+        "status": 200,
+        "title": "SHOALSHOT · Card artwork in, save repair shipped, release acceptance open. · 19 October 2026 — WOODHOUSE",
+        "observedAt": "2026-11-16T02:31:56.349Z",
+        "request": "GET https://woodhouse.loftwah.com/statuses/shoalshot-2026-10-19/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "private",
+        "published": false,
+        "reason": "Private repository. Its name, contents and commit history are not published here."
+      },
+      "deployedSource": {
+        "value": null,
+        "reason": "The live page, `/healthz` and `/build.json` return the app shell without a revision.",
+        "observedAt": "2026-11-16T02:31:32.230Z"
+      },
+      "live": {
+        "url": "https://shoalshot.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://shoalshot.loftwah.com/",
+        "title": "SHOALSHOT — Read the tide. Place the shot.",
+        "contentType": "text/html",
+        "observedAt": "2026-11-16T02:31:32.230Z",
+        "request": "GET https://shoalshot.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      }
+    },
+    {
+      "id": "protocol-11",
+      "name": "Protocol 11",
+      "dossier": "https://woodhouse.loftwah.com/projects/protocol-11/",
+      "discipline": "Game systems · responsive table play",
+      "lifecycle": "active",
+      "state": "The refusal answers; three films delivered.",
+      "reviewed": "2026-10-19",
+      "summary": "Protocol 11 is a card game for two to four players around one table, played solo or with friends. Twelve stages and a cast of characters make a house you play through, and every round brings a new Protocol.",
+      "current": "An illegal desktop drop now refuses visibly instead of silently doing nothing: the destination answers with a marked refusal, ownership and the turn stay unchanged, and a legal drop still works. The same delivery reworked Wild placement and hand sorting, gave Journey stages distinct configurations, and corrected the production mix on three campaign films. The climax, decision short and rival-threat short are public with a press page and source records, and Woodhouse keeps an account-free download of the pack.",
+      "nextProof": "Play long hands and four-seat tables on real devices and finish the remaining Wild-ranking reconciliation before the game is called finished. Physical play acceptance stays separate.",
+      "proofBoundary": "The films, press page and pack are public and were reachable on 19 October 2026; the refusal and sorting changes were observed through the game's own automated checks, not a fresh human session here. A four-seat table and campaign films establish no external players or commercial demand.",
+      "statusRecord": {
+        "url": "https://woodhouse.loftwah.com/statuses/protocol-11-2026-10-19/",
+        "status": 200,
+        "title": "Protocol 11 · The refusal answers; three films delivered. · 19 October 2026 — WOODHOUSE",
+        "observedAt": "2026-11-16T02:31:56.317Z",
+        "request": "GET https://woodhouse.loftwah.com/statuses/protocol-11-2026-10-19/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "private",
+        "published": false,
+        "reason": "Private repository. Its name, contents and commit history are not published here."
+      },
+      "deployedSource": {
+        "value": null,
+        "reason": "`/api/health` reports status and platform only; the page publishes no revision.",
+        "observedAt": "2026-11-16T02:31:32.366Z"
+      },
+      "live": {
+        "url": "https://protocol11.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://protocol11.loftwah.com/",
+        "title": "Protocol 11 — a card night for two to four seats",
+        "contentType": "text/html",
+        "observedAt": "2026-11-16T02:31:32.366Z",
+        "request": "GET https://protocol11.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      }
+    },
+    {
+      "id": "max",
+      "name": "MAX",
+      "dossier": "https://woodhouse.loftwah.com/projects/max/",
+      "discipline": "Assistive technology · software and hardware",
+      "lifecycle": "active",
+      "state": "Software prototype · physical proof open",
+      "reviewed": "2026-10-07",
+      "summary": "MAX is assistive technology for a wheeled walker: a companion app, a small computer on the walker and a gateway designed to find it, hear it and stop it. It’s for people who use a walker and the people who look after them.",
+      "current": "The software platform is substantial, but the report records no new delivery in this period. Finding the real walker, mounted hardware and voice behaviour remain physical questions.",
+      "nextProof": "Demonstrate FIND with a real walker and person, then complete provider and production rollout with measured operating assumptions.",
+      "proofBoundary": "A dated summary of the operator-supplied 7 October report. Reported release evidence is distinct from a fresh Woodhouse inspection, physical-device acceptance and demonstrated external use.",
+      "statusRecord": {
+        "url": "https://woodhouse.loftwah.com/statuses/max-2026-10-07/",
+        "status": 200,
+        "title": "MAX · Software prototype · physical proof open · 7 October 2026 — WOODHOUSE",
+        "observedAt": "2026-11-16T02:31:56.238Z",
+        "request": "GET https://woodhouse.loftwah.com/statuses/max-2026-10-07/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "private",
+        "published": false,
+        "reason": "Private repository. Its name, contents and commit history are not published here."
+      },
+      "deployedSource": {
+        "value": null,
+        "reason": "`/api/health` returns `{\"ok\":true}`; the page publishes no revision.",
+        "observedAt": "2026-11-16T02:31:32.485Z"
+      },
+      "live": {
+        "url": "https://max.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://max.loftwah.com/",
+        "title": "MAX — Your walker, made smarter.",
+        "contentType": "text/html",
+        "observedAt": "2026-11-16T02:31:32.485Z",
+        "request": "GET https://max.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      }
+    },
+    {
+      "id": "pirates",
+      "name": "Pirates",
+      "dossier": "https://woodhouse.loftwah.com/projects/pirates/",
+      "discipline": "Game reconstruction · source archaeology",
+      "lifecycle": "paused",
+      "state": "Paused",
+      "reviewed": "2026-11-07",
+      "summary": "Pirates is a reconstruction of Master of the Secret Sea, built from the original game’s own source evidence rather than from memory. It’s for players who remember the original, and for anyone curious about how a lost game gets rebuilt honestly.",
+      "current": "Pirates is paused indefinitely by owner decision. The dossier, source-parity evidence and repository remain available; this is not a cancellation, and no archive or deletion is intended.",
+      "nextProof": "Resume only when MP asks. Until then, do not treat the reconstruction or its parity gates as active delivery work.",
+      "proofBoundary": "Paused means out of the current portfolio queue, not cancelled or archived. No public build is claimed, and the repository stays writable for a later return.",
+      "statusRecord": {
+        "url": "https://woodhouse.loftwah.com/statuses/pirates-2026-11-07/",
+        "status": 200,
+        "title": "Pirates · Paused · 7 November 2026 — WOODHOUSE",
+        "observedAt": "2026-11-16T02:31:56.283Z",
+        "request": "GET https://woodhouse.loftwah.com/statuses/pirates-2026-11-07/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "private",
+        "published": false,
+        "reason": "Private repository. Its name, contents and commit history are not published here."
+      },
+      "deployedSource": {
+        "value": null,
+        "reason": "No public build. The public dossier links no live app and the attempted host returned 522.",
+        "observedAt": "2026-11-16T02:31:35.449Z"
+      },
+      "probe": {
+        "url": "https://pirates.loftwah.com/",
+        "status": 522,
+        "finalUrl": "https://pirates.loftwah.com/",
+        "title": "loftwah.com | 522: Connection timed out",
+        "observedAt": "2026-11-16T02:31:35.449Z",
+        "request": "GET https://pirates.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))",
+        "reason": "Not a live entry point. The dossier routes to the project record; this host answered with a Cloudflare 522 error page."
+      }
+    },
+    {
+      "id": "loftwahfm",
+      "name": "LoftwahFM",
+      "dossier": "https://woodhouse.loftwah.com/projects/loftwahfm/",
+      "discipline": "Music platform · shared radio capability",
+      "lifecycle": "active",
+      "state": "A radio player with recognisable listening companions",
+      "reviewed": "2026-10-25",
+      "summary": "LoftwahFM is a music catalogue, radio stations, original shows and a browser player that games can reuse. Listen to the stations and shows in your browser; game builders can drop the same player into their own game.",
+      "current": "LoftwahFM plays its music catalogue through the native station player and its versioned game-radio client. The listening companion now shows approved complete Loftwah, Pippa and Pepe figures in the player, with intentional portraits in the chooser and honest missing-art recovery. Saved character choices, Moss’s accepted appearance, station controls and optional conversation remain. These recovered stills do not add authored expression sets.",
+      "nextProof": "Finish the remaining character artwork and expressive acting. Verify real listener and game-consumer journeys, business operations and physical-device behaviour within their separate acceptance boundaries.",
+      "proofBoundary": "Production and native browser checks establish these three approved stills, saved selection, conversation and player containment. They do not establish complete six-character recovery, authored acting, external listener adoption, business customer operation or physical-device acceptance. Optional companion speech remains separate from the station’s recorded music.",
+      "statusRecord": {
+        "url": "https://woodhouse.loftwah.com/statuses/loftwahfm-2026-10-25-portfolio-recovery-v1/",
+        "status": 200,
+        "title": "LoftwahFM · A radio player with recognisable listening companions · 25 October 2026 — WOODHOUSE",
+        "observedAt": "2026-11-16T02:31:56.203Z",
+        "request": "GET https://woodhouse.loftwah.com/statuses/loftwahfm-2026-10-25-portfolio-recovery-v1/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "private",
+        "published": false,
+        "reason": "Private repository. Its name, contents and commit history are not published here."
+      },
+      "deployedSource": {
+        "value": null,
+        "reason": "The live page publishes no build revision.",
+        "observedAt": "2026-11-16T02:31:31.663Z"
+      },
+      "live": {
+        "url": "https://fm.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://fm.loftwah.com/",
+        "title": "LoftwahFM | Independent music and radio",
+        "contentType": "text/html",
+        "observedAt": "2026-11-16T02:31:31.663Z",
+        "request": "GET https://fm.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      }
+    },
+    {
+      "id": "social-club",
+      "name": "Plans With You",
+      "dossier": "https://woodhouse.loftwah.com/projects/social-club/",
+      "discipline": "Calendar protection · planned cancellation",
+      "lifecycle": "retired",
+      "state": "Retired",
+      "reviewed": "2026-11-07",
+      "summary": "Plans With You proposes a plausible calendar commitment, confirmation and deliberate cancellation so you can keep a block of time your own. The public site explains the idea and accepts waitlist interest; paid membership is not open.",
+      "current": "Plans With You was retired on 26 October 2026 by owner decision. The public site, dossier, evidence and dated campaign artwork remain as a historical record; no new active work is planned.",
+      "nextProof": "No active delivery. The stable record matters more than a new claim; revisit only if MP explicitly starts the project again.",
+      "proofBoundary": "Retirement records a portfolio decision, not a judgement that the prototype never worked. The site may remain reachable, and past evidence keeps its original review date.",
+      "statusRecord": {
+        "url": "https://woodhouse.loftwah.com/statuses/social-club-2026-11-07/",
+        "status": 200,
+        "title": "Plans With You · Retired · 7 November 2026 — WOODHOUSE",
+        "observedAt": "2026-11-16T02:31:56.381Z",
+        "request": "GET https://woodhouse.loftwah.com/statuses/social-club-2026-11-07/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "public",
+        "url": "https://github.com/loftwah/club",
+        "head": "25bd763a42a591ac5d070874c34034a74bb7628e",
+        "license": null,
+        "headObservedAt": "2026-11-16T02:31:32.609Z",
+        "archived": true
+      },
+      "deployedSource": {
+        "value": null,
+        "reason": "The retired site publishes no build revision.",
+        "observedAt": "2026-11-16T02:31:32.609Z"
+      },
+      "live": {
+        "url": "https://club.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://club.loftwah.com/",
+        "title": "Plans With You",
+        "contentType": "text/html",
+        "observedAt": "2026-11-16T02:31:32.609Z",
+        "request": "GET https://club.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      }
+    },
+    {
+      "id": "asset-hunter",
+      "name": "Asset Hunter",
+      "dossier": "https://woodhouse.loftwah.com/projects/asset-hunter/",
+      "discipline": "Asset discovery · rights-aware delivery",
+      "lifecycle": "retired",
+      "state": "Retired",
+      "reviewed": "2026-11-07",
+      "summary": "Asset Hunter is a searchable catalogue of creative and technical assets that records where each one came from and what rights apply. It’s for builders and agents who need to know where something came from, what rights apply and who to credit.",
+      "current": "Asset Hunter was retired on 26 October 2026 by owner decision. The catalogue, evidence and campaign artwork remain as a dated record; it is no longer an active recommendation or a current build target.",
+      "nextProof": "No active delivery. Preserve the historical record and stable links unless MP explicitly resumes the project.",
+      "proofBoundary": "Retirement is a portfolio decision. It does not erase the catalogue's earlier review, and a remaining live site is not a promise of current support.",
+      "statusRecord": {
+        "url": "https://woodhouse.loftwah.com/statuses/asset-hunter-2026-11-07/",
+        "status": 200,
+        "title": "Asset Hunter · Retired · 7 November 2026 — WOODHOUSE",
+        "observedAt": "2026-11-16T02:31:56.000Z",
+        "request": "GET https://woodhouse.loftwah.com/statuses/asset-hunter-2026-11-07/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "private",
+        "published": false,
+        "reason": "Private repository. Its name, contents and commit history are not published here."
+      },
+      "deployedSource": {
+        "value": "0269c6799b6f1ac8cb9a4e14345dadbd6367976d",
+        "evidence": "`<meta name=\"asset-hunter:commit\">` and `<meta name=\"asset-hunter:build\">` on the live page. The revision resolves in the project repository (checked during this run); private history is not published.",
+        "observedAt": "2026-11-16T02:31:32.770Z"
+      },
+      "live": {
+        "url": "https://assets.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://assets.loftwah.com/",
+        "title": "Asset Hunter — A field guide to what can be made",
+        "contentType": "text/html",
+        "observedAt": "2026-11-16T02:31:32.770Z",
+        "request": "GET https://assets.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      }
+    },
+    {
+      "id": "app-composer",
+      "name": "App Composer",
+      "dossier": "https://woodhouse.loftwah.com/projects/app-composer/",
+      "discipline": "Development tools · agent-operated setup",
+      "lifecycle": "active",
+      "state": "Creator Hub reference is live",
+      "reviewed": "2026-11-12",
+      "summary": "App Composer helps you build and maintain a web app with a coding agent. Prepare the environment with Get Ready, describe what you need in Init, then build a standalone app or connect existing ones. The live Creator Hub pairs a ceramics portfolio with a moderated guestbook.",
+      "current": "A ceramics portfolio and moderated guestbook run on separate public hostnames from one Composer brief. The walkthrough links both apps, their live revisions and the same starting point in Init.",
+      "nextProof": "Follow a consenting first-time creator through setup, publication and a later change in their own authorised account.",
+      "proofBoundary": "The apps use fictional content in the operator’s Cloudflare account. The public walkthrough records operator moderation; this review checked the public pages and live build identities.",
+      "statusRecord": {
+        "url": "https://woodhouse.loftwah.com/statuses/app-composer-2026-11-12-creator-hub/",
+        "status": 200,
+        "title": "App Composer · Creator Hub reference is live · 12 November 2026 — WOODHOUSE",
+        "observedAt": "2026-11-16T02:31:55.900Z",
+        "request": "GET https://woodhouse.loftwah.com/statuses/app-composer-2026-11-12-creator-hub/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "public",
+        "url": "https://github.com/loftwah/app-composer",
+        "head": "f703ad33151bb5a5274697ff5e639fb4389e9331",
+        "license": "MIT",
+        "headObservedAt": "2026-11-16T02:31:33.790Z"
+      },
+      "deployedSource": {
+        "value": "8d5d0c50390cdd64df48b3040758f6398087fb0e",
+        "evidence": "`/build.json` (`commit`) and `/healthz` (`revision`) both returned this value. Repository main at the same check was `f703ad33151bb5a5274697ff5e639fb4389e9331`.",
+        "observedAt": "2026-11-16T02:31:33.790Z",
+        "productionBehindMain": true
+      },
+      "live": {
+        "url": "https://composer.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://composer.loftwah.com/",
+        "title": "App Composer — build apps with your agent on Cloudflare",
+        "contentType": "text/html",
+        "observedAt": "2026-11-16T02:31:33.790Z",
+        "request": "GET https://composer.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      }
+    },
+    {
+      "id": "foilbury",
+      "name": "Foilbury",
+      "dossier": "https://woodhouse.loftwah.com/projects/foilbury/",
+      "discipline": "Collectible cards · public showcase",
+      "lifecycle": "active",
+      "state": "Public card cabinet",
+      "reviewed": "2026-11-08",
+      "summary": "Foilbury is a free collectible-card album for original characters: browse the public cabinet, open a capsule and keep the copy, its finish and its serial. It's for anyone who likes collecting character art from the Loftwah worlds, and the public shelf is open without an account.",
+      "current": "The public cabinet lists Bubbles, Fighter, Protocol 11 and a shared-characters collection, and its card pages open without an account. Signing in runs through Discord, a one-use email link or a passkey; member albums and serials stay private to the person who opened them.",
+      "nextProof": "Verify the complete signed-in and Discord journeys, including the boundaries around private collections and a real draw.",
+      "proofBoundary": "The public shelf, its card pages, the product's showcase export and its declared social preview were observed on 8 November 2026 as an anonymous visitor. This does not establish a completed draw, member inventory access, a Discord interaction, a purchase or player adoption.",
+      "statusRecord": {
+        "url": "https://woodhouse.loftwah.com/statuses/foilbury-2026-11-08/",
+        "status": 200,
+        "title": "Foilbury · Public card cabinet · 8 November 2026 — WOODHOUSE",
+        "observedAt": "2026-11-16T02:31:56.134Z",
+        "request": "GET https://woodhouse.loftwah.com/statuses/foilbury-2026-11-08/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "public",
+        "url": "https://github.com/loftwah/card-collector-bot",
+        "head": "37f3516800b66e809ae13e9fc998e15c9a80bc56",
+        "license": "MIT",
+        "headObservedAt": "2026-11-16T02:31:34.117Z"
+      },
+      "deployedSource": {
+        "value": null,
+        "reason": "The live page publishes no build revision.",
+        "observedAt": "2026-11-16T02:31:34.117Z"
+      },
+      "live": {
+        "url": "https://foilbury.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://foilbury.loftwah.com/",
+        "title": "Foilbury — characters worth keeping",
+        "contentType": "text/html",
+        "observedAt": "2026-11-16T02:31:34.117Z",
+        "request": "GET https://foilbury.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      }
+    },
+    {
+      "id": "liferaft",
+      "name": "Liferaft",
+      "dossier": "https://woodhouse.loftwah.com/projects/liferaft/",
+      "discipline": "Desktop tool · email archive recovery",
+      "lifecycle": "active",
+      "state": "Desktop release available",
+      "reviewed": "2026-11-06",
+      "summary": "Liferaft is a local desktop app for searching MBOX email archives, previewing messages and recovering attachments or selected messages.",
+      "current": "The public repository describes a local, read-only MBOX browser. Release v0.1.2 lists builds for macOS, Windows and Linux.",
+      "nextProof": "Verify installation and recovery with representative archives on supported devices.",
+      "proofBoundary": "The repository and release assets were reviewed on 6 November 2026; installation and recovery were not tested in this review.",
+      "statusRecord": {
+        "url": "https://woodhouse.loftwah.com/statuses/liferaft-2026-11-06/",
+        "status": 200,
+        "title": "Liferaft · Desktop release available · 6 November 2026 — WOODHOUSE",
+        "observedAt": "2026-11-16T02:31:56.170Z",
+        "request": "GET https://woodhouse.loftwah.com/statuses/liferaft-2026-11-06/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "public",
+        "url": "https://github.com/loftwah/liferaft",
+        "head": "e6a1b38ee0ac7f2824292ec96e74775904cd3e42",
+        "license": "MIT",
+        "headObservedAt": "2026-11-16T02:31:33.929Z"
+      },
+      "deployedSource": {
+        "value": null,
+        "reason": "The live page publishes no build revision; the desktop download is the product surface.",
+        "observedAt": "2026-11-16T02:31:33.929Z"
+      },
+      "live": {
+        "url": "https://liferaft.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://liferaft.loftwah.com/",
+        "title": "Liferaft · Recover messages and attachments from MBOX archives",
+        "contentType": "text/html",
+        "observedAt": "2026-11-16T02:31:33.929Z",
+        "request": "GET https://liferaft.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      }
+    }
+  ],
+  "connected": [
+    {
+      "id": "guestbook",
+      "name": "Here / there",
+      "live": {
+        "url": "https://guestbook.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://guestbook.loftwah.com/",
+        "title": "Loftwah&#39;s guestbook",
+        "contentType": "text/html; charset=utf-8",
+        "observedAt": "2026-11-16T02:31:55.042Z",
+        "request": "GET https://guestbook.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "public",
+        "url": "https://github.com/loftwah/app-composer-guestbook",
+        "head": "a8191d3442ea95a4013d481a2a50148e1f94bde3",
+        "license": "MIT",
+        "headObservedAt": "2026-11-16T02:31:55.042Z"
+      },
+      "deployedSource": {
+        "value": "a8191d3442ea95a4013d481a2a50148e1f94bde3",
+        "evidence": "`/build.json` (`revision`) and `/healthz` (`revision`) both returned this value, equal to repository main.",
+        "observedAt": "2026-11-16T02:31:55.042Z"
+      },
+      "lockedSource": {
+        "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+        "declaredIn": "composition.lock.json"
+      },
+      "pinNote": "Production reports a newer revision than the Creator Hub blueprint pin; the blueprint is a pinned brief, not a deployment record."
+    },
+    {
+      "id": "showcase",
+      "name": "Linkarooie",
+      "live": {
+        "url": "https://showcase.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://showcase.loftwah.com/",
+        "title": "Loftwah",
+        "contentType": "text/html; charset=utf-8",
+        "observedAt": "2026-11-16T02:31:55.264Z",
+        "request": "GET https://showcase.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "public",
+        "url": "https://github.com/loftwah/app-composer-showcase",
+        "head": "86153461315d851744498b78efb9de0691e981f0",
+        "license": "MIT",
+        "headObservedAt": "2026-11-16T02:31:55.264Z"
+      },
+      "deployedSource": {
+        "value": "e6780997b96f8b9f2411abc66abbbdd590dd5940",
+        "evidence": "`/build.json` (`revision`) and `/healthz` (`revision`) both returned this value. Repository main at the same check was `86153461315d851744498b78efb9de0691e981f0`.",
+        "observedAt": "2026-11-16T02:31:55.264Z"
+      },
+      "lockedSource": {
+        "commit": "f1dd27952ca8548f81fde5c5905346dae4a2b61b",
+        "declaredIn": "composition.lock.json"
+      },
+      "pinNote": "Production reports a newer revision than the Creator Hub blueprint pin."
+    },
+    {
+      "id": "media-studio",
+      "name": "Media Studio",
+      "live": {
+        "url": "https://media.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://media.loftwah.com/",
+        "title": "Media Studio — work worth keeping",
+        "contentType": "text/html; charset=utf-8",
+        "observedAt": "2026-11-16T02:31:55.791Z",
+        "request": "GET https://media.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "public",
+        "url": "https://github.com/loftwah/composer-media-studio",
+        "head": "421f41c7b17907462b5545178d18162aa98ea708",
+        "license": null,
+        "headObservedAt": "2026-11-16T02:31:55.791Z"
+      },
+      "deployedSource": {
+        "value": "f2f29696d8be2424cee5f64b89bdcb0bb43de037",
+        "evidence": "`/build.json` (`revision`, `builtAt` 2026-11-15T23:18:21.480Z) and `/healthz` (`revision`, `builtAt`, `bridge: true`) both returned this value.",
+        "observedAt": "2026-11-16T02:31:55.791Z"
+      },
+      "lockedSource": {
+        "commit": "e8b3778cd5d800378f42985afda80820fcb7ef57",
+        "declaredIn": "config/media-studio-standalone.json"
+      },
+      "pinNote": "Production reports a newer revision than the Blueprint pin; the blueprint and Init brief stay on the declared pin."
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "woodhouse",
+      "name": "Woodhouse",
+      "live": {
+        "url": "https://woodhouse.loftwah.com/",
+        "status": 200,
+        "finalUrl": "https://woodhouse.loftwah.com/",
+        "title": "WOODHOUSE — The Loftwah Software Factory",
+        "contentType": "text/html",
+        "observedAt": "2026-11-16T02:31:30.350Z",
+        "request": "GET https://woodhouse.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "repository": {
+        "visibility": "public",
+        "url": "https://github.com/loftwah/woodhouse-new",
+        "head": "1552f53911e41f5856bec79129b1c99489771d3f",
+        "license": "MIT",
+        "headObservedAt": "2026-11-16T02:31:30.350Z"
+      },
+      "deployedSource": {
+        "value": null,
+        "reason": "No build revision is exposed by the public site; deployment metadata requires account access.",
+        "observedAt": "2026-11-16T02:31:30.350Z"
+      }
+    }
+  ],
+  "blueprints": [
+    {
+      "id": "creator-hub",
+      "state": "reference",
+      "preset": "composition",
+      "apps": [
+        "guestbook",
+        "showcase"
+      ],
+      "pins": [
+        {
+          "app": "guestbook",
+          "repository": "https://github.com/loftwah/app-composer-guestbook",
+          "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+          "declaredIn": "composition.lock.json",
+          "license": "MIT"
+        },
+        {
+          "app": "showcase",
+          "repository": "https://github.com/loftwah/app-composer-showcase",
+          "commit": "f1dd27952ca8548f81fde5c5905346dae4a2b61b",
+          "declaredIn": "composition.lock.json",
+          "license": "MIT"
+        }
+      ],
+      "recipe": "docs/portfolio/blueprints.md#creator-hub",
+      "replayed": false,
+      "replayNote": "No independent owner has replayed this build. This inventory verified the pins, sources, live reference apps and prerequisites; it did not deploy the blueprint."
+    },
+    {
+      "id": "media-studio",
+      "state": "reference",
+      "preset": "media-studio",
+      "apps": [
+        "media-studio"
+      ],
+      "pins": [
+        {
+          "app": "media-studio",
+          "repository": "https://github.com/loftwah/composer-media-studio",
+          "commit": "e8b3778cd5d800378f42985afda80820fcb7ef57",
+          "declaredIn": "config/media-studio-standalone.json",
+          "license": "MIT"
+        }
+      ],
+      "recipe": "docs/portfolio/blueprints.md#media-studio",
+      "replayed": false,
+      "replayNote": "No independent owner has replayed this build. The pinned source documentation is the basis of the recipe; it was not run end-to-end here."
+    }
+  ]
+}
