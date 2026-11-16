@@ -992,3 +992,20 @@ export async function publicStack(db, slug) {
         return null;
     return publishedView(row);
 }
+// The public wall lists the stacks a visitor can actually open. It repeats the
+// active-publication join from publicStack, so a draft, an archive, an
+// unpublished stack or a damaged snapshot never appears as a card. Newest
+// publications come first, and the bound keeps one public request from reading
+// an unbounded set.
+export const PUBLIC_STACK_LIMIT = 100;
+export async function publicStacks(db, limit = PUBLIC_STACK_LIMIT) {
+    if (!positiveInteger(limit) || limit > PUBLIC_STACK_LIMIT)
+        throw new StackError("INVALID", "Choose a valid stack list size.");
+    const { results } = await db
+        .prepare("SELECT s.id, s.slug, p.revision, p.published_at, p.document_json FROM creator_stacks s JOIN creator_stack_publications p ON p.stack_id = s.id AND p.revision = s.published_revision WHERE s.status = 'published' AND s.published_json IS NOT NULL ORDER BY p.published_at DESC, s.slug ASC LIMIT ?")
+        .bind(limit)
+        .all();
+    return (results ?? [])
+        .map(publishedView)
+        .filter((stack) => stack !== null);
+}

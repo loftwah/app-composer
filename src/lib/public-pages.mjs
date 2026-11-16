@@ -7,7 +7,7 @@ export const publicPagePaths = Object.freeze([
   '/jobs/profile', '/jobs/enquiries', '/jobs/first-app', '/jobs/branding', '/jobs/diagram', '/jobs/pdf', '/jobs/inspect', '/jobs/produce', '/jobs/publish', '/jobs/operate',
   '/explore', '/demo', '/demo/connected-apps', '/benchmarks', '/blueprints', '/projects', '/docs', '/docs/how-it-works', '/architecture', '/guide',
   '/catalogue', '/apps', '/activity', '/review', '/privacy', '/release', '/capabilities',
-  '/extension', '/state', '/php2shell', '/studio', '/manage', '/building', '/effect',
+  '/extension', '/state', '/php2shell', '/studio', '/share', '/manage', '/building', '/effect',
   '/creator-hub', '/creator-hub/share', '/collections', '/collections/signal-and-type', '/collections/print-shop', '/cloudflare',
   '/launch-kit', '/paperwork', '/init/paperwork', '/platform', '/platform/demo', '/plugin-trust', '/incident-replay', '/migration-example',
   '/media-studio', '/media-studio/tutorial', '/launcher',

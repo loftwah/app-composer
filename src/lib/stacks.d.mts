@@ -206,4 +206,6 @@ export declare function deleteStack(db: D1Database, workspaceId: string, stackId
     removedPublications: boolean;
 }>;
 export declare function publicStack(db: D1Database, slug: unknown): Promise<PublicStack | null>;
+export declare const PUBLIC_STACK_LIMIT = 100;
+export declare function publicStacks(db: D1Database, limit?: number): Promise<PublicStack[]>;
 export {};
