@@ -500,7 +500,7 @@ function adaptFixture(records) {
   ];
   return {
     ok: true,
-    schema: "app-composer.command-centre/2",
+    schema: "app-composer.command-centre/3",
     source: { id: "fixture", label: "Fictional tracker" },
     selected: "fictional/tracker",
     fetchedAt: observedAt,
@@ -539,6 +539,22 @@ function adaptFixture(records) {
         },
       },
       pullRequests: { state: "ok", value: 0 },
+      openPullRequests: {
+        state: "ok",
+        scanned: 0,
+        complete: true,
+        items: [],
+      },
+      liveIdentity: {
+        state: "not-configured",
+        reason:
+          "The fixture source publishes no build identity. This is not a deployment claim.",
+      },
+      projects: {
+        state: "unavailable",
+        reason:
+          "The fixture source has no project board, and none is inferred from issues or pull requests.",
+      },
       blocked: { state: "ok", labels: [], count: null },
       release: {
         state: "ok",

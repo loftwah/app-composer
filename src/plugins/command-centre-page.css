@@ -657,6 +657,104 @@
 .cc-stats.cc-stats-compact {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
 }
+.cc-facts {
+  margin-top: 22px;
+  padding: 16px;
+  border: 1px solid var(--cc-rule);
+  border-radius: 8px;
+  background: var(--cc-tint);
+}
+.cc-facts ul {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding-left: 20px;
+  font-size: 0.9rem;
+}
+.cc-facts p:last-child {
+  margin-bottom: 0;
+}
+.cc-pulls {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.cc-pulls > li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--cc-rule);
+}
+.cc-pulls > li:first-child {
+  padding-top: 4px;
+}
+.cc-pulls > li:last-child {
+  border-bottom: none;
+}
+.cc-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.cc-flag {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--cc-rule);
+  border-left-width: 3px;
+  border-radius: 6px;
+  background: var(--cc-raised);
+  font-size: 0.82rem;
+}
+.cc-flag[data-state="success"],
+.cc-flag[data-state="approved"] {
+  border-left-color: var(--cc-green);
+}
+.cc-flag[data-state="pending"],
+.cc-flag[data-state="review_required"] {
+  border-left-color: var(--cc-accent);
+}
+.cc-flag[data-state="failure"],
+.cc-flag[data-state="changes_requested"] {
+  border-left-color: var(--cc-danger);
+}
+.cc-flag[data-state="none"],
+.cc-flag[data-state="stale"],
+.cc-flag[data-state="unknown"] {
+  border-left-color: var(--cc-muted);
+}
+.cc-flag-kind {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cc-muted);
+}
+.cc-flag-value {
+  font-weight: 600;
+}
+.cc-flag-detail {
+  max-width: 46ch;
+  color: var(--cc-muted);
+  font-size: 0.75rem;
+}
+.cc-flag .cc-unknown {
+  font-size: 0.78rem;
+}
+.cc-live {
+  padding: 14px 16px;
+  border: 1px solid var(--cc-rule);
+  border-radius: 8px;
+  background: var(--cc-tint);
+}
+.cc-live p {
+  margin: 0 0 6px !important;
+}
+.cc-live p:last-child {
+  margin-bottom: 0 !important;
+}
+.cc-stat[data-state="not-configured"] {
+  border-top-color: var(--cc-muted);
+}
 .cc-stat-value.cc-stat-window {
   font-size: 1.05rem;
   font-weight: 700;
