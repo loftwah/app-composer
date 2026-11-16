@@ -4,6 +4,7 @@ import {
   BLUESKY_APP_PASSWORD_SETTING,
   BLUESKY_IMAGE_MAX_BYTES,
   blueskyPostPermalink,
+  BLUESKY_TID_LENGTH,
   blueskyPostRkey,
   blueskyPublisherSettings,
   createBlueskyPost,
@@ -226,8 +227,9 @@ test("the record key is deterministic per item and approval revision", async () 
   const next = await blueskyPostRkey("11111111-1111-4111-8111-111111111111", 2);
   assert.equal(first, same);
   assert.notEqual(first, next);
-  assert.match(first, /^[a-zA-Z0-9._:~-]{1,512}$/);
-  assert.equal(first.length, 32);
+  // Bluesky requires a TID: 13 base32-sortable characters, top bit clear.
+  assert.match(first, /^[234567abcdefghij][234567abcdefghijklmnopqrstuvwxyz]{12}$/);
+  assert.equal(first.length, BLUESKY_TID_LENGTH);
   await assert.rejects(() => blueskyPostRkey("not-an-item", 1), /item id/);
   await assert.rejects(
     () => blueskyPostRkey("11111111-1111-4111-8111-111111111111", 0),

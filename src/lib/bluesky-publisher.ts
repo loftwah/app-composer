@@ -924,9 +924,31 @@ export async function listBlueskyPosts(
   };
 }
 
+// Bluesky validates an `app.bsky.feed.post` record key as a TID: 13 lowercase
+// base32-sortable characters encoding a 64-bit value with the top bit clear. A
+// plain digest passes the generic record-key syntax and is then rejected by the
+// PDS with `Invalid TID string format`, which is what the first live send hit on
+// 17 November 2026. Map the same deterministic input onto that shape so a retry
+// or reconciliation still targets one exact record.
+export const BLUESKY_TID_ALPHABET = "234567abcdefghijklmnopqrstuvwxyz";
+export const BLUESKY_TID_LENGTH = 13;
+
+function tidFromDigest(digest: string): string {
+  let value = 0n;
+  for (let index = 0; index < 16; index += 2)
+    value = (value << 8n) | BigInt(parseInt(digest.slice(index, index + 2), 16));
+  value &= (1n << 63n) - 1n;
+  let key = "";
+  for (let index = 0; index < BLUESKY_TID_LENGTH; index += 1) {
+    key = BLUESKY_TID_ALPHABET[Number(value & 31n)] + key;
+    value >>= 5n;
+  }
+  return key;
+}
+
 // A deterministic record key derived from the approved item and approval
-// revision. It is a valid record-key on its own and changes when the owner
-// re-approves, so a stale approval cannot overwrite a newer post.
+// revision. It changes when the owner re-approves, so a stale approval cannot
+// overwrite a newer post.
 export async function blueskyPostRkey(
   itemId: string,
   approvalRevision: number,
@@ -942,7 +964,7 @@ export async function blueskyPostRkey(
   const digest = await sha256Text(
     `${BLUESKY_POST_RKEY_PREFIX}:${itemId}:${approvalRevision}`,
   );
-  return digest.slice(0, 32);
+  return tidFromDigest(digest);
 }
 
 export function blueskyPostPermalink(
