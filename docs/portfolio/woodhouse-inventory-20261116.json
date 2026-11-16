@@ -617,7 +617,7 @@
         "observedAt": "2026-11-16T02:31:55.042Z"
       },
       "lockedSource": {
-        "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+        "commit": "a8191d3442ea95a4013d481a2a50148e1f94bde3",
         "declaredIn": "composition.lock.json"
       },
       "pinNote": "Production reports a newer revision than the Creator Hub blueprint pin; the blueprint is a pinned brief, not a deployment record."
@@ -647,7 +647,7 @@
         "observedAt": "2026-11-16T02:31:55.264Z"
       },
       "lockedSource": {
-        "commit": "f1dd27952ca8548f81fde5c5905346dae4a2b61b",
+        "commit": "e6780997b96f8b9f2411abc66abbbdd590dd5940",
         "declaredIn": "composition.lock.json"
       },
       "pinNote": "Production reports a newer revision than the Creator Hub blueprint pin."
@@ -723,14 +723,14 @@
         {
           "app": "guestbook",
           "repository": "https://github.com/loftwah/app-composer-guestbook",
-          "commit": "5075d7be53b43aca288d3707fd06851aca91e8c2",
+          "commit": "a8191d3442ea95a4013d481a2a50148e1f94bde3",
           "declaredIn": "composition.lock.json",
           "license": "MIT"
         },
         {
           "app": "showcase",
           "repository": "https://github.com/loftwah/app-composer-showcase",
-          "commit": "f1dd27952ca8548f81fde5c5905346dae4a2b61b",
+          "commit": "e6780997b96f8b9f2411abc66abbbdd590dd5940",
           "declaredIn": "composition.lock.json",
           "license": "MIT"
         }

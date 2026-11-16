@@ -35,8 +35,10 @@ const qualifiedPattern =
   /(?<![\w/])([A-Za-z0-9_.-]{1,80})\/([A-Za-z0-9_.-]{1,100})#(\d{1,7})\b/g;
 const barePattern = /(?<![\w/#])#(\d{1,7})\b/g;
 
+// A label is a whole word or an explicit `PR:`/`PR #12` form. Requiring a
+// boundary stops prose such as "Presentation/discovery" being read as "PR".
 const relationshipLabel =
-  /^(parent(?:\s+issue)?|part\s+of|sub-?issues?|child(?:ren|\s+issues?)?|blocked\s+by|depends\s+on|waiting\s+on|pull\s+requests?|prs?)\s*[:\-–—]?\s*/i;
+  /^(parent(?:\s+issue)?|part\s+of|sub-?issues?|child(?:ren|\s+issues?)?|blocked\s+by|depends\s+on|waiting\s+on|pull\s+requests?|prs?)(?=\s|[:#\-–—]|$)\s*[:\-–—]?\s*/i;
 
 type RelationKind = "parent" | "children" | "blockers" | "pullRequests";
 
@@ -55,10 +57,10 @@ function sectionFor(text: string): RelationKind | null {
 
 function relationshipFor(label: string): RelationKind | null {
   const value = label.toLowerCase();
-  if (/^(parent|part of)/.test(value)) return "parent";
-  if (/^(sub-?issues?|child)/.test(value)) return "children";
-  if (/^(blocked by|depends on|waiting on)/.test(value)) return "blockers";
-  if (/^(pull request|pr)/.test(value)) return "pullRequests";
+  if (/^(parent|part of)$/.test(value)) return "parent";
+  if (/^(sub-?issues?|child(?:ren|\s+issues?)?)$/.test(value)) return "children";
+  if (/^(blocked by|depends on|waiting on)$/.test(value)) return "blockers";
+  if (/^(pull requests?|prs?)$/.test(value)) return "pullRequests";
   return null;
 }
 

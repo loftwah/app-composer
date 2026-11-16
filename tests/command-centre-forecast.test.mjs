@@ -10,6 +10,7 @@ import {
   commandCentreReport,
   linkedReleaseFromBody,
 } from "../src/lib/command-centre-contract.ts";
+import { parseIssueRelationships } from "../src/lib/command-centre-relationships.ts";
 import {
   loadCommandCentrePage,
   renderBoard,
@@ -692,4 +693,43 @@ test("a fixture-backed second source uses the same projection and view", async (
   assert.match(plan, /https:\/\/tracker\.invalid\/items\/OPS-1/);
   assert.match(plan, /Explicit references in the fixture source/);
   assert.doesNotMatch(plan, /github\.com/i);
+});
+
+
+test("relationship parsing requires a real label and never invents pull requests from prose", () => {
+  const body = [
+    "Related to #1 — release index.",
+    "5. **Presentation/discovery:** #7/#28/#29 deliver the public journey.",
+    "Preview #31 is still a draft.",
+    "Parent: #12",
+    "PR #14 is linked.",
+  ].join("\n");
+  const parsed = parseIssueRelationships(body, "loftwah/app-composer");
+  assert.equal(parsed.parent?.number, 12);
+  assert.deepEqual(
+    parsed.pullRequests.map((entry) => entry.number),
+    [14],
+  );
+  assert.equal(
+    parsed.pullRequests.some((entry) =>
+      [7, 28, 29, 31].includes(entry.number),
+    ),
+    false,
+  );
+});
+
+test("a pull-request URL is read as a pull request, an issue URL stays a mention", () => {
+  const parsed = parseIssueRelationships(
+    [
+      "See https://github.com/loftwah/app-composer/pull/88 for the change.",
+      "Related https://github.com/loftwah/app-composer/issues/89.",
+    ].join("\n"),
+    "loftwah/app-composer",
+  );
+  assert.deepEqual(
+    parsed.pullRequests.map((entry) => entry.number),
+    [88],
+  );
+  assert.equal(parsed.parent, null);
+  assert.equal(parsed.children.length, 0);
 });
