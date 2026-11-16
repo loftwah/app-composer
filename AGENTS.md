@@ -18,6 +18,20 @@ then load only relevant project references. Use
 [#425](https://github.com/loftwah/app-composer/issues/425) flagship proof.
 Apply the existing proportionate review, authority and delivery rules below.
 
+## Public demos use real project work
+
+Use our real, owned project work for public demos, launch material, social posts
+and live acceptance. Select assets and copy fit for the destination, show the
+actual product or work, and link to its canonical public page. Carry the exact
+asset revision, alt text or captions, source, rights and credits into the
+approval and published result. Apply the same quality standard to a proof as to
+the work we would publish on purpose.
+
+Use synthetic fixtures in isolated automated checks and within products
+explicitly limited to fictional data. Keep existing privacy and publication
+boundaries. [Share #477](https://github.com/loftwah/app-composer/issues/477) and
+[Bluesky #604](https://github.com/loftwah/app-composer/issues/604) track the Share workflow.
+
 ## Routine change-to-production service target — current owner direction
 
 **Default target: 3 minutes; maximum normal target: 5 minutes from the first relevant code change to verified production.** This is the expected end-to-end delivery time for routine, low-risk, independently releasable changes, **not** five minutes each for tests, review, merge, build and deploy. The integrating agent owns the whole elapsed interval and cannot reset the clock by creating a PR, changing workers, handing off, rebasing or splitting a change. Measure elapsed time honestly; do not promise an actual release deadline that external systems cannot guarantee.
