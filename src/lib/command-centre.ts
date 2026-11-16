@@ -81,12 +81,22 @@ export const commandCentreRepositories = [
   {
     repository: "loftwah/app-composer",
     label: "App Composer",
-    live: { url: "https://composer.loftwah.com/build.json" },
+    live: {
+      url: "https://composer.loftwah.com/build.json",
+      // A Worker cannot reliably fetch its own custom hostname: the subrequest
+      // can loop back into the same deployment. The workers.dev hostname is the
+      // same Worker version over a public hostname, so it is read there and the
+      // canonical custom-domain URL stays the displayed identity.
+      readUrl: "https://app-composer.loftwah.workers.dev/build.json",
+    },
   },
   {
     repository: "loftwah/composer-media-studio",
     label: "Composer Media Studio",
-    live: { url: "https://media.loftwah.com/build.json" },
+    live: {
+      url: "https://media.loftwah.com/build.json",
+      readUrl: "https://composer-media-studio.loftwah.workers.dev/build.json",
+    },
   },
   { repository: "loftwah/liferaft", label: "Liferaft" },
 ] as const;
@@ -338,11 +348,19 @@ function readLiveIdentity(
     return Promise.resolve(
       unknown(`The registered live identity source is not HTTPS: ${url}.`),
     );
+  const readUrl =
+    "readUrl" in entry.live && entry.live.readUrl
+      ? entry.live.readUrl
+      : url;
+  if (!readUrl.startsWith("https://"))
+    return Promise.resolve(
+      unknown(`The live identity read address is not HTTPS: ${readUrl}.`),
+    );
   const fetchedAt = new Date(now).toISOString();
   return (async () => {
     let response: Response;
     try {
-      response = await fetcher(url, {
+      response = await fetcher(readUrl, {
         // A redirect would leave the registered source; refuse it outright.
         redirect: "error",
         headers: {
@@ -360,8 +378,8 @@ function readLiveIdentity(
         (error.name === "TimeoutError" || error.name === "AbortError");
       return unknown(
         timedOut
-          ? `The live identity source at ${url} did not answer within ${requestTimeoutMs / 1000} seconds.`
-          : `The live identity source at ${url} could not be reached.`,
+          ? `The live identity read at ${readUrl} did not answer within ${requestTimeoutMs / 1000} seconds.`
+          : `The live identity read at ${readUrl} could not be reached; the canonical source is ${url}.`,
       );
     }
     if (!response.ok)
@@ -405,6 +423,7 @@ function readLiveIdentity(
     return {
       state: "ok" as const,
       url,
+      readVia: readUrl === url ? null : readUrl,
       fetchedAt,
       revision,
       app: parsed.data.app ?? null,

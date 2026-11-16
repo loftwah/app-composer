@@ -399,6 +399,7 @@ function LiveIdentitySection({
             {section.app ? ` · app ${section.app}` : ""} · fetched{" "}
             {stamp(section.fetchedAt)}
             {section.builtAt ? ` · built ${stamp(section.builtAt)}` : ""}
+            {section.readVia ? ` · read via ${section.readVia}` : ""}
           </p>
           <p className="cc-issue-meta">
             {section.matchesDefaultBranch === true

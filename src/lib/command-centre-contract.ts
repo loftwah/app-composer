@@ -409,6 +409,10 @@ const liveIdentitySection = z
   .object({
     state: z.literal("ok"),
     url: z.url().max(500),
+    // The public address actually read. It differs from the canonical URL only
+    // when a Worker cannot fetch its own custom hostname; it is still the same
+    // deployment, and the fact is shown rather than hidden.
+    readVia: z.url().max(500).nullable(),
     fetchedAt: instant,
     revision: sha,
     app: z.string().min(1).max(80).nullable(),

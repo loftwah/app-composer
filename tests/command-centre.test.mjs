@@ -424,6 +424,10 @@ test("a normal read maps counts, history, plan, forecasts, releases and commits"
     report.repo.liveIdentity.url,
     "https://composer.loftwah.com/build.json",
   );
+  assert.equal(
+    report.repo.liveIdentity.readVia,
+    "https://app-composer.loftwah.workers.dev/build.json",
+  );
   assert.equal(report.repo.liveIdentity.revision, headSha("a"));
   assert.equal(report.repo.liveIdentity.matchesDefaultBranch, true);
   assert.equal(report.repo.liveIdentity.defaultBranchCommit, headSha("a"));
