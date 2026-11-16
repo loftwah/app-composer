@@ -16,6 +16,7 @@ import { PluginTrustPage } from "./plugin-trust-page";
 import { DeliveryRunsPage } from "./delivery-runs-page";
 import { StackStatusPage } from "./stack-status-page";
 import { ProposalsPage } from "./proposals-page";
+import { ShareCalendarPage } from "./share-calendar-page";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
 import {
   observeResourceRevision,
@@ -2063,6 +2064,14 @@ function WorkspaceStudio({ search }: { search: string }) {
                   Open analytics for this stack
                 </a>
               </p>
+              <p>
+                <a
+                  className="button secondary"
+                  href={`/_emdash/admin/plugins/composer-stacks/share-calendar?workspace=${workspace?.id ?? ""}&stack=${current.id}`}
+                >
+                  Open share calendar
+                </a>
+              </p>
               {fallback && (
                 <label className="ca-share-fallback">
                   Share address
@@ -2127,4 +2136,5 @@ export const pages: PluginAdminExports["pages"] = {
   "/delivery": DeliveryRunsPage,
   "/brand-studio": BrandStudioPage,
   "/incidents": IncidentsPage,
+  "/share-calendar": ShareCalendarPage,
 };

@@ -1,0 +1,392 @@
+/* Native Share calendar. Host tokens supply both admin themes; every token has
+   a currentColor fallback. The page leads with the source, then the saved list. */
+.composer-share-calendar {
+  --sc-ink: var(--color-kumo-contrast, currentColor);
+  --sc-muted: color-mix(in srgb, var(--sc-ink) 68%, transparent);
+  --sc-line: color-mix(in srgb, var(--sc-ink) 24%, transparent);
+  --sc-surface: var(
+    --color-kumo-elevated,
+    color-mix(in srgb, var(--sc-ink) 4%, transparent)
+  );
+  --sc-accent: var(--color-kumo-brand, #e6672f);
+  --sc-green: #2f7d52;
+  --sc-danger: var(--color-kumo-danger, #b24532);
+  max-width: 1400px;
+  margin: auto;
+  padding: 28px;
+  color: var(--sc-ink);
+  font:
+    16px/1.55 system-ui,
+    sans-serif;
+}
+.composer-share-calendar :is(h1, h2, h3, p, ol, li) {
+  min-width: 0;
+}
+.composer-share-calendar h1 {
+  font-size: clamp(1.8rem, 1.4rem + 1.5vw, 2.5rem);
+  line-height: 1.1;
+  margin: 0;
+}
+.composer-share-calendar h2 {
+  font-size: 1.35rem;
+  line-height: 1.25;
+  margin: 0 0 10px;
+}
+.composer-share-calendar h3 {
+  font-size: 1.02rem;
+  margin: 0 0 6px;
+}
+.composer-share-calendar p {
+  max-width: 74ch;
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+.sc-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.sc-kicker {
+  margin: 0 0 6px !important;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sc-muted);
+}
+.sc-scope {
+  margin: 0 !important;
+  padding: 6px 10px;
+  border: 1px solid var(--sc-line);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--sc-muted);
+  white-space: nowrap;
+}
+.sc-lede {
+  font-size: 1.05rem;
+  max-width: 66ch !important;
+}
+.sc-boundary {
+  color: var(--sc-muted);
+  font-size: 0.92rem;
+}
+.sc-notice {
+  min-height: 1.6em;
+  color: var(--sc-green);
+  font-weight: 550;
+}
+.sc-error {
+  border: 1px solid var(--sc-danger);
+  border-left: 4px solid var(--sc-danger);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 14px 0;
+  max-width: 74ch;
+}
+.sc-error p {
+  margin: 0;
+}
+.sc-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(24px, 4vw, 52px);
+  align-items: start;
+  margin-top: 24px;
+}
+.sc-prepare {
+  position: sticky;
+  top: 16px;
+  padding: 20px;
+  border: 1px solid var(--sc-line);
+  border-top: 3px solid var(--sc-accent);
+  border-radius: 8px;
+  background: var(--sc-surface);
+}
+.sc-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+.sc-field {
+  display: grid;
+  gap: 6px;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+.composer-share-calendar :is(input, select, textarea, button) {
+  font: inherit;
+  font-size: max(16px, 1rem);
+  color: inherit;
+}
+.composer-share-calendar :is(input, select, textarea) {
+  width: 100%;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 10px 11px;
+  border: 1px solid var(--sc-line);
+  border-radius: 5px;
+  background: transparent;
+}
+.composer-share-calendar textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+.composer-share-calendar
+  :is(input, select, textarea, button, a, summary):focus-visible {
+  outline: 2px solid var(--sc-accent);
+  outline-offset: 2px;
+}
+.sc-form textarea:disabled,
+.sc-form :is(input, select):disabled {
+  opacity: 0.65;
+}
+.sc-count {
+  margin: -6px 0 0 !important;
+  font-size: 0.82rem;
+  color: var(--sc-muted);
+  text-align: right;
+}
+.sc-hint {
+  color: var(--sc-muted);
+  font-size: 0.88rem;
+  max-width: 66ch !important;
+}
+.sc-channel-note {
+  margin: -4px 0 0 !important;
+}
+.sc-preview-time {
+  margin: 0 !important;
+  font-size: 0.9rem;
+  color: var(--sc-green);
+  overflow-wrap: anywhere;
+}
+.sc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 4px;
+}
+.composer-share-calendar button,
+.composer-share-calendar .sc-primary,
+.composer-share-calendar .sc-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 9px 14px;
+  border: 1px solid var(--sc-line);
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.94rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.composer-share-calendar .sc-primary {
+  border-color: var(--sc-accent);
+  background: var(--sc-accent);
+  color: #fff;
+}
+.composer-share-calendar button:disabled,
+.composer-share-calendar [aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.composer-share-calendar button:not(:disabled):hover,
+.composer-share-calendar .sc-primary:hover,
+.composer-share-calendar .sc-download:hover {
+  border-color: var(--sc-accent);
+}
+.composer-share-calendar .sc-danger {
+  color: var(--sc-danger);
+  border-color: color-mix(in srgb, var(--sc-danger) 55%, transparent);
+}
+.sc-source {
+  display: grid;
+  grid-template-columns: minmax(0, 132px) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 10px;
+  border: 1px solid var(--sc-line);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--sc-ink) 3%, transparent);
+}
+.sc-source img {
+  display: block;
+  width: 100%;
+  max-width: 132px;
+  height: auto;
+  border-radius: 4px;
+  border: 1px solid var(--sc-line);
+}
+.sc-source p {
+  margin: 0 0 6px;
+  font-size: 0.88rem;
+}
+.sc-text-link,
+.sc-item-link a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  overflow-wrap: anywhere;
+}
+.sc-text-link:hover,
+.sc-item-link a:hover {
+  border-bottom-color: currentColor;
+}
+.sc-calendar {
+  min-width: 0;
+}
+.sc-calendar-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--sc-line);
+}
+.sc-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sc-item {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--sc-line);
+  overflow-wrap: anywhere;
+}
+.sc-item-top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-bottom: 8px;
+}
+.sc-badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.sc-badge-draft {
+  color: var(--sc-muted);
+}
+.sc-badge-scheduled {
+  color: var(--sc-accent);
+}
+.sc-badge-shared {
+  color: var(--sc-green);
+}
+.sc-channel {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.sc-when {
+  font-size: 0.82rem;
+  color: var(--sc-muted);
+}
+.sc-source-line {
+  margin: 0 0 8px !important;
+  font-size: 0.86rem;
+  color: var(--sc-muted);
+}
+.sc-caption {
+  white-space: pre-wrap;
+  margin: 0 0 8px !important;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  padding-left: 12px;
+  border-left: 3px solid var(--sc-line);
+}
+.sc-caption-shared {
+  opacity: 0.86;
+}
+.sc-item-link {
+  margin: 0 0 8px !important;
+  font-size: 0.88rem;
+}
+.sc-stale {
+  padding: 10px 12px;
+  border-left: 3px solid var(--sc-danger);
+  background: color-mix(in srgb, var(--sc-danger) 7%, transparent);
+  font-size: 0.88rem;
+  max-width: 70ch !important;
+}
+.sc-empty {
+  padding: 24px;
+  border: 1px dashed var(--sc-line);
+  border-radius: 8px;
+  margin: 20px 0;
+}
+.sc-empty-list {
+  margin: 18px 0;
+}
+.sc-empty h2,
+.sc-empty h3 {
+  margin-top: 0;
+}
+.sc-export-note {
+  margin-top: 24px;
+  padding: 16px 18px;
+  border: 1px solid var(--sc-line);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--sc-ink) 3%, transparent);
+}
+.sc-export-note p {
+  font-size: 0.9rem;
+}
+.sc-footnote {
+  margin-top: 28px !important;
+  padding-top: 14px;
+  border-top: 1px solid var(--sc-line);
+  font-size: 0.86rem;
+  color: var(--sc-muted);
+}
+@media (max-width: 960px) {
+  .sc-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sc-prepare {
+    position: static;
+  }
+}
+@media (max-width: 620px) {
+  .composer-share-calendar {
+    padding: 16px;
+  }
+  .sc-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+  .sc-scope {
+    white-space: normal;
+  }
+  .sc-source {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sc-source img {
+    max-width: 100%;
+  }
+  .sc-actions {
+    align-items: stretch;
+  }
+  .sc-actions > * {
+    flex: 1 1 100%;
+  }
+  .sc-calendar-heading > button {
+    width: 100%;
+  }
+}
