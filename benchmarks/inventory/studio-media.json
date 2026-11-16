@@ -1,0 +1,384 @@
+{
+  "schema": "composer/model-inventory/1",
+  "id": "studio-media",
+  "title": "Studio media models",
+  "question": "What can the independent Media Studio generate today, read from its own catalogue and then checked model by model against the provider's current published route?",
+  "checkedAt": "2026-11-16T02:41:00Z",
+  "staleAfterDays": 3,
+  "previousCheck": {
+    "checkedAt": "2026-11-15T12:00:22.518Z",
+    "source": "config/media-studio-capabilities.json (Composer's committed copy of https://media.loftwah.com/capabilities.json)",
+    "what": "Composer's snapshot of the Studio manifest, refreshed after the Studio Draft retirement. It listed the eight Composer-selectable models and one retired record."
+  },
+  "entries": [
+    {
+      "id": "studio-catalogue",
+      "label": "Studio catalogue manifest",
+      "kind": "catalogue",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://media.loftwah.com/capabilities.json",
+      "observed": "HTTP 200, 20,890 bytes. contract media-studio-capabilities v1, checkedAt and lastGoodAt 2026-11-15T12:00:22.518Z, 16 models, 1 retired record, 18 sources all status ok, alerts [].",
+      "note": "The Studio refreshes this at most once a day from Cloudflare, fal and models.dev without calling inference. Its own checkedAt is the authoritative freshness stamp."
+    },
+    {
+      "id": "studio-source-catalogue",
+      "label": "Studio model catalogue source",
+      "kind": "catalogue",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "loftwah/composer-media-studio src/lib/providers.mjs at the deployed revision f2f29696d8be2424cee5f64b89bdcb0bb43de037",
+      "observed": "publicModels() returns 16 models and publicRetiredModels() one record. The file's SHA-256 at that revision is 2d45ea17d4123aa550765042ae45d258b79fbff3e144d4a3f30945a3d5cfc6f4, identical to the checked-out copy that was read.",
+      "note": "Endpoints, labels and planning costs below come from this file, not from memory or a screenshot."
+    },
+    {
+      "id": "composer-snapshot",
+      "label": "Composer's committed snapshot",
+      "kind": "catalogue",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "config/media-studio-capabilities.json compared with the live manifest",
+      "observed": "The eight Composer-selectable ids match the live manifest on endpoint, kind and costMicro, with the same checkedAt and an identical retired record. node scripts/studio-capabilities.mjs validates this file in the build path.",
+      "note": "Composer stores only what it offers. The Studio's own catalogue is larger, which is the difference recorded below."
+    },
+    {
+      "id": "studio-print",
+      "label": "Studio Print",
+      "kind": "media-model",
+      "provider": "cloudflare-workers-ai",
+      "endpoint": "@cf/leonardo/lucid-origin",
+      "modelKind": "image",
+      "composerSelectable": true,
+      "costMicro": 25000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://developers.cloudflare.com/workers-ai/models/lucid-origin/index.md",
+      "observed": "HTTP 200, title \"lucid-origin\", no Planned Deprecation field, Unit Pricing \"$0.007 per 512 by 512 tile, $0.000132 per step\"."
+    },
+    {
+      "id": "studio-film",
+      "label": "Studio Film",
+      "kind": "media-model",
+      "provider": "cloudflare-workers-ai",
+      "endpoint": "@cf/leonardo/phoenix-1.0",
+      "modelKind": "image",
+      "composerSelectable": true,
+      "costMicro": 20000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://developers.cloudflare.com/workers-ai/models/phoenix-1.0/index.md",
+      "observed": "HTTP 200, title \"phoenix-1.0\", no Planned Deprecation field, Unit Pricing \"$0.00583 per 512 by 512 tile, $0.00011 per step\"."
+    },
+    {
+      "id": "studio-craft",
+      "label": "Studio Draft · FLUX.2 Klein 9B",
+      "kind": "media-model",
+      "provider": "cloudflare-workers-ai",
+      "endpoint": "@cf/black-forest-labs/flux-2-klein-9b",
+      "modelKind": "image",
+      "composerSelectable": true,
+      "costMicro": 16000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://developers.cloudflare.com/workers-ai/models/flux-2-klein-9b/index.md",
+      "observed": "HTTP 200, title \"flux-2-klein-9b\", no Planned Deprecation field, no Unit Pricing row."
+    },
+    {
+      "id": "studio-detail",
+      "label": "Studio Detail",
+      "kind": "media-model",
+      "provider": "cloudflare-workers-ai",
+      "endpoint": "@cf/black-forest-labs/flux-2-klein-4b",
+      "modelKind": "image",
+      "composerSelectable": false,
+      "costMicro": 6000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://developers.cloudflare.com/workers-ai/models/flux-2-klein-4b/index.md",
+      "observed": "HTTP 200, title \"flux-2-klein-4b\", no Planned Deprecation field, no Unit Pricing row.",
+      "note": "Reference-guided square variation. Offered by the Studio, not by Composer's Init choices."
+    },
+    {
+      "id": "studio-quick",
+      "label": "Studio Quick",
+      "kind": "media-model",
+      "provider": "cloudflare-workers-ai",
+      "endpoint": "@cf/black-forest-labs/flux-1-schnell",
+      "modelKind": "image",
+      "composerSelectable": true,
+      "costMicro": 700,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://developers.cloudflare.com/workers-ai/models/flux-1-schnell/index.md",
+      "observed": "HTTP 200, title \"flux-1-schnell\", no Planned Deprecation field, no Unit Pricing row."
+    },
+    {
+      "id": "hailuo-standard",
+      "label": "Hailuo 2.3 Standard",
+      "kind": "media-model",
+      "provider": "fal",
+      "endpoint": "fal-ai/minimax/hailuo-2.3/standard/image-to-video",
+      "modelKind": "video",
+      "composerSelectable": true,
+      "costMicro": 280000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://fal.ai/api/models?keywords=fal-ai%2Fminimax%2Fhailuo-2.3%2Fstandard%2Fimage-to-video",
+      "observed": "HTTP 200, exact id returned, status \"public\", deprecated false, removed false. Published price still \"$0.28 per 6 second video generation, $0.56 per 10 second\"."
+    },
+    {
+      "id": "h3-max-turbo",
+      "label": "MiniMax H3 Max Turbo · 768p",
+      "kind": "media-model",
+      "provider": "fal",
+      "endpoint": "minimax/h3-max-turbo/image-to-video",
+      "modelKind": "video",
+      "composerSelectable": false,
+      "costMicro": 240000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://fal.ai/api/models?keywords=minimax%2Fh3-max-turbo%2Fimage-to-video",
+      "observed": "HTTP 200, exact id returned, status \"public\", deprecated false, removed false. The published description now states that from 2026-11-16 standard rates are $0.025, $0.04 and $0.08 per second at 480p, 768p and 1080p.",
+      "note": "Offered by the Studio's own Create UI; not one of Composer's selectable ids. The Studio's allocation already uses the standard $0.04/s at 768p, so the estimate did not need changing."
+    },
+    {
+      "id": "kling-standard",
+      "label": "Kling 2.5 Turbo Pro",
+      "kind": "media-model",
+      "provider": "fal",
+      "endpoint": "fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
+      "modelKind": "video",
+      "composerSelectable": true,
+      "costMicro": 350000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://fal.ai/api/models?keywords=fal-ai%2Fkling-video%2Fv2.5-turbo%2Fpro%2Fimage-to-video",
+      "observed": "HTTP 200, exact id returned, status \"public\", deprecated false, removed false. Published price \"$0.35 for 5 s, $0.07 for every additional second\"."
+    },
+    {
+      "id": "studio-score",
+      "label": "Studio Score",
+      "kind": "media-model",
+      "provider": "fal",
+      "endpoint": "fal-ai/stable-audio",
+      "modelKind": "audio",
+      "composerSelectable": true,
+      "costMicro": 15000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://fal.ai/api/models?keywords=fal-ai%2Fstable-audio",
+      "observed": "HTTP 200, exact id returned, status \"public\", deprecated false, removed false, no published price override."
+    },
+    {
+      "id": "studio-voice",
+      "label": "Studio Voice",
+      "kind": "media-model",
+      "provider": "fal",
+      "endpoint": "fal-ai/elevenlabs/tts/eleven-v3",
+      "modelKind": "audio",
+      "composerSelectable": true,
+      "costMicro": 60000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://fal.ai/api/models?keywords=fal-ai%2Felevenlabs%2Ftts%2Feleven-v3",
+      "observed": "HTTP 200, exact id returned (the only result), status \"public\", deprecated false, removed false."
+    },
+    {
+      "id": "studio-effect",
+      "label": "Studio Effect",
+      "kind": "media-model",
+      "provider": "fal",
+      "endpoint": "fal-ai/elevenlabs/sound-effects/v3",
+      "modelKind": "audio",
+      "composerSelectable": false,
+      "costMicro": 8000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://fal.ai/api/models?keywords=fal-ai%2Felevenlabs%2Fsound-effects%2Fv3",
+      "observed": "HTTP 200, exact id returned, status \"public\", deprecated false, removed false.",
+      "note": "The v2 route that the 15 November check found missing from fal search is not referenced anywhere in this catalogue."
+    },
+    {
+      "id": "studio-fill",
+      "label": "Studio Fill",
+      "kind": "media-model",
+      "provider": "fal",
+      "endpoint": "fal-ai/flux-pro/v1/fill",
+      "modelKind": "image",
+      "composerSelectable": false,
+      "costMicro": 50000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://fal.ai/api/models?keywords=fal-ai%2Fflux-pro%2Fv1%2Ffill",
+      "observed": "HTTP 200, exact id returned, status \"public\", deprecated false, removed false."
+    },
+    {
+      "id": "studio-cutout",
+      "label": "Studio Cutout",
+      "kind": "media-model",
+      "provider": "fal",
+      "endpoint": "fal-ai/birefnet/v2",
+      "modelKind": "image",
+      "composerSelectable": false,
+      "costMicro": 2000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://fal.ai/api/models?keywords=fal-ai%2Fbirefnet%2Fv2",
+      "observed": "HTTP 200, exact id returned, status \"public\", deprecated false, removed false."
+    },
+    {
+      "id": "studio-upscale",
+      "label": "Studio Upscale",
+      "kind": "media-model",
+      "provider": "fal",
+      "endpoint": "fal-ai/clarity-upscaler",
+      "modelKind": "image",
+      "composerSelectable": false,
+      "costMicro": 20000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://fal.ai/api/models?keywords=fal-ai%2Fclarity-upscaler",
+      "observed": "HTTP 200, exact id returned (the only result), status \"public\", deprecated false, removed false."
+    },
+    {
+      "id": "studio-assembly",
+      "label": "Studio Assembly",
+      "kind": "media-model",
+      "provider": "fal",
+      "endpoint": "fal-ai/ffmpeg-api/compose",
+      "modelKind": "video",
+      "composerSelectable": false,
+      "costMicro": 20000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://fal.ai/api/models?keywords=fal-ai%2Fffmpeg-api%2Fcompose",
+      "observed": "HTTP 200, exact id returned, status \"public\", deprecated false, removed false."
+    },
+    {
+      "id": "studio-social",
+      "label": "Studio 9:16 Cut",
+      "kind": "media-model",
+      "provider": "fal",
+      "endpoint": "fal-ai/ffmpeg-api/compose",
+      "modelKind": "video",
+      "composerSelectable": false,
+      "costMicro": 520000,
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://fal.ai/api/models?keywords=fal-ai%2Fffmpeg-api%2Fcompose",
+      "observed": "HTTP 200, exact id returned, status \"public\", deprecated false, removed false.",
+      "note": "Shares the assembly endpoint with Studio Assembly under a different render route."
+    },
+    {
+      "id": "studio-account-eligibility",
+      "label": "Eligibility on this Cloudflare account",
+      "kind": "provider",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "docs/evidence/launch-20261115/model-freshness-20261115.md (recorded generation receipt); GET https://api.cloudflare.com/client/v4/accounts/{account}/ai/models/search",
+      "observed": "One route is proven eligible on this account by a recorded generation: studio-craft on @cf/black-forest-labs/flux-2-klein-9b produced gen_4515ab469ca948dfbe5587bbf142c8ac, a 1024x1280 JPEG of 459,080 bytes with SHA-256 b32781d2…, status saved. The fal routes are proven by the recorded 15 November H3 and Kling takes. The other Workers AI ids are catalogue-verified only, and the account model-search endpoint refused this machine's token with HTTP 403.",
+      "note": "A live catalogue page is not the same claim as a route that has actually produced output on this account. Both are shown separately so neither is mistaken for the other."
+    },
+    {
+      "id": "studio-draft-retired",
+      "label": "Studio Draft · SDXL Lightning (retired)",
+      "kind": "media-model",
+      "provider": "cloudflare-workers-ai",
+      "endpoint": "@cf/bytedance/stable-diffusion-xl-lightning",
+      "modelKind": "image",
+      "status": "retired",
+      "retiredAt": "2026-11-20",
+      "replacement": "studio-craft",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://developers.cloudflare.com/workers-ai/models/stable-diffusion-xl-lightning/index.md",
+      "observed": "HTTP 200, title \"stable-diffusion-xl-lightning\", Planned Deprecation 11/20/2026, Unit Pricing \"$0.00 per step\".",
+      "note": "Four days before the published deprecation date the page still resolves. No new work may select it; saved jobs keep this exact endpoint and attribution."
+    }
+  ],
+  "changes": [
+    {
+      "entry": "h3-max-turbo",
+      "field": "publishedPrice",
+      "kind": "price",
+      "previous": "a 30% promotional rate of $0.028/s at 768p ran through 2026-11-15, so the 5 s allocation of $0.24 carried a promotion caveat",
+      "current": "from 2026-11-16 the standard rate applies: $0.04/s at 768p. The allocation already used that standard rate, so recorded takes do not need re-pricing",
+      "note": "Read from the provider's own price description today. It is the one real change since the previous check, and it changes a caveat rather than a number."
+    },
+    {
+      "entry": "studio-detail",
+      "field": "catalogueScope",
+      "kind": "capability",
+      "previous": "Composer's committed snapshot recorded 8 models, because only selectable ones are stored",
+      "current": "the Studio's own catalogue offers 16 models today, of which 8 are selectable in Composer",
+      "note": "The eight extra routes are real and runnable in the Studio. A reader who only saw Composer's snapshot would understate what the Studio can do."
+    },
+    {
+      "entry": "studio-draft-retired",
+      "field": "retirementWindow",
+      "kind": "availability",
+      "previous": "retirement published for 2026-11-20, replacement already shipping (recorded 2026-11-15)",
+      "current": "2026-11-16: still resolvable, four days remain, replacement studio-craft still current",
+      "note": "The window is closing. If the page starts returning 404 before 20 November, the retired record stays and only the observation changes."
+    }
+  ],
+  "pinnedRuns": [
+    {
+      "id": "kling-vs-h3-20261115",
+      "where": "url:https://github.com/loftwah/app-composer/issues/601#issuecomment-6893211413",
+      "recordedAt": "2026-11-15T10:49:26Z",
+      "note": "One matched still-to-motion pair through the normal Create UI: H3 gen_a403ff, allocation $0.24, 1344x768, 5.18 s; Kling gen_1e7d9f9e, allocation $0.35, 1920x1080, 5.04 s. Provider charge not reported for either. Left exactly as recorded."
+    },
+    {
+      "id": "studio-craft-generation-20261115",
+      "where": "file:docs/evidence/launch-20261115/model-freshness-20261115.md",
+      "recordedAt": "2026-11-15T12:00:22.518Z",
+      "note": "The recorded on-account generation for studio-craft: gen_4515ab469ca948dfbe5587bbf142c8ac, 1024x1280 JPEG, 459,080 bytes, SHA-256 b32781d2…. It is the only Workers AI route in this inventory with an on-account receipt."
+    },
+    {
+      "id": "composer-media-snapshot",
+      "where": "file:config/media-studio-capabilities.json",
+      "recordedAt": "2026-11-15T12:00:22.518Z",
+      "note": "The snapshot this check compared against. Not rewritten by this change."
+    }
+  ],
+  "sources": [
+    {
+      "id": "studio-capabilities-live",
+      "url": "https://media.loftwah.com/capabilities.json",
+      "readAt": "2026-11-16T02:18:00Z",
+      "shape": "200 JSON: contract, version, checkedAt, lastGoodAt, models[16], retired[1], frames, adapters, sources[18], alerts[]"
+    },
+    {
+      "id": "studio-providers-source",
+      "url": "https://github.com/loftwah/composer-media-studio/blob/f2f29696d8be2424cee5f64b89bdcb0bb43de037/src/lib/providers.mjs",
+      "readAt": "2026-11-16T02:22:00Z",
+      "shape": "publicModels() 16 records and publicRetiredModels() 1 record; file SHA-256 2d45ea17…6f4 at the deployed revision"
+    },
+    {
+      "id": "cloudflare-model-pages",
+      "url": "https://developers.cloudflare.com/workers-ai/models/",
+      "readAt": "2026-11-16T02:22:00Z",
+      "shape": "Five live ids and the retired one fetched as /models/<slug>/index.md: all HTTP 200; only stable-diffusion-xl-lightning carries Planned Deprecation 11/20/2026"
+    },
+    {
+      "id": "fal-model-search",
+      "url": "https://fal.ai/api/models",
+      "readAt": "2026-11-16T02:23:00Z",
+      "shape": "Eleven keyword searches, one per fal endpoint: every one returned the exact id with status \"public\", deprecated false, removed false"
+    },
+    {
+      "id": "composer-snapshot-file",
+      "url": "file:config/media-studio-capabilities.json",
+      "readAt": "2026-11-16T02:24:00Z",
+      "shape": "Eight selectable models, one retired record, checkedAt 2026-11-15T12:00:22.518Z; identical to the live manifest on endpoint, kind, costMicro and retired record"
+    }
+  ],
+  "limits": [
+    "No generation ran for this inventory. Every row is a catalogue read, so a live route is not proof that a request would succeed, cost what the estimate says, or look right.",
+    "Planning costs are the Studio's own estimates. No provider invoice was read, and none is claimed.",
+    "The Studio manifest's own checkedAt is 2026-11-15T12:00:22.518Z. The per-model verification here is a separate read on 2026-11-16, so the two dates differ by design.",
+    "Only one Workers AI route in this inventory has an on-account generation receipt (studio-craft). The other Workers AI rows are catalogue-verified: the provider page resolves, which is not the same as a successful request on this account.",
+    "fal's published price description for h3-max-turbo is time-bounded prose. It changed meaning on 2026-11-16 and will change again.",
+    "A withdrawn id can disappear from fal search without a deprecation flag. Every endpoint is matched by exact id, and a missing exact match is recorded as drift rather than assumed."
+  ]
+}

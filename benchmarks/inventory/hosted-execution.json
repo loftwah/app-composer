@@ -1,0 +1,168 @@
+{
+  "schema": "composer/model-inventory/1",
+  "id": "hosted-execution",
+  "title": "Cloudflare-hosted Composer execution",
+  "question": "What can the deployed App Composer Worker actually run today, which bindings does it really have, and which model ids, if any, is it able to execute?",
+  "checkedAt": "2026-11-16T02:41:00Z",
+  "staleAfterDays": 7,
+  "previousCheck": null,
+  "entries": [
+    {
+      "id": "deployed-worker",
+      "label": "Deployed Worker identity",
+      "kind": "runtime",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://composer.loftwah.com/build.json; GET https://api.cloudflare.com/client/v4/accounts/{account}/workers/scripts/app-composer/deployments",
+      "observed": "build.json returns commit 8d5d0c50390cdd64df48b3040758f6398087fb0e with sourceCommittedAt 2026-11-16T10:15:31+11:00 and contract 1. The newest deployment is aec9073c-81af-4f0c-a06d-f0fdb5486d75, created 2026-11-15T23:17:05.807105Z, serving version 2b418c92-7620-4779-b992-c2c10dcc7d67. origin/main is three commits ahead of the deployed commit.",
+      "note": "This inventory describes the deployed commit, not main."
+    },
+    {
+      "id": "model-inference-binding",
+      "label": "Model-inference binding",
+      "kind": "runtime",
+      "status": "absent",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://api.cloudflare.com/client/v4/accounts/{account}/workers/scripts/app-composer/settings",
+      "observed": "HTTP 200. The binding list contains assets, plain_text, secret_text, service, d1, r2_bucket, kv_namespace and ratelimit entries, and no binding of type ai, inference, vectorize, browser or hyperdrive.",
+      "note": "There is no Workers AI binding on the deployed Worker, so it cannot execute any @cf model itself. This is the finding, not a temporary outage."
+    },
+    {
+      "id": "composer-inference-ids",
+      "label": "Model ids the Worker can execute",
+      "kind": "runtime",
+      "status": "absent",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "grep for env.AI, run(\"@cf and provider origins across src/; the same settings response",
+      "observed": "Zero. Composer's source contains no Workers AI call, no ai binding access and no request to a model provider origin. The only @cf string in the application is an example command printed in the media admin UI (src/plugins/media-admin.tsx:695), addressed to the independent Studio agent.",
+      "note": "A benchmark row labelled \"Cloudflare-hosted Composer\" has nothing to execute in this runtime today."
+    },
+    {
+      "id": "binding-d1",
+      "label": "DB · D1",
+      "kind": "binding",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "the same Worker settings response",
+      "observed": "One d1 binding named DB on database 1b2b29c8-4109-4a5f-901a-befc91173bc5 (app-composer-emdash).",
+      "note": "Stores application and workspace records, not media."
+    },
+    {
+      "id": "binding-r2",
+      "label": "MEDIA · R2",
+      "kind": "binding",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "the same Worker settings response",
+      "observed": "One r2_bucket binding named MEDIA on bucket app-composer-media.",
+      "note": "Bytes only. No model is reachable through this binding."
+    },
+    {
+      "id": "binding-kv",
+      "label": "SESSION · KV",
+      "kind": "binding",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "the same Worker settings response",
+      "observed": "One kv_namespace binding named SESSION.",
+      "note": "Session state only."
+    },
+    {
+      "id": "binding-ratelimit",
+      "label": "USAGE_LIMIT · rate limit",
+      "kind": "binding",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "the same Worker settings response",
+      "observed": "One ratelimit binding named USAGE_LIMIT.",
+      "note": "Bounds request rate. It does not meter model spend, because no model runs here."
+    },
+    {
+      "id": "binding-services",
+      "label": "Five service bindings",
+      "kind": "binding",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "the same Worker settings response",
+      "observed": "service bindings GUESTBOOK and SHOWCASE and GUESTBOOK_MEMBERS on composer-guestbook-8428e16f61c25a4d and composer-showcase-8428e16f61c25a4d, plus CREATOR_HUB_GUESTBOOK on creator-hub-guestbook and CREATOR_HUB_SHOWCASE on creator-hub-showcase.",
+      "note": "Independent mini-apps reached in-process. None of them is a model runtime, and no Studio binding exists."
+    },
+    {
+      "id": "binding-secrets",
+      "label": "Secret names present",
+      "kind": "binding",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "the same Worker settings response",
+      "observed": "Secrets are present by name only and no value was read: CF_ACCESS_AUDIENCE, COMPOSER_PROFILE_BRIDGE_TOKEN, EMDASH_ENCRYPTION_KEY, GUESTBOOK_MEMBER_TOKEN, GUESTBOOK_OWNER_TOKEN, MEDIA_AGENT_TOKEN, MEDIA_STUDIO_BRIDGE_SECRET, MEDIA_STUDIO_ORIGIN, OWNER_API_TOKEN, OYSTER_MEDIA_INSTALLATION, OYSTER_ORIGIN, OYSTER_OWNER_KEY, RESEND_ALLOWED_RECIPIENTS, RESEND_API_KEY, RESEND_FROM_ADDRESS, USAGE_TOKENS, WOODHOUSE_GITHUB_TOKEN.",
+      "note": "Recorded so a reader can see which delegated capabilities exist without any credential being exposed."
+    },
+    {
+      "id": "delegated-media",
+      "label": "Delegated media generation",
+      "kind": "delegation",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "src/lib/media-capability-runtime.mjs (readModels, refreshCatalogue, submitGeneration); the secret names above",
+      "observed": "The Worker can read a connected media host's model catalogue into media_workspace_connections and submit a generation to that host over HTTP, using the MEDIA_STUDIO_ORIGIN / MEDIA_STUDIO_BRIDGE_SECRET or an OYSTER credential reference. The model ids come from the connected host at runtime, never from Composer's code.",
+      "note": "So Composer can cause execution elsewhere and record the result. It does not execute the model, and the ids are the host's, listed in the Studio inventory."
+    },
+    {
+      "id": "workspace-connections",
+      "label": "Per-workspace connection state",
+      "kind": "delegation",
+      "status": "unverified",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "no production table was read",
+      "observed": "media_workspace_connections holds which workspace is connected to which host. Reading it would read customer workspace data, which this check did not do.",
+      "reason": "Whether any live workspace has an enabled media connection is production customer data. It was deliberately not queried, so no connection is claimed to be active.",
+      "note": "The capability is verified in code; its per-workspace enablement is not asserted."
+    },
+    {
+      "id": "workers-ai-account-catalogue",
+      "label": "Account Workers AI eligibility",
+      "kind": "provider",
+      "status": "unverified",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://api.cloudflare.com/client/v4/accounts/{account}/ai/models/search",
+      "observed": "HTTP 403, error code 10000 \"Authentication error\". The token on this machine can read Worker settings, deployments and routes but not the Workers AI model catalogue.",
+      "reason": "The account-level Workers AI catalogue and per-model eligibility could not be read with the available credential. Composer has no Workers AI binding anyway, so this limits the Studio's evidence, not Composer's.",
+      "note": "No model id is marked eligible for this account on the strength of the account alone."
+    }
+  ],
+  "changes": [],
+  "pinnedRuns": [],
+  "sources": [
+    {
+      "id": "composer-build-json",
+      "url": "https://composer.loftwah.com/build.json",
+      "readAt": "2026-11-16T02:20:00Z",
+      "shape": "200 JSON: app, commit, reviewed, sourceCommittedAt, contract"
+    },
+    {
+      "id": "composer-worker-settings",
+      "url": "https://api.cloudflare.com/client/v4/accounts/1003dc1d93af0ebea56b2f1252f89627/workers/scripts/app-composer/settings",
+      "readAt": "2026-11-16T02:27:00Z",
+      "shape": "200 JSON: result.bindings[] with type and name; result.compatibility_date 2026-10-13; compatibility_flags nodejs_compat, global_fetch_strictly_public"
+    },
+    {
+      "id": "composer-deployments",
+      "url": "https://api.cloudflare.com/client/v4/accounts/1003dc1d93af0ebea56b2f1252f89627/workers/scripts/app-composer/deployments",
+      "readAt": "2026-11-16T02:27:00Z",
+      "shape": "200 JSON: ten deployments, each with id, created_on, source \"wrangler\", versions[].version_id"
+    },
+    {
+      "id": "workers-ai-search",
+      "url": "https://api.cloudflare.com/client/v4/accounts/1003dc1d93af0ebea56b2f1252f89627/ai/models/search",
+      "readAt": "2026-11-16T02:28:00Z",
+      "shape": "403 JSON: success false, errors[0].code 10000, message \"Authentication error\""
+    }
+  ],
+  "limits": [
+    "This is the first recorded check for this plane, so there is no previous value to diff. The changes list is empty by fact, not by omission.",
+    "The inventory describes deployed commit 8d5d0c5. Three commits on origin/main are not deployed, so a later release invalidates the deployment row and nothing else here without a fresh read.",
+    "Secret values were never read. Only the binding names and types from the Worker's own settings response are recorded.",
+    "Whether a workspace has an enabled media connection is customer data and was not queried.",
+    "Account-level Workers AI eligibility is unverified because the available token is refused by that endpoint; no eligibility claim is made for any model id."
+  ]
+}

@@ -1,0 +1,311 @@
+---
+import Base from '../../layouts/Base.astro';
+import buildAgents from '../../../benchmarks/inventory/build-agents.json';
+import hostedExecution from '../../../benchmarks/inventory/hosted-execution.json';
+import studioMedia from '../../../benchmarks/inventory/studio-media.json';
+import pending from '../../../benchmarks/inventory/pending.json';
+import { summariseInventory } from '../../lib/model-inventory.mjs';
+
+const now = Date.now();
+const files: any[] = [buildAgents, hostedExecution, studioMedia];
+const inventories: any[] = files.map((file) => ({ file, ...summariseInventory(file, { now }) }));
+const total = inventories.reduce((count, inventory) => count + inventory.total, 0);
+const unverified = inventories.reduce((count, inventory) => count + inventory.counts.unverified, 0);
+const stale = inventories.filter((inventory) => inventory.stale).length;
+const decisions: any[] = Array.isArray(pending.decisions) ? pending.decisions : [];
+
+const statusLabel: Record<string, string> = {
+  current: 'Current',
+  drifted: 'Drifted',
+  retired: 'Retired',
+  absent: 'Not present',
+  unverified: 'Unverified',
+};
+const kindLabel: Record<string, string> = {
+  'build-agent': 'Build agent',
+  'build-model': 'Model',
+  runtime: 'Runtime',
+  binding: 'Binding',
+  delegation: 'Delegation',
+  provider: 'Provider',
+  catalogue: 'Catalogue',
+  'media-model': 'Media model',
+};
+function money(micro: number | null | undefined) {
+  if (typeof micro !== 'number') return null;
+  const value = micro / 1_000_000;
+  return `US$${value.toFixed(4).replace(/0+$/, '').replace(/\.$/, '')}`;
+}
+function age(checkedAt: string | null) {
+  if (!checkedAt) return 'undated';
+  const ms = Date.parse(checkedAt);
+  if (!Number.isFinite(ms)) return 'undated';
+  return new Date(ms).toISOString().replace('.000Z', 'Z');
+}
+---
+<Base
+  title="Benchmarks inventory"
+  description="Three dated inventories behind the model feedback loop: which build agents a Composer user can hand work to, what the deployed Composer Worker can actually run, and what the independent Media Studio can generate today."
+>
+  <div class="inv-heading">
+    <p class="eyebrow">Benchmarks Studio · inventories</p>
+    <h1>What is true today, and when we last looked.</h1>
+    <p class="lede">
+      Three separate questions, three separate answers. {total} rows, each naming the exact source it was read from, the
+      status that source supports and the date of the read. They are data: a fetched page describes a product, it never
+      becomes permission or a command.
+    </p>
+    <dl class="inv-meta">
+      <div><dt>Rows checked</dt><dd>{total}</dd></div>
+      <div><dt>Inventories</dt><dd>{inventories.length}</dd></div>
+      <div><dt>Unverified rows</dt><dd>{unverified}</dd></div>
+      <div><dt>Stale inventories</dt><dd>{stale === 0 ? 'none' : stale}</dd></div>
+      <div><dt>Paid trials run by this page</dt><dd>none</dd></div>
+    </dl>
+    <div class="actions">
+      <a class="button" href="/benchmarks">The sandbox run</a>
+      <a class="button secondary" href="/benchmarks/compare">The model comparison</a>
+      <a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow #601</a>
+    </div>
+  </div>
+
+  <section class="inv-note" aria-labelledby="how-title">
+    <h2 id="how-title">How to read a row</h2>
+    <ul>
+      <li><strong>Current</strong> means the owning source was read and the row still holds. <strong>Drifted</strong> means it was read and something changed. <strong>Retired</strong> means the source still exists but new work must not select it. <strong>Not present</strong> is a verified absence, which is a finding in its own right. <strong>Unverified</strong> means the row was not established and the reason is printed beside it.</li>
+      <li>Every row carries its own <code>checkedAt</code>, the exact command or URL, and what that source returned. A model id is only called current when the source listed that exact id.</li>
+      <li>Changes are listed against the previous recorded check, with the previous value kept. A row with nothing to report is not rewritten to look busy.</li>
+      <li>An inventory older than its own staleness limit is labelled stale on this page. Nothing here refreshes itself.</li>
+    </ul>
+  </section>
+
+  {inventories.map((inventory) => (
+    <section class="inv-section" aria-labelledby={`inv-${inventory.id}`}>
+      <header class="inv-section-head">
+        <div>
+          <p class="eyebrow">{inventory.id.replace('-', ' · ')}</p>
+          <h2 id={`inv-${inventory.id}`}>{inventory.title}</h2>
+          <p class="inv-question">{inventory.question}</p>
+        </div>
+        <div class="inv-stamp">
+          <span class={`inv-pill inv-pill-${inventory.stale ? 'drifted' : 'current'}`}>{inventory.stale ? 'Stale' : 'Fresh'}</span>
+          <span class="inv-checked">Checked {age(inventory.checkedAt)}</span>
+          <span class="inv-age">
+            {inventory.ageDays === null ? 'no readable date' : inventory.ageDays === 0 ? 'today' : `${inventory.ageDays} day${inventory.ageDays === 1 ? '' : 's'} ago`}
+            {' · '}stale after {inventory.staleAfterDays} days
+          </span>
+        </div>
+      </header>
+
+      <dl class="inv-counts" aria-label={`${inventory.title} status counts`}>
+        {Object.entries(inventory.counts).filter(([, count]) => Number(count) > 0).map(([status, count]) => (
+          <div class={`inv-count inv-count-${status}`}>
+            <dt>{statusLabel[status] ?? status}</dt>
+            <dd>{String(count)}</dd>
+          </div>
+        ))}
+        <div class="inv-count"><dt>Changed since last check</dt><dd>{inventory.changes}</dd></div>
+      </dl>
+
+      <div class="inv-changes">
+        <h3>What changed since the previous check</h3>
+        {inventory.previousCheck ? (
+          <p class="small">
+            Previous check {age(inventory.previousCheck.checkedAt)} from <code>{inventory.previousCheck.source}</code>. {inventory.previousCheck.what}
+          </p>
+        ) : (
+          <p class="small">No earlier recorded check exists for this inventory, so there is nothing to diff yet. That is a fact about it, not an omission.</p>
+        )}
+        {inventory.changes === 0 ? (
+          <p class="small">No difference was found in the rows this inventory compares.</p>
+        ) : (
+          <ul class="inv-change-list">
+            {inventory.file.changes.map((change: any) => (
+              <li>
+                <strong>{change.entry}</strong> · {change.kind}
+                <span class="inv-change-pair"><span class="inv-was">was</span> {change.previous}</span>
+                <span class="inv-change-pair"><span class="inv-now">now</span> {change.current}</span>
+                <span class="inv-change-note">{change.note}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <ul class="inv-rows">
+        {inventory.entries.map((entry: any) => (
+          <li class={`inv-row inv-row-${entry.status}`}>
+            <div class="inv-row-head">
+              <div>
+                <h3>{entry.label}</h3>
+                <p class="inv-row-meta">
+                  <code>{entry.id}</code> · {kindLabel[entry.kind] ?? entry.kind}
+                  {entry.agent ? <> · via <code>{entry.agent}</code></> : null}
+                  {entry.endpoint ? <> · <code>{entry.endpoint}</code></> : null}
+                </p>
+              </div>
+              <span class={`inv-pill inv-pill-${entry.status}`}>{statusLabel[entry.status] ?? entry.status}</span>
+            </div>
+            <dl class="inv-row-detail">
+              <div><dt>Source read</dt><dd><code>{entry.source}</code></dd></div>
+              <div><dt>Observed</dt><dd>{entry.observed}</dd></div>
+              {entry.reason ? <div class="inv-reason"><dt>Why unverified</dt><dd>{entry.reason}</dd></div> : null}
+              {entry.note ? <div><dt>Note</dt><dd>{entry.note}</dd></div> : null}
+              {entry.composerSelectable !== undefined ? <div><dt>In Composer</dt><dd>{entry.composerSelectable ? 'Selectable' : 'Not offered'}</dd></div> : null}
+              {entry.costMicro ? <div><dt>Planning estimate</dt><dd>{money(entry.costMicro)} — not an invoice</dd></div> : null}
+              {entry.retiredAt ? <div><dt>Retirement</dt><dd>{entry.retiredAt}{entry.replacement ? ` → ${entry.replacement}` : ''}</dd></div> : null}
+              <div><dt>Checked</dt><dd>{age(entry.checkedAt)}</dd></div>
+            </dl>
+          </li>
+        ))}
+      </ul>
+
+      <div class="inv-columns">
+        <div>
+          <h3>Sources for this check</h3>
+          <ul class="inv-sources">
+            {inventory.file.sources.map((source: any) => (
+              <li>
+                <code>{source.url}</code>
+                <span class="small">{source.shape} · read {age(source.readAt)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3>What this inventory still cannot prove</h3>
+          <ul class="inv-limits">
+            {inventory.limits.map((limit: string) => <li>{limit}</li>)}
+          </ul>
+        </div>
+      </div>
+
+      {inventory.file.pinnedRuns?.length ? (
+        <div class="inv-pinned">
+          <h3>Pinned runs, left as recorded</h3>
+          <ul>
+            {inventory.file.pinnedRuns.map((run: any) => (
+              <li>
+                <strong>{run.id}</strong>
+                <span class="small">{run.recordedAt} · <code>{run.where}</code></span>
+                <span class="small">{run.note}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </section>
+  ))}
+
+  <section class="inv-section" aria-labelledby="pending-title">
+    <header class="inv-section-head">
+      <div>
+        <p class="eyebrow">Queued, not run</p>
+        <h2 id="pending-title">What this inventory cannot answer without a decision</h2>
+        <p class="inv-question">Each row names its cost label and the action only the owner can take. Nothing on this page has been submitted, generated or billed.</p>
+      </div>
+      <div class="inv-stamp">
+        <span class="inv-pill inv-pill-retired">{decisions.length} queued</span>
+        <span class="inv-checked">Checked {age(pending.checkedAt)}</span>
+      </div>
+    </header>
+    <ul class="inv-rows">
+      {decisions.map((decision: any) => (
+        <li class="inv-row inv-row-absent">
+          <div class="inv-row-head">
+            <div>
+              <h3>{decision.title}</h3>
+              <p class="inv-row-meta"><code>{decision.id}</code> · #{decision.issue} · {decision.kind}</p>
+            </div>
+            <span class={`inv-pill inv-pill-${decision.cost?.micro === 0 ? 'current' : 'drifted'}`}>{decision.cost?.label ?? 'cost unknown'}</span>
+          </div>
+          <dl class="inv-row-detail">
+            <div><dt>Why it is queued</dt><dd>{decision.why}</dd></div>
+            <div><dt>Cost basis</dt><dd>{decision.cost?.basis}</dd></div>
+            <div><dt>Owner action</dt><dd>{decision.ownerAction}</dd></div>
+          </dl>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="inv-section" aria-labelledby="limits-title">
+    <h2 id="limits-title">Where these inventories stop</h2>
+    <ul class="inv-limits">
+      <li>The three files are committed data, not a scheduled job. They go stale the moment a provider ships a model, a harness releases a version or the deployed Worker changes. The page labels that staleness instead of hiding it.</li>
+      <li>A current row proves a catalogue still lists an id. It does not prove a request would succeed, produce a good result, or cost what the estimate says.</li>
+      <li>No row was produced by a paid call. Where a check was impossible, the row says unverified and why.</li>
+      <li>Validation is <code>node scripts/model-inventory.mjs</code>. It refuses an undated row, a missing source, an unverified row with no reason, a change whose before and after are identical, an endpoint that is a display name rather than a route, and a missing pinned file.</li>
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .inv-heading{max-width:860px}
+  .inv-heading h1{font-size:clamp(2.6rem,5vw,4.2rem);max-width:18ch;margin:10px 0 20px}
+  .inv-heading .lede{max-width:64ch}
+  .inv-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin:28px 0;padding:20px;background:var(--color-surface);border-radius:10px}
+  .inv-meta dt{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--color-muted)}
+  .inv-meta dd{margin:4px 0 0;font-size:20px}
+  .inv-note{border-top:1px solid var(--color-border);padding-top:24px;margin-top:32px}
+  .inv-note h2{font-size:clamp(1.4rem,2.4vw,1.8rem);margin:0 0 10px}
+  .inv-note ul,.inv-limits{max-width:72ch}
+  .inv-note li,.inv-limits li{margin:10px 0}
+  .inv-section{border-top:1px solid var(--color-border);padding-top:28px;margin-top:44px}
+  .inv-section-head{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;flex-wrap:wrap}
+  .inv-section h2{font-size:clamp(1.7rem,3vw,2.3rem);max-width:26ch}
+  .inv-question{max-width:62ch;color:var(--color-muted);margin:8px 0 0}
+  .inv-stamp{display:flex;flex-direction:column;gap:6px;align-items:flex-end;text-align:right;min-width:0;max-width:100%}
+  .inv-checked{font-size:13px;overflow-wrap:anywhere}
+  .inv-age{font-size:12px;color:var(--color-muted)}
+  .inv-counts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:22px 0}
+  .inv-count{padding:14px;border:1px solid var(--color-border);border-radius:10px}
+  .inv-count dt{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted)}
+  .inv-count dd{margin:6px 0 0;font:500 1.7rem/1 Space,system-ui,sans-serif}
+  .inv-count-drifted dd{color:#ff8a6a}
+  .inv-count-unverified dd{color:var(--color-accent)}
+  .inv-count-retired dd,.inv-count-absent dd{color:var(--color-muted)}
+  .inv-changes{margin:26px 0 8px}
+  .inv-changes h3{margin:0 0 8px;font-size:1.15rem}
+  .inv-change-list{list-style:none;padding:0;margin:14px 0 0}
+  .inv-change-list li{border-left:3px solid var(--color-accent);padding:10px 0 10px 14px;margin:0 0 12px;display:flex;flex-direction:column;gap:5px;font-size:14px}
+  .inv-change-pair{display:block;color:var(--color-muted)}
+  .inv-was,.inv-now{display:inline-block;min-width:3.2em;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-muted)}
+  .inv-now{color:var(--color-text)}
+  .inv-change-note{color:var(--color-muted);font-size:13px}
+  .inv-rows{list-style:none;padding:0;margin:18px 0 0}
+  .inv-row{border:1px solid var(--color-border);border-radius:10px;padding:18px;margin:0 0 14px}
+  .inv-row-retired,.inv-row-absent{background:color-mix(in srgb, var(--color-surface) 60%, transparent)}
+  .inv-row-unverified{border-left:3px solid var(--color-accent)}
+  .inv-row-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+  .inv-row-head>div{flex:1 1 auto;min-width:0}
+  .inv-row h3{margin:0;font-size:1.08rem;max-width:52ch}
+  .inv-row-meta{margin:5px 0 0;font-size:12px;color:var(--color-muted);overflow-wrap:anywhere}
+  .inv-row-detail{display:grid;gap:10px;margin:14px 0 0}
+  .inv-row-detail div{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px}
+  .inv-row-detail dt{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);padding-top:2px}
+  .inv-row-detail dd{margin:0;font-size:14px;overflow-wrap:anywhere}
+  .inv-reason dt{color:#ff8a6a}
+  .inv-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+  .inv-pill-current{color:var(--color-success)}
+  .inv-pill-drifted{color:#ff8a6a}
+  .inv-pill-retired,.inv-pill-absent{color:var(--color-muted)}
+  .inv-pill-unverified{color:var(--color-accent)}
+  .inv-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;margin:26px 0 0}
+  .inv-columns h3{font-size:1.05rem;margin:0 0 10px}
+  .inv-sources{list-style:none;padding:0;margin:0}
+  .inv-sources li{padding:10px 0;border-top:1px solid var(--color-border);font-size:13px;overflow-wrap:anywhere}
+  .inv-sources .small,.inv-pinned .small{display:block;margin-top:4px;color:var(--color-muted)}
+  .inv-limits{padding-left:20px}
+  .inv-pinned{margin:26px 0 0}
+  .inv-pinned h3{font-size:1.05rem;margin:0 0 10px}
+  .inv-pinned ul{list-style:none;padding:0;margin:0}
+  .inv-pinned li{padding:10px 0;border-top:1px solid var(--color-border);font-size:13px}
+  .small{font-size:13px;color:var(--color-muted)}
+  @media(max-width:760px){
+    .inv-row{padding:14px}
+    .inv-row-detail div{grid-template-columns:1fr;gap:2px}
+    .inv-columns{grid-template-columns:1fr}
+    .inv-stamp{align-items:flex-end}
+  }
+</style>
