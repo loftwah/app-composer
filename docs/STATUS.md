@@ -398,8 +398,20 @@ links stay available. The earlier sliced-artwork opening and the
   no invented live counts are shown. See
   [studio-hero.md](studio-hero.md) for the implementation and provenance.
 
-## Social publishing — 17 November 2026
+## Share wall — 17 November 2026
 
+`https://composer.loftwah.com/share` is live at Composer
+`946ccf2084f2b4357a720a1266c236a9b335be59` (release 122.6 s). It lists every
+current published stack through a new `publicStacks()` that repeats the
+active-publication join from `publicStack`, so drafts, archives and damaged
+snapshots never appear. Search reads name and description; app and theme filters
+are address-backed; both empty states are honest. Five published stacks render
+live with no horizontal overflow at 390 px.
+
+This is the wall, not the whole library. Reusable social kits, collections,
+asset lineage and a second project's reuse remain open on #477.
+
+## Social publishing — 17 November 2026
 Two posts went live on `@loftwah.com`.
 
 - A real portfolio post — the Foilbury/Pippa still, animated in Media Studio —
