@@ -2206,6 +2206,9 @@
 .composer-home .home-opening-main > p:not(.home-opening-note) { max-width: 49ch; margin-top: 1.75rem; color: var(--home-hero-muted); font-size: clamp(1.12rem, 1.35vw, 1.3rem); line-height: 1.55; }
 .composer-home .home-opening-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.75rem; margin-top: 2rem; }
 .composer-home .home-opening-note { margin-top: 1rem; color: var(--home-hero-muted); font-size: .88rem; }
+.composer-home .home-opening-note a { color: var(--home-hero-fg); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.composer-home .home-opening-note a:hover { color: var(--home-hero-accent); }
+.composer-home .home-opening-note a:focus-visible { outline: 2px solid var(--home-hero-accent); outline-offset: 3px; }
 .composer-home .home-opening-path { border-top: 1px solid var(--home-hero-rule); }
 .composer-home .home-opening-path > p { padding: 1rem 0; font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .composer-home .home-opening-path ol { list-style: none; padding: 0; margin: 0; }
