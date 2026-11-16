@@ -8,6 +8,8 @@ import {
   captionProblem,
   captionUsage,
   isSafeShareLink,
+  melbourneLocalInput,
+  melbourneLocalInstant,
   primaryCaptionProblem,
   scheduleLabels,
   shareCalendarSnapshot,
@@ -21,6 +23,7 @@ import {
   SHARE_VARIANT_MAX,
   type ShareCalendarItem,
   type ShareCalendarSnapshot,
+  type ShareCalendarSource,
   type ShareCalendarVariant,
   type ShareChannel,
 } from "../lib/share-calendar";
@@ -32,6 +35,24 @@ import {
   sharePackagePlainText,
   type ShareApprovalPackage,
 } from "../lib/share-package";
+import {
+  BLUESKY_APPROVAL_REASON_LABELS,
+  BLUESKY_SEND_UNAVAILABLE_STATEMENT,
+  blueskyAccountFromIdentity,
+  blueskyApprovalStatus,
+  blueskyPackageForItem,
+  blueskyTextForItem,
+  blueskyUsage,
+  createBlueskyContent,
+  hasBlueskyDraft,
+  type BlueskyApprovalRecord,
+  type SharePackageBluesky,
+} from "../lib/share-approval";
+import {
+  BLUESKY_CREDENTIAL_STATEMENT,
+  blueskyIdentityReplySchema,
+  type BlueskyIdentityResult,
+} from "../lib/bluesky-account";
 import { confirmWorkspace, workspaceSelection } from "./stacks/workspace-scope";
 import "./share-calendar-page.css";
 
@@ -82,22 +103,30 @@ async function calendarCall(
   return parsed.data;
 }
 
-function localInput(value: string | null) {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  const pad = (part: number, size = 2) => String(part).padStart(size, "0");
-  return (
-    date.getFullYear() +
-    "-" +
-    pad(date.getMonth() + 1) +
-    "-" +
-    pad(date.getDate()) +
-    "T" +
-    pad(date.getHours()) +
-    ":" +
-    pad(date.getMinutes())
+async function identityCall(
+  handle: string | undefined,
+  workspace?: string,
+): Promise<BlueskyIdentityResult> {
+  const params = new URLSearchParams({ action: "blueskyIdentity" });
+  if (workspace) params.set("workspace", workspace);
+  if (handle?.trim()) params.set("handle", handle.trim());
+  const response = await apiFetch(
+    base + "shareCalendarRead?" + params.toString(),
+    { cache: "no-store" },
   );
+  const raw = await parseApiResponse<unknown>(
+    response,
+    "The public Bluesky identity could not be checked. No identity was confirmed.",
+  );
+  const parsed = blueskyIdentityReplySchema.safeParse(raw);
+  if (!parsed.success)
+    throw Error(
+      errorMessage(
+        raw,
+        "The public Bluesky identity response could not be validated. No identity was confirmed.",
+      ),
+    );
+  return parsed.data.result;
 }
 
 function displayDate(value: string | null) {
@@ -247,6 +276,63 @@ function ApprovalPackageView({
           </p>
         </div>
       ))}
+      {value.bluesky && (
+        <div className="sc-package-destination sc-package-bluesky">
+          <h4>
+            Bluesky
+            <span className="sc-package-exact">
+              {value.bluesky.account.handle
+                ? "@" + value.bluesky.account.handle
+                : "needs account"}
+            </span>
+          </h4>
+          <p className="sc-hint">
+            Public identity {value.bluesky.account.publicIdentity} · publishing
+            authorised no · approval {value.bluesky.approval.label} · not sent
+          </p>
+          <p className="sc-hint">
+            {value.bluesky.account.did
+              ? "DID " + value.bluesky.account.did
+              : value.bluesky.account.statement}
+          </p>
+          <p className="sc-package-caption">{value.bluesky.text}</p>
+          <p className="sc-hint">
+            {value.bluesky.count} / {value.bluesky.limit} graphemes ·{" "}
+            {value.bluesky.bytes} / {value.bluesky.byteLimit} UTF-8 bytes · text
+            hash <code>{value.bluesky.textHash.slice(0, 16)}…</code>
+          </p>
+          {value.bluesky.media[0] ? (
+            <div className="sc-bluesky-media">
+              <img
+                src={value.bluesky.media[0].url}
+                alt={value.bluesky.media[0].alt}
+                width="1200"
+                height="630"
+                loading="lazy"
+              />
+              <p className="sc-hint">
+                Alt: {value.bluesky.media[0].alt || "missing"} · media revision{" "}
+                <code>{value.bluesky.media[0].revision}</code>
+              </p>
+            </div>
+          ) : null}
+          <p className="sc-hint">
+            Link: {value.bluesky.link ?? "not recorded"} · schedule{" "}
+            {value.bluesky.schedule.local ?? "not recorded"} ·{" "}
+            {value.bluesky.schedule.utc ?? "not recorded"} · media descriptor
+            hash <code>{value.bluesky.mediaHash.slice(0, 16)}…</code>
+          </p>
+          {value.bluesky.approval.reasons.length ? (
+            <p className="sc-hint">
+              Invalidation:{" "}
+              {value.bluesky.approval.reasons
+                .map((reason) => BLUESKY_APPROVAL_REASON_LABELS[reason])
+                .join("; ")}
+            </p>
+          ) : null}
+          <p className="sc-hint">{value.bluesky.send.message}</p>
+        </div>
+      )}
       <p className="sc-package-posting">{value.posting.statement}</p>
       <div className="sc-actions">
         <button type="button" onClick={onCopy} disabled={busy}>
@@ -263,6 +349,328 @@ function ApprovalPackageView({
           Download Markdown
         </button>
       </div>
+    </section>
+  );
+}
+
+function blueskyIdentityLabel(identity: BlueskyIdentityResult | null) {
+  if (!identity) return "Not checked";
+  switch (identity.status) {
+    case "resolved":
+      return "Public identity resolved";
+    case "needs_account":
+      return "Needs account";
+    case "invalid_handle":
+      return "Invalid handle";
+    case "not_found":
+      return "Profile not found";
+    case "mismatch":
+      return "Handle mismatch";
+    default:
+      return "Not confirmed";
+  }
+}
+
+function BlueskyPanel({
+  item,
+  source,
+  approval,
+  identity,
+  handle,
+  onHandleChange,
+  onCheck,
+  checking,
+  now,
+  onRecheck,
+  onApprove,
+  onCancel,
+  onCheckSend,
+  busy,
+  canWrite,
+}: {
+  item: ShareCalendarItem;
+  source: ShareCalendarSource | null;
+  approval: BlueskyApprovalRecord | null;
+  identity: BlueskyIdentityResult | null;
+  handle: string;
+  onHandleChange: (value: string) => void;
+  onCheck: () => void;
+  checking: boolean;
+  now: Date;
+  onRecheck: () => void;
+  onApprove: () => void;
+  onCancel: () => void;
+  onCheckSend: () => void;
+  busy: boolean;
+  canWrite: boolean;
+}) {
+  const [content, setContent] =
+    useState<Awaited<ReturnType<typeof createBlueskyContent>>>();
+  const [contentError, setContentError] = useState("");
+  useEffect(() => {
+    let live = true;
+    setContentError("");
+    createBlueskyContent(item, source, now)
+      .then((next) => {
+        if (live) setContent(next);
+      })
+      .catch((cause) => {
+        if (live)
+          setContentError(
+            cause instanceof Error
+              ? cause.message
+              : "The exact Bluesky draft could not be prepared.",
+          );
+      });
+    return () => {
+      live = false;
+    };
+  }, [item, source, now]);
+  const account = useMemo(
+    () => blueskyAccountFromIdentity(identity),
+    [identity],
+  );
+  const status = useMemo(
+    () =>
+      content
+        ? blueskyApprovalStatus({ content, account, approval, now })
+        : null,
+    [content, account, approval, now],
+  );
+  const preview = blueskyUsage(blueskyTextForItem(item));
+  const media = content?.media[0];
+  return (
+    <section
+      className="sc-bluesky"
+      aria-label={`Bluesky destination for item revision ${item.revision}`}
+    >
+      <div className="sc-bluesky-head">
+        <div>
+          <h4>Bluesky destination</h4>
+          <p className="sc-hint">
+            Optional channel. LinkedIn remains available above as the manual
+            fallback. This panel resolves a public profile and binds an exact
+            approval; it does not connect an account or post.
+          </p>
+        </div>
+        <span className="sc-bluesky-state">
+          {identity
+            ? blueskyIdentityLabel(identity)
+            : handle.trim()
+              ? "Not checked"
+              : "Needs account"}
+        </span>
+      </div>
+
+      <div className="sc-bluesky-account">
+        <label className="sc-field">
+          Public Bluesky handle
+          <input
+            value={handle}
+            maxLength={253}
+            placeholder="name.bsky.social"
+            disabled={busy}
+            onChange={(event) => onHandleChange(event.target.value)}
+          />
+        </label>
+        <button
+          type="button"
+          onClick={onCheck}
+          disabled={busy || checking || !handle.trim()}
+        >
+          {checking ? "Checking public profile…" : "Resolve public identity"}
+        </button>
+        <p className="sc-hint">
+          {handle.trim()
+            ? "The Composer server reads only the public AppView, with a short timeout. No password or app password is requested."
+            : "Needs account: no Bluesky handle is configured. Enter the owner's public handle to check it. Composer stores no credential."}
+        </p>
+        {identity?.status === "resolved" && (
+          <div className="sc-bluesky-identity">
+            {identity.avatar ? (
+              <img
+                src={identity.avatar}
+                alt=""
+                width="48"
+                height="48"
+                referrerPolicy="no-referrer"
+              />
+            ) : null}
+            <div>
+              <p>
+                <strong>@{identity.handle}</strong>
+                {identity.displayName ? " · " + identity.displayName : ""}
+              </p>
+              <p className="sc-bluesky-did">DID {identity.did}</p>
+              <p className="sc-hint">
+                Public identity resolved · Publishing authorised:{" "}
+                <strong>No</strong>. A public profile is not permission to post.
+              </p>
+              {identity.profileUrl && (
+                <a
+                  className="sc-text-link"
+                  href={identity.profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Open the public profile
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+        {identity && identity.status !== "resolved" && (
+          <p role="status" className="sc-bluesky-failure">
+            {identity.message}
+          </p>
+        )}
+        <p className="sc-hint sc-credential-note">
+          {BLUESKY_CREDENTIAL_STATEMENT}
+        </p>
+      </div>
+
+      {contentError && (
+        <p role="alert" className="sc-stale">
+          {contentError}
+        </p>
+      )}
+      {content && (
+        <>
+          <div className="sc-bluesky-preview">
+            <p
+              className={`sc-bluesky-text${content.usage.withinLimit ? "" : " sc-count-over"}`}
+            >
+              {content.text || "(No Bluesky text saved)"}
+            </p>
+            <p
+              className={`sc-count${content.usage.withinLimit ? "" : " sc-count-over"}`}
+            >
+              {content.usage.count} / {content.usage.limit} graphemes ·{" "}
+              {content.usage.bytes} / {content.usage.byteLimit} UTF-8 bytes
+            </p>
+            {media ? (
+              <div className="sc-bluesky-media">
+                <img
+                  src={media.url}
+                  alt={media.alt}
+                  width="1200"
+                  height="630"
+                  loading="lazy"
+                />
+                <p className="sc-hint">
+                  Alt: {media.alt || "missing"} · media revision{" "}
+                  <code>{media.revision}</code> · descriptor hash{" "}
+                  <code>{media.hash.slice(0, 16)}…</code>
+                </p>
+              </div>
+            ) : (
+              <p className="sc-stale">
+                No public share-card image is bound. Refresh the source before
+                approving.
+              </p>
+            )}
+            <p className="sc-hint">
+              Link:{" "}
+              {content.link ? (
+                <a
+                  href={content.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {content.link}
+                </a>
+              ) : (
+                "not recorded"
+              )}
+            </p>
+            <p className="sc-bluesky-time">
+              Australia/Melbourne {content.schedule.local ?? "not recorded"} ·
+              UTC {content.schedule.utc ?? "not recorded"} · rechecked{" "}
+              {displayDate(content.schedule.revalidatedAt)}
+            </p>
+            <button
+              type="button"
+              onClick={onRecheck}
+              disabled={busy}
+              className="sc-bluesky-recheck"
+            >
+              Revalidate time
+            </button>
+            <p className="sc-hint">{content.source.rightsNote}</p>
+            {content.problems.length > 0 && (
+              <ul className="sc-bluesky-problems">
+                {content.problems.map((problem) => (
+                  <li key={problem.code}>{problem.message}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+          {status && (
+            <div className={`sc-bluesky-approval sc-approval-${status.state}`}>
+              <div className="sc-bluesky-approval-head">
+                <h4>{status.label}</h4>
+                <span className="sc-notch">Not sent</span>
+              </div>
+              <p className="sc-hint">{status.note}</p>
+              {status.reasons.length > 0 && (
+                <ul className="sc-bluesky-reasons">
+                  {status.reasons.map((reason) => (
+                    <li key={reason}>
+                      {BLUESKY_APPROVAL_REASON_LABELS[reason]}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {status.approvedAt && (
+                <p className="sc-hint">
+                  Approved {displayDate(status.approvedAt)} · expires{" "}
+                  {status.expiresAt
+                    ? displayDate(status.expiresAt)
+                    : "not recorded"}{" "}
+                  · approval revision {status.approvalRevision ?? "none"}
+                </p>
+              )}
+              {status.bindingHash && (
+                <p className="sc-bluesky-binding">
+                  Binding <code>{status.bindingHash.slice(0, 24)}…</code>
+                </p>
+              )}
+              <p className="sc-hint">
+                Counted now: {preview.count} / {preview.limit} graphemes ·{" "}
+                {preview.bytes} / {preview.byteLimit} bytes.
+              </p>
+              <div className="sc-actions">
+                <button
+                  type="button"
+                  className="sc-primary"
+                  disabled={busy || !canWrite || !status.canApprove}
+                  onClick={onApprove}
+                >
+                  Approve this exact revision
+                </button>
+                <button
+                  type="button"
+                  disabled={busy || !canWrite || !status.canCancel}
+                  onClick={onCancel}
+                >
+                  Cancel approval
+                </button>
+                <button type="button" onClick={onCheckSend}>
+                  Check send path
+                </button>
+              </div>
+              <p className="sc-bluesky-send">
+                {BLUESKY_SEND_UNAVAILABLE_STATEMENT}
+              </p>
+              <p className="sc-hint">
+                Receipt: none recorded. An unknown outcome is shown as Unknown
+                and is never retried automatically; Composer cannot claim a
+                post.
+              </p>
+            </div>
+          )}
+        </>
+      )}
     </section>
   );
 }
@@ -287,6 +695,12 @@ function ShareCalendar({ search }: { search: string }) {
   const [scheduledLocal, setScheduledLocal] = useState("");
   const [editing, setEditing] = useState<ShareCalendarItem>();
   const [packageFor, setPackageFor] = useState("");
+  const [packageValue, setPackageValue] = useState<ShareApprovalPackage>();
+  const [blueskyHandle, setBlueskyHandle] = useState("");
+  const [blueskyIdentity, setBlueskyIdentity] =
+    useState<BlueskyIdentityResult | null>(null);
+  const [blueskyChecking, setBlueskyChecking] = useState(false);
+  const [blueskyNow, setBlueskyNow] = useState(() => new Date());
   const alive = useRef(true);
   const pending = useRef(false);
   const selection = useRef<string | undefined>(undefined);
@@ -315,7 +729,7 @@ function ShareCalendar({ search }: { search: string }) {
         })),
       );
       setLink(current.link);
-      setScheduledLocal(localInput(current.scheduledAt));
+      setScheduledLocal(melbourneLocalInput(current.scheduledAt));
       return;
     }
     setChannel("instagram");
@@ -346,6 +760,11 @@ function ShareCalendar({ search }: { search: string }) {
       const result = await calendarCall("list", selection.current);
       if (!alive.current) return;
       setSnapshot(result);
+      setBlueskyHandle((current) => {
+        if (current) return current;
+        const approval = result.approvals[0];
+        return result.bluesky.configuredHandle ?? approval?.accountHandle ?? "";
+      });
       if (!editing && !sourceId && result.sources[0]) {
         setSourceId(result.sources[0].id);
         setCaption(result.sources[0].description);
@@ -389,6 +808,8 @@ function ShareCalendar({ search }: { search: string }) {
     if (!alive.current)
       throw Error("This page closed before the change could be confirmed.");
     setSnapshot(result);
+    setPackageFor("");
+    setPackageValue(undefined);
     return result;
   }
 
@@ -419,6 +840,110 @@ function ShareCalendar({ search }: { search: string }) {
         pending.current = false;
         setBusy(false);
       }
+    }
+  }
+
+  async function checkBlueskyIdentity() {
+    if (blueskyChecking) return;
+    setBlueskyChecking(true);
+    setError("");
+    setNotice("");
+    try {
+      const result = await identityCall(blueskyHandle, selection.current);
+      if (!alive.current) return;
+      setBlueskyIdentity(result);
+      if (result.status === "resolved" && result.handle)
+        setBlueskyHandle(result.handle);
+      setNotice(
+        result.status === "resolved"
+          ? `Public identity resolved for @${result.handle}. Publishing is still not authorised; nothing was sent.`
+          : `${result.message} No post was sent.`,
+      );
+    } catch (cause) {
+      if (alive.current)
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "The public Bluesky identity could not be checked.",
+        );
+    } finally {
+      if (alive.current) setBlueskyChecking(false);
+    }
+  }
+
+  async function approveBluesky(item: ShareCalendarItem) {
+    const saved = await mutate(
+      "blueskyApprove",
+      {
+        item: item.id,
+        expectedRevision: item.revision,
+        handle: blueskyHandle.trim(),
+      },
+      "Bound the exact Bluesky revision. Nothing was sent.",
+    );
+    if (!saved || !alive.current) return;
+    const approval = saved.approvals.find((entry) => entry.itemId === item.id);
+    if (approval) {
+      setNotice(
+        `Approved revision ${approval.draftRevision} for @${approval.accountHandle} · approval revision ${approval.approvalRevision} · expires ${displayDate(approval.expiresAt)}. Nothing was sent.`,
+      );
+    }
+  }
+
+  async function cancelBluesky(
+    item: ShareCalendarItem,
+    approval: BlueskyApprovalRecord,
+  ) {
+    const saved = await mutate(
+      "blueskyCancel",
+      {
+        item: item.id,
+        expectedApprovalRevision: approval.approvalRevision,
+        reason: "Owner cancelled the exact Bluesky approval.",
+      },
+      "Cancelled the Bluesky approval. Nothing was sent.",
+    );
+    if (!saved || !alive.current) return;
+    setNotice(
+      "Cancelled the Bluesky approval. The saved text and schedule are unchanged; nothing was sent.",
+    );
+  }
+
+  function checkBlueskySend(status: {
+    label: string;
+    send: { code: string; message: string };
+  }) {
+    setError("");
+    setNotice(`${status.label}: ${status.send.message} (${status.send.code}).`);
+  }
+
+  async function packageBluesky(
+    item: ShareCalendarItem,
+  ): Promise<SharePackageBluesky | null> {
+    if (!snapshot || !hasBlueskyDraft(item)) return null;
+    return blueskyPackageForItem(snapshot, item, {
+      identity: blueskyIdentity,
+      now: new Date(),
+    });
+  }
+
+  async function openPackage(item: ShareCalendarItem) {
+    if (packageFor === item.id) {
+      setPackageFor("");
+      setPackageValue(undefined);
+      return;
+    }
+    if (!snapshot) return;
+    try {
+      const bluesky = await packageBluesky(item);
+      setPackageValue(approvalPackageForItem(snapshot, item, bluesky));
+      setPackageFor(item.id);
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "The approval package could not be prepared. Refresh before retrying.",
+      );
     }
   }
 
@@ -458,12 +983,14 @@ function ShareCalendar({ search }: { search: string }) {
     }
     let scheduledAt: string | null = null;
     if (scheduledLocal) {
-      const time = new Date(scheduledLocal);
-      if (Number.isNaN(time.getTime())) {
-        setError("Choose a real date and time, or leave the date empty.");
+      const time = melbourneLocalInstant(scheduledLocal);
+      if (!time) {
+        setError(
+          "Choose a real Australia/Melbourne date and time, or leave the date empty. A daylight-saving gap is not a valid local time.",
+        );
         return;
       }
-      scheduledAt = time.toISOString();
+      scheduledAt = time;
     }
     const desired = variants.map((variant) => ({
       channel: variant.channel,
@@ -692,10 +1219,14 @@ function ShareCalendar({ search }: { search: string }) {
     }
   }
 
-  function downloadPackage(item: ShareCalendarItem, format: "json" | "md") {
+  async function downloadPackage(
+    item: ShareCalendarItem,
+    format: "json" | "md",
+  ) {
     if (!snapshot) return;
     try {
-      const value = approvalPackageForItem(snapshot, item);
+      const bluesky = await packageBluesky(item);
+      const value = approvalPackageForItem(snapshot, item, bluesky);
       const text =
         format === "json"
           ? sharePackageJson(value)
@@ -729,25 +1260,33 @@ function ShareCalendar({ search }: { search: string }) {
 
   async function copyPackage(item: ShareCalendarItem) {
     if (!snapshot) return;
-    const copied = await copyText(
-      sharePackagePlainText(approvalPackageForItem(snapshot, item)),
-    );
-    if (!copied) {
-      setError(
-        "The browser did not allow a copy. Open the package and select the text yourself.",
+    try {
+      const bluesky = await packageBluesky(item);
+      const copied = await copyText(
+        sharePackagePlainText(approvalPackageForItem(snapshot, item, bluesky)),
       );
-      return;
+      if (!copied) {
+        setError(
+          "The browser did not allow a copy. Open the package and select the text yourself.",
+        );
+        return;
+      }
+      setNotice(
+        "Approval package copied as plain text. The item state is unchanged and nothing was posted.",
+      );
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "The approval package could not be copied.",
+      );
     }
-    setNotice(
-      "Approval package copied as plain text. The item state is unchanged and nothing was posted.",
-    );
   }
 
   const preview = scheduledLocal
     ? (() => {
-        const time = new Date(scheduledLocal);
-        if (Number.isNaN(time.getTime())) return null;
-        return scheduleLabels(time.toISOString());
+        const time = melbourneLocalInstant(scheduledLocal);
+        return time ? scheduleLabels(time) : null;
       })()
     : null;
 
@@ -1076,7 +1615,7 @@ function ShareCalendar({ search }: { search: string }) {
                 />
               </label>
               <label className="sc-field">
-                Date and time (leave empty for a draft)
+                Date and time (Australia/Melbourne, leave empty for a draft)
                 <input
                   type="datetime-local"
                   value={scheduledLocal}
@@ -1240,11 +1779,7 @@ function ShareCalendar({ search }: { search: string }) {
                         aria-expanded={packageFor === item.id}
                         aria-controls={`sc-package-${item.id}`}
                         disabled={busy}
-                        onClick={() =>
-                          setPackageFor((current) =>
-                            current === item.id ? "" : item.id,
-                          )
-                        }
+                        onClick={() => void openPackage(item)}
                       >
                         {packageFor === item.id
                           ? "Hide approval package"
@@ -1353,13 +1888,75 @@ function ShareCalendar({ search }: { search: string }) {
                         </button>
                       )}
                     </div>
-                    {packageFor === item.id && (
+                    {packageFor === item.id && packageValue && (
                       <ApprovalPackageView
                         id={`sc-package-${item.id}`}
-                        value={approvalPackageForItem(snapshot, item)}
+                        value={packageValue}
                         busy={busy}
                         onCopy={() => void copyPackage(item)}
-                        onDownload={(format) => downloadPackage(item, format)}
+                        onDownload={(format) =>
+                          void downloadPackage(item, format)
+                        }
+                      />
+                    )}
+                    {hasBlueskyDraft(item) && (
+                      <BlueskyPanel
+                        item={item}
+                        source={
+                          sources.find(
+                            (entry) =>
+                              entry.id === item.stack &&
+                              entry.publication === item.publication,
+                          ) ?? null
+                        }
+                        approval={
+                          snapshot.approvals.find(
+                            (entry) => entry.itemId === item.id,
+                          ) ?? null
+                        }
+                        identity={blueskyIdentity}
+                        handle={blueskyHandle}
+                        onHandleChange={(value) => {
+                          setBlueskyHandle(value);
+                          setBlueskyIdentity(null);
+                        }}
+                        onCheck={() => void checkBlueskyIdentity()}
+                        checking={blueskyChecking}
+                        now={blueskyNow}
+                        onRecheck={() => setBlueskyNow(new Date())}
+                        onApprove={() => void approveBluesky(item)}
+                        onCancel={() => {
+                          const approval = snapshot.approvals.find(
+                            (entry) => entry.itemId === item.id,
+                          );
+                          if (approval) void cancelBluesky(item, approval);
+                        }}
+                        onCheckSend={() => {
+                          const account =
+                            blueskyAccountFromIdentity(blueskyIdentity);
+                          void createBlueskyContent(
+                            item,
+                            sources.find(
+                              (entry) =>
+                                entry.id === item.stack &&
+                                entry.publication === item.publication,
+                            ) ?? null,
+                            new Date(),
+                          ).then((content) => {
+                            const status = blueskyApprovalStatus({
+                              content,
+                              account,
+                              approval:
+                                snapshot.approvals.find(
+                                  (entry) => entry.itemId === item.id,
+                                ) ?? null,
+                              now: new Date(),
+                            });
+                            checkBlueskySend(status);
+                          });
+                        }}
+                        busy={busy}
+                        canWrite={canWrite}
                       />
                     )}
                   </li>

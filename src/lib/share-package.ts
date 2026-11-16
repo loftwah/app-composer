@@ -14,6 +14,7 @@ import {
   type ShareCalendarSource,
   type ShareChannel,
 } from "./share-calendar.ts";
+import type { SharePackageBluesky } from "./share-approval.ts";
 
 export const SHARE_PACKAGE_SCHEMA = "composer.share-approval-package/v1";
 export const SHARE_PACKAGE_NOT_RECORDED = "not recorded";
@@ -86,6 +87,10 @@ export interface ShareApprovalPackage {
     ownerPerformsShare: true;
     statement: string;
   };
+  // Present only when the item has a Bluesky draft. It carries the exact
+  // account state, text/media hashes, intended time and approval state. Its
+  // absence must never be read as an approved account.
+  bluesky?: SharePackageBluesky;
 }
 
 function recorded(value: string): string | null {
@@ -122,6 +127,7 @@ export function buildShareApprovalPackage(
   options: {
     workspace: string;
     source?: ShareCalendarSource | null;
+    bluesky?: SharePackageBluesky | null;
   },
 ): ShareApprovalPackage {
   // The share card path includes a digest of the exact published revision. It
@@ -203,6 +209,7 @@ export function buildShareApprovalPackage(
       ownerPerformsShare: true,
       statement: SHARE_PACKAGE_POSTING_STATEMENT,
     },
+    ...(options.bluesky ? { bluesky: options.bluesky } : {}),
   };
 }
 
@@ -211,6 +218,7 @@ export function buildShareApprovalPackage(
 export function approvalPackageForItem(
   snapshot: ShareCalendarSnapshot,
   item: ShareCalendarItem,
+  bluesky?: SharePackageBluesky | null,
 ): ShareApprovalPackage {
   return buildShareApprovalPackage(item, {
     workspace: snapshot.workspace.name,
@@ -219,6 +227,7 @@ export function approvalPackageForItem(
         (entry) =>
           entry.id === item.stack && entry.publication === item.publication,
       ) ?? null,
+    bluesky,
   });
 }
 
@@ -230,6 +239,41 @@ function fenced(value: string): string {
   const runs = value.match(/`+/g) ?? [];
   const fence = "`".repeat(Math.max(3, ...runs.map((run) => run.length + 1)));
   return `${fence}\n${value}\n${fence}`;
+}
+
+function blueskyMarkdown(value: SharePackageBluesky): string[] {
+  const account =
+    value.account.status === "resolved"
+      ? `@${value.account.handle} · \`${value.account.did}\` · [profile](${value.account.profileUrl})`
+      : value.account.handle && value.account.did
+        ? `@${value.account.handle} · \`${value.account.did}\` · not rechecked in this session`
+        : `Needs account · ${value.account.statement}`;
+  const media = value.media.length
+    ? value.media
+        .map(
+          (entry) =>
+            `${entry.url} · alt: ${entry.alt || "missing"} · revision \`${entry.revision}\` · hash \`${entry.hash}\``,
+        )
+        .join("\n")
+    : "No public share-card media is bound.";
+  return [
+    `## Bluesky · ${value.account.handle ? "@" + value.account.handle : "needs account"}`,
+    "",
+    `- **Account:** ${account}`,
+    `- **Public identity:** ${value.account.publicIdentity} · **Publishing authorised:** no`,
+    `- **Text:** ${value.count} / ${value.limit} ${value.unit} · ${value.bytes} / ${value.byteLimit} UTF-8 bytes${value.withinLimit ? "" : " — over the limit"}`,
+    `- **Text hash:** \`${value.textHash}\``,
+    `- **Media descriptor hash:** \`${value.mediaHash}\``,
+    `- **Media:** ${media}`,
+    `- **Link:** ${value.link ?? SHARE_PACKAGE_NOT_RECORDED}`,
+    `- **Schedule:** ${value.schedule.local ?? "not recorded"} · ${value.schedule.utc ?? "not recorded"} · UTC instant \`${value.schedule.scheduledAt ?? "not scheduled"}\``,
+    `- **Approval:** ${value.approval.label} · revision ${value.approval.approvalRevision ?? "none"}${value.approval.expiresAt ? ` · expires \`${value.approval.expiresAt}\`` : ""}${value.approval.reasons.length ? ` · reasons: ${value.approval.reasons.join(", ")}` : ""}`,
+    `- **Source and rights:** ${value.source.rightsNote}`,
+    `- **Send:** unavailable · ${value.send.code} · ${value.send.message}`,
+    "",
+    fenced(value.text),
+    "",
+  ];
 }
 
 export function sharePackageMarkdown(value: ShareApprovalPackage): string {
@@ -264,6 +308,7 @@ export function sharePackageMarkdown(value: ShareApprovalPackage): string {
         "",
       ].join("\n"),
     ),
+    ...(value.bluesky ? blueskyMarkdown(value.bluesky) : []),
     "## Provenance",
     "",
     `${value.provenance.statement} Item updated ${value.provenance.preparedAt}; item revision ${value.provenance.itemRevision}; source revision ${value.provenance.sourceRevision}.`,
@@ -272,6 +317,36 @@ export function sharePackageMarkdown(value: ShareApprovalPackage): string {
     "",
   ];
   return lines.join("\n");
+}
+
+function blueskyPlainText(value: SharePackageBluesky): string {
+  return [
+    "BLUESKY · " +
+      (value.account.handle ? "@" + value.account.handle : "needs account"),
+    `Account: ${value.account.handle ?? "not resolved"}${
+      value.account.did ? " · " + value.account.did : ""
+    } · public identity ${value.account.publicIdentity} · publishing authorised no`,
+    `Text: ${value.count} / ${value.limit} ${value.unit} · ${value.bytes} / ${value.byteLimit} UTF-8 bytes`,
+    `Text hash: ${value.textHash}`,
+    value.text,
+    `Media: ${
+      value.media.length
+        ? value.media
+            .map((entry) => `${entry.url} (alt: ${entry.alt})`)
+            .join("; ")
+        : "not available"
+    }`,
+    `Media descriptor hash: ${value.mediaHash}`,
+    `Link: ${value.link ?? SHARE_PACKAGE_NOT_RECORDED}`,
+    `Schedule: ${value.schedule.local ?? "not recorded"} · ${value.schedule.utc ?? "not recorded"} · UTC instant ${value.schedule.scheduledAt ?? "not scheduled"}`,
+    `Approval: ${value.approval.label}${value.approval.expiresAt ? " · expires " + value.approval.expiresAt : ""}${
+      value.approval.reasons.length
+        ? " · reasons: " + value.approval.reasons.join(", ")
+        : ""
+    } · not sent`,
+    `Source and rights: ${value.source.rightsNote}`,
+    `Send: unavailable · ${value.send.code} · ${value.send.message}`,
+  ].join("\n");
 }
 
 export function sharePackagePlainText(value: ShareApprovalPackage): string {
@@ -302,6 +377,7 @@ export function sharePackagePlainText(value: ShareApprovalPackage): string {
     "",
     destinations.join("\n\n"),
     "",
+    ...(value.bluesky ? [blueskyPlainText(value.bluesky), ""] : []),
     `Provenance: ${value.provenance.statement} Item updated ${value.provenance.preparedAt}; item revision ${value.provenance.itemRevision}; source revision ${value.provenance.sourceRevision}.`,
     value.posting.statement,
     "",
