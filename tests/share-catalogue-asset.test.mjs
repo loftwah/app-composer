@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   resolveShareCatalogueAsset,
   sameCatalogueAsset,
+  searchShareCatalogueAssets,
   SHARE_CATALOGUE_API_BASE,
   SHARE_CATALOGUE_ORIGIN,
 } from "../src/lib/share-catalogue-asset.ts";
@@ -72,4 +73,59 @@ test("unpublished, substituted and off-origin previews are refused before image 
     });
     assert.equal(result.code, "catalogue_invalid");
   }
+});
+
+test("search sends a bounded query to Woodhouse and returns only public candidates", async () => {
+  const candidate = { ...asset, project: "woodhouse" };
+  const result = await searchShareCatalogueAssets("  art & light  ", {
+    fetch: async (url, options) => {
+      const endpoint = new URL(url);
+      assert.equal(
+        endpoint.origin + endpoint.pathname,
+        SHARE_CATALOGUE_API_BASE,
+      );
+      assert.deepEqual(
+        [...endpoint.searchParams],
+        [
+          ["q", "art & light"],
+          ["limit", "8"],
+        ],
+      );
+      assert.equal(options.redirect, "manual");
+      assert.equal(new Headers(options.headers).has("Authorization"), false);
+      return Response.json({
+        version: 1,
+        assets: [
+          candidate,
+          candidate,
+          { ...candidate, id: "private-art", visibility: "private" },
+          { ...candidate, id: "prohibited-art", reuse: "prohibited" },
+          { ...candidate, id: "bad/id" },
+        ],
+      });
+    },
+  });
+  assert.deepEqual(result, {
+    ok: true,
+    items: [{ assetId: id, title: "Workshop image", project: "woodhouse" }],
+  });
+});
+
+test("search distinguishes catalogue failure from an empty result", async () => {
+  for (const response of [
+    Response.redirect("https://example.com"),
+    Response.json({ version: 2, assets: [] }),
+    new Response("x".repeat(65_537)),
+  ]) {
+    const result = await searchShareCatalogueAssets("foilbury", {
+      fetch: async () => response,
+    });
+    assert.equal(result.ok, false);
+  }
+  assert.deepEqual(
+    await searchShareCatalogueAssets("foilbury", {
+      fetch: async () => Response.json({ version: 1, assets: [] }),
+    }),
+    { ok: true, items: [] },
+  );
 });
