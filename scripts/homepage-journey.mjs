@@ -3,7 +3,7 @@
 // qualification can opt into the fuller set of widths once.
 export async function verifyHomepage(page, origin, { capture, full = false } = {}) {
   const ensure = (value, message) => { if (!value) throw new Error(message); };
-  const entryLinks = ['/learn', '#example', '/demo'];
+  const entryLinks = ['/learn', '#example'];
   const receipt = { url: new URL('/', origin).href, views: [], keyboard: [], limits: [
     'Chromium viewport and text reflow checks do not establish physical device, native browser zoom or screen reader acceptance.',
     'Screenshots require visual review; geometric checks alone cannot establish a finished composition.',
@@ -41,6 +41,10 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
       for (const href of entryLinks) {
         ensure(await page.locator(`.home-opening-actions a[href="${href}"]`).isVisible(), `${href} is not visible in the opening`);
       }
+      ensure(
+        await page.locator('.home-opening-note a[href="/demo"]').isVisible(),
+        'The explained trial-app link is missing from the setup note',
+      );
       ensure(await page.locator('.studio-copy a[href="/apps"]').isVisible(), 'Workshop apps link is missing');
       const name = `${width}-${theme}`;
       if (capture) {
@@ -71,6 +75,10 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
     ensure(focused.href === href && focused.outline !== 'none', `Keyboard path or focus missing for ${href}`);
     receipt.keyboard.push(focused);
   }
+  await page.keyboard.press('Tab');
+  const trial = await page.evaluate(() => ({ href: document.activeElement.getAttribute('href'), outline: getComputedStyle(document.activeElement).outlineStyle }));
+  ensure(trial.href === '/demo' && trial.outline !== 'none', 'Keyboard path or focus missing for the explained trial link');
+  receipt.keyboard.push(trial);
   await page.keyboard.press('Enter');
   await page.waitForURL(url => url.pathname === '/demo');
   ensure(await page.locator('h1').isVisible(), 'Sandbox failed to open by keyboard');
