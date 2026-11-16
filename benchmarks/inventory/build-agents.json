@@ -3,7 +3,7 @@
   "id": "build-agents",
   "title": "Build agents and harnesses",
   "question": "Which coding agents can a Composer user actually hand work to, at what published version, with which model ids the agent's own catalogue still lists?",
-  "checkedAt": "2026-11-16T02:41:00Z",
+  "checkedAt": "2026-11-16T14:34:47Z",
   "staleAfterDays": 7,
   "previousCheck": {
     "checkedAt": "2026-11-15T08:42:03.193Z",
@@ -25,11 +25,10 @@
       "id": "opencode",
       "label": "OpenCode",
       "kind": "build-agent",
-      "status": "unverified",
-      "checkedAt": "2026-11-16T02:41:00Z",
-      "source": "command -v opencode; ls ~/.opencode/bin; GET https://api.github.com/repos/sst/opencode/releases/latest; GET https://models.dev/api.json",
-      "observed": "No opencode binary is on PATH and ~/.opencode/bin does not exist, so no local CLI version could be read. The vendor's latest release is v1.19.5, published 2026-10-28T06:17:49Z. This session itself runs inside an OpenCode host agent, which is why the compare page recorded it as \"host agent runtime\" with no CLI version.",
-      "reason": "The harness is present only as the host runtime. Its CLI version and its own tool surface could not be executed or read from a local installation in this session, so only the published release and the provider's model catalogue are asserted.",
+      "status": "current",
+      "checkedAt": "2026-11-16T14:34:47Z",
+      "source": "opencode --version; OpenCode Desktop bundled CLI --version; opencode models; https://opencode.ai/changelog",
+      "observed": "Homebrew CLI 2.3.0 and the OpenCode Desktop 2.2.7 bundled CLI were observed on the same Mac. The bundled CLI listed both HY4 Flash Free provider IDs and executed a smoke prompt on each.",
       "composerHandoff": "Composer's fresh-agent evaluation wires the codex and opencode CLIs and nothing else (scripts/eval-fresh-agent.mjs); the tutorials name a supported Codex or OpenCode agent."
     },
     {
@@ -137,8 +136,19 @@
       "status": "current",
       "checkedAt": "2026-11-16T02:41:00Z",
       "source": "GET https://models.dev/api.json → providers[\"opencode-go\"].models[\"deepseek-v4.1-flash\"]",
-      "observed": "The public catalogue lists provider opencode-go (\"OpenCode Go\") with 40 models including id deepseek-v4.1-flash, display \"DeepSeek V4.1 Flash 1017\". This session is running as provider opencode-go, model deepseek-v4.1-flash.",
-      "note": "The model id is verified. The harness version it runs through is not, because no opencode CLI is installed here."
+      "observed": "The catalogue check listed OpenCode Go model deepseek-v4.1-flash, displayed as DeepSeek V4.1 Flash 1017. The earlier comparison used this model through its host agent.",
+      "note": "The comparison did not capture a CLI version."
+    },
+    {
+      "id": "opencode-hy4-flash-free",
+      "label": "HY4 Flash Free",
+      "kind": "build-model",
+      "agent": "opencode",
+      "status": "current",
+      "checkedAt": "2026-11-16T14:34:47Z",
+      "source": "OpenCode Desktop bundled CLI models; OpenCode CLI run --format json; https://opencode.ai/docs/console/models",
+      "observed": "The bundled CLI separately ran opencode/hy4-flash-free and opencode-go/hy4-flash-free with the model explicitly pinned. Both returned the requested smoke-test response and reported $0 in step cost. Homebrew CLI 2.3.0 also returned the requested response on the OpenCode Go route with $0 in reported step cost.",
+      "note": "Free availability is time-limited. These checks establish local inference for the named routes. Comparative performance has yet to be measured."
     }
   ],
   "changes": [
@@ -162,9 +172,9 @@
       "entry": "opencode",
       "field": "localPresence",
       "kind": "presence",
-      "previous": "host agent runtime with no observable version (as recorded on 2026-11-15)",
-      "current": "still no opencode CLI on PATH; the published release is v1.19.5 and the model id is confirmed by models.dev",
-      "note": "Nothing about the harness was upgraded or newly evidenced. The gap is unchanged and stays marked unverified."
+      "previous": "Earlier comparison recorded a host agent with no CLI version.",
+      "current": "Desktop 2.2.7 bundled CLI and Homebrew CLI 2.3.0 were both observed.",
+      "note": "Short inference checks on the bundled CLI used both HY4 Flash Free routes."
     }
   ],
   "pinnedRuns": [
@@ -221,11 +231,12 @@
     }
   ],
   "limits": [
-    "The three inventories were read in one bounded pass on 2026-11-16 between 02:15Z and 02:41Z. Row timestamps name the pass, not each request; the exact read time is on each source.",
-    "No inference was run for this inventory. No model token was spent, so an id being listed is not evidence that a trial with it would succeed today.",
+    "The initial inventories were checked on 16 November 2026. Each row retains its own check date, including the later OpenCode observation.",
+    "HY4 Flash Free was exercised with short inference prompts. Benchmark results remain attached to their original run and configuration.",
     "Two further Codex catalogue records are marked visibility \"hide\" (gpt-reserve, codex-auto-review) and are not asserted as usable here.",
     "The Codex catalogue was written by client 0.164.0, while the installed CLI reports 0.145.0. The list is the vendor's current published catalogue for the account, not a capability claim about the older binary.",
     "Five of the eight listed Codex ids are also named on the vendor's public models page or changelog. gpt-6-sol, gpt-6-luna and gpt-5.6-luna appear only in the client's freshly fetched catalogue and are recorded on that evidence alone.",
-    "Claude Code and the OpenCode harness stay unverified until a local installation is actually executed."
+    "Claude Code remains unverified on the observed host.",
+    "OpenCode lists HY4 Flash Free as a limited-time offer."
   ]
 }
