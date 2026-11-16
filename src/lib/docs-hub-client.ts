@@ -58,6 +58,12 @@ if (root) {
     for (const group of root!.querySelectorAll<HTMLElement>('[data-docs-group]')) {
       group.hidden = !group.querySelector('[data-docs-task]:not([hidden]), [data-docs-index]:not([hidden]), [data-docs-section]:not([hidden]), [data-docs-guide]:not([hidden]), [data-docs-unavailable]:not([hidden])');
     }
+    // Reference and unavailable indexes are collapsed so the hub stays
+    // scannable. A search result must still be visible, so open the group that
+    // contains a match and close the ones that do not.
+    for (const details of root!.querySelectorAll<HTMLDetailsElement>('[data-docs-auto-open]')) {
+      details.open = Boolean(input.value.trim() && details.querySelector('[data-docs-section]:not([hidden]), [data-docs-guide]:not([hidden]), [data-docs-unavailable]:not([hidden])'));
+    }
     const total = docsSearchCount(result);
     const query = input.value.trim();
     count.textContent = total === 0
@@ -178,6 +184,29 @@ if (root) {
       filter();
     });
   }
+  // A task detail is a native disclosure. Clear a filter first and open it so
+  // the deep link lands on readable content, not a hidden or closed section.
+  for (const link of root.querySelectorAll<HTMLAnchorElement>('a[href^="#detail-"]')) {
+    link.addEventListener('click', () => {
+      if (input?.value) {
+        input.value = '';
+        filter();
+      }
+      const target = document.getElementById(link.hash.slice(1));
+      if (!(target instanceof HTMLDetailsElement)) return;
+      target.open = true;
+      // Keep the reader at the opened section and make its summary operable
+      // without a second Tab through the rest of the page. The fragment
+      // navigation runs after this handler, so restore focus on the next task.
+      window.setTimeout(() => target.querySelector('summary')?.focus({ preventScroll: true }), 0);
+    });
+  }
+  function openDetailFromHash() {
+    const target = document.getElementById(location.hash.slice(1));
+    if (target instanceof HTMLDetailsElement && target.hasAttribute('data-docs-details')) target.open = true;
+  }
+  addEventListener('hashchange', openDetailFromHash);
+  openDetailFromHash();
   document.addEventListener('keydown', event => {
     if (event.key !== '/' || event.defaultPrevented) return;
     const target = event.target;
