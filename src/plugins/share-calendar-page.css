@@ -684,6 +684,64 @@
   font-size: 0.9rem;
   color: var(--sc-muted);
 }
+.sc-bluesky-connection {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--sc-line);
+}
+.sc-bluesky-connection h4,
+.sc-bluesky-send-panel h4 {
+  margin: 0;
+}
+.sc-bluesky-send-panel {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--sc-line);
+}
+.sc-bluesky-bound {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 10px;
+  border: 1px solid var(--sc-line);
+  border-radius: 8px;
+}
+.sc-bluesky-bound div {
+  display: grid;
+  grid-template-columns: minmax(7rem, 10rem) 1fr;
+  gap: 8px;
+}
+.sc-bluesky-bound dt {
+  font-weight: 600;
+  font-size: 0.86rem;
+  color: var(--sc-muted);
+}
+.sc-bluesky-bound dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.sc-bluesky-confirm {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+}
+.sc-bluesky-confirm input {
+  margin-top: 3px;
+  flex: none;
+}
+.sc-bluesky-published {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--sc-green);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
 .sc-notch {
   padding: 2px 8px;
   border: 1px solid var(--sc-line);

@@ -46,8 +46,13 @@ import {
   createBlueskyContent,
   hasBlueskyDraft,
   type BlueskyApprovalRecord,
+  type BlueskyPublishingConnection,
   type SharePackageBluesky,
 } from "../lib/share-approval";
+import {
+  BLUESKY_DELIVERY_LABELS,
+  type BlueskyDeliveryRecord,
+} from "../lib/share-calendar";
 import {
   BLUESKY_CREDENTIAL_STATEMENT,
   blueskyIdentityReplySchema,
@@ -287,8 +292,8 @@ function ApprovalPackageView({
             </span>
           </h4>
           <p className="sc-hint">
-            Public identity {value.bluesky.account.publicIdentity} · publishing
-            authorised no · approval {value.bluesky.approval.label} · not sent
+            Public identity {value.bluesky.account.publicIdentity} · public
+            identity only · approval {value.bluesky.approval.label} · not sent
           </p>
           <p className="sc-hint">
             {value.bluesky.account.did
@@ -377,6 +382,8 @@ function BlueskyPanel({
   approval,
   identity,
   handle,
+  connection,
+  delivery,
   onHandleChange,
   onCheck,
   checking,
@@ -384,7 +391,10 @@ function BlueskyPanel({
   onRecheck,
   onApprove,
   onCancel,
-  onCheckSend,
+  onSend,
+  onReconcile,
+  onCopyPackage,
+  sending,
   busy,
   canWrite,
 }: {
@@ -393,6 +403,8 @@ function BlueskyPanel({
   approval: BlueskyApprovalRecord | null;
   identity: BlueskyIdentityResult | null;
   handle: string;
+  connection: BlueskyPublishingConnection;
+  delivery: BlueskyDeliveryRecord | null;
   onHandleChange: (value: string) => void;
   onCheck: () => void;
   checking: boolean;
@@ -400,13 +412,20 @@ function BlueskyPanel({
   onRecheck: () => void;
   onApprove: () => void;
   onCancel: () => void;
-  onCheckSend: () => void;
+  onSend: () => void;
+  onReconcile: () => void;
+  onCopyPackage: () => void;
+  sending: boolean;
   busy: boolean;
   canWrite: boolean;
 }) {
   const [content, setContent] =
     useState<Awaited<ReturnType<typeof createBlueskyContent>>>();
   const [contentError, setContentError] = useState("");
+  const [sendConfirmed, setSendConfirmed] = useState(false);
+  useEffect(() => {
+    setSendConfirmed(false);
+  }, [approval?.approvalRevision, delivery?.state]);
   useEffect(() => {
     let live = true;
     setContentError("");
@@ -433,12 +452,33 @@ function BlueskyPanel({
   const status = useMemo(
     () =>
       content
-        ? blueskyApprovalStatus({ content, account, approval, now })
+        ? blueskyApprovalStatus({ content, account, approval, connection, now })
         : null,
-    [content, account, approval, now],
+    [content, account, approval, connection, now],
   );
   const preview = blueskyUsage(blueskyTextForItem(item));
   const media = content?.media[0];
+  const intended = approval ? scheduleLabels(approval.scheduledAt) : null;
+  const sendWindowOpen = Boolean(
+    approval &&
+    Date.parse(approval.scheduledAt) <= now.getTime() &&
+    Date.parse(approval.expiresAt) > now.getTime(),
+  );
+  const deliveryBlocksSend =
+    delivery?.state === "published" ||
+    delivery?.state === "sending" ||
+    delivery?.state === "unknown" ||
+    delivery?.state === "cancelled";
+  const canSend =
+    canWrite &&
+    !busy &&
+    !sending &&
+    sendConfirmed &&
+    connection.state === "configured" &&
+    status?.state === "approved" &&
+    status?.send.ok === true &&
+    sendWindowOpen &&
+    !deliveryBlocksSend;
   return (
     <section
       className="sc-bluesky"
@@ -449,8 +489,9 @@ function BlueskyPanel({
           <h4>Bluesky destination</h4>
           <p className="sc-hint">
             Optional channel. LinkedIn remains available above as the manual
-            fallback. This panel resolves a public profile and binds an exact
-            approval; it does not connect an account or post.
+            fallback. This panel resolves a public profile, binds an exact
+            approval and can send only that exact approval through the
+            configured connection.
           </p>
         </div>
         <span className="sc-bluesky-state">
@@ -527,6 +568,23 @@ function BlueskyPanel({
         <p className="sc-hint sc-credential-note">
           {BLUESKY_CREDENTIAL_STATEMENT}
         </p>
+        <div className="sc-bluesky-connection">
+          <h4>Publishing connection</h4>
+          <p className="sc-hint">
+            {connection.state === "configured"
+              ? `Configured${
+                  connection.handle ? ` for @${connection.handle}` : ""
+                }. The app password is stored encrypted by Composer and its validity is checked only when you send.`
+              : connection.state === "revoked"
+                ? "This connection was revoked. Copy the approval package and post it yourself."
+                : `${BLUESKY_SEND_UNAVAILABLE_STATEMENT} Configure an encrypted app password in Composer plugin settings to enable sending.`}
+          </p>
+          {connection.state !== "configured" && (
+            <button type="button" onClick={onCopyPackage} disabled={busy}>
+              Copy approval package
+            </button>
+          )}
+        </div>
       </div>
 
       {contentError && (
@@ -655,17 +713,203 @@ function BlueskyPanel({
                 >
                   Cancel approval
                 </button>
-                <button type="button" onClick={onCheckSend}>
-                  Check send path
-                </button>
               </div>
-              <p className="sc-bluesky-send">
-                {BLUESKY_SEND_UNAVAILABLE_STATEMENT}
-              </p>
+              {approval && (
+                <div className="sc-bluesky-send-panel">
+                  <h4>Send approved post</h4>
+                  <dl className="sc-bluesky-bound">
+                    <div>
+                      <dt>Bound handle</dt>
+                      <dd>@{approval.accountHandle}</dd>
+                    </div>
+                    <div>
+                      <dt>Exact text</dt>
+                      <dd>{content?.text || "not available"}</dd>
+                    </div>
+                    <div>
+                      <dt>Media</dt>
+                      <dd>
+                        {media
+                          ? `Public share card · ${media.alt}`
+                          : "No approved share card"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Intended time</dt>
+                      <dd>
+                        {intended
+                          ? `${intended.melbourne} · ${intended.utc}`
+                          : "not recorded"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Approval</dt>
+                      <dd>
+                        revision {approval.approvalRevision} · expires{" "}
+                        {displayDate(approval.expiresAt)}
+                      </dd>
+                    </div>
+                  </dl>
+                  <p className="sc-hint">
+                    Delivery:{" "}
+                    {delivery
+                      ? `${BLUESKY_DELIVERY_LABELS[delivery.state]} · attempt ${delivery.attempt}`
+                      : "not sent. No provider call has been made."}
+                  </p>
+                  {delivery?.state === "published" && delivery.permalink ? (
+                    <p className="sc-bluesky-published">
+                      <a
+                        href={delivery.permalink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Open the published post
+                      </a>
+                      {delivery.publishedAt
+                        ? ` · ${displayDate(delivery.publishedAt)}`
+                        : ""}
+                      {delivery.providerUri ? (
+                        <>
+                          {" "}
+                          · AT URI <code>{delivery.providerUri}</code>
+                        </>
+                      ) : null}
+                      {delivery.providerCid ? (
+                        <>
+                          {" "}
+                          · CID <code>{delivery.providerCid}</code>
+                        </>
+                      ) : null}
+                    </p>
+                  ) : delivery?.state === "unknown" ||
+                    delivery?.state === "sending" ? (
+                    <>
+                      <p role="status" className="sc-bluesky-failure">
+                        {delivery.state === "sending"
+                          ? "This send is still in progress. Reconcile after its lease expires; Composer will not retry it."
+                          : delivery.errorMessage ||
+                            "The provider outcome is unknown. Composer will not retry automatically."}
+                      </p>
+                      <div className="sc-actions">
+                        <button
+                          type="button"
+                          onClick={onReconcile}
+                          disabled={busy || sending}
+                        >
+                          {sending ? "Reconciling…" : "Reconcile receipt"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={onCopyPackage}
+                          disabled={busy}
+                        >
+                          Copy approval package
+                        </button>
+                      </div>
+                      <p className="sc-hint">
+                        Reconciliation reads the deterministic record key. It
+                        never posts again.
+                      </p>
+                    </>
+                  ) : delivery?.state === "needs_auth" ? (
+                    <>
+                      <p role="status" className="sc-bluesky-failure">
+                        {delivery.errorMessage}
+                      </p>
+                      <p className="sc-hint">
+                        Update the encrypted app password in Composer plugin
+                        settings. The deterministic record key prevents a
+                        duplicate, so this exact approval can be retried.
+                      </p>
+                      <label className="sc-bluesky-confirm">
+                        <input
+                          type="checkbox"
+                          checked={sendConfirmed}
+                          disabled={busy || sending || !canWrite}
+                          onChange={(event) =>
+                            setSendConfirmed(event.target.checked)
+                          }
+                        />
+                        I updated the connection and reviewed the bound handle,
+                        exact text, media and intended time.
+                      </label>
+                      <div className="sc-actions">
+                        <button
+                          type="button"
+                          className="sc-primary"
+                          onClick={onSend}
+                          disabled={!canSend}
+                        >
+                          {sending ? "Sending…" : "Send approved post"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={onCopyPackage}
+                          disabled={busy}
+                        >
+                          Copy approval package
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {delivery?.state === "failed" &&
+                        delivery.errorMessage && (
+                          <p role="status" className="sc-bluesky-failure">
+                            {delivery.errorMessage}
+                          </p>
+                        )}
+                      <label className="sc-bluesky-confirm">
+                        <input
+                          type="checkbox"
+                          checked={sendConfirmed}
+                          disabled={busy || sending || !canWrite}
+                          onChange={(event) =>
+                            setSendConfirmed(event.target.checked)
+                          }
+                        />
+                        I reviewed the bound handle, exact text, media and
+                        intended time.
+                      </label>
+                      {!sendWindowOpen && (
+                        <p className="sc-hint">
+                          Sending opens at the intended time and closes when the
+                          approval expires. Re-approve if the window has closed.
+                        </p>
+                      )}
+                      <div className="sc-actions">
+                        <button
+                          type="button"
+                          className="sc-primary"
+                          onClick={onSend}
+                          disabled={!canSend}
+                        >
+                          {sending ? "Sending…" : "Send approved post"}
+                        </button>
+                        {connection.state !== "configured" && (
+                          <button
+                            type="button"
+                            onClick={onCopyPackage}
+                            disabled={busy}
+                          >
+                            Copy approval package
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
+                  <p className="sc-hint">
+                    Composer writes a claim before the provider call and a
+                    terminal receipt after it. A timeout becomes Unknown and is
+                    reconciled by the record key, never retried blindly.
+                  </p>
+                </div>
+              )}
               <p className="sc-hint">
-                Receipt: none recorded. An unknown outcome is shown as Unknown
-                and is never retried automatically; Composer cannot claim a
-                post.
+                Receipt:{" "}
+                {delivery
+                  ? `${BLUESKY_DELIVERY_LABELS[delivery.state]} · updated ${displayDate(delivery.updatedAt)}`
+                  : "none recorded. Approval alone never sends."}
               </p>
             </div>
           )}
@@ -700,6 +944,7 @@ function ShareCalendar({ search }: { search: string }) {
   const [blueskyIdentity, setBlueskyIdentity] =
     useState<BlueskyIdentityResult | null>(null);
   const [blueskyChecking, setBlueskyChecking] = useState(false);
+  const [blueskySending, setBlueskySending] = useState(false);
   const [blueskyNow, setBlueskyNow] = useState(() => new Date());
   const alive = useRef(true);
   const pending = useRef(false);
@@ -887,6 +1132,20 @@ function ShareCalendar({ search }: { search: string }) {
       setNotice(
         `Approved revision ${approval.draftRevision} for @${approval.accountHandle} · approval revision ${approval.approvalRevision} · expires ${displayDate(approval.expiresAt)}. Nothing was sent.`,
       );
+      // The approval route already resolved this public identity on the
+      // server. Fill the panel's own check so an exact approval is not shown
+      // as "identity not rechecked" immediately after it was bound.
+      if (blueskyIdentity?.status !== "resolved") {
+        try {
+          const identity = await identityCall(
+            approval.accountHandle,
+            selection.current,
+          );
+          if (alive.current) setBlueskyIdentity(identity);
+        } catch {
+          /* The approval stands; the owner can resolve the public profile. */
+        }
+      }
     }
   }
 
@@ -909,20 +1168,111 @@ function ShareCalendar({ search }: { search: string }) {
     );
   }
 
-  function checkBlueskySend(status: {
-    label: string;
-    send: { code: string; message: string };
-  }) {
+  function connectionFor(
+    approval: BlueskyApprovalRecord | null,
+  ): BlueskyPublishingConnection {
+    if (snapshot?.bluesky.connection.state === "configured")
+      return {
+        state: "configured",
+        handle:
+          snapshot.bluesky.connection.handle ??
+          approval?.accountHandle ??
+          "",
+        did: approval?.accountDid ?? null,
+      };
+    return {
+      state: "absent",
+      reason: "No Bluesky publishing connection is configured.",
+    };
+  }
+
+  async function sendBluesky(
+    item: ShareCalendarItem,
+    approval: BlueskyApprovalRecord,
+  ) {
+    if (blueskySending) return;
+    setBlueskySending(true);
     setError("");
-    setNotice(`${status.label}: ${status.send.message} (${status.send.code}).`);
+    setNotice("");
+    try {
+      const saved = await perform("blueskySend", {
+        item: item.id,
+        expectedRevision: item.revision,
+        expectedApprovalRevision: approval.approvalRevision,
+      });
+      const delivery = saved.deliveries.find(
+        (entry) =>
+          entry.itemId === item.id &&
+          entry.approvalRevision === approval.approvalRevision,
+      );
+      setNotice(
+        delivery?.state === "published" && delivery.permalink
+          ? `Published ${delivery.permalink}. The provider receipt is saved; no other revision was sent.`
+          : `Send recorded as ${delivery ? BLUESKY_DELIVERY_LABELS[delivery.state] : "unknown"}. Review the receipt before any retry.`,
+      );
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "The send could not be confirmed. Reconcile the receipt before retrying.",
+      );
+      // Reload the authoritative receipt after a failed/ambiguous send so the
+      // page cannot keep showing a pre-send state.
+      try {
+        const refreshed = await calendarCall("list", selection.current);
+        if (alive.current) setSnapshot(refreshed);
+      } catch {
+        /* The original error stays visible; the receipt remains unknown. */
+      }
+    } finally {
+      if (alive.current) setBlueskySending(false);
+    }
+  }
+
+  async function reconcileBluesky(
+    item: ShareCalendarItem,
+    approval: BlueskyApprovalRecord,
+  ) {
+    if (blueskySending) return;
+    setBlueskySending(true);
+    setError("");
+    setNotice("");
+    try {
+      const saved = await perform("blueskyReconcile", {
+        item: item.id,
+        expectedApprovalRevision: approval.approvalRevision,
+      });
+      const delivery = saved.deliveries.find(
+        (entry) =>
+          entry.itemId === item.id &&
+          entry.approvalRevision === approval.approvalRevision,
+      );
+      setNotice(
+        delivery?.state === "published" && delivery.permalink
+          ? `Reconciled as published: ${delivery.permalink}.`
+          : `Reconciled as ${delivery ? BLUESKY_DELIVERY_LABELS[delivery.state] : "unknown"}. No post was retried.`,
+      );
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "The receipt could not be reconciled. It stays unknown; no retry was made.",
+      );
+    } finally {
+      if (alive.current) setBlueskySending(false);
+    }
   }
 
   async function packageBluesky(
     item: ShareCalendarItem,
   ): Promise<SharePackageBluesky | null> {
     if (!snapshot || !hasBlueskyDraft(item)) return null;
+    const approval =
+      snapshot.approvals.find((entry) => entry.itemId === item.id) ?? null;
     return blueskyPackageForItem(snapshot, item, {
       identity: blueskyIdentity,
+      approval,
+      connection: connectionFor(approval),
       now: new Date(),
     });
   }
@@ -1007,7 +1357,7 @@ function ShareCalendar({ search }: { search: string }) {
     const verb = scheduledAt ? "Scheduled" : "Draft saved";
     const detail = scheduledAt ? scheduleLabels(scheduledAt) : null;
     const message = detail
-      ? `${verb} for ${detail.melbourne} · ${detail.utc}. Composer will not post it.`
+      ? `${verb} for ${detail.melbourne} · ${detail.utc}. Composer will not post it automatically.`
       : `${verb}. Nothing is on the calendar and nothing was posted.`;
 
     const primaryPayload = editing
@@ -1307,8 +1657,9 @@ function ShareCalendar({ search }: { search: string }) {
       </div>
       <p className="sc-lede">
         Prepare a caption and a date for a published stack. The calendar records
-        local preparation and handoff only: it does not connect to a social
-        network, publish a post or confirm that a destination app accepted one.
+        local preparation and handoff. Bluesky is the only channel with an
+        optional send path, and it runs only after an explicit confirmation of
+        one exact approval; nothing posts automatically.
       </p>
       <p className="sc-boundary">
         Times show Australia/Melbourne and UTC. The .ics export uses UTC, so a
@@ -1700,6 +2051,18 @@ function ShareCalendar({ search }: { search: string }) {
                 const labels = item.scheduledAt
                   ? scheduleLabels(item.scheduledAt)
                   : null;
+                const approval =
+                  snapshot.approvals.find(
+                    (entry) => entry.itemId === item.id,
+                  ) ?? null;
+                const delivery =
+                  (approval &&
+                    snapshot.deliveries.find(
+                      (entry) =>
+                        entry.itemId === item.id &&
+                        entry.approvalRevision === approval.approvalRevision,
+                    )) ||
+                  null;
                 return (
                   <li
                     key={item.id}
@@ -1756,9 +2119,10 @@ function ShareCalendar({ search }: { search: string }) {
                       item.scheduledAt &&
                       item.scheduledAt < snapshot.now && (
                         <p className="sc-hint">
-                          This time has passed. Composer still cannot tell
-                          whether you shared it; record a local share only after
-                          you do.
+                          This time has passed. For Bluesky, the delivery
+                          receipt above is authoritative. For other channels,
+                          Composer cannot tell whether you shared it; record a
+                          local share only after you do.
                         </p>
                       )}
                     {item.sharedAt && (
@@ -1909,13 +2273,11 @@ function ShareCalendar({ search }: { search: string }) {
                               entry.publication === item.publication,
                           ) ?? null
                         }
-                        approval={
-                          snapshot.approvals.find(
-                            (entry) => entry.itemId === item.id,
-                          ) ?? null
-                        }
+                        approval={approval}
                         identity={blueskyIdentity}
                         handle={blueskyHandle}
+                        connection={connectionFor(approval)}
+                        delivery={delivery}
                         onHandleChange={(value) => {
                           setBlueskyHandle(value);
                           setBlueskyIdentity(null);
@@ -1926,35 +2288,17 @@ function ShareCalendar({ search }: { search: string }) {
                         onRecheck={() => setBlueskyNow(new Date())}
                         onApprove={() => void approveBluesky(item)}
                         onCancel={() => {
-                          const approval = snapshot.approvals.find(
-                            (entry) => entry.itemId === item.id,
-                          );
                           if (approval) void cancelBluesky(item, approval);
                         }}
-                        onCheckSend={() => {
-                          const account =
-                            blueskyAccountFromIdentity(blueskyIdentity);
-                          void createBlueskyContent(
-                            item,
-                            sources.find(
-                              (entry) =>
-                                entry.id === item.stack &&
-                                entry.publication === item.publication,
-                            ) ?? null,
-                            new Date(),
-                          ).then((content) => {
-                            const status = blueskyApprovalStatus({
-                              content,
-                              account,
-                              approval:
-                                snapshot.approvals.find(
-                                  (entry) => entry.itemId === item.id,
-                                ) ?? null,
-                              now: new Date(),
-                            });
-                            checkBlueskySend(status);
-                          });
+                        onSend={() => {
+                          if (approval) void sendBluesky(item, approval);
                         }}
+                        onReconcile={() => {
+                          if (approval)
+                            void reconcileBluesky(item, approval);
+                        }}
+                        onCopyPackage={() => void copyPackage(item)}
+                        sending={blueskySending}
                         busy={busy}
                         canWrite={canWrite}
                       />

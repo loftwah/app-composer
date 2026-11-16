@@ -20,7 +20,7 @@ export const SHARE_PACKAGE_SCHEMA = "composer.share-approval-package/v1";
 export const SHARE_PACKAGE_NOT_RECORDED = "not recorded";
 export const SHARE_PACKAGE_OWNER_TIME_ZONE = "Australia/Melbourne";
 export const SHARE_PACKAGE_POSTING_STATEMENT =
-  "App Composer does not post to a social network, connect an account or confirm delivery. You perform this share yourself.";
+  "This approval package does not post by itself. A Bluesky send needs a separate configured connection and an explicit confirmation; otherwise you perform this share yourself.";
 export const SHARE_PACKAGE_PROVENANCE_STATEMENT =
   "Prepared in App Composer from the persisted published stack revision and the saved item revision. The package makes no network request and changes no state.";
 

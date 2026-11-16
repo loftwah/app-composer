@@ -17,9 +17,9 @@ export const BLUESKY_HANDLE_SETTING = "SHARE_BLUESKY_HANDLE";
 export const BLUESKY_PUBLIC_IDENTITY_STATEMENT =
   "The public AT Protocol AppView returned this profile. It confirms a public identity only.";
 export const BLUESKY_PUBLISHING_STATEMENT =
-  "Public identity resolved is not publishing authorisation. Composer holds no Bluesky credential, app password or OAuth grant and cannot post.";
+  "A resolved public profile is not publishing authorisation. Publishing requires the owner's exact approval plus a separately configured encrypted app-password connection.";
 export const BLUESKY_CREDENTIAL_STATEMENT =
-  "Never paste a Bluesky password, app password, recovery code or token into Composer. This page does not ask for one and stores none.";
+  "Composer never asks for a main password, recovery code or token on this page. The optional app password is entered only in the native encrypted plugin setting.";
 
 export type BlueskyIdentityStatus =
   | "resolved"
