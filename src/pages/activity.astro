@@ -24,24 +24,36 @@ import {
   type PublicHistory,
   type SurfaceTotals,
 } from "../lib/activity-view";
+import {
+  insightCardPath,
+  insightPath,
+  insightWindowFor,
+  publicInsight,
+  type InsightResult,
+  type InsightSurface,
+  type RecordedOpensInsight,
+} from "../lib/activity-insight";
 import { ArrowUpRight, Share2 } from "@lucide/astro";
 import "../styles/analytics.css";
 
 const selected = selection(Astro.url.searchParams);
 const requested = signalSelection(Astro.url.searchParams.get("metric"));
 const runtime = env as unknown as { DB: D1Database; PUBLIC_ORIGIN: string };
+const now = new Date();
+const insightWindow = insightWindowFor(selected.days, selected.surface as InsightSurface, now);
 const params = (surface?: string) => {
   const value = new URLSearchParams({ days: String(selected.days) });
   if (surface) value.set("surface", surface);
   return value;
 };
-const [totals, historyResult, allResult, standaloneResult, composedResult] =
+const [totals, historyResult, allResult, standaloneResult, composedResult, insightResult] =
   await Promise.allSettled([
     usageSummary(runtime.DB, params(selected.surface === "all" ? undefined : selected.surface), runtime.PUBLIC_ORIGIN),
     portfolioSummary(runtime.DB, selected.days, new Date(), build.commit, selected.surface as "all" | "standalone" | "composed"),
     usageSummary(runtime.DB, params(), runtime.PUBLIC_ORIGIN),
     usageSummary(runtime.DB, params("standalone"), runtime.PUBLIC_ORIGIN),
     usageSummary(runtime.DB, params("composed"), runtime.PUBLIC_ORIGIN),
+    portfolioSummary(runtime.DB, { from: insightWindow.from, to: insightWindow.to }, now, build.commit, selected.surface as "all" | "standalone" | "composed"),
   ]);
 const report = totals.status === "fulfilled" ? totals.value : undefined;
 const history = historyResult.status === "fulfilled" ? (historyResult.value as unknown as PublicHistory) : undefined;
@@ -85,6 +97,34 @@ const actionValue = report ? report.apps.reduce((sum, app) => sum + app.actions,
 const postcardMetric = history?.metrics.find((value) => value.key === "guest_postcards_received");
 const postcardValue = postcardMetric?.value ?? null;
 const where = selected.surface === "standalone" ? "standalone apps" : selected.surface === "composed" ? "inside Composer" : "all connected versions";
+// The shareable reading uses complete UTC days, so its card, caption and
+// address keep one stable total while today is still being recorded. Missing
+// or unreconciled data stays unavailable and the share action is not offered.
+const insightOutcome: InsightResult = (() => {
+  if (insightResult.status !== "fulfilled")
+    return { status: "unavailable", reason: "The complete-day counter read did not finish." };
+  try {
+    return publicInsight(insightResult.value as unknown as PublicHistory, insightWindow, {
+      revision: build.commit,
+      readAt: now,
+      publicApps: apps.map((app) => app.id),
+    });
+  } catch {
+    return { status: "unavailable", reason: "The complete-day counter read could not be reconciled." };
+  }
+})();
+const insight: RecordedOpensInsight | undefined =
+  insightOutcome.status === "ok" ? insightOutcome.insight : undefined;
+const insightReason =
+  insightOutcome.status === "ok"
+    ? "The complete-day insight is unavailable."
+    : insightOutcome.reason;
+const sharePageHref = insightPath(insightWindow);
+const cardHref = insightCardPath(insightWindow);
+const insightPayload = insight
+  ? JSON.stringify({ url: insight.canonical, title: insight.headline, text: insight.caption }).replaceAll("<", "\\u003c")
+  : "";
+const rankMaximum = insight ? Math.max(1, insight.leader.opens) : 1;
 const scopeQuery = `days=${selected.days}&surface=${selected.surface}`;
 const unitFor = (key: string) =>
   key === "app_opens" || key === "photo_opens"
@@ -196,6 +236,96 @@ const scopeNote = history
         <div><span>Retained days</span><strong>{view ? `${view.available}/${selected.days}` : "—"}</strong><small>Available UTC days for {view ? signalLabels[view.key] : "this signal"}</small></div>
       </section>
 
+      <section class="analytics-section insight-band" aria-labelledby="insight-title" data-insight-share>
+        <div class="insight-head">
+          <p class="analytics-kicker">Shareable insight · {insightWindow.days} complete UTC days</p>
+          <h2 id="insight-title">{insight ? insight.headline : "The complete-day insight is unavailable."}</h2>
+        </div>
+        {insight ? (
+          <>
+            <div class="insight-grid">
+              <div class="insight-figure">
+                <strong>{insight.valueLabel}</strong>
+                <span>{insight.unit}</span>
+                <p class="insight-window">{insight.windowLabel} · {insight.surfaceLabel}</p>
+              </div>
+              <ol class="insight-rank" aria-label="Recorded app opens ranked for the complete-day window">
+                {insight.entries.slice(0, 3).map((entry, index) => (
+                  <li>
+                    <span class="insight-rank-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+                    <span class="insight-rank-name">{index === 0 ? <strong>{entry.label}</strong> : entry.label}</span>
+                    <span class="insight-rank-value">{count(entry.opens)}{entry.limited ? "+" : ""} <small>{entry.shareLabel} of window</small></span>
+                    <span class="insight-rank-bar" aria-hidden="true"><i style={`width:${(100 * entry.opens) / rankMaximum}%`}></i></span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <p class="insight-definition">{insight.definition}</p>
+            <div class="insight-actions">
+              <details class="insight-share">
+                <summary class="button"><Share2 size={16} aria-hidden="true"/> Share this insight</summary>
+                <div class="insight-share-body">
+                  <figure class="insight-share-preview">
+                    <img src={cardHref} width="1200" height="630" alt={`App Composer public insight card: ${insight.headline}. ${insight.windowLabel}. ${insight.valueLabel} recorded app opens.`} loading="lazy"/>
+                    <figcaption>1200 × 630 PNG, rendered on the server from this window. <a href={cardHref} download={`composer-insight-${insight.window.from}-to-${insight.window.to}.png`}>Download the card</a></figcaption>
+                  </figure>
+                  <label class="insight-copy-field">Caption
+                    <textarea readonly rows="3" data-insight-caption>{insight.caption}</textarea>
+                  </label>
+                  <div class="insight-copy-actions">
+                    <button type="button" data-insight-copy="caption" hidden>Copy the caption</button>
+                    <button type="button" data-insight-copy="link" hidden>Copy the link</button>
+                    <button type="button" class="secondary" data-insight-native hidden><Share2 size={16} aria-hidden="true"/> Share with your device</button>
+                  </div>
+                  <label class="insight-copy-field">Public address <span class="insight-field-note">keeps this exact window and route scope</span>
+                    <input readonly value={insight.canonical} data-insight-url/>
+                  </label>
+                  <noscript><p class="small">Copy buttons need JavaScript. Select the caption or address above and copy it manually. The card download and the public insight page still work.</p></noscript>
+                  <p class="insight-share-links"><a href={sharePageHref}>Open the public insight page <ArrowUpRight size={15} aria-hidden="true"/></a></p>
+                  <p role="status" aria-live="polite" data-insight-status></p>
+                  <script type="application/json" data-insight-payload set:html={insightPayload}/>
+                </div>
+              </details>
+              <a class="button secondary" href={`/activity/${insight.leader.app}?days=${selected.days}&surface=${selected.surface}`}>Open {insight.leader.label}’s record <ArrowUpRight size={16} aria-hidden="true"/></a>
+              <a class="insight-share-page" href={sharePageHref}>View the public insight page</a>
+            </div>
+            <details class="insight-method">
+              <summary>Definition, window, population and exclusions</summary>
+              <p>{insight.population}</p>
+              <ul>{insight.exclusions.map((limitation) => <li>{limitation}</li>)}</ul>
+              <div class="table-wrap" tabindex="0" role="group" aria-label="Complete-day ranking table, scrollable sideways on a phone">
+                <table class="insight-table">
+                  <caption>Recorded app opens, {insight.windowLabel}, {insight.surfaceLabel}</caption>
+                  <thead>
+                    <tr><th scope="col">Rank</th><th scope="col">Public app</th><th scope="col">Recorded opens</th><th scope="col">Share of window (rounded)</th><th scope="col">Coverage</th></tr>
+                  </thead>
+                  <tbody>
+                    {insight.entries.map((entry, index) => (
+                      <tr>
+                        <td>{String(index + 1).padStart(2, "0")}</td>
+                        <th scope="row">{entry.label}</th>
+                        <td>{count(entry.opens)}{entry.limited ? "+" : ""}</td>
+                        <td>{entry.shareLabel}</td>
+                        <td>{entry.limited ? "Lower bound · daily cap reached" : "Bounded recording"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr><th scope="row" colspan="2">Window total</th><td>{insight.valueLabel}</td><td>100%</td><td>{insight.lowerBound ? "Lower bound" : "Complete UTC days"}</td></tr>
+                  </tfoot>
+                </table>
+              </div>
+              <p class="small">Source: Composer’s bounded public aggregate, read {new Date(insight.readAt).toLocaleString("en-AU", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" })} UTC, revision <code>{insight.sourceRevision.slice(0, 8)}</code>. <a href={`/api/portfolio-analytics?from=${insight.window.from}&to=${insight.window.to}&surface=${insight.window.surface}`}>Daily data and definitions</a></p>
+            </details>
+            <p class="analytics-note">This insight uses complete UTC days only, so its total does not move while today is being recorded. The chart and summary above include today’s partial day and can differ by one day. The public address re-reads the source and withholds the ranking if an app leaves the public catalogue or the counters are unavailable.</p>
+          </>
+        ) : (
+          <div class="analytics-empty" role="status">
+            <p>{insightReason} Nothing is shown as zero: the chart and summary above still use their own live scope, and the complete-day ranking is withheld until a reconciled read returns.</p>
+          </div>
+        )}
+      </section>
+
       <section class="analytics-section" aria-labelledby="apps-title">
         <div class="analytics-section-heading">
           <h2 id="apps-title">Compare apps</h2>
@@ -304,4 +434,5 @@ const scopeNote = history
 
 <script>
   import "../browser/activity";
+  import "../browser/insight-share";
 </script>
