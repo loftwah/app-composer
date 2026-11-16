@@ -5,11 +5,27 @@ This lab reproduces the fictional Here / there → Linkarooie journey used by th
 ## Requirements
 
 - Node 22 and the pnpm version declared by each repository.
-- The pinned dependencies installed in the two sibling repositories:
-  - `../app-composer-guestbook`
-  - `../app-composer-showcase`
+- The two public app repositories cloned beside this one at the pinned revisions, with their dependencies installed. The scripts copy these siblings but do not clone them:
+
+  ```sh
+  git clone https://github.com/loftwah/app-composer-guestbook ../app-composer-guestbook
+  git -C ../app-composer-guestbook checkout 019ce0d117f9f89e472a5c7642d51d85301f7fcd
+  (cd ../app-composer-guestbook && pnpm install --frozen-lockfile)
+  git clone https://github.com/loftwah/app-composer-showcase ../app-composer-showcase
+  git -C ../app-composer-showcase checkout 20ef9a50c19c7a3419dc06fdae020c6a677ed5cf
+  (cd ../app-composer-showcase && pnpm install --frozen-lockfile)
+  ```
+
+  Keep both checkouts at their pinned revisions and do not edit or commit in them: the lab measures their `git rev-parse HEAD` and copies them into its owned temporary root.
 - A native Wrangler install available through those repositories.
-- A host Playwright package and Chrome for the captures. This repository does not ship a browser or a test runner.
+- A host Playwright package and Chrome for the captures. This repository does not ship a browser or a test runner. Install Playwright in a folder you own, for example:
+
+  ```sh
+  mkdir -p "$TMPDIR/composer-playwright"
+  (cd "$TMPDIR/composer-playwright" && npm install playwright)
+  ```
+
+  Then point `PLAYWRIGHT_MODULE` at `$TMPDIR/composer-playwright/node_modules/playwright/index.mjs`. The capture launches your installed Chrome by default. Starting and seeding the Workers do not need Playwright.
 
 Docker is **not** used by this procedure. The supported local runtime is Wrangler's `workerd`; a container would still download a platform-specific runtime and would still need a host browser for the screenshots. Docker support for this walkthrough remains unexercised.
 

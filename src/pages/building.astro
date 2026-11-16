@@ -193,7 +193,7 @@ const contribution = dims['building-contribution'] as { desktop: { width: number
 
       <section id="run">
         <h2>Run the same thing locally</h2>
-        <p>The demonstration uses the actual app source and Wrangler's local Workers runtime. It does not need a Cloudflare account, an Access session, a paid service or a hosted deployment. It needs Node 22 and the pnpm version declared by each repository (12.8.1), the pinned dependencies, a native Wrangler install, and a host browser for the captures.</p>
+        <p>The demonstration uses the actual app source and Wrangler's local Workers runtime. It does not need a Cloudflare account, an Access session, a paid service or a hosted deployment. It needs Node 22 and the pnpm version declared by each repository (12.8.1), both app repositories cloned beside this one at the pinned revisions with their dependencies installed, a native Wrangler install, and the Playwright package plus Chrome for the captures. Starting and seeding the Workers do not need Playwright.</p>
         <p><strong>Docker was not used for this run.</strong> The supported local path is Wrangler's <code>workerd</code> with local D1 and R2 emulation; a container would still download a platform-specific runtime and would still need a host browser for screenshots. That boundary is stated rather than hidden. Docker support for this walkthrough remains unexercised work.</p>
         <ol class="build-steps">
           <li><strong>Start two disposable Workers.</strong> <code>labs/building/start-local.sh</code> copies the two app repositories to one owned temporary root, prepares local migrations, writes fictional local configuration and starts Guestbook on 8788 and Linkarooie on 8787. It leaves the working repositories and their owner state untouched.</li>
@@ -203,13 +203,24 @@ const contribution = dims['building-contribution'] as { desktop: { width: number
         </ol>
         <details class="build-code">
           <summary>Commands used in this run</summary>
-          <pre><code>{`# From the Composer repository
+          <pre><code>{`# First, beside the App Composer checkout: clone the pinned apps and install their dependencies
+git clone https://github.com/loftwah/app-composer-guestbook ../app-composer-guestbook
+git -C ../app-composer-guestbook checkout 019ce0d117f9f89e472a5c7642d51d85301f7fcd
+(cd ../app-composer-guestbook && pnpm install --frozen-lockfile)
+git clone https://github.com/loftwah/app-composer-showcase ../app-composer-showcase
+git -C ../app-composer-showcase checkout 20ef9a50c19c7a3419dc06fdae020c6a677ed5cf
+(cd ../app-composer-showcase && pnpm install --frozen-lockfile)
+
+# From the Composer repository
 labs/building/start-local.sh
 RESOURCE_ID=build199-trail-8 \
   INIT_SPEC=public/downloads/building-199-init-spec.json \
   node labs/building/seed-local.mjs
+# Playwright for the capture only: install it in a scratch folder you own.
+mkdir -p "$TMPDIR/composer-playwright"
+(cd "$TMPDIR/composer-playwright" && npm install playwright)
 RESOURCE_ID=build199-trail-8 \
-  PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs \
+  PLAYWRIGHT_MODULE="$TMPDIR/composer-playwright/node_modules/playwright/index.mjs" \
   node labs/building/capture-journey.mjs
 labs/building/stop-local.sh`}</code></pre>
         </details>
