@@ -108,7 +108,7 @@ export const buildingQuickStart = validateQuickStart({
   outcome: {
     built: 'Two independent Cloudflare Workers: Here / there for private postcards and owner review, Linkarooie for the public profile and a separate featuring choice, joined by a versioned invitation contract.',
     does: 'Keeps a submission private until the source owner approves it, offers a send action only while the source is open, and removes the card and media when the source hides the item.',
-    needs: ['GitHub', 'Cloudflare account with Workers, D1 and R2', 'Node 22, 24 or 26, pnpm and native Wrangler', 'A host browser only for the screenshot capture'],
+    needs: ['GitHub', 'Cloudflare account with Workers, D1 and R2', 'Node 22 and pnpm 12.8.1 with a native Wrangler install', 'A host browser only for the screenshot capture'],
     result: 'The five public states behave as described: pending stays private, approval publishes at source, featuring is a separate choice, hiding returns 404, and closed, paused or full never shows a dead form.',
   },
   links: [
@@ -199,44 +199,45 @@ export const creatorHubQuickStart = validateQuickStart({
   summary: 'Build your own two-app Creator Hub from the reference, or add a reviewed guestbook and a curated profile to an app you already run. The live reference belongs to its operator; your build uses your own accounts and domain.',
   outcome: {
     built: 'Two independent apps: Here / there for guest postcards and owner moderation, and Linkarooie for the profile, curated links and separate featured picks.',
-    does: 'Lets a visitor send a note with the guest code, keeps it private until the owner approves it, and shows an approved item only when the owner also chooses to feature it.',
-    needs: ['GitHub', 'Cloudflare account with Workers and D1, plus R2 for Here / there', 'Cloudflare Access for the administrator panel', 'A hostname you control', 'An owner credential and guest code you create'],
+    does: 'Lets a visitor send a note with the public postcard code, keeps it private until the owner approves it, and shows an approved item only when the owner also chooses to feature it.',
+    needs: ['GitHub', 'Cloudflare account with Workers and D1, plus R2 for Here / there', 'Node 22 and pnpm 12.8.1', 'A hostname you control', 'An owner credential for each owner studio'],
     result: 'Two HTTPS hostnames with independent source and data, a reviewed contribution that becomes public only after approval and featuring, and an Init plan that names every agent and human step.',
   },
   links: [
     { label: 'Open the live reference', href: 'https://creator-hub.loftwah.com/' },
-    { label: 'Here / there source', href: 'https://github.com/loftwah/creator-hub-guestbook' },
-    { label: 'Linkarooie source', href: 'https://github.com/loftwah/creator-hub-showcase' },
+    { label: 'Here / there source at 36797b8', href: 'https://github.com/loftwah/creator-hub-guestbook/tree/36797b8028682460c33fe092682bfbd63751ec1a' },
+    { label: 'Linkarooie source at acca7da', href: 'https://github.com/loftwah/creator-hub-showcase/tree/acca7da3bfac4ebc28fca67a35ac373b23747409' },
     { label: 'Start this composition', href: '/init?start=creator-hub' },
   ],
   prompts: [
     { id: 'reproduce', kind: 'reproduce', label: 'Build my own Creator Hub', text: `Goal
-Build my own Creator Hub with two independent apps: a moderated guestbook that accepts contributions and a Linkarooie profile that curates approved work and links. Use https://composer.loftwah.com/creator-hub and the two pinned repositories it names as the reference.
+Build my own Creator Hub with two independent apps: a moderated guestbook that accepts contributions and a Linkarooie profile that curates approved work and links. Use https://composer.loftwah.com/creator-hub as the reference and copy the reviewed source at its exact pin: Here / there at https://github.com/loftwah/creator-hub-guestbook/tree/36797b8028682460c33fe092682bfbd63751ec1a (revision 36797b8) and Linkarooie at https://github.com/loftwah/creator-hub-showcase/tree/acca7da3bfac4ebc28fca67a35ac373b23747409 (revision acca7da).
 
 Prerequisites
 - My own GitHub account, Cloudflare account and a hostname I control.
 - Cloudflare Workers, one D1 database per app and an R2 bucket for the guestbook.
-- Cloudflare Access for the administrator panel, an owner credential I create and a guest code I choose.
-- A supported coding agent. Read each repository's current README, Wrangler configuration and release notes for the exact binding and secret names.
+- Node 22 and pnpm 12.8.1, as pinned by both repositories, with a native Wrangler install available through them. Do not substitute another Node line.
+- An owner credential I create for each app's owner studio (OWNER_API_TOKEN), and the guestbook's public postcard code. Cloudflare Access is not required for those independent studios; it applies only if I choose Composer's invited-administrator panel.
+- A supported coding agent. Read each repository's README, Wrangler configuration and release notes at the revisions above for the exact binding and secret names.
 
 Greenfield behaviour
-Create two new repositories and deployments from the reviewed source. Keep their Workers, D1 databases, media, configuration and releases separate. Do not merge them into one project or one database. Use fictional profile content and fictional contributions.
+Create two new repositories and deployments from the reviewed revisions above. Keep their Workers, D1 databases, media, configuration and releases separate. Do not merge them into one project or one database. Do not follow either repository's current main instead of these revisions. Use fictional profile content and fictional contributions.
 
 Build requirements
 1. Configure the pair in Init at https://composer.loftwah.com/init?start=creator-hub, review the exported plan and keep its agent and human labels. Export a specification; it is a brief, not a deployment.
 2. Deploy the guestbook first. The profile reads approved contributions through a service binding, so it needs a working source.
-3. Keep owner moderation in the guestbook: a contribution is private until the owner approves it. Keep featuring in the profile as a separate choice.
+3. Keep owner moderation in the guestbook: a contribution is private until the owner approves it. Keep featuring in the profile as a separate choice. The postcard path is an owner setting; its public puzzle code (hunter2 in this source) is not a secret and never grants owner access.
 4. Keep featured picks as a saved profile setting so they survive a release without a code fork.
 5. Keep each app's owner API and data export. Do not add public signup, customer accounts or a shared owner credential.
 
 Verification
-Run each repository's own checks. Then exercise the real journey with fictional data: send a note with the guest code, confirm it is private, approve it, feature it, open the source link, hide it at source, confirm both public views stop showing it and the item and media return 404. Check signed-out access denial for owner routes and that featured picks survive a redeploy. Check the profile and guestbook at phone and desktop widths.
+Run each repository's own checks. Then exercise the real journey with fictional data: send a note with the public postcard code (hunter2), confirm it is private, approve it, feature it, open the source link, hide it at source, confirm both public views stop showing it and the item and media return 404. Confirm that the code alone cannot sign in to /owner or change settings. Check signed-out access denial for owner routes and that featured picks survive a redeploy. Check the profile and guestbook at phone and desktop widths.
 
 Release and live acceptance
 Deploy to my own hostnames through each app's existing release guard. Verify the exact source revision and release identity each app reports, then repeat the journey on the live hostnames. Record the URLs, source revisions and observed results. The published Creator Hub is a reference build in the operator's account; do not claim an independent rebuild or a customer deployment from it.
 
 Stop for me
-Ask me to sign in to Cloudflare, configure Access, approve hostnames, create the owner credential and guest code, and decide that a contribution may be published. ${ownResources}` },
+Ask me to sign in to GitHub and Cloudflare, approve hostnames, create each owner credential, turn on guest postcards, decide that a contribution may be published, and approve any spending. ${ownResources}` },
     { id: 'add', kind: 'add', label: 'Add this to my existing apps', text: `Goal
 Add the Creator Hub capability from https://composer.loftwah.com/creator-hub to apps I already run: a moderated guestbook intake, in the Here / there role, and a curated Linkarooie-style profile with separate featured picks.
 
@@ -266,7 +267,7 @@ Ask me to sign in, approve permissions, change access, authorise a migration, pu
 Explain the Creator Hub reference at https://composer.loftwah.com/creator-hub and the two apps behind it.
 
 Prerequisites
-- Read the reference page, both pinned repositories, their build identities and the Init plan.
+- Read the reference page, Here / there at revision 36797b8 (https://github.com/loftwah/creator-hub-guestbook/tree/36797b8028682460c33fe092682bfbd63751ec1a), Linkarooie at revision acca7da (https://github.com/loftwah/creator-hub-showcase/tree/acca7da3bfac4ebc28fca67a35ac373b23747409), their build identities and the Init plan.
 - Use only public source and published evidence.
 
 What to explain

@@ -34,7 +34,12 @@ lesson-level requests to the shared fallback.
 Each covered guide offers a reproduction prompt. Where the distinction is real,
 it also offers a separate existing-app prompt and either a read-only explanation
 or a bounded next step. The prompts name services only, never secret values, and
-stop for account sign-in, permissions, publication and spending.
+stop for account sign-in, permissions, publication and spending. Where the page
+publishes exact reviewed revisions, the reproduction prompt carries those
+revisions instead of pointing at a moving default branch. The Creator Hub
+prompt names the guestbook's public postcard puzzle code because the pinned
+source publishes it, and says explicitly that it grants no owner access; the
+owner credential is named but its value never appears.
 
 ## Copy contract
 
