@@ -105,7 +105,10 @@ const icon: Record<string, typeof CheckCircle2> = {pass: CheckCircle2, fail: XCi
  .bench-suite header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
  .bench-suite h3{margin:0;font-size:1.2rem;max-width:none}
  .bench-suite header p{margin:6px 0 0}
- .bench-checks{list-style:none;padding:0;margin:16px 0 0}
+ /* The check list is a status column inside the suite card, not prose. At the
+    shared 72ch list measure its pills sat mid-card while the card's right
+    554px held nothing; the row now aligns with the suite header above it. */
+ .bench-checks{list-style:none;padding:0;margin:16px 0 0;max-width:none}
  .bench-checks li{display:flex;gap:16px;justify-content:space-between;align-items:flex-start;padding:12px 0;border-top:1px solid var(--color-border);margin:0}
  .bench-checks strong{display:block;font-size:14px}
  .bench-checks p{margin:4px 0 0;font-size:13px;color:var(--color-muted);max-width:60ch}
