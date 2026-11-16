@@ -1,0 +1,378 @@
+/* Native command centre (#658). The host supplies admin tokens for both themes;
+   charcoal ink, ivory surface and the existing orange accent are the fallbacks.
+   Every card is fluid so 390px has no horizontal overflow. */
+.composer-command {
+  --cc-ink: var(--text-color-kumo-default, #23211e);
+  --cc-muted: var(--text-color-kumo-subtle, #67605a);
+  --cc-surface: var(--color-kumo-base, #fbf8f2);
+  --cc-raised: var(--color-kumo-elevated, #fffdf8);
+  --cc-rule: color-mix(in srgb, var(--cc-ink) 22%, var(--cc-surface));
+  --cc-tint: color-mix(in srgb, var(--cc-ink) 5%, var(--cc-surface));
+  --cc-accent: var(--color-kumo-brand, #e6672f);
+  --cc-danger: var(--color-kumo-danger, #b24532);
+  --cc-green: #2f7d52;
+  box-sizing: border-box;
+  max-width: 1180px;
+  margin: auto;
+  padding: 28px;
+  color: var(--cc-ink);
+  font:
+    16px/1.6 system-ui,
+    sans-serif;
+}
+.composer-command *,
+.composer-command *::before,
+.composer-command *::after {
+  box-sizing: border-box;
+}
+.composer-command :is(h1, h2, h3, p, li, a, code, span) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.composer-command h1 {
+  font-size: clamp(1.9rem, 1.5rem + 1.6vw, 2.7rem);
+  line-height: 1.1;
+  margin: 0;
+}
+.composer-command h2 {
+  font-size: clamp(1.35rem, 1.2rem + 0.6vw, 1.7rem);
+  line-height: 1.2;
+  margin: 0;
+}
+.composer-command h3 {
+  font-size: 1.05rem;
+  line-height: 1.3;
+  margin: 0;
+}
+.composer-command p {
+  max-width: 78ch;
+  margin: 10px 0;
+}
+.composer-command a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+}
+.composer-command a:hover {
+  border-bottom-color: currentColor;
+}
+.composer-command :is(a, button, summary):focus-visible {
+  outline: 2px solid var(--cc-accent);
+  outline-offset: 3px;
+}
+.composer-command code {
+  font-size: 0.86em;
+  overflow-wrap: anywhere;
+}
+.cc-page-head {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--cc-rule);
+}
+.cc-kicker {
+  margin: 0 0 6px !important;
+  font-size: 12px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--cc-muted);
+}
+.cc-lede {
+  font-size: 1.05rem;
+  max-width: 72ch !important;
+}
+.cc-alert {
+  margin: 20px 0;
+  padding: 14px 18px;
+  border: 1px solid var(--cc-danger);
+  border-left: 4px solid var(--cc-danger);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--cc-danger) 6%, var(--cc-surface));
+}
+.composer-command button {
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: inherit;
+  background: var(--cc-raised);
+  border: 1px solid var(--cc-rule);
+  border-radius: 6px;
+  min-height: 44px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+.composer-command button:hover {
+  border-color: var(--cc-accent);
+}
+.cc-switcher {
+  margin: 22px 0 0;
+}
+.cc-switcher-label {
+  margin: 0 0 8px !important;
+  font-size: 12px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--cc-muted);
+}
+.cc-switcher ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.cc-switcher a {
+  display: grid;
+  gap: 1px;
+  padding: 9px 13px;
+  border: 1px solid var(--cc-rule);
+  border-radius: 999px;
+  background: var(--cc-raised);
+  font-size: 0.92rem;
+  line-height: 1.25;
+}
+.cc-switcher a code {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--cc-muted);
+}
+.cc-switcher a[aria-current="page"] {
+  border-color: var(--cc-accent);
+  box-shadow: inset 0 0 0 1px var(--cc-accent);
+}
+.cc-board-head {
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid var(--cc-rule);
+}
+.cc-repo {
+  font-size: 0.95rem;
+  color: var(--cc-muted);
+}
+.cc-meta {
+  font-size: 0.88rem;
+  color: var(--cc-muted);
+}
+.cc-rate {
+  font-size: 0.82rem;
+  color: var(--cc-muted);
+}
+.cc-archived {
+  padding: 10px 12px;
+  border-left: 3px solid var(--cc-accent);
+  background: var(--cc-tint);
+  font-size: 0.9rem;
+}
+.cc-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 205px), 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+.cc-stat {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+  padding: 16px 16px 14px;
+  border: 1px solid var(--cc-rule);
+  border-top: 3px solid var(--cc-rule);
+  border-radius: 8px;
+  background: var(--cc-raised);
+}
+.cc-stat[data-state="ok"] {
+  border-top-color: var(--cc-accent);
+}
+.cc-stat[data-state="unknown"] {
+  border-top-color: var(--cc-danger);
+  background: color-mix(in srgb, var(--cc-danger) 4%, var(--cc-raised));
+}
+.cc-stat-label {
+  margin: 0 !important;
+  font-size: 12px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--cc-muted);
+}
+.cc-stat-value {
+  margin: 0 !important;
+  font-size: clamp(1.8rem, 1.5rem + 1vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.cc-stat-value a {
+  border-bottom: none;
+}
+.cc-stat-value.cc-sha {
+  font-size: 1.35rem;
+  letter-spacing: 0.01em;
+}
+.cc-stat-note {
+  margin: 0 !important;
+  font-size: 0.82rem;
+  color: var(--cc-muted);
+}
+.cc-stat-none {
+  margin: 0 !important;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+.cc-unknown {
+  margin: 0 !important;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--cc-ink);
+}
+.cc-unknown strong {
+  color: var(--cc-danger);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.78rem;
+}
+.cc-section {
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid var(--cc-rule);
+}
+.cc-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 14px;
+  margin-bottom: 10px;
+}
+.cc-bounded {
+  margin: 0 !important;
+  font-size: 0.8rem;
+  color: var(--cc-muted);
+}
+.cc-none {
+  margin: 8px 0 0 !important;
+  padding: 12px 14px;
+  border: 1px dashed var(--cc-rule);
+  border-radius: 6px;
+  font-size: 0.92rem;
+}
+.cc-hint {
+  font-size: 0.82rem;
+  color: var(--cc-muted);
+}
+.cc-blocked-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.cc-blocked-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--cc-rule);
+  border-radius: 6px;
+  background: var(--cc-tint);
+}
+.cc-blocked-list span {
+  font-size: 0.88rem;
+  color: var(--cc-muted);
+}
+.cc-issues {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.cc-issues > li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--cc-rule);
+}
+.cc-issues > li:first-child {
+  padding-top: 4px;
+}
+.cc-issues > li:last-child {
+  border-bottom: none;
+}
+.cc-issue-title {
+  margin: 0 0 3px !important;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+.cc-issue-title a {
+  border-bottom: none;
+}
+.cc-issue-title a:hover {
+  color: var(--cc-accent);
+}
+.cc-issue-number {
+  color: var(--cc-muted);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.cc-issue-meta {
+  margin: 0 !important;
+  font-size: 0.8rem;
+  color: var(--cc-muted);
+}
+.cc-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 7px 0 0;
+  padding: 0;
+}
+.cc-labels li {
+  padding: 1px 8px;
+  border: 1px solid var(--cc-rule);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  color: var(--cc-muted);
+}
+.cc-empty {
+  padding: 18px;
+  border: 1px dashed var(--cc-rule);
+  border-radius: 8px;
+  background: var(--cc-tint);
+}
+.cc-empty p {
+  margin: 0 0 8px;
+}
+.cc-empty p:last-child {
+  margin-bottom: 0;
+}
+.cc-limits {
+  margin-top: 30px;
+  padding-top: 18px;
+  border-top: 1px solid var(--cc-rule);
+}
+.cc-limits ul {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+  font-size: 0.88rem;
+  color: var(--cc-muted);
+}
+@media (max-width: 620px) {
+  .composer-command {
+    padding: 16px;
+  }
+  .cc-switcher ul {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cc-switcher a {
+    border-radius: 8px;
+  }
+  .cc-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cc-section-head {
+    flex-direction: column;
+    align-items: start;
+  }
+}
