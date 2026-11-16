@@ -11,6 +11,7 @@ keeps the canonical release evidence.
 | Media Studio | `eb127cfcddfb2a468ceacb45fe2bb29744ee7355` | `428b691d-c2f5-4ddb-bccb-9aed7560c371` | 30.8 s |
 | App Composer | `4c851cb731ef9a8f35ba18deacf6c6fc944a0442` | `a6ccf6d3-a278-4291-bec8-b8969a3672a0` | 123.6 s |
 | App Composer (Workers redirect correction) | `57d4174b5db7d151a19dc51cb2fcec6fba6bcb8f` | `0afe3f07-afb7-4613-9ef7-e8ce90303b76` | 93.6 s |
+| App Composer (relationship and composition check) | `f6aa705808c548fcbabc2b17015a56a6fe864214` | `ee638fad-c6f7-4813-80fd-46fd00823697` | 90.0 s |
 | Hello reference | `29efbab96d57d919c4cd3eba14d775a440713338` | `584caa40-7de2-4370-abb3-b70899213ac8` | verified at `ready.loftwah.com` |
 
 Every Composer and Studio release used the repository's own clean pushed-main
@@ -188,6 +189,28 @@ page use the real 17 Oct–15 Nov 2026 UTC window:
 returned **200**; the card returned **200 image/png, 1200 × 630, 78,166 bytes**.
 The copy defines a “recorded open” as a request, not a person or conversion.
 Withdrawal, malformed windows and unavailable counters fail closed.
+
+## Composer #5 — the composition pipeline checks the composed source
+
+`pnpm compose` used to compare each independent app's live `/build.json` with
+the source pin. That is the wrong target: the composed services at
+`/guestbook/` and `/showcase/` keep their reviewed pins while the standalone
+apps can move ahead independently. The default run therefore failed on a valid
+composition.
+
+The script now validates the mounted composed source at
+`https://composer.loftwah.com/<app>/build.json` against the selected pin, while
+keeping the standalone origin for configuration. The reviewed
+`composition.lock.json` and its service names are unchanged. `pnpm compose`
+now passes reproducibly:
+
+```
+Validated pinned composition 8428e16f61c25a4d524abb691e440b36fe07c92e21c2f3843e43962b197f1e1e.
+No source code downloaded from the registry was executed. Candidate staged; nothing deployed.
+```
+
+The mounted Guestbook is `5075d7be…` and the mounted Showcase is `f1dd2795…`;
+the standalone apps are independently at `a8191d34…` and `e6780997…`.
 
 ## Composer #18 / #20 — fresh checkout, refused dirty deploy, real change
 
