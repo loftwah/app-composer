@@ -70,24 +70,26 @@ const recordedAt = view?.recordedAt
           <h2 id="how-title">How the blind reveal works</h2>
           <ol class="cmp-steps">
             <li>Open both takes in a pair. The previews are the committed pages, mounted from an opaque route.</li>
-            <li>Choose <strong>A is better</strong>, <strong>B is better</strong>, <strong>Tie</strong> or <strong>Can't tell</strong>. The server resolves the pair and stores the vote.</li>
-            <li>The response reveals the two configuration labels and the judge's deterministic results. Reloading the page restores the revealed state from the server.</li>
+            <li>Choose <strong>A is better</strong>, <strong>B is better</strong>, <strong>Tie</strong> or <strong>Can't tell</strong>. The server resolves the pair and appends a submission.</li>
+            <li>The response reveals the two configuration labels and the judge's deterministic results. Reloading the page restores the reveal for this browser token.</li>
+            <li>After a recorded observation, <strong>Record another observation</strong> appends a second row. The earlier row is kept and both are counted.</li>
             <li>If you need to see the labels before choosing, use <strong>Reveal without choosing</strong>. That is recorded as unblinded and is never counted as a blind preference.</li>
           </ol>
           <div class="cmp-reviewer">
             <label for="reviewer-label">Reviewer label</label>
             <input id="reviewer-label" data-reviewer type="text" value={DEFAULT_REVIEWER_LABEL} maxlength="32" autocomplete="off" />
-            <p class="small">A self-declared label, not a sign-in. It is the only identity stored; no email, account id or commenter data is written.</p>
+            <p class="small">A self-declared display label, not a sign-in. It is stored with the observation; no email, account id or commenter data is written.</p>
           </div>
           <p class="cmp-unauthenticated" role="note">
-            <strong>Votes are unauthenticated.</strong> Choices are stored server-side, but this page does not sign anyone
-            in. Anyone can submit under any reviewer label. A vote count is not proof of who voted, and a label called
-            “owner” is not the owner's verified judgement.
+            <strong>Observations are unauthenticated.</strong> Submissions are stored server-side, but this page does not
+            sign anyone in. Anyone can submit under any reviewer label and any browser token. The record counts independent
+            submissions, not verified people; a label called “owner” is not the owner's verified judgement. A random token
+            in this browser's localStorage restores this browser's own observations and is published only as a hash.
           </p>
           <p class="small cmp-vote-availability" data-vote-availability role="status" aria-live="polite">
             The authoritative record is server-side but unauthenticated. Checking the record…
           </p>
-          <p class="small cmp-vote-summary" data-vote-summary>0 of {view.sample.pairs} pairs recorded on the server. Votes are unauthenticated.</p>
+          <p class="small cmp-vote-summary" data-vote-summary>0 of {view.sample.pairs} pairs have a submission from this browser. Votes are unauthenticated.</p>
           <p class="small" data-run-link hidden></p>
         </section>
 
@@ -204,6 +206,13 @@ const recordedAt = view?.recordedAt
   .cmp-reveal-head p{margin:0 0 4px}
   .cmp-reveal-verdict{font-size:1.05rem;font-weight:500}
   .cmp-reveal-meta,.cmp-reveal-reason{color:var(--color-muted)}
+  .cmp-observe{margin:10px 0 6px}
+  .cmp-observe[aria-pressed='true']{border-color:var(--color-accent);color:var(--color-foreground)}
+  .cmp-reveal-observations{margin:10px 0 0;padding-top:10px;border-top:1px solid var(--color-border)}
+  .cmp-reveal-observations p{margin:0 0 4px}
+  .cmp-observation-reason,.cmp-tally-label{color:var(--color-muted)}
+  .cmp-tally{list-style:none;padding:0;margin:4px 0 0;color:var(--color-muted)}
+  .cmp-tally li{padding:3px 0;overflow-wrap:anywhere}
   .cmp-reveal-sides{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:14px}
   .cmp-reveal-side{border:1px solid var(--color-border);border-radius:10px;padding:14px;min-width:0}
   .cmp-reveal-side h4{margin:0;font-size:1rem;overflow-wrap:anywhere}

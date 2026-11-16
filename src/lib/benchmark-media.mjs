@@ -649,16 +649,26 @@ export function mediaRunView(record, votes = [], options = {}) {
   const configurations = configurationsOfMedia(record);
   const pairs = mediaPairs(record);
   const knownPairs = new Set(pairs.map((pair) => pair.id));
-  const votesByPair = new Map();
-  for (const vote of asArray(votes)) {
-    const list = votesByPair.get(vote.pairId) ?? [];
-    list.push(vote);
-    votesByPair.set(vote.pairId, list);
-  }
   const trials = configurations.flatMap((configuration) => configuration.trials);
   const saved = trials.filter((trial) => trial.status === "saved" && trial.artifact).length;
   const failedChecks = [...new Set(trials.flatMap((trial) => trial.failed))];
   const recordedVotes = asArray(votes).filter((vote) => knownPairs.has(vote.pairId));
+  const submissionsByPair = new Map();
+  for (const vote of recordedVotes) {
+    const list = submissionsByPair.get(vote.pairId) ?? [];
+    list.push(vote);
+    submissionsByPair.set(vote.pairId, list);
+  }
+  for (const list of submissionsByPair.values()) {
+    list.sort(
+      (left, right) =>
+        String(left.createdAt ?? "").localeCompare(String(right.createdAt ?? "")) ||
+        String(left.submissionId ?? "").localeCompare(String(right.submissionId ?? "")),
+    );
+  }
+  const independentTokens = new Set(
+    recordedVotes.map((vote) => vote.reviewerTokenHash).filter(Boolean),
+  ).size;
   return {
     schema: MEDIA_RECORD_SCHEMA,
     runId,
@@ -700,8 +710,10 @@ export function mediaRunView(record, votes = [], options = {}) {
           ? 0
           : Math.max(0, Math.min(...configurations.map((configuration) => configuration.trials.length)) - 1),
       recordedPairs: new Set(recordedVotes.map((vote) => vote.pairId)).size,
-      blindVotes: recordedVotes.filter((vote) => vote.blind).length,
-      unblindedVotes: recordedVotes.filter((vote) => !vote.blind).length,
+      submissions: recordedVotes.length,
+      independentTokens,
+      blindSubmissions: recordedVotes.filter((vote) => vote.blind).length,
+      unblindedSubmissions: recordedVotes.filter((vote) => !vote.blind).length,
     },
     cost: {
       estimateMicro: trials.reduce(
@@ -742,7 +754,7 @@ export function mediaRunView(record, votes = [], options = {}) {
       label: `Pair ${pair.ordinal}`,
       sideA: revealSide(pair.trialA, "a") ?? unknownRevealSide("a"),
       sideB: revealSide(pair.trialB, "b") ?? unknownRevealSide("b"),
-      votes: votesByPair.get(pair.id) ?? [],
+      submissions: submissionsByPair.get(pair.id) ?? [],
       revealAvailable: true,
     })),
     unmatchedVotes: asArray(votes).filter((vote) => !knownPairs.has(vote.pairId)),
@@ -774,8 +786,8 @@ function mediaVerdict(pairs, votes, failedChecks, votesAvailable = true) {
   const voteLine = !votesAvailable
     ? "The vote record could not be read here, so this page does not claim that no preference exists."
     : votes.length === 0
-      ? "No blind vote has been recorded yet."
-      : `${blind} blind and ${unblinded} unblinded vote${votes.length === 1 ? "" : "s"} recorded; the labels are unauthenticated.`;
+      ? "No blind observation has been recorded yet."
+      : `${votes.length} independent submission${votes.length === 1 ? "" : "s"} recorded (${blind} blind, ${unblinded} unblinded); the labels are unauthenticated.`;
   const failureLine =
     failedChecks.length > 0
       ? `Observed failures: ${failedChecks.join(", ")}. They are task observations, not a quality score.`
@@ -790,20 +802,64 @@ function mediaVerdict(pairs, votes, failedChecks, votesAvailable = true) {
   };
 }
 
-/** Export and reopen share this object; the page builder reads the same shape. */
+/** Export and reopen share this object; the page builder reads the same shape.
+ * Every submission is listed oldest first. The browser token is represented by
+ * its SHA-256 hash only; a raw token is never placed in the evidence. */
 export function mediaExport(record, votes = [], options = {}) {
   const runId = mediaRunIdFor(record);
+  const submissions = asArray(votes)
+    .map(publicSubmission)
+    .sort(
+      (left, right) =>
+        left.createdAt.localeCompare(right.createdAt) ||
+        left.submissionId.localeCompare(right.submissionId),
+    );
   return {
     schema: "composer/benchmark-run-evidence/1",
     runId,
     record,
-    votes: asArray(votes),
+    votes: submissions,
+    submissions: submissions.length,
+    independentTokens: new Set(
+      submissions.map((vote) => vote.reviewerTokenHash).filter(Boolean),
+    ).size,
     votesAvailable: options.votesAvailable !== false,
     reopen: {
       blind: `/benchmarks/media?run=${encodeURIComponent(runId)}`,
       revealed: `/benchmarks/media/runs/${encodeURIComponent(runId)}`,
       export: `/benchmarks/media/runs/${encodeURIComponent(runId)}/export.json`,
     },
+  };
+}
+
+/** Whitelist the published fields. This is the boundary that keeps a raw
+ * reviewer token out of the export even if a caller passes a database row. */
+export function publicSubmission(vote) {
+  const row = asRecord(vote);
+  let reasons = asArray(row.reasons).filter((entry) => typeof entry === "string");
+  if (reasons.length === 0 && typeof row.reasons_json === "string") {
+    try {
+      const parsed = JSON.parse(row.reasons_json);
+      reasons = asArray(parsed).filter((entry) => typeof entry === "string");
+    } catch {
+      reasons = [];
+    }
+  }
+  return {
+    submissionId: text(row.submissionId) || text(row.submission_id),
+    runId: text(row.runId) || text(row.run_id),
+    taskId: text(row.taskId) || text(row.task_id),
+    pairId: text(row.pairId) || text(row.pair_id),
+    trialA: text(row.trialA) || text(row.trial_a),
+    trialB: text(row.trialB) || text(row.trial_b),
+    choice: text(row.choice) || "unknown",
+    reason: text(row.reason),
+    reasons,
+    blind: row.blind === true || Number(row.blind) === 1,
+    reviewerLabel: text(row.reviewerLabel) || text(row.reviewer_label) || "unknown",
+    reviewerTokenHash: text(row.reviewerTokenHash) || text(row.reviewer_token_hash),
+    createdAt: text(row.createdAt) || text(row.created_at),
+    updatedAt: text(row.updatedAt) || text(row.updated_at),
   };
 }
 
@@ -834,11 +890,11 @@ export function mediaPreferenceCopy({
     };
   }
   if (choices > 0) {
-    const votes = plural(choices, "recorded preference vote", "recorded preference votes");
+    const votes = plural(choices, "recorded preference submission", "recorded preference submissions");
     const interpretation =
       choices === 1
-        ? "That is one unauthenticated label's preference between two saved clips"
-        : `Those are ${choices} unauthenticated label preferences between two saved clips`;
+        ? "That is one unauthenticated observation between two saved clips"
+        : `Those are ${choices} unauthenticated observations between two saved clips`;
     return {
       line: `The separate matched-still comparison has ${votes} (${blindChoices} blind, ${choices - blindChoices} unblinded, ${plural(reveals, "reveal", "reveals")} without choosing). ${interpretation}, not a quality ranking of these ${routeLine}.`,
       limit: `Rank quality across these routes. ${votes} on one matched pair is one unauthenticated comparison, not a preference across these ${routeLine}.`,
@@ -853,9 +909,9 @@ export function mediaPreferenceCopy({
   }
   return {
     line:
-      "The separate matched-still comparison has no recorded vote yet. This table still does not turn a saved job into a preference.",
+      "The separate matched-still comparison has no recorded submission yet. This table still does not turn a saved job into a preference.",
     limit:
-      "Claim a preference. The aggregate routes have no blind human comparison; the separate matched-still pair is open for a blind vote.",
+      "Claim a preference. The aggregate routes have no blind human comparison; the separate matched-still pair is open for a blind observation.",
   };
 }
 

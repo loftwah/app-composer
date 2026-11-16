@@ -7,10 +7,12 @@
 // mapping from an opaque pair/side to a recorded trial, and it refuses to build
 // a blind view that contains any recorded configuration identity.
 //
-// It also owns the durable vote contract used by /api/benchmark-votes. Runs are
-// committed JSON records, not D1 rows: the evidence is reviewable in the
-// repository, and D1 stores only the reviewer's choice. A vote is idempotent per
-// (run, task, reviewer): a later vote updates that one record and says so.
+// It also owns the durable submission contract used by /api/benchmark-votes.
+// Runs are committed JSON records, not D1 rows: the evidence is reviewable in
+// the repository, and D1 stores the public observations. A submission is
+// append-only. The same browser token or label may submit again; that creates a
+// new row and never rewrites or deletes an earlier observation. The browser
+// token is random, not an identity, and only its SHA-256 hash is published.
 import type { D1Database } from "@cloudflare/workers-types";
 import recordFile from "../../benchmarks/results/compare.json" with { type: "json" };
 import mediaRecordFile from "../../benchmarks/media/run.json" with { type: "json" };
@@ -27,8 +29,14 @@ export type VoteChoice = (typeof VOTE_CHOICES)[number];
 export const VOTE_TABLE = "benchmark_votes";
 export const REASON_MAX = 240;
 export const REVIEWER_MAX = 32;
+export const REASONS_MAX = 8;
+export const REASON_CHIP_MAX = 48;
 export const DEFAULT_REVIEWER_LABEL = "visitor";
 export const REVIEWER_PATTERN = /^[A-Za-z0-9][A-Za-z0-9 ._-]*$/;
+// 32 or 64 lowercase hex characters. The 32-character form comes from the
+// migration's existing rows; browsers generate 32 random bytes (64 hex).
+export const REVIEWER_TOKEN_PATTERN = /^[0-9a-f]{32,64}$/;
+export const REVIEWER_TOKEN_HEADER = "x-benchmark-reviewer-token";
 export const JUDGE_LABEL =
   "Deterministic evaluator in src/lib/benchmark-compare.mjs: nine assertions read the bytes each trial produced. No model self-report is trusted.";
 export const RUNNER_LABEL =
@@ -183,7 +191,7 @@ export type RevealPair = {
 };
 
 export type VoteRecord = {
-  id: string;
+  submissionId: string;
   runId: string;
   taskId: string;
   pairId: string;
@@ -191,8 +199,10 @@ export type VoteRecord = {
   trialB: string;
   choice: VoteChoice;
   reason: string;
+  reasons: string[];
   blind: boolean;
   reviewerLabel: string;
+  reviewerTokenHash: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -203,8 +213,11 @@ export type VoteInput = {
   pair?: unknown;
   choice?: unknown;
   reason?: unknown;
+  reasons?: unknown;
+  chips?: unknown;
   blind?: unknown;
   reviewer?: unknown;
+  token?: unknown;
 };
 
 export type ValidatedVote = {
@@ -215,8 +228,10 @@ export type ValidatedVote = {
   trialB: string;
   choice: VoteChoice;
   reason: string;
+  reasons: string[];
   blind: boolean;
   reviewerLabel: string;
+  reviewerToken: string;
 };
 
 const VOTE_INPUT_KEYS = new Set([
@@ -225,9 +240,24 @@ const VOTE_INPUT_KEYS = new Set([
   "pair",
   "choice",
   "reason",
+  "reasons",
+  "chips",
   "blind",
   "reviewer",
+  "token",
 ]);
+
+/** What a blind page may see about a pair before its own submission: counts
+ * and choices, never a label, token, reason or model identity. */
+export type PairTally = {
+  pairId: string;
+  submissions: {
+    submissionId: string;
+    choice: VoteChoice;
+    blind: boolean;
+    createdAt: string;
+  }[];
+};
 
 export type ValidationFailure = { status: number; error: string; code: string };
 export type ValidationResult =
@@ -667,28 +697,46 @@ function costView(raw: unknown): RevealSide["cost"] {
   };
 }
 
-/** Read the server-side record for one run, or one reviewer's record. */
-export async function listVotes(
-  db: D1Database,
-  runId: string,
-  reviewerLabel?: string,
-): Promise<VoteRecord[]> {
-  const filtered = typeof reviewerLabel === "string" && reviewerLabel.length > 0;
+/** Read every submission for one run, oldest first. The row's raw browser
+ * token never leaves this module: the mapped record carries only its hash. */
+export async function listVotes(db: D1Database, runId: string): Promise<VoteRecord[]> {
   const result = await db
     .prepare(
-      `SELECT id, run_id, task_id, pair_id, trial_a, trial_b, choice, reason, blind, reviewer_label, created_at, updated_at
+      `SELECT submission_id, run_id, task_id, pair_id, trial_a, trial_b, choice, reason,
+              reasons_json, blind, reviewer_label, reviewer_token_hash, created_at, updated_at
        FROM ${VOTE_TABLE}
-       WHERE run_id = ?${filtered ? " AND reviewer_label = ?" : ""}
-       ORDER BY updated_at DESC, pair_id ASC`,
+       WHERE run_id = ?
+       ORDER BY created_at ASC, submission_id ASC`,
     )
-    .bind(...(filtered ? [runId, reviewerLabel] : [runId]))
+    .bind(runId)
+    .all();
+  return (result.results ?? []).map(mapVoteRow);
+}
+
+/** Read only the submissions this browser token made, for restoring its own
+ * recorded votes. Other browsers' rows are not returned to the blind page. */
+export async function listVotesForToken(
+  db: D1Database,
+  runId: string,
+  token: string,
+): Promise<VoteRecord[]> {
+  const tokenHash = await hashReviewerToken(token);
+  const result = await db
+    .prepare(
+      `SELECT submission_id, run_id, task_id, pair_id, trial_a, trial_b, choice, reason,
+              reasons_json, blind, reviewer_label, reviewer_token_hash, created_at, updated_at
+       FROM ${VOTE_TABLE}
+       WHERE run_id = ? AND reviewer_token_hash = ?
+       ORDER BY created_at ASC, submission_id ASC`,
+    )
+    .bind(runId, tokenHash)
     .all();
   return (result.results ?? []).map(mapVoteRow);
 }
 
 function mapVoteRow(row: Record<string, unknown>): VoteRecord {
   return {
-    id: text(row.id),
+    submissionId: text(row.submission_id),
     runId: text(row.run_id),
     taskId: text(row.task_id),
     pairId: text(row.pair_id),
@@ -698,11 +746,65 @@ function mapVoteRow(row: Record<string, unknown>): VoteRecord {
       ? (text(row.choice) as VoteChoice)
       : "cant-tell",
     reason: text(row.reason),
+    reasons: parseReasons(row.reasons_json),
     blind: Number(row.blind) === 1,
     reviewerLabel: text(row.reviewer_label) || "unknown",
+    reviewerTokenHash: text(row.reviewer_token_hash),
     createdAt: text(row.created_at),
     updatedAt: text(row.updated_at),
   };
+}
+
+function parseReasons(value: unknown): string[] {
+  if (Array.isArray(value))
+    return value.filter((entry): entry is string => typeof entry === "string");
+  if (typeof value !== "string" || value.length === 0) return [];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.filter((entry): entry is string => typeof entry === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+/** A one-way SHA-256 digest of the browser token. The export, the page and the
+ * API publish this hash, never the token itself. */
+export async function hashReviewerToken(token: string): Promise<string> {
+  const bytes = new TextEncoder().encode(`composer-benchmark-reviewer-token/v1:${token}`);
+  const digest = await globalThis.crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/** Counts a blind page may see without learning a label or model: one entry
+ * per independent submission, oldest first. */
+export function pairTallies(votes: VoteRecord[]): PairTally[] {
+  const byPair = new Map<string, PairTally>();
+  for (const vote of votes) {
+    const tally = byPair.get(vote.pairId) ?? { pairId: vote.pairId, submissions: [] };
+    tally.submissions.push({
+      submissionId: vote.submissionId,
+      choice: vote.choice,
+      blind: vote.blind,
+      createdAt: vote.createdAt,
+    });
+    byPair.set(vote.pairId, tally);
+  }
+  for (const tally of byPair.values()) {
+    tally.submissions.sort(
+      (left, right) =>
+        left.createdAt.localeCompare(right.createdAt) ||
+        left.submissionId.localeCompare(right.submissionId),
+    );
+  }
+  return [...byPair.values()];
+}
+
+export function independentTokenCount(votes: VoteRecord[]): number {
+  return new Set(votes.map((vote) => vote.reviewerTokenHash).filter(Boolean)).size;
 }
 
 /**
@@ -760,8 +862,12 @@ export function validateVote(record: RunRecord, input: VoteInput): ValidationRes
     };
   const reason = normaliseReason(input.reason);
   if (!reason.ok) return { ok: false, failure: reason.failure };
+  const reasons = normaliseReasons(input.chips ?? input.reasons);
+  if (!reasons.ok) return { ok: false, failure: reasons.failure };
   const reviewer = normaliseReviewer(input.reviewer);
   if (!reviewer.ok) return { ok: false, failure: reviewer.failure };
+  const token = normaliseToken(input.token);
+  if (!token.ok) return { ok: false, failure: token.failure };
   const blind = choice === "revealed" ? false : input.blind === false ? false : true;
   return {
     ok: true,
@@ -773,8 +879,10 @@ export function validateVote(record: RunRecord, input: VoteInput): ValidationRes
       trialB: pair.trialB.id,
       choice: choice as VoteChoice,
       reason: reason.value,
+      reasons: reasons.value,
       blind,
       reviewerLabel: reviewer.value,
+      reviewerToken: token.value,
     },
   };
 }
@@ -794,6 +902,83 @@ function normaliseReason(
       failure: { status: 400, code: "long-reason", error: `Reason is longer than ${REASON_MAX} characters.` },
     };
   return { ok: true, value: reason };
+}
+
+function normaliseReasons(
+  value: unknown,
+): { ok: true; value: string[] } | { ok: false; failure: ValidationFailure } {
+  if (value === undefined || value === null) return { ok: true, value: [] };
+  if (!Array.isArray(value))
+    return {
+      ok: false,
+      failure: { status: 400, code: "invalid-reasons", error: "Reason chips must be an array of short strings." },
+    };
+  if (value.length > REASONS_MAX)
+    return {
+      ok: false,
+      failure: {
+        status: 400,
+        code: "too-many-reasons",
+        error: `At most ${REASONS_MAX} reason chips may be recorded.`,
+      },
+    };
+  const reasons: string[] = [];
+  for (const entry of value) {
+    if (typeof entry !== "string")
+      return {
+        ok: false,
+        failure: { status: 400, code: "invalid-reasons", error: "Every reason chip must be text." },
+      };
+    const chip = entry
+      .replace(/[\u0000-\u001f\u007f]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!chip || chip.length > REASON_CHIP_MAX)
+      return {
+        ok: false,
+        failure: {
+          status: 400,
+          code: "invalid-reasons",
+          error: `Every reason chip must be 1-${REASON_CHIP_MAX} characters.`,
+        },
+      };
+    if (/[<>,]/.test(chip))
+      return {
+        ok: false,
+        failure: {
+          status: 400,
+          code: "invalid-reasons",
+          error: "Reason chips are separate JSON strings: no HTML or commas.",
+        },
+      };
+    if (!reasons.includes(chip)) reasons.push(chip);
+  }
+  return { ok: true, value: reasons };
+}
+
+function normaliseToken(
+  value: unknown,
+): { ok: true; value: string } | { ok: false; failure: ValidationFailure } {
+  if (typeof value !== "string")
+    return {
+      ok: false,
+      failure: {
+        status: 400,
+        code: "invalid-token",
+        error: "A reviewer token is required.",
+      },
+    };
+  const token = value.trim().toLowerCase();
+  if (!REVIEWER_TOKEN_PATTERN.test(token))
+    return {
+      ok: false,
+      failure: {
+        status: 400,
+        code: "invalid-token",
+        error: "Reviewer token must be 32-64 hexadecimal characters.",
+      },
+    };
+  return { ok: true, value: token };
 }
 
 function normaliseReviewer(
@@ -818,40 +1003,43 @@ function normaliseReviewer(
   return { ok: true, value: reviewer };
 }
 
-/** Insert or update the one vote for this run/task/reviewer. */
-export async function recordVote(
+/**
+ * Append one submission. There is no UPDATE and no DELETE: an earlier row, by
+ * this browser or any other, is never rewritten. A later submission for a pair
+ * this token already revealed is recorded as unblinded, because the labels are
+ * already known; it is still a new row.
+ */
+export async function appendVote(
   db: D1Database,
   vote: ValidatedVote,
   now = new Date(),
-): Promise<{ vote: VoteRecord; updated: boolean; replacedPair: string | null; blindStayedOff: boolean }> {
-  const existing = await db
+): Promise<{ vote: VoteRecord; appended: true }> {
+  const tokenHash = await hashReviewerToken(vote.reviewerToken);
+  const priorReveal = await db
     .prepare(
-      `SELECT id, pair_id, blind FROM ${VOTE_TABLE} WHERE run_id = ? AND task_id = ? AND reviewer_label = ?`,
+      `SELECT 1 AS seen FROM ${VOTE_TABLE}
+       WHERE run_id = ? AND pair_id = ? AND reviewer_token_hash = ?
+         AND (blind = 0 OR choice = 'revealed')
+       LIMIT 1`,
     )
-    .bind(vote.runId, vote.taskId, vote.reviewerLabel)
+    .bind(vote.runId, vote.pairId, tokenHash)
     .first();
-  const previous = existing ? asRecord(existing) : null;
+  const blind = vote.choice === "revealed" ? 0 : vote.blind && !priorReveal ? 1 : 0;
   const timestamp = now.toISOString();
-  const id = text(previous?.id) || crypto.randomUUID();
-  const blind =
-    Number(previous?.blind) === 0 || vote.blind === false ? 0 : 1;
+  const submissionId = globalThis.crypto.randomUUID();
   const row = await db
     .prepare(
       `INSERT INTO ${VOTE_TABLE}
-         (id, run_id, task_id, pair_id, trial_a, trial_b, choice, reason, blind, reviewer_label, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-       ON CONFLICT(run_id, task_id, reviewer_label) DO UPDATE SET
-         pair_id = excluded.pair_id,
-         trial_a = excluded.trial_a,
-         trial_b = excluded.trial_b,
-         choice = excluded.choice,
-         reason = excluded.reason,
-         blind = CASE WHEN ${VOTE_TABLE}.blind = 0 THEN 0 ELSE excluded.blind END,
-         updated_at = excluded.updated_at
-       RETURNING id, run_id, task_id, pair_id, trial_a, trial_b, choice, reason, blind, reviewer_label, created_at, updated_at`,
+         (submission_id, run_id, task_id, pair_id, trial_a, trial_b, choice, reason,
+          reasons_json, blind, reviewer_label, reviewer_token, reviewer_token_hash,
+          created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       RETURNING submission_id, run_id, task_id, pair_id, trial_a, trial_b, choice,
+                 reason, reasons_json, blind, reviewer_label, reviewer_token_hash,
+                 created_at, updated_at`,
     )
     .bind(
-      id,
+      submissionId,
       vote.runId,
       vote.taskId,
       vote.pairId,
@@ -859,21 +1047,17 @@ export async function recordVote(
       vote.trialB,
       vote.choice,
       vote.reason,
+      JSON.stringify(vote.reasons),
       blind,
       vote.reviewerLabel,
+      vote.reviewerToken,
+      tokenHash,
       timestamp,
       timestamp,
     )
     .first();
-  if (!row) throw new Error("The benchmark vote was not returned after the write.");
-  const stored = mapVoteRow(asRecord(row));
-  return {
-    vote: stored,
-    updated: previous !== null,
-    replacedPair:
-      previous && text(previous.pair_id) !== vote.pairId ? text(previous.pair_id) : null,
-    blindStayedOff: Number(previous?.blind) === 0 && vote.blind !== false,
-  };
+  if (!row) throw new Error("The benchmark submission was not returned after the insert.");
+  return { vote: mapVoteRow(asRecord(row)), appended: true };
 }
 
 export type RunEvidence = {
@@ -893,9 +1077,42 @@ export function buildRunEvidence(
     schema: RUN_EVIDENCE_SCHEMA,
     runId: runIdFor(record),
     record,
-    votes,
+    votes: sortSubmissions(votes).map(publicVoteRecord),
     votesAvailable: options.votesAvailable !== false,
   };
+}
+
+/** Whitelist the published submission fields. This is the boundary that keeps
+ * a raw browser token out of an export even if a caller passes a database row. */
+export function publicVoteRecord(vote: VoteRecord): VoteRecord {
+  const row = vote as VoteRecord & Record<string, unknown>;
+  return {
+    submissionId: text(row.submissionId) || text(row.submission_id),
+    runId: text(row.runId) || text(row.run_id),
+    taskId: text(row.taskId) || text(row.task_id),
+    pairId: text(row.pairId) || text(row.pair_id),
+    trialA: text(row.trialA) || text(row.trial_a),
+    trialB: text(row.trialB) || text(row.trial_b),
+    choice: (VOTE_CHOICES as readonly string[]).includes(text(row.choice))
+      ? (text(row.choice) as VoteChoice)
+      : "cant-tell",
+    reason: text(row.reason),
+    reasons: parseReasons(row.reasons ?? row.reasons_json),
+    blind: row.blind === true || Number(row.blind) === 1,
+    reviewerLabel: text(row.reviewerLabel) || text(row.reviewer_label) || "unknown",
+    reviewerTokenHash: text(row.reviewerTokenHash) || text(row.reviewer_token_hash),
+    createdAt: text(row.createdAt) || text(row.created_at),
+    updatedAt: text(row.updatedAt) || text(row.updated_at),
+  };
+}
+
+/** Exports and pages always list submissions oldest first. */
+export function sortSubmissions(votes: VoteRecord[]): VoteRecord[] {
+  return [...votes].sort(
+    (left, right) =>
+      left.createdAt.localeCompare(right.createdAt) ||
+      left.submissionId.localeCompare(right.submissionId),
+  );
 }
 
 export type RunView = {
@@ -919,8 +1136,10 @@ export type RunView = {
     usable: number;
     pairs: number;
     recordedPairs: number;
-    blindVotes: number;
-    unblindedVotes: number;
+    submissions: number;
+    independentTokens: number;
+    blindSubmissions: number;
+    unblindedSubmissions: number;
   };
   verdict: ReturnType<typeof verdictFor>;
   configurations: {
@@ -939,7 +1158,7 @@ export type RunView = {
     label: string;
     sideA: RevealSide;
     sideB: RevealSide;
-    votes: VoteRecord[];
+    submissions: VoteRecord[];
     revealAvailable: boolean;
   }[];
   unmatchedVotes: VoteRecord[];
@@ -982,7 +1201,11 @@ export function runView(evidence: RunEvidence): RunView {
     label: `Pair ${pair.ordinal}`,
     sideA: revealSide(record, pair.trialA, "a"),
     sideB: revealSide(record, pair.trialB, "b"),
-    votes: votesByPair.get(pair.id) ?? [],
+    submissions: (votesByPair.get(pair.id) ?? []).sort(
+      (left, right) =>
+        left.createdAt.localeCompare(right.createdAt) ||
+        left.submissionId.localeCompare(right.submissionId),
+    ),
     revealAvailable: Boolean(revealPair(record, pair.id)),
   }));
   const knownPairs = new Set(pairs.map((pair) => pair.id));
@@ -1016,8 +1239,12 @@ export function runView(evidence: RunEvidence): RunView {
       usable,
       pairs: pairs.length,
       recordedPairs: recordedPairSet.size,
-      blindVotes: evidence.votes.filter((vote) => knownPairs.has(vote.pairId) && vote.blind).length,
-      unblindedVotes: evidence.votes.filter((vote) => knownPairs.has(vote.pairId) && !vote.blind).length,
+      submissions: evidence.votes.filter((vote) => knownPairs.has(vote.pairId)).length,
+      independentTokens: independentTokenCount(
+        evidence.votes.filter((vote) => knownPairs.has(vote.pairId)),
+      ),
+      blindSubmissions: evidence.votes.filter((vote) => knownPairs.has(vote.pairId) && vote.blind).length,
+      unblindedSubmissions: evidence.votes.filter((vote) => knownPairs.has(vote.pairId) && !vote.blind).length,
     },
     verdict: verdictFor(configurations),
     configurations: configurations.map((configuration) => ({

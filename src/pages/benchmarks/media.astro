@@ -198,8 +198,10 @@ const settingsRows = (settings: Record<string, unknown>) =>
                 ))}
               </div>
               <p class="small media-stored-note">
-                The server stores one short text field per reviewer, not separate structured scores. Chips add a take
-                prefix to that field; a later vote on this run replaces it and the server says which pair was replaced.
+                The server stores each observation as its own row. The short text field and the selected chips are saved
+                with that row; a later observation adds another row and never replaces an earlier one. This browser keeps
+                a random token in localStorage so it can show its own recorded observations. The token is not an account
+                and is not an identity; only its SHA-256 hash appears in the public record.
               </p>
               <p class="media-pair-status small" data-media-status role="status" aria-live="polite"></p>
               <div class="media-reveal" data-media-reveal hidden></div>
@@ -211,20 +213,22 @@ const settingsRows = (settings: Record<string, unknown>) =>
           <h2 id="vote-title">Record a blind choice</h2>
           <ol class="media-steps">
             <li>Play both clips. The poster is a frame from the saved file, not a separate still.</li>
-            <li>Choose <strong>A is better</strong>, <strong>B is better</strong>, <strong>Tie</strong> or <strong>Can't tell</strong>. The server resolves the pair and writes the vote.</li>
+            <li>Choose <strong>A is better</strong>, <strong>B is better</strong>, <strong>Tie</strong> or <strong>Can't tell</strong>. The server resolves the pair and appends a submission.</li>
             <li>The response reveals the model, provider, exact settings, dimensions, byte count, digest, latency and cost basis for each take.</li>
-            <li>Reloading the page restores the reveal from the server for the same reviewer label. Another label never unblinds this page.</li>
+            <li>Reloading the page restores the reveal from the server for this browser token. Another browser never unblinds this page.</li>
+            <li>After a recorded observation, <strong>Record another observation</strong> appends a second row. The earlier row is kept and both are counted.</li>
             <li>Use <strong>Reveal without choosing</strong> to see the labels first. That is recorded as unblinded and is never counted as a blind preference.</li>
           </ol>
           <div class="media-reviewer">
             <label for="media-reviewer-label">Reviewer label</label>
             <input id="media-reviewer-label" data-reviewer type="text" value="visitor" maxlength="32" autocomplete="off" />
-            <p class="small">A self-declared label, not a sign-in. It is the only identity stored; no email, account id or commenter data is written.</p>
+            <p class="small">A self-declared display label, not a sign-in. It is stored with the observation; no email, account id or commenter data is written.</p>
           </div>
           <p class="media-unauthenticated" role="note">
-            <strong>Votes are unauthenticated.</strong> Choices are stored server-side, but this page does not sign anyone
-            in. Anyone can submit under any reviewer label. A vote count is not proof of who voted, and a label called
-            “owner” is not the owner's verified judgement.
+            <strong>Observations are unauthenticated.</strong> Submissions are stored server-side, but this page does not
+            sign anyone in. Anyone can submit under any reviewer label and any browser token. The record counts independent
+            submissions, not verified people; a label called “owner” is not the owner's verified judgement. A random token
+            in this browser's localStorage restores this browser's own observations and is published only as a hash.
           </p>
           <p class="small media-vote-availability" data-media-availability role="status" aria-live="polite">
             The server vote record is being checked…
@@ -310,6 +314,14 @@ const settingsRows = (settings: Record<string, unknown>) =>
   .media-reveal-head p{margin:0 0 4px}
   .media-reveal-verdict{font-size:1.05rem;font-weight:500}
   .media-reveal-meta,.media-reveal-reason{color:var(--color-muted)}
+  .media-observe{margin:10px 0 6px}
+  .media-observe[aria-pressed='true']{border-color:var(--color-accent);color:var(--color-foreground)}
+  .media-reveal-observations{margin:10px 0 0;padding-top:10px;border-top:1px solid var(--color-border)}
+  .media-reveal-observations p{margin:0 0 4px}
+  .media-observation strong{font-weight:500}
+  .media-observation-reason,.media-observation-chips,.media-tally-label{color:var(--color-muted)}
+  .media-tally{list-style:none;padding:0;margin:4px 0 0;color:var(--color-muted)}
+  .media-tally li{padding:3px 0;overflow-wrap:anywhere}
   .media-reveal-sides{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px}
   .media-reveal-side{border:1px solid var(--color-border);border-radius:10px;padding:14px;min-width:0}
   .media-reveal-side h4{margin:0;font-size:1rem;overflow-wrap:anywhere}

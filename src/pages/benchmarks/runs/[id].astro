@@ -98,15 +98,15 @@ const verdictTone = view?.verdict.comparable ? 'is-comparable' : 'is-single';
               ? <a href={`https://github.com/loftwah/app-composer/commit/${source}`}><code>{short}</code></a>
               : <span>unrecorded</span>}
           </dd></div>
-          <div><dt>Votes</dt><dd>
+          <div><dt>Submissions</dt><dd>
             {votesAvailable
-              ? `${view.sample.recordedPairs} recorded pair${view.sample.recordedPairs === 1 ? '' : 's'} · ${view.sample.blindVotes} blind · ${view.sample.unblindedVotes} unblinded · unauthenticated labels`
+              ? `${view.sample.recordedPairs} recorded pair${view.sample.recordedPairs === 1 ? '' : 's'} · ${view.sample.submissions} independent submission${view.sample.submissions === 1 ? '' : 's'} · ${view.sample.independentTokens} browser token${view.sample.independentTokens === 1 ? '' : 's'} · ${view.sample.blindSubmissions} blind · ${view.sample.unblindedSubmissions} unblinded · unauthenticated labels`
               : 'vote record unavailable'}
           </dd></div>
         </dl>
 
         <p class="run-warning run-unauthenticated" role="note">
-          <strong>Votes are unauthenticated.</strong> D1 stores the reviewer label supplied by the caller, but this
+          <strong>Submissions are unauthenticated.</strong> D1 stores the reviewer label supplied by the caller, but this
           record has no sign-in and no identity verification. Anyone can submit under any label. A recorded count is not
           proof of who voted, and a label called “owner” is not the owner's verified judgement.
         </p>
@@ -162,24 +162,26 @@ const verdictTone = view?.verdict.comparable ? 'is-comparable' : 'is-single';
         </section>
 
         <section class="run-section" aria-labelledby="pairs-title">
-          <h2 id="pairs-title">Every pair and its recorded vote</h2>
+          <h2 id="pairs-title">Every pair and its recorded submissions</h2>
           <p class="small">
-            These are the revealed labels for the same nine pairs the blind page shows. A pair with no vote is labelled
-            honestly: the compare page still treats it as blind. The vote record is idempotent per run, task and reviewer;
-            a later vote updates one record and reports which pair was replaced.
+            These are the revealed labels for the same nine pairs the blind page shows. A pair with no submission is
+            labelled honestly: the compare page still treats it as blind. The record is append-only: each observation is
+            its own row, ordered by creation time, and a later submission never updates or deletes an earlier one. The
+            reviewer label is self-declared; a browser token is random, not an identity, and only its SHA-256 hash appears
+            here.
           </p>
           <div class="run-pairs">
             {view.pairs.map((pair) => (
               <article class="run-pair" data-pair={pair.id}>
                 <header>
                   <h3>{pair.label}</h3>
-                  {pair.votes.length > 0
+                  {pair.submissions.length > 0
                     ? (
-                      <span class={`run-vote-tag ${pair.votes.every((vote) => vote.blind) ? 'is-blind' : 'is-unblinded'}`}>
-                        {pair.votes.length} recorded vote{pair.votes.length === 1 ? '' : 's'}
+                      <span class={`run-vote-tag ${pair.submissions.every((vote) => vote.blind) ? 'is-blind' : 'is-unblinded'}`}>
+                        {pair.submissions.length} independent submission{pair.submissions.length === 1 ? '' : 's'}
                       </span>
                     )
-                    : <span class="run-vote-tag is-none">no recorded vote</span>}
+                    : <span class="run-vote-tag is-none">no recorded submission</span>}
                 </header>
                 <div class="run-pair-sides">
                   {[pair.sideA, pair.sideB].map((side) => (
@@ -195,25 +197,30 @@ const verdictTone = view?.verdict.comparable ? 'is-comparable' : 'is-single';
                     </div>
                   ))}
                 </div>
-                {pair.votes.length > 0
-                  ? pair.votes.map((vote) => (
+                {pair.submissions.length > 0
+                  ? pair.submissions.map((vote) => (
                     <div class="run-vote">
                       <p>
                         <strong>{choiceLabel(vote.choice)}</strong>
                         {vote.choice === 'revealed' ? ' — no preference was claimed.' : '.'}
                       </p>
                       <p class="small">
-                        Reviewer {vote.reviewerLabel || 'unknown'} (unauthenticated label) · {vote.blind ? 'blind when cast' : 'unblinded'} ·
+                        Submission <code>{vote.submissionId}</code> · token hash <code>{vote.reviewerTokenHash.slice(0, 16)}…</code> ·
+                        reviewer {vote.reviewerLabel || 'unknown'} (unauthenticated label) · {vote.blind ? 'blind when cast' : 'unblinded'} ·
                         recorded {instant(vote.createdAt)}
-                        {vote.updatedAt !== vote.createdAt ? ` · updated ${instant(vote.updatedAt)}` : ''}
                       </p>
-                      <p class="small">{vote.reason ? `Reason: ${vote.reason}` : 'No reason was recorded.'}</p>
+                      <p class="small">{vote.reason ? `Reason: ${vote.reason}` : 'No free-text reason was recorded.'}</p>
+                      <p class="small">
+                        {vote.reasons.length > 0
+                          ? `Selected reasons: ${vote.reasons.join(' · ')}`
+                          : 'No reason chips were selected.'}
+                      </p>
                     </div>
                   ))
                   : (
                     <p class="small run-vote-none">
-                      No choice is recorded for this pair. Its labels are still shown here because this is the revealed
-                      record; the compare view keeps the pair blind until a vote arrives.
+                      No submission is recorded for this pair. Its labels are still shown here because this is the revealed
+                      record; the compare view keeps the pair blind until a submission arrives.
                     </p>
                   )}
               </article>
@@ -280,7 +287,9 @@ const verdictTone = view?.verdict.comparable ? 'is-comparable' : 'is-single';
           <h2 id="limits-title">What this record does not prove</h2>
           <ul class="run-limits">
             <li>A recorded preference is one unauthenticated label's judgement, not a model ranking, a provider benchmark or proof of the owner's judgement.</li>
-            <li>The reviewer label is self-declared and unauthenticated. The endpoint does not authenticate a person, does not verify an “owner” label and does not store an account id, email or comment.</li>
+            <li>The reviewer label is self-declared and unauthenticated. The endpoint does not authenticate a person, does not verify an “owner” label and does not store an account id, email or comment. A random browser token restores that browser's own submissions and is published only as a SHA-256 hash.</li>
+            <li>The record is append-only. The number of independent submissions is not a number of people: one browser token may submit many observations, and every one is retained and counted.</li>
+            <li>Rows written before the browser token existed were preserved with a server-generated placeholder token. No browser can claim or restore those rows; they are kept rather than deleted or attributed to anyone.</li>
             <li>The record is one job. A good landing page does not prove a build fix, a migration or a deployment.</li>
             <li>Three trials per configuration bound variance; they do not eliminate it.</li>
             <li>No rate card is loaded, so the cost estimate and provider charge stay unknown. The CLI reports tokens, not an invoice.</li>

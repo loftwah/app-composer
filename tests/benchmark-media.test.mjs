@@ -38,12 +38,13 @@ import {
   validateMediaRecord,
 } from "../src/lib/benchmark-media.mjs";
 import {
+  appendVote,
   getRunRecord,
+  hashReviewerToken,
   isMediaRecord,
   listVotes,
   mediaRunEntry,
   pairsFor,
-  recordVote,
   revealPair,
   runIdFor,
   validateVote,
@@ -61,6 +62,18 @@ const task = JSON.parse(
   readFileSync(new URL("../benchmarks/media/task.json", import.meta.url), "utf8"),
 );
 const runId = "animate-a-still-v1-d20cbf5";
+const TOKEN = "d4".repeat(32);
+
+function database() {
+  const db = sqliteD1({ schema: migration("0033_benchmark_votes.sql") });
+  try {
+    db.migrate(migration("0036_benchmark_votes_append.sql"));
+  } catch (error) {
+    db.cleanup();
+    throw error;
+  }
+  return db;
+}
 
 function clone(value) {
   return structuredClone(value);
@@ -481,62 +494,63 @@ test("sample size, latency and cost are stated, not implied", () => {
   assert.equal(unavailable.votesAvailable, false);
 });
 
-test("a media vote reuses benchmark_votes and the existing pair contract", async () => {
-  const db = sqliteD1({ schema: migration("0033_benchmark_votes.sql") });
+test("a media submission reuses benchmark_votes and the existing pair contract", async () => {
+  const db = database();
   try {
     const pair = mediaPair(record, "p01");
     assert.ok(pair);
-    const valid = validateVote(record, {
+    const body = {
       run: runId,
       task: "animate-a-still",
       pair: "p01",
       choice: "a",
-      reason: "A: holds the still; B: flicker or artifacts",
+      reason: "A holds the still; B has flicker.",
+      chips: ["A: holds the still", "B: flicker or artifacts"],
       blind: true,
-    });
+      token: TOKEN,
+    };
+    const valid = validateVote(record, body);
     assert.equal(valid.ok, true);
     if (valid.ok) {
       assert.equal(valid.value.trialA, pair.trialA.id);
       assert.equal(valid.value.trialB, pair.trialB.id);
       assert.equal(valid.value.blind, true);
+      assert.deepEqual(valid.value.reasons, ["A: holds the still", "B: flicker or artifacts"]);
     }
-    assert.equal(validateVote(record, { run: "nope", task: "animate-a-still", pair: "p01", choice: "a" }).ok, false);
-    assert.equal(validateVote(record, { run: runId, task: "other", pair: "p01", choice: "a" }).ok, false);
-    assert.equal(validateVote(record, { run: runId, task: "animate-a-still", pair: "p99", choice: "a" }).ok, false);
-    assert.equal(validateVote(record, { run: runId, task: "animate-a-still", pair: "p01", choice: "winner" }).ok, false);
-    assert.equal(
-      validateVote(record, { run: runId, task: "animate-a-still", pair: "p01", choice: "a", reason: "<b>x</b>" }).ok,
-      false,
-    );
+    assert.equal(validateVote(record, { ...body, run: "nope" }).ok, false);
+    assert.equal(validateVote(record, { ...body, task: "other" }).ok, false);
+    assert.equal(validateVote(record, { ...body, pair: "p99" }).ok, false);
+    assert.equal(validateVote(record, { ...body, choice: "winner" }).ok, false);
+    assert.equal(validateVote(record, { ...body, reason: "<b>x</b>" }).ok, false);
+    assert.equal(validateVote(record, { ...body, token: "nope" }).ok, false);
 
     assert.ok(valid.ok);
-    const first = await recordVote(db, valid.value, new Date("2026-11-16T11:00:00Z"));
-    assert.equal(first.updated, false);
+    const first = await appendVote(db, valid.value, new Date("2026-11-16T11:08:09Z"));
+    assert.equal(first.appended, true);
     assert.equal(first.vote.blind, true);
+    assert.equal(first.vote.reason, "A holds the still; B has flicker.");
+    assert.deepEqual(first.vote.reasons, ["A: holds the still", "B: flicker or artifacts"]);
 
     const second = validateVote(record, {
-      run: runId,
-      task: "animate-a-still",
-      pair: "p01",
+      ...body,
       choice: "b",
-      reason: "B: smoother motion",
-      blind: true,
+      reason: "B is smoother.",
+      chips: ["B: smoother motion"],
     });
     assert.ok(second.ok);
-    const stored = await recordVote(db, second.value, new Date("2026-11-16T11:01:00Z"));
-    assert.equal(stored.updated, true);
+    const stored = await appendVote(db, second.value, new Date("2026-11-16T11:55:35Z"));
+    assert.equal(stored.appended, true);
     assert.equal(stored.vote.choice, "b");
-    assert.equal(stored.vote.createdAt, "2026-11-16T11:00:00.000Z");
-    assert.equal(stored.vote.updatedAt, "2026-11-16T11:01:00.000Z");
-    assert.equal((await listVotes(db, runId)).length, 1, "one reviewer has one row per run");
+    assert.notEqual(stored.vote.submissionId, first.vote.submissionId);
+    const rows = await listVotes(db, runId);
+    assert.equal(rows.length, 2, "the same token and label append a second row");
+    assert.deepEqual(rows.map((row) => row.choice), ["a", "b"]);
+    assert.deepEqual(
+      rows.map((row) => row.createdAt),
+      ["2026-11-16T11:08:09.000Z", "2026-11-16T11:55:35.000Z"],
+    );
 
-    const reveal = validateVote(record, {
-      run: runId,
-      task: "animate-a-still",
-      pair: "p01",
-      choice: "revealed",
-      blind: true,
-    });
+    const reveal = validateVote(record, { ...body, choice: "revealed", blind: true });
     assert.ok(reveal.ok);
     if (reveal.ok) assert.equal(reveal.value.blind, false);
   } finally {
@@ -545,7 +559,7 @@ test("a media vote reuses benchmark_votes and the existing pair contract", async
 });
 
 test("export and reopen use the same record and the same media renderer", async () => {
-  const db = sqliteD1({ schema: migration("0033_benchmark_votes.sql") });
+  const db = database();
   try {
     const valid = validateVote(record, {
       run: runId,
@@ -553,21 +567,28 @@ test("export and reopen use the same record and the same media renderer", async 
       pair: "p01",
       choice: "a",
       reason: "A: holds the still",
+      chips: ["A: holds the still"],
       blind: true,
+      token: TOKEN,
     });
     assert.ok(valid.ok);
-    await recordVote(db, valid.value, new Date("2026-11-16T12:00:00Z"));
+    await appendVote(db, valid.value, new Date("2026-11-16T12:00:00Z"));
     const votes = await listVotes(db, runId);
     const evidence = mediaExport(record, votes, { votesAvailable: true });
     assert.equal(evidence.schema, "composer/benchmark-run-evidence/1");
     assert.equal(evidence.runId, runId);
     assert.deepEqual(evidence.record, record);
     assert.equal(evidence.votes.length, 1);
+    assert.equal(evidence.submissions, 1);
     assert.equal(evidence.votesAvailable, true);
     assert.equal(evidence.reopen.blind, `/benchmarks/media?run=${runId}`);
     assert.equal(evidence.reopen.revealed, `/benchmarks/media/runs/${runId}`);
     assert.equal(evidence.reopen.export, `/benchmarks/media/runs/${runId}/export.json`);
     assert.equal(mediaExportFilename(runId), `composer-benchmark-media-${runId}.json`);
+    assert.equal(evidence.votes[0].submissionId, votes[0].submissionId);
+    assert.equal(evidence.votes[0].reviewerTokenHash, await hashReviewerToken(TOKEN));
+    assert.equal(JSON.stringify(evidence).includes(TOKEN), false, "the raw token is not exported");
+    assert.equal("reviewerToken" in evidence.votes[0], false);
 
     const pageView = mediaRunView(evidence.record, evidence.votes, {
       votesAvailable: evidence.votesAvailable,
@@ -579,13 +600,17 @@ test("export and reopen use the same record and the same media renderer", async 
     );
     assert.deepEqual(reopened, pageView);
     assert.equal(pageView.sample.recordedPairs, 1);
-    assert.equal(pageView.sample.blindVotes, 1);
-    assert.equal(pageView.sample.unblindedVotes, 0);
-    assert.equal(pageView.pairs[0].votes[0].choice, "a");
-    assert.equal(pageView.pairs[0].votes[0].blind, true);
+    assert.equal(pageView.sample.submissions, 1);
+    assert.equal(pageView.sample.independentTokens, 1);
+    assert.equal(pageView.sample.blindSubmissions, 1);
+    assert.equal(pageView.sample.unblindedSubmissions, 0);
+    assert.equal(pageView.pairs[0].submissions[0].choice, "a");
+    assert.equal(pageView.pairs[0].submissions[0].blind, true);
+    assert.deepEqual(pageView.pairs[0].submissions[0].reasons, ["A: holds the still"]);
     assert.ok(pageView.pairs[0].sideA.configurationLabel);
     assert.ok(pageView.pairs[0].sideB.configurationLabel);
     assert.match(pageView.verdict.detail, /1 pair/);
+    assert.match(pageView.verdict.detail, /1 independent submission/);
     assert.match(pageView.verdict.detail, /not a model ranking/);
     assert.match(pageView.cost.label, /not a provider invoice/);
 
@@ -603,7 +628,7 @@ test("export and reopen use the same record and the same media renderer", async 
 });
 
 test("an unblinded reveal is not a blind preference", async () => {
-  const db = sqliteD1({ schema: migration("0033_benchmark_votes.sql") });
+  const db = database();
   try {
     const reveal = validateVote(record, {
       run: runId,
@@ -611,14 +636,15 @@ test("an unblinded reveal is not a blind preference", async () => {
       pair: "p01",
       choice: "revealed",
       blind: true,
+      token: TOKEN,
     });
     assert.ok(reveal.ok);
-    const stored = await recordVote(db, reveal.value, new Date("2026-11-16T13:00:00Z"));
+    const stored = await appendVote(db, reveal.value, new Date("2026-11-16T13:00:00Z"));
     assert.equal(stored.vote.blind, false);
     const view = mediaRunView(record, await listVotes(db, runId), { votesAvailable: true });
-    assert.equal(view.sample.blindVotes, 0);
-    assert.equal(view.sample.unblindedVotes, 1);
-    assert.match(view.verdict.detail, /0 blind and 1 unblinded/);
+    assert.equal(view.sample.blindSubmissions, 0);
+    assert.equal(view.sample.unblindedSubmissions, 1);
+    assert.match(view.verdict.detail, /0 blind, 1 unblinded/);
   } finally {
     db.cleanup();
   }
@@ -649,19 +675,19 @@ test("the receipts page no longer claims that no preference exists", () => {
 
   const unreadable = mediaPreferenceCopy({ available: false, choices: 0, reveals: 0, routes: 17 });
   assert.match(unreadable.line, /could not read its vote record/);
-  assert.doesNotMatch(unreadable.line, /no recorded vote yet/);
+  assert.doesNotMatch(unreadable.line, /no recorded submission yet/);
   assert.match(unreadable.limit, /does not claim that no preference exists/);
 
   const voted = mediaPreferenceCopy({ available: true, choices: 1, blindChoices: 1, reveals: 0, routes: 17 });
-  assert.match(voted.line, /1 recorded preference vote/);
+  assert.match(voted.line, /1 recorded preference submission/);
   assert.match(voted.line, /1 blind/);
   assert.match(voted.line, /not a quality ranking of these 17 routes/);
-  assert.doesNotMatch(voted.line, /no recorded vote yet|does not claim/);
+  assert.doesNotMatch(voted.line, /no recorded submission yet|does not claim/);
   assert.match(voted.limit, /Rank quality across these routes/);
   assert.match(voted.limit, /not a preference across these 17 routes/);
 
   const unblinded = mediaPreferenceCopy({ available: true, choices: 2, blindChoices: 0, reveals: 1, routes: 17 });
-  assert.match(unblinded.line, /2 recorded preference votes/);
+  assert.match(unblinded.line, /2 recorded preference submissions/);
   assert.match(unblinded.line, /0 blind, 2 unblinded, 1 reveal/);
 
   const revealedOnly = mediaPreferenceCopy({ available: true, choices: 0, blindChoices: 0, reveals: 1, routes: 17 });
@@ -669,8 +695,8 @@ test("the receipts page no longer claims that no preference exists", () => {
   assert.match(revealedOnly.line, /No blind preference between those two clips is recorded/);
 
   const none = mediaPreferenceCopy({ available: true, choices: 0, blindChoices: 0, reveals: 0, routes: 17 });
-  assert.match(none.line, /has no recorded vote yet/);
-  assert.match(none.limit, /open for a blind vote/);
+  assert.match(none.line, /has no recorded submission yet/);
+  assert.match(none.limit, /open for a blind observation/);
 
   const evidence = readFileSync(
     new URL("../benchmarks/comparisons/studio-job-receipts.json", import.meta.url),
