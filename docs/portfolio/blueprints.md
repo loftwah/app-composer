@@ -24,8 +24,8 @@ bucket.
 
 | App | Source | Pin | Licence |
 | --- | --- | --- | --- |
-| Here / there (guestbook) | [loftwah/app-composer-guestbook](https://github.com/loftwah/app-composer-guestbook) | `a8191d3442ea95a4013d481a2a50148e1f94bde3` | MIT |
-| Linkarooie (showcase) | [loftwah/app-composer-showcase](https://github.com/loftwah/app-composer-showcase) | `e6780997b96f8b9f2411abc66abbbdd590dd5940` | MIT |
+| Here / there (guestbook) | [loftwah/app-composer-guestbook](https://github.com/loftwah/app-composer-guestbook) | `5075d7be53b43aca288d3707fd06851aca91e8c2` | MIT |
+| Linkarooie (showcase) | [loftwah/app-composer-showcase](https://github.com/loftwah/app-composer-showcase) | `f1dd27952ca8548f81fde5c5905346dae4a2b61b` | MIT |
 
 The pins are the values in `composition.lock.json`. The live reference installs
 are **newer** than these pins: Guestbook reports
@@ -50,8 +50,8 @@ runs in production; it is not a replay of the pinned build.
    ```sh
    git clone https://github.com/<your-account>/app-composer-guestbook
    git clone https://github.com/<your-account>/app-composer-showcase
-   git -C app-composer-guestbook checkout a8191d3442ea95a4013d481a2a50148e1f94bde3
-   git -C app-composer-showcase checkout e6780997b96f8b9f2411abc66abbbdd590dd5940
+   git -C app-composer-guestbook checkout 5075d7be53b43aca288d3707fd06851aca91e8c2
+   git -C app-composer-showcase checkout f1dd27952ca8548f81fde5c5905346dae4a2b61b
    ```
 
 2. Replace the first-party deployment identity in each `wrangler.jsonc`. The

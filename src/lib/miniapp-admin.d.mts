@@ -104,7 +104,7 @@ export declare function manageMiniapps(ctx: MiniappContext, runtime: unknown, pi
     } | null;
     configured: boolean;
     invitation: {
-        state: "none" | "closed" | "open" | "paused" | "full" | "unavailable";
+        state: "closed" | "open" | "paused" | "full" | "none" | "unavailable";
         configuration?: number | undefined;
         contribute?: string | undefined;
         collection?: string | undefined;
