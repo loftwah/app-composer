@@ -106,7 +106,7 @@ const promptAgent = 'Use the saved Media Studio specification and the pinned sou
         </tbody>
       </table>
     </div>
-    <p class="small">Two current limits: the provider compose route refuses new jobs with 403, and the conversational Producer, named characters and MCP parity are not shipped. The <a href="https://github.com/loftwah/app-composer/blob/main/docs/evidence/launch-20261115/model-freshness-20261115.md">model freshness record</a> holds the checks behind the current still and video choices, including the retired SDXL Lightning route.</p>
+    <p class="small">Current limits: the provider compose route refuses new jobs with 403, and the conversational Producer and named characters remain open. The scoped Studio MCP server is shipped: OpenCode and Codex can read and edit one granted project, including the revision review below. The <a href="https://github.com/loftwah/app-composer/blob/main/docs/evidence/launch-20261115/model-freshness-20261115.md">model freshness record</a> holds the checks behind the current still and video choices, including the retired SDXL Lightning route.</p>
   </section>
 
   <section id="target" class="step">
@@ -470,6 +470,21 @@ node scripts/studio-project.mjs import --in pippa-project.studio.zip \
         <p><strong>Nothing to compare:</strong> that job has no saved takes in this studio yet. Make one, then return. A comparison is evidence, not a leaderboard.</p>
       </aside>
     </div>
+    <h3>Drive the same revision from your agent</h3>
+    <p>The studio also exposes a scoped MCP server at <code>/mcp</code>. Add that URL to a compatible agent, sign in, choose <strong>one</strong> project and grant only the scopes you need. Read access includes saved plans, prompts and exports; edit, generate and publish are separate. The agent gets the same project and revision the browser shows, not a parallel copy.</p>
+    <pre><code># OpenCode V2: request edits explicitly before signing in.
+# opencode.jsonc
+"media-studio": {
+  "type": "remote",
+  "url": "https://your-studio.example/mcp",
+  "oauth": { "scope": "studio.read studio.edit" }
+}
+
+opencode mcp logout media-studio
+opencode mcp auth media-studio</code></pre>
+    <p>On a saved song plan, tick the scenes and use <strong>Prepare private brief</strong> in the Creative Director panel. Give that brief to the agent. It reads the saved plan, calls <code>studio_preview_scene_proposal</code> and returns the typed before/after changes. Paste the result into <strong>Paste the agent&rsquo;s typed proposal</strong>, review it, untick any change you decline and apply the rest. Nothing is saved until you choose <strong>Save scene plan</strong>.</p>
+    <p>The exact proof in this build: revision 5 → private brief → agent preview pinned to revision 5 → declined scene 3 → applied scene 2 → saved revision 6 → the same agent read revision 6 back. Spend stayed at $0.00 because no media provider was called. The <a href="https://github.com/loftwah/composer-media-studio/blob/main/docs/evidence/2026-11-16-train-mcp/README.md">MCP receipt</a> records the ids, hashes and the exact direction.</p>
+    <p class="small">The agent connection is a bearer capability scoped to one project. Revoke it at <a href="https://media.loftwah.com/mcp/connections">Agent connections</a>; tokens expire after 30 minutes. Do not paste a token into a prompt, repository or screenshot.</p>
   </section>
 
   <section id="return" class="step">
