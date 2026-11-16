@@ -951,6 +951,29 @@ function ShareCalendar({ search }: { search: string }) {
   const selection = useRef<string | undefined>(undefined);
   const invalidScope = useRef(false);
 
+  // The send window opens at the intended time and closes when the approval
+  // expires. A page left open across that boundary used to keep the original
+  // instant, so the send button stayed disabled until a reload. Advance the
+  // clock while the tab is visible; the explicit Revalidate control stays.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const tick = () => {
+      if (document.visibilityState !== "visible") return;
+      setBlueskyNow((current) => {
+        const next = new Date();
+        return next.getTime() - current.getTime() >= 15_000 ? next : current;
+      });
+    };
+    const timer = window.setInterval(tick, 20_000);
+    document.addEventListener("visibilitychange", tick);
+    window.addEventListener("focus", tick);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", tick);
+      window.removeEventListener("focus", tick);
+    };
+  }, []);
+
   const sources = snapshot?.sources ?? [];
   const source = sources.find((entry) => entry.id === sourceId);
   const canWrite = Boolean(snapshot && snapshot.workspace.role !== "viewer");
