@@ -988,7 +988,7 @@ export function buildBlueskyPackage(
     ? `${identity?.message ?? ""} ${BLUESKY_PUBLISHING_STATEMENT}`.trim()
     : bound
       ? `The saved approval binds @${bound.handle} (${bound.did}). Recheck the public profile before any handoff; a saved approval is not a live identity check. ${BLUESKY_PUBLISHING_STATEMENT}`
-      : "No public Bluesky account has been resolved. Enter the owner's public handle and resolve it before approval. Composer stores no app password.";
+      : "No public Bluesky account has been resolved. Enter the owner's public handle and resolve it before approval. Public profile lookup uses no credential.";
   return {
     schema: BLUESKY_PACKAGE_SCHEMA,
     item: { id: content.itemId, revision: content.revision },

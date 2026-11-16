@@ -283,9 +283,11 @@ function ApprovalPackageView({
           <dt>Provenance</dt>
           <dd>
             {value.provenance.statement} Item updated{" "}
-            {value.provenance.preparedAt}; item revision{" "}
-            {value.provenance.itemRevision}; source revision{" "}
-            {value.provenance.sourceRevision}.
+            {value.provenance.preparedAt}. Item revision{" "}
+            {value.provenance.itemRevision}
+            {value.provenance.sourceRevision !== null &&
+              `. Stack revision ${value.provenance.sourceRevision}`}
+            .
           </dd>
         </div>
       </dl>
@@ -770,7 +772,7 @@ function BlueskyPanel({
                       <dt>Media</dt>
                       <dd>
                         {media
-                          ? `Public share card · ${media.alt}`
+                          ? `${item.catalogue ? "Woodhouse artwork" : "Public share card"} · ${media.alt}`
                           : "No approved share card"}
                       </dd>
                     </div>
@@ -1067,12 +1069,13 @@ function ShareCalendar({ search }: { search: string }) {
   }
 
   function changeSourceKind(kind: "stack" | "catalogue") {
-    if (editing) return;
+    if (editing || kind === sourceKind) return;
     setSourceKind(kind);
     setCataloguePreview(undefined);
     setRightsConfirmed(false);
     setVariants([]);
     if (kind === "catalogue") {
+      if (caption === source?.description) setCaption("");
       setChannel("bluesky");
       setDestination("");
       setLink("");
@@ -2019,9 +2022,8 @@ function ShareCalendar({ search }: { search: string }) {
                     </a>
                   </div>
                   <p className="sc-hint">
-                    Copy the asset ID from Woodhouse Share. Composer builds the
-                    one fixed public URL; it accepts no image URL, follows no
-                    redirect, and stores the exact rendition digest.
+                    Use the ID from Woodhouse Share to preview the exact public
+                    image and its project details.
                   </p>
                   {!isOwner && (
                     <p className="sc-hint">
@@ -2188,7 +2190,7 @@ function ShareCalendar({ search }: { search: string }) {
               )}
               {catalogueMode && (
                 <>
-                  <div className="sc-field">
+                  <label className="sc-field">
                     Bluesky account
                     <input
                       value={
@@ -2197,12 +2199,10 @@ function ShareCalendar({ search }: { search: string }) {
                       readOnly
                       disabled
                     />
-                  </div>
+                  </label>
                   <p className="sc-hint">
-                    Portfolio drafts are always one fixed Bluesky post. The
-                    server records the exact destination; the approval panel
-                    below still requires the owner to confirm the handle, text,
-                    media and time.
+                    Approve the exact post and send it through the configured
+                    account.
                   </p>
                 </>
               )}
@@ -2569,7 +2569,13 @@ function ShareCalendar({ search }: { search: string }) {
                           : " · source changed or no longer public")}
                     </p>
                     <p className="sc-hint sc-destination-line">
-                      Exact destination: {item.destination || "not recorded"}.
+                      {portfolio
+                        ? approval
+                          ? `Bound account @${approval.accountHandle}.`
+                          : blueskyAccount
+                            ? `Configured for @${blueskyAccount}.`
+                            : "Connect a Bluesky account before sending."
+                        : `Exact destination: ${item.destination || "not recorded"}.`}
                       {item.variants.length
                         ? " Additional drafts: " +
                           item.variants
