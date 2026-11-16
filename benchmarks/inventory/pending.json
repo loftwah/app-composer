@@ -1,0 +1,63 @@
+{
+  "schema": "composer/inventory-decisions/1",
+  "checkedAt": "2026-11-16T02:41:00Z",
+  "note": "Queued decisions that this inventory cannot answer without spend or a product decision. Nothing here has run. The owner holds spend authority; a queued row is not an approval.",
+  "decisions": [
+    {
+      "id": "timed-codex-second-harness",
+      "title": "A timed second-harness run on the currently published Codex CLI",
+      "issue": 601,
+      "kind": "spend",
+      "cost": {
+        "label": "unknown",
+        "micro": null,
+        "basis": "The CLI reports input and output tokens, not an invoice, and no rate card is loaded. Three trials of the frozen brief would spend model tokens on the operator's ChatGPT plan."
+      },
+      "why": "The recorded comparison ran Codex CLI 0.145.0. The published harness is 0.169.0, and gpt-6.1-sol is now the default model. Re-running gives a comparable duration and a harness version that is current.",
+      "ownerAction": "Approve spending model tokens, and name the model id to run.",
+      "status": "queued"
+    },
+    {
+      "id": "composer-hosted-inference",
+      "title": "Decide whether the deployed Composer Worker should run a model at all",
+      "issue": 601,
+      "kind": "decision",
+      "cost": {
+        "label": "US$0 today",
+        "micro": 0,
+        "basis": "No Workers AI binding exists on the deployed Worker, so there is nothing to run and nothing to bill. A Workers AI trial would need a binding, a model choice and a paid-account check first."
+      },
+      "why": "A benchmark row called \"Cloudflare-hosted Composer\" currently has nothing to execute. Either the plane is delegated by design — the Studio executes, Composer records — and the benchmark should say so, or Composer needs a binding and a model decision.",
+      "ownerAction": "Choose delegated-by-design or add a hosted path. No worker change is proposed by this inventory.",
+      "status": "queued"
+    },
+    {
+      "id": "rate-card-for-cost-per-take",
+      "title": "Make cost per usable take a number instead of unknown",
+      "issue": 601,
+      "kind": "decision",
+      "cost": {
+        "label": "US$0",
+        "micro": 0,
+        "basis": "Reading a published rate card or recorded receipts costs nothing."
+      },
+      "why": "Every trial's estimateMicro and providerChargedMicro are null, so the page prints unknown. That is honest but it blocks the cost column of any scoreboard.",
+      "ownerAction": "Supply a current rate card or provider receipts, or accept unknown permanently.",
+      "status": "queued"
+    },
+    {
+      "id": "studio-matched-pair-refresh",
+      "title": "Re-run one matched Studio image pair at the now-standard rates",
+      "issue": 601,
+      "kind": "spend",
+      "cost": {
+        "label": "US$0.59 estimated allocation",
+        "micro": 590000,
+        "basis": "The 15 November pair allocated $0.24 for H3 Max Turbo and $0.35 for Kling 2.5 Turbo Pro. These are the Studio's planning estimates, not an invoice, and provider charge was not reported."
+      },
+      "why": "The h3-max-turbo promotional window closed on 2026-11-16. A same-brief re-run would test whether the standard rate changes the recorded comparison, and would produce a second matched pair on current terms.",
+      "ownerAction": "Approve the spend and the brief before any generation is submitted.",
+      "status": "queued"
+    }
+  ]
+}

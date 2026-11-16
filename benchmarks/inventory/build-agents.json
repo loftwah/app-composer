@@ -1,0 +1,231 @@
+{
+  "schema": "composer/model-inventory/1",
+  "id": "build-agents",
+  "title": "Build agents and harnesses",
+  "question": "Which coding agents can a Composer user actually hand work to, at what published version, with which model ids the agent's own catalogue still lists?",
+  "checkedAt": "2026-11-16T02:41:00Z",
+  "staleAfterDays": 7,
+  "previousCheck": {
+    "checkedAt": "2026-11-15T08:42:03.193Z",
+    "source": "benchmarks/results/compare.json",
+    "what": "The comparison run recorded the three configurations it executed: Codex CLI 0.145.0 with gpt-5.6-sol and gpt-5.6-terra, and an ingested OpenCode agent trial."
+  },
+  "entries": [
+    {
+      "id": "codex-cli",
+      "label": "Codex CLI",
+      "kind": "build-agent",
+      "status": "drifted",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "codex --version; codex --help; GET https://api.github.com/repos/openai/codex/releases/latest",
+      "observed": "Installed at ~/.local/bin/codex returns \"codex-cli 0.145.0\". The vendor's latest release is rust-v0.169.0, published 2026-11-13T08:37:05Z. The installed harness is therefore behind the published one; the comparison run pinned 0.145.0.",
+      "composerHandoff": "The maintained Hello recipe codex-github-cloudflare-hello-v2 targets Codex on an Apple Silicon Mac (src/lib/project-setup.ts)."
+    },
+    {
+      "id": "opencode",
+      "label": "OpenCode",
+      "kind": "build-agent",
+      "status": "unverified",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "command -v opencode; ls ~/.opencode/bin; GET https://api.github.com/repos/sst/opencode/releases/latest; GET https://models.dev/api.json",
+      "observed": "No opencode binary is on PATH and ~/.opencode/bin does not exist, so no local CLI version could be read. The vendor's latest release is v1.19.5, published 2026-10-28T06:17:49Z. This session itself runs inside an OpenCode host agent, which is why the compare page recorded it as \"host agent runtime\" with no CLI version.",
+      "reason": "The harness is present only as the host runtime. Its CLI version and its own tool surface could not be executed or read from a local installation in this session, so only the published release and the provider's model catalogue are asserted.",
+      "composerHandoff": "Composer's fresh-agent evaluation wires the codex and opencode CLIs and nothing else (scripts/eval-fresh-agent.mjs); the tutorials name a supported Codex or OpenCode agent."
+    },
+    {
+      "id": "claude-code",
+      "label": "Claude Code",
+      "kind": "build-agent",
+      "status": "unverified",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "command -v claude; GET https://registry.npmjs.org/@anthropic-ai%2Fclaude-code/latest",
+      "observed": "No claude binary is on PATH. The npm registry reports the published package version 2.1.325 for @anthropic-ai/claude-code. No model id, tool list or Composer handoff is asserted.",
+      "reason": "Not installed here and no Anthropic account was used, so nothing about its current model ids or capabilities was observed. Only the published package version was readable, which is not evidence that a Composer task can be handed to it.",
+      "composerHandoff": "Not named in Composer's maintained recipe, fresh-agent evaluation or MCP setup; it appears only as a docs search keyword (src/lib/docs-hub.ts)."
+    },
+    {
+      "id": "codex-gpt-6-1-sol",
+      "label": "GPT-6.1-Sol",
+      "kind": "build-model",
+      "agent": "codex-cli",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "~/.codex/models_cache.json (catalogue the CLI fetched at 2026-11-16T02:22:50.619Z)",
+      "observed": "Listed slug gpt-6.1-sol, display GPT-6.1-Sol, visibility \"list\", supported_in_api true, 500000 context. It is also the model this machine's ~/.codex/config.toml selects.",
+      "note": "Current default of the installed client, not yet measured by the comparison track."
+    },
+    {
+      "id": "codex-gpt-6-1-terra",
+      "label": "GPT-6.1 Terra",
+      "kind": "build-model",
+      "agent": "codex-cli",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "~/.codex/models_cache.json (catalogue the CLI fetched at 2026-11-16T02:22:50.619Z)",
+      "observed": "Listed slug gpt-6.1-terra, visibility \"list\", supported_in_api true, 500000 context."
+    },
+    {
+      "id": "codex-gpt-6-astra",
+      "label": "GPT-6-Astra",
+      "kind": "build-model",
+      "agent": "codex-cli",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "~/.codex/models_cache.json (catalogue the CLI fetched at 2026-11-16T02:22:50.619Z)",
+      "observed": "Listed slug gpt-6-astra, visibility \"list\", supported_in_api true, 272000 context."
+    },
+    {
+      "id": "codex-gpt-6-sol",
+      "label": "GPT-6-Sol",
+      "kind": "build-model",
+      "agent": "codex-cli",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "~/.codex/models_cache.json (catalogue the CLI fetched at 2026-11-16T02:22:50.619Z)",
+      "observed": "Listed slug gpt-6-sol, visibility \"list\", supported_in_api true, 272000 context.",
+      "note": "Named only by the client's freshly fetched catalogue in this check; the vendor's public models page did not list it."
+    },
+    {
+      "id": "codex-gpt-6-luna",
+      "label": "GPT-6-Luna",
+      "kind": "build-model",
+      "agent": "codex-cli",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "~/.codex/models_cache.json (catalogue the CLI fetched at 2026-11-16T02:22:50.619Z)",
+      "observed": "Listed slug gpt-6-luna, visibility \"list\", supported_in_api true, 272000 context.",
+      "note": "Named only by the client's freshly fetched catalogue in this check; the vendor's public models page did not list it."
+    },
+    {
+      "id": "codex-gpt-5-6-sol",
+      "label": "GPT-5.6-Sol",
+      "kind": "build-model",
+      "agent": "codex-cli",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "~/.codex/models_cache.json (catalogue the CLI fetched at 2026-11-16T02:22:50.619Z)",
+      "observed": "Listed slug gpt-5.6-sol, visibility \"list\", supported_in_api true. Still offered by the client after the GPT-6 family shipped.",
+      "note": "One of the two models the comparison track actually measured, on 2026-11-15."
+    },
+    {
+      "id": "codex-gpt-5-6-terra",
+      "label": "GPT-5.6-Terra",
+      "kind": "build-model",
+      "agent": "codex-cli",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "~/.codex/models_cache.json (catalogue the CLI fetched at 2026-11-16T02:22:50.619Z)",
+      "observed": "Listed slug gpt-5.6-terra, visibility \"list\", supported_in_api true. Still offered by the client after the GPT-6 family shipped.",
+      "note": "One of the two models the comparison track actually measured, on 2026-11-15."
+    },
+    {
+      "id": "codex-gpt-5-6-luna",
+      "label": "GPT-5.6-Luna",
+      "kind": "build-model",
+      "agent": "codex-cli",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "~/.codex/models_cache.json (catalogue the CLI fetched at 2026-11-16T02:22:50.619Z)",
+      "observed": "Listed slug gpt-5.6-luna, visibility \"list\", supported_in_api true, 272000 context.",
+      "note": "Named only by the client's freshly fetched catalogue in this check; the vendor's public models page did not list it."
+    },
+    {
+      "id": "opencode-deepseek-v4-1-flash",
+      "label": "DeepSeek V4.1 Flash 1017",
+      "kind": "build-model",
+      "agent": "opencode",
+      "status": "current",
+      "checkedAt": "2026-11-16T02:41:00Z",
+      "source": "GET https://models.dev/api.json → providers[\"opencode-go\"].models[\"deepseek-v4.1-flash\"]",
+      "observed": "The public catalogue lists provider opencode-go (\"OpenCode Go\") with 40 models including id deepseek-v4.1-flash, display \"DeepSeek V4.1 Flash 1017\". This session is running as provider opencode-go, model deepseek-v4.1-flash.",
+      "note": "The model id is verified. The harness version it runs through is not, because no opencode CLI is installed here."
+    }
+  ],
+  "changes": [
+    {
+      "entry": "codex-cli",
+      "field": "publishedVersion",
+      "kind": "version",
+      "previous": "0.145.0 (the harness the comparison run recorded on 2026-11-15)",
+      "current": "0.169.0 published 2026-11-13T08:37:05Z; the local install is still 0.145.0",
+      "note": "The measured harness is 24 published minors behind. A new timed comparison has to name the version it runs, or the result is not comparable with the recorded one."
+    },
+    {
+      "entry": "codex-gpt-6-1-sol",
+      "field": "catalogue",
+      "kind": "capability",
+      "previous": "gpt-5.6-sol and gpt-5.6-terra were the only Codex models the track had recorded",
+      "current": "eight listed Codex ids, with gpt-6.1-sol as the operator's selected default",
+      "note": "The two measured models are still offered, so the recorded comparison is not invalidated; it is no longer the newest pair."
+    },
+    {
+      "entry": "opencode",
+      "field": "localPresence",
+      "kind": "presence",
+      "previous": "host agent runtime with no observable version (as recorded on 2026-11-15)",
+      "current": "still no opencode CLI on PATH; the published release is v1.19.5 and the model id is confirmed by models.dev",
+      "note": "Nothing about the harness was upgraded or newly evidenced. The gap is unchanged and stays marked unverified."
+    }
+  ],
+  "pinnedRuns": [
+    {
+      "id": "compare-v1",
+      "where": "file:benchmarks/results/compare.json",
+      "source": "1c97c3d6e3405443775ef54917250e83a68d400b",
+      "recordedAt": "2026-11-15T08:42:03.193Z",
+      "note": "Nine tries of one frozen brief across three configurations. Left exactly as recorded; this inventory only describes the harnesses around it."
+    }
+  ],
+  "sources": [
+    {
+      "id": "codex-version",
+      "url": "https://github.com/openai/codex/releases",
+      "readAt": "2026-11-16T02:24:00Z",
+      "shape": "GitHub releases API 200: tag_name rust-v0.169.0, published_at 2026-11-13T08:37:05Z"
+    },
+    {
+      "id": "codex-catalogue",
+      "url": "file:~/.codex/models_cache.json",
+      "readAt": "2026-11-16T02:22:50Z",
+      "shape": "The client's own cache of the vendor model list: fetched_at 2026-11-16T02:22:50.619Z, client_version 0.164.0, etag present, ten records with slug/visibility/supported_in_api"
+    },
+    {
+      "id": "codex-models-page",
+      "url": "https://developers.openai.com/codex/models",
+      "readAt": "2026-11-16T02:34:00Z",
+      "shape": "200, 634,565 bytes; the page names gpt-6.1-sol, gpt-6-astra and gpt-6.1-terra"
+    },
+    {
+      "id": "codex-changelog",
+      "url": "https://developers.openai.com/codex/changelog",
+      "readAt": "2026-11-16T02:34:00Z",
+      "shape": "200; the changelog names gpt-6.1-sol, gpt-5.6-sol and gpt-5.6-terra"
+    },
+    {
+      "id": "opencode-release",
+      "url": "https://github.com/sst/opencode/releases",
+      "readAt": "2026-11-16T02:26:00Z",
+      "shape": "GitHub releases API 200: tag_name v1.19.5, published_at 2026-10-28T06:17:49Z"
+    },
+    {
+      "id": "claude-code-npm",
+      "url": "https://registry.npmjs.org/@anthropic-ai%2Fclaude-code/latest",
+      "readAt": "2026-11-16T02:26:00Z",
+      "shape": "npm registry 200: version 2.1.325"
+    },
+    {
+      "id": "models-dev",
+      "url": "https://models.dev/api.json",
+      "readAt": "2026-11-16T02:26:00Z",
+      "shape": "200, 6,654,265 bytes: 324 providers; opencode-go has 40 models including deepseek-v4.1-flash"
+    }
+  ],
+  "limits": [
+    "The three inventories were read in one bounded pass on 2026-11-16 between 02:15Z and 02:41Z. Row timestamps name the pass, not each request; the exact read time is on each source.",
+    "No inference was run for this inventory. No model token was spent, so an id being listed is not evidence that a trial with it would succeed today.",
+    "Two further Codex catalogue records are marked visibility \"hide\" (gpt-reserve, codex-auto-review) and are not asserted as usable here.",
+    "The Codex catalogue was written by client 0.164.0, while the installed CLI reports 0.145.0. The list is the vendor's current published catalogue for the account, not a capability claim about the older binary.",
+    "Five of the eight listed Codex ids are also named on the vendor's public models page or changelog. gpt-6-sol, gpt-6-luna and gpt-5.6-luna appear only in the client's freshly fetched catalogue and are recorded on that evidence alone.",
+    "Claude Code and the OpenCode harness stay unverified until a local installation is actually executed."
+  ]
+}
