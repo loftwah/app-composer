@@ -1,16 +1,19 @@
 // Read-only GitHub command centre (#658).
 //
 // This module performs one bounded read per allowlisted public repository and
-// caches it for 55 seconds in the current Worker instance. It never writes to
-// GitHub, never creates an issue, never starts a deployment and never turns an
-// unconfirmed section into a zero. A partial failure is returned per section so
-// the page can say "unknown" with a reason instead of implying an empty queue.
+// caches it in the current Worker instance. A credentialed read uses a 55-second
+// window; an unauthenticated read uses 12 minutes so the public 60-request
+// hourly quota survives ordinary page loads. It never writes to GitHub, never
+// creates an issue, never starts a deployment and never turns an unconfirmed
+// section into a zero. A partial failure is returned per section so the page can
+// say "unknown" with a reason instead of implying an empty queue.
 import { PluginRouteError } from "emdash";
 import { isCreatorRole } from "./creator-access.ts";
 import {
   blockedLabelNames,
   commandCentreCacheSeconds,
   commandCentreLabelLimit,
+  commandCentrePublicCacheSeconds,
   commandCentreReport,
   commandCentreSchema,
   githubCommitList,
@@ -39,16 +42,17 @@ const userAgent =
 const requestTimeoutMs = 8_000;
 const maximumRepositories = 10;
 
-// Public, active first-party repositories. `loftwah/club` is archived, so it is
-// deliberately absent. The portfolio inventory (16 November 2026) records the
-// three portfolio repositories; Composer Media Studio is the sibling app.
+// Public, active first-party repositories. `loftwah/club` is archived and
+// `loftwah/card-collector-bot` is outside the default three so the unauthenticated
+// public quota is not spent on every project. Composer Media Studio is the
+// sibling app; Liferaft is the maintained portfolio app in the 16 November 2026
+// inventory.
 export const commandCentreRepositories = [
   { repository: "loftwah/app-composer", label: "App Composer" },
   {
     repository: "loftwah/composer-media-studio",
     label: "Composer Media Studio",
   },
-  { repository: "loftwah/card-collector-bot", label: "Foilbury" },
   { repository: "loftwah/liferaft", label: "Liferaft" },
 ] as const;
 
@@ -57,7 +61,7 @@ const limits = [
   "Counts come from GitHub's open-item count and one page of open items; no second page is read.",
   "A section that could not be confirmed stays unknown and is never shown as zero or an empty list.",
   "No forecast, agent proposal or planned work is shown here as accepted work.",
-  "A completed or failed read is cached for 55 seconds in this Worker instance.",
+  "A read is cached for 55 seconds with a GitHub credential, or 12 minutes without one, so the public quota survives normal page loads.",
   "Without a GITHUB_TOKEN binding, GitHub allows 60 public requests per hour; one repository read asks for up to 10 responses.",
   "Only a signed-in Composer creator can open this view.",
 ];
@@ -82,6 +86,7 @@ interface RateLimit {
 
 interface CachedRepository {
   storedAt: number;
+  ttlSeconds: number;
   repo: CommandCentreRepo;
   rateLimit: RateLimit;
 }
@@ -480,6 +485,9 @@ export async function readCommandCentre(
   const now = options.now ?? Date.now();
   const fetcher = options.fetch ?? fetch;
   const token = readToken(options.token ?? null);
+  const cacheSeconds = token
+    ? commandCentreCacheSeconds
+    : commandCentrePublicCacheSeconds;
 
   const base = {
     ok: true as const,
@@ -493,18 +501,21 @@ export async function readCommandCentre(
   };
 
   const cached = cache.get(repository);
-  if (cached && now - cached.storedAt <= commandCentreCacheSeconds * 1000) {
+  // Do not serve a long public-window result after a credential appears, or a
+  // short credentialed result after it is removed. The TTL mode must match.
+  if (
+    cached &&
+    cached.ttlSeconds === cacheSeconds &&
+    now - cached.storedAt <= cacheSeconds * 1000
+  ) {
     return commandCentreReport.parse({
       ...base,
       fetchedAt: cached.repo.checkedAt,
       cached: true,
-      cacheSeconds: commandCentreCacheSeconds,
+      cacheSeconds,
       cacheAgeSeconds: Math.max(
         0,
-        Math.min(
-          commandCentreCacheSeconds,
-          Math.floor((now - cached.storedAt) / 1000),
-        ),
+        Math.min(cacheSeconds, Math.floor((now - cached.storedAt) / 1000)),
       ),
       rateLimit: cached.rateLimit,
       repo: cached.repo,
@@ -517,7 +528,12 @@ export async function readCommandCentre(
     token,
     now,
   );
-  cache.set(repository, { storedAt: now, repo, rateLimit });
+  cache.set(repository, {
+    storedAt: now,
+    ttlSeconds: cacheSeconds,
+    repo,
+    rateLimit,
+  });
   while (cache.size > maximumRepositories) {
     const oldest = cache.keys().next().value;
     if (oldest === undefined) break;
@@ -527,7 +543,7 @@ export async function readCommandCentre(
     ...base,
     fetchedAt: repo.checkedAt,
     cached: false,
-    cacheSeconds: commandCentreCacheSeconds,
+    cacheSeconds,
     cacheAgeSeconds: 0,
     rateLimit,
     repo,

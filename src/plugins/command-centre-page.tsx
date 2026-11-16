@@ -370,6 +370,24 @@ export function CommandCentreBoard({
           ))}
         </ul>
       </section>
+
+      <footer className="cc-foot">
+        <p>
+          Effective cache: {report.cacheSeconds}-second window · this response
+          is{" "}
+          {report.cached
+            ? `${report.cacheAgeSeconds} seconds old`
+            : "fresh in this request"}
+          .
+        </p>
+        {report.cacheSeconds > 60 && (
+          <p>
+            No GitHub credential is configured, so the longer window keeps the
+            public 60-request hourly quota realistic. A cached read can be up to{" "}
+            {Math.floor(report.cacheSeconds / 60)} minutes old.
+          </p>
+        )}
+      </footer>
     </>
   );
 }

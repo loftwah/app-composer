@@ -8,7 +8,12 @@ import { z } from "zod";
 
 export const commandCentreSchema = "app-composer.command-centre/1";
 export const maximumCommandCentreRepositories = 10;
+// A credentialed read can use the short window. The unauthenticated public API
+// allows only 60 requests per hour, so the long window keeps a real read usable
+// across ordinary page loads instead of exhausting the quota immediately.
 export const commandCentreCacheSeconds = 55;
+export const commandCentrePublicCacheSeconds = 12 * 60;
+export const commandCentreMaximumCacheSeconds = 15 * 60;
 export const commandCentreRecentIssueLimit = 5;
 export const commandCentreRecentWindow = 100;
 export const commandCentreLabelLimit = 100;
@@ -152,8 +157,16 @@ export const commandCentreReport = z
     selected: commandCentreRepositoryName,
     fetchedAt: instant,
     cached: z.boolean(),
-    cacheSeconds: z.literal(commandCentreCacheSeconds),
-    cacheAgeSeconds: z.number().int().min(0).max(commandCentreCacheSeconds),
+    cacheSeconds: z
+      .number()
+      .int()
+      .min(45)
+      .max(commandCentreMaximumCacheSeconds),
+    cacheAgeSeconds: z
+      .number()
+      .int()
+      .min(0)
+      .max(commandCentreMaximumCacheSeconds),
     repositories: commandCentreRepositoryList,
     rateLimit: z
       .object({

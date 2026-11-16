@@ -131,11 +131,16 @@ async function readNormal() {
   return { report, ...fixture };
 }
 
-test("the command centre lists only public first-party repositories", () => {
+test("the command centre lists only the three default public repositories", () => {
   const names = commandCentreRepositories.map((entry) => entry.repository);
-  assert.equal(names.length, 4);
+  assert.equal(names.length, 3);
   assert.ok(names.includes("loftwah/app-composer"));
   assert.ok(names.includes("loftwah/composer-media-studio"));
+  assert.ok(names.includes("loftwah/liferaft"));
+  assert.ok(
+    !names.includes("loftwah/card-collector-bot"),
+    "Foilbury is outside the default three",
+  );
   assert.ok(!names.includes("loftwah/club"), "archived club is not listed");
   assert.equal(new Set(names).size, names.length);
 });
@@ -149,6 +154,7 @@ test("a normal read maps counts, release, commit, blocked labels and recent issu
   assert.equal(report.schema, "app-composer.command-centre/1");
   assert.equal(report.selected, repository);
   assert.equal(report.cached, false);
+  assert.equal(report.cacheSeconds, 720, "public reads use the long window");
   assert.equal(report.repo.issues.count.state, "ok");
   assert.equal(
     report.repo.issues.count.value,
@@ -181,6 +187,88 @@ test("a normal read maps counts, release, commit, blocked labels and recent issu
   // label count for this fixture.
   assert.equal(calls.length, 7);
   assert.ok(calls.every((call) => !call.includes("page=2")));
+});
+
+test("cache TTL follows the credential: 55 seconds with a token, 12 minutes without", async () => {
+  clearCommandCentreCache();
+  const publicFixture = fixtureFetch(baseResponses());
+  const first = await readCommandCentre({
+    repository,
+    now: checkedNow,
+    fetch: publicFixture.fetch,
+  });
+  assert.equal(first.cacheSeconds, 720);
+  const publicCalls = publicFixture.calls.length;
+  assert.equal(
+    publicCalls,
+    7,
+    "six bounded reads plus one blocked label count",
+  );
+
+  const cachedPublic = await readCommandCentre({
+    repository,
+    now: checkedNow + 5 * 60_000,
+    fetch: publicFixture.fetch,
+  });
+  assert.equal(cachedPublic.cached, true);
+  assert.equal(cachedPublic.cacheSeconds, 720);
+  assert.equal(cachedPublic.cacheAgeSeconds, 300);
+  assert.equal(publicFixture.calls.length, publicCalls);
+
+  const expiredPublic = await readCommandCentre({
+    repository,
+    now: checkedNow + 721_000,
+    fetch: publicFixture.fetch,
+  });
+  assert.equal(expiredPublic.cached, false);
+  assert.ok(publicFixture.calls.length > publicCalls);
+
+  clearCommandCentreCache();
+  const token = "fixture-token-1234";
+  const tokenFixture = fixtureFetch(baseResponses());
+  const credentialed = await readCommandCentre({
+    repository,
+    token,
+    now: checkedNow,
+    fetch: tokenFixture.fetch,
+  });
+  assert.equal(credentialed.cacheSeconds, 55);
+  const cachedShort = await readCommandCentre({
+    repository,
+    token,
+    now: checkedNow + 5_000,
+    fetch: tokenFixture.fetch,
+  });
+  assert.equal(cachedShort.cached, true);
+  assert.equal(cachedShort.cacheSeconds, 55);
+  assert.equal(cachedShort.cacheAgeSeconds, 5);
+  const expiredShort = await readCommandCentre({
+    repository,
+    token,
+    now: checkedNow + 56_000,
+    fetch: tokenFixture.fetch,
+  });
+  assert.equal(expiredShort.cached, false);
+
+  // A TTL-mode change must not serve the other window's result.
+  clearCommandCentreCache();
+  const mixedFixture = fixtureFetch(baseResponses());
+  await readCommandCentre({
+    repository,
+    now: checkedNow,
+    fetch: mixedFixture.fetch,
+  });
+  const switched = await readCommandCentre({
+    repository,
+    token,
+    now: checkedNow + 1_000,
+    fetch: mixedFixture.fetch,
+  });
+  assert.equal(
+    switched.cached,
+    false,
+    "a credentialed read does not reuse the public window",
+  );
 });
 
 test("a rate-limited read is unknown in every section and never zero", async () => {
@@ -337,6 +425,11 @@ test("an absent blocked label is shown as none, not as zero issues", async () =>
       "no blocked count is requested when the label does not exist",
     ),
   );
+  assert.equal(
+    fixture.calls.length,
+    6,
+    "a repository read without blocked labels is six requests",
+  );
 });
 
 test("contract helpers keep pull requests and missing counts honest", () => {
@@ -477,7 +570,7 @@ test("page registration uses the creator permission and the page map", () => {
   assert.deepEqual(page, {
     path: "/command-centre",
     label: "Command centre",
-    icon: "kanban",
+    icon: "chart",
   });
   const route = definition.routes.commandCentreRead;
   assert.deepEqual(route.methods, ["GET"]);
@@ -534,7 +627,31 @@ test("the board renders real counts, release, commit and an empty state", async 
   assert.match(html, /#10/);
   assert.match(html, /Fresh|Live read|not cached/);
   assert.match(html, /Fetched/);
+  assert.match(html, /Effective cache: 720-second window/);
+  assert.match(html, /fresh in this request/);
+  assert.match(html, /No GitHub credential is configured/);
   assert.doesNotMatch(html, /Unknown — checked at/);
+
+  // The credentialed path keeps the short TTL and says so in the footer.
+  clearCommandCentreCache();
+  const token = "fixture-token-1234";
+  const tokenFixture = fixtureFetch(baseResponses());
+  await readCommandCentre({
+    repository,
+    token,
+    now: checkedNow,
+    fetch: tokenFixture.fetch,
+  });
+  const cachedToken = await readCommandCentre({
+    repository,
+    token,
+    now: checkedNow + 3_000,
+    fetch: tokenFixture.fetch,
+  });
+  const tokenHtml = renderBoard(board, cachedToken);
+  assert.match(tokenHtml, /Effective cache: 55-second window/);
+  assert.match(tokenHtml, /this response is 3 seconds old/);
+  assert.doesNotMatch(tokenHtml, /No GitHub credential is configured/);
 
   // A repository with no open issues gets a useful empty state, not a blank.
   clearCommandCentreCache();

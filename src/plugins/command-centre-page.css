@@ -357,6 +357,19 @@
   font-size: 0.88rem;
   color: var(--cc-muted);
 }
+.cc-foot {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--cc-rule);
+  font-size: 0.82rem;
+  color: var(--cc-muted);
+}
+.cc-foot p {
+  margin: 0 0 5px;
+}
+.cc-foot p:last-child {
+  margin-bottom: 0;
+}
 @media (max-width: 620px) {
   .composer-command {
     padding: 16px;

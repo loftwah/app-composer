@@ -69,7 +69,7 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
         {
           path: "/command-centre",
           label: "Command centre",
-          icon: "kanban",
+          icon: "chart",
         },
         { path: "/brand-studio", label: "Brand Studio", icon: "palette" },
         {
