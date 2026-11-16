@@ -13,13 +13,18 @@ import {
 } from "./stacks.mjs";
 import { stackShareDetails } from "./stack-sharing.ts";
 import {
+  captionProblem,
   shareCalendarCommand,
   shareCalendarReadInput,
   shareCalendarSnapshot,
+  shareCalendarVariantSchema,
   sqliteInstant,
+  variantSort,
+  SHARE_VARIANT_MAX,
   type ShareCalendarItem,
   type ShareCalendarSnapshot,
   type ShareCalendarSource,
+  type ShareCalendarVariant,
 } from "./share-calendar.ts";
 
 export interface ShareCalendarRuntime {
@@ -54,7 +59,9 @@ interface ItemRow {
   stack_slug: string;
   stack_revision: number;
   channel: string;
+  destination: string;
   caption: string;
+  variants: string;
   link: string;
   scheduled_at: string | null;
   state: string;
@@ -119,6 +126,23 @@ async function listSources(
   return sources;
 }
 
+function variantsFor(row: ItemRow): ShareCalendarVariant[] {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(row.variants || "[]");
+  } catch {
+    throw new StackError(
+      "UNAVAILABLE",
+      "A saved channel draft could not be read. Refresh before retrying.",
+      500,
+    );
+  }
+  return shareCalendarVariantSchema
+    .array()
+    .max(SHARE_VARIANT_MAX)
+    .parse(parsed) as ShareCalendarVariant[];
+}
+
 function itemRow(row: ItemRow): ShareCalendarItem {
   return {
     id: row.id,
@@ -128,7 +152,9 @@ function itemRow(row: ItemRow): ShareCalendarItem {
     publication: row.stack_revision,
     sourceCurrent: false,
     channel: row.channel as ShareCalendarItem["channel"],
+    destination: row.destination ?? "",
     caption: row.caption,
+    variants: variantsFor(row),
     link: row.link,
     scheduledAt: row.scheduled_at ? sqliteInstant(row.scheduled_at) : null,
     state: row.state as ShareCalendarItem["state"],
@@ -142,11 +168,12 @@ function itemRow(row: ItemRow): ShareCalendarItem {
 async function snapshot(
   db: D1Database,
   workspace: Workspace,
+  changed: string | null = null,
 ): Promise<ShareCalendarSnapshot> {
   const sources = await listSources(db, workspace.id);
   const rows = await db
     .prepare(
-      `SELECT i.id,i.stack_id,i.stack_revision,i.channel,i.caption,i.link,i.scheduled_at,i.state,i.shared_at,i.revision,i.created_at,i.updated_at,s.name AS stack_name,s.slug AS stack_slug
+      `SELECT i.id,i.stack_id,i.stack_revision,i.channel,i.destination,i.caption,i.variants,i.link,i.scheduled_at,i.state,i.shared_at,i.revision,i.created_at,i.updated_at,s.name AS stack_name,s.slug AS stack_slug
        FROM creator_share_calendar_items i
        JOIN creator_stacks s ON s.id=i.stack_id
        WHERE i.workspace_id=?
@@ -167,6 +194,7 @@ async function snapshot(
       sourceCurrent: current.get(row.stack_id) === row.stack_revision,
     })),
     now: new Date().toISOString(),
+    changed,
   });
 }
 
@@ -216,7 +244,7 @@ async function selectedItem(
 ): Promise<ItemRow> {
   const row = await db
     .prepare(
-      `SELECT i.id,i.stack_id,i.stack_revision,i.channel,i.caption,i.link,i.scheduled_at,i.state,i.shared_at,i.revision,i.created_at,i.updated_at,s.name AS stack_name,s.slug AS stack_slug
+      `SELECT i.id,i.stack_id,i.stack_revision,i.channel,i.destination,i.caption,i.variants,i.link,i.scheduled_at,i.state,i.shared_at,i.revision,i.created_at,i.updated_at,s.name AS stack_name,s.slug AS stack_slug
        FROM creator_share_calendar_items i
        JOIN creator_stacks s ON s.id=i.stack_id
        WHERE i.id=? AND i.workspace_id=? LIMIT 1`,
@@ -339,19 +367,23 @@ export async function manageShareCalendar(
     const now = new Date().toISOString();
     if (command.action === "create") {
       const source = await currentSource(db, workspace.id, command.stack);
+      const problem = captionProblem(command.channel, command.caption, true);
+      if (problem) return fail("INVALID", problem);
       const scheduledAt = command.scheduledAt ?? null;
+      const id = crypto.randomUUID();
       await db
         .prepare(
           `INSERT INTO creator_share_calendar_items
-           (id,workspace_id,stack_id,stack_revision,channel,caption,link,scheduled_at,state,shared_at,created_by,updated_by,revision,created_at,updated_at)
-           VALUES (?,?,?,?,?,?,?,?,?,NULL,?,?,1,?,?)`,
+           (id,workspace_id,stack_id,stack_revision,channel,destination,caption,variants,link,scheduled_at,state,shared_at,created_by,updated_by,revision,created_at,updated_at)
+           VALUES (?,?,?,?,?,?,?,'[]',?,?,?,NULL,?,?,1,?,?)`,
         )
         .bind(
-          crypto.randomUUID(),
+          id,
           workspace.id,
           source.id,
           source.publication,
           command.channel,
+          command.destination ?? "",
           command.caption,
           command.link,
           scheduledAt,
@@ -362,7 +394,7 @@ export async function manageShareCalendar(
           now,
         )
         .run();
-      return snapshot(db, workspace);
+      return snapshot(db, workspace, id);
     }
 
     const row = await selectedItem(db, workspace.id, command.item);
@@ -374,15 +406,25 @@ export async function manageShareCalendar(
           "This stack's published revision changed. Refresh the source before editing or sharing this item.",
           409,
         );
+      const problem = captionProblem(command.channel, command.caption, true);
+      if (problem) return fail("INVALID", problem);
+      if (
+        variantsFor(row).some((variant) => variant.channel === command.channel)
+      )
+        return fail(
+          "INVALID",
+          "A channel draft already exists for the new main destination. Remove that draft before moving the main caption there.",
+        );
       const scheduledAt = command.scheduledAt ?? null;
       const result = await db
         .prepare(
           `UPDATE creator_share_calendar_items
-           SET channel=?,caption=?,link=?,scheduled_at=?,state=?,shared_at=NULL,updated_by=?,revision=revision+1,updated_at=?
+           SET channel=?,destination=?,caption=?,link=?,scheduled_at=?,state=?,shared_at=NULL,updated_by=?,revision=revision+1,updated_at=?
            WHERE id=? AND workspace_id=? AND revision=?`,
         )
         .bind(
           command.channel,
+          command.destination ?? row.destination ?? "",
           command.caption,
           command.link,
           scheduledAt,
@@ -395,7 +437,78 @@ export async function manageShareCalendar(
         )
         .run();
       if (result.meta?.changes !== 1) throw conflict();
-      return snapshot(db, workspace);
+      return snapshot(db, workspace, row.id);
+    }
+    if (command.action === "variant") {
+      if (!(await sourceStillCurrent(db, workspace.id, row)))
+        throw new StackError(
+          "SOURCE_STALE",
+          "This stack's published revision changed. Refresh the source before editing this item.",
+          409,
+        );
+      if (command.channel === row.channel)
+        return fail(
+          "INVALID",
+          "The main caption already covers this channel. Edit the main caption, or choose another channel for the draft.",
+        );
+      const existing = variantsFor(row);
+      const previous = existing.find(
+        (variant) => variant.channel === command.channel,
+      );
+      if (command.caption === null) {
+        if (!previous)
+          return fail(
+            "NOT_FOUND",
+            "That channel draft no longer exists. Refresh before retrying.",
+          );
+      } else {
+        const problem = captionProblem(command.channel, command.caption);
+        if (problem) return fail("INVALID", problem);
+        if (!previous && existing.length >= SHARE_VARIANT_MAX)
+          return fail(
+            "INVALID",
+            "This item already has a draft for every other channel.",
+          );
+      }
+      const next = existing
+        .filter((variant) => variant.channel !== command.channel)
+        .concat(
+          command.caption === null
+            ? []
+            : [
+                {
+                  channel: command.channel,
+                  destination:
+                    command.destination ?? previous?.destination ?? "",
+                  caption: command.caption,
+                },
+              ],
+        )
+        .sort(variantSort);
+      const encoded = JSON.stringify(next);
+      if (encoded.length > 65536)
+        return fail(
+          "INVALID",
+          "The saved channel drafts are too large. Remove a draft before adding another.",
+        );
+      const result = await db
+        .prepare(
+          `UPDATE creator_share_calendar_items
+           SET variants=?,state=?,shared_at=NULL,updated_by=?,revision=revision+1,updated_at=?
+           WHERE id=? AND workspace_id=? AND revision=?`,
+        )
+        .bind(
+          encoded,
+          stateFor(row.scheduled_at),
+          ctx.user.id,
+          now,
+          row.id,
+          workspace.id,
+          command.expectedRevision,
+        )
+        .run();
+      if (result.meta?.changes !== 1) throw conflict();
+      return snapshot(db, workspace, row.id);
     }
     if (command.action === "shared") {
       if (!(await sourceStillCurrent(db, workspace.id, row)))
@@ -420,7 +533,7 @@ export async function manageShareCalendar(
         )
         .run();
       if (result.meta?.changes !== 1) throw conflict();
-      return snapshot(db, workspace);
+      return snapshot(db, workspace, row.id);
     }
     if (command.action === "reopen") {
       const next = stateFor(row.scheduled_at);
@@ -440,7 +553,7 @@ export async function manageShareCalendar(
         )
         .run();
       if (result.meta?.changes !== 1) throw conflict();
-      return snapshot(db, workspace);
+      return snapshot(db, workspace, row.id);
     }
     if (command.action === "refresh") {
       const source = await currentSource(db, workspace.id, row.stack_id);
@@ -462,7 +575,7 @@ export async function manageShareCalendar(
         )
         .run();
       if (result.meta?.changes !== 1) throw conflict();
-      return snapshot(db, workspace);
+      return snapshot(db, workspace, row.id);
     }
     if (command.action === "delete") {
       const result = await db
