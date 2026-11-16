@@ -8,19 +8,26 @@
 // Usage:
 //   node benchmarks/runner.mjs                 print the results as JSON
 //   node benchmarks/runner.mjs --write         also write benchmarks/results/latest.json
+//   node benchmarks/runner.mjs --suite FLOW-01 run one versioned JSON pack
 //   --suites <dir>  --out <file>  --timeout <ms>
 //
 // Files in the suite directory whose names start with "_" or "." are helpers and
 // are never run as suites. Each suite module exports {id, name, run}; run returns
 // an array of {id, name, status: "pass"|"fail"|"blocked", detail}.
 //
+// A *.json file in the same directory is a versioned suite pack. It names
+// deterministic checks from those modules and is validated by
+// src/lib/benchmark-suite.mjs before anything runs. `--suite <id>` runs only the
+// checks that pack names; the existing .mjs discovery is unchanged.
+//
 // Exit code 0 when every check passes or is blocked; 1 when any check fails.
 // Blocked checks are counted and printed, and never quietly pass.
 import { execFile } from "node:child_process";
-import { mkdir, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import { validateBenchmarkSuite } from "../src/lib/benchmark-suite.mjs";
 
 const exec = promisify(execFile);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -34,10 +41,11 @@ const STATUSES = new Set(["pass", "fail", "blocked"]);
 
 const USAGE = `Benchmarks Studio runner
 
-  node benchmarks/runner.mjs [--write] [--suites <dir>] [--out <file>] [--timeout <ms>]
+  node benchmarks/runner.mjs [--write] [--suite <id>] [--suites <dir>] [--out <file>] [--timeout <ms>]
 
   --write        write the results file in addition to printing JSON
-  --suites <dir> read suites from another directory (used by the focused test)
+  --suite <id>   run one versioned JSON pack from --suites (for example FLOW-01)
+  --suites <dir> read suites and JSON packs from another directory
   --out <file>   write the results here instead of benchmarks/results/latest.json
   --timeout <ms> per-suite timeout; defaults to ${DEFAULT_TIMEOUT_MS}`;
 
@@ -79,6 +87,147 @@ export async function discoverSuites(directory = DEFAULT_SUITES_DIR) {
     }
   }
   return suites;
+}
+
+/**
+ * Load and validate every versioned JSON pack. A malformed pack is reported, not
+ * silently skipped; `--suite` then refuses to run it.
+ * @param {string} directory
+ */
+export async function discoverSuiteSpecs(directory = DEFAULT_SUITES_DIR) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = entries
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
+    .map((entry) => entry.name)
+    .sort();
+  /** @type {Array<{file:string,spec:any,summary:any,error?:string}>} */
+  const packs = [];
+  for (const file of files) {
+    const filePath = path.join(directory, file);
+    try {
+      const spec = JSON.parse(await readFile(filePath, "utf8"));
+      const validation = validateBenchmarkSuite(spec);
+      packs.push({
+        file: filePath,
+        spec,
+        summary: validation.summary,
+        error: validation.ok
+          ? undefined
+          : validation.issues.map((issue) => `${issue.code}: ${issue.detail}`).join("; "),
+      });
+    } catch (error) {
+      packs.push({ file: filePath, spec: null, summary: null, error: message(error) });
+    }
+  }
+  return packs;
+}
+
+/**
+ * Resolve one pack by its declared id or file stem. The id is the stable
+ * interface; the stem is accepted for a local convenience only.
+ * @param {string} id
+ * @param {string} directory
+ */
+export async function findSuiteSpec(id, directory = DEFAULT_SUITES_DIR) {
+  const wanted = String(id).trim();
+  if (!wanted) throw new Error("--suite needs a pack id");
+  const packs = await discoverSuiteSpecs(directory);
+  const match = packs.find((pack) => {
+    const stem = path.basename(pack.file, ".json");
+    return (
+      pack.summary?.id?.toLowerCase() === wanted.toLowerCase() ||
+      stem.toLowerCase() === wanted.toLowerCase()
+    );
+  });
+  if (!match) {
+    const known = packs
+      .map((pack) => pack.summary?.id ?? path.basename(pack.file, ".json"))
+      .join(", ");
+    throw new Error(`Unknown suite pack: ${wanted}. Known: ${known || "none"}`);
+  }
+  if (match.error) throw new Error(`Suite pack ${wanted} is invalid: ${match.error}`);
+  return match;
+}
+
+/**
+ * Run only the checks a pack names. Every module is imported from the same
+ * suite directory, so a pack cannot point at arbitrary code. A missing check or
+ * a module that throws is a fail/blocked result, never a silent pass.
+ * @param {{spec:any, summary:any}} pack
+ * @param {{directory?:string, timeoutMs?:number, context?:Record<string, unknown>}} options
+ */
+export async function runSuitePack(pack, options = {}) {
+  const directory = options.directory ?? DEFAULT_SUITES_DIR;
+  const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const context = options.context ?? {};
+  const groups = new Map();
+  for (const check of pack.summary.checks) {
+    const list = groups.get(check.module) ?? [];
+    list.push(check.id);
+    groups.set(check.module, list);
+  }
+  const results = [];
+  for (const [moduleName, ids] of groups) {
+    let loaded = null;
+    try {
+      loaded = await import(pathToFileURL(path.join(directory, `${moduleName}.mjs`)).href);
+    } catch (error) {
+      loaded = { error: message(error) };
+    }
+    const suite = loaded?.default ?? loaded;
+    if (!suite || typeof suite.run !== "function") {
+      results.push(
+        await runSuite(
+          {
+            id: moduleName,
+            name: moduleName,
+            error: suite?.error ?? "the pack module did not export a run function",
+          },
+          context,
+          timeoutMs,
+        ),
+      );
+      continue;
+    }
+    results.push(
+      await runSuite(
+        {
+          id: moduleName,
+          name: suite.name ?? moduleName,
+          run: async (suiteContext) => {
+            const checks = await suite.run(suiteContext);
+            const byId = new Map(
+              (Array.isArray(checks) ? checks : []).map((check) => [check?.id, check]),
+            );
+            return ids.map(
+              (id) =>
+                byId.get(id) ?? {
+                  id,
+                  name: `Check ${id} exists`,
+                  status: "fail",
+                  detail: `${moduleName} did not return the check ${id} named by the pack.`,
+                },
+            );
+          },
+        },
+        context,
+        timeoutMs,
+      ),
+    );
+  }
+  const checks = results.flatMap((result) => result.checks);
+  const status = checks.some((check) => check.status === "fail")
+    ? "fail"
+    : checks.some((check) => check.status === "blocked")
+      ? "blocked"
+      : "pass";
+  return {
+    id: pack.summary.id,
+    name: pack.summary.name,
+    status,
+    durationMs: results.reduce((total, result) => total + (result.durationMs ?? 0), 0),
+    checks,
+  };
 }
 
 /**
@@ -227,20 +376,36 @@ async function sourceRevision() {
 }
 
 /**
- * Discover, run and describe one full benchmark pass.
- * @param {{suitesDir?: string, timeoutMs?: number}} options
+ * Discover, run and describe one full benchmark pass. With `suiteId`, only that
+ * validated JSON pack runs; without it, the existing .mjs discovery is exactly
+ * as before.
+ * @param {{suitesDir?: string, timeoutMs?: number, suiteId?: string}} options
  */
 export async function collectResults({
   suitesDir = DEFAULT_SUITES_DIR,
   timeoutMs = DEFAULT_TIMEOUT_MS,
+  suiteId = "",
 } = {}) {
   const source = await sourceRevision();
-  const suites = await discoverSuites(suitesDir);
-  const results = await runBenchmarks({
-    suites,
-    timeoutMs,
-    context: { root, source },
-  });
+  let results;
+  let pack = null;
+  if (suiteId) {
+    pack = await findSuiteSpec(suiteId, suitesDir);
+    results = [
+      await runSuitePack(pack, {
+        directory: suitesDir,
+        timeoutMs,
+        context: { root, source },
+      }),
+    ];
+  } else {
+    const suites = await discoverSuites(suitesDir);
+    results = await runBenchmarks({
+      suites,
+      timeoutMs,
+      context: { root, source },
+    });
+  }
   return {
     source,
     generatedAt: new Date().toISOString(),
@@ -248,6 +413,16 @@ export async function collectResults({
     platform: `${process.platform} ${process.arch}`,
     totals: totalsFor(results),
     suites: results,
+    ...(pack
+      ? {
+          pack: {
+            id: pack.summary.id,
+            schema: pack.spec.schema,
+            providerFree: pack.summary.providerFree,
+            evidence: pack.summary.evidence,
+          },
+        }
+      : {}),
   };
 }
 
@@ -256,6 +431,7 @@ export function parseArgs(argv) {
   const options = {
     write: false,
     help: false,
+    suite: "",
     suites: DEFAULT_SUITES_DIR,
     out: DEFAULT_RESULTS_FILE,
     timeoutMs: DEFAULT_TIMEOUT_MS,
@@ -270,7 +446,10 @@ export function parseArgs(argv) {
     const arg = argv[index];
     if (arg === "--write") options.write = true;
     else if (arg === "--help" || arg === "-h") options.help = true;
-    else if (arg === "--suites") {
+    else if (arg === "--suite") {
+      options.suite = value(index, "--suite");
+      index++;
+    } else if (arg === "--suites") {
       options.suites = path.resolve(value(index, "--suites"));
       index++;
     } else if (arg === "--out") {
@@ -295,9 +474,14 @@ export async function main(argv = process.argv.slice(2)) {
     console.log(USAGE);
     return 0;
   }
+  if (options.suite && options.write && options.out === DEFAULT_RESULTS_FILE)
+    throw new Error(
+      "--suite needs --out when --write is used; a single pack must not replace the full benchmark record.",
+    );
   const results = await collectResults({
     suitesDir: options.suites,
     timeoutMs: options.timeoutMs,
+    suiteId: options.suite,
   });
   if (options.write) {
     await mkdir(path.dirname(options.out), { recursive: true });

@@ -1,0 +1,216 @@
+---
+import Base from '../../layouts/Base.astro';
+import latest from '../../../benchmarks/results/latest.json';
+import { assertBenchmarkSuite } from '../../lib/benchmark-suite.mjs';
+
+const modules = import.meta.glob('../../../benchmarks/suites/*.json', {
+  eager: true,
+  import: 'default',
+});
+const packs = Object.entries(modules)
+  .sort(([left], [right]) => left.localeCompare(right))
+  .map(([file, spec]) => ({
+    file: file.split('/').pop() ?? file,
+    spec: spec as any,
+    summary: assertBenchmarkSuite(spec, { results: latest }) as any,
+  }));
+const latestSource = typeof latest.source === 'string' ? latest.source : 'unknown';
+const sourceShort = latestSource === 'unknown' ? 'unknown' : latestSource.slice(0, 7);
+const instant = (value: string | null | undefined) => {
+  if (!value) return 'unknown';
+  const ms = Date.parse(value);
+  return Number.isFinite(ms) ? `${new Date(ms).toISOString().slice(0, 16).replace('T', ' ')} UTC` : 'unknown';
+};
+const evidenceFor = (check: any) => {
+  const suite = (latest.suites ?? []).find((entry: any) => entry.id === check.module);
+  const found = (suite?.checks ?? []).find((entry: any) => entry.id === check.id);
+  return found ?? null;
+};
+const groupByModule = (summary: any) => {
+  const groups = new Map<string, any[]>();
+  for (const check of summary.checks) {
+    const list = groups.get(check.module) ?? [];
+    list.push(check);
+    groups.set(check.module, list);
+  }
+  return [...groups.entries()];
+};
+const stateLabel = (state: string) =>
+  state === 'recorded'
+    ? 'Recorded evidence'
+    : state === 'stale'
+      ? 'Stale evidence'
+      : state === 'unverified'
+        ? 'Unverified'
+        : 'Not run';
+const stateClass = (state: string) =>
+  state === 'recorded'
+    ? 'is-recorded'
+    : state === 'stale'
+      ? 'is-stale'
+      : state === 'unverified'
+        ? 'is-unverified'
+        : 'is-not-run';
+---
+
+<Base
+  title="Benchmarks Studio · suite packs"
+  description="Versioned, provider-free benchmark suite packs. Each pack names deterministic checks that already exist, and a committed results file proves the named checks passed. A pack with no evidence says not run."
+>
+  <div class="packs-heading">
+    <p class="eyebrow">Benchmarks Studio · suite packs</p>
+    <h1>Small, versioned claims you can re-run.</h1>
+    <p class="lede">
+      A pack is data: it names deterministic checks that already exist in this repository and points at the committed
+      results file that contains them. It cannot add a provider, a credential or a spend. The validator refuses a pack
+      that claims a pass the results file does not contain.
+    </p>
+    <div class="packs-actions">
+      <a class="button" href="/benchmarks/compare">Open the blind comparison</a>
+      <a class="button secondary" href="/benchmarks">See the sandbox checks</a>
+      <a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow Benchmarks Studio</a>
+    </div>
+  </div>
+
+  <section class="packs-section" aria-labelledby="packs-title">
+    <h2 id="packs-title">The committed packs</h2>
+    <p class="small">
+      Evidence is read from <code>benchmarks/results/latest.json</code>, generated {instant(latest.generatedAt)} from source
+      <code>{sourceShort}</code>. A recorded pack is a dated observation, not a live claim about this exact checkout.
+    </p>
+    <div class="packs-grid">
+      {packs.map(({ file, summary }) => (
+        <article class={`pack ${stateClass(summary.evidenceState)}`} data-pack={summary.id} data-state={summary.evidenceState}>
+          <header>
+            <div>
+              <p class="eyebrow">{summary.id} · {file}</p>
+              <h3>{summary.name}</h3>
+            </div>
+            <span class="pack-state">{stateLabel(summary.evidenceState)}</span>
+          </header>
+          <p class="pack-description">{summary.description}</p>
+          <dl class="pack-facts">
+            <div><dt>Provider free</dt><dd>{summary.providerFree ? 'Yes' : 'No'}</dd></div>
+            <div><dt>Network</dt><dd>{summary.requirements?.network === false ? 'Not used' : 'Not stated'}</dd></div>
+            <div><dt>Credentials</dt><dd>{summary.requirements?.credentials?.length ? summary.requirements.credentials.join(', ') : 'None'}</dd></div>
+            <div><dt>Spend</dt><dd>{summary.requirements?.spendMicro === 0 ? '$0' : 'Not stated'}</dd></div>
+            <div><dt>Checks</dt><dd>{summary.checks.length} deterministic</dd></div>
+            <div><dt>Evidence</dt><dd>{summary.evidence?.file ?? 'none yet'}</dd></div>
+          </dl>
+          <div class="pack-checks">
+            {groupByModule(summary).map(([module, checks]) => (
+              <section>
+                <h4><code>{module}</code></h4>
+                <ul>
+                  {checks.map((check) => {
+                    const evidence = evidenceFor(check);
+                    return (
+                      <li>
+                        <span class={evidence?.status === 'pass' ? 'is-pass' : 'is-missing'} aria-hidden="true">
+                          {evidence?.status === 'pass' ? '✓' : '·'}
+                        </span>
+                        <div>
+                          <strong>{check.id}</strong>
+                          <p class="small">{evidence?.detail ?? 'Not present in the committed results file.'}</p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            ))}
+          </div>
+          {summary.evidenceState === 'not-run'
+            ? (
+              <p class="pack-note">
+                <strong>Not run.</strong> This pack has no passing evidence in the committed file, so it is not shown as a
+                result. {summary.evidenceNote ?? summary.evidence?.note ?? ''}
+              </p>
+            )
+            : summary.evidenceState === 'stale'
+              ? (
+                <p class="pack-note">
+                  <strong>Stale evidence.</strong> {summary.evidenceNote}
+                </p>
+              )
+              : (
+                <p class="pack-note">
+                  Evidence recorded {instant(summary.evidence?.recordedAt)} from source
+                  <code>{summary.evidence?.source ?? 'unknown'}</code>. The pack checks the same ids in the committed file.
+                </p>
+              )}
+          <ul class="pack-limits">
+            {summary.limits.map((limit: string) => <li>{limit}</li>)}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="packs-section" aria-labelledby="run-title">
+    <h2 id="run-title">Run one pack</h2>
+    <p>From a checkout of this repository, run only the checks the pack names:</p>
+    <pre>node benchmarks/runner.mjs --suite FLOW-01</pre>
+    <p class="small">
+      The runner validates the pack, resolves the named modules, runs only those checks and prints the same result shape
+      as a full run. Without <code>--suite</code>, the existing <code>.mjs</code> suite discovery is unchanged.
+    </p>
+  </section>
+
+  <section class="packs-section" aria-labelledby="limits-title">
+    <h2 id="limits-title">What a pack does not prove</h2>
+    <ul class="packs-limits">
+      <li>A pass means the named deterministic checks held on the recorded source. It is not a model-quality ranking.</li>
+      <li>It is not a provider benchmark, an invoice, a deployment or a browser journey.</li>
+      <li>Evidence is dated. A later source revision can make a result stale; the page keeps the recorded date and source.</li>
+      <li>A pack with no evidence says not run and is never rendered as a pass.</li>
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .packs-heading{max-width:880px}
+  .packs-heading h1{font-size:clamp(2.5rem,5vw,4.2rem);max-width:18ch;margin:10px 0 20px;text-wrap:balance}
+  .packs-heading .lede{max-width:66ch}
+  .packs-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+  .packs-section{border-top:1px solid var(--color-border);padding-top:28px;margin-top:44px}
+  .packs-section h2{font-size:clamp(1.6rem,3vw,2.2rem);max-width:28ch}
+  .packs-grid{display:grid;gap:20px;margin-top:18px}
+  .pack{border:1px solid var(--color-border);border-radius:12px;padding:20px;min-width:0}
+  .pack.is-recorded{border-left:3px solid var(--color-success)}
+  .pack.is-stale{border-left:3px solid var(--color-accent)}
+  .pack.is-not-run{border-left:3px solid var(--color-accent)}
+  .pack header{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+  .pack h3{margin:4px 0 0;font-size:1.25rem;max-width:34ch}
+  .pack-state{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+  .pack.is-recorded .pack-state{color:var(--color-success)}
+  .pack.is-stale .pack-state{color:var(--color-accent)}
+  .pack.is-not-run .pack-state{color:var(--color-accent)}
+  .pack.is-unverified .pack-state{color:var(--color-muted)}
+  .pack-description{max-width:74ch;color:var(--color-muted);margin:14px 0 0}
+  .pack-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 16px;margin:16px 0 0;padding:14px;background:var(--color-surface);border-radius:8px}
+  .pack-facts dt{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted)}
+  .pack-facts dd{margin:3px 0 0;font-size:13px;overflow-wrap:anywhere}
+  .pack-checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:18px}
+  .pack-checks h4{margin:0;font-size:12px;color:var(--color-muted);overflow-wrap:anywhere}
+  .pack-checks ul{list-style:none;padding:0;margin:8px 0 0}
+  .pack-checks li{display:grid;grid-template-columns:14px minmax(0,1fr);gap:8px;padding:8px 0;border-top:1px solid var(--color-border)}
+  .pack-checks li span{font-weight:600}
+  .pack-checks .is-pass{color:var(--color-success)}
+  .pack-checks .is-missing{color:var(--color-muted)}
+  .pack-checks strong{font-size:13px;font-weight:500;overflow-wrap:anywhere}
+  .pack-checks p{margin:2px 0 0;color:var(--color-muted)}
+  .pack-note{margin:16px 0 0;padding:12px 14px;background:var(--color-surface);border-radius:8px;font-size:13px;overflow-wrap:anywhere}
+  .pack-note code{font-size:11px}
+  .pack-limits{max-width:74ch;margin:14px 0 0;padding-left:18px;font-size:13px;color:var(--color-muted);line-height:1.7}
+  .pack-limits li{margin:6px 0}
+  .packs-limits{max-width:74ch;line-height:1.8}
+  .packs-limits li{margin:10px 0}
+  pre{white-space:pre-wrap;overflow-wrap:anywhere}
+  @media(max-width:600px){
+    .pack{padding:14px}
+    .pack-facts{grid-template-columns:1fr 1fr;padding:12px}
+    .pack-checks{grid-template-columns:1fr}
+    .pack h3{font-size:1.1rem}
+  }
+</style>

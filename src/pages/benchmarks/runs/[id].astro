@@ -1,0 +1,359 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { env } from 'cloudflare:workers';
+import type { D1Database } from '@cloudflare/workers-types';
+import {
+  buildRunEvidence,
+  choiceLabel,
+  exportFilename,
+  getRunRecord,
+  listVotes,
+  runView,
+} from '../../../lib/benchmark-runs.ts';
+import { money } from '../../../lib/benchmark-compare.mjs';
+
+const id = Astro.params.id ?? '';
+const found = getRunRecord(id);
+const runtime = env as unknown as { DB?: D1Database };
+let votes: Awaited<ReturnType<typeof listVotes>> = [];
+let votesAvailable = false;
+if (found && runtime.DB && typeof runtime.DB.prepare === 'function') {
+  try {
+    votes = await listVotes(runtime.DB, found.id);
+    votesAvailable = true;
+  } catch {
+    votesAvailable = false;
+  }
+}
+if (!found) Astro.response.status = 404;
+const evidence = found ? buildRunEvidence(found.record, votes, { votesAvailable }) : null;
+const view = evidence ? runView(evidence) : null;
+const source = view?.sourceVersion ?? null;
+const short = source ? source.slice(0, 7) : 'unrecorded';
+const recordedAt = view?.recordedAt ? `${view.recordedAt.slice(0, 16).replace('T', ' ')} UTC` : 'unknown';
+const readable = (value: number | null | undefined) =>
+  value === null || value === undefined || !Number.isFinite(Number(value))
+    ? 'unknown'
+    : `${Math.round(Number(value) / 100) / 10}s`;
+const instant = (value: string | null | undefined) => {
+  if (!value) return 'unknown';
+  const ms = Date.parse(value);
+  return Number.isFinite(ms) ? `${new Date(ms).toISOString().slice(0, 16).replace('T', ' ')} UTC` : 'unknown';
+};
+const settingsRows = (settings: Record<string, unknown> | null | undefined) => {
+  if (!settings || typeof settings !== 'object') return [];
+  return Object.entries(settings).map(([key, value]) => [
+    key,
+    typeof value === 'string' ? value : String(JSON.stringify(value) ?? 'unknown'),
+  ]);
+};
+const verdictTone = view?.verdict.comparable ? 'is-comparable' : 'is-single';
+---
+
+<Base
+  title={view ? `Run ${view.runId} · Benchmarks Studio` : 'Run not found · Benchmarks Studio'}
+  description={view
+    ? `The revealed record for ${view.task.title}: configurations, trials, judge results, recorded votes and provenance. Every number comes from a committed file or the D1 vote record.`
+    : 'That recorded benchmark run is not present in this repository.'}
+>
+  {!view || !evidence
+    ? (
+      <section class="run-missing" role="status">
+        <p class="eyebrow">Benchmarks Studio · run record</p>
+        <h1>That run is not recorded here.</h1>
+        <p>A run page is opened by the id derived from a committed comparison record. This address does not match one.</p>
+        <p><a class="button" href="/benchmarks/compare">Open the blind comparison</a></p>
+        <p><a href="/benchmarks">See the sandbox checks</a> · <a href="/benchmarks/suites">Open the provider-free suite packs</a></p>
+      </section>
+    )
+    : (
+      <>
+        <header class="run-heading">
+          <p class="eyebrow">Benchmarks Studio · revealed run record</p>
+          <h1>{view.task.title}</h1>
+          <p class="lede">
+            This is the same comparison with every label revealed. The committed record supplies the configurations,
+            trials, judge results and provenance. D1 supplies the recorded votes. Nothing on this page calls a provider
+            or spends money.
+          </p>
+          <div class="run-actions">
+            <a class="button" href={`/benchmarks/compare?run=${view.runId}`}>Reopen in the compare view</a>
+            <a class="button secondary" href={`/benchmarks/runs/${view.runId}/export.json`} download={exportFilename(view.runId)}>
+              Download run evidence (JSON)
+            </a>
+          </div>
+          <p class="small run-filename"><code>{exportFilename(view.runId)}</code> is the exact evidence shape this page reads: the committed record plus the recorded votes.</p>
+        </header>
+
+        <dl class="run-meta">
+          <div><dt>Run id</dt><dd><code>{view.runId}</code></dd></div>
+          <div><dt>Task</dt><dd>{view.task.title} <span class="small">v{view.task.version}</span></dd></div>
+          <div><dt>Sample</dt><dd>{view.sample.configurations} configurations · {view.sample.trials} takes · {view.sample.usable} usable · {view.sample.pairs} pairs</dd></div>
+          <div><dt>Recorded</dt><dd>{recordedAt}</dd></div>
+          <div><dt>Source commit</dt><dd>
+            {source
+              ? <a href={`https://github.com/loftwah/app-composer/commit/${source}`}><code>{short}</code></a>
+              : <span>unrecorded</span>}
+          </dd></div>
+          <div><dt>Votes</dt><dd>
+            {votesAvailable
+              ? `${view.sample.recordedPairs} recorded pair${view.sample.recordedPairs === 1 ? '' : 's'} · ${view.sample.blindVotes} blind · ${view.sample.unblindedVotes} unblinded`
+              : 'vote record unavailable'}
+          </dd></div>
+        </dl>
+
+        {!votesAvailable && (
+          <p class="run-warning" role="status">
+            The D1 vote record could not be read in this environment. The committed run below is still complete, but no
+            recorded preferences are shown. The export marks the vote record as unavailable instead of claiming zero votes.
+          </p>
+        )}
+
+        <section class="run-section" aria-labelledby="verdict-title">
+          <p class="eyebrow">Verdict for this job</p>
+          <h2 id="verdict-title" class={verdictTone}>{view.verdict.headline}</h2>
+          <p>{view.verdict.detail}</p>
+          {!view.verdict.comparable && <p class="small">This is a single configuration's result, not a comparison.</p>}
+        </section>
+
+        <section class="run-section" aria-labelledby="configs-title">
+          <h2 id="configs-title">What ran</h2>
+          <div class="run-configs">
+            {view.configurations.map((configuration) => (
+              <article class="run-config" data-configuration={configuration.id}>
+                <header>
+                  <h3>{configuration.label}</h3>
+                  <p class="small">{configuration.harness} · {configuration.model}</p>
+                  <p class="small">resolved: {configuration.resolvedModel} · harness version {configuration.harnessVersion} · runner {configuration.runnerKind}</p>
+                </header>
+                <ul class="run-facts">
+                  <li><span>Usable takes</span><strong>{configuration.summary.usable} of {configuration.summary.trials}</strong></li>
+                  <li><span>Median time</span><strong>{readable(configuration.summary.medianDurationMs)}</strong></li>
+                  <li><span>Estimate per usable take</span><strong>{money(configuration.summary.costPerUsableTakeMicro)}</strong></li>
+                  <li><span>Provider charge</span><strong>{configuration.summary.reportedCostMicro === null ? 'not reported' : money(configuration.summary.reportedCostMicro)}</strong></li>
+                </ul>
+                {settingsRows(configuration.settings).length > 0
+                  ? (
+                    <details class="run-settings">
+                      <summary>Recorded settings</summary>
+                      <dl>
+                        {settingsRows(configuration.settings).map(([key, value]) => (
+                          <div><dt>{key}</dt><dd>{value}</dd></div>
+                        ))}
+                      </dl>
+                    </details>
+                  )
+                  : <p class="small">No settings were recorded for this configuration.</p>}
+                {configuration.summary.failures.length > 0
+                  ? <p class="small run-fail">Failed assertions: {configuration.summary.failures.join(', ')}</p>
+                  : <p class="small run-ok">Every assertion held on every recorded trial.</p>}
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section class="run-section" aria-labelledby="pairs-title">
+          <h2 id="pairs-title">Every pair and its recorded vote</h2>
+          <p class="small">
+            These are the revealed labels for the same nine pairs the blind page shows. A pair with no vote is labelled
+            honestly: the compare page still treats it as blind. The vote record is idempotent per run, task and reviewer;
+            a later vote updates one record and reports which pair was replaced.
+          </p>
+          <div class="run-pairs">
+            {view.pairs.map((pair) => (
+              <article class="run-pair" data-pair={pair.id}>
+                <header>
+                  <h3>{pair.label}</h3>
+                  {pair.votes.length > 0
+                    ? (
+                      <span class={`run-vote-tag ${pair.votes.every((vote) => vote.blind) ? 'is-blind' : 'is-unblinded'}`}>
+                        {pair.votes.length} recorded vote{pair.votes.length === 1 ? '' : 's'}
+                      </span>
+                    )
+                    : <span class="run-vote-tag is-none">no recorded vote</span>}
+                </header>
+                <div class="run-pair-sides">
+                  {[pair.sideA, pair.sideB].map((side) => (
+                    <div class="run-pair-side">
+                      <h4>{side.title} · {side.configurationLabel}</h4>
+                      <p class="small">{side.model} · {side.harness} · {side.harnessVersion}</p>
+                      <dl class="run-pair-facts">
+                        <div><dt>Trial</dt><dd><code>{side.trialId}</code></dd></div>
+                        <div><dt>Status</dt><dd>{side.status}</dd></div>
+                        <div><dt>Duration</dt><dd>{readable(side.durationMs)}</dd></div>
+                        <div><dt>Failed</dt><dd>{side.failed.length > 0 ? side.failed.join(', ') : 'none recorded'}</dd></div>
+                      </dl>
+                    </div>
+                  ))}
+                </div>
+                {pair.votes.length > 0
+                  ? pair.votes.map((vote) => (
+                    <div class="run-vote">
+                      <p>
+                        <strong>{choiceLabel(vote.choice)}</strong>
+                        {vote.choice === 'revealed' ? ' — no preference was claimed.' : '.'}
+                      </p>
+                      <p class="small">
+                        Reviewer {vote.reviewerLabel || 'unknown'} · {vote.blind ? 'blind when cast' : 'unblinded'} ·
+                        recorded {instant(vote.createdAt)}
+                        {vote.updatedAt !== vote.createdAt ? ` · updated ${instant(vote.updatedAt)}` : ''}
+                      </p>
+                      <p class="small">{vote.reason ? `Reason: ${vote.reason}` : 'No reason was recorded.'}</p>
+                    </div>
+                  ))
+                  : (
+                    <p class="small run-vote-none">
+                      No choice is recorded for this pair. Its labels are still shown here because this is the revealed
+                      record; the compare view keeps the pair blind until a vote arrives.
+                    </p>
+                  )}
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {view.unmatchedVotes.length > 0 && (
+          <section class="run-section" aria-labelledby="unmatched-title">
+            <h2 id="unmatched-title">Votes that do not match a pair</h2>
+            <p class="small">
+              These rows are in the vote table but name a pair that is not in this committed record. The labels stay
+              unknown rather than guessed.
+            </p>
+            <ul class="run-unmatched">
+              {view.unmatchedVotes.map((vote) => (
+                <li>
+                  <code>{vote.pairId}</code> · {choiceLabel(vote.choice)} · reviewer {vote.reviewerLabel || 'unknown'} ·
+                  recorded {instant(vote.createdAt)}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <section class="run-section" aria-labelledby="judge-title">
+          <h2 id="judge-title">The judge and the failures</h2>
+          <p>{view.provenance.judge}</p>
+          <p class="small">The task is <code>{view.task.id}</code> v{view.task.version}, category {view.task.category}. Brief hash <code>{view.task.briefSha256}</code>.</p>
+          {view.task.assertions.length > 0
+            ? (
+              <ul class="run-assertions">
+                {view.task.assertions.map((assertion) => (
+                  <li><strong>{assertion.name}</strong> <code class="small">{assertion.id}</code></li>
+                ))}
+              </ul>
+            )
+            : <p class="small">No assertion list was recorded for this task. The pair results above are the only judge record, so no other check is claimed.</p>}
+          {view.failures.length === 0
+            ? <p>No assertion failed in this run, so there is no correction to route. A clean run is recorded as clean and not as a product claim.</p>
+            : (
+              <ul class="run-routes">
+                {view.failures.map((route) => (
+                  <li><code>{route.assertion}</code> → {route.owner ?? 'no owner recorded yet'}</li>
+                ))}
+              </ul>
+            )}
+        </section>
+
+        <section class="run-section" aria-labelledby="provenance-title">
+          <h2 id="provenance-title">Provenance</h2>
+          <dl class="run-provenance">
+            <div><dt>Judge</dt><dd>{view.provenance.judge}</dd></div>
+            <div><dt>Runner</dt><dd>{view.provenance.runner}</dd></div>
+            <div><dt>Record file</dt><dd><code>{view.provenance.recordFile}</code></dd></div>
+            <div><dt>Source commit</dt><dd>{source ?? 'unrecorded'}</dd></div>
+            <div><dt>Recorded</dt><dd>{instant(view.provenance.recordedAt)}</dd></div>
+            <div><dt>Runtime</dt><dd>{view.provenance.node} · {view.provenance.platform}</dd></div>
+            <div><dt>Previews</dt><dd>Committed static files, served through the opaque <code>/benchmarks/preview</code> route. The URL does not name a configuration.</dd></div>
+          </dl>
+        </section>
+
+        <section class="run-section" aria-labelledby="limits-title">
+          <h2 id="limits-title">What this record does not prove</h2>
+          <ul class="run-limits">
+            <li>A recorded preference is one reviewer's judgement, not a model ranking or a provider benchmark.</li>
+            <li>The reviewer label is self-declared. The endpoint does not authenticate a person and does not store an account id, email or comment.</li>
+            <li>The record is one job. A good landing page does not prove a build fix, a migration or a deployment.</li>
+            <li>Three trials per configuration bound variance; they do not eliminate it.</li>
+            <li>No rate card is loaded, so the cost estimate and provider charge stay unknown. The CLI reports tokens, not an invoice.</li>
+          </ul>
+          <div class="run-actions">
+            <a class="button" href={`/benchmarks/compare?run=${view.runId}`}>Reopen in the compare view</a>
+            <a class="button secondary" href={`/benchmarks/runs/${view.runId}/export.json`} download={exportFilename(view.runId)}>Download run evidence (JSON)</a>
+            <a class="button secondary" href="/benchmarks/suites">Open the provider-free suite packs</a>
+            <a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow Benchmarks Studio</a>
+          </div>
+        </section>
+      </>
+    )}
+</Base>
+
+<style>
+  .run-missing{max-width:62ch;margin:40px 0}
+  .run-missing h1{font-size:clamp(2rem,4vw,3rem);max-width:22ch;margin:10px 0 18px}
+  .run-heading{max-width:900px}
+  .run-heading h1{font-size:clamp(2.5rem,5vw,4.2rem);max-width:20ch;margin:10px 0 20px;text-wrap:balance}
+  .run-heading .lede{max-width:66ch}
+  .run-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+  .run-filename{margin:10px 0 0;color:var(--color-muted);max-width:74ch}
+  .run-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin:28px 0;padding:20px;background:var(--color-surface);border-radius:10px}
+  .run-meta dt{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--color-muted)}
+  .run-meta dd{margin:4px 0 0;font-size:14px;overflow-wrap:anywhere}
+  .run-warning{margin:24px 0 0;padding:14px 16px;border-left:3px solid var(--color-accent);background:var(--color-surface);font-size:14px;max-width:78ch}
+  .run-section{border-top:1px solid var(--color-border);padding-top:28px;margin-top:44px}
+  .run-section h2{font-size:clamp(1.6rem,3vw,2.2rem);max-width:28ch}
+  .run-section h2.is-single{color:var(--color-accent)}
+  .run-configs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:18px}
+  .run-config{border:1px solid var(--color-border);border-radius:10px;padding:18px;min-width:0}
+  .run-config h3{margin:0;font-size:1.05rem;max-width:none;overflow-wrap:anywhere}
+  .run-config header p{margin:6px 0 0;color:var(--color-muted);overflow-wrap:anywhere}
+  .run-facts{list-style:none;padding:0;margin:14px 0 0}
+  .run-facts li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid var(--color-border);font-size:13px}
+  .run-facts span{color:var(--color-muted)}
+  .run-facts strong{font-weight:500;text-align:right}
+  .run-settings{margin-top:12px}
+  .run-settings summary{cursor:pointer;font-size:12px;color:var(--color-muted)}
+  .run-settings dl{display:grid;gap:6px;margin:10px 0 0;font-size:12px}
+  .run-settings dl div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:8px}
+  .run-settings dt{color:var(--color-muted);overflow-wrap:anywhere}
+  .run-settings dd{margin:0;overflow-wrap:anywhere}
+  .run-ok{color:var(--color-success);margin:12px 0 0}
+  .run-fail{color:#ff8a6a;margin:12px 0 0;overflow-wrap:anywhere}
+  .run-pairs{display:grid;gap:18px;margin-top:18px}
+  .run-pair{border:1px solid var(--color-border);border-radius:10px;padding:18px;min-width:0}
+  .run-pair header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+  .run-pair h3{margin:0;font-size:1.05rem;max-width:none}
+  .run-vote-tag{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+  .run-vote-tag.is-blind{color:var(--color-success)}
+  .run-vote-tag.is-unblinded{color:var(--color-accent)}
+  .run-vote-tag.is-none{color:var(--color-muted)}
+  .run-pair-sides{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:14px}
+  .run-pair-side{border:1px solid var(--color-border);border-radius:8px;padding:14px;min-width:0}
+  .run-pair-side h4{margin:0;font-size:.98rem;overflow-wrap:anywhere}
+  .run-pair-side p{margin:4px 0 0;color:var(--color-muted);overflow-wrap:anywhere}
+  .run-pair-facts{display:grid;gap:5px;margin:12px 0 0;font-size:12px}
+  .run-pair-facts div{display:grid;grid-template-columns:70px minmax(0,1fr);gap:8px}
+  .run-pair-facts dt{color:var(--color-muted);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding-top:2px}
+  .run-pair-facts dd{margin:0;overflow-wrap:anywhere}
+  .run-vote{margin-top:14px;padding-top:12px;border-top:1px solid var(--color-border)}
+  .run-vote p{margin:0 0 4px}
+  .run-vote-none{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--color-border);color:var(--color-muted)}
+  .run-unmatched,.run-routes,.run-assertions{padding-left:18px;font-size:14px;line-height:1.8;overflow-wrap:anywhere}
+  .run-assertions{max-width:70ch}
+  .run-provenance{display:grid;gap:12px;margin:18px 0 0;max-width:80ch}
+  .run-provenance div{display:grid;grid-template-columns:130px minmax(0,1fr);gap:12px}
+  .run-provenance dt{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);padding-top:3px}
+  .run-provenance dd{margin:0;font-size:14px;overflow-wrap:anywhere}
+  .run-limits{max-width:74ch;line-height:1.8}
+  .run-limits li{margin:10px 0}
+  @media(max-width:760px){
+    .run-pair-sides{grid-template-columns:1fr}
+    .run-provenance div{grid-template-columns:1fr;gap:2px}
+    .run-meta{grid-template-columns:1fr 1fr;padding:16px;gap:14px}
+    .run-pair{padding:14px}
+  }
+  @media(max-width:480px){
+    .run-meta{grid-template-columns:1fr}
+    .run-config{padding:14px}
+    .run-pair-facts div{grid-template-columns:1fr;gap:2px}
+  }
+</style>
