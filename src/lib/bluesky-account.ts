@@ -221,7 +221,7 @@ export async function resolveBlueskyIdentity(
       doFetch(url, {
         method: "GET",
         headers: { Accept: "application/json" },
-        redirect: "error",
+        redirect: "manual",
         signal: controller.signal,
       }),
       new Promise<never>((_, reject) => {
@@ -231,6 +231,13 @@ export async function resolveBlueskyIdentity(
         }, timeoutMs);
       }),
     ]);
+    if (response.status >= 300 && response.status < 400)
+      return failure(
+        "unavailable",
+        handle,
+        "The public AppView redirected the profile request, so no identity was confirmed.",
+        true,
+      );
     if (response.status === 400 || response.status === 404) {
       return failure(
         "not_found",

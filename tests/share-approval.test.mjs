@@ -528,6 +528,18 @@ test("public identity resolution reports success, absence and every failure stat
   assert.equal(failed.status, "unavailable");
   assert.equal(failed.retryable, true);
 
+  const redirected = await resolveBlueskyIdentity(handle, {
+    now,
+    fetch: async () =>
+      new Response(null, {
+        status: 302,
+        headers: { Location: "https://example.invalid/profile" },
+      }),
+  });
+  assert.equal(redirected.status, "unavailable");
+  assert.match(redirected.message, /redirected/i);
+  assert.equal(redirected.publicIdentity, "unresolved");
+
   const networked = await resolveBlueskyIdentity(handle, {
     now,
     fetch: async () => {

@@ -934,7 +934,7 @@ export async function refreshModelsDev(
     try {
       const response = await fetcher(url, {
         method: "GET",
-        redirect: "error",
+        redirect: "manual",
         headers,
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
@@ -975,6 +975,14 @@ export async function refreshModelsDev(
           freshness: freshness(next, at),
           detail: "Not modified. Checked-at advanced; changed-at and the recipe revision did not.",
         };
+      }
+      if (response.status >= 300 && response.status < 400) {
+        lastError = {
+          signature: "http-client-error",
+          detail: `Upstream redirected (HTTP ${response.status}); redirects are not followed.`,
+          retryAfter: null,
+        };
+        break;
       }
       if (response.status === 429) {
         lastError = {

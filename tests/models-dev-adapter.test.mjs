@@ -117,10 +117,29 @@ test("a 304 advances checked-at only, sends conditional headers and writes nothi
   assert.equal(calls.length, 1);
   assert.equal(calls[0].init.headers["If-None-Match"], '"fixture-v1"');
   assert.equal(calls[0].init.headers["If-Modified-Since"], "Sun, 08 Nov 2026 00:00:00 GMT");
-  assert.equal(calls[0].init.redirect, "error");
+  assert.equal(calls[0].init.redirect, "manual");
   assert.ok(calls[0].init.signal);
   assert.equal(calls[0].init.headers.Authorization, undefined);
   assert.equal(freshness(result.state, later).state, "fresh");
+});
+
+test("a redirect is not followed and never counts as a successful check", async () => {
+  const first = await seeded();
+  const { calls, fetcher } = recording(
+    new Response(null, { status: 302, headers: { location: "https://example.invalid/catalogue" } }),
+  );
+  const result = await refreshModelsDev({
+    state: { ...first.state, outage: null },
+    previous: first.snapshot,
+    fetcher,
+    now: T0 + 60 * 60 * 1000,
+    attempts: 1,
+  });
+  assert.equal(result.outcome, "http-client-error");
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].init.redirect, "manual");
+  assert.equal(result.state.lastSuccess.at, at(T0));
+  assert.match(result.state.incidents[0].detail, /redirected/i);
 });
 
 test("an identical 200 body is unchanged and does not rewrite change history", async () => {
