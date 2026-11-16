@@ -1,17 +1,19 @@
 // MIT. Client behaviour for the Benchmarks Studio matched media comparison.
 //
 // The page ships two playable saved clips behind opaque pair/side URLs. Until
-// the server returns a recorded vote for this reviewer label, the browser gets
-// no model, provider, configuration or trial name. The reveal is server-side
-// and survives a reload; there is no localStorage vote.
+// the server returns a recorded submission from this browser, the page gets no
+// model, provider, configuration or trial name. The reveal is server-side and
+// survives a reload; there is no vote in localStorage, only a random token.
 //
-// Feedback is one short text field, not a second scoring system. The chips add
-// a take prefix ("A: holds the still") so a reason names the side it describes.
+// Submissions are append-only. Recording once does not stop a second
+// observation: "Record another observation" sends a new row, and the earlier
+// row stays on the record. The token only restores this browser's own rows and
+// is never an identity. Only its hash is published.
 
 type Check = { id: string; name: string; kind: string; status: string; detail: string };
 
 type Vote = {
-  id: string;
+  submissionId: string;
   runId: string;
   taskId: string;
   pairId: string;
@@ -19,10 +21,22 @@ type Vote = {
   trialB: string;
   choice: string;
   reason: string;
+  reasons: string[];
   blind: boolean;
   reviewerLabel: string;
+  reviewerTokenHash: string;
   createdAt: string;
   updatedAt: string;
+};
+
+type Tally = {
+  pairId: string;
+  submissions: {
+    submissionId: string;
+    choice: string;
+    blind: boolean;
+    createdAt: string;
+  }[];
 };
 
 type MediaArtifact = {
@@ -61,14 +75,45 @@ type RevealSide = {
 
 type RevealPair = { pairId: string; label: string; sides: RevealSide[] };
 
-type Recorded = { vote: Vote; reveal: RevealPair | null };
+const TOKEN_KEY = "composer.benchmark.reviewer-token.v1";
+const TOKEN_HEADER = "X-Benchmark-Reviewer-Token";
 
-const recorded = new Map<string, Recorded>();
-let allVotes: (Vote & { reveal?: RevealPair | null })[] = [];
+/** A random per-browser token, not an identity. 32 random bytes as 64 hex. */
+const tokenBytes = new Uint8Array(32);
+crypto.getRandomValues(tokenBytes);
+let reviewerToken = "";
+
+function loadToken(): string {
+  if (reviewerToken) return reviewerToken;
+  try {
+    const stored = localStorage.getItem(TOKEN_KEY);
+    if (stored && /^[0-9a-f]{32,64}$/i.test(stored)) {
+      reviewerToken = stored.toLowerCase();
+      return reviewerToken;
+    }
+  } catch {
+    // A browser that blocks storage still gets a token for this page load.
+  }
+  reviewerToken = [...tokenBytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  try {
+    localStorage.setItem(TOKEN_KEY, reviewerToken);
+  } catch {
+    // Non-persistent, but still a valid token for this page.
+  }
+  return reviewerToken;
+}
+
+/** Only these browser-scoped rows restore a reveal. Other browsers' rows are
+ * counted but never delivered with labels attached. */
+const ownVotes = new Map<string, Vote[]>();
+const tallies = new Map<string, Tally>();
+const pending = new Set<string>();
+const selectedChips = new Map<string, Set<string>>();
+let totals = { submissions: 0, independentTokens: 0 };
 let runId = "";
 let taskId = "";
 let pairs = 0;
-let loadToken = 0;
+let loadTokenId = 0;
 let localWrite = false;
 
 function currentReviewer(): string {
@@ -76,12 +121,37 @@ function currentReviewer(): string {
   return input?.value.trim() || "visitor";
 }
 
-function applyReviewerVotes() {
-  recorded.clear();
-  const reviewer = currentReviewer();
-  for (const vote of allVotes) {
-    if (vote.reviewerLabel === reviewer) recorded.set(vote.pairId, { vote, reveal: vote.reveal ?? null });
+function latestOwn(pairId: string): Vote | undefined {
+  const votes = ownVotes.get(pairId) ?? [];
+  return votes[votes.length - 1];
+}
+
+function applyOwnVotes(votes: Vote[]) {
+  ownVotes.clear();
+  for (const vote of votes) {
+    const list = ownVotes.get(vote.pairId) ?? [];
+    list.push(vote);
+    list.sort(
+      (left, right) =>
+        left.createdAt.localeCompare(right.createdAt) ||
+        left.submissionId.localeCompare(right.submissionId),
+    );
+    ownVotes.set(vote.pairId, list);
   }
+}
+
+function applyTallies(entries: Tally[]) {
+  tallies.clear();
+  for (const entry of entries) tallies.set(entry.pairId, entry);
+}
+
+function chipsFor(pairId: string): Set<string> {
+  let set = selectedChips.get(pairId);
+  if (!set) {
+    set = new Set<string>();
+    selectedChips.set(pairId, set);
+  }
+  return set;
 }
 
 function element<K extends keyof HTMLElementTagNameMap>(
@@ -134,6 +204,10 @@ function instant(value: string): string {
   return `${new Date(ms).toISOString().slice(0, 19).replace("T", " ")} UTC`;
 }
 
+function shortId(value: string): string {
+  return value.length > 12 ? `${value.slice(0, 8)}…` : value || "unknown";
+}
+
 function statusFor(pair: HTMLElement): HTMLElement | null {
   return pair.querySelector<HTMLElement>("[data-media-status]");
 }
@@ -141,6 +215,14 @@ function statusFor(pair: HTMLElement): HTMLElement | null {
 function setButtons(pair: HTMLElement, disabled: boolean) {
   for (const button of pair.querySelectorAll<HTMLButtonElement>("[data-choice]"))
     button.disabled = disabled;
+}
+
+function setControls(pair: HTMLElement, disabled: boolean) {
+  setButtons(pair, disabled);
+  for (const control of pair.querySelectorAll<HTMLInputElement | HTMLButtonElement>(
+    "[data-media-reason], [data-reason-chip]",
+  ))
+    control.disabled = disabled;
 }
 
 function renderChecks(side: RevealSide): HTMLElement {
@@ -192,12 +274,56 @@ function renderSettings(side: RevealSide): HTMLElement {
   return details;
 }
 
-function renderReveal(pair: HTMLElement, entry: Recorded) {
+function renderObservations(pairId: string): HTMLElement {
+  const wrapper = element("div", "media-reveal-observations");
+  const own = ownVotes.get(pairId) ?? [];
+  own.forEach((vote) => {
+    const item = element("p", "small media-observation");
+    item.append(
+      element("strong", undefined, choiceLabel(vote.choice)),
+      element(
+        "span",
+        undefined,
+        ` · ${vote.blind ? "blind when cast" : "unblinded"} · by ${vote.reviewerLabel || "unknown"} (unauthenticated label) · recorded ${instant(vote.createdAt)} · submission ${shortId(vote.submissionId)}`,
+      ),
+    );
+    if (vote.reason) item.append(element("span", "media-observation-reason", ` · reason: ${vote.reason}`));
+    if (vote.reasons.length > 0) {
+      const chips = element("span", "media-observation-chips", " · chips: ");
+      vote.reasons.forEach((reason, index) => {
+        if (index > 0) chips.append(document.createTextNode(", "));
+        chips.append(element("em", undefined, reason));
+      });
+      item.append(chips);
+    }
+    wrapper.append(item);
+  });
+
+  const tally = tallies.get(pairId);
+  if (tally && tally.submissions.length > 0) {
+    const label = `${tally.submissions.length} independent submission${tally.submissions.length === 1 ? "" : "s"} on the server for this pair:`;
+    wrapper.append(element("p", "small media-tally-label", label));
+    const list = element("ul", "media-tally");
+    for (const submission of tally.submissions) {
+      list.append(
+        element(
+          "li",
+          "small",
+          `${choiceLabel(submission.choice)} · ${submission.blind ? "blind" : "unblinded"} · ${instant(submission.createdAt)} · ${shortId(submission.submissionId)}`,
+        ),
+      );
+    }
+    wrapper.append(list);
+  }
+  return wrapper;
+}
+
+function renderReveal(pair: HTMLElement, entry: Vote) {
   const host = pair.querySelector<HTMLElement>("[data-media-reveal]");
   if (!host) return;
   clear(host);
   host.hidden = false;
-  const reveal = entry.reveal;
+  const reveal = revealFor(pair.dataset.pair ?? "");
   if (!reveal) {
     host.append(
       element(
@@ -208,22 +334,38 @@ function renderReveal(pair: HTMLElement, entry: Recorded) {
     );
     return;
   }
-  const vote = entry.vote;
+  const pairId = reveal.pairId;
+  const observationPending = pending.has(pairId);
   const head = element("div", "media-reveal-head");
   head.append(
-    element("p", "eyebrow", "Revealed"),
+    element("p", "eyebrow", "Revealed by your recorded submission"),
     element(
       "p",
       "media-reveal-verdict",
-      vote.choice === "revealed" ? "No preference was recorded." : `Recorded choice: ${choiceLabel(vote.choice)}.`,
+      entry.choice === "revealed" ? "No preference was recorded." : `Recorded choice: ${choiceLabel(entry.choice)}.`,
     ),
     element(
       "p",
       "small media-reveal-meta",
-      `${vote.blind ? "Blind when cast" : "Unblinded"} · reviewer ${vote.reviewerLabel || "unknown"} (unauthenticated label) · ${instant(vote.updatedAt)}${vote.updatedAt !== vote.createdAt ? " · updated" : ""}`,
+      `${entry.blind ? "Blind when cast" : "Unblinded"} · reviewer ${entry.reviewerLabel || "unknown"} (unauthenticated label) · ${instant(entry.createdAt)} · submission ${shortId(entry.submissionId)} · token hash ${shortId(entry.reviewerTokenHash)}`,
     ),
   );
-  if (vote.reason) head.append(element("p", "media-reveal-reason", `Reason: ${vote.reason}`));
+  if (entry.reason) head.append(element("p", "media-reveal-reason", `Reason: ${entry.reason}`));
+  if (entry.reasons.length > 0) {
+    const chips = element("p", "small media-reveal-chips", "Selected reasons: ");
+    chips.append(element("span", undefined, entry.reasons.join(" · ")));
+    head.append(chips);
+  }
+  const observe = element(
+    "button",
+    "button secondary media-observe",
+    observationPending ? "Cancel another observation" : "Record another observation",
+  );
+  observe.type = "button";
+  observe.dataset.observe = pairId;
+  observe.setAttribute("aria-pressed", observationPending ? "true" : "false");
+  head.append(observe);
+  head.append(renderObservations(pairId));
   host.append(head);
 
   const sides = element("div", "media-reveal-sides");
@@ -260,29 +402,40 @@ function renderReveal(pair: HTMLElement, entry: Recorded) {
   host.append(sides);
 }
 
+// The reveal for a pair comes back with this browser's submission. It is kept
+// in memory, not requested by a second unauthenticated call.
+const reveals = new Map<string, RevealPair>();
+
+function revealFor(pairId: string): RevealPair | null {
+  return reveals.get(pairId) ?? null;
+}
+
 function paintChips(pair: HTMLElement) {
-  const input = pair.querySelector<HTMLInputElement>("[data-media-reason]");
-  const value = input?.value ?? "";
+  const pairId = pair.dataset.pair ?? "";
+  const selected = chipsFor(pairId);
   for (const chip of pair.querySelectorAll<HTMLButtonElement>("[data-reason-chip]")) {
     const token = `${chip.dataset.side}: ${chip.dataset.reason}`;
-    chip.dataset.active = value.includes(token) ? "true" : "false";
-    chip.setAttribute("aria-pressed", value.includes(token) ? "true" : "false");
+    const active = selected.has(token);
+    chip.dataset.active = active ? "true" : "false";
+    chip.setAttribute("aria-pressed", active ? "true" : "false");
   }
 }
 
 function paintPair(pair: HTMLElement) {
   const pairId = pair.dataset.pair ?? "";
-  const entry = recorded.get(pairId);
+  const entry = latestOwn(pairId);
+  const observationPending = pending.has(pairId);
   pair.dataset.revealed = entry ? "true" : "false";
   const status = statusFor(pair);
   const reason = pair.querySelector<HTMLInputElement>("[data-media-reason]");
   for (const button of pair.querySelectorAll<HTMLButtonElement>("[data-choice]")) {
     button.setAttribute(
       "aria-pressed",
-      entry && button.dataset.choice === entry.vote.choice ? "true" : "false",
+      entry && !observationPending && button.dataset.choice === entry.choice ? "true" : "false",
     );
   }
-  if (reason && document.activeElement !== reason) reason.value = entry?.vote.reason ?? "";
+  setControls(pair, Boolean(entry) && !observationPending);
+  if (reason && !observationPending && document.activeElement !== reason) reason.value = entry?.reason ?? "";
   const revealHost = pair.querySelector<HTMLElement>("[data-media-reveal]");
   if (entry) renderReveal(pair, entry);
   else if (revealHost) {
@@ -291,16 +444,17 @@ function paintPair(pair: HTMLElement) {
   }
   paintChips(pair);
   if (status) {
-    if (entry) {
-      const updated = entry.vote.updatedAt !== entry.vote.createdAt ? " · updated" : "";
-      status.textContent = entry.vote.blind
-        ? `Recorded ${instant(entry.vote.updatedAt)}${updated}: ${choiceLabel(entry.vote.choice)} · blind when cast · unauthenticated label.`
-        : `Recorded ${instant(entry.vote.updatedAt)}${updated}: ${choiceLabel(entry.vote.choice)} · unblinded · unauthenticated label.`;
-    } else if (recorded.size > 0) {
-      const other = [...recorded.values()][0]?.vote.pairId ?? "another pair";
-      status.textContent = `A vote is already recorded on ${other}. Choosing here replaces it; the server will say so.`;
+    if (entry && observationPending) {
+      status.textContent =
+        "Recording another observation on a pair whose labels are already revealed. It will be stored as a new, separate unblinded row; the earlier row is not changed.";
+    } else if (entry) {
+      status.textContent = `Recorded ${instant(entry.createdAt)} as a new submission: ${choiceLabel(entry.choice)} · ${entry.blind ? "blind when cast" : "unblinded"} · unauthenticated label. Every earlier submission is still on the record.`;
     } else {
-      status.textContent = "";
+      const tally = tallies.get(pairId);
+      status.textContent =
+        tally && tally.submissions.length > 0
+          ? `${tally.submissions.length} independent submission${tally.submissions.length === 1 ? "" : "s"} recorded for this pair. Record your own before seeing the labels.`
+          : "";
     }
   }
 }
@@ -309,16 +463,14 @@ function paintAll() {
   for (const pair of document.querySelectorAll<HTMLElement>("[data-media-pair]")) paintPair(pair);
   const summary = document.querySelector<HTMLElement>("[data-media-summary]");
   if (summary) {
-    const reviewer = currentReviewer();
-    summary.textContent =
-      recorded.size === 0
-        ? `0 of ${pairs} pairs recorded for reviewer ${reviewer} (unauthenticated label) on the server. Only this label's votes are restored on this page.`
-        : `${recorded.size} of ${pairs} pairs recorded for reviewer ${reviewer} (unauthenticated label) on the server. Reloading this page restores them.`;
+    const ownPairs = [...ownVotes.values()].filter((votes) => votes.length > 0).length;
+    summary.textContent = `${ownPairs} of ${pairs} pairs have a submission from this browser (a random token kept in localStorage, not an identity). ${totals.submissions} independent submission${totals.submissions === 1 ? "" : "s"} from ${totals.independentTokens} browser token${totals.independentTokens === 1 ? "" : "s"} are on the server.`;
   }
   const runLink = document.querySelector<HTMLElement>("[data-media-run-link]");
   if (runLink) {
-    runLink.hidden = recorded.size === 0;
-    if (recorded.size > 0 && runLink.childElementCount === 0) {
+    const ownPairs = [...ownVotes.values()].filter((votes) => votes.length > 0).length;
+    runLink.hidden = ownPairs === 0;
+    if (ownPairs > 0 && runLink.childElementCount === 0) {
       const revealed = element("a", "button secondary", "Open the revealed run record");
       revealed.href = `/benchmarks/media/runs/${encodeURIComponent(runId)}`;
       const download = element("a", "button secondary", "Download the evidence JSON");
@@ -327,7 +479,7 @@ function paintAll() {
       const note = element(
         "span",
         undefined,
-        " The record shows every label, trial, setting and recorded vote; the export reopens the same view.",
+        " The record lists every submission with its receipt time and token hash; raw browser tokens are not published.",
       );
       runLink.append(revealed, download, note);
     }
@@ -342,22 +494,28 @@ function availability(message: string, unavailable: boolean) {
   }
   if (unavailable) {
     for (const pair of document.querySelectorAll<HTMLElement>("[data-media-pair]"))
-      setButtons(pair, true);
+      setControls(pair, true);
   } else {
     for (const pair of document.querySelectorAll<HTMLElement>("[data-media-pair]"))
-      setButtons(pair, false);
+      paintPair(pair);
   }
 }
 
 async function loadVotes() {
-  const token = ++loadToken;
+  const token = ++loadTokenId;
   try {
-    const response = await fetch(
-      `/api/benchmark-votes?run=${encodeURIComponent(runId)}&reviewer=${encodeURIComponent(currentReviewer())}`,
-      { headers: { Accept: "application/json" }, credentials: "same-origin" },
-    );
+    const response = await fetch(`/api/benchmark-votes?run=${encodeURIComponent(runId)}`, {
+      headers: { Accept: "application/json", [TOKEN_HEADER]: loadToken() },
+      credentials: "same-origin",
+    });
     const body = (await response.json().catch(() => null)) as
-      | { ok?: boolean; votes?: (Vote & { reveal?: RevealPair | null })[]; error?: string }
+      | {
+          ok?: boolean;
+          votes?: (Vote & { reveal?: RevealPair | null })[];
+          tallies?: Tally[];
+          totals?: { submissions?: number; independentTokens?: number };
+          error?: string;
+        }
       | null;
     if (!response.ok || !body?.ok) {
       availability(
@@ -366,11 +524,19 @@ async function loadVotes() {
       );
       return;
     }
-    if (token !== loadToken || localWrite) return;
-    allVotes = body.votes ?? [];
-    applyReviewerVotes();
+    if (token !== loadTokenId || localWrite) return;
+    reveals.clear();
+    for (const vote of body.votes ?? []) {
+      if (vote.reveal) reveals.set(vote.pairId, vote.reveal);
+    }
+    applyOwnVotes(body.votes ?? []);
+    applyTallies(body.tallies ?? []);
+    totals = {
+      submissions: body.totals?.submissions ?? 0,
+      independentTokens: body.totals?.independentTokens ?? 0,
+    };
     availability(
-      "The authoritative record is server-side but unauthenticated: the reviewer label is self-declared, not a sign-in.",
+      "The record is server-side but unauthenticated. The browser token only restores this browser's own rows; it is not a sign-in.",
       false,
     );
     paintAll();
@@ -388,24 +554,37 @@ async function sendVote(pair: HTMLElement, choice: string) {
   const reviewer = currentReviewer();
   const blind = pair.dataset.revealed === "true" ? false : choice !== "revealed";
   const status = statusFor(pair);
-  setButtons(pair, true);
+  setControls(pair, true);
   if (status) status.textContent = "Recording on the server…";
   try {
     const response = await fetch("/api/benchmark-votes", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        [TOKEN_HEADER]: loadToken(),
+      },
       credentials: "same-origin",
-      body: JSON.stringify({ run: runId, task: taskId, pair: pairId, choice, reason, reviewer, blind }),
+      body: JSON.stringify({
+        run: runId,
+        task: taskId,
+        pair: pairId,
+        choice,
+        reason,
+        chips: [...chipsFor(pairId)],
+        reviewer,
+        blind,
+      }),
     });
     const body = (await response.json().catch(() => null)) as
       | {
           ok?: boolean;
           error?: string;
-          updated?: boolean;
-          replacedPair?: string | null;
-          blindStayedOff?: boolean;
+          appended?: boolean;
           vote?: Vote;
           reveal?: RevealPair | null;
+          tally?: Tally | null;
+          totals?: { submissions?: number; independentTokens?: number };
         }
       | null;
     if (!response.ok || !body?.ok || !body.vote) {
@@ -413,55 +592,82 @@ async function sendVote(pair: HTMLElement, choice: string) {
     }
     const vote = body.vote;
     localWrite = true;
-    allVotes = allVotes.filter((entry) => entry.reviewerLabel !== vote.reviewerLabel);
-    allVotes.push({ ...vote, reveal: body.reveal ?? null });
-    applyReviewerVotes();
+    const own = ownVotes.get(vote.pairId) ?? [];
+    ownVotes.set(
+      vote.pairId,
+      [...own, vote].sort(
+        (left, right) =>
+          left.createdAt.localeCompare(right.createdAt) ||
+          left.submissionId.localeCompare(right.submissionId),
+      ),
+    );
+    if (body.reveal) reveals.set(vote.pairId, body.reveal);
+    const existingTally = tallies.get(vote.pairId);
+    if (body.tally) tallies.set(vote.pairId, body.tally);
+    else if (existingTally)
+      tallies.set(vote.pairId, {
+        ...existingTally,
+        submissions: [
+          ...existingTally.submissions,
+          {
+            submissionId: vote.submissionId,
+            choice: vote.choice,
+            blind: vote.blind,
+            createdAt: vote.createdAt,
+          },
+        ],
+      });
+    totals = {
+      submissions: body.totals?.submissions ?? totals.submissions,
+      independentTokens: body.totals?.independentTokens ?? totals.independentTokens,
+    };
+    pending.delete(pairId);
+    chipsFor(pairId).clear();
+    const reasonInput = pair.querySelector<HTMLInputElement>("[data-media-reason]");
+    if (reasonInput) reasonInput.value = "";
     paintAll();
     if (status) {
-      const changes = [
-        body.updated ? "Updated your recorded vote." : "Recorded on the server.",
-        body.replacedPair ? `The earlier choice on ${body.replacedPair} was replaced.` : "",
-        body.blindStayedOff
-          ? "This pair stays unblinded because it was revealed earlier."
-          : choice !== "revealed" && !vote.blind
-            ? "This vote is recorded as unblinded."
-            : "",
-        choice === "revealed"
-          ? "You revealed this pair without choosing; the record says it was unblinded."
-          : "",
-        "Stored unauthenticated; the reviewer label is not verified.",
-      ].filter(Boolean);
-      status.textContent = changes.join(" ");
+      status.textContent = [
+        "Recorded as a new submission on the server.",
+        vote.blind ? "Blind when cast." : "Recorded unblinded because the labels had already been revealed.",
+        "Any earlier submission was left unchanged; this browser token may submit again.",
+        "The reviewer label is unauthenticated and this token is not an identity.",
+      ].join(" ");
     }
   } catch (error) {
     if (status)
       status.textContent = `Not recorded: ${error instanceof Error ? error.message : String(error)}`;
   } finally {
-    setButtons(pair, false);
+    paintPair(pair);
   }
 }
 
 function toggleReason(pair: HTMLElement, chip: HTMLButtonElement) {
-  const input = pair.querySelector<HTMLInputElement>("[data-media-reason]");
-  if (!input) return;
+  const pairId = pair.dataset.pair ?? "";
   const side = chip.dataset.side ?? "";
   const reason = chip.dataset.reason ?? "";
   if (!side || !reason) return;
+  const selected = chipsFor(pairId);
   const token = `${side}: ${reason}`;
-  let value = input.value;
-  if (value.includes(token)) {
-    value = value
-      .replace(token, "")
-      .replace(/;\s*;/g, "; ")
-      .replace(/^;\s*/, "")
-      .replace(/;\s*$/, "")
-      .replace(/\s{2,}/g, " ")
-      .trim();
-  } else {
-    value = value.trim().length > 0 ? `${value.replace(/;\s*$/, "")}; ${token}` : token;
-  }
-  input.value = value.slice(0, 240);
+  if (selected.has(token)) selected.delete(token);
+  else selected.add(token);
   paintChips(pair);
+}
+
+function toggleObservation(pair: HTMLElement) {
+  const pairId = pair.dataset.pair ?? "";
+  if (!latestOwn(pairId)) return;
+  if (pending.has(pairId)) {
+    pending.delete(pairId);
+  } else {
+    pending.add(pairId);
+    chipsFor(pairId).clear();
+    const reason = pair.querySelector<HTMLInputElement>("[data-media-reason]");
+    if (reason) reason.value = "";
+  }
+  paintPair(pair);
+  if (pending.has(pairId))
+    pair.querySelector<HTMLInputElement>("[data-media-reason]")?.focus();
 }
 
 function wirePlaybackFallbacks() {
@@ -487,9 +693,12 @@ function wirePairs() {
     for (const chip of pair.querySelectorAll<HTMLButtonElement>("[data-reason-chip]")) {
       chip.addEventListener("click", () => toggleReason(pair, chip));
     }
-    pair.querySelector<HTMLInputElement>("[data-media-reason]")?.addEventListener("input", () =>
-      paintChips(pair),
-    );
+    pair.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const observe = target.closest<HTMLButtonElement>("[data-observe]");
+      if (observe) toggleObservation(pair);
+    });
   }
 }
 
@@ -498,14 +707,11 @@ function main() {
   runId = root?.dataset.run ?? "";
   taskId = root?.dataset.task ?? "";
   pairs = document.querySelectorAll<HTMLElement>("[data-media-pair]").length;
+  loadToken();
   wirePlaybackFallbacks();
   wirePairs();
   document.querySelector<HTMLInputElement>("[data-reviewer]")?.addEventListener("change", () => {
-    recorded.clear();
-    allVotes = [];
-    localWrite = false;
     paintAll();
-    if (runId) void loadVotes();
   });
   paintAll();
   if (runId) void loadVotes();

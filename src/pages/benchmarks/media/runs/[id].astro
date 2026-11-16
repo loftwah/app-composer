@@ -102,15 +102,15 @@ const posterFor = (pairId: string, side: 'a' | 'b') =>
           <div><dt>Sample</dt><dd>{view.sample.configurations} models · {view.sample.saved} saved clips · {view.sample.pairs} pair · {view.sample.repeats === 0 ? 'no repeated trials' : `${view.sample.repeats} repeated trials`}</dd></div>
           <div><dt>Compiled</dt><dd>{instant(view.recordedAt)}</dd></div>
           <div><dt>Source digest</dt><dd><code>{view.sourceVersion?.slice(0, 12) ?? 'unrecorded'}…</code></dd></div>
-          <div><dt>Votes</dt><dd>
+          <div><dt>Submissions</dt><dd>
             {votesAvailable
-              ? `${view.sample.recordedPairs} recorded pair${view.sample.recordedPairs === 1 ? '' : 's'} · ${view.sample.blindVotes} blind · ${view.sample.unblindedVotes} unblinded · unauthenticated labels`
+              ? `${view.sample.recordedPairs} recorded pair${view.sample.recordedPairs === 1 ? '' : 's'} · ${view.sample.submissions} independent submission${view.sample.submissions === 1 ? '' : 's'} · ${view.sample.independentTokens} browser token${view.sample.independentTokens === 1 ? '' : 's'} · ${view.sample.blindSubmissions} blind · ${view.sample.unblindedSubmissions} unblinded · unauthenticated labels`
               : 'vote record unavailable'}
           </dd></div>
         </dl>
 
         <p class="media-run-warning" role="note">
-          <strong>Votes are unauthenticated.</strong> D1 stores the reviewer label supplied by the caller, but this record
+          <strong>Submissions are unauthenticated.</strong> D1 stores the reviewer label supplied by the caller, but this record
           has no sign-in and no identity verification. Anyone can submit under any label. A recorded count is not proof of
           who voted, and a label called “owner” is not the owner's verified judgement.
         </p>
@@ -194,24 +194,26 @@ const posterFor = (pairId: string, side: 'a' | 'b') =>
         </section>
 
         <section class="media-run-section" aria-labelledby="pairs-title">
-          <h2 id="pairs-title">The pair and its recorded vote</h2>
+          <h2 id="pairs-title">The pair and its recorded submissions</h2>
           <p class="small">
-            These are the revealed labels for the same pair the blind page shows. A pair with no vote is labelled honestly:
-            the blind page still treats it as blind. The vote record is idempotent per run, task and reviewer; a later vote
-            updates one record and reports which pair was replaced.
+            These are the revealed labels for the same pair the blind page shows. A pair with no submission is labelled
+            honestly: the blind page still treats it as blind. The record is append-only: each accepted observation is its
+            own row, ordered by creation time. A later submission never updates or deletes an earlier one, even when the
+            same browser token or label submits twice. The reviewer label is a self-declared display label, and a browser
+            token is random, not an identity; only its SHA-256 hash appears here.
           </p>
           <div class="media-run-pairs">
             {view.pairs.map((pair) => (
               <article class="media-run-pair" data-pair={pair.id}>
                 <header>
                   <h3>{pair.label}</h3>
-                  {pair.votes.length > 0
+                  {pair.submissions.length > 0
                     ? (
-                      <span class={`media-run-vote-tag ${pair.votes.every((vote: any) => vote.blind) ? 'is-blind' : 'is-unblinded'}`}>
-                        {pair.votes.length} recorded vote{pair.votes.length === 1 ? '' : 's'}
+                      <span class={`media-run-vote-tag ${pair.submissions.every((vote: any) => vote.blind) ? 'is-blind' : 'is-unblinded'}`}>
+                        {pair.submissions.length} independent submission{pair.submissions.length === 1 ? '' : 's'}
                       </span>
                     )
-                    : <span class="media-run-vote-tag is-none">no recorded vote</span>}
+                    : <span class="media-run-vote-tag is-none">no recorded submission</span>}
                 </header>
                 <div class="media-run-pair-sides">
                   {[pair.sideA, pair.sideB].map((side) => (
@@ -233,22 +235,27 @@ const posterFor = (pairId: string, side: 'a' | 'b') =>
                     </div>
                   ))}
                 </div>
-                {pair.votes.length > 0
-                  ? pair.votes.map((vote: any) => (
+                {pair.submissions.length > 0
+                  ? pair.submissions.map((vote: any) => (
                     <div class="media-run-vote">
                       <p><strong>{choiceLabel(vote.choice)}</strong>{vote.choice === 'revealed' ? ' — no preference was claimed.' : '.'}</p>
                       <p class="small">
-                        Reviewer {vote.reviewerLabel || 'unknown'} (unauthenticated label) · {vote.blind ? 'blind when cast' : 'unblinded'} ·
+                        Submission <code>{vote.submissionId}</code> · token hash <code>{vote.reviewerTokenHash.slice(0, 16)}…</code> ·
+                        reviewer {vote.reviewerLabel || 'unknown'} (unauthenticated label) · {vote.blind ? 'blind when cast' : 'unblinded'} ·
                         recorded {instant(vote.createdAt)}
-                        {vote.updatedAt !== vote.createdAt ? ` · updated ${instant(vote.updatedAt)}` : ''}
                       </p>
-                      <p class="small">{vote.reason ? `Reason: ${vote.reason}` : 'No reason was recorded.'}</p>
+                      <p class="small">{vote.reason ? `Reason: ${vote.reason}` : 'No free-text reason was recorded.'}</p>
+                      <p class="small">
+                        {vote.reasons.length > 0
+                          ? `Selected reasons: ${vote.reasons.join(' · ')}`
+                          : 'No reason chips were selected.'}
+                      </p>
                     </div>
                   ))
                   : (
                     <p class="small media-run-vote-none">
-                      No choice is recorded for this pair. Its labels are still shown here because this is the revealed
-                      record; the blind page keeps the pair blind until a vote arrives.
+                      No submission is recorded for this pair. Its labels are still shown here because this is the revealed
+                      record; the blind page keeps the pair blind until a submission arrives.
                     </p>
                   )}
               </article>
@@ -292,7 +299,9 @@ const posterFor = (pairId: string, side: 'a' | 'b') =>
           <h2 id="limits-title">What this record does not prove</h2>
           <ul class="media-run-limits">
             {view.task.notComparable.map((line) => <li>{line}</li>)}
-            <li>The reviewer label is self-declared and unauthenticated. The endpoint does not verify an “owner” label and does not store an account id, email or comment beyond the optional reason.</li>
+            <li>The reviewer label is self-declared and unauthenticated. The endpoint does not verify an “owner” label and does not store an account id, email or commenter identity. A random browser token restores that browser's own submissions and is published only as a SHA-256 hash.</li>
+            <li>The record is append-only. The number of independent submissions is not a number of people: one browser token may submit many observations, and every one is retained and counted.</li>
+            <li>Rows written before the browser token existed were preserved with a server-generated placeholder token. No browser can claim or restore those rows; they are kept rather than deleted or attributed to anyone.</li>
             <li>The observed checks are a manual review of sampled frames, not an automated perceptual judge. The measured file and duration checks are deterministic; the scene checks are human observations.</li>
           </ul>
           <div class="media-run-actions">
