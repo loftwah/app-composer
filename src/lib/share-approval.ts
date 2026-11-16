@@ -13,6 +13,8 @@ import {
   type ShareCalendarItem,
   type ShareCalendarSnapshot,
   type ShareCalendarSource,
+  catalogueIdentity,
+  type CatalogueAssetDescriptor,
 } from "./share-calendar.ts";
 import {
   BLUESKY_PUBLISHING_STATEMENT,
@@ -159,10 +161,10 @@ export interface BlueskyMediaAttachment {
 }
 
 export interface BlueskyContentSource {
-  stackId: string;
+  stackId: string | null;
   name: string;
-  slug: string;
-  publication: number;
+  slug: string | null;
+  publication: number | null;
   url: string | null;
   imagePath: string | null;
   imageAlt: string | null;
@@ -300,9 +302,20 @@ export function hasBlueskyDraft(
   );
 }
 
-export function blueskyTextForItem(
-  item: Pick<ShareCalendarItem, "channel" | "caption" | "variants">,
+export function portfolioBlueskyText(
+  caption: string,
+  asset: { credit: string; projectUrl: string },
 ): string {
+  return `${caption.trim()}\n\nArtwork by ${asset.credit}\n${asset.projectUrl}`;
+}
+
+export function blueskyTextForItem(
+  item: Pick<
+    ShareCalendarItem,
+    "channel" | "caption" | "variants" | "catalogue"
+  >,
+): string {
+  if (item.catalogue) return portfolioBlueskyText(item.caption, item.catalogue);
   if (item.channel === "bluesky") return item.caption.trim();
   return (
     item.variants
@@ -404,6 +417,16 @@ function mediaFor(
   ];
 }
 
+function catalogueConsentHash(catalogue: CatalogueAssetDescriptor) {
+  return sha256Text(
+    JSON.stringify([
+      ...catalogueIdentity(catalogue),
+      catalogue.rightsConfirmedBy,
+      catalogue.rightsConfirmedAt,
+    ]),
+  );
+}
+
 function canonicalMedia(
   media: Array<Omit<BlueskyMediaAttachment, "hash">>,
 ): string {
@@ -419,6 +442,7 @@ export async function createBlueskyContent(
 ): Promise<BlueskyContent> {
   const problems: BlueskyDraftProblem[] = [];
   const text = blueskyTextForItem(item);
+  const catalogue = item.catalogue;
   const usage = blueskyUsage(text);
   if (!hasBlueskyDraft(item))
     problems.push({
@@ -441,10 +465,11 @@ export async function createBlueskyContent(
       message: `Bluesky's post text is capped at ${BLUESKY_TEXT_BYTES} UTF-8 bytes; this text has ${usage.bytes}.`,
     });
   const current = Boolean(
-    source &&
     item.sourceCurrent &&
-    source.id === item.stack &&
-    source.publication === item.publication,
+    (catalogue ||
+      (source &&
+        source.id === item.stack &&
+        source.publication === item.publication)),
   );
   if (!current)
     problems.push({
@@ -452,7 +477,17 @@ export async function createBlueskyContent(
       message:
         "The published source is no longer current. Refresh the share item before approving.",
     });
-  const media = mediaFor(source, current);
+  const media =
+    catalogue && current
+      ? [
+          {
+            kind: "image" as const,
+            url: catalogue.renditionUrl,
+            alt: catalogue.alt,
+            revision: `woodhouse:${catalogue.assetId}@${catalogue.assetRevision}`,
+          },
+        ]
+      : mediaFor(source, current);
   if (!media.length)
     problems.push({
       code: "media_unavailable",
@@ -497,23 +532,33 @@ export async function createBlueskyContent(
   const mediaWithHashes = await Promise.all(
     media.map(async (entry) => ({
       ...entry,
-      hash: await sha256Text(
-        JSON.stringify([entry.kind, entry.url, entry.alt, entry.revision]),
-      ),
+      hash: catalogue
+        ? await catalogueConsentHash(catalogue)
+        : await sha256Text(
+            JSON.stringify([entry.kind, entry.url, entry.alt, entry.revision]),
+          ),
     })),
   );
-  const mediaHash = await sha256Text(canonicalMedia(media));
+  const mediaHash = catalogue
+    ? await sha256Text(
+        JSON.stringify(mediaWithHashes.map((entry) => entry.hash)),
+      )
+    : await sha256Text(canonicalMedia(media));
   const textHash = await sha256Text(text);
   const sourceRecord: BlueskyContentSource = {
     stackId: item.stack,
     name: item.stackName,
     slug: item.stackSlug,
     publication: item.publication,
-    url: current ? (source?.url ?? null) : null,
-    imagePath: current ? (source?.imagePath ?? null) : null,
-    imageAlt: current ? (source?.imageAlt ?? null) : null,
+    url: current ? (catalogue?.projectUrl ?? source?.url ?? null) : null,
+    imagePath: current
+      ? (catalogue?.renditionUrl ?? source?.imagePath ?? null)
+      : null,
+    imageAlt: current ? (catalogue?.alt ?? source?.imageAlt ?? null) : null,
     current,
-    rightsNote: rightsNote(source, current),
+    rightsNote: catalogue
+      ? `Woodhouse Share artwork. The owner confirmed rights for this exact rendition. Credit ${catalogue.credit}. Source ${catalogue.sourceUrl}.`
+      : rightsNote(source, current),
   };
   const schedule: BlueskySchedule = {
     scheduledAt,
@@ -666,7 +711,10 @@ export function blueskySendOutcome(input: {
       message:
         "The Bluesky connection was revoked. The owner must reconnect a real authorised account. Nothing was sent.",
     };
-  if (input.connection.state !== "authorised" && input.connection.state !== "configured")
+  if (
+    input.connection.state !== "authorised" &&
+    input.connection.state !== "configured"
+  )
     return {
       ok: false,
       available: false,

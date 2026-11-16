@@ -14,6 +14,7 @@ import {
 import { stackShareDetails } from "./stack-sharing.ts";
 import {
   captionProblem,
+  catalogueSelectionSchema,
   shareCalendarCommand,
   shareCalendarReadInput,
   shareCalendarSnapshot,
@@ -36,6 +37,8 @@ import {
 } from "./bluesky-account.ts";
 import {
   blueskyAccountFromIdentity,
+  blueskyUsage,
+  portfolioBlueskyText,
   bindingForContent,
   createBlueskyApproval,
   createBlueskyContent,
@@ -67,6 +70,13 @@ import {
   reconcileBlueskyDelivery,
 } from "./bluesky-delivery.ts";
 
+import {
+  cataloguePreviewHash,
+  resolveShareCatalogueAsset,
+  sameCatalogueAsset,
+  sha256Bytes,
+} from "./share-catalogue-asset.ts";
+
 export interface ShareCalendarRuntime {
   DB?: D1Database;
   PUBLIC_ORIGIN?: unknown;
@@ -83,9 +93,7 @@ interface User {
   role: number;
 }
 interface PluginSettings {
-  getVersioned<T>(
-    key: string,
-  ): Promise<{ value: T; revision: string } | null>;
+  getVersioned<T>(key: string): Promise<{ value: T; revision: string } | null>;
 }
 interface Context {
   user?: User;
@@ -106,10 +114,12 @@ interface SourceRow {
 }
 interface ItemRow {
   id: string;
-  stack_id: string;
-  stack_name: string;
-  stack_slug: string;
-  stack_revision: number;
+  stack_id: string | null;
+  stack_name: string | null;
+  stack_slug: string | null;
+  stack_revision: number | null;
+  asset_kind: "stack" | "portfolio";
+  bluesky_asset: string | null;
   channel: string;
   destination: string;
   caption: string;
@@ -174,12 +184,11 @@ function pdsOrigin(runtime: ShareCalendarRuntime): string | null {
 // Read the encrypted app password for this one server-side operation. It is
 // never returned to the page, written to a delivery row, logged or included in
 // an error. A missing or unreadable secret is simply "not configured".
-async function readBlueskyAppPassword(
-  ctx: Context,
-): Promise<string | null> {
+async function readBlueskyAppPassword(ctx: Context): Promise<string | null> {
   try {
-    const stored =
-      await ctx.settings?.getVersioned<string>(BLUESKY_APP_PASSWORD_SETTING);
+    const stored = await ctx.settings?.getVersioned<string>(
+      BLUESKY_APP_PASSWORD_SETTING,
+    );
     return normalizeBlueskyAppPassword(stored?.value);
   } catch {
     return null;
@@ -195,8 +204,9 @@ async function readConfiguredBlueskyHandle(
   runtime: ShareCalendarRuntime,
 ): Promise<string | null> {
   try {
-    const stored =
-      await ctx.settings?.getVersioned<string>(BLUESKY_HANDLE_SETTING);
+    const stored = await ctx.settings?.getVersioned<string>(
+      BLUESKY_HANDLE_SETTING,
+    );
     const value = stored?.value;
     if (typeof value === "string" && value.trim())
       return configuredBlueskyHandle(runtime, value);
@@ -285,10 +295,15 @@ function variantsFor(row: ItemRow): ShareCalendarVariant[] {
 }
 
 function itemRow(row: ItemRow): ShareCalendarItem {
+  const catalogue =
+    row.asset_kind === "portfolio"
+      ? catalogueSelectionSchema.parse(JSON.parse(row.bluesky_asset ?? "null"))
+      : undefined;
   return {
     id: row.id,
     stack: row.stack_id,
-    stackName: row.stack_name,
+    stackName: catalogue?.title ?? row.stack_name ?? "",
+    ...(catalogue ? { catalogue } : {}),
     stackSlug: row.stack_slug,
     publication: row.stack_revision,
     sourceCurrent: false,
@@ -340,9 +355,9 @@ async function snapshot(
   const sources = await listSources(db, workspace.id);
   const rows = await db
     .prepare(
-      `SELECT i.id,i.stack_id,i.stack_revision,i.channel,i.destination,i.caption,i.variants,i.link,i.scheduled_at,i.state,i.shared_at,i.revision,i.created_at,i.updated_at,s.name AS stack_name,s.slug AS stack_slug
+      `SELECT i.id,i.stack_id,i.stack_revision,i.asset_kind,i.bluesky_asset,i.channel,i.destination,i.caption,i.variants,i.link,i.scheduled_at,i.state,i.shared_at,i.revision,i.created_at,i.updated_at,s.name AS stack_name,s.slug AS stack_slug
        FROM creator_share_calendar_items i
-       JOIN creator_stacks s ON s.id=i.stack_id
+       LEFT JOIN creator_stacks s ON s.id=i.stack_id
        WHERE i.workspace_id=?
        ORDER BY CASE WHEN i.scheduled_at IS NULL THEN 1 ELSE 0 END,i.scheduled_at,i.updated_at DESC,i.id
        LIMIT 200`,
@@ -368,7 +383,10 @@ async function snapshot(
     sources,
     items: (rows.results ?? []).map((row) => ({
       ...itemRow(row),
-      sourceCurrent: current.get(row.stack_id) === row.stack_revision,
+      sourceCurrent:
+        row.asset_kind === "portfolio" ||
+        (row.stack_id !== null &&
+          current.get(row.stack_id) === row.stack_revision),
     })),
     approvals: (approvalRows.results ?? []).map(approvalRecord),
     deliveries,
@@ -381,7 +399,7 @@ async function snapshot(
 async function currentSource(
   db: D1Database,
   workspaceId: string,
-  stack: string,
+  stack: string | null,
 ): Promise<ShareCalendarSource> {
   const row = await db
     .prepare(
@@ -424,9 +442,9 @@ async function selectedItem(
 ): Promise<ItemRow> {
   const row = await db
     .prepare(
-      `SELECT i.id,i.stack_id,i.stack_revision,i.channel,i.destination,i.caption,i.variants,i.link,i.scheduled_at,i.state,i.shared_at,i.revision,i.created_at,i.updated_at,s.name AS stack_name,s.slug AS stack_slug
+      `SELECT i.id,i.stack_id,i.stack_revision,i.asset_kind,i.bluesky_asset,i.channel,i.destination,i.caption,i.variants,i.link,i.scheduled_at,i.state,i.shared_at,i.revision,i.created_at,i.updated_at,s.name AS stack_name,s.slug AS stack_slug
        FROM creator_share_calendar_items i
-       JOIN creator_stacks s ON s.id=i.stack_id
+       LEFT JOIN creator_stacks s ON s.id=i.stack_id
        WHERE i.id=? AND i.workspace_id=? LIMIT 1`,
     )
     .bind(id, workspaceId)
@@ -475,6 +493,7 @@ async function sourceStillCurrent(
   workspaceId: string,
   row: ItemRow,
 ): Promise<boolean> {
+  if (!row.stack_id) return false;
   const stack = await db
     .prepare(
       "SELECT id,slug,status,published_revision,published_json FROM creator_stacks WHERE id=? AND workspace_id=?",
@@ -500,6 +519,51 @@ async function sourceStillCurrent(
     current.id === stack.id &&
     current.revision === row.stack_revision,
   );
+}
+
+async function resolveCatalogue(
+  assetId: string,
+  runtime: ShareCalendarRuntime,
+) {
+  const resolved = await resolveShareCatalogueAsset(assetId, {
+    fetch: runtime.fetch,
+    timeoutMs: runtime.blueskyTimeoutMs,
+  });
+  if (!resolved.ok) throw new StackError("SOURCE_STALE", resolved.message, 409);
+  return resolved.asset;
+}
+
+async function sourceForBluesky(
+  db: D1Database,
+  workspaceId: string,
+  row: ItemRow,
+  item: ShareCalendarItem,
+  runtime: ShareCalendarRuntime,
+) {
+  if (item.catalogue) {
+    const current = await resolveCatalogue(item.catalogue.assetId, runtime);
+    if (!sameCatalogueAsset(item.catalogue, current))
+      throw new StackError(
+        "SOURCE_STALE",
+        "This artwork or its source details changed. Choose the current rendition for a new draft.",
+        409,
+      );
+    return null;
+  }
+  if (!(await sourceStillCurrent(db, workspaceId, row)))
+    throw new StackError(
+      "SOURCE_STALE",
+      "This stack's published revision changed. Refresh the source before approving or sending.",
+      409,
+    );
+  const source = await currentSource(db, workspaceId, row.stack_id);
+  if (source.publication !== row.stack_revision)
+    throw new StackError(
+      "SOURCE_STALE",
+      "This stack's published revision changed. Refresh the source before approving or sending.",
+      409,
+    );
+  return source;
 }
 
 export async function manageShareCalendar(
@@ -532,8 +596,7 @@ export async function manageShareCalendar(
     db: D1Database,
     workspace: Workspace,
     changed: string | null = null,
-  ) =>
-    snapshot(db, workspace, changed, configuredHandle, connection, nowDate);
+  ) => snapshot(db, workspace, changed, configuredHandle, connection, nowDate);
   try {
     if (reading) {
       const url = new URL(ctx.request.url);
@@ -557,6 +620,19 @@ export async function manageShareCalendar(
         parsedRead.data.workspace ?? null,
       );
       requireCapability(workspace.role, "read");
+      if (parsedRead.data.action === "cataloguePreview") {
+        if (workspace.role !== "owner")
+          return fail(
+            "FORBIDDEN",
+            "The workspace owner can confirm reuse of Woodhouse artwork.",
+          );
+        const asset = await resolveCatalogue(parsedRead.data.assetId, runtime);
+        return {
+          ok: true as const,
+          asset,
+          assetHash: await cataloguePreviewHash(asset),
+        };
+      }
       if (parsedRead.data.action === "blueskyIdentity") {
         const requested = parsedRead.data.handle?.trim();
         const result = await resolveBlueskyIdentity(
@@ -583,6 +659,55 @@ export async function manageShareCalendar(
 
     const command = parsed.data;
     const now = nowDate.toISOString();
+    if (command.action === "catalogueCreate") {
+      if (workspace.role !== "owner")
+        return fail(
+          "FORBIDDEN",
+          "The workspace owner can confirm reuse of Woodhouse artwork.",
+        );
+      const asset = await resolveCatalogue(command.assetId, runtime);
+      if ((await cataloguePreviewHash(asset)) !== command.assetHash)
+        return fail(
+          "SOURCE_STALE",
+          "The artwork changed. Review the current preview before saving.",
+        );
+      if (
+        !blueskyUsage(portfolioBlueskyText(command.caption, asset)).withinLimit
+      )
+        return fail(
+          "INVALID",
+          "The caption, credit and project link together exceed Bluesky’s limit.",
+        );
+      const descriptor = catalogueSelectionSchema.parse({
+        ...asset,
+        rightsConfirmedBy: ctx.user.id,
+        rightsConfirmedAt: now,
+      });
+      const scheduledAt = command.scheduledAt ?? null;
+      const id = crypto.randomUUID();
+      await db
+        .prepare(
+          `INSERT INTO creator_share_calendar_items
+         (id,workspace_id,asset_kind,bluesky_asset,channel,caption,link,scheduled_at,state,
+          created_by,updated_by,created_at,updated_at)
+         VALUES (?,?,'portfolio',?,'bluesky',?,?,?,?,?,?,?,?)`,
+        )
+        .bind(
+          id,
+          workspace.id,
+          JSON.stringify(descriptor),
+          command.caption,
+          asset.projectUrl,
+          scheduledAt,
+          stateFor(scheduledAt),
+          ctx.user.id,
+          ctx.user.id,
+          now,
+          now,
+        )
+        .run();
+      return view(db, workspace, id);
+    }
     if (command.action === "create") {
       const source = await currentSource(db, workspace.id, command.stack);
       const problem = captionProblem(command.channel, command.caption, true);
@@ -618,22 +743,20 @@ export async function manageShareCalendar(
     const row = await selectedItem(db, workspace.id, command.item);
     // Cancellation binds the approval revision, not the item revision: it must
     // remain safe even after the text was edited.
-    if (command.action !== "blueskyCancel" && command.action !== "blueskyReconcile")
+    if (
+      command.action !== "blueskyCancel" &&
+      command.action !== "blueskyReconcile"
+    )
       requireRevision(command.expectedRevision, row.revision);
     if (command.action === "blueskyApprove") {
-      if (!(await sourceStillCurrent(db, workspace.id, row)))
-        throw new StackError(
-          "SOURCE_STALE",
-          "This stack's published revision changed. Refresh the source before approving a Bluesky draft.",
-          409,
-        );
-      const source = await currentSource(db, workspace.id, row.stack_id);
-      if (source.publication !== row.stack_revision)
-        throw new StackError(
-          "SOURCE_STALE",
-          "This stack's published revision changed. Refresh the source before approving a Bluesky draft.",
-          409,
-        );
+      const item = { ...itemRow(row), sourceCurrent: true };
+      const source = await sourceForBluesky(
+        db,
+        workspace.id,
+        row,
+        item,
+        runtime,
+      );
       const nowDate = new Date(now);
       const identity = await resolveBlueskyIdentity(command.handle, {
         fetch: runtime.fetch,
@@ -653,7 +776,6 @@ export async function manageShareCalendar(
           "BLOCKED",
           "The public identity did not resolve to an exact account. Nothing was approved.",
         );
-      const item = { ...itemRow(row), sourceCurrent: true };
       const content = await createBlueskyContent(item, source, nowDate);
       if (content.problems.length)
         return fail(
@@ -813,17 +935,15 @@ export async function manageShareCalendar(
           "NEEDS_OWNER",
           "The configured public Bluesky handle does not match the approved handle. Nothing was sent.",
         );
-      if (!(await sourceStillCurrent(db, workspace.id, row)))
-        return fail(
-          "SOURCE_STALE",
-          "This stack's published revision changed. Refresh the source and re-approve before sending. Nothing was sent.",
-        );
-      const source = await currentSource(db, workspace.id, row.stack_id);
-      const content = await createBlueskyContent(
-        { ...itemRow(row), sourceCurrent: true },
-        source,
-        nowDate,
+      const item = { ...itemRow(row), sourceCurrent: true };
+      const source = await sourceForBluesky(
+        db,
+        workspace.id,
+        row,
+        item,
+        runtime,
       );
+      const content = await createBlueskyContent(item, source, nowDate);
       // A send happens at or after the intended time, so `time_passed` is the
       // expected state here. Every other content problem still blocks.
       const blocking = content.problems.filter(
@@ -861,10 +981,7 @@ export async function manageShareCalendar(
           "The approval binding no longer matches this item. Re-approve before sending. Nothing was sent.",
         );
       const rkey = await blueskyPostRkey(row.id, approval.approvalRevision);
-      const deliveryKey = blueskyDeliveryKey(
-        row.id,
-        approval.approvalRevision,
-      );
+      const deliveryKey = blueskyDeliveryKey(row.id, approval.approvalRevision);
       const claim = await claimBlueskyDelivery(db, {
         itemId: row.id,
         workspaceId: workspace.id,
@@ -877,8 +994,7 @@ export async function manageShareCalendar(
         now: nowDate,
       });
       if (!claim.claimed) {
-        if (claim.reason === "published")
-          return view(db, workspace, row.id);
+        if (claim.reason === "published") return view(db, workspace, row.id);
         if (claim.reason === "sending")
           return fail(
             "CONFLICT",
@@ -952,10 +1068,7 @@ export async function manageShareCalendar(
               message: sessionResult.message,
               now: nowDate,
             });
-          return fail(
-            publishFailureCode(sessionResult),
-            sessionResult.message,
-          );
+          return fail(publishFailureCode(sessionResult), sessionResult.message);
         }
         const session = sessionResult.session;
         if (
@@ -983,10 +1096,23 @@ export async function manageShareCalendar(
             message: imageResult.message,
             now: nowDate,
           });
-          return fail(
-            publishFailureCode(imageResult),
-            imageResult.message,
-          );
+          return fail(publishFailureCode(imageResult), imageResult.message);
+        }
+        if (
+          item.catalogue &&
+          (imageResult.image.mimeType !== item.catalogue.mimeType ||
+            imageResult.image.bytes.byteLength !== item.catalogue.byteLength ||
+            (await sha256Bytes(imageResult.image.bytes)) !==
+              item.catalogue.bytesSha256)
+        ) {
+          const message =
+            "The artwork bytes changed after approval. Nothing was sent.";
+          await markBlueskyDeliveryFailed(db, deliveryKey, {
+            code: "catalogue_media_changed",
+            message,
+            now: nowDate,
+          });
+          return fail("SOURCE_STALE", message);
         }
         const blobResult = await uploadBlueskyImage(
           {
@@ -1008,10 +1134,7 @@ export async function manageShareCalendar(
               message: blobResult.message,
               now: nowDate,
             });
-          return fail(
-            publishFailureCode(blobResult),
-            blobResult.message,
-          );
+          return fail(publishFailureCode(blobResult), blobResult.message);
         }
         const postInput = {
           session,
@@ -1019,17 +1142,14 @@ export async function manageShareCalendar(
           text: content.text,
           createdAt: nowDate.toISOString(),
           link: content.link,
-          embed: "external" as const,
+          embed: item.catalogue ? ("images" as const) : ("external" as const),
           image: { blob: blobResult.blob, alt: media.alt },
           external: {
             title: content.source.name,
             description: content.text,
           },
         };
-        let postResult = await createBlueskyPost(
-          postInput,
-          publisherOptions,
-        );
+        let postResult = await createBlueskyPost(postInput, publisherOptions);
         if (!postResult.ok && postResult.needsAuth) {
           const refreshed = await refreshBlueskySession(
             session.refreshJwt,
@@ -1058,9 +1178,7 @@ export async function manageShareCalendar(
           }
         }
         if (!postResult.ok) {
-          if (
-            postResult.needsAuth
-          ) {
+          if (postResult.needsAuth) {
             await markBlueskyDeliveryNeedsAuth(db, deliveryKey, {
               message: postResult.message,
               now: nowDate,
@@ -1091,21 +1209,14 @@ export async function manageShareCalendar(
             message: postResult.message,
             now: nowDate,
           });
-          return fail(
-            publishFailureCode(postResult),
-            postResult.message,
-          );
+          return fail(publishFailureCode(postResult), postResult.message);
         }
-        const published = await markBlueskyDeliveryPublished(
-          db,
-          deliveryKey,
-          {
-            uri: postResult.post.uri,
-            cid: postResult.post.cid,
-            permalink: postResult.post.permalink,
-            now: nowDate,
-          },
-        );
+        const published = await markBlueskyDeliveryPublished(db, deliveryKey, {
+          uri: postResult.post.uri,
+          cid: postResult.post.cid,
+          permalink: postResult.post.permalink,
+          now: nowDate,
+        });
         if (!published)
           return fail(
             "UNAVAILABLE",
@@ -1174,13 +1285,42 @@ export async function manageShareCalendar(
       if (!result.ok) return fail("UNAVAILABLE", result.message);
       return view(db, workspace, row.id);
     }
+    if (
+      row.asset_kind === "portfolio" &&
+      (command.action === "variant" ||
+        command.action === "refresh" ||
+        command.action === "shared")
+    )
+      return fail(
+        "INVALID",
+        "Use the Bluesky controls to manage this artwork draft.",
+      );
     if (command.action === "save") {
-      if (!(await sourceStillCurrent(db, workspace.id, row)))
+      const catalogue = itemRow(row).catalogue;
+      if (catalogue) {
+        if (
+          command.channel !== "bluesky" ||
+          command.link !== catalogue.projectUrl
+        )
+          return fail(
+            "INVALID",
+            "This artwork keeps its Bluesky destination and canonical project link.",
+          );
+        if (
+          !blueskyUsage(portfolioBlueskyText(command.caption, catalogue))
+            .withinLimit
+        )
+          return fail(
+            "INVALID",
+            "The caption, credit and project link together exceed Bluesky’s limit.",
+          );
+      } else if (!(await sourceStillCurrent(db, workspace.id, row))) {
         throw new StackError(
           "SOURCE_STALE",
           "This stack's published revision changed. Refresh the source before editing or sharing this item.",
           409,
         );
+      }
       const problem = captionProblem(command.channel, command.caption, true);
       if (problem) return fail("INVALID", problem);
       if (

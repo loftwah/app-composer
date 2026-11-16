@@ -42,6 +42,7 @@ const schema = [
   "0032_share_calendar_packages.sql",
   "0034_share_approvals.sql",
   "0035_bluesky_deliveries.sql",
+  "0037_portfolio_no_stack.sql",
 ]
   .map(migration)
   .join("\n");
@@ -812,6 +813,110 @@ test("the delivery table has no credential column and one row per approval", asy
           )
           .run(),
       /UNIQUE/i,
+    );
+  } finally {
+    db.cleanup();
+  }
+});
+
+test("a stackless artwork sends its exact bytes, alt, credit and project link", async () => {
+  const db = sqliteD1({ schema });
+  try {
+    await workspaceForUser(db, owner);
+    const assetId = "first-party-print";
+    const catalogue = "https://woodhouse.loftwah.com";
+    const api = catalogue + "/api/v1/assets/" + assetId;
+    const image = catalogue + "/campaign/press.jpg";
+    const project = "https://example.com/print-workshop";
+    const caption = "Gold foil catches the light. ✨";
+    const alt = "Gold lettering on a paper tag.";
+    const credit = "The print workshop";
+    const pds = fakePds();
+    let pixels = new Uint8Array([0xff, 0xd8, 0xff, 0xd9]);
+    const fetch = async (url, init) => {
+      if (url === api)
+        return json({
+          version: 1,
+          asset: {
+            id: assetId,
+            title: "First-party print",
+            visibility: "public",
+            reuse: "unconfirmed",
+            previewUrl: image,
+            sourceUrl: catalogue + "/campaign/provenance.txt",
+            alt,
+            credit,
+            projectUrl: project,
+          },
+        });
+      if (url === image)
+        return new Response(pixels, {
+          headers: { "Content-Type": "image/jpeg" },
+        });
+      if (String(url).includes("app.bsky.actor.getProfile"))
+        return fakeIdentity()();
+      return pds.fetch(url, init);
+    };
+    const preview = await call(
+      db,
+      { action: "cataloguePreview", assetId },
+      "GET",
+      { fetch },
+    );
+    assert.equal(preview.ok, true, preview.message);
+    const command = {
+      action: "catalogueCreate",
+      assetId,
+      assetHash: preview.assetHash,
+      rightsConfirmed: true,
+      caption,
+      scheduledAt: scheduled,
+    };
+    const substituted = await call(
+      db,
+      { ...command, assetHash: "0".repeat(64) },
+      "POST",
+      { fetch },
+    );
+    assert.equal(substituted.code, "SOURCE_STALE");
+    const created = await call(db, command, "POST", { fetch });
+    assert.equal(created.ok, true, created.message);
+    assert.deepEqual(created.sources, []);
+    const item = created.items[0];
+    assert.equal(item.stack, null);
+    assert.equal(item.catalogue.bytesSha256, preview.asset.bytesSha256);
+    const approved = await call(
+      db,
+      {
+        action: "blueskyApprove",
+        item: item.id,
+        expectedRevision: item.revision,
+        handle,
+      },
+      "POST",
+      { fetch },
+    );
+    assert.equal(approved.ok, true, approved.message);
+    const approval = approved.approvals[0];
+    pixels = new Uint8Array([0xff, 0xd8, 0x01, 0xd9]);
+    const changed = await send(db, item, approval, { fetch });
+    assert.equal(changed.code, "SOURCE_STALE");
+    assert.deepEqual(pds.list, []);
+    pixels = new Uint8Array([0xff, 0xd8, 0xff, 0xd9]);
+    const sent = await send(db, item, approval, { fetch });
+    assert.equal(sent.ok, true, sent.message);
+    assert.equal(sent.deliveries[0].state, "published");
+    const { record } = pds.state.recordBody;
+    const expected = caption + "\n\nArtwork by " + credit + "\n" + project;
+    assert.equal(record.text, expected);
+    assert.equal(record.embed.$type, "app.bsky.embed.images");
+    assert.equal(record.embed.images[0].alt, alt);
+    assert.equal(record.facets[0].features[0].uri, project);
+    assert.equal(
+      Buffer.from(record.text)
+        .subarray(record.facets[0].index.byteStart)
+        .toString(),
+      project,
     );
   } finally {
     db.cleanup();

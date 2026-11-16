@@ -57,6 +57,7 @@ const schema = [
   "0032_share_calendar_packages.sql",
   "0034_share_approvals.sql",
   "0035_bluesky_deliveries.sql",
+  "0037_portfolio_no_stack.sql",
 ]
   .map(migration)
   .join("\n");

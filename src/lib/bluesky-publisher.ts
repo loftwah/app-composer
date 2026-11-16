@@ -320,6 +320,68 @@ async function readBoundedText(
   return text.length > maxBytes ? null : text;
 }
 
+// Read an image body one chunk at a time and stop as soon as the byte limit is
+// reached. A content-length header is only a hint: a lying or missing header
+// must never make Composer buffer an unbounded body. The reader is cancelled
+// at the byte limit and on abort (the short timeout), so neither more bytes nor
+// more time is spent on a response that cannot be used.
+async function readBoundedBytes(
+  response: Response,
+  maxBytes: number,
+  signal: AbortSignal,
+): Promise<Uint8Array | null> {
+  const reader = response.body?.getReader();
+  if (!reader) return null;
+  const cancel = () => {
+    void reader.cancel().catch(() => {});
+  };
+  if (signal.aborted) {
+    cancel();
+    return null;
+  }
+  signal.addEventListener("abort", cancel, { once: true });
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!(value instanceof Uint8Array)) {
+        cancel();
+        return null;
+      }
+      total += value.byteLength;
+      if (total > maxBytes) {
+        cancel();
+        return null;
+      }
+      if (value.byteLength) chunks.push(value);
+    }
+  } catch {
+    cancel();
+    throw new Error("The image body could not be read.");
+  } finally {
+    signal.removeEventListener("abort", cancel);
+    try {
+      reader.releaseLock();
+    } catch {
+      /* The stream is already closed. */
+    }
+  }
+  if (signal.aborted) {
+    cancel();
+    throw new Error("timeout");
+  }
+  if (!total) return null;
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return bytes;
+}
+
 async function httpJson(
   url: string,
   init: RequestInit,
@@ -748,6 +810,26 @@ export async function createBlueskyPost(
     createdAt: input.createdAt,
   };
   if (embed) record.embed = embed;
+  if (input.embed === "images" && input.link) {
+    const link = input.link;
+    const suffix = `\n${link}`;
+    if (!isSafeShareLink(link) || !input.text.endsWith(suffix))
+      return failure(
+        "invalid_link",
+        "The approved image post must end with its canonical link.",
+      );
+    const encoder = new TextEncoder();
+    record.facets = [
+      {
+        index: {
+          byteStart: encoder.encode(input.text.slice(0, -link.length))
+            .byteLength,
+          byteEnd: encoder.encode(input.text).byteLength,
+        },
+        features: [{ $type: "app.bsky.richtext.facet#link", uri: link }],
+      },
+    ];
+  }
   const service = serviceOrigin(options.service);
   if (!service)
     return failure(
@@ -936,7 +1018,8 @@ export const BLUESKY_TID_LENGTH = 13;
 function tidFromDigest(digest: string): string {
   let value = 0n;
   for (let index = 0; index < 16; index += 2)
-    value = (value << 8n) | BigInt(parseInt(digest.slice(index, index + 2), 16));
+    value =
+      (value << 8n) | BigInt(parseInt(digest.slice(index, index + 2), 16));
   value &= (1n << 63n) - 1n;
   let key = "";
   for (let index = 0; index < BLUESKY_TID_LENGTH; index += 1) {
@@ -1023,6 +1106,14 @@ export async function fetchBlueskyImage(
   );
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
+  // One timeout governs both the headers and the bounded body read. Aborting
+  // also cancels the body stream through the reader's abort listener.
+  const timedOut = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new Error("timeout"));
+    }, timeoutMs);
+  });
   try {
     const response = await Promise.race([
       doFetch(url, {
@@ -1031,12 +1122,7 @@ export async function fetchBlueskyImage(
         redirect: "manual",
         signal: controller.signal,
       }),
-      new Promise<never>((_, reject) => {
-        timer = setTimeout(() => {
-          controller.abort();
-          reject(new Error("timeout"));
-        }, timeoutMs);
-      }),
+      timedOut,
     ]);
     if (response.status >= 300 && response.status < 400)
       return failure(
@@ -1063,8 +1149,17 @@ export async function fetchBlueskyImage(
         "invalid_media",
         `The share card is larger than ${BLUESKY_IMAGE_MAX_BYTES} bytes. Nothing was sent.`,
       );
-    const bytes = new Uint8Array(await response.arrayBuffer());
-    if (!bytes.byteLength || bytes.byteLength > BLUESKY_IMAGE_MAX_BYTES)
+    // The header was only a hint. Read an actually bounded body and cancel it
+    // at the byte or time limit instead of trusting the declared length.
+    const bytes = await Promise.race([
+      readBoundedBytes(response, BLUESKY_IMAGE_MAX_BYTES, controller.signal),
+      timedOut,
+    ]);
+    if (
+      !bytes ||
+      !bytes.byteLength ||
+      bytes.byteLength > BLUESKY_IMAGE_MAX_BYTES
+    )
       return failure(
         "invalid_media",
         `The share card must be between 1 byte and ${BLUESKY_IMAGE_MAX_BYTES} bytes. Nothing was sent.`,

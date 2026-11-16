@@ -49,10 +49,10 @@ export interface ShareApprovalPackage {
   };
   workspace: { name: string };
   source: {
-    stackId: string;
+    stackId: string | null;
     name: string;
-    slug: string;
-    publication: number;
+    slug: string | null;
+    publication: number | null;
     publishedAt: string | null;
     url: string | null;
     apps: string[];
@@ -78,7 +78,7 @@ export interface ShareApprovalPackage {
     preparedIn: "App Composer";
     preparedAt: string;
     itemRevision: number;
-    sourceRevision: number;
+    sourceRevision: number | null;
     sourceCurrent: boolean;
     statement: string;
   };
@@ -153,9 +153,11 @@ export function buildShareApprovalPackage(
       ),
     ),
   ];
-  const imagePath = source?.imagePath ?? null;
+  const catalogue = item.catalogue;
+  const imagePath = catalogue?.renditionUrl ?? source?.imagePath ?? null;
   const imageUrl =
-    source && imagePath ? new URL(imagePath, source.url).href : null;
+    catalogue?.renditionUrl ??
+    (source && imagePath ? new URL(imagePath, source.url).href : null);
   const scheduleLabel = !item.scheduledAt
     ? "Not scheduled"
     : labels
@@ -176,7 +178,7 @@ export function buildShareApprovalPackage(
       slug: item.stackSlug,
       publication: item.publication,
       publishedAt: source?.publishedAt ?? null,
-      url: source?.url ?? null,
+      url: catalogue?.projectUrl ?? source?.url ?? null,
       apps: source?.apps ?? [],
       current: item.sourceCurrent,
     },
@@ -192,8 +194,10 @@ export function buildShareApprovalPackage(
     shareImage: {
       path: imagePath,
       url: imageUrl,
-      alt: source?.imageAlt ?? null,
-      downloadName: `${item.stackSlug}-r${item.publication}-share-card.png`,
+      alt: catalogue?.alt ?? source?.imageAlt ?? null,
+      downloadName: catalogue
+        ? `${catalogue.assetId}.${catalogue.mimeType === "image/jpeg" ? "jpg" : catalogue.mimeType.slice(6)}`
+        : `${item.stackSlug}-r${item.publication}-share-card.png`,
       status: imageUrl ? "available" : "not available",
     },
     provenance: {
@@ -202,7 +206,9 @@ export function buildShareApprovalPackage(
       itemRevision: item.revision,
       sourceRevision: item.publication,
       sourceCurrent: item.sourceCurrent,
-      statement: SHARE_PACKAGE_PROVENANCE_STATEMENT,
+      statement: catalogue
+        ? "Prepared from the approved catalogue rendition and saved item revision in App Composer. Preparing this package changes no state."
+        : SHARE_PACKAGE_PROVENANCE_STATEMENT,
     },
     posting: {
       composerPosts: false,
@@ -286,7 +292,7 @@ export function sharePackageMarkdown(value: ShareApprovalPackage): string {
     "",
     `- **Item:** \`${value.item.id}\` · revision ${value.item.revision} · ${value.item.stateLabel}`,
     `- **Workspace:** ${value.workspace.name}`,
-    `- **Source:** ${value.source.name.replace(/\s+/g, " ")} · published revision ${value.source.publication} · ${value.source.current ? "current" : "no longer current"}`,
+    `- **Source:** ${value.source.name.replace(/\s+/g, " ")} · ${value.source.publication === null ? "Woodhouse Share artwork" : `published revision ${value.source.publication}`} · ${value.source.current ? "current" : "no longer current"}`,
     `- **Source address:** ${value.source.url ?? SHARE_PACKAGE_NOT_RECORDED}`,
     `- **Schedule:** ${value.schedule.label}${value.schedule.scheduledAt ? ` · UTC \`${value.schedule.scheduledAt}\`` : ""}`,
     `- **Link:** ${value.link ?? SHARE_PACKAGE_NOT_RECORDED}`,
@@ -368,7 +374,7 @@ export function sharePackagePlainText(value: ShareApprovalPackage): string {
     "",
     `Item: ${value.item.id} · revision ${value.item.revision} · ${value.item.stateLabel}`,
     `Workspace: ${value.workspace.name}`,
-    `Source: ${value.source.name} · published revision ${value.source.publication} · ${value.source.current ? "current" : "no longer current"}`,
+    `Source: ${value.source.name} · ${value.source.publication === null ? "Woodhouse Share artwork" : `published revision ${value.source.publication}`} · ${value.source.current ? "current" : "no longer current"}`,
     `Source address: ${value.source.url ?? SHARE_PACKAGE_NOT_RECORDED}`,
     `Schedule: ${value.schedule.label}`,
     `Schedule UTC: ${value.schedule.scheduledAt ?? "not scheduled"}`,
@@ -387,9 +393,11 @@ export function sharePackagePlainText(value: ShareApprovalPackage): string {
 export function sharePackageFilename(
   item: Pick<
     ShareCalendarItem,
-    "id" | "stackSlug" | "publication" | "revision"
+    "id" | "stackSlug" | "publication" | "revision" | "catalogue"
   >,
   format: "json" | "md",
 ): string {
-  return `approval-${item.stackSlug}-r${item.publication}-${item.id.slice(0, 8)}-rev${item.revision}.${format}`;
+  const source =
+    item.catalogue?.assetId ?? `${item.stackSlug}-r${item.publication}`;
+  return `approval-${source}-${item.id.slice(0, 8)}-rev${item.revision}.${format}`;
 }

@@ -9,6 +9,7 @@ import {
   blueskyPublisherSettings,
   createBlueskyPost,
   createBlueskySession,
+  fetchBlueskyImage,
   isBlueskyAtPostUri,
   listBlueskyPosts,
   readBlueskyPost,
@@ -362,6 +363,33 @@ test("an image-only post uses the images embed and a text-only post has no embed
   assert.equal(textBody.record.embed, undefined);
 });
 
+test("an image post links its approved destination at UTF-8 byte offsets", async () => {
+  const fake = successfulPost();
+  const prefix = "A foil finish in afternoon light ✨\n\n";
+  const input = {
+    session: session(),
+    rkey,
+    text: prefix + link,
+    createdAt,
+    embed: "images",
+    link,
+    image: { blob: blob(), alt: "Foil artwork in afternoon light." },
+  };
+  const sent = await createBlueskyPost(input, { fetch: fake.fetch });
+  assert.equal(sent.ok, true);
+  const { record } = JSON.parse(String(fake.list[0].init.body));
+  assert.deepEqual(record.facets, [{
+    index: { byteStart: Buffer.byteLength(prefix), byteEnd: Buffer.byteLength(prefix + link) },
+    features: [{ $type: "app.bsky.richtext.facet#link", uri: link }],
+  }]);
+  const refused = await createBlueskyPost(
+    { ...input, text: prefix + "https://example.com/elsewhere" },
+    { fetch: fake.fetch },
+  );
+  assert.equal(refused.code, "invalid_link");
+  assert.equal(fake.list.length, 1);
+});
+
 test("createRecord rejects a mismatched URI and a record conflict without hiding it", async () => {
   const wrongUri = await createBlueskyPost(
     { session: session(), rkey, text: "A short public note.", createdAt },
@@ -455,4 +483,50 @@ test("permalinks are well formed and the publisher registers only an encrypted s
     blueskyPublisherSettings[BLUESKY_APP_PASSWORD_SETTING].description ?? "",
     /encrypts this value/i,
   );
+});
+
+test("fetchBlueskyImage bounds the body and cancels when content-length lies", async () => {
+  // The header claims a tiny image, but the stream keeps producing bytes. The
+  // old arrayBuffer() path buffered all of them; the bounded reader must stop
+  // at the byte limit and cancel the body instead.
+  const chunk = new Uint8Array(4096).fill(1);
+  let cancelled = false;
+  const stream = new ReadableStream({
+    pull(controller) {
+      controller.enqueue(chunk);
+    },
+    cancel() {
+      cancelled = true;
+    },
+  });
+  const fake = calls();
+  fake.fetch = async (input, init = {}) => {
+    fake.list.push({ url: String(input), init });
+    return new Response(stream, {
+      status: 200,
+      headers: { "Content-Type": "image/png", "Content-Length": "10" },
+    });
+  };
+  const tooBig = await fetchBlueskyImage(link, { fetch: fake.fetch });
+  assert.equal(tooBig.ok, false);
+  assert.equal(tooBig.code, "invalid_media");
+  assert.match(tooBig.message, /must be between 1 byte/i);
+  assert.equal(cancelled, true, "the oversized body stream must be cancelled");
+  assert.equal(fake.list.length, 1);
+  assert.equal(fake.list[0].init.redirect, "manual");
+
+  // A genuinely bounded body is still read and returned to the caller.
+  const small = new Uint8Array([137, 80, 78, 71]);
+  const okFake = calls();
+  okFake.fetch = async (input, init = {}) => {
+    okFake.list.push({ url: String(input), init });
+    return new Response(small, {
+      status: 200,
+      headers: { "Content-Type": "image/png" },
+    });
+  };
+  const accepted = await fetchBlueskyImage(link, { fetch: okFake.fetch });
+  assert.equal(accepted.ok, true);
+  assert.deepEqual(accepted.image.bytes, small);
+  assert.equal(accepted.image.mimeType, "image/png");
 });

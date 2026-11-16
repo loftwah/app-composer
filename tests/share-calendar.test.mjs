@@ -40,6 +40,7 @@ const schema = [
   "0032_share_calendar_packages.sql",
   "0034_share_approvals.sql",
   "0035_bluesky_deliveries.sql",
+  "0037_portfolio_no_stack.sql",
 ]
   .map(migration)
   .join("\n");
@@ -853,6 +854,7 @@ test("the additive migration keeps a legacy caption as the default destination",
     db.migrate(migration("0032_share_calendar_packages.sql"));
     db.migrate(migration("0034_share_approvals.sql"));
     db.migrate(migration("0035_bluesky_deliveries.sql"));
+    db.migrate(migration("0037_portfolio_no_stack.sql"));
     const listed = await read(db, owner);
     assert.equal(listed.ok, true);
     assert.equal(listed.items.length, 1);
