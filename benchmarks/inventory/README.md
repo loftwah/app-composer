@@ -11,6 +11,16 @@ Three dated data files behind the model feedback loop in
 | `studio-media.json` | What can the independent Media Studio generate today? | `loftwah/composer-media-studio`'s own `src/lib/providers.mjs` and its live `/capabilities.json`, then each provider's published route |
 | `pending.json` | What could not be answered without spend or a product decision? | The owner |
 
+## Job receipts belong to one inventory
+
+`benchmarks/comparisons/studio-job-receipts.json` records what the Media Studio
+production job table actually did: saved/failed/unknown counts, saved-job
+latency and the recorded cost estimate per model and kind. Its `inventory` field
+must be `studio-media`; the validator refuses evidence labelled with another
+inventory, or a model mapped to a non-media row. Build-agent availability and
+Worker bindings stay in their own files and are never folded into a saved rate.
+Read `benchmarks/comparisons/README.md` for the query, privacy and refresh rules.
+
 ## The rules the validator enforces
 
 - Every row needs a `checkedAt`, the exact source that was read, and what that

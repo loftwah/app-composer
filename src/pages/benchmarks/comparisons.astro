@@ -1,0 +1,499 @@
+---
+import Base from '../../layouts/Base.astro';
+import buildAgents from '../../../benchmarks/inventory/build-agents.json';
+import hostedExecution from '../../../benchmarks/inventory/hosted-execution.json';
+import studioMedia from '../../../benchmarks/inventory/studio-media.json';
+import evidence from '../../../benchmarks/comparisons/studio-job-receipts.json';
+import { summariseInventory } from '../../lib/model-inventory.mjs';
+import { assertJobEvidence, COST_ESTIMATE_LABEL } from '../../lib/studio-job-evidence.mjs';
+
+const now = Date.now();
+const inventoryEntries = new Map<string, any>();
+for (const entry of studioMedia.entries as any[]) inventoryEntries.set(entry.id, entry);
+// This throws during the build if the file is undated, empty, mixed with
+// another inventory, or carries a private field. A page that cannot support the
+// comparison does not get published.
+const jobs = assertJobEvidence(evidence, { now, inventoryEntries });
+
+const inventories = [
+  {
+    file: buildAgents,
+    label: 'Build agents and harnesses',
+    summary: summariseInventory(buildAgents, { now }),
+    receipts: false,
+    note: 'This inventory answers which agents and model ids exist. It has no completed job to report, so no saved rate is attached.',
+  },
+  {
+    file: hostedExecution,
+    label: 'Cloudflare execution',
+    summary: summariseInventory(hostedExecution, { now }),
+    receipts: false,
+    note: 'This inventory answers what the deployed Worker can run and which bindings it has. A binding is not a job, so nothing is merged into the Studio rate.',
+  },
+  {
+    file: studioMedia,
+    label: 'Studio media endpoints',
+    summary: summariseInventory(studioMedia, { now }),
+    receipts: true,
+    note: 'The job receipts below are the Media Studio production table, mapped back to these endpoint rows. One production route is not listed in this inventory, and is labelled rather than invented.',
+  },
+];
+
+const kindLabel: Record<string, string> = { image: 'Image', video: 'Video', audio: 'Audio' };
+const statusLabel: Record<string, string> = {
+  current: 'Current',
+  drifted: 'Drifted',
+  retired: 'Retired',
+  absent: 'Not present',
+  unverified: 'Unverified',
+};
+
+const pct = (rate: number | null) =>
+  rate === null ? '—' : `${(rate * 100).toFixed(rate === 0 || rate === 1 ? 0 : 1)}%`;
+
+const duration = (ms: number | null) => {
+  if (typeof ms !== 'number' || !Number.isFinite(ms)) return '—';
+  if (ms < 1000) return `${Math.round(ms)}ms`;
+  const seconds = ms / 1000;
+  if (seconds < 60) return `${seconds.toFixed(1)}s`;
+  const minutes = Math.floor(seconds / 60);
+  return `${minutes}m ${String(Math.round(seconds % 60)).padStart(2, '0')}s`;
+};
+
+const usd = (micro: number | null) => {
+  if (typeof micro !== 'number' || !Number.isFinite(micro)) return '—';
+  const value = micro / 1_000_000;
+  const digits = value >= 1 ? 2 : value >= 0.01 ? 3 : 4;
+  return `US$${value.toFixed(digits).replace(/0+$/, '').replace(/\.$/, '')}`;
+};
+
+const routeCount = jobs.groups.length;
+const mappedRoutes = jobs.groups.filter((group: any) => group.inventoryEntry).length;
+const unlistedRoutes = jobs.groups.filter((group: any) => !group.inventoryEntry).length;
+const savedOf = (group: any) => `${group.saved} of ${group.jobs} saved`;
+const failureNote = (group: any) => {
+  const parts = [];
+  if (group.failed > 0) parts.push(`${group.failed} failed`);
+  if (group.unknown > 0) parts.push(`${group.unknown} unknown`);
+  return parts.length > 0 ? parts.join(' · ') : 'no failures recorded';
+};
+
+const dateOnly = (value: string | null) => {
+  if (!value) return 'undated';
+  const ms = Date.parse(value);
+  if (!Number.isFinite(ms)) return 'undated';
+  return new Intl.DateTimeFormat('en-AU', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(ms);
+};
+const instant = (value: string | null) => {
+  if (!value) return 'undated';
+  const ms = Date.parse(value);
+  if (!Number.isFinite(ms)) return 'undated';
+  return `${new Intl.DateTimeFormat('en-AU', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'UTC',
+  }).format(ms)} UTC`;
+};
+const age = (value: number | null) => (value === null ? 'undated' : value === 0 ? 'today' : `${value} day${value === 1 ? '' : 's'} old`);
+
+const windowStart = jobs.source?.window?.firstCreatedAt ?? null;
+const windowEnd = jobs.source?.window?.lastCreatedAt ?? null;
+const costLabel = jobs.cost?.label ?? COST_ESTIMATE_LABEL;
+const providerCharges = jobs.cost?.providerChargeRows ?? 0;
+
+const exampleRows = (jobs.examples ?? []).map((example: any) => ({
+  ...example,
+  label: inventoryEntries.get(example.model)?.label ?? example.model,
+}));
+---
+
+<Base
+  title="Benchmarks Studio · Studio job receipts"
+  description="What the Media Studio's production job table recorded per model and kind: saved rate, saved-job latency and the cost estimate written on each row. Reliability and latency evidence, not a quality ranking."
+>
+  <div class="jobs-heading" data-job-evidence data-inventory={jobs.inventory} data-jobs={jobs.totals.jobs} data-checked-at={jobs.checkedAt}>
+    <p class="eyebrow">Benchmarks Studio · job receipts</p>
+    <h1>What the Studio's own jobs did, not how the pictures looked.</h1>
+    <p class="lede">
+      {jobs.totals.jobs} real jobs from the Media Studio production table, recorded between {dateOnly(windowStart)} and {dateOnly(windowEnd)}.
+      Each route's saved rate, saved-job latency and recorded cost estimate come from the row itself. No prompt, project, asset or media key appears in this page or its data file.
+    </p>
+    <dl class="jobs-meta">
+      <div><dt>Jobs in the window</dt><dd>{jobs.totals.jobs}</dd></div>
+      <div><dt>Saved</dt><dd>{jobs.totals.saved} <span class="jobs-meta-rate">({pct(jobs.totals.savedRate)})</span></dd></div>
+      <div><dt>Routes and kinds</dt><dd>{routeCount}</dd></div>
+      <div><dt>Checked</dt><dd>{instant(jobs.checkedAt)}</dd></div>
+      <div><dt>Freshness</dt><dd>{jobs.stale ? 'Stale' : 'Fresh'} · {age(jobs.ageDays)}</dd></div>
+    </dl>
+    <div class="actions">
+      <a class="button" href="/benchmarks/inventory">The three inventories</a>
+      <a class="button secondary" href="/benchmarks/compare">The build comparison</a>
+      <a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow #601</a>
+    </div>
+    <p class="jobs-claim">
+      This is reliability and latency evidence, not a quality ranking. No blind human preference between these outputs has been recorded yet.
+    </p>
+  </div>
+
+  {jobs.stale
+    ? (
+      <p class="jobs-warning" role="status">
+        This receipt is older than its own {jobs.staleAfterDays}-day limit. The numbers are still the numbers from {instant(jobs.checkedAt)},
+        but they no longer describe the current production table. Read it as a dated observation, not a live rate.
+      </p>
+    )
+    : null}
+
+  <section class="jobs-proof" aria-label="What this comparison proves and does not prove">
+    <article>
+      <h2>What it proves</h2>
+      <ul>
+        <li>{jobs.totals.jobs} rows in the Studio job table, grouped by the route and kind stored on the row.</li>
+        <li>{jobs.totals.saved} saved, {jobs.totals.failed} failed and {jobs.totals.unknown} unknown, with every count adding back to the total.</li>
+        <li>Saved-job latency from <code>created_at</code> to the <code>completed_at</code> recorded on each saved row.</li>
+        <li>The cost estimate written on each row: {usd(jobs.totals.costEstimateMicroSum)} across the window, before any provider charge.</li>
+      </ul>
+    </article>
+    <article>
+      <h2>What it deliberately does not</h2>
+      <ul>
+        <li>Rank quality. A saved job means an output was stored, not that it was good.</li>
+        <li>Claim a preference. No blind human comparison of these outputs has been recorded yet.</li>
+        <li>Call the estimate an invoice. {providerCharges === 0
+          ? 'No row in this window records a provider charge, so no invoice-derived cost is claimed.'
+          : `${providerCharges} rows record a provider charge; the other rows do not, so no invoice total is claimed.`}</li>
+        <li>Measure failure latency. Failed and unknown rows have no terminal timestamp, so they are counted, not timed.</li>
+        <li>Describe the provider, the account or the wider internet. It describes one Studio account in one short window.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="jobs-section" aria-labelledby="inventories-title">
+    <h2 id="inventories-title">Three inventories, one with job receipts</h2>
+    <p class="jobs-intro">
+      These stay separate on purpose. A build agent existing, a Worker binding being present and a media job finishing are three different
+      observations. The job evidence below belongs only to the Studio media inventory.
+    </p>
+    <div class="jobs-inventories">
+      {inventories.map((inventory) => (
+        <article class={`jobs-inventory ${inventory.receipts ? 'is-studio' : ''}`}>
+          <header>
+            <p class="eyebrow">{inventory.file.id.replace('-', ' · ')}</p>
+            <h3>{inventory.label}</h3>
+          </header>
+          <p class="jobs-inventory-question">{inventory.summary.question}</p>
+          <dl class="jobs-inventory-facts">
+            <div><dt>Rows</dt><dd>{inventory.summary.total}</dd></div>
+            <div><dt>Checked</dt><dd>{instant(inventory.summary.checkedAt)}</dd></div>
+            <div><dt>State</dt><dd>{inventory.summary.stale ? 'Stale' : 'Fresh'} · {age(inventory.summary.ageDays)}</dd></div>
+          </dl>
+          <p class="jobs-inventory-status">
+            {Object.entries(inventory.summary.counts).filter(([, count]) => Number(count) > 0).map(([status, count]) => (
+              <span class={`jobs-status jobs-status-${status}`}>{statusLabel[status] ?? status} {String(count)}</span>
+            ))}
+          </p>
+          <p class={inventory.receipts ? 'jobs-attached' : 'jobs-detached'}>
+            {inventory.receipts ? `Job receipts attached: ${jobs.totals.jobs} jobs on ${routeCount} routes.` : 'Availability only. No job receipts are attached.'}
+          </p>
+          <p class="jobs-inventory-note">{inventory.note}</p>
+          <a class="jobs-inventory-link" href={`/benchmarks/inventory#inv-${inventory.file.id}`}>Open this inventory</a>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="jobs-section" aria-labelledby="table-title">
+    <h2 id="table-title">Saved rate, latency and recorded estimate by route</h2>
+    <p class="jobs-intro">
+      Sorted by job count. The saved rate is saved jobs divided by all jobs on that route. Median and p90 use saved jobs only, because they are the
+      only rows with a completion timestamp. {costLabel}.
+    </p>
+    <div class="jobs-table-wrap" role="region" aria-labelledby="table-title" tabindex="0">
+      <table class="jobs-table">
+        <caption>
+          Media Studio jobs recorded {dateOnly(windowStart)} to {dateOnly(windowEnd)}. {unlistedRoutes === 0
+            ? 'Every route maps to a studio-media inventory row.'
+            : `${mappedRoutes} routes map to a studio-media inventory row; ${unlistedRoutes} does not, and is labelled below.`}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Route and kind</th>
+            <th scope="col">Saved</th>
+            <th scope="col">Saved-job latency</th>
+            <th scope="col">Estimate <span class="jobs-th-note">median · total · not an invoice</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {jobs.groups.map((group: any) => {
+            const entry = group.inventoryEntry ? inventoryEntries.get(group.inventoryEntry) : null;
+            return (
+              <tr data-model={group.model} data-kind={group.kind} data-jobs={group.jobs} data-saved={group.saved}>
+                <td class="jobs-route">
+                  <strong>{entry?.label ?? group.model}</strong>
+                  <code>{group.model}</code>
+                  <span class="jobs-route-tags">
+                    <span class="jobs-kind">{kindLabel[group.kind] ?? group.kind}</span>
+                    {!group.inventoryEntry
+                      ? <span class="jobs-tag jobs-tag-unlisted">Not in the inventory</span>
+                      : group.model !== group.inventoryEntry
+                        ? <span class="jobs-tag jobs-tag-retired">Retired route</span>
+                        : null}
+                  </span>
+                </td>
+                <td>
+                  <span class="num">{pct(group.savedRate)}</span>
+                  <span class="sub">{savedOf(group)}</span>
+                  <span class="sub">{failureNote(group)}</span>
+                </td>
+                <td>
+                  {group.savedLatencyMs
+                    ? (
+                      <>
+                        <span class="num" title={`${group.savedLatencyMs.median} ms`}>{duration(group.savedLatencyMs.median)}</span>
+                        <span class="sub">p90 {duration(group.savedLatencyMs.p90)} · {group.savedLatencyMs.samples} saved</span>
+                      </>
+                    )
+                    : (
+                      <>
+                        <span class="num">—</span>
+                        <span class="sub">no saved job to time</span>
+                      </>
+                    )}
+                </td>
+                <td>
+                  <span class="num" title={`${group.costEstimateMicro.median} micro-US dollars`}>{usd(group.costEstimateMicro.median)}</span>
+                  <span class="sub">{usd(group.costEstimateMicro.sum)} total</span>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row">All {routeCount} routes</th>
+            <td>
+              <span class="num">{pct(jobs.totals.savedRate)}</span>
+              <span class="sub">{jobs.totals.saved} of {jobs.totals.jobs} saved</span>
+            </td>
+            <td>
+              <span class="num">not pooled</span>
+              <span class="sub">per-route medians stay per route</span>
+            </td>
+            <td>
+              <span class="num">{usd(jobs.totals.costEstimateMicroSum)}</span>
+              <span class="sub">sum of recorded estimates</span>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <p class="jobs-small">
+      Latency is wall-clock time, including queue and provider time. It is not compute time and not time to first view. A route with one saved job
+      has a median and p90 equal to that one job; treat it as a fact about that job, not a stable rate.
+    </p>
+    {unlistedRoutes > 0
+      ? (
+        <div class="jobs-callout">
+          <h3>One route is missing from the inventory</h3>
+          {jobs.groups.filter((group: any) => !group.inventoryEntry).map((group: any) => (
+            <p>
+              <code>{group.model}</code> ({kindLabel[group.kind] ?? group.kind}) has {group.jobs} job{group.jobs === 1 ? '' : 's'} in production,
+              but no row in the 16 November studio-media inventory. The receipt keeps the production key and says so. It does not invent an
+              endpoint or add an inventory row to make the tables agree.
+            </p>
+          ))}
+        </div>
+      )
+      : null}
+  </section>
+
+  <section class="jobs-section" aria-labelledby="examples-title">
+    <h2 id="examples-title">The exact settings behind the numbers</h2>
+    <p class="jobs-intro">{jobs.examplesNote}</p>
+    <div class="jobs-examples">
+      {exampleRows.map((example: any) => (
+        <article class="jobs-example">
+          <header>
+            <h3>{example.label}</h3>
+            <code>{example.model}</code>
+            <span class="jobs-kind">{kindLabel[example.kind] ?? example.kind}</span>
+          </header>
+          <dl>
+            <div><dt>Aspect</dt><dd>{example.aspect ?? <span class="jobs-blank">not recorded</span>}</dd></div>
+            <div><dt>Duration</dt><dd>{example.durationSeconds !== undefined ? `${example.durationSeconds}s` : <span class="jobs-blank">not recorded</span>}</dd></div>
+            <div>
+              <dt>Pixels</dt>
+              <dd>
+                {example.outputWidth && example.outputHeight
+                  ? `${example.outputWidth}×${example.outputHeight}`
+                  : <span class="jobs-blank">not recorded</span>}
+              </dd>
+            </div>
+          </dl>
+        </article>
+      ))}
+    </div>
+    <p class="jobs-small">
+      These are settings, not prompts or outputs. Pixel dimensions appear on exactly one job in the window: a failed Studio 9:16 Cut row at
+      720×1280. It contributes to the failure count, not to latency. Resolution is therefore not compared here.
+    </p>
+  </section>
+
+  <section class="jobs-section" aria-labelledby="method-title">
+    <h2 id="method-title">How the receipt was read</h2>
+    <ol class="jobs-method">
+      <li>
+        Read the schema first with <code>PRAGMA table_info(generations)</code>. Every field named below exists on the production table; a field that
+        did not exist was not inferred.
+      </li>
+      <li>
+        Ran one read-only aggregate query per route and kind. It reads <code>model</code>, <code>kind</code>, <code>status</code>,
+        <code>created_at</code>, <code>completed_at</code>, <code>cancelled_at</code>, <code>cost_estimate_micro</code> and
+        <code>provider_charged_micro</code>. It never selects <code>request_json</code>, a prompt, a project id, an asset id or a media key.
+      </li>
+      <li>
+        Ran a second query for the three settings examples. It extracts only <code>aspect</code>, <code>durationSeconds</code>,
+        <code>aspectRatio</code>, <code>outputWidth</code> and <code>outputHeight</code> from the request record. No other part of that record is
+        read.
+      </li>
+      <li>
+        Excluded the one row whose media was erased (<code>deleted_at</code> set). It is not counted and not described. No <code>SELECT *</code>
+        appears in either query.
+      </li>
+      <li>
+        Checked the committed aggregate with <code>pnpm jobs:check</code>. The page calls the same validator while building and refuses to render an
+        undated file, a file with zero jobs, a mixed inventory, a private field, a negative latency or counts that do not add up.
+      </li>
+    </ol>
+    <details>
+      <summary>Read the exact SQL</summary>
+      <p class="jobs-small">This is the aggregate query recorded in the evidence file. The examples query is recorded beside it.</p>
+      <pre>{jobs.source.sql}</pre>
+      <p class="jobs-small">Examples query:</p>
+      <pre>{jobs.source.examplesSql}</pre>
+    </details>
+  </section>
+
+  <section class="jobs-section" aria-labelledby="limits-title">
+    <h2 id="limits-title">Where this comparison stops</h2>
+    <ul class="jobs-limits">
+      {jobs.limits.map((limit: string) => <li>{limit}</li>)}
+      <li>
+        The endpoint mapping and the date each model was last checked belong to the <a href="/benchmarks/inventory">model inventory</a>. This page
+        does not re-check a provider catalogue; it reads the jobs that were already recorded.
+      </li>
+    </ul>
+    <div class="actions">
+      <a class="button" href="/benchmarks/inventory">Check what is current</a>
+      <a class="button secondary" href="/benchmarks/compare">Compare build agents</a>
+      <a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow Benchmarks Studio</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .jobs-heading{max-width:900px}
+  .jobs-heading h1{font-size:clamp(2.5rem,5vw,4.2rem);max-width:22ch;margin:10px 0 20px;text-wrap:balance}
+  .jobs-heading .lede{max-width:66ch}
+  .jobs-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin:28px 0;padding:20px;background:var(--color-surface);border-radius:10px}
+  .jobs-meta dt{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--color-muted)}
+  .jobs-meta dd{margin:4px 0 0;font-size:17px;overflow-wrap:anywhere}
+  .jobs-meta-rate{color:var(--color-muted);font-size:14px}
+  .jobs-claim{margin:20px 0 0;padding:12px 0 0;border-top:1px solid var(--color-border);font-size:14px;color:var(--color-muted);max-width:72ch}
+  .jobs-warning{margin:24px 0 0;padding:14px 16px;border-left:3px solid var(--color-accent);background:var(--color-surface);font-size:14px;max-width:78ch}
+  .jobs-proof{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:34px 0 0}
+  .jobs-proof article{border:1px solid var(--color-border);border-radius:10px;padding:20px;min-width:0}
+  .jobs-proof h2{font-size:1.2rem;margin:0 0 10px;max-width:none}
+  .jobs-proof ul{padding-left:18px;margin:0;max-width:none}
+  .jobs-proof li{font-size:14px;margin:9px 0;color:var(--color-muted)}
+  .jobs-proof li code{font-size:12px}
+  .jobs-section{border-top:1px solid var(--color-border);padding-top:28px;margin-top:44px}
+  .jobs-section h2{font-size:clamp(1.7rem,3vw,2.3rem);max-width:28ch}
+  .jobs-section h3{font-size:1.1rem;margin:0 0 8px}
+  .jobs-intro{max-width:70ch;color:var(--color-muted)}
+  .jobs-inventories{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0 0}
+  .jobs-inventory{border:1px solid var(--color-border);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+  .jobs-inventory.is-studio{border-left:3px solid var(--color-accent)}
+  .jobs-inventory h3{margin:4px 0 0;font-size:1.08rem;max-width:none}
+  .jobs-inventory p{margin:0;font-size:13px}
+  .jobs-inventory-question{color:var(--color-muted)}
+  .jobs-inventory-facts{display:grid;gap:6px;margin:2px 0}
+  .jobs-inventory-facts div{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px}
+  .jobs-inventory-facts dt{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);padding-top:2px}
+  .jobs-inventory-facts dd{margin:0;font-size:13px;overflow-wrap:anywhere}
+  .jobs-inventory-status{display:flex;flex-wrap:wrap;gap:6px}
+  .jobs-status{display:inline-flex;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:999px;border:1px solid var(--color-border);color:var(--color-muted);white-space:nowrap}
+  .jobs-status-current{color:var(--color-success);border-color:currentColor}
+  .jobs-status-unverified,.jobs-status-drifted{color:var(--color-accent);border-color:currentColor}
+  .jobs-attached{color:var(--color-accent);font-weight:600}
+  .jobs-detached{color:var(--color-muted)}
+  .jobs-inventory-note{color:var(--color-muted);margin-top:auto!important}
+  .jobs-inventory-link{font-size:13px;margin-top:2px;align-self:flex-start;min-height:32px;display:inline-flex;align-items:center}
+  .jobs-table-wrap{margin-top:18px;border:1px solid var(--color-border);border-radius:10px;overflow-x:auto}
+  .jobs-table-wrap:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}
+  .jobs-table{width:100%;border-collapse:collapse;font-size:14px}
+  .jobs-table caption{text-align:left;padding:14px 16px;font-size:12.5px;line-height:1.5;color:var(--color-muted);border-bottom:1px solid var(--color-border)}
+  .jobs-table th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);padding:12px 16px;border-bottom:1px solid var(--color-border);text-align:left;vertical-align:bottom}
+  .jobs-table td{padding:14px 16px;border-bottom:1px solid var(--color-border);vertical-align:top}
+  .jobs-table tbody tr:last-child td{border-bottom:0}
+  .jobs-table tbody tr:hover{background:color-mix(in srgb,var(--color-surface) 55%,transparent)}
+  .jobs-th-note{display:block;margin-top:3px;font-size:10px;letter-spacing:0;text-transform:none;font-weight:400}
+  .jobs-table .num{display:block;font:500 18px/1.2 Space,system-ui,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .jobs-table .sub{display:block;margin-top:4px;font-size:12px;line-height:1.45;color:var(--color-muted);font-weight:400}
+  .jobs-route strong{display:block;font-size:14.5px;font-weight:500;overflow-wrap:anywhere}
+  .jobs-route code{display:block;margin-top:4px;font-size:11px;background:transparent;padding:0;color:var(--color-muted);overflow-wrap:anywhere}
+  .jobs-route-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+  .jobs-kind,.jobs-tag{display:inline-flex;font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid var(--color-border);color:var(--color-muted);white-space:nowrap}
+  .jobs-tag-unlisted{color:var(--color-accent);border-color:currentColor}
+  .jobs-tag-retired{color:var(--color-muted)}
+  .jobs-table tfoot th,.jobs-table tfoot td{border-top:1px solid var(--color-control-border);border-bottom:0;background:color-mix(in srgb,var(--color-surface) 65%,transparent);font-size:13px}
+  .jobs-table tfoot th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-foreground)}
+  .jobs-small{font-size:13px;color:var(--color-muted);max-width:74ch;margin:12px 0 0}
+  .jobs-callout{margin-top:18px;padding:16px 18px;border:1px solid var(--color-border);border-left:3px solid var(--color-accent);border-radius:0 8px 8px 0;background:var(--color-surface)}
+  .jobs-callout h3{margin:0 0 8px}
+  .jobs-callout p{margin:0;font-size:13.5px;color:var(--color-muted);max-width:76ch}
+  .jobs-examples{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+  .jobs-example{border:1px solid var(--color-border);border-radius:10px;padding:16px;display:flex;flex-direction:column}
+  .jobs-example header{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding-bottom:12px;border-bottom:1px solid var(--color-border)}
+  .jobs-example h3{margin:0;font-size:1rem;max-width:none}
+  .jobs-example code{font-size:11px;background:transparent;padding:0;color:var(--color-muted);overflow-wrap:anywhere}
+  .jobs-example .jobs-kind{margin-top:4px}
+  .jobs-example dl{display:grid;gap:8px;margin:12px 0 0}
+  .jobs-example dl div{display:grid;grid-template-columns:82px minmax(0,1fr);gap:10px}
+  .jobs-example dt{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);padding-top:2px}
+  .jobs-example dd{margin:0;font-size:14px;overflow-wrap:anywhere}
+  .jobs-blank{color:var(--color-muted);font-style:italic}
+  .jobs-method{max-width:76ch;padding-left:22px}
+  .jobs-method li{margin:12px 0;font-size:14.5px;color:var(--color-muted)}
+  .jobs-method li code{font-size:12px}
+  .jobs-limits{max-width:74ch;line-height:1.7}
+  .jobs-limits li{margin:10px 0}
+  @media(max-width:960px){
+    .jobs-inventories{grid-template-columns:1fr}
+    .jobs-proof{grid-template-columns:1fr}
+    .jobs-examples{grid-template-columns:1fr}
+  }
+  @media(max-width:600px){
+    .jobs-table{font-size:12px}
+    .jobs-table caption{padding:12px}
+    .jobs-table th{padding:10px 7px;font-size:9.5px;letter-spacing:.04em}
+    .jobs-table td{padding:11px 7px}
+    .jobs-table .num{font-size:14px;white-space:normal}
+    .jobs-table .sub{font-size:10.5px;margin-top:3px}
+    .jobs-route strong{font-size:12.5px}
+    .jobs-route code{font-size:9.5px}
+    .jobs-route-tags{gap:4px}
+    .jobs-kind,.jobs-tag{font-size:8.5px;padding:2px 5px;white-space:normal}
+    .jobs-table tfoot th,.jobs-table tfoot td{font-size:11px}
+    .jobs-table tfoot th{font-size:9px}
+    .jobs-th-note{display:none}
+    .jobs-meta{grid-template-columns:1fr 1fr;padding:16px;gap:14px}
+    .jobs-meta dd{font-size:15px}
+    .jobs-inventory{padding:14px}
+    .jobs-method li{font-size:13.5px}
+  }
+</style>
