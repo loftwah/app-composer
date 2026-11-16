@@ -53,6 +53,7 @@ if (retryPending) {
   } else {
     const result = await flushPendingAlerts({ pendingDir, github });
     console.log(JSON.stringify({ check: "pending-alerts", ...result }));
+    if (result.blocked) console.error(`pending alerts cannot be filed: ${result.blocked}`);
     if (result.remaining) failed = true;
   }
 }

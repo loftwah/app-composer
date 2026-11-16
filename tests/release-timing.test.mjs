@@ -10,6 +10,7 @@ import {
   createReleaseRun,
   createGitHubAdapter,
   findStuckRuns,
+  flushPendingAlerts,
   isWithinLimit,
   redact,
   reportStuckRun,
@@ -211,6 +212,66 @@ test("GitHub failure queues a redacted event and the next run retries it", async
   assert.equal(readdirSync(join(dir, "timing", "pending")).length, 0);
 });
 
+test("an unfiled alert is never reported as a clean retry", async (t) => {
+  const dir = ownedDir(t);
+  const clock = fakeClock();
+  const run = runFor(dir, clock, null);
+  await run.stage("Worker upload", async () => clock.advance(LIMIT_MS));
+  const receipt = await run.finish({ liveRevision: SHA });
+  assert.equal(receipt.alert.state, "pending");
+  const pendingDir = join(dir, "timing", "pending");
+  const queued = readdirSync(pendingDir);
+  assert.equal(queued.length, 1);
+  assert.equal(receipt.alert.fingerprint, queued[0].replace(/\.json$/, ""));
+
+  const blocked = await flushPendingAlerts({ pendingDir, github: null });
+  assert.deepEqual(blocked, {
+    flushed: 0,
+    remaining: 1,
+    blocked: "github-adapter-unavailable",
+  });
+  assert.equal(readdirSync(pendingDir).length, 1, "the breach stays queued for a real retry");
+
+  const empty = await flushPendingAlerts({ pendingDir: join(dir, "nothing"), github: null });
+  assert.deepEqual(empty, { flushed: 0, remaining: 0, blocked: null });
+});
+
+test("a queued alert that is later filed still gains recovery evidence", async (t) => {
+  const dir = ownedDir(t);
+  const clock = fakeClock();
+  const queued = runFor(dir, clock, null);
+  await queued.stage("Worker upload", async () => clock.advance(LIMIT_MS));
+  await queued.finish({ liveRevision: SHA });
+
+  const github = fakeGitHub();
+  const flushed = await flushPendingAlerts({ pendingDir: join(dir, "timing", "pending"), github });
+  assert.equal(flushed.flushed, 1);
+  assert.equal(github.issues.length, 1);
+
+  const passing = runFor(dir, fakeClock(), github);
+  await passing.stage("Worker upload", async () => {});
+  const receipt = await passing.finish({ liveRevision: SHA });
+  assert.equal(receipt.status, "passed");
+  assert.equal(github.issues[0].comments.length, 1);
+  assert.match(github.issues[0].comments[0], /Measured recovery/);
+
+  const second = runFor(dir, fakeClock(), github);
+  await second.stage("Worker upload", async () => {});
+  await second.finish({ liveRevision: SHA });
+  assert.equal(github.issues[0].comments.length, 1, "recovery evidence is not spammed");
+});
+
+test("an explicitly failed finish cannot produce a green receipt", async (t) => {
+  const dir = ownedDir(t);
+  const github = fakeGitHub();
+  const run = runFor(dir, fakeClock(), github);
+  await run.stage("required checks", async () => {});
+  const receipt = await run.finish({ status: "failed" });
+  assert.equal(receipt.status, "failed");
+  assert.ok(receipt.failure, "a failed receipt names the failure");
+  assert.equal(github.issues.length, 0, "a failed run is not an SLA breach");
+});
+
 test("a passing release adds recovery evidence once without closing the issue", async (t) => {
   const dir = ownedDir(t);
   const github = fakeGitHub();
@@ -298,4 +359,49 @@ test("the GitHub adapter allows a bounded multi-megabyte issue list", async () =
   });
   await github.findOpen("fingerprint");
   assert.ok(options.maxBuffer >= 32 * 1024 * 1024);
+});
+
+test("the real adapter files one issue per fingerprint and comments on the next match", async () => {
+  const issues = [];
+  let next = 1;
+  // Stateful `gh` stand-in that honours the real argv and the stdin body the
+  // adapter sends with --body-file -.
+  const exec = (_command, argv, options = {}) => {
+    const args = argv.slice(2); // drop --repo owner/name
+    const body = String(options.input ?? "");
+    if (args[0] === "issue" && args[1] === "list")
+      return JSON.stringify(issues.map((issue) => ({ number: issue.number, title: issue.title, body: issue.body })));
+    if (args[0] === "issue" && args[1] === "create") {
+      const issue = { number: next++, title: args[args.indexOf("--title") + 1], body, comments: [] };
+      issues.push(issue);
+      return `https://github.com/loftwah/example/issues/${issue.number}`;
+    }
+    if (args[0] === "issue" && args[1] === "comment") {
+      issues.find((issue) => issue.number === Number(args[2])).comments.push(body);
+      return "";
+    }
+    throw new Error(`unexpected gh call: ${args.join(" ")}`);
+  };
+  const github = createGitHubAdapter({ repo: "loftwah/example", exec });
+  const fingerprint = (bottleneck) =>
+    stableFingerprint({ repo: "loftwah/example", releasePath: "scripts/deploy.mjs", bottleneck });
+
+  const upload = fingerprint("Worker upload");
+  assert.equal(await github.findOpen(upload), null);
+  const created = await github.create({
+    title: "[DELIVERY SLA] Routine release exceeded 300s — Worker upload",
+    body: `<!-- delivery-sla:${upload} -->`,
+  });
+  assert.equal(created.number, 1);
+
+  const existing = await github.findOpen(upload);
+  assert.equal(existing.number, 1, "the marker in the stored body identifies the open issue");
+  await github.comment(existing.number, "second breach of the same bottleneck");
+  assert.equal(issues.length, 1, "a matching breach never opens a second issue");
+  assert.equal(issues[0].comments.length, 1);
+
+  const checks = fingerprint("required checks");
+  assert.equal(await github.findOpen(checks), null);
+  await github.create({ title: "different bottleneck", body: `<!-- delivery-sla:${checks} -->` });
+  assert.equal(issues.length, 2, "a different bottleneck opens a separate issue");
 });

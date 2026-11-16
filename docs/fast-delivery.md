@@ -81,6 +81,11 @@ pnpm release:watchdog --check-stuck
 pnpm release:watchdog --retry-pending
 ```
 
+An alert that still cannot be filed keeps `--retry-pending` failing with exit 2 and
+the number of queued events; it is never reported as a clean retry. An alert that
+arrived through the queue keeps its breach identity, so a later compliant release
+adds recovery evidence to the same issue.
+
 A passing release adds measured recovery evidence to a known breach issue but
 never closes it automatically. Receipts contain no credentials, signed URLs,
 private media or raw provider output. Benchmarks Studio can validate and compare
