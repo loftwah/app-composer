@@ -1,11 +1,15 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { env } from 'cloudflare:workers';
+import type { D1Database } from '@cloudflare/workers-types';
 import buildAgents from '../../../benchmarks/inventory/build-agents.json';
 import hostedExecution from '../../../benchmarks/inventory/hosted-execution.json';
 import studioMedia from '../../../benchmarks/inventory/studio-media.json';
 import evidence from '../../../benchmarks/comparisons/studio-job-receipts.json';
 import { summariseInventory } from '../../lib/model-inventory.mjs';
 import { assertJobEvidence, COST_ESTIMATE_LABEL } from '../../lib/studio-job-evidence.mjs';
+import { listVotes, mediaRunEntry } from '../../lib/benchmark-runs.ts';
+import { mediaPreferenceCopy } from '../../lib/benchmark-media.mjs';
 
 const now = Date.now();
 const inventoryEntries = new Map<string, any>();
@@ -14,6 +18,41 @@ for (const entry of studioMedia.entries as any[]) inventoryEntries.set(entry.id,
 // another inventory, or carries a private field. A page that cannot support the
 // comparison does not get published.
 const jobs = assertJobEvidence(evidence, { now, inventoryEntries });
+
+// The aggregate table never becomes a preference. The separate matched-still
+// comparison can carry one, so this page reads its vote record and describes it
+// accurately instead of repeating a stale "no preference" line.
+const media = mediaRunEntry();
+let mediaRecorded = 0;
+let mediaChoices = 0;
+let mediaBlindChoices = 0;
+let mediaReveals = 0;
+let mediaVotesAvailable = false;
+if (media) {
+  const runtime = env as unknown as { DB?: D1Database };
+  if (runtime.DB && typeof runtime.DB.prepare === 'function') {
+    try {
+      const votes = await listVotes(runtime.DB, media.id);
+      mediaRecorded = votes.length;
+      mediaChoices = votes.filter((vote) => vote.choice !== 'revealed').length;
+      mediaBlindChoices = votes.filter((vote) => vote.choice !== 'revealed' && vote.blind).length;
+      mediaReveals = mediaRecorded - mediaChoices;
+      mediaVotesAvailable = true;
+    } catch {
+      mediaVotesAvailable = false;
+    }
+  }
+}
+const mediaHref = media ? `/benchmarks/media?run=${encodeURIComponent(media.id)}` : '/benchmarks/media';
+const mediaCopy = mediaPreferenceCopy({
+  available: mediaVotesAvailable,
+  choices: mediaChoices,
+  blindChoices: mediaBlindChoices,
+  reveals: mediaReveals,
+  routes: jobs.groups.length,
+});
+const mediaPreferenceLine = mediaCopy.line;
+const mediaPreferenceLimit = mediaCopy.limit;
 
 const inventories = [
   {
@@ -132,10 +171,11 @@ const exampleRows = (jobs.examples ?? []).map((example: any) => ({
     <div class="actions">
       <a class="button" href="/benchmarks/inventory">The three inventories</a>
       <a class="button secondary" href="/benchmarks/compare">The build comparison</a>
+      <a class="button secondary" href={mediaHref}>Judge the matched still pair</a>
       <a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow #601</a>
     </div>
     <p class="jobs-claim">
-      This is reliability and latency evidence, not a quality ranking. No blind human preference between these outputs has been recorded yet.
+      This is reliability and latency evidence, not a quality ranking. {mediaPreferenceLine}
     </p>
   </div>
 
@@ -162,7 +202,7 @@ const exampleRows = (jobs.examples ?? []).map((example: any) => ({
       <h2>What it deliberately does not</h2>
       <ul>
         <li>Rank quality. A saved job means an output was stored, not that it was good.</li>
-        <li>Claim a preference. No blind human comparison of these outputs has been recorded yet.</li>
+        <li>{mediaPreferenceLimit}</li>
         <li>Call the estimate an invoice. {providerCharges === 0
           ? 'No row in this window records a provider charge, so no invoice-derived cost is claimed.'
           : `${providerCharges} rows record a provider charge; the other rows do not, so no invoice total is claimed.`}</li>

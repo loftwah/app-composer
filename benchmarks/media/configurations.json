@@ -1,0 +1,208 @@
+{
+  "schema": "benchmark-media-configurations/v1",
+  "note": "Every configuration is a model plus the Studio path that ran it, not a model name alone. The shared settings are identical; the model is the only intended variable. Output resolution, frame rate and audio are model-determined results, not settings.",
+  "checkedAt": "2026-11-16T10:08:22.481Z",
+  "source": {
+    "system": "Media Studio",
+    "environment": "production",
+    "table": "generations",
+    "database": "media-studio",
+    "readMode": "read only",
+    "readAt": "2026-11-16T10:08:22.481Z",
+    "window": {
+      "firstCreatedAt": "2026-11-15T10:00:14.910Z",
+      "lastCompletedAt": "2026-11-15T10:03:07.770Z"
+    },
+    "selection": "Saved video jobs with the same prompt, the same attached still sha256, the same recipe, the same duration and the same aspect, where the model differs. Two rows matched; both are included.",
+    "privateFields": "Project ids, generation ids, asset ids, retained keys, provider request ids and the prompt text were read only to locate and verify the rows. None is copied into this file or the page."
+  },
+  "sharedSettings": {
+    "recipe": "animate-a-still",
+    "durationSeconds": 5,
+    "aspect": "from-image",
+    "aspectRatio": null,
+    "mask": null,
+    "budgetAdmission": "atomic-v1",
+    "inputSha256": "7758a17cd5e12dd15692ac6db8153e59387527697030d1605f9174119e72411b",
+    "promptSha256": "fbba438461f4048e346175d076e890725a56548e5fdf5bde33dcd1cc6d6b671d"
+  },
+  "configurations": [
+    {
+      "id": "h3-max-turbo",
+      "label": "MiniMax H3 Max Turbo \u00b7 768p",
+      "model": "h3-max-turbo",
+      "resolvedModel": "h3-max-turbo",
+      "provider": "MiniMax",
+      "harness": "media-studio",
+      "harnessVersion": "production, read 2026-11-16",
+      "inventoryEntry": "h3-max-turbo",
+      "settings": {
+        "recipe": "animate-a-still",
+        "durationSeconds": 5,
+        "aspect": "from-image",
+        "aspectRatio": null,
+        "mask": null,
+        "budgetAdmission": "atomic-v1",
+        "inputSha256": "7758a17cd5e12dd15692ac6db8153e59387527697030d1605f9174119e72411b",
+        "promptSha256": "fbba438461f4048e346175d076e890725a56548e5fdf5bde33dcd1cc6d6b671d"
+      },
+      "trials": [
+        {
+          "id": "take-01",
+          "index": 1,
+          "status": "saved",
+          "createdAt": "2026-11-15T10:00:14.910Z",
+          "completedAt": "2026-11-15T10:00:32.039Z",
+          "durationMs": 17129,
+          "artifact": {
+            "path": "animate-a-still/p01/a/clip.mp4",
+            "mime": "video/mp4",
+            "bytes": 2658207,
+            "width": 1344,
+            "height": 768,
+            "durationMs": 5184,
+            "sha256": "c01e4a8f60a727bf86be6fb6c7b11c64a9d594877d3a5338088bc040c17ea97e",
+            "videoCodec": "h264",
+            "frameRate": "24/1",
+            "audio": {
+              "codec": "aac",
+              "sampleRate": 32000,
+              "channels": 2
+            }
+          },
+          "poster": {
+            "path": "animate-a-still/p01/a/poster.jpg",
+            "mime": "image/jpeg",
+            "bytes": 8232,
+            "sha256": "94f5a91b6a92c4e1c280bb7e35d19f688ceb4a04d455ea3e8e3af1ece5e513cc"
+          },
+          "cost": {
+            "estimateMicro": 240000,
+            "providerChargedMicro": null,
+            "basis": "Studio estimate recorded on the job row, not an invoice"
+          },
+          "checks": [
+            {
+              "id": "retained-file",
+              "name": "The saved file is present and matches its digest",
+              "kind": "measured",
+              "status": "pass",
+              "detail": "2,658,207 bytes; sha256 c01e4a8f\u2026 matches the Studio asset row."
+            },
+            {
+              "id": "duration",
+              "name": "About five seconds",
+              "kind": "measured",
+              "status": "pass",
+              "detail": "5.184s container duration, 0.184s over the five-second request."
+            },
+            {
+              "id": "supplied-still-preserved",
+              "name": "The clip holds the supplied still",
+              "kind": "observed",
+              "status": "fail",
+              "detail": "The opening frames show the supplied orange artwork, then a crossfade replaces it with a paper-and-lamp scene within about half a second. The rest of the clip is that scene."
+            },
+            {
+              "id": "new-objects",
+              "name": "No new objects or scene change",
+              "kind": "observed",
+              "status": "fail",
+              "detail": "The lamp, paper and desk are not in the supplied still; they are the scene named in the prompt text."
+            }
+          ],
+          "failed": [
+            "supplied-still-preserved",
+            "new-objects"
+          ],
+          "note": "The clip follows the prompt text over the attached still. That is recorded as an observed failure for this task, not as a hidden preference."
+        }
+      ]
+    },
+    {
+      "id": "kling-standard",
+      "label": "Kling 2.5 Turbo Pro",
+      "model": "kling-standard",
+      "resolvedModel": "kling-standard",
+      "provider": "Kling",
+      "harness": "media-studio",
+      "harnessVersion": "production, read 2026-11-16",
+      "inventoryEntry": "kling-standard",
+      "settings": {
+        "recipe": "animate-a-still",
+        "durationSeconds": 5,
+        "aspect": "from-image",
+        "aspectRatio": null,
+        "mask": null,
+        "budgetAdmission": "atomic-v1",
+        "inputSha256": "7758a17cd5e12dd15692ac6db8153e59387527697030d1605f9174119e72411b",
+        "promptSha256": "fbba438461f4048e346175d076e890725a56548e5fdf5bde33dcd1cc6d6b671d"
+      },
+      "trials": [
+        {
+          "id": "take-02",
+          "index": 1,
+          "status": "saved",
+          "createdAt": "2026-11-15T10:00:46.589Z",
+          "completedAt": "2026-11-15T10:03:07.770Z",
+          "durationMs": 141181,
+          "artifact": {
+            "path": "animate-a-still/p01/b/clip.mp4",
+            "mime": "video/mp4",
+            "bytes": 14658571,
+            "width": 1920,
+            "height": 1080,
+            "durationMs": 5042,
+            "sha256": "71454b5665cf8dda332888501a4f67ad9fb6bdb1c830e503706c5b4c5d14cd2a",
+            "videoCodec": "h264",
+            "frameRate": "24/1",
+            "audio": null
+          },
+          "poster": {
+            "path": "animate-a-still/p01/b/poster.jpg",
+            "mime": "image/jpeg",
+            "bytes": 15123,
+            "sha256": "ec50307e502d6a4c98966b044ef1e930c1fd44706c3ade795b4582963a644a00"
+          },
+          "cost": {
+            "estimateMicro": 350000,
+            "providerChargedMicro": null,
+            "basis": "Studio estimate recorded on the job row, not an invoice"
+          },
+          "checks": [
+            {
+              "id": "retained-file",
+              "name": "The saved file is present and matches its digest",
+              "kind": "measured",
+              "status": "pass",
+              "detail": "14,658,571 bytes; sha256 71454b56\u2026 matches the Studio asset row."
+            },
+            {
+              "id": "duration",
+              "name": "About five seconds",
+              "kind": "measured",
+              "status": "pass",
+              "detail": "5.042s container duration, 0.042s over the five-second request."
+            },
+            {
+              "id": "supplied-still-preserved",
+              "name": "The clip holds the supplied still",
+              "kind": "observed",
+              "status": "pass",
+              "detail": "The clip opens on the supplied orange artwork and keeps that scene for the full five seconds."
+            },
+            {
+              "id": "new-objects",
+              "name": "No new objects or scene change",
+              "kind": "observed",
+              "status": "pass",
+              "detail": "The figure and three orange blocks remain; no new scene is introduced."
+            }
+          ],
+          "failed": [],
+          "note": "The clip animates the attached still. The motion is not identical to the still's original drawing, but the scene is preserved."
+        }
+      ]
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import {
   choiceLabel,
   exportFilename,
   getRunRecord,
+  isMediaRecord,
   listVotes,
   runView,
 } from '../../../lib/benchmark-runs.ts';
@@ -14,6 +15,8 @@ import { money } from '../../../lib/benchmark-compare.mjs';
 
 const id = Astro.params.id ?? '';
 const found = getRunRecord(id);
+if (found && isMediaRecord(found.record))
+  return Astro.redirect(`/benchmarks/media/runs/${encodeURIComponent(found.id)}`);
 const runtime = env as unknown as { DB?: D1Database };
 let votes: Awaited<ReturnType<typeof listVotes>> = [];
 let votesAvailable = false;

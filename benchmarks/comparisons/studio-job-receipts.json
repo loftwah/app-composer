@@ -454,7 +454,7 @@
   ],
   "limits": [
     "This is reliability and latency evidence, not a quality ranking. A saved job proves an output was stored; it does not prove the output was good.",
-    "No blind human preference between these outputs has been recorded yet, so no model is called better on this page.",
+    "No blind human preference is claimed for these aggregate routes. The separate matched-still comparison records its own blind votes and limits; it does not turn this table into a quality ranking.",
     "The window is 86 jobs over two days on one Studio account and one Cloudflare account. It is not a provider-wide benchmark.",
     "Failed and unknown rows have no terminal timestamp, so their latency is unmeasured rather than inferred from the last edit.",
     "Every cost is the estimate recorded on the job row. No provider charge is recorded on any row, so none of these numbers is an invoice.",

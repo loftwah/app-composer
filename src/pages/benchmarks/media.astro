@@ -1,0 +1,359 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getRunRecord, mediaRunEntry } from '../../lib/benchmark-runs.ts';
+import { mediaBlindView } from '../../lib/benchmark-media.mjs';
+
+const requested = Astro.url.searchParams.get('run');
+const registered = mediaRunEntry();
+const found = requested ? getRunRecord(requested) : registered;
+const isMedia = found?.record?.schema === 'benchmark-media/v1';
+if (!found || !isMedia) Astro.response.status = 404;
+const view = found && isMedia ? mediaBlindView(found.record) : null;
+const task = view?.task;
+const recordedAt = view?.recordedAt
+  ? `${view.recordedAt.slice(0, 16).replace('T', ' ')} UTC`
+  : 'unknown';
+const source = view?.sourceVersion ? view.sourceVersion.slice(0, 7) : 'unrecorded';
+
+const seconds = (ms: number | null | undefined) => {
+  if (typeof ms !== 'number' || !Number.isFinite(ms)) return 'unknown';
+  if (ms < 1000) return `${Math.round(ms)}ms`;
+  return `${(ms / 1000).toFixed(ms < 10_000 ? 2 : 1)}s`;
+};
+const money = (micro: number | null | undefined) => {
+  if (typeof micro !== 'number' || !Number.isFinite(micro)) return 'not recorded';
+  const value = micro / 1_000_000;
+  return `US$${value.toFixed(value >= 0.1 ? 2 : 4)}`;
+};
+const bytes = (value: number | null | undefined) =>
+  typeof value === 'number' && Number.isFinite(value) ? value.toLocaleString('en-AU') : 'unknown';
+const costLine = (cost: any) => {
+  if (!cost) return 'Cost not recorded';
+  const estimate = money(cost.estimateMicro);
+  const provider =
+    cost.providerChargedMicro === null || cost.providerChargedMicro === undefined
+      ? 'provider charge not recorded'
+      : `provider charge ${money(cost.providerChargedMicro)}`;
+  return `Studio estimate ${estimate} · ${provider}`;
+};
+const checkSummary = (checks: any[]) => {
+  const observed = checks.filter((check) => check.kind === 'observed');
+  if (observed.length === 0) return 'No observed check was recorded for this take.';
+  return observed
+    .map((check) => `${check.status === 'pass' ? 'Holds' : 'Fails'}: ${check.name.toLowerCase()}`)
+    .join(' · ');
+};
+const settingsRows = (settings: Record<string, unknown>) =>
+  Object.entries(settings).filter(([, value]) => value !== null && value !== undefined && value !== '');
+---
+
+<Base
+  title="Benchmarks Studio · matched media comparison"
+  description="One supplied still, two saved Studio clips from different models, identical recorded settings. The model labels stay hidden until you record a choice on the server."
+>
+  {!found || !view || !task
+    ? (
+      <section class="media-missing" role="status">
+        <p class="eyebrow">Benchmarks Studio · media comparison</p>
+        <h1>That media run is not recorded here.</h1>
+        <p>The comparison is opened from a committed Studio run record. The address may be incomplete, or the run was never committed.</p>
+        <p><a class="button" href="/benchmarks/media">Open the current media comparison</a></p>
+        <p><a href="/benchmarks/compare">The build comparison</a> · <a href="/benchmarks/comparisons">The Studio job receipts</a></p>
+      </section>
+    )
+    : (
+      <>
+        <div class="media-heading" data-media-review data-run={view.runId} data-task={task.id}>
+          <p class="eyebrow">Benchmarks Studio · matched media comparison</p>
+          <h1>One still. Two saved clips. Judge the motion before you know the model.</h1>
+          <p class="lede">
+            The same still bytes and the same recorded settings went to two Studio jobs. The model was the only intended
+            variable. Both clips are the saved files, served through an opaque route; the labels, model ids, providers and
+            exact settings stay hidden until you record a choice.
+          </p>
+          <dl class="media-meta">
+            <div><dt>Task</dt><dd>{task.title} <span class="small">v{task.version ?? '?'}</span></dd></div>
+            <div><dt>Inventory</dt><dd>{view.inventory}</dd></div>
+            <div><dt>Compiled</dt><dd>{recordedAt}</dd></div>
+            <div><dt>Source digest</dt><dd><code>{source}</code></dd></div>
+            <div><dt>Sample</dt><dd>{view.sample.configurations} models · {view.sample.saved} saved clips · {view.sample.pairs} pair · {view.sample.repeats === 0 ? 'no repeated trials' : `${view.sample.repeats} repeated trials`}</dd></div>
+          </dl>
+          <p class="media-claim">
+            This is one matched pair of saved jobs, not a leaderboard. It has no repeated trials, so it says nothing about
+            variance. A vote recorded here is one unauthenticated label's preference, not the owner's verified judgement.
+          </p>
+        </div>
+
+        <section class="media-section" aria-labelledby="input-title">
+          <h2 id="input-title">The input both jobs received</h2>
+          <div class="media-input">
+            {task.input.previewUrl
+              ? <img src={task.input.previewUrl} width="960" height="540" alt={`Preview of the supplied still: ${task.input.title}`} loading="lazy" />
+              : <p class="small">No input preview is committed.</p>}
+            <div>
+              <p><strong>{task.input.title}</strong> <span class="small">{task.input.width}×{task.input.height} {task.input.mime}, {bytes(task.input.bytes)} bytes</span></p>
+              <p class="small">Source artwork credit: {task.input.credit}. Public visibility reviewed {task.input.reviewedAt}. <code>sha256 {task.input.sha256.slice(0, 16)}…</code></p>
+              <p class="small">{task.input.note}</p>
+              {task.input.publicUrl
+                ? <p class="small"><a href={task.input.publicUrl}>Open the public source artwork</a></p>
+                : null}
+            </div>
+          </div>
+          <div class="media-settings">
+            <h3>Shared recorded settings</h3>
+            <dl>
+              {settingsRows(task.settings).map(([key, value]) => (
+                <div><dt>{key}</dt><dd>{String(value)}</dd></div>
+              ))}
+            </dl>
+            <p class="small">
+              Exact prompt text is withheld because the Studio project is private. Its digest is <code>{task.prompt.sha256.slice(0, 16)}…</code>.
+              Public summary: {task.prompt.summary} {task.prompt.note}
+            </p>
+          </div>
+        </section>
+
+        <section class="media-section" aria-labelledby="pairs-title">
+          <h2 id="pairs-title">One pair, labels hidden</h2>
+          <p class="small">
+            {view.sample.failedArtifacts === 0
+              ? 'Both clips are playable.'
+              : `${view.sample.failedArtifacts} take has no playable artifact and is shown as missing.`}
+            The page shows each take's job latency, recorded Studio cost estimate and observed checks before the reveal.
+            Those facts do not name a model. Pair order and the A/B side come from the record's hash rule, not from
+            configuration order.
+          </p>
+          <noscript>
+            <p class="media-warning">Voting needs JavaScript. The clips still play through their opaque addresses, but the labels stay hidden without a recorded choice.</p>
+          </noscript>
+
+          {view.pairs.map((pair) => (
+            <article class="media-pair" data-media-pair data-pair={pair.id} aria-labelledby={`pair-${pair.id}-title`}>
+              <header class="media-pair-head">
+                <div>
+                  <h3 id={`pair-${pair.id}-title`}>{pair.label}</h3>
+                  <p class="small">Two saved takes from the same still and the same recorded settings.</p>
+                </div>
+                <span class="media-pair-count">{pair.id.replace(/^p0*/, 'Pair ')}</span>
+              </header>
+              <div class="media-sides">
+                {pair.sides.map((side) => (
+                  <figure class="media-side" data-media-side={side.key}>
+                    {side.playable && side.clip
+                      ? (
+                        <video
+                          controls
+                          playsinline
+                          preload="metadata"
+                          muted
+                          poster={side.poster ?? undefined}
+                          width="640"
+                          height="360"
+                          aria-label={`${side.title}: recorded clip`}
+                          data-media-video
+                        >
+                          <source src={side.clip} type="video/mp4" />
+                          <p>This browser cannot play the MP4. <a href={side.clip}>Open the clip directly</a>.</p>
+                        </video>
+                      )
+                      : (
+                        <p class="media-missing-artifact" role="status">
+                          No playable file was retained for this take. The record marks it <strong>{side.status}</strong>;
+                          the pair is still shown so the missing artifact is not hidden.
+                        </p>
+                      )}
+                    <p class="small media-playback-error" data-media-playback-error hidden>
+                      This take could not be played here. The file may be missing or unsupported; the recorded facts
+                      still appear after the reveal.
+                    </p>
+                    <figcaption>
+                      <strong>{side.title}</strong>
+                      <span class="small">
+                        {seconds(side.clipDurationMs)} clip · {seconds(side.latencyMs)} saved-job latency
+                      </span>
+                      <span class="small">{costLine(side.cost)}</span>
+                      <span class="small media-observed">{checkSummary(side.checks)}</span>
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+              <div class="media-choice" role="group" aria-label={`${pair.label} choice`}>
+                <button type="button" data-choice="a" aria-pressed="false">A is better</button>
+                <button type="button" data-choice="b" aria-pressed="false">B is better</button>
+                <button type="button" data-choice="tie" aria-pressed="false">Tie</button>
+                <button type="button" data-choice="cant-tell" aria-pressed="false">Can't tell</button>
+                <button type="button" class="secondary" data-choice="revealed" aria-pressed="false">Reveal without choosing</button>
+              </div>
+              <label class="media-reason">
+                <span class="small">Take-specific reason (optional, 240 characters)</span>
+                <input type="text" data-media-reason maxlength="240" placeholder="What did each take do?" autocomplete="off" />
+              </label>
+              <div class="media-chips" data-media-chips aria-label="Add a take-specific reason">
+                <span class="small">Add a reason:</span>
+                {['holds the still', 'smoother motion', 'flicker or artifacts', 'wrong length'].map((reason) => (
+                  <>
+                    <button type="button" class="media-chip" data-reason-chip data-side="A" data-reason={reason} aria-pressed="false">A: {reason}</button>
+                    <button type="button" class="media-chip" data-reason-chip data-side="B" data-reason={reason} aria-pressed="false">B: {reason}</button>
+                  </>
+                ))}
+              </div>
+              <p class="small media-stored-note">
+                The server stores one short text field per reviewer, not separate structured scores. Chips add a take
+                prefix to that field; a later vote on this run replaces it and the server says which pair was replaced.
+              </p>
+              <p class="media-pair-status small" data-media-status role="status" aria-live="polite"></p>
+              <div class="media-reveal" data-media-reveal hidden></div>
+            </article>
+          ))}
+        </section>
+
+        <section class="media-section" aria-labelledby="vote-title">
+          <h2 id="vote-title">Record a blind choice</h2>
+          <ol class="media-steps">
+            <li>Play both clips. The poster is a frame from the saved file, not a separate still.</li>
+            <li>Choose <strong>A is better</strong>, <strong>B is better</strong>, <strong>Tie</strong> or <strong>Can't tell</strong>. The server resolves the pair and writes the vote.</li>
+            <li>The response reveals the model, provider, exact settings, dimensions, byte count, digest, latency and cost basis for each take.</li>
+            <li>Reloading the page restores the reveal from the server for the same reviewer label. Another label never unblinds this page.</li>
+            <li>Use <strong>Reveal without choosing</strong> to see the labels first. That is recorded as unblinded and is never counted as a blind preference.</li>
+          </ol>
+          <div class="media-reviewer">
+            <label for="media-reviewer-label">Reviewer label</label>
+            <input id="media-reviewer-label" data-reviewer type="text" value="visitor" maxlength="32" autocomplete="off" />
+            <p class="small">A self-declared label, not a sign-in. It is the only identity stored; no email, account id or commenter data is written.</p>
+          </div>
+          <p class="media-unauthenticated" role="note">
+            <strong>Votes are unauthenticated.</strong> Choices are stored server-side, but this page does not sign anyone
+            in. Anyone can submit under any reviewer label. A vote count is not proof of who voted, and a label called
+            “owner” is not the owner's verified judgement.
+          </p>
+          <p class="small media-vote-availability" data-media-availability role="status" aria-live="polite">
+            The server vote record is being checked…
+          </p>
+          <p class="small" data-media-summary></p>
+          <p class="small" data-media-run-link hidden></p>
+        </section>
+
+        <section class="media-section" aria-labelledby="limits-title">
+          <h2 id="limits-title">What this pair does not prove</h2>
+          <ul class="media-limits">
+            {task.notComparable.map((line) => <li>{line}</li>)}
+            <li>{view.costLabel}</li>
+            <li>{view.latencyLabel}</li>
+          </ul>
+          <div class="media-actions">
+            <a class="button" href="/benchmarks/comparisons">Read the Studio job receipts</a>
+            <a class="button secondary" href="/benchmarks/compare">Open the build comparison</a>
+            <a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow Benchmarks Studio</a>
+          </div>
+        </section>
+      </>
+    )}
+</Base>
+
+<script>
+  import '../../browser/benchmark-media.ts';
+</script>
+
+<style is:global>
+  .media-missing{max-width:62ch;margin:40px 0}
+  .media-missing h1{font-size:clamp(2rem,4vw,3rem);max-width:22ch;margin:10px 0 18px}
+  .media-heading{max-width:900px}
+  .media-heading h1{font-size:clamp(2.5rem,5vw,4.2rem);max-width:16ch;margin:10px 0 20px;text-wrap:balance}
+  .media-heading .lede{max-width:66ch}
+  .media-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin:28px 0 0;padding:20px;background:var(--color-surface);border-radius:10px}
+  .media-meta dt{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--color-muted)}
+  .media-meta dd{margin:4px 0 0;font-size:14px;overflow-wrap:anywhere}
+  .media-claim{margin:20px 0 0;padding:12px 0 0;border-top:1px solid var(--color-border);font-size:14px;color:var(--color-muted);max-width:74ch}
+  .media-section{border-top:1px solid var(--color-border);padding-top:28px;margin-top:44px}
+  .media-section h2{font-size:clamp(1.6rem,3vw,2.2rem);max-width:28ch}
+  .media-input{display:grid;grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr);gap:20px;align-items:start;margin-top:16px}
+  .media-input img{width:100%;height:auto;border:1px solid var(--color-border);border-radius:10px;background:var(--color-surface)}
+  .media-input p{margin:0 0 8px;max-width:60ch}
+  .media-settings{margin-top:22px;padding:18px;border:1px solid var(--color-border);border-radius:10px;max-width:820px}
+  .media-settings h3{margin:0;font-size:1rem}
+  .media-settings dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 18px;margin:14px 0}
+  .media-settings dt{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--color-muted)}
+  .media-settings dd{margin:2px 0 0;font-size:13px;overflow-wrap:anywhere}
+  .media-settings p{margin:0;max-width:70ch}
+  .media-warning{padding:12px 14px;border-left:3px solid var(--color-accent);background:var(--color-surface);max-width:70ch}
+  .media-pair{border:1px solid var(--color-border);border-radius:12px;padding:18px;margin-top:18px;min-width:0}
+  .media-pair-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+  .media-pair-head h3{margin:0;font-size:1.15rem;max-width:none}
+  .media-pair-head p{margin:4px 0 0;color:var(--color-muted)}
+  .media-pair-count{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);white-space:nowrap;padding-top:4px}
+  .media-sides{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px}
+  .media-side{margin:0;min-width:0}
+  .media-side video{display:block;width:100%;height:auto;aspect-ratio:16/9;border:1px solid var(--color-border);border-radius:10px;background:#000}
+  .media-side figcaption{display:flex;flex-direction:column;gap:4px;margin-top:10px;font-size:13px;min-width:0}
+  .media-side figcaption .small{color:var(--color-muted)}
+  .media-observed{color:var(--color-foreground)!important;font-size:12.5px}
+  .media-missing-artifact{margin:0;padding:18px;border:1px dashed var(--color-border);border-radius:10px;background:var(--color-surface);font-size:13px;min-height:180px;display:flex;align-items:center}
+  .media-playback-error{margin:8px 0 0;color:#ff8a6a}
+  .media-choice{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .media-choice button{font:inherit;font-size:13px;padding:10px 14px;min-height:44px;border-radius:8px;border:1px solid var(--color-border);background:transparent;color:inherit;cursor:pointer;white-space:normal;text-align:left}
+  .media-choice button.secondary{color:var(--color-muted)}
+  .media-choice button[aria-pressed='true']{border-color:var(--color-accent);background:color-mix(in srgb,var(--color-accent) 14%,transparent);color:var(--color-foreground)}
+  .media-choice button:focus-visible,.media-chip:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+  .media-choice button:disabled{opacity:.55;cursor:wait}
+  .media-reason{display:flex;flex-direction:column;gap:4px;margin-top:14px;max-width:560px}
+  .media-reason span{color:var(--color-muted)}
+  .media-reason input{font:inherit;font-size:13px;padding:8px 10px;min-height:42px;border-radius:8px;border:1px solid var(--color-border);background:transparent;color:inherit;min-width:0}
+  .media-chips{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:10px;max-width:760px}
+  .media-chips .small{color:var(--color-muted);flex:0 0 100%}
+  .media-chip{font:inherit;font-size:12px;padding:7px 10px;min-height:36px;border-radius:999px;border:1px solid var(--color-border);background:transparent;color:var(--color-muted);cursor:pointer}
+  .media-chip[data-active='true']{border-color:var(--color-accent);color:var(--color-foreground);background:color-mix(in srgb,var(--color-accent) 12%,transparent)}
+  .media-stored-note{margin:8px 0 0;color:var(--color-muted);max-width:72ch}
+  .media-pair-status{margin:10px 0 0;min-height:1.5em;color:var(--color-muted)}
+  .media-reveal{margin-top:16px;padding-top:16px;border-top:1px solid var(--color-border)}
+  .media-reveal[hidden]{display:none}
+  .media-reveal-head{max-width:78ch}
+  .media-reveal-head p{margin:0 0 4px}
+  .media-reveal-verdict{font-size:1.05rem;font-weight:500}
+  .media-reveal-meta,.media-reveal-reason{color:var(--color-muted)}
+  .media-reveal-sides{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px}
+  .media-reveal-side{border:1px solid var(--color-border);border-radius:10px;padding:14px;min-width:0}
+  .media-reveal-side h4{margin:0;font-size:1rem;overflow-wrap:anywhere}
+  .media-reveal-facts{display:grid;gap:6px;margin:12px 0;font-size:13px}
+  .media-reveal-facts div{display:grid;grid-template-columns:118px minmax(0,1fr);gap:10px}
+  .media-reveal-facts dt{color:var(--color-muted);font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding-top:2px}
+  .media-reveal-facts dd{margin:0;overflow-wrap:anywhere}
+  .media-reveal-failed{margin:0 0 8px;color:#ff8a6a;font-size:13px;overflow-wrap:anywhere}
+  .media-reveal-checks summary{cursor:pointer;color:var(--color-muted)}
+  .media-reveal-check-list{list-style:none;padding:0;margin:8px 0 0;font-size:12px}
+  .media-reveal-check-list li{display:grid;grid-template-columns:14px minmax(0,1fr);gap:8px;padding:6px 0;border-top:1px solid var(--color-border)}
+  .media-reveal-check-list .is-pass span{color:var(--color-success)}
+  .media-reveal-check-list .is-fail span{color:#ff8a6a}
+  .media-reveal-check-list p{margin:2px 0 0;color:var(--color-muted);font-size:11px}
+  .media-reveal-settings{margin-top:10px}
+  .media-reveal-settings summary{cursor:pointer;color:var(--color-muted);font-size:12px}
+  .media-reveal-settings dl{display:grid;gap:5px;margin:8px 0 0;font-size:12px}
+  .media-reveal-settings div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:8px}
+  .media-reveal-settings dt{color:var(--color-muted)}
+  .media-reveal-settings dd{margin:0;overflow-wrap:anywhere}
+  .media-steps{max-width:76ch;padding-left:22px;line-height:1.7}
+  .media-steps li{margin:10px 0;color:var(--color-muted)}
+  .media-steps strong{color:var(--color-foreground)}
+  .media-reviewer{display:grid;grid-template-columns:auto minmax(0,220px);gap:8px 12px;align-items:center;margin:20px 0 8px;max-width:520px}
+  .media-reviewer label{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--color-muted)}
+  .media-reviewer input{font:inherit;font-size:14px;padding:9px 11px;min-height:42px;border-radius:8px;border:1px solid var(--color-border);background:var(--color-surface);color:inherit;min-width:0}
+  .media-reviewer .small{grid-column:1/-1;margin:0;color:var(--color-muted)}
+  .media-unauthenticated{margin:14px 0 0;padding:12px 14px;border-left:3px solid var(--color-accent);background:var(--color-surface);font-size:13.5px;line-height:1.6;max-width:76ch;color:var(--color-muted)}
+  .media-unauthenticated strong{color:var(--color-foreground)}
+  .media-vote-availability,.media-summary{margin:6px 0 0;color:var(--color-muted)}
+  .media-vote-availability[data-state='unavailable']{color:#ff8a6a}
+  .media-limits{max-width:74ch;line-height:1.8}
+  .media-limits li{margin:10px 0}
+  .media-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+  @media(max-width:880px){
+    .media-input,.media-sides,.media-reveal-sides{grid-template-columns:1fr}
+  }
+  @media(max-width:600px){
+    .media-pair{padding:14px}
+    .media-pair-head{display:block}
+    .media-pair-count{display:none}
+    .media-meta{grid-template-columns:1fr 1fr;padding:16px;gap:14px}
+    .media-reviewer{grid-template-columns:1fr;max-width:none}
+    .media-choice button{flex:1 1 100%}
+    .media-reveal-facts div{grid-template-columns:1fr;gap:2px}
+  }
+</style>

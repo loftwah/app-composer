@@ -1,0 +1,385 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import { env } from 'cloudflare:workers';
+import type { D1Database } from '@cloudflare/workers-types';
+import {
+  getRunRecord,
+  isMediaRecord,
+  listVotes,
+  choiceLabel,
+} from '../../../../lib/benchmark-runs.ts';
+import {
+  mediaExportFilename,
+  mediaPreviewPath,
+  mediaRunView,
+} from '../../../../lib/benchmark-media.mjs';
+
+const id = Astro.params.id ?? '';
+const found = getRunRecord(id);
+const media = found && isMediaRecord(found.record);
+if (!media) Astro.response.status = 404;
+
+const runtime = env as unknown as { DB?: D1Database };
+let votes: Awaited<ReturnType<typeof listVotes>> = [];
+let votesAvailable = false;
+if (media && runtime.DB && typeof runtime.DB.prepare === 'function') {
+  try {
+    votes = await listVotes(runtime.DB, found.id);
+    votesAvailable = true;
+  } catch {
+    votesAvailable = false;
+  }
+}
+const view = media ? mediaRunView(found.record, votes, { votesAvailable }) : null;
+
+const seconds = (ms: number | null | undefined) => {
+  if (typeof ms !== 'number' || !Number.isFinite(ms)) return 'unknown';
+  if (ms < 1000) return `${Math.round(ms)}ms`;
+  return `${(ms / 1000).toFixed(ms < 10_000 ? 2 : 1)}s`;
+};
+const money = (micro: number | null | undefined) => {
+  if (typeof micro !== 'number' || !Number.isFinite(micro)) return 'not recorded';
+  const value = micro / 1_000_000;
+  return `US$${value.toFixed(value >= 0.1 ? 2 : 4)}`;
+};
+const instant = (value: unknown) => {
+  if (typeof value !== 'string' || !value) return 'unknown';
+  const ms = Date.parse(value);
+  return Number.isFinite(ms) ? `${new Date(ms).toISOString().slice(0, 16).replace('T', ' ')} UTC` : 'unknown';
+};
+const settingsRows = (settings: Record<string, unknown> | null | undefined) => {
+  if (!settings || typeof settings !== 'object') return [];
+  return Object.entries(settings).map(([key, value]) => [
+    key,
+    typeof value === 'string' ? value : String(JSON.stringify(value) ?? 'unknown'),
+  ]);
+};
+const clipFor = (pairId: string, side: 'a' | 'b') =>
+  view ? mediaPreviewPath(view.runId, pairId, side, 'clip.mp4') : '';
+const posterFor = (pairId: string, side: 'a' | 'b') =>
+  view ? mediaPreviewPath(view.runId, pairId, side, 'poster.jpg') : '';
+---
+
+<Base
+  title={view ? `Media run ${view.runId} · Benchmarks Studio` : 'Media run not found · Benchmarks Studio'}
+  description={view
+    ? `The revealed record for ${view.task.title}: two saved Studio clips, identical recorded settings, observed checks, job latency, Studio cost estimates and unauthenticated recorded votes.`
+    : 'That recorded media run is not present in this repository.'}
+>
+  {!view
+    ? (
+      <section class="media-run-missing" role="status">
+        <p class="eyebrow">Benchmarks Studio · media run</p>
+        <h1>That media run is not recorded here.</h1>
+        <p>A media run page is opened by the id derived from a committed record. This address does not match one.</p>
+        <p><a class="button" href="/benchmarks/media">Open the blind media comparison</a></p>
+        <p><a href="/benchmarks/comparisons">The Studio job receipts</a> · <a href="/benchmarks/compare">The build comparison</a></p>
+      </section>
+    )
+    : (
+      <>
+        <header class="media-run-heading">
+          <p class="eyebrow">Benchmarks Studio · revealed media record</p>
+          <h1>{view.task.title}</h1>
+          <p class="lede">
+            The same comparison with every label revealed. The committed record supplies both saved artifacts, the
+            matched settings, the observed checks, latency and the Studio cost estimate. D1 supplies the recorded votes,
+            but it does not authenticate the reviewer label. Nothing here calls a provider or spends money.
+          </p>
+          <div class="media-run-actions">
+            <a class="button" href={`/benchmarks/media?run=${view.runId}`}>Reopen the blind comparison</a>
+            <a class="button secondary" href={`/benchmarks/media/runs/${view.runId}/export.json`} download={mediaExportFilename(view.runId)}>
+              Download run evidence (JSON)
+            </a>
+          </div>
+          <p class="small media-run-filename"><code>{mediaExportFilename(view.runId)}</code> is the exact evidence shape this page reads: the committed media record plus the recorded votes, with reopen links.</p>
+        </header>
+
+        <dl class="media-run-meta">
+          <div><dt>Run id</dt><dd><code>{view.runId}</code></dd></div>
+          <div><dt>Inventory</dt><dd>{view.inventory}</dd></div>
+          <div><dt>Task</dt><dd>{view.task.title} <span class="small">v{view.task.version ?? '?'}</span></dd></div>
+          <div><dt>Sample</dt><dd>{view.sample.configurations} models · {view.sample.saved} saved clips · {view.sample.pairs} pair · {view.sample.repeats === 0 ? 'no repeated trials' : `${view.sample.repeats} repeated trials`}</dd></div>
+          <div><dt>Compiled</dt><dd>{instant(view.recordedAt)}</dd></div>
+          <div><dt>Source digest</dt><dd><code>{view.sourceVersion?.slice(0, 12) ?? 'unrecorded'}…</code></dd></div>
+          <div><dt>Votes</dt><dd>
+            {votesAvailable
+              ? `${view.sample.recordedPairs} recorded pair${view.sample.recordedPairs === 1 ? '' : 's'} · ${view.sample.blindVotes} blind · ${view.sample.unblindedVotes} unblinded · unauthenticated labels`
+              : 'vote record unavailable'}
+          </dd></div>
+        </dl>
+
+        <p class="media-run-warning" role="note">
+          <strong>Votes are unauthenticated.</strong> D1 stores the reviewer label supplied by the caller, but this record
+          has no sign-in and no identity verification. Anyone can submit under any label. A recorded count is not proof of
+          who voted, and a label called “owner” is not the owner's verified judgement.
+        </p>
+
+        {!votesAvailable && (
+          <p class="media-run-warning" role="status">
+            The D1 vote record could not be read in this environment. The committed record below is still complete, but no
+            recorded preferences are shown. The export marks the vote record as unavailable instead of claiming zero votes.
+          </p>
+        )}
+
+        <section class="media-run-section" aria-labelledby="verdict-title">
+          <p class="eyebrow">Verdict for this pair</p>
+          <h2 id="verdict-title">{view.verdict.headline}</h2>
+          <p>{view.verdict.detail}</p>
+          <p class="small">
+            The verdict describes the record, not a model ranking. {view.cost.label} {view.sample.saved} of {view.sample.trials}
+            saved artifacts are present; {view.sample.failedArtifacts} is missing or failed.
+          </p>
+        </section>
+
+        <section class="media-run-section" aria-labelledby="configs-title">
+          <h2 id="configs-title">What ran</h2>
+          <div class="media-run-configs">
+            {view.configurations.map((configuration) => (
+              <article class="media-run-config" data-configuration={configuration.id}>
+                <header>
+                  <h3>{configuration.label}</h3>
+                  <p class="small">{configuration.provider} · {configuration.model}</p>
+                  <p class="small">resolved: {configuration.resolvedModel} · harness {configuration.harness} · {configuration.harnessVersion} · inventory row {configuration.inventoryEntry ?? 'not listed'}</p>
+                </header>
+                {configuration.trials.map((trial) => (
+                  <div class="media-run-trial">
+                    <p class="small"><strong>{trial.id}</strong> · {trial.status} · {seconds(trial.durationMs)} saved-job latency · completed {instant(trial.completedAt)}</p>
+                    {trial.artifact
+                      ? (
+                        <ul class="media-run-facts">
+                          <li><span>File</span><strong>{trial.artifact.width}×{trial.artifact.height} · {trial.artifact.bytes?.toLocaleString('en-AU')} bytes</strong></li>
+                          <li><span>Clip</span><strong>{seconds(trial.artifact.durationMs)} · {trial.artifact.videoCodec} · {trial.artifact.frameRate} fps</strong></li>
+                          <li><span>Audio</span><strong>{trial.artifact.audio ? `${trial.artifact.audio.codec} · ${trial.artifact.audio.channels} channels` : 'none recorded'}</strong></li>
+                          <li><span>Estimate</span><strong>{money(trial.cost?.estimateMicro)} · {trial.cost?.basis ?? 'not recorded'}</strong></li>
+                          <li><span>Provider charge</span><strong>{money(trial.cost?.providerChargedMicro)}</strong></li>
+                          <li><span>SHA-256</span><strong><code>{trial.artifact.sha256.slice(0, 16)}…</code></strong></li>
+                        </ul>
+                      )
+                      : <p class="media-run-fail">No artifact is recorded for this trial. It is shown as missing rather than skipped.</p>}
+                    {trial.failed.length > 0
+                      ? <p class="small media-run-fail">Observed failures: {trial.failed.join(', ')}</p>
+                      : <p class="small media-run-ok">No observed check failed.</p>}
+                    <details class="media-run-checks">
+                      <summary>Every check ({trial.checks.length})</summary>
+                      <ul>
+                        {trial.checks.map((check) => (
+                          <li class={check.status === 'pass' ? 'is-pass' : 'is-fail'}>
+                            <span>{check.status === 'pass' ? '✓' : '✕'}</span>
+                            <div>
+                              <strong>{check.name}</strong> <span class="small">{check.kind}</span>
+                              <p class="small">{check.detail}</p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                    {settingsRows(configuration.settings).length > 0
+                      ? (
+                        <details class="media-run-settings">
+                          <summary>Recorded settings</summary>
+                          <dl>
+                            {settingsRows(configuration.settings).map(([key, value]) => (
+                              <div><dt>{key}</dt><dd>{value}</dd></div>
+                            ))}
+                          </dl>
+                        </details>
+                      )
+                      : null}
+                  </div>
+                ))}
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section class="media-run-section" aria-labelledby="pairs-title">
+          <h2 id="pairs-title">The pair and its recorded vote</h2>
+          <p class="small">
+            These are the revealed labels for the same pair the blind page shows. A pair with no vote is labelled honestly:
+            the blind page still treats it as blind. The vote record is idempotent per run, task and reviewer; a later vote
+            updates one record and reports which pair was replaced.
+          </p>
+          <div class="media-run-pairs">
+            {view.pairs.map((pair) => (
+              <article class="media-run-pair" data-pair={pair.id}>
+                <header>
+                  <h3>{pair.label}</h3>
+                  {pair.votes.length > 0
+                    ? (
+                      <span class={`media-run-vote-tag ${pair.votes.every((vote: any) => vote.blind) ? 'is-blind' : 'is-unblinded'}`}>
+                        {pair.votes.length} recorded vote{pair.votes.length === 1 ? '' : 's'}
+                      </span>
+                    )
+                    : <span class="media-run-vote-tag is-none">no recorded vote</span>}
+                </header>
+                <div class="media-run-pair-sides">
+                  {[pair.sideA, pair.sideB].map((side) => (
+                    <div class="media-run-pair-side">
+                      <h4>{side.title} · {side.configurationLabel}</h4>
+                      <p class="small">{side.provider} · {side.model} · {side.harness} · {side.harnessVersion}</p>
+                      <video controls playsinline preload="metadata" muted poster={posterFor(pair.id, side.key)} width="640" height="360">
+                        <source src={clipFor(pair.id, side.key)} type="video/mp4" />
+                        <p class="small">This browser cannot play the MP4.</p>
+                      </video>
+                      <dl class="media-run-pair-facts">
+                        <div><dt>Trial</dt><dd><code>{side.trialId}</code></dd></div>
+                        <div><dt>Status</dt><dd>{side.status}</dd></div>
+                        <div><dt>Latency</dt><dd>{seconds(side.latencyMs)}</dd></div>
+                        <div><dt>Clip</dt><dd>{seconds(side.artifact?.durationMs)} · {side.artifact?.width}×{side.artifact?.height}</dd></div>
+                        <div><dt>Estimate</dt><dd>{money(side.cost?.estimateMicro)} · {side.cost?.basis ?? 'not recorded'}</dd></div>
+                        <div><dt>Failed</dt><dd>{side.failed.length > 0 ? side.failed.join(', ') : 'none recorded'}</dd></div>
+                      </dl>
+                    </div>
+                  ))}
+                </div>
+                {pair.votes.length > 0
+                  ? pair.votes.map((vote: any) => (
+                    <div class="media-run-vote">
+                      <p><strong>{choiceLabel(vote.choice)}</strong>{vote.choice === 'revealed' ? ' — no preference was claimed.' : '.'}</p>
+                      <p class="small">
+                        Reviewer {vote.reviewerLabel || 'unknown'} (unauthenticated label) · {vote.blind ? 'blind when cast' : 'unblinded'} ·
+                        recorded {instant(vote.createdAt)}
+                        {vote.updatedAt !== vote.createdAt ? ` · updated ${instant(vote.updatedAt)}` : ''}
+                      </p>
+                      <p class="small">{vote.reason ? `Reason: ${vote.reason}` : 'No reason was recorded.'}</p>
+                    </div>
+                  ))
+                  : (
+                    <p class="small media-run-vote-none">
+                      No choice is recorded for this pair. Its labels are still shown here because this is the revealed
+                      record; the blind page keeps the pair blind until a vote arrives.
+                    </p>
+                  )}
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {view.unmatchedVotes.length > 0 && (
+          <section class="media-run-section" aria-labelledby="unmatched-title">
+            <h2 id="unmatched-title">Votes that do not match a pair</h2>
+            <p class="small">These rows are in the vote table but name a pair that is not in this committed record. The labels stay unknown rather than guessed.</p>
+            <ul class="media-run-list">
+              {view.unmatchedVotes.map((vote: any) => (
+                <li><code>{vote.pairId}</code> · {choiceLabel(vote.choice)} · reviewer {vote.reviewerLabel || 'unknown'} · recorded {instant(vote.createdAt)}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <section class="media-run-section" aria-labelledby="pairing-title">
+          <h2 id="pairing-title">Why this is a matched pair</h2>
+          <dl class="media-run-provenance">
+            <div><dt>Input still</dt><dd>{view.task.input.title} · {view.task.input.width}×{view.task.input.height} · <code>{view.task.input.sha256}</code></dd></div>
+            <div><dt>Prompt</dt><dd>Exact text withheld · <code>{view.task.prompt.sha256}</code> · public summary: {view.task.prompt.summary}</dd></div>
+            <div><dt>Shared settings</dt><dd>{settingsRows(view.task.settings).map(([key, value]) => `${key}: ${value}`).join(' · ')}</dd></div>
+            <div><dt>Source</dt><dd>{view.source.system} · {view.source.environment} · {view.source.table} · read {instant(view.source.readAt)} · {view.source.readMode}</dd></div>
+            <div><dt>Selection</dt><dd>{view.source.selection}</dd></div>
+            <div><dt>Private fields</dt><dd>{view.source.privateFields}</dd></div>
+            <div><dt>Record file</dt><dd><code>{view.provenance.recordFile}</code> · runner <code>{view.provenance.runner}</code></dd></div>
+            <div><dt>Cost basis</dt><dd>{view.cost.label}</dd></div>
+            <div><dt>Latency basis</dt><dd>Saved-job latency from <code>created_at</code> to <code>completed_at</code>. It includes queue and provider time, not the clip duration.</dd></div>
+          </dl>
+          <p class="small">
+            The two outputs are not identical in resolution or audio, and those are recorded as observed results rather
+            than matched settings. The input prompt and the attached still also conflict, which is disclosed instead of
+            repaired. Read the full limits below before treating a vote as a model preference.
+          </p>
+        </section>
+
+        <section class="media-run-section" aria-labelledby="limits-title">
+          <h2 id="limits-title">What this record does not prove</h2>
+          <ul class="media-run-limits">
+            {view.task.notComparable.map((line) => <li>{line}</li>)}
+            <li>The reviewer label is self-declared and unauthenticated. The endpoint does not verify an “owner” label and does not store an account id, email or comment beyond the optional reason.</li>
+            <li>The observed checks are a manual review of sampled frames, not an automated perceptual judge. The measured file and duration checks are deterministic; the scene checks are human observations.</li>
+          </ul>
+          <div class="media-run-actions">
+            <a class="button" href={`/benchmarks/media?run=${view.runId}`}>Reopen the blind comparison</a>
+            <a class="button secondary" href={`/benchmarks/media/runs/${view.runId}/export.json`} download={mediaExportFilename(view.runId)}>Download run evidence (JSON)</a>
+            <a class="button secondary" href="/benchmarks/comparisons">The Studio job receipts</a>
+            <a class="button secondary" href="https://github.com/loftwah/app-composer/issues/601">Follow Benchmarks Studio</a>
+          </div>
+        </section>
+      </>
+    )}
+</Base>
+
+<style>
+  .media-run-missing{max-width:62ch;margin:40px 0}
+  .media-run-missing h1{font-size:clamp(2rem,4vw,3rem);max-width:22ch;margin:10px 0 18px}
+  .media-run-heading{max-width:920px}
+  .media-run-heading h1{font-size:clamp(2.5rem,5vw,4.2rem);max-width:18ch;margin:10px 0 20px;text-wrap:balance}
+  .media-run-heading .lede{max-width:66ch}
+  .media-run-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+  .media-run-filename{margin:10px 0 0;color:var(--color-muted);max-width:76ch}
+  .media-run-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin:28px 0;padding:20px;background:var(--color-surface);border-radius:10px}
+  .media-run-meta dt{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--color-muted)}
+  .media-run-meta dd{margin:4px 0 0;font-size:14px;overflow-wrap:anywhere}
+  .media-run-warning{margin:24px 0 0;padding:14px 16px;border-left:3px solid var(--color-accent);background:var(--color-surface);font-size:14px;max-width:80ch;color:var(--color-muted)}
+  .media-run-warning strong{color:var(--color-foreground)}
+  .media-run-section{border-top:1px solid var(--color-border);padding-top:28px;margin-top:44px}
+  .media-run-section h2{font-size:clamp(1.6rem,3vw,2.2rem);max-width:30ch}
+  .media-run-configs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:18px}
+  .media-run-config{border:1px solid var(--color-border);border-radius:10px;padding:18px;min-width:0}
+  .media-run-config h3{margin:0;font-size:1.05rem;max-width:none;overflow-wrap:anywhere}
+  .media-run-config header p{margin:6px 0 0;color:var(--color-muted);overflow-wrap:anywhere}
+  .media-run-trial{margin-top:14px;padding-top:12px;border-top:1px solid var(--color-border)}
+  .media-run-trial p{margin:0 0 6px;color:var(--color-muted);overflow-wrap:anywhere}
+  .media-run-facts{list-style:none;padding:0;margin:10px 0;font-size:13px}
+  .media-run-facts li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-top:1px solid var(--color-border)}
+  .media-run-facts span{color:var(--color-muted)}
+  .media-run-facts strong{font-weight:500;text-align:right;overflow-wrap:anywhere}
+  .media-run-ok{color:var(--color-success)}
+  .media-run-fail{color:#ff8a6a}
+  .media-run-checks,.media-run-settings{margin-top:10px}
+  .media-run-checks summary,.media-run-settings summary{cursor:pointer;color:var(--color-muted);font-size:12px}
+  .media-run-checks ul{list-style:none;padding:0;margin:8px 0 0;font-size:12px}
+  .media-run-checks li{display:grid;grid-template-columns:14px minmax(0,1fr);gap:8px;padding:6px 0;border-top:1px solid var(--color-border)}
+  .media-run-checks li.is-pass > span{color:var(--color-success)}
+  .media-run-checks li.is-fail > span{color:#ff8a6a}
+  .media-run-checks p{margin:2px 0 0;color:var(--color-muted);font-size:11px}
+  .media-run-settings dl{display:grid;gap:5px;margin:8px 0 0;font-size:12px}
+  .media-run-settings div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:8px}
+  .media-run-settings dt{color:var(--color-muted);overflow-wrap:anywhere}
+  .media-run-settings dd{margin:0;overflow-wrap:anywhere}
+  .media-run-pairs{display:grid;gap:18px;margin-top:18px}
+  .media-run-pair{border:1px solid var(--color-border);border-radius:10px;padding:18px;min-width:0}
+  .media-run-pair header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+  .media-run-pair h3{margin:0;font-size:1.05rem;max-width:none}
+  .media-run-vote-tag{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+  .media-run-vote-tag.is-blind{color:var(--color-success)}
+  .media-run-vote-tag.is-unblinded{color:var(--color-accent)}
+  .media-run-vote-tag.is-none{color:var(--color-muted)}
+  .media-run-pair-sides{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:14px}
+  .media-run-pair-side{border:1px solid var(--color-border);border-radius:8px;padding:14px;min-width:0}
+  .media-run-pair-side h4{margin:0;font-size:.98rem;overflow-wrap:anywhere}
+  .media-run-pair-side p{margin:4px 0 0;color:var(--color-muted);overflow-wrap:anywhere}
+  .media-run-pair-side video{display:block;width:100%;height:auto;aspect-ratio:16/9;margin-top:10px;border:1px solid var(--color-border);border-radius:8px;background:#000}
+  .media-run-pair-facts{display:grid;gap:5px;margin:12px 0 0;font-size:12px}
+  .media-run-pair-facts div{display:grid;grid-template-columns:70px minmax(0,1fr);gap:8px}
+  .media-run-pair-facts dt{color:var(--color-muted);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding-top:2px}
+  .media-run-pair-facts dd{margin:0;overflow-wrap:anywhere}
+  .media-run-vote{margin-top:14px;padding-top:12px;border-top:1px solid var(--color-border)}
+  .media-run-vote p{margin:0 0 4px}
+  .media-run-vote-none{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--color-border);color:var(--color-muted)}
+  .media-run-list{padding-left:18px;font-size:14px;line-height:1.8;overflow-wrap:anywhere}
+  .media-run-provenance{display:grid;gap:12px;margin:18px 0 0;max-width:86ch}
+  .media-run-provenance div{display:grid;grid-template-columns:140px minmax(0,1fr);gap:12px}
+  .media-run-provenance dt{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);padding-top:3px}
+  .media-run-provenance dd{margin:0;font-size:14px;overflow-wrap:anywhere}
+  .media-run-limits{max-width:76ch;line-height:1.8}
+  .media-run-limits li{margin:10px 0}
+  @media(max-width:760px){
+    .media-run-pair-sides{grid-template-columns:1fr}
+    .media-run-provenance div{grid-template-columns:1fr;gap:2px}
+    .media-run-meta{grid-template-columns:1fr 1fr;padding:16px;gap:14px}
+    .media-run-pair{padding:14px}
+  }
+  @media(max-width:480px){
+    .media-run-meta{grid-template-columns:1fr}
+    .media-run-config{padding:14px}
+    .media-run-pair-facts div{grid-template-columns:1fr;gap:2px}
+  }
+</style>

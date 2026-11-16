@@ -13,6 +13,7 @@
 // (run, task, reviewer): a later vote updates that one record and says so.
 import type { D1Database } from "@cloudflare/workers-types";
 import recordFile from "../../benchmarks/results/compare.json" with { type: "json" };
+import mediaRecordFile from "../../benchmarks/media/run.json" with { type: "json" };
 import {
   routeFailures,
   summariseConfiguration,
@@ -48,6 +49,8 @@ export type RecordedTrial = {
   checks: Check[];
   failed?: string[];
   artifacts?: Record<string, string>;
+  artifact?: Record<string, unknown> | null;
+  poster?: Record<string, unknown> | null;
   previewUrl: string;
   note?: string;
   usage?: {
@@ -70,8 +73,10 @@ export type RecordedConfiguration = {
   label?: string;
   model?: string;
   resolvedModel?: string;
+  provider?: string;
   harness?: string;
   harnessVersion?: string;
+  inventoryEntry?: string | null;
   settings?: Record<string, unknown>;
   runnerKind?: string;
   trials?: RecordTrial[];
@@ -138,12 +143,37 @@ export type RevealSide = {
   configurationLabel: string;
   trialId: string;
   model: string;
+  resolvedModel: string;
+  provider: string;
   harness: string;
   harnessVersion: string;
   status: string;
   durationMs: number | null;
+  latencyMs: number | null;
   failed: string[];
   checks: Check[];
+  settings: Record<string, unknown>;
+  artifact: {
+    mime: string;
+    bytes: number | null;
+    width: number | null;
+    height: number | null;
+    durationMs: number | null;
+    sha256: string;
+    videoCodec: string | null;
+    frameRate: string | null;
+    audio: Record<string, unknown> | null;
+  } | null;
+  poster: {
+    mime: string;
+    bytes: number | null;
+    sha256: string;
+  } | null;
+  cost: {
+    estimateMicro: number | null;
+    providerChargedMicro: number | null;
+    basis: string;
+  } | null;
 };
 
 export type RevealPair = {
@@ -205,7 +235,10 @@ export type ValidationResult =
   | { ok: false; failure: ValidationFailure };
 
 /** The exact committed records this deployment can reopen. */
-const committedRecords: RunRecord[] = [recordFile as RunRecord];
+const committedRecords: RunRecord[] = [
+  recordFile as unknown as RunRecord,
+  mediaRecordFile as unknown as RunRecord,
+];
 
 /** @param {unknown} value */
 function text(value: unknown): string {
@@ -263,6 +296,16 @@ export function listRecordedRuns(): { id: string; record: RunRecord }[] {
 export function getRunRecord(id?: string | null): { id: string; record: RunRecord } | null {
   if (id === undefined || id === null) return listRecordedRuns()[0] ?? null;
   return listRecordedRuns().find((entry) => entry.id === id) ?? null;
+}
+
+/** A media record is a committed Studio comparison, not a build-agent run. */
+export function isMediaRecord(record: RunRecord | null | undefined): boolean {
+  return record?.schema === "benchmark-media/v1";
+}
+
+/** The committed media run, if one is registered. */
+export function mediaRunEntry(): { id: string; record: RunRecord } | null {
+  return listRecordedRuns().find((entry) => isMediaRecord(entry.record)) ?? null;
 }
 
 /** Flatten a committed configuration into its trials, keeping only fields the
@@ -550,6 +593,12 @@ function revealSide(record: RunRecord, trial: RecordedTrial, key: "a" | "b"): Re
   const configuration = configurationsOf(record).find(
     (entry) => entry.id === trial.configurationId,
   );
+  const latencyMs =
+    trial.durationMs === null || trial.durationMs === undefined
+      ? null
+      : Number.isFinite(Number(trial.durationMs))
+        ? Number(trial.durationMs)
+        : null;
   return {
     key,
     title: key === "a" ? "Take A" : "Take B",
@@ -557,17 +606,64 @@ function revealSide(record: RunRecord, trial: RecordedTrial, key: "a" | "b"): Re
     configurationLabel: trial.configurationLabel,
     trialId: trial.id,
     model: trial.model || "unknown",
+    resolvedModel: configuration?.resolvedModel ?? trial.model ?? "unknown",
+    provider: configuration?.provider ?? "unknown",
     harness: trial.harness || "unknown",
     harnessVersion: configuration?.harnessVersion ?? "unknown",
     status: trial.status || "unknown",
-    durationMs:
-      trial.durationMs === null || trial.durationMs === undefined
-        ? null
-        : Number.isFinite(Number(trial.durationMs))
-          ? Number(trial.durationMs)
-          : null,
+    durationMs: latencyMs,
+    latencyMs,
     failed: Array.isArray(trial.failed) ? trial.failed : [],
     checks: Array.isArray(trial.checks) ? trial.checks : [],
+    settings: configuration?.settings ?? {},
+    artifact: artifactView(trial.artifact),
+    poster: posterView(trial.poster),
+    cost: costView(trial.cost),
+  };
+}
+
+function numberOrNull(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function artifactView(raw: unknown): RevealSide["artifact"] {
+  if (!raw || typeof raw !== "object") return null;
+  const artifact = asRecord(raw);
+  if (Object.keys(artifact).length === 0) return null;
+  return {
+    mime: text(artifact.mime) || "unknown",
+    bytes: numberOrNull(artifact.bytes),
+    width: numberOrNull(artifact.width),
+    height: numberOrNull(artifact.height),
+    durationMs: numberOrNull(artifact.durationMs),
+    sha256: text(artifact.sha256) || "unknown",
+    videoCodec: text(artifact.videoCodec) || null,
+    frameRate: text(artifact.frameRate) || null,
+    audio: artifact.audio && typeof artifact.audio === "object" ? asRecord(artifact.audio) : null,
+  };
+}
+
+function posterView(raw: unknown): RevealSide["poster"] {
+  if (!raw || typeof raw !== "object") return null;
+  const poster = asRecord(raw);
+  if (Object.keys(poster).length === 0) return null;
+  return {
+    mime: text(poster.mime) || "unknown",
+    bytes: numberOrNull(poster.bytes),
+    sha256: text(poster.sha256) || "unknown",
+  };
+}
+
+function costView(raw: unknown): RevealSide["cost"] {
+  if (!raw || typeof raw !== "object") return null;
+  const cost = asRecord(raw);
+  if (Object.keys(cost).length === 0) return null;
+  return {
+    estimateMicro: numberOrNull(cost.estimateMicro),
+    providerChargedMicro: numberOrNull(cost.providerChargedMicro),
+    basis: text(cost.basis) || "not recorded",
   };
 }
 

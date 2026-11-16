@@ -11,11 +11,19 @@ launch-page-v1-1c97c3d
 ```
 
 The registered records live in `src/lib/benchmark-runs.ts` (`committedRecords`).
-Today there is one:
+Today there are two:
 
 | Id | Committed record | Task |
 | --- | --- | --- |
 | `launch-page-v1-1c97c3d` | `benchmarks/results/compare.json` | `launch-page` v1 |
+| `animate-a-still-v1-d20cbf5` | `benchmarks/media/run.json` | `animate-a-still` v1 (media) |
+
+The media record is built by `benchmarks/media/ingest.mjs` from the reviewed
+Studio extract in `benchmarks/media/task.json` and
+`benchmarks/media/configurations.json`. Its blind page is `/benchmarks/media`,
+its revealed page is `/benchmarks/media/runs/<id>`, and its id is derived the
+same way from the record. Do not send a media id to `/benchmarks/compare` or
+`/benchmarks/runs/…`; both redirect to the media pages.
 
 Adding a run means committing a `benchmark-compare/v1` record (the comparison
 runner writes it) and adding that import to `committedRecords`. The record is the
