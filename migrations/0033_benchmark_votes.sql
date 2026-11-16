@@ -6,6 +6,11 @@
 -- the earlier pair was replaced. `blind` is 1 only when the reviewer chose
 -- before seeing the labels; revealing without choosing forces it to 0, and a
 -- record that has been unblinded cannot become blind again.
+--
+-- The reviewer label is self-declared and unauthenticated. The default is
+-- 'visitor', never 'owner': a public POST cannot claim the owner's judgement.
+-- The page and run record must keep saying that a label is not a verified
+-- identity and a vote count is not proof of who voted.
 CREATE TABLE IF NOT EXISTS benchmark_votes (
   id TEXT PRIMARY KEY,
   run_id TEXT NOT NULL CHECK(length(run_id) BETWEEN 1 AND 80),
@@ -16,7 +21,7 @@ CREATE TABLE IF NOT EXISTS benchmark_votes (
   choice TEXT NOT NULL CHECK(choice IN ('a','b','tie','cant-tell','revealed')),
   reason TEXT NOT NULL DEFAULT '' CHECK(length(reason) <= 240),
   blind INTEGER NOT NULL CHECK(blind IN (0,1)),
-  reviewer_label TEXT NOT NULL DEFAULT 'owner' CHECK(length(reviewer_label) BETWEEN 1 AND 32),
+  reviewer_label TEXT NOT NULL DEFAULT 'visitor' CHECK(length(reviewer_label) BETWEEN 1 AND 32),
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   UNIQUE (run_id, task_id, reviewer_label),

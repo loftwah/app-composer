@@ -1,7 +1,9 @@
 # Recorded runs
 
 `/benchmarks/runs/<id>` reopens a committed comparison record with its D1 votes.
-The id is derived from the record, never typed by hand:
+Votes are stored server-side but are **unauthenticated**: the reviewer label is
+self-declared, defaults to `visitor`, and is not proof of who voted. The run page
+must keep saying so. The id is derived from the record, never typed by hand:
 
 ```
 <task-id>-v<task-version>-<source-commit-first-7>
@@ -17,8 +19,8 @@ Today there is one:
 
 Adding a run means committing a `benchmark-compare/v1` record (the comparison
 runner writes it) and adding that import to `committedRecords`. The record is the
-evidence; D1 holds only the votes. Do not hand-edit numbers to make a page look
-complete.
+evidence; D1 holds only the unauthenticated votes. Do not hand-edit numbers to
+make a page look complete.
 
 ## Export shape
 

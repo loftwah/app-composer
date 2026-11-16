@@ -60,7 +60,7 @@ let localWrite = false;
 
 function currentReviewer(): string {
   const input = document.querySelector<HTMLInputElement>("[data-reviewer]");
-  return input?.value.trim() || "owner";
+  return input?.value.trim() || "visitor";
 }
 
 /** Only the current reviewer label's votes restore a revealed pair. Another
@@ -257,7 +257,7 @@ function renderReveal(pair: HTMLElement, entry: Recorded) {
     element(
       "p",
       "small cmp-reveal-meta",
-      `${vote.blind ? "Blind when cast" : "Unblinded"} · reviewer ${vote.reviewerLabel || "unknown"} · ${instant(vote.updatedAt)}${vote.updatedAt !== vote.createdAt ? " · updated" : ""}`,
+      `${vote.blind ? "Blind when cast" : "Unblinded"} · reviewer ${vote.reviewerLabel || "unknown"} (unauthenticated label) · ${instant(vote.updatedAt)}${vote.updatedAt !== vote.createdAt ? " · updated" : ""}`,
     ),
   );
   if (vote.reason) head.append(element("p", "cmp-reveal-reason", `Reason: ${vote.reason}`));
@@ -312,8 +312,8 @@ function paintPair(pair: HTMLElement) {
     if (entry) {
       const updated = entry.vote.updatedAt !== entry.vote.createdAt ? " · updated" : "";
       status.textContent = entry.vote.blind
-        ? `Recorded ${instant(entry.vote.updatedAt)}${updated}: ${choiceLabel(entry.vote.choice)} · blind when cast.`
-        : `Recorded ${instant(entry.vote.updatedAt)}${updated}: ${choiceLabel(entry.vote.choice)} · unblinded.`;
+        ? `Recorded ${instant(entry.vote.updatedAt)}${updated}: ${choiceLabel(entry.vote.choice)} · blind when cast · unauthenticated label.`
+        : `Recorded ${instant(entry.vote.updatedAt)}${updated}: ${choiceLabel(entry.vote.choice)} · unblinded · unauthenticated label.`;
     } else if (recorded.size > 0) {
       const other = [...recorded.values()][0]?.vote.pairId ?? "another pair";
       status.textContent = `A vote is already recorded on ${other}. Choosing here replaces it; the server will say so.`;
@@ -330,8 +330,8 @@ function paintAll() {
     const reviewer = currentReviewer();
     summary.textContent =
       recorded.size === 0
-        ? `0 of ${pairs} pairs recorded for reviewer ${reviewer} on the server. Only this label's votes are restored on this page.`
-        : `${recorded.size} of ${pairs} pairs recorded for reviewer ${reviewer} on the server. Reloading this page restores them.`;
+        ? `0 of ${pairs} pairs recorded for reviewer ${reviewer} (unauthenticated label) on the server. Only this label's votes are restored on this page.`
+        : `${recorded.size} of ${pairs} pairs recorded for reviewer ${reviewer} (unauthenticated label) on the server. Reloading this page restores them.`;
   }
   const runLink = document.querySelector<HTMLElement>("[data-run-link]");
   if (runLink) {
@@ -385,7 +385,7 @@ async function loadVotes() {
     allVotes = body.votes ?? [];
     applyReviewerVotes();
     availability(
-      "The authoritative record is server-side. This page keeps no draft vote in localStorage.",
+      "The authoritative record is server-side but unauthenticated: the reviewer label is self-declared, not a sign-in.",
       false,
     );
     paintAll();
@@ -400,7 +400,7 @@ async function loadVotes() {
 async function sendVote(pair: HTMLElement, choice: string) {
   const pairId = pair.dataset.pair ?? "";
   const reason = pair.querySelector<HTMLInputElement>("[data-pair-reason]")?.value ?? "";
-  const reviewer = document.querySelector<HTMLInputElement>("[data-reviewer]")?.value.trim() || "owner";
+  const reviewer = document.querySelector<HTMLInputElement>("[data-reviewer]")?.value.trim() || "visitor";
   const blind = pair.dataset.revealed === "true" ? false : choice !== "revealed";
   const status = statusFor(pair);
   setButtons(pair, true);
@@ -444,6 +444,7 @@ async function sendVote(pair: HTMLElement, choice: string) {
         choice === "revealed"
           ? "You revealed this pair without choosing; the record says it was unblinded."
           : "",
+        "Stored unauthenticated; the reviewer label is not verified.",
       ].filter(Boolean);
       status.textContent = changes.join(" ");
     }

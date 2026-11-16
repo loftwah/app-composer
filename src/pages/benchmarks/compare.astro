@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import {
   blindView,
+  DEFAULT_REVIEWER_LABEL,
   getRunRecord,
   renderBlindPairGrid,
 } from '../../lib/benchmark-runs.ts';
@@ -57,8 +58,8 @@ const recordedAt = view?.recordedAt
             <div><dt>Sample</dt><dd>{view.sample.configurations} configurations · {view.sample.trials} takes · {view.sample.pairs} pairs</dd></div>
           </dl>
           <p class="cmp-claim">
-            A preference recorded here is one reviewer's judgement of these recorded takes. It is not a model leaderboard,
-            a provider invoice or a deployment claim.
+            A preference recorded here is one unauthenticated label's judgement of these recorded takes. It is not a
+            model leaderboard, a provider invoice, a deployment claim or proof of the owner's judgement.
           </p>
         </div>
 
@@ -72,13 +73,18 @@ const recordedAt = view?.recordedAt
           </ol>
           <div class="cmp-reviewer">
             <label for="reviewer-label">Reviewer label</label>
-            <input id="reviewer-label" data-reviewer type="text" value="owner" maxlength="32" autocomplete="off" />
+            <input id="reviewer-label" data-reviewer type="text" value={DEFAULT_REVIEWER_LABEL} maxlength="32" autocomplete="off" />
             <p class="small">A self-declared label, not a sign-in. It is the only identity stored; no email, account id or commenter data is written.</p>
           </div>
-          <p class="small cmp-vote-availability" data-vote-availability role="status" aria-live="polite">
-            The authoritative record is server-side. Checking the record…
+          <p class="cmp-unauthenticated" role="note">
+            <strong>Votes are unauthenticated.</strong> Choices are stored server-side, but this page does not sign anyone
+            in. Anyone can submit under any reviewer label. A vote count is not proof of who voted, and a label called
+            “owner” is not the owner's verified judgement.
           </p>
-          <p class="small cmp-vote-summary" data-vote-summary>0 of {view.sample.pairs} pairs recorded on the server.</p>
+          <p class="small cmp-vote-availability" data-vote-availability role="status" aria-live="polite">
+            The authoritative record is server-side but unauthenticated. Checking the record…
+          </p>
+          <p class="small cmp-vote-summary" data-vote-summary>0 of {view.sample.pairs} pairs recorded on the server. Votes are unauthenticated.</p>
           <p class="small" data-run-link hidden></p>
         </section>
 
@@ -100,7 +106,8 @@ const recordedAt = view?.recordedAt
           <ul class="cmp-limits">
             <li>
               A reviewer's pick is a preference between two takes, not a quality ranking. The judge records whether a take
-              met the brief; it cannot tell you which page you would actually use.
+              met the brief; it cannot tell you which page you would actually use. The vote itself is unauthenticated and
+              is not evidence of who cast it.
             </li>
             <li>
               Some configurations share one harness. More than one model id ran, but the harness dimension is untested —
@@ -156,6 +163,8 @@ const recordedAt = view?.recordedAt
   .cmp-reviewer label{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--color-muted)}
   .cmp-reviewer input{font:inherit;font-size:14px;padding:9px 11px;min-height:42px;border-radius:8px;border:1px solid var(--color-border);background:var(--color-surface);color:inherit;min-width:0}
   .cmp-reviewer .small{grid-column:1/-1;margin:0;color:var(--color-muted)}
+  .cmp-unauthenticated{margin:14px 0 0;padding:12px 14px;border-left:3px solid var(--color-accent);background:var(--color-surface);font-size:13.5px;line-height:1.6;max-width:74ch;color:var(--color-muted)}
+  .cmp-unauthenticated strong{color:var(--color-foreground)}
   .cmp-vote-availability,.cmp-vote-summary{margin:6px 0 0;color:var(--color-muted)}
   .cmp-vote-availability[data-state='unavailable']{color:#ff8a6a}
   .cmp-warning{padding:12px 14px;border-left:3px solid var(--color-accent);background:var(--color-surface);max-width:70ch}

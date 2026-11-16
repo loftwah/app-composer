@@ -4,7 +4,8 @@
 //    preview path. The forbidden list comes from the real committed record.
 // 2. The pair mapping is stable and its URLs are opaque.
 // 3. Vote validation refuses an unknown run/task/pair, HTML, long text and a
-//    bad reviewer label.
+//    bad reviewer label. An omitted label is the unauthenticated visitor, and
+//    only a same-origin POST may write.
 // 4. The D1 record is one row per (run, task, reviewer) and reports an update.
 // 5. Export has the same shape the run page reads, so export → reopen is a real
 //    round trip rather than a second renderer.
@@ -14,6 +15,7 @@ import { readFileSync } from 'node:fs';
 import {
   buildRunEvidence,
   blindView,
+  DEFAULT_REVIEWER_LABEL,
   exportFilename,
   forbiddenIdentityTokens,
   getRunRecord,
@@ -26,6 +28,7 @@ import {
   runView,
   runIdFor,
   validateVote,
+  voteOriginAllowed,
 } from '../src/lib/benchmark-runs.ts';
 import { sqliteD1, migration } from './helpers/stacks-sqlite.mjs';
 
@@ -36,7 +39,7 @@ const found = getRunRecord();
 assert.ok(found, 'the committed run must be present');
 
 function database() {
-  return sqliteD1({ schema: migration('0032_benchmark_votes.sql') });
+  return sqliteD1({ schema: migration('0033_benchmark_votes.sql') });
 }
 
 function voteBody(overrides = {}) {
@@ -47,7 +50,6 @@ function voteBody(overrides = {}) {
     pair: pair.id,
     choice: 'a',
     reason: 'The page holds together at 390px.',
-    reviewer: 'owner',
     blind: true,
     ...overrides,
   };
@@ -196,6 +198,58 @@ test('vote validation refuses unknown records and unsafe text', () => {
   const revealed = validateVote(found.record, voteBody({ choice: 'revealed', blind: true }));
   assert.equal(revealed.ok, true);
   if (revealed.ok) assert.equal(revealed.value.blind, false, 'revealing without choosing is unblinded');
+});
+
+test('an omitted reviewer label is visitor, never a claimed owner', () => {
+  assert.equal(DEFAULT_REVIEWER_LABEL, 'visitor');
+  const omitted = validateVote(found.record, voteBody());
+  assert.equal(omitted.ok, true);
+  if (omitted.ok) assert.equal(omitted.value.reviewerLabel, 'visitor');
+  const blank = validateVote(found.record, voteBody({ reviewer: '   ' }));
+  assert.equal(blank.ok, true);
+  if (blank.ok) assert.equal(blank.value.reviewerLabel, 'visitor');
+  const supplied = validateVote(found.record, voteBody({ reviewer: 'owner' }));
+  assert.equal(supplied.ok, true);
+  if (supplied.ok) assert.equal(supplied.value.reviewerLabel, 'owner', 'a supplied label is kept, but it is not verified');
+  assert.match(
+    migration('0033_benchmark_votes.sql'),
+    /reviewer_label TEXT NOT NULL DEFAULT 'visitor'/,
+  );
+});
+
+test('only a same-origin POST can write a vote', () => {
+  const expected = 'https://composer.loftwah.com';
+  assert.equal(voteOriginAllowed(expected, expected), true);
+  assert.equal(voteOriginAllowed(null, expected), false, 'an absent Origin is refused');
+  assert.equal(voteOriginAllowed(undefined, expected), false);
+  assert.equal(voteOriginAllowed('', expected), false);
+  assert.equal(voteOriginAllowed('https://evil.example', expected), false);
+  const request = new Request(`${expected}/api/benchmark-votes`, { method: 'POST' });
+  assert.equal(request.headers.get('Origin'), null);
+  assert.equal(voteOriginAllowed(request.headers.get('Origin'), expected), false);
+
+  const api = readFileSync(
+    new URL('../src/pages/api/benchmark-votes.ts', import.meta.url),
+    'utf8',
+  );
+  assert.match(api, /if \(!voteOriginAllowed\(request\.headers\.get\("Origin"\), origin\)\)/);
+  assert.doesNotMatch(api, /suppliedOrigin/, 'the optional-origin bypass must stay removed');
+});
+
+test('the compare and run pages say the vote record is unauthenticated', () => {
+  const comparePage = readFileSync(
+    new URL('../src/pages/benchmarks/compare.astro', import.meta.url),
+    'utf8',
+  );
+  const runPage = readFileSync(
+    new URL('../src/pages/benchmarks/runs/[id].astro', import.meta.url),
+    'utf8',
+  );
+  assert.match(comparePage, /Votes are unauthenticated/);
+  assert.match(comparePage, /not\s+proof of who voted/);
+  assert.match(runPage, /Votes are unauthenticated/);
+  assert.match(runPage, /not\s+proof of who voted/);
+  assert.match(runPage, /unauthenticated label/);
 });
 
 test('the D1 record updates one row per run, task and reviewer and says so', async () => {

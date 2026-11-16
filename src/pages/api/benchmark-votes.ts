@@ -10,6 +10,7 @@ import {
   revealPair,
   runIdFor,
   validateVote,
+  voteOriginAllowed,
 } from "../../lib/benchmark-runs.ts";
 
 export const prerender = false;
@@ -71,8 +72,7 @@ export const GET: APIRoute = async ({ request }) => {
 
 export const POST: APIRoute = async ({ request }) => {
   const origin = new URL(request.url).origin;
-  const suppliedOrigin = request.headers.get("Origin");
-  if (suppliedOrigin && suppliedOrigin !== origin)
+  if (!voteOriginAllowed(request.headers.get("Origin"), origin))
     return json({ ok: false, code: "origin", error: "Open this action from App Composer." }, 403);
   const type = request.headers.get("content-type")?.split(";")[0]?.trim().toLowerCase();
   if (type !== "application/json")

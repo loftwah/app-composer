@@ -53,7 +53,7 @@ const verdictTone = view?.verdict.comparable ? 'is-comparable' : 'is-single';
 <Base
   title={view ? `Run ${view.runId} · Benchmarks Studio` : 'Run not found · Benchmarks Studio'}
   description={view
-    ? `The revealed record for ${view.task.title}: configurations, trials, judge results, recorded votes and provenance. Every number comes from a committed file or the D1 vote record.`
+    ? `The revealed record for ${view.task.title}: configurations, trials, judge results, unauthenticated recorded votes and provenance. Every number comes from a committed file or the D1 vote record.`
     : 'That recorded benchmark run is not present in this repository.'}
 >
   {!view || !evidence
@@ -73,8 +73,8 @@ const verdictTone = view?.verdict.comparable ? 'is-comparable' : 'is-single';
           <h1>{view.task.title}</h1>
           <p class="lede">
             This is the same comparison with every label revealed. The committed record supplies the configurations,
-            trials, judge results and provenance. D1 supplies the recorded votes. Nothing on this page calls a provider
-            or spends money.
+            trials, judge results and provenance. D1 supplies the recorded votes, but it does not authenticate the
+            reviewer label. Nothing on this page calls a provider or spends money.
           </p>
           <div class="run-actions">
             <a class="button" href={`/benchmarks/compare?run=${view.runId}`}>Reopen in the compare view</a>
@@ -97,10 +97,16 @@ const verdictTone = view?.verdict.comparable ? 'is-comparable' : 'is-single';
           </dd></div>
           <div><dt>Votes</dt><dd>
             {votesAvailable
-              ? `${view.sample.recordedPairs} recorded pair${view.sample.recordedPairs === 1 ? '' : 's'} · ${view.sample.blindVotes} blind · ${view.sample.unblindedVotes} unblinded`
+              ? `${view.sample.recordedPairs} recorded pair${view.sample.recordedPairs === 1 ? '' : 's'} · ${view.sample.blindVotes} blind · ${view.sample.unblindedVotes} unblinded · unauthenticated labels`
               : 'vote record unavailable'}
           </dd></div>
         </dl>
+
+        <p class="run-warning run-unauthenticated" role="note">
+          <strong>Votes are unauthenticated.</strong> D1 stores the reviewer label supplied by the caller, but this
+          record has no sign-in and no identity verification. Anyone can submit under any label. A recorded count is not
+          proof of who voted, and a label called “owner” is not the owner's verified judgement.
+        </p>
 
         {!votesAvailable && (
           <p class="run-warning" role="status">
@@ -194,7 +200,7 @@ const verdictTone = view?.verdict.comparable ? 'is-comparable' : 'is-single';
                         {vote.choice === 'revealed' ? ' — no preference was claimed.' : '.'}
                       </p>
                       <p class="small">
-                        Reviewer {vote.reviewerLabel || 'unknown'} · {vote.blind ? 'blind when cast' : 'unblinded'} ·
+                        Reviewer {vote.reviewerLabel || 'unknown'} (unauthenticated label) · {vote.blind ? 'blind when cast' : 'unblinded'} ·
                         recorded {instant(vote.createdAt)}
                         {vote.updatedAt !== vote.createdAt ? ` · updated ${instant(vote.updatedAt)}` : ''}
                       </p>
@@ -270,8 +276,8 @@ const verdictTone = view?.verdict.comparable ? 'is-comparable' : 'is-single';
         <section class="run-section" aria-labelledby="limits-title">
           <h2 id="limits-title">What this record does not prove</h2>
           <ul class="run-limits">
-            <li>A recorded preference is one reviewer's judgement, not a model ranking or a provider benchmark.</li>
-            <li>The reviewer label is self-declared. The endpoint does not authenticate a person and does not store an account id, email or comment.</li>
+            <li>A recorded preference is one unauthenticated label's judgement, not a model ranking, a provider benchmark or proof of the owner's judgement.</li>
+            <li>The reviewer label is self-declared and unauthenticated. The endpoint does not authenticate a person, does not verify an “owner” label and does not store an account id, email or comment.</li>
             <li>The record is one job. A good landing page does not prove a build fix, a migration or a deployment.</li>
             <li>Three trials per configuration bound variance; they do not eliminate it.</li>
             <li>No rate card is loaded, so the cost estimate and provider charge stay unknown. The CLI reports tokens, not an invoice.</li>
@@ -299,6 +305,8 @@ const verdictTone = view?.verdict.comparable ? 'is-comparable' : 'is-single';
   .run-meta dt{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--color-muted)}
   .run-meta dd{margin:4px 0 0;font-size:14px;overflow-wrap:anywhere}
   .run-warning{margin:24px 0 0;padding:14px 16px;border-left:3px solid var(--color-accent);background:var(--color-surface);font-size:14px;max-width:78ch}
+  .run-unauthenticated{color:var(--color-muted)}
+  .run-unauthenticated strong{color:var(--color-foreground)}
   .run-section{border-top:1px solid var(--color-border);padding-top:28px;margin-top:44px}
   .run-section h2{font-size:clamp(1.6rem,3vw,2.2rem);max-width:28ch}
   .run-section h2.is-single{color:var(--color-accent)}

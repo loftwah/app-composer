@@ -26,6 +26,7 @@ export type VoteChoice = (typeof VOTE_CHOICES)[number];
 export const VOTE_TABLE = "benchmark_votes";
 export const REASON_MAX = 240;
 export const REVIEWER_MAX = 32;
+export const DEFAULT_REVIEWER_LABEL = "visitor";
 export const REVIEWER_PATTERN = /^[A-Za-z0-9][A-Za-z0-9 ._-]*$/;
 export const JUDGE_LABEL =
   "Deterministic evaluator in src/lib/benchmark-compare.mjs: nine assertions read the bytes each trial produced. No model self-report is trusted.";
@@ -608,6 +609,22 @@ function mapVoteRow(row: Record<string, unknown>): VoteRecord {
   };
 }
 
+/**
+ * A vote write must come from the page's own origin. A missing Origin header is
+ * a refusal, not an anonymous pass: the only intended writer is the comparison
+ * page, and an absent header cannot prove that.
+ */
+export function voteOriginAllowed(
+  suppliedOrigin: string | null | undefined,
+  expectedOrigin: string,
+): boolean {
+  return (
+    typeof suppliedOrigin === "string" &&
+    suppliedOrigin.length > 0 &&
+    suppliedOrigin === expectedOrigin
+  );
+}
+
 /** Validate untrusted vote input against the committed run and its pairs. */
 export function validateVote(record: RunRecord, input: VoteInput): ValidationResult {
   const unknown = Object.keys(input).filter((key) => !VOTE_INPUT_KEYS.has(key));
@@ -686,11 +703,11 @@ function normaliseReason(
 function normaliseReviewer(
   value: unknown,
 ): { ok: true; value: string } | { ok: false; failure: ValidationFailure } {
-  if (value === undefined || value === null) return { ok: true, value: "owner" };
+  if (value === undefined || value === null) return { ok: true, value: DEFAULT_REVIEWER_LABEL };
   if (typeof value !== "string")
     return { ok: false, failure: { status: 400, code: "invalid-reviewer", error: "Reviewer label must be text." } };
   const reviewer = value.trim();
-  if (!reviewer) return { ok: true, value: "owner" };
+  if (!reviewer) return { ok: true, value: DEFAULT_REVIEWER_LABEL };
   if (!REVIEWER_PATTERN.test(reviewer) || reviewer.length > REVIEWER_MAX)
     return {
       ok: false,
