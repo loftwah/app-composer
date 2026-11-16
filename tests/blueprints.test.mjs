@@ -104,4 +104,10 @@ test("the media studio blueprint reads the standalone pin and validates", () => 
   const readiness = blueprintReadiness(entry);
   assert.equal(readiness.state, "reference");
   assert.match(readiness.reason, /independent owner/i);
+  const pinned = entry.evidence.find((item) => item.label === "Pinned source");
+  assert.ok(pinned, "the media studio evidence names its pinned source");
+  assert.ok(
+    pinned.url.endsWith(`/tree/${sources[0].commit}`),
+    "the evidence link carries the same revision as the active source pin",
+  );
 });
