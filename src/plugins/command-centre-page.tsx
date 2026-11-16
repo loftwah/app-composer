@@ -4,13 +4,16 @@ import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
 import {
   commandCentreReport,
   utcClock,
+  type CommandCentreChecksSection,
   type CommandCentreForecast,
   type CommandCentreForecastObservations,
   type CommandCentreHistoryItem,
   type CommandCentreIssueReference,
   type CommandCentrePlanItem,
+  type CommandCentrePullRequestItem,
   type CommandCentreReport,
   type CommandCentreRepo,
+  type CommandCentreReviewSection,
   type CommandCentreUnknownSection,
 } from "../lib/command-centre-contract";
 import "./command-centre-page.css";
@@ -184,8 +187,299 @@ function CommitStat({
   );
 }
 
-function CopyLink({ url, label = "Copy link" }: { url: string; label?: string }) {
-  const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
+const checkLabels: Record<CommandCentreChecksSection["value"], string> = {
+  success: "Checks passed",
+  pending: "Checks pending",
+  failure: "Checks failing",
+  none: "No check result",
+  stale: "Checks stale",
+  unknown: "Check result not recognised",
+};
+
+const reviewLabels: Record<CommandCentreReviewSection["value"], string> = {
+  approved: "Approved by reviewers",
+  changes_requested: "Changes requested",
+  review_required: "Review required",
+  none: "No review submitted",
+};
+
+const mergeableLabels: Record<string, string> = {
+  behind: "behind the base branch",
+  blocked: "merge blocked",
+  clean: "mergeable",
+  dirty: "merge conflict",
+  draft: "draft",
+  unstable: "unstable checks",
+  unknown: "state not recognised",
+};
+
+function PullFlag({
+  label,
+  section,
+  checkedAt,
+}: {
+  label: string;
+  section: CommandCentrePullRequestItem["review"] | CommandCentrePullRequestItem["checks"];
+  checkedAt: string;
+}) {
+  if (section.state === "unknown")
+    return (
+      <div className="cc-flag" data-state="unknown">
+        <span className="cc-flag-kind">{label}</span>
+        <Unknown section={section} checkedAt={checkedAt} />
+      </div>
+    );
+  const value =
+    "value" in section ? section.value : undefined;
+  const text =
+    value === undefined
+      ? "Unknown"
+      : label === "Review"
+        ? (reviewLabels[value as CommandCentreReviewSection["value"]] ??
+          "Review state not recognised")
+        : (checkLabels[value as CommandCentreChecksSection["value"]] ??
+          "Check state not recognised");
+  // "No result", "stale" and "unknown" look clean at a glance, so they carry
+  // the counted basis in the row instead of only a title attribute.
+  const explain =
+    value === "none" || value === "stale" || value === "unknown"
+      ? section.detail
+      : null;
+  return (
+    <div className="cc-flag" data-state={value ?? "unknown"}>
+      <span className="cc-flag-kind">{label}</span>
+      <span className="cc-flag-value">{text}</span>
+      {explain && <span className="cc-flag-detail">{explain}</span>}
+    </div>
+  );
+}
+
+function PullRequestsLens({
+  repo,
+  checkedAt,
+}: {
+  repo: CommandCentreRepo;
+  checkedAt: string;
+}) {
+  const section = repo.openPullRequests;
+  const count = repo.pullRequests;
+  return (
+    <section className="cc-section" aria-labelledby="cc-pulls-title">
+      <div className="cc-section-head">
+        <h3 id="cc-pulls-title">Open pull requests and review state</h3>
+        {section.state === "ok" && (
+          <p className="cc-bounded">
+            {section.items.length} shown ·{" "}
+            {section.complete
+              ? "complete open list"
+              : `one page of ${section.scanned}`}
+          </p>
+        )}
+      </div>
+      {section.state === "unknown" ? (
+        <Unknown section={section} checkedAt={checkedAt} />
+      ) : section.items.length > 0 ? (
+        <ul className="cc-pulls">
+          {section.items.map((pull) => (
+            <li key={pull.number}>
+              <p className="cc-issue-title">
+                <a href={pull.url} rel="noreferrer noopener" target="_blank">
+                  <span className="cc-issue-number">#{pull.number}</span>{" "}
+                  {pull.title}
+                </a>
+                {pull.draft && <span className="cc-badge">Draft</span>}
+              </p>
+              <p className="cc-issue-meta">
+                {pull.author ? `${pull.author} · ` : ""}Updated{" "}
+                {stamp(pull.updatedAt)} ·{" "}
+                {pull.mergeableState
+                  ? (mergeableLabels[pull.mergeableState] ??
+                    "state not recognised")
+                  : "merge state not reported"}
+              </p>
+              <p className="cc-issue-meta">
+                {pull.requestedReviewers.length > 0
+                  ? `Requested: ${pull.requestedReviewers.join(", ")}`
+                  : "No reviewer is requested."}
+              </p>
+              <div className="cc-flags">
+                <PullFlag
+                  label="Review"
+                  section={pull.review}
+                  checkedAt={checkedAt}
+                />
+                <PullFlag
+                  label="Checks"
+                  section={pull.checks}
+                  checkedAt={checkedAt}
+                />
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : count.state === "ok" && count.value === 0 ? (
+        <p className="cc-none" data-state="none">
+          No open pull request. The source reported none for this repository at{" "}
+          {stamp(checkedAt)}.
+        </p>
+      ) : (
+        <p className="cc-none" data-state="none">
+          No open pull request appeared in this bounded page. That is not a claim
+          that none is open.
+        </p>
+      )}
+      <p className="cc-hint">
+        A pull request is not an issue. A passing check, an approving review or a
+        merged pull request is not a live release.
+      </p>
+    </section>
+  );
+}
+
+function LiveIdentityStat({
+  section,
+  checkedAt,
+}: {
+  section: CommandCentreRepo["liveIdentity"];
+  checkedAt: string;
+}) {
+  return (
+    <article className="cc-stat" data-state={section.state}>
+      <p className="cc-stat-label">Live release identity</p>
+      {section.state === "ok" ? (
+        <>
+          <p className="cc-stat-value cc-sha">
+            <a href={section.url} rel="noreferrer noopener" target="_blank">
+              {section.revision.slice(0, 12)}
+            </a>
+          </p>
+          <p className="cc-stat-note">
+            {section.matchesDefaultBranch === true
+              ? "Matches the latest default-branch commit."
+              : section.matchesDefaultBranch === false
+                ? "Does not match the latest default-branch commit."
+                : "The default-branch commit is unknown, so no comparison is made."}
+          </p>
+        </>
+      ) : section.state === "not-configured" ? (
+        <>
+          <p className="cc-stat-none">Not configured</p>
+          <p className="cc-stat-note">{section.reason}</p>
+        </>
+      ) : (
+        <Unknown section={section} checkedAt={checkedAt} />
+      )}
+    </article>
+  );
+}
+
+function LiveIdentitySection({
+  repo,
+  checkedAt,
+}: {
+  repo: CommandCentreRepo;
+  checkedAt: string;
+}) {
+  const section = repo.liveIdentity;
+  return (
+    <section className="cc-section" aria-labelledby="cc-live-title">
+      <div className="cc-section-head">
+        <h4 id="cc-live-title">Live release identity</h4>
+        <p className="cc-bounded">A second, independent release source</p>
+      </div>
+      {section.state === "ok" ? (
+        <div className="cc-live" data-state="ok">
+          <p>
+            <a href={section.url} rel="noreferrer noopener" target="_blank">
+              {section.url}
+            </a>
+          </p>
+          <p className="cc-issue-meta">
+            Revision <code>{section.revision}</code>
+            {section.app ? ` · app ${section.app}` : ""} · fetched{" "}
+            {stamp(section.fetchedAt)}
+            {section.builtAt ? ` · built ${stamp(section.builtAt)}` : ""}
+          </p>
+          <p className="cc-issue-meta">
+            {section.matchesDefaultBranch === true
+              ? `Matches the latest commit on ${repo.defaultBranch ?? "the default branch"}.`
+              : section.matchesDefaultBranch === false
+                ? `Does not match the latest commit on ${repo.defaultBranch ?? "the default branch"}${
+                    section.defaultBranchCommit
+                      ? ` (${section.defaultBranchCommit.slice(0, 12)})`
+                      : ""
+                  }.`
+                : "The default-branch commit is unknown, so whether this matches is not claimed."}
+          </p>
+          <p className="cc-hint">
+            Deployment evidence from the published build identity. It is not read
+            from an issue or a pull request, and it is not a check that a
+            particular closure shipped.
+          </p>
+        </div>
+      ) : section.state === "not-configured" ? (
+        <p className="cc-none" data-state="none">
+          <strong>Not configured.</strong> {section.reason}
+        </p>
+      ) : (
+        <Unknown section={section} checkedAt={checkedAt} />
+      )}
+    </section>
+  );
+}
+
+function ProjectsSection({ repo }: { repo: CommandCentreRepo }) {
+  const projects = repo.projects;
+  return (
+    <section className="cc-section" aria-labelledby="cc-projects-title">
+      <div className="cc-section-head">
+        <h3 id="cc-projects-title">Projects V2 availability</h3>
+        <p className="cc-bounded">Credential probe only</p>
+      </div>
+      <p className="cc-none" data-state={projects.state}>
+        <strong>
+          {projects.state === "unavailable"
+            ? "Unavailable"
+            : "Credential reports project access"}
+        </strong>{" "}
+        — {projects.reason}
+      </p>
+      <p className="cc-hint">
+        No project board, field, item or status is inferred from issues or pull
+        requests.
+      </p>
+    </section>
+  );
+}
+
+function FactsNote() {
+  return (
+    <section className="cc-facts" aria-labelledby="cc-facts-title">
+      <h3 id="cc-facts-title">Three different facts</h3>
+      <ul>
+        <li>
+          <strong>Issue state</strong> — what the tracker still has open. A
+          closed issue is not a deployment.
+        </li>
+        <li>
+          <strong>Pull-request and review state</strong> — what is proposed,
+          reviewed and checked. A green pull request is not a live release.
+        </li>
+        <li>
+          <strong>Live release identity</strong> — what a deployment says it was
+          built from, read from its own public build identity where one is
+          published.
+        </li>
+      </ul>
+      <p className="cc-hint">
+        These are read separately and none is derived from another. Where a fact
+        was not read, it stays unknown with the reason.
+      </p>
+    </section>
+  );
+}
+
+function CopyLink({ url, label = "Copy link" }: { url: string; label?: string }) {  const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
   return (
     <span className="cc-copy-wrap">
       <button
@@ -301,6 +595,13 @@ function RecentIssues({
             <strong>No open issues.</strong> The source reported no open issues
             for this repository at {stamp(checkedAt)}.
           </p>
+          {repo.pullRequests.state === "ok" && repo.pullRequests.value > 0 && (
+            <p>
+              {repo.pullRequests.value} open pull request
+              {repo.pullRequests.value === 1 ? " is" : "s are"} counted
+              separately, not as issues.
+            </p>
+          )}
           {repo.links.newIssue && (
             <p>
               <a
@@ -567,8 +868,8 @@ function PlanLens({ report }: { report: CommandCentreReport }) {
             <table className="cc-table">
               <caption>
                 Open issues with explicit milestones, relationships and
-                blockers. Pull-request state and native sub-issue fields are not
-                read.
+                blockers. Review and check state lives with the pull requests on
+                Pulse; native sub-issue fields are not read.
               </caption>
               <thead>
                 <tr>
@@ -1056,6 +1357,7 @@ function DeliveryLens({ report }: { report: CommandCentreReport }) {
       <ForecastView forecast={repo.forecast} checkedAt={repo.checkedAt} />
       <HistoryLens repo={repo} />
       <ReleasesLens repo={repo} />
+      <LiveIdentitySection repo={repo} checkedAt={repo.checkedAt} />
       <section className="cc-next" aria-labelledby="cc-next-title">
         <h4 id="cc-next-title">Next actions</h4>
         <ul className="cc-action-links">
@@ -1200,8 +1502,16 @@ function PulseLens({ report }: { report: CommandCentreReport }) {
             </>
           ) : forecast.state === "ok" ? (
             <>
-              <p className="cc-stat-none">No open work</p>
-              <p className="cc-stat-note">The confirmed backlog is empty.</p>
+              <p className="cc-stat-none">No open issues</p>
+              <p className="cc-stat-note">
+                {repo.pullRequests.state === "unknown"
+                  ? "Open pull-request state is unknown, so this is not a claim that nothing is open."
+                  : repo.pullRequests.value === 0
+                    ? "No open pull request either."
+                    : `${repo.pullRequests.value} open pull request${
+                        repo.pullRequests.value === 1 ? "" : "s"
+                      } still need review.`}
+              </p>
             </>
           ) : (
             <Unknown
@@ -1210,9 +1520,16 @@ function PulseLens({ report }: { report: CommandCentreReport }) {
             />
           )}
         </article>
+        <LiveIdentityStat
+          section={repo.liveIdentity}
+          checkedAt={repo.checkedAt}
+        />
       </section>
+      <FactsNote />
+      <PullRequestsLens repo={repo} checkedAt={repo.checkedAt} />
       <BlockedSection section={repo.blocked} checkedAt={repo.checkedAt} />
       <RecentIssues repo={repo} checkedAt={repo.checkedAt} />
+      <ProjectsSection repo={repo} />
     </>
   );
 }
@@ -1383,10 +1700,11 @@ function CommandCentre({ search }: { search: string }) {
         <p className="cc-kicker">Composer · first-party repositories</p>
         <h1 id="command-centre-title">Command centre</h1>
         <p className="cc-lede">
-          Real issue, pull request, release and blocked state for the maintained
-          Composer repositories. Read-only: nothing here writes, approves,
-          deploys or turns a closure into a live claim. Plan and Delivery add
-          explicit relationships and a cautious, evidence-based outlook.
+          Real issue, pull-request, review, release and blocked state for the
+          maintained Composer repositories, plus a live build identity where one
+          is published. Read-only: nothing here writes, approves, merges, deploys
+          or turns a closure into a live claim. Issue state, pull-request state
+          and live release identity are three different facts and stay separate.
         </p>
       </header>
 

@@ -5,10 +5,13 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   commandCentreReport,
+  combineCheckState,
   linkedReleaseFromBody,
   mapRecentIssues,
+  mapReviewDecision,
   normalizeStateReason,
   openIssueCount,
+  pullRequestCountFromList,
   pullRequestCountFromPage,
   releaseIssueNumbers,
 } from "../src/lib/command-centre-contract.ts";
@@ -40,6 +43,39 @@ function json(data, { status = 200, headers = {} } = {}) {
 
 function linkHeader(last) {
   return `<https://api.github.com/repositories/1/pulls?state=open&per_page=1&page=2>; rel="next", <https://api.github.com/repositories/1/pulls?state=open&per_page=1&page=${last}>; rel="last"`;
+}
+
+const headSha = (letter) => letter.repeat(40);
+
+function pull(number, options = {}) {
+  const {
+    title = null,
+    updatedAgo = 1,
+    draft = false,
+    author = "fictional-owner",
+    reviewers = [],
+    mergeable = "clean",
+    head = "b",
+  } = options;
+  return {
+    number,
+    title: title ?? `Fictional pull request ${number}`,
+    html_url: `https://github.com/${repository}/pull/${number}`,
+    updated_at: ago(updatedAgo),
+    draft,
+    user: { login: author },
+    requested_reviewers: reviewers.map((login) => ({ login })),
+    mergeable_state: mergeable,
+    head: { sha: headSha(head) },
+  };
+}
+
+function buildIdentity(revision = "a") {
+  return json({
+    app: "app-composer",
+    commit: headSha(revision),
+    builtAt: "2026-11-16T01:30:00Z",
+  });
 }
 
 function issue(number, options = {}) {
@@ -175,19 +211,80 @@ function baseResponses() {
         html_url: `https://github.com/${repository}`,
         default_branch: "main",
         archived: false,
-        open_issues_count: 9,
+        open_issues_count: 8,
         private: false,
       }),
     [`/repos/${repository}/pulls`]: () =>
-      json([{ number: 700 }], { headers: { link: linkHeader(3) } }),
+      json([
+        pull(701, {
+          title: "Pull request readback",
+          updatedAgo: 1,
+          reviewers: ["fictional-reviewer"],
+          head: "b",
+        }),
+        pull(700, {
+          title: "Draft live identity work",
+          updatedAgo: 2,
+          draft: true,
+          mergeable: "draft",
+          head: "c",
+        }),
+      ]),
+    [`/repos/${repository}/pulls/701/reviews`]: () =>
+      json([
+        {
+          state: "CHANGES_REQUESTED",
+          user: { login: "fictional-reviewer" },
+          submitted_at: "2026-11-16T02:00:00Z",
+        },
+      ]),
+    [`/repos/${repository}/pulls/700/reviews`]: () =>
+      json([
+        {
+          state: "APPROVED",
+          user: { login: "fictional-reviewer" },
+          submitted_at: "2026-11-16T01:00:00Z",
+        },
+      ]),
+    [`/repos/${repository}/commits/${headSha("b")}/check-runs`]: () =>
+      json({
+        total_count: 2,
+        check_runs: [
+          {
+            status: "completed",
+            conclusion: "failure",
+            head_sha: headSha("b"),
+          },
+          {
+            status: "completed",
+            conclusion: "success",
+            head_sha: headSha("b"),
+          },
+        ],
+      }),
+    [`/repos/${repository}/commits/${headSha("b")}/status`]: () =>
+      json({ state: "pending", total_count: 1 }),
+    [`/repos/${repository}/commits/${headSha("c")}/check-runs`]: () =>
+      json({
+        total_count: 1,
+        check_runs: [
+          {
+            status: "completed",
+            conclusion: "success",
+            head_sha: headSha("c"),
+          },
+        ],
+      }),
+    [`/repos/${repository}/commits/${headSha("c")}/status`]: () =>
+      json({ state: "pending", total_count: 0 }),
     [`/repos/${repository}/labels`]: () =>
       json([{ name: "bug" }, { name: "blocked" }, { name: "enhancement" }]),
     [`/repos/${repository}/releases`]: () => json(releaseList()),
     [`/repos/${repository}/commits`]: () =>
       json([
         {
-          sha: "a".repeat(40),
-          html_url: `https://github.com/${repository}/commit/${"a".repeat(40)}`,
+          sha: headSha("a"),
+          html_url: `https://github.com/${repository}/commit/${headSha("a")}`,
           commit: { committer: { date: "2026-11-16T01:15:00Z" } },
           author: { login: "fictional-owner" },
         },
@@ -202,22 +299,46 @@ function baseResponses() {
       if (url.searchParams.get("state") === "closed") return json(closedItems());
       return json(openItems());
     },
+    "/build.json": () => buildIdentity("a"),
   };
 }
 
-function fixtureFetch(responses) {
+// Other allowlisted repositories are represented by the same fictional fixture;
+// the paths are rewritten so project switching exercises real cache separation.
+const otherRepositories = [
+  "loftwah/liferaft",
+  "loftwah/composer-media-studio",
+];
+
+function fixtureFetch(responses, options = {}) {
   const calls = [];
   const authorisations = [];
+  const requests = [];
   const fetch = async (url, init = {}) => {
     const parsed = new URL(url);
     calls.push(parsed.pathname + parsed.search);
-    authorisations.push(init.headers?.Authorization ?? null);
-    const handler = responses[parsed.pathname];
+    const authorisation = init.headers?.Authorization ?? null;
+    authorisations.push(authorisation);
+    requests.push({ url: parsed.href, authorisation });
+    const rewritten = otherRepositories.reduce(
+      (path, other) =>
+        path.replace(`/repos/${other}`, `/repos/${repository}`),
+      parsed.pathname,
+    );
+    const handler = responses[rewritten];
     if (!handler)
-      throw new Error("Unexpected GitHub request: " + parsed.pathname);
-    return handler(parsed, init);
+      throw new Error("Unexpected source request: " + parsed.pathname);
+    const response = await handler(parsed, init);
+    if (!options.headers) return response;
+    const headers = new Headers(response.headers);
+    for (const [name, value] of Object.entries(options.headers))
+      headers.set(name, value);
+    return new Response(response.body, {
+      status: response.status,
+      headers,
+    });
   };
-  return { fetch, calls, authorisations };
+  return { fetch, calls, authorisations, requests };
 }
 
 async function readNormal() {
@@ -246,15 +367,15 @@ test("the command centre lists only the three default public repositories", () =
 });
 
 test("a normal read maps counts, history, plan, forecasts, releases and commits", async () => {
-  const { report, calls } = await readNormal();
+  const { report, calls, requests } = await readNormal();
   commandCentreReport.parse(report);
 
   assert.equal(report.ok, true);
-  assert.equal(report.schema, "app-composer.command-centre/2");
+  assert.equal(report.schema, "app-composer.command-centre/3");
   assert.deepEqual(report.source, { id: "github", label: "GitHub" });
   assert.equal(report.selected, repository);
   assert.equal(report.cached, false);
-  assert.equal(report.cacheSeconds, 720, "public reads use the long window");
+  assert.equal(report.cacheSeconds, 900, "public reads use the long window");
   assert.deepEqual(report.repo.links, {
     issues: `https://github.com/${repository}/issues`,
     pullRequests: `https://github.com/${repository}/pulls`,
@@ -264,10 +385,55 @@ test("a normal read maps counts, history, plan, forecasts, releases and commits"
   assert.equal(
     report.repo.issues.count.value,
     6,
-    "9 open items minus 3 pull requests",
+    "8 open items minus 2 pull requests",
   );
   assert.equal(report.repo.pullRequests.state, "ok");
-  assert.equal(report.repo.pullRequests.value, 3);
+  assert.equal(report.repo.pullRequests.value, 2);
+
+  // Pull requests are read distinctly from issues, with review and check state.
+  assert.equal(report.repo.openPullRequests.state, "ok");
+  assert.equal(report.repo.openPullRequests.complete, true);
+  assert.equal(report.repo.openPullRequests.scanned, 2);
+  assert.equal(report.repo.openPullRequests.items.length, 2);
+  const reviewed = report.repo.openPullRequests.items[0];
+  assert.equal(reviewed.number, 701);
+  assert.equal(reviewed.draft, false);
+  assert.equal(reviewed.author, "fictional-owner");
+  assert.deepEqual(reviewed.requestedReviewers, ["fictional-reviewer"]);
+  assert.equal(reviewed.mergeableState, "clean");
+  assert.equal(reviewed.review.state, "ok");
+  assert.equal(reviewed.review.value, "changes_requested");
+  assert.match(reviewed.review.detail, /branch-protection/i);
+  assert.equal(reviewed.checks.state, "ok");
+  assert.equal(reviewed.checks.value, "failure");
+  assert.match(reviewed.checks.detail, /1 legacy commit status and 2 check runs/);
+  const approved = report.repo.openPullRequests.items[1];
+  assert.equal(approved.number, 700);
+  assert.equal(approved.draft, true);
+  assert.equal(approved.mergeableState, "draft");
+  assert.equal(approved.review.value, "approved");
+  assert.equal(
+    approved.checks.value,
+    "success",
+    "a check run on the head commit with no legacy status passed",
+  );
+
+  // The live build identity is a second, independent release source.
+  assert.equal(report.repo.liveIdentity.state, "ok");
+  assert.equal(
+    report.repo.liveIdentity.url,
+    "https://composer.loftwah.com/build.json",
+  );
+  assert.equal(report.repo.liveIdentity.revision, headSha("a"));
+  assert.equal(report.repo.liveIdentity.matchesDefaultBranch, true);
+  assert.equal(report.repo.liveIdentity.defaultBranchCommit, headSha("a"));
+  assert.equal(report.repo.liveIdentity.app, "app-composer");
+  assert.equal(report.repo.liveIdentity.builtAt, "2026-11-16T01:30:00.000Z");
+
+  // Projects V2 is a named unavailable state without a credential.
+  assert.equal(report.repo.projects.state, "unavailable");
+  assert.match(report.repo.projects.reason, /No GitHub credential/i);
+  assert.match(report.repo.projects.reason, /No project board is inferred/i);
   assert.equal(report.repo.release.state, "ok");
   assert.equal(report.repo.release.latest.tag, "v1.2.0");
   assert.equal(report.repo.release.latest.prerelease, false);
@@ -368,13 +534,23 @@ test("a normal read maps counts, history, plan, forecasts, releases and commits"
   assert.equal(report.repo.complete, true);
   assert.equal(report.rateLimit.limit, null);
 
-  // Six parallel reads, one commit read and one blocked-label count. No second
+  // Six parallel reads, one commit read, one blocked-label count, the live
+  // identity and three reads each for the two probed pull requests. No second
   // page is ever requested.
-  assert.equal(calls.length, 8);
+  assert.equal(calls.length, 15);
   assert.ok(calls.every((call) => !call.includes("page=2")));
+  const buildRequest = requests.find((entry) =>
+    entry.url.endsWith("/build.json"),
+  );
+  assert.ok(buildRequest, "the live identity source is read once");
+  assert.equal(
+    buildRequest.authorisation,
+    null,
+    "no GitHub token is sent to the live identity source",
+  );
 });
 
-test("cache TTL follows the credential: 55 seconds with a token, 12 minutes without", async () => {
+test("cache TTL follows the credential: 55 seconds with a token, 15 minutes without", async () => {
   clearCommandCentreCache();
   const publicFixture = fixtureFetch(baseResponses());
   const first = await readCommandCentre({
@@ -382,12 +558,12 @@ test("cache TTL follows the credential: 55 seconds with a token, 12 minutes with
     now: checkedNow,
     fetch: publicFixture.fetch,
   });
-  assert.equal(first.cacheSeconds, 720);
+  assert.equal(first.cacheSeconds, 900);
   const publicCalls = publicFixture.calls.length;
   assert.equal(
     publicCalls,
-    8,
-    "six parallel reads, one commit read and one blocked label count",
+    15,
+    "six list/issue reads, the commit, a blocked label count, the live identity and three reads for each probed pull request",
   );
 
   const cachedPublic = await readCommandCentre({
@@ -396,13 +572,14 @@ test("cache TTL follows the credential: 55 seconds with a token, 12 minutes with
     fetch: publicFixture.fetch,
   });
   assert.equal(cachedPublic.cached, true);
-  assert.equal(cachedPublic.cacheSeconds, 720);
+  assert.equal(cachedPublic.cacheSeconds, 900);
   assert.equal(cachedPublic.cacheAgeSeconds, 300);
+  assert.equal(cachedPublic.repo.openPullRequests.items.length, 2);
   assert.equal(publicFixture.calls.length, publicCalls);
 
   const expiredPublic = await readCommandCentre({
     repository,
-    now: checkedNow + 721_000,
+    now: checkedNow + 901_000,
     fetch: publicFixture.fetch,
   });
   assert.equal(expiredPublic.cached, false);
@@ -419,10 +596,16 @@ test("cache TTL follows the credential: 55 seconds with a token, 12 minutes with
   });
   assert.equal(credentialed.cacheSeconds, 55);
   assert.ok(
-    tokenFixture.authorisations.every(
-      (value) => value === `Bearer ${token}`,
-    ),
+    tokenFixture.requests
+      .filter((entry) => entry.url.startsWith("https://api.github.com/"))
+      .every((entry) => entry.authorisation === `Bearer ${token}`),
     "the token is sent only to the source adapter",
+  );
+  assert.equal(
+    tokenFixture.requests.find((entry) => entry.url.endsWith("/build.json"))
+      ?.authorisation,
+    null,
+    "the live identity read never receives the GitHub token",
   );
   const cachedShort = await readCommandCentre({
     repository,
@@ -483,6 +666,7 @@ test("a rate-limited read is unknown in every section and never zero", async () 
     [`/repos/${repository}/labels`]: limited,
     [`/repos/${repository}/releases`]: limited,
     [`/repos/${repository}/issues`]: limited,
+    "/build.json": () => buildIdentity("a"),
   });
   const report = await readCommandCentre({
     repository,
@@ -494,6 +678,12 @@ test("a rate-limited read is unknown in every section and never zero", async () 
   assert.equal(report.repo.issues.count.state, "unknown");
   assert.equal(report.repo.issues.recent.state, "unknown");
   assert.equal(report.repo.pullRequests.state, "unknown");
+  assert.equal(report.repo.openPullRequests.state, "unknown");
+  // The live build identity is not GitHub, so an exhausted GitHub quota does
+  // not make it unknown — and it is not used to guess the commit comparison.
+  assert.equal(report.repo.liveIdentity.state, "ok");
+  assert.equal(report.repo.liveIdentity.matchesDefaultBranch, null);
+  assert.equal(report.repo.projects.state, "unavailable");
   assert.equal(report.repo.blocked.state, "unknown");
   assert.equal(report.repo.release.state, "unknown");
   assert.equal(report.repo.releases.state, "unknown");
@@ -537,6 +727,10 @@ test("a network failure is unknown with a reason, not a partial zero", async () 
   commandCentreReport.parse(report);
   assert.equal(report.repo.issues.count.state, "unknown");
   assert.equal(report.repo.forecast.state, "unknown");
+  assert.equal(report.repo.openPullRequests.state, "unknown");
+  assert.equal(report.repo.liveIdentity.state, "unknown");
+  assert.match(report.repo.liveIdentity.reason, /could not be reached/i);
+  assert.equal(report.repo.projects.state, "unavailable");
   assert.equal(report.repo.complete, false);
   assert.match(
     report.repo.issues.count.reason,
@@ -565,6 +759,13 @@ test("a 404 repository is unknown while independent sections can still read", as
   assert.equal(report.repo.release.state, "unknown");
   assert.equal(report.repo.plan.state, "ok");
   assert.equal(report.repo.history.state, "ok");
+  assert.equal(report.repo.openPullRequests.state, "ok");
+  assert.equal(report.repo.liveIdentity.state, "ok");
+  assert.equal(
+    report.repo.liveIdentity.matchesDefaultBranch,
+    null,
+    "a missing default-branch commit leaves the comparison unknown",
+  );
   assert.equal(report.repo.forecast.state, "unknown");
   assert.match(report.repo.forecast.reason, /open backlog was not confirmed/i);
   assert.equal(report.repo.complete, false);
@@ -585,6 +786,7 @@ test("a malformed GitHub response is unknown rather than coerced", async () => {
   assert.equal(report.repo.issues.count.state, "unknown");
   assert.match(report.repo.issues.count.reason, /unexpected response shape/i);
   assert.equal(report.repo.release.state, "ok");
+  assert.equal(report.repo.openPullRequests.state, "ok");
   assert.equal(report.repo.forecast.state, "unknown");
   assert.equal(report.repo.complete, false);
 });
@@ -632,9 +834,233 @@ test("an absent blocked label is shown as none, not as zero issues", async () =>
   );
   assert.equal(
     fixture.calls.length,
-    7,
-    "a repository read without blocked labels is seven requests",
+    14,
+    "six list reads, the commit, the live identity and three reads for each probed pull request",
   );
+});
+
+test("a stale cache is refreshed instead of serving an old pull-request read", async () => {
+  clearCommandCentreCache();
+  const responses = baseResponses();
+  const fixture = fixtureFetch(responses);
+  const first = await readCommandCentre({
+    repository,
+    now: checkedNow,
+    fetch: fixture.fetch,
+  });
+  assert.equal(first.cached, false);
+  assert.equal(first.repo.openPullRequests.items[0].number, 701);
+
+  responses[`/repos/${repository}/pulls`] = () =>
+    json([pull(705, { title: "Refreshed pull request", head: "d" })]);
+  const withinWindow = await readCommandCentre({
+    repository,
+    now: checkedNow + 800_000,
+    fetch: fixture.fetch,
+  });
+  assert.equal(withinWindow.cached, true);
+  assert.equal(
+    withinWindow.repo.openPullRequests.items[0].number,
+    701,
+    "a read inside the window is the stored one, not a fresh guess",
+  );
+
+  const refreshed = await readCommandCentre({
+    repository,
+    now: checkedNow + 901_000,
+    fetch: fixture.fetch,
+  });
+  assert.equal(refreshed.cached, false);
+  assert.equal(refreshed.repo.openPullRequests.items[0].number, 705);
+  assert.equal(refreshed.repo.pullRequests.value, 1);
+});
+
+test("project switching keeps each repository's own read and cache", async () => {
+  clearCommandCentreCache();
+  const fixture = fixtureFetch(baseResponses());
+  const composer = await readCommandCentre({
+    repository: "loftwah/app-composer",
+    now: checkedNow,
+    fetch: fixture.fetch,
+  });
+  assert.equal(composer.selected, "loftwah/app-composer");
+  assert.equal(composer.repositories.length, 3);
+
+  const studio = await readCommandCentre({
+    repository: "loftwah/composer-media-studio",
+    now: checkedNow,
+    fetch: fixture.fetch,
+  });
+  assert.equal(studio.selected, "loftwah/composer-media-studio");
+  assert.equal(studio.repo.repository, "loftwah/composer-media-studio");
+  assert.equal(studio.cached, false);
+  assert.ok(
+    fixture.calls.some((call) =>
+      call.startsWith("/repos/loftwah/composer-media-studio/"),
+    ),
+    "the selected repository is the one read",
+  );
+  assert.equal(
+    studio.repo.liveIdentity.url,
+    "https://media.loftwah.com/build.json",
+    "each repository carries its own registered live identity",
+  );
+
+  // Switching back within the window serves the first repository's own read.
+  const callsBefore = fixture.calls.length;
+  const back = await readCommandCentre({
+    repository: "loftwah/app-composer",
+    now: checkedNow + 1_000,
+    fetch: fixture.fetch,
+  });
+  assert.equal(back.cached, true);
+  assert.equal(back.cacheAgeSeconds, 1);
+  assert.equal(back.selected, "loftwah/app-composer");
+  assert.equal(fixture.calls.length, callsBefore);
+
+  // A repository with no registered live identity says so instead of guessing.
+  const liferaft = await readCommandCentre({
+    repository: "loftwah/liferaft",
+    now: checkedNow,
+    fetch: fixture.fetch,
+  });
+  assert.equal(liferaft.repo.liveIdentity.state, "not-configured");
+  assert.match(liferaft.repo.liveIdentity.reason, /No live identity source/);
+  assert.ok(
+    !fixture.requests.some((entry) => entry.url.includes("liferaft") && entry.url.endsWith("/build.json")),
+    "no identity source is invented for a repository without one",
+  );
+});
+
+test("a malformed pull-request payload keeps the count and refuses the detail", async () => {
+  clearCommandCentreCache();
+  const responses = baseResponses();
+  // GitHub's issues list can carry pull-request numbers, but a pull payload
+  // without a title, URL or head cannot be presented as a reviewed change.
+  responses[`/repos/${repository}/pulls`] = () =>
+    json([{ number: 700 }, { number: 701 }]);
+  const report = await readCommandCentre({
+    repository,
+    now: checkedNow,
+    fetch: fixtureFetch(responses).fetch,
+  });
+  commandCentreReport.parse(report);
+  assert.equal(report.repo.pullRequests.state, "ok");
+  assert.equal(report.repo.pullRequests.value, 2);
+  assert.equal(report.repo.openPullRequests.state, "unknown");
+  assert.match(
+    report.repo.openPullRequests.reason,
+    /unexpected response shape/i,
+  );
+  assert.equal(report.repo.complete, false);
+});
+
+test("a missing, unreachable or malformed build.json is unknown with the reason", async () => {
+  clearCommandCentreCache();
+  const missing = baseResponses();
+  missing["/build.json"] = () => json({ message: "Not Found" }, { status: 404 });
+  const missingReport = await readCommandCentre({
+    repository,
+    now: checkedNow,
+    fetch: fixtureFetch(missing).fetch,
+  });
+  commandCentreReport.parse(missingReport);
+  assert.equal(missingReport.repo.liveIdentity.state, "unknown");
+  assert.match(missingReport.repo.liveIdentity.reason, /HTTP 404/);
+  assert.equal(missingReport.repo.complete, false);
+
+  clearCommandCentreCache();
+  const unreachable = baseResponses();
+  const baseFixture = fixtureFetch(unreachable);
+  const unreachableReport = await readCommandCentre({
+    repository,
+    now: checkedNow,
+    fetch: async (url, init) => {
+      if (String(url).endsWith("/build.json"))
+        throw new TypeError("fetch failed");
+      return baseFixture.fetch(url, init);
+    },
+  });
+  assert.equal(unreachableReport.repo.liveIdentity.state, "unknown");
+  assert.match(unreachableReport.repo.liveIdentity.reason, /could not be reached/);
+
+  clearCommandCentreCache();
+  const malformed = baseResponses();
+  malformed["/build.json"] = () => json({ revision: "not-a-revision" });
+  const malformedReport = await readCommandCentre({
+    repository,
+    now: checkedNow,
+    fetch: fixtureFetch(malformed).fetch,
+  });
+  assert.equal(malformedReport.repo.liveIdentity.state, "unknown");
+  assert.match(
+    malformedReport.repo.liveIdentity.reason,
+    /did not return a readable identity/,
+  );
+  assert.equal(
+    malformedReport.repo.commit.state,
+    "ok",
+    "a bad identity read never hides the confirmed commit",
+  );
+});
+
+test("a live revision that differs from the default branch is a mismatch, not a pass", async () => {
+  clearCommandCentreCache();
+  const responses = baseResponses();
+  responses["/build.json"] = () => buildIdentity("d");
+  const report = await readCommandCentre({
+    repository,
+    now: checkedNow,
+    fetch: fixtureFetch(responses).fetch,
+  });
+  commandCentreReport.parse(report);
+  assert.equal(report.repo.liveIdentity.state, "ok");
+  assert.equal(report.repo.liveIdentity.revision, headSha("d"));
+  assert.equal(report.repo.liveIdentity.defaultBranchCommit, headSha("a"));
+  assert.equal(report.repo.liveIdentity.matchesDefaultBranch, false);
+  // The mismatch does not change issue, pull-request or release state.
+  assert.equal(report.repo.issues.count.value, 6);
+  assert.equal(report.repo.pullRequests.value, 2);
+  assert.equal(report.repo.release.latest.tag, "v1.2.0");
+});
+
+test("the Projects V2 probe names unavailable states and infers no board", async () => {
+  clearCommandCentreCache();
+  const token = "fixture-token-1234";
+  const read = async (options = {}) => {
+    clearCommandCentreCache();
+    const fixture = fixtureFetch(baseResponses(), options);
+    return readCommandCentre({
+      repository,
+      token,
+      now: checkedNow,
+      fetch: fixture.fetch,
+    });
+  };
+
+  const tokenless = await readCommandCentre({
+    repository,
+    now: checkedNow,
+    fetch: fixtureFetch(baseResponses()).fetch,
+  });
+  assert.equal(tokenless.repo.projects.state, "unavailable");
+  assert.match(tokenless.repo.projects.reason, /No GitHub credential/);
+
+  const unscoped = await read();
+  assert.equal(unscoped.repo.projects.state, "unavailable");
+  assert.match(unscoped.repo.projects.reason, /reported no token scopes/);
+
+  const reported = await read({
+    headers: { "x-oauth-scopes": "gist, read:org, repo, workflow" },
+  });
+  assert.equal(reported.repo.projects.state, "unavailable");
+  assert.match(reported.repo.projects.reason, /no project scope/);
+  assert.match(reported.repo.projects.reason, /gist, read:org, repo, workflow/);
+
+  const capable = await read({ headers: { "x-oauth-scopes": "repo, project" } });
+  assert.equal(capable.repo.projects.state, "credential-capable");
+  assert.match(capable.repo.projects.reason, /GraphQL/);
+  assert.match(capable.repo.projects.reason, /no board, field or item/i);
 });
 
 test("contract helpers keep pull requests, reasons and releases honest", () => {
@@ -650,6 +1076,148 @@ test("contract helpers keep pull requests, reasons and releases honest", () => {
   );
   assert.equal(openIssueCount(9, 3), 6);
   assert.equal(openIssueCount(2, 3), null, "a nonsensical split is unknown");
+
+  // A bounded list counts from the Link header, or from the page when it is the
+  // whole list. An unreadable header is unknown, never a guess.
+  assert.equal(pullRequestCountFromList(null, []), 0);
+  assert.equal(pullRequestCountFromList(null, [{ number: 1 }, { number: 2 }]), 2);
+  assert.equal(pullRequestCountFromList(linkHeader(7), [{ number: 1 }]), 7);
+  assert.equal(
+    pullRequestCountFromList("<https://api.github.com/x?page=2>; rel=next", []),
+    null,
+  );
+
+  // Check state never turns a missing or unrecognised result into a pass.
+  const head = headSha("b");
+  assert.deepEqual(
+    combineCheckState({
+      legacy: { state: "pending", total: 0 },
+      runs: [],
+      headSha: head,
+    }).value,
+    "none",
+    "no check result is none, not success",
+  );
+  assert.equal(
+    combineCheckState({
+      legacy: { state: "success", total: 2 },
+      runs: [],
+      headSha: head,
+    }).value,
+    "success",
+  );
+  assert.equal(
+    combineCheckState({
+      legacy: { state: "pending", total: 1 },
+      runs: [],
+      headSha: head,
+    }).value,
+    "pending",
+    "a legacy pending status with a real count is pending",
+  );
+  assert.equal(
+    combineCheckState({
+      legacy: { state: "error", total: 1 },
+      runs: [],
+      headSha: head,
+    }).value,
+    "failure",
+    "an error status is a failure",
+  );
+  assert.equal(
+    combineCheckState({
+      legacy: { state: "success", total: 1 },
+      runs: [
+        { status: "completed", conclusion: "success", headSha: head },
+        { status: "in_progress", conclusion: null, headSha: head },
+      ],
+      headSha: head,
+    }).value,
+    "pending",
+  );
+  assert.equal(
+    combineCheckState({
+      legacy: { state: "success", total: 1 },
+      runs: [
+        { status: "completed", conclusion: "cancelled", headSha: head },
+      ],
+      headSha: head,
+    }).value,
+    "failure",
+  );
+  assert.equal(
+    combineCheckState({
+      legacy: { state: "success", total: 1 },
+      runs: [
+        { status: "completed", conclusion: "success", headSha: headSha("c") },
+      ],
+      headSha: head,
+    }).value,
+    "stale",
+    "a check run for another commit is stale",
+  );
+  assert.equal(
+    combineCheckState({
+      legacy: { state: "success", total: 1 },
+      runs: [
+        { status: "completed", conclusion: "indeterminate", headSha: head },
+      ],
+      headSha: head,
+    }).value,
+    "unknown",
+    "an unrecognised conclusion is not a pass",
+  );
+  assert.equal(
+    combineCheckState({
+      legacy: { state: "success", total: 1 },
+      runs: [{ status: "completed", conclusion: "success", headSha: head }],
+      runTotal: 101,
+      headSha: head,
+    }).value,
+    "unknown",
+    "a truncated check-run page is not a pass",
+  );
+
+  // Reviews are the latest submitted state per reviewer, with pending reviews
+  // ignored and branch protection never read.
+  assert.deepEqual(
+    mapReviewDecision(
+      [
+        {
+          state: "CHANGES_REQUESTED",
+          login: "reviewer-a",
+          submittedAt: "2026-11-16T02:00:00Z",
+        },
+        {
+          state: "APPROVED",
+          login: "reviewer-a",
+          submittedAt: "2026-11-16T03:00:00Z",
+        },
+        { state: "PENDING", login: "reviewer-b", submittedAt: null },
+      ],
+      [],
+    ).value,
+    "approved",
+    "the latest review per reviewer wins",
+  );
+  assert.equal(
+    mapReviewDecision(
+      [
+        {
+          state: "CHANGES_REQUESTED",
+          login: "reviewer-a",
+          submittedAt: "2026-11-16T02:00:00Z",
+        },
+      ],
+      ["reviewer-b"],
+    ).value,
+    "changes_requested",
+  );
+  assert.equal(
+    mapReviewDecision([], ["reviewer-b"]).value,
+    "review_required",
+  );
+  assert.equal(mapReviewDecision([], []).value, "none");
 
   const mapped = mapRecentIssues([
     issue(1, { pull: true }),
@@ -683,6 +1251,81 @@ test("contract helpers keep pull requests, reasons and releases honest", () => {
     tag: "v1.2.0",
     url: releaseUrl,
   });
+});
+
+test("check labels stay distinct when nothing ran, a result is stale or a read failed", async (t) => {
+  clearCommandCentreCache();
+  const responses = baseResponses();
+  responses[`/repos/${repository}/pulls`] = () =>
+    json([
+      pull(710, { title: "No checks yet", updatedAgo: 1, head: "e" }),
+      pull(711, { title: "Stale check result", updatedAgo: 2, head: "f" }),
+    ]);
+  responses[`/repos/${repository}/pulls/710/reviews`] = () => json([]);
+  responses[`/repos/${repository}/pulls/711/reviews`] = () => json([]);
+  responses[`/repos/${repository}/commits/${headSha("e")}/check-runs`] = () =>
+    json({ total_count: 0, check_runs: [] });
+  responses[`/repos/${repository}/commits/${headSha("e")}/status`] = () =>
+    json({ state: "pending", total_count: 0 });
+  responses[`/repos/${repository}/commits/${headSha("f")}/check-runs`] = () =>
+    json({
+      total_count: 1,
+      check_runs: [
+        {
+          status: "completed",
+          conclusion: "success",
+          head_sha: headSha("a"),
+        },
+      ],
+    });
+  responses[`/repos/${repository}/commits/${headSha("f")}/status`] = () =>
+    json({ state: "success", total_count: 1 });
+  const report = await readCommandCentre({
+    repository,
+    now: checkedNow,
+    fetch: fixtureFetch(responses).fetch,
+  });
+  commandCentreReport.parse(report);
+  const [noChecks, stale] = report.repo.openPullRequests.items;
+  assert.equal(noChecks.review.value, "none");
+  assert.equal(noChecks.checks.value, "none");
+  assert.match(
+    noChecks.checks.detail,
+    /No legacy commit status and no check run/,
+  );
+  assert.equal(stale.checks.value, "stale");
+  assert.match(stale.checks.detail, /different commit/);
+
+  const board = (await loadCommandCentrePage(t)).CommandCentreBoard;
+  const html = renderBoard(board, report);
+  assert.match(html, /No check result/);
+  assert.match(html, /Checks stale/);
+  assert.match(html, /No review submitted/);
+  assert.doesNotMatch(html, /Checks passed/);
+  assert.doesNotMatch(html, /Approved by reviewers/);
+});
+
+test("a failed check read stays unknown next to a confirmed review", async () => {
+  clearCommandCentreCache();
+  const responses = baseResponses();
+  responses[`/repos/${repository}/commits/${headSha("b")}/check-runs`] = () =>
+    json({ message: "Not Found" }, { status: 404 });
+  const report = await readCommandCentre({
+    repository,
+    now: checkedNow,
+    fetch: fixtureFetch(responses).fetch,
+  });
+  commandCentreReport.parse(report);
+  assert.equal(report.repo.openPullRequests.state, "ok");
+  const first = report.repo.openPullRequests.items[0];
+  assert.equal(first.checks.state, "unknown");
+  assert.match(first.checks.reason, /404/);
+  assert.equal(
+    first.review.value,
+    "changes_requested",
+    "a review read still stands on its own",
+  );
+  assert.equal(report.repo.openPullRequests.items[1].checks.value, "success");
 });
 
 test("the route rejects non-creators, writes and target overrides", async () => {
@@ -792,6 +1435,7 @@ test("the route reads a real allowlisted selection and never returns the token",
   assert.equal(body.selected, "loftwah/liferaft");
   assert.equal(body.repo.issues.count.value, 6);
   assert.equal(body.repo.forecast.state, "ok");
+  assert.equal(body.repo.liveIdentity.state, "not-configured");
   assert.doesNotMatch(JSON.stringify(body), /fixture-token-1234/);
 });
 
@@ -863,6 +1507,22 @@ test("the Pulse board keeps the existing counts, tabs and empty state", async (t
   assert.match(html, /#10/);
   assert.match(html, /Completion outlook/);
   assert.match(html, /Source: GitHub/);
+  assert.match(html, /Open pull requests and review state/);
+  assert.match(html, /#701/);
+  assert.match(html, /Changes requested/);
+  assert.match(html, /Checks failing/);
+  assert.match(html, /Approved by reviewers/);
+  assert.match(html, /Checks passed/);
+  assert.match(html, /Draft/);
+  assert.match(html, /Three different facts/);
+  assert.match(html, /Issue state<\/strong> — what the tracker still has open/);
+  assert.match(html, /Pull-request and review state/);
+  assert.match(html, /Live release identity/);
+  assert.match(html, /https:\/\/composer\.loftwah\.com\/build\.json/);
+  assert.match(html, /Matches the latest default-branch commit\./);
+  assert.match(html, /Projects V2 availability/);
+  assert.match(html, /Unavailable/);
+  assert.match(html, /No project board/);
   assert.match(html, /role="tablist"/);
   assert.match(html, /role="tab"/);
   assert.match(html, /aria-selected="true"/);
@@ -871,7 +1531,7 @@ test("the Pulse board keeps the existing counts, tabs and empty state", async (t
   assert.match(html, /cc-panel-pulse/);
   assert.match(html, /Fresh|Live read|not cached/);
   assert.match(html, /Fetched/);
-  assert.match(html, /Effective cache: 720-second window/);
+  assert.match(html, /Effective cache: 900-second window/);
   assert.match(html, /fresh in this request/);
   assert.match(html, /No GitHub credential is configured/);
   assert.doesNotMatch(html, /Unknown — checked at/);
@@ -925,14 +1585,20 @@ test("the Pulse board keeps the existing counts, tabs and empty state", async (t
   assert.equal(empty.repo.forecast.observations.backlog, 0);
   assert.equal(empty.repo.forecast.observations.scope.state, "stable");
   assert.match(empty.repo.forecast.notes[0], /nothing to forecast/i);
+  assert.equal(empty.repo.openPullRequests.state, "ok");
+  assert.deepEqual(empty.repo.openPullRequests.items, []);
   const emptyHtml = renderBoard(board, empty);
   assert.match(emptyHtml, /No open issues\./);
+  assert.match(emptyHtml, /No open pull request\./);
+  assert.match(emptyHtml, /No open pull request either\./);
   assert.match(
     emptyHtml,
     /None — this repository defines no blocked or needs-attention label/,
   );
   assert.match(emptyHtml, /No release recorded/);
   assert.match(emptyHtml, /No commit reported/);
+  assert.match(emptyHtml, /The default-branch commit is unknown/);
+  assert.doesNotMatch(emptyHtml, /No open work/);
   assert.doesNotMatch(emptyHtml, /0 open issues/);
   assert.match(emptyHtml, /issue chooser/);
   assert.doesNotMatch(emptyHtml, /cc-issues/);
@@ -981,7 +1647,10 @@ test("the Plan lens shows explicit relationships and an accessible table", async
   assert.doesNotMatch(html, /Unknown — checked at/);
 });
 
-test("a PR-full open page never claims there are no open issues", async (t) => {
+test("a PR-full page never claims there are no open issues or no open work", async (t) => {
+  const board = (await loadCommandCentrePage(t)).CommandCentreBoard;
+
+  // Zero open issues and two open pull requests is not an empty repository.
   clearCommandCentreCache();
   const responses = baseResponses();
   responses[`/repos/${repository}`] = () =>
@@ -990,17 +1659,10 @@ test("a PR-full open page never claims there are no open issues", async (t) => {
       html_url: `https://github.com/${repository}`,
       default_branch: "main",
       archived: false,
-      open_issues_count: 12,
+      open_issues_count: 2,
     });
-  responses[`/repos/${repository}/pulls`] = () => json([]);
   responses[`/repos/${repository}/issues`] = (url) =>
-    url.searchParams.get("state") === "closed"
-      ? json([])
-      : json(
-          Array.from({ length: 100 }, (_, index) =>
-            issue(700 + index, { pull: true }),
-          ),
-        );
+    json(url.searchParams.get("state") === "closed" ? [] : []);
   responses[`/repos/${repository}/releases`] = () => json([]);
   const report = await readCommandCentre({
     repository,
@@ -1008,16 +1670,65 @@ test("a PR-full open page never claims there are no open issues", async (t) => {
     fetch: fixtureFetch(responses).fetch,
   });
   commandCentreReport.parse(report);
-  assert.equal(report.repo.issues.count.value, 12);
-  assert.equal(report.repo.issues.recent.items.length, 0);
-  assert.equal(report.repo.issues.recent.complete, false);
-  assert.equal(report.repo.plan.items.length, 0);
-  assert.equal(report.repo.plan.complete, false);
+  assert.equal(report.repo.issues.count.value, 0);
+  assert.equal(report.repo.pullRequests.value, 2);
+  assert.equal(report.repo.openPullRequests.items.length, 2);
+  assert.equal(report.repo.forecast.state, "ok");
+  assert.equal(report.repo.forecast.interval, null);
 
-  const board = (await loadCommandCentrePage(t)).CommandCentreBoard;
-  const html = renderBoard(board, report, "plan");
-  assert.match(html, /No open issue appeared in the sampled page/);
-  assert.doesNotMatch(html, /<strong>No open issues\.<\/strong>/);
+  const pulse = renderBoard(board, report);
+  assert.match(pulse, /No open issues\./);
+  assert.match(
+    pulse,
+    /2 open pull requests are counted separately, not as issues\./,
+  );
+  assert.match(pulse, /#701/);
+  assert.match(pulse, /#700/);
+  assert.match(pulse, /Open pull requests and review state/);
+  assert.doesNotMatch(pulse, /No open pull request\./);
+  assert.doesNotMatch(
+    pulse,
+    /No open work/,
+    "open pull requests are never described as no open work",
+  );
+
+  // A bounded window full of pull requests is still not a claim that no issue
+  // is open, and the plan view says the sample was bounded.
+  clearCommandCentreCache();
+  const prWindow = baseResponses();
+  prWindow[`/repos/${repository}`] = () =>
+    json({
+      full_name: repository,
+      html_url: `https://github.com/${repository}`,
+      default_branch: "main",
+      archived: false,
+      open_issues_count: 12,
+    });
+  prWindow[`/repos/${repository}/pulls`] = () => json([]);
+  prWindow[`/repos/${repository}/issues`] = (url) =>
+    url.searchParams.get("state") === "closed"
+      ? json([])
+      : json(
+          Array.from({ length: 100 }, (_, index) =>
+            issue(700 + index, { pull: true }),
+          ),
+        );
+  prWindow[`/repos/${repository}/releases`] = () => json([]);
+  const bounded = await readCommandCentre({
+    repository,
+    now: checkedNow,
+    fetch: fixtureFetch(prWindow).fetch,
+  });
+  commandCentreReport.parse(bounded);
+  assert.equal(bounded.repo.issues.count.value, 12);
+  assert.equal(bounded.repo.issues.recent.items.length, 0);
+  assert.equal(bounded.repo.issues.recent.complete, false);
+  assert.equal(bounded.repo.plan.items.length, 0);
+  assert.equal(bounded.repo.plan.complete, false);
+
+  const planHtml = renderBoard(board, bounded, "plan");
+  assert.match(planHtml, /No open issue appeared in the sampled page/);
+  assert.doesNotMatch(planHtml, /<strong>No open issues\.<\/strong>/);
 });
 
 test("the Delivery lens shows throughput, the band, closures and releases", async (t) => {
@@ -1040,9 +1751,13 @@ test("the Delivery lens shows throughput, the band, closures and releases", asyn
   assert.match(html, /Release notes reference/);
   assert.match(html, /not a live check/);
   assert.match(html, /Closed means the source recorded a closure/);
-  assert.match(html, /Review 3 open pull requests/);
+  assert.match(html, /Review 2 open pull requests/);
   assert.match(html, /Open the issue list/);
   assert.match(html, /1 sampled completed closure links to a release/);
+  assert.match(html, /Live release identity/);
+  assert.match(html, /A second, independent release source/);
+  assert.match(html, /Deployment evidence from the published build identity/);
+  assert.match(html, /Matches the latest commit on main/);
   assert.doesNotMatch(html, /Unknown — checked at/);
 });
 
@@ -1066,6 +1781,7 @@ test("unknown states are never rendered as zero, a date or an empty list", async
     [`/repos/${repository}/labels`]: limited,
     [`/repos/${repository}/releases`]: limited,
     [`/repos/${repository}/issues`]: limited,
+    "/build.json": () => json({ message: "Not Found" }, { status: 404 }),
   }).fetch;
   const report = await readCommandCentre({
     repository,
@@ -1078,6 +1794,8 @@ test("unknown states are never rendered as zero, a date or an empty list", async
   assert.match(html, /Unknown<\/strong> — checked at \d{2}:\d{2} UTC/);
   assert.match(html, /rate limit is exhausted/i);
   assert.match(html, /partial read/i);
+  assert.match(html, /Open pull requests and review state/);
+  assert.match(html, /Unavailable/);
   assert.doesNotMatch(
     html,
     /cc-stat-value/,
@@ -1085,6 +1803,10 @@ test("unknown states are never rendered as zero, a date or an empty list", async
   );
   assert.doesNotMatch(html, /<strong>0<\/strong>/);
   assert.doesNotMatch(html, /No open issues\./);
+  assert.doesNotMatch(html, /No open pull request\./);
+  assert.doesNotMatch(html, /No open work/);
+  assert.doesNotMatch(html, /Checks passed/);
+  assert.doesNotMatch(html, /Approved by reviewers/);
   assert.doesNotMatch(html, /No release recorded/);
   assert.doesNotMatch(html, /No commit reported/);
   assert.doesNotMatch(html, /cc-forecast-band/);
