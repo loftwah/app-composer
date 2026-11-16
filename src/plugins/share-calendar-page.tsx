@@ -2708,7 +2708,7 @@ function ShareCalendar({ search }: { search: string }) {
                 <p>
                   {listFilter === "published"
                     ? "No published posts in this workspace yet."
-                    : "No items need attention."}
+                    : "No failed or unconfirmed deliveries or stale sources in this view."}
                 </p>
               </div>
             )}

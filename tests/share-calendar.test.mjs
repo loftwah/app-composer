@@ -74,9 +74,9 @@ test("share calendar list filter classifies only genuine published deliveries an
   );
   assert.equal(classify(["published"]), "published");
   assert.equal(
-    classify(["published", "published"]),
-    "published",
-    "the displayed approval revision is authoritative",
+    classify(["approved", "published"]),
+    null,
+    "a receipt from another approval revision cannot mark this item published",
   );
   assert.equal(classify(["unknown"]), "attention");
   assert.equal(classify(["failed"]), "attention");
