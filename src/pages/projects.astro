@@ -1,0 +1,170 @@
+---
+import Base from '../layouts/Base.astro';
+import { projectFamily, recordedDay } from '../lib/project-family.mjs';
+import { reviewLabel } from '../lib/date-label.mjs';
+import { ArrowRight, GitBranch, ScrollText } from '@lucide/astro';
+
+const family = projectFamily();
+const asOf = reviewLabel(family.asOf) ?? family.asOf;
+
+const day = (value: string | null | undefined) => {
+  const date = recordedDay(value);
+  return date ? reviewLabel(date) ?? date : null;
+};
+const host = (url: string) => new URL(url).hostname;
+---
+<Base title="Project family" description="Every Woodhouse portfolio project recorded in Composer, grouped by its real relationship: built with Composer, connected and managed, blueprint-rebuildable, showcased or a legacy record.">
+ <div class="family-intro">
+  <p class="eyebrow">Composer project family · inventory as of {asOf}</p>
+  <h1>What Composer actually has.</h1>
+  <p class="lede">{family.total} Woodhouse project records, grouped by their real relationship to Composer. A tier is provenance, not a promise: appearing here does not mean Composer built, hosts or manages the project. <strong>Blueprint-rebuildable</strong> means a shipped, pinned brief can rebuild a faithful slice; the two current blueprints rebuild reference apps, not these records.</p>
+  <p class="family-note">Live status is the recorded observation from the dated inventory. This page never calls a project at request time, so a stopped app keeps its last recorded state until the inventory is refreshed.</p>
+  <div class="family-actions">
+   <a class="button secondary" href="/blueprints">Read the blueprint catalogue <ArrowRight size={16} aria-hidden="true"/></a>
+  </div>
+ </div>
+
+ <section class="tier-key" aria-labelledby="tier-key-heading">
+  <h2 id="tier-key-heading">Read the tiers</h2>
+  <dl>
+   {family.groups.map(group => (
+    <div>
+     <dt>{group.label}</dt>
+     <dd>{group.meaning}</dd>
+    </div>
+   ))}
+  </dl>
+ </section>
+
+ {family.groups.map(group => (
+  <section class="tier-group" id={`tier-${group.id}`} aria-labelledby={`tier-${group.id}-heading`}>
+   <header class="tier-heading">
+    <h2 id={`tier-${group.id}-heading`}>{group.label}</h2>
+    <p class="tier-count">{group.projects.length} {group.projects.length === 1 ? 'project' : 'projects'}</p>
+   </header>
+   {group.projects.length === 0 ? (
+    <p class="tier-empty">{group.empty}</p>
+   ) : (
+    <ul class="project-list">
+     {group.projects.map(project => (
+      <li class="project-row" data-project={project.id} data-tier={project.tier}>
+       <div class="project-identity">
+        <h3>{project.name}</h3>
+        <p>{project.summary}</p>
+        <p class="project-meta">{project.discipline} · {project.lifecycle} · {project.state}</p>
+       </div>
+       <dl class="project-facts">
+        <div>
+         <dt>Why this tier</dt>
+         <dd>{project.evidence}</dd>
+        </div>
+        <div>
+         <dt>Canonical</dt>
+         <dd>
+          {project.canonicalUrl ? (
+           <a href={project.canonicalUrl}>{host(project.canonicalUrl)}</a>
+          ) : (
+           <span class="not-recorded">not recorded</span>
+          )}
+         </dd>
+        </div>
+        <div>
+         <dt>Live status as recorded</dt>
+         <dd>
+          {project.live ? (
+           <>
+            <span class="status status-recorded">HTTP {project.live.status}</span>
+            {day(project.live.observedAt) && <span> recorded {day(project.live.observedAt)}</span>}
+            <span class="status-title">“{project.live.title}”</span>
+           </>
+          ) : project.probe ? (
+           <>
+            <span class="status status-unavailable">HTTP {project.probe.status}</span>
+            {day(project.probe.observedAt) && <span> recorded {day(project.probe.observedAt)}</span>}
+            <span class="status-title">{project.probe.reason}</span>
+           </>
+          ) : (
+           <span class="not-recorded">not recorded</span>
+          )}
+         </dd>
+        </div>
+        <div>
+         <dt><GitBranch size={14} aria-hidden="true"/> Source pin</dt>
+         <dd>
+          {project.sourcePin ? (
+           <>
+            <code class="source-pin" title={project.sourcePin}>{project.sourcePin}</code>
+            {day(project.sourceObservedAt) && <span> observed {day(project.sourceObservedAt)}</span>}
+           </>
+          ) : (
+           <span class="not-recorded">not recorded</span>
+          )}
+         </dd>
+        </div>
+        <div>
+         <dt><ScrollText size={14} aria-hidden="true"/> Records</dt>
+         <dd class="record-links">
+          <a href={project.dossier}>Woodhouse dossier</a>
+          {project.blueprint ? (
+           <a href={`/blueprints/${project.blueprint.id}`}>Blueprint: {project.blueprint.id}</a>
+          ) : (
+           <span class="not-recorded">blueprint not recorded</span>
+          )}
+         </dd>
+        </div>
+       </dl>
+      </li>
+     ))}
+    </ul>
+   )}
+  </section>
+ ))}
+
+ <section class="family-footer" aria-labelledby="family-footer-heading">
+  <h2 id="family-footer-heading">What this page does not claim</h2>
+  <p>The tiers describe the integration evidence in the inventory, not the quality of a project. A strong project can still be showcased only, and a retired project keeps its legacy record. No project is labelled built with Composer unless a build receipt backs it.</p>
+  <p>Blueprints are separate briefs. Both current blueprints are reference recipes, neither has been replayed by an independent owner, and neither rebuilds one of these project records. Read the <a href="/blueprints">blueprint catalogue</a> for the exact pins and limits.</p>
+ </section>
+</Base>
+<style>
+ .family-intro{max-width:900px}
+ .family-intro h1{font-size:clamp(2.5rem,5.2vw,4.5rem);max-width:16ch;margin:10px 0 20px}
+ .family-intro .lede{max-width:64ch;font-size:1.12rem}
+ .family-note{margin:24px 0 0;padding:16px 18px;border-left:3px solid var(--color-accent);background:var(--color-surface);font-size:14px;max-width:80ch}
+ .family-actions{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0 0}
+ .tier-key{border-block:1px solid var(--color-border);padding:28px 0;margin:40px 0 8px}
+ .tier-key h2{font-size:1.5rem;margin:0 0 18px}
+ .tier-key dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 40px;margin:0}
+ .tier-key dt{font-weight:650;margin:0 0 6px}
+ .tier-key dd{margin:0;color:var(--color-muted);font-size:14px;line-height:1.55}
+ .tier-group{padding:36px 0 44px;border-bottom:1px solid var(--color-border);scroll-margin-top:24px}
+ .tier-heading{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+ .tier-heading h2{font-size:clamp(1.7rem,3.2vw,2.35rem);margin:0}
+ .tier-count{margin:0;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--color-muted)}
+ .tier-empty{margin:18px 0 0;padding:18px;border:1px dashed var(--color-border);color:var(--color-muted);font-size:14px;max-width:80ch}
+ .project-list{list-style:none;margin:24px 0 0;padding:0}
+ .project-row{display:grid;grid-template-columns:minmax(0,0.9fr) minmax(0,1.4fr);gap:24px 48px;padding:26px 0;border-top:1px solid var(--color-border)}
+ .project-row:first-child{border-top:0;padding-top:0}
+ .project-identity h3{font-size:1.5rem;margin:0 0 10px}
+ .project-identity p{margin:0 0 10px;font-size:15px;color:var(--color-muted);line-height:1.55}
+ .project-identity .project-meta{font-size:13px;color:var(--color-muted)}
+ .project-facts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 28px;margin:0}
+ .project-facts>div{min-width:0}
+ .project-facts dt{display:flex;align-items:center;gap:6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-muted);margin:0 0 5px}
+ .project-facts dd{margin:0;font-size:14px;line-height:1.55;overflow-wrap:anywhere}
+ .project-facts a{display:inline-flex;align-items:center;min-height:44px}
+ .project-facts code{font-size:13px}
+ .project-facts .source-pin{display:block;font-size:12px;line-height:1.45;overflow-wrap:anywhere}
+ .not-recorded{color:var(--color-muted);font-style:italic}
+ .status{display:inline-block;font-size:12px;letter-spacing:.04em;padding:2px 8px;border-radius:999px;border:1px solid currentColor;margin-right:6px}
+ .status-recorded{color:var(--color-success)}
+ .status-unavailable{color:#ff8a6a}
+ .status-title{display:block;color:var(--color-muted);font-size:13px;margin-top:6px}
+ .record-links{display:flex;flex-direction:column;align-items:flex-start}
+ .record-links .not-recorded{min-height:44px;display:inline-flex;align-items:center}
+ .family-footer{padding:36px 0 20px;max-width:78ch}
+ .family-footer h2{font-size:1.5rem;margin:0 0 14px}
+ .family-footer p{font-size:14px;color:var(--color-muted);line-height:1.6}
+ @media(max-width:900px){.project-row{grid-template-columns:1fr;gap:18px}.project-facts{grid-template-columns:1fr 1fr}}
+ @media(max-width:700px){.tier-key dl{grid-template-columns:1fr}.project-facts{grid-template-columns:1fr}.family-intro h1{font-size:2.35rem}.family-actions .button{width:100%}}
+</style>

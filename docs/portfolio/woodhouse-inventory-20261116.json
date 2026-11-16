@@ -89,6 +89,11 @@
         "contentType": "text/html",
         "observedAt": "2026-11-16T02:31:31.986Z",
         "request": "GET https://bubbles.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "relationship": {
+        "tier": "showcased",
+        "evidence": "Live entry answered 200 on 16 November 2026 and the Woodhouse dossier records the release. No Composer build record, registered app manifest or project blueprint is recorded in this inventory, so the relationship is showcase only.",
+        "canonicalUrl": "https://bubbles.loftwah.com/"
       }
     },
     {
@@ -128,6 +133,11 @@
         "contentType": "text/html",
         "observedAt": "2026-11-16T02:31:32.104Z",
         "request": "GET https://fighter.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "relationship": {
+        "tier": "showcased",
+        "evidence": "Live entry answered 200 on 16 November 2026 and publishes its own deployed revision (81f5350e). No Composer build record, registered app manifest or project blueprint is recorded in this inventory, so the relationship is showcase only.",
+        "canonicalUrl": "https://fighter.loftwah.com/"
       }
     },
     {
@@ -167,6 +177,11 @@
         "contentType": "text/html",
         "observedAt": "2026-11-16T02:31:32.230Z",
         "request": "GET https://shoalshot.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "relationship": {
+        "tier": "showcased",
+        "evidence": "Live entry answered 200 on 16 November 2026; the dossier records a shipped save repair and an open release acceptance. No Composer build record, registered app manifest or project blueprint is recorded in this inventory.",
+        "canonicalUrl": "https://shoalshot.loftwah.com/"
       }
     },
     {
@@ -206,6 +221,11 @@
         "contentType": "text/html",
         "observedAt": "2026-11-16T02:31:32.366Z",
         "request": "GET https://protocol11.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "relationship": {
+        "tier": "showcased",
+        "evidence": "Live entry answered 200 on 16 November 2026; the dossier records the refusal and campaign-film delivery. No Composer build record, registered app manifest or project blueprint is recorded in this inventory.",
+        "canonicalUrl": "https://protocol11.loftwah.com/"
       }
     },
     {
@@ -245,6 +265,11 @@
         "contentType": "text/html",
         "observedAt": "2026-11-16T02:31:32.485Z",
         "request": "GET https://max.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "relationship": {
+        "tier": "showcased",
+        "evidence": "Live entry answered 200 on 16 November 2026; the dossier records a software prototype with physical proof still open. No Composer build record, registered app manifest or project blueprint is recorded in this inventory.",
+        "canonicalUrl": "https://max.loftwah.com/"
       }
     },
     {
@@ -284,6 +309,11 @@
         "observedAt": "2026-11-16T02:31:35.449Z",
         "request": "GET https://pirates.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))",
         "reason": "Not a live entry point. The dossier routes to the project record; this host answered with a Cloudflare 522 error page."
+      },
+      "relationship": {
+        "tier": "legacy",
+        "evidence": "Paused by owner decision on 7 November 2026. The attempted host returned 522 on 16 November 2026 and no public build is recorded, so there is no canonical live URL; only the Woodhouse record is kept.",
+        "canonicalUrl": null
       }
     },
     {
@@ -323,6 +353,11 @@
         "contentType": "text/html",
         "observedAt": "2026-11-16T02:31:31.663Z",
         "request": "GET https://fm.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "relationship": {
+        "tier": "showcased",
+        "evidence": "Live entry answered 200 on 16 November 2026; the dossier records a versioned game-radio client. No Composer registration, app manifest in this repository or project blueprint is recorded in this inventory.",
+        "canonicalUrl": "https://fm.loftwah.com/"
       }
     },
     {
@@ -365,6 +400,11 @@
         "contentType": "text/html",
         "observedAt": "2026-11-16T02:31:32.609Z",
         "request": "GET https://club.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "relationship": {
+        "tier": "legacy",
+        "evidence": "Retired by owner decision on 26 October 2026. The archived public repository and live site remain as a historical record; no Composer build record, connection or blueprint is recorded in this inventory.",
+        "canonicalUrl": "https://club.loftwah.com/"
       }
     },
     {
@@ -404,6 +444,11 @@
         "contentType": "text/html",
         "observedAt": "2026-11-16T02:31:32.770Z",
         "request": "GET https://assets.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "relationship": {
+        "tier": "legacy",
+        "evidence": "Retired by owner decision on 26 October 2026. The live site still answers 200 and publishes its own revision; no Composer build record, connection or blueprint is recorded in this inventory.",
+        "canonicalUrl": "https://assets.loftwah.com/"
       }
     },
     {
@@ -446,6 +491,11 @@
         "contentType": "text/html",
         "observedAt": "2026-11-16T02:31:33.790Z",
         "request": "GET https://composer.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "relationship": {
+        "tier": "showcased",
+        "evidence": "App Composer is the product hosting this page, and its release identity is recorded from /build.json and /healthz. Its own source is not recorded as a Composer-built app in this inventory, so it stays showcased rather than claiming a self-build.",
+        "canonicalUrl": "https://composer.loftwah.com/"
       }
     },
     {
@@ -487,6 +537,11 @@
         "contentType": "text/html",
         "observedAt": "2026-11-16T02:31:34.117Z",
         "request": "GET https://foilbury.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "relationship": {
+        "tier": "showcased",
+        "evidence": "Live entry answered 200 on 16 November 2026 and the public repository names the album source. No Composer build record, registered app manifest or project blueprint is recorded in this inventory.",
+        "canonicalUrl": "https://foilbury.loftwah.com/"
       }
     },
     {
@@ -528,6 +583,11 @@
         "contentType": "text/html",
         "observedAt": "2026-11-16T02:31:33.929Z",
         "request": "GET https://liferaft.loftwah.com/ (redirect: follow; User-Agent: AppComposer-Inventory/1.0 (+https://composer.loftwah.com))"
+      },
+      "relationship": {
+        "tier": "showcased",
+        "evidence": "Live entry answered 200 on 16 November 2026 and the public repository carries the desktop release. No Composer build record, registered app manifest or project blueprint is recorded in this inventory.",
+        "canonicalUrl": "https://liferaft.loftwah.com/"
       }
     }
   ],

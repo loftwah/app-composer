@@ -22,7 +22,7 @@ const labels: Record<string, string> = {reference: 'Reference', ready: 'Ready to
   <p class="lede">Each blueprint names the apps it needs, the source revision each one is locked to, what it assumes about your environment, and the evidence behind it. Open one in Init to shape the settings, or download the specification and give it to your agent.</p>
  </div>
 
- <p class="bp-note">A blueprint is a brief, not a build. "Ready to build" is a catalogue claim about pinned apps and evidence links; it is not proof that your own build will work, and it never deploys anything.</p>
+ <p class="bp-note">A blueprint is a brief, not a build. "Ready to build" is a catalogue claim about pinned apps and evidence links; it is not proof that your own build will work, and it never deploys anything. To see how each real project relates to Composer today, read the <a href="/projects">Composer project family</a>.</p>
 
  {entries.map(({entry, readiness, spec}) => (
   <article class="bp-card" aria-labelledby={`bp-${entry.id}`}>
