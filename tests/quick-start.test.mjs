@@ -215,6 +215,27 @@ test('the building prompt carries the pinned revisions, runtime and each app’s
   assert.match(prompt.text, /Keep the sibling checkouts pristine/);
   assert.doesNotMatch(prompt.text, /22, 24 or 26/);
   assert.doesNotMatch(prompt.text, /D1 and R2 bindings/);
+  assert.match(buildingQuickStart.outcome.needs.join(' '), /Node 22 and pnpm 12\.8\.1/);
+  assert.doesNotMatch(buildingQuickStart.outcome.needs.join(' '), /22, 24 or 26/);
+  assert.doesNotMatch(readFileSync(pageUrl('src/pages/building.astro'), 'utf8'), /supported Node line \(22, 24 or 26\)/);
+});
+
+test('the Creator Hub prompt names its exact revisions, runtime and real owner path', () => {
+  const prompt = creatorHubQuickStart.prompts.find((entry) => entry.id === 'reproduce');
+  assert.ok(prompt);
+  assert.match(prompt.text, /36797b8028682460c33fe092682bfbd63751ec1a/);
+  assert.match(prompt.text, /acca7da3bfac4ebc28fca67a35ac373b23747409/);
+  assert.match(prompt.text, /Node 22 and pnpm 12\.8\.1/);
+  assert.match(prompt.text, /OWNER_API_TOKEN/);
+  assert.match(prompt.text, /Cloudflare Access is not required/);
+  assert.match(prompt.text, /hunter2/);
+  assert.match(prompt.text, /cannot sign in to \/owner/);
+  assert.doesNotMatch(prompt.text, /guest code I choose/);
+  assert.doesNotMatch(prompt.text, /Cloudflare Access for the administrator panel/);
+  assert.ok(creatorHubQuickStart.links.some((link) => link.href.includes('36797b8028682460c33fe092682bfbd63751ec1a')));
+  assert.ok(creatorHubQuickStart.links.some((link) => link.href.includes('acca7da3bfac4ebc28fca67a35ac373b23747409')));
+  assert.doesNotMatch(creatorHubQuickStart.outcome.needs.join(' '), /Cloudflare Access/);
+  assert.doesNotMatch(creatorHubQuickStart.outcome.needs.join(' '), /guest code/);
 });
 
 test('the Media Studio build prompt names the real runtime, resources and source pin', () => {
