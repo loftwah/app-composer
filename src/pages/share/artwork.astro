@@ -14,7 +14,7 @@ const project = normalizeShareAssetId(params.get('project')) ?? '';
 const after = normalizeShareAssetId(params.get('after')) ?? '';
 const catalogue = await browseShareArtwork({ query, project, after });
 if (!catalogue) Astro.response.status = 503;
-Astro.csp.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
+Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
 
 const artworkPath = (values: Record<string, string>) => {
   const search = new URLSearchParams(Object.entries(values).filter(([, value]) => value));
