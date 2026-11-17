@@ -12,7 +12,9 @@ const runtime = env as unknown as {
   MEDIA_STUDIO_ORIGIN?: string;
 };
 const user = Astro.locals.user;
-const project = Astro.url.searchParams.get("project");
+const requestedProject = Astro.url.searchParams.get("project");
+const project = requestedProject && /^[a-z0-9_]{4,64}$/.test(requestedProject)
+  ? requestedProject : null;
 let publicGalleryUrl: string | null = null;
 let publicImageToolsUrl: string | null = null;
 try {
@@ -100,7 +102,7 @@ if (user && runtime.DB) {
         actorName: user.name ?? user.email ?? "Composer member",
         workspace: workspace.id,
         workspaceName: workspace.name,
-        project: project && /^[a-z0-9_]{4,64}$/.test(project) ? project : null,
+        project,
         actions,
         revision: access.revision,
         exp: Date.now() + 120_000,
@@ -112,6 +114,16 @@ if (user && runtime.DB) {
     }
   }
 }
+
+// Return to this fixed route. Keep a malformed workspace selection denied
+// after sign-in without carrying the original malformed value forward.
+const returnQuery = new URLSearchParams();
+if (requestedWorkspace !== null) {
+  returnQuery.set("workspace", workspaceSelectorValid ? requestedWorkspace : "");
+}
+if (project) returnQuery.set("project", project);
+const returnPath = "/media-studio/studio" + (returnQuery.size ? `?${returnQuery}` : "");
+const signInHref = `/_emdash/admin/login?${new URLSearchParams({ redirect: returnPath })}`;
 
 // The entry can contain workspace-specific access information.
 Astro.response.headers.set("Cache-Control", "private, no-store");
@@ -132,7 +144,7 @@ Astro.response.headers.set("Cache-Control", "private, no-store");
         <h2 id="entry-signed-out">Open your studio</h2>
         <p>Sign in with App Composer to open your projects and saved takes.</p>
         <div class="entry-actions">
-          <a class="button" href="/_emdash/admin/login?redirect=/media-studio/studio">Sign in with App Composer</a>
+          <a class="button" href={signInHref}>Sign in with App Composer</a>
         </div>
       </section>
     )}
