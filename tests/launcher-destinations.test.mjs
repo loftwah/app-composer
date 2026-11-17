@@ -82,7 +82,6 @@ test("the launcher registry is a complete, unique inventory with real routes", (
     "media.loftwah.com",
     "ready.loftwah.com",
     "share.loftwah.com",
-    "woodhouse.loftwah.com",
   ].sort());
 });
 
@@ -159,7 +158,7 @@ test("renamed tasks remain findable by their previous names", () => {
   assert.equal(ranked("init")[0], "Create a site");
   assert.equal(ranked("content and form builder")[0], "Shape your content");
   assert.equal(ranked("follow-along tutorial")[0], "Follow the tutorial");
-  assert.equal(ranked("explore app composer")[0], "See what’s new");
+  assert.equal(ranked("explore app composer")[0], "Browse by task");
   assert.equal(ranked("review share report")[0], "Review a saved check");
 });
 

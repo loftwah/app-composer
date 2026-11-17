@@ -1,0 +1,305 @@
+---
+// The public Share wall. It lists exactly the stacks publicStack() can serve:
+// the current published revision, newest publication first. Search and filters
+// are a plain GET form, so a narrowed view is a link and every card works
+// without JavaScript.
+import Base from '../layouts/Base.astro';
+import ShareArtwork from './ShareArtwork.astro';
+import ShareExamples from './ShareExamples.astro';
+import { creatorHubMedia, type ShareExample } from '../lib/share-examples';
+import { browseShareArtwork, normalizeShareAssetId, SHARE_CATALOGUE_ORIGIN, SHARE_CATALOGUE_QUERY_MAX } from '../lib/share-catalogue-asset.ts';
+import ShareFilmFeedback from './ShareFilmFeedback.astro';
+import ShareFilmVotes from './ShareFilmVotes.astro';
+import { shareFilms, studioFilmPath } from '../lib/share-films.ts';
+import { ArrowUpRight, Search } from '@lucide/astro';
+import type { D1Database } from '@cloudflare/workers-types';
+import { env } from 'cloudflare:workers';
+import { PUBLIC_STACK_LIMIT, publicStacks } from '../lib/stacks.mjs';
+import { stackShareDetails } from '../lib/stack-sharing.ts';
+import { noindexFor } from '../lib/indexing.mjs';
+import {
+  filterShareWall,
+  hasShareWallFilters,
+  shareWallCard,
+  shareWallEmptyCopy,
+  shareWallOptions,
+  shareWallQuery,
+  shareWallSummary,
+  type ShareWallCard,
+} from '../lib/share-wall.ts';
+
+interface Props {
+  examples?: boolean;
+  example?: ShareExample;
+}
+const { examples, example } = Astro.props;
+
+const params = Astro.url.searchParams;
+const query = shareWallQuery(params);
+const section = params.get('view');
+const filtered = hasShareWallFilters(query);
+const view = examples ? 'examples' : section === 'films' ? 'films' : section === 'stacks' || filtered ? 'stacks' : 'artwork';
+const artworkQuery = (params.get('art') ?? '').slice(0, SHARE_CATALOGUE_QUERY_MAX).trim();
+const project = normalizeShareAssetId(params.get('project')) ?? '';
+const after = normalizeShareAssetId(params.get('after')) ?? '';
+const catalogue = view === 'artwork' ? await browseShareArtwork({ query: artworkQuery, project, after }) : null;
+if (view === 'artwork') {
+  Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
+  if (!catalogue) Astro.response.status = 503;
+}
+const runtime = env as unknown as { DB?: D1Database };
+let cards: ShareWallCard[] = [];
+let unavailable = false;
+if (view === 'stacks') {
+  if (!runtime.DB || typeof runtime.DB.prepare !== 'function') {
+    unavailable = true;
+  } else {
+    try {
+      const stacks = await publicStacks(runtime.DB, PUBLIC_STACK_LIMIT);
+      // The share image identity is bound to the exact publication, so a later
+      // draft cannot change the pixels behind a card that is already on the wall.
+      cards = await Promise.all(
+        stacks.map(async (stack) => {
+          const share = await stackShareDetails(stack);
+          return shareWallCard(stack, share.imagePath);
+        }),
+      );
+    } catch {
+      unavailable = true;
+    }
+  }
+  if (unavailable) Astro.response.status = 503;
+}
+
+const shown = filterShareWall(cards, query);
+const options = shareWallOptions(cards, query);
+const empty = shareWallEmptyCopy(cards.length, query);
+const truncated = cards.length === PUBLIC_STACK_LIMIT;
+const description = example?.description ?? 'Browse artwork, films, published creator stacks and examples you can try.';
+const creatorCover = example?.id === 'creator-hub' ? new URL(creatorHubMedia.card, 'https://composer.loftwah.com').href : undefined;
+const [featuredFilm, ...films] = shareFilms;
+const studioFilm = studioFilmPath;
+const canReview = Boolean(Astro.locals.user);
+Astro.response.headers.set("Vary", "Cookie");
+// Base supplies the approved 1200x630 product share card; the wall has no
+// separate artwork, so its preview stays the real product card.
+---
+
+<Base title={example ? example.title + ' · Share' : examples ? 'Examples · Share' : 'Share'} description={description} shareImage={creatorCover} shareAlt={creatorCover ? 'Creator Hub’s working profile for fictional ceramicist Mara Quinn.' : undefined} noindex={noindexFor(Astro.url.hostname, (Astro.response.status ?? 200) < 400 && !artworkQuery && !project && !after && !filtered)}>
+  <div class="share-library">
+    <header class="wall-heading">
+      <h1>Share</h1>
+      <nav aria-label="Share sections">
+        <a href="/share" aria-current={view === 'artwork' ? 'page' : undefined}>Artwork</a>
+        <a href="/share?view=films" aria-current={view === 'films' ? 'page' : undefined}>Films</a>
+        <a href="/share?view=stacks" aria-current={view === 'stacks' ? 'page' : undefined}>Creator stacks</a>
+        <a href="/share/examples" aria-current={view === 'examples' ? 'page' : undefined}>Examples</a>
+      </nav>
+    </header>
+
+    {view === 'artwork' && <ShareArtwork catalogue={catalogue} query={artworkQuery} project={project} after={after} />}
+
+    {view === 'examples' && <ShareExamples example={example} />}
+
+    {view === 'films' && (
+      <section class="wall-films" id="films" aria-labelledby="films-heading">
+        <h2 id="films-heading">Short films and demos</h2>
+        <div class="wall-film-layout">
+          <article class="wall-featured-film" aria-labelledby="studio-film-heading">
+            <video controls playsinline preload="none" poster={`${studioFilm}.jpg`} width="1080" height="1920" aria-labelledby="studio-film-heading">
+              <source src={`${studioFilm}.mp4`} type="video/mp4" />
+              <track kind="captions" src={`${studioFilm}.vtt`} srclang="en" label="English captions" />
+              <a href={`${studioFilm}.mp4`}>Watch the social-kit film</a>
+            </video>
+            <div>
+              <h3 id="studio-film-heading">One image. Four social sizes.</h3>
+              <p>17 seconds. Watch Image Tools turn one PNG into four WebPs and a downloadable ZIP.</p>
+              <p class="small">Music by LoftwahFM · Pixel Box Theory</p>
+              <div class="wall-film-links">
+                <a href={`${studioFilm}.mp4`} download>Download video</a>
+                <a href="https://media.loftwah.com/tools/images">Try Image Tools</a>
+              </div>
+              {canReview && <ShareFilmVotes film={featuredFilm} />}
+            </div>
+          </article>
+          <ul class="wall-film-list" role="list">
+            {films.map((film) => (
+              <li><a href={film.href}>{film.title} <ArrowUpRight size={16} aria-hidden="true" /></a><p>{film.detail}</p>{canReview && <ShareFilmVotes film={film} />}</li>
+            ))}
+          </ul>
+        </div>
+        <p><a href="https://media.loftwah.com/gallery">Browse the Media Studio gallery</a></p>
+        {canReview ? <ShareFilmFeedback /> : <p><a href="/_emdash/admin/login?redirect=/share%3Fview%3Dfilms">Sign in to give private film feedback</a></p>}
+      </section>
+    )}
+    {view === 'stacks' && (
+      <section aria-labelledby="stack-heading">
+        <div id="published-stacks" class="wall-stacks-heading">
+          <h2 id="stack-heading">Published creator stacks</h2>
+          <a href="/studio">Build your own stack</a>
+        </div>
+
+        <form class="wall-controls" method="get" action="/share" role="search" aria-label="Filter published stacks" data-share-wall-form>
+          <input type="hidden" name="view" value="stacks" />
+          <label class="wall-search">
+            <span class="icon-label"><Search size={16} aria-hidden="true" />Search stacks</span>
+            <input type="search" name="q" value={query.query} placeholder="Name or description" maxlength="80" autocomplete="off" />
+          </label>
+          <label>
+            App
+            <select name="app">
+              <option value="">All apps</option>
+              {options.apps.map((option) => <option value={option.value} selected={option.value === query.app}>{option.label}</option>)}
+            </select>
+          </label>
+          <label>
+            Page theme
+            <select name="theme">
+              <option value="">Both themes</option>
+              {options.themes.map((option) => <option value={option.value} selected={option.value === query.theme}>{option.label}</option>)}
+            </select>
+          </label>
+          <div class="wall-control-actions">
+            <button type="submit">Show stacks</button>
+            {filtered && <a class="wall-clear" href="/share?view=stacks">Clear filters</a>}
+          </div>
+        </form>
+
+        {unavailable ? (
+          <div class="wall-state">
+            <h3>Creator stacks are temporarily unavailable</h3>
+            <p><a href="/share?view=stacks">Try again</a>.</p>
+          </div>
+        ) : shown.length ? (
+          <>
+            <p class="wall-summary">{shareWallSummary(cards.length, shown.length, query)}</p>
+            <div class="wall-grid">
+              {shown.map((card) => (
+                <article class="wall-card">
+                  <a class="wall-card-link" href={`/s/${card.slug}`}>
+                    <img class="wall-card-image" src={card.imagePath} width="1200" height="630" alt="" loading="lazy" decoding="async" />
+                    <div class="wall-card-body">
+                      <h2>{card.name}</h2>
+                      <p class="wall-card-description">{card.description}</p>
+                      {card.appsLabel && <p class="wall-card-apps">{card.appsLabel}</p>}
+                      <p class="wall-card-meta">{card.published ? `Published ${card.published} · revision ${card.revision}` : `Revision ${card.revision}`}</p>
+                      <span class="wall-card-open">Open stack <ArrowUpRight size={16} aria-hidden="true" /></span>
+                    </div>
+                  </a>
+                </article>
+              ))}
+            </div>
+            {truncated && <p class="small">The wall shows the {PUBLIC_STACK_LIMIT} most recently published stacks. A stack page stays public at its own address.</p>}
+          </>
+        ) : (
+          <section class="wall-state" aria-labelledby="wall-empty-heading">
+            <h2 id="wall-empty-heading">{empty.heading}</h2>
+            <p>{empty.body}</p>
+            <div class="actions">
+              {filtered ? <a class="button" href="/share?view=stacks">Clear filters</a> : <a class="button" href="/studio">About creator stacks</a>}
+              <a class="button secondary" href="/apps">Browse the app library</a>
+            </div>
+          </section>
+        )}
+      </section>
+    )}
+  </div>
+</Base>
+
+<script>
+  // Old section bookmarks now open the matching view in the shared shell.
+  const legacyViews: Record<string, string> = {
+    '#films': '/share?view=films',
+    '#my-feedback': '/share?view=films#my-feedback',
+    '#published-stacks': '/share?view=stacks',
+  };
+  if (location.pathname === '/share' && !new URLSearchParams(location.search).has('view') && legacyViews[location.hash]) {
+    const target = new URL(legacyViews[location.hash], location.origin);
+    const params = new URLSearchParams(location.search);
+    for (const [name, value] of target.searchParams) params.set(name, value);
+    target.search = params.toString();
+    location.replace(target.href);
+  }
+  // Choosing a filter submits the same GET form the visible button submits.
+  // Empty fields are dropped so a narrowed address stays short and linkable.
+  const form = document.querySelector<HTMLFormElement>('[data-share-wall-form]');
+  form?.querySelectorAll('select').forEach((select) => select.addEventListener('change', () => form.requestSubmit()));
+  form?.addEventListener('submit', () => {
+    for (const field of form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input[name], select[name]')) field.disabled = !field.value;
+  });
+</script>
+
+<style>
+  :global(main:has(> .share-library)) {
+    max-width: none;
+    padding: clamp(1rem, 2vw, 2rem) clamp(0.75rem, 1.8vw, 2rem) 4rem;
+  }
+  .wall-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: clamp(1.25rem, 4vw, 4rem);
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .wall-heading h1 { margin: 0 0 0.4rem; font-size: clamp(2.5rem, 4vw, 4.2rem); line-height: 1.04; }
+  .wall-heading nav { display: flex; flex-wrap: wrap; gap: 0 clamp(0.9rem, 3vw, 2rem); }
+  .wall-heading nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    border-bottom: 2px solid transparent;
+    color: var(--color-muted);
+    font-weight: 650;
+  }
+  .wall-heading nav a:hover, .wall-heading nav a[aria-current] { color: var(--color-foreground); }
+  .wall-heading nav a[aria-current] { border-color: var(--color-accent); }
+  .wall-films { margin:0 0 42px; padding:24px 0 28px; border-block:1px solid var(--color-border); scroll-margin-top:22px; }
+  .wall-films h2,.wall-stacks-heading h2 { margin:0 0 16px; }
+  .wall-film-layout { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:24px 44px; align-items:start; }
+  .wall-featured-film { display:grid; grid-template-columns:minmax(0,190px) minmax(0,1fr); gap:16px 20px; align-items:start; }
+  .wall-featured-film video { display:block; width:100%; height:auto; background:var(--color-field); border-radius:10px; }
+  .wall-featured-film h3 { margin:0 0 8px; font-size:1.25rem; }
+  .wall-featured-film p,.wall-film-list p { color:var(--color-muted); }
+  .wall-film-links { display:flex; flex-wrap:wrap; gap:0 16px; font-weight:600; }
+  .wall-film-links a { display:flex; align-items:center; min-height:44px; }
+  .wall-film-list { list-style:none; margin:0; padding:0; }
+  .wall-film-list li { padding:9px 0; border-bottom:1px solid var(--color-border); }
+  .wall-film-list li:first-child { padding-top:0; }
+  .wall-film-list a { display:inline-flex; gap:6px; align-items:center; font-weight:650; min-height:32px; }
+  .wall-film-list p { margin:0; font-size:.875rem; }
+  .wall-stacks-heading { display:flex; flex-wrap:wrap; gap:8px 20px; align-items:baseline; justify-content:space-between; scroll-margin-top:22px; }
+  .wall-controls { display:grid; grid-template-columns:minmax(0,2.2fr) minmax(0,1fr) minmax(0,1fr) auto; gap:12px 16px; align-items:end; margin:0 0 16px; padding:18px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:10px; }
+  .wall-controls label { margin:0; min-width:0; font-size:.82rem; color:var(--color-muted); }
+  .wall-controls input, .wall-controls select { margin-top:6px; background:var(--color-field); }
+  .wall-control-actions { display:flex; align-items:center; gap:8px 16px; flex-wrap:wrap; }
+  .wall-clear { display:inline-flex; align-items:center; min-height:44px; font-size:.9rem; }
+  .wall-summary { margin:0 0 18px; font-size:.9rem; color:var(--color-muted); }
+  .wall-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(17rem,1fr)); gap:20px; align-items:stretch; margin:0 0 8px; }
+  .wall-card { min-width:0; margin:0; }
+  .wall-card-link { display:flex; flex-direction:column; height:100%; overflow:hidden; border:1px solid var(--color-border); border-radius:10px; background:var(--color-surface); }
+  .wall-card-link:hover { border-color:var(--color-accent); }
+  .wall-card-link:hover h2 { color:var(--color-accent); }
+  .wall-card-image { display:block; width:100%; height:auto; aspect-ratio:1200/630; object-fit:cover; background:var(--color-field); border-bottom:1px solid var(--color-border); }
+  .wall-card-body { display:flex; flex:1; flex-direction:column; gap:8px; padding:16px 18px 18px; }
+  .wall-card h2 { margin:0; font-size:1.16rem; line-height:1.3; overflow-wrap:anywhere; }
+  .wall-card-description { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; margin:0; font-size:.92rem; line-height:1.55; color:var(--color-muted); overflow-wrap:anywhere; }
+  .wall-card-apps { margin:0; font-size:.8rem; line-height:1.5; color:var(--color-muted); overflow-wrap:anywhere; }
+  .wall-card-meta { margin:auto 0 0; padding-top:6px; font-size:.78rem; line-height:1.5; color:var(--color-muted); }
+  .wall-card-open { display:inline-flex; align-items:center; gap:6px; font-size:.85rem; font-weight:600; color:var(--color-accent); }
+  .wall-state { margin:0; padding:28px; border:1px solid var(--color-border); border-radius:10px; background:var(--color-surface); }
+  .wall-state h2 { margin:0 0 8px; font-size:1.4rem; }
+  .wall-state p { max-width:52ch; color:var(--color-muted); }
+  @media (max-width:760px) {
+    .wall-film-layout { grid-template-columns:minmax(0,1fr); }
+    .wall-controls { grid-template-columns:minmax(0,1fr) minmax(0,1fr); padding:14px; }
+    .wall-search, .wall-control-actions { grid-column:1/-1; }
+    .wall-grid { grid-template-columns:repeat(auto-fill,minmax(15rem,1fr)); }
+  }
+  @media (max-width:460px) {
+    .wall-featured-film { grid-template-columns:minmax(0,138px) minmax(0,1fr); gap:12px; }
+    .wall-controls { grid-template-columns:minmax(0,1fr); }
+    .wall-grid { grid-template-columns:minmax(0,1fr); }
+    .wall-state { padding:20px; }
+  }
+</style>

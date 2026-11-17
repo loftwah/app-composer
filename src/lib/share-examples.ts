@@ -14,27 +14,23 @@ interface Source {
   note: string;
 }
 
-export interface VisualPin {
-  id: string;
+interface ExampleItem {
   title: string;
-  type: string;
   image: Image;
   href: string;
   action: string;
   description: string;
   source: Source;
-  crop?: 'top' | 'bottom';
-  video?: { src: string; width: number; height: number };
   download?: boolean;
 }
 
-export interface VisualCollection {
+export interface ShareExample {
   id: string;
   title: string;
   description: string;
   href: string;
   lead: Image;
-  pins: readonly VisualPin[];
+  items: readonly ExampleItem[];
 }
 
 export const creatorHubMedia = {
@@ -48,43 +44,42 @@ const creatorCover = {
   alt: 'Orange Creator Hub cover beside Mara Quinn’s Linkarooie profile.',
 };
 
-export const creatorHubCollection: VisualCollection = {
+const creatorHubExample: ShareExample = {
   id: 'creator-hub',
   title: 'Creator Hub',
   description: 'A studio profile, a moderated guestbook and the editable setup that connects them.',
-  href: '/creator-hub/share',
+  href: '/share/examples/creator-hub',
   lead: creatorCover,
-  pins: [
+  items: [
     {
-      id: 'film', title: 'From example to your draft', type: 'Film · 22 seconds',
+      title: 'From example to your draft',
       image: { src: creatorHubMedia.poster, width: 720, height: 1280, alt: 'Opening frame of the Creator Hub walkthrough.' },
-      video: { src: creatorHubMedia.clip, width: 1080, height: 1920 }, crop: 'top',
       href: '#walkthrough-film', action: 'Transcript and download',
       description: 'See Mara’s live profile, then watch the same setup open as a draft you can adapt.',
       source: { href: '/creator-hub', label: 'Creator Hub case study', note: 'Edited screen captures from the public fictional reference.' },
     },
     {
-      id: 'cover', title: 'Creator Hub link cover', type: 'Image · 1200 × 630',
+      title: 'Creator Hub link cover',
       image: creatorCover, href: creatorHubMedia.card, action: 'Download link cover', download: true,
       description: 'The wide cover pairs Composer’s orange mark with the live Linkarooie profile. Use it with the X, LinkedIn or Facebook draft.',
       source: { href: '/creator-hub', label: 'Creator Hub case study', note: 'Composer campaign image using the published profile capture.' },
     },
     {
-      id: 'profile', title: 'Mara Quinn’s profile', type: 'Live app · Linkarooie',
+      title: 'Mara Quinn’s profile',
       image: { src: '/creator-hub/profile-20261111.webp', width: 1440, height: 960, alt: 'The Mara Quinn studio profile with a short bio and four work links.' },
       href: creator.apps.showcase.origin, action: 'Open live profile',
       description: 'The fictional studio’s public home for selected work, workshop notes and commissions.',
       source: { href: creator.apps.showcase.repository, label: 'Reference source', note: 'Public capture from 11 November 2026.' },
     },
     {
-      id: 'postcards', title: 'Postcards for Mara', type: 'Live app · Here / there', crop: 'bottom',
+      title: 'Postcards for Mara',
       image: { src: '/creator-hub/guestbook-phone-20261111.webp', width: 390, height: 844, alt: 'The public guestbook with an orange action and illustrated postcard wall.' },
       href: creator.apps.guestbook.origin, action: 'Open live guestbook',
       description: 'Visitors can explore the guestbook. Contributions are reviewed before they appear publicly.',
       source: { href: creator.apps.guestbook.repository, label: 'Reference source', note: 'Public capture from 11 November 2026.' },
     },
     {
-      id: 'sample', title: 'Make the setup your own', type: 'Editable example · Init',
+      title: 'Make the setup your own',
       image: { src: '/creator-hub/draft-review-20261112.webp', width: 684, height: 810, alt: 'Init review shows the fictional sample and the choices to replace or keep the current draft.' },
       href: '/init?start=creator-hub', action: 'Review the sample draft',
       description: 'Open the two-app sample in Init. You can keep your existing draft or load the example and adapt it.',
@@ -99,28 +94,28 @@ const nightSignal = {
   alt: 'Cream Night Signal type beside a violet radio and a moth in a moonlit window.',
 };
 
-const signalAndType: VisualCollection = {
+const signalAndType: ShareExample = {
   id: 'signal-and-type',
   title: 'Signal & Type',
   description: 'Three cover examples to explore and adapt in Launch Kit.',
-  href: '/collections/signal-and-type',
+  href: '/share/examples/signal-and-type',
   lead: nightSignal,
-  pins: [
+  items: [
     {
-      id: 'night-signal', title: 'Night Signal', type: 'Illustrated cover',
+      title: 'Night Signal',
       image: nightSignal, href: launchKit + '/profile.html?example=night-signal-artwork', action: 'Open editable cover',
       description: 'A moth and radio sit beside cream lettering in a dark illustration.',
       source: { href: '/launch-kit/cards/night-signal-artwork.png', label: 'Original PNG', note: 'Fictional Launch Kit example. Generated background with type composed locally.' },
     },
     {
-      id: 'river', title: 'River', type: 'Type-only cover',
+      title: 'River',
       image: { src: '/launch-kit/cards/river-typography.png', width: 1200, height: 630, alt: 'The River cover built from type and flat colour.' },
       href: launchKit + '/profile.html?example=river-typography', action: 'Open editable cover',
       description: 'A name and short introduction sit against a simple colour palette.',
       source: { href: '/launch-kit/cards/river-typography.png', label: 'Original PNG', note: 'Fictional Launch Kit typography recipe.' },
     },
     {
-      id: 'field-notes', title: 'Field Notes', type: 'Editorial cover',
+      title: 'Field Notes',
       image: { src: '/launch-kit/cards/field-notes-editorial.png', width: 1200, height: 630, alt: 'Green geometric hills and a pale sun above a cream Field Notes title block.' },
       href: launchKit + '/profile.html?example=field-notes-editorial', action: 'Open editable cover',
       description: 'An illustrated horizon sits above a clean text block. The banner and the words can change independently.',
@@ -133,28 +128,28 @@ const printShopPress = {
   src: '/paperwork/press-20261024.webp', width: 1152, height: 768,
   alt: 'Orange stamp press and pencil arm marking a form.',
 };
-const printShop: VisualCollection = {
+const printShop: ShareExample = {
   id: 'print-shop',
   title: 'The Print Shop',
   description: 'An ink-textured press, the working PDF editor and a finished fictional form.',
-  href: '/collections/print-shop',
+  href: '/share/examples/print-shop',
   lead: printShopPress,
-  pins: [
+  items: [
     {
-      id: 'press', title: 'The Paperwork press', type: 'Original illustration',
+      title: 'The Paperwork press',
       image: printShopPress, href: '/paperwork', action: 'See the Paperwork story',
       description: 'The orange press illustrates Paperwork’s print-shop identity: writing on a page and marking it finished.',
       source: { href: '/paperwork/press-20261024.webp', label: 'Original illustration', note: 'Published Paperwork artwork from the owner-selected print-shop direction.' },
     },
     {
-      id: 'editor', title: 'At the workbench', type: 'Working editor',
+      title: 'At the workbench',
       image: { src: '/paperwork/editor-20261024-printshop.webp', width: 1440, height: 1100, alt: 'Paperwork editor with a fictional lab form and editing tools visible.' },
       href: paperwork.origin + '/?sample=lab', action: 'Open the fictional sample',
       description: 'Try the form in the live editor. Its controls and additions stay in the browser while you work.',
       source: { href: 'https://github.com/loftwah/app-composer/blob/main/docs/paperwork-acceptance.md', label: 'Paperwork acceptance record', note: 'Capture of the working editor with the fictional lab form, 24 October 2026.' },
     },
     {
-      id: 'finished-form', title: 'A finished form', type: 'PDF · fictional lab',
+      title: 'A finished form',
       image: { src: '/paperwork/lab-page-20261112.webp', width: 708, height: 1000, alt: 'First page of the completed fictional form, showing filled fields and a checked box.' },
       href: '/paperwork/lab-completed-20261024b.pdf', action: 'Open the finished PDF',
       description: 'Inspect the actual export from the editor. The four-page sample includes interactive field values, handwriting and a demonstration signature.',
@@ -163,4 +158,4 @@ const printShop: VisualCollection = {
   ],
 };
 
-export const visualCollections = [signalAndType, printShop, creatorHubCollection];
+export const shareExamples = [signalAndType, printShop, creatorHubExample];
