@@ -22,6 +22,7 @@ export const filmFeedbackReasons = {
 } as const;
 
 export const studioPublicationOrigin = "https://media.loftwah.com";
+const studioShowcaseReadUrl = "https://composer-media-studio.loftwah.workers.dev/share-films.json";
 
 const studioShowcaseSchema = z.object({
   version: z.literal(1),
@@ -34,14 +35,24 @@ const studioShowcaseSchema = z.object({
 export async function loadStudioShowcase() {
   try {
     const signal = AbortSignal.timeout(2_000);
-    const response = await fetch(`${studioPublicationOrigin}/share-films.json`, {
-      redirect: "error",
+    const response = await fetch(studioShowcaseReadUrl, {
+      headers: { Accept: "application/json" },
+      redirect: "manual",
       signal,
     });
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.warn("Studio film catalogue returned", response.status);
+      await response.body?.cancel().catch(() => {});
+      return null;
+    }
     const payload = studioShowcaseSchema.safeParse(await readBoundedJson(response, signal));
-    return payload.success ? payload.data.films : null;
-  } catch {
+    if (!payload.success) {
+      console.warn("Studio film catalogue returned an invalid payload");
+      return null;
+    }
+    return payload.data.films;
+  } catch (error) {
+    console.warn("Studio film catalogue request failed", error instanceof Error ? error.name : "unknown");
     return null;
   }
 }
