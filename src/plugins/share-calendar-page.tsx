@@ -3570,6 +3570,22 @@ function ShareCalendar({ search }: { search: string }) {
                     <p className={`sc-caption sc-caption-${item.state}`}>
                       {item.caption}
                     </p>
+                    {!published &&
+                      approval &&
+                      delivery?.state === "published" &&
+                      delivery.permalink && (
+                        <p className="sc-hint">
+                          Bluesky published revision {approval.draftRevision}.{" "}
+                          <a
+                            className="sc-text-link"
+                            href={delivery.permalink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Open earlier Bluesky post
+                          </a>
+                        </p>
+                      )}
                     {item.link && (
                       <p className="sc-item-link">
                         <a
