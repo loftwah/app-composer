@@ -756,6 +756,34 @@ test("the native surface has a deliberate send action and a copyable fallback", 
   );
 });
 
+test("a published receipt keeps a short path back to its source project", () => {
+  const page = readFileSync(
+    new URL("../src/plugins/share-calendar-page.tsx", import.meta.url),
+    "utf8",
+  );
+  const sourceLine = page.slice(
+    page.indexOf('<p className="sc-source-line">'),
+    page.indexOf('<p className="sc-hint sc-destination-line">'),
+  );
+  assert.ok(sourceLine.length > 0);
+  assert.match(sourceLine, /Back to this stack/);
+  // The return link uses the existing native stack path and only the
+  // authoritative workspace scope plus the item's own stack id.
+  assert.match(
+    sourceLine,
+    /\/_emdash\/admin\/plugins\/composer-stacks\/stacks\?workspace=\$\{encodeURIComponent\(snapshot\.workspace\.id\)\}&stack=\$\{encodeURIComponent\(stackSource\.id\)\}/,
+  );
+  assert.match(
+    sourceLine,
+    /!portfolio && stackSource/,
+  );
+  // Woodhouse artwork still returns to its own project page; nothing here
+  // changes the published provider receipt or the X export-only path.
+  assert.match(page, /project page/);
+  assert.match(page, /Open the published post/);
+  assert.match(page, /Download X handoff/);
+});
+
 test("the delivery table has no credential column and one row per approval", async () => {
   const db = sqliteD1({ schema });
   try {

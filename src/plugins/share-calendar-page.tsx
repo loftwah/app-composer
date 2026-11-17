@@ -3441,6 +3441,17 @@ function ShareCalendar({ search }: { search: string }) {
                     </div>
                     <p className="sc-source-line">
                       <strong>{item.stackName}</strong>
+                      {!portfolio && stackSource && (
+                        <>
+                          {" · "}
+                          <a
+                            className="sc-text-link"
+                            href={`/_emdash/admin/plugins/composer-stacks/stacks?workspace=${encodeURIComponent(snapshot.workspace.id)}&stack=${encodeURIComponent(stackSource.id)}`}
+                          >
+                            Back to this stack
+                          </a>
+                        </>
+                      )}
                       {portfolio
                         ? ` · Woodhouse Share artwork · ${portfolio.assetId}@${portfolio.assetRevision}`
                         : item.publication !== null
