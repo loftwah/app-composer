@@ -1,0 +1,81 @@
+---
+import { ArrowUpRight } from '@lucide/astro';
+import CreatorHubShareKit from './CreatorHubShareKit.astro';
+import { shareExamples, type ShareExample } from '../lib/share-examples';
+
+interface Props {
+  example?: ShareExample;
+}
+
+const { example } = Astro.props;
+---
+
+<section class="examples" aria-labelledby="examples-heading">
+  {example ? (
+    <>
+      <a class="all-examples" href="/share/examples">All examples</a>
+      <h2 id="examples-heading">{example.title}</h2>
+      <p class="lede">{example.description}</p>
+      {example.id === 'creator-hub' && (
+        <p class="example-links">
+          <a href="/creator-hub">Read the case study</a>
+          <a href="#post-drafts">See social post drafts</a>
+        </p>
+      )}
+      <ul class="example-list example-items">
+        {example.items.map((item) => (
+          <li>
+            <article>
+              <img src={item.image.src} width={item.image.width} height={item.image.height} alt={item.image.alt} loading="lazy" decoding="async" />
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+                <p class="example-source">{item.source.note} <a href={item.source.href}>{item.source.label}</a></p>
+                <a class="example-action" href={item.href} download={item.download}>{item.action} <ArrowUpRight size={16} aria-hidden="true" /></a>
+              </div>
+            </article>
+          </li>
+        ))}
+      </ul>
+      {example.id === 'creator-hub' && <CreatorHubShareKit />}
+    </>
+  ) : (
+    <>
+      <h2 id="examples-heading">Examples you can try</h2>
+      <ul class="example-list">
+        {shareExamples.map((item) => (
+          <li>
+            <a href={item.href}>
+              <img src={item.lead.src} width={item.lead.width} height={item.lead.height} alt="" decoding="async" />
+              <div>
+                <h3>{item.title} <ArrowUpRight size={18} aria-hidden="true" /></h3>
+                <p>{item.description}</p>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </>
+  )}
+</section>
+
+<style>
+  .examples { max-width: 76rem; }
+  .examples h2 { margin: 0 0 0.6rem; }
+  .all-examples { display: inline-flex; align-items: center; min-height: 44px; margin-bottom: 0.5rem; }
+  .example-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+  .example-list { list-style: none; padding: 0; margin: 0; max-width: 56rem; }
+  .example-list li { border-bottom: 1px solid var(--color-border); }
+  .example-list > li > a, .example-list article { display: grid; grid-template-columns: minmax(6rem, 13rem) minmax(0, 1fr); align-items: center; gap: clamp(0.875rem, 3vw, 2rem); padding: 1rem 0; }
+  .example-list > li > a:hover h3 { color: var(--color-accent); }
+  .example-list img { width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: contain; background: var(--color-surface); border-radius: 8px; }
+  .example-list h3 { margin: 0 0 0.25rem; font-size: clamp(1.1rem, 3vw, 1.45rem); }
+  .example-list h3 svg { vertical-align: middle; }
+  .example-list p { margin: 0; color: var(--color-muted); }
+  .example-items article { align-items: start; }
+  .example-items .example-source { margin-top: 0.35rem; font-size: 0.875rem; }
+  .example-action { display: inline-flex; align-items: center; gap: 0.3rem; min-height: 44px; font-weight: 650; }
+  @media (max-width: 600px) {
+    .example-list > li > a, .example-list article { grid-template-columns: minmax(5rem, 32%) minmax(0, 1fr); }
+  }
+</style>

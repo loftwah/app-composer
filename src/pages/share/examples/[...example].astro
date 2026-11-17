@@ -1,0 +1,10 @@
+---
+import ShareLibrary from '../../../components/ShareLibrary.astro';
+import { shareExamples } from '../../../lib/share-examples';
+
+const id = Astro.params.example;
+const example = shareExamples.find((item) => item.id === id);
+if (id && !example) return new Response(null, { status: 404 });
+---
+
+<ShareLibrary examples example={example} />

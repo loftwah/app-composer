@@ -8,7 +8,7 @@ export const shareFilms = [
   { id: "after-hours-trim", title: "Trim the After Hours track", href: "/media-studio/demos/after-hours-audio-trim-phone-20261115.mp4", detail: "Studio demo · Audio Trim on a phone", revision: "3c8459e4be21f88ed8e63d094d2a38a83124380178d1d28e121176b2232bb1c5" },
   { id: "paper-light", title: "Paper & Light", href: "https://media.loftwah.com/p/Na9FNUB_VhzZ7zA9", detail: "A finished film assembled in Media Studio", revision: "f2658e4afa20463a88dd346cff7b8c19dcf94f37c675a7651ce76a421c68cc67" },
   { id: "setup-to-software", title: "From setup to software", href: "https://woodhouse.loftwah.com/share/app-composer/app-composer-20261014.mp4", detail: "15 seconds · App Composer product film", revision: "d7a8d4325ea7be6bfb847e94b2eb3323922e6463635e1f5555ea87dc79be4e0e" },
-  { id: "creator-hub", title: "Turn a live example into your own draft", href: "/creator-hub/share#walkthrough-film", detail: "22 seconds · Creator Hub", revision: "5346a34ad08abf9ed74999ede97f62f0d290782ba1e585dc67b8bb62ecc0a00d" },
+  { id: "creator-hub", title: "Turn a live example into your own draft", href: "/share/examples/creator-hub#walkthrough-film", detail: "22 seconds · Creator Hub", revision: "5346a34ad08abf9ed74999ede97f62f0d290782ba1e585dc67b8bb62ecc0a00d" },
 ] as const;
 
 // Reasons are suggestions, not scores. A note can disagree with its vote.
