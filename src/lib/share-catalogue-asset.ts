@@ -76,6 +76,7 @@ function boundedString(value: unknown, max: number): string | null {
 export async function readBoundedJson(
   response: Response,
   signal: AbortSignal,
+  maxBytes = SHARE_CATALOGUE_JSON_MAX_BYTES,
 ): Promise<unknown> {
   const reader = response.body?.getReader();
   if (!reader) throw new Error("The catalogue returned no readable body.");
@@ -98,7 +99,7 @@ export async function readBoundedJson(
         throw new Error("The catalogue body was not readable bytes.");
       }
       total += value.byteLength;
-      if (total > SHARE_CATALOGUE_JSON_MAX_BYTES) {
+      if (total > maxBytes) {
         cancel();
         throw new Error("The catalogue response is too large.");
       }
@@ -369,12 +370,60 @@ export async function searchShareCatalogueAssets(
   }
 }
 
-interface CatalogueArtwork extends CatalogueSearchItem {
+export interface ArtworkFile {
+  url: string;
+  label: string;
+  width: number | null;
+  height: number | null;
+}
+
+export interface ArtworkVersion {
+  url: string;
+  label: string;
+  note: string | null;
+  sourceUrl: string | null;
+}
+
+export interface CatalogueArtwork extends CatalogueSearchItem {
   alt: string;
   credit: string;
   thumbnailUrl: string;
   previewUrl: string;
   shareUrl: string;
+  projectUrl: string | null;
+  sourceUrl: string | null;
+  description: string;
+  reviewedAt: string;
+  category: string;
+  tags: string[];
+  thumbnailSize: ArtworkFile | undefined;
+  original: ArtworkFile | null;
+  formats: ArtworkFile[];
+  versions: ArtworkVersion[];
+  kitUrl: string | null;
+  revisionSource: string;
+}
+
+const artworkDimension = (n: unknown) =>
+  typeof n === "number" && Number.isInteger(n) && n > 0 && n <= 24_000 ? n : null;
+
+function artworkFile(value: unknown, fallback: string): ArtworkFile | null {
+  const record = catalogueObject(value);
+  const url = publicArtworkUrl(record?.url, campaignArtworkPath);
+  if (!url) return null;
+  return {
+    url,
+    label: boundedString(record?.label, 100) ?? fallback,
+    width: artworkDimension(record?.width),
+    height: artworkDimension(record?.height),
+  };
+}
+
+export function artworkFiles(artwork: CatalogueArtwork) {
+  return [...new Map([
+    (artwork.original ?? { url: artwork.previewUrl, label: "Preview", width: null, height: null }),
+    ...artwork.formats,
+  ].map(file => [file.url, file])).values()];
 }
 
 const campaignArtworkPath = /^\/campaign\/.+\.(?:jpe?g|png|webp)$/i;
@@ -392,14 +441,49 @@ function catalogueArtwork(raw: unknown): CatalogueArtwork | null {
   const shareUrl = publicArtworkUrl(asset.shareUrl, /^\/share\/[a-z0-9-]+\/$/);
   if (!(assetId && project && title && alt && credit && thumbnailUrl && previewUrl && shareUrl))
     return null;
-  return { assetId, project, title, alt, credit, thumbnailUrl, previewUrl, shareUrl };
+  const original = artworkFile(asset.original, "Original");
+  const formats = Array.isArray(asset.formats)
+    ? asset.formats.slice(0, 20).flatMap((raw) => {
+        const file = artworkFile(raw, "Image");
+        return file ? [file] : [];
+      })
+    : [];
+  const versions = artworkVersions(asset.versions);
+  const reviewedAt = typeof asset.reviewedAt === "string" && /^\d{4}-\d{2}-\d{2}$/.test(asset.reviewedAt)
+    ? asset.reviewedAt : "";
+  const stage = boundedString(asset.stage, 48)?.toLowerCase() ?? "";
+  const category = asset.kind === "production screenshot" ? "screenshots"
+    : asset.kind === "published product artwork" ? "product-art"
+    : asset.use === "icon" || stage === "sticker or icon" ? "icons"
+    : stage === "share poster" || stage === "collectible print" ? "posters"
+    : asset.use === "banner" ? "banners"
+    : asset.use === "sketch" ? "sketches" : "illustration";
+  const tags = [...new Set([asset.use, asset.stage, ...(Array.isArray(asset.tags) ? asset.tags.slice(0, 12) : [])]
+    .flatMap((value) => {
+      const tag = boundedString(value, 48)?.toLowerCase();
+      return tag && /^[a-z0-9][a-z0-9 -]*$/.test(tag) ? [tag] : [];
+    }))];
+  const source = catalogueObject(asset.original);
+  return {
+    assetId, project, title, alt, credit, thumbnailUrl, previewUrl, shareUrl,
+    category, tags, reviewedAt, original, formats, versions,
+    thumbnailSize: [...formats, ...(original ? [original] : [])].find((file) => file.url === thumbnailUrl)
+      ?? (artworkDimension(asset.thumbnailWidth) && artworkDimension(asset.thumbnailHeight)
+        ? { url: thumbnailUrl, label: "", width: artworkDimension(asset.thumbnailWidth), height: artworkDimension(asset.thumbnailHeight) }
+        : undefined),
+    description: boundedString(asset.description, 2500) ?? "",
+    kitUrl: publicArtworkUrl(asset.kitUrl, campaignSourcePath),
+    projectUrl: typeof asset.projectUrl === "string" && isSafeShareLink(asset.projectUrl) ? asset.projectUrl : null,
+    sourceUrl: publicArtworkUrl(asset.sourceUrl, campaignSourcePath),
+    revisionSource: JSON.stringify([source?.sha256 ?? null, source?.version ?? null, original?.url, previewUrl, reviewedAt]),
+  };
 }
 
 const campaignSourcePath = /^\/campaign\/.+/;
 
-function artworkRenditions(value: unknown) {
+function artworkVersions(value: unknown): ArtworkVersion[] {
   if (!Array.isArray(value)) return [];
-  return value.flatMap((raw) => {
+  return value.slice(0, 20).flatMap((raw) => {
     const entry = catalogueObject(raw);
     const url = publicArtworkUrl(entry?.url, campaignSourcePath);
     const label = boundedString(entry?.label, 200);
@@ -412,23 +496,10 @@ function artworkRenditions(value: unknown) {
   });
 }
 
-function artworkDetails(raw: unknown, artwork: CatalogueArtwork) {
-  const asset = catalogueObject(raw);
-  return {
-    ...artwork,
-    description: boundedString(asset?.description, 2_000),
-    originalUrl: publicArtworkUrl(catalogueObject(asset?.original)?.url, campaignArtworkPath),
-    sourceUrl: publicArtworkUrl(asset?.sourceUrl, campaignSourcePath),
-    kitUrl: publicArtworkUrl(asset?.kitUrl, campaignSourcePath),
-    formats: artworkRenditions(asset?.formats),
-    versions: artworkRenditions(asset?.versions),
-  };
-}
-
 export async function publicShareArtwork(
   id: string,
   options: CatalogueFetchOptions = {},
-): Promise<{ status: 200; artwork: ReturnType<typeof artworkDetails> } | { status: 404 | 503 }> {
+): Promise<{ status: 200; artwork: CatalogueArtwork } | { status: 404 | 503 }> {
   const endpoint = shareAssetApiUrl(id);
   if (!endpoint) return { status: 404 };
   try {
@@ -446,7 +517,7 @@ export async function publicShareArtwork(
     if (envelope?.version !== 1) return { status: 503 };
     const artwork = catalogueArtwork(envelope.asset);
     if (!artwork || artwork.assetId !== id) return { status: 404 };
-    return { status: 200, artwork: artworkDetails(envelope.asset, artwork) };
+    return { status: 200, artwork };
   } catch {
     return { status: 503 };
   }
@@ -488,6 +559,33 @@ export async function browseShareArtwork(
     return null;
   }
 }
+
+// A compact live projection keeps eligibility and global sort order current.
+export async function listShareArtwork(options: CatalogueFetchOptions = {}): Promise<CatalogueArtwork[] | null> {
+  const signal = AbortSignal.timeout(options.timeoutMs ?? 6_000);
+  try {
+    const response = await (options.fetch ?? globalThis.fetch)(`${SHARE_CATALOGUE_API_BASE}?view=gallery`, {
+      headers: { Accept: "application/json" }, redirect: "manual", signal,
+    });
+    if (!response.ok) {
+      await response.body?.cancel().catch(() => {});
+      return null;
+    }
+    const envelope = catalogueObject(await readBoundedJson(response, signal, 8_388_608));
+    if (envelope?.version !== 1 || !Array.isArray(envelope.assets)) return null;
+    const items = new Map<string, CatalogueArtwork>();
+    for (const raw of envelope.assets) {
+      const artwork = catalogueArtwork(raw);
+      if (artwork) items.set(artwork.assetId, artwork);
+    }
+    return [...items.values()];
+  } catch {
+    return null;
+  }
+}
+
+export const artworkRevision = (artwork: CatalogueArtwork) =>
+  sha256Bytes(new TextEncoder().encode(JSON.stringify(["artwork", artwork.assetId, artwork.revisionSource])));
 
 function publicArtworkUrl(value: unknown, path: RegExp) {
   const href = boundedString(value, 2048);

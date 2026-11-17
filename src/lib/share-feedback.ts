@@ -1,10 +1,15 @@
 import type { D1Database } from "@cloudflare/workers-types";
 import { z } from "zod";
+import { artworkRevision, publicShareArtwork } from "./share-catalogue-asset.ts";
 import { filmFeedbackReasons, shareFilms } from "./share-films.ts";
 
 const key = {
-  assetId: z.string().regex(/^[a-z0-9-]{1,80}$/),
+  assetId: z.string().regex(/^[a-z0-9][a-z0-9-]{0,127}$/),
   revision: z.string().regex(/^[a-f0-9]{64}$/),
+};
+const artworkReasons = {
+  up: ["Composition", "Colour", "Worth featuring"],
+  down: ["Crop or framing", "Hard to read", "Needs a different direction"],
 };
 const save = z.strictObject({
   ...key, action: z.literal("save"), vote: z.enum(["up", "down"]),
@@ -58,13 +63,22 @@ const decode = (row: StoredFeedback): ShareFeedback => ({
 const reply = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { "Cache-Control": "private, no-store", Vary: "Cookie" } });
 
-export async function handleShareFeedback(request: Request, actorId: string | undefined, db: D1Database | undefined) {
+export async function handleShareFeedback(request: Request, actorId: string | undefined, db: D1Database | undefined, resolveArtwork = publicShareArtwork) {
   if (!actorId) return reply({ error: "Sign in to give feedback." }, 401);
   if (!db) return reply({ error: "Feedback is unavailable. Try again shortly." }, 503);
   if (request.method === "GET") {
     try {
+      const params = new URL(request.url).searchParams;
+      if (params.has("assetId") || params.has("revision")) {
+        const input = z.object(key).safeParse(Object.fromEntries(params));
+        if (!input.success) return reply({ error: "Choose an artwork version." }, 400);
+        const row = await db.prepare(`SELECT ${fields} FROM composer_share_feedback
+          WHERE actor_id=? AND asset_id=? AND asset_revision=?`)
+          .bind(actorId, input.data.assetId, input.data.revision).first<StoredFeedback>();
+        return reply({ item: row ? decode(row) : null });
+      }
       const { results } = await db.prepare(`SELECT ${fields} FROM composer_share_feedback
-        WHERE actor_id=? ORDER BY updated_at DESC, asset_id, asset_revision LIMIT 100`).bind(actorId).all<StoredFeedback>();
+        WHERE actor_id=? AND asset_url NOT LIKE '/share/artwork/%' ORDER BY updated_at DESC, asset_id, asset_revision LIMIT 100`).bind(actorId).all<StoredFeedback>();
       return reply({ items: results.map(decode) });
     } catch {
       return reply({ error: "Your feedback could not be loaded. Try again." }, 503);
@@ -83,9 +97,22 @@ export async function handleShareFeedback(request: Request, actorId: string | un
         .bind(actorId, input.assetId, input.revision).run();
       return reply({ item: null });
     }
-    const asset = shareFilms.find((film) => film.id === input.assetId && film.revision === input.revision);
-    if (!asset) return reply({ error: "That film version changed. Reload Share to review the current cut." }, 409);
-    const suggested: readonly string[] = filmFeedbackReasons[input.vote];
+    const film = shareFilms.find((film) => film.id === input.assetId && film.revision === input.revision);
+    let asset: {title: string; href: string};
+    if (film) {
+      asset = film;
+    } else {
+      // Existing film bookmarks retain their version check. Artwork must still
+      // be public and match the exact revision the visitor opened.
+      if (shareFilms.some((item) => item.id === input.assetId))
+        return reply({ error: "That film version changed. Reload to review the current cut." }, 409);
+      const result = await resolveArtwork(input.assetId);
+      if (result.status === 503) return reply({ error: "Artwork is temporarily unavailable." }, 503);
+      if (result.status !== 200 || await artworkRevision(result.artwork) !== input.revision)
+        return reply({ error: "That artwork version changed. Reopen it to review the current piece." }, 409);
+      asset = { title: result.artwork.title, href: `/share/artwork/${result.artwork.assetId}` };
+    }
+    const suggested: readonly string[] = (film ? filmFeedbackReasons : artworkReasons)[input.vote];
     if (input.reasons.some((reason) => !suggested.includes(reason)))
       return reply({ error: "Choose reasons from the suggestions or add a note." }, 400);
     const row = await db.prepare(`INSERT INTO composer_share_feedback
@@ -93,7 +120,7 @@ export async function handleShareFeedback(request: Request, actorId: string | un
       VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(actor_id,asset_id,asset_revision) DO UPDATE SET
       vote=excluded.vote,reasons=excluded.reasons,note=excluded.note,updated_at=CURRENT_TIMESTAMP
       RETURNING ${fields}`)
-      .bind(actorId, asset.id, asset.revision, asset.title, asset.href, input.vote, JSON.stringify([...new Set(input.reasons)]), input.note)
+      .bind(actorId, input.assetId, input.revision, asset.title, asset.href, input.vote, JSON.stringify([...new Set(input.reasons)]), input.note)
       .first<StoredFeedback>();
     if (!row) throw Error("Save did not return a row");
     return reply({ item: decode(row) });

@@ -1,0 +1,84 @@
+.composer-share-artwork {
+  max-width: 64rem;
+  padding: clamp(1rem, 4vw, 2.5rem);
+}
+.composer-share-artwork h1 {
+  font-size: 2rem;
+  font-weight: 650;
+}
+.composer-share-artwork h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+.composer-share-artwork a {
+  text-decoration: underline;
+}
+.curation-search {
+  display: grid;
+  grid-template-columns: minmax(0, 24rem) auto;
+  justify-content: start;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+.curation-search label {
+  grid-column: 1 / -1;
+}
+.composer-share-artwork :is(input:not([type="checkbox"]), .curation-button) {
+  min-height: 44px;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid currentColor;
+  border-radius: 0.45rem;
+}
+.composer-share-artwork .curation-button:enabled {
+  cursor: pointer;
+}
+.composer-share-artwork .curation-button:disabled {
+  opacity: 0.55;
+}
+.composer-share-artwork .curation-button[aria-pressed="true"] {
+  border-width: 2px;
+}
+.curation-results {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+.curation-results ul {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.curation-results ul button {
+  display: grid;
+  width: 100%;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+.curation-editor {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 0.7rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.curation-editor input:not([type="checkbox"]) {
+  width: 100%;
+}
+.curation-featured {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+}
+.curation-status {
+  margin-block: 0.6rem;
+}
+@media (max-width: 42rem) {
+  .curation-results {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

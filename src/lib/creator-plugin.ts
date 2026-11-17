@@ -33,6 +33,7 @@ import {
   manageShareCalendar,
   runScheduledBluesky,
 } from "./share-calendar-admin.ts";
+import { manageShareArtwork } from "./share-gallery-admin.ts";
 import { manageShareConnections } from "./share-connections-admin.ts";
 import { blueskyPublisherSettings } from "./bluesky-publisher.ts";
 
@@ -98,10 +99,22 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
           label: "Share connections",
           icon: "plugs",
         },
+        { path: "/share-artwork", label: "Share artwork", icon: "palette" },
         { path: "/incidents", label: "Incident Desk", icon: "first-aid-kit" },
       ],
     },
     routes: {
+      shareArtworkRead: {
+        methods: ["GET"],
+        permission: "plugins:manage",
+        handler: (ctx) => manageShareArtwork(ctx, runtime.DB),
+      },
+      shareArtworkWrite: {
+        methods: ["POST"],
+        permission: "plugins:manage",
+        request: { body: "json", maxBytes: 4000 },
+        handler: (ctx) => manageShareArtwork(ctx, runtime.DB),
+      },
       brandRead: {
         methods: ["GET"],
         permission: "plugins:manage",
