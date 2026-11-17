@@ -1,171 +1,114 @@
 ---
-import BuilderFields from '../components/BuilderFields.astro';
+import BuilderFields from "../components/BuilderFields.astro";
 import Base from "../layouts/Base.astro";
 import AnalyticsTrend from "../components/AnalyticsTrend.astro";
 import { apps } from "../lib/apps";
 import { env } from "cloudflare:workers";
 import type { D1Database } from "@cloudflare/workers-types";
-import { usageSummary } from "../lib/usage";
 import { selection } from "../../lib/usage/index.mjs";
 import { portfolioSummary } from "../../lib/usage/portfolio.mjs";
 import build from "../lib/build.json";
 import {
   appActions,
-  appLabels,
   appSignals,
-  buildFindings,
   count,
   dateLabel,
   daySelection,
-  signalKeys,
   signalLabels,
-  signalSelection,
+  type SignalKey,
   signalView,
   type PublicHistory,
-  type SurfaceTotals,
 } from "../lib/activity-view";
-import {
-  insightCardPath,
-  insightPath,
-  insightWindowFor,
-  publicInsight,
-  type InsightResult,
-  type InsightSurface,
-  type RecordedOpensInsight,
-} from "../lib/activity-insight";
+import { insightPath, insightWindowFor, type InsightSurface } from "../lib/activity-insight";
 import { ArrowUpRight, Share2 } from "@lucide/astro";
 import "../styles/analytics.css";
 
 const selected = selection(Astro.url.searchParams);
-const requested = signalSelection(Astro.url.searchParams.get("metric"));
 const runtime = env as unknown as { DB: D1Database; PUBLIC_ORIGIN: string };
 const now = new Date();
-const insightWindow = insightWindowFor(selected.days, selected.surface as InsightSurface, now);
-const params = (surface?: string) => {
-  const value = new URLSearchParams({ days: String(selected.days) });
-  if (surface) value.set("surface", surface);
-  return value;
-};
-const [totals, historyResult, allResult, standaloneResult, composedResult, insightResult] =
-  await Promise.allSettled([
-    usageSummary(runtime.DB, params(selected.surface === "all" ? undefined : selected.surface), runtime.PUBLIC_ORIGIN),
-    portfolioSummary(runtime.DB, selected.days, new Date(), build.commit, selected.surface as "all" | "standalone" | "composed"),
-    usageSummary(runtime.DB, params(), runtime.PUBLIC_ORIGIN),
-    usageSummary(runtime.DB, params("standalone"), runtime.PUBLIC_ORIGIN),
-    usageSummary(runtime.DB, params("composed"), runtime.PUBLIC_ORIGIN),
-    portfolioSummary(runtime.DB, { from: insightWindow.from, to: insightWindow.to }, now, build.commit, selected.surface as "all" | "standalone" | "composed"),
-  ]);
-const report = totals.status === "fulfilled" ? totals.value : undefined;
-const history = historyResult.status === "fulfilled" ? (historyResult.value as unknown as PublicHistory) : undefined;
-if (!report && !history) Astro.response.status = 503;
-// Every route total must be read and agree. A failed or short read is
-// unavailable, never a zero, and never a route-share percentage.
-const opens = (value: PromiseSettledResult<typeof report>) =>
-  value.status === "fulfilled" && value.value
-    ? value.value.apps.reduce((sum, app) => sum + app.opens, 0)
-    : null;
-const [allOpens, standaloneOpens, composedOpens] = [
-  opens(allResult),
-  opens(standaloneResult),
-  opens(composedResult),
-];
-const surfaces: SurfaceTotals | null =
-  allOpens !== null &&
-  standaloneOpens !== null &&
-  composedOpens !== null &&
-  allOpens === standaloneOpens + composedOpens
-    ? { all: allOpens, standalone: standaloneOpens, composed: composedOpens }
-    : null;
-const rows = (report?.apps ?? [])
-  .map((row) => ({ ...row, definition: apps.find((app) => app.id === row.app)! }))
-  .sort((a, b) => b.opens - a.opens || a.app.localeCompare(b.app));
+const surface = selected.surface as InsightSurface;
+const scopeQuery = new URLSearchParams({ days: String(selected.days), surface });
+const history = await portfolioSummary(runtime.DB, selected.days, now, build.commit, surface)
+  .then((result) => result as unknown as PublicHistory)
+  .catch(() => undefined);
+if (!history) Astro.response.status = 503;
+
+const rows = (history?.apps ?? []).flatMap((row) => {
+  const definition = apps.find((app) => app.id === row.app);
+  return definition ? [{ ...row, definition, opensLimited: row.signals.app_open?.some((day) => day.capped) }] : [];
+}).sort((a, b) => b.opens - a.opens || a.app.localeCompare(b.app));
 const unavailable = rows.filter((row) => row.connected === false);
 const top = Math.max(1, ...rows.map((row) => row.opens));
-const findings = history ? buildFindings(history, surfaces) : [];
+const metricOrder: SignalKey[] = [
+  "inspection_completed",
+  "guest_postcards_received",
+  "app_opens",
+  "photo_opens",
+];
+const requested = Astro.url.searchParams.get("metric");
+const defaultMetric = surface === "composed" ? "guest_postcards_received" : "inspection_completed";
 const views = history
-  ? signalKeys
+  ? metricOrder
+      .filter((key) => key !== "inspection_completed" || surface !== "composed")
       .map((key) => signalView(history, key))
       .filter((value): value is NonNullable<typeof value> => value !== undefined)
   : [];
-const view = views.find((value) => value.key === requested) ?? views[0];
-const metric = view?.key ?? requested;
+const view = views.find((value) => value.key === requested) ?? views.find((value) => value.key === defaultMetric);
+const metric = view?.key ?? defaultMetric;
 const day = history
   ? daySelection(Astro.url.searchParams.get("day"), history.period.from, history.period.to)
   : null;
-const scopeOpens = report ? report.apps.reduce((sum, app) => sum + app.opens, 0) : null;
-const actionValue = report ? report.apps.reduce((sum, app) => sum + app.actions, 0) : null;
-const postcardMetric = history?.metrics.find((value) => value.key === "guest_postcards_received");
-const postcardValue = postcardMetric?.value ?? null;
-const where = selected.surface === "standalone" ? "standalone apps" : selected.surface === "composed" ? "inside Composer" : "all connected versions";
-// The shareable reading uses complete UTC days, so its card, caption and
-// address keep one stable total while today is still being recorded. Missing
-// or unreconciled data stays unavailable and the share action is not offered.
-const insightOutcome: InsightResult = (() => {
-  if (insightResult.status !== "fulfilled")
-    return { status: "unavailable", reason: "The complete-day counter read did not finish." };
-  try {
-    return publicInsight(insightResult.value as unknown as PublicHistory, insightWindow, {
-      revision: build.commit,
-      readAt: now,
-      publicApps: apps.map((app) => app.id),
-    });
-  } catch {
-    return { status: "unavailable", reason: "The complete-day counter read could not be reconciled." };
-  }
-})();
-const insight: RecordedOpensInsight | undefined =
-  insightOutcome.status === "ok" ? insightOutcome.insight : undefined;
-const insightReason =
-  insightOutcome.status === "ok"
-    ? "The complete-day insight is unavailable."
-    : insightOutcome.reason;
-const sharePageHref = insightPath(insightWindow);
-const cardHref = insightCardPath(insightWindow);
-const insightPayload = insight
-  ? JSON.stringify({ url: insight.canonical, title: insight.headline, text: insight.caption }).replaceAll("<", "\\u003c")
-  : "";
-const rankMaximum = insight ? Math.max(1, insight.leader.opens) : 1;
-const scopeQuery = `days=${selected.days}&surface=${selected.surface}`;
+const sharePageHref = insightPath(insightWindowFor(selected.days, surface, now));
 const unitFor = (key: string) =>
   key === "app_opens" || key === "photo_opens"
     ? "recorded opens"
     : key === "inspection_completed"
       ? "completed inspections"
       : "postcards received";
-const reportHref = (app: string | null, signal: string) =>
-  `/reports/new?${scopeQuery}&metric=${signal}${app ? `&app=${app}` : ""}`;
+const reportHref = `/reports/new?${scopeQuery}&metric=${metric}`;
 const metricHref = (key: string) =>
   `${Astro.url.pathname}?${scopeQuery}&metric=${key}${day ? `&day=${day}` : ""}`;
+const scopeNote = history
+  ? `${dateLabel(history.period.from)} – ${dateLabel(history.period.to, true)} UTC · Today is partial`
+  : "Daily history is unavailable.";
+const outcomeFor = (app: string) =>
+  app === "linkcheck" ? views.find((value) => value.key === "inspection_completed") :
+  app === "guestbook" ? views.find((value) => value.key === "guest_postcards_received") : undefined;
 const appHref = (app: string) => {
-  const target = appSignals[app]?.includes(metric) ? metric : "app_opens";
+  const target = appSignals[app]?.includes(metric) ? metric : outcomeFor(app)?.key ?? "app_opens";
   return `/activity/${app}?${scopeQuery}&metric=${target}${day ? `&day=${day}` : ""}`;
 };
-const scopeNote = history
-  ? `${where} · ${dateLabel(history.period.from)} – ${dateLabel(history.period.to, true)}, UTC. ${history.period.complete ? "Complete UTC days." : "Today is in progress."}`
-  : `${where} · the daily history query did not complete.`;
+const metricApp = apps.find((app) =>
+  (metric === "inspection_completed" && app.id === "linkcheck") ||
+  ((metric === "guest_postcards_received" || metric === "photo_opens") && app.id === "guestbook"));
+const coverageCount = rows.filter((row) => row.connected).length;
+const resultLabel = (outcome: NonNullable<ReturnType<typeof outcomeFor>>) => {
+  if (outcome.value === null) return `${signalLabels[outcome.key]} unavailable`;
+  const cap = outcome.days.some((day) => day.capped) ? "+" : "";
+  const label = outcome.key === "inspection_completed"
+    ? (outcome.value === 1 ? "inspection completed" : "inspections completed")
+    : (outcome.value === 1 ? "postcard received" : "postcards received");
+  return `${count(outcome.value)}${cap} ${label}`;
+};
+
 ---
 <Base
   title="App activity"
   description="Explore recorded public app opens, completed actions, guest postcards and coverage by UTC day. Bounded counts, never visitor profiles."
 >
   <header class="analytics-hero activity-hero">
-    <div>
-      <p class="analytics-kicker">Analytics · public record</p>
-      <h1>App activity</h1>
-    </div>
-    <p class="lede">Recorded requests by UTC day, not people. Pick a scope, inspect a day, then open an app record or a shareable report.</p>
+    <h1>App activity</h1>
   </header>
 
-  <section class="activity-scope" aria-labelledby="scope-title">
+  <section class="activity-scope" aria-label="Filter activity">
     <form method="get" class="activity-scope-form">
       <BuilderFields/>
-      <h2 id="scope-title">Scope</h2>
-      <input type="hidden" name="metric" value={metric} />
+      {requested && <input type="hidden" name="metric" value={metric} />}
       {day && <input type="hidden" name="day" value={day} />}
       <label for="scope-days">Time window
         <select name="days" id="scope-days">
-          <option value="7" selected={selected.days === 7}>Past 7 UTC days</option>
-          <option value="30" selected={selected.days === 30}>Past 30 UTC days</option>
+          <option value="7" selected={selected.days === 7}>Last 7 days</option>
+          <option value="30" selected={selected.days === 30}>Last 30 days</option>
         </select>
       </label>
       <label for="scope-surface">App route
@@ -175,258 +118,110 @@ const scopeNote = history
           <option value="composed" selected={selected.surface === "composed"}>Inside Composer</option>
         </select>
       </label>
-      <button type="submit">Apply scope</button>
+      <button type="submit">Apply</button>
     </form>
-    <div class="activity-scope-note">
-      <p>{scopeNote}</p>
-      <p>Counts are recorded requests and completed actions, not people. A missing day is unavailable history; a retained zero means no event was recorded.</p>
-    </div>
+    <p class="activity-period">{scopeNote}</p>
   </section>
 
-  {history ? (
+  {history && view ? (
     <div data-activity>
-      <section class="analytics-section activity-plot" aria-labelledby="chart-title">
-        <div class="analytics-chart-head">
-          <div>
-            <p class="analytics-kicker">Daily record · {where}</p>
-            <h2 id="chart-title" data-chart-title>{view?.label ?? "Recorded signal"}</h2>
-          </div>
-          <div class="chart-actions">
-            <a class="button secondary" href={reportHref(null, metric)}>
-              <Share2 size={16} aria-hidden="true"/> Preview the shareable report
-            </a>
-          </div>
-        </div>
-        <nav class="trend-tabs" aria-label="Recorded signal">
+      <section class="analytics-section activity-plot activity-overview-plot" aria-labelledby="chart-title">
+        {requested === "inspection_completed" && surface === "composed" && (
+          <p class="analytics-note">Link Check runs standalone. <a href={`/activity?days=${selected.days}&surface=standalone&metric=inspection_completed`}>See completed inspections</a>.</p>
+        )}
+        <nav class="trend-tabs activity-metrics" aria-label="Measure">
           {views.map((value) => (
-            <a
-              href={metricHref(value.key)}
-              data-metric-tab={value.key}
-              aria-current={value.key === metric ? "page" : undefined}
-            >
+            <a href={metricHref(value.key)} data-preserve-day aria-current={value.key === metric ? "page" : undefined}>
               {signalLabels[value.key]}
-              <strong>{value.value === null ? "—" : count(value.value)}</strong>
+              <strong>{value.value === null ? "Unavailable" : count(value.value) + (value.days.some((day) => day.capped) ? "+" : "")}</strong>
             </a>
           ))}
         </nav>
-        <p class="analytics-chart-note">The signal tabs change only the chart. The scope above and the shareable report keep {where} for {selected.days} days. {view && <a href={reportHref(null, metric)}>Preview {signalLabels[metric]} as a report</a>}</p>
-        {views.map((value) => (
-          <AnalyticsTrend
-            metric={value.key}
-            label={value.label}
-            definition={value.definition}
-            unit={unitFor(value.key)}
-            value={value.value}
-            quality={value.quality}
-            days={value.days}
-            from={history.period.from}
-            to={history.period.to}
-            surface={selected.surface}
-            windowDays={selected.days}
-            selectedDay={day}
-            hidden={value.key !== metric}
-          />
-        ))}
-      </section>
-
-      <section class="analytics-summary" aria-label="Recorded summary for this scope">
-        <div><span>Recorded app opens</span><strong>{scopeOpens === null ? "—" : count(scopeOpens)}</strong><small>{where} · homes only</small></div>
-        <div><span>Recorded app actions</span><strong>{actionValue === null ? "—" : count(actionValue)}</strong><small>Contribution opens and finished inspections</small></div>
-        <div><span>Postcards received</span><strong>{postcardValue === null ? "—" : count(postcardValue)}</strong><small>Accepted during this period, not the current queue</small></div>
-        <div><span>Retained days</span><strong>{view ? `${view.available}/${selected.days}` : "—"}</strong><small>Available UTC days for {view ? signalLabels[view.key] : "this signal"}</small></div>
-      </section>
-
-      <section class="analytics-section insight-band" aria-labelledby="insight-title" data-insight-share>
-        <div class="insight-head">
-          <p class="analytics-kicker">Shareable insight · {insightWindow.days} complete UTC days</p>
-          <h2 id="insight-title">{insight ? insight.headline : "The complete-day insight is unavailable."}</h2>
-        </div>
-        {insight ? (
-          <>
-            <div class="insight-grid">
-              <div class="insight-figure">
-                <strong>{insight.valueLabel}</strong>
-                <span>{insight.unit}</span>
-                <p class="insight-window">{insight.windowLabel} · {insight.surfaceLabel}</p>
-              </div>
-              <ol class="insight-rank" aria-label="Recorded app opens ranked for the complete-day window">
-                {insight.entries.slice(0, 3).map((entry, index) => (
-                  <li>
-                    <span class="insight-rank-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-                    <span class="insight-rank-name">{index === 0 ? <strong>{entry.label}</strong> : entry.label}</span>
-                    <span class="insight-rank-value">{count(entry.opens)}{entry.limited ? "+" : ""} <small>{entry.shareLabel} of window</small></span>
-                    <span class="insight-rank-bar" aria-hidden="true"><i style={`width:${(100 * entry.opens) / rankMaximum}%`}></i></span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-            <p class="insight-definition">{insight.definition}</p>
-            <div class="insight-actions">
-              <details class="insight-share">
-                <summary class="button"><Share2 size={16} aria-hidden="true"/> Share this insight</summary>
-                <div class="insight-share-body">
-                  <figure class="insight-share-preview">
-                    <img src={cardHref} width="1200" height="630" alt={`App Composer public insight card: ${insight.headline}. ${insight.windowLabel}. ${insight.valueLabel} recorded app opens.`} loading="lazy"/>
-                    <figcaption>1200 × 630 PNG, rendered on the server from this window. <a href={cardHref} download={`composer-insight-${insight.window.from}-to-${insight.window.to}.png`}>Download the card</a></figcaption>
-                  </figure>
-                  <label class="insight-copy-field">Caption
-                    <textarea readonly rows="3" data-insight-caption>{insight.caption}</textarea>
-                  </label>
-                  <div class="insight-copy-actions">
-                    <button type="button" data-insight-copy="caption" hidden>Copy the caption</button>
-                    <button type="button" data-insight-copy="link" hidden>Copy the link</button>
-                    <button type="button" class="secondary" data-insight-native hidden><Share2 size={16} aria-hidden="true"/> Share with your device</button>
-                  </div>
-                  <label class="insight-copy-field">Public address <span class="insight-field-note">keeps this exact window and route scope</span>
-                    <input readonly value={insight.canonical} data-insight-url/>
-                  </label>
-                  <noscript><p class="small">Copy buttons need JavaScript. Select the caption or address above and copy it manually. The card download and the public insight page still work.</p></noscript>
-                  <p class="insight-share-links"><a href={sharePageHref}>Open the public insight page <ArrowUpRight size={15} aria-hidden="true"/></a></p>
-                  <p role="status" aria-live="polite" data-insight-status></p>
-                  <script type="application/json" data-insight-payload set:html={insightPayload}/>
-                </div>
-              </details>
-              <a class="button secondary" href={`/activity/${insight.leader.app}?days=${selected.days}&surface=${selected.surface}`}>Open {insight.leader.label}’s record <ArrowUpRight size={16} aria-hidden="true"/></a>
-              <a class="insight-share-page" href={sharePageHref}>View the public insight page</a>
-            </div>
-            <details class="insight-method">
-              <summary>Definition, window, population and exclusions</summary>
-              <p>{insight.population}</p>
-              <ul>{insight.exclusions.map((limitation) => <li>{limitation}</li>)}</ul>
-              <div class="table-wrap" tabindex="0" role="group" aria-label="Complete-day ranking table, scrollable sideways on a phone">
-                <table class="insight-table">
-                  <caption>Recorded app opens, {insight.windowLabel}, {insight.surfaceLabel}</caption>
-                  <thead>
-                    <tr><th scope="col">Rank</th><th scope="col">Public app</th><th scope="col">Recorded opens</th><th scope="col">Share of window (rounded)</th><th scope="col">Coverage</th></tr>
-                  </thead>
-                  <tbody>
-                    {insight.entries.map((entry, index) => (
-                      <tr>
-                        <td>{String(index + 1).padStart(2, "0")}</td>
-                        <th scope="row">{entry.label}</th>
-                        <td>{count(entry.opens)}{entry.limited ? "+" : ""}</td>
-                        <td>{entry.shareLabel}</td>
-                        <td>{entry.limited ? "Lower bound · daily cap reached" : "Bounded recording"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr><th scope="row" colspan="2">Window total</th><td>{insight.valueLabel}</td><td>100%</td><td>{insight.lowerBound ? "Lower bound" : "Complete UTC days"}</td></tr>
-                  </tfoot>
-                </table>
-              </div>
-              <p class="small">Source: Composer’s bounded public aggregate, read {new Date(insight.readAt).toLocaleString("en-AU", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" })} UTC, revision <code>{insight.sourceRevision.slice(0, 8)}</code>. <a href={`/api/portfolio-analytics?from=${insight.window.from}&to=${insight.window.to}&surface=${insight.window.surface}`}>Daily data and definitions</a></p>
-            </details>
-            <p class="analytics-note">This insight uses complete UTC days only, so its total does not move while today is being recorded. The chart and summary above include today’s partial day and can differ by one day. The public address re-reads the source and withholds the ranking if an app leaves the public catalogue or the counters are unavailable.</p>
-          </>
-        ) : (
-          <div class="analytics-empty" role="status">
-            <p>{insightReason} Nothing is shown as zero: the chart and summary above still use their own live scope, and the complete-day ranking is withheld until a reconciled read returns.</p>
+        <div class="analytics-chart-head">
+          <h2 id="chart-title">{signalLabels[view.key]} by day</h2>
+          <div class="activity-chart-links">
+            {metricApp && <a href={metricApp.href}>
+              Open {metricApp.name} <ArrowUpRight size={16} aria-hidden="true"/>
+            </a>}
+            {view.value !== null && <a class="button secondary" href={reportHref}>
+              <Share2 size={16} aria-hidden="true"/> Share report
+            </a>}
           </div>
-        )}
+        </div>
+        <AnalyticsTrend
+          metric={view.key}
+          label={signalLabels[view.key]}
+          definition={view.definition}
+          unit={unitFor(view.key)}
+          value={view.value}
+          quality={view.quality}
+          days={view.days}
+          from={history.period.from}
+          to={history.period.to}
+          surface={surface}
+          windowDays={selected.days}
+          selectedDay={day}
+          showTotal={false}
+          caption={`${view.available} of ${selected.days} days available`}
+        />
       </section>
 
       <section class="analytics-section" aria-labelledby="apps-title">
         <div class="analytics-section-heading">
-          <h2 id="apps-title">Compare apps</h2>
-          <p>Opens and supported actions by app, in the same {where} scope and UTC window. {selected.surface === "composed" ? "Only apps Composer mounts inside its own site have a composed route; the rest are marked as unavailable, not counted as zero." : "A composed route is another address for the same app, not another audience."}</p>
+          <h2 id="apps-title">Activity by app</h2>
+          <p>{coverageCount === rows.length ? `${rows.length} apps report here` : `${coverageCount} of ${rows.length} apps have this route`}. Other projects aren’t included.</p>
         </div>
-        {report ? (
-          <ol class="analytics-apps" aria-label={`Recorded app requests: ${where}`}>
-            {rows.map((row) => (
-              <li class:list={{ "analytics-app": true, "is-unavailable": row.connected === false }}>
-                <img src={row.definition.thumbnail} width="48" height="48" alt="" loading="lazy" />
-                <div>
-                  <h3><a href={appHref(row.app)}>{row.definition.name} <ArrowUpRight size={16} aria-hidden="true"/></a></h3>
-                  <p>{appActions[row.app] ?? row.definition.category}</p>
-                </div>
-                <div class="analytics-app-bar" aria-hidden="true">{row.connected !== false && <svg viewBox="0 0 100 8" preserveAspectRatio="none"><rect width={(100 * row.opens) / top} height="8"/></svg>}</div>
-                <div class="analytics-app-count">
-                  {row.connected === false ? (
-                    <>
-                      <strong aria-hidden="true">—</strong>
-                      <small>No composed route</small>
-                      <small>Standalone only</small>
-                    </>
-                  ) : (
-                    <>
-                      <strong>{count(row.opens)}{row.limited ? "+" : ""}</strong>
-                      <small>{row.opens === 1 ? "recorded open" : "recorded opens"}{row.limited ? " · lower bound" : ""}</small>
-                      <small>{row.actions ? `${count(row.actions)} ${row.app === "linkcheck" ? "completed inspections" : "contribution opens"}` : row.app === "state" ? "Vault actions stay private" : "No supported action recorded"}</small>
-                    </>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <p class="analytics-empty" role="status">App totals are unavailable. A dash means the query failed, not that an app had no activity.</p>
-        )}
+        <ul class="analytics-apps" role="list">
+            {rows.map((row) => {
+              const outcome = outcomeFor(row.app);
+              return (
+                <li class:list={{ "analytics-app": true, "is-unavailable": row.connected === false }}>
+                  <img src={row.definition.thumbnail} width="48" height="48" alt="" loading="lazy" />
+                  <div>
+                    <h3><a href={appHref(row.app)} data-preserve-day>{row.definition.name} <ArrowUpRight size={16} aria-hidden="true"/></a></h3>
+                    <p>{appActions[row.app] ?? row.definition.category}</p>
+                  </div>
+                  <div class="analytics-app-bar" aria-hidden="true">{row.connected !== false && <svg viewBox="0 0 100 8" preserveAspectRatio="none"><rect width={(100 * row.opens) / top} height="8"/></svg>}</div>
+                  <div class="analytics-app-count">
+                    {row.connected === false ? (
+                      <>
+                        <strong aria-hidden="true">—</strong>
+                        <small>No composed route</small>
+                      </>
+                    ) : (
+                      <>
+                        <strong>{count(row.opens)}{row.opensLimited ? "+" : ""}</strong>
+                        <small>{row.opens === 1 ? "recorded open" : "recorded opens"}{row.opensLimited ? " · lower bound" : ""}</small>
+                        {outcome && <small>{resultLabel(outcome)}</small>}
+                      </>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+        </ul>
         {unavailable.length > 0 && (
-          <p class="analytics-note">No composed route exists for {unavailable.map((row) => row.definition.name).join(", ")}. They publish standalone only, so the dash is unsupported, not zero. <a href={`/activity?days=${selected.days}&surface=standalone`}>Compare standalone activity</a>.</p>
+          <p class="analytics-note"><a href={`/activity?days=${selected.days}&surface=standalone`}>See standalone apps</a></p>
         )}
       </section>
 
-      <section class="analytics-section" aria-labelledby="findings-title">
-        <div class="analytics-section-heading">
-          <h2 id="findings-title">What stands out</h2>
-          <p>Each finding names its app and measure. Select one to inspect its scope and UTC day, or save it as a shareable report.</p>
-        </div>
-        {findings.length ? (
-          <ol class="analytics-findings">
-            {findings.map((finding, index) => (
-              <li class="finding">
-                <div>
-                  <div class="finding-head">
-                    <img src={finding.app ? apps.find((app) => app.id === finding.app)?.thumbnail ?? "/brand/composer-icon-20261022b-96.png" : "/brand/composer-icon-20261022b-96.png"} width="42" height="42" alt="" loading="lazy" />
-                    <span>{String(index + 1).padStart(2, "0")} · {finding.eyebrow}</span>
-                  </div>
-                  <h3>{finding.headline}</h3>
-                  <p>{finding.detail}</p>
-                  <div class="finding-links">
-                    <a href={finding.href}>Inspect the evidence <ArrowUpRight size={16} aria-hidden="true"/></a>
-                    <a href={finding.shareHref}><Share2 size={16} aria-hidden="true"/> Share this story</a>
-                    {finding.app && <a href={apps.find((app) => app.id === finding.app)?.href ?? "/apps"}>Open {appLabels[finding.app]} <ArrowUpRight size={16} aria-hidden="true"/></a>}
-                  </div>
-                </div>
-                <div class="finding-value"><strong>{finding.value}</strong><span>{finding.unit}</span></div>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <div class="analytics-empty">
-            <h2>No findings meet the evidence threshold yet</h2>
-            <p>The scope has no recorded opens or completed actions. That is not a claim that nobody visited; counters are optional and bounded.</p>
-          </div>
-        )}
-      </section>
-
-      <section class="analytics-method" aria-labelledby="method-title">
-        <h2 id="method-title">How activity is counted</h2>
-        <p>A successful public request or a completed action can add one to an app's daily total. The original record stays with the app. No visitor identity, enquiry text, entered URL, search or vault content enters these counters.</p>
-        <ol>
-          <li><strong>Scope before claim.</strong> The route filter applies to the daily series and the app comparison. An app without the selected route is marked unavailable, not counted as zero. Counts are for the selected UTC window; today is partial.</li>
-          <li><strong>Different states stay different.</strong> A missing day is unavailable, a retained zero means no event was recorded, a dashed cap marks a partial day, and a triangle marks a day that reached its 1,000-count ceiling. A contribution-page open is not a submission; a received postcard is not an approval, feature or person.</li>
-          <li><strong>Coverage is finite.</strong> Recording began {dateLabel(history.coverage.startedAt.slice(0, 10), true)}. Counters stop at 1,000 per app/event/surface per UTC day and expire after 35 days. Optional publishers can miss events; reloads and unmarked automation can count.</li>
-        </ol>
-        <details>
-          <summary>Definitions, coverage and limits</summary>
-          <ul>{history.coverage.limitations.map((limitation) => <li>{limitation}</li>)}</ul>
-          <p>“Reviewed” in the owner surfaces means an owner marked an enquiry reviewed. It is not a sale, a reply or customer acquisition, and it is not part of this public aggregate.</p>
-        </details>
+      <details class="analytics-method">
+        <summary>About these counts</summary>
+        <p>These are daily counts of events. They contain no visitor profiles or submitted content.</p>
+        <ul>{history.coverage.limitations.map((limitation) => <li>{limitation}</li>)}</ul>
         <div class="analytics-data-links">
-          <a href={`/api/portfolio-analytics?${scopeQuery}`}>Daily data and definitions <ArrowUpRight size={16} aria-hidden="true"/></a>
-          <a href={`/api/usage?${scopeQuery}`}>App comparison as JSON <ArrowUpRight size={16} aria-hidden="true"/></a>
-          <a href={`/reports/new?${scopeQuery}&metric=${metric}`}>Preview the shareable report</a>
+          <a href={`/api/portfolio-analytics?${scopeQuery}`}>Daily data</a>
+          <a href={`/api/usage?${scopeQuery}`}>App totals (JSON)</a>
+          <a href={sharePageHref}>Traffic ranking (complete days)</a>
           <a href="/privacy">Privacy</a>
           <a href="/manage">Owner analytics</a>
         </div>
-      </section>
+      </details>
     </div>
   ) : (
     <section class="analytics-empty" role="status">
       <h2>Daily history is unavailable.</h2>
-      <p>The reporting query could not complete, so the count is unavailable. Try again later; the apps remain available.</p>
+      <p>Try again shortly, or open the apps directly.</p>
       <a href="/apps">Browse the apps</a>
     </section>
   )}
@@ -434,5 +229,4 @@ const scopeNote = history
 
 <script>
   import "../browser/activity";
-  import "../browser/insight-share";
 </script>
