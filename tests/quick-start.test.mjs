@@ -275,6 +275,6 @@ test('the Media Studio build prompt names the real runtime, resources and source
   assert.match(prompt.text, /workers\.dev hostname/);
   assert.match(prompt.text, /MEDIA_STUDIO_ORIGIN/);
   assert.match(prompt.text, /pnpm run deploy -- --migrate/);
-  assert.match(prompt.text, /b5ef8f629c709c77c25b889bc3e61d0f5a6e90a6/);
+  assert.match(prompt.text, /089e998f20abd3fe9993c84dcf01267327673c14/);
   assert.match(prompt.text, /Have me enter OWNER_PASSPHRASE directly/);
 });

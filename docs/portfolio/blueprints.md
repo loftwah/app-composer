@@ -174,11 +174,11 @@ design and has no public signup.
 
 | App | Source | Pin | Licence |
 | --- | --- | --- | --- |
-| Media Studio | [loftwah/composer-media-studio](https://github.com/loftwah/composer-media-studio) | `b5ef8f629c709c77c25b889bc3e61d0f5a6e90a6` | MIT stated in the README; no licence file detected at the pin |
+| Media Studio | [loftwah/composer-media-studio](https://github.com/loftwah/composer-media-studio) | `089e998f20abd3fe9993c84dcf01267327673c14` | MIT stated in the README; no licence file detected at the pin |
 
 The pin is the value in `config/media-studio-standalone.json`. The live reference
-studio served revision `b5ef8f629c709c77c25b889bc3e61d0f5a6e90a6`,
-built 2026-11-17T04:28:49.702Z, read back from its public `/build.json` and
+studio served revision `089e998f20abd3fe9993c84dcf01267327673c14`,
+built 2026-11-17T08:29:14.650Z, read back from its public `/build.json` and
 `/healthz`. Earlier dated briefs retain their own exact revision and digest.
 
 ### Prerequisites
@@ -202,7 +202,7 @@ built 2026-11-17T04:28:49.702Z, read back from its public `/build.json` and
    ```sh
    git clone https://github.com/<your-account>/composer-media-studio
    cd composer-media-studio
-   git checkout b5ef8f629c709c77c25b889bc3e61d0f5a6e90a6
+   git checkout 089e998f20abd3fe9993c84dcf01267327673c14
    ```
 
 2. Replace the first-party values in `wrangler.jsonc` and `app.manifest.json`:
