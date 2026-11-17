@@ -49,7 +49,7 @@ const maximum = Math.max(1, ...days.map((day) => day.value ?? 0));
 const magnitude = 10 ** Math.floor(Math.log10(maximum));
 const ceiling = Math.max(
   2,
-  [2, 4, 6, 8, 10].find((step) => step * magnitude >= maximum)! * magnitude,
+  [1, 2, 4, 6, 8, 10].find((step) => step * magnitude >= maximum)! * magnitude,
 );
 const initialIndex = dayIndex(days, selectedDay);
 const initial = days[initialIndex] ?? {
