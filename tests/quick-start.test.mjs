@@ -244,6 +244,27 @@ test('a newcomer can create the building lab prerequisites from the copied promp
   assert.match(labReadme, /npm install playwright/);
 });
 
+test('the building surfaces keep the recorded ports and point to the real alternate-port instructions', () => {
+  const prompt = buildingQuickStart.prompts.find((entry) => entry.id === 'reproduce');
+  assert.ok(prompt);
+  const page = readFileSync(pageUrl('src/pages/building.astro'), 'utf8');
+  const labReadme = readFileSync(pageUrl('labs/building/README.md'), 'utf8');
+
+  assert.match(prompt.text, /Guestbook on 'https:\/\/localhost:8788' and Linkarooie on 'https:\/\/localhost:8787'/);
+  assert.match(page, /starts Guestbook on 8788 and Linkarooie on 8787/);
+  for (const [name, text] of [['prompt', prompt.text], ['page', page]]) {
+    assert.match(text, /labs\/building\/README\.md/, `${name} points at the lab README`);
+    assert.match(text, /GUESTBOOK_PORT/, `${name} names the Guestbook start port variable`);
+    assert.match(text, /LINKAROOIE_PORT/, `${name} names the Linkarooie start port variable`);
+    assert.match(text, /GUESTBOOK_URL/, `${name} names the Guestbook seed and capture URL variable`);
+    assert.match(text, /LINKAROOIE_URL/, `${name} names the Linkarooie seed and capture URL variable`);
+  }
+  assert.match(labReadme, /GUESTBOOK_PORT=9788 LINKAROOIE_PORT=9787 labs\/building\/start-local\.sh/);
+  assert.match(labReadme, /GUESTBOOK_URL=https:\/\/localhost:9788/);
+  assert.match(labReadme, /LINKAROOIE_URL=https:\/\/localhost:9787/);
+  assert.doesNotMatch(page, /9788|9787/);
+});
+
 test('the Creator Hub prompt names its exact revisions, runtime and real owner path', () => {
   const prompt = creatorHubQuickStart.prompts.find((entry) => entry.id === 'reproduce');
   assert.ok(prompt);

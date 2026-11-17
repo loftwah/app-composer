@@ -135,7 +135,9 @@ Prerequisites
 Greenfield behaviour
 Create two new, separately owned copies of the reviewed Guestbook and Linkarooie sources, in sibling folders, then deploy them as two independent Workers. Keep their databases, media, domains and releases separate. Start with fictional records only.
 
-For the local run, use the exact lab path: 'labs/building/start-local.sh', then 'RESOURCE_ID=build199-trail-8 INIT_SPEC=public/downloads/building-199-init-spec.json node labs/building/seed-local.mjs', then 'RESOURCE_ID=build199-trail-8 PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs node labs/building/capture-journey.mjs', then 'labs/building/stop-local.sh'. The scripts use Guestbook on 'https://localhost:8788' and Linkarooie on 'https://localhost:8787', create one owned '$TMPDIR/composer-build-199.*' root, and remove that root on stop. Do not sweep other Wrangler state.
+For the local run, use the exact lab path: 'labs/building/start-local.sh', then 'RESOURCE_ID=build199-trail-8 INIT_SPEC=public/downloads/building-199-init-spec.json node labs/building/seed-local.mjs', then 'RESOURCE_ID=build199-trail-8 PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs node labs/building/capture-journey.mjs', then 'labs/building/stop-local.sh'. The scripts use Guestbook on 'https://localhost:8788' and Linkarooie on 'https://localhost:8787' by default, create one owned '$TMPDIR/composer-build-199.*' root, and remove that root on stop. Do not sweep other Wrangler state.
+
+If either port is busy, follow https://github.com/loftwah/app-composer/blob/1753753b52ce7640b048eff5c5bfae949349926f/labs/building/README.md#start. Choose a free pair using 'GUESTBOOK_PORT' and 'LINKAROOIE_PORT', then pass the matching loopback URLs as 'GUESTBOOK_URL' and 'LINKAROOIE_URL' to both seed-local.mjs and capture-journey.mjs.
 
 Build requirements
 1. Follow the documented local path in https://github.com/loftwah/app-composer/tree/main/labs/building: start-local.sh, seed-local.mjs with the committed Init specification, capture-journey.mjs, then stop-local.sh. Use one owned temporary root and remove it afterwards.
