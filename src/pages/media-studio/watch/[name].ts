@@ -36,6 +36,9 @@ const files: Record<string, { type: string; key: string }> = {
   "media-studio-teaser-recut.vtt": { type: "text/vtt; charset=utf-8", key: "media-studio/films/media-studio-teaser-recut-20261117.vtt" },
   "media-studio-teaser-recut.srt": { type: "text/plain; charset=utf-8", key: "media-studio/films/media-studio-teaser-recut-20261117.srt" },
   "media-studio-teaser-recut.txt": { type: "text/plain; charset=utf-8", key: "media-studio/films/media-studio-teaser-recut-20261117.txt" },
+  "studio-social-kit.mp4": { type: "video/mp4", key: "media-studio/films/studio-social-kit-20261117.mp4" },
+  "studio-social-kit.jpg": { type: "image/jpeg", key: "media-studio/films/studio-social-kit-20261117.jpg" },
+  "studio-social-kit.vtt": { type: "text/vtt; charset=utf-8", key: "media-studio/films/studio-social-kit-20261117.vtt" },
   "brand-916-motion.mp4": {
     type: "video/mp4",
     key: "media-studio/brand/brand-916-motion-20261114.mp4",

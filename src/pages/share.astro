@@ -52,7 +52,17 @@ const truncated = cards.length === PUBLIC_STACK_LIMIT;
 const title = unavailable ? 'Share wall temporarily unavailable' : 'Share wall';
 const description = unavailable
   ? 'The published creator stack wall is temporarily unavailable because the workspace database did not answer.'
-  : 'Browse published App Composer creator stacks. Each card shows its share image, apps and publication date, and opens the public stack page.';
+  : 'Watch and share short films about App Composer and Media Studio, or browse published creator stacks.';
+const studioFilm = '/media-studio/watch/studio-social-kit';
+const films = [
+  { title: 'Media Studio in 30 seconds', href: '/media-studio/watch/media-studio-teaser-recut.mp4', detail: '30 seconds · Vertical teaser' },
+  { title: 'Build an owned Media Studio', href: '/media-studio#watch', detail: '82 seconds · From Init to a published result' },
+  { title: 'Clip Pippa’s animation', href: '/media-studio/demos/pippa-clip-workflow-20261115.mp4', detail: 'Studio demo · Video Clip' },
+  { title: 'Trim the After Hours track', href: '/media-studio/demos/after-hours-audio-trim-phone-20261115.mp4', detail: 'Studio demo · Audio Trim on a phone' },
+  { title: 'Paper & Light', href: 'https://media.loftwah.com/p/Na9FNUB_VhzZ7zA9', detail: 'A finished film assembled in Media Studio' },
+  { title: 'From setup to software', href: 'https://woodhouse.loftwah.com/share/app-composer/app-composer-20261014.mp4', detail: '15 seconds · App Composer product film' },
+  { title: 'Turn a live example into your own draft', href: '/creator-hub/share#walkthrough-film', detail: '22 seconds · Creator Hub' },
+];
 // Base supplies the approved 1200x630 product share card; the wall has no
 // separate artwork, so its preview stays the real product card.
 ---
@@ -68,14 +78,46 @@ const description = unavailable
     <>
       <header class="wall-heading">
         <div>
-          <p class="eyebrow">Share wall</p>
-          <h1>Published creator stacks.</h1>
+          <h1>Share</h1>
         </div>
         <div class="wall-intro">
-          <p>Every stack here is public. Open one to see the apps it shares and the exact revision it shows.</p>
-          <p class="small"><a href="/studio">Build your own stack</a></p>
+          <p>Watch a short film, try a Studio tool or open a published stack.</p>
+          <p class="small"><a href={filtered ? "/share#films" : "#films"}>Watch films</a> · <a href="#published-stacks">Browse stacks</a></p>
         </div>
       </header>
+
+      {!filtered && (
+        <section class="wall-films" id="films" aria-labelledby="films-heading">
+          <h2 id="films-heading">Short films and demos</h2>
+          <div class="wall-film-layout">
+            <article class="wall-featured-film" aria-labelledby="studio-film-heading">
+              <video controls playsinline preload="none" poster={`${studioFilm}.jpg`} width="1080" height="1920" aria-labelledby="studio-film-heading">
+                <source src={`${studioFilm}.mp4`} type="video/mp4" />
+                <track kind="captions" src={`${studioFilm}.vtt`} srclang="en" label="English captions" />
+                <a href={`${studioFilm}.mp4`}>Watch the social-kit film</a>
+              </video>
+              <div>
+                <h3 id="studio-film-heading">One image. Four social sizes.</h3>
+                <p>17 seconds. Watch Image Tools turn one PNG into four WebPs and a downloadable ZIP.</p>
+                <p class="small">Music by LoftwahFM · Pixel Box Theory</p>
+                <div class="wall-film-links">
+                  <a href={`${studioFilm}.mp4`} download>Download video</a>
+                  <a href="https://media.loftwah.com/tools/images">Try Image Tools</a>
+                </div>
+              </div>
+            </article>
+            <ul class="wall-film-list" role="list">
+              {films.map((film) => (
+                <li><a href={film.href}>{film.title} <ArrowUpRight size={16} aria-hidden="true" /></a><p>{film.detail}</p></li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+      <div id="published-stacks" class="wall-stacks-heading">
+        <h2>Published creator stacks</h2>
+        <a href="/studio">Build your own stack</a>
+      </div>
 
       <form class="wall-controls" method="get" action="/share" role="search" aria-label="Filter published stacks" data-share-wall-form>
         <label class="wall-search">
@@ -150,10 +192,24 @@ const description = unavailable
 <style>
   .wall-heading { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:20px 48px; align-items:end; margin-bottom:26px; }
   .wall-heading h1 { margin:6px 0 0; max-width:18ch; font-size:clamp(2.4rem,5vw,4.2rem); line-height:1.04; }
-  .wall-heading .eyebrow { margin:0; }
   .wall-intro { max-width:46ch; }
   .wall-intro p { margin:0 0 8px; color:var(--color-muted); }
   .wall-intro .small { margin-bottom:0; }
+  .wall-films { margin:0 0 42px; padding:24px 0 28px; border-block:1px solid var(--color-border); scroll-margin-top:22px; }
+  .wall-films h2,.wall-stacks-heading h2 { margin:0 0 16px; }
+  .wall-film-layout { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:24px 44px; align-items:start; }
+  .wall-featured-film { display:grid; grid-template-columns:minmax(0,190px) minmax(0,1fr); gap:16px 20px; align-items:start; }
+  .wall-featured-film video { display:block; width:100%; height:auto; background:var(--color-field); border-radius:10px; }
+  .wall-featured-film h3 { margin:0 0 8px; font-size:1.25rem; }
+  .wall-featured-film p,.wall-film-list p { color:var(--color-muted); }
+  .wall-film-links { display:flex; flex-wrap:wrap; gap:0 16px; font-weight:600; }
+  .wall-film-links a { display:flex; align-items:center; min-height:44px; }
+  .wall-film-list { list-style:none; margin:0; padding:0; }
+  .wall-film-list li { padding:9px 0; border-bottom:1px solid var(--color-border); }
+  .wall-film-list li:first-child { padding-top:0; }
+  .wall-film-list a { display:inline-flex; gap:6px; align-items:center; font-weight:650; min-height:32px; }
+  .wall-film-list p { margin:0; font-size:.875rem; }
+  .wall-stacks-heading { display:flex; flex-wrap:wrap; gap:8px 20px; align-items:baseline; justify-content:space-between; scroll-margin-top:22px; }
   .wall-controls { display:grid; grid-template-columns:minmax(0,2.2fr) minmax(0,1fr) minmax(0,1fr) auto; gap:12px 16px; align-items:end; margin:0 0 16px; padding:18px; background:var(--color-surface); border:1px solid var(--color-border); border-radius:10px; }
   .wall-controls label { margin:0; min-width:0; font-size:.82rem; color:var(--color-muted); }
   .wall-controls input, .wall-controls select { margin-top:6px; background:var(--color-field); }
@@ -181,11 +237,13 @@ const description = unavailable
     .wall-heading h1 { max-width:22ch; }
   }
   @media (max-width:760px) {
+    .wall-film-layout { grid-template-columns:minmax(0,1fr); }
     .wall-controls { grid-template-columns:minmax(0,1fr) minmax(0,1fr); padding:14px; }
     .wall-search, .wall-control-actions { grid-column:1/-1; }
     .wall-grid { grid-template-columns:repeat(auto-fill,minmax(15rem,1fr)); }
   }
   @media (max-width:460px) {
+    .wall-featured-film { grid-template-columns:minmax(0,138px) minmax(0,1fr); gap:12px; }
     .wall-controls { grid-template-columns:minmax(0,1fr); }
     .wall-grid { grid-template-columns:minmax(0,1fr); }
     .wall-state { padding:20px; }
