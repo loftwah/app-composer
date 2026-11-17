@@ -673,6 +673,12 @@ curl -s -o /dev/null -w '%&#123;http_code&#125;\n' https://your-studio.example/a
   .roles dt{font:600 .62rem/1.4 ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--accent,#ff5a1f);margin-bottom:5px}
   .roles dd{margin:0;font-size:.86rem;line-height:1.5;color:var(--muted,#b9b2a8)}
   .tut p,.tut li{font-size:1rem;line-height:1.65}
+  /* At 200% root text the bare URL link text in chapter 12
+     ("media.loftwah.com/p/oCE3jwInl-G55yXf") has no break opportunity, so its
+     min-content width stretched the .cols grid and the whole document to 524px
+     on a 390px viewport. Break only a word that cannot otherwise fit; the path
+     table and the code scrollers keep their own explicit horizontal scrolling. */
+  .tut p,.tut li,.tut dd,figcaption{overflow-wrap:anywhere}
   .tut ul,.tut ol{padding-left:20px;margin:0 0 16px}
   .tut li{margin-bottom:8px}
   .check{border:1px solid var(--line,rgba(255,255,255,.2));padding:18px;background:color-mix(in srgb,var(--fg,#f4efe6) 4%,transparent)}
