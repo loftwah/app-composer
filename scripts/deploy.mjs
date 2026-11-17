@@ -104,6 +104,7 @@ const releaseRun = createReleaseRun({
   releasePath: "scripts/deploy.mjs",
   kind: "worker-production",
   receiptDir: ".release/timing",
+  firstEditAt: process.env.COMPOSER_FIRST_EDIT_AT,
   github,
 });
 await releaseRun.flushPending();
