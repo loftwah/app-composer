@@ -425,11 +425,13 @@ Two posts went live on `@loftwah.com`.
 - The first integrated attempt failed at the provider. Composer used a
   32-character digest as the record key; Bluesky requires a 13-character TID.
   Fixed in `95a067f`, with the stale-calendar-clock fix in `301e149`.
-- Remaining: an approval cannot yet bind an arbitrary approved project image and
-  its alt text (only the generated stack card), and the customer connection
-  invitation, Instagram, the Facebook Page and LinkedIn are still owner/provider
-  work. Evidence:
-  [first posts](evidence/social-owner-activation/20261117-first-posts.md).
+- After these two posts, [#667](https://github.com/loftwah/app-composer/pull/667)
+  added native publishing of approved Woodhouse Share artwork, with exact alt,
+  credit and project link verified on the
+  [Foilbury post](https://bsky.app/profile/loftwah.com/post/6ilczw7ahd47l).
+  The connection invitation and Instagram, Facebook Page and LinkedIn acceptance
+  remain open. [First-post evidence](evidence/social-owner-activation/20261117-first-posts.md).
+
 
 ## Media Studio — 13 November 2026
 

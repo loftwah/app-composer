@@ -14,9 +14,11 @@ prove different things and are recorded separately.
 - **Source:** “Foilbury · Pippa in the lantern garden”,
   https://media.loftwah.com/p/9UX85ricWNKOeA96 — an illustration from the
   Foilbury card world, animated in the independently owned Media Studio.
-- **Attached image:** the page poster, converted from a 1008 × 1792 PNG to a
-  787 × 1400 JPEG (337,008 bytes, SHA-256
-  `9dcc9d03308a432f89eb2ec6920b60e1f051f6f2fd1b327d3d3d3802e18b193e`).
+- **Prepared JPEG:** 787 × 1400, 337,008 bytes, SHA-256
+  `9dcc9d03308a432f89eb2ec6920b60e1f051f6f2fd1b327d3d3d3802e18b193e`.
+- **Published JPEG, read back from Bluesky:** 787 × 1400, 865,531 bytes, SHA-256
+  `4bb69a4c8ffb8bb4d6b8ece1f6bcf330297ec183bccc803ce029533ca21c1e82`, blob CID
+  `bafkreiclw2nezd73ro2nnohm4h3lz4zqff7mda54zsadzybjkm6keha6qi`.
 - **Alt text as published:** “Painted poster: a black Labrador–Staffordshire
   cross sits in a moonlit garden under a crescent moon, lit by hanging lanterns
   among purple foliage and pale flowers. Cream lettering at the top reads PIPPA,
@@ -75,9 +77,11 @@ which passes the generic record-key syntax but is not a Bluesky TID.
 
 ## What is still missing
 
-- The Bluesky attachment is the generated stack share card. An owner cannot yet
-  bind an arbitrary approved project image with its own alt text to the
-  approval, which is why the real portfolio post used the assisted route.
+- The integrated post above used a generated stack share card. Later
+  [#667](https://github.com/loftwah/app-composer/pull/667) added approval of a
+  Woodhouse Share image with its own alt text, credit and project link. The
+  [native Foilbury post](https://bsky.app/profile/loftwah.com/post/6ilczw7ahd47l)
+  matched the approved JPEG digest. [Read the #604 release evidence](https://github.com/loftwah/app-composer/issues/604#issuecomment-6921673205).
 - The customer “connect your social accounts” invitation link, Instagram, the
   Facebook Page and LinkedIn remain owner/provider work. X stays export-only.
 - Engagement or reach claims need a later, deliberate measurement window; this
