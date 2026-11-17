@@ -48,8 +48,8 @@ const missing = days.length - available.length;
 const maximum = Math.max(1, ...days.map((day) => day.value ?? 0));
 const magnitude = 10 ** Math.floor(Math.log10(maximum));
 const ceiling = Math.max(
-  4,
-  [1, 2, 5, 10].find((step) => step * magnitude >= maximum)! * magnitude,
+  2,
+  [2, 4, 6, 8, 10].find((step) => step * magnitude >= maximum)! * magnitude,
 );
 const initialIndex = dayIndex(days, selectedDay);
 const initial = days[initialIndex] ?? {
@@ -61,8 +61,9 @@ const initial = days[initialIndex] ?? {
 };
 const width = 900;
 const height = 260;
-const baseline = 232;
-const top = 32;
+// Match the 10%, 50% and 90% tick positions in analytics.css.
+const top = height * 0.1;
+const baseline = height * 0.9;
 const plot = baseline - top;
 const step = width / Math.max(1, days.length);
 const barWidth = Math.max(2, Math.min(28, step * 0.62));
@@ -102,7 +103,7 @@ const yFor = (day: ActivityDay) =>
   <div class="trend-plot">
     <div class="trend-scale" aria-hidden="true">
       <span>{count(ceiling)}</span>
-      <span>{count(Math.round(ceiling / 2))}</span>
+      <span>{count(ceiling / 2)}</span>
       <span>0</span>
     </div>
     <div class="trend-canvas">
