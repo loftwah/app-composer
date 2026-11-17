@@ -47,7 +47,7 @@ export const GET: APIRoute = async ({ url }) => {
     const extension = pathname.split(".").at(-1)?.toLowerCase() ?? "";
     const mime = mimeTypes[extension];
     const upstream = await fetch(file.url, {
-      redirect: "error",
+      redirect: "manual",
       signal: AbortSignal.timeout(30_000),
     });
     const length = Number(upstream.headers.get("content-length"));
