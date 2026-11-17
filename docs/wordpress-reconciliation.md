@@ -47,6 +47,13 @@ also restores the existing native category parent through the normal term API.
 this bounded manual reconciliation from automatic importer parity, the older
 1.2→1.3.1 upgrade and hosted/physical-device/provider gates.
 
+A separate local EmDash 1.5.0 check used the authenticated native importer.
+Compare the destination status before publishing any draft. The admin importer
+kept private and password-protected source entries as drafts, and the earlier
+CLI conversion preserved the private status. It preserved a three-level menu
+and flattened the category tree.
+[17 November observations](../labs/wordpress/weekender/OBSERVATIONS.md#native-admin-wxr-import-17-november-2026-emdash-150).
+
 Official contracts checked against installed EmDash 1.3.1:
 [WordPress import](https://docs.emdashcms.com/migration/from-wordpress/) and
 [native REST](https://docs.emdashcms.com/reference/rest-api/).
