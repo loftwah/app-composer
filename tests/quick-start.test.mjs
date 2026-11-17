@@ -270,11 +270,11 @@ test('the Media Studio build prompt names the real runtime, resources and source
   assert.match(prompt.text, /Workers Paid/);
   assert.match(prompt.text, /error 9432/);
   assert.match(prompt.text, /RENDER_ORIGIN/);
-  assert.match(prompt.text, /0001–0017 for e8b3778/);
+  assert.match(prompt.text, /0001–0025 at the current fallback pin/);
   assert.match(prompt.text, /LAUNCH_KIT_URL/);
   assert.match(prompt.text, /workers\.dev hostname/);
   assert.match(prompt.text, /MEDIA_STUDIO_ORIGIN/);
   assert.match(prompt.text, /pnpm run deploy -- --migrate/);
-  assert.match(prompt.text, /e8b3778cd5d800378f42985afda80820fcb7ef57/);
+  assert.match(prompt.text, /409dff5114482644bdd0ee21ce1ab09be3ec5f12/);
   assert.match(prompt.text, /Have me enter OWNER_PASSPHRASE directly/);
 });
