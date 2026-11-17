@@ -11,6 +11,7 @@ if (root) {
     ...root.querySelectorAll<HTMLAnchorElement>("[data-metric-tab]"),
   ];
 
+  const scopedLinks = root.querySelectorAll<HTMLAnchorElement>("[data-preserve-day]");
   const url = (metric: string, day?: string) => {
     try {
       const next = new URL(location.href);
@@ -18,6 +19,12 @@ if (root) {
       if (day) next.searchParams.set("day", day);
       else next.searchParams.delete("day");
       window.history.replaceState(null, "", next);
+      for (const link of scopedLinks) {
+        const destination = new URL(link.href);
+        if (day) destination.searchParams.set("day", day);
+        else destination.searchParams.delete("day");
+        link.href = destination.href;
+      }
     } catch {
       /* Native Show signal and full page loads remain available. */
     }

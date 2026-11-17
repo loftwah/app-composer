@@ -24,6 +24,7 @@ interface Props {
   selectedDay?: string | null;
   caption?: string;
   hidden?: boolean;
+  showTotal?: boolean;
 }
 const {
   metric,
@@ -40,6 +41,7 @@ const {
   selectedDay,
   caption,
   hidden = false,
+  showTotal = true,
 } = Astro.props;
 const available = days.filter((day) => day.value !== null);
 const missing = days.length - available.length;
@@ -80,13 +82,13 @@ const yFor = (day: ActivityDay) =>
   data-trend-label={label}
   hidden={hidden}
 >
-  <div class="trend-heading">
+  {showTotal && <div class="trend-heading">
     <span class="trend-window-label">Window total</span>
     <p>
       <strong>{value === null ? "Unavailable" : count(value)}</strong>{" "}
       {value === null ? "in this scope" : unit}
     </p>
-  </div>
+  </div>}
 
   <div class="trend-readout" role="status" aria-live="polite">
     <span class="trend-readout-date" data-readout-date>{longDateLabel(initial.date)} · UTC</span>
