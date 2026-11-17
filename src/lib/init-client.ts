@@ -229,7 +229,9 @@ form.addEventListener('submit',e=>{e.preventDefault();show(true);});form.addEven
   if(file.size>65536)throw new Error('Spec is too large. Use a file up to 64 KB.');
   const text=await file.text();
   if(selectedRevision!==revision)return;
-  reviewCandidate(validateSpec(JSON.parse(text)), 'Spec checked. Review it before replacing your current draft.');
+  let spec:unknown;
+  try{spec=JSON.parse(text);}catch{throw new Error('This file is not valid JSON. Choose an app spec downloaded from App Composer.');}
+  reviewCandidate(validateSpec(spec), 'Spec checked. Review it before replacing your current draft.');
  }catch(e){if(selectedRevision===revision)report(e);}
 });
 document.querySelector('#replace-import')!.addEventListener('click',()=>{
