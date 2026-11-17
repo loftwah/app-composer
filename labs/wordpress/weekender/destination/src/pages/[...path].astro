@@ -12,7 +12,7 @@ type Article = {
   slug?: string;
   excerpt?: string;
   featured_image?: ComponentProps<typeof Image>["image"];
-  content?: unknown[];
+  content?: ComponentProps<typeof PortableText>["value"];
   byline?: unknown;
   terms?: unknown;
 };
