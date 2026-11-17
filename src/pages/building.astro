@@ -1,13 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
+import { buildingShareArtwork } from '../lib/site-share-artwork.mjs';
 import TutorialQuickStart from '../components/TutorialQuickStart.astro';
 import { buildingQuickStart } from '../lib/tutorial-quick-start.mjs';
 import dims from '../../public/diagrams/journey-dimensions.json';
 
 const title = 'Building App Composer, and building with it.';
 const description = 'A real brief, a local Worker run, and a guestbook note that earns its place. How App Composer is built, and how two independent apps learned to agree about a contribution.';
-const shareImage = 'https://composer.loftwah.com/brand/building/building-hero-20261022-v2.jpg';
-const shareAlt = 'Flat orange App Composer graphic with the white merging-block mark, the headline "Building App Composer, and building with it." and composer.loftwah.com.';
+const shareImage = new URL(buildingShareArtwork.path, 'https://composer.loftwah.com').href;
+const shareAlt = buildingShareArtwork.alt;
 const articleSchema = {
   '@context': 'https://schema.org',
   '@type': 'TechArticle',
@@ -92,6 +93,7 @@ const contribution = dims['building-contribution'] as { desktop: { width: number
           <article><h3>Linkarooie</h3><p>Another independent Worker. It owns the profile, authored links, curation and which approved source items are featured. It asks Guestbook for current eligibility on every render.</p></article>
           <article><h3>The agent</h3><p>A coding agent works in the selected repositories: it reads the brief, prepares the environment, changes source, runs checks and follows the release path. Account access, spending and consequential permissions stay human decisions.</p></article>
         </div>
+        <p><a href={buildingShareArtwork.path} download>Download the build story artwork</a></p>
         <h3>How the work developed</h3>
         <p>The first commit is 11 October 2026. The working foundation landed on 13 October: the public site, independent composition, Init, the decision explorer, guarded Access administration and a first readiness handoff. The following days added the readiness core, a verified Hello update, the app library and launcher, the composed collection, workspace roles, private outcomes, the enquiry inbox, the owner experience and the approved orange identity. This article describes a change made on 22 October; it is not a retrospective claim that the whole product appeared in one session.</p>
         <p><strong>Where the self-build claim is real:</strong> Composer's own Init produced the portable specification used to configure the local Linkarooie instance below. This article is itself an Astro page in the Composer repository, built and released through Composer's own checks and guarded deployment. We are not claiming that Composer autonomously wrote its own source, chose its own architecture or deployed without an agent and an owner.</p>

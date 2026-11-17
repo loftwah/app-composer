@@ -2,14 +2,16 @@
 import Base from '../layouts/Base.astro';
 import DiagramFigure from '../components/DiagramFigure.astro';
 import { ArrowRight } from '@lucide/astro';
-import { diagramAtlas } from '../lib/diagram-atlas';
+import { diagramAtlas, engineeringDiagrams } from '../lib/diagram-atlas';
 
-const diagrams = diagramAtlas;
+import { engineeringAtlasArchive } from '../lib/engineering-artwork.mjs';
+
+const diagrams = [...engineeringDiagrams, ...diagramAtlas];
 ---
 
 <Base
   title="Diagram atlas — editable views of the real system"
-  description="Native LDraw diagrams explain the App Composer lifecycle, the agent approval boundary and Cloudflare Production/Preview isolation. Download the editable scene, SVG or PNG."
+  description="Editable LDraw diagrams show what App Composer is for, how it works and who stays in control. Download the editable scene, SVG or PNG."
 >
   <article class="atlas">
     <div class="atlas-heading">
@@ -21,6 +23,7 @@ const diagrams = diagramAtlas;
     <section class="atlas-intro" aria-labelledby="atlas-use-heading">
       <h2 id="atlas-use-heading">What these are for</h2>
       <p>The text, arrows and boxes remain editable. The SVG and PNG are rendered from the same scene you can download.</p>
+      <p><a href={engineeringAtlasArchive} download>Download all 31 engineering diagrams</a> · <a href="/share#diagram-artwork">Share the illustrated artwork</a></p>
       <p class="small">Rendered with <code>@excalidraw/excalidraw@0.18.1</code> through LDraw’s existing renderer. The source scene, SVG and PNG are committed together; the page does not call a live diagram service.</p>
     </section>
 
