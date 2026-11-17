@@ -41,6 +41,14 @@ export declare const fieldTypes: Readonly<{
     repeater: "Repeating group";
 }>;
 export declare function validateContentModel(input: unknown): ContentModel;
+/**
+ * Seed and site output must use the collection identifier grammar enforced by
+ * the installed EmDash validateSeed. Draft editing stays deliberately broader:
+ * a legacy hyphenated collection still loads and edits, and is never renamed
+ * here. The caller receives a precise rename instruction instead of a broken
+ * seed or a silently changed identifier.
+ */
+export declare function assertSeedCollection(input: unknown): ContentModel;
 export declare function visibleModelFields(input: unknown, values: Record<string, unknown>): ContentField[];
 export declare function validateModelValues(input: unknown, values: Record<string, unknown>): Record<string, unknown>;
 export declare function emdashSeed(input: unknown): {

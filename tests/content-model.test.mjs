@@ -1,12 +1,22 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {mkdtempSync,rmSync,writeFileSync,readFileSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {execFileSync} from 'node:child_process';
 import {DatabaseSync} from 'node:sqlite';
-// Exact installed EmDash 1.2.0 runtime validator; revisit on a dependency update.
+// Exact installed EmDash runtime validators; revisit on a dependency update.
 import {nativeFieldSchema} from './fixtures/emdash-runtime.mjs';
 import {validateSeed} from 'emdash/seed';
-import {validateContentModel,validateModelValues,visibleModelFields,emdashSeed,contentModelHandoff,starterModel} from '../lib/content-model/index.mjs';
+import {validateContentModel,validateModelValues,visibleModelFields,emdashSeed,contentModelHandoff,contentProjectHandoff,starterModel} from '../lib/content-model/index.mjs';
 const sample=()=>structuredClone(starterModel);
 test('portable field structure validates against the actual installed EmDash seed implementation',()=>{
  const model=validateContentModel(sample()),seed=emdashSeed(model),check=validateSeed(seed);assert.equal(check.valid,true,JSON.stringify(check));assert.equal(seed.collections[0].routable,false);assert.deepEqual(seed.collections[0].supports,['drafts','revisions']);assert.equal(seed.collections[0].fields.find(field=>field.slug==='materials').validation.subFields.length,2);assert.doesNotMatch(JSON.stringify(seed),/when|group|token|secret/);assert.match(contentModelHandoff(model),/Native EmDash admin is not claimed to hide conditional fields/);
+});
+test('underscore collection identifiers pass the actual installed EmDash 1.5 seed validator',()=>{
+ const model=sample();model.collection='community_workshops';const clean=validateContentModel(model);assert.equal(clean.collection,'community_workshops');assert.deepEqual(validateContentModel(clean),clean);
+ const seed=emdashSeed(clean);assert.equal(seed.collections[0].slug,'community_workshops');const check=validateSeed(seed);assert.equal(check.valid,true,JSON.stringify(check));assert.match(contentModelHandoff(clean),/community_workshops/);assert.match(contentProjectHandoff(clean),/community_workshops/);
+});
+test('legacy hyphen collection names stay editable but seed and site output ask for an explicit rename',()=>{
+ const model=sample();model.collection='community-workshops';const clean=validateContentModel(model);
+ assert.equal(clean.collection,'community-workshops');assert.deepEqual(validateContentModel(clean),clean);assert.deepEqual(validateModelValues(clean,{title:'Fictional workshop',format:'In person'}).title,'Fictional workshop');
+ for(const output of [emdashSeed,contentModelHandoff,contentProjectHandoff])assert.throws(()=>output(clean),error=>error.code==='EMDASH_COLLECTION'&&/"community-workshops"/.test(error.message)&&/"community_workshops"/.test(error.message)&&/hyphen/.test(error.message));
+ assert.equal(clean.collection,'community-workshops');clean.collection='community_workshops';assert.equal(validateSeed(emdashSeed(clean)).valid,true);
 });
 test('model import refuses unknown authority, reserved fields, nesting, duplicate keys and circular/invalid conditions',()=>{
  for(const change of [m=>m.version=2,m=>m.token='fictional-secret',m=>m.fields[0].key='__proto__',m=>m.fields[1].key=m.fields[0].key,m=>m.fields[0].type='script',m=>m.fields[0].when={field:'format',equals:'Online'},m=>m.fields[3].required=true,m=>m.fields[3].when.equals='Missing',m=>m.fields[4].fields[0].type='repeater',m=>m.fields[4].limit=999,m=>m.fields[2].choices=['Same','Same']]){const model=sample();change(model);assert.throws(()=>validateContentModel(model));}
