@@ -174,13 +174,12 @@ design and has no public signup.
 
 | App | Source | Pin | Licence |
 | --- | --- | --- | --- |
-| Media Studio | [loftwah/composer-media-studio](https://github.com/loftwah/composer-media-studio) | `e8b3778cd5d800378f42985afda80820fcb7ef57` | MIT stated in the README; no licence file detected at the pin |
+| Media Studio | [loftwah/composer-media-studio](https://github.com/loftwah/composer-media-studio) | `409dff5114482644bdd0ee21ce1ab09be3ec5f12` | MIT stated in the README; no licence file detected at the pin |
 
 The pin is the value in `config/media-studio-standalone.json`. The live reference
-studio is **newer**: it reports
-`f2f29696d8be2424cee5f64b89bdcb0bb43de037`, built
-2026-11-15T23:18:21.480Z. The blueprint and Init brief stay on the declared pin;
-neither value is rewritten here.
+studio now reports the same revision `409dff5114482644bdd0ee21ce1ab09be3ec5f12`,
+built 2026-11-17T03:24:48.523Z, read back from its public `/build.json` and
+`/healthz`. Earlier dated briefs retain their own exact revision and digest.
 
 ### Prerequisites
 
@@ -203,7 +202,7 @@ neither value is rewritten here.
    ```sh
    git clone https://github.com/<your-account>/composer-media-studio
    cd composer-media-studio
-   git checkout e8b3778cd5d800378f42985afda80820fcb7ef57
+   git checkout 409dff5114482644bdd0ee21ce1ab09be3ec5f12
    ```
 
 2. Replace the first-party values in `wrangler.jsonc` and `app.manifest.json`:
@@ -234,7 +233,7 @@ neither value is rewritten here.
    npx wrangler d1 migrations apply media-studio --remote
    ```
 
-   Apply migrations `0001`–`0017` in order. The guarded command below applies
+   Apply migrations `0001`–`0025` in order. The guarded command below applies
    them for you; do not reset or skip a migration.
 
 4. Set the runtime secrets directly, never through a tracked file.
