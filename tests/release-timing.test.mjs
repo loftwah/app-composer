@@ -504,6 +504,47 @@ test("invalid, future and unverified first-edit values leave the note absent", a
   assert.ok(!("firstEditAt" in unfinished.notes), "no verified live revision means no note");
 });
 
+test("a date -u seconds-only edit time is accepted and stored normalized", async (t) => {
+  const dir = ownedDir(t);
+  const clock = fakeClock();
+  const github = fakeGitHub();
+  const guardStart = new Date("2026-11-17T08:42:32.000Z");
+  const run = runFor(dir, clock, github, {
+    wallClock: () => guardStart,
+    firstEditAt: "2026-11-17T08:42:22Z", // exact date -u value from #718
+  });
+  await run.stage("live verification", async () => clock.advance(10_000));
+  const receipt = await run.finish({ liveRevision: SHA });
+  assert.equal(receipt.status, "passed");
+  assert.equal(receipt.notes.firstEditAt, "2026-11-17T08:42:22.000Z", "stored note is normalized");
+  assert.equal(receipt.notes.firstEditToLiveIdentityMs, 10_000 + 10_000);
+  assert.equal(github.issues.length, 0);
+});
+
+test("seconds-only edit times still reject rollover, offsets and whitespace", async (t) => {
+  const dir = ownedDir(t);
+  const guardStart = new Date("2026-12-01T00:00:00.000Z");
+  for (const value of [
+    "2026-02-30T08:42:22Z", // calendar rollover to 2026-03-02
+    "2026-11-17T24:00:00Z", // hour rollover to 2026-11-18
+    "2026-11-17T08:42:22+00:00", // an explicit offset, even zero
+    "2026-11-17T08:42:22Z ", // trailing whitespace
+    " 2026-11-17T08:42:22Z", // leading whitespace
+    "2026-11-17T08:42:22.12Z", // wrong fractional width
+  ]) {
+    const clock = fakeClock();
+    const run = runFor(dir, clock, fakeGitHub(), {
+      wallClock: () => guardStart,
+      firstEditAt: value,
+    });
+    await run.stage("live verification", async () => clock.advance(1_000));
+    const receipt = await run.finish({ liveRevision: SHA });
+    assert.equal(receipt.status, "passed", value);
+    assert.ok(!("firstEditAt" in receipt.notes), `accepted rollover/offset/whitespace: ${value}`);
+    assert.ok(!("firstEditToLiveIdentityMs" in receipt.notes), value);
+  }
+});
+
 // ---- first-edit-only breach alert (issue #624, distinct from the guard SLO) ----
 
 for (const [label, firstEditToLiveMs, expectedAlerts] of [

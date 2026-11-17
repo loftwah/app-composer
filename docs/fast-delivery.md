@@ -94,7 +94,8 @@ a directory of these receipts without executing them: see
 
 ### Optional first-edit timestamp
 
-Use the UTC instant recorded at the first relevant edit, in JavaScript
+Use the UTC instant recorded at the first relevant edit. The guard accepts
+whole seconds or three fractional digits and stores JavaScript
 `toISOString()` format.
 
 ```sh
