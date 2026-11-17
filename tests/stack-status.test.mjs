@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import composerManifest from "../package.json" with { type: "json" };
+import { stackStatusSnapshot } from "../src/lib/stack-status-contract.ts";
 import {
   buildStackStatus,
   remoteState,
@@ -52,6 +54,24 @@ function registryReport(packages) {
     packages,
   };
 }
+
+test("the native snapshot accepts Composer's declared Node engine range", () => {
+  const snapshot = buildStackStatus({
+    policy: policy({}),
+    manifest: { ...manifest({}), engines: composerManifest.engines },
+    importer: importer({}),
+    installed: new Map(),
+    nodeVersion: "26.13.1",
+    pnpmVersion: "12.19.0",
+    build,
+    now,
+  });
+  const checked = stackStatusSnapshot.parse(snapshot);
+  assert.equal(checked.runtime.find((row) => row.name === "node").declared, composerManifest.engines.node);
+  const invalid = structuredClone(snapshot);
+  invalid.runtime[0].installed = composerManifest.engines.node;
+  assert.equal(stackStatusSnapshot.safeParse(invalid).success, false);
+});
 
 test("installed, deployed and latest tested stay distinct without patch/minor warnings", () => {
   const snapshot = buildStackStatus({

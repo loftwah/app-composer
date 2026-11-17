@@ -58,7 +58,7 @@ const runtimeStatus = z.enum([
 const runtimeRow = z
   .object({
     name: z.enum(["node", "pnpm"]),
-    declared: version.nullable(),
+    declared: z.string().min(1).max(300).nullable(),
     default: version.nullable(),
     installed: version.nullable(),
     observed: z.boolean(),
