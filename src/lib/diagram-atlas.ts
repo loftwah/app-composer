@@ -1,6 +1,7 @@
 export interface AtlasDiagram {
   name: string;
   assetName?: string;
+  assetDirectory?: string;
   imageWidth?: number;
   imageHeight?: number;
   title: string;
@@ -9,6 +10,51 @@ export interface AtlasDiagram {
   usedOn: { label: string; href: string }[];
   steps: { title: string; detail: string }[];
 }
+
+export const engineeringDiagrams: readonly AtlasDiagram[] = [
+  {
+    name: 'composer-purpose',
+    assetDirectory: '/diagrams/engineering',
+    imageWidth: 2408, imageHeight: 1191,
+    title: 'What App Composer is for',
+    alt: 'A diagram connects the creator’s idea and decisions to an agent, reusable building blocks and release evidence, then to an owned product. A separate row records product direction.',
+    caption: 'The creator decides what to make. App Composer brings together the agent, building blocks, creative tools and release checks needed to make it real.',
+    usedOn: [{ label: 'Share artwork', href: '/share#diagram-artwork' }],
+    steps: [
+      { title: 'Creator direction', detail: 'The creator sets the goal and makes the meaningful decisions.' },
+      { title: 'Build and verify', detail: 'The chosen agent can work with reusable capabilities, creative tools and visible checks.' },
+      { title: 'Owned result', detail: 'The project keeps its own source, data and release path. The final row shows the broader product direction.' },
+    ],
+  },
+  {
+    name: 'composer-agent-and-owner',
+    assetDirectory: '/diagrams/engineering',
+    imageWidth: 1932, imageHeight: 1191,
+    title: 'Agent and owner authority',
+    alt: 'A diagram of the agent’s bounded proposal, owner review and separate execution with evidence.',
+    caption: 'The person keeps approval authority. The agent works within the permissions granted for the job.',
+    usedOn: [{ label: 'Share artwork', href: '/share#diagram-artwork' }],
+    steps: [
+      { title: 'Proposal', detail: 'The agent proposes a scoped change and records evidence.' },
+      { title: 'Decision', detail: 'An owner reviews the proposal before execution.' },
+      { title: 'Execution', detail: 'The approved operation remains a distinct step with its own checks.' },
+    ],
+  },
+  {
+    name: 'composer-creative-pipeline',
+    assetDirectory: '/diagrams/engineering',
+    imageWidth: 2408, imageHeight: 1191,
+    title: 'Creative production and reuse',
+    alt: 'A diagram of references, working media, review and the approved public artwork made from them.',
+    caption: 'The creative source and its variants remain available when a finished piece is published.',
+    usedOn: [{ label: 'Share artwork', href: '/share#diagram-artwork' }],
+    steps: [
+      { title: 'Gather references', detail: 'Start from selected references and project-owned media.' },
+      { title: 'Make and revise', detail: 'Keep editable work, variants and provenance with the project.' },
+      { title: 'Share', detail: 'Publish a selected, eligible rendition and leave a path to the source.' },
+    ],
+  },
+];
 
 export const diagramAtlas: readonly AtlasDiagram[] = [
   {

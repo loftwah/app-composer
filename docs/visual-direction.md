@@ -12,7 +12,9 @@ The desired animation language can draw on adult science-fiction cartoons, inclu
 
 ## App Composer share artwork
 
-The November 2026 App Composer campaign is the reference for new social cards. Use one striking subject, large readable type and a clear destination. Generate the complete illustration and its copy in one render. The final export may crop lightly, resize or compress that render. Inspect exact text, logo, subject and safe margins at 1200×630 and around 300px wide before using it.
+The November 2026 App Composer campaign is the reference for new social cards. Use one striking subject and large readable type. Generate the complete illustration and its copy in one render. The final export may crop lightly, resize or compress that render. Inspect exact text, logo, subject and safe margins at 1200×630 and around 300px wide before using it.
+
+Artwork should work across posts and pages. If an App Composer image contains an address, print only `composer.loftwah.com`. Leave any page path, query string, fragment or separate app domain in the clickable post link, caption or page metadata. A Share post can link directly to `https://composer.loftwah.com/share` while the card carries the main domain. Read the actual pixels in the exported image before publishing it.
 
 Composer uses a shared campaign card by default and chooses a specific card where it helps a reader recognise the destination. Actual product captures, the approved PHP2Shell artwork and published user or project artwork have their own purpose and retain their own cards. Keep the vector merging-block identity for favicons, install, launcher and header. Treat tiny optical icons as a separate design job from social photography.
 

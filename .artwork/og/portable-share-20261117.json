@@ -1,0 +1,56 @@
+{
+  "generator": "OpenAI ImageGen through Codex. Each finished card was generated as a whole image with integrated type.",
+  "diagramSource": "https://github.com/loftwah/app-composer-ldraw/tree/918d710088e608986e743248313b835309e9ac60",
+  "cards": [
+    {
+      "file": "public/brand/campaign/building-og-20261117.jpg",
+      "printedAddress": "composer.loftwah.com",
+      "jpegSha256": "c3c0d0f78d3fdd66e01c0f25cd16efcc14cce2ab85be6e7a5d737cdbd433ee7a",
+      "masterSha256": "a3ffc16c8160e4122ff392c4fa9bd96d0b025115392c8b83fbf16e724290b69c"
+    },
+    {
+      "file": "public/brand/campaign/diagrams-og-20261117-v2.jpg",
+      "printedAddress": "composer.loftwah.com",
+      "jpegSha256": "2d2370b541bbd350dda662f194b01f7aeba4a21137df696697e8ddb69701f9f2",
+      "masterSha256": "8db7fdbdefa01020cc6cb38e161c66ba15bb53187e552ea281d7135ec51d4ae0"
+    },
+    {
+      "file": "public/brand/campaign/keep-the-keys-20261117.jpg",
+      "printedAddress": null,
+      "jpegSha256": "1366429f3a418b311f7288a94d647624ace427bcba484653458e551bcb8f9571",
+      "masterSha256": "1b99b54a0feeb3b5fcefb08cda5bfbfe2883275f6694893bf4da3af6e145cb2d",
+      "editableScene": "/diagrams/engineering/composer-agent-and-owner.excalidraw"
+    },
+    {
+      "file": "public/brand/campaign/make-it-real-20261117.jpg",
+      "printedAddress": null,
+      "jpegSha256": "2459de6c7032e5e6c1cc9a281f73c5e0c05541bc4aa805caf25fe8b1ca2690e6",
+      "masterSha256": "43345d8fe59e20e8ab3242f3b2ebcb59ff235fbeb328b9703f2c87a6ec9de0d7",
+      "editableScene": "/diagrams/engineering/composer-purpose.excalidraw"
+    },
+    {
+      "file": "public/brand/campaign/make-keep-remix-20261117.jpg",
+      "printedAddress": null,
+      "jpegSha256": "62fbcdf602fe2f6369e1d8e4691aa80114860a0e9cca80843c9ce47fa552382d",
+      "masterSha256": "818dc9fa3f859879ac6ebd8175df6c0360d11c8eeba753f6a9fa8a13a3d2091a",
+      "editableScene": "/diagrams/engineering/composer-creative-pipeline.excalidraw"
+    },
+    {
+      "file": "public/brand/campaign/media-studio-og-20261117-v2.jpg",
+      "printedAddress": "composer.loftwah.com",
+      "jpegSha256": "9229610b56a7a1516ea28c13b94f8ce05847bdc639aafd82d7060cf327167883",
+      "masterSha256": "572d24336d120fc5843fa71cdd53e38edef9d180bd6cf2ac2acfffb01450fbc9"
+    },
+    {
+      "file": "public/brand/campaign/share-og-20261117-v2.jpg",
+      "printedAddress": "composer.loftwah.com",
+      "jpegSha256": "d1120ca4c17cf220f9b83708c07fd0ea179e824e45f478930eb06f8bd00c2bd0",
+      "masterSha256": "ee91cfc7a4ce89a886faeb0604b9d5ba3c8beae5549211b0a5b99af9cf661236"
+    }
+  ],
+  "supersedes": [
+    "share-og-20261117.jpg",
+    "media-studio-og-20261117.jpg",
+    "diagrams-og-20261117.jpg"
+  ]
+}

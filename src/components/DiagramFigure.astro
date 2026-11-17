@@ -6,6 +6,7 @@ interface Step {
 interface Props {
   name: string;
   assetName?: string;
+  assetDirectory?: string;
   imageWidth?: number;
   imageHeight?: number;
   title: string;
@@ -14,8 +15,8 @@ interface Props {
   steps: Step[];
   usedOn?: { label: string; href: string }[];
 }
-const { name, assetName = name, imageWidth = 1600, imageHeight = 700, title, alt, caption, steps, usedOn = [] } = Astro.props;
-const base = `/diagrams/ldraw/${assetName}`;
+const { name, assetName = name, assetDirectory = '/diagrams/ldraw', imageWidth = 1600, imageHeight = 700, title, alt, caption, steps, usedOn = [] } = Astro.props;
+const base = `${assetDirectory}/${assetName}`;
 ---
 
 <figure class="ldraw-figure" data-diagram={name} id={`diagram-${name}`}>

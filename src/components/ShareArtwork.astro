@@ -1,5 +1,6 @@
 ---
 import { ArrowRight, ArrowUpRight } from '@lucide/astro';
+import EngineeringArtwork from './EngineeringArtwork.astro';
 import { type browseShareArtwork, SHARE_CATALOGUE_QUERY_MAX } from '../lib/share-catalogue-asset.ts';
 
 interface Props {
@@ -28,6 +29,7 @@ const artworkPath = (values: Record<string, string>) => {
     {(query || project) && <a href="/share">Clear filters</a>}
   </form>
   </header>
+  {!query && !project && !after && <EngineeringArtwork />}
   {project && <p class="small">Project: {project}</p>}
 
   {!catalogue ? (
@@ -83,11 +85,19 @@ const artworkPath = (values: Record<string, string>) => {
     const seen = new Set(Array.from(grid.children, (card) => (card as HTMLElement).dataset.artworkId));
     const loaded = new Set([location.href.split('#')[0]]);
     let loading = false;
+    let moveFocus = false;
+    const observer = typeof IntersectionObserver === 'function'
+      ? new IntersectionObserver(([entry]) => {
+          if (entry?.isIntersecting) void load();
+        }, { rootMargin: '0px 0px 300px' })
+      : null;
 
-    async function load() {
+    async function load(explicit = false) {
       if (!grid || !link || !status || link.hidden) return;
+      moveFocus ||= explicit;
       if (loading) return;
       loading = true;
+      observer?.unobserve(link);
       status.textContent = 'Loading artwork…';
       try {
         const url = link.href;
@@ -104,7 +114,7 @@ const artworkPath = (values: Record<string, string>) => {
         });
         if (!cards.length) throw new Error('No new artwork in batch');
         grid.append(...cards);
-        if (document.activeElement === link) {
+        if (moveFocus && document.activeElement === link) {
           cards[0].querySelector<HTMLAnchorElement>('a')?.focus();
         }
         loaded.add(url);
@@ -112,6 +122,7 @@ const artworkPath = (values: Record<string, string>) => {
         const next = href ? new URL(href, url) : null;
         if (next?.origin === location.origin && next.pathname === location.pathname && !loaded.has(next.href)) {
           link.href = next.href;
+          observer?.observe(link);
         } else {
           link.hidden = true;
         }
@@ -121,14 +132,16 @@ const artworkPath = (values: Record<string, string>) => {
         link.dataset.navigate = '';
       } finally {
         loading = false;
+        moveFocus = false;
       }
     }
 
     link.addEventListener('click', (event) => {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.hasAttribute('data-navigate')) return;
       event.preventDefault();
-      void load();
+      void load(true);
     });
+    observer?.observe(link);
   }
 </script>
 
