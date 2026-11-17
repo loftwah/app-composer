@@ -17,4 +17,12 @@ Chrome blocked the Studio MP4 download redirect. The web delivery was finished l
 - Keep model output editable and reusable. Retain original takes and separate narration, music and effects so a pacing or mix change can reuse the approved motion.
 - Show caption and approximate edit timing clearly, then let a reviewer verify against the actual audio. Offer a reproducible export with working downloads for the cut and separate assets.
 
+## Lessons for the next cut
+
+- Write the action and payoff in one sentence. This cut used one physical action to show ownership. Compare the opening, pacing and payoff with a reference ad before commissioning another take.
+- Name the intended formats in the brief. This release has a single 16:9 master. Plan the framing, caption safe areas and end-card readability for each intended destination. Check whether the existing take can be reframed before paying for another generation.
+- Quote the exact model, duration and number of takes. Producer started three takes each of the voice, effects and score. The accepted Seedance hero shot used one eight-second take and cost about 22,407 credits. Capture the approved quote and observed spend together.
+- Check the provider's actual MP4 before publishing. The first cut filled a blocked export with a local edit. For the replacement, Producer did the edit, mix and export, and the published MP4 matched the downloaded bytes. A decoded peak check caught the first native mix above full scale. Producer corrected it from the existing audio stems.
+- Use [private film feedback](https://composer.loftwah.com/media-studio/films#take-it-with-you) for the creative verdict. Notes are tied to the exact cut and can be copied into the next brief when a revision is wanted.
+
 Related work is tracked in [Media Studio #222](https://github.com/loftwah/composer-media-studio/issues/222). Vendor references are [Studio 4.0](https://elevenlabs.io/blog/introducing-studio-4), [Image & Video](https://elevenlabs.io/docs/overview/capabilities/image-video), and the [Eleven Music terms](https://elevenlabs.io/music-terms).
