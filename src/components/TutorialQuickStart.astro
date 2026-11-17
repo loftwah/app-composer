@@ -27,7 +27,7 @@ const copyLabels: Record<TutorialPromptKind, string> = {
   <p class="quick-links">{guide.links.map((link, index) => <>{index > 0 && ' · '}<a href={link.href}>{link.label}</a></>)}</p>
   <div class="prompt-list">
     {guide.prompts.map((prompt) => (
-      <details class="prompt-item" data-prompt-item data-prompt-kind={prompt.kind}>
+      <details class="prompt-item" id={`prompt-${prompt.id}`} data-prompt-item data-prompt-kind={prompt.kind}>
         <summary>
           <span class="prompt-kind">{kindLabels[prompt.kind]}</span>
           <span class="prompt-label">{prompt.label}</span>

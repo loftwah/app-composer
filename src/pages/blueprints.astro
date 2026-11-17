@@ -70,6 +70,7 @@ const labels: Record<string, string> = {reference: 'Reference', ready: 'Ready to
    <div class="bp-actions">
     <a class="button" href={`/init?start=${entry.preset}`}>Open this preset in Init <ArrowRight size={18} aria-hidden="true"/></a>
     <a class="button secondary" href={`/blueprints/${entry.id}.json`}><Download size={18} aria-hidden="true"/> Download specification</a>
+    {entry.id === 'media-studio' && <a class="button secondary" href="/media-studio/tutorial#prompt-build">Get the Studio build prompt <ArrowRight size={18} aria-hidden="true"/></a>}
    </div>
    <details class="bp-spec">
     <summary>What the specification carries</summary>
