@@ -4,7 +4,19 @@ import Base from "../../layouts/Base.astro";
 // These public examples are hosted by the first-party Studio.
 Astro.csp?.insertDirective("media-src 'self' https://media.loftwah.com");
 
-const groups = [
+interface DirectingLesson {
+  title: string;
+  outcome: string;
+  steps: string;
+  prompt: string;
+  example: string;
+  href: string;
+  source: string;
+  artworkCredit?: string;
+  studioNote?: string;
+}
+
+const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
   {
     id: "plan",
     title: "Plan the shot",
