@@ -3,34 +3,54 @@
 # It copies the two independent repositories, uses local D1/R2 emulation and
 # leaves the working repositories, owner state and browser sessions untouched.
 set -eu
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)
+. "$SCRIPT_DIR/local-ports.sh"
+if ! select_building_ports; then
+  exit 1
+fi
 GUESTBOOK_SOURCE=${GUESTBOOK_SOURCE:-"$ROOT/../app-composer-guestbook"}
 SHOWCASE_SOURCE=${SHOWCASE_SOURCE:-"$ROOT/../app-composer-showcase"}
 TMPDIR=${TMPDIR:-/tmp}
 TMPDIR=${TMPDIR%/}
-TMPROOT=$(mktemp -d "$TMPDIR/composer-build-199.XXXXXX")
 TOKEN=${OWNER_TOKEN:-build-199-fictional-owner}
 POINTER="$ROOT/output/build-199/local-root"
-READY=0
-kill_tree() {
-  pid=$1
-  [ -n "$pid" ] || return 0
-  for child in $(pgrep -P "$pid" 2>/dev/null || true); do kill_tree "$child"; done
-  kill "$pid" 2>/dev/null || true
+if [ -f "$POINTER" ] && [ -d "$(cat "$POINTER")" ]; then
+  echo "This checkout already has a local composition. Stop it or use a separate checkout." >&2
+  exit 1
+fi
+
+port_is_listening() {
+  command -v lsof >/dev/null 2>&1 || return 1
+  [ -n "$(lsof -tiTCP:"$1" -sTCP:LISTEN 2>/dev/null || true)" ]
 }
+for port in "$GUESTBOOK_PORT" "$LINKAROOIE_PORT"; do
+  if port_is_listening "$port"; then
+    echo "Port $port is already listening on this machine." >&2
+    echo "Nothing was started and no other process was touched. Choose two free loopback ports, for example:" >&2
+    echo "  GUESTBOOK_PORT=9788 LINKAROOIE_PORT=9787 labs/building/start-local.sh" >&2
+    exit 1
+  fi
+done
+
+TMPROOT=$(mktemp -d "$TMPDIR/composer-build-199.XXXXXX")
+READY=0
+export WRANGLER_REGISTRY_PATH="$TMPROOT/registry"
+export TMPDIR="$TMPROOT"
 cleanup() {
   if [ "$READY" -eq 0 ]; then
     for name in guestbook showcase; do
       pidfile="$TMPROOT/$name.pid"
       [ -f "$pidfile" ] || continue
-      kill_tree "$(cat "$pidfile")"
+      pid=$(cat "$pidfile")
+      if owns_building_process "$pid" "$TMPROOT"; then kill_building_tree "$pid"; fi
     done
     sleep 1
-    for port in 8787 8788; do
+    for port in "$GUESTBOOK_PORT" "$LINKAROOIE_PORT"; do
       for pid in $(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null || true); do
         parent=$(ps -p "$pid" -o ppid= 2>/dev/null | tr -d ' ')
         if ps -p "${parent:-0}" -o command= 2>/dev/null | grep -Fq "$TMPROOT"; then
-          kill_tree "$parent"
+          kill_building_tree "$parent"
           kill -9 "$pid" 2>/dev/null || true
         fi
       done
@@ -42,7 +62,7 @@ cleanup() {
   fi
 }
 trap cleanup EXIT INT TERM
-mkdir -p "$ROOT/output/build-199" "$TMPROOT/guestbook" "$TMPROOT/showcase"
+mkdir -p "$ROOT/output/build-199" "$TMPROOT/guestbook" "$TMPROOT/showcase" "$WRANGLER_REGISTRY_PATH"
 printf '%s\n' "$TMPROOT" > "$POINTER"
 
 copy_repo() {
@@ -53,12 +73,12 @@ copy_repo() {
 copy_repo "$GUESTBOOK_SOURCE" "$TMPROOT/guestbook-repo"
 copy_repo "$SHOWCASE_SOURCE" "$TMPROOT/showcase-repo"
 
-node - "$TMPROOT" "$GUESTBOOK_SOURCE" "$SHOWCASE_SOURCE" "$TOKEN" <<'NODE'
+node - "$TMPROOT" "$GUESTBOOK_SOURCE" "$SHOWCASE_SOURCE" "$TOKEN" "$GUESTBOOK_PORT" "$LINKAROOIE_PORT" <<'NODE'
 const fs = require("fs"), path = require("path"), cp = require("child_process");
-const [root, guestbookSource, showcaseSource, token] = process.argv.slice(2);
+const [root, guestbookSource, showcaseSource, token, guestbookPort, linkarooiePort] = process.argv.slice(2);
 for (const [dir, source, name, port] of [
-  ["guestbook-repo", guestbookSource, "composer-guestbook", 8788],
-  ["showcase-repo", showcaseSource, "composer-showcase", 8787],
+  ["guestbook-repo", guestbookSource, "composer-guestbook", guestbookPort],
+  ["showcase-repo", showcaseSource, "composer-showcase", linkarooiePort],
 ]) {
   const base = path.join(root, dir);
   const sha = cp.execFileSync("git", ["-C", source, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
@@ -84,7 +104,7 @@ for (const [dir, source, name, port] of [
     config.vars.RESOURCE_ENVIRONMENT = "local";
     delete config.vars.OWNER_STUDIO_URL;
   } else {
-    config.vars.PROVIDER_ORIGIN = "https://localhost:8788";
+    config.vars.PROVIDER_ORIGIN = `https://localhost:${guestbookPort}`;
     config.vars.PROVIDER_ID = "guestbook";
     config.vars.PROVIDER_MOUNT = "/guestbook";
     delete config.vars.OWNER_STUDIO_URL;
@@ -109,8 +129,8 @@ child.unref();
 console.log(child.pid);
 NODE
 }
-spawn_detached "$TMPROOT/guestbook-repo" "$TMPROOT/guestbook-dev.log" pnpm exec wrangler dev --config wrangler.local.jsonc --port 8788 --local-protocol https --persist-to "$TMPROOT/guestbook" > "$TMPROOT/guestbook.pid"
-spawn_detached "$TMPROOT/showcase-repo" "$TMPROOT/showcase-dev.log" pnpm exec wrangler dev --config wrangler.local.jsonc --port 8787 --local-protocol https --persist-to "$TMPROOT/showcase" > "$TMPROOT/showcase.pid"
+spawn_detached "$TMPROOT/guestbook-repo" "$TMPROOT/guestbook-dev.log" pnpm exec wrangler dev --config wrangler.local.jsonc --port "$GUESTBOOK_PORT" --inspector-port 0 --local-protocol https --persist-to "$TMPROOT/guestbook" > "$TMPROOT/guestbook.pid"
+spawn_detached "$TMPROOT/showcase-repo" "$TMPROOT/showcase-dev.log" pnpm exec wrangler dev --config wrangler.local.jsonc --port "$LINKAROOIE_PORT" --inspector-port 0 --local-protocol https --persist-to "$TMPROOT/showcase" > "$TMPROOT/showcase.pid"
 
 wait_for() {
   url=$1
@@ -125,19 +145,22 @@ wait_for() {
     sleep 1
   done
 }
-wait_for https://localhost:8788/build.json
-wait_for https://localhost:8787/build.json
+wait_for "https://localhost:$GUESTBOOK_PORT/build.json"
+wait_for "https://localhost:$LINKAROOIE_PORT/build.json"
 
 cat > "$TMPROOT/run.env" <<EOF
 TMPROOT=$TMPROOT
-GUESTBOOK_URL=https://localhost:8788
-LINKAROOIE_URL=https://localhost:8787
+GUESTBOOK_PORT=$GUESTBOOK_PORT
+LINKAROOIE_PORT=$LINKAROOIE_PORT
+GUESTBOOK_URL=https://localhost:$GUESTBOOK_PORT
+LINKAROOIE_URL=https://localhost:$LINKAROOIE_PORT
 OWNER_TOKEN=$TOKEN
 RESOURCE_ID=${RESOURCE_ID:-build199-trail-8}
 EOF
 echo "Local composition ready."
-echo "  Guestbook:  https://localhost:8788"
-echo "  Linkarooie: https://localhost:8787"
+echo "  Guestbook:  https://localhost:$GUESTBOOK_PORT"
+echo "  Linkarooie: https://localhost:$LINKAROOIE_PORT"
 echo "  Root:       $TMPROOT"
+echo "  Exact URLs: $TMPROOT/run.env"
 READY=1
 echo "  Stop with:  labs/building/stop-local.sh"

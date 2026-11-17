@@ -2,13 +2,9 @@
 # Stop only the local composition started by start-local.sh and remove its
 # explicitly owned temporary root. Other Wrangler sessions are left alone.
 set -eu
-kill_tree() {
-  pid=$1
-  [ -n "$pid" ] || return 0
-  for child in $(pgrep -P "$pid" 2>/dev/null || true); do kill_tree "$child"; done
-  kill "$pid" 2>/dev/null || true
-}
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+. "$SCRIPT_DIR/local-ports.sh"
+ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)
 POINTER="$ROOT/output/build-199/local-root"
 if [ -f "$POINTER" ]; then
   TMPROOT=$(cat "$POINTER")
@@ -20,14 +16,19 @@ if [ -z "${TMPROOT:-}" ] || [ ! -d "$TMPROOT" ]; then
   rm -f "$POINTER"
   exit 0
 fi
+# New runs record both ports. Older default runs only recorded the exact
+# localhost URLs; the shared parser falls back to those, then to 8788/8787.
+set -- $(ports_from_run_env "$TMPROOT/run.env")
+GUESTBOOK_PORT=$1
+LINKAROOIE_PORT=$2
 for name in guestbook showcase; do
   pidfile="$TMPROOT/$name.pid"
   [ -f "$pidfile" ] || continue
   pid=$(cat "$pidfile")
-  kill_tree "$pid"
+  if owns_building_process "$pid" "$TMPROOT"; then kill_building_tree "$pid"; fi
   sleep 1
 done
-for port in 8787 8788; do
+for port in "$GUESTBOOK_PORT" "$LINKAROOIE_PORT"; do
   for pid in $(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null || true); do
     if ps -p "$pid" -o command= 2>/dev/null | grep -Fq "$TMPROOT"; then
       kill -9 "$pid" 2>/dev/null || true
@@ -36,4 +37,4 @@ for port in 8787 8788; do
 done
 rm -rf "$TMPROOT"
 rm -f "$POINTER"
-echo "Stopped the owned local composition and removed $TMPROOT."
+echo "Stopped the owned local composition on ports $GUESTBOOK_PORT and $LINKAROOIE_PORT and removed $TMPROOT."

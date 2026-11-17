@@ -3,16 +3,14 @@
 // hosted apps. It only talks to explicitly selected localhost Workers.
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { resolveLocalTargets } from "./local-targets.mjs";
 
-const guestbook = process.env.GUESTBOOK_URL || "https://localhost:8788";
-const linkarooie = process.env.LINKAROOIE_URL || "https://localhost:8787";
+const { guestbook, linkarooie } = resolveLocalTargets(process.env);
 const token = process.env.OWNER_TOKEN || "build-199-fictional-owner";
 const resource = process.env.RESOURCE_ID || "build199-trail";
 const specPath = process.env.INIT_SPEC || "public/downloads/building-199-init-spec.json";
 const out = process.env.SEED_OUT || "output/build-199/seed.json";
 if (!/^[a-z0-9-]{6,64}$/.test(resource)) throw Error("Use a safe resource ID.");
-if (!/^https:\/\/localhost:\d+$/.test(guestbook) || !/^https:\/\/localhost:\d+$/.test(linkarooie))
-  throw Error("This local seeder only targets explicit localhost Workers.");
 // Local Wrangler uses a self-signed certificate. This exception is scoped to
 // this process and the localhost URLs asserted above; it is never a hosted path.
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -109,7 +107,7 @@ for (const card of spec.cards) {
 const invitation = await request(linkarooie + "/api/invitation", {
   method: "POST",
   headers: showcaseHeaders,
-  body: JSON.stringify({ action: "enable", source, expected: null }),
+  body: JSON.stringify({ action: "enable", source }),
 });
 const report = {
   generated: new Date().toISOString(),
