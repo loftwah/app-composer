@@ -1,6 +1,8 @@
 # App Composer
 
-Build a stack of independent apps, configure its instances, then preview and publish a shareable revision. Each app keeps its own source, records, media and release. EmDash provides the creator interface; this installation runs on Cloudflare.
+App Composer is an open-source platform for creating, shipping and running projects with AI agents. It brings together creative tools, reusable building blocks and production infrastructure so people can direct the work and keep control of what they make.
+
+The supported application path starts on Cloudflare. Prepare an agent, describe the app, or compose independent apps into a working stack. Each app keeps its own source, records, media and release. EmDash provides the creator interface. Read the [product direction](PRODUCT.md#product-purpose) for the full lifecycle and the [public guide](https://composer.loftwah.com/guide#direction) for how today’s tools fit into it.
 
 [Open App Composer](https://composer.loftwah.com/) · [Explore the working tools](https://composer.loftwah.com/discover) · [Your app, your admin](https://composer.loftwah.com/manage) · [Follow the tutorial](https://composer.loftwah.com/learn) · [Read the build story](https://composer.loftwah.com/building)
 

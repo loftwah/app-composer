@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-test('the opening names App Composer, offers one first action and explains Get Ready as setup', () => {
+test('the opening names App Composer, offers one first action and links to the product direction', () => {
   const home = readFileSync(new URL('../src/components/ProductHome.astro', import.meta.url), 'utf8');
   const opening = home.indexOf('class="home-opening"');
   const steps = home.indexOf('id="make-something"');
@@ -10,11 +10,13 @@ test('the opening names App Composer, offers one first action and explains Get R
   const workshop = home.indexOf('class="studio-hero"');
   assert.ok(opening >= 0 && opening < steps && steps < proof && proof < workshop);
   const first = home.slice(opening, steps);
-  assert.match(first, /home-opening-eyebrow">App Composer/);
-  assert.match(first, /Build an app[\s\S]*you own/);
+  assert.match(first, /App Composer is an open-source platform/);
   assert.match(first, /href="\/learn">Build your first app/);
   assert.match(first, /href="#example">See a real example/);
-  assert.match(first, /Get Ready is the setup step/);
+  assert.match(home.slice(steps, proof), /Get Ready is the setup step/);
+  assert.match(first, /href="\/guide#direction"/);
+  const guide = readFileSync(new URL('../src/pages/guide.astro', import.meta.url), 'utf8');
+  assert.match(guide, /id="direction"[\s\S]*?href="\/release"/);
   assert.doesNotMatch(first, /href="\/ready"[^>]*>Get started/);
 });
 
@@ -25,9 +27,9 @@ test('the first paragraph says who it is for and the hero offers one first actio
   const first = home.slice(opening, steps);
   const lede = first.match(/<h1[\s\S]*?<\/h1>\s*<p>([\s\S]*?)<\/p>/);
   assert.ok(lede, 'the opening has one paragraph after the heading');
-  assert.match(lede[1], /is for anyone who needs a small app/);
-  assert.match(lede[1], /the AI agent you choose builds it in your Cloudflare account/i);
-  assert.match(lede[1], /your source and data stay yours/);
+  assert.match(lede[1], /creators, developers and\s+teams/);
+  assert.match(lede[1], /creating, shipping and\s+running projects with AI agents/);
+  assert.match(lede[1], /something they own and keep improving it/);
   // One button plus one in-page proof link; the trial app is explained in the
   // setup note rather than offered as a third peer action.
   const actions = first.slice(
@@ -36,7 +38,7 @@ test('the first paragraph says who it is for and the hero offers one first actio
   );
   assert.equal(actions.match(/<a\b/g)?.length, 2, 'the action row has two links');
   assert.doesNotMatch(actions, /<a class="studio-text-link" href="\/demo"/);
-  assert.match(first, /No app idea or agent\s+is needed to start[\s\S]*href="\/demo">try a working app in your browser/);
+  assert.match(first, /href="\/demo">Try a demo in your browser/);
 });
 
 test('the real example shows the owned app and its later change before the fictional workshop', () => {

@@ -296,6 +296,11 @@ release, not the current production commit.
 
 ## Current creation direction
 
+The [17 November product direction](../PRODUCT.md#product-purpose) records the
+owner’s vision for AI-assisted creation and ongoing operations across software,
+media and other projects. The [public guide](https://composer.loftwah.com/guide#direction)
+connects that vision to working examples and the current release evidence.
+
 Reviewed 2026/11/12 AEDT (Australia/Melbourne, UTC+11) / 2026/11/12 UTC.
 
 [PRODUCT.md](../PRODUCT.md#reference-led-creation-and-operation) now records the
