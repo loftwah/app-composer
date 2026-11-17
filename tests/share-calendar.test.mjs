@@ -21,7 +21,11 @@ import {
   primaryCaptionProblem,
   SHARE_CHANNELS,
   SHARE_STATES,
+  SHARE_QUEUE_PRESET_MAX,
   shareCalendarCommand,
+  shareCalendarReadInput,
+  shareCalendarSnapshot,
+  shareQueuePresetsReplySchema,
   shareListFilterForItem,
   shareListItemFilters,
 } from "../src/lib/share-calendar.ts";
@@ -45,6 +49,7 @@ const schema = [
   "0034_share_approvals.sql",
   "0035_bluesky_deliveries.sql",
   "0037_portfolio_no_stack.sql",
+  "0038_queue_presets.sql",
 ]
   .map(migration)
   .join("\n");
@@ -1503,6 +1508,439 @@ test("Queue Next reads occupied minutes from the authorized workspace without wr
     assert.equal(after.items.length, 1);
     assert.equal(after.items[0].scheduledAt, occupied);
     assert.equal(after.items[0].revision, created.items[0].revision);
+  } finally {
+    db.cleanup();
+  }
+});
+
+// Queue presets (#604 follow-up). Separate GET/POST actions return one bounded
+// reply; they do not touch the snapshot, a schedule or any provider.
+const queueHandle = "queue.example.com";
+
+function queueInput(
+  db,
+  user,
+  value,
+  method = "POST",
+  workspace,
+  handle = queueHandle,
+) {
+  const reading = method === "GET";
+  return manageShareCalendar(
+    {
+      user,
+      input: { ...value, ...(workspace ? { workspace } : {}) },
+      request: new Request(
+        origin +
+          "/_emdash/api/plugins/composer-stacks/" +
+          (reading ? "shareCalendarRead" : "shareCalendarWrite"),
+        {
+          method,
+          headers: reading
+            ? {}
+            : {
+                Origin: origin,
+                "X-EmDash-Request": "1",
+                "Content-Type": "application/json",
+              },
+        },
+      ),
+    },
+    { DB: db, PUBLIC_ORIGIN: origin, SHARE_BLUESKY_HANDLE: handle },
+  );
+}
+const queueGet = (db, user = owner, workspace, handle) =>
+  queueInput(db, user, { action: "queuePresets" }, "GET", workspace, handle);
+const queueSave = (db, user, value, workspace, handle) =>
+  queueInput(
+    db,
+    user,
+    { action: "queuePresetSave", account: queueHandle, ...value },
+    "POST",
+    workspace,
+    handle,
+  );
+const queueDelete = (db, user, value, workspace, handle) =>
+  queueInput(
+    db,
+    user,
+    { action: "queuePresetDelete", account: queueHandle, ...value },
+    "POST",
+    workspace,
+    handle,
+  );
+
+test("queue presets keep the exact contract and leave the snapshot schema intact", () => {
+  assert.equal(
+    shareCalendarReadInput.safeParse({ action: "queuePresets" }).success,
+    true,
+    "queuePresets is a declared read action",
+  );
+  const valid = shareCalendarCommand.parse({
+    action: "queuePresetSave",
+    account: "queue.example.com",
+    category: "  Launch Week  ",
+    weekday: 3,
+    time: "09:30",
+  });
+  assert.equal(valid.category, "Launch Week", "the category is trimmed");
+  assert.equal(valid.weekday, 3);
+  assert.equal(valid.time, "09:30");
+  assert.equal(
+    shareCalendarCommand.safeParse({
+      action: "queuePresetDelete",
+      account: "queue.example.com",
+      category: " Launch ",
+    }).success,
+    true,
+  );
+  for (const bad of [
+    { weekday: 0 },
+    { weekday: 8 },
+    { weekday: 3.5 },
+    { time: "25:00" },
+    { time: "09:60" },
+    { time: "9:30" },
+    { category: "" },
+    { category: "x".repeat(49) },
+    { account: "" },
+    { provenance: "owner" },
+  ])
+    assert.equal(
+      shareCalendarCommand.safeParse({
+        action: "queuePresetSave",
+        account: "queue.example.com",
+        category: "Launch",
+        weekday: 3,
+        time: "09:30",
+        ...bad,
+      }).success,
+      false,
+      "invalid: " + JSON.stringify(bad),
+    );
+
+  const reply = {
+    ok: true,
+    action: "queuePresets",
+    workspace: "queue-workspace-01",
+    account: "queue.example.com",
+    presets: [{ category: "Launch", weekday: 3, time: "09:30" }],
+  };
+  assert.deepEqual(shareQueuePresetsReplySchema.parse(reply), reply);
+  assert.equal(
+    shareQueuePresetsReplySchema.safeParse({
+      ...reply,
+      presets: Array.from({ length: SHARE_QUEUE_PRESET_MAX + 1 }, () => ({
+        category: "x",
+        weekday: 1,
+        time: "09:30",
+      })),
+    }).success,
+    false,
+    "the reply is capped at 12",
+  );
+  // Widening the snapshot would break every existing reader; prove it kept its
+  // exact field set and does not accept the queue reply as a snapshot.
+  assert.equal(Object.hasOwn(shareCalendarSnapshot.shape, "presets"), false);
+  assert.equal(shareCalendarSnapshot.safeParse(reply).success, false);
+});
+
+test("queue presets save, upsert and delete atomically without touching a schedule", async () => {
+  const db = sqliteD1({ schema });
+  try {
+    const { workspace, stack } = await seeded(db);
+    const scheduled = await write(db, owner, {
+      action: "create",
+      stack: stack.id,
+      channel: "bluesky",
+      caption: "A scheduled item that must stay exact",
+      link: origin + "/s/" + stack.slug,
+      scheduledAt: "2026-11-20T09:30:00.000Z",
+    });
+    assert.equal(scheduled.ok, true);
+    const before = await read(db, owner);
+
+    const empty = await queueGet(db, owner, workspace.id);
+    assert.deepEqual(empty, {
+      ok: true,
+      action: "queuePresets",
+      workspace: workspace.id,
+      account: queueHandle,
+      presets: [],
+    });
+    assert.deepEqual(shareQueuePresetsReplySchema.parse(empty), empty);
+
+    const saved = await queueSave(db, owner, {
+      category: "  Launch Week  ",
+      weekday: 3,
+      time: "09:30",
+    }, workspace.id);
+    assert.deepEqual(saved.presets, [
+      { category: "Launch Week", weekday: 3, time: "09:30" },
+    ]);
+    assert.equal(
+      (
+        await db
+          .prepare("SELECT COUNT(*) AS count FROM creator_share_queue_presets")
+          .first()
+      ).count,
+      1,
+      "one stored row",
+    );
+
+    const updated = await queueSave(db, owner, {
+      category: "Launch Week",
+      weekday: 5,
+      time: "11:45",
+    }, workspace.id);
+    assert.deepEqual(updated.presets, [
+      { category: "Launch Week", weekday: 5, time: "11:45" },
+    ]);
+    assert.equal(
+      (
+        await db
+          .prepare("SELECT COUNT(*) AS count FROM creator_share_queue_presets")
+          .first()
+      ).count,
+      1,
+      "an update is an upsert, not a second row",
+    );
+
+    const second = await queueSave(db, owner, {
+      category: "Review",
+      weekday: 7,
+      time: "16:00",
+    }, workspace.id);
+    assert.equal(second.presets.length, 2);
+    const removed = await queueDelete(db, owner, {
+      category: "Launch Week",
+    }, workspace.id);
+    assert.deepEqual(removed.presets, [
+      { category: "Review", weekday: 7, time: "16:00" },
+    ]);
+    const missing = await queueDelete(db, owner, {
+      category: "Ghost",
+    }, workspace.id);
+    assert.deepEqual(missing.presets, removed.presets, "delete is idempotent");
+
+    const after = await read(db, owner);
+    assert.deepEqual(after.items, before.items, "calendar items are unchanged");
+    assert.deepEqual(
+      after.deliveries,
+      before.deliveries,
+      "deliveries are unchanged",
+    );
+    assert.equal(
+      (
+        await db
+          .prepare("SELECT COUNT(*) AS count FROM creator_share_calendar_items")
+          .first()
+      ).count,
+      1,
+      "no schedule row was added or removed",
+    );
+  } finally {
+    db.cleanup();
+  }
+});
+
+test("queue presets are capped at 12 per workspace/account and updates still work at the cap", async () => {
+  const db = sqliteD1({ schema });
+  try {
+    const { workspace } = await seeded(db);
+    for (let index = 0; index < SHARE_QUEUE_PRESET_MAX; index += 1) {
+      const reply = await queueSave(db, owner, {
+        category: "Preset " + index,
+        weekday: (index % 7) + 1,
+        time: "09:30",
+      }, workspace.id);
+      assert.equal(reply.presets.length, index + 1);
+    }
+    const overflow = await queueSave(db, owner, {
+      category: "One too many",
+      weekday: 1,
+      time: "09:30",
+    }, workspace.id);
+    assert.equal(overflow.code, "INVALID");
+    assert.equal(
+      (
+        await db
+          .prepare("SELECT COUNT(*) AS count FROM creator_share_queue_presets")
+          .first()
+      ).count,
+      SHARE_QUEUE_PRESET_MAX,
+    );
+
+    const atCap = await queueSave(db, owner, {
+      category: "Preset 0",
+      weekday: 4,
+      time: "07:15",
+    }, workspace.id);
+    assert.equal(atCap.presets.length, SHARE_QUEUE_PRESET_MAX);
+    assert.deepEqual(
+      atCap.presets.find((preset) => preset.category === "Preset 0"),
+      { category: "Preset 0", weekday: 4, time: "07:15" },
+      "an existing category can still be updated at the cap",
+    );
+
+    await queueDelete(db, owner, { category: "Preset 0" }, workspace.id);
+    const afterRoom = await queueSave(db, owner, {
+      category: "One too many",
+      weekday: 2,
+      time: "10:00",
+    }, workspace.id);
+    assert.equal(afterRoom.presets.length, SHARE_QUEUE_PRESET_MAX);
+  } finally {
+    db.cleanup();
+  }
+});
+
+test("queue presets are isolated per workspace and refuse non-owner members", async () => {
+  const db = sqliteD1({ schema });
+  try {
+    const first = await seeded(db);
+    const second = await seeded(db, other, "Other queue workspace");
+    await queueSave(db, owner, {
+      category: "First only",
+      weekday: 1,
+      time: "09:00",
+    }, first.workspace.id);
+
+    const readFirst = await queueGet(db, owner, first.workspace.id);
+    const readSecond = await queueGet(db, other, second.workspace.id);
+    assert.equal(readFirst.workspace, first.workspace.id);
+    assert.equal(readSecond.workspace, second.workspace.id);
+    assert.deepEqual(readFirst.presets, [
+      { category: "First only", weekday: 1, time: "09:00" },
+    ]);
+    assert.deepEqual(readSecond.presets, [], "a second workspace is isolated");
+
+    const editor = { id: "fictional-queue-editor", role: 20 };
+    const viewer = { id: "fictional-queue-viewer", role: 20 };
+    for (const [member, role] of [
+      [editor, "editor"],
+      [viewer, "viewer"],
+    ])
+      await db
+        .prepare(
+          "INSERT INTO creator_members (workspace_id,user_id,role) VALUES (?,?,?)",
+        )
+        .bind(first.workspace.id, member.id, role)
+        .run();
+    assert.equal((await queueGet(db, editor, first.workspace.id)).code, "FORBIDDEN");
+    assert.equal((await queueGet(db, viewer, first.workspace.id)).code, "FORBIDDEN");
+    assert.equal(
+      (
+        await queueSave(db, editor, {
+          category: "Member write",
+          weekday: 1,
+          time: "09:00",
+        }, first.workspace.id)
+      ).code,
+      "FORBIDDEN",
+    );
+    assert.equal(
+      (
+        await queueDelete(db, editor, { category: "First only" }, first.workspace.id)
+      ).code,
+      "FORBIDDEN",
+    );
+    // A workspace id from another scope is refused even for a real owner.
+    assert.equal(
+      (
+        await queueSave(db, other, {
+          category: "Cross scope",
+          weekday: 1,
+          time: "09:00",
+        }, first.workspace.id)
+      ).code,
+      "FORBIDDEN",
+    );
+    assert.equal(
+      (await db.prepare("SELECT COUNT(*) AS count FROM creator_share_queue_presets").first()).count,
+      1,
+      "only the owner's scoped preset was stored",
+    );
+  } finally {
+    db.cleanup();
+  }
+});
+
+test("queue presets follow the configured account switch and refuse a stale expected account", async () => {
+  const db = sqliteD1({ schema });
+  try {
+    const { workspace } = await seeded(db);
+    const firstHandle = "first.example.com";
+    const secondHandle = "second.example.com";
+
+    const saved = await queueSave(
+      db,
+      owner,
+      {
+        account: firstHandle,
+        category: "First account",
+        weekday: 2,
+        time: "09:30",
+      },
+      workspace.id,
+      firstHandle,
+    );
+    assert.equal(saved.account, firstHandle);
+    assert.equal(saved.presets.length, 1);
+    assert.equal(
+      (await queueGet(db, owner, workspace.id, firstHandle)).presets.length,
+      1,
+    );
+
+    const switched = await queueGet(db, owner, workspace.id, secondHandle);
+    assert.equal(switched.account, secondHandle);
+    assert.deepEqual(switched.presets, [], "presets are keyed to the account");
+
+    const stale = await queueSave(
+      db,
+      owner,
+      { account: firstHandle, category: "Stale", weekday: 1, time: "09:00" },
+      workspace.id,
+      secondHandle,
+    );
+    assert.equal(stale.code, "CONFLICT", "an old expected account is refused");
+    const staleDelete = await queueDelete(
+      db,
+      owner,
+      { account: firstHandle, category: "First account" },
+      workspace.id,
+      secondHandle,
+    );
+    assert.equal(staleDelete.code, "CONFLICT");
+
+    const added = await queueSave(
+      db,
+      owner,
+      { account: secondHandle, category: "Second account", weekday: 4, time: "12:00" },
+      workspace.id,
+      secondHandle,
+    );
+    assert.equal(added.account, secondHandle);
+    assert.deepEqual(added.presets, [
+      { category: "Second account", weekday: 4, time: "12:00" },
+    ]);
+    const backToFirst = await queueGet(db, owner, workspace.id, firstHandle);
+    assert.deepEqual(backToFirst.presets, [
+      { category: "First account", weekday: 2, time: "09:30" },
+    ], "switching accounts does not overwrite the other account's presets");
+    assert.equal(
+      (await queueGet(db, owner, workspace.id, null)).code,
+      "INVALID",
+      "no configured account is an explicit needs-account state",
+    );
+    assert.equal(
+      (
+        await db
+          .prepare("SELECT COUNT(*) AS count FROM creator_share_queue_presets")
+          .first()
+      ).count,
+      2,
+    );
   } finally {
     db.cleanup();
   }

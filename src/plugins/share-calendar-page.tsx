@@ -19,7 +19,10 @@ import {
   scheduleLabels,
   shareCalendarSnapshot,
   shareListItemFilters,
+  shareQueuePresetsReplySchema,
   SHARE_CAPTION_LOCAL_CHARACTERS,
+  SHARE_QUEUE_CATEGORY_MAX,
+  SHARE_QUEUE_PRESET_MAX,
   SHARE_CHANNELS,
   SHARE_CHANNEL_LABELS,
   SHARE_CHANNEL_LIMITS,
@@ -35,6 +38,7 @@ import {
   type ShareCalendarVariant,
   type ShareChannel,
   type ShareListFilter,
+  type ShareQueuePresetsReply,
 } from "../lib/share-calendar";
 import {
   catalogueSearchReplySchema,
@@ -183,6 +187,206 @@ async function queueNextCall(
       ),
     );
   return parsed.data;
+}
+
+type QueuePreset = ShareQueuePresetsReply["presets"][number];
+type QueuePresetCommand =
+  | ({ action: "queuePresetSave" } & QueuePreset)
+  | { action: "queuePresetDelete"; category: string };
+
+async function queuePresetsCall(
+  workspace: string,
+  account: string,
+  signal: AbortSignal,
+  command?: QueuePresetCommand,
+): Promise<QueuePreset[]> {
+  const params = new URLSearchParams({ action: "queuePresets", workspace });
+  const response = await apiFetch(
+    base + (command ? "shareCalendarWrite" : "shareCalendarRead?" + params),
+    command
+      ? {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...command, workspace, account }),
+          signal,
+        }
+      : { cache: "no-store", signal },
+  );
+  const fallback = "Queue presets could not be confirmed. Try again.";
+  const raw = await parseApiResponse<unknown>(response, fallback);
+  const result = shareQueuePresetsReplySchema.safeParse(raw);
+  if (!result.success) throw Error(errorMessage(raw, fallback));
+  if (result.data.workspace !== workspace || result.data.account !== account)
+    throw Error("The queue account or workspace changed. Refresh to continue.");
+  return result.data.presets;
+}
+
+function QueuePresets({
+  workspace,
+  account,
+  weekday,
+  time,
+  disabled,
+  onUse,
+}: {
+  workspace: string;
+  account: string;
+  weekday: number;
+  time: string;
+  disabled: boolean;
+  onUse: (preset: QueuePreset) => void;
+}) {
+  const [presets, setPresets] = useState<QueuePreset[]>();
+  const [name, setName] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [read, setRead] = useState(0);
+  const scope = useRef<AbortController | null>(null);
+  const pending = useRef(false);
+  const category = name.trim();
+  const existing = presets?.some((preset) => preset.category === category);
+  const canSave =
+    Boolean(
+      presets &&
+      category &&
+      (existing || presets.length < SHARE_QUEUE_PRESET_MAX),
+    ) && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    scope.current = controller;
+    setError("");
+    void queuePresetsCall(workspace, account, controller.signal)
+      .then((list) => {
+        if (!controller.signal.aborted) setPresets(list);
+      })
+      .catch((cause: unknown) => {
+        if (!controller.signal.aborted)
+          setError(
+            cause instanceof Error
+              ? cause.message
+              : "Queue presets could not be loaded.",
+          );
+      });
+    return () => controller.abort();
+  }, [workspace, account, read]);
+
+  async function write(command: QueuePresetCommand) {
+    const signal = scope.current?.signal;
+    if (!signal || signal.aborted || pending.current || disabled) return;
+    pending.current = true;
+    setSaving(true);
+    setError("");
+    setMessage("");
+    try {
+      const list = await queuePresetsCall(workspace, account, signal, command);
+      if (signal.aborted) return;
+      setPresets(list);
+      if (command.action === "queuePresetDelete") setName("");
+      setMessage(
+        command.action === "queuePresetSave"
+          ? "Preset saved."
+          : "Preset removed.",
+      );
+    } catch (cause) {
+      if (!signal.aborted)
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "The preset change could not be confirmed.",
+        );
+    } finally {
+      pending.current = false;
+      if (!signal.aborted) setSaving(false);
+    }
+  }
+
+  return (
+    <details>
+      <summary>Queue presets</summary>
+      <p className="sc-hint">
+        Save a Melbourne weekday and time to reuse for @{account}.
+      </p>
+      <div className="sc-queue-fields">
+        <label className="sc-field">
+          Saved preset
+          <select
+            value={existing ? category : ""}
+            disabled={disabled || saving || !presets?.length}
+            onChange={(event) => {
+              const preset = presets?.find(
+                (entry) => entry.category === event.target.value,
+              );
+              setName(preset?.category ?? "");
+              if (preset) onUse(preset);
+            }}
+          >
+            <option value="">
+              {presets?.length
+                ? "Choose a preset"
+                : presets
+                  ? "No saved presets"
+                  : error
+                    ? "Presets unavailable"
+                    : "Loading presets…"}
+            </option>
+            {presets?.map((preset) => (
+              <option key={preset.category} value={preset.category}>
+                {preset.category} ·{" "}
+                {
+                  MELBOURNE_WEEKDAYS.find((day) => day.id === preset.weekday)
+                    ?.label
+                }{" "}
+                {preset.time}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="sc-field">
+          Preset name
+          <input
+            value={name}
+            maxLength={SHARE_QUEUE_CATEGORY_MAX}
+            disabled={disabled || saving || !presets}
+            onChange={(event) => setName(event.target.value)}
+          />
+        </label>
+        <button
+          type="button"
+          disabled={disabled || saving || !canSave}
+          onClick={() =>
+            void write({ action: "queuePresetSave", category, weekday, time })
+          }
+        >
+          {existing ? "Update preset" : "Save preset"}
+        </button>
+      </div>
+      {existing && (
+        <button
+          type="button"
+          disabled={disabled || saving}
+          onClick={() => void write({ action: "queuePresetDelete", category })}
+        >
+          Remove preset
+        </button>
+      )}
+      {presets?.length === SHARE_QUEUE_PRESET_MAX && !existing && (
+        <p className="sc-hint">Remove a preset before saving a new one.</p>
+      )}
+      <div role="status">{saving ? "Saving preset…" : message}</div>
+      {error && (
+        <div role="alert">
+          <p>{error}</p>
+          {!presets && (
+            <button type="button" onClick={() => setRead((value) => value + 1)}>
+              Try again
+            </button>
+          )}
+        </div>
+      )}
+    </details>
+  );
 }
 
 type CataloguePreview = {
@@ -2893,6 +3097,19 @@ function ShareCalendar({ search }: { search: string }) {
                     Use this time in the new Bluesky draft
                   </button>
                 )}
+                <QueuePresets
+                  key={`${snapshot.workspace.id}:${queueAccount}`}
+                  workspace={snapshot.workspace.id}
+                  account={queueAccount}
+                  weekday={queueWeekday}
+                  time={queueTime}
+                  disabled={queueChecking || busy}
+                  onUse={(preset) => {
+                    setQueueWeekday(preset.weekday);
+                    setQueueTime(preset.time);
+                    setQueueResult(undefined);
+                  }}
+                />
               </section>
             )}
             {!snapshot.items.length && (

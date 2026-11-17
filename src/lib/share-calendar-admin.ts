@@ -20,14 +20,17 @@ import {
   shareCalendarReadInput,
   shareCalendarSnapshot,
   shareCalendarVariantSchema,
+  shareQueuePresetsReplySchema,
   sqliteInstant,
   variantSort,
+  SHARE_QUEUE_PRESET_MAX,
   SHARE_VARIANT_MAX,
   type BlueskyApprovalRecord,
   type ShareCalendarItem,
   type ShareCalendarSnapshot,
   type ShareCalendarSource,
   type ShareCalendarVariant,
+  type ShareQueuePresetsReply,
 } from "./share-calendar.ts";
 import {
   BLUESKY_CREDENTIAL_STATEMENT,
@@ -239,6 +242,73 @@ function publishFailureCode(failure: BlueskyPublishFailure): string {
   if (failure.code === "record_conflict") return "CONFLICT";
   return "BLOCKED";
 }
+
+interface QueuePresetRow {
+  category: string;
+  weekday: number;
+  time: string;
+}
+
+// Scoped to one workspace and one exact configured handle, and always bounded
+// to the same cap the reply exposes. No dispatch, date or provenance field is
+// read or returned: the only public fields are category, weekday and time.
+async function listQueuePresets(
+  db: D1Database,
+  workspaceId: string,
+  accountHandle: string,
+): Promise<QueuePresetRow[]> {
+  const rows = await db
+    .prepare(
+      `SELECT category,weekday,time FROM creator_share_queue_presets
+       WHERE workspace_id=? AND account_handle=?
+       ORDER BY category LIMIT ?`,
+    )
+    .bind(workspaceId, accountHandle, SHARE_QUEUE_PRESET_MAX)
+    .all<QueuePresetRow>();
+  return (rows.results ?? []).map((row) => ({
+    category: row.category,
+    weekday: row.weekday,
+    time: row.time,
+  }));
+}
+
+function queueReply(
+  workspace: Workspace,
+  accountHandle: string,
+  presets: QueuePresetRow[],
+): ShareQueuePresetsReply {
+  return shareQueuePresetsReplySchema.parse({
+    ok: true,
+    action: "queuePresets",
+    workspace: workspace.id,
+    account: accountHandle,
+    presets,
+  });
+}
+
+// The expected account and the workspace owner are checked against the current
+// scope on every action. A stale or foreign account never writes a preset.
+function queueAccountFailure(
+  account: string,
+  configuredHandle: string | null,
+): ReturnType<typeof fail> | null {
+  if (!configuredHandle)
+    return fail(
+      "INVALID",
+      "Set the Bluesky account in Share connections first.",
+    );
+  if (normalizeBlueskyHandle(account) !== configuredHandle)
+    return fail(
+      "CONFLICT",
+      "The Bluesky account changed. Refresh before managing the queue.",
+    );
+  return null;
+}
+
+const queueOwnerFailure = (workspace: Workspace) =>
+  workspace.role !== "owner"
+    ? fail("FORBIDDEN", "Only the workspace owner can manage the Bluesky queue.")
+    : null;
 
 async function listSources(
   db: D1Database,
@@ -660,6 +730,21 @@ export async function manageShareCalendar(
         );
         return { ok: true as const, action: "blueskyIdentity", result };
       }
+      if (parsedRead.data.action === "queuePresets") {
+        const ownerFailure = queueOwnerFailure(workspace);
+        if (ownerFailure) return ownerFailure;
+        if (!configuredHandle)
+          return fail(
+            "INVALID",
+            "Set the Bluesky account in Share connections first.",
+          );
+        const presets = await listQueuePresets(
+          db,
+          workspace.id,
+          configuredHandle,
+        );
+        return queueReply(workspace, configuredHandle, presets);
+      }
       if (parsedRead.data.action === "queueNextPreview") {
         if (workspace.role !== "owner")
           return fail(
@@ -720,6 +805,75 @@ export async function manageShareCalendar(
 
     const command = parsed.data;
     const now = nowDate.toISOString();
+    if (
+      command.action === "queuePresetSave" ||
+      command.action === "queuePresetDelete"
+    ) {
+      const ownerFailure = queueOwnerFailure(workspace);
+      if (ownerFailure) return ownerFailure;
+      const accountFailure = queueAccountFailure(
+        command.account,
+        configuredHandle,
+      );
+      if (accountFailure) return accountFailure;
+      // The expected account matched the current configured handle, which is
+      // already normalized by the same mechanism Queue Next uses.
+      const account = configuredHandle as string;
+      if (command.action === "queuePresetSave") {
+        // One bounded, atomic statement: add a new category only while this
+        // workspace/account has room, or update an existing category even at
+        // the cap. A zero-change result means a new category was refused.
+        const saved = await db
+          .prepare(
+            `INSERT INTO creator_share_queue_presets
+               (workspace_id,account_handle,category,weekday,time,created_at,updated_at)
+             SELECT ?,?,?,?,?,?,?
+             WHERE (
+               SELECT COUNT(*) FROM creator_share_queue_presets
+               WHERE workspace_id=? AND account_handle=?
+             ) < ?
+             OR EXISTS (
+               SELECT 1 FROM creator_share_queue_presets
+               WHERE workspace_id=? AND account_handle=? AND category=?
+             )
+             ON CONFLICT(workspace_id,account_handle,category) DO UPDATE SET
+               weekday=excluded.weekday,time=excluded.time,updated_at=excluded.updated_at`,
+          )
+          .bind(
+            workspace.id,
+            account,
+            command.category,
+            command.weekday,
+            command.time,
+            now,
+            now,
+            workspace.id,
+            account,
+            SHARE_QUEUE_PRESET_MAX,
+            workspace.id,
+            account,
+            command.category,
+          )
+          .run();
+        if (saved.meta?.changes !== 1)
+          return fail(
+            "INVALID",
+            `You already have ${SHARE_QUEUE_PRESET_MAX} queue presets. Remove one before adding another.`,
+          );
+      } else {
+        // Idempotent scoped deletion: a missing category leaves the list as it
+        // is rather than revealing whether another scope stored that label.
+        await db
+          .prepare(
+            `DELETE FROM creator_share_queue_presets
+             WHERE workspace_id=? AND account_handle=? AND category=?`,
+          )
+          .bind(workspace.id, account, command.category)
+          .run();
+      }
+      const presets = await listQueuePresets(db, workspace.id, account);
+      return queueReply(workspace, account, presets);
+    }
     if (command.action === "catalogueCreate") {
       if (workspace.role !== "owner")
         return fail(
