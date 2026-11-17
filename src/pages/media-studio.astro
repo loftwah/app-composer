@@ -610,6 +610,11 @@ url.searchParams.set("s", signature);`}</code></pre>
   .prose h3{font:600 1.16rem/1.35 "Space Grotesk",system-ui,sans-serif;margin:34px 0 10px}
   .prose h4{font:600 1rem/1.35 "Space Grotesk",system-ui,sans-serif;margin:0 0 8px}
   .prose p,.prose li{font-size:1.04rem;line-height:1.68}
+  /* At 200% root text a bare URL in a caption and "workspace/installation"
+     in a list item could not break, so they pushed the whole document past a
+     phone viewport. Break only words that would otherwise overflow; the table
+     and code scrollers keep their own explicit horizontal scrolling. */
+  .art figcaption,.art .prose p,.art .prose li{overflow-wrap:anywhere}
   .prose p{margin:0 0 18px}
   .prose ul,.prose ol{padding-left:22px;margin:0 0 20px}
   .prose li{margin-bottom:8px}
