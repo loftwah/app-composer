@@ -3269,12 +3269,12 @@ function ShareCalendar({ search }: { search: string }) {
               <div>
                 <h2>Calendar</h2>
                 <p className="sc-hint">
-                  {scheduled.length} scheduled ·{" "}
+                  {scheduled.length} dates available to export ·{" "}
                   {
                     snapshot.items.filter((item) => item.state === "shared")
                       .length
                   }{" "}
-                  shared locally
+                  shared locally. Published deliveries keep their dates here.
                 </p>
               </div>
               <div
