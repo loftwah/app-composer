@@ -16,6 +16,17 @@ rounded: {native-field: "6px", native-button: "8px"}
 # Design
 Reviewed 22 October 2026. Ordinary creative direction delegated by MP.
 
+## The public project story — 17 November 2026
+
+The homepage leads with the existing Make. Keep. Remix. campaign artwork. The
+illustrated print workshop represents creative reuse. The Creator Hub section
+that follows shows a captured live app and links to its original brief, running
+services and later change. The Foilbury card shows a separate Studio, Launch Kit
+and Init handoff with a direct link to its release record. Use original artwork
+for expression and actual product output for evidence. The architecture page
+explains what each connected system owns. The ink and warm paper theme surfaces
+and shared controls carry through the story.
+
 ## Public front door — owner direction 2026/11/10 (Melbourne AEDT / UTC)
 
 MP selected [0.security](https://0.security/) as the quality reference for Woodhouse and App Composer: a coherent full-width composition, confident readable typography, generous space, purposeful motion and strong product-specific visuals throughout the page. This raises the presentation standard without copying the reference site's identity or changing Composer's approved mark.

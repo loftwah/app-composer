@@ -61,37 +61,65 @@ const defaultStation = studioStations[0];
     <section class="home-opening" aria-labelledby="home-heading">
       <div class="home-opening-inner">
         <div class="home-opening-main">
-          <h1 id="home-heading">Build what<br /><span>you imagine.</span></h1>
+          <h1 id="home-heading">Build with AI.<br /><span>Keep it yours.</span></h1>
           <p>
-            App Composer is an open-source platform for creating, shipping and
-            running projects with AI agents. It connects reusable building blocks,
-            creative tools and cloud infrastructure so creators, developers and
-            teams can make something they own and keep improving it.
+            App Composer connects your AI agent, reusable apps, creative tools
+            and cloud hosting. Tell your agent what you want to make. It uses
+            those pieces to build, test and publish what you asked for in your
+            own accounts, where you can keep improving it.
           </p>
           <div class="home-opening-actions">
             <a class="home-button" href="/learn">Build your first app <ArrowUpRight size={21} aria-hidden="true" /></a>
-            <a class="studio-text-link" href="#example">See a real example <ArrowDown size={18} aria-hidden="true" /></a>
+            <a class="studio-text-link" href="#example">Follow a real project <ArrowDown size={18} aria-hidden="true" /></a>
           </div>
           <p class="home-opening-note">
-            Our first app workflow runs on Cloudflare.{" "}
-            <a href="/demo">Try a demo in your browser</a> or{" "}
-            <a href="/guide#direction">see where App Composer is going</a>.
+            App Composer is open source.{" "}
+            <a href="/architecture#project-workspace">See how the tools connect</a>
+            {" "}or <a href="/demo">try a demo</a>.
           </p>
         </div>
         <figure class="home-opening-art">
-          <a href="/media-studio#from-share">
-            <img src="/media-studio/fighter-before-the-bell-20261114.webp" width="680" height="680" alt="A Viking and the Grim Reaper in the ring, made as a Fighter artwork study in Media Studio" fetchpriority="high" />
-            <figcaption><span>Made in Media Studio, built with App Composer</span><strong>See the Fighter story ↗</strong></figcaption>
-          </a>
+          <img src="/brand/campaign/make-keep-remix-20261117.jpg" width="1200" height="630" alt="Make. Keep. Remix. An illustrated print workshop connects a storyboard, film and finished artwork." fetchpriority="high" />
+          <figcaption><span>App Composer campaign artwork</span><a href="/diagrams/engineering">Explore the artwork and diagrams <ArrowUpRight size={16} aria-hidden="true" /></a></figcaption>
         </figure>
-        <div class="home-opening-path" aria-label="Your path with App Composer">
-          <p>From idea to a project you own</p>
-          <ol>
-            <li><span>01</span><div><strong>Shape the idea</strong><p>Describe what you want and show your agent examples you like.</p></div></li>
-            <li><span>02</span><div><strong>Build and ship</strong><p>Reuse what fits, then build, test and publish with your agent.</p></div></li>
-            <li><span>03</span><div><strong>Run and improve</strong><p>Keep control of your source and data as your project evolves.</p></div></li>
+      </div>
+    </section>
+
+    <section class="home-proof" id="example" aria-labelledby="example-heading">
+      <div class="home-container proof-layout">
+        <div class="proof-copy">
+          <h2 id="example-heading">Two apps. One Creator Hub.</h2>
+          <p>
+            Mara wanted a site for her ceramics and a guestbook whose submissions
+            she could review. Her agent turned one Init brief into two connected
+            apps, each with its own GitHub source, Cloudflare deployment and data.
+          </p>
+          <ol class="proof-steps">
+            <li><a class="home-text-link" href="/creator-hub#brief">Read the brief <ArrowRight size={17} aria-hidden="true" /></a><span>One request for a portfolio and moderated postcards.</span></li>
+            <li><a class="home-text-link" href="/creator-hub#live">See the live apps <ArrowRight size={17} aria-hidden="true" /></a><span>Linkarooie displays selected postcards. Here / there controls approval.</span></li>
+            <li><a class="home-text-link" href="/creator-hub#follow-up">See what changed later <ArrowRight size={17} aria-hidden="true" /></a><span>The agent featured two links on the same site and kept its approved postcard.</span></li>
           </ol>
+          <p class="proof-note">Live reference build with a fictional owner.</p>
         </div>
+        <figure class="proof-shot">
+          <img
+            src="/creator-hub/guestbook-20261111.webp"
+            width="1440"
+            height="1500"
+            alt="The live Postcards for Mara guestbook, showing the illustrated invitation and an approved postcard."
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption>Here / there owns the original postcard and its approval. Linkarooie reads it from there.</figcaption>
+        </figure>
+      </div>
+      <div class="home-container proof-creative">
+        <div>
+          <h3>From artwork to an app draft</h3>
+          <p>Media Studio pulled eight colours from Foilbury artwork. Launch Kit used a swatch on a share card, then Composer Init adopted the package into an app draft.</p>
+          <a class="home-text-link" href="/projects?example=creative-handoff#creative-handoff">Follow the Foilbury handoff <ArrowRight size={17} aria-hidden="true" /></a>
+        </div>
+        <img src="/launch-kit/cards/foilbury-launch-palette-social-20261117.png" width="1200" height="630" alt="Foilbury share card with a gold foil tag on an illustrated workbench." loading="lazy" decoding="async" />
       </div>
     </section>
 
@@ -101,18 +129,10 @@ const defaultStation = studioStations[0];
       aria-labelledby="start-heading"
     >
       <div class="section-intro">
-        <p class="home-eyebrow">
-          <span class="section-number">01</span> From an idea to something
-          useful
-        </p>
-        <h2 id="start-heading">
-          For the app you
-          <br />
-          wish already existed.
-        </h2>
+        <h2 id="start-heading">Start your own project.</h2>
         <p class="section-lede">
-          Whether you need a team tool or a home for your work, App Composer gives
-          your agent a place to start.
+          Start with an app or website on Cloudflare. Bring a brief, or get your
+          tools ready while you explore what to make.
         </p>
       </div>
       <ol class="build-steps">
@@ -164,54 +184,6 @@ const defaultStation = studioStations[0];
           </div>
         </li>
       </ol>
-    </section>
-
-    <section class="home-proof" id="example" aria-labelledby="example-heading">
-      <div class="home-container proof-layout">
-        <div class="proof-copy">
-          <p class="home-eyebrow">A real app · a later change</p>
-          <h2 id="example-heading">Built once.<br />Changed later.</h2>
-          <p>
-            Mara’s Creator Hub is two live apps: a Linkarooie profile and a
-            Here / there guestbook. Her agent built both from one Init brief.
-            When she wanted two links featured, she asked again. The agent
-            changed the existing profile instead of starting a new build.
-          </p>
-          <p class="proof-facts">
-            Same source. Same four links. The approved guestbook postcard
-            stayed in place.
-          </p>
-          <div class="proof-actions">
-            <a class="home-button home-button-quiet" href="/creator-hub">
-              Open the Creator Hub
-              <ArrowUpRight size={19} aria-hidden="true" />
-            </a>
-            <a class="home-text-link" href="/creator-hub#follow-up">
-              See how the change was made
-              <ArrowRight size={18} aria-hidden="true" />
-            </a>
-          </div>
-          <p class="proof-note">
-            Reference build with a fictional owner, live in the operator’s
-            Cloudflare account. Your own app uses your account, source and
-            domain.
-          </p>
-        </div>
-        <figure class="proof-shot">
-          <img
-            src="/creator-hub/profile-20261112.webp"
-            width="1440"
-            height="1535"
-            alt="The live Mara Quinn Linkarooie profile after a second change: a Featured section with two numbered picks above the same four links."
-            loading="lazy"
-            decoding="async"
-          />
-          <figcaption>
-            After the second change: two featured picks and the original four
-            links. Captured 12 November 2026.
-          </figcaption>
-        </figure>
-      </div>
     </section>
 
     <section class="studio-hero" aria-labelledby="workshop-heading">
