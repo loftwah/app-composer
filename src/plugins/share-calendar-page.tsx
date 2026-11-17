@@ -469,11 +469,12 @@ function requestByteLength(value: unknown) {
   return new TextEncoder().encode(JSON.stringify(value)).length;
 }
 
-async function copyText(value: string) {
+async function copyText(value: string, stillCurrent = () => true) {
   try {
     await navigator.clipboard.writeText(value);
     return true;
   } catch {
+    if (!stillCurrent()) return false;
     const area = document.createElement("textarea");
     area.value = value;
     area.setAttribute("readonly", "");
@@ -540,7 +541,7 @@ function ArtworkXExport({
 
   async function copy(value: string, label: string) {
     if (!ready || !active.current) return;
-    const copied = await copyText(value);
+    const copied = await copyText(value, () => active.current);
     if (active.current)
       setMessage(
         copied ? label + " copied." : "Select and copy the text yourself.",
