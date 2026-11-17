@@ -2206,7 +2206,7 @@
 .composer-home .home-opening-main > p:not(.home-opening-note) { max-width: 49ch; margin-top: 1.75rem; color: var(--home-hero-muted); font-size: clamp(1.12rem, 1.35vw, 1.3rem); line-height: 1.55; }
 .composer-home .home-opening-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.75rem; margin-top: 2rem; }
 .composer-home .home-opening-note { margin-top: 1rem; color: var(--home-hero-muted); font-size: .88rem; }
-.composer-home .home-opening-note a { color: var(--home-hero-fg); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.composer-home .home-opening-note a { color: var(--home-hero-fg); text-decoration: none; }
 .composer-home .home-opening-note a:hover { color: var(--home-hero-accent); }
 .composer-home .home-opening-note a:focus-visible { outline: 2px solid var(--home-hero-accent); outline-offset: 3px; }
 .composer-home .home-opening-path { border-top: 1px solid var(--home-hero-rule); }
@@ -2233,26 +2233,6 @@
   .composer-home .home-opening-inner { grid-template-columns: 1fr; }
   .composer-home .home-opening-art { justify-self: start; max-width: 560px; }
   .composer-home .home-opening-path ol { grid-template-columns: 1fr; gap: 0; }
-}
-
-/* The opening names the product before it describes the journey. */
-.composer-home .home-opening-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.65rem;
-  margin-bottom: 1.35rem;
-  color: var(--home-hero-accent);
-  font:
-    600 0.78rem/1 Space,
-    sans-serif;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-.composer-home .home-opening-eyebrow::before {
-  content: "";
-  width: 28px;
-  height: 1px;
-  background: currentColor;
 }
 
 /* One inspectable app and the later change its owner asked for, before the

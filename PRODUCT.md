@@ -1,6 +1,6 @@
 # Product
 <!-- impeccable:product-schema 1 -->
-Reviewed 13 October 2026. Source: MP launch instruction and GitHub epic #1.
+Reviewed 17 November 2026. Sources include the owner’s creation and operations brief and [GitHub epic #1](https://github.com/loftwah/app-composer/issues/1).
 
 ## Platform
 web
@@ -9,10 +9,23 @@ web
 EmDash, Astro, TypeScript, Cloudflare Workers, D1/R2, Access, GitHub and external Codex. Woodhouse operates implementation; customer applications do not depend on it.
 
 ## Users
-People who want an agent to prepare their environment and build, compose and maintain software. The human is MP from the beginning, including before they have an idea.
+Creators, developers and teams who want to make and run something they own. Beginners should be able to start with an idea and references. Developers and operators should be able to inspect and control the underlying source, services and releases. Agents are also users of the platform’s structured interfaces. The human is MP from the beginning, including before they have an idea.
 
 ## Product Purpose
-App Composer is an agent-operated application studio built around EmDash and Cloudflare. It carries forward the useful lessons of WordPress: approachable content models, editable fields and forms, reusable features, white-label customisation and source ownership. Agents implement and operate the application; MP supplies intent and genuinely human capabilities.
+App Composer is an open-source, AI-native creation and operations platform. Its purpose is to let people express an outcome and shape it to their taste while agents coordinate the tools and work needed to bring it to life. The person directs the outcome, approves consequential actions and retains control of their work, source, data and accounts.
+
+### What we are building towards
+
+- **A continuous project lifecycle.** Understand the goal and references, design, build, provision, test the actual experience, deploy, operate and improve the same project. Production evidence should show what works and inform what to change next.
+- **Reusable building blocks.** Make components, apps, integrations, agent skills and deployment recipes discoverable and composable in the browser and through structured APIs such as MCP. Record who owns each block, its interfaces, versions, dependencies and permissions. Independently maintained tools keep their own release boundaries.
+- **Creative work inside the workflow.** Media Studio and the shared asset ecosystem should help people and agents find, make, edit and reuse artwork, audio, video and other assets within a project. Carry forward selected references, iterations, provenance and rights. Only eligible, rights-cleared work belongs in public libraries. Private projects and source materials stay protected.
+- **Production operations and governed agent work.** Cloudflare is the first infrastructure focus. Agents should work within explicit permissions and leave inspectable records of actions and results. Deployment, health, recovery, security and costs are part of operating a product. Team and enterprise support requires scoped access, tenant isolation and auditability.
+
+The goal spans applications and websites, games, media and creative tools, documents and other artefacts, automations and agent workflows, and the infrastructure behind them. Evaluate quality through the work itself, including design, accessibility, reliability and evidence from actual use. Treat this scope as product direction. Describe availability with working examples and current release evidence.
+
+### Where the supported path starts
+
+The supported application path uses EmDash and Cloudflare. It carries forward lessons from WordPress, including approachable content models, editable fields and forms, reusable features, white-label customisation and source ownership. [Creator Hub](https://composer.loftwah.com/creator-hub) demonstrates composition and a follow-up change. [Media Studio](https://composer.loftwah.com/media-studio) shows the creative workflows. [Release evidence](https://composer.loftwah.com/release) records the verified scope.
 
 Get Ready is the independent agent getting-started capability: a reusable library/programmatic API, CLI and optional local MCP that prepare a supported environment and prove HTTPS before an app idea. Init is the structured brief/content/field/form workflow inspired by MetaBox/ACF, with versioned app contracts and portable specifications. Composition joins independently maintained applications through data and actions.
 
