@@ -1072,9 +1072,13 @@ function ShareCalendar({ search }: { search: string }) {
   // cleared when the weekday or time changes so a stale slot is not shown.
   const [queueWeekday, setQueueWeekday] = useState(1);
   const [queueTime, setQueueTime] = useState("09:00");
-  const [queuePreview, setQueuePreview] = useState<QueueNextPreview>();
+  const [queueResult, setQueueResult] = useState<{
+    account: string;
+    weekday: number;
+    time: string;
+    preview: QueueNextPreview;
+  }>();
   const [queueChecking, setQueueChecking] = useState(false);
-  const queueLabels = scheduleLabels(queuePreview?.nextInstant ?? null);
   // The same approval/delivery resolution as the item card drives both the
   // counts and the visible list. This filter is read-only and keeps item order.
   const classified = (snapshot?.items ?? []).map((item) => ({
@@ -1093,6 +1097,7 @@ function ShareCalendar({ search }: { search: string }) {
   const pending = useRef(false);
   const selection = useRef<string | undefined>(undefined);
   const invalidScope = useRef(false);
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   // The send window opens at the intended time and closes when the approval
   // expires. A page left open across that boundary used to keep the original
@@ -1132,6 +1137,22 @@ function ShareCalendar({ search }: { search: string }) {
     snapshot?.bluesky.configuredHandle ??
     blueskyHandle
   ).trim();
+  const queueAccount = snapshot?.bluesky.configuredHandle?.trim();
+  const queuePreview =
+    queueResult &&
+    queueResult.account === queueAccount &&
+    queueResult.weekday === queueWeekday &&
+    queueResult.time === queueTime
+      ? queueResult.preview
+      : undefined;
+  const queueLabels = scheduleLabels(queuePreview?.nextInstant ?? null);
+  const canApplyQueuePreview =
+    !editing &&
+    (catalogueMode || channel === "bluesky") &&
+    canWrite &&
+    !busy &&
+    !scheduledLocal &&
+    Boolean(queuePreview?.nextInstant);
   const scheduled = useMemo(
     () => calendarExportItems(snapshot?.items ?? []),
     [snapshot],
@@ -1391,7 +1412,7 @@ function ShareCalendar({ search }: { search: string }) {
   }
 
   async function previewQueueNext() {
-    if (queueChecking || !blueskyAccount || !isOwner) return;
+    if (queueChecking || !queueAccount || !isOwner) return;
     const time = queueTime.trim();
     if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time)) {
       setError("Choose a 24-hour time in HH:mm format.");
@@ -1401,11 +1422,16 @@ function ShareCalendar({ search }: { search: string }) {
     setQueueChecking(true);
     setError("");
     setNotice("");
-    setQueuePreview(undefined);
+    setQueueResult(undefined);
     try {
       const result = await queueNextCall(queueWeekday, time, workspace);
       if (alive.current && selection.current === workspace)
-        setQueuePreview(result);
+        setQueueResult({
+          account: queueAccount,
+          weekday: queueWeekday,
+          time,
+          preview: result,
+        });
     } catch (cause) {
       if (alive.current && selection.current === workspace)
         setError(
@@ -1416,6 +1442,22 @@ function ShareCalendar({ search }: { search: string }) {
     } finally {
       if (alive.current) setQueueChecking(false);
     }
+  }
+
+  function applyQueuePreview() {
+    const instant = queuePreview?.nextInstant;
+    if (!instant || !canApplyQueuePreview || pending.current) return;
+    if (Date.parse(instant) <= Date.now()) {
+      setQueueResult(undefined);
+      setNotice("That time has passed. Preview the next slot again.");
+      return;
+    }
+    const local = melbourneLocalInput(instant);
+    if (!local) return;
+    // Form-local only: no request, no reservation, no change to approval or
+    // send paths. The user can then edit the field before saving.
+    setScheduledLocal(local);
+    dateInputRef.current?.focus();
   }
 
   async function approveBluesky(item: ShareCalendarItem) {
@@ -2659,6 +2701,7 @@ function ShareCalendar({ search }: { search: string }) {
               <label className="sc-field">
                 Date and time (Australia/Melbourne, leave empty for a draft)
                 <input
+                  ref={dateInputRef}
                   type="datetime-local"
                   value={scheduledLocal}
                   onChange={(event) => setScheduledLocal(event.target.value)}
@@ -2764,11 +2807,11 @@ function ShareCalendar({ search }: { search: string }) {
                 Download .ics
               </button>
             </div>
-            {isOwner && blueskyAccount && (
+            {isOwner && queueAccount && (
               <section className="sc-queue" aria-labelledby="sc-queue-title">
                 <h3 id="sc-queue-title">Queue Next preview</h3>
                 <p className="sc-hint">
-                  Find a time for @{blueskyAccount}. The preview skips scheduled
+                  Find a time for @{queueAccount}. The preview skips scheduled
                   Bluesky items in this workspace and leaves the calendar
                   unchanged.
                 </p>
@@ -2780,7 +2823,7 @@ function ShareCalendar({ search }: { search: string }) {
                       disabled={queueChecking}
                       onChange={(event) => {
                         setQueueWeekday(Number(event.target.value));
-                        setQueuePreview(undefined);
+                        setQueueResult(undefined);
                       }}
                     >
                       {MELBOURNE_WEEKDAYS.map((day) => (
@@ -2798,7 +2841,7 @@ function ShareCalendar({ search }: { search: string }) {
                       readOnly={queueChecking}
                       onChange={(event) => {
                         setQueueTime(event.target.value);
-                        setQueuePreview(undefined);
+                        setQueueResult(undefined);
                       }}
                     />
                   </label>
@@ -2824,6 +2867,11 @@ function ShareCalendar({ search }: { search: string }) {
                     </p>
                   )}
                 </div>
+                {canApplyQueuePreview && (
+                  <button type="button" onClick={applyQueuePreview}>
+                    Use this time in the new Bluesky draft
+                  </button>
+                )}
               </section>
             )}
             {!snapshot.items.length && (
