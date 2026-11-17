@@ -439,7 +439,7 @@ test("the .ics export is valid VCALENDAR with CRLF, folding and escaped TEXT", (
   const description = unescapeText(parsed.properties.get("DESCRIPTION"));
   assert.ok(description.startsWith(caption), "caption survives escaping");
   assert.match(description, /Link: https:\/\/composer\.loftwah\.com/);
-  assert.match(description, /Composer never posts automatically\./);
+  assert.match(description, /This calendar event does not enable automatic delivery\./);
   assert.equal(
     parsed.properties.get("URL"),
     "https://composer.loftwah.com/s/calendar-example?utm_source=calendar",
@@ -1392,7 +1392,7 @@ test("the .ics round-trips one event per scheduled item with CRLF, folding and U
     ),
     "the caption and destination round-trip exactly",
   );
-  assert.match(description, /Composer never posts automatically\./);
+  assert.match(description, /This calendar event does not enable automatic delivery\./);
 
   const second = byUid.get(secondId + "@composer.loftwah.com");
   assert.ok(second);

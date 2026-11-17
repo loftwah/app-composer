@@ -932,6 +932,7 @@ function BlueskyPanel({
   onRecheck,
   onApprove,
   onCancel,
+  onSchedule,
   onSend,
   onReconcile,
   onCopyPackage,
@@ -953,6 +954,7 @@ function BlueskyPanel({
   onRecheck: () => void;
   onApprove: () => void;
   onCancel: () => void;
+  onSchedule?: () => void;
   onSend: () => void;
   onReconcile: () => void;
   onCopyPackage: () => void;
@@ -1016,11 +1018,26 @@ function BlueskyPanel({
     !busy &&
     !sending &&
     sendConfirmed &&
+    !approval?.automatic &&
     connection.state === "configured" &&
     status?.state === "approved" &&
     status?.send.ok === true &&
     sendWindowOpen &&
     !deliveryBlocksSend;
+  const canSchedule = Boolean(
+    onSchedule &&
+    canWrite &&
+    !busy &&
+    !sending &&
+    sendConfirmed &&
+    approval &&
+    !approval.automatic &&
+    !delivery &&
+    status?.state === "approved" &&
+    status.send.ok &&
+    Date.parse(approval.scheduledAt) > now.getTime() &&
+    Date.parse(approval.expiresAt) > Date.parse(approval.scheduledAt),
+  );
   return (
     <section
       className="sc-bluesky"
@@ -1266,7 +1283,9 @@ function BlueskyPanel({
               )}
               {approval && (
                 <div className="sc-bluesky-send-panel">
-                  <h4>{published ? "Published delivery" : "Send approved post"}</h4>
+                  <h4>
+                    {published ? "Published delivery" : "Publish approved post"}
+                  </h4>
                   <dl className="sc-bluesky-bound">
                     <div>
                       <dt>Bound handle</dt>
@@ -1421,13 +1440,35 @@ function BlueskyPanel({
                         I reviewed the bound handle, exact text, media and
                         intended time.
                       </label>
-                      {!sendWindowOpen && (
-                        <p className="sc-hint">
-                          Sending opens at the intended time and closes when the
-                          approval expires. Re-approve if the window has closed.
+                      {approval.automatic ? (
+                        <p role="status" className="sc-hint">
+                          Scheduled to publish automatically. Cancel approval to
+                          stop it. Refresh the calendar after the intended time
+                          to see the receipt.
                         </p>
+                      ) : (
+                        !sendWindowOpen && (
+                          <p className="sc-hint">
+                            Sending opens at the intended time and closes when
+                            the approval expires. Re-approve if the window has
+                            closed.
+                          </p>
+                        )
                       )}
                       <div className="sc-actions">
+                        {onSchedule &&
+                          !approval.automatic &&
+                          !delivery &&
+                          Date.parse(approval.scheduledAt) > now.getTime() && (
+                            <button
+                              type="button"
+                              className="sc-primary"
+                              onClick={onSchedule}
+                              disabled={!canSchedule}
+                            >
+                              Publish automatically at this time
+                            </button>
+                          )}
                         <button
                           type="button"
                           className="sc-primary"
@@ -1959,6 +2000,27 @@ function ShareCalendar({ search }: { search: string }) {
     dateInputRef.current?.focus();
   }
 
+  async function scheduleBluesky(
+    item: ShareCalendarItem,
+    approval: BlueskyApprovalRecord,
+  ) {
+    const scheduled = await mutate(
+      "blueskySchedule",
+      {
+        item: item.id,
+        expectedRevision: item.revision,
+        expectedApprovalRevision: approval.approvalRevision,
+      },
+      `Automatic Bluesky delivery requested for ${displayDate(approval.scheduledAt)}.`,
+    );
+    if (
+      scheduled?.approvals.find((entry) => entry.itemId === item.id)?.automatic
+    )
+      setNotice(
+        `Bluesky will publish this approval automatically at ${displayDate(approval.scheduledAt)}.`,
+      );
+  }
+
   async function approveBluesky(item: ShareCalendarItem) {
     const saved = await mutate(
       "blueskyApprove",
@@ -2230,7 +2292,7 @@ function ShareCalendar({ search }: { search: string }) {
           scheduledAt,
         },
         detail
-          ? `Scheduled ${previewAsset.title} for ${detail.melbourne} · ${detail.utc}. Composer will not post it automatically.`
+          ? `Scheduled ${previewAsset.title} for ${detail.melbourne} · ${detail.utc}. Choose automatic Bluesky delivery after approval.`
           : `Saved ${previewAsset.title} as a Bluesky draft. Nothing is on the calendar and nothing was posted.`,
       );
       if (saved) {
@@ -2299,7 +2361,7 @@ function ShareCalendar({ search }: { search: string }) {
     const verb = scheduledAt ? "Scheduled" : "Draft saved";
     const detail = scheduledAt ? scheduleLabels(scheduledAt) : null;
     const message = detail
-      ? `${verb} for ${detail.melbourne} · ${detail.utc}. Composer will not post it automatically.`
+      ? `${verb} for ${detail.melbourne} · ${detail.utc}. Choose automatic Bluesky delivery after approval.`
       : `${verb}. Nothing is on the calendar and nothing was posted.`;
 
     const primaryPayload = editing
@@ -2607,9 +2669,8 @@ function ShareCalendar({ search }: { search: string }) {
       <p className="sc-lede">
         Prepare a caption and a date for a published stack, or for a workspace
         owner, one exact Woodhouse Share artwork. The calendar records local
-        preparation and handoff. Bluesky is the only channel with an optional
-        send path, and it runs only after an explicit confirmation of one exact
-        approval; nothing posts automatically.
+        preparation and handoff. For Bluesky, approve the exact post, then
+        choose automatic delivery at the approved time or send it yourself.
       </p>
       <p className="sc-boundary">
         Times show Australia/Melbourne and UTC. The .ics export uses UTC, so a
@@ -2979,8 +3040,8 @@ function ShareCalendar({ search }: { search: string }) {
                     />
                   </label>
                   <p className="sc-hint">
-                    Approve the exact post and send it through the configured
-                    account.
+                    Approve the exact post, then choose how to send it through
+                    the configured account.
                   </p>
                 </>
               )}
@@ -3734,6 +3795,11 @@ function ShareCalendar({ search }: { search: string }) {
                         onCancel={() => {
                           if (approval) void cancelBluesky(item, approval);
                         }}
+                        onSchedule={
+                          isOwner && approval
+                            ? () => void scheduleBluesky(item, approval)
+                            : undefined
+                        }
                         onSend={() => {
                           if (approval) void sendBluesky(item, approval);
                         }}

@@ -19,6 +19,8 @@ import {
   shareCalendarCommand,
   shareCalendarReadInput,
   shareCalendarSnapshot,
+  scheduledBlueskyJobSchema,
+  type ScheduledBlueskyJob,
   shareCalendarVariantSchema,
   shareQueuePresetsReplySchema,
   sqliteInstant,
@@ -101,11 +103,19 @@ interface User {
 interface PluginSettings {
   getVersioned<T>(key: string): Promise<{ value: T; revision: string } | null>;
 }
+interface ShareCalendarCron {
+  schedule(
+    name: string,
+    options: { schedule: string; data: Record<string, unknown> },
+  ): Promise<void>;
+  list(): Promise<Array<{ name: string }>>;
+}
 interface Context {
   user?: User;
   request: Request;
   input: unknown;
   settings?: PluginSettings;
+  cron?: ShareCalendarCron;
 }
 interface Workspace {
   id: string;
@@ -191,7 +201,9 @@ function pdsOrigin(runtime: ShareCalendarRuntime): string | null {
 // Read the encrypted app password for this one server-side operation. It is
 // never returned to the page, written to a delivery row, logged or included in
 // an error. A missing or unreadable secret is simply "not configured".
-async function readBlueskyAppPassword(ctx: Context): Promise<string | null> {
+async function readBlueskyAppPassword(
+  ctx: Pick<Context, "settings">,
+): Promise<string | null> {
   try {
     const stored = await ctx.settings?.getVersioned<string>(
       BLUESKY_APP_PASSWORD_SETTING,
@@ -207,7 +219,7 @@ async function readBlueskyAppPassword(ctx: Context): Promise<string | null> {
 // unreadable setting keeps the existing fallback rather than blocking the
 // calendar, and an invalid stored value stays unconfigured.
 async function readConfiguredBlueskyHandle(
-  ctx: Context,
+  ctx: Pick<Context, "settings">,
   runtime: ShareCalendarRuntime,
 ): Promise<string | null> {
   try {
@@ -424,6 +436,7 @@ async function snapshot(
   configuredHandle: string | null = null,
   connection = connectionSummary(configuredHandle, false),
   now = new Date(),
+  cron?: ShareCalendarCron,
 ): Promise<ShareCalendarSnapshot> {
   const sources = await listSources(db, workspace.id);
   const rows = await db
@@ -447,6 +460,17 @@ async function snapshot(
     .bind(workspace.id)
     .all<ApprovalRow>();
   const deliveries = await listBlueskyDeliveries(db, workspace.id);
+  const revisions = new Map(
+    (rows.results ?? []).map((row) => [row.id, row.revision]),
+  );
+  let taskNames = new Set<string>();
+  if (cron && approvalRows.results?.some((row) => row.state === "approved")) {
+    try {
+      taskNames = new Set((await cron.list()).map(({ name }) => name));
+    } catch {
+      // The calendar and exact approval remain readable during a scheduler fault.
+    }
+  }
   const current = new Map(
     sources.map((source) => [source.id, source.publication]),
   );
@@ -461,7 +485,16 @@ async function snapshot(
         (row.stack_id !== null &&
           current.get(row.stack_id) === row.stack_revision),
     })),
-    approvals: (approvalRows.results ?? []).map(approvalRecord),
+    approvals: (approvalRows.results ?? []).map((row) => {
+      const approval = approvalRecord(row);
+      return {
+        ...approval,
+        automatic:
+          approval.state === "approved" &&
+          revisions.get(approval.itemId) === approval.draftRevision &&
+          taskNames.has(scheduledBlueskyName(approval)),
+      };
+    }),
     deliveries,
     bluesky: { configuredHandle, connection },
     now: now.toISOString(),
@@ -639,6 +672,439 @@ async function sourceForBluesky(
   return source;
 }
 
+function scheduledBlueskyName(approval: {
+  itemId: string;
+  approvalRevision: number;
+  bindingHash: string;
+}) {
+  return `share-bs-${approval.itemId}-${approval.approvalRevision}-${approval.bindingHash}`;
+}
+
+async function sendApprovedBluesky({
+  db,
+  workspaceId,
+  row,
+  approval,
+  runtime,
+  nowDate,
+  appPassword,
+  configuredHandle,
+  scheduledOwner,
+}: {
+  db: D1Database;
+  workspaceId: string;
+  row: ItemRow;
+  approval: BlueskyApprovalRecord;
+  runtime: ShareCalendarRuntime;
+  nowDate: Date;
+  appPassword: string | null;
+  configuredHandle: string | null;
+  scheduledOwner?: string;
+}) {
+  const expiresAt = Date.parse(approval.expiresAt);
+  const intendedAt = Date.parse(approval.scheduledAt);
+  if (!Number.isFinite(expiresAt) || expiresAt <= nowDate.getTime())
+    return fail(
+      "BLOCKED",
+      "This approval expired or has no valid expiry. Re-approve the exact revision before sending. Nothing was sent.",
+    );
+  if (!Number.isFinite(intendedAt) || intendedAt > nowDate.getTime())
+    return fail(
+      "BLOCKED",
+      "The intended time has not arrived or is invalid. Nothing was sent.",
+    );
+  if (!appPassword || (scheduledOwner && !configuredHandle))
+    return fail(
+      "NEEDS_OWNER",
+      `${BLUESKY_SEND_UNAVAILABLE_STATEMENT} No post was sent.`,
+    );
+  const connectionHandle = configuredHandle ?? approval.accountHandle;
+  if (normalizeBlueskyHandle(connectionHandle) !== approval.accountHandle)
+    return fail(
+      "NEEDS_OWNER",
+      "The configured public Bluesky handle does not match the approved handle. Nothing was sent.",
+    );
+  const item = { ...itemRow(row), sourceCurrent: true };
+  const source = await sourceForBluesky(db, workspaceId, row, item, runtime);
+  const content = await createBlueskyContent(item, source, nowDate);
+  // A send happens at or after the intended time, so `time_passed` is the
+  // expected state here. Every other content problem still blocks.
+  const blocking = content.problems.filter(
+    (problem) => problem.code !== "time_passed",
+  );
+  if (blocking.length)
+    return fail(
+      "BLOCKED",
+      `${blocking.map((problem) => problem.message).join(" ")} Nothing was sent.`,
+    );
+  const media = content.media[0];
+  if (!media)
+    return fail(
+      "BLOCKED",
+      "The approved share card is no longer available. Nothing was sent.",
+    );
+  const exact =
+    content.scheduledAt === approval.scheduledAt &&
+    content.textHash === approval.textHash &&
+    content.mediaHash === approval.mediaHash &&
+    content.link === approval.link &&
+    content.revision === approval.draftRevision;
+  if (!exact)
+    return fail(
+      "CONFLICT",
+      "The saved draft no longer matches the exact approval. Re-approve before sending. Nothing was sent.",
+    );
+  const { bindingHash } = await bindingForContent(content, {
+    did: approval.accountDid,
+    handle: approval.accountHandle,
+  });
+  if (bindingHash !== approval.bindingHash)
+    return fail(
+      "CONFLICT",
+      "The approval binding no longer matches this item. Re-approve before sending. Nothing was sent.",
+    );
+  const rkey = await blueskyPostRkey(row.id, approval.approvalRevision);
+  const deliveryKey = blueskyDeliveryKey(row.id, approval.approvalRevision);
+  const claim = await claimBlueskyDelivery(db, {
+    itemId: row.id,
+    workspaceId: workspaceId,
+    approvalRevision: approval.approvalRevision,
+    accountHandle: approval.accountHandle,
+    accountDid: approval.accountDid,
+    bindingHash: approval.bindingHash,
+    textHash: content.textHash,
+    rkey,
+    now: requestDate(runtime),
+    requireApproval: true,
+    scheduledOwner,
+  });
+  if (!claim.claimed) {
+    if (claim.reason === "published") return null;
+    if (claim.reason === "sending")
+      return fail(
+        "CONFLICT",
+        "Another worker is already sending this exact approval. Nothing was retried.",
+      );
+    if (claim.reason === "unknown")
+      return fail(
+        "CONFLICT",
+        "The previous attempt has an unknown outcome. Reconcile it before sending again. Nothing was sent.",
+      );
+    if (claim.reason === "cancelled")
+      return fail(
+        "CONFLICT",
+        "This delivery was cancelled. Re-approve before sending. Nothing was sent.",
+      );
+    if (claim.reason === "exhausted")
+      return fail(
+        "BLOCKED",
+        "This approval has reached its bounded send attempts. Re-approve before trying again. Nothing was sent.",
+      );
+    return fail(
+      "UNAVAILABLE",
+      "The delivery could not be claimed safely. Nothing was sent.",
+    );
+  }
+  const service = pdsOrigin(runtime);
+  if (!service) {
+    await markBlueskyDeliveryFailed(db, deliveryKey, {
+      code: "invalid_service",
+      message:
+        "The configured Bluesky service address is not a plain https origin. Nothing was sent.",
+      now: nowDate,
+    });
+    return fail(
+      "BLOCKED",
+      "The configured Bluesky service address is not a plain https origin. Nothing was sent.",
+    );
+  }
+  const doFetch = runtime.fetch ?? globalThis.fetch;
+  if (typeof doFetch !== "function") {
+    await markBlueskyDeliveryFailed(db, deliveryKey, {
+      code: "unavailable",
+      message:
+        "Composer has no network transport for Bluesky. Nothing was sent.",
+      now: nowDate,
+    });
+    return fail(
+      "UNAVAILABLE",
+      "Composer has no network transport for Bluesky. Nothing was sent.",
+    );
+  }
+  const publisherOptions = {
+    fetch: doFetch,
+    service,
+    timeoutMs: runtime.blueskyTimeoutMs,
+  };
+  try {
+    const sessionResult = await createBlueskySession(
+      { identifier: connectionHandle, password: appPassword },
+      publisherOptions,
+    );
+    if (!sessionResult.ok) {
+      if (sessionResult.needsAuth)
+        await markBlueskyDeliveryNeedsAuth(db, deliveryKey, {
+          message: sessionResult.message,
+          now: nowDate,
+        });
+      else
+        await markBlueskyDeliveryFailed(db, deliveryKey, {
+          code: sessionResult.code,
+          message: sessionResult.message,
+          now: nowDate,
+        });
+      return fail(publishFailureCode(sessionResult), sessionResult.message);
+    }
+    const session = sessionResult.session;
+    if (
+      session.did !== approval.accountDid ||
+      session.handle !== approval.accountHandle
+    ) {
+      await markBlueskyDeliveryFailed(db, deliveryKey, {
+        code: "account_mismatch",
+        message:
+          "The Bluesky session belongs to a different account than the approval. Nothing was sent.",
+        now: nowDate,
+      });
+      return fail(
+        "BLOCKED",
+        "The Bluesky session belongs to a different account than the approval. Nothing was sent.",
+      );
+    }
+    const imageResult = await fetchBlueskyImage(media.url, publisherOptions);
+    if (!imageResult.ok) {
+      await markBlueskyDeliveryFailed(db, deliveryKey, {
+        code: imageResult.code,
+        message: imageResult.message,
+        now: nowDate,
+      });
+      return fail(publishFailureCode(imageResult), imageResult.message);
+    }
+    if (
+      item.catalogue &&
+      (imageResult.image.mimeType !== item.catalogue.mimeType ||
+        imageResult.image.bytes.byteLength !== item.catalogue.byteLength ||
+        (await sha256Bytes(imageResult.image.bytes)) !==
+          item.catalogue.bytesSha256)
+    ) {
+      const message =
+        "The artwork bytes changed after approval. Nothing was sent.";
+      await markBlueskyDeliveryFailed(db, deliveryKey, {
+        code: "catalogue_media_changed",
+        message,
+        now: nowDate,
+      });
+      return fail("SOURCE_STALE", message);
+    }
+    const blobResult = await uploadBlueskyImage(
+      {
+        session,
+        bytes: imageResult.image.bytes,
+        mimeType: imageResult.image.mimeType,
+      },
+      publisherOptions,
+    );
+    if (!blobResult.ok) {
+      if (blobResult.needsAuth)
+        await markBlueskyDeliveryNeedsAuth(db, deliveryKey, {
+          message: blobResult.message,
+          now: nowDate,
+        });
+      else
+        await markBlueskyDeliveryFailed(db, deliveryKey, {
+          code: blobResult.code,
+          message: blobResult.message,
+          now: nowDate,
+        });
+      return fail(publishFailureCode(blobResult), blobResult.message);
+    }
+    const postInput = {
+      session,
+      rkey,
+      text: content.text,
+      createdAt: nowDate.toISOString(),
+      link: content.link,
+      embed: item.catalogue ? ("images" as const) : ("external" as const),
+      image: { blob: blobResult.blob, alt: media.alt },
+      external: {
+        title: content.source.name,
+        description: content.text,
+      },
+    };
+    let postResult = await createBlueskyPost(postInput, publisherOptions);
+    if (!postResult.ok && postResult.needsAuth) {
+      const refreshed = await refreshBlueskySession(
+        session.refreshJwt,
+        publisherOptions,
+      );
+      if (
+        refreshed.ok &&
+        refreshed.session.did === approval.accountDid &&
+        refreshed.session.handle === approval.accountHandle
+      )
+        postResult = await createBlueskyPost(
+          { ...postInput, session: refreshed.session },
+          publisherOptions,
+        );
+      else if (refreshed.ok) {
+        await markBlueskyDeliveryFailed(db, deliveryKey, {
+          code: "account_mismatch",
+          message:
+            "The refreshed Bluesky session belongs to a different account. Nothing was sent.",
+          now: nowDate,
+        });
+        return fail(
+          "BLOCKED",
+          "The refreshed Bluesky session belongs to a different account. Nothing was sent.",
+        );
+      }
+    }
+    if (!postResult.ok) {
+      if (postResult.needsAuth) {
+        await markBlueskyDeliveryNeedsAuth(db, deliveryKey, {
+          message: postResult.message,
+          now: nowDate,
+        });
+        return fail("NEEDS_OWNER", postResult.message);
+      }
+      if (
+        postResult.transport ||
+        postResult.code === "record_conflict" ||
+        postResult.code === "invalid_response"
+      ) {
+        // The request may have reached the provider. Never retry blindly;
+        // the deterministic rkey makes reconciliation exact.
+        await markBlueskyDeliveryUnknown(db, deliveryKey, {
+          code: postResult.code,
+          message: postResult.message,
+          now: nowDate,
+        });
+        return fail(
+          postResult.code === "record_conflict" ? "CONFLICT" : "UNAVAILABLE",
+          `${postResult.message} The outcome is unknown; reconcile before retrying. Nothing was retried.`,
+        );
+      }
+      await markBlueskyDeliveryFailed(db, deliveryKey, {
+        code: postResult.code,
+        message: postResult.message,
+        now: nowDate,
+      });
+      return fail(publishFailureCode(postResult), postResult.message);
+    }
+    const published = await markBlueskyDeliveryPublished(db, deliveryKey, {
+      uri: postResult.post.uri,
+      cid: postResult.post.cid,
+      permalink: postResult.post.permalink,
+      now: nowDate,
+    });
+    if (!published)
+      return fail(
+        "UNAVAILABLE",
+        "Bluesky accepted the post, but the local receipt changed before it could be recorded. Inspect the public profile and reconcile before any new approval.",
+      );
+    return null;
+  } catch {
+    // An unexpected stop after the claim is ambiguous: it may have
+    // happened after createRecord. Record `unknown` and require a readback.
+    await markBlueskyDeliveryUnknown(db, deliveryKey, {
+      code: "unexpected",
+      message:
+        "The send stopped unexpectedly. The outcome is unknown; reconcile before retrying.",
+      now: nowDate,
+    });
+    return fail(
+      "UNAVAILABLE",
+      "The send stopped unexpectedly. The outcome is unknown; reconcile before retrying. Nothing was retried.",
+    );
+  }
+}
+
+export async function runScheduledBluesky(
+  event: { name: string; data?: Record<string, unknown>; scheduledAt: string },
+  ctx: Pick<Context, "settings">,
+  runtime: ShareCalendarRuntime,
+): Promise<void> {
+  if (
+    !event.name.startsWith("share-bs-") ||
+    runtime.PUBLIC_ORIGIN !== origin ||
+    !database(runtime.DB)
+  )
+    return;
+  const parsed = scheduledBlueskyJobSchema.safeParse(event.data);
+  if (!parsed.success || event.name !== scheduledBlueskyName(parsed.data))
+    return;
+  const job = parsed.data;
+  const db = runtime.DB;
+  const member = await db
+    .prepare(
+      "SELECT role FROM creator_members WHERE workspace_id=? AND user_id=? AND role='owner'",
+    )
+    .bind(job.workspaceId, job.ownerId)
+    .first();
+  if (!member) return;
+  const row = await selectedItem(db, job.workspaceId, job.itemId).catch(
+    (error: unknown) => {
+      if (error instanceof StackError && error.code === "NOT_FOUND")
+        return null;
+      throw error;
+    },
+  );
+  const stored = await selectedApproval(db, job.workspaceId, job.itemId);
+  if (
+    !row ||
+    !stored ||
+    stored.state !== "approved" ||
+    stored.approval_revision !== job.approvalRevision ||
+    stored.binding_hash !== job.bindingHash ||
+    stored.draft_revision !== row.revision ||
+    stored.scheduled_at !== job.scheduledAt
+  )
+    return;
+  const approval = approvalRecord(stored);
+  const nowDate = requestDate(runtime);
+  const failure = await sendApprovedBluesky({
+    db,
+    workspaceId: job.workspaceId,
+    row,
+    approval,
+    runtime,
+    nowDate,
+    appPassword: await readBlueskyAppPassword(ctx),
+    configuredHandle: await readConfiguredBlueskyHandle(ctx, runtime),
+    scheduledOwner: job.ownerId,
+  }).catch((error: unknown) => {
+    if (error instanceof StackError && error.code === "SOURCE_STALE")
+      return fail("SOURCE_STALE", "The approved source changed. Nothing was sent.");
+    throw error;
+  });
+  if (!failure) return;
+  // Preflight can refuse a due send before the provider is reached. Record
+  // that outcome on the same exact approval, only if no worker has claimed it.
+  // A cancelled, changed, expired or already attempted approval cannot claim.
+  const recorded = await claimBlueskyDelivery(db, {
+    itemId: job.itemId,
+    workspaceId: job.workspaceId,
+    approvalRevision: job.approvalRevision,
+    accountHandle: approval.accountHandle,
+    accountDid: approval.accountDid,
+    bindingHash: approval.bindingHash,
+    textHash: approval.textHash,
+    rkey: await blueskyPostRkey(job.itemId, job.approvalRevision),
+    now: requestDate(runtime),
+    scheduledOwner: job.ownerId,
+  });
+  if (!recorded.claimed) return;
+  const key = blueskyDeliveryKey(job.itemId, job.approvalRevision);
+  if (failure.code === "NEEDS_OWNER")
+    await markBlueskyDeliveryNeedsAuth(db, key, { message: failure.message, now: nowDate });
+  else
+    await markBlueskyDeliveryFailed(db, key, {
+      code: "scheduled_preflight",
+      message: failure.message,
+      now: nowDate,
+    });
+}
+
 export async function manageShareCalendar(
   ctx: Context,
   runtime: ShareCalendarRuntime,
@@ -669,7 +1135,16 @@ export async function manageShareCalendar(
     db: D1Database,
     workspace: Workspace,
     changed: string | null = null,
-  ) => snapshot(db, workspace, changed, configuredHandle, connection, nowDate);
+  ) =>
+    snapshot(
+      db,
+      workspace,
+      changed,
+      configuredHandle,
+      connection,
+      nowDate,
+      ctx.cron,
+    );
   try {
     if (reading) {
       const url = new URL(ctx.request.url);
@@ -1088,7 +1563,14 @@ export async function manageShareCalendar(
         .prepare(
           `UPDATE creator_share_approvals
            SET state='cancelled',cancelled_at=?,approval_revision=approval_revision+1,revocation_reason=?,updated_by=?,updated_at=?
-           WHERE item_id=? AND workspace_id=? AND approval_revision=? AND state='approved'`,
+           WHERE item_id=? AND workspace_id=? AND approval_revision=? AND state='approved'
+             AND NOT EXISTS (
+               SELECT 1 FROM creator_share_deliveries d
+               WHERE d.item_id=creator_share_approvals.item_id
+                 AND d.workspace_id=creator_share_approvals.workspace_id
+                 AND d.approval_revision=creator_share_approvals.approval_revision
+                 AND d.state IN ('sending','unknown','published')
+             )`,
         )
         .bind(
           now,
@@ -1113,7 +1595,10 @@ export async function manageShareCalendar(
       );
       return view(db, workspace, row.id);
     }
-    if (command.action === "blueskySend") {
+    if (
+      command.action === "blueskySend" ||
+      command.action === "blueskySchedule"
+    ) {
       const approvalRow = await selectedApproval(db, workspace.id, row.id);
       if (!approvalRow)
         return fail(
@@ -1128,331 +1613,70 @@ export async function manageShareCalendar(
           "That Bluesky approval is not current. Re-approve the exact revision before sending.",
         );
       const approval = approvalRecord(approvalRow);
-      const expiresAt = Date.parse(approval.expiresAt);
-      const intendedAt = Date.parse(approval.scheduledAt);
-      if (!Number.isFinite(expiresAt) || expiresAt <= nowDate.getTime())
-        return fail(
-          "BLOCKED",
-          "This approval expired or has no valid expiry. Re-approve the exact revision before sending. Nothing was sent.",
-        );
-      if (!Number.isFinite(intendedAt) || intendedAt > nowDate.getTime())
-        return fail(
-          "BLOCKED",
-          "The intended time has not arrived or is invalid. Nothing was sent.",
-        );
-      if (!appPassword)
-        return fail(
-          "NEEDS_OWNER",
-          `${BLUESKY_SEND_UNAVAILABLE_STATEMENT} No post was sent.`,
-        );
-      const connectionHandle = configuredHandle ?? approval.accountHandle;
-      if (normalizeBlueskyHandle(connectionHandle) !== approval.accountHandle)
-        return fail(
-          "NEEDS_OWNER",
-          "The configured public Bluesky handle does not match the approved handle. Nothing was sent.",
-        );
-      const item = { ...itemRow(row), sourceCurrent: true };
-      const source = await sourceForBluesky(
-        db,
-        workspace.id,
-        row,
-        item,
-        runtime,
-      );
-      const content = await createBlueskyContent(item, source, nowDate);
-      // A send happens at or after the intended time, so `time_passed` is the
-      // expected state here. Every other content problem still blocks.
-      const blocking = content.problems.filter(
-        (problem) => problem.code !== "time_passed",
-      );
-      if (blocking.length)
-        return fail(
-          "BLOCKED",
-          `${blocking.map((problem) => problem.message).join(" ")} Nothing was sent.`,
-        );
-      const media = content.media[0];
-      if (!media)
-        return fail(
-          "BLOCKED",
-          "The approved share card is no longer available. Nothing was sent.",
-        );
-      const exact =
-        content.scheduledAt === approval.scheduledAt &&
-        content.textHash === approval.textHash &&
-        content.mediaHash === approval.mediaHash &&
-        content.link === approval.link &&
-        content.revision === approval.draftRevision;
-      if (!exact)
-        return fail(
-          "CONFLICT",
-          "The saved draft no longer matches the exact approval. Re-approve before sending. Nothing was sent.",
-        );
-      const { bindingHash } = await bindingForContent(content, {
-        did: approval.accountDid,
-        handle: approval.accountHandle,
-      });
-      if (bindingHash !== approval.bindingHash)
-        return fail(
-          "CONFLICT",
-          "The approval binding no longer matches this item. Re-approve before sending. Nothing was sent.",
-        );
-      const rkey = await blueskyPostRkey(row.id, approval.approvalRevision);
-      const deliveryKey = blueskyDeliveryKey(row.id, approval.approvalRevision);
-      const claim = await claimBlueskyDelivery(db, {
-        itemId: row.id,
-        workspaceId: workspace.id,
-        approvalRevision: approval.approvalRevision,
-        accountHandle: approval.accountHandle,
-        accountDid: approval.accountDid,
-        bindingHash: approval.bindingHash,
-        textHash: content.textHash,
-        rkey,
-        now: nowDate,
-      });
-      if (!claim.claimed) {
-        if (claim.reason === "published") return view(db, workspace, row.id);
-        if (claim.reason === "sending")
+      if (command.action === "blueskySchedule") {
+        if (workspace.role !== "owner")
           return fail(
-            "CONFLICT",
-            "Another worker is already sending this exact approval. Nothing was retried.",
+            "FORBIDDEN",
+            "Only the workspace owner can schedule automatic publishing.",
           );
-        if (claim.reason === "unknown")
+        if (
+          !ctx.cron ||
+          !appPassword ||
+          configuredHandle !== approval.accountHandle
+        )
           return fail(
-            "CONFLICT",
-            "The previous attempt has an unknown outcome. Reconcile it before sending again. Nothing was sent.",
+            "NEEDS_OWNER",
+            "Connect the approved Bluesky account before scheduling.",
           );
-        if (claim.reason === "cancelled")
-          return fail(
-            "CONFLICT",
-            "This delivery was cancelled. Re-approve before sending. Nothing was sent.",
-          );
-        if (claim.reason === "exhausted")
+        if (
+          row.state !== "scheduled" ||
+          approval.draftRevision !== row.revision ||
+          approval.scheduledAt !== row.scheduled_at
+        )
+          throw conflict();
+        if (
+          Date.parse(approval.scheduledAt) <= nowDate.getTime() ||
+          Date.parse(approval.expiresAt) <= Date.parse(approval.scheduledAt)
+        )
           return fail(
             "BLOCKED",
-            "This approval has reached its bounded send attempts. Re-approve before trying again. Nothing was sent.",
+            "Choose and approve a future time before scheduling.",
           );
-        return fail(
-          "UNAVAILABLE",
-          "The delivery could not be claimed safely. Nothing was sent.",
+        const delivery = await readBlueskyDelivery(
+          db,
+          workspace.id,
+          row.id,
+          approval.approvalRevision,
         );
-      }
-      const service = pdsOrigin(runtime);
-      if (!service) {
-        await markBlueskyDeliveryFailed(db, deliveryKey, {
-          code: "invalid_service",
-          message:
-            "The configured Bluesky service address is not a plain https origin. Nothing was sent.",
-          now: nowDate,
-        });
-        return fail(
-          "BLOCKED",
-          "The configured Bluesky service address is not a plain https origin. Nothing was sent.",
-        );
-      }
-      const doFetch = runtime.fetch ?? globalThis.fetch;
-      if (typeof doFetch !== "function") {
-        await markBlueskyDeliveryFailed(db, deliveryKey, {
-          code: "unavailable",
-          message:
-            "Composer has no network transport for Bluesky. Nothing was sent.",
-          now: nowDate,
-        });
-        return fail(
-          "UNAVAILABLE",
-          "Composer has no network transport for Bluesky. Nothing was sent.",
-        );
-      }
-      const publisherOptions = {
-        fetch: doFetch,
-        service,
-        timeoutMs: runtime.blueskyTimeoutMs,
-      };
-      try {
-        const sessionResult = await createBlueskySession(
-          { identifier: connectionHandle, password: appPassword },
-          publisherOptions,
-        );
-        if (!sessionResult.ok) {
-          if (sessionResult.needsAuth)
-            await markBlueskyDeliveryNeedsAuth(db, deliveryKey, {
-              message: sessionResult.message,
-              now: nowDate,
-            });
-          else
-            await markBlueskyDeliveryFailed(db, deliveryKey, {
-              code: sessionResult.code,
-              message: sessionResult.message,
-              now: nowDate,
-            });
-          return fail(publishFailureCode(sessionResult), sessionResult.message);
-        }
-        const session = sessionResult.session;
-        if (
-          session.did !== approval.accountDid ||
-          session.handle !== approval.accountHandle
-        ) {
-          await markBlueskyDeliveryFailed(db, deliveryKey, {
-            code: "account_mismatch",
-            message:
-              "The Bluesky session belongs to a different account than the approval. Nothing was sent.",
-            now: nowDate,
-          });
+        if (delivery)
           return fail(
-            "BLOCKED",
-            "The Bluesky session belongs to a different account than the approval. Nothing was sent.",
+            "CONFLICT",
+            "This approval already has a delivery receipt.",
           );
-        }
-        const imageResult = await fetchBlueskyImage(
-          media.url,
-          publisherOptions,
-        );
-        if (!imageResult.ok) {
-          await markBlueskyDeliveryFailed(db, deliveryKey, {
-            code: imageResult.code,
-            message: imageResult.message,
-            now: nowDate,
-          });
-          return fail(publishFailureCode(imageResult), imageResult.message);
-        }
-        if (
-          item.catalogue &&
-          (imageResult.image.mimeType !== item.catalogue.mimeType ||
-            imageResult.image.bytes.byteLength !== item.catalogue.byteLength ||
-            (await sha256Bytes(imageResult.image.bytes)) !==
-              item.catalogue.bytesSha256)
-        ) {
-          const message =
-            "The artwork bytes changed after approval. Nothing was sent.";
-          await markBlueskyDeliveryFailed(db, deliveryKey, {
-            code: "catalogue_media_changed",
-            message,
-            now: nowDate,
-          });
-          return fail("SOURCE_STALE", message);
-        }
-        const blobResult = await uploadBlueskyImage(
-          {
-            session,
-            bytes: imageResult.image.bytes,
-            mimeType: imageResult.image.mimeType,
-          },
-          publisherOptions,
-        );
-        if (!blobResult.ok) {
-          if (blobResult.needsAuth)
-            await markBlueskyDeliveryNeedsAuth(db, deliveryKey, {
-              message: blobResult.message,
-              now: nowDate,
-            });
-          else
-            await markBlueskyDeliveryFailed(db, deliveryKey, {
-              code: blobResult.code,
-              message: blobResult.message,
-              now: nowDate,
-            });
-          return fail(publishFailureCode(blobResult), blobResult.message);
-        }
-        const postInput = {
-          session,
-          rkey,
-          text: content.text,
-          createdAt: nowDate.toISOString(),
-          link: content.link,
-          embed: item.catalogue ? ("images" as const) : ("external" as const),
-          image: { blob: blobResult.blob, alt: media.alt },
-          external: {
-            title: content.source.name,
-            description: content.text,
-          },
-        };
-        let postResult = await createBlueskyPost(postInput, publisherOptions);
-        if (!postResult.ok && postResult.needsAuth) {
-          const refreshed = await refreshBlueskySession(
-            session.refreshJwt,
-            publisherOptions,
-          );
-          if (
-            refreshed.ok &&
-            refreshed.session.did === approval.accountDid &&
-            refreshed.session.handle === approval.accountHandle
-          )
-            postResult = await createBlueskyPost(
-              { ...postInput, session: refreshed.session },
-              publisherOptions,
-            );
-          else if (refreshed.ok) {
-            await markBlueskyDeliveryFailed(db, deliveryKey, {
-              code: "account_mismatch",
-              message:
-                "The refreshed Bluesky session belongs to a different account. Nothing was sent.",
-              now: nowDate,
-            });
-            return fail(
-              "BLOCKED",
-              "The refreshed Bluesky session belongs to a different account. Nothing was sent.",
-            );
-          }
-        }
-        if (!postResult.ok) {
-          if (postResult.needsAuth) {
-            await markBlueskyDeliveryNeedsAuth(db, deliveryKey, {
-              message: postResult.message,
-              now: nowDate,
-            });
-            return fail("NEEDS_OWNER", postResult.message);
-          }
-          if (
-            postResult.transport ||
-            postResult.code === "record_conflict" ||
-            postResult.code === "invalid_response"
-          ) {
-            // The request may have reached the provider. Never retry blindly;
-            // the deterministic rkey makes reconciliation exact.
-            await markBlueskyDeliveryUnknown(db, deliveryKey, {
-              code: postResult.code,
-              message: postResult.message,
-              now: nowDate,
-            });
-            return fail(
-              postResult.code === "record_conflict"
-                ? "CONFLICT"
-                : "UNAVAILABLE",
-              `${postResult.message} The outcome is unknown; reconcile before retrying. Nothing was retried.`,
-            );
-          }
-          await markBlueskyDeliveryFailed(db, deliveryKey, {
-            code: postResult.code,
-            message: postResult.message,
-            now: nowDate,
-          });
-          return fail(publishFailureCode(postResult), postResult.message);
-        }
-        const published = await markBlueskyDeliveryPublished(db, deliveryKey, {
-          uri: postResult.post.uri,
-          cid: postResult.post.cid,
-          permalink: postResult.post.permalink,
-          now: nowDate,
+        await ctx.cron.schedule(scheduledBlueskyName(approval), {
+          schedule: approval.scheduledAt,
+          data: {
+            itemId: row.id,
+            workspaceId: workspace.id,
+            ownerId: ctx.user.id,
+            approvalRevision: approval.approvalRevision,
+            bindingHash: approval.bindingHash,
+            scheduledAt: approval.scheduledAt,
+          } satisfies ScheduledBlueskyJob,
         });
-        if (!published)
-          return fail(
-            "UNAVAILABLE",
-            "Bluesky accepted the post, but the local receipt changed before it could be recorded. Inspect the public profile and reconcile before any new approval.",
-          );
         return view(db, workspace, row.id);
-      } catch {
-        // An unexpected stop after the claim is ambiguous: it may have
-        // happened after createRecord. Record `unknown` and require a readback.
-        await markBlueskyDeliveryUnknown(db, deliveryKey, {
-          code: "unexpected",
-          message:
-            "The send stopped unexpectedly. The outcome is unknown; reconcile before retrying.",
-          now: nowDate,
-        });
-        return fail(
-          "UNAVAILABLE",
-          "The send stopped unexpectedly. The outcome is unknown; reconcile before retrying. Nothing was retried.",
-        );
       }
+      const failure = await sendApprovedBluesky({
+        db,
+        workspaceId: workspace.id,
+        row,
+        approval,
+        runtime,
+        nowDate,
+        appPassword,
+        configuredHandle,
+      });
+      return failure ?? view(db, workspace, row.id);
     }
     if (command.action === "blueskyReconcile") {
       const approvalRow = await selectedApproval(db, workspace.id, row.id);

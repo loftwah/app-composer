@@ -29,7 +29,10 @@ import { manageDeliveryRuns } from "./delivery-runs.ts";
 import { manageCommandCentre } from "./command-centre.ts";
 import { manageStackStatus } from "./stack-status-admin.ts";
 import { manageProviderInventory } from "./provider-read.ts";
-import { manageShareCalendar } from "./share-calendar-admin.ts";
+import {
+  manageShareCalendar,
+  runScheduledBluesky,
+} from "./share-calendar-admin.ts";
 import { manageShareConnections } from "./share-connections-admin.ts";
 import { blueskyPublisherSettings } from "./bluesky-publisher.ts";
 
@@ -41,6 +44,14 @@ export function creatorPlugin(adminEntry: string, runtime: Runtime) {
   return definePlugin({
     id: "composer-stacks",
     version: "1.0.0",
+    hooks: {
+      cron: {
+        // The bounded send may verify a catalogue original, upload it and
+        // refresh the provider session before the final response.
+        timeout: 120_000,
+        handler: (event, ctx) => runScheduledBluesky(event, ctx, runtime),
+      },
+    },
     admin: {
       settingsSchema: {
         ...encryptionProbeSettings,

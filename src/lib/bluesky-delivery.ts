@@ -128,6 +128,8 @@ export interface ClaimBlueskyDeliveryInput {
   rkey: string;
   now: Date;
   maxAttempts?: number;
+  requireApproval?: boolean;
+  scheduledOwner?: string;
 }
 
 export type ClaimBlueskyDeliveryResult =
@@ -224,13 +226,47 @@ export async function claimBlueskyDelivery(
     );
   if (existing.attempt >= maxAttempts)
     return refusedClaim(existing, "exhausted");
+  // Recheck consent atomically after the network-dependent source checks.
+  // Automatic sends also require the authorising owner and a first attempt.
+  const approvalFence = input.requireApproval || input.scheduledOwner
+    ? `AND EXISTS (
+       SELECT 1 FROM creator_share_approvals a
+       JOIN creator_share_calendar_items i ON i.id=a.item_id AND i.workspace_id=a.workspace_id
+       WHERE a.item_id=? AND a.workspace_id=? AND a.approval_revision=?
+         AND a.state='approved' AND a.binding_hash=?
+         AND a.draft_revision=i.revision AND a.scheduled_at=i.scheduled_at
+         AND a.scheduled_at<=? AND a.expires_at>?
+         ${input.scheduledOwner ? `AND i.state='scheduled' AND EXISTS (
+           SELECT 1 FROM creator_members m
+           WHERE m.workspace_id=a.workspace_id AND m.user_id=? AND m.role='owner'
+         )` : ""}
+     ) ${input.scheduledOwner ? "AND attempt=0" : ""}`
+    : "";
   const result = await db
     .prepare(
       `UPDATE creator_share_deliveries
        SET state='sending',attempt=attempt+1,claimed_at=?,updated_at=?,error_code='',error_message=''
-       WHERE idempotency_key=? AND state=? AND attempt=? AND provider_uri IS NULL`,
+       WHERE idempotency_key=? AND state=? AND attempt=? AND provider_uri IS NULL
+       ${approvalFence}`,
     )
-    .bind(now, now, key, existing.state, existing.attempt)
+    .bind(
+      now,
+      now,
+      key,
+      existing.state,
+      existing.attempt,
+      ...(approvalFence
+        ? [
+            input.itemId,
+            input.workspaceId,
+            input.approvalRevision,
+            input.bindingHash,
+            now,
+            now,
+            ...(input.scheduledOwner ? [input.scheduledOwner] : []),
+          ]
+        : []),
+    )
     .run();
   if (result.meta?.changes !== 1) {
     const current = await db
