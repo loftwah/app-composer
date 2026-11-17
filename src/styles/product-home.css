@@ -501,7 +501,7 @@
     display: block;
     position: relative;
     overflow: hidden;
-    aspect-ratio: 2 / 1;
+    aspect-ratio: 1200 / 630;
     background: #101214;
     border: 1px solid var(--home-rule);
   }
@@ -1143,11 +1143,13 @@
       font-size: 0.85rem;
     }
     .film-cover {
-      aspect-ratio: 1.2;
+      aspect-ratio: auto;
     }
     .film-cover > img {
-      object-fit: cover;
-      object-position: 38% center;
+      height: auto;
+    }
+    .film-cover .film-play {
+      position: static;
     }
     .play-circle {
       width: 42px;
