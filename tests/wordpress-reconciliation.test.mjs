@@ -158,3 +158,100 @@ test("unresolved imported references gain a local identity without discarding ow
   });
   assert.equal(next.src, undefined);
 });
+
+test("callers without observations receive the exact unchanged plan", () => {
+  const plan = planPublisherReconciliation(fixture());
+  assert.deepEqual(Object.keys(plan), [
+    "schema",
+    "entryPatches",
+    "mediaPatches",
+    "unresolved",
+    "publication",
+  ]);
+  assert.equal(plan.sourceHostMenuLinks, undefined);
+  assert.equal(plan.lostCategoryParents, undefined);
+});
+
+test("source-host menu links are reported without rewriting or inventing URLs", () => {
+  const f = fixture();
+  f.menuLinks = [
+    { label: "Old home", href: "https://old.example.test/" },
+    { label: "Guide", href: "https://source.example.test/guide/" },
+    { label: "Elsewhere", href: "https://elsewhere.test/leave" },
+    { label: "Own path", href: "/about" },
+  ];
+  const before = structuredClone(f),
+    plan = planPublisherReconciliation(f);
+  assert.deepEqual(f, before);
+  assert.deepEqual(plan.sourceHostMenuLinks, [
+    {
+      label: "Old home",
+      href: "https://old.example.test/",
+      origin: "https://old.example.test",
+    },
+    {
+      label: "Guide",
+      href: "https://source.example.test/guide/",
+      origin: "https://source.example.test",
+    },
+  ]);
+  assert.deepEqual(Object.keys(plan.sourceHostMenuLinks[0]).sort(), [
+    "href",
+    "label",
+    "origin",
+  ]);
+});
+
+test("flattened categories are reported only where a source parent was observed", () => {
+  const f = fixture();
+  f.categories = [
+    { slug: "field-notes", sourceParent: "walks", destinationParent: null },
+    { slug: "walks", sourceParent: null, destinationParent: null },
+    { slug: "guides", sourceParent: "walks", destinationParent: "walks" },
+  ];
+  const before = structuredClone(f),
+    plan = planPublisherReconciliation(f);
+  assert.deepEqual(f, before);
+  assert.deepEqual(plan.lostCategoryParents, [
+    { slug: "field-notes", expectedParent: "walks" },
+  ]);
+});
+
+test("each observation adds only its own report", () => {
+  const withMenu = fixture();
+  withMenu.menuLinks = [{ label: "Old", href: "https://old.example.test/x" }];
+  const menuPlan = planPublisherReconciliation(withMenu);
+  assert.ok(Array.isArray(menuPlan.sourceHostMenuLinks));
+  assert.equal(menuPlan.lostCategoryParents, undefined);
+
+  const withCategories = fixture();
+  withCategories.categories = [
+    { slug: "field-notes", sourceParent: "walks", destinationParent: null },
+  ];
+  const categoryPlan = planPublisherReconciliation(withCategories);
+  assert.ok(Array.isArray(categoryPlan.lostCategoryParents));
+  assert.equal(categoryPlan.sourceHostMenuLinks, undefined);
+});
+
+test("observed fields are strictly typed and refuse unsafe values", () => {
+  for (const change of [
+    (f) => (f.menuLinks = [{ href: "https://old.example.test/x" }]),
+    (f) =>
+      (f.menuLinks = [
+        { label: "Credentials", href: "https://u:p@old.example.test/x" },
+      ]),
+    (f) =>
+      (f.categories = [
+        { slug: "Bad Slug", sourceParent: null, destinationParent: null },
+      ]),
+    (f) =>
+      (f.categories = [
+        { slug: "dup", sourceParent: null, destinationParent: null },
+        { slug: "dup", sourceParent: null, destinationParent: null },
+      ]),
+  ]) {
+    const f = fixture();
+    change(f);
+    assert.throws(() => planPublisherReconciliation(f));
+  }
+});
