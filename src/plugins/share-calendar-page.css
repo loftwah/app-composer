@@ -49,13 +49,6 @@
   flex-wrap: wrap;
   margin-bottom: 14px;
 }
-.sc-kicker {
-  margin: 0 0 6px !important;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--sc-muted);
-}
 .sc-scope {
   margin: 0 !important;
   padding: 6px 10px;
@@ -69,12 +62,20 @@
   font-size: 1.05rem;
   max-width: 66ch !important;
 }
-.sc-boundary {
+.sc-delivery-help {
   color: var(--sc-muted);
   font-size: 0.92rem;
+  max-width: 66ch;
+}
+.sc-delivery-help summary {
+  cursor: pointer;
+  padding-block: 6px;
+  width: fit-content;
+}
+.composer-share-calendar .sc-notice:empty {
+  margin: 0;
 }
 .sc-notice {
-  min-height: 1.6em;
   color: var(--sc-green);
   font-weight: 550;
 }

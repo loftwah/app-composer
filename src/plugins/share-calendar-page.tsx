@@ -2656,10 +2656,7 @@ function ShareCalendar({ search }: { search: string }) {
   return (
     <section className="composer-share-calendar">
       <div className="sc-heading">
-        <div>
-          <p className="sc-kicker">Composer · owner calendar</p>
-          <h1>Share calendar</h1>
-        </div>
+        <h1>Share calendar</h1>
         {snapshot && (
           <p className="sc-scope">
             {snapshot.workspace.name} · {snapshot.workspace.role}
@@ -2667,15 +2664,22 @@ function ShareCalendar({ search }: { search: string }) {
         )}
       </div>
       <p className="sc-lede">
-        Prepare a caption and a date for a published stack, or for a workspace
-        owner, one exact Woodhouse Share artwork. The calendar records local
-        preparation and handoff. For Bluesky, approve the exact post, then
-        choose automatic delivery at the approved time or send it yourself.
+        {isOwner
+          ? "Draft a post from a published stack or artwork."
+          : "Draft a post from a published stack."}
       </p>
-      <p className="sc-boundary">
-        Times show Australia/Melbourne and UTC. The .ics export uses UTC, so a
-        calendar app shows the same instant in your own zone.
-      </p>
+      <details className="sc-delivery-help">
+        <summary>How delivery and dates work</summary>
+        <p>
+          Workspace owners can select an exact Woodhouse Share artwork. For
+          Bluesky, approve the exact post, then schedule it or send it yourself.
+          For manual handoff, the calendar records your preparation and exports.
+        </p>
+        <p>
+          Times appear in Australia/Melbourne and UTC. The .ics export uses UTC
+          so your calendar shows the same instant in your time zone.
+        </p>
+      </details>
       <p role="status" aria-live="polite" className="sc-notice">
         {notice}
       </p>

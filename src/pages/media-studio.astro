@@ -104,10 +104,14 @@ const costs = [
       <h1>Building an open-source AI media studio with App Composer</h1>
       <p class="deck">I wanted a place to make images, video and sound, and keep the work in an app I own. So I described it in App Composer and built Media Studio with an agent. Here’s what we made with it, how it came together and what it cost to try. <a href="/media-studio/tutorial">Follow the tutorial</a> to build your own.</p>
       <div class="row">
-        <a class="button" href="#watch">Watch the 82-second build</a>
+        <a class="button" href="https://media.loftwah.com/tools/images">Try Image Tools</a>
         <a class="button secondary" href="/init?start=media-studio">Build your own studio</a>
       </div>
-      <p class="meta">14 November 2026 · App Composer + Media Studio · <a href="https://media.loftwah.com/gallery">Explore the gallery</a></p>
+      <nav class="hero-links" aria-label="More about Media Studio">
+        <a href="#watch">Watch the 82-second build</a>
+        <a href="https://media.loftwah.com/gallery">Explore the gallery</a>
+      </nav>
+      <p class="meta"><time datetime="2026-11-14">14 November 2026</time> · App Composer + Media Studio</p>
     </div>
     <div class="art-hero-figure" aria-label="From original artwork to Studio variation">
       <div class="hero-art-pair">
@@ -548,6 +552,9 @@ url.searchParams.set("s", signature);`}</code></pre>
 </article>
 
 <style>
+  .hero-links { gap: 0 1rem; margin-block-start: 0.35rem; }
+  .hero-links a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; text-underline-offset: 0.2em; }
+
   /* The article's short token names fell through to dark-theme fallbacks, which
      left captions and hairlines nearly invisible in light mode. Bind them to the
      real theme tokens so both themes read the same way. */
