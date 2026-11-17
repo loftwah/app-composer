@@ -1,4 +1,5 @@
 ---
+import { getRequestContext, getSiteSettings } from "emdash";
 import model from "../content-model.json";
 import branding from "../launch-kit-branding.json";
 import AppLauncher from "../components/AppLauncher.astro";
@@ -14,6 +15,32 @@ const {
     "Browse published " + model.label.toLowerCase() + ".",
   article = false,
 } = Astro.props;
+// Public indexing is a deliberate, bounded transition. This generated reading
+// surface stays a noindex preview unless EmDash is initialised, the owner has
+// explicitly gone live (staging === false), a canonical HTTPS Site URL is set,
+// and this request is actually on that origin. We do not render <EmDashHead>:
+// it emits no robots tag at all when the EmDash runtime is absent, which would
+// leave a fresh/uninitialised preview indexable. Every uncertain path below
+// keeps the guard. Real OG/icon metadata and published-only reads are unchanged.
+let publicIndexable = false;
+try {
+  const request = getRequestContext();
+  const settings = await getSiteSettings();
+  const canonical =
+    typeof settings.url === "string" ? new URL(settings.url) : undefined;
+  if (
+    request &&
+    !request.editMode &&
+    !request.preview &&
+    !Astro.url.searchParams.has("_preview") &&
+    settings.staging === false &&
+    canonical?.protocol === "https:" &&
+    canonical.origin === Astro.url.origin
+  )
+    publicIndexable = true;
+} catch {
+  // Uninitialised config, unreadable settings or a malformed Site URL: preview.
+}
 ---
 
 <!doctype html>
@@ -59,7 +86,7 @@ const {
       </>
     )}
     <link rel="stylesheet" href="/brand/launcher.css" />
-    <meta name="robots" content="noindex,nofollow" />
+    {!publicIndexable && <meta name="robots" content="noindex,nofollow" />}
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
