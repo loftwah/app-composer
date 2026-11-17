@@ -2,7 +2,7 @@
   "source": {
     "id": "media-studio",
     "repository": "https://github.com/loftwah/composer-media-studio",
-    "commit": "409dff5114482644bdd0ee21ce1ab09be3ec5f12",
+    "commit": "b5ef8f629c709c77c25b889bc3e61d0f5a6e90a6",
     "manifestDigest": "sha256:5e200ea62b8fa2aaf75170af358ffc42a91a44d0495c83f9dbb1822dd3bd69ab"
   },
   "legacySources": [
@@ -167,6 +167,12 @@
       "repository": "https://github.com/loftwah/composer-media-studio",
       "commit": "e8b3778cd5d800378f42985afda80820fcb7ef57",
       "manifestDigest": "sha256:f71eb2c5b84dc73127fb064b70936b321fc1bd6e2c536c9e1f038b371369a37b"
+    },
+    {
+      "id": "media-studio",
+      "repository": "https://github.com/loftwah/composer-media-studio",
+      "commit": "409dff5114482644bdd0ee21ce1ab09be3ec5f12",
+      "manifestDigest": "sha256:5e200ea62b8fa2aaf75170af358ffc42a91a44d0495c83f9dbb1822dd3bd69ab"
     }
   ]
 }
