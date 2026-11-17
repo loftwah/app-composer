@@ -2199,112 +2199,141 @@
 }
 
 /* Product first: explain the real journey before the illustrated workshop. */
-.composer-home .home-opening { background: var(--home-hero-bg); color: var(--home-hero-fg); }
-.composer-home .home-opening-inner { max-width: 1440px; min-height: min(820px, 100svh); margin: auto; padding: 150px 28px 90px; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(250px, .65fr); align-items: center; gap: clamp(3rem, 8vw, 8rem); }
-.composer-home .home-opening h1 { font-size: clamp(4.2rem, 7.5vw, 7.4rem); line-height: .96; letter-spacing: -.065em; max-width: 11ch; }
-.composer-home .home-opening h1 span { color: var(--home-hero-accent); }
-.composer-home .home-opening-main > p:not(.home-opening-note) { max-width: 49ch; margin-top: 1.75rem; color: var(--home-hero-muted); font-size: clamp(1.12rem, 1.35vw, 1.3rem); line-height: 1.55; }
-.composer-home .home-opening-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.75rem; margin-top: 2rem; }
-.composer-home .home-opening-note { margin-top: 1rem; color: var(--home-hero-muted); font-size: .88rem; }
-.composer-home .home-opening-note a { color: var(--home-hero-fg); text-decoration: none; }
-.composer-home .home-opening-note a:hover { color: var(--home-hero-accent); }
-.composer-home .home-opening-note a:focus-visible { outline: 2px solid var(--home-hero-accent); outline-offset: 3px; }
-.composer-home .home-opening-path { border-top: 1px solid var(--home-hero-rule); }
-.composer-home .home-opening-path > p { padding: 1rem 0; font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
-.composer-home .home-opening-path ol { list-style: none; padding: 0; margin: 0; }
-.composer-home .home-opening-path li { display: grid; grid-template-columns: 3.2rem 1fr; gap: 1rem; padding: 1.3rem 0; border-top: 1px solid var(--home-hero-rule); }
-.composer-home .home-opening-path li > span { color: var(--home-hero-accent); font: 600 1.6rem/1 var(--display, system-ui, sans-serif); letter-spacing: -.05em; }
-.composer-home .home-opening-path strong { font-size: 1.2rem; }
-.composer-home .home-opening-path li p { margin-top: .25rem; color: var(--home-hero-muted); font-size: .96rem; }
-@media (max-width: 900px) { .composer-home .home-opening-inner { min-height: 0; grid-template-columns: 1fr; padding: 130px 20px 60px; gap: 3rem; } .composer-home .home-opening h1 { font-size: clamp(3.4rem, 11vw, 5.8rem); } }
-
-/* Let real work lead the homepage while keeping the setup path visible. */
-.composer-home .home-opening-inner { grid-template-columns: minmax(0, 1fr) minmax(280px, .78fr); column-gap: clamp(2.5rem, 6vw, 6rem); row-gap: 2.5rem; }
-.composer-home .home-opening-art { margin: 0; width: 100%; max-width: 380px; justify-self: end; }
-.composer-home .home-opening-art a { display: block; color: var(--home-hero-fg); text-decoration: none; }
-.composer-home .home-opening-art img { display: block; width: 100%; height: auto; }
-.composer-home .home-opening-art figcaption { display: flex; justify-content: space-between; gap: 1rem; padding: .8rem 0; font-size: .82rem; }
-.composer-home .home-opening-art figcaption span { color: var(--home-hero-muted); }
-.composer-home .home-opening-art a:hover strong { text-decoration: underline; }
-.composer-home .home-opening-art a:focus-visible { outline: 2px solid var(--home-hero-accent); outline-offset: 5px; }
-.composer-home .home-opening-path { grid-column: 1 / -1; }
-.composer-home .home-opening-path ol { display: grid; max-width: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; }
-@media (max-width: 900px) {
-  .composer-home .home-opening-inner { grid-template-columns: 1fr; }
-  .composer-home .home-opening-art { justify-self: start; max-width: 560px; }
-  .composer-home .home-opening-path ol { grid-template-columns: 1fr; gap: 0; }
+/* Campaign artwork leads into a documented project and a creative handoff. */
+.composer-home .home-opening {
+  background: var(--home-hero-bg);
+  color: var(--home-hero-fg);
 }
-
-/* One inspectable app and the later change its owner asked for, before the
-   fictional workshop. */
-.composer-home .home-proof {
-  padding-block: clamp(5rem, 8vw, 7rem);
-  border-top: 1px solid var(--home-rule);
-}
-.composer-home .proof-layout {
+.composer-home .home-opening-inner {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding: clamp(8rem, 13vw, 12rem) 28px clamp(4rem, 9vw, 8rem);
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
   align-items: center;
-  gap: clamp(2.5rem, 7vw, 7rem);
+  gap: clamp(2rem, 5vw, 5rem);
 }
-.composer-home .proof-copy .home-eyebrow {
-  margin-bottom: 1.5rem;
-  color: var(--color-muted);
+.composer-home .home-opening h1 {
+  font-size: clamp(3.2rem, 6.55vw, 6rem);
+  line-height: .99;
+  letter-spacing: -.04em;
 }
-.composer-home .proof-copy h2 {
-  font-size: clamp(2.7rem, 4.8vw, 4.6rem);
-}
-.composer-home .proof-copy > p {
-  max-width: 48ch;
+.composer-home .home-opening h1 span { color: var(--home-hero-accent); }
+.composer-home .home-opening-main > p:not(.home-opening-note) {
+  max-width: 51ch;
   margin-top: 1.5rem;
-  color: var(--color-muted);
-  font-size: 1.02rem;
-  line-height: 1.65;
+  color: var(--home-hero-muted);
+  font-size: clamp(1.08rem, 1.3vw, 1.22rem);
+  line-height: 1.58;
 }
-.composer-home .proof-copy .proof-facts {
-  color: var(--color-foreground);
-  font-weight: 600;
-}
-.composer-home .proof-actions {
+.composer-home .home-opening-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1rem 1.75rem;
+  gap: .55rem 1.5rem;
   margin-top: 1.75rem;
 }
-.composer-home .proof-copy .proof-note {
+.composer-home .home-opening-note {
+  margin-top: 1rem;
+  color: var(--home-hero-muted);
+  font-size: .88rem;
+}
+.composer-home .home-opening-note a,
+.composer-home .home-opening-art a { color: var(--home-hero-fg); }
+.composer-home .home-opening-note a:hover,
+.composer-home .home-opening-art a:hover { color: var(--home-hero-accent); }
+.composer-home .home-opening-note a:focus-visible,
+.composer-home .home-opening-art a:focus-visible {
+  outline: 2px solid var(--home-hero-accent);
+  outline-offset: 3px;
+}
+.composer-home .home-opening-art { margin: 0; min-width: 0; }
+.composer-home .home-opening-art img { display: block; width: 100%; height: auto; }
+.composer-home .home-opening-art figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+  padding-block: .35rem;
+  color: var(--home-hero-muted);
+  font-size: .82rem;
+}
+.composer-home .home-opening-art figcaption a {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  min-height: 44px;
+}
+.composer-home .home-proof {
+  padding-block: clamp(3.5rem, 7vw, 7rem);
+  border-block: 1px solid var(--home-rule);
+}
+.composer-home .proof-layout,
+.composer-home .proof-creative {
+  display: grid;
+  grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+  align-items: center;
+  gap: clamp(2rem, 6vw, 6rem);
+}
+.composer-home .proof-copy h2 {
+  font-size: clamp(2.5rem, 5vw, 4.6rem);
+  max-width: 15ch;
+  letter-spacing: -.04em;
+}
+.composer-home .proof-copy > p,
+.composer-home .proof-creative p {
+  max-width: 52ch;
   margin-top: 1.25rem;
-  font-size: 0.82rem;
-  line-height: 1.55;
+  color: var(--color-muted);
+  line-height: 1.65;
 }
-.composer-home .proof-shot {
-  margin: 0;
-  min-width: 0;
+.composer-home .proof-steps { list-style: none; margin: 1.5rem 0 0; padding: 0; }
+.composer-home .proof-steps li {
+  padding: .25rem 0 .85rem;
+  border-top: 1px solid var(--home-rule);
 }
+.composer-home .proof-steps li span {
+  display: block;
+  font-size: .94rem;
+  color: var(--color-muted);
+}
+.composer-home .proof-copy .proof-note,
+.composer-home .proof-shot figcaption { font-size: .82rem; }
+.composer-home .proof-shot { margin: 0; min-width: 0; }
 .composer-home .proof-shot img {
   display: block;
   width: 100%;
-  height: min(34rem, 62vh);
+  aspect-ratio: 4 / 3;
   object-fit: cover;
   object-position: top;
+  height: auto;
   border: 1px solid var(--home-rule);
   background: var(--color-surface);
 }
 .composer-home .proof-shot figcaption {
-  margin-top: 0.7rem;
+  margin-top: .8rem;
   color: var(--color-muted);
-  font-size: 0.8rem;
-  line-height: 1.5;
 }
-@media (max-width: 900px) {
-  .composer-home .proof-layout {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-  }
-  .composer-home .proof-shot img {
-    height: auto;
-    max-height: 30rem;
-  }
+.composer-home .proof-creative {
+  border-top: 1px solid var(--home-rule);
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+  padding-top: clamp(2rem, 4vw, 3.5rem);
+}
+.composer-home .proof-creative h3 { font-size: clamp(1.5rem, 2.5vw, 2.15rem); }
+.composer-home .proof-creative .home-text-link { margin-top: .6rem; }
+.composer-home .proof-creative img {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+}
+@media (max-width: 860px) {
+  .composer-home .home-opening-inner,
+  .composer-home .proof-layout,
+  .composer-home .proof-creative { grid-template-columns: 1fr; }
+  .composer-home .home-opening-inner { padding-inline: 20px; }
+  .composer-home .home-opening h1 { font-size: clamp(2.8rem, 9vw, 5.25rem); }
 }
 /* The presentation header gives the wordmark less room than the shared shell
    at 320px. Step the mark down so it cannot touch the menu control. */
