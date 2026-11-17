@@ -21,6 +21,24 @@ test("the committed freshness policy covers every declared dependency", () => {
   assert.match(formatReport(report), /Summary: \d+ ok, 0 drift, 0 unknown, 0 unresolved/);
 });
 
+test("the reviewed EmDash pair is supported only at the exact 1.5.0 pair", () => {
+  const report = inspectFreshness({ root });
+  for (const name of ["emdash", "@emdash-cms/cloudflare"]) {
+    const row = report.packages.find((pkg) => pkg.name === name);
+    assert.ok(row, `${name} is covered by the policy`);
+    assert.equal(row.declared, "1.5.0", `${name} pin is unchanged`);
+    assert.equal(row.current, "1.5.0", `${name} resolves to 1.5.0`);
+    assert.equal(row.supported, "1.5.0", `${name} supported range`);
+    assert.equal(row.reviewed, "1.5.0", `${name} reviewed version`);
+    assert.equal(row.status, "ok", `${name} is inside its supported range`);
+    assert.equal(satisfies("1.5.0", row.supported), true, `${name} supports 1.5.0`);
+    for (const older of ["1.4.0", "1.4.9"]) {
+      assert.equal(satisfies(older, row.supported), false, `${name} refuses ${older}`);
+    }
+  }
+
+});
+
 test("a declared pnpm pin is never reported as the installed executable", () => {
   const unobserved = inspectFreshness({ root, nodeVersion: "26.13.1", pnpmVersion: null });
   const pnpm = unobserved.runtime.find((row) => row.name === "pnpm");

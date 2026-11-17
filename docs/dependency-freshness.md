@@ -24,6 +24,9 @@ Dependency freshness (policy reviewed 2026-11-06)
 Summary: 27 ok, 0 drift, 0 unknown, 0 unresolved
 ```
 
+The example shows the policy observed on 6 November 2026. Composer currently
+reviews `emdash` and `@emdash-cms/cloudflare` as the exact paired release `1.5.0`.
+
 ## What it reads
 
 | Input | Role |
