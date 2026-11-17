@@ -1,0 +1,98 @@
+---
+import { ArrowUpRight, Copy, Download, Share2 } from '@lucide/astro';
+import { currentShareURL } from '../../public/brand/page-share-url.mjs';
+import { publicPageCanonical } from '../lib/public-pages.mjs';
+import { artworkRevision, type CatalogueArtwork } from '../lib/share-catalogue-asset.ts';
+import { artworkCategories, artworkLabel } from '../lib/share-gallery.ts';
+import '../styles/share-gallery.css';
+
+interface Props { artwork: CatalogueArtwork; signedIn: boolean; tags: string[]; }
+const { artwork, signedIn, tags } = Astro.props;
+const path = `/share/artwork/${artwork.assetId}`;
+const [revision, shareUrl] = await Promise.all([
+  artworkRevision(artwork),
+  currentShareURL(publicPageCanonical(path).href, artwork.title.includes('App Composer') ? artwork.title : `${artwork.title} · App Composer`, artwork.alt, artwork.previewUrl),
+]);
+const files = [...new Map([...(artwork.original ? [artwork.original] : []), ...artwork.formats].map(file => [file.url, file])).values()];
+const primary = files[0]?.url ?? artwork.previewUrl;
+---
+
+<article class="gallery-piece" data-gallery-piece>
+  <a class="gallery-stage" href={primary} target="_blank" rel="noreferrer" aria-label="Open full-size image in a new tab">
+    <img src={artwork.previewUrl} alt={artwork.alt} decoding="async" referrerpolicy="no-referrer" />
+  </a>
+  <div class="gallery-details">
+    <p class="gallery-piece-category"><a href={`/share?project=${artwork.project}`}>{artworkLabel(artwork.project)}</a> · <a href={`/share?category=${artwork.category}`}>{artworkCategories[artwork.category]}</a></p>
+    <h1>{artwork.title}</h1>
+    <div class="gallery-piece-actions">
+      <a class="gallery-file-action" href={primary} target="_blank" rel="noreferrer"><Download size={17} aria-hidden="true" /> {artwork.original ? 'Open original' : 'Open image'}</a>
+      <button class="secondary" type="button" data-gallery-native={shareUrl} hidden><Share2 size={16} aria-hidden="true" /> Share</button>
+      <button class="secondary" type="button" data-gallery-copy={shareUrl} hidden><Copy size={16} aria-hidden="true" /> Copy link</button>
+    </div>
+    <p role="status" data-gallery-copy-status></p>
+    <input data-gallery-copy-fallback aria-label="Artwork link" readonly hidden />
+    {files.length > 1 && (
+      <details class="gallery-piece-section">
+        <summary>Available formats</summary>
+        <ul>{files.map(file => (
+          <li><a href={file.url} target="_blank" rel="noreferrer">{file.label} {file.width && file.height && <span>· {file.width} × {file.height}</span>} <ArrowUpRight size={14} aria-hidden="true" /></a></li>
+        ))}</ul>
+      </details>
+    )}
+    {artwork.versions.length > 0 && (
+      <details class="gallery-piece-section">
+        <summary>Earlier versions</summary>
+        <ul>{artwork.versions.map(version => (
+          <li><a href={version.url} target="_blank" rel="noreferrer">{version.label} <ArrowUpRight size={14} aria-hidden="true" /></a>
+            {version.note && <p>{version.note}</p>}
+            {version.sourceUrl && <a href={version.sourceUrl}>Source notes for {version.label}</a>}
+          </li>
+        ))}</ul>
+      </details>
+    )}
+    {artwork.description && <p class="gallery-description">{artwork.description}</p>}
+    {tags.length > 0 && (
+      <ul class="gallery-tags" aria-label="Tags">
+        {tags.map(tag => <li><a href={`/share?${new URLSearchParams({tag})}`}>{artworkLabel(tag)}</a></li>)}
+      </ul>
+    )}
+    <details class="gallery-piece-section">
+      <summary>Credit and source</summary>
+      <p>{artwork.credit}</p>
+      <div class="gallery-piece-links">
+        {artwork.projectUrl && <a href={artwork.projectUrl}>Visit project <ArrowUpRight size={14} /></a>}
+        <a href={artwork.shareUrl}>Project share kit <ArrowUpRight size={14} /></a>
+        {artwork.kitUrl && <a href={artwork.kitUrl}>Open social kit <ArrowUpRight size={14} /></a>}
+        {artwork.sourceUrl && <a href={artwork.sourceUrl}>Source record <ArrowUpRight size={14} /></a>}
+      </div>
+    </details>
+    <details class="gallery-piece-section">
+      <summary>Use in Media Studio</summary>
+      <p>Confirm reuse permission, then open your project’s Library and search for <strong>{artwork.title}</strong> or enter <code>{artwork.assetId}</code>.</p>
+      <a href="/media-studio/studio">Open Media Studio <ArrowUpRight size={14} /></a>
+    </details>
+    {signedIn ? (
+      <details class="gallery-piece-section" data-artwork-review>
+        <summary>Private feedback</summary>
+        <form data-review-form data-asset-id={artwork.assetId} data-revision={revision}>
+          <p>Only you can see your vote and note.</p>
+          <fieldset disabled>
+            <legend>Your vote</legend>
+            <label><input type="radio" name="vote" value="up" required /> <span>Thumbs up</span></label>
+            <label><input type="radio" name="vote" value="down" /> <span>Thumbs down</span></label>
+          </fieldset>
+          <label for={`note-${artwork.assetId}`}>Note <span>(optional)</span></label>
+          <textarea id={`note-${artwork.assetId}`} name="note" maxlength="1000" rows="3" disabled></textarea>
+          <div class="gallery-piece-actions">
+            <button type="submit" disabled>Save feedback</button>
+            <button type="button" class="secondary" data-review-remove hidden>Remove</button>
+            <button type="button" class="secondary" data-review-retry hidden>Try again</button>
+          </div>
+          <p data-review-status role="status"></p>
+        </form>
+      </details>
+    ) : (
+      <p class="gallery-piece-section"><a href={`/_emdash/admin/login?${new URLSearchParams({redirect: path})}`}>Sign in to give private feedback</a></p>
+    )}
+  </div>
+</article>

@@ -1,12 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
 import ShareArtwork from '../components/ShareArtwork.astro';
-import {
-  browseShareArtwork,
-  normalizeShareAssetId,
-  SHARE_CATALOGUE_ORIGIN,
-  SHARE_CATALOGUE_QUERY_MAX,
-} from '../lib/share-catalogue-asset.ts';
+import { env } from 'cloudflare:workers';
+import type { D1Database } from '@cloudflare/workers-types';
+import { listShareArtwork, SHARE_CATALOGUE_ORIGIN } from '../lib/share-catalogue-asset.ts';
+import { artworkFilters, galleryPage, readArtworkCuration } from '../lib/share-gallery.ts';
 import { noindexFor } from '../lib/indexing.mjs';
 import { hasShareWallFilters, shareWallQuery } from '../lib/share-wall.ts';
 
@@ -20,18 +18,20 @@ if (params.get('view') === 'stacks' || hasShareWallFilters(shareWallQuery(params
   }
   return Astro.redirect(filters.size ? `/studio/published?${filters}` : '/studio/published', 308);
 }
-const query = (params.get('art') ?? '').slice(0, SHARE_CATALOGUE_QUERY_MAX).trim();
-const project = normalizeShareAssetId(params.get('project')) ?? '';
-const after = normalizeShareAssetId(params.get('after')) ?? '';
-const catalogue = await browseShareArtwork({ query, project, after });
+const filters = artworkFilters(params);
+const [artwork, curation] = await Promise.all([
+  listShareArtwork(),
+  readArtworkCuration((env as unknown as {DB?: D1Database}).DB).catch(() => []),
+]);
+const catalogue = artwork ? galleryPage(artwork, curation, filters) : null;
 if (!catalogue) Astro.response.status = 503;
 Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
 ---
 
 <Base title="Share artwork" description="Browse public artwork from our projects and share a piece with its credit intact."
-  noindex={noindexFor(Astro.url.hostname, Boolean(catalogue) && !query && !project && !after)}>
+  noindex={noindexFor(Astro.url.hostname, Boolean(catalogue) && params.size === 0)}>
   <div class="share-artwork-library">
-    <ShareArtwork catalogue={catalogue} query={query} project={project} after={after} />
+    <ShareArtwork catalogue={catalogue} filters={filters} />
   </div>
 </Base>
 
