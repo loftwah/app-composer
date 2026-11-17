@@ -1,0 +1,204 @@
+<section class="film-feedback" aria-labelledby="my-feedback">
+  <h3 id="my-feedback">Your film feedback</h3>
+  <p>Your votes and notes are private. Copy a saved review to bring it into a conversation with your agent.</p>
+  <p data-feedback-status role="status">Loading your feedback…</p>
+  <button type="button" class="secondary" data-feedback-retry hidden>Reload feedback</button>
+  <ul data-feedback-items role="list" hidden></ul>
+  <textarea data-feedback-copy-fallback aria-label="Feedback to copy" rows="5" readonly hidden></textarea>
+  <dialog data-feedback-dialog aria-labelledby="feedback-dialog-heading">
+    <form data-feedback-form>
+      <h3 id="feedback-dialog-heading">Film feedback</h3>
+      <p data-feedback-asset></p>
+      <fieldset>
+        <legend>What stood out? <span class="small">(optional)</span></legend>
+        <div data-feedback-reasons class="feedback-reasons"></div>
+      </fieldset>
+      <label>Anything else? <span class="small">(optional)</span>
+        <textarea name="note" rows="4" maxlength="1000" placeholder="What would you keep or change?"></textarea>
+      </label>
+      <p data-feedback-dialog-status role="status"></p>
+      <div class="feedback-actions">
+        <button type="submit">Save private feedback</button>
+        <button type="button" class="secondary" data-feedback-close>Cancel</button>
+        <button type="button" class="secondary" data-feedback-remove hidden>Remove feedback</button>
+      </div>
+    </form>
+  </dialog>
+</section>
+<script>
+  import { filmFeedbackReasons } from "../lib/share-films.ts";
+  import type { ShareFeedback } from "../lib/share-feedback.ts";
+
+  const groups = [...document.querySelectorAll<HTMLElement>("[data-feedback-film]")];
+  const section = document.querySelector<HTMLElement>(".film-feedback");
+  if (section) {
+    const status = section.querySelector<HTMLElement>("[data-feedback-status]")!;
+    const retry = section.querySelector<HTMLButtonElement>("[data-feedback-retry]")!;
+    const list = section.querySelector<HTMLUListElement>("[data-feedback-items]")!;
+    const fallback = section.querySelector<HTMLTextAreaElement>("[data-feedback-copy-fallback]")!;
+    const dialog = section.querySelector<HTMLDialogElement>("[data-feedback-dialog]")!;
+    const form = dialog.querySelector<HTMLFormElement>("[data-feedback-form]")!;
+    const note = form.querySelector<HTMLTextAreaElement>("textarea")!;
+    const asset = form.querySelector<HTMLElement>("[data-feedback-asset]")!;
+    const reasons = form.querySelector<HTMLElement>("[data-feedback-reasons]")!;
+    const dialogStatus = form.querySelector<HTMLElement>("[data-feedback-dialog-status]")!;
+    const remove = form.querySelector<HTMLButtonElement>("[data-feedback-remove]")!;
+    const close = form.querySelector<HTMLButtonElement>("[data-feedback-close]")!;
+    const save = form.querySelector<HTMLButtonElement>('[type="submit"]')!;
+    let items: ShareFeedback[] = [];
+    let selected: {assetId:string;revision:string;vote:"up"|"down"} | undefined;
+    let busy = false;
+
+    async function feedbackRequest(payload?: object) {
+      const response = await fetch("/api/share-feedback", payload ? {
+        method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload),
+      } : undefined);
+      const result = await response.json();
+      if (!response.ok) throw Error(result.error);
+      return result;
+    }
+
+    async function copyFeedback(item: ShareFeedback) {
+      const content = [
+        "Review this private creative feedback for a possible revision.",
+        `Film: ${item.title}`, `Source: ${new URL(item.href, location.origin).href}`,
+        `Asset version (SHA-256): ${item.revision}`,
+        `Vote: ${item.vote === "up" ? "Thumbs up" : "Thumbs down"}`,
+        item.reasons.length ? `Reasons: ${item.reasons.join(", ")}` : "",
+        item.note ? `Note: ${item.note}` : "",
+      ].filter(Boolean).join("\n");
+      try {
+        await navigator.clipboard.writeText(content);
+        fallback.hidden = true;
+        status.textContent = "Feedback copied.";
+      } catch {
+        fallback.hidden = false;
+        fallback.value = content;
+        fallback.focus();
+        fallback.select();
+        status.textContent = "Copy the selected feedback, then paste it into your conversation.";
+      }
+    }
+
+    function render(message?: string) {
+      status.textContent = message ?? (items.length ? "" : "Choose a thumb on a film to leave feedback.");
+      list.hidden = !items.length;
+      list.replaceChildren(...items.map((item) => {
+        const row = document.createElement("li");
+        const title = document.createElement("strong");
+        title.textContent = item.title;
+        const details = document.createElement("p");
+        details.textContent = [item.vote === "up" ? "Thumbs up" : "Thumbs down", ...item.reasons].join(" · ");
+        const copy = document.createElement("button");
+        copy.type = "button";
+        copy.className = "secondary";
+        copy.textContent = "Copy for conversation";
+        copy.setAttribute("aria-label", `Copy feedback on ${item.title} for conversation`);
+        copy.addEventListener("click", () => void copyFeedback(item));
+        row.append(title, details);
+        if (item.note) {
+          const text = document.createElement("p");
+          text.textContent = item.note;
+          row.append(text);
+        }
+        row.append(copy);
+        return row;
+      }));
+      for (const group of groups) {
+        const current = items.find((item) => item.assetId === group.dataset.feedbackFilm && item.revision === group.dataset.feedbackRevision);
+        for (const button of group.querySelectorAll<HTMLButtonElement>("button")) {
+          button.disabled = false;
+          button.setAttribute("aria-pressed", String(current?.vote === button.dataset.filmVote));
+        }
+      }
+    }
+
+    async function load() {
+      retry.hidden = true;
+      status.textContent = "Loading your feedback…";
+      try {
+        const result = await feedbackRequest();
+        items = result.items;
+        render();
+      } catch {
+        status.textContent = "Your feedback could not be loaded.";
+        retry.hidden = false;
+      }
+    }
+
+    for (const group of groups) {
+      for (const button of group.querySelectorAll<HTMLButtonElement>("button")) {
+        button.addEventListener("click", () => {
+          const {feedbackFilm:assetId, feedbackRevision:revision, feedbackTitle:title} = group.dataset;
+          const vote = button.dataset.filmVote;
+          if (!assetId || !revision || (vote !== "up" && vote !== "down")) return;
+          const existing = items.find((item) => item.assetId === assetId && item.revision === revision);
+          selected = {assetId, revision, vote};
+          note.value = existing?.note ?? "";
+          asset.textContent = `${title} · ${vote === "up" ? "Thumbs up" : "Thumbs down"}`;
+          reasons.replaceChildren(...filmFeedbackReasons[vote].map((reason) => {
+            const label = document.createElement("label");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.name = "reason";
+            checkbox.value = reason;
+            checkbox.checked = existing?.reasons.includes(reason) ?? false;
+            label.append(checkbox, reason);
+            return label;
+          }));
+          remove.hidden = !existing;
+          dialogStatus.textContent = "";
+          dialog.showModal();
+        });
+      }
+    }
+
+    async function mutate(action: "save" | "remove") {
+      if (!selected || busy) return;
+      const {assetId, revision, vote} = selected;
+      busy = true;
+      save.disabled = remove.disabled = close.disabled = true;
+      dialogStatus.textContent = action === "save" ? "Saving…" : "Removing…";
+      try {
+        const result = await feedbackRequest(action === "save"
+          ? {action, assetId, revision, vote, reasons:new FormData(form).getAll("reason"), note:note.value}
+          : {action, assetId, revision});
+        items = items.filter((item) => item.assetId !== assetId || item.revision !== revision);
+        if (result.item) items.unshift(result.item);
+        fallback.hidden = true;
+        fallback.value = "";
+        dialog.close();
+        render(action === "save" ? "Private feedback saved." : "Feedback removed.");
+      } catch (error) {
+        dialogStatus.textContent = error instanceof Error ? error.message : "Feedback could not be saved.";
+      } finally {
+        busy = false;
+        save.disabled = remove.disabled = close.disabled = false;
+      }
+    }
+
+    form.addEventListener("submit", (event) => { event.preventDefault(); void mutate("save"); });
+    remove.addEventListener("click", () => void mutate("remove"));
+    close.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("cancel", (event) => { if (busy) event.preventDefault(); });
+    retry.addEventListener("click", () => void load());
+    void load();
+  }
+</script>
+<style>
+  .film-feedback { margin-top:24px; padding-top:22px; border-top:1px solid var(--color-border); }
+  .film-feedback h3 { margin:0 0 8px; }
+  .film-feedback p { max-width:65ch; color:var(--color-muted); }
+  .film-feedback ul { padding:0; list-style:none; }
+  .film-feedback :global(li) { padding:12px 0; border-bottom:1px solid var(--color-border); }
+  .film-feedback :global(li p) { margin:6px 0; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .film-feedback dialog { position:fixed; inset:0; margin:auto; width:min(620px,calc(100% - 32px)); max-height:calc(100dvh - 32px); overflow:auto; background:var(--color-background); color:var(--color-foreground); border:1px solid var(--color-control-border); border-radius:16px; padding:clamp(16px,4vw,26px); }
+  .film-feedback dialog::backdrop { background:color-mix(in srgb, #17181b 72%, transparent); }
+  .film-feedback label { display:block; }
+  .film-feedback textarea { width:100%; margin-top:8px; }
+  .film-feedback fieldset { min-width:0; margin:0 0 16px; }
+  .feedback-reasons,.feedback-actions { display:flex; flex-wrap:wrap; gap:8px; }
+  .feedback-reasons :global(label) { display:inline-flex; align-items:center; gap:8px; padding:7px 9px; border:1px solid var(--color-control-border); border-radius:8px; min-height:44px; cursor:pointer; }
+  .feedback-reasons :global(input) { width:1rem; height:1rem; margin:0; }
+  [data-feedback-dialog-status]:empty { margin:0; }
+</style>

@@ -4,6 +4,9 @@
 // are a plain GET form, so a narrowed view is a link and every card works
 // without JavaScript.
 import Base from '../layouts/Base.astro';
+import ShareFilmFeedback from '../components/ShareFilmFeedback.astro';
+import ShareFilmVotes from '../components/ShareFilmVotes.astro';
+import { shareFilms, studioFilmPath } from '../lib/share-films.ts';
 import { ArrowUpRight, Search } from '@lucide/astro';
 import type { D1Database } from '@cloudflare/workers-types';
 import { env } from 'cloudflare:workers';
@@ -53,16 +56,10 @@ const title = unavailable ? 'Share wall temporarily unavailable' : 'Share wall';
 const description = unavailable
   ? 'The published creator stack wall is temporarily unavailable because the workspace database did not answer.'
   : 'Watch and share short films about App Composer and Media Studio, or browse published creator stacks.';
-const studioFilm = '/media-studio/watch/studio-social-kit';
-const films = [
-  { title: 'Media Studio in 30 seconds', href: '/media-studio/watch/media-studio-teaser-recut.mp4', detail: '30 seconds · Vertical teaser' },
-  { title: 'Build an owned Media Studio', href: '/media-studio#watch', detail: '82 seconds · From Init to a published result' },
-  { title: 'Clip Pippa’s animation', href: '/media-studio/demos/pippa-clip-workflow-20261115.mp4', detail: 'Studio demo · Video Clip' },
-  { title: 'Trim the After Hours track', href: '/media-studio/demos/after-hours-audio-trim-phone-20261115.mp4', detail: 'Studio demo · Audio Trim on a phone' },
-  { title: 'Paper & Light', href: 'https://media.loftwah.com/p/Na9FNUB_VhzZ7zA9', detail: 'A finished film assembled in Media Studio' },
-  { title: 'From setup to software', href: 'https://woodhouse.loftwah.com/share/app-composer/app-composer-20261014.mp4', detail: '15 seconds · App Composer product film' },
-  { title: 'Turn a live example into your own draft', href: '/creator-hub/share#walkthrough-film', detail: '22 seconds · Creator Hub' },
-];
+const [featuredFilm, ...films] = shareFilms;
+const studioFilm = studioFilmPath;
+const canReview = Boolean(Astro.locals.user);
+Astro.response.headers.set("Vary", "Cookie");
 // Base supplies the approved 1200x630 product share card; the wall has no
 // separate artwork, so its preview stays the real product card.
 ---
@@ -81,8 +78,8 @@ const films = [
           <h1>Share</h1>
         </div>
         <div class="wall-intro">
-          <p>Watch a short film, try a Studio tool or open a published stack.</p>
-          <p class="small"><a href={filtered ? "/share#films" : "#films"}>Watch films</a> · <a href="#published-stacks">Browse stacks</a></p>
+          <p>Browse artwork, films and published stacks from our projects.</p>
+          <p class="small"><a href={filtered ? "/share#films" : "#films"}>Watch films</a> · <a href="https://woodhouse.loftwah.com/share">Browse artwork</a> · <a href="#published-stacks">Browse stacks</a>{canReview && <> · <a href={filtered ? "/share#my-feedback" : "#my-feedback"}>Your feedback</a></>}</p>
         </div>
       </header>
 
@@ -104,14 +101,17 @@ const films = [
                   <a href={`${studioFilm}.mp4`} download>Download video</a>
                   <a href="https://media.loftwah.com/tools/images">Try Image Tools</a>
                 </div>
+                {canReview && <ShareFilmVotes film={featuredFilm} />}
               </div>
             </article>
             <ul class="wall-film-list" role="list">
               {films.map((film) => (
-                <li><a href={film.href}>{film.title} <ArrowUpRight size={16} aria-hidden="true" /></a><p>{film.detail}</p></li>
+                <li><a href={film.href}>{film.title} <ArrowUpRight size={16} aria-hidden="true" /></a><p>{film.detail}</p>{canReview && <ShareFilmVotes film={film} />}</li>
               ))}
             </ul>
           </div>
+          <p><a href="https://media.loftwah.com/gallery">Browse the Media Studio gallery</a></p>
+          {canReview ? <ShareFilmFeedback /> : <p><a href="/_emdash/admin/login?redirect=/share">Sign in to give private film feedback</a></p>}
         </section>
       )}
       <div id="published-stacks" class="wall-stacks-heading">

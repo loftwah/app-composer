@@ -1,0 +1,15 @@
+---
+import { ThumbsUp, ThumbsDown } from "@lucide/astro";
+import type { shareFilms } from "../lib/share-films.ts";
+interface Props { film: (typeof shareFilms)[number] }
+const { film } = Astro.props;
+---
+<div class="film-votes" role="group" aria-label={`Feedback on ${film.title}`} data-feedback-film={film.id} data-feedback-revision={film.revision} data-feedback-title={film.title}>
+  <button class="secondary" type="button" data-film-vote="up" aria-label={`Thumbs up for ${film.title}`} aria-pressed="false" aria-haspopup="dialog" disabled><ThumbsUp size={17} aria-hidden="true" /></button>
+  <button class="secondary" type="button" data-film-vote="down" aria-label={`Thumbs down for ${film.title}`} aria-pressed="false" aria-haspopup="dialog" disabled><ThumbsDown size={17} aria-hidden="true" /></button>
+</div>
+<style>
+  .film-votes { display:flex; gap:6px; margin:5px 0 0; }
+  .film-votes button { display:grid; place-items:center; width:44px; min-height:44px; padding:0; }
+  .film-votes button[aria-pressed="true"] { border-color:var(--color-accent); color:var(--color-accent); background:var(--color-field); }
+</style>
