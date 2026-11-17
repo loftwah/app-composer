@@ -1,5 +1,9 @@
 # Keep it yours — App Composer commercial
 
+The homepage now plays **Take it with you**, a separate 10.5-second cut authored, mixed, captioned and exported in ElevenCreative Producer on 18 November 2026 AEDT. Producer used the modular workbench frame and Woodhouse references, one Seedance 2.5 shot, Eleven v4 narration and separately generated sound and music. The site serves the exact 4,689,521-byte ElevenLabs H.264/AAC export. The selected render measured −19.8 LUFS and −1.7 dBTP.
+
+## First cut
+
 The 24-second spot uses [Woodhouse Share artwork](https://woodhouse.loftwah.com/share/app-composer/) for the workshop scenes and the live [Fictional Trail Notes](https://composer.loftwah.com/s/fictional-trail-notes) revision 30 for the product shot. The final four seconds use the approved orange-and-white App Composer artwork from `public/brand/campaign/product-og-20261022b.png`. The film poster uses the existing Make. Keep. Remix. artwork.
 
 ElevenCreative Studio Agent assembled the first cut. It used Veo 3.1 Lite for the drawer opening, Seedance 2.5 for the blueprint reveal, Eleven v4 for Brendan’s narration, Sound Effects v2 for the drawer and latch, and Eleven Music v2.5 for the score. The lower-cost opener and premium reveal were quoted together at 15,183.33 Starter credits. The chat showed 18,655 credits after the editing pass. The six generated originals were imported into the private Composer launch-artwork project in Media Studio.
