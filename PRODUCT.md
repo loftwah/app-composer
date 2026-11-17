@@ -33,7 +33,9 @@ WordPress-to-EmDash migration and carefully selected plugin equivalents are legi
 
 Cloudflare's US$5/month Workers Paid minimum is an entry price, not a total-project bill or hard cap. Storage, request/CPU usage, domains, external agents/providers and applicable services can cost more. No guaranteed savings, universal migration compatibility, Cloudflare endorsement or acquisition is implied. Potential commercial value and employment opportunity must be earned through useful working software and verified public presentation; no outbound pitch or deal is authorised by product positioning.
 
-## The AI-era one-click creation workshop — 16 November 2026
+## The AI-era one-click creation workshop
+
+Reviewed 16 November 2026. See the [federated project architecture](ARCHITECTURE.md#federated-project-architecture) for project context, service ownership and integration boundaries.
 
 Owner product mental model: one-click open-source installers made existing software accessible without server expertise; Portainer makes deployed services operable. **App Composer extends that idea to things that do not exist yet.** A person chooses what they want to make, supplies intent and examples of their taste, and works with their chosen agents to create, test, run, own, remix and evolve the result. This is the creator-facing promise, not a claim that every type of creation or unattended deployment is already implemented.
 

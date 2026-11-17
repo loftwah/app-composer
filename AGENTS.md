@@ -11,8 +11,10 @@ The November test-suite reduction was deliberate. Do not restore deleted tests, 
 For product planning, agent handoffs or creative decisions, read
 [the AI-era creation workshop doctrine](PRODUCT.md#the-ai-era-one-click-creation-workshop)
 and [the creation and operation contract](PRODUCT.md#reference-led-creation-and-operation),
-then load only relevant project references. Use
-[visual direction](docs/visual-direction.md) for artwork and identity work.
+then load only relevant project references. Read
+[the federated project architecture](ARCHITECTURE.md#federated-project-architecture)
+for project workspaces, connected services, capability contracts and operational
+evidence. Use [visual direction](docs/visual-direction.md) for artwork and identity work.
 [#1](https://github.com/loftwah/app-composer/issues/1) owns product alignment,
 [#426](https://github.com/loftwah/app-composer/issues/426) workflow integration and
 [#425](https://github.com/loftwah/app-composer/issues/425) flagship proof.
