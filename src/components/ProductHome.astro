@@ -45,6 +45,7 @@ const siteSchema = {
   url: "https://composer.loftwah.com/",
 };
 const defaultStation = studioStations[0];
+const commercial = "/brand/campaign/keep-it-yours-20261117";
 ---
 
 <Base
@@ -78,9 +79,16 @@ const defaultStation = studioStations[0];
             {" "}or <a href="/demo">try a demo</a>.
           </p>
         </div>
-        <figure class="home-opening-art">
-          <img src="/brand/campaign/make-keep-remix-20261117.jpg" width="1200" height="630" alt="Make. Keep. Remix. An illustrated print workshop connects a storyboard, film and finished artwork." fetchpriority="high" />
-          <figcaption><span>App Composer campaign artwork</span><a href="/diagrams/engineering">Explore the artwork and diagrams <ArrowUpRight size={16} aria-hidden="true" /></a></figcaption>
+        <figure class="home-opening-art" id="commercial">
+          <video controls playsinline preload="none" width="1280" height="720" poster={commercial + ".webp"} aria-labelledby="commercial-title">
+            <source src={commercial + ".mp4"} type="video/mp4" />
+            <track kind="captions" src={commercial + ".vtt"} srclang="en" label="English" />
+            <a href={commercial + ".mp4"}>Open the App Composer commercial</a>
+          </video>
+          <figcaption>
+            <span id="commercial-title">Keep it yours · 24-second App Composer commercial</span>
+            <a href={commercial + ".txt"}>Read the transcript <ArrowUpRight size={16} aria-hidden="true" /></a>
+          </figcaption>
         </figure>
       </div>
     </section>
