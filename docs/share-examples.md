@@ -1,6 +1,6 @@
 # Publish an example in Share
 
-[Examples in Share](https://composer.loftwah.com/share/examples) gives visitors
+[Finished projects](https://composer.loftwah.com/demo/examples) gives visitors
 a finished result they can inspect, open or adapt. Link there from the product
 page. Use the existing Artwork, Films or Creator stacks section when the work
 already fits one of those.

@@ -15,4 +15,10 @@ Read the applicable `AGENTS.md`, product direction, design system and surface br
 4. Replay the changed journey on phone and desktop. Inspect focus, relevant empty or error states, overflow, both shipped themes when color changed, and reduced motion when motion changed. For admin, confirm the account, app and environment. For sharing, open the exact public URL and check that its credit and preview travel with it.
 5. Leave a short receipt in the existing PR or issue with the skill and playbook used, the findings you fixed, the references applied and what the browser proved. Follow the repo's delivery rules for main and production. A detector result is one signal alongside the rendered journey.
 
+## Public pages and headers
+
+Name the visitor’s task before adding a tab, link, explanation or label. The first screen should let a visitor say what they can do here and recognise the next action. Put deeper provenance, implementation notes, diagnostics and release checks where someone needs them. Remove UI copy that has no visitor-facing job.
+
+Reuse the host’s existing header, brand mark, main navigation and keyboard behavior. When a journey crosses projects, check both ends together for the same naming, destination, return path and basic interaction. Take the underlying project’s identity from its source. When moving a live page, check both its new entry and its old bookmarks in a browser.
+
 Coverage belongs to [Woodhouse #160](https://github.com/loftwah/woodhouse-new/issues/160). Composer integration belongs to [#422](https://github.com/loftwah/app-composer/issues/422) and [#198](https://github.com/loftwah/app-composer/issues/198).
