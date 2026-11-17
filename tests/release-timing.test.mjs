@@ -18,6 +18,7 @@ import {
 } from "../lib/delivery/release-timing.mjs";
 
 const SHA = "a".repeat(40);
+const FE_GUARD_START = new Date("2026-11-16T00:05:00.000Z");
 
 function ownedDir(t) {
   const dir = mkdtempSync(join(tmpdir(), "release-timing-"));
@@ -74,6 +75,17 @@ function runFor(dir, clock, github, overrides = {}) {
     logger: { log() {}, error() {} },
     ...overrides,
   });
+}
+
+// A run whose guard stays fast (guardAdvanceMs) while the supplied first-edit
+// gap supplies the rest, so firstEditToLiveIdentityMs === firstEditToLiveMs.
+function firstEditRun(dir, clock, github, { firstEditToLiveMs, guardAdvanceMs = 1_000 }) {
+  const gap = firstEditToLiveMs - guardAdvanceMs;
+  const firstEditAt = new Date(FE_GUARD_START.getTime() - gap).toISOString();
+  return {
+    firstEditAt,
+    run: runFor(dir, clock, github, { wallClock: () => FE_GUARD_START, firstEditAt }),
+  };
 }
 
 test("the limit is strict: 299,999 passes and 300,000 is already a breach", () => {
@@ -490,4 +502,130 @@ test("invalid, future and unverified first-edit values leave the note absent", a
   await noLive.stage("live verification", async () => noLiveClock.advance(1_000));
   const unfinished = await noLive.finish({ status: "passed" });
   assert.ok(!("firstEditAt" in unfinished.notes), "no verified live revision means no note");
+});
+
+// ---- first-edit-only breach alert (issue #624, distinct from the guard SLO) ----
+
+for (const [label, firstEditToLiveMs, expectedAlerts] of [
+  ["first-edit 299,999ms passes", 299_999, 0],
+  ["first-edit exactly 300,000ms breaches", 300_000, 1],
+  ["first-edit 300,001ms breaches", 300_001, 1],
+]) {
+  test(label, async (t) => {
+    const dir = ownedDir(t);
+    const clock = fakeClock();
+    const github = fakeGitHub();
+    const { run, firstEditAt } = firstEditRun(dir, clock, github, { firstEditToLiveMs });
+    await run.stage("live verification", async () => clock.advance(1_000));
+    const receipt = await run.finish({ liveRevision: SHA });
+    assert.equal(receipt.status, "passed", "the guard classification is unchanged");
+    assert.equal(receipt.totalMs, 1_000, "the guard total is unchanged");
+    assert.equal(receipt.notes.firstEditToLiveIdentityMs, firstEditToLiveMs);
+    assert.equal(github.issues.length, expectedAlerts);
+    assert.equal(receipt.alert.state, expectedAlerts ? "created" : "none");
+    if (expectedAlerts) {
+      assert.match(github.issues[0].title, /First edit/);
+      assert.ok(github.issues[0].body.includes(`| First edit → live | ${firstEditToLiveMs} ms |`));
+      assert.ok(!github.issues[0].body.includes(firstEditAt), "no raw input time in GitHub");
+    }
+  });
+}
+
+test("a first-edit alert needs a verified exact live revision", async (t) => {
+  const dir = ownedDir(t);
+
+  const mismatchClock = fakeClock();
+  const mismatchGithub = fakeGitHub();
+  const mismatch = firstEditRun(dir, mismatchClock, mismatchGithub, { firstEditToLiveMs: 320_000 }).run;
+  await mismatch.stage("live verification", async () => mismatchClock.advance(1_000));
+  const failed = await mismatch.finish({ liveRevision: "b".repeat(40) });
+  assert.equal(failed.status, "failed");
+  assert.equal(mismatchGithub.issues.length, 0);
+  assert.ok(!("firstEditToLiveIdentityMs" in failed.notes));
+
+  const noLiveClock = fakeClock();
+  const noLiveGithub = fakeGitHub();
+  const noLive = firstEditRun(dir, noLiveClock, noLiveGithub, { firstEditToLiveMs: 320_000 }).run;
+  await noLive.stage("live verification", async () => noLiveClock.advance(1_000));
+  const unverified = await noLive.finish({ status: "passed" });
+  assert.equal(unverified.status, "passed");
+  assert.equal(noLiveGithub.issues.length, 0);
+  assert.ok(!("firstEditToLiveIdentityMs" in unverified.notes));
+});
+
+test("a guard breach does not also raise a second first-edit alert", async (t) => {
+  const dir = ownedDir(t);
+  const clock = fakeClock();
+  const github = fakeGitHub();
+  const firstEditAt = new Date(FE_GUARD_START.getTime() - 400_000).toISOString();
+  const run = runFor(dir, clock, github, { wallClock: () => FE_GUARD_START, firstEditAt });
+  await run.stage("upload", async () => clock.advance(LIMIT_MS));
+  const receipt = await run.finish({ liveRevision: SHA });
+  assert.equal(receipt.status, "over-budget");
+  assert.equal(github.issues.length, 1, "only the guard alert is filed");
+  assert.equal(receipt.notes.firstEditToLiveIdentityMs, 400_000 + LIMIT_MS);
+  assert.match(github.issues[0].title, /Routine release exceeded 300s/);
+});
+
+test("a first-edit breach gets no false recovery from missing or still-slow timing", async (t) => {
+  const dir = ownedDir(t);
+  const github = fakeGitHub();
+
+  const breachClock = fakeClock();
+  const breach = firstEditRun(dir, breachClock, github, { firstEditToLiveMs: 320_000 }).run;
+  await breach.stage("live verification", async () => breachClock.advance(1_000));
+  await breach.finish({ liveRevision: SHA });
+  assert.equal(github.issues.length, 1);
+  const issue = github.issues[0];
+
+  // Another slow release of the same kind deduplicates to a comment, not recovery.
+  const slowClock = fakeClock();
+  const slow = firstEditRun(dir, slowClock, github, { firstEditToLiveMs: 310_000 }).run;
+  await slow.stage("live verification", async () => slowClock.advance(1_000));
+  await slow.finish({ liveRevision: SHA });
+  assert.equal(github.issues.length, 1);
+  assert.equal(issue.comments.length, 1);
+  assert.doesNotMatch(issue.comments[0], /Measured recovery/);
+
+  // A guard-passing release with no first-edit timing is not recovery either.
+  const noTiming = runFor(dir, fakeClock(), github);
+  await noTiming.stage("live verification", async () => {});
+  await noTiming.finish({ liveRevision: SHA });
+  assert.equal(issue.comments.length, 1, "missing timing is not recovery");
+
+  // A genuinely compliant first-edit span attaches recovery evidence once.
+  const okClock = fakeClock();
+  const ok = firstEditRun(dir, okClock, github, { firstEditToLiveMs: 120_000 }).run;
+  await ok.stage("live verification", async () => okClock.advance(1_000));
+  await ok.finish({ liveRevision: SHA });
+  assert.match(issue.comments.at(-1), /Measured recovery/);
+  assert.match(issue.comments.at(-1), /120000 ms/);
+});
+
+test("a queued first-edit breach is filed by the pending path without raw input time", async (t) => {
+  const dir = ownedDir(t);
+  const clock = fakeClock();
+  const { run, firstEditAt } = firstEditRun(dir, clock, null, { firstEditToLiveMs: 310_000 });
+  await run.stage("live verification", async () => clock.advance(1_000));
+  const receipt = await run.finish({ liveRevision: SHA });
+  assert.equal(receipt.alert.state, "pending");
+  const pendingDir = join(dir, "timing", "pending");
+  assert.equal(readdirSync(pendingDir).length, 1);
+  const queued = readFileSync(join(pendingDir, `${receipt.alert.fingerprint}.json`), "utf8");
+  assert.match(queued, /First edit/);
+  assert.ok(!queued.includes(firstEditAt), "the raw operator timestamp is not queued");
+
+  const github = fakeGitHub();
+  const flushed = await flushPendingAlerts({ pendingDir, github });
+  assert.equal(flushed.flushed, 1);
+  assert.equal(github.issues.length, 1);
+  assert.match(github.issues[0].body, /First edit/);
+  assert.ok(!github.issues[0].body.includes(firstEditAt), "the raw operator timestamp never reaches GitHub");
+  assert.equal(readdirSync(pendingDir).length, 0);
+
+  // The queued event keeps its breach identity: later missing timing is not recovery.
+  const noTiming = runFor(dir, fakeClock(), github);
+  await noTiming.stage("live verification", async () => {});
+  await noTiming.finish({ liveRevision: SHA });
+  assert.equal(github.issues[0].comments.length, 0);
 });
