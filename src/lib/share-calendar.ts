@@ -109,6 +109,16 @@ export const SHARE_CAPTION_MAX_BYTES = 7000;
 export const SHARE_DESTINATION_MAX = 120;
 export const SHARE_VARIANT_MAX = SHARE_CHANNELS.length - 1;
 
+// Owner-managed recurring queue presets (#604 follow-up). A preset is a local
+// template, never a schedule or a dispatch. Both the reply and the stored rows
+// are bounded to 12 per workspace/account.
+export const SHARE_QUEUE_PRESET_MAX = 12;
+export const SHARE_QUEUE_CATEGORY_MAX = 48;
+const queuePresetTime = z
+  .string()
+  .regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, "Choose a 24-hour HH:mm time.");
+const queuePresetAccount = z.string().trim().min(1).max(253);
+
 export const shareCalendarChannel = z.enum([
   "instagram",
   "facebook",
@@ -280,6 +290,14 @@ export const shareCalendarReadInput = z.union([
         .regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, "Choose a 24-hour HH:mm time."),
     })
     .strict(),
+  // Owner-only queue-presets read. It reports the exact workspace and the
+  // currently configured Bluesky handle; it never changes a schedule.
+  z
+    .object({
+      action: z.literal("queuePresets"),
+      workspace: workspaceId.optional(),
+    })
+    .strict(),
 ]);
 
 export const shareCalendarCommand = z.discriminatedUnion("action", [
@@ -395,6 +413,40 @@ export const shareCalendarCommand = z.discriminatedUnion("action", [
       workspace: workspaceId.optional(),
       item: itemId,
       expectedRevision: revision,
+    })
+    .strict(),
+  // Owner-only queue-presets writes. `account` is the caller's expected
+  // handle; the server refuses it unless it is the current configured handle.
+  z
+    .object({
+      action: z.literal("queuePresetSave"),
+      workspace: workspaceId.optional(),
+      account: queuePresetAccount,
+      category: z
+        .string()
+        .trim()
+        .min(1, "Name the queue category.")
+        .max(
+          SHARE_QUEUE_CATEGORY_MAX,
+          "Keep the category to 48 characters.",
+        ),
+      weekday: z.number().int().min(1).max(7),
+      time: queuePresetTime,
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("queuePresetDelete"),
+      workspace: workspaceId.optional(),
+      account: queuePresetAccount,
+      category: z
+        .string()
+        .trim()
+        .min(1, "Name the queue category.")
+        .max(
+          SHARE_QUEUE_CATEGORY_MAX,
+          "Keep the category to 48 characters.",
+        ),
     })
     .strict(),
 ]);
@@ -1115,6 +1167,31 @@ export const queueNextPreviewReplySchema = z
   .strict();
 
 export type QueueNextPreview = z.infer<typeof queueNextPreviewReplySchema>;
+
+// One bounded reply shape for all three queue-presets actions (read, save and
+// delete). It is deliberately not part of the share-calendar snapshot: an old
+// snapshot keeps its exact fields and a queue change never rewrites a schedule.
+export const shareQueuePresetSchema = z
+  .object({
+    category: z.string().min(1).max(SHARE_QUEUE_CATEGORY_MAX),
+    weekday: z.number().int().min(1).max(7),
+    time: queuePresetTime,
+  })
+  .strict();
+
+export const shareQueuePresetsReplySchema = z
+  .object({
+    ok: z.literal(true),
+    action: z.literal("queuePresets"),
+    workspace: workspaceId,
+    account: z.string().min(3).max(253),
+    presets: z.array(shareQueuePresetSchema).max(SHARE_QUEUE_PRESET_MAX),
+  })
+  .strict();
+
+export type ShareQueuePresetsReply = z.infer<
+  typeof shareQueuePresetsReplySchema
+>;
 
 // Use the same ambiguous-time policy as the manual calendar. A nonexistent
 // Melbourne wall-clock time is skipped. The query checks these minutes only.
