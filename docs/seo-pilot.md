@@ -25,7 +25,7 @@ Exit `0` requires complete coverage and no error-severity finding. Warnings stil
 ## Next experiment, not yet shipped
 
 1. Run the pilot against live production from a network-capable operator checkout, save a dated redacted report and review the highest impact genuine finding. Do not claim indexing/rank performance from markup checks.
-2. Connect verified-site, read-only Google Search Console (free within quotas), with explicit owner consent and secrets handled by native EmDash; test real impressions/clicks and near-ranking queries. No CSV upload or OAuth connection is included in this first slice.
+2. Connect verified-site, read-only Google Search Console (free within quotas), with explicit owner consent and secrets handled by native EmDash; test real impressions/clicks and near-ranking queries. The owner steps and the corrected property/DNS/permission boundaries are in [Job 5 of the 7 November owner actions](owner-actions-20261107.md) and [Search Console owner verification, 17 November 2026](search-console-owner-verification.md). No CSV upload or OAuth connection is included in this first slice, and owner access is not yet verified.
 3. Build a compact SEO opportunity view which combines first-party search evidence, existing Link Check reports and bounded public competitor research. Separate measured facts, estimates and unknowns.
 4. Propose edits as versioned, reviewable EmDash drafts or Git PRs and verify preview and production. No autonomous public content changes without existing authority and release checks.
 5. Let Woodhouse consume **approved, dated, public-safe aggregate findings**, not per-site credentials, private Search Console rows or privileged control of Composer.
