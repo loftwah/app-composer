@@ -30,6 +30,7 @@ import {
   SHARE_STATES,
   SHARE_STATE_LABELS,
   SHARE_VARIANT_MAX,
+  type CatalogueAssetDescriptor,
   type CatalogueResolvedAsset,
   type QueueNextPreview,
   type ShareCalendarItem,
@@ -42,6 +43,7 @@ import {
 } from "../lib/share-calendar";
 import {
   catalogueSearchReplySchema,
+  sameCatalogueAsset,
   SHARE_CATALOGUE_ID_MAX,
   SHARE_CATALOGUE_ID_PATTERN,
   SHARE_CATALOGUE_ORIGIN,
@@ -467,11 +469,12 @@ function requestByteLength(value: unknown) {
   return new TextEncoder().encode(JSON.stringify(value)).length;
 }
 
-async function copyText(value: string) {
+async function copyText(value: string, stillCurrent = () => true) {
   try {
     await navigator.clipboard.writeText(value);
     return true;
   } catch {
+    if (!stillCurrent()) return false;
     const area = document.createElement("textarea");
     area.value = value;
     area.setAttribute("readonly", "");
@@ -483,6 +486,134 @@ async function copyText(value: string) {
     area.remove();
     return copied;
   }
+}
+
+function ArtworkXExport({
+  asset,
+  caption,
+  workspace,
+}: {
+  asset: CatalogueAssetDescriptor;
+  caption: string;
+  workspace: string;
+}) {
+  const [text, setText] = useState(caption);
+  const [ready, setReady] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [message, setMessage] = useState("");
+  const active = useRef(false);
+
+  useEffect(() => {
+    active.current = true;
+    return () => {
+      active.current = false;
+    };
+  }, []);
+
+  async function recheck() {
+    setChecking(true);
+    setMessage("");
+    try {
+      const { asset: current } = await cataloguePreviewCall(
+        asset.assetId,
+        workspace,
+      );
+      if (!active.current) return false;
+      if (!sameCatalogueAsset(asset, current)) {
+        setReady(false);
+        setMessage(
+          "The artwork changed. Choose the current rendition before exporting.",
+        );
+        return false;
+      }
+      setReady(true);
+      return true;
+    } catch {
+      if (active.current) {
+        setReady(false);
+        setMessage("Could not check the artwork. Try again before exporting.");
+      }
+      return false;
+    } finally {
+      if (active.current) setChecking(false);
+    }
+  }
+
+  async function copy(value: string, label: string) {
+    if (!ready || !active.current) return;
+    const copied = await copyText(value, () => active.current);
+    if (active.current)
+      setMessage(
+        copied ? label + " copied." : "Select and copy the text yourself.",
+      );
+  }
+
+  const draft = text.trim() ? portfolioBlueskyText(text, asset) : "";
+  return (
+    <section className="sc-package" aria-label="X artwork export">
+      <h3>X artwork export</h3>
+      <p className="sc-hint">
+        Prepare text and image details for manual posting.
+      </p>
+      {!ready && (
+        <button
+          type="button"
+          disabled={checking}
+          onClick={() => void recheck()}
+        >
+          {checking ? "Checking artwork…" : "Prepare X draft"}
+        </button>
+      )}
+      {ready && (
+        <>
+          <label className="sc-field">
+            X draft caption
+            <textarea
+              value={text}
+              maxLength={SHARE_CAPTION_LOCAL_CHARACTERS}
+              rows={3}
+              disabled={checking}
+              onChange={(event) => setText(event.target.value)}
+            />
+          </label>
+          {draft && <p className="sc-package-caption">{draft}</p>}
+          <p className="sc-hint">{asset.alt}</p>
+          <p className="sc-hint">
+            <a
+              href={asset.renditionUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open artwork
+            </a>
+            {" · "}
+            <a href={asset.sourceUrl} target="_blank" rel="noopener noreferrer">
+              Artwork source
+            </a>
+          </p>
+          <div className="sc-actions">
+            <button
+              type="button"
+              disabled={checking || !draft}
+              onClick={() => void copy(draft, "X draft")}
+            >
+              Copy X draft
+            </button>
+            <button
+              type="button"
+              disabled={checking}
+              onClick={() => void copy(asset.alt, "Image alt text")}
+            >
+              Copy image alt text
+            </button>
+          </div>
+        </>
+      )}
+      <p className="sc-hint" role="status" aria-live="polite">
+        {message}
+      </p>
+    </section>
+  );
 }
 
 function ApprovalPackageView({
@@ -522,7 +653,9 @@ function ApprovalPackageView({
             {value.artwork
               ? `artwork revision ${value.artwork.assetRevision}`
               : `revision ${value.source.publication}`}{" "}
-            · {value.artwork?.status ?? (value.source.current ? "current" : "no longer current")}
+            ·{" "}
+            {value.artwork?.status ??
+              (value.source.current ? "current" : "no longer current")}
           </dd>
         </div>
         {value.artwork ? (
@@ -3400,15 +3533,25 @@ function ShareCalendar({ search }: { search: string }) {
                       )}
                     </div>
                     {packageFor === item.id && packageValue && (
-                      <ApprovalPackageView
-                        id={`sc-package-${item.id}`}
-                        value={packageValue}
-                        busy={busy}
-                        onCopy={() => void copyPackage(item)}
-                        onDownload={(format) =>
-                          void downloadPackage(item, format)
-                        }
-                      />
+                      <>
+                        <ApprovalPackageView
+                          id={`sc-package-${item.id}`}
+                          value={packageValue}
+                          busy={busy}
+                          onCopy={() => void copyPackage(item)}
+                          onDownload={(format) =>
+                            void downloadPackage(item, format)
+                          }
+                        />
+                        {isOwner && portfolio && (
+                          <ArtworkXExport
+                            key={`${snapshot.workspace.id}:${item.id}:${item.revision}`}
+                            asset={portfolio}
+                            caption={item.caption}
+                            workspace={snapshot.workspace.id}
+                          />
+                        )}
+                      </>
                     )}
                     {hasBlueskyDraft(item) && (
                       <BlueskyPanel
