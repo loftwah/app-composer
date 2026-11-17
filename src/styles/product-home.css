@@ -2220,7 +2220,7 @@
 
 /* Let real work lead the homepage while keeping the setup path visible. */
 .composer-home .home-opening-inner { grid-template-columns: minmax(0, 1fr) minmax(280px, .78fr); column-gap: clamp(2.5rem, 6vw, 6rem); row-gap: 2.5rem; }
-.composer-home .home-opening-art { margin: 0; width: 100%; max-width: 470px; justify-self: end; }
+.composer-home .home-opening-art { margin: 0; width: 100%; max-width: 380px; justify-self: end; }
 .composer-home .home-opening-art a { display: block; color: var(--home-hero-fg); text-decoration: none; }
 .composer-home .home-opening-art img { display: block; width: 100%; height: auto; }
 .composer-home .home-opening-art figcaption { display: flex; justify-content: space-between; gap: 1rem; padding: .8rem 0; font-size: .82rem; }
