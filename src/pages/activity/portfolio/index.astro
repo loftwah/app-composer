@@ -22,12 +22,12 @@ const project = portfolioProjects.find((item) => item.id === (requestedProject ?
 const now = Date.now();
 const period = parsePortfolioPeriod(query, now);
 if (!project || !period) Astro.response.status = 400;
-const runtime = env as unknown as { DB: D1Database };
+const runtime = env as unknown as { DB: D1Database; WOODHOUSE_GITHUB_TOKEN?: string };
 const prior = period ? previousPeriod(period) : undefined;
 const [report, previous, releases] = await Promise.all([
   project?.endpoint && period ? readProjectReport(project, period, runtime.DB, build.commit) : undefined,
   project?.endpoint && prior ? readProjectReport(project, prior, runtime.DB, build.commit) : undefined,
-  project?.id === "liferaft" ? liferaftDownloads() : undefined,
+  project?.id === "liferaft" ? liferaftDownloads(runtime.WOODHOUSE_GITHUB_TOKEN) : undefined,
 ]);
 const selectedMetric = query.get("metric");
 const metric = selectedMetric
@@ -126,7 +126,7 @@ const availableDays = metric?.days.filter((day) => day.value !== null).length ??
             )}
             {project.site && <a class="portfolio-project-link" href={project.site}>Open {project.name} <ArrowUpRight size={17} aria-hidden="true"/></a>}
           </div>
-          {cover ? <img class="portfolio-cover" src={cover} alt="" fetchpriority="high" width="1000" height="565"/> : (
+          {cover ? <div class="portfolio-art-panel"><img class="portfolio-cover" src={cover} alt="" fetchpriority="high" width="1000" height="565"/></div> : (
             <div class="portfolio-type-art" aria-hidden="true"><span>{project.name}</span></div>
           )}
         </section>

@@ -184,13 +184,13 @@ export function formatPortfolioValue(value: number, unit: PortfolioMetric["unit"
 
 export type InstallerRelease = { tag: string; downloads: number; url: string };
 export const liferaftReleases = "https://github.com/loftwah/liferaft/releases";
-export async function liferaftDownloads(): Promise<InstallerRelease[] | null> {
+async function readLiferaftDownloads(token?: string): Promise<InstallerRelease[] | null> {
   try {
+    const headers = new Headers({ Accept: "application/vnd.github+json", "User-Agent": "App-Composer-Portfolio" });
+    if (token) headers.set("Authorization", `Bearer ${token}`);
     const response = await fetch("https://api.github.com/repos/loftwah/liferaft/releases?per_page=10", {
-      headers: { Accept: "application/vnd.github+json", "User-Agent": "App-Composer-Portfolio" },
-      redirect: "manual", signal: AbortSignal.timeout(3500),
-      cf: { cacheTtlByStatus: { "200": 900, "400-599": 0 } },
-    } as RequestInit);
+      headers, redirect: "manual", signal: AbortSignal.timeout(3500), cache: "no-store",
+    });
     const releases = await boundedPortfolioJson(response);
     if (!Array.isArray(releases)) return null;
     return releases.flatMap((release): InstallerRelease[] => {
@@ -206,4 +206,23 @@ export async function liferaftDownloads(): Promise<InstallerRelease[] | null> {
   } catch {
     return null;
   }
+}
+
+// Cache only the installer totals. The authenticated GitHub response is discarded.
+export async function liferaftDownloads(token?: string): Promise<InstallerRelease[] | null> {
+  const key = new Request("https://composer.loftwah.com/activity/portfolio/liferaft-downloads-cache");
+  const cache = await caches.open("composer-liferaft-downloads-v1").catch(() => undefined);
+  try {
+    const saved = await cache?.match(key);
+    if (saved) return await saved.json() as InstallerRelease[];
+  } catch {
+    // GitHub remains the source when the cache is unavailable.
+  }
+  const totals = await readLiferaftDownloads(token);
+  if (totals) {
+    await cache?.put(key, Response.json(totals, {
+      headers: { "Cache-Control": "public, max-age=900" },
+    })).catch(() => {});
+  }
+  return totals;
 }
