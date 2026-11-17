@@ -50,7 +50,7 @@ export function createPlugin({
 } = {}) {
   if (
     typeof collection !== "string" ||
-    !/^[a-z][a-z0-9-]{0,47}$/.test(collection)
+    !/^[a-z][a-z0-9_]{0,47}$/.test(collection)
   )
     throw Error("Use the generated model’s selected collection.");
   const selected = selectedLinks(links, 12),

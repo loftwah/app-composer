@@ -38,6 +38,18 @@ test('the agent CLI creates only a new reviewed source project and refuses cloud
   for(const flags of [['--model',file,'--destination',destination],['--model',file,'--destination',join(root,'new'),'--apply'],['--model',file,'--destination','relative'],['--model',file,'--destination',join(root,'new'),'--account','fictional']])assert.equal(child.spawnSync(process.execPath,[command,...flags],{encoding:'utf8'}).status,1);assert.equal(fs.existsSync(join(root,'new')),false);
  }finally{fs.rmSync(root,{recursive:true});}
 });
+test('the CLI asks for an explicit collection rename before output and builds a valid seed once underscores are used',()=>{
+ const root=fixture(),file=join(root,'model.json'),destination=join(root,'legacy-site'),command=resolve('scripts/init-site.mjs');
+ try{
+  const legacy=structuredClone(starterModel);legacy.collection='legacy-workshops';fs.writeFileSync(file,JSON.stringify(legacy));
+  const refused=child.spawnSync(process.execPath,[command,'--model',file,'--destination',destination],{encoding:'utf8'});assert.equal(refused.status,1,refused.stderr);assert.match(refused.stderr,/"legacy-workshops"/);assert.match(refused.stderr,/"legacy_workshops"/);assert.match(refused.stderr,/hyphen/);assert.equal(fs.existsSync(destination),false);
+  const fixed=structuredClone(legacy);fixed.collection='legacy_workshops';fs.writeFileSync(file,JSON.stringify(fixed));
+  const created=child.spawnSync(process.execPath,[command,'--model',file,'--destination',destination],{encoding:'utf8'});assert.equal(created.status,0,created.stderr);assert.equal(JSON.parse(created.stdout).collection,'legacy_workshops');const seed=JSON.parse(fs.readFileSync(join(destination,'seed/seed.json'),'utf8'));assert.equal(seed.collections[0].slug,'legacy_workshops');assert.equal(validateSeed(seed).valid,true);
+ }finally{fs.rmSync(root,{recursive:true});}
+});
+test('the generated compatibility hook accepts an underscore collection identifier',async()=>{
+ const {createPlugin}=await import('../lib/content-model/site-template/src/lib/editor-compatibility.mjs');assert.doesNotThrow(()=>createPlugin({collection:'community_workshops',links:[]}));assert.throws(()=>createPlugin({collection:'community-workshops',links:[]}));
+});
 
 test('directory creation accepts ordinary folder names but refuses path components and control characters',()=>{
  const root=fixture(),stat=fs.lstatSync(root),identity={dev:stat.dev,ino:stat.ino};try{

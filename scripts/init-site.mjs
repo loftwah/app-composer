@@ -15,4 +15,4 @@ try{
   }else result=createContentProject({model,destination:flags.get('--destination')});
   console.log(JSON.stringify(result,null,2));
  }
-}catch{process.stderr.write('Content project creation did not finish. Use a supported model, an absent absolute destination and an existing unlinked parent. Existing/partial files are preserved; inspect them before a separate retry. No dependency installation or deployment was attempted.\n');process.exitCode=1;}
+}catch(error){const detail=error instanceof Error&&error.code==='EMDASH_COLLECTION'?error.message+'\n':'';process.stderr.write(detail+'Content project creation did not finish. Use a supported model, an absent absolute destination and an existing unlinked parent. Existing/partial files are preserved; inspect them before a separate retry. No dependency installation or deployment was attempted.\n');process.exitCode=1;}
