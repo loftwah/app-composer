@@ -23,6 +23,26 @@ export const SHARE_PACKAGE_POSTING_STATEMENT =
   "This approval package does not post by itself. A Bluesky send needs a separate configured connection and an explicit confirmation; otherwise you perform this share yourself.";
 export const SHARE_PACKAGE_PROVENANCE_STATEMENT =
   "Prepared in App Composer from the persisted published stack revision and the saved item revision. The package makes no network request and changes no state.";
+const ARTWORK_SAVED = "Saved artwork details. Approval checks the current rendition separately.";
+const ARTWORK_HISTORICAL = "Historical artwork details. Select the current rendition before sharing.";
+
+// Additive provenance for a Woodhouse Share artwork item. It is derived only
+// from the catalogue descriptor saved with the item, so it stays available even
+// when no Bluesky account was resolved. Confirmation metadata (who confirmed
+// reuse and when) is deliberately not exported: it is not public provenance.
+export interface SharePackageArtwork {
+  assetId: string;
+  title: string;
+  assetRevision: string;
+  byteLength: number;
+  bytesSha256: string;
+  credit: string;
+  sourceUrl: string;
+  projectUrl: string;
+  mimeType: string;
+  status: "saved" | "historical";
+  statement: string;
+}
 
 export interface SharePackageDestination {
   channel: ShareChannel;
@@ -91,11 +111,24 @@ export interface ShareApprovalPackage {
   // account state, text/media hashes, intended time and approval state. Its
   // absence must never be read as an approved account.
   bluesky?: SharePackageBluesky;
+  // Present only for a Woodhouse Share artwork item and derived from its saved
+  // descriptor. It never carries an account ID, token or confirmation secret.
+  artwork?: SharePackageArtwork;
 }
 
 function recorded(value: string): string | null {
   const text = value.trim();
   return text ? text : null;
+}
+
+// A saved descriptor value must never break a Markdown line or a plain-text
+// record by carrying a stray newline.
+function oneLine(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function markdownText(value: string): string {
+  return oneLine(value).replace(/[\\`*_{}\[\]<>!~|]/g, "\\$&");
 }
 
 function destinationFor(
@@ -154,10 +187,30 @@ export function buildShareApprovalPackage(
     ),
   ];
   const catalogue = item.catalogue;
-  const imagePath = catalogue?.renditionUrl ?? source?.imagePath ?? null;
-  const imageUrl =
-    catalogue?.renditionUrl ??
-    (source && imagePath ? new URL(imagePath, source.url).href : null);
+  // The calendar snapshot carries a saved descriptor. Approval performs the
+  // separate current-rendition check before any send.
+  const savedCatalogue = catalogue && item.sourceCurrent ? catalogue : null;
+  const artwork: SharePackageArtwork | undefined = catalogue
+    ? {
+        assetId: catalogue.assetId,
+        title: catalogue.title,
+        assetRevision: catalogue.assetRevision,
+        byteLength: catalogue.byteLength,
+        bytesSha256: catalogue.bytesSha256,
+        credit: catalogue.credit,
+        sourceUrl: catalogue.sourceUrl,
+        projectUrl: catalogue.projectUrl,
+        mimeType: catalogue.mimeType,
+        status: savedCatalogue ? "saved" : "historical",
+        statement: savedCatalogue ? ARTWORK_SAVED : ARTWORK_HISTORICAL,
+      }
+    : undefined;
+  const imagePath = savedCatalogue?.renditionUrl ?? source?.imagePath ?? null;
+  const imageUrl = savedCatalogue
+    ? savedCatalogue.renditionUrl
+    : source && imagePath
+      ? new URL(imagePath, source.url).href
+      : null;
   const scheduleLabel = !item.scheduledAt
     ? "Not scheduled"
     : labels
@@ -178,7 +231,7 @@ export function buildShareApprovalPackage(
       slug: item.stackSlug,
       publication: item.publication,
       publishedAt: source?.publishedAt ?? null,
-      url: catalogue?.projectUrl ?? source?.url ?? null,
+      url: savedCatalogue?.projectUrl ?? source?.url ?? null,
       apps: source?.apps ?? [],
       current: item.sourceCurrent,
     },
@@ -207,7 +260,7 @@ export function buildShareApprovalPackage(
       sourceRevision: item.publication,
       sourceCurrent: item.sourceCurrent,
       statement: catalogue
-        ? "Prepared from the approved catalogue rendition and saved item revision in App Composer. Preparing this package changes no state."
+        ? "Prepared from the saved artwork details and item revision. Preparing this package changes no state."
         : SHARE_PACKAGE_PROVENANCE_STATEMENT,
     },
     posting: {
@@ -216,6 +269,7 @@ export function buildShareApprovalPackage(
       statement: SHARE_PACKAGE_POSTING_STATEMENT,
     },
     ...(options.bluesky ? { bluesky: options.bluesky } : {}),
+    ...(artwork ? { artwork } : {}),
   };
 }
 
@@ -288,15 +342,22 @@ export function sharePackageMarkdown(value: ShareApprovalPackage): string {
       ? `${value.shareImage.path} · [open](${value.shareImage.url}) · download \`${value.shareImage.downloadName}\``
       : "Not available. Refresh the source from its current published revision before sharing.";
   const lines = [
-    `# Approval package · ${value.source.name.replace(/\s+/g, " ")}`,
+    `# Approval package · ${value.artwork ? markdownText(value.source.name) : value.source.name.replace(/\s+/g, " ")}`,
     "",
     `- **Item:** \`${value.item.id}\` · revision ${value.item.revision} · ${value.item.stateLabel}`,
     `- **Workspace:** ${value.workspace.name}`,
-    `- **Source:** ${value.source.name.replace(/\s+/g, " ")} · ${value.source.publication === null ? "Woodhouse Share artwork" : `published revision ${value.source.publication}`} · ${value.source.current ? "current" : "no longer current"}`,
+    `- **Source:** ${value.artwork ? markdownText(value.source.name) : value.source.name.replace(/\s+/g, " ")} · ${value.source.publication === null ? "Woodhouse Share artwork" : `published revision ${value.source.publication}`} · ${value.artwork?.status ?? (value.source.current ? "current" : "no longer current")}`,
     `- **Source address:** ${value.source.url ?? SHARE_PACKAGE_NOT_RECORDED}`,
+    ...(value.artwork
+      ? [
+          `- **Artwork:** ${markdownText(value.artwork.title)} · credit ${markdownText(value.artwork.credit)} · revision ${markdownText(value.artwork.assetRevision)}`,
+          `- **Artwork bytes:** ${value.artwork.byteLength} bytes · SHA-256 \`${value.artwork.bytesSha256}\` · ${value.artwork.status}`,
+          `- **Artwork provenance:** ${markdownText(value.artwork.sourceUrl)} · ${value.artwork.statement}`,
+        ]
+      : []),
     `- **Schedule:** ${value.schedule.label}${value.schedule.scheduledAt ? ` · UTC \`${value.schedule.scheduledAt}\`` : ""}`,
     `- **Link:** ${value.link ?? SHARE_PACKAGE_NOT_RECORDED}`,
-    `- **Share image:** ${image}`,
+    `- **${value.artwork ? "Saved rendition" : "Share image"}:** ${image}`,
     "",
     ...value.destinations.map((destination) =>
       [
@@ -374,12 +435,20 @@ export function sharePackagePlainText(value: ShareApprovalPackage): string {
     "",
     `Item: ${value.item.id} · revision ${value.item.revision} · ${value.item.stateLabel}`,
     `Workspace: ${value.workspace.name}`,
-    `Source: ${value.source.name} · ${value.source.publication === null ? "Woodhouse Share artwork" : `published revision ${value.source.publication}`} · ${value.source.current ? "current" : "no longer current"}`,
+    `Source: ${value.source.name} · ${value.source.publication === null ? "Woodhouse Share artwork" : `published revision ${value.source.publication}`} · ${value.artwork?.status ?? (value.source.current ? "current" : "no longer current")}`,
     `Source address: ${value.source.url ?? SHARE_PACKAGE_NOT_RECORDED}`,
+    ...(value.artwork
+      ? [
+          `Artwork: ${oneLine(value.artwork.title)} · credit ${oneLine(value.artwork.credit)} · revision ${oneLine(value.artwork.assetRevision)}`,
+          `Artwork bytes: ${value.artwork.byteLength} bytes · SHA-256 ${value.artwork.bytesSha256} · ${value.artwork.status}`,
+          `Artwork source: ${value.artwork.sourceUrl}`,
+          `Artwork provenance: ${value.artwork.statement}`,
+        ]
+      : []),
     `Schedule: ${value.schedule.label}`,
     `Schedule UTC: ${value.schedule.scheduledAt ?? "not scheduled"}`,
     `Link: ${value.link ?? SHARE_PACKAGE_NOT_RECORDED}`,
-    `Share image: ${image}`,
+    `${value.artwork ? "Saved rendition" : "Share image"}: ${image}`,
     "",
     destinations.join("\n\n"),
     "",

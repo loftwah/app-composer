@@ -518,10 +518,26 @@ function ApprovalPackageView({
         <div>
           <dt>Source</dt>
           <dd>
-            {value.source.name} · revision {value.source.publication} ·{" "}
-            {value.source.current ? "current" : "no longer current"}
+            {value.source.name} ·{" "}
+            {value.artwork
+              ? `artwork revision ${value.artwork.assetRevision}`
+              : `revision ${value.source.publication}`}{" "}
+            · {value.artwork?.status ?? (value.source.current ? "current" : "no longer current")}
           </dd>
         </div>
+        {value.artwork ? (
+          <div>
+            <dt>Artwork</dt>
+            <dd>
+              Credit {value.artwork.credit}
+              <br />
+              {value.artwork.byteLength} bytes · SHA-256{" "}
+              <code>{value.artwork.bytesSha256}</code>
+              <br />
+              <span className="sc-hint">{value.artwork.statement}</span>
+            </dd>
+          </div>
+        ) : null}
         <div>
           <dt>Schedule</dt>
           <dd>{value.schedule.label}</dd>
@@ -531,7 +547,7 @@ function ApprovalPackageView({
           <dd>{value.link ?? "not recorded"}</dd>
         </div>
         <div>
-          <dt>Share image</dt>
+          <dt>{value.artwork ? "Saved rendition" : "Share image"}</dt>
           <dd>
             {value.shareImage.status === "available" ? (
               <>
@@ -549,6 +565,8 @@ function ApprovalPackageView({
                   </span>
                 ) : null}
               </>
+            ) : value.artwork ? (
+              "Select the current artwork to share a new rendition."
             ) : (
               "Not available. Refresh the source from its current published revision before sharing."
             )}
