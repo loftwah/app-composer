@@ -1,0 +1,124 @@
+---
+import Base from '../../layouts/Base.astro';
+import { noindexFor } from '../../lib/indexing.mjs';
+import {
+  browseShareArtwork,
+  normalizeShareAssetId,
+  SHARE_CATALOGUE_ORIGIN,
+  SHARE_CATALOGUE_QUERY_MAX,
+} from '../../lib/share-catalogue-asset.ts';
+
+const params = Astro.url.searchParams;
+const query = (params.get('q') ?? '').slice(0, SHARE_CATALOGUE_QUERY_MAX).trim();
+const project = normalizeShareAssetId(params.get('project')) ?? '';
+const after = normalizeShareAssetId(params.get('after')) ?? '';
+const catalogue = await browseShareArtwork({ query, project, after });
+if (!catalogue) Astro.response.status = 503;
+Astro.csp.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
+
+const artworkPath = (values: Record<string, string>) => {
+  const search = new URLSearchParams(Object.entries(values).filter(([, value]) => value));
+  return search.size ? `/share/artwork?${search}` : '/share/artwork';
+};
+---
+
+<Base title="Share artwork" description="Browse public artwork, credits and project share kits from the Woodhouse catalogue." noindex={noindexFor(Astro.url.hostname, Boolean(catalogue) && !query && !project && !after)}>
+  <header class="artwork-heading">
+    <nav aria-label="Share">
+      <a href="/share">Back to Share</a>
+      <a href="https://media.loftwah.com/gallery">Media Studio gallery</a>
+    </nav>
+    <h1>Artwork</h1>
+    <p>Browse public artwork from Woodhouse and follow each piece back to its project share kit for credits and reuse information.</p>
+  </header>
+
+  <form method="get" action="/share/artwork" role="search" aria-label="Search artwork">
+    <label>
+      Search artwork
+      <input type="search" name="q" value={query} maxlength={SHARE_CATALOGUE_QUERY_MAX} />
+    </label>
+    {project && <input type="hidden" name="project" value={project} />}
+    <button type="submit">Search</button>
+    {(query || project) && <a href="/share/artwork">Clear filters</a>}
+  </form>
+  {project && <p class="small">Project: {project}</p>}
+
+  {!catalogue ? (
+    <section aria-labelledby="artwork-unavailable">
+      <h2 id="artwork-unavailable">Artwork is temporarily unavailable</h2>
+      <p><a href={artworkPath({ q: query, project, after })}>Try again</a> or <a href="https://woodhouse.loftwah.com/share">open Woodhouse Share</a>.</p>
+    </section>
+  ) : (
+    <>
+      {catalogue.items.length ? (
+        <div class="artwork-grid">
+          {catalogue.items.map((item) => (
+            <article class="artwork-card">
+              <a class="artwork-image" href={item.previewUrl} aria-label={`Open artwork: ${item.title}`}>
+                <img src={item.thumbnailUrl} alt={item.alt} loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+              </a>
+              <div class="artwork-details">
+                <h2>{item.title}</h2>
+                <p class="small">{item.credit}</p>
+                <div class="artwork-links">
+                  <a href={item.shareUrl}>Project share kit</a>
+                  {project !== item.project && <a href={artworkPath({ project: item.project })}>More from {item.project}</a>}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <section aria-labelledby="artwork-empty">
+          <h2 id="artwork-empty">No artwork found</h2>
+          <p><a href="/share/artwork">Browse all artwork</a></p>
+        </section>
+      )}
+      {(after || catalogue.nextAfter) && (
+        <nav class="artwork-pages" aria-label="Artwork pages">
+          {after && <a href={artworkPath({ q: query, project })}>First page</a>}
+          {catalogue.nextAfter && <a href={artworkPath({ q: query, project, after: catalogue.nextAfter })}>Next artwork</a>}
+        </nav>
+      )}
+    </>
+  )}
+</Base>
+
+<style>
+  .artwork-heading { margin-block-end: 1.75rem; }
+  .artwork-heading h1 { margin-block: 0.75rem 0.4rem; }
+  .artwork-heading p { max-width: 62ch; }
+  .artwork-heading nav, .artwork-links, .artwork-pages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.1rem;
+  }
+  form {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-block-end: 1.5rem;
+  }
+  form label { flex: 1 1 14rem; max-width: 28rem; }
+  form input[type="search"] { display: block; margin-block-start: 0.3rem; width: 100%; }
+  form > a { align-self: center; }
+  .artwork-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: 1.15rem;
+  }
+  .artwork-card {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius, 0.75rem);
+    overflow: clip;
+  }
+  .artwork-image { display: block; background: var(--surface); }
+  .artwork-image:focus-visible { outline-offset: -4px; }
+  .artwork-image img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; }
+  .artwork-details { padding: 0.9rem 1rem 1rem; overflow-wrap: anywhere; }
+  .artwork-details h2 { margin: 0; font-size: 1.12rem; }
+  .artwork-details p { margin-block: 0.35rem 0.7rem; }
+  .artwork-pages { margin-block-start: 1.5rem; }
+</style>

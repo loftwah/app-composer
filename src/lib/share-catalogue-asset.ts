@@ -369,6 +369,76 @@ export async function searchShareCatalogueAssets(
   }
 }
 
+interface CatalogueArtwork extends CatalogueSearchItem {
+  alt: string;
+  credit: string;
+  thumbnailUrl: string;
+  previewUrl: string;
+  shareUrl: string;
+}
+
+export async function browseShareArtwork(
+  filters: { query: string; project: string; after: string },
+  options: CatalogueFetchOptions = {},
+): Promise<{ items: CatalogueArtwork[]; nextAfter: string | null } | null> {
+  const limit = 12;
+  const endpoint = new URL(SHARE_CATALOGUE_API_BASE);
+  endpoint.searchParams.set("limit", String(limit));
+  if (filters.query) endpoint.searchParams.set("q", filters.query);
+  if (filters.project) endpoint.searchParams.set("project", filters.project);
+  if (filters.after) endpoint.searchParams.set("after", filters.after);
+
+  const signal = AbortSignal.timeout(options.timeoutMs ?? 2_000);
+  try {
+    const response = await (options.fetch ?? globalThis.fetch)(endpoint.href, {
+      headers: { Accept: "application/json" },
+      redirect: "manual",
+      signal,
+    });
+    if (!response.ok) {
+      await response.body?.cancel().catch(() => {});
+      return null;
+    }
+    const envelope = catalogueObject(await readBoundedJson(response, signal));
+    if (envelope?.version !== 1 || !Array.isArray(envelope.assets)) return null;
+
+    const items = new Map<string, CatalogueArtwork>();
+    for (const raw of envelope.assets.slice(0, limit)) {
+      const asset = catalogueObject(raw);
+      if (asset?.visibility !== "public") continue;
+      const assetId = normalizeShareAssetId(asset.id);
+      const project = normalizeShareAssetId(asset.project);
+      const title = boundedString(asset.title, SHARE_CATALOGUE_TITLE_MAX);
+      const alt = boundedString(asset.alt, SHARE_CATALOGUE_ALT_MAX);
+      const credit = boundedString(asset.credit, SHARE_CATALOGUE_CREDIT_MAX);
+      const thumbnailUrl = publicArtworkUrl(asset.thumbnailUrl, /^\/campaign\/.+\.(?:jpe?g|png|webp)$/i);
+      const previewUrl = publicArtworkUrl(asset.previewUrl, /^\/campaign\/.+\.(?:jpe?g|png|webp)$/i);
+      const shareUrl = publicArtworkUrl(asset.shareUrl, /^\/share\/[a-z0-9-]+\/$/);
+      if (assetId && project && title && alt && credit && thumbnailUrl && previewUrl && shareUrl) {
+        items.set(assetId, { assetId, project, title, alt, credit, thumbnailUrl, previewUrl, shareUrl });
+      }
+    }
+    const nextAfter = normalizeShareAssetId(envelope.nextAfter);
+    return { items: [...items.values()], nextAfter: nextAfter === filters.after ? null : nextAfter };
+  } catch {
+    return null;
+  }
+}
+
+function publicArtworkUrl(value: unknown, path: RegExp) {
+  const href = boundedString(value, 2048);
+  const url = href ? URL.parse(href) : null;
+  if (
+    url?.origin !== SHARE_CATALOGUE_ORIGIN ||
+    url.username ||
+    url.password ||
+    url.search ||
+    url.hash ||
+    !path.test(url.pathname)
+  ) return null;
+  return url.href;
+}
+
 export function sameCatalogueAsset(
   a: CatalogueResolvedAsset,
   b: CatalogueResolvedAsset,

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
 import {
+  browseShareArtwork,
   resolveShareCatalogueAsset,
   sameCatalogueAsset,
   searchShareCatalogueAssets,
@@ -128,4 +129,37 @@ test("search distinguishes catalogue failure from an empty result", async () => 
     }),
     { ok: true, items: [] },
   );
+});
+
+test("artwork browsing preserves its filters and only links public, same-origin renditions", async () => {
+  const artwork = {
+    ...asset,
+    project: "workshop",
+    thumbnailUrl: asset.previewUrl,
+    shareUrl: `${SHARE_CATALOGUE_ORIGIN}/share/workshop/`,
+  };
+  const filters = { query: "art & light", project: "workshop", after: "earlier" };
+  const result = await browseShareArtwork(filters, {
+    fetch: async (href, options) => {
+      const url = new URL(href);
+      assert.equal(`${url.origin}${url.pathname}`, SHARE_CATALOGUE_API_BASE);
+      assert.equal(url.searchParams.get("q"), filters.query);
+      assert.equal(url.searchParams.get("project"), filters.project);
+      assert.equal(url.searchParams.get("after"), filters.after);
+      assert.equal(options.redirect, "manual");
+      return Response.json({
+        version: 1,
+        assets: [
+          artwork,
+          { ...artwork, id: "private", visibility: "private" },
+          { ...artwork, id: "external-image", thumbnailUrl: "https://example.com/campaign/art.jpg" },
+          { ...artwork, id: "external-kit", shareUrl: "https://example.com/share/workshop/" },
+        ],
+        nextAfter: "next-page",
+      });
+    },
+  });
+  assert.deepEqual(result?.items.map((item) => item.assetId), [id]);
+  assert.equal(result.items[0].previewUrl, artwork.previewUrl);
+  assert.equal(result.nextAfter, "next-page");
 });
