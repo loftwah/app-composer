@@ -9,6 +9,7 @@ import {
   captionUsage,
   cataloguePreviewReplySchema,
   isSafeShareLink,
+  isXVariant,
   itemApprovalAndDelivery,
   MELBOURNE_WEEKDAYS,
   QUEUE_NEXT_HORIZON_WEEKS,
@@ -27,6 +28,7 @@ import {
   SHARE_CHANNEL_LABELS,
   SHARE_CHANNEL_LIMITS,
   SHARE_DESTINATION_MAX,
+  SHARE_X_CHANNEL,
   SHARE_STATES,
   SHARE_STATE_LABELS,
   SHARE_VARIANT_MAX,
@@ -491,15 +493,22 @@ async function copyText(value: string, stillCurrent = () => true) {
 function ArtworkXExport({
   asset,
   caption,
+  savedCaption,
   workspace,
+  onSave,
+  busy,
 }: {
   asset: CatalogueAssetDescriptor;
   caption: string;
+  savedCaption?: string;
   workspace: string;
+  onSave: (value: string) => Promise<void>;
+  busy: boolean;
 }) {
-  const [text, setText] = useState(caption);
+  const [text, setText] = useState(savedCaption ?? caption);
   const [ready, setReady] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const active = useRef(false);
 
@@ -546,6 +555,26 @@ function ArtworkXExport({
       setMessage(
         copied ? label + " copied." : "Select and copy the text yourself.",
       );
+  }
+
+  async function save() {
+    const value = text.trim();
+    if (!ready || !value || saving || busy || !active.current) return;
+    setSaving(true);
+    setMessage("");
+    try {
+      await onSave(value);
+      if (active.current) setMessage("X draft saved for manual export.");
+    } catch (cause) {
+      if (active.current)
+        setMessage(
+          cause instanceof Error
+            ? cause.message
+            : "The X draft could not be saved. Refresh before retrying.",
+        );
+    } finally {
+      if (active.current) setSaving(false);
+    }
   }
 
   const draft = text.trim() ? portfolioBlueskyText(text, asset) : "";
@@ -605,6 +634,13 @@ function ArtworkXExport({
               onClick={() => void copy(asset.alt, "Image alt text")}
             >
               Copy image alt text
+            </button>
+            <button
+              type="button"
+              disabled={checking || saving || busy || !draft || text.trim() === savedCaption}
+              onClick={() => void save()}
+            >
+              {saving ? "Saving X draft…" : "Save X draft"}
             </button>
           </div>
         </>
@@ -1541,11 +1577,13 @@ function ShareCalendar({ search }: { search: string }) {
       setDestination(current.destination);
       setCaption(current.caption);
       setVariants(
-        current.variants.map((variant) => ({
-          channel: variant.channel,
-          destination: variant.destination,
-          caption: variant.caption,
-        })),
+        current.variants
+          .filter((variant) => !isXVariant(variant))
+          .map((variant) => ({
+            channel: variant.channel,
+            destination: variant.destination,
+            caption: variant.caption,
+          })),
       );
       setLink(current.link);
       setScheduledLocal(melbourneLocalInput(current.scheduledAt));
@@ -1749,6 +1787,47 @@ function ShareCalendar({ search }: { search: string }) {
             : "The change could not be confirmed. Refresh before retrying.",
         );
       return null;
+    } finally {
+      if (alive.current) {
+        pending.current = false;
+        setBusy(false);
+      }
+    }
+  }
+
+  // Export-only X draft save. The exact authenticated workspace from the route
+  // search and the exact item/revision on screen are sent to the isolated
+  // xVariant write; it changes only that item's saved X caption. The approval
+  // package stays open so the owner can keep preparing the manual export.
+  async function saveXArtwork(
+    id: string,
+    expectedRevision: number,
+    expectedCaption: string | null,
+    value: string,
+  ) {
+    if (pending.current || invalidScope.current || !isOwner || !canWrite)
+      throw Error("Only the workspace owner can save an X artwork draft.");
+    pending.current = true;
+    setBusy(true);
+    setError("");
+    setNotice("");
+    try {
+      const saved = await calendarCall("xVariant", selection.current, {
+        item: id,
+        expectedRevision,
+        expectedCaption,
+        caption: value,
+      });
+      if (!alive.current) return;
+      setSnapshot(saved);
+    } catch (cause) {
+      if (alive.current)
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "The X draft could not be saved. Refresh before retrying.",
+        );
+      throw cause;
     } finally {
       if (alive.current) {
         pending.current = false;
@@ -2246,6 +2325,7 @@ function ShareCalendar({ search }: { search: string }) {
         caption: string | null;
       }> = [];
       for (const persisted of first.variants) {
+        if (isXVariant(persisted)) continue;
         if (!desired.some((entry) => entry.channel === persisted.channel))
           changes.push({
             channel: persisted.channel,
@@ -3331,9 +3411,10 @@ function ShareCalendar({ search }: { search: string }) {
                             ? `Configured for @${blueskyAccount}.`
                             : "Connect a Bluesky account before sending."
                         : `Exact destination: ${item.destination || "not recorded"}.`}
-                      {item.variants.length
+                      {item.variants.some((variant) => !isXVariant(variant))
                         ? " Additional drafts: " +
                           item.variants
+                            .filter((variant) => !isXVariant(variant))
                             .map(
                               (variant) =>
                                 SHARE_CHANNEL_LABELS[variant.channel],
@@ -3548,7 +3629,19 @@ function ShareCalendar({ search }: { search: string }) {
                             key={`${snapshot.workspace.id}:${item.id}:${item.revision}`}
                             asset={portfolio}
                             caption={item.caption}
+                            savedCaption={item.variants.find(
+                              (variant) => variant.channel === SHARE_X_CHANNEL,
+                            )?.caption}
                             workspace={snapshot.workspace.id}
+                            onSave={(value) =>
+                              saveXArtwork(
+                                item.id,
+                                item.revision,
+                                item.variants.find(isXVariant)?.caption ?? null,
+                                value,
+                              )
+                            }
+                            busy={busy}
                           />
                         )}
                       </>

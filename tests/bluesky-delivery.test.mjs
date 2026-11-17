@@ -43,6 +43,7 @@ const schema = [
   "0034_share_approvals.sql",
   "0035_bluesky_deliveries.sql",
   "0037_portfolio_no_stack.sql",
+  "0039_share_x_export_caption.sql",
 ]
   .map(migration)
   .join("\n");
@@ -120,7 +121,7 @@ function call(db, value, method = "POST", options = {}) {
   const read = method === "GET";
   return manageShareCalendar(
     {
-      user: owner,
+      user: options.user ?? owner,
       input: value,
       settings:
         options.settings ??
@@ -906,6 +907,42 @@ test("a stackless artwork sends its exact bytes, alt, credit and project link", 
     const sent = await send(db, item, approval, { fetch });
     assert.equal(sent.ok, true, sent.message);
     assert.equal(sent.deliveries[0].state, "published");
+
+    const xDraft = {
+      action: "xVariant",
+      item: item.id,
+      expectedRevision: item.revision,
+      expectedCaption: null,
+      caption: "A separate caption for the foil workshop",
+    };
+    const draftOnly = { fetch: async () => assert.fail("Saving X must not call a provider") };
+    const saved = await call(db, xDraft, "POST", draftOnly);
+    assert.equal(saved.ok, true, saved.message);
+    const reloaded = await call(db, { action: "list" }, "GET", draftOnly);
+    const { variants, ...bluesky } = reloaded.items[0];
+    const { variants: beforeVariants, ...beforeBluesky } = sent.items[0];
+    assert.deepEqual(beforeVariants, []);
+    assert.deepEqual(bluesky, beforeBluesky);
+    assert.deepEqual(variants, [{ channel: "x", destination: "", caption: xDraft.caption }]);
+    assert.deepEqual(reloaded.approvals, sent.approvals);
+    assert.deepEqual(reloaded.deliveries, sent.deliveries);
+    const previousWorker = await db.prepare(
+      "SELECT variants,revision,scheduled_at FROM creator_share_calendar_items WHERE id=?",
+    ).bind(item.id).first();
+    assert.deepEqual(previousWorker, { variants: "[]", revision: item.revision, scheduled_at: scheduled });
+    assert.equal((await call(db, { ...xDraft, caption: "Stale X edit" }, "POST", draftOnly)).code, "CONFLICT");
+    assert.equal((await call(db, { ...xDraft, expectedRevision: item.revision + 1 }, "POST", draftOnly)).code, "CONFLICT");
+    assert.equal((await call(db, { ...xDraft, scheduledAt: scheduled }, "POST", draftOnly)).code, "INVALID");
+    const outsider = { id: "fictional-other-workspace-owner", role: 20 };
+    await workspaceForUser(db, outsider);
+    const crossWorkspace = await call(db, { ...xDraft, workspace: created.workspace.id }, "POST", {
+      ...draftOnly,
+      user: outsider,
+    });
+    assert.equal(crossWorkspace.ok, false);
+    assert.equal((await call(db, { action: "list" }, "GET", draftOnly)).items[0].variants[0].caption, xDraft.caption);
+
+
     const { record } = pds.state.recordBody;
     const expected = caption + "\n\nArtwork by " + credit + "\n" + project;
     assert.equal(record.text, expected);

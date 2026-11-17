@@ -25,6 +25,7 @@ import {
   variantSort,
   SHARE_QUEUE_PRESET_MAX,
   SHARE_VARIANT_MAX,
+  SHARE_X_CHANNEL,
   type BlueskyApprovalRecord,
   type ShareCalendarItem,
   type ShareCalendarSnapshot,
@@ -129,6 +130,7 @@ interface ItemRow {
   destination: string;
   caption: string;
   variants: string;
+  x_export_caption: string | null;
   link: string;
   scheduled_at: string | null;
   state: string;
@@ -360,10 +362,7 @@ function variantsFor(row: ItemRow): ShareCalendarVariant[] {
       500,
     );
   }
-  return shareCalendarVariantSchema
-    .array()
-    .max(SHARE_VARIANT_MAX)
-    .parse(parsed) as ShareCalendarVariant[];
+  return shareCalendarVariantSchema.array().max(SHARE_VARIANT_MAX).parse(parsed);
 }
 
 function itemRow(row: ItemRow): ShareCalendarItem {
@@ -382,7 +381,9 @@ function itemRow(row: ItemRow): ShareCalendarItem {
     channel: row.channel as ShareCalendarItem["channel"],
     destination: row.destination ?? "",
     caption: row.caption,
-    variants: variantsFor(row),
+    variants: row.x_export_caption === null
+      ? variantsFor(row)
+      : [{ channel: SHARE_X_CHANNEL, destination: "", caption: row.x_export_caption }],
     link: row.link,
     scheduledAt: row.scheduled_at ? sqliteInstant(row.scheduled_at) : null,
     state: row.state as ShareCalendarItem["state"],
@@ -427,7 +428,7 @@ async function snapshot(
   const sources = await listSources(db, workspace.id);
   const rows = await db
     .prepare(
-      `SELECT i.id,i.stack_id,i.stack_revision,i.asset_kind,i.bluesky_asset,i.channel,i.destination,i.caption,i.variants,i.link,i.scheduled_at,i.state,i.shared_at,i.revision,i.created_at,i.updated_at,s.name AS stack_name,s.slug AS stack_slug
+      `SELECT i.id,i.stack_id,i.stack_revision,i.asset_kind,i.bluesky_asset,i.channel,i.destination,i.caption,i.variants,i.x_export_caption,i.link,i.scheduled_at,i.state,i.shared_at,i.revision,i.created_at,i.updated_at,s.name AS stack_name,s.slug AS stack_slug
        FROM creator_share_calendar_items i
        LEFT JOIN creator_stacks s ON s.id=i.stack_id
        WHERE i.workspace_id=?
@@ -514,7 +515,7 @@ async function selectedItem(
 ): Promise<ItemRow> {
   const row = await db
     .prepare(
-      `SELECT i.id,i.stack_id,i.stack_revision,i.asset_kind,i.bluesky_asset,i.channel,i.destination,i.caption,i.variants,i.link,i.scheduled_at,i.state,i.shared_at,i.revision,i.created_at,i.updated_at,s.name AS stack_name,s.slug AS stack_slug
+      `SELECT i.id,i.stack_id,i.stack_revision,i.asset_kind,i.bluesky_asset,i.channel,i.destination,i.caption,i.variants,i.x_export_caption,i.link,i.scheduled_at,i.state,i.shared_at,i.revision,i.created_at,i.updated_at,s.name AS stack_name,s.slug AS stack_slug
        FROM creator_share_calendar_items i
        LEFT JOIN creator_stacks s ON s.id=i.stack_id
        WHERE i.id=? AND i.workspace_id=? LIMIT 1`,
@@ -1498,6 +1499,24 @@ export async function manageShareCalendar(
           ),
       );
       if (!result.ok) return fail("UNAVAILABLE", result.message);
+      return view(db, workspace, row.id);
+    }
+    if (command.action === "xVariant") {
+      if (workspace.role !== "owner")
+        return fail("FORBIDDEN", "Only the workspace owner can save an X artwork draft.");
+      if (!itemRow(row).catalogue)
+        return fail("INVALID", "X drafts are only available for Woodhouse Share artwork.");
+      // Keep the Bluesky revision and approval readable by the previous Worker.
+      // The X caption has its own compare-and-swap inside the current item revision.
+      const result = await db
+        .prepare(
+          `UPDATE creator_share_calendar_items SET x_export_caption=?
+           WHERE id=? AND workspace_id=? AND asset_kind='portfolio'
+             AND revision=? AND x_export_caption IS ?`,
+        )
+        .bind(command.caption, row.id, workspace.id, command.expectedRevision, command.expectedCaption)
+        .run();
+      if (result.meta?.changes !== 1) throw conflict();
       return view(db, workspace, row.id);
     }
     if (

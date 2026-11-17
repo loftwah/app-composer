@@ -35,6 +35,13 @@ export const SHARE_CHANNELS = [
   },
 ] as const;
 
+// X artwork export is an isolated, export-only variant. It deliberately stays
+// out of SHARE_CHANNELS: the owner never picks an X destination, account,
+// approval, schedule or provider. It only carries a locally prepared caption
+// on the existing per-item variant contract.
+export const SHARE_X_CHANNEL = "x";
+export type ShareXChannel = typeof SHARE_X_CHANNEL;
+
 export const SHARE_STATES = [
   {
     id: "draft",
@@ -348,6 +355,18 @@ export const shareCalendarCommand = z.discriminatedUnion("action", [
       caption: shareCalendarVariantCaption.nullable(),
     })
     .strict(),
+  // Export-only X artwork draft. No channel, destination, link, schedule,
+  // account, approval or provider field exists on this command.
+  z
+    .object({
+      action: z.literal("xVariant"),
+      workspace: workspaceId.optional(),
+      item: itemId,
+      expectedRevision: revision,
+      expectedCaption: shareCalendarCaption.nullable(),
+      caption: shareCalendarCaption,
+    })
+    .strict(),
   z
     .object({
       action: z.literal("blueskyApprove"),
@@ -472,6 +491,22 @@ export interface ShareCalendarVariant {
   caption: string;
 }
 
+// The stored variant contract also accepts the isolated X export row. The
+// editor's channel-draft state keeps the narrower ShareCalendarVariant type;
+// only persisted items and their snapshots carry ShareXVariant.
+export interface ShareXVariant {
+  channel: ShareXChannel;
+  destination: "";
+  caption: string;
+}
+export type StoredShareVariant = ShareCalendarVariant | ShareXVariant;
+
+export function isXVariant(
+  variant: StoredShareVariant,
+): variant is ShareXVariant {
+  return variant.channel === SHARE_X_CHANNEL;
+}
+
 export interface ShareCalendarItem {
   id: string;
   stack: string | null;
@@ -483,7 +518,7 @@ export interface ShareCalendarItem {
   channel: ShareChannel;
   destination: string;
   caption: string;
-  variants: ShareCalendarVariant[];
+  variants: StoredShareVariant[];
   link: string;
   scheduledAt: string | null;
   state: ShareState;
@@ -537,6 +572,21 @@ export const shareCalendarVariantSchema = z
   })
   .strict();
 
+// X is not a selectable channel, so it has its own exact row shape. It carries
+// no destination and is written only by the isolated xVariant save path.
+export const shareXVariantSchema = z
+  .object({
+    channel: z.literal(SHARE_X_CHANNEL),
+    destination: z.literal(""),
+    caption: shareCalendarCaption,
+  })
+  .strict();
+
+export const storedShareVariantSchema = z.union([
+  shareCalendarVariantSchema,
+  shareXVariantSchema,
+]);
+
 export const shareCalendarItemSchema = z
   .object({
     id: itemId,
@@ -552,7 +602,7 @@ export const shareCalendarItemSchema = z
     channel: shareCalendarChannel,
     destination: z.string().max(SHARE_DESTINATION_MAX),
     caption: z.string().min(1).max(SHARE_CAPTION_LOCAL_CHARACTERS),
-    variants: z.array(shareCalendarVariantSchema).max(SHARE_VARIANT_MAX),
+    variants: z.array(storedShareVariantSchema).max(SHARE_VARIANT_MAX),
     link: z.string().max(2048),
     scheduledAt: isoInstant.nullable(),
     state: shareCalendarState,
@@ -564,12 +614,18 @@ export const shareCalendarItemSchema = z
   .strict()
   .superRefine((value, ctx) => {
     const stackFields = [value.stack, value.stackSlug, value.publication];
+    // A stackless artwork keeps its Bluesky main caption and link untouched;
+    // the only variant it may carry is the isolated X export draft.
+    const artworkVariants =
+      value.variants.length === 0 ||
+      (value.variants.length === 1 && value.variants.every(isXVariant));
     const complete = value.catalogue
       ? stackFields.every((field) => field === null) &&
         value.channel === "bluesky" &&
-        value.variants.length === 0 &&
+        artworkVariants &&
         value.link === value.catalogue.projectUrl
-      : stackFields.every((field) => field !== null);
+      : stackFields.every((field) => field !== null) &&
+        !value.variants.some(isXVariant);
     if (!complete)
       ctx.addIssue({
         code: "custom",
@@ -1012,13 +1068,14 @@ export function primaryCaptionProblem(
 }
 
 export function variantSort(
-  left: ShareCalendarVariant,
-  right: ShareCalendarVariant,
+  left: StoredShareVariant,
+  right: StoredShareVariant,
 ): number {
-  return (
-    SHARE_CHANNELS.findIndex((channel) => channel.id === left.channel) -
-    SHARE_CHANNELS.findIndex((channel) => channel.id === right.channel)
-  );
+  const order = (channel: StoredShareVariant["channel"]) =>
+    channel === SHARE_X_CHANNEL
+      ? SHARE_CHANNELS.length
+      : SHARE_CHANNELS.findIndex((entry) => entry.id === channel);
+  return order(left.channel) - order(right.channel);
 }
 
 export function canonicalInstant(value: string): string {
