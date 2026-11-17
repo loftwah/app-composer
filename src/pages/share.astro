@@ -76,7 +76,7 @@ Astro.response.headers.set("Vary", "Cookie");
 // separate artwork, so its preview stays the real product card.
 ---
 
-<Base title="Share" description={description} noindex={noindexFor(Astro.url.hostname, Astro.response.status < 400 && !artworkQuery && !project && !after && !filtered)}>
+<Base title="Share" description={description} noindex={noindexFor(Astro.url.hostname, (Astro.response.status ?? 200) < 400 && !artworkQuery && !project && !after && !filtered)}>
   <div class="share-library">
     <header class="wall-heading">
       <h1>Share</h1>
