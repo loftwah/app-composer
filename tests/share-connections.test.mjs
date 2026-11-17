@@ -545,3 +545,20 @@ test("the plugin registers the page, both routes and the non-secret handle", () 
   assert.doesNotMatch(pageSource, /appPassword[^\n]{0,80}URLSearchParams/);
   assert.match(pageSource, /Bluesky Settings → App Passwords/);
 });
+
+test("the connections page distinguishes publish, export and manual setup", () => {
+  const pageSource = readFileSync(
+    new URL("../src/plugins/share-connections-page.tsx", import.meta.url),
+    "utf8",
+  );
+  const modes = pageSource.slice(
+    pageSource.indexOf('aria-labelledby="shc-modes-heading"'),
+    pageSource.indexOf('aria-labelledby="shc-form-heading"'),
+  );
+  assert.match(pageSource, /MANUAL_DESTINATIONS = SHARE_CHANNELS\.filter/);
+  assert.match(modes, /Bluesky · Publish after approval/);
+  assert.match(modes, /href="\/_emdash\/admin\/plugins\/composer-stacks\/share-calendar"/);
+  assert.match(modes, /X · Export only/);
+  assert.match(modes, /\{MANUAL_DESTINATIONS\} · Manual/);
+  assert.doesNotMatch(modes, /status\.|<button|ordered thread/);
+});

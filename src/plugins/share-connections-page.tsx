@@ -5,9 +5,19 @@ import {
   type ShareConnectionState,
   type ShareConnectionStatus,
 } from "../lib/share-connections";
+import { SHARE_CHANNELS } from "../lib/share-calendar";
 import "./share-connections-page.css";
 
 const base = "/_emdash/api/plugins/composer-stacks/";
+
+// Destination modes come from the shared channel catalogue, so this page cannot
+// advertise a destination the calendar does not actually support. X stays out
+// of the catalogue: it is an export-only variant, not a selectable account.
+const MANUAL_DESTINATIONS = SHARE_CHANNELS.filter(
+  (channel) => channel.id !== "bluesky",
+)
+  .map((channel) => channel.label)
+  .join(", ");
 
 const STATE_LABELS: Record<ShareConnectionState, string> = {
   connected: "Connected",
@@ -299,6 +309,38 @@ function ShareConnections() {
                 {identity.message}
               </p>
             )}
+          </section>
+
+          <section className="shc-card" aria-labelledby="shc-modes-heading">
+            <h2 id="shc-modes-heading">Destinations</h2>
+            <dl className="shc-modes">
+              <div>
+                <dt>Bluesky · Publish after approval</dt>
+                <dd>
+                  Confirm the send for the exact approved revision in the{" "}
+                  <a
+                    className="shc-text-link"
+                    href="/_emdash/admin/plugins/composer-stacks/share-calendar"
+                  >
+                    Share calendar
+                  </a>
+                  .
+                </dd>
+              </div>
+              <div>
+                <dt>X · Export only</dt>
+                <dd>
+                  Save and copy an artwork caption with its credit and project link.
+                  Copy the image alt text separately.
+                </dd>
+              </div>
+              <div>
+                <dt>{MANUAL_DESTINATIONS} · Manual</dt>
+                <dd>
+                  Prepare a caption and link in the calendar for posting in the destination app.
+                </dd>
+              </div>
+            </dl>
           </section>
 
           <section className="shc-card" aria-labelledby="shc-form-heading">

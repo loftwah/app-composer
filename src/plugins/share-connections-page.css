@@ -167,6 +167,27 @@
   color: var(--shc-danger);
   font-weight: 550;
 }
+.shc-modes {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0 0;
+  padding: 0;
+}
+.shc-modes div {
+  padding-top: 12px;
+  border-top: 1px solid var(--shc-line);
+}
+.shc-modes dt {
+  margin: 0 0 4px;
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+.shc-modes dd {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--shc-muted);
+  overflow-wrap: anywhere;
+}
 .shc-form {
   display: grid;
   gap: 14px;
