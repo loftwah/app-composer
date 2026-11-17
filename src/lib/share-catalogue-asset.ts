@@ -377,6 +377,51 @@ interface CatalogueArtwork extends CatalogueSearchItem {
   shareUrl: string;
 }
 
+const campaignArtworkPath = /^\/campaign\/.+\.(?:jpe?g|png|webp)$/i;
+
+function catalogueArtwork(raw: unknown): CatalogueArtwork | null {
+  const asset = catalogueObject(raw);
+  if (asset?.visibility !== "public") return null;
+  const assetId = normalizeShareAssetId(asset.id);
+  const project = normalizeShareAssetId(asset.project);
+  const title = boundedString(asset.title, SHARE_CATALOGUE_TITLE_MAX);
+  const alt = boundedString(asset.alt, SHARE_CATALOGUE_ALT_MAX);
+  const credit = boundedString(asset.credit, SHARE_CATALOGUE_CREDIT_MAX);
+  const thumbnailUrl = publicArtworkUrl(asset.thumbnailUrl, campaignArtworkPath);
+  const previewUrl = publicArtworkUrl(asset.previewUrl, campaignArtworkPath);
+  const shareUrl = publicArtworkUrl(asset.shareUrl, /^\/share\/[a-z0-9-]+\/$/);
+  if (!(assetId && project && title && alt && credit && thumbnailUrl && previewUrl && shareUrl))
+    return null;
+  return { assetId, project, title, alt, credit, thumbnailUrl, previewUrl, shareUrl };
+}
+
+export async function publicShareArtwork(
+  id: string,
+  options: CatalogueFetchOptions = {},
+): Promise<{ status: 200; artwork: CatalogueArtwork } | { status: 404 | 503 }> {
+  const endpoint = shareAssetApiUrl(id);
+  if (!endpoint) return { status: 404 };
+  try {
+    const signal = AbortSignal.timeout(options.timeoutMs ?? 2_000);
+    const response = await (options.fetch ?? globalThis.fetch)(endpoint, {
+      headers: { Accept: "application/json" },
+      redirect: "manual",
+      signal,
+    });
+    if (!response.ok) {
+      await response.body?.cancel().catch(() => {});
+      return { status: response.status === 404 ? 404 : 503 };
+    }
+    const envelope = catalogueObject(await readBoundedJson(response, signal));
+    if (envelope?.version !== 1) return { status: 503 };
+    const artwork = catalogueArtwork(envelope.asset);
+    if (!artwork || artwork.assetId !== id) return { status: 404 };
+    return { status: 200, artwork };
+  } catch {
+    return { status: 503 };
+  }
+}
+
 export async function browseShareArtwork(
   filters: { query: string; project: string; after: string },
   options: CatalogueFetchOptions = {},
@@ -404,19 +449,8 @@ export async function browseShareArtwork(
 
     const items = new Map<string, CatalogueArtwork>();
     for (const raw of envelope.assets.slice(0, limit)) {
-      const asset = catalogueObject(raw);
-      if (asset?.visibility !== "public") continue;
-      const assetId = normalizeShareAssetId(asset.id);
-      const project = normalizeShareAssetId(asset.project);
-      const title = boundedString(asset.title, SHARE_CATALOGUE_TITLE_MAX);
-      const alt = boundedString(asset.alt, SHARE_CATALOGUE_ALT_MAX);
-      const credit = boundedString(asset.credit, SHARE_CATALOGUE_CREDIT_MAX);
-      const thumbnailUrl = publicArtworkUrl(asset.thumbnailUrl, /^\/campaign\/.+\.(?:jpe?g|png|webp)$/i);
-      const previewUrl = publicArtworkUrl(asset.previewUrl, /^\/campaign\/.+\.(?:jpe?g|png|webp)$/i);
-      const shareUrl = publicArtworkUrl(asset.shareUrl, /^\/share\/[a-z0-9-]+\/$/);
-      if (assetId && project && title && alt && credit && thumbnailUrl && previewUrl && shareUrl) {
-        items.set(assetId, { assetId, project, title, alt, credit, thumbnailUrl, previewUrl, shareUrl });
-      }
+      const artwork = catalogueArtwork(raw);
+      if (artwork) items.set(artwork.assetId, artwork);
     }
     const nextAfter = normalizeShareAssetId(envelope.nextAfter);
     return { items: [...items.values()], nextAfter: nextAfter === filters.after ? null : nextAfter };

@@ -1,0 +1,97 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { ArrowLeft, ArrowUpRight } from '@lucide/astro';
+import { noindexFor } from '../../../lib/indexing.mjs';
+import { publicPageCanonical } from '../../../lib/public-pages.mjs';
+import { publicShareArtwork, SHARE_CATALOGUE_ORIGIN } from '../../../lib/share-catalogue-asset.ts';
+
+const result = await publicShareArtwork(Astro.params.id ?? '');
+Astro.response.status = result.status;
+const artwork = result.status === 200 ? result.artwork : null;
+const title = artwork?.title ?? (result.status === 404 ? 'Artwork unavailable' : 'Artwork temporarily unavailable');
+const canonical = artwork ? publicPageCanonical(`/share/artwork/${artwork.assetId}`).href : undefined;
+const format = artwork?.previewUrl.split('.').pop()?.toLowerCase();
+const shareType = format === 'png' || format === 'webp' ? `image/${format}` : 'image/jpeg';
+Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
+---
+
+<Base title={title} description={artwork?.alt ?? title} canonical={canonical}
+  noindex={noindexFor(Astro.url.hostname, Boolean(artwork))}
+  shareImage={artwork?.previewUrl} shareType={shareType} shareAlt={artwork?.alt}
+  shareWidth={null} shareHeight={null}>
+  <nav class="artwork-nav" aria-label="Share">
+    <a href="/share/artwork"><ArrowLeft size={16} aria-hidden="true" /> Browse artwork</a>
+    {artwork && <a href={`/share/artwork?project=${artwork.project}`}>More from {artwork.project}</a>}
+  </nav>
+  {artwork ? (
+    <article class="artwork-piece">
+      <header>
+        <h1>{title}</h1>
+        <p>{artwork.credit}</p>
+      </header>
+      <a class="artwork-stage" href={artwork.previewUrl} aria-label="Open image file">
+        <img src={artwork.previewUrl} alt={artwork.alt} decoding="async" referrerpolicy="no-referrer" />
+      </a>
+      <div class="artwork-actions">
+        <a href={artwork.shareUrl}>Project share kit <ArrowUpRight size={16} aria-hidden="true" /></a>
+        <a href={artwork.previewUrl}>Open image file <ArrowUpRight size={16} aria-hidden="true" /></a>
+        <div class="public-page-share" data-page-share hidden>
+          <button type="button" class="secondary" data-page-native hidden>Share artwork</button>
+          <button type="button" class="secondary" data-page-copy hidden>Copy artwork link</button>
+          <p role="status" aria-live="polite" data-share-status></p>
+          <label data-share-fallback hidden>
+            Published artwork URL
+            <input readonly aria-label="Published artwork URL" />
+          </label>
+        </div>
+      </div>
+    </article>
+  ) : (
+    <section class="artwork-state">
+      <h1>{title}</h1>
+      <p>{result.status === 404 ? 'This piece is no longer in the public catalogue or the link is incomplete.' : 'The catalogue did not respond. Reload this page to try again.'}</p>
+    </section>
+  )}
+  <Fragment slot="page-share" />
+</Base>
+
+<style>
+  .artwork-nav { margin-block-end: 1rem; }
+  .artwork-nav a, .artwork-actions > a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .artwork-piece h1, .artwork-state h1 {
+    font-size: clamp(2.35rem, 5.8vw, 5rem);
+    max-width: 24ch;
+    text-wrap: balance;
+    margin: 0 0 0.45rem;
+  }
+  .artwork-piece header p { color: var(--color-muted); margin: 0 0 1.25rem; }
+  .artwork-stage {
+    display: grid;
+    place-items: center;
+    min-height: clamp(14rem, 48vw, 34rem);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 0.45rem;
+  }
+  .artwork-stage img {
+    display: block;
+    max-width: 100%;
+    max-height: min(65vh, 52rem);
+    object-fit: contain;
+  }
+  .artwork-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: start;
+    gap: 0.15rem 1.15rem;
+    margin-block-start: 0.65rem;
+  }
+  .artwork-actions .public-page-share { margin: 0; padding: 0; border: 0; }
+  .artwork-actions [data-share-status]:empty { display: none; }
+  .artwork-actions a:hover, .artwork-nav a:hover { text-decoration: underline; }
+</style>
