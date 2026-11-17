@@ -35,8 +35,8 @@
     },
     "@emdash-cms/cloudflare": {
       "supported": "^1.4.0",
-      "reviewed": "1.4.0",
-      "note": "Versioned with EmDash; move both together."
+      "reviewed": "1.5.0",
+      "note": "The Cloudflare adapter declares an exact EmDash peer; move both together."
     },
     "@lucide/astro": {
       "supported": "^1.72.0",
@@ -78,8 +78,8 @@
     },
     "emdash": {
       "supported": "^1.4.0",
-      "reviewed": "1.4.0",
-      "note": "1.5.0 is published. The paired move needs native catalogue/admin, migration and rollback qualification before production; 1.4.0 remains qualified."
+      "reviewed": "1.5.0",
+      "note": "The 1.4-to-1.5 core migration was rehearsed with existing revisions. Review migration 092 and 095 conditions before updating installations with sandboxed plugin state or plugin storage indexes."
     },
     "jose": {
       "supported": "^6.2.17",
