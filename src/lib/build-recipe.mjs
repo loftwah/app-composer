@@ -231,6 +231,10 @@ export function humanOnlyActions(spec) {
   actions.unshift(
     "sign in to Cloudflare and authorise the account the apps deploy into",
   );
+  if (spec.apps.includes("media-studio"))
+    actions.push(
+      "choose whether to use the funded provider and approve paid work before it begins. Enter FAL_KEY directly in your owned deployment.",
+    );
   if (spec.apps.includes("showcase") && !spec.apps.includes("guestbook") && !linkOnly(spec))
     actions.push("confirm the existing Here / there provider Linkarooie may use");
   if (spec.deployment.mode === "new-domain")

@@ -171,6 +171,12 @@ test("the handoff and build plan carry the owned studio work without secrets", (
   assert.match(recipeText(spec), /Workers AI binding named AI/);
   assert.match(humanOnlyActions(spec).join(" "), /OWNER_PASSPHRASE and SESSION_SECRET for Media Studio/);
   assert.match(humanOnlyActions(spec).join(" "), /sign in to Cloudflare/);
+  const funded = humanOnlyActions(spec).find((action) => /funded provider/.test(action));
+  assert.ok(funded, "the owner-only list names the funded-provider decision");
+  assert.match(funded, /choose whether to use the funded provider and approve paid work before it begins/);
+  assert.match(funded, /Enter FAL_KEY directly in your owned deployment/);
+  const pair = validateSpec({ ...mediaSpec(), preset: "composition", sources: selectedSources(["guestbook", "showcase"]) });
+  assert.ok(!humanOnlyActions(pair).some((action) => /funded provider/.test(action)), "the funded-provider item is Studio-only");
 });
 
 test('current and historical Studio briefs retain their exact reviewed source pins', async () => {
