@@ -10,9 +10,12 @@ import {
   cataloguePreviewReplySchema,
   isSafeShareLink,
   itemApprovalAndDelivery,
+  MELBOURNE_WEEKDAYS,
+  QUEUE_NEXT_HORIZON_WEEKS,
   melbourneLocalInput,
   melbourneLocalInstant,
   primaryCaptionProblem,
+  queueNextPreviewReplySchema,
   scheduleLabels,
   shareCalendarSnapshot,
   shareListFilterForItem,
@@ -25,6 +28,7 @@ import {
   SHARE_STATE_LABELS,
   SHARE_VARIANT_MAX,
   type CatalogueResolvedAsset,
+  type QueueNextPreview,
   type ShareCalendarItem,
   type ShareCalendarSnapshot,
   type ShareCalendarSource,
@@ -146,6 +150,39 @@ async function identityCall(
       ),
     );
   return parsed.data.result;
+}
+
+// Read-only Queue Next preview (#663). The page sends only a Melbourne weekday
+// and HH:mm; the server reads authoritative scheduled Bluesky times and returns
+// the next free slot. No schedule, approval or credential is changed.
+async function queueNextCall(
+  weekday: number,
+  time: string,
+  workspace?: string,
+): Promise<QueueNextPreview> {
+  const params = new URLSearchParams({
+    action: "queueNextPreview",
+    weekday: String(weekday),
+    time,
+  });
+  if (workspace) params.set("workspace", workspace);
+  const response = await apiFetch(
+    base + "shareCalendarRead?" + params.toString(),
+    { cache: "no-store" },
+  );
+  const raw = await parseApiResponse<unknown>(
+    response,
+    "The queue preview could not be confirmed. Refresh before retrying.",
+  );
+  const parsed = queueNextPreviewReplySchema.safeParse(raw);
+  if (!parsed.success)
+    throw Error(
+      errorMessage(
+        raw,
+        "The queue preview response could not be validated. Refresh before retrying.",
+      ),
+    );
+  return parsed.data;
 }
 
 type CataloguePreview = {
@@ -1031,6 +1068,13 @@ function ShareCalendar({ search }: { search: string }) {
   const [blueskySending, setBlueskySending] = useState(false);
   const [blueskyNow, setBlueskyNow] = useState(() => new Date());
   const [listFilter, setListFilter] = useState<ShareListFilter>("all");
+  // Owner-only, read-only Queue Next preview state. It never writes and is
+  // cleared when the weekday or time changes so a stale slot is not shown.
+  const [queueWeekday, setQueueWeekday] = useState(1);
+  const [queueTime, setQueueTime] = useState("09:00");
+  const [queuePreview, setQueuePreview] = useState<QueueNextPreview>();
+  const [queueChecking, setQueueChecking] = useState(false);
+  const queueLabels = scheduleLabels(queuePreview?.nextInstant ?? null);
   // The same approval/delivery resolution as the item card drives both the
   // counts and the visible list. This filter is read-only and keeps item order.
   const classified = (snapshot?.items ?? []).map((item) => ({
@@ -1343,6 +1387,34 @@ function ShareCalendar({ search }: { search: string }) {
         );
     } finally {
       if (alive.current) setBlueskyChecking(false);
+    }
+  }
+
+  async function previewQueueNext() {
+    if (queueChecking || !blueskyAccount || !isOwner) return;
+    const time = queueTime.trim();
+    if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time)) {
+      setError("Choose a 24-hour time in HH:mm format.");
+      return;
+    }
+    const workspace = selection.current;
+    setQueueChecking(true);
+    setError("");
+    setNotice("");
+    setQueuePreview(undefined);
+    try {
+      const result = await queueNextCall(queueWeekday, time, workspace);
+      if (alive.current && selection.current === workspace)
+        setQueuePreview(result);
+    } catch (cause) {
+      if (alive.current && selection.current === workspace)
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "The queue preview could not be confirmed. Refresh before retrying.",
+        );
+    } finally {
+      if (alive.current) setQueueChecking(false);
     }
   }
 
@@ -2692,6 +2764,68 @@ function ShareCalendar({ search }: { search: string }) {
                 Download .ics
               </button>
             </div>
+            {isOwner && blueskyAccount && (
+              <section className="sc-queue" aria-labelledby="sc-queue-title">
+                <h3 id="sc-queue-title">Queue Next preview</h3>
+                <p className="sc-hint">
+                  Find a time for @{blueskyAccount}. The preview skips scheduled
+                  Bluesky items in this workspace and leaves the calendar
+                  unchanged.
+                </p>
+                <div className="sc-queue-fields">
+                  <label className="sc-field">
+                    Melbourne weekday
+                    <select
+                      value={queueWeekday}
+                      disabled={queueChecking}
+                      onChange={(event) => {
+                        setQueueWeekday(Number(event.target.value));
+                        setQueuePreview(undefined);
+                      }}
+                    >
+                      {MELBOURNE_WEEKDAYS.map((day) => (
+                        <option key={day.id} value={day.id}>
+                          {day.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="sc-field">
+                    Melbourne time
+                    <input
+                      type="time"
+                      value={queueTime}
+                      readOnly={queueChecking}
+                      onChange={(event) => {
+                        setQueueTime(event.target.value);
+                        setQueuePreview(undefined);
+                      }}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    aria-disabled={queueChecking}
+                    disabled={!queueTime || busy}
+                    onClick={() => void previewQueueNext()}
+                  >
+                    {queueChecking ? "Previewing…" : "Preview next slot"}
+                  </button>
+                </div>
+                <div role="status">
+                  {queueLabels && (
+                    <p className="sc-queue-slot">
+                      {queueLabels.melbourne} (Melbourne) · {queueLabels.utc}
+                    </p>
+                  )}
+                  {queuePreview && !queueLabels && (
+                    <p>
+                      No matching free slot in the next{" "}
+                      {QUEUE_NEXT_HORIZON_WEEKS} weeks.
+                    </p>
+                  )}
+                </div>
+              </section>
+            )}
             {!snapshot.items.length && (
               <div className="sc-empty sc-empty-list">
                 <h3>Nothing prepared yet</h3>

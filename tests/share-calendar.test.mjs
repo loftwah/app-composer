@@ -16,6 +16,8 @@ import {
   captionUsage,
   isSafeShareLink,
   localTimeLabel,
+  melbourneLocalInstant,
+  upcomingQueueSlots,
   primaryCaptionProblem,
   SHARE_CHANNELS,
   SHARE_STATES,
@@ -1368,4 +1370,91 @@ test("the .ics builder refuses a link that could inject calendar properties", ()
       ),
     /unsafe link/i,
   );
+});
+
+test("Queue Next skips exact-now and the Melbourne daylight-saving gap", () => {
+  const first = upcomingQueueSlots(
+    1,
+    "11:00",
+    new Date("2026-11-16T00:00:00Z"),
+  );
+  assert.equal(first[0], melbourneLocalInstant("2026-11-23T11:00"));
+  const spring = upcomingQueueSlots(
+    7,
+    "02:30",
+    new Date("2026-10-01T00:00:00Z"),
+  );
+  assert.equal(spring[0], melbourneLocalInstant("2026-10-11T02:30"));
+  const autumn = upcomingQueueSlots(
+    7,
+    "02:30",
+    new Date("2027-04-02T00:00:00Z"),
+  );
+  assert.equal(autumn[0], melbourneLocalInstant("2027-04-04T02:30"));
+  assert.deepEqual(
+    spring,
+    upcomingQueueSlots(7, "02:30", new Date("2026-10-01T00:00:00Z")),
+  );
+});
+
+test("Queue Next reads occupied minutes from the authorized workspace without writes", async () => {
+  const db = sqliteD1({ schema });
+  try {
+    const { workspace, stack } = await seeded(db);
+    const { workspace: otherWorkspace } = await seeded(
+      db,
+      other,
+      "Other queue",
+    );
+    const first = melbourneLocalInstant("2026-11-18T09:00");
+    const occupied = new Date(Date.parse(first) + 30_000).toISOString();
+    const created = await write(db, owner, {
+      action: "create",
+      stack: stack.id,
+      channel: "bluesky",
+      caption: "An occupied Bluesky slot",
+      link: origin + "/s/" + stack.slug,
+      scheduledAt: occupied,
+    });
+    assert.equal(created.ok, true, JSON.stringify(created));
+
+    function preview(id, query = "3") {
+      const url = new URL(
+        origin + "/_emdash/api/plugins/composer-stacks/shareCalendarRead",
+      );
+      url.search = new URLSearchParams({
+        action: "queueNextPreview",
+        weekday: query,
+        time: "09:00",
+        workspace: id,
+      }).toString();
+      return manageShareCalendar(
+        {
+          user: owner,
+          input: Object.fromEntries(url.searchParams),
+          request: new Request(url),
+        },
+        {
+          DB: db,
+          PUBLIC_ORIGIN: origin,
+          now: new Date("2026-11-16T00:00:00Z"),
+          SHARE_BLUESKY_HANDLE: "queue.example.com",
+        },
+      );
+    }
+    const reply = await preview(workspace.id);
+    assert.deepEqual(reply, {
+      ok: true,
+      action: "queueNextPreview",
+      nextInstant: melbourneLocalInstant("2026-11-25T09:00"),
+    });
+    assert.equal((await preview(workspace.id, "3.0")).code, "INVALID");
+    assert.equal((await preview(otherWorkspace.id)).code, "FORBIDDEN");
+    const after = await read(db, owner);
+    assert.equal(after.items.length, 1);
+    assert.equal(after.items[0].scheduledAt, occupied);
+    assert.equal(after.items[0].revision, created.items[0].revision);
+  } finally {
+    db.cleanup();
+  }
 });

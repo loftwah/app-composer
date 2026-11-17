@@ -262,6 +262,21 @@ export const shareCalendarReadInput = z.union([
       handle: z.string().trim().max(253).optional(),
     })
     .strict(),
+  // Read-only Queue Next preview (#663). The owner supplies only a Melbourne
+  // weekday and a 24-hour wall-clock time. The server reads the workspace's
+  // scheduled Bluesky times and returns the next free slot; no schedule,
+  // approval, delivery or credential is changed by this request.
+  z
+    .object({
+      action: z.literal("queueNextPreview"),
+      workspace: workspaceId.optional(),
+      // EmDash supplies GET parameters as strings.
+      weekday: z.string().regex(/^[1-7]$/).transform(Number),
+      time: z
+        .string()
+        .regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, "Choose a 24-hour HH:mm time."),
+    })
+    .strict(),
 ]);
 
 export const shareCalendarCommand = z.discriminatedUnion("action", [
@@ -1054,6 +1069,50 @@ export function scheduleLabels(value: string | null): {
   return melbourne === "Unknown time" || utc === "Unknown time"
     ? null
     : { melbourne, utc };
+}
+
+// Monday-first values are shared by the UI and the Melbourne calendar.
+export const MELBOURNE_WEEKDAYS = [
+  { id: 1, label: "Monday" },
+  { id: 2, label: "Tuesday" },
+  { id: 3, label: "Wednesday" },
+  { id: 4, label: "Thursday" },
+  { id: 5, label: "Friday" },
+  { id: 6, label: "Saturday" },
+  { id: 7, label: "Sunday" },
+] as const;
+
+export const QUEUE_NEXT_HORIZON_WEEKS = 8;
+
+export const queueNextPreviewReplySchema = z
+  .object({
+    ok: z.literal(true),
+    action: z.literal("queueNextPreview"),
+    nextInstant: isoInstant.nullable(),
+  })
+  .strict();
+
+export type QueueNextPreview = z.infer<typeof queueNextPreviewReplySchema>;
+
+// Use the same ambiguous-time policy as the manual calendar. A nonexistent
+// Melbourne wall-clock time is skipped. The query checks these minutes only.
+export function upcomingQueueSlots(
+  weekday: number,
+  time: string,
+  now: Date,
+): string[] {
+  const today = zonedParts(now.getTime(), "Australia/Melbourne").date;
+  const base = new Date(`${today}T00:00:00.000Z`);
+  const delta = ((weekday % 7) - base.getUTCDay() + 7) % 7;
+  const slots: string[] = [];
+  for (let week = 0; week < QUEUE_NEXT_HORIZON_WEEKS; week += 1) {
+    const date = new Date(base.getTime() + (delta + week * 7) * 86_400_000)
+      .toISOString()
+      .slice(0, 10);
+    const slot = melbourneLocalInstant(`${date}T${time}`);
+    if (slot && Date.parse(slot) > now.getTime()) slots.push(slot);
+  }
+  return slots;
 }
 
 export function calendarFilename(name: string): string {
