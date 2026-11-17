@@ -79,7 +79,7 @@ Astro.response.headers.set("Vary", "Cookie");
         </div>
         <div class="wall-intro">
           <p>Browse artwork, films and published stacks from our projects.</p>
-          <p class="small"><a href={filtered ? "/share#films" : "#films"}>Watch films</a> · <a href="https://woodhouse.loftwah.com/share">Browse artwork</a> · <a href="#published-stacks">Browse stacks</a>{canReview && <> · <a href={filtered ? "/share#my-feedback" : "#my-feedback"}>Your feedback</a></>}</p>
+          <p class="small"><a href={filtered ? "/share#films" : "#films"}>Watch films</a> · <a href="/share/artwork">Browse artwork</a> · <a href="#published-stacks">Browse stacks</a>{canReview && <> · <a href={filtered ? "/share#my-feedback" : "#my-feedback"}>Your feedback</a></>}</p>
         </div>
       </header>
 
