@@ -152,6 +152,11 @@ if (root) {
     try { localStorage.removeItem(promptStorageKey); status.textContent = 'All prompt details cleared from this tab and this device. Existing Init drafts are unchanged.'; }
     catch { status.textContent = 'Prompt details cleared from this tab. This browser could not remove saved device data.'; }
   });
+  get<HTMLButtonElement>('[data-clear-search]').addEventListener('click', () => {
+    search.value = '';
+    filter();
+    search.focus();
+  });
   search.addEventListener('input', filter);
   window.addEventListener('hashchange', () => { select(hashId(), true); });
   select(hashId(), false); filter();

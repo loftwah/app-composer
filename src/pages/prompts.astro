@@ -23,7 +23,7 @@ const categories = [...new Set(promptModules.map(item => item.category))];
         <nav class="prompt-tasks" aria-label="Prompt jobs">
           {categories.map(category => <div data-category><h2>{category}</h2><ul>{promptModules.filter(item => item.category === category).map(item => <li data-task-row={item.id}><a href={`#${item.id}`} data-prompt-link={item.id}>{item.title}</a></li>)}</ul></div>)}
         </nav>
-        <p class="prompt-empty" data-empty hidden>No matching jobs. Try “build” or clear your search.</p>
+        <div class="prompt-empty" data-empty hidden><p>No matching jobs. Try “build”, or clear the search to see every job.</p><button class="secondary" type="button" data-clear-search>Clear search</button></div>
       </aside>
       <div class="prompt-workspace">
         <div class="prompt-draft-controls" data-enhanced hidden>
@@ -109,6 +109,8 @@ const categories = [...new Set(promptModules.map(item => item.category))];
   .prompt-result-links { display: flex; gap: 16px 28px; flex-wrap: wrap; font-size: .9rem; }
   .prompt-result-links a { padding: 8px 0; }
   .prompt-empty, .no-script { padding: 20px 0; color: var(--color-muted); }
+  .prompt-empty p { margin: 0 0 12px; }
+  .prompt-empty button { font-size: .85rem; min-height: 44px; padding: 10px 16px; }
   [hidden] { display: none !important; }
   @media (min-width: 901px) { .prompt-library[data-enhanced="true"] .prompt-index { position: sticky; top: 24px; max-height: calc(100svh - 48px); overflow: auto; padding-right: 8px; } }
   @media (max-width: 1100px) { .prompt-desk { gap: 28px; grid-template-columns: 240px minmax(0, 1fr); } .prompt-intro { align-items: start; flex-direction: column; gap: 12px; } .prompt-intro-links { max-width: none; } }
