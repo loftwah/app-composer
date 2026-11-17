@@ -31,20 +31,36 @@ Docker is **not** used by this procedure. The supported local runtime is Wrangle
 
 ## Start
 
+The defaults are the original pair:
+
 ```sh
 labs/building/start-local.sh
 ```
 
-The script creates one owned temporary root under `$TMPDIR/composer-build-199.*`, copies both repositories there, links their installed dependencies, applies local migrations, writes fictional local Worker configuration and starts:
-
 - Guestbook on `https://localhost:8788`
 - Linkarooie on `https://localhost:8787`
 
-It writes the root to `output/build-199/local-root` and leaves a `run.env` inside the root. The working repositories, their `.wrangler` state, owner records, sessions and credentials are not touched.
+To run beside another local Worker, select each loopback port separately:
+
+```sh
+GUESTBOOK_PORT=9788 LINKAROOIE_PORT=9787 labs/building/start-local.sh
+```
+
+Both values must be whole numbers from 1 to 65535, written without leading zeros, and they must differ. The script validates them before it creates the temporary root, copies either repository or applies migrations. It also stops before any of that when a selected port is already listening: it never stops, reuses or takes over an unrelated listener. Pick a free port instead.
+
+The script creates one owned temporary root under `$TMPDIR/composer-build-199.*`, copies both repositories there, links their installed dependencies, applies local migrations, writes fictional local Worker configuration and starts:
+
+- Guestbook on `https://localhost:$GUESTBOOK_PORT`
+- Linkarooie on `https://localhost:$LINKAROOIE_PORT`
+
+It writes the root's path to `output/build-199/local-root` and leaves a `run.env` inside that root with both selected ports and their exact URLs. Use a separate checkout for a second simultaneous run. The working repositories, their `.wrangler` state, owner records, sessions and credentials are not touched.
+Each run has its own local service registry, and Wrangler picks free inspector ports for the two Workers.
 
 ## Seed
 
 Generate or provide a real Init specification first. The committed article uses `public/downloads/building-199-init-spec.json`. You can replace it with a spec downloaded from `/init` and point `INIT_SPEC` at that file.
+
+The default pair:
 
 ```sh
 RESOURCE_ID=build199-trail-8 \
@@ -52,12 +68,34 @@ RESOURCE_ID=build199-trail-8 \
   node labs/building/seed-local.mjs
 ```
 
-The seeder creates a fresh resource through the app-owned resource API, stages and activates the Guestbook settings, applies the Linkarooie profile and links, and links the exact source for contributions. It only accepts explicit `https://localhost:<port>` targets.
+When you selected other ports, pass the exact URLs from the `run.env` inside the recorded root:
+
+```sh
+GUESTBOOK_URL=https://localhost:9788 \
+  LINKAROOIE_URL=https://localhost:9787 \
+  RESOURCE_ID=build199-trail-8 \
+  INIT_SPEC=public/downloads/building-199-init-spec.json \
+  node labs/building/seed-local.mjs
+```
+
+Both targets must be exact `https://localhost:<port>` URLs with different ports. The seeder rejects anything else before it contacts a Worker. It creates a fresh resource through the app-owned resource API, stages and activates the Guestbook settings, applies the Linkarooie profile and links, and links the exact source for contributions.
 
 ## Capture
 
+The default pair:
+
 ```sh
 RESOURCE_ID=build199-trail-8 \
+  PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs \
+  node labs/building/capture-journey.mjs
+```
+
+With selected ports, pass the same two exact URLs:
+
+```sh
+GUESTBOOK_URL=https://localhost:9788 \
+  LINKAROOIE_URL=https://localhost:9787 \
+  RESOURCE_ID=build199-trail-8 \
   PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs \
   node labs/building/capture-journey.mjs
 ```
@@ -80,7 +118,7 @@ Assertions, source revisions and screenshot hashes are written to `output/build-
 labs/building/stop-local.sh
 ```
 
-The stop script reads `output/build-199/local-root`, stops only the processes registered by this run, checks listeners against that root before killing anything, and removes the temporary directory. It does not sweep other Wrangler sessions, repositories or browser profiles.
+The stop script reads `output/build-199/local-root`, stops only the processes registered by this run, checks listeners against that root before killing anything, and removes the temporary directory. It reads the selected ports from the run's `run.env`; a run started by an older default-only script still stops on `8788` and `8787`. It does not sweep other Wrangler sessions, repositories or browser profiles.
 
 ## What this does not prove
 

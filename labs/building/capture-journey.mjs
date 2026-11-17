@@ -6,11 +6,11 @@
 //   node labs/building/capture-journey.mjs
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { resolveLocalTargets } from "./local-targets.mjs";
 
+const { guestbook, linkarooie } = resolveLocalTargets(process.env);
 const modulePath = process.env.PLAYWRIGHT_MODULE || "playwright";
 const { chromium } = await import(modulePath);
-const guestbook = process.env.GUESTBOOK_URL || "https://localhost:8788";
-const linkarooie = process.env.LINKAROOIE_URL || "https://localhost:8787";
 const token = process.env.OWNER_TOKEN || "build-199-fictional-owner";
 const resource = process.env.RESOURCE_ID || "build199-trail";
 const output =
