@@ -670,3 +670,60 @@ test("a queued first-edit breach is filed by the pending path without raw input 
   await noTiming.finish({ liveRevision: SHA });
   assert.equal(github.issues[0].comments.length, 0);
 });
+
+test("a renewed breach on the same issue permits one new measured recovery", async (t) => {
+  const dir = ownedDir(t);
+  const github = fakeGitHub();
+  // Each run uses a fresh guard clock advanced by the helper's 1s default, so
+  // firstEditToLiveIdentityMs matches the supplied first-edit span exactly.
+  const advance = (clock) => async () => clock.advance(1_000);
+
+  // First over-budget first-edit release: one issue, no comment on creation.
+  const breachClock = fakeClock();
+  const breach = firstEditRun(dir, breachClock, github, { firstEditToLiveMs: 320_000 }).run;
+  await breach.stage("live verification", advance(breachClock));
+  const breachReceipt = await breach.finish({ liveRevision: SHA });
+  assert.equal(github.issues.length, 1);
+  const issue = github.issues[0];
+  assert.equal(issue.comments.length, 0);
+  assert.equal(breachReceipt.alert.state, "created");
+
+  // A measured compliant release attaches recovery evidence exactly once.
+  const recoveryClock = fakeClock();
+  const recovery = firstEditRun(dir, recoveryClock, github, { firstEditToLiveMs: 120_000 }).run;
+  await recovery.stage("live verification", advance(recoveryClock));
+  const recoveryReceipt = await recovery.finish({ liveRevision: SHA });
+  assert.equal(recoveryReceipt.status, "passed", "the guard outcome is unchanged");
+  assert.equal(github.issues.length, 1, "recovery never opens a second issue");
+  assert.equal(issue.comments.length, 1);
+  assert.match(issue.comments[0], /Measured recovery/);
+
+  // A renewed real breach updates the same open issue, not a new one.
+  const renewedClock = fakeClock();
+  const renewed = firstEditRun(dir, renewedClock, github, { firstEditToLiveMs: 310_000 }).run;
+  await renewed.stage("live verification", advance(renewedClock));
+  const renewedReceipt = await renewed.finish({ liveRevision: SHA });
+  assert.equal(github.issues.length, 1, "the deduplicated breach stays on one issue");
+  assert.equal(issue.comments.length, 2);
+  assert.doesNotMatch(issue.comments[1], /Measured recovery/);
+  assert.equal(renewedReceipt.alert.state, "updated");
+
+  // That renewed breach permits exactly one further measured recovery.
+  const againClock = fakeClock();
+  const again = firstEditRun(dir, againClock, github, { firstEditToLiveMs: 110_000 }).run;
+  await again.stage("live verification", advance(againClock));
+  const againReceipt = await again.finish({ liveRevision: SHA });
+  assert.equal(againReceipt.status, "passed");
+  assert.equal(github.issues.length, 1);
+  assert.equal(issue.comments.length, 3);
+  assert.match(issue.comments[2], /Measured recovery/);
+  assert.match(issue.comments[2], /110000 ms/);
+
+  // A further green run is ignored: no repeated green comment.
+  const repeatClock = fakeClock();
+  const repeat = firstEditRun(dir, repeatClock, github, { firstEditToLiveMs: 100_000 }).run;
+  await repeat.stage("live verification", advance(repeatClock));
+  await repeat.finish({ liveRevision: SHA });
+  assert.equal(github.issues.length, 1);
+  assert.equal(issue.comments.length, 3, "repeat green is ignored");
+});
