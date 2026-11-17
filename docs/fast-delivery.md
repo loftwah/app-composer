@@ -92,6 +92,21 @@ private media or raw provider output. Benchmarks Studio can validate and compare
 a directory of these receipts without executing them: see
 [the release timing ingest](../benchmarks/release-timing/README.md).
 
+### Optional first-edit timestamp
+
+Use the UTC instant recorded at the first relevant edit, in JavaScript
+`toISOString()` format.
+
+```sh
+COMPOSER_FIRST_EDIT_AT=2026-11-17T01:23:45.000Z pnpm deploy
+```
+
+Once the exact live source matches, the private receipt records the timestamp
+and `firstEditToLiveIdentityMs`. This adds the gap before the guard to its
+monotonic duration. The watchdog still uses its existing guard interval, and
+the operator records the affected workflow separately. Invalid or future
+timestamps are ignored.
+
 ## Overrun rule
 
 At five minutes, stop adding scope and finish the current stage. Report:

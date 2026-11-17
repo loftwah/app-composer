@@ -405,3 +405,89 @@ test("the real adapter files one issue per fingerprint and comments on the next 
   await github.create({ title: "different bottleneck", body: `<!-- delivery-sla:${checks} -->` });
   assert.equal(issues.length, 2, "a different bottleneck opens a separate issue");
 });
+
+test("first-edit note uses the UTC start→guard gap plus the monotonic guard interval", async (t) => {
+  const dir = ownedDir(t);
+  const clock = fakeClock();
+  const github = fakeGitHub();
+  const guardStart = new Date("2026-11-16T00:02:00.000Z");
+  const run = runFor(dir, clock, github, {
+    wallClock: () => guardStart,
+    firstEditAt: "2026-11-15T23:59:30.000Z", // 150s before the guard start
+  });
+  await run.stage("live verification", async () => clock.advance(40_000));
+  const receipt = await run.finish({ liveRevision: SHA });
+  assert.equal(receipt.status, "passed");
+  assert.equal(receipt.totalMs, 40_000, "the monotonic guard interval is unchanged");
+  assert.equal(receipt.notes.firstEditAt, "2026-11-15T23:59:30.000Z");
+  assert.equal(receipt.notes.firstEditToLiveIdentityMs, 150_000 + 40_000);
+  assert.equal(redact(receipt).notes.firstEditAt, receipt.notes.firstEditAt, "the note is redaction-stable");
+});
+
+test("the first-edit note never changes breach classification or alerting", async (t) => {
+  const dir = ownedDir(t);
+  const clock = fakeClock();
+  const github = fakeGitHub();
+  const run = runFor(dir, clock, github, {
+    wallClock: () => new Date("2026-11-16T00:02:00.000Z"),
+    firstEditAt: "2026-11-15T23:59:30.000Z",
+  });
+  await run.stage("live verification", async () => clock.advance(LIMIT_MS));
+  const receipt = await run.finish({ liveRevision: SHA });
+  assert.equal(receipt.status, "over-budget");
+  assert.equal(receipt.totalMs, LIMIT_MS);
+  assert.equal(receipt.notes.firstEditToLiveIdentityMs, 150_000 + LIMIT_MS);
+  assert.equal(github.issues.length, 1);
+});
+
+test("invalid, future and unverified first-edit values leave the note absent", async (t) => {
+  const dir = ownedDir(t);
+  const guardStart = new Date("2026-11-16T00:00:30.000Z");
+  const secretish = "ghp_firstEditSecretValue1234567890";
+  const logged = [];
+  const logger = {
+    log: (...parts) => logged.push(parts.join(" ")),
+    error: (...parts) => logged.push(parts.join(" ")),
+  };
+
+  for (const value of [
+    secretish, // invalid and secret-shaped
+    "2026-11-16T00:00:00-05:00",
+    "2026-02-30T00:00:00.000Z",
+    "2026-11-16T00:01:00.000Z", // future relative to the guard start
+  ]) {
+    const clock = fakeClock();
+    const run = runFor(dir, clock, fakeGitHub(), {
+      wallClock: () => guardStart,
+      firstEditAt: value,
+      logger,
+    });
+    await run.stage("live verification", async () => clock.advance(1_000));
+    const receipt = await run.finish({ liveRevision: SHA });
+    assert.equal(receipt.status, "passed");
+    assert.equal(receipt.totalMs, 1_000, "guard timing is never reset");
+    assert.ok(!("firstEditAt" in receipt.notes));
+    assert.ok(!("firstEditToLiveIdentityMs" in receipt.notes));
+    assert.ok(!logged.some((line) => line.includes(secretish)), "the raw value is never logged");
+  }
+
+  // A valid timestamp alone is not enough: the exact released source must be verified.
+  const mismatchClock = fakeClock();
+  const mismatch = runFor(dir, mismatchClock, fakeGitHub(), {
+    wallClock: () => guardStart,
+    firstEditAt: "2026-11-15T23:59:00.000Z",
+  });
+  await mismatch.stage("live verification", async () => mismatchClock.advance(1_000));
+  const failed = await mismatch.finish({ liveRevision: "b".repeat(40) });
+  assert.equal(failed.status, "failed");
+  assert.ok(!("firstEditAt" in failed.notes));
+
+  const noLiveClock = fakeClock();
+  const noLive = runFor(dir, noLiveClock, fakeGitHub(), {
+    wallClock: () => guardStart,
+    firstEditAt: "2026-11-15T23:59:00.000Z",
+  });
+  await noLive.stage("live verification", async () => noLiveClock.advance(1_000));
+  const unfinished = await noLive.finish({ status: "passed" });
+  assert.ok(!("firstEditAt" in unfinished.notes), "no verified live revision means no note");
+});
