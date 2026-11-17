@@ -1,4 +1,5 @@
 import type { D1Database } from "@cloudflare/workers-types";
+import { PluginRouteError } from "emdash";
 import { z } from "zod";
 import {
   normalizeShareAssetId,
@@ -27,20 +28,19 @@ const edit = z.strictObject({
     .max(12),
 });
 
-const reply = (body: unknown, status = 200) =>
-  Response.json(body, {
-    status,
-    headers: { "Cache-Control": "private, no-store" },
-  });
-
 export async function manageShareArtwork(ctx: Context, db?: D1Database) {
   if (ctx.user?.role !== 50 || ctx.user.disabled)
-    return reply(
-      { message: "Only a Composer administrator can curate Share." },
+    throw new PluginRouteError(
+      "FORBIDDEN",
+      "Only a Composer administrator can curate Share.",
       403,
     );
   if (!db)
-    return reply({ message: "Share curation storage is unavailable." }, 503);
+    throw new PluginRouteError(
+      "UNAVAILABLE",
+      "Share curation storage is unavailable.",
+      503,
+    );
 
   try {
     if (ctx.request.method === "GET") {
@@ -50,53 +50,56 @@ export async function manageShareArtwork(ctx: Context, db?: D1Database) {
       if (search) {
         const result = await searchShareCatalogueAssets(search);
         if (!result.ok)
-          return reply(
-            { message: result.message },
+          throw new PluginRouteError(
+            result.code,
+            result.message,
             result.code === "INVALID" ? 400 : 503,
           );
-        return reply({
+        return {
           items: result.items.map((item) => ({
             ...item,
             ...curation.find((entry) => entry.assetId === item.assetId),
           })),
-        });
+        };
       }
-      return reply({
+      return {
         items: curation.map((item) => ({
           ...item,
           title: item.assetId,
           project: "",
         })),
-      });
+      };
     }
-    if (ctx.request.headers.get("Origin") !== new URL(ctx.request.url).origin)
-      return reply(
-        { message: "Open the Composer admin directly to save." },
+    if (
+      ctx.request.method !== "POST" ||
+      ctx.request.headers.get("Origin") !== new URL(ctx.request.url).origin ||
+      ctx.request.headers.get("X-EmDash-Request") !== "1"
+    )
+      throw new PluginRouteError(
+        "FORBIDDEN",
+        "Open the Composer admin directly to save.",
         403,
       );
     const parsed = edit.safeParse(ctx.input);
     if (!parsed.success)
-      return reply(
-        {
-          message:
-            "Use up to twelve tags of up to 48 characters with letters, numbers, spaces or hyphens.",
-        },
+      throw new PluginRouteError(
+        "INVALID",
+        "Use up to twelve tags of up to 48 characters with letters, numbers, spaces or hyphens.",
         400,
       );
     const { assetId, featured, tags } = parsed.data;
     const uniqueTags = [...new Set(tags)];
     const artwork = await publicShareArtwork(assetId);
     if (artwork.status === 503)
-      return reply(
-        { message: "The public catalogue could not be reached. Try again." },
+      throw new PluginRouteError(
+        "UNAVAILABLE",
+        "The public catalogue could not be reached. Try again.",
         503,
       );
     if (artwork.status === 404 && (featured || uniqueTags.length))
-      return reply(
-        {
-          message:
-            "This artwork is no longer public. Clear its tags and Featured setting to remove it.",
-        },
+      throw new PluginRouteError(
+        "MISSING",
+        "This artwork is no longer public. Clear its tags and Featured setting to remove it.",
         404,
       );
 
@@ -114,8 +117,13 @@ export async function manageShareArtwork(ctx: Context, db?: D1Database) {
         .bind(assetId)
         .run();
     }
-    return reply({ item: { assetId, featured, tags: uniqueTags } });
-  } catch {
-    return reply({ message: "Share curation is unavailable. Try again." }, 503);
+    return { item: { assetId, featured, tags: uniqueTags } };
+  } catch (error) {
+    if (error instanceof PluginRouteError) throw error;
+    throw new PluginRouteError(
+      "UNAVAILABLE",
+      "Share curation is unavailable. Try again.",
+      503,
+    );
   }
 }

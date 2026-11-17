@@ -184,11 +184,16 @@ export function galleryPage(
     !filters.query
   ) {
     const unfeatured = new Map<string, number>();
+    const collections = new Map<string, number>();
     const rank = new Map(
       matches.map((item) => {
-        const position = unfeatured.get(item.project) ?? 0;
-        if (!item.featured) unfeatured.set(item.project, position + 1);
-        return [item.assetId, item.featured ? -1 : position];
+        if (item.featured) return [item.assetId, -1];
+        const project = unfeatured.get(item.project) ?? 0;
+        const collection = item.thumbnailUrl?.split("/")[4] ?? item.assetId;
+        const series = collections.get(collection) ?? 0;
+        unfeatured.set(item.project, project + 1);
+        collections.set(collection, series + 1);
+        return [item.assetId, Math.max(project, series)];
       }),
     );
     matches.sort((a, b) => rank.get(a.assetId)! - rank.get(b.assetId)!);

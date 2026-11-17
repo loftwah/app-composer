@@ -16,10 +16,13 @@ async function searchArtwork(query: string, signal?: AbortSignal) {
     `${base}shareArtworkRead?${new URLSearchParams({ q: query })}`,
     { cache: "no-store", signal },
   );
-  return parseApiResponse<{ items: ArtworkRow[] }>(
+  const result = await parseApiResponse<{ items: ArtworkRow[] }>(
     response,
     "The artwork could not be loaded.",
   );
+  if (!Array.isArray(result?.items))
+    throw Error("The artwork list could not be read. Search again.");
+  return result;
 }
 
 export function ShareArtworkPage() {

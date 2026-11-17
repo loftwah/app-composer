@@ -131,3 +131,22 @@ test("artwork feedback stores the current public revision privately without ente
     db.cleanup();
   }
 });
+
+test("native admin curation returns data for the EmDash envelope and requires an administrator", async () => {
+  const { manageShareArtwork } =
+    await import("../src/lib/share-gallery-admin.ts");
+  const db = sqliteD1({ schema: migration("0041_share_artwork_curation.sql") });
+  const request = new Request(
+    "https://composer.test/_emdash/api/plugins/composer-stacks/shareArtworkRead",
+  );
+  try {
+    const data = await manageShareArtwork({ request, user: { role: 50 } }, db);
+    assert.deepEqual(data, { items: [] });
+    await assert.rejects(
+      manageShareArtwork({ request, user: { role: 40 } }, db),
+      { name: "PluginRouteError" },
+    );
+  } finally {
+    db.cleanup();
+  }
+});
