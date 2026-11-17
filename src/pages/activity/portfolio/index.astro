@@ -4,6 +4,7 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { ArrowDownToLine, ArrowUpRight, Share2 } from "@lucide/astro";
 import Base from "../../../layouts/Base.astro";
 import AnalyticsTrend from "../../../components/AnalyticsTrend.astro";
+import PortfolioOverview from "../../../components/PortfolioOverview.astro";
 import { count, dateLabel } from "../../../lib/activity-view";
 import build from "../../../lib/build.json";
 import { portfolioCardFormats } from "../../../lib/portfolio-card-formats";
@@ -17,11 +18,12 @@ import "../../../styles/analytics.css";
 import "../../../styles/portfolio-analytics.css";
 
 const query = Astro.url.searchParams;
-const requestedProject = query.get("project");
-const project = portfolioProjects.find((item) => item.id === (requestedProject ?? "loftwahfm"));
+const requestedProject = query.get("project") ?? "all";
+const all = requestedProject === "all";
+const project = portfolioProjects.find((item) => item.id === requestedProject);
 const now = Date.now();
 const period = parsePortfolioPeriod(query, now);
-if (!project || !period) Astro.response.status = 400;
+if ((!all && !project) || !period) Astro.response.status = 400;
 const runtime = env as unknown as { DB: D1Database; WOODHOUSE_GITHUB_TOKEN?: string };
 const prior = period ? previousPeriod(period) : undefined;
 const [report, previous, releases] = await Promise.all([
@@ -45,13 +47,13 @@ const dateRange = period ? `${dateLabel(period.from)} – ${dateLabel(period.to,
 const qualityLabel = { exact: "Recorded", partial: "Partial coverage", bounded: "Bounded count", sampled: "Sampled", unavailable: "Unavailable" };
 const source = project && period ? sourceAddress(project, period) : undefined;
 const cover = project ? portfolioArt(project) : undefined;
-const canonicalPath = project && period ? reportAddress(project.id, period, metric?.key) : REPORT_PATH;
+const canonicalPath = period && (all || project) ? reportAddress(requestedProject, period, metric?.key) : REPORT_PATH;
 const canonical = new URL(canonicalPath, "https://composer.loftwah.com").href;
 const indexCanonical = query.size === 0 ? new URL(REPORT_PATH, canonical).href : canonical;
 const imagePath = project && period && metric && hasValue
   ? reportAddress(project.id, period, metric.key, `${REPORT_PATH}/card.png`)
   : undefined;
-const title = `${project?.name ?? "Portfolio"} · Portfolio analytics`;
+const title = project ? `${project.name} · Portfolio analytics` : "Portfolio analytics";
 const shareTitle = metric && hasValue ? `${project?.name} · ${metric.label}` : title;
 const caption = metric && hasValue
   ? `${project?.name} · ${total} · ${metric.label}\n${dateRange} · ${qualityLabel[metric.quality]}\n${canonical}`
@@ -69,35 +71,37 @@ const availableDays = metric?.days.filter((day) => day.value !== null).length ??
   canonical={indexCanonical} shareImage={imagePath ? new URL(imagePath, canonical).href : undefined}
   shareType={imagePath ? "image/png" : undefined}
   shareAlt={imagePath ? `${project?.name}, ${total}, ${metric?.label}, ${dateRange}` : undefined}
-  noindex={query.has("from") || query.has("to") || !project || !period || undefined}>
-  <div class="portfolio-analytics">
+  noindex={query.has("from") || query.has("to") || (!all && !project) || !period || undefined}>
+  <div class:list={["portfolio-analytics", { "is-overview": all }]}>
     <header class="portfolio-heading">
       <div>
         <h1>Portfolio analytics</h1>
-        <p>Explore what people do across the Woodhouse projects.</p>
       </div>
       <a class="portfolio-quiet-link" href="/activity">Composer app activity <ArrowUpRight size={16} aria-hidden="true"/></a>
     </header>
 
-    {project && period ? (
+    {(all || project) && period ? (
       <>
         <form class="portfolio-controls" method="get" action={REPORT_PATH}>
           <label for="portfolio-project">Project</label>
           <select name="project" id="portfolio-project">
-            {portfolioProjects.map((item) => <option value={item.id} selected={item.id === project.id}>{item.name}</option>)}
+            <option value="all" selected={all}>All projects</option>
+            {portfolioProjects.map((item) => <option value={item.id} selected={item.id === project?.id}>{item.name}</option>)}
           </select>
           <input type="hidden" name="from" value={period.from}/>
           <input type="hidden" name="to" value={period.to}/>
-          <button type="submit">Show project</button>
-          {project.endpoint && <nav aria-label="Reporting period" class="portfolio-period">
+          <button type="submit">Apply</button>
+          {(all || project?.endpoint) && <nav aria-label="Reporting period" class="portfolio-period">
             {[7, 30].map((days) => {
               const window = recentPeriod(days, now);
-              return <a href={reportAddress(project.id, window, metric?.key)}
+              return <a href={reportAddress(requestedProject, window, metric?.key)}
                 aria-current={period.from === window.from && period.to === window.to ? "page" : undefined}>{days} days</a>;
             })}
           </nav>}
         </form>
 
+        {all && <PortfolioOverview period={period} dateRange={dateRange} db={runtime.DB} revision={build.commit} githubToken={runtime.WOODHOUSE_GITHUB_TOKEN}/>}
+        {project && <>
         <section class={`portfolio-stage tone-${project.tone}`} aria-labelledby="portfolio-project-title">
           <div class="portfolio-stage-content">
             <div>
@@ -200,29 +204,8 @@ const availableDays = metric?.days.filter((day) => day.value !== null).length ??
           </section>
         )}
 
-        <section class="portfolio-directory" aria-labelledby="portfolio-directory-title">
-          <div class="portfolio-directory-head">
-            <h3 id="portfolio-directory-title">Explore projects</h3>
-            <p>{portfolioProjects.filter((item) => item.endpoint).length} daily feeds · GitHub installer counts for Liferaft</p>
-          </div>
-          <ul role="list">
-            {portfolioProjects.map((item) => {
-              const art = portfolioArt(item);
-              return <li class={`tone-${item.tone}`}>
-                <a href={reportAddress(item.id, period)} aria-current={item.id === project.id ? "page" : undefined}>
-                  {art && <img src={art} alt="" loading="lazy" width="480" height="270"/>}
-                  <div>
-                    <strong>{item.name}</strong>
-                    <span>{item.lifecycle && item.lifecycle !== "active"
-                      ? item.lifecycle
-                      : item.endpoint ? item.category : item.id === "liferaft" ? "Release downloads" : "Public reporting unavailable"}</span>
-                  </div>
-                  <ArrowUpRight size={18} aria-hidden="true"/>
-                </a>
-              </li>;
-            })}
-          </ul>
-        </section>
+        <p class="portfolio-back"><a href={reportAddress("all", period)}>See all projects <ArrowUpRight size={16} aria-hidden="true"/></a></p>
+        </>}
       </>
     ) : <p>Choose a known project or a complete 7 or 30 day window. <a href={REPORT_PATH}>Open the latest portfolio view</a>.</p>}
   </div>
