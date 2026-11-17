@@ -45,7 +45,7 @@ const siteSchema = {
   url: "https://composer.loftwah.com/",
 };
 const defaultStation = studioStations[0];
-const commercial = "/brand/campaign/keep-it-yours-20261117";
+const commercial = "/brand/campaign/take-it-with-you-20261118";
 ---
 
 <Base
@@ -82,11 +82,11 @@ const commercial = "/brand/campaign/keep-it-yours-20261117";
         <figure class="home-opening-art" id="commercial">
           <video controls playsinline preload="none" width="1280" height="720" poster={commercial + ".webp"} aria-labelledby="commercial-title">
             <source src={commercial + ".mp4"} type="video/mp4" />
-            <track kind="captions" src={commercial + ".vtt"} srclang="en" label="English" />
+            <track kind="captions" src={commercial + ".vtt"} srclang="en" label="English (high contrast)" />
             <a href={commercial + ".mp4"}>Open the App Composer commercial</a>
           </video>
           <figcaption>
-            <span id="commercial-title">Keep it yours · 24-second App Composer commercial</span>
+            <span id="commercial-title">Take it with you · App Composer commercial</span>
             <a href={commercial + ".txt"}>Read the transcript <ArrowUpRight size={16} aria-hidden="true" /></a>
           </figcaption>
         </figure>

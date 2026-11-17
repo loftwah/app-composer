@@ -35,6 +35,11 @@ films.set("/brand/campaign/keep-it-yours-20261117.mp4", {
   bytes: 5396662,
   sha256: "563f867d204ed809a4b749052f895eac85f267be8d81841dc94d2935d0c32bc1",
 });
+films.set("/brand/campaign/take-it-with-you-20261118.mp4", {
+  href: "/brand/campaign/take-it-with-you-20261118.mp4",
+  bytes: 4689521,
+  sha256: "187134b76dc0687d95e263d7b3bb2b7cf6507affb4204e61c2badaeff567d046",
+});
 interface Assets {
   fetch(request: Request): Promise<Response>;
 }
