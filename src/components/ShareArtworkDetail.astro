@@ -2,7 +2,7 @@
 import { ArrowUpRight, Copy, Download, Share2 } from '@lucide/astro';
 import { currentShareURL } from '../../public/brand/page-share-url.mjs';
 import { publicPageCanonical } from '../lib/public-pages.mjs';
-import { artworkRevision, type CatalogueArtwork } from '../lib/share-catalogue-asset.ts';
+import { artworkFiles, artworkRevision, type CatalogueArtwork } from '../lib/share-catalogue-asset.ts';
 import { artworkCategories, artworkLabel } from '../lib/share-gallery.ts';
 import '../styles/share-gallery.css';
 
@@ -13,8 +13,9 @@ const [revision, shareUrl] = await Promise.all([
   artworkRevision(artwork),
   currentShareURL(publicPageCanonical(path).href, artwork.title.includes('App Composer') ? artwork.title : `${artwork.title} · App Composer`, artwork.alt, artwork.previewUrl),
 ]);
-const files = [...new Map([...(artwork.original ? [artwork.original] : []), ...artwork.formats].map(file => [file.url, file])).values()];
-const primary = files[0]?.url ?? artwork.previewUrl;
+const files = artworkFiles(artwork);
+const primary = files[0].url;
+const download = (index: number) => `/api/share-artwork-download?${new URLSearchParams({id: artwork.assetId, file: String(index), revision})}`;
 ---
 
 <article class="gallery-piece" data-gallery-piece>
@@ -25,7 +26,7 @@ const primary = files[0]?.url ?? artwork.previewUrl;
     <p class="gallery-piece-category"><a href={`/share?project=${artwork.project}`}>{artworkLabel(artwork.project)}</a> · <a href={`/share?category=${artwork.category}`}>{artworkCategories[artwork.category]}</a></p>
     <h1>{artwork.title}</h1>
     <div class="gallery-piece-actions">
-      <a class="gallery-file-action" href={primary} target="_blank" rel="noreferrer"><Download size={17} aria-hidden="true" /> {artwork.original ? 'Open original' : 'Open image'}</a>
+      <a class="gallery-file-action" href={download(0)} download><Download size={17} aria-hidden="true" /> {artwork.original ? 'Download original' : 'Download preview'}</a>
       <button class="secondary" type="button" data-gallery-native={shareUrl} hidden><Share2 size={16} aria-hidden="true" /> Share</button>
       <button class="secondary" type="button" data-gallery-copy={shareUrl} hidden><Copy size={16} aria-hidden="true" /> Copy link</button>
     </div>
@@ -34,8 +35,8 @@ const primary = files[0]?.url ?? artwork.previewUrl;
     {files.length > 1 && (
       <details class="gallery-piece-section">
         <summary>Available formats</summary>
-        <ul>{files.map(file => (
-          <li><a href={file.url} target="_blank" rel="noreferrer">{file.label} {file.width && file.height && <span>· {file.width} × {file.height}</span>} <ArrowUpRight size={14} aria-hidden="true" /></a></li>
+        <ul>{files.map((file, index) => (
+          <li><a href={download(index)} download>{file.label} {file.width && file.height && <span>· {file.width} × {file.height}</span>} <ArrowUpRight size={14} aria-hidden="true" /></a></li>
         ))}</ul>
       </details>
     )}

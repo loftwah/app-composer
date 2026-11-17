@@ -6,7 +6,11 @@ import {
 } from "./share-catalogue-asset.ts";
 
 export const artworkCategories: Record<string, string> = {
+  banners: "Banners",
+  icons: "Icons & stickers",
   illustration: "Illustration",
+  posters: "Posters & prints",
+  sketches: "Sketches",
   "product-art": "Product artwork",
   screenshots: "Screenshots",
 };

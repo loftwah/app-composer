@@ -419,6 +419,13 @@ function artworkFile(value: unknown, fallback: string): ArtworkFile | null {
   };
 }
 
+export function artworkFiles(artwork: CatalogueArtwork) {
+  return [...new Map([
+    (artwork.original ?? { url: artwork.previewUrl, label: "Preview", width: null, height: null }),
+    ...artwork.formats,
+  ].map(file => [file.url, file])).values()];
+}
+
 const campaignArtworkPath = /^\/campaign\/.+\.(?:jpe?g|png|webp)$/i;
 
 function catalogueArtwork(raw: unknown): CatalogueArtwork | null {
@@ -444,8 +451,13 @@ function catalogueArtwork(raw: unknown): CatalogueArtwork | null {
   const versions = artworkVersions(asset.versions);
   const reviewedAt = typeof asset.reviewedAt === "string" && /^\d{4}-\d{2}-\d{2}$/.test(asset.reviewedAt)
     ? asset.reviewedAt : "";
+  const stage = boundedString(asset.stage, 48)?.toLowerCase() ?? "";
   const category = asset.kind === "production screenshot" ? "screenshots"
-    : asset.kind === "published product artwork" ? "product-art" : "illustration";
+    : asset.kind === "published product artwork" ? "product-art"
+    : asset.use === "icon" || stage === "sticker or icon" ? "icons"
+    : stage === "share poster" || stage === "collectible print" ? "posters"
+    : asset.use === "banner" ? "banners"
+    : asset.use === "sketch" ? "sketches" : "illustration";
   const tags = [...new Set([asset.use, asset.stage, ...(Array.isArray(asset.tags) ? asset.tags.slice(0, 12) : [])]
     .flatMap((value) => {
       const tag = boundedString(value, 48)?.toLowerCase();
