@@ -58,3 +58,28 @@ test('the closing action is the same first step as the opening, not a second sta
   assert.doesNotMatch(next, /href="\/ready"/);
   assert.match(next, /Point your existing agent here/);
 });
+
+test('the shared header leads with Learn, keeps setup under More and preserves mobile and app navigation', () => {
+  const base = readFileSync(new URL('../src/layouts/Base.astro', import.meta.url), 'utf8');
+  const nav = base.slice(base.indexOf('<nav class="site-navigation"'), base.indexOf('</nav>'));
+  const peers = [...nav.matchAll(/class="nav-direct" href="([^"]+)">([^<]+)<\/a>/g)].map((m) => `${m[2]}:${m[1]}`);
+  assert.deepEqual(peers, ['Learn:/learn', 'Demos:/demo', 'Projects:/projects'], 'Learn leads the desktop peers');
+  assert.equal([...nav.matchAll(/href="\/ready"/g)].length, 1, 'one setup link in the shared navigation');
+
+  assert.match(
+    nav,
+    /<p class="site-menu-heading">Build &amp; manage<\/p>\s*<a href="\/ready">Get Ready<\/a>/,
+    'setup stays reachable under More on desktop',
+  );
+  assert.match(
+    nav,
+    /<div class="site-menu-quick compact-only">[\s\S]*?<a href="\/learn">Learn<\/a>[\s\S]*?<a href="\/demo">Demos<\/a>[\s\S]*?<\/div>/,
+    'mobile quick links keep Learn and Demos',
+  );
+
+  // Namespace, launcher and the rest of the More menu keep their existing routes.
+  assert.match(base, /class="instance-brand-context"/);
+  assert.match(base, /Astro\.props\.launcher !== false && <AppLauncher \/>/);
+  assert.match(nav, /<p class="site-menu-heading">Explore<\/p>[\s\S]*?<a href="\/projects">Project family<\/a>/);
+  assert.match(nav, /<div class="site-menu-resources">[\s\S]*?<a href="\/docs">Documentation<\/a>/);
+});
