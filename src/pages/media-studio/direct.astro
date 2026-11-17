@@ -48,12 +48,13 @@ const groups = [
         title: "Use a reference with permission",
         outcome: "Keep the source and its credit alongside the new work.",
         steps:
-          "Open Share artwork and read the source and reuse information. In your project library, import an eligible original and confirm permission. The source is an input to the model, not a promise that every detail survives.",
+          "Open the original artwork and check its source and credit. Confirm that you have permission to reuse the artwork before importing it into your project library.",
         prompt:
           "Use the selected reference for the subject and setting. Keep the recognisable silhouette, materials and palette; animate only a small, readable action.",
-        example: "Launch Kit · Studio motion",
+        example: "Launch Kit · The edge takes a bite",
         href: "https://media.loftwah.com/p/5ycQgw8F4AhOj_oB",
         source: "Share original new-119; Studio H3 result, 5.2 seconds.",
+        artworkCredit: "/share/artwork/new-119",
       },
     ],
   },
@@ -218,6 +219,9 @@ const groups = [
             <p class="director-example">
               <a href={lesson.href}>{lesson.example} →</a><br/><span>{lesson.source}</span>
             </p>
+            {lesson.artworkCredit && (
+              <p class="director-example"><a href={lesson.artworkCredit}>See the original artwork and credit →</a></p>
+            )}
             {lesson.studioNote && (
               <p class="director-example">
                 <a href="/media-studio/studio">Open your Studio →</a><br/><span>{lesson.studioNote}</span>
