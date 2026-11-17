@@ -50,11 +50,45 @@ function readFromLocal(workspace,locator){
  return readManifestFromCommit({workspace:root,commit:locator.commit,path:locator.path});
 }
 
-function readFromGitHub(locator){
- const raw=execFileSync('gh',['api',manifestApiPath(locator),'--hostname','github.com'],{encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:30000,maxBuffer:4*1024*1024});
- const body=JSON.parse(raw);
- if(body.type!=='file'||body.encoding!=='base64'||typeof body.content!=='string')throw new Error('The registry response is not a readable file at '+sourceLabel(locator));
- return validateManifest(JSON.parse(Buffer.from(body.content.replace(/\n/g,''),'base64').toString('utf8')));
+function sourceDescription(locator) {
+  const repository = locator.repository.replace("https://github.com/", "");
+  const directory = locator.path || ".";
+  return `${repository} at ${locator.commit} (directory "${directory}")`;
+}
+
+function readFromGitHub(locator) {
+  const source = sourceDescription(locator);
+  let raw;
+  try {
+    raw = execFileSync("gh", ["api", manifestApiPath(locator), "--hostname", "github.com"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: 30000,
+      maxBuffer: 4 * 1024 * 1024,
+    });
+  } catch (error) {
+    if (/\bHTTP\s+404\b/.test(String(error?.stderr ?? ""))) {
+      throw new Error(`No app.manifest.json was available for ${source}. Check the selected directory and GitHub access.`);
+    }
+    throw new Error(`Could not read app.manifest.json for ${source}. Check GitHub access and retry.`);
+  }
+
+  let body;
+  try {
+    body = JSON.parse(raw);
+  } catch {
+    throw new Error(`GitHub returned an unreadable result for ${source}.`);
+  }
+  if (body?.type !== "file" || body.encoding !== "base64" || typeof body.content !== "string") {
+    throw new Error(`GitHub did not return a readable manifest file for ${source}.`);
+  }
+  let manifest;
+  try {
+    manifest = JSON.parse(Buffer.from(body.content.replace(/\n/g, ""), "base64").toString("utf8"));
+  } catch {
+    throw new Error(`The app.manifest.json for ${source} is invalid JSON.`);
+  }
+  return validateManifest(manifest);
 }
 
 function digest(value){return createHash('sha256').update(JSON.stringify(value)).digest('hex');}
@@ -80,18 +114,29 @@ export function composeSources({file='composition.sources.json',workspace=proces
  return {state:stage?'staged':'checked',id,sources:summary,lockWritten:false,deployed:false};
 }
 
-const invoked=process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url);
-if(invoked){
- const args=process.argv.slice(2);
- const value=flag=>{const index=args.indexOf(flag);return index<0?null:args[index+1];};
- const file=value('--file')??'composition.sources.json';
- const workspace=resolve(value('--workspace')??process.cwd());
- const locals={};
- for(let index=0;index<args.length;index++)if(args[index]==='--local'){
-  const match=/^([a-z][a-z0-9-]{0,40})=(.+)$/.exec(args[index+1]??'');
-  if(!match)throw new Error('A --local value is id=path');
-  locals[match[1]]=resolve(match[2]);
- }
- const result=composeSources({file,workspace,locals,stage:args.includes('--stage')});
- console.log(JSON.stringify(result,null,2));
+function main(args) {
+  const value = flag => {
+    const index = args.indexOf(flag);
+    return index < 0 ? null : args[index + 1];
+  };
+  const file = value("--file") ?? "composition.sources.json";
+  const workspace = resolve(value("--workspace") ?? process.cwd());
+  const locals = {};
+  for (let index = 0; index < args.length; index++) {
+    if (args[index] !== "--local") continue;
+    const match = /^([a-z][a-z0-9-]{0,40})=(.+)$/.exec(args[index + 1] ?? "");
+    if (!match) throw new Error("A --local value is id=path");
+    locals[match[1]] = resolve(match[2]);
+  }
+  const result = composeSources({ file, workspace, locals, stage: args.includes("--stage") });
+  console.log(JSON.stringify(result, null, 2));
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    main(process.argv.slice(2));
+  } catch (error) {
+    console.error(error.message);
+    process.exitCode = 1;
+  }
 }
