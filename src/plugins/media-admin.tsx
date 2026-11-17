@@ -280,6 +280,9 @@ export function MediaPage() {
     );
 
   const video = model?.video;
+  const studioEntry = status.workspace?.id
+    ? `/media-studio/studio?workspace=${encodeURIComponent(status.workspace.id)}`
+    : "/media-studio/studio";
 
   return (
     <main className="composer-media">
@@ -295,7 +298,7 @@ export function MediaPage() {
           copy of anything you deliberately import.
         </p>
         <p className="cm-actions">
-          <a className="cm-open" href="/_emdash/api/plugins/composer-media/studio" target="_blank" rel="noopener">
+          <a className="cm-open" href={studioEntry} target="_blank" rel="noopener">
             Open Media Studio
           </a>
         </p>
