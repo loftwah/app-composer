@@ -30,6 +30,11 @@ films.set("/media-studio/demos/after-hours-audio-trim-phone-20261115.mp4", {
   bytes: 233026,
   sha256: "3c8459e4be21f88ed8e63d094d2a38a83124380178d1d28e121176b2232bb1c5",
 });
+films.set("/brand/campaign/keep-it-yours-20261117.mp4", {
+  href: "/brand/campaign/keep-it-yours-20261117.mp4",
+  bytes: 5396662,
+  sha256: "563f867d204ed809a4b749052f895eac85f267be8d81841dc94d2935d0c32bc1",
+});
 interface Assets {
   fetch(request: Request): Promise<Response>;
 }

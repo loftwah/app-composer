@@ -2250,7 +2250,17 @@
   outline-offset: 3px;
 }
 .composer-home .home-opening-art { margin: 0; min-width: 0; }
-.composer-home .home-opening-art img { display: block; width: 100%; height: auto; }
+.composer-home .home-opening-art video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  background: var(--home-hero-bg);
+}
+.composer-home .home-opening-art video:focus-visible {
+  outline: 2px solid var(--home-hero-accent);
+  outline-offset: 3px;
+}
 .composer-home .home-opening-art figcaption {
   display: flex;
   justify-content: space-between;
