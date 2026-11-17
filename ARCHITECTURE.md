@@ -1,7 +1,48 @@
 # Architecture
 
 For module ownership inside the native editor and maintenance of copied public UI assets, see [Maintaining the source](docs/source-maintenance.md).
-Reviewed 13 October 2026.
+## Federated project architecture
+
+Direction confirmed 17 November 2026 from the owner's technical architecture and integration brief. The [product contract](PRODUCT.md#product-purpose) describes the creator experience.
+
+App Composer is the control plane for creating and operating projects across independent systems. Composer owns discovery, project relationships, composition contracts and the shared view of activity and evidence. Each connected system remains authoritative for its own records, operations, permissions, credentials and releases.
+
+### The project workspace
+
+The target workspace brings together a project's intent, source, creative work, agents, deployments and publication. Someone returning to a project should see what is live, what changed, what needs attention and what they can do with their current access. Extend the existing project, task, catalogue, Share and native admin surfaces where they already serve those jobs.
+
+| In the project workspace | Source of truth |
+| --- | --- |
+| Goals, references, preferences, accepted decisions and linked resources | Composer project context, with references to their owning systems |
+| Source, changes and implementation plans | Git repositories, commits and GitHub issues and PRs |
+| Agent tasks, available tools and execution history | Selected agent runtime and versioned execution receipts |
+| Creative originals, editable projects, jobs, variants and approvals | Media Studio and the originating asset owners |
+| Reusable assets, project kits and published outputs | Composer Share for its catalogue and kits, with asset provenance and publication state resolved at the source |
+| Page content, editorial state and native administration | EmDash and the connected app for its own records |
+| Deployments, health, costs and recovery | Cloudflare or the selected provider, the deployed app and its release records |
+| Benchmarks, usability checks and release evidence | The originating evaluation or release record tied to the tested source, environment and version |
+
+Store the project relationships in Composer and point to authoritative resources using stable identities and exact versions where available. Resolve live status and access from the owning system. Link into the relevant workspace or expose a scoped action where the integration supports it. For example, a game's Composer project should link its GitHub changes, active Worker, approved artwork, editable Studio project and playtest evidence.
+
+### Capability and execution boundaries
+
+- **Discovery and composition.** Reuse the existing manifest, capability and blueprint contracts. An app, asset, component, skill and deployable recipe each have their own operations and validation. Record owner, kind, version, inputs and outputs where applicable, dependencies, permissions, provenance, licence, availability and evidence. Extract a reusable block when a real second use justifies it.
+- **Agent work.** Composer supplies project context, explicit tool selection and inspectable results. Supported external agents execute authorised work against the authoritative source. Read, write, execute, deploy and publish permissions are separate. References and exports carry context only. Recheck visibility, tenancy, approvals and grants at the operation boundary and honour revocation.
+- **Creative work.** Offer Media Studio actions in context and link back to the right Studio project for editing, approvals and generation history. Reference authorised assets by identity and version where possible. Carry rights, visibility, attribution, lineage and publication state through reuse. The Studio owns its Worker, D1/R2, jobs and provider integrations.
+- **Upstream and infrastructure.** Cloudflare is the first production target. Keep the native EmDash and guarded deployment paths. Consume approved Oyster/Fungi capabilities through their upstream interfaces and explicit adapters. Shed and Vault are upstream directions whose availability must be established before a workflow relies on them. Customer applications remain independently usable. Woodhouse provides development and portfolio context.
+- **Evidence and operations.** Identify the exact source, environment and deployed version. Record what an automated check, browser interaction or playback actually established. Keep measured results, estimates, inference and unavailable data distinct, including provider costs. Reuse the relevant evidence in Projects, Benchmarks, release records and public showcases when its scope and visibility permit it.
+
+### Delivery ownership
+
+The connected workspace is a target. Current supported behaviour is recorded below and in [release evidence #11](https://github.com/loftwah/app-composer/issues/11). Apply the architecture through existing delivery owners and use their acceptance criteria to judge what has shipped.
+
+- [#590](https://github.com/loftwah/app-composer/issues/590) owns the unified creator journey and workspace. [#600](https://github.com/loftwah/app-composer/issues/600) owns cross-project discovery and blueprints. [#476](https://github.com/loftwah/app-composer/issues/476) owns typed executable composition.
+- [#457](https://github.com/loftwah/app-composer/issues/457) owns Media Studio integration. [#477](https://github.com/loftwah/app-composer/issues/477) owns the shared creative library. [#353](https://github.com/loftwah/app-composer/issues/353) owns Brand Studio. [#586](https://github.com/loftwah/app-composer/issues/586) owns social distribution.
+- [#601](https://github.com/loftwah/app-composer/issues/601) owns evaluation. [#613](https://github.com/loftwah/app-composer/issues/613) owns public analytics and shareables. [#659](https://github.com/loftwah/app-composer/issues/659) owns game creation. [#422](https://github.com/loftwah/app-composer/issues/422) owns opt-in Oyster integration.
+
+## Implemented foundation and historical notes
+
+Baseline reviewed 13 October 2026. Later entries retain their individual review dates.
 
 Composer is an Astro/EmDash Cloudflare Worker. EmDash owns catalogue descriptions and documentation in its own D1/R2. The independently deployed Guestbook and Showcase own separate GitHub histories, D1 state and storage. Composer mounts separately pinned integrated Worker services under one origin. Standalone upstream deployments cannot change this consumer code. Each integrated service uses the app-owned D1/R2, so current moderation remains shared while executable versions stay pinned. Promotion validates exact reviewed source pins and explicitly deploys the integrated services. The Showcase asks a versioned generic item provider for current eligibility; it never copies a private image or treats saved approval as permission. Each service remains deployable without Composer or Woodhouse.
 
