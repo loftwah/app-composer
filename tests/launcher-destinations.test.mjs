@@ -79,6 +79,7 @@ test("the launcher registry is a complete, unique inventory with real routes", (
     "composer-launch-kit.loftwah.workers.dev",
     "composer-paperwork.loftwah.workers.dev",
     "ldraw.loftwah.com",
+    "media.loftwah.com",
     "ready.loftwah.com",
     "share.loftwah.com",
     "woodhouse.loftwah.com",
@@ -148,6 +149,9 @@ test("plain-language aliases rank the intended job first", () => {
   assert.equal(ranked("operate an app")[0], "Your app, your admin");
   assert.ok(ranked("publish").includes("Linkarooie"));
   assert.ok(ranked("postcard")[0] === "Here / there");
+  for (const query of ["images", "image workbench", "image editor", "edit images", "resize image"]) {
+    assert.equal(ranked(query)[0], "Edit images", `${query} must open Image Tools`);
+  }
   assert.equal(ranked("nothing-matches-xyz").length, 0);
 });
 
