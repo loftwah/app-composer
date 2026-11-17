@@ -21,6 +21,7 @@ const artworkPath = (values: Record<string, string>) => {
     <div>
       <h1 id="artwork-heading">Share artwork</h1>
       <p>Explore artwork from our projects. Open a piece to find its credit and share link.</p>
+      <p><a href="/media-studio/films">Watch films</a> · <a href="https://media.loftwah.com/gallery">Browse published Media Studio assets</a></p>
     </div>
   <form class="artwork-search" method="get" action="/share" role="search" aria-label="Search artwork">
     <input type="search" name="art" aria-label="Search artwork" placeholder="Search artwork" value={query} maxlength={SHARE_CATALOGUE_QUERY_MAX} />
