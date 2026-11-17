@@ -12,6 +12,7 @@ interface Props {
 const { catalogue, filters } = Astro.props;
 const { query, project, sort, category, tag, after, legacy } = filters;
 const href = (updates: Partial<ArtworkFilters> = {}) => galleryHref(filters, { after: '', ...updates });
+const browse = new URL(href({ after }), 'https://composer.loftwah.com').search;
 const shuffle = href({ sort: 'random', seed: crypto.randomUUID().slice(0, 8) });
 const filtered = Boolean(query || project || category || tag);
 const options = {
@@ -67,8 +68,8 @@ const options = {
   ) : catalogue.items.length ? (
     <div class="gallery-grid" data-artwork-grid>
       {catalogue.items.map((item, index) => (
-        <article class="gallery-tile" data-artwork-id={item.assetId}>
-          <a href={`/share/artwork/${item.assetId}`} data-artwork-open aria-label={`View ${item.title}`}>
+        <article class="gallery-tile" id={`artwork-${item.assetId}`} data-artwork-id={item.assetId}>
+          <a href={`/share/artwork/${item.assetId}${browse}`} data-artwork-open aria-label={`View ${item.title}`}>
             <div class="gallery-thumbnail" data-width={item.thumbnailSize?.width} data-height={item.thumbnailSize?.height}>
               <img src={item.thumbnailUrl} width={item.thumbnailSize?.width ?? undefined} height={item.thumbnailSize?.height ?? undefined}
                 alt={item.alt} loading={index < 5 && !after ? 'eager' : 'lazy'} decoding="async" referrerpolicy="no-referrer" />

@@ -321,9 +321,9 @@ export function mountShareGallery(wall: HTMLElement) {
     previewRequest = request;
     if (historyMode === "push") {
       opener = link;
-      history.pushState({ shareArtwork: true }, "", link.href);
+      history.pushState({ shareArtwork: true }, "", new URL(link.href).pathname);
     } else if (historyMode === "replace") {
-      history.replaceState({ shareArtwork: true }, "", link.href);
+      history.replaceState({ shareArtwork: true }, "", new URL(link.href).pathname);
     } else if (!opener) {
       opener = link;
     }
