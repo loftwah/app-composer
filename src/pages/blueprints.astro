@@ -25,7 +25,7 @@ const labels: Record<string, string> = {reference: 'Reference', ready: 'Ready to
  <p class="bp-note">A blueprint is a brief, not a build. "Ready to build" is a catalogue claim about pinned apps and evidence links; it is not proof that your own build will work, and it never deploys anything. To see how each real project relates to Composer today, read the <a href="/projects">Composer project family</a>.</p>
 
  {entries.map(({entry, readiness, spec}) => (
-  <article class="bp-card" aria-labelledby={`bp-${entry.id}`}>
+  <article class="bp-card" id={entry.id} aria-labelledby={`bp-${entry.id}`}>
    <header>
     <div>
      <p class="bp-kicker">Blueprint {entry.version} · {entry.apps.join(' + ')}</p>
@@ -84,7 +84,7 @@ const labels: Record<string, string> = {reference: 'Reference', ready: 'Ready to
  .bp-heading h1{font-size:clamp(2.5rem,5.2vw,4.4rem);max-width:18ch;margin:10px 0 20px}
  .bp-heading .lede{max-width:58ch}
  .bp-note{margin:30px 0 40px;padding:16px 18px;border-left:3px solid var(--color-accent);background:var(--color-surface);font-size:14px;max-width:80ch}
- .bp-card{border-top:1px solid var(--color-border);padding:32px 0 40px}
+ .bp-card{border-top:1px solid var(--color-border);padding:32px 0 40px;scroll-margin-top:24px}
  .bp-card header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;flex-wrap:wrap}
  .bp-kicker{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--color-muted);margin:0}
  .bp-card h2{font-size:clamp(1.8rem,3.4vw,2.6rem);margin:8px 0 0;max-width:none}
