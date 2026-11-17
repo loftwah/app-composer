@@ -3480,6 +3480,7 @@ function ShareCalendar({ search }: { search: string }) {
                   item,
                 );
                 const published = hasPublishedBlueskyRevision(item, approval, delivery);
+                const hasBluesky = hasBlueskyDraft(item);
                 const portfolio = item.catalogue;
                 const stackId = item.stack;
                 const stackSource = stackId
@@ -3602,10 +3603,11 @@ function ShareCalendar({ search }: { search: string }) {
                       item.scheduledAt &&
                       item.scheduledAt < snapshot.now && (
                         <p className="sc-hint">
-                          This time has passed. For Bluesky, the delivery
-                          receipt above is authoritative. For other channels,
-                          Composer cannot tell whether you shared it; record a
-                          local share only after you do.
+                          This time has passed.
+                          {hasBluesky &&
+                            " Check the Bluesky panel below for delivery status."}
+                          {item.channel !== "bluesky" &&
+                            " Record a local share only after you share the main caption."}
                         </p>
                       )}
                     {item.sharedAt && (
@@ -3786,7 +3788,7 @@ function ShareCalendar({ search }: { search: string }) {
                         )}
                       </>
                     )}
-                    {hasBlueskyDraft(item) && (
+                    {hasBluesky && (
                       <BlueskyPanel
                         item={item}
                         source={
