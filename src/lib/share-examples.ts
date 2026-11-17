@@ -97,7 +97,7 @@ const nightSignal = {
 const signalAndType: ShareExample = {
   id: 'signal-and-type',
   title: 'Signal & Type',
-  description: 'Three cover examples to explore and adapt in Launch Kit.',
+  description: 'Editable Launch Kit covers for a profile, a release or a story.',
   href: '/share/examples/signal-and-type',
   lead: nightSignal,
   items: [
@@ -106,6 +106,19 @@ const signalAndType: ShareExample = {
       image: nightSignal, href: launchKit + '/profile.html?example=night-signal-artwork', action: 'Open editable cover',
       description: 'A moth and radio sit beside cream lettering in a dark illustration.',
       source: { href: '/launch-kit/cards/night-signal-artwork.png', label: 'Original PNG', note: 'Fictional Launch Kit example. Generated background with type composed locally.' },
+    },
+    {
+      title: 'Night Signal music cover',
+      image: {
+        src: '/launch-kit/cards/night-signal-music.png', width: 1200, height: 630,
+        alt: 'Night Signal’s fictional music cover.',
+      },
+      href: launchKit + '/profile.html?example=night-signal-music', action: 'Open editable cover',
+      description: 'Start with a music cover and give the illustration room beside the title.',
+      source: {
+        href: '/launch-kit/cards/night-signal-music.png', label: 'Original PNG',
+        note: 'Fictional Launch Kit music cover.',
+      },
     },
     {
       title: 'River',

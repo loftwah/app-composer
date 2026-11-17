@@ -70,8 +70,8 @@ const { example } = Astro.props;
   .example-list > li > a:hover h3 { color: var(--color-accent); }
   .example-list img { width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: contain; background: var(--color-surface); border-radius: 8px; }
   .example-list h3 { margin: 0 0 0.25rem; font-size: clamp(1.1rem, 3vw, 1.45rem); }
-  .example-list h3 svg { vertical-align: middle; }
-  .example-list p { margin: 0; color: var(--color-muted); }
+  .example-list h3 svg { display: inline-block; vertical-align: middle; }
+  .example-list p { margin: 0; color: var(--color-muted); font-weight: 400; }
   .example-items article { align-items: start; }
   .example-items .example-source { margin-top: 0.35rem; font-size: 0.875rem; }
   .example-action { display: inline-flex; align-items: center; gap: 0.3rem; min-height: 44px; font-weight: 650; }
