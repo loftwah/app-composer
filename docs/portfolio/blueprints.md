@@ -177,7 +177,7 @@ design and has no public signup.
 | Media Studio | [loftwah/composer-media-studio](https://github.com/loftwah/composer-media-studio) | `409dff5114482644bdd0ee21ce1ab09be3ec5f12` | MIT stated in the README; no licence file detected at the pin |
 
 The pin is the value in `config/media-studio-standalone.json`. The live reference
-studio now reports the same revision `409dff5114482644bdd0ee21ce1ab09be3ec5f12`,
+studio served revision `409dff5114482644bdd0ee21ce1ab09be3ec5f12`,
 built 2026-11-17T03:24:48.523Z, read back from its public `/build.json` and
 `/healthz`. Earlier dated briefs retain their own exact revision and digest.
 

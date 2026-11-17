@@ -53,15 +53,15 @@ The CMS source is the public `agents/facts.json` projection: an operator-reviewe
 
 ## Blueprint sources
 
-The two shipped blueprints read their pins from the active declaration, not a
-second hand-maintained list. Their reference apps are independently deployed and
-running newer revisions than the pins.
+The deployed revisions below were observed on 16 November 2026. The blueprint
+pins come from the active declarations. The Media Studio pin was refreshed on
+17 November after a fresh checkout and a live source check.
 
 | App | Live entry point | Deployed revision | Blueprint pin | Pin declared in | Repository |
 | --- | --- | --- | --- | --- | --- |
 | Here / there | [guestbook.loftwah.com](https://guestbook.loftwah.com/) · 200 · “Loftwah's guestbook” | `a8191d3442ea95a4013d481a2a50148e1f94bde3` | `5075d7be53b43aca288d3707fd06851aca91e8c2` | composition.lock.json | [app-composer-guestbook](https://github.com/loftwah/app-composer-guestbook) @ [a8191d3442](https://github.com/loftwah/app-composer-guestbook/commit/a8191d3442ea95a4013d481a2a50148e1f94bde3) |
 | Linkarooie | [showcase.loftwah.com](https://showcase.loftwah.com/) · 200 · “Loftwah” | `e6780997b96f8b9f2411abc66abbbdd590dd5940` | `f1dd27952ca8548f81fde5c5905346dae4a2b61b` | composition.lock.json | [app-composer-showcase](https://github.com/loftwah/app-composer-showcase) @ [8615346131](https://github.com/loftwah/app-composer-showcase/commit/86153461315d851744498b78efb9de0691e981f0) |
-| Media Studio | [media.loftwah.com](https://media.loftwah.com/) · 200 · “Media Studio — work worth keeping” | `f2f29696d8be2424cee5f64b89bdcb0bb43de037` | `e8b3778cd5d800378f42985afda80820fcb7ef57` | config/media-studio-standalone.json | [composer-media-studio](https://github.com/loftwah/composer-media-studio) @ [421f41c7b1](https://github.com/loftwah/composer-media-studio/commit/421f41c7b17907462b5545178d18162aa98ea708) |
+| Media Studio | [media.loftwah.com](https://media.loftwah.com/) · 200 · “Media Studio — work worth keeping” | `f2f29696d8be2424cee5f64b89bdcb0bb43de037` | `409dff5114482644bdd0ee21ce1ab09be3ec5f12` | config/media-studio-standalone.json | [composer-media-studio](https://github.com/loftwah/composer-media-studio) @ [421f41c7b1](https://github.com/loftwah/composer-media-studio/commit/421f41c7b17907462b5545178d18162aa98ea708) |
 
 | Blueprint | State | Pinned apps | Recipe | Replay |
 | --- | --- | --- | --- | --- |
