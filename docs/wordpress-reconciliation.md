@@ -14,6 +14,13 @@ Supply current source inventory and destination observations in this shape:
 | `sourceOrigins` | Explicitly reviewed source origins, including a retired origin only when its identity is established |
 | `media` | Native ID, local media-file URL, independently fetched SHA-256, current alt/caption |
 | `entries` | Native ID, collection, slug, current top-level `_rev` token and entry `data` |
+| `menuLinks` (optional) | Explicitly observed custom menu label and exact `href`; source-host links are reported for review |
+| `categories` (optional) | Explicitly observed category slug, source parent and destination parent; flattened parents are reported for review |
+
+The two optional observations add `sourceHostMenuLinks` and `lostCategoryParents`
+findings to the plan. They are detect/review only: no URL is rewritten or invented,
+and plans without those inputs keep the original shape. Do not supply a source host
+you have not reviewed, or a link carrying credentials.
 
 Read native content at `/_emdash/api/content/{collection}/{id}` and media at
 `/_emdash/api/media/{id}` through the selected site's normal authenticated
