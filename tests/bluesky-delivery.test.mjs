@@ -8,7 +8,10 @@ import {
   saveStack,
   workspaceForUser,
 } from "../src/lib/stacks.mjs";
-import { manageShareCalendar } from "../src/lib/share-calendar-admin.ts";
+import {
+  manageShareCalendar,
+  runScheduledBluesky,
+} from "../src/lib/share-calendar-admin.ts";
 import {
   blueskyDeliveryKey,
   claimBlueskyDelivery,
@@ -123,6 +126,7 @@ function call(db, value, method = "POST", options = {}) {
     {
       user: options.user ?? owner,
       input: value,
+      cron: options.cron,
       settings:
         options.settings ??
         fakeSettings(
@@ -983,6 +987,147 @@ test("a stackless artwork sends its exact bytes, alt, credit and project link", 
         .toString(),
       project,
     );
+  } finally {
+    db.cleanup();
+  }
+});
+
+test("only explicit owner scheduling creates a due task and the native cron sends exactly once", async () => {
+  const db = sqliteD1({ schema });
+  try {
+    const { item, approval } = await approvedItem(db);
+    const tasks = new Map();
+    const cron = {
+      async schedule(name, task) {
+        tasks.set(name, { name, scheduledAt: task.schedule, data: task.data });
+      },
+      async list() {
+        return [...tasks.values()];
+      },
+    };
+    const pds = fakePds();
+    const ctx = { settings: fakeSettings(appPassword) };
+    const command = {
+      action: "blueskySchedule",
+      item: item.id,
+      expectedRevision: item.revision,
+      expectedApprovalRevision: approval.approvalRevision,
+    };
+    assert.equal(approval.automatic, false);
+    assert.equal(tasks.size, 0);
+    const result = await call(db, command, "POST", { cron, fetch: pds.fetch });
+    assert.equal(result.ok, true, result.message);
+    assert.equal(result.approvals[0].automatic, true);
+    assert.equal(tasks.size, 1);
+    assert.equal(pds.list.length, 0);
+    const [event] = tasks.values();
+    await runScheduledBluesky(
+      event,
+      ctx,
+      runtime(db, { now: base, fetch: pds.fetch }),
+    );
+    assert.equal(pds.list.length, 0, "an early tick cannot send");
+    const dueRuntime = runtime(db, { now: sendNow, fetch: pds.fetch });
+    await Promise.all([
+      runScheduledBluesky(event, ctx, dueRuntime),
+      runScheduledBluesky(event, ctx, dueRuntime),
+    ]);
+    assert.equal(
+      pds.list.filter(({ url }) =>
+        url.endsWith("/com.atproto.repo.createRecord"),
+      ).length,
+      1,
+    );
+    const snapshot = await call(db, { action: "list" }, "GET");
+    assert.equal(snapshot.deliveries[0].state, "published");
+    assert.match(
+      snapshot.deliveries[0].permalink,
+      /^https:\/\/bsky\.app\/profile\//,
+    );
+  } finally {
+    db.cleanup();
+  }
+});
+
+test("a scheduled task cannot send after cancellation or lost owner access", async () => {
+  for (const revoke of ["approval", "membership"]) {
+    const db = sqliteD1({ schema });
+    try {
+      const { item, approval } = await approvedItem(db);
+      let event;
+      const cron = {
+        async schedule(name, task) {
+          event = { name, scheduledAt: task.schedule, data: task.data };
+        },
+        async list() {
+          return event ? [event] : [];
+        },
+      };
+      const result = await call(
+        db,
+        {
+          action: "blueskySchedule",
+          item: item.id,
+          expectedRevision: item.revision,
+          expectedApprovalRevision: approval.approvalRevision,
+        },
+        "POST",
+        { cron },
+      );
+      assert.equal(result.ok, true, result.message);
+      if (revoke === "approval") {
+        const cancelled = await call(db, {
+          action: "blueskyCancel",
+          item: item.id,
+          expectedApprovalRevision: approval.approvalRevision,
+        });
+        assert.equal(cancelled.ok, true, cancelled.message);
+      } else {
+        await db
+          .prepare("UPDATE creator_members SET role='viewer' WHERE user_id=?")
+          .bind(owner.id)
+          .run();
+      }
+      const pds = fakePds();
+      await runScheduledBluesky(
+        event,
+        { settings: fakeSettings(appPassword) },
+        runtime(db, {
+          now: sendNow,
+          fetch: pds.fetch,
+        }),
+      );
+      assert.equal(pds.list.length, 0);
+    } finally {
+      db.cleanup();
+    }
+  }
+});
+
+
+test("missing credentials at the due time produce an attention receipt", async () => {
+  const db = sqliteD1({ schema });
+  try {
+    const { item, approval } = await approvedItem(db);
+    let event;
+    const cron = {
+      async schedule(name, task) {
+        event = { name, scheduledAt: task.schedule, data: task.data };
+      },
+      async list() { return event ? [event] : []; },
+    };
+    const queued = await call(db, {
+      action: "blueskySchedule", item: item.id, expectedRevision: item.revision,
+      expectedApprovalRevision: approval.approvalRevision,
+    }, "POST", { cron });
+    assert.equal(queued.ok, true, queued.message);
+    const pds = fakePds();
+    await runScheduledBluesky(event, { settings: fakeSettings(null) }, runtime(db, {
+      now: sendNow, fetch: pds.fetch,
+    }));
+    assert.equal(pds.list.length, 0);
+    const snapshot = await call(db, { action: "list" }, "GET");
+    assert.equal(snapshot.deliveries[0].state, "needs_auth");
   } finally {
     db.cleanup();
   }

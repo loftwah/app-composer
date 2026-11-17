@@ -51,7 +51,7 @@ export const SHARE_STATES = [
   {
     id: "scheduled",
     label: "Scheduled",
-    note: "A date is recorded here. Composer will not post it automatically.",
+    note: "A date is recorded here. Choose automatic Bluesky delivery after approval.",
   },
   {
     id: "shared",
@@ -396,6 +396,15 @@ export const shareCalendarCommand = z.discriminatedUnion("action", [
     .strict(),
   z
     .object({
+      action: z.literal("blueskySchedule"),
+      workspace: workspaceId.optional(),
+      item: itemId,
+      expectedRevision: revision,
+      expectedApprovalRevision: revision,
+    })
+    .strict(),
+  z
+    .object({
       action: z.literal("blueskyReconcile"),
       workspace: workspaceId.optional(),
       item: itemId,
@@ -648,6 +657,17 @@ export const shareCalendarItemSchema = z
 
 const approvalHash = z.string().regex(/^[a-f0-9]{64}$/);
 
+export const scheduledBlueskyJobSchema = z
+  .object({
+    workspaceId,
+    itemId,
+    approvalRevision: revision,
+    bindingHash: approvalHash,
+    scheduledAt: isoInstant,
+    ownerId: z.string().min(1).max(256),
+  });
+export type ScheduledBlueskyJob = z.infer<typeof scheduledBlueskyJobSchema>;
+
 // An approval record is public data plus hashes. There is deliberately no
 // credential field, and this schema is the shared snapshot contract.
 export const blueskyApprovalRecordSchema = z
@@ -671,6 +691,7 @@ export const blueskyApprovalRecordSchema = z
     scheduledAt: isoInstant,
     bindingHash: approvalHash,
     approvedAt: isoInstant,
+    automatic: z.boolean().optional(),
     expiresAt: isoInstant,
     cancelledAt: isoInstant.nullable(),
     revokedAt: isoInstant.nullable(),
@@ -710,6 +731,7 @@ export interface BlueskyApprovalRecord {
   scheduledAt: string;
   bindingHash: string;
   approvedAt: string;
+  automatic?: boolean;
   expiresAt: string;
   cancelledAt: string | null;
   revokedAt: string | null;
@@ -1387,7 +1409,7 @@ export function buildShareCalendarIcs(
       item.caption,
       "Exact destination: " + (destination || "not recorded"),
       item.link ? "Link: " + item.link : "",
-      "Prepared in App Composer. You copy, download or export this item and share it yourself, unless an explicit Bluesky send is recorded. Composer never posts automatically.",
+      "Prepared in App Composer. You copy, download or export this item and share it yourself, unless an explicit Bluesky send is recorded. This calendar event does not enable automatic delivery.",
     ]
       .filter(Boolean)
       .join("\n\n");
