@@ -140,8 +140,8 @@ const resultLabel = (outcome: NonNullable<ReturnType<typeof outcomeFor>>) => {
         <div class="analytics-chart-head">
           <h2 id="chart-title">{signalLabels[view.key]} by day</h2>
           <div class="activity-chart-links">
-            {metricApp && <a href={appHref(metricApp.id)} data-preserve-day>
-              {metricApp.name} details <ArrowUpRight size={16} aria-hidden="true"/>
+            {metricApp && <a href={metricApp.href}>
+              Open {metricApp.name} <ArrowUpRight size={16} aria-hidden="true"/>
             </a>}
             {view.value !== null && <a class="button secondary" href={reportHref}>
               <Share2 size={16} aria-hidden="true"/> Share report
@@ -178,7 +178,7 @@ const resultLabel = (outcome: NonNullable<ReturnType<typeof outcomeFor>>) => {
                 <li class:list={{ "analytics-app": true, "is-unavailable": row.connected === false }}>
                   <img src={row.definition.thumbnail} width="48" height="48" alt="" loading="lazy" />
                   <div>
-                    <h3><a href={appHref(row.app)}>{row.definition.name} <ArrowUpRight size={16} aria-hidden="true"/></a></h3>
+                    <h3><a href={appHref(row.app)} data-preserve-day>{row.definition.name} <ArrowUpRight size={16} aria-hidden="true"/></a></h3>
                     <p>{appActions[row.app] ?? row.definition.category}</p>
                   </div>
                   <div class="analytics-app-bar" aria-hidden="true">{row.connected !== false && <svg viewBox="0 0 100 8" preserveAspectRatio="none"><rect width={(100 * row.opens) / top} height="8"/></svg>}</div>

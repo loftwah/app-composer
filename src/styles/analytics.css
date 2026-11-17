@@ -478,4 +478,11 @@
   .activity-plot .analytics-chart-head > .activity-chart-links:first-of-type { display: flex; }
   .activity-overview-plot .trend-scale, .activity-overview-plot .trend-plot svg { height: 170px; }
   .activity-overview-plot .analytics-chart-head { gap: 8px; }
+  .activity-overview-plot .trend-inspector {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+  }
+  .activity-overview-plot .trend-range { gap: 4px; flex-direction: column; }
+  .activity-overview-plot .trend-range input { min-width: 0; width: 100%; }
+  .activity-overview-plot .trend-hint { grid-column: 1 / -1; }
 }
