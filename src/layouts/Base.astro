@@ -15,9 +15,9 @@ interface Props {
   shareImage?: string;
   shareAlt?: string;
   shareType?: string;
-  shareWidth?: number;
+  shareWidth?: number | null;
   ogType?: "website" | "article";
-  shareHeight?: number;
+  shareHeight?: number | null;
   /** Clean canonical for a page whose address is not just its path. */
   canonical?: string;
   /** The launcher study mounts its own instance; the controller binds by ID. */
@@ -40,8 +40,7 @@ const shareImage =
 const shareAlt =
   Astro.props.shareAlt ??
   "App Composer: Make software. Keep it yours. The approved orange mark and wordmark on a flat orange field.";
-const shareWidth = Astro.props.shareWidth ?? 1200;
-const shareHeight = Astro.props.shareHeight ?? 630;
+const { shareWidth = 1200, shareHeight = 630 } = Astro.props;
 Astro.response.headers.set("Cache-Control", "no-store");
 // Cloudflare reads the SSR CSP header to nonce its own detection scripts.
 // Keep Astro's generated hashes; never add nonces to untrusted page content.
@@ -83,8 +82,8 @@ Astro.csp?.insertScriptResource(
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="App Composer" />
     <meta property="og:image" content={shareImage} />
-    <meta property="og:image:width" content={String(shareWidth)} />
-    <meta property="og:image:height" content={String(shareHeight)} />
+    {shareWidth !== null && <meta property="og:image:width" content={String(shareWidth)} />}
+    {shareHeight !== null && <meta property="og:image:height" content={String(shareHeight)} />}
     <meta property="og:image:alt" content={shareAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
@@ -193,9 +192,10 @@ Astro.csp?.insertScriptResource(
     <main id="main">
       <BuilderContext />
       <slot />
+      <slot name="page-share" />
     </main>
     <footer>
-      {!noindex && (
+      {!noindex && !Astro.slots.has("page-share") && (
         <div class="public-page-share" data-page-share hidden>
           <button type="button" class="secondary" data-page-native hidden>
             Share page

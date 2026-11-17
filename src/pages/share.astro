@@ -79,7 +79,7 @@ Astro.response.headers.set("Vary", "Cookie");
         </div>
         <div class="wall-intro">
           <p>Browse artwork, films and published stacks from our projects.</p>
-          <p class="small"><a href={filtered ? "/share#films" : "#films"}>Watch films</a> · <a href="/share/artwork">Browse artwork</a> · <a href="#published-stacks">Browse stacks</a>{canReview && <> · <a href={filtered ? "/share#my-feedback" : "#my-feedback"}>Your feedback</a></>}</p>
+          <nav aria-label="Share sections"><a href={filtered ? "/share#films" : "#films"}>Watch films</a><a href="/share/artwork">Browse artwork <ArrowUpRight size={15} aria-hidden="true" /></a><a href="#published-stacks">Browse stacks</a>{canReview && <a href={filtered ? "/share#my-feedback" : "#my-feedback"}>Your feedback</a>}</nav>
         </div>
       </header>
 
@@ -194,7 +194,9 @@ Astro.response.headers.set("Vary", "Cookie");
   .wall-heading h1 { margin:6px 0 0; max-width:18ch; font-size:clamp(2.4rem,5vw,4.2rem); line-height:1.04; }
   .wall-intro { max-width:46ch; }
   .wall-intro p { margin:0 0 8px; color:var(--color-muted); }
-  .wall-intro .small { margin-bottom:0; }
+  .wall-intro nav { gap: 0 1rem; }
+  .wall-intro nav a { display:inline-flex; align-items:center; gap:.3rem; min-height:44px; text-underline-offset:.2em; }
+  .wall-intro nav a:hover { text-decoration:underline; }
   .wall-films { margin:0 0 42px; padding:24px 0 28px; border-block:1px solid var(--color-border); scroll-margin-top:22px; }
   .wall-films h2,.wall-stacks-heading h2 { margin:0 0 16px; }
   .wall-film-layout { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:24px 44px; align-items:start; }

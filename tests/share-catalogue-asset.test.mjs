@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import test from "node:test";
 import {
   browseShareArtwork,
+  publicShareArtwork,
   resolveShareCatalogueAsset,
   sameCatalogueAsset,
   searchShareCatalogueAssets,
@@ -162,4 +163,32 @@ test("artwork browsing preserves its filters and only links public, same-origin 
   assert.deepEqual(result?.items.map((item) => item.assetId), [id]);
   assert.equal(result.items[0].previewUrl, artwork.previewUrl);
   assert.equal(result.nextAfter, "next-page");
+});
+
+test("artwork detail requires the matching public record and distinguishes missing from unavailable", async () => {
+  const artwork = {
+    ...asset,
+    project: "workshop",
+    thumbnailUrl: asset.previewUrl,
+    shareUrl: `${SHARE_CATALOGUE_ORIGIN}/share/workshop/`,
+  };
+  for (const [record, status] of [
+    [artwork, 200],
+    [{ ...artwork, id: "substituted" }, 404],
+    [{ ...artwork, visibility: "private" }, 404],
+  ]) {
+    const result = await publicShareArtwork(id, {
+      fetch: async (url, options) => {
+        assert.equal(url, endpoint);
+        assert.equal(options.redirect, "manual");
+        return Response.json({ version: 1, asset: record });
+      },
+    });
+    assert.equal(result.status, status);
+  }
+  for (const status of [404, 503]) {
+    assert.equal((await publicShareArtwork(id, {
+      fetch: async () => new Response(null, { status }),
+    })).status, status);
+  }
 });

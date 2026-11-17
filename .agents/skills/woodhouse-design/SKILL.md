@@ -1,20 +1,18 @@
 ---
 name: woodhouse-design
-description: "Use for meaningful UI/design work or Impeccable setup in App Composer: web pages, EmDash admin, Features, media generation, components, forms, responsive layout, accessibility and polish. Requires the actual upstream skill and rendered proof. Not a backend-only design campaign."
+description: Refine or audit a user-facing App Composer or Woodhouse surface, including motion and media. Route through the installed Impeccable skill, select relevant creative references and verify the affected journey in a browser.
 ---
 
-# Required design entry path — App Composer
+# Woodhouse Design
 
-Read AGENTS.md and preserve all actual security, data, artwork and release boundaries. This routing rule is NOT Impeccable, an installer, a substitute playbook or proof that anything ran. MP has already required the actual skill; do not ask whether to use it or stop at an issue.
+Read the applicable `AGENTS.md`, product direction, design system and surface brief. Preserve approved identity, original media, publication status and accessibility. Use the [project integration guide](https://github.com/loftwah/woodhouse-new/blob/main/docs/IMPECCABLE.md) in a verified sibling checkout when inspecting or repairing tool setup.
 
-Resolve the effective agent harness and its actual loaded Impeccable SKILL.md, launcher, skill/CLI/engine versions and project/global/plugin precedence. Read upstream instructions and current official release guidance. Install/update through the supported route with reviewed versions, preserving local customisations and backups outside discovery. The verified local Woodhouse checkout supplies `scripts/impeccable-project.mjs` and `docs/IMPECCABLE.md`; do not execute moving remote scripts. Check fresh-session discovery and supported hooks; an installed manifest or silence is not proof a hook ran. Do not bypass a real trust prompt.
+## Work from the real surface
 
-Run the actual skill's context launcher once from this project for the target. Read PRODUCT.md, DESIGN.md, UNSLOP.md, relevant surface briefs and accepted references. Reuse recorded owner answers. Follow the documented fallback honestly if execution fails; never fabricate context or completion.
+1. Resolve the target to its source file. Load the effective upstream Impeccable skill and run its context launcher once from the project. Record the version you actually used. Follow its documented fallback if context loading fails. Use the upstream playbook and craft floor for this job. Inspect or repair installation when setup itself is in scope.
+2. Open the incumbent journey at representative sizes. Name the user action and the one or two things holding it back. For a polish pass, keep the current identity and change the smallest coherent path. For a new surface, pull only the references that answer a real creative or UX question.
+3. For each reference used, record its source, the specific decision it informed and its reuse terms if importing an asset. Use existing approved artwork or product captures where they can carry the experience. Treat benchmark claims, screenshots, published demos and an actual model run as different evidence. If comparing model outputs, give each the same brief and capture what it actually produced.
+4. Replay the changed journey on phone and desktop. Inspect focus, relevant empty or error states, overflow, both shipped themes when color changed, and reduced motion when motion changed. For admin, confirm the account, app and environment. For sharing, open the exact public URL and check that its credit and preview travel with it.
+5. Leave a short receipt in the existing PR or issue with the skill and playbook used, the findings you fixed, the references applied and what the browser proved. Follow the repo's delivery rules for main and production. A detector result is one signal alongside the rendered journey.
 
-Read and use the relevant Impeccable playbook: shape/new-work for new surfaces, critique for design judgement, audit for implementation/accessibility, then targeted polish, adapt, harden, typeset, layout, clarify or other appropriate refinement. Read the upstream craft floor before UI edits. Agent workflows are not invented CLI subcommands. A detector scan alone is insufficient.
-
-For Composer, inspect the actual creator and native EmDash task: selected app/environment, honest setup/on/off/failure states, agent/browser state consistency, accessible controls and useful recovery. Preserve the existing native admin and project identity, not a second generic dashboard. Inspect rendered phone/desktop views, keyboard/focus, contrast, overflow, loading/empty/error and reduced-motion behaviour. Fix material findings and reinspect, respecting genuine explicit holds.
-
-Record effective tools/harness, source/target, context/playbooks, findings, concrete changes or justified no-change, rendered interactions and limits in existing evidence/issue/PR. Setup, discovery, actual use, fixes, main and production are separate states. Runtime work finishes on main AND verified production; tooling-only work finishes on main with relevant checks.
-
-Coverage owner: https://github.com/loftwah/woodhouse-new/issues/160 . Integration owners: #422 and #198. This file does not prove a tool was installed, a fresh agent discovered it, a design pass happened or production changed. Every first-party mini-app needs its own context and evidence.
+Coverage belongs to [Woodhouse #160](https://github.com/loftwah/woodhouse-new/issues/160). Composer integration belongs to [#422](https://github.com/loftwah/app-composer/issues/422) and [#198](https://github.com/loftwah/app-composer/issues/198).
