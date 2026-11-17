@@ -61,6 +61,10 @@ import {
   type ShareApprovalPackage,
 } from "../lib/share-package";
 import {
+  shareXHandoffFilename,
+  shareXHandoffMarkdown,
+} from "../lib/share-x-handoff";
+import {
   BLUESKY_APPROVAL_REASON_LABELS,
   BLUESKY_SEND_UNAVAILABLE_STATEMENT,
   blueskyAccountFromIdentity,
@@ -578,6 +582,31 @@ function ArtworkXExport({
   }
 
   const draft = text.trim() ? portfolioBlueskyText(text, asset) : "";
+
+  function downloadHandoff() {
+    if (!ready || !draft || !active.current) return;
+    try {
+      const markdown = shareXHandoffMarkdown({
+        caption: text.trim(),
+        exportText: draft,
+        asset,
+      });
+      const url = URL.createObjectURL(
+        new Blob([markdown], { type: "text/markdown;charset=utf-8" }),
+      );
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = shareXHandoffFilename(asset);
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
+      setMessage("X handoff prepared for download.");
+    } catch {
+      setMessage("The handoff could not be prepared. Copy the draft instead.");
+    }
+  }
+
   return (
     <section className="sc-package" aria-label="X artwork export">
       <h3>X artwork export</h3>
@@ -634,6 +663,13 @@ function ArtworkXExport({
               onClick={() => void copy(asset.alt, "Image alt text")}
             >
               Copy image alt text
+            </button>
+            <button
+              type="button"
+              disabled={checking || !draft}
+              onClick={downloadHandoff}
+            >
+              Download X handoff
             </button>
             <button
               type="button"
