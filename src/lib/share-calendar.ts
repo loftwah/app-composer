@@ -271,7 +271,10 @@ export const shareCalendarReadInput = z.union([
       action: z.literal("queueNextPreview"),
       workspace: workspaceId.optional(),
       // EmDash supplies GET parameters as strings.
-      weekday: z.string().regex(/^[1-7]$/).transform(Number),
+      weekday: z
+        .string()
+        .regex(/^[1-7]$/)
+        .transform(Number),
       time: z
         .string()
         .regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, "Choose a 24-hour HH:mm time."),
@@ -747,7 +750,9 @@ export function itemApprovalAndDelivery(
   return { approval, delivery };
 }
 
-export type ShareListFilter = "all" | "published" | "attention";
+type ShareDeliveryFilter = "published" | "attention";
+export type ShareListFilter =
+  "all" | "drafts" | "scheduled" | ShareDeliveryFilter;
 
 // "published" is only a genuine persisted provider receipt for the displayed
 // approval revision. "attention" is an exact delivery that is unknown, failed
@@ -756,7 +761,7 @@ export type ShareListFilter = "all" | "published" | "attention";
 export function shareListFilterForItem(
   snapshot: ShareCalendarSnapshot,
   item: ShareCalendarItem,
-): Exclude<ShareListFilter, "all"> | null {
+): ShareDeliveryFilter | null {
   const { delivery } = itemApprovalAndDelivery(snapshot, item);
   if (delivery?.state === "published") return "published";
   if (
@@ -767,6 +772,23 @@ export function shareListFilterForItem(
   )
     return "attention";
   return null;
+}
+
+// Every list view an item belongs to. Drafts and Scheduled come only from the
+// authoritative local item.state: they describe the calendar, not a job or a
+// delivery. They are independent of the delivery classification above, so an
+// error item also appears in Drafts or Scheduled when its current local state
+// matches. Published and Needs attention keep their unchanged delivery logic.
+export function shareListItemFilters(
+  snapshot: ShareCalendarSnapshot,
+  item: ShareCalendarItem,
+): ShareListFilter[] {
+  const filters: ShareListFilter[] = ["all"];
+  if (item.state === "draft") filters.push("drafts");
+  if (item.state === "scheduled") filters.push("scheduled");
+  const deliveryFilter = shareListFilterForItem(snapshot, item);
+  if (deliveryFilter) filters.push(deliveryFilter);
+  return filters;
 }
 
 export interface ShareCalendarIcsItem {
