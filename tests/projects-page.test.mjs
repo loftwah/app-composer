@@ -114,6 +114,17 @@ test("the project family is a maintained public page and the real navigation lin
   assert.match(blueprintsPage, /href="\/projects"/, "the blueprint catalogue links to the family");
 });
 
+test("the Foilbury build record names each verification link", () => {
+  const receipt = page.match(/<details class="flagship-receipt">[\s\S]*?<\/details>/)?.[0];
+  assert.ok(receipt, "the flagship build record is rendered");
+  const links = [...receipt.matchAll(/href="https:\/\/github\.com\/loftwah\/composer-media-studio\/issues\/183#issuecomment-([\d]+)">([^<]+)<\/a>/g)];
+  assert.deepEqual(links.map(([, comment, label]) => [comment, label]), [
+    ["6937217543", "Web-ready images release record"],
+    ["6937400509", "Image export receipt record"],
+    ["6938735525", "Social kit release record"],
+  ]);
+});
+
 test("the build refuses a missing or unusable inventory before rendering", () => {
   assert.match(packageJson.scripts.build, /scripts\/portfolio-inventory\.mjs --check/);
   assert.match(packageJson.scripts["check:types"], /scripts\/portfolio-inventory\.mjs --check/);
