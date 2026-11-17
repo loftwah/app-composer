@@ -174,7 +174,7 @@ const groups = [
     <a href="/media-studio">← Media Studio build story</a>
     <h1>Make the next shot count.</h1>
     <p class="lede">A practical field guide to directing images, motion and sound. Start with a job, borrow a direction, and adapt it to work you own.</p>
-    <div class="actions"><a class="button" href="#plan">Choose a lesson</a><a class="button secondary" href="/media-studio/studio">Open your Studio</a><a class="button secondary" href="https://media.loftwah.com/tools/images">Try Image Tools</a></div>
+    <div class="actions"><a class="button" href="#field-guide-topics">Choose a lesson</a><a class="button secondary" href="/media-studio/studio">Open your Studio</a><a class="button secondary" href="https://media.loftwah.com/tools/images">Try Image Tools</a></div>
     <p>Reading and copying are free. Image Tools run in your browser with no sign-in and no charge. Opening Studio does not generate anything. Sign-in and project access may be required; this guide does not prefill a draft.</p>
   </header>
   <section class="director-proof" aria-labelledby="proof-title">
@@ -195,8 +195,8 @@ const groups = [
       </figure>
     </div>
   </section>
-  <nav class="director-nav" aria-label="Field guide topics"><a href="#plan">Plan the shot</a><a href="#make">Make and refine</a><a href="#finish">Sound, edit and share</a><a href="#words">Creative vocabulary</a></nav>
-  <div class="director-search" hidden data-search-wrap><label for="lesson-search">Find a lesson</label><input id="lesson-search" type="search" placeholder="Try camera, music or sharing"/><span data-search-status role="status" aria-live="polite"></span></div>
+  <nav id="field-guide-topics" class="director-nav" aria-label="Field guide topics"><a href="#plan">Plan the shot</a><a href="#make">Make and refine</a><a href="#finish">Sound, edit and share</a><a href="#words">Creative vocabulary</a></nav>
+  <div class="director-search" hidden data-search-wrap><label for="lesson-search">Find a lesson</label><input id="lesson-search" type="search" placeholder="Try camera, music or sharing"/><button class="button secondary" type="button" data-search-clear hidden>Clear search</button><span data-search-status role="status" aria-live="polite"></span></div>
   <p class="director-cost">The text below is creative direction, not a model parameter. Choose the actual model, reference and duration in Studio. One five-second H3 request in the cited examples was estimated at US$0.24 on 14 November 2026; prices and availability can change. One recorded 30-second Studio Score bed was US$0.015 and one Studio Voice request was US$0.06; those are historical estimates, not current quotes. Review the current estimate for each request. Estimates are not invoices.</p>
   {groups.map(group => <section id={group.id} class="director-section"><h2>{group.title}</h2><div class="director-lessons">{group.lessons.map((lesson, i) => <article class="director-lesson"><h3>{lesson.title}</h3><p class="director-outcome">{lesson.outcome}</p><p>{lesson.steps}</p><details><summary>Direction to adapt</summary><p class="director-prompt" id={`${group.id}-prompt-${i}`}>{lesson.prompt}</p><button class="secondary" type="button" data-copy-target={`${group.id}-prompt-${i}`}>Copy direction</button><span class="copy-status" role="status" aria-live="polite"></span></details><p class="director-example"><a href={lesson.href}>{lesson.example} →</a><br/><span>{lesson.source}</span></p></article>)}</div></section>)}
   <section id="words" class="director-section"><h2>Words you will meet</h2><dl class="director-words"><div><dt>Scene / shot / take</dt><dd>A scene is a moment in a place; a shot is one continuous view; a take is one attempt at that shot.</dd></div><div><dt>Reference / prompt / parameter</dt><dd>A reference is source media; a prompt describes intent; a parameter is an actual model control such as duration. Prompted motion is a request, not a guaranteed setting.</dd></div><div><dt>Timeline / clip / stem</dt><dd>A timeline orders sound and picture in time. A clip is a piece of media. A stem is a separate part of a mix, such as narration or music.</dd></div><div><dt>Slate / render / master</dt><dd>A slate is an opening card. A render produces a new media file from a saved edit. A master is the selected finished version retained for reuse.</dd></div><div><dt>Variant / private / public</dt><dd>A variant is a separate result derived from a source. Private project work stays restricted; deliberate publication exposes the chosen media and its entered details. Do not assume an unlisted link is private.</dd></div></dl></section>
@@ -206,10 +206,11 @@ const groups = [
   const searchWrap = document.querySelector<HTMLElement>('[data-search-wrap]');
   const search = document.querySelector<HTMLInputElement>('#lesson-search');
   const searchStatus = document.querySelector<HTMLElement>('[data-search-status]');
+  const searchClear = document.querySelector<HTMLButtonElement>('[data-search-clear]');
   const lessons = [...document.querySelectorAll<HTMLElement>('.director-lesson')];
   if (searchWrap && search && searchStatus) {
     searchWrap.hidden = false;
-    search.addEventListener('input', () => {
+    const applySearch = () => {
       const term = search.value.trim().toLocaleLowerCase();
       let count = 0;
       for (const lesson of lessons) {
@@ -221,6 +222,13 @@ const groups = [
         if (group.querySelector('.director-lessons')) group.hidden = !group.querySelector('.director-lesson:not([hidden])');
       }
       searchStatus.textContent = term ? `${count} ${count === 1 ? 'lesson' : 'lessons'} found.` : '';
+      if (searchClear) searchClear.hidden = count !== 0;
+    };
+    search.addEventListener('input', applySearch);
+    if (searchClear) searchClear.addEventListener('click', () => {
+      search.value = '';
+      applySearch();
+      search.focus();
     });
   }
   for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy-target]')) {
@@ -253,6 +261,9 @@ const groups = [
 }
 .director-search span {
   color: var(--color-muted);
+}
+.director-search [data-search-clear][hidden] {
+  display: none;
 }
 .director-guide {
   max-width: 1120px;
