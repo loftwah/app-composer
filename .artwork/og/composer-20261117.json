@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-17",
+  "provider": "OpenAI ImageGen through Codex",
+  "method": "Complete composition and lettering in a single generation. Web copies are centre-cropped where necessary, resized and encoded as JPEG.",
+  "export": {
+    "width": 1200,
+    "height": 630,
+    "type": "image/jpeg"
+  },
+  "cards": [
+    {
+      "asset": "public/brand/campaign/composer-og-20261117.jpg",
+      "caption": "Make an app. Keep it yours.",
+      "master": "composer-share-20261117-v2/masters/04-keep-it-yours.png",
+      "masterSha256": "3db87307f8ee1ace578ab051344b6d247672a5efbaba3e8de019ef9d9ef54132",
+      "jpegSha256": "10584445da2a007e0ee8942ebfd6f650847f036929cc11f45470b65c27ef554e"
+    },
+    {
+      "asset": "public/brand/campaign/ready-og-20261117.jpg",
+      "caption": "Even your grandma should be able to get started.",
+      "master": "composer-share-20261117-v2/masters/01-grandma.png",
+      "masterSha256": "21450974f2564c77d6139804211b9847e03ae8b36d66b08bacef3a8b52cd5d2c",
+      "jpegSha256": "e5bf41d1ec0fefff181ce1f9b78d4d23060c664d35dd15683c126ba9947b7993"
+    },
+    {
+      "asset": "public/brand/campaign/init-og-20261117.jpg",
+      "caption": "Describe your app in plain English.",
+      "master": "composer-share-20261117-v2/masters/02-plain-english.png",
+      "masterSha256": "6326f24ec4f2a2e46601707959079dfaf6763654bb55f307221abfb8867aeaaf",
+      "jpegSha256": "0198fd1007fa885e3d8ecfd30e4d0de108932961d02d138c153d9ba914b40947"
+    },
+    {
+      "asset": "public/brand/campaign/first-app-og-20261117.jpg",
+      "caption": "What would make your Saturday easier?",
+      "master": "composer-share-20261117-v2/masters/05-first-small-app.png",
+      "masterSha256": "3b28d29f8c98f42dede9e87325b1815b4d96ea7bcb72384b5563313164982a54",
+      "jpegSha256": "5d9f902d5b917e4f112fcc81083838db430cb897d9bfc558d3eeeb7104f2563e"
+    },
+    {
+      "asset": "public/brand/campaign/share-og-20261117.jpg",
+      "caption": "Find your next idea.",
+      "master": "composer-brand-20261117/share-master.png",
+      "masterSha256": "012b1b1eeed2f0200a1f249cb73b77625e075b2f0bedba285e08a76c43c5bff1",
+      "jpegSha256": "84cf2bd9487a5b2c2c65f2d50bf42cb52ea20a9e624af32a618df4952f4964f6"
+    },
+    {
+      "asset": "public/brand/campaign/media-studio-og-20261117.jpg",
+      "caption": "Make something worth keeping.",
+      "master": "composer-ldraw-campaign-20261117/promo-masters/03-make-worth-keeping.png",
+      "masterSha256": "17487c32d8041d1d33a09f71bca92e7aac120cdeafd6a27bf55121964ab8f128",
+      "jpegSha256": "8534b70b6bb11de1595d3993e114e27c682288365e277edb3176b0a06d6eb61c"
+    },
+    {
+      "asset": "public/brand/campaign/diagrams-og-20261117.jpg",
+      "caption": "Draw the plan. Keep it editable.",
+      "master": "composer-ldraw-campaign-20261117/promo-masters/04-draw-the-plan.png",
+      "masterSha256": "b449c08cfef227b166f34a604adc4484c7679e34a5185d150f0786952f045cec",
+      "jpegSha256": "4f30d92ed6bb46eff0bbe34fceaa5fd1e00e4461e02d0af2a3b5ff13f66682f8"
+    }
+  ],
+  "sharePrompt": "A continuous dark exhibition space with three framed large-format originals. A cobalt and amber radio signal coast, an orange machine and an iridescent teal detail. In the final render place App Composer Share, Find your next idea. and composer.loftwah.com/share in large white and warm orange editorial typography. Use the existing finished Composer campaign card as the reference for layout and tone."
+}

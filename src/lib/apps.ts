@@ -1,3 +1,4 @@
+import { mediaStudioShareArtwork } from './site-share-artwork.mjs';
 // Public, shipped applications only. Catalogue publishing remains owned by EmDash.
 // Each entry names the app the way its own repository and interface do, then
 // carries its selected thumbnail, versioned share card and a real screenshot
@@ -6,7 +7,7 @@
 // screenshot. Screenshots are never generated; the capture date travels with
 // the file so staleness is visible.
 export const apps = [
-  {id:'media-studio',name:'Media Studio',category:'Creative',description:'An independent studio for images, video and sound. Save projects, make stills and clips, assemble a storyboard, and choose what to publish.',image:'/media-studio/brand/brand-edit-20261114.png',thumbnail:'/media-studio/brand/brand-edit-20261114.png',share:'/media-studio/brand/brand-share-1200x630-20261114.png',shareType:'image/png',shareAlt:'Build your own media studio: a paper-cut studio desk with a waveform, camera and orange signal ring, with exact App Composer type and mark.',preview:'/media-studio/studio-library-20261114.jpg',previewWide:'/media-studio/studio-library-20261114.jpg',previewCaptured:'2026-11-14',previewAlt:'The Media Studio library for the Paper and Light project: an assembled seventeen-second cut, two generated sound assets drawn as waveforms, and three saved takes.',href:'/media-studio',standalone:'https://media.loftwah.com',source:'https://github.com/loftwah/composer-media-studio'},
+  {id:'media-studio',name:'Media Studio',category:'Creative',description:'An independent studio for images, video and sound. Save projects, make stills and clips, assemble a storyboard, and choose what to publish.',image:'/media-studio/brand/brand-edit-20261114.png',thumbnail:'/media-studio/brand/brand-edit-20261114.png',share:mediaStudioShareArtwork.path,shareType:'image/jpeg',shareAlt:mediaStudioShareArtwork.alt,preview:'/media-studio/studio-library-20261114.jpg',previewWide:'/media-studio/studio-library-20261114.jpg',previewCaptured:'2026-11-14',previewAlt:'The Media Studio library for the Paper and Light project: an assembled seventeen-second cut, two generated sound assets drawn as waveforms, and three saved takes.',href:'/media-studio',standalone:'https://media.loftwah.com',source:'https://github.com/loftwah/composer-media-studio'},
   // Supported entry URLs stay aligned with the committed launcher copies.
   // Paperwork moves its browser pages to paperwork.loftwah.com before opening a document;
   // product, discovery and Init use the public address directly.

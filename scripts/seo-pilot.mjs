@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const PILOT_ORIGIN = 'https://composer.loftwah.com';
-const MAX_PAGES = 80;
+const MAX_PAGES = 128;
 const MAX_BYTES = 1_048_576;
 const privatePath = /^\/(?:_emdash|api|admin|owner|private)(?:\/|$)/i;
 const entity = (s) => s.replace(/&amp;/gi, '&').replace(/&quot;/gi, '"').replace(/&#39;|&apos;/gi, "'").replace(/&lt;/gi, '<').replace(/&gt;/gi, '>');
@@ -29,7 +29,7 @@ function metadata(html) {
   const links = tags(head, 'link');
   const getMeta = (name) => metas.find((a) => a.name?.toLowerCase() === name || a.property?.toLowerCase() === name)?.content ?? '';
   const canonical = links.find((a) => a.rel?.toLowerCase().split(/\s+/).includes('canonical'))?.href ?? '';
-  return { title, description: getMeta('description'), canonical, robots: getMeta('robots'), ogTitle: getMeta('og:title'), ogDescription: getMeta('og:description'), ogImage: getMeta('og:image'), twitterCard: getMeta('twitter:card'), h1Count: [...html.matchAll(/<h1\b/gi)].length };
+  return { title, description: getMeta('description'), canonical, robots: getMeta('robots'), ogTitle: getMeta('og:title'), ogDescription: getMeta('og:description'), ogImage: getMeta('og:image'), ogImageAlt: getMeta('og:image:alt'), ogUrl: getMeta('og:url'), twitterImage: getMeta('twitter:image'), twitterImageAlt: getMeta('twitter:image:alt'), twitterCard: getMeta('twitter:card'), h1Count: [...html.matchAll(/<h1\b/gi)].length };
 }
 
 function safePage(raw) {
@@ -69,7 +69,7 @@ async function fetchText(url, fetcher) {
 
 /** Returns observations, not instructions or publishing authorisation. */
 export async function auditComposerSEO({ fetcher = fetch, now = () => new Date(), maxPages = MAX_PAGES } = {}) {
-  if (!Number.isInteger(maxPages) || maxPages < 1 || maxPages > MAX_PAGES) throw Error('maxPages must be 1–80');
+  if (!Number.isInteger(maxPages) || maxPages < 1 || maxPages > MAX_PAGES) throw Error(`maxPages must be 1–${MAX_PAGES}`);
   const findings = [];
   const pages = [];
   const add = (severity, url, code, advice) => findings.push({ severity, url, code, advice });
@@ -120,7 +120,10 @@ export async function auditComposerSEO({ fetcher = fetch, now = () => new Date()
       else if (safePage(m.canonical) !== url) add('warning', url, 'canonical-mismatch', `Declared canonical does not equal the sitemap URL: ${m.canonical.slice(0, 180)}`);
       if (/\bnoindex\b/i.test(m.robots + ',' + page.xrobots)) add('error', url, 'sitemap-noindex', 'An advertised sitemap page is marked noindex.');
       if (!m.ogTitle || !m.ogDescription || !m.ogImage) add('warning', url, 'incomplete-social-metadata', 'Review Open Graph title, description and image.');
-      if (!m.twitterCard) add('warning', url, 'missing-twitter-card', 'Review X/Twitter sharing metadata.');
+      if (m.twitterCard !== 'summary_large_image') add('warning', url, 'unexpected-twitter-card', 'Declare a large-image X card.');
+      if (!m.ogImageAlt || m.ogImageAlt !== m.twitterImageAlt) add('warning', url, 'social-image-alt-mismatch', 'Provide the same descriptive image alt text on both card types.');
+      if (m.ogImage !== m.twitterImage) add('warning', url, 'social-image-mismatch', 'Use the same artwork on both card types.');
+      if (m.ogUrl !== m.canonical) add('warning', url, 'og-canonical-mismatch', 'Open Graph URL should match the canonical.');
       if (m.title) {
         const previous = titles.get(m.title.toLowerCase());
         if (previous) add('warning', url, 'duplicate-title', `Also used on ${previous}`);

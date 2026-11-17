@@ -10,6 +10,12 @@ Dean's public work combines software construction, music production and playable
 
 The desired animation language can draw on adult science-fiction cartoons, including the owner's Rick and Morty reference: expressive ink contours, deliberate awkwardness, readable flat forms, purposeful exaggeration and dry humour. Create original characters and objects. A familiar cartoon style is a reference for craft, not a substitute for an original idea.
 
+## App Composer share artwork
+
+The November 2026 App Composer campaign is the reference for new social cards. Use one striking subject, large readable type and a clear destination. Generate the complete illustration and its copy in one render. The final export may crop lightly, resize or compress that render. Inspect exact text, logo, subject and safe margins at 1200×630 and around 300px wide before using it.
+
+Composer uses a shared campaign card by default and chooses a specific card where it helps a reader recognise the destination. Actual product captures, the approved PHP2Shell artwork and published user or project artwork have their own purpose and retain their own cards. Keep the vector merging-block identity for favicons, install, launcher and header. Treat tiny optical icons as a separate design job from social photography.
+
 ## Linkarooie
 
 The [recovered GitHub icon](https://github.com/loftwah/linkarooie-3/blob/149f277bc45baf31eca406878e8e16325b85a06f/src/assets/images/icon.png) was a real historical asset, but MP subsequently confirmed the agent chose the wrong one of two similar references. Do not present it as the intended reference. Preserve its provenance without silently elevating that choice to owner authority.
