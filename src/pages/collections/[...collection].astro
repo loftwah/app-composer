@@ -1,0 +1,6 @@
+---
+import { legacyExampleDestination } from '../../lib/share-examples';
+const destination = legacyExampleDestination(Astro.params.collection);
+if (!destination) return new Response(null, { status: 404 });
+return Astro.redirect(destination, 308);
+---

@@ -1,0 +1,72 @@
+---
+import Base from '../../layouts/Base.astro';
+import ShareFilmFeedback from '../../components/ShareFilmFeedback.astro';
+import ShareFilmVotes from '../../components/ShareFilmVotes.astro';
+import { shareFilms, studioFilmPath as studioFilm } from '../../lib/share-films.ts';
+import { ArrowUpRight } from '@lucide/astro';
+const [featuredFilm, ...films] = shareFilms;
+const canReview = Boolean(Astro.locals.user);
+Astro.response.headers.set("Vary", "Cookie");
+---
+
+<Base title="Watch how it’s made" description="Watch finished films and quick demos, then try the tools used to make them.">
+    <section class="wall-films" id="films" aria-labelledby="films-heading">
+      <header>
+        <a href="/media-studio">← Media Studio</a>
+        <h1 id="films-heading">Watch how it’s made</h1>
+        <p class="lede">See a finished cut or follow a short workflow. Try the same tool when you’re ready.</p>
+      </header>
+      <div class="wall-film-layout">
+        <article class="wall-featured-film" aria-labelledby="studio-film-heading">
+          <video controls playsinline preload="none" poster={`${studioFilm}.jpg`} width="1080" height="1920" aria-labelledby="studio-film-heading">
+            <source src={`${studioFilm}.mp4`} type="video/mp4" />
+            <track kind="captions" src={`${studioFilm}.vtt`} srclang="en" label="English captions" />
+            <a href={`${studioFilm}.mp4`}>Watch the social-kit film</a>
+          </video>
+          <div>
+            <h3 id="studio-film-heading">One image. Four social sizes.</h3>
+            <p>17 seconds. Watch Image Tools turn one PNG into four WebPs and a downloadable ZIP.</p>
+            <p class="small">Music by LoftwahFM · Pixel Box Theory</p>
+            <div class="wall-film-links">
+              <a href={`${studioFilm}.mp4`} download>Download video</a>
+              <a href="https://media.loftwah.com/tools/images">Try Image Tools</a>
+            </div>
+            {canReview && <ShareFilmVotes film={featuredFilm} />}
+          </div>
+        </article>
+        <ul class="wall-film-list" role="list">
+          {films.map((film) => (
+            <li><a href={film.href}>{film.title} <ArrowUpRight size={16} aria-hidden="true" /></a><p>{film.detail}</p>{canReview && <ShareFilmVotes film={film} />}</li>
+          ))}
+        </ul>
+      </div>
+      <p><a href="https://media.loftwah.com/gallery">Browse the Media Studio gallery</a></p>
+      {canReview ? <ShareFilmFeedback /> : <p><a href="/_emdash/admin/login?redirect=/media-studio/films">Sign in to give private film feedback</a></p>}
+    </section>
+</Base>
+
+<style>
+
+  .wall-films { margin:0 0 42px; padding:24px 0 28px; border-block:1px solid var(--color-border); scroll-margin-top:22px; }
+  .wall-films h2 { margin:0 0 16px; }
+  .wall-film-layout { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:24px 44px; align-items:start; }
+  .wall-featured-film { display:grid; grid-template-columns:minmax(0,190px) minmax(0,1fr); gap:16px 20px; align-items:start; }
+  .wall-featured-film video { display:block; width:100%; height:auto; background:var(--color-field); border-radius:10px; }
+  .wall-featured-film h3 { margin:0 0 8px; font-size:1.25rem; }
+  .wall-featured-film p,.wall-film-list p { color:var(--color-muted); }
+  .wall-film-links { display:flex; flex-wrap:wrap; gap:0 16px; font-weight:600; }
+  .wall-film-links a { display:flex; align-items:center; min-height:44px; }
+  .wall-film-list { list-style:none; margin:0; padding:0; }
+  .wall-film-list li { padding:9px 0; border-bottom:1px solid var(--color-border); }
+  .wall-film-list li:first-child { padding-top:0; }
+  .wall-film-list a { display:inline-flex; gap:6px; align-items:center; font-weight:650; min-height:32px; }
+  .wall-film-list p { margin:0; font-size:.875rem; }
+  .wall-films > header { margin-block-end: 1.5rem; }
+  .wall-films > header h1 { margin-block: 0.65rem; }
+  @media (max-width:760px) {
+    .wall-film-layout { grid-template-columns:minmax(0,1fr); }
+  }
+  @media (max-width:460px) {
+    .wall-featured-film { grid-template-columns:minmax(0,120px) minmax(0,1fr); gap:12px; }
+  }
+</style>

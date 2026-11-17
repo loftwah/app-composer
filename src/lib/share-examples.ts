@@ -48,7 +48,7 @@ const creatorHubExample: ShareExample = {
   id: 'creator-hub',
   title: 'Creator Hub',
   description: 'A studio profile, a moderated guestbook and the editable setup that connects them.',
-  href: '/share/examples/creator-hub',
+  href: '/demo/examples/creator-hub',
   lead: creatorCover,
   items: [
     {
@@ -98,7 +98,7 @@ const signalAndType: ShareExample = {
   id: 'signal-and-type',
   title: 'Signal & Type',
   description: 'Editable Launch Kit covers for a profile, a release or a story.',
-  href: '/share/examples/signal-and-type',
+  href: '/demo/examples/signal-and-type',
   lead: nightSignal,
   items: [
     {
@@ -145,7 +145,7 @@ const printShop: ShareExample = {
   id: 'print-shop',
   title: 'The Print Shop',
   description: 'An ink-textured press, the working PDF editor and a finished fictional form.',
-  href: '/share/examples/print-shop',
+  href: '/demo/examples/print-shop',
   lead: printShopPress,
   items: [
     {
@@ -172,3 +172,11 @@ const printShop: ShareExample = {
 };
 
 export const shareExamples = [signalAndType, printShop, creatorHubExample];
+
+
+// Old pages and their tool names still open the same public examples.
+export function legacyExampleDestination(id: string | undefined): string | null {
+  if (!id) return '/demo/examples';
+  const exampleId = id === 'paperwork' ? 'print-shop' : id === 'launch-kit' ? 'signal-and-type' : id;
+  return shareExamples.find((example) => example.id === exampleId)?.href ?? null;
+}
