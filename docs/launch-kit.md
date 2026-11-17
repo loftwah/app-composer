@@ -12,6 +12,10 @@ Choose the local ZIP on the import screen. Inspect icon/social pixels and choose
 
 `pnpm init:site --model MODEL_JSON --destination NEW_ABSOLUTE_ABSENT_DIRECTORY --launch-kit PACKAGE_ZIP --adoption ADOPTION_JSON` applies selected branding while creating the existing independent EmDash content app. It preserves collection schema, uses selected title in actual page metadata/header, keeps Composer-owned launcher artwork, resolves manifest start/scope to app root and emits app-owned assets plus provenance. This remains local project preparation: its cloud account, authentication, database/storage and deployment configuration require their existing review.
 
+On macOS, a temporary folder reported under `/var` can be an alias for the actual
+path. Run `pwd -P` inside the chosen existing parent and use that absolute path
+with a new child name as `--destination`.
+
 Both paths share the existing inode-bound, absent-directory write path. Neither updates an existing owner project or imports source images. Partial failures retain bounded files for inspection; no automatic overwrite/retry is implied.
 
 ## Reference and evidence
