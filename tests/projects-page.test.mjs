@@ -115,7 +115,7 @@ test("the project family is a maintained public page and the real navigation lin
 });
 
 test("the Foilbury build record names each verification link", () => {
-  const receipt = page.match(/<details class="flagship-receipt">[\s\S]*?<\/details>/)?.[0];
+  const receipt = page.match(/<details\b[^>]*\bclass="flagship-receipt"[^>]*>[\s\S]*?<\/details>/)?.[0];
   assert.ok(receipt, "the flagship build record is rendered");
   const links = [...receipt.matchAll(/href="https:\/\/github\.com\/loftwah\/composer-media-studio\/issues\/183#issuecomment-([\d]+)">([^<]+)<\/a>/g)];
   assert.deepEqual(links.map(([, comment, label]) => [comment, label]), [
