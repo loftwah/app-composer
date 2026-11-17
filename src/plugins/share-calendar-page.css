@@ -310,6 +310,7 @@
 .sc-badge-scheduled {
   color: var(--sc-accent);
 }
+.sc-badge-published,
 .sc-badge-shared {
   color: var(--sc-green);
 }

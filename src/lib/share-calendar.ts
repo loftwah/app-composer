@@ -858,6 +858,21 @@ export function itemApprovalAndDelivery(
   return { approval, delivery };
 }
 
+export function hasPublishedBlueskyRevision(
+  item: Pick<ShareCalendarItem, "id" | "revision">,
+  approval: BlueskyApprovalRecord | null,
+  delivery: BlueskyDeliveryRecord | null,
+): boolean {
+  return (
+    approval?.itemId === item.id &&
+    approval.draftRevision === item.revision &&
+    delivery?.state === "published" &&
+    delivery.itemId === item.id &&
+    delivery.approvalRevision === approval.approvalRevision &&
+    Boolean(delivery.permalink)
+  );
+}
+
 type ShareDeliveryFilter = "published" | "attention";
 export type ShareListFilter =
   "all" | "drafts" | "scheduled" | ShareDeliveryFilter;
