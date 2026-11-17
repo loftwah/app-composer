@@ -10,6 +10,7 @@ import { ShareCard } from "./miniapps/share-card";
 import { PostcardJourney } from "./miniapps/postcard-journey";
 import type { AppID, SiteID } from "./miniapps/types";
 import reference from "../../config/creator-hub-reference.json";
+import { mountedApp } from "../lib/composition";
 import "./miniapps-admin.css";
 const names = { guestbook: "Here / there", showcase: "Linkarooie" };
 const siteNames: Record<
@@ -67,6 +68,10 @@ function AppPage() {
     contributions,
     approved,
   } = useMiniapps();
+  const sourceRepository =
+    site === "creator-hub"
+      ? reference.apps[selected].repository
+      : mountedApp(selected)?.repository;
   return (
     <section className="composer-admin">
       <div className="ca-heading">
@@ -143,7 +148,20 @@ function AppPage() {
                 {selected === "guestbook"
                   ? "Own database + private photo bucket"
                   : "Own database + approved Guestbook items"}{" "}
-                · source pinned to <code>{snapshot.revision.slice(0, 7)}</code>
+                · managed source pin{" "}
+                {sourceRepository ? (
+                  <a
+                    href={`${sourceRepository}/tree/${snapshot.revision}`}
+                    aria-label={`Open managed source at ${snapshot.revision}`}
+                    title={snapshot.revision}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <code>{snapshot.revision.slice(0, 7)}</code>
+                  </a>
+                ) : (
+                  <code>{snapshot.revision.slice(0, 7)}</code>
+                )}
               </p>
               <p className="ca-muted">
                 {site === "creator-hub"
@@ -172,7 +190,7 @@ function AppPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Release identity ↗
+                Standalone build identity ↗
               </a>
               {site === "creator-hub" && (
                 <a
