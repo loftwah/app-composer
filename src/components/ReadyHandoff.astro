@@ -13,10 +13,10 @@ const browserTask=taskId==='browser';
  </label>
  <p data-ready-help class="small" role="status">{initial.help}</p>
  <p class="small" data-browser-check-link hidden={!browserTask}><a href={browserCheckPath}>Open the practice page</a></p>
- <button class="button" data-copy-ready disabled><Copy size={18} aria-hidden="true"/><span data-ready-copy-label>{browserTask ? 'Copy browser check' : 'Copy to Codex'}</span></button>
+ <button class="button" data-copy-ready disabled><Copy size={18} aria-hidden="true"/><span data-ready-copy-label>{browserTask ? 'Copy browser check' : 'Copy agent handoff'}</span></button>
  <p data-ready-message role="status" aria-live="polite" class="message"></p>
  <details><summary>Read or copy the agent handoff</summary><pre data-ready-prompt tabindex="0">{initial.prompt}</pre></details>
- <noscript><p class="small">Open the handoff above, select its text and paste it into {browserTask ? 'your agent' : 'Codex'}. Without JavaScript, it contains the selected request.</p></noscript>
+ <noscript><p class="small">Open the handoff above, select its text and paste it into {browserTask ? 'your agent' : 'Codex or OpenCode'}. Without JavaScript, it contains the selected request.</p></noscript>
 </div>
 <script>
 import {readyTasks} from '../lib/ready-handoff';
@@ -36,7 +36,7 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
   let text=task.prompt;
   button.disabled=false;
   help.textContent=task.help;
-  copyLabel.textContent=browserTask?'Copy browser check':'Copy to Codex';
+  copyLabel.textContent=browserTask?'Copy browser check':'Copy agent handoff';
   browserCheckLink.hidden=!browserTask;
   if(!browserTask)text+=assistanceHandoff(currentAssistance());
   if(!browserTask&&container.dataset.useSetupPreferences){
@@ -59,7 +59,7 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
   const task=selector.value;const text=prompt.textContent!;
   try{
    await navigator.clipboard.writeText(text);
-   if(selector.value===task)message.textContent=task==='browser'?'Copied. Paste this into the agent you want to check.':'Copied. Paste this into Codex in your chosen project.';
+   if(selector.value===task)message.textContent=task==='browser'?'Copied. Paste this into the agent you want to check.':'Copied. Paste this into Codex or OpenCode in your chosen project.';
   }catch{
    if(selector.value===task){message.textContent='Clipboard access failed. Open the handoff below, select its text and copy it.';container.querySelector('details')!.open=true;}
   }
