@@ -2,12 +2,18 @@
 import Base from '../../layouts/Base.astro';
 import ShareFilmFeedback from '../../components/ShareFilmFeedback.astro';
 import ShareFilmVotes from '../../components/ShareFilmVotes.astro';
-import { shareFilms, studioFilmPath } from '../../lib/share-films.ts';
+import { loadStudioShowcase, shareFilms, studioFilmPath, studioPublicationOrigin } from '../../lib/share-films.ts';
 
 const [socialKit, studioTeaser, ...films] = shareFilms;
 const teaser = '/media-studio/watch/media-studio-teaser-recut';
+const motionStory = `${studioPublicationOrigin}/films/artwork-to-motion`;
+Astro.csp?.insertDirective(`media-src 'self' ${studioPublicationOrigin}`);
+Astro.csp?.insertDirective(`img-src ${studioPublicationOrigin}/films/`);
 const canReview = Boolean(Astro.locals.user);
 Astro.response.headers.set('Vary', 'Cookie');
+Astro.response.headers.set('Cache-Control', 'private, no-store');
+const studioShowcase = await loadStudioShowcase();
+const featuredHrefs = new Set<string>(shareFilms.map(({ href }) => href));
 ---
 
 <Base title="Media Studio films" description="Watch a Studio build, see how a social kit comes together, and find the tools and tutorials behind the films.">
@@ -67,8 +73,30 @@ Astro.response.headers.set('Vary', 'Cookie');
         </li>
       ))}
     </ul>
-    <p><a href="https://media.loftwah.com/gallery">Browse the Media Studio gallery</a></p>
+    <p><a href={`${studioPublicationOrigin}/gallery`}>Browse the Media Studio gallery</a></p>
     {canReview ? <ShareFilmFeedback /> : <p><a href="/_emdash/admin/login?redirect=/media-studio/films">Sign in to give private film feedback</a></p>}
+  </section>
+
+  <section class="film-library" id="studio-showcase-films" aria-labelledby="showcase-films-title">
+    <h2 id="showcase-films-title">Made in Media Studio</h2>
+    <article class="motion-story" aria-labelledby="motion-story-title">
+      <video controls playsinline preload="none" poster={motionStory + '-poster.webp'} width="1280" height="720" aria-labelledby="motion-story-title">
+        <source src={motionStory + '.mp4'} type="video/mp4" />
+        <a href={motionStory + '.mp4'}>Open the 31-second film</a>
+      </video>
+      <div>
+        <h3 id="motion-story-title">From artwork to motion</h3>
+        <p>31 seconds · A silent film featuring the public gallery, a commissioned illustration in LDraw and a generated motion study</p>
+        <a href={motionStory + '.mp4'}>Open video file</a>
+      </div>
+    </article>
+    <ul role="list">
+      {studioShowcase?.map(({ slug, title }) => {
+        const href = `${studioPublicationOrigin}/p/${slug}`;
+        return !featuredHrefs.has(href) && <li><a href={href}>{title}</a></li>;
+      })}
+    </ul>
+    {studioShowcase === null && <p>Studio films are temporarily unavailable. <a href="/media-studio/films#studio-showcase-films">Try again</a>.</p>}
   </section>
 </Base>
 
@@ -89,6 +117,7 @@ Astro.response.headers.set('Vary', 'Cookie');
   .film-library li p { margin: .35rem 0 0; }
   @media (max-width: 850px) {
     .featured { grid-template-columns: minmax(0, 1fr); gap: .5rem; }
+    .motion-story { grid-template-columns: minmax(0, 1fr); }
   }
   @media (max-width: 480px) {
     .feature { grid-template-columns: minmax(0, 1fr); }

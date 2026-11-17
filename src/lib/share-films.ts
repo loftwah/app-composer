@@ -1,3 +1,6 @@
+import { z } from "zod";
+import { readBoundedJson } from "./share-catalogue-asset.ts";
+
 export const studioFilmPath = "/media-studio/watch/studio-social-kit";
 
 export const shareFilms = [
@@ -17,3 +20,28 @@ export const filmFeedbackReasons = {
   up: ["Strong opening", "Shows the real workflow", "Easy to follow", "Good pace", "Good sound"],
   down: ["Slow opening", "Hard to read on a phone", "Needs more real product footage", "Unclear next step", "Sound needs work"],
 } as const;
+
+export const studioPublicationOrigin = "https://media.loftwah.com";
+
+const studioShowcaseSchema = z.object({
+  version: z.literal(1),
+  films: z.array(z.object({
+    slug: z.string().regex(/^[A-Za-z0-9_-]{1,80}$/),
+    title: z.string().min(1).max(160),
+  })).max(24),
+});
+
+export async function loadStudioShowcase() {
+  try {
+    const signal = AbortSignal.timeout(2_000);
+    const response = await fetch(`${studioPublicationOrigin}/share-films.json`, {
+      redirect: "error",
+      signal,
+    });
+    if (!response.ok) return null;
+    const payload = studioShowcaseSchema.safeParse(await readBoundedJson(response, signal));
+    return payload.success ? payload.data.films : null;
+  } catch {
+    return null;
+  }
+}

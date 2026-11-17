@@ -10,6 +10,12 @@ Astro.response.status = result.status;
 const artwork = result.status === 200 ? result.artwork : null;
 const title = artwork?.title ?? (result.status === 404 ? 'Artwork unavailable' : 'Artwork temporarily unavailable');
 const canonical = artwork ? publicPageCanonical(`/share/artwork/${artwork.assetId}`).href : undefined;
+const filters = new URLSearchParams();
+for (const key of ['art', 'project', 'after']) {
+  const value = Astro.url.searchParams.get(key);
+  if (value) filters.set(key, value.slice(0, 128));
+}
+const browseHref = filters.size ? `/share?${filters}#artwork-${artwork?.assetId ?? ''}` : '/share';
 const format = artwork?.previewUrl.split('.').pop()?.toLowerCase();
 const shareType = format === 'png' || format === 'webp' ? `image/${format}` : 'image/jpeg';
 Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
@@ -20,7 +26,7 @@ Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
   shareImage={artwork?.previewUrl} shareType={shareType} shareAlt={artwork?.alt}
   shareWidth={null} shareHeight={null}>
   <nav class="artwork-nav" aria-label="Share">
-    <a href="/share"><ArrowLeft size={16} aria-hidden="true" /> Browse artwork</a>
+    <a href={browseHref}><ArrowLeft size={16} aria-hidden="true" /> Browse artwork</a>
     {artwork && <a href={`/share?project=${artwork.project}`}>More from {artwork.project}</a>}
   </nav>
   {artwork ? (
@@ -28,13 +34,16 @@ Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
       <header>
         <h1>{title}</h1>
         <p>{artwork.credit}</p>
+        {artwork.description && <p class="artwork-description">{artwork.description}</p>}
       </header>
       <a class="artwork-stage" href={artwork.previewUrl} aria-label="Open image file">
         <img src={artwork.previewUrl} alt={artwork.alt} decoding="async" referrerpolicy="no-referrer" />
       </a>
       <div class="artwork-actions">
         <a href={artwork.shareUrl}>Project share kit <ArrowUpRight size={16} aria-hidden="true" /></a>
-        <a href={artwork.previewUrl}>Open image file <ArrowUpRight size={16} aria-hidden="true" /></a>
+        <a href={artwork.originalUrl ?? artwork.previewUrl}>Open {artwork.originalUrl ? 'original' : 'image file'} <ArrowUpRight size={16} aria-hidden="true" /></a>
+        {artwork.sourceUrl && <a href={artwork.sourceUrl}>Source notes <ArrowUpRight size={16} aria-hidden="true" /></a>}
+        {artwork.kitUrl && <a href={artwork.kitUrl}>Open social kit <ArrowUpRight size={16} aria-hidden="true" /></a>}
         <div class="public-page-share" data-page-share hidden>
           <button type="button" class="secondary" data-page-native hidden>Share artwork</button>
           <button type="button" class="secondary" data-page-copy hidden>Copy artwork link</button>
@@ -45,6 +54,21 @@ Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
           </label>
         </div>
       </div>
+      {artwork.formats.length > 0 && (
+        <section>
+          <h2>Formats</h2>
+          <ul>{artwork.formats.map(({ url, label }) => <li><a href={url}>{label}</a></li>)}</ul>
+        </section>
+      )}
+      {artwork.versions.length > 0 && (
+        <section>
+          <h2>Versions</h2>
+          <ul>{artwork.versions.map(({ url, label, note, sourceUrl }) => (
+            <li><a href={url}>{label}</a>{note && ` · ${note}`}{sourceUrl && <> · <a href={sourceUrl}>Source notes for {label}</a></>}</li>
+          ))}</ul>
+        </section>
+      )}
+      <p><a href="/media-studio/studio">Open Media Studio</a> to import this artwork from your project’s Library. Confirm reuse permission and search for the title or paste <code>{artwork.assetId}</code>.</p>
     </article>
   ) : (
     <section class="artwork-state">
@@ -70,6 +94,7 @@ Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
     margin: 0 0 0.45rem;
   }
   .artwork-piece header p { color: var(--color-muted); margin: 0 0 1.25rem; }
+  .artwork-description { white-space: pre-line; overflow-wrap: anywhere; max-width: 65ch; }
   .artwork-stage {
     display: grid;
     place-items: center;

@@ -73,7 +73,7 @@ function boundedString(value: unknown, max: number): string | null {
 
 // Read the catalogue JSON with a hard body cap. A lying or missing
 // content-length never permits an unbounded buffer.
-async function readBoundedJson(
+export async function readBoundedJson(
   response: Response,
   signal: AbortSignal,
 ): Promise<unknown> {
@@ -395,10 +395,40 @@ function catalogueArtwork(raw: unknown): CatalogueArtwork | null {
   return { assetId, project, title, alt, credit, thumbnailUrl, previewUrl, shareUrl };
 }
 
+const campaignSourcePath = /^\/campaign\/.+/;
+
+function artworkRenditions(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((raw) => {
+    const entry = catalogueObject(raw);
+    const url = publicArtworkUrl(entry?.url, campaignSourcePath);
+    const label = boundedString(entry?.label, 200);
+    return url && label ? [{
+      url,
+      label,
+      note: boundedString(entry?.note, 2_000),
+      sourceUrl: publicArtworkUrl(entry?.sourceUrl, campaignSourcePath),
+    }] : [];
+  });
+}
+
+function artworkDetails(raw: unknown, artwork: CatalogueArtwork) {
+  const asset = catalogueObject(raw);
+  return {
+    ...artwork,
+    description: boundedString(asset?.description, 2_000),
+    originalUrl: publicArtworkUrl(catalogueObject(asset?.original)?.url, campaignArtworkPath),
+    sourceUrl: publicArtworkUrl(asset?.sourceUrl, campaignSourcePath),
+    kitUrl: publicArtworkUrl(asset?.kitUrl, campaignSourcePath),
+    formats: artworkRenditions(asset?.formats),
+    versions: artworkRenditions(asset?.versions),
+  };
+}
+
 export async function publicShareArtwork(
   id: string,
   options: CatalogueFetchOptions = {},
-): Promise<{ status: 200; artwork: CatalogueArtwork } | { status: 404 | 503 }> {
+): Promise<{ status: 200; artwork: ReturnType<typeof artworkDetails> } | { status: 404 | 503 }> {
   const endpoint = shareAssetApiUrl(id);
   if (!endpoint) return { status: 404 };
   try {
@@ -416,7 +446,7 @@ export async function publicShareArtwork(
     if (envelope?.version !== 1) return { status: 503 };
     const artwork = catalogueArtwork(envelope.asset);
     if (!artwork || artwork.assetId !== id) return { status: 404 };
-    return { status: 200, artwork };
+    return { status: 200, artwork: artworkDetails(envelope.asset, artwork) };
   } catch {
     return { status: 503 };
   }
