@@ -10,6 +10,7 @@ let candidate: Kit | undefined,
   raw: Uint8Array | undefined,
   adoption: Adoption | undefined,
   revision = 0,
+  validating = false,
   urls: string[] = [],
   activeTransaction: IDBTransaction | undefined;
 function invalidate() {
@@ -18,6 +19,13 @@ function invalidate() {
     activeTransaction?.abort();
   } catch {}
   activeTransaction = undefined;
+}
+function setValidating(busy: boolean) {
+  validating = busy;
+  $<HTMLButtonElement>("kit-adopt").disabled = busy;
+  const review = $<HTMLElement>("kit-review");
+  if (busy) review.setAttribute("aria-busy", "true");
+  else review.removeAttribute("aria-busy");
 }
 function release() {
   for (const url of urls) URL.revokeObjectURL(url);
@@ -83,11 +91,17 @@ $("kit-file").addEventListener("change", async () => {
   input.value = "";
   if (!file) return;
   invalidate();
-  const current = revision;
-  candidate = undefined;
-  raw = undefined;
-  $<HTMLElement>("kit-review").hidden = true;
-  release();
+  const current = revision,
+    previous = candidate !== undefined && $<HTMLElement>("kit-review").hidden === false;
+  if (!previous) {
+    candidate = undefined;
+    raw = undefined;
+    release();
+  }
+  setValidating(true);
+  status.textContent = previous
+    ? "Checking the replacement upload. The checked kit and your choices stay under review until this finishes."
+    : "Checking the upload. Reading stays on this device.";
   try {
     if (file.size > 8 * 1024 * 1024)
       throw Error("Choose a Launch Kit ZIP under 8 MiB.");
@@ -119,6 +133,7 @@ $("kit-file").addEventListener("change", async () => {
       }
     }
     if (current !== revision) return;
+    release();
     candidate = kit;
     raw = bytes;
     $("kit-images").replaceChildren(...images);
@@ -138,11 +153,17 @@ $("kit-file").addEventListener("change", async () => {
     status.textContent =
       "Generated outputs checked. Review and choose before adopting.";
   } catch (error) {
-    if (current === revision)
+    if (current !== revision) return;
+    const message =
+      error instanceof Error ? error.message : "The package could not be read.";
+    if (previous) {
+      $<HTMLElement>("kit-review").hidden = false;
       status.textContent =
-        error instanceof Error
-          ? error.message
-          : "The package could not be read.";
+        message +
+        " The previous checked package is still under review, with your choices unchanged.";
+    } else status.textContent = message;
+  } finally {
+    if (current === revision) setValidating(false);
   }
 });
 $("kit-cancel").addEventListener("click", () => {
@@ -150,12 +171,18 @@ $("kit-cancel").addEventListener("click", () => {
   candidate = undefined;
   raw = undefined;
   release();
+  setValidating(false);
   $<HTMLElement>("kit-review").hidden = true;
   status.textContent = "Import cancelled. Existing drafts are unchanged.";
 });
 $("kit-fields").addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (!candidate || !raw) return;
+  if (!candidate || !raw || $<HTMLElement>("kit-review").hidden) return;
+  if (validating) {
+    status.textContent =
+      "Wait for the replacement package check to finish before adopting.";
+    return;
+  }
   const kit = candidate,
     bytes = raw,
     current = revision,
@@ -187,10 +214,11 @@ $("kit-fields").addEventListener("submit", async (event) => {
     status.textContent =
       "Imported into a separate app draft. No app was changed or deployed.";
   } catch (error) {
-    status.textContent =
-      error instanceof Error
-        ? error.message
-        : "The app draft could not be saved.";
+    if (current === revision)
+      status.textContent =
+        error instanceof Error
+          ? error.message
+          : "The app draft could not be saved.";
   }
 });
 $("kit-download").addEventListener("click", () => {
@@ -220,6 +248,7 @@ $("kit-copy").addEventListener("click", async () => {
 });
 $("kit-forget").addEventListener("click", async () => {
   invalidate();
+  setValidating(false);
   const current = revision;
   try {
     await store(null, true, current);
