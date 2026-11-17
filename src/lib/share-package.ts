@@ -7,9 +7,11 @@ import {
   SHARE_CHANNEL_LABELS,
   SHARE_STATE_LABELS,
   captionUsage,
+  isXVariant,
   scheduleLabels,
   type CaptionUnit,
   type ShareCalendarItem,
+  type ShareCalendarVariant,
   type ShareCalendarSnapshot,
   type ShareCalendarSource,
   type ShareChannel,
@@ -177,14 +179,18 @@ export function buildShareApprovalPackage(
   const labels = item.scheduledAt ? scheduleLabels(item.scheduledAt) : null;
   const destinationList = [
     destinationFor(item.channel, item.destination, item.caption, true),
-    ...item.variants.map((variant) =>
-      destinationFor(
-        variant.channel,
-        variant.destination,
-        variant.caption,
-        false,
+    // The X export draft is export-only: it is not an approval destination and
+    // stays out of the package that a reviewer acts on.
+    ...item.variants
+      .filter((variant): variant is ShareCalendarVariant => !isXVariant(variant))
+      .map((variant) =>
+        destinationFor(
+          variant.channel,
+          variant.destination,
+          variant.caption,
+          false,
+        ),
       ),
-    ),
   ];
   const catalogue = item.catalogue;
   // The calendar snapshot carries a saved descriptor. Approval performs the
