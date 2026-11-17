@@ -198,8 +198,11 @@
   color: var(--color-muted);
   font-size: 0.85rem;
 }
-.gallery-empty,
-.gallery-diagrams {
+.gallery-pages[data-artwork-auto] :is(a:not(:focus), [role="status"]) {
+  opacity: 0;
+  pointer-events: none;
+}
+.gallery-empty {
   margin-block: 2rem;
 }
 .gallery-visually-hidden {

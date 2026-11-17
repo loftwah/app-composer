@@ -205,6 +205,7 @@ export function mountShareGallery(wall: HTMLElement) {
   const next = dialog.querySelector<HTMLButtonElement>("[data-gallery-next]")!;
   const more = wall.querySelector<HTMLAnchorElement>("[data-artwork-next]");
   const status = wall.querySelector<HTMLElement>("[data-artwork-status]");
+  const pages = more?.closest("nav");
   const resize = mountMasonry(grid);
   const seen = new Set(
     [...grid.querySelectorAll<HTMLElement>("[data-artwork-id]")].map(
@@ -274,6 +275,7 @@ export function mountShareGallery(wall: HTMLElement) {
         observer?.observe(more);
       } else {
         more.hidden = true;
+        pages?.removeAttribute("data-artwork-auto");
       }
       status.textContent = more.hidden
         ? "You’ve reached the end."
@@ -284,6 +286,7 @@ export function mountShareGallery(wall: HTMLElement) {
       status.textContent =
         "Couldn’t load more here. Open the next page to try again.";
       more.dataset.navigate = "";
+      pages?.removeAttribute("data-artwork-auto");
       return false;
     }
   }
@@ -297,14 +300,19 @@ export function mountShareGallery(wall: HTMLElement) {
     return loading;
   }
 
-  const observer = new IntersectionObserver(
-    ([entry]) => {
-      if (entry?.isIntersecting) void load();
-    },
-    { rootMargin: "0px 0px 420px" },
-  );
+  const observer = typeof IntersectionObserver === "function"
+    ? new IntersectionObserver(
+        ([entry]) => {
+          if (entry?.isIntersecting) void load();
+        },
+        { rootMargin: "0px 0px 420px" },
+      )
+    : null;
   if (more) {
-    observer.observe(more);
+    if (observer) {
+      pages?.setAttribute("data-artwork-auto", "");
+      observer.observe(more);
+    }
     more.addEventListener("click", (event) => {
       if (modified(event) || more.hasAttribute("data-navigate")) return;
       event.preventDefault();

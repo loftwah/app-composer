@@ -50,4 +50,10 @@ Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
     max-width: none;
     padding: clamp(1rem, 2vw, 2rem) clamp(0.75rem, 1.2vw, 1.5rem) 4rem;
   }
+  :global(main:has([data-artwork-auto])) {
+    padding-bottom: 1rem;
+  }
+  :global(main:has([data-artwork-auto]) + footer) {
+    display: none;
+  }
 </style>
