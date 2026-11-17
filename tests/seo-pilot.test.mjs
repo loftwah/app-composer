@@ -4,7 +4,7 @@ import { auditComposerSEO, PILOT_ORIGIN } from '../scripts/seo-pilot.mjs';
 
 const base = PILOT_ORIGIN;
 const robots = `User-agent: *\nDisallow: /_emdash/\nSitemap: ${base}/sitemap.xml`;
-const valid = (title) => `<!doctype html><html><head><title>${title}</title><meta name="description" content="Accurate description"><link rel="canonical" href="${base}/"><meta property="og:title" content="${title}"><meta property="og:description" content="Accurate"><meta property="og:image" content="${base}/image.jpg"><meta name="twitter:card" content="summary_large_image"></head><body><h1>Heading</h1></body></html>`;
+const valid = (title) => `<!doctype html><html><head><title>${title}</title><meta name="description" content="Accurate description"><link rel="canonical" href="${base}/"><meta property="og:title" content="${title}"><meta property="og:description" content="Accurate"><meta property="og:image" content="${base}/image.jpg"><meta property="og:image:alt" content="Composer illustration"><meta property="og:url" content="${base}/"><meta name="twitter:image" content="${base}/image.jpg"><meta name="twitter:image:alt" content="Composer illustration"><meta name="twitter:card" content="summary_large_image"></head><body><h1>Heading</h1></body></html>`;
 function fixture(override = {}, locs = [`${base}/`]) {
   const resources = {
     [`${base}/robots.txt`]: { body: robots, type: 'text/plain' },
@@ -76,7 +76,7 @@ test('fails visibly when sitemap is unavailable or an advertised page redirects'
 });
 
 test('hard page count bound and oversized HTTP body are reported', async () => {
-  await assert.rejects(run(fixture(), { maxPages: 81 }), /1–80/);
+  await assert.rejects(run(fixture(), { maxPages: 129 }), /1–128/);
   const huge = fixture({ [`${base}/`]: { body: 'x'.repeat(1_048_577), type: 'text/html' } });
   const report = await run(huge);
   assert.ok(report.findings.some((x) => x.code === 'page-unreachable'));
@@ -84,7 +84,7 @@ test('hard page count bound and oversized HTTP body are reported', async () => {
 
 test('deliberately public /studio is not mistaken for a private administrative path', async () => {
   const studio = `${base}/studio`;
-  const html = valid('Studio').replace(`href="${base}/"`, `href="${studio}"`);
+  const html = valid('Studio').replace(`href="${base}/"`, `href="${studio}"`).replace(`property="og:url" content="${base}/"`, `property="og:url" content="${studio}"`);
   const f = fixture({ [studio]: { body: html, type: 'text/html' } }, [studio]);
   const report = await run(f);
   assert.equal(report.checkedPages, 1);

@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { mediaStudioShareArtwork } from '../lib/site-share-artwork.mjs';
 import TutorialQuickStart from '../components/TutorialQuickStart.astro';
 import { mediaStudioQuickStart } from '../lib/tutorial-quick-start.mjs';
 const hero = '/media-studio/studio-library-20261114.jpg';
@@ -11,7 +12,6 @@ const beforeEdit = '/media-studio/studio-change-before-20261114.jpg';
 const afterEdit = '/media-studio/studio-change-after-20261114.jpg';
 const init = '/media-studio/init-media-20261114.jpg';
 const catalogue = '/media-studio/catalogue-with-separate-apps.png';
-const og = '/media-studio/brand/brand-share-1200x630-20261114.png';
 const brandStill = '/media-studio/brand/brand-still-20261114.jpg';
 const brandEdit = '/media-studio/brand/brand-edit-20261114.png';
 const brandMask = '/media-studio/brand/brand-mask-20261114.png';
@@ -70,11 +70,6 @@ const costs = [
 <Base
   title="Building an open-source AI media studio with App Composer"
   description="How App Composer and a supported agent build, connect, deploy and keep improving an independently owned image, video and sound studio on Cloudflare — with the real code, costs and limits."
-  shareImage="https://composer.loftwah.com/media-studio/brand/brand-share-1200x630-20261114.png"
-  shareType="image/png"
-  shareAlt="Build your own media studio: a warm paper-cut studio desk with a waveform, camera and an orange signal ring, with exact App Composer type and mark."
-  shareWidth={1200}
-  shareHeight={630}
   ogType="article"
   canonical="https://composer.loftwah.com/media-studio"
 >
@@ -85,6 +80,7 @@ const costs = [
       '@context': 'https://schema.org',
       '@type': 'TechArticle',
       headline: 'Building an open-source AI media studio with App Composer',
+      image: new URL(mediaStudioShareArtwork.path, 'https://composer.loftwah.com').href,
       description:
         'How App Composer and a supported agent build, connect, deploy and keep improving an independently owned image, video and sound studio on Cloudflare.',
       datePublished: '2026-11-14',

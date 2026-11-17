@@ -6,6 +6,7 @@ import AppLauncher from "../components/AppLauncher.astro";
 import BuilderContext from "../components/BuilderContext.astro";
 import {noindexFor} from "../lib/indexing.mjs";
 import {publicPageCanonical} from "../lib/public-pages.mjs";
+import {siteShareArtwork, siteShareImageType} from "../lib/site-share-artwork.mjs";
 interface Props {
   title: string;
   description: string;
@@ -26,7 +27,7 @@ interface Props {
 const {
   title,
   description,
-  noindex = noindexFor(Astro.url.hostname),
+  noindex = noindexFor(Astro.url.hostname, (Astro.response.status ?? 200) < 400),
 } = Astro.props;
 const pageTitle = title.includes("App Composer")
   ? title
@@ -34,12 +35,10 @@ const pageTitle = title.includes("App Composer")
 const canonical = Astro.props.canonical
   ? new URL(Astro.props.canonical)
   : publicPageCanonical(Astro.url.pathname);
-const shareImage =
-  Astro.props.shareImage ??
-  "https://composer.loftwah.com/brand/campaign/product-og-20261022b.jpg";
-const shareAlt =
-  Astro.props.shareAlt ??
-  "App Composer: Make software. Keep it yours. The approved orange mark and wordmark on a flat orange field.";
+const artwork = siteShareArtwork(canonical.pathname);
+const shareImage = new URL(Astro.props.shareImage ?? artwork.path, canonical);
+const shareAlt = Astro.props.shareAlt ?? artwork.alt;
+const shareType = (Astro.props.shareImage ? Astro.props.shareType : undefined) ?? siteShareImageType(shareImage.pathname);
 const { shareWidth = 1200, shareHeight = 630 } = Astro.props;
 Astro.response.headers.set("Cache-Control", "no-store");
 // Cloudflare reads the SSR CSP header to nonce its own detection scripts.
@@ -60,11 +59,12 @@ Astro.csp?.insertScriptResource(
     <link rel="canonical" href={canonical} />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#17181b" />
-    <link rel="icon" href="/brand/composer-icon-tile-20261022b.svg" type="image/svg+xml" />
+    <link rel="icon" href="/brand/composer-icon-tile-20261022b.svg" type="image/svg+xml" sizes="any" />
     <link rel="icon" href="/brand/favicon-20261022b.ico" sizes="any" />
     <link rel="icon" href="/brand/composer-icon-20261022b-16.png" type="image/png" sizes="16x16" />
     <link rel="icon" href="/brand/composer-icon-20261022b-32.png" type="image/png" sizes="32x32" />
     <link rel="icon" href="/brand/composer-icon-20261022b-48.png" type="image/png" sizes="48x48" />
+    <link rel="icon" href="/brand/composer-icon-20261022b-96.png" type="image/png" sizes="96x96" />
     <link rel="apple-touch-icon" href="/brand/composer-icon-20261022b-180.png" sizes="180x180" />
     <!-- Deliberate: /brand/space-latin-20261018.woff2 is the declared source of the one bundled
          face in global.css and the family every heading asks for, so the single
@@ -81,17 +81,17 @@ Astro.csp?.insertScriptResource(
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="App Composer" />
-    <meta property="og:image" content={shareImage} />
+    <meta property="og:image" content={shareImage.href} />
+    <meta property="og:image:type" content={shareType} />
     {shareWidth !== null && <meta property="og:image:width" content={String(shareWidth)} />}
     {shareHeight !== null && <meta property="og:image:height" content={String(shareHeight)} />}
     <meta property="og:image:alt" content={shareAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={shareImage} />
+    <meta name="twitter:image" content={shareImage.href} />
     <meta name="twitter:image:alt" content={shareAlt} />
-    <meta property="og:image:type" content={Astro.props.shareType ?? "image/jpeg"} />
-    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <meta name="robots" content={noindex ? "noindex,nofollow" : "max-image-preview:large"} />
     <slot name="head" />
     <script is:inline src="/brand/theme-bootstrap.js"></script>
     <link rel="stylesheet" href="/brand/page-share.css" />
