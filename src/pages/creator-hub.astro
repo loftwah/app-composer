@@ -21,8 +21,8 @@ const apps = [
   },
 ] as const;
 
-const film = '/creator-hub/creator-hub-film-20261117';
-const portrait = '/creator-hub/creator-hub-portrait-20261117';
+const film = '/creator-hub/workshop-film-20261117';
+const portrait = '/creator-hub/workshop-portrait-20261117';
 const startingPoint = "/init?start=creator-hub";
 const release = await readCreatorHubRelease();
 const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
@@ -34,9 +34,9 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
 <Base
  title="Creator Hub: a home for your work, built with your agent"
  description="A live Creator Hub built through App Composer: two independently owned apps, a real contribution reviewed by its owner, and an exported plan any agent can follow."
- shareImage="https://composer.loftwah.com/creator-hub/share-20261112.jpg"
+ shareImage="/brand/campaign/building-og-20261117.jpg"
  shareType="image/jpeg"
- shareAlt="App Composer Creator Hub: two live apps, one home for your work. The card shows Mara Quinn’s reference profile."
+ shareAlt="App Composer. Build it. Keep it running. A paper sketch feeds into orange-lit workshop modules."
 >
  <div class="hub-intro">
   <h1>A home for your work.<br/>{' '}Two apps you own.</h1>
@@ -60,7 +60,7 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
    <a href={portrait + '.mp4'}>Open the vertical Creator Hub film</a>
   </video>
   <div class="film-actions">
-   <span>32 seconds · Silent with on-screen text</span>
+   <span>34 seconds · Music by LoftwahFM</span>
    <a href={film + '.txt'}>Read the transcript</a>
    <a href={film + '.mp4'} download>Download video</a>
    <a href={portrait + '.mp4'} download>Download vertical video</a>
