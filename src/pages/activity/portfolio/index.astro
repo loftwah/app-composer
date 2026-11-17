@@ -1,0 +1,233 @@
+---
+import { env } from "cloudflare:workers";
+import type { D1Database } from "@cloudflare/workers-types";
+import { ArrowDownToLine, ArrowUpRight, Share2 } from "@lucide/astro";
+import Base from "../../../layouts/Base.astro";
+import AnalyticsTrend from "../../../components/AnalyticsTrend.astro";
+import { count, dateLabel } from "../../../lib/activity-view";
+import build from "../../../lib/build.json";
+import { portfolioCardFormats } from "../../../lib/portfolio-card-formats";
+import { portfolioArt, portfolioProjects } from "../../../lib/portfolio-projects";
+import {
+  comparePortfolioMetric, formatPortfolioValue, liferaftDownloads, liferaftReleases,
+  parsePortfolioPeriod, previousPeriod, readProjectReport, recentPeriod, REPORT_PATH,
+  reportAddress, sourceAddress,
+} from "../../../lib/portfolio-report";
+import "../../../styles/analytics.css";
+import "../../../styles/portfolio-analytics.css";
+
+const query = Astro.url.searchParams;
+const requestedProject = query.get("project");
+const project = portfolioProjects.find((item) => item.id === (requestedProject ?? "loftwahfm"));
+const now = Date.now();
+const period = parsePortfolioPeriod(query, now);
+if (!project || !period) Astro.response.status = 400;
+const runtime = env as unknown as { DB: D1Database };
+const prior = period ? previousPeriod(period) : undefined;
+const [report, previous, releases] = await Promise.all([
+  project?.endpoint && period ? readProjectReport(project, period, runtime.DB, build.commit) : undefined,
+  project?.endpoint && prior ? readProjectReport(project, prior, runtime.DB, build.commit) : undefined,
+  project?.id === "liferaft" ? liferaftDownloads() : undefined,
+]);
+const selectedMetric = query.get("metric");
+const metric = selectedMetric
+  ? report?.metrics.find((item) => item.key === selectedMetric)
+  : report?.metrics[0];
+const priorValue = metric && previous && prior
+  ? comparePortfolioMetric(metric, previous.metrics.find((item) => item.key === metric.key), prior,
+    report?.comparableFrom ?? null, previous.comparableFrom)
+  : null;
+const format = (value: number) => formatPortfolioValue(value, metric?.unit ?? "count");
+const hasValue = metric?.value != null;
+const capped = metric?.days.some((day) => day.capped) ?? false;
+const total = metric?.value != null ? format(metric.value) + (capped ? "+" : "") : "—";
+const dateRange = period ? `${dateLabel(period.from)} – ${dateLabel(period.to, true)} UTC` : "";
+const qualityLabel = { exact: "Recorded", partial: "Partial coverage", bounded: "Bounded count", sampled: "Sampled", unavailable: "Unavailable" };
+const source = project && period ? sourceAddress(project, period) : undefined;
+const cover = project ? portfolioArt(project) : undefined;
+const canonicalPath = project && period ? reportAddress(project.id, period, metric?.key) : REPORT_PATH;
+const canonical = new URL(canonicalPath, "https://composer.loftwah.com").href;
+const indexCanonical = query.size === 0 ? new URL(REPORT_PATH, canonical).href : canonical;
+const imagePath = project && period && metric && hasValue
+  ? reportAddress(project.id, period, metric.key, `${REPORT_PATH}/card.png`)
+  : undefined;
+const title = `${project?.name ?? "Portfolio"} · Portfolio analytics`;
+const shareTitle = metric && hasValue ? `${project?.name} · ${metric.label}` : title;
+const caption = metric && hasValue
+  ? `${project?.name} · ${total} · ${metric.label}\n${dateRange} · ${qualityLabel[metric.quality]}\n${canonical}`
+  : "";
+const payload = JSON.stringify({ url: canonical, title: shareTitle, text: caption }).replaceAll("<", "\\u003c");
+const change = priorValue !== null && metric?.value != null ? metric.value - priorValue : null;
+const comparison = change === null || !prior ? "" : change === 0
+  ? `Same as the previous ${prior.days} days`
+  : `${format(Math.abs(change))} ${change > 0 ? "more" : "fewer"} than the previous ${prior.days} days`;
+const releaseMax = Math.max(1, ...(releases ?? []).map((item) => item.downloads));
+const availableDays = metric?.days.filter((day) => day.value !== null).length ?? 0;
+---
+
+<Base title={shareTitle} description={hasValue ? `${total} · ${metric?.label} · ${dateRange}` : "Explore project outcomes and public measurement across Woodhouse."}
+  canonical={indexCanonical} shareImage={imagePath ? new URL(imagePath, canonical).href : undefined}
+  shareType={imagePath ? "image/png" : undefined}
+  shareAlt={imagePath ? `${project?.name}, ${total}, ${metric?.label}, ${dateRange}` : undefined}
+  noindex={query.has("from") || query.has("to") || !project || !period || undefined}>
+  <div class="portfolio-analytics">
+    <header class="portfolio-heading">
+      <div>
+        <h1>Portfolio analytics</h1>
+        <p>Explore what people do across the Woodhouse projects.</p>
+      </div>
+      <a class="portfolio-quiet-link" href="/activity">Composer app activity <ArrowUpRight size={16} aria-hidden="true"/></a>
+    </header>
+
+    {project && period ? (
+      <>
+        <form class="portfolio-controls" method="get" action={REPORT_PATH}>
+          <label for="portfolio-project">Project</label>
+          <select name="project" id="portfolio-project">
+            {portfolioProjects.map((item) => <option value={item.id} selected={item.id === project.id}>{item.name}</option>)}
+          </select>
+          <input type="hidden" name="from" value={period.from}/>
+          <input type="hidden" name="to" value={period.to}/>
+          <button type="submit">Show project</button>
+          {project.endpoint && <nav aria-label="Reporting period" class="portfolio-period">
+            {[7, 30].map((days) => {
+              const window = recentPeriod(days, now);
+              return <a href={reportAddress(project.id, window, metric?.key)}
+                aria-current={period.from === window.from && period.to === window.to ? "page" : undefined}>{days} days</a>;
+            })}
+          </nav>}
+        </form>
+
+        <section class={`portfolio-stage tone-${project.tone}`} aria-labelledby="portfolio-project-title">
+          <div class="portfolio-stage-content">
+            <div>
+              <h2 id="portfolio-project-title">{project.name}</h2>
+              <p class="portfolio-date">{project.endpoint ? dateRange : project.category}</p>
+            </div>
+            {metric && hasValue ? (
+              <div class="portfolio-reading">
+                <span class="portfolio-reading-number">{total}</span>
+                <span>{metric.label}</span>
+                {priorValue !== null && prior && <p class="portfolio-comparison">{comparison}</p>}
+              </div>
+            ) : project.id === "liferaft" && releases?.length ? (
+              <div class="portfolio-reading">
+                <span class="portfolio-reading-number">{count(releases[0].downloads)}</span>
+                <span>Installer downloads · {releases[0].tag}</span>
+              </div>
+            ) : (
+              <p class="portfolio-stage-status">{
+                project.lifecycle && project.lifecycle !== "active"
+                  ? project.lifecycle === "retired" ? "Retired project" : "Paused project"
+                  : project.endpoint && report ? "No data for this measure and window"
+                    : project.endpoint || project.id === "liferaft" ? "Source temporarily unavailable"
+                      : "Public reporting unavailable"
+              }</p>
+            )}
+            {project.site && <a class="portfolio-project-link" href={project.site}>Open {project.name} <ArrowUpRight size={17} aria-hidden="true"/></a>}
+          </div>
+          {cover ? <img class="portfolio-cover" src={cover} alt="" fetchpriority="high" width="1000" height="565"/> : (
+            <div class="portfolio-type-art" aria-hidden="true"><span>{project.name}</span></div>
+          )}
+        </section>
+
+        {report?.metrics.length ? (
+          <section class="portfolio-analysis" aria-labelledby="portfolio-trend-title" data-activity>
+            <nav class="portfolio-measures" aria-label="Measure">
+              {report.metrics.map((item) => <a href={reportAddress(project.id, period, item.key)}
+                data-preserve-day aria-current={item.key === metric?.key ? "page" : undefined}>{item.label}</a>)}
+            </nav>
+            {metric ? (
+              <>
+                <div class="portfolio-trend-heading">
+                  <h3 id="portfolio-trend-title">{metric.label} by day</h3>
+                  {hasValue && <a class="button secondary" href="#share-portfolio"><Share2 size={17} aria-hidden="true"/> Share this view</a>}
+                </div>
+                <AnalyticsTrend metric={metric.key} label={metric.label} definition={metric.definition}
+                  unit={metric.unit === "seconds" ? "seconds" : "recorded"} value={metric.value}
+                  quality={metric.quality} days={metric.days} from={period.from} to={period.to}
+                  surface={project.name} windowDays={period.days} selectedDay={query.get("day")}
+                  showTotal={false} caption={`${availableDays} of ${period.days} days available · ${qualityLabel[metric.quality]}`}/>
+              </>
+            ) : (
+              <p id="portfolio-trend-title">That measure is unavailable for this project. Choose one above.</p>
+            )}
+          </section>
+        ) : project.id === "liferaft" && releases?.length ? (
+          <section class="portfolio-analysis" aria-labelledby="liferaft-releases">
+            <h3 id="liferaft-releases">Downloads by release</h3>
+            <p>All-time macOS installer downloads recorded by GitHub for each release.</p>
+            <ul class="portfolio-releases">
+              {releases.map((release) => <li>
+                <a href={release.url}>{release.tag} <ArrowUpRight size={16} aria-hidden="true"/></a>
+                <meter aria-label={`Downloads for ${release.tag}`} max={releaseMax} value={release.downloads}></meter>
+                <strong>{count(release.downloads)}</strong>
+              </li>)}
+            </ul>
+          </section>
+        ) : null}
+
+        {(source || project.github) && <details class="portfolio-source">
+          <summary>Source and coverage</summary>
+          {report?.limitations.length ? <ul>{report.limitations.map((note) => <li>{note}</li>)}</ul> : null}
+          {report?.revision && <p>Producer revision <code>{report.revision.slice(0, 12)}</code></p>}
+          {source && <p><a href={source.href}>Read the public data <ArrowUpRight size={16} aria-hidden="true"/></a></p>}
+          {project.id === "liferaft" && <p><a href={liferaftReleases}>GitHub release downloads <ArrowUpRight size={16} aria-hidden="true"/></a></p>}
+          {project.github && <p><a href={`https://github.com/${project.github}`}>Project on GitHub <ArrowUpRight size={16} aria-hidden="true"/></a></p>}
+          {project.id === "app-composer" && <p><a href="/activity">Composer mini-app details</a></p>}
+        </details>}
+
+        {imagePath && (
+          <section class="portfolio-share" id="share-portfolio" data-insight-share aria-labelledby="portfolio-share-title">
+            <a class="portfolio-share-preview" href={imagePath}><img src={imagePath} width="1200" height="630" alt={`${project.name} · ${total} · ${metric?.label} · ${dateRange}`} loading="lazy"/></a>
+            <div>
+              <h3 id="portfolio-share-title">Share this view</h3>
+              <p>The link keeps this measure and UTC window. Figures refresh from the public source.</p>
+              <div class="portfolio-downloads" aria-label="Download report cards">
+                {Object.entries(portfolioCardFormats).map(([format, size]) => (
+                  <a href={`${imagePath}&format=${format}`} download={`${project.id}-${metric?.key}-${period.to}-${format}.png`}>
+                    <ArrowDownToLine size={17} aria-hidden="true"/> {size.label} <span class="portfolio-card-size">{size.width} × {size.height}</span>
+                  </a>
+                ))}
+              </div>
+              <button type="button" data-insight-copy="link" hidden>Copy link</button>
+              <button type="button" data-insight-copy="caption" hidden>Copy caption</button>
+              <p class="portfolio-share-status" data-insight-status role="status"></p>
+              <label class="portfolio-share-field">Link <input type="url" readonly value={canonical} data-insight-url/></label>
+              <label class="portfolio-share-field">Caption <textarea rows="3" readonly data-insight-caption>{caption}</textarea></label>
+              <script is:inline type="application/json" data-insight-payload set:html={payload}></script>
+            </div>
+          </section>
+        )}
+
+        <section class="portfolio-directory" aria-labelledby="portfolio-directory-title">
+          <div class="portfolio-directory-head">
+            <h3 id="portfolio-directory-title">Explore projects</h3>
+            <p>{portfolioProjects.filter((item) => item.endpoint).length} daily feeds · GitHub installer counts for Liferaft</p>
+          </div>
+          <ul role="list">
+            {portfolioProjects.map((item) => {
+              const art = portfolioArt(item);
+              return <li class={`tone-${item.tone}`}>
+                <a href={reportAddress(item.id, period)} aria-current={item.id === project.id ? "page" : undefined}>
+                  {art && <img src={art} alt="" loading="lazy" width="480" height="270"/>}
+                  <div>
+                    <strong>{item.name}</strong>
+                    <span>{item.lifecycle && item.lifecycle !== "active"
+                      ? item.lifecycle
+                      : item.endpoint ? item.category : item.id === "liferaft" ? "Release downloads" : "Public reporting unavailable"}</span>
+                  </div>
+                  <ArrowUpRight size={18} aria-hidden="true"/>
+                </a>
+              </li>;
+            })}
+          </ul>
+        </section>
+      </>
+    ) : <p>Choose a known project or a complete 7 or 30 day window. <a href={REPORT_PATH}>Open the latest portfolio view</a>.</p>}
+  </div>
+</Base>
+<script>
+  import "../../../browser/activity";
+  import "../../../browser/insight-share";
+</script>
