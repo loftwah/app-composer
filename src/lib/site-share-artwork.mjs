@@ -5,7 +5,7 @@ const campaignCard = (name, alt) => ({
   alt,
 });
 
-const product = campaignCard('composer', 'App Composer. Make an app. Keep it yours. Three machined metal blocks fit together in orange light.');
+export const composerShareArtwork = campaignCard('composer', 'App Composer. Make an app. Keep it yours. Three machined metal blocks fit together in orange light.');
 const ready = campaignCard('ready', 'Even your grandma should be able to get started. An older woman wearing orange glasses works at her laptop.');
 const init = campaignCard('init', 'Describe your app in plain English. An orange sketch on a laptop turns into a simple list.');
 const firstApp = campaignCard('first-app', 'What would make your Saturday easier? A smartphone shows a warmly lit market stall.');
@@ -28,7 +28,7 @@ const cards = new Map([
 ]);
 
 export function siteShareArtwork(pathname) {
-  return cards.get(pathname.replace(/\/$/, '')) ?? product;
+  return cards.get(pathname.replace(/\/$/, '')) ?? composerShareArtwork;
 }
 
 export function siteShareImageType(pathname) {
