@@ -10,6 +10,7 @@ import {buildRecipe,humanOnlyActions} from './build-recipe.mjs';
 import {globalAppSettings as appSettings,selectedSources,appConfiguration} from './app-settings.mjs';
 const form=document.querySelector<HTMLFormElement>('#init-form')!;
 const message=document.querySelector<HTMLElement>('#message')!;
+const handoffStatus=document.querySelector<HTMLElement>('#handoff-status')!;
 const key='composer:init:v1';let decisions:Record<string,string>={},displayedPreset='composition';
 let importedStudioSource: ReturnType<typeof validateSpec>['sources'][number] | undefined;
 const draftStatus=document.querySelector<HTMLElement>('#draft-status')!;
@@ -27,6 +28,9 @@ let savedDraftUnreadable = false;
 let observedSnapshot='',savedSnapshot:string|null=null,revision=0,pendingImport:ReturnType<typeof validateSpec>|null=null;
 function snapshot(){return JSON.stringify({fields:Array.from(form.querySelectorAll<HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement>('input:not([type=file]),textarea:not(#reference-report-json),select')).map(control=>[control.name,control.value,'checked' in control?control.checked:null]),decisions,importedStudioSource,referenceEvidence:referenceEvidence.snapshot()});}
 function updateDraftStatus(){draftStatus.textContent=savedDraftUnreadable?'Saved draft could not be loaded':savedSnapshot===null?'New draft · not saved yet':savedSnapshot===snapshot()?'Saved on this device':'Unsaved changes';}
+// The handoff changes with the draft and the assistance level, so its feedback
+// belongs beside the buttons that produce it and must not outlive that content.
+function clearHandoffStatus(){handoffStatus.textContent='';delete handoffStatus.dataset.state;}
 function dismissImport(){pendingImport=null;importReview.hidden=true;}
 function reviewCandidate(candidate: ReturnType<typeof validateSpec>, status: string) {
  pendingImport = candidate;
@@ -39,7 +43,7 @@ function reviewCandidate(candidate: ReturnType<typeof validateSpec>, status: str
  importReview.focus();
 }
 
-function edited(){const current=snapshot();if(current===observedSnapshot)return;observedSnapshot=current;revision++;dismissImport();message.textContent='';updateDraftStatus();}
+function edited(){const current=snapshot();if(current===observedSnapshot)return;observedSnapshot=current;revision++;dismissImport();message.textContent='';clearHandoffStatus();updateDraftStatus();}
 function saveDraft(spec:ReturnType<typeof validateSpec>){
  if (savedDraftUnreadable) {
   message.textContent = 'Your original draft is still saved. Download the current edits first, or choose Start a fresh draft to explicitly discard the unreadable draft.';
@@ -202,7 +206,7 @@ function applyStartingPoint(id:string){
  decisions=next.decisions;importedStudioSource=undefined;displayedPreset=next.preset;goal.value=next.preset;edited();show();previewRecommendation();message.textContent='Starting point changed. Your draft has not been saved or deployed.';
 }
 goal.disabled=false;goal.addEventListener('change',previewRecommendation);useGoal.addEventListener('click',()=>{try{applyStartingPoint(goal.value);}catch(e){report(e);}});
-window.addEventListener('composer:assistance-choice',()=>{try{document.querySelector('#prompt')!.textContent=assistedHandoff(read(),currentAssistance());}catch{}previewRecommendation();});
+window.addEventListener('composer:assistance-choice',()=>{try{document.querySelector('#prompt')!.textContent=assistedHandoff(read(),currentAssistance());}catch{}clearHandoffStatus();previewRecommendation();});
 form.addEventListener('input',event=>{if((event.target as HTMLElement).id==='reference-report-json')return;edited();show();previewRecommendation();});form.addEventListener('change',event=>{if(event.target===importInput)return;edited();previewRecommendation();});
 try{const saved=localStorage.getItem(key);if(saved){savedDraftUnreadable=true;fill(JSON.parse(saved));savedSnapshot=snapshot();savedDraftUnreadable=false;}else{const choice=localStorage.getItem(setupPreferenceKey);if(choice){const preference=validateSetupPreferences(JSON.parse(choice));(form.elements.namedItem('target') as HTMLSelectElement).value=preference.destination;(form.elements.namedItem('hostname') as HTMLInputElement).value=preference.hostname;}}}catch(e){report(e);}
 window.addEventListener('pageshow',()=>{show();previewRecommendation();});
@@ -219,9 +223,9 @@ form.addEventListener('submit',e=>{e.preventDefault();show(true);});form.addEven
  try{localStorage.removeItem(key);}catch{report(new Error('This browser could not remove the saved draft. Your current edits are preserved.'));return;}
  revision++;dismissImport();savedDraftUnreadable=false;form.reset();fillProjectDirection();for(const toggle of form.querySelectorAll<HTMLInputElement>('[data-separate-settings]'))delete toggle.dataset.initialised;decisions={};importedStudioSource=undefined;savedSnapshot=null;document.querySelector('#card-rows')!.replaceChildren();displayedPreset=value('preset');goal.value=displayedPreset;edited();show();previewRecommendation();
 });document.querySelector('#copy')!.addEventListener('click',async()=>{
- let text:string;try{text=assistedHandoff(read(),currentAssistance());}catch(e){report(e);return;}
- try{await navigator.clipboard.writeText(text);message.textContent='Handoff copied. Paste it into your coding agent in the authorised project.';}
- catch{const prompt=document.querySelector<HTMLElement>('#prompt')!;prompt.textContent=text;prompt.closest('details')!.open=true;prompt.focus();const range=document.createRange();range.selectNodeContents(prompt);const selection=window.getSelection();selection?.removeAllRanges();selection?.addRange(range);message.textContent='Clipboard access failed. The handoff is selected below; copy it using your browser.';}
+ let text:string;try{text=assistedHandoff(read(),currentAssistance());}catch(e){handoffStatus.dataset.state='manual';handoffStatus.textContent=(e instanceof Error?e.message:String(e))+' Nothing was copied.';return;}
+ try{await navigator.clipboard.writeText(text);handoffStatus.dataset.state='copied';handoffStatus.textContent='Handoff copied. Paste it into your coding agent in the authorised project.';}
+ catch{const prompt=document.querySelector<HTMLElement>('#prompt')!;prompt.textContent=text;prompt.closest('details')!.open=true;prompt.focus();const range=document.createRange();range.selectNodeContents(prompt);const selection=window.getSelection();selection?.removeAllRanges();selection?.addRange(range);handoffStatus.dataset.state='manual';handoffStatus.textContent='Clipboard access failed. The handoff is selected below; copy it using your browser.';}
 });document.querySelector('#download')!.addEventListener('click',()=>{try{const url=URL.createObjectURL(new Blob([JSON.stringify(read(),null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='app-composer-spec.json';a.click();URL.revokeObjectURL(url);}catch(e){report(e);}});importInput.addEventListener('change',async()=>{
  const file=importInput.files?.[0];if(!file)return;importInput.value='';
  const selectedRevision=++revision;dismissImport();message.textContent='Reading the selected spec…';
