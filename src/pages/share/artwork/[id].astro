@@ -20,8 +20,8 @@ Astro.csp?.insertDirective(`img-src ${SHARE_CATALOGUE_ORIGIN}/campaign/`);
   shareImage={artwork?.previewUrl} shareType={shareType} shareAlt={artwork?.alt}
   shareWidth={null} shareHeight={null}>
   <nav class="artwork-nav" aria-label="Share">
-    <a href="/share/artwork"><ArrowLeft size={16} aria-hidden="true" /> Browse artwork</a>
-    {artwork && <a href={`/share/artwork?project=${artwork.project}`}>More from {artwork.project}</a>}
+    <a href="/share"><ArrowLeft size={16} aria-hidden="true" /> Browse artwork</a>
+    {artwork && <a href={`/share?project=${artwork.project}`}>More from {artwork.project}</a>}
   </nav>
   {artwork ? (
     <article class="artwork-piece">
