@@ -127,6 +127,7 @@ const groups = [
         href: "https://media.loftwah.com/tools/audio-trim",
         source:
           "Files stay on the device during trimming; up to 16 MB and three minutes in the current tool.",
+        studioNote: "Select your project, then open Assemble to order the saved takes and mix the song.",
       },
       {
         title: "Plan a 15-second spoken spot",
@@ -139,6 +140,7 @@ const groups = [
         href: "/media-studio#use",
         source:
           "The overview uses Studio screens and generated narration; it is not a completed 15-second promo or proof of live interactions.",
+        studioNote: "Select your project, then open Create to plan the three five-second shots.",
       },
       {
         title: "Caption a lyric or line",
@@ -198,7 +200,34 @@ const groups = [
   <nav id="field-guide-topics" class="director-nav" aria-label="Field guide topics"><a href="#plan">Plan the shot</a><a href="#make">Make and refine</a><a href="#finish">Sound, edit and share</a><a href="#words">Creative vocabulary</a></nav>
   <div class="director-search" hidden data-search-wrap><label for="lesson-search">Find a lesson</label><input id="lesson-search" type="search" placeholder="Try camera, music or sharing"/><button class="button secondary" type="button" data-search-clear hidden>Clear search</button><span data-search-status role="status" aria-live="polite"></span></div>
   <p class="director-cost">The text below is creative direction, not a model parameter. Choose the actual model, reference and duration in Studio. One five-second H3 request in the cited examples was estimated at US$0.24 on 14 November 2026; prices and availability can change. One recorded 30-second Studio Score bed was US$0.015 and one Studio Voice request was US$0.06; those are historical estimates, not current quotes. Review the current estimate for each request. Estimates are not invoices.</p>
-  {groups.map(group => <section id={group.id} class="director-section"><h2>{group.title}</h2><div class="director-lessons">{group.lessons.map((lesson, i) => <article class="director-lesson"><h3>{lesson.title}</h3><p class="director-outcome">{lesson.outcome}</p><p>{lesson.steps}</p><details><summary>Direction to adapt</summary><p class="director-prompt" id={`${group.id}-prompt-${i}`}>{lesson.prompt}</p><button class="secondary" type="button" data-copy-target={`${group.id}-prompt-${i}`}>Copy direction</button><span class="copy-status" role="status" aria-live="polite"></span></details><p class="director-example"><a href={lesson.href}>{lesson.example} →</a><br/><span>{lesson.source}</span></p></article>)}</div></section>)}
+  {groups.map(group => (
+    <section id={group.id} class="director-section">
+      <h2>{group.title}</h2>
+      <div class="director-lessons">
+        {group.lessons.map((lesson, i) => (
+          <article class="director-lesson">
+            <h3>{lesson.title}</h3>
+            <p class="director-outcome">{lesson.outcome}</p>
+            <p>{lesson.steps}</p>
+            <details>
+              <summary>Direction to adapt</summary>
+              <p class="director-prompt" id={`${group.id}-prompt-${i}`}>{lesson.prompt}</p>
+              <button class="secondary" type="button" data-copy-target={`${group.id}-prompt-${i}`}>Copy direction</button>
+              <span class="copy-status" role="status" aria-live="polite"></span>
+            </details>
+            <p class="director-example">
+              <a href={lesson.href}>{lesson.example} →</a><br/><span>{lesson.source}</span>
+            </p>
+            {lesson.studioNote && (
+              <p class="director-example">
+                <a href="/media-studio/studio">Open your Studio →</a><br/><span>{lesson.studioNote}</span>
+              </p>
+            )}
+          </article>
+        ))}
+      </div>
+    </section>
+  ))}
   <section id="words" class="director-section"><h2>Words you will meet</h2><dl class="director-words"><div><dt>Scene / shot / take</dt><dd>A scene is a moment in a place; a shot is one continuous view; a take is one attempt at that shot.</dd></div><div><dt>Reference / prompt / parameter</dt><dd>A reference is source media; a prompt describes intent; a parameter is an actual model control such as duration. Prompted motion is a request, not a guaranteed setting.</dd></div><div><dt>Timeline / clip / stem</dt><dd>A timeline orders sound and picture in time. A clip is a piece of media. A stem is a separate part of a mix, such as narration or music.</dd></div><div><dt>Slate / render / master</dt><dd>A slate is an opening card. A render produces a new media file from a saved edit. A master is the selected finished version retained for reuse.</dd></div><div><dt>Variant / private / public</dt><dd>A variant is a separate result derived from a source. Private project work stays restricted; deliberate publication exposes the chosen media and its entered details. Do not assume an unlisted link is private.</dd></div></dl></section>
   <p><a href="/media-studio/tutorial">Continue with the full Studio tutorial →</a></p>
 </article>
