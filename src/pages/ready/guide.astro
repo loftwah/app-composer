@@ -4,9 +4,15 @@ import ReadyHandoff from '../../components/ReadyHandoff.astro';
 import JourneyDiagram from '../../components/JourneyDiagram.astro';
 import { ArrowRight, Laptop, KeyRound, Globe, Rocket } from '@lucide/astro';
 const firstAgent = Astro.url.searchParams.get('start') === 'agent';
+const firstAgentParams = new URLSearchParams({ start: 'agent' });
+for (const key of ['next', 'assistance']) {
+  const value = Astro.url.searchParams.get(key);
+  if (value) firstAgentParams.set(key, value);
+}
+const firstAgentGuide = `/ready/guide?${firstAgentParams}#first-agent`;
 ---
 <Base title="Your first setup, step by step" description="A plain-language Get Ready guide: open your coding agent, hand over setup, handle account sign-in and check a real HTTPS app. Includes Cloudflare and Namecheap instructions.">
-<div class="guide-heading"><h1>You don’t need an app idea.</h1><p class="lede">Start with a place for your agent to work. It checks what’s missing and handles the technical setup. You sign in to your own accounts and approve changes that need your say.</p><div class="actions"><a href="#first-step" class="button">Start here <ArrowRight size={18} aria-hidden="true"/></a><a href="/learn">Follow the complete app tutorial</a></div></div>
+<div class="guide-heading"><h1>You don’t need an app idea.</h1><p class="lede">Start with a place for your agent to work. It checks what’s missing and handles the technical setup. You sign in to your own accounts and approve changes that need your say.</p><div class="actions"><a href={firstAgentGuide} class="button">Set up your first agent <ArrowRight size={18} aria-hidden="true"/></a><a href="/learn">Follow the complete app tutorial</a></div></div>
 <details class="guide-flow"><summary>See who does what</summary><figure><picture><source media="(max-width: 650px)" srcset="/diagrams/get-ready-mobile.svg"/><img src="/diagrams/get-ready.svg" width="1176" height="125" alt="You open your agent. The agent checks your environment. You handle required sign-in or approval. The agent deploys and verifies HTTPS."/></picture><figcaption>Who does what. Sign-in is only needed when an account check asks for it. <a href="/diagrams/get-ready.d2">Editable D2 source</a></figcaption></figure></details>
 <div class="guide-steps">
 <section id="first-step" class="guide-step">
