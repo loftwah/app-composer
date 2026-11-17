@@ -15,6 +15,7 @@ import {
   captionProblem,
   captionUsage,
   isSafeShareLink,
+  itemApprovalAndDelivery,
   localTimeLabel,
   melbourneLocalInstant,
   upcomingQueueSlots,
@@ -28,6 +29,7 @@ import {
   shareQueuePresetsReplySchema,
   shareListFilterForItem,
   shareListItemFilters,
+  hasPublishedBlueskyRevision,
 } from "../src/lib/share-calendar.ts";
 import {
   approvalPackageForItem,
@@ -160,6 +162,33 @@ test("the list filters use local state for drafts and scheduled while keeping de
     "drafts",
     "published",
   ]);
+});
+
+test("only the exact item and approval revision can display a published badge", () => {
+  const item = { id: "fictional-item", revision: 1 };
+  const approval = { itemId: item.id, draftRevision: 1, approvalRevision: 2 };
+  const receipt = {
+    itemId: item.id,
+    approvalRevision: 2,
+    state: "published",
+    permalink: "https://bsky.app/profile/example.test/post/receipt",
+  };
+  assert.equal(hasPublishedBlueskyRevision(item, approval, receipt), true);
+
+  for (const state of ["approved", "sending", "failed", "unknown", "cancelled", "needs_auth"]) {
+    assert.equal(hasPublishedBlueskyRevision(item, approval, { ...receipt, state }), false);
+  }
+  assert.equal(hasPublishedBlueskyRevision(item, approval, null), false);
+  assert.equal(hasPublishedBlueskyRevision(item, approval, { ...receipt, permalink: null }), false);
+  assert.equal(hasPublishedBlueskyRevision({ ...item, revision: 2 }, approval, receipt), false);
+  assert.equal(hasPublishedBlueskyRevision(item, { ...approval, approvalRevision: 3 }, receipt), false);
+  assert.equal(hasPublishedBlueskyRevision(item, approval, { ...receipt, itemId: "sibling" }), false);
+
+  const resolved = itemApprovalAndDelivery(
+    { approvals: [approval], deliveries: [{ ...receipt, approvalRevision: 0 }] },
+    item,
+  );
+  assert.equal(hasPublishedBlueskyRevision(item, resolved.approval, resolved.delivery), false);
 });
 
 function sample(name, description = "A published stack for the calendar.") {

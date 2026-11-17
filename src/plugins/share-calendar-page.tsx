@@ -81,6 +81,7 @@ import {
 } from "../lib/share-approval";
 import {
   BLUESKY_DELIVERY_LABELS,
+  hasPublishedBlueskyRevision,
   type BlueskyDeliveryRecord,
 } from "../lib/share-calendar";
 import {
@@ -996,6 +997,7 @@ function BlueskyPanel({
         : null,
     [content, account, approval, connection, now],
   );
+  const published = hasPublishedBlueskyRevision(item, approval, delivery);
   const preview = blueskyUsage(blueskyTextForItem(item));
   const media = content?.media[0];
   const intended = approval ? scheduleLabels(approval.scheduledAt) : null;
@@ -1195,7 +1197,7 @@ function BlueskyPanel({
               Revalidate time
             </button>
             <p className="sc-hint">{content.source.rightsNote}</p>
-            {content.problems.length > 0 && (
+            {!published && content.problems.length > 0 && (
               <ul className="sc-bluesky-problems">
                 {content.problems.map((problem) => (
                   <li key={problem.code}>{problem.message}</li>
@@ -1204,13 +1206,19 @@ function BlueskyPanel({
             )}
           </div>
           {status && (
-            <div className={`sc-bluesky-approval sc-approval-${status.state}`}>
+            <div
+              className={`sc-bluesky-approval sc-approval-${published ? "approved" : status.state}`}
+            >
               <div className="sc-bluesky-approval-head">
-                <h4>{status.label}</h4>
-                <span className="sc-notch">Not sent</span>
+                <h4>{published ? "Published" : status.label}</h4>
+                {!published && <span className="sc-notch">Not sent</span>}
               </div>
-              <p className="sc-hint">{status.note}</p>
-              {status.reasons.length > 0 && (
+              <p className="sc-hint">
+                {published
+                  ? "The approval window below is part of the published post’s record."
+                  : status.note}
+              </p>
+              {!published && status.reasons.length > 0 && (
                 <ul className="sc-bluesky-reasons">
                   {status.reasons.map((reason) => (
                     <li key={reason}>
@@ -1237,26 +1245,28 @@ function BlueskyPanel({
                 Counted now: {preview.count} / {preview.limit} graphemes ·{" "}
                 {preview.bytes} / {preview.byteLimit} bytes.
               </p>
-              <div className="sc-actions">
-                <button
-                  type="button"
-                  className="sc-primary"
-                  disabled={busy || !canWrite || !status.canApprove}
-                  onClick={onApprove}
-                >
-                  Approve this exact revision
-                </button>
-                <button
-                  type="button"
-                  disabled={busy || !canWrite || !status.canCancel}
-                  onClick={onCancel}
-                >
-                  Cancel approval
-                </button>
-              </div>
+              {!published && (
+                <div className="sc-actions">
+                  <button
+                    type="button"
+                    className="sc-primary"
+                    disabled={busy || !canWrite || !status.canApprove}
+                    onClick={onApprove}
+                  >
+                    Approve this exact revision
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy || !canWrite || !status.canCancel}
+                    onClick={onCancel}
+                  >
+                    Cancel approval
+                  </button>
+                </div>
+              )}
               {approval && (
                 <div className="sc-bluesky-send-panel">
-                  <h4>Send approved post</h4>
+                  <h4>{published ? "Published delivery" : "Send approved post"}</h4>
                   <dl className="sc-bluesky-bound">
                     <div>
                       <dt>Bound handle</dt>
@@ -3404,6 +3414,7 @@ function ShareCalendar({ search }: { search: string }) {
                   snapshot,
                   item,
                 );
+                const published = hasPublishedBlueskyRevision(item, approval, delivery);
                 const portfolio = item.catalogue;
                 const stackId = item.stack;
                 const stackSource = stackId
@@ -3415,14 +3426,15 @@ function ShareCalendar({ search }: { search: string }) {
                     className={`sc-item sc-state-${item.state}`}
                   >
                     <div className="sc-item-top">
-                      <span className={`sc-badge sc-badge-${item.state}`}>
-                        {SHARE_STATE_LABELS[item.state]}
+                      <span className={`sc-badge sc-badge-${published ? "published" : item.state}`}>
+                        {published ? "Published" : SHARE_STATE_LABELS[item.state]}
                       </span>
                       <span className="sc-channel">
                         {SHARE_CHANNEL_LABELS[item.channel]}
                       </span>
                       {labels && (
                         <span className="sc-when">
+                          {published && "Intended time · "}
                           {labels.melbourne} · {labels.utc}
                         </span>
                       )}
@@ -3493,8 +3505,8 @@ function ShareCalendar({ search }: { search: string }) {
                         </a>
                       </p>
                     )}
-                    <p className="sc-hint">{stateNote(item.state)}</p>
-                    {item.state === "scheduled" &&
+                    {!published && <p className="sc-hint">{stateNote(item.state)}</p>}
+                    {!published && item.state === "scheduled" &&
                       item.scheduledAt &&
                       item.scheduledAt < snapshot.now && (
                         <p className="sc-hint">
