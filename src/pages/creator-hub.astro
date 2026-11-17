@@ -21,6 +21,8 @@ const apps = [
   },
 ] as const;
 
+const film = '/creator-hub/creator-hub-film-20261117';
+const portrait = '/creator-hub/creator-hub-portrait-20261117';
 const startingPoint = "/init?start=creator-hub";
 const release = await readCreatorHubRelease();
 const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
@@ -46,6 +48,24 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
   </div>
   <p class="small">Mara Quinn is fictional. The apps run in the operator’s Cloudflare account on the operator’s domain; this is a reference build, not a customer deployment.</p>
  </div>
+
+ <section class="hub-section hub-film" id="film" aria-labelledby="hub-film-title">
+  <h2 id="hub-film-title">See the Creator Hub build</h2>
+  <video class="landscape-film" controls playsinline preload="none" width="1280" height="720" poster={film + '.jpg'} aria-labelledby="hub-film-title">
+   <source src={film + '.mp4'} type="video/mp4" />
+   <a href={film + '.mp4'}>Open the Creator Hub film</a>
+  </video>
+  <video class="portrait-film" controls playsinline preload="none" width="720" height="1280" poster={portrait + '.jpg'} aria-labelledby="hub-film-title">
+   <source src={portrait + '.mp4'} type="video/mp4" />
+   <a href={portrait + '.mp4'}>Open the vertical Creator Hub film</a>
+  </video>
+  <div class="film-actions">
+   <span>32 seconds · Silent with on-screen text</span>
+   <a href={film + '.txt'}>Read the transcript</a>
+   <a href={film + '.mp4'} download>Download video</a>
+   <a href={portrait + '.mp4'} download>Download vertical video</a>
+  </div>
+ </section>
 
  <TutorialQuickStart guide={creatorHubQuickStart} />
 
@@ -160,6 +180,17 @@ const checkedAt = new Date(release.checkedAt).toLocaleString('en-AU', {
 </Base>
 
 <style>
+ #film{scroll-margin-top:24px}
+ .hub-film{max-width:900px}
+ .hub-film video{display:block;width:100%;height:auto;border-radius:10px;background:#17181b}
+ .hub-film .portrait-film{display:none}
+ @media(max-width:600px){
+  .hub-film .landscape-film{display:none}
+  .hub-film .portrait-film{display:block;width:min(100%, 19rem)}
+ }
+ .film-actions{display:flex;flex-wrap:wrap;gap:0 18px;align-items:center;margin-top:8px;font-size:.875rem}
+ .film-actions span{color:var(--color-muted)}
+ .film-actions a{display:inline-flex;align-items:center;min-height:44px}
  .hub-intro{max-width:900px}
  .hub-intro h1{font-size:clamp(2.4rem,5vw,4.2rem);max-width:22ch;margin:0 0 20px}
  .hub-intro .lede{font-size:1.15rem;max-width:68ch}
