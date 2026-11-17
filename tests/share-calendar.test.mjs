@@ -23,6 +23,7 @@ import {
   SHARE_STATES,
   shareCalendarCommand,
   shareListFilterForItem,
+  shareListItemFilters,
 } from "../src/lib/share-calendar.ts";
 import {
   approvalPackageForItem,
@@ -105,6 +106,54 @@ test("share calendar list filter classifies only genuine published deliveries an
     "attention",
     "a stale item without an approval needs attention",
   );
+});
+
+test("the list filters use local state for drafts and scheduled while keeping delivery views", () => {
+  const item = (over = {}) => ({
+    id: "fictional-item",
+    sourceCurrent: true,
+    state: "draft",
+    ...over,
+  });
+  const snapshot = (states) => ({
+    approvals: [{ itemId: "fictional-item", approvalRevision: 2 }],
+    deliveries: states.map((state, index) => ({
+      itemId: "fictional-item",
+      approvalRevision: index === 0 ? 2 : 3,
+      state,
+    })),
+  });
+  const empty = { approvals: [], deliveries: [] };
+
+  assert.deepEqual(shareListItemFilters(empty, item()), ["all", "drafts"]);
+  assert.deepEqual(
+    shareListItemFilters(empty, item({ state: "scheduled" })),
+    ["all", "scheduled"],
+    "Scheduled is the local calendar state, not a job or delivery claim",
+  );
+  assert.deepEqual(shareListItemFilters(empty, item({ state: "shared" })), [
+    "all",
+  ]);
+  assert.deepEqual(
+    shareListItemFilters(empty, item({ sourceCurrent: false })),
+    ["all", "drafts", "attention"],
+    "a stale item still appears in its local Drafts view",
+  );
+  assert.deepEqual(
+    shareListItemFilters(snapshot(["failed"]), item({ state: "scheduled" })),
+    ["all", "scheduled", "attention"],
+    "an error item also appears in Scheduled when its local state matches",
+  );
+  assert.deepEqual(
+    shareListItemFilters(snapshot(["published"]), item({ state: "scheduled" })),
+    ["all", "scheduled", "published"],
+    "a published receipt does not hide the item from its local calendar view",
+  );
+  assert.deepEqual(shareListItemFilters(snapshot(["published"]), item()), [
+    "all",
+    "drafts",
+    "published",
+  ]);
 });
 
 function sample(name, description = "A published stack for the calendar.") {

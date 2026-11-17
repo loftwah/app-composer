@@ -18,7 +18,7 @@ import {
   queueNextPreviewReplySchema,
   scheduleLabels,
   shareCalendarSnapshot,
-  shareListFilterForItem,
+  shareListItemFilters,
   SHARE_CAPTION_LOCAL_CHARACTERS,
   SHARE_CHANNELS,
   SHARE_CHANNEL_LABELS,
@@ -1037,6 +1037,15 @@ export function ShareCalendarPage() {
   return <ShareCalendar key={search} search={search} />;
 }
 
+const emptyShareList: Record<ShareListFilter, string> = {
+  all: "No items in this view.",
+  drafts: "No drafts in this workspace.",
+  scheduled: "No scheduled items in this workspace.",
+  published: "No published posts in this workspace yet.",
+  attention:
+    "No failed or unconfirmed deliveries or stale sources in this view.",
+};
+
 function ShareCalendar({ search }: { search: string }) {
   const [snapshot, setSnapshot] = useState<ShareCalendarSnapshot>();
   const [loading, setLoading] = useState(true);
@@ -1079,19 +1088,29 @@ function ShareCalendar({ search }: { search: string }) {
     preview: QueueNextPreview;
   }>();
   const [queueChecking, setQueueChecking] = useState(false);
-  // The same approval/delivery resolution as the item card drives both the
-  // counts and the visible list. This filter is read-only and keeps item order.
-  const classified = (snapshot?.items ?? []).map((item) => ({
-    item,
-    filter: snapshot ? shareListFilterForItem(snapshot, item) : null,
-  }));
+  // The same approval/delivery resolution as the item card drives the Published
+  // and Needs attention counts. Drafts and Scheduled come from the local
+  // item.state, so an error item also appears in the view matching its state.
+  // This filter is read-only and keeps item order.
+  const classified = snapshot
+    ? snapshot.items.map((item) => ({
+        item,
+        filters: shareListItemFilters(snapshot, item),
+      }))
+    : [];
   const visibleItems = classified
-    .filter(({ filter }) => listFilter === "all" || filter === listFilter)
+    .filter(({ filters }) => filters.includes(listFilter))
     .map(({ item }) => item);
-  const listCounts = {
+  const listCounts: Record<ShareListFilter, number> = {
     all: classified.length,
-    published: classified.filter(({ filter }) => filter === "published").length,
-    attention: classified.filter(({ filter }) => filter === "attention").length,
+    drafts: classified.filter(({ filters }) => filters.includes("drafts"))
+      .length,
+    scheduled: classified.filter(({ filters }) => filters.includes("scheduled"))
+      .length,
+    published: classified.filter(({ filters }) => filters.includes("published"))
+      .length,
+    attention: classified.filter(({ filters }) => filters.includes("attention"))
+      .length,
   };
   const alive = useRef(true);
   const pending = useRef(false);
@@ -2785,6 +2804,8 @@ function ShareCalendar({ search }: { search: string }) {
                 {(
                   [
                     ["all", "All"],
+                    ["drafts", "Drafts"],
+                    ["scheduled", "Scheduled"],
                     ["published", "Published"],
                     ["attention", "Needs attention"],
                   ] as const
@@ -2887,11 +2908,7 @@ function ShareCalendar({ search }: { search: string }) {
             {Boolean(snapshot.items.length) && !visibleItems.length && (
               <div className="sc-empty sc-empty-list">
                 <h3>No items in this view</h3>
-                <p>
-                  {listFilter === "published"
-                    ? "No published posts in this workspace yet."
-                    : "No failed or unconfirmed deliveries or stale sources in this view."}
-                </p>
+                <p>{emptyShareList[listFilter]}</p>
               </div>
             )}
             <ol className="sc-items">
