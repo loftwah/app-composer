@@ -58,6 +58,15 @@ The host selects an exact full-setup zone, not an inferred parent or registrar. 
 Official references reviewed 14 October 2026: https://developers.cloudflare.com/api/resources/zones/methods/list/ , https://developers.cloudflare.com/api/resources/dns/subresources/dnssec/methods/get/ , https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/make-api-requests/dns-json/ , https://developers.cloudflare.com/dns/dnssec/ .
 
 
+## Read-only OpenCode agent inspection
+
+`get-ready --inspect-agent opencode` runs the same four environment checks for an explicitly selected, live OpenCode V2.3 child session. It accepts the same target flags as an ordinary check — `--workspace ABSOLUTE_PATH`, `--account ID`, `--reference-worker NAME`, `--reference-url HTTPS_ORIGIN` and `--reference-repo OWNER/REPO` — so a selected environment can be inspected without a saved receipt. Readiness state stays in memory. This mode leaves existing receipts alone and accepts only diagnostic checks. The pinned Wrangler CLI still manages its existing sign-in and may refresh that session.
+
+Selection requires corroborating evidence: a nonempty `OPENCODE_SESSION_ID` from the real OpenCode child (which also supplies `OPENCODE` and `OPENCODE_TERMINAL`) **and** a successful `opencode --version` in the exact `opencode vMAJOR.MINOR.PATCH` format. A CLI merely present on PATH, or an inherited `CODEX_THREAD_ID`/Codex marker, cannot satisfy this explicit selection. The version probe receives PATH only. The output contains a validated version string and check results. No markers or credentials enter the output. The Codex default checks and evidence are unchanged.
+
+The CLI reuses the existing GitHub, Cloudflare and HTTPS checks. It prints the validated OpenCode version and the four check outcomes in plain text. Exit status is nonzero when any check is incomplete.
+
+
 ## Inspect the actual output project
 
 ```sh
