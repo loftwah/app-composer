@@ -13,11 +13,14 @@ const runtime = env as unknown as {
 };
 const user = Astro.locals.user;
 const project = Astro.url.searchParams.get("project");
-let publicStudioUrl: string | null = null;
+let publicGalleryUrl: string | null = null;
+let publicImageToolsUrl: string | null = null;
 try {
   const studioOrigin = new URL(runtime.MEDIA_STUDIO_ORIGIN ?? "");
-  if (studioOrigin.protocol === "https:" && !studioOrigin.username && !studioOrigin.password)
-    publicStudioUrl = new URL("/", studioOrigin).href;
+  if (studioOrigin.protocol === "https:" && !studioOrigin.username && !studioOrigin.password) {
+    publicGalleryUrl = new URL("/gallery", studioOrigin).href;
+    publicImageToolsUrl = new URL("/tools/images", studioOrigin).href;
+  }
 } catch {
   // An unconnected installation still offers the build story and setup below.
 }
@@ -120,17 +123,16 @@ Astro.response.headers.set("Cache-Control", "private, no-store");
   noindex={true}
   canonical="https://composer.loftwah.com/media-studio/studio"
 >
-  <main class="studio-entry" id="main">
+  <div class="studio-entry">
     <h1>Media Studio</h1>
     <p class="lede">Make images, video and sound. Keep your projects and takes together.</p>
 
     {state === "signed-out" && (
       <section class="entry-card" aria-labelledby="entry-signed-out">
         <h2 id="entry-signed-out">Open your studio</h2>
-        <p>Sign in with App Composer to open your workspace. You can also explore published work without signing in.</p>
+        <p>Sign in with App Composer to open your projects and saved takes.</p>
         <div class="entry-actions">
           <a class="button" href="/_emdash/admin/login?redirect=/media-studio/studio">Sign in with App Composer</a>
-          {publicStudioUrl && <a class="button secondary" href={publicStudioUrl}>Explore Media Studio</a>}
         </div>
       </section>
     )}
@@ -166,6 +168,17 @@ Astro.response.headers.set("Cache-Control", "private, no-store");
       </section>
     )}
 
+    {publicImageToolsUrl && (
+      <section class="entry-card" aria-labelledby="entry-edit">
+        <h2 id="entry-edit">Edit an image in your browser</h2>
+        <p>Crop, resize or convert an image without an account. The file stays on your device.</p>
+        <div class="entry-actions">
+          <a class="button secondary" href={publicImageToolsUrl}>Open Image Tools</a>
+          {publicGalleryUrl && <a class="button secondary" href={publicGalleryUrl}>Browse the gallery</a>}
+        </div>
+      </section>
+    )}
+
     <section class="entry-card" aria-labelledby="entry-start">
       <h2 id="entry-start">Start a new studio</h2>
       <p>Pick your project name and creative defaults in Init. You’ll get a setup brief for your own Cloudflare app.</p>
@@ -176,7 +189,7 @@ Astro.response.headers.set("Cache-Control", "private, no-store");
       <a href="/media-studio">Read the build story</a>
       <a href="/media-studio/tutorial">Follow the tutorial</a>
     </nav>
-  </main>
+  </div>
 
   <style>
     .studio-entry { max-width: 900px; margin: 0 auto; padding: 48px 24px 96px; }
