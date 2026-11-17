@@ -15,6 +15,7 @@ import { stackShareDetails } from "./stack-sharing.ts";
 import {
   captionProblem,
   catalogueSelectionSchema,
+  upcomingQueueSlots,
   shareCalendarCommand,
   shareCalendarReadInput,
   shareCalendarSnapshot,
@@ -658,6 +659,48 @@ export async function manageShareCalendar(
           { fetch: runtime.fetch, now: nowDate },
         );
         return { ok: true as const, action: "blueskyIdentity", result };
+      }
+      if (parsedRead.data.action === "queueNextPreview") {
+        if (workspace.role !== "owner")
+          return fail(
+            "FORBIDDEN",
+            "Only the workspace owner can preview the Bluesky queue.",
+          );
+        if (!configuredHandle)
+          return fail(
+            "INVALID",
+            "Set the Bluesky account in Share connections first.",
+          );
+
+        const { weekday, time } = parsedRead.data;
+        const slots = upcomingQueueSlots(weekday, time, nowDate);
+        // A scheduled instant with seconds still occupies the displayed minute.
+        // Each candidate adds one workspace/date index range, bounded to eight.
+        const bounds = slots.flatMap((slot) => [
+          slot,
+          new Date(Date.parse(slot) + 60_000).toISOString(),
+        ]);
+        const candidates = slots.map(() => "(?, ?)").join(", ");
+        const result = await db
+          .prepare(
+            `WITH candidate_slots(start, finish) AS (VALUES ${candidates})
+           SELECT candidate.start AS occupied FROM candidate_slots candidate
+           WHERE EXISTS (
+             SELECT 1 FROM creator_share_calendar_items item
+             WHERE item.workspace_id=? AND item.channel='bluesky' AND item.state='scheduled'
+               AND item.scheduled_at>=candidate.start AND item.scheduled_at<candidate.finish
+           )`,
+          )
+          .bind(...bounds, workspace.id)
+          .all<{ occupied: string }>();
+        const occupied = new Set(
+          (result.results ?? []).map((row) => row.occupied),
+        );
+        return {
+          ok: true as const,
+          action: "queueNextPreview" as const,
+          nextInstant: slots.find((slot) => !occupied.has(slot)) ?? null,
+        };
       }
       return view(db, workspace);
     }

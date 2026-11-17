@@ -252,6 +252,26 @@
   padding-bottom: 12px;
   border-bottom: 1px solid var(--sc-line);
 }
+.sc-queue {
+  margin: 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--sc-line);
+}
+.sc-queue-fields {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0 6px;
+}
+.sc-queue-fields .sc-field {
+  flex: 1 1 130px;
+  min-width: 0;
+}
+.sc-queue-slot {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
 .sc-items {
   list-style: none;
   padding: 0;
