@@ -23,6 +23,10 @@ const browserTask=taskId==='browser';
     max-height: none;
     overflow: visible;
   }
+  p[data-ready-message][data-state=manual] {
+    color: var(--color-foreground);
+    font-weight: 600;
+  }
 </style>
 <script>
 import {readyTasks} from '../lib/ready-handoff';
@@ -36,10 +40,15 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
  const help=container.querySelector<HTMLElement>('[data-ready-help]')!;
  const copyLabel=container.querySelector<HTMLElement>('[data-ready-copy-label]')!;
  const browserCheckLink=container.querySelector<HTMLElement>('[data-browser-check-link]')!;
+ // A clipboard result only describes the request it started from. revision moves
+ // whenever the generated text changes and attempt names the latest copy action,
+ // so an older settlement cannot speak for a different or newer request.
+ let revision=0,attempt=0,renderedText='',renderedTask='';
+ const started=(attemptId:number,startedAt:number,task:string,text:string)=>attemptId===attempt&&startedAt===revision&&selector.value===task&&prompt.textContent===text;
  const update=()=>{
   const task=readyTasks[selector.value as keyof typeof readyTasks]??readyTasks.setup;
   const browserTask=task===readyTasks.browser;
-  let text=task.prompt;
+  let text=task.prompt,failure='';
   button.disabled=false;
   help.textContent=task.help;
   copyLabel.textContent=browserTask?'Copy browser check':'Copy agent handoff';
@@ -48,10 +57,16 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
   if(!browserTask&&container.dataset.useSetupPreferences){
    const form=document.querySelector<HTMLFormElement>('[data-setup-preferences]');
    try{if(form)text+=setupPreferenceHandoff({version:1,destination:(form.elements.namedItem('destination') as RadioNodeList).value,hostname:(form.elements.namedItem('setup-hostname') as HTMLInputElement).value});}
-   catch(error){button.disabled=true;message.textContent=error instanceof Error?error.message:'Choose a supported address.';prompt.textContent='Complete your address choice before copying the setup request.';return;}
+   catch(error){button.disabled=true;failure=error instanceof Error?error.message:'Choose a supported address.';text='Complete your address choice before copying the setup request.';}
   }
-  prompt.textContent=text;
-  message.textContent='';
+  // Restored form state, help-level and pageshow events rerun this often. Only a
+  // real change to the request retires the status that belongs to the old one.
+  if(text!==renderedText||selector.value!==renderedTask){
+   renderedText=text;renderedTask=selector.value;revision++;
+   prompt.textContent=text;
+   message.textContent='';delete message.dataset.state;
+  }
+  if(failure){message.textContent=failure;delete message.dataset.state;}
  };
  // Reconcile browser-restored form state before enabling copy.
  selector.disabled=false;update();
@@ -62,12 +77,24 @@ for(const container of document.querySelectorAll<HTMLElement>('[data-ready-hando
  window.addEventListener('composer:assistance-choice',update);
  button.addEventListener('click',async()=>{
   update();if(button.disabled)return;
-  const task=selector.value;const text=prompt.textContent!;
+  // Snapshot the exact request this write is for, plus the attempt that owns it.
+  const attemptId=++attempt,startedAt=revision,task=selector.value,text=prompt.textContent??'';
   try{
    await navigator.clipboard.writeText(text);
-   if(selector.value===task)message.textContent=task==='browser'?'Copied. Paste this into the agent you want to check.':'Copied. Paste this into Codex or OpenCode in your chosen project.';
+   if(!started(attemptId,startedAt,task,text))return;
+   message.dataset.state='copied';
+   message.textContent=task==='browser'?'Copied. Paste this into the agent you want to check.':'Copied. Paste this into Codex or OpenCode in your chosen project.';
   }catch{
-   if(selector.value===task){message.textContent='Clipboard access failed. Open the handoff below, select its text and copy it.';container.querySelector('details')!.open=true;}
+   if(!started(attemptId,startedAt,task,text))return;
+   message.dataset.state='manual';
+   message.textContent='Clipboard access failed. The handoff below is selected; use your keyboard shortcut or device copy menu.';
+   container.querySelector<HTMLDetailsElement>('details')!.open=true;
+   prompt.focus();
+   const range=document.createRange();
+   range.selectNodeContents(prompt);
+   const selection=window.getSelection();
+   selection?.removeAllRanges();
+   selection?.addRange(range);
   }
  });
 }
