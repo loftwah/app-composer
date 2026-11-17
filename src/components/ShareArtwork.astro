@@ -1,6 +1,5 @@
 ---
 import { ArrowLeft, ArrowRight, ArrowUpRight, Search, Shuffle, X } from '@lucide/astro';
-import EngineeringArtwork from './EngineeringArtwork.astro';
 import { SHARE_CATALOGUE_QUERY_MAX } from '../lib/share-catalogue-asset.ts';
 import { artworkCategories, artworkLabel, artworkSorts, galleryHref, type ArtworkFilters, type galleryPage } from '../lib/share-gallery.ts';
 import '../styles/share-gallery.css';
@@ -98,8 +97,6 @@ const options = {
       <span data-artwork-status role="status"></span>
     </nav>
   )}
-
-  {!filtered && !after && <div class="gallery-diagrams"><EngineeringArtwork /></div>}
 
   <dialog class="gallery-lightbox" data-gallery-dialog aria-label="Artwork preview">
     <header class="gallery-lightbox-bar">
