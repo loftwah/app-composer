@@ -10,8 +10,9 @@ When you finish one, reply in Discord with the number and a few words, like
 `1 done` or `2 token in .env`. That is all the reporting I need.
 
 **Never paste a password, key or token into Discord, GitHub or a screenshot.**
-Jobs 2, 4 and 5 put secrets in the `.env` file on your Mac, which is ignored by
-git.
+Jobs 2 and 4 put secrets in the `.env` file on your Mac, which is ignored by
+git. Job 5 does not: its former `GSC_SERVICE_ACCOUNT_JSON` line had no reader
+and was removed.
 
 ---
 
@@ -174,55 +175,45 @@ need a separate yes from you later.
 ## Job 5 — Show Google Search Console that you own the site (15 minutes, free)
 
 **What it is:** Google will only give search data to the proven owner of a site.
-This is how we get real search words and clicks instead of guesses.
+This is how we get real search words and clicks instead of guesses. Nothing here
+is done by me: your Search Console access is still unverified from my side, and
+no search data has been read yet.
 
 **Part A — prove you own it**
 
 1. Open <https://search.google.com/search-console> and log in.
-2. Click **Add property** → choose **Domain** (not URL prefix).
-3. Type `composer.loftwah.com` → **Continue**.
-4. Google shows a **TXT record** value. Keep this tab open.
-5. In another tab: <https://dash.cloudflare.com> → your domain
-   `loftwah.com` → **DNS** → **Records** → **Add record**.
-6. Type: **TXT**. Name: `@`. Content: paste the value from Google. Save.
-7. Go back to Google and click **Verify**. It may take a few minutes.
+2. Click **Add property** → choose **Domain** (not URL prefix). A Domain property
+   has no `http://` or path and covers protocol and subdomain variants together.
+3. Type `composer.loftwah.com` → **Continue**. This is the subdomain property we
+   want — **not** the apex `loftwah.com`.
+4. Google shows a **TXT record** value. Keep this tab open and note the exact
+   **Name/Host** it gives you. For this Domain property that host is
+   `composer.loftwah.com` (entered in Cloudflare as `composer`) — **not** `@`.
+5. In another tab: <https://dash.cloudflare.com> → the account that owns
+   `loftwah.com` → that domain's **DNS** → **Records** → **Add record**.
+6. Type: **TXT**. Name: **`composer`** — the exact host Google supplied for the
+   `composer.loftwah.com` property; Cloudflare adds the zone for you. Content:
+   the exact TXT string from Google. Save. Do **not** use `@`: that is the apex
+   `loftwah.com`, a different property, and verifying one does not verify the
+   other.
+7. Go back to Google and click **Verify**. It may take a few minutes (sometimes
+   longer while DNS catches up).
 
-**Part B — make a read-only robot key**
+**Part B — connect read-only when the integration is ready**
 
-1. Open <https://console.cloud.google.com> and log in with the same Google
-   account.
-2. Top bar → **Select a project** → **New project** → name it
-   `App Composer SEO` → **Create**.
-3. Make sure that project is selected. Go to **APIs & Services** →
-   **Library**. Search for **Google Search Console API** → **Enable**.
-4. Go to **APIs & Services** → **Credentials** → **Create credentials** →
-   **Service account**.
-5. Name it `composer-seo-reader` → **Create and continue** → **Done**.
-6. Click the new service account → **Keys** → **Add key** → **Create new key**
-   → **JSON** → **Create**. A file downloads.
-7. Copy the robot's email address from that page. It looks like
-   `composer-seo-reader@something.iam.gserviceaccount.com`.
-8. Back in Search Console: **Settings** → **Users and permissions** →
-   **Add user** → paste the robot email → permission **Full** → **Add**.
+Select the verified `composer.loftwah.com` property. A property owner can use
+**Settings → Users and permissions** to grant the approved identity
+**Restricted user** when the connection is ready. Google's role table includes
+Performance report access. The Search Analytics API accepts the separate
+`webmasters.readonly` OAuth scope. A successful authorised API query is still
+needed to verify this project's connection.
 
-**Now save the file and tell Composer where it is.** In Terminal:
-
-```sh
-mkdir -p "$HOME/.config/app-composer"
-mv "$HOME/Downloads/"*.json "$HOME/.config/app-composer/gsc.json" 2>/dev/null || true
-cd ~/gits/app-composer
-echo "GSC_SERVICE_ACCOUNT_JSON=$HOME/.config/app-composer/gsc.json" >> .env
-```
-
-If the `mv` picked the wrong file, move the right one by hand to
-`~/.config/app-composer/gsc.json`.
-
-**Then reply:** `5 verified`
-
-**What I do after:** connect read-only, pull real queries and pages, and give
-you the first list of pages worth improving. No paid SEO tool.
-
----
+Composer does not read a local Search Console credential or a
+`GSC_SERVICE_ACCOUNT_JSON` variable. The native EmDash connection is tracked in
+[#397](https://github.com/loftwah/app-composer/issues/397).
+[Search Console owner verification](search-console-owner-verification.md)
+explains the property, scope and optional exact-file handling for a later
+approved local check.
 
 ## Job 6 — Use the site like a normal person on real hardware (30 minutes, free)
 
