@@ -99,3 +99,34 @@ then the maintained lab cleanup removed its registered containers, network,
 volumes, private migration key, passkey profile and entire temporary root.
 Cleanup recorded `rootRemoved:true`, `dockerDownSucceeded:true` and no failure
 at 11:28:05 UTC. No real publisher, production data or independent app pin changed.
+
+## Native admin WXR import, 17 November 2026 (EmDash 1.5.0)
+
+A separate local Workerd fixture used EmDash and its Cloudflare adapter at 1.5.0
+and Node 22.23.4. The admin wizard rendered and a fictional owner signed in
+with a virtual passkey. An authenticated browser exercised the native
+`/_emdash/api/import/wordpress/analyze`, `/prepare` and `/execute` steps.
+The fixture used predefined posts and pages collections with no existing entries.
+
+- The importer accepted five posts and one page with no errors. A fresh anonymous
+  reader opened all three originally public items and received 404 for the
+  original draft, the private post and the password-protected post. The anonymous
+  admin API returned 401.
+- The admin importer kept the last three as drafts and flagged the password-protected
+  item. The earlier CLI conversion preserved the private status. Keep the imported
+  drafts unpublished until their intended access has been restored. EmDash did
+  not carry the WordPress password into its access controls.
+- Three source authors became three guest bylines, with the same byline reused
+  on both public posts by the shared author. No login users were created.
+- The three-level navigation menu and internal post target survived. Custom
+  menu links still used the old host. Check and replace those links and repair
+  the flattened category parent before switching public traffic.
+
+The fixture covered plain text and a small single-request WXR import. Attachment
+bytes and metadata, chunked jobs, blocks, comments, settings and hosted cutover
+remain separate checks. The temporary worker and state were removed. The receipt
+is recorded in [Composer #679](https://github.com/loftwah/app-composer/issues/679#issuecomment-6936969283)
+and [the migration programme](https://github.com/loftwah/app-composer/issues/165#issuecomment-6936969732).
+
+[EmDash 1.5 release](https://emdashcms.com/blog/emdash-1-5) ·
+[WordPress import guide](https://docs.emdashcms.com/migration/from-wordpress/).
