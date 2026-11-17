@@ -1,0 +1,87 @@
+---
+import type { D1Database } from "@cloudflare/workers-types";
+import { ArrowUpRight } from "@lucide/astro";
+import { portfolioArt, portfolioProjects } from "../lib/portfolio-projects";
+import {
+  formatPortfolioValue, liferaftDownloads, readProjectReport, reportAddress, type Period,
+} from "../lib/portfolio-report";
+
+interface Props {
+  period: Period;
+  dateRange: string;
+  db: D1Database;
+  revision: string;
+  githubToken?: string;
+}
+const { period, dateRange, db, revision, githubToken } = Astro.props;
+
+// The runtime limits simultaneous outbound connections. Each batch consumes
+// its responses before the next opens, and each producer has its own timeout.
+const order = (project: typeof portfolioProjects[number]) => project.endpoint || project.id === "liferaft"
+  ? 0 : project.lifecycle === "paused" || project.lifecycle === "retired" ? 2 : 1;
+const projects = [...portfolioProjects].sort((a, b) => order(a) - order(b) || a.name.localeCompare(b.name, "en-AU"));
+const readRow = async (project: typeof projects[number]) => {
+  const report = project.endpoint ? await readProjectReport(project, period, db, revision) : null;
+  const releases = project.id === "liferaft" ? await liferaftDownloads(githubToken) : null;
+  const metric = report?.metrics.find((item) => item.value !== null) ?? report?.metrics[0];
+  const latestRelease = releases?.[0];
+  const value = metric?.value ?? latestRelease?.downloads ?? null;
+  const hasCaps = metric?.days.some((day) => day.capped);
+  const peak = Math.max(1, ...(metric?.days ?? []).map((day) => day.value ?? 0));
+  const bars = value !== null && metric ? metric.days.map(({ value }) =>
+    value === null ? "gap" : value === 0 ? "zero" : Math.ceil(value / peak * 8),
+  ) : [];
+  const state = project.lifecycle === "paused" ? "Paused"
+    : project.lifecycle === "retired" ? "Retired"
+    : !project.endpoint && project.id !== "liferaft" ? "No public feed"
+    : report || releases ? "No data for this period"
+    : "Source unavailable";
+  return { project, metric, latestRelease, value, hasCaps, bars, state };
+};
+const rows: Awaited<ReturnType<typeof readRow>>[] = [];
+for (let offset = 0; offset < projects.length; offset += 5) {
+  rows.push(...await Promise.all(projects.slice(offset, offset + 5).map(readRow)));
+}
+const available = rows.filter((row) => row.value !== null).length;
+---
+<section class="portfolio-overview" aria-labelledby="portfolio-overview-title">
+  <div class="portfolio-overview-heading">
+    <h2 id="portfolio-overview-title">All projects</h2>
+    <p>{dateRange} <span>· {available} of {rows.length} projects reporting</span></p>
+  </div>
+  <ul class="portfolio-overview-list" role="list">
+    {rows.map(({ project, metric, latestRelease, value, hasCaps, bars, state }) => {
+      const art = portfolioArt(project);
+      const href = reportAddress(project.id, period, metric?.key);
+      return (
+        <li class={`tone-${project.tone}`}>
+          <a class="portfolio-overview-row" href={href}>
+            {art ? <img src={art} alt="" width="64" height="48" loading="lazy"/> :
+              <span class="portfolio-overview-mark" aria-hidden="true">{project.name.slice(0, 2).toUpperCase()}</span>}
+            <span class="portfolio-overview-name">
+              <strong>{project.name}</strong>
+              <small>{project.category}</small>
+            </span>
+            <span class="portfolio-overview-measure">
+              {value !== null ? (
+                <>
+                  <strong>{formatPortfolioValue(value, metric?.unit ?? "count")}{hasCaps ? "+" : ""}</strong>
+                  <small>{metric?.label ?? `Installer downloads · ${latestRelease?.tag} · all time`}</small>
+                </>
+              ) : (
+                <>
+                  <strong class="portfolio-overview-state">{state}</strong>
+                  {metric && <small>{metric.label}</small>}
+                </>
+              )}
+            </span>
+            <span class:list={["portfolio-spark", { "is-compact": bars.length > 7 }]} aria-hidden="true">
+              {bars.map((height) => <i class={`spark-${height}`}></i>)}
+            </span>
+            <ArrowUpRight class="portfolio-overview-arrow" size={18} aria-hidden="true"/>
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</section>
