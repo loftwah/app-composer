@@ -103,9 +103,16 @@ COMPOSER_FIRST_EDIT_AT=2026-11-17T01:23:45.000Z pnpm deploy
 
 Once the exact live source matches, the private receipt records the timestamp
 and `firstEditToLiveIdentityMs`. This adds the gap before the guard to its
-monotonic duration. The watchdog still uses its existing guard interval, and
-the operator records the affected workflow separately. Invalid or future
-timestamps are ignored.
+monotonic duration; it never changes the guard total or status. The watchdog
+still uses its existing guard interval, and the operator records the affected
+workflow separately. Invalid or future timestamps are ignored.
+
+When that first-edit → exact-live span reaches **300,000 ms** with a fast guard,
+the same deduplicated GitHub adapter and pending path file a separate
+`delivery-sla` issue for the pre-guard lead time. A run that already breached the
+guard alert is not reported twice, and only a later measured compliant span
+counts as recovery for that issue. Only the derived duration reaches GitHub; the
+raw timestamp stays in the private receipt.
 
 ## Overrun rule
 
