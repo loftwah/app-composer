@@ -18,6 +18,12 @@ const browserTask=taskId==='browser';
  <details><summary>Read or copy the agent handoff</summary><pre data-ready-prompt tabindex="0">{initial.prompt}</pre></details>
  <noscript><p class="small">Open the handoff above, select its text and paste it into {browserTask ? 'your agent' : 'Codex or OpenCode'}. Without JavaScript, it contains the selected request.</p></noscript>
 </div>
+<style>
+  pre[data-ready-prompt] {
+    max-height: none;
+    overflow: visible;
+  }
+</style>
 <script>
 import {readyTasks} from '../lib/ready-handoff';
 import {setupPreferenceHandoff,assistanceHandoff} from '../../lib/get-ready/preferences.mjs';
