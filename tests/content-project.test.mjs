@@ -60,10 +60,14 @@ test('only the generated site seed selects its bundled native integer widget; po
  const model=structuredClone(starterModel);model.fields.push({key:'seats',label:'Seats',type:'integer',required:false,group:model.groups[0],validation:{min:1,max:50},defaultValue:12});
  const standalone=emdashSeed(model),site=contentProjectFiles(model),seed=JSON.parse(site.files['seed/seed.json']);assert.equal(standalone.collections[0].fields.find(field=>field.slug==='seats').widget,undefined);assert.equal(seed.collections[0].fields.find(field=>field.slug==='seats').widget,'composer-content-fields:integer');assert.equal(validateSeed(seed).valid,true);
  for(const field of seed.collections[0].fields.filter(field=>field.type!=='integer'&&field.slug!=='workshop_date'))assert.equal(field.widget,undefined);
- assert.equal(JSON.parse(site.files['package.json']).dependencies['@cloudflare/kumo'],'2.6.0');for(const name of ['src/lib/editor-fields.tsx','src/lib/number-input.mjs'])assert.equal(hash(site.files[name]),site.provenance.files[name]);
+ assert.equal(JSON.parse(site.files['package.json']).dependencies['emdash'],'1.5.0');assert.equal(JSON.parse(site.files['package.json']).dependencies['@emdash-cms/cloudflare'],'1.5.0');assert.equal(JSON.parse(site.files['package.json']).dependencies['@cloudflare/kumo'],'2.15.0');for(const name of ['src/lib/editor-fields.tsx','src/lib/number-input.mjs'])assert.equal(hash(site.files[name]),site.provenance.files[name]);
 });
 test('native integer editing preserves an explicit zero and clears an empty control to null',async()=>{
  const {numberInputValue}=await import('../lib/content-model/site-template/src/lib/number-input.mjs');assert.equal(numberInputValue(''),null);for(const value of ['0','-1','1','50','51'])assert.equal(numberInputValue(value),Number(value));
+});
+test('a fresh generated site emits Prettier-formatted launch-kit-branding.json',()=>{
+ const branding=contentProjectFiles(starterModel).files['src/launch-kit-branding.json'].toString('utf8');
+ assert.equal(branding,JSON.stringify(JSON.parse(branding),null,2)+'\n');
 });
 
 
