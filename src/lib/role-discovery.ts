@@ -1,4 +1,5 @@
 import { appDetails, apps } from './apps.ts';
+import { composerShareArtwork } from './site-share-artwork.mjs';
 
 export const discoveryRoleIds = ['creator', 'small-business', 'developer', 'designer', 'wordpress', 'shopify', 'platform-team', 'media-producer', 'marketer', 'app-operator'] as const;
 export type DiscoveryRoleId = typeof discoveryRoleIds[number];
@@ -14,7 +15,7 @@ export interface DiscoveryRole {
   start: { label: string; href: string };
   steps: { title: string; description: string; href: string }[];
   support: string;
-  share?: string;
+  share: string;
   fit?: { keep: string; next: string; evidence: { label: string; href: string } };
 }
 const app = (id: typeof apps[number]['id']) => apps.find((entry) => entry.id === id)!;
@@ -104,6 +105,7 @@ export const discoveryRoles: DiscoveryRole[] = [
     ],
     support: 'The migration lab has a small documented WordPress import; it does not establish Elementor, ACF, WooCommerce or whole-site parity. Keep WordPress when a required plugin, workflow or recovery path has no verified replacement.',
     fit: { keep: 'Keep the existing site, URLs and client choices until representative editing, media and recovery checks pass.', next: 'Write one acceptance brief for a content type and its existing editor task.', evidence: { label: 'Read the migration observations', href: 'https://github.com/loftwah/app-composer/blob/main/labs/wordpress/weekender/OBSERVATIONS.md' } },
+    share: composerShareArtwork.path,
   },
   {
     id: 'shopify', label: 'Shopify developer', title: 'App Composer beside a Shopify store',
@@ -120,6 +122,7 @@ export const discoveryRoles: DiscoveryRole[] = [
     ],
     support: 'Composer has no Shopify adapter, OAuth grant, webhook integration or verified store lifecycle. Native Shopify tooling remains the path for themes, checkout and embedded extensions; the fictional Orders view is not a merchant integration.',
     fit: { keep: 'Keep Shopify’s checkout, storefront tooling and merchant workflows. Composer is a possible companion for a separate job.', next: 'Ask the agent whether the proposed companion remains useful without a store connection.', evidence: { label: 'Read the dated fit assessment', href: 'https://github.com/loftwah/app-composer/blob/main/docs/research/2026-10-25/357-shopify-fit.md' } },
+    share: composerShareArtwork.path,
   },
   {
     id: 'platform-team', label: 'Cloudflare team', title: 'App Composer for small Cloudflare teams',
@@ -136,6 +139,7 @@ export const discoveryRoles: DiscoveryRole[] = [
     ],
     support: 'Composer demonstrates a small Cloudflare studio. Enterprise identity lifecycle, real mandatory-MFA enforcement, customer recovery and data-residency requirements need their own acceptance. It is not a replacement for an established enterprise platform.',
     fit: { keep: 'Keep existing deployment tools, identity controls and operational ownership that already work.', next: 'Choose one reversible internal application change and write its expected result and recovery check.', evidence: { label: 'Read the dated team-fit assessment', href: 'https://github.com/loftwah/app-composer/blob/main/docs/research/2026-10-25/359-platform-buyers.md' } },
+    share: composerShareArtwork.path,
   },
   {
     id: 'media-producer', label: 'Media producer', title: 'App Composer for media producers',
@@ -183,6 +187,7 @@ export const discoveryRoles: DiscoveryRole[] = [
       { title: 'Check the released source', description: 'Read the current release identity and evidence index before changing anything.', href: '/release' },
     ],
     support: 'The owner workspace needs its existing invitation and access session; this page grants nothing. Public analytics are aggregate and may be incomplete. No static example can guarantee incident remediation or a customer deployment.',
+    share: composerShareArtwork.path,
   },
 
 ];

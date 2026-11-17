@@ -1,8 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { composerShareArtwork } from '../../lib/site-share-artwork.mjs';
 import RoleDiscovery from '../../components/RoleDiscovery.astro';
 import { discoveryJobForRole, discoveryJobPath, discoveryRole } from '../../lib/role-discovery';
 const role = discoveryRole(Astro.params.role);
+const shareAlt = role?.share === composerShareArtwork.path ? composerShareArtwork.alt
+  : role ? `${role.title}. ${role.headline} App Composer artwork for this role.` : undefined;
 const requestedJob = discoveryJobForRole(Astro.params.role, Astro.url.searchParams.get('job'));
 if (requestedJob) return Astro.redirect(discoveryJobPath(requestedJob.id), 308);
 if (!role) Astro.response.status = 404;
@@ -11,7 +14,7 @@ if (!role) Astro.response.status = 404;
   title={role?.title ?? 'Role not found'}
   description={role?.description ?? 'Choose a role or a useful job to explore App Composer.'}
   shareImage={role?.share}
-  shareAlt={role?.share ? `${role.title}. ${role.headline} App Composer artwork for this role.` : undefined}
+  shareAlt={shareAlt}
 >
   {role ? <><header class="role-heading"><h1>{role.title}.</h1></header><RoleDiscovery role={role} /></> : <><h1>That role is not here.</h1><p><a href="/discover#roles">Choose a role or a useful job</a> to find a working example.</p></>}
 </Base>
