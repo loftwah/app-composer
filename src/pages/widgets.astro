@@ -28,12 +28,17 @@ const bubblesCards = [
 <Base title="Widget library" description="Embed LoftwahFM’s Night Signal player or download a Bubbles listening card.">
   <script type="application/json" id="loftwahfm-widget-recipe" set:html={widgetRecipeJson}></script>
   <header class="widget-intro">
-    <div>
-      <h1>Widget library</h1>
-      <p>Embed a live radio player or <a href="#bubbles-listening-card">share a Bubbles listening card</a>.</p>
-    </div>
+    <h1>Widget library</h1>
     <a href="/apps">App library <ArrowRight size={17} aria-hidden="true" /></a>
   </header>
+
+  <nav class="widget-toc" aria-label="Widgets on this page">
+    <ul>
+      <li><a href="#loftwahfm-station">Station player</a></li>
+      <li><a href="#bubbles-listening-card">Bubbles listening card</a></li>
+      <li><a href="#top-tracks-share-card">Top Tracks share card</a></li>
+    </ul>
+  </nav>
 
   <article class="widget-entry" id="loftwahfm-station">
     <h2>LoftwahFM station player</h2>
@@ -220,9 +225,12 @@ const bubblesCards = [
 <style>
   .widget-intro { display:flex; align-items:end; justify-content:space-between; flex-wrap:wrap; gap:.25rem 2rem; margin-bottom:1.5rem; }
   .widget-intro h1 { margin:0; font-size:clamp(2.65rem,6vw,5.1rem); }
-  .widget-intro p { margin:.45rem 0 0; max-width:64ch; color:var(--color-muted); }
   .widget-intro>a { display:inline-flex; align-items:center; gap:.5rem; min-height:44px; }
-  .widget-entry { border-top:3px solid var(--color-accent); padding:1.5rem 0 2rem; min-width:0; }
+  .widget-toc { margin:0 0 1rem; border-top:1px solid var(--color-border); }
+  .widget-toc ul { display:flex; flex-wrap:wrap; gap:0 1.25rem; margin:0; padding:0; list-style:none; max-width:none; }
+  .widget-toc li { margin:0; }
+  .widget-toc a { display:inline-flex; align-items:center; min-height:44px; font-size:.95rem; }
+  .widget-entry { border-top:3px solid var(--color-accent); padding:1.5rem 0 2rem; min-width:0; scroll-margin-top:24px; }
   .widget-entry h2 { margin:0; font-size:clamp(1.45rem,3vw,2.2rem); }
   .entry-summary { max-width:60ch; margin:.6rem 0 0; }
   .widget-facts { display:grid; gap:0; margin:1.4rem 0 0; max-width:72ch; }
@@ -246,7 +254,6 @@ const bubblesCards = [
   .react-version { margin-top:1.4rem; border-top:1px solid var(--color-border); }
   .widget-limits { max-width:72ch; }
   .widget-limits li { margin:12px 0; }
-  #bubbles-listening-card { scroll-margin-top:24px; }
   .card-downloads { display:flex; flex-wrap:wrap; gap:.5rem; list-style:none; margin:0; padding:0; }
   .card-downloads a { display:flex; flex-direction:column; align-items:start; min-height:44px; }
   .card-downloads span { font-size:.8rem; font-weight:400; }
