@@ -28,7 +28,9 @@ export function promoteComposition({workspace,dryRun=false,env=process.env,sourc
  try{
   const home=resolve(temp,'home');mkdirSync(home);
   const buildEnv={...referenceInstallEnvironment(env,home),HOME:home};
-  try{execFileSync('pnpm',['audit','--audit-level','low','--registry=https://registry.npmjs.org'],{cwd:workspace,env:buildEnv,encoding:'utf8',timeout:60000,stdio:['ignore','pipe','pipe']});}catch{throw Error('Dependency audit did not pass; no service was promoted.');}
+  // Use the same fail-closed verifier as the normal guard, pinned to the official registry.
+  const auditEnv={...buildEnv,NPM_CONFIG_REGISTRY:'https://registry.npmjs.org'};
+  try{execFileSync('pnpm',['run','audit'],{cwd:workspace,env:auditEnv,encoding:'utf8',timeout:60000,stdio:['ignore','pipe','pipe']});}catch{throw Error('Dependency audit did not pass; no service was promoted.');}
   const uploadEnv={...buildEnv,CLOUDFLARE_API_TOKEN:env.CLOUDFLARE_API_TOKEN,CLOUDFLARE_ACCOUNT_ID:account};
   const services=Object.fromEntries(lock.apps.map(app=>[app.id,'composer-'+app.id+'-'+lock.id.slice(0,16)]));
   const unchangedRoot=()=>{const current=lstatSync(rootConfigPath);if(!current.isFile()||current.dev!==rootFile.dev||current.ino!==rootFile.ino||current.nlink!==1||!readFileSync(lockPath).equals(lockBytes)||!readFileSync(rootConfigPath).equals(rootConfigBytes))throw Error('Composer composition or target changed during promotion.');};
