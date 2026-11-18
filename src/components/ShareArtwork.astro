@@ -1,5 +1,5 @@
 ---
-import { ArrowLeft, ArrowRight, ArrowUpRight, Search, Shuffle, X } from '@lucide/astro';
+import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, Maximize2, Search, Shuffle, SlidersHorizontal, X } from '@lucide/astro';
 import { SHARE_CATALOGUE_QUERY_MAX } from '../lib/share-catalogue-asset.ts';
 import { artworkCategories, artworkLabel, artworkSorts, galleryHref, type ArtworkFilters, type galleryPage } from '../lib/share-gallery.ts';
 import '../styles/share-gallery.css';
@@ -13,7 +13,13 @@ const { query, project, sort, category, tag, after, legacy } = filters;
 const href = (updates: Partial<ArtworkFilters> = {}) => galleryHref(filters, { after: '', ...updates });
 const browse = new URL(href({ after }), 'https://composer.loftwah.com').search;
 const shuffle = href({ sort: 'random', seed: crypto.randomUUID().slice(0, 8) });
-const filtered = Boolean(query || project || category || tag);
+const facets = [
+  { key: 'query', label: query },
+  { key: 'project', label: project && artworkLabel(project) },
+  { key: 'category', label: artworkCategories[category] },
+  { key: 'tag', label: tag && artworkLabel(tag) },
+].filter(facet => facet.label);
+const facetCount = [project, category, tag].filter(Boolean).length;
 const options = {
   projects: [...new Set([...(catalogue?.projects ?? []), ...(project ? [project] : [])])],
   tags: [...new Set([...(catalogue?.tags ?? []), ...(tag ? [tag] : [])])],
@@ -23,11 +29,8 @@ const options = {
 <section class="share-gallery" aria-labelledby="artwork-heading" data-share-artwork>
   <header class="gallery-heading">
     <h1 id="artwork-heading">Share<span>.</span></h1>
-    <nav aria-label="More to explore">
-      <a href="/media-studio/films">Films <ArrowUpRight size={14} /></a>
-      <a href="https://media.loftwah.com/gallery">Media Studio <ArrowUpRight size={14} /></a>
-      <a href="/diagrams">Diagrams <ArrowUpRight size={14} /></a>
-    </nav>
+    <p>Artwork, sketches and posters from our projects.</p>
+    <a class="button gallery-shuffle" href={shuffle}><Shuffle size={18} aria-hidden="true" /> Shuffle artwork</a>
   </header>
 
   <form class="gallery-controls" method="get" action="/share" role="search" aria-label="Browse artwork">
@@ -35,31 +38,58 @@ const options = {
       <span class="gallery-visually-hidden">Search artwork</span><Search size={18} aria-hidden="true" />
       <input type="search" name="art" placeholder="Search artwork" value={query} maxlength={SHARE_CATALOGUE_QUERY_MAX} />
     </label>
-    <div class="gallery-filters">
-      <select name="project" aria-label="Project">
-        <option value="">All projects</option>
-        {options.projects.map(value => <option value={value} selected={value === project}>{artworkLabel(value)}</option>)}
-      </select>
-      <select name="category" aria-label="Category">
-        <option value="">All categories</option>
-        {Object.entries(artworkCategories).map(([value, label]) => <option value={value} selected={value === category}>{label}</option>)}
-      </select>
-      <select name="tag" aria-label="Tag">
-        <option value="">All tags</option>
-        {options.tags.map(value => <option value={value} selected={value === tag}>{artworkLabel(value)}</option>)}
-      </select>
-      <select name="sort" aria-label="Sort artwork">
+    <button class="secondary gallery-apply" type="submit">Apply <span class="gallery-visually-hidden">search and filters</span></button>
+    <div class="gallery-sort">
+      <label for="gallery-sort">Sort</label>
+      <select id="gallery-sort" name="sort">
         {Object.entries(artworkSorts).map(([value, label]) => <option value={value} selected={value === sort}>{label}</option>)}
       </select>
-      {filters.seed && <input type="hidden" name="seed" value={filters.seed} />}
     </div>
-    <button type="submit">Apply <span class="gallery-visually-hidden">search and filters</span></button>
-    <a class="gallery-shuffle" href={shuffle} aria-label="Shuffle artwork" title="Shuffle artwork"><Shuffle size={19} aria-hidden="true" /></a>
+    <details class="gallery-filter-menu">
+      <summary><SlidersHorizontal size={16} aria-hidden="true" /> Filters{facetCount > 0 && ` (${facetCount})`} <ChevronDown size={14} aria-hidden="true" /></summary>
+      <div class="gallery-filters">
+        <div>
+          <label for="gallery-project">Project</label>
+          <select id="gallery-project" name="project">
+            <option value="">All projects</option>
+            {options.projects.map(value => <option value={value} selected={value === project}>{artworkLabel(value)}</option>)}
+          </select>
+        </div>
+        <div>
+          <label for="gallery-category">Category</label>
+          <select id="gallery-category" name="category">
+            <option value="">All categories</option>
+            {Object.entries(artworkCategories).map(([value, label]) => <option value={value} selected={value === category}>{label}</option>)}
+          </select>
+        </div>
+        <div>
+          <label for="gallery-tag">Tag</label>
+          <select id="gallery-tag" name="tag">
+            <option value="">All tags</option>
+            {options.tags.map(value => <option value={value} selected={value === tag}>{artworkLabel(value)}</option>)}
+          </select>
+        </div>
+        <button type="submit">Apply filters</button>
+      </div>
+    </details>
+    {filters.seed && <input type="hidden" name="seed" value={filters.seed} />}
   </form>
 
-  <div class="gallery-results">
-    {catalogue && <p>{catalogue.total} {catalogue.total === 1 ? 'piece' : 'pieces'}{filtered && ' found'}</p>}
-    {filtered && <a href="/share">Clear filters</a>}
+  <div class="gallery-readout">
+    <div class="gallery-results">
+      {catalogue && <p>{catalogue.total.toLocaleString('en-AU')} {catalogue.total === 1 ? 'piece' : 'pieces'}{facets.length > 0 && ' found'}</p>}
+      {facets.map(({ key, label }) => (
+        <a class="gallery-active-filter" href={href({ [key]: '' })} aria-label={`Remove filter: ${label}`}>
+          {label} <X size={13} aria-hidden="true" />
+        </a>
+      ))}
+      {facets.length > 1 && <a href={href({ query: '', project: '', category: '', tag: '' })}>Clear filters</a>}
+    </div>
+    <nav class="gallery-related" aria-label="More to explore">
+      <a href="/media-studio/films">Films <ArrowUpRight size={13} aria-hidden="true" /></a>
+      <a href="https://media.loftwah.com/gallery">Media Studio <ArrowUpRight size={13} aria-hidden="true" /></a>
+      <a href="/diagrams">Diagrams <ArrowUpRight size={13} aria-hidden="true" /></a>
+    </nav>
   </div>
 
   {!catalogue ? (
@@ -67,16 +97,19 @@ const options = {
   ) : catalogue.items.length ? (
     <div class="gallery-grid" data-artwork-grid>
       {catalogue.items.map((item, index) => (
-        <article class="gallery-tile" id={`artwork-${item.assetId}`} data-artwork-id={item.assetId}>
+        <article class="gallery-tile" id={`artwork-${item.assetId}`} data-artwork-id={item.assetId} data-gallery-lead={!after && index === 0 ? "" : undefined}>
           <a href={`/share/artwork/${item.assetId}${browse}`} data-artwork-open aria-label={`View ${item.title}`}>
             <div class="gallery-thumbnail" data-width={item.thumbnailSize?.width} data-height={item.thumbnailSize?.height}>
               <img src={item.thumbnailUrl} width={item.thumbnailSize?.width ?? undefined} height={item.thumbnailSize?.height ?? undefined}
-                alt={item.alt} loading={index < 5 && !after ? 'eager' : 'lazy'} decoding="async" referrerpolicy="no-referrer" />
+                alt={item.alt} loading={index < 5 && !after ? 'eager' : 'lazy'} decoding="async" fetchpriority={!after && index === 0 ? "high" : undefined} referrerpolicy="no-referrer" />
               {item.featured && <span class="gallery-featured">Featured</span>}
             </div>
             <div class="gallery-caption">
-              <h2>{item.title}</h2>
-              <p>{artworkLabel(item.project)} <span aria-hidden="true">·</span> {artworkCategories[item.category]}</p>
+              <div>
+                <h2>{item.title}</h2>
+                <p>{artworkLabel(item.project)} <span aria-hidden="true">·</span> {artworkCategories[item.category]}</p>
+              </div>
+              <Maximize2 size={15} aria-hidden="true" />
             </div>
           </a>
         </article>
@@ -113,5 +146,21 @@ const options = {
 <script>
   import { mountShareGallery } from '../browser/share-gallery.ts';
   const wall = document.querySelector<HTMLElement>('[data-share-artwork]');
-  if (wall) mountShareGallery(wall);
+  if (wall) {
+    const filters = wall.querySelector<HTMLDetailsElement>('.gallery-filter-menu');
+    if (filters) {
+      document.addEventListener('pointerdown', (event) => {
+        if (!filters.contains(event.target as Node)) filters.open = false;
+      });
+      filters.addEventListener('focusout', (event) => {
+        if (event.relatedTarget && !filters.contains(event.relatedTarget as Node)) filters.open = false;
+      });
+      filters.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape' || !filters.open || event.defaultPrevented) return;
+        filters.open = false;
+        filters.querySelector('summary')?.focus();
+      });
+    }
+    mountShareGallery(wall);
+  }
 </script>

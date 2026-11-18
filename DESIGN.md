@@ -16,6 +16,21 @@ rounded: {native-field: "6px", native-button: "8px"}
 # Design
 Reviewed 22 October 2026. Ordinary creative direction delegated by MP.
 
+## Share artwork — 18 November 2026
+
+Share is an exhibition of actual catalogue artwork. A larger first piece sets
+the opening rhythm, followed by the same uncropped masonry wall. The opening
+piece follows the current filters and order, including a seeded shuffle.
+Captions align on ruled edges and keep project and category visible. Search and
+sort stay in reach, with additional facets in a native disclosure and removal
+links for active filters.
+
+The viewer uses the active ink or paper theme and gives the complete artwork
+its own stage. Credit sits with the title. Full-size viewing, downloads, source
+notes and project kits remain available in the viewer and at the artwork's
+permalink. On phones the details follow the artwork. The gallery retains
+ordinary links, a native filter form and server pagination without JavaScript.
+
 ## The public project story — 17 November 2026
 
 The homepage leads with the existing Make. Keep. Remix. campaign artwork. The
