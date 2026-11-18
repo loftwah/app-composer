@@ -9,6 +9,8 @@ import {
   embedJsx,
   recipeFilename,
   recipePath,
+  starterFilename,
+  starterPath,
   stationName,
   stationOrigin,
   widgetRecipeJson,
@@ -42,6 +44,7 @@ const bubblesCards = [
       <div><dt>Needs</dt><dd>A page that allows iframes from fm.loftwah.com. No account, API key or build step.</dd></div>
       <div><dt>Cost</dt><dd>The public embed is free for personal listening. <a href={`${stationOrigin}/business-licence/`}>Business and venue playback terms</a> are separate.</dd></div>
       <div><dt>Recipe</dt><dd>Night Signal · compact player · {embed.width} × {embed.height} · <a href={recipePath} download={recipeFilename}>Download recipe (JSON)</a></dd></div>
+      <div><dt>Starter page</dt><dd><a href={starterPath} download={starterFilename}>Download HTML starter</a>. Serve the file over HTTP or HTTPS, including on localhost.</dd></div>
     </dl>
 
     <section aria-labelledby="widget-preview-heading">

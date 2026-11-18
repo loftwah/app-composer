@@ -56,6 +56,27 @@ export const embedHtml = [
   '></iframe>',
 ].join('\n');
 
+export const starterFilename = `${widgetRecipe.id}-v${widgetRecipe.version}.html`;
+export const starterPath = `/widgets/${starterFilename}`;
+
+export const starterHtml = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src ${stationOrigin}; style-src 'unsafe-inline'">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${stationName} | LoftwahFM</title>
+</head>
+<body>
+  <main>
+    <h1>${stationName}</h1>
+    <p>Station player by <a href="${stationOrigin}/">LoftwahFM</a>.</p>
+${embedHtml}
+  </main>
+</body>
+</html>
+`;
+
 export const embedJsx = [
   '<iframe',
   `  src="${embed.src}"`,
