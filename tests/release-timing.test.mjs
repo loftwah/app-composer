@@ -130,6 +130,7 @@ test("a breach alerts while the run is still running", async (t) => {
   });
   assert.equal(github.issues.length, 1);
   assert.equal(run.alertState, "created");
+  assert.equal(github.issues[0].title, "[DELIVERY SLA] loftwah/example · Routine release exceeded 300s — upload");
   await run.stage("live verification", async () => clock.advance(10));
   await run.finish({ liveRevision: SHA });
   assert.equal(github.issues.length, 1, "one issue per bottleneck");
@@ -335,6 +336,7 @@ test("a stale running receipt is found and reported, never treated as a pass", a
   assert.equal(stuck[0].sha, SHA);
   const github = fakeGitHub();
   assert.equal(await reportStuckRun({ stuck: stuck[0], github, logger: { error() {} } }), "created");
+  assert.equal(github.issues[0].title, "[DELIVERY SLA] loftwah/example · Release run did not finish — scripts/deploy.mjs");
   assert.equal(github.issues.length, 1);
   assert.match(github.issues[0].title, /did not finish/);
 });
@@ -402,7 +404,7 @@ test("the real adapter files one issue per fingerprint and comments on the next 
   const upload = fingerprint("Worker upload");
   assert.equal(await github.findOpen(upload), null);
   const created = await github.create({
-    title: "[DELIVERY SLA] Routine release exceeded 300s — Worker upload",
+    title: "[DELIVERY SLA] loftwah/example · Routine release exceeded 300s — Worker upload",
     body: `<!-- delivery-sla:${upload} -->`,
   });
   assert.equal(created.number, 1);
@@ -567,7 +569,7 @@ for (const [label, firstEditToLiveMs, expectedAlerts] of [
     assert.equal(github.issues.length, expectedAlerts);
     assert.equal(receipt.alert.state, expectedAlerts ? "created" : "none");
     if (expectedAlerts) {
-      assert.match(github.issues[0].title, /First edit/);
+      assert.equal(github.issues[0].title, "[DELIVERY SLA] loftwah/example · First edit → exact live identity reached the 300s limit");
       assert.ok(github.issues[0].body.includes(`| First edit → live | ${firstEditToLiveMs} ms |`));
       assert.match(github.issues[0].body, new RegExp(`First edit → guard start \\| ${firstEditToLiveMs - 1_000} ms`));
       assert.ok(!github.issues[0].body.includes(firstEditAt), "no raw input time in GitHub");
@@ -732,4 +734,64 @@ test("a renewed breach on the same issue permits one new measured recovery", asy
   await repeat.finish({ liveRevision: SHA });
   assert.equal(github.issues.length, 1);
   assert.equal(issue.comments.length, 3, "repeat green is ignored");
+});
+
+test("a legacy generic-title open incident is reused and updated, never duplicated", async (t) => {
+  const dir = ownedDir(t);
+  const github = fakeGitHub();
+  // Seed the incident exactly as the pre-change module filed it: generic title
+  // with no repo, identified only by the body marker fingerprint.
+  const fingerprint = stableFingerprint({
+    repo: "loftwah/example",
+    releasePath: "scripts/deploy.mjs",
+    bottleneck: "first-edit to exact live identity",
+  });
+  const legacyTitle = "[DELIVERY SLA] First edit → exact live identity reached the 300s limit";
+  await github.create({ title: legacyTitle, body: `<!-- delivery-sla:${fingerprint} -->\nlegacy open incident` });
+
+  const clock = fakeClock();
+  const { run } = firstEditRun(dir, clock, github, { firstEditToLiveMs: 310_000 });
+  await run.stage("live verification", async () => clock.advance(1_000));
+  const receipt = await run.finish({ liveRevision: SHA });
+  assert.equal(github.issues.length, 1, "the open legacy incident is reused");
+  assert.equal(receipt.alert.state, "updated");
+  assert.equal(receipt.alert.issue, 1);
+  assert.equal(github.issues[0].title, legacyTitle, "an existing issue title is never rewritten");
+  assert.ok(github.issues[0].comments[0].startsWith(`<!-- delivery-sla:${fingerprint} -->`));
+  assert.match(github.issues[0].comments[0], /First edit → live \| 310000 ms/);
+
+  // Recovery evidence still attaches to the reused legacy incident.
+  const okClock = fakeClock();
+  const ok = firstEditRun(dir, okClock, github, { firstEditToLiveMs: 120_000 }).run;
+  await ok.stage("live verification", async () => okClock.advance(1_000));
+  await ok.finish({ liveRevision: SHA });
+  assert.equal(github.issues.length, 1);
+  assert.match(github.issues[0].comments.at(-1), /Measured recovery/);
+});
+
+test("a pending alert keeps the identifying title and reuses a legacy incident on retry", async (t) => {
+  const dir = ownedDir(t);
+  const clock = fakeClock();
+  const { run } = firstEditRun(dir, clock, null, { firstEditToLiveMs: 310_000 });
+  await run.stage("live verification", async () => clock.advance(1_000));
+  const receipt = await run.finish({ liveRevision: SHA });
+  assert.equal(receipt.alert.state, "pending");
+  const pendingDir = join(dir, "timing", "pending");
+  const queued = readFileSync(join(pendingDir, `${receipt.alert.fingerprint}.json`), "utf8");
+  assert.match(queued, /\[DELIVERY SLA\] loftwah\/example · First edit/);
+
+  // The retry must comment on an already-open legacy generic-title incident
+  // for the same fingerprint, never open a duplicate.
+  const github = fakeGitHub();
+  const legacyTitle = "[DELIVERY SLA] First edit → exact live identity reached the 300s limit";
+  await github.create({
+    title: legacyTitle,
+    body: `<!-- delivery-sla:${receipt.alert.fingerprint} -->\nlegacy open incident`,
+  });
+  const flushed = await flushPendingAlerts({ pendingDir, github });
+  assert.equal(flushed.flushed, 1);
+  assert.equal(github.issues.length, 1, "the retry comments the open incident");
+  assert.equal(github.issues[0].title, legacyTitle);
+  assert.equal(github.issues[0].comments.length, 1);
+  assert.equal(readdirSync(pendingDir).length, 0);
 });
