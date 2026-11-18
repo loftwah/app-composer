@@ -4,22 +4,15 @@ import { test } from 'node:test';
 
 const readSource = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
 
-test('Composer and its connected mini apps lead the homepage', () => {
+test('the owner-selected campaign leads into Studio, the app library, Linkarooie and Share', () => {
   const home = readSource('../src/components/ProductHome.astro');
-  const opening = readSource('../src/components/PostcardDesk.astro');
-  assert.ok(home.indexOf('<PostcardDesk />') < home.indexOf('class="home-miniapps'));
-  assert.ok(opening.includes('href="/demo/connected-apps">Keep building'));
-  assert.ok(opening.includes('href="/demo/postcards">Open my page'));
-  assert.ok(opening.includes('<PostcardPrint priority'));
-  assert.ok(home.includes('href="/learn">Build your first app'));
-  const sections = ['class="home-miniapps', 'class="home-creative', 'id="make-something"', 'href="/projects">Other projects'];
-  const positions = sections.map(section => home.indexOf(section));
-  assert.ok(positions.every((value, index) => value >= 0 && (!index || value > positions[index - 1])));
-  assert.ok(home.includes('app.id === "guestbook" || app.id === "showcase"'));
-  assert.ok(home.includes('href="/media-studio"') && home.includes('href="/share"'));
-  assert.doesNotMatch(home, /fighter|foilbury|shoalshot/i);
-  assert.match(home, /id="example"[\s\S]*?href="\/creator-hub"/);
-  assert.match(home, /href="\/architecture#project-workspace"/);
+  const opening = home.slice(home.indexOf('<section class="home-opening'), home.indexOf('<section class="home-miniapps'));
+  assert.ok(opening.includes('/brand/campaign/build-it-keep-it-running.png'));
+  for (const href of ['/media-studio/studio', '/apps', '/showcase/', '/share']) assert.ok(opening.includes('href="' + href + '"'));
+  assert.doesNotMatch(opening, /PostcardDesk|guestbook|fighter|orbital/i);
+  assert.ok(home.includes('href="/projects">Other projects'));
+  assert.ok(home.includes('id="make-something"') && home.includes('id="example"'));
+  assert.ok(readSource('../src/pages/demo/postcards/edit.astro').includes('<PostcardDesk />'));
 });
 
 test('the workshop and captioned commercial remain reachable through Demos', () => {
