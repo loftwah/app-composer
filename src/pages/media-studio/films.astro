@@ -54,6 +54,7 @@ const featuredHrefs = new Set<string>(shareFilms.map(({ href }) => href));
         <p class="credit">Music by LoftwahFM · Pixel Box Theory</p>
         <nav class="film-links" aria-label="One image. Four social sizes">
           <a href="https://media.loftwah.com/tools/images">Try Image Tools</a>
+          <a href={`${studioPublicationOrigin}/p/PbvQYtyGG-YlF0Dh`}>Try with a film poster</a>
           <a href={studioFilmPath + '.mp4'} download>Download video</a>
         </nav>
         {canReview && <ShareFilmVotes film={socialKit} />}
