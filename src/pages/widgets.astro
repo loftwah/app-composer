@@ -55,6 +55,9 @@ const bubblesCards = [
           <iframe src={embed.src} title={embed.title} width={embed.width} height={embed.height} allow={embed.allow}></iframe>
         </template>
       </div>
+      <div class="preview-controls" data-close-player-controls hidden>
+        <button type="button" class="secondary" data-close-player>Close preview</button>
+      </div>
       <a href={widgetUrl}>Open the player on LoftwahFM</a>
       <p class="preview-status" role="status" data-preview-status></p>
     </section>
@@ -128,18 +131,39 @@ const bubblesCards = [
 <script>
   const preview = document.querySelector<HTMLElement>('[data-widget-preview]')!;
   const previewStatus = document.querySelector<HTMLElement>('[data-preview-status]')!;
+  const loadButton = preview.querySelector<HTMLButtonElement>('[data-load-player]')!;
+  const closeControls = document.querySelector<HTMLElement>('[data-close-player-controls]')!;
+  const closeButton = closeControls.querySelector<HTMLButtonElement>('[data-close-player]')!;
   const embedText = document.querySelector<HTMLElement>('[data-embed-html]')!.textContent ?? '';
   const jsxText = document.querySelector<HTMLElement>('[data-embed-jsx]')!.textContent ?? '';
   const agentText = document.querySelector<HTMLElement>('[data-agent-task]')!.textContent ?? '';
 
+  // Keep the initial nodes so closing restores the exact click-to-load state.
+  // Captured on first load, after progressive enhancement has revealed the
+  // Load button.
+  let initialPreviewChildren: Element[] | null = null;
+
   // Click-to-load: the frame stays empty until the visitor asks for the player,
   // so the preview never starts audio and never requests LoftwahFM unprompted.
-  preview.querySelector<HTMLButtonElement>('[data-load-player]')!.addEventListener('click', () => {
+  loadButton.addEventListener('click', () => {
     const template = preview.querySelector<HTMLTemplateElement>('[data-player-template]')!;
     const frame = template.content.querySelector('iframe')!.cloneNode(true) as HTMLIFrameElement;
+    initialPreviewChildren ??= Array.from(preview.children);
     preview.replaceChildren(frame);
+    closeControls.hidden = false;
     frame.focus({ preventScroll: true });
     previewStatus.textContent = 'Press Play in the preview to listen.';
+  });
+
+  // Removing the frame stops playback and releases the LoftwahFM resource.
+  // The visitor returns to the control that opened it, including by keyboard.
+  closeButton.addEventListener('click', () => {
+    if (!initialPreviewChildren) return;
+    preview.replaceChildren(...initialPreviewChildren);
+    initialPreviewChildren = null;
+    closeControls.hidden = true;
+    previewStatus.textContent = '';
+    loadButton.focus();
   });
 
   let copyRequest = 0;
@@ -202,6 +226,8 @@ const bubblesCards = [
   .preview-frame { max-width:560px; height:420px; border:1px solid var(--color-border); border-radius:8px; background:var(--color-field); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.8rem; text-align:center; padding:16px; overflow:hidden; margin:1.1rem 0 0; }
   .preview-frame:has(iframe) { padding:0; border:0; }
   .preview-frame iframe { width:100%; height:100%; border:0; }
+  .preview-controls { max-width:560px; margin:.6rem 0 0; }
+  .preview-controls button { font-size:.9rem; }
   .preview-label { margin:0; font:600 1.05rem/1.3 Space,sans-serif; letter-spacing:-.02em; }
   .preview-label span { display:block; margin-top:.25rem; font:400 .8rem/1.4 system-ui,sans-serif; color:var(--color-muted); }
   .preview-status, .copy-status { min-height:1.6em; font-size:.9rem; color:var(--color-accent); margin:.7rem 0 0; }
