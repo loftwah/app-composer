@@ -1,3 +1,4 @@
+import { INIT_DRAFT_KEY as key } from './init-resume.mjs';
 import { HANDOFF_KEY } from './workbench';
 import {renderAppPreview} from './app-preview';
 import {currentAssistance} from './assistance';
@@ -11,7 +12,7 @@ import {globalAppSettings as appSettings,selectedSources,appConfiguration} from 
 const form=document.querySelector<HTMLFormElement>('#init-form')!;
 const message=document.querySelector<HTMLElement>('#message')!;
 const handoffStatus=document.querySelector<HTMLElement>('#handoff-status')!;
-const key='composer:init:v1';let decisions:Record<string,string>={},displayedPreset='composition';
+let decisions:Record<string,string>={},displayedPreset='composition';
 let importedStudioSource: ReturnType<typeof validateSpec>['sources'][number] | undefined;
 const draftStatus=document.querySelector<HTMLElement>('#draft-status')!;
 const validationMessage=document.querySelector<HTMLElement>('#validation-message')!;
