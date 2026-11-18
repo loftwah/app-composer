@@ -102,12 +102,31 @@ export async function startColourStudy(desk: HTMLElement) {
   const copyStatus = desk.querySelector<HTMLElement>('[data-copy-status]')!;
   const source = desk.dataset.source!;
   const colours = () => points.map(point => hex(image, point));
+  const revision = desk.dataset.revision!;
+  const saved = new URLSearchParams(location.hash.slice(1, 256));
+  const coordinates = saved.get('points')?.split('.');
+  const validPoints = coordinates?.length === 5 && coordinates.every(pair => {
+    if (!/^\d{1,3}-\d{1,3}$/.test(pair)) return false;
+    const [x, y] = pair.split('-').map(Number);
+    return x < image.width && y < image.height;
+  });
+  const restored = saved.get('v') === revision && validPoints;
+  if (restored) coordinates.forEach((pair, i) => {
+    const [x, y] = pair.split('-').map(Number);
+    points[i] = { x, y };
+  });
   let active = 0;
+
+  function paletteLink() {
+    const link = new URL(location.pathname, location.origin);
+    link.hash = new URLSearchParams({ v: revision, points: points.map(p => p.x + '-' + p.y).join('.') }).toString();
+    return link.href;
+  }
 
   function updateBrief() {
     const project = goal.value.trim() || 'a new project using this palette';
     brief.value = 'Make ' + project + '.\n\nUse these five sampled colours as the starting palette: ' + colours().join(', ') +
-      '.\nColour reference: ' + source +
+      '.\nColour study: ' + paletteLink() + '\nArtwork: ' + source +
       '\n\nChoose tools appropriate to the deliverable. Use original imagery or assets cleared for reuse. Check that text and controls are readable on the chosen backgrounds. Show the finished result at its intended size and include the editable source.';
     copyStatus.textContent = '';
   }
@@ -133,6 +152,7 @@ export async function startColourStudy(desk: HTMLElement) {
       ctx!.lineWidth = radius * .22;
       ctx!.stroke();
     }
+    desk.querySelector<HTMLInputElement>('[data-link-fallback]')!.hidden = true;
     updateBrief();
   }
 
@@ -165,6 +185,19 @@ export async function startColourStudy(desk: HTMLElement) {
     if (outcome === 'copied') copyStatus.textContent = 'Brief copied.';
     else { brief.focus(); brief.select(); copyStatus.textContent = 'Copy the selected brief.'; }
   });
+  desk.querySelector('[data-share-palette]')!.addEventListener('click', async () => {
+    const link = paletteLink();
+    const outcome = await copyTutorialPrompt(link, navigator.clipboard && (value => navigator.clipboard.writeText(value)));
+    if (outcome === 'copied') status.textContent = 'Palette link copied. It opens these five swatches.';
+    else {
+      const fallback = desk.querySelector<HTMLInputElement>('[data-link-fallback]')!;
+      fallback.value = link;
+      fallback.hidden = false;
+      fallback.focus();
+      fallback.select();
+      status.textContent = 'Copy the selected palette link.';
+    }
+  });
   desk.querySelector('[data-css]')!.addEventListener('click', () => {
     const css = '/* Colour study from ' + source + ' */\n:root {\n' +
       colours().map((colour, i) => '  --swatch-' + (i + 1) + ': ' + colour + ';').join('\n') + '\n}\n';
@@ -179,6 +212,8 @@ export async function startColourStudy(desk: HTMLElement) {
   canvas.hidden = false;
   desk.querySelector<HTMLElement>('[data-poster]')!.hidden = true;
   desk.querySelector<HTMLElement>('[data-controls]')!.hidden = false;
-  status.textContent = 'Five colours sampled from the artwork.';
+  status.textContent = restored ? 'Shared palette restored.' : saved.has('points')
+    ? 'This selection no longer matches the preview. Five fresh colours are ready.'
+    : 'Five colours sampled from the artwork.';
   render();
 }
