@@ -14,7 +14,7 @@ import { ArrowRight, Image, PanelsTopLeft, GitBranch, ExternalLink } from '@luci
   <a href="#live-apps"><strong>Explore the live apps <ArrowRight size={18} aria-hidden="true"/></strong><span>Open the published guestbook and showcase.</span></a>
   <a href="/init?start=composition"><strong>Create your own <ArrowRight size={18} aria-hidden="true"/></strong><span>Choose your settings and prepare a brief for your AI agent.</span></a>
  </nav>
- <section id="composition-workbench" aria-label="Interactive demo" class="composition-workbench">
+ <section tabindex="-1" id="composition-workbench" aria-label="Interactive demo" class="composition-workbench">
   <CompositionWorkbench sources={mountedApps.filter(app=>['guestbook','showcase'].includes(app.id))} client:visible />
  </section>
  <noscript><p>The interactive demo needs JavaScript. You can still <a href="/guestbook/">explore the guestbook</a>, <a href="/showcase/">open the showcase</a> or <a href="/init?start=composition">start your own app setup</a>.</p></noscript>
@@ -71,3 +71,10 @@ import { ArrowRight, Image, PanelsTopLeft, GitBranch, ExternalLink } from '@luci
  .composition-next h2{font-size:clamp(1.8rem,3vw,2.8rem);max-width:25ch}
  @media(max-width:700px){.composition-route{grid-template-columns:1fr;gap:8px;padding:8px 0;margin:20px 0}.composition-route a{display:block;min-height:44px;padding:10px 0}.composition-route .composition-route-primary{padding:14px 16px}.composition-route strong{font-size:.95rem}.composition-route span{font-size:.85rem;margin-top:4px;max-width:38ch}.composition-next{padding-top:28px}}
 </style>
+
+
+<script>
+  if (new URLSearchParams(location.hash.slice(1)).get('postcards') === '1') {
+    document.getElementById('composition-workbench')?.focus();
+  }
+</script>

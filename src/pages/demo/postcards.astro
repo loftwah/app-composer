@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostcardPrint from '../../components/PostcardPrint.astro';
+import {ArrowRight, Printer, Link} from '@lucide/astro';
+import '../../styles/postcard-desk.css';
+---
+<Base title="Postcard collection" description="Two illustrated guestbook postcards, collected in Linkarooie. Read the collection or make your own edition." noindex>
+  <div class="post-reader" data-post-reader>
+    <header class="post-reader-intro"><h1 data-post-heading>Orbital Post</h1><p>A two-postcard collection from Here / there and Linkarooie.</p></header>
+    <noscript>The sample postcards appear below. Enable JavaScript to read a customised edition.</noscript>
+    <div class="post-spread"><PostcardPrint index={0} priority /><PostcardPrint index={1} /></div>
+    <nav aria-label="Collection actions" class="post-reader-actions">
+      <button type="button" data-post-copy><Link size={16} aria-hidden="true" /> Copy page link</button>
+      <button type="button" data-post-print-action><Printer size={16} aria-hidden="true" /> Print postcards</button>
+      <a data-post-remix href="/">Remix this page <ArrowRight size={16} aria-hidden="true" /></a>
+      <a data-post-bench href="/demo/connected-apps">Open in workbench</a>
+    </nav>
+    <input hidden readonly data-post-address aria-label="Page address" />
+    <p role="status" data-post-status></p>
+  </div>
+</Base>
+<script>
+  import '../../browser/postcard-desk';
+</script>

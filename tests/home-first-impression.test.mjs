@@ -6,10 +6,12 @@ const readSource = (path) => readFileSync(new URL(path, import.meta.url), 'utf8'
 
 test('Composer and its connected mini apps lead the homepage', () => {
   const home = readSource('../src/components/ProductHome.astro');
-  const opening = home.slice(home.indexOf('class="home-opening"'), home.indexOf('class="home-miniapps'));
-  assert.ok(opening.includes('href="/demo/connected-apps">Try two apps together'));
-  assert.ok(opening.includes('href="/learn">Build your first app'));
-  assert.ok(opening.includes('/brand/campaign/take-it-with-you-20261118.webp'));
+  const opening = readSource('../src/components/PostcardDesk.astro');
+  assert.ok(home.indexOf('<PostcardDesk />') < home.indexOf('class="home-miniapps'));
+  assert.ok(opening.includes('href="/demo/connected-apps">Keep building'));
+  assert.ok(opening.includes('href="/demo/postcards">Open my page'));
+  assert.ok(opening.includes('<PostcardPrint priority'));
+  assert.ok(home.includes('href="/learn">Build your first app'));
   const sections = ['class="home-miniapps', 'class="home-creative', 'id="make-something"', 'href="/projects">Other projects'];
   const positions = sections.map(section => home.indexOf(section));
   assert.ok(positions.every((value, index) => value >= 0 && (!index || value > positions[index - 1])));

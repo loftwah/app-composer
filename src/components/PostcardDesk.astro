@@ -1,0 +1,39 @@
+---
+import PostcardPrint from './PostcardPrint.astro';
+import {newEdition, scenes} from '../lib/postcard-edition';
+import {images} from '../lib/workbench';
+import {ArrowRight, ArrowUpRight} from '@lucide/astro';
+import '../styles/postcard-desk.css';
+const edition = newEdition();
+---
+<section class="home-opening postcard-opening" aria-labelledby="home-heading" data-post-editor>
+  <div class="home-container postcard-grid">
+    <header class="post-intro">
+      <h1 id="home-heading">Build your app<br /><span>from mini apps.</span></h1>
+      <p>Make a page from a guestbook and a profile. Pick the cover, write a caption, then take your collection with you.</p>
+    </header>
+    <div class="post-proof">
+      <PostcardPrint priority />
+    </div>
+      <fieldset class="post-choices">
+        <legend>Guestbook cover</legend>
+        {scenes.map((scene, i) => <label>
+          <input name="post-cover" type="radio" value={i} checked={i === 0} />
+          <img src={images[i].src} width="46" height="38" alt="" />
+          <span>{scene}</span>
+        </label>)}
+      </fieldset>
+    <div class="post-controls">
+      <label class="post-field">Collection name<input data-post-name value={edition.name} maxlength="48" autocomplete="off" /></label>
+      <label class="post-field">Postcard caption<input data-post-note value={edition.captions[0]} maxlength="100" autocomplete="off" /></label>
+      <div class="home-opening-actions">
+        <a class="home-button" data-post-view href="/demo/postcards">Open my page <ArrowUpRight size={18} aria-hidden="true" /></a>
+        <a class="home-text-link" data-post-bench href="/demo/connected-apps">Keep building <ArrowRight size={17} aria-hidden="true" /></a>
+      </div>
+      <noscript><p>Enable JavaScript to customise the cards. You can still open the sample collection.</p></noscript>
+    </div>
+  </div>
+</section>
+<script>
+  import '../browser/postcard-desk';
+</script>
