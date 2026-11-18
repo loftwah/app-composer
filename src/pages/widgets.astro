@@ -1,0 +1,254 @@
+---
+import Base from '../layouts/Base.astro';
+import { ArrowRight } from '@lucide/astro';
+
+// One catalogue entry, one source of truth. LoftwahFM owns the player and the
+// public widget contract served from its own origin; this page records a
+// verified minimal recipe and hands it to people and coding agents intact.
+// It does not duplicate the player or add a second configuration surface.
+const stationOrigin = 'https://fm.loftwah.com';
+const stationId = 'night-signal';
+const stationName = 'Night Signal';
+const builderUrl = `${stationOrigin}/widgets?station=${stationId}#builder`;
+const widgetUrl = `${stationOrigin}/widget?station=${stationId}`;
+const embed = {
+  src: widgetUrl,
+  title: `LoftwahFM ${stationName} station`,
+  width: '560',
+  height: '420',
+  style: 'border:0;max-width:100%',
+  loading: 'lazy',
+  allow: 'autoplay; clipboard-write; web-share',
+} as const;
+const recipe = {
+  version: 1,
+  id: 'loftwahfm-night-signal',
+  provider: stationOrigin,
+  builder: builderUrl,
+  target: 'iframe',
+  permissionsPolicy: embed.allow,
+  requirements: { frameSource: stationOrigin, account: false, credentials: false },
+  config: { station: stationId, width: Number(embed.width), height: Number(embed.height), autoplay: false },
+  embed: embed.src,
+};
+const embedHtml = [
+  '<iframe',
+  `  src="${embed.src}"`,
+  `  title="${embed.title}"`,
+  `  width="${embed.width}"`,
+  `  height="${embed.height}"`,
+  `  style="${embed.style}"`,
+  `  loading="${embed.loading}"`,
+  `  allow="${embed.allow}"`,
+  '></iframe>',
+].join('\n');
+const embedJsx = [
+  '<iframe',
+  `  src="${embed.src}"`,
+  `  title="${embed.title}"`,
+  `  width="${embed.width}"`,
+  `  height="${embed.height}"`,
+  `  style={{ border: 0, maxWidth: '100%' }}`,
+  `  loading="${embed.loading}"`,
+  `  allow="${embed.allow}"`,
+  '/>',
+].join('\n');
+const agentTask = [
+  `Add the LoftwahFM ${stationName} station player to this project.`,
+  '',
+  'Use the official public iframe served by fm.loftwah.com.',
+  '',
+  `<iframe src="${embed.src}" title="${embed.title}" width="${embed.width}" height="${embed.height}" style="${embed.style}" loading="${embed.loading}" allow="${embed.allow}"></iframe>`,
+  '',
+  'Inspect this project’s stack and conventions first, then integrate',
+  'non-destructively: use the HTML above, or the same attributes as a React',
+  'iframe component when the host is React. No account, API key or extra',
+  'script is needed. Do not add a second audio player, and do not try to',
+  'restyle the inside of the iframe — host CSS cannot reach it.',
+  '',
+  'If this host sets a Content-Security-Policy, allow exactly',
+  '`frame-src https://fm.loftwah.com`. Leave autoplay off so',
+  'playback starts with the visitor’s Play press. Building a',
+  'game? Use LoftwahFM’s game audio SDK instead of embedding a player:',
+  `${stationOrigin}/game-music`,
+  '',
+  'Check and report: the player renders; Play starts audio from a real',
+  'click, keyboard and touch; Pause stops it; the embed fits without',
+  'horizontal overflow at phone (~390px) and desktop widths; existing',
+  'audio, styles and features still work; and only one audio source plays',
+  'at a time.',
+].join('\n');
+---
+<Base title="Widget library" description="Add LoftwahFM’s public Night Signal player to your site using HTML, React or a task for your coding agent.">
+  <script type="application/json" id="loftwahfm-widget-recipe" set:html={JSON.stringify(recipe)}></script>
+  <header class="widget-intro">
+    <div>
+      <h1>Widget library</h1>
+      <p>Add a live radio player to your own website.</p>
+    </div>
+    <a href="/apps">App library <ArrowRight size={17} aria-hidden="true" /></a>
+  </header>
+
+  <article class="widget-entry" id="loftwahfm-station">
+    <h2>LoftwahFM station player</h2>
+    <p class="entry-summary">{stationName} station rotation in one iframe. Your visitor presses Play; nothing autoplays and no account is needed.</p>
+
+    <dl class="widget-facts">
+      <div><dt>Source</dt><dd><a href={builderUrl}>LoftwahFM’s public widget builder</a></dd></div>
+      <div><dt>Needs</dt><dd>A page that allows iframes from fm.loftwah.com. No account, API key or build step.</dd></div>
+      <div><dt>Cost</dt><dd>The public embed is free for personal listening. <a href={`${stationOrigin}/business-licence/`}>Business and venue playback terms</a> are separate.</dd></div>
+      <div><dt>Recipe</dt><dd>Night Signal · compact player · {embed.width} × {embed.height} · v1</dd></div>
+    </dl>
+
+    <section aria-labelledby="widget-preview-heading">
+      <h3 id="widget-preview-heading">Preview Night Signal</h3>
+      <p>Load the player from LoftwahFM, then press Play to listen.</p>
+      <div class="preview-frame" data-widget-preview>
+        <p class="preview-label">{stationName}<span>LoftwahFM · station rotation</span></p>
+        <div data-enhanced hidden>
+          <button type="button" data-load-player>Load the player</button>
+        </div>
+        <template data-player-template>
+          <iframe src={embed.src} title={embed.title} width={embed.width} height={embed.height} allow={embed.allow}></iframe>
+        </template>
+      </div>
+      <a href={widgetUrl}>Open the player on LoftwahFM</a>
+      <p class="preview-status" role="status" data-preview-status></p>
+    </section>
+
+    <section aria-labelledby="widget-embed-heading">
+      <h3 id="widget-embed-heading">The embed code</h3>
+      <p>Paste this into any HTML page. LoftwahFM’s own player, sizing and Play button come with the frame; your page provides nothing else.</p>
+      <pre class="widget-code" tabindex="0"><code data-embed-html>{embedHtml}</code></pre>
+      <div class="copy-actions" data-enhanced hidden>
+        <button type="button" data-copy-embed>Copy embed</button>
+        <button type="button" class="secondary" data-copy-link data-link={widgetUrl}>Copy link</button>
+        <button type="button" class="secondary" data-copy-jsx>Copy React</button>
+      </div>
+      <p class="copy-status" role="status" data-copy-status></p>
+      <div data-manual hidden>
+        <label for="widget-manual-copy">Copy this value manually<textarea id="widget-manual-copy" readonly rows="10"></textarea></label>
+      </div>
+      <details class="react-version">
+        <summary>React version</summary>
+        <p>The same iframe with the same attributes, for a React page. LoftwahFM’s builder generates the same shape.</p>
+        <pre class="widget-code" tabindex="0"><code data-embed-jsx>{embedJsx}</code></pre>
+      </details>
+    </section>
+
+    <section aria-labelledby="widget-agent-heading">
+      <h3 id="widget-agent-heading">Have your coding agent add it</h3>
+      <p>Copy this task into the coding agent you already use. It carries the exact embed, the boundaries and the checks to report back.</p>
+      <pre class="widget-code" tabindex="0" data-agent-task>{agentTask}</pre>
+      <div class="copy-actions" data-enhanced hidden>
+        <button type="button" data-copy-agent>Copy agent task</button>
+      </div>
+      <p class="copy-status" role="status" data-agent-status></p>
+      <div data-agent-manual hidden>
+        <label for="widget-agent-manual">Manual copy — select the task and copy it<textarea id="widget-agent-manual" readonly rows="16"></textarea></label>
+      </div>
+    </section>
+
+    <section aria-labelledby="widget-limits-heading">
+      <h3 id="widget-limits-heading">Rights and limits</h3>
+      <ul class="widget-limits">
+        <li>LoftwahFM serves its public catalogue and may update the station rotation.</li>
+        <li>Your site controls the frame size. Use the LoftwahFM builder to change the appearance inside it.</li>
+      </ul>
+    </section>
+  </article>
+
+  <p class="widget-foot">For other stations, releases, playlists and sizes, use <a href={builderUrl}>LoftwahFM’s builder</a>. For games, see <a href={`${stationOrigin}/game-music/`}>LoftwahFM’s audio SDK</a>.</p>
+</Base>
+
+<script>
+  const preview = document.querySelector<HTMLElement>('[data-widget-preview]')!;
+  const previewStatus = document.querySelector<HTMLElement>('[data-preview-status]')!;
+  const embedText = document.querySelector<HTMLElement>('[data-embed-html]')!.textContent ?? '';
+  const jsxText = document.querySelector<HTMLElement>('[data-embed-jsx]')!.textContent ?? '';
+  const agentText = document.querySelector<HTMLElement>('[data-agent-task]')!.textContent ?? '';
+
+  // Click-to-load: the frame stays empty until the visitor asks for the player,
+  // so the preview never starts audio and never requests LoftwahFM unprompted.
+  preview.querySelector<HTMLButtonElement>('[data-load-player]')!.addEventListener('click', () => {
+    const template = preview.querySelector<HTMLTemplateElement>('[data-player-template]')!;
+    const frame = template.content.querySelector('iframe')!.cloneNode(true) as HTMLIFrameElement;
+    preview.replaceChildren(frame);
+    frame.focus({ preventScroll: true });
+    previewStatus.textContent = 'Press Play in the preview to listen.';
+  });
+
+  let copyRequest = 0;
+  async function copy(text: string, message: string, status: HTMLElement, manual: HTMLElement) {
+    const request = ++copyRequest;
+    for (const field of document.querySelectorAll<HTMLElement>('[data-manual], [data-agent-manual]')) field.hidden = true;
+    status.textContent = '';
+    try {
+      await navigator.clipboard.writeText(text);
+      if (request === copyRequest) status.textContent = message;
+    } catch {
+      if (request !== copyRequest) return;
+      status.textContent = 'Copy the selected text manually.';
+      manual.hidden = false;
+      const area = manual.querySelector<HTMLTextAreaElement>('textarea')!;
+      area.value = text;
+      area.focus();
+      area.select();
+    }
+  }
+
+  const copyStatus = document.querySelector<HTMLElement>('[data-copy-status]')!;
+  const copyManual = document.querySelector<HTMLElement>('[data-manual]')!;
+  document.querySelector<HTMLButtonElement>('[data-copy-embed]')!.addEventListener('click', () => {
+    void copy(embedText, 'Embed copied. Paste it into your page.', copyStatus, copyManual);
+  });
+  document.querySelector<HTMLButtonElement>('[data-copy-jsx]')!.addEventListener('click', () => {
+    void copy(jsxText, 'React snippet copied.', copyStatus, copyManual);
+  });
+  const linkButton = document.querySelector<HTMLButtonElement>('[data-copy-link]')!;
+  linkButton.addEventListener('click', () => {
+    void copy(linkButton.dataset.link!, 'Player link copied.', copyStatus, copyManual);
+  });
+
+  const agentStatus = document.querySelector<HTMLElement>('[data-agent-status]')!;
+  const agentManual = document.querySelector<HTMLElement>('[data-agent-manual]')!;
+  document.querySelector<HTMLButtonElement>('[data-copy-agent]')!.addEventListener('click', () => {
+    void copy(agentText, 'Agent task copied. Paste it into your coding agent to begin.', agentStatus, agentManual);
+  });
+
+  for (const element of document.querySelectorAll<HTMLElement>('[data-enhanced]')) element.hidden = false;
+</script>
+
+<style>
+  .widget-intro { display:flex; align-items:end; justify-content:space-between; flex-wrap:wrap; gap:.25rem 2rem; margin-bottom:1.5rem; }
+  .widget-intro h1 { margin:0; font-size:clamp(2.65rem,6vw,5.1rem); }
+  .widget-intro p { margin:.45rem 0 0; max-width:64ch; color:var(--color-muted); }
+  .widget-intro>a { display:inline-flex; align-items:center; gap:.5rem; min-height:44px; }
+  .widget-entry { border-top:3px solid var(--color-accent); padding:1.5rem 0 2rem; min-width:0; }
+  .widget-entry h2 { margin:0; font-size:clamp(1.45rem,3vw,2.2rem); }
+  .entry-summary { max-width:60ch; margin:.6rem 0 0; }
+  .widget-facts { display:grid; gap:0; margin:1.4rem 0 0; max-width:72ch; }
+  .widget-facts>div { display:grid; grid-template-columns:7.5rem minmax(0,1fr); gap:.2rem 1rem; padding:.5rem 0; border-bottom:1px solid var(--color-border); }
+  .widget-facts dt { font-size:.8rem; color:var(--color-muted); padding-top:.2rem; }
+  .widget-facts dd { margin:0; }
+  .widget-entry section { margin:2rem 0 0; scroll-margin-top:24px; }
+  .widget-entry h3 { font-family:system-ui,sans-serif; font-weight:650; font-size:1rem; letter-spacing:0; margin:0 0 .7rem; }
+  .widget-entry section>p { max-width:64ch; margin:.6rem 0; }
+  .widget-code { max-height:none; }
+  .preview-frame { max-width:560px; height:420px; border:1px solid var(--color-border); border-radius:8px; background:var(--color-field); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.8rem; text-align:center; padding:16px; overflow:hidden; margin:1.1rem 0 0; }
+  .preview-frame:has(iframe) { padding:0; border:0; }
+  .preview-frame iframe { width:100%; height:100%; border:0; }
+  .preview-label { margin:0; font:600 1.05rem/1.3 Space,sans-serif; letter-spacing:-.02em; }
+  .preview-label span { display:block; margin-top:.25rem; font:400 .8rem/1.4 system-ui,sans-serif; color:var(--color-muted); }
+  .preview-status, .copy-status { min-height:1.6em; font-size:.9rem; color:var(--color-accent); margin:.7rem 0 0; }
+  .copy-actions { display:flex; flex-wrap:wrap; gap:.5rem 1rem; align-items:center; margin:1rem 0 0; }
+  .copy-actions button { font-size:.9rem; }
+  .react-version { margin-top:1.4rem; border-top:1px solid var(--color-border); }
+  .widget-limits { max-width:72ch; }
+  .widget-limits li { margin:12px 0; }
+  .widget-foot { margin-top:2rem; padding-top:1rem; border-top:1px solid var(--color-border); color:var(--color-muted); max-width:none; }
+  @media(max-width:600px) {
+    .widget-facts>div { grid-template-columns:minmax(0,1fr); }
+    .copy-actions button { flex:1 1 auto; }
+  }
+</style>
