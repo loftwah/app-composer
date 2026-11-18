@@ -20,6 +20,9 @@ const files = artworkFiles(artwork);
 const primary = files[0].url;
 const primaryDownloadLabel = artwork.original ? 'Download original' : 'Download preview';
 const download = (index: number) => `/api/share-artwork-download?${new URLSearchParams({id: artwork.assetId, file: String(index), revision})}`;
+const postTextFile = `${postText}\n\nImage alt text\n\n${artwork.alt}`;
+const postTextDownload = `data:text/plain;charset=utf-8,${encodeURIComponent(postTextFile.toWellFormed())}`;
+const postTextFileName = `${artwork.assetId}-post-text.txt`;
 ---
 
 <article class="gallery-piece" data-gallery-piece>
@@ -74,6 +77,7 @@ const download = (index: number) => `/api/share-artwork-download?${new URLSearch
         {artwork.kitUrl && <a href={artwork.kitUrl}>Open social kit <ArrowUpRight size={14} /></a>}
         {artwork.sourceUrl && <a href={artwork.sourceUrl}>Source record <ArrowUpRight size={14} /></a>}
         <button class="secondary" type="button" data-gallery-copy-alt hidden><Copy size={16} aria-hidden="true" /> Copy image alt text</button>
+        <a class="button secondary" href={postTextDownload} download={postTextFileName}><Download size={16} aria-hidden="true" /> Download post text (TXT)</a>
       </div>
       <p role="status" data-gallery-alt-status></p>
       <input data-gallery-alt-field aria-label="Image alt text to copy manually" value={artwork.alt} readonly hidden />
