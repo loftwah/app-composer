@@ -40,6 +40,13 @@ test("artwork facets and featured picks apply before pagination and shuffle stay
     ["asset-52"],
   );
 
+  const composer = { ...entries[0], project: "app-composer", assetId: "composer-study" };
+  const studio = { ...entries[0], project: "composer-media-studio", assetId: "studio-study" };
+  const mixed = [...entries, studio, composer];
+  assert.deepEqual(galleryPage(mixed, curation, forURL("/share")).items.slice(0, 3).map(item => item.assetId),
+    ["composer-study", "studio-study", "asset-52"]);
+  assert.ok(galleryPage(mixed, curation, forURL("/share?project=fighter")).items.every(item => item.project === "fighter"));
+
   const walk = (seed) => {
     let url = `/share?sort=random&seed=${seed}`;
     const ids = [];

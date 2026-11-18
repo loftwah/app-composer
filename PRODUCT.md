@@ -53,7 +53,7 @@ Owner product mental model: one-click open-source installers made existing softw
 First pair: moderated Photo Guestbook and Linkarooie. Source independence, current visibility, configuration preservation, exact versions and safe code rollback are requirements. Public browsing requires no account. Public visitors have no deployment authority. No GitHub Actions, new paid commitment or real sensitive assistant data. Carry / forward uses fictional fixtures until its security gate is demonstrated. Optional extension is third-party, never represented as a Cloudflare feature.
 
 ## Brand Commitments
-App Composer is the product name; Loftwah attribution is secondary. Original graphics and distinct mini-app identities. Agent chooses routine design decisions under MP's explicit delegation.
+Public discovery leads with App Composer and its mini apps, followed by Media Studio, Share and other Composer capabilities. Other portfolio projects belong in the project directory and in credited examples. App Composer is the product name; Loftwah attribution is secondary. Original graphics and distinct mini-app identities. Agent chooses routine design decisions under MP's explicit delegation.
 
 ## Evidence on Hand
 Initial repository contained README and MIT licence only. GitHub issues 1–36 are implementation requirements, not evidence of shipped features. Live proof must record source and Worker identity. Review dates accompany claims.

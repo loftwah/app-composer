@@ -4,34 +4,20 @@ import { test } from 'node:test';
 
 const readSource = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
 
-test('the opening leads with owned software and a real Studio project', () => {
+test('Composer and its connected mini apps lead the homepage', () => {
   const home = readSource('../src/components/ProductHome.astro');
-  const first = home.slice(home.indexOf('class="home-opening"'), home.indexOf('class="home-portfolio'));
-  assert.match(first, /App Composer brings your AI agent, reusable apps and creative tools together/);
-  assert.match(first, /publish in your own accounts/);
-  assert.match(first, /href="\/learn">Build your first app/);
-  assert.match(first, /href="\/demo">Try the sandbox/);
-  assert.match(first, /href="\/media-studio#fighter-after-hours"/);
-  assert.match(first, /fighter-before-the-bell/);
-  assert.doesNotMatch(home, /guestbook-20261111|foilbury-launch-palette|data-studio-stage/);
-
-  const studio = readSource('../src/pages/media-studio.astro');
-  assert.match(studio, /id="fighter-after-hours"[\s\S]*?fighter-after-hours-20261115\.mp4/);
-});
-
-test('portfolio projects lead into the supported build journey', () => {
-  const home = readSource('../src/components/ProductHome.astro');
-  assert.ok(home.indexOf('class="home-portfolio') < home.indexOf('id="make-something"'));
-  assert.match(home, /id: "foilbury"/);
-  assert.match(home, /id: "shoalshot"/);
-  assert.match(home, /Loftwah portfolio/);
-  assert.match(home, /href="\/architecture#project-workspace"/);
+  const opening = home.slice(home.indexOf('class="home-opening"'), home.indexOf('class="home-miniapps'));
+  assert.ok(opening.includes('href="/demo/connected-apps">Try two apps together'));
+  assert.ok(opening.includes('href="/learn">Build your first app'));
+  assert.ok(opening.includes('/brand/campaign/take-it-with-you-20261118.webp'));
+  const sections = ['class="home-miniapps', 'class="home-creative', 'id="make-something"', 'href="/projects">Other projects'];
+  const positions = sections.map(section => home.indexOf(section));
+  assert.ok(positions.every((value, index) => value >= 0 && (!index || value > positions[index - 1])));
+  assert.ok(home.includes('app.id === "guestbook" || app.id === "showcase"'));
+  assert.ok(home.includes('href="/media-studio"') && home.includes('href="/share"'));
+  assert.doesNotMatch(home, /fighter|foilbury|shoalshot/i);
   assert.match(home, /id="example"[\s\S]*?href="\/creator-hub"/);
-  assert.match(home, /href: "\/creator-hub#follow-up"/);
-  assert.match(home, /href="\/agent"/);
-
-  const architecture = readSource('../src/pages/architecture.astro');
-  assert.match(architecture, /id="project-workspace"[\s\S]*?href="\/release"/);
+  assert.match(home, /href="\/architecture#project-workspace"/);
 });
 
 test('the workshop and captioned commercial remain reachable through Demos', () => {
@@ -47,7 +33,7 @@ test('the shared header leads with Learn, keeps setup under More and preserves m
   const base = readFileSync(new URL('../src/layouts/Base.astro', import.meta.url), 'utf8');
   const nav = base.slice(base.indexOf('<nav class="site-navigation"'), base.indexOf('</nav>'));
   const peers = [...nav.matchAll(/class="nav-direct" href="([^"]+)">([^<]+)<\/a>/g)].map((m) => `${m[2]}:${m[1]}`);
-  assert.deepEqual(peers, ['Learn:/learn', 'Demos:/demo', 'Projects:/projects'], 'Learn leads the desktop peers');
+  assert.deepEqual(peers, ['Learn:/learn', 'Demos:/demo', 'Media Studio:/media-studio'], 'Learn leads the desktop peers');
   assert.equal([...nav.matchAll(/href="\/ready"/g)].length, 1, 'one setup link in the shared navigation');
 
   assert.match(
@@ -64,6 +50,6 @@ test('the shared header leads with Learn, keeps setup under More and preserves m
   // Namespace, launcher and the rest of the More menu keep their existing routes.
   assert.match(base, /class="instance-brand-context"/);
   assert.match(base, /Astro\.props\.launcher !== false && <AppLauncher \/>/);
-  assert.match(nav, /<p class="site-menu-heading">Explore<\/p>[\s\S]*?<a href="\/projects">Project family<\/a>/);
+  assert.match(nav, /<p class="site-menu-heading">Explore<\/p>[\s\S]*?<a href="\/projects">Other projects<\/a>/);
   assert.match(nav, /<div class="site-menu-resources">[\s\S]*?<a href="\/docs">Documentation<\/a>/);
 });

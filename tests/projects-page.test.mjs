@@ -108,8 +108,7 @@ test("every emitted project link resolves to a recorded, https location", () => 
 test("the project family is a maintained public page and the real navigation links it", () => {
   assert.ok(publicPagePaths.includes("/projects"));
   assert.ok(publicPagePaths.includes("/blueprints"));
-  assert.match(layout, /class="nav-direct" href="\/projects">Projects<\/a>/, "primary navigation carries Projects");
-  assert.match(layout, /<a href="\/projects">Project family<\/a>/, "the Explore menu carries it on small screens");
+  assert.match(layout, /<a href="\/projects">Other projects<\/a>/, "the Explore menu carries it on small screens");
   assert.match(layout, /<details class="site-menu">/, "the small-screen menu needs no JavaScript");
   assert.match(blueprintsPage, /href="\/projects"/, "the blueprint catalogue links to the family");
 });

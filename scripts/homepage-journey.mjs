@@ -3,8 +3,8 @@
 // qualification can opt into the fuller set of widths once.
 export async function verifyHomepage(page, origin, { capture, full = false } = {}) {
   const ensure = (value, message) => { if (!value) throw new Error(message); };
-  const entryLinks = ['/learn', '/demo'];
-  const film = '/media-studio#fighter-after-hours';
+  const entryLinks = ['/demo/connected-apps', '/learn'];
+  const film = '/demo#commercial';
   const receipt = { url: new URL('/', origin).href, views: [], keyboard: [], limits: [
     'Chromium viewport and text reflow checks do not establish physical device, native browser zoom or screen reader acceptance.',
     'Screenshots require visual review; geometric checks alone cannot establish a finished composition.',
@@ -25,7 +25,7 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
       });
       const geometry = await page.evaluate(() => {
         const box = selector => document.querySelector(selector).getBoundingClientRect().toJSON();
-        return { opening: box('.home-opening'), lineup: box('.home-portfolio'), workflow: box('#make-something'),
+        return { opening: box('.home-opening'), lineup: box('.home-miniapps'), workflow: box('#make-something'),
           heading: box('#home-heading'), header: box('.site-header'),
           overflow: document.documentElement.scrollWidth > innerWidth + 1,
           reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -36,12 +36,12 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
       ensure(geometry.reducedMotion, 'Reduced motion preference was lost');
       ensure(geometry.scrollBehavior === 'auto', 'Reduced motion still animates anchor scrolling');
       ensure(geometry.heading.top >= geometry.header.bottom, 'Header overlaps the opening heading');
-      ensure(geometry.opening.bottom <= geometry.lineup.top + 1, 'Portfolio overlaps the opening');
-      ensure(geometry.lineup.bottom <= geometry.workflow.top + 1, 'Workflow overlaps the portfolio');
+      ensure(geometry.opening.bottom <= geometry.lineup.top + 1, 'Mini apps overlap the opening');
+      ensure(geometry.lineup.bottom <= geometry.workflow.top + 1, 'Workflow overlaps the mini apps');
       for (const href of entryLinks) {
         ensure(await page.locator(`.home-opening-actions a[href="${href}"]`).isVisible(), `${href} is not visible in the opening`);
       }
-      ensure(await page.locator(`.home-lead a[href="${film}"]`).isVisible(), 'The Fighter film link is missing');
+      ensure(await page.locator(`.home-lead a[href="${film}"]`).isVisible(), 'The Composer film link is missing');
       const name = `${width}-${theme}`;
       if (capture) {
         // Scroll through lazy content before a full-page capture; the browser
@@ -72,11 +72,11 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
     receipt.keyboard.push(focused);
   }
   await page.keyboard.press('Enter');
-  await page.waitForURL(url => url.pathname === '/demo');
-  ensure(await page.locator('h1').isVisible(), 'Sandbox failed to open by keyboard');
-  await page.locator('a[href="/demo/workshop"]').click();
-  await page.waitForURL(url => url.pathname === '/demo/workshop');
-  ensure(await page.locator('.studio-stage').isVisible(), 'The illustrated workshop failed to open');
+  await page.waitForURL(url => url.pathname === '/learn');
+  ensure(await page.locator('h1').isVisible(), 'The first-build guide failed to open');
+  await page.goto(new URL('/', origin).href);
+  await page.locator('.home-opening-actions a[href="/demo/connected-apps"]').click();
+  ensure(await page.locator('[data-workbench]').isVisible(), 'The two-app workbench failed to open');
   // Browser viewport at 720px covers the reflow width of a 1440px window at
   // 200%; separately double root text to catch fixed-size text containers.
   for (const theme of ['dark', 'light']) {

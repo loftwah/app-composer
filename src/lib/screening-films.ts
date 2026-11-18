@@ -10,6 +10,15 @@ export const screeningFilms = {
     transcript: 'Orange and ivory pieces light up on a blue workbench. A gloved hand lifts them off their dock and carries them to a wooden bench. “Bring your AI agent. Build an app. Take it with you.” The end card reads “App Composer” and “Make software. Keep it yours.”',
     note: 'A short film about making something on one workbench and carrying it to the next.',
   },
+  studio: {
+    name: 'Inside Media Studio', duration: '72 sec', kind: 'Studio walkthrough',
+    video: '/media-studio/films/overview.mp4', poster: '/media-studio/films/overview-poster.jpg',
+    captions: '/media-studio/films/overview.vtt',
+    credit: 'App Composer · Media Studio. A fictional record release made with the working studio.',
+    source: 'https://composer.loftwah.com/media-studio/films',
+    transcript: 'The film follows a record release from sleeve artwork through the Studio library and publishing controls. A signed-out visitor plays the published clip. The creation screen shows the model, reference and estimate before a request.',
+    note: 'A tour of the workspace behind a record release, from the first sleeve to the published clip.',
+  },
   fighter: {
     name: 'Fighter: After Hours', duration: '12 sec', kind: 'Gameplay cut',
     video: fighter + '-20261115.mp4', poster: fighter + '-poster-20261115.jpg',
