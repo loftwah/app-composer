@@ -224,7 +224,7 @@ const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
             <p>{lesson.steps}</p>
             <details>
               <summary>Direction to adapt</summary>
-              <p class="director-prompt" id={`${group.id}-prompt-${i}`}>{lesson.prompt}</p>
+              <p class="director-prompt" id={`${group.id}-prompt-${i}`} tabindex="-1">{lesson.prompt}</p>
               <button class="secondary" type="button" data-copy-target={`${group.id}-prompt-${i}`}>Copy direction</button>
               <span class="copy-status" role="status" aria-live="polite"></span>
             </details>
@@ -248,6 +248,8 @@ const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
   <p><a href="/media-studio/tutorial">Continue with the full Studio tutorial →</a></p>
 </article>
 <script>
+  import { copyPromptText } from '../../lib/docs-copy';
+
   const searchWrap = document.querySelector<HTMLElement>('[data-search-wrap]');
   const search = document.querySelector<HTMLInputElement>('#lesson-search');
   const searchStatus = document.querySelector<HTMLElement>('[data-search-status]');
@@ -278,11 +280,32 @@ const groups: { id: string; title: string; lessons: DirectingLesson[] }[] = [
   }
   for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy-target]')) {
     button.addEventListener('click', async () => {
-      const text = document.getElementById(button.dataset.copyTarget ?? '')?.textContent?.trim();
+      const prompt = document.getElementById(button.dataset.copyTarget ?? '');
       const status = button.nextElementSibling;
-      if (!text || !status) return;
-      try { await navigator.clipboard.writeText(text); status.textContent = 'Copied.'; }
-      catch { status.textContent = 'Copy unavailable. Select the direction text and copy it.'; }
+      if (!prompt || !status) return;
+      const previousFocus = document.activeElement;
+      status.textContent = '';
+      const clipboard = navigator.clipboard;
+      const outcome = await copyPromptText(prompt.textContent?.trim() ?? '', clipboard?.writeText?.bind(clipboard));
+      if (outcome === 'copied') {
+        status.textContent = 'Copied.';
+        return;
+      }
+      if (outcome === 'empty') {
+        status.textContent = 'The direction text did not load.';
+        return;
+      }
+      const selection = window.getSelection();
+      if (!selection || document.activeElement !== previousFocus || !prompt.getClientRects().length) {
+        status.textContent = 'Copy unavailable. Select the direction text and copy it.';
+        return;
+      }
+      prompt.focus({ preventScroll: true });
+      const range = document.createRange();
+      range.selectNodeContents(prompt);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      status.textContent = 'Direction selected. Copy it with your keyboard shortcut or your device’s copy menu.';
     });
   }
 </script>
