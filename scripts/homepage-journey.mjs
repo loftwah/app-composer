@@ -76,7 +76,8 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
   ensure(await page.locator('h1').isVisible(), 'The first-build guide failed to open');
   await page.goto(new URL('/', origin).href);
   await page.locator('.home-opening-actions a[href="/demo/connected-apps"]').click();
-  ensure(await page.locator('[data-workbench]').isVisible(), 'The two-app workbench failed to open');
+  await page.waitForURL(url => url.pathname === '/demo/connected-apps');
+  await page.locator('[data-workbench]').waitFor({ state: 'visible' });
   // Browser viewport at 720px covers the reflow width of a 1440px window at
   // 200%; separately double root text to catch fixed-size text containers.
   for (const theme of ['dark', 'light']) {
