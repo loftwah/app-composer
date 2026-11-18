@@ -16,6 +16,7 @@ import {
 } from '../lib/widget-recipe';
 
 const bubblesReport = `${stationOrigin}/analytics/?source=games&game=bubbles&days=30`;
+const topTracksReport = `${stationOrigin}/analytics?view=music&days=30&report=tracks`;
 const bubblesCards = [
   { format: 'landscape', label: 'Landscape', dimensions: '1200 × 630' },
   { format: 'square', label: 'Square', dimensions: '1200 × 1200' },
@@ -123,6 +124,12 @@ const bubblesCards = [
       <h3 id="bubbles-card-snapshot">Share a dated snapshot</h3>
       <p>Open the <a href={bubblesReport}>Bubbles report on LoftwahFM</a> and select <strong>Share this snapshot</strong> to get the card, caption and link for the same snapshot. Keep the publisher’s credits with the card.</p>
     </section>
+  </article>
+
+  <article class="widget-entry" id="top-tracks-share-card">
+    <h2>Top Tracks share card</h2>
+    <p class="entry-summary">Download a square, wide or story PNG from LoftwahFM’s public chart. Tracks are ranked by plays over the last 30 days.</p>
+    <a href={topTracksReport}>Open Top Tracks on LoftwahFM</a>
   </article>
 
   <p class="widget-foot">For other stations, releases, playlists and sizes, use <a href={builderUrl}>LoftwahFM’s builder</a>. For games, see <a href={`${stationOrigin}/game-music/`}>LoftwahFM’s audio SDK</a>.</p>
