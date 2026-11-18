@@ -24,6 +24,7 @@ import {
   workspaceSelection,
   confirmWorkspace,
   stackSelection,
+  openedStackHref,
 } from "./stacks/workspace-scope";
 import {
   observeResourceRevision,
@@ -364,6 +365,7 @@ function WorkspaceStudio({ search }: { search: string }) {
       )
         return "Kept editing.";
       const checkpoint = session.current.capture();
+      const openingFrom = window.location.href;
       const data = await call("open", { stack: id });
       if (!session.current.unchanged(checkpoint))
         return "Your newer edits are still here. Open the other stack again when ready.";
@@ -372,6 +374,19 @@ function WorkspaceStudio({ search }: { search: string }) {
           "The server did not confirm a saved stack. Your draft is still here.",
         );
       adopt(data.stack);
+      // An explicit, authorized selection that the server confirmed is the one
+      // case where the address may be rewritten. Replace the stale `stack`
+      // selector (often one the workspace refused on entry) so reload or copy
+      // reopens this exact stack. A cancelled unsaved-edit confirm, a conflict,
+      // a failed open and the initial refused selection all return before here,
+      // leaving the address and its exact workspace untouched.
+      if (window.location.href === openingFrom) {
+        history.replaceState(
+          history.state,
+          "",
+          openedStackHref(openingFrom, data.workspace.id, data.stack.id),
+        );
+      }
       return `Opened ${data.stack.name} at revision ${data.stack.revision}.`;
     });
 
