@@ -38,6 +38,8 @@ function updateObservations() {
 }
 const initialLesson = current;
 const picker = root.querySelector<HTMLSelectElement>('[data-lesson-picker]')!;
+const lessonContext = root.querySelector<HTMLElement>('[data-lesson-context]')!;
+lessonContext.tabIndex = -1;
 function showLesson() {
  const requested = location.hash.slice(1);
  current = lessonIds.includes(requested) ? requested : current;
@@ -46,7 +48,7 @@ function showLesson() {
   if (link.dataset.lessonLink === current) link.setAttribute('aria-current','step');
   else link.removeAttribute('aria-current');
  }
- root.querySelector('[data-lesson-context]')!.textContent = `Lesson ${lessonIds.indexOf(current)+1} of ${lessonIds.length} · reviewed 14 October 2026`;
+ lessonContext.textContent = `Lesson ${lessonIds.indexOf(current)+1} of ${lessonIds.length} · reviewed 14 October 2026`;
  picker.value = current;
  const index = lessonIds.indexOf(current);
  for (const [selector, nextIndex, label] of [['[data-lesson-previous]',index-1,'Previous'],['[data-lesson-next]',index+1,'Next']] as const) {
@@ -91,7 +93,9 @@ document.addEventListener('click',event=>{
  const url=new URL(target.href);
  if(url.origin!==location.origin||url.pathname!==location.pathname||url.search!==location.search)return;
  const id=url.hash.slice(1);if(!lessonIds.includes(id))return;
- event.preventDefault();navigateLesson(id, target.hasAttribute('data-start') ? picker : undefined);
+ event.preventDefault();
+ const startFocus = picker.getClientRects().length ? picker : lessonContext;
+ navigateLesson(id, target.hasAttribute('data-start') ? startFocus : undefined);
 });
 picker.hidden=false;picker.disabled=false;
 picker.addEventListener('change',()=>navigateLesson(picker.value));
