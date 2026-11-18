@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
-import { ArrowRight, ArrowUpRight, Play } from "@lucide/astro";
+import PostcardDesk from "./PostcardDesk.astro";
+import { ArrowRight, ArrowUpRight } from "@lucide/astro";
 import { apps } from "../lib/apps";
 import instance from "../../config/instance.json";
 import "../styles/product-home.css";
@@ -27,28 +28,7 @@ const siteSchema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(siteSchema)} />
   <div class="composer-home">
-    <section class="home-opening" aria-labelledby="home-heading">
-      <div class="home-container home-opening-inner">
-        <div class="home-opening-main">
-          <h1 id="home-heading">Build your app<br /><span>from mini apps.</span></h1>
-          <p>Start with a photo guestbook and a profile. Connect them with App Composer, then use your AI agent to make the app your own. You keep the code, the content and the accounts.</p>
-          <div class="home-opening-actions">
-            <a class="home-button" href="/demo/connected-apps">Try two apps together <ArrowRight size={20} aria-hidden="true" /></a>
-            <a class="home-text-link" href="/learn">Build your first app <ArrowUpRight size={17} aria-hidden="true" /></a>
-          </div>
-        </div>
-        <figure class="home-lead">
-          <a class="home-lead-link" href="/demo#commercial" aria-label="Watch Take it with you, the App Composer short film">
-            <img src="/brand/campaign/take-it-with-you-20261118.webp" width="1280" height="720" alt="Orange and ivory App Composer blocks on a blue workbench." fetchpriority="high" decoding="async" />
-            <span class="home-lead-play" aria-hidden="true"><Play size={19} fill="currentColor" /></span>
-          </a>
-          <figcaption>
-            <strong>Take it with you</strong>
-            <span>App Composer short film · 11 seconds</span>
-          </figcaption>
-        </figure>
-      </div>
-    </section>
+    <PostcardDesk />
 
     <section class="home-miniapps home-container" aria-labelledby="work-heading">
       <div class="home-section-head">
@@ -113,6 +93,7 @@ const siteSchema = {
     </section>
 
     <nav class="home-resources home-container" aria-label="More places to explore">
+      <a class="home-text-link" href="/learn">Build your first app <ArrowUpRight size={17} aria-hidden="true" /></a>
       <a class="home-text-link" href="/demo">Try the sandbox <ArrowUpRight size={17} aria-hidden="true" /></a>
       <a class="home-text-link" href="/agent">Connect your agent <ArrowUpRight size={17} aria-hidden="true" /></a>
       <a class="home-text-link" href="/release">Release evidence <ArrowUpRight size={17} aria-hidden="true" /></a>

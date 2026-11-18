@@ -3,8 +3,7 @@
 // qualification can opt into the fuller set of widths once.
 export async function verifyHomepage(page, origin, { capture, full = false } = {}) {
   const ensure = (value, message) => { if (!value) throw new Error(message); };
-  const entryLinks = ['/demo/connected-apps', '/learn'];
-  const film = '/demo#commercial';
+  const entryLinks = ['/demo/postcards', '/demo/connected-apps'];
   const receipt = { url: new URL('/', origin).href, views: [], keyboard: [], limits: [
     'Chromium viewport and text reflow checks do not establish physical device, native browser zoom or screen reader acceptance.',
     'Screenshots require visual review; geometric checks alone cannot establish a finished composition.',
@@ -19,7 +18,7 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
         await page.locator('#theme-toggle').click();
       }
       await page.evaluate(() => document.fonts.ready);
-      const images = await page.locator('.home-lead img, .home-project img').evaluateAll(async images => {
+      const images = await page.locator('.post-proof [data-post-photo], .home-project img').evaluateAll(async images => {
         await Promise.all(images.map(image => image.decode()));
         return images.map(image => image.naturalWidth);
       });
@@ -39,9 +38,9 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
       ensure(geometry.opening.bottom <= geometry.lineup.top + 1, 'Mini apps overlap the opening');
       ensure(geometry.lineup.bottom <= geometry.workflow.top + 1, 'Workflow overlaps the mini apps');
       for (const href of entryLinks) {
-        ensure(await page.locator(`.home-opening-actions a[href="${href}"]`).isVisible(), `${href} is not visible in the opening`);
+        ensure(await page.locator(`.home-opening-actions a[href^="${href}"]`).isVisible(), `${href} is not visible in the opening`);
       }
-      ensure(await page.locator(`.home-lead a[href="${film}"]`).isVisible(), 'The Composer film link is missing');
+      ensure(await page.locator('[data-post-name]').isVisible(), 'The collection editor is missing');
       const name = `${width}-${theme}`;
       if (capture) {
         // Scroll through lazy content before a full-page capture; the browser
@@ -65,17 +64,12 @@ export async function verifyHomepage(page, origin, { capture, full = false } = {
   await page.keyboard.press('Tab');
   ensure(await page.locator('.skip').evaluate(element => element === document.activeElement), 'Skip link is not the first keyboard target');
   await page.keyboard.press('Enter');
-  for (const href of entryLinks) {
+  for (const selector of ['input[name=post-cover]:checked', '[data-post-name]', '[data-post-note]', '[data-post-view]', '[data-post-bench]']) {
     await page.keyboard.press('Tab');
-    const focused = await page.evaluate(() => ({ href: document.activeElement.getAttribute('href'), outline: getComputedStyle(document.activeElement).outlineStyle }));
-    ensure(focused.href === href && focused.outline !== 'none', `Keyboard path or focus missing for ${href}`);
-    receipt.keyboard.push(focused);
+    ensure(await page.locator(selector).evaluate(el => el === document.activeElement), 'Keyboard focus missed ' + selector);
+    receipt.keyboard.push(selector);
   }
   await page.keyboard.press('Enter');
-  await page.waitForURL(url => url.pathname === '/learn');
-  ensure(await page.locator('h1').isVisible(), 'The first-build guide failed to open');
-  await page.goto(new URL('/', origin).href);
-  await page.locator('.home-opening-actions a[href="/demo/connected-apps"]').click();
   await page.waitForURL(url => url.pathname === '/demo/connected-apps');
   await page.locator('[data-workbench]').waitFor({ state: 'visible' });
   // Browser viewport at 720px covers the reflow width of a 1440px window at

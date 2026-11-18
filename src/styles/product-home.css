@@ -73,14 +73,6 @@
   color: var(--home-hero-fg);
 }
 
-.home-opening-inner {
-  display: grid;
-  grid-template-columns: minmax(0, 1.06fr) minmax(0, 1fr);
-  align-items: center;
-  gap: clamp(32px, 6vw, 92px);
-  padding-block: clamp(106px, 10vw, 152px) clamp(38px, 5vw, 72px);
-}
-
 .home-opening h1 {
   font-size: clamp(2.65rem, 5.7vw, 5.75rem);
   font-weight: 500;
@@ -89,14 +81,6 @@
 }
 
 .home-opening h1 span { color: var(--home-hero-accent); }
-
-.home-opening-main p {
-  max-width: 39ch;
-  margin-top: 1.25rem;
-  color: var(--home-hero-muted);
-  font-size: clamp(1rem, 1.5vw, 1.22rem);
-  line-height: 1.55;
-}
 
 .home-opening-actions {
   display: flex;
@@ -132,46 +116,6 @@
 .home-button svg, .home-text-link svg { flex: none; }
 .composer-home a:focus-visible { outline: 2px solid var(--home-hero-accent); outline-offset: 4px; }
 .home-opening .home-text-link { color: var(--home-hero-fg); }
-
-.home-lead-link {
-  position: relative;
-  display: block;
-  background: #10171c;
-}
-
-.home-lead-link img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 6 / 5;
-  object-fit: cover;
-  object-position: center 55%;
-}
-
-.home-lead-play {
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #f4f2ec;
-  color: #17181b;
-}
-
-.home-lead-link:hover .home-lead-play { background: #ff8b55; }
-.home-lead figcaption {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: .15rem .75rem;
-  padding-top: .65rem;
-  font-size: .875rem;
-  color: var(--home-hero-muted);
-}
-.home-lead figcaption strong { color: var(--home-hero-fg); }
 
 .home-miniapps, .home-workflow { padding-block: clamp(42px, 6vw, 84px); }
 
@@ -267,9 +211,7 @@
 }
 
 @media (max-width: 700px) {
-  .home-opening-inner { grid-template-columns: 1fr; padding-top: 92px; }
   .home-opening h1 { font-size: clamp(2.55rem, 9.8vw, 4.15rem); }
-  .home-lead-link img { aspect-ratio: 5 / 4; }
   .home-projects, .home-steps { grid-template-columns: 1fr; }
 }
 

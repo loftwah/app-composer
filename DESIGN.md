@@ -33,7 +33,7 @@ ordinary links, a native filter form and server pagination without JavaScript.
 
 ## The homepage project selection — 18 November 2026
 
-Lead with App Composer and its independent mini apps. Show the Composer workbench in the hero and let a visitor try Here / there and Linkarooie together in the first action. Their own artwork, names and live apps anchor the next section. Media Studio and App Composer Share follow with work made for Composer, then the build journey and supporting resources. The portfolio lives under Other projects.
+Lead with App Composer and its independent mini apps. The hero is a working two-app editor. A visitor chooses a Here / there postcard and edits the caption in a Linkarooie collection. Its page link, print and workbench edition carry the actual choices. Their own artwork, names and live apps anchor the next section. Media Studio and App Composer Share follow with work made for Composer, then the build journey and supporting resources. The portfolio lives under Other projects.
 
 Carry this order into discovery, examples, preview imagery, navigation and release demonstrations. Show the work the visitor can do with the product being presented. Keep each external example credited on its own project or case-study page.
 
@@ -41,7 +41,7 @@ Carry this order into discovery, examples, preview imagery, navigation and relea
 
 MP selected [0.security](https://0.security/) as the quality reference for Woodhouse and App Composer: a coherent full-width composition, confident readable typography, generous space, purposeful motion and strong product-specific visuals throughout the page. This raises the presentation standard without copying the reference site's identity or changing Composer's approved mark.
 
-The current opening leads with building an owned app. Its primary actions open the two-app demo and Learn. The Creator Hub example follows the featured work. The header, menu, launcher, gallery, film and community surfaces use the active theme tokens. The `product-home.css` stylesheet is confined to the homepage and its opt-in shell.
+The current opening leads with building an owned app. Its primary actions open the collection and its editable workbench. The Creator Hub example follows the featured work. The header, menu, launcher, gallery, film and community surfaces use the active theme tokens. The `product-home.css` stylesheet is confined to the homepage and its opt-in shell.
 
 Theme correction, 11 November 2026: the opening and closing panels previously stayed dark/light regardless of the toggle. They now follow the active theme, and the header controls sit on matching surfaces. The light opening uses dark ink on warm paper with a darker orange accent; the dark opening uses light text on ink with the brighter accent. The closing panel follows the same pairing.
 

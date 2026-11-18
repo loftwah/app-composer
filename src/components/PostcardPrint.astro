@@ -1,0 +1,15 @@
+---
+import {editionCards, newEdition} from '../lib/postcard-edition';
+const {index = 0, priority = false} = Astro.props;
+const edition = newEdition();
+const card = editionCards(edition)[index];
+---
+<figure class="post-print" data-post-print>
+  <div class="post-print-head">
+    <div class="post-imprint"><img src="/brand/apps/linkarooie-small-20261018.webp" width="28" height="28" alt="" /><span>Linkarooie</span></div>
+    <span class="post-folio" data-post-folio>{index + 1} / 2</span>
+  </div>
+  <div class="post-print-title" data-post-title>{edition.name}</div>
+  <div class="post-window"><img data-post-photo src={card.image.src} width="1200" height="900" alt={card.image.alt} fetchpriority={priority ? 'high' : 'auto'} /></div>
+  <figcaption><span data-post-caption>{card.caption}</span><small>From Here / there</small></figcaption>
+</figure>

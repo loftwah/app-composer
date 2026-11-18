@@ -1,3 +1,4 @@
+import {editionHash, editionWorkbench, readEdition} from '../lib/postcard-edition';
 import { flushSync } from "react-dom";
 import { builderHref } from "../lib/builder-context.mjs";
 import {
@@ -156,6 +157,7 @@ export default function CompositionWorkbench({
     undefined,
     initialBench,
   );
+  const editionKey = useRef<string | null>(null);
   const [ready, setReady] = useState(false),
     [message, setMessage] = useState(
       "Choose a postcard, then add it to your collection.",
@@ -238,18 +240,27 @@ export default function CompositionWorkbench({
     else if (action.type !== "inspect" && action.type !== "select") setMessage("");
   };
   useEffect(() => {
-    try {
-      dispatch({
-        type: "load",
-        state: readBench(localStorage.getItem(DEMO_KEY)),
-      });
-    } catch {}
+    const edition = readEdition(location.hash);
+    if (edition) {
+      editionKey.current = DEMO_KEY + editionHash(edition);
+      let draft = editionWorkbench(edition);
+      try {
+        const saved = sessionStorage.getItem(editionKey.current);
+        if (saved) draft = readBench(saved);
+      } catch { /* The edition still works in memory. */ }
+      dispatch({type: "load", state: draft});
+    } else {
+      try {
+        dispatch({type: "load", state: readBench(localStorage.getItem(DEMO_KEY))});
+      } catch { /* Storage is optional for the demo. */ }
+    }
     setReady(true);
   }, []);
   useEffect(() => {
     if (ready) {
       try {
-        localStorage.setItem(DEMO_KEY, JSON.stringify(state));
+        if (editionKey.current) sessionStorage.setItem(editionKey.current, JSON.stringify(state));
+        else localStorage.setItem(DEMO_KEY, JSON.stringify(state));
       } catch {
         setMessage(
           "This browser cannot save your demo changes. You can still try the demo in this tab.",
@@ -511,7 +522,8 @@ export default function CompositionWorkbench({
                 "Reset the demo and remove its saved versions from this browser? Your app setup draft will stay unchanged.",
               )
             ) {
-              localStorage.removeItem(DEMO_KEY);
+              if (editionKey.current) sessionStorage.removeItem(editionKey.current);
+              else localStorage.removeItem(DEMO_KEY);
               location.reload();
             }
           }}
