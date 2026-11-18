@@ -19,3 +19,24 @@ export function confirmWorkspace(
     );
   return actual;
 }
+
+/**
+ * Resolve which authorized stack a Creator stacks URL selects. The list comes
+ * from the signed-in workspace read, so a requested stack that is absent there
+ * is stale, foreign or no longer readable: refuse it rather than silently
+ * opening another stack. With no explicit request, keep the editor's current
+ * stack or open the workspace's first one as before.
+ */
+export function stackSelection(
+  authorizedStackIds: readonly string[],
+  options: { requested?: string | null; current?: string },
+): { stackId: string | undefined; refused: boolean } {
+  const { requested, current } = options;
+  if (requested)
+    return authorizedStackIds.includes(requested)
+      ? { stackId: requested, refused: false }
+      : { stackId: undefined, refused: true };
+  if (current && authorizedStackIds.includes(current))
+    return { stackId: current, refused: false };
+  return { stackId: authorizedStackIds[0], refused: false };
+}

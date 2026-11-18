@@ -12,6 +12,10 @@ import {
   type ProviderCheck,
 } from "../lib/provider-inventory-contract";
 import { fictionalResourceInventory } from "../lib/resource-inventory-example";
+import {
+  launcherProjectHref,
+  launcherWorkspaceHref,
+} from "../lib/launcher-recents.ts";
 import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
 import { ProviderCheckPanel } from "./provider-check-panel";
 import "./resource-inventory-page.css";
@@ -326,12 +330,7 @@ export function ResourceInventory({ search }: { search: string }) {
             Creator stacks. This list contains only Composer records; the
             Cloudflare check is separate.
           </p>
-          <a
-            href={
-              "/_emdash/admin/plugins/composer-stacks/stacks?" +
-              new URLSearchParams({ workspace: snapshot.workspace.id })
-            }
-          >
+          <a href={launcherWorkspaceHref(snapshot.workspace.id)}>
             Open Creator stacks
           </a>
         </section>
@@ -646,20 +645,18 @@ export function ResourceCard({
       {resource.bindings.length === 0 ? (
         <p className="ri-muted">
           No saved stack references this resource.{" "}
-          <a
-            href={
-              "/_emdash/admin/plugins/composer-stacks/stacks?" +
-              new URLSearchParams({ workspace })
-            }
-          >
-            Open Creator stacks
-          </a>
+          <a href={launcherWorkspaceHref(workspace)}>Open Creator stacks</a>
         </p>
       ) : (
         <ul className="ri-bindings">
           {resource.bindings.map((binding) => (
             <li key={binding.stackId + ":" + binding.instanceId}>
-              <strong>{binding.stackName}</strong> · {binding.instanceLabel} ·{" "}
+              <strong>
+                <a href={launcherProjectHref(workspace, binding.stackId)}>
+                  {binding.stackName}
+                </a>
+              </strong>{" "}
+              · {binding.instanceLabel} ·{" "}
               {binding.mode === "own"
                 ? "independently configured"
                 : "reuses another instance"}{" "}

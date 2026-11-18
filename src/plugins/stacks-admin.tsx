@@ -20,7 +20,11 @@ import { ProposalsPage } from "./proposals-page";
 import { ShareArtworkPage } from "./share-artwork-page";
 import { ShareCalendarPage } from "./share-calendar-page";
 import { ShareConnectionsPage } from "./share-connections-page";
-import { workspaceSelection, confirmWorkspace } from "./stacks/workspace-scope";
+import {
+  workspaceSelection,
+  confirmWorkspace,
+  stackSelection,
+} from "./stacks/workspace-scope";
 import {
   observeResourceRevision,
   resourcePreview,
@@ -202,11 +206,31 @@ function WorkspaceStudio({ search }: { search: string }) {
       setWorkspace(data.workspace);
       setLifecycle(data.lifecycle);
       setStacks(data.stacks ?? []);
-      const next =
-        keepSelection ?? requestedStack.current ?? selected ?? data.stacks?.[0]?.id;
+      const requested = requestedStack.current;
       requestedStack.current = null;
-      const stack =
-        data.stacks?.find((entry) => entry.id === next) ?? data.stacks?.[0];
+      const selection = stackSelection(
+        (data.stacks ?? []).map((entry) => entry.id),
+        {
+          // An explicit refresh keeps the open editor; only the initial URL
+          // request may select a different stack.
+          requested: keepSelection === undefined ? requested : null,
+          current: keepSelection ?? selected,
+        },
+      );
+      if (selection.refused) {
+        // The URL named a stack the signed-in workspace did not return. Do not
+        // silently open another stack (often the newest archived one).
+        setSelected(undefined);
+        setDraft(undefined);
+        latestDocument.current = undefined;
+        setDirty(false);
+        session.current.adopt(undefined);
+        setError(
+          "That stack is not available in this workspace. Choose a saved stack from the list, or reopen the link from its source.",
+        );
+        return true;
+      }
+      const stack = data.stacks?.find((entry) => entry.id === selection.stackId);
       if (stack) adopt(stack);
       else {
         setSelected(undefined);

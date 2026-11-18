@@ -13,6 +13,10 @@ import {
 } from "./stacks.mjs";
 import { appSettings } from "./app-settings.mjs";
 import {
+  launcherProjectHref,
+  launcherWorkspaceHref,
+} from "./launcher-recents.ts";
+import {
   configurationDigest,
   effectiveGuestbookConfiguration,
 } from "./resource-client.ts";
@@ -331,12 +335,18 @@ export async function readResourceInventory(
       unfinished.set(row.resource_id, row);
   }
 
-  const actionHref =
-    "/_emdash/admin/plugins/composer-stacks/stacks?" +
-    new URLSearchParams({ workspace: workspace.id });
   const resources: InventoryResource[] = [];
   for (const row of rows.results) {
     const bound = bindingsByResource.get(row.id) ?? [];
+    // Only name a stack in the action when this resource has exactly one
+    // distinct bound stack. Otherwise the link stays scoped to the workspace
+    // and the card lists each binding with its own exact link; no saved stack
+    // is guessed from list order.
+    const boundStacks = [...new Set(bound.map((binding) => binding.stack_id))];
+    const actionHref =
+      boundStacks.length === 1
+        ? launcherProjectHref(workspace.id, boundStacks[0]!)
+        : launcherWorkspaceHref(workspace.id);
     const configuration = recordedConfiguration(row);
     const expected = await expectedConfiguration(row, bound, installedSource);
     const pinned: number[] = [];
